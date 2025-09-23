@@ -4,3 +4,29 @@
 *.png binary
 *.jpg binary
 *.gif binary
+
+# Text defaults
+*.md   text eol=lf
+*.txt  text eol=lf
+*.json text eol=lf
+*.yml  text eol=lf
+*.yaml text eol=lf
+
+# Source files
+*.ts   text eol=lf
+*.tsx  text eol=lf
+*.js   text eol=lf
+*.jsx  text eol=lf
+*.py   text eol=lf
+
+# Windows installer scripts
+*.nsi  eol=crlf
+*.nsh  eol=crlf
+
+# Additional binaries
+*.ico binary
+*.zip binary
+*.7z  binary
+*.exe binary
+*.dll binary
+

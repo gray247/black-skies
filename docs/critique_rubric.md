@@ -1,21 +1,37 @@
-# docs/critique_rubric.md — Critique Spec (Source of truth)
-**Status:** LOCKED · 2025-09-15  
-Covers: categories and output schema for critiques.  
-References: `/draft/critique` in `docs/endpoints.md` for transport details.
+# docs/critique_rubric.md — Critique Rubric & Output (Source of truth)
+**Status:** LOCKED · 2025-09-23
+**Version:** v1
+
+Categories are used by services and the GUI to filter feedback. Output must validate against **CritiqueOutputSchema v1** (see below).
 
 ## Categories (baseline)
-- Story Logic — causality, goals, stakes, payoff.
-- Continuity — POV consistency, timeline, names/traits.
-- Character — motivation, agency, voice.
-- Pacing — compress/expand, scene purpose clarity.
-- Prose — clarity, specificity, cliché reduction.
-- **Horror Lever** — dread layering, sensory specificity, escalation beats.
+- Logic
+- Continuity
+- Character
+- Pacing
+- Prose
+- Horror
 
-## Output Schema
+## Output shape — CritiqueOutputSchema v1
+```json
 {
-  unit_id: string,
-  summary: string,
-  line_comments: [{ line:int, note:string }],
-  priorities: string[],
-  suggested_edits: [{ range:[start,end], replacement:string }]
+  "unit_id": "sc_0001",
+  "schema_version": "CritiqueOutputSchema v1",
+  "summary": "Clear goal/stakes. Mid-scene lulls around lines 48–55.",
+  "line_comments": [
+    { "line": 52, "note": "Break this sentence; sustain tension." }
+  ],
+  "priorities": [
+    "Tighten run-ons at 48–55",
+    "Keep POV strict; remove two omniscient asides"
+  ],
+  "suggested_edits": [
+    { "range": [410, 432], "replacement": "She kills the light and listens." }
+  ],
+  "model": { "name": "critique_model_vY", "provider": "openai" }
 }
+```
+
+## Notes
+- Categories are filter chips in the UI; they don’t change the schema.  
+- Services may include only a subset of categories per run.
