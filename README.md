@@ -35,7 +35,15 @@ Prereqs: **Node 20 LTS**, **PNPM**, **Python 3.11**
    ```
    The dev server exposes http://127.0.0.1:8000 with a `/health` probe.
 
-Sample project: see `/sample_project` (e.g., *Esther Estate*)
+### Sample project: Esther Estate
+
+During 0.1 testing, load the prebuilt project from `sample_project/Esther_Estate`.
+
+1. Launch the desktop shell and choose **Open Existing Project**.
+2. Browse to the `sample_project/Esther_Estate` folder (keep the folder structure intact).
+3. Confirm the loader detects `project.json`; the outline will surface scenes `sc_0001`–`sc_0002` with matching drafts in `/drafts`.
+
+The directory mirrors the schema in `docs/data_model.md` (`outline.json`, `project.json`, `drafts/`, `revisions/`, `history/`, `lore/`). Use it for smoke tests until the Wizard flow is stable.
 
 ## Repo Map
 ```
