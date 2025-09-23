@@ -8,11 +8,34 @@ Local‑first novelist tool for Windows 11: guided outline → draft → rewrite
 Windows 11 only (1.0). macOS/Linux planned post‑1.0.
 
 ## Dev Quickstart
-- Prereqs: **Node 20 LTS**, **PNPM**, **Python 3.11**
-- Install: `pnpm install`
-- Run app: `pnpm dev`  (Electron + Vite)
-- Run services: `python -m blackskies.services`  (FastAPI on localhost)
-- Sample project: see `/sample_project` (e.g., *Esther Estate*)
+Prereqs: **Node 20 LTS**, **PNPM**, **Python 3.11**
+
+1. **Install workspace dependencies**
+   ```bash
+   pnpm run install
+   ```
+2. **Set up the Python services environment**
+   ```bash
+   cd services
+   python -m venv .venv
+   # PowerShell (Windows)
+   .\.venv\Scripts\Activate.ps1
+   # bash (WSL/macOS/Linux)
+   source .venv/bin/activate
+   pip install -e .[dev]
+   ```
+3. **Run the desktop shell + renderer**
+   ```bash
+   pnpm run dev
+   ```
+   The script starts the Vite renderer dev server and a placeholder Electron shell task.
+4. **Run the FastAPI services**
+   ```bash
+   python -m blackskies.services
+   ```
+   The dev server exposes http://127.0.0.1:8000 with a `/health` probe.
+
+Sample project: see `/sample_project` (e.g., *Esther Estate*)
 
 ## Repo Map
 ```
