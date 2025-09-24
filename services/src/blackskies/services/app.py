@@ -8,6 +8,12 @@ from importlib import resources
 from typing import Any, Final
 
 from fastapi import APIRouter, FastAPI, HTTPException, status
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
+
+from .draft_service import generate_draft_payload
+from .models.draft import DraftGenerateRequest
+from .settings import get_settings
 
 LOGGER = logging.getLogger(__name__)
 
@@ -56,6 +62,21 @@ def _load_fixture(name: str) -> dict[str, Any]:
 
 def _register_routes(api: FastAPI) -> None:
     """Attach all routers to the provided FastAPI app."""
+
+    @api.exception_handler(RequestValidationError)
+    async def handle_request_validation_error(
+        exc: RequestValidationError,
+    ) -> JSONResponse:
+        """Translate FastAPI's validation errors into the common error shape."""
+
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={
+                "code": "VALIDATION",
+                "message": "Request validation failed.",
+                "details": exc.errors(),
+            },
+        )
     @api.get("/health", tags=["health"])
     async def health() -> dict[str, str]:
         """Simple readiness probe for the desktop app."""
@@ -73,9 +94,10 @@ def _register_routes(api: FastAPI) -> None:
     draft_router = APIRouter(prefix="/draft", tags=["draft"])
 
     @draft_router.post("/generate")
-    async def generate_draft() -> dict[str, Any]:
-        """Return a stubbed draft generation response."""
-        return _load_fixture("draft_generate.json")
+    async def generate_draft(request: DraftGenerateRequest) -> dict[str, Any]:
+        """Generate draft units deterministically and persist Markdown scenes."""
+
+        return generate_draft_payload(request, get_settings())
 
     @draft_router.post("/rewrite")
     async def rewrite_draft() -> dict[str, Any]:

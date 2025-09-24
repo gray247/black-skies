@@ -1,13 +1,15 @@
 from __future__ import annotations
 
+import json
 import os
 import socket
 import subprocess
 import sys
 import time
+import urllib.error
+import urllib.request
 from collections.abc import Iterator
 
-import httpx
 import pytest
 
 from blackskies.services.__main__ import MAX_PORT, MIN_PORT
@@ -31,15 +33,15 @@ def _wait_for_health(port: int, timeout: float = 10.0) -> dict[str, str]:
     url = f'http://127.0.0.1:{port}/health'
     last_error: Exception | None = None
 
-    with httpx.Client(timeout=1.0) as client:
-        while time.time() < deadline:
-            try:
-                response = client.get(url)
-                if response.status_code == 200:
-                    return response.json()
-            except httpx.HTTPError as exc:  # pragma: no cover - diagnostic aid
-                last_error = exc
-            time.sleep(0.25)
+    while time.time() < deadline:
+        try:
+            with urllib.request.urlopen(url, timeout=1.0) as response:
+                if response.status == 200:
+                    data = response.read().decode('utf-8')
+                    return json.loads(data)
+        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
+            last_error = exc
+        time.sleep(0.25)
 
     message = 'Service did not become healthy before timeout'
     if last_error is not None:
