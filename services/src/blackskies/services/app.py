@@ -7,7 +7,13 @@ import logging
 from importlib import resources
 from typing import Any, Final
 
-from fastapi import APIRouter, FastAPI, HTTPException, status
+from fastapi import APIRouter, Depends, FastAPI, HTTPException, status
+from pydantic import ValidationError
+
+from .config import Settings, get_settings
+from .critique_analyzer import CritiqueAnalyzer, SceneNotFoundError
+from .models import CritiqueBatchResponse, CritiqueOutput, CritiqueRequest
+from .models.critique import ALLOWED_RUBRIC_CATEGORIES
 
 LOGGER = logging.getLogger(__name__)
 
@@ -82,10 +88,103 @@ def _register_routes(api: FastAPI) -> None:
         """Return a stubbed draft rewrite response."""
         return _load_fixture("draft_rewrite.json")
 
+    def _get_critique_analyzer(settings: Settings = Depends(get_settings)) -> CritiqueAnalyzer:
+        """Provide a critique analyzer bound to current settings."""
+
+        return CritiqueAnalyzer(settings)
+
     @draft_router.post("/critique")
-    async def critique_draft() -> dict[str, Any]:
-        """Return a stubbed draft critique response."""
-        return _load_fixture("draft_critique.json")
+    async def critique_draft(
+        payload: CritiqueRequest,
+        analyzer: CritiqueAnalyzer = Depends(_get_critique_analyzer),
+    ) -> dict[str, Any]:
+        """Generate deterministic critique output for requested units."""
+
+        rubric = [category.strip() for category in payload.rubric]
+        if any(not category for category in rubric):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "code": "VALIDATION",
+                    "message": "Rubric categories must be non-empty strings.",
+                },
+            )
+
+        unknown = sorted(set(rubric) - ALLOWED_RUBRIC_CATEGORIES)
+        if unknown:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "code": "VALIDATION",
+                    "message": "Unknown rubric categories provided.",
+                    "details": {"invalid_categories": unknown},
+                },
+            )
+
+        unit_ids = payload.resolved_unit_ids()
+        if len(unit_ids) > 3:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "code": "VALIDATION",
+                    "message": "Critique requests may include at most 3 units.",
+                    "details": {"provided": unit_ids},
+                },
+            )
+
+        raw_results: list[dict[str, Any]] = []
+        for unit_id in unit_ids:
+            try:
+                critique_output = analyzer.analyze_unit(unit_id, rubric)
+            except SceneNotFoundError:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail={
+                        "code": "VALIDATION",
+                        "message": f"Scene {unit_id} was not found in the drafts directory.",
+                        "details": {"unit_id": unit_id},
+                    },
+                ) from None
+            except Exception as exc:  # pragma: no cover - defensive guard
+                LOGGER.exception("Unexpected critique failure for unit %s", unit_id)
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail={
+                        "code": "INTERNAL",
+                        "message": "Critique generation failed.",
+                        "details": {"unit_id": unit_id},
+                    },
+                ) from exc
+
+            try:
+                validated_output = CritiqueOutput.model_validate(critique_output.model_dump())
+            except ValidationError as exc:
+                LOGGER.exception("Critique output validation failed for unit %s", unit_id)
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail={
+                        "code": "INTERNAL",
+                        "message": "Critique output failed schema validation.",
+                        "details": {"unit_id": unit_id},
+                    },
+                ) from exc
+
+            raw_results.append(validated_output.model_dump())
+
+        try:
+            response_model = CritiqueBatchResponse.model_validate({"results": raw_results})
+        except ValidationError as exc:
+            LOGGER.exception("Critique batch validation failed for units %s", [item.get("unit_id") for item in raw_results])
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail={
+                    "code": "INTERNAL",
+                    "message": "Critique batch failed schema validation.",
+                    "details": {"units": [item.get("unit_id") for item in raw_results]},
+                },
+            ) from exc
+
+        return response_model.model_dump()
 
     api.include_router(draft_router)
 
