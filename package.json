@@ -3,51 +3,17 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "main": "dist-electron/main.js",
   "engines": {
     "node": ">=20.0.0",
     "pnpm": ">=8.0.0"
   },
   "scripts": {
-    "install": "pnpm install",
+    "install": "pnpm install --recursive",
     "lint": "pnpm -r lint",
-    "dev": "node ./scripts/dev.mjs",
-    "electron:dev": "pnpm exec electron ./dist-electron/main.js",
-    "build": "pnpm --filter app build && pnpm --filter app build:main",
-    "dist": "pnpm run build && pnpm exec electron-builder"
+    "dev": "pnpm exec concurrently --kill-others-on-fail --names renderer,electron \"pnpm --filter app dev\" \"node ./scripts/electron-dev-placeholder.mjs\""
   },
   "devDependencies": {
-    "concurrently": "^8.2.2",
-    "electron": "^29.3.0",
-    "electron-builder": "^24.9.1"
-  },
-  "build": {
-    "appId": "com.blackskies.desktop",
-    "productName": "Black Skies",
-    "directories": {
-      "output": "dist/win",
-      "buildResources": "build"
-    },
-    "asar": true,
-    "files": [
-      "dist-electron/**/*",
-      "app/dist/**/*",
-      "services/**/*",
-      "package.json",
-      "pnpm-lock.yaml"
-    ],
-    "win": {
-      "target": [
-        {
-          "target": "nsis",
-          "arch": ["x64"]
-        },
-        {
-          "target": "portable",
-          "arch": ["x64"]
-        }
-      ]
-    }
+    "concurrently": "^8.2.2"
   },
   "packageManager": "pnpm@8.15.4"
 }
