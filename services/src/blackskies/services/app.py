@@ -7,7 +7,11 @@ import logging
 from importlib import resources
 from typing import Any, Final
 
-from fastapi import APIRouter, FastAPI, HTTPException, status
+from fastapi import APIRouter, Depends, FastAPI, HTTPException, status
+
+from .config import Settings, get_settings
+from .models import RewriteRequest, RewriteResponse
+from .rewrite_service import process_rewrite
 
 LOGGER = logging.getLogger(__name__)
 
@@ -77,10 +81,14 @@ def _register_routes(api: FastAPI) -> None:
         """Return a stubbed draft generation response."""
         return _load_fixture("draft_generate.json")
 
-    @draft_router.post("/rewrite")
-    async def rewrite_draft() -> dict[str, Any]:
-        """Return a stubbed draft rewrite response."""
-        return _load_fixture("draft_rewrite.json")
+    @draft_router.post("/rewrite", response_model=RewriteResponse)
+    async def rewrite_draft(
+        request: RewriteRequest,
+        settings: Settings = Depends(get_settings),
+    ) -> RewriteResponse:
+        """Rewrite a single unit and persist the updated text to disk."""
+
+        return process_rewrite(request, settings)
 
     @draft_router.post("/critique")
     async def critique_draft() -> dict[str, Any]:
