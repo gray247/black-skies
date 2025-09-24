@@ -114,12 +114,13 @@ async function loadProjectFromDisk(projectPath: string): Promise<{
 }> {
   const normalizedPath = path.resolve(projectPath);
   const outline = await readOutline(normalizedPath);
-  const { scenes, issues } = await readScenes(normalizedPath);
+  const { scenes, issues, drafts } = await readScenes(normalizedPath);
   const project: LoadedProject = {
     path: normalizedPath,
     name: path.basename(normalizedPath),
     outline,
     scenes,
+    drafts,
   };
   return { project, issues };
 }
@@ -200,6 +201,7 @@ async function readOutline(projectPath: string): Promise<OutlineFile> {
 async function readScenes(projectPath: string): Promise<{
   scenes: SceneDraftMetadata[];
   issues: ProjectIssue[];
+  drafts: Record<string, string>;
 }> {
   const draftsPath = path.join(projectPath, 'drafts');
   let entries: string[];
@@ -226,6 +228,7 @@ async function readScenes(projectPath: string): Promise<{
 
   const scenes: SceneDraftMetadata[] = [];
   const issues: ProjectIssue[] = [];
+  const drafts: Record<string, string> = {};
 
   await Promise.all(
     entries
@@ -234,7 +237,8 @@ async function readScenes(projectPath: string): Promise<{
         const filePath = path.join(draftsPath, entry);
         try {
           const scene = await parseSceneFile(filePath, entry);
-          scenes.push(scene);
+          scenes.push(scene.metadata);
+          drafts[scene.metadata.id] = scene.markdown;
         } catch (error) {
           const detail = error instanceof Error ? error.message : String(error);
           const issue: ProjectIssue = {
@@ -249,13 +253,13 @@ async function readScenes(projectPath: string): Promise<{
   );
 
   scenes.sort((a, b) => a.order - b.order);
-  return { scenes, issues };
+  return { scenes, issues, drafts };
 }
 
 async function parseSceneFile(
   filePath: string,
   entry: string,
-): Promise<SceneDraftMetadata> {
+): Promise<{ metadata: SceneDraftMetadata; markdown: string }> {
   const raw = await fs.readFile(filePath, 'utf8');
   const meta = extractFrontMatter(raw);
   if (!meta) {
@@ -320,7 +324,7 @@ async function parseSceneFile(
       .filter(Boolean);
   }
 
-  return scene;
+  return { metadata: scene, markdown: raw };
 }
 
 type FrontMatterRecord = Record<string, unknown>;

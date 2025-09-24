@@ -66,6 +66,7 @@ export interface LoadedProject {
   name: string;
   outline: OutlineFile;
   scenes: SceneDraftMetadata[];
+  drafts: Record<string, string>;
 }
 
 export interface ProjectLoadRequest {

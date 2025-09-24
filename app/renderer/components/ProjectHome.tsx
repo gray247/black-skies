@@ -5,6 +5,7 @@ import type {
   ProjectLoaderApi,
 } from '../../shared/ipc/projectLoader';
 import type { ToastPayload } from '../types/toast';
+import DraftEditor from '../DraftEditor';
 
 interface ProjectHomeProps {
   onToast: (toast: ToastPayload) => void;
@@ -88,12 +89,29 @@ export default function ProjectHome({ onToast }: ProjectHomeProps): JSX.Element 
   const [activeProject, setActiveProject] = useState<LoadedProject | null>(null);
   const [issues, setIssues] = useState<ProjectIssue[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [activeSceneId, setActiveSceneId] = useState<string | null>(null);
 
   const sortedRecents = useMemo(
     () =>
       [...recentProjects].sort((left, right) => right.lastOpened - left.lastOpened),
     [recentProjects],
   );
+
+  const activeScene = useMemo(() => {
+    if (!activeProject || !activeSceneId) {
+      return null;
+    }
+    return (
+      activeProject.scenes.find((scene) => scene.id === activeSceneId) ?? null
+    );
+  }, [activeProject, activeSceneId]);
+
+  const activeSceneDraft = useMemo(() => {
+    if (!activeProject || !activeSceneId) {
+      return '';
+    }
+    return activeProject.drafts[activeSceneId] ?? '';
+  }, [activeProject, activeSceneId]);
 
   const notifyIssues = useCallback(
     (items: ProjectIssue[]) => {
@@ -155,6 +173,17 @@ export default function ProjectHome({ onToast }: ProjectHomeProps): JSX.Element 
         }
 
         setActiveProject(response.project);
+        setActiveSceneId((previous) => {
+          if (previous && response.project.drafts[previous]) {
+            return previous;
+          }
+          const firstScene = response.project.scenes[0];
+          if (firstScene) {
+            return firstScene.id;
+          }
+          const fallbackOutlineScene = response.project.outline.scenes[0];
+          return fallbackOutlineScene?.id ?? null;
+        });
         setIssues(response.issues);
         upsertRecent(response.project);
 
@@ -352,6 +381,56 @@ export default function ProjectHome({ onToast }: ProjectHomeProps): JSX.Element 
               <p className="project-home__empty">Select a project to preview its outline and scenes.</p>
             )}
           </section>
+
+          <section className="project-home__draft">
+            <div className="project-home__draft-header">
+              {activeScene ? (
+                <>
+                  <div className="project-home__draft-header-left">
+                    <span className="project-home__draft-scene-id">{activeScene.id}</span>
+                    <h3 className="project-home__draft-title">{activeScene.title}</h3>
+                  </div>
+                  <div className="project-home__draft-header-meta">
+                    {activeScene.emotion_tag ? (
+                      <span
+                        className={`project-home__scene-tag project-home__scene-tag--${activeScene.emotion_tag}`}
+                      >
+                        {activeScene.emotion_tag}
+                      </span>
+                    ) : null}
+                    {activeScene.purpose ? (
+                      <span className="project-home__scene-purpose">{activeScene.purpose}</span>
+                    ) : null}
+                    {activeScene.word_target ? (
+                      <span className="project-home__scene-word-target">
+                        {activeScene.word_target} words
+                      </span>
+                    ) : null}
+                  </div>
+                </>
+              ) : (
+                <div className="project-home__draft-header-empty">
+                  <h3 className="project-home__draft-title">Draft preview</h3>
+                  <span className="project-home__draft-hint">
+                    Choose a scene from the sidebar to load its Markdown draft.
+                  </span>
+                </div>
+              )}
+            </div>
+            <div className="project-home__draft-editor">
+              {activeScene ? (
+                <DraftEditor
+                  value={activeSceneDraft}
+                  placeholder="Scene text will appear once loaded."
+                  className="project-home__draft-editor-host"
+                />
+              ) : (
+                <p className="project-home__empty project-home__draft-empty">
+                  Select a scene to preview its Markdown draft.
+                </p>
+              )}
+            </div>
+          </section>
         </section>
 
         <aside className="project-home__sidebar">
@@ -361,35 +440,52 @@ export default function ProjectHome({ onToast }: ProjectHomeProps): JSX.Element 
           </div>
           {activeProject ? (
             <ul className="project-home__scene-list">
-              {activeProject.scenes.map((scene) => (
-                <li key={scene.id} className="project-home__scene-card">
-                  <div className="project-home__scene-header">
-                    <span className="project-home__scene-id">{scene.id}</span>
-                    <span className="project-home__scene-order">#{scene.order}</span>
-                  </div>
-                  <h4 className="project-home__scene-title">{scene.title}</h4>
-                  <div className="project-home__scene-meta">
-                    {scene.emotion_tag ? (
-                      <span className={`project-home__scene-tag project-home__scene-tag--${scene.emotion_tag}`}>
-                        {scene.emotion_tag}
-                      </span>
-                    ) : null}
-                    {scene.purpose ? (
-                      <span className="project-home__scene-purpose">{scene.purpose}</span>
-                    ) : null}
-                    {scene.word_target ? (
-                      <span className="project-home__scene-word-target">{scene.word_target} words</span>
-                    ) : null}
-                  </div>
-                  {scene.beats && scene.beats.length > 0 ? (
-                    <div className="project-home__scene-beats">
-                      {scene.beats.map((beat) => (
-                        <span key={beat}>{beat}</span>
-                      ))}
-                    </div>
-                  ) : null}
-                </li>
-              ))}
+              {activeProject.scenes.map((scene) => {
+                const isActive = scene.id === activeSceneId;
+                return (
+                  <li
+                    key={scene.id}
+                    className={`project-home__scene-card${
+                      isActive ? ' project-home__scene-card--active' : ''
+                    }`}
+                  >
+                    <button
+                      type="button"
+                      className="project-home__scene-button"
+                      onClick={() => setActiveSceneId(scene.id)}
+                      aria-pressed={isActive}
+                    >
+                      <div className="project-home__scene-header">
+                        <span className="project-home__scene-id">{scene.id}</span>
+                        <span className="project-home__scene-order">#{scene.order}</span>
+                      </div>
+                      <h4 className="project-home__scene-title">{scene.title}</h4>
+                      <div className="project-home__scene-meta">
+                        {scene.emotion_tag ? (
+                          <span
+                            className={`project-home__scene-tag project-home__scene-tag--${scene.emotion_tag}`}
+                          >
+                            {scene.emotion_tag}
+                          </span>
+                        ) : null}
+                        {scene.purpose ? (
+                          <span className="project-home__scene-purpose">{scene.purpose}</span>
+                        ) : null}
+                        {scene.word_target ? (
+                          <span className="project-home__scene-word-target">{scene.word_target} words</span>
+                        ) : null}
+                      </div>
+                      {scene.beats && scene.beats.length > 0 ? (
+                        <div className="project-home__scene-beats">
+                          {scene.beats.map((beat) => (
+                            <span key={beat}>{beat}</span>
+                          ))}
+                        </div>
+                      ) : null}
+                    </button>
+                  </li>
+                );
+              })}
             </ul>
           ) : (
             <p className="project-home__empty">Load a project to review scene metadata.</p>

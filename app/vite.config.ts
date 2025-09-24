@@ -7,6 +7,11 @@ export default defineConfig({
   root: __dirname,
   plugins: [react()],
   base: './',
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    include: ['renderer/**/*.test.{ts,tsx}'],
+  },
   server: {
     host: '127.0.0.1',
     port: 5173,
