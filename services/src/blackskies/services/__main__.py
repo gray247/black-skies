@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+import sys
 from typing import Final
 
 import uvicorn
@@ -36,6 +37,12 @@ def main() -> None:
     """Run the FastAPI service using Uvicorn."""
     parser = _build_parser()
     args = parser.parse_args()
+
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)sZ %(levelname)s %(name)s %(message)s",
+        stream=sys.stdout,
+    )
 
     if not (MIN_PORT <= args.port <= MAX_PORT):
         parser.error(f"Port must be between {MIN_PORT} and {MAX_PORT}.")

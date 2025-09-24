@@ -1,8 +1,20 @@
 import { app, BrowserWindow, dialog } from 'electron';
-import type { ChildProcess } from 'node:child_process';
+import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
+import { once } from 'node:events';
+import net from 'node:net';
 import { setTimeout as delay } from 'node:timers/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+import {
+  getLogger,
+  initializeMainLogging,
+  logWithLevel,
+  registerRendererLogSink,
+  shutdownLogging,
+  type LogLevel,
+  type Logger,
+} from './logging';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -13,17 +25,191 @@ const rendererIndexFile = join(rendererDistDir, 'index.html');
 const DEV_SERVER_URL = process.env.ELECTRON_RENDERER_URL ?? 'http://127.0.0.1:5173/';
 const isDev = !app.isPackaged;
 
+const SERVICES_HOST = '127.0.0.1';
+const MIN_PORT = 43750;
+const MAX_PORT = 43850;
+const PYTHON_EXECUTABLE = process.env.BLACKSKIES_PYTHON ?? 'python';
+
 let mainWindow: BrowserWindow | null = null;
-let servicesProcess: ChildProcess | null = null;
+let servicesProcess: ChildProcessWithoutNullStreams | null = null;
+let servicesPort: number | null = null;
 let shuttingDown = false;
+let mainLogger: Logger | null = null;
+
+function ensureMainLogger(): Logger {
+  if (!mainLogger) {
+    mainLogger = getLogger('main.process');
+  }
+  return mainLogger;
+}
+
+async function isPortAvailable(port: number): Promise<boolean> {
+  return new Promise((resolve) => {
+    const server = net.createServer();
+    server.unref();
+    server.once('error', () => {
+      server.close();
+      resolve(false);
+    });
+    server.once('listening', () => {
+      server.close(() => resolve(true));
+    });
+    server.listen(port, SERVICES_HOST);
+  });
+}
+
+async function selectServicePort(): Promise<number> {
+  for (let candidate = MIN_PORT; candidate <= MAX_PORT; candidate += 1) {
+    // eslint-disable-next-line no-await-in-loop -- sequential probing avoids port races
+    const available = await isPortAvailable(candidate);
+    if (available) {
+      return candidate;
+    }
+  }
+
+  throw new Error(`Unable to find an available port between ${MIN_PORT} and ${MAX_PORT}.`);
+}
+
+function pipeStreamToLogger(
+  stream: NodeJS.ReadableStream,
+  logger: Logger,
+  level: LogLevel,
+  source: 'stdout' | 'stderr',
+): void {
+  let buffer = '';
+  stream.setEncoding('utf8');
+  stream.on('data', (chunk: string) => {
+    buffer += chunk;
+    let newlineIndex = buffer.indexOf('\n');
+    while (newlineIndex !== -1) {
+      const line = buffer.slice(0, newlineIndex).replace(/\r$/, '');
+      buffer = buffer.slice(newlineIndex + 1);
+      if (line.trim().length > 0) {
+        logWithLevel(logger, level, line, { source });
+      }
+      newlineIndex = buffer.indexOf('\n');
+    }
+  });
+  stream.on('end', () => {
+    const remaining = buffer.trim();
+    if (remaining.length > 0) {
+      logWithLevel(logger, level, remaining, { source, partial: true });
+    }
+  });
+}
+
+async function waitForServicesHealthy(port: number): Promise<void> {
+  const logger = ensureMainLogger();
+  const url = `http://${SERVICES_HOST}:${port}/health`;
+  const maxAttempts = 20;
+  const attemptDelayMs = 250;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        logger.warn('Health probe returned non-OK status', {
+          attempt,
+          status: response.status,
+        });
+      } else {
+        const payload = (await response.json()) as { status?: string };
+        if (payload?.status === 'ok') {
+          return;
+        }
+        logger.warn('Health probe responded with unexpected payload', {
+          attempt,
+          payload,
+        });
+      }
+    } catch (error) {
+      logger.debug('Health probe failed', {
+        attempt,
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+
+    await delay(attemptDelayMs);
+  }
+
+  throw new Error('FastAPI services did not become healthy within the allotted time.');
+}
 
 async function startServices(): Promise<void> {
   if (servicesProcess) {
     return;
   }
 
-  // TODO: Spawn and supervise the FastAPI services launcher once implemented.
-  // Reference docs/architecture.md §3 for the full process topology requirements.
+  const logger = ensureMainLogger();
+  const port = await selectServicePort();
+  const args = ['-m', 'blackskies.services', '--host', SERVICES_HOST, '--port', String(port)];
+
+  logger.info('Spawning FastAPI services', {
+    executable: PYTHON_EXECUTABLE,
+    args,
+    port,
+  });
+
+  const child = spawn(PYTHON_EXECUTABLE, args, {
+    stdio: ['ignore', 'pipe', 'pipe'],
+    env: { ...process.env },
+  });
+
+  const spawnPromise = new Promise<void>((resolve, reject) => {
+    child.once('spawn', () => resolve());
+    child.once('error', (error) => reject(error));
+  });
+
+  const stdoutLogger = getLogger('services.stdout', 'service');
+  const stderrLogger = getLogger('services.stderr', 'service');
+
+  if (child.stdout) {
+    pipeStreamToLogger(child.stdout, stdoutLogger, 'info', 'stdout');
+  }
+  if (child.stderr) {
+    pipeStreamToLogger(child.stderr, stderrLogger, 'error', 'stderr');
+  }
+
+  child.on('exit', (code, signal) => {
+    const exitDetails = { code, signal, port, pid: child.pid };
+    const exitLogger = ensureMainLogger();
+    if (servicesProcess === child) {
+      servicesProcess = null;
+      servicesPort = null;
+      delete process.env.BLACKSKIES_SERVICES_PORT;
+    }
+
+    exitLogger.info('FastAPI services exited', exitDetails);
+
+    if (!shuttingDown) {
+      exitLogger.error('FastAPI services terminated unexpectedly', exitDetails);
+    }
+  });
+
+  try {
+    await spawnPromise;
+  } catch (error) {
+    logger.error('Failed to spawn FastAPI services', {
+      error: error instanceof Error ? error.message : String(error),
+    });
+    throw error instanceof Error ? error : new Error(String(error));
+  }
+
+  servicesProcess = child;
+  servicesPort = port;
+  process.env.BLACKSKIES_SERVICES_PORT = String(port);
+
+  try {
+    await waitForServicesHealthy(port);
+    logger.info('FastAPI services are healthy', { port, pid: child.pid });
+  } catch (error) {
+    logger.error('FastAPI services failed health verification', {
+      port,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    await stopServices();
+    throw error instanceof Error ? error : new Error(String(error));
+  }
 }
 
 async function stopServices(): Promise<void> {
@@ -32,19 +218,56 @@ async function stopServices(): Promise<void> {
     return;
   }
 
+  const logger = ensureMainLogger();
   servicesProcess = null;
+  servicesPort = null;
+  delete process.env.BLACKSKIES_SERVICES_PORT;
+
+  logger.info('Stopping FastAPI services', { pid: child.pid });
+
+  const exitPromise = once(child, 'exit') as Promise<[
+    number | null,
+    NodeJS.Signals | null,
+  ]>;
 
   const terminated = child.kill('SIGTERM');
-  if (!terminated) {
-    return;
+
+  let exitResult: [number | null, NodeJS.Signals | null] | null = null;
+
+  if (terminated) {
+    const raceResult = await Promise.race<
+      [number | null, NodeJS.Signals | null] | 'timeout'
+    >([
+      exitPromise,
+      delay(2_000).then(() => 'timeout'),
+    ]);
+
+    if (raceResult === 'timeout') {
+      if (child.exitCode === null && child.signalCode === null) {
+        if (process.platform !== 'win32') {
+          logger.warn('Escalating FastAPI services termination', { pid: child.pid });
+          child.kill('SIGKILL');
+        }
+        exitResult = await exitPromise;
+      } else {
+        exitResult = [child.exitCode, child.signalCode];
+      }
+    } else {
+      exitResult = raceResult;
+    }
+  } else {
+    logger.warn('Failed to deliver SIGTERM to FastAPI services', { pid: child.pid });
+    if (process.platform !== 'win32') {
+      child.kill('SIGKILL');
+    }
+    exitResult = await exitPromise;
   }
 
-  // Give the process a short grace period before forcing termination.
-  await delay(1_000);
-
-  if (!child.killed && process.platform !== 'win32') {
-    child.kill('SIGKILL');
-  }
+  logger.info('FastAPI services stopped', {
+    pid: child.pid,
+    code: exitResult?.[0] ?? child.exitCode,
+    signal: exitResult?.[1] ?? child.signalCode,
+  });
 }
 
 async function createMainWindow(): Promise<BrowserWindow> {
@@ -59,6 +282,7 @@ async function createMainWindow(): Promise<BrowserWindow> {
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: false,
+      preload: join(__dirname, 'preload.js'),
     },
   });
 
@@ -97,6 +321,7 @@ async function bootstrap(): Promise<void> {
     mainWindow = window;
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown startup error';
+    ensureMainLogger().error('Bootstrap failed', { message });
     dialog.showErrorBox('Black Skies failed to launch', message);
     app.quit();
   }
@@ -118,6 +343,10 @@ function setupAppEventHandlers(): void {
   app.on('before-quit', () => {
     shuttingDown = true;
     void stopServices();
+  });
+
+  app.on('quit', () => {
+    void shutdownLogging();
   });
 
   const handleProcessSignal = (_signal: NodeJS.Signals): void => {
@@ -152,15 +381,22 @@ if (!hasSingleInstanceLock) {
     mainWindow.focus();
   });
 
-  app.whenReady().then(async () => {
-    setupAppEventHandlers();
-    if (process.platform === 'win32') {
-      app.setAppUserModelId('com.blackskies.desktop');
-    }
-    await bootstrap();
-  }).catch((error: unknown) => {
-    const message = error instanceof Error ? error.message : 'Unknown bootstrap error';
-    dialog.showErrorBox('Black Skies failed to launch', message);
-    app.quit();
-  });
+  app
+    .whenReady()
+    .then(async () => {
+      await initializeMainLogging(app);
+      registerRendererLogSink();
+      ensureMainLogger().info('Electron app ready');
+      setupAppEventHandlers();
+      if (process.platform === 'win32') {
+        app.setAppUserModelId('com.blackskies.desktop');
+      }
+      await bootstrap();
+    })
+    .catch((error: unknown) => {
+      const message = error instanceof Error ? error.message : 'Unknown bootstrap error';
+      ensureMainLogger().error('App failed to initialize', { message });
+      dialog.showErrorBox('Black Skies failed to launch', message);
+      app.quit();
+    });
 }
