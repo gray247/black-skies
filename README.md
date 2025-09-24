@@ -28,7 +28,7 @@ Prereqs: **Node 20 LTS**, **PNPM**, **Python 3.11**
    ```bash
    pnpm run dev
    ```
-   The script starts the Vite renderer dev server and a placeholder Electron shell task.
+   The script uses `pnpm exec concurrently` to launch the Vite renderer dev server alongside a placeholder Electron shell task. Replace `scripts/electron-dev-placeholder.mjs` with the real Electron bootstrap when wiring up the desktop shell locally.
 4. **Run the FastAPI services**
    ```bash
    python -m blackskies.services
