@@ -1,0 +1,19 @@
+{
+  "draft_id": "dr_004",
+  "schema_version": "DraftUnitSchema v1",
+  "units": [
+    {
+      "id": "sc_0001",
+      "text": "The cellar stairs were slick with silt...",
+      "meta": {
+        "pov": "Viki",
+        "purpose": "escalation",
+        "emotion_tag": "tension",
+        "word_target": 1200
+      },
+      "prompt_fingerprint": "sha256:5f7a",
+      "model": { "name": "prose_model_vX", "provider": "openai" }
+    }
+  ],
+  "budget": { "estimated_usd": 0.42 }
+}
