@@ -15,8 +15,9 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "types": ["node"]
+    "types": ["node"],
+    "baseUrl": "./"
   },
-  "include": ["src"],
+  "include": ["renderer", "shared", "electron", "types"],
   "references": []
 }

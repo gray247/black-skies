@@ -1,0 +1,401 @@
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import type {
+  LoadedProject,
+  ProjectIssue,
+  ProjectLoaderApi,
+} from '../../shared/ipc/projectLoader';
+import type { ToastPayload } from '../types/toast';
+
+interface ProjectHomeProps {
+  onToast: (toast: ToastPayload) => void;
+}
+
+interface RecentProjectEntry {
+  path: string;
+  name: string;
+  lastOpened: number;
+}
+
+const RECENTS_STORAGE_KEY = 'blackskies.recent-projects';
+const MAX_RECENTS = 7;
+
+function readStoredRecents(): RecentProjectEntry[] {
+  if (typeof window === 'undefined') {
+    return [];
+  }
+
+  try {
+    const stored = window.localStorage.getItem(RECENTS_STORAGE_KEY);
+    if (!stored) {
+      return [];
+    }
+    const parsed = JSON.parse(stored) as RecentProjectEntry[];
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+    return parsed
+      .filter((entry) => typeof entry?.path === 'string')
+      .map((entry) => {
+        const timestampCandidate =
+          typeof entry.lastOpened === 'number'
+            ? entry.lastOpened
+            : Number.parseInt(String(entry.lastOpened ?? ''), 10);
+        const lastOpened = Number.isFinite(timestampCandidate)
+          ? timestampCandidate
+          : Date.now();
+        return {
+          path: entry.path,
+          name: entry.name ?? entry.path.split(/[/\\]/).at(-1) ?? entry.path,
+          lastOpened,
+        };
+      });
+  } catch (error) {
+    console.warn('[ProjectHome] Failed to read recents from storage', error);
+    return [];
+  }
+}
+
+function persistRecents(entries: RecentProjectEntry[]): void {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  try {
+    window.localStorage.setItem(RECENTS_STORAGE_KEY, JSON.stringify(entries));
+  } catch (error) {
+    console.warn('[ProjectHome] Failed to persist recents', error);
+  }
+}
+
+function toneFromIssue(issue: ProjectIssue): ToastPayload['tone'] {
+  switch (issue.level) {
+    case 'error':
+      return 'error';
+    case 'warning':
+      return 'warning';
+    default:
+      return 'info';
+  }
+}
+
+export default function ProjectHome({ onToast }: ProjectHomeProps): JSX.Element {
+  const projectLoader: ProjectLoaderApi | undefined = window.projectLoader;
+  const loaderAvailable = Boolean(projectLoader);
+
+  const [recentProjects, setRecentProjects] = useState<RecentProjectEntry[]>(() =>
+    readStoredRecents(),
+  );
+  const [activeProject, setActiveProject] = useState<LoadedProject | null>(null);
+  const [issues, setIssues] = useState<ProjectIssue[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const sortedRecents = useMemo(
+    () =>
+      [...recentProjects].sort((left, right) => right.lastOpened - left.lastOpened),
+    [recentProjects],
+  );
+
+  const notifyIssues = useCallback(
+    (items: ProjectIssue[]) => {
+      const maxToasts = 3;
+      items.slice(0, maxToasts).forEach((issue) => {
+        onToast({
+          tone: toneFromIssue(issue),
+          title: issue.message,
+          description: issue.detail,
+        });
+      });
+    },
+    [onToast],
+  );
+
+  const upsertRecent = useCallback((project: LoadedProject) => {
+    setRecentProjects((previous) => {
+      const now = Date.now();
+      const filtered = previous.filter((entry) => entry.path !== project.path);
+      const nextEntries: RecentProjectEntry[] = [
+        {
+          path: project.path,
+          name: project.name,
+          lastOpened: now,
+        },
+        ...filtered,
+      ].slice(0, MAX_RECENTS);
+      persistRecents(nextEntries);
+      return nextEntries;
+    });
+  }, []);
+
+  const loadProjectAtPath = useCallback(
+    async (
+      targetPath: string,
+      options?: { reason?: 'bootstrap' | 'recent' | 'dialog'; silent?: boolean },
+    ): Promise<LoadedProject | null> => {
+      if (!projectLoader) {
+        onToast({
+          tone: 'error',
+          title: 'Project loader unavailable',
+          description: 'Electron bridge is offline; cannot open project folders.',
+        });
+        return null;
+      }
+
+      setIsLoading(true);
+      try {
+        const response = await projectLoader.loadProject({ path: targetPath });
+        if (!response.ok) {
+          setIssues(response.error.issues ?? []);
+          onToast({
+            tone: 'error',
+            title: 'Could not open project',
+            description: response.error.message,
+          });
+          notifyIssues(response.error.issues ?? []);
+          return null;
+        }
+
+        setActiveProject(response.project);
+        setIssues(response.issues);
+        upsertRecent(response.project);
+
+        if (!options?.silent) {
+          const successTitle =
+            options?.reason === 'bootstrap'
+              ? 'Sample project loaded'
+              : `${response.project.name} ready`;
+          const successDescription =
+            options?.reason === 'bootstrap'
+              ? 'Esther Estate is ready to explore the dock layout.'
+              : 'Outline and draft metadata synced successfully.';
+          onToast({
+            tone: 'info',
+            title: successTitle,
+            description: successDescription,
+          });
+        }
+
+        if (response.issues.length > 0) {
+          notifyIssues(response.issues);
+        }
+
+        return response.project;
+      } catch (error) {
+        onToast({
+          tone: 'error',
+          title: 'Project load failed',
+          description: error instanceof Error ? error.message : String(error),
+        });
+        return null;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [notifyIssues, onToast, projectLoader, upsertRecent],
+  );
+
+  const handleOpenProject = useCallback(async () => {
+    if (!projectLoader) {
+      onToast({
+        tone: 'error',
+        title: 'Electron bridge unavailable',
+        description: 'Launch the desktop shell to choose a project folder.',
+      });
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const result = await projectLoader.openProjectDialog();
+      if (result.canceled || !result.filePath) {
+        return;
+      }
+      await loadProjectAtPath(result.filePath, { reason: 'dialog' });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [loadProjectAtPath, onToast, projectLoader]);
+
+  const handleOpenRecent = useCallback(
+    async (entry: RecentProjectEntry) => {
+      await loadProjectAtPath(entry.path, { reason: 'recent' });
+    },
+    [loadProjectAtPath],
+  );
+
+  useEffect(() => {
+    if (!projectLoader || activeProject || recentProjects.length > 0) {
+      return;
+    }
+
+    let cancelled = false;
+
+    const bootstrap = async () => {
+      try {
+        const samplePath = await projectLoader.getSampleProjectPath?.();
+        if (!samplePath || cancelled) {
+          return;
+        }
+        await loadProjectAtPath(samplePath, { reason: 'bootstrap', silent: false });
+      } catch (error) {
+        onToast({
+          tone: 'warning',
+          title: 'Sample project unavailable',
+          description: error instanceof Error ? error.message : String(error),
+        });
+      }
+    };
+
+    void bootstrap();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeProject, loadProjectAtPath, onToast, projectLoader, recentProjects.length]);
+
+  return (
+    <div className="project-home">
+      <header className="project-home__header">
+        <div>
+          <h2>Project home</h2>
+          <p>
+            {loaderAvailable
+              ? 'Browse a project folder to populate the dock and workspace.'
+              : 'Project browsing is disabled outside the packaged Electron shell.'}
+          </p>
+        </div>
+        <button
+          type="button"
+          className="project-home__open-button"
+          onClick={handleOpenProject}
+          disabled={!loaderAvailable || isLoading}
+        >
+          {isLoading ? 'Loading…' : 'Open project…'}
+        </button>
+      </header>
+
+      <div className="project-home__layout">
+        <section className="project-home__main">
+          <section className="project-home__recents">
+            <div className="project-home__section-header">
+              <h3>Recent projects</h3>
+              <span className="project-home__count">{sortedRecents.length}</span>
+            </div>
+            {sortedRecents.length === 0 ? (
+              <p className="project-home__empty">No recent projects yet.</p>
+            ) : (
+              <ul className="project-home__recent-list">
+                {sortedRecents.map((entry) => {
+                  const isActive = activeProject?.path === entry.path;
+                  return (
+                    <li key={entry.path}>
+                      <button
+                        type="button"
+                        className={`project-home__recent-button${
+                          isActive ? ' project-home__recent-button--active' : ''
+                        }`}
+                        onClick={() => void handleOpenRecent(entry)}
+                      >
+                        <span className="project-home__recent-name">{entry.name}</span>
+                        <span className="project-home__recent-path">{entry.path}</span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </section>
+
+          <section className="project-home__details">
+            <h3>Project details</h3>
+            {activeProject ? (
+              <div className="project-home__details-card">
+                <div className="project-home__details-header">
+                  <h4>{activeProject.name}</h4>
+                  <span className="project-home__details-path">{activeProject.path}</span>
+                </div>
+                <dl className="project-home__stats">
+                  <div>
+                    <dt>Acts</dt>
+                    <dd>{activeProject.outline.acts.length}</dd>
+                  </div>
+                  <div>
+                    <dt>Chapters</dt>
+                    <dd>{activeProject.outline.chapters.length}</dd>
+                  </div>
+                  <div>
+                    <dt>Scenes</dt>
+                    <dd>{activeProject.outline.scenes.length}</dd>
+                  </div>
+                </dl>
+                {issues.length > 0 ? (
+                  <div className="project-home__issues">
+                    <h5>Issues detected</h5>
+                    <ul>
+                      {issues.map((issue) => (
+                        <li key={`${issue.message}-${issue.path ?? 'unknown'}`}>
+                          <span className={`project-home__issue project-home__issue--${issue.level}`}>
+                            {issue.message}
+                          </span>
+                          {issue.detail ? (
+                            <span className="project-home__issue-detail">{issue.detail}</span>
+                          ) : null}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : (
+                  <p className="project-home__details-hint">
+                    Outline and draft metadata look healthy.
+                  </p>
+                )}
+              </div>
+            ) : (
+              <p className="project-home__empty">Select a project to preview its outline and scenes.</p>
+            )}
+          </section>
+        </section>
+
+        <aside className="project-home__sidebar">
+          <div className="project-home__sidebar-header">
+            <h3>Scene metadata</h3>
+            <span>{activeProject?.scenes.length ?? 0}</span>
+          </div>
+          {activeProject ? (
+            <ul className="project-home__scene-list">
+              {activeProject.scenes.map((scene) => (
+                <li key={scene.id} className="project-home__scene-card">
+                  <div className="project-home__scene-header">
+                    <span className="project-home__scene-id">{scene.id}</span>
+                    <span className="project-home__scene-order">#{scene.order}</span>
+                  </div>
+                  <h4 className="project-home__scene-title">{scene.title}</h4>
+                  <div className="project-home__scene-meta">
+                    {scene.emotion_tag ? (
+                      <span className={`project-home__scene-tag project-home__scene-tag--${scene.emotion_tag}`}>
+                        {scene.emotion_tag}
+                      </span>
+                    ) : null}
+                    {scene.purpose ? (
+                      <span className="project-home__scene-purpose">{scene.purpose}</span>
+                    ) : null}
+                    {scene.word_target ? (
+                      <span className="project-home__scene-word-target">{scene.word_target} words</span>
+                    ) : null}
+                  </div>
+                  {scene.beats && scene.beats.length > 0 ? (
+                    <div className="project-home__scene-beats">
+                      {scene.beats.map((beat) => (
+                        <span key={beat}>{beat}</span>
+                      ))}
+                    </div>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="project-home__empty">Load a project to review scene metadata.</p>
+          )}
+        </aside>
+      </div>
+    </div>
+  );
+}
