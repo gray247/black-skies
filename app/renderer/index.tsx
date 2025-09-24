@@ -1,7 +1,7 @@
 import React from 'react';
-import ReactDOM from 'react-dom/client';
+import { createRoot } from 'react-dom/client';
 import App from './App';
-import './app.css';
+import './styles/app.css';
 
 const container = document.getElementById('root');
 
@@ -9,8 +9,8 @@ if (!container) {
   throw new Error('Renderer root element not found');
 }
 
-ReactDOM.createRoot(container).render(
+createRoot(container).render(
   <React.StrictMode>
     <App />
-  </React.StrictMode>
+  </React.StrictMode>,
 );

@@ -10,7 +10,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "eslint \"src/**/*.{ts,tsx}\""
+    "lint": "eslint \"renderer/**/*.{ts,tsx}\" \"electron/**/*.ts\" \"shared/**/*.ts\""
   },
   "dependencies": {
     "react": "^18.2.0",
