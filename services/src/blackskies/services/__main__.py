@@ -2,25 +2,50 @@
 
 from __future__ import annotations
 
-from fastapi import FastAPI
+import argparse
+import logging
+from typing import Final
+
 import uvicorn
 
-app = FastAPI(title="Black Skies Services", version="0.1.0")
+LOGGER = logging.getLogger(__name__)
+
+DEFAULT_HOST: Final[str] = "127.0.0.1"
+MIN_PORT: Final[int] = 43750
+MAX_PORT: Final[int] = 43850
 
 
-@app.get("/health", tags=["health"])
-async def healthcheck() -> dict[str, str]:
-    """Simple readiness probe for local development."""
-    return {"status": "ok"}
+def _build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="Run the Black Skies FastAPI services.")
+    parser.add_argument("--host", default=DEFAULT_HOST, help="Host interface to bind (default: 127.0.0.1).")
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=MIN_PORT,
+        help=f"TCP port to bind (range {MIN_PORT}-{MAX_PORT}).",
+    )
+    parser.add_argument(
+        "--reload",
+        action="store_true",
+        help="Enable Uvicorn autoreload. Development use only.",
+    )
+    return parser
 
 
 def main() -> None:
     """Run the FastAPI service using Uvicorn."""
+    parser = _build_parser()
+    args = parser.parse_args()
+
+    if not (MIN_PORT <= args.port <= MAX_PORT):
+        parser.error(f"Port must be between {MIN_PORT} and {MAX_PORT}.")
+
+    LOGGER.info("Starting services on %s:%s", args.host, args.port)
     uvicorn.run(
-        "blackskies.services.__main__:app",
-        host="127.0.0.1",
-        port=8000,
-        reload=True,
+        "blackskies.services.app:app",
+        host=args.host,
+        port=args.port,
+        reload=args.reload,
         factory=False,
     )
 

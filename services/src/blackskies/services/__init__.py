@@ -1,5 +1,8 @@
 """Runtime services for the Black Skies platform."""
 
-from .__main__ import app, main
+from __future__ import annotations
 
-__all__ = ["app", "main"]
+from .app import SERVICE_VERSION, app, create_app
+from .__main__ import main
+
+__all__ = ["app", "create_app", "SERVICE_VERSION", "main"]
