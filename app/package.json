@@ -11,9 +11,14 @@
     "build": "vite build",
     "build:main": "tsc --project tsconfig.main.json",
     "preview": "vite preview",
-    "lint": "eslint \"renderer/**/*.{ts,tsx}\" \"electron/**/*.ts\" \"shared/**/*.ts\""
+    "lint": "eslint \"renderer/**/*.{ts,tsx}\" \"electron/**/*.ts\" \"shared/**/*.ts\"",
+    "test": "vitest run"
   },
   "dependencies": {
+    "@codemirror/lang-markdown": "^6.2.4",
+    "@codemirror/language": "^6.10.2",
+    "@codemirror/state": "^6.4.0",
+    "@codemirror/view": "^6.23.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
@@ -21,15 +26,18 @@
     "@types/node": "^20.11.30",
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
+    "@testing-library/react": "^14.2.1",
     "@typescript-eslint/eslint-plugin": "^7.7.1",
     "@typescript-eslint/parser": "^7.7.1",
     "@vitejs/plugin-react": "^4.3.1",
+    "jsdom": "^24.0.0",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-react": "^7.34.1",
     "eslint-plugin-react-hooks": "^4.6.0",
     "prettier": "^3.2.5",
     "typescript": "^5.4.5",
-    "vite": "^5.2.8"
+    "vite": "^5.2.8",
+    "vitest": "^1.5.2"
   }
 }
