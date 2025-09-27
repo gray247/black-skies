@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+﻿import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import type {
   LoadedProject,
   ProjectIssue,
@@ -79,7 +79,7 @@ function toneFromIssue(issue: ProjectIssue): ToastPayload['tone'] {
   }
 }
 
-export default function ProjectHome({ onToast }: ProjectHomeProps): JSX.Element {
+export default function ProjectHome({ onToast, onProjectLoaded }: ProjectHomeProps): JSX.Element {
   const projectLoader: ProjectLoaderApi | undefined = window.projectLoader;
   const loaderAvailable = Boolean(projectLoader);
 
@@ -169,6 +169,7 @@ export default function ProjectHome({ onToast }: ProjectHomeProps): JSX.Element 
             description: response.error.message,
           });
           notifyIssues(response.error.issues ?? []);
+          onProjectLoaded?.(null);
           return null;
         }
 
@@ -186,6 +187,7 @@ export default function ProjectHome({ onToast }: ProjectHomeProps): JSX.Element 
         });
         setIssues(response.issues);
         upsertRecent(response.project);
+        onProjectLoaded?.(response.project);
 
         if (!options?.silent) {
           const successTitle =
@@ -214,12 +216,13 @@ export default function ProjectHome({ onToast }: ProjectHomeProps): JSX.Element 
           title: 'Project load failed',
           description: error instanceof Error ? error.message : String(error),
         });
+        onProjectLoaded?.(null);
         return null;
       } finally {
         setIsLoading(false);
       }
     },
-    [notifyIssues, onToast, projectLoader, upsertRecent],
+    [notifyIssues, onProjectLoaded, onToast, projectLoader, upsertRecent],
   );
 
   const handleOpenProject = useCallback(async () => {
@@ -297,7 +300,7 @@ export default function ProjectHome({ onToast }: ProjectHomeProps): JSX.Element 
           onClick={handleOpenProject}
           disabled={!loaderAvailable || isLoading}
         >
-          {isLoading ? 'Loading…' : 'Open project…'}
+          {isLoading ? 'Loadingâ€¦' : 'Open projectâ€¦'}
         </button>
       </header>
 
@@ -495,3 +498,5 @@ export default function ProjectHome({ onToast }: ProjectHomeProps): JSX.Element 
     </div>
   );
 }
+
+
