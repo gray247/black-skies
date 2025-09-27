@@ -1,21 +1,153 @@
+﻿import type { OutlineFile, SceneDraftMetadata } from './projectLoader';
+
+export interface ServiceError {
+  code?: string;
+  message: string;
+  details?: unknown;
+  httpStatus?: number;
+}
+
+export type ServiceResult<T> = { ok: true; data: T } | { ok: false; error: ServiceError };
+
 export interface ServiceHealthPayload {
   status: string;
   version?: string;
 }
 
-export interface ServiceHealthError {
-  message: string;
-}
-
 export interface ServiceHealthResponse {
   ok: boolean;
   data?: ServiceHealthPayload;
-  error?: ServiceHealthError;
+  error?: ServiceError;
+}
+
+export interface WizardActLock {
+  title: string;
+}
+
+export interface WizardChapterLock {
+  title: string;
+  actIndex: number;
+}
+
+export interface WizardSceneLock {
+  title: string;
+  chapterIndex: number;
+  beatRefs?: string[];
+}
+
+export interface WizardLocks {
+  acts: WizardActLock[];
+  chapters: WizardChapterLock[];
+  scenes: WizardSceneLock[];
+}
+
+export interface OutlineBuildBridgeRequest {
+  projectId: string;
+  forceRebuild?: boolean;
+  wizardLocks: WizardLocks;
+}
+
+export type OutlineBuildBridgeResponse = OutlineFile;
+
+export type DraftUnitScope = 'scene' | 'chapter';
+
+export interface DraftUnitOverrides {
+  order?: number;
+  purpose?: SceneDraftMetadata['purpose'];
+  emotion_tag?: SceneDraftMetadata['emotion_tag'];
+  pov?: string;
+  goal?: string;
+  conflict?: string;
+  turn?: string;
+  word_target?: number;
+  beats?: string[];
+}
+
+export interface DraftGenerateBridgeRequest {
+  projectId: string;
+  unitScope: DraftUnitScope;
+  unitIds: string[];
+  temperature?: number;
+  seed?: number;
+  overrides?: Record<string, DraftUnitOverrides>;
+}
+
+export interface DraftUnitMeta extends SceneDraftMetadata {
+  chapter_id?: string;
+}
+
+export interface DraftUnit {
+  id: string;
+  text: string;
+  meta: DraftUnitMeta;
+  prompt_fingerprint?: string;
+  model?: { name: string; provider: string };
+  seed?: number;
+}
+
+export interface DraftGenerateBridgeResponse {
+  draft_id: string;
+  schema_version: 'DraftUnitSchema v1';
+  units: DraftUnit[];
+  budget?: { estimated_usd?: number };
+}
+
+export interface DraftCritiqueBridgeRequest {
+  projectId: string;
+  draftId: string;
+  unitId: string;
+  rubric: string[];
+}
+
+export interface DraftCritiqueNote {
+  line: number;
+  note: string;
+}
+
+export interface DraftCritiqueBridgeResponse {
+  unit_id: string;
+  schema_version: 'CritiqueOutputSchema v1';
+  summary: string;
+  priorities?: string[];
+  line_comments?: DraftCritiqueNote[];
+  model?: { name: string; provider: string };
+}
+
+export type DraftPreflightStatus = 'ok' | 'soft-limit' | 'blocked' | 'offline';
+
+export interface DraftPreflightBridgeRequest {
+  projectId: string;
+  unitScope: DraftUnitScope;
+  unitIds: string[];
+}
+
+export interface DraftPreflightEstimate {
+  projectId: string;
+  unitScope: DraftUnitScope;
+  unitIds: string[];
+  budget: {
+    estimated_usd: number;
+    status: DraftPreflightStatus;
+    message?: string;
+    soft_limit_usd?: number;
+    hard_limit_usd?: number;
+  };
 }
 
 export interface ServicesBridge {
   checkHealth: () => Promise<ServiceHealthResponse>;
+  buildOutline: (
+    request: OutlineBuildBridgeRequest,
+  ) => Promise<ServiceResult<OutlineBuildBridgeResponse>>;
+  generateDraft: (
+    request: DraftGenerateBridgeRequest,
+  ) => Promise<ServiceResult<DraftGenerateBridgeResponse>>;
+  critiqueDraft: (
+    request: DraftCritiqueBridgeRequest,
+  ) => Promise<ServiceResult<DraftCritiqueBridgeResponse>>;
+  preflightDraft: (
+    request: DraftPreflightBridgeRequest,
+  ) => Promise<ServiceResult<DraftPreflightEstimate>>;
 }
 
 export type ServicesChannel = never;
-

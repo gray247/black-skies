@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+﻿import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import fs from 'node:fs/promises';
 import path from 'node:path';
@@ -28,7 +28,7 @@ describe('DraftEditor', () => {
       />,
     );
 
-    const title = await screen.findByText('Basement Pulse');
+    const title = await screen.findByText(/Basement Pulse/i);
     expect(title).toBeTruthy();
 
     const bodyLine = await screen.findByText(

@@ -11,6 +11,8 @@ import pytest
 from fastapi.testclient import TestClient
 
 from blackskies.services.app import SERVICE_VERSION, BuildTracker, create_app
+from blackskies.services.config import ServiceSettings
+from blackskies.services.persistence import DraftPersistence
 
 
 def _build_payload() -> dict[str, object]:
@@ -32,6 +34,67 @@ def _build_payload() -> dict[str, object]:
         },
     }
 
+def _bootstrap_outline(base_dir: Path, project_id: str, scene_count: int = 2) -> list[str]:
+    """Write a minimal outline artifact for draft generation tests."""
+
+    project_dir = base_dir / project_id
+    project_dir.mkdir(parents=True, exist_ok=True)
+    outline_path = project_dir / "outline.json"
+
+    scenes: list[dict[str, object]] = []
+    for index in range(scene_count):
+        order = index + 1
+        scene_id = f"sc_{order:04d}"
+        scenes.append(
+            {
+                "id": scene_id,
+                "order": order,
+                "title": f"Scene {order}",
+                "chapter_id": "ch_0001",
+                "beat_refs": ["inciting"] if index == 0 else [],
+            }
+        )
+
+    outline = {
+        "schema_version": "OutlineSchema v1",
+        "outline_id": "out_001",
+        "acts": ["Act I"],
+        "chapters": [{"id": "ch_0001", "order": 1, "title": "Chapter 1"}],
+        "scenes": scenes,
+    }
+
+    with outline_path.open("w", encoding="utf-8") as handle:
+        json.dump(outline, handle, indent=2)
+
+    return [scene["id"] for scene in scenes]
+
+
+def _bootstrap_scene(
+    tmp_path: Path,
+    project_id: str,
+    scene_id: str = "sc_0001",
+    *,
+    order: int = 1,
+    body: str | None = None,
+) -> str:
+    """Write a canonical scene markdown file for rewrite tests."""
+
+    settings = ServiceSettings(project_base_dir=tmp_path)
+    persistence = DraftPersistence(settings=settings)
+    front_matter = {
+        "id": scene_id,
+        "slug": scene_id.replace("sc_", "scene-"),
+        "title": f"Scene {order}",
+        "order": order,
+        "chapter_id": "ch_0001",
+        "purpose": "setup",
+        "emotion_tag": "tension",
+        "pov": "Mara",
+        "beats": ["inciting"],
+    }
+    scene_body = body or "The cellar hums with static and distant thunder."
+    persistence.write_scene(project_id, front_matter, scene_body)
+    return scene_body
 
 @pytest.fixture()
 def test_client(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[TestClient]:
@@ -121,3 +184,179 @@ def test_outline_build_conflict(test_client: TestClient, tmp_path: Path) -> None
         diagnostic = json.load(handle)
     assert diagnostic["code"] == "CONFLICT"
 
+
+def test_draft_generate_scene_success(test_client: TestClient, tmp_path: Path) -> None:
+    """Draft generation writes Markdown and returns deterministic metadata."""
+
+    project_id = "proj_draft_success"
+    scene_ids = _bootstrap_outline(tmp_path, project_id, scene_count=2)
+    payload = {
+        "project_id": project_id,
+        "unit_scope": "scene",
+        "unit_ids": scene_ids,
+        "seed": 11,
+        "overrides": {
+            scene_ids[0]: {
+                "purpose": "escalation",
+                "emotion_tag": "tension",
+                "order": 3,
+            }
+        },
+    }
+
+    response = test_client.post("/draft/generate", json=payload)
+    assert response.status_code == 200
+
+    data = response.json()
+    assert data["schema_version"] == "DraftUnitSchema v1"
+    assert data["draft_id"].startswith("dr_")
+    assert len(data["units"]) == len(scene_ids)
+
+    first_unit = data["units"][0]
+    assert first_unit["id"] == scene_ids[0]
+    assert first_unit["meta"]["purpose"] == "escalation"
+    assert first_unit["meta"]["emotion_tag"] == "tension"
+    assert first_unit["seed"] == payload["seed"]
+    assert first_unit["prompt_fingerprint"].startswith("sha256:")
+
+    draft_path = tmp_path / project_id / "drafts" / f"{scene_ids[0]}.md"
+    assert draft_path.exists()
+    content = draft_path.read_text(encoding="utf-8")
+    assert "purpose: escalation" in content
+    assert "emotion_tag: tension" in content
+    assert "order: 3" in content
+    assert "Scene 1" in content
+
+    snapshots_dir = tmp_path / project_id / "history" / "snapshots"
+    assert not snapshots_dir.exists()
+    assert data["budget"]["estimated_usd"] >= 0.0
+
+
+def test_draft_generate_scene_limit(test_client: TestClient, tmp_path: Path) -> None:
+    """Scene batches above the limit are rejected with validation errors."""
+
+    project_id = "proj_draft_limit"
+    scene_ids = _bootstrap_outline(tmp_path, project_id, scene_count=6)
+    payload = {
+        "project_id": project_id,
+        "unit_scope": "scene",
+        "unit_ids": scene_ids[:6],
+    }
+
+    response = test_client.post("/draft/generate", json=payload)
+    assert response.status_code == 400
+
+    detail = response.json()["detail"]
+    assert detail["code"] == "VALIDATION"
+    errors = detail["details"]["errors"]
+    assert any("at most 5" in error["msg"] for error in errors)
+
+    drafts_dir = tmp_path / project_id / "drafts"
+    assert not drafts_dir.exists()
+
+
+def test_draft_generate_missing_scene(test_client: TestClient, tmp_path: Path) -> None:
+    """Unknown scene identifiers surface a validation error with context."""
+
+    project_id = "proj_draft_missing"
+    scene_ids = _bootstrap_outline(tmp_path, project_id, scene_count=2)
+    payload = {
+        "project_id": project_id,
+        "unit_scope": "scene",
+        "unit_ids": [scene_ids[0], "sc_9999"],
+    }
+
+    response = test_client.post("/draft/generate", json=payload)
+    assert response.status_code == 400
+
+    detail = response.json()["detail"]
+    assert detail["code"] == "VALIDATION"
+    assert detail["details"]["missing_scene_ids"] == ["sc_9999"]
+
+    drafts_dir = tmp_path / project_id / "drafts"
+    assert not drafts_dir.exists()
+
+
+def test_draft_rewrite_success(test_client: TestClient, tmp_path: Path) -> None:
+    """Rewriting a scene updates markdown and returns a structured diff."""
+
+    project_id = "proj_rewrite_success"
+    scene_ids = _bootstrap_outline(tmp_path, project_id, scene_count=1)
+    original_body = _bootstrap_scene(tmp_path, project_id, scene_ids[0])
+
+    revised_body = f"{original_body}\n\nNew beat emerges along the stairwell."
+    payload = {
+        "project_id": project_id,
+        "draft_id": "dr_101",
+        "unit_id": scene_ids[0],
+        "instructions": "Tighten the close.",
+        "new_text": revised_body,
+        "unit": {
+            "id": scene_ids[0],
+            "text": original_body,
+            "meta": {"purpose": "payoff", "emotion_tag": "revelation"},
+        },
+    }
+
+    response = test_client.post("/draft/rewrite", json=payload)
+    assert response.status_code == 200
+
+    data = response.json()
+    assert data["schema_version"] == "DraftUnitSchema v1"
+    assert data["model"]["name"] == "draft-rewriter-v1"
+    assert data["unit_id"] == scene_ids[0]
+    assert data["revised_text"].endswith("New beat emerges along the stairwell.")
+
+    diff = data["diff"]
+    assert isinstance(diff["anchors"], dict)
+    assert diff["anchors"]["left"] >= 0
+    assert diff["anchors"]["right"] >= 0
+    assert diff["added"] or diff["changed"]
+
+    draft_path = tmp_path / project_id / "drafts" / f"{scene_ids[0]}.md"
+    content = draft_path.read_text(encoding="utf-8")
+    assert "purpose: payoff" in content
+    assert "emotion_tag: revelation" in content
+    assert "New beat emerges" in content
+
+
+def test_draft_rewrite_conflict(test_client: TestClient, tmp_path: Path) -> None:
+    """Conflicting rewrites surface 409 responses and diagnostics."""
+
+    project_id = "proj_rewrite_conflict"
+    scene_ids = _bootstrap_outline(tmp_path, project_id, scene_count=1)
+    original_body = _bootstrap_scene(tmp_path, project_id, scene_ids[0])
+
+    draft_path = tmp_path / project_id / "drafts" / f"{scene_ids[0]}.md"
+    draft_path.write_text(
+        draft_path.read_text(encoding="utf-8") + "\nExternal edit.",
+        encoding="utf-8",
+    )
+
+    payload = {
+        "project_id": project_id,
+        "draft_id": "dr_202",
+        "unit_id": scene_ids[0],
+        "instructions": "Reword the last line.",
+        "new_text": original_body + "\n\nA controlled cadence takes hold.",
+        "unit": {"id": scene_ids[0], "text": original_body},
+    }
+
+    response = test_client.post("/draft/rewrite", json=payload)
+    assert response.status_code == 409
+
+    detail = response.json()["detail"]
+    assert detail["code"] == "CONFLICT"
+
+    diagnostics_dir = tmp_path / project_id / "history" / "diagnostics"
+    assert diagnostics_dir.exists()
+    assert list(diagnostics_dir.glob("*.json"))
+
+
+def test_draft_rewrite_validation_error(test_client: TestClient) -> None:
+    """Malformed rewrite payloads raise validation errors."""
+
+    response = test_client.post("/draft/rewrite", json={"project_id": "proj_bad"})
+    assert response.status_code == 400
+    detail = response.json()["detail"]
+    assert detail["code"] == "VALIDATION"
