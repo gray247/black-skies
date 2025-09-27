@@ -277,6 +277,94 @@ def test_draft_generate_missing_scene(test_client: TestClient, tmp_path: Path) -
     assert not drafts_dir.exists()
 
 
+
+
+def test_draft_preflight_success(test_client: TestClient, tmp_path: Path) -> None:
+    """Preflight returns an estimate within budget for valid scenes."""
+
+    project_id = "proj_preflight_success"
+    scene_ids = _bootstrap_outline(tmp_path, project_id, scene_count=2)
+    payload = {
+        "project_id": project_id,
+        "unit_scope": "scene",
+        "unit_ids": scene_ids,
+    }
+
+    response = test_client.post("/draft/preflight", json=payload)
+    assert response.status_code == 200
+
+    data = response.json()
+    budget = data["budget"]
+    assert data["project_id"] == project_id
+    assert budget["status"] == "ok"
+    assert budget["estimated_usd"] > 0
+    assert budget["soft_limit_usd"] == 5.0
+    assert budget["hard_limit_usd"] == 10.0
+
+
+def test_draft_preflight_soft_limit(test_client: TestClient, tmp_path: Path) -> None:
+    """Preflight surfaces a soft limit warning when estimate crosses the threshold."""
+
+    project_id = "proj_preflight_soft"
+    scene_ids = _bootstrap_outline(tmp_path, project_id, scene_count=1)
+    payload = {
+        "project_id": project_id,
+        "unit_scope": "scene",
+        "unit_ids": scene_ids,
+        "overrides": {
+            scene_ids[0]: {"word_target": 300000}
+        },
+    }
+
+    response = test_client.post("/draft/preflight", json=payload)
+    assert response.status_code == 200
+
+    budget = response.json()["budget"]
+    assert budget["status"] == "soft-limit"
+    assert budget["estimated_usd"] >= 5.0
+
+
+def test_draft_preflight_blocked(test_client: TestClient, tmp_path: Path) -> None:
+    """Preflight reports blocked status when hard limit would be exceeded."""
+
+    project_id = "proj_preflight_blocked"
+    scene_ids = _bootstrap_outline(tmp_path, project_id, scene_count=1)
+    payload = {
+        "project_id": project_id,
+        "unit_scope": "scene",
+        "unit_ids": scene_ids,
+        "overrides": {
+            scene_ids[0]: {"word_target": 600000}
+        },
+    }
+
+    response = test_client.post("/draft/preflight", json=payload)
+    assert response.status_code == 200
+
+    budget = response.json()["budget"]
+    assert budget["status"] == "blocked"
+    assert budget["estimated_usd"] >= 10.0
+
+
+def test_draft_preflight_missing_scene(test_client: TestClient, tmp_path: Path) -> None:
+    """Preflight returns validation error when scenes are missing from outline."""
+
+    project_id = "proj_preflight_missing"
+    scene_ids = _bootstrap_outline(tmp_path, project_id, scene_count=1)
+    payload = {
+        "project_id": project_id,
+        "unit_scope": "scene",
+        "unit_ids": [scene_ids[0], "sc_9999"],
+    }
+
+    response = test_client.post("/draft/preflight", json=payload)
+    assert response.status_code == 400
+
+    detail = response.json()["detail"]
+    assert detail["code"] == "VALIDATION"
+    assert detail["details"]["missing_scene_ids"] == ["sc_9999"]
+
+
 def test_draft_rewrite_success(test_client: TestClient, tmp_path: Path) -> None:
     """Rewriting a scene updates markdown and returns a structured diff."""
 

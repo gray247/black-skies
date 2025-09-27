@@ -1,46 +1,40 @@
-﻿# Black Skies – Runbook
-> Step-by-step automation plan with fine-grained milestones.
+# Black Skies — Runbook
 
-## Phase 1 – Environment & Tooling
+This runbook tracks day-to-day execution for the Phase 1 plan in `docs/BUILD_PLAN.md`.
 
-### Step 1.0 – Setup Python env & deps
-- Create/refresh `.venv`
-- Install runtime deps (prefer `wheels/` when offline)
-- Install dev tooling (`black`, `flake8`, `pytest`)
-- Ensure `.env` contains safe defaults (`OPENAI_API_KEY`, `BLACK_SKIES_MODE`)
+## Daily workflow
 
-### Step 1.1 – Lint (non-blocking)
-- `black --check .`
-- `flake8 --exclude .venv,**/.venv,**/__pycache__`
+1. **Open your shell** (WSL recommended) and change into the repo:
+   ```bash
+   cd /mnt/c/Dev/black-skies
+   ```
+2. **Optionally activate the Python env** when running commands manually:
+   ```bash
+   source .venv/bin/activate  # use .venv\Scripts\activate on Windows
+   ```
+3. **See the next build-plan step**:
+   ```bash
+   bash scripts/next.sh
+   ```
+   The script prints the next step name, summary, and the “Codex ask” to paste into Codex CLI. Each run records progress in `.codex_step` and `.codex_history`.
+4. **Apply the step** by pasting the Codex ask into Codex CLI, reviewing the PR, merging, and running the project tests (`corepack pnpm --filter app test` and `PYTHONPATH=services/src python -m pytest`).
+5. **After merging**, run `bash scripts/next.sh` again to advance the pointer.
 
-### Step 1.2 – Test (smart-skip)
-- If `fastapi` and `httpx` available, run `pytest -q`
-- Otherwise skip with explanation (do not fail build)
+## Utilities
 
-### Step 1.3 – Optional frontend install
-- If `BS_ALLOW_NODE=1` and Node tooling present:
-  - Prefer `pnpm install --frozen-lockfile` inside `app/`
-  - Fallback to `npm ci` / `npm install`
-- Otherwise skip gracefully
+- `scripts/next.sh --reset` — reset progress back to the first step (useful if you want to replay the plan).
+- `.codex_history` — audit log of completed steps with timestamps.
+- `.codex_step` — current step pointer (plain text).
 
-## Phase 2 – Formatting & Housekeeping
+## Testing shortcuts
 
-### Step 2.0 – Auto-fix & re-lint
-- `black .`
-- `flake8 --exclude .venv,**/.venv,**/__pycache__`
+- Renderer tests: `corepack pnpm --filter app test`
+- Service tests: `PYTHONPATH=services/src python -m pytest`
+- Format check: `black --check services app` (once dependencies installed)
 
-## Phase 3 – Branch Management
+## Notes
 
-### Step 3.0 – Commit feature branch
-- Ensure working branch `feature/wizard-preflight` exists
-- `git add -A`
-- `git commit -m "chore(black-skies): housekeeping after steps 1.x"`
+- Always consult the referenced docs before implementing a step.
+- Keep PRs focused on the single step you are executing.
+- Honour offline constraints: use existing wheels and skip Node installs if the registry is unavailable.
 
-## Phase 4 – Push & PR Prep
-
-### Step 4.0 – Push & open PR (best effort)
-- Push `feature/wizard-preflight` to `origin`
-- If GitHub CLI is available: `gh pr create -B main -H feature/wizard-preflight`
-- Otherwise log instructions for manual PR creation
-
----

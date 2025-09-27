@@ -20,7 +20,7 @@ from .config import ServiceSettings
 from .diagnostics import DiagnosticLogger
 from .diff_engine import compute_diff
 from .draft_synthesizer import DraftSynthesizer
-from .models.draft import DraftGenerateRequest, DraftUnitScope
+from .models.draft import DraftGenerateRequest, DraftUnitOverrides, DraftUnitScope
 from .models.outline import OutlineArtifact, OutlineScene
 from .models.rewrite import DraftRewriteRequest
 from .models.wizard import OutlineBuildRequest
@@ -31,6 +31,8 @@ LOGGER = logging.getLogger(__name__)
 
 SERVICE_VERSION: Final[str] = "0.1.0"
 _FIXTURE_PACKAGE: Final[str] = "blackskies.services.fixtures"
+SOFT_BUDGET_LIMIT_USD: Final[float] = 5.0
+HARD_BUDGET_LIMIT_USD: Final[float] = 10.0
 
 
 def _load_fixture(name: str) -> dict[str, Any]:
@@ -332,6 +334,23 @@ def _compute_draft_id(project_id: str, seed: int | None, scene_ids: list[str]) -
     numeric = int(digest[:6], 16) % 1000
     return f"dr_{numeric:03d}"
 
+def _estimate_word_target(scene: OutlineScene, overrides: DraftUnitOverrides | None) -> int:
+    """Estimate the word target for a scene using overrides when supplied."""
+
+    if overrides and overrides.word_target is not None:
+        return overrides.word_target
+    order_value = overrides.order if overrides and overrides.order is not None else scene.order
+    return 850 + (order_value * 40)
+
+def _classify_budget(estimated_cost: float) -> tuple[str, str]:
+    """Return budget status and message for the given estimate."""
+
+    if estimated_cost >= HARD_BUDGET_LIMIT_USD:
+        return "blocked", "Estimated cost exceeds hard budget."
+    if estimated_cost >= SOFT_BUDGET_LIMIT_USD:
+        return "soft-limit", "Estimated cost exceeds soft budget; confirmation required."
+    return "ok", "Estimate within budget."
+
 
 def _raise_validation_error(
     *,
@@ -517,6 +536,70 @@ def _register_routes(api: FastAPI) -> None:
             "schema_version": "DraftUnitSchema v1",
             "units": [result.unit for result in results],
             "budget": {"estimated_usd": estimated_cost},
+        }
+
+    @draft_router.post("/preflight")
+    async def preflight_draft(
+        payload: dict[str, Any],
+        settings: ServiceSettings = Depends(get_settings),
+        diagnostics: DiagnosticLogger = Depends(get_diagnostics),
+    ) -> dict[str, Any]:
+        """Return an estimate for draft generation costs without writing files."""
+
+        project_root: Path | None = None
+        try:
+            request_model = DraftGenerateRequest.model_validate(payload)
+        except ValidationError as exc:
+            project_id = payload.get("project_id") if isinstance(payload, dict) else None
+            if isinstance(project_id, str):
+                project_root = settings.project_base_dir / project_id
+            _raise_validation_error(
+                message="Invalid draft preflight request.",
+                details={"errors": exc.errors()},
+                diagnostics=diagnostics,
+                project_root=project_root,
+            )
+
+        project_root = settings.project_base_dir / request_model.project_id
+        try:
+            outline = _load_outline_artifact(project_root)
+        except DraftRequestError as exc:
+            _raise_validation_error(
+                message=str(exc),
+                details=exc.details,
+                diagnostics=diagnostics,
+                project_root=project_root,
+            )
+
+        try:
+            scene_summaries = _resolve_requested_scenes(request_model, outline)
+        except DraftRequestError as exc:
+            _raise_validation_error(
+                message=str(exc),
+                details=exc.details,
+                diagnostics=diagnostics,
+                project_root=project_root,
+            )
+
+        total_words = 0
+        for scene in scene_summaries:
+            overrides = request_model.overrides.get(scene.id)
+            total_words += _estimate_word_target(scene, overrides)
+
+        estimated_cost = round((total_words / 1000) * 0.02, 2)
+        status_label, message = _classify_budget(estimated_cost)
+
+        return {
+            "project_id": request_model.project_id,
+            "unit_scope": request_model.unit_scope.value,
+            "unit_ids": request_model.unit_ids,
+            "budget": {
+                "estimated_usd": estimated_cost,
+                "status": status_label,
+                "message": message,
+                "soft_limit_usd": SOFT_BUDGET_LIMIT_USD,
+                "hard_limit_usd": HARD_BUDGET_LIMIT_USD,
+            },
         }
 
     @draft_router.post("/rewrite")

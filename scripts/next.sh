@@ -1,274 +1,82 @@
-﻿#!/usr/bin/env bash
-# Black Skies step runner: executes the "next" step from RUNBOOK.md
-# Usage:
-#   scripts/next.sh            # run next step
-#   scripts/next.sh --reset    # reset progress to 0
-#   scripts/next.sh --step N   # run a specific step number (doesn't change saved progress)
+#!/usr/bin/env bash
+# Print the next build-plan step and record progress.
 
 set -Eeuo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PROGRESS_FILE="$ROOT_DIR/.codex_step"
-TRACK_FILE="$ROOT_DIR/.codex_history"
-DEFAULT_BRANCH="feature/wizard-preflight"
+HISTORY_FILE="$ROOT_DIR/.codex_history"
 
-color() { printf "\033[%sm%s\033[0m" "$1" "$2"; }
-info()  { echo "$(color '1;34' '•')" "$@"; }
-ok()    { echo "$(color '1;32' '✔')" "$@"; }
-warn()  { echo "$(color '1;33' '!')" "$@"; }
-err()   { echo "$(color '1;31' '✖')" "$@" >&2; }
-
-has_cmd() { command -v "$1" >/dev/null 2>&1; }
-
-# ---- helpers ---------------------------------------------------------------
-
-step_header() {
-  local n="$1" ; shift
-  echo
-  info "Step $n – $*"
-  echo "----------------------------------------------------------------"
+read_progress() {
+  if [[ -f "$PROGRESS_FILE" ]]; then
+    cat "$PROGRESS_FILE"
+  else
+    echo -1
+  fi
 }
 
-record_step() {
-  local n="$1" ; shift
-  local desc="$*"
+write_progress() {
+  printf '%s\n' "$1" > "$PROGRESS_FILE"
+}
+
+log_history() {
+  local step="$1"; shift
   local ts
   ts="$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
-  echo "$ts | $n | $desc" >> "$TRACK_FILE"
+  printf '%s | %s | %s\n' "$ts" "$step" "$*" >> "$HISTORY_FILE"
 }
 
-py() { python - "$@"; }
+print_step() {
+  local code="$1"; shift
+  local title="$1"; shift
+  local details="$1"; shift
 
-deps_present() {
-  py <<'PY'
-import importlib, sys
-needed = ("httpx", "fastapi")
-missing = [m for m in needed if importlib.util.find_spec(m) is None]
-sys.stdout.write(",".join(missing))
-PY
+  printf '
+[1;34m�[0m Step %s � %s
+' "$code" "$title"
+  printf '%s
+' '----------------------------------------------------------------'
+  printf '%b' "$details"
+  printf '
+
+'
 }
 
-git_branch_exists() {
-  git rev-parse --verify "$1" >/dev/null 2>&1
-}
+steps=(
+  '1.0|Phase P1.0 – Preflight service endpoint|Implement `/draft/preflight` on the FastAPI service, return budget status + estimate, and add pytest coverage.\nCodex ask: "Implement Phase P1.0: add `/draft/preflight` to the FastAPI service, returning budget status and estimates with tests."'
+  '1.1|Phase P1.1 – Preflight renderer integration|Hook the preload bridge and `PreflightModal` into the real endpoint, surface status/error states, and add Vitest coverage.\nCodex ask: "Implement Phase P1.1: hook the renderer into `/draft/preflight`, update the modal, and add Vitest coverage."'
+  '1.2|Phase P1.2 – Docs & regression tests|Document the preflight workflow, add regression tests, and update `phase_log.md`.\nCodex ask: "Implement Phase P1.2: document the preflight flow, add regression tests, and update the phase log."'
+  '2.0|Phase P2.0 – Critique accept API|Create an accept endpoint that applies critique diffs, persists history, and logs diagnostics with tests.\nCodex ask: "Implement Phase P2.0: add an accept endpoint that applies critique diffs, persists history, and includes tests."'
+  '2.1|Phase P2.1 – Snapshots & crash recovery|Persist snapshots on accept, detect crashes, and surface a recovery banner with restore option.\nCodex ask: "Implement Phase P2.1: add snapshot persistence and crash recovery banner with tests."'
+  '2.2|Phase P2.2 – Critique UI polish|Expose accept/reject controls, show history, and add UI smoke tests.\nCodex ask: "Implement Phase P2.2: build the renderer UX for critique accept/reject and history with tests."'
+  '3.0|Phase P3.0 – Export pipeline|Produce `draft_full.md` and YAML snapshots per the data model with pytest coverage.\nCodex ask: "Implement Phase P3.0: finalize the export pipeline (Markdown + YAML) with tests."'
+  '3.1|Phase P3.1 – Packaging|Produce Windows installer + portable builds and document the process.\nCodex ask: "Implement Phase P3.1: produce Windows installer/portable builds and document the process."'
+  '3.2|Phase P3.2 – Docs refresh|Update README, phase log, and changelog for the completed workflow.\nCodex ask: "Implement Phase P3.2: document the completed workflow in README/phase_log/CHANGELOG."'
+  '4.0|Phase P4.0 – Observability|Add structured logging, request IDs, `/metrics`, and document monitoring.\nCodex ask: "Implement Phase P4.0: add metrics and structured logging with documentation."'
+  '4.1|Phase P4.1 – Release wrap|Final doc sweep, tag release, ensure CI passes.\nCodex ask: "Implement Phase P4.1: finalize documentation, tag the release, and ensure CI passes."'
+)
 
-ensure_feature_branch() {
-  if git_branch_exists "$DEFAULT_BRANCH"; then
-    git switch "$DEFAULT_BRANCH" >/dev/null
-  else
-    git switch -c "$DEFAULT_BRANCH" >/dev/null
-  fi
-}
+TOTAL=${#steps[@]}
 
-# ---- the steps -------------------------------------------------------------
-
-run_step_1_0() {
-  step_header 1.0 "Setup Python env & deps"
-  cd "$ROOT_DIR"
-
-  if [[ ! -d .venv ]]; then
-    info "Creating venv…"
-    python3 -m venv .venv
-  fi
-  # shellcheck disable=SC1091
-  source .venv/bin/activate
-
-  python -m pip install --upgrade --no-cache-dir pip wheel
-
-  if [[ -d wheels ]]; then
-    info "Installing from local wheels/ (offline-friendly)…"
-    python -m pip install --no-index --find-links=./wheels \
-      fastapi==0.117.1 httpx==0.28.1 "uvicorn[standard]==0.37.0" \
-      pydantic==2.11.9 pydantic-settings==2.10.1 python-dotenv==1.1.1 tenacity==9.1.2 || true
-  else
-    info "Installing runtime deps from PyPI…"
-    python -m pip install --no-cache-dir \
-      fastapi==0.117.1 httpx==0.28.1 "uvicorn[standard]==0.37.0" \
-      pydantic==2.11.9 pydantic-settings==2.10.1 python-dotenv==1.1.1 tenacity==9.1.2 || true
-  fi
-
-  python -m pip install --no-cache-dir black==25.9.0 flake8==7.3.0 pytest==8.4.2 pytest-cov==7.0.0 pytest-rerunfailures==16.0.1 || true
-
-  touch .env
-  grep -q '^OPENAI_API_KEY=' .env 2>/dev/null || echo "OPENAI_API_KEY=${OPENAI_API_KEY:-dummy}" >> .env
-  grep -q '^BLACK_SKIES_MODE=' .env 2>/dev/null || echo "BLACK_SKIES_MODE=${BLACK_SKIES_MODE:-companion}" >> .env
-
-  ok "Python environment ready."
-  record_step 1.0 "Setup Python env & deps"
-}
-
-run_step_1_1() {
-  step_header 1.1 "Lint (non-blocking)"
-  cd "$ROOT_DIR"
-  [[ -d .venv ]] && source .venv/bin/activate || true
-
-  if has_cmd black; then
-    black --check . || warn "black check failed (will be auto-fixed later)."
-  else
-    warn "black not installed; skipping."
-  fi
-
-  if has_cmd flake8; then
-    flake8 --exclude .venv,**/.venv,**/__pycache__ || warn "flake8 found issues (will re-run after auto-fix)."
-  else
-    warn "flake8 not installed; skipping."
-  fi
-
-  ok "Lint step completed."
-  record_step 1.1 "Lint"
-}
-
-run_step_1_2() {
-  step_header 1.2 "Test (smart-skip)"
-  cd "$ROOT_DIR"
-  [[ -d .venv ]] && source .venv/bin/activate || true
-
-  local missing
-  missing="$(deps_present)"
-  if [[ -n "$missing" ]]; then
-    warn "Skipping tests – missing deps: $missing"
-    record_step 1.2 "Tests skipped (missing deps: $missing)"
-    return 0
-  fi
-
-  if has_cmd pytest; then
-    pytest -q || err "Tests failed. Fix locally, then re-run this step."
-  else
-    warn "pytest not installed; skipping."
-  fi
-
-  ok "pytest completed."
-  record_step 1.2 "pytest"
-}
-
-run_step_1_3() {
-  step_header 1.3 "Install Node deps (optional)"
-  cd "$ROOT_DIR"
-
-  if [[ "${BS_ALLOW_NODE:-0}" != "1" ]]; then
-    warn "BS_ALLOW_NODE != 1; skipping Node/pnpm step."
-    record_step 1.3 "Node install skipped"
-    return 0
-  fi
-
-  if ! has_cmd node || ! has_cmd npm; then
-    warn "Node/npm not found; skipping."
-    record_step 1.3 "Node install skipped (missing node/npm)"
-    return 0
-  fi
-
-  if has_cmd pnpm; then
-    if [[ -d app ]]; then
-      (cd app && pnpm install --frozen-lockfile || pnpm install) || warn "pnpm install had issues."
-    else
-      warn "app/ not found; skipping pnpm install."
-    fi
-  else
-    warn "pnpm not found; using npm."
-    if [[ -f package-lock.json ]]; then
-      npm ci --audit=false --fund=false || warn "npm ci had issues."
-    elif [[ -f package.json ]]; then
-      npm install --no-audit --no-fund || warn "npm install had issues."
-    else
-      warn "No package.json; skipping."
-    fi
-  fi
-
-  ok "Frontend step completed (if enabled)."
-  record_step 1.3 "Node deps"
-}
-
-run_step_2_0() {
-  step_header 2.0 "Auto-fix formatting"
-  cd "$ROOT_DIR"
-  [[ -d .venv ]] && source .venv/bin/activate || true
-
-  if has_cmd black; then
-    black . || true
-  fi
-  if has_cmd flake8; then
-    flake8 --exclude .venv,**/.venv,**/__pycache__ || true
-  fi
-  ok "Formatting/lint pass done."
-  record_step 2.0 "Auto-fix"
-}
-
-run_step_3_0() {
-  step_header 3.0 "Commit feature branch"
-  cd "$ROOT_DIR"
-
-  ensure_feature_branch
-  git add -A || true
-  if git diff --cached --quiet; then
-    warn "Nothing to commit."
-  else
-    git commit -m "chore(black-skies): housekeeping after steps 1.x" || true
-    ok "Committed to branch '$DEFAULT_BRANCH'."
-  fi
-  record_step 3.0 "Commit"
-}
-
-run_step_4_0() {
-  step_header 4.0 "Push & PR prep"
-  cd "$ROOT_DIR"
-
-  ensure_feature_branch
-
-  if git remote get-url origin >/dev/null 2>&1; then
-    git push -u origin "$DEFAULT_BRANCH" || warn "Push failed; set up 'origin' and auth, then retry."
-  else
-    warn "No 'origin' remote configured; skipping push."
-  fi
-
-  if has_cmd gh; then
-    gh pr create -B main -H "$DEFAULT_BRANCH" -t "Black Skies: $DEFAULT_BRANCH" -b "Automated PR from step runner." || warn "gh pr create failed."
-  else
-    warn "GitHub CLI not installed. To open PR manually:"
-    echo "    # On GitHub UI: open a PR from '$DEFAULT_BRANCH' into 'main'."
-  fi
-
-  record_step 4.0 "Push/PR"
-}
-
-# ---- driver ---------------------------------------------------------------
-
-read_step()  { [[ -f "$PROGRESS_FILE" ]] && cat "$PROGRESS_FILE" || echo 0; }
-write_step() { echo "$1" > "$PROGRESS_FILE"; }
-
-NEXT=
 if [[ "${1:-}" == "--reset" ]]; then
-  write_step 0
-  : > "$TRACK_FILE"
-  ok "Progress reset."
+  write_progress -1
+  : > "$HISTORY_FILE"
+  printf '\033[1;32m✔\033[0m Progress reset.\n'
   exit 0
-elif [[ "${1:-}" == "--step" ]]; then
-  shift
-  [[ $# -ge 1 ]] || { err "Missing step number"; exit 2; }
-  NEXT="$1"
-else
-  CUR="$(read_step)"
-  case "$CUR" in
-    0|0.0) NEXT=1.0 ;;
-    1.0) NEXT=1.1 ;;
-    1.1) NEXT=1.2 ;;
-    1.2) NEXT=1.3 ;;
-    1.3) NEXT=2.0 ;;
-    2.0) NEXT=3.0 ;;
-    3.0) NEXT=4.0 ;;
-    *) warn "No step after $CUR defined. Use --reset to start over."; exit 0 ;;
-  esac
-  write_step "$NEXT"
 fi
 
-case "$NEXT" in
-  1.0) run_step_1_0 ;;
-  1.1) run_step_1_1 ;;
-  1.2) run_step_1_2 ;;
-  1.3) run_step_1_3 ;;
-  2.0) run_step_2_0 ;;
-  3.0) run_step_3_0 ;;
-  4.0) run_step_4_0 ;;
-  *) warn "No step $NEXT defined. Use --reset to start over."; exit 0 ;;
-esac
+current_index=$(read_progress)
+next_index=$((current_index + 1))
 
-ok "Step $NEXT done."
+if (( next_index >= TOTAL )); then
+  printf '\n\033[1;32m✔\033[0m All build-plan steps have been completed!\n'
+  exit 0
+fi
+
+entry=${steps[next_index]}
+IFS='|' read -r code title details <<< "$entry"
+
+print_step "$code" "$title" "$details"
+write_progress "$next_index"
+log_history "$code" "$title"
+
