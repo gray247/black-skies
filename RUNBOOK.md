@@ -1,37 +1,46 @@
-# Black Skies – Runbook
+﻿# Black Skies – Runbook
+> Step-by-step automation plan with fine-grained milestones.
 
-> Single source of truth Codex can follow, step by step.
+## Phase 1 – Environment & Tooling
 
-## Step 1 — Setup Python env & deps
+### Step 1.0 – Setup Python env & deps
 - Create/refresh `.venv`
-- Install runtime deps from **wheels/** if present; otherwise from PyPI
-- Write minimal `.env` with safe defaults
+- Install runtime deps (prefer `wheels/` when offline)
+- Install dev tooling (`black`, `flake8`, `pytest`)
+- Ensure `.env` contains safe defaults (`OPENAI_API_KEY`, `BLACK_SKIES_MODE`)
 
-## Step 2 — Lint (non-blocking)
+### Step 1.1 – Lint (non-blocking)
 - `black --check .`
 - `flake8 --exclude .venv,**/.venv,**/__pycache__`
 
-## Step 3 — Test (non-blocking / smart-skip)
-- If core deps (`httpx`, `fastapi`) are present, run `pytest -q`
-- Otherwise **skip** with a clear message (don’t fail the workflow)
+### Step 1.2 – Test (smart-skip)
+- If `fastapi` and `httpx` available, run `pytest -q`
+- Otherwise skip with explanation (do not fail build)
 
-## Step 4 — Optional frontend install (sandbox-safe)
-- If `BS_ALLOW_NODE=1` and a registry is reachable:
-  - Prefer `pnpm i --frozen-lockfile` under `app/` when `pnpm` exists
-  - Else fall back to `npm ci` (or `npm install` if no lockfile)
-- If registry blocked or tool missing: **skip** gracefully
+### Step 1.3 – Optional frontend install
+- If `BS_ALLOW_NODE=1` and Node tooling present:
+  - Prefer `pnpm install --frozen-lockfile` inside `app/`
+  - Fallback to `npm ci` / `npm install`
+- Otherwise skip gracefully
 
-## Step 5 — Auto-fix & re-lint (non-blocking)
+## Phase 2 – Formatting & Housekeeping
+
+### Step 2.0 – Auto-fix & re-lint
 - `black .`
 - `flake8 --exclude .venv,**/.venv,**/__pycache__`
 
-## Step 6 — Commit work branch
-- Ensure branch `work` exists (create if needed)
-- `git add -A && git commit -m "chore(black-skies): step 6 housekeeping"` (no-op if nothing changed)
+## Phase 3 – Branch Management
 
-## Step 7 — Push & PR (best effort)
-- Push `work` to `origin`
-- If GitHub CLI `gh` is available, open a PR `work → main`
-- Otherwise print the exact `git` command Codex should use to open the PR
+### Step 3.0 – Commit feature branch
+- Ensure working branch `feature/wizard-preflight` exists
+- `git add -A`
+- `git commit -m "chore(black-skies): housekeeping after steps 1.x"`
+
+## Phase 4 – Push & PR Prep
+
+### Step 4.0 – Push & open PR (best effort)
+- Push `feature/wizard-preflight` to `origin`
+- If GitHub CLI is available: `gh pr create -B main -H feature/wizard-preflight`
+- Otherwise log instructions for manual PR creation
 
 ---
