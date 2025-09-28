@@ -11,6 +11,7 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 VENV_PATH="${REPO_ROOT}/.venv"
 ENV_FILE="${REPO_ROOT}/.env"
 REQUIREMENTS_FILE="${REPO_ROOT}/requirements.lock"
+DEV_REQUIREMENTS_FILE="${REPO_ROOT}/requirements.dev.lock"
 VENDOR_WHEELS_DIR="${REPO_ROOT}/vendor/wheels"
 PYTHON_BIN="${PYTHON_BIN:-python3}"
 NPM_REGISTRY_PING_URL="https://registry.npmjs.org/-/ping"
@@ -55,31 +56,39 @@ create_venv() {
   "${PYTHON_BIN}" -m venv "${VENV_PATH}"
 }
 
-install_requirements() {
-  if [[ ! -f "${REQUIREMENTS_FILE}" ]]; then
-    log "requirements.lock not found at ${REQUIREMENTS_FILE}."
+pip_bin() {
+  printf '%s/bin/pip' "${VENV_PATH}"
+}
+
+install_with_fallback() {
+  local lockfile="$1"
+  local label="$2"
+
+  if [[ ! -f "${lockfile}" ]]; then
+    log "${label} lockfile not found at ${lockfile}."
     exit 1
   fi
 
-  local pip_bin="${VENV_PATH}/bin/pip"
+  local pip_cmd
+  pip_cmd="$(pip_bin)"
   local -i tried_offline=0
 
   if compgen -G "${VENDOR_WHEELS_DIR}"'/*.whl' >/dev/null 2>&1; then
     tried_offline=1
-    log "Installing dependencies from cached wheels in vendor/wheels."
-    if "${pip_bin}" install --require-virtualenv --no-index --find-links "${VENDOR_WHEELS_DIR}" -r "${REQUIREMENTS_FILE}"; then
+    log "Installing ${label} dependencies from cached wheels in vendor/wheels."
+    if "${pip_cmd}" install --require-virtualenv --no-index --find-links "${VENDOR_WHEELS_DIR}" -r "${lockfile}"; then
       return
     fi
-    log "Cached wheel installation failed; falling back to online installation."
+    log "Cached wheel installation for ${label} failed; falling back to online installation."
   else
-    log "No cached wheels detected; installing requirements from PyPI."
+    log "No cached wheels detected; installing ${label} requirements from PyPI."
   fi
 
-  if ! "${pip_bin}" install --require-virtualenv -r "${REQUIREMENTS_FILE}"; then
+  if ! "${pip_cmd}" install --require-virtualenv -r "${lockfile}"; then
     if [[ ${tried_offline} -eq 1 ]]; then
-      log "Offline installation failed and online fallback was unsuccessful. Check network connectivity or update vendor wheels."
+      log "Offline installation for ${label} failed and online fallback was unsuccessful. Check network connectivity or refresh vendor wheels."
     else
-      log "Online installation failed. Check network connectivity or retry later."
+      log "Online installation for ${label} failed. Check network connectivity or retry later."
     fi
     exit 1
   fi
@@ -155,7 +164,8 @@ maybe_bootstrap_node() {
 main() {
   ensure_python
   create_venv
-  install_requirements
+  install_with_fallback "${REQUIREMENTS_FILE}" "runtime"
+  install_with_fallback "${DEV_REQUIREMENTS_FILE}" "development"
   ensure_env_file
   maybe_bootstrap_node
   log "Setup complete. Activate the environment with 'source .venv/bin/activate'."

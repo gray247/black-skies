@@ -14,6 +14,10 @@ Chronological record of locked decisions and spec/version bumps. One-line summar
 - Expanded README and docs/endpoints.md with `/draft/preflight` walkthroughs for ok, soft-limit, and blocked responses.
 - Added Vitest regression coverage for soft-limit warnings and blocked hard-limit states in the renderer harness.
 
+## 2025-09-25 — Milestone 0 automation verified (LOCKED)
+- Verified scripts/setup, scripts/maint, scripts/freeze_wheels.sh against Milestone 0 requirements.
+- Confirmed requirements.lock, requirements.dev.lock, tooling configs, and wheel cache guard rails are committed.
+
 ## 2025-09-17 — Phase-1 Definition of Done (LOCKED)
 - Wizard: all steps functional; decisions **lock & snapshot**; restore from History works.
 - Outline: builds **deterministically** from locked decisions (`OutlineSchema v1`).
