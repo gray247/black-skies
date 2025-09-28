@@ -74,13 +74,9 @@ async function performRequest<T>(
   path: string,
   method: HttpMethod,
   body: FetchBody,
-  fallback?: () => ServiceResult<T>,
 ): Promise<ServiceResult<T>> {
   const port = currentServicePort();
   if (!port) {
-    if (fallback) {
-      return fallback();
-    }
     return { ok: false, error: normalizeError('Service port is unavailable.') };
   }
 
@@ -104,9 +100,6 @@ async function performRequest<T>(
     const data = (await response.json()) as T;
     return { ok: true, data };
   } catch (error) {
-    if (fallback) {
-      return fallback();
-    }
     const message = error instanceof Error ? error.message : String(error);
     return { ok: false, error: normalizeError(message) };
   }
