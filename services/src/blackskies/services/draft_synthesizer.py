@@ -72,7 +72,9 @@ class DraftSynthesizer:
         unit_index: int,
     ) -> SynthesisResult:
         base_seed = request.seed
-        derived_seed = self._derive_seed(request.project_id, scene.id, base_seed, unit_index)
+        derived_seed = self._derive_seed(
+            request.project_id, scene.id, base_seed, unit_index
+        )
         rng = random.Random(derived_seed)
 
         meta = self._build_meta(scene, overrides, rng)
@@ -106,9 +108,13 @@ class DraftSynthesizer:
         return SynthesisResult(unit=unit, front_matter=front_matter, body=body)
 
     @staticmethod
-    def _derive_seed(project_id: str, scene_id: str, base_seed: int | None, unit_index: int) -> int:
+    def _derive_seed(
+        project_id: str, scene_id: str, base_seed: int | None, unit_index: int
+    ) -> int:
         if base_seed is None:
-            digest = hashlib.sha256(f"{project_id}:{scene_id}".encode("utf-8")).hexdigest()
+            digest = hashlib.sha256(
+                f"{project_id}:{scene_id}".encode("utf-8")
+            ).hexdigest()
             base_seed = int(digest[:8], 16)
         return base_seed + unit_index
 
@@ -118,21 +124,41 @@ class DraftSynthesizer:
         overrides: DraftUnitOverrides | None,
         rng: random.Random,
     ) -> dict[str, Any]:
-        purpose = overrides.purpose if overrides and overrides.purpose else self._select(self._PURPOSES, scene.order)
+        purpose = (
+            overrides.purpose
+            if overrides and overrides.purpose
+            else self._select(self._PURPOSES, scene.order)
+        )
         emotion_tag = (
             overrides.emotion_tag
             if overrides and overrides.emotion_tag
             else self._select(self._EMOTIONS, scene.order + 1)
         )
-        pov = overrides.pov if overrides and overrides.pov else self._select(self._POVS, scene.order, rng)
-        goal = overrides.goal if overrides and overrides.goal else self._select(self._GOALS, scene.order + 2, rng)
+        pov = (
+            overrides.pov
+            if overrides and overrides.pov
+            else self._select(self._POVS, scene.order, rng)
+        )
+        goal = (
+            overrides.goal
+            if overrides and overrides.goal
+            else self._select(self._GOALS, scene.order + 2, rng)
+        )
         conflict = (
             overrides.conflict
             if overrides and overrides.conflict
             else self._select(self._CONFLICTS, scene.order + 3, rng)
         )
-        turn = overrides.turn if overrides and overrides.turn else self._select(self._TURNS, scene.order + 4, rng)
-        order_value = overrides.order if overrides and overrides.order is not None else scene.order
+        turn = (
+            overrides.turn
+            if overrides and overrides.turn
+            else self._select(self._TURNS, scene.order + 4, rng)
+        )
+        order_value = (
+            overrides.order
+            if overrides and overrides.order is not None
+            else scene.order
+        )
         word_target = (
             overrides.word_target
             if overrides and overrides.word_target is not None
@@ -171,7 +197,9 @@ class DraftSynthesizer:
         return "\n\n".join(paragraphs)
 
     @staticmethod
-    def _build_front_matter(scene: OutlineScene, meta: dict[str, Any]) -> dict[str, Any]:
+    def _build_front_matter(
+        scene: OutlineScene, meta: dict[str, Any]
+    ) -> dict[str, Any]:
         front_matter = {
             "id": meta["id"],
             "slug": meta["slug"],
@@ -190,7 +218,9 @@ class DraftSynthesizer:
         return front_matter
 
     @staticmethod
-    def _fingerprint(*, project_id: str, scene_id: str, seed: int, purpose: str, emotion: str) -> str:
+    def _fingerprint(
+        *, project_id: str, scene_id: str, seed: int, purpose: str, emotion: str
+    ) -> str:
         payload = json.dumps(
             {
                 "project_id": project_id,

@@ -28,11 +28,16 @@ def _build_payload() -> dict[str, object]:
                 {"title": "Storm", "act_index": 2},
             ],
             "scenes": [
-                {"title": "Storm Cellar", "chapter_index": 1, "beat_refs": ["inciting"]},
+                {
+                    "title": "Storm Cellar",
+                    "chapter_index": 1,
+                    "beat_refs": ["inciting"],
+                },
                 {"title": "Radio", "chapter_index": 2, "beat_refs": ["twist"]},
             ],
         },
     }
+
 
 def _write_project_budget(
     base_dir: Path,
@@ -112,8 +117,6 @@ def _bootstrap_outline(
     return [scene["id"] for scene in scenes]
 
 
-
-
 def _bootstrap_scene(
     tmp_path: Path,
     project_id: str,
@@ -141,8 +144,11 @@ def _bootstrap_scene(
     persistence.write_scene(project_id, front_matter, scene_body)
     return scene_body
 
+
 @pytest.fixture()
-def test_client(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[TestClient]:
+def test_client(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> Iterator[TestClient]:
     """Provide a TestClient bound to the FastAPI app."""
 
     monkeypatch.setenv("BLACKSKIES_PROJECT_BASE_DIR", str(tmp_path))
@@ -369,7 +375,9 @@ def test_draft_generate_budget_blocked(test_client: TestClient, tmp_path: Path) 
     assert project_meta["budget"]["spent_usd"] == pytest.approx(9.75)
 
 
-def test_draft_generate_soft_limit_status(test_client: TestClient, tmp_path: Path) -> None:
+def test_draft_generate_soft_limit_status(
+    test_client: TestClient, tmp_path: Path
+) -> None:
     """Generation succeeds but surfaces soft-limit status when nearing the cap."""
 
     project_id = "proj_draft_soft_limit"
@@ -396,8 +404,6 @@ def test_draft_generate_soft_limit_status(test_client: TestClient, tmp_path: Pat
     with project_config.open("r", encoding="utf-8") as handle:
         project_meta = json.load(handle)
     assert project_meta["budget"]["spent_usd"] == pytest.approx(budget["spent_usd"])
-
-
 
 
 def test_draft_preflight_success(test_client: TestClient, tmp_path: Path) -> None:
@@ -439,9 +445,7 @@ def test_draft_preflight_soft_limit(test_client: TestClient, tmp_path: Path) -> 
         "project_id": project_id,
         "unit_scope": "scene",
         "unit_ids": scene_ids,
-        "overrides": {
-            scene_ids[0]: {"word_target": 300000}
-        },
+        "overrides": {scene_ids[0]: {"word_target": 300000}},
     }
 
     response = test_client.post("/draft/preflight", json=payload)
@@ -468,9 +472,7 @@ def test_draft_preflight_blocked(test_client: TestClient, tmp_path: Path) -> Non
         "project_id": project_id,
         "unit_scope": "scene",
         "unit_ids": scene_ids,
-        "overrides": {
-            scene_ids[0]: {"word_target": 600000}
-        },
+        "overrides": {scene_ids[0]: {"word_target": 600000}},
     }
 
     response = test_client.post("/draft/preflight", json=payload)

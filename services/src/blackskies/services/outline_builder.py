@@ -28,11 +28,17 @@ class OutlineBuilder:
 
         locks = request.wizard_locks
         if not locks.acts:
-            raise MissingLocksError("Wizard locks missing acts.", details={"missing": "acts"})
+            raise MissingLocksError(
+                "Wizard locks missing acts.", details={"missing": "acts"}
+            )
         if not locks.chapters:
-            raise MissingLocksError("Wizard locks missing chapters.", details={"missing": "chapters"})
+            raise MissingLocksError(
+                "Wizard locks missing chapters.", details={"missing": "chapters"}
+            )
         if not locks.scenes:
-            raise MissingLocksError("Wizard locks missing scenes.", details={"missing": "scenes"})
+            raise MissingLocksError(
+                "Wizard locks missing scenes.", details={"missing": "scenes"}
+            )
 
         acts = [act.title for act in locks.acts]
         chapter_map = self._build_chapters(locks.chapters)
@@ -51,7 +57,9 @@ class OutlineBuilder:
         chapter_map: dict[int, OutlineChapter] = {}
         for index, chapter in enumerate(chapters, start=1):
             chapter_id = f"ch_{index:04d}"
-            chapter_map[index] = OutlineChapter(id=chapter_id, order=index, title=chapter.title)
+            chapter_map[index] = OutlineChapter(
+                id=chapter_id, order=index, title=chapter.title
+            )
         return chapter_map
 
     def _build_scenes(
@@ -65,7 +73,10 @@ class OutlineBuilder:
             if chapter is None:
                 raise MissingLocksError(
                     "Scene references unknown chapter.",
-                    details={"scene_title": scene.title, "chapter_index": scene.chapter_index},
+                    details={
+                        "scene_title": scene.title,
+                        "chapter_index": scene.chapter_index,
+                    },
                 )
             scene_id = f"sc_{index:04d}"
             built_scenes.append(
