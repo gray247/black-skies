@@ -284,42 +284,6 @@ function serializePreflightRequest({
   };
 }
 
-function offlinePreflight(
-  request: DraftPreflightBridgeRequest,
-): ServiceResult<DraftPreflightEstimate> {
-  const base = Math.max(1, request.unitIds.length);
-  const estimatedUsd = Number((base * 0.12).toFixed(2));
-  const status =
-    estimatedUsd >= 10
-      ? ('blocked' as const)
-      : estimatedUsd >= 5
-      ? ('soft-limit' as const)
-      : ('ok' as const);
-
-  const message =
-    status === 'blocked'
-      ? 'Estimated cost exceeds hard budget limit. Try batching fewer units.'
-      : status === 'soft-limit'
-      ? 'Estimated cost exceeds soft limit; confirmation required.'
-      : 'Preflight estimate is within budget.';
-
-  return {
-    ok: true,
-    data: {
-      projectId: request.projectId,
-      unitScope: request.unitScope,
-      unitIds: request.unitIds,
-      budget: {
-        estimated_usd: estimatedUsd,
-        status: status === 'blocked' ? 'blocked' : status,
-        message,
-        soft_limit_usd: 5,
-        hard_limit_usd: 10,
-      },
-    },
-  };
-}
-
 const projectLoaderApi: ProjectLoaderApi = {
   async openProjectDialog(): Promise<ProjectDialogResult> {
     const result = await ipcRenderer.invoke(PROJECT_LOADER_CHANNELS.openDialog);
@@ -373,7 +337,6 @@ const servicesBridge: ServicesBridge = {
       '/draft/preflight',
       'POST',
       serializePreflightRequest(request),
-      () => offlinePreflight(request),
     );
   },
 };

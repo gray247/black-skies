@@ -7,6 +7,8 @@ Source-of-truth for the app's visible states, panes, hotkeys, a11y, and motion. 
 
 ---
 
+> **Implementation note (2025-09-23):** The renderer currently ships the Wizard rail, project console, and Preflight modal. Sections describing the Draft Board, Critique pane, History footer, and companion flows remain in the backlog for upcoming milestones.
+
 ## Primary screen layout (LOCKED)
 The app uses a 4‑pane layout with a top bar and footer history:
 

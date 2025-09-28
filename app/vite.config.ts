@@ -11,6 +11,7 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     include: ['renderer/**/*.test.{ts,tsx}'],
+    setupFiles: ['./renderer/testSetup.ts'],
   },
   server: {
     host: '127.0.0.1',

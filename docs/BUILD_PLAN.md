@@ -4,6 +4,8 @@
 
 **How to use this plan:** Start at the top. For each step, copy the **Codex ask** into the Codex CLI, review the PR, merge, and then continue. Steps are grouped into milestones to make progress easy to track.
 
+For finer-grained tasks (~85 steps), see `docs/BUILD_STEPS_DETAILED.md` and log progress alongside this plan.
+
 > Grounding docs: `docs/architecture.md`, `docs/agents_and_services.md`, `docs/endpoints.md`, `docs/data_model.md`, `docs/policies.md`, `docs/gui_layouts.md`, `docs/phase_charter.md`, `docs/phase_log.md`.
 
 ---

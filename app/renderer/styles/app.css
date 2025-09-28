@@ -911,6 +911,33 @@ button:disabled {
   font-size: 0.9rem;
 }
 
+.preflight-modal__scenes {
+  margin-top: 1rem;
+}
+
+.preflight-modal__scene-list {
+  margin: 0;
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.preflight-modal__scene {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.preflight-modal__scene-title {
+  font-weight: 600;
+}
+
+.preflight-modal__scene-id {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.8rem;
+}
+
 .preflight-modal__message {
   font-size: 0.85rem;
 }

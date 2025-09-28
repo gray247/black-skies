@@ -1,4 +1,4 @@
-﻿import type { OutlineFile, SceneDraftMetadata } from './projectLoader';
+import type { OutlineFile, SceneDraftMetadata } from './projectLoader';
 
 export interface ServiceError {
   code?: string;
@@ -89,7 +89,14 @@ export interface DraftGenerateBridgeResponse {
   draft_id: string;
   schema_version: 'DraftUnitSchema v1';
   units: DraftUnit[];
-  budget?: { estimated_usd?: number };
+  budget?: {
+    estimated_usd?: number;
+    status?: DraftPreflightStatus;
+    message?: string;
+    soft_limit_usd?: number;
+    hard_limit_usd?: number;
+    spent_usd?: number;
+  };
 }
 
 export interface DraftCritiqueBridgeRequest {
@@ -113,24 +120,38 @@ export interface DraftCritiqueBridgeResponse {
   model?: { name: string; provider: string };
 }
 
-export type DraftPreflightStatus = 'ok' | 'soft-limit' | 'blocked' | 'offline';
+export type DraftPreflightStatus = 'ok' | 'soft-limit' | 'blocked';
 
 export interface DraftPreflightBridgeRequest {
   projectId: string;
   unitScope: DraftUnitScope;
   unitIds: string[];
+  overrides?: Record<string, DraftUnitOverrides>;
 }
 
 export interface DraftPreflightEstimate {
   projectId: string;
   unitScope: DraftUnitScope;
   unitIds: string[];
+  model: {
+    name: string;
+    provider: string;
+  };
+  scenes: Array<{
+    id: string;
+    title: string;
+    order: number;
+    chapter_id?: string;
+    beat_refs?: string[];
+  }>;
   budget: {
     estimated_usd: number;
     status: DraftPreflightStatus;
     message?: string;
     soft_limit_usd?: number;
     hard_limit_usd?: number;
+    spent_usd?: number;
+    total_after_usd?: number;
   };
 }
 
