@@ -6,9 +6,39 @@ interface PreflightModalProps {
   isOpen: boolean;
   loading: boolean;
   error?: string | null;
+  errorDetails?: unknown | null;
   estimate?: DraftPreflightEstimate;
   onClose: () => void;
   onProceed: () => void;
+}
+
+interface ValidationSummaryEntry {
+  heading: string;
+  items: string[];
+  ariaLabel?: string;
+}
+
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((item) => typeof item === 'string');
+}
+
+function deriveValidationSummary(details: unknown): ValidationSummaryEntry[] {
+  if (!details || typeof details !== 'object') {
+    return [];
+  }
+
+  const record = details as Record<string, unknown>;
+  const summary: ValidationSummaryEntry[] = [];
+
+  if (isStringArray(record.missing_scene_ids)) {
+    summary.push({
+      heading: 'Missing scene IDs',
+      items: record.missing_scene_ids,
+      ariaLabel: 'Missing scene IDs',
+    });
+  }
+
+  return summary;
 }
 
 function statusLabel(status: DraftPreflightEstimate['budget']['status'] | undefined): string {
@@ -32,6 +62,7 @@ export function PreflightModal({
   isOpen,
   loading,
   error,
+  errorDetails,
   estimate,
   onClose,
   onProceed,
@@ -40,6 +71,7 @@ export function PreflightModal({
     return null;
   }
 
+  const validationSummary = deriveValidationSummary(errorDetails);
   const budget = estimate?.budget;
   const status = budget?.status;
   const estimatedUsd = budget?.estimated_usd;
@@ -67,6 +99,26 @@ export function PreflightModal({
             <div className="preflight-modal__error">
               <strong>Unable to complete preflight</strong>
               <p>{error}</p>
+              {validationSummary.length > 0 ? (
+                <div className="preflight-modal__error-summary" aria-live="polite">
+                  <h3 id="preflight-modal-validation-summary-heading">Validation summary</h3>
+                  {validationSummary.map((entry) => (
+                    <div key={entry.heading} className="preflight-modal__error-summary-section">
+                      <p className="preflight-modal__error-summary-title">{entry.heading}</p>
+                      <ul
+                        className="preflight-modal__error-summary-list"
+                        aria-label={entry.ariaLabel ?? entry.heading}
+                      >
+                        {entry.items.map((item) => (
+                          <li key={item} className="preflight-modal__error-summary-item">
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
             </div>
           ) : budget ? (
             <>
