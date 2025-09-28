@@ -8,6 +8,17 @@ const baseEstimate: DraftPreflightEstimate = {
   projectId: 'proj_123',
   unitScope: 'scene',
   unitIds: ['sc_0001'],
+  model: {
+    name: 'draft-synthesizer-v1',
+    provider: 'black-skies-local',
+  },
+  scenes: [
+    {
+      id: 'sc_0001',
+      title: 'Scene 1',
+      order: 1,
+    },
+  ],
   budget: {
     estimated_usd: 1.2,
     status: 'ok',
@@ -53,5 +64,47 @@ describe('PreflightModal', () => {
     const proceed = screen.getByRole('button', { name: /Proceed/i });
     fireEvent.click(proceed);
     expect(onProceed).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders scenes and model metadata', () => {
+    render(
+      <PreflightModal
+        isOpen
+        loading={false}
+        error={null}
+        estimate={{
+          ...baseEstimate,
+          scenes: [
+            { id: 'sc_0001', title: 'Arrival', order: 1 },
+            { id: 'sc_0002', title: 'Storm Cellar', order: 2 },
+          ],
+        }}
+        onClose={() => undefined}
+        onProceed={() => undefined}
+      />,
+    );
+
+    expect(screen.getByText('Scenes in this run')).toBeInTheDocument();
+    expect(screen.getByText('Arrival')).toBeInTheDocument();
+    expect(screen.getByText(/sc_0002/)).toBeInTheDocument();
+    expect(screen.getByText(/draft-synthesizer-v1/i)).toBeInTheDocument();
+  });
+
+  it('shows error state and disables proceed', () => {
+    const onClose = vi.fn();
+    render(
+      <PreflightModal
+        isOpen
+        loading={false}
+        error="Unable to reach the service"
+        estimate={undefined}
+        onClose={onClose}
+        onProceed={() => undefined}
+      />,
+    );
+
+    expect(screen.getByText(/Unable to complete preflight/i)).toBeInTheDocument();
+    const proceed = screen.getByRole('button', { name: /proceed/i });
+    expect(proceed).toHaveProperty('disabled', true);
   });
 });

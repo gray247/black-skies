@@ -45,6 +45,12 @@ During 0.1 testing, load the prebuilt project from `sample_project/Esther_Estate
 
 The directory mirrors the schema in `docs/data_model.md` (`outline.json`, `project.json`, `drafts/`, `revisions/`, `history/`, `lore/`). Use it for smoke tests until the Wizard flow is stable.
 
+## Budgets & Preflight
+- The desktop shell asks the FastAPI services for a `/draft/preflight` estimate before it enables `/draft/generate`.
+- Soft ($5) and hard ($10) caps are enforced per project; the running total lives in each `project.json`.
+- See `docs/endpoints.md` for request/response details.
+
+
 ## Repo Map
 ```
 /app               Electron + React (renderer + main)

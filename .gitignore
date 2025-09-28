@@ -29,3 +29,6 @@ coverage/
 # Build artifacts
 build/
 dist/
+.codex_step
+.codex_history
+.env

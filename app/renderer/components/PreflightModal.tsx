@@ -11,7 +11,7 @@ interface PreflightModalProps {
   onProceed: () => void;
 }
 
-function statusLabel(status: DraftPreflightEstimate['budget']['status']): string {
+function statusLabel(status: DraftPreflightEstimate['budget']['status'] | undefined): string {
   switch (status) {
     case 'ok':
       return 'Within budget';
@@ -19,11 +19,13 @@ function statusLabel(status: DraftPreflightEstimate['budget']['status']): string
       return 'Soft limit exceeded';
     case 'blocked':
       return 'Hard limit exceeded';
-    case 'offline':
-      return 'Offline estimate';
     default:
-      return status;
+      return 'Unknown';
   }
+}
+
+function formatAmount(value: number | undefined): string {
+  return typeof value === 'number' ? `$${value.toFixed(2)}` : '—';
 }
 
 export function PreflightModal({
@@ -39,10 +41,15 @@ export function PreflightModal({
   }
 
   const budget = estimate?.budget;
-  const status = budget?.status ?? 'offline';
-  const estimatedUsd = budget?.estimated_usd ?? 0;
-  const disableProceed =
-    loading || status === 'blocked' || status === 'offline' || Boolean(error);
+  const status = budget?.status;
+  const estimatedUsd = budget?.estimated_usd;
+  const softLimit = budget?.soft_limit_usd;
+  const hardLimit = budget?.hard_limit_usd;
+  const currentSpend = budget?.spent_usd;
+  const projectedTotal = budget?.total_after_usd;
+  const scenes = estimate?.scenes ?? [];
+  const model = estimate?.model;
+  const disableProceed = loading || !budget || status === 'blocked' || Boolean(error);
 
   return (
     <div className="preflight-modal" role="dialog" aria-modal="true" aria-label="Draft preflight">
@@ -65,29 +72,58 @@ export function PreflightModal({
             <>
               <dl className="preflight-modal__summary">
                 <dt>Estimate</dt>
-                <dd>${estimatedUsd.toFixed(2)}</dd>
+                <dd>{formatAmount(estimatedUsd)}</dd>
                 <dt>Status</dt>
                 <dd>{statusLabel(status)}</dd>
-                {budget.soft_limit_usd ? (
+                {model ? (
                   <>
-                    <dt>Soft limit</dt>
-                    <dd>${budget.soft_limit_usd.toFixed(2)}</dd>
+                    <dt>Model</dt>
+                    <dd>
+                      {model.name}
+                      {model.provider ? ` · ${model.provider}` : ''}
+                    </dd>
                   </>
                 ) : null}
-                {budget.hard_limit_usd ? (
+                {typeof currentSpend === 'number' ? (
+                  <>
+                    <dt>Current spend</dt>
+                    <dd>{formatAmount(currentSpend)}</dd>
+                  </>
+                ) : null}
+                {typeof projectedTotal === 'number' ? (
+                  <>
+                    <dt>Projected total</dt>
+                    <dd>{formatAmount(projectedTotal)}</dd>
+                  </>
+                ) : null}
+                {typeof softLimit === 'number' ? (
+                  <>
+                    <dt>Soft limit</dt>
+                    <dd>{formatAmount(softLimit)}</dd>
+                  </>
+                ) : null}
+                {typeof hardLimit === 'number' ? (
                   <>
                     <dt>Hard limit</dt>
-                    <dd>${budget.hard_limit_usd.toFixed(2)}</dd>
+                    <dd>{formatAmount(hardLimit)}</dd>
                   </>
                 ) : null}
               </dl>
               {budget.message ? (
                 <p className="preflight-modal__message">{budget.message}</p>
               ) : null}
-              {status === 'offline' ? (
-                <p className="preflight-modal__todo">
-                  TODO: Replace with connected UI once services expose a budget endpoint.
-                </p>
+              {scenes.length > 0 ? (
+                <div className="preflight-modal__scenes" aria-live="polite">
+                  <h3>Scenes in this run</h3>
+                  <ul className="preflight-modal__scene-list">
+                    {scenes.map((scene) => (
+                      <li key={scene.id} className="preflight-modal__scene">
+                        <span className="preflight-modal__scene-title">{scene.title}</span>
+                        <span className="preflight-modal__scene-id">{` (${scene.id})`}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               ) : null}
             </>
           ) : (
@@ -111,8 +147,6 @@ export function PreflightModal({
           >
             {status === 'blocked'
               ? 'Blocked'
-              : status === 'offline'
-              ? 'Offline'
               : loading
               ? 'Working…'
               : 'Proceed'}

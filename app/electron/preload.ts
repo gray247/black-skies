@@ -1,4 +1,4 @@
-﻿import { contextBridge, ipcRenderer } from 'electron';
+import { contextBridge, ipcRenderer } from 'electron';
 
 import {
   PROJECT_LOADER_CHANNELS,
@@ -171,46 +171,30 @@ function serializeCritiqueRequest(request: DraftCritiqueBridgeRequest): FetchBod
 }
 
 function serializePreflightRequest(request: DraftPreflightBridgeRequest): FetchBody {
+  const overrides = request.overrides
+    ? Object.fromEntries(
+        Object.entries(request.overrides).map(([key, value]) => [
+          key,
+          {
+            order: value.order,
+            purpose: value.purpose,
+            emotion_tag: value.emotion_tag,
+            pov: value.pov,
+            goal: value.goal,
+            conflict: value.conflict,
+            turn: value.turn,
+            word_target: value.word_target,
+            beats: value.beats,
+          },
+        ]),
+      )
+    : undefined;
+
   return {
     project_id: request.projectId,
     unit_scope: request.unitScope,
     unit_ids: request.unitIds,
-  };
-}
-
-function offlinePreflight(
-  request: DraftPreflightBridgeRequest,
-): ServiceResult<DraftPreflightEstimate> {
-  const base = Math.max(1, request.unitIds.length);
-  const estimatedUsd = Number((base * 0.12).toFixed(2));
-  const status =
-    estimatedUsd >= 10
-      ? ('blocked' as const)
-      : estimatedUsd >= 5
-      ? ('soft-limit' as const)
-      : ('ok' as const);
-
-  const message =
-    status === 'blocked'
-      ? 'Estimated cost exceeds hard budget limit. Try batching fewer units.'
-      : status === 'soft-limit'
-      ? 'Estimated cost exceeds soft limit; confirmation required.'
-      : 'Preflight estimate is within budget.';
-
-  return {
-    ok: true,
-    data: {
-      projectId: request.projectId,
-      unitScope: request.unitScope,
-      unitIds: request.unitIds,
-      budget: {
-        estimated_usd: estimatedUsd,
-        status: status === 'blocked' ? 'blocked' : status,
-        message,
-        soft_limit_usd: 5,
-        hard_limit_usd: 10,
-      },
-    },
+    overrides,
   };
 }
 
@@ -297,11 +281,9 @@ const servicesBridge: ServicesBridge = {
       '/draft/preflight',
       'POST',
       serializePreflightRequest(request),
-      () => offlinePreflight(request),
     );
   },
 };
 
 contextBridge.exposeInMainWorld('projectLoader', projectLoaderApi);
 contextBridge.exposeInMainWorld('services', servicesBridge);
-

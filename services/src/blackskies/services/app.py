@@ -3,13 +3,16 @@
 from __future__ import annotations
 
 import asyncio
+import copy
 import hashlib
 import json
 import logging
 import shutil
+import os
 from contextlib import asynccontextmanager
 from importlib import resources
 from pathlib import Path
+from dataclasses import dataclass
 from typing import Any, AsyncIterator, Final, cast
 from uuid import uuid4
 
@@ -20,8 +23,9 @@ from .config import ServiceSettings
 from .diagnostics import DiagnosticLogger
 from .diff_engine import compute_diff
 from .draft_synthesizer import DraftSynthesizer
-from .models.draft import DraftGenerateRequest, DraftUnitScope
+from .models.draft import DraftGenerateRequest, DraftUnitOverrides, DraftUnitScope
 from .models.outline import OutlineArtifact, OutlineScene
+from .models.project import ProjectMetadata
 from .models.rewrite import DraftRewriteRequest
 from .models.wizard import OutlineBuildRequest
 from .outline_builder import MissingLocksError, OutlineBuilder
@@ -31,6 +35,20 @@ LOGGER = logging.getLogger(__name__)
 
 SERVICE_VERSION: Final[str] = "0.1.0"
 _FIXTURE_PACKAGE: Final[str] = "blackskies.services.fixtures"
+SOFT_BUDGET_LIMIT_USD: Final[float] = 5.0
+HARD_BUDGET_LIMIT_USD: Final[float] = 10.0
+
+
+@dataclass
+class ProjectBudgetState:
+    """Current budget configuration resolved from ``project.json``."""
+
+    project_root: Path
+    metadata: dict[str, Any]
+    soft_limit: float
+    hard_limit: float
+    spent_usd: float
+    project_path: Path
 
 
 def _load_fixture(name: str) -> dict[str, Any]:
@@ -332,6 +350,162 @@ def _compute_draft_id(project_id: str, seed: int | None, scene_ids: list[str]) -
     numeric = int(digest[:6], 16) % 1000
     return f"dr_{numeric:03d}"
 
+def _estimate_word_target(scene: OutlineScene, overrides: DraftUnitOverrides | None) -> int:
+    """Estimate the word target for a scene using overrides when supplied."""
+
+    if overrides and overrides.word_target is not None:
+        return overrides.word_target
+    order_value = overrides.order if overrides and overrides.order is not None else scene.order
+    return 850 + (order_value * 40)
+
+
+
+def _load_project_budget_state(
+    project_root: Path, diagnostics: DiagnosticLogger
+) -> ProjectBudgetState:
+    """Load project budget configuration with graceful fallbacks."""
+
+    project_path = project_root / "project.json"
+    base_payload: dict[str, Any] = {
+        "project_id": project_root.name,
+        "budget": {
+            "soft": SOFT_BUDGET_LIMIT_USD,
+            "hard": HARD_BUDGET_LIMIT_USD,
+            "spent_usd": 0.0,
+        },
+    }
+    payload = copy.deepcopy(base_payload)
+
+    if project_path.exists():
+        try:
+            with project_path.open("r", encoding="utf-8") as handle:
+                payload = json.load(handle)
+        except (OSError, json.JSONDecodeError) as exc:
+            diagnostics.log(
+                project_root,
+                code="INTERNAL",
+                message="Failed to read project metadata.",
+                details={"path": str(project_path), "error": str(exc)},
+            )
+            payload = copy.deepcopy(base_payload)
+        else:
+            try:
+                metadata = ProjectMetadata.model_validate(payload)
+            except ValidationError as exc:
+                diagnostics.log(
+                    project_root,
+                    code="VALIDATION",
+                    message="Project metadata failed validation; using defaults.",
+                    details={"path": str(project_path), "errors": exc.errors()},
+                )
+                payload = ProjectMetadata.model_validate(base_payload).model_dump(mode="json")
+            else:
+                payload = metadata.model_dump(mode="json")
+    else:
+        payload = ProjectMetadata.model_validate(base_payload).model_dump(mode="json")
+
+    budget_section = payload.get("budget", {})
+    soft_limit = float(budget_section.get("soft", SOFT_BUDGET_LIMIT_USD))
+    hard_limit = float(budget_section.get("hard", HARD_BUDGET_LIMIT_USD))
+    spent_usd = float(budget_section.get("spent_usd", 0.0))
+
+    if hard_limit < 0:
+        hard_limit = HARD_BUDGET_LIMIT_USD
+    if soft_limit < 0:
+        soft_limit = SOFT_BUDGET_LIMIT_USD
+
+    effective_hard = hard_limit if hard_limit > 0 else HARD_BUDGET_LIMIT_USD
+
+    return ProjectBudgetState(
+        project_root=project_root,
+        metadata=payload,
+        soft_limit=soft_limit if soft_limit <= effective_hard else effective_hard,
+        hard_limit=effective_hard,
+        spent_usd=spent_usd if spent_usd >= 0 else 0.0,
+        project_path=project_path,
+    )
+
+
+
+def _classify_budget(
+    estimated_cost: float,
+    *,
+    soft_limit: float,
+    hard_limit: float,
+    current_spend: float,
+) -> tuple[str, str, float]:
+    """Classify the post-run budget status."""
+
+    effective_hard_limit = hard_limit if hard_limit > 0 else HARD_BUDGET_LIMIT_USD
+    effective_soft_limit = (
+        soft_limit if 0 <= soft_limit <= effective_hard_limit else effective_hard_limit
+    )
+
+    total_after_run = round(current_spend + estimated_cost, 2)
+
+    if total_after_run >= effective_hard_limit:
+        return (
+            "blocked",
+            f"Estimated total ${total_after_run:.2f} exceeds hard limit ${effective_hard_limit:.2f}.",
+            total_after_run,
+        )
+    if total_after_run >= effective_soft_limit:
+        return (
+            "soft-limit",
+            f"Estimated total ${total_after_run:.2f} exceeds soft limit ${effective_soft_limit:.2f}.",
+            total_after_run,
+        )
+    return "ok", "Estimate within budget.", total_after_run
+
+
+
+def _persist_project_budget(state: ProjectBudgetState, new_spent_usd: float) -> None:
+    """Persist updated budget totals to ``project.json`` atomically."""
+
+    payload = copy.deepcopy(state.metadata)
+    budget_section = payload.setdefault("budget", {})
+    budget_section["soft"] = round(state.soft_limit, 2)
+    budget_section["hard"] = round(state.hard_limit, 2)
+    budget_section["spent_usd"] = round(max(new_spent_usd, 0.0), 2)
+
+    payload.setdefault("project_id", state.project_root.name)
+
+    serialized = json.dumps(payload, indent=2, ensure_ascii=False)
+
+    state.project_root.mkdir(parents=True, exist_ok=True)
+    temp_path = state.project_path.parent / f".{state.project_path.name}.{uuid4().hex}.tmp"
+    with temp_path.open("w", encoding="utf-8") as handle:
+        handle.write(serialized)
+        handle.flush()
+        os.fsync(handle.fileno())
+
+    temp_path.replace(state.project_path)
+
+
+
+def _raise_budget_error(
+    *,
+    message: str,
+    details: dict[str, Any],
+    diagnostics: DiagnosticLogger,
+    project_root: Path | None,
+) -> None:
+    """Raise a ``BUDGET_EXCEEDED`` error and log it."""
+
+    safe_details = _sanitize_details(details)
+    if project_root is not None:
+        diagnostics.log(
+            project_root,
+            code="BUDGET_EXCEEDED",
+            message=message,
+            details=safe_details,
+        )
+    raise HTTPException(
+        status_code=status.HTTP_402_PAYMENT_REQUIRED,
+        detail={"code": "BUDGET_EXCEEDED", "message": message, "details": safe_details},
+    )
+
+
 
 def _raise_validation_error(
     *,
@@ -489,8 +663,8 @@ def _register_routes(api: FastAPI) -> None:
                 project_root=project_root,
             )
 
+        budget_state = _load_project_budget_state(project_root, diagnostics)
         synthesizer = DraftSynthesizer()
-        persistence = DraftPersistence(settings=settings)
         overrides = request_model.overrides
         results = [
             synthesizer.synthesize(
@@ -502,22 +676,161 @@ def _register_routes(api: FastAPI) -> None:
             for index, scene in enumerate(scene_summaries)
         ]
 
-        for result in results:
-            persistence.write_scene(
-                request_model.project_id, result.front_matter, result.body
-            )
-
         scene_ids = [scene.id for scene in scene_summaries]
         draft_id = _compute_draft_id(request_model.project_id, request_model.seed, scene_ids)
         total_words = sum(int(result.unit["meta"].get("word_target", 0)) for result in results)
         estimated_cost = round((total_words / 1000) * 0.02, 2)
 
+        status_label, message, total_after = _classify_budget(
+            estimated_cost,
+            soft_limit=budget_state.soft_limit,
+            hard_limit=budget_state.hard_limit,
+            current_spend=budget_state.spent_usd,
+        )
+
+        if status_label == "blocked":
+            _raise_budget_error(
+                message=message,
+                details={
+                    "estimated_usd": estimated_cost,
+                    "spent_before_usd": round(budget_state.spent_usd, 2),
+                    "total_after_usd": total_after,
+                    "hard_limit_usd": round(budget_state.hard_limit, 2),
+                },
+                diagnostics=diagnostics,
+                project_root=project_root,
+            )
+
+        persistence = DraftPersistence(settings=settings)
+        for result in results:
+            persistence.write_scene(
+                request_model.project_id, result.front_matter, result.body
+            )
+
+        try:
+            _persist_project_budget(budget_state, total_after)
+        except OSError as exc:
+            diagnostics.log(
+                project_root,
+                code="INTERNAL",
+                message="Failed to update project budget.",
+                details={"project_id": request_model.project_id, "error": str(exc)},
+            )
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail={
+                    "code": "INTERNAL",
+                    "message": "Failed to update project budget.",
+                    "details": {"project_id": request_model.project_id},
+                },
+            ) from exc
+
+        budget_payload = {
+            "estimated_usd": estimated_cost,
+            "status": status_label,
+            "message": message,
+            "soft_limit_usd": round(budget_state.soft_limit, 2),
+            "hard_limit_usd": round(budget_state.hard_limit, 2),
+            "spent_usd": round(total_after, 2),
+        }
+
         return {
             "draft_id": draft_id,
             "schema_version": "DraftUnitSchema v1",
             "units": [result.unit for result in results],
-            "budget": {"estimated_usd": estimated_cost},
+            "budget": budget_payload,
         }
+
+
+    @draft_router.post("/preflight")
+    async def preflight_draft(
+        payload: dict[str, Any],
+        settings: ServiceSettings = Depends(get_settings),
+        diagnostics: DiagnosticLogger = Depends(get_diagnostics),
+    ) -> dict[str, Any]:
+        """Return an estimate for draft generation costs without writing files."""
+
+        project_root: Path | None = None
+        try:
+            request_model = DraftGenerateRequest.model_validate(payload)
+        except ValidationError as exc:
+            project_id = payload.get("project_id") if isinstance(payload, dict) else None
+            if isinstance(project_id, str):
+                project_root = settings.project_base_dir / project_id
+            _raise_validation_error(
+                message="Invalid draft preflight request.",
+                details={"errors": exc.errors()},
+                diagnostics=diagnostics,
+                project_root=project_root,
+            )
+
+        project_root = settings.project_base_dir / request_model.project_id
+        try:
+            outline = _load_outline_artifact(project_root)
+        except DraftRequestError as exc:
+            _raise_validation_error(
+                message=str(exc),
+                details=exc.details,
+                diagnostics=diagnostics,
+                project_root=project_root,
+            )
+
+        try:
+            scene_summaries = _resolve_requested_scenes(request_model, outline)
+        except DraftRequestError as exc:
+            _raise_validation_error(
+                message=str(exc),
+                details=exc.details,
+                diagnostics=diagnostics,
+                project_root=project_root,
+            )
+
+        budget_state = _load_project_budget_state(project_root, diagnostics)
+
+        total_words = 0
+        for scene in scene_summaries:
+            overrides = request_model.overrides.get(scene.id)
+            total_words += _estimate_word_target(scene, overrides)
+
+        estimated_cost = round((total_words / 1000) * 0.02, 2)
+        status_label, message, total_after = _classify_budget(
+            estimated_cost,
+            soft_limit=budget_state.soft_limit,
+            hard_limit=budget_state.hard_limit,
+            current_spend=budget_state.spent_usd,
+        )
+
+        synthesizer = DraftSynthesizer()
+        scenes_payload: list[dict[str, Any]] = []
+        for scene in scene_summaries:
+            scene_payload: dict[str, Any] = {
+                "id": scene.id,
+                "title": scene.title,
+                "order": scene.order,
+            }
+            if scene.chapter_id is not None:
+                scene_payload["chapter_id"] = scene.chapter_id
+            if scene.beat_refs:
+                scene_payload["beat_refs"] = list(scene.beat_refs)
+            scenes_payload.append(scene_payload)
+
+        return {
+            "project_id": request_model.project_id,
+            "unit_scope": request_model.unit_scope.value,
+            "unit_ids": request_model.unit_ids,
+            "model": dict(synthesizer._MODEL),
+            "scenes": scenes_payload,
+            "budget": {
+                "estimated_usd": estimated_cost,
+                "status": status_label,
+                "message": message,
+                "soft_limit_usd": round(budget_state.soft_limit, 2),
+                "hard_limit_usd": round(budget_state.hard_limit, 2),
+                "spent_usd": round(budget_state.spent_usd, 2),
+                "total_after_usd": round(total_after, 2),
+            },
+        }
+
 
     @draft_router.post("/rewrite")
     async def rewrite_draft(

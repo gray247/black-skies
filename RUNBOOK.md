@@ -1,37 +1,40 @@
-# Black Skies – Runbook
+# Black Skies — Runbook
 
-> Single source of truth Codex can follow, step by step.
+This runbook tracks day-to-day execution for the Phase 1 plan in `docs/BUILD_PLAN.md`.
 
-## Step 1 — Setup Python env & deps
-- Create/refresh `.venv`
-- Install runtime deps from **wheels/** if present; otherwise from PyPI
-- Write minimal `.env` with safe defaults
+## Daily workflow
 
-## Step 2 — Lint (non-blocking)
-- `black --check .`
-- `flake8 --exclude .venv,**/.venv,**/__pycache__`
+1. **Open your shell** (WSL recommended) and change into the repo:
+   ```bash
+   cd /mnt/c/Dev/black-skies
+   ```
+2. **Optionally activate the Python env** when running commands manually:
+   ```bash
+   source .venv/bin/activate  # use .venv\Scripts\activate on Windows
+   ```
+3. **See the next build-plan step**:
+   ```bash
+   bash scripts/next.sh
+   ```
+   The script prints the next step name, summary, and the “Codex ask” to paste into Codex CLI. Each run records progress in `.codex_step` and `.codex_history`.
+4. **Apply the step** by pasting the Codex ask into Codex CLI, reviewing the PR, merging, and running the project tests (`corepack pnpm --filter app test` and `PYTHONPATH=services/src python -m pytest`).
+5. **After merging**, run `bash scripts/next.sh` again to advance the pointer.
 
-## Step 3 — Test (non-blocking / smart-skip)
-- If core deps (`httpx`, `fastapi`) are present, run `pytest -q`
-- Otherwise **skip** with a clear message (don’t fail the workflow)
+## Utilities
 
-## Step 4 — Optional frontend install (sandbox-safe)
-- If `BS_ALLOW_NODE=1` and a registry is reachable:
-  - Prefer `pnpm i --frozen-lockfile` under `app/` when `pnpm` exists
-  - Else fall back to `npm ci` (or `npm install` if no lockfile)
-- If registry blocked or tool missing: **skip** gracefully
+- `scripts/next.sh --reset` — reset progress back to the first step (useful if you want to replay the plan).
+- `.codex_history` — audit log of completed steps with timestamps.
+- `.codex_step` — current step pointer (plain text).
 
-## Step 5 — Auto-fix & re-lint (non-blocking)
-- `black .`
-- `flake8 --exclude .venv,**/.venv,**/__pycache__`
+## Testing shortcuts
 
-## Step 6 — Commit work branch
-- Ensure branch `work` exists (create if needed)
-- `git add -A && git commit -m "chore(black-skies): step 6 housekeeping"` (no-op if nothing changed)
+- Renderer tests: `corepack pnpm --filter app test`
+- Service tests: `PYTHONPATH=services/src python -m pytest`
+- Format check: `black --check services app` (once dependencies installed)
 
-## Step 7 — Push & PR (best effort)
-- Push `work` to `origin`
-- If GitHub CLI `gh` is available, open a PR `work → main`
-- Otherwise print the exact `git` command Codex should use to open the PR
+## Notes
 
----
+- Always consult the referenced docs before implementing a step.
+- Keep PRs focused on the single step you are executing.
+- Honour offline constraints: use existing wheels and skip Node installs if the registry is unavailable.
+

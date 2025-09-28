@@ -1,266 +1,189 @@
-# Black Skies — Build Plan (through 2.0)
+# Black Skies — Phase 1 Execution Plan
 
-**Purpose:** A single, executable checklist that Codex can follow step-by-step.  
-**How to use with Codex CLI:** Pick the next unchecked task. Copy the **Codex ask** under it and paste into Codex. When it opens a PR, review/commit, then return here and proceed to the next task.
+**Goal:** Complete the remaining Phase 1 items from `docs/phase_charter.md` so the desktop app can run the outline → draft → critique workflow end-to-end, recover from crashes, and ship with documented packaging.
 
-> Grounding docs this plan references:
-> - `docs/architecture.md`
-> - `docs/agents_and_services.md`
-> - `docs/endpoints.md`
-> - `docs/data_model.md`
-> - `docs/policies.md`
-> - `docs/exports.md`
-> - `docs/gui_layouts.md`
-> - `docs/phase_charter.md`, `docs/phase_log.md`
+**How to use this plan:** Start at the top. For each step, copy the **Codex ask** into the Codex CLI, review the PR, merge, and then continue. Steps are grouped into milestones to make progress easy to track.
+
+For finer-grained tasks (~85 steps), see `docs/BUILD_STEPS_DETAILED.md` and log progress alongside this plan.
+
+> Grounding docs: `docs/architecture.md`, `docs/agents_and_services.md`, `docs/endpoints.md`, `docs/data_model.md`, `docs/policies.md`, `docs/gui_layouts.md`, `docs/phase_charter.md`, `docs/phase_log.md`.
 
 ---
 
-## Milestone 1.0 — MVP service (local, offline-friendly)
+## Milestone P1 — Preflight & Budgeting
 
-### 1.1 Project skeleton & settings
-**Do:**
-- Create Python package `black_skies/` with modules: `app/`, `core/`, `agents/`, `storage/`, `util/`.
-- Add `pyproject.toml` (PEP 621) with `black-skies` metadata.
-- Implement `black_skies/core/settings.py` using **pydantic-settings** with `.env` support:
-  - `OPENAI_API_KEY` (default `"dummy"`), `BLACK_SKIES_MODE` (default `"companion"`).
-- Add `black_skies/app/factory.py` with `create_app()` (FastAPI), set common middleware (CORS, gzip), and health route.
+### P1.0 Preflight service endpoint
+**Do**
+- Add a real `POST /draft/preflight` FastAPI route inside the draft router.
+- Accept project/unit payload, reuse outline normalization, and estimate token counts from existing drafts.
+- Return budget status (`ok`, `soft-limit`, `blocked`) with cost metadata.
+- Log validation errors via diagnostics; add pytest coverage.
 
-**Accept when:**
-- `import black_skies` works.
-- `uvicorn black_skies.app.factory:create_app` boots with `/healthz -> {"ok":true}`.
+**Accept when**
+- `/draft/preflight` responds with status + estimate for valid requests and surfaces validation errors for bad IDs/over-limit batches.
+- Pytest includes success + validation cases.
 
-**Codex ask:**  
-“Implement BUILD_PLAN 1.1: create the Python package skeleton and pydantic settings, and a FastAPI app factory with `/healthz`. Follow docs/architecture.md.”
-
----
-
-### 1.2 Data model scaffolding (IDs & folders)
-**Do:**
-- From `docs/data_model.md`, create dataclasses/Pydantic models:
-  - `Outline`, `DraftUnit`, `Revision`, `HistoryEntry` with locked ID scheme (`sc_0001`, `ch_0001`, …).
-- Add `black_skies/storage/fs_layout.py` with paths: `outline.json`, `drafts/`, `revisions/`, `history/`.
-
-**Accept when:**
-- Creating models and serializing/deserializing round-trips.
-- A tiny helper can init a blank project folder.
-
-**Codex ask:**  
-“Implement BUILD_PLAN 1.2: Pydantic models for Outline/DraftUnit/Revision/HistoryEntry and a file-system layout helper per docs/data_model.md.”
+**Codex ask**
+“Implement Phase P1.0: add `/draft/preflight` to the FastAPI service, returning budget status and estimates with tests.”
 
 ---
 
-### 1.3 Service endpoints (MVP set)
-**Do (per `docs/endpoints.md`):**
-- Implement routes:
-  - `GET /v1/projects/{id}/outline`
-  - `PUT /v1/projects/{id}/outline`
-  - `POST /v1/projects/{id}/drafts`
-  - `GET /v1/projects/{id}/drafts/{draft_id}`
-  - `POST /v1/projects/{id}/revisions`
-  - `GET /healthz`
-- Use the storage layer from 1.2.
+### P1.1 Renderer integration
+**Do**
+- Update the preload bridge to call the real `/draft/preflight` endpoint (remove offline fallback).
+- Enhance `PreflightModal` to display returned budget info and validation errors.
+- Update wizard/project flows so `Generate` waits on preflight state.
+- Add Vitest coverage for modal states and error handling.
 
-**Accept when:**
-- OpenAPI shows all endpoints with schemas.
-- Basic read/write OK against a temp project dir.
+**Accept when**
+- UI hits the service, displays estimate/status/error conditions, and disables actions on `blocked`.
+- Vitest covers happy path + validation failure.
 
-**Codex ask:**  
-“Implement BUILD_PLAN 1.3: the MVP FastAPI endpoints wired to the FS storage, matching docs/endpoints.md.”
+**Codex ask**
+“Implement Phase P1.1: hook the renderer into `/draft/preflight`, update the modal, and add Vitest coverage.”
 
 ---
 
-### 1.4 Agents skeletons
-**Do (per `docs/agents_and_services.md`):**
-- Create interfaces & stubs:
-  - `OutlineAgent`, `DraftAgent`, `RevisionAgent`, `CritiqueService`
-- No LLM calls yet; just pure functions with TODOs and docstrings citing the doc.
+### P1.2 Docs & regression tests
+**Do**
+- Document the preflight workflow in `README.md` and `docs/endpoints.md`.
+- Add regression tests for preflight → generate (pytest + Vitest as appropriate).
+- Update `phase_log.md` with the new capability.
 
-**Accept when:**
-- Stubs are importable and unit-tested with ‘does not raise’.
+**Accept when**
+- Fresh clone can follow README to run preflight + generate; docs show request/response.
+- Test suites cover the regression path.
 
-**Codex ask:**  
-“Implement BUILD_PLAN 1.4: create agent/service class stubs with signatures and docstrings from docs/agents_and_services.md.”
-
----
-
-### 1.5 Policy hooks
-**Do (per `docs/policies.md`):**
-- Add a small policy module (`black_skies/core/policies.py`) with:
-  - `check_project_limits()`, `redact_sensitive()`, `validate_export_target()`
-- Call minimal hooks inside endpoints where relevant.
-
-**Accept when:**
-- Unit tests show policy calls are invoked and can block bad input.
-
-**Codex ask:**  
-“Implement BUILD_PLAN 1.5: minimal policy functions and call sites per docs/policies.md, with unit tests.”
+**Codex ask**
+“Implement Phase P1.2: document the preflight flow, add regression tests, and update the phase log.”
 
 ---
 
-### 1.6 Exporters
-**Do (per `docs/exports.md`):**
-- Implement `black_skies/exports/markdown.py` and `black_skies/exports/jsonl.py`.
-- Add `POST /v1/projects/{id}/export` with `{"format":"markdown"|"jsonl"}`.
+## Milestone P2 — Critique Accept & Snapshots
 
-**Accept when:**
-- Sample project exports produce files with expected headers/fields.
+### P2.0 Critique accept API
+**Do**
+- Extend the service with an endpoint to accept critique suggestions (e.g., `POST /draft/accept`).
+- Apply accepted revisions to scene markdown, create history entry, and bump order metadata as needed.
+- Ensure diagnostics log conflicts; add pytest coverage.
 
-**Codex ask:**  
-“Implement BUILD_PLAN 1.6: markdown and jsonl exporters and the export endpoint, from docs/exports.md.”
+**Accept when**
+- Accepting a critique updates the draft file, logs snapshots/history, and returns updated metadata.
+- Tests cover accept success, stale/conflict errors, and history logging.
 
----
-
-### 1.7 Tests, lint, formatting
-**Do:**
-- Add `tests/` covering: settings, models, storage RT, endpoints happy path, policies invoked, exporters.
-- Configure `ruff` or `flake8` and `black`.
-- Provide `make` (or `tasks.py`) shortcuts: `fmt`, `lint`, `test`, `serve`.
-
-**Accept when:**
-- `pytest -q` passes locally (or within the codex environment with wheels).
-- `black --check` and `ruff/flake8` pass.
-
-**Codex ask:**  
-“Implement BUILD_PLAN 1.7: tests for core paths, plus black/ruff (or flake8) wiring and basic make/task commands.”
+**Codex ask**
+“Implement Phase P2.0: add an accept endpoint that applies critique diffs, persists history, and includes tests.”
 
 ---
 
-### 1.8 Offline wheels & pinned deps
-**Do:**
-- Add `vendor/wheels/` and a `scripts/freeze_wheels.sh` to pre-download:
-  - `fastapi`, `uvicorn[standard]`, `pydantic`, `pydantic-settings`, `python-dotenv`, `httpx`, `tenacity`, `anyio`, `typing-extensions`, test/lint tools.
-- Add `requirements.lock` (exact versions).
-- Document offline install in `README.md#offline-install`.
+### P2.1 Snapshots & crash recovery
+**Do**
+- Persist snapshots under `history/snapshots/` on successful accepts.
+- Add crash recovery detection (e.g., flag file) and show banner on next launch.
+- Provide CLI/renderer affordance to restore from the most recent snapshot.
 
-**Accept when:**
-- `pip install --no-index --find-links vendor/wheels -r requirements.lock` succeeds on a clean venv.
+**Accept when**
+- A simulated crash triggers the recovery banner and allows restore.
+- Tests cover snapshot creation and restore path.
 
-**Codex ask:**  
-“Implement BUILD_PLAN 1.8: vendor offline wheels + lockfile + freeze script and README instructions.”
-
----
-
-### 1.9 Minimal UI stub (optional in sandbox)
-**Do (per `docs/gui_layouts.md`):**
-- Create a static HTML stub in `ui/` that hits `/healthz` and displays status.
-- Defer full Node stack if registry is blocked; prefer plain HTML+fetch.
-
-**Accept when:**
-- Open `ui/index.html` in a browser and it shows service health and version.
-
-**Codex ask:**  
-“Implement BUILD_PLAN 1.9: a static HTML status page per docs/gui_layouts.md; no build tooling required.”
+**Codex ask**
+“Implement Phase P2.1: add snapshot persistence and crash recovery banner with tests.”
 
 ---
 
-### 1.10 Docs polish
-**Do:**
-- Update `README.md` with run, test, export examples.
-- Back-link each module to its source doc (architecture/agents/endpoints/etc.).
-- Add `CHANGELOG.md` and tag `v1.0.0`.
+### P2.2 Critique UI & UX polish
+**Do**
+- Expose accept/reject controls in the renderer with clear state (pending, applied, conflict).
+- Surface history entries and snapshot timestamps in the UI.
+- Add Vitest/Playwright smoke tests for accept/reject/recover flows.
 
-**Accept when:**
-- Fresh clone → follow README → run server → pass tests → export works.
+**Accept when**
+- Users can accept/reject critique suggestions and view history from the UI.
+- Automated smoke tests cover the flow.
 
-**Codex ask:**  
-“Implement BUILD_PLAN 1.10: README/CHANGELOG polish and tag for v1.0.0.”
-
----
-
-## Milestone 2.0 — Orchestration, critique, and UX pass
-
-### 2.1 Agent orchestration path
-**Do:**
-- Implement a simple pipeline: Outline → Draft → Revision, with clear intermediate artifacts, retries (tenacity), and structured logs.
-- Add `/v2/projects/{id}/draft` that triggers the pipeline (no external LLM call yet; keep stubs).
-
-**Accept when:**
-- Pipeline runs deterministically using stubbed agents and produces a Revision.
-
-**Codex ask:**  
-“Implement BUILD_PLAN 2.1: agent pipeline orchestration with retries and logs; add /v2/projects/{id}/draft (stubbed).”
+**Codex ask**
+“Implement Phase P2.2: build the renderer UX for critique accept/reject and history with tests.”
 
 ---
 
-### 2.2 Critique rubric integration
-**Do (per `docs/critique_rubric.md`):**
-- Create `black_skies/critique/rubric.py` and apply rubric during revisions.
-- Persist rubric results in `history/` entry.
+## Milestone P3 — Export & Packaging
 
-**Accept when:**
-- Unit tests show rubric scores attached to revision output.
+### P3.0 Export pipeline polish
+**Do**
+- Produce `draft_full.md` and YAML snapshots per `docs/data_model.md`.
+- Ensure exports include latest accepted revisions and metadata.
+- Add pytest coverage for export outputs.
 
-**Codex ask:**  
-“Implement BUILD_PLAN 2.2: wire the critique rubric into the revision stage and persist results.”
+**Accept when**
+- Exported files match schema/format expectations and tests assert on content.
 
----
-
-### 2.3 Decision checklist gating
-**Do (per `docs/decision_checklist.md`):**
-- Add pre-flight checklist enforcement before exports and publishing endpoints.
-- Return actionable errors when gates fail.
-
-**Accept when:**
-- Tests cover pass/fail paths for each checklist item.
-
-**Codex ask:**  
-“Implement BUILD_PLAN 2.3: decision checklist gating for export/publish operations, with tests.”
+**Codex ask**
+“Implement Phase P3.0: finalize the export pipeline (Markdown + YAML) with tests.”
 
 ---
 
-### 2.4 Observability & health
-**Do:**
-- Add `/metrics` (Prometheus text format) with basic counters (requests by route, failures, pipeline runs).
-- Add structured JSON logging and request IDs.
+### P3.1 Windows packaging
+**Do**
+- Script NSIS installer and portable ZIP build for the Electron app.
+- Document prerequisites and ensure builds include the FastAPI service + renderer.
+- Smoke-test installs on Windows.
 
-**Accept when:**
-- Metrics endpoint exposes counters; logs show request IDs and pipeline spans.
+**Accept when**
+- Both installer and portable builds run the app end-to-end.
 
-**Codex ask:**  
-“Implement BUILD_PLAN 2.4: basic Prometheus metrics and structured logging with request IDs.”
-
----
-
-### 2.5 UX round 1
-**Do (per `docs/gui_layouts.md`):**
-- If Node is available, create a tiny SPA (or HTMX) that can:
-  - Load outline, trigger draft pipeline, view latest revision, export.
-- Keep it build-light (Vite or plain), or continue with enhanced static pages if registries are blocked.
-
-**Accept when:**
-- User can click through the MVP loop end-to-end locally.
-
-**Codex ask:**  
-“Implement BUILD_PLAN 2.5: minimal UI to drive outline→draft→revision→export; prefer no heavy toolchains.”
+**Codex ask**
+“Implement Phase P3.1: produce Windows installer/portable builds and document the process.”
 
 ---
 
-### 2.6 Packaging & release
-**Do:**
-- Provide `uv`/`pipx` friendly entrypoint `black-skies` (console script) with subcommands:
-  - `serve`, `init-project`, `export`.
-- Tag `v2.0.0`, release notes.
+### P3.2 README & phase log updates
+**Do**
+- Refresh `README.md` with quickstart, preflight, critique, export instructions.
+- Update `docs/phase_log.md` with milestones achieved.
+- Add CHANGELOG entry summarizing Phase 1 completion.
 
-**Accept when:**
-- `black-skies serve` runs the app; `init-project` creates folders; `export` works.
+**Accept when**
+- Fresh clone can follow README to run full workflow; phase log/changelog reflect the release.
 
-**Codex ask:**  
-“Implement BUILD_PLAN 2.6: CLI entrypoints (serve/init/export) and package for v2.0.0.”
-
----
-
-## Conventions for Codex
-- Always read referenced docs before coding.
-- Touch only the files listed in the current task unless refactoring is required.
-- Write tests with each task; keep PRs small (1 task per PR).
-- Use pinned versions from `requirements.lock`; prefer offline wheels if available.
-- If Node registry is unavailable, prefer static assets and skip npm/pnpm.
+**Codex ask**
+“Implement Phase P3.2: document the completed workflow in README/phase_log/CHANGELOG.”
 
 ---
 
-## Appendix — Quick commands (local dev)
-- Create venv & install (online): `python -m venv .venv && source .venv/bin/activate && pip install -e . && pip install -r requirements.lock`
-- Offline install: `pip install --no-index --find-links vendor/wheels -r requirements.lock`
-- Serve: `uvicorn black_skies.app.factory:create_app --reload`
-- Test: `pytest -q`
-- Lint/format: `ruff check . && black .`
+## Milestone P4 — Observability & Release Wrap
+
+### P4.0 Metrics & structured logging
+**Do**
+- Add request ID middleware and structured JSON logging.
+- Expose `/metrics` with counters for key endpoints and pipeline runs.
+- Update docs with monitoring guidance.
+
+**Accept when**
+- Metrics increase under tests, logs show structured entries, docs describe usage.
+
+**Codex ask**
+“Implement Phase P4.0: add metrics and structured logging with documentation.”
+
+---
+
+### P4.1 Final doc sweep & release tag
+**Do**
+- Perform a final documentation sweep across `docs/`, `README`, and the renderer help text.
+- Tag the release (e.g., `v1.0.0-phase1`) and note it in `phase_log.md`.
+- Ensure CI builds (if configured) run clean.
+
+**Accept when**
+- Docs are up-to-date, tests pass, tag is created, and CI reports success.
+
+**Codex ask**
+“Implement Phase P4.1: finalize documentation, tag the release, and ensure CI passes.”
+
+---
+
+### Working with Codex
+- Keep PRs focused: one step per PR and reference the step ID.
+- Touch only necessary files; keep existing behaviour intact.
+- Each step must update or add tests relevant to the change.
+- Honour offline constraints when possible (use existing wheels/skip Node installs if blocked).
+- After merging a step, run `bash scripts/next.sh` to record progress and see the next step.
+

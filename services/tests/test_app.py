@@ -34,12 +34,55 @@ def _build_payload() -> dict[str, object]:
         },
     }
 
-def _bootstrap_outline(base_dir: Path, project_id: str, scene_count: int = 2) -> list[str]:
+def _write_project_budget(
+    base_dir: Path,
+    project_id: str,
+    *,
+    soft_limit: float = 5.0,
+    hard_limit: float = 10.0,
+    spent_usd: float = 0.0,
+) -> Path:
+    """Create or overwrite the project budget configuration."""
+
+    project_dir = base_dir / project_id
+    project_dir.mkdir(parents=True, exist_ok=True)
+    project_path = project_dir / "project.json"
+    payload = {
+        "project_id": project_id,
+        "name": f"Project {project_id}",
+        "budget": {
+            "soft": soft_limit,
+            "hard": hard_limit,
+            "spent_usd": spent_usd,
+        },
+    }
+    with project_path.open("w", encoding="utf-8") as handle:
+        json.dump(payload, handle, indent=2)
+    return project_path
+
+
+def _bootstrap_outline(
+    base_dir: Path,
+    project_id: str,
+    scene_count: int = 2,
+    *,
+    soft_limit: float = 5.0,
+    hard_limit: float = 10.0,
+    spent_usd: float = 0.0,
+) -> list[str]:
     """Write a minimal outline artifact for draft generation tests."""
 
     project_dir = base_dir / project_id
     project_dir.mkdir(parents=True, exist_ok=True)
     outline_path = project_dir / "outline.json"
+
+    _write_project_budget(
+        base_dir,
+        project_id,
+        soft_limit=soft_limit,
+        hard_limit=hard_limit,
+        spent_usd=spent_usd,
+    )
 
     scenes: list[dict[str, object]] = []
     for index in range(scene_count):
@@ -67,6 +110,8 @@ def _bootstrap_outline(base_dir: Path, project_id: str, scene_count: int = 2) ->
         json.dump(outline, handle, indent=2)
 
     return [scene["id"] for scene in scenes]
+
+
 
 
 def _bootstrap_scene(
@@ -229,7 +274,17 @@ def test_draft_generate_scene_success(test_client: TestClient, tmp_path: Path) -
 
     snapshots_dir = tmp_path / project_id / "history" / "snapshots"
     assert not snapshots_dir.exists()
-    assert data["budget"]["estimated_usd"] >= 0.0
+    budget = data["budget"]
+    assert budget["estimated_usd"] >= 0.0
+    assert budget["status"] == "ok"
+    assert budget["soft_limit_usd"] == pytest.approx(5.0)
+    assert budget["hard_limit_usd"] == pytest.approx(10.0)
+    assert budget["spent_usd"] == pytest.approx(budget["estimated_usd"])
+
+    project_config = tmp_path / project_id / "project.json"
+    with project_config.open("r", encoding="utf-8") as handle:
+        project_meta = json.load(handle)
+    assert project_meta["budget"]["spent_usd"] == pytest.approx(budget["spent_usd"])
 
 
 def test_draft_generate_scene_limit(test_client: TestClient, tmp_path: Path) -> None:
@@ -254,6 +309,11 @@ def test_draft_generate_scene_limit(test_client: TestClient, tmp_path: Path) -> 
     drafts_dir = tmp_path / project_id / "drafts"
     assert not drafts_dir.exists()
 
+    project_config = tmp_path / project_id / "project.json"
+    with project_config.open("r", encoding="utf-8") as handle:
+        project_meta = json.load(handle)
+    assert project_meta["budget"]["spent_usd"] == pytest.approx(0.0)
+
 
 def test_draft_generate_missing_scene(test_client: TestClient, tmp_path: Path) -> None:
     """Unknown scene identifiers surface a validation error with context."""
@@ -275,6 +335,175 @@ def test_draft_generate_missing_scene(test_client: TestClient, tmp_path: Path) -
 
     drafts_dir = tmp_path / project_id / "drafts"
     assert not drafts_dir.exists()
+
+    project_config = tmp_path / project_id / "project.json"
+    with project_config.open("r", encoding="utf-8") as handle:
+        project_meta = json.load(handle)
+    assert project_meta["budget"]["spent_usd"] == pytest.approx(0.0)
+
+
+def test_draft_generate_budget_blocked(test_client: TestClient, tmp_path: Path) -> None:
+    """Generation refuses to run when the hard budget would be exceeded."""
+
+    project_id = "proj_draft_blocked"
+    scene_ids = _bootstrap_outline(tmp_path, project_id, scene_count=1, spent_usd=9.75)
+    payload = {
+        "project_id": project_id,
+        "unit_scope": "scene",
+        "unit_ids": scene_ids,
+        "overrides": {scene_ids[0]: {"word_target": 30000}},
+    }
+
+    response = test_client.post("/draft/generate", json=payload)
+    assert response.status_code == 402
+
+    detail = response.json()["detail"]
+    assert detail["code"] == "BUDGET_EXCEEDED"
+
+    drafts_dir = tmp_path / project_id / "drafts"
+    assert not drafts_dir.exists()
+
+    project_config = tmp_path / project_id / "project.json"
+    with project_config.open("r", encoding="utf-8") as handle:
+        project_meta = json.load(handle)
+    assert project_meta["budget"]["spent_usd"] == pytest.approx(9.75)
+
+
+def test_draft_generate_soft_limit_status(test_client: TestClient, tmp_path: Path) -> None:
+    """Generation succeeds but surfaces soft-limit status when nearing the cap."""
+
+    project_id = "proj_draft_soft_limit"
+    scene_ids = _bootstrap_outline(tmp_path, project_id, scene_count=1, spent_usd=4.9)
+    payload = {
+        "project_id": project_id,
+        "unit_scope": "scene",
+        "unit_ids": scene_ids,
+        "overrides": {scene_ids[0]: {"word_target": 10000}},
+    }
+
+    response = test_client.post("/draft/generate", json=payload)
+    assert response.status_code == 200
+
+    data = response.json()
+    budget = data["budget"]
+    assert budget["status"] == "soft-limit"
+    assert budget["soft_limit_usd"] == pytest.approx(5.0)
+    assert budget["hard_limit_usd"] == pytest.approx(10.0)
+    assert budget["spent_usd"] > 5.0
+    assert budget["spent_usd"] == pytest.approx(budget["estimated_usd"] + 4.9)
+
+    project_config = tmp_path / project_id / "project.json"
+    with project_config.open("r", encoding="utf-8") as handle:
+        project_meta = json.load(handle)
+    assert project_meta["budget"]["spent_usd"] == pytest.approx(budget["spent_usd"])
+
+
+
+
+def test_draft_preflight_success(test_client: TestClient, tmp_path: Path) -> None:
+    """Preflight returns an estimate within budget for valid scenes."""
+
+    project_id = "proj_preflight_success"
+    scene_ids = _bootstrap_outline(tmp_path, project_id, scene_count=2)
+    payload = {
+        "project_id": project_id,
+        "unit_scope": "scene",
+        "unit_ids": scene_ids,
+    }
+
+    response = test_client.post("/draft/preflight", json=payload)
+    assert response.status_code == 200
+
+    data = response.json()
+    budget = data["budget"]
+    assert data["project_id"] == project_id
+    assert data["model"]["name"] == "draft-synthesizer-v1"
+    assert data["model"]["provider"] == "black-skies-local"
+    assert len(data["scenes"]) == len(scene_ids)
+    assert data["scenes"][0]["id"] == scene_ids[0]
+    assert data["scenes"][0]["title"].startswith("Scene ")
+    assert budget["status"] == "ok"
+    assert budget["estimated_usd"] > 0
+    assert budget["soft_limit_usd"] == 5.0
+    assert budget["hard_limit_usd"] == 10.0
+    assert budget["spent_usd"] == pytest.approx(0.0)
+    assert budget["total_after_usd"] == pytest.approx(budget["estimated_usd"])
+
+
+def test_draft_preflight_soft_limit(test_client: TestClient, tmp_path: Path) -> None:
+    """Preflight surfaces a soft limit warning when estimate crosses the threshold."""
+
+    project_id = "proj_preflight_soft"
+    scene_ids = _bootstrap_outline(tmp_path, project_id, scene_count=1)
+    payload = {
+        "project_id": project_id,
+        "unit_scope": "scene",
+        "unit_ids": scene_ids,
+        "overrides": {
+            scene_ids[0]: {"word_target": 300000}
+        },
+    }
+
+    response = test_client.post("/draft/preflight", json=payload)
+    assert response.status_code == 200
+
+    payload = response.json()
+    budget = payload["budget"]
+    assert payload["model"]["name"] == "draft-synthesizer-v1"
+    assert len(payload["scenes"]) == 1
+    assert budget["status"] == "soft-limit"
+    assert budget["estimated_usd"] >= 5.0
+    assert budget["soft_limit_usd"] == pytest.approx(5.0)
+    assert budget["hard_limit_usd"] == pytest.approx(10.0)
+    assert budget["spent_usd"] == pytest.approx(0.0)
+    assert budget["total_after_usd"] == pytest.approx(budget["estimated_usd"])
+
+
+def test_draft_preflight_blocked(test_client: TestClient, tmp_path: Path) -> None:
+    """Preflight reports blocked status when hard limit would be exceeded."""
+
+    project_id = "proj_preflight_blocked"
+    scene_ids = _bootstrap_outline(tmp_path, project_id, scene_count=1)
+    payload = {
+        "project_id": project_id,
+        "unit_scope": "scene",
+        "unit_ids": scene_ids,
+        "overrides": {
+            scene_ids[0]: {"word_target": 600000}
+        },
+    }
+
+    response = test_client.post("/draft/preflight", json=payload)
+    assert response.status_code == 200
+
+    payload = response.json()
+    budget = payload["budget"]
+    assert payload["model"]["name"] == "draft-synthesizer-v1"
+    assert len(payload["scenes"]) == 1
+    assert budget["status"] == "blocked"
+    assert budget["estimated_usd"] >= 10.0
+    assert budget["hard_limit_usd"] == pytest.approx(10.0)
+    assert budget["total_after_usd"] >= budget["hard_limit_usd"] - 1e-6
+    assert budget["spent_usd"] == pytest.approx(0.0)
+
+
+def test_draft_preflight_missing_scene(test_client: TestClient, tmp_path: Path) -> None:
+    """Preflight returns validation error when scenes are missing from outline."""
+
+    project_id = "proj_preflight_missing"
+    scene_ids = _bootstrap_outline(tmp_path, project_id, scene_count=1)
+    payload = {
+        "project_id": project_id,
+        "unit_scope": "scene",
+        "unit_ids": [scene_ids[0], "sc_9999"],
+    }
+
+    response = test_client.post("/draft/preflight", json=payload)
+    assert response.status_code == 400
+
+    detail = response.json()["detail"]
+    assert detail["code"] == "VALIDATION"
+    assert detail["details"]["missing_scene_ids"] == ["sc_9999"]
 
 
 def test_draft_rewrite_success(test_client: TestClient, tmp_path: Path) -> None:

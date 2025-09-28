@@ -54,7 +54,7 @@ Schemas v1 (see `docs/data_model.md` / `docs/critique_rubric.md`):
 ### GET /health
 **200 OK**
 ```json
-{ "status": "ok", "version": "1.0.0" }
+{ "status": "ok", "version": "0.1.0" }
 ```
 
 ---
@@ -99,6 +99,60 @@ Builds an outline from **locked Wizard decisions**.
 
 ---
 
+## Draft preflight
+
+### POST /draft/preflight
+Returns a budget estimate for a potential generate request without writing files. Applies the same unit limits as `/draft/generate`.
+
+**Request**
+```json
+{
+  "project_id": "proj_123",
+  "unit_scope": "scene",
+  "unit_ids": ["sc_0001","sc_0002"]
+}
+```
+
+**Response 200**
+```json
+{
+  "project_id": "proj_123",
+  "unit_scope": "scene",
+  "unit_ids": ["sc_0001","sc_0002"],
+  "model": {
+    "name": "draft-synthesizer-v1",
+    "provider": "black-skies-local"
+  },
+  "scenes": [
+    { "id": "sc_0001", "title": "Storm Cellar", "order": 1, "chapter_id": "ch_0001" },
+    { "id": "sc_0002", "title": "Basement Pulse", "order": 2, "chapter_id": "ch_0001" }
+  ],
+  "budget": {
+    "estimated_usd": 1.24,
+    "status": "soft-limit",
+    "message": "Estimated total $5.42 exceeds soft limit $5.00.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 4.18,
+    "total_after_usd": 5.42
+  }
+}
+```
+
+**Fields**
+- `model` — resolver-selected draft synthesizer + provider string.
+- `scenes` — ordered list of impacted scene IDs/titles (chapter and beat refs when available).
+- `budget.status`
+  - `ok` — projected total remains under the soft limit  
+  - `soft-limit` — projected total meets/exceeds the soft limit but remains under the hard limit  
+  - `blocked` — projected total meets/exceeds the hard limit (UI disables proceed)
+
+**Errors**
+- `VALIDATION` (bad IDs, unit limits, missing outline)
+
+---
+
+
 ## Draft generation
 
 ### POST /draft/generate
@@ -134,7 +188,13 @@ Generates prose for scenes/chapters. Applies request limits above. Stores prompt
       "model": { "name": "prose_model_vX", "provider": "openai" }
     }
   ],
-  "budget": { "estimated_usd": 0.42 }
+  "budget": {
+    "estimated_usd": 0.42,
+    "status": "ok",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.42
+  }
 }
 ```
 
@@ -229,7 +289,9 @@ Runs critique on a unit using the rubric (see `docs/critique_rubric.md`). Non-de
 
 ## Notes on budgets & preflight (Phase 1 behavior)
 - Every generate/critique call performs a **token/cost preflight** and returns an estimated USD value in the response.  
-- If the preflight exceeds the **soft budget** threshold, the app shows a confirmation; if the **hard budget** is exceeded, services return `BUDGET_EXCEEDED`.
+- `/draft/preflight` exposes the estimate along with **current spend** and **projected total** so the UI can gate actions.  
+- If the projected total exceeds the **soft budget** threshold, the app shows a confirmation; if the **hard budget** would be exceeded, services return `BUDGET_EXCEEDED` (`402`) and do not write any files.  
+- Budgets are persisted per project in `project.json` (`budget.spent_usd`).
 
 ---
 

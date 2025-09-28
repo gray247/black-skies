@@ -24,9 +24,40 @@ describe('WizardPanel', () => {
           scenes: [],
         },
       }),
-      generateDraft: vi.fn(),
-      critiqueDraft: vi.fn(),
-      preflightDraft: vi.fn(),
+      generateDraft: vi.fn().mockResolvedValue({
+        ok: true,
+        data: {
+          draft_id: 'dr_001',
+          schema_version: 'DraftUnitSchema v1',
+          units: [],
+        },
+      }),
+      critiqueDraft: vi.fn().mockResolvedValue({
+        ok: true,
+        data: {
+          unit_id: 'sc_0001',
+          schema_version: 'CritiqueOutputSchema v1',
+          summary: 'Stub critique',
+        },
+      }),
+      preflightDraft: vi.fn().mockResolvedValue({
+        ok: true,
+        data: {
+          projectId: 'placeholder',
+          unitScope: 'scene',
+          unitIds: ['sc_0001'],
+          model: { name: 'draft-synthesizer-v1', provider: 'black-skies-local' },
+          scenes: [{ id: 'sc_0001', title: 'Stub scene', order: 1 }],
+          budget: {
+            estimated_usd: 0.25,
+            status: 'ok',
+            soft_limit_usd: 5,
+            hard_limit_usd: 10,
+            spent_usd: 0,
+            total_after_usd: 0.25,
+          },
+        },
+      }),
     };
     return services;
   };
