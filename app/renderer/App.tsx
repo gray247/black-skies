@@ -314,6 +314,8 @@ export default function App(): JSX.Element {
             >
               Critique
             </button>
+            {/* TODO(P2_ACCEPT_PLAN Task 1 & 2): Replace the placeholder toast with the real critique + accept/reject UX once */}
+            {/* docs/P2_ACCEPT_PLAN.md tasks are implemented across the renderer bridge. */}
           </div>
         </header>
         <main className="app-shell__workspace-body">
