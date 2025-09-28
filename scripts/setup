@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+# Usage: scripts/setup
+# Bootstraps the Black Skies development environment by preparing the Python
+# virtualenv, installing locked dependencies, and ensuring baseline environment
+# variables are present for local development.
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+VENV_PATH="${REPO_ROOT}/.venv"
+ENV_FILE="${REPO_ROOT}/.env"
+REQUIREMENTS_FILE="${REPO_ROOT}/requirements.lock"
+VENDOR_WHEELS_DIR="${REPO_ROOT}/vendor/wheels"
+PYTHON_BIN="${PYTHON_BIN:-python3}"
+
+log() {
+  printf '[setup] %s\n' "$*"
+}
+
+ensure_python() {
+  if ! command -v "${PYTHON_BIN}" >/dev/null 2>&1; then
+    log "Python interpreter '${PYTHON_BIN}' not found. Set PYTHON_BIN to a valid Python 3.11 executable."
+    exit 1
+  fi
+}
+
+create_venv() {
+  if [[ -d "${VENV_PATH}" ]]; then
+    log "Using existing virtual environment at ${VENV_PATH}."
+    return
+  fi
+
+  log "Creating virtual environment at ${VENV_PATH}."
+  "${PYTHON_BIN}" -m venv "${VENV_PATH}"
+}
+
+install_requirements() {
+  if [[ ! -f "${REQUIREMENTS_FILE}" ]]; then
+    log "requirements.lock not found at ${REQUIREMENTS_FILE}."
+    exit 1
+  fi
+
+  local pip_bin="${VENV_PATH}/bin/pip"
+  local -i tried_offline=0
+
+  if compgen -G "${VENDOR_WHEELS_DIR}"'/*.whl' >/dev/null 2>&1; then
+    tried_offline=1
+    log "Installing dependencies from cached wheels in vendor/wheels."
+    if "${pip_bin}" install --require-virtualenv --no-index --find-links "${VENDOR_WHEELS_DIR}" -r "${REQUIREMENTS_FILE}"; then
+      return
+    fi
+    log "Cached wheel installation failed; falling back to online installation."
+  else
+    log "No cached wheels detected; installing requirements from PyPI."
+  fi
+
+  if ! "${pip_bin}" install --require-virtualenv -r "${REQUIREMENTS_FILE}"; then
+    if [[ ${tried_offline} -eq 1 ]]; then
+      log "Offline installation failed and online fallback was unsuccessful. Check network connectivity or update vendor wheels."
+    else
+      log "Online installation failed. Check network connectivity or retry later."
+    fi
+    exit 1
+  fi
+}
+
+ensure_env_file() {
+  if [[ -f "${ENV_FILE}" ]]; then
+    log ".env already exists; leaving it unchanged."
+    return
+  fi
+
+  log "Creating default .env file at ${ENV_FILE}."
+  cat <<'EOT' > "${ENV_FILE}"
+# Default development environment variables for Black Skies.
+OPENAI_API_KEY=dummy
+BLACK_SKIES_MODE=companion
+EOT
+}
+
+main() {
+  ensure_python
+  create_venv
+  install_requirements
+  ensure_env_file
+  log "Setup complete. Activate the environment with 'source .venv/bin/activate'."
+}
+
+main "$@"
