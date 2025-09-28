@@ -10,6 +10,10 @@ Chronological record of locked decisions and spec/version bumps. One-line summar
   docs/architecture.md (v1), docs/agents_and_services.md (v1).
 - Scope: Windows 11 only; local-first; CM6 editor; scene cap 20k; emotion tags (5); preflight & budgets.
 
+## 2025-09-24 — Preflight docs & renderer coverage (ACTIVE)
+- Expanded README and docs/endpoints.md with `/draft/preflight` walkthroughs for ok, soft-limit, and blocked responses.
+- Added Vitest regression coverage for soft-limit warnings and blocked hard-limit states in the renderer harness.
+
 ## 2025-09-17 — Phase-1 Definition of Done (LOCKED)
 - Wizard: all steps functional; decisions **lock & snapshot**; restore from History works.
 - Outline: builds **deterministically** from locked decisions (`OutlineSchema v1`).

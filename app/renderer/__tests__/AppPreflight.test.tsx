@@ -172,6 +172,82 @@ describe('App preflight integration', () => {
     expect(screen.getByText(/draft-synthesizer-v1/i)).toBeInTheDocument();
   });
 
+  it('keeps proceed enabled for soft-limit warnings', async () => {
+    const estimate: DraftPreflightEstimate = {
+      projectId: 'demo_project',
+      unitScope: 'scene',
+      unitIds: ['sc_0001', 'sc_0002'],
+      model: { name: 'draft-synthesizer-v1', provider: 'black-skies-local' },
+      scenes: [
+        { id: 'sc_0001', title: 'Arrival', order: 1, chapter_id: 'ch_0001' },
+        { id: 'sc_0002', title: 'Surface Impact', order: 2, chapter_id: 'ch_0001' },
+      ],
+      budget: {
+        estimated_usd: 5.42,
+        status: 'soft-limit',
+        message: 'Estimated total $5.42 exceeds soft limit $5.00.',
+        soft_limit_usd: 5,
+        hard_limit_usd: 10,
+        spent_usd: 0,
+        total_after_usd: 5.42,
+      },
+    };
+
+    services.preflightDraft = vi.fn().mockResolvedValue({ ok: true, data: estimate });
+    const App = await loadAppWithServices(services);
+
+    render(<App />);
+
+    const generateButton = await screen.findByRole('button', { name: /generate/i });
+    await waitFor(() => expect(generateButton).not.toBeDisabled());
+
+    fireEvent.click(generateButton);
+
+    await waitFor(() => expect(services.preflightDraft).toHaveBeenCalledTimes(1));
+    await screen.findByText(/exceeds soft limit/i);
+
+    const proceedButton = screen.getByRole('button', { name: /proceed/i });
+    expect(proceedButton).toBeEnabled();
+    expect(screen.getByText(/Soft limit exceeded/i)).toBeInTheDocument();
+  });
+
+  it('disables proceed when the hard limit blocks the run', async () => {
+    const estimate: DraftPreflightEstimate = {
+      projectId: 'demo_project',
+      unitScope: 'scene',
+      unitIds: ['sc_0003'],
+      model: { name: 'draft-synthesizer-v1', provider: 'black-skies-local' },
+      scenes: [
+        { id: 'sc_0003', title: 'Basement Pulse', order: 3, chapter_id: 'ch_0001' },
+      ],
+      budget: {
+        estimated_usd: 11.38,
+        status: 'blocked',
+        message: 'Projected total $11.38 exceeds hard limit $10.00.',
+        soft_limit_usd: 5,
+        hard_limit_usd: 10,
+        spent_usd: 0,
+        total_after_usd: 11.38,
+      },
+    };
+
+    services.preflightDraft = vi.fn().mockResolvedValue({ ok: true, data: estimate });
+    const App = await loadAppWithServices(services);
+
+    render(<App />);
+
+    const generateButton = await screen.findByRole('button', { name: /generate/i });
+    await waitFor(() => expect(generateButton).not.toBeDisabled());
+
+    fireEvent.click(generateButton);
+
+    await waitFor(() => expect(services.preflightDraft).toHaveBeenCalledTimes(1));
+    await screen.findByText(/exceeds hard limit/i);
+
+    const blockedButton = screen.getByRole('button', { name: /blocked/i });
+    expect(blockedButton).toBeDisabled();
+  });
+
   it('surfaces validation errors from the service', async () => {
     services.preflightDraft = vi
       .fn()
