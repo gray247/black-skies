@@ -191,4 +191,24 @@ describe('App preflight integration', () => {
     expect(screen.getByText(/Missing outline artifact/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /proceed/i })).toBeDisabled();
   });
+
+  it('keeps proceed disabled when the service port is unavailable', async () => {
+    services.preflightDraft = vi
+      .fn()
+      .mockResolvedValue({ ok: false, error: { message: 'Service port is unavailable.' } });
+
+    const App = await loadAppWithServices(services);
+
+    render(<App />);
+
+    const generateButton = await screen.findByRole('button', { name: /generate/i });
+    await waitFor(() => expect(generateButton).not.toBeDisabled());
+
+    fireEvent.click(generateButton);
+
+    await waitFor(() => expect(services.preflightDraft).toHaveBeenCalledTimes(1));
+    await screen.findByText(/Unable to complete preflight/i);
+    expect(screen.getByText(/Service port is unavailable\./i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /proceed/i })).toBeDisabled();
+  });
 });
