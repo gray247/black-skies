@@ -1,6 +1,6 @@
 [flake8]
 # Keep Black-compatible defaults
-max-line-length = 120
+max-line-length = 100
 extend-ignore = E203, W503
 
 # Don’t lint virtualenvs, caches, node deps, build outputs, etc.
@@ -15,4 +15,6 @@ exclude =
     node_modules,
     build,
     dist,
-    *.egg-info
+    *.egg-info,
+    vendor,
+    vendor/wheels
