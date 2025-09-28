@@ -28,3 +28,38 @@ allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/blackskies"]
+
+[tool.pytest.ini_options]
+addopts = [
+  "--ignore=.venv",
+  "--ignore=vendor",
+  "--ignore=node_modules",
+  "--ignore=build",
+  "--ignore=dist"
+]
+norecursedirs = [
+  ".venv",
+  "vendor",
+  "node_modules",
+  "build",
+  "dist",
+  ".mypy_cache",
+  ".pytest_cache"
+]
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+include = "\\.pyi?$"
+exclude = """
+/(
+    \.git
+  | \.venv
+  | build
+  | dist
+  | node_modules
+  | vendor
+  | __pycache__
+  | .*\.egg-info
+)/
+"""
