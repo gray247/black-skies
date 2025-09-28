@@ -53,6 +53,7 @@ def service_process() -> Iterator[tuple[subprocess.Popen[str], int]]:
     port = _find_available_port()
     env = os.environ.copy()
     env['PYTHONUNBUFFERED'] = '1'
+    env.pop('PYTHONPATH', None)
 
     process = subprocess.Popen(
         [sys.executable, '-m', 'blackskies.services', '--port', str(port)],

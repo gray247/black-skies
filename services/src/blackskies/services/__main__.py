@@ -5,9 +5,26 @@ from __future__ import annotations
 import argparse
 import logging
 import sys
+from pathlib import Path
 from typing import Final
 
 import uvicorn
+
+
+def _ensure_src_path() -> None:
+    """Ensure the repository ``src`` directory is importable when run in-place."""
+
+    package_root = Path(__file__).resolve().parents[2]
+    candidate = package_root
+    if not (candidate / "blackskies").exists():
+        return
+
+    candidate_str = str(candidate)
+    if candidate_str not in sys.path:
+        sys.path.insert(0, candidate_str)
+
+
+_ensure_src_path()
 
 LOGGER = logging.getLogger(__name__)
 
