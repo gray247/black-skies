@@ -61,6 +61,8 @@ For finer-grained tasks (~85 steps), see `docs/BUILD_STEPS_DETAILED.md` and log 
 
 ## Milestone P2 — Critique Accept & Snapshots
 
+> Detailed breakdown for these steps now lives in `docs/P2_ACCEPT_PLAN.md` (see numbered tasks for routing, snapshots, and renderer UX follow-ups).
+
 ### P2.0 Critique accept API
 **Do**
 - Extend the service with an endpoint to accept critique suggestions (e.g., `POST /draft/accept`).

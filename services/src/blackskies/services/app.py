@@ -945,6 +945,11 @@ def _register_routes(api: FastAPI) -> None:
 
         return _load_fixture("draft_critique.json")
 
+    # TODO(P2_ACCEPT_PLAN Task 1-4): Insert the `/draft/accept` route implementation here
+    # once docs/P2_ACCEPT_PLAN.md tasks are in progress. The handler should live
+    # adjacent to the critique stub so future diffs can wire request models,
+    # persistence, diagnostics, and snapshot hooks in a single location.
+
     api.include_router(draft_router)
 
 
