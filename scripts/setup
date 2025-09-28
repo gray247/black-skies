@@ -13,9 +13,29 @@ ENV_FILE="${REPO_ROOT}/.env"
 REQUIREMENTS_FILE="${REPO_ROOT}/requirements.lock"
 VENDOR_WHEELS_DIR="${REPO_ROOT}/vendor/wheels"
 PYTHON_BIN="${PYTHON_BIN:-python3}"
+NPM_REGISTRY_PING_URL="https://registry.npmjs.org/-/ping"
 
 log() {
   printf '[setup] %s\n' "$*"
+}
+
+should_enable_node() {
+  local raw_value="${BS_ALLOW_NODE:-}"
+  if [[ -z "${raw_value}" ]]; then
+    return 1
+  fi
+
+  local normalized
+  normalized="$(printf '%s' "${raw_value}" | tr '[:upper:]' '[:lower:]')"
+
+  case "${normalized}" in
+    0|false|no|off)
+      return 1
+      ;;
+    *)
+      return 0
+      ;;
+  esac
 }
 
 ensure_python() {
@@ -79,11 +99,65 @@ BLACK_SKIES_MODE=companion
 EOT
 }
 
+probe_node_registry() {
+  if pnpm ping >/dev/null 2>&1; then
+    log "pnpm registry ping succeeded."
+    return 0
+  fi
+
+  log "pnpm registry ping failed; attempting curl fallback."
+
+  if command -v curl >/dev/null 2>&1; then
+    if curl --max-time 5 -fsS "${NPM_REGISTRY_PING_URL}" >/dev/null 2>&1; then
+      log "curl registry probe succeeded."
+      return 0
+    fi
+    log "curl registry probe failed."
+  else
+    log "curl not available; unable to perform registry probe fallback."
+  fi
+
+  return 1
+}
+
+maybe_bootstrap_node() {
+  local raw_value="${BS_ALLOW_NODE:-}"
+  if ! should_enable_node; then
+    if [[ -z "${raw_value}" ]]; then
+      log "BS_ALLOW_NODE not set; skipping Node.js bootstrap steps."
+    else
+      log "BS_ALLOW_NODE='${raw_value}' disables Node.js bootstrap; skipping Node.js steps."
+    fi
+    return
+  fi
+
+  if ! command -v pnpm >/dev/null 2>&1; then
+    log "BS_ALLOW_NODE enabled but pnpm not found in PATH; skipping Node.js bootstrap."
+    return
+  fi
+
+  log "BS_ALLOW_NODE enabled; probing npm registry connectivity before installing dependencies."
+
+  if ! probe_node_registry; then
+    log "Warning: Unable to confirm npm registry availability. Skipping pnpm install to avoid partial installs."
+    return
+  fi
+
+  log "Running 'pnpm install --recursive' to sync workspace dependencies."
+  if ! (cd "${REPO_ROOT}" && pnpm install --recursive); then
+    log "Warning: pnpm install failed. Node dependencies may be incomplete; rerun with BS_ALLOW_NODE set after resolving issues."
+    return
+  fi
+
+  log "pnpm workspace dependencies installed successfully."
+}
+
 main() {
   ensure_python
   create_venv
   install_requirements
   ensure_env_file
+  maybe_bootstrap_node
   log "Setup complete. Activate the environment with 'source .venv/bin/activate'."
 }
 
