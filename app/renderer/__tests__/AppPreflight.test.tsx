@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type {
@@ -190,6 +190,34 @@ describe('App preflight integration', () => {
     await screen.findByText(/Unable to complete preflight/i);
     expect(screen.getByText(/Missing outline artifact/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /proceed/i })).toBeDisabled();
+  });
+
+  it('renders a validation summary when the service provides details', async () => {
+    services.preflightDraft = vi.fn().mockResolvedValue({
+      ok: false,
+      error: {
+        message: 'One or more scene IDs are not present in the outline.',
+        details: { missing_scene_ids: ['sc_0002', 'sc_0003'] },
+      },
+    });
+
+    const App = await loadAppWithServices(services);
+
+    render(<App />);
+
+    const generateButton = await screen.findByRole('button', { name: /generate/i });
+    await waitFor(() => expect(generateButton).not.toBeDisabled());
+
+    fireEvent.click(generateButton);
+
+    await waitFor(() => expect(services.preflightDraft).toHaveBeenCalledTimes(1));
+    await screen.findByRole('heading', { name: /validation summary/i });
+    const summaryList = screen.getByRole('list', { name: /missing scene ids/i });
+    expect(summaryList).toBeInTheDocument();
+    const listItems = within(summaryList).getAllByRole('listitem');
+    expect(listItems).toHaveLength(2);
+    expect(listItems[0]).toHaveTextContent('sc_0002');
+    expect(listItems[1]).toHaveTextContent('sc_0003');
   });
 
   it('keeps proceed disabled when the service port is unavailable', async () => {

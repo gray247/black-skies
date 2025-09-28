@@ -26,6 +26,7 @@ interface PreflightState {
   open: boolean;
   loading: boolean;
   error: string | null;
+  errorDetails: unknown | null;
   estimate?: DraftPreflightEstimate;
 }
 
@@ -47,6 +48,7 @@ export default function App(): JSX.Element {
     open: false,
     loading: false,
     error: null,
+    errorDetails: null,
   });
 
   useEffect(() => {
@@ -151,7 +153,13 @@ export default function App(): JSX.Element {
       return;
     }
 
-    setPreflightState({ open: true, loading: true, error: null, estimate: undefined });
+    setPreflightState({
+      open: true,
+      loading: true,
+      error: null,
+      errorDetails: null,
+      estimate: undefined,
+    });
     const result = await services.preflightDraft({
       projectId: projectSummary.projectId,
       unitScope: projectSummary.unitScope,
@@ -163,12 +171,19 @@ export default function App(): JSX.Element {
     }
 
     if (result.ok) {
-      setPreflightState({ open: true, loading: false, error: null, estimate: result.data });
+      setPreflightState({
+        open: true,
+        loading: false,
+        error: null,
+        errorDetails: null,
+        estimate: result.data,
+      });
     } else {
       setPreflightState({
         open: true,
         loading: false,
         error: result.error.message,
+        errorDetails: result.error.details ?? null,
         estimate: undefined,
       });
     }
@@ -196,7 +211,12 @@ export default function App(): JSX.Element {
       return;
     }
 
-    setPreflightState((previous) => ({ ...previous, loading: true, error: null }));
+    setPreflightState((previous) => ({
+      ...previous,
+      loading: true,
+      error: null,
+      errorDetails: null,
+    }));
 
     const result = await services.generateDraft({
       projectId: projectSummary.projectId,
@@ -209,7 +229,13 @@ export default function App(): JSX.Element {
     }
 
     if (result.ok) {
-      setPreflightState({ open: false, loading: false, error: null, estimate: undefined });
+      setPreflightState({
+        open: false,
+        loading: false,
+        error: null,
+        errorDetails: null,
+        estimate: undefined,
+      });
       pushToast({
         tone: 'success',
         title: 'Draft generation requested',
@@ -220,6 +246,7 @@ export default function App(): JSX.Element {
         ...previous,
         loading: false,
         error: result.error.message,
+        errorDetails: result.error.details ?? null,
       }));
     }
   }, [projectSummary, pushToast, services]);
@@ -243,6 +270,7 @@ export default function App(): JSX.Element {
 
   const preflightEstimate = preflightState.estimate;
   const preflightError = preflightState.error;
+  const preflightErrorDetails = preflightState.errorDetails;
 
   const projectLabel = useMemo(() => projectSummary?.path ?? 'No project loaded', [projectSummary]);
 
@@ -299,6 +327,7 @@ export default function App(): JSX.Element {
         isOpen={preflightState.open}
         loading={preflightState.loading}
         error={preflightError}
+        errorDetails={preflightErrorDetails}
         estimate={preflightEstimate}
         onClose={handleClosePreflight}
         onProceed={handlePreflightProceed}
