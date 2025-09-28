@@ -21,6 +21,7 @@ __pycache__/
 *.egg-info/
 .venv/
 services/.venv/
+vendor/wheels/
 
 # Coverage
 coverage/
