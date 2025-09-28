@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+# maint - Repository maintenance helper
+#
+# Usage:
+#   ./scripts/maint
+#
+# This script verifies that the repository's Python virtual environment
+# (.venv) is active and runs the standard maintenance checks: black,
+# ruff, and pytest. All tools are executed from the repository root and
+# configured to ignore generated or third-party directories such as
+# .venv, vendor, and node_modules. No environment variables are modified
+# by this script.
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+EXPECTED_VENV="$REPO_ROOT/.venv"
+
+if [[ ! -d "$EXPECTED_VENV" ]]; then
+  cat >&2 <<EOM
+The repository virtual environment was not found at:
+  $EXPECTED_VENV
+Create it with:
+  python -m venv "$EXPECTED_VENV"
+and install the required dependencies before rerunning this script.
+EOM
+  exit 1
+fi
+
+if [[ -z "${VIRTUAL_ENV:-}" ]]; then
+  cat >&2 <<EOM
+The Python virtual environment is not active.
+Activate it with:
+  source "$EXPECTED_VENV/bin/activate"
+EOM
+  exit 1
+fi
+
+ACTIVE_VENV="$(cd "$VIRTUAL_ENV" && pwd)"
+EXPECTED_VENV_REAL="$(cd "$EXPECTED_VENV" && pwd)"
+
+if [[ "$ACTIVE_VENV" != "$EXPECTED_VENV_REAL" ]]; then
+  cat >&2 <<EOM
+The active virtual environment does not match the repository venv.
+Current: $ACTIVE_VENV
+Expected: $EXPECTED_VENV_REAL
+Activate the correct environment with:
+  source "$EXPECTED_VENV_REAL/bin/activate"
+EOM
+  exit 1
+fi
+
+cd "$REPO_ROOT"
+
+if ! command -v black >/dev/null 2>&1; then
+  echo "black is not installed in the virtual environment." >&2
+  exit 1
+fi
+
+if ! command -v ruff >/dev/null 2>&1; then
+  echo "ruff is not installed in the virtual environment." >&2
+  exit 1
+fi
+
+if ! command -v pytest >/dev/null 2>&1; then
+  echo "pytest is not installed in the virtual environment." >&2
+  exit 1
+fi
+
+BLACK_EXCLUDES="\.venv|vendor|node_modules"
+
+black --check --extend-exclude "$BLACK_EXCLUDES" .
+ruff check --extend-exclude .venv --extend-exclude vendor --extend-exclude node_modules .
+pytest -q --ignore=.venv --ignore=vendor --ignore=node_modules

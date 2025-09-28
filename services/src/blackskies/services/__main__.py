@@ -34,8 +34,14 @@ MAX_PORT: Final[int] = 43850
 
 
 def _build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Run the Black Skies FastAPI services.")
-    parser.add_argument("--host", default=DEFAULT_HOST, help="Host interface to bind (default: 127.0.0.1).")
+    parser = argparse.ArgumentParser(
+        description="Run the Black Skies FastAPI services."
+    )
+    parser.add_argument(
+        "--host",
+        default=DEFAULT_HOST,
+        help="Host interface to bind (default: 127.0.0.1).",
+    )
     parser.add_argument(
         "--port",
         type=int,

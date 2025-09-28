@@ -56,7 +56,10 @@ def _load_fixture(name: str) -> dict[str, Any]:
 
     try:
         fixture_path = resources.files(_FIXTURE_PACKAGE).joinpath(name)
-    except (FileNotFoundError, ModuleNotFoundError) as exc:  # pragma: no cover - importlib guards
+    except (
+        FileNotFoundError,
+        ModuleNotFoundError,
+    ) as exc:  # pragma: no cover - importlib guards
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail={
@@ -174,18 +177,25 @@ def _load_outline_artifact(project_root: Path) -> OutlineArtifact:
 
     outline_path = project_root / "outline.json"
     if not outline_path.exists():
-        raise DraftRequestError("Outline artifact is missing.", {"path": str(outline_path)})
+        raise DraftRequestError(
+            "Outline artifact is missing.", {"path": str(outline_path)}
+        )
 
     try:
         with outline_path.open("r", encoding="utf-8") as handle:
             payload = json.load(handle)
     except json.JSONDecodeError as exc:
-        raise DraftRequestError("Outline artifact contains invalid JSON.", {"path": str(outline_path)}) from exc
+        raise DraftRequestError(
+            "Outline artifact contains invalid JSON.", {"path": str(outline_path)}
+        ) from exc
 
     try:
         return OutlineArtifact.model_validate(payload)
     except ValidationError as exc:
-        raise DraftRequestError("Outline artifact failed schema validation.", {"path": str(outline_path), "errors": exc.errors()}) from exc
+        raise DraftRequestError(
+            "Outline artifact failed schema validation.",
+            {"path": str(outline_path), "errors": exc.errors()},
+        ) from exc
 
 
 def _parse_front_matter_value(value: str) -> Any:
@@ -214,7 +224,7 @@ def _parse_front_matter_value(value: str) -> Any:
         normalized: list[str] = []
         for fragment in parts:
             token = fragment.strip()
-            if len(token) >= 2 and token[0] in {'\"', "'"} and token[-1] == token[0]:
+            if len(token) >= 2 and token[0] in {'"', "'"} and token[-1] == token[0]:
                 token = token[1:-1]
             normalized.append(token)
         return normalized
@@ -231,7 +241,9 @@ def _looks_like_float(value: str) -> bool:
     return left.lstrip("-").isdigit() and right.isdigit()
 
 
-def _read_scene_document(project_root: Path, unit_id: str) -> tuple[Path, dict[str, Any], str]:
+def _read_scene_document(
+    project_root: Path, unit_id: str
+) -> tuple[Path, dict[str, Any], str]:
     """Load front-matter and body for the given scene markdown."""
 
     drafts_dir = project_root / "drafts"
@@ -242,7 +254,9 @@ def _read_scene_document(project_root: Path, unit_id: str) -> tuple[Path, dict[s
     content = target_path.read_text(encoding="utf-8")
     lines = content.splitlines()
     if not lines or lines[0].strip() != "---":
-        raise DraftRequestError("Scene markdown is missing front-matter header.", {"unit_id": unit_id})
+        raise DraftRequestError(
+            "Scene markdown is missing front-matter header.", {"unit_id": unit_id}
+        )
 
     front_lines: list[str] = []
     index = 1
@@ -250,7 +264,9 @@ def _read_scene_document(project_root: Path, unit_id: str) -> tuple[Path, dict[s
         front_lines.append(lines[index])
         index += 1
     if index == len(lines):
-        raise DraftRequestError("Scene markdown is missing front-matter terminator.", {"unit_id": unit_id})
+        raise DraftRequestError(
+            "Scene markdown is missing front-matter terminator.", {"unit_id": unit_id}
+        )
 
     body = "\n".join(lines[index + 1 :])
 
@@ -263,7 +279,9 @@ def _read_scene_document(project_root: Path, unit_id: str) -> tuple[Path, dict[s
 
     scene_id = front_matter.get("id")
     if scene_id != unit_id:
-        raise DraftRequestError("Scene markdown id does not match unit id.", {"unit_id": unit_id})
+        raise DraftRequestError(
+            "Scene markdown id does not match unit id.", {"unit_id": unit_id}
+        )
 
     return target_path, front_matter, body
 
@@ -281,7 +299,17 @@ def _merge_meta(front_matter: dict[str, Any], meta: dict[str, Any]) -> dict[str,
         return front_matter
 
     merged = dict(front_matter)
-    allowed = {"order", "purpose", "emotion_tag", "pov", "goal", "conflict", "turn", "word_target", "beats"}
+    allowed = {
+        "order",
+        "purpose",
+        "emotion_tag",
+        "pov",
+        "goal",
+        "conflict",
+        "turn",
+        "word_target",
+        "beats",
+    }
     for key, value in meta.items():
         if key not in allowed:
             continue
@@ -299,18 +327,34 @@ def _apply_rewrite_instructions(original: str, instructions: str | None) -> str:
     if not prompt:
         prompt = "Maintain current tone."
     digest = hashlib.sha256(prompt.encode("utf-8")).hexdigest()
-    templates = ["The rhythm tightens, each beat landing with intent.", "A hush settles before the next wave hits.", "Their resolve sharpens against the gathering dark.", "An undercurrent of hope threads through the static."]
+    templates = [
+        "The rhythm tightens, each beat landing with intent.",
+        "A hush settles before the next wave hits.",
+        "Their resolve sharpens against the gathering dark.",
+        "An undercurrent of hope threads through the static.",
+    ]
     closing = templates[int(digest[:8], 16) % len(templates)]
     return f"{baseline}\n\n{closing} ({prompt})"
 
 
-def _raise_conflict_error(*, message: str, details: dict[str, Any], diagnostics: DiagnosticLogger, project_root: Path | None) -> None:
+def _raise_conflict_error(
+    *,
+    message: str,
+    details: dict[str, Any],
+    diagnostics: DiagnosticLogger,
+    project_root: Path | None,
+) -> None:
     """Log and raise a conflict response."""
 
     safe_details = _sanitize_details(details)
     if project_root is not None:
-        diagnostics.log(project_root, code="CONFLICT", message=message, details=safe_details)
-    raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail={"code": "CONFLICT", "message": message, "details": safe_details})
+        diagnostics.log(
+            project_root, code="CONFLICT", message=message, details=safe_details
+        )
+    raise HTTPException(
+        status_code=status.HTTP_409_CONFLICT,
+        detail={"code": "CONFLICT", "message": message, "details": safe_details},
+    )
 
 
 def _resolve_requested_scenes(
@@ -321,7 +365,11 @@ def _resolve_requested_scenes(
     scenes_by_id = {scene.id: scene for scene in outline.scenes}
 
     if request_model.unit_scope is DraftUnitScope.SCENE:
-        missing = [scene_id for scene_id in request_model.unit_ids if scene_id not in scenes_by_id]
+        missing = [
+            scene_id
+            for scene_id in request_model.unit_ids
+            if scene_id not in scenes_by_id
+        ]
         if missing:
             raise DraftRequestError(
                 "One or more scene IDs are not present in the outline.",
@@ -332,11 +380,19 @@ def _resolve_requested_scenes(
     chapter_id = request_model.unit_ids[0]
     chapter_ids = {chapter.id for chapter in outline.chapters}
     if chapter_id not in chapter_ids:
-        raise DraftRequestError("Requested chapter is not present in the outline.", {"chapter_id": chapter_id})
+        raise DraftRequestError(
+            "Requested chapter is not present in the outline.",
+            {"chapter_id": chapter_id},
+        )
 
-    chapter_scenes = [scene for scene in outline.scenes if scene.chapter_id == chapter_id]
+    chapter_scenes = [
+        scene for scene in outline.scenes if scene.chapter_id == chapter_id
+    ]
     if not chapter_scenes:
-        raise DraftRequestError("Requested chapter has no scenes available for drafting.", {"chapter_id": chapter_id})
+        raise DraftRequestError(
+            "Requested chapter has no scenes available for drafting.",
+            {"chapter_id": chapter_id},
+        )
 
     chapter_scenes.sort(key=lambda scene: scene.order)
     return chapter_scenes
@@ -345,19 +401,25 @@ def _resolve_requested_scenes(
 def _compute_draft_id(project_id: str, seed: int | None, scene_ids: list[str]) -> str:
     """Derive a deterministic draft identifier from the request context."""
 
-    payload = json.dumps({"project_id": project_id, "seed": seed, "scene_ids": scene_ids}, sort_keys=True).encode("utf-8")
+    payload = json.dumps(
+        {"project_id": project_id, "seed": seed, "scene_ids": scene_ids}, sort_keys=True
+    ).encode("utf-8")
     digest = hashlib.sha256(payload).hexdigest()
     numeric = int(digest[:6], 16) % 1000
     return f"dr_{numeric:03d}"
 
-def _estimate_word_target(scene: OutlineScene, overrides: DraftUnitOverrides | None) -> int:
+
+def _estimate_word_target(
+    scene: OutlineScene, overrides: DraftUnitOverrides | None
+) -> int:
     """Estimate the word target for a scene using overrides when supplied."""
 
     if overrides and overrides.word_target is not None:
         return overrides.word_target
-    order_value = overrides.order if overrides and overrides.order is not None else scene.order
+    order_value = (
+        overrides.order if overrides and overrides.order is not None else scene.order
+    )
     return 850 + (order_value * 40)
-
 
 
 def _load_project_budget_state(
@@ -398,7 +460,9 @@ def _load_project_budget_state(
                     message="Project metadata failed validation; using defaults.",
                     details={"path": str(project_path), "errors": exc.errors()},
                 )
-                payload = ProjectMetadata.model_validate(base_payload).model_dump(mode="json")
+                payload = ProjectMetadata.model_validate(base_payload).model_dump(
+                    mode="json"
+                )
             else:
                 payload = metadata.model_dump(mode="json")
     else:
@@ -424,7 +488,6 @@ def _load_project_budget_state(
         spent_usd=spent_usd if spent_usd >= 0 else 0.0,
         project_path=project_path,
     )
-
 
 
 def _classify_budget(
@@ -458,7 +521,6 @@ def _classify_budget(
     return "ok", "Estimate within budget.", total_after_run
 
 
-
 def _persist_project_budget(state: ProjectBudgetState, new_spent_usd: float) -> None:
     """Persist updated budget totals to ``project.json`` atomically."""
 
@@ -473,14 +535,15 @@ def _persist_project_budget(state: ProjectBudgetState, new_spent_usd: float) -> 
     serialized = json.dumps(payload, indent=2, ensure_ascii=False)
 
     state.project_root.mkdir(parents=True, exist_ok=True)
-    temp_path = state.project_path.parent / f".{state.project_path.name}.{uuid4().hex}.tmp"
+    temp_path = (
+        state.project_path.parent / f".{state.project_path.name}.{uuid4().hex}.tmp"
+    )
     with temp_path.open("w", encoding="utf-8") as handle:
         handle.write(serialized)
         handle.flush()
         os.fsync(handle.fileno())
 
     temp_path.replace(state.project_path)
-
 
 
 def _raise_budget_error(
@@ -506,7 +569,6 @@ def _raise_budget_error(
     )
 
 
-
 def _raise_validation_error(
     *,
     message: str,
@@ -518,7 +580,9 @@ def _raise_validation_error(
 
     safe_details = _sanitize_details(details)
     if project_root is not None:
-        diagnostics.log(project_root, code="VALIDATION", message=message, details=safe_details)
+        diagnostics.log(
+            project_root, code="VALIDATION", message=message, details=safe_details
+        )
     raise HTTPException(
         status_code=status.HTTP_400_BAD_REQUEST,
         detail={"code": "VALIDATION", "message": message, "details": safe_details},
@@ -531,7 +595,9 @@ def get_outline_builder() -> OutlineBuilder:
     return OutlineBuilder()
 
 
-def get_persistence(settings: ServiceSettings = Depends(get_settings)) -> OutlinePersistence:
+def get_persistence(
+    settings: ServiceSettings = Depends(get_settings),
+) -> OutlinePersistence:
     """Provide an outline persistence helper bound to the current settings."""
 
     return OutlinePersistence(settings=settings)
@@ -566,7 +632,9 @@ def _register_routes(api: FastAPI) -> None:
                 persistence.write_outline(request_model.project_id, outline)
                 response_payload = outline.model_dump(mode="json")
         except BuildInProgressError as exc:
-            LOGGER.warning("Outline build conflict for project %s", request_model.project_id)
+            LOGGER.warning(
+                "Outline build conflict for project %s", request_model.project_id
+            )
             diagnostics.log(
                 project_root,
                 code="CONFLICT",
@@ -582,7 +650,9 @@ def _register_routes(api: FastAPI) -> None:
                 },
             ) from exc
         except MissingLocksError as exc:
-            LOGGER.warning("Outline build missing locks for project %s", request_model.project_id)
+            LOGGER.warning(
+                "Outline build missing locks for project %s", request_model.project_id
+            )
             diagnostics.log(
                 project_root,
                 code="VALIDATION",
@@ -598,12 +668,17 @@ def _register_routes(api: FastAPI) -> None:
                 },
             ) from exc
         except ValidationError as exc:
-            LOGGER.exception("Outline validation failed for project %s", request_model.project_id)
+            LOGGER.exception(
+                "Outline validation failed for project %s", request_model.project_id
+            )
             diagnostics.log(
                 project_root,
                 code="VALIDATION",
                 message="OutlineSchema validation failed.",
-                details={"project_id": request_model.project_id, "errors": exc.errors()},
+                details={
+                    "project_id": request_model.project_id,
+                    "errors": exc.errors(),
+                },
             )
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -632,7 +707,9 @@ def _register_routes(api: FastAPI) -> None:
         try:
             request_model = DraftGenerateRequest.model_validate(payload)
         except ValidationError as exc:
-            project_id = payload.get("project_id") if isinstance(payload, dict) else None
+            project_id = (
+                payload.get("project_id") if isinstance(payload, dict) else None
+            )
             if isinstance(project_id, str):
                 project_root = settings.project_base_dir / project_id
             _raise_validation_error(
@@ -677,8 +754,12 @@ def _register_routes(api: FastAPI) -> None:
         ]
 
         scene_ids = [scene.id for scene in scene_summaries]
-        draft_id = _compute_draft_id(request_model.project_id, request_model.seed, scene_ids)
-        total_words = sum(int(result.unit["meta"].get("word_target", 0)) for result in results)
+        draft_id = _compute_draft_id(
+            request_model.project_id, request_model.seed, scene_ids
+        )
+        total_words = sum(
+            int(result.unit["meta"].get("word_target", 0)) for result in results
+        )
         estimated_cost = round((total_words / 1000) * 0.02, 2)
 
         status_label, message, total_after = _classify_budget(
@@ -741,7 +822,6 @@ def _register_routes(api: FastAPI) -> None:
             "budget": budget_payload,
         }
 
-
     @draft_router.post("/preflight")
     async def preflight_draft(
         payload: dict[str, Any],
@@ -754,7 +834,9 @@ def _register_routes(api: FastAPI) -> None:
         try:
             request_model = DraftGenerateRequest.model_validate(payload)
         except ValidationError as exc:
-            project_id = payload.get("project_id") if isinstance(payload, dict) else None
+            project_id = (
+                payload.get("project_id") if isinstance(payload, dict) else None
+            )
             if isinstance(project_id, str):
                 project_root = settings.project_base_dir / project_id
             _raise_validation_error(
@@ -831,7 +913,6 @@ def _register_routes(api: FastAPI) -> None:
             },
         }
 
-
     @draft_router.post("/rewrite")
     async def rewrite_draft(
         payload: dict[str, Any],
@@ -844,7 +925,9 @@ def _register_routes(api: FastAPI) -> None:
         try:
             request_model = DraftRewriteRequest.model_validate(payload)
         except ValidationError as exc:
-            project_id = payload.get("project_id") if isinstance(payload, dict) else None
+            project_id = (
+                payload.get("project_id") if isinstance(payload, dict) else None
+            )
             if isinstance(project_id, str):
                 project_root = settings.project_base_dir / project_id
             _raise_validation_error(
@@ -856,7 +939,9 @@ def _register_routes(api: FastAPI) -> None:
 
         project_root = settings.project_base_dir / request_model.project_id
         try:
-            target_path, front_matter, current_body = _read_scene_document(project_root, request_model.unit_id)
+            target_path, front_matter, current_body = _read_scene_document(
+                project_root, request_model.unit_id
+            )
         except DraftRequestError as exc:
             _raise_conflict_error(
                 message=str(exc),
@@ -865,7 +950,9 @@ def _register_routes(api: FastAPI) -> None:
                 project_root=project_root,
             )
 
-        if _normalize_markdown(current_body) != _normalize_markdown(request_model.unit.text):
+        if _normalize_markdown(current_body) != _normalize_markdown(
+            request_model.unit.text
+        ):
             _raise_conflict_error(
                 message="The scene on disk no longer matches the submitted draft unit.",
                 details={"unit_id": request_model.unit_id},
@@ -875,7 +962,9 @@ def _register_routes(api: FastAPI) -> None:
 
         revised_text = request_model.new_text
         if revised_text is None:
-            revised_text = _apply_rewrite_instructions(current_body, request_model.instructions)
+            revised_text = _apply_rewrite_instructions(
+                current_body, request_model.instructions
+            )
 
         normalized_revised = _normalize_markdown(revised_text)
         if not normalized_revised:
@@ -886,7 +975,9 @@ def _register_routes(api: FastAPI) -> None:
                 project_root=project_root,
             )
 
-        diff_payload = compute_diff(_normalize_markdown(current_body), normalized_revised)
+        diff_payload = compute_diff(
+            _normalize_markdown(current_body), normalized_revised
+        )
 
         updated_front_matter = _merge_meta(front_matter, request_model.unit.meta)
         updated_front_matter["id"] = request_model.unit_id
@@ -896,9 +987,13 @@ def _register_routes(api: FastAPI) -> None:
         backup_path: Path | None = None
         try:
             if target_path.exists():
-                backup_path = target_path.parent / f".{target_path.name}.{uuid4().hex}.bak"
+                backup_path = (
+                    target_path.parent / f".{target_path.name}.{uuid4().hex}.bak"
+                )
                 shutil.copyfile(target_path, backup_path)
-            persistence.write_scene(request_model.project_id, updated_front_matter, normalized_revised)
+            persistence.write_scene(
+                request_model.project_id, updated_front_matter, normalized_revised
+            )
         except OSError as exc:
             if backup_path and backup_path.exists():
                 try:

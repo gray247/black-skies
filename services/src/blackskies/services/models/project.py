@@ -26,4 +26,3 @@ class ProjectMetadata(BaseModel):
 
 
 __all__ = ["ProjectBudget", "ProjectMetadata"]
-

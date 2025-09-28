@@ -18,7 +18,7 @@ class DiffPayload:
 
 
 def compute_diff(original: str, revised: str) -> DiffPayload:
-    """ Compute a structured diff description between two strings. """
+    """Compute a structured diff description between two strings."""
 
     original = original or ""
     revised = revised or ""

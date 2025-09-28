@@ -15,7 +15,7 @@ from blackskies.services.__main__ import MAX_PORT, MIN_PORT
 
 
 def _find_available_port() -> int:
-    host = '127.0.0.1'
+    host = "127.0.0.1"
     for port in range(MIN_PORT, MAX_PORT + 1):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -24,12 +24,12 @@ def _find_available_port() -> int:
             except OSError:
                 continue
             return port
-    raise RuntimeError('No free ports available in allowed range')
+    raise RuntimeError("No free ports available in allowed range")
 
 
 def _wait_for_health(port: int, timeout: float = 10.0) -> dict[str, str]:
     deadline = time.time() + timeout
-    url = f'http://127.0.0.1:{port}/health'
+    url = f"http://127.0.0.1:{port}/health"
     last_error: Exception | None = None
 
     while time.time() < deadline:
@@ -42,9 +42,9 @@ def _wait_for_health(port: int, timeout: float = 10.0) -> dict[str, str]:
             last_error = exc
         time.sleep(0.25)
 
-    message = 'Service did not become healthy before timeout'
+    message = "Service did not become healthy before timeout"
     if last_error is not None:
-        message = f'{message}: {last_error}'
+        message = f"{message}: {last_error}"
     raise AssertionError(message)
 
 
@@ -52,11 +52,11 @@ def _wait_for_health(port: int, timeout: float = 10.0) -> dict[str, str]:
 def service_process() -> Iterator[tuple[subprocess.Popen[str], int]]:
     port = _find_available_port()
     env = os.environ.copy()
-    env['PYTHONUNBUFFERED'] = '1'
-    env.pop('PYTHONPATH', None)
+    env["PYTHONUNBUFFERED"] = "1"
+    env.pop("PYTHONPATH", None)
 
     process = subprocess.Popen(
-        [sys.executable, '-m', 'blackskies.services', '--port', str(port)],
+        [sys.executable, "-m", "blackskies.services", "--port", str(port)],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
@@ -79,7 +79,6 @@ def test_service_health_endpoint_process_launch(
 ) -> None:
     process, port = service_process
     payload = _wait_for_health(port)
-    assert payload['status'] == 'ok'
-    assert 'version' in payload
+    assert payload["status"] == "ok"
+    assert "version" in payload
     assert process.poll() is None
-

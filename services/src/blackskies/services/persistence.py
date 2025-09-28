@@ -107,7 +107,9 @@ class DraftPersistence:
         project_root.mkdir(parents=True, exist_ok=True)
         return project_root
 
-    def write_scene(self, project_id: str, front_matter: dict[str, Any], body: str) -> Path:
+    def write_scene(
+        self, project_id: str, front_matter: dict[str, Any], body: str
+    ) -> Path:
         project_root = self.ensure_project_root(project_id)
         drafts_dir = project_root / "drafts"
         drafts_dir.mkdir(parents=True, exist_ok=True)
