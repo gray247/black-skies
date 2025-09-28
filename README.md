@@ -46,10 +46,78 @@ During 0.1 testing, load the prebuilt project from `sample_project/Esther_Estate
 The directory mirrors the schema in `docs/data_model.md` (`outline.json`, `project.json`, `drafts/`, `revisions/`, `history/`, `lore/`). Use it for smoke tests until the Wizard flow is stable.
 
 ## Budgets & Preflight
-- The desktop shell asks the FastAPI services for a `/draft/preflight` estimate before it enables `/draft/generate`.
-- Soft ($5) and hard ($10) caps are enforced per project; the running total lives in each `project.json`.
-- See `docs/endpoints.md` for request/response details.
+The renderer queries `/draft/preflight` before the **Generate** CTA unlocks. The service responds with the model that will run,
+scene metadata, and a `budget` block so the UI can enforce soft ($5) and hard ($10) caps tracked in each `project.json`.
 
+### Sample request
+```json
+{
+  "project_id": "proj_demo",
+  "unit_scope": "scene",
+  "unit_ids": ["sc_0001", "sc_0002"]
+}
+```
+
+### Expected responses & UI states
+- **OK** — projected total remains below the soft limit. The modal shows `Status: Within budget`, the proceed button stays
+  enabled, and the budget message mirrors the `budget.message` string (e.g., "Estimate within budget.").
+- **Soft limit** — projected total crosses $5 but stays below $10. The modal renders the warning message, adds a `Soft limit
+  exceeded` badge, and the **Proceed** button stays enabled so the user can confirm the spend.
+- **Blocked** — projected total would exceed the hard limit. The modal swaps the primary button text to **Blocked** and keeps it
+  disabled until the spend is reduced.
+
+```jsonc
+// Soft-limit example from the live service
+{
+  "project_id": "proj_demo",
+  "unit_scope": "scene",
+  "unit_ids": ["sc_0001", "sc_0002"],
+  "model": {
+    "name": "draft-synthesizer-v1",
+    "provider": "black-skies-local"
+  },
+  "scenes": [
+    { "id": "sc_0001", "title": "Storm Cellar", "order": 1, "chapter_id": "ch_0001" },
+    { "id": "sc_0002", "title": "Basement Pulse", "order": 2, "chapter_id": "ch_0001" }
+  ],
+  "budget": {
+    "estimated_usd": 5.42,
+    "status": "soft-limit",
+    "message": "Estimated total $5.42 exceeds soft limit $5.00.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 5.42
+  }
+}
+```
+
+```jsonc
+// Blocked example from the live service
+{
+  "project_id": "proj_demo",
+  "unit_scope": "scene",
+  "unit_ids": ["sc_0003"],
+  "model": {
+    "name": "draft-synthesizer-v1",
+    "provider": "black-skies-local"
+  },
+  "scenes": [
+    { "id": "sc_0003", "title": "Surface Impact", "order": 3, "chapter_id": "ch_0001" }
+  ],
+  "budget": {
+    "estimated_usd": 11.38,
+    "status": "blocked",
+    "message": "Projected total $11.38 exceeds hard limit $10.00.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 11.38
+  }
+}
+```
+
+See `docs/endpoints.md` for full contract notes and error responses.
 
 ## Repo Map
 ```

@@ -113,7 +113,32 @@ Returns a budget estimate for a potential generate request without writing files
 }
 ```
 
-**Response 200**
+**Response 200 (status: ok)**
+```json
+{
+  "project_id": "proj_123",
+  "unit_scope": "scene",
+  "unit_ids": ["sc_0001"],
+  "model": {
+    "name": "draft-synthesizer-v1",
+    "provider": "black-skies-local"
+  },
+  "scenes": [
+    { "id": "sc_0001", "title": "Storm Cellar", "order": 1, "chapter_id": "ch_0001" }
+  ],
+  "budget": {
+    "estimated_usd": 1.24,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.18,
+    "total_after_usd": 1.42
+  }
+}
+```
+
+**Response 200 (status: soft-limit)**
 ```json
 {
   "project_id": "proj_123",
@@ -128,13 +153,38 @@ Returns a budget estimate for a potential generate request without writing files
     { "id": "sc_0002", "title": "Basement Pulse", "order": 2, "chapter_id": "ch_0001" }
   ],
   "budget": {
-    "estimated_usd": 1.24,
+    "estimated_usd": 5.42,
     "status": "soft-limit",
     "message": "Estimated total $5.42 exceeds soft limit $5.00.",
     "soft_limit_usd": 5.0,
     "hard_limit_usd": 10.0,
-    "spent_usd": 4.18,
+    "spent_usd": 0.0,
     "total_after_usd": 5.42
+  }
+}
+```
+
+**Response 200 (status: blocked)**
+```json
+{
+  "project_id": "proj_123",
+  "unit_scope": "scene",
+  "unit_ids": ["sc_0003"],
+  "model": {
+    "name": "draft-synthesizer-v1",
+    "provider": "black-skies-local"
+  },
+  "scenes": [
+    { "id": "sc_0003", "title": "Surface Impact", "order": 3, "chapter_id": "ch_0001" }
+  ],
+  "budget": {
+    "estimated_usd": 11.38,
+    "status": "blocked",
+    "message": "Projected total $11.38 exceeds hard limit $10.00.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 11.38
   }
 }
 ```
@@ -143,9 +193,9 @@ Returns a budget estimate for a potential generate request without writing files
 - `model` — resolver-selected draft synthesizer + provider string.
 - `scenes` — ordered list of impacted scene IDs/titles (chapter and beat refs when available).
 - `budget.status`
-  - `ok` — projected total remains under the soft limit  
-  - `soft-limit` — projected total meets/exceeds the soft limit but remains under the hard limit  
-  - `blocked` — projected total meets/exceeds the hard limit (UI disables proceed)
+  - `ok` — projected total remains under the soft limit (modal shows “Within budget” and keep **Proceed** enabled)
+  - `soft-limit` — projected total meets/exceeds the soft limit but remains under the hard limit (modal shows warning, **Proceed** stays enabled)
+  - `blocked` — projected total meets/exceeds the hard limit (modal labels the button **Blocked** and keeps it disabled)
 
 **Errors**
 - `VALIDATION` (bad IDs, unit limits, missing outline)
