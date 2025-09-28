@@ -35,6 +35,39 @@ Prereqs: **Node 20 LTS**, **PNPM**, **Python 3.11**
    ```
    The dev server exposes http://127.0.0.1:8000 with a `/health` probe.
 
+### Python lint checks
+
+Use the locked development requirements to ensure the expected Flake8 plug-ins and configuration are available before running
+the linter.
+
+```bash
+cd services
+source .venv/bin/activate
+pip install -r ../requirements.dev.lock
+flake8
+```
+
+On Windows PowerShell, activate the environment with:
+
+```powershell
+cd services
+..\.venv\Scripts\Activate.ps1
+pip install -r ..\requirements.dev.lock
+flake8
+```
+
+> [!NOTE]
+> The locked toolchain includes `uvloop`, which currently ships Linux/macOS wheels only. On native Windows shells `pip install -r ..\requirements.dev.lock` will fail while building `uvloop`. Either run the install from WSL, or install just the pinned linter directly and run Flake8:
+>
+> ```powershell
+> cd services
+> ..\.venv\Scripts\Activate.ps1
+> pip install flake8==7.3.0
+> flake8
+> ```
+
+The pinned toolchain applies the 100-character limit and vendor exclusions defined in `.flake8`, matching the CI configuration.
+
 ### Sample project: Esther Estate
 
 During 0.1 testing, load the prebuilt project from `sample_project/Esther_Estate`.
