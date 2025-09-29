@@ -1,5 +1,6 @@
 # Black Skies — Phase 1 Execution Plan
 
+**Status:** Updated 2025-09-29 - Milestones P0-P3 are complete in the new black_skies API; use this plan as historical context and staging for P4+.
 **Goal:** Complete the remaining Phase 1 items from `docs/phase_charter.md` so the desktop app can run the outline → draft → critique workflow end-to-end, recover from crashes, and ship with documented packaging.
 
 **How to use this plan:** Start at the top. For each step, copy the **Codex ask** into the Codex CLI, review the PR, merge, and then continue. Steps are grouped into milestones to make progress easy to track.
@@ -11,6 +12,7 @@ For finer-grained tasks (~85 steps), see `docs/BUILD_STEPS_DETAILED.md` and log 
 ---
 
 ## Milestone P1 — Preflight & Budgeting
+*Status: Completed 2025-09-29 - implemented in the black_skies package.*
 
 ### P1.0 Preflight service endpoint
 **Do**
@@ -60,6 +62,7 @@ For finer-grained tasks (~85 steps), see `docs/BUILD_STEPS_DETAILED.md` and log 
 ---
 
 ## Milestone P2 — Critique Accept & Snapshots
+*Status: Completed 2025-09-29 - superseded by new acceptance and snapshot flows.*
 
 > Detailed breakdown for these steps now lives in `docs/P2_ACCEPT_PLAN.md` (see numbered tasks for routing, snapshots, and renderer UX follow-ups).
 
@@ -109,6 +112,7 @@ For finer-grained tasks (~85 steps), see `docs/BUILD_STEPS_DETAILED.md` and log 
 ---
 
 ## Milestone P3 — Export & Packaging
+*Status: Completed 2025-09-29 - exports and packaging handled by new tooling.*
 
 ### P3.0 Export pipeline polish
 **Do**
@@ -188,4 +192,10 @@ For finer-grained tasks (~85 steps), see `docs/BUILD_STEPS_DETAILED.md` and log 
 - Each step must update or add tests relevant to the change.
 - Honour offline constraints when possible (use existing wheels/skip Node installs if blocked).
 - After merging a step, run `bash scripts/next.sh` to record progress and see the next step.
+\n## 2025-09-29 � Observability baseline (LOCKED)
+- Added structured JSON logging with trace IDs and unified error payloads.
+- Introduced `/metrics` endpoint shipping counters for HTTP and domain requests.
+- Updated RUNBOOK with logging/metrics guidance.
 
+
+## 2025-09-29 - Agents and orchestration scaffolding (LOCKED)\n- Introduced retry-capable agents (outline, draft, rewrite, critique) under black_skies/agents/.\n- Added AgentOrchestrator utilities coordinating serial and parallel runs using shared settings.\n- Added pytest coverage for retry backoff and orchestration flows.\n\n

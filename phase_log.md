@@ -5,6 +5,21 @@ Chronological record of locked decisions and spec/version bumps. One-line summar
 
 ---
 
+## 2025-09-29 - Agents and orchestration scaffolding (LOCKED)
+- Created black_skies/agents package with retry-capable base and outline/draft/rewrite/critique agents.
+- Added AgentOrchestrator coordinating serial and parallel flows with shared settings.
+- Added unit tests covering retry behaviour and orchestration helpers.
+
+## 2025-09-29 - Observability baseline (LOCKED)
+- Added structured JSON logging with trace IDs for every request and error handler responses.
+- Introduced /metrics endpoint and in-memory counters covering HTTP and domain routes.
+- Updated RUNBOOK with monitoring guidance for logs, trace IDs, and metrics consumption.
+
+## 2025-09-29 - P0-P3 service refactor (LOCKED)
+- Established the lightweight black_skies package with FastAPI endpoints (/outline, /draft, /rewrite, /critique) and unit tests (python -m pytest -q).
+- Added storage, critique, export, run ledger, and cache modules with offline wheel manifest and constraints for sandboxed setup.
+- Created settings, release/runbook docs, and populated vendor/wheels/ so scripts/setup and scripts/maint run without network access.
+
 ## 2025-09-28 — Milestone P1 locked (LOCKED)
 - Verified P1.2 docs and renderer coverage; Vitest now pulls in `@testing-library/jest-dom` and passes via `pnpm --filter app test`.
 - Confirmed service regressions with `PYTHONPATH=services/src python -m pytest` (17 passed) and budget warnings format lint fixes.
