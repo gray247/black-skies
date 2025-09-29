@@ -19,6 +19,7 @@ from blackskies.services.config import ServiceSettings
 from blackskies.services.persistence import DraftPersistence
 
 TRACE_HEADER = "x-trace-id"
+API_PREFIX = "/api/v1"
 
 
 def _assert_trace_header(response: Any) -> str:
@@ -215,7 +216,7 @@ def test_outline_build_success(test_client: TestClient, tmp_path: Path) -> None:
     """Building an outline persists an OutlineSchema artifact."""
 
     payload = _build_payload()
-    response = test_client.post("/outline/build", json=payload)
+    response = test_client.post(f"{API_PREFIX}/outline/build", json=payload)
     assert response.status_code == 200
 
     data = response.json()
@@ -242,7 +243,7 @@ def test_outline_build_missing_locks(test_client: TestClient, tmp_path: Path) ->
         "wizard_locks": {"acts": [{"title": "Act I"}], "chapters": [], "scenes": []},
     }
 
-    response = test_client.post("/outline/build", json=payload)
+    response = test_client.post(f"{API_PREFIX}/outline/build", json=payload)
     assert response.status_code == 400
     detail = _read_error(response)
     assert detail["code"] == "VALIDATION"
@@ -265,7 +266,7 @@ def test_outline_build_conflict(test_client: TestClient, tmp_path: Path) -> None
     tracker: BuildTracker = test_client.app.state.build_tracker  # type: ignore[attr-defined]
     asyncio.run(tracker.begin(payload["project_id"]))
     try:
-        response = test_client.post("/outline/build", json=payload)
+        response = test_client.post(f"{API_PREFIX}/outline/build", json=payload)
     finally:
         asyncio.run(tracker.end(payload["project_id"]))
 
@@ -300,7 +301,7 @@ def test_draft_generate_scene_success(test_client: TestClient, tmp_path: Path) -
         },
     }
 
-    response = test_client.post("/draft/generate", json=payload)
+    response = test_client.post(f"{API_PREFIX}/draft/generate", json=payload)
     assert response.status_code == 200
 
     data = response.json()
@@ -349,7 +350,7 @@ def test_draft_generate_scene_limit(test_client: TestClient, tmp_path: Path) -> 
         "unit_ids": scene_ids[:6],
     }
 
-    response = test_client.post("/draft/generate", json=payload)
+    response = test_client.post(f"{API_PREFIX}/draft/generate", json=payload)
     assert response.status_code == 400
 
     detail = _read_error(response)
@@ -377,7 +378,7 @@ def test_draft_generate_missing_scene(test_client: TestClient, tmp_path: Path) -
         "unit_ids": [scene_ids[0], "sc_9999"],
     }
 
-    response = test_client.post("/draft/generate", json=payload)
+    response = test_client.post(f"{API_PREFIX}/draft/generate", json=payload)
     assert response.status_code == 400
 
     detail = _read_error(response)
@@ -405,7 +406,7 @@ def test_draft_generate_budget_blocked(test_client: TestClient, tmp_path: Path) 
         "overrides": {scene_ids[0]: {"word_target": 30000}},
     }
 
-    response = test_client.post("/draft/generate", json=payload)
+    response = test_client.post(f"{API_PREFIX}/draft/generate", json=payload)
     assert response.status_code == 402
 
     detail = _read_error(response)
@@ -434,7 +435,7 @@ def test_draft_generate_soft_limit_status(
         "overrides": {scene_ids[0]: {"word_target": 10000}},
     }
 
-    response = test_client.post("/draft/generate", json=payload)
+    response = test_client.post(f"{API_PREFIX}/draft/generate", json=payload)
     assert response.status_code == 200
 
     data = response.json()
@@ -462,7 +463,7 @@ def test_draft_preflight_success(test_client: TestClient, tmp_path: Path) -> Non
         "unit_ids": scene_ids,
     }
 
-    response = test_client.post("/draft/preflight", json=payload)
+    response = test_client.post(f"{API_PREFIX}/draft/preflight", json=payload)
     assert response.status_code == 200
 
     data = response.json()
@@ -493,7 +494,7 @@ def test_draft_preflight_soft_limit(test_client: TestClient, tmp_path: Path) -> 
         "overrides": {scene_ids[0]: {"word_target": 300000}},
     }
 
-    response = test_client.post("/draft/preflight", json=payload)
+    response = test_client.post(f"{API_PREFIX}/draft/preflight", json=payload)
     assert response.status_code == 200
 
     payload = response.json()
@@ -520,7 +521,7 @@ def test_draft_preflight_blocked(test_client: TestClient, tmp_path: Path) -> Non
         "overrides": {scene_ids[0]: {"word_target": 600000}},
     }
 
-    response = test_client.post("/draft/preflight", json=payload)
+    response = test_client.post(f"{API_PREFIX}/draft/preflight", json=payload)
     assert response.status_code == 200
 
     payload = response.json()
@@ -545,7 +546,7 @@ def test_draft_preflight_missing_scene(test_client: TestClient, tmp_path: Path) 
         "unit_ids": [scene_ids[0], "sc_9999"],
     }
 
-    response = test_client.post("/draft/preflight", json=payload)
+    response = test_client.post(f"{API_PREFIX}/draft/preflight", json=payload)
     assert response.status_code == 400
 
     detail = _read_error(response)
@@ -574,7 +575,7 @@ def test_draft_rewrite_success(test_client: TestClient, tmp_path: Path) -> None:
         },
     }
 
-    response = test_client.post("/draft/rewrite", json=payload)
+    response = test_client.post(f"{API_PREFIX}/draft/rewrite", json=payload)
     assert response.status_code == 200
 
     data = response.json()
@@ -618,7 +619,7 @@ def test_draft_rewrite_conflict(test_client: TestClient, tmp_path: Path) -> None
         "unit": {"id": scene_ids[0], "text": original_body},
     }
 
-    response = test_client.post("/draft/rewrite", json=payload)
+    response = test_client.post(f"{API_PREFIX}/draft/rewrite", json=payload)
     assert response.status_code == 409
 
     detail = _read_error(response)
@@ -632,7 +633,7 @@ def test_draft_rewrite_conflict(test_client: TestClient, tmp_path: Path) -> None
 def test_draft_rewrite_validation_error(test_client: TestClient) -> None:
     """Malformed rewrite payloads raise validation errors."""
 
-    response = test_client.post("/draft/rewrite", json={"project_id": "proj_bad"})
+    response = test_client.post(f"{API_PREFIX}/draft/rewrite", json={"project_id": "proj_bad"})
     assert response.status_code == 400
     detail = _read_error(response)
     assert detail["code"] == "VALIDATION"
@@ -662,7 +663,7 @@ def test_draft_accept_success_creates_snapshot(
         "snapshot_label": "accept",
     }
 
-    response = test_client.post("/draft/accept", json=payload)
+    response = test_client.post(f"{API_PREFIX}/draft/accept", json=payload)
     assert response.status_code == 200
 
     data = response.json()
@@ -718,7 +719,7 @@ def test_draft_accept_conflict_on_checksum(
         },
     }
 
-    response = test_client.post("/draft/accept", json=payload)
+    response = test_client.post(f"{API_PREFIX}/draft/accept", json=payload)
     assert response.status_code == 409
     detail = _read_error(response)
     assert detail["code"] == "CONFLICT"
@@ -741,7 +742,7 @@ def test_recovery_status_marks_needs_recovery(
         encoding="utf-8",
     )
 
-    response = test_client.get("/draft/recovery", params={"project_id": project_id})
+    response = test_client.get(f"{API_PREFIX}/draft/recovery", params={"project_id": project_id})
     assert response.status_code == 200
     data = response.json()
     assert data["needs_recovery"] is True
@@ -772,7 +773,7 @@ def test_recovery_restore_overwrites_scene(
         },
     }
 
-    accept_response = test_client.post("/draft/accept", json=accept_payload)
+    accept_response = test_client.post(f"{API_PREFIX}/draft/accept", json=accept_payload)
     assert accept_response.status_code == 200
     snapshot_rel_path = accept_response.json()["snapshot"]["path"]
 
@@ -780,7 +781,7 @@ def test_recovery_restore_overwrites_scene(
     scene_path.write_text("Corrupted content", encoding="utf-8")
 
     restore_response = test_client.post(
-        "/draft/recovery/restore",
+        f"{API_PREFIX}/draft/recovery/restore",
         json={"project_id": project_id},
     )
     assert restore_response.status_code == 200
@@ -819,7 +820,7 @@ def test_draft_export_manuscript_success(
             body=body,
         )
 
-    response = test_client.post("/draft/export", json={"project_id": project_id})
+    response = test_client.post(f"{API_PREFIX}/draft/export", json={"project_id": project_id})
     assert response.status_code == 200
     data = response.json()
     assert data["schema_version"] == "DraftExportResult v1"
@@ -838,7 +839,7 @@ def test_draft_export_manuscript_success(
     assert "Radio console crackles to life." in manuscript
 
     response_meta = test_client.post(
-        "/draft/export",
+        f"{API_PREFIX}/draft/export",
         json={"project_id": project_id, "include_meta_header": True},
     )
     assert response_meta.status_code == 200
@@ -864,7 +865,7 @@ def test_draft_export_missing_front_matter_fields(
     ]
     scene_path.write_text("\n".join(content_lines) + "\n", encoding="utf-8")
 
-    response = test_client.post("/draft/export", json={"project_id": project_id})
+    response = test_client.post(f"{API_PREFIX}/draft/export", json={"project_id": project_id})
     assert response.status_code == 400
     detail = _read_error(response)
     assert detail["code"] == "VALIDATION"
