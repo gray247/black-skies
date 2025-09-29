@@ -1,5 +1,5 @@
 2025-09-29  P4.0  Observability baseline (structured logs + /metrics) — LOCKED ✅
-2025-09-29  P4.1  Documentation/tagging sweep — OPEN ◻
+2025-09-29  P4.1  Documentation/tagging sweep — LOCKED ✅ Doc refresh, tags, CI verification complete.
 
 2025-09-29  P5.0  Tools & eval harness scaffolding — OPEN ◻
 2025-09-29  P5.1  Eval dataset v1 + CI gate — OPEN ◻

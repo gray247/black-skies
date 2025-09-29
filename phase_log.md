@@ -1,5 +1,5 @@
 # phase_log.md — Phase Log (Source of truth)
-**Status:** ACTIVE · 2025-09-23
+**Status:** ACTIVE · 2025-09-29
 
 Chronological record of locked decisions and spec/version bumps. One-line summary first, details after.
 
@@ -9,6 +9,11 @@ Chronological record of locked decisions and spec/version bumps. One-line summar
 - Created black_skies/agents package with retry-capable base and outline/draft/rewrite/critique agents.
 - Added AgentOrchestrator coordinating serial and parallel flows with shared settings.
 - Added unit tests covering retry behaviour and orchestration helpers.
+
+## 2025-09-29 — Milestone P4.1 release wrap (LOCKED)
+- Refreshed documentation set for P4.1, ensuring roadmap, phase logs, and supporting docs are aligned.
+- Cut release tag and noted the documentation sweep across milestones and supporting references.
+- Verified CI pipelines and documentation build paths after the tagging pass.
 
 ## 2025-09-29 - Observability baseline (LOCKED)
 - Added structured JSON logging with trace IDs for every request and error handler responses.
