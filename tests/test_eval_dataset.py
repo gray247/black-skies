@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections import Counter
 from pathlib import Path
 
 import pytest
@@ -17,26 +18,57 @@ from black_skies.eval import (
 
 def test_load_default_dataset_success() -> None:
     tasks = load_dataset(DEFAULT_DATASET_DIR)
-    flows = {task.flow for task in tasks}
 
-    assert EvalTaskFlow.WIZARD in flows
-    assert EvalTaskFlow.DRAFT in flows
-    assert EvalTaskFlow.CRITIQUE in flows
+    assert len(tasks) == 63
+
+    flow_counts = Counter(task.flow for task in tasks)
+    assert flow_counts[EvalTaskFlow.WIZARD] == 21
+    assert flow_counts[EvalTaskFlow.DRAFT] == 21
+    assert flow_counts[EvalTaskFlow.CRITIQUE] == 21
 
     wizard_tasks = list(iter_tasks(DEFAULT_DATASET_DIR, flow=EvalTaskFlow.WIZARD))
-    assert len(wizard_tasks) == 1
-    wizard = wizard_tasks[0]
-    assert wizard.expected.outline.schema_version == "OutlineSchema v1"
+    assert len(wizard_tasks) == 21
+    wizard_baseline = next(
+        task for task in wizard_tasks if task.task_id == "wizard_outline_baseline"
+    )
+    assert wizard_baseline.expected.outline.schema_version == "OutlineSchema v1"
+    wizard_generated = next(
+        task for task in wizard_tasks if task.task_id == "wizard_outline_001"
+    )
+    assert wizard_generated.expected.outline.chapters[0].order == 1
+    assert wizard_generated.expected.outline.scenes[1].beat_refs == ["inciting"]
 
-    draft = next(task for task in tasks if task.flow == EvalTaskFlow.DRAFT)
-    assert draft.expected.draft.schema_version == "DraftUnitSchema v1"
-    unit = draft.expected.draft.units[0]
-    assert unit.meta.purpose == "escalation"
-    assert unit.model.provider == "black-skies-local"
+    draft_tasks = list(iter_tasks(DEFAULT_DATASET_DIR, flow=EvalTaskFlow.DRAFT))
+    assert len(draft_tasks) == 21
+    draft_baseline = next(
+        task for task in draft_tasks if task.task_id == "draft_scene_generation"
+    )
+    assert draft_baseline.expected.draft.schema_version == "DraftUnitSchema v1"
+    baseline_unit = draft_baseline.expected.draft.units[0]
+    assert baseline_unit.meta.purpose == "escalation"
+    assert baseline_unit.model.provider == "black-skies-local"
+    generated_draft = next(
+        task for task in draft_tasks if task.task_id == "draft_scene_001"
+    )
+    generated_unit = generated_draft.expected.draft.units[0]
+    assert generated_unit.meta.word_target == 1100
+    assert generated_unit.model.name == "story-drafter-v1"
 
-    critique = next(task for task in tasks if task.flow == EvalTaskFlow.CRITIQUE)
-    assert critique.expected.critique.schema_version == "CritiqueOutputSchema v1"
-    assert critique.expected.critique.line_comments
+    critique_tasks = list(iter_tasks(DEFAULT_DATASET_DIR, flow=EvalTaskFlow.CRITIQUE))
+    assert len(critique_tasks) == 21
+    critique_baseline = next(
+        task for task in critique_tasks if task.task_id == "critique_scene_review"
+    )
+    assert critique_baseline.expected.critique.schema_version == "CritiqueOutputSchema v1"
+    assert critique_baseline.expected.critique.line_comments
+    generated_critique = next(
+        task for task in critique_tasks if task.task_id == "critique_scene_001"
+    )
+    assert generated_critique.expected.critique.priorities == [
+        "continuity",
+        "voice",
+    ]
+    assert generated_critique.expected.critique.suggested_edits[0].replacement
 
 
 def test_load_task_validation_error(tmp_path: Path) -> None:
