@@ -82,3 +82,24 @@ Deliver a **stable, local-first novelist tool** that guides outline creation, ge
 
 ## Versioning
 - This document: **v1** (Phase 1). Changes require an entry in `phase_log.md`.
+## P5 — Tools, Data, and Evaluation Harness
+**Scope:** tool adapters (file, template, summarize, search), registry/permissions, eval dataset, evaluator, CI hook.  
+**Non-goals:** fancy retrieval, external services.  
+**Exit:** `scripts/eval.py` runs and produces an HTML/JSON report; CI gate in place; safety hooks on tool calls.
+
+## P6 — End-to-End Integration & Contracts
+**Scope:** versioned `/api/v1` endpoints, pydantic schemas, GUI wiring, session state, trace IDs, contract tests.  
+**Non-goals:** new features beyond Wizard/Draft/Critique loop.  
+**Exit:** GUI can drive end-to-end flows against `/api/v1`; contract tests green.
+
+## P7 — Release Candidate
+**Scope:** freeze interfaces, packaging, smoke tests, quickstart docs, offline mode.  
+**Exit:** `v1.0.0-rc1` tag; smoke script exits 0 on a clean checkout.
+
+## P8 — Hardening, Performance, Resilience
+**Scope:** load testing, timeouts/retries/circuit-breakers, input limits, redaction, SLOs.  
+**Exit:** load targets met; resilience toggles verified; security checklist ticked.
+
+## P9 — GA & Post-GA Care
+**Scope:** GA tag, changelog, release process, support playbook, backlog for v1.1.  
+**Exit:** `v1.0.0` tag and docs published; support workflow defined.
