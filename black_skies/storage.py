@@ -18,6 +18,7 @@ _KIND_DIRS = {
     "rewrite": DATA_ROOT / "rewrites",
     "export": DATA_ROOT / "exports",
     "run": DATA_ROOT / "runs",
+    "template": DATA_ROOT / "templates",
 }
 
 for directory in _KIND_DIRS.values():
