@@ -5,28 +5,35 @@ import {
   LOGGING_CHANNELS,
   type DiagnosticsLogPayload,
   type DiagnosticsLogLevel,
-} from '../shared/ipc/logging';
+} from '../shared/ipc/logging.js';
 import {
   PROJECT_LOADER_CHANNELS,
   type ProjectDialogResult,
   type ProjectLoadRequest,
   type ProjectLoadResponse,
   type ProjectLoaderApi,
-} from '../shared/ipc/projectLoader';
+} from '../shared/ipc/projectLoader.js';
 import type {
   DraftCritiqueBridgeRequest,
   DraftCritiqueBridgeResponse,
+  DraftAcceptBridgeRequest,
+  DraftAcceptBridgeResponse,
   DraftGenerateBridgeRequest,
   DraftGenerateBridgeResponse,
   DraftPreflightBridgeRequest,
   DraftPreflightEstimate,
+  DraftUnitOverrides,
   OutlineBuildBridgeRequest,
   OutlineBuildBridgeResponse,
+  RecoveryRestoreBridgeRequest,
+  RecoveryRestoreBridgeResponse,
+  RecoveryStatusBridgeRequest,
+  RecoveryStatusBridgeResponse,
   ServiceError,
   ServiceHealthResponse,
   ServiceResult,
   ServicesBridge,
-} from '../shared/ipc/services';
+} from '../shared/ipc/services.js';
 
 type ConsoleMethod = 'log' | 'info' | 'warn' | 'error' | 'debug';
 
@@ -200,18 +207,49 @@ function serializeOutlineRequest({
     project_id: projectId,
     force_rebuild: Boolean(forceRebuild),
     wizard_locks: {
-      acts: wizardLocks.acts.map((act) => ({ title: act.title })),
-      chapters: wizardLocks.chapters.map((chapter) => ({
-        title: chapter.title,
-        act_index: chapter.actIndex,
+      acts: wizardLocks.acts.map(({ title }) => ({ title })),
+      chapters: wizardLocks.chapters.map(({ title, actIndex }) => ({
+        title,
+        act_index: actIndex,
       })),
-      scenes: wizardLocks.scenes.map((scene) => ({
-        title: scene.title,
-        chapter_index: scene.chapterIndex,
-        beat_refs: scene.beatRefs ?? [],
+      scenes: wizardLocks.scenes.map(({ title, chapterIndex, beatRefs }) => ({
+        title,
+        chapter_index: chapterIndex,
+        beat_refs: beatRefs ?? [],
       })),
     },
   };
+}
+
+function serializeDraftOverrides(
+  overrides?: Record<string, DraftUnitOverrides | undefined>,
+): Record<string, unknown> | undefined {
+  if (!overrides) {
+    return undefined;
+  }
+
+  const entries: Array<[string, Record<string, unknown>]> = [];
+  for (const [key, override] of Object.entries(overrides)) {
+    if (!override) {
+      continue;
+    }
+    entries.push([
+      key,
+      {
+        order: override.order,
+        purpose: override.purpose,
+        emotion_tag: override.emotion_tag,
+        pov: override.pov,
+        goal: override.goal,
+        conflict: override.conflict,
+        turn: override.turn,
+        word_target: override.word_target,
+        beats: override.beats,
+      },
+    ]);
+  }
+
+  return entries.length > 0 ? Object.fromEntries(entries) : undefined;
 }
 
 function serializeDraftGenerateRequest({
@@ -222,32 +260,13 @@ function serializeDraftGenerateRequest({
   seed,
   overrides,
 }: DraftGenerateBridgeRequest): Record<string, unknown> {
-  const serializedOverrides = overrides
-    ? Object.fromEntries(
-        Object.entries(overrides).map(([key, value]) => [
-          key,
-          {
-            order: value.order,
-            purpose: value.purpose,
-            emotion_tag: value.emotion_tag,
-            pov: value.pov,
-            goal: value.goal,
-            conflict: value.conflict,
-            turn: value.turn,
-            word_target: value.word_target,
-            beats: value.beats,
-          },
-        ]),
-      )
-    : undefined;
-
   return {
     project_id: projectId,
     unit_scope: unitScope,
     unit_ids: unitIds,
     temperature,
     seed,
-    overrides: serializedOverrides,
+    overrides: serializeDraftOverrides(overrides),
   };
 }
 
@@ -265,6 +284,40 @@ function serializeCritiqueRequest({
   };
 }
 
+function serializeAcceptRequest({
+  projectId,
+  draftId,
+  unitId,
+  unit,
+  message,
+  snapshotLabel,
+}: DraftAcceptBridgeRequest): Record<string, unknown> {
+  const unitPayload: Record<string, unknown> = {
+    id: unit.id,
+    previous_sha256: unit.previous_sha256,
+    text: unit.text,
+  };
+  if (unit.meta && Object.keys(unit.meta).length > 0) {
+    unitPayload.meta = unit.meta;
+  }
+
+  const payload: Record<string, unknown> = {
+    project_id: projectId,
+    draft_id: draftId,
+    unit_id: unitId,
+    unit: unitPayload,
+  };
+
+  if (typeof message === 'string' && message.trim().length > 0) {
+    payload.message = message;
+  }
+  if (typeof snapshotLabel === 'string' && snapshotLabel.trim().length > 0) {
+    payload.snapshot_label = snapshotLabel;
+  }
+
+  return payload;
+}
+
 function serializePreflightRequest({
   projectId,
   unitScope,
@@ -275,6 +328,17 @@ function serializePreflightRequest({
     unit_scope: unitScope,
     unit_ids: unitIds,
   };
+}
+
+function serializeRecoveryRestoreRequest({
+  projectId,
+  snapshotId,
+}: RecoveryRestoreBridgeRequest): Record<string, unknown> {
+  const payload: Record<string, unknown> = { project_id: projectId };
+  if (snapshotId) {
+    payload.snapshot_id = snapshotId;
+  }
+  return payload;
 }
 
 const projectLoaderApi: ProjectLoaderApi = {
@@ -330,6 +394,27 @@ const servicesBridge: ServicesBridge = {
       '/draft/preflight',
       'POST',
       serializePreflightRequest(request),
+    );
+  },
+  async acceptDraft(request: DraftAcceptBridgeRequest) {
+    return performRequest<DraftAcceptBridgeResponse>(
+      '/draft/accept',
+      'POST',
+      serializeAcceptRequest(request),
+    );
+  },
+  async getRecoveryStatus(request: RecoveryStatusBridgeRequest) {
+    const params = new URLSearchParams({ project_id: request.projectId });
+    return performRequest<RecoveryStatusBridgeResponse>(
+      `/draft/recovery?${params.toString()}`,
+      'GET',
+    );
+  },
+  async restoreSnapshot(request: RecoveryRestoreBridgeRequest) {
+    return performRequest<RecoveryRestoreBridgeResponse>(
+      '/draft/recovery/restore',
+      'POST',
+      serializeRecoveryRestoreRequest(request),
     );
   },
 };

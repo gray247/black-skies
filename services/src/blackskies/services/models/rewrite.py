@@ -5,9 +5,11 @@ from __future__ import annotations
 import re
 from typing import Any
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 _ID_PATTERN = re.compile(r"^(sc|ch)_\d{4}$")
+
+from ._project_id import validate_project_id
 
 
 class DraftRewriteUnit(BaseModel):
@@ -30,6 +32,11 @@ class DraftRewriteRequest(BaseModel):
     instructions: str | None = None
     new_text: str | None = None
     unit: DraftRewriteUnit
+
+    @field_validator("project_id")
+    @classmethod
+    def _validate_project_id(cls, value: str) -> str:
+        return validate_project_id(value)
 
     @model_validator(mode="after")
     def _validate_unit(self) -> "DraftRewriteRequest":

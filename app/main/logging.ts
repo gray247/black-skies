@@ -9,9 +9,9 @@ import {
   LOGGING_CHANNELS,
   type DiagnosticsLogLevel,
   type DiagnosticsLogPayload,
-} from '../shared/ipc/logging';
+} from '../shared/ipc/logging.js';
 
-export type LogLevel = DiagnosticsLogLevel;
+export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
 export type LogOrigin = 'main' | 'renderer' | 'service';
 
@@ -360,4 +360,3 @@ export function getMainLogFilePath(): string | null {
 export function getDiagnosticsLogFilePath(): string | null {
   return diagnosticsLogPath;
 }
-

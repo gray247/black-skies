@@ -1,4 +1,4 @@
-import type { OutlineFile, SceneDraftMetadata } from './projectLoader';
+import type { OutlineFile, SceneDraftMetadata } from './projectLoader.js';
 
 export interface ServiceError {
   code?: string;
@@ -120,6 +120,60 @@ export interface DraftCritiqueBridgeResponse {
   model?: { name: string; provider: string };
 }
 
+export interface SnapshotSummary {
+  snapshot_id: string;
+  label: string;
+  created_at: string;
+  path: string;
+  includes?: string[];
+}
+
+export interface DraftAcceptUnitPayload {
+  id: string;
+  previous_sha256: string;
+  text: string;
+  meta?: Record<string, unknown>;
+}
+
+export interface DraftAcceptBridgeRequest {
+  projectId: string;
+  draftId: string;
+  unitId: string;
+  unit: DraftAcceptUnitPayload;
+  message?: string;
+  snapshotLabel?: string;
+}
+
+export interface DraftAcceptBridgeResponse {
+  unit_id: string;
+  checksum: string;
+  snapshot: SnapshotSummary;
+  schema_version: 'DraftAcceptResult v1';
+}
+
+export interface RecoveryStatusBridgeRequest {
+  projectId: string;
+}
+
+export interface RecoveryStatusBridgeResponse {
+  project_id: string;
+  status: string;
+  needs_recovery: boolean;
+  pending_unit_id?: string | null;
+  draft_id?: string | null;
+  started_at?: string | null;
+  last_snapshot?: SnapshotSummary | null;
+  message?: string | null;
+  failure_reason?: string | null;
+}
+
+export interface RecoveryRestoreBridgeRequest {
+  projectId: string;
+  snapshotId?: string;
+}
+
+export type RecoveryRestoreBridgeResponse = RecoveryStatusBridgeResponse;
+
 export type DraftPreflightStatus = 'ok' | 'soft-limit' | 'blocked';
 
 export interface DraftPreflightBridgeRequest {
@@ -169,6 +223,15 @@ export interface ServicesBridge {
   preflightDraft: (
     request: DraftPreflightBridgeRequest,
   ) => Promise<ServiceResult<DraftPreflightEstimate>>;
+  acceptDraft: (
+    request: DraftAcceptBridgeRequest,
+  ) => Promise<ServiceResult<DraftAcceptBridgeResponse>>;
+  getRecoveryStatus: (
+    request: RecoveryStatusBridgeRequest,
+  ) => Promise<ServiceResult<RecoveryStatusBridgeResponse>>;
+  restoreSnapshot: (
+    request: RecoveryRestoreBridgeRequest,
+  ) => Promise<ServiceResult<RecoveryRestoreBridgeResponse>>;
 }
 
 export type ServicesChannel = never;

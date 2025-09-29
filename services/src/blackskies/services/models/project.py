@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+
+from ._project_id import validate_project_id
 
 
 class ProjectBudget(BaseModel):
@@ -23,6 +25,13 @@ class ProjectMetadata(BaseModel):
     project_id: str | None = None
     name: str | None = None
     budget: ProjectBudget = Field(default_factory=ProjectBudget)
+
+    @field_validator("project_id")
+    @classmethod
+    def _validate_project_id(cls, value: str | None) -> str | None:
+        if value is None:
+            return value
+        return validate_project_id(value)
 
 
 __all__ = ["ProjectBudget", "ProjectMetadata"]

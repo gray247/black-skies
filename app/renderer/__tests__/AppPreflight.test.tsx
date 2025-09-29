@@ -107,6 +107,39 @@ function createServicesMock(): ServicesBridge {
         },
       },
     }),
+    acceptDraft: vi.fn().mockResolvedValue({
+      ok: true,
+      data: {
+        unit_id: 'sc_0001',
+        checksum: 'abc123',
+        schema_version: 'DraftAcceptResult v1',
+        snapshot: {
+          snapshot_id: '20250929T010203Z',
+          label: 'accept',
+          created_at: '2025-09-29T01:02:03Z',
+          path: 'history/snapshots/20250929T010203Z_accept',
+          includes: ['drafts'],
+        },
+      },
+    }),
+    getRecoveryStatus: vi.fn().mockResolvedValue({
+      ok: true,
+      data: {
+        project_id: 'demo_project',
+        status: 'idle',
+        needs_recovery: false,
+        last_snapshot: null,
+      },
+    }),
+    restoreSnapshot: vi.fn().mockResolvedValue({
+      ok: true,
+      data: {
+        project_id: 'demo_project',
+        status: 'idle',
+        needs_recovery: false,
+        last_snapshot: null,
+      },
+    }),
   };
 }
 

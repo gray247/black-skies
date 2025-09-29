@@ -10,6 +10,21 @@ Chronological record of locked decisions and spec/version bumps. One-line summar
 - Confirmed service regressions with `PYTHONPATH=services/src python -m pytest` (17 passed) and budget warnings format lint fixes.
 - Phase 1 Preflight milestone declared complete; roadmap advances to Critique Accept (P2.0).
 
+## 2025-09-29 — Milestone P2 locked (LOCKED)
+- Service: `/draft/accept` applies critique diffs, emits snapshots/manifest, and snapshot restore path covered by pytest (`services/tests/test_app.py`).
+- Recovery: desktop surfaces banner + restore toast; Vitest ensures happy-path + cleanup (`app/renderer/__tests__/AppRecovery.test.tsx`).
+- UI: critique accept/reject flows polished, history surfaced, renderer tests green via `pnpm --filter app test`.
+
+## 2025-09-29 — Milestone P3.0 export pipeline (LOCKED)
+- Export endpoint compiles `draft_full.md` with deterministic chapter/scene ordering and meta header toggle (`services/src/blackskies/services/app.py`).
+- Snapshot persistence now emits `snapshot.yaml` manifests; pytest asserts export success/error + manifest fidelity (`services/tests/test_app.py`).
+- Renderer + service suites verified via `corepack pnpm --filter app test` and `PYTHONPATH=services/src python -m pytest`.
+
+## 2025-09-29 — Milestone P3.1 packaging (LOCKED)
+- Added electron-builder configuration + scripts to emit NSIS installer and portable builds (`app/electron-builder.yml`, `app/package.json`).
+- Main process now resolves packaged Python assets; Vite/tsc build pipeline compiles renderer + main before packaging (`app/main/main.ts`, `app/tsconfig.main.json`).
+- Authored `docs/packaging.md` with Windows prerequisites, build commands, and verification checks.
+
 ## 2025-09-23 — Docs synced to Phase 1 (v1)
 - Locked and published: docs/endpoints.md (v1), docs/data_model.md (v1), docs/gui_layouts.md (v1), docs/exports.md (v1), docs/policies.md (v1), docs/phase_charter.md (v1),
   docs/architecture.md (v1), docs/agents_and_services.md (v1).

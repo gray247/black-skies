@@ -41,7 +41,7 @@ class OutlineBuilder:
             )
 
         acts = [act.title for act in locks.acts]
-        chapter_map = self._build_chapters(locks.chapters)
+        chapter_map = self._build_chapters(locks.chapters, act_count=len(acts))
         scenes = self._build_scenes(locks.scenes, chapter_map)
 
         return OutlineArtifact(
@@ -52,10 +52,19 @@ class OutlineBuilder:
         )
 
     def _build_chapters(
-        self, chapters: list[WizardChapterLock]
+        self, chapters: list[WizardChapterLock], *, act_count: int
     ) -> dict[int, OutlineChapter]:
         chapter_map: dict[int, OutlineChapter] = {}
         for index, chapter in enumerate(chapters, start=1):
+            if chapter.act_index < 1 or chapter.act_index > act_count:
+                raise MissingLocksError(
+                    "Chapter references unknown act.",
+                    details={
+                        "chapter_title": chapter.title,
+                        "act_index": chapter.act_index,
+                        "acts_available": act_count,
+                    },
+                )
             chapter_id = f"ch_{index:04d}"
             chapter_map[index] = OutlineChapter(
                 id=chapter_id, order=index, title=chapter.title

@@ -13,6 +13,7 @@ import type {
   DraftPreflightEstimate,
   DraftUnitScope,
   ServicesBridge,
+  RecoveryStatusBridgeResponse,
 } from '../shared/ipc/services';
 
 interface ProjectSummary {
@@ -32,8 +33,11 @@ interface PreflightState {
 
 function deriveProjectIdFromPath(path: string): string {
   const segments = path.split(/[\\/]+/).filter(Boolean);
-  const base = segments.at(-1) ?? path;
-  return base.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_\-]/g, '').toLowerCase();
+  const base = segments.at(-1);
+  if (base && base.length > 0) {
+    return base;
+  }
+  return path;
 }
 
 export default function App(): JSX.Element {
@@ -44,6 +48,8 @@ export default function App(): JSX.Element {
   const isMountedRef = useRef(true);
   const [serviceStatus, setServiceStatus] = useState<ServiceStatus>('checking');
   const [projectSummary, setProjectSummary] = useState<ProjectSummary | null>(null);
+  const [recoveryStatus, setRecoveryStatus] = useState<RecoveryStatusBridgeResponse | null>(null);
+  const [restoreInFlight, setRestoreInFlight] = useState(false);
   const [preflightState, setPreflightState] = useState<PreflightState>({
     open: false,
     loading: false,
@@ -120,20 +126,104 @@ export default function App(): JSX.Element {
     setToasts((previous) => previous.filter((toast) => toast.id !== id));
   }, []);
 
-  const handleProjectLoaded = useCallback((project: LoadedProject | null) => {
-    if (!project) {
-      setProjectSummary(null);
+  const fetchRecoveryStatus = useCallback(
+    async (projectId: string) => {
+      if (!services) {
+        setRecoveryStatus(null);
+        return;
+      }
+
+      try {
+        const result = await services.getRecoveryStatus({ projectId });
+        if (result.ok) {
+          setRecoveryStatus(result.data);
+        } else {
+          setRecoveryStatus(null);
+          pushToast({
+            tone: 'warning',
+            title: 'Recovery status unavailable',
+            description: result.error.message,
+          });
+        }
+      } catch (error) {
+        console.error('[App] Failed to fetch recovery status', error);
+        setRecoveryStatus(null);
+        pushToast({
+          tone: 'error',
+          title: 'Recovery check failed',
+          description: error instanceof Error ? error.message : String(error),
+        });
+      }
+    },
+    [services, pushToast],
+  );
+
+  const handleProjectLoaded = useCallback(
+    (project: LoadedProject | null) => {
+      if (!project) {
+        setProjectSummary(null);
+        setRecoveryStatus(null);
+        return;
+      }
+      const projectId = deriveProjectIdFromPath(project.path);
+      const unitIds = project.scenes.map((scene) => scene.id);
+      setProjectSummary({
+        projectId,
+        path: project.path,
+        unitScope: 'scene',
+        unitIds,
+      });
+      void fetchRecoveryStatus(projectId);
+    },
+    [fetchRecoveryStatus],
+  );
+
+  const handleRestoreSnapshot = useCallback(async () => {
+    if (!services) {
+      pushToast({
+        tone: 'error',
+        title: 'Services unavailable',
+        description: 'Cannot restore snapshots while services are offline.',
+      });
       return;
     }
-    const projectId = deriveProjectIdFromPath(project.path);
-    const unitIds = project.scenes.map((scene) => scene.id);
-    setProjectSummary({
-      projectId,
-      path: project.path,
-      unitScope: 'scene',
-      unitIds,
-    });
-  }, []);
+    if (!projectSummary) {
+      pushToast({
+        tone: 'warning',
+        title: 'Load a project first',
+        description: 'Select a project to restore its latest snapshot.',
+      });
+      return;
+    }
+
+    setRestoreInFlight(true);
+    try {
+      const result = await services.restoreSnapshot({ projectId: projectSummary.projectId });
+      if (result.ok) {
+        setRecoveryStatus(result.data);
+        pushToast({
+          tone: 'success',
+          title: 'Snapshot restored',
+          description: 'Latest snapshot restored successfully.',
+        });
+      } else {
+        pushToast({
+          tone: 'error',
+          title: 'Restore failed',
+          description: result.error.message,
+        });
+      }
+    } catch (error) {
+      console.error('[App] Snapshot restore failed', error);
+      pushToast({
+        tone: 'error',
+        title: 'Restore failed',
+        description: error instanceof Error ? error.message : String(error),
+      });
+    } finally {
+      setRestoreInFlight(false);
+    }
+  }, [services, projectSummary, pushToast]);
 
   const handleOpenPreflight = useCallback(async () => {
     if (!services) {
@@ -273,6 +363,14 @@ export default function App(): JSX.Element {
   const preflightErrorDetails = preflightState.errorDetails;
 
   const projectLabel = useMemo(() => projectSummary?.path ?? 'No project loaded', [projectSummary]);
+  const recoverySnapshot = recoveryStatus?.last_snapshot ?? null;
+  const recoveryBannerVisible = recoveryStatus?.needs_recovery ?? false;
+
+  useEffect(() => {
+    if (serviceStatus === 'online' && projectSummary) {
+      void fetchRecoveryStatus(projectSummary.projectId);
+    }
+  }, [serviceStatus, projectSummary, fetchRecoveryStatus]);
 
   return (
     <div className="app-shell">
@@ -319,7 +417,33 @@ export default function App(): JSX.Element {
           </div>
         </header>
         <main className="app-shell__workspace-body">
-          <ProjectHome onToast={pushToast} onProjectLoaded={handleProjectLoaded} />
+          <div className="app-shell__workspace-scroll">
+            {recoveryBannerVisible ? (
+              <div className="app-shell__recovery-banner" role="alert">
+                <div className="app-shell__recovery-banner__content">
+                  <strong>Crash recovery available.</strong>
+                  {recoverySnapshot ? (
+                    <span>
+                      {' '}
+                      Snapshot {recoverySnapshot.label || recoverySnapshot.snapshot_id} captured at{' '}
+                      {recoverySnapshot.created_at}.
+                    </span>
+                  ) : (
+                    <span> Restore the latest snapshot to resume work.</span>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  className="app-shell__recovery-banner__button"
+                  disabled={restoreInFlight}
+                  onClick={() => void handleRestoreSnapshot()}
+                >
+                  {restoreInFlight ? 'Restoring…' : 'Restore snapshot'}
+                </button>
+              </div>
+            ) : null}
+            <ProjectHome onToast={pushToast} onProjectLoaded={handleProjectLoaded} />
+          </div>
         </main>
       </div>
 

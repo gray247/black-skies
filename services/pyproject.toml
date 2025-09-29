@@ -11,7 +11,8 @@ requires-python = ">=3.11"
 dependencies = [
   "fastapi>=0.110,<0.111",
   "uvicorn[standard]>=0.29,<0.30",
-  "pydantic>=2.6,<3.0"
+  "pydantic>=2.6,<3.0",
+  "pyyaml>=6.0,<7.0"
 ]
 
 [project.optional-dependencies]
@@ -50,16 +51,23 @@ norecursedirs = [
 [tool.black]
 line-length = 100
 target-version = ["py311"]
+# This is a BASIC string, so we escape the backslash.
 include = "\\.pyi?$"
-exclude = """
+
+# Use a LITERAL triple-quoted string so backslashes in regex are NOT escapes.
+exclude = '''
 /(
-    \.git
-  | \.venv
+  \\.git
+  | \\.venv
   | build
   | dist
   | node_modules
   | vendor
   | __pycache__
-  | .*\.egg-info
+  | .*\\.egg-info
 )/
-"""
+'''
+
+# Optional: keep custom paths OUTSIDE the regex block.
+[tool.blackskies]
+some_path = "C:/Dev/black-skies/services/whatever"

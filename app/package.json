@@ -3,16 +3,21 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "main": "dist-electron/main.js",
   "engines": {
     "node": ">=20.0.0"
   },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:renderer": "vite build",
     "build:main": "tsc --project tsconfig.main.json",
+    "build:production": "vite build && tsc --project tsconfig.main.json",
     "preview": "vite preview",
     "lint": "eslint \"renderer/**/*.{ts,tsx}\" \"electron/**/*.ts\" \"shared/**/*.ts\"",
-    "test": "vitest run"
+    "test": "vitest run",
+    "package:dir": "vite build && tsc --project tsconfig.main.json && electron-builder --config electron-builder.yml --dir",
+    "package:win": "vite build && tsc --project tsconfig.main.json && electron-builder --config electron-builder.yml --win nsis portable"
   },
   "dependencies": {
     "@codemirror/lang-markdown": "^6.2.4",
@@ -38,6 +43,8 @@
     "jsdom": "^24.0.0",
     "prettier": "^3.2.5",
     "typescript": "^5.4.5",
+    "electron": "^30.0.2",
+    "electron-builder": "^24.13.3",
     "vite": "^5.2.8",
     "vitest": "^1.5.2"
   }

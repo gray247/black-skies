@@ -1,10 +1,11 @@
 import { app, BrowserWindow, dialog } from 'electron';
-import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
+import { spawn, type ChildProcessByStdio } from 'node:child_process';
 import { once } from 'node:events';
 import net from 'node:net';
 import { setTimeout as delay } from 'node:timers/promises';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join, resolve, delimiter } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import type { Readable } from 'node:stream';
 
 import {
   getLogger,
@@ -14,12 +15,12 @@ import {
   shutdownLogging,
   type LogLevel,
   type Logger,
-} from './logging';
+} from './logging.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const projectRoot = resolve(__dirname, '..');
-const rendererDistDir = join(projectRoot, 'app', 'dist');
+const rendererDistDir = join(projectRoot, 'dist');
 const rendererIndexFile = join(rendererDistDir, 'index.html');
 
 const DEV_SERVER_URL = process.env.ELECTRON_RENDERER_URL ?? 'http://127.0.0.1:5173/';
@@ -31,7 +32,9 @@ const MAX_PORT = 43850;
 const PYTHON_EXECUTABLE = process.env.BLACKSKIES_PYTHON ?? 'python';
 
 let mainWindow: BrowserWindow | null = null;
-let servicesProcess: ChildProcessWithoutNullStreams | null = null;
+type ServicesProcess = ChildProcessByStdio<null, Readable, Readable>;
+
+let servicesProcess: ServicesProcess | null = null;
 let servicesPort: number | null = null;
 let shuttingDown = false;
 let mainLogger: Logger | null = null;
@@ -135,6 +138,35 @@ async function waitForServicesHealthy(port: number): Promise<void> {
   throw new Error('FastAPI services did not become healthy within the allotted time.');
 }
 
+function resolvePythonModulePath(): string {
+  if (!app.isPackaged) {
+    return resolve(projectRoot, '..', 'services', 'src');
+  }
+  return join(process.resourcesPath, 'python');
+}
+
+function buildPythonEnv(): NodeJS.ProcessEnv {
+  const env = { ...process.env };
+  const modulePath = resolvePythonModulePath();
+  const segments = [modulePath];
+  if (env.PYTHONPATH && env.PYTHONPATH.length > 0) {
+    segments.push(env.PYTHONPATH);
+  }
+  env.PYTHONPATH = segments.join(delimiter);
+  env.BLACKSKIES_PYTHONPATH = modulePath;
+  if (app.isPackaged) {
+    env.BLACKSKIES_PACKAGE_RESOURCES = process.resourcesPath;
+  }
+  return env;
+}
+
+function resolveServicesCwd(): string {
+  if (app.isPackaged) {
+    return process.resourcesPath;
+  }
+  return resolve(projectRoot, '..');
+}
+
 async function startServices(): Promise<void> {
   if (servicesProcess) {
     return;
@@ -152,7 +184,8 @@ async function startServices(): Promise<void> {
 
   const child = spawn(PYTHON_EXECUTABLE, args, {
     stdio: ['ignore', 'pipe', 'pipe'],
-    env: { ...process.env },
+    env: buildPythonEnv(),
+    cwd: resolveServicesCwd(),
   });
 
   const spawnPromise = new Promise<void>((resolve, reject) => {

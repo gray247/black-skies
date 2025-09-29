@@ -6,7 +6,9 @@ import re
 from enum import Enum
 from typing import Literal
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
+
+from ._project_id import validate_project_id
 
 
 class DraftUnitScope(str, Enum):
@@ -40,6 +42,11 @@ class DraftGenerateRequest(BaseModel):
     temperature: float | None = Field(default=0.7, ge=0.0, le=1.0)
     seed: int | None = Field(default=None, ge=0)
     overrides: dict[str, DraftUnitOverrides] = Field(default_factory=dict)
+
+    @field_validator("project_id")
+    @classmethod
+    def _validate_project_id(cls, value: str) -> str:
+        return validate_project_id(value)
 
     @model_validator(mode="after")
     def _validate_units(self) -> "DraftGenerateRequest":

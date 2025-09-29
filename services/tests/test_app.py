@@ -5,9 +5,11 @@ from __future__ import annotations
 import asyncio
 import json
 from collections.abc import Iterator
+import hashlib
 from pathlib import Path
 
 import pytest
+import yaml
 from fastapi.testclient import TestClient
 
 from blackskies.services.app import SERVICE_VERSION, BuildTracker, create_app
@@ -143,6 +145,13 @@ def _bootstrap_scene(
     scene_body = body or "The cellar hums with static and distant thunder."
     persistence.write_scene(project_id, front_matter, scene_body)
     return scene_body
+
+
+def _compute_sha256(content: str) -> str:
+    """Return the SHA-256 hex digest of normalised markdown text."""
+
+    normalized = content.replace("\r\n", "\n").strip()
+    return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
 
 
 @pytest.fixture()
@@ -591,3 +600,238 @@ def test_draft_rewrite_validation_error(test_client: TestClient) -> None:
     assert response.status_code == 400
     detail = response.json()["detail"]
     assert detail["code"] == "VALIDATION"
+
+
+def test_draft_accept_success_creates_snapshot(
+    test_client: TestClient, tmp_path: Path
+) -> None:
+    """Accepting a critique updates the scene and writes a snapshot."""
+
+    project_id = "proj_accept_success"
+    scene_body = _bootstrap_scene(tmp_path, project_id)
+    accepted_text = f"{scene_body}\n\nShe braces for the next surge."
+    checksum = _compute_sha256(scene_body)
+
+    payload = {
+        "project_id": project_id,
+        "draft_id": "dr_301",
+        "unit_id": "sc_0001",
+        "unit": {
+            "id": "sc_0001",
+            "previous_sha256": checksum,
+            "text": accepted_text,
+            "meta": {"purpose": "payoff"},
+        },
+        "message": "Applying critique suggestions.",
+        "snapshot_label": "accept",
+    }
+
+    response = test_client.post("/draft/accept", json=payload)
+    assert response.status_code == 200
+
+    data = response.json()
+    assert data["unit_id"] == "sc_0001"
+    assert data["snapshot"]["snapshot_id"]
+    assert data["snapshot"]["path"].startswith("history/snapshots/")
+
+    scene_path = tmp_path / project_id / "drafts" / "sc_0001.md"
+    content = scene_path.read_text(encoding="utf-8")
+    assert "She braces for the next surge." in content
+
+    state_path = tmp_path / project_id / "history" / "recovery" / "state.json"
+    assert state_path.exists()
+    state = json.loads(state_path.read_text(encoding="utf-8"))
+    assert state["status"] == "idle"
+    assert state["last_snapshot"]["snapshot_id"] == data["snapshot"]["snapshot_id"]
+
+    snapshot_dir = tmp_path / project_id / data["snapshot"]["path"]
+    assert snapshot_dir.exists()
+    metadata_path = snapshot_dir / "metadata.json"
+    assert metadata_path.exists()
+    metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+    assert metadata["snapshot_id"] == data["snapshot"]["snapshot_id"]
+
+    manifest_path = snapshot_dir / "snapshot.yaml"
+    assert manifest_path.exists()
+    manifest = yaml.safe_load(manifest_path.read_text(encoding="utf-8"))
+    assert manifest["schema_version"] == "SnapshotManifest v1"
+    assert manifest["snapshot_id"] == data["snapshot"]["snapshot_id"]
+    drafts = manifest.get("drafts")
+    assert isinstance(drafts, list)
+    draft_entry = next(item for item in drafts if item.get("id") == "sc_0001")
+    assert draft_entry["path"].startswith("drafts/")
+    assert draft_entry["purpose"] == "payoff"
+    assert "missing_drafts" not in manifest
+
+
+def test_draft_accept_conflict_on_checksum(
+    test_client: TestClient, tmp_path: Path
+) -> None:
+    """Out-of-date accept requests return a conflict."""
+
+    project_id = "proj_accept_conflict"
+    _bootstrap_scene(tmp_path, project_id)
+    payload = {
+        "project_id": project_id,
+        "draft_id": "dr_302",
+        "unit_id": "sc_0001",
+        "unit": {
+            "id": "sc_0001",
+            "previous_sha256": "0" * 64,
+            "text": "Stale text",
+        },
+    }
+
+    response = test_client.post("/draft/accept", json=payload)
+    assert response.status_code == 409
+    detail = response.json()["detail"]
+    assert detail["code"] == "CONFLICT"
+
+    state_path = tmp_path / project_id / "history" / "recovery" / "state.json"
+    assert not state_path.exists()
+
+
+def test_recovery_status_marks_needs_recovery(
+    test_client: TestClient, tmp_path: Path
+) -> None:
+    """Stale in-progress markers are promoted to a recovery state."""
+
+    project_id = "proj_recovery_status"
+    _bootstrap_scene(tmp_path, project_id)
+    state_path = tmp_path / project_id / "history" / "recovery" / "state.json"
+    state_path.parent.mkdir(parents=True, exist_ok=True)
+    state_path.write_text(
+        json.dumps({"status": "accept-in-progress", "pending_unit_id": "sc_0001"}),
+        encoding="utf-8",
+    )
+
+    response = test_client.get("/draft/recovery", params={"project_id": project_id})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["needs_recovery"] is True
+    assert data["status"] == "needs-recovery"
+
+    state = json.loads(state_path.read_text(encoding="utf-8"))
+    assert state["status"] == "needs-recovery"
+
+
+def test_recovery_restore_overwrites_scene(
+    test_client: TestClient, tmp_path: Path
+) -> None:
+    """Restoring recovery snapshots rehydrates the latest accepted content."""
+
+    project_id = "proj_recovery_restore"
+    scene_body = _bootstrap_scene(tmp_path, project_id)
+    checksum = _compute_sha256(scene_body)
+    accepted_text = f"{scene_body}\n\nRestored text ready."
+
+    accept_payload = {
+        "project_id": project_id,
+        "draft_id": "dr_303",
+        "unit_id": "sc_0001",
+        "unit": {
+            "id": "sc_0001",
+            "previous_sha256": checksum,
+            "text": accepted_text,
+        },
+    }
+
+    accept_response = test_client.post("/draft/accept", json=accept_payload)
+    assert accept_response.status_code == 200
+    snapshot_rel_path = accept_response.json()["snapshot"]["path"]
+
+    scene_path = tmp_path / project_id / "drafts" / "sc_0001.md"
+    scene_path.write_text("Corrupted content", encoding="utf-8")
+
+    restore_response = test_client.post(
+        "/draft/recovery/restore",
+        json={"project_id": project_id},
+    )
+    assert restore_response.status_code == 200
+    restore_data = restore_response.json()
+    assert restore_data["status"] == "idle"
+    assert restore_data["needs_recovery"] is False
+    assert restore_data["last_snapshot"]["snapshot_id"] == accept_response.json()[
+        "snapshot"
+    ]["snapshot_id"]
+    restored = scene_path.read_text(encoding="utf-8")
+    assert "Restored text ready." in restored
+
+    state_path = tmp_path / project_id / "history" / "recovery" / "state.json"
+    state = json.loads(state_path.read_text(encoding="utf-8"))
+    assert state["status"] == "idle"
+    assert state["last_snapshot"]["path"] == snapshot_rel_path
+
+
+def test_draft_export_manuscript_success(
+    test_client: TestClient, tmp_path: Path
+) -> None:
+    """Exporting a manuscript produces draft_full.md with expected content."""
+
+    project_id = "proj_export_success"
+    scene_ids = _bootstrap_outline(tmp_path, project_id, scene_count=2)
+    bodies = [
+        "Storm cellar hums with static.",
+        "Radio console crackles to life.",
+    ]
+    for index, (scene_id, body) in enumerate(zip(scene_ids, bodies), start=1):
+        _bootstrap_scene(
+            tmp_path,
+            project_id,
+            scene_id=scene_id,
+            order=index,
+            body=body,
+        )
+
+    response = test_client.post("/draft/export", json={"project_id": project_id})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["schema_version"] == "DraftExportResult v1"
+    assert data["chapters"] == 1
+    assert data["scenes"] == 2
+    assert data["meta_header"] is False
+    assert data["path"] == "draft_full.md"
+
+    export_path = tmp_path / project_id / "draft_full.md"
+    assert export_path.exists()
+    manuscript = export_path.read_text(encoding="utf-8")
+    assert "# Chapter 1" in manuscript
+    assert manuscript.count("## ") == 2
+    assert "> purpose:" not in manuscript
+    assert "Storm cellar hums with static." in manuscript
+    assert "Radio console crackles to life." in manuscript
+
+    response_meta = test_client.post(
+        "/draft/export",
+        json={"project_id": project_id, "include_meta_header": True},
+    )
+    assert response_meta.status_code == 200
+    manuscript_with_meta = export_path.read_text(encoding="utf-8")
+    assert "> purpose: setup · emotion: tension · pov: Mara" in manuscript_with_meta
+    assert manuscript_with_meta.count("## ") == 2
+
+
+def test_draft_export_missing_front_matter_fields(
+    test_client: TestClient, tmp_path: Path
+) -> None:
+    """Export raises a validation error when required front-matter is missing."""
+
+    project_id = "proj_export_missing"
+    scene_ids = _bootstrap_outline(tmp_path, project_id, scene_count=1)
+    _bootstrap_scene(tmp_path, project_id, scene_id=scene_ids[0], order=1)
+
+    scene_path = tmp_path / project_id / "drafts" / f"{scene_ids[0]}.md"
+    content_lines = [
+        line
+        for line in scene_path.read_text(encoding="utf-8").splitlines()
+        if not line.startswith("order:")
+    ]
+    scene_path.write_text("\n".join(content_lines) + "\n", encoding="utf-8")
+
+    response = test_client.post("/draft/export", json={"project_id": project_id})
+    assert response.status_code == 400
+    detail = response.json()["detail"]
+    assert detail["code"] == "VALIDATION"
+    assert detail["message"] == "Scene front-matter is missing required fields."
+    assert detail["details"]["unit_id"] == scene_ids[0]
+    assert "order" in detail["details"]["missing_fields"]

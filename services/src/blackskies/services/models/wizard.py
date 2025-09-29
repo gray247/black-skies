@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
+
+from ._project_id import validate_project_id
 
 
 class WizardActLock(BaseModel):
@@ -42,6 +44,11 @@ class OutlineBuildRequest(BaseModel):
     project_id: str
     force_rebuild: bool = False
     wizard_locks: WizardLocks
+
+    @field_validator("project_id")
+    @classmethod
+    def _validate_project_id(cls, value: str) -> str:
+        return validate_project_id(value)
 
 
 __all__ = [
