@@ -7,6 +7,8 @@ import json
 from collections.abc import Iterator
 import hashlib
 from pathlib import Path
+from typing import Any
+from uuid import UUID
 
 import pytest
 import yaml
@@ -15,6 +17,26 @@ from fastapi.testclient import TestClient
 from blackskies.services.app import SERVICE_VERSION, BuildTracker, create_app
 from blackskies.services.config import ServiceSettings
 from blackskies.services.persistence import DraftPersistence
+
+TRACE_HEADER = "x-trace-id"
+
+
+def _assert_trace_header(response: Any) -> str:
+    """Ensure the response includes a valid trace identifier header."""
+
+    trace_id = response.headers.get(TRACE_HEADER)
+    assert trace_id is not None
+    UUID(trace_id)
+    return trace_id
+
+
+def _read_error(response: Any) -> dict[str, object]:
+    """Return the structured error payload with validated trace metadata."""
+
+    payload = response.json()
+    trace_id = _assert_trace_header(response)
+    assert payload["trace_id"] == trace_id
+    return payload
 
 
 def _build_payload() -> dict[str, object]:
@@ -170,9 +192,23 @@ def test_client(
 def test_health(test_client: TestClient) -> None:
     """The health endpoint returns the expected payload."""
 
-    response = test_client.get("/health")
+    response = test_client.get("/healthz")
     assert response.status_code == 200
     assert response.json() == {"status": "ok", "version": SERVICE_VERSION}
+    _assert_trace_header(response)
+
+
+def test_metrics_endpoint(test_client: TestClient) -> None:
+    """Metrics endpoint returns Prometheus-formatted content with trace headers."""
+
+    test_client.get("/healthz")
+    response = test_client.get("/metrics")
+    assert response.status_code == 200
+    assert response.headers["content-type"] == "text/plain; version=0.0.4"
+    body = response.text
+    assert "blackskies_requests_total" in body
+    assert "blackskies_service_info" in body
+    _assert_trace_header(response)
 
 
 def test_outline_build_success(test_client: TestClient, tmp_path: Path) -> None:
@@ -208,7 +244,7 @@ def test_outline_build_missing_locks(test_client: TestClient, tmp_path: Path) ->
 
     response = test_client.post("/outline/build", json=payload)
     assert response.status_code == 400
-    detail = response.json()["detail"]
+    detail = _read_error(response)
     assert detail["code"] == "VALIDATION"
     assert "missing" in detail["details"]
 
@@ -234,7 +270,7 @@ def test_outline_build_conflict(test_client: TestClient, tmp_path: Path) -> None
         asyncio.run(tracker.end(payload["project_id"]))
 
     assert response.status_code == 409
-    detail = response.json()["detail"]
+    detail = _read_error(response)
     assert detail["code"] == "CONFLICT"
 
     diagnostics_dir = tmp_path / payload["project_id"] / "history" / "diagnostics"
@@ -316,7 +352,7 @@ def test_draft_generate_scene_limit(test_client: TestClient, tmp_path: Path) -> 
     response = test_client.post("/draft/generate", json=payload)
     assert response.status_code == 400
 
-    detail = response.json()["detail"]
+    detail = _read_error(response)
     assert detail["code"] == "VALIDATION"
     errors = detail["details"]["errors"]
     assert any("at most 5" in error["msg"] for error in errors)
@@ -344,7 +380,7 @@ def test_draft_generate_missing_scene(test_client: TestClient, tmp_path: Path) -
     response = test_client.post("/draft/generate", json=payload)
     assert response.status_code == 400
 
-    detail = response.json()["detail"]
+    detail = _read_error(response)
     assert detail["code"] == "VALIDATION"
     assert detail["details"]["missing_scene_ids"] == ["sc_9999"]
 
@@ -372,7 +408,7 @@ def test_draft_generate_budget_blocked(test_client: TestClient, tmp_path: Path) 
     response = test_client.post("/draft/generate", json=payload)
     assert response.status_code == 402
 
-    detail = response.json()["detail"]
+    detail = _read_error(response)
     assert detail["code"] == "BUDGET_EXCEEDED"
 
     drafts_dir = tmp_path / project_id / "drafts"
@@ -512,7 +548,7 @@ def test_draft_preflight_missing_scene(test_client: TestClient, tmp_path: Path) 
     response = test_client.post("/draft/preflight", json=payload)
     assert response.status_code == 400
 
-    detail = response.json()["detail"]
+    detail = _read_error(response)
     assert detail["code"] == "VALIDATION"
     assert detail["details"]["missing_scene_ids"] == ["sc_9999"]
 
@@ -585,7 +621,7 @@ def test_draft_rewrite_conflict(test_client: TestClient, tmp_path: Path) -> None
     response = test_client.post("/draft/rewrite", json=payload)
     assert response.status_code == 409
 
-    detail = response.json()["detail"]
+    detail = _read_error(response)
     assert detail["code"] == "CONFLICT"
 
     diagnostics_dir = tmp_path / project_id / "history" / "diagnostics"
@@ -598,7 +634,7 @@ def test_draft_rewrite_validation_error(test_client: TestClient) -> None:
 
     response = test_client.post("/draft/rewrite", json={"project_id": "proj_bad"})
     assert response.status_code == 400
-    detail = response.json()["detail"]
+    detail = _read_error(response)
     assert detail["code"] == "VALIDATION"
 
 
@@ -684,7 +720,7 @@ def test_draft_accept_conflict_on_checksum(
 
     response = test_client.post("/draft/accept", json=payload)
     assert response.status_code == 409
-    detail = response.json()["detail"]
+    detail = _read_error(response)
     assert detail["code"] == "CONFLICT"
 
     state_path = tmp_path / project_id / "history" / "recovery" / "state.json"
@@ -830,7 +866,7 @@ def test_draft_export_missing_front_matter_fields(
 
     response = test_client.post("/draft/export", json={"project_id": project_id})
     assert response.status_code == 400
-    detail = response.json()["detail"]
+    detail = _read_error(response)
     assert detail["code"] == "VALIDATION"
     assert detail["message"] == "Scene front-matter is missing required fields."
     assert detail["details"]["unit_id"] == scene_ids[0]
