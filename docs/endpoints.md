@@ -19,15 +19,17 @@ All endpoints return a common error shape.
 {
   "code": "VALIDATION | RATE_LIMIT | BUDGET_EXCEEDED | CONFLICT | INTERNAL",
   "message": "human-readable summary",
-  "details": { "optional": "endpoint-specific context" }
+  "details": { "optional": "endpoint-specific context" },
+  "trace_id": "uuidv4"
 }
 ```
 
-- **VALIDATION** — malformed input or limits exceeded  
-- **RATE_LIMIT** — too many requests in a time window  
-- **BUDGET_EXCEEDED** — per-project budget hit (see policies)  
-- **CONFLICT** — request contradicts locked state (e.g., stale version)  
+- **VALIDATION** — malformed input or limits exceeded
+- **RATE_LIMIT** — too many requests in a time window
+- **BUDGET_EXCEEDED** — per-project budget hit (see policies)
+- **CONFLICT** — request contradicts locked state (e.g., stale version)
 - **INTERNAL** — unexpected server error (logged locally)
+- Every error response echoes the correlation ID via the `x-trace-id` header; the same value is returned as `trace_id` in the payload.
 
 ---
 
@@ -51,10 +53,22 @@ Schemas v1 (see `docs/data_model.md` / `docs/critique_rubric.md`):
 
 ## Health
 
-### GET /health
+### GET /healthz
 **200 OK**
 ```json
 { "status": "ok", "version": "0.1.0" }
+```
+- Response headers always include `x-trace-id` for correlation across services and logs.
+
+---
+
+### GET /metrics
+Exposes Prometheus-compatible counters and gauges for the service. Content-Type is `text/plain; version=0.0.4`. Example snippet:
+
+```
+# HELP request_latency_seconds Request latency histogram
+# TYPE request_latency_seconds histogram
+request_latency_seconds_bucket{le="0.1"} 42
 ```
 
 ---

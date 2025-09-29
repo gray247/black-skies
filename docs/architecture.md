@@ -26,9 +26,11 @@ Black Skies is a **local‑first desktop app** for long‑form fiction. The UI i
 - **Hotkeys (global):** Ctrl+Enter (Generate), Ctrl+Shift+E (Critique), Ctrl+D (Diff), Ctrl+/ (hotkeys help), F6 (pane cycle).
 
 ### 2.2 Local Services (FastAPI)
-- **Services:** outline, draft, rewrite, critique (see `docs/endpoints.md`).  
-- **Port:** pick free localhost port in range `127.0.0.1:43750–43850`; persist during session.  
-- **Health:** `/health` endpoint returns `{status, version}`. UI polls on launch and before jobs.  
+- **Services:** outline, draft, rewrite, critique (see `docs/endpoints.md`).
+- **Port:** pick free localhost port in range `127.0.0.1:43750–43850`; persist during session.
+- **Health:** `/healthz` endpoint returns `{status, version}`. UI polls on launch and before jobs.
+- **Trace IDs:** every request/response echoes an `x-trace-id` header for correlation with logs and errors.
+- **Metrics:** `/metrics` serves Prometheus text exposition with counters/gauges for service health.
 - **Concurrency:** in‑process queue with a single worker per service; jobs cancelable from UI.
 
 ### 2.3 Storage
@@ -52,7 +54,7 @@ Black Skies is a **local‑first desktop app** for long‑form fiction. The UI i
 1. App starts → single‑instance lock.  
 2. Choose/create project folder → store recent list in app config.  
 3. Spawn Python **FastAPI** subprocess via a launcher script (`python -m blackskies.services`).  
-4. Wait for `/health` (with timeout) → enable UI actions.  
+4. Wait for `/healthz` (with timeout) → enable UI actions.
 5. On quit: graceful shutdown → terminate Python process.
 
 **Crash handling**
@@ -92,7 +94,7 @@ Wizard decisions → **Outline build** → `outline.json`
 ---
 
 ## 7) Error Handling & Limits
-- Common error model `{code,message,details?}` with codes: **VALIDATION, RATE_LIMIT, BUDGET_EXCEEDED, CONFLICT, INTERNAL**.  
+- Common error model `{code,message,details?,trace_id}` with codes: **VALIDATION, RATE_LIMIT, BUDGET_EXCEEDED, CONFLICT, INTERNAL**; the same `trace_id` is mirrored in the `x-trace-id` header.
 - Request caps: generate ≤**5** scenes (or 1 chapter); rewrite **1** unit; critique ≤**3** units; one outline build at a time.  
 - Diagnostics written to `history/diagnostics/` (local only).
 
