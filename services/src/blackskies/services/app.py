@@ -11,14 +11,17 @@ import os
 import re
 import shutil
 from contextlib import asynccontextmanager
+from contextvars import ContextVar
 from datetime import datetime, timezone
 from importlib import resources
 from pathlib import Path
 from dataclasses import dataclass
-from typing import Any, AsyncIterator, Final, cast
-from uuid import uuid4
+from typing import Any, AsyncIterator, Awaitable, Callable, Final, cast
+from uuid import UUID, uuid4
 
-from fastapi import APIRouter, Depends, FastAPI, HTTPException, Request, status
+from fastapi import APIRouter, Depends, FastAPI, HTTPException, Request, Response, status
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse, PlainTextResponse
 from pydantic import BaseModel, ValidationError, field_validator
 from blackskies.services.utils.paths import to_posix
 
@@ -34,6 +37,7 @@ from .models.project import ProjectMetadata
 from .models.rewrite import DraftRewriteRequest
 from .models.wizard import OutlineBuildRequest
 from .outline_builder import MissingLocksError, OutlineBuilder
+from .metrics import record_request, render
 from .persistence import (
     DraftPersistence,
     OutlinePersistence,
@@ -47,9 +51,103 @@ from .scene_docs import DraftRequestError, read_scene_document
 LOGGER = logging.getLogger(__name__)
 
 SERVICE_VERSION: Final[str] = "0.1.0"
+TRACE_ID_HEADER: Final[str] = "x-trace-id"
+_TRACE_ID_CONTEXT: ContextVar[str] = ContextVar("blackskies_trace_id", default="")
 _FIXTURE_PACKAGE: Final[str] = "blackskies.services.fixtures"
 SOFT_BUDGET_LIMIT_USD: Final[float] = 5.0
 HARD_BUDGET_LIMIT_USD: Final[float] = 10.0
+
+
+def _resolve_trace_id(candidate: str | None) -> str:
+    """Return a valid UUIDv4 string, preferring the provided candidate."""
+
+    if candidate:
+        try:
+            UUID(candidate)
+            return candidate
+        except ValueError:
+            LOGGER.debug("Ignoring invalid trace identifier: %s", candidate)
+    return str(uuid4())
+
+
+def _ensure_trace_id() -> str:
+    """Return the active trace identifier, creating one if absent."""
+
+    trace_id = _TRACE_ID_CONTEXT.get()
+    if not trace_id:
+        trace_id = str(uuid4())
+        _TRACE_ID_CONTEXT.set(trace_id)
+    return trace_id
+
+
+def _build_error_payload(
+    *, code: str, message: str, details: dict[str, Any], trace_id: str
+) -> dict[str, Any]:
+    """Construct an error payload following the locked contract."""
+
+    return {
+        "code": code,
+        "message": message,
+        "details": details,
+        "trace_id": trace_id,
+    }
+
+
+def _http_exception_to_response(exc: HTTPException, trace_id: str) -> JSONResponse:
+    """Translate an ``HTTPException`` into a JSON response with trace headers."""
+
+    headers = dict(exc.headers or {})
+    headers.setdefault(TRACE_ID_HEADER, trace_id)
+
+    detail = exc.detail
+    if isinstance(detail, dict):
+        payload = dict(detail)
+        payload.setdefault("code", "INTERNAL")
+        payload.setdefault("message", "Internal server error.")
+        payload.setdefault("details", {})
+    else:
+        payload = {
+            "code": "INTERNAL",
+            "message": str(detail),
+            "details": {},
+        }
+    payload["trace_id"] = trace_id
+
+    return JSONResponse(status_code=exc.status_code, content=payload, headers=headers)
+
+
+def _request_validation_response(
+    exc: RequestValidationError, trace_id: str
+) -> JSONResponse:
+    """Render request validation failures using the shared error model."""
+
+    payload = _build_error_payload(
+        code="VALIDATION",
+        message="Request validation failed.",
+        details={"errors": exc.errors()},
+        trace_id=trace_id,
+    )
+    return JSONResponse(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        content=payload,
+        headers={TRACE_ID_HEADER: trace_id},
+    )
+
+
+def _internal_error_response(trace_id: str) -> JSONResponse:
+    """Generate a generic internal error response with trace context."""
+
+    payload = _build_error_payload(
+        code="INTERNAL",
+        message="Internal server error.",
+        details={},
+        trace_id=trace_id,
+    )
+    return JSONResponse(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content=payload,
+        headers={TRACE_ID_HEADER: trace_id},
+    )
 
 
 @dataclass
@@ -520,6 +618,30 @@ def _apply_rewrite_instructions(original: str, instructions: str | None) -> str:
     return f"{baseline}\n\n{closing} ({prompt})"
 
 
+def _raise_service_error(
+    *,
+    status_code: int,
+    code: str,
+    message: str,
+    details: dict[str, Any],
+    diagnostics: DiagnosticLogger,
+    project_root: Path | None,
+) -> None:
+    """Raise an ``HTTPException`` with shared error formatting and logging."""
+
+    safe_details = _sanitize_details(details)
+    if project_root is not None:
+        diagnostics.log(project_root, code=code, message=message, details=safe_details)
+    trace_id = _ensure_trace_id()
+    raise HTTPException(
+        status_code=status_code,
+        detail=_build_error_payload(
+            code=code, message=message, details=safe_details, trace_id=trace_id
+        ),
+        headers={TRACE_ID_HEADER: trace_id},
+    )
+
+
 def _raise_conflict_error(
     *,
     message: str,
@@ -529,14 +651,13 @@ def _raise_conflict_error(
 ) -> None:
     """Log and raise a conflict response."""
 
-    safe_details = _sanitize_details(details)
-    if project_root is not None:
-        diagnostics.log(
-            project_root, code="CONFLICT", message=message, details=safe_details
-        )
-    raise HTTPException(
+    _raise_service_error(
         status_code=status.HTTP_409_CONFLICT,
-        detail={"code": "CONFLICT", "message": message, "details": safe_details},
+        code="CONFLICT",
+        message=message,
+        details=details,
+        diagnostics=diagnostics,
+        project_root=project_root,
     )
 
 
@@ -792,17 +913,13 @@ def _raise_budget_error(
 ) -> None:
     """Raise a ``BUDGET_EXCEEDED`` error and log it."""
 
-    safe_details = _sanitize_details(details)
-    if project_root is not None:
-        diagnostics.log(
-            project_root,
-            code="BUDGET_EXCEEDED",
-            message=message,
-            details=safe_details,
-        )
-    raise HTTPException(
+    _raise_service_error(
         status_code=status.HTTP_402_PAYMENT_REQUIRED,
-        detail={"code": "BUDGET_EXCEEDED", "message": message, "details": safe_details},
+        code="BUDGET_EXCEEDED",
+        message=message,
+        details=details,
+        diagnostics=diagnostics,
+        project_root=project_root,
     )
 
 
@@ -815,14 +932,13 @@ def _raise_validation_error(
 ) -> None:
     """Raise a validation error and optionally log diagnostics."""
 
-    safe_details = _sanitize_details(details)
-    if project_root is not None:
-        diagnostics.log(
-            project_root, code="VALIDATION", message=message, details=safe_details
-        )
-    raise HTTPException(
+    _raise_service_error(
         status_code=status.HTTP_400_BAD_REQUEST,
-        detail={"code": "VALIDATION", "message": message, "details": safe_details},
+        code="VALIDATION",
+        message=message,
+        details=details,
+        diagnostics=diagnostics,
+        project_root=project_root,
     )
 
 
@@ -843,11 +959,20 @@ def get_persistence(
 def _register_routes(api: FastAPI) -> None:
     """Attach all routers to the provided FastAPI app."""
 
-    @api.get("/health", tags=["health"])
+    @api.get("/healthz", tags=["health"])
     async def health() -> dict[str, str]:
         """Simple readiness probe for the desktop app."""
 
         return {"status": "ok", "version": SERVICE_VERSION}
+
+    @api.get("/metrics", tags=["health"], response_class=PlainTextResponse)
+    async def metrics_endpoint() -> PlainTextResponse:
+        """Expose Prometheus-compatible service metrics."""
+
+        return PlainTextResponse(
+            content=render(SERVICE_VERSION),
+            media_type="text/plain; version=0.0.4",
+        )
 
     outline_router = APIRouter(prefix="/outline", tags=["outline"])
 
@@ -1669,6 +1794,38 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
     application.state.recovery_tracker = RecoveryTracker(
         settings=application.state.settings
     )
+
+    @application.middleware("http")
+    async def apply_trace_id(
+        request: Request, call_next: Callable[[Request], Awaitable[Response]]
+    ) -> Response:
+        """Attach trace identifiers, metrics, and uniform error handling."""
+
+        trace_id = _resolve_trace_id(request.headers.get(TRACE_ID_HEADER))
+        token = _TRACE_ID_CONTEXT.set(trace_id)
+        request.state.trace_id = trace_id  # type: ignore[attr-defined]
+
+        try:
+            response = await call_next(request)
+        except HTTPException as exc:
+            response = _http_exception_to_response(exc, trace_id)
+        except RequestValidationError as exc:
+            response = _request_validation_response(exc, trace_id)
+        except Exception as exc:  # pragma: no cover - defensive guard
+            LOGGER.exception(
+                "Unhandled error processing %s %s",
+                request.method,
+                request.url.path,
+                exc_info=exc,
+            )
+            response = _internal_error_response(trace_id)
+        finally:
+            _TRACE_ID_CONTEXT.reset(token)
+
+        record_request(request.method, response.status_code)
+        response.headers.setdefault(TRACE_ID_HEADER, trace_id)
+        return response
+
     _register_routes(application)
     return application
 
