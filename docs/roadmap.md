@@ -7,7 +7,7 @@
 - P3 Draft → Critique loop … ✅ complete
 - P4.0 Observability baseline (structured logs + /metrics) … ✅ complete
 - P4.1 Documentation/tagging sweep … ✅ complete
-- P5 Tools, Data, and Evaluation Harness … ⏳ in progress (eval gate live)
+- P5 Tools, Data, and Evaluation Harness … ✅ complete (adapters, registry, eval gate live)
 - P6 End-to-End Integration & Contracts … ◻ planned
 - P7 Release Candidate (RC) … ◻ planned
 - P8 Hardening, Performance, and Resilience … ◻ planned
@@ -27,10 +27,11 @@
 5. Safety hooks: policy checks (see `docs/policies.md`) before/after tool calls; redact logs.
 6. CI job to run `eval.py` on PRs; fails on regressions beyond thresholds.
 
-**Status note:** Local-only summarizer and Markdown search adapters now ship alongside the existing file
-store and template renderer tools. They run entirely on CPU against data checked into `data/` and do not
-cover semantic embeddings or fuzzy matching, so large documents and nuanced queries may require manual
-follow-up.
+**Status note:** Local-only summarizer and Markdown search adapters now ship alongside the file store
+and template renderer tools, with the tool registry enforcing decision-checklist permissions. The P5
+dataset and offline evaluator power the locked CI gate (`scripts/eval.py`) that now runs on PRs. These
+CPU-friendly adapters operate on checked-in `data/` assets; they do not yet cover semantic embeddings or
+fuzzy matching, so large documents and nuanced queries may still require manual follow-up.
 
 ### P6 — End-to-End Integration & Contracts
 **Goal:** wire GUI ↔ API with versioned contracts and traceability.
@@ -72,7 +73,7 @@ follow-up.
 
 ## Milestone checklist (what Codex can execute)
 
-- [ ] Add tool adapters and registry (P5)
+- [x] Add tool adapters and registry (P5)
 - [x] Create eval dataset & `scripts/eval.py` (P5)
 - [ ] Add `/api/v1` router + contracts in `docs/endpoints.md` (P6)
 - [ ] Implement session snapshots & restore (P6)
