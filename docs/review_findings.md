@@ -1,0 +1,23 @@
+# Black Skies Services Review (2024-04-21)
+
+## Overview
+This review focuses on the FastAPI service under `services/src/blackskies/services`. I sampled route handlers, persistence helpers, and supporting utilities to surface correctness risks and identify test gaps. Existing contract tests in `services/tests/test_app.py` already exercise most endpoints, so the observations below emphasize scenarios not currently covered and edge cases that can regress silently.
+
+## Notable Risks & Weaknesses
+1. **Front-matter data loss on write paths.** `DraftPersistence._render` only emits keys listed in the private `_FIELD_ORDER`, so any additional metadata present in front matter (for example, custom extension fields or new schema attributes) will be dropped the next time a draft is generated, rewritten, or accepted. Because `_merge_meta` preserves unknown keys in-memory, this truncation is easy to miss until data disappears on disk.【F:services/src/blackskies/services/persistence.py†L49-L155】【F:services/src/blackskies/services/app.py†L469-L494】
+2. **Manual `.env` parsing can mis-handle common formats.** `ServiceSettings.from_environment` reads `.env` lines via simple string splitting without honouring quoting, escaping, or export prefixes. Values that include `=` or spaces in quotes (e.g., `BLACKSKIES_PROJECT_BASE_DIR="/tmp/black skies"`) will be trimmed incorrectly, and the method stops at the first matching line without validating the path exists.【F:services/src/blackskies/services/config.py†L11-L34】
+3. **Diff engine lacks regression coverage.** `compute_diff` is central to rewrite responses but currently has no direct unit tests. Any refactor to the diff computation or anchor logic could silently skew the payload contract relied upon by the desktop client.【F:services/src/blackskies/services/diff_engine.py†L8-L46】【F:services/tests/test_app.py†L570-L618】
+4. **Budget loader trusts float coercion.** `_load_project_budget_state` calls `float()` on the persisted values after Pydantic validation. If a future schema change allows strings with currency symbols or localisation (e.g., `"5,000"`), this conversion will raise and bubble out as a 500. A guard or normalisation strategy would make the service more resilient.【F:services/src/blackskies/services/app.py†L599-L664】
+5. **Export meta header path untested.** `_build_meta_header` and the `include_meta_header` flag in `DraftExportRequest` are not covered. A regression could leave exported manuscripts missing the POV/purpose hints that the GUI expects when toggled.【F:services/src/blackskies/services/app.py†L320-L356】【F:services/tests/test_app.py†L770-L816】
+
+## Recommended Tests
+- **Persistence regression:** Add a unit test around `DraftPersistence._render` that starts from front matter containing an unknown key (e.g., `"scene_mood"`) and asserts the rendered markdown preserves it. This will currently fail, demonstrating the data-loss bug and guiding a fix.【F:services/src/blackskies/services/persistence.py†L109-L155】
+- **Diff payload contract:** Introduce a focused test for `compute_diff` that exercises replace/insert/delete opcodes and validates anchor offsets, ensuring the shape matches what `/draft/rewrite` returns today.【F:services/src/blackskies/services/diff_engine.py†L8-L46】
+- **Export meta header:** Extend the `/draft/export` contract tests to cover `include_meta_header=True`, asserting the generated manuscript includes the `> purpose · emotion · pov` line before scene bodies.【F:services/src/blackskies/services/app.py†L320-L356】
+- **Settings `.env` parsing:** Create a unit test for `ServiceSettings.from_environment` that feeds a `.env` file containing quoted paths and additional whitespace to capture the parsing limitations and drive a more robust loader.【F:services/src/blackskies/services/config.py†L19-L34】
+- **Budget normalisation guard:** Add a unit test for `_load_project_budget_state` that simulates a `project.json` with localised numeric strings to confirm the service logs a validation error and falls back to defaults instead of raising.【F:services/src/blackskies/services/app.py†L599-L664】
+
+## Additional Suggestions
+- Document the expected front-matter schema in `/docs/exports.md` (or a new appendix) so client teams know which keys are safe until `_render` is made extensible.
+- Consider promoting helper modules (`diagnostics`, `persistence`, `diff_engine`) into dedicated unit test modules to keep contract tests lean and speed up debugging when failures occur.
+- When revisiting settings loading, prefer `pydantic.Settings` or `python-dotenv` style parsing to match developer expectations and reduce brittle string handling.
