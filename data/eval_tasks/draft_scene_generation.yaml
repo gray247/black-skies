@@ -1,0 +1,75 @@
+schema_version: "EvalTaskSchema v1"
+task_id: draft_scene_generation
+flow: draft
+summary: >-
+  Generate the Act I midpoint scene using the locked outline context and ensure the resulting
+  draft unit complies with DraftUnitSchema v1 metadata requirements.
+inputs:
+  project_id: proj_eval_draft
+  scene_id: sc_0002
+  brief: >-
+    Continue from "Basement Alarm" as Viki confronts the silent radios and discovers the
+    relay array submerged. Increase pressure ahead of the roof breach.
+  outline:
+    schema_version: "OutlineSchema v1"
+    outline_id: out_101
+    acts:
+      - "Act I"
+      - "Act II"
+      - "Act III"
+    chapters:
+      - id: ch_0001
+        order: 1
+        title: "Storm Cellar"
+      - id: ch_0002
+        order: 2
+        title: "Aftermath"
+    scenes:
+      - id: sc_0001
+        order: 1
+        title: "Basement Alarm"
+        chapter_id: ch_0001
+        beat_refs: ["inciting"]
+      - id: sc_0002
+        order: 2
+        title: "Radio Silence"
+        chapter_id: ch_0001
+        beat_refs: ["turn"]
+      - id: sc_0003
+        order: 3
+        title: "Surface Warning"
+        chapter_id: ch_0002
+        beat_refs: ["climax"]
+expected:
+  draft:
+    draft_id: dr_201
+    schema_version: "DraftUnitSchema v1"
+    units:
+      - id: sc_0002
+        text: |-
+          The radios stacked along the cellar shelves glowed a weak amber. Viki tapped the
+          chassis of the closest set and heard only water gnashing in the vents above. The
+          relay rack hissed, drowning beneath the rising groundwater.
+
+          She pulled the panel and slid into the crawlspace. Cables sagged like kelp. Every
+          meter of slack meant another neighbor she could not reach. When the second surge
+          slammed the outer doors, the concrete shuddered through her knees. The storm was
+          already clawing for the roof joists.
+
+          Viki clipped the bypass coupler into place. The static cracked, then threaded into a
+          faint SOS from Harbor Tower. Someone topside was still alive—and running out of time.
+        meta:
+          pov: "Viki"
+          purpose: "escalation"
+          emotion_tag: "tension"
+          goal: "Restore radio contact"
+          conflict: "Rising water and failing relays"
+          turn: "Harbor Tower SOS bleeds through"
+          word_target: 900
+          beats: ["midpoint_push"]
+        prompt_fingerprint: "sha256:draft-sc0002-midpoint"
+        model:
+          name: "draft-synthesizer-v1"
+          provider: "black-skies-local"
+    budget:
+      estimated_usd: 0.84
