@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "black-skies"
+version = "0.1.0"
+description = "Lightweight FastAPI surface and orchestration tools for the Black Skies platform."
+authors = [
+  { name = "Black Skies Team", email = "dev@black-skies.dev" },
+]
+readme = "README.md"
+requires-python = ">=3.11"
+keywords = ["writing", "fastapi", "llm", "black-skies"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+]
+dependencies = [
+  "fastapi>=0.117.1",
+  "pydantic>=2.11.0",
+  "pydantic-settings>=2.10.1",
+  "tenacity>=9.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.4.0",
+  "pytest-cov>=7.0.0",
+  "pytest-rerunfailures>=16.0.0",
+  "flake8>=7.0.0",
+  "black>=25.0.0",
+]
+
+[tool.setuptools.package-data]
+"black_skies" = ["py.typed"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["black_skies*"]
+exclude = ["tests", "vendor", "data"]
+
+[tool.black]
+line-length = 100
+
+[tool.coverage.run]
+branch = true
+source = ["black_skies"]
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 60
+

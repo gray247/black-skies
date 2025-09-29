@@ -1,40 +1,42 @@
-# Black Skies — Runbook
+# RUNBOOK.md � Black Skies Service
 
-This runbook tracks day-to-day execution for the Phase 1 plan in `docs/BUILD_PLAN.md`.
+## Overview
+This runbook describes how to bootstrap, configure, and operate the Black Skies FastAPI service locally.
 
-## Daily workflow
-
-1. **Open your shell** (WSL recommended) and change into the repo:
+## Setup
+1. Ensure Python 3.11+ is installed.
+2. Create a virtual environment:
    ```bash
-   cd /mnt/c/Dev/black-skies
+   python -m venv .venv
+   . .venv/Scripts/activate  # PowerShell: . .venv\Scripts\Activate.ps1
    ```
-2. **Optionally activate the Python env** when running commands manually:
+3. Install dependencies:
    ```bash
-   source .venv/bin/activate  # use .venv\Scripts\activate on Windows
+   pip install -r constraints.txt
    ```
-3. **See the next build-plan step**:
+4. If running with live agents, populate `.env`:
    ```bash
-   bash scripts/next.sh
+   echo "BLACK_SKIES_OPENAI_API_KEY=sk-..." >> .env
+   echo "BLACK_SKIES_BLACK_SKIES_MODE=live" >> .env
    ```
-   The script prints the next step name, summary, and the “Codex ask” to paste into Codex CLI. Each run records progress in `.codex_step` and `.codex_history`.
-4. **Apply the step** by pasting the Codex ask into Codex CLI, reviewing the PR, merging, and running the project tests (`corepack pnpm --filter app test` and `PYTHONPATH=services/src python -m pytest`).
-5. **After merging**, run `bash scripts/next.sh` again to advance the pointer.
 
-## Utilities
+## Running the API
+```bash
+uvicorn black_skies.main:app --reload --port 8080
+```
+- Health check: `GET http://localhost:8080/healthz`
+- Outline endpoint: `POST http://localhost:8080/outline`
 
-- `scripts/next.sh --reset` — reset progress back to the first step (useful if you want to replay the plan).
-- `.codex_history` — audit log of completed steps with timestamps.
-- `.codex_step` — current step pointer (plain text).
+## Logs and Data
+- Runs: `data/runs/`
+- Cache: `data/cache/`
+- Exports: `data/exports/`
 
-## Testing shortcuts
+## Maintenance
+- Tests: `python -m pytest -q`
+- Lint: `flake8`
 
-- Renderer tests: `corepack pnpm --filter app test`
-- Service tests: `PYTHONPATH=services/src python -m pytest`
-- Format check: `black --check services app` (once dependencies installed)
-
-## Notes
-
-- Always consult the referenced docs before implementing a step.
-- Keep PRs focused on the single step you are executing.
-- Honour offline constraints: use existing wheels and skip Node installs if the registry is unavailable.
-
+## Troubleshooting
+- Missing dependencies: reinstall via `pip install -r constraints.txt`.
+- Permission errors on data directory: ensure `data/` is writable.
+- API key errors: verify `.env` entries and `BLACK_SKIES_BLACK_SKIES_MODE`.

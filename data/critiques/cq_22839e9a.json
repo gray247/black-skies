@@ -1,0 +1,22 @@
+{
+  "kind": "critique",
+  "id": "cq_22839e9a",
+  "project_id": "proj_004",
+  "payload": {
+    "project_id": "proj_004",
+    "unit_id": "sc_0001",
+    "text": "Scene draft",
+    "rubric": "default"
+  },
+  "response": {
+    "project_id": "proj_004",
+    "unit_id": "sc_0001",
+    "summary": "Stub critique generated.",
+    "severity": "medium",
+    "recommendations": [
+      "Tighten pacing",
+      "Clarify character motivation"
+    ],
+    "generated_at": "2025-09-29T14:44:19.921072+00:00"
+  }
+}

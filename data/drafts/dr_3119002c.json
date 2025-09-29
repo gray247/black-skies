@@ -1,0 +1,30 @@
+{
+  "kind": "draft",
+  "id": "dr_3119002c",
+  "project_id": "proj_002",
+  "payload": {
+    "project_id": "proj_002",
+    "unit_ids": [
+      "sc_0001",
+      "sc_0002"
+    ],
+    "temperature": 0.0
+  },
+  "response": {
+    "draft_id": "dr_3119002c",
+    "project_id": "proj_002",
+    "generated_at": "2025-09-29T14:44:19.911492+00:00",
+    "units": [
+      {
+        "unit_id": "sc_0001",
+        "title": "Scene 1",
+        "text": "Draft for sc_0001."
+      },
+      {
+        "unit_id": "sc_0002",
+        "title": "Scene 2",
+        "text": "Draft for sc_0002."
+      }
+    ]
+  }
+}
