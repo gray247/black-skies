@@ -959,19 +959,31 @@ def get_persistence(
 def _register_routes(api: FastAPI) -> None:
     """Attach all routers to the provided FastAPI app."""
 
+    def _health_payload() -> dict[str, str]:
+        """Return the canonical health payload."""
+
+        return {"status": "ok", "version": SERVICE_VERSION}
+
     @api.get("/healthz", tags=["health"])
     async def health() -> dict[str, str]:
         """Simple readiness probe for the desktop app."""
 
-        return {"status": "ok", "version": SERVICE_VERSION}
+        return _health_payload()
+
+    @api.get("/health", tags=["health"], include_in_schema=False)
+    async def health_alias() -> dict[str, str]:
+        """Legacy readiness endpoint maintained for compatibility."""
+
+        return _health_payload()
 
     @api.get("/metrics", tags=["health"], response_class=PlainTextResponse)
-    async def metrics_endpoint() -> PlainTextResponse:
+    async def metrics_endpoint() -> Response:
         """Expose Prometheus-compatible service metrics."""
 
-        return PlainTextResponse(
+        return Response(
             content=render(SERVICE_VERSION),
-            media_type="text/plain; version=0.0.4",
+            media_type=None,
+            headers={"content-type": "text/plain; version=0.0.4"},
         )
 
     outline_router = APIRouter(prefix="/outline", tags=["outline"])
@@ -1793,6 +1805,23 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
     )
     application.state.recovery_tracker = RecoveryTracker(
         settings=application.state.settings
+    )
+
+    async def http_exception_handler(
+        request: Request, exc: HTTPException
+    ) -> JSONResponse:
+        trace_id = _ensure_trace_id()
+        return _http_exception_to_response(exc, trace_id)
+
+    async def validation_exception_handler(
+        request: Request, exc: RequestValidationError
+    ) -> JSONResponse:
+        trace_id = _ensure_trace_id()
+        return _request_validation_response(exc, trace_id)
+
+    application.add_exception_handler(HTTPException, http_exception_handler)
+    application.add_exception_handler(
+        RequestValidationError, validation_exception_handler
     )
 
     @application.middleware("http")
