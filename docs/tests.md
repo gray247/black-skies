@@ -13,6 +13,8 @@
 - Unit+contract (fast): `pytest -m "unit or contract" -q`
 - E2E (needs server): start API, then `pytest -m "e2e" -q`
 - Eval harness: `python scripts/eval.py --html out/eval.html --json out/eval.json`
+  - Optional flags: `--fail-under-pass-rate`, `--max-avg-latency-ms`, `--max-p95-latency-ms`.
+  - The command writes structured JSON+HTML to the provided paths and exits non-zero on regression thresholds.
 
 ## Acceptance by phase
 - **P5**: tool unit tests ≥90% stmt coverage; `eval.py` produces report; CI gate enabled.

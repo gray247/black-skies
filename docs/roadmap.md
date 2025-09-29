@@ -7,7 +7,7 @@
 - P3 Draft → Critique loop … ✅ complete
 - P4.0 Observability baseline (structured logs + /metrics) … ✅ complete
 - P4.1 Documentation/tagging sweep … ✅ complete
-- P5 Tools, Data, and Evaluation Harness … ◻ planned
+- P5 Tools, Data, and Evaluation Harness … ⏳ in progress (eval gate live)
 - P6 End-to-End Integration & Contracts … ◻ planned
 - P7 Release Candidate (RC) … ◻ planned
 - P8 Hardening, Performance, and Resilience … ◻ planned
@@ -73,7 +73,7 @@ follow-up.
 ## Milestone checklist (what Codex can execute)
 
 - [ ] Add tool adapters and registry (P5)
-- [ ] Create eval dataset & `scripts/eval.py` (P5)
+- [x] Create eval dataset & `scripts/eval.py` (P5)
 - [ ] Add `/api/v1` router + contracts in `docs/endpoints.md` (P6)
 - [ ] Implement session snapshots & restore (P6)
 - [ ] Package RC, smoke tests, docs (P7)
