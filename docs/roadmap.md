@@ -6,7 +6,7 @@
 - P2 GUI skeleton & panes … ✅ complete
 - P3 Draft → Critique loop … ✅ complete
 - P4.0 Observability baseline (structured logs + /metrics) … ✅ complete
-- P4.1 Documentation/tagging sweep … ◻ planned
+- P4.1 Documentation/tagging sweep … ✅ complete
 - P5 Tools, Data, and Evaluation Harness … ◻ planned
 - P6 End-to-End Integration & Contracts … ◻ planned
 - P7 Release Candidate (RC) … ◻ planned
