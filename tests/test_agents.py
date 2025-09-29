@@ -3,8 +3,6 @@ from __future__ import annotations
 from typing import Dict
 
 import pytest
-from tenacity import RetryError
-
 from black_skies.agents.base import AgentError, DraftAgent
 
 

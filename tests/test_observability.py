@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+import pytest
+
+pytest.importorskip("fastapi")
+
 from black_skies.main import app
 from fastapi.testclient import TestClient
 

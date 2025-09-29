@@ -8,7 +8,7 @@ from typing import Literal, Optional
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-Mode = Literal["offline", "live", "mock"]
+Mode = Literal["offline", "live", "mock", "companion"]
 
 
 class Settings(BaseSettings):
