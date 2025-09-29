@@ -35,6 +35,13 @@ Prereqs: **Node 20 LTS**, **PNPM**, **Python 3.11**
    ```
    The dev server exposes http://127.0.0.1:8000 with a `GET /healthz` probe.
 
+### Service configuration
+
+- Runtime settings are provided by `ServiceSettings`, which now delegates to Pydantic's `BaseSettings` loader. Define
+  `BLACKSKIES_PROJECT_BASE_DIR` in your shell or `.env`; quoted paths, leading whitespace, and `export` prefixes are supported.
+- The configured project directory must exist (e.g., `sample_project/Esther_Estate`). Misconfigured paths raise a validation
+  error at startup so deployments fail fast.
+
 ### Observability
 
 - Health probe: `GET http://127.0.0.1:8000/healthz`
