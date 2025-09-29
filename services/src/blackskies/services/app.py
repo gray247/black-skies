@@ -346,14 +346,22 @@ def _load_outline_artifact(project_root: Path) -> OutlineArtifact:
 def _build_meta_header(front_matter: dict[str, Any]) -> str | None:
     """Render a scene meta header when purpose/emotion/pov are available."""
 
+    def _normalize(value: Any) -> str | None:
+        if value is None:
+            return None
+        normalized = str(value).strip()
+        if not normalized:
+            return None
+        return normalized
+
     parts: list[str] = []
-    purpose = front_matter.get("purpose")
+    purpose = _normalize(front_matter.get("purpose"))
     if purpose:
         parts.append(f"purpose: {purpose}")
-    emotion = front_matter.get("emotion_tag")
+    emotion = _normalize(front_matter.get("emotion_tag"))
     if emotion:
         parts.append(f"emotion: {emotion}")
-    pov = front_matter.get("pov")
+    pov = _normalize(front_matter.get("pov"))
     if pov:
         parts.append(f"pov: {pov}")
     if not parts:
