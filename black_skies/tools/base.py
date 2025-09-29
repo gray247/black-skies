@@ -53,6 +53,15 @@ class ToolResult(Protocol[T]):
         """Additional metadata supplied by the tool implementation."""
 
 
+@dataclass(slots=True, frozen=True)
+class ToolMetadata:
+    """Static metadata describing a tool adapter."""
+
+    name: str
+    model: str
+    cost_estimate: str
+
+
 @dataclass(slots=True)
 class ToolInvocationContext:
     """Concrete ToolContext implementation used by tests and adapters."""
