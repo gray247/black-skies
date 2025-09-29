@@ -13,6 +13,7 @@ from .base import (
 )
 from .file_store import FileStoreTool
 from .registry import ToolDecision, ToolRegistry
+from .safety import SafetyReport, SafetyViolation, postflight_scrub, preflight_check
 from .search import MarkdownSearchTool
 from .summarizer import SummarizerTool
 from .template_renderer import TemplateRendererTool
@@ -29,8 +30,12 @@ __all__ = [
     "ToolMetadata",
     "ToolRegistry",
     "ToolResult",
+    "SafetyReport",
+    "SafetyViolation",
     "log_tool_complete",
     "log_tool_event",
     "log_tool_start",
+    "postflight_scrub",
+    "preflight_check",
     "tool_logger",
 ]

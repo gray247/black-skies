@@ -105,6 +105,12 @@ scene metadata, and a `budget` block so the UI can enforce soft ($5) and hard ($
 - **Blocked** — projected total would exceed the hard limit. The modal swaps the primary button text to **Blocked** and keeps it
   disabled until the spend is reduced.
 
+### Safety layer
+- Tool registry preflight runs `black_skies.tools.safety.preflight_check` before granting access so budget and privacy policies
+  from `docs/policies.md` are enforced consistently across adapters.
+- Structured tool telemetry is sanitized with `postflight_scrub`, which removes emails/API keys before they hit the log streams
+  shared with the FastAPI service.
+
 ```jsonc
 // Soft-limit example from the live service
 {
