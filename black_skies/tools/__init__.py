@@ -12,6 +12,7 @@ from .base import (
     tool_logger,
 )
 from .file_store import FileStoreTool
+from .registry import ToolDecision, ToolRegistry
 from .search import MarkdownSearchTool
 from .summarizer import SummarizerTool
 from .template_renderer import TemplateRendererTool
@@ -22,9 +23,11 @@ __all__ = [
     "SummarizerTool",
     "TemplateRendererTool",
     "ToolContext",
+    "ToolDecision",
     "ToolExecutionResult",
     "ToolInvocationContext",
     "ToolMetadata",
+    "ToolRegistry",
     "ToolResult",
     "log_tool_complete",
     "log_tool_event",

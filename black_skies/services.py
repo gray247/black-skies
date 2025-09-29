@@ -3,17 +3,22 @@
 from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor
-from typing import Any, Callable, Dict
+from typing import Any, Callable, Dict, Mapping
 
 from .agents.base import CritiqueAgent, DraftAgent, OutlineAgent, RewriteAgent
 from .settings import Settings, get_settings
+from .tools.registry import ToolRegistry
 
 OperationPayload = Dict[str, Any]
 OperationResult = Dict[str, Any]
 
 
+class ToolNotPermittedError(PermissionError):
+    """Raised when a tool invocation is blocked by the registry."""
+
+
 class AgentOrchestrator:
-    """Coordinate agents with shared settings."""
+    """Coordinate agents with shared settings and gated tool access."""
 
     def __init__(
         self,
@@ -21,6 +26,9 @@ class AgentOrchestrator:
         draft_worker: Callable[[OperationPayload], OperationResult],
         rewrite_worker: Callable[[OperationPayload], OperationResult],
         critique_worker: Callable[[OperationPayload], OperationResult],
+        *,
+        tool_registry: ToolRegistry,
+        tools: Mapping[str, Callable[..., Any]] | None = None,
         settings: Settings | None = None,
     ) -> None:
         self.settings = settings or get_settings()
@@ -28,6 +36,44 @@ class AgentOrchestrator:
         self.draft_agent = DraftAgent(draft_worker)
         self.rewrite_agent = RewriteAgent(rewrite_worker)
         self.critique_agent = CritiqueAgent(critique_worker)
+        self._tool_registry = tool_registry
+        self._tools: Dict[str, Callable[..., Any]] = {}
+        if tools:
+            for name, tool in tools.items():
+                self.register_tool(name, tool)
+
+    @property
+    def tool_registry(self) -> ToolRegistry:
+        return self._tool_registry
+
+    def register_tool(self, name: str, tool: Callable[..., Any]) -> None:
+        """Register or update a tool implementation."""
+
+        canonical = self._tool_registry.canonical_name(name)
+        self._tools[canonical] = tool
+
+    def resolve_tool(
+        self,
+        name: str,
+        *,
+        run_id: str,
+        checklist_item: str | None = None,
+        metadata: Mapping[str, Any] | None = None,
+    ) -> Callable[..., Any]:
+        """Return a registered tool after passing registry permission checks."""
+
+        canonical = self._tool_registry.canonical_name(name)
+        if canonical not in self._tools:
+            raise KeyError(f"Tool '{name}' is not registered")
+        decision = self._tool_registry.check_permission(
+            name,
+            run_id=run_id,
+            checklist_item=checklist_item,
+            metadata=metadata,
+        )
+        if not decision.allowed:
+            raise ToolNotPermittedError(decision.reason)
+        return self._tools[canonical]
 
     def build_outline(self, payload: OperationPayload) -> OperationResult:
         return self.outline_agent.run(payload)
@@ -61,4 +107,4 @@ class AgentOrchestrator:
             return outline_future.result(), draft_future.result()
 
 
-__all__ = ["AgentOrchestrator"]
+__all__ = ["AgentOrchestrator", "ToolNotPermittedError"]

@@ -3,6 +3,7 @@
 
 2025-09-29  P5.0  Tools & eval harness scaffolding — LOCKED ✅ Tool adapters for file store + template renderer landed.
 2025-09-29  P5.1  Eval dataset v1 + CI gate — OPEN ◻
+2025-09-29  P5.2  Tool registry + permissions — LOCKED ✅ Registry enforces checklist defaults with ledger events.
 
 2025-09-29  P6.0  /api/v1 contracts & router — OPEN ◻
 2025-09-29  P6.1  GUI wiring + session restore — OPEN ◻
