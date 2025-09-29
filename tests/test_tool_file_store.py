@@ -9,6 +9,8 @@ import pytest
 from black_skies import storage
 from black_skies.tools import FileStoreTool, ToolInvocationContext
 
+pytestmark = pytest.mark.unit
+
 
 @pytest.fixture
 def tool_context() -> tuple[FileStoreTool, ToolInvocationContext]:

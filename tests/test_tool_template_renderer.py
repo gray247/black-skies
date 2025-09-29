@@ -7,6 +7,8 @@ import pytest
 from black_skies import storage
 from black_skies.tools import TemplateRendererTool
 
+pytestmark = pytest.mark.unit
+
 
 def _store_template(template_id: str, body: str) -> None:
     path = storage.path_for("template", template_id)

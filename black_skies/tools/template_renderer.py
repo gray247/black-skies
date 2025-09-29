@@ -10,6 +10,7 @@ from .base import (
     ToolContext,
     ToolExecutionResult,
     ToolInvocationContext,
+    ToolMetadata,
     log_tool_complete,
     log_tool_start,
 )
@@ -19,6 +20,11 @@ class TemplateRendererTool:
     """Adapter that retrieves template definitions via :mod:`black_skies.storage`."""
 
     name = "template_renderer"
+    metadata = ToolMetadata(
+        name=name,
+        model="black-skies.template-renderer",
+        cost_estimate="cpu-only",
+    )
 
     def context(self, *, trace_id: str | None = None, metadata: Mapping[str, Any] | None = None) -> ToolInvocationContext:
         return ToolInvocationContext(name=self.name, trace_id=trace_id, metadata=metadata or {})

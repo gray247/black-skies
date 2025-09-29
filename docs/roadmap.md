@@ -27,6 +27,11 @@
 5. Safety hooks: policy checks (see `docs/policies.md`) before/after tool calls; redact logs.
 6. CI job to run `eval.py` on PRs; fails on regressions beyond thresholds.
 
+**Status note:** Local-only summarizer and Markdown search adapters now ship alongside the existing file
+store and template renderer tools. They run entirely on CPU against data checked into `data/` and do not
+cover semantic embeddings or fuzzy matching, so large documents and nuanced queries may require manual
+follow-up.
+
 ### P6 — End-to-End Integration & Contracts
 **Goal:** wire GUI ↔ API with versioned contracts and traceability.
 **Deliverables**

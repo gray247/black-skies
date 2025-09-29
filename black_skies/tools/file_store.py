@@ -10,6 +10,7 @@ from .base import (
     ToolContext,
     ToolExecutionResult,
     ToolInvocationContext,
+    ToolMetadata,
     log_tool_complete,
     log_tool_start,
 )
@@ -19,6 +20,11 @@ class FileStoreTool:
     """High-level adapter around :mod:`black_skies.storage` helpers."""
 
     name = "file_store"
+    metadata = ToolMetadata(
+        name=name,
+        model="black-skies.local-file-store",
+        cost_estimate="filesystem-io",
+    )
 
     def __init__(self) -> None:
         self._data_root = storage.DATA_ROOT
