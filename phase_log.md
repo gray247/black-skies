@@ -5,6 +5,11 @@ Chronological record of locked decisions and spec/version bumps. One-line summar
 
 ---
 
+## 2025-09-28 — Milestone P1 locked (LOCKED)
+- Verified P1.2 docs and renderer coverage; Vitest now pulls in `@testing-library/jest-dom` and passes via `pnpm --filter app test`.
+- Confirmed service regressions with `PYTHONPATH=services/src python -m pytest` (17 passed) and budget warnings format lint fixes.
+- Phase 1 Preflight milestone declared complete; roadmap advances to Critique Accept (P2.0).
+
 ## 2025-09-23 — Docs synced to Phase 1 (v1)
 - Locked and published: docs/endpoints.md (v1), docs/data_model.md (v1), docs/gui_layouts.md (v1), docs/exports.md (v1), docs/policies.md (v1), docs/phase_charter.md (v1),
   docs/architecture.md (v1), docs/agents_and_services.md (v1).

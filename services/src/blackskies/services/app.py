@@ -509,13 +509,19 @@ def _classify_budget(
     if total_after_run >= effective_hard_limit:
         return (
             "blocked",
-            f"Estimated total ${total_after_run:.2f} exceeds hard limit ${effective_hard_limit:.2f}.",
+            (
+                f"Estimated total ${total_after_run:.2f} exceeds hard limit "
+                f"${effective_hard_limit:.2f}."
+            ),
             total_after_run,
         )
     if total_after_run >= effective_soft_limit:
         return (
             "soft-limit",
-            f"Estimated total ${total_after_run:.2f} exceeds soft limit ${effective_soft_limit:.2f}.",
+            (
+                f"Estimated total ${total_after_run:.2f} exceeds soft limit "
+                f"${effective_soft_limit:.2f}."
+            ),
             total_after_run,
         )
     return "ok", "Estimate within budget.", total_after_run
