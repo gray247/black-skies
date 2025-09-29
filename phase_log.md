@@ -18,6 +18,7 @@ Chronological record of locked decisions and spec/version bumps. One-line summar
 - Refreshed documentation set for P4.1, ensuring roadmap, phase logs, and supporting docs are aligned.
 - Cut release tag and noted the documentation sweep across milestones and supporting references.
 - Verified CI pipelines and documentation build paths after the tagging pass.
+- Verification report: [`docs/milestone_p4_1_verification.md`](docs/milestone_p4_1_verification.md).
 
 ## 2025-09-29 - Observability baseline (LOCKED)
 - Added structured JSON logging with trace IDs for every request and error handler responses.
