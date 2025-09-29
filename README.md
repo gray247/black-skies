@@ -2,7 +2,7 @@
 
 Local‑first novelist tool for Windows 11: guided outline → draft → rewrite → critique → export.
 
-> **Status:** Tabletop complete. Phase 1 (1.0) docs are LOCKED as of 2025-09-23.
+> **Status:** Tabletop complete. Phase 1 (1.0) docs are LOCKED as of 2025-09-29.
 
 ## Platform
 Windows 11 only (1.0). macOS/Linux planned post‑1.0.
@@ -33,7 +33,13 @@ Prereqs: **Node 20 LTS**, **PNPM**, **Python 3.11**
    ```bash
    python -m blackskies.services
    ```
-   The dev server exposes http://127.0.0.1:8000 with a `/health` probe.
+   The dev server exposes http://127.0.0.1:8000 with a `GET /healthz` probe.
+
+### Observability
+
+- Health probe: `GET http://127.0.0.1:8000/healthz`
+- Metrics: `GET http://127.0.0.1:8000/metrics` (Prometheus text format)
+- Traceability: every response includes an `X-Trace-Id` header; capture it when filing bugs or correlating logs.
 
 ### Python lint checks
 
