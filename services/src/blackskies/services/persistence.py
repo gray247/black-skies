@@ -140,10 +140,18 @@ class DraftPersistence:
     @staticmethod
     def _render(front_matter: dict[str, Any], body: str) -> str:
         lines = ["---"]
+        ordered_keys: list[str] = []
         for key in _FIELD_ORDER:
-            if key not in front_matter:
-                continue
-            value = front_matter[key]
+            if key in front_matter:
+                ordered_keys.append(key)
+
+        remaining_keys = sorted(
+            key for key in front_matter.keys() if key not in _FIELD_ORDER
+        )
+        ordered_keys.extend(remaining_keys)
+
+        for key in ordered_keys:
+            value = front_matter.get(key)
             if value is None:
                 continue
             lines.append(f"{key}: {_format_yaml_value(value)}")
