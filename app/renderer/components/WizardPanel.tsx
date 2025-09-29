@@ -328,7 +328,10 @@ export default function WizardPanel({
     <div className="wizard-panel" aria-live="polite">
       <header className="wizard-panel__header">
         <h2>Wizard Controls</h2>
-        <p>Define locks to guide outline builds. Formats are simple text placeholders.</p>
+        <p>
+          Lock each step to freeze your outline decisions and create a snapshot before building.
+          Follow the formats below so acts, chapters, and scenes are saved exactly as listed.
+        </p>
       </header>
 
       <div className="wizard-panel__control">
@@ -413,7 +416,10 @@ export default function WizardPanel({
       {step === 'review' ? (
         <div className="wizard-panel__section">
           <h3>Review</h3>
-          <p>Locks ready for submission. TODO: replace with richer summary UI when available.</p>
+          <p>
+            Review the locked inputs that will be sent to the outline builder. Acts, chapters, and
+            scenes will be written to the project index in this order.
+          </p>
           <dl className="wizard-panel__summary">
             <dt>Acts</dt>
             <dd>{parsedLocks.acts.map((act) => act.title).join(', ')}</dd>
