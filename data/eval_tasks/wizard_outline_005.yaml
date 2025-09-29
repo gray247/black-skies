@@ -1,0 +1,29 @@
+schema_version: "EvalTaskSchema v1"
+task_id: wizard_outline_005
+flow: wizard
+summary: "Wizard flow outline scenario 5"
+inputs:
+  project_id: proj_wizard_005
+  wizard_locks: {}
+expected:
+  outline:
+    schema_version: "OutlineSchema v1"
+    outline_id: out_wiz_005
+    acts: ["Act I", "Act II", "Act III"]
+    chapters:
+      - id: ch_0009
+        order: 1
+        title: "Opening Discovery 5"
+      - id: ch_0010
+        order: 2
+        title: "Rising Pressure 5"
+    scenes:
+      - id: sc_0009
+        order: 1
+        title: "Stormfront Looms 5"
+        chapter_id: ch_0009
+      - id: sc_0010
+        order: 2
+        title: "Signal in the Dark 5"
+        chapter_id: ch_0010
+        beat_refs: ["inciting"]

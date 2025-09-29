@@ -1,0 +1,39 @@
+schema_version: "EvalTaskSchema v1"
+task_id: critique_scene_006
+flow: critique
+summary: "Critique flow review scenario 6"
+inputs:
+  project_id: proj_critique_006
+  unit:
+    id: sc_0406
+    text: "The improvised transmitter crackles as the storm batters the glass dome."
+    meta:
+      pov: "Mira"
+      purpose: "payoff"
+      emotion_tag: "revelation"
+      goal: "Decode the warning"
+      conflict: "Equipment fails mid-message"
+      turn: "The code reveals an inside traitor"
+      word_target: 950
+      beats: ["resolution"]
+    prompt_fingerprint: "sha256:critique_input_006"
+    model:
+      name: "story-drafter-v1"
+      provider: "black-skies-local"
+expected:
+  critique:
+    unit_id: sc_0406
+    schema_version: "CritiqueOutputSchema v1"
+    summary: "Highlights tension release while flagging pacing drift."
+    line_comments:
+      - line: 1
+        note: "Clarify how the static obscures the coded phrase."
+    priorities:
+      - "continuity"
+      - "voice"
+    suggested_edits:
+      - range: [0, 42]
+        replacement: "Wind rattled the dome as the transmitter spat a fractured warning."
+    model:
+      name: "story-critic-v1"
+      provider: "black-skies-local"
