@@ -7,8 +7,9 @@ import copy
 import hashlib
 import json
 import logging
-import shutil
 import os
+import re
+import shutil
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from importlib import resources
@@ -625,6 +626,51 @@ def _load_project_budget_state(
             )
             payload = copy.deepcopy(base_payload)
         else:
+            sanitize_pattern = re.compile(r"[^\d.\-]")
+
+            raw_budget = payload.get("budget", {}) if isinstance(payload, dict) else {}
+            if not isinstance(raw_budget, dict):
+                raw_budget = {}
+
+            def _coerce_budget_value(field: str, default: float) -> float:
+                raw_value = raw_budget.get(field, default)
+                try:
+                    if isinstance(raw_value, (int, float)):
+                        return float(raw_value)
+                    if isinstance(raw_value, str):
+                        candidate = sanitize_pattern.sub("", raw_value.strip())
+                        if candidate in {"", "-", ".", "-.", ".-"}:
+                            raise ValueError("Budget string empty after sanitization.")
+                        return float(candidate)
+                    return float(raw_value)
+                except (TypeError, ValueError) as exc:
+                    if field in raw_budget:
+                        diagnostics.log(
+                            project_root,
+                            code=f"VALIDATION_BUDGET_{field.upper()}",
+                            message=f"Budget value for '{field}' was invalid; using default.",
+                            details={
+                                "path": to_posix(project_path),
+                                "field": field,
+                                "value": raw_value,
+                                "error": str(exc),
+                            },
+                        )
+                    return default
+
+            coerced_budget = {
+                "soft": _coerce_budget_value("soft", SOFT_BUDGET_LIMIT_USD),
+                "hard": _coerce_budget_value("hard", HARD_BUDGET_LIMIT_USD),
+                "spent_usd": _coerce_budget_value("spent_usd", 0.0),
+            }
+
+            if isinstance(payload, dict):
+                payload_budget = payload.setdefault("budget", {})
+                if isinstance(payload_budget, dict):
+                    payload_budget.update(coerced_budget)
+                else:
+                    payload["budget"] = coerced_budget
+
             try:
                 metadata = ProjectMetadata.model_validate(payload)
             except ValidationError as exc:
@@ -642,7 +688,10 @@ def _load_project_budget_state(
     else:
         payload = ProjectMetadata.model_validate(base_payload).model_dump(mode="json")
 
-    budget_section = payload.get("budget", {})
+    budget_section = payload.get("budget", {}) if isinstance(payload, dict) else {}
+    if not isinstance(budget_section, dict):
+        budget_section = {}
+
     soft_limit = float(budget_section.get("soft", SOFT_BUDGET_LIMIT_USD))
     hard_limit = float(budget_section.get("hard", HARD_BUDGET_LIMIT_USD))
     spent_usd = float(budget_section.get("spent_usd", 0.0))
