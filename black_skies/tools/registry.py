@@ -9,11 +9,13 @@ import unicodedata
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, Iterable, Mapping, MutableMapping, Optional
+from typing import Any, Dict, Iterable, Mapping, MutableMapping
 
 from .. import runs
+from .safety import SafetyReport, SafetyViolation, postflight_scrub, preflight_check
 
 logger = logging.getLogger("black_skies.tool_registry")
+error_logger = logging.getLogger("black_skies.errors")
 
 _CHECKLIST_FILENAME = "decision_checklist.md"
 _DEFAULT_CHECKLIST_PATH = Path(__file__).resolve().parents[1] / "docs" / _CHECKLIST_FILENAME
@@ -205,6 +207,34 @@ class ToolRegistry:
         """Return whether the requested tool may be invoked and record the decision."""
 
         tool = self.canonical_name(tool_name)
+        safety_report: SafetyReport | None = None
+        try:
+            safety_report = preflight_check(
+                tool=tool,
+                project_metadata=self._project_metadata,
+                invocation_metadata=metadata,
+            )
+        except SafetyViolation as exc:
+            violation_payload: MutableMapping[str, Any] = {
+                "tool": tool,
+                "requested_name": tool_name,
+                "code": exc.code,
+                "message": str(exc),
+            }
+            if self._project_id:
+                violation_payload["project_id"] = self._project_id
+            if metadata:
+                violation_payload["context"] = dict(metadata)
+            if exc.details:
+                violation_payload["details"] = dict(exc.details)
+            sanitized_violation = postflight_scrub(violation_payload)
+            runs.append_event(run_id, "tool.safety_violation", dict(sanitized_violation))
+            error_logger.info(
+                "tool.safety_violation",
+                extra={"extra_payload": sanitized_violation},
+            )
+            raise
+
         decision = self._default_decision(tool, checklist_item)
 
         if self._deny_all or tool in self._deny_overrides:
@@ -233,6 +263,8 @@ class ToolRegistry:
             "source": decision.source,
             "reason": decision.reason,
         }
+        if safety_report is not None:
+            payload["safety"] = safety_report.as_dict()
         if self._project_id:
             payload["project_id"] = self._project_id
         if decision.checklist_slug:
@@ -243,17 +275,18 @@ class ToolRegistry:
             payload["context"] = dict(metadata)
 
         event_type = "tool.approved" if decision.allowed else "tool.denied"
-        runs.append_event(run_id, event_type, dict(payload))
+        sanitized_payload = postflight_scrub(payload)
+        runs.append_event(run_id, event_type, dict(sanitized_payload))
 
         if not decision.allowed:
             logger.warning(
                 "tool.denied",
-                extra={"extra_payload": payload},
+                extra={"extra_payload": sanitized_payload},
             )
         else:
             logger.info(
                 "tool.approved",
-                extra={"extra_payload": payload},
+                extra={"extra_payload": sanitized_payload},
             )
 
         return decision
