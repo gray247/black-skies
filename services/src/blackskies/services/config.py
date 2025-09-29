@@ -2,35 +2,39 @@
 
 from __future__ import annotations
 
-import os
 from pathlib import Path
 
-from pydantic import BaseModel, Field
+from pydantic import Field, field_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-class ServiceSettings(BaseModel):
+class ServiceSettings(BaseSettings):
     """Runtime configuration for the FastAPI services."""
+
+    model_config = SettingsConfigDict(
+        env_prefix="BLACKSKIES_",
+        env_file=".env",
+        env_file_encoding="utf-8",
+    )
 
     project_base_dir: Path = Field(
         default_factory=lambda: Path.cwd() / "sample_project",
         description="Base directory containing project folders.",
     )
 
+    @field_validator("project_base_dir")
+    @classmethod
+    def _ensure_project_dir_exists(cls, value: Path) -> Path:
+        """Validate that the configured project directory exists."""
+
+        if not value.exists():
+            raise ValueError(f"Project base directory does not exist: {value}")
+        return value
+
     @classmethod
     def from_environment(cls) -> "ServiceSettings":
-        """Load settings from environment variables or fall back to defaults."""
+        """Load settings from environment variables or a `.env` file."""
 
-        env_value = os.getenv("BLACKSKIES_PROJECT_BASE_DIR")
-        if env_value:
-            return cls(project_base_dir=Path(env_value))
-        env_path = Path(".env")
-        if env_path.exists():
-            for line in env_path.read_text(encoding="utf-8").splitlines():
-                if not line or line.strip().startswith("#"):
-                    continue
-                key, _, value = line.partition("=")
-                if key.strip() == "BLACKSKIES_PROJECT_BASE_DIR":
-                    return cls(project_base_dir=Path(value.strip()))
         return cls()
 
 
