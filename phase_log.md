@@ -5,6 +5,10 @@ Chronological record of locked decisions and spec/version bumps. One-line summar
 
 ---
 
+## 2025-09-29 — Phase 1 wrap release (LOCKED)
+- Version bumped to 1.0.0+phase1 and annotated tag `v1.0.0-phase1` recorded.
+- Verified python -m pytest -q and python -m build --wheel --no-isolation for release validation.
+
 ## 2025-09-29 - Agents and orchestration scaffolding (LOCKED)
 - Created black_skies/agents package with retry-capable base and outline/draft/rewrite/critique agents.
 - Added AgentOrchestrator coordinating serial and parallel flows with shared settings.
