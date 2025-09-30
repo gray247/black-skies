@@ -1,0 +1,27 @@
+{
+  "project_id": "proj_contract_preflight_ok",
+  "unit_scope": "scene",
+  "unit_ids": ["sc_0001"],
+  "model": {
+    "name": "draft-synthesizer-v1",
+    "provider": "black-skies-local"
+  },
+  "scenes": [
+    {
+      "id": "sc_0001",
+      "title": "Storm Cellar",
+      "order": 1,
+      "chapter_id": "ch_0001",
+      "beat_refs": ["inciting"]
+    }
+  ],
+  "budget": {
+    "estimated_usd": 1.24,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.18,
+    "total_after_usd": 1.42
+  }
+}

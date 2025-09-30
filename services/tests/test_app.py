@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import asyncio
 import json
-from collections.abc import Iterator
 import hashlib
 from pathlib import Path
 from typing import Any
@@ -14,12 +13,13 @@ import pytest
 import yaml
 from fastapi.testclient import TestClient
 
-from blackskies.services.app import SERVICE_VERSION, BuildTracker, create_app
+from blackskies.services.app import SERVICE_VERSION, BuildTracker
 from blackskies.services.config import ServiceSettings
 from blackskies.services.persistence import DraftPersistence
 
 TRACE_HEADER = "x-trace-id"
 API_PREFIX = "/api/v1"
+CONTRACT_FIXTURES_DIR = Path(__file__).parent / "contracts"
 
 
 def _assert_trace_header(response: Any) -> str:
@@ -59,6 +59,40 @@ def _build_payload() -> dict[str, object]:
                     "beat_refs": ["inciting"],
                 },
                 {"title": "Radio", "chapter_index": 2, "beat_refs": ["twist"]},
+            ],
+        },
+    }
+
+
+def _load_contract_snapshot(name: str) -> dict[str, Any]:
+    """Load a contract snapshot from disk for response comparison."""
+
+    snapshot_path = CONTRACT_FIXTURES_DIR / f"{name}.json"
+    with snapshot_path.open("r", encoding="utf-8") as handle:
+        return json.load(handle)
+
+
+def _build_contract_outline_request(project_id: str) -> dict[str, Any]:
+    """Return a wizard lock payload matching the docs contract."""
+
+    return {
+        "project_id": project_id,
+        "force_rebuild": False,
+        "wizard_locks": {
+            "acts": [
+                {"title": "Act I"},
+                {"title": "Act II"},
+                {"title": "Act III"},
+            ],
+            "chapters": [
+                {"title": "Arrival", "act_index": 1},
+            ],
+            "scenes": [
+                {
+                    "title": "Storm Cellar",
+                    "chapter_index": 1,
+                    "beat_refs": ["inciting"],
+                }
             ],
         },
     }
@@ -177,19 +211,6 @@ def _compute_sha256(content: str) -> str:
     return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
 
 
-@pytest.fixture()
-def test_client(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> Iterator[TestClient]:
-    """Provide a TestClient bound to the FastAPI app."""
-
-    monkeypatch.setenv("BLACKSKIES_PROJECT_BASE_DIR", str(tmp_path))
-    app = create_app()
-    with TestClient(app) as client:
-        client.app = app  # type: ignore[attr-defined]
-        yield client
-
-
 def test_health(test_client: TestClient) -> None:
     """The health endpoint returns the expected payload."""
 
@@ -210,6 +231,22 @@ def test_metrics_endpoint(test_client: TestClient) -> None:
     assert "blackskies_requests_total" in body
     assert "blackskies_service_info" in body
     _assert_trace_header(response)
+
+
+@pytest.mark.contract
+def test_contract_outline_build(test_client: TestClient, tmp_path: Path) -> None:
+    """Outline build matches the golden contract snapshot."""
+
+    project_id = "proj_contract_outline"
+    payload = _build_contract_outline_request(project_id)
+
+    response = test_client.post(f"{API_PREFIX}/outline/build", json=payload)
+    assert response.status_code == 200
+    assert response.json() == _load_contract_snapshot("outline_build")
+    _assert_trace_header(response)
+
+    outline_path = tmp_path / project_id / "outline.json"
+    assert outline_path.exists()
 
 
 def test_outline_build_success(test_client: TestClient, tmp_path: Path) -> None:
@@ -300,6 +337,33 @@ def test_legacy_outline_build_shim_headers(
     _assert_trace_header(response)
 
     v1_response = test_client.post(f"{API_PREFIX}/outline/build", json=payload)
+    assert v1_response.status_code == 200
+    assert v1_response.json() == legacy_body
+
+
+def test_legacy_draft_generate_shim_success_headers(
+    test_client: TestClient, tmp_path: Path
+) -> None:
+    """Legacy draft generate proxies to v1 and applies deprecation headers."""
+
+    project_id = "proj_legacy_generate"
+    scene_ids = _bootstrap_outline(tmp_path, project_id, scene_count=1)
+    payload = {
+        "project_id": project_id,
+        "unit_scope": "scene",
+        "unit_ids": scene_ids,
+        "seed": 7,
+    }
+
+    response = test_client.post("/draft/generate", json=payload)
+    assert response.status_code == 200
+
+    legacy_body = response.json()
+    assert response.headers["Deprecation"] == "true"
+    assert response.headers["Sunset"] == "Mon, 29 Sep 2025 00:00:00 GMT"
+    _assert_trace_header(response)
+
+    v1_response = test_client.post(f"{API_PREFIX}/draft/generate", json=payload)
     assert v1_response.status_code == 200
     assert v1_response.json() == legacy_body
 
@@ -485,6 +549,46 @@ def test_draft_generate_soft_limit_status(
     with project_config.open("r", encoding="utf-8") as handle:
         project_meta = json.load(handle)
     assert project_meta["budget"]["spent_usd"] == pytest.approx(budget["spent_usd"])
+
+
+@pytest.mark.contract
+def test_contract_draft_preflight_ok(test_client: TestClient, tmp_path: Path) -> None:
+    """Draft preflight matches the documented ok contract payload."""
+
+    project_id = "proj_contract_preflight_ok"
+    build_payload = _build_contract_outline_request(project_id)
+    build_response = test_client.post(f"{API_PREFIX}/outline/build", json=build_payload)
+    assert build_response.status_code == 200
+
+    _write_project_budget(
+        tmp_path,
+        project_id,
+        soft_limit=5.0,
+        hard_limit=10.0,
+        spent_usd=0.18,
+    )
+
+    request_payload = {
+        "project_id": project_id,
+        "unit_scope": "scene",
+        "unit_ids": ["sc_0001"],
+        "overrides": {"sc_0001": {"word_target": 62000}},
+    }
+
+    response = test_client.post(f"{API_PREFIX}/draft/preflight", json=request_payload)
+    assert response.status_code == 200
+    assert response.json() == _load_contract_snapshot("draft_preflight_ok")
+    _assert_trace_header(response)
+
+
+@pytest.mark.contract
+def test_contract_draft_critique(test_client: TestClient) -> None:
+    """Draft critique endpoint returns the documented fixture payload."""
+
+    response = test_client.post(f"{API_PREFIX}/draft/critique")
+    assert response.status_code == 200
+    assert response.json() == _load_contract_snapshot("draft_critique")
+    _assert_trace_header(response)
 
 
 def test_draft_preflight_success(test_client: TestClient, tmp_path: Path) -> None:
