@@ -8,6 +8,7 @@ import hashlib
 import json
 import logging
 import os
+import re
 import shutil
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
@@ -48,6 +49,8 @@ LOGGER = logging.getLogger(__name__)
 _FIXTURE_PACKAGE: Final[str] = "blackskies.services.fixtures"
 SOFT_BUDGET_LIMIT_USD: Final[float] = 5.0
 HARD_BUDGET_LIMIT_USD: Final[float] = 10.0
+
+_NUMERIC_SANITIZE_RE = re.compile(r"[^0-9.,+-]")
 
 
 @dataclass
@@ -523,6 +526,74 @@ def _estimate_word_target(
     return 850 + (order_value * 40)
 
 
+def _normalize_budget_token(raw_value: str) -> str | None:
+    """Return a sanitized numeric string from a budget field."""
+
+    text = raw_value.strip().replace("\u00a0", "")
+    if not text:
+        return None
+
+    sign = ""
+    if text[0] in "+-":
+        sign = text[0]
+        text = text[1:]
+
+    filtered = _NUMERIC_SANITIZE_RE.sub("", text)
+    if not filtered:
+        return None
+
+    filtered = filtered.replace("+", "")
+    if "-" in filtered:
+        return None
+
+    if "," in filtered and "." in filtered:
+        filtered = filtered.replace(".", "")
+        filtered = filtered.replace(",", ".")
+    elif "," in filtered:
+        fractional = filtered.split(",", 1)[1]
+        if filtered.count(",") == 1 and 1 <= len(fractional) <= 2:
+            filtered = filtered.replace(",", ".")
+        else:
+            filtered = filtered.replace(",", "")
+
+    if filtered.count(".") > 1:
+        return None
+
+    candidate = f"{sign}{filtered}" if sign else filtered
+    if candidate in {"", "+", "-", ".", "+.", "-."}:
+        return None
+    return candidate
+
+
+def _coerce_budget_value(
+    raw_value: Any,
+    *,
+    default: float,
+    field: str,
+    project_root: Path,
+    diagnostics: DiagnosticLogger,
+) -> float:
+    if isinstance(raw_value, (int, float)):
+        return float(raw_value)
+    if isinstance(raw_value, str):
+        normalized = _normalize_budget_token(raw_value)
+        if normalized is not None:
+            try:
+                return float(normalized)
+            except ValueError:
+                pass
+    elif raw_value is None:
+        return float(default)
+
+    diagnostics.log(
+        project_root,
+        code="VALIDATION",
+        message="Invalid budget value encountered; default applied.",
+        details={"field": field, "value": raw_value},
+    )
+    return float(default)
+
+
 def _load_project_budget_state(
     project_root: Path, diagnostics: DiagnosticLogger
 ) -> ProjectBudgetState:
@@ -550,9 +621,27 @@ def _load_project_budget_state(
             )
 
     budget_meta = payload.setdefault("budget", {})
-    soft_limit = float(budget_meta.get("soft", SOFT_BUDGET_LIMIT_USD))
-    hard_limit = float(budget_meta.get("hard", HARD_BUDGET_LIMIT_USD))
-    spent_usd = float(budget_meta.get("spent_usd", 0.0))
+    soft_limit = _coerce_budget_value(
+        budget_meta.get("soft", SOFT_BUDGET_LIMIT_USD),
+        default=SOFT_BUDGET_LIMIT_USD,
+        field="soft",
+        project_root=project_root,
+        diagnostics=diagnostics,
+    )
+    hard_limit = _coerce_budget_value(
+        budget_meta.get("hard", HARD_BUDGET_LIMIT_USD),
+        default=HARD_BUDGET_LIMIT_USD,
+        field="hard",
+        project_root=project_root,
+        diagnostics=diagnostics,
+    )
+    spent_usd = _coerce_budget_value(
+        budget_meta.get("spent_usd", 0.0),
+        default=0.0,
+        field="spent_usd",
+        project_root=project_root,
+        diagnostics=diagnostics,
+    )
 
     effective_hard = hard_limit if hard_limit > 0 else HARD_BUDGET_LIMIT_USD
     if soft_limit > effective_hard:
@@ -1363,48 +1452,54 @@ def create_api_v1_router() -> APIRouter:
                     diagnostics=diagnostics,
                     project_root=project_root,
                 )
-            snapshot_info = latest
-            snapshot_id = snapshot_info.get("id")
-        else:
-            if not SNAPSHOT_ID_PATTERN.fullmatch(snapshot_id):
+            snapshot_id = latest.get("snapshot_id")
+            if not isinstance(snapshot_id, str):
                 raise_validation_error(
-                    message="Invalid snapshot identifier.",
-                    details={"snapshot_id": snapshot_id},
+                    message="Latest snapshot metadata is invalid.",
+                    details={"project_id": request_model.project_id},
                     diagnostics=diagnostics,
                     project_root=project_root,
                 )
-            try:
-                snapshot_info = snapshot_persistence.load_snapshot(
-                    request_model.project_id, snapshot_id
-                )
-            except FileNotFoundError:
-                raise_validation_error(
-                    message="Snapshot not found.",
-                    details={
-                        "project_id": request_model.project_id,
-                        "snapshot_id": snapshot_id,
-                    },
-                    diagnostics=diagnostics,
-                    project_root=project_root,
-                )
-            except OSError as exc:
-                diagnostics.log(
-                    project_root,
-                    code="INTERNAL",
-                    message="Failed to restore snapshot.",
-                    details={"snapshot_id": snapshot_id, "error": str(exc)},
-                )
-                recovery_tracker.mark_needs_recovery(
-                    request_model.project_id, reason=str(exc)
-                )
-                raise HTTPException(
-                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    detail={
-                        "code": "INTERNAL",
-                        "message": "Failed to restore snapshot.",
-                        "details": {"snapshot_id": snapshot_id},
-                    },
-                ) from exc
+
+        try:
+            snapshot_info = snapshot_persistence.restore_snapshot(
+                request_model.project_id, snapshot_id
+            )
+        except FileNotFoundError:
+            raise_validation_error(
+                message="Snapshot not found.",
+                details={
+                    "project_id": request_model.project_id,
+                    "snapshot_id": snapshot_id,
+                },
+                diagnostics=diagnostics,
+                project_root=project_root,
+            )
+        except ValueError:
+            raise_validation_error(
+                message="Invalid snapshot identifier.",
+                details={"snapshot_id": snapshot_id},
+                diagnostics=diagnostics,
+                project_root=project_root,
+            )
+        except OSError as exc:
+            diagnostics.log(
+                project_root,
+                code="INTERNAL",
+                message="Failed to restore snapshot.",
+                details={"snapshot_id": snapshot_id, "error": str(exc)},
+            )
+            recovery_tracker.mark_needs_recovery(
+                request_model.project_id, reason=str(exc)
+            )
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail={
+                    "code": "INTERNAL",
+                    "message": "Failed to restore snapshot.",
+                    "details": {"snapshot_id": snapshot_id},
+                },
+            ) from exc
 
         snapshot_path = Path(snapshot_info["path"])
         try:
