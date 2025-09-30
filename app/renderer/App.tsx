@@ -160,6 +160,7 @@ export default function App(): JSX.Element {
             tone: 'warning',
             title: 'Recovery status unavailable',
             description: result.error.message,
+            traceId: result.traceId ?? result.error.traceId,
           });
         }
       } catch (error) {
@@ -265,12 +266,14 @@ export default function App(): JSX.Element {
           tone: 'success',
           title: 'Snapshot restored',
           description: 'Latest snapshot restored successfully.',
+          traceId: result.traceId,
         });
       } else {
         pushToast({
           tone: 'error',
           title: 'Restore failed',
           description: result.error.message,
+          traceId: result.traceId ?? result.error.traceId,
         });
       }
     } catch (error) {
@@ -470,6 +473,7 @@ export default function App(): JSX.Element {
         tone: 'success',
         title: 'Draft generation requested',
         description: `Draft ${result.data.draft_id} queued with ${result.data.units.length} unit(s).`,
+        traceId: result.traceId,
       });
     } else {
       setPreflightState((previous) => ({
@@ -478,6 +482,12 @@ export default function App(): JSX.Element {
         error: result.error.message,
         errorDetails: result.error.details ?? null,
       }));
+      pushToast({
+        tone: 'error',
+        title: 'Draft generation failed',
+        description: result.error.message,
+        traceId: result.traceId ?? result.error.traceId,
+      });
     }
   }, [projectSummary, pushToast, services]);
 

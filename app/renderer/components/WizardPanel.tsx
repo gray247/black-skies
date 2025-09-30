@@ -307,6 +307,7 @@ export default function WizardPanel({
         tone: 'success',
         title: 'Outline built',
         description: `Outline ${result.data.outline_id} saved for project ${safeProjectId}.`,
+        traceId: result.traceId,
       };
       onToast(successToast);
       setLastMessage(successToast);
@@ -319,6 +320,7 @@ export default function WizardPanel({
       title: 'Outline build failed',
       description:
         result.error.message || 'The service returned an unknown error during outline build.',
+      traceId: result.traceId ?? result.error.traceId,
     };
     onToast(errorToast);
     setLastMessage(errorToast);

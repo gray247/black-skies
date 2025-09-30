@@ -384,4 +384,56 @@ describe('App preflight integration', () => {
     expect(screen.getByText(/Service port is unavailable\./i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /proceed/i })).toBeDisabled();
   });
+
+  it('displays trace IDs for generation success toasts', async () => {
+    const App = await loadAppWithServices(services);
+
+    render(<App />);
+
+    const generateButton = await screen.findByRole('button', { name: /generate/i });
+    await waitFor(() => expect(generateButton).not.toBeDisabled());
+
+    fireEvent.click(generateButton);
+
+    await waitFor(() => expect(services.preflightDraft).toHaveBeenCalledTimes(1));
+    const proceedButton = await screen.findByRole('button', { name: /proceed/i });
+    fireEvent.click(proceedButton);
+
+    await waitFor(() => expect(services.generateDraft).toHaveBeenCalledTimes(1));
+    const message = await screen.findByText(/Draft generation requested/i);
+    const toastCard = message.closest('.toast');
+    expect(toastCard).not.toBeNull();
+    if (toastCard) {
+      expect(within(toastCard).getByText('trace-generate')).toBeInTheDocument();
+    }
+  });
+
+  it('displays trace IDs for generation failure toasts', async () => {
+    services.generateDraft = vi.fn().mockResolvedValue({
+      ok: false,
+      error: { message: 'Service outage', traceId: 'trace-generate-failure' },
+      traceId: 'trace-generate-failure',
+    });
+
+    const App = await loadAppWithServices(services);
+
+    render(<App />);
+
+    const generateButton = await screen.findByRole('button', { name: /generate/i });
+    await waitFor(() => expect(generateButton).not.toBeDisabled());
+
+    fireEvent.click(generateButton);
+
+    await waitFor(() => expect(services.preflightDraft).toHaveBeenCalledTimes(1));
+    const proceedButton = await screen.findByRole('button', { name: /proceed/i });
+    fireEvent.click(proceedButton);
+
+    await waitFor(() => expect(services.generateDraft).toHaveBeenCalledTimes(1));
+    const message = await screen.findByText(/Draft generation failed/i);
+    const toastCard = message.closest('.toast');
+    expect(toastCard).not.toBeNull();
+    if (toastCard) {
+      expect(within(toastCard).getByText('trace-generate-failure')).toBeInTheDocument();
+    }
+  });
 });
