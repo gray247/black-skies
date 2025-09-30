@@ -4,6 +4,8 @@
 #   -OnlyTests  -> run tests only (assumes env already set up)
 #   -LaunchGui  -> after tests, launch python -m blackskies.services and pnpm run dev in new windows.
 #                  Assumes dependencies are already synchronized above; mirrors the README workflow.
+# Usage:
+#   powershell.exe -ExecutionPolicy Bypass -File .\start-codex.ps1 [-LaunchGui]
 
 param(
   [switch]$NoCodex,
@@ -24,6 +26,28 @@ try {
 } catch {}
 
 Set-Location -LiteralPath $RepoRoot
+
+function Resolve-PowerShellHost {
+  param(
+    [string[]]$Candidates = @("pwsh.exe", "pwsh", "powershell.exe", "powershell")
+  )
+
+  foreach ($candidate in $Candidates) {
+    try {
+      $command = Get-Command -Name $candidate -ErrorAction Stop
+      if ($command -and $command.Source) {
+        return $command.Source
+      }
+    } catch {
+      continue
+    }
+  }
+
+  $searched = [string]::Join(", ", $Candidates)
+  throw "Unable to locate a PowerShell executable. Tried: $searched. Install PowerShell 7+ or ensure Windows PowerShell is available."
+}
+
+$script:PowerShellHost = Resolve-PowerShellHost
 
 function Ensure-Venv {
   $venvActivate = Join-Path ".\\.venv\\Scripts" "Activate.ps1"
@@ -145,7 +169,7 @@ function Start-ServicesWindow {
   }
 
   $serviceCommand = "& `"$pythonExe`" -m blackskies.services"
-  Start-Process -FilePath "powershell.exe" -ArgumentList "-NoExit", "-Command", $serviceCommand -WorkingDirectory $RepoRoot | Out-Null
+  Start-Process -FilePath $script:PowerShellHost -ArgumentList "-NoExit", "-Command", $serviceCommand -WorkingDirectory $RepoRoot | Out-Null
 }
 
 function Start-RendererWindow {
@@ -153,7 +177,7 @@ function Start-RendererWindow {
   Ensure-PnpmShim
 
   $rendererCommand = "pnpm run dev"
-  Start-Process -FilePath "powershell.exe" -ArgumentList "-NoExit", "-Command", $rendererCommand -WorkingDirectory $RepoRoot | Out-Null
+  Start-Process -FilePath $script:PowerShellHost -ArgumentList "-NoExit", "-Command", $rendererCommand -WorkingDirectory $RepoRoot | Out-Null
 }
 
 # ---------- Entry Flow ----------
