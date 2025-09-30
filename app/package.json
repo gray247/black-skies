@@ -15,7 +15,7 @@
     "build:production": "vite build && tsc --project tsconfig.main.json",
     "preview": "vite preview",
     "lint": "node ../scripts/run-app-eslint.mjs",
-    "test": "vitest run",
+    "test": "node ../scripts/run-vitest-offline.mjs",
     "package:dir": "vite build && tsc --project tsconfig.main.json && electron-builder --config electron-builder.yml --dir",
     "package:win": "vite build && tsc --project tsconfig.main.json && electron-builder --config electron-builder.yml --win nsis portable"
   },
