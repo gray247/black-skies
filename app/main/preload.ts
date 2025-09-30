@@ -13,6 +13,11 @@ import {
   type ProjectLoadResponse,
   type ProjectLoaderApi,
 } from '../shared/ipc/projectLoader.js';
+import {
+  DIAGNOSTICS_CHANNELS,
+  type DiagnosticsBridge,
+  type DiagnosticsOpenResult,
+} from '../shared/ipc/diagnostics.js';
 import type {
   DraftCritiqueBridgeRequest,
   DraftCritiqueBridgeResponse,
@@ -417,6 +422,31 @@ const projectLoaderApi: ProjectLoaderApi = {
   },
 };
 
+const diagnosticsBridge: DiagnosticsBridge = {
+  async openDiagnosticsFolder(): Promise<DiagnosticsOpenResult> {
+    try {
+      const response = await ipcRenderer.invoke(DIAGNOSTICS_CHANNELS.openHistory);
+      if (
+        response &&
+        typeof response === 'object' &&
+        'ok' in response &&
+        typeof (response as { ok: unknown }).ok === 'boolean'
+      ) {
+        return response as DiagnosticsOpenResult;
+      }
+      return {
+        ok: false,
+        error: 'Diagnostics bridge returned an unexpected payload.',
+      };
+    } catch (error) {
+      return {
+        ok: false,
+        error: error instanceof Error ? error.message : String(error),
+      };
+    }
+  },
+};
+
 const servicesBridge: ServicesBridge = {
   async checkHealth(): Promise<ServiceHealthResponse> {
     return probeHealth();
@@ -476,3 +506,4 @@ registerConsoleForwarding();
 
 contextBridge.exposeInMainWorld('projectLoader', projectLoaderApi);
 contextBridge.exposeInMainWorld('services', servicesBridge);
+contextBridge.exposeInMainWorld('diagnostics', diagnosticsBridge);

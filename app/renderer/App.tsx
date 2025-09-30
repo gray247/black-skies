@@ -1,6 +1,8 @@
-﻿import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import ProjectHome from './components/ProjectHome';
+import ProjectHome, {
+  type ProjectLoadEvent,
+} from './components/ProjectHome';
 import ServiceStatusPill, {
   type ServiceStatus,
 } from './components/ServiceStatusPill';
@@ -9,6 +11,7 @@ import { PreflightModal } from './components/PreflightModal';
 import { ToastStack } from './components/ToastStack';
 import type { ToastInstance, ToastPayload } from './types/toast';
 import type { LoadedProject } from '../shared/ipc/projectLoader';
+import type { DiagnosticsBridge } from '../shared/ipc/diagnostics';
 import type {
   DraftPreflightEstimate,
   DraftUnitScope,
@@ -42,6 +45,7 @@ function deriveProjectIdFromPath(path: string): string {
 
 export default function App(): JSX.Element {
   const services: ServicesBridge | undefined = window.services;
+  const diagnostics: DiagnosticsBridge | undefined = window.diagnostics;
 
   const [toasts, setToasts] = useState<ToastInstance[]>([]);
   const counterRef = useRef(0);
@@ -50,6 +54,11 @@ export default function App(): JSX.Element {
   const [projectSummary, setProjectSummary] = useState<ProjectSummary | null>(null);
   const [recoveryStatus, setRecoveryStatus] = useState<RecoveryStatusBridgeResponse | null>(null);
   const [restoreInFlight, setRestoreInFlight] = useState(false);
+  const [lastProjectPath, setLastProjectPath] = useState<string | null>(null);
+  const [reopenRequest, setReopenRequest] = useState<{ path: string; requestId: number } | null>(
+    null,
+  );
+  const reopenCounterRef = useRef(0);
   const [preflightState, setPreflightState] = useState<PreflightState>({
     open: false,
     loading: false,
@@ -159,21 +168,40 @@ export default function App(): JSX.Element {
   );
 
   const handleProjectLoaded = useCallback(
-    (project: LoadedProject | null) => {
-      if (!project) {
-        setProjectSummary(null);
-        setRecoveryStatus(null);
+    (event: ProjectLoadEvent) => {
+      setLastProjectPath(event.lastOpenedPath);
+
+      if (event.status === 'loaded' && event.project) {
+        const project = event.project;
+        const projectId = deriveProjectIdFromPath(project.path);
+        const unitIds = project.scenes.map((scene) => scene.id);
+        setProjectSummary({
+          projectId,
+          path: project.path,
+          unitScope: 'scene',
+          unitIds,
+        });
+        void fetchRecoveryStatus(projectId);
         return;
       }
-      const projectId = deriveProjectIdFromPath(project.path);
-      const unitIds = project.scenes.map((scene) => scene.id);
-      setProjectSummary({
-        projectId,
-        path: project.path,
-        unitScope: 'scene',
-        unitIds,
-      });
-      void fetchRecoveryStatus(projectId);
+
+      if (event.status === 'init' && event.project) {
+        const projectId = deriveProjectIdFromPath(event.project.path);
+        const unitIds = event.project.scenes.map((scene) => scene.id);
+        setProjectSummary({
+          projectId,
+          path: event.project.path,
+          unitScope: 'scene',
+          unitIds,
+        });
+        void fetchRecoveryStatus(projectId);
+        return;
+      }
+
+      if (event.status !== 'init') {
+        setProjectSummary(null);
+        setRecoveryStatus(null);
+      }
     },
     [fetchRecoveryStatus],
   );
@@ -224,6 +252,60 @@ export default function App(): JSX.Element {
       setRestoreInFlight(false);
     }
   }, [services, projectSummary, pushToast]);
+
+  const handleReopenLastProject = useCallback(() => {
+    if (!lastProjectPath) {
+      pushToast({
+        tone: 'warning',
+        title: 'No project to reopen',
+        description: 'Open a project before trying to reopen it.',
+      });
+      return;
+    }
+
+    reopenCounterRef.current += 1;
+    setRestoreInFlight(true);
+    setReopenRequest({ path: lastProjectPath, requestId: reopenCounterRef.current });
+  }, [lastProjectPath, pushToast]);
+
+  const handleReopenConsumed = useCallback(
+    ({ requestId }: { requestId: number; status: 'success' | 'error' }) => {
+      setRestoreInFlight(false);
+      setReopenRequest((previous) => (previous?.requestId === requestId ? null : previous));
+    },
+    [],
+  );
+
+  const handleOpenDiagnostics = useCallback(async () => {
+    if (!diagnostics) {
+      pushToast({
+        tone: 'error',
+        title: 'Diagnostics unavailable',
+        description: 'Electron bridge is offline; cannot open diagnostics.',
+      });
+      return;
+    }
+
+    setRestoreInFlight(true);
+    try {
+      const result = await diagnostics.openDiagnosticsFolder();
+      if (!result.ok) {
+        pushToast({
+          tone: 'error',
+          title: 'Diagnostics folder unavailable',
+          description: result.error,
+        });
+      }
+    } catch (error) {
+      pushToast({
+        tone: 'error',
+        title: 'Diagnostics open failed',
+        description: error instanceof Error ? error.message : String(error),
+      });
+    } finally {
+      setRestoreInFlight(false);
+    }
+  }, [diagnostics, pushToast]);
 
   const handleOpenPreflight = useCallback(async () => {
     if (!services) {
@@ -432,17 +514,40 @@ export default function App(): JSX.Element {
                     <span> Restore the latest snapshot to resume work.</span>
                   )}
                 </div>
-                <button
-                  type="button"
-                  className="app-shell__recovery-banner__button"
-                  disabled={restoreInFlight}
-                  onClick={() => void handleRestoreSnapshot()}
-                >
-                  {restoreInFlight ? 'Restoring…' : 'Restore snapshot'}
-                </button>
+                <div className="app-shell__recovery-banner__actions">
+                  <button
+                    type="button"
+                    className="app-shell__recovery-banner__button"
+                    disabled={restoreInFlight}
+                    onClick={() => void handleRestoreSnapshot()}
+                  >
+                    {restoreInFlight ? 'Restoring…' : 'Restore snapshot'}
+                  </button>
+                  <button
+                    type="button"
+                    className="app-shell__recovery-banner__button"
+                    disabled={restoreInFlight || !lastProjectPath}
+                    onClick={handleReopenLastProject}
+                  >
+                    Reopen last project
+                  </button>
+                  <button
+                    type="button"
+                    className="app-shell__recovery-banner__button"
+                    disabled={restoreInFlight}
+                    onClick={() => void handleOpenDiagnostics()}
+                  >
+                    View diagnostics
+                  </button>
+                </div>
               </div>
             ) : null}
-            <ProjectHome onToast={pushToast} onProjectLoaded={handleProjectLoaded} />
+            <ProjectHome
+              onToast={pushToast}
+              onProjectLoaded={handleProjectLoaded}
+              reopenRequest={reopenRequest}
+              onReopenConsumed={handleReopenConsumed}
+            />
           </div>
         </main>
       </div>

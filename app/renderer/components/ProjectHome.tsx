@@ -1,4 +1,4 @@
-﻿import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import type {
   LoadedProject,
   ProjectIssue,
@@ -7,8 +7,20 @@ import type {
 import type { ToastPayload } from '../types/toast';
 import DraftEditor from '../DraftEditor';
 
-interface ProjectHomeProps {
+export type ProjectLoadStatus = 'init' | 'loaded' | 'failed' | 'cleared';
+
+export interface ProjectLoadEvent {
+  status: ProjectLoadStatus;
+  project: LoadedProject | null;
+  targetPath: string | null;
+  lastOpenedPath: string | null;
+}
+
+export interface ProjectHomeProps {
   onToast: (toast: ToastPayload) => void;
+  onProjectLoaded?: (event: ProjectLoadEvent) => void;
+  reopenRequest?: { path: string; requestId: number } | null;
+  onReopenConsumed?: (result: { requestId: number; status: 'success' | 'error' }) => void;
 }
 
 interface RecentProjectEntry {
@@ -18,6 +30,7 @@ interface RecentProjectEntry {
 }
 
 const RECENTS_STORAGE_KEY = 'blackskies.recent-projects';
+const LAST_PROJECT_STORAGE_KEY = 'blackskies.last-project';
 const MAX_RECENTS = 7;
 
 function readStoredRecents(): RecentProjectEntry[] {
@@ -68,6 +81,39 @@ function persistRecents(entries: RecentProjectEntry[]): void {
   }
 }
 
+function readStoredLastProjectPath(): string | null {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
+  try {
+    const stored = window.localStorage.getItem(LAST_PROJECT_STORAGE_KEY);
+    if (typeof stored === 'string' && stored.trim().length > 0) {
+      return stored;
+    }
+  } catch (error) {
+    console.warn('[ProjectHome] Failed to read last project path', error);
+  }
+
+  return null;
+}
+
+function persistLastProjectPath(path: string | null): void {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  try {
+    if (typeof path === 'string' && path.trim().length > 0) {
+      window.localStorage.setItem(LAST_PROJECT_STORAGE_KEY, path);
+    } else {
+      window.localStorage.removeItem(LAST_PROJECT_STORAGE_KEY);
+    }
+  } catch (error) {
+    console.warn('[ProjectHome] Failed to persist last project path', error);
+  }
+}
+
 function toneFromIssue(issue: ProjectIssue): ToastPayload['tone'] {
   switch (issue.level) {
     case 'error':
@@ -79,7 +125,12 @@ function toneFromIssue(issue: ProjectIssue): ToastPayload['tone'] {
   }
 }
 
-export default function ProjectHome({ onToast, onProjectLoaded }: ProjectHomeProps): JSX.Element {
+export default function ProjectHome({
+  onToast,
+  onProjectLoaded,
+  reopenRequest,
+  onReopenConsumed,
+}: ProjectHomeProps): JSX.Element {
   const projectLoader: ProjectLoaderApi | undefined = window.projectLoader;
   const loaderAvailable = Boolean(projectLoader);
 
@@ -90,6 +141,9 @@ export default function ProjectHome({ onToast, onProjectLoaded }: ProjectHomePro
   const [issues, setIssues] = useState<ProjectIssue[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [activeSceneId, setActiveSceneId] = useState<string | null>(null);
+  const [storedLastProjectPath, setStoredLastProjectPath] = useState<string | null>(() =>
+    readStoredLastProjectPath(),
+  );
 
   const sortedRecents = useMemo(
     () =>
@@ -147,13 +201,22 @@ export default function ProjectHome({ onToast, onProjectLoaded }: ProjectHomePro
   const loadProjectAtPath = useCallback(
     async (
       targetPath: string,
-      options?: { reason?: 'bootstrap' | 'recent' | 'dialog'; silent?: boolean },
+      options?: {
+        reason?: 'bootstrap' | 'recent' | 'dialog' | 'recovery';
+        silent?: boolean;
+      },
     ): Promise<LoadedProject | null> => {
       if (!projectLoader) {
         onToast({
           tone: 'error',
           title: 'Project loader unavailable',
           description: 'Electron bridge is offline; cannot open project folders.',
+        });
+        onProjectLoaded?.({
+          status: 'failed',
+          project: null,
+          targetPath,
+          lastOpenedPath: storedLastProjectPath,
         });
         return null;
       }
@@ -169,7 +232,12 @@ export default function ProjectHome({ onToast, onProjectLoaded }: ProjectHomePro
             description: response.error.message,
           });
           notifyIssues(response.error.issues ?? []);
-          onProjectLoaded?.(null);
+          onProjectLoaded?.({
+            status: 'failed',
+            project: null,
+            targetPath,
+            lastOpenedPath: storedLastProjectPath,
+          });
           return null;
         }
 
@@ -187,7 +255,14 @@ export default function ProjectHome({ onToast, onProjectLoaded }: ProjectHomePro
         });
         setIssues(response.issues);
         upsertRecent(response.project);
-        onProjectLoaded?.(response.project);
+        persistLastProjectPath(response.project.path);
+        setStoredLastProjectPath(response.project.path);
+        onProjectLoaded?.({
+          status: 'loaded',
+          project: response.project,
+          targetPath,
+          lastOpenedPath: response.project.path,
+        });
 
         if (!options?.silent) {
           const successTitle =
@@ -216,13 +291,25 @@ export default function ProjectHome({ onToast, onProjectLoaded }: ProjectHomePro
           title: 'Project load failed',
           description: error instanceof Error ? error.message : String(error),
         });
-        onProjectLoaded?.(null);
+        onProjectLoaded?.({
+          status: 'failed',
+          project: null,
+          targetPath,
+          lastOpenedPath: storedLastProjectPath,
+        });
         return null;
       } finally {
         setIsLoading(false);
       }
     },
-    [notifyIssues, onProjectLoaded, onToast, projectLoader, upsertRecent],
+    [
+      notifyIssues,
+      onProjectLoaded,
+      onToast,
+      projectLoader,
+      storedLastProjectPath,
+      upsertRecent,
+    ],
   );
 
   const handleOpenProject = useCallback(async () => {
@@ -282,6 +369,41 @@ export default function ProjectHome({ onToast, onProjectLoaded }: ProjectHomePro
       cancelled = true;
     };
   }, [activeProject, loadProjectAtPath, onToast, projectLoader, recentProjects.length]);
+
+  useEffect(() => {
+    onProjectLoaded?.({
+      status: 'init',
+      project: activeProject,
+      targetPath: activeProject?.path ?? null,
+      lastOpenedPath: storedLastProjectPath,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- notify consumer once when callback becomes available
+  }, [onProjectLoaded]);
+
+  useEffect(() => {
+    if (!reopenRequest) {
+      return;
+    }
+
+    let cancelled = false;
+
+    const execute = async () => {
+      const project = await loadProjectAtPath(reopenRequest.path, {
+        reason: 'recovery',
+      });
+      if (cancelled) {
+        return;
+      }
+      const status = project ? 'success' : 'error';
+      onReopenConsumed?.({ requestId: reopenRequest.requestId, status });
+    };
+
+    void execute();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [loadProjectAtPath, onReopenConsumed, reopenRequest]);
 
   return (
     <div className="project-home">
