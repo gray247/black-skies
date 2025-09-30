@@ -69,7 +69,11 @@ function createServicesMock(): ServicesBridge {
   };
 
   return {
-    checkHealth: vi.fn().mockResolvedValue({ ok: true, data: { status: 'ok', version: '0.1.0' } }),
+    checkHealth: vi.fn().mockResolvedValue({
+      ok: true,
+      data: { status: 'ok', version: '0.1.0' },
+      traceId: 'trace-health-ok',
+    }),
     buildOutline: vi.fn().mockResolvedValue({
       ok: true,
       data: {
@@ -79,8 +83,13 @@ function createServicesMock(): ServicesBridge {
         chapters: [],
         scenes: [],
       },
+      traceId: 'trace-outline',
     }),
-    generateDraft: vi.fn().mockResolvedValue({ ok: true, data: draftResponse }),
+    generateDraft: vi.fn().mockResolvedValue({
+      ok: true,
+      data: draftResponse,
+      traceId: 'trace-generate',
+    }),
     critiqueDraft: vi.fn().mockResolvedValue({
       ok: true,
       data: {
@@ -88,6 +97,7 @@ function createServicesMock(): ServicesBridge {
         schema_version: 'CritiqueOutputSchema v1',
         summary: 'Stub critique',
       },
+      traceId: 'trace-critique',
     }),
     preflightDraft: vi.fn().mockResolvedValue({
       ok: true,
@@ -106,6 +116,7 @@ function createServicesMock(): ServicesBridge {
           total_after_usd: 0.5,
         },
       },
+      traceId: 'trace-preflight',
     }),
     acceptDraft: vi.fn().mockResolvedValue({
       ok: true,
@@ -121,6 +132,7 @@ function createServicesMock(): ServicesBridge {
           includes: ['drafts'],
         },
       },
+      traceId: 'trace-accept',
     }),
     getRecoveryStatus: vi.fn().mockResolvedValue({
       ok: true,
@@ -130,6 +142,7 @@ function createServicesMock(): ServicesBridge {
         needs_recovery: false,
         last_snapshot: null,
       },
+      traceId: 'trace-recovery-status',
     }),
     restoreSnapshot: vi.fn().mockResolvedValue({
       ok: true,
@@ -139,6 +152,7 @@ function createServicesMock(): ServicesBridge {
         needs_recovery: false,
         last_snapshot: null,
       },
+      traceId: 'trace-restore',
     }),
   };
 }
@@ -189,7 +203,11 @@ describe('App preflight integration', () => {
       },
     };
 
-    services.preflightDraft = vi.fn().mockResolvedValue({ ok: true, data: estimate });
+    services.preflightDraft = vi.fn().mockResolvedValue({
+      ok: true,
+      data: estimate,
+      traceId: 'trace-preflight-modal',
+    });
     const App = await loadAppWithServices(services);
 
     render(<App />);
@@ -226,7 +244,11 @@ describe('App preflight integration', () => {
       },
     };
 
-    services.preflightDraft = vi.fn().mockResolvedValue({ ok: true, data: estimate });
+    services.preflightDraft = vi.fn().mockResolvedValue({
+      ok: true,
+      data: estimate,
+      traceId: 'trace-preflight-soft-limit',
+    });
     const App = await loadAppWithServices(services);
 
     render(<App />);
@@ -264,7 +286,11 @@ describe('App preflight integration', () => {
       },
     };
 
-    services.preflightDraft = vi.fn().mockResolvedValue({ ok: true, data: estimate });
+    services.preflightDraft = vi.fn().mockResolvedValue({
+      ok: true,
+      data: estimate,
+      traceId: 'trace-preflight-hard-limit',
+    });
     const App = await loadAppWithServices(services);
 
     render(<App />);
@@ -284,7 +310,11 @@ describe('App preflight integration', () => {
   it('surfaces validation errors from the service', async () => {
     services.preflightDraft = vi
       .fn()
-      .mockResolvedValue({ ok: false, error: { message: 'Missing outline artifact.' } });
+      .mockResolvedValue({
+        ok: false,
+        error: { message: 'Missing outline artifact.', traceId: 'trace-preflight-missing-outline' },
+        traceId: 'trace-preflight-missing-outline',
+      });
 
     const App = await loadAppWithServices(services);
 
@@ -307,7 +337,9 @@ describe('App preflight integration', () => {
       error: {
         message: 'One or more scene IDs are not present in the outline.',
         details: { missing_scene_ids: ['sc_0002', 'sc_0003'] },
+        traceId: 'trace-preflight-validation-details',
       },
+      traceId: 'trace-preflight-validation-details',
     });
 
     const App = await loadAppWithServices(services);
@@ -332,7 +364,11 @@ describe('App preflight integration', () => {
   it('keeps proceed disabled when the service port is unavailable', async () => {
     services.preflightDraft = vi
       .fn()
-      .mockResolvedValue({ ok: false, error: { message: 'Service port is unavailable.' } });
+      .mockResolvedValue({
+        ok: false,
+        error: { message: 'Service port is unavailable.', traceId: 'trace-preflight-port-unavailable' },
+        traceId: 'trace-preflight-port-unavailable',
+      });
 
     const App = await loadAppWithServices(services);
 

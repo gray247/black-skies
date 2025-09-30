@@ -60,7 +60,10 @@ function normalizeError(message: string, extra?: Partial<ServiceError>): Service
   };
 }
 
-async function parseErrorPayload(response: Response): Promise<ServiceError> {
+async function parseErrorPayload(
+  response: Response,
+  headerTraceId?: string,
+): Promise<ServiceError> {
   let payload: unknown;
   try {
     payload = await response.json();
@@ -68,8 +71,19 @@ async function parseErrorPayload(response: Response): Promise<ServiceError> {
     return normalizeError(`Service responded with HTTP ${response.status}.`, {
       httpStatus: response.status,
       details: { parseError: String(parseError) },
+      traceId: headerTraceId,
     });
   }
+
+  let payloadTraceId: string | undefined;
+  if (payload && typeof payload === 'object' && 'trace_id' in payload) {
+    const traceCandidate = (payload as { trace_id?: unknown }).trace_id;
+    if (typeof traceCandidate === 'string' && traceCandidate.length > 0) {
+      payloadTraceId = traceCandidate;
+    }
+  }
+
+  const traceId = payloadTraceId ?? headerTraceId;
 
   if (
     payload &&
@@ -85,12 +99,14 @@ async function parseErrorPayload(response: Response): Promise<ServiceError> {
           : `Service responded with HTTP ${response.status}.`,
       details: (payload as { details?: unknown }).details,
       httpStatus: response.status,
+      traceId,
     };
   }
 
   return normalizeError(`Service responded with HTTP ${response.status}.`, {
     httpStatus: response.status,
     details: payload ?? undefined,
+    traceId,
   });
 }
 
@@ -104,7 +120,8 @@ async function performRequest<T>(
     return { ok: false, error: normalizeError('Service port is unavailable.') };
   }
 
-  const url = `http://127.0.0.1:${port}${path}`;
+  const normalizedPath = path.startsWith('/') ? path.slice(1) : path;
+  const url = `http://127.0.0.1:${port}/api/v1/${normalizedPath}`;
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   };
@@ -116,16 +133,30 @@ async function performRequest<T>(
       body: body ? JSON.stringify(body) : undefined,
     });
 
+    const traceId = response.headers.get('x-trace-id') ?? undefined;
+
     if (!response.ok) {
-      return { ok: false, error: await parseErrorPayload(response) };
+      const error = await parseErrorPayload(response, traceId);
+      return { ok: false, error, traceId: error.traceId ?? traceId };
     }
 
     if (response.status === 204) {
-      return { ok: true, data: undefined as T };
+      return { ok: true, data: undefined as T, traceId };
     }
 
-    const data = (await response.json()) as T;
-    return { ok: true, data };
+    try {
+      const data = (await response.json()) as T;
+      return { ok: true, data, traceId };
+    } catch (parseError) {
+      const parseMessage =
+        parseError instanceof Error ? parseError.message : String(parseError);
+      const error = normalizeError('Failed to parse response payload.', {
+        traceId,
+        httpStatus: response.status,
+        details: { parseError: parseMessage },
+      });
+      return { ok: false, error, traceId };
+    }
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     return { ok: false, error: normalizeError(message) };
@@ -141,26 +172,48 @@ async function probeHealth(): Promise<ServiceHealthResponse> {
     };
   }
 
-  const url = `http://127.0.0.1:${port}/health`;
+  const url = `http://127.0.0.1:${port}/api/v1/healthz`;
 
   try {
     const response = await fetch(url);
+    const traceId = response.headers.get('x-trace-id') ?? undefined;
     if (!response.ok) {
+      const error = await parseErrorPayload(response, traceId);
       return {
         ok: false,
-        error: await parseErrorPayload(response),
+        error,
+        traceId: error.traceId ?? traceId,
       };
     }
 
-    const data = (await response.json()) as ServiceHealthResponse['data'];
+    let data: ServiceHealthResponse['data'];
+    try {
+      data = (await response.json()) as ServiceHealthResponse['data'];
+    } catch (parseError) {
+      const parseMessage =
+        parseError instanceof Error ? parseError.message : String(parseError);
+      return {
+        ok: false,
+        error: normalizeError('Failed to parse health payload.', {
+          traceId,
+          httpStatus: response.status,
+          details: { parseError: parseMessage },
+        }),
+        traceId,
+      };
+    }
     if (data?.status === 'ok') {
-      return { ok: true, data };
+      return { ok: true, data, traceId };
     }
 
     return {
       ok: false,
       data,
-      error: normalizeError('Service reported an unhealthy status.'),
+      error: normalizeError('Service reported an unhealthy status.', {
+        traceId,
+        httpStatus: response.status,
+      }),
+      traceId,
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
@@ -370,35 +423,35 @@ const servicesBridge: ServicesBridge = {
   },
   async buildOutline(request: OutlineBuildBridgeRequest) {
     return performRequest<OutlineBuildBridgeResponse>(
-      '/outline/build',
+      'outline/build',
       'POST',
       serializeOutlineRequest(request),
     );
   },
   async generateDraft(request: DraftGenerateBridgeRequest) {
     return performRequest<DraftGenerateBridgeResponse>(
-      '/draft/generate',
+      'draft/generate',
       'POST',
       serializeDraftGenerateRequest(request),
     );
   },
   async critiqueDraft(request: DraftCritiqueBridgeRequest) {
     return performRequest<DraftCritiqueBridgeResponse>(
-      '/draft/critique',
+      'draft/critique',
       'POST',
       serializeCritiqueRequest(request),
     );
   },
   async preflightDraft(request: DraftPreflightBridgeRequest) {
     return performRequest<DraftPreflightEstimate>(
-      '/draft/preflight',
+      'draft/preflight',
       'POST',
       serializePreflightRequest(request),
     );
   },
   async acceptDraft(request: DraftAcceptBridgeRequest) {
     return performRequest<DraftAcceptBridgeResponse>(
-      '/draft/accept',
+      'draft/accept',
       'POST',
       serializeAcceptRequest(request),
     );
@@ -406,13 +459,13 @@ const servicesBridge: ServicesBridge = {
   async getRecoveryStatus(request: RecoveryStatusBridgeRequest) {
     const params = new URLSearchParams({ project_id: request.projectId });
     return performRequest<RecoveryStatusBridgeResponse>(
-      `/draft/recovery?${params.toString()}`,
+      `draft/recovery?${params.toString()}`,
       'GET',
     );
   },
   async restoreSnapshot(request: RecoveryRestoreBridgeRequest) {
     return performRequest<RecoveryRestoreBridgeResponse>(
-      '/draft/recovery/restore',
+      'draft/recovery/restore',
       'POST',
       serializeRecoveryRestoreRequest(request),
     );

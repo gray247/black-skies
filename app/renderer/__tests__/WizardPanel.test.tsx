@@ -23,6 +23,7 @@ describe('WizardPanel', () => {
           chapters: [],
           scenes: [],
         },
+        traceId: 'trace-outline',
       }),
       generateDraft: vi.fn().mockResolvedValue({
         ok: true,
@@ -31,6 +32,7 @@ describe('WizardPanel', () => {
           schema_version: 'DraftUnitSchema v1',
           units: [],
         },
+        traceId: 'trace-generate',
       }),
       critiqueDraft: vi.fn().mockResolvedValue({
         ok: true,
@@ -39,6 +41,7 @@ describe('WizardPanel', () => {
           schema_version: 'CritiqueOutputSchema v1',
           summary: 'Stub critique',
         },
+        traceId: 'trace-critique',
       }),
       preflightDraft: vi.fn().mockResolvedValue({
         ok: true,
@@ -57,6 +60,7 @@ describe('WizardPanel', () => {
             total_after_usd: 0.25,
           },
         },
+        traceId: 'trace-preflight',
       }),
     };
     return services;
