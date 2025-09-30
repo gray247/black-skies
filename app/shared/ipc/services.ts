@@ -5,9 +5,12 @@ export interface ServiceError {
   message: string;
   details?: unknown;
   httpStatus?: number;
+  traceId?: string;
 }
 
-export type ServiceResult<T> = { ok: true; data: T } | { ok: false; error: ServiceError };
+export type ServiceResult<T> =
+  | { ok: true; data: T; traceId?: string }
+  | { ok: false; error: ServiceError; traceId?: string };
 
 export interface ServiceHealthPayload {
   status: string;
@@ -18,6 +21,7 @@ export interface ServiceHealthResponse {
   ok: boolean;
   data?: ServiceHealthPayload;
   error?: ServiceError;
+  traceId?: string;
 }
 
 export interface WizardActLock {

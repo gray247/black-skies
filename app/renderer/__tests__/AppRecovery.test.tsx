@@ -75,7 +75,11 @@ function createServicesMock(): ServicesBridge {
   };
 
   return {
-    checkHealth: vi.fn().mockResolvedValue({ ok: true, data: { status: 'ok', version: '0.1.0' } }),
+    checkHealth: vi.fn().mockResolvedValue({
+      ok: true,
+      data: { status: 'ok', version: '0.1.0' },
+      traceId: 'trace-health-ok',
+    }),
     buildOutline: vi.fn().mockResolvedValue({
       ok: true,
       data: {
@@ -85,8 +89,13 @@ function createServicesMock(): ServicesBridge {
         chapters: [],
         scenes: [],
       },
+      traceId: 'trace-outline',
     }),
-    generateDraft: vi.fn().mockResolvedValue({ ok: true, data: { draft_id: 'dr_001', schema_version: 'DraftUnitSchema v1', units: [] } }),
+    generateDraft: vi.fn().mockResolvedValue({
+      ok: true,
+      data: { draft_id: 'dr_001', schema_version: 'DraftUnitSchema v1', units: [] },
+      traceId: 'trace-generate',
+    }),
     critiqueDraft: vi.fn().mockResolvedValue({
       ok: true,
       data: {
@@ -94,6 +103,7 @@ function createServicesMock(): ServicesBridge {
         schema_version: 'CritiqueOutputSchema v1',
         summary: 'Stub critique',
       },
+      traceId: 'trace-critique',
     }),
     preflightDraft: vi.fn().mockResolvedValue({
       ok: true,
@@ -112,8 +122,13 @@ function createServicesMock(): ServicesBridge {
           total_after_usd: 0.5,
         },
       },
+      traceId: 'trace-preflight',
     }),
-    acceptDraft: vi.fn().mockResolvedValue({ ok: true, data: response }),
+    acceptDraft: vi.fn().mockResolvedValue({
+      ok: true,
+      data: response,
+      traceId: 'trace-accept',
+    }),
     getRecoveryStatus: vi.fn(),
     restoreSnapshot: vi.fn(),
   };
@@ -163,7 +178,11 @@ describe('App recovery banner', () => {
       failure_reason: null,
     };
 
-    services.getRecoveryStatus = vi.fn().mockResolvedValue({ ok: true, data: status });
+    services.getRecoveryStatus = vi.fn().mockResolvedValue({
+      ok: true,
+      data: status,
+      traceId: 'trace-recovery-status',
+    });
     services.restoreSnapshot = vi.fn().mockResolvedValue({
       ok: true,
       data: {
@@ -171,6 +190,7 @@ describe('App recovery banner', () => {
         status: 'idle',
         needs_recovery: false,
       },
+      traceId: 'trace-restore-success',
     });
 
     const App = await loadAppWithServices(services);
@@ -197,6 +217,7 @@ describe('App recovery banner', () => {
           needs_recovery: false,
           last_snapshot: null,
         },
+        traceId: 'trace-recovery-clean',
       });
 
     const App = await loadAppWithServices(services);

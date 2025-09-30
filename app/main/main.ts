@@ -103,27 +103,38 @@ function pipeStreamToLogger(
 
 async function waitForServicesHealthy(port: number): Promise<void> {
   const logger = ensureMainLogger();
-  const url = `http://${SERVICES_HOST}:${port}/health`;
+  const url = `http://${SERVICES_HOST}:${port}/api/v1/healthz`;
   const maxAttempts = 20;
   const attemptDelayMs = 250;
 
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
     try {
       const response = await fetch(url);
+      const traceId = response.headers.get('x-trace-id') ?? undefined;
       if (!response.ok) {
         logger.warn('Health probe returned non-OK status', {
           attempt,
           status: response.status,
+          traceId,
         });
       } else {
-        const payload = (await response.json()) as { status?: string };
-        if (payload?.status === 'ok') {
-          return;
+        try {
+          const payload = (await response.json()) as { status?: string };
+          if (payload?.status === 'ok') {
+            return;
+          }
+          logger.warn('Health probe responded with unexpected payload', {
+            attempt,
+            payload,
+            traceId,
+          });
+        } catch (parseError) {
+          logger.warn('Health probe returned unreadable payload', {
+            attempt,
+            traceId,
+            error: parseError instanceof Error ? parseError.message : String(parseError),
+          });
         }
-        logger.warn('Health probe responded with unexpected payload', {
-          attempt,
-          payload,
-        });
       }
     } catch (error) {
       logger.debug('Health probe failed', {
