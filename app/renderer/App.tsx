@@ -200,14 +200,22 @@ export default function App(): JSX.Element {
 
       if ('status' in payload) {
         const { status, project, lastOpenedPath } = payload;
-        setLastProjectPath(lastOpenedPath);
+
+        if (status !== 'loaded') {
+          setLastProjectPath(lastOpenedPath ?? null);
+        }
 
         if ((status === 'loaded' || status === 'init') && project) {
           activateProject(project);
           return;
         }
 
-        if (status === 'failed' || status === 'cleared') {
+        if (status === 'failed') {
+          setProjectSummary(null);
+          return;
+        }
+
+        if (status === 'cleared') {
           setProjectSummary(null);
           setRecoveryStatus(null);
           return;
