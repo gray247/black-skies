@@ -1,11 +1,16 @@
 # start-codex.ps1 - bootstrap + test + optional codex
 # Flags:
-#   -NoCodex   -> bootstrap + tests, skip launching Codex
-#   -OnlyTests -> run tests only (assumes env already set up)
+#   -NoCodex    -> bootstrap + tests, skip launching Codex
+#   -OnlyTests  -> run tests only (assumes env already set up)
+#   -LaunchGui  -> after tests, launch python -m blackskies.services and pnpm run dev in new windows.
+#                  Assumes dependencies are already synchronized above; mirrors the README workflow.
+# Usage:
+#   powershell.exe -ExecutionPolicy Bypass -File .\start-codex.ps1 [-LaunchGui]
 
 param(
   [switch]$NoCodex,
-  [switch]$OnlyTests
+  [switch]$OnlyTests,
+  [switch]$LaunchGui
 )
 
 $ErrorActionPreference = "Stop"
@@ -21,6 +26,28 @@ try {
 } catch {}
 
 Set-Location -LiteralPath $RepoRoot
+
+function Resolve-PowerShellHost {
+  param(
+    [string[]]$Candidates = @("pwsh.exe", "pwsh", "powershell.exe", "powershell")
+  )
+
+  foreach ($candidate in $Candidates) {
+    try {
+      $command = Get-Command -Name $candidate -ErrorAction Stop
+      if ($command -and $command.Source) {
+        return $command.Source
+      }
+    } catch {
+      continue
+    }
+  }
+
+  $searched = [string]::Join(", ", $Candidates)
+  throw "Unable to locate a PowerShell executable. Tried: $searched. Install PowerShell 7+ or ensure Windows PowerShell is available."
+}
+
+$script:PowerShellHost = Resolve-PowerShellHost
 
 function Ensure-Venv {
   $venvActivate = Join-Path ".\\.venv\\Scripts" "Activate.ps1"
@@ -131,6 +158,28 @@ function Run-Tests {
   Write-Host "All tests passed." -ForegroundColor Green
 }
 
+function Start-ServicesWindow {
+  if (-not $env:BLACKSKIES_PROJECT_BASE_DIR) {
+    throw "BLACKSKIES_PROJECT_BASE_DIR is not set. Configure it before launching the services."
+  }
+
+  $pythonExe = Join-Path ".\\.venv\\Scripts" "python.exe"
+  if (-not (Test-Path -LiteralPath $pythonExe)) {
+    throw "Virtual environment Python executable not found at $pythonExe. Run Ensure-Venv first."
+  }
+
+  $serviceCommand = "& `"$pythonExe`" -m blackskies.services"
+  Start-Process -FilePath $script:PowerShellHost -ArgumentList "-NoExit", "-Command", $serviceCommand -WorkingDirectory $RepoRoot | Out-Null
+}
+
+function Start-RendererWindow {
+  Ensure-Node
+  Ensure-PnpmShim
+
+  $rendererCommand = "pnpm run dev"
+  Start-Process -FilePath $script:PowerShellHost -ArgumentList "-NoExit", "-Command", $rendererCommand -WorkingDirectory $RepoRoot | Out-Null
+}
+
 # ---------- Entry Flow ----------
 
 if ($OnlyTests) {
@@ -147,6 +196,17 @@ Ensure-Python-Tools
 Sync-Node
 
 Run-Tests
+
+if ($LaunchGui) {
+  Write-Host "Starting developer services..." -ForegroundColor Cyan
+  try {
+    Start-ServicesWindow
+    Start-RendererWindow
+  } catch {
+    Write-Error $_
+    exit 1
+  }
+}
 
 if ($NoCodex) {
   Write-Host "Skipping Codex launch (-NoCodex set)." -ForegroundColor Yellow
