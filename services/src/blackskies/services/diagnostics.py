@@ -25,7 +25,7 @@ class DiagnosticLogger:
         diagnostics_dir = project_root / "history" / "diagnostics"
         diagnostics_dir.mkdir(parents=True, exist_ok=True)
 
-        timestamp = datetime.now(tz=timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+        timestamp = datetime.now(tz=timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
         filename = f"{timestamp}_{code.lower()}.json"
         path = diagnostics_dir / filename
 
