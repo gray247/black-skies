@@ -564,6 +564,27 @@ def _persist_project_budget(state: ProjectBudgetState, new_spent_usd: float) -> 
 router = APIRouter(prefix="/draft", tags=["draft"])
 
 
+def _fingerprint_generate_request(
+    request: DraftGenerateRequest, scenes: list[OutlineScene]
+) -> str:
+    """Return a deterministic fingerprint for a draft generation request."""
+
+    request_payload = request.model_dump(mode="json")
+    overrides_payload = request_payload.get("overrides", {})
+    if isinstance(overrides_payload, dict):
+        sorted_overrides: dict[str, Any] = {}
+        for key in sorted(overrides_payload.keys()):
+            sorted_overrides[key] = overrides_payload[key]
+        request_payload["overrides"] = sorted_overrides
+
+    fingerprint_source = {
+        "request": request_payload,
+        "scenes": [scene.model_dump(mode="json") for scene in scenes],
+    }
+    serialized = json.dumps(fingerprint_source, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(serialized.encode("utf-8")).hexdigest()
+
+
 @router.post("/generate")
 async def generate_draft(
     payload: dict[str, Any],
@@ -606,6 +627,17 @@ async def generate_draft(
         )
 
     budget_state = _load_project_budget_state(project_root, diagnostics)
+    budget_meta = budget_state.metadata.setdefault("budget", {})
+
+    request_fingerprint = _fingerprint_generate_request(
+        request_model, scene_summaries
+    )
+    cached_response = budget_meta.get("last_generate_response")
+    if (
+        budget_meta.get("last_request_fingerprint") == request_fingerprint
+        and isinstance(cached_response, dict)
+    ):
+        return copy.deepcopy(cached_response)
 
     total_words = 0
     for scene in scene_summaries:
@@ -650,11 +682,9 @@ async def generate_draft(
         )
         units.append(synthesis.unit)
 
-    _persist_project_budget(budget_state, total_after)
-
     draft_id = f"dr_{uuid4().hex[:8]}"
 
-    return {
+    response_payload = {
         "project_id": request_model.project_id,
         "unit_scope": request_model.unit_scope.value,
         "unit_ids": request_model.unit_ids,
@@ -671,6 +701,13 @@ async def generate_draft(
             "total_after_usd": round(total_after, 2),
         },
     }
+
+    budget_meta["last_request_fingerprint"] = request_fingerprint
+    budget_meta["last_generate_response"] = copy.deepcopy(response_payload)
+
+    _persist_project_budget(budget_state, total_after)
+
+    return response_payload
 
 
 @router.post("/preflight")
