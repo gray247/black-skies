@@ -28,9 +28,11 @@ Black Skies is a **local‑first desktop app** for long‑form fiction. The UI i
 ### 2.2 Local Services (FastAPI)
 - **Services:** outline, draft, rewrite, critique (see `docs/endpoints.md`).
 - **Port:** pick free localhost port in range `127.0.0.1:43750–43850`; persist during session.
-- **Health:** `/healthz` endpoint returns `{status, version}`. UI polls on launch and before jobs.
+- **Health:** `/api/v1/healthz` endpoint returns `{status, version}`. UI polls on launch and before jobs. Legacy `/healthz`
+  alias remains during deprecation with headers pointing to the versioned route.
 - **Trace IDs:** every request/response echoes an `x-trace-id` header for correlation with logs and errors.
-- **Metrics:** `/metrics` serves Prometheus text exposition with counters/gauges for service health.
+- **Metrics:** `/api/v1/metrics` serves Prometheus text exposition with counters/gauges for service health. The `/metrics`
+  alias emits deprecation headers until removal.
 - **Concurrency:** in‑process queue with a single worker per service; jobs cancelable from UI.
 
 ### 2.3 Storage
@@ -54,7 +56,8 @@ Black Skies is a **local‑first desktop app** for long‑form fiction. The UI i
 1. App starts → single‑instance lock.  
 2. Choose/create project folder → store recent list in app config.  
 3. Spawn Python **FastAPI** subprocess via a launcher script (`python -m blackskies.services`).  
-4. Wait for `/healthz` (with timeout) → enable UI actions.
+4. Wait for `/api/v1/healthz` (with timeout) → enable UI actions. Legacy `/healthz` alias remains during sunset but should not
+   be polled by new builds.
 5. On quit: graceful shutdown → terminate Python process.
 
 **Crash handling**

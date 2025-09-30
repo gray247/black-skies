@@ -4,6 +4,9 @@
 Local-only FastAPI services the Electron app calls. All bodies are JSON (UTF-8). Keys are `snake_case`.
 
 ## Conventions
+- **Base path:** all canonical routes live under `/api/v1`. Legacy unversioned aliases (e.g., `/draft/generate`) remain wired
+  for one release cycle and respond with `Deprecation: true` and
+  `Link: </api/v1/...>; rel="successor-version"` headers.
 - **Content-Type:** `application/json`
 - **Auth:** none (same-machine services)
 - **Idempotency:** non-mutating calls safe to retry; write calls return versioned artifacts
@@ -34,10 +37,10 @@ All endpoints return a common error shape.
 ---
 
 ## Request Limits (LOCKED)
-- **POST /draft/generate** → max **5 scenes** (or **1 chapter**) per request  
-- **POST /draft/rewrite** → **1 unit** per request  
-- **POST /draft/critique** → up to **3 units** per request (batch if larger)  
-- **POST /outline/build** → one active build at a time per project
+- **POST /api/v1/draft/generate** → max **5 scenes** (or **1 chapter**) per request
+- **POST /api/v1/draft/rewrite** → **1 unit** per request
+- **POST /api/v1/draft/critique** → up to **3 units** per request (batch if larger)
+- **POST /api/v1/outline/build** → one active build at a time per project
 
 ---
 
@@ -53,16 +56,17 @@ Schemas v1 (see `docs/data_model.md` / `docs/critique_rubric.md`):
 
 ## Health
 
-### GET /healthz
+### GET /api/v1/healthz
 **200 OK**
 ```json
 { "status": "ok", "version": "0.1.0" }
 ```
 - Response headers always include `x-trace-id` for correlation across services and logs.
+- Legacy alias: `GET /healthz` responds with `Deprecation: true` and `Link: </api/v1/healthz>; rel="successor-version"`.
 
 ---
 
-### GET /metrics
+### GET /api/v1/metrics
 Exposes Prometheus-compatible counters and gauges for the service. Content-Type is `text/plain; version=0.0.4`. Example snippet:
 
 ```
@@ -71,11 +75,13 @@ Exposes Prometheus-compatible counters and gauges for the service. Content-Type 
 request_latency_seconds_bucket{le="0.1"} 42
 ```
 
+- Legacy alias: `GET /metrics` responds with `Deprecation: true` and `Link: </api/v1/metrics>; rel="successor-version"`.
+
 ---
 
 ## Outline
 
-### POST /outline/build
+### POST /api/v1/outline/build
 Builds an outline from **locked Wizard decisions**.
 
 **Request**
@@ -110,13 +116,16 @@ Builds an outline from **locked Wizard decisions**.
 **Errors**
 - `VALIDATION` (e.g., missing Wizard locks)
 - `CONFLICT` (another build in progress)
+- Legacy alias: `POST /outline/build` is temporarily accepted and returns `Deprecation: true` with
+  `Link: </api/v1/outline/build>; rel="successor-version"`.
 
 ---
 
 ## Draft preflight
 
-### POST /draft/preflight
-Returns a budget estimate for a potential generate request without writing files. Applies the same unit limits as `/draft/generate`.
+### POST /api/v1/draft/preflight
+Returns a budget estimate for a potential generate request without writing files. Applies the same unit limits as
+`/api/v1/draft/generate`.
 
 **Request**
 ```json
@@ -213,13 +222,15 @@ Returns a budget estimate for a potential generate request without writing files
 
 **Errors**
 - `VALIDATION` (bad IDs, unit limits, missing outline)
+- Legacy alias: `POST /draft/preflight` remains available with `Deprecation: true` and
+  `Link: </api/v1/draft/preflight>; rel="successor-version"` headers.
 
 ---
 
 
 ## Draft generation
 
-### POST /draft/generate
+### POST /api/v1/draft/generate
 Generates prose for scenes/chapters. Applies request limits above. Stores prompt + seed with outputs.
 
 **Request**
@@ -267,12 +278,13 @@ Generates prose for scenes/chapters. Applies request limits above. Stores prompt
 - `BUDGET_EXCEEDED` (hard cap hit)
 - `RATE_LIMIT` (burst control)
 - `INTERNAL`
+- Legacy alias: `POST /draft/generate` is supported with deprecation headers pointing to `/api/v1/draft/generate`.
 
 ---
 
 ## Draft rewrite
 
-### POST /draft/rewrite
+### POST /api/v1/draft/rewrite
 Rewrite a single unit (scene or chapter). Returns revised text and a word-level diff.
 
 **Request**
@@ -306,12 +318,13 @@ Rewrite a single unit (scene or chapter). Returns revised text and a word-level 
 - `CONFLICT` (stale version / unit not found)
 - `BUDGET_EXCEEDED`
 - `INTERNAL`
+- Legacy alias: `POST /draft/rewrite` remains wired with `Deprecation: true` and `Link: </api/v1/draft/rewrite>`.
 
 ---
 
 ## Critique
 
-### POST /draft/critique
+### POST /api/v1/draft/critique
 Runs critique on a unit using the rubric (see `docs/critique_rubric.md`). Non-destructive; suggestions are diffs to apply later.
 
 **Request**
@@ -348,12 +361,13 @@ Runs critique on a unit using the rubric (see `docs/critique_rubric.md`). Non-de
 - `RATE_LIMIT`
 - `BUDGET_EXCEEDED`
 - `INTERNAL`
+- Legacy alias: `POST /draft/critique` emits deprecation headers referencing `/api/v1/draft/critique`.
 
 ---
 
 ## Notes on budgets & preflight (Phase 1 behavior)
 - Every generate/critique call performs a **token/cost preflight** and returns an estimated USD value in the response.  
-- `/draft/preflight` exposes the estimate along with **current spend** and **projected total** so the UI can gate actions.  
+- `/api/v1/draft/preflight` exposes the estimate along with **current spend** and **projected total** so the UI can gate actions.
 - If the projected total exceeds the **soft budget** threshold, the app shows a confirmation; if the **hard budget** would be exceeded, services return `BUDGET_EXCEEDED` (`402`) and do not write any files.  
 - Budgets are persisted per project in `project.json` (`budget.spent_usd`).
 

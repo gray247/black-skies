@@ -5,7 +5,7 @@
 2025-09-29  P5.1  Eval dataset v1 + CI gate — LOCKED ✅ Eval harness JSON/HTML reports + CI gate wired via `scripts/eval.py`.
 2025-09-29  P5.2  Tool registry + permissions — LOCKED ✅ Registry enforces checklist defaults with ledger events.
 
-2025-09-29  P6.0  /api/v1 contracts & router — OPEN ◻
+2025-09-29  P6.0  /api/v1 contracts & router — LOCKED ✅ Canonical router + Deprecation headers documented; verification: `pytest -q` (see `tests/test_api.py`).
 2025-09-29  P6.1  GUI wiring + session restore — OPEN ◻
 
 2025-09-29  P7.0  RC packaging + smoke — OPEN ◻

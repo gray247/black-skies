@@ -118,11 +118,11 @@ Milestones may overlap; keep their order but feel free to work ahead if prerequi
     - Codex ask: “Add Settings model using pydantic-settings reading `.env`.”
 
 15. **App factory**
-    - What: `app/factory.py` → FastAPI `create_app()` with `/healthz`.
+    - What: `app/factory.py` → FastAPI `create_app()` with `/api/v1/healthz`.
     - Files: `black_skies/app/factory.py`
     - Command: `uvicorn black_skies.app.factory:create_app`
-    - Acceptance: GET `/healthz` → `{"ok": true}`.
-    - Codex ask: “Add FastAPI app factory with `/healthz` route.”
+    - Acceptance: GET `/api/v1/healthz` → `{"ok": true}`.
+    - Codex ask: “Add FastAPI app factory with `/api/v1/healthz` route.”
 
 16. **CORS & compression**
     - What: add CORS (dev defaults) and gzip middleware.
@@ -164,7 +164,7 @@ Milestones may overlap; keep their order but feel free to work ahead if prerequi
     - Files: `tests/`
     - Command: `pytest -q`
     - Acceptance: both pass.
-    - Codex ask: “Add smoke tests for `/healthz` and Settings.”
+    - Codex ask: “Add smoke tests for `/api/v1/healthz` and Settings.”
 
 ---
 
@@ -414,9 +414,9 @@ Milestones may overlap; keep their order but feel free to work ahead if prerequi
     - Codex ask: “Add optional SSE progress streaming.”
 
 55. **Metrics endpoint**
-    - What: `/metrics` with counters for requests/pipelines/errors.
+    - What: `/api/v1/metrics` with counters for requests/pipelines/errors.
     - Files: `black_skies/app/metrics.py`
-    - Command: curl `/metrics`
+    - Command: curl `/api/v1/metrics`
     - Acceptance: counters increment in tests.
     - Codex ask: “Add Prometheus metrics endpoint and counters.”
 
@@ -563,8 +563,8 @@ Milestones may overlap; keep their order but feel free to work ahead if prerequi
 
 75. **Cost/logging & metrics**
     - What: log token counts, redact keys, expose metrics per model.
-    - Files: logging/metrics integration
-    - Command: run pipeline; inspect logs/metrics
+    - Files: logging/api/v1/metrics integration
+    - Command: run pipeline; inspect logs/api/v1/metrics
     - Acceptance: cost fields present (0 for Null).
     - Codex ask: “Add cost logging and redact secrets.”
 
