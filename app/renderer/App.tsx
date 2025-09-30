@@ -69,6 +69,8 @@ export default function App(): JSX.Element {
     error: null,
     errorDetails: null,
   });
+  const lastRecoveryProjectIdRef = useRef<string | null>(null);
+  const recoveryFetchInFlightRef = useRef(false);
 
   useEffect(() => {
     return () => {
@@ -147,15 +149,19 @@ export default function App(): JSX.Element {
     async (projectId: string) => {
       if (!services) {
         setRecoveryStatus(null);
+        lastRecoveryProjectIdRef.current = null;
         return;
       }
 
       try {
+        recoveryFetchInFlightRef.current = true;
+        lastRecoveryProjectIdRef.current = projectId;
         const result = await services.getRecoveryStatus({ projectId });
         if (result.ok) {
           setRecoveryStatus(result.data);
         } else {
           setRecoveryStatus(null);
+          lastRecoveryProjectIdRef.current = null;
           pushToast({
             tone: 'warning',
             title: 'Recovery status unavailable',
@@ -166,11 +172,14 @@ export default function App(): JSX.Element {
       } catch (error) {
         console.error('[App] Failed to fetch recovery status', error);
         setRecoveryStatus(null);
+        lastRecoveryProjectIdRef.current = null;
         pushToast({
           tone: 'error',
           title: 'Recovery check failed',
           description: error instanceof Error ? error.message : String(error),
         });
+      } finally {
+        recoveryFetchInFlightRef.current = false;
       }
     },
     [services, pushToast],
@@ -523,9 +532,25 @@ export default function App(): JSX.Element {
   const restoreLabel = recoveryAction === 'restore' ? 'Restoring…' : 'Restore snapshot';
 
   useEffect(() => {
-    if (serviceStatus === 'online' && projectSummary) {
-      void fetchRecoveryStatus(projectSummary.projectId);
+    if (serviceStatus === 'offline') {
+      lastRecoveryProjectIdRef.current = null;
+      return;
     }
+
+    if (serviceStatus !== 'online' || !projectSummary) {
+      return;
+    }
+
+    const projectId = projectSummary.projectId;
+    if (recoveryFetchInFlightRef.current) {
+      return;
+    }
+
+    if (lastRecoveryProjectIdRef.current === projectId) {
+      return;
+    }
+
+    void fetchRecoveryStatus(projectId);
   }, [serviceStatus, projectSummary, fetchRecoveryStatus]);
 
   return (
