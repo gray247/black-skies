@@ -19,6 +19,7 @@ class DraftAcceptUnit(BaseModel):
     previous_sha256: str = Field(pattern=_SHA256_PATTERN)
     text: str
     meta: dict[str, Any] = Field(default_factory=dict)
+    estimated_cost_usd: float | None = Field(default=None, ge=0)
 
 
 class DraftAcceptRequest(BaseModel):

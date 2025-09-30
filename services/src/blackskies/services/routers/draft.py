@@ -195,12 +195,25 @@ def _compile_manuscript(
                     str(exc), {**exc.details, "unit_id": scene.id}
                 ) from exc
 
-            order_value = front_matter.get("order")
-            if not isinstance(order_value, int):
+            missing_fields: list[str] = []
+            front_matter_id = front_matter.get("id")
+            if not isinstance(front_matter_id, str) or not front_matter_id.strip():
+                missing_fields.append("id")
+            front_matter_title = front_matter.get("title")
+            if not isinstance(front_matter_title, str) or not front_matter_title.strip():
+                missing_fields.append("title")
+            order_value_raw = front_matter.get("order")
+            if not isinstance(order_value_raw, int):
+                missing_fields.append("order")
+
+            if missing_fields:
+                missing_fields = sorted(set(missing_fields))
                 raise DraftRequestError(
                     "Scene front-matter is missing required fields.",
-                    {"unit_id": scene.id, "field": "order", "value": order_value},
+                    {"unit_id": scene.id, "missing_fields": missing_fields},
                 )
+
+            order_value = order_value_raw
             if order_value in seen_orders:
                 raise DraftRequestError(
                     "Duplicate scene order detected within chapter.",
