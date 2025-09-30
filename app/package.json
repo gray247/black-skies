@@ -14,7 +14,7 @@
     "build:main": "tsc --project tsconfig.main.json",
     "build:production": "vite build && tsc --project tsconfig.main.json",
     "preview": "vite preview",
-    "lint": "eslint \"renderer/**/*.{ts,tsx}\" \"electron/**/*.ts\" \"shared/**/*.ts\"",
+    "lint": "node ../scripts/run-app-eslint.mjs",
     "test": "vitest run",
     "package:dir": "vite build && tsc --project tsconfig.main.json && electron-builder --config electron-builder.yml --dir",
     "package:win": "vite build && tsc --project tsconfig.main.json && electron-builder --config electron-builder.yml --win nsis portable"
