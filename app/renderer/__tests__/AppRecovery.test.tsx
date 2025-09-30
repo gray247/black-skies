@@ -272,7 +272,7 @@ describe('App recovery banner', () => {
 
     fireEvent.click(restoreButton);
     await waitFor(() => expect(services.restoreSnapshot).toHaveBeenCalledTimes(1));
-    const message = await screen.findByText(/Snapshot restored/i);
+    const message = await screen.findByText('Snapshot restored');
     const toastCard = message.closest('.toast');
     expect(toastCard).not.toBeNull();
     if (toastCard) {
