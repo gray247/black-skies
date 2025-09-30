@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import type { ToastInstance } from '../types/toast';
 
 interface ToastStackProps {
@@ -8,6 +8,23 @@ interface ToastStackProps {
 }
 
 const DEFAULT_DISMISS_MS = 4000;
+
+function fallbackCopy(text: string): void {
+  const input = document.createElement('textarea');
+  input.value = text;
+  input.setAttribute('aria-hidden', 'true');
+  input.style.position = 'fixed';
+  input.style.opacity = '0';
+  input.style.pointerEvents = 'none';
+  document.body.appendChild(input);
+  input.select();
+  try {
+    document.execCommand('copy');
+  } catch {
+    // ignore copy failures; there is no reliable feedback channel without another toast
+  }
+  document.body.removeChild(input);
+}
 
 interface ToastCardProps {
   toast: ToastInstance;
@@ -21,12 +38,38 @@ function ToastCard({ toast, onDismiss, autoDismissMs }: ToastCardProps): JSX.Ele
     return () => window.clearTimeout(handle);
   }, [autoDismissMs, onDismiss, toast.id]);
 
+  const { traceId } = toast;
+  const handleCopyTraceId = useCallback(() => {
+    if (!traceId) {
+      return;
+    }
+    if (navigator?.clipboard?.writeText) {
+      void navigator.clipboard.writeText(traceId).catch(() => fallbackCopy(traceId));
+      return;
+    }
+    fallbackCopy(traceId);
+  }, [traceId]);
+
   return (
     <div className={`toast toast--${toast.tone}`} role="status" aria-live="assertive">
       <div className="toast__body">
         <span className="toast__title">{toast.title}</span>
         {toast.description ? (
           <span className="toast__description">{toast.description}</span>
+        ) : null}
+        {traceId ? (
+          <div className="toast__trace" aria-label={`Trace identifier ${traceId}`}>
+            <span className="toast__trace-label">Trace ID:</span>
+            <code className="toast__trace-value">{traceId}</code>
+            <button
+              type="button"
+              className="toast__trace-copy"
+              onClick={handleCopyTraceId}
+              aria-label={`Copy trace ID ${traceId}`}
+            >
+              Copy
+            </button>
+          </div>
         ) : null}
       </div>
       <button

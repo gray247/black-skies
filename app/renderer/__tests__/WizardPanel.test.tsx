@@ -91,5 +91,11 @@ describe('WizardPanel', () => {
 
     const stored = window.localStorage.getItem(STORAGE_KEY);
     expect(stored).toBeTruthy();
+
+    await waitFor(() =>
+      expect(onToast).toHaveBeenCalledWith(
+        expect.objectContaining({ traceId: 'trace-outline' }),
+      ),
+    );
   });
 });

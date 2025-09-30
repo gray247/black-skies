@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type {
@@ -272,8 +272,12 @@ describe('App recovery banner', () => {
 
     fireEvent.click(restoreButton);
     await waitFor(() => expect(services.restoreSnapshot).toHaveBeenCalledTimes(1));
-    const messages = await screen.findAllByText(/Snapshot restored/i);
-    expect(messages.length).toBeGreaterThan(0);
+    const message = await screen.findByText(/Snapshot restored/i);
+    const toastCard = message.closest('.toast');
+    expect(toastCard).not.toBeNull();
+    if (toastCard) {
+      expect(within(toastCard).getByText('trace-restore-success')).toBeInTheDocument();
+    }
   });
 
   it('clears the banner when recovery status is clean', async () => {
