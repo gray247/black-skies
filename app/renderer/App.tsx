@@ -53,12 +53,16 @@ export default function App(): JSX.Element {
   const [serviceStatus, setServiceStatus] = useState<ServiceStatus>('checking');
   const [projectSummary, setProjectSummary] = useState<ProjectSummary | null>(null);
   const [recoveryStatus, setRecoveryStatus] = useState<RecoveryStatusBridgeResponse | null>(null);
-  const [restoreInFlight, setRestoreInFlight] = useState(false);
+  const [recoveryAction, setRecoveryAction] = useState<'idle' | 'restore' | 'diagnostics'>(
+    'idle',
+  );
+  const [reopenInFlight, setReopenInFlight] = useState(false);
   const [lastProjectPath, setLastProjectPath] = useState<string | null>(null);
   const [reopenRequest, setReopenRequest] = useState<{ path: string; requestId: number } | null>(
     null,
   );
   const reopenCounterRef = useRef(0);
+  const reopenReleaseTimeoutRef = useRef<number | null>(null);
   const [preflightState, setPreflightState] = useState<PreflightState>({
     open: false,
     loading: false,
@@ -69,6 +73,10 @@ export default function App(): JSX.Element {
   useEffect(() => {
     return () => {
       isMountedRef.current = false;
+      if (reopenReleaseTimeoutRef.current !== null) {
+        window.clearTimeout(reopenReleaseTimeoutRef.current);
+        reopenReleaseTimeoutRef.current = null;
+      }
     };
   }, []);
 
@@ -192,7 +200,7 @@ export default function App(): JSX.Element {
 
       if ('status' in payload) {
         const { status, project, lastOpenedPath } = payload;
-        setLastProjectPath(lastOpenedPath ?? project?.path ?? null);
+        setLastProjectPath(lastOpenedPath);
 
         if ((status === 'loaded' || status === 'init') && project) {
           activateProject(project);
@@ -240,7 +248,7 @@ export default function App(): JSX.Element {
       return;
     }
 
-    setRestoreInFlight(true);
+    setRecoveryAction('restore');
     try {
       const result = await services.restoreSnapshot({ projectId: projectSummary.projectId });
       if (result.ok) {
@@ -265,11 +273,14 @@ export default function App(): JSX.Element {
         description: error instanceof Error ? error.message : String(error),
       });
     } finally {
-      setRestoreInFlight(false);
+      setRecoveryAction('idle');
     }
   }, [services, projectSummary, pushToast]);
 
   const handleReopenLastProject = useCallback(() => {
+    if (recoveryAction !== 'idle' || reopenInFlight) {
+      return;
+    }
     if (!lastProjectPath) {
       pushToast({
         tone: 'warning',
@@ -280,16 +291,39 @@ export default function App(): JSX.Element {
     }
 
     reopenCounterRef.current += 1;
-    setRestoreInFlight(true);
+    setReopenInFlight(true);
     setReopenRequest({ path: lastProjectPath, requestId: reopenCounterRef.current });
-  }, [lastProjectPath, pushToast]);
+  }, [lastProjectPath, pushToast, recoveryAction, reopenInFlight]);
 
   const handleReopenConsumed = useCallback(
-    ({ requestId }: { requestId: number; status: 'success' | 'error' }) => {
-      setRestoreInFlight(false);
-      setReopenRequest((previous) => (previous?.requestId === requestId ? null : previous));
+    ({ requestId, status }: { requestId: number; status: 'success' | 'error' }) => {
+      let matched = false;
+      setReopenRequest((previous) => {
+        matched = previous?.requestId === requestId;
+        return matched ? null : previous;
+      });
+
+      if (reopenReleaseTimeoutRef.current !== null) {
+        window.clearTimeout(reopenReleaseTimeoutRef.current);
+      }
+
+      reopenReleaseTimeoutRef.current = window.setTimeout(() => {
+        reopenReleaseTimeoutRef.current = null;
+        if (!isMountedRef.current || !matched) {
+          return;
+        }
+        setReopenInFlight(false);
+      }, 0);
+
+      if (matched && status === 'error') {
+        pushToast({
+          tone: 'error',
+          title: 'Reopen failed',
+          description: 'Unable to reopen the most recent project.',
+        });
+      }
     },
-    [],
+    [pushToast],
   );
 
   const handleOpenDiagnostics = useCallback(async () => {
@@ -302,7 +336,7 @@ export default function App(): JSX.Element {
       return;
     }
 
-    setRestoreInFlight(true);
+    setRecoveryAction('diagnostics');
     try {
       const result = await diagnostics.openDiagnosticsFolder();
       if (!result.ok) {
@@ -319,7 +353,7 @@ export default function App(): JSX.Element {
         description: error instanceof Error ? error.message : String(error),
       });
     } finally {
-      setRestoreInFlight(false);
+      setRecoveryAction('idle');
     }
   }, [diagnostics, pushToast]);
 
@@ -463,6 +497,12 @@ export default function App(): JSX.Element {
   const projectLabel = useMemo(() => projectSummary?.path ?? 'No project loaded', [projectSummary]);
   const recoverySnapshot = recoveryStatus?.last_snapshot ?? null;
   const recoveryBannerVisible = recoveryStatus?.needs_recovery ?? false;
+  const recoveryBusy = recoveryAction !== 'idle';
+  const reopenBusy = reopenInFlight;
+  const restoreDisabled = recoveryBusy || reopenBusy;
+  const reopenDisabled = restoreDisabled || !lastProjectPath;
+  const diagnosticsDisabled = recoveryBusy || reopenBusy;
+  const restoreLabel = recoveryAction === 'restore' ? 'Restoring…' : 'Restore snapshot';
 
   useEffect(() => {
     if (serviceStatus === 'online' && projectSummary) {
@@ -534,15 +574,15 @@ export default function App(): JSX.Element {
                   <button
                     type="button"
                     className="app-shell__recovery-banner__button"
-                    disabled={restoreInFlight}
+                    disabled={restoreDisabled}
                     onClick={() => void handleRestoreSnapshot()}
                   >
-                    {restoreInFlight ? 'Restoring…' : 'Restore snapshot'}
+                    {restoreLabel}
                   </button>
                   <button
                     type="button"
                     className="app-shell__recovery-banner__button"
-                    disabled={restoreInFlight || !lastProjectPath}
+                    disabled={reopenDisabled}
                     onClick={handleReopenLastProject}
                   >
                     Reopen last project
@@ -550,7 +590,7 @@ export default function App(): JSX.Element {
                   <button
                     type="button"
                     className="app-shell__recovery-banner__button"
-                    disabled={restoreInFlight}
+                    disabled={diagnosticsDisabled}
                     onClick={() => void handleOpenDiagnostics()}
                   >
                     View diagnostics
