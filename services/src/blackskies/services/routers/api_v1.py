@@ -547,8 +547,20 @@ def _normalize_budget_token(raw_value: str) -> str | None:
         return None
 
     if "," in filtered and "." in filtered:
-        filtered = filtered.replace(".", "")
-        filtered = filtered.replace(",", ".")
+        last_dot = filtered.rfind(".")
+        last_comma = filtered.rfind(",")
+        if last_dot > last_comma:
+            decimal_sep = "."
+            thousands_sep = ","
+        else:
+            decimal_sep = ","
+            thousands_sep = "."
+
+        filtered = filtered.replace(thousands_sep, "")
+        if decimal_sep != ".":
+            filtered = filtered.replace(decimal_sep, ".", 1)
+            if decimal_sep in filtered:
+                return None
     elif "," in filtered:
         fractional = filtered.split(",", 1)[1]
         if filtered.count(",") == 1 and 1 <= len(fractional) <= 2:
