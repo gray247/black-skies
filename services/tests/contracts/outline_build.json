@@ -1,0 +1,17 @@
+{
+  "outline_id": "out_001",
+  "schema_version": "OutlineSchema v1",
+  "acts": ["Act I", "Act II", "Act III"],
+  "chapters": [
+    {"id": "ch_0001", "order": 1, "title": "Arrival"}
+  ],
+  "scenes": [
+    {
+      "id": "sc_0001",
+      "order": 1,
+      "title": "Storm Cellar",
+      "chapter_id": "ch_0001",
+      "beat_refs": ["inciting"]
+    }
+  ]
+}
