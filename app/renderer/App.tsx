@@ -18,6 +18,14 @@ import type {
   ServicesBridge,
   RecoveryStatusBridgeResponse,
 } from '../shared/ipc/services';
+import {
+  evaluateReopenRequest,
+  openDiagnostics,
+  performRestoreSnapshot,
+  resolveReopenConsumption,
+  validateDiagnostics,
+  validateRestoreSnapshot,
+} from './recovery/actions';
 
 interface ProjectSummary {
   projectId: string;
@@ -249,41 +257,24 @@ export default function App(): JSX.Element {
   );
 
   const handleRestoreSnapshot = useCallback(async () => {
-    if (!services) {
-      pushToast({
-        tone: 'error',
-        title: 'Services unavailable',
-        description: 'Cannot restore snapshots while services are offline.',
-      });
+    const validation = validateRestoreSnapshot({ services, projectSummary });
+    if (!validation.canProceed) {
+      if (validation.toast) {
+        pushToast(validation.toast);
+      }
       return;
     }
-    if (!projectSummary) {
-      pushToast({
-        tone: 'warning',
-        title: 'Load a project first',
-        description: 'Select a project to restore its latest snapshot.',
-      });
+
+    if (!validation.input) {
       return;
     }
 
     setRecoveryAction('restore');
     try {
-      const result = await services.restoreSnapshot({ projectId: projectSummary.projectId });
-      if (result.ok) {
-        setRecoveryStatus(result.data);
-        pushToast({
-          tone: 'success',
-          title: 'Snapshot restored',
-          description: 'Latest snapshot restored successfully.',
-          traceId: result.traceId,
-        });
-      } else {
-        pushToast({
-          tone: 'error',
-          title: 'Restore failed',
-          description: result.error.message,
-          traceId: result.traceId ?? result.error.traceId,
-        });
+      const result = await performRestoreSnapshot(validation.input);
+      pushToast(result.toast);
+      if (result.ok && result.recoveryStatus) {
+        setRecoveryStatus(result.recoveryStatus);
       }
     } catch (error) {
       console.error('[App] Snapshot restore failed', error);
@@ -298,80 +289,85 @@ export default function App(): JSX.Element {
   }, [services, projectSummary, pushToast]);
 
   const handleReopenLastProject = useCallback(() => {
-    if (recoveryAction !== 'idle' || reopenInFlight) {
-      return;
-    }
-    if (!lastProjectPath) {
-      pushToast({
-        tone: 'warning',
-        title: 'No project to reopen',
-        description: 'Open a project before trying to reopen it.',
-      });
+    const nextId = reopenCounterRef.current + 1;
+    const evaluation = evaluateReopenRequest({
+      lastProjectPath,
+      reopenInFlight,
+      recoveryAction,
+      nextRequestId: nextId,
+    });
+    if (!evaluation.canProceed) {
+      if (evaluation.toast) {
+        pushToast(evaluation.toast);
+      }
       return;
     }
 
-    reopenCounterRef.current += 1;
+    if (!evaluation.input) {
+      return;
+    }
+
+    reopenCounterRef.current = nextId;
     setReopenInFlight(true);
-    setReopenRequest({ path: lastProjectPath, requestId: reopenCounterRef.current });
+    setReopenRequest(evaluation.input.request);
   }, [lastProjectPath, pushToast, recoveryAction, reopenInFlight]);
 
   const handleReopenConsumed = useCallback(
     ({ requestId, status }: { requestId: number; status: 'success' | 'error' }) => {
-      let matched = false;
       setReopenRequest((previous) => {
-        matched = previous?.requestId === requestId;
-        return matched ? null : previous;
-      });
-
-      if (reopenReleaseTimeoutRef.current !== null) {
-        window.clearTimeout(reopenReleaseTimeoutRef.current);
-      }
-
-      reopenReleaseTimeoutRef.current = window.setTimeout(() => {
-        reopenReleaseTimeoutRef.current = null;
-        if (!isMountedRef.current || !matched) {
-          return;
-        }
-        setReopenInFlight(false);
-      }, 0);
-
-      if (matched && status === 'error') {
-        pushToast({
-          tone: 'error',
-          title: 'Reopen failed',
-          description: 'Unable to reopen the most recent project.',
+        const currentRequestId = previous?.requestId ?? null;
+        const resolution = resolveReopenConsumption({
+          currentRequestId,
+          event: { requestId, status },
         });
-      }
+
+        if (resolution.toast) {
+          pushToast(resolution.toast);
+        }
+
+        if (!resolution.matched) {
+          return previous;
+        }
+
+        if (reopenReleaseTimeoutRef.current !== null) {
+          window.clearTimeout(reopenReleaseTimeoutRef.current);
+        }
+
+        reopenReleaseTimeoutRef.current = window.setTimeout(() => {
+          reopenReleaseTimeoutRef.current = null;
+          if (!isMountedRef.current) {
+            return;
+          }
+          if (resolution.shouldClear) {
+            setReopenInFlight(false);
+          }
+        }, 0);
+
+        return resolution.shouldClear ? null : previous;
+      });
     },
     [pushToast],
   );
 
   const handleOpenDiagnostics = useCallback(async () => {
-    if (!diagnostics) {
-      pushToast({
-        tone: 'error',
-        title: 'Diagnostics unavailable',
-        description: 'Electron bridge is offline; cannot open diagnostics.',
-      });
+    const validation = validateDiagnostics({ diagnostics });
+    if (!validation.canProceed) {
+      if (validation.toast) {
+        pushToast(validation.toast);
+      }
+      return;
+    }
+
+    if (!validation.input) {
       return;
     }
 
     setRecoveryAction('diagnostics');
     try {
-      const result = await diagnostics.openDiagnosticsFolder();
-      if (!result.ok) {
-        pushToast({
-          tone: 'error',
-          title: 'Diagnostics folder unavailable',
-          description: result.error,
-        });
+      const result = await openDiagnostics(validation.input);
+      if (result.toast) {
+        pushToast(result.toast);
       }
-    } catch (error) {
-      pushToast({
-        tone: 'error',
-        title: 'Diagnostics open failed',
-        description: error instanceof Error ? error.message : String(error),
-      });
     } finally {
       setRecoveryAction('idle');
     }
