@@ -47,6 +47,9 @@ norecursedirs = [
   ".mypy_cache",
   ".pytest_cache"
 ]
+markers = [
+  "contract: Contract-level checks validating external service expectations."
+]
 
 [tool.black]
 line-length = 100
