@@ -33,7 +33,7 @@ Prereqs: **Node 20 LTS**, **PNPM**, **Python 3.11**
    ```bash
    python -m blackskies.services
    ```
-   The dev server exposes http://127.0.0.1:8000 with a `GET /healthz` probe.
+   The dev server exposes http://127.0.0.1:8000 with a `GET /api/v1/healthz` probe.
 
 ### Service configuration
 
@@ -44,8 +44,8 @@ Prereqs: **Node 20 LTS**, **PNPM**, **Python 3.11**
 
 ### Observability
 
-- Health probe: `GET http://127.0.0.1:8000/healthz`
-- Metrics: `GET http://127.0.0.1:8000/metrics` (Prometheus text format)
+- Health probe: `GET http://127.0.0.1:8000/api/v1/healthz`
+- Metrics: `GET http://127.0.0.1:8000/api/v1/metrics` (Prometheus text format)
 - Traceability: every response includes an `X-Trace-Id` header; capture it when filing bugs or correlating logs.
 
 ### Python lint checks
@@ -92,7 +92,7 @@ During 0.1 testing, load the prebuilt project from `sample_project/Esther_Estate
 The directory mirrors the schema in `docs/data_model.md` (`outline.json`, `project.json`, `drafts/`, `revisions/`, `history/`, `lore/`). Use it for smoke tests until the Wizard flow is stable.
 
 ## Budgets & Preflight
-The renderer queries `/draft/preflight` before the **Generate** CTA unlocks. The service responds with the model that will run,
+The renderer queries `/api/v1/draft/preflight` before the **Generate** CTA unlocks. The service responds with the model that will run,
 scene metadata, and a `budget` block so the UI can enforce soft ($5) and hard ($10) caps tracked in each `project.json`.
 
 ### Sample request

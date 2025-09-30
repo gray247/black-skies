@@ -121,9 +121,12 @@ dropped when services rewrite the file because the persistence layer emits only 
 ### Persistence round‑trips
 Scene files are rewritten by the following FastAPI endpoints:
 
-- `POST /draft/generate` — writes synthesized scenes to disk (see “Draft generation” in `docs/endpoints.md`).
-- `POST /draft/rewrite` — overwrites an existing scene after diffs pass validation (see “Draft rewrite” in `docs/endpoints.md`).
-- `POST /draft/accept` — persists accepted critique revisions and triggers snapshots (see “Draft accept” in `docs/endpoints.md`).
+- `POST /api/v1/draft/generate` — writes synthesized scenes to disk (see “Draft generation” in `docs/endpoints.md`). Legacy
+  `/draft/generate` requests emit deprecation headers and should be migrated.
+- `POST /api/v1/draft/rewrite` — overwrites an existing scene after diffs pass validation (see “Draft rewrite” in
+  `docs/endpoints.md`).
+- `POST /api/v1/draft/accept` — persists accepted critique revisions and triggers snapshots (see “Draft accept” in
+  `docs/endpoints.md`).
 
 Each path calls `DraftPersistence.write_scene`, which serializes YAML with `_FIELD_ORDER`. Until the persistence module is made
 extensible, only the keys enumerated in the table above will survive a full round-trip between clients and services.
