@@ -258,11 +258,16 @@ class SnapshotPersistence:
             created_at=created_at,
             includes=recorded,
         )
+
+        try:
+            relative_path = to_posix(directory.relative_to(project_root))
+        except ValueError:
+            relative_path = to_posix(directory)
         return {
             "snapshot_id": snapshot_id,
             "label": label_token,
             "created_at": created_at,
-            "path": to_posix(directory),
+            "path": relative_path,
             "includes": recorded,
         }
 
