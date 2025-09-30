@@ -25,13 +25,40 @@ from ..config import ServiceSettings
 from ..diagnostics import DiagnosticLogger
 from ..diff_engine import compute_diff
 from ..draft_synthesizer import DraftSynthesizer
-from ..http import raise_budget_error, raise_conflict_error, raise_validation_error
+from ..http import (
+    TRACE_ID_HEADER,
+    build_error_payload,
+    ensure_trace_id,
+    raise_budget_error,
+    raise_conflict_error,
+    raise_service_error,
+    raise_validation_error,
+)
+from ..models import (
+    BudgetStatus,
+    DraftAcceptRequest,
+    DraftBudgetSummary,
+    DraftCritiqueResponse,
+    DraftExportResponse,
+    DraftGenerateRequest,
+    DraftGenerateResponse,
+    DraftPreflightBudget,
+    DraftPreflightResponse,
+    DraftRecoveryResponse,
+    DraftRewriteRequest,
+    DraftRewriteResponse,
+    DraftSceneSummary,
+    DraftUnitOverrides,
+    DraftUnitScope,
+    GeneratedDraftUnit,
+    ModelDescriptor,
+    OutlineArtifact,
+    OutlineBuildRequest,
+    OutlineBuildResponse,
+    OutlineScene,
+    RecoveryStatus,
+)
 from ..models._project_id import validate_project_id
-from ..models.accept import DraftAcceptRequest
-from ..models.draft import DraftGenerateRequest, DraftUnitOverrides, DraftUnitScope
-from ..models.outline import OutlineArtifact, OutlineScene
-from ..models.rewrite import DraftRewriteRequest
-from ..models.wizard import OutlineBuildRequest
 from ..outline_builder import MissingLocksError, OutlineBuilder
 from ..persistence import (
     DraftPersistence,
@@ -190,41 +217,34 @@ class DraftExportRequest(BaseModel):
 
 
 def _load_fixture(name: str) -> dict[str, Any]:
+    def _fixture_error(message: str) -> HTTPException:
+        trace_id = ensure_trace_id()
+        payload = build_error_payload(
+            code="INTERNAL",
+            message=message,
+            details={"fixture": name},
+            trace_id=trace_id,
+        )
+        return HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=payload.model_dump(mode="json"),
+            headers={TRACE_ID_HEADER: trace_id},
+        )
+
     try:
         fixture_path = resources.files(_FIXTURE_PACKAGE).joinpath(name)
     except (FileNotFoundError, ModuleNotFoundError) as exc:  # pragma: no cover
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail={
-                "code": "INTERNAL",
-                "message": "Fixture namespace is unavailable.",
-                "details": {"fixture": name},
-            },
-        ) from exc
+        raise _fixture_error("Fixture namespace is unavailable.") from exc
 
     try:
         with fixture_path.open("r", encoding="utf-8") as handle:
             return json.load(handle)
     except FileNotFoundError as exc:
         LOGGER.exception("Fixture %s is missing", name)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail={
-                "code": "INTERNAL",
-                "message": "Fixture not found.",
-                "details": {"fixture": name},
-            },
-        ) from exc
+        raise _fixture_error("Fixture not found.") from exc
     except json.JSONDecodeError as exc:
         LOGGER.exception("Fixture %s contains invalid JSON", name)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail={
-                "code": "INTERNAL",
-                "message": "Fixture data is invalid JSON.",
-                "details": {"fixture": name},
-            },
-        ) from exc
+        raise _fixture_error("Fixture data is invalid JSON.") from exc
 
 
 class BuildInProgressError(RuntimeError):
@@ -749,50 +769,36 @@ def create_api_v1_router() -> APIRouter:
         builder: OutlineBuilder = Depends(get_outline_builder),
         persistence: OutlinePersistence = Depends(get_persistence),
         diagnostics: DiagnosticLogger = Depends(get_diagnostics),
-    ) -> dict[str, Any]:
+    ) -> OutlineBuildResponse:
         project_root = persistence.ensure_project_root(request_model.project_id)
 
         try:
             async with tracker.track(request_model.project_id):
                 outline = builder.build(request_model)
                 persistence.write_outline(request_model.project_id, outline)
-                response_payload = outline.model_dump(mode="json")
+                response_payload = OutlineBuildResponse.model_validate(
+                    outline.model_dump(mode="json")
+                )
         except BuildInProgressError as exc:
             LOGGER.warning(
                 "Outline build conflict for project %s", request_model.project_id
             )
-            diagnostics.log(
-                project_root,
-                code="CONFLICT",
+            raise_conflict_error(
                 message="Outline build already running.",
                 details={"project_id": request_model.project_id},
+                diagnostics=diagnostics,
+                project_root=project_root,
             )
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail={
-                    "code": "CONFLICT",
-                    "message": "An outline build is already in progress for this project.",
-                    "details": {"project_id": request_model.project_id},
-                },
-            ) from exc
         except MissingLocksError as exc:
             LOGGER.warning(
                 "Outline build missing locks for project %s", request_model.project_id
             )
-            diagnostics.log(
-                project_root,
-                code="VALIDATION",
+            raise_validation_error(
                 message=str(exc),
                 details={"project_id": request_model.project_id, **exc.details},
+                diagnostics=diagnostics,
+                project_root=project_root,
             )
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail={
-                    "code": "VALIDATION",
-                    "message": str(exc),
-                    "details": {"project_id": request_model.project_id, **exc.details},
-                },
-            ) from exc
         except ValidationError as exc:
             LOGGER.exception(
                 "Outline validation failed for project %s", request_model.project_id
@@ -806,14 +812,12 @@ def create_api_v1_router() -> APIRouter:
                     "errors": exc.errors(),
                 },
             )
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail={
-                    "code": "VALIDATION",
-                    "message": "Generated outline failed schema validation.",
-                    "details": {"project_id": request_model.project_id},
-                },
-            ) from exc
+            raise_validation_error(
+                message="Generated outline failed schema validation.",
+                details={"project_id": request_model.project_id},
+                diagnostics=diagnostics,
+                project_root=None,
+            )
 
         return response_payload
 
@@ -826,7 +830,7 @@ def create_api_v1_router() -> APIRouter:
         payload: dict[str, Any],
         settings: ServiceSettings = Depends(get_settings),
         diagnostics: DiagnosticLogger = Depends(get_diagnostics),
-    ) -> dict[str, Any]:
+    ) -> DraftGenerateResponse:
         project_root: Path | None = None
         try:
             request_model = DraftGenerateRequest.model_validate(payload)
@@ -921,35 +925,36 @@ def create_api_v1_router() -> APIRouter:
                 message="Failed to update project budget.",
                 details={"project_id": request_model.project_id, "error": str(exc)},
             )
-            raise HTTPException(
+            raise_service_error(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail={
-                    "code": "INTERNAL",
-                    "message": "Failed to update project budget.",
-                    "details": {"project_id": request_model.project_id},
-                },
-            ) from exc
+                code="INTERNAL",
+                message="Failed to update project budget.",
+                details={"project_id": request_model.project_id},
+                diagnostics=diagnostics,
+                project_root=None,
+            )
 
-        return {
-            "schema_version": "DraftUnitSchema v1",
-            "draft_id": draft_id,
-            "units": [result.unit for result in results],
-            "budget": {
-                "status": status_label,
-                "message": message,
-                "soft_limit_usd": round(budget_state.soft_limit, 2),
-                "hard_limit_usd": round(budget_state.hard_limit, 2),
-                "estimated_usd": estimated_cost,
-                "spent_usd": round(total_after, 2),
-            },
-        }
+        units = [GeneratedDraftUnit.model_validate(result.unit) for result in results]
+        budget_summary = DraftBudgetSummary(
+            status=BudgetStatus(status_label),
+            message=message,
+            estimated_usd=estimated_cost,
+            soft_limit_usd=round(budget_state.soft_limit, 2),
+            hard_limit_usd=round(budget_state.hard_limit, 2),
+            spent_usd=round(total_after, 2),
+        )
+        return DraftGenerateResponse(
+            draft_id=draft_id,
+            units=units,
+            budget=budget_summary,
+        )
 
     @draft_router.post("/preflight")
     async def preflight_draft(
         payload: dict[str, Any],
         settings: ServiceSettings = Depends(get_settings),
         diagnostics: DiagnosticLogger = Depends(get_diagnostics),
-    ) -> dict[str, Any]:
+    ) -> DraftPreflightResponse:
         project_root: Path | None = None
         try:
             request_model = DraftGenerateRequest.model_validate(payload)
@@ -990,21 +995,10 @@ def create_api_v1_router() -> APIRouter:
         budget_state = _load_project_budget_state(project_root, diagnostics)
 
         total_words = 0
+        scenes_payload: list[DraftSceneSummary] = []
         for scene in scene_summaries:
             overrides = request_model.overrides.get(scene.id)
             total_words += _estimate_word_target(scene, overrides)
-
-        estimated_cost = round((total_words / 1000) * 0.02, 2)
-        status_label, message, total_after = _classify_budget(
-            estimated_cost,
-            soft_limit=budget_state.soft_limit,
-            hard_limit=budget_state.hard_limit,
-            current_spend=budget_state.spent_usd,
-        )
-
-        synthesizer = DraftSynthesizer()
-        scenes_payload: list[dict[str, Any]] = []
-        for scene in scene_summaries:
             scene_payload: dict[str, Any] = {
                 "id": scene.id,
                 "title": scene.title,
@@ -1014,31 +1008,46 @@ def create_api_v1_router() -> APIRouter:
                 scene_payload["chapter_id"] = scene.chapter_id
             if scene.beat_refs:
                 scene_payload["beat_refs"] = list(scene.beat_refs)
-            scenes_payload.append(scene_payload)
+            scenes_payload.append(DraftSceneSummary.model_validate(scene_payload))
 
-        return {
-            "project_id": request_model.project_id,
-            "unit_scope": request_model.unit_scope.value,
-            "unit_ids": request_model.unit_ids,
-            "model": dict(synthesizer._MODEL),
-            "scenes": scenes_payload,
-            "budget": {
-                "estimated_usd": estimated_cost,
-                "status": status_label,
-                "message": message,
-                "soft_limit_usd": round(budget_state.soft_limit, 2),
-                "hard_limit_usd": round(budget_state.hard_limit, 2),
-                "spent_usd": round(budget_state.spent_usd, 2),
-                "total_after_usd": round(total_after, 2),
-            },
-        }
+        estimated_cost = round((total_words / 1000) * 0.02, 2)
+        status_label, message, total_after = _classify_budget(
+            estimated_cost,
+            soft_limit=budget_state.soft_limit,
+            hard_limit=budget_state.hard_limit,
+            current_spend=budget_state.spent_usd,
+        )
+
+        budget_summary = DraftPreflightBudget(
+            status=BudgetStatus(status_label),
+            message=message,
+            estimated_usd=estimated_cost,
+            soft_limit_usd=round(budget_state.soft_limit, 2),
+            hard_limit_usd=round(budget_state.hard_limit, 2),
+            spent_usd=round(budget_state.spent_usd, 2),
+            total_after_usd=round(total_after, 2),
+        )
+
+        model_descriptor = ModelDescriptor(
+            name="draft-synthesizer-v1",
+            provider="black-skies-local",
+        )
+
+        return DraftPreflightResponse(
+            project_id=request_model.project_id,
+            unit_scope=request_model.unit_scope,
+            unit_ids=request_model.unit_ids,
+            model=model_descriptor,
+            scenes=scenes_payload,
+            budget=budget_summary,
+        )
 
     @draft_router.post("/rewrite")
     async def rewrite_draft(
         payload: dict[str, Any],
         settings: ServiceSettings = Depends(get_settings),
         diagnostics: DiagnosticLogger = Depends(get_diagnostics),
-    ) -> dict[str, Any]:
+    ) -> DraftRewriteResponse:
         project_root: Path | None = None
         try:
             request_model = DraftRewriteRequest.model_validate(payload)
@@ -1124,14 +1133,14 @@ def create_api_v1_router() -> APIRouter:
                 message="Failed to persist rewritten scene.",
                 details={"unit_id": request_model.unit_id, "error": str(exc)},
             )
-            raise HTTPException(
+            raise_service_error(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail={
-                    "code": "INTERNAL",
-                    "message": "Failed to persist rewritten scene.",
-                    "details": {"unit_id": request_model.unit_id},
-                },
-            ) from exc
+                code="INTERNAL",
+                message="Failed to persist rewritten scene.",
+                details={"unit_id": request_model.unit_id},
+                diagnostics=diagnostics,
+                project_root=None,
+            )
         else:
             if backup_path and backup_path.exists():
                 try:
@@ -1139,22 +1148,27 @@ def create_api_v1_router() -> APIRouter:
                 except OSError:  # pragma: no cover - cleanup best effort
                     pass
 
-        return {
-            "unit_id": request_model.unit_id,
-            "revised_text": normalized_revised,
-            "diff": {
-                "added": diff_payload.added,
-                "removed": diff_payload.removed,
-                "changed": diff_payload.changed,
-                "anchors": diff_payload.anchors,
-            },
-            "schema_version": "DraftUnitSchema v1",
-            "model": {"name": "draft-rewriter-v1", "provider": "black-skies-local"},
+        diff_payload_dict = {
+            "added": diff_payload.added,
+            "removed": diff_payload.removed,
+            "changed": diff_payload.changed,
+            "anchors": diff_payload.anchors,
         }
 
+        return DraftRewriteResponse(
+            unit_id=request_model.unit_id,
+            revised_text=normalized_revised,
+            diff=diff_payload_dict,
+            model=ModelDescriptor(
+                name="draft-rewriter-v1",
+                provider="black-skies-local",
+            ),
+        )
+
     @draft_router.post("/critique")
-    async def critique_draft() -> dict[str, Any]:
-        return _load_fixture("draft_critique.json")
+    async def critique_draft() -> DraftCritiqueResponse:
+        fixture = _load_fixture("draft_critique.json")
+        return DraftCritiqueResponse.model_validate(fixture)
 
     @draft_router.post("/accept")
     async def accept_draft(
@@ -1250,14 +1264,14 @@ def create_api_v1_router() -> APIRouter:
             recovery_tracker.mark_needs_recovery(
                 request_model.project_id, reason=str(exc)
             )
-            raise HTTPException(
+            raise_service_error(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail={
-                    "code": "INTERNAL",
-                    "message": "Failed to persist accepted scene.",
-                    "details": {"unit_id": request_model.unit_id},
-                },
-            ) from exc
+                code="INTERNAL",
+                message="Failed to persist accepted scene.",
+                details={"unit_id": request_model.unit_id},
+                diagnostics=diagnostics,
+                project_root=None,
+            )
         try:
             snapshot_info = snapshot_persistence.create_snapshot(
                 request_model.project_id, label=request_model.snapshot_label
@@ -1272,14 +1286,14 @@ def create_api_v1_router() -> APIRouter:
             recovery_tracker.mark_needs_recovery(
                 request_model.project_id, reason=str(exc)
             )
-            raise HTTPException(
+            raise_service_error(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail={
-                    "code": "INTERNAL",
-                    "message": "Failed to create snapshot after accept.",
-                    "details": {"unit_id": request_model.unit_id},
-                },
-            ) from exc
+                code="INTERNAL",
+                message="Failed to create snapshot after accept.",
+                details={"unit_id": request_model.unit_id},
+                diagnostics=diagnostics,
+                project_root=None,
+            )
 
         snapshot_path = Path(snapshot_info["path"])
         try:
@@ -1302,7 +1316,7 @@ def create_api_v1_router() -> APIRouter:
         payload: dict[str, Any],
         settings: ServiceSettings = Depends(get_settings),
         diagnostics: DiagnosticLogger = Depends(get_diagnostics),
-    ) -> dict[str, Any]:
+    ) -> DraftExportResponse:
         try:
             request_model = DraftExportRequest.model_validate(payload)
         except ValidationError as exc:
@@ -1362,14 +1376,14 @@ def create_api_v1_router() -> APIRouter:
                 message="Failed to write draft_full.md.",
                 details={"error": str(exc)},
             )
-            raise HTTPException(
+            raise_service_error(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail={
-                    "code": "INTERNAL",
-                    "message": "Failed to write draft_full.md.",
-                    "details": {"project_id": request_model.project_id},
-                },
-            ) from exc
+                code="INTERNAL",
+                message="Failed to write draft_full.md.",
+                details={"project_id": request_model.project_id},
+                diagnostics=diagnostics,
+                project_root=None,
+            )
 
         try:
             relative_path = target_path.relative_to(project_root)
@@ -1377,15 +1391,15 @@ def create_api_v1_router() -> APIRouter:
         except ValueError:
             export_path = to_posix(target_path)
 
-        return {
-            "project_id": request_model.project_id,
-            "path": export_path,
-            "chapters": chapter_count,
-            "scenes": scene_count,
-            "meta_header": request_model.include_meta_header,
-            "exported_at": _utc_timestamp(),
-            "schema_version": "DraftExportResult v1",
-        }
+        exported_at = _utc_timestamp()
+        return DraftExportResponse(
+            project_id=request_model.project_id,
+            path=export_path,
+            chapters=chapter_count,
+            scenes=scene_count,
+            meta_header=request_model.include_meta_header,
+            exported_at=exported_at,
+        )
 
     @draft_router.get("/recovery")
     async def recovery_status(
@@ -1394,7 +1408,7 @@ def create_api_v1_router() -> APIRouter:
         diagnostics: DiagnosticLogger = Depends(get_diagnostics),
         recovery_tracker: RecoveryTracker = Depends(get_recovery_tracker),
         snapshot_persistence: SnapshotPersistence = Depends(get_snapshot_persistence),
-    ) -> dict[str, Any]:
+    ) -> DraftRecoveryResponse:
         try:
             project_id = validate_project_id(project_id)
         except ValueError as exc:
@@ -1415,17 +1429,19 @@ def create_api_v1_router() -> APIRouter:
             )
 
         state = recovery_tracker.status(project_id, snapshot_persistence)
-        return {
-            "project_id": project_id,
-            "status": state.get("status", "idle"),
-            "needs_recovery": state.get("status") == "needs-recovery",
-            "pending_unit_id": state.get("pending_unit_id"),
-            "draft_id": state.get("draft_id"),
-            "started_at": state.get("started_at"),
-            "last_snapshot": state.get("last_snapshot"),
-            "message": state.get("message"),
-            "failure_reason": state.get("failure_reason"),
-        }
+        status_value = state.get("status") or "idle"
+        response = DraftRecoveryResponse(
+            project_id=project_id,
+            status=status_value,
+            needs_recovery=status_value == RecoveryStatus.NEEDS_RECOVERY.value,
+            pending_unit_id=state.get("pending_unit_id"),
+            draft_id=state.get("draft_id"),
+            started_at=state.get("started_at"),
+            last_snapshot=state.get("last_snapshot"),
+            message=state.get("message"),
+            failure_reason=state.get("failure_reason"),
+        )
+        return response
 
     @draft_router.post("/recovery/restore")
     async def recovery_restore(
@@ -1434,7 +1450,7 @@ def create_api_v1_router() -> APIRouter:
         diagnostics: DiagnosticLogger = Depends(get_diagnostics),
         snapshot_persistence: SnapshotPersistence = Depends(get_snapshot_persistence),
         recovery_tracker: RecoveryTracker = Depends(get_recovery_tracker),
-    ) -> dict[str, Any]:
+    ) -> DraftRecoveryResponse:
         try:
             request_model = RecoveryRestoreRequest.model_validate(payload)
         except ValidationError as exc:
@@ -1504,14 +1520,14 @@ def create_api_v1_router() -> APIRouter:
             recovery_tracker.mark_needs_recovery(
                 request_model.project_id, reason=str(exc)
             )
-            raise HTTPException(
+            raise_service_error(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail={
-                    "code": "INTERNAL",
-                    "message": "Failed to restore snapshot.",
-                    "details": {"snapshot_id": snapshot_id},
-                },
-            ) from exc
+                code="INTERNAL",
+                message="Failed to restore snapshot.",
+                details={"snapshot_id": snapshot_id},
+                diagnostics=diagnostics,
+                project_root=None,
+            )
 
         snapshot_path = Path(snapshot_info["path"])
         try:
@@ -1521,12 +1537,12 @@ def create_api_v1_router() -> APIRouter:
 
         recovery_tracker.mark_completed(request_model.project_id, snapshot_info)
 
-        return {
-            "project_id": request_model.project_id,
-            "status": "idle",
-            "needs_recovery": False,
-            "last_snapshot": snapshot_info,
-        }
+        return DraftRecoveryResponse(
+            project_id=request_model.project_id,
+            status=RecoveryStatus.IDLE,
+            needs_recovery=False,
+            last_snapshot=snapshot_info,
+        )
 
     api_router.include_router(draft_router)
 

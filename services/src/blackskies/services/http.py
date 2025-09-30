@@ -1,4 +1,4 @@
-"""HTTP utilities shared across the Black Skies service stack."""
+"""HTTP helpers for consistent error handling and trace propagation."""
 
 from __future__ import annotations
 
@@ -11,8 +11,10 @@ from uuid import UUID, uuid4
 from fastapi import HTTPException, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from pydantic import ValidationError
 
 from .diagnostics import DiagnosticLogger
+from .models.errors import ErrorCode, ErrorDetail
 
 LOGGER = logging.getLogger(__name__)
 
@@ -49,16 +51,36 @@ def get_trace_context() -> ContextVar[str]:
 
 
 def build_error_payload(
-    *, code: str, message: str, details: dict[str, Any], trace_id: str
-) -> dict[str, Any]:
+    *, code: ErrorCode, message: str, details: dict[str, Any], trace_id: str
+) -> ErrorDetail:
     """Construct an error payload following the locked contract."""
 
-    return {
-        "code": code,
-        "message": message,
-        "details": details,
-        "trace_id": trace_id,
-    }
+    return ErrorDetail(code=code, message=message, details=details, trace_id=trace_id)
+
+
+def _coerce_error_detail(detail: Any, trace_id: str) -> ErrorDetail:
+    """Best-effort conversion of an ``HTTPException`` detail payload."""
+
+    if isinstance(detail, dict):
+        try:
+            error = ErrorDetail.model_validate(detail)
+        except ValidationError:
+            error = ErrorDetail(
+                code=detail.get("code", "INTERNAL"),
+                message=str(detail.get("message", "Internal server error.")),
+                details=_sanitize_details(detail.get("details", {})),
+                trace_id=trace_id,
+            )
+        else:
+            error = error.model_copy(update={"trace_id": trace_id})
+    else:
+        error = ErrorDetail(
+            code="INTERNAL",
+            message=str(detail) if detail else "Internal server error.",
+            details={},
+            trace_id=trace_id,
+        )
+    return error
 
 
 def http_exception_to_response(exc: HTTPException, trace_id: str) -> JSONResponse:
@@ -66,22 +88,12 @@ def http_exception_to_response(exc: HTTPException, trace_id: str) -> JSONRespons
 
     headers = dict(exc.headers or {})
     headers.setdefault(TRACE_ID_HEADER, trace_id)
-
-    detail = exc.detail
-    if isinstance(detail, dict):
-        payload = dict(detail)
-        payload.setdefault("code", "INTERNAL")
-        payload.setdefault("message", "Internal server error.")
-        payload.setdefault("details", {})
-    else:
-        payload = {
-            "code": "INTERNAL",
-            "message": str(detail),
-            "details": {},
-        }
-    payload["trace_id"] = trace_id
-
-    return JSONResponse(status_code=exc.status_code, content=payload, headers=headers)
+    error = _coerce_error_detail(exc.detail, trace_id)
+    return JSONResponse(
+        status_code=exc.status_code,
+        content=error.model_dump(mode="json"),
+        headers=headers,
+    )
 
 
 def request_validation_response(
@@ -97,7 +109,7 @@ def request_validation_response(
     )
     return JSONResponse(
         status_code=status.HTTP_400_BAD_REQUEST,
-        content=payload,
+        content=payload.model_dump(mode="json"),
         headers={TRACE_ID_HEADER: trace_id},
     )
 
@@ -113,7 +125,7 @@ def internal_error_response(trace_id: str) -> JSONResponse:
     )
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content=payload,
+        content=payload.model_dump(mode="json"),
         headers={TRACE_ID_HEADER: trace_id},
     )
 
@@ -133,7 +145,7 @@ def _sanitize_details(details: Any) -> Any:
 def raise_service_error(
     *,
     status_code: int,
-    code: str,
+    code: ErrorCode,
     message: str,
     details: dict[str, Any],
     diagnostics: DiagnosticLogger,
@@ -145,11 +157,12 @@ def raise_service_error(
     if project_root is not None:
         diagnostics.log(project_root, code=code, message=message, details=safe_details)
     trace_id = ensure_trace_id()
+    error = build_error_payload(
+        code=code, message=message, details=safe_details, trace_id=trace_id
+    )
     raise HTTPException(
         status_code=status_code,
-        detail=build_error_payload(
-            code=code, message=message, details=safe_details, trace_id=trace_id
-        ),
+        detail=error.model_dump(mode="json"),
         headers={TRACE_ID_HEADER: trace_id},
     )
 
@@ -225,4 +238,3 @@ __all__ = [
     "raise_validation_error",
     "raise_budget_error",
 ]
-
