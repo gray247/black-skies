@@ -7,7 +7,7 @@ from typing import Awaitable, Callable, Final
 
 from fastapi import FastAPI, HTTPException, Request, Response, status
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse, PlainTextResponse
+from fastapi.responses import JSONResponse
 
 from .config import ServiceSettings
 from .diagnostics import DiagnosticLogger
@@ -20,18 +20,18 @@ from .http import (
     request_validation_response,
     resolve_trace_id,
 )
-from .metrics import record_request, render
+from .metrics import record_request
 from .persistence import SnapshotPersistence
-from .routers.api_v1 import (
+from .routers import api_router
+from .routers.draft import (
     HARD_BUDGET_LIMIT_USD,
     SOFT_BUDGET_LIMIT_USD,
-    BuildInProgressError,
-    BuildTracker,
-    RecoveryTracker,
     _build_meta_header,
     _load_project_budget_state,
-    create_api_v1_router,
 )
+from .routers.health import router as health_router
+from .routers.outline import BuildInProgressError, BuildTracker
+from .routers.recovery import RecoveryTracker
 
 LOGGER = logging.getLogger(__name__)
 
@@ -51,6 +51,7 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
     application.state.recovery_tracker = RecoveryTracker(
         settings=application.state.settings
     )
+    application.state.service_version = SERVICE_VERSION
 
     async def http_exception_handler(
         request: Request, exc: HTTPException
@@ -102,27 +103,8 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
         response.headers.setdefault(TRACE_ID_HEADER, trace_id)
         return response
 
-    def _health_payload() -> dict[str, str]:
-        return {"status": "ok", "version": SERVICE_VERSION}
-
-    @application.get("/healthz", tags=["health"])
-    async def health() -> dict[str, str]:
-        return _health_payload()
-
-    @application.get("/health", tags=["health"], include_in_schema=False)
-    async def health_alias() -> dict[str, str]:
-        return _health_payload()
-
-    @application.get("/metrics", tags=["health"], response_class=PlainTextResponse)
-    async def metrics_endpoint() -> Response:
-        return Response(
-            content=render(SERVICE_VERSION),
-            media_type=None,
-            headers={"content-type": "text/plain; version=0.0.4"},
-        )
-
-    api_v1_router = create_api_v1_router()
-    application.include_router(api_v1_router)
+    application.include_router(health_router)
+    application.include_router(api_router)
 
     return application
 
