@@ -20,10 +20,17 @@ try {
     ]
   });
 } catch (error) {
-  process.stdout.write(
-    "Skipping Vitest run: install Node dev dependencies to enable renderer tests.\n"
-  );
-  process.exit(0);
+  const offlineRunner = path.join(__dirname, "offline-vitest-runner.mjs");
+  const offlineResult = spawnSync(process.execPath, [offlineRunner, ...process.argv.slice(2)], {
+    cwd: repoRoot,
+    stdio: "inherit"
+  });
+
+  if (offlineResult.error) {
+    throw offlineResult.error;
+  }
+
+  process.exit(offlineResult.status ?? 1);
 }
 
 const vitestArgs = ["run", ...process.argv.slice(2)];
