@@ -198,8 +198,8 @@ def _compile_manuscript(
             order_value = front_matter.get("order")
             if not isinstance(order_value, int):
                 raise DraftRequestError(
-                    "Scene front-matter order must be an integer.",
-                    {"unit_id": scene.id, "order": order_value},
+                    "Scene front-matter is missing required fields.",
+                    {"unit_id": scene.id, "field": "order", "value": order_value},
                 )
             if order_value in seen_orders:
                 raise DraftRequestError(
@@ -607,33 +607,54 @@ async def generate_draft(
         current_spend=budget_state.spent_usd,
     )
 
+    if status_label == "blocked":
+        raise_budget_error(
+            message=message,
+            details={
+                "estimated_usd": estimated_cost,
+                "total_after_usd": total_after,
+                "hard_limit_usd": budget_state.hard_limit,
+                "soft_limit_usd": budget_state.soft_limit,
+                "spent_usd": budget_state.spent_usd,
+            },
+            diagnostics=diagnostics,
+            project_root=project_root,
+        )
+
     synthesizer = DraftSynthesizer()
-    scenes_payload: list[dict[str, Any]] = []
-    for scene in scene_summaries:
-        scene_payload: dict[str, Any] = {
-            "id": scene.id,
-            "title": scene.title,
-            "order": scene.order,
-        }
-        if scene.chapter_id is not None:
-            scene_payload["chapter_id"] = scene.chapter_id
-        if scene.beat_refs:
-            scene_payload["beat_refs"] = list(scene.beat_refs)
-        scenes_payload.append(scene_payload)
+    persistence = DraftPersistence(settings=settings)
+    units: list[dict[str, Any]] = []
+    for index, scene in enumerate(scene_summaries):
+        overrides = request_model.overrides.get(scene.id)
+        synthesis = synthesizer.synthesize(
+            request=request_model,
+            scene=scene,
+            overrides=overrides,
+            unit_index=index,
+        )
+        persistence.write_scene(
+            request_model.project_id, synthesis.front_matter, synthesis.body
+        )
+        units.append(synthesis.unit)
+
+    _persist_project_budget(budget_state, total_after)
+
+    draft_id = f"dr_{uuid4().hex[:8]}"
 
     return {
         "project_id": request_model.project_id,
         "unit_scope": request_model.unit_scope.value,
         "unit_ids": request_model.unit_ids,
-        "model": dict(synthesizer._MODEL),
-        "scenes": scenes_payload,
+        "draft_id": draft_id,
+        "schema_version": "DraftUnitSchema v1",
+        "units": units,
         "budget": {
             "estimated_usd": estimated_cost,
             "status": status_label,
             "message": message,
             "soft_limit_usd": round(budget_state.soft_limit, 2),
             "hard_limit_usd": round(budget_state.hard_limit, 2),
-            "spent_usd": round(budget_state.spent_usd, 2),
+            "spent_usd": round(total_after, 2),
             "total_after_usd": round(total_after, 2),
         },
     }
@@ -695,24 +716,26 @@ async def preflight_draft(
         current_spend=budget_state.spent_usd,
     )
 
-    if status_label == "blocked":
-        raise_budget_error(
-            message=message,
-            details={
-                "estimated_usd": estimated_cost,
-                "total_after_usd": total_after,
-                "hard_limit_usd": budget_state.hard_limit,
-                "soft_limit_usd": budget_state.soft_limit,
-                "spent_usd": budget_state.spent_usd,
-            },
-            diagnostics=diagnostics,
-            project_root=project_root,
-        )
+    synthesizer = DraftSynthesizer()
+    scenes_payload: list[dict[str, Any]] = []
+    for scene in scene_summaries:
+        scene_payload: dict[str, Any] = {
+            "id": scene.id,
+            "title": scene.title,
+            "order": scene.order,
+        }
+        if scene.chapter_id is not None:
+            scene_payload["chapter_id"] = scene.chapter_id
+        if scene.beat_refs:
+            scene_payload["beat_refs"] = list(scene.beat_refs)
+        scenes_payload.append(scene_payload)
 
     return {
         "project_id": request_model.project_id,
         "unit_scope": request_model.unit_scope.value,
         "unit_ids": request_model.unit_ids,
+        "model": dict(synthesizer._MODEL),
+        "scenes": scenes_payload,
         "budget": {
             "estimated_usd": estimated_cost,
             "status": status_label,
@@ -889,25 +912,33 @@ async def accept_draft(
             project_root=project_root,
         )
 
-    if _normalize_markdown(current_body) != _normalize_markdown(
-        request_model.unit.text
-    ):
+    current_normalized = _normalize_markdown(current_body)
+    current_digest = _compute_sha256(current_body)
+    if current_digest != request_model.unit.previous_sha256:
         raise_conflict_error(
-            message="The scene on disk no longer matches the submitted draft unit.",
+            message="The submitted draft unit is out of date.",
             details={"unit_id": request_model.unit_id},
             diagnostics=diagnostics,
             project_root=project_root,
         )
+
+    recovery_tracker.mark_in_progress(
+        request_model.project_id,
+        unit_id=request_model.unit_id,
+        draft_id=request_model.draft_id,
+        message=request_model.message,
+    )
 
     updated_front_matter = _merge_meta(front_matter, request_model.unit.meta)
     updated_front_matter["id"] = request_model.unit_id
 
     persistence = DraftPersistence(settings=settings)
     try:
+        normalized_text = _normalize_markdown(request_model.unit.text)
         persistence.write_scene(
             request_model.project_id,
             updated_front_matter,
-            _normalize_markdown(request_model.unit.text),
+            normalized_text,
         )
     except OSError as exc:
         diagnostics.log(
@@ -925,18 +956,11 @@ async def accept_draft(
             },
         ) from exc
 
-    diff_payload = compute_diff(
-        _normalize_markdown(request_model.unit.text),
-        _normalize_markdown(request_model.unit.text),
-    )
+    diff_payload = compute_diff(current_normalized, normalized_text)
 
-    snapshot_info = snapshot_persistence.capture_snapshot(
+    snapshot_info = snapshot_persistence.create_snapshot(
         request_model.project_id,
-        reason="draft-accept",
-        metadata={
-            "unit_id": request_model.unit_id,
-            "digest": _compute_sha256(request_model.unit.text),
-        },
+        label=request_model.snapshot_label,
     )
     recovery_tracker.mark_completed(request_model.project_id, snapshot_info)
 
