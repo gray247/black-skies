@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import logging
-from typing import Awaitable, Callable, Final
+from typing import Any, Awaitable, Callable, Final
 
-from fastapi import FastAPI, HTTPException, Request, Response, status
+from fastapi import Depends, FastAPI, HTTPException, Request, Response, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
@@ -21,21 +21,75 @@ from .http import (
     resolve_trace_id,
 )
 from .metrics import record_request
-from .persistence import SnapshotPersistence
+from .outline_builder import OutlineBuilder
+from .persistence import OutlinePersistence, SnapshotPersistence
 from .routers import api_router
 from .routers.draft import (
     HARD_BUDGET_LIMIT_USD,
     SOFT_BUDGET_LIMIT_USD,
     _build_meta_header,
     _load_project_budget_state,
+    accept_draft,
+    critique_draft,
+    export_manuscript,
+    generate_draft,
+    preflight_draft,
+    rewrite_draft,
 )
 from .routers.health import router as health_router
-from .routers.outline import BuildInProgressError, BuildTracker
-from .routers.recovery import RecoveryTracker
+from .routers.outline import (
+    BuildInProgressError,
+    BuildTracker,
+    build_outline,
+    get_outline_builder,
+    get_persistence as get_outline_persistence,
+)
+from .routers.recovery import RecoveryTracker, recovery_restore, recovery_status
+from .routers.dependencies import (
+    get_build_tracker,
+    get_diagnostics,
+    get_recovery_tracker,
+    get_settings,
+    get_snapshot_persistence,
+)
+from .models.wizard import OutlineBuildRequest
 
 LOGGER = logging.getLogger(__name__)
 
 SERVICE_VERSION: Final[str] = "0.1.0"
+
+LEGACY_DEPRECATION_HEADER: Final[str] = "true"
+LEGACY_SUNSET_HEADER: Final[str] = "Mon, 29 Sep 2025 00:00:00 GMT"
+
+
+def _resolve_active_trace_id(request: Request) -> str:
+    """Return the trace identifier attached by the middleware."""
+
+    trace_id = getattr(request.state, "trace_id", "")  # type: ignore[attr-defined]
+    if trace_id:
+        return trace_id
+    header_trace = request.headers.get(TRACE_ID_HEADER)
+    if header_trace:
+        return header_trace
+    return ensure_trace_id()
+
+
+def _apply_legacy_headers(response: Response, trace_id: str) -> None:
+    """Attach legacy sunset metadata to shim responses."""
+
+    response.headers[TRACE_ID_HEADER] = trace_id
+    response.headers["Deprecation"] = LEGACY_DEPRECATION_HEADER
+    response.headers["Sunset"] = LEGACY_SUNSET_HEADER
+
+
+def _apply_legacy_headers_to_exception(exc: HTTPException, trace_id: str) -> None:
+    """Ensure error responses for shims include sunset metadata."""
+
+    headers = dict(exc.headers or {})
+    headers.setdefault(TRACE_ID_HEADER, trace_id)
+    headers.setdefault("Deprecation", LEGACY_DEPRECATION_HEADER)
+    headers.setdefault("Sunset", LEGACY_SUNSET_HEADER)
+    exc.headers = headers
 
 
 def create_app(settings: ServiceSettings | None = None) -> FastAPI:
@@ -105,6 +159,206 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
 
     application.include_router(health_router)
     application.include_router(api_router)
+
+    # TODO(P6.1): Remove legacy shim routes once the GUI migrates to /api/v1 paths.
+
+    @application.post("/outline/build", include_in_schema=False)
+    async def legacy_outline_build(
+        request_model: OutlineBuildRequest,
+        request: Request,
+        response: Response,
+        tracker: BuildTracker = Depends(get_build_tracker),
+        builder: OutlineBuilder = Depends(get_outline_builder),
+        persistence: OutlinePersistence = Depends(get_outline_persistence),
+        diagnostics: DiagnosticLogger = Depends(get_diagnostics),
+    ) -> dict[str, object]:
+        trace_id = _resolve_active_trace_id(request)
+        try:
+            result = await build_outline(
+                request_model,
+                tracker=tracker,
+                builder=builder,
+                persistence=persistence,
+                diagnostics=diagnostics,
+            )
+        except HTTPException as exc:
+            _apply_legacy_headers_to_exception(exc, trace_id)
+            raise
+        _apply_legacy_headers(response, trace_id)
+        return result
+
+    @application.post("/draft/generate", include_in_schema=False)
+    async def legacy_draft_generate(
+        payload: dict[str, Any],
+        request: Request,
+        response: Response,
+        settings: ServiceSettings = Depends(get_settings),
+        diagnostics: DiagnosticLogger = Depends(get_diagnostics),
+    ) -> dict[str, Any]:
+        trace_id = _resolve_active_trace_id(request)
+        try:
+            result = await generate_draft(
+                payload,
+                settings=settings,
+                diagnostics=diagnostics,
+            )
+        except HTTPException as exc:
+            _apply_legacy_headers_to_exception(exc, trace_id)
+            raise
+        _apply_legacy_headers(response, trace_id)
+        return result
+
+    @application.post("/draft/preflight", include_in_schema=False)
+    async def legacy_draft_preflight(
+        payload: dict[str, Any],
+        request: Request,
+        response: Response,
+        settings: ServiceSettings = Depends(get_settings),
+        diagnostics: DiagnosticLogger = Depends(get_diagnostics),
+    ) -> dict[str, Any]:
+        trace_id = _resolve_active_trace_id(request)
+        try:
+            result = await preflight_draft(
+                payload,
+                settings=settings,
+                diagnostics=diagnostics,
+            )
+        except HTTPException as exc:
+            _apply_legacy_headers_to_exception(exc, trace_id)
+            raise
+        _apply_legacy_headers(response, trace_id)
+        return result
+
+    @application.post("/draft/rewrite", include_in_schema=False)
+    async def legacy_draft_rewrite(
+        payload: dict[str, Any],
+        request: Request,
+        response: Response,
+        settings: ServiceSettings = Depends(get_settings),
+        diagnostics: DiagnosticLogger = Depends(get_diagnostics),
+    ) -> dict[str, Any]:
+        trace_id = _resolve_active_trace_id(request)
+        try:
+            result = await rewrite_draft(
+                payload,
+                settings=settings,
+                diagnostics=diagnostics,
+            )
+        except HTTPException as exc:
+            _apply_legacy_headers_to_exception(exc, trace_id)
+            raise
+        _apply_legacy_headers(response, trace_id)
+        return result
+
+    @application.post("/draft/critique", include_in_schema=False)
+    async def legacy_draft_critique(
+        request: Request,
+        response: Response,
+    ) -> dict[str, Any]:
+        trace_id = _resolve_active_trace_id(request)
+        try:
+            result = await critique_draft()
+        except HTTPException as exc:
+            _apply_legacy_headers_to_exception(exc, trace_id)
+            raise
+        _apply_legacy_headers(response, trace_id)
+        return result
+
+    @application.post("/draft/accept", include_in_schema=False)
+    async def legacy_draft_accept(
+        payload: dict[str, Any],
+        request: Request,
+        response: Response,
+        settings: ServiceSettings = Depends(get_settings),
+        diagnostics: DiagnosticLogger = Depends(get_diagnostics),
+        snapshot_persistence: SnapshotPersistence = Depends(get_snapshot_persistence),
+        recovery_tracker: RecoveryTracker = Depends(get_recovery_tracker),
+    ) -> dict[str, Any]:
+        trace_id = _resolve_active_trace_id(request)
+        try:
+            result = await accept_draft(
+                payload,
+                settings=settings,
+                diagnostics=diagnostics,
+                snapshot_persistence=snapshot_persistence,
+                recovery_tracker=recovery_tracker,
+            )
+        except HTTPException as exc:
+            _apply_legacy_headers_to_exception(exc, trace_id)
+            raise
+        _apply_legacy_headers(response, trace_id)
+        return result
+
+    @application.post("/draft/export", include_in_schema=False)
+    async def legacy_draft_export(
+        payload: dict[str, Any],
+        request: Request,
+        response: Response,
+        settings: ServiceSettings = Depends(get_settings),
+        diagnostics: DiagnosticLogger = Depends(get_diagnostics),
+    ) -> dict[str, Any]:
+        trace_id = _resolve_active_trace_id(request)
+        try:
+            result = await export_manuscript(
+                payload,
+                settings=settings,
+                diagnostics=diagnostics,
+            )
+        except HTTPException as exc:
+            _apply_legacy_headers_to_exception(exc, trace_id)
+            raise
+        _apply_legacy_headers(response, trace_id)
+        return result
+
+    @application.get("/draft/recovery", include_in_schema=False)
+    async def legacy_recovery_status(
+        project_id: str,
+        request: Request,
+        response: Response,
+        settings: ServiceSettings = Depends(get_settings),
+        diagnostics: DiagnosticLogger = Depends(get_diagnostics),
+        recovery_tracker: RecoveryTracker = Depends(get_recovery_tracker),
+        snapshot_persistence: SnapshotPersistence = Depends(get_snapshot_persistence),
+    ) -> dict[str, Any]:
+        trace_id = _resolve_active_trace_id(request)
+        try:
+            result = await recovery_status(
+                project_id,
+                settings=settings,
+                diagnostics=diagnostics,
+                recovery_tracker=recovery_tracker,
+                snapshot_persistence=snapshot_persistence,
+            )
+        except HTTPException as exc:
+            _apply_legacy_headers_to_exception(exc, trace_id)
+            raise
+        _apply_legacy_headers(response, trace_id)
+        return result
+
+    @application.post("/draft/recovery/restore", include_in_schema=False)
+    async def legacy_recovery_restore(
+        payload: dict[str, Any],
+        request: Request,
+        response: Response,
+        settings: ServiceSettings = Depends(get_settings),
+        diagnostics: DiagnosticLogger = Depends(get_diagnostics),
+        snapshot_persistence: SnapshotPersistence = Depends(get_snapshot_persistence),
+        recovery_tracker: RecoveryTracker = Depends(get_recovery_tracker),
+    ) -> dict[str, Any]:
+        trace_id = _resolve_active_trace_id(request)
+        try:
+            result = await recovery_restore(
+                payload,
+                settings=settings,
+                diagnostics=diagnostics,
+                snapshot_persistence=snapshot_persistence,
+                recovery_tracker=recovery_tracker,
+            )
+        except HTTPException as exc:
+            _apply_legacy_headers_to_exception(exc, trace_id)
+            raise
+        _apply_legacy_headers(response, trace_id)
+        return result
 
     return application
 
