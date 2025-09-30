@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron';
 import { spawn, type ChildProcessByStdio } from 'node:child_process';
 import { once } from 'node:events';
 import net from 'node:net';
@@ -11,11 +11,16 @@ import {
   getLogger,
   initializeMainLogging,
   logWithLevel,
+  getDiagnosticsLogFilePath,
   registerRendererLogSink,
   shutdownLogging,
   type LogLevel,
   type Logger,
 } from './logging.js';
+import {
+  DIAGNOSTICS_CHANNELS,
+  type DiagnosticsOpenResult,
+} from '../shared/ipc/diagnostics.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -314,6 +319,43 @@ async function stopServices(): Promise<void> {
   });
 }
 
+function resolveDiagnosticsDirectory(): string | null {
+  const logPath = getDiagnosticsLogFilePath();
+  if (!logPath) {
+    return null;
+  }
+  return dirname(logPath);
+}
+
+function registerDiagnosticsIpc(): void {
+  ipcMain.removeHandler(DIAGNOSTICS_CHANNELS.openHistory);
+  ipcMain.handle(
+    DIAGNOSTICS_CHANNELS.openHistory,
+    async (): Promise<DiagnosticsOpenResult> => {
+      const directory = resolveDiagnosticsDirectory();
+      if (!directory) {
+        return {
+          ok: false,
+          error: 'Diagnostics folder is not available yet.',
+        };
+      }
+
+      try {
+        const result = await shell.openPath(directory);
+        if (typeof result === 'string' && result.length > 0) {
+          return { ok: false, error: result };
+        }
+        return { ok: true, path: directory };
+      } catch (error) {
+        return {
+          ok: false,
+          error: error instanceof Error ? error.message : String(error),
+        };
+      }
+    },
+  );
+}
+
 async function createMainWindow(): Promise<BrowserWindow> {
   const window = new BrowserWindow({
     width: 1280,
@@ -430,6 +472,7 @@ if (!hasSingleInstanceLock) {
     .then(async () => {
       await initializeMainLogging(app);
       registerRendererLogSink();
+      registerDiagnosticsIpc();
       ensureMainLogger().info('Electron app ready');
       setupAppEventHandlers();
       if (process.platform === 'win32') {
