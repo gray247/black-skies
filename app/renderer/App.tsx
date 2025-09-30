@@ -167,43 +167,59 @@ export default function App(): JSX.Element {
     [services, pushToast],
   );
 
-  const handleProjectLoaded = useCallback(
-    (event: ProjectLoadEvent) => {
-      setLastProjectPath(event.lastOpenedPath);
-
-      if (event.status === 'loaded' && event.project) {
-        const project = event.project;
-        const projectId = deriveProjectIdFromPath(project.path);
-        const unitIds = project.scenes.map((scene) => scene.id);
-        setProjectSummary({
-          projectId,
-          path: project.path,
-          unitScope: 'scene',
-          unitIds,
-        });
-        void fetchRecoveryStatus(projectId);
-        return;
-      }
-
-      if (event.status === 'init' && event.project) {
-        const projectId = deriveProjectIdFromPath(event.project.path);
-        const unitIds = event.project.scenes.map((scene) => scene.id);
-        setProjectSummary({
-          projectId,
-          path: event.project.path,
-          unitScope: 'scene',
-          unitIds,
-        });
-        void fetchRecoveryStatus(projectId);
-        return;
-      }
-
-      if (event.status !== 'init') {
-        setProjectSummary(null);
-        setRecoveryStatus(null);
-      }
+  const activateProject = useCallback(
+    (project: LoadedProject) => {
+      const projectId = deriveProjectIdFromPath(project.path);
+      const unitIds = project.scenes.map((scene) => scene.id);
+      setProjectSummary({
+        projectId,
+        path: project.path,
+        unitScope: 'scene',
+        unitIds,
+      });
+      void fetchRecoveryStatus(projectId);
     },
     [fetchRecoveryStatus],
+  );
+
+  const handleProjectLoaded = useCallback(
+    (payload: ProjectLoadEvent | LoadedProject | null | undefined) => {
+      if (!payload) {
+        setProjectSummary(null);
+        setRecoveryStatus(null);
+        return;
+      }
+
+      if ('status' in payload) {
+        const { status, project, lastOpenedPath } = payload;
+        setLastProjectPath(lastOpenedPath ?? project?.path ?? null);
+
+        if ((status === 'loaded' || status === 'init') && project) {
+          activateProject(project);
+          return;
+        }
+
+        if (status === 'failed' || status === 'cleared') {
+          setProjectSummary(null);
+          setRecoveryStatus(null);
+          return;
+        }
+
+        if (project) {
+          activateProject(project);
+          return;
+        }
+
+        setProjectSummary(null);
+        setRecoveryStatus(null);
+        return;
+      }
+
+      const legacyProject = payload;
+      setLastProjectPath(legacyProject.path);
+      activateProject(legacyProject);
+    },
+    [activateProject],
   );
 
   const handleRestoreSnapshot = useCallback(async () => {
