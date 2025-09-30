@@ -282,6 +282,41 @@ def test_outline_build_conflict(test_client: TestClient, tmp_path: Path) -> None
     assert diagnostic["code"] == "CONFLICT"
 
 
+def test_legacy_outline_build_shim_headers(
+    test_client: TestClient, tmp_path: Path
+) -> None:
+    """Legacy outline shim proxies to the versioned handler with sunset headers."""
+
+    payload = _build_payload()
+    payload["project_id"] = "proj_legacy_outline"
+
+    response = test_client.post("/outline/build", json=payload)
+    assert response.status_code == 200
+
+    legacy_body = response.json()
+    assert legacy_body["schema_version"] == "OutlineSchema v1"
+    assert response.headers["Deprecation"] == "true"
+    assert response.headers["Sunset"] == "Mon, 29 Sep 2025 00:00:00 GMT"
+    _assert_trace_header(response)
+
+    v1_response = test_client.post(f"{API_PREFIX}/outline/build", json=payload)
+    assert v1_response.status_code == 200
+    assert v1_response.json() == legacy_body
+
+
+def test_legacy_draft_generate_shim_error_headers(test_client: TestClient) -> None:
+    """Legacy draft shim applies deprecation headers even on errors."""
+
+    payload = {"project_id": "proj_legacy_error"}
+
+    response = test_client.post("/draft/generate", json=payload)
+    assert response.status_code == 400
+    detail = _read_error(response)
+    assert detail["code"] == "VALIDATION"
+    assert response.headers["Deprecation"] == "true"
+    assert response.headers["Sunset"] == "Mon, 29 Sep 2025 00:00:00 GMT"
+
+
 def test_draft_generate_scene_success(test_client: TestClient, tmp_path: Path) -> None:
     """Draft generation writes Markdown and returns deterministic metadata."""
 
