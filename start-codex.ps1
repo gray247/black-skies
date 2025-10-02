@@ -162,9 +162,21 @@ function Run-Tests {
 }
 
 function Start-ServicesWindow {
-  if (-not $env:BLACKSKIES_PROJECT_BASE_DIR) {
-    throw "BLACKSKIES_PROJECT_BASE_DIR is not set. Configure it before launching the services."
+  $defaultProjectBaseDir = Join-Path $RepoRoot "sample_project"
+  $projectBaseDir = $env:BLACKSKIES_PROJECT_BASE_DIR
+  if (-not $projectBaseDir) {
+    $projectBaseDir = $defaultProjectBaseDir
+    Write-Host "BLACKSKIES_PROJECT_BASE_DIR not set; defaulting to $projectBaseDir" -ForegroundColor Yellow
+  } else {
+    Write-Host "Using BLACKSKIES_PROJECT_BASE_DIR=$projectBaseDir" -ForegroundColor Cyan
   }
+
+  if (-not (Test-Path -LiteralPath $projectBaseDir)) {
+    $setInstruction = "Project base directory '$projectBaseDir' does not exist. Set BLACKSKIES_PROJECT_BASE_DIR to a valid path (e.g., `setx BLACKSKIES_PROJECT_BASE_DIR C:\\path\\to\\project`) or ensure the fallback directory exists at $defaultProjectBaseDir."
+    throw $setInstruction
+  }
+
+  $env:BLACKSKIES_PROJECT_BASE_DIR = $projectBaseDir
 
   $pythonExe = Join-Path ".\\.venv\\Scripts" "python.exe"
   if (-not (Test-Path -LiteralPath $pythonExe)) {
