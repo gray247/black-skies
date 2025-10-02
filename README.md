@@ -10,6 +10,11 @@ Windows 11 only (1.0). macOS/Linux planned post‑1.0.
 ## Dev Quickstart
 Prereqs: **Node 20 LTS**, **PNPM**, **Python 3.11**
 
+> [!TIP]
+> When copying PowerShell commands from this README (or the script banner), copy only the command itself. Including the leading
+> `PS C:\...>` prompt causes PowerShell to interpret `PS` as the `Get-Process` alias and the command will fail before
+> `start-codex.ps1` can run.
+
 1. **Install workspace dependencies**
    ```bash
    pnpm run install
