@@ -6,6 +6,9 @@
 #                  Assumes dependencies are already synchronized above; mirrors the README workflow.
 # Usage:
 #   powershell.exe -ExecutionPolicy Bypass -File .\start-codex.ps1 [-LaunchGui]
+#   (Run the command exactly as shown; do not prefix it with the literal
+#    `PS C:\...>` prompt or PowerShell will treat `PS` as the `Get-Process`
+#    alias and exit before the script starts.)
 
 param(
   [switch]$NoCodex,
