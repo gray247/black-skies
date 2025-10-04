@@ -31,7 +31,10 @@ the services manually as described below.
 Use the workflow documented in the README:
 
 ```powershell
+# Either direct install…
 pnpm install --recursive
+# …or run the repo helper that does the same thing
+pnpm run install
 pnpm dev
 ```
 
