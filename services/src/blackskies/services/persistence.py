@@ -12,9 +12,7 @@ from pathlib import Path
 from typing import Any, Sequence
 from uuid import uuid4
 
-import yaml
-
-from blackskies.services.utils.paths import to_posix
+from blackskies.services.utils import safe_dump, to_posix
 
 SNAPSHOT_ID_PATTERN = re.compile(r"^\d{8}T\d{6}Z$")
 
@@ -349,7 +347,7 @@ class SnapshotPersistence:
                     drafts.append(entry)
                 manifest["drafts"] = drafts
 
-        manifest_yaml = yaml.safe_dump(
+        manifest_yaml = safe_dump(
             manifest, sort_keys=False, allow_unicode=True, indent=2
         )
         write_text_atomic(directory / "snapshot.yaml", manifest_yaml)
