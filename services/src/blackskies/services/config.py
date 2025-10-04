@@ -7,7 +7,20 @@ from pathlib import Path
 from typing import Any, Mapping, cast
 
 from pydantic import Field, field_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+
+try:
+    from pydantic_settings import BaseSettings, SettingsConfigDict
+except ModuleNotFoundError as exc:  # pragma: no cover - exercised via unit tests
+    missing = exc.name or "pydantic-settings"
+    help_message = (
+        f"Missing dependency '{missing}'. Activate the Black Skies virtual "
+        "environment and install the locked requirements before launching the "
+        "services.\n"
+        "  Windows PowerShell: .\\.venv\\Scripts\\Activate.ps1\n"
+        "  bash/zsh: source .venv/bin/activate\n"
+        "Then run: pip install -r requirements.lock"
+    )
+    raise ModuleNotFoundError(help_message) from exc
 
 
 class ServiceSettings(BaseSettings):
