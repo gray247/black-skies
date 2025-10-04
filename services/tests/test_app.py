@@ -40,6 +40,28 @@ def _read_error(response: Any) -> dict[str, object]:
     return payload
 
 
+def test_service_index_reports_manifest(test_client: TestClient) -> None:
+    """Root endpoint returns a manifest to aid manual verification."""
+
+    response = test_client.get("/")
+    assert response.status_code == 200
+    assert response.json() == {
+        "service": "black-skies",
+        "version": SERVICE_VERSION,
+        "api_base": "/api/v1",
+    }
+    _assert_trace_header(response)
+
+
+def test_favicon_placeholder_returns_no_content(test_client: TestClient) -> None:
+    """Favicon requests return a no-content response instead of 404."""
+
+    response = test_client.get("/favicon.ico")
+    assert response.status_code == 204
+    assert response.content == b""
+    _assert_trace_header(response)
+
+
 def _build_payload() -> dict[str, object]:
     """Return a representative outline build payload."""
 
