@@ -10,8 +10,6 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from blackskies.services.app import create_app
-
 
 def _ensure_src_on_path() -> None:
     """Add the services src directory to ``sys.path`` for imports."""
@@ -23,6 +21,8 @@ def _ensure_src_on_path() -> None:
 
 
 _ensure_src_on_path()
+
+from blackskies.services.app import create_app
 
 
 @pytest.fixture()

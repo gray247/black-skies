@@ -7,6 +7,9 @@ import importlib
 import sys
 import textwrap
 
+import logging
+from pathlib import Path
+
 import pytest
 
 
@@ -53,8 +56,25 @@ def test_from_environment_validates_project_dir(tmp_path, monkeypatch):
         _load_service_settings().from_environment()
 
 
-def test_missing_dependency_raises_actionable_message(monkeypatch):
-    """Surface a helpful instruction when optional tooling is not installed."""
+def test_default_project_dir_falls_back_to_repo_root(monkeypatch):
+    """When running inside the services directory, locate the repository sample project."""
+
+    repo_root = Path(__file__).resolve().parents[3]
+    services_dir = repo_root / "services"
+    sample_project = repo_root / "sample_project"
+
+    assert sample_project.exists()
+
+    monkeypatch.chdir(services_dir)
+    monkeypatch.delenv("BLACKSKIES_PROJECT_BASE_DIR", raising=False)
+
+    settings = _load_service_settings().from_environment()
+
+    assert settings.project_base_dir == sample_project
+
+
+def test_missing_dependency_falls_back_to_base_model(monkeypatch, caplog):
+    """Fallback to a BaseModel-powered settings implementation when optional deps are absent."""
 
     original_import = builtins.__import__
 
@@ -72,13 +92,20 @@ def test_missing_dependency_raises_actionable_message(monkeypatch):
     monkeypatch.setattr(builtins, "__import__", _raise_for_pydantic_settings)
     sys.modules.pop("blackskies.services.config", None)
 
-    with pytest.raises(ModuleNotFoundError) as exc_info:
-        importlib.import_module("blackskies.services.config")
+    with caplog.at_level(logging.WARNING):
+        module = importlib.import_module("blackskies.services.config")
 
-    message = str(exc_info.value)
-    assert "pydantic-settings" in message
-    assert "Activate the Black Skies virtual environment" in message
+    assert "pydantic-settings" in caplog.text
+
+    settings_cls = module.ServiceSettings
+
+    from pydantic import BaseModel
+
+    assert issubclass(settings_cls, BaseModel)
+    assert settings_cls.model_config["env_prefix"] == "BLACKSKIES_"
+    assert settings_cls.from_environment().project_base_dir.exists()
 
     # Restore the real module for subsequent tests.
     monkeypatch.setattr(builtins, "__import__", original_import)
+    sys.modules.pop("blackskies.services.config", None)
     importlib.import_module("blackskies.services.config")

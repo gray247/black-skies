@@ -2,25 +2,48 @@
 
 from __future__ import annotations
 
+import logging
 import os
 from pathlib import Path
-from typing import Any, Mapping, cast
+from typing import Any, ClassVar, Mapping, cast
 
-from pydantic import Field, field_validator
+from pydantic import BaseModel, Field, field_validator
 
-try:
+logger = logging.getLogger(__name__)
+
+try:  # pragma: no branch - import guard is deterministic
     from pydantic_settings import BaseSettings, SettingsConfigDict
-except ModuleNotFoundError as exc:  # pragma: no cover - exercised via unit tests
-    missing = exc.name or "pydantic-settings"
-    help_message = (
-        f"Missing dependency '{missing}'. Activate the Black Skies virtual "
-        "environment and install the locked requirements before launching the "
-        "services.\n"
-        "  Windows PowerShell: .\\.venv\\Scripts\\Activate.ps1\n"
-        "  bash/zsh: source .venv/bin/activate\n"
-        "Then run: pip install -r requirements.lock"
+except ModuleNotFoundError:  # pragma: no cover - behaviour asserted via tests
+    logger.warning(
+        "Optional dependency 'pydantic-settings' is missing. "
+        "Install it for full settings support: pip install pydantic-settings",
     )
-    raise ModuleNotFoundError(help_message) from exc
+
+    def SettingsConfigDict(**config: Any) -> dict[str, Any]:
+        """Fallback helper mirroring the external factory."""
+
+        return dict(config)
+
+    class BaseSettings(BaseModel):
+        """Minimal fallback providing Pydantic model behaviour."""
+
+        model_config: ClassVar[dict[str, Any]] = {"extra": "ignore"}
+
+
+def _default_project_dir() -> Path:
+    """Determine a sensible default project directory."""
+
+    cwd_candidate = Path.cwd() / "sample_project"
+    if cwd_candidate.exists():
+        return cwd_candidate
+
+    module_path = Path(__file__).resolve()
+    for parent in module_path.parents:
+        candidate = parent / "sample_project"
+        if candidate.exists():
+            return candidate
+
+    return cwd_candidate
 
 
 class ServiceSettings(BaseSettings):
@@ -34,7 +57,7 @@ class ServiceSettings(BaseSettings):
     )
 
     project_base_dir: Path = Field(
-        default_factory=lambda: Path.cwd() / "sample_project",
+        default_factory=_default_project_dir,
         description="Base directory containing project folders.",
     )
 
