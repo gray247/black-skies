@@ -840,6 +840,47 @@ def test_draft_accept_success_creates_snapshot(
     assert "missing_drafts" not in manifest
 
 
+def test_wizard_lock_creates_snapshot(test_client: TestClient, tmp_path: Path) -> None:
+    """Locking a wizard step writes a snapshot for the project."""
+
+    project_id = "proj_wizard_lock"
+    _bootstrap_outline(tmp_path, project_id, scene_count=1)
+    _bootstrap_scene(tmp_path, project_id)
+
+    payload = {
+        "project_id": project_id,
+        "step": "structure",
+        "label": "wizard-structure",
+        "includes": ["outline.json"],
+    }
+
+    response = test_client.post(f"{API_PREFIX}/draft/wizard/lock", json=payload)
+    assert response.status_code == 200
+
+    data = response.json()
+    assert data["snapshot_id"]
+    assert data["label"] == "wizard-structure"
+    assert data["path"].startswith("history/snapshots/")
+
+    snapshot_dir = tmp_path / project_id / data["path"]
+    assert snapshot_dir.exists()
+    metadata_path = snapshot_dir / "metadata.json"
+    metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+    assert metadata["snapshot_id"] == data["snapshot_id"]
+
+
+def test_wizard_lock_missing_project_returns_validation_error(
+    test_client: TestClient,
+) -> None:
+    """Locking fails when the project folder is absent."""
+
+    payload = {"project_id": "proj_missing", "step": "themes"}
+    response = test_client.post(f"{API_PREFIX}/draft/wizard/lock", json=payload)
+    assert response.status_code == 400
+    detail = _read_error(response)
+    assert detail["code"] == "VALIDATION"
+
+
 def test_draft_accept_conflict_on_checksum(
     test_client: TestClient, tmp_path: Path
 ) -> None:

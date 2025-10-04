@@ -27,6 +27,7 @@ from ..models.accept import DraftAcceptRequest
 from ..models.draft import DraftGenerateRequest, DraftUnitOverrides, DraftUnitScope
 from ..models.outline import OutlineArtifact, OutlineScene
 from ..models.rewrite import DraftRewriteRequest
+from ..models.wizard import WizardLockSnapshotRequest
 from ..persistence import DraftPersistence, SnapshotPersistence, write_text_atomic
 from ..scene_docs import DraftRequestError, read_scene_document
 from ..utils.paths import to_posix
@@ -1036,6 +1037,73 @@ async def accept_draft(
         },
         "schema_version": "DraftAcceptResult v1",
     }
+
+
+@router.post("/wizard/lock")
+async def lock_wizard_step(
+    payload: dict[str, Any],
+    settings: ServiceSettings = Depends(get_settings),
+    diagnostics: DiagnosticLogger = Depends(get_diagnostics),
+    snapshot_persistence: SnapshotPersistence = Depends(get_snapshot_persistence),
+) -> dict[str, Any]:
+    """Create a snapshot when a Wizard step is locked."""
+
+    try:
+        request_model = WizardLockSnapshotRequest.model_validate(payload)
+    except ValidationError as exc:
+        project_id = payload.get("project_id") if isinstance(payload, dict) else None
+        project_root = (
+            settings.project_base_dir / project_id if isinstance(project_id, str) else None
+        )
+        raise_validation_error(
+            message="Invalid wizard lock payload.",
+            details={"errors": exc.errors()},
+            diagnostics=diagnostics,
+            project_root=project_root,
+        )
+
+    project_root = settings.project_base_dir / request_model.project_id
+    if not project_root.exists():
+        raise_validation_error(
+            message="Project root is missing.",
+            details={"project_id": request_model.project_id},
+            diagnostics=diagnostics,
+            project_root=None,
+        )
+
+    label = request_model.label or f"wizard-{request_model.step}"
+    include_entries = request_model.includes or None
+
+    try:
+        snapshot_info = snapshot_persistence.create_snapshot(
+            request_model.project_id,
+            label=label,
+            include_entries=include_entries,
+        )
+    except OSError as exc:
+        diagnostics.log(
+            project_root,
+            code="INTERNAL",
+            message="Failed to create wizard snapshot.",
+            details={"step": request_model.step, "error": str(exc)},
+        )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={
+                "code": "INTERNAL",
+                "message": "Failed to create wizard snapshot.",
+                "details": {"step": request_model.step},
+            },
+        ) from exc
+
+    diagnostics.log(
+        project_root,
+        code="SNAPSHOT",
+        message=f"Wizard step {request_model.step} locked.",
+        details={"step": request_model.step, "snapshot_id": snapshot_info.get("snapshot_id")},
+    )
+
+    return snapshot_info
 
 
 @router.post("/export")
