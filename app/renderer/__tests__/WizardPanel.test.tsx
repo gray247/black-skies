@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import WizardPanel from '../components/WizardPanel';
 import type { ServicesBridge } from '../../shared/ipc/services';
 
-const STORAGE_KEY = 'blackskies.wizard-locks.v1';
+const STORAGE_KEY = 'blackskies.wizard-locks.v2';
 
 describe('WizardPanel', () => {
   beforeEach(() => {
@@ -24,6 +24,16 @@ describe('WizardPanel', () => {
           scenes: [],
         },
         traceId: 'trace-outline',
+      }),
+      createSnapshot: vi.fn().mockResolvedValue({
+        ok: true,
+        data: {
+          snapshot_id: 'snap-001',
+          label: 'wizard-structure',
+          created_at: '2025-01-01T00:00:00Z',
+          path: 'history/snapshots/snap-001',
+        },
+        traceId: 'trace-snapshot',
       }),
       generateDraft: vi.fn().mockResolvedValue({
         ok: true,
@@ -66,7 +76,7 @@ describe('WizardPanel', () => {
     return services;
   };
 
-  it('submits wizard locks to the services bridge', async () => {
+  it('requires locks before building the outline', async () => {
     const services = createServices();
     const onToast = vi.fn();
 
@@ -76,11 +86,34 @@ describe('WizardPanel', () => {
     fireEvent.change(projectInput, { target: { value: 'Test Project' } });
 
     const nextButton = screen.getByRole('button', { name: /Next/i });
-    fireEvent.click(nextButton);
-    fireEvent.click(nextButton);
-    fireEvent.click(nextButton);
+    const lockSequence = [
+      'Input & Scope',
+      'Framing',
+      'Structure',
+      'Scenes',
+      'Characters',
+      'Conflict',
+      'Beats',
+      'Pacing',
+      'Chapters',
+      'Themes',
+      'Finalize',
+    ];
 
-    const buildButton = screen.getByRole('button', { name: /Build Outline/i });
+    for (let index = 0; index < lockSequence.length; index += 1) {
+      const lockButton = screen.getByRole('button', { name: /lock/i });
+      fireEvent.click(lockButton);
+      await waitFor(() => expect(services.createSnapshot).toHaveBeenCalledTimes(index + 1));
+      if (index < lockSequence.length - 1) {
+        fireEvent.click(nextButton);
+      }
+    }
+
+    expect(services.createSnapshot).toHaveBeenCalledWith(
+      expect.objectContaining({ step: 'input_scope' }),
+    );
+
+    const buildButton = await screen.findByRole('button', { name: /Build Outline/i });
     fireEvent.click(buildButton);
 
     await waitFor(() => expect(services.buildOutline).toHaveBeenCalled());

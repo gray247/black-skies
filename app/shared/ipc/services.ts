@@ -45,6 +45,28 @@ export interface WizardLocks {
   scenes: WizardSceneLock[];
 }
 
+export type WizardLockStepId =
+  | 'input_scope'
+  | 'framing'
+  | 'structure'
+  | 'scenes'
+  | 'characters'
+  | 'conflict'
+  | 'beats'
+  | 'pacing'
+  | 'chapters'
+  | 'themes'
+  | 'finalize';
+
+export interface WizardLockSnapshotBridgeRequest {
+  projectId: string;
+  step: WizardLockStepId;
+  label?: string;
+  includes?: string[];
+}
+
+export type WizardLockSnapshotBridgeResponse = SnapshotSummary;
+
 export interface OutlineBuildBridgeRequest {
   projectId: string;
   forceRebuild?: boolean;
@@ -230,6 +252,9 @@ export interface ServicesBridge {
   acceptDraft: (
     request: DraftAcceptBridgeRequest,
   ) => Promise<ServiceResult<DraftAcceptBridgeResponse>>;
+  createSnapshot: (
+    request: WizardLockSnapshotBridgeRequest,
+  ) => Promise<ServiceResult<WizardLockSnapshotBridgeResponse>>;
   getRecoveryStatus: (
     request: RecoveryStatusBridgeRequest,
   ) => Promise<ServiceResult<RecoveryStatusBridgeResponse>>;

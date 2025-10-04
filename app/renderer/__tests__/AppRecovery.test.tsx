@@ -181,6 +181,15 @@ function createServicesMock(): ServicesBridge {
       data: response,
       traceId: 'trace-accept',
     }),
+    createSnapshot: vi.fn().mockResolvedValue({
+      ok: true,
+      data: {
+        snapshot_id: 'snap-test',
+        label: 'wizard-structure',
+        created_at: '2025-01-01T00:00:00Z',
+        path: 'history/snapshots/snap-test',
+      },
+    }),
     getRecoveryStatus: vi.fn(),
     restoreSnapshot: vi.fn(),
   };

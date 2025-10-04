@@ -90,15 +90,24 @@ function createServicesMock(): ServicesBridge {
       data: draftResponse,
       traceId: 'trace-generate',
     }),
-    critiqueDraft: vi.fn().mockResolvedValue({
-      ok: true,
-      data: {
-        unit_id: 'sc_0001',
-        schema_version: 'CritiqueOutputSchema v1',
-        summary: 'Stub critique',
-      },
-      traceId: 'trace-critique',
-    }),
+      critiqueDraft: vi.fn().mockResolvedValue({
+        ok: true,
+        data: {
+          unit_id: 'sc_0001',
+          schema_version: 'CritiqueOutputSchema v1',
+          summary: 'Stub critique',
+        },
+        traceId: 'trace-critique',
+      }),
+      createSnapshot: vi.fn().mockResolvedValue({
+        ok: true,
+        data: {
+          snapshot_id: 'snap-test',
+          label: 'wizard-structure',
+          created_at: '2025-01-01T00:00:00Z',
+          path: 'history/snapshots/snap-test',
+        },
+      }),
     preflightDraft: vi.fn().mockResolvedValue({
       ok: true,
       data: {

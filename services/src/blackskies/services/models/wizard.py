@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Literal
+
 from pydantic import BaseModel, Field, field_validator
 
 from ._project_id import validate_project_id
@@ -51,10 +53,58 @@ class OutlineBuildRequest(BaseModel):
         return validate_project_id(value)
 
 
+WIZARD_LOCK_STEPS: tuple[str, ...] = (
+    "input_scope",
+    "framing",
+    "structure",
+    "scenes",
+    "characters",
+    "conflict",
+    "beats",
+    "pacing",
+    "chapters",
+    "themes",
+    "finalize",
+)
+
+
+class WizardLockSnapshotRequest(BaseModel):
+    """Request payload for creating Wizard lock snapshots."""
+
+    project_id: str
+    step: Literal[
+        "input_scope",
+        "framing",
+        "structure",
+        "scenes",
+        "characters",
+        "conflict",
+        "beats",
+        "pacing",
+        "chapters",
+        "themes",
+        "finalize",
+    ]
+    label: str | None = None
+    includes: list[str] = Field(default_factory=list)
+
+    @field_validator("project_id")
+    @classmethod
+    def _validate_project_id(cls, value: str) -> str:
+        return validate_project_id(value)
+
+    @field_validator("includes")
+    @classmethod
+    def _sanitize_includes(cls, value: list[str]) -> list[str]:
+        return [item for item in value if isinstance(item, str) and item.strip()]
+
+
 __all__ = [
     "OutlineBuildRequest",
     "WizardActLock",
     "WizardChapterLock",
     "WizardLocks",
     "WizardSceneLock",
+    "WizardLockSnapshotRequest",
+    "WIZARD_LOCK_STEPS",
 ]

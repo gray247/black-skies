@@ -38,6 +38,8 @@ import type {
   ServiceHealthResponse,
   ServiceResult,
   ServicesBridge,
+  WizardLockSnapshotBridgeRequest,
+  WizardLockSnapshotBridgeResponse,
 } from '../shared/ipc/services.js';
 
 type ConsoleMethod = 'log' | 'info' | 'warn' | 'error' | 'debug';
@@ -279,6 +281,20 @@ function serializeOutlineRequest({
   };
 }
 
+function serializeWizardSnapshotRequest({
+  projectId,
+  step,
+  label,
+  includes,
+}: WizardLockSnapshotBridgeRequest): Record<string, unknown> {
+  return {
+    project_id: projectId,
+    step,
+    label,
+    includes: includes && includes.length > 0 ? includes : undefined,
+  };
+}
+
 function serializeDraftOverrides(
   overrides?: Record<string, DraftUnitOverrides | undefined>,
 ): Record<string, unknown> | undefined {
@@ -484,6 +500,13 @@ const servicesBridge: ServicesBridge = {
       'draft/accept',
       'POST',
       serializeAcceptRequest(request),
+    );
+  },
+  async createSnapshot(request: WizardLockSnapshotBridgeRequest) {
+    return performRequest<WizardLockSnapshotBridgeResponse>(
+      'draft/wizard/lock',
+      'POST',
+      serializeWizardSnapshotRequest(request),
     );
   },
   async getRecoveryStatus(request: RecoveryStatusBridgeRequest) {

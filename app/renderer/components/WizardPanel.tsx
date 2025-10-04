@@ -1,13 +1,16 @@
-﻿import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import type {
   OutlineBuildBridgeRequest,
   ServicesBridge,
+  SnapshotSummary,
   WizardLocks,
+  WizardLockStepId,
 } from '../../shared/ipc/services';
 import type { ToastPayload } from '../types/toast';
 
-const STORAGE_KEY = 'blackskies.wizard-locks.v1';
+const STORAGE_KEY = 'blackskies.wizard-locks.v2';
+const LEGACY_STORAGE_KEYS = ['blackskies.wizard-locks.v1'];
 
 const DEFAULT_ACTS = ['Act I', 'Act II', 'Act III'].join('\n');
 const DEFAULT_CHAPTERS = ['1|Arrival', '2|Storm Rising', '3|Break In'].join('\n');
@@ -15,12 +18,39 @@ const DEFAULT_SCENES = ['1|Basement Pulse|inciting', '2|Locked Parlor|turn'].joi
 
 interface WizardDraftState {
   projectId: string;
-  acts: string;
-  chapters: string;
+  inputScope: string;
+  framing: string;
+  structureActs: string;
   scenes: string;
+  characters: string;
+  conflict: string;
+  beats: string;
+  pacing: string;
+  chapters: string;
+  themes: string;
 }
 
-type WizardStep = 'acts' | 'chapters' | 'scenes' | 'review';
+type WizardStep =
+  | 'inputScope'
+  | 'framing'
+  | 'structure'
+  | 'scenes'
+  | 'characters'
+  | 'conflict'
+  | 'beats'
+  | 'pacing'
+  | 'chapters'
+  | 'themes'
+  | 'finalize';
+
+interface StepLockState {
+  locked: boolean;
+  snapshot?: SnapshotSummary | null;
+}
+
+type WizardStepLocks = Record<WizardStep, StepLockState>;
+
+type LockRequestMap = Record<WizardStep, boolean>;
 
 interface WizardPanelProps {
   services?: ServicesBridge;
@@ -39,54 +69,250 @@ interface ParsedScene {
   beatRefs: string[];
 }
 
-function readStoredDraft(): WizardDraftState {
-  if (typeof window === 'undefined') {
-    return {
-      projectId: '',
-      acts: DEFAULT_ACTS,
-      chapters: DEFAULT_CHAPTERS,
-      scenes: DEFAULT_SCENES,
-    };
-  }
-
-  try {
-    const stored = window.localStorage.getItem(STORAGE_KEY);
-    if (!stored) {
-      return {
-        projectId: '',
-        acts: DEFAULT_ACTS,
-        chapters: DEFAULT_CHAPTERS,
-        scenes: DEFAULT_SCENES,
-      };
-    }
-    const parsed = JSON.parse(stored) as Partial<WizardDraftState>;
-    return {
-      projectId: typeof parsed.projectId === 'string' ? parsed.projectId : '',
-      acts: typeof parsed.acts === 'string' && parsed.acts.trim().length > 0
-        ? parsed.acts
-        : DEFAULT_ACTS,
-      chapters:
-        typeof parsed.chapters === 'string' && parsed.chapters.trim().length > 0
-          ? parsed.chapters
-          : DEFAULT_CHAPTERS,
-      scenes:
-        typeof parsed.scenes === 'string' && parsed.scenes.trim().length > 0
-          ? parsed.scenes
-          : DEFAULT_SCENES,
-    };
-  } catch (error) {
-    console.warn('[WizardPanel] Failed to parse stored draft state', error);
-    return {
-      projectId: '',
-      acts: DEFAULT_ACTS,
-      chapters: DEFAULT_CHAPTERS,
-      scenes: DEFAULT_SCENES,
-    };
-  }
+interface WizardStoragePayload {
+  version?: number;
+  draft?: Partial<WizardDraftState>;
+  locks?: Partial<Record<WizardStep, Partial<StepLockState>>>;
 }
+
+const STEP_SEQUENCE: WizardStep[] = [
+  'inputScope',
+  'framing',
+  'structure',
+  'scenes',
+  'characters',
+  'conflict',
+  'beats',
+  'pacing',
+  'chapters',
+  'themes',
+  'finalize',
+];
+
+const STEP_TO_SERVICE_ID: Record<WizardStep, WizardLockStepId> = {
+  inputScope: 'input_scope',
+  framing: 'framing',
+  structure: 'structure',
+  scenes: 'scenes',
+  characters: 'characters',
+  conflict: 'conflict',
+  beats: 'beats',
+  pacing: 'pacing',
+  chapters: 'chapters',
+  themes: 'themes',
+  finalize: 'finalize',
+};
+
+interface StepFieldConfig {
+  valueKey: keyof WizardDraftState;
+  label: string;
+  rows: number;
+  hint?: string;
+  placeholder?: string;
+}
+
+const STEP_FIELDS: Partial<Record<WizardStep, StepFieldConfig>> = {
+  inputScope: {
+    valueKey: 'inputScope',
+    label: 'Input & Scope',
+    rows: 5,
+    hint: 'Collect your raw notes, premise bullets, and scope decisions.',
+  },
+  framing: {
+    valueKey: 'framing',
+    label: 'Initial Framing',
+    rows: 4,
+    hint: 'Premise, logline, genre, and audience expectations.',
+  },
+  structure: {
+    valueKey: 'structureActs',
+    label: 'Structure (Acts)',
+    rows: 4,
+    hint: 'List each act or section (one per line). Example: Act I',
+    placeholder: DEFAULT_ACTS,
+  },
+  scenes: {
+    valueKey: 'scenes',
+    label: 'Scene Skeleton',
+    rows: 6,
+    hint: 'Format: CHAPTER_INDEX|Title|beat,beat. Example: 1|Basement Pulse|inciting',
+    placeholder: DEFAULT_SCENES,
+  },
+  characters: {
+    valueKey: 'characters',
+    label: 'Character Decisions',
+    rows: 5,
+    hint: 'Who are the core characters and how do they arc?',
+  },
+  conflict: {
+    valueKey: 'conflict',
+    label: 'Conflict & Stakes',
+    rows: 4,
+    hint: 'Central conflict and what happens if they fail.',
+  },
+  beats: {
+    valueKey: 'beats',
+    label: 'Beats & Turning Points',
+    rows: 4,
+    hint: 'Note the inciting incident, midpoint, climax, and twists.',
+  },
+  pacing: {
+    valueKey: 'pacing',
+    label: 'Pacing & Flow',
+    rows: 4,
+    hint: 'Word count targets, where to speed up or slow down.',
+  },
+  chapters: {
+    valueKey: 'chapters',
+    label: 'Chapterization',
+    rows: 5,
+    hint: 'Format: ACT_INDEX|Title. Example: 1|Arrival',
+    placeholder: DEFAULT_CHAPTERS,
+  },
+  themes: {
+    valueKey: 'themes',
+    label: 'Thematic Layering',
+    rows: 4,
+    hint: 'Which themes and motifs should echo across the story?',
+  },
+};
 
 function sanitizeProjectId(value: string): string {
   return value.trim().replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_\-]/g, '').toLowerCase();
+}
+
+function createDefaultDraft(): WizardDraftState {
+  return {
+    projectId: '',
+    inputScope: '',
+    framing: '',
+    structureActs: DEFAULT_ACTS,
+    scenes: DEFAULT_SCENES,
+    characters: '',
+    conflict: '',
+    beats: '',
+    pacing: '',
+    chapters: DEFAULT_CHAPTERS,
+    themes: '',
+  };
+}
+
+function createInitialLocks(): WizardStepLocks {
+  return STEP_SEQUENCE.reduce((accumulator, step) => {
+    accumulator[step] = { locked: false, snapshot: null };
+    return accumulator;
+  }, {} as WizardStepLocks);
+}
+
+function createInitialLockRequests(): LockRequestMap {
+  return STEP_SEQUENCE.reduce((accumulator, step) => {
+    accumulator[step] = false;
+    return accumulator;
+  }, {} as LockRequestMap);
+}
+
+function normalizeDraft(candidate: unknown): WizardDraftState {
+  const base = createDefaultDraft();
+  if (!candidate || typeof candidate !== 'object') {
+    return base;
+  }
+  const record = candidate as Record<string, unknown>;
+  (Object.keys(base) as Array<keyof WizardDraftState>).forEach((key) => {
+    const value = record[key as string];
+    if (typeof value === 'string') {
+      base[key] = value;
+    }
+  });
+  if (typeof record.acts === 'string' && typeof record.structureActs !== 'string') {
+    base.structureActs = record.acts;
+  }
+  if (typeof record.chapters === 'string') {
+    base.chapters = record.chapters;
+  }
+  if (typeof record.scenes === 'string') {
+    base.scenes = record.scenes;
+  }
+  if (typeof record.projectId === 'string') {
+    base.projectId = record.projectId;
+  }
+  return base;
+}
+
+function normalizeLocks(candidate: unknown): WizardStepLocks {
+  const base = createInitialLocks();
+  if (!candidate || typeof candidate !== 'object') {
+    return base;
+  }
+  const record = candidate as Record<string, unknown>;
+  STEP_SEQUENCE.forEach((step) => {
+    const value = record[step];
+    if (!value || typeof value !== 'object') {
+      return;
+    }
+    const lockRecord = value as Record<string, unknown>;
+    const locked = Boolean(lockRecord.locked);
+    const snapshot = lockRecord.snapshot;
+    base[step] = {
+      locked,
+      snapshot:
+        snapshot && typeof snapshot === 'object'
+          ? ({
+              snapshot_id:
+                typeof (snapshot as Record<string, unknown>).snapshot_id === 'string'
+                  ? ((snapshot as Record<string, unknown>).snapshot_id as string)
+                  : undefined,
+              label:
+                typeof (snapshot as Record<string, unknown>).label === 'string'
+                  ? ((snapshot as Record<string, unknown>).label as string)
+                  : undefined,
+              created_at:
+                typeof (snapshot as Record<string, unknown>).created_at === 'string'
+                  ? ((snapshot as Record<string, unknown>).created_at as string)
+                  : undefined,
+              path:
+                typeof (snapshot as Record<string, unknown>).path === 'string'
+                  ? ((snapshot as Record<string, unknown>).path as string)
+                  : undefined,
+              includes:
+                Array.isArray((snapshot as Record<string, unknown>).includes)
+                  ? ((snapshot as Record<string, unknown>).includes as string[])
+                  : undefined,
+            } as SnapshotSummary)
+          : null,
+    };
+  });
+  return base;
+}
+
+function readStoredState(): { draft: WizardDraftState; locks: WizardStepLocks } {
+  if (typeof window === 'undefined') {
+    return { draft: createDefaultDraft(), locks: createInitialLocks() };
+  }
+
+  const keysToCheck = [STORAGE_KEY, ...LEGACY_STORAGE_KEYS];
+  for (const key of keysToCheck) {
+    const raw = window.localStorage.getItem(key);
+    if (!raw) {
+      continue;
+    }
+    try {
+      const parsed = JSON.parse(raw) as WizardStoragePayload | Record<string, unknown>;
+      if (parsed && typeof parsed === 'object' && 'draft' in parsed) {
+        const payload = parsed as WizardStoragePayload;
+        const draft = normalizeDraft(payload.draft);
+        const locks = normalizeLocks(payload.locks);
+        return { draft, locks };
+      }
+      const legacy = parsed as Record<string, unknown>;
+      const draft = normalizeDraft(legacy);
+      return { draft, locks: createInitialLocks() };
+    } catch (error) {
+      console.warn('[WizardPanel] Failed to parse stored wizard state', error);
+      break;
+    }
+  }
+
+  return { draft: createDefaultDraft(), locks: createInitialLocks() };
 }
 
 function toActLines(text: string): string[] {
@@ -118,8 +344,7 @@ function toSceneLines(text: string): ParsedScene[] {
     .map((line) => {
       const [chapterIndexRaw, titleRaw, beatsRaw] = line.split('|');
       const chapterCandidate = Number.parseInt(chapterIndexRaw ?? '1', 10);
-      const chapterIndex =
-        Number.isFinite(chapterCandidate) && chapterCandidate > 0 ? chapterCandidate : 1;
+      const chapterIndex = Number.isFinite(chapterCandidate) && chapterCandidate > 0 ? chapterCandidate : 1;
       const title = (titleRaw ?? chapterIndexRaw ?? '').trim() || 'Untitled scene';
       const beatRefs = beatsRaw
         ? beatsRaw
@@ -132,7 +357,7 @@ function toSceneLines(text: string): ParsedScene[] {
 }
 
 function buildLocksFromDraft(draft: WizardDraftState): WizardLocks {
-  const acts = toActLines(draft.acts).map((title) => ({ title }));
+  const acts = toActLines(draft.structureActs).map((title) => ({ title }));
   const chapters = toChapterLines(draft.chapters).map((chapter) => ({
     title: chapter.title,
     actIndex: chapter.actIndex,
@@ -158,18 +383,30 @@ function locksToRequest(locks: WizardLocks): OutlineBuildBridgeRequest['wizardLo
   };
 }
 
-const STEP_SEQUENCE: WizardStep[] = ['acts', 'chapters', 'scenes', 'review'];
-
 function stepLabel(step: WizardStep): string {
   switch (step) {
-    case 'acts':
-      return 'Acts';
-    case 'chapters':
-      return 'Chapters';
+    case 'inputScope':
+      return 'Input & Scope';
+    case 'framing':
+      return 'Framing';
+    case 'structure':
+      return 'Structure';
     case 'scenes':
       return 'Scenes';
-    case 'review':
-      return 'Review';
+    case 'characters':
+      return 'Characters';
+    case 'conflict':
+      return 'Conflict';
+    case 'beats':
+      return 'Beats';
+    case 'pacing':
+      return 'Pacing';
+    case 'chapters':
+      return 'Chapters';
+    case 'themes':
+      return 'Themes';
+    case 'finalize':
+      return 'Finalize';
     default:
       return step;
   }
@@ -180,9 +417,16 @@ export default function WizardPanel({
   onToast,
   onOutlineReady,
 }: WizardPanelProps): JSX.Element {
-  const [draft, setDraft] = useState<WizardDraftState>(() => readStoredDraft());
-  const [step, setStep] = useState<WizardStep>('acts');
+  const initialStateRef = useRef<{ draft: WizardDraftState; locks: WizardStepLocks } | null>(null);
+  if (!initialStateRef.current) {
+    initialStateRef.current = readStoredState();
+  }
+
+  const [draft, setDraft] = useState<WizardDraftState>(initialStateRef.current.draft);
+  const [locks, setLocks] = useState<WizardStepLocks>(initialStateRef.current.locks);
+  const [step, setStep] = useState<WizardStep>('inputScope');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [lockRequests, setLockRequests] = useState<LockRequestMap>(() => createInitialLockRequests());
   const [lastMessage, setLastMessage] = useState<ToastPayload | null>(null);
 
   useEffect(() => {
@@ -190,55 +434,183 @@ export default function WizardPanel({
       return;
     }
     try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
+      const payload: WizardStoragePayload = {
+        version: 2,
+        draft,
+        locks,
+      };
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
     } catch (error) {
-      console.warn('[WizardPanel] Failed to persist draft state', error);
+      console.warn('[WizardPanel] Failed to persist wizard state', error);
     }
-  }, [draft]);
+  }, [draft, locks]);
 
   const parsedLocks = useMemo(() => buildLocksFromDraft(draft), [draft]);
-
   const currentIndex = useMemo(() => STEP_SEQUENCE.indexOf(step), [step]);
   const canGoNext = currentIndex < STEP_SEQUENCE.length - 1;
   const canGoBack = currentIndex > 0;
+  const hasPendingLock = useMemo(
+    () => STEP_SEQUENCE.some((sequenceStep) => lockRequests[sequenceStep]),
+    [lockRequests],
+  );
+  const allLocksEngaged = useMemo(
+    () => STEP_SEQUENCE.every((sequenceStep) => locks[sequenceStep].locked),
+    [locks],
+  );
+  const finalizeReady = step === 'finalize' && allLocksEngaged;
 
   const updateField = useCallback(
     (field: keyof WizardDraftState, value: string) => {
-      setDraft((previous) => ({
-        ...previous,
-        [field]: value,
-      }));
+      setDraft((previous) => {
+        if (previous[field] === value) {
+          return previous;
+        }
+        return {
+          ...previous,
+          [field]: value,
+        };
+      });
     },
     [],
   );
 
   const handleAdvance = useCallback(() => {
-    if (!canGoNext) {
+    if (!canGoNext || hasPendingLock) {
       return;
     }
     setStep(STEP_SEQUENCE[currentIndex + 1]);
-  }, [canGoNext, currentIndex]);
+  }, [canGoNext, currentIndex, hasPendingLock]);
 
   const handleRetreat = useCallback(() => {
-    if (!canGoBack) {
+    if (!canGoBack || hasPendingLock) {
       return;
     }
     setStep(STEP_SEQUENCE[currentIndex - 1]);
-  }, [canGoBack, currentIndex]);
+  }, [canGoBack, currentIndex, hasPendingLock]);
 
   const handleReset = useCallback(() => {
-    setDraft({
-      projectId: '',
-      acts: DEFAULT_ACTS,
-      chapters: DEFAULT_CHAPTERS,
-      scenes: DEFAULT_SCENES,
-    });
-    setStep('acts');
+    setDraft(createDefaultDraft());
+    setLocks(createInitialLocks());
+    setLockRequests(createInitialLockRequests());
+    setStep('inputScope');
     setLastMessage(null);
   }, []);
 
+  const handleToggleLock = useCallback(
+    async (targetStep: WizardStep) => {
+      if (lockRequests[targetStep]) {
+        return;
+      }
+
+      const currentLock = locks[targetStep];
+      if (currentLock?.locked) {
+        setLocks((previous) => ({
+          ...previous,
+          [targetStep]: { locked: false, snapshot: null },
+        }));
+        onToast({
+          tone: 'info',
+          title: `${stepLabel(targetStep)} unlocked`,
+          description: 'Editing re-enabled for this step.',
+        });
+        return;
+      }
+
+      if (!services) {
+        onToast({
+          tone: 'error',
+          title: 'Services bridge unavailable',
+          description: 'Unable to reach local services. Ensure the background process is running.',
+        });
+        return;
+      }
+
+      const projectIdRaw = draft.projectId.trim();
+      if (projectIdRaw.length === 0) {
+        onToast({
+          tone: 'warning',
+          title: 'Project ID required',
+          description: 'Enter a project identifier before locking Wizard steps.',
+        });
+        setStep('inputScope');
+        return;
+      }
+
+      const sanitizedProjectId = sanitizeProjectId(projectIdRaw);
+      const safeProjectId = sanitizedProjectId || projectIdRaw;
+      if (safeProjectId !== draft.projectId) {
+        setDraft((previous) => ({
+          ...previous,
+          projectId: safeProjectId,
+        }));
+      }
+
+      setLockRequests((previous) => ({
+        ...previous,
+        [targetStep]: true,
+      }));
+
+      try {
+        const response = await services.createSnapshot({
+          projectId: safeProjectId,
+          step: STEP_TO_SERVICE_ID[targetStep],
+          label: `wizard-${STEP_TO_SERVICE_ID[targetStep]}`,
+        });
+
+        if (!response.ok) {
+          onToast({
+            tone: 'error',
+            title: 'Snapshot failed',
+            description: response.error.message || 'Unable to create a snapshot for this step.',
+            traceId: response.traceId ?? response.error.traceId,
+          });
+          return;
+        }
+
+        const snapshot = response.data;
+        setLocks((previous) => ({
+          ...previous,
+          [targetStep]: { locked: true, snapshot },
+        }));
+        onToast({
+          tone: 'success',
+          title: `${stepLabel(targetStep)} locked`,
+          description: `Snapshot ${snapshot.snapshot_id} created.`,
+          traceId: response.traceId,
+        });
+      } catch (error) {
+        onToast({
+          tone: 'error',
+          title: 'Snapshot failed',
+          description:
+            error instanceof Error
+              ? error.message
+              : 'Unable to create a snapshot for this step.',
+        });
+      } finally {
+        setLockRequests((previous) => ({
+          ...previous,
+          [targetStep]: false,
+        }));
+      }
+    },
+    [draft.projectId, lockRequests, locks, onToast, services],
+  );
+
   const handleBuildOutline = useCallback(async () => {
-    const projectIdRaw = draft.projectId.trim();
+    if (hasPendingLock) {
+      return;
+    }
+
+    if (!finalizeReady) {
+      onToast({
+        tone: 'warning',
+        title: 'Lock all steps first',
+        description: 'Finalize locks must be complete before building the outline.',
+      });
+      return;
+    }
+
     if (!services) {
       onToast({
         tone: 'error',
@@ -247,44 +619,54 @@ export default function WizardPanel({
       });
       return;
     }
+
+    const projectIdRaw = draft.projectId.trim();
     if (projectIdRaw.length === 0) {
       onToast({
         tone: 'warning',
         title: 'Project ID required',
         description: 'Enter a project identifier before building the outline.',
       });
-      setStep('acts');
+      setStep('inputScope');
       return;
     }
 
-    const safeProjectId = sanitizeProjectId(projectIdRaw) || projectIdRaw;
-    const locks = parsedLocks;
+    const sanitizedProjectId = sanitizeProjectId(projectIdRaw);
+    const safeProjectId = sanitizedProjectId || projectIdRaw;
+    if (safeProjectId !== draft.projectId) {
+      setDraft((previous) => ({
+        ...previous,
+        projectId: safeProjectId,
+      }));
+    }
 
-    if (locks.acts.length === 0) {
+    const locksPayload = parsedLocks;
+
+    if (locksPayload.acts.length === 0) {
       onToast({
         tone: 'warning',
         title: 'Add at least one act',
         description: 'The outline requires at least one act label.',
       });
-      setStep('acts');
+      setStep('structure');
       return;
     }
 
-    if (locks.chapters.length === 0) {
+    if (locksPayload.chapters.length === 0) {
       onToast({
         tone: 'warning',
         title: 'Add at least one chapter',
-        description: 'Define at least one chapter entry (format: ACT|Title).',
+        description: 'Define at least one chapter entry (format: ACT_INDEX|Title).',
       });
       setStep('chapters');
       return;
     }
 
-    if (locks.scenes.length === 0) {
+    if (locksPayload.scenes.length === 0) {
       onToast({
         tone: 'warning',
         title: 'Add at least one scene',
-        description: 'Provide at least one scene (format: CHAPTER|Title|beat).',
+        description: 'Provide at least one scene (format: CHAPTER_INDEX|Title|beat).',
       });
       setStep('scenes');
       return;
@@ -293,7 +675,7 @@ export default function WizardPanel({
     const request: OutlineBuildBridgeRequest = {
       projectId: safeProjectId,
       forceRebuild: false,
-      wizardLocks: locksToRequest(locks),
+      wizardLocks: locksToRequest(locksPayload),
     };
 
     setIsSubmitting(true);
@@ -324,15 +706,136 @@ export default function WizardPanel({
     };
     onToast(errorToast);
     setLastMessage(errorToast);
-  }, [draft.projectId, onOutlineReady, onToast, parsedLocks, services]);
+  }, [
+    draft.projectId,
+    finalizeReady,
+    hasPendingLock,
+    onOutlineReady,
+    onToast,
+    parsedLocks,
+    services,
+  ]);
+
+  const renderLockControl = (targetStep: WizardStep) => {
+    const lockState = locks[targetStep];
+    const snapshot = lockState.snapshot ?? null;
+    const busy = lockRequests[targetStep] || isSubmitting;
+    return (
+      <div className="wizard-panel__lock">
+        <div
+          className={`wizard-panel__lock-status ${lockState.locked ? 'wizard-panel__lock-status--locked' : 'wizard-panel__lock-status--unlocked'}`}
+        >
+          <span>{lockState.locked ? 'Locked' : 'Unlocked'}</span>
+          {lockState.locked && snapshot ? (
+            <span className="wizard-panel__lock-meta">
+              Snapshot {snapshot.label || snapshot.snapshot_id}
+              {snapshot.created_at ? ` • ${snapshot.created_at}` : ''}
+            </span>
+          ) : null}
+        </div>
+        <button
+          type="button"
+          className="wizard-panel__button wizard-panel__button--secondary"
+          onClick={() => void handleToggleLock(targetStep)}
+          disabled={busy}
+        >
+          {busy ? 'Working…' : lockState.locked ? 'Unlock' : 'Lock'}
+        </button>
+      </div>
+    );
+  };
+
+  const renderStepContent = () => {
+    if (step === 'finalize') {
+      return (
+        <div className="wizard-panel__section wizard-panel__section--finalize">
+          <div className="wizard-panel__section-header">
+            <h3>Finalize</h3>
+            {renderLockControl('finalize')}
+          </div>
+          <p>
+            Ensure every step is locked before building the outline. Locked steps capture a snapshot you can restore later.
+          </p>
+          <dl className="wizard-panel__summary">
+            <dt>Acts</dt>
+            <dd>{parsedLocks.acts.map((act) => act.title).join(', ') || '—'}</dd>
+            <dt>Chapters</dt>
+            <dd>
+              {parsedLocks.chapters
+                .map((chapter) => `Act ${chapter.actIndex}: ${chapter.title}`)
+                .join(', ') || '—'}
+            </dd>
+            <dt>Scenes</dt>
+            <dd>
+              {parsedLocks.scenes
+                .map((scene) => `Chapter ${scene.chapterIndex}: ${scene.title}`)
+                .join(', ') || '—'}
+            </dd>
+          </dl>
+          <ul className="wizard-panel__status-list">
+            {STEP_SEQUENCE.map((sequenceStep) => {
+              const lockState = locks[sequenceStep];
+              return (
+                <li
+                  key={sequenceStep}
+                  className={lockState.locked ? 'wizard-panel__status-item wizard-panel__status-item--locked' : 'wizard-panel__status-item'}
+                >
+                  <span className="wizard-panel__status-label">{stepLabel(sequenceStep)}</span>
+                  <span className="wizard-panel__status-value">
+                    {lockState.locked ? 'Locked' : 'Pending'}
+                    {lockState.locked && lockState.snapshot?.snapshot_id
+                      ? ` • ${lockState.snapshot.snapshot_id}`
+                      : ''}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+          {!allLocksEngaged ? (
+            <p className="wizard-panel__hint">Lock remaining steps to enable outline build.</p>
+          ) : null}
+          {lastMessage ? (
+            <p className={`wizard-panel__message wizard-panel__message--${lastMessage.tone}`}>
+              {lastMessage.title}
+            </p>
+          ) : null}
+        </div>
+      );
+    }
+
+    const fieldConfig = STEP_FIELDS[step];
+    if (!fieldConfig) {
+      return null;
+    }
+
+    const fieldId = `wizard-${step}`;
+    return (
+      <div className="wizard-panel__section">
+        <div className="wizard-panel__section-header">
+          <label htmlFor={fieldId}>{fieldConfig.label}</label>
+          {renderLockControl(step)}
+        </div>
+        {fieldConfig.hint ? <p className="wizard-panel__hint">{fieldConfig.hint}</p> : null}
+        <textarea
+          id={fieldId}
+          value={draft[fieldConfig.valueKey]}
+          onChange={(event) => updateField(fieldConfig.valueKey, event.target.value)}
+          rows={fieldConfig.rows}
+          className="wizard-panel__textarea"
+          placeholder={fieldConfig.placeholder}
+          disabled={locks[step].locked || lockRequests[step]}
+        />
+      </div>
+    );
+  };
 
   return (
     <div className="wizard-panel" aria-live="polite">
       <header className="wizard-panel__header">
         <h2>Wizard Controls</h2>
         <p>
-          Lock each step to freeze your outline decisions and create a snapshot before building.
-          Follow the formats below so acts, chapters, and scenes are saved exactly as listed.
+          Lock each step to freeze your outline decisions and create a snapshot before building. Follow the formats below so
+          acts, chapters, and scenes are saved exactly as listed.
         </p>
       </header>
 
@@ -346,10 +849,10 @@ export default function WizardPanel({
           placeholder="e.g., esther_estate"
           className="wizard-panel__input"
           autoComplete="off"
+          disabled={isSubmitting || hasPendingLock}
         />
         <p className="wizard-panel__hint">
-          The project ID should match the folder within your project root. It will be normalised to
-          snake_case when saved.
+          The project ID should match the folder within your project root. It will be normalised to snake_case when saved.
         </p>
       </div>
 
@@ -357,13 +860,22 @@ export default function WizardPanel({
         <ol>
           {STEP_SEQUENCE.map((sequenceStep, index) => {
             const active = sequenceStep === step;
+            const locked = locks[sequenceStep].locked;
+            const classes = ['wizard-panel__step'];
+            if (active) {
+              classes.push('wizard-panel__step--active');
+            }
+            if (locked) {
+              classes.push('wizard-panel__step--locked');
+            }
             return (
-              <li key={sequenceStep} className={active ? 'wizard-panel__step--active' : ''}>
+              <li key={sequenceStep} className={classes.join(' ')}>
                 <button
                   type="button"
                   className="wizard-panel__step-button"
                   onClick={() => setStep(sequenceStep)}
                   aria-current={active ? 'step' : undefined}
+                  disabled={hasPendingLock}
                 >
                   {index + 1}. {stepLabel(sequenceStep)}
                 </button>
@@ -373,78 +885,7 @@ export default function WizardPanel({
         </ol>
       </nav>
 
-      {step === 'acts' ? (
-        <div className="wizard-panel__section">
-          <label htmlFor="wizard-acts">Acts (one per line)</label>
-          <textarea
-            id="wizard-acts"
-            value={draft.acts}
-            onChange={(event) => updateField('acts', event.target.value)}
-            rows={4}
-            className="wizard-panel__textarea"
-          />
-          <p className="wizard-panel__hint">Example: Act I</p>
-        </div>
-      ) : null}
-
-      {step === 'chapters' ? (
-        <div className="wizard-panel__section">
-          <label htmlFor="wizard-chapters">Chapters (format: ACT_INDEX|Title)</label>
-          <textarea
-            id="wizard-chapters"
-            value={draft.chapters}
-            onChange={(event) => updateField('chapters', event.target.value)}
-            rows={5}
-            className="wizard-panel__textarea"
-          />
-          <p className="wizard-panel__hint">Example: 1|Arrival</p>
-        </div>
-      ) : null}
-
-      {step === 'scenes' ? (
-        <div className="wizard-panel__section">
-          <label htmlFor="wizard-scenes">Scenes (format: CHAPTER_INDEX|Title|beat,beat)</label>
-          <textarea
-            id="wizard-scenes"
-            value={draft.scenes}
-            onChange={(event) => updateField('scenes', event.target.value)}
-            rows={6}
-            className="wizard-panel__textarea"
-          />
-          <p className="wizard-panel__hint">Example: 1|Basement Pulse|inciting</p>
-        </div>
-      ) : null}
-
-      {step === 'review' ? (
-        <div className="wizard-panel__section">
-          <h3>Review</h3>
-          <p>
-            Review the locked inputs that will be sent to the outline builder. Acts, chapters, and
-            scenes will be written to the project index in this order.
-          </p>
-          <dl className="wizard-panel__summary">
-            <dt>Acts</dt>
-            <dd>{parsedLocks.acts.map((act) => act.title).join(', ')}</dd>
-            <dt>Chapters</dt>
-            <dd>
-              {parsedLocks.chapters
-                .map((chapter) => `Act ${chapter.actIndex}: ${chapter.title}`)
-                .join(', ')}
-            </dd>
-            <dt>Scenes</dt>
-            <dd>
-              {parsedLocks.scenes
-                .map((scene) => `Chapter ${scene.chapterIndex}: ${scene.title}`)
-                .join(', ')}
-            </dd>
-          </dl>
-          {lastMessage ? (
-            <p className={`wizard-panel__message wizard-panel__message--${lastMessage.tone}`}>
-              {lastMessage.title}
-            </p>
-          ) : null}
-        </div>
-      ) : null}
+      {renderStepContent()}
 
       <footer className="wizard-panel__footer">
         <div className="wizard-panel__footer-left">
@@ -452,7 +893,7 @@ export default function WizardPanel({
             type="button"
             className="wizard-panel__button"
             onClick={handleRetreat}
-            disabled={!canGoBack || isSubmitting}
+            disabled={!canGoBack || isSubmitting || hasPendingLock}
           >
             Back
           </button>
@@ -460,7 +901,7 @@ export default function WizardPanel({
             type="button"
             className="wizard-panel__button"
             onClick={handleAdvance}
-            disabled={!canGoNext || isSubmitting}
+            disabled={!canGoNext || isSubmitting || hasPendingLock}
           >
             Next
           </button>
@@ -470,20 +911,23 @@ export default function WizardPanel({
             type="button"
             className="wizard-panel__button wizard-panel__button--secondary"
             onClick={handleReset}
-            disabled={isSubmitting}
+            disabled={isSubmitting || hasPendingLock}
           >
             Reset
           </button>
-          <button
-            type="button"
-            className="wizard-panel__button wizard-panel__button--primary"
-            onClick={handleBuildOutline}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? 'Building…' : 'Build Outline'}
-          </button>
+          {finalizeReady ? (
+            <button
+              type="button"
+              className="wizard-panel__button wizard-panel__button--primary"
+              onClick={handleBuildOutline}
+              disabled={isSubmitting || hasPendingLock}
+            >
+              {isSubmitting ? 'Building…' : 'Build Outline'}
+            </button>
+          ) : null}
         </div>
       </footer>
     </div>
   );
 }
+
