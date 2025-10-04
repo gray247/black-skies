@@ -8,7 +8,7 @@
     "pnpm": ">=8.0.0"
   },
   "scripts": {
-    "install": "pnpm install --recursive",
+    "bootstrap": "pnpm install --recursive",
     "lint": "pnpm -r lint",
     "dev": "pnpm exec concurrently --kill-others-on-fail --names renderer,electron \"pnpm --filter app dev\" \"node ./scripts/electron-dev-placeholder.mjs\""
   },
