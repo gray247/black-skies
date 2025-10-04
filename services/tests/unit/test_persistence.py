@@ -5,6 +5,19 @@ from __future__ import annotations
 from blackskies.services.persistence import DraftPersistence
 
 
+def test_safe_dump_falls_back_to_json(monkeypatch) -> None:
+    from blackskies.services.utils import yaml as yaml_utils
+
+    monkeypatch.setattr(yaml_utils, "_yaml", None)
+
+    payload = {"message": "héllo", "count": 2}
+    rendered = yaml_utils.safe_dump(payload, sort_keys=True, allow_unicode=True, indent=2)
+
+    assert rendered.startswith("{\n")
+    assert '"count": 2' in rendered.splitlines()[1]
+    assert rendered.endswith("\n")
+
+
 def test_render_preserves_unknown_meta() -> None:
     front_matter = {
         "id": "scene-1",
