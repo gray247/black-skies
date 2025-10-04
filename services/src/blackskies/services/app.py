@@ -160,6 +160,23 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
     application.include_router(health_router)
     application.include_router(api_router)
 
+    @application.get("/", include_in_schema=False)
+    async def service_index(request: Request) -> dict[str, str]:
+        """Return a lightweight service manifest for manual probes."""
+
+        version = getattr(request.app.state, "service_version", SERVICE_VERSION)
+        return {
+            "service": "black-skies",
+            "version": version,
+            "api_base": "/api/v1",
+        }
+
+    @application.get("/favicon.ico", include_in_schema=False)
+    async def favicon_placeholder() -> Response:
+        """Return an empty favicon response to avoid noisy 404s."""
+
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
+
     # TODO(P6.1): Remove legacy shim routes once the GUI migrates to /api/v1 paths.
 
     @application.post("/outline/build", include_in_schema=False)
