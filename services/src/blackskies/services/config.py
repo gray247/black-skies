@@ -2,29 +2,11 @@
 
 from __future__ import annotations
 
-import logging
 import os
 from pathlib import Path
 from typing import Any, ClassVar, Mapping, cast
 
 from pydantic import BaseModel, Field, field_validator
-
-logger = logging.getLogger(__name__)
-
-try:  # pragma: no branch - import guard is deterministic
-    from pydantic_settings import BaseSettings, SettingsConfigDict
-except ModuleNotFoundError:  # pragma: no cover - behaviour asserted via tests
-    logger.warning(
-        "Optional dependency 'pydantic-settings' is missing. "
-        "Install it for full settings support: pip install pydantic-settings",
-    )
-
-    SettingsConfigDict = dict[str, Any]
-
-    class BaseSettings(BaseModel):
-        """Minimal fallback providing Pydantic model behaviour."""
-
-        model_config: ClassVar[dict[str, Any]] = {"extra": "ignore"}
 
 
 def _default_project_dir() -> Path:
@@ -43,15 +25,15 @@ def _default_project_dir() -> Path:
     return cwd_candidate
 
 
-class ServiceSettings(BaseSettings):
+class ServiceSettings(BaseModel):
     """Runtime configuration for the FastAPI services."""
 
-    model_config = SettingsConfigDict(
-        env_prefix="BLACKSKIES_",
-        env_file=".env",
-        env_file_encoding="utf-8",
-        extra="ignore",
-    )
+    model_config: ClassVar[dict[str, Any]] = {
+        "env_prefix": "BLACKSKIES_",
+        "env_file": ".env",
+        "env_file_encoding": "utf-8",
+        "extra": "ignore",
+    }
 
     project_base_dir: Path = Field(
         default_factory=_default_project_dir,

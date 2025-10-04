@@ -7,7 +7,6 @@ import importlib
 import sys
 import textwrap
 
-import logging
 from pathlib import Path
 
 import pytest
@@ -73,12 +72,12 @@ def test_default_project_dir_falls_back_to_repo_root(monkeypatch):
     assert settings.project_base_dir == sample_project
 
 
-def test_missing_dependency_falls_back_to_base_model(monkeypatch, caplog):
-    """Fallback to a BaseModel-powered settings implementation when optional deps are absent."""
+def test_service_settings_module_has_no_optional_dependency(monkeypatch):
+    """Ensure importing the module does not require `pydantic-settings`."""
 
     original_import = builtins.__import__
 
-    def _raise_for_pydantic_settings(
+    def _block_pydantic_settings(
         name: str,
         globals: dict[str, object] | None = None,
         locals: dict[str, object] | None = None,
@@ -89,22 +88,10 @@ def test_missing_dependency_falls_back_to_base_model(monkeypatch, caplog):
             raise ModuleNotFoundError("No module named 'pydantic_settings'")
         return original_import(name, globals, locals, fromlist, level)
 
-    monkeypatch.setattr(builtins, "__import__", _raise_for_pydantic_settings)
+    monkeypatch.setattr(builtins, "__import__", _block_pydantic_settings)
     sys.modules.pop("blackskies.services.config", None)
 
-    with caplog.at_level(logging.WARNING):
-        module = importlib.import_module("blackskies.services.config")
-
-    assert "pydantic-settings" in caplog.text
-
+    module = importlib.import_module("blackskies.services.config")
     settings_cls = module.ServiceSettings
 
-    from pydantic import BaseModel
-
-    assert issubclass(settings_cls, BaseModel)
     assert settings_cls.from_environment().project_base_dir.exists()
-
-    # Restore the real module for subsequent tests.
-    monkeypatch.setattr(builtins, "__import__", original_import)
-    sys.modules.pop("blackskies.services.config", None)
-    importlib.import_module("blackskies.services.config")
