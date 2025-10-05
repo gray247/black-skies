@@ -4,7 +4,6 @@ import { once } from 'node:events';
 import net from 'node:net';
 import { setTimeout as delay } from 'node:timers/promises';
 import { dirname, join, resolve, delimiter } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import type { Readable } from 'node:stream';
 
 import {
@@ -22,8 +21,6 @@ import {
   type DiagnosticsOpenResult,
 } from '../shared/ipc/diagnostics.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 const projectRoot = resolve(__dirname, '..');
 const rendererDistDir = join(projectRoot, 'dist');
 const rendererIndexFile = join(rendererDistDir, 'index.html');
@@ -108,7 +105,7 @@ function pipeStreamToLogger(
 
 async function waitForServicesHealthy(port: number): Promise<void> {
   const logger = ensureMainLogger();
-  const url = `http://${SERVICES_HOST}:${port}/api/v1/healthz`;
+  const url = `http://${SERVICES_HOST}:${port}/healthz`;
   const maxAttempts = 20;
   const attemptDelayMs = 250;
 

@@ -6,6 +6,7 @@ import logging
 from typing import Any, Awaitable, Callable, Final
 
 from fastapi import Depends, FastAPI, HTTPException, Request, Response, status
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
@@ -106,6 +107,17 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
         settings=application.state.settings
     )
     application.state.service_version = SERVICE_VERSION
+
+    application.add_middleware(
+        CORSMiddleware,
+        allow_origins=[
+            "http://127.0.0.1:5173",
+            "http://localhost:5173",
+        ],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"]
+    )
 
     async def http_exception_handler(
         request: Request, exc: HTTPException
@@ -394,4 +406,3 @@ __all__ = [
     "_build_meta_header",
     "_load_project_budget_state",
 ]
-

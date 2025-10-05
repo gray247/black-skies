@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import type {
   OutlineBuildBridgeRequest,
@@ -178,7 +178,7 @@ const STEP_FIELDS: Partial<Record<WizardStep, StepFieldConfig>> = {
 };
 
 function sanitizeProjectId(value: string): string {
-  return value.trim().replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_\-]/g, '').toLowerCase();
+  return value.trim().replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_-]/g, '').toLowerCase();
 }
 
 function createDefaultDraft(): WizardDraftState {
@@ -930,4 +930,3 @@ export default function WizardPanel({
     </div>
   );
 }
-

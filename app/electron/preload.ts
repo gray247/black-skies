@@ -259,7 +259,7 @@ const servicesBridge: ServicesBridge = {
     }
 
     try {
-      const response = await fetch(`http://127.0.0.1:${port}/api/v1/healthz`);
+      const response = await fetch(`http://127.0.0.1:${port}/healthz`);
       const traceId = response.headers.get('x-trace-id') ?? undefined;
       if (!response.ok) {
         const error = await parseErrorPayload(response, traceId);

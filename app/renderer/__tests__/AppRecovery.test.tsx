@@ -1,5 +1,8 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { useEffect } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+import App from '../App';
 
 import type {
   DraftAcceptBridgeResponse,
@@ -51,64 +54,71 @@ const loadedProject: LoadedProject = {
   drafts: {},
 };
 
-vi.mock('../components/ProjectHome', () => {
-  const React = require('react') as typeof import('react');
-  const { useEffect } = React;
-  return {
-    __esModule: true,
-    default: ({
-      onProjectLoaded,
-      reopenRequest,
-      onReopenConsumed,
-    }: {
-      onProjectLoaded?: (event: ProjectLoadEvent) => void;
-      reopenRequest?: { path: string; requestId: number } | null;
-      onReopenConsumed?: (result: { requestId: number; status: 'success' | 'error' }) => void;
-    }) => {
-      useEffect(() => {
-        onProjectLoaded?.({
-          status: 'init',
-          project: null,
-          targetPath: null,
-          lastOpenedPath: projectHomeMockState.lastPath,
-        });
-        onProjectLoaded?.({
-          status: 'loaded',
-          project: loadedProject,
-          targetPath: loadedProject.path,
-          lastOpenedPath: loadedProject.path,
-        });
-      }, [onProjectLoaded]);
+function ProjectHomeMock({
+  onProjectLoaded,
+  reopenRequest,
+  onReopenConsumed,
+  onActiveSceneChange,
+  onDraftChange,
+  draftOverrides,
+}: {
+  onProjectLoaded?: (event: ProjectLoadEvent) => void;
+  reopenRequest?: { path: string; requestId: number } | null;
+  onReopenConsumed?: (result: { requestId: number; status: 'success' | 'error' }) => void;
+  onActiveSceneChange?: (payload: { sceneId: string; sceneTitle: string | null; draft: string }) => void;
+  onDraftChange?: (sceneId: string, draft: string) => void;
+  draftOverrides?: Record<string, string>;
+}): JSX.Element {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    onProjectLoaded?.({
+      status: 'init',
+      project: null,
+      targetPath: null,
+      lastOpenedPath: projectHomeMockState.lastPath,
+    });
+    const projectForLoad =
+      projectHomeMockState.lastPath === null
+        ? { ...loadedProject, path: '' }
+        : loadedProject;
 
-      useEffect(() => {
-        if (!reopenRequest) {
-          return;
-        }
+    onProjectLoaded?.({
+      status: 'loaded',
+      project: projectForLoad,
+      targetPath: projectForLoad.path,
+      lastOpenedPath: projectForLoad.path,
+    });
+    const draftText = draftOverrides?.sc_0001 ?? loadedProject.drafts['sc_0001'] ?? '';
+    onActiveSceneChange?.({ sceneId: 'sc_0001', sceneTitle: 'Arrival', draft: draftText });
+    if (draftText) {
+      onDraftChange?.('sc_0001', draftText);
+    }
+  }, []);
 
-        const status = projectHomeMockState.reopenStatus;
-        if (status === 'success') {
-          onProjectLoaded?.({
-            status: 'loaded',
-            project: loadedProject,
-            targetPath: reopenRequest.path,
-            lastOpenedPath: loadedProject.path,
-          });
-        } else {
-          onProjectLoaded?.({
-            status: 'failed',
-            project: null,
-            targetPath: reopenRequest.path,
-            lastOpenedPath: projectHomeMockState.lastPath,
-          });
-        }
+  useEffect(() => {
+    if (!reopenRequest) {
+      return;
+    }
 
-        onReopenConsumed?.({ requestId: reopenRequest.requestId, status });
-      }, [onProjectLoaded, onReopenConsumed, reopenRequest]);
+    const status = projectHomeMockState.reopenStatus;
+    if (status === 'success') {
+      onProjectLoaded?.({
+        status: 'loaded',
+        project: loadedProject,
+        targetPath: reopenRequest.path,
+        lastOpenedPath: loadedProject.path,
+      });
+    }
+    onReopenConsumed?.({ requestId: reopenRequest.requestId, status });
+  }, [onProjectLoaded, onReopenConsumed, reopenRequest]);
 
-      return <div data-testid="project-home-mock" />;
-    },
-  };
-});
+  return <div data-testid="project-home-mock" />;
+}
+
+vi.mock('../components/ProjectHome', () => ({
+  __esModule: true,
+  default: ProjectHomeMock,
+}));
 
 type AppComponent = (props: Record<string, never>) => JSX.Element;
 
@@ -203,11 +213,10 @@ function createDiagnosticsMock(): DiagnosticsBridge {
   };
 }
 
-async function loadAppWithServices(
+function loadAppWithServices(
   services: ServicesBridge,
   diagnostics: DiagnosticsBridge = createDiagnosticsMock(),
-): Promise<AppComponent> {
-  vi.resetModules();
+): AppComponent {
   Object.defineProperty(window, 'services', {
     configurable: true,
     value: services,
@@ -220,8 +229,7 @@ async function loadAppWithServices(
     configurable: true,
     value: diagnostics,
   });
-  const module = await import('../App');
-  return module.default;
+  return App;
 }
 
 describe('App recovery banner', () => {
@@ -272,7 +280,7 @@ describe('App recovery banner', () => {
       traceId: 'trace-restore-success',
     });
 
-    const App = await loadAppWithServices(services);
+    const App = loadAppWithServices(services);
     render(<App />);
 
     await screen.findByText(/Crash recovery available/i);
@@ -303,7 +311,7 @@ describe('App recovery banner', () => {
         traceId: 'trace-recovery-clean',
       });
 
-    const App = await loadAppWithServices(services);
+    const App = loadAppWithServices(services);
     render(<App />);
 
     await waitFor(() => expect(services.getRecoveryStatus).toHaveBeenCalledTimes(1));
@@ -335,7 +343,7 @@ describe('App recovery banner', () => {
       traceId: 'trace-recovery-status',
     });
 
-    const App = await loadAppWithServices(services);
+    const App = loadAppWithServices(services);
     render(<App />);
 
     await screen.findByText(/Crash recovery available/i);
@@ -368,7 +376,7 @@ describe('App recovery banner', () => {
       traceId: 'trace-recovery-status',
     });
 
-    const App = await loadAppWithServices(services);
+    const App = loadAppWithServices(services);
     render(<App />);
 
     await screen.findByText(/Crash recovery available/i);
@@ -396,7 +404,7 @@ describe('App recovery banner', () => {
       traceId: 'trace-recovery-status',
     });
 
-    const App = await loadAppWithServices(services);
+    const App = loadAppWithServices(services);
     render(<App />);
 
     await screen.findByText(/Crash recovery available/i);
@@ -430,7 +438,7 @@ describe('App recovery banner', () => {
       traceId: 'trace-recovery-status',
     });
 
-    const App = await loadAppWithServices(services, diagnostics);
+    const App = loadAppWithServices(services, diagnostics);
     render(<App />);
 
     await screen.findByText(/Crash recovery available/i);
@@ -439,5 +447,18 @@ describe('App recovery banner', () => {
 
     await screen.findByText(/Diagnostics folder unavailable/i);
     await waitFor(() => expect(diagnosticsButton).toBeEnabled());
+  });
+
+  it('surfaces a toast when recovery status requests fail', async () => {
+    services.getRecoveryStatus = vi.fn().mockRejectedValue(new Error('service unreachable'));
+
+    const App = loadAppWithServices(services);
+    render(<App />);
+
+    await waitFor(() => expect(services.getRecoveryStatus).toHaveBeenCalled());
+    const titles = await screen.findAllByText(/Recovery check failed/i);
+    expect(titles.length).toBeGreaterThan(0);
+    const descriptions = screen.getAllByText(/service unreachable/i);
+    expect(descriptions.length).toBeGreaterThan(0);
   });
 });

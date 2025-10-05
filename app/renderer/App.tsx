@@ -1,6 +1,7 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import ProjectHome, {
+  type ActiveScenePayload,
   type ProjectLoadEvent,
 } from './components/ProjectHome';
 import ServiceStatusPill, {
@@ -8,6 +9,7 @@ import ServiceStatusPill, {
 } from './components/ServiceStatusPill';
 import WizardPanel from './components/WizardPanel';
 import { PreflightModal } from './components/PreflightModal';
+import { CritiqueModal } from './components/CritiqueModal';
 import { ToastStack } from './components/ToastStack';
 import type { ToastInstance, ToastPayload } from './types/toast';
 import type { LoadedProject } from '../shared/ipc/projectLoader';
@@ -16,6 +18,8 @@ import type {
   DraftPreflightEstimate,
   DraftUnitScope,
   ServicesBridge,
+  DraftCritiqueBridgeResponse,
+  DraftAcceptBridgeResponse,
   RecoveryStatusBridgeResponse,
 } from '../shared/ipc/services';
 import {
@@ -51,6 +55,53 @@ function deriveProjectIdFromPath(path: string): string {
   return path;
 }
 
+const DEFAULT_CRITIQUE_RUBRIC = ['continuity', 'pacing', 'voice'];
+
+interface CritiqueDialogState {
+  open: boolean;
+  loading: boolean;
+  error: string | null;
+  data: DraftCritiqueBridgeResponse | null;
+  traceId?: string;
+  draftId: string | null;
+  unitId: string | null;
+  accepting: boolean;
+}
+
+function createInitialCritiqueState(): CritiqueDialogState {
+  return {
+    open: false,
+    loading: false,
+    error: null,
+    data: null,
+    traceId: undefined,
+    draftId: null,
+    unitId: null,
+    accepting: false,
+  };
+}
+
+function generateDraftId(seed: string): string {
+  const sanitized = seed.toLowerCase().replace(/[^a-z0-9]/g, '').slice(-6) || 'scene';
+  const timestamp = Date.now().toString(16);
+  const entropy = Math.random().toString(16).slice(2, 8);
+  return `dr_${sanitized}_${timestamp}_${entropy}`;
+}
+
+async function computeSha256(value: string): Promise<string> {
+  const crypto = globalThis.crypto;
+  if (!crypto?.subtle) {
+    throw new Error('Secure hashing APIs are unavailable in this environment.');
+  }
+  const normalized = value.replace(/\r\n/g, '\n');
+  const encoder = new TextEncoder();
+  const bytes = encoder.encode(normalized);
+  const digest = await crypto.subtle.digest('SHA-256', bytes);
+  return Array.from(new Uint8Array(digest))
+    .map((byte) => byte.toString(16).padStart(2, '0'))
+    .join('');
+}
+
 export default function App(): JSX.Element {
   const services: ServicesBridge | undefined = window.services;
   const diagnostics: DiagnosticsBridge | undefined = window.diagnostics;
@@ -60,6 +111,12 @@ export default function App(): JSX.Element {
   const isMountedRef = useRef(true);
   const [serviceStatus, setServiceStatus] = useState<ServiceStatus>('checking');
   const [projectSummary, setProjectSummary] = useState<ProjectSummary | null>(null);
+  const [currentProject, setCurrentProject] = useState<LoadedProject | null>(null);
+  const [projectDrafts, setProjectDrafts] = useState<Record<string, string>>({});
+  const [draftEdits, setDraftEdits] = useState<Record<string, string>>({});
+  const [activeScene, setActiveScene] = useState<{ id: string; title: string | null } | null>(
+    null,
+  );
   const [recoveryStatus, setRecoveryStatus] = useState<RecoveryStatusBridgeResponse | null>(null);
   const [recoveryAction, setRecoveryAction] = useState<'idle' | 'restore' | 'diagnostics'>(
     'idle',
@@ -77,6 +134,7 @@ export default function App(): JSX.Element {
     error: null,
     errorDetails: null,
   });
+  const [critiqueState, setCritiqueState] = useState<CritiqueDialogState>(createInitialCritiqueState);
   const lastRecoveryProjectIdRef = useRef<string | null>(null);
   const recoveryFetchInFlightRef = useRef(false);
 
@@ -94,6 +152,14 @@ export default function App(): JSX.Element {
     if (isMountedRef.current) {
       setServiceStatus(status);
     }
+  }, []);
+
+  const resetProjectState = useCallback(() => {
+    setCurrentProject(null);
+    setProjectDrafts({});
+    setDraftEdits({});
+    setActiveScene(null);
+    setCritiqueState(createInitialCritiqueState());
   }, []);
 
   const checkServices = useCallback(async () => {
@@ -197,6 +263,15 @@ export default function App(): JSX.Element {
     (project: LoadedProject) => {
       const projectId = deriveProjectIdFromPath(project.path);
       const unitIds = project.scenes.map((scene) => scene.id);
+      setCurrentProject(project);
+      const canonicalDrafts = { ...project.drafts };
+      setProjectDrafts(canonicalDrafts);
+      setDraftEdits({ ...canonicalDrafts });
+      const firstScene = project.scenes[0] ?? null;
+      setActiveScene(
+        firstScene ? { id: firstScene.id, title: firstScene.title ?? null } : null,
+      );
+      setCritiqueState(createInitialCritiqueState());
       setProjectSummary({
         projectId,
         path: project.path,
@@ -213,6 +288,7 @@ export default function App(): JSX.Element {
       if (!payload) {
         setProjectSummary(null);
         setRecoveryStatus(null);
+        resetProjectState();
         return;
       }
 
@@ -224,28 +300,34 @@ export default function App(): JSX.Element {
         }
 
         if ((status === 'loaded' || status === 'init') && project) {
+          setLastProjectPath(project.path);
           activateProject(project);
           return;
         }
 
         if (status === 'failed') {
           setProjectSummary(null);
+          setRecoveryStatus(null);
+          resetProjectState();
           return;
         }
 
         if (status === 'cleared') {
           setProjectSummary(null);
           setRecoveryStatus(null);
+          resetProjectState();
           return;
         }
 
         if (project) {
+          setLastProjectPath(project.path);
           activateProject(project);
           return;
         }
 
         setProjectSummary(null);
         setRecoveryStatus(null);
+        resetProjectState();
         return;
       }
 
@@ -253,8 +335,31 @@ export default function App(): JSX.Element {
       setLastProjectPath(legacyProject.path);
       activateProject(legacyProject);
     },
-    [activateProject],
+    [activateProject, resetProjectState],
   );
+
+  const handleActiveSceneChange = useCallback((payload: ActiveScenePayload | null) => {
+    if (!payload) {
+      setActiveScene(null);
+      return;
+    }
+    setActiveScene({ id: payload.sceneId, title: payload.sceneTitle });
+    setDraftEdits((previous) => {
+      if (Object.prototype.hasOwnProperty.call(previous, payload.sceneId)) {
+        return previous;
+      }
+      return { ...previous, [payload.sceneId]: payload.draft };
+    });
+  }, []);
+
+  const handleDraftChange = useCallback((sceneId: string, draft: string) => {
+    setDraftEdits((previous) => {
+      if (previous[sceneId] === draft) {
+        return previous;
+      }
+      return { ...previous, [sceneId]: draft };
+    });
+  }, []);
 
   const handleRestoreSnapshot = useCallback(async () => {
     const validation = validateRestoreSnapshot({ services, projectSummary });
@@ -496,6 +601,250 @@ export default function App(): JSX.Element {
     }
   }, [projectSummary, pushToast, services]);
 
+  const handleOpenCritique = useCallback(async () => {
+    if (!services) {
+      pushToast({
+        tone: 'error',
+        title: 'Services unavailable',
+        description: 'Critique requires the local services bridge.',
+      });
+      return;
+    }
+    if (!projectSummary) {
+      pushToast({
+        tone: 'warning',
+        title: 'Load a project first',
+        description: 'Open a project before requesting a critique.',
+      });
+      return;
+    }
+    if (!activeScene) {
+      pushToast({
+        tone: 'warning',
+        title: 'Select a scene',
+        description: 'Choose a scene to critique from the project panel.',
+      });
+      return;
+    }
+
+    const draftId = generateDraftId(activeScene.id);
+    const unitId = activeScene.id;
+    setCritiqueState({
+      open: true,
+      loading: true,
+      error: null,
+      data: null,
+      traceId: undefined,
+      draftId,
+      unitId,
+      accepting: false,
+    });
+
+    try {
+      const result = await services.critiqueDraft({
+        projectId: projectSummary.projectId,
+        draftId,
+        unitId,
+        rubric: DEFAULT_CRITIQUE_RUBRIC,
+      });
+      if (!isMountedRef.current) {
+        return;
+      }
+      if (result.ok) {
+        setCritiqueState((previous) => ({
+          ...previous,
+          loading: false,
+          data: result.data,
+          traceId: result.traceId,
+        }));
+      } else {
+        setCritiqueState((previous) => ({
+          ...previous,
+          loading: false,
+          error: result.error.message,
+          traceId: result.traceId,
+        }));
+        pushToast({
+          tone: 'error',
+          title: 'Critique failed',
+          description: result.error.message,
+          traceId: result.traceId,
+        });
+      }
+    } catch (error) {
+      if (!isMountedRef.current) {
+        return;
+      }
+      const message = error instanceof Error ? error.message : String(error);
+      setCritiqueState((previous) => ({
+        ...previous,
+        loading: false,
+        error: message,
+      }));
+      pushToast({
+        tone: 'error',
+        title: 'Critique failed',
+        description: message,
+      });
+    }
+  }, [activeScene, isMountedRef, projectSummary, pushToast, services]);
+
+  const handleCloseCritique = useCallback(() => {
+    setCritiqueState((previous) => ({ ...previous, open: false }));
+  }, []);
+
+  const handleRejectCritique = useCallback(() => {
+    setCritiqueState(createInitialCritiqueState());
+  }, []);
+
+  const handleAcceptCritique = useCallback(async () => {
+    if (!services) {
+      pushToast({
+        tone: 'error',
+        title: 'Services unavailable',
+        description: 'Accept requires the local services bridge.',
+      });
+      return;
+    }
+    if (!projectSummary) {
+      pushToast({
+        tone: 'warning',
+        title: 'Load a project first',
+        description: 'Open a project before accepting a draft.',
+      });
+      return;
+    }
+    if (!activeScene) {
+      pushToast({
+        tone: 'warning',
+        title: 'Select a scene',
+        description: 'Choose a scene to accept updates for.',
+      });
+      return;
+    }
+
+    const unitId = activeScene.id;
+    const draftId = critiqueState.draftId ?? generateDraftId(unitId);
+    const canonicalText = projectDrafts[unitId] ?? '';
+    const nextText = draftEdits[unitId] ?? canonicalText;
+
+    let previousSha: string;
+    try {
+      previousSha = await computeSha256(canonicalText);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Unable to compute checksum for the current draft.';
+      pushToast({
+        tone: 'error',
+        title: 'Checksum unavailable',
+        description: message,
+      });
+      return;
+    }
+
+    setCritiqueState((previous) => ({
+      ...previous,
+      accepting: true,
+      error: null,
+      draftId,
+      unitId,
+    }));
+
+    try {
+      const result = await services.acceptDraft({
+        projectId: projectSummary.projectId,
+        draftId,
+        unitId,
+        unit: {
+          id: unitId,
+          previous_sha256: previousSha,
+          text: nextText,
+        },
+        message: `Accepted critique for ${activeScene.title ?? unitId}`,
+        snapshotLabel: 'accept',
+      });
+      if (!isMountedRef.current) {
+        return;
+      }
+      if (result.ok) {
+        setProjectDrafts((previous) => ({ ...previous, [unitId]: nextText }));
+        setDraftEdits((previous) => ({ ...previous, [unitId]: nextText }));
+        setCurrentProject((previous) => {
+          if (!previous) {
+            return previous;
+          }
+          return {
+            ...previous,
+            drafts: {
+              ...previous.drafts,
+              [unitId]: nextText,
+            },
+          };
+        });
+        setRecoveryStatus((previous) => {
+          if (previous) {
+            return {
+              ...previous,
+              status: 'idle',
+              needs_recovery: false,
+              last_snapshot: result.data.snapshot,
+            };
+          }
+          return {
+            project_id: projectSummary.projectId,
+            status: 'idle',
+            needs_recovery: false,
+            pending_unit_id: null,
+            draft_id: null,
+            started_at: null,
+            last_snapshot: result.data.snapshot,
+            message: null,
+            failure_reason: null,
+          };
+        });
+        setCritiqueState(createInitialCritiqueState());
+        pushToast({
+          tone: 'success',
+          title: 'Draft accepted',
+          description: `Snapshot ${result.data.snapshot.snapshot_id} captured.`,
+          traceId: result.traceId,
+        });
+      } else {
+        setCritiqueState((previous) => ({
+          ...previous,
+          accepting: false,
+          error: result.error.message,
+        }));
+        pushToast({
+          tone: 'error',
+          title: 'Accept failed',
+          description: result.error.message,
+          traceId: result.traceId,
+        });
+      }
+    } catch (error) {
+      if (!isMountedRef.current) {
+        return;
+      }
+      const message = error instanceof Error ? error.message : String(error);
+      setCritiqueState((previous) => ({ ...previous, accepting: false, error: message }));
+      pushToast({
+        tone: 'error',
+        title: 'Accept failed',
+        description: message,
+      });
+    }
+  }, [
+    activeScene,
+    critiqueState.draftId,
+    draftEdits,
+    isMountedRef,
+    projectDrafts,
+    projectSummary,
+    pushToast,
+    services,
+  ]);
+
   const handleOutlineReady = useCallback(
     (projectId: string) => {
       pushToast({
@@ -579,18 +928,10 @@ export default function App(): JSX.Element {
               type="button"
               className="app-shell__workspace-button"
               disabled={serviceStatus !== 'online'}
-              onClick={() =>
-                pushToast({
-                  tone: 'warning',
-                  title: 'Critique not wired yet',
-                  description: 'TODO: Hook the critique flow once endpoints are exposed.',
-                })
-              }
+              onClick={() => void handleOpenCritique()}
             >
               Critique
             </button>
-            {/* TODO(P2_ACCEPT_PLAN Task 1 & 2): Replace the placeholder toast with the real critique + accept/reject UX once */}
-            {/* docs/P2_ACCEPT_PLAN.md tasks are implemented across the renderer bridge. */}
           </div>
         </header>
         <main className="app-shell__workspace-body">
@@ -642,12 +983,29 @@ export default function App(): JSX.Element {
               onProjectLoaded={handleProjectLoaded}
               reopenRequest={reopenRequest}
               onReopenConsumed={handleReopenConsumed}
+              draftOverrides={draftEdits}
+              onActiveSceneChange={handleActiveSceneChange}
+              onDraftChange={handleDraftChange}
             />
           </div>
         </main>
       </div>
 
       <ToastStack toasts={toasts} onDismiss={dismissToast} />
+
+      <CritiqueModal
+        isOpen={critiqueState.open}
+        loading={critiqueState.loading}
+        error={critiqueState.error}
+        critique={critiqueState.data}
+        traceId={critiqueState.traceId}
+        accepting={critiqueState.accepting}
+        sceneId={critiqueState.unitId}
+        sceneTitle={activeScene?.title ?? null}
+        onClose={handleCloseCritique}
+        onReject={handleRejectCritique}
+        onAccept={() => void handleAcceptCritique()}
+      />
 
       <PreflightModal
         isOpen={preflightState.open}

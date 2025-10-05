@@ -11,13 +11,13 @@
     "dev": "vite",
     "build": "vite build",
     "build:renderer": "vite build",
-    "build:main": "tsc --project tsconfig.main.json",
-    "build:production": "vite build && tsc --project tsconfig.main.json",
+    "build:main": "tsc --project tsconfig.main.json && node ./scripts/write-dist-commonjs.cjs",
+    "build:production": "vite build && tsc --project tsconfig.main.json && node ./scripts/write-dist-commonjs.cjs",
     "preview": "vite preview",
     "lint": "node ../scripts/run-app-eslint.mjs",
     "test": "node ../scripts/run-vitest-offline.mjs",
-    "package:dir": "vite build && tsc --project tsconfig.main.json && electron-builder --config electron-builder.yml --dir",
-    "package:win": "vite build && tsc --project tsconfig.main.json && electron-builder --config electron-builder.yml --win nsis portable"
+    "package:dir": "vite build && tsc --project tsconfig.main.json && node ./scripts/write-dist-commonjs.cjs && electron-builder --config electron-builder.yml --dir",
+    "package:win": "vite build && tsc --project tsconfig.main.json && node ./scripts/write-dist-commonjs.cjs && electron-builder --config electron-builder.yml --win nsis portable"
   },
   "dependencies": {
     "@codemirror/lang-markdown": "^6.2.4",

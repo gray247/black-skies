@@ -1,5 +1,3 @@
-﻿import React from 'react';
-
 import type { DraftPreflightEstimate } from '../../shared/ipc/services';
 
 interface PreflightModalProps {

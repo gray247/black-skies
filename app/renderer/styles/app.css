@@ -1141,3 +1141,179 @@ button:disabled {
 .preflight-modal__button--primary {
   border-color: var(--accent-color, #d4af37);
 }
+
+.critique-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.critique-modal__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.68);
+  backdrop-filter: blur(6px);
+  pointer-events: auto;
+}
+
+.critique-modal__content {
+  position: relative;
+  width: min(720px, 92vw);
+  max-height: 85vh;
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 1rem;
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  pointer-events: auto;
+  box-shadow: 0 32px 80px rgba(15, 23, 42, 0.75);
+}
+
+.critique-modal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.5rem;
+}
+
+.critique-modal__title {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.critique-modal__subtitle {
+  margin: 0.35rem 0 0;
+  color: rgba(148, 163, 184, 0.75);
+  font-size: 0.95rem;
+}
+
+.critique-modal__close {
+  background: transparent;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 999px;
+  width: 2rem;
+  height: 2rem;
+  color: rgba(226, 232, 240, 0.85);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.critique-modal__body {
+  overflow-y: auto;
+  padding-right: 0.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.critique-modal__status {
+  margin: 0;
+  color: rgba(148, 163, 184, 0.85);
+  font-style: italic;
+}
+
+.critique-modal__error {
+  border: 1px solid rgba(248, 113, 113, 0.45);
+  background: rgba(127, 29, 29, 0.35);
+  padding: 1rem;
+  border-radius: 0.75rem;
+  color: rgba(254, 226, 226, 0.95);
+}
+
+.critique-modal__section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.critique-modal__section h4 {
+  margin: 0;
+  font-size: 1.05rem;
+  color: rgba(221, 214, 254, 0.95);
+}
+
+.critique-modal__summary {
+  margin: 0;
+  line-height: 1.55;
+  color: rgba(226, 232, 240, 0.92);
+}
+
+.critique-modal__list {
+  margin: 0;
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  color: rgba(226, 232, 240, 0.88);
+}
+
+.critique-modal__line-comments {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  list-style: none;
+}
+
+.critique-modal__line-comments li {
+  display: flex;
+  gap: 0.75rem;
+  align-items: baseline;
+  background: rgba(30, 41, 59, 0.4);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+}
+
+.critique-modal__line-number {
+  font-variant-numeric: tabular-nums;
+  font-size: 0.85rem;
+  color: rgba(148, 163, 184, 0.8);
+  min-width: 5rem;
+}
+
+.critique-modal__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.critique-modal__trace {
+  font-size: 0.8rem;
+  color: rgba(148, 163, 184, 0.7);
+}
+
+.critique-modal__actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.critique-modal__button {
+  border: 1px solid rgba(129, 140, 248, 0.35);
+  background: rgba(79, 70, 229, 0.18);
+  color: rgba(226, 232, 240, 0.9);
+  border-radius: 0.5rem;
+  padding: 0.6rem 1.2rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.critique-modal__button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.critique-modal__button--primary {
+  border-color: rgba(99, 102, 241, 0.6);
+  background: rgba(99, 102, 241, 0.32);
+  color: rgba(224, 231, 255, 0.98);
+}

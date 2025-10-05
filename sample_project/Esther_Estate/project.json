@@ -3,8 +3,47 @@
   "name": "Esther Estate",
   "created": "2025-09-23T17:10:00Z",
   "budget": {
-    "soft": 12.50,
-    "hard": 25.00,
-    "spent_usd": 0.00
+    "soft": 12.5,
+    "hard": 25.0,
+    "spent_usd": 0.02,
+    "last_request_fingerprint": "c6db2b5c7de318449a152b67accc7b551e1ae43ae91aee58818de218121e84b5",
+    "last_generate_response": {
+      "project_id": "Esther_Estate",
+      "unit_scope": "scene",
+      "unit_ids": [
+        "sc_0001"
+      ],
+      "draft_id": "dr_8370922d",
+      "schema_version": "DraftUnitSchema v1",
+      "units": [
+        {
+          "id": "sc_0001",
+          "text": "Mara Ibarra enters Basement Pulse to map the estate's sealed corridors. The atmosphere leans toward respite as footsteps echo from nowhere.\n\nThe beat shifts when an old ally speaks through the static, keeping the scene in escalation mode and aiming for roughly 890 words.",
+          "meta": {
+            "pov": "Mara Ibarra",
+            "purpose": "escalation",
+            "emotion_tag": "respite",
+            "word_target": 890,
+            "order": 1,
+            "chapter_id": "ch_0001"
+          },
+          "prompt_fingerprint": "sha256:3faec2bb495b57e0879c07b4dd78c039fea634c71a1d148cc5a79536c3e606ee",
+          "model": {
+            "name": "draft-synthesizer-v1",
+            "provider": "black-skies-local"
+          },
+          "seed": 3597615096
+        }
+      ],
+      "budget": {
+        "estimated_usd": 0.02,
+        "status": "ok",
+        "message": "Estimate within budget.",
+        "soft_limit_usd": 12.5,
+        "hard_limit_usd": 25.0,
+        "spent_usd": 0.02,
+        "total_after_usd": 0.02
+      }
+    }
   }
 }

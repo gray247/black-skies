@@ -1,5 +1,3 @@
-import React from 'react';
-
 export type ServiceStatus = 'checking' | 'online' | 'offline';
 
 interface ServiceStatusPillProps {
@@ -41,4 +39,3 @@ export default function ServiceStatusPill({
     </button>
   );
 }
-

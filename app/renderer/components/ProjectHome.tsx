@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type {
   LoadedProject,
   ProjectIssue,
@@ -16,11 +16,20 @@ export interface ProjectLoadEvent {
   lastOpenedPath: string | null;
 }
 
+export interface ActiveScenePayload {
+  sceneId: string;
+  sceneTitle: string | null;
+  draft: string;
+}
+
 export interface ProjectHomeProps {
   onToast: (toast: ToastPayload) => void;
   onProjectLoaded?: (event: ProjectLoadEvent) => void;
   reopenRequest?: { path: string; requestId: number } | null;
   onReopenConsumed?: (result: { requestId: number; status: 'success' | 'error' }) => void;
+  draftOverrides?: Record<string, string>;
+  onActiveSceneChange?: (payload: ActiveScenePayload | null) => void;
+  onDraftChange?: (sceneId: string, draft: string) => void;
 }
 
 interface RecentProjectEntry {
@@ -130,6 +139,9 @@ export default function ProjectHome({
   onProjectLoaded,
   reopenRequest,
   onReopenConsumed,
+  draftOverrides,
+  onActiveSceneChange,
+  onDraftChange,
 }: ProjectHomeProps): JSX.Element {
   const projectLoader: ProjectLoaderApi | undefined = window.projectLoader;
   const loaderAvailable = Boolean(projectLoader);
@@ -164,8 +176,12 @@ export default function ProjectHome({
     if (!activeProject || !activeSceneId) {
       return '';
     }
+    const override = draftOverrides?.[activeSceneId];
+    if (typeof override === 'string') {
+      return override;
+    }
     return activeProject.drafts[activeSceneId] ?? '';
-  }, [activeProject, activeSceneId]);
+  }, [activeProject, activeSceneId, draftOverrides]);
 
   const notifyIssues = useCallback(
     (items: ProjectIssue[]) => {
@@ -381,6 +397,21 @@ export default function ProjectHome({
   }, [onProjectLoaded]);
 
   useEffect(() => {
+    if (!onActiveSceneChange) {
+      return;
+    }
+    if (!activeProject || !activeScene) {
+      onActiveSceneChange(null);
+      return;
+    }
+    onActiveSceneChange({
+      sceneId: activeScene.id,
+      sceneTitle: activeScene.title,
+      draft: activeSceneDraft,
+    });
+  }, [activeProject, activeScene, activeSceneDraft, onActiveSceneChange]);
+
+  useEffect(() => {
     if (!reopenRequest) {
       return;
     }
@@ -548,6 +579,9 @@ export default function ProjectHome({
                   value={activeSceneDraft}
                   placeholder="Scene text will appear once loaded."
                   className="project-home__draft-editor-host"
+                  onChange={(nextValue) => {
+                    onDraftChange?.(activeScene.id, nextValue);
+                  }}
                 />
               ) : (
                 <p className="project-home__empty project-home__draft-empty">
@@ -620,5 +654,3 @@ export default function ProjectHome({
     </div>
   );
 }
-
-

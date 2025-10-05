@@ -139,9 +139,34 @@ function Sync-Node {
   pnpm install --recursive
 }
 
+function Resolve-ProjectBaseDir {
+  $defaultProjectBaseDir = Join-Path $RepoRoot "sample_project"
+  $projectBaseDir = $env:BLACKSKIES_PROJECT_BASE_DIR
+
+  if ($projectBaseDir -and (Test-Path -LiteralPath $projectBaseDir)) {
+    return $projectBaseDir
+  }
+
+  if ($projectBaseDir) {
+    Write-Warning "BLACKSKIES_PROJECT_BASE_DIR '$projectBaseDir' does not exist; falling back to $defaultProjectBaseDir"
+  } else {
+    Write-Host "BLACKSKIES_PROJECT_BASE_DIR not set; defaulting to $defaultProjectBaseDir" -ForegroundColor Yellow
+  }
+
+  if (Test-Path -LiteralPath $defaultProjectBaseDir) {
+    return $defaultProjectBaseDir
+  }
+
+  throw "Project base directory '$projectBaseDir' does not exist and fallback '$defaultProjectBaseDir' was not found. Set BLACKSKIES_PROJECT_BASE_DIR to a valid path."
+}
+
 function Run-Tests {
   Ensure-Node
   Ensure-PnpmShim
+
+  $resolvedProjectBaseDir = Resolve-ProjectBaseDir
+  $env:BLACKSKIES_PROJECT_BASE_DIR = $resolvedProjectBaseDir
+  Write-Host "Using BLACKSKIES_PROJECT_BASE_DIR=$resolvedProjectBaseDir" -ForegroundColor Cyan
 
   Write-Host "== Python tests (services) ==" -ForegroundColor Cyan
   $svcTests = Join-Path "services" "tests"
@@ -162,19 +187,8 @@ function Run-Tests {
 }
 
 function Start-ServicesWindow {
-  $defaultProjectBaseDir = Join-Path $RepoRoot "sample_project"
-  $projectBaseDir = $env:BLACKSKIES_PROJECT_BASE_DIR
-  if (-not $projectBaseDir) {
-    $projectBaseDir = $defaultProjectBaseDir
-    Write-Host "BLACKSKIES_PROJECT_BASE_DIR not set; defaulting to $projectBaseDir" -ForegroundColor Yellow
-  } else {
-    Write-Host "Using BLACKSKIES_PROJECT_BASE_DIR=$projectBaseDir" -ForegroundColor Cyan
-  }
-
-  if (-not (Test-Path -LiteralPath $projectBaseDir)) {
-    $setInstruction = "Project base directory '$projectBaseDir' does not exist. Set BLACKSKIES_PROJECT_BASE_DIR to a valid path (e.g., `setx BLACKSKIES_PROJECT_BASE_DIR C:\\path\\to\\project`) or ensure the fallback directory exists at $defaultProjectBaseDir."
-    throw $setInstruction
-  }
+  $projectBaseDir = Resolve-ProjectBaseDir
+  Write-Host "Using BLACKSKIES_PROJECT_BASE_DIR=$projectBaseDir" -ForegroundColor Cyan
 
   $env:BLACKSKIES_PROJECT_BASE_DIR = $projectBaseDir
 

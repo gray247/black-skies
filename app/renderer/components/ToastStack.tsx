@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import type { ToastInstance } from '../types/toast';
 
 interface ToastStackProps {

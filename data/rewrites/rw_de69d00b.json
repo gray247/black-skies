@@ -1,0 +1,18 @@
+{
+  "kind": "rewrite",
+  "id": "rw_de69d00b",
+  "project_id": "proj_003",
+  "payload": {
+    "project_id": "proj_003",
+    "unit_id": "sc_0001",
+    "proposed_text": "Updated text",
+    "message": "Incorporate feedback"
+  },
+  "response": {
+    "project_id": "proj_003",
+    "unit_id": "sc_0001",
+    "accepted_text": "Updated text",
+    "previous_text": null,
+    "accepted_at": "2025-09-30T22:32:02.139903+00:00"
+  }
+}

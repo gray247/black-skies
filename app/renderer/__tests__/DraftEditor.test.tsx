@@ -28,11 +28,11 @@ describe('DraftEditor', () => {
       />,
     );
 
-    const title = await screen.findByText(/Basement Pulse/i);
+    const title = await screen.findByText(/title:\s*Basement Pulse/i);
     expect(title).toBeTruthy();
 
     const bodyLine = await screen.findByText(
-      /Mara braced her shoulder against the rusted hatch/i,
+      /Mara Ibarra enters Basement Pulse/i,
     );
     expect(bodyLine).toBeTruthy();
   });

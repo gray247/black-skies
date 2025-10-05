@@ -1,5 +1,8 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { useEffect } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+import App from '../App';
 
 import type {
   DraftGenerateBridgeResponse,
@@ -13,50 +16,64 @@ vi.mock('../components/WizardPanel', () => ({
   default: () => <div data-testid="wizard-panel-mock" />,
 }));
 
-vi.mock('../components/ProjectHome', () => {
-  const React = require('react') as typeof import('react');
-  const { useEffect } = React;
-  return {
-    __esModule: true,
-    default: ({
-      onProjectLoaded,
-    }: {
-      onProjectLoaded?: (project: LoadedProject | null) => void;
-    }) => {
-      useEffect(() => {
-        onProjectLoaded?.({
-          path: '/projects/demo',
-          name: 'Demo Project',
-          outline: {
-            schema_version: 'OutlineSchema v1',
-            outline_id: 'out_demo',
-            acts: [],
-            chapters: [],
-            scenes: [
-              {
-                id: 'sc_0001',
-                order: 1,
-                title: 'Arrival',
-                chapter_id: 'ch_0001',
-                beat_refs: [],
-              },
-            ],
+function ProjectHomeMock({
+  onProjectLoaded,
+  onActiveSceneChange,
+  onDraftChange,
+  draftOverrides,
+}: {
+  onProjectLoaded?: (project: LoadedProject | null) => void;
+  onActiveSceneChange?: (payload: {
+    sceneId: string;
+    sceneTitle: string | null;
+    draft: string;
+  }) => void;
+  onDraftChange?: (sceneId: string, draft: string) => void;
+  draftOverrides?: Record<string, string>;
+}): JSX.Element {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    onProjectLoaded?.({
+      path: '/projects/demo',
+      name: 'Demo Project',
+      outline: {
+        schema_version: 'OutlineSchema v1',
+        outline_id: 'out_demo',
+        acts: [],
+        chapters: [],
+        scenes: [
+          {
+            id: 'sc_0001',
+            order: 1,
+            title: 'Arrival',
+            chapter_id: 'ch_0001',
+            beat_refs: [],
           },
-          scenes: [
-            {
-              id: 'sc_0001',
-              title: 'Arrival',
-              order: 1,
-            },
-          ],
-          drafts: {},
-        } satisfies LoadedProject);
-      }, [onProjectLoaded]);
+        ],
+      },
+      scenes: [
+        {
+          id: 'sc_0001',
+          title: 'Arrival',
+          order: 1,
+        },
+      ],
+      drafts: {},
+    } satisfies LoadedProject);
+    const draftText = draftOverrides?.sc_0001 ?? '';
+    onActiveSceneChange?.({ sceneId: 'sc_0001', sceneTitle: 'Arrival', draft: draftText });
+    if (draftText) {
+      onDraftChange?.('sc_0001', draftText);
+    }
+  }, []);
 
-      return <div data-testid="project-home-mock" />;
-    },
-  };
-});
+  return <div data-testid="project-home-mock" />;
+}
+
+vi.mock('../components/ProjectHome', () => ({
+  __esModule: true,
+  default: ProjectHomeMock,
+}));
 
 type AppComponent = (props: Record<string, never>) => JSX.Element;
 
@@ -166,19 +183,16 @@ function createServicesMock(): ServicesBridge {
   };
 }
 
-async function loadAppWithServices(services: ServicesBridge): Promise<AppComponent> {
-  vi.resetModules();
+function loadAppWithServices(services: ServicesBridge): AppComponent {
   Object.defineProperty(window, 'services', {
     configurable: true,
     value: services,
   });
-  // Provide a benign projectLoader to satisfy type expectations.
   Object.defineProperty(window, 'projectLoader', {
     configurable: true,
     value: undefined,
   });
-  const module = await import('../App');
-  return module.default;
+  return App;
 }
 
 describe('App preflight integration', () => {
@@ -217,7 +231,7 @@ describe('App preflight integration', () => {
       data: estimate,
       traceId: 'trace-preflight-modal',
     });
-    const App = await loadAppWithServices(services);
+    const App = loadAppWithServices(services);
 
     render(<App />);
 
@@ -258,7 +272,7 @@ describe('App preflight integration', () => {
       data: estimate,
       traceId: 'trace-preflight-soft-limit',
     });
-    const App = await loadAppWithServices(services);
+    const App = loadAppWithServices(services);
 
     render(<App />);
 
@@ -300,7 +314,7 @@ describe('App preflight integration', () => {
       data: estimate,
       traceId: 'trace-preflight-hard-limit',
     });
-    const App = await loadAppWithServices(services);
+    const App = loadAppWithServices(services);
 
     render(<App />);
 
@@ -325,7 +339,7 @@ describe('App preflight integration', () => {
         traceId: 'trace-preflight-missing-outline',
       });
 
-    const App = await loadAppWithServices(services);
+    const App = loadAppWithServices(services);
 
     render(<App />);
 
@@ -351,7 +365,7 @@ describe('App preflight integration', () => {
       traceId: 'trace-preflight-validation-details',
     });
 
-    const App = await loadAppWithServices(services);
+    const App = loadAppWithServices(services);
 
     render(<App />);
 
@@ -379,7 +393,7 @@ describe('App preflight integration', () => {
         traceId: 'trace-preflight-port-unavailable',
       });
 
-    const App = await loadAppWithServices(services);
+    const App = loadAppWithServices(services);
 
     render(<App />);
 
@@ -395,7 +409,7 @@ describe('App preflight integration', () => {
   });
 
   it('displays trace IDs for generation success toasts', async () => {
-    const App = await loadAppWithServices(services);
+    const App = loadAppWithServices(services);
 
     render(<App />);
 
@@ -424,7 +438,7 @@ describe('App preflight integration', () => {
       traceId: 'trace-generate-failure',
     });
 
-    const App = await loadAppWithServices(services);
+    const App = loadAppWithServices(services);
 
     render(<App />);
 
@@ -444,5 +458,20 @@ describe('App preflight integration', () => {
     if (toastCard) {
       expect(within(toastCard).getByText('trace-generate-failure')).toBeInTheDocument();
     }
+  });
+
+  it('marks services offline when the health probe fails', async () => {
+    services.checkHealth = vi.fn().mockResolvedValue({
+      ok: false,
+      error: { message: 'Bridge unreachable', traceId: 'trace-health-failure' },
+      traceId: 'trace-health-failure',
+    });
+
+    const App = loadAppWithServices(services);
+
+    render(<App />);
+
+    await waitFor(() => expect(services.checkHealth).toHaveBeenCalled());
+    await screen.findByRole('button', { name: /services offline/i });
   });
 });

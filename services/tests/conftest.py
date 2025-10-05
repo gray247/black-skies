@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import sys
-from collections.abc import Iterator
+from collections.abc import AsyncIterator, Iterator
 from pathlib import Path
 
 import pytest
+import httpx
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
@@ -41,4 +42,13 @@ def test_client(service_app: FastAPI) -> Iterator[TestClient]:
 
     with TestClient(service_app) as client:
         client.app = service_app  # type: ignore[attr-defined]
+        yield client
+
+
+@pytest.fixture()
+async def async_client(service_app: FastAPI) -> AsyncIterator[httpx.AsyncClient]:
+    """Provide an HTTPX async client bound to the FastAPI application."""
+
+    transport = httpx.ASGITransport(app=service_app)
+    async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as client:
         yield client

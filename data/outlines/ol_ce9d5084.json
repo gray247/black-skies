@@ -1,0 +1,17 @@
+{
+  "kind": "outline",
+  "id": "ol_ce9d5084",
+  "project_id": "proj_metrics",
+  "payload": {
+    "project_id": "proj_metrics",
+    "wizard_locks": {},
+    "metadata": {}
+  },
+  "response": {
+    "outline_id": "ol_ce9d5084",
+    "project_id": "proj_metrics",
+    "status": "queued",
+    "created_at": "2025-09-29T21:55:07.548857+00:00",
+    "metadata": {}
+  }
+}
