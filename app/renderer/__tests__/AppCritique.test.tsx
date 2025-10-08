@@ -5,10 +5,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import App from '../App';
 
-import type { LoadedProject } from '../../shared/ipc/projectLoader';
+import type { LoadedProject, ProjectLoaderApi } from '../../shared/ipc/projectLoader';
 import type {
   DraftAcceptBridgeResponse,
   DraftCritiqueBridgeResponse,
+  DraftGenerateBridgeResponse,
+  DraftPreflightEstimate,
   ServicesBridge,
 } from '../../shared/ipc/services';
 
@@ -152,14 +154,17 @@ function createServicesMock(): ServicesBridge {
   } as unknown as ServicesBridge;
 }
 
-function loadAppWithServices(services: ServicesBridge): AppComponent {
+function loadAppWithServices(
+  services: ServicesBridge,
+  options: { projectLoader?: ProjectLoaderApi } = {},
+): AppComponent {
   Object.defineProperty(window, 'services', {
     configurable: true,
     value: services,
   });
   Object.defineProperty(window, 'projectLoader', {
     configurable: true,
-    value: undefined,
+    value: options.projectLoader,
   });
   return App;
 }
@@ -218,6 +223,87 @@ describe('App critique flow', () => {
     await waitFor(() =>
       expect(screen.queryByText(critiqueFixture.summary)).not.toBeInTheDocument(),
     );
+  });
+
+  it('refreshes project drafts after generation so accept uses the latest checksum', async () => {
+    const newDraftBody = 'Generated scene body with heightened stakes.';
+    const refreshedProject: LoadedProject = {
+      ...loadedProject,
+      drafts: { ...loadedProject.drafts, sc_0001: newDraftBody },
+    };
+    const estimate: DraftPreflightEstimate = {
+      projectId: 'demo',
+      unitScope: 'scene',
+      unitIds: ['sc_0001'],
+      model: { name: 'draft-synthesizer-v1', provider: 'black-skies-local' },
+      scenes: [
+        { id: 'sc_0001', title: 'Arrival', order: 1, chapter_id: 'ch_0001' },
+      ],
+      budget: { estimated_usd: 0.5, status: 'ok' },
+    };
+    const generateResponse: DraftGenerateBridgeResponse = {
+      draft_id: 'dr_generated',
+      schema_version: 'DraftUnitSchema v1',
+      units: [
+        { id: 'sc_0001', text: newDraftBody, meta: { order: 1, title: 'Arrival', chapter_id: 'ch_0001' } },
+      ],
+      budget: { status: 'ok' },
+    };
+    services.preflightDraft = vi
+      .fn()
+      .mockResolvedValue({ ok: true, data: estimate, traceId: 'trace-preflight' });
+    services.generateDraft = vi
+      .fn()
+      .mockResolvedValue({ ok: true, data: generateResponse, traceId: 'trace-generate' });
+
+    const projectLoaderMock: ProjectLoaderApi = {
+      openProjectDialog: vi.fn().mockResolvedValue({ canceled: true }),
+      loadProject: vi.fn().mockResolvedValue({ ok: true, project: refreshedProject, issues: [] }),
+      getSampleProjectPath: vi.fn(),
+    };
+
+    const App = loadAppWithServices(services, { projectLoader: projectLoaderMock });
+    render(<App />);
+
+    const generateButton = await screen.findByRole('button', { name: /generate/i });
+    await waitFor(() => expect(generateButton).not.toBeDisabled());
+    fireEvent.click(generateButton);
+
+    await waitFor(() => expect(services.preflightDraft).toHaveBeenCalledTimes(1));
+    const proceedButton = await screen.findByRole('button', { name: /proceed/i });
+    fireEvent.click(proceedButton);
+
+    await waitFor(() => expect(services.generateDraft).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(projectLoaderMock.loadProject).toHaveBeenCalledTimes(1));
+    expect(projectLoaderMock.loadProject).toHaveBeenCalledWith({ path: loadedProject.path });
+
+    const critiqueButton = await screen.findByRole('button', { name: 'Critique' });
+    await waitFor(() => expect(critiqueButton).not.toBeDisabled());
+    fireEvent.click(critiqueButton);
+
+    await screen.findByText(critiqueFixture.summary);
+
+    const acceptButton = await screen.findByRole('button', { name: 'Accept draft' });
+    fireEvent.click(acceptButton);
+
+    await waitFor(() => expect(services.acceptDraft).toHaveBeenCalled());
+
+    const expectedHash = createHash('sha256')
+      .update(newDraftBody.replace(/\r\n/g, '\n'))
+      .digest('hex');
+
+    expect(services.acceptDraft).toHaveBeenLastCalledWith({
+      projectId: 'demo',
+      draftId: expect.stringMatching(/^dr_/),
+      unitId: 'sc_0001',
+      unit: {
+        id: 'sc_0001',
+        previous_sha256: expectedHash,
+        text: newDraftBody,
+      },
+      message: expect.stringContaining('Accepted critique'),
+      snapshotLabel: 'accept',
+    });
   });
 
   it('surfaces critique bridge errors via toast feedback', async () => {

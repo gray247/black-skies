@@ -26,7 +26,8 @@ This installs Electron, electron-builder, and renderer/main build toolchains in 
 
 ## 3. Building the artifacts
 ```powershell
-# create NSIS installer + portable executable
+# create NSIS installer + portable executable (Developer Mode or admin shell recommended)
+$env:ELECTRON_BUILDER_DISABLE_CODE_SIGNING = '1'
 corepack pnpm --filter app run package:win
 ```
 The script performs the following steps:
@@ -42,11 +43,14 @@ The script performs the following steps:
 
 A dry run without installer generation is available for local inspection:
 ```powershell
+$env:ELECTRON_BUILDER_DISABLE_CODE_SIGNING = '1'
 corepack pnpm --filter app run package:dir
 ```
 The `--dir` target creates `app/release/win-unpacked/` with the assembled app tree.
 
-> **Note:** Building Windows artifacts must be executed on Windows. Cross-compiling from WSL/Linux will download the Linux Electron target and fail the sanity check.
+> **Notes:**
+> - Building Windows artifacts must be executed on Windows. Cross-compiling from WSL/Linux will download the Linux Electron target and fail the sanity check.
+> - Windows Developer Mode (or an elevated PowerShell) is required so the `winCodeSign` tool can extract its symbolic links. If you see `A required privilege is not held by the client`, enable Developer Mode and rerun the packaging command.
 
 ---
 

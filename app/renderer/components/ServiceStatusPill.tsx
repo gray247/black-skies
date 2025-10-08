@@ -1,4 +1,4 @@
-export type ServiceStatus = 'checking' | 'online' | 'offline';
+﻿export type ServiceStatus = 'checking' | 'online' | 'offline';
 
 interface ServiceStatusPillProps {
   status: ServiceStatus;
@@ -6,7 +6,7 @@ interface ServiceStatusPillProps {
 }
 
 const STATUS_LABELS: Record<ServiceStatus, string> = {
-  checking: 'Checking services…',
+  checking: 'Checking services',
   online: 'Services online',
   offline: 'Services offline',
 };
@@ -39,3 +39,5 @@ export default function ServiceStatusPill({
     </button>
   );
 }
+
+

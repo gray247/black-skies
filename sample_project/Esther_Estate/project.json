@@ -5,15 +5,16 @@
   "budget": {
     "soft": 12.5,
     "hard": 25.0,
-    "spent_usd": 0.02,
-    "last_request_fingerprint": "c6db2b5c7de318449a152b67accc7b551e1ae43ae91aee58818de218121e84b5",
+    "spent_usd": 0.06,
+    "last_request_fingerprint": "da445d4a3e6753af135f910df5f823945f03d189e6e3bfd43aeb4eaa9b3ddbdf",
     "last_generate_response": {
       "project_id": "Esther_Estate",
       "unit_scope": "scene",
       "unit_ids": [
-        "sc_0001"
+        "sc_0001",
+        "sc_0002"
       ],
-      "draft_id": "dr_8370922d",
+      "draft_id": "dr_18526ed6",
       "schema_version": "DraftUnitSchema v1",
       "units": [
         {
@@ -33,16 +34,34 @@
             "provider": "black-skies-local"
           },
           "seed": 3597615096
+        },
+        {
+          "id": "sc_0002",
+          "text": "Ezra Cole enters Locked Parlor to keep the generator coil alive. The atmosphere leans toward revelation as old floorboards complain at every move.\n\nThe beat shifts when the diary on the desk updates itself, keeping the scene in payoff mode and aiming for roughly 930 words.",
+          "meta": {
+            "pov": "Ezra Cole",
+            "purpose": "payoff",
+            "emotion_tag": "revelation",
+            "word_target": 930,
+            "order": 2,
+            "chapter_id": "ch_0001"
+          },
+          "prompt_fingerprint": "sha256:9aa034d4cce4692367fa50db832187efd216b368e5d7f910da7f5f09b51f47fb",
+          "model": {
+            "name": "draft-synthesizer-v1",
+            "provider": "black-skies-local"
+          },
+          "seed": 1185936955
         }
       ],
       "budget": {
-        "estimated_usd": 0.02,
+        "estimated_usd": 0.04,
         "status": "ok",
         "message": "Estimate within budget.",
         "soft_limit_usd": 12.5,
         "hard_limit_usd": 25.0,
-        "spent_usd": 0.02,
-        "total_after_usd": 0.02
+        "spent_usd": 0.06,
+        "total_after_usd": 0.06
       }
     }
   }

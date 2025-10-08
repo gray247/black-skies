@@ -9,7 +9,7 @@ import type {
   DraftPreflightEstimate,
   ServicesBridge,
 } from '../../shared/ipc/services';
-import type { LoadedProject } from '../../shared/ipc/projectLoader';
+import type { LoadedProject, ProjectLoaderApi } from '../../shared/ipc/projectLoader';
 
 vi.mock('../components/WizardPanel', () => ({
   __esModule: true,
@@ -183,14 +183,17 @@ function createServicesMock(): ServicesBridge {
   };
 }
 
-function loadAppWithServices(services: ServicesBridge): AppComponent {
+function loadAppWithServices(
+  services: ServicesBridge,
+  options: { projectLoader?: ProjectLoaderApi } = {},
+): AppComponent {
   Object.defineProperty(window, 'services', {
     configurable: true,
     value: services,
   });
   Object.defineProperty(window, 'projectLoader', {
     configurable: true,
-    value: undefined,
+    value: options.projectLoader,
   });
   return App;
 }

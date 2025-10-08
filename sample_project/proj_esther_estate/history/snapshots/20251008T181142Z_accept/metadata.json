@@ -1,0 +1,11 @@
+{
+  "snapshot_id": "20251008T181142Z",
+  "project_id": "proj_esther_estate",
+  "label": "accept",
+  "created_at": "2025-10-08T18:11:42.437506Z",
+  "includes": [
+    "drafts",
+    "outline.json",
+    "project.json"
+  ]
+}

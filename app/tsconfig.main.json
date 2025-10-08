@@ -1,20 +1,30 @@
-{
-  "compilerOptions": {
-    "target": "ES2022",
-    "module": "CommonJS",
-    "moduleResolution": "Node",
-    "outDir": "../dist-electron",
-    "rootDir": "./",
-    "strict": true,
-    "noEmit": false,
-    "allowJs": false,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true,
-    "resolveJsonModule": true,
-    "types": ["node", "electron"],
-    "sourceMap": true
-  },
-  "include": ["main/**/*.ts", "shared/**/*.ts"],
-  "exclude": ["dist", "dist-electron", "node_modules"]
+﻿{
+    "compilerOptions":  {
+                            "target":  "ES2022",
+                            "module":  "CommonJS",
+                            "moduleResolution":  "Node",
+                            "outDir":  "dist-electron",
+                            "rootDir":  "./",
+                            "strict":  true,
+                            "noEmit":  false,
+                            "allowJs":  false,
+                            "esModuleInterop":  true,
+                            "forceConsistentCasingInFileNames":  true,
+                            "skipLibCheck":  true,
+                            "resolveJsonModule":  true,
+                            "types":  [
+                                          "node",
+                                          "electron"
+                                      ],
+                            "sourceMap":  true
+                        },
+    "include":  [
+                    "main/**/*.ts",
+                    "shared/**/*.ts"
+                ],
+    "exclude":  [
+                    "dist",
+                    "dist-electron",
+                    "node_modules"
+                ]
 }

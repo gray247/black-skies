@@ -1,4 +1,4 @@
-import type { DraftPreflightEstimate } from '../../shared/ipc/services';
+﻿import type { DraftPreflightEstimate } from '../../shared/ipc/services';
 
 interface PreflightModalProps {
   isOpen: boolean;
@@ -70,6 +70,7 @@ export function PreflightModal({
   }
 
   const validationSummary = deriveValidationSummary(errorDetails);
+  const showLoading = loading && !estimate && !error;
   const budget = estimate?.budget;
   const status = budget?.status;
   const estimatedUsd = budget?.estimated_usd;
@@ -79,7 +80,7 @@ export function PreflightModal({
   const projectedTotal = budget?.total_after_usd;
   const scenes = estimate?.scenes ?? [];
   const model = estimate?.model;
-  const disableProceed = loading || !budget || status === 'blocked' || Boolean(error);
+  const disableProceed = showLoading || !budget || status === 'blocked' || Boolean(error);
 
   return (
     <div className="preflight-modal" role="dialog" aria-modal="true" aria-label="Draft preflight">
@@ -91,7 +92,7 @@ export function PreflightModal({
           </button>
         </header>
         <section className="preflight-modal__body">
-          {loading ? (
+          {showLoading ? (
             <p>Estimating…</p>
           ) : error ? (
             <div className="preflight-modal__error">
@@ -185,7 +186,7 @@ export function PreflightModal({
             type="button"
             className="preflight-modal__button"
             onClick={onClose}
-            disabled={loading}
+            disabled={showLoading}
           >
             Cancel
           </button>

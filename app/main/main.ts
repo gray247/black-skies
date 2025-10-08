@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron';
+﻿import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron';
 import { spawn, type ChildProcessByStdio } from 'node:child_process';
 import { once } from 'node:events';
 import net from 'node:net';
@@ -6,6 +6,7 @@ import { setTimeout as delay } from 'node:timers/promises';
 import { dirname, join, resolve, delimiter } from 'node:path';
 import type { Readable } from 'node:stream';
 
+import { registerProjectLoaderIpc } from './projectLoaderIpc';
 import {
   getLogger,
   initializeMainLogging,
@@ -469,6 +470,7 @@ if (!hasSingleInstanceLock) {
     .then(async () => {
       await initializeMainLogging(app);
       registerRendererLogSink();
+      registerProjectLoaderIpc();
       registerDiagnosticsIpc();
       ensureMainLogger().info('Electron app ready');
       setupAppEventHandlers();
@@ -484,3 +486,4 @@ if (!hasSingleInstanceLock) {
       app.quit();
     });
 }
+

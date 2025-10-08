@@ -29,16 +29,15 @@ Prereqs: **Node 20 LTS**, **PNPM**, **Python 3.11**
    source .venv/bin/activate
    pip install -e .[dev]
    ```
-3. **Run the desktop shell + renderer**
-   ```bash
-   pnpm run dev
+3. **Launch the smoke test (Vite + Electron + services)**
+   ```powershell
+   powershell.exe -ExecutionPolicy Bypass -File .\start-codex.ps1 -SmokeTest
    ```
-   The script uses `pnpm exec concurrently` to launch the Vite renderer dev server alongside a placeholder Electron shell task. Replace `scripts/electron-dev-placeholder.mjs` with the real Electron bootstrap when wiring up the desktop shell locally.
-4. **Run the FastAPI services**
-   ```bash
-   python -m blackskies.services
-   ```
-   The dev server exposes http://127.0.0.1:8000 with a `GET /api/v1/healthz` probe.
+   Two terminals open: one runs `pnpm --filter app dev -- --host 127.0.0.1 --port 5173`, the other launches Electron with the
+   real preload and auto-starts the FastAPI bridge. When the status pill flips to “Services online” the stack is healthy. Close both
+   windows to shut everything down.
+
+   > Prefer manual control? Follow the step-by-step commands in `docs/quickstart.md`.
 
 ### Service configuration
 

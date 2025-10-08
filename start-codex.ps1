@@ -13,7 +13,8 @@
 param(
   [switch]$NoCodex,
   [switch]$OnlyTests,
-  [switch]$LaunchGui
+  [switch]$LaunchGui,
+  [switch]$SmokeTest
 )
 
 $ErrorActionPreference = "Stop"
@@ -209,12 +210,64 @@ function Start-RendererWindow {
   Start-Process -FilePath $script:PowerShellHost -ArgumentList "-NoExit", "-Command", $rendererCommand -WorkingDirectory $RepoRoot | Out-Null
 }
 
+function Start-SmokeViteWindow {
+  Ensure-Node
+  Ensure-PnpmShim
+
+  $viteCommand = "pnpm --filter app dev -- --host 127.0.0.1 --port 5173"
+  Start-Process -FilePath $script:PowerShellHost -ArgumentList "-NoExit", "-Command", $viteCommand -WorkingDirectory $RepoRoot | Out-Null
+}
+
+function Start-SmokeElectronWindow {
+  param(
+    [Parameter(Mandatory=$true)][string]$PythonExe,
+    [Parameter(Mandatory=$true)][string]$ProjectBaseDir
+  )
+
+  Ensure-Node
+  Ensure-PnpmShim
+
+  $electronScript = @"
+
+`$env:ELECTRON_RENDERER_URL = 'http://127.0.0.1:5173/'
+`$env:BLACKSKIES_PYTHON = '$PythonExe'
+`$env:BLACKSKIES_PROJECT_BASE_DIR = '$ProjectBaseDir'
+pnpm --filter app exec electron ..\dist-electron\main\main.js
+"@
+
+  Start-Process -FilePath $script:PowerShellHost -ArgumentList "-NoExit", "-Command", $electronScript -WorkingDirectory $RepoRoot | Out-Null
+}
+
 # ---------- Entry Flow ----------
 
 if ($OnlyTests) {
   Ensure-Venv
   Ensure-Python-Tools
   Run-Tests
+  exit 0
+}
+
+if ($SmokeTest) {
+  Ensure-Venv
+  Install-LockFile (Join-Path "." "requirements.lock")
+  Install-LockFile (Join-Path "." "requirements.dev.lock")
+  Ensure-Python-Tools
+  Sync-Node
+
+  $projectBaseDir = Resolve-ProjectBaseDir
+  $env:BLACKSKIES_PROJECT_BASE_DIR = $projectBaseDir
+
+  Write-Host "Building Electron main bundle..." -ForegroundColor Cyan
+  pnpm --filter app build:main
+
+  $pythonExe = Join-Path ".\\.venv\\Scripts" "python.exe"
+  if (-not (Test-Path -LiteralPath $pythonExe)) {
+    throw "Virtual environment Python executable not found at $pythonExe."
+  }
+
+  Write-Host "Launching Vite renderer and Electron shell for smoke test..." -ForegroundColor Cyan
+  Start-SmokeViteWindow
+  Start-SmokeElectronWindow -PythonExe $pythonExe -ProjectBaseDir $projectBaseDir
   exit 0
 }
 

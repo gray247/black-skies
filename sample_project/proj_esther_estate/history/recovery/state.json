@@ -1,0 +1,19 @@
+{
+  "status": "idle",
+  "started_at": null,
+  "pending_unit_id": null,
+  "draft_id": null,
+  "message": null,
+  "last_snapshot": {
+    "snapshot_id": "20251008T181142Z",
+    "label": "accept",
+    "created_at": "2025-10-08T18:11:42.437506Z",
+    "path": "history/snapshots/20251008T181142Z_accept",
+    "includes": [
+      "drafts",
+      "outline.json",
+      "project.json"
+    ]
+  },
+  "failure_reason": null
+}

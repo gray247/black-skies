@@ -93,13 +93,55 @@ async function computeSha256(value: string): Promise<string> {
   if (!crypto?.subtle) {
     throw new Error('Secure hashing APIs are unavailable in this environment.');
   }
-  const normalized = value.replace(/\r\n/g, '\n');
+  const normalized = value.replace(/\\r\\n/g, '\n');
+  const trimmed = normalized.replace(/\n+$/g, '');
   const encoder = new TextEncoder();
-  const bytes = encoder.encode(normalized);
+  const bytes = encoder.encode(trimmed);
   const digest = await crypto.subtle.digest('SHA-256', bytes);
   return Array.from(new Uint8Array(digest))
     .map((byte) => byte.toString(16).padStart(2, '0'))
     .join('');
+}
+
+function splitSceneMarkdown(markdown: string): {
+  frontMatterLines: string[];
+  bodyLines: string[];
+} {
+  if (!markdown) {
+    return { frontMatterLines: [], bodyLines: [] };
+  }
+
+  const lines = markdown.split(/\r?\n/);
+  if (lines[0]?.trim() !== '---') {
+    return { frontMatterLines: [], bodyLines: lines };
+  }
+
+  let index = 1;
+  while (index < lines.length && lines[index].trim() !== '---') {
+    index += 1;
+  }
+
+  if (index >= lines.length) {
+    return { frontMatterLines: lines, bodyLines: [] };
+  }
+
+  const frontMatterLines = lines.slice(0, index + 1);
+  const bodyLines = lines.slice(index + 1);
+  return { frontMatterLines, bodyLines };
+}
+
+function extractSceneBody(markdown: string): string {
+  const { bodyLines } = splitSceneMarkdown(markdown);
+  return bodyLines.join('\n');
+}
+
+function mergeSceneMarkdown(original: string, nextBody: string): string {
+  const { frontMatterLines } = splitSceneMarkdown(original);
+  const bodyLines = nextBody.split(/\r?\n/);
+  if (frontMatterLines.length === 0) {
+    return bodyLines.join('\n');
+  }
+  return [...frontMatterLines, ...bodyLines].join('\n');
 }
 
 export default function App(): JSX.Element {
@@ -137,8 +179,15 @@ export default function App(): JSX.Element {
   const [critiqueState, setCritiqueState] = useState<CritiqueDialogState>(createInitialCritiqueState);
   const lastRecoveryProjectIdRef = useRef<string | null>(null);
   const recoveryFetchInFlightRef = useRef(false);
+  const activeSceneId = activeScene?.id ?? null;
+  const projectDraftsRef = useRef<Record<string, string>>({});
 
   useEffect(() => {
+    projectDraftsRef.current = projectDrafts;
+  }, [projectDrafts]);
+
+  useEffect(() => {
+    isMountedRef.current = true;
     return () => {
       isMountedRef.current = false;
       if (reopenReleaseTimeoutRef.current !== null) {
@@ -149,6 +198,7 @@ export default function App(): JSX.Element {
   }, []);
 
   const setServiceStatusSafe = useCallback((status: ServiceStatus) => {
+    console.log('[App] setServiceStatusSafe', status);
     if (isMountedRef.current) {
       setServiceStatus(status);
     }
@@ -162,6 +212,10 @@ export default function App(): JSX.Element {
     setCritiqueState(createInitialCritiqueState());
   }, []);
 
+  useEffect(() => {
+    console.log('[App] serviceStatus ->', serviceStatus);
+  }, [serviceStatus]);
+
   const checkServices = useCallback(async () => {
     if (!services) {
       console.error('[App] Services bridge unavailable; project actions disabled');
@@ -169,7 +223,7 @@ export default function App(): JSX.Element {
       return;
     }
 
-    setServiceStatusSafe('checking');
+    setServiceStatusSafe('online');
 
     try {
       const result = await services.checkHealth();
@@ -177,6 +231,7 @@ export default function App(): JSX.Element {
         console.warn('[App] Service health check failed', result.error);
       }
       setServiceStatusSafe(result.ok ? 'online' : 'offline');
+      console.log('[App] Health probe resolved', result);
     } catch (error) {
       console.error('[App] Health probe threw an error', error);
       setServiceStatusSafe('offline');
@@ -260,17 +315,28 @@ export default function App(): JSX.Element {
   );
 
   const activateProject = useCallback(
-    (project: LoadedProject) => {
+    (project: LoadedProject, options?: { preserveSceneId?: string | null }) => {
       const projectId = deriveProjectIdFromPath(project.path);
       const unitIds = project.scenes.map((scene) => scene.id);
       setCurrentProject(project);
       const canonicalDrafts = { ...project.drafts };
       setProjectDrafts(canonicalDrafts);
       setDraftEdits({ ...canonicalDrafts });
-      const firstScene = project.scenes[0] ?? null;
-      setActiveScene(
-        firstScene ? { id: firstScene.id, title: firstScene.title ?? null } : null,
-      );
+      projectDraftsRef.current = canonicalDrafts;
+
+      let nextScene: { id: string; title: string | null } | null = null;
+      const preservedId = options?.preserveSceneId ?? null;
+      if (preservedId) {
+        const preservedScene = project.scenes.find((scene) => scene.id === preservedId);
+        if (preservedScene) {
+          nextScene = { id: preservedScene.id, title: preservedScene.title ?? null };
+        }
+      }
+      if (!nextScene) {
+        const firstScene = project.scenes[0] ?? null;
+        nextScene = firstScene ? { id: firstScene.id, title: firstScene.title ?? null } : null;
+      }
+      setActiveScene(nextScene);
       setCritiqueState(createInitialCritiqueState());
       setProjectSummary({
         projectId,
@@ -282,6 +348,43 @@ export default function App(): JSX.Element {
     },
     [fetchRecoveryStatus],
   );
+
+  const reloadProjectFromDisk = useCallback(async () => {
+    if (!projectSummary?.path) {
+      return;
+    }
+    const loader = window.projectLoader;
+    if (!loader?.loadProject) {
+      return;
+    }
+
+    try {
+      const response = await loader.loadProject({ path: projectSummary.path });
+      if (!isMountedRef.current) {
+        return;
+      }
+      if (response.ok) {
+        const project = response.project;
+        activateProject(project, { preserveSceneId: activeSceneId });
+      } else {
+        pushToast({
+          tone: 'warning',
+          title: 'Unable to refresh project',
+          description: response.error.message,
+        });
+      }
+    } catch (error) {
+      if (!isMountedRef.current) {
+        return;
+      }
+      const message = error instanceof Error ? error.message : String(error);
+      pushToast({
+        tone: 'error',
+        title: 'Project refresh failed',
+        description: message,
+      });
+    }
+  }, [activateProject, activeSceneId, isMountedRef, projectSummary, pushToast]);
 
   const handleProjectLoaded = useCallback(
     (payload: ProjectLoadEvent | LoadedProject | null | undefined) => {
@@ -487,6 +590,7 @@ export default function App(): JSX.Element {
       });
       return;
     }
+
     if (!projectSummary) {
       pushToast({
         tone: 'warning',
@@ -503,6 +607,7 @@ export default function App(): JSX.Element {
       errorDetails: null,
       estimate: undefined,
     });
+
     const result = await services.preflightDraft({
       projectId: projectSummary.projectId,
       unitScope: projectSummary.unitScope,
@@ -530,7 +635,7 @@ export default function App(): JSX.Element {
         estimate: undefined,
       });
     }
-  }, [projectSummary, pushToast, services]);
+  }, [projectSummary, pushToast, reloadProjectFromDisk, services]);
 
   const handleClosePreflight = useCallback(() => {
     setPreflightState((previous) => ({ ...previous, open: false }));
@@ -572,6 +677,20 @@ export default function App(): JSX.Element {
     }
 
     if (result.ok) {
+      const previousDrafts = projectDraftsRef.current;
+      const updatedDrafts: Record<string, string> = { ...previousDrafts };
+      for (const unit of result.data.units) {
+        const canonical = previousDrafts[unit.id];
+        if (canonical) {
+          updatedDrafts[unit.id] = mergeSceneMarkdown(canonical, unit.text);
+        } else {
+          updatedDrafts[unit.id] = unit.text;
+        }
+      }
+      setProjectDrafts(updatedDrafts);
+      setDraftEdits({ ...updatedDrafts });
+      projectDraftsRef.current = updatedDrafts;
+
       setPreflightState({
         open: false,
         loading: false,
@@ -585,6 +704,7 @@ export default function App(): JSX.Element {
         description: `Draft ${result.data.draft_id} queued with ${result.data.units.length} unit(s).`,
         traceId: result.traceId,
       });
+      await reloadProjectFromDisk();
     } else {
       setPreflightState((previous) => ({
         ...previous,
@@ -727,10 +847,12 @@ export default function App(): JSX.Element {
     const draftId = critiqueState.draftId ?? generateDraftId(unitId);
     const canonicalText = projectDrafts[unitId] ?? '';
     const nextText = draftEdits[unitId] ?? canonicalText;
+    const canonicalBody = extractSceneBody(canonicalText);
+    const nextBody = extractSceneBody(nextText);
 
     let previousSha: string;
     try {
-      previousSha = await computeSha256(canonicalText);
+      previousSha = await computeSha256(canonicalBody);
     } catch (error) {
       const message =
         error instanceof Error ? error.message : 'Unable to compute checksum for the current draft.';
@@ -758,7 +880,7 @@ export default function App(): JSX.Element {
         unit: {
           id: unitId,
           previous_sha256: previousSha,
-          text: nextText,
+          text: nextBody,
         },
         message: `Accepted critique for ${activeScene.title ?? unitId}`,
         snapshotLabel: 'accept',
@@ -767,8 +889,9 @@ export default function App(): JSX.Element {
         return;
       }
       if (result.ok) {
-        setProjectDrafts((previous) => ({ ...previous, [unitId]: nextText }));
-        setDraftEdits((previous) => ({ ...previous, [unitId]: nextText }));
+        const mergedDraft = mergeSceneMarkdown(canonicalText, nextBody);
+        setProjectDrafts((previous) => ({ ...previous, [unitId]: mergedDraft }));
+        setDraftEdits((previous) => ({ ...previous, [unitId]: mergedDraft }));
         setCurrentProject((previous) => {
           if (!previous) {
             return previous;
@@ -777,7 +900,7 @@ export default function App(): JSX.Element {
             ...previous,
             drafts: {
               ...previous.drafts,
-              [unitId]: nextText,
+              [unitId]: mergedDraft,
             },
           };
         });
@@ -874,7 +997,7 @@ export default function App(): JSX.Element {
   const restoreDisabled = recoveryBusy || reopenBusy;
   const reopenDisabled = restoreDisabled || !lastProjectPath;
   const diagnosticsDisabled = recoveryBusy || reopenBusy;
-  const restoreLabel = recoveryAction === 'restore' ? 'Restoring…' : 'Restore snapshot';
+  const restoreLabel = recoveryAction === 'restore' ? 'RestoringÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¦' : 'Restore snapshot';
 
   useEffect(() => {
     if (serviceStatus === 'offline') {
@@ -1019,3 +1142,18 @@ export default function App(): JSX.Element {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
