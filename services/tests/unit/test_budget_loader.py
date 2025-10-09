@@ -25,7 +25,9 @@ def _write_project_file(project_root: Path, payload: dict[str, object]) -> None:
     project_file.write_text(json.dumps(payload), encoding="utf-8")
 
 
-def test_load_project_budget_state_sanitizes_currency(project_root: Path, diagnostics: DiagnosticLogger) -> None:
+def test_load_project_budget_state_sanitizes_currency(
+    project_root: Path, diagnostics: DiagnosticLogger
+) -> None:
     project_data = {
         "project_id": project_root.name,
         "budget": {
@@ -75,7 +77,6 @@ def test_load_project_budget_state_defaults_on_invalid_values(
     assert len(logs) == 3
 
     logged_fields = {
-        json.loads(path.read_text(encoding="utf-8"))["details"].get("field")
-        for path in logs
+        json.loads(path.read_text(encoding="utf-8"))["details"].get("field") for path in logs
     }
     assert {"soft", "hard", "spent_usd"}.issubset(logged_fields)

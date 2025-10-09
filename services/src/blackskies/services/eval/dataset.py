@@ -245,9 +245,7 @@ class CritiqueEvalTask(_EvalTaskBase):
 
 
 EvalTask = WizardEvalTask | DraftEvalTask | CritiqueEvalTask
-_EvalTaskAdapter = TypeAdapter(
-    Annotated[EvalTask, Field(discriminator="flow")]
-)
+_EvalTaskAdapter = TypeAdapter(Annotated[EvalTask, Field(discriminator="flow")])
 
 DEFAULT_DATASET_DIR = Path(__file__).resolve().parents[2] / "data" / "eval_tasks"
 

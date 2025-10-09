@@ -39,4 +39,3 @@ async def metrics_endpoint(version: str = Depends(get_service_version)) -> Respo
         media_type=None,
         headers={"content-type": "text/plain; version=0.0.4"},
     )
-

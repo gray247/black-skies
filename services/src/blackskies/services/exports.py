@@ -17,7 +17,9 @@ def _timestamp() -> str:
     return datetime.now().strftime("%Y%m%dT%H%M%S")
 
 
-def export_markdown(draft: Draft, *, directory: Optional[Path] = None, filename: Optional[str] = None) -> Path:
+def export_markdown(
+    draft: Draft, *, directory: Optional[Path] = None, filename: Optional[str] = None
+) -> Path:
     """Write a draft to Markdown with front-matter metadata."""
 
     target_dir = directory or EXPORT_ROOT
@@ -35,7 +37,9 @@ def export_markdown(draft: Draft, *, directory: Optional[Path] = None, filename:
     return target
 
 
-def export_text(draft: Draft, *, directory: Optional[Path] = None, filename: Optional[str] = None) -> Path:
+def export_text(
+    draft: Draft, *, directory: Optional[Path] = None, filename: Optional[str] = None
+) -> Path:
     """Write a draft to plain-text format."""
 
     target_dir = directory or EXPORT_ROOT

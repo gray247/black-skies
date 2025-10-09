@@ -72,9 +72,7 @@ class DraftSynthesizer:
         unit_index: int,
     ) -> SynthesisResult:
         base_seed = request.seed
-        derived_seed = self._derive_seed(
-            request.project_id, scene.id, base_seed, unit_index
-        )
+        derived_seed = self._derive_seed(request.project_id, scene.id, base_seed, unit_index)
         rng = random.Random(derived_seed)
 
         meta = self._build_meta(scene, overrides, rng)
@@ -108,13 +106,9 @@ class DraftSynthesizer:
         return SynthesisResult(unit=unit, front_matter=front_matter, body=body)
 
     @staticmethod
-    def _derive_seed(
-        project_id: str, scene_id: str, base_seed: int | None, unit_index: int
-    ) -> int:
+    def _derive_seed(project_id: str, scene_id: str, base_seed: int | None, unit_index: int) -> int:
         if base_seed is None:
-            digest = hashlib.sha256(
-                f"{project_id}:{scene_id}".encode("utf-8")
-            ).hexdigest()
+            digest = hashlib.sha256(f"{project_id}:{scene_id}".encode("utf-8")).hexdigest()
             base_seed = int(digest[:8], 16)
         return base_seed + unit_index
 
@@ -154,11 +148,7 @@ class DraftSynthesizer:
             if overrides and overrides.turn
             else self._select(self._TURNS, scene.order + 4, rng)
         )
-        order_value = (
-            overrides.order
-            if overrides and overrides.order is not None
-            else scene.order
-        )
+        order_value = overrides.order if overrides and overrides.order is not None else scene.order
         word_target = (
             overrides.word_target
             if overrides and overrides.word_target is not None
@@ -197,9 +187,7 @@ class DraftSynthesizer:
         return "\n\n".join(paragraphs)
 
     @staticmethod
-    def _build_front_matter(
-        scene: OutlineScene, meta: dict[str, Any]
-    ) -> dict[str, Any]:
+    def _build_front_matter(scene: OutlineScene, meta: dict[str, Any]) -> dict[str, Any]:
         front_matter = {
             "id": meta["id"],
             "slug": meta["slug"],

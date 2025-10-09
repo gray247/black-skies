@@ -122,9 +122,7 @@ class DraftPersistence:
         project_root.mkdir(parents=True, exist_ok=True)
         return project_root
 
-    def write_scene(
-        self, project_id: str, front_matter: dict[str, Any], body: str
-    ) -> Path:
+    def write_scene(self, project_id: str, front_matter: dict[str, Any], body: str) -> Path:
         project_root = self.ensure_project_root(project_id)
         drafts_dir = project_root / "drafts"
         drafts_dir.mkdir(parents=True, exist_ok=True)
@@ -150,9 +148,7 @@ class DraftPersistence:
             if key in front_matter:
                 ordered_keys.append(key)
 
-        remaining_keys = sorted(
-            key for key in front_matter.keys() if key not in _FIELD_ORDER
-        )
+        remaining_keys = sorted(key for key in front_matter.keys() if key not in _FIELD_ORDER)
         ordered_keys.extend(remaining_keys)
 
         for key in ordered_keys:
@@ -354,9 +350,7 @@ class SnapshotPersistence:
                     drafts.append(entry)
                 manifest["drafts"] = drafts
 
-        manifest_yaml = safe_dump(
-            manifest, sort_keys=False, allow_unicode=True, indent=2
-        )
+        manifest_yaml = safe_dump(manifest, sort_keys=False, allow_unicode=True, indent=2)
         write_text_atomic(directory / "snapshot.yaml", manifest_yaml)
 
     def _restore_directory(self, source: Path, target: Path) -> None:
@@ -398,9 +392,7 @@ class SnapshotPersistence:
                 "snapshot_id": snapshot_id,
                 "project_id": project_id,
                 "label": snapshot_dir.name.split("_", 1)[-1],
-                "created_at": datetime.now(tz=timezone.utc)
-                .isoformat()
-                .replace("+00:00", "Z"),
+                "created_at": datetime.now(tz=timezone.utc).isoformat().replace("+00:00", "Z"),
                 "includes": [],
             }
 
@@ -444,9 +436,7 @@ class SnapshotPersistence:
                     "snapshot_id": snapshot_id,
                     "project_id": project_id,
                     "label": candidate.name.split("_", 1)[-1],
-                    "created_at": datetime.now(tz=timezone.utc)
-                    .isoformat()
-                    .replace("+00:00", "Z"),
+                    "created_at": datetime.now(tz=timezone.utc).isoformat().replace("+00:00", "Z"),
                     "includes": [],
                 }
             metadata["path"] = to_posix(candidate)
@@ -473,8 +463,3 @@ __all__ = [
     "write_text_atomic",
     "SNAPSHOT_ID_PATTERN",
 ]
-
-
-
-
-

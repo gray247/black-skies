@@ -57,9 +57,7 @@ def _parse_front_matter_value(value: str) -> Any:
     return candidate
 
 
-def read_scene_document(
-    project_root: Path, unit_id: str
-) -> tuple[Path, dict[str, Any], str]:
+def read_scene_document(project_root: Path, unit_id: str) -> tuple[Path, dict[str, Any], str]:
     """Load front-matter metadata and body text for the given scene markdown."""
 
     drafts_dir = project_root / "drafts"
@@ -95,9 +93,7 @@ def read_scene_document(
 
     scene_id = front_matter.get("id")
     if scene_id != unit_id:
-        raise DraftRequestError(
-            "Scene markdown id does not match unit id.", {"unit_id": unit_id}
-        )
+        raise DraftRequestError("Scene markdown id does not match unit id.", {"unit_id": unit_id})
 
     return target_path, front_matter, body
 

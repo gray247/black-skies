@@ -136,9 +136,7 @@ class RecoveryTracker:
         )
         return self._write_state(project_id, state)
 
-    def mark_completed(
-        self, project_id: str, snapshot_info: dict[str, Any]
-    ) -> dict[str, Any]:
+    def mark_completed(self, project_id: str, snapshot_info: dict[str, Any]) -> dict[str, Any]:
         state = self._read_state(project_id)
         state.update(
             {
@@ -153,9 +151,7 @@ class RecoveryTracker:
         )
         return self._write_state(project_id, state)
 
-    def mark_needs_recovery(
-        self, project_id: str, *, reason: str | None = None
-    ) -> dict[str, Any]:
+    def mark_needs_recovery(self, project_id: str, *, reason: str | None = None) -> dict[str, Any]:
         state = self._read_state(project_id)
         state.update(
             {
@@ -166,9 +162,7 @@ class RecoveryTracker:
         )
         return self._write_state(project_id, state)
 
-    def status(
-        self, project_id: str, snapshots: SnapshotPersistence
-    ) -> dict[str, Any]:
+    def status(self, project_id: str, snapshots: SnapshotPersistence) -> dict[str, Any]:
         state = self._read_state(project_id)
         if state.get("status") == "accept-in-progress":
             state = self.mark_needs_recovery(project_id)
@@ -279,9 +273,7 @@ async def recovery_restore(
             )
 
     try:
-        snapshot_info = snapshot_persistence.restore_snapshot(
-            request_model.project_id, snapshot_id
-        )
+        snapshot_info = snapshot_persistence.restore_snapshot(request_model.project_id, snapshot_id)
     except FileNotFoundError:
         raise_validation_error(
             message="Snapshot not found.",
@@ -306,9 +298,7 @@ async def recovery_restore(
             message="Failed to restore snapshot.",
             details={"snapshot_id": snapshot_id, "error": str(exc)},
         )
-        recovery_tracker.mark_needs_recovery(
-            request_model.project_id, reason=str(exc)
-        )
+        recovery_tracker.mark_needs_recovery(request_model.project_id, reason=str(exc))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail={

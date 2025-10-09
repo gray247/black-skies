@@ -104,11 +104,15 @@ def _build_critique_payload(
 ) -> dict[str, Any]:
     """Return a critique request payload matching the rubric specification."""
 
-    rubric_values = rubric if rubric is not None else [
-        "Logic",
-        "Continuity",
-        "Character",
-    ]
+    rubric_values = (
+        rubric
+        if rubric is not None
+        else [
+            "Logic",
+            "Continuity",
+            "Character",
+        ]
+    )
     return {"draft_id": draft_id, "unit_id": unit_id, "rubric": rubric_values}
 
 
@@ -359,9 +363,7 @@ def test_outline_build_conflict(test_client: TestClient, tmp_path: Path) -> None
     assert diagnostic["code"] == "CONFLICT"
 
 
-def test_legacy_outline_build_shim_headers(
-    test_client: TestClient, tmp_path: Path
-) -> None:
+def test_legacy_outline_build_shim_headers(test_client: TestClient, tmp_path: Path) -> None:
     """Legacy outline shim proxies to the versioned handler with sunset headers."""
 
     payload = _build_payload()
@@ -560,9 +562,7 @@ def test_draft_generate_budget_blocked(test_client: TestClient, tmp_path: Path) 
     assert project_meta["budget"]["spent_usd"] == pytest.approx(9.75)
 
 
-def test_draft_generate_soft_limit_status(
-    test_client: TestClient, tmp_path: Path
-) -> None:
+def test_draft_generate_soft_limit_status(test_client: TestClient, tmp_path: Path) -> None:
     """Generation succeeds but surfaces soft-limit status when nearing the cap."""
 
     project_id = "proj_draft_soft_limit"
@@ -832,9 +832,7 @@ def test_draft_rewrite_validation_error(test_client: TestClient) -> None:
     assert detail["code"] == "VALIDATION"
 
 
-def test_draft_accept_success_creates_snapshot(
-    test_client: TestClient, tmp_path: Path
-) -> None:
+def test_draft_accept_success_creates_snapshot(test_client: TestClient, tmp_path: Path) -> None:
     """Accepting a critique updates the scene and writes a snapshot."""
 
     project_id = "proj_accept_success"
@@ -936,9 +934,7 @@ def test_wizard_lock_missing_project_returns_validation_error(
     assert detail["code"] == "VALIDATION"
 
 
-def test_draft_accept_conflict_on_checksum(
-    test_client: TestClient, tmp_path: Path
-) -> None:
+def test_draft_accept_conflict_on_checksum(test_client: TestClient, tmp_path: Path) -> None:
     """Out-of-date accept requests return a conflict."""
 
     project_id = "proj_accept_conflict"
@@ -963,9 +959,7 @@ def test_draft_accept_conflict_on_checksum(
     assert not state_path.exists()
 
 
-def test_recovery_status_marks_needs_recovery(
-    test_client: TestClient, tmp_path: Path
-) -> None:
+def test_recovery_status_marks_needs_recovery(test_client: TestClient, tmp_path: Path) -> None:
     """Stale in-progress markers are promoted to a recovery state."""
 
     project_id = "proj_recovery_status"
@@ -1011,9 +1005,7 @@ def test_recovery_tracker_normalises_legacy_state(tmp_path: Path) -> None:
     assert persisted["needs_recovery"] is True
 
 
-def test_recovery_restore_overwrites_scene(
-    test_client: TestClient, tmp_path: Path
-) -> None:
+def test_recovery_restore_overwrites_scene(test_client: TestClient, tmp_path: Path) -> None:
     """Restoring recovery snapshots rehydrates the latest accepted content."""
 
     project_id = "proj_recovery_restore"
@@ -1047,9 +1039,10 @@ def test_recovery_restore_overwrites_scene(
     restore_data = restore_response.json()
     assert restore_data["status"] == "idle"
     assert restore_data["needs_recovery"] is False
-    assert restore_data["last_snapshot"]["snapshot_id"] == accept_response.json()[
-        "snapshot"
-    ]["snapshot_id"]
+    assert (
+        restore_data["last_snapshot"]["snapshot_id"]
+        == accept_response.json()["snapshot"]["snapshot_id"]
+    )
     restored = scene_path.read_text(encoding="utf-8")
     assert "Restored text ready." in restored
 
@@ -1060,7 +1053,9 @@ def test_recovery_restore_overwrites_scene(
     assert state["last_snapshot"]["path"] == snapshot_rel_path
 
 
-def test_restore_snapshot_ignores_fsync_error(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+def test_restore_snapshot_ignores_fsync_error(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
     """Snapshot restores tolerate fsync errors such as EBADF on Windows."""
 
     project_id = "proj_restore_fsync"
@@ -1099,9 +1094,8 @@ def test_restore_snapshot_ignores_fsync_error(monkeypatch: pytest.MonkeyPatch, t
     assert result["snapshot_id"] == "20240101T000000Z"
     assert target_path.read_text(encoding="utf-8") == "fresh"
 
-def test_draft_export_manuscript_success(
-    test_client: TestClient, tmp_path: Path
-) -> None:
+
+def test_draft_export_manuscript_success(test_client: TestClient, tmp_path: Path) -> None:
     """Exporting a manuscript produces draft_full.md with expected content."""
 
     project_id = "proj_export_success"
@@ -1147,9 +1141,7 @@ def test_draft_export_manuscript_success(
     assert manuscript_with_meta.count("## ") == 2
 
 
-def test_draft_export_missing_front_matter_fields(
-    test_client: TestClient, tmp_path: Path
-) -> None:
+def test_draft_export_missing_front_matter_fields(test_client: TestClient, tmp_path: Path) -> None:
     """Export raises a validation error when required front-matter is missing."""
 
     project_id = "proj_export_missing"

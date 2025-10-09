@@ -104,9 +104,7 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
     application.state.snapshot_persistence = SnapshotPersistence(
         settings=application.state.settings
     )
-    application.state.recovery_tracker = RecoveryTracker(
-        settings=application.state.settings
-    )
+    application.state.recovery_tracker = RecoveryTracker(settings=application.state.settings)
     application.state.critique_service = CritiqueService()
     application.state.service_version = SERVICE_VERSION
 
@@ -118,12 +116,10 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
         ],
         allow_credentials=True,
         allow_methods=["*"],
-        allow_headers=["*"]
+        allow_headers=["*"],
     )
 
-    async def http_exception_handler(
-        request: Request, exc: HTTPException
-    ) -> JSONResponse:
+    async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
         trace_id = ensure_trace_id()
         return http_exception_to_response(exc, trace_id)
 
@@ -134,9 +130,7 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
         return request_validation_response(exc, trace_id)
 
     application.add_exception_handler(HTTPException, http_exception_handler)
-    application.add_exception_handler(
-        RequestValidationError, validation_exception_handler
-    )
+    application.add_exception_handler(RequestValidationError, validation_exception_handler)
 
     trace_context = get_trace_context()
 

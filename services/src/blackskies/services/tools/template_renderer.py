@@ -26,10 +26,14 @@ class TemplateRendererTool:
         cost_estimate="cpu-only",
     )
 
-    def context(self, *, trace_id: str | None = None, metadata: Mapping[str, Any] | None = None) -> ToolInvocationContext:
+    def context(
+        self, *, trace_id: str | None = None, metadata: Mapping[str, Any] | None = None
+    ) -> ToolInvocationContext:
         return ToolInvocationContext(name=self.name, trace_id=trace_id, metadata=metadata or {})
 
-    def render(self, context: ToolContext, template_id: str, variables: Mapping[str, Any]) -> ToolExecutionResult[str]:
+    def render(
+        self, context: ToolContext, template_id: str, variables: Mapping[str, Any]
+    ) -> ToolExecutionResult[str]:
         """Render a stored template with the provided variables."""
 
         if not isinstance(template_id, str) or not template_id:
@@ -44,7 +48,12 @@ class TemplateRendererTool:
         except Exception as exc:
             log_tool_complete(
                 context,
-                **{**operation_payload, "status": "error", "error_type": exc.__class__.__name__, "message": str(exc)},
+                **{
+                    **operation_payload,
+                    "status": "error",
+                    "error_type": exc.__class__.__name__,
+                    "message": str(exc),
+                },
             )
             raise
 
@@ -52,7 +61,12 @@ class TemplateRendererTool:
         if not isinstance(body, str) or not body:
             log_tool_complete(
                 context,
-                **{**operation_payload, "status": "error", "error_type": "InvalidTemplate", "message": "missing body"},
+                **{
+                    **operation_payload,
+                    "status": "error",
+                    "error_type": "InvalidTemplate",
+                    "message": "missing body",
+                },
             )
             raise ValueError("Template record must include a non-empty 'body' string.")
 
@@ -72,7 +86,12 @@ class TemplateRendererTool:
         except Exception as exc:
             log_tool_complete(
                 context,
-                **{**operation_payload, "status": "error", "error_type": exc.__class__.__name__, "message": str(exc)},
+                **{
+                    **operation_payload,
+                    "status": "error",
+                    "error_type": exc.__class__.__name__,
+                    "message": str(exc),
+                },
             )
             raise
 
@@ -84,5 +103,6 @@ class TemplateRendererTool:
                 "length": len(rendered),
             },
         )
-        return ToolExecutionResult(value=rendered, metadata={"template_id": template_id, "length": len(rendered)})
-
+        return ToolExecutionResult(
+            value=rendered, metadata={"template_id": template_id, "length": len(rendered)}
+        )

@@ -109,9 +109,7 @@ async def build_outline(
             },
         ) from exc
     except MissingLocksError as exc:
-        LOGGER.warning(
-            "Outline build missing locks for project %s", request_model.project_id
-        )
+        LOGGER.warning("Outline build missing locks for project %s", request_model.project_id)
         diagnostics.log(
             project_root,
             code="VALIDATION",
@@ -127,9 +125,7 @@ async def build_outline(
             },
         ) from exc
     except ValidationError as exc:
-        LOGGER.exception(
-            "Outline validation failed for project %s", request_model.project_id
-        )
+        LOGGER.exception("Outline validation failed for project %s", request_model.project_id)
         diagnostics.log(
             project_root,
             code="VALIDATION",
@@ -149,4 +145,3 @@ async def build_outline(
         ) from exc
 
     return response_payload
-

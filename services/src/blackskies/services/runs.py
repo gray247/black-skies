@@ -70,7 +70,9 @@ def append_event(run_id: str, event_type: str, payload: Dict[str, Any]) -> Dict[
     return event
 
 
-def finalize_run(run_id: str, *, status: str = "completed", result: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+def finalize_run(
+    run_id: str, *, status: str = "completed", result: Optional[Dict[str, Any]] = None
+) -> Dict[str, Any]:
     """Mark a run as finished and persist the final metadata."""
 
     ledger_path = _ledger_path(run_id)

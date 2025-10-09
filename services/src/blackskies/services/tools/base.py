@@ -94,7 +94,9 @@ class ToolExecutionResult(Generic[T]):
         return self.ok
 
 
-def log_tool_event(event: str, *, context: ToolContext, payload: Mapping[str, Any] | None = None) -> None:
+def log_tool_event(
+    event: str, *, context: ToolContext, payload: Mapping[str, Any] | None = None
+) -> None:
     """Emit a structured log entry for a tool event."""
 
     base_payload = context.extra_payload()
@@ -114,4 +116,3 @@ def log_tool_complete(context: ToolContext, **payload: Any) -> None:
     """Log the completion of a tool operation."""
 
     log_tool_event("tool.complete", context=context, payload=payload)
-

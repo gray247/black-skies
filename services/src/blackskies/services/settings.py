@@ -25,6 +25,7 @@ except ModuleNotFoundError:  # pragma: no cover - behaviour asserted via tests
         """Fallback settings implementation using a plain Pydantic model."""
 
         model_config: ClassVar[dict[str, Any]] = {"extra": "ignore"}
+
 else:
     SettingsConfigDict = _SettingsConfigDict
     BaseSettings = _BaseSettings

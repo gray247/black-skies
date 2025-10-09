@@ -26,9 +26,7 @@ class WizardSceneLock(BaseModel):
     """Scene lock referencing a chapter by 1-based index."""
 
     title: str
-    chapter_index: int = Field(
-        ge=1, description="1-based index into the chapters array."
-    )
+    chapter_index: int = Field(ge=1, description="1-based index into the chapters array.")
     beat_refs: list[str] = Field(default_factory=list)
 
 
