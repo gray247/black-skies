@@ -124,9 +124,7 @@ def _load_fixture(name: str) -> dict[str, Any]:
 def _load_outline_artifact(project_root: Path) -> OutlineArtifact:
     outline_path = project_root / "outline.json"
     if not outline_path.exists():
-        raise DraftRequestError(
-            "Outline artifact is missing.", {"path": to_posix(outline_path)}
-        )
+        raise DraftRequestError("Outline artifact is missing.", {"path": to_posix(outline_path)})
 
     try:
         with outline_path.open("r", encoding="utf-8") as handle:
@@ -200,9 +198,7 @@ def _compile_manuscript(
             try:
                 _, front_matter, body = read_scene_document(project_root, scene.id)
             except DraftRequestError as exc:
-                raise DraftRequestError(
-                    str(exc), {**exc.details, "unit_id": scene.id}
-                ) from exc
+                raise DraftRequestError(str(exc), {**exc.details, "unit_id": scene.id}) from exc
 
             missing_fields: list[str] = []
             front_matter_id = front_matter.get("id")
@@ -322,11 +318,7 @@ def _resolve_requested_scenes(
     scenes_by_id = {scene.id: scene for scene in outline.scenes}
 
     if request_model.unit_scope is DraftUnitScope.SCENE:
-        missing = [
-            scene_id
-            for scene_id in request_model.unit_ids
-            if scene_id not in scenes_by_id
-        ]
+        missing = [scene_id for scene_id in request_model.unit_ids if scene_id not in scenes_by_id]
         if missing:
             raise DraftRequestError(
                 "One or more scene IDs are not present in the outline.",
@@ -342,9 +334,7 @@ def _resolve_requested_scenes(
             {"chapter_id": chapter_id},
         )
 
-    scenes = [
-        scene for scene in outline.scenes if scene.chapter_id == chapter_id
-    ]
+    scenes = [scene for scene in outline.scenes if scene.chapter_id == chapter_id]
     if not scenes:
         raise DraftRequestError(
             "Requested chapter does not contain any scenes.",
@@ -365,9 +355,7 @@ def _hydrate_outline_request(payload: dict[str, Any]) -> DraftGenerateRequest:
 def _estimate_word_target(scene: OutlineScene, overrides: DraftUnitOverrides | None) -> int:
     if overrides and overrides.word_target is not None:
         return overrides.word_target
-    order_value = (
-        overrides.order if overrides and overrides.order is not None else scene.order
-    )
+    order_value = overrides.order if overrides and overrides.order is not None else scene.order
     return 850 + (order_value * 40)
 
 
@@ -559,9 +547,7 @@ def _persist_project_budget(state: ProjectBudgetState, new_spent_usd: float) -> 
     serialized = json.dumps(payload, indent=2, ensure_ascii=False)
 
     state.project_root.mkdir(parents=True, exist_ok=True)
-    temp_path = (
-        state.project_path.parent / f".{state.project_path.name}.{uuid4().hex}.tmp"
-    )
+    temp_path = state.project_path.parent / f".{state.project_path.name}.{uuid4().hex}.tmp"
     with temp_path.open("w", encoding="utf-8") as handle:
         handle.write(serialized)
         handle.flush()
@@ -573,9 +559,7 @@ def _persist_project_budget(state: ProjectBudgetState, new_spent_usd: float) -> 
 router = APIRouter(prefix="/draft", tags=["draft"])
 
 
-def _fingerprint_generate_request(
-    request: DraftGenerateRequest, scenes: list[OutlineScene]
-) -> str:
+def _fingerprint_generate_request(request: DraftGenerateRequest, scenes: list[OutlineScene]) -> str:
     """Return a deterministic fingerprint for a draft generation request."""
 
     request_payload = request.model_dump(mode="json")
@@ -638,13 +622,10 @@ async def generate_draft(
     budget_state = _load_project_budget_state(project_root, diagnostics)
     budget_meta = budget_state.metadata.setdefault("budget", {})
 
-    request_fingerprint = _fingerprint_generate_request(
-        request_model, scene_summaries
-    )
+    request_fingerprint = _fingerprint_generate_request(request_model, scene_summaries)
     cached_response = budget_meta.get("last_generate_response")
-    if (
-        budget_meta.get("last_request_fingerprint") == request_fingerprint
-        and isinstance(cached_response, dict)
+    if budget_meta.get("last_request_fingerprint") == request_fingerprint and isinstance(
+        cached_response, dict
     ):
         return copy.deepcopy(cached_response)
 
@@ -686,9 +667,7 @@ async def generate_draft(
             overrides=overrides,
             unit_index=index,
         )
-        persistence.write_scene(
-            request_model.project_id, synthesis.front_matter, synthesis.body
-        )
+        persistence.write_scene(request_model.project_id, synthesis.front_matter, synthesis.body)
         units.append(synthesis.unit)
 
     draft_id = f"dr_{uuid4().hex[:8]}"
@@ -840,9 +819,7 @@ async def rewrite_draft(
             project_root=project_root,
         )
 
-    if _normalize_markdown(current_body) != _normalize_markdown(
-        request_model.unit.text
-    ):
+    if _normalize_markdown(current_body) != _normalize_markdown(request_model.unit.text):
         raise_conflict_error(
             message="The scene on disk no longer matches the submitted draft unit.",
             details={"unit_id": request_model.unit_id},
@@ -852,9 +829,7 @@ async def rewrite_draft(
 
     revised_text = request_model.new_text
     if revised_text is None:
-        revised_text = _apply_rewrite_instructions(
-            current_body, request_model.instructions
-        )
+        revised_text = _apply_rewrite_instructions(current_body, request_model.instructions)
 
     normalized_revised = _normalize_markdown(revised_text)
     if not normalized_revised:
@@ -865,9 +840,7 @@ async def rewrite_draft(
             project_root=project_root,
         )
 
-    diff_payload = compute_diff(
-        _normalize_markdown(current_body), normalized_revised
-    )
+    diff_payload = compute_diff(_normalize_markdown(current_body), normalized_revised)
 
     updated_front_matter = _merge_meta(front_matter, request_model.unit.meta)
     updated_front_matter["id"] = request_model.unit_id
@@ -879,9 +852,7 @@ async def rewrite_draft(
         if target_path.exists():
             backup_path = target_path.parent / f".{target_path.name}.{uuid4().hex}.bak"
             shutil.copyfile(target_path, backup_path)
-        persistence.write_scene(
-            request_model.project_id, updated_front_matter, normalized_revised
-        )
+        persistence.write_scene(request_model.project_id, updated_front_matter, normalized_revised)
     except OSError as exc:
         if backup_path and backup_path.exists():
             try:
@@ -984,9 +955,7 @@ async def accept_draft(
         )
 
     try:
-        _, front_matter, current_body = read_scene_document(
-            project_root, request_model.unit_id
-        )
+        _, front_matter, current_body = read_scene_document(project_root, request_model.unit_id)
     except DraftRequestError as exc:
         raise_validation_error(
             message=str(exc),
@@ -1225,4 +1194,3 @@ async def export_manuscript(
         "exported_at": utc_timestamp(),
         "schema_version": "DraftExportResult v1",
     }
-

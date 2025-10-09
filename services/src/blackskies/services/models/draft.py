@@ -23,9 +23,7 @@ class DraftUnitOverrides(BaseModel):
 
     order: int | None = Field(default=None, ge=1)
     purpose: Literal["setup", "escalation", "payoff", "breath"] | None = None
-    emotion_tag: (
-        Literal["dread", "tension", "respite", "revelation", "aftermath"] | None
-    ) = None
+    emotion_tag: Literal["dread", "tension", "respite", "revelation", "aftermath"] | None = None
     pov: str | None = None
     goal: str | None = None
     conflict: str | None = None
@@ -73,9 +71,7 @@ class DraftGenerateRequest(BaseModel):
 
         for override_key in self.overrides.keys():
             if not re.match(r"^sc_\d{4}$", override_key):
-                msg = (
-                    f"Override keys must be scene identifiers (found '{override_key}')."
-                )
+                msg = f"Override keys must be scene identifiers (found '{override_key}')."
                 raise ValueError(msg)
 
         return self

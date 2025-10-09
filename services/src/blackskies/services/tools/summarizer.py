@@ -91,9 +91,7 @@ class SummarizerTool:
         if max_sentences <= 0:
             raise ValueError("max_sentences must be greater than zero.")
         if max_sentences > self._MAX_SENTENCES:
-            raise ValueError(
-                f"max_sentences exceeds supported window ({self._MAX_SENTENCES})."
-            )
+            raise ValueError(f"max_sentences exceeds supported window ({self._MAX_SENTENCES}).")
 
         normalized_text = text.strip()
         operation_payload = {
@@ -182,4 +180,3 @@ class SummarizerTool:
             token = match.group(0)
             if token:
                 yield token
-

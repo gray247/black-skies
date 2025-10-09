@@ -34,7 +34,9 @@ class FileStoreTool:
             raise TypeError("FileStoreTool.save expects a mapping payload.")
         return dict(obj)
 
-    def save(self, context: ToolContext, payload: Mapping[str, Any] | MutableMapping[str, Any]) -> ToolExecutionResult[Path]:
+    def save(
+        self, context: ToolContext, payload: Mapping[str, Any] | MutableMapping[str, Any]
+    ) -> ToolExecutionResult[Path]:
         """Persist an object to disk via :func:`blackskies.services.storage.save`."""
 
         data = self._ensure_mapping(payload)
@@ -52,7 +54,12 @@ class FileStoreTool:
         except Exception as exc:
             log_tool_complete(
                 context,
-                **{**operation_payload, "status": "error", "error_type": exc.__class__.__name__, "message": str(exc)},
+                **{
+                    **operation_payload,
+                    "status": "error",
+                    "error_type": exc.__class__.__name__,
+                    "message": str(exc),
+                },
             )
             raise
         relative_path = path.relative_to(self._data_root)
@@ -60,9 +67,13 @@ class FileStoreTool:
             context,
             **{**operation_payload, "status": "success", "path": str(relative_path)},
         )
-        return ToolExecutionResult(value=path, metadata={"path": path, "relative_path": relative_path})
+        return ToolExecutionResult(
+            value=path, metadata={"path": path, "relative_path": relative_path}
+        )
 
-    def load(self, context: ToolContext, kind: str, identifier: str) -> ToolExecutionResult[dict[str, Any]]:
+    def load(
+        self, context: ToolContext, kind: str, identifier: str
+    ) -> ToolExecutionResult[dict[str, Any]]:
         """Load a stored object via :func:`blackskies.services.storage.load`."""
 
         if not isinstance(kind, str) or not kind:
@@ -77,14 +88,20 @@ class FileStoreTool:
         except Exception as exc:
             log_tool_complete(
                 context,
-                **{**operation_payload, "status": "error", "error_type": exc.__class__.__name__, "message": str(exc)},
+                **{
+                    **operation_payload,
+                    "status": "error",
+                    "error_type": exc.__class__.__name__,
+                    "message": str(exc),
+                },
             )
             raise
         log_tool_complete(context, **{**operation_payload, "status": "success"})
         return ToolExecutionResult(value=data, metadata={"kind": kind, "id": identifier})
 
-    def context(self, *, trace_id: str | None = None, metadata: Mapping[str, Any] | None = None) -> ToolInvocationContext:
+    def context(
+        self, *, trace_id: str | None = None, metadata: Mapping[str, Any] | None = None
+    ) -> ToolInvocationContext:
         """Convenience helper to build a :class:`ToolInvocationContext`."""
 
         return ToolInvocationContext(name=self.name, trace_id=trace_id, metadata=metadata or {})
-

@@ -87,7 +87,9 @@ class AgentOrchestrator:
     def run_critique(self, payload: OperationPayload) -> OperationResult:
         return self.critique_agent.run(payload)
 
-    def draft_and_critique(self, draft_payload: OperationPayload, critique_payload: OperationPayload) -> tuple[OperationResult, OperationResult]:
+    def draft_and_critique(
+        self, draft_payload: OperationPayload, critique_payload: OperationPayload
+    ) -> tuple[OperationResult, OperationResult]:
         """Run draft and critique sequentially, respecting settings."""
 
         draft_result = self.generate_draft(draft_payload)

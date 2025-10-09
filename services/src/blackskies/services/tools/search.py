@@ -90,7 +90,9 @@ class MarkdownSearchTool:
                 "results": len(limited_hits),
             },
         )
-        return ToolExecutionResult(value=limited_hits, metadata={"results": len(limited_hits), "limit": limit})
+        return ToolExecutionResult(
+            value=limited_hits, metadata={"results": len(limited_hits), "limit": limit}
+        )
 
     def _tokenize(self, text: str) -> Iterable[str]:
         for match in _WORD_RE.finditer(text.lower()):
@@ -137,4 +139,3 @@ class MarkdownSearchTool:
         if len(content) > 80:
             return f"{snippet}…"
         return snippet
-

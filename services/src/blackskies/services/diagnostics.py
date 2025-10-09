@@ -36,9 +36,7 @@ class DiagnosticLogger:
             suffix += 1
 
         payload = {
-            "timestamp": datetime.now(tz=timezone.utc)
-            .isoformat()
-            .replace("+00:00", "Z"),
+            "timestamp": datetime.now(tz=timezone.utc).isoformat().replace("+00:00", "Z"),
             "code": code,
             "message": message,
             "details": details or {},

@@ -28,17 +28,13 @@ class OutlineBuilder:
 
         locks = request.wizard_locks
         if not locks.acts:
-            raise MissingLocksError(
-                "Wizard locks missing acts.", details={"missing": "acts"}
-            )
+            raise MissingLocksError("Wizard locks missing acts.", details={"missing": "acts"})
         if not locks.chapters:
             raise MissingLocksError(
                 "Wizard locks missing chapters.", details={"missing": "chapters"}
             )
         if not locks.scenes:
-            raise MissingLocksError(
-                "Wizard locks missing scenes.", details={"missing": "scenes"}
-            )
+            raise MissingLocksError("Wizard locks missing scenes.", details={"missing": "scenes"})
 
         acts = [act.title for act in locks.acts]
         chapter_map = self._build_chapters(locks.chapters, act_count=len(acts))
@@ -66,9 +62,7 @@ class OutlineBuilder:
                     },
                 )
             chapter_id = f"ch_{index:04d}"
-            chapter_map[index] = OutlineChapter(
-                id=chapter_id, order=index, title=chapter.title
-            )
+            chapter_map[index] = OutlineChapter(id=chapter_id, order=index, title=chapter.title)
         return chapter_map
 
     def _build_scenes(

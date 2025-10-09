@@ -47,9 +47,7 @@ async def test_full_gui_flow(async_client: httpx.AsyncClient, tmp_path: Path) ->
         "unit_ids": ["sc_0001"],
         "overrides": {"sc_0001": {"word_target": 6000}},
     }
-    response = await async_client.post(
-        f"{API_PREFIX}/draft/preflight", json=payload_preflight
-    )
+    response = await async_client.post(f"{API_PREFIX}/draft/preflight", json=payload_preflight)
     assert response.status_code == 200, response.json()
     preflight = response.json()
     assert preflight["budget"]["status"] in {"ok", "soft-limit"}
@@ -69,9 +67,7 @@ async def test_full_gui_flow(async_client: httpx.AsyncClient, tmp_path: Path) ->
         unit_id=draft_data["units"][0]["id"],
         rubric=["Logic", "Continuity"],
     )
-    response = await async_client.post(
-        f"{API_PREFIX}/draft/critique", json=critique_request
-    )
+    response = await async_client.post(f"{API_PREFIX}/draft/critique", json=critique_request)
     assert response.status_code == 200, response.json()
     critique = response.json()
     assert critique["schema_version"].startswith("CritiqueOutputSchema")

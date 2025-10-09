@@ -59,4 +59,3 @@ def get_critique_service(request: Request) -> CritiqueService:
     """Return the critique service stored on the application state."""
 
     return cast(CritiqueService, request.app.state.critique_service)
-

@@ -58,4 +58,3 @@ class DraftCritiqueRequest(BaseModel):
 
 
 __all__ = ["DraftCritiqueRequest"]
-

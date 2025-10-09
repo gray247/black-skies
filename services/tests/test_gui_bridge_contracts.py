@@ -36,9 +36,7 @@ async def test_health_endpoint_contract(async_client: httpx.AsyncClient) -> None
     _assert_trace_header(response)
 
 
-async def test_preflight_success_contract(
-    async_client: httpx.AsyncClient, tmp_path: Path
-) -> None:
+async def test_preflight_success_contract(async_client: httpx.AsyncClient, tmp_path: Path) -> None:
     """Preflight provides a budget estimate and scene metadata for valid projects."""
 
     project_id = "proj_async_preflight_ok"
@@ -100,9 +98,7 @@ async def test_critique_contract(async_client: httpx.AsyncClient) -> None:
     """Critique endpoint returns the documented schema."""
 
     request_payload = _build_critique_payload()
-    response = await async_client.post(
-        f"{API_PREFIX}/draft/critique", json=request_payload
-    )
+    response = await async_client.post(f"{API_PREFIX}/draft/critique", json=request_payload)
     assert response.status_code == 200
     response_payload = response.json()
     assert response_payload["schema_version"].startswith("CritiqueOutputSchema")
@@ -117,9 +113,7 @@ async def test_critique_validation_unknown_category(
     """Critique surfaces validation errors for unsupported rubric entries."""
 
     request_payload = _build_critique_payload(rubric=["Logic", "Unknown"])
-    response = await async_client.post(
-        f"{API_PREFIX}/draft/critique", json=request_payload
-    )
+    response = await async_client.post(f"{API_PREFIX}/draft/critique", json=request_payload)
     assert response.status_code == 400
 
     detail = _read_error(response)

@@ -25,7 +25,9 @@ _SECRET_VALUE_RE = re.compile(r"sk-[A-Za-z0-9]{20,}|[A-Za-z0-9]{24,}")
 class SafetyViolation(RuntimeError):
     """Raised when a tool invocation violates locked policies."""
 
-    def __init__(self, code: str, message: str, *, details: Mapping[str, Any] | None = None) -> None:
+    def __init__(
+        self, code: str, message: str, *, details: Mapping[str, Any] | None = None
+    ) -> None:
         super().__init__(message)
         self.code = code
         self.details: dict[str, Any] = dict(details or {})
@@ -67,7 +69,11 @@ def _to_float(value: Any, *, default: float | None = None, field: str) -> float 
 def _extract_budget(
     project_metadata: Mapping[str, Any], invocation_metadata: Mapping[str, Any] | None
 ) -> tuple[float | None, float, float, float, float]:
-    project_budget = project_metadata.get("budget") if isinstance(project_metadata.get("budget"), Mapping) else {}
+    project_budget = (
+        project_metadata.get("budget")
+        if isinstance(project_metadata.get("budget"), Mapping)
+        else {}
+    )
     invocation_budget: Mapping[str, Any] | None = None
     if invocation_metadata:
         candidate = invocation_metadata.get("budget")
@@ -76,7 +82,14 @@ def _extract_budget(
         else:
             invocation_budget = invocation_metadata
 
-    spent_usd = _to_float(project_budget.get("spent_usd") if project_budget else 0.0, field="spent_usd", default=0.0) or 0.0
+    spent_usd = (
+        _to_float(
+            project_budget.get("spent_usd") if project_budget else 0.0,
+            field="spent_usd",
+            default=0.0,
+        )
+        or 0.0
+    )
     estimated_usd = None
     total_after_usd = None
 
@@ -202,7 +215,10 @@ def preflight_check(
 
 def _scrub_value(value: Any, *, key: str | None = None) -> Any:
     if isinstance(value, Mapping):
-        return {inner_key: _scrub_value(inner_value, key=inner_key) for inner_key, inner_value in value.items()}
+        return {
+            inner_key: _scrub_value(inner_value, key=inner_key)
+            for inner_key, inner_value in value.items()
+        }
     if isinstance(value, (list, tuple, set)):
         container_type = type(value)
         scrubbed_items = [_scrub_value(item, key=key) for item in value]
@@ -230,4 +246,3 @@ def postflight_scrub(payload: Mapping[str, Any]) -> dict[str, Any]:
 
 
 __all__ = ["SafetyReport", "SafetyViolation", "preflight_check", "postflight_scrub"]
-

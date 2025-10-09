@@ -24,12 +24,16 @@ def test_from_environment_supports_export_and_quotes(tmp_path, monkeypatch):
     project_dir = tmp_path / "Projects" / "Black Skies"
     project_dir.mkdir(parents=True)
 
-    env_content = textwrap.dedent(
-        """
+    env_content = (
+        textwrap.dedent(
+            """
         # comment line
           export BLACKSKIES_PROJECT_BASE_DIR="{}"
         """
-    ).strip().format(project_dir)
+        )
+        .strip()
+        .format(project_dir)
+    )
 
     (tmp_path / ".env").write_text(env_content, encoding="utf-8")
 

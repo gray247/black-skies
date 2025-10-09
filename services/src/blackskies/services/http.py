@@ -84,9 +84,7 @@ def http_exception_to_response(exc: HTTPException, trace_id: str) -> JSONRespons
     return JSONResponse(status_code=exc.status_code, content=payload, headers=headers)
 
 
-def request_validation_response(
-    exc: RequestValidationError, trace_id: str
-) -> JSONResponse:
+def request_validation_response(exc: RequestValidationError, trace_id: str) -> JSONResponse:
     """Render request validation failures using the shared error model."""
 
     payload = build_error_payload(
@@ -225,4 +223,3 @@ __all__ = [
     "raise_validation_error",
     "raise_budget_error",
 ]
-

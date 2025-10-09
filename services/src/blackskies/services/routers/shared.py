@@ -11,4 +11,3 @@ def utc_timestamp() -> str:
     """Return an ISO-8601 UTC timestamp with ``Z`` suffix."""
 
     return datetime.now(tz=timezone.utc).isoformat().replace("+00:00", "Z")
-
