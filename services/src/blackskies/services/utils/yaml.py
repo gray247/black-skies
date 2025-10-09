@@ -1,15 +1,10 @@
-"""YAML utilities with graceful fallbacks when PyYAML is unavailable."""
+"""YAML utilities delegating to the bundled safe YAML implementation."""
 
 from __future__ import annotations
 
 from typing import Any
 
-import json
-
-try:  # pragma: no cover - exercised indirectly when dependency is present
-    import yaml as _yaml
-except ModuleNotFoundError:  # pragma: no cover - exercised in fallback tests
-    _yaml = None
+from yaml import safe_dump as _yaml_safe_dump
 
 
 def safe_dump(
@@ -21,24 +16,14 @@ def safe_dump(
 ) -> str:
     """Serialize ``data`` to a YAML string.
 
-    When PyYAML is installed we delegate to ``yaml.safe_dump`` for full YAML
-    support. If the dependency is missing we emit a JSON-formatted string,
-    which is a valid subset of YAML 1.2, so downstream consumers can still
-    parse the manifest files without additional requirements.
+    This helper retains historical behaviour by ensuring the resulting string
+    always terminates with a newline, matching PyYAML's defaults.
     """
 
-    if _yaml is not None:
-        return _yaml.safe_dump(  # type: ignore[no-any-return]
-            data,
-            sort_keys=sort_keys,
-            allow_unicode=allow_unicode,
-            indent=indent,
-        )
-
-    serialized = json.dumps(
+    serialized = _yaml_safe_dump(
         data,
         sort_keys=sort_keys,
-        ensure_ascii=not allow_unicode,
+        allow_unicode=allow_unicode,
         indent=indent,
     )
     if not serialized.endswith("\n"):
