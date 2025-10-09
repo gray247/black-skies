@@ -104,7 +104,7 @@ ensure_env_file() {
   cat <<'EOT' > "${ENV_FILE}"
 # Default development environment variables for Black Skies.
 OPENAI_API_KEY=dummy
-BLACK_SKIES_MODE=companion
+BLACK_SKIES_BLACK_SKIES_MODE=offline
 EOT
 }
 

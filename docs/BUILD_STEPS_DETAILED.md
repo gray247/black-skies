@@ -114,7 +114,7 @@ Milestones may overlap; keep their order but feel free to work ahead if prerequi
     - Codex ask: “Create Python package skeleton with the listed subpackages.”
 
 14. **Settings via pydantic-settings**
-    - What: `core/settings.py` with `OPENAI_API_KEY`, `BLACK_SKIES_MODE`, etc.
+    - What: `core/settings.py` with `OPENAI_API_KEY`, `BLACK_SKIES_BLACK_SKIES_MODE` (defaulting to `offline`), etc.
     - Files: `black_skies/core/settings.py`
     - Command: `python -c "from black_skies.core.settings import Settings; print(Settings())"`
     - Acceptance: defaults read from `.env`, env overrides work.

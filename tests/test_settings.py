@@ -12,6 +12,7 @@ from blackskies.services.settings import Settings, get_settings
 def test_settings_defaults(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("BLACK_SKIES_OPENAI_API_KEY", raising=False)
     monkeypatch.delenv("BLACK_SKIES_BLACK_SKIES_MODE", raising=False)
+    monkeypatch.delenv("BLACK_SKIES_MODE", raising=False)
     get_settings.cache_clear()
     settings = Settings()
     assert settings.openai_api_key is None
@@ -23,10 +24,26 @@ def test_settings_env_override(monkeypatch: pytest.MonkeyPatch) -> None:
     get_settings.cache_clear()
     monkeypatch.setenv("BLACK_SKIES_OPENAI_API_KEY", "sk-test")
     monkeypatch.setenv("BLACK_SKIES_BLACK_SKIES_MODE", "live")
+    monkeypatch.delenv("BLACK_SKIES_MODE", raising=False)
 
     settings = Settings()
     assert settings.openai_api_key == "sk-test"
     assert settings.black_skies_mode == "live"
+
+
+def test_settings_legacy_env_override(
+    monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+) -> None:
+    get_settings.cache_clear()
+    monkeypatch.delenv("BLACK_SKIES_BLACK_SKIES_MODE", raising=False)
+    monkeypatch.setenv("BLACK_SKIES_MODE", "live")
+    monkeypatch.delenv("BLACK_SKIES_OPENAI_API_KEY", raising=False)
+
+    with caplog.at_level("WARNING"):
+        settings = Settings()
+
+    assert settings.black_skies_mode == "live"
+    assert "BLACK_SKIES_MODE" in caplog.text
 
 
 def test_get_settings_cached(monkeypatch: pytest.MonkeyPatch) -> None:
