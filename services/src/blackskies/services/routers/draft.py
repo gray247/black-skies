@@ -19,11 +19,18 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, ValidationError
 
 from ..config import ServiceSettings
+from ..critique import CritiqueService
 from ..diagnostics import DiagnosticLogger
 from ..diff_engine import compute_diff
 from ..draft_synthesizer import DraftSynthesizer
-from ..http import raise_budget_error, raise_conflict_error, raise_validation_error
+from ..http import (
+    raise_budget_error,
+    raise_conflict_error,
+    raise_service_error,
+    raise_validation_error,
+)
 from ..models.accept import DraftAcceptRequest
+from ..models.critique import DraftCritiqueRequest
 from ..models.draft import DraftGenerateRequest, DraftUnitOverrides, DraftUnitScope
 from ..models.outline import OutlineArtifact, OutlineScene
 from ..models.rewrite import DraftRewriteRequest
@@ -33,6 +40,7 @@ from ..scene_docs import DraftRequestError, read_scene_document
 from ..utils.paths import to_posix
 from .dependencies import (
     get_diagnostics,
+    get_critique_service,
     get_recovery_tracker,
     get_settings,
     get_snapshot_persistence,
@@ -916,8 +924,32 @@ async def rewrite_draft(
 
 
 @router.post("/critique")
-async def critique_draft() -> dict[str, Any]:
-    return _load_fixture("draft_critique.json")
+async def critique_draft(
+    payload: dict[str, Any],
+    diagnostics: DiagnosticLogger = Depends(get_diagnostics),
+    critique_service: CritiqueService = Depends(get_critique_service),
+) -> dict[str, Any]:
+    try:
+        request_model = DraftCritiqueRequest.model_validate(payload)
+    except ValidationError as exc:
+        raise_validation_error(
+            message="Invalid draft critique request.",
+            details={"errors": exc.errors()},
+            diagnostics=diagnostics,
+            project_root=None,
+        )
+
+    try:
+        return critique_service.run(request_model)
+    except RuntimeError as exc:
+        raise_service_error(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            code="INTERNAL",
+            message="Failed to produce critique.",
+            details={"error": str(exc)},
+            diagnostics=diagnostics,
+            project_root=None,
+        )
 
 
 @router.post("/accept")

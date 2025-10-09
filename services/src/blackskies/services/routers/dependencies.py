@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, cast
 from fastapi import Request
 
 from ..config import ServiceSettings
+from ..critique import CritiqueService
 from ..diagnostics import DiagnosticLogger
 from ..persistence import SnapshotPersistence
 
@@ -17,6 +18,7 @@ if TYPE_CHECKING:  # pragma: no cover - import for typing only
 __all__ = [
     "get_settings",
     "get_build_tracker",
+    "get_critique_service",
     "get_diagnostics",
     "get_snapshot_persistence",
     "get_recovery_tracker",
@@ -51,4 +53,10 @@ def get_recovery_tracker(request: Request) -> "RecoveryTracker":
     """Return the recovery tracker responsible for crash recovery flows."""
 
     return cast("RecoveryTracker", request.app.state.recovery_tracker)
+
+
+def get_critique_service(request: Request) -> CritiqueService:
+    """Return the critique service stored on the application state."""
+
+    return cast(CritiqueService, request.app.state.critique_service)
 

@@ -54,6 +54,7 @@ from .routers.dependencies import (
     get_snapshot_persistence,
 )
 from .models.wizard import OutlineBuildRequest
+from .critique import CritiqueService
 
 LOGGER = logging.getLogger(__name__)
 
@@ -106,6 +107,7 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
     application.state.recovery_tracker = RecoveryTracker(
         settings=application.state.settings
     )
+    application.state.critique_service = CritiqueService()
     application.state.service_version = SERVICE_VERSION
 
     application.add_middleware(

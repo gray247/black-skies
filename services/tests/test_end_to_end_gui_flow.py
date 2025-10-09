@@ -5,10 +5,16 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
 import httpx
+import pytest
 
-from test_app import API_PREFIX, SERVICE_VERSION, _build_payload, _write_project_budget
+from test_app import (
+    API_PREFIX,
+    SERVICE_VERSION,
+    _build_critique_payload,
+    _build_payload,
+    _write_project_budget,
+)
 
 pytestmark = pytest.mark.anyio("asyncio")
 
@@ -59,10 +65,17 @@ async def test_full_gui_flow(async_client: httpx.AsyncClient, tmp_path: Path) ->
     full_scene_content = scene_path.read_text(encoding="utf-8")
 
     # Critique (uses canned response)
-    response = await async_client.post(f"{API_PREFIX}/draft/critique")
+    critique_request = _build_critique_payload(
+        unit_id=draft_data["units"][0]["id"],
+        rubric=["Logic", "Continuity"],
+    )
+    response = await async_client.post(
+        f"{API_PREFIX}/draft/critique", json=critique_request
+    )
     assert response.status_code == 200, response.json()
     critique = response.json()
     assert critique["schema_version"].startswith("CritiqueOutputSchema")
+    assert critique["unit_id"] == draft_data["units"][0]["id"]
 
     # Accept updates and snapshot
     def compute_sha256(value: str) -> str:
