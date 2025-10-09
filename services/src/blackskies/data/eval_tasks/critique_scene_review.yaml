@@ -1,0 +1,51 @@
+schema_version: "EvalTaskSchema v1"
+task_id: critique_scene_review
+flow: critique
+summary: >-
+  Review the midpoint draft for pacing and tension, ensuring critique feedback respects the
+  CritiqueOutputSchema v1 contract.
+inputs:
+  project_id: proj_eval_critique
+  unit:
+    id: sc_0002
+    text: |-
+      The radios stacked along the cellar shelves glowed a weak amber. Viki tapped the chassis
+      of the closest set and heard only water gnashing in the vents above. The relay rack hissed,
+      drowning beneath the rising groundwater.
+
+      She pulled the panel and slid into the crawlspace. Cables sagged like kelp. Every meter of
+      slack meant another neighbor she could not reach. When the second surge slammed the outer
+      doors, the concrete shuddered through her knees. The storm was already clawing for the
+      roof joists.
+
+      Viki clipped the bypass coupler into place. The static cracked, then threaded into a faint
+      SOS from Harbor Tower. Someone topside was still alive—and running out of time.
+    meta:
+      pov: "Viki"
+      purpose: "escalation"
+      emotion_tag: "tension"
+      goal: "Restore radio contact"
+      conflict: "Rising water and failing relays"
+      turn: "Harbor Tower SOS bleeds through"
+      word_target: 900
+expected:
+  critique:
+    unit_id: sc_0002
+    schema_version: "CritiqueOutputSchema v1"
+    summary: >-
+      Strong POV anchoring and sensory detail sustain tension, but pacing softens mid-paragraph
+      when the crawlspace description lingers.
+    line_comments:
+      - line: 6
+        note: "Condense the crawlspace description to keep the rising water threat present."
+      - line: 11
+        note: "Clarify how the SOS differs from baseline static for higher contrast."
+    priorities:
+      - "Tighten crawlspace beat to two sentences."
+      - "Highlight auditory shift when the SOS cuts through."
+    suggested_edits:
+      - range: [205, 238]
+        replacement: "She shimmied once, boots scraping concrete, and forced the coupler home."
+    model:
+      name: "critique-model-v1"
+      provider: "black-skies-local"

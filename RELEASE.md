@@ -1,4 +1,4 @@
-# RELEASE.md — Black Skies
+# RELEASE.md  Black Skies
 
 ## Prerequisites
 - Python 3.11+
@@ -6,7 +6,7 @@
 - Clean `git status`
 
 ## Release Checklist
-1. Update `pyproject.toml` version and `black_skies/__init__.py.__version__`.
+1. Update `pyproject.toml` version and `services/src/blackskies/services/app.py::SERVICE_VERSION`.
 2. Update `CHANGELOG.md` (if applicable) and ensure docs are current.
 3. Run test suite: `python -m pytest -q`.
 4. Build wheels/sdist offline:

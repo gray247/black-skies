@@ -22,10 +22,10 @@ This runbook describes how to bootstrap, configure, and operate the Black Skies 
 
 ## Running the API
 ```bash
-uvicorn black_skies.main:app --reload --port 8080
+uvicorn blackskies.services.app:create_app --factory --reload --port 8080
 ```
 - Health check: `GET http://localhost:8080/healthz`
-- Outline endpoint: `POST http://localhost:8080/outline`
+- Outline endpoint (v1): `POST http://localhost:8080/api/v1/outline/build`
 
 ## Logs and Data
 - Runs: `data/runs/`
@@ -44,6 +44,5 @@ uvicorn black_skies.main:app --reload --port 8080
 ## Observability
 - Logs are emitted in JSON via stdout; each record includes `trace_id`, logger, and message metadata.
 - Every request receives an `X-Trace-Id` header; include it when reporting issues.
-- Metrics are exposed at `/metrics` (text format) with counters such as `http_requests_total` and `outline_requests_total`.
+- Metrics are exposed at `/metrics` (text format) with counters such as `blackskies_requests_total` and `outline_requests_total`.
 - Validation errors return `{code, detail, trace_id}` payloads to simplify client handling and troubleshooting.
-

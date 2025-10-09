@@ -1,9 +1,13 @@
 from __future__ import annotations
 
-from black_skies import cache
+from pathlib import Path
+
+import pytest
+
+from blackskies.services import cache
 
 
-def test_cache_roundtrip(tmp_path, monkeypatch):
+def test_cache_roundtrip(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(cache, "CACHE_ROOT", tmp_path, raising=False)
     key = cache.make_cache_key(prompt="Generate outline", params={"acts": 3})
     assert len(key) == 64
@@ -14,7 +18,7 @@ def test_cache_roundtrip(tmp_path, monkeypatch):
     assert retrieved == {"outline": "cached"}
 
 
-def test_cache_key_deterministic(tmp_path, monkeypatch):
+def test_cache_key_deterministic(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(cache, "CACHE_ROOT", tmp_path, raising=False)
     params = {"acts": 3, "chapters": [1, 2, 3]}
     key1 = cache.make_cache_key(prompt="Outline", params=params)

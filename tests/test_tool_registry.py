@@ -7,8 +7,8 @@ from typing import List
 
 import pytest
 
-from black_skies import runs
-from black_skies.tools.registry import ToolRegistry
+from blackskies.services import runs
+from blackskies.services.tools.registry import ToolRegistry
 
 
 @pytest.fixture
@@ -52,7 +52,7 @@ class _RecordHandler(logging.Handler):
 
 
 def _capture_registry_logs() -> tuple[_RecordHandler, logging.Logger]:
-    logger = logging.getLogger("black_skies.tool_registry")
+    logger = logging.getLogger("blackskies.services.tool_registry")
     handler = _RecordHandler()
     logger.addHandler(handler)
     return handler, logger

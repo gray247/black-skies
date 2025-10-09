@@ -1,5 +1,6 @@
-"""Pydantic models for service IO."""
+"""Pydantic models and dataclasses for service IO."""
 
+from .legacy import Critique, Draft
 from .outline import OutlineArtifact, OutlineChapter, OutlineScene
 from .wizard import (
     OutlineBuildRequest,
@@ -10,6 +11,8 @@ from .wizard import (
 )
 
 __all__ = [
+    "Critique",
+    "Draft",
     "OutlineArtifact",
     "OutlineChapter",
     "OutlineScene",
