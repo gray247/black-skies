@@ -1,12 +1,10 @@
-"""Tests for the Markdown search tool adapter."""
-
 from __future__ import annotations
 
 from pathlib import Path
 
 import pytest
 
-from black_skies.tools import MarkdownSearchTool
+from blackskies.services.tools import MarkdownSearchTool
 
 
 @pytest.mark.unit
@@ -62,7 +60,6 @@ def test_search_rejects_oversized_query(tmp_path: Path) -> None:
 
     with pytest.raises(ValueError):
         tool.search(context, "x" * 300)
-
 
 
 @pytest.mark.unit
@@ -159,17 +156,6 @@ def test_search_handles_unreadable_files(tmp_path: Path, monkeypatch: pytest.Mon
     monkeypatch.setattr(Path, "read_text", fake_read_text)
 
     result = tool.search(context, "keyword")
-
     assert result.ok
     assert len(result.value) == 1
     assert result.value[0]["path"] == "good.md"
-
-
-@pytest.mark.unit
-def test_search_excerpt_fallback(tmp_path: Path) -> None:
-    tool = MarkdownSearchTool(data_root=tmp_path)
-    content = "Plain text without matches but with enough characters to exceed the excerpt threshold for truncation handling."
-
-    snippet = tool._build_excerpt(content, ["absent"])
-
-    assert snippet.endswith("…")

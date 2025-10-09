@@ -1,0 +1,43 @@
+schema_version: "EvalTaskSchema v1"
+task_id: draft_scene_006
+flow: draft
+summary: "Draft flow scene generation scenario 6"
+inputs:
+  project_id: proj_draft_006
+  scene_id: sc_0206
+  brief: "Generate a tense infiltration beat for scenario 6."
+  outline:
+    schema_version: "OutlineSchema v1"
+    outline_id: out_draft_006
+    acts: ["Act I", "Act II", "Act III"]
+    chapters:
+      - id: ch_0206
+        order: 1
+        title: "Tactical Setup 6"
+    scenes:
+      - id: sc_0206
+        order: 1
+        title: "Entry Point 6"
+        chapter_id: ch_0206
+expected:
+  draft:
+    draft_id: dr_006
+    schema_version: "DraftUnitSchema v1"
+    units:
+      - id: sc_0206
+        text: "Operatives slip through the maintenance tunnels while alarms stay silent."
+        meta:
+          pov: "Alex"
+          purpose: "escalation"
+          emotion_tag: "tension"
+          goal: "Secure the objective"
+          conflict: "Patrol schedules shift unexpectedly"
+          turn: "A motion sensor blinks awake"
+          word_target: 1100
+          beats: ["inciting"]
+        prompt_fingerprint: "sha256:draft_006"
+        model:
+          name: "story-drafter-v1"
+          provider: "black-skies-local"
+    budget:
+      estimated_usd: 0.42

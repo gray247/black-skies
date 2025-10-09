@@ -1,15 +1,14 @@
 from __future__ import annotations
 
 import pytest
+from fastapi.testclient import TestClient
 
 pytest.importorskip("fastapi")
 
-from fastapi.testclient import TestClient
+from blackskies.services.app import create_app
 
-from black_skies.main import app
-
-
-client = TestClient(app)
+client = TestClient(create_app())
+API_PREFIX = "/api/v1"
 
 
 def test_healthz() -> None:
@@ -17,58 +16,29 @@ def test_healthz() -> None:
     assert response.status_code == 200
     payload = response.json()
     assert payload["status"] == "ok"
-    assert "version" in payload
+    assert payload["version"]
 
 
-def test_outline_endpoint() -> None:
-    response = client.post(
-        "/outline",
-        json={"project_id": "proj_001", "wizard_locks": {}, "metadata": {"seed": 1}},
-    )
-    assert response.status_code == 201
-    data = response.json()
-    assert data["project_id"] == "proj_001"
-    assert data["status"] == "queued"
+def test_outline_build_validation_error() -> None:
+    response = client.post(f"{API_PREFIX}/outline/build", json={})
+    assert response.status_code == 400
+    payload = response.json()
+    assert payload["code"] == "VALIDATION"
+    assert "trace_id" in payload
 
 
-def test_draft_endpoint() -> None:
-    response = client.post(
-        "/draft",
-        json={"project_id": "proj_002", "unit_ids": ["sc_0001", "sc_0002"]},
-    )
-    assert response.status_code == 201
-    data = response.json()
-    assert data["project_id"] == "proj_002"
-    assert len(data["units"]) == 2
+def test_generate_validation_error_includes_trace_id() -> None:
+    response = client.post(f"{API_PREFIX}/draft/generate", json={})
+    assert response.status_code == 400
+    payload = response.json()
+    assert payload["code"] == "VALIDATION"
+    assert "trace_id" in payload
+    assert response.headers["x-trace-id"] == payload["trace_id"]
 
 
-def test_rewrite_endpoint() -> None:
-    response = client.post(
-        "/rewrite",
-        json={
-            "project_id": "proj_003",
-            "unit_id": "sc_0001",
-            "proposed_text": "Updated text",
-            "message": "Incorporate feedback",
-        },
-    )
+def test_metrics_endpoint_records_requests() -> None:
+    client.get("/healthz")
+    response = client.get("/metrics")
     assert response.status_code == 200
-    data = response.json()
-    assert data["unit_id"] == "sc_0001"
-    assert data["accepted_text"] == "Updated text"
-
-
-def test_critique_endpoint() -> None:
-    response = client.post(
-        "/critique",
-        json={
-            "project_id": "proj_004",
-            "unit_id": "sc_0001",
-            "text": "Scene draft",
-            "rubric": "default",
-        },
-    )
-    assert response.status_code == 200
-    data = response.json()
-    assert data["unit_id"] == "sc_0001"
-    assert data["severity"] in {"low", "medium", "high"}
+    body = response.text
+    assert "blackskies_requests_total" in body

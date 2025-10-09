@@ -34,11 +34,12 @@ dev = [
 ]
 
 [tool.setuptools.package-data]
-"black_skies" = ["py.typed"]
+"blackskies.services" = ["py.typed", "fixtures/*.json"]
+"blackskies.data" = ["eval_tasks/*.yaml"]
 
 [tool.setuptools.packages.find]
-where = ["."]
-include = ["black_skies*"]
+where = ["services/src"]
+include = ["blackskies*"]
 exclude = ["tests", "vendor", "data"]
 
 [tool.black]
@@ -46,9 +47,8 @@ line-length = 100
 
 [tool.coverage.run]
 branch = true
-source = ["black_skies"]
+source = ["blackskies.services"]
 
 [tool.coverage.report]
 show_missing = true
 fail_under = 60
-

@@ -1,16 +1,12 @@
-"""Tests for the offline eval harness CLI."""
-
-from __future__ import annotations
-
 import json
 from pathlib import Path
 from typing import Callable
 
 import pytest
 
-from black_skies import runs
-from black_skies.eval import EvalTask, EvalTaskFlow
-from black_skies.tools.registry import ToolRegistry
+from blackskies.services import runs
+from blackskies.services.eval import EvalTask, EvalTaskFlow
+from blackskies.services.tools.registry import ToolRegistry
 from scripts import eval as eval_cli
 
 

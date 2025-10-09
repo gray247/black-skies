@@ -1,13 +1,11 @@
-from __future__ import annotations
-
 import pytest
 
-from black_skies.services import AgentOrchestrator, ToolNotPermittedError
-from black_skies.tools import ToolDecision
+from blackskies.services.services import AgentOrchestrator, ToolNotPermittedError
+from blackskies.services.tools import ToolDecision
 
 
-def stub_worker(result):
-    def _inner(payload):
+def stub_worker(result: dict[str, object]):
+    def _inner(payload: dict[str, object]) -> dict[str, object]:
         data = dict(result)
         data.update(payload)
         return data
@@ -38,7 +36,7 @@ class DummyRegistry:
         )
 
 
-def test_orchestrator_sequential():
+def test_orchestrator_sequential() -> None:
     orchestrator = AgentOrchestrator(
         outline_worker=stub_worker({"outline": "ok"}),
         draft_worker=stub_worker({"draft": "ok"}),
@@ -52,7 +50,7 @@ def test_orchestrator_sequential():
     assert critique["critique"] == "ok"
 
 
-def test_orchestrator_parallel():
+def test_orchestrator_parallel() -> None:
     orchestrator = AgentOrchestrator(
         outline_worker=stub_worker({"outline": "ok"}),
         draft_worker=stub_worker({"draft": "ok"}),
@@ -65,7 +63,7 @@ def test_orchestrator_parallel():
     assert draft["draft"] == "ok"
 
 
-def test_resolve_tool_denied_raises():
+def test_resolve_tool_denied_raises() -> None:
     orchestrator = AgentOrchestrator(
         outline_worker=stub_worker({"outline": "ok"}),
         draft_worker=stub_worker({"draft": "ok"}),

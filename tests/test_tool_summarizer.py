@@ -1,10 +1,8 @@
-"""Tests for the summarizer tool adapter."""
-
 from __future__ import annotations
 
 import pytest
 
-from black_skies.tools import SummarizerTool
+from blackskies.services.tools import SummarizerTool
 
 
 @pytest.mark.unit
@@ -75,4 +73,3 @@ def test_summarize_handles_stopword_only_text() -> None:
     assert result.ok
     assert result.value == "The and but or."
     assert result.metadata["sentences"] == 1
-

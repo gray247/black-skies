@@ -1,5 +1,3 @@
-"""Tests for the offline eval dataset loader."""
-
 from __future__ import annotations
 
 from collections import Counter
@@ -7,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from black_skies.eval import (
+from blackskies.services.eval import (
     DEFAULT_DATASET_DIR,
     EvalTaskFlow,
     iter_tasks,

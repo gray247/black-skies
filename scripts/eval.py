@@ -1,4 +1,4 @@
-"""Offline evaluation harness runner for Black Skies."""
+"""Offline evaluation harness for Black Skies adapters."""
 
 from __future__ import annotations
 
@@ -14,12 +14,18 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from black_skies import runs
-from black_skies.eval import EvalTask, EvalTaskFlow, load_dataset
-from black_skies.eval.report import EvalCaseResult, EvalReport, build_report, render_html
-from black_skies.tools.registry import ToolRegistry
+from blackskies.services import runs
+from blackskies.services.eval import EvalTask, EvalTaskFlow, load_dataset
+from blackskies.services.eval.dataset import DEFAULT_DATASET_DIR
+from blackskies.services.eval.report import (
+    EvalCaseResult,
+    EvalReport,
+    build_report,
+    render_html,
+)
+from blackskies.services.tools.registry import ToolRegistry
 
-logger = logging.getLogger("black_skies.scripts.eval")
+logger = logging.getLogger("blackskies.services.scripts.eval")
 
 
 class FlowRunner(Protocol):
@@ -200,67 +206,46 @@ def _evaluate_thresholds(report: EvalReport, args: argparse.Namespace) -> list[s
         and report.metrics.p95_latency_ms > args.max_p95_latency_ms
     ):
         reasons.append(
-            f"P95 latency {report.metrics.p95_latency_ms:.2f}ms exceeds {args.max_p95_latency_ms:.2f}ms"
+            "P95 latency "
+            f"{report.metrics.p95_latency_ms:.2f}ms exceeds {args.max_p95_latency_ms:.2f}ms"
         )
     return reasons
 
 
-def _write_outputs(
-    html_path: Path, json_path: Path, report: EvalReport, regressions: Iterable[str]
-) -> None:
-    payload = {"report": report.to_dict(), "regressions": list(regressions)}
-    html = render_html(report)
-    _ensure_parent(html_path)
-    _ensure_parent(json_path)
-    html_path.write_text(html + "\n", encoding="utf-8")
-    json_path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-
-
-def run(args: argparse.Namespace) -> tuple[EvalReport, list[str]]:
-    dataset_path = args.dataset or None
-    tasks = load_dataset(dataset_path)
-    run_info = runs.start_run(
-        "eval",
-        {
-            "dataset": str(dataset_path) if dataset_path else "default",
-            "task_count": len(tasks),
-            "thresholds": {
-                "fail_under_pass_rate": args.fail_under_pass_rate,
-                "max_avg_latency_ms": args.max_avg_latency_ms,
-                "max_p95_latency_ms": args.max_p95_latency_ms,
-            },
-        },
-    )
-    run_id = run_info["run_id"]
-    try:
-        results = [
-            _evaluate_task(task, run_id=run_id) for task in sorted(tasks, key=lambda t: t.task_id)
-        ]
-        report = build_report(results)
-        regressions = _evaluate_thresholds(report, args)
-        _write_outputs(args.html, args.json, report, regressions)
-        status = "failed" if regressions else "completed"
-        runs.finalize_run(
-            run_id, status=status, result={"report": report.to_dict(), "regressions": regressions}
-        )
-        return report, regressions
-    except Exception as exc:  # noqa: BLE001 - ensure ledger finalized
-        runs.finalize_run(run_id, status="failed", result={"error": str(exc)})
-        logger.exception("eval.run_failed", exc_info=exc)
-        raise
-
-
 def main(argv: Sequence[str] | None = None) -> int:
     args = parse_args(argv)
-    try:
-        _, regressions = run(args)
-    except Exception:  # noqa: BLE001 - already logged
-        return 1
-    if regressions:
-        logger.error("Eval regressions detected: %s", "; ".join(regressions))
-        return 1
-    return 0
+
+    dataset_dir = args.dataset or DEFAULT_DATASET_DIR
+    tasks = load_dataset(dataset_dir)
+    run_metadata = runs.start_run("evaluation", {"dataset": str(dataset_dir)})
+    run_id = run_metadata["run_id"]
+
+    case_results: list[EvalCaseResult] = []
+    for task in tasks:
+        case_results.append(_evaluate_task(task, run_id=run_id))
+
+    report = build_report(case_results)
+    regressions = _evaluate_thresholds(report, args)
+
+    _ensure_parent(args.json)
+    args.json.write_text(
+        json.dumps(
+            {
+                "report": report.to_dict(),
+                "regressions": regressions,
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+
+    _ensure_parent(args.html)
+    args.html.write_text(render_html(report), encoding="utf-8")
+
+    status = "failed" if regressions else "completed"
+    runs.finalize_run(run_id, status=status, result={"regressions": regressions})
+    return 1 if regressions else 0
 
 
-if __name__ == "__main__":  # pragma: no cover - CLI entrypoint
-    raise SystemExit(main(sys.argv[1:]))
+if __name__ == "__main__":  # pragma: no cover
+    raise SystemExit(main())

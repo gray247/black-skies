@@ -1,32 +1,26 @@
 from __future__ import annotations
 
 import pytest
+from fastapi.testclient import TestClient
 
 pytest.importorskip("fastapi")
 
-from black_skies.main import app
-from fastapi.testclient import TestClient
+from blackskies.services.app import create_app
 
-client = TestClient(app)
+client = TestClient(create_app())
 
 
-def test_validation_error_schema_includes_trace_id():
-    response = client.post("/outline", json={})
-    assert response.status_code == 422
+def test_legacy_route_includes_deprecation_headers() -> None:
+    response = client.post("/draft/generate", json={})
+    assert response.status_code == 400
+    assert response.headers["deprecation"].lower() == "true"
+    assert "sunset" in response.headers
     payload = response.json()
     assert payload["code"] == "VALIDATION"
-    assert isinstance(payload["detail"], list)
-    assert "trace_id" in payload
-    assert response.headers["x-trace-id"] == payload["trace_id"]
 
 
-def test_metrics_counter_increments():
-    client.post(
-        "/outline",
-        json={"project_id": "proj_metrics", "wizard_locks": {}, "metadata": {}},
-    )
+def test_metrics_endpoint_returns_prometheus_payload() -> None:
+    client.get("/healthz")
     metrics_response = client.get("/metrics")
     assert metrics_response.status_code == 200
-    body = metrics_response.text
-    assert "outline_requests_total" in body
-    assert "http_requests_total" in body
+    assert "blackskies_requests_total" in metrics_response.text

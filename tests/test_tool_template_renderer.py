@@ -1,11 +1,9 @@
-"""Tests for the template renderer tool adapter."""
-
 from __future__ import annotations
 
 import pytest
 
-from black_skies import storage
-from black_skies.tools import TemplateRendererTool
+from blackskies.services import storage
+from blackskies.services.tools import TemplateRendererTool
 
 pytestmark = pytest.mark.unit
 

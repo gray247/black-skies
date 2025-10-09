@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from black_skies.critique import CATEGORIES, apply_rubric
-from black_skies.models import Draft
+from blackskies.services.critique import CATEGORIES, apply_rubric
+from blackskies.services.models import Draft
 
 
 def test_apply_rubric_returns_required_fields() -> None:

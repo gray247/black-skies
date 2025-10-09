@@ -11,6 +11,9 @@
 
 Milestones may overlap; keep their order but feel free to work ahead if prerequisites are satisfied. Steps already completed in the repo can be checked off immediately when you adopt this plan.
 
+> [!NOTE]
+> Steps that cite paths under `black_skies/` describe the historical package layout that shipped prior to Phase 1. When reproducing those steps against the current tree, use the equivalent modules under `services/src/blackskies/services/`.
+
 ---
 
 ## Milestone 0 — Environment, Offline Safety, Hygiene

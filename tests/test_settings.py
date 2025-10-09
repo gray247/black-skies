@@ -4,10 +4,12 @@ import builtins
 import importlib
 import sys
 
-from black_skies.settings import Settings, get_settings
+import pytest
+
+from blackskies.services.settings import Settings, get_settings
 
 
-def test_settings_defaults(monkeypatch):
+def test_settings_defaults(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("BLACK_SKIES_OPENAI_API_KEY", raising=False)
     monkeypatch.delenv("BLACK_SKIES_BLACK_SKIES_MODE", raising=False)
     get_settings.cache_clear()
@@ -17,7 +19,7 @@ def test_settings_defaults(monkeypatch):
     assert settings.request_timeout_seconds == 30.0
 
 
-def test_settings_env_override(monkeypatch):
+def test_settings_env_override(monkeypatch: pytest.MonkeyPatch) -> None:
     get_settings.cache_clear()
     monkeypatch.setenv("BLACK_SKIES_OPENAI_API_KEY", "sk-test")
     monkeypatch.setenv("BLACK_SKIES_BLACK_SKIES_MODE", "live")
@@ -27,7 +29,7 @@ def test_settings_env_override(monkeypatch):
     assert settings.black_skies_mode == "live"
 
 
-def test_get_settings_cached(monkeypatch):
+def test_get_settings_cached(monkeypatch: pytest.MonkeyPatch) -> None:
     get_settings.cache_clear()
     monkeypatch.setenv("BLACK_SKIES_OPENAI_API_KEY", "sk-cache")
     first = get_settings()
@@ -36,7 +38,9 @@ def test_get_settings_cached(monkeypatch):
     assert first is second
 
 
-def test_settings_module_handles_missing_pydantic_settings(monkeypatch):
+def test_settings_module_handles_missing_pydantic_settings(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """Ensure the settings module gracefully handles missing optional dependencies."""
 
     original_import = builtins.__import__
@@ -53,11 +57,11 @@ def test_settings_module_handles_missing_pydantic_settings(monkeypatch):
         return original_import(name, globals, locals, fromlist, level)
 
     monkeypatch.setattr(builtins, "__import__", _raise_for_pydantic_settings)
-    sys.modules.pop("black_skies.settings", None)
+    sys.modules.pop("blackskies.services.settings", None)
 
-    module = importlib.import_module("black_skies.settings")
+    module = importlib.import_module("blackskies.services.settings")
 
-    assert module.BaseSettings.__module__ == "black_skies.settings"
+    assert module.BaseSettings.__module__ == "blackskies.services.settings"
 
     settings_cls = module.Settings
     get_settings_fn = module.get_settings
@@ -72,5 +76,5 @@ def test_settings_module_handles_missing_pydantic_settings(monkeypatch):
 
     # Restore real import behaviour for subsequent tests.
     monkeypatch.setattr(builtins, "__import__", original_import)
-    sys.modules.pop("black_skies.settings", None)
-    importlib.import_module("black_skies.settings")
+    sys.modules.pop("blackskies.services.settings", None)
+    importlib.import_module("blackskies.services.settings")

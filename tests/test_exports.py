@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from black_skies.exports import checksum, export_markdown, export_text
-from black_skies.models import Draft
+from blackskies.services.exports import checksum, export_markdown, export_text
+from blackskies.services.models import Draft
 
 
 def _draft() -> Draft:

@@ -41,21 +41,20 @@ Prereqs: **Node 20 LTS**, **PNPM**, **Python 3.11**
 
 ### Service configuration
 
-- Runtime settings are provided by `ServiceSettings`, which now delegates to Pydantic's `BaseSettings` loader. Define
+- Runtime settings are provided by `ServiceSettings` (`blackskies.services.config`). Define
   `BLACKSKIES_PROJECT_BASE_DIR` in your shell or `.env`; quoted paths, leading whitespace, and `export` prefixes are supported.
 - The configured project directory must exist (e.g., `sample_project/Esther_Estate`). Misconfigured paths raise a validation
   error at startup so deployments fail fast.
 
 ### Observability
 
-- Health probe: `GET http://127.0.0.1:8000/api/v1/healthz`
-- Metrics: `GET http://127.0.0.1:8000/api/v1/metrics` (Prometheus text format)
+- Health probe: `GET http://127.0.0.1:8000/healthz`
+- Metrics: `GET http://127.0.0.1:8000/metrics` (Prometheus text format)
 - Traceability: every response includes an `X-Trace-Id` header; capture it when filing bugs or correlating logs.
 
 ### Python lint checks
 
-Use the locked development requirements to ensure the expected Flake8 plug-ins and configuration are available before running
-the linter.
+Use the locked development requirements to ensure the expected Flake8 plug-ins and configuration are available before running the linter.
 
 ```bash
 cd services
@@ -111,16 +110,12 @@ scene metadata, and a `budget` block so the UI can enforce soft ($5) and hard ($
 ### Expected responses & UI states
 - **OK** — projected total remains below the soft limit. The modal shows `Status: Within budget`, the proceed button stays
   enabled, and the budget message mirrors the `budget.message` string (e.g., "Estimate within budget.").
-- **Soft limit** — projected total crosses $5 but stays below $10. The modal renders the warning message, adds a `Soft limit
-  exceeded` badge, and the **Proceed** button stays enabled so the user can confirm the spend.
-- **Blocked** — projected total would exceed the hard limit. The modal swaps the primary button text to **Blocked** and keeps it
-  disabled until the spend is reduced.
+- **Soft limit** — projected total crosses $5 but stays below $10. The modal renders the warning message, adds a `Soft limit exceeded` badge, and the **Proceed** button stays enabled so the user can confirm the spend.
+- **Blocked** — projected total would exceed the hard limit. The modal swaps the primary button text to **Blocked** and keeps it disabled until the spend is reduced.
 
 ### Safety layer
-- Tool registry preflight runs `black_skies.tools.safety.preflight_check` before granting access so budget and privacy policies
-  from `docs/policies.md` are enforced consistently across adapters.
-- Structured tool telemetry is sanitized with `postflight_scrub`, which removes emails/API keys before they hit the log streams
-  shared with the FastAPI service.
+- Tool registry preflight runs `blackskies.services.tools.safety.preflight_check` before granting access so budget and privacy policies from `docs/policies.md` are enforced consistently across adapters.
+- Structured tool telemetry is sanitized with `postflight_scrub`, which removes emails/API keys before they hit the log streams shared with the FastAPI service.
 
 ```jsonc
 // Soft-limit example from the live service
@@ -193,8 +188,3 @@ See `docs/endpoints.md` for full contract notes and error responses.
 - `docs/endpoints.md` — API contracts (error model, limits, validation)
 - `docs/exports.md` — Manuscript/outline exports and reports
 - `docs/architecture.md` — Processes, data flow, packaging
-- `docs/agents_and_services.md` — Services now, agents later
-- `phase_log.md` — Change history
-
-## License
-License: [MIT](LICENSE.txt)
