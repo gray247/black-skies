@@ -4,13 +4,14 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
 import httpx
+import pytest
 
 from test_app import (
     API_PREFIX,
     SERVICE_VERSION,
     _assert_trace_header,
+    _build_critique_payload,
     _bootstrap_outline,
     _read_error,
     _write_project_budget,
@@ -98,13 +99,33 @@ async def test_preflight_missing_scene_contract(
 async def test_critique_contract(async_client: httpx.AsyncClient) -> None:
     """Critique endpoint returns the documented schema."""
 
-    response = await async_client.post(f"{API_PREFIX}/draft/critique")
+    request_payload = _build_critique_payload()
+    response = await async_client.post(
+        f"{API_PREFIX}/draft/critique", json=request_payload
+    )
     assert response.status_code == 200
-    payload = response.json()
-    assert payload["schema_version"].startswith("CritiqueOutputSchema")
-    assert payload["unit_id"]
-    assert isinstance(payload.get("line_comments"), list)
+    response_payload = response.json()
+    assert response_payload["schema_version"].startswith("CritiqueOutputSchema")
+    assert response_payload["unit_id"] == "sc_0001"
+    assert isinstance(response_payload.get("line_comments"), list)
     _assert_trace_header(response)
+
+
+async def test_critique_validation_unknown_category(
+    async_client: httpx.AsyncClient,
+) -> None:
+    """Critique surfaces validation errors for unsupported rubric entries."""
+
+    request_payload = _build_critique_payload(rubric=["Logic", "Unknown"])
+    response = await async_client.post(
+        f"{API_PREFIX}/draft/critique", json=request_payload
+    )
+    assert response.status_code == 400
+
+    detail = _read_error(response)
+    assert detail["code"] == "VALIDATION"
+    errors = detail["details"]["errors"]
+    assert any("Unknown rubric categories" in error["msg"] for error in errors)
 
 
 async def test_recovery_status_idle_contract(

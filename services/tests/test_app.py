@@ -96,6 +96,22 @@ def _load_contract_snapshot(name: str) -> dict[str, Any]:
         return json.load(handle)
 
 
+def _build_critique_payload(
+    *,
+    draft_id: str = "dr_004",
+    unit_id: str = "sc_0001",
+    rubric: list[str] | None = None,
+) -> dict[str, Any]:
+    """Return a critique request payload matching the rubric specification."""
+
+    rubric_values = rubric if rubric is not None else [
+        "Logic",
+        "Continuity",
+        "Character",
+    ]
+    return {"draft_id": draft_id, "unit_id": unit_id, "rubric": rubric_values}
+
+
 def _build_contract_outline_request(project_id: str) -> dict[str, Any]:
     """Return a wizard lock payload matching the docs contract."""
 
@@ -609,10 +625,24 @@ def test_contract_draft_preflight_ok(test_client: TestClient, tmp_path: Path) ->
 def test_contract_draft_critique(test_client: TestClient) -> None:
     """Draft critique endpoint returns the documented fixture payload."""
 
-    response = test_client.post(f"{API_PREFIX}/draft/critique")
+    payload = _build_critique_payload()
+    response = test_client.post(f"{API_PREFIX}/draft/critique", json=payload)
     assert response.status_code == 200
     assert response.json() == _load_contract_snapshot("draft_critique")
     _assert_trace_header(response)
+
+
+def test_draft_critique_validation_unknown_category(test_client: TestClient) -> None:
+    """Critique rejects requests with rubric entries outside the specification."""
+
+    payload = _build_critique_payload(rubric=["Logic", "Unknown"])
+    response = test_client.post(f"{API_PREFIX}/draft/critique", json=payload)
+    assert response.status_code == 400
+
+    detail = _read_error(response)
+    assert detail["code"] == "VALIDATION"
+    errors = detail["details"]["errors"]
+    assert any("Unknown rubric categories" in error["msg"] for error in errors)
 
 
 def test_draft_preflight_success(test_client: TestClient, tmp_path: Path) -> None:
