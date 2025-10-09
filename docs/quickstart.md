@@ -2,6 +2,8 @@
 
 This document is the handoff for QA and support testers who want a clean way to bring the desktop app online without remembering the repo history. It assumes a fresh clone on Windows 11.
 
+> **Release target:** `v1.0.0-rc1` (Phase 7).
+
 ---
 
 ## Prerequisites
