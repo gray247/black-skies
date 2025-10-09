@@ -1,16 +1,16 @@
-schema_version: SnapshotManifest v1
+schema_version: "SnapshotManifest v1"
 snapshot_id: 20251007T221911Z
 project_id: proj_esther_estate
 label: accept
-created_at: '2025-10-07T22:19:11.838957Z'
+created_at: "2025-10-07T22:19:11.838957Z"
 includes:
-- drafts
-- outline.json
-- project.json
+  - drafts
+  - outline.json
+  - project.json
 project:
   project_id: proj_esther_estate
   name: Esther Estate
-  created: '2025-09-23T17:10:00Z'
+  created: "2025-09-23T17:10:00Z"
   budget:
     soft: 12.5
     hard: 25.0
@@ -20,49 +20,39 @@ project:
       project_id: proj_esther_estate
       unit_scope: scene
       unit_ids:
-      - sc_0001
-      - sc_0002
+        - sc_0001
+        - sc_0002
       draft_id: dr_3f2b4b56
-      schema_version: DraftUnitSchema v1
+      schema_version: "DraftUnitSchema v1"
       units:
-      - id: sc_0001
-        text: 'Mara Ibarra enters Basement Pulse to stabilize the perimeter sensors.
-          The atmosphere leans toward respite as footsteps echo from nowhere.
-
-
-          The beat shifts when the house remembers a forgotten route, keeping the
-          scene in escalation mode and aiming for roughly 890 words.'
-        meta:
-          pov: Mara Ibarra
-          purpose: escalation
-          emotion_tag: respite
-          word_target: 890
-          order: 1
-          chapter_id: ch_0001
-        prompt_fingerprint: sha256:4644776b71cc8b39177307a401ce803b1a5e5780f2b9fbaf41fdc579a25cb8b7
-        model:
-          name: draft-synthesizer-v1
-          provider: black-skies-local
-        seed: 3036169277
-      - id: sc_0002
-        text: 'Jun Park enters Locked Parlor to keep the generator coil alive. The
-          atmosphere leans toward revelation as humidity chews through every circuit.
-
-
-          The beat shifts when the house remembers a forgotten route, keeping the
-          scene in payoff mode and aiming for roughly 930 words.'
-        meta:
-          pov: Jun Park
-          purpose: payoff
-          emotion_tag: revelation
-          word_target: 930
-          order: 2
-          chapter_id: ch_0001
-        prompt_fingerprint: sha256:8a128c84e2c63fe70c6dbb75bb908d467ed7b0208346e461e7160027febcd328
-        model:
-          name: draft-synthesizer-v1
-          provider: black-skies-local
-        seed: 3446905989
+        - id: sc_0001
+          text: "Mara Ibarra enters Basement Pulse to stabilize the perimeter sensors. The atmosphere leans toward respite as footsteps echo from nowhere.\n\nThe beat shifts when the house remembers a forgotten route, keeping the scene in escalation mode and aiming for roughly 890 words."
+          meta:
+            pov: Mara Ibarra
+            purpose: escalation
+            emotion_tag: respite
+            word_target: 890
+            order: 1
+            chapter_id: ch_0001
+          prompt_fingerprint: sha256:4644776b71cc8b39177307a401ce803b1a5e5780f2b9fbaf41fdc579a25cb8b7
+          model:
+            name: draft-synthesizer-v1
+            provider: black-skies-local
+          seed: 3036169277
+        - id: sc_0002
+          text: "Jun Park enters Locked Parlor to keep the generator coil alive. The atmosphere leans toward revelation as humidity chews through every circuit.\n\nThe beat shifts when the house remembers a forgotten route, keeping the scene in payoff mode and aiming for roughly 930 words."
+          meta:
+            pov: Jun Park
+            purpose: payoff
+            emotion_tag: revelation
+            word_target: 930
+            order: 2
+            chapter_id: ch_0001
+          prompt_fingerprint: sha256:8a128c84e2c63fe70c6dbb75bb908d467ed7b0208346e461e7160027febcd328
+          model:
+            name: draft-synthesizer-v1
+            provider: black-skies-local
+          seed: 3446905989
       budget:
         estimated_usd: 0.04
         status: ok
@@ -72,55 +62,55 @@ project:
         spent_usd: 0.1
         total_after_usd: 0.1
 outline:
-  schema_version: OutlineSchema v1
+  schema_version: "OutlineSchema v1"
   outline_id: out_001
   acts:
-  - 'Act I: Gathered Storm'
+    - "Act I: Gathered Storm"
   chapters:
-  - id: ch_0001
-    order: 1
-    title: The Summons
+    - id: ch_0001
+      order: 1
+      title: The Summons
   scenes:
-  - id: sc_0001
-    order: 1
-    title: Basement Pulse
-    chapter_id: ch_0001
-    beat_refs:
-    - inciting
-  - id: sc_0002
-    order: 2
-    title: Locked Parlor
-    chapter_id: ch_0001
-    beat_refs:
-    - turn
+    - id: sc_0001
+      order: 1
+      title: Basement Pulse
+      chapter_id: ch_0001
+      beat_refs:
+        - inciting
+    - id: sc_0002
+      order: 2
+      title: Locked Parlor
+      chapter_id: ch_0001
+      beat_refs:
+        - turn
 drafts:
-- id: sc_0001
-  slug: basement-pulse
-  title: Basement Pulse
-  pov: Mara Ibarra
-  purpose: escalation
-  goal: stabilize the perimeter sensors
-  conflict: footsteps echo from nowhere
-  turn: the house remembers a forgotten route
-  emotion_tag: respite
-  word_target: 890
-  order: 1
-  chapter_id: ch_0001
-  beats:
-  - inciting
-  path: drafts/sc_0001.md
-- id: sc_0002
-  slug: locked-parlor
-  title: Locked Parlor
-  pov: Jun Park
-  purpose: payoff
-  goal: keep the generator coil alive
-  conflict: humidity chews through every circuit
-  turn: the house remembers a forgotten route
-  emotion_tag: revelation
-  word_target: 930
-  order: 2
-  chapter_id: ch_0001
-  beats:
-  - turn
-  path: drafts/sc_0002.md
+  - id: sc_0001
+    slug: basement-pulse
+    title: Basement Pulse
+    pov: Mara Ibarra
+    purpose: escalation
+    goal: stabilize the perimeter sensors
+    conflict: footsteps echo from nowhere
+    turn: the house remembers a forgotten route
+    emotion_tag: respite
+    word_target: 890
+    order: 1
+    chapter_id: ch_0001
+    beats:
+      - inciting
+    path: drafts/sc_0001.md
+  - id: sc_0002
+    slug: locked-parlor
+    title: Locked Parlor
+    pov: Jun Park
+    purpose: payoff
+    goal: keep the generator coil alive
+    conflict: humidity chews through every circuit
+    turn: the house remembers a forgotten route
+    emotion_tag: revelation
+    word_target: 930
+    order: 2
+    chapter_id: ch_0001
+    beats:
+      - turn
+    path: drafts/sc_0002.md
