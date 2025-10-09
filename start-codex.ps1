@@ -252,22 +252,18 @@ if ($SmokeTest) {
   Install-LockFile (Join-Path "." "requirements.lock")
   Install-LockFile (Join-Path "." "requirements.dev.lock")
   Ensure-Python-Tools
-  Sync-Node
-
   $projectBaseDir = Resolve-ProjectBaseDir
-  $env:BLACKSKIES_PROJECT_BASE_DIR = $projectBaseDir
 
-  Write-Host "Building Electron main bundle..." -ForegroundColor Cyan
-  pnpm --filter app build:main
-
-  $pythonExe = Join-Path ".\\.venv\\Scripts" "python.exe"
-  if (-not (Test-Path -LiteralPath $pythonExe)) {
-    throw "Virtual environment Python executable not found at $pythonExe."
+  $smokeScript = Join-Path "." "scripts\\smoke.ps1"
+  if (-not (Test-Path -LiteralPath $smokeScript)) {
+    throw "Smoke script not found at $smokeScript"
   }
 
-  Write-Host "Launching Vite renderer and Electron shell for smoke test..." -ForegroundColor Cyan
-  Start-SmokeViteWindow
-  Start-SmokeElectronWindow -PythonExe $pythonExe -ProjectBaseDir $projectBaseDir
+  Write-Host "Running headless smoke test..." -ForegroundColor Cyan
+  & $smokeScript -ProjectId "proj_esther_estate" -Cycles 3 -Host "127.0.0.1" -Port 43750 -TimeoutSeconds 60 -ProjectBaseDir $projectBaseDir -SkipInstall
+  if ($LASTEXITCODE -ne 0) {
+    throw "Smoke test failed with exit code $LASTEXITCODE"
+  }
   exit 0
 }
 
