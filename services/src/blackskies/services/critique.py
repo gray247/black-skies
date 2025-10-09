@@ -1,19 +1,32 @@
-
-"""Rubric application utilities for Black Skies drafts."""
+"""Rubric evaluation helpers and critique service implementations."""
 
 from __future__ import annotations
 
-import math
-from dataclasses import asdict
-from typing import Any, Iterable
+import copy
+import json
+from importlib import resources
+from typing import Any, Final, Iterable
 
 from .models import Critique, Draft
+from .models.critique import DraftCritiqueRequest
 
-CRITIQUE_MODEL = {"name": "black-skies-rubric-v1", "provider": "offline"}
-CATEGORIES = ["Logic", "Continuity", "Character", "Pacing", "Prose", "Horror"]
+CRITIQUE_MODEL: Final[dict[str, str]] = {
+    "name": "black-skies-rubric-v1",
+    "provider": "offline",
+}
+CATEGORIES: Final[list[str]] = [
+    "Logic",
+    "Continuity",
+    "Character",
+    "Pacing",
+    "Prose",
+    "Horror",
+]
 
 
 def _sentence_lengths(text: str) -> list[int]:
+    """Return word counts for each sentence in the provided text."""
+
     sentences = [segment.strip() for segment in text.replace("\n", " ").split(".")]
     lengths: list[int] = []
     for sentence in sentences:
@@ -23,6 +36,8 @@ def _sentence_lengths(text: str) -> list[int]:
 
 
 def _longest_line(lines: Iterable[str]) -> tuple[int, str]:
+    """Return the longest line and its one-based index."""
+
     best_line = ""
     best_index = 0
     for index, line in enumerate(lines, start=1):
@@ -45,7 +60,10 @@ def apply_rubric(draft: Draft) -> Critique:
 
     summary_parts = [
         f"Draft '{draft.title}' spans {word_count} words across {len(lines) or 1} line(s).",
-        f"Average sentence length is {avg_sentence:.1f} words; longest sentence uses {longest_sentence} words.",
+        (
+            "Average sentence length is "
+            f"{avg_sentence:.1f} words; longest sentence uses {longest_sentence} words."
+        ),
     ]
     if avg_sentence > 25:
         summary_parts.append("Pacing slows due to long sentences; consider strategic breaks.")
@@ -100,20 +118,6 @@ def apply_rubric(draft: Draft) -> Critique:
     return critique
 
 
-__all__ = ["apply_rubric", "CRITIQUE_MODEL", "CATEGORIES"]
-
-"""Service responsible for producing draft critique responses."""
-
-from __future__ import annotations
-
-import copy
-import json
-from importlib import resources
-from typing import Any, Final
-
-from .models.critique import DraftCritiqueRequest
-
-
 class CritiqueService:
     """Generate critique payloads compliant with CritiqueOutputSchema v1."""
 
@@ -140,9 +144,7 @@ class CritiqueService:
             return self._cached_fixture
 
         try:
-            fixture_path = resources.files(self._fixtures_package).joinpath(
-                self._FIXTURE_NAME
-            )
+            fixture_path = resources.files(self._fixtures_package).joinpath(self._FIXTURE_NAME)
         except (FileNotFoundError, ModuleNotFoundError) as exc:  # pragma: no cover
             msg = "Critique fixture namespace is unavailable."
             raise RuntimeError(msg) from exc
@@ -160,6 +162,4 @@ class CritiqueService:
         return self._cached_fixture
 
 
-__all__ = ["CritiqueService"]
-
-
+__all__ = ["apply_rubric", "CritiqueService", "CRITIQUE_MODEL", "CATEGORIES"]
