@@ -90,9 +90,8 @@ The output lands in `app/release/win-unpacked`. Running `package:win` generates 
 
 Use the bundled `sample_project/Esther_Estate` for smoke tests:
 
-1. Launch the desktop shell, choose **Open Project**.
-2. Browse to `sample_project/Esther_Estate` and confirm `project.json` loads.
-3. Run through the Wizard → Generate → Critique → Accept flow and ensure the budget pill and recovery banner respond as expected.
+- Automated: `./scripts/smoke.sh` (or `powershell -File .\scripts\smoke.ps1`) bootstraps the venv, starts the API, and runs three Wizard → Draft → Critique → Accept cycles against `proj_esther_estate`.
+- Manual: Launch the desktop shell, choose **Open Project**, browse to `sample_project/Esther_Estate`, and step through the Wizard → Generate → Critique → Accept flow to confirm the budget pill and recovery banner respond as expected.
 
 ### Recovery banner smoke (manual trigger)
 
