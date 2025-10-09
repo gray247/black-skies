@@ -8,7 +8,7 @@
 - P4.0 Observability baseline (structured logs + /metrics) … ✅ complete
 - P4.1 Documentation/tagging sweep … ✅ complete
 - P5 Tools, Data, and Evaluation Harness … ✅ complete (adapters, registry, eval gate live)
-- P6 End-to-End Integration & Contracts … ◻ planned
+- P6 End-to-End Integration & Contracts … ✅ complete (GUI ↔ `/api/v1` wiring, session restore proven)
 - P7 Release Candidate (RC) … ◻ planned
 - P8 Hardening, Performance, and Resilience … ◻ planned
 - P9 GA (v1.0.0) & Post-GA Care … ◻ planned
@@ -43,6 +43,10 @@ fuzzy matching, so large documents and nuanced queries may still require manual 
 5. Trace IDs on every request; correlate in logs/`/metrics` and GUI console.
 6. Contract tests (pytest) exercising each endpoint with golden fixtures.
 
+**Status note:** `/api/v1` contracts are now fully versioned, and the renderer drives every Wizard → Draft →
+Critique interaction through those endpoints with trace IDs captured in logs. Session snapshots are
+persisted locally and the History pane restore path has been smoke-tested end-to-end.
+
 ### P7 — Release Candidate (RC)
 **Goal:** freeze interfaces; cut a candidate that can be installed and used end-to-end.
 **Deliverables**
@@ -75,8 +79,8 @@ fuzzy matching, so large documents and nuanced queries may still require manual 
 
 - [x] Add tool adapters and registry (P5)
 - [x] Create eval dataset & `scripts/eval.py` (P5)
-- [ ] Add `/api/v1` router + contracts in `docs/endpoints.md` (P6)
-- [ ] Implement session snapshots & restore (P6)
+- [x] Add `/api/v1` router + contracts in `docs/endpoints.md` (P6)
+- [x] Implement session snapshots & restore (P6)
 - [ ] Package RC, smoke tests, docs (P7)
 - [ ] Add load/e2e tests; resilience settings (P8)
 - [ ] Tag GA and add release/support docs (P9)
