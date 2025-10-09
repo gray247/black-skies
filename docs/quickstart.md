@@ -94,6 +94,18 @@ Use the bundled `sample_project/Esther_Estate` for smoke tests:
 2. Browse to `sample_project/Esther_Estate` and confirm `project.json` loads.
 3. Run through the Wizard → Generate → Critique → Accept flow and ensure the budget pill and recovery banner respond as expected.
 
+### Recovery banner smoke (manual trigger)
+
+If you need to force the crash recovery banner during a smoke run, call the recovery tracker before relaunching the Electron shell:
+
+```powershell
+cd C:\Dev\black-skies
+.\.venv\Scripts\python.exe -c "from blackskies.services.config import ServiceSettings; from blackskies.services.routers.recovery import RecoveryTracker; tracker = RecoveryTracker(ServiceSettings()); tracker.mark_needs_recovery('proj_esther_estate', reason='smoke-test manual')"
+Get-Content sample_project\proj_esther_estate\history\recovery\state.json
+```
+
+The JSON should show `"status": "needs-recovery"` and `"needs_recovery": true`. Launch Vite and Electron afterwards; the banner appears as soon as the project loads, and it clears once **Restore snapshot** succeeds.
+
 ---
 
 ## Troubleshooting
@@ -106,4 +118,3 @@ Use the bundled `sample_project/Esther_Estate` for smoke tests:
 | Packaging fails downloading `winCodeSign` | Enable Developer Mode or run the command in an elevated shell. |
 
 For deeper debugging see `docs/packaging.md`, `docs/tests.md`, and `docs/endpoints.md`.
-

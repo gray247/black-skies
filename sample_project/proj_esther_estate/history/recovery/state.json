@@ -1,19 +1,21 @@
 {
-  "status": "idle",
+  "status": "needs-recovery",
+  "needs_recovery": true,
   "started_at": null,
   "pending_unit_id": null,
   "draft_id": null,
   "message": null,
   "last_snapshot": {
-    "snapshot_id": "20251008T181142Z",
+    "snapshot_id": "20251008T203326Z",
     "label": "accept",
-    "created_at": "2025-10-08T18:11:42.437506Z",
-    "path": "history/snapshots/20251008T181142Z_accept",
+    "created_at": "2025-10-08T20:33:26.215916Z",
+    "path": "history/snapshots/20251008T203326Z_accept",
     "includes": [
       "drafts",
       "outline.json",
       "project.json"
     ]
   },
-  "failure_reason": null
+  "failure_reason": "smoke-test manual",
+  "updated_at": "2025-10-08T20:36:52.535677Z"
 }

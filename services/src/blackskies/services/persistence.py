@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import errno
 import json
 import os
 import re
@@ -13,6 +14,12 @@ from typing import Any, Sequence
 from uuid import uuid4
 
 from blackskies.services.utils import safe_dump, to_posix
+
+
+_FSYNC_IGNORE_ERRNOS = {errno.EBADF}
+_ENOSYS = getattr(errno, "ENOSYS", None)
+if isinstance(_ENOSYS, int):
+    _FSYNC_IGNORE_ERRNOS.add(_ENOSYS)
 
 SNAPSHOT_ID_PATTERN = re.compile(r"^\d{8}T\d{6}Z$")
 
@@ -366,8 +373,12 @@ class SnapshotPersistence:
         temp_path = target.parent / f".{target.name}.{uuid4().hex}.restore"
         shutil.copy2(source, temp_path)
         if hasattr(os, "fsync"):
-            with temp_path.open("rb") as handle:
-                os.fsync(handle.fileno())
+            try:
+                with temp_path.open("rb") as handle:
+                    os.fsync(handle.fileno())
+            except OSError as exc:
+                if exc.errno not in _FSYNC_IGNORE_ERRNOS:
+                    raise
         temp_path.replace(target)
 
     def restore_snapshot(self, project_id: str, snapshot_id: str) -> dict[str, Any]:
@@ -462,9 +473,6 @@ __all__ = [
     "write_text_atomic",
     "SNAPSHOT_ID_PATTERN",
 ]
-
-
-
 
 
 

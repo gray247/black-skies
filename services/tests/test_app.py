@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import json
 import hashlib
+import errno
 from pathlib import Path
 from typing import Any
 from uuid import UUID
@@ -15,7 +16,8 @@ from fastapi.testclient import TestClient
 
 from blackskies.services.app import SERVICE_VERSION, BuildTracker
 from blackskies.services.config import ServiceSettings
-from blackskies.services.persistence import DraftPersistence
+from blackskies.services.persistence import DraftPersistence, SnapshotPersistence
+from blackskies.services.routers.recovery import RecoveryTracker
 
 TRACE_HEADER = "x-trace-id"
 API_PREFIX = "/api/v1"
@@ -840,6 +842,7 @@ def test_draft_accept_success_creates_snapshot(
     assert state_path.exists()
     state = json.loads(state_path.read_text(encoding="utf-8"))
     assert state["status"] == "idle"
+    assert state["needs_recovery"] is False
     assert state["last_snapshot"]["snapshot_id"] == data["snapshot"]["snapshot_id"]
 
     snapshot_dir = tmp_path / project_id / data["snapshot"]["path"]
@@ -952,6 +955,30 @@ def test_recovery_status_marks_needs_recovery(
 
     state = json.loads(state_path.read_text(encoding="utf-8"))
     assert state["status"] == "needs-recovery"
+    assert state["needs_recovery"] is True
+
+
+def test_recovery_tracker_normalises_legacy_state(tmp_path: Path) -> None:
+    """Legacy recovery files with only `needs_recovery` are normalised."""
+
+    project_id = "proj_recovery_legacy"
+    project_root = tmp_path / project_id
+    project_root.mkdir(parents=True, exist_ok=True)
+    state_path = project_root / "history" / "recovery" / "state.json"
+    state_path.parent.mkdir(parents=True, exist_ok=True)
+    state_path.write_text(json.dumps({"needs_recovery": True}), encoding="utf-8")
+
+    settings = ServiceSettings(project_base_dir=tmp_path)
+    tracker = RecoveryTracker(settings)
+    snapshots = SnapshotPersistence(settings)
+
+    state = tracker.status(project_id, snapshots)
+    assert state["status"] == "needs-recovery"
+    assert state["needs_recovery"] is True
+
+    persisted = json.loads(state_path.read_text(encoding="utf-8"))
+    assert persisted["status"] == "needs-recovery"
+    assert persisted["needs_recovery"] is True
 
 
 def test_recovery_restore_overwrites_scene(
@@ -999,8 +1026,48 @@ def test_recovery_restore_overwrites_scene(
     state_path = tmp_path / project_id / "history" / "recovery" / "state.json"
     state = json.loads(state_path.read_text(encoding="utf-8"))
     assert state["status"] == "idle"
+    assert state["needs_recovery"] is False
     assert state["last_snapshot"]["path"] == snapshot_rel_path
 
+
+def test_restore_snapshot_ignores_fsync_error(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    """Snapshot restores tolerate fsync errors such as EBADF on Windows."""
+
+    project_id = "proj_restore_fsync"
+    project_root = tmp_path / project_id
+    (project_root / "drafts").mkdir(parents=True, exist_ok=True)
+    target_path = project_root / "drafts" / "sc_0001.md"
+    target_path.write_text("stale", encoding="utf-8")
+
+    snapshot_dir = project_root / "history" / "snapshots" / "20240101T000000Z_accept"
+    (snapshot_dir / "drafts").mkdir(parents=True, exist_ok=True)
+    (snapshot_dir / "drafts" / "sc_0001.md").write_text(
+        "fresh",
+        encoding="utf-8",
+    )
+    metadata = {
+        "snapshot_id": "20240101T000000Z",
+        "project_id": project_id,
+        "label": "accept",
+        "created_at": "2024-01-01T00:00:00Z",
+        "includes": ["drafts"],
+    }
+    (snapshot_dir / "metadata.json").write_text(
+        json.dumps(metadata),
+        encoding="utf-8",
+    )
+
+    settings = ServiceSettings(project_base_dir=tmp_path)
+    persistence = SnapshotPersistence(settings)
+
+    def _failing_fsync(fd: int) -> None:
+        raise OSError(errno.EBADF, "Bad file descriptor")
+
+    monkeypatch.setattr("blackskies.services.persistence.os.fsync", _failing_fsync)
+
+    result = persistence.restore_snapshot(project_id, "20240101T000000Z")
+    assert result["snapshot_id"] == "20240101T000000Z"
+    assert target_path.read_text(encoding="utf-8") == "fresh"
 
 def test_draft_export_manuscript_success(
     test_client: TestClient, tmp_path: Path

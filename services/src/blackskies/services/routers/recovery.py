@@ -54,6 +54,43 @@ class RecoveryTracker:
     def __init__(self, settings: ServiceSettings) -> None:
         self._settings = settings
 
+    _VALID_STATUSES: Final[set[str]] = {
+        "idle",
+        "needs-recovery",
+        "accept-in-progress",
+    }
+
+    @classmethod
+    def _normalise_state(cls, state: dict[str, Any]) -> dict[str, Any]:
+        """Ensure persisted recovery state uses the canonical schema."""
+
+        normalised = dict(state)
+
+        status = normalised.get("status")
+        if isinstance(status, str):
+            candidate = status.strip().lower()
+            if candidate in cls._VALID_STATUSES:
+                status = candidate
+            else:
+                status = "idle"
+        else:
+            status = None
+
+        if status is None:
+            legacy = normalised.get("needs_recovery")
+            if isinstance(legacy, bool):
+                status = "needs-recovery" if legacy else "idle"
+            elif isinstance(legacy, str):
+                candidate = legacy.strip().lower()
+                if candidate in cls._VALID_STATUSES:
+                    status = candidate
+            if status is None:
+                status = "idle"
+
+        normalised["status"] = status
+        normalised["needs_recovery"] = status == "needs-recovery"
+        return normalised
+
     def _state_path(self, project_id: str) -> Path:
         project_root = self._settings.project_base_dir / project_id
         return project_root / "history" / "recovery" / "state.json"
@@ -61,18 +98,23 @@ class RecoveryTracker:
     def _read_state(self, project_id: str) -> dict[str, Any]:
         path = self._state_path(project_id)
         if not path.exists():
-            return {"status": "idle"}
+            return self._normalise_state({"status": "idle"})
         try:
             with path.open("r", encoding="utf-8") as handle:
-                state = json.load(handle)
+                raw_state = json.load(handle)
         except json.JSONDecodeError:
-            state = {"status": "idle"}
-        return state
+            raw_state = {"status": "idle"}
+
+        normalised = self._normalise_state(raw_state)
+        if normalised != raw_state:
+            write_json_atomic(path, normalised)
+        return normalised
 
     def _write_state(self, project_id: str, state: dict[str, Any]) -> dict[str, Any]:
         path = self._state_path(project_id)
-        write_json_atomic(path, state)
-        return state
+        normalised = self._normalise_state(state)
+        write_json_atomic(path, normalised)
+        return normalised
 
     def mark_in_progress(
         self,
@@ -290,4 +332,3 @@ async def recovery_restore(
         "needs_recovery": False,
         "last_snapshot": snapshot_info,
     }
-
