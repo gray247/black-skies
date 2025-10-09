@@ -1,15 +1,11 @@
 schema_version: "EvalTaskSchema v1"
 task_id: draft_scene_generation
 flow: draft
-summary: >-
-  Generate the Act I midpoint scene using the locked outline context and ensure the resulting
-  draft unit complies with DraftUnitSchema v1 metadata requirements.
+summary: "Generate the Act I midpoint scene using the locked outline context and ensure the resulting draft unit complies with DraftUnitSchema v1 metadata requirements."
 inputs:
   project_id: proj_eval_draft
   scene_id: sc_0002
-  brief: >-
-    Continue from "Basement Alarm" as Viki confronts the silent radios and discovers the
-    relay array submerged. Increase pressure ahead of the roof breach.
+  brief: "Continue from \"Basement Alarm\" as Viki confronts the silent radios and discovers the relay array submerged. Increase pressure ahead of the roof breach."
   outline:
     schema_version: "OutlineSchema v1"
     outline_id: out_101
@@ -46,18 +42,7 @@ expected:
     schema_version: "DraftUnitSchema v1"
     units:
       - id: sc_0002
-        text: |-
-          The radios stacked along the cellar shelves glowed a weak amber. Viki tapped the
-          chassis of the closest set and heard only water gnashing in the vents above. The
-          relay rack hissed, drowning beneath the rising groundwater.
-
-          She pulled the panel and slid into the crawlspace. Cables sagged like kelp. Every
-          meter of slack meant another neighbor she could not reach. When the second surge
-          slammed the outer doors, the concrete shuddered through her knees. The storm was
-          already clawing for the roof joists.
-
-          Viki clipped the bypass coupler into place. The static cracked, then threaded into a
-          faint SOS from Harbor Tower. Someone topside was still alive—and running out of time.
+        text: "The radios stacked along the cellar shelves glowed a weak amber. Viki tapped the chassis of the closest set and heard only water gnashing in the vents above. The relay rack hissed, drowning beneath the rising groundwater.\n\nShe pulled the panel and slid into the crawlspace. Cables sagged like kelp. Every meter of slack meant another neighbor she could not reach. When the second surge slammed the outer doors, the concrete shuddered through her knees. The storm was already clawing for the roof joists.\n\nViki clipped the bypass coupler into place. The static cracked, then threaded into a faint SOS from Harbor Tower. Someone topside was still alive—and running out of time."
         meta:
           pov: "Viki"
           purpose: "escalation"

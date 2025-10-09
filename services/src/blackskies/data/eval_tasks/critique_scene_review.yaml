@@ -6,18 +6,7 @@ inputs:
   project_id: proj_eval_critique
   unit:
     id: sc_0002
-    text: |-
-      The radios stacked along the cellar shelves glowed a weak amber. Viki tapped the chassis
-      of the closest set and heard only water gnashing in the vents above. The relay rack hissed,
-      drowning beneath the rising groundwater.
-
-      She pulled the panel and slid into the crawlspace. Cables sagged like kelp. Every meter of
-      slack meant another neighbor she could not reach. When the second surge slammed the outer
-      doors, the concrete shuddered through her knees. The storm was already clawing for the
-      roof joists.
-
-      Viki clipped the bypass coupler into place. The static cracked, then threaded into a faint
-      SOS from Harbor Tower. Someone topside was still alive—and running out of time.
+    text: "The radios stacked along the cellar shelves glowed a weak amber. Viki tapped the chassis\nof the closest set and heard only water gnashing in the vents above. The relay rack hissed,\ndrowning beneath the rising groundwater.\n\nShe pulled the panel and slid into the crawlspace. Cables sagged like kelp. Every meter of\nslack meant another neighbor she could not reach. When the second surge slammed the outer\ndoors, the concrete shuddered through her knees. The storm was already clawing for the roof\njoists.\n\nViki clipped the bypass coupler into place. The static cracked, then threaded into a faint\nSOS from Harbor Tower. Someone topside was still alive—and running out of time."
     meta:
       pov: "Viki"
       purpose: "escalation"

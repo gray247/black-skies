@@ -1,15 +1,11 @@
 schema_version: "EvalTaskSchema v1"
 task_id: wizard_outline_baseline
 flow: wizard
-summary: >-
-  Validate that locked Wizard decisions generate a canonical outline for the Storm Cellar
-  inciting sequence.
+summary: "Validate that locked Wizard decisions generate a canonical outline for the Storm Cellar inciting sequence."
 inputs:
   project_id: proj_eval_wizard
   wizard_locks:
-    logline: >-
-      When a supercell tears through Harbor Nine, mechanic Viki Patel must keep the community
-      shelter online before the next surge hits.
+    logline: "When a supercell tears through Harbor Nine, mechanic Viki Patel must keep the community shelter online before the next surge hits."
     protagonist: Viki Patel
     stakes: "If the shelter power fails, dozens of neighbors drown in the flood tunnels."
     acts:
