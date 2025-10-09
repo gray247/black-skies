@@ -1,9 +1,7 @@
 schema_version: "EvalTaskSchema v1"
 task_id: critique_scene_review
 flow: critique
-summary: >-
-  Review the midpoint draft for pacing and tension, ensuring critique feedback respects the
-  CritiqueOutputSchema v1 contract.
+summary: "Review the midpoint draft for pacing and tension, ensuring critique feedback respects the CritiqueOutputSchema v1 contract."
 inputs:
   project_id: proj_eval_critique
   unit:
@@ -32,9 +30,7 @@ expected:
   critique:
     unit_id: sc_0002
     schema_version: "CritiqueOutputSchema v1"
-    summary: >-
-      Strong POV anchoring and sensory detail sustain tension, but pacing softens mid-paragraph
-      when the crawlspace description lingers.
+    summary: "Strong POV anchoring and sensory detail sustain tension, but pacing softens mid-paragraph when the crawlspace description lingers."
     line_comments:
       - line: 6
         note: "Condense the crawlspace description to keep the rising water threat present."
