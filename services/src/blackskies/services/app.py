@@ -58,7 +58,7 @@ from .critique import CritiqueService
 
 LOGGER = logging.getLogger(__name__)
 
-SERVICE_VERSION: Final[str] = "0.1.0"
+SERVICE_VERSION: Final[str] = "1.0.0-rc1"
 
 LEGACY_DEPRECATION_HEADER: Final[str] = "true"
 LEGACY_SUNSET_HEADER: Final[str] = "Mon, 29 Sep 2025 00:00:00 GMT"

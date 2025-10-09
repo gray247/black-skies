@@ -1,6 +1,7 @@
 # RELEASE.md  Black Skies
 
 ## Prerequisites
+- Target version: `v1.0.0-rc1`
 - Python 3.11+
 - Local wheel cache populated under `vendor/wheels/`
 - Clean `git status`

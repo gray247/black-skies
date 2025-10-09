@@ -2,7 +2,7 @@
 
 Local‑first novelist tool for Windows 11: guided outline → draft → rewrite → critique → export.
 
-> **Status:** Tabletop complete. Phase 1 (1.0) docs are LOCKED as of 2025-09-29.
+> **Status:** Release Candidate `v1.0.0-rc1` ready. Phase 1 (1.0) docs remain LOCKED as of 2025-09-29.
 
 ## Platform
 Windows 11 only (1.0). macOS/Linux planned post‑1.0.

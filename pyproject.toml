@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "black-skies"
-version = "1.0.0+phase1"
+version = "1.0.0-rc1"
 description = "Lightweight FastAPI surface and orchestration tools for the Black Skies platform."
 authors = [
   { name = "Black Skies Team", email = "dev@black-skies.dev" },
