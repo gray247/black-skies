@@ -14,11 +14,13 @@ from ..config import ServiceSettings
 from ..diagnostics import DiagnosticLogger
 from ..http import default_error_responses, raise_validation_error
 from ..models._project_id import validate_project_id
+from ..operations.recovery import RecoveryService
 from ..persistence import SNAPSHOT_ID_PATTERN, SnapshotPersistence, write_json_atomic
 from ..utils.paths import to_posix
 from .dependencies import (
     get_diagnostics,
     get_recovery_tracker,
+    get_recovery_service,
     get_settings,
     get_snapshot_persistence,
 )
@@ -235,6 +237,7 @@ async def recovery_restore(
     payload: dict[str, Any],
     settings: ServiceSettings = Depends(get_settings),
     diagnostics: DiagnosticLogger = Depends(get_diagnostics),
+    recovery_service: RecoveryService = Depends(get_recovery_service),
     snapshot_persistence: SnapshotPersistence = Depends(get_snapshot_persistence),
     recovery_tracker: "RecoveryTracker" = Depends(get_recovery_tracker),
 ) -> dict[str, Any]:
@@ -277,7 +280,10 @@ async def recovery_restore(
             )
 
     try:
-        snapshot_info = snapshot_persistence.restore_snapshot(request_model.project_id, snapshot_id)
+        snapshot_info = await recovery_service.restore_snapshot(
+            request_model.project_id,
+            snapshot_id,
+        )
     except FileNotFoundError:
         raise_validation_error(
             message="Snapshot not found.",

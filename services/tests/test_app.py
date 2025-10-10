@@ -6,6 +6,7 @@ import asyncio
 import errno
 import hashlib
 import json
+import threading
 from pathlib import Path
 from typing import Any
 from uuid import UUID
@@ -1088,6 +1089,60 @@ def test_recovery_tracker_normalises_legacy_state(tmp_path: Path) -> None:
     persisted = json.loads(state_path.read_text(encoding="utf-8"))
     assert persisted["status"] == "needs-recovery"
     assert persisted["needs_recovery"] is True
+
+
+@pytest.mark.anyio
+async def test_recovery_restore_runs_in_threadpool(
+    async_client: "httpx.AsyncClient",
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Recovery restores execute outside the event loop thread."""
+
+    project_id = "proj_recovery_thread"
+    scene_body = _bootstrap_scene(tmp_path, project_id)
+    checksum = _compute_sha256(scene_body)
+    accepted_text = f"{scene_body}\n\nThreaded restore text."
+
+    accept_payload = {
+        "project_id": project_id,
+        "draft_id": "dr_thread_001",
+        "unit_id": "sc_0001",
+        "unit": {
+            "id": "sc_0001",
+            "previous_sha256": checksum,
+            "text": accepted_text,
+        },
+    }
+
+    accept_response = await async_client.post(
+        f"{API_PREFIX}/draft/accept",
+        json=accept_payload,
+    )
+    assert accept_response.status_code == status.HTTP_200_OK
+
+    loop_thread = threading.current_thread()
+    captured_threads: list[threading.Thread] = []
+
+    original_restore = SnapshotPersistence.restore_snapshot
+
+    def _capture_thread(
+        self: SnapshotPersistence,
+        project: str,
+        snapshot: str,
+    ) -> dict[str, Any]:
+        captured_threads.append(threading.current_thread())
+        return original_restore(self, project, snapshot)
+
+    monkeypatch.setattr(SnapshotPersistence, "restore_snapshot", _capture_thread)
+
+    restore_response = await async_client.post(
+        f"{API_PREFIX}/draft/recovery/restore",
+        json={"project_id": project_id},
+    )
+    assert restore_response.status_code == status.HTTP_200_OK
+    assert captured_threads, "Restore should execute exactly once"
+    assert captured_threads[0] is not loop_thread
 
 
 def test_recovery_restore_overwrites_scene(test_client: TestClient, tmp_path: Path) -> None:
