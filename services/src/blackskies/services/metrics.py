@@ -4,7 +4,9 @@ from __future__ import annotations
 
 from collections import Counter
 from threading import Lock
-from typing import Iterable
+from typing import Final, Iterable
+
+PROMETHEUS_TEXT_CONTENT_TYPE: Final[str] = "text/plain; version=0.0.4"
 
 _COUNTERS: Counter[str] = Counter()
 _LOCK = Lock()
@@ -50,4 +52,4 @@ def render(service_version: str) -> str:
     return "\n".join(lines) + "\n"
 
 
-__all__ = ["record_request", "render"]
+__all__ = ["PROMETHEUS_TEXT_CONTENT_TYPE", "record_request", "render"]

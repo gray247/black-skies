@@ -4,15 +4,12 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Depends, Request, Response
 
-from ..metrics import render
+from ..metrics import PROMETHEUS_TEXT_CONTENT_TYPE, render
 
 __all__ = ["router", "get_service_version", "health", "metrics_endpoint"]
 
 
 router = APIRouter(prefix="/api/v1", tags=["health"])
-
-
-_METRICS_MEDIA_TYPE = "text/plain; version=0.0.4"
 
 
 def get_service_version(request: Request) -> str:
@@ -41,6 +38,6 @@ async def metrics_endpoint(version: str = Depends(get_service_version)) -> Respo
 
     return Response(
         content=render(version),
-        headers={"Content-Type": _METRICS_MEDIA_TYPE},
+        headers={"Content-Type": PROMETHEUS_TEXT_CONTENT_TYPE},
         media_type=None,
     )
