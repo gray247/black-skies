@@ -422,6 +422,14 @@ def test_legacy_draft_generate_shim_error_headers(test_client: TestClient) -> No
     assert response.headers["Deprecation"] == "true"
     assert response.headers["Sunset"] == "Mon, 29 Sep 2025 00:00:00 GMT"
 
+    v1_response = test_client.post(f"{API_PREFIX}/draft/generate", json=payload)
+    assert v1_response.status_code == 400
+    legacy_body = response.json()
+    v1_body = v1_response.json()
+    assert {k: v for k, v in legacy_body.items() if k != "trace_id"} == {
+        k: v for k, v in v1_body.items() if k != "trace_id"
+    }
+
 
 def test_draft_generate_scene_success(test_client: TestClient, tmp_path: Path) -> None:
     """Draft generation writes Markdown and returns deterministic metadata."""
