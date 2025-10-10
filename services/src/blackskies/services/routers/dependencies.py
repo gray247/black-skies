@@ -9,6 +9,7 @@ from fastapi import Request
 from ..config import ServiceSettings
 from ..critique import CritiqueService
 from ..diagnostics import DiagnosticLogger
+from ..operations.recovery import RecoveryService
 from ..persistence import SnapshotPersistence
 
 if TYPE_CHECKING:  # pragma: no cover - import for typing only
@@ -21,6 +22,7 @@ __all__ = [
     "get_critique_service",
     "get_diagnostics",
     "get_snapshot_persistence",
+    "get_recovery_service",
     "get_recovery_tracker",
 ]
 
@@ -53,6 +55,13 @@ def get_recovery_tracker(request: Request) -> "RecoveryTracker":
     """Return the recovery tracker responsible for crash recovery flows."""
 
     return cast("RecoveryTracker", request.app.state.recovery_tracker)
+
+
+def get_recovery_service(request: Request) -> RecoveryService:
+    """Return a recovery service bound to the application snapshot persistence."""
+
+    snapshot_persistence = get_snapshot_persistence(request)
+    return RecoveryService(snapshot_persistence=snapshot_persistence)
 
 
 def get_critique_service(request: Request) -> CritiqueService:
