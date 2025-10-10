@@ -7,10 +7,10 @@ from pathlib import Path
 
 import pytest
 
-from blackskies.services.app import (
+from blackskies.services.budgeting import (
     HARD_BUDGET_LIMIT_USD,
     SOFT_BUDGET_LIMIT_USD,
-    _load_project_budget_state,
+    load_project_budget_state,
 )
 from blackskies.services.diagnostics import DiagnosticLogger
 
@@ -38,7 +38,7 @@ def test_load_project_budget_state_sanitizes_currency(
     }
     _write_project_file(project_root, project_data)
 
-    state = _load_project_budget_state(project_root, diagnostics)
+    state = load_project_budget_state(project_root, diagnostics)
 
     assert state.hard_limit == pytest.approx(2500.0)
     assert state.soft_limit == pytest.approx(2500.0)
@@ -66,7 +66,7 @@ def test_load_project_budget_state_defaults_on_invalid_values(
     }
     _write_project_file(project_root, project_data)
 
-    state = _load_project_budget_state(project_root, diagnostics)
+    state = load_project_budget_state(project_root, diagnostics)
 
     assert state.soft_limit == SOFT_BUDGET_LIMIT_USD
     assert state.hard_limit == HARD_BUDGET_LIMIT_USD

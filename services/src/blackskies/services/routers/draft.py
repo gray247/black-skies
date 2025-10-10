@@ -7,10 +7,7 @@ import copy
 import hashlib
 import json
 import logging
-import os
-import re
 import shutil
-from dataclasses import dataclass
 from importlib import resources
 from pathlib import Path
 from typing import Any, Final, TYPE_CHECKING
@@ -19,11 +16,24 @@ from uuid import uuid4
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, ValidationError, field_validator
 
+from ..budgeting import (
+    HARD_BUDGET_LIMIT_USD,
+    SOFT_BUDGET_LIMIT_USD,
+    classify_budget,
+    load_project_budget_state,
+    persist_project_budget,
+)
 from ..config import ServiceSettings
 from ..critique import CritiqueService
 from ..diagnostics import DiagnosticLogger
 from ..diff_engine import compute_diff
 from ..draft_synthesizer import DraftSynthesizer
+from ..export import (
+    compile_manuscript,
+    load_outline_artifact,
+    merge_front_matter,
+    normalize_markdown,
+)
 from ..http import (
     default_error_responses,
     raise_budget_error,
@@ -40,6 +50,12 @@ from ..models.rewrite import DraftRewriteRequest
 from ..models.wizard import WizardLockSnapshotRequest
 from ..persistence import DraftPersistence, SnapshotPersistence, write_text_atomic
 from ..scene_docs import DraftRequestError, read_scene_document
+from ..snapshots import (
+    SnapshotIncludesError,
+    SnapshotPersistenceError,
+    create_accept_snapshot,
+    create_wizard_lock_snapshot,
+)
 from ..utils.paths import to_posix
 from .dependencies import (
     get_diagnostics,
@@ -57,28 +73,11 @@ LOGGER = logging.getLogger(__name__)
 
 __all__ = [
     "HARD_BUDGET_LIMIT_USD",
-    "ProjectBudgetState",
     "SOFT_BUDGET_LIMIT_USD",
-    "_build_meta_header",
-    "_load_project_budget_state",
     "router",
 ]
 
 _FIXTURE_PACKAGE: Final[str] = "blackskies.services.fixtures"
-SOFT_BUDGET_LIMIT_USD: Final[float] = 5.0
-HARD_BUDGET_LIMIT_USD: Final[float] = 10.0
-
-_NUMERIC_SANITIZE_RE = re.compile(r"[^0-9.,+-]")
-
-
-@dataclass
-class ProjectBudgetState:
-    project_root: Path
-    metadata: dict[str, Any]
-    soft_limit: float
-    hard_limit: float
-    spent_usd: float
-    project_path: Path
 
 
 class DraftExportRequest(BaseModel):
@@ -131,183 +130,12 @@ def _load_fixture(name: str) -> dict[str, Any]:
         ) from exc
 
 
-def _load_outline_artifact(project_root: Path) -> OutlineArtifact:
-    outline_path = project_root / "outline.json"
-    if not outline_path.exists():
-        raise DraftRequestError("Outline artifact is missing.", {"path": to_posix(outline_path)})
-
-    try:
-        with outline_path.open("r", encoding="utf-8") as handle:
-            payload = json.load(handle)
-    except json.JSONDecodeError as exc:
-        raise DraftRequestError(
-            "Outline artifact contains invalid JSON.", {"path": to_posix(outline_path)}
-        ) from exc
-
-    try:
-        return OutlineArtifact.model_validate(payload)
-    except ValidationError as exc:
-        raise DraftRequestError(
-            "Outline artifact failed schema validation.",
-            {"path": to_posix(outline_path), "errors": exc.errors()},
-        ) from exc
-
-
-def _build_meta_header(front_matter: dict[str, Any]) -> str | None:
-    def _normalize(value: Any) -> str | None:
-        if value is None:
-            return None
-        normalized = str(value).strip()
-        if not normalized:
-            return None
-        return normalized
-
-    parts: list[str] = []
-    purpose = _normalize(front_matter.get("purpose"))
-    if purpose:
-        parts.append(f"purpose: {purpose}")
-    emotion = _normalize(front_matter.get("emotion_tag"))
-    if emotion:
-        parts.append(f"emotion: {emotion}")
-    pov = _normalize(front_matter.get("pov"))
-    if pov:
-        parts.append(f"pov: {pov}")
-    if not parts:
-        return None
-    return "> " + " · ".join(parts)
-
-
-def _compile_manuscript(
-    project_root: Path,
-    outline: OutlineArtifact,
-    *,
-    include_meta_header: bool = False,
-) -> tuple[str, int, int]:
-    chapters = sorted(outline.chapters, key=lambda chapter: chapter.order)
-    scenes_by_chapter: dict[str, list[OutlineScene]] = {}
-    for scene in outline.scenes:
-        scenes_by_chapter.setdefault(scene.chapter_id, []).append(scene)
-    for scene_list in scenes_by_chapter.values():
-        scene_list.sort(key=lambda item: item.order)
-
-    lines: list[str] = []
-    chapter_count = 0
-    scene_count = 0
-
-    for chapter in chapters:
-        chapter_scenes = scenes_by_chapter.get(chapter.id, [])
-        if not chapter_scenes:
-            continue
-
-        chapter_count += 1
-        lines.append(f"# {chapter.title}")
-        lines.append("")
-
-        seen_orders: set[int] = set()
-        for scene in chapter_scenes:
-            try:
-                _, front_matter, body = read_scene_document(project_root, scene.id)
-            except DraftRequestError as exc:
-                raise DraftRequestError(str(exc), {**exc.details, "unit_id": scene.id}) from exc
-
-            missing_fields: list[str] = []
-            front_matter_id = front_matter.get("id")
-            if not isinstance(front_matter_id, str) or not front_matter_id.strip():
-                missing_fields.append("id")
-            front_matter_title = front_matter.get("title")
-            if not isinstance(front_matter_title, str) or not front_matter_title.strip():
-                missing_fields.append("title")
-            order_value_raw = front_matter.get("order")
-            if not isinstance(order_value_raw, int):
-                missing_fields.append("order")
-
-            if missing_fields:
-                missing_fields = sorted(set(missing_fields))
-                raise DraftRequestError(
-                    "Scene front-matter is missing required fields.",
-                    {"unit_id": scene.id, "missing_fields": missing_fields},
-                )
-
-            order_value = order_value_raw
-            if order_value in seen_orders:
-                raise DraftRequestError(
-                    "Duplicate scene order detected within chapter.",
-                    {
-                        "unit_id": scene.id,
-                        "chapter_id": chapter.id,
-                        "order": order_value,
-                    },
-                )
-            if order_value != scene.order:
-                raise DraftRequestError(
-                    "Scene order does not match outline entry.",
-                    {
-                        "unit_id": scene.id,
-                        "chapter_id": chapter.id,
-                        "outline_order": scene.order,
-                        "front_matter_order": order_value,
-                    },
-                )
-            seen_orders.add(order_value)
-
-            title = front_matter.get("title") or scene.title
-            section_lines = [f"## {title}"]
-            meta_line = _build_meta_header(front_matter) if include_meta_header else None
-            if meta_line:
-                section_lines.append(meta_line)
-
-            body_text = _normalize_markdown(body)
-            if body_text:
-                if meta_line:
-                    section_lines.append("")
-                section_lines.append(body_text)
-
-            lines.extend(section_lines)
-            lines.append("")
-            scene_count += 1
-
-        if lines and lines[-1] != "":
-            lines.append("")
-
-    manuscript = "\n".join(line.rstrip() for line in lines).strip()
-    return manuscript, chapter_count, scene_count
-
-
-def _normalize_markdown(value: str) -> str:
-    return value.replace("\r\n", "\n").strip()
-
-
 def _compute_sha256(value: str) -> str:
     return hashlib.sha256(value.encode("utf-8")).hexdigest()
 
 
-def _merge_meta(front_matter: dict[str, Any], meta: dict[str, Any]) -> dict[str, Any]:
-    if not meta:
-        return front_matter
-
-    merged = dict(front_matter)
-    allowed = {
-        "order",
-        "purpose",
-        "emotion_tag",
-        "pov",
-        "goal",
-        "conflict",
-        "turn",
-        "word_target",
-        "beats",
-    }
-    for key, value in meta.items():
-        if key not in allowed:
-            continue
-        if value is None:
-            continue
-        merged[key] = value
-    return merged
-
-
 def _apply_rewrite_instructions(original: str, instructions: str | None) -> str:
-    baseline = _normalize_markdown(original)
+    baseline = normalize_markdown(original)
     prompt = (instructions or "Maintain current tone.").strip()
     if not prompt:
         prompt = "Maintain current tone."
@@ -369,203 +197,6 @@ def _estimate_word_target(scene: OutlineScene, overrides: DraftUnitOverrides | N
     return 850 + (order_value * 40)
 
 
-def _normalize_budget_token(raw_value: str) -> str | None:
-    text = raw_value.strip().replace("\u00a0", "")
-    if not text:
-        return None
-
-    sign = ""
-    if text[0] in "+-":
-        sign = text[0]
-        text = text[1:]
-
-    filtered = _NUMERIC_SANITIZE_RE.sub("", text)
-    if not filtered:
-        return None
-
-    filtered = filtered.replace("+", "")
-    if "-" in filtered:
-        return None
-
-    if "," in filtered and "." in filtered:
-        last_dot = filtered.rfind(".")
-        last_comma = filtered.rfind(",")
-        if last_dot > last_comma:
-            decimal_sep = "."
-            thousands_sep = ","
-        else:
-            decimal_sep = ","
-            thousands_sep = "."
-
-        filtered = filtered.replace(thousands_sep, "")
-        if decimal_sep != ".":
-            filtered = filtered.replace(decimal_sep, ".", 1)
-            if decimal_sep in filtered:
-                return None
-    elif "," in filtered:
-        fractional = filtered.split(",", 1)[1]
-        if filtered.count(",") == 1 and 1 <= len(fractional) <= 2:
-            filtered = filtered.replace(",", ".")
-        else:
-            filtered = filtered.replace(",", "")
-
-    if filtered.count(".") > 1:
-        return None
-
-    candidate = f"{sign}{filtered}" if sign else filtered
-    if candidate in {"", "+", "-", ".", "+.", "-."}:
-        return None
-    return candidate
-
-
-def _coerce_budget_value(
-    raw_value: Any,
-    *,
-    default: float,
-    field: str,
-    project_root: Path,
-    diagnostics: DiagnosticLogger,
-) -> float:
-    if isinstance(raw_value, (int, float)):
-        return float(raw_value)
-    if isinstance(raw_value, str):
-        normalized = _normalize_budget_token(raw_value)
-        if normalized is not None:
-            try:
-                return float(normalized)
-            except ValueError:
-                pass
-    elif raw_value is None:
-        return float(default)
-
-    diagnostics.log(
-        project_root,
-        code="VALIDATION",
-        message="Invalid budget value encountered; default applied.",
-        details={"field": field, "value": raw_value},
-    )
-    return float(default)
-
-
-def _load_project_budget_state(
-    project_root: Path, diagnostics: DiagnosticLogger
-) -> ProjectBudgetState:
-    project_path = project_root / "project.json"
-    base_payload: dict[str, Any] = {
-        "project_id": project_root.name,
-        "budget": {
-            "soft": SOFT_BUDGET_LIMIT_USD,
-            "hard": HARD_BUDGET_LIMIT_USD,
-            "spent_usd": 0.0,
-        },
-    }
-    payload = copy.deepcopy(base_payload)
-
-    if project_path.exists():
-        try:
-            with project_path.open("r", encoding="utf-8") as handle:
-                payload = json.load(handle)
-        except (OSError, json.JSONDecodeError) as exc:
-            diagnostics.log(
-                project_root,
-                code="INTERNAL",
-                message="Failed to read project metadata.",
-                details={"error": str(exc)},
-            )
-
-    budget_meta = payload.setdefault("budget", {})
-    soft_limit = _coerce_budget_value(
-        budget_meta.get("soft", SOFT_BUDGET_LIMIT_USD),
-        default=SOFT_BUDGET_LIMIT_USD,
-        field="soft",
-        project_root=project_root,
-        diagnostics=diagnostics,
-    )
-    hard_limit = _coerce_budget_value(
-        budget_meta.get("hard", HARD_BUDGET_LIMIT_USD),
-        default=HARD_BUDGET_LIMIT_USD,
-        field="hard",
-        project_root=project_root,
-        diagnostics=diagnostics,
-    )
-    spent_usd = _coerce_budget_value(
-        budget_meta.get("spent_usd", 0.0),
-        default=0.0,
-        field="spent_usd",
-        project_root=project_root,
-        diagnostics=diagnostics,
-    )
-
-    effective_hard = hard_limit if hard_limit > 0 else HARD_BUDGET_LIMIT_USD
-    if soft_limit > effective_hard:
-        soft_limit = effective_hard
-
-    return ProjectBudgetState(
-        project_root=project_root,
-        metadata=payload,
-        soft_limit=soft_limit,
-        hard_limit=effective_hard,
-        spent_usd=spent_usd if spent_usd >= 0 else 0.0,
-        project_path=project_path,
-    )
-
-
-def _classify_budget(
-    estimated_cost: float,
-    *,
-    soft_limit: float,
-    hard_limit: float,
-    current_spend: float,
-) -> tuple[str, str, float]:
-    effective_hard_limit = hard_limit if hard_limit > 0 else HARD_BUDGET_LIMIT_USD
-    effective_soft_limit = (
-        soft_limit if 0 <= soft_limit <= effective_hard_limit else effective_hard_limit
-    )
-
-    total_after_run = round(current_spend + estimated_cost, 2)
-
-    if total_after_run >= effective_hard_limit:
-        return (
-            "blocked",
-            (
-                f"Estimated total ${total_after_run:.2f} exceeds hard limit "
-                f"${effective_hard_limit:.2f}."
-            ),
-            total_after_run,
-        )
-    if total_after_run >= effective_soft_limit:
-        return (
-            "soft-limit",
-            (
-                f"Estimated total ${total_after_run:.2f} exceeds soft limit "
-                f"${effective_soft_limit:.2f}."
-            ),
-            total_after_run,
-        )
-    return "ok", "Estimate within budget.", total_after_run
-
-
-def _persist_project_budget(state: ProjectBudgetState, new_spent_usd: float) -> None:
-    payload = copy.deepcopy(state.metadata)
-    budget_section = payload.setdefault("budget", {})
-    budget_section["soft"] = round(state.soft_limit, 2)
-    budget_section["hard"] = round(state.hard_limit, 2)
-    budget_section["spent_usd"] = round(max(new_spent_usd, 0.0), 2)
-
-    payload.setdefault("project_id", state.project_root.name)
-
-    serialized = json.dumps(payload, indent=2, ensure_ascii=False)
-
-    state.project_root.mkdir(parents=True, exist_ok=True)
-    temp_path = state.project_path.parent / f".{state.project_path.name}.{uuid4().hex}.tmp"
-    with temp_path.open("w", encoding="utf-8") as handle:
-        handle.write(serialized)
-        handle.flush()
-        os.fsync(handle.fileno())
-
-    temp_path.replace(state.project_path)
-
-
 router = APIRouter(prefix="/draft", tags=["draft"], responses=default_error_responses())
 
 
@@ -610,7 +241,7 @@ async def generate_draft(
 
     project_root = settings.project_base_dir / request_model.project_id
     try:
-        outline = _load_outline_artifact(project_root)
+        outline = load_outline_artifact(project_root)
     except DraftRequestError as exc:
         raise_validation_error(
             message=str(exc),
@@ -629,7 +260,7 @@ async def generate_draft(
             project_root=project_root,
         )
 
-    budget_state = _load_project_budget_state(project_root, diagnostics)
+    budget_state = load_project_budget_state(project_root, diagnostics)
     budget_meta = budget_state.metadata.setdefault("budget", {})
 
     request_fingerprint = _fingerprint_generate_request(request_model, scene_summaries)
@@ -645,7 +276,7 @@ async def generate_draft(
         total_words += _estimate_word_target(scene, overrides)
 
     estimated_cost = round((total_words / 1000) * 0.02, 2)
-    status_label, message, total_after = _classify_budget(
+    status_label, message, total_after = classify_budget(
         estimated_cost,
         soft_limit=budget_state.soft_limit,
         hard_limit=budget_state.hard_limit,
@@ -708,7 +339,7 @@ async def generate_draft(
         budget_meta["last_request_fingerprint"] = request_fingerprint
         budget_meta["last_generate_response"] = copy.deepcopy(response_payload)
 
-        _persist_project_budget(budget_state, total_after)
+        persist_project_budget(budget_state, total_after)
 
         return response_payload
 
@@ -739,7 +370,7 @@ async def preflight_draft(
 
     project_root = settings.project_base_dir / request_model.project_id
     try:
-        outline = _load_outline_artifact(project_root)
+        outline = load_outline_artifact(project_root)
     except DraftRequestError as exc:
         raise_validation_error(
             message=str(exc),
@@ -758,7 +389,7 @@ async def preflight_draft(
             project_root=project_root,
         )
 
-    budget_state = _load_project_budget_state(project_root, diagnostics)
+    budget_state = load_project_budget_state(project_root, diagnostics)
 
     total_words = 0
     for scene in scene_summaries:
@@ -766,7 +397,7 @@ async def preflight_draft(
         total_words += _estimate_word_target(scene, overrides)
 
     estimated_cost = round((total_words / 1000) * 0.02, 2)
-    status_label, message, total_after = _classify_budget(
+    status_label, message, total_after = classify_budget(
         estimated_cost,
         soft_limit=budget_state.soft_limit,
         hard_limit=budget_state.hard_limit,
@@ -838,7 +469,7 @@ async def rewrite_draft(
             project_root=project_root,
         )
 
-    if _normalize_markdown(current_body) != _normalize_markdown(request_model.unit.text):
+    if normalize_markdown(current_body) != normalize_markdown(request_model.unit.text):
         raise_conflict_error(
             message="The scene on disk no longer matches the submitted draft unit.",
             details={"unit_id": request_model.unit_id},
@@ -850,7 +481,7 @@ async def rewrite_draft(
     if revised_text is None:
         revised_text = _apply_rewrite_instructions(current_body, request_model.instructions)
 
-    normalized_revised = _normalize_markdown(revised_text)
+    normalized_revised = normalize_markdown(revised_text)
     if not normalized_revised:
         raise_validation_error(
             message="Revised text must not be empty.",
@@ -859,9 +490,9 @@ async def rewrite_draft(
             project_root=project_root,
         )
 
-    diff_payload = compute_diff(_normalize_markdown(current_body), normalized_revised)
+    diff_payload = compute_diff(normalize_markdown(current_body), normalized_revised)
 
-    updated_front_matter = _merge_meta(front_matter, request_model.unit.meta)
+    updated_front_matter = merge_front_matter(front_matter, request_model.unit.meta)
     updated_front_matter["id"] = request_model.unit_id
 
     persistence = DraftPersistence(settings=settings)
@@ -983,7 +614,7 @@ async def accept_draft(
             project_root=project_root,
         )
 
-    current_normalized = _normalize_markdown(current_body)
+    current_normalized = normalize_markdown(current_body)
     current_digest = _compute_sha256(current_body)
     if current_digest != request_model.unit.previous_sha256:
         raise_conflict_error(
@@ -1000,12 +631,12 @@ async def accept_draft(
         message=request_model.message,
     )
 
-    updated_front_matter = _merge_meta(front_matter, request_model.unit.meta)
+    updated_front_matter = merge_front_matter(front_matter, request_model.unit.meta)
     updated_front_matter["id"] = request_model.unit_id
 
     persistence = DraftPersistence(settings=settings)
     try:
-        normalized_text = _normalize_markdown(request_model.unit.text)
+        normalized_text = normalize_markdown(request_model.unit.text)
         persistence.write_scene(
             request_model.project_id,
             updated_front_matter,
@@ -1029,15 +660,16 @@ async def accept_draft(
 
     diff_payload = compute_diff(current_normalized, normalized_text)
 
-    snapshot_info = snapshot_persistence.create_snapshot(
+    snapshot_info = create_accept_snapshot(
         request_model.project_id,
-        label=request_model.snapshot_label,
+        request_model.snapshot_label,
+        snapshot_persistence=snapshot_persistence,
+        recovery_tracker=recovery_tracker,
     )
-    recovery_tracker.mark_completed(request_model.project_id, snapshot_info)
 
-    budget_state = _load_project_budget_state(project_root, diagnostics)
+    budget_state = load_project_budget_state(project_root, diagnostics)
     estimated_cost = request_model.unit.estimated_cost_usd or 0.0
-    _persist_project_budget(budget_state, budget_state.spent_usd + estimated_cost)
+    persist_project_budget(budget_state, budget_state.spent_usd + estimated_cost)
 
     return {
         "project_id": request_model.project_id,
@@ -1095,44 +727,31 @@ async def lock_wizard_step(
     include_entries = request_model.includes or None
 
     try:
-        snapshot_info = snapshot_persistence.create_snapshot(
-            request_model.project_id,
+        snapshot_info = create_wizard_lock_snapshot(
+            project_id=request_model.project_id,
+            step=request_model.step,
             label=label,
-            include_entries=include_entries,
+            includes=include_entries,
+            project_root=project_root,
+            diagnostics=diagnostics,
+            snapshot_persistence=snapshot_persistence,
         )
-    except ValueError as exc:
+    except SnapshotIncludesError as exc:
         raise_validation_error(
-            message="Invalid snapshot includes.",
-            details={
-                "project_id": request_model.project_id,
-                "includes": include_entries or [],
-                "error": str(exc),
-            },
+            message=str(exc),
+            details=exc.details,
             diagnostics=diagnostics,
             project_root=project_root,
         )
-    except OSError as exc:
-        diagnostics.log(
-            project_root,
-            code="INTERNAL",
-            message="Failed to create wizard snapshot.",
-            details={"step": request_model.step, "error": str(exc)},
-        )
+    except SnapshotPersistenceError as exc:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail={
                 "code": "INTERNAL",
-                "message": "Failed to create wizard snapshot.",
-                "details": {"step": request_model.step},
+                "message": str(exc),
+                "details": exc.details,
             },
         ) from exc
-
-    diagnostics.log(
-        project_root,
-        code="SNAPSHOT",
-        message=f"Wizard step {request_model.step} locked.",
-        details={"step": request_model.step, "snapshot_id": snapshot_info.get("snapshot_id")},
-    )
 
     return snapshot_info
 
@@ -1167,7 +786,7 @@ async def export_manuscript(
         )
 
     try:
-        outline = _load_outline_artifact(project_root)
+        outline = load_outline_artifact(project_root)
     except DraftRequestError as exc:
         raise_validation_error(
             message=str(exc),
@@ -1177,7 +796,7 @@ async def export_manuscript(
         )
 
     try:
-        manuscript, chapter_count, scene_count = _compile_manuscript(
+        manuscript, chapter_count, scene_count = compile_manuscript(
             project_root,
             outline,
             include_meta_header=request_model.include_meta_header,
