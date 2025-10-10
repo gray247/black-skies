@@ -59,23 +59,28 @@ def build_meta_header(front_matter: dict[str, Any]) -> str | None:
             return None
         return normalized
 
-    parts: list[str] = []
+    parts: list[tuple[str, str]] = []
     purpose = _normalize(front_matter.get("purpose"))
     if purpose:
-        parts.append(f"purpose: {purpose}")
+        parts.append(("purpose", purpose))
 
     emotion = _normalize(front_matter.get("emotion_tag"))
     if emotion:
-        parts.append(f"emotion: {emotion}")
+        parts.append(("emotion", emotion))
 
     pov = _normalize(front_matter.get("pov"))
     if pov:
-        parts.append(f"pov: {pov}")
+        parts.append(("pov", pov))
 
     if not parts:
         return None
 
-    return "> " + " · ".join(parts)
+    if all(label == "pov" for label, _ in parts):
+        return None
+
+    rendered_parts = [f"{label}: {value}" for label, value in parts]
+
+    return "> " + " · ".join(rendered_parts)
 
 
 def merge_front_matter(
