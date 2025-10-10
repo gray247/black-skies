@@ -136,9 +136,14 @@ async def _legacy_alias(
         _apply_legacy_headers_to_exception(exc, trace_id, path=successor_path)
         raise
 
+    target_response = result if isinstance(result, Response) else response
+    _apply_legacy_headers(target_response, trace_id, path=successor_path)
+
+
     _apply_legacy_headers(response, trace_id, path=successor_path)
     if isinstance(result, Response):
         _apply_legacy_headers(result, trace_id, path=successor_path)
+
 
     return result
 
