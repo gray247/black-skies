@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import importlib.util
 import json
 import sys
 import types
@@ -12,7 +11,9 @@ from typing import Any, ClassVar
 
 import pytest
 
-if importlib.util.find_spec("pydantic") is None:  # pragma: no cover - optional dependency stub
+try:  # pragma: no branch - deterministic import guard
+    import pydantic  # noqa: F401  # pragma: no cover - optional dependency
+except ModuleNotFoundError:  # pragma: no cover - optional dependency stub
     pydantic_stub = types.ModuleType("pydantic")
 
     class _BaseModel:
@@ -36,10 +37,18 @@ if importlib.util.find_spec("pydantic") is None:  # pragma: no cover - optional 
 
         return decorator
 
+    def _model_validator(*args: Any, **kwargs: Any):
+        def decorator(func: Any) -> Any:
+            return func
+
+        return decorator
+
     pydantic_stub.BaseModel = _BaseModel
     pydantic_stub.Field = _field
     pydantic_stub.field_validator = _field_validator
     pydantic_stub.AliasChoices = _AliasChoices
+    pydantic_stub.ConfigDict = dict[str, Any]
+    pydantic_stub.model_validator = _model_validator
     sys.modules["pydantic"] = pydantic_stub
 
 from blackskies.services.persistence import SnapshotPersistence
