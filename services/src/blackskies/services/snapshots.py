@@ -38,7 +38,19 @@ def create_accept_snapshot(
 ) -> dict[str, Any]:
     """Create a snapshot for an accepted draft unit and record recovery state."""
 
-    snapshot_info = snapshot_persistence.create_snapshot(project_id, label=snapshot_label)
+    try:
+        snapshot_info = snapshot_persistence.create_snapshot(project_id, label=snapshot_label)
+    except OSError as exc:
+        label_token = snapshot_label or "accept"
+        raise SnapshotPersistenceError(
+            "Failed to create accept snapshot.",
+            details={
+                "project_id": project_id,
+                "label": label_token,
+                "errno": getattr(exc, "errno", None),
+                "error": str(exc),
+            },
+        ) from exc
     recovery_tracker.mark_completed(project_id, snapshot_info)
     LOGGER.debug("Created accept snapshot", extra={"project_id": project_id, **snapshot_info})
     return snapshot_info

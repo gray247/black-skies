@@ -16,6 +16,7 @@ yaml = pytest.importorskip("yaml")
 pytest.importorskip("fastapi")
 pytest.importorskip("fastapi.testclient")
 
+from fastapi import status
 from fastapi.testclient import TestClient
 
 from blackskies.services.app import SERVICE_VERSION, BuildTracker
@@ -835,6 +836,50 @@ def test_draft_accept_success_creates_snapshot(test_client: TestClient, tmp_path
     assert draft_entry["path"].startswith("drafts/")
     assert draft_entry["purpose"] == "payoff"
     assert "missing_drafts" not in manifest
+
+
+def test_draft_accept_snapshot_conflict(
+    test_client: TestClient,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Snapshot persistence conflicts return a structured 409 response."""
+
+    project_id = "proj_accept_conflict_snapshot"
+    scene_body = _bootstrap_scene(tmp_path, project_id)
+    checksum = _compute_sha256(scene_body)
+
+    def _raise_snapshot(*args: Any, **kwargs: Any) -> dict[str, Any]:  # pragma: no cover - stub
+        raise OSError(errno.EEXIST, "snapshot exists")
+
+    monkeypatch.setattr(SnapshotPersistence, "create_snapshot", _raise_snapshot)
+
+    payload = {
+        "project_id": project_id,
+        "draft_id": "dr_401",
+        "unit_id": "sc_0001",
+        "unit": {
+            "id": "sc_0001",
+            "previous_sha256": checksum,
+            "text": scene_body,
+            "meta": {"purpose": "setup"},
+        },
+        "message": "Testing snapshot conflict.",
+        "snapshot_label": "accept",
+    }
+
+    response = test_client.post(f"{API_PREFIX}/draft/accept", json=payload)
+    assert response.status_code == status.HTTP_409_CONFLICT
+
+    detail = _read_error(response)
+    assert detail["code"] == "CONFLICT"
+    assert detail["details"]["project_id"] == project_id
+
+    diagnostics_dir = tmp_path / project_id / "history" / "diagnostics"
+    entries = sorted(diagnostics_dir.glob("*.json"))
+    assert entries, "Expected diagnostics to record the conflict"
+    last_entry = json.loads(entries[-1].read_text(encoding="utf-8"))
+    assert last_entry["code"] == "CONFLICT"
 
 
 def test_wizard_lock_creates_snapshot(test_client: TestClient, tmp_path: Path) -> None:

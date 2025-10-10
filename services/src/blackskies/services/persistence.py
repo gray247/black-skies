@@ -10,7 +10,7 @@ import shutil
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath, PureWindowsPath
-from typing import Any, Sequence
+from typing import TYPE_CHECKING, Any, Sequence
 from uuid import uuid4
 
 from blackskies.services.utils import safe_dump, to_posix
@@ -21,7 +21,10 @@ _ENOSYS = getattr(errno, "ENOSYS", None)
 if isinstance(_ENOSYS, int):
     _FSYNC_IGNORE_ERRNOS.add(_ENOSYS)
 
-SNAPSHOT_ID_PATTERN = re.compile(r"^\d{8}T\d{6}Z$")
+SNAPSHOT_ID_PATTERN = re.compile(r"^\d{8}T\d{6}(?:\d{6})?Z(?:-[0-9a-f]{8})?$")
+
+if TYPE_CHECKING:  # pragma: no cover - import for type checking only
+    from .snapshots import SnapshotPersistenceError
 
 
 from .config import ServiceSettings
@@ -237,8 +240,14 @@ class SnapshotPersistence:
         snapshots_dir.mkdir(parents=True, exist_ok=True)
         return snapshots_dir
 
-    def _snapshot_id(self) -> str:
-        return datetime.now(tz=timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    def _snapshot_id(self, attempt: int = 0) -> str:
+        """Return a snapshot identifier with microsecond precision."""
+
+        base = datetime.now(tz=timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
+        if attempt <= 0:
+            return base
+        suffix = uuid4().hex[:8]
+        return f"{base}-{suffix}"
 
     def _sanitize_label(self, label: str | None) -> str:
         if not label:
@@ -255,12 +264,42 @@ class SnapshotPersistence:
     ) -> dict[str, Any]:
         snapshots_dir = self._snapshots_dir(project_id)
         snapshots_root = snapshots_dir.resolve()
-        snapshot_id = self._snapshot_id()
         label_token = self._sanitize_label(label)
-        directory = snapshots_dir / f"{snapshot_id}_{label_token}"
-        directory_resolved = directory.resolve()
-        if not directory_resolved.is_relative_to(snapshots_root):
-            raise ValueError("Snapshot directory must be inside the project history folder.")
+
+        directory: Path | None = None
+        directory_resolved: Path | None = None
+        snapshot_id: str | None = None
+        last_error: OSError | None = None
+        max_attempts = 5
+
+        for attempt in range(max_attempts):
+            candidate_id = self._snapshot_id(attempt=attempt)
+            candidate_dir = snapshots_dir / f"{candidate_id}_{label_token}"
+            candidate_resolved = candidate_dir.resolve()
+            if not candidate_resolved.is_relative_to(snapshots_root):
+                raise ValueError("Snapshot directory must be inside the project history folder.")
+            try:
+                candidate_dir.mkdir(parents=True, exist_ok=False)
+            except FileExistsError as exc:
+                last_error = exc
+                continue
+            directory = candidate_dir
+            directory_resolved = candidate_resolved
+            snapshot_id = candidate_id
+            break
+
+        if directory is None or directory_resolved is None or snapshot_id is None:
+            from .snapshots import SnapshotPersistenceError
+
+            details = {
+                "project_id": project_id,
+                "label": label_token,
+                "attempts": max_attempts,
+            }
+            raise SnapshotPersistenceError(
+                "Failed to allocate a snapshot directory.",
+                details=details,
+            ) from last_error
 
         project_root = self.settings.project_base_dir / project_id
         project_root.mkdir(parents=True, exist_ok=True)
@@ -284,8 +323,6 @@ class SnapshotPersistence:
                     f"Snapshot target for {include_token!r} escapes the history folder."
                 )
             include_specs.append((include_token, source_path, target_path))
-
-        directory.mkdir(parents=True, exist_ok=False)
 
         for include_token, source_path, target_path in include_specs:
             if not source_path.exists():

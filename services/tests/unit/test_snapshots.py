@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import errno
 from pathlib import Path
 from typing import Any
 
@@ -96,6 +97,23 @@ def test_create_accept_snapshot_allows_missing_label() -> None:
     assert persistence.calls == [
         {"project_id": "project-epsilon", "label": None, "include_entries": None}
     ]
+
+
+def test_create_accept_snapshot_wraps_os_error() -> None:
+    tracker = DummyRecoveryTracker()
+    persistence = DummySnapshotPersistence(error=OSError(errno.EEXIST, "exists"))
+
+    with pytest.raises(SnapshotPersistenceError) as excinfo:
+        create_accept_snapshot(
+            "project-theta",
+            "final",
+            snapshot_persistence=persistence,
+            recovery_tracker=tracker,
+        )
+
+    assert excinfo.value.details["project_id"] == "project-theta"
+    assert excinfo.value.details["label"] == "final"
+    assert excinfo.value.details["errno"] == errno.EEXIST
 
 
 def test_create_wizard_lock_snapshot_writes_diagnostics(tmp_path: Path) -> None:

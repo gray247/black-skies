@@ -660,12 +660,28 @@ async def accept_draft(
 
     diff_payload = compute_diff(current_normalized, normalized_text)
 
-    snapshot_info = create_accept_snapshot(
-        request_model.project_id,
-        request_model.snapshot_label,
-        snapshot_persistence=snapshot_persistence,
-        recovery_tracker=recovery_tracker,
-    )
+    try:
+        snapshot_info = create_accept_snapshot(
+            request_model.project_id,
+            request_model.snapshot_label,
+            snapshot_persistence=snapshot_persistence,
+            recovery_tracker=recovery_tracker,
+        )
+    except SnapshotPersistenceError as exc:
+        diagnostics.log(
+            project_root,
+            code="CONFLICT",
+            message=str(exc),
+            details=exc.details or {"project_id": request_model.project_id},
+        )
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail={
+                "code": "CONFLICT",
+                "message": str(exc),
+                "details": exc.details,
+            },
+        ) from exc
 
     budget_state = load_project_budget_state(project_root, diagnostics)
     estimated_cost = request_model.unit.estimated_cost_usd or 0.0
