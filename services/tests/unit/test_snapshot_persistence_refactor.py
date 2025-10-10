@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import importlib.util
 import json
 import sys
 import types
@@ -11,10 +12,7 @@ from typing import Any, ClassVar
 
 import pytest
 
-
-try:  # pragma: no cover - fallback ensures tests run without optional deps
-    import pydantic  # type: ignore
-except ModuleNotFoundError:  # pragma: no cover
+if importlib.util.find_spec("pydantic") is None:  # pragma: no cover - optional dependency stub
     pydantic_stub = types.ModuleType("pydantic")
 
     class _BaseModel:
