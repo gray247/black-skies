@@ -10,8 +10,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
+from .budgeting import (
+    HARD_BUDGET_LIMIT_USD,
+    SOFT_BUDGET_LIMIT_USD,
+    load_project_budget_state,
+)
 from .config import ServiceSettings
 from .diagnostics import DiagnosticLogger
+from .export import build_meta_header
 from .http import (
     TRACE_ID_HEADER,
     default_error_responses,
@@ -25,12 +31,6 @@ from .http import (
 from .metrics import record_request
 from .persistence import SnapshotPersistence
 from .routers import api_router
-from .routers.draft import (
-    HARD_BUDGET_LIMIT_USD,
-    SOFT_BUDGET_LIMIT_USD,
-    _build_meta_header,
-    _load_project_budget_state,
-)
 from .routers.health import router as health_router
 from .routers.outline import BuildInProgressError, BuildTracker
 from .routers.recovery import RecoveryTracker
@@ -149,6 +149,6 @@ __all__ = [
     "BuildTracker",
     "BuildInProgressError",
     "RecoveryTracker",
-    "_build_meta_header",
-    "_load_project_budget_state",
+    "build_meta_header",
+    "load_project_budget_state",
 ]

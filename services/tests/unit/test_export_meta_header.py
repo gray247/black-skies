@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from blackskies.services.app import _build_meta_header
+from blackskies.services.export import build_meta_header
 
 
 @pytest.mark.parametrize(
@@ -35,4 +35,4 @@ from blackskies.services.app import _build_meta_header
 def test_build_meta_header(front_matter: dict[str, str], expected: str | None) -> None:
     """Verify the meta header renders with the expected formatting."""
 
-    assert _build_meta_header(front_matter) == expected
+    assert build_meta_header(front_matter) == expected
