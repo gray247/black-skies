@@ -29,6 +29,8 @@ Prereqs: **Node 20 LTS**, **PNPM**, **Python 3.11**
    source .venv/bin/activate
    pip install -e .[dev]
    ```
+   The editable install resolves to **FastAPI 0.118.x**, **Starlette 0.48.x**, and **HTTPX 0.27.x** to stay aligned with the CI
+   constraints and lockfiles.
 3. **Launch the smoke test (Vite + Electron + services)**
    ```powershell
    powershell.exe -ExecutionPolicy Bypass -File .\start-codex.ps1 -SmokeTest
