@@ -12,7 +12,7 @@ from pydantic import BaseModel, ValidationError, field_validator
 
 from ..config import ServiceSettings
 from ..diagnostics import DiagnosticLogger
-from ..http import raise_validation_error
+from ..http import default_error_responses, raise_validation_error
 from ..models._project_id import validate_project_id
 from ..persistence import SNAPSHOT_ID_PATTERN, SnapshotPersistence, write_json_atomic
 from ..utils.paths import to_posix
@@ -182,7 +182,11 @@ class RecoveryTracker:
         return state
 
 
-router = APIRouter(prefix="/draft/recovery", tags=["recovery"])
+router = APIRouter(
+    prefix="/draft/recovery",
+    tags=["recovery"],
+    responses=default_error_responses(),
+)
 
 
 @router.get("")
