@@ -123,6 +123,6 @@ async def test_full_gui_flow(async_client: httpx.AsyncClient, tmp_path: Path) ->
     assert "Storm Cellar" in manuscript
 
     # Quick health check
-    response = await async_client.get("/healthz")
+    response = await async_client.get(f"{API_PREFIX}/healthz")
     assert response.status_code == 200
     assert response.json()["version"] == SERVICE_VERSION

@@ -31,7 +31,7 @@ def anyio_backend() -> str:
 async def test_health_endpoint_contract(async_client: httpx.AsyncClient) -> None:
     """The health probe returns the expected payload and trace headers."""
 
-    response = await async_client.get("/healthz")
+    response = await async_client.get(f"{API_PREFIX}/healthz")
     assert response.status_code == 200
     assert response.json() == {"status": "ok", "version": SERVICE_VERSION}
     _assert_trace_header(response)

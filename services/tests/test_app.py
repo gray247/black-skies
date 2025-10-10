@@ -260,25 +260,59 @@ def _compute_sha256(content: str) -> str:
 
 
 def test_health(test_client: TestClient) -> None:
-    """The health endpoint returns the expected payload."""
+    """The versioned health endpoint returns the expected payload."""
 
-    response = test_client.get("/healthz")
+    response = test_client.get(f"{API_PREFIX}/healthz")
     assert response.status_code == 200
     assert response.json() == {"status": "ok", "version": SERVICE_VERSION}
     _assert_trace_header(response)
 
 
+def test_health_legacy_alias_emits_deprecation_headers(
+    test_client: TestClient,
+) -> None:
+    """Legacy health routes include deprecation metadata."""
+
+    response = test_client.get("/healthz")
+    assert response.status_code == 200
+    assert response.json() == {"status": "ok", "version": SERVICE_VERSION}
+    _assert_trace_header(response)
+    assert response.headers["Deprecation"] == "true"
+    assert response.headers["Sunset"] == "Mon, 29 Sep 2025 00:00:00 GMT"
+    assert (
+        response.headers["Link"]
+        == "</api/v1/healthz>; rel=\"successor-version\""
+    )
+
+
 def test_metrics_endpoint(test_client: TestClient) -> None:
     """Metrics endpoint returns Prometheus-formatted content with trace headers."""
 
-    test_client.get("/healthz")
-    response = test_client.get("/metrics")
+    test_client.get(f"{API_PREFIX}/healthz")
+    response = test_client.get(f"{API_PREFIX}/metrics")
     assert response.status_code == 200
     assert response.headers["content-type"] == "text/plain; version=0.0.4"
     body = response.text
     assert "blackskies_requests_total" in body
     assert "blackskies_service_info" in body
     _assert_trace_header(response)
+
+
+def test_metrics_legacy_alias_emits_deprecation_headers(
+    test_client: TestClient,
+) -> None:
+    """Legacy metrics route provides deprecation metadata with the payload."""
+
+    response = test_client.get("/metrics")
+    assert response.status_code == 200
+    assert response.headers["content-type"] == "text/plain; version=0.0.4"
+    _assert_trace_header(response)
+    assert response.headers["Deprecation"] == "true"
+    assert response.headers["Sunset"] == "Mon, 29 Sep 2025 00:00:00 GMT"
+    assert (
+        response.headers["Link"]
+        == "</api/v1/metrics>; rel=\"successor-version\""
+    )
 
 
 @pytest.mark.contract

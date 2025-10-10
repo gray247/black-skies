@@ -58,7 +58,7 @@ async def test_generate_allows_concurrent_health(
     await asyncio.sleep(0)
     assert not generate_task.done()
 
-    health_response = await async_client.get("/healthz")
+    health_response = await async_client.get(f"{API_PREFIX}/healthz")
     assert health_response.status_code == 200, health_response.text
     assert health_response.json() == {"status": "ok", "version": SERVICE_VERSION}
 
@@ -92,7 +92,7 @@ async def test_critique_allows_concurrent_health(
     await asyncio.sleep(0)
     assert not critique_task.done()
 
-    health_response = await async_client.get("/healthz")
+    health_response = await async_client.get(f"{API_PREFIX}/healthz")
     assert health_response.status_code == 200, health_response.text
     assert health_response.json() == {"status": "ok", "version": SERVICE_VERSION}
 
