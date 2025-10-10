@@ -62,6 +62,19 @@ Prereqs: **Node 20 LTS**, **PNPM**, **Python 3.11**
 - Metrics: `GET http://127.0.0.1:8000/api/v1/metrics` (Prometheus text format)
 - Traceability: every response includes an `X-Trace-Id` header; capture it when filing bugs or correlating logs.
 
+### Security & operations
+
+- Dependency scans: `.github/workflows/security.yml` runs `pip-audit --strict` on every pull request and daily at 06:00 UTC.
+- Reproduce locally:
+  ```bash
+  python -m venv .venv
+  source .venv/bin/activate
+  pip install .[dev]
+  pip install pip-audit
+  pip-audit --strict -r requirements.lock -r requirements.dev.lock
+  ```
+- On Windows PowerShell, activate with `..\.venv\Scripts\Activate.ps1` before running the same commands.
+
 ### Python lint checks
 
 Use the locked development requirements to ensure the expected Flake8 plug-ins and configuration are available before running the linter.
