@@ -4,7 +4,7 @@
 
 A compact worksheet writers (and Black Skies) use from **napkin → outline**. Items marked **[AI]** are “AI Recommendable” (the app can assist/critique); items **[H]** are **Human Only** (taste/vision).
 
-> UI references: see [Editor & Limits](./gui_layouts.md#editor--limits-locked), [Preflight Panel](./gui_layouts.md#preflight-panel-locked), and [Read‑Through Mode](./gui_layouts.md#readthrough-mode-locked).
+> UI references: see the [Analytics Pane](./gui_layouts.md#analytics-pane), [Preflight Panel](./gui_layouts.md#preflight-panel), and [Read‑Through Mode](./gui_layouts.md#read-through-mode).
 
 ---
 
@@ -66,7 +66,7 @@ A compact worksheet writers (and Black Skies) use from **napkin → outline**. I
 - **Scene files** (`drafts/*.md`) with front‑matter (POV, purpose, emotion tag, word target)
 - **Wizard locks** + snapshots you can restore later
 
-**Tip:** Use [Read‑Through Mode](./gui_layouts.md#readthrough-mode-locked) to sanity‑check flow before generating prose. Pre‑runs show costs in the [Preflight Panel](./gui_layouts.md#preflight-panel-locked).
+**Tip:** Use [Read‑Through Mode](./gui_layouts.md#read-through-mode) to sanity‑check flow before generating prose. Pre‑runs show costs in the [Preflight Panel](./gui_layouts.md#preflight-panel).
 
 ---
 
