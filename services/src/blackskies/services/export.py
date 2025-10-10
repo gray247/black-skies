@@ -63,14 +63,18 @@ def build_meta_header(front_matter: dict[str, Any]) -> str | None:
     purpose = _normalize(front_matter.get("purpose"))
     if purpose:
         parts.append(f"purpose: {purpose}")
+
     emotion = _normalize(front_matter.get("emotion_tag"))
     if emotion:
         parts.append(f"emotion: {emotion}")
+
     pov = _normalize(front_matter.get("pov"))
-    if pov:
+    if pov and parts:
         parts.append(f"pov: {pov}")
+
     if not parts:
         return None
+
     return "> " + " · ".join(parts)
 
 
