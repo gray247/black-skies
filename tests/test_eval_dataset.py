@@ -30,24 +30,18 @@ def test_load_default_dataset_success() -> None:
         task for task in wizard_tasks if task.task_id == "wizard_outline_baseline"
     )
     assert wizard_baseline.expected.outline.schema_version == "OutlineSchema v1"
-    wizard_generated = next(
-        task for task in wizard_tasks if task.task_id == "wizard_outline_001"
-    )
+    wizard_generated = next(task for task in wizard_tasks if task.task_id == "wizard_outline_001")
     assert wizard_generated.expected.outline.chapters[0].order == 1
     assert wizard_generated.expected.outline.scenes[1].beat_refs == ["inciting"]
 
     draft_tasks = list(iter_tasks(DEFAULT_DATASET_DIR, flow=EvalTaskFlow.DRAFT))
     assert len(draft_tasks) == 21
-    draft_baseline = next(
-        task for task in draft_tasks if task.task_id == "draft_scene_generation"
-    )
+    draft_baseline = next(task for task in draft_tasks if task.task_id == "draft_scene_generation")
     assert draft_baseline.expected.draft.schema_version == "DraftUnitSchema v1"
     baseline_unit = draft_baseline.expected.draft.units[0]
     assert baseline_unit.meta.purpose == "escalation"
     assert baseline_unit.model.provider == "black-skies-local"
-    generated_draft = next(
-        task for task in draft_tasks if task.task_id == "draft_scene_001"
-    )
+    generated_draft = next(task for task in draft_tasks if task.task_id == "draft_scene_001")
     generated_unit = generated_draft.expected.draft.units[0]
     assert generated_unit.meta.word_target == 1100
     assert generated_unit.model.name == "story-drafter-v1"

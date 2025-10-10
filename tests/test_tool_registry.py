@@ -63,10 +63,14 @@ def _release_registry_logs(handler: _RecordHandler, logger: logging.Logger) -> N
 
 
 def test_registry_allows_ai_item_by_default(checklist_file: Path, run_factory):
-    registry = ToolRegistry(project_metadata={"project_id": "proj_test"}, checklist_path=checklist_file)
+    registry = ToolRegistry(
+        project_metadata={"project_id": "proj_test"}, checklist_path=checklist_file
+    )
     run = run_factory()
 
-    decision = registry.check_permission("summarizer", run_id=run["run_id"], metadata={"unit": "sc-001"})
+    decision = registry.check_permission(
+        "summarizer", run_id=run["run_id"], metadata={"unit": "sc-001"}
+    )
 
     assert decision.allowed is True
     assert decision.source == "checklist.ai"
@@ -93,11 +97,16 @@ def test_registry_denies_via_project_override(checklist_file: Path, run_factory)
     assert event["type"] == "tool.denied"
     assert event["payload"]["tool"] == "summarizer"
     assert any(record.getMessage() == "tool.denied" for record in handler.records)
-    assert any(getattr(record, "extra_payload", {}).get("tool") == "summarizer" for record in handler.records)
+    assert any(
+        getattr(record, "extra_payload", {}).get("tool") == "summarizer"
+        for record in handler.records
+    )
 
 
 def test_registry_denies_human_only_item(checklist_file: Path, run_factory):
-    registry = ToolRegistry(project_metadata={"project_id": "proj_test"}, checklist_path=checklist_file)
+    registry = ToolRegistry(
+        project_metadata={"project_id": "proj_test"}, checklist_path=checklist_file
+    )
     run = run_factory()
 
     handler, logger = _capture_registry_logs()

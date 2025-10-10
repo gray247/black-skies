@@ -40,6 +40,7 @@ LOGGER = logging.getLogger(__name__)
 
 SERVICE_VERSION: Final[str] = "1.0.0-rc1"
 
+
 def create_app(settings: ServiceSettings | None = None) -> FastAPI:
     """Construct the FastAPI application."""
 

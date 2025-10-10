@@ -36,7 +36,7 @@ async def accept_draft(
     settings: ServiceSettings = Depends(get_settings),
     diagnostics: DiagnosticLogger = Depends(get_diagnostics),
     snapshot_persistence: SnapshotPersistence = Depends(get_snapshot_persistence),
-    recovery_tracker = Depends(get_recovery_tracker),
+    recovery_tracker=Depends(get_recovery_tracker),
 ) -> dict[str, Any]:
     """Persist an accepted draft unit and snapshot the project state."""
 

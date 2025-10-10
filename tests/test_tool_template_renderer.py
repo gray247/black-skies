@@ -70,9 +70,7 @@ def test_render_requires_mapping_variables(tool: TemplateRendererTool) -> None:
         tool.render(context, "any-template", ["not", "mapping"])  # type: ignore[arg-type]
 
 
-def test_render_invalid_template_body(
-    tool: TemplateRendererTool, temp_data_dir: Path
-) -> None:
+def test_render_invalid_template_body(tool: TemplateRendererTool, temp_data_dir: Path) -> None:
     template_id = "broken"
     storage.save({"kind": "template", "id": template_id, "body": None}, base_dir=temp_data_dir)
 
@@ -82,9 +80,7 @@ def test_render_invalid_template_body(
     storage.path_for("template", template_id, base_dir=temp_data_dir).unlink(missing_ok=True)
 
 
-def test_render_generic_template_error(
-    tool: TemplateRendererTool, temp_data_dir: Path
-) -> None:
+def test_render_generic_template_error(tool: TemplateRendererTool, temp_data_dir: Path) -> None:
     template_id = "invalid-placeholder"
     _store_template(temp_data_dir, template_id, "Hello $")
 

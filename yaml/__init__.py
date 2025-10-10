@@ -239,7 +239,9 @@ class _Parser:
             if any(ch in candidate for ch in (".", "e", "E")):
                 return float(candidate)
             return int(candidate)
-        if candidate.startswith(("'", '"', "[", "{", "(")) and candidate.endswith(("'", '"', "]", "}", ")")):
+        if candidate.startswith(("'", '"', "[", "{", "(")) and candidate.endswith(
+            ("'", '"', "]", "}", ")")
+        ):
             try:
                 return ast.literal_eval(candidate)
             except (SyntaxError, ValueError) as exc:  # pragma: no cover - defensive

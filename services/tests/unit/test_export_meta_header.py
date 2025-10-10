@@ -96,7 +96,9 @@ def test_compile_manuscript_orders_units_and_includes_meta(monkeypatch: pytest.M
         "sc_0003": "Gamma body",
     }
 
-    def _fake_read_scene_document(project_root_param: Path, unit_id: str) -> tuple[Path, dict[str, Any], str]:
+    def _fake_read_scene_document(
+        project_root_param: Path, unit_id: str
+    ) -> tuple[Path, dict[str, Any], str]:
         assert project_root_param == project_root
         return project_root / "drafts" / f"{unit_id}.md", front_matter_map[unit_id], bodies[unit_id]
 
