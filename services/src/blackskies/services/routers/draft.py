@@ -16,7 +16,7 @@ from typing import Any, Final, TYPE_CHECKING
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel, ValidationError, field_validator
 
 from ..config import ServiceSettings
 from ..critique import CritiqueService
@@ -29,6 +29,7 @@ from ..http import (
     raise_service_error,
     raise_validation_error,
 )
+from ..models._project_id import validate_project_id
 from ..models.accept import DraftAcceptRequest
 from ..models.critique import DraftCritiqueRequest
 from ..models.draft import DraftGenerateRequest, DraftUnitOverrides, DraftUnitScope
@@ -81,6 +82,13 @@ class ProjectBudgetState:
 class DraftExportRequest(BaseModel):
     project_id: str
     include_meta_header: bool = False
+
+    @field_validator("project_id")
+    @classmethod
+    def _validate_project_id(cls, value: str) -> str:
+        """Ensure export requests use a safe single-segment project identifier."""
+
+        return validate_project_id(value)
 
 
 def _load_fixture(name: str) -> dict[str, Any]:

@@ -1163,3 +1163,20 @@ def test_draft_export_missing_front_matter_fields(test_client: TestClient, tmp_p
     assert detail["message"] == "Scene front-matter is missing required fields."
     assert detail["details"]["unit_id"] == scene_ids[0]
     assert "order" in detail["details"]["missing_fields"]
+
+
+def test_draft_export_rejects_path_traversal_project_id(test_client: TestClient) -> None:
+    """Traversal tokens in project identifiers are rejected during export requests."""
+
+    response = test_client.post(
+        f"{API_PREFIX}/draft/export",
+        json={"project_id": "../outside"},
+    )
+    assert response.status_code == 400
+    detail = _read_error(response)
+    assert detail["code"] == "VALIDATION"
+    errors = detail["details"].get("errors", [])
+    assert any(
+        "Project ID must not contain path separators." in error.get("msg", "")
+        for error in errors
+    )
