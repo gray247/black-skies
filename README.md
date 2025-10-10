@@ -75,6 +75,13 @@ Prereqs: **Node 20 LTS**, **PNPM**, **Python 3.11**
   ```
 - On Windows PowerShell, activate with `..\.venv\Scripts\Activate.ps1` before running the same commands.
 
+### Continuous integration
+
+[![Eval Harness](https://github.com/black-skies/black-skies/actions/workflows/eval.yml/badge.svg?branch=main)](https://github.com/black-skies/black-skies/actions/workflows/eval.yml)
+
+The Eval Harness workflow now blocks merge until both lint (`black --check`, `flake8`) and type-checking (`mypy`, when configured) succeed.
+The evaluation job waits on these gates before running `pytest -q` and the scripted harness so failures stop the pipeline early.
+
 ### Python lint checks
 
 Use the locked development requirements to ensure the expected Flake8 plug-ins and configuration are available before running the linter.
