@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import copy
 import hashlib
 import json
@@ -665,44 +666,53 @@ async def generate_draft(
             project_root=project_root,
         )
 
-    synthesizer = DraftSynthesizer()
-    persistence = DraftPersistence(settings=settings)
-    units: list[dict[str, Any]] = []
-    for index, scene in enumerate(scene_summaries):
-        overrides = request_model.overrides.get(scene.id)
-        synthesis = synthesizer.synthesize(
-            request=request_model,
-            scene=scene,
-            overrides=overrides,
-            unit_index=index,
-        )
-        persistence.write_scene(request_model.project_id, synthesis.front_matter, synthesis.body)
-        units.append(synthesis.unit)
+    def _execute_generation() -> dict[str, Any]:
+        synthesizer = DraftSynthesizer()
+        persistence = DraftPersistence(settings=settings)
+        units: list[dict[str, Any]] = []
+        for index, scene in enumerate(scene_summaries):
+            overrides = request_model.overrides.get(scene.id)
+            synthesis = synthesizer.synthesize(
+                request=request_model,
+                scene=scene,
+                overrides=overrides,
+                unit_index=index,
+            )
+            persistence.write_scene(
+                request_model.project_id,
+                synthesis.front_matter,
+                synthesis.body,
+            )
+            units.append(synthesis.unit)
 
-    draft_id = f"dr_{uuid4().hex[:8]}"
+        draft_id = f"dr_{uuid4().hex[:8]}"
 
-    response_payload = {
-        "project_id": request_model.project_id,
-        "unit_scope": request_model.unit_scope.value,
-        "unit_ids": request_model.unit_ids,
-        "draft_id": draft_id,
-        "schema_version": "DraftUnitSchema v1",
-        "units": units,
-        "budget": {
-            "estimated_usd": estimated_cost,
-            "status": status_label,
-            "message": message,
-            "soft_limit_usd": round(budget_state.soft_limit, 2),
-            "hard_limit_usd": round(budget_state.hard_limit, 2),
-            "spent_usd": round(total_after, 2),
-            "total_after_usd": round(total_after, 2),
-        },
-    }
+        response_payload = {
+            "project_id": request_model.project_id,
+            "unit_scope": request_model.unit_scope.value,
+            "unit_ids": request_model.unit_ids,
+            "draft_id": draft_id,
+            "schema_version": "DraftUnitSchema v1",
+            "units": units,
+            "budget": {
+                "estimated_usd": estimated_cost,
+                "status": status_label,
+                "message": message,
+                "soft_limit_usd": round(budget_state.soft_limit, 2),
+                "hard_limit_usd": round(budget_state.hard_limit, 2),
+                "spent_usd": round(total_after, 2),
+                "total_after_usd": round(total_after, 2),
+            },
+        }
 
-    budget_meta["last_request_fingerprint"] = request_fingerprint
-    budget_meta["last_generate_response"] = copy.deepcopy(response_payload)
+        budget_meta["last_request_fingerprint"] = request_fingerprint
+        budget_meta["last_generate_response"] = copy.deepcopy(response_payload)
 
-    _persist_project_budget(budget_state, total_after)
+        _persist_project_budget(budget_state, total_after)
+
+        return response_payload
+
+    response_payload = await asyncio.to_thread(_execute_generation)
 
     return response_payload
 
@@ -920,7 +930,7 @@ async def critique_draft(
         )
 
     try:
-        return critique_service.run(request_model)
+        return await asyncio.to_thread(critique_service.run, request_model)
     except RuntimeError as exc:
         raise_service_error(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
