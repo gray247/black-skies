@@ -360,9 +360,7 @@ class SnapshotPersistence:
 
         return specs
 
-    def _copy_include_entries(
-        self, include_specs: Sequence[SnapshotIncludeSpec]
-    ) -> list[str]:
+    def _copy_include_entries(self, include_specs: Sequence[SnapshotIncludeSpec]) -> list[str]:
         """Copy validated include entries into the snapshot directory."""
 
         recorded: list[str] = []
