@@ -56,14 +56,7 @@ class _Settings:
 
 def _write_scene(path: Path, scene_id: str, body: str = "Body text.") -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    content = (
-        "---\n"
-        f"id: {scene_id}\n"
-        "title: Sample Scene\n"
-        "pov: hero\n"
-        "---\n"
-        f"{body}\n"
-    )
+    content = "---\n" f"id: {scene_id}\n" "title: Sample Scene\n" "pov: hero\n" "---\n" f"{body}\n"
     path.write_text(content, encoding="utf-8")
 
 
@@ -76,13 +69,9 @@ def test_snapshot_creation_happy_path(tmp_path: Path) -> None:
     _write_scene(project_root / "drafts" / "scene-1.md", "scene-1")
 
     outline_payload = {"scenes": [{"id": "scene-1"}]}
-    (project_root / "outline.json").write_text(
-        json.dumps(outline_payload), encoding="utf-8"
-    )
+    (project_root / "outline.json").write_text(json.dumps(outline_payload), encoding="utf-8")
     project_payload = {"title": "Happy Project"}
-    (project_root / "project.json").write_text(
-        json.dumps(project_payload), encoding="utf-8"
-    )
+    (project_root / "project.json").write_text(json.dumps(project_payload), encoding="utf-8")
 
     snapshot = persistence.create_snapshot(project_id, label="Review Build")
 
@@ -91,10 +80,7 @@ def test_snapshot_creation_happy_path(tmp_path: Path) -> None:
     assert set(snapshot["includes"]) == {"drafts", "outline.json", "project.json"}
 
     snapshot_dir = (
-        project_root
-        / "history"
-        / "snapshots"
-        / f"{snapshot['snapshot_id']}_{snapshot['label']}"
+        project_root / "history" / "snapshots" / f"{snapshot['snapshot_id']}_{snapshot['label']}"
     )
     metadata_path = snapshot_dir / "metadata.json"
     assert metadata_path.exists()
@@ -131,9 +117,7 @@ def test_snapshot_manifest_includes_scene_entries(tmp_path: Path) -> None:
     _write_scene(project_root / "drafts" / "scene-1.md", "scene-1")
 
     outline_payload = {"scenes": [{"id": "scene-1"}, {"id": "scene-2"}]}
-    (project_root / "outline.json").write_text(
-        json.dumps(outline_payload), encoding="utf-8"
-    )
+    (project_root / "outline.json").write_text(json.dumps(outline_payload), encoding="utf-8")
     (project_root / "project.json").write_text(
         json.dumps({"title": "Manifest Project"}), encoding="utf-8"
     )
@@ -141,10 +125,7 @@ def test_snapshot_manifest_includes_scene_entries(tmp_path: Path) -> None:
     snapshot = persistence.create_snapshot(project_id, label="manifest")
 
     snapshot_dir = (
-        project_root
-        / "history"
-        / "snapshots"
-        / f"{snapshot['snapshot_id']}_{snapshot['label']}"
+        project_root / "history" / "snapshots" / f"{snapshot['snapshot_id']}_{snapshot['label']}"
     )
     manifest_path = snapshot_dir / "snapshot.yaml"
     assert manifest_path.exists()
