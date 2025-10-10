@@ -103,27 +103,12 @@ class WizardLockSnapshotRequest(BaseModel):
             if not candidate:
                 continue
 
-            posix_path = PurePosixPath(candidate)
-            windows_path = PureWindowsPath(candidate)
-            for variant in (posix_path, windows_path):
-                if variant.is_absolute() or variant.anchor:
-                    raise ValueError(f"Include path {candidate!r} must be relative.")
-                if any(part in ("..", "") for part in variant.parts):
-                    raise ValueError(
-                        f"Include path {candidate!r} may not traverse parent directories."
-                    )
-
-            posix_parts = [part for part in posix_path.parts if part not in (".", "")]
-            windows_parts = [part for part in windows_path.parts if part not in (".", "")]
-            if "\\" in candidate and windows_parts:
-                normalized_parts = windows_parts
+            if "\\" in candidate:
+                normalized = PureWindowsPath(candidate).as_posix()
             else:
-                normalized_parts = posix_parts
+                normalized = PurePosixPath(candidate).as_posix()
 
-            if not normalized_parts:
-                raise ValueError(f"Include path {candidate!r} is not valid.")
-
-            sanitized.append("/".join(normalized_parts))
+            sanitized.append(normalized)
 
         return sanitized
 

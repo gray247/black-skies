@@ -36,4 +36,6 @@ async def metrics_endpoint(version: str = Depends(get_service_version)) -> Respo
     """Return the Prometheus metrics payload without implicit charsets."""
 
     metrics_payload = render(version).encode("utf-8")
-    return Response(content=metrics_payload, media_type=_METRICS_MEDIA_TYPE)
+    response = Response(content=metrics_payload)
+    response.headers["content-type"] = _METRICS_MEDIA_TYPE
+    return response
