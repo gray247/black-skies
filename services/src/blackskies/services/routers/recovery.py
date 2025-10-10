@@ -288,10 +288,10 @@ async def recovery_restore(
             diagnostics=diagnostics,
             project_root=project_root,
         )
-    except ValueError:
+    except ValueError as exc:
         raise_validation_error(
             message="Invalid snapshot identifier.",
-            details={"snapshot_id": snapshot_id},
+            details={"snapshot_id": snapshot_id, "error": str(exc)},
             diagnostics=diagnostics,
             project_root=project_root,
         )

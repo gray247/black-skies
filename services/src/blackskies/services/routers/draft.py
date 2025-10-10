@@ -1100,6 +1100,17 @@ async def lock_wizard_step(
             label=label,
             include_entries=include_entries,
         )
+    except ValueError as exc:
+        raise_validation_error(
+            message="Invalid snapshot includes.",
+            details={
+                "project_id": request_model.project_id,
+                "includes": include_entries or [],
+                "error": str(exc),
+            },
+            diagnostics=diagnostics,
+            project_root=project_root,
+        )
     except OSError as exc:
         diagnostics.log(
             project_root,
