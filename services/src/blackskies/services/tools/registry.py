@@ -9,7 +9,7 @@ import unicodedata
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, Iterable, Mapping, MutableMapping
+from typing import Any, Dict, Iterable, Mapping, MutableMapping, Optional
 
 from .. import runs
 from .safety import SafetyReport, SafetyViolation, postflight_scrub, preflight_check

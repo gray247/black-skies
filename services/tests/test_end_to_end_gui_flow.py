@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
 import pytest
 
-httpx = pytest.importorskip("httpx")
+try:
+    import httpx
+except ModuleNotFoundError as exc:  # pragma: no cover - environment dependent
+    pytest.skip(f"httpx is required for async tests: {exc}", allow_module_level=True)
 
 from test_app import (
     API_PREFIX,
@@ -62,6 +64,7 @@ async def test_full_gui_flow(async_client: httpx.AsyncClient, tmp_path: Path) ->
     assert scene_path.exists()
     original_text = draft_data["units"][0]["text"]
     full_scene_content = scene_path.read_text(encoding="utf-8")
+    assert original_text in full_scene_content
 
     # Critique (uses canned response)
     critique_request = _build_critique_payload(

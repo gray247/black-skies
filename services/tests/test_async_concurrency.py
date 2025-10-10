@@ -9,7 +9,10 @@ from typing import Any
 
 import pytest
 
-httpx = pytest.importorskip("httpx")
+try:
+    import httpx
+except ModuleNotFoundError as exc:  # pragma: no cover - environment dependent
+    pytest.skip(f"httpx is required for async tests: {exc}", allow_module_level=True)
 
 from blackskies.services.critique import CritiqueService
 from blackskies.services.draft_synthesizer import DraftSynthesizer
