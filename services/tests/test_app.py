@@ -842,6 +842,72 @@ def test_draft_accept_success_creates_snapshot(test_client: TestClient, tmp_path
     assert "missing_drafts" not in manifest
 
 
+def test_draft_accept_ignores_tampered_cost(test_client: TestClient, tmp_path: Path) -> None:
+    """Accept uses server-side estimates even if the request zeros out cost."""
+
+    project_id = "proj_accept_budget_guard"
+    draft_id = "dr_secure_001"
+    scene_body = _bootstrap_scene(tmp_path, project_id)
+    checksum = _compute_sha256(scene_body)
+
+    project_path = _write_project_budget(
+        tmp_path, project_id, soft_limit=5.0, hard_limit=10.0, spent_usd=1.0
+    )
+    metadata = json.loads(project_path.read_text(encoding="utf-8"))
+    metadata.setdefault("budget", {})["last_generate_response"] = {
+        "project_id": project_id,
+        "unit_scope": "scene",
+        "unit_ids": ["sc_0001"],
+        "draft_id": draft_id,
+        "schema_version": "DraftUnitSchema v1",
+        "units": [
+            {
+                "id": "sc_0001",
+                "text": scene_body,
+                "meta": {
+                    "word_target": 1500,
+                    "order": 1,
+                    "chapter_id": "ch_0001",
+                },
+            }
+        ],
+        "budget": {
+            "estimated_usd": 0.03,
+            "status": "ok",
+            "message": "Estimate within budget.",
+            "soft_limit_usd": 5.0,
+            "hard_limit_usd": 10.0,
+            "spent_usd": 1.03,
+            "total_after_usd": 1.03,
+        },
+    }
+    project_path.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
+
+    payload = {
+        "project_id": project_id,
+        "draft_id": draft_id,
+        "unit_id": "sc_0001",
+        "unit": {
+            "id": "sc_0001",
+            "previous_sha256": checksum,
+            "text": f"{scene_body}\n\nAccepted text.",
+            "meta": {"purpose": "setup"},
+            "estimated_cost_usd": 0.0,
+        },
+        "message": "Tamper attempt should be ignored.",
+        "snapshot_label": "accept",  # ensure snapshot flow still succeeds
+    }
+
+    response = test_client.post(f"{API_PREFIX}/draft/accept", json=payload)
+    assert response.status_code == 200
+
+    data = response.json()
+    assert data["budget"]["spent_usd"] == pytest.approx(1.03)
+
+    persisted_meta = json.loads(project_path.read_text(encoding="utf-8"))
+    assert persisted_meta["budget"]["spent_usd"] == pytest.approx(1.03)
+
+
 def test_draft_accept_snapshot_conflict(
     test_client: TestClient,
     tmp_path: Path,
