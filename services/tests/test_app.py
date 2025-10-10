@@ -11,7 +11,11 @@ from typing import Any
 from uuid import UUID
 
 import pytest
-import yaml
+
+yaml = pytest.importorskip("yaml")
+pytest.importorskip("fastapi")
+pytest.importorskip("fastapi.testclient")
+
 from fastapi.testclient import TestClient
 
 from blackskies.services.app import SERVICE_VERSION, BuildTracker

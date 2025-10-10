@@ -5,8 +5,9 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import httpx
 import pytest
+
+httpx = pytest.importorskip("httpx")
 
 from test_app import (
     API_PREFIX,
