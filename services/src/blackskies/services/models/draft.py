@@ -32,7 +32,7 @@ class DraftUnitOverrides(BaseModel):
 
 
 class DraftGenerateRequest(BaseModel):
-    """Request payload for the /draft/generate endpoint."""
+    """Request payload for the /api/v1/draft/generate endpoint."""
 
     project_id: str
     unit_scope: DraftUnitScope

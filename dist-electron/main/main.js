@@ -80,7 +80,7 @@ function pipeStreamToLogger(stream, logger, level, source) {
 }
 async function waitForServicesHealthy(port) {
     const logger = ensureMainLogger();
-    const url = `http://${SERVICES_HOST}:${port}/healthz`;
+    const url = `http://${SERVICES_HOST}:${port}/api/v1/healthz`;
     const maxAttempts = 20;
     const attemptDelayMs = 250;
     for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {

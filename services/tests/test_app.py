@@ -258,7 +258,7 @@ def _compute_sha256(content: str) -> str:
 def test_health(test_client: TestClient) -> None:
     """The health endpoint returns the expected payload."""
 
-    response = test_client.get("/healthz")
+    response = test_client.get(f"{API_PREFIX}/healthz")
     assert response.status_code == 200
     assert response.json() == {"status": "ok", "version": SERVICE_VERSION}
     _assert_trace_header(response)
@@ -267,8 +267,8 @@ def test_health(test_client: TestClient) -> None:
 def test_metrics_endpoint(test_client: TestClient) -> None:
     """Metrics endpoint returns Prometheus-formatted content with trace headers."""
 
-    test_client.get("/healthz")
-    response = test_client.get("/metrics")
+    test_client.get(f"{API_PREFIX}/healthz")
+    response = test_client.get(f"{API_PREFIX}/metrics")
     assert response.status_code == 200
     assert response.headers["content-type"] == "text/plain; version=0.0.4"
     body = response.text
@@ -361,78 +361,6 @@ def test_outline_build_conflict(test_client: TestClient, tmp_path: Path) -> None
     with files[0].open("r", encoding="utf-8") as handle:
         diagnostic = json.load(handle)
     assert diagnostic["code"] == "CONFLICT"
-
-
-def test_legacy_outline_build_shim_headers(test_client: TestClient, tmp_path: Path) -> None:
-    """Legacy outline shim proxies to the versioned handler with sunset and Link headers."""
-
-    payload = _build_payload()
-    payload["project_id"] = "proj_legacy_outline"
-
-    response = test_client.post("/outline/build", json=payload)
-    assert response.status_code == 200
-
-    legacy_body = response.json()
-    assert legacy_body["schema_version"] == "OutlineSchema v1"
-    assert response.headers["Deprecation"] == "true"
-    assert response.headers["Sunset"] == "Mon, 29 Sep 2025 00:00:00 GMT"
-    assert response.headers["Link"] == "</api/v1/outline/build>; rel=\"successor-version\""
-    _assert_trace_header(response)
-
-    v1_response = test_client.post(f"{API_PREFIX}/outline/build", json=payload)
-    assert v1_response.status_code == 200
-    assert v1_response.json() == legacy_body
-
-
-def test_legacy_draft_generate_shim_success_headers(
-    test_client: TestClient, tmp_path: Path
-) -> None:
-    """Legacy draft generate proxies to v1 and applies deprecation and Link headers."""
-
-    project_id = "proj_legacy_generate"
-    scene_ids = _bootstrap_outline(tmp_path, project_id, scene_count=1)
-    payload = {
-        "project_id": project_id,
-        "unit_scope": "scene",
-        "unit_ids": scene_ids,
-        "seed": 7,
-    }
-
-    response = test_client.post("/draft/generate", json=payload)
-    assert response.status_code == 200
-
-    legacy_body = response.json()
-    assert response.headers["Deprecation"] == "true"
-    assert response.headers["Sunset"] == "Mon, 29 Sep 2025 00:00:00 GMT"
-    assert response.headers["Link"] == "</api/v1/draft/generate>; rel=\"successor-version\""
-    _assert_trace_header(response)
-
-    v1_response = test_client.post(f"{API_PREFIX}/draft/generate", json=payload)
-    assert v1_response.status_code == 200
-    assert v1_response.json() == legacy_body
-
-
-def test_legacy_draft_generate_shim_error_headers(test_client: TestClient) -> None:
-    """Legacy draft shim applies deprecation and Link headers even on errors."""
-
-    payload = {"project_id": "proj_legacy_error"}
-
-    response = test_client.post("/draft/generate", json=payload)
-    assert response.status_code == 400
-    detail = _read_error(response)
-    assert detail["code"] == "VALIDATION"
-    assert response.headers["Deprecation"] == "true"
-    assert response.headers["Sunset"] == "Mon, 29 Sep 2025 00:00:00 GMT"
-    assert response.headers["Link"] == "</api/v1/draft/generate>; rel=\"successor-version\""
-
-    v1_response = test_client.post(f"{API_PREFIX}/draft/generate", json=payload)
-    assert v1_response.status_code == 400
-    legacy_body = response.json()
-    v1_body = v1_response.json()
-    assert {k: v for k, v in legacy_body.items() if k != "trace_id"} == {
-        k: v for k, v in v1_body.items() if k != "trace_id"
-    }
-
 
 def test_draft_generate_scene_success(test_client: TestClient, tmp_path: Path) -> None:
     """Draft generation writes Markdown and returns deterministic metadata."""

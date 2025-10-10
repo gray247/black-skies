@@ -12,7 +12,7 @@ API_PREFIX = "/api/v1"
 
 
 def test_healthz() -> None:
-    response = client.get("/healthz")
+    response = client.get(f"{API_PREFIX}/healthz")
     assert response.status_code == 200
     payload = response.json()
     assert payload["status"] == "ok"
@@ -37,8 +37,8 @@ def test_generate_validation_error_includes_trace_id() -> None:
 
 
 def test_metrics_endpoint_records_requests() -> None:
-    client.get("/healthz")
-    response = client.get("/metrics")
+    client.get(f"{API_PREFIX}/healthz")
+    response = client.get(f"{API_PREFIX}/metrics")
     assert response.status_code == 200
     body = response.text
     assert "blackskies_requests_total" in body

@@ -70,7 +70,7 @@ What it does:
 1. Ensures deps are synchronized and builds the Electron main bundle (`pnpm --filter app build:main`).
 2. Opens a PowerShell window running `pnpm --filter app dev -- --host 127.0.0.1 --port 5173` (Vite renderer).
 3. Opens a second window running the real Electron shell (`pnpm --filter app exec electron ..\dist-electron\main\main.js`) with the correct env vars (`ELECTRON_RENDERER_URL`, `BLACKSKIES_PYTHON`, `BLACKSKIES_PROJECT_BASE_DIR`).
-4. Electron spawns the FastAPI service automatically; the status pill should transition from “Checking services” to “Services online” once `/healthz` responds.
+4. Electron spawns the FastAPI service automatically; the status pill should transition from “Checking services” to “Services online” once `/api/v1/healthz` responds.
 
 Close the two windows to stop the app.
 

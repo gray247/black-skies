@@ -149,16 +149,14 @@ async def wait_for_service(base_url: str, timeout: float) -> None:
     loop = asyncio.get_running_loop()
     deadline = loop.time() + timeout
     async with httpx.AsyncClient(base_url=base_url, timeout=5.0) as client:
-        endpoints = ("/api/v1/healthz", "/healthz")
         while True:
-            for path in endpoints:
-                try:
-                    response = await client.get(path)
-                except httpx.HTTPError:
-                    continue
-                if response.status_code == httpx.codes.OK:
-                    LOGGER.info("Service healthy at %s%s", base_url, path)
-                    return
+            try:
+                response = await client.get("/api/v1/healthz")
+            except httpx.HTTPError:
+                response = None
+            if response and response.status_code == httpx.codes.OK:
+                LOGGER.info("Service healthy at %s/api/v1/healthz", base_url)
+                return
 
             if loop.time() >= deadline:
                 raise TimeoutError(

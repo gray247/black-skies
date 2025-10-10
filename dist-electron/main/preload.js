@@ -114,7 +114,7 @@ async function probeHealth() {
             error: normalizeError('Service port is unavailable.'),
         };
     }
-    const url = `http://127.0.0.1:${port}/healthz`;
+    const url = `http://127.0.0.1:${port}/api/v1/healthz`;
     try {
         const response = await fetch(url);
         const traceId = response.headers.get('x-trace-id') ?? undefined;

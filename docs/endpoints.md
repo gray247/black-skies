@@ -4,9 +4,8 @@
 Local-only FastAPI services the Electron app calls. All bodies are JSON (UTF-8). Keys are `snake_case`.
 
 ## Conventions
-- **Base path:** all canonical routes live under `/api/v1`. Legacy unversioned aliases (e.g., `/draft/generate`) remain wired
-  for one release cycle and respond with `Deprecation: true` and
-  `Link: </api/v1/...>; rel="successor-version"` headers.
+- **Base path:** all canonical routes live under `/api/v1`. Unversioned aliases were retired in 1.0.0-rc1; clients must target
+  the versioned paths directly.
 - **Content-Type:** `application/json`
 - **Auth:** none (same-machine services)
 - **Idempotency:** non-mutating calls safe to retry; write calls return versioned artifacts
@@ -62,7 +61,7 @@ Schemas v1 (see `docs/data_model.md` / `docs/critique_rubric.md`):
 { "status": "ok", "version": "0.1.0" }
 ```
 - Response headers always include `x-trace-id` for correlation across services and logs.
-- Legacy alias: `GET /healthz` responds with `Deprecation: true` and `Link: </api/v1/healthz>; rel="successor-version"`.
+- The `/healthz` alias was removed in 1.0.0-rc1. Update probes and load balancers to `/api/v1/healthz`.
 
 ---
 
@@ -75,7 +74,7 @@ Exposes Prometheus-compatible counters and gauges for the service. Content-Type 
 request_latency_seconds_bucket{le="0.1"} 42
 ```
 
-- Legacy alias: `GET /metrics` responds with `Deprecation: true` and `Link: </api/v1/metrics>; rel="successor-version"`.
+- The `/metrics` alias was removed in 1.0.0-rc1 to simplify observability tooling.
 
 ---
 
@@ -116,8 +115,7 @@ Builds an outline from **locked Wizard decisions**.
 **Errors**
 - `VALIDATION` (e.g., missing Wizard locks)
 - `CONFLICT` (another build in progress)
-- Legacy alias: `POST /outline/build` is temporarily accepted and returns `Deprecation: true` with
-  `Link: </api/v1/outline/build>; rel="successor-version"`.
+- The `/outline/build` alias was removed in 1.0.0-rc1. Ensure callers send requests to `/api/v1/outline/build`.
 
 ---
 
@@ -222,8 +220,7 @@ Returns a budget estimate for a potential generate request without writing files
 
 **Errors**
 - `VALIDATION` (bad IDs, unit limits, missing outline)
-- Legacy alias: `POST /draft/preflight` remains available with `Deprecation: true` and
-  `Link: </api/v1/draft/preflight>; rel="successor-version"` headers.
+- The `/draft/preflight` alias was removed in 1.0.0-rc1.
 
 ---
 
@@ -278,7 +275,7 @@ Generates prose for scenes/chapters. Applies request limits above. Stores prompt
 - `BUDGET_EXCEEDED` (hard cap hit)
 - `RATE_LIMIT` (burst control)
 - `INTERNAL`
-- Legacy alias: `POST /draft/generate` is supported with deprecation headers pointing to `/api/v1/draft/generate`.
+- The `/draft/generate` alias was removed in 1.0.0-rc1.
 
 ---
 
@@ -318,7 +315,7 @@ Rewrite a single unit (scene or chapter). Returns revised text and a word-level 
 - `CONFLICT` (stale version / unit not found)
 - `BUDGET_EXCEEDED`
 - `INTERNAL`
-- Legacy alias: `POST /draft/rewrite` remains wired with `Deprecation: true` and `Link: </api/v1/draft/rewrite>`.
+- The `/draft/rewrite` alias was removed in 1.0.0-rc1.
 
 ---
 
@@ -361,7 +358,7 @@ Runs critique on a unit using the rubric (see `docs/critique_rubric.md`). Non-de
 - `RATE_LIMIT`
 - `BUDGET_EXCEEDED`
 - `INTERNAL`
-- Legacy alias: `POST /draft/critique` emits deprecation headers referencing `/api/v1/draft/critique`.
+- The `/draft/critique` alias was removed in 1.0.0-rc1.
 
 ---
 

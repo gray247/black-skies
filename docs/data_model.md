@@ -115,8 +115,8 @@ Plain Markdown prose after the YAML block.
 ---
 
 ## Draft artifacts — DraftUnitSchema v1 (LOCKED)
-Units produced by `/api/v1/draft/generate` or `/api/v1/draft/rewrite`. Stored by services and used by the UI. Legacy
-aliases return deprecation headers and should be phased out.
+Units produced by `/api/v1/draft/generate` or `/api/v1/draft/rewrite`. Stored by services and used by the UI. Unversioned
+aliases were removed in 1.0.0-rc1.
 
 **Unit**
 ```json
