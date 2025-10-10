@@ -1,3 +1,4 @@
+# FastAPI/Starlette/HTTPX stack pinned to keep pip installs aligned with the lockfiles.
 fastapi==0.118.3
 httpx==0.27.2
 starlette==0.48.0
