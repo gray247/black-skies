@@ -69,7 +69,7 @@ def build_meta_header(front_matter: dict[str, Any]) -> str | None:
         parts.append(f"emotion: {emotion}")
 
     pov = _normalize(front_matter.get("pov"))
-    if pov and parts:
+    if pov:
         parts.append(f"pov: {pov}")
 
     if not parts:
