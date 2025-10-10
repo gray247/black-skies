@@ -179,7 +179,7 @@ async function probeHealth(): Promise<ServiceHealthResponse> {
     };
   }
 
-  const url = `http://127.0.0.1:${port}/healthz`;
+  const url = `http://127.0.0.1:${port}/api/v1/healthz`;
 
   try {
     const response = await fetch(url);

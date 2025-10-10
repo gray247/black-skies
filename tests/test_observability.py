@@ -10,13 +10,13 @@ from blackskies.services.app import create_app
 client = TestClient(create_app())
 
 
-def test_legacy_route_includes_deprecation_headers() -> None:
-    response = client.post("/draft/generate", json={})
+def test_generate_validation_error_includes_trace_id() -> None:
+    response = client.post("/api/v1/draft/generate", json={})
     assert response.status_code == 400
-    assert response.headers["deprecation"].lower() == "true"
-    assert "sunset" in response.headers
     payload = response.json()
     assert payload["code"] == "VALIDATION"
+    assert "trace_id" in payload
+    assert response.headers["x-trace-id"] == payload["trace_id"]
 
 
 def test_metrics_endpoint_returns_prometheus_payload() -> None:

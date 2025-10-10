@@ -46,7 +46,7 @@ Authoritative policies for platform support, privacy, budgets, models, limits, a
 ## Request Limits (LOCKED)
 (Enforced by services; mirrored in UI. See `docs/endpoints.md` for details.)
 
-- **/api/v1/draft/generate** → max **5 scenes** or **1 chapter** per request (legacy `/draft/generate` alias deprecated)
+- **/api/v1/draft/generate** → max **5 scenes** or **1 chapter** per request (legacy `/draft/generate` alias removed in `1.0.0-rc1`)
 - **/api/v1/draft/rewrite** → **1 unit** per request
 - **/api/v1/draft/critique** → up to **3 units** per request
 - **/api/v1/outline/build** → one active build at a time per project
