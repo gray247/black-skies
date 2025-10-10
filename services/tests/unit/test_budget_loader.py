@@ -1,4 +1,4 @@
-"""Unit tests for project budget state loader."""
+"""Unit tests for project budget state helpers."""
 
 from __future__ import annotations
 
@@ -10,7 +10,9 @@ import pytest
 from blackskies.services.budgeting import (
     HARD_BUDGET_LIMIT_USD,
     SOFT_BUDGET_LIMIT_USD,
+    ProjectBudgetState,
     load_project_budget_state,
+    persist_project_budget as _persist_project_budget,
 )
 from blackskies.services.diagnostics import DiagnosticLogger
 
@@ -20,9 +22,19 @@ def diagnostics() -> DiagnosticLogger:
     return DiagnosticLogger()
 
 
+@pytest.fixture()
+def project_root(tmp_path: Path) -> Path:
+    return tmp_path
+
+
 def _write_project_file(project_root: Path, payload: dict[str, object]) -> None:
     project_file = project_root / "project.json"
     project_file.write_text(json.dumps(payload), encoding="utf-8")
+
+
+def _read_project_payload(project_root: Path) -> dict[str, object]:
+    project_file = project_root / "project.json"
+    return json.loads(project_file.read_text(encoding="utf-8"))
 
 
 def test_load_project_budget_state_sanitizes_currency(
@@ -46,11 +58,6 @@ def test_load_project_budget_state_sanitizes_currency(
 
     diagnostics_dir = project_root / "history" / "diagnostics"
     assert not diagnostics_dir.exists() or not any(diagnostics_dir.iterdir())
-
-
-@pytest.fixture()
-def project_root(tmp_path: Path) -> Path:
-    return tmp_path
 
 
 def test_load_project_budget_state_defaults_on_invalid_values(
@@ -80,3 +87,48 @@ def test_load_project_budget_state_defaults_on_invalid_values(
         json.loads(path.read_text(encoding="utf-8"))["details"].get("field") for path in logs
     }
     assert {"soft", "hard", "spent_usd"}.issubset(logged_fields)
+
+
+def test_persist_project_budget_rounds_and_clamps(tmp_path: Path) -> None:
+    project_root = tmp_path
+    state = ProjectBudgetState(
+        project_root=project_root,
+        metadata={"project_id": "proj", "budget": {}},
+        soft_limit=5.6789,
+        hard_limit=10.234,
+        spent_usd=1.0,
+        project_path=project_root / "project.json",
+    )
+
+    _persist_project_budget(state, new_spent_usd=-3.14159)
+
+    payload = _read_project_payload(project_root)
+    budget = payload["budget"]
+
+    assert budget["soft"] == pytest.approx(5.68)
+    assert budget["hard"] == pytest.approx(10.23)
+    assert budget["spent_usd"] == pytest.approx(0.0)
+    assert payload["project_id"] == "proj"
+
+
+def test_persist_project_budget_updates_spend(tmp_path: Path) -> None:
+    project_root = tmp_path
+    state = ProjectBudgetState(
+        project_root=project_root,
+        metadata={"project_id": "proj", "budget": {"soft": 4.0, "hard": 9.0}},
+        soft_limit=4.0,
+        hard_limit=9.0,
+        spent_usd=4.0,
+        project_path=project_root / "project.json",
+    )
+
+    _persist_project_budget(state, new_spent_usd=12.345)
+
+    payload = _read_project_payload(project_root)
+    budget = payload["budget"]
+    assert budget["soft"] == pytest.approx(4.0)
+    assert budget["hard"] == pytest.approx(9.0)
+    assert budget["spent_usd"] == pytest.approx(12.35)
+    assert payload["project_id"] == "proj"
+
+    assert (project_root / "project.json").exists()

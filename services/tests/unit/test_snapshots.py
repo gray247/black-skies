@@ -27,7 +27,7 @@ class DummySnapshotPersistence:
         self,
         project_id: str,
         *,
-        label: str,
+        label: str | None = None,
         include_entries: list[str] | None = None,
     ) -> dict[str, Any]:
         self.calls.append(
@@ -80,6 +80,22 @@ def test_create_accept_snapshot_marks_completion() -> None:
         {"project_id": "project-alpha", "label": "final", "include_entries": None}
     ]
     assert tracker.completed == [("project-alpha", {"snapshot_id": "snap-123"})]
+
+
+def test_create_accept_snapshot_allows_missing_label() -> None:
+    tracker = DummyRecoveryTracker()
+    persistence = DummySnapshotPersistence()
+
+    create_accept_snapshot(
+        "project-epsilon",
+        None,
+        snapshot_persistence=persistence,
+        recovery_tracker=tracker,
+    )
+
+    assert persistence.calls == [
+        {"project_id": "project-epsilon", "label": None, "include_entries": None}
+    ]
 
 
 def test_create_wizard_lock_snapshot_writes_diagnostics(tmp_path: Path) -> None:
@@ -144,5 +160,3 @@ def test_create_wizard_lock_snapshot_persistence_error(tmp_path: Path) -> None:
     entries = _collect_diagnostics(tmp_path)
     assert entries, "Expected diagnostic entry for persistence error"
     assert entries[-1]["code"] == "INTERNAL"
-
-
