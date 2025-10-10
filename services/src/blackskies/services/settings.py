@@ -5,9 +5,9 @@ from __future__ import annotations
 import logging
 import os
 from functools import lru_cache
-from typing import Any, ClassVar, Literal, Optional, cast
+from typing import Any, ClassVar, Literal, Optional
 
-from pydantic import BaseModel
+from pydantic import AliasChoices, BaseModel, Field, field_validator
 
 logger = logging.getLogger(__name__)
 
@@ -39,49 +39,58 @@ VALID_MODES: tuple[Mode, ...] = ("offline", "live", "mock", "companion")
 class Settings(BaseSettings):
     """Pydantic-based configuration for orchestrating agents and services."""
 
-    openai_api_key: Optional[str] = None
-    black_skies_mode: Mode = "offline"
-    request_timeout_seconds: float = 30.0
+    openai_api_key: Optional[str] = Field(
+        default=None,
+        validation_alias=AliasChoices(
+            "BLACK_SKIES_OPENAI_API_KEY",
+            "OPENAI_API_KEY",
+        ),
+    )
+    black_skies_mode: Mode = Field(
+        default="offline",
+        validation_alias=AliasChoices(
+            "BLACK_SKIES_MODE",
+            "BLACK_SKIES_BLACK_SKIES_MODE",
+        ),
+    )
+    request_timeout_seconds: float = Field(
+        default=30.0,
+        validation_alias=AliasChoices(
+            "BLACK_SKIES_REQUEST_TIMEOUT_SECONDS",
+            "REQUEST_TIMEOUT_SECONDS",
+        ),
+    )
 
     model_config = SettingsConfigDict(
         env_file=".env",
-        env_prefix="BLACK_SKIES_",
         env_file_encoding="utf-8",
     )
+
+    @field_validator("black_skies_mode", mode="before")
+    @classmethod
+    def _normalise_mode(cls, value: object) -> Mode | object:
+        """Normalise mode strings to recognised literal values."""
+
+        if isinstance(value, str):
+            candidate = value.strip().lower()
+            if candidate in VALID_MODES:
+                return candidate
+        return value
 
     def model_post_init(self, __context: Any) -> None:
         """Inject compatibility for legacy environment variables after validation."""
 
         super().model_post_init(__context)
 
-        if "black_skies_mode" in self.model_fields_set:
-            return
+        new_key = "BLACK_SKIES_MODE"
+        legacy_key = "BLACK_SKIES_BLACK_SKIES_MODE"
 
-        new_value = os.getenv("BLACK_SKIES_BLACK_SKIES_MODE")
-        if new_value:
-            return
-
-        legacy_value = os.getenv("BLACK_SKIES_MODE")
-        if legacy_value is None:
-            return
-
-        candidate = legacy_value.strip().lower()
-        if not candidate:
-            return
-
-        if candidate not in VALID_MODES:
+        if os.getenv(legacy_key) and not os.getenv(new_key):
             logger.warning(
-                "Ignoring deprecated BLACK_SKIES_MODE value '%s'; expected one of %s.",
-                legacy_value,
-                ", ".join(VALID_MODES),
+                "Environment variable '%s' is deprecated. Rename it to '%s'.",
+                legacy_key,
+                new_key,
             )
-            return
-
-        object.__setattr__(self, "black_skies_mode", cast(Mode, candidate))
-        logger.warning(
-            "Environment variable 'BLACK_SKIES_MODE' is deprecated. "
-            "Rename it to 'BLACK_SKIES_BLACK_SKIES_MODE'.",
-        )
 
 
 @lru_cache(maxsize=1)

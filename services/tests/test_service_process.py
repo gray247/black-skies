@@ -29,7 +29,7 @@ def _find_available_port() -> int:
 
 def _wait_for_health(port: int, timeout: float = 10.0) -> dict[str, str]:
     deadline = time.time() + timeout
-    url = f"http://127.0.0.1:{port}/health"
+    url = f"http://127.0.0.1:{port}/api/v1/healthz"
     last_error: Exception | None = None
 
     while time.time() < deadline:

@@ -3,16 +3,21 @@ from __future__ import annotations
 import builtins
 import importlib
 import sys
+from pathlib import Path
 
 import pytest
 
 from blackskies.services.settings import Settings, get_settings
 
 
-def test_settings_defaults(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_settings_defaults(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
     monkeypatch.delenv("BLACK_SKIES_OPENAI_API_KEY", raising=False)
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     monkeypatch.delenv("BLACK_SKIES_BLACK_SKIES_MODE", raising=False)
     monkeypatch.delenv("BLACK_SKIES_MODE", raising=False)
+    monkeypatch.chdir(tmp_path)
     get_settings.cache_clear()
     settings = Settings()
     assert settings.openai_api_key is None
@@ -20,11 +25,14 @@ def test_settings_defaults(monkeypatch: pytest.MonkeyPatch) -> None:
     assert settings.request_timeout_seconds == 30.0
 
 
-def test_settings_env_override(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_settings_env_override(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
     get_settings.cache_clear()
-    monkeypatch.setenv("BLACK_SKIES_OPENAI_API_KEY", "sk-test")
-    monkeypatch.setenv("BLACK_SKIES_BLACK_SKIES_MODE", "live")
-    monkeypatch.delenv("BLACK_SKIES_MODE", raising=False)
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
+    monkeypatch.setenv("BLACK_SKIES_MODE", "LIVE")
+    monkeypatch.delenv("BLACK_SKIES_BLACK_SKIES_MODE", raising=False)
+    monkeypatch.chdir(tmp_path)
 
     settings = Settings()
     assert settings.openai_api_key == "sk-test"
@@ -32,23 +40,30 @@ def test_settings_env_override(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 def test_settings_legacy_env_override(
-    monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+    monkeypatch: pytest.MonkeyPatch,
+    caplog: pytest.LogCaptureFixture,
+    tmp_path: Path,
 ) -> None:
     get_settings.cache_clear()
-    monkeypatch.delenv("BLACK_SKIES_BLACK_SKIES_MODE", raising=False)
-    monkeypatch.setenv("BLACK_SKIES_MODE", "live")
+    monkeypatch.setenv("BLACK_SKIES_BLACK_SKIES_MODE", "mock")
+    monkeypatch.delenv("BLACK_SKIES_MODE", raising=False)
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     monkeypatch.delenv("BLACK_SKIES_OPENAI_API_KEY", raising=False)
+    monkeypatch.chdir(tmp_path)
 
     with caplog.at_level("WARNING"):
         settings = Settings()
 
-    assert settings.black_skies_mode == "live"
-    assert "BLACK_SKIES_MODE" in caplog.text
+    assert settings.black_skies_mode == "mock"
+    assert "BLACK_SKIES_BLACK_SKIES_MODE" in caplog.text
 
 
-def test_get_settings_cached(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_get_settings_cached(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
     get_settings.cache_clear()
     monkeypatch.setenv("BLACK_SKIES_OPENAI_API_KEY", "sk-cache")
+    monkeypatch.chdir(tmp_path)
     first = get_settings()
     second = get_settings()
     assert first.openai_api_key == "sk-cache"
@@ -56,7 +71,7 @@ def test_get_settings_cached(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 def test_settings_module_handles_missing_pydantic_settings(
-    monkeypatch: pytest.MonkeyPatch,
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
     """Ensure the settings module gracefully handles missing optional dependencies."""
 
@@ -83,6 +98,7 @@ def test_settings_module_handles_missing_pydantic_settings(
     settings_cls = module.Settings
     get_settings_fn = module.get_settings
     get_settings_fn.cache_clear()
+    monkeypatch.chdir(tmp_path)
 
     instance = settings_cls()
     assert instance.openai_api_key is None

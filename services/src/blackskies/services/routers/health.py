@@ -6,10 +6,10 @@ from fastapi import APIRouter, Depends, Request, Response
 
 from ..metrics import render
 
-__all__ = ["router", "get_service_version"]
+__all__ = ["router", "get_service_version", "health", "metrics_endpoint"]
 
 
-router = APIRouter(tags=["health"])
+router = APIRouter(prefix="/api/v1", tags=["health"])
 
 
 def get_service_version(request: Request) -> str:
@@ -36,6 +36,5 @@ async def health_alias(version: str = Depends(get_service_version)) -> dict[str,
 async def metrics_endpoint(version: str = Depends(get_service_version)) -> Response:
     return Response(
         content=render(version),
-        media_type=None,
-        headers={"content-type": "text/plain; version=0.0.4"},
+        media_type="text/plain; version=0.0.4",
     )

@@ -38,7 +38,12 @@ from .routers.draft import (
     preflight_draft,
     rewrite_draft,
 )
-from .routers.health import router as health_router
+from .routers.health import (
+    get_service_version,
+    health as health_v1,
+    metrics_endpoint as metrics_v1,
+    router as health_router,
+)
 from .routers.outline import (
     BuildInProgressError,
     BuildTracker,
@@ -86,6 +91,8 @@ def _canonical_successor_link(path: str) -> str:
     """Return the canonical successor Link header for a legacy route."""
 
     canonical = path if path.startswith("/api/v1") else f"/api/v1{path}"
+    if canonical == "/api/v1/health":
+        canonical = "/api/v1/healthz"
     return f"<{canonical}>; rel=\"{LEGACY_SUCCESSOR_REL}\""
 
 
@@ -209,6 +216,48 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
 
     application.include_router(health_router)
     application.include_router(api_router)
+
+    @application.get("/healthz", include_in_schema=False)
+    async def legacy_healthz(
+        request: Request,
+        response: Response,
+        version: str = Depends(get_service_version),
+    ) -> dict[str, str]:
+        return await _legacy_alias(
+            health_v1,
+            request=request,
+            response=response,
+            args=(),
+            kwargs={"version": version},
+        )
+
+    @application.get("/health", include_in_schema=False)
+    async def legacy_health(
+        request: Request,
+        response: Response,
+        version: str = Depends(get_service_version),
+    ) -> dict[str, str]:
+        return await _legacy_alias(
+            health_v1,
+            request=request,
+            response=response,
+            args=(),
+            kwargs={"version": version},
+        )
+
+    @application.get("/metrics", include_in_schema=False)
+    async def legacy_metrics(
+        request: Request,
+        response: Response,
+        version: str = Depends(get_service_version),
+    ) -> Response:
+        return await _legacy_alias(
+            metrics_v1,
+            request=request,
+            response=response,
+            args=(),
+            kwargs={"version": version},
+        )
 
     @application.get("/", include_in_schema=False)
     async def service_index(request: Request) -> dict[str, str]:
