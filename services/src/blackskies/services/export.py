@@ -21,9 +21,7 @@ def load_outline_artifact(project_root: Path) -> OutlineArtifact:
 
     outline_path = project_root / "outline.json"
     if not outline_path.exists():
-        raise DraftRequestError(
-            "Outline artifact is missing.", {"path": to_posix(outline_path)}
-        )
+        raise DraftRequestError("Outline artifact is missing.", {"path": to_posix(outline_path)})
 
     try:
         with outline_path.open("r", encoding="utf-8") as handle:
@@ -83,9 +81,7 @@ def build_meta_header(front_matter: dict[str, Any]) -> str | None:
     return "> " + " · ".join(rendered_parts)
 
 
-def merge_front_matter(
-    front_matter: dict[str, Any], meta: dict[str, Any] | None
-) -> dict[str, Any]:
+def merge_front_matter(front_matter: dict[str, Any], meta: dict[str, Any] | None) -> dict[str, Any]:
     """Merge user-provided metadata into a scene's front matter."""
 
     if not meta:

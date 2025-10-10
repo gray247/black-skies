@@ -72,4 +72,3 @@ def test_exponential_backoff_bounds(attempt: int, expected: float) -> None:
 
     assert computed == expected
     assert backoff.min_interval <= computed <= backoff.max_interval
-

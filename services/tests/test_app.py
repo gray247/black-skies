@@ -923,9 +923,7 @@ def test_wizard_lock_missing_project_returns_validation_error(
     assert detail["code"] == "VALIDATION"
 
 
-def test_wizard_lock_rejects_malicious_include(
-    test_client: TestClient, tmp_path: Path
-) -> None:
+def test_wizard_lock_rejects_malicious_include(test_client: TestClient, tmp_path: Path) -> None:
     """Wizard lock snapshots reject include paths that escape the project."""
 
     project_id = "proj_wizard_escape"
@@ -1105,6 +1103,7 @@ def test_recovery_restore_rejects_malicious_include(
     outside_path = tmp_path / "outside.txt"
     assert not outside_path.exists()
 
+
 def test_restore_snapshot_ignores_fsync_error(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
@@ -1229,6 +1228,5 @@ def test_draft_export_rejects_path_traversal_project_id(test_client: TestClient)
     assert detail["code"] == "VALIDATION"
     errors = detail["details"].get("errors", [])
     assert any(
-        "Project ID must not contain path separators." in error.get("msg", "")
-        for error in errors
+        "Project ID must not contain path separators." in error.get("msg", "") for error in errors
     )

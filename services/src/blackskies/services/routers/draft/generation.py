@@ -65,9 +65,7 @@ def _estimate_word_target(scene: OutlineScene, overrides: DraftUnitOverrides | N
     return 850 + (order_value * 40)
 
 
-def _fingerprint_generate_request(
-    request: DraftGenerateRequest, scenes: list[OutlineScene]
-) -> str:
+def _fingerprint_generate_request(request: DraftGenerateRequest, scenes: list[OutlineScene]) -> str:
     request_payload = request.model_dump(mode="json")
     overrides_payload = request_payload.get("overrides", {})
     if isinstance(overrides_payload, dict):

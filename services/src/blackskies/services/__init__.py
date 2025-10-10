@@ -10,11 +10,15 @@ except ModuleNotFoundError:  # pragma: no cover - optional FastAPI dependency no
 
     def create_app(*args, **kwargs):  # type: ignore[override]
         raise ModuleNotFoundError("FastAPI is required to create the service application")
+
+
 try:
     from .__main__ import main
 except ModuleNotFoundError:  # pragma: no cover - optional CLI dependency not installed
+
     def main(*args, **kwargs):  # type: ignore[override]
         raise ModuleNotFoundError("uvicorn is required to launch the CLI entrypoint")
+
 
 try:
     from .services import AgentOrchestrator, ToolNotPermittedError
@@ -23,6 +27,7 @@ except ModuleNotFoundError:  # pragma: no cover - optional service dependencies 
 
     class ToolNotPermittedError(RuntimeError):
         """Fallback error raised when service dependencies are unavailable."""
+
 
 __all__ = [
     "AgentOrchestrator",

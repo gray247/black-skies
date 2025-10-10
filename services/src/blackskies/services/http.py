@@ -31,10 +31,7 @@ DEFAULT_ERROR_RESPONSES: Final[dict[int, dict[str, type[ErrorResponse]]]] = {
 def default_error_responses() -> dict[int, dict[str, type[ErrorResponse]]]:
     """Return a copy of the default error response mapping for routers."""
 
-    return {
-        status_code: dict(schema)
-        for status_code, schema in DEFAULT_ERROR_RESPONSES.items()
-    }
+    return {status_code: dict(schema) for status_code, schema in DEFAULT_ERROR_RESPONSES.items()}
 
 
 def resolve_trace_id(candidate: str | None) -> str:

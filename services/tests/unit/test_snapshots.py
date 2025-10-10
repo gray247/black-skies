@@ -23,7 +23,9 @@ from blackskies.services.snapshots import (
 
 
 class DummySnapshotPersistence:
-    def __init__(self, *, payload: dict[str, Any] | None = None, error: Exception | None = None) -> None:
+    def __init__(
+        self, *, payload: dict[str, Any] | None = None, error: Exception | None = None
+    ) -> None:
         self.payload = payload or {"snapshot_id": "snap-001"}
         self.error = error
         self.calls: list[dict[str, Any]] = []
@@ -52,7 +54,9 @@ class DummyRecoveryTracker:
         self.in_progress: list[dict[str, Any]] = []
         self.completed: list[tuple[str, dict[str, Any]]] = []
 
-    def mark_in_progress(self, *args: Any, **kwargs: Any) -> None:  # pragma: no cover - not exercised
+    def mark_in_progress(
+        self, *args: Any, **kwargs: Any
+    ) -> None:  # pragma: no cover - not exercised
         self.in_progress.append({"args": args, "kwargs": kwargs})
 
     def mark_completed(self, project_id: str, payload: dict[str, Any]) -> None:
@@ -162,8 +166,9 @@ def test_create_wizard_lock_snapshot_invalid_includes(tmp_path: Path) -> None:
     assert excinfo.value.details["includes"] == ["drafts"]
 
 
-
-def test_snapshot_persistence_retries_same_tick(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_snapshot_persistence_retries_same_tick(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     """Ensure snapshot creation survives timestamp collisions within a second."""
 
     class FrozenDateTime(datetime):
@@ -190,6 +195,7 @@ def test_snapshot_persistence_retries_same_tick(tmp_path: Path, monkeypatch: pyt
     snapshots_dir = tmp_path / "proj-collision" / "history" / "snapshots"
     snapshot_ids = {entry.name.split("_", 1)[0] for entry in snapshots_dir.iterdir()}
     assert snapshot_ids == {first["snapshot_id"], second["snapshot_id"]}
+
 
 def test_create_wizard_lock_snapshot_persistence_error(tmp_path: Path) -> None:
     diagnostics = DiagnosticLogger()

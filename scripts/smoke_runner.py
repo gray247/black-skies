@@ -193,9 +193,7 @@ async def run_cycles(config: SmokeTestConfig) -> None:
     if not wizard_steps:
         raise ValueError("At least one wizard step must be provided.")
 
-    LOGGER.info(
-        "Running %s smoke cycle(s) against %s", config.cycles, config.project_id
-    )
+    LOGGER.info("Running %s smoke cycle(s) against %s", config.cycles, config.project_id)
 
     async with httpx.AsyncClient(
         base_url=config.base_url,
@@ -225,9 +223,7 @@ async def run_cycles(config: SmokeTestConfig) -> None:
                 "seed": 42 + index,
                 "overrides": {},
             }
-            generate_response = await _post_json(
-                client, "/api/v1/draft/generate", generate_payload
-            )
+            generate_response = await _post_json(client, "/api/v1/draft/generate", generate_payload)
             generate_json = generate_response.json()
             units = generate_json.get("units", [])
             if not units:

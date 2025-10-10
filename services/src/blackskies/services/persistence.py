@@ -323,9 +323,7 @@ class SnapshotPersistence:
                 source_path = project_root / include_path
                 source_resolved = source_path.resolve()
                 if not source_resolved.is_relative_to(project_root_resolved):
-                    raise ValueError(
-                        f"Include path {include_token!r} escapes the project root."
-                    )
+                    raise ValueError(f"Include path {include_token!r} escapes the project root.")
                 target_path = directory / include_path
                 target_resolved = target_path.resolve()
                 if not target_resolved.is_relative_to(directory_resolved):
@@ -519,9 +517,7 @@ class SnapshotPersistence:
             target_path = project_root / include_path
             target = target_path.resolve()
             if not target.is_relative_to(project_root_resolved):
-                raise ValueError(
-                    f"Snapshot entry {include_token!r} would escape the project root."
-                )
+                raise ValueError(f"Snapshot entry {include_token!r} would escape the project root.")
             if not source_path.exists():
                 continue
             if source_path.is_dir():

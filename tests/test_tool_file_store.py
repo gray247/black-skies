@@ -48,7 +48,7 @@ def test_save_and_load_round_trip(
 
 
 def test_save_rejects_invalid_payload(
-    tool_context: Tuple[FileStoreTool, ToolInvocationContext]
+    tool_context: Tuple[FileStoreTool, ToolInvocationContext],
 ) -> None:
     tool, context = tool_context
     with pytest.raises(ValueError):
@@ -89,7 +89,9 @@ def test_load_propagates_missing_file(
         tool.load(context, "project", identifier)
 
 
-def test_load_requires_identifier(tool_context: Tuple[FileStoreTool, ToolInvocationContext]) -> None:
+def test_load_requires_identifier(
+    tool_context: Tuple[FileStoreTool, ToolInvocationContext],
+) -> None:
     tool, context = tool_context
     with pytest.raises(ValueError):
         tool.load(context, "project", "")

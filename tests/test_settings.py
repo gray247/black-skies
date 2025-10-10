@@ -10,9 +10,7 @@ import pytest
 from blackskies.services.settings import Settings, get_settings
 
 
-def test_settings_defaults(
-    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
-) -> None:
+def test_settings_defaults(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     monkeypatch.delenv("BLACK_SKIES_OPENAI_API_KEY", raising=False)
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     monkeypatch.delenv("BLACK_SKIES_BLACK_SKIES_MODE", raising=False)
@@ -25,9 +23,7 @@ def test_settings_defaults(
     assert settings.request_timeout_seconds == 30.0
 
 
-def test_settings_env_override(
-    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
-) -> None:
+def test_settings_env_override(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     get_settings.cache_clear()
     monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
     monkeypatch.setenv("BLACK_SKIES_MODE", "LIVE")
@@ -58,9 +54,7 @@ def test_settings_legacy_env_override(
     assert "BLACK_SKIES_BLACK_SKIES_MODE" in caplog.text
 
 
-def test_get_settings_cached(
-    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
-) -> None:
+def test_get_settings_cached(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     get_settings.cache_clear()
     monkeypatch.setenv("BLACK_SKIES_OPENAI_API_KEY", "sk-cache")
     monkeypatch.chdir(tmp_path)

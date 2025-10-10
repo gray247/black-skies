@@ -54,4 +54,3 @@ class WizardSnapshotService:
         )
 
         return WizardSnapshotResult(snapshot=snapshot_info)
-

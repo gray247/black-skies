@@ -56,9 +56,7 @@ def draft_units() -> list[dict]:
         {
             "id": "sc_0001",
             "title": "Storm Cellar",
-            "text": (
-                "The cellar stairs were slick with rain water and loose basement soil below."
-            ),
+            "text": ("The cellar stairs were slick with rain water and loose basement soil below."),
             "meta": {
                 "emotion_tag": "dread",
                 "conflict": "Rising flood threatens supplies",
@@ -88,7 +86,9 @@ def draft_units() -> list[dict]:
     ]
 
 
-def test_compute_emotion_arc_orders_and_defaults(outline_payload: dict, draft_units: list[dict]) -> None:
+def test_compute_emotion_arc_orders_and_defaults(
+    outline_payload: dict, draft_units: list[dict]
+) -> None:
     arc = compute_emotion_arc(outline_payload, draft_units)
 
     assert [point.scene_id for point in arc] == ["sc_0001", "sc_0002", "sc_0003"]
@@ -97,7 +97,9 @@ def test_compute_emotion_arc_orders_and_defaults(outline_payload: dict, draft_un
     assert arc[2].intensity == 0.5  # missing emotion tag falls back to default
 
 
-def test_compute_pacing_metrics_handles_missing_beats(outline_payload: dict, draft_units: list[dict]) -> None:
+def test_compute_pacing_metrics_handles_missing_beats(
+    outline_payload: dict, draft_units: list[dict]
+) -> None:
     summary = compute_pacing_metrics(outline_payload, draft_units)
 
     assert isinstance(summary, PacingSummary)
@@ -109,7 +111,9 @@ def test_compute_pacing_metrics_handles_missing_beats(outline_payload: dict, dra
     assert {metric.pace_label for metric in summary.scene_metrics} <= {"fast", "steady", "slow"}
 
 
-def test_compute_conflict_heatmap_groups_by_chapter(outline_payload: dict, draft_units: list[dict]) -> None:
+def test_compute_conflict_heatmap_groups_by_chapter(
+    outline_payload: dict, draft_units: list[dict]
+) -> None:
     heatmap = compute_conflict_heatmap(outline_payload, draft_units)
 
     assert isinstance(heatmap, ConflictHeatmap)
@@ -121,7 +125,9 @@ def test_compute_conflict_heatmap_groups_by_chapter(outline_payload: dict, draft
     assert first_chapter.intensity == pytest.approx(0.5, rel=1e-3)
 
 
-def test_generate_analytics_payload_composes_metrics(outline_payload: dict, draft_units: list[dict]) -> None:
+def test_generate_analytics_payload_composes_metrics(
+    outline_payload: dict, draft_units: list[dict]
+) -> None:
     payload = generate_analytics_payload(outline=outline_payload, draft_units=draft_units)
 
     assert isinstance(payload, AnalyticsPayload)

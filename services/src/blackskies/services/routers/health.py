@@ -32,7 +32,6 @@ async def health(version: str = Depends(get_service_version)) -> dict[str, str]:
 
 @router.get("/metrics")
 async def metrics_endpoint(version: str = Depends(get_service_version)) -> Response:
-
     """Return the Prometheus metrics payload without implicit charsets."""
 
     metrics_payload = render(version).encode("utf-8")
