@@ -63,6 +63,7 @@ SERVICE_VERSION: Final[str] = "1.0.0-rc1"
 
 LEGACY_DEPRECATION_HEADER: Final[str] = "true"
 LEGACY_SUNSET_HEADER: Final[str] = "Mon, 29 Sep 2025 00:00:00 GMT"
+LEGACY_SUCCESSOR_REL: Final[str] = "successor-version"
 
 
 P = ParamSpec("P")
@@ -81,21 +82,32 @@ def _resolve_active_trace_id(request: Request) -> str:
     return ensure_trace_id()
 
 
-def _apply_legacy_headers(response: Response, trace_id: str) -> None:
+def _canonical_successor_link(path: str) -> str:
+    """Return the canonical successor Link header for a legacy route."""
+
+    canonical = path if path.startswith("/api/v1") else f"/api/v1{path}"
+    return f"<{canonical}>; rel=\"{LEGACY_SUCCESSOR_REL}\""
+
+
+def _apply_legacy_headers(response: Response, trace_id: str, *, path: str) -> None:
     """Attach legacy sunset metadata to shim responses."""
 
     response.headers[TRACE_ID_HEADER] = trace_id
     response.headers["Deprecation"] = LEGACY_DEPRECATION_HEADER
     response.headers["Sunset"] = LEGACY_SUNSET_HEADER
+    response.headers["Link"] = _canonical_successor_link(path)
 
 
-def _apply_legacy_headers_to_exception(exc: HTTPException, trace_id: str) -> None:
+def _apply_legacy_headers_to_exception(
+    exc: HTTPException, trace_id: str, *, path: str
+) -> None:
     """Ensure error responses for shims include sunset metadata."""
 
     headers = dict(exc.headers or {})
     headers.setdefault(TRACE_ID_HEADER, trace_id)
     headers.setdefault("Deprecation", LEGACY_DEPRECATION_HEADER)
     headers.setdefault("Sunset", LEGACY_SUNSET_HEADER)
+    headers.setdefault("Link", _canonical_successor_link(path))
     exc.headers = headers
 
 
@@ -110,12 +122,13 @@ async def _legacy_alias(
     """Execute a legacy shim endpoint with uniform header handling."""
 
     trace_id = _resolve_active_trace_id(request)
+    successor_path = request.url.path
     try:
         result = await core(*args, **kwargs)
     except HTTPException as exc:
-        _apply_legacy_headers_to_exception(exc, trace_id)
+        _apply_legacy_headers_to_exception(exc, trace_id, path=successor_path)
         raise
-    _apply_legacy_headers(response, trace_id)
+    _apply_legacy_headers(response, trace_id, path=successor_path)
     return result
 
 
