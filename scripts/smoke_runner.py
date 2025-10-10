@@ -149,7 +149,7 @@ async def wait_for_service(base_url: str, timeout: float) -> None:
     loop = asyncio.get_running_loop()
     deadline = loop.time() + timeout
     async with httpx.AsyncClient(base_url=base_url, timeout=5.0) as client:
-        endpoints = ("/api/v1/healthz", "/healthz")
+        endpoints = ("/api/v1/healthz",)
         while True:
             for path in endpoints:
                 try:

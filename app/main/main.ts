@@ -106,7 +106,7 @@ function pipeStreamToLogger(
 
 async function waitForServicesHealthy(port: number): Promise<void> {
   const logger = ensureMainLogger();
-  const url = `http://${SERVICES_HOST}:${port}/healthz`;
+  const url = `http://${SERVICES_HOST}:${port}/api/v1/healthz`;
   const maxAttempts = 20;
   const attemptDelayMs = 250;
 

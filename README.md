@@ -58,8 +58,8 @@ Prereqs: **Node 20 LTS**, **PNPM**, **Python 3.11**
 
 ### Observability
 
-- Health probe: `GET http://127.0.0.1:8000/api/v1/healthz` (legacy `/healthz` emits `Deprecation: true`)
-- Metrics: `GET http://127.0.0.1:8000/metrics` (Prometheus text format)
+- Health probe: `GET http://127.0.0.1:8000/api/v1/healthz`
+- Metrics: `GET http://127.0.0.1:8000/api/v1/metrics` (Prometheus text format)
 - Traceability: every response includes an `X-Trace-Id` header; capture it when filing bugs or correlating logs.
 
 ### Python lint checks
