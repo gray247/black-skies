@@ -24,6 +24,7 @@ from blackskies.services.scene_docs import DraftRequestError
             "> emotion: Calm",
             id="single-field",
         ),
+        pytest.param({"pov": "Third"}, None, id="pov-only-skipped"),
         pytest.param(
             {"pov": "First person", "emotion_tag": "Joy"},
             "> emotion: Joy · pov: First person",
