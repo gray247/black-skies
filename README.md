@@ -41,9 +41,19 @@ Prereqs: **Node 20 LTS**, **PNPM**, **Python 3.11**
 
 ### Service configuration
 
-- Runtime settings are provided by `ServiceSettings` (`blackskies.services.config`). Define
-  `BLACKSKIES_PROJECT_BASE_DIR` in your shell or `.env`; quoted paths, leading whitespace, and `export` prefixes are supported.
-- The configured project directory must exist (e.g., `sample_project/Esther_Estate`). Misconfigured paths raise a validation
+- Copy `.env.example` to `.env` before launching the stack. Update
+  `BLACKSKIES_PROJECT_BASE_DIR` to point at your project root (or leave the
+  default `./sample_project` when working inside the repo).
+- Runtime settings are provided by `ServiceSettings`
+  (`blackskies.services.config`). Quoted paths, leading whitespace, and
+  `export` prefixes are supported when you set
+  `BLACKSKIES_PROJECT_BASE_DIR`.
+- Packaging and QA builds can override the default budget ceilings and
+  plugin allow/deny lists via the optional entries in `.env.example`. Keep
+  the RC1 defaults (`$5` soft, `$10` hard) unless the release plan calls for
+  different values.
+- The configured project directory must exist (e.g.,
+  `sample_project/Esther_Estate`). Misconfigured paths raise a validation
   error at startup so deployments fail fast.
 
 ### Observability

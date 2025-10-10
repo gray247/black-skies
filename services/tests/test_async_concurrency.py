@@ -7,8 +7,9 @@ import time
 from pathlib import Path
 from typing import Any
 
-import httpx
 import pytest
+
+httpx = pytest.importorskip("httpx")
 
 from blackskies.services.critique import CritiqueService
 from blackskies.services.draft_synthesizer import DraftSynthesizer

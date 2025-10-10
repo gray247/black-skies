@@ -11,6 +11,10 @@ from urllib import error, request
 
 import pytest
 
+pytest.importorskip("fastapi")
+pytest.importorskip("uvicorn")
+pytest.importorskip("yaml")
+
 from blackskies.services.__main__ import MAX_PORT, MIN_PORT
 
 
