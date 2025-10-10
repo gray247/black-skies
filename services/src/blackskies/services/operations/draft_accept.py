@@ -8,7 +8,11 @@ from typing import Any
 
 from fastapi.concurrency import run_in_threadpool
 
-from ..budgeting import load_project_budget_state, persist_project_budget
+from ..budgeting import (
+    derive_accept_unit_cost,
+    load_project_budget_state,
+    persist_project_budget,
+)
 from ..diagnostics import DiagnosticLogger
 from ..diff_engine import compute_diff
 from ..models.accept import DraftAcceptRequest
@@ -89,8 +93,15 @@ class DraftAcceptService:
         )
 
         budget_state = load_project_budget_state(project_root, self._diagnostics)
-        estimated_cost = request.unit.estimated_cost_usd or 0.0
-        persist_project_budget(budget_state, budget_state.spent_usd + estimated_cost)
+        accept_cost = derive_accept_unit_cost(
+            budget_state=budget_state,
+            request=request,
+            normalized_text=normalized_text,
+            project_root=project_root,
+            diagnostics=self._diagnostics,
+        )
+        new_spent_total = budget_state.spent_usd + accept_cost
+        persist_project_budget(budget_state, new_spent_total)
 
         response = {
             "project_id": request.project_id,
@@ -106,7 +117,7 @@ class DraftAcceptService:
             "budget": {
                 "soft_limit_usd": round(budget_state.soft_limit, 2),
                 "hard_limit_usd": round(budget_state.hard_limit, 2),
-                "spent_usd": round(budget_state.spent_usd + estimated_cost, 2),
+                "spent_usd": round(new_spent_total, 2),
             },
             "schema_version": "DraftAcceptResult v1",
         }

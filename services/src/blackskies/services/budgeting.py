@@ -9,15 +9,19 @@ import os
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Final
+from typing import TYPE_CHECKING, Any, Final
 from uuid import uuid4
 
 from .diagnostics import DiagnosticLogger
+
+if TYPE_CHECKING:
+    from .models.accept import DraftAcceptRequest
 
 LOGGER = logging.getLogger(__name__)
 
 SOFT_BUDGET_LIMIT_USD: Final[float] = 5.0
 HARD_BUDGET_LIMIT_USD: Final[float] = 10.0
+COST_PER_1000_WORDS_USD: Final[float] = 0.02
 
 
 @dataclass(slots=True)
@@ -242,7 +246,131 @@ __all__ = [
     "ProjectBudgetState",
     "SOFT_BUDGET_LIMIT_USD",
     "HARD_BUDGET_LIMIT_USD",
+    "COST_PER_1000_WORDS_USD",
+    "derive_accept_unit_cost",
     "classify_budget",
     "load_project_budget_state",
     "persist_project_budget",
 ]
+
+
+def _estimate_cost_from_text(text: str) -> float:
+    """Estimate generation cost by counting words in the provided text."""
+
+    words = [token for token in text.split() if token]
+    if not words:
+        return 0.0
+    cost = (len(words) / 1000.0) * COST_PER_1000_WORDS_USD
+    return round(cost, 2)
+
+
+def _extract_cost_from_cached_unit(unit_payload: dict[str, Any]) -> float | None:
+    meta = unit_payload.get("meta")
+    if isinstance(meta, dict):
+        word_target = meta.get("word_target")
+        if isinstance(word_target, (int, float)) and word_target > 0:
+            cost = (float(word_target) / 1000.0) * COST_PER_1000_WORDS_USD
+            return round(cost, 2)
+
+    cached_cost = unit_payload.get("estimated_cost_usd")
+    if isinstance(cached_cost, (int, float)) and cached_cost >= 0:
+        return round(float(cached_cost), 2)
+    return None
+
+
+def derive_accept_unit_cost(
+    *,
+    budget_state: ProjectBudgetState,
+    request: "DraftAcceptRequest",
+    normalized_text: str,
+    project_root: Path,
+    diagnostics: DiagnosticLogger,
+) -> float:
+    """Return the authoritative cost for an accepted draft unit."""
+
+    budget_meta = (
+        budget_state.metadata.get("budget")
+        if isinstance(budget_state.metadata, dict)
+        else None
+    )
+    cached_response = (
+        budget_meta.get("last_generate_response")
+        if isinstance(budget_meta, dict)
+        else None
+    )
+
+    if isinstance(cached_response, dict):
+        cached_draft_id = cached_response.get("draft_id")
+        if cached_draft_id == request.draft_id:
+            units_payload = cached_response.get("units")
+            unit_matched = False
+            if isinstance(units_payload, list):
+                for unit_payload in units_payload:
+                    if not isinstance(unit_payload, dict):
+                        continue
+                    if unit_payload.get("id") != request.unit_id:
+                        continue
+                    unit_matched = True
+                    cached_cost = _extract_cost_from_cached_unit(unit_payload)
+                    if cached_cost is not None:
+                        return cached_cost
+                    diagnostics.log(
+                        project_root,
+                        code="INTERNAL",
+                        message="Cached generate response missing unit cost; recomputing.",
+                        details={"unit_id": request.unit_id},
+                    )
+                    break
+            if isinstance(units_payload, list) and not unit_matched:
+                diagnostics.log(
+                    project_root,
+                    code="INTERNAL",
+                    message="Cached generate response missing unit entry; recomputing cost.",
+                    details={
+                        "unit_id": request.unit_id,
+                        "cached_unit_ids": [
+                            unit.get("id")
+                            for unit in units_payload
+                            if isinstance(unit, dict)
+                        ],
+                    },
+                )
+            budget_info = cached_response.get("budget")
+            if isinstance(budget_info, dict):
+                total_estimate = budget_info.get("estimated_usd")
+                units_payload = cached_response.get("units")
+                if (
+                    isinstance(total_estimate, (int, float))
+                    and total_estimate >= 0
+                    and isinstance(units_payload, list)
+                    and len(units_payload) == 1
+                ):
+                    return round(float(total_estimate), 2)
+        else:
+            diagnostics.log(
+                project_root,
+                code="INTERNAL",
+                message="Accept request draft_id mismatch; recomputing cost.",
+                details={
+                    "expected_draft_id": cached_draft_id,
+                    "received_draft_id": request.draft_id,
+                },
+            )
+    else:
+        diagnostics.log(
+            project_root,
+            code="INTERNAL",
+            message="Missing cached generate response; recomputing cost.",
+            details={"unit_id": request.unit_id},
+        )
+
+    fallback_cost = _estimate_cost_from_text(normalized_text)
+    if fallback_cost == 0.0:
+        diagnostics.log(
+            project_root,
+            code="INTERNAL",
+            message="Unable to derive cost from cache; text produced zero-cost fallback.",
+            details={"unit_id": request.unit_id},
+        )
+    return fallback_cost
+
