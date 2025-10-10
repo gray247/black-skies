@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any, Mapping, MutableMapping
 
 from .. import storage
+from ..config import ServiceSettings
 from .base import (
     ToolContext,
     ToolExecutionResult,
@@ -26,8 +27,17 @@ class FileStoreTool:
         cost_estimate="filesystem-io",
     )
 
-    def __init__(self) -> None:
-        self._data_root = storage.DATA_ROOT
+    def __init__(
+        self,
+        *,
+        base_dir: Path | None = None,
+        settings: ServiceSettings | None = None,
+    ) -> None:
+        if base_dir is not None and settings is not None:
+            raise ValueError("Provide either base_dir or settings, not both.")
+        if settings is None:
+            settings = ServiceSettings.from_environment()
+        self._base_dir = base_dir or settings.project_base_dir
 
     def _ensure_mapping(self, obj: Mapping[str, Any] | MutableMapping[str, Any]) -> dict[str, Any]:
         if not isinstance(obj, Mapping):
@@ -50,7 +60,7 @@ class FileStoreTool:
         operation_payload = {"operation": "save", "kind": kind, "id": identifier}
         log_tool_start(context, **operation_payload)
         try:
-            path = storage.save(data)
+            path = storage.save(data, base_dir=self._base_dir)
         except Exception as exc:
             log_tool_complete(
                 context,
@@ -62,7 +72,10 @@ class FileStoreTool:
                 },
             )
             raise
-        relative_path = path.relative_to(self._data_root)
+        try:
+            relative_path = path.relative_to(self._base_dir)
+        except ValueError:
+            relative_path = path
         log_tool_complete(
             context,
             **{**operation_payload, "status": "success", "path": str(relative_path)},
@@ -84,7 +97,7 @@ class FileStoreTool:
         operation_payload = {"operation": "load", "kind": kind, "id": identifier}
         log_tool_start(context, **operation_payload)
         try:
-            data = storage.load(kind, identifier)
+            data = storage.load(kind, identifier, base_dir=self._base_dir)
         except Exception as exc:
             log_tool_complete(
                 context,

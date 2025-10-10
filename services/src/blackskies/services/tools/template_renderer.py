@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from string import Template
-from typing import Mapping
+from typing import Any, Mapping
 
 from .. import storage
+from ..config import ServiceSettings
 from .base import (
     ToolContext,
     ToolExecutionResult,
@@ -26,6 +28,18 @@ class TemplateRendererTool:
         cost_estimate="cpu-only",
     )
 
+    def __init__(
+        self,
+        *,
+        base_dir: Path | None = None,
+        settings: ServiceSettings | None = None,
+    ) -> None:
+        if base_dir is not None and settings is not None:
+            raise ValueError("Provide either base_dir or settings, not both.")
+        if settings is None:
+            settings = ServiceSettings.from_environment()
+        self._base_dir = base_dir or settings.project_base_dir
+
     def context(
         self, *, trace_id: str | None = None, metadata: Mapping[str, Any] | None = None
     ) -> ToolInvocationContext:
@@ -44,7 +58,7 @@ class TemplateRendererTool:
         operation_payload = {"operation": "render", "template_id": template_id}
         log_tool_start(context, **operation_payload)
         try:
-            record = storage.load("template", template_id)
+            record = storage.load("template", template_id, base_dir=self._base_dir)
         except Exception as exc:
             log_tool_complete(
                 context,
