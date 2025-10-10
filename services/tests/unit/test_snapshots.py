@@ -9,7 +9,11 @@ from typing import Any
 
 import pytest
 
+from datetime import datetime, timezone
+
+from blackskies.services.config import ServiceSettings
 from blackskies.services.diagnostics import DiagnosticLogger
+from blackskies.services.persistence import SnapshotPersistence
 from blackskies.services.snapshots import (
     SnapshotIncludesError,
     SnapshotPersistenceError,
@@ -157,6 +161,35 @@ def test_create_wizard_lock_snapshot_invalid_includes(tmp_path: Path) -> None:
     assert excinfo.value.details["project_id"] == "project-charlie"
     assert excinfo.value.details["includes"] == ["drafts"]
 
+
+
+def test_snapshot_persistence_retries_same_tick(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Ensure snapshot creation survives timestamp collisions within a second."""
+
+    class FrozenDateTime(datetime):
+        @classmethod
+        def now(cls, tz=None):
+            moment = datetime(2025, 1, 1, 12, 0, 0, 123456, tzinfo=timezone.utc)
+            if tz is None:
+                return moment
+            return moment.astimezone(tz)
+
+    settings = ServiceSettings(project_base_dir=tmp_path)
+    persistence = SnapshotPersistence(settings=settings)
+
+    monkeypatch.setattr(
+        "blackskies.services.persistence.datetime",
+        FrozenDateTime,
+    )
+
+    first = persistence.create_snapshot("proj-collision")
+    second = persistence.create_snapshot("proj-collision")
+
+    assert first["snapshot_id"] != second["snapshot_id"]
+
+    snapshots_dir = tmp_path / "proj-collision" / "history" / "snapshots"
+    snapshot_ids = {entry.name.split("_", 1)[0] for entry in snapshots_dir.iterdir()}
+    assert snapshot_ids == {first["snapshot_id"], second["snapshot_id"]}
 
 def test_create_wizard_lock_snapshot_persistence_error(tmp_path: Path) -> None:
     diagnostics = DiagnosticLogger()

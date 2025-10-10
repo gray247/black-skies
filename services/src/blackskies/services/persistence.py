@@ -7,11 +7,13 @@ import json
 import os
 import re
 import shutil
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import TYPE_CHECKING, Any, Sequence
 from uuid import uuid4
+
+from threading import Lock
 
 from blackskies.services.utils import safe_dump, to_posix
 
@@ -233,6 +235,8 @@ class SnapshotPersistence:
     """Create and restore project snapshots for crash recovery."""
 
     settings: ServiceSettings
+    _id_lock: Lock = field(default_factory=Lock, init=False, repr=False)
+    _last_snapshot_prefix: str = field(default="", init=False, repr=False)
 
     def _snapshots_dir(self, project_id: str) -> Path:
         project_root = self.settings.project_base_dir / project_id
@@ -244,10 +248,15 @@ class SnapshotPersistence:
         """Return a snapshot identifier with microsecond precision."""
 
         base = datetime.now(tz=timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
-        if attempt <= 0:
+        suffix_required = attempt > 0
+        with self._id_lock:
+            if base == self._last_snapshot_prefix:
+                suffix_required = True
+            else:
+                self._last_snapshot_prefix = base
+        if not suffix_required:
             return base
-        suffix = uuid4().hex[:8]
-        return f"{base}-{suffix}"
+        return f"{base}-{uuid4().hex[:8]}"
 
     def _sanitize_label(self, label: str | None) -> str:
         if not label:
@@ -308,21 +317,26 @@ class SnapshotPersistence:
         recorded: list[str] = []
         include_specs: list[tuple[str, Path, Path]] = []
 
-        for entry in includes:
-            include_path, include_token = _normalise_include_entry(entry)
-            source_path = project_root / include_path
-            source_resolved = source_path.resolve()
-            if not source_resolved.is_relative_to(project_root_resolved):
-                raise ValueError(
-                    f"Include path {include_token!r} escapes the project root."
-                )
-            target_path = directory / include_path
-            target_resolved = target_path.resolve()
-            if not target_resolved.is_relative_to(directory_resolved):
-                raise ValueError(
-                    f"Snapshot target for {include_token!r} escapes the history folder."
-                )
-            include_specs.append((include_token, source_path, target_path))
+        try:
+            for entry in includes:
+                include_path, include_token = _normalise_include_entry(entry)
+                source_path = project_root / include_path
+                source_resolved = source_path.resolve()
+                if not source_resolved.is_relative_to(project_root_resolved):
+                    raise ValueError(
+                        f"Include path {include_token!r} escapes the project root."
+                    )
+                target_path = directory / include_path
+                target_resolved = target_path.resolve()
+                if not target_resolved.is_relative_to(directory_resolved):
+                    raise ValueError(
+                        f"Snapshot target for {include_token!r} escapes the history folder."
+                    )
+                include_specs.append((include_token, source_path, target_path))
+        except ValueError:
+            if directory is not None and directory.exists():
+                shutil.rmtree(directory, ignore_errors=True)
+            raise
 
         for include_token, source_path, target_path in include_specs:
             if not source_path.exists():

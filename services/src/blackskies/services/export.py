@@ -194,7 +194,15 @@ def compile_manuscript(
 
             title = front_matter.get("title") or scene.title
             section_lines = [f"## {title}"]
-            meta_line = build_meta_header(front_matter) if include_meta_header else None
+            meta_line: str | None = None
+            if include_meta_header:
+                meta_line = build_meta_header(front_matter)
+                if meta_line is None:
+                    pov_value = front_matter.get("pov")
+                    if pov_value is not None:
+                        pov_text = str(pov_value).strip()
+                        if pov_text:
+                            meta_line = f"> pov: {pov_text}"
             if meta_line:
                 section_lines.append(meta_line)
 
