@@ -12,6 +12,9 @@ __all__ = ["router", "get_service_version", "health", "metrics_endpoint"]
 router = APIRouter(prefix="/api/v1", tags=["health"])
 
 
+_METRICS_MEDIA_TYPE = "text/plain; version=0.0.4"
+
+
 def get_service_version(request: Request) -> str:
     """Return the service version attached to the application state."""
 
@@ -34,7 +37,10 @@ async def health_alias(version: str = Depends(get_service_version)) -> dict[str,
 
 @router.get("/metrics")
 async def metrics_endpoint(version: str = Depends(get_service_version)) -> Response:
+    """Return the Prometheus metrics payload without implicit charsets."""
+
     return Response(
         content=render(version),
-        media_type="text/plain; version=0.0.4",
+        headers={"Content-Type": _METRICS_MEDIA_TYPE},
+        media_type=None,
     )
