@@ -364,7 +364,7 @@ def test_outline_build_conflict(test_client: TestClient, tmp_path: Path) -> None
 
 
 def test_legacy_outline_build_shim_headers(test_client: TestClient, tmp_path: Path) -> None:
-    """Legacy outline shim proxies to the versioned handler with sunset headers."""
+    """Legacy outline shim proxies to the versioned handler with sunset and Link headers."""
 
     payload = _build_payload()
     payload["project_id"] = "proj_legacy_outline"
@@ -376,6 +376,7 @@ def test_legacy_outline_build_shim_headers(test_client: TestClient, tmp_path: Pa
     assert legacy_body["schema_version"] == "OutlineSchema v1"
     assert response.headers["Deprecation"] == "true"
     assert response.headers["Sunset"] == "Mon, 29 Sep 2025 00:00:00 GMT"
+    assert response.headers["Link"] == "</api/v1/outline/build>; rel=\"successor-version\""
     _assert_trace_header(response)
 
     v1_response = test_client.post(f"{API_PREFIX}/outline/build", json=payload)
@@ -386,7 +387,7 @@ def test_legacy_outline_build_shim_headers(test_client: TestClient, tmp_path: Pa
 def test_legacy_draft_generate_shim_success_headers(
     test_client: TestClient, tmp_path: Path
 ) -> None:
-    """Legacy draft generate proxies to v1 and applies deprecation headers."""
+    """Legacy draft generate proxies to v1 and applies deprecation and Link headers."""
 
     project_id = "proj_legacy_generate"
     scene_ids = _bootstrap_outline(tmp_path, project_id, scene_count=1)
@@ -403,6 +404,7 @@ def test_legacy_draft_generate_shim_success_headers(
     legacy_body = response.json()
     assert response.headers["Deprecation"] == "true"
     assert response.headers["Sunset"] == "Mon, 29 Sep 2025 00:00:00 GMT"
+    assert response.headers["Link"] == "</api/v1/draft/generate>; rel=\"successor-version\""
     _assert_trace_header(response)
 
     v1_response = test_client.post(f"{API_PREFIX}/draft/generate", json=payload)
@@ -411,7 +413,7 @@ def test_legacy_draft_generate_shim_success_headers(
 
 
 def test_legacy_draft_generate_shim_error_headers(test_client: TestClient) -> None:
-    """Legacy draft shim applies deprecation headers even on errors."""
+    """Legacy draft shim applies deprecation and Link headers even on errors."""
 
     payload = {"project_id": "proj_legacy_error"}
 
@@ -421,6 +423,7 @@ def test_legacy_draft_generate_shim_error_headers(test_client: TestClient) -> No
     assert detail["code"] == "VALIDATION"
     assert response.headers["Deprecation"] == "true"
     assert response.headers["Sunset"] == "Mon, 29 Sep 2025 00:00:00 GMT"
+    assert response.headers["Link"] == "</api/v1/draft/generate>; rel=\"successor-version\""
 
     v1_response = test_client.post(f"{API_PREFIX}/draft/generate", json=payload)
     assert v1_response.status_code == 400
