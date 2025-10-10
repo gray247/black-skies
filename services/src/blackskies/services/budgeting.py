@@ -289,14 +289,10 @@ def derive_accept_unit_cost(
     """Return the authoritative cost for an accepted draft unit."""
 
     budget_meta = (
-        budget_state.metadata.get("budget")
-        if isinstance(budget_state.metadata, dict)
-        else None
+        budget_state.metadata.get("budget") if isinstance(budget_state.metadata, dict) else None
     )
     cached_response = (
-        budget_meta.get("last_generate_response")
-        if isinstance(budget_meta, dict)
-        else None
+        budget_meta.get("last_generate_response") if isinstance(budget_meta, dict) else None
     )
 
     if isinstance(cached_response, dict):
@@ -329,9 +325,7 @@ def derive_accept_unit_cost(
                     details={
                         "unit_id": request.unit_id,
                         "cached_unit_ids": [
-                            unit.get("id")
-                            for unit in units_payload
-                            if isinstance(unit, dict)
+                            unit.get("id") for unit in units_payload if isinstance(unit, dict)
                         ],
                     },
                 )
@@ -373,4 +367,3 @@ def derive_accept_unit_cost(
             details={"unit_id": request.unit_id},
         )
     return fallback_cost
-
