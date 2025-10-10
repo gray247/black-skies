@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from pathlib import PurePosixPath, PureWindowsPath
 from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator
@@ -94,7 +95,37 @@ class WizardLockSnapshotRequest(BaseModel):
     @field_validator("includes")
     @classmethod
     def _sanitize_includes(cls, value: list[str]) -> list[str]:
-        return [item for item in value if isinstance(item, str) and item.strip()]
+        sanitized: list[str] = []
+        for raw in value:
+            if not isinstance(raw, str):
+                continue
+            candidate = raw.strip()
+            if not candidate:
+                continue
+
+            posix_path = PurePosixPath(candidate)
+            windows_path = PureWindowsPath(candidate)
+            for variant in (posix_path, windows_path):
+                if variant.is_absolute() or variant.anchor:
+                    raise ValueError(f"Include path {candidate!r} must be relative.")
+                if any(part in ("..", "") for part in variant.parts):
+                    raise ValueError(
+                        f"Include path {candidate!r} may not traverse parent directories."
+                    )
+
+            posix_parts = [part for part in posix_path.parts if part not in (".", "")]
+            windows_parts = [part for part in windows_path.parts if part not in (".", "")]
+            if "\\" in candidate and windows_parts:
+                normalized_parts = windows_parts
+            else:
+                normalized_parts = posix_parts
+
+            if not normalized_parts:
+                raise ValueError(f"Include path {candidate!r} is not valid.")
+
+            sanitized.append("/".join(normalized_parts))
+
+        return sanitized
 
 
 __all__ = [

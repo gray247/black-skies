@@ -9,7 +9,7 @@ import re
 import shutil
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from pathlib import Path
+from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Any, Sequence
 from uuid import uuid4
 
@@ -109,6 +109,39 @@ def _needs_quotes(value: str) -> bool:
     if re.search(r"[#:>{}\[\],]", value):
         return True
     return False
+
+
+def _normalise_include_entry(entry: str) -> tuple[Path, str]:
+    """Return a safe relative path and its POSIX string representation."""
+
+    if not isinstance(entry, str):
+        raise ValueError("Include entries must be strings.")
+    candidate = entry.strip()
+    if not candidate:
+        raise ValueError("Include entries may not be empty.")
+
+    posix_path = PurePosixPath(candidate)
+    windows_path = PureWindowsPath(candidate)
+    for variant in (posix_path, windows_path):
+        if variant.is_absolute() or variant.anchor:
+            raise ValueError(f"Include path {candidate!r} must be relative to the project.")
+        if any(part in ("..", "") for part in variant.parts):
+            raise ValueError(
+                f"Include path {candidate!r} may not contain parent directory traversal."
+            )
+
+    posix_parts = [part for part in posix_path.parts if part not in (".", "")]
+    windows_parts = [part for part in windows_path.parts if part not in (".", "")]
+    if "\\" in candidate and windows_parts:
+        normalized_parts = windows_parts
+    else:
+        normalized_parts = posix_parts
+
+    if not normalized_parts:
+        raise ValueError(f"Include path {candidate!r} is not valid.")
+
+    relative_path = Path(*normalized_parts)
+    return relative_path, "/".join(normalized_parts)
 
 
 @dataclass
@@ -221,26 +254,48 @@ class SnapshotPersistence:
         include_entries: Sequence[str] | None = None,
     ) -> dict[str, Any]:
         snapshots_dir = self._snapshots_dir(project_id)
+        snapshots_root = snapshots_dir.resolve()
         snapshot_id = self._snapshot_id()
         label_token = self._sanitize_label(label)
         directory = snapshots_dir / f"{snapshot_id}_{label_token}"
-        directory.mkdir(parents=True, exist_ok=False)
+        directory_resolved = directory.resolve()
+        if not directory_resolved.is_relative_to(snapshots_root):
+            raise ValueError("Snapshot directory must be inside the project history folder.")
 
         project_root = self.settings.project_base_dir / project_id
+        project_root.mkdir(parents=True, exist_ok=True)
+        project_root_resolved = project_root.resolve()
         includes = list(include_entries or ["drafts", "outline.json", "project.json"])
         recorded: list[str] = []
+        include_specs: list[tuple[str, Path, Path]] = []
 
         for entry in includes:
-            source = project_root / entry
-            if not source.exists():
+            include_path, include_token = _normalise_include_entry(entry)
+            source_path = project_root / include_path
+            source_resolved = source_path.resolve()
+            if not source_resolved.is_relative_to(project_root_resolved):
+                raise ValueError(
+                    f"Include path {include_token!r} escapes the project root."
+                )
+            target_path = directory / include_path
+            target_resolved = target_path.resolve()
+            if not target_resolved.is_relative_to(directory_resolved):
+                raise ValueError(
+                    f"Snapshot target for {include_token!r} escapes the history folder."
+                )
+            include_specs.append((include_token, source_path, target_path))
+
+        directory.mkdir(parents=True, exist_ok=False)
+
+        for include_token, source_path, target_path in include_specs:
+            if not source_path.exists():
                 continue
-            target = directory / entry
-            if source.is_dir():
-                shutil.copytree(source, target, dirs_exist_ok=True)
+            if source_path.is_dir():
+                shutil.copytree(source_path, target_path, dirs_exist_ok=True)
             else:
-                target.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copy2(source, target)
-            recorded.append(entry)
+                target_path.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(source_path, target_path)
+            recorded.append(include_token)
 
         created_at = datetime.now(tz=timezone.utc).isoformat().replace("+00:00", "Z")
         metadata = {
@@ -397,16 +452,32 @@ class SnapshotPersistence:
             }
 
         project_root = self.settings.project_base_dir / project_id
-        includes = metadata.get("includes") or ["drafts", "outline.json", "project.json"]
-        for entry in includes:
-            source = snapshot_dir / entry
-            target = project_root / entry
-            if not source.exists():
+        project_root.mkdir(parents=True, exist_ok=True)
+        project_root_resolved = project_root.resolve()
+        snapshot_root = snapshot_dir.resolve()
+        includes_raw = metadata.get("includes") or ["drafts", "outline.json", "project.json"]
+        includes: list[str] = []
+        for entry in includes_raw:
+            include_path, include_token = _normalise_include_entry(entry)
+            source_path = snapshot_dir / include_path
+            source = source_path.resolve()
+            if not source.is_relative_to(snapshot_root):
+                raise ValueError(
+                    f"Snapshot entry {include_token!r} escapes the snapshot directory."
+                )
+            target_path = project_root / include_path
+            target = target_path.resolve()
+            if not target.is_relative_to(project_root_resolved):
+                raise ValueError(
+                    f"Snapshot entry {include_token!r} would escape the project root."
+                )
+            if not source_path.exists():
                 continue
-            if source.is_dir():
-                self._restore_directory(source, target)
+            if source_path.is_dir():
+                self._restore_directory(source_path, target_path)
             else:
-                self._restore_file(source, target)
+                self._restore_file(source_path, target_path)
+            includes.append(include_token)
 
         return {
             "snapshot_id": snapshot_id,

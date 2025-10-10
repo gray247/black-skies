@@ -878,6 +878,34 @@ def test_wizard_lock_missing_project_returns_validation_error(
     assert detail["code"] == "VALIDATION"
 
 
+def test_wizard_lock_rejects_malicious_include(
+    test_client: TestClient, tmp_path: Path
+) -> None:
+    """Wizard lock snapshots reject include paths that escape the project."""
+
+    project_id = "proj_wizard_escape"
+    _bootstrap_scene(tmp_path, project_id)
+
+    payload = {
+        "project_id": project_id,
+        "step": "structure",
+        "label": "wizard-structure",
+        "includes": ["../outside.txt"],
+    }
+
+    response = test_client.post(f"{API_PREFIX}/draft/wizard/lock", json=payload)
+    assert response.status_code == 400
+    detail = _read_error(response)
+    assert detail["code"] == "VALIDATION"
+
+    outside_path = tmp_path / "outside.txt"
+    assert not outside_path.exists()
+
+    snapshots_dir = tmp_path / project_id / "history" / "snapshots"
+    assert snapshots_dir.exists()
+    assert list(snapshots_dir.iterdir()) == []
+
+
 def test_draft_accept_conflict_on_checksum(test_client: TestClient, tmp_path: Path) -> None:
     """Out-of-date accept requests return a conflict."""
 
@@ -996,6 +1024,41 @@ def test_recovery_restore_overwrites_scene(test_client: TestClient, tmp_path: Pa
     assert state["needs_recovery"] is False
     assert state["last_snapshot"]["path"] == snapshot_rel_path
 
+
+def test_recovery_restore_rejects_malicious_include(
+    test_client: TestClient, tmp_path: Path
+) -> None:
+    """Recovery restore refuses to apply snapshots with unsafe includes."""
+
+    project_id = "proj_recovery_escape"
+    _bootstrap_scene(tmp_path, project_id)
+
+    snapshot_dir = tmp_path / project_id / "history" / "snapshots" / "20240101T000000Z_accept"
+    snapshot_dir.mkdir(parents=True, exist_ok=True)
+    metadata_path = snapshot_dir / "metadata.json"
+    metadata_path.write_text(
+        json.dumps(
+            {
+                "snapshot_id": "20240101T000000Z",
+                "project_id": project_id,
+                "label": "accept",
+                "created_at": "2024-01-01T00:00:00Z",
+                "includes": ["../outside.txt"],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    response = test_client.post(
+        f"{API_PREFIX}/draft/recovery/restore",
+        json={"project_id": project_id, "snapshot_id": "20240101T000000Z"},
+    )
+    assert response.status_code == 400
+    detail = _read_error(response)
+    assert detail["code"] == "VALIDATION"
+
+    outside_path = tmp_path / "outside.txt"
+    assert not outside_path.exists()
 
 def test_restore_snapshot_ignores_fsync_error(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
