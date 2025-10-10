@@ -34,7 +34,9 @@ async def health_alias(version: str = Depends(get_service_version)) -> dict[str,
 
 @router.get("/metrics")
 async def metrics_endpoint(version: str = Depends(get_service_version)) -> Response:
+    """Expose Prometheus-compatible service metrics without extra charset metadata."""
+
     return Response(
-        content=render(version),
-        media_type="text/plain; version=0.0.4",
+        content=render(version).encode("utf-8"),
+        headers={"content-type": "text/plain; version=0.0.4"},
     )
