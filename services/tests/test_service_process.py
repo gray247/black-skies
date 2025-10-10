@@ -11,11 +11,11 @@ from urllib import error, request
 
 import pytest
 
+from blackskies.services.__main__ import MAX_PORT, MIN_PORT
+
 pytest.importorskip("fastapi")
 pytest.importorskip("uvicorn")
 pytest.importorskip("yaml")
-
-from blackskies.services.__main__ import MAX_PORT, MIN_PORT
 
 
 def _find_available_port() -> int:

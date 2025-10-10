@@ -3,9 +3,9 @@ from __future__ import annotations
 import pytest
 from fastapi.testclient import TestClient
 
-pytest.importorskip("fastapi")
-
 from blackskies.services.app import create_app
+
+pytest.importorskip("fastapi")
 
 client = TestClient(create_app())
 
