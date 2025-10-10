@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, Awaitable, Callable, Final
+from typing import Any, Awaitable, Callable, Final, ParamSpec, TypeVar
 
 from fastapi import Depends, FastAPI, HTTPException, Request, Response, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -65,6 +65,10 @@ LEGACY_DEPRECATION_HEADER: Final[str] = "true"
 LEGACY_SUNSET_HEADER: Final[str] = "Mon, 29 Sep 2025 00:00:00 GMT"
 
 
+P = ParamSpec("P")
+T = TypeVar("T")
+
+
 def _resolve_active_trace_id(request: Request) -> str:
     """Return the trace identifier attached by the middleware."""
 
@@ -93,6 +97,26 @@ def _apply_legacy_headers_to_exception(exc: HTTPException, trace_id: str) -> Non
     headers.setdefault("Deprecation", LEGACY_DEPRECATION_HEADER)
     headers.setdefault("Sunset", LEGACY_SUNSET_HEADER)
     exc.headers = headers
+
+
+async def _legacy_alias(
+    core: Callable[P, Awaitable[T]],
+    *,
+    request: Request,
+    response: Response,
+    args: P.args,
+    kwargs: P.kwargs,
+) -> T:
+    """Execute a legacy shim endpoint with uniform header handling."""
+
+    trace_id = _resolve_active_trace_id(request)
+    try:
+        result = await core(*args, **kwargs)
+    except HTTPException as exc:
+        _apply_legacy_headers_to_exception(exc, trace_id)
+        raise
+    _apply_legacy_headers(response, trace_id)
+    return result
 
 
 def create_app(settings: ServiceSettings | None = None) -> FastAPI:
@@ -202,20 +226,18 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
         persistence: OutlinePersistence = Depends(get_outline_persistence),
         diagnostics: DiagnosticLogger = Depends(get_diagnostics),
     ) -> dict[str, object]:
-        trace_id = _resolve_active_trace_id(request)
-        try:
-            result = await build_outline(
-                request_model,
-                tracker=tracker,
-                builder=builder,
-                persistence=persistence,
-                diagnostics=diagnostics,
-            )
-        except HTTPException as exc:
-            _apply_legacy_headers_to_exception(exc, trace_id)
-            raise
-        _apply_legacy_headers(response, trace_id)
-        return result
+        return await _legacy_alias(
+            build_outline,
+            request=request,
+            response=response,
+            args=(request_model,),
+            kwargs={
+                "tracker": tracker,
+                "builder": builder,
+                "persistence": persistence,
+                "diagnostics": diagnostics,
+            },
+        )
 
     @application.post("/draft/generate", include_in_schema=False)
     async def legacy_draft_generate(
@@ -225,18 +247,16 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
         settings: ServiceSettings = Depends(get_settings),
         diagnostics: DiagnosticLogger = Depends(get_diagnostics),
     ) -> dict[str, Any]:
-        trace_id = _resolve_active_trace_id(request)
-        try:
-            result = await generate_draft(
-                payload,
-                settings=settings,
-                diagnostics=diagnostics,
-            )
-        except HTTPException as exc:
-            _apply_legacy_headers_to_exception(exc, trace_id)
-            raise
-        _apply_legacy_headers(response, trace_id)
-        return result
+        return await _legacy_alias(
+            generate_draft,
+            request=request,
+            response=response,
+            args=(payload,),
+            kwargs={
+                "settings": settings,
+                "diagnostics": diagnostics,
+            },
+        )
 
     @application.post("/draft/preflight", include_in_schema=False)
     async def legacy_draft_preflight(
@@ -246,18 +266,16 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
         settings: ServiceSettings = Depends(get_settings),
         diagnostics: DiagnosticLogger = Depends(get_diagnostics),
     ) -> dict[str, Any]:
-        trace_id = _resolve_active_trace_id(request)
-        try:
-            result = await preflight_draft(
-                payload,
-                settings=settings,
-                diagnostics=diagnostics,
-            )
-        except HTTPException as exc:
-            _apply_legacy_headers_to_exception(exc, trace_id)
-            raise
-        _apply_legacy_headers(response, trace_id)
-        return result
+        return await _legacy_alias(
+            preflight_draft,
+            request=request,
+            response=response,
+            args=(payload,),
+            kwargs={
+                "settings": settings,
+                "diagnostics": diagnostics,
+            },
+        )
 
     @application.post("/draft/rewrite", include_in_schema=False)
     async def legacy_draft_rewrite(
@@ -267,32 +285,29 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
         settings: ServiceSettings = Depends(get_settings),
         diagnostics: DiagnosticLogger = Depends(get_diagnostics),
     ) -> dict[str, Any]:
-        trace_id = _resolve_active_trace_id(request)
-        try:
-            result = await rewrite_draft(
-                payload,
-                settings=settings,
-                diagnostics=diagnostics,
-            )
-        except HTTPException as exc:
-            _apply_legacy_headers_to_exception(exc, trace_id)
-            raise
-        _apply_legacy_headers(response, trace_id)
-        return result
+        return await _legacy_alias(
+            rewrite_draft,
+            request=request,
+            response=response,
+            args=(payload,),
+            kwargs={
+                "settings": settings,
+                "diagnostics": diagnostics,
+            },
+        )
 
     @application.post("/draft/critique", include_in_schema=False)
     async def legacy_draft_critique(
         request: Request,
         response: Response,
     ) -> dict[str, Any]:
-        trace_id = _resolve_active_trace_id(request)
-        try:
-            result = await critique_draft()
-        except HTTPException as exc:
-            _apply_legacy_headers_to_exception(exc, trace_id)
-            raise
-        _apply_legacy_headers(response, trace_id)
-        return result
+        return await _legacy_alias(
+            critique_draft,
+            request=request,
+            response=response,
+            args=(),
+            kwargs={},
+        )
 
     @application.post("/draft/accept", include_in_schema=False)
     async def legacy_draft_accept(
@@ -304,20 +319,18 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
         snapshot_persistence: SnapshotPersistence = Depends(get_snapshot_persistence),
         recovery_tracker: RecoveryTracker = Depends(get_recovery_tracker),
     ) -> dict[str, Any]:
-        trace_id = _resolve_active_trace_id(request)
-        try:
-            result = await accept_draft(
-                payload,
-                settings=settings,
-                diagnostics=diagnostics,
-                snapshot_persistence=snapshot_persistence,
-                recovery_tracker=recovery_tracker,
-            )
-        except HTTPException as exc:
-            _apply_legacy_headers_to_exception(exc, trace_id)
-            raise
-        _apply_legacy_headers(response, trace_id)
-        return result
+        return await _legacy_alias(
+            accept_draft,
+            request=request,
+            response=response,
+            args=(payload,),
+            kwargs={
+                "settings": settings,
+                "diagnostics": diagnostics,
+                "snapshot_persistence": snapshot_persistence,
+                "recovery_tracker": recovery_tracker,
+            },
+        )
 
     @application.post("/draft/export", include_in_schema=False)
     async def legacy_draft_export(
@@ -327,18 +340,16 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
         settings: ServiceSettings = Depends(get_settings),
         diagnostics: DiagnosticLogger = Depends(get_diagnostics),
     ) -> dict[str, Any]:
-        trace_id = _resolve_active_trace_id(request)
-        try:
-            result = await export_manuscript(
-                payload,
-                settings=settings,
-                diagnostics=diagnostics,
-            )
-        except HTTPException as exc:
-            _apply_legacy_headers_to_exception(exc, trace_id)
-            raise
-        _apply_legacy_headers(response, trace_id)
-        return result
+        return await _legacy_alias(
+            export_manuscript,
+            request=request,
+            response=response,
+            args=(payload,),
+            kwargs={
+                "settings": settings,
+                "diagnostics": diagnostics,
+            },
+        )
 
     @application.get("/draft/recovery", include_in_schema=False)
     async def legacy_recovery_status(
@@ -350,20 +361,18 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
         recovery_tracker: RecoveryTracker = Depends(get_recovery_tracker),
         snapshot_persistence: SnapshotPersistence = Depends(get_snapshot_persistence),
     ) -> dict[str, Any]:
-        trace_id = _resolve_active_trace_id(request)
-        try:
-            result = await recovery_status(
-                project_id,
-                settings=settings,
-                diagnostics=diagnostics,
-                recovery_tracker=recovery_tracker,
-                snapshot_persistence=snapshot_persistence,
-            )
-        except HTTPException as exc:
-            _apply_legacy_headers_to_exception(exc, trace_id)
-            raise
-        _apply_legacy_headers(response, trace_id)
-        return result
+        return await _legacy_alias(
+            recovery_status,
+            request=request,
+            response=response,
+            args=(project_id,),
+            kwargs={
+                "settings": settings,
+                "diagnostics": diagnostics,
+                "recovery_tracker": recovery_tracker,
+                "snapshot_persistence": snapshot_persistence,
+            },
+        )
 
     @application.post("/draft/recovery/restore", include_in_schema=False)
     async def legacy_recovery_restore(
@@ -375,20 +384,18 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
         snapshot_persistence: SnapshotPersistence = Depends(get_snapshot_persistence),
         recovery_tracker: RecoveryTracker = Depends(get_recovery_tracker),
     ) -> dict[str, Any]:
-        trace_id = _resolve_active_trace_id(request)
-        try:
-            result = await recovery_restore(
-                payload,
-                settings=settings,
-                diagnostics=diagnostics,
-                snapshot_persistence=snapshot_persistence,
-                recovery_tracker=recovery_tracker,
-            )
-        except HTTPException as exc:
-            _apply_legacy_headers_to_exception(exc, trace_id)
-            raise
-        _apply_legacy_headers(response, trace_id)
-        return result
+        return await _legacy_alias(
+            recovery_restore,
+            request=request,
+            response=response,
+            args=(payload,),
+            kwargs={
+                "settings": settings,
+                "diagnostics": diagnostics,
+                "snapshot_persistence": snapshot_persistence,
+                "recovery_tracker": recovery_tracker,
+            },
+        )
 
     return application
 
