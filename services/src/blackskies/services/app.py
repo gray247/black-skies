@@ -14,6 +14,7 @@ from .config import ServiceSettings
 from .diagnostics import DiagnosticLogger
 from .http import (
     TRACE_ID_HEADER,
+    default_error_responses,
     ensure_trace_id,
     get_trace_context,
     http_exception_to_response,
@@ -97,7 +98,11 @@ def _apply_legacy_headers_to_exception(exc: HTTPException, trace_id: str) -> Non
 def create_app(settings: ServiceSettings | None = None) -> FastAPI:
     """Construct the FastAPI application."""
 
-    application = FastAPI(title="Black Skies Services", version=SERVICE_VERSION)
+    application = FastAPI(
+        title="Black Skies Services",
+        version=SERVICE_VERSION,
+        responses=default_error_responses(),
+    )
     application.state.settings = settings or ServiceSettings.from_environment()
     application.state.build_tracker = BuildTracker()
     application.state.diagnostics = DiagnosticLogger()

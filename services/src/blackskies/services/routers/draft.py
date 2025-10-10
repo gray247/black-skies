@@ -24,6 +24,7 @@ from ..diagnostics import DiagnosticLogger
 from ..diff_engine import compute_diff
 from ..draft_synthesizer import DraftSynthesizer
 from ..http import (
+    default_error_responses,
     raise_budget_error,
     raise_conflict_error,
     raise_service_error,
@@ -564,7 +565,7 @@ def _persist_project_budget(state: ProjectBudgetState, new_spent_usd: float) -> 
     temp_path.replace(state.project_path)
 
 
-router = APIRouter(prefix="/draft", tags=["draft"])
+router = APIRouter(prefix="/draft", tags=["draft"], responses=default_error_responses())
 
 
 def _fingerprint_generate_request(request: DraftGenerateRequest, scenes: list[OutlineScene]) -> str:

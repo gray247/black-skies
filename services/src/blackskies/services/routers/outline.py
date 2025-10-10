@@ -12,6 +12,7 @@ from pydantic import ValidationError
 
 from ..config import ServiceSettings
 from ..diagnostics import DiagnosticLogger
+from ..http import default_error_responses
 from ..models.wizard import OutlineBuildRequest
 from ..outline_builder import MissingLocksError, OutlineBuilder
 from ..persistence import OutlinePersistence
@@ -72,7 +73,11 @@ def get_persistence(
     return OutlinePersistence(settings=settings)
 
 
-router = APIRouter(prefix="/outline", tags=["outline"])
+router = APIRouter(
+    prefix="/outline",
+    tags=["outline"],
+    responses=default_error_responses(),
+)
 
 
 @router.post("/build")
