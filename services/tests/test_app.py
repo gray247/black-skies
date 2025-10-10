@@ -3,21 +3,25 @@
 from __future__ import annotations
 
 import asyncio
-import json
-import hashlib
 import errno
+import hashlib
+import json
 from pathlib import Path
 from typing import Any
 from uuid import UUID
 
 import pytest
 
-yaml = pytest.importorskip("yaml")
-pytest.importorskip("fastapi")
-pytest.importorskip("fastapi.testclient")
+try:
+    from fastapi import status
+    from fastapi.testclient import TestClient
+except ModuleNotFoundError as exc:  # pragma: no cover - environment dependent
+    pytest.skip(f"fastapi is required for service tests: {exc}", allow_module_level=True)
 
-from fastapi import status
-from fastapi.testclient import TestClient
+try:
+    import yaml
+except ModuleNotFoundError as exc:  # pragma: no cover - environment dependent
+    pytest.skip(f"yaml is required for service tests: {exc}", allow_module_level=True)
 
 from blackskies.services.app import SERVICE_VERSION, BuildTracker
 from blackskies.services.config import ServiceSettings

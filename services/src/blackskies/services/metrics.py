@@ -30,7 +30,10 @@ def render(service_version: str) -> str:
     """Render metrics using the Prometheus text exposition format."""
 
     lines = [
-        "# HELP blackskies_requests_total Count of HTTP requests processed by the Black Skies service",
+        (
+            "# HELP blackskies_requests_total "
+            "Count of HTTP requests processed by the Black Skies service"
+        ),
         "# TYPE blackskies_requests_total counter",
     ]
 

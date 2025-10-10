@@ -5,14 +5,9 @@ from __future__ import annotations
 import argparse
 import json
 import logging
-import sys
 import time
 from pathlib import Path
-from typing import Any, Iterable, Protocol, Sequence
-
-REPO_ROOT = Path(__file__).resolve().parents[1]
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
+from typing import Any, Protocol, Sequence
 
 from blackskies.services import runs
 from blackskies.services.eval import EvalTask, EvalTaskFlow, load_dataset
@@ -24,6 +19,9 @@ from blackskies.services.eval.report import (
     render_html,
 )
 from blackskies.services.tools.registry import ToolRegistry
+
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
 
 logger = logging.getLogger("blackskies.services.scripts.eval")
 
@@ -191,7 +189,10 @@ def _evaluate_thresholds(report: EvalReport, args: argparse.Namespace) -> list[s
     reasons: list[str] = []
     if report.metrics.pass_rate < args.fail_under_pass_rate:
         reasons.append(
-            f"Pass rate {report.metrics.pass_rate:.4f} is below threshold {args.fail_under_pass_rate:.4f}"
+            ("Pass rate {pass_rate:.4f} is below threshold {threshold:.4f}").format(
+                pass_rate=report.metrics.pass_rate,
+                threshold=args.fail_under_pass_rate,
+            )
         )
     if (
         args.max_avg_latency_ms is not None

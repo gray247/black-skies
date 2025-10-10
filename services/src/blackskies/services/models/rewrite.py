@@ -2,12 +2,9 @@
 
 from __future__ import annotations
 
-import re
 from typing import Any
 
 from pydantic import BaseModel, Field, field_validator, model_validator
-
-_ID_PATTERN = re.compile(r"^(sc|ch)_\d{4}$")
 
 from ._project_id import validate_project_id
 

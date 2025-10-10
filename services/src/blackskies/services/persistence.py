@@ -10,24 +10,11 @@ import shutil
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath, PureWindowsPath
-from typing import TYPE_CHECKING, Any, Sequence
+from threading import Lock
+from typing import Any, Sequence
 from uuid import uuid4
 
-from threading import Lock
-
 from blackskies.services.utils import safe_dump, to_posix
-
-
-_FSYNC_IGNORE_ERRNOS = {errno.EBADF}
-_ENOSYS = getattr(errno, "ENOSYS", None)
-if isinstance(_ENOSYS, int):
-    _FSYNC_IGNORE_ERRNOS.add(_ENOSYS)
-
-SNAPSHOT_ID_PATTERN = re.compile(r"^\d{8}T\d{6}(?:\d{6})?Z(?:-[0-9a-f]{8})?$")
-
-if TYPE_CHECKING:  # pragma: no cover - import for type checking only
-    from .snapshots import SnapshotPersistenceError
-
 
 from .config import ServiceSettings
 from .models.outline import OutlineArtifact
@@ -581,3 +568,9 @@ __all__ = [
     "write_text_atomic",
     "SNAPSHOT_ID_PATTERN",
 ]
+_FSYNC_IGNORE_ERRNOS = {errno.EBADF}
+_ENOSYS = getattr(errno, "ENOSYS", None)
+if isinstance(_ENOSYS, int):
+    _FSYNC_IGNORE_ERRNOS.add(_ENOSYS)
+
+SNAPSHOT_ID_PATTERN = re.compile(r"^\d{8}T\d{6}(?:\d{6})?Z(?:-[0-9a-f]{8})?$")
