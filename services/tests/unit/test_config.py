@@ -99,3 +99,33 @@ def test_service_settings_module_has_no_optional_dependency(monkeypatch):
     settings_cls = module.ServiceSettings
 
     assert settings_cls.from_environment().project_base_dir.exists()
+
+
+def test_env_example_documents_service_settings():
+    """The example env file should document every ServiceSettings field."""
+
+    settings_cls = _load_service_settings()
+    repo_root = Path(__file__).resolve().parents[3]
+    env_example = repo_root / ".env.example"
+
+    assert env_example.exists(), ".env.example is missing from the repository root"
+
+    documented_keys: set[str] = set()
+    for raw_line in env_example.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#"):
+            continue
+        if line.startswith("export "):
+            line = line[len("export ") :].strip()
+        if "=" not in line:
+            continue
+        key, _ = line.split("=", 1)
+        documented_keys.add(key.strip())
+
+    env_prefix = str(settings_cls.model_config.get("env_prefix", ""))
+    expected_keys = {
+        f"{env_prefix}{field_name.upper()}" for field_name in settings_cls.model_fields
+    }
+
+    missing = expected_keys - documented_keys
+    assert not missing, f"Update .env.example to include: {sorted(missing)}"

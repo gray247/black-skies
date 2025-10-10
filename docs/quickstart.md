@@ -32,13 +32,13 @@ This document is the handoff for QA and support testers who want a clean way to 
   bash scripts/setup
   ```
   `scripts/setup` prefers `vendor/wheels/` and leaves `.env` untouched if it already exists.【F:scripts/setup†L1-L129】
-- Ensure `.env` opts into the local provider stack and points to a valid project directory. Set the mode to `offline` (the default), keep the dummy key, and include `BLACKSKIES_PROJECT_BASE_DIR` for your sample content:
+- Copy `.env.example` to `.env`, confirm it opts into the local provider stack, and point it at a valid project directory. Set the mode to `offline` (the default), keep the dummy key, and include `BLACKSKIES_PROJECT_BASE_DIR` for your sample content:
   ```ini
   OPENAI_API_KEY=dummy
   BLACK_SKIES_BLACK_SKIES_MODE=offline
   BLACKSKIES_PROJECT_BASE_DIR=C:\\Dev\\black-skies\\sample_project
   ```
-  The services enforce that `BLACKSKIES_PROJECT_BASE_DIR` exists, and the UI reads the same value when launching the smoke scripts.【F:services/src/blackskies/services/config.py†L14-L74】【F:README.md†L32-L55】
+-  The services enforce that `BLACKSKIES_PROJECT_BASE_DIR` exists, and the UI reads the same value when launching the smoke scripts.【F:services/src/blackskies/services/config.py†L14-L74】【F:README.md†L32-L55】 The optional budget/plugin overrides in `.env.example` stay at the RC1 defaults for smoke tests; adjust them only when packaging a customized build.
 - Copy the `sample_project/Esther_Estate` folder (and any additional project assets) to the offline machine so QA can load the reference project without network fetches.【F:README.md†L76-L95】
 - With `BLACK_SKIES_BLACK_SKIES_MODE=offline` (the default), the agents never attempt external API calls; the privacy policy confirms no background network traffic in local mode.【F:docs/policies.md†L1-L35】【F:services/src/blackskies/services/settings.py†L1-L44】
 
