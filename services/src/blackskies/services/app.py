@@ -135,7 +135,8 @@ async def _legacy_alias(
     except HTTPException as exc:
         _apply_legacy_headers_to_exception(exc, trace_id, path=successor_path)
         raise
-    _apply_legacy_headers(response, trace_id, path=successor_path)
+    target_response = result if isinstance(result, Response) else response
+    _apply_legacy_headers(target_response, trace_id, path=successor_path)
     return result
 
 
