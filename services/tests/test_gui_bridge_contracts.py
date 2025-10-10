@@ -6,8 +6,6 @@ from pathlib import Path
 
 import pytest
 
-httpx = pytest.importorskip("httpx")
-
 from test_app import (
     API_PREFIX,
     SERVICE_VERSION,
@@ -17,6 +15,8 @@ from test_app import (
     _read_error,
     _write_project_budget,
 )
+
+httpx = pytest.importorskip("httpx")
 
 pytestmark = pytest.mark.anyio("asyncio")
 
