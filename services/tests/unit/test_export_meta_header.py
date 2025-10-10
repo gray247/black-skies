@@ -117,6 +117,7 @@ def test_compile_manuscript_orders_units_and_includes_meta(monkeypatch: pytest.M
         "Beta body\n\n"
         "# Second\n\n"
         "## Scene Gamma\n"
+        "> pov: third\n\n"
         "Gamma body"
     )
 
