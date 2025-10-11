@@ -2,14 +2,13 @@
 
 from __future__ import annotations
 
-import errno
 import json
 import os
 import re
 import shutil
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from pathlib import Path, PurePosixPath, PureWindowsPath
+from pathlib import Path
 from threading import Lock
 from typing import IO, Any, Sequence
 from uuid import uuid4
@@ -18,7 +17,8 @@ from blackskies.services.utils import safe_dump, to_posix
 
 from .config import ServiceSettings
 from .models.outline import OutlineArtifact
-from .scene_docs import DraftRequestError, read_scene_document
+from .snapshot_includes import collect_include_specs, copy_include_entries, restore_include_entries
+from .snapshot_manifest import SnapshotMetadata, build_snapshot_manifest, timestamp_now
 
 
 @dataclass
@@ -110,39 +110,6 @@ def _flush_handle(handle: IO[Any], *, durable: bool) -> None:
         os.fsync(handle.fileno())
 
 
-def _normalise_include_entry(entry: str) -> tuple[Path, str]:
-    """Return a safe relative path and its POSIX string representation."""
-
-    if not isinstance(entry, str):
-        raise ValueError("Include entries must be strings.")
-    candidate = entry.strip()
-    if not candidate:
-        raise ValueError("Include entries may not be empty.")
-
-    posix_path = PurePosixPath(candidate)
-    windows_path = PureWindowsPath(candidate)
-    for variant in (posix_path, windows_path):
-        if variant.is_absolute() or variant.anchor:
-            raise ValueError(f"Include path {candidate!r} must be relative to the project.")
-        if any(part in ("..", "") for part in variant.parts):
-            raise ValueError(
-                f"Include path {candidate!r} may not contain parent directory traversal."
-            )
-
-    posix_parts = [part for part in posix_path.parts if part not in (".", "")]
-    windows_parts = [part for part in windows_path.parts if part not in (".", "")]
-    if "\\" in candidate and windows_parts:
-        normalized_parts = windows_parts
-    else:
-        normalized_parts = posix_parts
-
-    if not normalized_parts:
-        raise ValueError(f"Include path {candidate!r} is not valid.")
-
-    relative_path = Path(*normalized_parts)
-    return relative_path, "/".join(normalized_parts)
-
-
 @dataclass
 class DraftPersistence:
     """Persist synthesized draft scenes with locked front-matter."""
@@ -230,37 +197,6 @@ def write_text_atomic(path: Path, content: str, *, durable: bool = True) -> None
     temp_path.replace(path)
 
 
-@dataclass(frozen=True)
-class SnapshotIncludeSpec:
-    """Describe a single include entry during snapshot creation."""
-
-    token: str
-    source_path: Path
-    target_path: Path
-
-
-@dataclass(frozen=True)
-class SnapshotMetadata:
-    """Structured metadata describing a persisted snapshot."""
-
-    snapshot_id: str
-    project_id: str
-    label: str
-    created_at: str
-    includes: tuple[str, ...]
-
-    def as_dict(self) -> dict[str, Any]:
-        """Render the metadata as a JSON-serialisable mapping."""
-
-        return {
-            "snapshot_id": self.snapshot_id,
-            "project_id": self.project_id,
-            "label": self.label,
-            "created_at": self.created_at,
-            "includes": list(self.includes),
-        }
-
-
 @dataclass
 class SnapshotPersistence:
     """Create and restore project snapshots for crash recovery."""
@@ -337,57 +273,6 @@ class SnapshotPersistence:
             details=details,
         ) from last_error
 
-    def _collect_includes(
-        self,
-        *,
-        project_root: Path,
-        project_root_resolved: Path,
-        snapshot_dir: Path,
-        snapshot_dir_resolved: Path,
-        include_entries: Sequence[str] | None,
-    ) -> list[SnapshotIncludeSpec]:
-        """Validate include entries and return copy specifications."""
-
-        includes = list(include_entries or ["drafts", "outline.json", "project.json"])
-        specs: list[SnapshotIncludeSpec] = []
-
-        for entry in includes:
-            include_path, include_token = _normalise_include_entry(entry)
-            source_path = project_root / include_path
-            source_resolved = source_path.resolve()
-            if not source_resolved.is_relative_to(project_root_resolved):
-                raise ValueError(f"Include path {include_token!r} escapes the project root.")
-            target_path = snapshot_dir / include_path
-            target_resolved = target_path.resolve()
-            if not target_resolved.is_relative_to(snapshot_dir_resolved):
-                raise ValueError(
-                    f"Snapshot target for {include_token!r} escapes the history folder."
-                )
-            specs.append(
-                SnapshotIncludeSpec(
-                    token=include_token,
-                    source_path=source_path,
-                    target_path=target_path,
-                )
-            )
-
-        return specs
-
-    def _copy_include_entries(self, include_specs: Sequence[SnapshotIncludeSpec]) -> list[str]:
-        """Copy validated include entries into the snapshot directory."""
-
-        recorded: list[str] = []
-        for spec in include_specs:
-            if not spec.source_path.exists():
-                continue
-            if spec.source_path.is_dir():
-                shutil.copytree(spec.source_path, spec.target_path, dirs_exist_ok=True)
-            else:
-                spec.target_path.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copy2(spec.source_path, spec.target_path)
-            recorded.append(spec.token)
-        return recorded
-
     def _build_metadata(
         self,
         *,
@@ -398,14 +283,30 @@ class SnapshotPersistence:
     ) -> SnapshotMetadata:
         """Assemble structured metadata for a newly created snapshot."""
 
-        created_at = datetime.now(tz=timezone.utc).isoformat().replace("+00:00", "Z")
         return SnapshotMetadata(
             snapshot_id=snapshot_id,
             project_id=project_id,
             label=label,
-            created_at=created_at,
+            created_at=timestamp_now(),
             includes=tuple(includes),
         )
+
+    def _write_snapshot_manifest(
+        self,
+        directory: Path,
+        *,
+        metadata: SnapshotMetadata,
+    ) -> None:
+        """Render a YAML manifest describing the snapshot contents."""
+
+        project_root = self.settings.project_base_dir / metadata.project_id
+        manifest = build_snapshot_manifest(
+            directory,
+            metadata=metadata,
+            project_root=project_root,
+        )
+        manifest_yaml = safe_dump(manifest, sort_keys=False, allow_unicode=True, indent=2)
+        write_text_atomic(directory / "snapshot.yaml", manifest_yaml)
 
     def create_snapshot(
         self,
@@ -414,17 +315,21 @@ class SnapshotPersistence:
         label: str | None = None,
         include_entries: Sequence[str] | None = None,
     ) -> dict[str, Any]:
+        """Create a snapshot and return a summary of the persisted data."""
+
+        # Phase 1: Allocate a unique snapshot directory for the requested label.
         label_token = self._sanitize_label(label)
         directory, directory_resolved, snapshot_id = self._allocate_directory(
             project_id, label_token
         )
 
+        # Phase 2: Resolve project root paths and validate include directives.
         project_root = self.settings.project_base_dir / project_id
         project_root.mkdir(parents=True, exist_ok=True)
         project_root_resolved = project_root.resolve()
 
         try:
-            include_specs = self._collect_includes(
+            include_specs = collect_include_specs(
                 project_root=project_root,
                 project_root_resolved=project_root_resolved,
                 snapshot_dir=directory,
@@ -436,7 +341,10 @@ class SnapshotPersistence:
                 shutil.rmtree(directory, ignore_errors=True)
             raise
 
-        recorded = self._copy_include_entries(include_specs)
+        # Phase 3: Copy validated include entries into the snapshot directory.
+        recorded = copy_include_entries(include_specs)
+
+        # Phase 4: Persist metadata and manifest for downstream inspection.
         metadata = self._build_metadata(
             snapshot_id=snapshot_id,
             project_id=project_id,
@@ -446,6 +354,7 @@ class SnapshotPersistence:
         write_json_atomic(directory / "metadata.json", metadata.as_dict())
         self._write_snapshot_manifest(directory, metadata=metadata)
 
+        # Phase 5: Return a structured summary of the snapshot for API responses.
         try:
             relative_path = to_posix(directory.relative_to(project_root))
         except ValueError:
@@ -458,108 +367,10 @@ class SnapshotPersistence:
             "includes": list(metadata.includes),
         }
 
-    def _write_snapshot_manifest(
-        self,
-        directory: Path,
-        *,
-        metadata: SnapshotMetadata,
-    ) -> None:
-        """Render a YAML manifest describing the snapshot contents."""
-
-        manifest: dict[str, Any] = {
-            "schema_version": "SnapshotManifest v1",
-            "snapshot_id": metadata.snapshot_id,
-            "project_id": metadata.project_id,
-            "label": metadata.label,
-            "created_at": metadata.created_at,
-            "includes": list(metadata.includes),
-        }
-
-        project_root = self.settings.project_base_dir / metadata.project_id
-        project_path = project_root / "project.json"
-        if project_path.exists():
-            try:
-                with project_path.open("r", encoding="utf-8") as handle:
-                    manifest["project"] = json.load(handle)
-            except json.JSONDecodeError:
-                manifest.setdefault("warnings", []).append(
-                    {"project": "project.json is not valid JSON."}
-                )
-
-        outline_path = directory / "outline.json"
-        outline_payload: dict[str, Any] | None = None
-        if outline_path.exists():
-            try:
-                with outline_path.open("r", encoding="utf-8") as handle:
-                    outline_payload = json.load(handle)
-            except json.JSONDecodeError:
-                manifest.setdefault("warnings", []).append(
-                    {"outline": "outline.json is not valid JSON."}
-                )
-        if outline_payload is not None:
-            manifest["outline"] = outline_payload
-
-        drafts: list[dict[str, Any]] = []
-        missing: list[str] = []
-        scenes = []
-        if isinstance(outline_payload, dict):
-            scenes = outline_payload.get("scenes", []) or []
-        for scene in scenes:
-            scene_id = scene.get("id") if isinstance(scene, dict) else None
-            if not isinstance(scene_id, str):
-                continue
-            try:
-                _, front_matter, _ = read_scene_document(directory, scene_id)
-            except DraftRequestError:
-                missing.append(scene_id)
-                continue
-            entry = dict(front_matter)
-            entry["path"] = f"drafts/{scene_id}.md"
-            drafts.append(entry)
-        manifest["drafts"] = drafts
-        if missing:
-            manifest["missing_drafts"] = missing
-
-        if not drafts:
-            drafts_dir = directory / "drafts"
-            if drafts_dir.exists():
-                for path in sorted(drafts_dir.glob("*.md")):
-                    unit_id = path.stem
-                    try:
-                        _, front_matter, _ = read_scene_document(directory, unit_id)
-                    except DraftRequestError:
-                        continue
-                    entry = dict(front_matter)
-                    entry["path"] = f"drafts/{path.name}"
-                    drafts.append(entry)
-                manifest["drafts"] = drafts
-
-        manifest_yaml = safe_dump(manifest, sort_keys=False, allow_unicode=True, indent=2)
-        write_text_atomic(directory / "snapshot.yaml", manifest_yaml)
-
-    def _restore_directory(self, source: Path, target: Path) -> None:
-        temp_dir = target.parent / f".{target.name}.{uuid4().hex}.restore"
-        if temp_dir.exists():
-            shutil.rmtree(temp_dir)
-        shutil.copytree(source, temp_dir, dirs_exist_ok=True)
-        if target.exists():
-            shutil.rmtree(target)
-        temp_dir.replace(target)
-
-    def _restore_file(self, source: Path, target: Path) -> None:
-        target.parent.mkdir(parents=True, exist_ok=True)
-        temp_path = target.parent / f".{target.name}.{uuid4().hex}.restore"
-        shutil.copy2(source, temp_path)
-        if hasattr(os, "fsync"):
-            try:
-                with temp_path.open("rb") as handle:
-                    os.fsync(handle.fileno())
-            except OSError as exc:
-                if exc.errno not in _FSYNC_IGNORE_ERRNOS:
-                    raise
-        temp_path.replace(target)
-
     def restore_snapshot(self, project_id: str, snapshot_id: str) -> dict[str, Any]:
+        """Restore a snapshot back onto the project directory."""
+
+        # Phase 1: Locate the snapshot directory for the provided identifier.
         if not SNAPSHOT_ID_PATTERN.fullmatch(snapshot_id):
             raise ValueError(f"Snapshot id {snapshot_id!r} is invalid.")
         snapshots_dir = self._snapshots_dir(project_id)
@@ -568,6 +379,8 @@ class SnapshotPersistence:
             raise FileNotFoundError(f"Snapshot {snapshot_id} not found for project {project_id}.")
         snapshot_dir = matches[-1]
         metadata_path = snapshot_dir / "metadata.json"
+
+        # Phase 2: Load metadata (falling back to a minimal structure if missing).
         if metadata_path.exists():
             with metadata_path.open("r", encoding="utf-8") as handle:
                 metadata = json.load(handle)
@@ -576,35 +389,22 @@ class SnapshotPersistence:
                 "snapshot_id": snapshot_id,
                 "project_id": project_id,
                 "label": snapshot_dir.name.split("_", 1)[-1],
-                "created_at": datetime.now(tz=timezone.utc).isoformat().replace("+00:00", "Z"),
+                "created_at": timestamp_now(),
                 "includes": [],
             }
 
+        # Phase 3: Restore the requested include entries back into the project root.
         project_root = self.settings.project_base_dir / project_id
         project_root.mkdir(parents=True, exist_ok=True)
         project_root_resolved = project_root.resolve()
         snapshot_root = snapshot_dir.resolve()
-        includes_raw = metadata.get("includes") or ["drafts", "outline.json", "project.json"]
-        includes: list[str] = []
-        for entry in includes_raw:
-            include_path, include_token = _normalise_include_entry(entry)
-            source_path = snapshot_dir / include_path
-            source = source_path.resolve()
-            if not source.is_relative_to(snapshot_root):
-                raise ValueError(
-                    f"Snapshot entry {include_token!r} escapes the snapshot directory."
-                )
-            target_path = project_root / include_path
-            target = target_path.resolve()
-            if not target.is_relative_to(project_root_resolved):
-                raise ValueError(f"Snapshot entry {include_token!r} would escape the project root.")
-            if not source_path.exists():
-                continue
-            if source_path.is_dir():
-                self._restore_directory(source_path, target_path)
-            else:
-                self._restore_file(source_path, target_path)
-            includes.append(include_token)
+        includes = restore_include_entries(
+            snapshot_dir=snapshot_dir,
+            snapshot_dir_resolved=snapshot_root,
+            project_root=project_root,
+            project_root_resolved=project_root_resolved,
+            include_entries=metadata.get("includes"),
+        )
 
         return {
             "snapshot_id": snapshot_id,
@@ -634,7 +434,7 @@ class SnapshotPersistence:
                     "snapshot_id": snapshot_id,
                     "project_id": project_id,
                     "label": candidate.name.split("_", 1)[-1],
-                    "created_at": datetime.now(tz=timezone.utc).isoformat().replace("+00:00", "Z"),
+                    "created_at": timestamp_now(),
                     "includes": [],
                 }
             metadata["path"] = to_posix(candidate)
@@ -660,9 +460,5 @@ __all__ = [
     "write_text_atomic",
     "SNAPSHOT_ID_PATTERN",
 ]
-_FSYNC_IGNORE_ERRNOS = {errno.EBADF}
-_ENOSYS = getattr(errno, "ENOSYS", None)
-if isinstance(_ENOSYS, int):
-    _FSYNC_IGNORE_ERRNOS.add(_ENOSYS)
 
 SNAPSHOT_ID_PATTERN = re.compile(r"^\d{8}T\d{6}(?:\d{6})?Z(?:-[0-9a-f]{8})?$")
