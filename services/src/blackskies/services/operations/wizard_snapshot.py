@@ -10,6 +10,7 @@ from fastapi.concurrency import run_in_threadpool
 
 from ..diagnostics import DiagnosticLogger
 from ..models.wizard import WizardLockSnapshotRequest
+from ..persistence import SnapshotPersistence
 from ..snapshots import create_wizard_lock_snapshot
 
 
@@ -27,7 +28,7 @@ class WizardSnapshotService:
         self,
         *,
         diagnostics: DiagnosticLogger,
-        snapshot_persistence,
+        snapshot_persistence: SnapshotPersistence,
     ) -> None:
         self._diagnostics = diagnostics
         self._snapshot_persistence = snapshot_persistence
