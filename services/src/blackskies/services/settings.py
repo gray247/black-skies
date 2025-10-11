@@ -11,7 +11,6 @@ from pydantic import AliasChoices, BaseModel, Field, field_validator
 
 logger = logging.getLogger(__name__)
 
-_BaseSettingsParent: type[BaseModel]
 try:  # pragma: no branch - deterministic import guard
     from pydantic_settings import BaseSettings as _ImportedBaseSettings
 except ModuleNotFoundError:  # pragma: no cover - behaviour asserted via tests
@@ -20,22 +19,19 @@ except ModuleNotFoundError:  # pragma: no cover - behaviour asserted via tests
         "Install it for full configuration support: pip install pydantic-settings",
     )
 
-    class _FallbackBaseSettings(BaseModel):
+    class _ImportedBaseSettings(BaseModel):
         """Fallback settings implementation using a plain Pydantic model."""
 
         model_config: ClassVar[dict[str, Any]] = {"extra": "ignore"}
 
-    _BaseSettingsParent = _FallbackBaseSettings
-else:
-    _BaseSettingsParent = cast(type[BaseModel], _ImportedBaseSettings)
 
-BaseSettings: type[BaseModel] = _BaseSettingsParent
+BaseSettings: type[BaseModel] = cast(type[BaseModel], _ImportedBaseSettings)
 
 Mode = Literal["offline", "live", "mock", "companion"]
 VALID_MODES: tuple[Mode, ...] = ("offline", "live", "mock", "companion")
 
 
-class Settings(_BaseSettingsParent):
+class Settings(BaseSettings):
     """Pydantic-based configuration for orchestrating agents and services."""
 
     openai_api_key: Optional[str] = Field(
