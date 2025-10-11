@@ -101,7 +101,8 @@ class ServiceSettings(BaseModel):
             elif env_key in file_values:
                 overrides[field_name] = file_values[env_key]
 
-        return cls(**overrides)
+        typed_overrides = cast(dict[str, Any], overrides)
+        return cls(**typed_overrides)
 
 
-__all__ = ["ServiceSettings"]
+__all__: list[str] = ["ServiceSettings"]

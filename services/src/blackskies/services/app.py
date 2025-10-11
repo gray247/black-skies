@@ -70,15 +70,19 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
         allow_headers=["*"],
     )
 
-    async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
+    async def http_exception_handler(_: Request, exc: Exception) -> Response:
         trace_id = ensure_trace_id()
-        return http_exception_to_response(exc, trace_id)
+        if isinstance(exc, HTTPException):
+            return http_exception_to_response(exc, trace_id)
+        LOGGER.error("Unexpected exception type passed to HTTP handler: %r", exc)
+        return internal_error_response(trace_id)
 
-    async def validation_exception_handler(
-        request: Request, exc: RequestValidationError
-    ) -> JSONResponse:
+    async def validation_exception_handler(_: Request, exc: Exception) -> Response:
         trace_id = ensure_trace_id()
-        return request_validation_response(exc, trace_id)
+        if isinstance(exc, RequestValidationError):
+            return request_validation_response(exc, trace_id)
+        LOGGER.error("Unexpected exception type passed to validation handler: %r", exc)
+        return internal_error_response(trace_id)
 
     application.add_exception_handler(HTTPException, http_exception_handler)
     application.add_exception_handler(RequestValidationError, validation_exception_handler)

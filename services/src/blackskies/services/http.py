@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 from contextvars import ContextVar
 from pathlib import Path
-from typing import Any, Final
+from typing import Any, Final, NoReturn
 from uuid import UUID, uuid4
 
 from fastapi import HTTPException, status
@@ -20,7 +20,7 @@ LOGGER = logging.getLogger(__name__)
 TRACE_ID_HEADER: Final[str] = "x-trace-id"
 _TRACE_ID_CONTEXT: ContextVar[str] = ContextVar("blackskies_trace_id", default="")
 
-DEFAULT_ERROR_RESPONSES: Final[dict[int, dict[str, type[ErrorResponse]]]] = {
+DEFAULT_ERROR_RESPONSES: Final[dict[int, dict[str, Any]]] = {
     status.HTTP_400_BAD_REQUEST: {"model": ErrorResponse},
     status.HTTP_402_PAYMENT_REQUIRED: {"model": ErrorResponse},
     status.HTTP_409_CONFLICT: {"model": ErrorResponse},
@@ -28,7 +28,7 @@ DEFAULT_ERROR_RESPONSES: Final[dict[int, dict[str, type[ErrorResponse]]]] = {
 }
 
 
-def default_error_responses() -> dict[int, dict[str, type[ErrorResponse]]]:
+def default_error_responses() -> dict[int, dict[str, Any]]:
     """Return a copy of the default error response mapping for routers."""
 
     return {status_code: dict(schema) for status_code, schema in DEFAULT_ERROR_RESPONSES.items()}
@@ -153,7 +153,7 @@ def raise_service_error(
     details: dict[str, Any],
     diagnostics: DiagnosticLogger,
     project_root: Path | None,
-) -> None:
+) -> NoReturn:
     """Raise an ``HTTPException`` with shared error formatting and logging."""
 
     safe_details = _sanitize_details(details)
@@ -176,7 +176,7 @@ def raise_conflict_error(
     details: dict[str, Any],
     diagnostics: DiagnosticLogger,
     project_root: Path | None,
-) -> None:
+) -> NoReturn:
     """Log and raise a conflict response."""
 
     raise_service_error(
@@ -195,7 +195,7 @@ def raise_validation_error(
     details: dict[str, Any],
     diagnostics: DiagnosticLogger,
     project_root: Path | None,
-) -> None:
+) -> NoReturn:
     """Raise a validation error and optionally log diagnostics."""
 
     raise_service_error(
@@ -214,7 +214,7 @@ def raise_budget_error(
     details: dict[str, Any],
     diagnostics: DiagnosticLogger,
     project_root: Path | None,
-) -> None:
+) -> NoReturn:
     """Raise a ``BUDGET_EXCEEDED`` error and log it."""
 
     raise_service_error(
@@ -227,7 +227,7 @@ def raise_budget_error(
     )
 
 
-__all__ = [
+__all__: list[str] = [
     "DEFAULT_ERROR_RESPONSES",
     "TRACE_ID_HEADER",
     "build_error_payload",

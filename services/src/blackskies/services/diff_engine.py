@@ -39,7 +39,7 @@ def compute_diff(original: str, revised: str) -> DiffPayload:
         elif tag == "insert":
             added.append({"range": [i1, i1], "text": revised[j1:j2]})
 
-    anchors = {
+    anchors: dict[Literal["left", "right"], int] = {
         "left": _matching_prefix_length(original, revised),
         "right": _matching_suffix_length(original, revised),
     }

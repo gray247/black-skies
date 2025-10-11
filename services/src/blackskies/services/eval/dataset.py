@@ -245,7 +245,9 @@ class CritiqueEvalTask(_EvalTaskBase):
 
 
 EvalTask = WizardEvalTask | DraftEvalTask | CritiqueEvalTask
-_EvalTaskAdapter = TypeAdapter(Annotated[EvalTask, Field(discriminator="flow")])
+_EvalTaskAdapter: TypeAdapter[EvalTask] = TypeAdapter(
+    Annotated[EvalTask, Field(discriminator="flow")]
+)
 
 DEFAULT_DATASET_DIR = Path(__file__).resolve().parents[2] / "data" / "eval_tasks"
 
@@ -312,7 +314,7 @@ def iter_tasks(root: Path | None = None, *, flow: EvalTaskFlow | None = None) ->
             yield task
 
 
-__all__ = [
+__all__: list[str] = [
     "CritiqueArtifact",
     "CritiqueEvalExpected",
     "CritiqueEvalInputs",

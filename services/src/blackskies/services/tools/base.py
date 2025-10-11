@@ -6,7 +6,8 @@ import logging
 from dataclasses import dataclass, field
 from typing import Any, Dict, Generic, Mapping, Protocol, TypeVar, runtime_checkable
 
-T = TypeVar("T")
+ResultT = TypeVar("ResultT")
+ResultT_co = TypeVar("ResultT_co", covariant=True)
 
 # The tools package uses a dedicated logger so callers can subscribe to tool telemetry.
 tool_logger = logging.getLogger("blackskies.services.tools")
@@ -33,7 +34,7 @@ class ToolContext(Protocol):
 
 
 @runtime_checkable
-class ToolResult(Protocol[T]):
+class ToolResult(Protocol[ResultT_co]):
     """Protocol capturing the outcome of invoking a tool."""
 
     @property
@@ -41,7 +42,7 @@ class ToolResult(Protocol[T]):
         """Whether the tool completed successfully."""
 
     @property
-    def value(self) -> T | None:
+    def value(self) -> ResultT_co | None:
         """Value returned by the tool when successful."""
 
     @property
@@ -79,10 +80,10 @@ class ToolInvocationContext:
 
 
 @dataclass(slots=True)
-class ToolExecutionResult(Generic[T]):
+class ToolExecutionResult(Generic[ResultT], ToolResult[ResultT]):
     """Concrete ToolResult implementation returned by adapters."""
 
-    value: T | None = None
+    value: ResultT | None = None
     error: Exception | None = None
     metadata: Mapping[str, Any] = field(default_factory=dict)
 
