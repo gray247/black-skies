@@ -9,7 +9,7 @@ import unicodedata
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, Iterable, Mapping, MutableMapping, Optional
+from typing import Any, Dict, Iterable, Mapping, MutableMapping, Optional, TypedDict
 
 from .. import runs
 from .safety import SafetyReport, SafetyViolation, postflight_scrub, preflight_check
@@ -66,15 +66,20 @@ def _slugify(value: str) -> str:
     return normalized.strip("_")
 
 
+class ChecklistEntry(TypedDict):
+    text: str
+    ai: bool
+
+
 @lru_cache(maxsize=4)
-def _load_checklist_index(checklist_path: str) -> Dict[str, Dict[str, str | bool]]:
+def _load_checklist_index(checklist_path: str) -> Dict[str, ChecklistEntry]:
     """Parse the decision checklist and index entries by slug."""
 
     path = Path(checklist_path)
     if not path.exists():  # pragma: no cover - defensive guard
         raise FileNotFoundError(f"Decision checklist not found at {path}")
 
-    index: Dict[str, Dict[str, str | bool]] = {}
+    index: Dict[str, ChecklistEntry] = {}
     for raw_line in path.read_text(encoding="utf-8").splitlines():
         line = raw_line.strip()
         if not line.startswith("- ["):
@@ -136,8 +141,10 @@ class ToolRegistry:
         self._deny_overrides = _lower_set(deny)
 
         checklist_source = checklist_path or _DEFAULT_CHECKLIST_PATH
-        self._checklist_index = _load_checklist_index(str(checklist_source))
-        self._tool_checklist_slugs = {
+        self._checklist_index: Dict[str, ChecklistEntry] = _load_checklist_index(
+            str(checklist_source)
+        )
+        self._tool_checklist_slugs: Dict[str, str] = {
             tool: _slugify(label) for tool, label in _TOOL_CHECKLIST_LABELS.items()
         }
 
@@ -161,15 +168,18 @@ class ToolRegistry:
     def _default_decision(self, tool: str, checklist_item: str | None) -> ToolDecision:
         slug: Optional[str]
         label: Optional[str]
+        entry: ChecklistEntry | None = None
         if checklist_item:
             slug = _slugify(checklist_item)
-            label = self._checklist_index.get(slug, {}).get("text")
+            entry = self._checklist_index.get(slug)
         else:
             slug = self._tool_checklist_slugs.get(tool)
-            label = self._checklist_index.get(slug, {}).get("text") if slug else None
+            entry = self._checklist_index.get(slug) if slug else None
 
-        if slug and slug in self._checklist_index:
-            is_ai = bool(self._checklist_index[slug]["ai"])
+        label = entry["text"] if entry else None
+
+        if slug and entry:
+            is_ai = entry["ai"]
             if is_ai:
                 return ToolDecision(
                     tool=tool,

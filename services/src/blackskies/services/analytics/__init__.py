@@ -190,7 +190,10 @@ def compute_emotion_arc(
         draft = drafts.get(scene_id)
         meta = draft.get("meta", {}) if draft else {}
         emotion_tag = meta.get("emotion_tag")
-        intensity = EMOTION_INTENSITY.get(emotion_tag, DEFAULT_EMOTION_INTENSITY)
+        if isinstance(emotion_tag, str):
+            intensity = EMOTION_INTENSITY.get(emotion_tag, DEFAULT_EMOTION_INTENSITY)
+        else:
+            intensity = DEFAULT_EMOTION_INTENSITY
         title = _resolve_scene_title(scene, draft)
         arc.append(
             EmotionArcPoint(
@@ -219,7 +222,8 @@ def compute_pacing_metrics(
     for scene in scenes:
         scene_id = scene["id"]
         draft = drafts.get(scene_id)
-        text = draft.get("text") if draft else ""
+        raw_text = draft.get("text") if draft else ""
+        text = str(raw_text) if raw_text is not None else ""
         words = _word_count(text)
         word_counts.append(words)
 

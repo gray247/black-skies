@@ -5,38 +5,44 @@ from __future__ import annotations
 import logging
 import os
 from functools import lru_cache
-from typing import Any, ClassVar, Literal, Optional
+from typing import Any, Literal, Optional
 
-from pydantic import AliasChoices, BaseModel, Field, field_validator
+from pydantic import AliasChoices, BaseModel, ConfigDict, Field, field_validator
 
 logger = logging.getLogger(__name__)
 
+SettingsBase: type[BaseModel]
+SettingsConfigDict: ConfigDict
+
 try:  # pragma: no branch - deterministic import guard
-    from pydantic_settings import BaseSettings as _BaseSettings
-    from pydantic_settings import SettingsConfigDict as _SettingsConfigDict
+    from pydantic_settings import BaseSettings as _PydanticBaseSettings
+    from pydantic_settings import SettingsConfigDict as _PydanticSettingsConfigDict
 except ModuleNotFoundError:  # pragma: no cover - behaviour asserted via tests
     logger.warning(
         "Optional dependency 'pydantic-settings' is missing. "
         "Install it for full configuration support: pip install pydantic-settings",
     )
 
-    SettingsConfigDict = dict[str, Any]
-
-    class BaseSettings(BaseModel):
+    class _FallbackSettings(BaseModel):
         """Fallback settings implementation using a plain Pydantic model."""
 
-        model_config: ClassVar[dict[str, Any]] = {"extra": "ignore"}
+        model_config = ConfigDict(extra="ignore")
 
+    SettingsBase = _FallbackSettings
+    SettingsConfigDict = ConfigDict
 else:
-    SettingsConfigDict = _SettingsConfigDict
-    BaseSettings = _BaseSettings
+    SettingsBase = _PydanticBaseSettings
+    SettingsConfigDict = _PydanticSettingsConfigDict
+
+
+BaseSettings = SettingsBase
 
 
 Mode = Literal["offline", "live", "mock", "companion"]
 VALID_MODES: tuple[Mode, ...] = ("offline", "live", "mock", "companion")
 
 
-class Settings(BaseSettings):
+class Settings(SettingsBase):
     """Pydantic-based configuration for orchestrating agents and services."""
 
     openai_api_key: Optional[str] = Field(
@@ -64,6 +70,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
+        extra="ignore",
     )
 
     @field_validator("black_skies_mode", mode="before")
@@ -100,4 +107,4 @@ def get_settings() -> Settings:
     return Settings()
 
 
-__all__ = ["Settings", "get_settings", "Mode"]
+__all__ = ["Settings", "get_settings", "Mode", "BaseSettings"]

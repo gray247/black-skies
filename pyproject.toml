@@ -63,3 +63,4 @@ mypy_path = ["services/src"]
 packages = ["blackskies.services"]
 namespace_packages = true
 warn_unused_configs = true
+ignore_missing_imports = true

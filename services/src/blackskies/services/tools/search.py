@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
-from typing import Iterable, Mapping
+from typing import Iterable, Mapping, TypedDict
 
 from .base import (
     ToolContext,
@@ -16,6 +16,12 @@ from .base import (
 )
 
 _WORD_RE = re.compile(r"[A-Za-z0-9']+")
+
+
+class SearchHit(TypedDict):
+    path: str
+    score: int
+    excerpt: str
 
 
 class MarkdownSearchTool:
@@ -49,7 +55,7 @@ class MarkdownSearchTool:
         query: str,
         *,
         limit: int = 5,
-    ) -> ToolExecutionResult[list[dict[str, str | int]]]:
+    ) -> ToolExecutionResult[list[SearchHit]]:
         """Search Markdown files for ``query`` terms."""
 
         if not isinstance(query, str):
@@ -100,8 +106,8 @@ class MarkdownSearchTool:
             if token:
                 yield token
 
-    def _gather_hits(self, terms: list[str]) -> list[dict[str, str | int]]:
-        hits: list[dict[str, str | int]] = []
+    def _gather_hits(self, terms: list[str]) -> list[SearchHit]:
+        hits: list[SearchHit] = []
         for path in sorted(self._data_root.rglob("*.md")):
             try:
                 content = path.read_text(encoding="utf-8")
