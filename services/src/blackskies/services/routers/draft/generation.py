@@ -164,8 +164,9 @@ async def generate_draft(
 
     def _execute_generation() -> dict[str, Any]:
         synthesizer = DraftSynthesizer()
-        persistence = DraftPersistence(settings=settings)
+        persistence = DraftPersistence(settings=settings, durable_writes=False)
         units: list[dict[str, Any]] = []
+        total_scenes = len(scene_summaries)
         for index, scene in enumerate(scene_summaries):
             overrides = request_model.overrides.get(scene.id)
             synthesis = synthesizer.synthesize(
@@ -178,6 +179,7 @@ async def generate_draft(
                 request_model.project_id,
                 synthesis.front_matter,
                 synthesis.body,
+                durable=index == (total_scenes - 1),
             )
             units.append(synthesis.unit)
 
