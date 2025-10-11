@@ -68,9 +68,6 @@ function ProjectHomeMock({
   onDraftChange,
   draftOverrides,
 }: ProjectHomeMockProps): JSX.Element {
-  const draftText = draftOverrides?.sc_0001 ?? loadedProject.drafts['sc_0001'];
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     onProjectLoaded?.({
       status: 'init',
@@ -84,9 +81,11 @@ function ProjectHomeMock({
       targetPath: loadedProject.path,
       lastOpenedPath: loadedProject.path,
     });
+
+    const draftText = draftOverrides?.sc_0001 ?? loadedProject.drafts['sc_0001'];
     onActiveSceneChange?.({ sceneId: 'sc_0001', sceneTitle: 'Arrival', draft: draftText });
     onDraftChange?.('sc_0001', draftText);
-  }, []);
+  }, [draftOverrides, onActiveSceneChange, onDraftChange, onProjectLoaded]);
 
   return <div data-testid="project-home-mock" />;
 }

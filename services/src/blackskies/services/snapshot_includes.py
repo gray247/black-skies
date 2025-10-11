@@ -101,8 +101,13 @@ def copy_include_entries(include_specs: Sequence[SnapshotIncludeSpec]) -> list[s
         if not spec.source_path.exists():
             continue
         if spec.source_path.is_dir():
+            _assert_no_symlinks(spec.source_path, spec.token)
             shutil.copytree(spec.source_path, spec.target_path, dirs_exist_ok=True)
         else:
+            if spec.source_path.is_symlink():
+                raise ValueError(
+                    f"Include path {spec.token!r} must not contain symbolic links."
+                )
             spec.target_path.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(spec.source_path, spec.target_path)
         recorded.append(spec.token)
@@ -161,8 +166,13 @@ def restore_include_entries(
         if not source_path.exists():
             continue
         if source_path.is_dir():
+            _assert_no_symlinks(source_path, include_token)
             _restore_directory(source_path, target_path)
         else:
+            if source_path.is_symlink():
+                raise ValueError(
+                    f"Snapshot entry {include_token!r} contains a symbolic link."
+                )
             _restore_file(source_path, target_path)
         restored.append(include_token)
 
@@ -177,3 +187,27 @@ __all__ = [
     "normalise_include_entry",
     "restore_include_entries",
 ]
+
+
+def _assert_no_symlinks(root: Path, token: str) -> None:
+    """Ensure the provided directory tree does not contain symbolic links."""
+
+    if root.is_symlink():
+        raise ValueError(f"Include path {token!r} must not be a symbolic link.")
+
+    for current_root, dirnames, filenames in os.walk(root, followlinks=False):
+        current_path = Path(current_root)
+        if current_path.is_symlink():
+            raise ValueError(f"Include path {token!r} must not contain symbolic links.")
+        for name in dirnames:
+            candidate = current_path / name
+            if candidate.is_symlink():
+                raise ValueError(
+                    f"Include path {token!r} must not contain symbolic links."
+                )
+        for name in filenames:
+            candidate = current_path / name
+            if candidate.is_symlink():
+                raise ValueError(
+                    f"Include path {token!r} must not contain symbolic links."
+                )

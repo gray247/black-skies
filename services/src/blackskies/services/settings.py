@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 
 try:  # pragma: no branch - deterministic import guard
     from pydantic_settings import BaseSettings as _BaseSettings
+    from pydantic_settings import SettingsConfigDict
 except ModuleNotFoundError:  # pragma: no cover - behaviour asserted via tests
     logger.warning(
         "Optional dependency 'pydantic-settings' is missing. "
@@ -24,6 +25,7 @@ except ModuleNotFoundError:  # pragma: no cover - behaviour asserted via tests
 
         model_config: ClassVar[ConfigDict] = ConfigDict(extra="ignore")
 
+    SettingsConfigDict = ConfigDict
 
 BaseSettings = _BaseSettings
 
@@ -56,7 +58,7 @@ class Settings(BaseSettings):
         ),
     )
 
-    model_config: ClassVar[ConfigDict] = ConfigDict(
+    model_config: ClassVar[ConfigDict] = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
         extra="ignore",

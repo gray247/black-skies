@@ -83,7 +83,7 @@ def load(
 
     target = path_for(kind, identifier, base_dir=base_dir)
     if not target.exists():
-        raise FileNotFoundError(f"No {kind} stored with id {identifier}.")
+        raise FileNotFoundError(f"No {kind} stored with id {identifier} at {target}.")
     with target.open("r", encoding="utf-8") as handle:
         return json.load(handle)
 
@@ -92,3 +92,4 @@ def _json_default(value: Any) -> Any:
     if isinstance(value, datetime):
         return value.isoformat()
     raise TypeError(f"Object of type {value.__class__.__name__} is not JSON serializable")
+

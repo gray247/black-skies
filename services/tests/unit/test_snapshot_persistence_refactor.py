@@ -149,3 +149,67 @@ def test_snapshot_manifest_includes_scene_entries(tmp_path: Path) -> None:
     assert manifest["drafts"][0]["id"] == "scene-1"
     assert manifest["drafts"][0]["path"] == "drafts/scene-1.md"
     assert manifest["missing_drafts"] == ["scene-2"]
+
+
+def test_snapshot_creation_rejects_symlink(tmp_path: Path) -> None:
+    settings = _Settings(project_base_dir=tmp_path)
+    persistence = SnapshotPersistence(settings=settings)
+
+    project_id = "project-symlink"
+    project_root = tmp_path / project_id
+    project_root.mkdir(parents=True, exist_ok=True)
+
+    target = tmp_path / "outside.txt"
+    target.write_text("outside", encoding="utf-8")
+
+    link_path = project_root / "drafts" / "link.md"
+    link_path.parent.mkdir(parents=True, exist_ok=True)
+
+    try:
+        link_path.symlink_to(target)
+    except (OSError, NotImplementedError) as exc:
+        pytest.skip(f"Symlinks are not available on this platform: {exc}")
+
+    with pytest.raises(ValueError) as excinfo:
+        persistence.create_snapshot(project_id, include_entries=["drafts"])
+
+    assert "symbolic" in str(excinfo.value).lower()
+
+
+def test_snapshot_restore_rejects_symlink(tmp_path: Path) -> None:
+    settings = _Settings(project_base_dir=tmp_path)
+    persistence = SnapshotPersistence(settings=settings)
+
+    project_id = "project-restore-symlink"
+    project_root = tmp_path / project_id
+    project_root.mkdir(parents=True, exist_ok=True)
+
+    snapshots_dir = project_root / "history" / "snapshots"
+    snapshot_dir = snapshots_dir / "20240101T000000Z_accept"
+    snapshot_dir.mkdir(parents=True, exist_ok=True)
+
+    payload = {
+        "snapshot_id": "20240101T000000Z",
+        "project_id": project_id,
+        "label": "accept",
+        "created_at": "2024-01-01T00:00:00Z",
+        "includes": ["drafts"],
+    }
+    (snapshot_dir / "metadata.json").write_text(json.dumps(payload), encoding="utf-8")
+
+    target = tmp_path / "outside-restore.txt"
+    target.write_text("outside", encoding="utf-8")
+
+    link_path = snapshot_dir / "drafts"
+    link_path.mkdir(parents=True, exist_ok=True)
+
+    symlink_inside = link_path / "link.md"
+    try:
+        symlink_inside.symlink_to(target)
+    except (OSError, NotImplementedError) as exc:
+        pytest.skip(f"Symlinks are not available on this platform: {exc}")
+
+    with pytest.raises(ValueError) as excinfo:
+        persistence.restore_snapshot(project_id, "20240101T000000Z")
+
+    assert "symbolic" in str(excinfo.value).lower()

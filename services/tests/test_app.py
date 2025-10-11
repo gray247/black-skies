@@ -431,6 +431,42 @@ def test_draft_generate_scene_success(test_client: TestClient, tmp_path: Path) -
     assert project_meta["budget"]["spent_usd"] == pytest.approx(budget["spent_usd"])
 
 
+def test_draft_generate_rehydrates_cached_units(test_client: TestClient, tmp_path: Path) -> None:
+    """Cached draft responses rewrite missing scene files before being returned."""
+
+    project_id = "proj_draft_rehydrate"
+    scene_ids = _bootstrap_outline(tmp_path, project_id, scene_count=1)
+    payload = {
+        "project_id": project_id,
+        "unit_scope": "scene",
+        "unit_ids": scene_ids,
+    }
+
+    first_response = test_client.post(f"{API_PREFIX}/draft/generate", json=payload)
+    assert first_response.status_code == 200
+    first_data = first_response.json()
+
+    scene_path = tmp_path / project_id / "drafts" / f"{scene_ids[0]}.md"
+    original_content = scene_path.read_text(encoding="utf-8")
+    scene_path.unlink()
+
+    second_response = test_client.post(f"{API_PREFIX}/draft/generate", json=payload)
+    assert second_response.status_code == 200
+    second_data = second_response.json()
+
+    assert second_data == first_data
+    assert scene_path.exists()
+    regenerated = scene_path.read_text(encoding="utf-8")
+    assert regenerated == original_content
+
+    project_config = tmp_path / project_id / "project.json"
+    with project_config.open("r", encoding="utf-8") as handle:
+        project_meta = json.load(handle)
+    assert project_meta["budget"]["spent_usd"] == pytest.approx(
+        first_data["budget"]["spent_usd"]
+    )
+
+
 def test_draft_generate_scene_limit(test_client: TestClient, tmp_path: Path) -> None:
     """Scene batches above the limit are rejected with validation errors."""
 

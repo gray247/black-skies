@@ -5,7 +5,7 @@ from __future__ import annotations
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Callable, Dict, Mapping
 
-from .agents.base import CritiqueAgent, DraftAgent, OutlineAgent, RewriteAgent
+from .agents.base import BaseAgent, CritiqueAgent, DraftAgent, OutlineAgent, RewriteAgent
 from .settings import Settings, get_settings
 from .tools.registry import ToolRegistry
 
@@ -32,10 +32,13 @@ class AgentOrchestrator:
         settings: Settings | None = None,
     ) -> None:
         self.settings = settings or get_settings()
-        self.outline_agent = OutlineAgent(outline_worker)
-        self.draft_agent = DraftAgent(draft_worker)
-        self.rewrite_agent = RewriteAgent(rewrite_worker)
-        self.critique_agent = CritiqueAgent(critique_worker)
+        self._agents: Dict[str, Callable[[OperationPayload], OperationResult]] = {}
+        self._register_agents(
+            outline=OutlineAgent(outline_worker),
+            draft=DraftAgent(draft_worker),
+            rewrite=RewriteAgent(rewrite_worker),
+            critique=CritiqueAgent(critique_worker),
+        )
         self._tool_registry = tool_registry
         self._tools: Dict[str, Callable[..., Any]] = {}
         if tools:
@@ -51,6 +54,12 @@ class AgentOrchestrator:
 
         canonical = self._tool_registry.canonical_name(name)
         self._tools[canonical] = tool
+
+    def _register_agents(self, **agents: BaseAgent) -> None:
+        """Register the orchestrated agents by operation name."""
+
+        for name, agent in agents.items():
+            self._agents[name] = agent.run
 
     def resolve_tool(
         self,
@@ -76,16 +85,16 @@ class AgentOrchestrator:
         return self._tools[canonical]
 
     def build_outline(self, payload: OperationPayload) -> OperationResult:
-        return self.outline_agent.run(payload)
+        return self._run_agent("outline", payload)
 
     def generate_draft(self, payload: OperationPayload) -> OperationResult:
-        return self.draft_agent.run(payload)
+        return self._run_agent("draft", payload)
 
     def apply_rewrite(self, payload: OperationPayload) -> OperationResult:
-        return self.rewrite_agent.run(payload)
+        return self._run_agent("rewrite", payload)
 
     def run_critique(self, payload: OperationPayload) -> OperationResult:
-        return self.critique_agent.run(payload)
+        return self._run_agent("critique", payload)
 
     def draft_and_critique(
         self, draft_payload: OperationPayload, critique_payload: OperationPayload
@@ -103,10 +112,26 @@ class AgentOrchestrator:
     ) -> tuple[OperationResult, OperationResult]:
         """Run outline and draft in parallel using a thread pool."""
 
-        with ThreadPoolExecutor(max_workers=2) as executor:
-            outline_future = executor.submit(self.build_outline, outline_payload)
-            draft_future = executor.submit(self.generate_draft, draft_payload)
-            return outline_future.result(), draft_future.result()
+        operations = {
+            "outline": ("outline", outline_payload),
+            "draft": ("draft", draft_payload),
+        }
+        with ThreadPoolExecutor(max_workers=len(operations)) as executor:
+            futures = {
+                name: executor.submit(self._run_agent, agent_name, payload)
+                for name, (agent_name, payload) in operations.items()
+            }
+            # Always return results in outline->draft order for stable callers.
+            return futures["outline"].result(), futures["draft"].result()
+
+    def _run_agent(self, name: str, payload: OperationPayload) -> OperationResult:
+        """Dispatch to a registered agent by name."""
+
+        try:
+            runner = self._agents[name]
+        except KeyError as exc:
+            raise ValueError(f"Unknown agent operation '{name}'.") from exc
+        return runner(payload)
 
 
 __all__ = ["AgentOrchestrator", "ToolNotPermittedError"]

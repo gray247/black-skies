@@ -69,18 +69,17 @@ function ProjectHomeMock({
   onDraftChange?: (sceneId: string, draft: string) => void;
   draftOverrides?: Record<string, string>;
 }): JSX.Element {
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const lastPath = projectHomeMockState.lastPath;
+
   useEffect(() => {
     onProjectLoaded?.({
       status: 'init',
       project: null,
       targetPath: null,
-      lastOpenedPath: projectHomeMockState.lastPath,
+      lastOpenedPath: lastPath,
     });
     const projectForLoad =
-      projectHomeMockState.lastPath === null
-        ? { ...loadedProject, path: '' }
-        : loadedProject;
+      lastPath === null ? { ...loadedProject, path: '' } : loadedProject;
 
     onProjectLoaded?.({
       status: 'loaded',
@@ -93,7 +92,7 @@ function ProjectHomeMock({
     if (draftText) {
       onDraftChange?.('sc_0001', draftText);
     }
-  }, []);
+  }, [draftOverrides, lastPath, onActiveSceneChange, onDraftChange, onProjectLoaded]);
 
   useEffect(() => {
     if (!reopenRequest) {

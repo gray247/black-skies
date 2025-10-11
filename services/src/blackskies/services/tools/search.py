@@ -16,6 +16,11 @@ from .base import (
 )
 
 _WORD_RE = re.compile(r"[A-Za-z0-9']+")
+# Defaults shared for callers/tests that need consistent limits.
+DEFAULT_MAX_QUERY_LENGTH = 256
+DEFAULT_MAX_RESULTS = 25
+DEFAULT_EXCERPT_PADDING = 40
+DEFAULT_FALLBACK_EXCERPT = 80
 
 
 class SearchHit(TypedDict):
@@ -34,12 +39,21 @@ class MarkdownSearchTool:
         cost_estimate="filesystem-scan",
     )
 
-    _MAX_QUERY_LENGTH = 256
-    _MAX_LIMIT = 25
-
-    def __init__(self, data_root: str | Path | None = None) -> None:
+    def __init__(
+        self,
+        data_root: str | Path | None = None,
+        *,
+        max_query_length: int = DEFAULT_MAX_QUERY_LENGTH,
+        max_results: int = DEFAULT_MAX_RESULTS,
+        excerpt_padding: int = DEFAULT_EXCERPT_PADDING,
+        fallback_excerpt: int = DEFAULT_FALLBACK_EXCERPT,
+    ) -> None:
         self._data_root = Path(data_root) if data_root is not None else Path("data")
         self._data_root.mkdir(parents=True, exist_ok=True)
+        self._max_query_length = max_query_length
+        self._max_results = max_results
+        self._excerpt_padding = excerpt_padding
+        self._fallback_excerpt = fallback_excerpt
 
     def context(
         self,
@@ -64,13 +78,13 @@ class MarkdownSearchTool:
             raise TypeError("limit must be an integer.")
         if limit <= 0:
             raise ValueError("limit must be greater than zero.")
-        if limit > self._MAX_LIMIT:
-            raise ValueError(f"limit must be less than or equal to {self._MAX_LIMIT}.")
+        if limit > self._max_results:
+            raise ValueError(f"limit must be less than or equal to {self._max_results}.")
 
         stripped_query = query.strip()
         if not stripped_query:
             raise ValueError("query must not be empty.")
-        if len(stripped_query) > self._MAX_QUERY_LENGTH:
+        if len(stripped_query) > self._max_query_length:
             raise ValueError("query exceeds maximum length.")
 
         terms = list(self._tokenize(stripped_query))
@@ -135,13 +149,24 @@ class MarkdownSearchTool:
         for term in terms:
             index = lowered.find(term)
             if index != -1:
-                start = max(0, index - 40)
-                end = min(len(content), index + len(term) + 40)
+                start = max(0, index - self._excerpt_padding)
+                end = min(len(content), index + len(term) + self._excerpt_padding)
                 snippet = content[start:end].replace("\n", " ").strip()
                 prefix = "…" if start > 0 else ""
                 suffix = "…" if end < len(content) else ""
                 return f"{prefix}{snippet}{suffix}"
-        snippet = content[:80].replace("\n", " ").strip()
-        if len(content) > 80:
+        snippet = content[: self._fallback_excerpt].replace("\n", " ").strip()
+        if len(content) > self._fallback_excerpt:
             return f"{snippet}…"
         return snippet
+
+
+
+__all__ = [
+    "DEFAULT_MAX_QUERY_LENGTH",
+    "DEFAULT_MAX_RESULTS",
+    "DEFAULT_EXCERPT_PADDING",
+    "DEFAULT_FALLBACK_EXCERPT",
+    "MarkdownSearchTool",
+]
+

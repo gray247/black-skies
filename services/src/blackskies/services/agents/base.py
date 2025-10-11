@@ -6,7 +6,7 @@ import abc
 import logging
 import time
 from dataclasses import dataclass
-from typing import Any, Callable
+from typing import Any, Callable, Iterable
 
 logger = logging.getLogger("blackskies.services.agents")
 
@@ -34,9 +34,18 @@ class ExponentialBackoff:
 class BaseAgent(abc.ABC):
     """Abstract agent with retry/backoff support."""
 
-    def __init__(self, *, max_attempts: int = 3, backoff: ExponentialBackoff | None = None) -> None:
+    def __init__(
+        self,
+        *,
+        max_attempts: int = 3,
+        backoff: ExponentialBackoff | None = None,
+        sleep: Callable[[float], None] | None = None,
+    ) -> None:
+        if max_attempts <= 0:
+            raise ValueError("max_attempts must be greater than zero.")
         self._max_attempts = max_attempts
         self._backoff = backoff or ExponentialBackoff()
+        self._sleep = sleep or time.sleep
 
     @abc.abstractmethod
     def run_once(self, payload: dict[str, Any]) -> dict[str, Any]:
@@ -50,40 +59,62 @@ class BaseAgent(abc.ABC):
             extra={"extra_payload": {"agent": self.__class__.__name__, "payload": payload}},
         )
 
+        try:
+            result = self._execute_with_retries(payload)
+        except AgentError:
+            raise
+        except Exception as exc:  # pragma: no cover - unexpected failure surface
+            raise AgentError("Agent execution failed unexpectedly.") from exc
+
+        logger.info(
+            "agent.success",
+            extra={"extra_payload": {"agent": self.__class__.__name__}},
+        )
+        return result
+
+    # Internal helpers --------------------------------------------------
+
+    def _execute_with_retries(self, payload: dict[str, Any]) -> dict[str, Any]:
         last_exc: BaseException | None = None
-        for attempt in range(1, self._max_attempts + 1):
+        for attempt in self._attempts():
             try:
-                result = self.run_once(payload)
-            except Exception as exc:  # noqa: BLE001 - propagate as AgentError with context
+                return self.run_once(payload)
+            except Exception as exc:  # noqa: BLE001 - propagate via AgentError
                 last_exc = exc
-                logger.warning(
-                    "agent.retry",
-                    extra={
-                        "extra_payload": {
-                            "agent": self.__class__.__name__,
-                            "attempt": attempt,
-                            "max_attempts": self._max_attempts,
-                            "error": str(exc),
-                        }
-                    },
-                )
+                self._log_retry(attempt, exc)
                 if attempt >= self._max_attempts:
                     break
-                delay = self._backoff.compute(attempt)
-                if delay > 0:
-                    time.sleep(delay)
-            else:
-                logger.info(
-                    "agent.success",
-                    extra={"extra_payload": {"agent": self.__class__.__name__}},
-                )
-                return result
+                self._backoff_sleep(attempt)
 
+        self._log_failure(last_exc)
+        raise AgentError("Agent exceeded retry attempts") from last_exc
+
+    def _attempts(self) -> Iterable[int]:
+        return range(1, self._max_attempts + 1)
+
+    def _backoff_sleep(self, attempt: int) -> None:
+        delay = max(0.0, self._backoff.compute(attempt))
+        if delay:
+            self._sleep(delay)
+
+    def _log_retry(self, attempt: int, error: BaseException) -> None:
+        logger.warning(
+            "agent.retry",
+            extra={
+                "extra_payload": {
+                    "agent": self.__class__.__name__,
+                    "attempt": attempt,
+                    "max_attempts": self._max_attempts,
+                    "error": str(error),
+                }
+            },
+        )
+
+    def _log_failure(self, error: BaseException | None) -> None:
         logger.error(
             "agent.failure",
-            extra={"extra_payload": {"agent": self.__class__.__name__, "error": str(last_exc)}},
+            extra={"extra_payload": {"agent": self.__class__.__name__, "error": str(error)}},
         )
-        raise AgentError("Agent exceeded retry attempts") from last_exc
 
 
 class OutlineAgent(BaseAgent):

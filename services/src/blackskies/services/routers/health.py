@@ -36,5 +36,5 @@ async def metrics_endpoint(version: str = Depends(get_service_version)) -> Respo
 
     metrics_payload = render(version).encode("utf-8")
     response = Response(content=metrics_payload)
-    response.headers["content-type"] = _METRICS_MEDIA_TYPE
+    response.headers["Content-Type"] = _METRICS_MEDIA_TYPE
     return response

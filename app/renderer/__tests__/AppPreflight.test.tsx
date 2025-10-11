@@ -31,7 +31,6 @@ function ProjectHomeMock({
   onDraftChange?: (sceneId: string, draft: string) => void;
   draftOverrides?: Record<string, string>;
 }): JSX.Element {
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     onProjectLoaded?.({
       path: '/projects/demo',
@@ -60,12 +59,13 @@ function ProjectHomeMock({
       ],
       drafts: {},
     } satisfies LoadedProject);
+
     const draftText = draftOverrides?.sc_0001 ?? '';
     onActiveSceneChange?.({ sceneId: 'sc_0001', sceneTitle: 'Arrival', draft: draftText });
     if (draftText) {
       onDraftChange?.('sc_0001', draftText);
     }
-  }, []);
+  }, [draftOverrides, onActiveSceneChange, onDraftChange, onProjectLoaded]);
 
   return <div data-testid="project-home-mock" />;
 }
@@ -478,3 +478,4 @@ describe('App preflight integration', () => {
     await screen.findByRole('button', { name: /services offline/i });
   });
 });
+
