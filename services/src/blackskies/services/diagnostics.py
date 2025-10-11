@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime, timezone
+import re
 from pathlib import Path
 from typing import Any
 
@@ -26,7 +27,7 @@ class DiagnosticLogger:
         diagnostics_dir.mkdir(parents=True, exist_ok=True)
 
         timestamp = datetime.now(tz=timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
-        slug = code.lower()
+        slug = _normalise_code(code)
         filename = f"{timestamp}_{slug}.json"
         path = diagnostics_dir / filename
         suffix = 1
@@ -43,6 +44,16 @@ class DiagnosticLogger:
         }
         dump_diagnostic(path, payload)
         return path
+
+
+def _normalise_code(code: str) -> str:
+    """Return a filesystem-safe slug for the diagnostic code."""
+
+    lowered = code.lower()
+    without_separators = re.sub(r"[\\/]+", "-", lowered)
+    cleaned = re.sub(r"[^a-z0-9_-]+", "-", without_separators)
+    normalised = re.sub(r"-+", "-", cleaned).strip("-")
+    return normalised or "diagnostic"
 
 
 __all__ = ["DiagnosticLogger"]
