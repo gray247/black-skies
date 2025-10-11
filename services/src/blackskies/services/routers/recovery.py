@@ -1,9 +1,27 @@
-"""Recovery endpoints and helpers."""
+"""Recovery endpoints and helpers.
+
+The recovery router maintains a small state machine per project tracking the
+draft accept workflow:
+
+``idle`` -> ``accept-in-progress`` -> (``idle`` | ``needs-recovery``)
+
+* ``idle`` signals no outstanding work and a clean recovery slate.
+* ``accept-in-progress`` records an active accept mutation alongside bookkeeping
+  metadata (unit, draft and start timestamp).
+* ``needs-recovery`` is only entered when an accept fails, times out or is found
+  in an inconsistent state and should surface the crash banner to the client.
+
+The helpers below ensure the persisted state transitions follow that flow and
+only escalate transient ``accept-in-progress`` entries to ``needs-recovery``
+when an explicit failure is recorded or the operation has stalled past the
+allowed timeout.
+"""
 
 from __future__ import annotations
 
 import json
 import logging
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Final
 
@@ -61,6 +79,7 @@ class RecoveryTracker:
         "needs-recovery",
         "accept-in-progress",
     }
+    _ACCEPT_TIMEOUT: Final[timedelta] = timedelta(minutes=5)
 
     @classmethod
     def _normalise_state(cls, state: dict[str, Any]) -> dict[str, Any]:
@@ -118,6 +137,23 @@ class RecoveryTracker:
         write_json_atomic(path, normalised)
         return normalised
 
+    @staticmethod
+    def _parse_timestamp(value: Any) -> datetime | None:
+        """Parse ISO-8601 timestamps persisted in the tracker state."""
+
+        if not isinstance(value, str) or not value:
+            return None
+        candidate = value
+        if candidate.endswith("Z"):
+            candidate = f"{candidate[:-1]}+00:00"
+        try:
+            parsed = datetime.fromisoformat(candidate)
+        except ValueError:
+            return None
+        if parsed.tzinfo is None:
+            return parsed.replace(tzinfo=timezone.utc)
+        return parsed.astimezone(timezone.utc)
+
     def mark_in_progress(
         self,
         project_id: str,
@@ -167,7 +203,24 @@ class RecoveryTracker:
     def status(self, project_id: str, snapshots: SnapshotPersistence) -> dict[str, Any]:
         state = self._read_state(project_id)
         if state.get("status") == "accept-in-progress":
-            state = self.mark_needs_recovery(project_id)
+            failure_reason = state.get("failure_reason")
+            started_at = self._parse_timestamp(state.get("started_at"))
+            now = datetime.now(timezone.utc)
+
+            timeout_reason: str | None = None
+            if failure_reason:
+                timeout_reason = str(failure_reason)
+            elif started_at is None:
+                timeout_reason = "Accept operation timestamp invalid."
+            else:
+                if now - started_at >= self._ACCEPT_TIMEOUT:
+                    timeout_reason = "Accept operation timed out."
+
+            if timeout_reason is not None:
+                state = self.mark_needs_recovery(
+                    project_id,
+                    reason=timeout_reason,
+                )
         if not state.get("last_snapshot"):
             latest = snapshots.latest_snapshot(project_id)
             if latest:
