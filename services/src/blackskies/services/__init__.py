@@ -2,14 +2,14 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable, NoReturn, cast
+from typing import Any, Callable, NoReturn, TYPE_CHECKING, cast
 
-AgentOrchestrator: Any | None
-ToolNotPermittedError: type[Exception]
-
-
-class _FallbackToolNotPermittedError(RuntimeError):
-    """Fallback error raised when service dependencies are unavailable."""
+if TYPE_CHECKING:  # pragma: no cover - import is for typing only
+    from .services import AgentOrchestrator as AgentOrchestratorType
+    from .services import ToolNotPermittedError as ToolNotPermittedErrorType
+else:
+    AgentOrchestratorType = Any
+    ToolNotPermittedErrorType = type[Exception]
 
 try:  # pragma: no cover - optional FastAPI dependency not installed
     from .app import SERVICE_VERSION as _SERVICE_VERSION, app as _app, create_app as _create_app
@@ -37,16 +37,26 @@ except ModuleNotFoundError:  # pragma: no cover - executed when uvicorn is absen
 else:
     main = _main
 
-try:  # pragma: no cover - optional service dependencies not installed
-    from .services import AgentOrchestrator as _AgentOrchestrator, ToolNotPermittedError as _ToolNotPermittedError
-except ModuleNotFoundError:  # pragma: no cover - executed when orchestration services are absent
-    AgentOrchestrator = None
-    ToolNotPermittedError = _FallbackToolNotPermittedError
+if TYPE_CHECKING:  # pragma: no cover - handled via static imports above
+    from .services import AgentOrchestrator, ToolNotPermittedError
 else:
-    AgentOrchestrator = _AgentOrchestrator
-    ToolNotPermittedError = _ToolNotPermittedError
+    try:  # pragma: no cover - optional service dependencies not installed
+        from .services import AgentOrchestrator as _AgentOrchestrator
+        from .services import ToolNotPermittedError as _ToolNotPermittedError
+    except (
+        ModuleNotFoundError
+    ):  # pragma: no cover - executed when orchestration services are absent
+        AgentOrchestrator: AgentOrchestratorType | None = None
 
-__all__ = [
+        class ToolNotPermittedError(RuntimeError):
+            """Fallback error raised when service dependencies are unavailable."""
+
+    else:
+        AgentOrchestrator = cast(AgentOrchestratorType, _AgentOrchestrator)
+        ToolNotPermittedError = cast(ToolNotPermittedErrorType, _ToolNotPermittedError)
+
+
+__all__: list[str] = [
     "AgentOrchestrator",
     "ToolNotPermittedError",
     "app",

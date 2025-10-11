@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 from typing import Any, ClassVar, Mapping, cast
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, Field, field_validator
 
 
 def _default_project_dir() -> Path:
@@ -28,12 +28,12 @@ def _default_project_dir() -> Path:
 class ServiceSettings(BaseModel):
     """Runtime configuration for the FastAPI services."""
 
-    model_config: ClassVar[ConfigDict] = ConfigDict(
-        env_prefix="BLACKSKIES_",
-        env_file=".env",
-        env_file_encoding="utf-8",
-        extra="ignore",
-    )
+    model_config: ClassVar[dict[str, Any]] = {
+        "env_prefix": "BLACKSKIES_",
+        "env_file": ".env",
+        "env_file_encoding": "utf-8",
+        "extra": "ignore",
+    }
 
     project_base_dir: Path = Field(
         default_factory=_default_project_dir,
@@ -101,7 +101,8 @@ class ServiceSettings(BaseModel):
             elif env_key in file_values:
                 overrides[field_name] = file_values[env_key]
 
-        return cls(**overrides)
+        typed_overrides = cast(dict[str, Any], overrides)
+        return cls(**typed_overrides)
 
 
-__all__ = ["ServiceSettings"]
+__all__: list[str] = ["ServiceSettings"]

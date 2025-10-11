@@ -227,7 +227,7 @@ def raise_budget_error(
     )
 
 
-__all__ = [
+__all__: list[str] = [
     "DEFAULT_ERROR_RESPONSES",
     "TRACE_ID_HEADER",
     "build_error_payload",
