@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 from typing import Any, ClassVar, cast
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 def _default_project_dir() -> Path:
@@ -32,7 +32,7 @@ class ServiceSettings(BaseModel):
     ENV_FILE: ClassVar[str | None] = ".env"
     ENV_FILE_ENCODING: ClassVar[str] = "utf-8"
 
-    model_config: ClassVar[dict[str, Any]] = {"extra": "ignore"}
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra="ignore")
 
     project_base_dir: Path = Field(
         default_factory=_default_project_dir,

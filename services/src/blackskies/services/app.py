@@ -6,9 +6,8 @@ import logging
 from typing import Awaitable, Callable, Final
 
 from fastapi import FastAPI, HTTPException, Request, Response, status
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 
 from .budgeting import (
     HARD_BUDGET_LIMIT_USD,
@@ -70,13 +69,17 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
         allow_headers=["*"],
     )
 
-    async def http_exception_handler(_: Request, exc: HTTPException) -> Response:
+    async def http_exception_handler(_: Request, exc: Exception) -> Response:
         trace_id = ensure_trace_id()
-        return http_exception_to_response(exc, trace_id)
+        if isinstance(exc, HTTPException):
+            return http_exception_to_response(exc, trace_id)
+        return internal_error_response(trace_id)
 
-    async def validation_exception_handler(_: Request, exc: RequestValidationError) -> Response:
+    async def validation_exception_handler(_: Request, exc: Exception) -> Response:
         trace_id = ensure_trace_id()
-        return request_validation_response(exc, trace_id)
+        if isinstance(exc, RequestValidationError):
+            return request_validation_response(exc, trace_id)
+        return internal_error_response(trace_id)
 
     application.add_exception_handler(HTTPException, http_exception_handler)
     application.add_exception_handler(RequestValidationError, validation_exception_handler)
