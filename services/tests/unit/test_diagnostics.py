@@ -23,13 +23,17 @@ if "pydantic" not in sys.modules:
             for key, value in data.items():
                 setattr(self, key, value)
 
-        def model_dump(self, *args: object, **kwargs: object) -> dict[str, object]:  # pragma: no cover - minimal stub
+        def model_dump(
+            self, *args: object, **kwargs: object
+        ) -> dict[str, object]:  # pragma: no cover - minimal stub
             return dict(self.__dict__)
 
         def model_post_init(self, __context: object) -> None:  # pragma: no cover - minimal stub
             return None
 
-    def _field(*, default: object | None = None, default_factory: object | None = None, **_: object) -> object:
+    def _field(
+        *, default: object | None = None, default_factory: object | None = None, **_: object
+    ) -> object:
         if default_factory is not None:
             return default_factory()
         return default
