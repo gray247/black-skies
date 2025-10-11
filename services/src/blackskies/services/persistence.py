@@ -11,7 +11,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath, PureWindowsPath
 from threading import Lock
-from typing import Any, Sequence
+from typing import IO, Any, Sequence
 from uuid import uuid4
 
 from blackskies.services.utils import safe_dump, to_posix
@@ -46,8 +46,7 @@ class OutlinePersistence:
         temp_path = target_path.parent / f".{target_path.name}.{uuid4().hex}.tmp"
         with temp_path.open("w", encoding="utf-8") as handle:
             handle.write(serialized)
-            handle.flush()
-            os.fsync(handle.fileno())
+            _flush_handle(handle, durable=True)
 
         temp_path.replace(target_path)
         return target_path
@@ -103,6 +102,14 @@ def _needs_quotes(value: str) -> bool:
     return False
 
 
+def _flush_handle(handle: IO[Any], *, durable: bool) -> None:
+    """Flush file buffers and conditionally fsync for durability."""
+
+    handle.flush()
+    if durable:
+        os.fsync(handle.fileno())
+
+
 def _normalise_include_entry(entry: str) -> tuple[Path, str]:
     """Return a safe relative path and its POSIX string representation."""
 
@@ -141,13 +148,21 @@ class DraftPersistence:
     """Persist synthesized draft scenes with locked front-matter."""
 
     settings: ServiceSettings
+    durable_writes: bool = True
 
     def ensure_project_root(self, project_id: str) -> Path:
         project_root = self.settings.project_base_dir / project_id
         project_root.mkdir(parents=True, exist_ok=True)
         return project_root
 
-    def write_scene(self, project_id: str, front_matter: dict[str, Any], body: str) -> Path:
+    def write_scene(
+        self,
+        project_id: str,
+        front_matter: dict[str, Any],
+        body: str,
+        *,
+        durable: bool | None = None,
+    ) -> Path:
         project_root = self.ensure_project_root(project_id)
         drafts_dir = project_root / "drafts"
         drafts_dir.mkdir(parents=True, exist_ok=True)
@@ -159,8 +174,8 @@ class DraftPersistence:
         temp_path = target_path.parent / f".{target_path.name}.{uuid4().hex}.tmp"
         with temp_path.open("w", encoding="utf-8") as handle:
             handle.write(rendered)
-            handle.flush()
-            os.fsync(handle.fileno())
+            effective_durability = self.durable_writes if durable is None else durable
+            _flush_handle(handle, durable=effective_durability)
 
         temp_path.replace(target_path)
         return target_path
@@ -189,19 +204,18 @@ class DraftPersistence:
         return "\n".join(lines) + "\n"
 
 
-def write_json_atomic(path: Path, payload: dict[str, Any]) -> None:
+def write_json_atomic(path: Path, payload: dict[str, Any], *, durable: bool = True) -> None:
     """Write JSON to disk using an atomic rename."""
 
     path.parent.mkdir(parents=True, exist_ok=True)
     temp_path = path.parent / f".{path.name}.{uuid4().hex}.tmp"
     with temp_path.open("w", encoding="utf-8") as handle:
         json.dump(payload, handle, indent=2, ensure_ascii=False)
-        handle.flush()
-        os.fsync(handle.fileno())
+        _flush_handle(handle, durable=durable)
     temp_path.replace(path)
 
 
-def write_text_atomic(path: Path, content: str) -> None:
+def write_text_atomic(path: Path, content: str, *, durable: bool = True) -> None:
     """Write UTF-8 text to disk atomically with normalised newlines."""
 
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -212,8 +226,7 @@ def write_text_atomic(path: Path, content: str) -> None:
         normalized = f"{normalized}\n"
     with temp_path.open("w", encoding="utf-8", newline="\n") as handle:
         handle.write(normalized)
-        handle.flush()
-        os.fsync(handle.fileno())
+        _flush_handle(handle, durable=durable)
     temp_path.replace(path)
 
 
@@ -635,8 +648,7 @@ def dump_diagnostic(path: Path, payload: dict[str, Any]) -> None:
 
     with path.open("w", encoding="utf-8") as handle:
         json.dump(payload, handle, indent=2, ensure_ascii=False)
-        handle.flush()
-        os.fsync(handle.fileno())
+        _flush_handle(handle, durable=True)
 
 
 __all__ = [
