@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from enum import StrEnum
 from pathlib import Path
-from typing import Annotated, Iterator, Literal
+from typing import Annotated, Final, Iterator, Literal
 
 import yaml
 from pydantic import BaseModel, ConfigDict, Field, TypeAdapter, ValidationError, model_validator
@@ -245,7 +245,7 @@ class CritiqueEvalTask(_EvalTaskBase):
 
 
 EvalTask = WizardEvalTask | DraftEvalTask | CritiqueEvalTask
-_EvalTaskAdapter: TypeAdapter[EvalTask] = TypeAdapter(
+_EvalTaskAdapter: Final[TypeAdapter[EvalTask]] = TypeAdapter(
     Annotated[EvalTask, Field(discriminator="flow")]
 )
 

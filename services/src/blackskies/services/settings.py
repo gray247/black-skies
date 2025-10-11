@@ -5,37 +5,33 @@ from __future__ import annotations
 import logging
 import os
 from functools import lru_cache
-from typing import Any, ClassVar, Literal, Optional, cast
+from typing import Any, ClassVar, Literal, Optional
 
-from pydantic import AliasChoices, BaseModel, Field, field_validator
+from pydantic import AliasChoices, BaseModel, ConfigDict, Field, field_validator
 
 logger = logging.getLogger(__name__)
 
-_BaseSettingsParent: type[BaseModel]
 try:  # pragma: no branch - deterministic import guard
-    from pydantic_settings import BaseSettings as _ImportedBaseSettings
+    from pydantic_settings import BaseSettings as _BaseSettings
 except ModuleNotFoundError:  # pragma: no cover - behaviour asserted via tests
     logger.warning(
         "Optional dependency 'pydantic-settings' is missing. "
         "Install it for full configuration support: pip install pydantic-settings",
     )
 
-    class _FallbackBaseSettings(BaseModel):
+    class _BaseSettings(BaseModel):
         """Fallback settings implementation using a plain Pydantic model."""
 
-        model_config: ClassVar[dict[str, Any]] = {"extra": "ignore"}
+        model_config: ClassVar[ConfigDict] = ConfigDict(extra="ignore")
 
-    _BaseSettingsParent = _FallbackBaseSettings
-else:
-    _BaseSettingsParent = cast(type[BaseModel], _ImportedBaseSettings)
 
-BaseSettings: type[BaseModel] = _BaseSettingsParent
+BaseSettings = _BaseSettings
 
 Mode = Literal["offline", "live", "mock", "companion"]
 VALID_MODES: tuple[Mode, ...] = ("offline", "live", "mock", "companion")
 
 
-class Settings(_BaseSettingsParent):
+class Settings(BaseSettings):
     """Pydantic-based configuration for orchestrating agents and services."""
 
     openai_api_key: Optional[str] = Field(
@@ -60,11 +56,11 @@ class Settings(_BaseSettingsParent):
         ),
     )
 
-    model_config: ClassVar[dict[str, Any]] = {
-        "env_file": ".env",
-        "env_file_encoding": "utf-8",
-        "extra": "ignore",
-    }
+    model_config: ClassVar[ConfigDict] = ConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
 
     @field_validator("black_skies_mode", mode="before")
     @classmethod

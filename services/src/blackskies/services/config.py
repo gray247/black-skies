@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Any, ClassVar, Mapping, cast
+from typing import Any, ClassVar, cast
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 def _default_project_dir() -> Path:
@@ -28,12 +28,11 @@ def _default_project_dir() -> Path:
 class ServiceSettings(BaseModel):
     """Runtime configuration for the FastAPI services."""
 
-    model_config: ClassVar[dict[str, Any]] = {
-        "env_prefix": "BLACKSKIES_",
-        "env_file": ".env",
-        "env_file_encoding": "utf-8",
-        "extra": "ignore",
-    }
+    ENV_PREFIX: ClassVar[str] = "BLACKSKIES_"
+    ENV_FILE: ClassVar[str | None] = ".env"
+    ENV_FILE_ENCODING: ClassVar[str] = "utf-8"
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra="ignore")
 
     project_base_dir: Path = Field(
         default_factory=_default_project_dir,
@@ -80,10 +79,9 @@ class ServiceSettings(BaseModel):
     def from_environment(cls) -> "ServiceSettings":
         """Load settings from environment variables or a `.env` file."""
 
-        config: Mapping[str, Any] = cast(Mapping[str, Any], cls.model_config)
-        env_prefix = str(config.get("env_prefix", ""))
-        env_file_name = config.get("env_file")
-        env_encoding = str(config.get("env_file_encoding", "utf-8"))
+        env_prefix = cls.ENV_PREFIX
+        env_file_name = cls.ENV_FILE
+        env_encoding = cls.ENV_FILE_ENCODING
 
         file_values: dict[str, str] = {}
         if env_file_name:

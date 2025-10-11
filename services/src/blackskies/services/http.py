@@ -20,7 +20,7 @@ LOGGER = logging.getLogger(__name__)
 TRACE_ID_HEADER: Final[str] = "x-trace-id"
 _TRACE_ID_CONTEXT: ContextVar[str] = ContextVar("blackskies_trace_id", default="")
 
-DEFAULT_ERROR_RESPONSES: Final[dict[int, dict[str, Any]]] = {
+DEFAULT_ERROR_RESPONSES: Final[dict[int | str, dict[str, Any]]] = {
     status.HTTP_400_BAD_REQUEST: {"model": ErrorResponse},
     status.HTTP_402_PAYMENT_REQUIRED: {"model": ErrorResponse},
     status.HTTP_409_CONFLICT: {"model": ErrorResponse},
@@ -28,7 +28,7 @@ DEFAULT_ERROR_RESPONSES: Final[dict[int, dict[str, Any]]] = {
 }
 
 
-def default_error_responses() -> dict[int, dict[str, Any]]:
+def default_error_responses() -> dict[int | str, dict[str, Any]]:
     """Return a copy of the default error response mapping for routers."""
 
     return {status_code: dict(schema) for status_code, schema in DEFAULT_ERROR_RESPONSES.items()}
