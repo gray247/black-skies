@@ -60,7 +60,9 @@ def test_status_accept_in_progress_with_timeout(tracker: RecoveryTracker, projec
     assert status.get("failure_reason") == "Accept operation timed out."
 
 
-def test_status_accept_in_progress_with_failure_reason(tracker: RecoveryTracker, project_id: str) -> None:
+def test_status_accept_in_progress_with_failure_reason(
+    tracker: RecoveryTracker, project_id: str
+) -> None:
     tracker.mark_in_progress(project_id, unit_id="unit-1", draft_id="draft-1")
     state = tracker._read_state(project_id)
     state["failure_reason"] = "Filesystem write failed"
@@ -72,7 +74,9 @@ def test_status_accept_in_progress_with_failure_reason(tracker: RecoveryTracker,
     assert status.get("failure_reason") == "Filesystem write failed"
 
 
-def test_status_accept_in_progress_with_invalid_timestamp(tracker: RecoveryTracker, project_id: str) -> None:
+def test_status_accept_in_progress_with_invalid_timestamp(
+    tracker: RecoveryTracker, project_id: str
+) -> None:
     tracker.mark_in_progress(project_id, unit_id="unit-1", draft_id="draft-1")
     state = tracker._read_state(project_id)
     state["started_at"] = "not-a-timestamp"
