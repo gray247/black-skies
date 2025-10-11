@@ -26,7 +26,9 @@ def _front_matter(scene_id: str) -> dict[str, str]:
     }
 
 
-def test_relaxed_durability_batches_fsync(monkeypatch: pytest.MonkeyPatch, service_settings: ServiceSettings) -> None:
+def test_relaxed_durability_batches_fsync(
+    monkeypatch: pytest.MonkeyPatch, service_settings: ServiceSettings
+) -> None:
     """Only the final write should fsync when durability is relaxed."""
 
     calls: list[int] = []
@@ -45,7 +47,9 @@ def test_relaxed_durability_batches_fsync(monkeypatch: pytest.MonkeyPatch, servi
     assert len(calls) == 1, "Expected exactly one fsync for batched writes"
 
 
-def test_default_durability_invokes_fsync(monkeypatch: pytest.MonkeyPatch, service_settings: ServiceSettings) -> None:
+def test_default_durability_invokes_fsync(
+    monkeypatch: pytest.MonkeyPatch, service_settings: ServiceSettings
+) -> None:
     """Strict durability should fsync on every write by default."""
 
     calls: list[int] = []
