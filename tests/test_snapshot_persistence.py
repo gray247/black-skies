@@ -85,7 +85,9 @@ def test_restore_snapshot_uses_default_includes(tmp_path: Path) -> None:
 
     snapshot = persistence.create_snapshot(project_id, label="restore-test")
 
-    snapshot_dir = project_root / "history" / "snapshots" / f"{snapshot['snapshot_id']}_{snapshot['label']}"
+    snapshot_dir = (
+        project_root / "history" / "snapshots" / f"{snapshot['snapshot_id']}_{snapshot['label']}"
+    )
     metadata_path = snapshot_dir / "metadata.json"
     metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
     metadata["includes"] = []  # ensure restore falls back to default include set
@@ -103,5 +105,7 @@ def test_restore_snapshot_uses_default_includes(tmp_path: Path) -> None:
     assert sorted(restore_result["includes"]) == ["drafts", "outline.json", "project.json"]
     restored_scene = (project_root / "drafts" / "scene-1.md").read_text(encoding="utf-8")
     assert "Opening" in restored_scene
-    assert json.loads((project_root / "project.json").read_text(encoding="utf-8"))["title"] == "Test Project"
-
+    assert (
+        json.loads((project_root / "project.json").read_text(encoding="utf-8"))["title"]
+        == "Test Project"
+    )
