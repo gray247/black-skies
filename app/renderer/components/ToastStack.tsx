@@ -34,6 +34,9 @@ interface ToastCardProps {
 
 function ToastCard({ toast, onDismiss, autoDismissMs }: ToastCardProps): JSX.Element {
   useEffect(() => {
+    if (autoDismissMs <= 0) {
+      return () => {};
+    }
     const handle = window.setTimeout(() => onDismiss(toast.id), autoDismissMs);
     return () => window.clearTimeout(handle);
   }, [autoDismissMs, onDismiss, toast.id]);

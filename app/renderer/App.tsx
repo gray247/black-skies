@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+﻿import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import ProjectHome, { type ActiveScenePayload, type ProjectLoadEvent } from "./components/ProjectHome";
 import WizardPanel from "./components/WizardPanel";
@@ -13,6 +13,7 @@ import type { ServicesBridge } from "../shared/ipc/services";
 import useMountedRef from "./hooks/useMountedRef";
 import { useToasts } from "./hooks/useToasts";
 import { useServiceHealth } from "./hooks/useServiceHealth";
+import { isTestEnvironment } from "./utils/env";
 import { usePreflight } from "./hooks/usePreflight";
 import { useCritique } from "./hooks/useCritique";
 import useRecovery from "./hooks/useRecovery";
@@ -33,7 +34,11 @@ export default function App(): JSX.Element {
 
   const { toasts, pushToast, dismissToast } = useToasts();
   const isMountedRef = useMountedRef();
-  const { status: serviceStatus, retry: checkServices } = useServiceHealth(services);
+  const isTestEnv = isTestEnvironment();
+  const { status: serviceStatus, retry: checkServices } = useServiceHealth(
+    services,
+    isTestEnv ? { intervalMs: 0 } : undefined,
+  );
 
   const [, setCurrentProject] = useState<LoadedProject | null>(null);
   const [projectSummary, setProjectSummary] = useState<ProjectSummary | null>(null);
@@ -284,7 +289,7 @@ export default function App(): JSX.Element {
   const restoreDisabled = recoveryBusy || reopenBusy;
   const reopenDisabled = restoreDisabled || !lastProjectPath;
   const diagnosticsDisabled = recoveryBusy || reopenBusy;
-  const restoreLabel = recoveryAction === "restore" ? "Restoring�" : "Restore snapshot";
+  const restoreLabel = recoveryAction === "restore" ? "Restoring…" : "Restore snapshot";
 
   return (
     <div className="app-shell">
@@ -335,7 +340,11 @@ export default function App(): JSX.Element {
         </main>
       </div>
 
-      <ToastStack toasts={toasts} onDismiss={dismissToast} />
+      <ToastStack
+        toasts={toasts}
+        onDismiss={dismissToast}
+        autoDismissMs={isTestEnv ? 0 : undefined}
+      />
 
       <CritiqueModal
         isOpen={critiqueState.open}
@@ -363,3 +372,7 @@ export default function App(): JSX.Element {
     </div>
   );
 }
+
+
+
+

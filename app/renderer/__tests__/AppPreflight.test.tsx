@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import App from '../App';
@@ -31,39 +31,50 @@ function ProjectHomeMock({
   onDraftChange?: (sceneId: string, draft: string) => void;
   draftOverrides?: Record<string, string>;
 }): JSX.Element {
+  const bootstrappedRef = useRef(false);
+  const lastDraftRef = useRef<string | null>(null);
+
   useEffect(() => {
-    onProjectLoaded?.({
-      path: '/projects/demo',
-      name: 'Demo Project',
-      outline: {
-        schema_version: 'OutlineSchema v1',
-        outline_id: 'out_demo',
-        acts: [],
-        chapters: [],
+    const currentDraft = draftOverrides?.sc_0001 ?? '';
+
+    if (!bootstrappedRef.current) {
+      bootstrappedRef.current = true;
+      onProjectLoaded?.({
+        path: '/projects/demo',
+        name: 'Demo Project',
+        outline: {
+          schema_version: 'OutlineSchema v1',
+          outline_id: 'out_demo',
+          acts: [],
+          chapters: [],
+          scenes: [
+            {
+              id: 'sc_0001',
+              order: 1,
+              title: 'Arrival',
+              chapter_id: 'ch_0001',
+              beat_refs: [],
+            },
+          ],
+        },
         scenes: [
           {
             id: 'sc_0001',
-            order: 1,
             title: 'Arrival',
-            chapter_id: 'ch_0001',
-            beat_refs: [],
+            order: 1,
           },
         ],
-      },
-      scenes: [
-        {
-          id: 'sc_0001',
-          title: 'Arrival',
-          order: 1,
-        },
-      ],
-      drafts: {},
-    } satisfies LoadedProject);
+        drafts: {},
+      } satisfies LoadedProject);
+    }
 
-    const draftText = draftOverrides?.sc_0001 ?? '';
-    onActiveSceneChange?.({ sceneId: 'sc_0001', sceneTitle: 'Arrival', draft: draftText });
-    if (draftText) {
-      onDraftChange?.('sc_0001', draftText);
+    if (lastDraftRef.current === currentDraft) {
+      return;
+    }
+    lastDraftRef.current = currentDraft;
+    onActiveSceneChange?.({ sceneId: 'sc_0001', sceneTitle: 'Arrival', draft: currentDraft });
+    if (currentDraft) {
+      onDraftChange?.('sc_0001', currentDraft);
     }
   }, [draftOverrides, onActiveSceneChange, onDraftChange, onProjectLoaded]);
 
@@ -207,6 +218,8 @@ describe('App preflight integration', () => {
 
   afterEach(() => {
     vi.clearAllMocks();
+    Reflect.deleteProperty(window as typeof window & { services?: ServicesBridge }, 'services');
+    Reflect.deleteProperty(window as typeof window & { projectLoader?: ProjectLoaderApi }, 'projectLoader');
   });
 
   it('displays service-provided estimate in the modal', async () => {

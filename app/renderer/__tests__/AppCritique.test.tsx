@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { createHash } from 'node:crypto';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -68,7 +68,14 @@ function ProjectHomeMock({
   onDraftChange,
   draftOverrides,
 }: ProjectHomeMockProps): JSX.Element {
+  const bootstrappedRef = useRef(false);
+  const lastDraftRef = useRef<string | null>(null);
+
   useEffect(() => {
+    if (bootstrappedRef.current) {
+      return;
+    }
+    bootstrappedRef.current = true;
     onProjectLoaded?.({
       status: 'init',
       project: null,
@@ -83,9 +90,23 @@ function ProjectHomeMock({
     });
 
     const draftText = draftOverrides?.sc_0001 ?? loadedProject.drafts['sc_0001'];
+    lastDraftRef.current = draftText;
     onActiveSceneChange?.({ sceneId: 'sc_0001', sceneTitle: 'Arrival', draft: draftText });
     onDraftChange?.('sc_0001', draftText);
   }, [draftOverrides, onActiveSceneChange, onDraftChange, onProjectLoaded]);
+
+  useEffect(() => {
+    if (!bootstrappedRef.current) {
+      return;
+    }
+    const draftText = draftOverrides?.sc_0001 ?? loadedProject.drafts['sc_0001'];
+    if (lastDraftRef.current === draftText) {
+      return;
+    }
+    lastDraftRef.current = draftText;
+    onActiveSceneChange?.({ sceneId: 'sc_0001', sceneTitle: 'Arrival', draft: draftText });
+    onDraftChange?.('sc_0001', draftText);
+  }, [draftOverrides, onActiveSceneChange, onDraftChange]);
 
   return <div data-testid="project-home-mock" />;
 }
@@ -177,6 +198,14 @@ describe('App critique flow', () => {
 
   afterEach(() => {
     vi.clearAllMocks();
+    Reflect.deleteProperty(window as typeof window & { services?: ServicesBridge }, 'services');
+    Reflect.deleteProperty(
+      window as typeof window & { projectLoader?: ProjectLoaderApi },
+      'projectLoader',
+    );
+    // Debug: log active handles to diagnose hanging Vitest process.
+    // eslint-disable-next-line no-console
+    console.log('[AppCritique] active handles', process._getActiveHandles().length);
   });
 
   it('requests a critique and accepts the draft', async () => {

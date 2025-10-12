@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 import logging
+from contextvars import ContextVar
 from typing import Awaitable, Callable, Final
 
 from fastapi import FastAPI, HTTPException, Request, Response, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.datastructures import MutableHeaders
+from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 from .budgeting import (
     HARD_BUDGET_LIMIT_USD,
@@ -40,6 +43,58 @@ LOGGER = logging.getLogger(__name__)
 SERVICE_VERSION: Final[str] = "1.0.0-rc1"
 
 
+class TraceMiddleware:
+    """ASGI middleware that applies trace IDs and unified error handling."""
+
+    def __init__(self, app: ASGIApp, *, trace_context: ContextVar[str]) -> None:
+        self.app = app
+        self._trace_context = trace_context
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+
+        request = Request(scope, receive)
+        trace_id = resolve_trace_id(request.headers.get(TRACE_ID_HEADER))
+        token = self._trace_context.set(trace_id)
+        scope.setdefault("state", {})
+        scope["state"]["trace_id"] = trace_id  # type: ignore[index]
+
+        status_holder: dict[str, int | None] = {"status": None}
+
+        async def send_wrapper(message: Message) -> None:
+            if message["type"] == "http.response.start":
+                headers = MutableHeaders(scope=message)
+                headers.setdefault(TRACE_ID_HEADER, trace_id)
+                status_holder["status"] = message.get("status")
+            await send(message)
+
+        try:
+            await self.app(scope, receive, send_wrapper)
+        except HTTPException as exc:
+            response = http_exception_to_response(exc, trace_id)
+            status_holder["status"] = exc.status_code
+            await response(scope, receive, send)
+        except RequestValidationError as exc:
+            response = request_validation_response(exc, trace_id)
+            status_holder["status"] = status.HTTP_400_BAD_REQUEST
+            await response(scope, receive, send)
+        except Exception as exc:  # pragma: no cover - defensive guard
+            LOGGER.exception(
+                "Unhandled error processing %s %s",
+                request.method,
+                request.url.path,
+                exc_info=exc,
+            )
+            response = internal_error_response(trace_id)
+            status_holder["status"] = status.HTTP_500_INTERNAL_SERVER_ERROR
+            await response(scope, receive, send)
+        finally:
+            self._trace_context.reset(token)
+            status_code = status_holder["status"] or status.HTTP_500_INTERNAL_SERVER_ERROR
+            record_request(request.method, status_code)
+
 def create_app(settings: ServiceSettings | None = None) -> FastAPI:
     """Construct the FastAPI application."""
 
@@ -58,17 +113,6 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
     application.state.critique_service = CritiqueService()
     application.state.service_version = SERVICE_VERSION
 
-    application.add_middleware(
-        CORSMiddleware,
-        allow_origins=[
-            "http://127.0.0.1:5173",
-            "http://localhost:5173",
-        ],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
-
     async def http_exception_handler(_: Request, exc: Exception) -> Response:
         trace_id = ensure_trace_id()
         if isinstance(exc, HTTPException):
@@ -86,36 +130,20 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
 
     trace_context = get_trace_context()
 
-    @application.middleware("http")
-    async def apply_trace_id(
-        request: Request, call_next: Callable[[Request], Awaitable[Response]]
-    ) -> Response:
-        """Attach trace identifiers, metrics, and uniform error handling."""
+    application.add_middleware(
+        CORSMiddleware,
+        # `allow_origin_regex` keeps local dev hosts while remaining compatible with Trio tests
+        allow_origins=[],
+        allow_origin_regex=r"^https?://(?:127\.0\.0\.1|localhost)(?::\d+)?$",
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
-        trace_id = resolve_trace_id(request.headers.get(TRACE_ID_HEADER))
-        token = trace_context.set(trace_id)
-        request.state.trace_id = trace_id  # type: ignore[attr-defined]
-
-        try:
-            response = await call_next(request)
-        except HTTPException as exc:
-            response = http_exception_to_response(exc, trace_id)
-        except RequestValidationError as exc:
-            response = request_validation_response(exc, trace_id)
-        except Exception as exc:  # pragma: no cover - defensive guard
-            LOGGER.exception(
-                "Unhandled error processing %s %s",
-                request.method,
-                request.url.path,
-                exc_info=exc,
-            )
-            response = internal_error_response(trace_id)
-        finally:
-            trace_context.reset(token)
-
-        record_request(request.method, response.status_code)
-        response.headers.setdefault(TRACE_ID_HEADER, trace_id)
-        return response
+    application.add_middleware(
+        TraceMiddleware,
+        trace_context=trace_context,
+    )
 
     application.include_router(health_router)
     application.include_router(api_router)

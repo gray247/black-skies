@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import App from '../App';
@@ -70,27 +70,43 @@ function ProjectHomeMock({
   draftOverrides?: Record<string, string>;
 }): JSX.Element {
   const lastPath = projectHomeMockState.lastPath;
+  const bootstrappedRef = useRef(false);
+  const lastPathRef = useRef<string | null>(null);
+  const lastDraftRef = useRef<string | null>(null);
+  const handledReopenRef = useRef<number | null>(null);
 
   useEffect(() => {
-    onProjectLoaded?.({
-      status: 'init',
-      project: null,
-      targetPath: null,
-      lastOpenedPath: lastPath,
-    });
-    const projectForLoad =
-      lastPath === null ? { ...loadedProject, path: '' } : loadedProject;
+    const nextDraft = draftOverrides?.sc_0001 ?? loadedProject.drafts['sc_0001'] ?? '';
+    const pathChanged = lastPathRef.current !== lastPath;
 
-    onProjectLoaded?.({
-      status: 'loaded',
-      project: projectForLoad,
-      targetPath: projectForLoad.path,
-      lastOpenedPath: projectForLoad.path,
-    });
-    const draftText = draftOverrides?.sc_0001 ?? loadedProject.drafts['sc_0001'] ?? '';
-    onActiveSceneChange?.({ sceneId: 'sc_0001', sceneTitle: 'Arrival', draft: draftText });
-    if (draftText) {
-      onDraftChange?.('sc_0001', draftText);
+    if (!bootstrappedRef.current || pathChanged) {
+      bootstrappedRef.current = true;
+      lastPathRef.current = lastPath;
+
+      onProjectLoaded?.({
+        status: 'init',
+        project: null,
+        targetPath: null,
+        lastOpenedPath: lastPath,
+      });
+
+      const projectForLoad =
+        lastPath === null ? { ...loadedProject, path: '' } : loadedProject;
+
+      onProjectLoaded?.({
+        status: 'loaded',
+        project: projectForLoad,
+        targetPath: projectForLoad.path,
+        lastOpenedPath: projectForLoad.path,
+      });
+    }
+
+    if (lastDraftRef.current !== nextDraft) {
+      lastDraftRef.current = nextDraft;
+      onActiveSceneChange?.({ sceneId: 'sc_0001', sceneTitle: 'Arrival', draft: nextDraft });
+      if (nextDraft) {
+        onDraftChange?.('sc_0001', nextDraft);
+      }
     }
   }, [draftOverrides, lastPath, onActiveSceneChange, onDraftChange, onProjectLoaded]);
 
@@ -98,17 +114,23 @@ function ProjectHomeMock({
     if (!reopenRequest) {
       return;
     }
+    if (handledReopenRef.current === reopenRequest.requestId) {
+      return;
+    }
+    handledReopenRef.current = reopenRequest.requestId;
 
     const status = projectHomeMockState.reopenStatus;
-    if (status === 'success') {
-      onProjectLoaded?.({
-        status: 'loaded',
-        project: loadedProject,
-        targetPath: reopenRequest.path,
-        lastOpenedPath: loadedProject.path,
-      });
-    }
-    onReopenConsumed?.({ requestId: reopenRequest.requestId, status });
+    void Promise.resolve().then(() => {
+      if (status === 'success') {
+        onProjectLoaded?.({
+          status: 'loaded',
+          project: loadedProject,
+          targetPath: reopenRequest.path,
+          lastOpenedPath: loadedProject.path,
+        });
+      }
+      onReopenConsumed?.({ requestId: reopenRequest.requestId, status });
+    });
   }, [onProjectLoaded, onReopenConsumed, reopenRequest]);
 
   return <div data-testid="project-home-mock" />;
@@ -242,7 +264,9 @@ describe('App recovery banner', () => {
 
   afterEach(() => {
     vi.clearAllMocks();
-    delete (window as typeof window & { diagnostics?: unknown }).diagnostics;
+    Reflect.deleteProperty(window as typeof window & { services?: ServicesBridge }, 'services');
+    Reflect.deleteProperty(window as typeof window & { projectLoader?: unknown }, 'projectLoader');
+    Reflect.deleteProperty(window as typeof window & { diagnostics?: DiagnosticsBridge }, 'diagnostics');
   });
 
   it('surfaces crash recovery and restores the latest snapshot', async () => {
@@ -350,8 +374,7 @@ describe('App recovery banner', () => {
     expect(reopenButton).toBeEnabled();
 
     fireEvent.click(reopenButton);
-    expect(reopenButton).toBeDisabled();
-
+    await waitFor(() => expect(reopenButton).toBeDisabled());
     await waitFor(() => expect(reopenButton).toBeEnabled());
   });
 
@@ -450,14 +473,18 @@ describe('App recovery banner', () => {
 
   it('surfaces a toast when recovery status requests fail', async () => {
     services.getRecoveryStatus = vi.fn().mockRejectedValue(new Error('service unreachable'));
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    try {
+      const App = loadAppWithServices(services);
+      render(<App />);
 
-    const App = loadAppWithServices(services);
-    render(<App />);
-
-    await waitFor(() => expect(services.getRecoveryStatus).toHaveBeenCalled());
-    const titles = await screen.findAllByText(/Recovery check failed/i);
-    expect(titles.length).toBeGreaterThan(0);
-    const descriptions = screen.getAllByText(/service unreachable/i);
-    expect(descriptions.length).toBeGreaterThan(0);
+      await waitFor(() => expect(services.getRecoveryStatus).toHaveBeenCalled());
+      const titles = await screen.findAllByText(/Recovery check failed/i);
+      expect(titles.length).toBeGreaterThan(0);
+      const descriptions = screen.getAllByText(/service unreachable/i);
+      expect(descriptions.length).toBeGreaterThan(0);
+    } finally {
+      consoleErrorSpy.mockRestore();
+    }
   });
 });

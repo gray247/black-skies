@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+﻿import { useCallback, useEffect, useRef, useState } from 'react';
 import type { MutableRefObject } from 'react';
 import type { DiagnosticsBridge } from '../../shared/ipc/diagnostics';
 import type {
@@ -14,6 +14,7 @@ import {
   validateRestoreSnapshot,
 } from '../recovery/actions';
 import type { ToastPayload } from '../types/toast';
+import { isTestEnvironment } from '../utils/env';
 import type { ServiceStatus } from '../components/ServiceStatusPill';
 import type ProjectSummary from '../types/project';
 
@@ -208,15 +209,23 @@ export function useRecovery({
           window.clearTimeout(reopenReleaseTimeoutRef.current);
         }
 
-        reopenReleaseTimeoutRef.current = window.setTimeout(() => {
+        const releaseDelay = isTestEnvironment() ? -1 : 0;
+        if (releaseDelay <= 0) {
           reopenReleaseTimeoutRef.current = null;
-          if (!isMountedRef.current) {
-            return;
-          }
-          if (resolution.shouldClear) {
+          if (isMountedRef.current && resolution.shouldClear) {
             setReopenInFlight(false);
           }
-        }, 0);
+        } else {
+          reopenReleaseTimeoutRef.current = window.setTimeout(() => {
+            reopenReleaseTimeoutRef.current = null;
+            if (!isMountedRef.current) {
+              return;
+            }
+            if (resolution.shouldClear) {
+              setReopenInFlight(false);
+            }
+          }, releaseDelay);
+        }
 
         return resolution.shouldClear ? null : previous;
       });
@@ -275,3 +284,5 @@ export function useRecovery({
 export type UseRecoveryResult = ReturnType<typeof useRecovery>;
 
 export default useRecovery;
+
+

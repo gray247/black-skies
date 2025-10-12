@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ServiceStatus } from '../components/ServiceStatusPill';
 import type { ServicesBridge } from '../../shared/ipc/services';
 import useMountedRef from './useMountedRef';
+import { isTestEnvironment } from '../utils/env';
 
 interface UseServiceHealthOptions {
   intervalMs?: number;
@@ -16,9 +17,15 @@ export function useServiceHealth(
   services: ServicesBridge | undefined,
   options: UseServiceHealthOptions = {},
 ): UseServiceHealthResult {
+  const testEnv = isTestEnvironment();
   const mountedRef = useMountedRef();
   const [status, setStatus] = useState<ServiceStatus>('checking');
-  const intervalMs = useMemo(() => options.intervalMs ?? 15_000, [options.intervalMs]);
+  const intervalMs = useMemo(() => {
+    if (typeof options.intervalMs === 'number') {
+      return options.intervalMs;
+    }
+    return testEnv ? 0 : 15_000;
+  }, [options.intervalMs, testEnv]);
 
   const retry = useCallback(async () => {
     if (!services) {
@@ -30,7 +37,7 @@ export function useServiceHealth(
     }
 
     if (mountedRef.current) {
-      setStatus('online');
+      setStatus('checking');
     }
 
     try {
@@ -53,6 +60,13 @@ export function useServiceHealth(
   useEffect(() => {
     let cancelled = false;
     void retry();
+
+    if (intervalMs <= 0) {
+      return () => {
+        cancelled = true;
+      };
+    }
+
     const timer = window.setInterval(() => {
       if (!cancelled) {
         void retry();
