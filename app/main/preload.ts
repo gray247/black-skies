@@ -491,17 +491,6 @@ export const serviceApi = {
     ),
 };
 
-const {
-  buildOutline: callBuildOutline,
-  generateDraft: callGenerateDraft,
-  critiqueDraft: callCritiqueDraft,
-  preflightDraft: callPreflightDraft,
-  acceptDraft: callAcceptDraft,
-  createSnapshot: callCreateSnapshot,
-  getRecoveryStatus: callGetRecoveryStatus,
-  restoreSnapshot: callRestoreSnapshot,
-} = serviceApi;
-
 const projectLoaderApi: ProjectLoaderApi = {
   async openProjectDialog(): Promise<ProjectDialogResult> {
     const result = await ipcRenderer.invoke(PROJECT_LOADER_CHANNELS.openDialog);
@@ -554,30 +543,14 @@ const servicesBridge: ServicesBridge = {
   async checkHealth(): Promise<ServiceHealthResponse> {
     return probeHealth();
   },
-  async buildOutline(request: OutlineBuildBridgeRequest) {
-    return callBuildOutline(request);
-  },
-  async generateDraft(request: DraftGenerateBridgeRequest) {
-    return callGenerateDraft(request);
-  },
-  async critiqueDraft(request: DraftCritiqueBridgeRequest) {
-    return callCritiqueDraft(request);
-  },
-  async preflightDraft(request: DraftPreflightBridgeRequest) {
-    return callPreflightDraft(request);
-  },
-  async acceptDraft(request: DraftAcceptBridgeRequest) {
-    return callAcceptDraft(request);
-  },
-  async createSnapshot(request: WizardLockSnapshotBridgeRequest) {
-    return callCreateSnapshot(request);
-  },
-  async getRecoveryStatus(request: RecoveryStatusBridgeRequest) {
-    return callGetRecoveryStatus(request);
-  },
-  async restoreSnapshot(request: RecoveryRestoreBridgeRequest) {
-    return callRestoreSnapshot(request);
-  },
+  buildOutline: serviceApi.buildOutline,
+  generateDraft: serviceApi.generateDraft,
+  critiqueDraft: serviceApi.critiqueDraft,
+  preflightDraft: serviceApi.preflightDraft,
+  acceptDraft: serviceApi.acceptDraft,
+  createSnapshot: serviceApi.createSnapshot,
+  getRecoveryStatus: serviceApi.getRecoveryStatus,
+  restoreSnapshot: serviceApi.restoreSnapshot,
 };
 
 registerConsoleForwarding();

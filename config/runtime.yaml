@@ -10,7 +10,7 @@ service:
     - python
     - python3
     - python.exe
-  bundled_python_path: ''
+  bundled_python_path: "{{APP_RESOURCES}}/python/python.exe"
 budget:
   soft_limit_usd: 5.0
   hard_limit_usd: 10.0

@@ -1,6 +1,5 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
-import { createRequire } from 'node:module';
 import { parse } from 'yaml';
 
 export interface ServicePortRange {
@@ -120,19 +119,6 @@ function resolveConfigPath(explicitPath?: string): string {
     if (existsSync(resourceCandidate)) {
       return resourceCandidate;
     }
-  }
-  try {
-    const require = createRequire(import.meta.url);
-    const electron = require('electron');
-    const appPath = electron?.app?.getAppPath?.();
-    if (typeof appPath === 'string') {
-      const candidate = resolve(appPath, 'config', 'runtime.yaml');
-      if (existsSync(candidate)) {
-        return candidate;
-      }
-    }
-  } catch {
-    // Ignore if electron is unavailable (renderer tests, unit tests)
   }
   const cwdCandidates = [process.cwd(), resolve(process.cwd(), '..')];
   for (const candidate of cwdCandidates) {

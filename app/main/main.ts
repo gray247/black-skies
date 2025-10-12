@@ -24,6 +24,7 @@ import {
 } from '../shared/ipc/diagnostics.js';
 import {
   DEFAULT_HEALTH_PROBE,
+  DEFAULT_RUNTIME_CONFIG,
   DEFAULT_SERVICE_PORT_RANGE,
   loadRuntimeConfig,
   type ServicePortRange,
