@@ -9,19 +9,20 @@ import os
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Final
+from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
 from .diagnostics import DiagnosticLogger
+from .constants import (
+    COST_PER_1000_WORDS_USD,
+    DEFAULT_HARD_BUDGET_LIMIT_USD,
+    DEFAULT_SOFT_BUDGET_LIMIT_USD,
+)
 
 if TYPE_CHECKING:
     from .models.accept import DraftAcceptRequest
 
 LOGGER = logging.getLogger(__name__)
-
-SOFT_BUDGET_LIMIT_USD: Final[float] = 5.0
-HARD_BUDGET_LIMIT_USD: Final[float] = 10.0
-COST_PER_1000_WORDS_USD: Final[float] = 0.02
 
 
 @dataclass(slots=True)
@@ -126,8 +127,8 @@ def load_project_budget_state(
     base_payload: dict[str, Any] = {
         "project_id": project_root.name,
         "budget": {
-            "soft": SOFT_BUDGET_LIMIT_USD,
-            "hard": HARD_BUDGET_LIMIT_USD,
+            "soft": DEFAULT_SOFT_BUDGET_LIMIT_USD,
+            "hard": DEFAULT_HARD_BUDGET_LIMIT_USD,
             "spent_usd": 0.0,
         },
     }
@@ -147,15 +148,15 @@ def load_project_budget_state(
 
     budget_meta = payload.setdefault("budget", {})
     soft_limit = _coerce_budget_value(
-        budget_meta.get("soft", SOFT_BUDGET_LIMIT_USD),
-        default=SOFT_BUDGET_LIMIT_USD,
+        budget_meta.get("soft", DEFAULT_SOFT_BUDGET_LIMIT_USD),
+        default=DEFAULT_SOFT_BUDGET_LIMIT_USD,
         field="soft",
         project_root=project_root,
         diagnostics=diagnostics,
     )
     hard_limit = _coerce_budget_value(
-        budget_meta.get("hard", HARD_BUDGET_LIMIT_USD),
-        default=HARD_BUDGET_LIMIT_USD,
+        budget_meta.get("hard", DEFAULT_HARD_BUDGET_LIMIT_USD),
+        default=DEFAULT_HARD_BUDGET_LIMIT_USD,
         field="hard",
         project_root=project_root,
         diagnostics=diagnostics,
@@ -168,7 +169,7 @@ def load_project_budget_state(
         diagnostics=diagnostics,
     )
 
-    effective_hard = hard_limit if hard_limit > 0 else HARD_BUDGET_LIMIT_USD
+    effective_hard = hard_limit if hard_limit > 0 else DEFAULT_HARD_BUDGET_LIMIT_USD
     if soft_limit > effective_hard:
         soft_limit = effective_hard
 
@@ -191,7 +192,9 @@ def classify_budget(
 ) -> tuple[str, str, float]:
     """Classify an estimated run cost against budget thresholds."""
 
-    effective_hard_limit = hard_limit if hard_limit > 0 else HARD_BUDGET_LIMIT_USD
+    effective_hard_limit = (
+        hard_limit if hard_limit > 0 else DEFAULT_HARD_BUDGET_LIMIT_USD
+    )
     effective_soft_limit = (
         soft_limit if 0 <= soft_limit <= effective_hard_limit else effective_hard_limit
     )
@@ -244,8 +247,8 @@ def persist_project_budget(state: ProjectBudgetState, new_spent_usd: float) -> N
 
 __all__ = [
     "ProjectBudgetState",
-    "SOFT_BUDGET_LIMIT_USD",
-    "HARD_BUDGET_LIMIT_USD",
+    "DEFAULT_SOFT_BUDGET_LIMIT_USD",
+    "DEFAULT_HARD_BUDGET_LIMIT_USD",
     "COST_PER_1000_WORDS_USD",
     "derive_accept_unit_cost",
     "classify_budget",

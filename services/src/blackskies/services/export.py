@@ -41,9 +41,12 @@ def load_outline_artifact(project_root: Path) -> OutlineArtifact:
 
 
 def normalize_markdown(value: str) -> str:
-    """Normalize Markdown line endings and trim trailing whitespace."""
+    """Normalize Markdown line endings without stripping author whitespace."""
 
-    return value.replace("\r\n", "\n").strip()
+    if not value:
+        return ""
+    normalized = value.replace("\r\n", "\n").replace("\r", "\n")
+    return normalized
 
 
 def build_meta_header(front_matter: dict[str, Any]) -> str | None:
@@ -203,7 +206,7 @@ def compile_manuscript(
                 section_lines.append(meta_line)
 
             body_text = normalize_markdown(body)
-            if body_text:
+            if body_text.strip():
                 if meta_line:
                     section_lines.append("")
                 section_lines.append(body_text)

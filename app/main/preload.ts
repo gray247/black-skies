@@ -6,6 +6,7 @@ import {
   type DiagnosticsLogPayload,
   type DiagnosticsLogLevel,
 } from '../shared/ipc/logging.js';
+import { loadRuntimeConfig } from '../shared/config/runtime.js';
 import {
   PROJECT_LOADER_CHANNELS,
   type ProjectDialogResult,
@@ -53,6 +54,8 @@ const LOG_LEVEL_MAP: Record<ConsoleMethod, DiagnosticsLogLevel> = {
   error: 'error',
   debug: 'debug',
 };
+
+const runtimeConfig = loadRuntimeConfig();
 
 function currentServicePort(): number | null {
   const raw = process.env.BLACKSKIES_SERVICES_PORT;
@@ -117,7 +120,7 @@ async function parseErrorPayload(
   });
 }
 
-async function performRequest<T>(
+export async function makeServiceCall<T>(
   path: string,
   method: HttpMethod,
   body?: Record<string, unknown>,
@@ -258,13 +261,43 @@ function registerConsoleForwarding(): void {
   });
 }
 
+function buildProjectPayload(
+  projectId: string,
+  extras: Record<string, unknown> = {},
+): Record<string, unknown> {
+  return {
+    project_id: projectId,
+    ...extras,
+  };
+}
+
+function normalizedString(value: unknown): string | undefined {
+  if (typeof value !== 'string') {
+    return undefined;
+  }
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : undefined;
+}
+
+function setOptional(target: Record<string, unknown>, key: string, value: unknown): void {
+  if (value !== undefined && value !== null) {
+    target[key] = value;
+  }
+}
+
+function setOptionalString(target: Record<string, unknown>, key: string, value: unknown): void {
+  const normalized = normalizedString(value);
+  if (normalized !== undefined) {
+    target[key] = normalized;
+  }
+}
+
 function serializeOutlineRequest({
   projectId,
   forceRebuild,
   wizardLocks,
 }: OutlineBuildBridgeRequest): Record<string, unknown> {
-  return {
-    project_id: projectId,
+  return buildProjectPayload(projectId, {
     force_rebuild: Boolean(forceRebuild),
     wizard_locks: {
       acts: wizardLocks.acts.map(({ title }) => ({ title })),
@@ -278,7 +311,7 @@ function serializeOutlineRequest({
         beat_refs: beatRefs ?? [],
       })),
     },
-  };
+  });
 }
 
 function serializeWizardSnapshotRequest({
@@ -287,12 +320,12 @@ function serializeWizardSnapshotRequest({
   label,
   includes,
 }: WizardLockSnapshotBridgeRequest): Record<string, unknown> {
-  return {
-    project_id: projectId,
-    step,
-    label,
-    includes: includes && includes.length > 0 ? includes : undefined,
-  };
+  const payload = buildProjectPayload(projectId, { step });
+  setOptionalString(payload, 'label', label);
+  if (includes && includes.length > 0) {
+    setOptional(payload, 'includes', includes);
+  }
+  return payload;
 }
 
 function serializeDraftOverrides(
@@ -334,14 +367,13 @@ function serializeDraftGenerateRequest({
   seed,
   overrides,
 }: DraftGenerateBridgeRequest): Record<string, unknown> {
-  return {
-    project_id: projectId,
+  return buildProjectPayload(projectId, {
     unit_scope: unitScope,
     unit_ids: unitIds,
     temperature,
     seed,
     overrides: serializeDraftOverrides(overrides),
-  };
+  });
 }
 
 function serializeCritiqueRequest({
@@ -350,12 +382,11 @@ function serializeCritiqueRequest({
   unitId,
   rubric,
 }: DraftCritiqueBridgeRequest): Record<string, unknown> {
-  return {
-    project_id: projectId,
+  return buildProjectPayload(projectId, {
     draft_id: draftId,
     unit_id: unitId,
     rubric,
-  };
+  });
 }
 
 function serializeAcceptRequest({
@@ -382,12 +413,8 @@ function serializeAcceptRequest({
     unit: unitPayload,
   };
 
-  if (typeof message === 'string' && message.trim().length > 0) {
-    payload.message = message;
-  }
-  if (typeof snapshotLabel === 'string' && snapshotLabel.trim().length > 0) {
-    payload.snapshot_label = snapshotLabel;
-  }
+  setOptionalString(payload, 'message', message);
+  setOptionalString(payload, 'snapshot_label', snapshotLabel);
 
   return payload;
 }
@@ -397,23 +424,83 @@ function serializePreflightRequest({
   unitScope,
   unitIds,
 }: DraftPreflightBridgeRequest): Record<string, unknown> {
-  return {
-    project_id: projectId,
+  return buildProjectPayload(projectId, {
     unit_scope: unitScope,
     unit_ids: unitIds,
-  };
+  });
 }
 
 function serializeRecoveryRestoreRequest({
   projectId,
   snapshotId,
 }: RecoveryRestoreBridgeRequest): Record<string, unknown> {
-  const payload: Record<string, unknown> = { project_id: projectId };
-  if (snapshotId) {
-    payload.snapshot_id = snapshotId;
-  }
+  const payload = buildProjectPayload(projectId);
+  setOptionalString(payload, 'snapshot_id', snapshotId);
   return payload;
 }
+
+export const serviceApi = {
+  buildOutline: (request: OutlineBuildBridgeRequest) =>
+    makeServiceCall<OutlineBuildBridgeResponse>(
+      'outline/build',
+      'POST',
+      serializeOutlineRequest(request),
+    ),
+  generateDraft: (request: DraftGenerateBridgeRequest) =>
+    makeServiceCall<DraftGenerateBridgeResponse>(
+      'draft/generate',
+      'POST',
+      serializeDraftGenerateRequest(request),
+    ),
+  critiqueDraft: (request: DraftCritiqueBridgeRequest) =>
+    makeServiceCall<DraftCritiqueBridgeResponse>(
+      'draft/critique',
+      'POST',
+      serializeCritiqueRequest(request),
+    ),
+  preflightDraft: (request: DraftPreflightBridgeRequest) =>
+    makeServiceCall<DraftPreflightEstimate>(
+      'draft/preflight',
+      'POST',
+      serializePreflightRequest(request),
+    ),
+  acceptDraft: (request: DraftAcceptBridgeRequest) =>
+    makeServiceCall<DraftAcceptBridgeResponse>(
+      'draft/accept',
+      'POST',
+      serializeAcceptRequest(request),
+    ),
+  createSnapshot: (request: WizardLockSnapshotBridgeRequest) =>
+    makeServiceCall<WizardLockSnapshotBridgeResponse>(
+      'draft/wizard/lock',
+      'POST',
+      serializeWizardSnapshotRequest(request),
+    ),
+  getRecoveryStatus: (request: RecoveryStatusBridgeRequest) => {
+    const params = new URLSearchParams({ project_id: request.projectId });
+    return makeServiceCall<RecoveryStatusBridgeResponse>(
+      `draft/recovery?${params.toString()}`,
+      'GET',
+    );
+  },
+  restoreSnapshot: (request: RecoveryRestoreBridgeRequest) =>
+    makeServiceCall<RecoveryRestoreBridgeResponse>(
+      'draft/recovery/restore',
+      'POST',
+      serializeRecoveryRestoreRequest(request),
+    ),
+};
+
+const {
+  buildOutline: callBuildOutline,
+  generateDraft: callGenerateDraft,
+  critiqueDraft: callCritiqueDraft,
+  preflightDraft: callPreflightDraft,
+  acceptDraft: callAcceptDraft,
+  createSnapshot: callCreateSnapshot,
+  getRecoveryStatus: callGetRecoveryStatus,
+  restoreSnapshot: callRestoreSnapshot,
+} = serviceApi;
 
 const projectLoaderApi: ProjectLoaderApi = {
   async openProjectDialog(): Promise<ProjectDialogResult> {
@@ -468,60 +555,28 @@ const servicesBridge: ServicesBridge = {
     return probeHealth();
   },
   async buildOutline(request: OutlineBuildBridgeRequest) {
-    return performRequest<OutlineBuildBridgeResponse>(
-      'outline/build',
-      'POST',
-      serializeOutlineRequest(request),
-    );
+    return callBuildOutline(request);
   },
   async generateDraft(request: DraftGenerateBridgeRequest) {
-    return performRequest<DraftGenerateBridgeResponse>(
-      'draft/generate',
-      'POST',
-      serializeDraftGenerateRequest(request),
-    );
+    return callGenerateDraft(request);
   },
   async critiqueDraft(request: DraftCritiqueBridgeRequest) {
-    return performRequest<DraftCritiqueBridgeResponse>(
-      'draft/critique',
-      'POST',
-      serializeCritiqueRequest(request),
-    );
+    return callCritiqueDraft(request);
   },
   async preflightDraft(request: DraftPreflightBridgeRequest) {
-    return performRequest<DraftPreflightEstimate>(
-      'draft/preflight',
-      'POST',
-      serializePreflightRequest(request),
-    );
+    return callPreflightDraft(request);
   },
   async acceptDraft(request: DraftAcceptBridgeRequest) {
-    return performRequest<DraftAcceptBridgeResponse>(
-      'draft/accept',
-      'POST',
-      serializeAcceptRequest(request),
-    );
+    return callAcceptDraft(request);
   },
   async createSnapshot(request: WizardLockSnapshotBridgeRequest) {
-    return performRequest<WizardLockSnapshotBridgeResponse>(
-      'draft/wizard/lock',
-      'POST',
-      serializeWizardSnapshotRequest(request),
-    );
+    return callCreateSnapshot(request);
   },
   async getRecoveryStatus(request: RecoveryStatusBridgeRequest) {
-    const params = new URLSearchParams({ project_id: request.projectId });
-    return performRequest<RecoveryStatusBridgeResponse>(
-      `draft/recovery?${params.toString()}`,
-      'GET',
-    );
+    return callGetRecoveryStatus(request);
   },
   async restoreSnapshot(request: RecoveryRestoreBridgeRequest) {
-    return performRequest<RecoveryRestoreBridgeResponse>(
-      'draft/recovery/restore',
-      'POST',
-      serializeRecoveryRestoreRequest(request),
-    );
+    return callRestoreSnapshot(request);
   },
 };
 
@@ -530,3 +585,4 @@ registerConsoleForwarding();
 contextBridge.exposeInMainWorld('projectLoader', projectLoaderApi);
 contextBridge.exposeInMainWorld('services', servicesBridge);
 contextBridge.exposeInMainWorld('diagnostics', diagnosticsBridge);
+contextBridge.exposeInMainWorld('runtimeConfig', runtimeConfig);

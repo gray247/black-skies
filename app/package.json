@@ -25,7 +25,8 @@
     "@codemirror/state": "^6.4.0",
     "@codemirror/view": "^6.23.1",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "yaml": "^2.5.1"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.5.0",
@@ -36,6 +37,8 @@
     "@typescript-eslint/eslint-plugin": "^7.7.1",
     "@typescript-eslint/parser": "^7.7.1",
     "@vitejs/plugin-react": "^4.3.1",
+    "electron": "^30.0.2",
+    "electron-builder": "^24.13.3",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-react": "^7.34.1",
@@ -43,8 +46,6 @@
     "jsdom": "^24.0.0",
     "prettier": "^3.2.5",
     "typescript": "^5.4.5",
-    "electron": "^30.0.2",
-    "electron-builder": "^24.13.3",
     "vite": "^5.2.8",
     "vitest": "^1.5.2"
   }

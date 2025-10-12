@@ -4,11 +4,15 @@ from __future__ import annotations
 
 import hashlib
 import json
+from functools import lru_cache
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-CACHE_ROOT = Path("data/cache")
-CACHE_ROOT.mkdir(parents=True, exist_ok=True)
+from .config import ServiceSettings
+
+# ``CACHE_ROOT`` can be monkey-patched in tests; when ``None`` we derive a
+# user-writable default from ``ServiceSettings``.
+CACHE_ROOT: Path | None = None
 
 
 def make_cache_key(*, prompt: str, params: Dict[str, Any]) -> str:
@@ -19,8 +23,27 @@ def make_cache_key(*, prompt: str, params: Dict[str, Any]) -> str:
     return hashlib.sha256(serialized.encode("utf-8")).hexdigest()
 
 
+@lru_cache(maxsize=1)
+def _default_cache_root() -> Path:
+    settings = ServiceSettings.from_environment()
+    runtime_root = settings.project_base_dir / "_runtime"
+    return runtime_root.resolve(strict=False) / "cache"
+
+
+def _ensure_directory(path: Path) -> Path:
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+def get_cache_root() -> Path:
+    """Return the effective cache root, creating it if necessary."""
+
+    root = CACHE_ROOT or _default_cache_root()
+    return _ensure_directory(root)
+
+
 def _cache_path(key: str) -> Path:
-    return CACHE_ROOT / f"{key}.json"
+    return get_cache_root() / f"{key}.json"
 
 
 def store_cache(key: str, data: Dict[str, Any]) -> Path:
@@ -43,4 +66,4 @@ def load_cache(key: str) -> Optional[Dict[str, Any]]:
         return json.load(handle)
 
 
-__all__ = ["make_cache_key", "store_cache", "load_cache", "CACHE_ROOT"]
+__all__ = ["make_cache_key", "store_cache", "load_cache", "get_cache_root", "CACHE_ROOT"]

@@ -106,6 +106,12 @@ The renderer window keeps Vite hot reloading; close it to stop the dev server. T
 
 ---
 
+### Runtime configuration overrides
+
+Defaults for port ranges, health probe timing, bundled Python interpreters, and analytics thresholds live in `config/runtime.yaml`. Update this file (or point `BLACKSKIES_CONFIG_PATH` at a custom copy) when you need to harden deployments—changes are picked up by both the FastAPI backend and the Electron main/preload processes.
+
+---
+
 ## Packaging (optional)
 
 To produce the unpacked build for QA:

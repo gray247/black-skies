@@ -81,6 +81,6 @@ persisted locally and the History pane restore path has been smoke-tested end-to
 - [x] Create eval dataset & `scripts/eval.py` (P5)
 - [x] Add `/api/v1` router + contracts in `docs/endpoints.md` (P6)
 - [x] Implement session snapshots & restore (P6)
-- [ ] Package RC, smoke tests, docs (P7)
+- [x] Package RC, smoke tests, docs (P7)
 - [ ] Add load/e2e tests; resilience settings (P8)
 - [ ] Tag GA and add release/support docs (P9)

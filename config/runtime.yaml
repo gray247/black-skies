@@ -1,0 +1,28 @@
+service:
+  port_range:
+    min: 43750
+    max: 43850
+  health_probe:
+    max_attempts: 40
+    base_delay_ms: 250
+    max_delay_ms: 2000
+  allowed_python_executables:
+    - python
+    - python3
+    - python.exe
+  bundled_python_path: ''
+budget:
+  soft_limit_usd: 5.0
+  hard_limit_usd: 10.0
+  cost_per_1000_words_usd: 0.02
+analytics:
+  emotion_intensity:
+    dread: 1.0
+    tension: 0.85
+    revelation: 0.65
+    aftermath: 0.45
+    respite: 0.25
+  default_emotion_intensity: 0.5
+  pace:
+    slow_threshold: 1.2
+    fast_threshold: 0.8

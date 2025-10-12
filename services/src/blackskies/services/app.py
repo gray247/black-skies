@@ -12,11 +12,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.datastructures import MutableHeaders
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
-from .budgeting import (
-    HARD_BUDGET_LIMIT_USD,
-    SOFT_BUDGET_LIMIT_USD,
-    load_project_budget_state,
-)
+from .budgeting import load_project_budget_state
+from .constants import DEFAULT_HARD_BUDGET_LIMIT_USD, DEFAULT_SOFT_BUDGET_LIMIT_USD
 from .config import ServiceSettings
 from .diagnostics import DiagnosticLogger
 from .export import build_meta_header
@@ -174,8 +171,8 @@ __all__ = [
     "app",
     "create_app",
     "SERVICE_VERSION",
-    "SOFT_BUDGET_LIMIT_USD",
-    "HARD_BUDGET_LIMIT_USD",
+    "DEFAULT_SOFT_BUDGET_LIMIT_USD",
+    "DEFAULT_HARD_BUDGET_LIMIT_USD",
     "BuildTracker",
     "BuildInProgressError",
     "RecoveryTracker",

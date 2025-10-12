@@ -3,7 +3,8 @@ import { spawn, type ChildProcessByStdio } from 'node:child_process';
 import { once } from 'node:events';
 import net from 'node:net';
 import { setTimeout as delay } from 'node:timers/promises';
-import { dirname, join, resolve, delimiter } from 'node:path';
+import { statSync } from 'node:fs';
+import { dirname, join, resolve, delimiter, basename, isAbsolute, normalize } from 'node:path';
 import type { Readable } from 'node:stream';
 
 import { registerProjectLoaderIpc } from './projectLoaderIpc';
@@ -21,8 +22,22 @@ import {
   DIAGNOSTICS_CHANNELS,
   type DiagnosticsOpenResult,
 } from '../shared/ipc/diagnostics.js';
+import {
+  DEFAULT_HEALTH_PROBE,
+  DEFAULT_SERVICE_PORT_RANGE,
+  loadRuntimeConfig,
+  type ServicePortRange,
+} from '../shared/config/runtime.js';
 
 const projectRoot = resolve(__dirname, '..');
+const repoRoot = resolve(projectRoot, '..');
+const runtimeConfig = loadRuntimeConfig(
+  process.env.BLACKSKIES_CONFIG_PATH ?? join(repoRoot, 'config', 'runtime.yaml'),
+);
+const allowedPythonExecutables = runtimeConfig.service.allowedPythonExecutables.map((entry) =>
+  entry.toLowerCase(),
+);
+const bundledPythonPath = runtimeConfig.service.bundledPythonPath ?? '';
 const rendererDistDir = join(projectRoot, 'dist');
 const rendererIndexFile = join(rendererDistDir, 'index.html');
 
@@ -30,9 +45,13 @@ const DEV_SERVER_URL = process.env.ELECTRON_RENDERER_URL ?? 'http://127.0.0.1:51
 const isDev = !app.isPackaged;
 
 const SERVICES_HOST = '127.0.0.1';
-const MIN_PORT = 43750;
-const MAX_PORT = 43850;
-const PYTHON_EXECUTABLE = process.env.BLACKSKIES_PYTHON ?? 'python';
+const PORT_RANGE_ENV = process.env.BLACKSKIES_SERVICE_PORT_RANGE;
+const DEFAULT_PYTHON_EXECUTABLE = 'python';
+const RESOLVED_PORT_RANGE = resolvePortRange(
+  PORT_RANGE_ENV,
+  runtimeConfig.service.portRange ?? DEFAULT_SERVICE_PORT_RANGE,
+);
+const PYTHON_EXECUTABLE = resolvePythonExecutable();
 
 let mainWindow: BrowserWindow | null = null;
 type ServicesProcess = ChildProcessByStdio<null, Readable, Readable>;
@@ -41,6 +60,91 @@ let servicesProcess: ServicesProcess | null = null;
 let servicesPort: number | null = null;
 let shuttingDown = false;
 let mainLogger: Logger | null = null;
+
+function parseEnvInteger(key: string, fallback: number): number {
+  const raw = process.env[key];
+  if (!raw) {
+    return fallback;
+  }
+  const parsed = Number.parseInt(raw, 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+const healthProbeDefaults = runtimeConfig.service.healthProbe ?? DEFAULT_HEALTH_PROBE;
+const HEALTH_MAX_ATTEMPTS = parseEnvInteger(
+  'BLACKSKIES_HEALTH_MAX_ATTEMPTS',
+  healthProbeDefaults.maxAttempts,
+);
+const HEALTH_BASE_DELAY_MS = parseEnvInteger(
+  'BLACKSKIES_HEALTH_BASE_DELAY_MS',
+  healthProbeDefaults.baseDelayMs,
+);
+const HEALTH_MAX_DELAY_MS = parseEnvInteger(
+  'BLACKSKIES_HEALTH_MAX_DELAY_MS',
+  healthProbeDefaults.maxDelayMs,
+);
+
+function resolvePortRange(value: string | undefined, fallback: ServicePortRange): ServicePortRange {
+  if (!value) {
+    return fallback;
+  }
+  const [minRaw, maxRaw] = value.split('-', 2);
+  const min = Number.parseInt(minRaw ?? '', 10);
+  const max = Number.parseInt(maxRaw ?? '', 10);
+  if (!Number.isFinite(min) || !Number.isFinite(max) || min <= 0 || max <= min || max > 65535) {
+    console.warn('[main] Invalid BLACKSKIES_SERVICE_PORT_RANGE; falling back to defaults.');
+    return fallback;
+  }
+  return { min, max };
+}
+
+function resolvePythonExecutable(): string {
+  if (!isDev && bundledPythonPath) {
+    return fallbackPythonExecutable();
+  }
+
+  const override = process.env.BLACKSKIES_PYTHON;
+  if (!override) {
+    return fallbackPythonExecutable();
+  }
+  const normalized = normalize(override);
+  if (!isAbsolute(normalized)) {
+    console.warn('[main] Ignoring BLACKSKIES_PYTHON because it is not an absolute path.');
+    return fallbackPythonExecutable();
+  }
+  try {
+    const stats = statSync(normalized);
+    if (!stats.isFile()) {
+      console.warn('[main] Ignoring BLACKSKIES_PYTHON because it does not point to a file.');
+      return fallbackPythonExecutable();
+    }
+  } catch (error) {
+    console.warn('[main] Ignoring BLACKSKIES_PYTHON because the path is inaccessible.', error);
+    return fallbackPythonExecutable();
+  }
+  const base = basename(normalized).toLowerCase();
+  if (allowedPythonExecutables.length > 0 && !allowedPythonExecutables.includes(base)) {
+    console.warn('[main] BLACKSKIES_PYTHON is not in the allowed interpreter list.');
+    return fallbackPythonExecutable();
+  }
+  if (!base.startsWith('python')) {
+    console.warn('[main] BLACKSKIES_PYTHON does not appear to reference a Python binary.');
+  }
+  return normalized;
+}
+
+function fallbackPythonExecutable(): string {
+  if (bundledPythonPath && isAbsolute(bundledPythonPath)) {
+    try {
+      if (statSync(bundledPythonPath).isFile()) {
+        return bundledPythonPath;
+      }
+    } catch (error) {
+      console.warn('[main] Bundled Python path is not accessible.', error);
+    }
+  }
+  return DEFAULT_PYTHON_EXECUTABLE;
+}
 
 function ensureMainLogger(): Logger {
   if (!mainLogger) {
@@ -65,7 +169,14 @@ async function isPortAvailable(port: number): Promise<boolean> {
 }
 
 async function selectServicePort(): Promise<number> {
-  for (let candidate = MIN_PORT; candidate <= MAX_PORT; candidate += 1) {
+  const { min, max } = RESOLVED_PORT_RANGE;
+  const candidates = Array.from({ length: max - min + 1 }, (_, index) => min + index);
+  for (let index = candidates.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1));
+    [candidates[index], candidates[swapIndex]] = [candidates[swapIndex], candidates[index]];
+  }
+
+  for (const candidate of candidates) {
     // eslint-disable-next-line no-await-in-loop -- sequential probing avoids port races
     const available = await isPortAvailable(candidate);
     if (available) {
@@ -73,7 +184,7 @@ async function selectServicePort(): Promise<number> {
     }
   }
 
-  throw new Error(`Unable to find an available port between ${MIN_PORT} and ${MAX_PORT}.`);
+  throw new Error(`Unable to find an available port between ${min} and ${max}.`);
 }
 
 function pipeStreamToLogger(
@@ -107,8 +218,8 @@ function pipeStreamToLogger(
 async function waitForServicesHealthy(port: number): Promise<void> {
   const logger = ensureMainLogger();
   const url = `http://${SERVICES_HOST}:${port}/api/v1/healthz`;
-  const maxAttempts = 20;
-  const attemptDelayMs = 250;
+  const maxAttempts = HEALTH_MAX_ATTEMPTS;
+  let delayMs = HEALTH_BASE_DELAY_MS;
 
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
     try {
@@ -146,7 +257,8 @@ async function waitForServicesHealthy(port: number): Promise<void> {
       });
     }
 
-    await delay(attemptDelayMs);
+    await delay(delayMs);
+    delayMs = Math.min(HEALTH_MAX_DELAY_MS, Math.round(delayMs * 1.5));
   }
 
   throw new Error('FastAPI services did not become healthy within the allotted time.');
@@ -486,4 +598,3 @@ if (!hasSingleInstanceLock) {
       app.quit();
     });
 }
-

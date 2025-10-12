@@ -10,7 +10,8 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
-    include: ['renderer/**/*.test.{ts,tsx}'],
+    include: ['renderer/**/*.test.{ts,tsx}', 'main/**/*.test.{ts,tsx}'],
+    environmentMatchGlobs: [['main/**/*.test.{ts,tsx}', 'node']],
     setupFiles: ['./renderer/testSetup.ts'],
   },
   server: {

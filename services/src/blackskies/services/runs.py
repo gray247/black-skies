@@ -4,20 +4,42 @@ from __future__ import annotations
 
 import json
 from datetime import datetime, timezone
+from functools import lru_cache
 from pathlib import Path
 from typing import Any, Dict, Optional
 from uuid import uuid4
 
-RUNS_ROOT = Path("data/runs")
-RUNS_ROOT.mkdir(parents=True, exist_ok=True)
+from .config import ServiceSettings
+
+# Tests monkey-patch ``RUNS_ROOT``; default resolution happens lazily.
+RUNS_ROOT: Path | None = None
 
 
 def _timestamp() -> str:
     return datetime.now(tz=timezone.utc).isoformat().replace("+00:00", "Z")
 
 
+@lru_cache(maxsize=1)
+def _default_runs_root() -> Path:
+    settings = ServiceSettings.from_environment()
+    runtime_root = settings.project_base_dir / "_runtime"
+    return runtime_root.resolve(strict=False) / "runs"
+
+
+def _ensure_directory(path: Path) -> Path:
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+def get_runs_root() -> Path:
+    """Return the directory used for run ledgers."""
+
+    root = RUNS_ROOT or _default_runs_root()
+    return _ensure_directory(root)
+
+
 def _run_dir(run_id: str) -> Path:
-    return RUNS_ROOT / run_id
+    return get_runs_root() / run_id
 
 
 def _ledger_path(run_id: str) -> Path:
@@ -85,4 +107,4 @@ def finalize_run(
     return metadata
 
 
-__all__ = ["start_run", "append_event", "finalize_run", "RUNS_ROOT"]
+__all__ = ["start_run", "append_event", "finalize_run", "get_runs_root", "RUNS_ROOT"]

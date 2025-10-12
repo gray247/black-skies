@@ -14,6 +14,7 @@ import {
 } from '../shared/ipc/projectLoader';
 
 const ISSUE_PREFIX = '[projectLoader]';
+export const MAX_SCENE_READ_CONCURRENCY = 8;
 
 type ProjectLoadErrorCode = ProjectLoadFailure['error']['code'];
 
@@ -201,6 +202,32 @@ async function readOutline(projectPath: string): Promise<OutlineFile> {
   return parsed;
 }
 
+export async function runWithConcurrency<T>(
+  items: readonly T[],
+  concurrency: number,
+  worker: (item: T) => Promise<void>,
+): Promise<void> {
+  if (items.length === 0) {
+    return;
+  }
+
+  const effectiveConcurrency = Math.max(1, Math.min(concurrency, items.length));
+  let index = 0;
+
+  const runner = async () => {
+    while (true) {
+      const currentIndex = index;
+      index += 1;
+      if (currentIndex >= items.length) {
+        return;
+      }
+      await worker(items[currentIndex]);
+    }
+  };
+
+  await Promise.all(Array.from({ length: effectiveConcurrency }, runner));
+}
+
 async function readScenes(projectPath: string): Promise<{
   scenes: SceneDraftMetadata[];
   issues: ProjectIssue[];
@@ -233,27 +260,29 @@ async function readScenes(projectPath: string): Promise<{
   const issues: ProjectIssue[] = [];
   const drafts: Record<string, string> = {};
 
-  await Promise.all(
-    entries
-      .filter((entry) => entry.toLowerCase().endsWith('.md'))
-      .map(async (entry) => {
-        const filePath = path.join(draftsPath, entry);
-        try {
-          const scene = await parseSceneFile(filePath, entry);
-          scenes.push(scene.metadata);
-          drafts[scene.metadata.id] = scene.markdown;
-        } catch (error) {
-          const detail = error instanceof Error ? error.message : String(error);
-          const issue: ProjectIssue = {
-            level: 'warning',
-            message: 'Unable to parse scene metadata.',
-            detail,
-            path: filePath,
-          };
-          issues.push(issue);
-        }
-      }),
-  );
+  const markdownEntries = entries
+    .filter((entry) => entry.toLowerCase().endsWith('.md'))
+    .map((entry) => ({
+      entry,
+      filePath: path.join(draftsPath, entry),
+    }));
+
+  await runWithConcurrency(markdownEntries, MAX_SCENE_READ_CONCURRENCY, async ({ entry, filePath }) => {
+    try {
+      const scene = await parseSceneFile(filePath, entry);
+      scenes.push(scene.metadata);
+      drafts[scene.metadata.id] = scene.markdown;
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : String(error);
+      const issue: ProjectIssue = {
+        level: 'warning',
+        message: 'Unable to parse scene metadata.',
+        detail,
+        path: filePath,
+      };
+      issues.push(issue);
+    }
+  });
 
   scenes.sort((a, b) => a.order - b.order);
   return { scenes, issues, drafts };
@@ -332,7 +361,7 @@ async function parseSceneFile(
 
 type FrontMatterRecord = Record<string, unknown>;
 
-function extractFrontMatter(raw: string): FrontMatterRecord | null {
+export function extractFrontMatter(raw: string): FrontMatterRecord | null {
   const lines = raw.split(/\r?\n/);
   if (lines[0]?.trim() !== '---') {
     return null;
@@ -395,7 +424,7 @@ function extractFrontMatter(raw: string): FrontMatterRecord | null {
   return data;
 }
 
-function parseFrontMatterValue(raw: string): unknown {
+export function parseFrontMatterValue(raw: string): unknown {
   const trimmed = raw.trim();
   if (!trimmed) {
     return '';

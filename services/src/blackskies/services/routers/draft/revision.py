@@ -77,7 +77,9 @@ async def rewrite_draft(
             project_root=project_root,
         )
 
-    if normalize_markdown(current_body) != normalize_markdown(request_model.unit.text):
+    current_normalized = normalize_markdown(current_body)
+    submitted_normalized = normalize_markdown(request_model.unit.text)
+    if current_normalized.strip() != submitted_normalized.strip():
         raise_conflict_error(
             message="The scene on disk no longer matches the submitted draft unit.",
             details={"unit_id": request_model.unit_id},
@@ -90,7 +92,7 @@ async def rewrite_draft(
         revised_text = _apply_rewrite_instructions(current_body, request_model.instructions)
 
     normalized_revised = normalize_markdown(revised_text)
-    if not normalized_revised:
+    if not normalized_revised.strip():
         raise_validation_error(
             message="Revised text must not be empty.",
             details={"unit_id": request_model.unit_id},
@@ -98,7 +100,7 @@ async def rewrite_draft(
             project_root=project_root,
         )
 
-    diff_payload = compute_diff(normalize_markdown(current_body), normalized_revised)
+    diff_payload = compute_diff(current_normalized, normalized_revised)
 
     updated_front_matter = merge_front_matter(front_matter, request_model.unit.meta)
     updated_front_matter["id"] = request_model.unit_id

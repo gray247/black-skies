@@ -53,10 +53,32 @@ jobs:
       - name: Run mypy
         run: mypy
 
+  app-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - name: Install dependencies
+        run: pnpm install --recursive --frozen-lockfile
+      - name: Run app lint
+        run: pnpm --filter app lint
+      - name: Run app tests
+        run: pnpm --filter app test
+
   eval:
     needs:
       - lint
       - typecheck
+      - app-tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

@@ -34,6 +34,10 @@ interface ReopenEvent {
   status: 'success' | 'error';
 }
 
+/**
+ * Coordinate crash-recovery state across bridge APIs, restoring snapshots,
+ * reopening projects, and surfacing diagnostics while guarding concurrent flows.
+ */
 export function useRecovery({
   services,
   diagnostics,

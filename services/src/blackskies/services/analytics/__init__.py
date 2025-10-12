@@ -7,21 +7,20 @@ import logging
 from statistics import mean, median, pstdev
 from typing import Any, Iterable, Mapping, Sequence
 
+from ..constants import (
+    DEFAULT_EMOTION_INTENSITY as CONFIG_DEFAULT_EMOTION_INTENSITY,
+    EMOTION_INTENSITY_MAP,
+    PACE_FAST_THRESHOLD,
+    PACE_SLOW_THRESHOLD,
+)
+
 logger = logging.getLogger(__name__)
 
 EmotionTag = str | None
 
 
-EMOTION_INTENSITY: Mapping[str, float] = {
-    "dread": 1.0,
-    "tension": 0.85,
-    "revelation": 0.65,
-    "aftermath": 0.45,
-    "respite": 0.25,
-}
-DEFAULT_EMOTION_INTENSITY = 0.5
-PACE_SLOW_THRESHOLD = 1.2
-PACE_FAST_THRESHOLD = 0.8
+EMOTION_INTENSITY: Mapping[str, float] = EMOTION_INTENSITY_MAP
+DEFAULT_EMOTION_INTENSITY = CONFIG_DEFAULT_EMOTION_INTENSITY
 
 
 @dataclass(frozen=True)

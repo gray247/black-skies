@@ -1,0 +1,258 @@
+import { existsSync, readFileSync } from 'node:fs';
+import { resolve, dirname } from 'node:path';
+import { createRequire } from 'node:module';
+import { parse } from 'yaml';
+
+export interface ServicePortRange {
+  readonly min: number;
+  readonly max: number;
+}
+
+export interface HealthProbeDefaults {
+  readonly maxAttempts: number;
+  readonly baseDelayMs: number;
+  readonly maxDelayMs: number;
+}
+
+export interface ServiceConfig {
+  readonly portRange: ServicePortRange;
+  readonly healthProbe: HealthProbeDefaults;
+  readonly allowedPythonExecutables: readonly string[];
+  readonly bundledPythonPath?: string;
+}
+
+export interface BudgetConfig {
+  readonly softLimitUsd: number;
+  readonly hardLimitUsd: number;
+  readonly costPer1000WordsUsd: number;
+}
+
+export interface AnalyticsConfig {
+  readonly emotionIntensity: Record<string, number>;
+  readonly defaultEmotionIntensity: number;
+  readonly pace: {
+    readonly slowThreshold: number;
+    readonly fastThreshold: number;
+  };
+}
+
+export interface RuntimeConfig {
+  readonly service: ServiceConfig;
+  readonly budget: BudgetConfig;
+  readonly analytics: AnalyticsConfig;
+}
+
+export const DEFAULT_SERVICE_PORT_RANGE: ServicePortRange = Object.freeze({
+  min: 43750,
+  max: 43850,
+});
+
+export const DEFAULT_HEALTH_PROBE: HealthProbeDefaults = Object.freeze({
+  maxAttempts: 40,
+  baseDelayMs: 250,
+  maxDelayMs: 2000,
+});
+
+const DEFAULT_ANALYTICS_INTENSITY: Record<string, number> = Object.freeze({
+  dread: 1.0,
+  tension: 0.85,
+  revelation: 0.65,
+  aftermath: 0.45,
+  respite: 0.25,
+});
+
+export const DEFAULT_RUNTIME_CONFIG: RuntimeConfig = Object.freeze({
+  service: {
+    portRange: DEFAULT_SERVICE_PORT_RANGE,
+    healthProbe: DEFAULT_HEALTH_PROBE,
+    allowedPythonExecutables: ['python', 'python3', 'python.exe'],
+    bundledPythonPath: '',
+  },
+  budget: {
+    softLimitUsd: 5.0,
+    hardLimitUsd: 10.0,
+    costPer1000WordsUsd: 0.02,
+  },
+  analytics: {
+    emotionIntensity: DEFAULT_ANALYTICS_INTENSITY,
+    defaultEmotionIntensity: 0.5,
+    pace: {
+      slowThreshold: 1.2,
+      fastThreshold: 0.8,
+    },
+  },
+});
+
+let cachedConfig: RuntimeConfig | null = null;
+
+export function loadRuntimeConfig(explicitPath?: string): RuntimeConfig {
+  if (cachedConfig) {
+    return cachedConfig;
+  }
+
+  const configPath = resolveConfigPath(explicitPath);
+  if (!existsSync(configPath)) {
+    cachedConfig = DEFAULT_RUNTIME_CONFIG;
+    return cachedConfig;
+  }
+
+  try {
+    const raw = readFileSync(configPath, 'utf8');
+    const parsed = (parse(raw) ?? {}) as Record<string, unknown>;
+    cachedConfig = normalizeRuntimeConfig(parsed);
+  } catch (error) {
+    console.warn('[config] Failed to load runtime.yaml:', error);
+    cachedConfig = DEFAULT_RUNTIME_CONFIG;
+  }
+  return cachedConfig;
+}
+
+function resolveConfigPath(explicitPath?: string): string {
+  if (explicitPath) {
+    return explicitPath;
+  }
+  if (process.env.BLACKSKIES_CONFIG_PATH) {
+    return process.env.BLACKSKIES_CONFIG_PATH;
+  }
+  const resourcesPath = (process as NodeJS.Process & { resourcesPath?: string }).resourcesPath;
+  if (resourcesPath) {
+    const resourceCandidate = resolve(resourcesPath, 'config', 'runtime.yaml');
+    if (existsSync(resourceCandidate)) {
+      return resourceCandidate;
+    }
+  }
+  try {
+    const require = createRequire(import.meta.url);
+    const electron = require('electron');
+    const appPath = electron?.app?.getAppPath?.();
+    if (typeof appPath === 'string') {
+      const candidate = resolve(appPath, 'config', 'runtime.yaml');
+      if (existsSync(candidate)) {
+        return candidate;
+      }
+    }
+  } catch {
+    // Ignore if electron is unavailable (renderer tests, unit tests)
+  }
+  const cwdCandidates = [process.cwd(), resolve(process.cwd(), '..')];
+  for (const candidate of cwdCandidates) {
+    const path = resolve(candidate, 'config', 'runtime.yaml');
+    if (existsSync(path)) {
+      return path;
+    }
+  }
+  const baseDir = dirname(resolve(process.argv[1] ?? process.cwd()));
+  return resolve(baseDir, '..', 'config', 'runtime.yaml');
+}
+
+function normalizeRuntimeConfig(parsed: Record<string, unknown>): RuntimeConfig {
+  const serviceSection = (parsed.service as Record<string, unknown> | undefined) ?? {};
+  const portRange = normalizePortRange(serviceSection.port_range);
+  const healthProbe = normalizeHealthProbe(serviceSection.health_probe);
+  const allowed = Array.isArray(serviceSection.allowed_python_executables)
+    ? serviceSection.allowed_python_executables.map((entry) => String(entry).toLowerCase())
+    : DEFAULT_RUNTIME_CONFIG.service.allowedPythonExecutables;
+  const bundled = typeof serviceSection.bundled_python_path === 'string'
+    ? serviceSection.bundled_python_path
+    : DEFAULT_RUNTIME_CONFIG.service.bundledPythonPath;
+
+  const budgetSection = (parsed.budget as Record<string, unknown> | undefined) ?? {};
+
+  const analyticsSection = (parsed.analytics as Record<string, unknown> | undefined) ?? {};
+  const emotionIntensity = normalizeEmotionIntensity(analyticsSection.emotion_intensity);
+  const paceSection = (analyticsSection.pace as Record<string, unknown> | undefined) ?? {};
+
+  return {
+    service: {
+      portRange,
+      healthProbe,
+      allowedPythonExecutables: allowed,
+      bundledPythonPath: bundled && bundled.length > 0 ? bundled : undefined,
+    },
+    budget: {
+      softLimitUsd: toNumber(budgetSection.soft_limit_usd, DEFAULT_RUNTIME_CONFIG.budget.softLimitUsd),
+      hardLimitUsd: toNumber(budgetSection.hard_limit_usd, DEFAULT_RUNTIME_CONFIG.budget.hardLimitUsd),
+      costPer1000WordsUsd: toNumber(
+        budgetSection.cost_per_1000_words_usd,
+        DEFAULT_RUNTIME_CONFIG.budget.costPer1000WordsUsd,
+      ),
+    },
+    analytics: {
+      emotionIntensity,
+      defaultEmotionIntensity: toNumber(
+        analyticsSection.default_emotion_intensity,
+        DEFAULT_RUNTIME_CONFIG.analytics.defaultEmotionIntensity,
+      ),
+      pace: {
+        slowThreshold: toNumber(
+          paceSection.slow_threshold,
+          DEFAULT_RUNTIME_CONFIG.analytics.pace.slowThreshold,
+        ),
+        fastThreshold: toNumber(
+          paceSection.fast_threshold,
+          DEFAULT_RUNTIME_CONFIG.analytics.pace.fastThreshold,
+        ),
+      },
+    },
+  };
+}
+
+function normalizePortRange(value: unknown): ServicePortRange {
+  if (value && typeof value === 'object') {
+    const candidate = value as Record<string, unknown>;
+    const min = toNumber(candidate.min, DEFAULT_SERVICE_PORT_RANGE.min);
+    const max = toNumber(candidate.max, DEFAULT_SERVICE_PORT_RANGE.max);
+    if (Number.isFinite(min) && Number.isFinite(max) && min > 0 && max > min) {
+      return { min, max };
+    }
+  }
+  return DEFAULT_SERVICE_PORT_RANGE;
+}
+
+function normalizeHealthProbe(value: unknown): HealthProbeDefaults {
+  if (value && typeof value === 'object') {
+    const candidate = value as Record<string, unknown>;
+    const maxAttempts = Math.max(
+      1,
+      Math.round(toNumber(candidate.max_attempts, DEFAULT_HEALTH_PROBE.maxAttempts)),
+    );
+    const baseDelay = Math.max(50, Math.round(toNumber(candidate.base_delay_ms, DEFAULT_HEALTH_PROBE.baseDelayMs)));
+    const maxDelay = Math.max(baseDelay, Math.round(toNumber(candidate.max_delay_ms, DEFAULT_HEALTH_PROBE.maxDelayMs)));
+    return {
+      maxAttempts,
+      baseDelayMs: baseDelay,
+      maxDelayMs: maxDelay,
+    };
+  }
+  return DEFAULT_HEALTH_PROBE;
+}
+
+function normalizeEmotionIntensity(value: unknown): Record<string, number> {
+  if (!value || typeof value !== 'object') {
+    return DEFAULT_ANALYTICS_INTENSITY;
+  }
+  const entries = Object.entries(value as Record<string, unknown>).reduce<Record<string, number>>(
+    (acc, [key, raw]) => {
+      const normalised = toNumber(raw, Number.NaN);
+      if (Number.isFinite(normalised)) {
+        acc[key] = normalised;
+      }
+      return acc;
+    },
+    {},
+  );
+  return { ...DEFAULT_ANALYTICS_INTENSITY, ...entries };
+}
+
+function toNumber(value: unknown, fallback: number): number {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value;
+  }
+  if (typeof value === 'string') {
+    const parsed = Number.parseFloat(value);
+    if (Number.isFinite(parsed)) {
+      return parsed;
+    }
+  }
+  return fallback;
+}
