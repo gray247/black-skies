@@ -84,6 +84,10 @@ const HEALTH_MAX_DELAY_MS = parseEnvInteger(
   'BLACKSKIES_HEALTH_MAX_DELAY_MS',
   healthProbeDefaults.maxDelayMs,
 );
+const HEALTH_ATTEMPT_TIMEOUT_MS = parseEnvInteger(
+  'BLACKSKIES_HEALTH_ATTEMPT_TIMEOUT_MS',
+  5_000,
+);
 
 function resolvePortRange(value: string | undefined, fallback: ServicePortRange): ServicePortRange {
   if (!value) {
@@ -223,8 +227,11 @@ async function waitForServicesHealthy(port: number): Promise<void> {
   let delayMs = HEALTH_BASE_DELAY_MS;
 
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    const controller = new AbortController();
+    const timeoutHandle = setTimeout(() => controller.abort(), HEALTH_ATTEMPT_TIMEOUT_MS);
+
     try {
-      const response = await fetch(url);
+      const response = await fetch(url, { signal: controller.signal });
       const traceId = response.headers.get('x-trace-id') ?? undefined;
       if (!response.ok) {
         logger.warn('Health probe returned non-OK status', {
@@ -252,10 +259,16 @@ async function waitForServicesHealthy(port: number): Promise<void> {
         }
       }
     } catch (error) {
-      logger.debug('Health probe failed', {
-        attempt,
-        error: error instanceof Error ? error.message : String(error),
-      });
+      if (error instanceof Error && error.name === 'AbortError') {
+        logger.warn('Health probe timed out', { attempt, timeoutMs: HEALTH_ATTEMPT_TIMEOUT_MS });
+      } else {
+        logger.debug('Health probe failed', {
+          attempt,
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
+    } finally {
+      clearTimeout(timeoutHandle);
     }
 
     await delay(delayMs);
@@ -478,7 +491,7 @@ async function createMainWindow(): Promise<BrowserWindow> {
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
-      sandbox: false,
+      sandbox: true,
       preload: join(__dirname, 'preload.js'),
     },
   });

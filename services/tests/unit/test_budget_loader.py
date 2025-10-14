@@ -91,6 +91,27 @@ def test_load_project_budget_state_defaults_on_invalid_values(
     assert {"soft", "hard", "spent_usd"}.issubset(logged_fields)
 
 
+def test_load_project_budget_state_handles_non_mapping_payload(
+    project_root: Path, diagnostics: DiagnosticLogger
+) -> None:
+    project_file = project_root / "project.json"
+    project_file.write_text('["not", "a", "mapping"]', encoding="utf-8")
+
+    state = load_project_budget_state(project_root, diagnostics)
+
+    assert state.soft_limit == DEFAULT_SOFT_BUDGET_LIMIT_USD
+    assert state.hard_limit == DEFAULT_HARD_BUDGET_LIMIT_USD
+    assert state.spent_usd == 0.0
+
+    diagnostics_dir = project_root / "history" / "diagnostics"
+    logs = sorted(diagnostics_dir.glob("*.json"))
+    assert logs, "Expected diagnostics entry for non-mapping payload"
+    logged_messages = {
+        json.loads(path.read_text(encoding="utf-8"))["message"] for path in logs
+    }
+    assert any("not a JSON object" in message for message in logged_messages)
+
+
 def test_persist_project_budget_rounds_and_clamps(tmp_path: Path) -> None:
     project_root = tmp_path
     state = ProjectBudgetState(

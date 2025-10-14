@@ -66,3 +66,10 @@ async def async_client(service_app: FastAPI) -> AsyncIterator["httpx.AsyncClient
     transport = httpx.ASGITransport(app=service_app)
     async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as client:
         yield client
+
+
+@pytest.fixture()
+def anyio_backend() -> str:
+    """Default AnyIO backend for the suite when unspecified by a test."""
+
+    return "asyncio"

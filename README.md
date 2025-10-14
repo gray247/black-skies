@@ -15,6 +15,11 @@ Prereqs: **Node 20 LTS**, **PNPM**, **Python 3.11**
 > `PS C:\...>` prompt causes PowerShell to interpret `PS` as the `Get-Process` alias and the command will fail before
 > `start-codex.ps1` can run.
 
+> [!NOTE]
+> The services ship with a lightweight YAML loader for offline smoke tests, but PyYAML remains the supported parser in production. Keep
+> `requirements.lock` and the cached wheels fresh so the real dependency is available; the shim is strictly a fallback for constrained
+> environments.
+
 1. **Install workspace dependencies**
    ```bash
    pnpm run install

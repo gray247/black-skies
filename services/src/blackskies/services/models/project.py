@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from ._project_id import validate_project_id
 
@@ -15,6 +15,16 @@ class ProjectBudget(BaseModel):
     soft: float = Field(default=5.0, ge=0.0)
     hard: float = Field(default=10.0, ge=0.0)
     spent_usd: float = Field(default=0.0, ge=0.0)
+
+    @model_validator(mode="after")
+    def _validate_limits(self) -> "ProjectBudget":
+        if self.soft > self.hard:
+            msg = "Soft limit must not exceed hard limit."
+            raise ValueError(msg)
+        if self.spent_usd > self.hard:
+            msg = "Spent total exceeds hard limit."
+            raise ValueError(msg)
+        return self
 
 
 class ProjectMetadata(BaseModel):

@@ -170,6 +170,8 @@ class RecoveryTracker:
                 "pending_unit_id": unit_id,
                 "draft_id": draft_id,
                 "message": message,
+                "failure_reason": None,
+                "updated_at": None,
             }
         )
         return self._write_state(project_id, state)

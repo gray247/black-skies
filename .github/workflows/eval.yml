@@ -102,6 +102,8 @@ jobs:
         run: pytest -q
       - name: Run eval harness
         run: python scripts/eval.py --html out/eval.html --json out/eval.json
+      - name: Run smoke tests
+        run: bash scripts/smoke.sh
       - name: Upload eval artifacts
         if: always()
         uses: actions/upload-artifact@v4

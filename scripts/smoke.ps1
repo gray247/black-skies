@@ -8,13 +8,14 @@
 #>
 [CmdletBinding()]
 param(
+  [string]$ServiceHost = "127.0.0.1",
   [string]$ProjectId = "proj_esther_estate",
   [int]$Cycles = 3,
-  [string]$Host = "127.0.0.1",
   [int]$Port = 43750,
   [double]$TimeoutSeconds = 60,
   [string]$ProjectBaseDir,
-  [switch]$SkipInstall
+  [switch]$SkipInstall,
+  [Parameter(ValueFromRemainingArguments = $true)][string[]]$ExtraArgs
 )
 
 $ErrorActionPreference = "Stop"
@@ -58,12 +59,12 @@ if ($previousPythonPath) {
   $env:PYTHONPATH = $RepoRoot
 }
 
-Write-SmokeLog -Level INFO -Message "Starting FastAPI services on $Host:$Port"
-$serviceProcess = Start-Process -FilePath $PythonExe -ArgumentList @('-m', 'blackskies.services', '--host', $Host, '--port', $Port) -PassThru -WindowStyle Hidden
+Write-SmokeLog -Level INFO -Message "Starting FastAPI services on $($ServiceHost):$Port"
+$serviceProcess = Start-Process -FilePath $PythonExe -ArgumentList @('-m', 'blackskies.services', '--host', $ServiceHost, '--port', $Port) -PassThru -WindowStyle Hidden
 
 try {
   Write-SmokeLog -Level INFO -Message "Running smoke cycles ($Cycles) against $ProjectId"
-  & $PythonExe -m scripts.smoke_runner --host $Host --port $Port --project-id $ProjectId --project-base-dir $ProjectBaseDir --cycles $Cycles --timeout $TimeoutSeconds --log-level INFO
+  & $PythonExe -m scripts.smoke_runner --host $ServiceHost --port $Port --project-id $ProjectId --project-base-dir $ProjectBaseDir --cycles $Cycles --timeout $TimeoutSeconds --log-level INFO
   $exitCode = $LASTEXITCODE
 } finally {
   if ($serviceProcess -and -not $serviceProcess.HasExited) {

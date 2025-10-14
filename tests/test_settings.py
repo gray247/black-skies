@@ -83,6 +83,10 @@ def test_settings_module_handles_missing_pydantic_settings(
         return original_import(name, globals, locals, fromlist, level)
 
     monkeypatch.setattr(builtins, "__import__", _raise_for_pydantic_settings)
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.delenv("BLACK_SKIES_OPENAI_API_KEY", raising=False)
+    monkeypatch.delenv("BLACK_SKIES_MODE", raising=False)
+    monkeypatch.delenv("BLACK_SKIES_BLACK_SKIES_MODE", raising=False)
     sys.modules.pop("blackskies.services.settings", None)
 
     module = importlib.import_module("blackskies.services.settings")
@@ -105,3 +109,38 @@ def test_settings_module_handles_missing_pydantic_settings(
     monkeypatch.setattr(builtins, "__import__", original_import)
     sys.modules.pop("blackskies.services.settings", None)
     importlib.import_module("blackskies.services.settings")
+
+
+def test_settings_fallback_strips_env_whitespace(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """Fallback loader should trim surrounding whitespace for env values."""
+
+    get_settings.cache_clear()
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-test \n")
+    monkeypatch.setenv("BLACK_SKIES_MODE", "LIVE \t")
+    monkeypatch.chdir(tmp_path)
+
+    original_import = builtins.__import__
+
+    def _raise_for_pydantic_settings(
+        name: str,
+        globals: dict[str, object] | None = None,
+        locals: dict[str, object] | None = None,
+        fromlist: tuple[str, ...] = (),
+        level: int = 0,
+    ):
+        if name == "pydantic_settings":
+            raise ModuleNotFoundError("No module named 'pydantic_settings'")
+        return original_import(name, globals, locals, fromlist, level)
+
+    monkeypatch.setattr(builtins, "__import__", _raise_for_pydantic_settings)
+    sys.modules.pop("blackskies.services.settings", None)
+
+    module = importlib.import_module("blackskies.services.settings")
+
+    instance = module.Settings()
+    assert instance.openai_api_key == "sk-test"
+    assert instance.black_skies_mode == "live"
+
+    sys.modules.pop("blackskies.services.settings", None)

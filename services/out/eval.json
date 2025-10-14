@@ -1,0 +1,856 @@
+{
+  "report": {
+    "generated_at": "2025-10-14T18:26:03.853437+00:00",
+    "metrics": {
+      "total": 63,
+      "passed": 63,
+      "failed": 0,
+      "pass_rate": 1.0,
+      "avg_latency_ms": 22.4918,
+      "p95_latency_ms": 29.6156
+    },
+    "results": [
+      {
+        "task_id": "critique_scene_001",
+        "flow": "critique",
+        "summary": "Critique flow review scenario 1",
+        "passed": true,
+        "latency_ms": 17.42253299926233,
+        "error": null,
+        "details": {
+          "unit_id": "sc_0401",
+          "comment_count": 1,
+          "suggested_edits": 1
+        }
+      },
+      {
+        "task_id": "critique_scene_002",
+        "flow": "critique",
+        "summary": "Critique flow review scenario 2",
+        "passed": true,
+        "latency_ms": 18.150191999666276,
+        "error": null,
+        "details": {
+          "unit_id": "sc_0402",
+          "comment_count": 1,
+          "suggested_edits": 1
+        }
+      },
+      {
+        "task_id": "critique_scene_003",
+        "flow": "critique",
+        "summary": "Critique flow review scenario 3",
+        "passed": true,
+        "latency_ms": 19.206457000109367,
+        "error": null,
+        "details": {
+          "unit_id": "sc_0403",
+          "comment_count": 1,
+          "suggested_edits": 1
+        }
+      },
+      {
+        "task_id": "critique_scene_004",
+        "flow": "critique",
+        "summary": "Critique flow review scenario 4",
+        "passed": true,
+        "latency_ms": 19.193911999536795,
+        "error": null,
+        "details": {
+          "unit_id": "sc_0404",
+          "comment_count": 1,
+          "suggested_edits": 1
+        }
+      },
+      {
+        "task_id": "critique_scene_005",
+        "flow": "critique",
+        "summary": "Critique flow review scenario 5",
+        "passed": true,
+        "latency_ms": 18.959332001031726,
+        "error": null,
+        "details": {
+          "unit_id": "sc_0405",
+          "comment_count": 1,
+          "suggested_edits": 1
+        }
+      },
+      {
+        "task_id": "critique_scene_006",
+        "flow": "critique",
+        "summary": "Critique flow review scenario 6",
+        "passed": true,
+        "latency_ms": 19.52935999906913,
+        "error": null,
+        "details": {
+          "unit_id": "sc_0406",
+          "comment_count": 1,
+          "suggested_edits": 1
+        }
+      },
+      {
+        "task_id": "critique_scene_007",
+        "flow": "critique",
+        "summary": "Critique flow review scenario 7",
+        "passed": true,
+        "latency_ms": 19.54612199915573,
+        "error": null,
+        "details": {
+          "unit_id": "sc_0407",
+          "comment_count": 1,
+          "suggested_edits": 1
+        }
+      },
+      {
+        "task_id": "critique_scene_008",
+        "flow": "critique",
+        "summary": "Critique flow review scenario 8",
+        "passed": true,
+        "latency_ms": 20.116335999773582,
+        "error": null,
+        "details": {
+          "unit_id": "sc_0408",
+          "comment_count": 1,
+          "suggested_edits": 1
+        }
+      },
+      {
+        "task_id": "critique_scene_009",
+        "flow": "critique",
+        "summary": "Critique flow review scenario 9",
+        "passed": true,
+        "latency_ms": 18.880405999880168,
+        "error": null,
+        "details": {
+          "unit_id": "sc_0409",
+          "comment_count": 1,
+          "suggested_edits": 1
+        }
+      },
+      {
+        "task_id": "critique_scene_010",
+        "flow": "critique",
+        "summary": "Critique flow review scenario 10",
+        "passed": true,
+        "latency_ms": 27.072175000284915,
+        "error": null,
+        "details": {
+          "unit_id": "sc_0410",
+          "comment_count": 1,
+          "suggested_edits": 1
+        }
+      },
+      {
+        "task_id": "critique_scene_011",
+        "flow": "critique",
+        "summary": "Critique flow review scenario 11",
+        "passed": true,
+        "latency_ms": 19.892938998964382,
+        "error": null,
+        "details": {
+          "unit_id": "sc_0411",
+          "comment_count": 1,
+          "suggested_edits": 1
+        }
+      },
+      {
+        "task_id": "critique_scene_012",
+        "flow": "critique",
+        "summary": "Critique flow review scenario 12",
+        "passed": true,
+        "latency_ms": 19.953168999563786,
+        "error": null,
+        "details": {
+          "unit_id": "sc_0412",
+          "comment_count": 1,
+          "suggested_edits": 1
+        }
+      },
+      {
+        "task_id": "critique_scene_013",
+        "flow": "critique",
+        "summary": "Critique flow review scenario 13",
+        "passed": true,
+        "latency_ms": 20.168954000837402,
+        "error": null,
+        "details": {
+          "unit_id": "sc_0413",
+          "comment_count": 1,
+          "suggested_edits": 1
+        }
+      },
+      {
+        "task_id": "critique_scene_014",
+        "flow": "critique",
+        "summary": "Critique flow review scenario 14",
+        "passed": true,
+        "latency_ms": 21.160158999919076,
+        "error": null,
+        "details": {
+          "unit_id": "sc_0414",
+          "comment_count": 1,
+          "suggested_edits": 1
+        }
+      },
+      {
+        "task_id": "critique_scene_015",
+        "flow": "critique",
+        "summary": "Critique flow review scenario 15",
+        "passed": true,
+        "latency_ms": 20.634234000681317,
+        "error": null,
+        "details": {
+          "unit_id": "sc_0415",
+          "comment_count": 1,
+          "suggested_edits": 1
+        }
+      },
+      {
+        "task_id": "critique_scene_016",
+        "flow": "critique",
+        "summary": "Critique flow review scenario 16",
+        "passed": true,
+        "latency_ms": 20.83918599964818,
+        "error": null,
+        "details": {
+          "unit_id": "sc_0416",
+          "comment_count": 1,
+          "suggested_edits": 1
+        }
+      },
+      {
+        "task_id": "critique_scene_017",
+        "flow": "critique",
+        "summary": "Critique flow review scenario 17",
+        "passed": true,
+        "latency_ms": 20.873053999821423,
+        "error": null,
+        "details": {
+          "unit_id": "sc_0417",
+          "comment_count": 1,
+          "suggested_edits": 1
+        }
+      },
+      {
+        "task_id": "critique_scene_018",
+        "flow": "critique",
+        "summary": "Critique flow review scenario 18",
+        "passed": true,
+        "latency_ms": 20.27234199886152,
+        "error": null,
+        "details": {
+          "unit_id": "sc_0418",
+          "comment_count": 1,
+          "suggested_edits": 1
+        }
+      },
+      {
+        "task_id": "critique_scene_019",
+        "flow": "critique",
+        "summary": "Critique flow review scenario 19",
+        "passed": true,
+        "latency_ms": 20.841895000557997,
+        "error": null,
+        "details": {
+          "unit_id": "sc_0419",
+          "comment_count": 1,
+          "suggested_edits": 1
+        }
+      },
+      {
+        "task_id": "critique_scene_020",
+        "flow": "critique",
+        "summary": "Critique flow review scenario 20",
+        "passed": true,
+        "latency_ms": 20.860410999375745,
+        "error": null,
+        "details": {
+          "unit_id": "sc_0420",
+          "comment_count": 1,
+          "suggested_edits": 1
+        }
+      },
+      {
+        "task_id": "critique_scene_review",
+        "flow": "critique",
+        "summary": "Review the midpoint draft for pacing and tension, ensuring critique feedback respects the CritiqueOutputSchema v1 contract.",
+        "passed": true,
+        "latency_ms": 19.979926999440067,
+        "error": null,
+        "details": {
+          "unit_id": "sc_0002",
+          "comment_count": 2,
+          "suggested_edits": 1
+        }
+      },
+      {
+        "task_id": "draft_scene_001",
+        "flow": "draft",
+        "summary": "Draft flow scene generation scenario 1",
+        "passed": true,
+        "latency_ms": 20.70289899893396,
+        "error": null,
+        "details": {
+          "draft_id": "dr_001",
+          "unit_count": 1,
+          "word_targets": [
+            1100
+          ]
+        }
+      },
+      {
+        "task_id": "draft_scene_002",
+        "flow": "draft",
+        "summary": "Draft flow scene generation scenario 2",
+        "passed": true,
+        "latency_ms": 20.56137700128602,
+        "error": null,
+        "details": {
+          "draft_id": "dr_002",
+          "unit_count": 1,
+          "word_targets": [
+            1100
+          ]
+        }
+      },
+      {
+        "task_id": "draft_scene_003",
+        "flow": "draft",
+        "summary": "Draft flow scene generation scenario 3",
+        "passed": true,
+        "latency_ms": 22.013944000718766,
+        "error": null,
+        "details": {
+          "draft_id": "dr_003",
+          "unit_count": 1,
+          "word_targets": [
+            1100
+          ]
+        }
+      },
+      {
+        "task_id": "draft_scene_004",
+        "flow": "draft",
+        "summary": "Draft flow scene generation scenario 4",
+        "passed": true,
+        "latency_ms": 20.681874999354477,
+        "error": null,
+        "details": {
+          "draft_id": "dr_004",
+          "unit_count": 1,
+          "word_targets": [
+            1100
+          ]
+        }
+      },
+      {
+        "task_id": "draft_scene_005",
+        "flow": "draft",
+        "summary": "Draft flow scene generation scenario 5",
+        "passed": true,
+        "latency_ms": 20.52718100094353,
+        "error": null,
+        "details": {
+          "draft_id": "dr_005",
+          "unit_count": 1,
+          "word_targets": [
+            1100
+          ]
+        }
+      },
+      {
+        "task_id": "draft_scene_006",
+        "flow": "draft",
+        "summary": "Draft flow scene generation scenario 6",
+        "passed": true,
+        "latency_ms": 20.798741999897175,
+        "error": null,
+        "details": {
+          "draft_id": "dr_006",
+          "unit_count": 1,
+          "word_targets": [
+            1100
+          ]
+        }
+      },
+      {
+        "task_id": "draft_scene_007",
+        "flow": "draft",
+        "summary": "Draft flow scene generation scenario 7",
+        "passed": true,
+        "latency_ms": 21.52755099996284,
+        "error": null,
+        "details": {
+          "draft_id": "dr_007",
+          "unit_count": 1,
+          "word_targets": [
+            1100
+          ]
+        }
+      },
+      {
+        "task_id": "draft_scene_008",
+        "flow": "draft",
+        "summary": "Draft flow scene generation scenario 8",
+        "passed": true,
+        "latency_ms": 21.20184699924721,
+        "error": null,
+        "details": {
+          "draft_id": "dr_008",
+          "unit_count": 1,
+          "word_targets": [
+            1100
+          ]
+        }
+      },
+      {
+        "task_id": "draft_scene_009",
+        "flow": "draft",
+        "summary": "Draft flow scene generation scenario 9",
+        "passed": true,
+        "latency_ms": 21.560332001172355,
+        "error": null,
+        "details": {
+          "draft_id": "dr_009",
+          "unit_count": 1,
+          "word_targets": [
+            1100
+          ]
+        }
+      },
+      {
+        "task_id": "draft_scene_010",
+        "flow": "draft",
+        "summary": "Draft flow scene generation scenario 10",
+        "passed": true,
+        "latency_ms": 21.772329999294016,
+        "error": null,
+        "details": {
+          "draft_id": "dr_010",
+          "unit_count": 1,
+          "word_targets": [
+            1100
+          ]
+        }
+      },
+      {
+        "task_id": "draft_scene_011",
+        "flow": "draft",
+        "summary": "Draft flow scene generation scenario 11",
+        "passed": true,
+        "latency_ms": 22.090634000051068,
+        "error": null,
+        "details": {
+          "draft_id": "dr_011",
+          "unit_count": 1,
+          "word_targets": [
+            1100
+          ]
+        }
+      },
+      {
+        "task_id": "draft_scene_012",
+        "flow": "draft",
+        "summary": "Draft flow scene generation scenario 12",
+        "passed": true,
+        "latency_ms": 22.44844899905729,
+        "error": null,
+        "details": {
+          "draft_id": "dr_012",
+          "unit_count": 1,
+          "word_targets": [
+            1100
+          ]
+        }
+      },
+      {
+        "task_id": "draft_scene_013",
+        "flow": "draft",
+        "summary": "Draft flow scene generation scenario 13",
+        "passed": true,
+        "latency_ms": 21.879660000195145,
+        "error": null,
+        "details": {
+          "draft_id": "dr_013",
+          "unit_count": 1,
+          "word_targets": [
+            1100
+          ]
+        }
+      },
+      {
+        "task_id": "draft_scene_014",
+        "flow": "draft",
+        "summary": "Draft flow scene generation scenario 14",
+        "passed": true,
+        "latency_ms": 21.91530799973407,
+        "error": null,
+        "details": {
+          "draft_id": "dr_014",
+          "unit_count": 1,
+          "word_targets": [
+            1100
+          ]
+        }
+      },
+      {
+        "task_id": "draft_scene_015",
+        "flow": "draft",
+        "summary": "Draft flow scene generation scenario 15",
+        "passed": true,
+        "latency_ms": 29.397919000984984,
+        "error": null,
+        "details": {
+          "draft_id": "dr_015",
+          "unit_count": 1,
+          "word_targets": [
+            1100
+          ]
+        }
+      },
+      {
+        "task_id": "draft_scene_016",
+        "flow": "draft",
+        "summary": "Draft flow scene generation scenario 16",
+        "passed": true,
+        "latency_ms": 21.294004000083078,
+        "error": null,
+        "details": {
+          "draft_id": "dr_016",
+          "unit_count": 1,
+          "word_targets": [
+            1100
+          ]
+        }
+      },
+      {
+        "task_id": "draft_scene_017",
+        "flow": "draft",
+        "summary": "Draft flow scene generation scenario 17",
+        "passed": true,
+        "latency_ms": 22.326092001094366,
+        "error": null,
+        "details": {
+          "draft_id": "dr_017",
+          "unit_count": 1,
+          "word_targets": [
+            1100
+          ]
+        }
+      },
+      {
+        "task_id": "draft_scene_018",
+        "flow": "draft",
+        "summary": "Draft flow scene generation scenario 18",
+        "passed": true,
+        "latency_ms": 21.84240899987344,
+        "error": null,
+        "details": {
+          "draft_id": "dr_018",
+          "unit_count": 1,
+          "word_targets": [
+            1100
+          ]
+        }
+      },
+      {
+        "task_id": "draft_scene_019",
+        "flow": "draft",
+        "summary": "Draft flow scene generation scenario 19",
+        "passed": true,
+        "latency_ms": 29.615643999932217,
+        "error": null,
+        "details": {
+          "draft_id": "dr_019",
+          "unit_count": 1,
+          "word_targets": [
+            1100
+          ]
+        }
+      },
+      {
+        "task_id": "draft_scene_020",
+        "flow": "draft",
+        "summary": "Draft flow scene generation scenario 20",
+        "passed": true,
+        "latency_ms": 22.33638100005919,
+        "error": null,
+        "details": {
+          "draft_id": "dr_020",
+          "unit_count": 1,
+          "word_targets": [
+            1100
+          ]
+        }
+      },
+      {
+        "task_id": "draft_scene_generation",
+        "flow": "draft",
+        "summary": "Generate the Act I midpoint scene using the locked outline context and ensure the resulting draft unit complies with DraftUnitSchema v1 metadata requirements.",
+        "passed": true,
+        "latency_ms": 22.95125700038625,
+        "error": null,
+        "details": {
+          "draft_id": "dr_201",
+          "unit_count": 1,
+          "word_targets": [
+            900
+          ]
+        }
+      },
+      {
+        "task_id": "wizard_outline_001",
+        "flow": "wizard",
+        "summary": "Wizard flow outline scenario 1",
+        "passed": true,
+        "latency_ms": 22.54459100004169,
+        "error": null,
+        "details": {
+          "outline_id": "out_wiz_001",
+          "scene_count": 2
+        }
+      },
+      {
+        "task_id": "wizard_outline_002",
+        "flow": "wizard",
+        "summary": "Wizard flow outline scenario 2",
+        "passed": true,
+        "latency_ms": 22.910105999471853,
+        "error": null,
+        "details": {
+          "outline_id": "out_wiz_002",
+          "scene_count": 2
+        }
+      },
+      {
+        "task_id": "wizard_outline_003",
+        "flow": "wizard",
+        "summary": "Wizard flow outline scenario 3",
+        "passed": true,
+        "latency_ms": 22.54249600082403,
+        "error": null,
+        "details": {
+          "outline_id": "out_wiz_003",
+          "scene_count": 2
+        }
+      },
+      {
+        "task_id": "wizard_outline_004",
+        "flow": "wizard",
+        "summary": "Wizard flow outline scenario 4",
+        "passed": true,
+        "latency_ms": 31.508300000496092,
+        "error": null,
+        "details": {
+          "outline_id": "out_wiz_004",
+          "scene_count": 2
+        }
+      },
+      {
+        "task_id": "wizard_outline_005",
+        "flow": "wizard",
+        "summary": "Wizard flow outline scenario 5",
+        "passed": true,
+        "latency_ms": 22.82931199988525,
+        "error": null,
+        "details": {
+          "outline_id": "out_wiz_005",
+          "scene_count": 2
+        }
+      },
+      {
+        "task_id": "wizard_outline_006",
+        "flow": "wizard",
+        "summary": "Wizard flow outline scenario 6",
+        "passed": true,
+        "latency_ms": 24.166204000721336,
+        "error": null,
+        "details": {
+          "outline_id": "out_wiz_006",
+          "scene_count": 2
+        }
+      },
+      {
+        "task_id": "wizard_outline_007",
+        "flow": "wizard",
+        "summary": "Wizard flow outline scenario 7",
+        "passed": true,
+        "latency_ms": 24.055107000094722,
+        "error": null,
+        "details": {
+          "outline_id": "out_wiz_007",
+          "scene_count": 2
+        }
+      },
+      {
+        "task_id": "wizard_outline_008",
+        "flow": "wizard",
+        "summary": "Wizard flow outline scenario 8",
+        "passed": true,
+        "latency_ms": 23.889358000815264,
+        "error": null,
+        "details": {
+          "outline_id": "out_wiz_008",
+          "scene_count": 2
+        }
+      },
+      {
+        "task_id": "wizard_outline_009",
+        "flow": "wizard",
+        "summary": "Wizard flow outline scenario 9",
+        "passed": true,
+        "latency_ms": 24.03845399931015,
+        "error": null,
+        "details": {
+          "outline_id": "out_wiz_009",
+          "scene_count": 2
+        }
+      },
+      {
+        "task_id": "wizard_outline_010",
+        "flow": "wizard",
+        "summary": "Wizard flow outline scenario 10",
+        "passed": true,
+        "latency_ms": 23.728053998638643,
+        "error": null,
+        "details": {
+          "outline_id": "out_wiz_010",
+          "scene_count": 2
+        }
+      },
+      {
+        "task_id": "wizard_outline_011",
+        "flow": "wizard",
+        "summary": "Wizard flow outline scenario 11",
+        "passed": true,
+        "latency_ms": 23.69794200058095,
+        "error": null,
+        "details": {
+          "outline_id": "out_wiz_011",
+          "scene_count": 2
+        }
+      },
+      {
+        "task_id": "wizard_outline_012",
+        "flow": "wizard",
+        "summary": "Wizard flow outline scenario 12",
+        "passed": true,
+        "latency_ms": 23.829984998883447,
+        "error": null,
+        "details": {
+          "outline_id": "out_wiz_012",
+          "scene_count": 2
+        }
+      },
+      {
+        "task_id": "wizard_outline_013",
+        "flow": "wizard",
+        "summary": "Wizard flow outline scenario 13",
+        "passed": true,
+        "latency_ms": 24.152429999958258,
+        "error": null,
+        "details": {
+          "outline_id": "out_wiz_013",
+          "scene_count": 2
+        }
+      },
+      {
+        "task_id": "wizard_outline_014",
+        "flow": "wizard",
+        "summary": "Wizard flow outline scenario 14",
+        "passed": true,
+        "latency_ms": 31.794893000551383,
+        "error": null,
+        "details": {
+          "outline_id": "out_wiz_014",
+          "scene_count": 2
+        }
+      },
+      {
+        "task_id": "wizard_outline_015",
+        "flow": "wizard",
+        "summary": "Wizard flow outline scenario 15",
+        "passed": true,
+        "latency_ms": 23.829980000300566,
+        "error": null,
+        "details": {
+          "outline_id": "out_wiz_015",
+          "scene_count": 2
+        }
+      },
+      {
+        "task_id": "wizard_outline_016",
+        "flow": "wizard",
+        "summary": "Wizard flow outline scenario 16",
+        "passed": true,
+        "latency_ms": 23.97938499962038,
+        "error": null,
+        "details": {
+          "outline_id": "out_wiz_016",
+          "scene_count": 2
+        }
+      },
+      {
+        "task_id": "wizard_outline_017",
+        "flow": "wizard",
+        "summary": "Wizard flow outline scenario 17",
+        "passed": true,
+        "latency_ms": 25.400898999578203,
+        "error": null,
+        "details": {
+          "outline_id": "out_wiz_017",
+          "scene_count": 2
+        }
+      },
+      {
+        "task_id": "wizard_outline_018",
+        "flow": "wizard",
+        "summary": "Wizard flow outline scenario 18",
+        "passed": true,
+        "latency_ms": 24.16690300015034,
+        "error": null,
+        "details": {
+          "outline_id": "out_wiz_018",
+          "scene_count": 2
+        }
+      },
+      {
+        "task_id": "wizard_outline_019",
+        "flow": "wizard",
+        "summary": "Wizard flow outline scenario 19",
+        "passed": true,
+        "latency_ms": 31.106378000913537,
+        "error": null,
+        "details": {
+          "outline_id": "out_wiz_019",
+          "scene_count": 2
+        }
+      },
+      {
+        "task_id": "wizard_outline_020",
+        "flow": "wizard",
+        "summary": "Wizard flow outline scenario 20",
+        "passed": true,
+        "latency_ms": 25.188692001393065,
+        "error": null,
+        "details": {
+          "outline_id": "out_wiz_020",
+          "scene_count": 2
+        }
+      },
+      {
+        "task_id": "wizard_outline_baseline",
+        "flow": "wizard",
+        "summary": "Validate that locked Wizard decisions generate a canonical outline for the Storm Cellar inciting sequence.",
+        "passed": true,
+        "latency_ms": 24.623117000373895,
+        "error": null,
+        "details": {
+          "outline_id": "out_101",
+          "scene_count": 3
+        }
+      }
+    ]
+  },
+  "regressions": []
+}

@@ -69,9 +69,18 @@ class DraftGenerateRequest(BaseModel):
                 msg = f"Invalid {self.unit_scope.value} identifier: {unit_id}."
                 raise ValueError(msg)
 
-        for override_key in self.overrides.keys():
-            if not re.match(r"^sc_\d{4}$", override_key):
-                msg = f"Override keys must be scene identifiers (found '{override_key}')."
+        if self.unit_scope is DraftUnitScope.SCENE:
+            allowed_ids = set(self.unit_ids)
+            for override_key in self.overrides.keys():
+                if not re.match(r"^sc_\d{4}$", override_key):
+                    msg = f"Override keys must be scene identifiers (found '{override_key}')."
+                    raise ValueError(msg)
+                if override_key not in allowed_ids:
+                    msg = f"Override provided for unknown scene '{override_key}'."
+                    raise ValueError(msg)
+        else:
+            for override_key in self.overrides.keys():
+                msg = "Overrides are only supported for scene scope requests."
                 raise ValueError(msg)
 
         return self

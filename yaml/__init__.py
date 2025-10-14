@@ -62,10 +62,22 @@ def safe_dump(
     return serialized
 
 
-def safe_load(document: str) -> Any:
+def _ensure_text(document: str | Any) -> str:
+    if hasattr(document, "read"):
+        value = document.read()
+        if isinstance(value, bytes):
+            return value.decode("utf-8")
+        return value if isinstance(value, str) else str(value)
+    if isinstance(document, bytes):
+        return document.decode("utf-8")
+    return str(document)
+
+
+def safe_load(document: str | Any) -> Any:
     """Parse ``document`` and return the corresponding Python value."""
 
-    stripped = document.strip()
+    text = _ensure_text(document)
+    stripped = text.strip()
     if not stripped:
         return None
 
@@ -75,7 +87,7 @@ def safe_load(document: str) -> Any:
         except json.JSONDecodeError as exc:  # pragma: no cover - defensive guard
             raise YAMLError("Invalid JSON payload") from exc
 
-    tokens = _tokenize(document)
+    tokens = _tokenize(text)
     if not tokens:
         return None
 
@@ -85,10 +97,11 @@ def safe_load(document: str) -> Any:
     return value
 
 
-def safe_load_all(document: str) -> Iterator[Any]:
+def safe_load_all(document: str | Any) -> Iterator[Any]:
     """Yield documents parsed from a multi-document YAML string."""
 
-    segments = re.split(r"(?m)^\s*---\s*$", document)
+    text = _ensure_text(document)
+    segments = re.split(r"(?m)^\s*---\s*$", text)
     for segment in segments:
         text = segment.strip()
         if not text:

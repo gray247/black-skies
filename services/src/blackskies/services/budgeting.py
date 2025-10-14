@@ -132,12 +132,21 @@ def load_project_budget_state(
             "spent_usd": 0.0,
         },
     }
-    payload = copy.deepcopy(base_payload)
+    payload: dict[str, Any] = copy.deepcopy(base_payload)
 
     if project_path.exists():
         try:
             with project_path.open("r", encoding="utf-8") as handle:
-                payload = json.load(handle)
+                loaded = json.load(handle)
+            if not isinstance(loaded, dict):
+                diagnostics.log(
+                    project_root,
+                    code="INTERNAL",
+                    message="Project metadata is not a JSON object; defaults applied.",
+                    details={"type": type(loaded).__name__},
+                )
+            else:
+                payload = loaded
         except (OSError, json.JSONDecodeError) as exc:
             diagnostics.log(
                 project_root,
@@ -146,7 +155,16 @@ def load_project_budget_state(
                 details={"error": str(exc)},
             )
 
-    budget_meta = payload.setdefault("budget", {})
+    budget_meta = payload.get("budget")
+    if not isinstance(budget_meta, dict):
+        diagnostics.log(
+            project_root,
+            code="INTERNAL",
+            message="Budget metadata missing or invalid; defaults applied.",
+            details={"type": type(budget_meta).__name__ if budget_meta is not None else "None"},
+        )
+        budget_meta = {}
+        payload["budget"] = budget_meta
     soft_limit = _coerce_budget_value(
         budget_meta.get("soft", DEFAULT_SOFT_BUDGET_LIMIT_USD),
         default=DEFAULT_SOFT_BUDGET_LIMIT_USD,

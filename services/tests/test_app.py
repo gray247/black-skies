@@ -1128,7 +1128,7 @@ def test_recovery_tracker_normalises_legacy_state(tmp_path: Path) -> None:
     assert persisted["needs_recovery"] is True
 
 
-@pytest.mark.anyio
+@pytest.mark.anyio("asyncio")
 async def test_recovery_restore_runs_in_threadpool(
     async_client: "httpx.AsyncClient",
     tmp_path: Path,

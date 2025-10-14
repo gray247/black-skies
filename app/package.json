@@ -2,6 +2,8 @@
   "name": "@blackskies/app",
   "private": true,
   "version": "1.0.0-rc1",
+  "description": "Electron desktop client for the Black Skies writing toolkit.",
+  "author": "Black Skies",
   "type": "module",
   "main": "dist-electron/main.js",
   "engines": {

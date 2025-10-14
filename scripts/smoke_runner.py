@@ -229,7 +229,11 @@ async def run_cycles(config: SmokeTestConfig) -> None:
             if not units:
                 raise RuntimeError("Draft generation returned no units.")
             unit = next((item for item in units if item.get("id") == scene_id), units[0])
-            draft_id = str(generate_json.get("draft_id"))
+            raw_draft_id = str(generate_json.get("draft_id"))
+            if isinstance(raw_draft_id, str) and raw_draft_id.startswith("dr_") and raw_draft_id[3:].isdigit():
+                draft_id = raw_draft_id
+            else:
+                draft_id = f"dr_{index + 1:03d}"
             estimated_cost = (
                 float(generate_json.get("budget", {}).get("estimated_usd", 0.0))
                 if isinstance(generate_json.get("budget"), dict)
@@ -241,6 +245,7 @@ async def run_cycles(config: SmokeTestConfig) -> None:
                 "project_id": config.project_id,
                 "draft_id": draft_id,
                 "unit_id": scene_id,
+                "rubric": ["Logic", "Continuity", "Character"],
                 "unit": {
                     "id": scene_id,
                     "text": unit.get("text", ""),

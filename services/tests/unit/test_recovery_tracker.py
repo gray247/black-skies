@@ -86,3 +86,15 @@ def test_status_accept_in_progress_with_invalid_timestamp(
 
     assert status["status"] == "needs-recovery"
     assert status.get("failure_reason") == "Accept operation timestamp invalid."
+
+
+def test_mark_in_progress_clears_existing_failure_reason(
+    tracker: RecoveryTracker, project_id: str
+) -> None:
+    tracker.mark_needs_recovery(project_id, reason="Disk full")
+
+    tracker.mark_in_progress(project_id, unit_id="unit-1", draft_id="draft-1")
+    status = tracker.status(project_id, _SnapshotStub())
+
+    assert status["status"] == "accept-in-progress"
+    assert status.get("failure_reason") is None
