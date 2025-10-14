@@ -10,3 +10,8 @@
 - **P9:** Analytics visualizations + Dashboard integration.  
 - **P10:** Accessibility & Export Suite.  
 - **P11:** Agents & Plugin Framework.
+
+### Open Follow-up Items
+- Track **budget constant reuse**: replace hard-coded `0.02` pricing in `DraftGenerationService` with `COST_PER_1000_WORDS_USD` and audit for other stragglers.
+- Simplify **fingerprint generation** by relying on `json.dumps(..., sort_keys=True)` (no manual override sorting) and update tests to assert determinism.
+- Document and standardise **threadpool usage** (`run_in_threadpool` vs `asyncio.to_thread`), and schedule tests/docs for the recovery state machine and snapshot validation scenarios.
