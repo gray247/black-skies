@@ -5,6 +5,11 @@ Chronological record of locked decisions and spec/version bumps. One-line summar
 
 ---
 
+## 2025-10-10 — Phase 8 contract approvals (LOCKED)
+- Affected docs: `docs/endpoints.md v1.1`, `docs/gui_layouts.md v1.1`, `docs/exports.md v1.1`
+- Rationale: Locked Companion overlay, budget meter, critique batch/export specs ahead of implementation kickoff.
+- Notes: Budget summary endpoint + export schemas slated for `docs/data_model.md` follow-up.
+
 ## 2025-09-29 — Phase 1 wrap release (LOCKED)
 - Version bumped to 1.0.0+phase1 and annotated tag `v1.0.0-phase1` recorded.
 - Verified python -m pytest -q and python -m build --wheel --no-isolation for release validation.

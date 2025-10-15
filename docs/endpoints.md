@@ -1,6 +1,6 @@
 # docs/endpoints.md — API Contracts (Source of truth)
-**Status:** LOCKED · 2025-09-17  
-**Version:** v1 (Phase 1 / 1.0)  
+**Status:** LOCKED · 2025-10-10
+**Version:** v1.1 (Phase 8 contract — supersedes v1)
 Local-only FastAPI services the Electron app calls. All bodies are JSON (UTF-8). Keys are `snake_case`.
 
 ## Conventions
@@ -35,11 +35,16 @@ All endpoints return a common error shape.
 
 ---
 
-## Request Limits (LOCKED)
+## Request Limits (Updated for v1.1)
 - **POST /api/v1/draft/generate** → max **5 scenes** (or **1 chapter**) per request
 - **POST /api/v1/draft/rewrite** → **1 unit** per request
 - **POST /api/v1/draft/critique** → up to **3 units** per request (batch if larger)
+- **POST /api/v1/critique/batch** → up to **10 units** per batch; queue depth 3 per project
+- **POST /api/v1/companion/query** → 1 active streaming response per project; enforce 30s minimum interval per user session
+- **POST /api/v1/rubrics** → 5 custom rubrics per project (server validates uniqueness)
 - **POST /api/v1/outline/build** → one active build at a time per project
+- **POST /api/v1/exports/critique_bundle** → 1 build in-flight per project; exporting cancels and regenerates pending bundle
+- **POST /api/v1/exports/analytics_summary** → synchronous for `md`, asynchronous for `pdf`; limit 3 queued exports per project
 
 ---
 
@@ -361,10 +366,11 @@ Runs critique on a unit using the rubric (see `docs/critique_rubric.md`). Non-de
 ---
 
 ## Notes on budgets & preflight (Phase 1 behavior)
-- Every generate/critique call performs a **token/cost preflight** and returns an estimated USD value in the response.  
+- Every generate/critique call performs a **token/cost preflight** and returns an estimated USD value in the response.
 - `/api/v1/draft/preflight` exposes the estimate along with **current spend** and **projected total** so the UI can gate actions.
-- If the projected total exceeds the **soft budget** threshold, the app shows a confirmation; if the **hard budget** would be exceeded, services return `BUDGET_EXCEEDED` (`402`) and do not write any files.  
+- If the projected total exceeds the **soft budget** threshold, the app shows a confirmation; if the **hard budget** would be exceeded, services return `BUDGET_EXCEEDED` (`402`) and do not write any files.
 - Budgets are persisted per project in `project.json` (`budget.spent_usd`).
+- Phase 8 introduces `/api/v1/budget/summary` for real-time ledger data surfaced in the budget meter.
 
 ---
 
@@ -379,6 +385,301 @@ Runs critique on a unit using the rubric (see `docs/critique_rubric.md`). Non-de
 ---
 
 ## Versioning
-- This document: **v1**  
-- Schemas: **OutlineSchema v1**, **DraftUnitSchema v1**, **CritiqueOutputSchema v1**  
+- This document: **v1.1**
+- Schemas: **OutlineSchema v1**, **DraftUnitSchema v1**, **CritiqueOutputSchema v1**
 - Future changes bump schema versions and are recorded in `phase_log.md`.
+- Phase 8 endpoints introduce `CompanionMessageSchema v1`, `CritiqueBatchSchema v1`, `RubricTemplateSchema v1`, `BudgetSnapshotSchema v1`, `CritiqueBundleExportSchema v1`, and `AnalyticsSummarySchema v1` (definitions pending in `docs/data_model.md`).
+
+---
+
+## Phase 8 Additions (v1.1)
+
+### POST /api/v1/companion/query
+Interactive Companion overlay prompt. Streams suggestions, critiques, and rewrite snippets referencing the active draft unit.
+
+**Request**
+```json
+{
+  "project_id": "proj_123",
+  "draft_unit_id": "sc_0001",
+  "message": "How can I raise the stakes in this confrontation?",
+  "rubric_id": "rubric_custom_01",
+  "context": {
+    "selection_text": "The cellar trembled as...",
+    "cursor_location": 412
+  },
+  "budget": {
+    "allowance_usd": 1.25,
+    "soft_cap_usd": 5.0,
+    "hard_cap_usd": 10.0
+  }
+}
+```
+
+**Response 200**
+```json
+{
+  "messages": [
+    {
+      "role": "assistant",
+      "content": "Consider forcing the antagonist to reveal a hidden ally...",
+      "suggestions": [
+        {
+          "kind": "diff",
+          "range": [400, 410],
+          "replacement": "She hears the second set of footsteps above."
+        }
+      ],
+      "critique_tags": ["Stakes", "Tension"],
+      "schema_version": "CompanionMessageSchema v1"
+    }
+  ],
+  "budget": {
+    "estimated_usd": 0.18,
+    "spent_usd": 3.42,
+    "soft_cap_usd": 5.0,
+    "hard_cap_usd": 10.0,
+    "status": "ok"
+  },
+  "trace_id": "uuidv4"
+}
+```
+
+**Errors**
+- `VALIDATION` (missing project or draft unit context)
+- `BUDGET_EXCEEDED` (estimated cost breaches hard cap)
+- `RATE_LIMIT` (prompt interval <30s)
+- `INTERNAL`
+
+**Notes**
+- Response may be delivered via server-sent events; when streaming the final frame matches shape above.
+- `rubric_id` optional; omitted defaults to project rubric selection.
+
+---
+
+### POST /api/v1/critique/batch
+Runs critique across multiple units asynchronously. Initiates a batch job and returns handle.
+
+**Request**
+```json
+{
+  "project_id": "proj_123",
+  "unit_ids": ["sc_0001", "sc_0002", "sc_0003"],
+  "rubric_id": "rubric_custom_01",
+  "priority": "normal"
+}
+```
+
+**Response 202**
+```json
+{
+  "batch_id": "cb_20251010_001",
+  "units": 3,
+  "status": "queued",
+  "schema_version": "CritiqueBatchSchema v1",
+  "budget": {
+    "estimated_usd": 0.96,
+    "spent_usd": 3.42,
+    "soft_cap_usd": 5.0,
+    "hard_cap_usd": 10.0,
+    "status": "warning"
+  },
+  "trace_id": "uuidv4"
+}
+```
+
+**Errors**
+- `VALIDATION` (no units or >10 units)
+- `BUDGET_EXCEEDED` (batch pushes over hard cap)
+- `CONFLICT` (existing batch running for same units)
+- `RATE_LIMIT` (queue depth exceeded)
+
+**Notes**
+- Service persists per-unit critiques to standard manifest; batch metadata needed for critique bundle export.
+- Batch completion events push notifications to History toast queue.
+
+#### GET /api/v1/critique/batch/{batch_id}
+Retrieves batch status and collected outputs.
+
+**Response 200**
+```json
+{
+  "batch_id": "cb_20251010_001",
+  "status": "complete",
+  "units": [
+    { "unit_id": "sc_0001", "status": "complete" },
+    { "unit_id": "sc_0002", "status": "complete" },
+    { "unit_id": "sc_0003", "status": "failed", "error_code": "VALIDATION" }
+  ],
+  "manifest_path": "exports/critique/cb_20251010_001/manifest.json",
+  "started_at": "2025-10-10T18:05:00Z",
+  "completed_at": "2025-10-10T18:07:30Z",
+  "schema_version": "CritiqueBatchSchema v1",
+  "trace_id": "uuidv4"
+}
+```
+
+**Errors**
+- `VALIDATION` (unknown batch)
+- `INTERNAL`
+
+---
+
+### GET /api/v1/budget/summary
+Provides data for the budget meter footer and ledger export.
+
+**Response 200**
+```json
+{
+  "project_id": "proj_123",
+  "budget": {
+    "soft_cap_usd": 5.0,
+    "hard_cap_usd": 10.0,
+    "spent_usd": 3.42,
+    "pending_usd": 0.18,
+    "projected_next_usd": 0.32,
+    "status": "warning"
+  },
+  "ledger": [
+    { "timestamp": "2025-10-10T17:55:00Z", "action": "companion_query", "cost_usd": 0.12 },
+    { "timestamp": "2025-10-10T18:00:00Z", "action": "critique_batch", "cost_usd": 0.24 }
+  ],
+  "schema_version": "BudgetSnapshotSchema v1",
+  "trace_id": "uuidv4"
+}
+```
+
+**Errors**
+- `VALIDATION` (project missing)
+- `INTERNAL`
+
+**Notes**
+- Endpoint must respond within 200 ms; cache ledger entries in-memory with 30s TTL.
+- Supports query params `?since=` ISO timestamp to trim ledger list.
+
+---
+
+### GET /api/v1/rubrics
+Returns project rubric templates (system + custom).
+
+**Response 200**
+```json
+{
+  "project_id": "proj_123",
+  "rubrics": [
+    {
+      "rubric_id": "rubric_default",
+      "name": "Core Horror",
+      "description": "Baseline rubric shipped with Black Skies.",
+      "criteria": [
+        { "id": "stakes", "label": "Stakes", "weight": 0.2 },
+        { "id": "atmosphere", "label": "Atmosphere", "weight": 0.2 }
+      ],
+      "schema_version": "RubricTemplateSchema v1",
+      "locked": true
+    }
+  ],
+  "trace_id": "uuidv4"
+}
+```
+
+**Errors**
+- `VALIDATION`
+- `INTERNAL`
+
+---
+
+### POST /api/v1/rubrics
+Creates or updates a project-specific rubric template.
+
+**Request**
+```json
+{
+  "project_id": "proj_123",
+  "name": "Claustrophobic Horror",
+  "description": "Highlights sensory detail and pacing.",
+  "criteria": [
+    { "id": "tension", "label": "Tension", "weight": 0.3 },
+    { "id": "sensory", "label": "Sensory Detail", "weight": 0.2 }
+  ]
+}
+```
+
+**Response 201**
+```json
+{
+  "rubric_id": "rubric_custom_01",
+  "schema_version": "RubricTemplateSchema v1",
+  "created_at": "2025-10-10T18:10:00Z",
+  "trace_id": "uuidv4"
+}
+```
+
+**Errors**
+- `VALIDATION` (duplicate name, >12 criteria, weight totals not 1.0)
+- `RATE_LIMIT` (more than 5 custom rubrics)
+- `INTERNAL`
+
+---
+
+### POST /api/v1/exports/critique_bundle
+Materialises critique bundle (Markdown or PDF) based on latest batch results.
+
+**Request**
+```json
+{
+  "project_id": "proj_123",
+  "batch_id": "cb_20251010_001",
+  "format": "pdf"
+}
+```
+
+**Response 202**
+```json
+{
+  "export_id": "exp_critique_001",
+  "status": "queued",
+  "output_path": "exports/critique/cb_20251010_001/critique_bundle.pdf",
+  "schema_version": "CritiqueBundleExportSchema v1",
+  "trace_id": "uuidv4"
+}
+```
+
+**Errors**
+- `VALIDATION` (missing batch or format not in `["md","pdf"]`)
+- `CONFLICT` (export already running)
+- `INTERNAL`
+
+**Notes**
+- Export reuses analytics snapshot metadata; ensures budgets appended to bundle.
+- When `format` is `md`, respond `200` with inline payload if `?inline=true` query param provided.
+
+---
+
+### POST /api/v1/exports/analytics_summary
+Generates analytics summary (Markdown/PDF) as described in `docs/exports.md`.
+
+**Request**
+```json
+{
+  "project_id": "proj_123",
+  "format": "md",
+  "include_companion_notes": true
+}
+```
+
+**Response 200**
+```json
+{
+  "content": "## Analytics Snapshot...",
+  "schema_version": "AnalyticsSummarySchema v1",
+  "trace_id": "uuidv4"
+}
+```
+
+**Errors**
+- `VALIDATION` (format not md/pdf)
+- `INTERNAL`
+
+**Notes**
+- When `format` is `pdf` respond `202` with `export_id` similar to critique bundle export.
