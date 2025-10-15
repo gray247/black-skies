@@ -31,6 +31,8 @@ try {
 
 Set-Location -LiteralPath $RepoRoot
 
+$script:pnpmShimEnsured = $false
+
 function Resolve-PowerShellHost {
   param(
     [string[]]$Candidates = @("pwsh.exe", "pwsh", "powershell.exe", "powershell")
@@ -99,6 +101,10 @@ function Ensure-Node {
 function Ensure-PnpmShim {
   Write-Host "Ensuring pnpm shim is active..." -ForegroundColor Yellow
 
+  if ($script:pnpmShimEnsured) {
+    return
+  }
+
   $corepackInstallDir = $env:BS_COREPACK_BIN
   if (-not $corepackInstallDir -and $env:COREPACK_HOME) {
     $corepackInstallDir = Join-Path $env:COREPACK_HOME "shims"
@@ -130,6 +136,8 @@ function Ensure-PnpmShim {
   if (-not (Get-Command pnpm -ErrorAction SilentlyContinue)) {
     throw "pnpm shim not found after Corepack activation (searched $corepackInstallDir)."
   }
+
+  $script:pnpmShimEnsured = $true
 }
 
 function Sync-Node {
@@ -137,7 +145,7 @@ function Sync-Node {
   Ensure-PnpmShim
 
   Write-Host "Syncing pnpm workspaces..." -ForegroundColor Yellow
-  pnpm install --recursive
+  pnpm install --frozen-lockfile --prefer-frozen-lockfile
 }
 
 function Resolve-ProjectBaseDir {
