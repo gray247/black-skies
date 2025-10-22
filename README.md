@@ -46,6 +46,18 @@ Prereqs: **Node 20 LTS**, **PNPM**, **Python 3.11**
 
    > Prefer manual control? Follow the step-by-step commands in `docs/quickstart.md`.
 
+### Companion overlay & budget meter (P8)
+
+Once the desktop shell is running:
+
+1. Click the **Companion** button in the workspace header (next to the Generate/Critique buttons).
+2. Use the *Add category* field to create or remove rubric entries. Duplicate or blank values are ignored and a toast explains what changed.
+3. Tick one or more scenes in the *Batch critique* list, then press **Run batch critique** to queue critiques with graceful cancellation.
+4. Trigger a draft preflight (click **Generate**, then **Proceed**) to seed the budget meter in the header; once generation or critique jobs finish, the meter refreshes with the cumulative spend so the `Spent` label always reflects real usage.
+5. Close the meter by dismissing the latest estimate or re-running preflight when you're ready for a fresh projection.
+
+The overlay surfaces scene insights (word counts, pacing hints) and the meter tracks projected spend so you can spot soft or hard limit issues before committing work.
+
 ### Service configuration
 
 - Copy `.env.example` to `.env` before launching the stack. Update
@@ -71,16 +83,28 @@ Prereqs: **Node 20 LTS**, **PNPM**, **Python 3.11**
 
 ### Security & operations
 
-- Dependency scans: `.github/workflows/security.yml` runs `pip-audit --strict` on every pull request and daily at 06:00 UTC.
-- Reproduce locally:
-  ```bash
+- Dependency scans: `.github/workflows/security.yml` runs `pip-audit --strict` (JSON artefact) and `safety check` on every pull request and daily at 06:00 UTC, uploading reports for review.
+  - Reproduce locally:
+    ```bash
   python -m venv .venv
   source .venv/bin/activate
   pip install .[dev]
-  pip install pip-audit
+  pip install pip-audit safety
   pip-audit --strict -r requirements.lock -r requirements.dev.lock
+  safety check --file requirements.lock --file requirements.dev.lock
   ```
 - On Windows PowerShell, activate with `..\.venv\Scripts\Activate.ps1` before running the same commands.
+
+### Load sanity check (P8)
+
+- Install the dev lockfile (`pip install -r requirements.dev.lock`) before running load or e2e sweeps so `pydantic-settings` is available and (on Linux/macOS) `uvloop` can accelerate asyncio; Windows installs will skip `uvloop` automatically.
+
+- Run a light batch-queue load test before shipping:
+  ```bash
+  python scripts/load.py --total-cycles 4 --concurrency 2 --start-service
+  ```
+  The harness auto-starts `uvicorn blackskies.services.app:create_app --factory` on the requested port, waits for `/api/v1/healthz`, and tears it down after the cycles complete. Override the launch command with `--service-command "uvicorn ..."` if you need custom flags.
+- Rotate additional scenes (larger outlines) by setting `--scene-count N`; the runner cycles through the first `N` outline scenes across all cycles.
 
 ### Continuous integration
 

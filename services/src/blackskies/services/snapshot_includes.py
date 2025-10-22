@@ -11,6 +11,7 @@ from typing import Sequence
 from uuid import uuid4
 
 DEFAULT_SNAPSHOT_INCLUDES: tuple[str, ...] = ("drafts", "outline.json", "project.json")
+SNAPSHOT_IGNORE_PATTERNS: tuple[str, ...] = ("*.tmp",)
 
 _FSYNC_IGNORE_ERRNOS = {errno.EBADF}
 _ENOSYS = getattr(errno, "ENOSYS", None)
@@ -102,7 +103,12 @@ def copy_include_entries(include_specs: Sequence[SnapshotIncludeSpec]) -> list[s
             continue
         if spec.source_path.is_dir():
             _assert_no_symlinks(spec.source_path, spec.token)
-            shutil.copytree(spec.source_path, spec.target_path, dirs_exist_ok=True)
+            shutil.copytree(
+                spec.source_path,
+                spec.target_path,
+                dirs_exist_ok=True,
+                ignore=shutil.ignore_patterns(*SNAPSHOT_IGNORE_PATTERNS),
+            )
         else:
             if spec.source_path.is_symlink():
                 raise ValueError(

@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\models\wizard.py
+# hypothesis_version: 6.138.2
+
+['OutlineBuildRequest', 'WIZARD_LOCK_STEPS', 'WizardActLock', 'WizardChapterLock', 'WizardLocks', 'WizardSceneLock', '\\', 'beats', 'chapters', 'characters', 'conflict', 'finalize', 'framing', 'includes', 'input_scope', 'pacing', 'project_id', 'scenes', 'structure', 'themes']

@@ -1,0 +1,30 @@
+{
+  "schema_version": "BatchCritiqueSummary v1",
+  "project_id": "proj_esther_estate",
+  "unit_id": "sc_0001",
+  "draft_id": "dr_sc0001_19a0ce72ba5_965f72",
+  "rubric": [
+    "Continuity",
+    "Pacing",
+    "Voice"
+  ],
+  "summary": "Clear goal/stakes. Mid-scene lulls around lines 48–55.",
+  "priorities": [
+    "Tighten run-ons at 48–55",
+    "Keep POV strict; remove two omniscient asides"
+  ],
+  "model": {
+    "name": "critique_model_vY",
+    "provider": "openai"
+  },
+  "captured_at": "2025-10-22T17:11:07.966974Z",
+  "budget": {
+    "estimated_usd": 0.02,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 12.5,
+    "hard_limit_usd": 25.0,
+    "spent_usd": 0.78,
+    "total_after_usd": 0.78
+  }
+}

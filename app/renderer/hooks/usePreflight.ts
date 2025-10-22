@@ -26,6 +26,7 @@ interface UsePreflightOptions {
   setProjectDrafts: React.Dispatch<React.SetStateAction<Record<string, string>>>;
   setDraftEdits: React.Dispatch<React.SetStateAction<Record<string, string>>>;
   reloadProjectFromDisk: () => Promise<void>;
+  onBudgetUpdate?: (budget: DraftGenerateBridgeResponse['budget']) => void;
 }
 
 const INITIAL_STATE: PreflightState = {
@@ -60,6 +61,7 @@ export function usePreflight({
   setProjectDrafts,
   setDraftEdits,
   reloadProjectFromDisk,
+  onBudgetUpdate,
 }: UsePreflightOptions) {
   const [state, setState] = useState<PreflightState>(INITIAL_STATE);
 
@@ -171,6 +173,10 @@ export function usePreflight({
         estimate: undefined,
       });
 
+      if (result.data.budget) {
+        onBudgetUpdate?.(result.data.budget);
+      }
+
       pushToast({
         tone: 'success',
         title: 'Draft generation requested',
@@ -202,6 +208,7 @@ export function usePreflight({
     setProjectDrafts,
     setDraftEdits,
     reloadProjectFromDisk,
+    onBudgetUpdate,
   ]);
 
   return {

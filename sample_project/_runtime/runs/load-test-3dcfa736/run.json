@@ -1,0 +1,19 @@
+{
+  "run_id": "load-test-3dcfa736",
+  "kind": "load-test",
+  "params": {
+    "profile": "default",
+    "host": "127.0.0.1",
+    "port": 43750,
+    "project_id": "proj_esther_estate",
+    "total_cycles": 4,
+    "concurrency": 2
+  },
+  "status": "failed",
+  "created_at": "2025-10-18T00:52:50.905691Z",
+  "updated_at": "2025-10-18T00:53:52.427094Z",
+  "events": [],
+  "result": {
+    "error": "Service at http://127.0.0.1:43750 did not become ready within 60.0 seconds."
+  }
+}

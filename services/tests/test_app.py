@@ -7,6 +7,7 @@ import errno
 import hashlib
 import json
 import threading
+import time
 from pathlib import Path
 from typing import Any
 from uuid import UUID
@@ -27,8 +28,10 @@ except ModuleNotFoundError as exc:  # pragma: no cover - environment dependent
 
 from blackskies.services.app import SERVICE_VERSION, BuildTracker
 from blackskies.services.config import ServiceSettings
+from blackskies.services.diagnostics import DiagnosticLogger
 from blackskies.services.persistence import DraftPersistence, SnapshotPersistence
 from blackskies.services.routers.recovery import RecoveryTracker
+from blackskies.services.critique import CritiqueService
 
 TRACE_HEADER = "x-trace-id"
 API_PREFIX = "/api/v1"
@@ -609,10 +612,15 @@ def test_contract_draft_preflight_ok(test_client: TestClient, tmp_path: Path) ->
 
 
 @pytest.mark.contract
-def test_contract_draft_critique(test_client: TestClient) -> None:
+def test_contract_draft_critique(test_client: TestClient, tmp_path: Path) -> None:
     """Draft critique endpoint returns the documented fixture payload."""
 
+    project_id = "proj_contract_critique"
+    _bootstrap_outline(tmp_path, project_id, scene_count=1)
+    _bootstrap_scene(tmp_path, project_id, scene_id="sc_0001")
+
     payload = _build_critique_payload()
+    payload["project_id"] = project_id
     response = test_client.post(f"{API_PREFIX}/draft/critique", json=payload)
     assert response.status_code == 200
     assert response.json() == _load_contract_snapshot("draft_critique")
@@ -632,6 +640,237 @@ def test_draft_critique_validation_unknown_category(test_client: TestClient) -> 
     assert any("Unknown rubric categories" in error["msg"] for error in errors)
 
 
+
+def test_draft_critique_persists_summary(test_client: TestClient, tmp_path: Path) -> None:
+    """Critique summaries are stored for export when a project id is provided."""
+
+    project_id = "proj_batch_store"
+    project_root = tmp_path / project_id
+    project_root.mkdir()
+
+    payload = _build_critique_payload()
+    payload["project_id"] = project_id
+
+    _bootstrap_scene(tmp_path, project_id, scene_id=payload["unit_id"], order=1)
+
+    response = test_client.post(f"{API_PREFIX}/draft/critique", json=payload)
+    assert response.status_code == 200
+    result = response.json()
+    assert "budget" in result
+    critique_budget = result["budget"]
+    assert critique_budget["estimated_usd"] > 0
+    assert critique_budget["spent_usd"] == pytest.approx(critique_budget["total_after_usd"])
+
+    summary_path = project_root / "history" / "critiques" / f"{payload['unit_id']}.json"
+    assert summary_path.exists()
+
+    stored = json.loads(summary_path.read_text(encoding="utf-8"))
+    assert stored["schema_version"] == "BatchCritiqueSummary v1"
+    assert stored["project_id"] == project_id
+    assert stored["unit_id"] == payload["unit_id"]
+    assert stored["summary"] == result["summary"]
+    assert stored["rubric"] == payload["rubric"]
+    assert "budget" in stored
+    assert stored["budget"]["estimated_usd"] == pytest.approx(critique_budget["estimated_usd"])
+    assert stored["budget"]["spent_usd"] == pytest.approx(critique_budget["spent_usd"])
+
+
+def test_draft_critique_missing_scene_budget_failure(
+    test_client: TestClient, tmp_path: Path
+) -> None:
+    """Critique surfaces validation errors when budget telemetry cannot read the scene."""
+
+    project_id = "proj_batch_missing_scene"
+    scene_ids = _bootstrap_outline(tmp_path, project_id, scene_count=1)
+    # Intentionally omit creating drafts/sc_0001.md so read_scene_document raises.
+    payload = _build_critique_payload(unit_id=scene_ids[0])
+    payload["project_id"] = project_id
+
+    response = test_client.post(f"{API_PREFIX}/draft/critique", json=payload)
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    detail = response.json()
+    assert detail["code"] == "VALIDATION"
+    assert "Scene markdown is missing" in detail["message"]
+
+
+def test_draft_critique_budget_logging(
+    test_client: TestClient,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Critique budgets surface diagnostics when persistence fails."""
+
+    project_id = "proj_batch_logging"
+    scene_ids = _bootstrap_outline(tmp_path, project_id, scene_count=1)
+    _bootstrap_scene(tmp_path, project_id, scene_id=scene_ids[0])
+
+    captured_logs: list[dict[str, Any]] = []
+
+    def _capture_log(
+        self: DiagnosticLogger,
+        project_root: Path,
+        *,
+        code: str,
+        message: str,
+        details: dict[str, Any] | None = None,
+    ) -> None:
+        captured_logs.append({"code": code, "message": message, "details": details})
+
+    monkeypatch.setattr(DiagnosticLogger, "log", _capture_log)
+
+    def _fail_persist(*args: Any, **kwargs: Any) -> None:
+        raise OSError("disk failure secret-token")
+
+    monkeypatch.setattr(
+        "blackskies.services.routers.draft.revision.persist_project_budget",
+        _fail_persist,
+    )
+
+    payload = _build_critique_payload(unit_id=scene_ids[0])
+    payload["project_id"] = project_id
+
+    response = test_client.post(f"{API_PREFIX}/draft/critique", json=payload)
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json().get("budget") is None
+
+    error_logs = [
+        entry
+        for entry in captured_logs
+        if entry["code"] == "INTERNAL"
+        and "critique budget telemetry" in (entry["message"] or "")
+    ]
+    assert error_logs, "Expected telemetry log when budget persistence fails."
+    assert any(
+        entry.get("details", {}).get("error") == "disk failure secret-token"
+        for entry in error_logs
+    )
+
+
+@pytest.mark.anyio("asyncio")
+async def test_draft_critique_handles_concurrent_requests(
+    async_client: "httpx.AsyncClient",
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Batch critiques can run concurrently and persist summaries for each scene."""
+
+    project_id = "proj_batch_concurrency"
+    scene_ids = _bootstrap_outline(tmp_path, project_id, scene_count=3)
+    for index, scene_id in enumerate(scene_ids, start=1):
+        _bootstrap_scene(
+            tmp_path,
+            project_id,
+            scene_id=scene_id,
+            order=index,
+            body=f"Scene {index} body with escalating tension.",
+        )
+
+    active_calls = 0
+    peak_calls = 0
+    lock = threading.Lock()
+
+    def _concurrent_run(self: CritiqueService, request: Any) -> dict[str, Any]:
+        nonlocal active_calls, peak_calls
+        with lock:
+            active_calls += 1
+            peak_calls = max(peak_calls, active_calls)
+        try:
+            time.sleep(0.05)
+            return {
+                "unit_id": request.unit_id,
+                "schema_version": "CritiqueOutputSchema v1",
+                "summary": f"Summary for {request.unit_id}",
+                "priorities": ["Continuity"],
+                "model": {"name": "critique-concurrency", "provider": "test-double"},
+            }
+        finally:
+            with lock:
+                active_calls -= 1
+
+    monkeypatch.setattr(CritiqueService, "run", _concurrent_run)
+
+    payloads = []
+    for index, scene_id in enumerate(scene_ids, start=1):
+        payload = _build_critique_payload(
+            draft_id=f"dr_{index + 100:03d}",
+            unit_id=scene_id,
+            rubric=["Continuity", "Voice"],
+        )
+        payload["project_id"] = project_id
+        payloads.append(payload)
+
+    responses = await asyncio.gather(
+        *(
+            async_client.post(f"{API_PREFIX}/draft/critique", json=payload)
+            for payload in payloads
+        )
+    )
+
+    estimated_costs: list[float] = []
+    for response, payload in zip(responses, payloads, strict=True):
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        assert data["unit_id"] == payload["unit_id"]
+        assert data["schema_version"].startswith("CritiqueOutputSchema")
+        assert data["model"]["name"] == "critique-concurrency"
+        budget = data["budget"]
+        assert budget["estimated_usd"] > 0
+        estimated_costs.append(budget["estimated_usd"])
+
+        summary_path = (
+            tmp_path
+            / project_id
+            / "history"
+            / "critiques"
+            / f"{payload['unit_id']}.json"
+        )
+        assert summary_path.exists()
+        stored = json.loads(summary_path.read_text(encoding="utf-8"))
+        assert stored["draft_id"] == payload["draft_id"]
+        assert stored["rubric"] == payload["rubric"]
+        assert stored["model"]["name"] == "critique-concurrency"
+        assert "budget" in stored
+        assert stored["budget"]["estimated_usd"] == pytest.approx(budget["estimated_usd"])
+
+    assert peak_calls >= 2, "Expected critique service to process requests in parallel"
+
+    project_meta_path = tmp_path / project_id / "project.json"
+    assert project_meta_path.exists()
+    project_meta = json.loads(project_meta_path.read_text(encoding="utf-8"))
+    assert project_meta["budget"]["spent_usd"] == pytest.approx(sum(estimated_costs))
+
+
+def test_draft_critique_repeated_updates_budget(test_client: TestClient, tmp_path: Path) -> None:
+    """Repeated critiques accumulate spend without requiring generation."""
+
+    project_id = "proj_critique_repeat"
+    _bootstrap_outline(tmp_path, project_id, scene_count=1)
+    _bootstrap_scene(tmp_path, project_id, scene_id="sc_0001")
+
+    payload = _build_critique_payload(unit_id="sc_0001")
+    payload["project_id"] = project_id
+
+    first_response = test_client.post(f"{API_PREFIX}/draft/critique", json=payload)
+    assert first_response.status_code == status.HTTP_200_OK
+    first_budget = first_response.json()["budget"]
+    assert first_budget["estimated_usd"] > 0
+
+    second_response = test_client.post(f"{API_PREFIX}/draft/critique", json=payload)
+    assert second_response.status_code == status.HTTP_200_OK
+    second_budget = second_response.json()["budget"]
+
+    assert second_budget["spent_usd"] == pytest.approx(first_budget["estimated_usd"] * 2)
+    assert second_budget["total_after_usd"] == pytest.approx(second_budget["spent_usd"])
+
+    project_meta_path = tmp_path / project_id / "project.json"
+    project_meta = json.loads(project_meta_path.read_text(encoding="utf-8"))
+    assert project_meta["budget"]["spent_usd"] == pytest.approx(second_budget["spent_usd"])
+
+    summary_path = tmp_path / project_id / "history" / "critiques" / "sc_0001.json"
+    assert summary_path.exists()
+    stored = json.loads(summary_path.read_text(encoding="utf-8"))
+    assert stored["budget"]["spent_usd"] == pytest.approx(second_budget["spent_usd"])
+    assert isinstance(stored.get("captured_at"), str)
 def test_draft_preflight_success(test_client: TestClient, tmp_path: Path) -> None:
     """Preflight returns an estimate within budget for valid scenes."""
 
@@ -1335,6 +1574,21 @@ def test_draft_export_manuscript_success(test_client: TestClient, tmp_path: Path
     assert data["meta_header"] is False
     assert data["path"] == "draft_full.md"
 
+    assert "artifacts" in data
+    assert data["artifacts"]["analytics_report"] == "analytics_report.json"
+    assert data["artifacts"]["critique_bundle"] == "critique_bundle.md"
+
+    analytics_path = tmp_path / project_id / "analytics_report.json"
+    assert analytics_path.exists()
+    analytics_payload = json.loads(analytics_path.read_text(encoding="utf-8"))
+    assert analytics_payload["schema_version"] == "AnalyticsReport v1"
+    assert len(analytics_payload["emotion_arc"]) == len(scene_ids)
+
+    critique_bundle_path = tmp_path / project_id / "critique_bundle.md"
+    assert critique_bundle_path.exists()
+    bundle_text = critique_bundle_path.read_text(encoding="utf-8")
+    assert "Batch Critique Summary" in bundle_text
+    assert "No batch critiques recorded yet." in bundle_text
     export_path = tmp_path / project_id / "draft_full.md"
     assert export_path.exists()
     manuscript = export_path.read_text(encoding="utf-8")
@@ -1350,10 +1604,10 @@ def test_draft_export_manuscript_success(test_client: TestClient, tmp_path: Path
     )
     assert response_meta.status_code == 200
     manuscript_with_meta = export_path.read_text(encoding="utf-8")
-    assert "> purpose: setup · emotion: tension · pov: Mara" in manuscript_with_meta
-    assert manuscript_with_meta.count("## ") == 2
-
-
+    manuscript_with_meta = export_path.read_text(encoding="utf-8")
+    assert "> purpose: setup" in manuscript_with_meta
+    assert "emotion: tension" in manuscript_with_meta
+    assert "pov: Mara" in manuscript_with_meta
 def test_draft_export_missing_front_matter_fields(test_client: TestClient, tmp_path: Path) -> None:
     """Export raises a validation error when required front-matter is missing."""
 

@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\diagnostics.py
+# hypothesis_version: 6.138.2
+
+['%Y%m%dT%H%M%S%fZ', '+00:00', '-', '-+', 'DiagnosticLogger', 'Z', '[\\\\/]+', '[^a-z0-9_-]+', 'code', 'details', 'diagnostic', 'diagnostics', 'history', 'message', 'timestamp']

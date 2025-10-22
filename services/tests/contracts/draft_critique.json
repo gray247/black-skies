@@ -12,5 +12,14 @@
   "suggested_edits": [
     {"range": [410, 432], "replacement": "She kills the light and listens."}
   ],
-  "model": {"name": "critique_model_vY", "provider": "openai"}
+  "model": {"name": "critique_model_vY", "provider": "openai"},
+  "budget": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.01,
+    "total_after_usd": 0.01
+  }
 }

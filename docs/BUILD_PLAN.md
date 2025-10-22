@@ -1,17 +1,17 @@
 - Add a real `POST /api/v1/draft/preflight` FastAPI route inside the draft router.
 
 - `/api/v1/draft/preflight` responds with status + estimate for valid requests and surfaces validation errors for bad IDs/over-limit batches.
-“Implement Phase P1.0: add `/api/v1/draft/preflight` to the FastAPI service, returning budget status and estimates with tests.”
+Implement Phase P1.0: add `/api/v1/draft/preflight` to the FastAPI service, returning budget status and estimates with tests.
 
 - Update the preload bridge to call the real `/api/v1/draft/preflight` endpoint (remove offline fallback).
 
-“Implement Phase P1.1: hook the renderer into `/api/v1/draft/preflight`, update the modal, and add Vitest coverage.”
+Implement Phase P1.1: hook the renderer into `/api/v1/draft/preflight`, update the modal, and add Vitest coverage.
 
 - Extend the service with an endpoint to accept critique suggestions (e.g., `POST /api/v1/draft/accept`).
 
 ---
 
-## Milestone P1 â€” Preflight & Budgeting
+## Milestone P1 - Preflight & Budgeting
 *Status: Completed 2025-09-29 - implemented in the black_skies package.*
 
 ### P1.0 Preflight service endpoint
@@ -26,7 +26,7 @@
 - Pytest includes success + validation cases.
 
 **Codex ask**
-â€œImplement Phase P1.0: add `/draft/preflight` to the FastAPI service, returning budget status and estimates with tests.â€
+Implement Phase P1.0: add `/draft/preflight` to the FastAPI service, returning budget status and estimates with tests.
 
 ---
 
@@ -42,14 +42,14 @@
 - Vitest covers happy path + validation failure.
 
 **Codex ask**
-â€œImplement Phase P1.1: hook the renderer into `/draft/preflight`, update the modal, and add Vitest coverage.â€
+Implement Phase P1.1: hook the renderer into `/draft/preflight`, update the modal, and add Vitest coverage.
 
 ---
 
 ### P1.2 Docs & regression tests
 **Do**
 - Document the preflight workflow in `README.md` and `docs/endpoints.md`.
-- Add regression tests for preflight â†’ generate (pytest + Vitest as appropriate).
+- Add regression tests for preflight  generate (pytest + Vitest as appropriate).
 - Update `phase_log.md` with the new capability.
 
 **Accept when**
@@ -57,11 +57,11 @@
 - Test suites cover the regression path.
 
 **Codex ask**
-â€œImplement Phase P1.2: document the preflight flow, add regression tests, and update the phase log.â€
+Implement Phase P1.2: document the preflight flow, add regression tests, and update the phase log.
 
 ---
 
-## Milestone P2 â€” Critique Accept & Snapshots
+## Milestone P2 - Critique Accept & Snapshots
 *Status: Completed 2025-09-29 - superseded by new acceptance and snapshot flows.*
 
 > Detailed breakdown for these steps now lives in `docs/P2_ACCEPT_PLAN.md` (see numbered tasks for routing, snapshots, and renderer UX follow-ups).
@@ -77,7 +77,7 @@
 - Tests cover accept success, stale/conflict errors, and history logging.
 
 **Codex ask**
-â€œImplement Phase P2.0: add an accept endpoint that applies critique diffs, persists history, and includes tests.â€
+Implement Phase P2.0: add an accept endpoint that applies critique diffs, persists history, and includes tests.
 
 ---
 
@@ -92,7 +92,7 @@
 - Tests cover snapshot creation and restore path.
 
 **Codex ask**
-â€œImplement Phase P2.1: add snapshot persistence and crash recovery banner with tests.â€
+Implement Phase P2.1: add snapshot persistence and crash recovery banner with tests.
 
 ---
 
@@ -107,11 +107,11 @@
 - Automated smoke tests cover the flow.
 
 **Codex ask**
-â€œImplement Phase P2.2: build the renderer UX for critique accept/reject and history with tests.â€
+Implement Phase P2.2: build the renderer UX for critique accept/reject and history with tests.
 
 ---
 
-## Milestone P3 â€” Export & Packaging
+## Milestone P3 - Export & Packaging
 *Status: Completed 2025-09-29 - exports and packaging handled by new tooling.*
 
 ### P3.0 Export pipeline polish
@@ -124,7 +124,7 @@
 - Exported files match schema/format expectations and tests assert on content.
 
 **Codex ask**
-â€œImplement Phase P3.0: finalize the export pipeline (Markdown + YAML) with tests.â€
+Implement Phase P3.0: finalize the export pipeline (Markdown + YAML) with tests.
 
 ---
 
@@ -138,7 +138,7 @@
 - Both installer and portable builds run the app end-to-end.
 
 **Codex ask**
-â€œImplement Phase P3.1: produce Windows installer/portable builds and document the process.â€
+Implement Phase P3.1: produce Windows installer/portable builds and document the process.
 
 ---
 
@@ -152,11 +152,11 @@
 - Fresh clone can follow README to run full workflow; phase log/changelog reflect the release.
 
 **Codex ask**
-â€œImplement Phase P3.2: document the completed workflow in README/phase_log/CHANGELOG.â€
+Implement Phase P3.2: document the completed workflow in README/phase_log/CHANGELOG.
 
 ---
 
-## Milestone P4 â€” Observability & Release Wrap
+## Milestone P4 - Observability & Release Wrap
 
 ### P4.0 Metrics & structured logging
 **Do**
@@ -168,7 +168,7 @@
 - Metrics increase under tests, logs show structured entries, docs describe usage.
 
 **Codex ask**
-â€œImplement Phase P4.0: add metrics and structured logging with documentation.â€
+Implement Phase P4.0: add metrics and structured logging with documentation.
 
 ---
 
@@ -182,7 +182,7 @@
 - Docs are up-to-date, tests pass, tag is created, and CI reports success.
 
 **Codex ask**
-â€œImplement Phase P4.1: finalize documentation, tag the release, and ensure CI passes.â€
+Implement Phase P4.1: finalize documentation, tag the release, and ensure CI passes.
 
 ---
 
@@ -192,10 +192,14 @@
 - Each step must update or add tests relevant to the change.
 - Honour offline constraints when possible (use existing wheels/skip Node installs if blocked).
 - After merging a step, run `bash scripts/next.sh` to record progress and see the next step.
-\n## 2025-09-29 — Observability baseline (LOCKED)
+
+## 2025-09-29 - Observability baseline (LOCKED)
 - Added structured JSON logging with trace IDs and unified error payloads.
 - Introduced `/metrics` endpoint shipping counters for HTTP and domain requests.
 - Updated RUNBOOK with logging/metrics guidance.
 
+## 2025-09-29 - Agents and orchestration scaffolding (LOCKED)
+- Introduced retry-capable agents (outline, draft, rewrite, critique) under black_skies/agents/.
+- Added AgentOrchestrator utilities coordinating serial and parallel runs using shared settings.
+- Added pytest coverage for retry backoff and orchestration flows.
 
-## 2025-09-29 - Agents and orchestration scaffolding (LOCKED)\n- Introduced retry-capable agents (outline, draft, rewrite, critique) under black_skies/agents/.\n- Added AgentOrchestrator utilities coordinating serial and parallel runs using shared settings.\n- Added pytest coverage for retry backoff and orchestration flows.\n\n

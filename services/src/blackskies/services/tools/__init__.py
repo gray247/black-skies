@@ -13,6 +13,14 @@ from .base import (
 )
 from .file_store import FileStoreTool
 from .registry import ToolDecision, ToolRegistry
+from .resilience import (
+    ToolCircuitBreaker,
+    ToolCircuitOpenError,
+    ToolExecutionError,
+    ToolResilienceConfig,
+    ToolRunner,
+    ToolTimeoutError,
+)
 from .safety import SafetyReport, SafetyViolation, postflight_scrub, preflight_check
 from .search import MarkdownSearchTool
 from .summarizer import SummarizerTool
@@ -29,6 +37,12 @@ __all__ = [
     "ToolInvocationContext",
     "ToolMetadata",
     "ToolRegistry",
+    "ToolResilienceConfig",
+    "ToolRunner",
+    "ToolCircuitBreaker",
+    "ToolExecutionError",
+    "ToolTimeoutError",
+    "ToolCircuitOpenError",
     "ToolResult",
     "SafetyReport",
     "SafetyViolation",

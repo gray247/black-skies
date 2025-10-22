@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\tools\registry.py
+# hypothesis_version: 6.138.2
+
+["'", '*', '- [', 'AI', 'H', 'NFKD', 'ToolDecision', 'ToolRegistry', '[^a-z0-9]+', ']', '_', '_tool', 'ai', 'allow', 'allowed', 'ascii', 'checklist.ai', 'checklist.human', 'checklist.unknown', 'checklist_item', 'checklist_slug', 'code', 'context', 'deny', 'details', 'docs', 'extra_payload', 'file-store', 'file_store', 'file_store_tool', 'ignore', 'markdown_search', 'markdown_search_tool', 'message', 'project.allow', 'project.deny', 'project.json', 'project_id', 'r', 'reason', 'requested_name', 'safety', 'search', 'source', 'summarizer', 'summarizer_tool', 'template', 'template_renderer', 'text', 'tool', 'tool.approved', 'tool.denied', 'tools', 'utf-8', '→']

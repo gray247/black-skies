@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\tools\summarizer.py
+# hypothesis_version: 6.138.2
+
+[0.0, '(?<=[.!?])\\s+', "[A-Za-z0-9']+", 'a', 'an', 'and', 'are', 'as', 'at', 'be', 'but', 'by', 'cpu-only', 'for', 'if', 'in', 'input_length', 'into', 'is', 'it', 'its', 'of', 'on', 'operation', 'or', 'original_sentences', 'requested_sentences', 'selected_sentences', 'sentences', 'status', 'success', 'such', 'summarize', 'summarizer', 'that', 'the', 'their', 'then', 'there', 'these', 'they', 'this', 'to', 'was', 'will', 'with']

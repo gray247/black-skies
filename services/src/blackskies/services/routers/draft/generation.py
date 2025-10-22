@@ -5,13 +5,13 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from fastapi import Depends
+from fastapi import Depends, HTTPException, status
 from pydantic import ValidationError
 
 from ...config import ServiceSettings
 from ...diagnostics import DiagnosticLogger
 from ...export import load_outline_artifact
-from ...http import raise_validation_error
+from ...http import raise_service_error, raise_validation_error
 from ...models.draft import DraftGenerateRequest
 from ...scene_docs import DraftRequestError
 from ..dependencies import get_diagnostics, get_settings
@@ -69,11 +69,29 @@ async def generate_draft(
         )
 
     generation_service = DraftGenerationService(settings=settings, diagnostics=diagnostics)
-    result = await generation_service.generate(
-        request_model,
-        scene_summaries,
-        project_root=project_root,
-    )
+    try:
+        result = await generation_service.generate(
+            request_model,
+            scene_summaries,
+            project_root=project_root,
+        )
+    except HTTPException:
+        raise
+    except Exception as exc:  # pragma: no cover - surfaced via diagnostics
+        diagnostics.log(
+            project_root,
+            code="INTERNAL",
+            message="Draft generation failed.",
+            details={"error": str(exc)},
+        )
+        raise_service_error(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            code="INTERNAL",
+            message="Failed to generate draft units.",
+            details={"project_id": request_model.project_id},
+            diagnostics=diagnostics,
+            project_root=project_root,
+        )
     return result.response
 
 

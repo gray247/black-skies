@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\routers\draft\__init__.py
+# hypothesis_version: 6.138.2
+
+['/draft', '_compute_sha256', 'acceptance', 'draft', 'export', 'generation', 'revision', 'router', 'wizard']

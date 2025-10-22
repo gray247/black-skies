@@ -481,6 +481,7 @@ function registerDiagnosticsIpc(): void {
 }
 
 async function createMainWindow(): Promise<BrowserWindow> {
+  const sandboxEnabled = app.isPackaged && process.platform !== 'win32';
   const window = new BrowserWindow({
     width: 1280,
     height: 840,
@@ -491,7 +492,7 @@ async function createMainWindow(): Promise<BrowserWindow> {
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
-      sandbox: true,
+      sandbox: sandboxEnabled,
       preload: join(__dirname, 'preload.js'),
     },
   });

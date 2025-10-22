@@ -122,6 +122,7 @@ export interface DraftGenerateBridgeResponse {
     soft_limit_usd?: number;
     hard_limit_usd?: number;
     spent_usd?: number;
+    total_after_usd?: number;
   };
 }
 
@@ -135,6 +136,7 @@ export interface DraftCritiqueBridgeRequest {
 export interface DraftCritiqueNote {
   line: number;
   note: string;
+  excerpt?: string;
 }
 
 export interface DraftCritiqueBridgeResponse {
@@ -144,6 +146,15 @@ export interface DraftCritiqueBridgeResponse {
   priorities?: string[];
   line_comments?: DraftCritiqueNote[];
   model?: { name: string; provider: string };
+  budget?: {
+    estimated_usd?: number;
+    status?: DraftPreflightStatus;
+    message?: string | null;
+    soft_limit_usd?: number;
+    hard_limit_usd?: number;
+    spent_usd?: number;
+    total_after_usd?: number;
+  };
 }
 
 export interface SnapshotSummary {
@@ -175,6 +186,15 @@ export interface DraftAcceptBridgeResponse {
   checksum: string;
   snapshot: SnapshotSummary;
   schema_version: 'DraftAcceptResult v1';
+  budget?: {
+    soft_limit_usd?: number;
+    hard_limit_usd?: number;
+    spent_usd?: number;
+    status?: DraftPreflightStatus;
+    message?: string | null;
+    estimated_usd?: number;
+    total_after_usd?: number;
+  };
 }
 
 export interface RecoveryStatusBridgeRequest {

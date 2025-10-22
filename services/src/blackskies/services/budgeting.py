@@ -5,12 +5,10 @@ from __future__ import annotations
 import copy
 import json
 import logging
-import os
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
-from uuid import uuid4
+from typing import TYPE_CHECKING, Any, Mapping
 
 from .diagnostics import DiagnosticLogger
 from .constants import (
@@ -18,6 +16,7 @@ from .constants import (
     DEFAULT_HARD_BUDGET_LIMIT_USD,
     DEFAULT_SOFT_BUDGET_LIMIT_USD,
 )
+from .persistence import write_text_atomic
 
 if TYPE_CHECKING:
     from .models.accept import DraftAcceptRequest
@@ -254,13 +253,7 @@ def persist_project_budget(state: ProjectBudgetState, new_spent_usd: float) -> N
     serialized = json.dumps(payload, indent=2, ensure_ascii=False)
 
     state.project_root.mkdir(parents=True, exist_ok=True)
-    temp_path = state.project_path.parent / f".{state.project_path.name}.{uuid4().hex}.tmp"
-    with temp_path.open("w", encoding="utf-8") as handle:
-        handle.write(serialized)
-        handle.flush()
-        os.fsync(handle.fileno())
-
-    temp_path.replace(state.project_path)
+    write_text_atomic(state.project_path, serialized, durable=True)
 
 
 __all__ = [
@@ -269,6 +262,7 @@ __all__ = [
     "DEFAULT_HARD_BUDGET_LIMIT_USD",
     "COST_PER_1000_WORDS_USD",
     "derive_accept_unit_cost",
+    "derive_critique_cost",
     "classify_budget",
     "load_project_budget_state",
     "persist_project_budget",
@@ -388,3 +382,23 @@ def derive_accept_unit_cost(
             details={"unit_id": request.unit_id},
         )
     return fallback_cost
+
+
+def derive_critique_cost(
+    body_text: str,
+    *,
+    front_matter: Mapping[str, Any] | None = None,
+) -> float:
+    """Estimate critique cost using existing scene text or metadata."""
+
+    cost = _estimate_cost_from_text(body_text)
+    if cost > 0:
+        return cost
+
+    if front_matter is not None:
+        word_target = front_matter.get("word_target")
+        if isinstance(word_target, (int, float)) and word_target > 0:
+            return round((float(word_target) / 1000.0) * COST_PER_1000_WORDS_USD, 2)
+
+    # Default to the minimum billable fraction (quarter kilotoken) to retain telemetry.
+    return round(COST_PER_1000_WORDS_USD * 0.25, 2)

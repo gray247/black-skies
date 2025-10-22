@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\outline_builder.py
+# hypothesis_version: 6.138.2
+
+['MissingLocksError', 'OutlineBuilder', 'act_index', 'acts', 'acts_available', 'chapter_index', 'chapter_title', 'chapters', 'missing', 'out_001', 'scene_title', 'scenes']

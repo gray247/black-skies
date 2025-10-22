@@ -41,6 +41,11 @@ class ServiceSettings(BaseModel):
         default_factory=_default_project_dir,
         description="Base directory containing project folders.",
     )
+    max_request_body_bytes: int = Field(
+        default=512 * 1024,
+        ge=16 * 1024,
+        description="Maximum allowed size in bytes for incoming request bodies.",
+    )
 
     @field_validator("project_base_dir")
     @classmethod
@@ -49,6 +54,13 @@ class ServiceSettings(BaseModel):
 
         if not value.exists():
             raise ValueError(f"Project base directory does not exist: {value}")
+        return value
+
+    @field_validator("max_request_body_bytes")
+    @classmethod
+    def _validate_body_limit(cls, value: int) -> int:
+        if value <= 0:
+            raise ValueError("max_request_body_bytes must be positive")
         return value
 
     @staticmethod

@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor
+from functools import wraps
 from typing import Any, Callable, Dict, Mapping
 
 from .agents.base import BaseAgent, CritiqueAgent, DraftAgent, OutlineAgent, RewriteAgent
 from .settings import Settings, get_settings
+from .tools.base import ToolContext
 from .tools.registry import ToolRegistry
+from .tools.resilience import ToolResilienceConfig, ToolRunner
 
 OperationPayload = Dict[str, Any]
 OperationResult = Dict[str, Any]
@@ -30,6 +33,7 @@ class AgentOrchestrator:
         tool_registry: ToolRegistry,
         tools: Mapping[str, Callable[..., Any]] | None = None,
         settings: Settings | None = None,
+        tool_resilience_config: ToolResilienceConfig | None = None,
     ) -> None:
         self.settings = settings or get_settings()
         self._agents: Dict[str, Callable[[OperationPayload], OperationResult]] = {}
@@ -41,6 +45,7 @@ class AgentOrchestrator:
         )
         self._tool_registry = tool_registry
         self._tools: Dict[str, Callable[..., Any]] = {}
+        self._tool_runner = ToolRunner(config=tool_resilience_config)
         if tools:
             for name, tool in tools.items():
                 self.register_tool(name, tool)
@@ -82,7 +87,28 @@ class AgentOrchestrator:
         )
         if not decision.allowed:
             raise ToolNotPermittedError(decision.reason)
-        return self._tools[canonical]
+        tool_impl = self._tools[canonical]
+
+        @wraps(tool_impl)
+        def _call(*args: Any, **kwargs: Any) -> Any:
+            context: ToolContext | None = None
+            if args and isinstance(args[0], ToolContext):
+                context = args[0]
+
+            def _operation() -> Any:
+                return tool_impl(*args, **kwargs)
+
+            return self._tool_runner.execute(
+                canonical,
+                _operation,
+                context=context,
+            )
+
+        for attr in ("metadata", "name", "context"):
+            if hasattr(tool_impl, attr):
+                setattr(_call, attr, getattr(tool_impl, attr))
+        _call.__wrapped__ = tool_impl  # type: ignore[attr-defined]
+        return _call
 
     def build_outline(self, payload: OperationPayload) -> OperationResult:
         return self._run_agent("outline", payload)

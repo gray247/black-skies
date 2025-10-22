@@ -4,16 +4,25 @@ from __future__ import annotations
 
 import json
 import logging
+from dataclasses import asdict
+from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 from pydantic import ValidationError
 
+from .analytics import generate_analytics_payload
 from .models.outline import OutlineArtifact, OutlineScene
 from .scene_docs import DraftRequestError, read_scene_document
 from .utils.paths import to_posix
 
 LOGGER = logging.getLogger(__name__)
+
+
+def _utc_timestamp() -> str:
+    """Return an ISO-8601 UTC timestamp with ``Z`` suffix."""
+
+    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
 
 def load_outline_artifact(project_root: Path) -> OutlineArtifact:
@@ -125,6 +134,7 @@ def compile_manuscript(
     outline: OutlineArtifact,
     *,
     include_meta_header: bool = False,
+    unit_collector: Callable[[OutlineScene, dict[str, Any], str], None] | None = None,
 ) -> tuple[str, int, int]:
     """Assemble the manuscript from outline metadata and scene documents."""
 
@@ -206,6 +216,8 @@ def compile_manuscript(
                 section_lines.append(meta_line)
 
             body_text = normalize_markdown(body)
+            if unit_collector is not None:
+                unit_collector(scene, dict(front_matter), body_text)
             if body_text.strip():
                 if meta_line:
                     section_lines.append("")
@@ -222,10 +234,70 @@ def compile_manuscript(
     return manuscript, chapter_count, scene_count
 
 
+def load_batch_critique_summaries(
+    project_root: Path,
+    outline: OutlineArtifact,
+) -> list[dict[str, Any]]:
+    """Return stored batch critique summaries ordered by scene."""
+
+    critiques_dir = project_root / "history" / "critiques"
+    if not critiques_dir.exists():
+        return []
+
+    summaries: list[dict[str, Any]] = []
+    for scene in sorted(outline.scenes, key=lambda item: item.order):
+        summary_path = critiques_dir / f"{scene.id}.json"
+        if not summary_path.exists():
+            continue
+        try:
+            with summary_path.open("r", encoding="utf-8") as handle:
+                payload = json.load(handle)
+        except (json.JSONDecodeError, OSError) as exc:
+            LOGGER.warning(
+                "Failed to load batch critique summary for scene %s from %s: %s",
+                scene.id,
+                to_posix(summary_path),
+                exc,
+            )
+            continue
+        summaries.append(
+            {
+                "scene_id": scene.id,
+                "order": scene.order,
+                "title": scene.title,
+                "summary": payload.get("summary"),
+                "priorities": payload.get("priorities") or [],
+                "rubric": payload.get("rubric") or [],
+                "captured_at": payload.get("captured_at"),
+            }
+        )
+    return summaries
+
+
+def build_analytics_report(
+    outline: OutlineArtifact,
+    draft_units: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """Assemble a JSON-serialisable analytics report payload."""
+
+    analytics_payload = generate_analytics_payload(
+        outline=outline.model_dump(),
+        draft_units=draft_units,
+    )
+    analytics_data = asdict(analytics_payload)
+    return {
+        "schema_version": "AnalyticsReport v1",
+        "generated_at": _utc_timestamp(),
+        **analytics_data,
+    }
+
+
 __all__ = [
     "build_meta_header",
+    "build_analytics_report",
     "compile_manuscript",
     "load_outline_artifact",
     "merge_front_matter",
     "normalize_markdown",
+    "load_batch_critique_summaries",
 ]

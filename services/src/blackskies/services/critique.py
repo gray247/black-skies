@@ -22,6 +22,7 @@ CATEGORIES: Final[list[str]] = [
     "Prose",
     "Horror",
 ]
+BLOCKED_RUBRIC_CATEGORIES: Final[set[str]] = {"unknown"}
 
 
 def _sentence_lengths(text: str) -> list[int]:
@@ -162,4 +163,10 @@ class CritiqueService:
         return self._cached_fixture
 
 
-__all__ = ["apply_rubric", "CritiqueService", "CRITIQUE_MODEL", "CATEGORIES"]
+__all__ = [
+    "apply_rubric",
+    "CritiqueService",
+    "CRITIQUE_MODEL",
+    "CATEGORIES",
+    "BLOCKED_RUBRIC_CATEGORIES",
+]

@@ -20,6 +20,8 @@ This document is the handoff for QA and support testers who want a clean way to 
 > corepack --version
 > ```
 
+- Install the Python dev lock (`pip install -r requirements.dev.lock`) so optional modules like `pydantic-settings` are present before you run the smoke or load scripts.
+
 ### Offline prerequisites (air-gapped QA)
 
 - While you still have network access, populate the cached wheels so Python installs succeed offline:
@@ -134,6 +136,7 @@ Use the bundled `sample_project/Esther_Estate` for smoke tests:
 
 - Automated: `./scripts/smoke.sh` (or `powershell -File .\scripts\smoke.ps1`) bootstraps the venv, starts the API, and runs three Wizard → Draft → Critique → Accept cycles against `proj_esther_estate`.
 - Manual: Launch the desktop shell, choose **Open Project**, browse to `sample_project/Esther_Estate`, and step through the Wizard → Generate → Critique → Accept flow to confirm the budget pill and recovery banner respond as expected.
+- Load sanity: python scripts/load.py --total-cycles 4 --concurrency 2 --start-service --scene-count 4 autostarts the FastAPI bridge, waits for /api/v1/healthz, rotates four scenes, and verifies critique telemetry updates the budget meter and ledger.
 
 ### Recovery banner smoke (manual trigger)
 

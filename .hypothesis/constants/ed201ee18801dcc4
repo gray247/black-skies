@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\yaml\__init__.py
+# hypothesis_version: 6.138.2
+
+['"', '#', "'", '(', '(?m)^\\s*---\\s*$', ')', ',', '- ', '.', ':', ':\t', ': ', 'E', 'Invalid JSON payload', 'YAMLError', '[', ']', 'e', 'false', 'none', 'null', 'read', 'safe_dump', 'safe_load', 'safe_load_all', 'true', 'utf-8', '{', '}', '~']

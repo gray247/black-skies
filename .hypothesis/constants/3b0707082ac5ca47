@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\operations\draft_generation.py
+# hypothesis_version: 6.138.2
+
+[0.02, 850, 1000, ',', ':', 'DraftUnitSchema v1', 'INTERNAL', 'blocked', 'body', 'budget', 'chapter_id', 'draft_id', 'durable', 'error', 'estimate_word_target', 'estimated_usd', 'front_matter', 'hard_limit_usd', 'json', 'message', 'missing_scene_ids', 'overrides', 'project_id', 'request', 'scene_id', 'scenes', 'schema_version', 'soft_limit_usd', 'spent_usd', 'status', 'total_after_usd', 'unit_ids', 'unit_scope', 'units', 'utf-8']

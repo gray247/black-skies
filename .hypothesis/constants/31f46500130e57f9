@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\tools\template_renderer.py
+# hypothesis_version: 6.138.2
+
+['InvalidTemplate', 'MissingVariable', 'body', 'cpu-only', 'error', 'error_type', 'length', 'message', 'missing', 'missing body', 'operation', 'render', 'status', 'success', 'template', 'template_id', 'template_renderer']

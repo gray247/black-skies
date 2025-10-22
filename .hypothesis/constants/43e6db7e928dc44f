@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\models\legacy.py
+# hypothesis_version: 6.138.2
+
+['Critique', 'Draft', 'line_comments', 'model', 'priorities', 'schema_version', 'severity', 'suggested_edits', 'summary', 'unit_id']

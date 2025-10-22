@@ -130,6 +130,38 @@ const critiqueFixture: DraftCritiqueBridgeResponse = {
     { line: 2, note: 'Add a sensory detail that ties to Mara’s arc.' },
   ],
   model: { name: 'critique-synthesizer-v1', provider: 'black-skies-local' },
+  budget: {
+    estimated_usd: 0.15,
+    status: 'ok',
+    message: 'Critique completed within budget.',
+    soft_limit_usd: 5,
+    hard_limit_usd: 10,
+    spent_usd: 1.9,
+    total_after_usd: 1.9,
+  },
+};
+
+const preflightEstimate: DraftPreflightEstimate = {
+  projectId: 'demo',
+  unitScope: 'scene',
+  unitIds: ['sc_0001'],
+  model: { name: 'draft-synthesizer-v1', provider: 'black-skies-local' },
+  scenes: [
+    {
+      id: 'sc_0001',
+      title: 'Arrival',
+      order: 1,
+    },
+  ],
+  budget: {
+    estimated_usd: 0.25,
+    status: 'ok',
+    message: 'Estimate within budget.',
+    soft_limit_usd: 5,
+    hard_limit_usd: 10,
+    spent_usd: 1.5,
+    total_after_usd: 1.75,
+  },
 };
 
 type AppComponent = (props: Record<string, never>) => JSX.Element;
@@ -146,6 +178,12 @@ function createServicesMock(): ServicesBridge {
       path: 'history/snapshots/20251005T101112Z_accept',
       includes: ['drafts'],
     },
+    budget: {
+      soft_limit_usd: 5,
+      hard_limit_usd: 10,
+      spent_usd: 1.9,
+      status: 'ok',
+    },
   };
 
   return {
@@ -157,7 +195,7 @@ function createServicesMock(): ServicesBridge {
     buildOutline: vi.fn(),
     generateDraft: vi.fn(),
     critiqueDraft: vi.fn().mockResolvedValue({ ok: true, data: critiqueFixture, traceId: 'trace-critique' }),
-    preflightDraft: vi.fn(),
+    preflightDraft: vi.fn().mockResolvedValue({ ok: true, data: preflightEstimate, traceId: 'trace-preflight' }),
     acceptDraft: vi.fn().mockResolvedValue({ ok: true, data: acceptResponse, traceId: 'trace-accept' }),
     createSnapshot: vi.fn(),
     getRecoveryStatus: vi.fn().mockResolvedValue({
@@ -203,9 +241,6 @@ describe('App critique flow', () => {
       window as typeof window & { projectLoader?: ProjectLoaderApi },
       'projectLoader',
     );
-    // Debug: log active handles to diagnose hanging Vitest process.
-    // eslint-disable-next-line no-console
-    console.log('[AppCritique] active handles', process._getActiveHandles().length);
   });
 
   it('requests a critique and accepts the draft', async () => {
@@ -218,6 +253,8 @@ describe('App critique flow', () => {
     fireEvent.click(critiqueButton);
 
     await screen.findByText(critiqueFixture.summary);
+    await screen.findByText('Budget');
+    await screen.findByText('$1.90 / $10.00');
 
     const acceptButton = await screen.findByRole('button', { name: 'Accept draft' });
     fireEvent.click(acceptButton);
@@ -232,7 +269,7 @@ describe('App critique flow', () => {
       projectId: 'demo',
       draftId: expect.stringMatching(/^dr_/),
       unitId: 'sc_0001',
-      rubric: ['continuity', 'pacing', 'voice'],
+      rubric: ['Continuity', 'Pacing', 'Voice'],
     });
 
     expect(services.acceptDraft).toHaveBeenCalledWith({
@@ -251,6 +288,91 @@ describe('App critique flow', () => {
     await waitFor(() =>
       expect(screen.queryByText(critiqueFixture.summary)).not.toBeInTheDocument(),
     );
+  });
+
+  it('allows configuring the critique rubric from the Companion overlay', async () => {
+    const App = loadAppWithServices(services);
+    render(<App />);
+
+    const companionButton = await screen.findByRole('button', { name: 'Companion' });
+    fireEvent.click(companionButton);
+
+    await screen.findByRole('heading', { name: 'Companion Mode' });
+    const rubricInput = screen.getByLabelText('Add category');
+    fireEvent.change(rubricInput, { target: { value: 'Atmosphere' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Add' }));
+
+    await screen.findByText('Atmosphere');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Remove Atmosphere' }));
+    await waitFor(() =>
+      expect(screen.queryByText('Atmosphere')).not.toBeInTheDocument(),
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Close' }));
+    await waitFor(() =>
+      expect(screen.queryByRole('heading', { name: 'Companion Mode' })).not.toBeInTheDocument(),
+    );
+  });
+
+  it('runs a batch critique for the selected scenes', async () => {
+    const App = loadAppWithServices(services);
+    render(<App />);
+
+    const companionButton = await screen.findByRole('button', { name: 'Companion' });
+    fireEvent.click(companionButton);
+
+    await screen.findByRole('heading', { name: 'Companion Mode' });
+
+    const runButton = await screen.findByRole('button', { name: 'Run batch critique' });
+    expect(runButton).toBeEnabled();
+
+    fireEvent.click(runButton);
+
+    await waitFor(() => expect(services.critiqueDraft).toHaveBeenCalledTimes(1));
+
+    expect(services.critiqueDraft).toHaveBeenLastCalledWith({
+      projectId: 'demo',
+      draftId: expect.stringMatching(/^dr_/),
+      unitId: 'sc_0001',
+      rubric: ['Continuity', 'Pacing', 'Voice'],
+    });
+
+    await screen.findByText('Complete');
+    await screen.findByText(critiqueFixture.summary);
+  });
+
+  it('surfaces the budget meter after running a preflight estimate', async () => {
+    const App = loadAppWithServices(services);
+    render(<App />);
+
+    const generateButton = await screen.findByRole('button', { name: 'Generate' });
+    await waitFor(() => expect(generateButton).not.toBeDisabled());
+
+    fireEvent.click(generateButton);
+
+    await waitFor(() => expect(services.preflightDraft).toHaveBeenCalledTimes(1));
+
+    await screen.findByText('Budget');
+    await screen.findByText('$1.75 / $10.00');
+  });
+
+  it('updates the budget meter after a critique response', async () => {
+    const App = loadAppWithServices(services);
+    render(<App />);
+
+    const generateButton = await screen.findByRole('button', { name: 'Generate' });
+    await waitFor(() => expect(generateButton).not.toBeDisabled());
+    fireEvent.click(generateButton);
+    await waitFor(() => expect(services.preflightDraft).toHaveBeenCalledTimes(1));
+    await screen.findByText('$1.75 / $10.00');
+
+    const critiqueButton = await screen.findByRole('button', { name: 'Critique' });
+    await waitFor(() => expect(critiqueButton).not.toBeDisabled());
+    fireEvent.click(critiqueButton);
+
+    await screen.findByText(critiqueFixture.summary);
+    await screen.findByText('$1.90 / $10.00');
   });
 
   it('refreshes project drafts after generation so accept uses the latest checksum', async () => {

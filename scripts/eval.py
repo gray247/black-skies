@@ -244,7 +244,28 @@ def main(argv: Sequence[str] | None = None) -> int:
     args.html.write_text(render_html(report), encoding="utf-8")
 
     status = "failed" if regressions else "completed"
-    runs.finalize_run(run_id, status=status, result={"regressions": regressions})
+    slo_status = "breached" if regressions else "ok"
+    result_payload = {
+        "metrics": {
+            "pass_rate": report.metrics.pass_rate,
+            "avg_latency_ms": report.metrics.avg_latency_ms,
+            "p95_latency_ms": report.metrics.p95_latency_ms,
+            "p99_latency_ms": report.metrics.p99_latency_ms,
+            "cases": len(case_results),
+        },
+        "thresholds": {
+            "fail_under_pass_rate": args.fail_under_pass_rate,
+            "max_avg_latency_ms": args.max_avg_latency_ms,
+            "max_p95_latency_ms": args.max_p95_latency_ms,
+        },
+        "breaches": regressions,
+        "slo": {
+            "status": slo_status,
+            "violations": regressions,
+        },
+    }
+
+    runs.finalize_run(run_id, status=status, result=result_payload)
     return 1 if regressions else 0
 
 

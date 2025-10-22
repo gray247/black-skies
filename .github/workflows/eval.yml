@@ -74,6 +74,27 @@ jobs:
       - name: Run app tests
         run: pnpm --filter app test
 
+  app-e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - name: Install dependencies
+        run: pnpm install --recursive --frozen-lockfile
+      - name: Install Playwright browsers
+        run: pnpm --filter app exec playwright install --with-deps
+      - name: Run Playwright tests
+        run: pnpm --filter app test:e2e
+
   eval:
     needs:
       - lint
@@ -104,6 +125,43 @@ jobs:
         run: python scripts/eval.py --html out/eval.html --json out/eval.json
       - name: Run smoke tests
         run: bash scripts/smoke.sh
+      - name: Start FastAPI service for load test
+        run: |
+          uvicorn blackskies.services.app:create_app --factory --host 127.0.0.1 --port 43750 &
+          echo $! > uvicorn.pid
+          sleep 5
+      - name: Run load test
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: python scripts/load.py --host 127.0.0.1 --port 43750 --log-level WARNING
+      - name: Check load SLO
+        run: |
+          LEDGER_PATH=$(python - <<'PY'
+from pathlib import Path
+runs_root = Path("sample_project/_runtime/runs")
+if not runs_root.exists():
+    raise SystemExit("No load-test ledgers found.")
+latest = max(runs_root.iterdir(), key=lambda p: p.stat().st_mtime)
+print(latest / "run.json")
+PY
+)
+          python scripts/check_slo.py "$LEDGER_PATH"
+      - name: Upload load test ledger
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: load-ledger
+          path: sample_project/_runtime/runs
+      - name: Clean runtime artifacts
+        if: always()
+        run: rm -rf sample_project/_runtime
+      - name: Stop FastAPI service
+        if: always()
+        run: |
+          if [ -f uvicorn.pid ]; then
+            kill "$(cat uvicorn.pid)" || true
+            rm uvicorn.pid
+          fi
       - name: Upload eval artifacts
         if: always()
         uses: actions/upload-artifact@v4

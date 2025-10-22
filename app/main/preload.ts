@@ -1,5 +1,4 @@
 ﻿import { contextBridge, ipcRenderer } from 'electron';
-import { inspect } from 'node:util';
 
 import {
   LOGGING_CHANNELS,
@@ -68,6 +67,49 @@ function normalizeError(message: string, extra?: Partial<ServiceError>): Service
     message,
     ...extra,
   };
+}
+
+function formatLogArgument(argument: unknown): string {
+  if (typeof argument === 'string') {
+    return argument;
+  }
+
+  if (argument instanceof Error) {
+    return argument.stack ?? `${argument.name}: ${argument.message}`;
+  }
+
+  const seen = new WeakSet<object>();
+  try {
+    const json = JSON.stringify(
+      argument,
+      (_key, value: unknown) => {
+        if (typeof value === 'bigint') {
+          return value.toString();
+        }
+
+        if (typeof value === 'symbol') {
+          return value.toString();
+        }
+
+        if (typeof value === 'object' && value !== null) {
+          if (seen.has(value as object)) {
+            return '[Circular]';
+          }
+          seen.add(value as object);
+        }
+
+        return value;
+      },
+      2,
+    );
+    if (typeof json === 'string') {
+      return json;
+    }
+  } catch (error) {
+    // Ignore serialization errors and fall through to the string fallback.
+  }
+
+  return String(argument);
 }
 
 async function parseErrorPayload(
@@ -240,13 +282,7 @@ function forwardConsole(method: ConsoleMethod): void {
       const payload: DiagnosticsLogPayload = {
         level: LOG_LEVEL_MAP[method],
         scope: 'renderer.console',
-        message: args
-          .map((argument) =>
-            typeof argument === 'string'
-              ? argument
-              : inspect(argument, { depth: 1, breakLength: 80 }),
-          )
-          .join(' '),
+        message: args.map((argument) => formatLogArgument(argument)).join(' '),
       };
       ipcRenderer.send(LOGGING_CHANNELS.diagnostics, payload);
     } catch (error) {

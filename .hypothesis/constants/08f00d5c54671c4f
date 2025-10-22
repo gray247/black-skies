@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\__main__.py
+# hypothesis_version: 6.138.2
+
+[43750, 43850, '--host', '--port', '--reload', '127.0.0.1', '__main__', 'blackskies', 'store_true']

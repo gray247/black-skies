@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\diff_engine.py
+# hypothesis_version: 6.138.2
+
+['DiffPayload', 'compute_diff', 'delete', 'equal', 'insert', 'left', 'range', 'replace', 'replacement', 'right', 'text']

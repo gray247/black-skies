@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\budgeting.py
+# hypothesis_version: 6.138.2
+
+[0.0, 0.25, 1000.0, '+', '+-', '+.', ',', '-', '-.', '.', 'DraftAcceptRequest', 'INTERNAL', 'None', 'ProjectBudgetState', 'VALIDATION', '[^0-9.,+-]', 'blocked', 'budget', 'cached_unit_ids', 'classify_budget', 'derive_critique_cost', 'draft_id', 'error', 'estimated_cost_usd', 'estimated_usd', 'expected_draft_id', 'field', 'hard', 'id', 'meta', 'ok', 'project.json', 'project_id', 'r', 'received_draft_id', 'soft', 'soft-limit', 'spent_usd', 'type', 'unit_id', 'units', 'utf-8', 'value', 'word_target']

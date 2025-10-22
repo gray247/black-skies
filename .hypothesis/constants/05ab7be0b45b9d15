@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\http.py
+# hypothesis_version: 6.138.2
+
+['BUDGET_EXCEEDED', 'CONFLICT', 'INTERNAL', 'TRACE_ID_HEADER', 'VALIDATION', 'blackskies_trace_id', 'build_error_payload', 'code', 'details', 'ensure_trace_id', 'errors', 'get_trace_context', 'message', 'model', 'raise_budget_error', 'raise_conflict_error', 'raise_service_error', 'resolve_trace_id', 'trace_id', 'x-trace-id']

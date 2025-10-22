@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\routers\outline.py
+# hypothesis_version: 6.138.2
+
+['/build', '/outline', 'BuildInProgressError', 'BuildTracker', 'CONFLICT', 'VALIDATION', 'code', 'details', 'errors', 'get_outline_builder', 'get_persistence', 'json', 'message', 'outline', 'project_id', 'router']

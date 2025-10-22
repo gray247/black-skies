@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\draft_synthesizer.py
+# hypothesis_version: 6.138.2
+
+[850, '-', 'DraftSynthesizer', 'Elior Shaw', 'Ezra Cole', 'Jun Park', 'Kira Beaumont', 'Luis Navarro', 'Mara Ibarra', 'Rin Okada', 'Sasha Reed', 'SynthesisResult', '[^a-z0-9]+', 'aftermath', 'beats', 'black-skies-local', 'breath', 'chapter_id', 'conflict', 'draft-synthesizer-v1', 'dread', 'emotion', 'emotion_tag', 'escalation', 'goal', 'id', 'meta', 'model', 'name', 'order', 'payoff', 'pov', 'project_id', 'prompt_fingerprint', 'provider', 'purpose', 'respite', 'revelation', 'scene', 'scene_id', 'seed', 'setup', 'slug', 'tension', 'text', 'title', 'turn', 'utf-8', 'word_target']

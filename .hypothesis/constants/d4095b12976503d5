@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\agents\base.py
+# hypothesis_version: 6.138.2
+
+[0.0, 0.5, 4.0, 'AgentError', 'BaseAgent', 'CritiqueAgent', 'DraftAgent', 'OutlineAgent', 'RewriteAgent', 'agent', 'agent.failure', 'agent.retry', 'agent.run', 'agent.success', 'attempt', 'error', 'extra_payload', 'max_attempts', 'payload']

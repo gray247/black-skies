@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\snapshot_manifest.py
+# hypothesis_version: 6.138.2
+
+['*.md', '+00:00', 'SnapshotManifest v1', 'SnapshotMetadata', 'Z', 'created_at', 'drafts', 'id', 'includes', 'label', 'missing_drafts', 'outline', 'outline.json', 'path', 'project', 'project.json', 'project_id', 'r', 'scenes', 'schema_version', 'snapshot_id', 'timestamp_now', 'utf-8', 'warnings']

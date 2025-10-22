@@ -1,0 +1,157 @@
+{
+  "schema_version": "SnapshotManifest v1",
+  "snapshot_id": "20251016T011105720242Z",
+  "project_id": "proj_esther_estate",
+  "label": "accept-sc_0001",
+  "created_at": "2025-10-16T01:11:05.730536Z",
+  "includes": [
+    "drafts",
+    "outline.json",
+    "project.json"
+  ],
+  "project": {
+    "project_id": "proj_esther_estate",
+    "name": "Esther Estate",
+    "created": "2025-09-23T17:10:00Z",
+    "budget": {
+      "soft": 12.5,
+      "hard": 25.0,
+      "spent_usd": 0.42,
+      "last_request_fingerprint": "e15f83f7613128cabded784114666780d53c37eda09d68b85c6bac8ad33f16f5",
+      "last_generate_response": {
+        "project_id": "proj_esther_estate",
+        "unit_scope": "scene",
+        "unit_ids": [
+          "sc_0001"
+        ],
+        "draft_id": "dr_f1048f6c",
+        "schema_version": "DraftUnitSchema v1",
+        "units": [
+          {
+            "id": "sc_0001",
+            "text": "Ezra Cole enters Basement Pulse to extract the survivor logs. The atmosphere leans toward respite as humidity chews through every circuit.\n\nThe beat shifts when a warning flare cuts across the bay, keeping the scene in escalation mode and aiming for roughly 890 words.",
+            "meta": {
+              "pov": "Ezra Cole",
+              "purpose": "escalation",
+              "emotion_tag": "respite",
+              "word_target": 890,
+              "order": 1,
+              "chapter_id": "ch_0001"
+            },
+            "prompt_fingerprint": "sha256:da7b7291cb9af38333e3e393f364d7e9a66f1b586df5bc2c09b4b6ba0360a1f4",
+            "model": {
+              "name": "draft-synthesizer-v1",
+              "provider": "black-skies-local"
+            },
+            "seed": 46
+          }
+        ],
+        "budget": {
+          "estimated_usd": 0.02,
+          "status": "ok",
+          "message": "Estimate within budget.",
+          "soft_limit_usd": 12.5,
+          "hard_limit_usd": 25.0,
+          "spent_usd": 0.42,
+          "total_after_usd": 0.42
+        }
+      },
+      "last_generate_artifacts": [
+        {
+          "scene_id": "sc_0001",
+          "front_matter": {
+            "id": "sc_0001",
+            "slug": "basement-pulse",
+            "title": "Basement Pulse",
+            "pov": "Ezra Cole",
+            "purpose": "escalation",
+            "goal": "extract the survivor logs",
+            "conflict": "humidity chews through every circuit",
+            "turn": "a warning flare cuts across the bay",
+            "emotion_tag": "respite",
+            "word_target": 890,
+            "order": 1,
+            "chapter_id": "ch_0001",
+            "beats": [
+              "inciting"
+            ]
+          },
+          "body": "Ezra Cole enters Basement Pulse to extract the survivor logs. The atmosphere leans toward respite as humidity chews through every circuit.\n\nThe beat shifts when a warning flare cuts across the bay, keeping the scene in escalation mode and aiming for roughly 890 words.",
+          "durable": true
+        }
+      ]
+    }
+  },
+  "outline": {
+    "schema_version": "OutlineSchema v1",
+    "outline_id": "out_001",
+    "acts": [
+      "Act I: Gathered Storm"
+    ],
+    "chapters": [
+      {
+        "id": "ch_0001",
+        "order": 1,
+        "title": "The Summons"
+      }
+    ],
+    "scenes": [
+      {
+        "id": "sc_0001",
+        "order": 1,
+        "title": "Basement Pulse",
+        "chapter_id": "ch_0001",
+        "beat_refs": [
+          "inciting"
+        ]
+      },
+      {
+        "id": "sc_0002",
+        "order": 2,
+        "title": "Locked Parlor",
+        "chapter_id": "ch_0001",
+        "beat_refs": [
+          "turn"
+        ]
+      }
+    ]
+  },
+  "drafts": [
+    {
+      "id": "sc_0001",
+      "slug": "basement-pulse",
+      "title": "Basement Pulse",
+      "pov": "Ezra Cole",
+      "purpose": "escalation",
+      "goal": "extract the survivor logs",
+      "conflict": "humidity chews through every circuit",
+      "turn": "a warning flare cuts across the bay",
+      "emotion_tag": "respite",
+      "word_target": 890,
+      "order": 1,
+      "chapter_id": "ch_0001",
+      "beats": [
+        "inciting"
+      ],
+      "path": "drafts/sc_0001.md"
+    },
+    {
+      "id": "sc_0002",
+      "slug": "locked-parlor",
+      "title": "Locked Parlor",
+      "pov": "Luis Navarro",
+      "purpose": "payoff",
+      "goal": "extract the survivor logs",
+      "conflict": "the blackout shutters seize mid-drop",
+      "turn": "the house remembers a forgotten route",
+      "emotion_tag": "revelation",
+      "word_target": 930,
+      "order": 2,
+      "chapter_id": "ch_0001",
+      "beats": [
+        "turn"
+      ],
+      "path": "drafts/sc_0002.md"
+    }
+  ]
+}

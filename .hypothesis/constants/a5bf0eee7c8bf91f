@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\models\outline.py
+# hypothesis_version: 6.138.2
+
+['OutlineArtifact', 'OutlineChapter', 'OutlineScene', 'OutlineSchema v1', '^ch_\\d{4}$', '^out_\\d{3}$', '^sc_\\d{4}$', 'after']

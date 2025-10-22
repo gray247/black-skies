@@ -10,7 +10,7 @@ from pydantic import ValidationError
 from ...config import ServiceSettings
 from ...diagnostics import DiagnosticLogger
 from ...export import merge_front_matter, normalize_markdown
-from ...http import raise_conflict_error, raise_validation_error
+from ...http import raise_conflict_error, raise_service_error, raise_validation_error
 from ...models.accept import DraftAcceptRequest
 from ...persistence import SnapshotPersistence
 from ...scene_docs import DraftRequestError, read_scene_document
@@ -132,6 +132,21 @@ async def accept_draft(
                 "details": exc.details,
             },
         ) from exc
+    except Exception as exc:  # pragma: no cover - defensive logging for unexpected failures
+        diagnostics.log(
+            project_root,
+            code="INTERNAL",
+            message="Draft accept pipeline raised an unexpected error.",
+            details={"error": str(exc), "unit_id": request_model.unit_id},
+        )
+        raise_service_error(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            code="INTERNAL",
+            message="Failed to accept draft unit.",
+            details={"unit_id": request_model.unit_id},
+            diagnostics=diagnostics,
+            project_root=project_root,
+        )
 
     return acceptance.response
 

@@ -7,9 +7,22 @@ import asyncio
 import json
 import logging
 import os
+import re
+import sys
+import time
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Iterable, Sequence
+from time import perf_counter
+from typing import Any, Iterable, Protocol, Sequence
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:  # pragma: no cover - ensure imports resolve
+    sys.path.insert(0, str(REPO_ROOT))
+
+try:  # pragma: no cover - ensure repo-specific sys.path tweaks apply
+    import sitecustomize  # noqa: F401
+except Exception:  # pragma: no cover - best-effort import
+    pass
 
 import httpx
 
@@ -31,6 +44,18 @@ _SMOKE_WIZARD_STEPS: tuple[str, ...] = (
     "characters",
     "conflict",
 )
+
+DEFAULT_WIZARD_STEPS: tuple[str, ...] = _SMOKE_WIZARD_STEPS
+
+
+class SmokeMetricsSink(Protocol):
+    """Metrics callbacks invoked during smoke or load runs."""
+
+    def record_request(self, *, method: str, path: str, status: int, elapsed_ms: float) -> None:
+        ...
+
+    def record_budget(self, *, estimated_cost_usd: float) -> None:
+        ...
 
 
 @dataclass(frozen=True)
@@ -103,13 +128,22 @@ def load_scene_ids(project_root: Path, limit: int) -> list[str]:
 
 
 def compute_scene_sha(project_root: Path, scene_id: str) -> str:
-    """Compute the digest for the existing scene markdown body."""
+    """Compute the digest for the existing scene markdown body with retry tolerance."""
 
-    try:
-        _, _, body = read_scene_document(project_root, scene_id)
-    except DraftRequestError as exc:  # pragma: no cover - defensive, bubble up
-        raise FileNotFoundError(exc.details.get("unit_id", scene_id)) from exc
-    return _compute_sha256(body)
+    attempts = 5
+    delay = 0.05
+    for attempt in range(attempts):
+        try:
+            _, _, body = read_scene_document(project_root, scene_id)
+            return _compute_sha256(body)
+        except DraftRequestError as exc:  # pragma: no cover - defensive, bubble up
+            raise FileNotFoundError(exc.details.get("unit_id", scene_id)) from exc
+        except PermissionError:
+            if attempt == attempts - 1:
+                raise
+            time.sleep(delay * (attempt + 1))
+    # Should never reach here because loop either returns or raises.
+    raise RuntimeError(f"Failed to compute digest for scene {scene_id}")
 
 
 def build_accept_payload(
@@ -172,15 +206,25 @@ async def _post_json(
     path: str,
     payload: dict[str, Any],
     expected: Iterable[int] = (httpx.codes.OK,),
+    metrics: SmokeMetricsSink | None = None,
 ) -> httpx.Response:
+    start = perf_counter()
     response = await client.post(path, json=payload)
+    elapsed_ms = (perf_counter() - start) * 1000
+    if metrics is not None:
+        metrics.record_request(
+            method="POST",
+            path=path,
+            status=response.status_code,
+            elapsed_ms=elapsed_ms,
+        )
     if response.status_code not in expected:
         LOGGER.error("Request to %s failed: %s", path, response.text)
         response.raise_for_status()
     return response
 
 
-async def run_cycles(config: SmokeTestConfig) -> None:
+async def run_cycles(config: SmokeTestConfig, *, metrics: SmokeMetricsSink | None = None) -> None:
     """Execute the smoke test cycles using the provided configuration."""
 
     project_root = config.project_root
@@ -213,6 +257,7 @@ async def run_cycles(config: SmokeTestConfig) -> None:
                     "step": step,
                     "label": label,
                 },
+                metrics=metrics,
             )
 
             LOGGER.info("[%s] Generating draft", scene_id)
@@ -223,35 +268,39 @@ async def run_cycles(config: SmokeTestConfig) -> None:
                 "seed": 42 + index,
                 "overrides": {},
             }
-            generate_response = await _post_json(client, "/api/v1/draft/generate", generate_payload)
+            generate_response = await _post_json(
+                client, "/api/v1/draft/generate", generate_payload, metrics=metrics
+            )
             generate_json = generate_response.json()
             units = generate_json.get("units", [])
             if not units:
                 raise RuntimeError("Draft generation returned no units.")
             unit = next((item for item in units if item.get("id") == scene_id), units[0])
             raw_draft_id = str(generate_json.get("draft_id"))
-            if isinstance(raw_draft_id, str) and raw_draft_id.startswith("dr_") and raw_draft_id[3:].isdigit():
+            if isinstance(raw_draft_id, str) and re.fullmatch(r"dr_\d{3}", raw_draft_id):
                 draft_id = raw_draft_id
             else:
                 draft_id = f"dr_{index + 1:03d}"
+                LOGGER.debug(
+                    "Normalising draft id '%s' to '%s' for load run.", raw_draft_id, draft_id
+                )
             estimated_cost = (
                 float(generate_json.get("budget", {}).get("estimated_usd", 0.0))
                 if isinstance(generate_json.get("budget"), dict)
                 else 0.0
             )
+            if metrics is not None:
+                metrics.record_budget(estimated_cost_usd=estimated_cost)
 
             LOGGER.info("[%s] Requesting critique", scene_id)
             critique_payload = {
-                "project_id": config.project_id,
                 "draft_id": draft_id,
                 "unit_id": scene_id,
                 "rubric": ["Logic", "Continuity", "Character"],
-                "unit": {
-                    "id": scene_id,
-                    "text": unit.get("text", ""),
-                },
             }
-            await _post_json(client, "/api/v1/draft/critique", critique_payload)
+            await _post_json(
+                client, "/api/v1/draft/critique", critique_payload, metrics=metrics
+            )
 
             previous_sha = compute_scene_sha(project_root, scene_id)
             accept_payload = build_accept_payload(
@@ -264,7 +313,7 @@ async def run_cycles(config: SmokeTestConfig) -> None:
             )
 
             LOGGER.info("[%s] Accepting draft", scene_id)
-            await _post_json(client, "/api/v1/draft/accept", accept_payload)
+            await _post_json(client, "/api/v1/draft/accept", accept_payload, metrics=metrics)
 
     LOGGER.info("Completed %s smoke cycle(s).", config.cycles)
 
@@ -321,7 +370,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         project_base_dir=project_base_dir,
         cycles=args.cycles,
         timeout=args.timeout,
-        wizard_steps=tuple(args.wizard_steps) if args.wizard_steps else _SMOKE_WIZARD_STEPS,
+        wizard_steps=tuple(args.wizard_steps) if args.wizard_steps else DEFAULT_WIZARD_STEPS,
         scene_ids=tuple(args.scene_ids) if args.scene_ids else None,
     )
 

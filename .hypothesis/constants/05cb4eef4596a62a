@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\routers\draft\wizard.py
+# hypothesis_version: 6.138.2
+
+['/wizard/lock', 'INTERNAL', 'code', 'details', 'errors', 'lock_wizard_step', 'message', 'project_id']

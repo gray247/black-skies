@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import type { MutableRefObject } from 'react';
 import type { LoadedProject } from '../../shared/ipc/projectLoader';
 import type {
+  DraftAcceptBridgeResponse,
   DraftCritiqueBridgeResponse,
   RecoveryStatusBridgeResponse,
   ServicesBridge,
@@ -23,7 +24,7 @@ export interface CritiqueDialogState {
   accepting: boolean;
 }
 
-const DEFAULT_CRITIQUE_RUBRIC = ['continuity', 'pacing', 'voice'] as const;
+const DEFAULT_CRITIQUE_RUBRIC = ['Continuity', 'Pacing', 'Voice'] as const;
 
 function createInitialCritiqueState(): CritiqueDialogState {
   return {
@@ -50,6 +51,10 @@ interface UseCritiqueOptions {
   setRecoveryStatus: React.Dispatch<React.SetStateAction<RecoveryStatusBridgeResponse | null>>;
   pushToast: (toast: ToastPayload) => void;
   isMountedRef: MutableRefObject<boolean>;
+  rubric?: string[];
+  onBudgetUpdate?: (
+    budget: DraftCritiqueBridgeResponse['budget'] | DraftAcceptBridgeResponse['budget'],
+  ) => void;
 }
 
 export function useCritique({
@@ -64,8 +69,12 @@ export function useCritique({
   setRecoveryStatus,
   pushToast,
   isMountedRef,
+  rubric,
+  onBudgetUpdate,
 }: UseCritiqueOptions) {
   const [state, setState] = useState<CritiqueDialogState>(createInitialCritiqueState());
+  const activeRubric =
+    Array.isArray(rubric) && rubric.length > 0 ? [...rubric] : [...DEFAULT_CRITIQUE_RUBRIC];
 
   const resetCritique = useCallback(() => {
     setState(createInitialCritiqueState());
@@ -103,6 +112,17 @@ export function useCritique({
 
     const draftId = generateDraftId(activeScene.id);
     const unitId = activeScene.id;
+    const requestRubric = [...new Set(activeRubric.map((item) => item.trim()))].filter(
+      (item) => item.length > 0,
+    );
+    if (requestRubric.length === 0) {
+      pushToast({
+        tone: 'warning',
+        title: 'Select critique categories',
+        description: 'Add at least one rubric category before requesting a critique.',
+      });
+      return;
+    }
     setState({
       open: true,
       loading: true,
@@ -119,12 +139,15 @@ export function useCritique({
         projectId: projectSummary.projectId,
         draftId,
         unitId,
-        rubric: [...DEFAULT_CRITIQUE_RUBRIC],
+        rubric: requestRubric,
       });
       if (!isMountedRef.current) {
         return;
       }
       if (result.ok) {
+        if (result.data.budget) {
+          onBudgetUpdate?.(result.data.budget);
+        }
         setState((previous) => ({
           ...previous,
           loading: false,
@@ -161,7 +184,16 @@ export function useCritique({
         description: message,
       });
     }
-  }, [activeScene, isMountedRef, projectSummary, pushToast, services]);
+  }, [
+    activeScene,
+    activeRubric,
+    isMountedRef,
+    onBudgetUpdate,
+    projectSummary,
+    pushToast,
+    rubric,
+    services,
+  ]);
 
   const rejectCritique = useCallback(() => {
     resetCritique();
@@ -275,6 +307,9 @@ export function useCritique({
           };
         });
         resetCritique();
+        if (result.data.budget) {
+          onBudgetUpdate?.(result.data.budget);
+        }
         pushToast({
           tone: 'success',
           title: 'Draft accepted',
@@ -320,6 +355,7 @@ export function useCritique({
     setProjectDrafts,
     setRecoveryStatus,
     state.draftId,
+    onBudgetUpdate,
   ]);
 
   return {

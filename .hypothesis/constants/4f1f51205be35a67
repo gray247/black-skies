@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\routers\draft\export.py
+# hypothesis_version: 6.138.2
+
+['**Priorities**', '/export', 'DraftExportRequest', 'DraftExportResult v1', 'INTERNAL', 'analytics_report', 'artifacts', 'captured_at', 'chapters', 'code', 'critique_bundle', 'critique_bundle.md', 'details', 'draft_full.md', 'error', 'errors', 'export_manuscript', 'exported_at', 'id', 'message', 'meta', 'meta_header', 'path', 'priorities', 'project_id', 'rubric', 'scenes', 'schema_version', 'summary', 'text', 'title']

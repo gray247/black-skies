@@ -1,0 +1,12 @@
+profiles:
+  default:
+    description: Baseline load profile for workstation runs
+    total_cycles: 20
+    concurrency: 4
+    timeout: 60.0
+    warmup_cycles: 2
+    thresholds:
+      p95_ms: 220.0
+      p99_ms: 260.0
+      max_error_rate: 0.05
+      max_budget_usd: 5.0

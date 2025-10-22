@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\snapshot_includes.py
+# hypothesis_version: 6.138.2
+
+['*.tmp', '.', '..', '/', 'ENOSYS', 'SnapshotIncludeSpec', '\\', 'copy_include_entries', 'drafts', 'fsync', 'outline.json', 'project.json', 'rb']

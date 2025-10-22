@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\scene_docs.py
+# hypothesis_version: 6.138.2
+
+['"', "'", ',', '-', '---', '.', ':', 'DraftRequestError', '[', ']', '_', 'drafts', 'false', 'id', 'null', 'read_scene_document', 'true', 'unit_id', 'utf-8']

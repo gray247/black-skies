@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\tools\file_store.py
+# hypothesis_version: 6.138.2
+
+['error', 'error_type', 'file_store', 'filesystem-io', 'id', 'kind', 'load', 'message', 'operation', 'path', 'relative_path', 'save', 'status', 'success']

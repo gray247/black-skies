@@ -453,7 +453,7 @@ export default function ProjectHome({
           onClick={handleOpenProject}
           disabled={!loaderAvailable || isLoading}
         >
-          {isLoading ? 'Loadingâ€¦' : 'Open projectâ€¦'}
+          {isLoading ? 'Loading...' : 'Open project...'}
         </button>
       </header>
 

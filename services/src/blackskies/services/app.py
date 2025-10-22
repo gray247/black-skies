@@ -27,6 +27,7 @@ from .http import (
     request_validation_response,
     resolve_trace_id,
 )
+from .middleware import BodySizeLimitMiddleware
 from .metrics import record_request
 from .persistence import SnapshotPersistence
 from .routers import api_router
@@ -95,12 +96,14 @@ class TraceMiddleware:
 def create_app(settings: ServiceSettings | None = None) -> FastAPI:
     """Construct the FastAPI application."""
 
+    service_settings = settings or ServiceSettings.from_environment()
+
     application = FastAPI(
         title="Black Skies Services",
         version=SERVICE_VERSION,
         responses=default_error_responses(),
     )
-    application.state.settings = settings or ServiceSettings.from_environment()
+    application.state.settings = service_settings
     application.state.build_tracker = BuildTracker()
     application.state.diagnostics = DiagnosticLogger()
     application.state.snapshot_persistence = SnapshotPersistence(
@@ -126,6 +129,11 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
     application.add_exception_handler(RequestValidationError, validation_exception_handler)
 
     trace_context = get_trace_context()
+
+    application.add_middleware(
+        BodySizeLimitMiddleware,
+        limit=service_settings.max_request_body_bytes,
+    )
 
     application.add_middleware(
         CORSMiddleware,

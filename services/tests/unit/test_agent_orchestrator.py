@@ -116,6 +116,35 @@ def test_orchestrator_tool_registry_enforced() -> None:
         orchestrator_denied.resolve_tool("blocked", run_id="run-1")
 
 
+def test_orchestrator_uses_tool_runner(monkeypatch: pytest.MonkeyPatch) -> None:
+    workers = _make_workers()
+    captured: list[tuple[str, Any]] = []
+
+    class DummyRunner:
+        def __init__(self, config=None):
+            self.config = config
+
+        def execute(self, name: str, operation: Callable[[], Any], *, context=None) -> Any:
+            captured.append((name, context))
+            return operation()
+
+    monkeypatch.setattr("blackskies.services.services.ToolRunner", DummyRunner)
+
+    orchestrator = AgentOrchestrator(
+        workers["outline"],
+        workers["draft"],
+        workers["rewrite"],
+        workers["critique"],
+        tool_registry=DummyRegistry(),
+    )
+
+    orchestrator.register_tool("Echo", lambda value: value.upper())
+    tool = orchestrator.resolve_tool("echo", run_id="run-123")
+    assert tool("value") == "VALUE"
+
+    assert captured == [("echo", None)]
+
+
 def test_unknown_operation_raises() -> None:
     workers = _make_workers()
     orchestrator = AgentOrchestrator(

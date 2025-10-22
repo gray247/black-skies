@@ -5,6 +5,10 @@ Chronological record of locked decisions and spec/version bumps. One-line summar
 
 ---
 
+## 2025-10-21 — Companion analytics & export summaries (LOCKED)
+- Companion overlay now surfaces emotion arc and pacing analytics within the workspace.
+- Draft exports emit `analytics_report.json` and `critique_bundle.md` populated from stored batch critiques.
+
 ## 2025-09-29 — Phase 1 wrap release (LOCKED)
 - Version bumped to 1.0.0+phase1 and annotated tag `v1.0.0-phase1` recorded.
 - Verified python -m pytest -q and python -m build --wheel --no-isolation for release validation.

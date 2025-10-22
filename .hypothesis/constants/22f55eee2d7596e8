@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\settings.py
+# hypothesis_version: 6.138.2
+
+[30.0, '"', '#', "'", '.env', '=', 'BLACK_SKIES_MODE', 'BaseSettings', 'Mode', 'OPENAI_API_KEY', 'Settings', 'before', 'black_skies_mode', 'companion', 'env_file', 'env_file_encoding', 'env_prefix', 'export ', 'get_settings', 'ignore', 'live', 'mock', 'offline', 'utf-8', 'validation_alias']

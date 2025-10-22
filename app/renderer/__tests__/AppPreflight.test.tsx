@@ -298,7 +298,8 @@ describe('App preflight integration', () => {
     fireEvent.click(generateButton);
 
     await waitFor(() => expect(services.preflightDraft).toHaveBeenCalledTimes(1));
-    await screen.findByText(/exceeds soft limit/i);
+    const modal = await screen.findByRole('dialog', { name: /draft preflight/i });
+    await within(modal).findByText(/exceeds soft limit/i);
 
     const proceedButton = screen.getByRole('button', { name: /proceed/i });
     expect(proceedButton).toBeEnabled();
@@ -340,7 +341,8 @@ describe('App preflight integration', () => {
     fireEvent.click(generateButton);
 
     await waitFor(() => expect(services.preflightDraft).toHaveBeenCalledTimes(1));
-    await screen.findByText(/exceeds hard limit/i);
+    const modal = await screen.findByRole('dialog', { name: /draft preflight/i });
+    await within(modal).findByText(/exceeds hard limit/i);
 
     const blockedButton = screen.getByRole('button', { name: /blocked/i });
     expect(blockedButton).toBeDisabled();

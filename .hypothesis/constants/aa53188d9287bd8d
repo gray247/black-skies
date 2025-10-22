@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\models\rewrite.py
+# hypothesis_version: 6.138.2
+
+['DraftRewriteRequest', 'DraftRewriteUnit', '^(sc|ch)_\\d{4}$', 'after', 'project_id']

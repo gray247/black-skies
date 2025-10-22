@@ -8,6 +8,8 @@ import logging.config
 from datetime import datetime, timezone
 from typing import Any, Dict
 
+from .tools.safety import postflight_scrub
+
 
 class JsonFormatter(logging.Formatter):
     """Simple JSON formatter for structured logs."""
@@ -23,7 +25,7 @@ class JsonFormatter(logging.Formatter):
             payload["exc_info"] = self.formatException(record.exc_info)
         extra = getattr(record, "extra_payload", None)
         if isinstance(extra, dict):
-            payload.update(extra)
+            payload.update(postflight_scrub(extra))
         return json.dumps(payload, ensure_ascii=False)
 
 

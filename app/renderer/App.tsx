@@ -1,6 +1,7 @@
 ﻿import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import ProjectHome, { type ActiveScenePayload, type ProjectLoadEvent } from "./components/ProjectHome";
+import CompanionOverlay from "./components/CompanionOverlay";
 import WizardPanel from "./components/WizardPanel";
 import WorkspaceHeader from "./components/WorkspaceHeader";
 import RecoveryBanner from "./components/RecoveryBanner";
@@ -9,15 +10,61 @@ import { CritiqueModal } from "./components/CritiqueModal";
 import { ToastStack } from "./components/ToastStack";
 import type { LoadedProject } from "../shared/ipc/projectLoader";
 import type { DiagnosticsBridge } from "../shared/ipc/diagnostics";
-import type { ServicesBridge } from "../shared/ipc/services";
+import type {
+  DraftCritiqueBridgeResponse,
+  ServicesBridge,
+} from "../shared/ipc/services";
+import type { BudgetMeterProps } from "./components/BudgetMeter";
 import useMountedRef from "./hooks/useMountedRef";
 import { useToasts } from "./hooks/useToasts";
 import { useServiceHealth } from "./hooks/useServiceHealth";
 import { isTestEnvironment } from "./utils/env";
 import { usePreflight } from "./hooks/usePreflight";
-import { useCritique } from "./hooks/useCritique";
+import { useCritique, DEFAULT_CRITIQUE_RUBRIC } from "./hooks/useCritique";
 import useRecovery from "./hooks/useRecovery";
 import type ProjectSummary from "./types/project";
+import { generateDraftId } from "./utils/draft";
+
+type BudgetSnapshotSource = {
+  soft_limit_usd?: number | null;
+  hard_limit_usd?: number | null;
+  spent_usd?: number | null;
+  total_after_usd?: number | null;
+  estimated_usd?: number | null;
+  status?: string | null;
+  message?: string | null;
+};
+
+const BUDGET_EPSILON = 1e-6;
+
+function normaliseBudgetNumber(value?: number | null): number | undefined {
+  if (typeof value !== "number" || Number.isNaN(value) || !Number.isFinite(value)) {
+    return undefined;
+  }
+  return value;
+}
+
+function isBudgetStatus(value: string | null | undefined): value is BudgetMeterProps["status"] {
+  return value === "ok" || value === "soft-limit" || value === "blocked";
+}
+
+function deriveBudgetStatus(
+  providedStatus: string | null | undefined,
+  projected: number,
+  softLimit?: number,
+  hardLimit?: number,
+): BudgetMeterProps["status"] {
+  if (isBudgetStatus(providedStatus)) {
+    return providedStatus;
+  }
+  if (typeof hardLimit === "number" && projected > hardLimit + BUDGET_EPSILON) {
+    return "blocked";
+  }
+  if (typeof softLimit === "number" && projected > softLimit + BUDGET_EPSILON) {
+    return "soft-limit";
+  }
+  return "ok";
+}
 
 function deriveProjectIdFromPath(path: string): string {
   const segments = path.split(/[\\/]+/).filter(Boolean);
@@ -26,6 +73,15 @@ function deriveProjectIdFromPath(path: string): string {
     return base;
   }
   return path;
+}
+
+type BatchCritiqueStatus = "idle" | "running" | "success" | "error";
+
+interface BatchCritiqueResult {
+  status: BatchCritiqueStatus;
+  summary?: string;
+  error?: string;
+  traceId?: string;
 }
 
 export default function App(): JSX.Element {
@@ -40,12 +96,82 @@ export default function App(): JSX.Element {
     isTestEnv ? { intervalMs: 0 } : undefined,
   );
 
-  const [, setCurrentProject] = useState<LoadedProject | null>(null);
+  const [currentProject, setCurrentProject] = useState<LoadedProject | null>(null);
   const [projectSummary, setProjectSummary] = useState<ProjectSummary | null>(null);
   const [projectDrafts, setProjectDrafts] = useState<Record<string, string>>({});
   const [draftEdits, setDraftEdits] = useState<Record<string, string>>({});
   const [activeScene, setActiveScene] = useState<{ id: string; title: string | null } | null>(null);
   const activeSceneId = activeScene?.id ?? null;
+  const [critiqueRubric, setCritiqueRubric] = useState<string[]>(() => [
+    ...DEFAULT_CRITIQUE_RUBRIC,
+  ]);
+  const [companionOpen, setCompanionOpen] = useState<boolean>(false);
+  const [batchCritiqueState, setBatchCritiqueState] = useState<{
+    running: boolean;
+    results: Record<string, BatchCritiqueResult>;
+  }>({
+    running: false,
+    results: {},
+  });
+  const [budgetSnapshot, setBudgetSnapshot] = useState<BudgetMeterProps | null>(null);
+  const batchJobRef = useRef<{ cancelled: boolean } | null>(null);
+
+  const applyBudgetUpdate = useCallback(
+    (source?: BudgetSnapshotSource | null) => {
+      if (!source) {
+        setBudgetSnapshot(null);
+        return;
+      }
+
+      const softLimit = normaliseBudgetNumber(source.soft_limit_usd);
+      const hardLimit = normaliseBudgetNumber(source.hard_limit_usd);
+      const spent = normaliseBudgetNumber(source.spent_usd);
+      const totalAfter = normaliseBudgetNumber(source.total_after_usd);
+      const estimated = normaliseBudgetNumber(source.estimated_usd);
+      const message = source.message ?? null;
+
+      const hasNumeric =
+        softLimit !== undefined ||
+        hardLimit !== undefined ||
+        spent !== undefined ||
+        totalAfter !== undefined ||
+        estimated !== undefined;
+
+      if (!hasNumeric && message === null) {
+        return;
+      }
+
+      const projectedCandidate =
+        totalAfter !== undefined
+          ? totalAfter
+          : spent !== undefined
+            ? spent
+            : estimated !== undefined
+              ? estimated
+              : undefined;
+      const projectedValue = normaliseBudgetNumber(projectedCandidate) ?? 0;
+
+      let finalSpentCandidate = spent;
+      if (finalSpentCandidate === undefined) {
+        if (totalAfter !== undefined && estimated !== undefined) {
+          finalSpentCandidate = Math.max(totalAfter - estimated, 0);
+        } else if (totalAfter !== undefined) {
+          finalSpentCandidate = totalAfter;
+        }
+      }
+      const finalSpent = normaliseBudgetNumber(finalSpentCandidate);
+
+      setBudgetSnapshot({
+        softLimitUsd: softLimit,
+        hardLimitUsd: hardLimit,
+        spentUsd: finalSpent,
+        projectedUsd: projectedValue,
+        status: deriveBudgetStatus(source.status, projectedValue, softLimit, hardLimit),
+        message,
+      });
+    },
+    [setBudgetSnapshot],
+  );
 
   const projectDraftsRef = useRef<Record<string, string>>({});
   useEffect(() => {
@@ -94,6 +220,8 @@ export default function App(): JSX.Element {
     setRecoveryStatus,
     pushToast,
     isMountedRef,
+    rubric: critiqueRubric,
+    onBudgetUpdate: applyBudgetUpdate,
   });
 
   const resetProjectState = useCallback(() => {
@@ -101,9 +229,283 @@ export default function App(): JSX.Element {
     setProjectDrafts({});
     setDraftEdits({});
     setActiveScene(null);
+    setCritiqueRubric([...DEFAULT_CRITIQUE_RUBRIC]);
+    setCompanionOpen(false);
+    setBudgetSnapshot(null);
     resetCritique();
     resetRecovery();
-  }, [resetCritique, resetRecovery, setActiveScene, setCurrentProject, setDraftEdits, setProjectDrafts]);
+  }, [
+    resetCritique,
+    resetRecovery,
+    setActiveScene,
+    setCurrentProject,
+    setDraftEdits,
+    setProjectDrafts,
+    setCritiqueRubric,
+    setCompanionOpen,
+    setBudgetSnapshot,
+  ]);
+
+  const updateCritiqueRubric = useCallback(
+    (nextValues: string[]) => {
+    if (!Array.isArray(nextValues)) {
+      setCritiqueRubric([]);
+      return;
+    }
+    const unique: string[] = [];
+    const seen = new Set<string>();
+    let removed = false;
+    for (const entry of nextValues) {
+      if (typeof entry !== "string") {
+        removed = true;
+        continue;
+      }
+      const trimmed = entry.trim();
+      if (trimmed.length === 0) {
+        removed = true;
+        continue;
+      }
+      const normalised = trimmed.replace(/\s+/g, " ");
+      const key = normalised.toLowerCase();
+      if (seen.has(key)) {
+        removed = true;
+        continue;
+      }
+      unique.push(normalised);
+      seen.add(key);
+    }
+    setCritiqueRubric(unique);
+    if (removed) {
+      pushToast({
+        tone: "warning",
+        title: "Duplicate rubric categories removed",
+        description: "Rubric entries must be unique and non-empty.",
+      });
+    }
+    },
+    [pushToast],
+  );
+
+  const cancelBatchCritique = useCallback(() => {
+    const job = batchJobRef.current;
+    if (job) {
+      job.cancelled = true;
+      batchJobRef.current = null;
+    }
+    setBatchCritiqueState((previous) => ({
+      running: false,
+      results: previous.results,
+    }));
+  }, []);
+
+  const toggleCompanion = useCallback(() => {
+    setCompanionOpen((previous) => !previous);
+  }, []);
+
+  const closeCompanion = useCallback(() => {
+    cancelBatchCritique();
+    setCompanionOpen(false);
+  }, [cancelBatchCritique]);
+
+  useEffect(() => {
+    if (!companionOpen) {
+      cancelBatchCritique();
+    }
+  }, [companionOpen, cancelBatchCritique]);
+
+  useEffect(() => {
+    return () => {
+      cancelBatchCritique();
+    };
+  }, [cancelBatchCritique]);
+
+  const runBatchCritique = useCallback(
+    async (sceneIds: string[]) => {
+      const projectId = projectSummary?.projectId;
+      if (!services) {
+        pushToast({
+          tone: "error",
+          title: "Services unavailable",
+          description: "Start the local services bridge before running batch critiques.",
+        });
+        return;
+      }
+      if (!projectId) {
+        pushToast({
+          tone: "warning",
+          title: "Load a project",
+          description: "Open a project to run critiques across multiple scenes.",
+        });
+        return;
+      }
+
+      const uniqueIds = Array.from(
+        new Set(
+          sceneIds.filter((sceneId): sceneId is string => typeof sceneId === "string" && sceneId.trim().length > 0),
+        ),
+      );
+      if (uniqueIds.length === 0) {
+        pushToast({
+          tone: "warning",
+          title: "Select scenes",
+          description: "Choose one or more scenes before running a batch critique.",
+        });
+        return;
+      }
+
+      const rubricValues = critiqueRubric
+        .map((entry) => entry.trim())
+        .filter((entry) => entry.length > 0);
+      if (rubricValues.length === 0) {
+        pushToast({
+          tone: "warning",
+          title: "Add rubric categories",
+          description: "Specify at least one rubric category before running a batch critique.",
+        });
+        return;
+      }
+
+      if (batchJobRef.current) {
+        batchJobRef.current.cancelled = true;
+      }
+      const job = { cancelled: false };
+      batchJobRef.current = job;
+
+      setBatchCritiqueState((previous) => {
+        const nextResults = { ...previous.results };
+        uniqueIds.forEach((sceneId) => {
+          nextResults[sceneId] = { status: "running" };
+        });
+        return {
+          running: true,
+          results: nextResults,
+        };
+      });
+
+      let successCount = 0;
+      let failureCount = 0;
+      const queue = [...uniqueIds];
+      const concurrency = Math.max(1, Math.min(3, queue.length));
+
+      const worker = async () => {
+        while (queue.length > 0 && !job.cancelled) {
+          const sceneId = queue.shift();
+          if (!sceneId) {
+            return;
+          }
+
+          try {
+            const response = await services.critiqueDraft({
+              projectId,
+              draftId: generateDraftId(sceneId),
+              unitId: sceneId,
+              rubric: rubricValues,
+            });
+
+            if (job.cancelled || !isMountedRef.current) {
+              return;
+            }
+
+            if (response.ok) {
+              successCount += 1;
+              const data = response.data as DraftCritiqueBridgeResponse;
+              const summaryText = typeof data.summary === "string" ? data.summary.trim() : "";
+              const truncatedSummary =
+                summaryText.length > 180 ? `${summaryText.slice(0, 177)}…` : summaryText;
+              setBatchCritiqueState((previous) => {
+                if (job.cancelled) {
+                  return previous;
+                }
+                return {
+                  running: true,
+                  results: {
+                    ...previous.results,
+                    [sceneId]: {
+                      status: "success",
+                      summary: truncatedSummary,
+                      traceId: response.traceId,
+                    },
+                  },
+                };
+              });
+            } else {
+              failureCount += 1;
+              const errorMessage = response.error.message;
+              const traceId = response.traceId ?? response.error.traceId;
+              setBatchCritiqueState((previous) => {
+                if (job.cancelled) {
+                  return previous;
+                }
+                return {
+                  running: true,
+                  results: {
+                    ...previous.results,
+                    [sceneId]: {
+                      status: "error",
+                      error: errorMessage,
+                      traceId,
+                    },
+                  },
+                };
+              });
+            }
+          } catch (error) {
+            if (job.cancelled || !isMountedRef.current) {
+              return;
+            }
+            failureCount += 1;
+            const message = error instanceof Error ? error.message : String(error);
+            setBatchCritiqueState((previous) => {
+              if (job.cancelled) {
+                return previous;
+              }
+              return {
+                running: true,
+                results: {
+                  ...previous.results,
+                  [sceneId]: {
+                    status: "error",
+                    error: message,
+                  },
+                },
+              };
+            });
+          }
+        }
+      };
+
+      await Promise.all(Array.from({ length: concurrency }, () => worker()));
+
+      if (job.cancelled || !isMountedRef.current) {
+        return;
+      }
+
+      batchJobRef.current = null;
+      setBatchCritiqueState((previous) => ({
+        running: false,
+        results: previous.results,
+      }));
+
+      const total = successCount + failureCount;
+      if (total === 0) {
+        return;
+      }
+      if (failureCount === 0) {
+        pushToast({
+          tone: "success",
+          title: "Batch critique complete",
+          description: `Generated ${successCount} critique${successCount === 1 ? "" : "s"}.`,
+        });
+      } else {
+        pushToast({
+          tone: "warning",
+          title: "Batch critique finished with issues",
+          description: `${successCount} succeeded, ${failureCount} failed.`,
+        });
+      }
+    },
+    [critiqueRubric, isMountedRef, projectSummary, pushToast, services],
+  );
 
   const activateProject = useCallback(
     (project: LoadedProject, options?: { preserveSceneId?: string | null }) => {
@@ -191,6 +593,7 @@ export default function App(): JSX.Element {
     setProjectDrafts,
     setDraftEdits,
     reloadProjectFromDisk,
+    onBudgetUpdate: applyBudgetUpdate,
   });
 
   const handleProjectLoaded = useCallback(
@@ -281,6 +684,13 @@ export default function App(): JSX.Element {
   const preflightError = preflightState.error;
   const preflightErrorDetails = preflightState.errorDetails;
 
+  useEffect(() => {
+    const budget = preflightState.estimate?.budget;
+    if (budget) {
+      applyBudgetUpdate(budget);
+    }
+  }, [applyBudgetUpdate, preflightState.estimate]);
+
   const projectLabel = useMemo(() => projectSummary?.path ?? "No project loaded", [projectSummary]);
   const recoverySnapshot = recoveryStatus?.last_snapshot ?? null;
   const recoveryBannerVisible = recoveryStatus?.needs_recovery ?? false;
@@ -306,10 +716,14 @@ export default function App(): JSX.Element {
           projectLabel={projectLabel}
           serviceStatus={serviceStatus}
           onRetry={checkServices}
+          onToggleCompanion={toggleCompanion}
           onGenerate={() => void openPreflight()}
           onCritique={() => void openCritique()}
+          companionOpen={companionOpen}
+          disableCompanion={!currentProject}
           disableGenerate={serviceStatus !== "online"}
           disableCritique={serviceStatus !== "online"}
+          budget={budgetSnapshot ?? undefined}
         />
 
         <main className="app-shell__workspace-body">
@@ -339,6 +753,26 @@ export default function App(): JSX.Element {
           </div>
         </main>
       </div>
+
+      <CompanionOverlay
+        open={companionOpen}
+        onClose={closeCompanion}
+        activeScene={activeScene}
+        activeDraft={
+          activeScene
+            ? draftEdits[activeScene.id] ?? projectDrafts[activeScene.id] ?? ""
+            : ""
+        }
+        project={currentProject}
+        drafts={draftEdits}
+        rubric={critiqueRubric}
+        onRubricChange={updateCritiqueRubric}
+        builtInRubric={DEFAULT_CRITIQUE_RUBRIC}
+        scenes={currentProject?.scenes ?? []}
+        activeSceneId={activeScene?.id ?? null}
+        batchState={batchCritiqueState}
+        onBatchCritique={runBatchCritique}
+      />
 
       <ToastStack
         toasts={toasts}

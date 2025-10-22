@@ -12,6 +12,7 @@ from test_app import (
     _assert_trace_header,
     _build_critique_payload,
     _bootstrap_outline,
+    _bootstrap_scene,
     _read_error,
     _write_project_budget,
 )
@@ -95,16 +96,30 @@ async def test_preflight_missing_scene_contract(
     assert detail["details"]["missing_scene_ids"] == ["sc_9999"]
 
 
-async def test_critique_contract(async_client: httpx.AsyncClient) -> None:
+async def test_critique_contract(async_client: httpx.AsyncClient, tmp_path: Path) -> None:
     """Critique endpoint returns the documented schema."""
 
-    request_payload = _build_critique_payload()
+    project_id = "proj_async_critique_contract"
+    scene_ids = _bootstrap_outline(tmp_path, project_id, scene_count=1)
+    _bootstrap_scene(tmp_path, project_id, scene_id=scene_ids[0])
+    request_payload = _build_critique_payload(unit_id=scene_ids[0])
+    request_payload["project_id"] = project_id
     response = await async_client.post(f"{API_PREFIX}/draft/critique", json=request_payload)
     assert response.status_code == 200
     response_payload = response.json()
     assert response_payload["schema_version"].startswith("CritiqueOutputSchema")
-    assert response_payload["unit_id"] == "sc_0001"
+    assert response_payload["unit_id"] == scene_ids[0]
     assert isinstance(response_payload.get("line_comments"), list)
+    budget = response_payload["budget"]
+    assert set(budget) >= {
+        "estimated_usd",
+        "status",
+        "soft_limit_usd",
+        "hard_limit_usd",
+        "spent_usd",
+        "total_after_usd",
+    }
+    assert budget["estimated_usd"] >= 0
     _assert_trace_header(response)
 
 

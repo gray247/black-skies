@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\routers\health.py
+# hypothesis_version: 6.138.2
+
+['/api/v1', '/healthz', '/metrics', 'Content-Type', 'get_service_version', 'health', 'metrics_endpoint', 'ok', 'router', 'service_version', 'status', 'unknown', 'utf-8', 'version']

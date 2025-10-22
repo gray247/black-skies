@@ -65,6 +65,8 @@ persisted locally and the History pane restore path has been smoke-tested end-to
 4. Error budget SLOs and alerts (even if local: exit codes in CI, thresholds in eval report).
 5. Security pass: `.env` handling, dependency review, license scan.
 
+**Status note:** Companion overlay, batch critique workflow, custom rubric editing, and the workspace budget meter now ship in the renderer (`CompanionOverlay.tsx`, `BudgetMeter.tsx`), with batch tests covering the new flows.
+
 ### P9 — GA & Post-GA Care
 **Goal:** ship v1.0.0 and define how we maintain it.
 **Deliverables**
@@ -82,5 +84,6 @@ persisted locally and the History pane restore path has been smoke-tested end-to
 - [x] Add `/api/v1` router + contracts in `docs/endpoints.md` (P6)
 - [x] Implement session snapshots & restore (P6)
 - [x] Package RC, smoke tests, docs (P7)
+- [x] Ship Companion overlay & batch critique prototype (P8)
 - [ ] Add load/e2e tests; resilience settings (P8)
 - [ ] Tag GA and add release/support docs (P9)

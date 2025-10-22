@@ -7,8 +7,12 @@ on:
 
 jobs:
   pip-audit:
-    name: Dependency vulnerability scan
-    runs-on: ubuntu-latest
+    name: Security sweep
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -33,5 +37,89 @@ jobs:
           pip install pip-audit
 
       - name: Run pip-audit
+        id: pip_audit
         run: |
-          pip-audit --strict -r requirements.lock -r requirements.dev.lock
+          set +e
+          pip-audit \
+            --strict \
+            --format json \
+            --output pip-audit-report.json \
+            --requirement requirements.lock \
+            --requirement requirements.dev.lock
+          status=$?
+          if [ ! -f pip-audit-report.json ]; then
+            echo '{"error":"pip-audit terminated before producing a report"}' > pip-audit-report.json
+          fi
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          exit 0
+      - name: Upload pip-audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pip-audit-report
+          path: pip-audit-report.json
+
+      - name: Install Safety
+        run: |
+          pip install safety
+
+      - name: Run Safety
+        id: safety
+        run: |
+          set +e
+          safety check \
+            --json \
+            --output safety-report.json \
+            --file requirements.lock \
+            --file requirements.dev.lock
+          status=$?
+          if [ ! -f safety-report.json ]; then
+            echo '{"error":"safety terminated before producing a report"}' > safety-report.json
+          fi
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          exit 0
+      - name: Upload Safety report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: safety-report
+          path: safety-report.json
+      - name: Run light-load sanity check
+        run: |
+          python scripts/load.py --total-cycles 4 --concurrency 2 --timeout 45 --start-service
+      - name: Discover load ledger
+        id: load_ledger
+        run: |
+          RUN_JSON=$(python - <<'PY'
+from pathlib import Path
+root = Path("sample_project/_runtime/runs")
+candidates = sorted(root.glob("load-test-*"))
+if not candidates:
+    raise SystemExit("No load-test runs found.")
+print((candidates[-1] / "run.json").resolve().as_posix())
+PY
+)
+          echo "run_json=$RUN_JSON" >> "$GITHUB_OUTPUT"
+      - name: Enforce load SLO
+        run: python scripts/check_slo.py "${{ steps.load_ledger.outputs.run_json }}"
+      - name: Upload load ledger
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: load-ledger-${{ matrix.os }}
+          path: ${{ steps.load_ledger.outputs.run_json }}
+      - name: Generate dependency report
+        run: python scripts/dependency_report.py --output dependency-report.json
+      - name: Upload dependency report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-report
+          path: dependency-report.json
+      - name: Fail if vulnerabilities detected
+        if: ${{ steps.pip_audit.outputs.status != '0' || steps.safety.outputs.status != '0' }}
+        run: |
+          echo "Dependency vulnerabilities detected by pip-audit or Safety."
+          cat pip-audit-report.json || true
+          cat safety-report.json || true
+          exit 1

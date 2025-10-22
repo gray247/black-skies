@@ -129,6 +129,41 @@ def test_compile_manuscript_orders_units_and_includes_meta(monkeypatch: pytest.M
     assert scene_count == 3
 
 
+
+def test_compile_manuscript_collects_units(monkeypatch: pytest.MonkeyPatch) -> None:
+    project_root = Path("/projects/demo")
+    outline = OutlineArtifact(
+        schema_version="OutlineSchema v1",
+        outline_id="out_010",
+        acts=["Act I"],
+        chapters=[OutlineChapter(id="ch_0001", order=1, title="Chapter 1")],
+        scenes=[
+            OutlineScene(id="sc_0001", order=1, title="Scene 1", chapter_id="ch_0001"),
+            OutlineScene(id="sc_0002", order=2, title="Scene 2", chapter_id="ch_0001"),
+        ],
+    )
+
+    def _fake_read_scene_document(root: Path, scene_id: str) -> tuple[Path, dict[str, Any], str]:
+        order = 1 if scene_id == "sc_0001" else 2
+        front_matter = {"id": scene_id, "title": f"Scene {order}", "order": order}
+        return Path(f"{scene_id}.md"), front_matter, f"Body for {scene_id}"
+
+    monkeypatch.setattr(
+        "blackskies.services.export.read_scene_document",
+        _fake_read_scene_document,
+    )
+
+    collected: list[tuple[str, dict[str, Any], str]] = []
+
+    _compile_manuscript(
+        project_root,
+        outline,
+        unit_collector=lambda scene, meta, body: collected.append((scene.id, meta, body)),
+    )
+
+    assert [entry[0] for entry in collected] == ["sc_0001", "sc_0002"]
+    assert collected[0][1]["title"] == "Scene 1"
+    assert collected[0][2] == "Body for sc_0001"
 def test_compile_manuscript_propagates_scene_errors(monkeypatch: pytest.MonkeyPatch) -> None:
     outline = OutlineArtifact(
         outline_id="out_002",

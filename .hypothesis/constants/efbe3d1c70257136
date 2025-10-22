@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\models\accept.py
+# hypothesis_version: 6.138.2
+
+['DraftAcceptRequest', 'DraftAcceptUnit', '^(sc|ch)_\\d{4}$', '^[0-9a-f]{64}$', 'after', 'forbid', 'project_id']

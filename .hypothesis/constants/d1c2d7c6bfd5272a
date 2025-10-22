@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\export.py
+# hypothesis_version: 6.138.2
+
+[' · ', '+00:00', '> ', 'AnalyticsReport v1', 'Z', 'beats', 'build_meta_header', 'captured_at', 'chapter_id', 'compile_manuscript', 'conflict', 'critiques', 'emotion', 'emotion_tag', 'errors', 'front_matter_order', 'generated_at', 'goal', 'history', 'id', 'merge_front_matter', 'missing_fields', 'normalize_markdown', 'order', 'outline.json', 'outline_order', 'path', 'pov', 'priorities', 'purpose', 'r', 'rubric', 'scene_id', 'schema_version', 'summary', 'title', 'turn', 'unit_id', 'utf-8', 'word_target']

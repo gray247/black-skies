@@ -2,15 +2,18 @@
 
 from __future__ import annotations
 
+import errno
 import json
 import os
 import re
 import shutil
+import time
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from threading import Lock
-from typing import IO, Any, Sequence
+from threading import Lock, RLock
+from typing import IO, Any, Iterator, Sequence
 from uuid import uuid4
 
 from blackskies.services.utils import safe_dump, to_posix
@@ -19,6 +22,26 @@ from .config import ServiceSettings
 from .models.outline import OutlineArtifact
 from .snapshot_includes import collect_include_specs, copy_include_entries, restore_include_entries
 from .snapshot_manifest import SnapshotMetadata, build_snapshot_manifest, timestamp_now
+
+_PATH_LOCKS: dict[str, RLock] = {}
+_PATH_LOCKS_GUARD = Lock()
+
+
+@contextmanager
+def _locked_path(target: Path) -> Iterator[None]:
+    """Serialise access to file paths to avoid Windows rename conflicts."""
+
+    key = str(target)
+    with _PATH_LOCKS_GUARD:
+        lock = _PATH_LOCKS.get(key)
+        if lock is None:
+            lock = RLock()
+            _PATH_LOCKS[key] = lock
+    lock.acquire()
+    try:
+        yield
+    finally:
+        lock.release()
 
 
 @dataclass
@@ -43,12 +66,13 @@ class OutlinePersistence:
         payload = outline.model_dump(mode="json")
         serialized = json.dumps(payload, indent=2, ensure_ascii=False)
 
-        temp_path = target_path.parent / f".{target_path.name}.{uuid4().hex}.tmp"
-        with temp_path.open("w", encoding="utf-8") as handle:
-            handle.write(serialized)
-            _flush_handle(handle, durable=True)
+        with _locked_path(target_path):
+            temp_path = target_path.parent / f".{target_path.name}.{uuid4().hex}.tmp"
+            with temp_path.open("w", encoding="utf-8") as handle:
+                handle.write(serialized)
+                _flush_handle(handle, durable=True)
 
-        temp_path.replace(target_path)
+            _replace_file(temp_path, target_path)
         return target_path
 
 
@@ -110,6 +134,36 @@ def _flush_handle(handle: IO[Any], *, durable: bool) -> None:
         os.fsync(handle.fileno())
 
 
+_TRANSIENT_ERRNOS = {errno.EACCES, errno.EPERM}
+_TRANSIENT_WINERRORS = {5, 32}
+
+
+def _replace_file(
+    temp_path: Path,
+    target_path: Path,
+    *,
+    attempts: int = 5,
+    delay: float = 0.05,
+) -> None:
+    """Atomically replace ``target_path`` with retry support for transient Windows errors."""
+
+    last_error: OSError | None = None
+    for attempt in range(attempts):
+        try:
+            temp_path.replace(target_path)
+            return
+        except OSError as exc:
+            winerror = getattr(exc, "winerror", None)
+            if exc.errno not in _TRANSIENT_ERRNOS and winerror not in _TRANSIENT_WINERRORS:
+                raise
+            last_error = exc
+            if attempt == attempts - 1:
+                break
+            time.sleep(delay * (attempt + 1))
+    if last_error is not None:
+        raise last_error
+
+
 @dataclass
 class DraftPersistence:
     """Persist synthesized draft scenes with locked front-matter."""
@@ -138,13 +192,13 @@ class DraftPersistence:
         target_path = drafts_dir / f"{scene_id}.md"
         rendered = self._render(front_matter, body)
 
-        temp_path = target_path.parent / f".{target_path.name}.{uuid4().hex}.tmp"
-        with temp_path.open("w", encoding="utf-8") as handle:
-            handle.write(rendered)
+        with _locked_path(target_path):
+            temp_path = target_path.parent / f".{target_path.name}.{uuid4().hex}.tmp"
             effective_durability = self.durable_writes if durable is None else durable
-            _flush_handle(handle, durable=effective_durability)
-
-        temp_path.replace(target_path)
+            with temp_path.open("w", encoding="utf-8") as handle:
+                handle.write(rendered)
+                _flush_handle(handle, durable=effective_durability)
+            _replace_file(temp_path, target_path)
         return target_path
 
     @staticmethod
@@ -175,26 +229,28 @@ def write_json_atomic(path: Path, payload: dict[str, Any], *, durable: bool = Tr
     """Write JSON to disk using an atomic rename."""
 
     path.parent.mkdir(parents=True, exist_ok=True)
-    temp_path = path.parent / f".{path.name}.{uuid4().hex}.tmp"
-    with temp_path.open("w", encoding="utf-8") as handle:
-        json.dump(payload, handle, indent=2, ensure_ascii=False)
-        _flush_handle(handle, durable=durable)
-    temp_path.replace(path)
+    with _locked_path(path):
+        temp_path = path.parent / f".{path.name}.{uuid4().hex}.tmp"
+        with temp_path.open("w", encoding="utf-8") as handle:
+            json.dump(payload, handle, indent=2, ensure_ascii=False)
+            _flush_handle(handle, durable=durable)
+        _replace_file(temp_path, path)
 
 
 def write_text_atomic(path: Path, content: str, *, durable: bool = True) -> None:
     """Write UTF-8 text to disk atomically with normalised newlines."""
 
     path.parent.mkdir(parents=True, exist_ok=True)
-    temp_path = path.parent / f".{path.name}.{uuid4().hex}.tmp"
-    # Normalise to LF endings and ensure final newline for editors/tools.
-    normalized = content.replace("\r\n", "\n")
-    if not normalized.endswith("\n"):
-        normalized = f"{normalized}\n"
-    with temp_path.open("w", encoding="utf-8", newline="\n") as handle:
-        handle.write(normalized)
-        _flush_handle(handle, durable=durable)
-    temp_path.replace(path)
+    with _locked_path(path):
+        temp_path = path.parent / f".{path.name}.{uuid4().hex}.tmp"
+        # Normalise to LF endings and ensure final newline for editors/tools.
+        normalized = content.replace("\r\n", "\n")
+        if not normalized.endswith("\n"):
+            normalized = f"{normalized}\n"
+        with temp_path.open("w", encoding="utf-8", newline="\n") as handle:
+            handle.write(normalized)
+            _flush_handle(handle, durable=durable)
+        _replace_file(temp_path, path)
 
 
 @dataclass

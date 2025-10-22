@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\routers\draft\generation.py
+# hypothesis_version: 6.138.2
+
+[0.02, 1000, '/generate', '/preflight', 'INTERNAL', 'beat_refs', 'budget', 'chapter_id', 'error', 'errors', 'estimated_usd', 'generate_draft', 'hard_limit_usd', 'id', 'message', 'model', 'order', 'preflight_draft', 'project_id', 'scenes', 'soft_limit_usd', 'spent_usd', 'status', 'title', 'total_after_usd', 'unit_ids', 'unit_scope']

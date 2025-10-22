@@ -6,7 +6,7 @@ import re
 from enum import Enum
 from typing import Literal
 
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from ._project_id import validate_project_id
 
@@ -21,6 +21,8 @@ class DraftUnitScope(str, Enum):
 class DraftUnitOverrides(BaseModel):
     """Optional overrides applied when generating a draft unit."""
 
+    model_config = ConfigDict(extra="forbid")
+
     order: int | None = Field(default=None, ge=1)
     purpose: Literal["setup", "escalation", "payoff", "breath"] | None = None
     emotion_tag: Literal["dread", "tension", "respite", "revelation", "aftermath"] | None = None
@@ -33,6 +35,8 @@ class DraftUnitOverrides(BaseModel):
 
 class DraftGenerateRequest(BaseModel):
     """Request payload for the /draft/generate endpoint."""
+
+    model_config = ConfigDict(extra="forbid")
 
     project_id: str
     unit_scope: DraftUnitScope

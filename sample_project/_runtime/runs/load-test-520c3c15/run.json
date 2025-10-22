@@ -1,0 +1,68 @@
+{
+  "run_id": "load-test-520c3c15",
+  "kind": "load-test",
+  "params": {
+    "profile": "default",
+    "host": "127.0.0.1",
+    "port": 43750,
+    "project_id": "proj_esther_estate",
+    "total_cycles": 1,
+    "concurrency": 1
+  },
+  "status": "completed",
+  "created_at": "2025-10-22T03:14:24.684382Z",
+  "updated_at": "2025-10-22T03:14:26.868809Z",
+  "events": [],
+  "result": {
+    "metrics": {
+      "total_requests": 4,
+      "error_count": 0,
+      "error_rate": 0.0,
+      "avg_latency_ms": 22.22050000273157,
+      "p95_latency_ms": 52.56239000809727,
+      "p99_latency_ms": 57.102638009673676,
+      "total_budget_usd": 0.02,
+      "per_path": {
+        "/api/v1/draft/wizard/lock": {
+          "count": 1,
+          "avg_ms": 20.402299996931106,
+          "p95_ms": 20.402299996931106,
+          "p99_ms": 20.402299996931106,
+          "error_count": 0
+        },
+        "/api/v1/draft/generate": {
+          "count": 1,
+          "avg_ms": 7.812900003045797,
+          "p95_ms": 7.812900003045797,
+          "p99_ms": 7.812900003045797,
+          "error_count": 0
+        },
+        "/api/v1/draft/critique": {
+          "count": 1,
+          "avg_ms": 2.42910000088159,
+          "p95_ms": 2.42910000088159,
+          "p99_ms": 2.42910000088159,
+          "error_count": 0
+        },
+        "/api/v1/draft/accept": {
+          "count": 1,
+          "avg_ms": 58.23770001006778,
+          "p95_ms": 58.23770001006778,
+          "p99_ms": 58.23770001006778,
+          "error_count": 0
+        }
+      }
+    },
+    "thresholds": {
+      "p95_ms": 220.0,
+      "p99_ms": 260.0,
+      "max_error_rate": 0.05,
+      "max_budget_usd": 5.0
+    },
+    "breaches": [],
+    "slo": {
+      "status": "ok",
+      "violations": []
+    }
+  }
+}

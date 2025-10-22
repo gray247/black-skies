@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\routers\recovery.py
+# hypothesis_version: 6.138.2
+
+['/draft/recovery', '/restore', 'INTERNAL', 'RecoveryTracker', 'Snapshot not found.', 'Z', 'accept-in-progress', 'code', 'details', 'draft_id', 'error', 'errors', 'failure_reason', 'history', 'idle', 'last_snapshot', 'message', 'needs-recovery', 'needs_recovery', 'path', 'pending_unit_id', 'project_id', 'r', 'recovery', 'router', 'snapshot_id', 'started_at', 'state.json', 'status', 'updated_at', 'utf-8']

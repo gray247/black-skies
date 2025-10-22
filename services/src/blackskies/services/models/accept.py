@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from ._project_id import validate_project_id
 
@@ -15,6 +15,8 @@ _SHA256_PATTERN = r"^[0-9a-f]{64}$"
 class DraftAcceptUnit(BaseModel):
     """Client representation of an accepted draft unit."""
 
+    model_config = ConfigDict(extra="forbid")
+
     id: str = Field(pattern=_ID_PATTERN)
     previous_sha256: str = Field(pattern=_SHA256_PATTERN)
     text: str
@@ -24,6 +26,8 @@ class DraftAcceptUnit(BaseModel):
 
 class DraftAcceptRequest(BaseModel):
     """Request payload for the /draft/accept endpoint."""
+
+    model_config = ConfigDict(extra="forbid")
 
     project_id: str
     draft_id: str

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
@@ -71,6 +72,7 @@ async def test_full_gui_flow(async_client: httpx.AsyncClient, tmp_path: Path) ->
         unit_id=draft_data["units"][0]["id"],
         rubric=["Logic", "Continuity"],
     )
+    critique_request["project_id"] = project_id
     response = await async_client.post(f"{API_PREFIX}/draft/critique", json=critique_request)
     assert response.status_code == 200, response.json()
     critique = response.json()
@@ -122,9 +124,23 @@ async def test_full_gui_flow(async_client: httpx.AsyncClient, tmp_path: Path) ->
     assert response.status_code == 200, response.json()
     export_payload = response.json()
     assert export_payload["path"] == "draft_full.md"
+    assert export_payload["artifacts"]["analytics_report"] == "analytics_report.json"
+    assert export_payload["artifacts"]["critique_bundle"] == "critique_bundle.md"
+
+    analytics_path = tmp_path / project_id / "analytics_report.json"
+    assert analytics_path.exists()
+    analytics_report = json.loads(analytics_path.read_text(encoding="utf-8"))
+    assert analytics_report["schema_version"] == "AnalyticsReport v1"
+    assert analytics_report["emotion_arc"]
+
+    critique_bundle_path = tmp_path / project_id / "critique_bundle.md"
+    assert critique_bundle_path.exists()
+    bundle_text = critique_bundle_path.read_text(encoding="utf-8")
+    assert "Batch Critique Summary" in bundle_text
+    assert critique["summary"] in bundle_text
+
     manuscript = (tmp_path / project_id / "draft_full.md").read_text(encoding="utf-8")
     assert "Storm Cellar" in manuscript
-
     # Quick health check
     response = await async_client.get(f"{API_PREFIX}/healthz")
     assert response.status_code == 200
