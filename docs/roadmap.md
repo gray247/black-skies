@@ -64,6 +64,12 @@ persisted locally and the History pane restore path has been smoke-tested end-to
 3. Input validation strict mode; large payload guards; log redaction verified.
 4. Error budget SLOs and alerts (even if local: exit codes in CI, thresholds in eval report).
 5. Security pass: `.env` handling, dependency review, license scan.
+6. GUI docking enhancements (Phase 8):
+   - Integrate dock manager with drag/drop panes + floating windows.
+   - Persist layouts to `layout.json`; restore presets per user/project.
+   - Ship accessibility + hotkeys for layout switching.
+
+   - See `docs/phase8_gui_enhancements.md` for ticket breakdown (GUI-P8-001..003).
 
 **Status note:** Companion overlay, batch critique workflow, custom rubric editing, and the workspace budget meter now ship in the renderer (`CompanionOverlay.tsx`, `BudgetMeter.tsx`), with batch tests covering the new flows.
 
@@ -86,4 +92,42 @@ persisted locally and the History pane restore path has been smoke-tested end-to
 - [x] Package RC, smoke tests, docs (P7)
 - [x] Ship Companion overlay & batch critique prototype (P8)
 - [ ] Add load/e2e tests; resilience settings (P8)
+- [ ] Implement dock manager + layout persistence + accessibility pass (P8)
 - [ ] Tag GA and add release/support docs (P9)
+
+## Release Plan
+
+### v1.1 (P8–P9 deliverables)
+- **Target dates**
+  - Feature freeze: 2026-01-15
+  - RC build: 2026-01-22
+  - GA release: 2026-02-05
+- **Readiness criteria**
+  - P8 hardening tasks complete (load, resilience, security).
+  - Analytics service (emotion/pacing/conflict) GA with accuracy benchmarks ±5% versus goldens.
+  - Voice notes MVP functional with local transcription option and budget tracking.
+  - All critical bugs triaged/resolved; zero open P0/P1 issues.
+  - Docs updated (analytics, rewrite assistant, voice notes).
+- **Gating**
+  - Eval benchmarks ≥95% pass with p95 latency < 800 ms.
+  - Accessibility audit on new surfaces (analytics panels, voice UI) meets WCAG AA.
+  - Security review for plugin registry endpoints complete.
+
+### v1.2 (P10–P11 deliverables)
+- **Target dates**
+  - Planning kickoff: 2026-02-12
+  - Feature freeze: 2026-03-20
+  - RC build: 2026-03-27
+  - GA release: 2026-04-10
+- **Scope**
+  - Dynamic export templates (DOCX/EPUB/PDF) with status badges.
+  - Plugin registry lifecycle (install, enable, audit) and agent integration.
+  - Additional automation agents per P11.
+- **Acceptance criteria**
+  - Export converters pass golden diff suite across sample projects.
+  - Plugin registry API & audit logging enabled; penetration test passes.
+  - Updated dashboards surface plugin outputs & analytics overlays.
+- **Gating**
+  - Eval suite expanded with plugin/analytics scenarios; pass rate ≥92%.
+  - Heavy export pipeline completes < 90 s on reference hardware.
+  - Docs (exports, plugins, release notes) ready and reviewed.

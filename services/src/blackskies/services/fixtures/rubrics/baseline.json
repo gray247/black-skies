@@ -1,0 +1,24 @@
+{
+  "rubric_id": "baseline",
+  "label": "Baseline Critique Rubric",
+  "description": "Default rubric used when no custom rubric is supplied.",
+  "categories": ["Logic", "Continuity", "Character", "Pacing", "Prose", "Horror"],
+  "steps": [
+    {
+      "title": "Narrative Continuity",
+      "prompt": "Assess continuity and logic against prior beats; identify gaps or contradictions.",
+      "severity": "warning"
+    },
+    {
+      "title": "Character Voice",
+      "prompt": "Review character motivations and dialogue tone for consistency.",
+      "severity": "info"
+    },
+    {
+      "title": "Pacing & Atmosphere",
+      "prompt": "Call out sections where pacing drags or tension drops unexpectedly.",
+      "severity": "info"
+    }
+  ],
+  "blocked_categories": []
+}

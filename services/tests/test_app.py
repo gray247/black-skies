@@ -115,6 +115,7 @@ def _build_critique_payload(
     draft_id: str = "dr_004",
     unit_id: str = "sc_0001",
     rubric: list[str] | None = None,
+    rubric_id: str | None = None,
 ) -> dict[str, Any]:
     """Return a critique request payload matching the rubric specification."""
 
@@ -127,7 +128,10 @@ def _build_critique_payload(
             "Character",
         ]
     )
-    return {"draft_id": draft_id, "unit_id": unit_id, "rubric": rubric_values}
+    payload = {"draft_id": draft_id, "unit_id": unit_id, "rubric": rubric_values}
+    if rubric_id is not None:
+        payload["rubric_id"] = rubric_id
+    return payload
 
 
 def _build_contract_outline_request(project_id: str) -> dict[str, Any]:
@@ -426,12 +430,14 @@ def test_draft_generate_scene_success(test_client: TestClient, tmp_path: Path) -
     assert budget["status"] == "ok"
     assert budget["soft_limit_usd"] == pytest.approx(5.0)
     assert budget["hard_limit_usd"] == pytest.approx(10.0)
-    assert budget["spent_usd"] == pytest.approx(budget["estimated_usd"])
+    current_spend = budget["spent_usd"]
+    assert current_spend == pytest.approx(0.0)
+    assert budget["total_after_usd"] == pytest.approx(current_spend + budget["estimated_usd"])
 
     project_config = tmp_path / project_id / "project.json"
     with project_config.open("r", encoding="utf-8") as handle:
         project_meta = json.load(handle)
-    assert project_meta["budget"]["spent_usd"] == pytest.approx(budget["spent_usd"])
+    assert project_meta["budget"]["spent_usd"] == pytest.approx(current_spend)
 
 
 def test_draft_generate_rehydrates_cached_units(test_client: TestClient, tmp_path: Path) -> None:
@@ -572,13 +578,13 @@ def test_draft_generate_soft_limit_status(test_client: TestClient, tmp_path: Pat
     assert budget["status"] == "soft-limit"
     assert budget["soft_limit_usd"] == pytest.approx(5.0)
     assert budget["hard_limit_usd"] == pytest.approx(10.0)
-    assert budget["spent_usd"] > 5.0
-    assert budget["spent_usd"] == pytest.approx(budget["estimated_usd"] + 4.9)
+    assert budget["spent_usd"] == pytest.approx(4.9)
+    assert budget["total_after_usd"] == pytest.approx(budget["estimated_usd"] + 4.9)
 
     project_config = tmp_path / project_id / "project.json"
     with project_config.open("r", encoding="utf-8") as handle:
         project_meta = json.load(handle)
-    assert project_meta["budget"]["spent_usd"] == pytest.approx(budget["spent_usd"])
+    assert project_meta["budget"]["spent_usd"] == pytest.approx(4.9)
 
 
 @pytest.mark.contract
@@ -640,6 +646,58 @@ def test_draft_critique_validation_unknown_category(test_client: TestClient) -> 
     assert any("Unknown rubric categories" in error["msg"] for error in errors)
 
 
+def test_draft_critique_loads_custom_rubric(
+    test_client: TestClient,
+    tmp_path: Path,
+) -> None:
+    """Critique loads rubric definitions from project metadata when provided."""
+
+    project_id = "proj_custom_rubric"
+    scene_ids = _bootstrap_outline(tmp_path, project_id, scene_count=1)
+    _bootstrap_scene(tmp_path, project_id, scene_id=scene_ids[0])
+
+    rubric_dir = tmp_path / project_id / "history" / "rubrics"
+    rubric_dir.mkdir(parents=True, exist_ok=True)
+    rubric_definition = {
+        "rubric_id": "team.story",
+        "label": "Team Story Rubric",
+        "categories": ["Theme", "Emotional Arc"],
+        "steps": [],
+    }
+    (rubric_dir / "team.story.json").write_text(
+        json.dumps(rubric_definition, indent=2),
+        encoding="utf-8",
+    )
+
+    payload = _build_critique_payload(rubric=None, rubric_id="team.story")
+    payload["project_id"] = project_id
+    response = test_client.post(f"{API_PREFIX}/draft/critique", json=payload)
+    assert response.status_code == 200
+
+    data = response.json()
+    assert data["rubric_id"] == "team.story"
+    assert data["rubric"] == ["Theme", "Emotional Arc"]
+
+    summary_path = tmp_path / project_id / "history" / "critiques" / f"{payload['unit_id']}.json"
+    stored = json.loads(summary_path.read_text(encoding="utf-8"))
+    assert stored["rubric_id"] == "team.story"
+    assert stored["rubric"] == ["Theme", "Emotional Arc"]
+
+
+def test_draft_critique_unknown_rubric_id(
+    test_client: TestClient,
+) -> None:
+    """Critique rejects requests referencing unknown rubric identifiers."""
+
+    payload = _build_critique_payload(rubric=None, rubric_id="missing.rubric")
+    response = test_client.post(f"{API_PREFIX}/draft/critique", json=payload)
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    detail = response.json()
+    assert detail["code"] == "VALIDATION"
+    assert any(
+        error["loc"] == ["rubric_id"] for error in detail.get("details", {}).get("errors", [])
+    )
+
 
 def test_draft_critique_persists_summary(test_client: TestClient, tmp_path: Path) -> None:
     """Critique summaries are stored for export when a project id is provided."""
@@ -670,6 +728,7 @@ def test_draft_critique_persists_summary(test_client: TestClient, tmp_path: Path
     assert stored["unit_id"] == payload["unit_id"]
     assert stored["summary"] == result["summary"]
     assert stored["rubric"] == payload["rubric"]
+    assert stored["rubric_id"] == result.get("rubric_id")
     assert "budget" in stored
     assert stored["budget"]["estimated_usd"] == pytest.approx(critique_budget["estimated_usd"])
     assert stored["budget"]["spent_usd"] == pytest.approx(critique_budget["spent_usd"])

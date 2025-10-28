@@ -9,6 +9,17 @@ See [Agents & Services](./agents_and_services.md) for Phase 11 analytics + agent
 ## Default Dock Preset (v1.1)
 Wizard (left) | Draft Board (center) | Critique (right) | History (bottom) | **Analytics/Dashboard (tabbed pane)** (floating)
 
+### Current Scope (v1.1)
+- The preset above is locked for Phase 1–7 delivery. Panes resize within their bands, but users cannot drag/dock panes into new regions or detach them yet.
+- Layout reset restores this preset and clears any transient runtime resizing.
+
+### Planned Enhancements (Phase 8 GUI Enhancements)
+- Unlock pane drag/drop docking with snap targets and keyboard equivalents for accessibility.
+- Persist user layouts to `layout.json` (per project and per profile) so custom arrangements survive restarts and sync across devices.
+- Allow panes to detach into floating window containers for secondary monitors, with optional “return to dock” controls.
+- Expose hotkeys for storing/recalling layout presets (e.g., `Ctrl+Alt+1` for Default, `Ctrl+Alt+2` for Analysis View).
+- Provide reset + export/import of layouts to support team-standard presets.
+
 ---
 
 ## Pane Responsibilities

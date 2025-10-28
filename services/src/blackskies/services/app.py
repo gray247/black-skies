@@ -35,6 +35,7 @@ from .routers.health import router as health_router
 from .routers.outline import BuildInProgressError, BuildTracker
 from .routers.recovery import RecoveryTracker
 from .critique import CritiqueService
+from .resilience import ResiliencePolicy, ServiceResilienceRegistry
 
 LOGGER = logging.getLogger(__name__)
 
@@ -112,6 +113,26 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
     application.state.recovery_tracker = RecoveryTracker(settings=application.state.settings)
     application.state.critique_service = CritiqueService()
     application.state.service_version = SERVICE_VERSION
+    application.state.resilience_registry = ServiceResilienceRegistry(
+        {
+            "critique": ResiliencePolicy(
+                name="critique",
+                timeout_seconds=float(service_settings.critique_task_timeout_seconds),
+                max_attempts=max(1, int(service_settings.critique_task_retry_attempts) + 1),
+                backoff_seconds=0.5,
+                circuit_failure_threshold=int(service_settings.critique_circuit_failure_threshold),
+                circuit_reset_seconds=float(service_settings.critique_circuit_reset_seconds),
+            ),
+            "analytics": ResiliencePolicy(
+                name="analytics",
+                timeout_seconds=float(service_settings.analytics_task_timeout_seconds),
+                max_attempts=max(1, int(service_settings.analytics_task_retry_attempts) + 1),
+                backoff_seconds=0.5,
+                circuit_failure_threshold=int(service_settings.analytics_circuit_failure_threshold),
+                circuit_reset_seconds=float(service_settings.analytics_circuit_reset_seconds),
+            ),
+        }
+    )
 
     async def http_exception_handler(_: Request, exc: Exception) -> Response:
         trace_id = ensure_trace_id()

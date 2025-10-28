@@ -18,6 +18,17 @@ import {
   type DiagnosticsBridge,
   type DiagnosticsOpenResult,
 } from '../shared/ipc/diagnostics.js';
+import {
+  LAYOUT_CHANNELS,
+  type FloatingPaneCloseRequest,
+  type FloatingPaneDescriptor,
+  type FloatingPaneOpenRequest,
+  type LayoutBridge,
+  type LayoutLoadRequest,
+  type LayoutLoadResponse,
+  type LayoutSaveRequest,
+  type LayoutResetRequest,
+} from '../shared/ipc/layout.js';
 import type {
   DraftCritiqueBridgeRequest,
   DraftCritiqueBridgeResponse,
@@ -589,9 +600,66 @@ const servicesBridge: ServicesBridge = {
   restoreSnapshot: serviceApi.restoreSnapshot,
 };
 
+const layoutBridge: LayoutBridge = {
+  async loadLayout(request: LayoutLoadRequest): Promise<LayoutLoadResponse> {
+    try {
+      const response = await ipcRenderer.invoke(LAYOUT_CHANNELS.load, request);
+      if (response && typeof response === 'object') {
+        return response as LayoutLoadResponse;
+      }
+      return { layout: null, floatingPanes: [] };
+    } catch (error) {
+      console.warn('[preload] Failed to load layout', error);
+      return { layout: null, floatingPanes: [] };
+    }
+  },
+  async saveLayout(request: LayoutSaveRequest): Promise<void> {
+    try {
+      await ipcRenderer.invoke(LAYOUT_CHANNELS.save, request);
+    } catch (error) {
+      console.warn('[preload] Failed to save layout', error);
+    }
+  },
+  async resetLayout(request: LayoutResetRequest): Promise<void> {
+    try {
+      await ipcRenderer.invoke(LAYOUT_CHANNELS.reset, request);
+    } catch (error) {
+      console.warn('[preload] Failed to reset layout', error);
+    }
+  },
+  async openFloatingPane(request: FloatingPaneOpenRequest): Promise<boolean> {
+    try {
+      const result = await ipcRenderer.invoke(LAYOUT_CHANNELS.openFloating, request);
+      return Boolean(result);
+    } catch (error) {
+      console.warn('[preload] Failed to open floating pane', error);
+      return false;
+    }
+  },
+  async closeFloatingPane(request: FloatingPaneCloseRequest): Promise<void> {
+    try {
+      await ipcRenderer.invoke(LAYOUT_CHANNELS.closeFloating, request);
+    } catch (error) {
+      console.warn('[preload] Failed to close floating pane', error);
+    }
+  },
+  async listFloatingPanes(projectPath: string): Promise<FloatingPaneDescriptor[]> {
+    try {
+      const response = await ipcRenderer.invoke(LAYOUT_CHANNELS.listFloating, projectPath);
+      if (Array.isArray(response)) {
+        return response as FloatingPaneDescriptor[];
+      }
+    } catch (error) {
+      console.warn('[preload] Failed to list floating panes', error);
+    }
+    return [];
+  },
+};
+
 registerConsoleForwarding();
 
 contextBridge.exposeInMainWorld('projectLoader', projectLoaderApi);
 contextBridge.exposeInMainWorld('services', servicesBridge);
 contextBridge.exposeInMainWorld('diagnostics', diagnosticsBridge);
+contextBridge.exposeInMainWorld('layout', layoutBridge);
 contextBridge.exposeInMainWorld('runtimeConfig', runtimeConfig);

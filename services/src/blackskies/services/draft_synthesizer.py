@@ -154,6 +154,9 @@ class DraftSynthesizer:
             if overrides and overrides.word_target is not None
             else 850 + (order_value * 40)
         )
+        beats = list(scene.beat_refs)
+        if overrides and overrides.beats is not None:
+            beats = [beat for beat in overrides.beats]
 
         meta = {
             "id": scene.id,
@@ -168,7 +171,7 @@ class DraftSynthesizer:
             "word_target": word_target,
             "order": order_value,
             "chapter_id": scene.chapter_id,
-            "beats": scene.beat_refs,
+            "beats": beats,
         }
         return meta
 

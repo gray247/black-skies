@@ -71,3 +71,26 @@ def test_draft_critique_rejects_invalid_draft_id() -> None:
                 "rubric": ["Continuity"],
             }
         )
+
+
+def test_draft_critique_normalises_rubric_id() -> None:
+    payload = {
+        "draft_id": "dr_001",
+        "unit_id": "sc_0001",
+        "rubric": ["Continuity"],
+        "rubric_id": "Team.Story",
+    }
+    model = DraftCritiqueRequest.model_validate(payload)
+    assert model.rubric_id == "team.story"
+
+
+def test_draft_critique_rejects_invalid_rubric_id() -> None:
+    with pytest.raises(ValidationError):
+        DraftCritiqueRequest.model_validate(  # type: ignore[arg-type]
+            {
+                "draft_id": "dr_001",
+                "unit_id": "sc_0001",
+                "rubric": ["Continuity"],
+                "rubric_id": "??bad",
+            }
+        )

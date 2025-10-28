@@ -136,6 +136,9 @@ class CritiqueService:
         payload = copy.deepcopy(self._load_fixture())
         payload["unit_id"] = request.unit_id
         payload["schema_version"] = self._SCHEMA_VERSION
+        payload.setdefault("rubric", request.rubric)
+        if request.rubric_id:
+            payload["rubric_id"] = request.rubric_id
         return payload
 
     def _load_fixture(self) -> dict[str, Any]:

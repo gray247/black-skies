@@ -17,11 +17,9 @@ from ...scene_docs import DraftRequestError
 from ..dependencies import get_diagnostics, get_settings
 from ...operations.draft_generation import (
     DraftGenerationService,
-    estimate_word_target,
+    DraftGenerationTimeoutError,
     resolve_requested_scenes,
 )
-from ...draft_synthesizer import DraftSynthesizer
-from ...budgeting import classify_budget, load_project_budget_state
 from . import router
 
 
@@ -73,6 +71,21 @@ async def generate_draft(
         result = await generation_service.generate(
             request_model,
             scene_summaries,
+            project_root=project_root,
+        )
+    except DraftGenerationTimeoutError as exc:
+        diagnostics.log(
+            project_root,
+            code="TIMEOUT",
+            message="Draft generation timed out.",
+            details={"error": str(exc)},
+        )
+        raise_service_error(
+            status_code=status.HTTP_504_GATEWAY_TIMEOUT,
+            code="TIMEOUT",
+            message="Draft generation timed out.",
+            details={"project_id": request_model.project_id},
+            diagnostics=diagnostics,
             project_root=project_root,
         )
     except HTTPException:
@@ -138,51 +151,45 @@ async def preflight_draft(
             project_root=project_root,
         )
 
-    budget_state = load_project_budget_state(project_root, diagnostics)
+    generation_service = DraftGenerationService(settings=settings, diagnostics=diagnostics)
+    try:
+        result = await generation_service.preflight(
+            request_model,
+            scene_summaries,
+            project_root=project_root,
+        )
+    except DraftGenerationTimeoutError as exc:
+        diagnostics.log(
+            project_root,
+            code="TIMEOUT",
+            message="Draft preflight timed out.",
+            details={"error": str(exc)},
+        )
+        raise_service_error(
+            status_code=status.HTTP_504_GATEWAY_TIMEOUT,
+            code="TIMEOUT",
+            message="Draft preflight timed out.",
+            details={"project_id": request_model.project_id},
+            diagnostics=diagnostics,
+            project_root=project_root,
+        )
+    except Exception as exc:  # pragma: no cover - surfaced via diagnostics
+        diagnostics.log(
+            project_root,
+            code="INTERNAL",
+            message="Draft preflight failed.",
+            details={"error": str(exc)},
+        )
+        raise_service_error(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            code="INTERNAL",
+            message="Failed to compute draft preflight.",
+            details={"project_id": request_model.project_id},
+            diagnostics=diagnostics,
+            project_root=project_root,
+        )
 
-    total_words = 0
-    for scene in scene_summaries:
-        overrides = request_model.overrides.get(scene.id)
-        total_words += estimate_word_target(scene, overrides)
-
-    estimated_cost = round((total_words / 1000) * 0.02, 2)
-    status_label, message, total_after = classify_budget(
-        estimated_cost,
-        soft_limit=budget_state.soft_limit,
-        hard_limit=budget_state.hard_limit,
-        current_spend=budget_state.spent_usd,
-    )
-
-    synthesizer = DraftSynthesizer()
-    scenes_payload: list[dict[str, Any]] = []
-    for scene in scene_summaries:
-        scene_payload: dict[str, Any] = {
-            "id": scene.id,
-            "title": scene.title,
-            "order": scene.order,
-        }
-        if scene.chapter_id is not None:
-            scene_payload["chapter_id"] = scene.chapter_id
-        if scene.beat_refs:
-            scene_payload["beat_refs"] = list(scene.beat_refs)
-        scenes_payload.append(scene_payload)
-
-    return {
-        "project_id": request_model.project_id,
-        "unit_scope": request_model.unit_scope.value,
-        "unit_ids": request_model.unit_ids,
-        "model": dict(synthesizer._MODEL),
-        "scenes": scenes_payload,
-        "budget": {
-            "estimated_usd": estimated_cost,
-            "status": status_label,
-            "message": message,
-            "soft_limit_usd": round(budget_state.soft_limit, 2),
-            "hard_limit_usd": round(budget_state.hard_limit, 2),
-            "spent_usd": round(budget_state.spent_usd, 2),
-            "total_after_usd": round(total_after, 2),
-        },
-    }
+    return result.payload
 
 
 __all__ = ["generate_draft", "preflight_draft"]

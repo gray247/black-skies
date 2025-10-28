@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import type { MutableRefObject } from 'react';
 import type { LoadedProject } from '../../shared/ipc/projectLoader';
 import type {
@@ -73,8 +73,10 @@ export function useCritique({
   onBudgetUpdate,
 }: UseCritiqueOptions) {
   const [state, setState] = useState<CritiqueDialogState>(createInitialCritiqueState());
-  const activeRubric =
-    Array.isArray(rubric) && rubric.length > 0 ? [...rubric] : [...DEFAULT_CRITIQUE_RUBRIC];
+  const activeRubric = useMemo(
+    () => (Array.isArray(rubric) && rubric.length > 0 ? [...rubric] : [...DEFAULT_CRITIQUE_RUBRIC]),
+    [rubric],
+  );
 
   const resetCritique = useCallback(() => {
     setState(createInitialCritiqueState());
@@ -191,7 +193,6 @@ export function useCritique({
     onBudgetUpdate,
     projectSummary,
     pushToast,
-    rubric,
     services,
   ]);
 

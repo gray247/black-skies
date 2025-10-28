@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import contextlib
+import json
 import logging
 import math
 import shlex
@@ -14,6 +15,7 @@ import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 from statistics import mean
+from time import perf_counter
 from typing import Any, Iterable, Iterator, Mapping, Sequence
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -72,6 +74,8 @@ class LoadMetrics(smoke_runner.SmokeMetricsSink):
 
     requests: list[dict[str, Any]] = field(default_factory=list)
     budgets: list[float] = field(default_factory=list)
+    started_at: float | None = None
+    finished_at: float | None = None
 
     def record_request(self, *, method: str, path: str, status: int, elapsed_ms: float) -> None:
         self.requests.append(
@@ -103,6 +107,30 @@ class LoadMetrics(smoke_runner.SmokeMetricsSink):
     @property
     def total_budget(self) -> float:
         return sum(self.budgets)
+
+    def mark_start(self) -> None:
+        if self.started_at is None:
+            self.started_at = perf_counter()
+
+    def mark_end(self) -> None:
+        marker = perf_counter()
+        if self.started_at is None:
+            self.started_at = marker
+        self.finished_at = marker
+
+    @property
+    def duration_seconds(self) -> float | None:
+        if self.started_at is None or self.finished_at is None:
+            return None
+        duration = self.finished_at - self.started_at
+        return duration if duration >= 0 else 0.0
+
+    @property
+    def requests_per_second(self) -> float | None:
+        duration = self.duration_seconds
+        if not duration:
+            return None
+        return self.total_requests / duration
 
     def percentile(self, percentile: float) -> float | None:
         if not self.requests:
@@ -258,6 +286,11 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--p99-ms", type=float)
     parser.add_argument("--max-error-rate", type=float)
     parser.add_argument("--max-budget-usd", type=float)
+    parser.add_argument(
+        "--slo-report",
+        type=Path,
+        help="Optional path to write the captured SLO metrics JSON payload.",
+    )
 
     parser.add_argument(
         "--log-level",
@@ -378,6 +411,7 @@ async def run_profile(profile: LoadProfile, args: argparse.Namespace, metrics: L
         scene_plan = scene_plan[warmup_cycles:]
 
     tasks: list[asyncio.Task[None]] = []
+    metrics.mark_start()
     offset = 0
     for worker_index, cycles in enumerate(distribute_cycles(profile.total_cycles, profile.concurrency)):
         if cycles <= 0:
@@ -406,6 +440,7 @@ async def run_profile(profile: LoadProfile, args: argparse.Namespace, metrics: L
         tasks.append(asyncio.create_task(smoke_runner.run_cycles(config, metrics=metrics)))
 
     await asyncio.gather(*tasks)
+    metrics.mark_end()
 
 
 def evaluate_thresholds(metrics: LoadMetrics, thresholds: Thresholds) -> list[str]:
@@ -447,6 +482,10 @@ def build_result_payload(
     thresholds: Thresholds,
     breaches: list[str],
 ) -> dict[str, Any]:
+    duration = metrics.duration_seconds
+    requests_per_second = metrics.requests_per_second
+    error_budget_remaining = max(thresholds.max_error_rate - metrics.error_rate, 0.0)
+    error_budget_consumed = max(metrics.error_rate - thresholds.max_error_rate, 0.0)
     slo_status = "breached" if breaches else "ok"
     return {
         "metrics": {
@@ -457,6 +496,10 @@ def build_result_payload(
             "p95_latency_ms": metrics.percentile(95.0),
             "p99_latency_ms": metrics.percentile(99.0),
             "total_budget_usd": metrics.total_budget,
+            "duration_seconds": duration,
+            "requests_per_second": requests_per_second,
+            "error_budget_remaining": error_budget_remaining,
+            "error_budget_consumed": error_budget_consumed,
             "per_path": metrics.per_path_summary(),
         },
         "thresholds": {
@@ -469,6 +512,8 @@ def build_result_payload(
         "slo": {
             "status": slo_status,
             "violations": breaches,
+            "error_budget_remaining": error_budget_remaining,
+            "error_budget_consumed": error_budget_consumed,
         },
     }
 
@@ -520,9 +565,30 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
     ledger_path = runs.get_runs_root() / run_id / "run.json"
 
+    if args.slo_report:
+        slo_path = args.slo_report.resolve()
+        slo_path.parent.mkdir(parents=True, exist_ok=True)
+        slo_payload = {
+            "run_id": run_id,
+            "profile": profile.name,
+            "host": args.host,
+            "port": args.port,
+            "project_id": args.project_id,
+            "result": result_payload,
+        }
+        slo_path.write_text(json.dumps(slo_payload, indent=2, ensure_ascii=False), encoding="utf-8")
+        LOGGER.info("SLO report written to %s", slo_path)
+
+    duration = metrics.duration_seconds or 0.0
+    rps = metrics.requests_per_second or 0.0
     LOGGER.info(
-        "Load metrics: %s requests, error rate %.2f%%, P95 %.2fms, P99 %.2fms, budget $%.2f",
+        (
+            "Load metrics: %s requests over %.2fs (%.2f req/s), error rate %.2f%%, "
+            "P95 %.2fms, P99 %.2fms, budget $%.2f"
+        ),
         metrics.total_requests,
+        duration,
+        rps,
         metrics.error_rate * 100,
         (metrics.percentile(95.0) or 0.0),
         (metrics.percentile(99.0) or 0.0),

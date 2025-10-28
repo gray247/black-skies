@@ -5,6 +5,10 @@ Chronological record of locked decisions and spec/version bumps. One-line summar
 
 ---
 
+## 2025-10-22 Phase 8 GUI enhancements scope (LOCKED)
+- Added Phase 8 planning entry covering IDE-style docking: drag/drop panes, floating windows, and saved layouts.
+- docs/gui_layouts.md and docs/architecture.md clarify the locked preset layout and capture serialization/multi-monitor requirements for the upcoming customization work.
+
 ## 2025-10-21 — Companion analytics & export summaries (LOCKED)
 - Companion overlay now surfaces emotion arc and pacing analytics within the workspace.
 - Draft exports emit `analytics_report.json` and `critique_bundle.md` populated from stored batch critiques.

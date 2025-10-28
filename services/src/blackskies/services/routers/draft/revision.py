@@ -13,12 +13,7 @@ from uuid import uuid4
 from fastapi import Depends, HTTPException, status
 from pydantic import ValidationError
 
-from ...budgeting import (
-    classify_budget,
-    derive_critique_cost,
-    load_project_budget_state,
-    persist_project_budget,
-)
+from ...budgeting import derive_critique_cost
 from ...config import ServiceSettings
 from ...critique import BLOCKED_RUBRIC_CATEGORIES, CritiqueService
 from ...diagnostics import DiagnosticLogger
@@ -29,7 +24,15 @@ from ...models.critique import DraftCritiqueRequest
 from ...models.rewrite import DraftRewriteRequest
 from ...persistence import DraftPersistence, write_text_atomic
 from ...scene_docs import DraftRequestError, read_scene_document
-from ..dependencies import get_critique_service, get_diagnostics, get_settings
+from ...operations.budget_service import BudgetService
+from ...resilience import CircuitOpenError, ServiceResilienceExecutor
+from ...rubrics import resolve_rubric_categories
+from ..dependencies import (
+    get_critique_resilience,
+    get_critique_service,
+    get_diagnostics,
+    get_settings,
+)
 from ..shared import utc_timestamp
 from . import router
 
@@ -57,6 +60,7 @@ def _persist_batch_critique_summary(
     request_model: DraftCritiqueRequest,
     result: dict[str, Any],
     diagnostics: DiagnosticLogger,
+    rubric_id: str | None,
 ) -> None:
     """Record the most recent batch critique summary for export."""
 
@@ -80,6 +84,7 @@ def _persist_batch_critique_summary(
         "unit_id": request_model.unit_id,
         "draft_id": request_model.draft_id,
         "rubric": request_model.rubric,
+        "rubric_id": rubric_id,
         "summary": result.get("summary"),
         "priorities": result.get("priorities") or [],
         "model": result.get("model"),
@@ -234,12 +239,15 @@ async def critique_draft(
     settings: ServiceSettings = Depends(get_settings),
     diagnostics: DiagnosticLogger = Depends(get_diagnostics),
     critique_service: CritiqueService = Depends(get_critique_service),
+    critique_resilience: ServiceResilienceExecutor = Depends(get_critique_resilience),
 ) -> dict[str, Any]:
     """Run a critique pass against the submitted draft unit."""
 
     project_id: str | None = None
     project_root: Path | None = None
     payload_for_model: dict[str, Any]
+    raw_rubric_id: str | None = None
+    incoming_rubric: list[str] | None = None
     if isinstance(payload, dict):
         project_value = payload.get("project_id")
         if isinstance(project_value, str) and project_value.strip():
@@ -247,9 +255,52 @@ async def critique_draft(
             candidate_root = settings.project_base_dir / project_value
             if candidate_root.exists():
                 project_root = candidate_root
-        payload_for_model = {key: value for key, value in payload.items() if key != "project_id"}
+        raw_rubric_candidate = payload.get("rubric_id")
+        if isinstance(raw_rubric_candidate, str) and raw_rubric_candidate.strip():
+            raw_rubric_id = raw_rubric_candidate
+        rubric_field = payload.get("rubric")
+        if isinstance(rubric_field, list):
+            incoming_rubric = rubric_field
+        payload_for_model = {
+            key: value for key, value in payload.items() if key not in {"project_id", "rubric_id"}
+        }
     else:
         payload_for_model = {}
+
+    resolved_rubric_id: str | None = None
+    try:
+        if raw_rubric_id:
+            categories, resolved_rubric_id = resolve_rubric_categories(
+                project_root, raw_rubric_id, incoming_rubric or ()
+            )
+            payload_for_model["rubric"] = categories
+        elif not isinstance(payload_for_model.get("rubric"), list) or not payload_for_model.get(
+            "rubric"
+        ):
+            categories, resolved_rubric_id = resolve_rubric_categories(
+                project_root, None, ()
+            )
+            payload_for_model["rubric"] = categories
+        else:
+            resolved_rubric_id = None
+    except (ValueError, FileNotFoundError) as exc:
+        raise_validation_error(
+            message="Invalid draft critique request.",
+            details={
+                "errors": [
+                    {
+                        "loc": ["rubric_id"],
+                        "msg": str(exc),
+                        "type": "value_error.rubric.unknown_id",
+                    }
+                ]
+            },
+            diagnostics=diagnostics,
+            project_root=project_root,
+        )
+
+    if resolved_rubric_id is not None:
+        payload_for_model["rubric_id"] = resolved_rubric_id
 
     try:
         request_model = DraftCritiqueRequest.model_validate(payload_for_model)
@@ -289,8 +340,30 @@ async def critique_draft(
             project_root=project_root,
         )
 
+    timeout = getattr(settings, "critique_task_timeout_seconds", 90)
     try:
-        result = await asyncio.to_thread(critique_service.run, request_model)
+        result = await critique_resilience.run(
+            label="critique",
+            operation=lambda: critique_service.run(request_model),
+        )
+    except CircuitOpenError as exc:
+        raise_service_error(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            code="SERVICE_UNAVAILABLE",
+            message="Critique service is temporarily unavailable.",
+            details={"error": str(exc)},
+            diagnostics=diagnostics,
+            project_root=project_root,
+        )
+    except asyncio.TimeoutError as exc:
+        raise_service_error(
+            status_code=status.HTTP_504_GATEWAY_TIMEOUT,
+            code="TIMEOUT",
+            message="Critique task timed out.",
+            details={"error": str(exc), "timeout_seconds": timeout},
+            diagnostics=diagnostics,
+            project_root=project_root,
+        )
     except RuntimeError as exc:
         raise_service_error(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -303,26 +376,25 @@ async def critique_draft(
 
     budget_payload: dict[str, Any] | None = None
     if project_root is not None and project_id is not None:
+        budget_service = BudgetService(settings=settings, diagnostics=diagnostics)
         try:
-            budget_state = load_project_budget_state(project_root, diagnostics)
+            budget_state = budget_service.load_state(project_root)
             _, front_matter, body = read_scene_document(project_root, request_model.unit_id)
             critique_cost = derive_critique_cost(body, front_matter=front_matter)
-            status_label, message, total_after = classify_budget(
-                critique_cost,
-                soft_limit=budget_state.soft_limit,
-                hard_limit=budget_state.hard_limit,
-                current_spend=budget_state.spent_usd,
+            status_label, message, total_after = budget_service.classify(
+                state=budget_state,
+                estimated_cost=critique_cost,
             )
-            persist_project_budget(budget_state, total_after)
-            budget_payload = {
-                "estimated_usd": critique_cost,
-                "status": status_label,
-                "message": message,
-                "soft_limit_usd": round(budget_state.soft_limit, 2),
-                "hard_limit_usd": round(budget_state.hard_limit, 2),
-                "spent_usd": round(total_after, 2),
-                "total_after_usd": round(total_after, 2),
-            }
+            summary = budget_service.build_summary(
+                state=budget_state,
+                estimated_cost=critique_cost,
+                total_after=total_after,
+                spent_override=total_after,
+                status=status_label,
+                message=message,
+            )
+            budget_service.persist_spend(budget_state, total_after)
+            budget_payload = summary.as_dict()
         except DraftRequestError as exc:
             raise_validation_error(
                 message=str(exc),
@@ -341,6 +413,9 @@ async def critique_draft(
 
     if budget_payload is not None:
         result["budget"] = budget_payload
+    result.setdefault("rubric", request_model.rubric)
+    if request_model.rubric_id:
+        result["rubric_id"] = request_model.rubric_id
 
     if project_root is not None and project_id is not None:
         _persist_batch_critique_summary(
@@ -349,6 +424,7 @@ async def critique_draft(
             request_model=request_model,
             result=result,
             diagnostics=diagnostics,
+            rubric_id=request_model.rubric_id,
         )
 
     return result

@@ -213,6 +213,14 @@ def _evaluate_thresholds(report: EvalReport, args: argparse.Namespace) -> list[s
     return reasons
 
 
+def _compute_error_budget(pass_rate: float, fail_under_pass_rate: float) -> tuple[float, float]:
+    allowed_error = max(0.0, 1.0 - fail_under_pass_rate)
+    actual_error = max(0.0, 1.0 - pass_rate)
+    remaining = max(0.0, allowed_error - actual_error)
+    consumed = max(0.0, actual_error - allowed_error)
+    return remaining, consumed
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     args = parse_args(argv)
 
@@ -227,6 +235,10 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     report = build_report(case_results)
     regressions = _evaluate_thresholds(report, args)
+    error_budget_remaining, error_budget_consumed = _compute_error_budget(
+        report.metrics.pass_rate, args.fail_under_pass_rate
+    )
+    error_budget_threshold = max(0.0, 1.0 - args.fail_under_pass_rate)
 
     _ensure_parent(args.json)
     args.json.write_text(
@@ -252,9 +264,12 @@ def main(argv: Sequence[str] | None = None) -> int:
             "p95_latency_ms": report.metrics.p95_latency_ms,
             "p99_latency_ms": report.metrics.p99_latency_ms,
             "cases": len(case_results),
+            "error_budget_remaining": error_budget_remaining,
+            "error_budget_consumed": error_budget_consumed,
         },
         "thresholds": {
             "fail_under_pass_rate": args.fail_under_pass_rate,
+            "max_error_rate": error_budget_threshold,
             "max_avg_latency_ms": args.max_avg_latency_ms,
             "max_p95_latency_ms": args.max_p95_latency_ms,
         },
@@ -262,9 +277,36 @@ def main(argv: Sequence[str] | None = None) -> int:
         "slo": {
             "status": slo_status,
             "violations": regressions,
+            "error_budget_remaining": error_budget_remaining,
+            "error_budget_consumed": error_budget_consumed,
         },
     }
 
+    runs.append_event(
+        run_id,
+        "eval.metrics",
+        {
+            "pass_rate": report.metrics.pass_rate,
+            "avg_latency_ms": report.metrics.avg_latency_ms,
+            "p95_latency_ms": report.metrics.p95_latency_ms,
+            "p99_latency_ms": report.metrics.p99_latency_ms,
+            "error_budget_remaining": error_budget_remaining,
+            "error_budget_consumed": error_budget_consumed,
+        },
+    )
+    logger.info(
+        (
+            "Eval metrics: pass rate %.2f%% (threshold %.2f%%), avg latency %.2fms, "
+            "P95 %.2fms, P99 %.2fms, error budget remaining %.4f, consumed %.4f."
+        ),
+        report.metrics.pass_rate * 100,
+        args.fail_under_pass_rate * 100,
+        report.metrics.avg_latency_ms,
+        report.metrics.p95_latency_ms,
+        report.metrics.p99_latency_ms,
+        error_budget_remaining,
+        error_budget_consumed,
+    )
     runs.finalize_run(run_id, status=status, result=result_payload)
     return 1 if regressions else 0
 

@@ -4,6 +4,7 @@ This document records the baseline dependency and configuration audit completed 
 
 ## Dependency inventory
 
+- `python scripts/security_sweep.py` now emits a consolidated JSON summary covering dependency locks, environment keys, and license metadata.
 - Generated a lock snapshot with `python scripts/dependency_report.py` (aggregates `requirements.lock` and `requirements.dev.lock`).
 - Output artefact lists 50 pinned dependencies; attach this JSON to release/security reviews.
 - All runtime packages are already constrained by `constraints.txt`; no duplicate pins observed.
@@ -24,3 +25,4 @@ This document records the baseline dependency and configuration audit completed 
 - Capture dependency-report artefacts on every release train.
 - Integrate `scripts/check_slo.py <run.json>` in CI to guarantee SLO breaches fail the pipeline.
 - Automated security sweeps now run both `pip-audit --strict` and `safety check` in CI, with JSON artefacts retained for each scheduled run.
+- Add `python scripts/security_sweep.py --output security-sweep.json` to the release train to confirm env coverage and collect license snapshots.

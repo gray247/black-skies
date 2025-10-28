@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from enum import Enum
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -31,6 +31,26 @@ class DraftUnitOverrides(BaseModel):
     conflict: str | None = None
     turn: str | None = None
     word_target: int | None = Field(default=None, ge=0)
+    beats: list[str] | None = None
+
+    @field_validator("beats", mode="before")
+    @classmethod
+    def _validate_beats(cls, value: Any) -> list[str] | None:
+        if value is None:
+            return None
+        if isinstance(value, str):
+            candidate = value.strip()
+            return [candidate] if candidate else []
+        if isinstance(value, (list, tuple, set)):
+            beats: list[str] = []
+            for item in value:
+                if item is None:
+                    continue
+                candidate = str(item).strip()
+                if candidate:
+                    beats.append(candidate)
+            return beats
+        raise TypeError("beats must be a sequence of strings or null")
 
 
 class DraftGenerateRequest(BaseModel):

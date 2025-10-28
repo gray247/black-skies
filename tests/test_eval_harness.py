@@ -7,7 +7,7 @@ import pytest
 from blackskies.services import runs
 from blackskies.services.eval import EvalTask, EvalTaskFlow
 from blackskies.services.tools.registry import ToolRegistry
-from scripts import eval as eval_cli
+from scripts import check_slo, eval as eval_cli
 
 
 def _make_runner(success: bool) -> Callable[[EvalTask], tuple[bool, dict[str, object]]]:
@@ -47,6 +47,21 @@ def test_eval_harness_generates_report(tmp_path: Path, monkeypatch: pytest.Monke
     assert len(ledgers) == 1
     ledger = json.loads(ledgers[0].read_text(encoding="utf-8"))
     assert ledger["status"] == "completed"
+    assert "result" in ledger
+    metrics = ledger["result"]["metrics"]
+    slo = ledger["result"]["slo"]
+    assert metrics["pass_rate"] == pytest.approx(1.0)
+    assert metrics["error_budget_remaining"] == pytest.approx(0.0)
+    assert metrics["error_budget_consumed"] == pytest.approx(0.0)
+    assert "p99_latency_ms" in metrics
+    assert metrics["p99_latency_ms"] >= 0.0
+    assert slo["status"] == "ok"
+    assert slo["error_budget_remaining"] == pytest.approx(0.0)
+    assert slo["error_budget_consumed"] == pytest.approx(0.0)
+    assert not slo["violations"]
+    assert ledger["events"]
+    assert ledger["events"][-1]["type"] == "eval.metrics"
+    assert check_slo.main([str(ledgers[0])]) == 0
 
 
 @pytest.mark.eval
@@ -83,3 +98,19 @@ def test_eval_harness_threshold_failure(tmp_path: Path, monkeypatch: pytest.Monk
     assert len(ledgers) == 1
     ledger = json.loads(ledgers[0].read_text(encoding="utf-8"))
     assert ledger["status"] == "failed"
+    assert "result" in ledger
+    metrics = ledger["result"]["metrics"]
+    slo = ledger["result"]["slo"]
+    pass_rate = report["metrics"]["pass_rate"]
+    assert metrics["pass_rate"] == pytest.approx(pass_rate)
+    assert metrics["error_budget_remaining"] == pytest.approx(0.0)
+    assert metrics["error_budget_consumed"] == pytest.approx(1.0 - pass_rate)
+    assert "p99_latency_ms" in metrics
+    assert metrics["p99_latency_ms"] >= 0.0
+    assert slo["status"] == "breached"
+    assert slo["error_budget_remaining"] == pytest.approx(0.0)
+    assert slo["error_budget_consumed"] == pytest.approx(1.0 - pass_rate)
+    assert slo["violations"] == payload["regressions"]
+    assert ledger["events"]
+    assert ledger["events"][-1]["type"] == "eval.metrics"
+    assert check_slo.main([str(ledgers[0])]) == 1

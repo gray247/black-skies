@@ -31,3 +31,14 @@ def test_draft_generate_rejects_overrides_for_chapter_scope() -> None:
 
     assert "Overrides are only supported for scene scope requests." in str(exc.value)
 
+
+def test_draft_generate_allows_beats_override() -> None:
+    request = DraftGenerateRequest(
+        project_id="proj_draft",
+        unit_scope="scene",
+        unit_ids=["sc_0001"],
+        overrides={"sc_0001": {"beats": ["inciting", " resolution "]}},
+    )
+
+    beats_override = request.overrides["sc_0001"].beats
+    assert beats_override == ["inciting", "resolution"]

@@ -19,9 +19,11 @@ class DraftCritiqueRequest(BaseModel):
     draft_id: str = Field(pattern=_DRAFT_ID_PATTERN)
     unit_id: str = Field(pattern=_UNIT_ID_PATTERN)
     rubric: list[str] = Field(min_length=1)
+    rubric_id: str | None = None
 
     _MAX_RUBRIC_LENGTH: ClassVar[int] = 40
     _RUBRIC_PATTERN: ClassVar[re.Pattern[str]] = re.compile(r"^[A-Za-z0-9 ,.&:/'-]+$")
+    _RUBRIC_ID_PATTERN: ClassVar[re.Pattern[str]] = re.compile(r"^[a-z0-9._-]{3,64}$")
 
     @classmethod
     def _normalise_category(cls, value: str) -> str:
@@ -70,6 +72,17 @@ class DraftCritiqueRequest(BaseModel):
             raise ValueError(msg)
 
         return cleaned
+
+    @field_validator("rubric_id")
+    @classmethod
+    def _validate_rubric_id(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        candidate = value.strip().lower()
+        if not cls._RUBRIC_ID_PATTERN.fullmatch(candidate):
+            msg = "rubric_id must be 3-64 characters using lowercase, digits, '.', '_', or '-'."
+            raise ValueError(msg)
+        return candidate
 
 
 __all__ = ["DraftCritiqueRequest"]

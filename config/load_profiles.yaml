@@ -1,4 +1,15 @@
 profiles:
+  smoke:
+    description: Lightweight sanity profile for local SLO smoke tests
+    total_cycles: 6
+    concurrency: 2
+    timeout: 30.0
+    warmup_cycles: 0
+    thresholds:
+      p95_ms: 250.0
+      p99_ms: 320.0
+      max_error_rate: 0.10
+      max_budget_usd: 3.0
   default:
     description: Baseline load profile for workstation runs
     total_cycles: 20
@@ -10,3 +21,36 @@ profiles:
       p99_ms: 260.0
       max_error_rate: 0.05
       max_budget_usd: 5.0
+  stress:
+    description: Elevated concurrency profile for pre-release verification
+    total_cycles: 60
+    concurrency: 10
+    timeout: 75.0
+    warmup_cycles: 5
+    thresholds:
+      p95_ms: 260.0
+      p99_ms: 320.0
+      max_error_rate: 0.04
+      max_budget_usd: 12.0
+  burst:
+    description: Short spike profile to validate queueing and retries
+    total_cycles: 24
+    concurrency: 16
+    timeout: 45.0
+    warmup_cycles: 0
+    thresholds:
+      p95_ms: 300.0
+      p99_ms: 360.0
+      max_error_rate: 0.06
+      max_budget_usd: 8.0
+  soak:
+    description: Extended stability profile to monitor drift over time
+    total_cycles: 120
+    concurrency: 6
+    timeout: 90.0
+    warmup_cycles: 8
+    thresholds:
+      p95_ms: 280.0
+      p99_ms: 340.0
+      max_error_rate: 0.05
+      max_budget_usd: 18.0

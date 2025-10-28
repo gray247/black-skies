@@ -11,6 +11,7 @@ from ..critique import CritiqueService
 from ..diagnostics import DiagnosticLogger
 from ..operations.recovery import RecoveryService
 from ..persistence import SnapshotPersistence
+from ..resilience import ServiceResilienceExecutor, ServiceResilienceRegistry
 
 if TYPE_CHECKING:  # pragma: no cover - import for typing only
     from .outline import BuildTracker
@@ -24,6 +25,9 @@ __all__ = [
     "get_snapshot_persistence",
     "get_recovery_service",
     "get_recovery_tracker",
+    "get_resilience_registry",
+    "get_analytics_resilience",
+    "get_critique_resilience",
 ]
 
 
@@ -68,3 +72,21 @@ def get_critique_service(request: Request) -> CritiqueService:
     """Return the critique service stored on the application state."""
 
     return cast(CritiqueService, request.app.state.critique_service)
+
+
+def get_resilience_registry(request: Request) -> ServiceResilienceRegistry:
+    """Return the resilience registry stored on the application state."""
+
+    return cast(ServiceResilienceRegistry, request.app.state.resilience_registry)
+
+
+def get_analytics_resilience(request: Request) -> ServiceResilienceExecutor:
+    """Return the analytics resilience executor."""
+
+    return cast(ServiceResilienceExecutor, get_resilience_registry(request).analytics)
+
+
+def get_critique_resilience(request: Request) -> ServiceResilienceExecutor:
+    """Return the critique resilience executor."""
+
+    return cast(ServiceResilienceExecutor, get_resilience_registry(request).critique)

@@ -11,7 +11,6 @@ from pathlib import Path
 from typing import Any, Sequence
 from uuid import uuid4
 
-from ..budgeting import classify_budget, load_project_budget_state, persist_project_budget
 from ..config import ServiceSettings
 from ..diagnostics import DiagnosticLogger
 from ..draft_synthesizer import DraftSynthesizer
@@ -20,6 +19,7 @@ from ..models.draft import DraftGenerateRequest, DraftUnitOverrides, DraftUnitSc
 from ..models.outline import OutlineArtifact, OutlineScene
 from ..persistence import DraftPersistence
 from ..scene_docs import DraftRequestError
+from .budget_service import BudgetService, BudgetSummary
 
 
 @dataclass(slots=True)
@@ -27,6 +27,17 @@ class DraftGenerationResult:
     """Response payload for a draft generation request."""
 
     response: dict[str, Any]
+
+
+@dataclass(slots=True)
+class DraftPreflightResult:
+    """Projected budget and scene metadata for a draft generation request."""
+
+    payload: dict[str, Any]
+
+
+class DraftGenerationTimeoutError(RuntimeError):
+    """Raised when draft generation helpers exceed the configured timeout."""
 
 
 def resolve_requested_scenes(
@@ -105,6 +116,9 @@ class DraftGenerationService:
         self._diagnostics = diagnostics
         self._persistence = DraftPersistence(settings=settings, durable_writes=False)
         self._synthesizer = DraftSynthesizer()
+        self._timeout_seconds = getattr(settings, "draft_task_timeout_seconds", 120)
+        self._retry_attempts = max(0, int(getattr(settings, "draft_task_retry_attempts", 1)))
+        self._budget_service = BudgetService(settings=settings, diagnostics=diagnostics)
 
     async def generate(
         self,
@@ -115,7 +129,7 @@ class DraftGenerationService:
     ) -> DraftGenerationResult:
         """Generate draft units for the provided request."""
 
-        budget_state = load_project_budget_state(project_root, self._diagnostics)
+        budget_state = self._budget_service.load_state(project_root)
         budget_meta = budget_state.metadata.setdefault("budget", {})
 
         request_fingerprint = fingerprint_generate_request(request, scenes)
@@ -141,11 +155,17 @@ class DraftGenerationService:
             total_words += estimate_word_target(scene, overrides)
 
         estimated_cost = round((total_words / 1000) * 0.02, 2)
-        status_label, message, total_after = classify_budget(
-            estimated_cost,
-            soft_limit=budget_state.soft_limit,
-            hard_limit=budget_state.hard_limit,
-            current_spend=budget_state.spent_usd,
+        status_label, message, total_after = self._budget_service.classify(
+            state=budget_state,
+            estimated_cost=estimated_cost,
+        )
+        summary = self._budget_service.build_summary(
+            state=budget_state,
+            estimated_cost=estimated_cost,
+            total_after=total_after,
+            spent_override=budget_state.spent_usd,
+            status=status_label,
+            message=message,
         )
 
         if status_label == "blocked":
@@ -162,23 +182,20 @@ class DraftGenerationService:
                 project_root=project_root,
             )
 
-        response_payload, artifacts = await asyncio.to_thread(
+        response_payload, artifacts = await self._run_with_timeout(
             self._execute_generation,
             request,
             list(scenes),
             estimated_cost,
-            status_label,
-            message,
-            budget_state.soft_limit,
-            budget_state.hard_limit,
-            total_after,
+            summary,
+            project_root=project_root,
         )
 
         budget_meta["last_request_fingerprint"] = request_fingerprint
         budget_meta["last_generate_response"] = copy.deepcopy(response_payload)
         budget_meta["last_generate_artifacts"] = artifacts
 
-        persist_project_budget(budget_state, total_after)
+        self._budget_service.persist_spend(budget_state, budget_state.spent_usd)
 
         return DraftGenerationResult(response=response_payload)
 
@@ -224,16 +241,32 @@ class DraftGenerationService:
             return False
         return True
 
+    async def preflight(
+        self,
+        request: DraftGenerateRequest,
+        scenes: Sequence[OutlineScene],
+        *,
+        project_root: Path,
+    ) -> DraftPreflightResult:
+        """Return cost projections and metadata for a draft request."""
+
+        budget_state = self._budget_service.load_state(project_root)
+
+        payload = await self._run_with_timeout(
+            self._compute_preflight_payload,
+            request,
+            list(scenes),
+            budget_state,
+            project_root=project_root,
+        )
+        return DraftPreflightResult(payload=payload)
+
     def _execute_generation(
         self,
         request: DraftGenerateRequest,
         scenes: list[OutlineScene],
         estimated_cost: float,
-        status_label: str,
-        message: str,
-        soft_limit: float,
-        hard_limit: float,
-        total_after: float,
+        summary: BudgetSummary,
     ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
         units: list[dict[str, Any]] = []
         artifacts: list[dict[str, Any]] = []
@@ -273,22 +306,96 @@ class DraftGenerationService:
             "draft_id": draft_id,
             "schema_version": "DraftUnitSchema v1",
             "units": units,
-            "budget": {
-                "estimated_usd": estimated_cost,
-                "status": status_label,
-                "message": message,
-                "soft_limit_usd": round(soft_limit, 2),
-                "hard_limit_usd": round(hard_limit, 2),
-                "spent_usd": round(total_after, 2),
-                "total_after_usd": round(total_after, 2),
-            },
+            "budget": summary.as_dict(),
         }
 
         return response_payload, artifacts
 
+    def _compute_preflight_payload(
+        self,
+        request: DraftGenerateRequest,
+        scenes: list[OutlineScene],
+        budget_state,
+    ) -> dict[str, Any]:
+        total_words = 0
+        for scene in scenes:
+            overrides = request.overrides.get(scene.id)
+            total_words += estimate_word_target(scene, overrides)
+
+        estimated_cost = round((total_words / 1000) * 0.02, 2)
+        status_label, message, total_after = self._budget_service.classify(
+            state=budget_state,
+            estimated_cost=estimated_cost,
+        )
+        summary = self._budget_service.build_summary(
+            state=budget_state,
+            estimated_cost=estimated_cost,
+            total_after=total_after,
+            spent_override=budget_state.spent_usd,
+            status=status_label,
+            message=message,
+        )
+
+        scenes_payload: list[dict[str, Any]] = []
+        for scene in scenes:
+            scene_payload: dict[str, Any] = {
+                "id": scene.id,
+                "title": scene.title,
+                "order": scene.order,
+            }
+            if scene.chapter_id is not None:
+                scene_payload["chapter_id"] = scene.chapter_id
+            if scene.beat_refs:
+                scene_payload["beat_refs"] = list(scene.beat_refs)
+            scenes_payload.append(scene_payload)
+
+        return {
+            "project_id": request.project_id,
+            "unit_scope": request.unit_scope.value,
+            "unit_ids": request.unit_ids,
+            "model": dict(self._synthesizer._MODEL),
+            "scenes": scenes_payload,
+            "budget": summary.as_dict(),
+        }
+
+    async def _run_with_timeout(self, func, *args, project_root: Path | None = None) -> Any:
+        timeout = max(5, int(self._timeout_seconds))
+        attempts = max(1, int(self._retry_attempts) + 1)
+        last_error: Exception | None = None
+        diagnostics_root = project_root or Path(self._settings.project_base_dir)
+
+        for attempt in range(attempts):
+            try:
+                async with asyncio.timeout(timeout):
+                    return await asyncio.to_thread(func, *args)
+            except asyncio.TimeoutError as exc:
+                last_error = DraftGenerationTimeoutError(str(exc))
+                self._diagnostics.log(
+                    diagnostics_root,
+                    code="TIMEOUT",
+                    message="Draft task exceeded timeout.",
+                    details={"attempt": attempt + 1, "timeout_seconds": timeout},
+                )
+            except asyncio.CancelledError:
+                raise
+            except Exception as exc:
+                last_error = exc
+                self._diagnostics.log(
+                    diagnostics_root,
+                    code="INTERNAL",
+                    message="Draft task failed.",
+                    details={"attempt": attempt + 1, "error": str(exc)},
+                )
+            await asyncio.sleep(0)
+
+        assert last_error is not None
+        raise last_error
+
 
 __all__ = [
     "DraftGenerationResult",
+    "DraftPreflightResult",
+    "DraftGenerationTimeoutError",
     "DraftGenerationService",
     "estimate_word_target",
     "fingerprint_generate_request",

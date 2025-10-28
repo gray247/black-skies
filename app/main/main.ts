@@ -22,6 +22,7 @@ import {
   DIAGNOSTICS_CHANNELS,
   type DiagnosticsOpenResult,
 } from '../shared/ipc/diagnostics.js';
+import { registerLayoutIpc } from './layoutIpc.js';
 import {
   DEFAULT_HEALTH_PROBE,
   DEFAULT_RUNTIME_CONFIG,
@@ -41,6 +42,7 @@ const allowedPythonExecutables = runtimeConfig.service.allowedPythonExecutables.
 const bundledPythonPath = runtimeConfig.service.bundledPythonPath ?? '';
 const rendererDistDir = join(projectRoot, 'dist');
 const rendererIndexFile = join(rendererDistDir, 'index.html');
+const PRELOAD_PATH = join(__dirname, 'preload.js');
 
 const DEV_SERVER_URL = process.env.ELECTRON_RENDERER_URL ?? 'http://127.0.0.1:5173/';
 const isDev = !app.isPackaged;
@@ -139,13 +141,18 @@ function resolvePythonExecutable(): string {
 }
 
 function fallbackPythonExecutable(): string {
-  if (bundledPythonPath && isAbsolute(bundledPythonPath)) {
-    try {
-      if (statSync(bundledPythonPath).isFile()) {
-        return bundledPythonPath;
+  if (bundledPythonPath) {
+    const resolvedBundled = resolveBundledExecutablePath(bundledPythonPath);
+    if (resolvedBundled) {
+      try {
+        if (statSync(resolvedBundled).isFile()) {
+          return resolvedBundled;
+        }
+      } catch (error) {
+        console.warn('[main] Bundled Python path is not accessible.', error);
       }
-    } catch (error) {
-      console.warn('[main] Bundled Python path is not accessible.', error);
+    } else if (bundledPythonPath.includes('{{APP_RESOURCES}}')) {
+      console.warn('[main] Unable to resolve bundled Python placeholder path.');
     }
   }
   return DEFAULT_PYTHON_EXECUTABLE;
@@ -190,6 +197,36 @@ async function selectServicePort(): Promise<number> {
   }
 
   throw new Error(`Unable to find an available port between ${min} and ${max}.`);
+}
+
+function resolveBundledExecutablePath(rawPath: string): string | null {
+  const candidate = rawPath.trim();
+  if (!candidate) {
+    return null;
+  }
+
+  const resourcesPath =
+    (process as NodeJS.Process & { resourcesPath?: string }).resourcesPath ??
+    process.env.BLACKSKIES_PACKAGE_RESOURCES ??
+    null;
+
+  let resolved = candidate;
+  if (resolved.includes('{{APP_RESOURCES}}')) {
+    if (!resourcesPath) {
+      return null;
+    }
+    resolved = resolved.replace(/\{\{APP_RESOURCES\}\}/g, resourcesPath);
+  }
+
+  if (!isAbsolute(resolved)) {
+    if (resourcesPath && !isDev) {
+      resolved = resolve(resourcesPath, resolved);
+    } else {
+      resolved = resolve(repoRoot, resolved);
+    }
+  }
+
+  return normalize(resolved);
 }
 
 function pipeStreamToLogger(
@@ -493,7 +530,7 @@ async function createMainWindow(): Promise<BrowserWindow> {
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: sandboxEnabled,
-      preload: join(__dirname, 'preload.js'),
+      preload: PRELOAD_PATH,
     },
   });
 
@@ -599,6 +636,12 @@ if (!hasSingleInstanceLock) {
       registerRendererLogSink();
       registerProjectLoaderIpc();
       registerDiagnosticsIpc();
+      registerLayoutIpc({
+        devServerUrl: isDev ? DEV_SERVER_URL : null,
+        rendererIndexFile,
+        preloadPath: PRELOAD_PATH,
+        getMainWindow: () => mainWindow,
+      });
       ensureMainLogger().info('Electron app ready');
       setupAppEventHandlers();
       if (process.platform === 'win32') {

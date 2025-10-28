@@ -123,6 +123,23 @@ jobs:
         run: pytest -q
       - name: Run eval harness
         run: python scripts/eval.py --html out/eval.html --json out/eval.json
+      - name: Check eval SLO
+        run: |
+          LEDGER_PATH=$(python - <<'PY'
+from pathlib import Path
+runs_root = Path("sample_project/_runtime/runs")
+if not runs_root.exists():
+    raise SystemExit("No evaluation ledgers found.")
+evaluation_ledgers = sorted(
+    (path for path in runs_root.glob("evaluation-*/run.json") if path.is_file()),
+    key=lambda path: path.stat().st_mtime,
+)
+if not evaluation_ledgers:
+    raise SystemExit("No evaluation ledgers found.")
+print(evaluation_ledgers[-1])
+PY
+)
+          python scripts/check_slo.py "$LEDGER_PATH"
       - name: Run smoke tests
         run: bash scripts/smoke.sh
       - name: Start FastAPI service for load test

@@ -9,6 +9,12 @@
     "Tighten run-ons at 48–55",
     "Keep POV strict; remove two omniscient asides"
   ],
+  "rubric": [
+    "Logic",
+    "Continuity",
+    "Character"
+  ],
+  "rubric_id": "baseline",
   "suggested_edits": [
     {"range": [410, 432], "replacement": "She kills the light and listens."}
   ],

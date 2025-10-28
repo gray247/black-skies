@@ -58,3 +58,43 @@ def test_postflight_scrub_redacts_sensitive_content() -> None:
     assert sanitized["metadata"]["api_key"] == "[REDACTED]"
     assert sanitized["metadata"]["notes"][0] == "Contact [REDACTED_EMAIL]"
     assert sanitized["metadata"]["notes"][1] == "token=[REDACTED_SECRET]"
+
+
+def test_postflight_scrub_handles_nested_structures() -> None:
+    payload = {
+        "session": {
+            "owner": {"email": "owner@example.com", "token": "sk-secret-ABCDEFGHIJKLMNOPQRST"},
+            "history": [
+                {"participant": "writer@example.com", "notes": "Call writer@example.com ASAP"},
+                {
+                    "attachments": [
+                        {"apiKey": "abcd1234efgh5678ijkl9012", "path": "/tmp/report.txt"},
+                        {
+                            "AUTH": "EFGH5678IJKL9012MNOP3456QRST",
+                            "memo": "Sent to reader@example.net",
+                            "description": "token=ZZZZZZZZZZZZZZZZZZZZZZZZ",
+                        },
+                    ]
+                },
+            ],
+        },
+        "participants": (
+            {"email": "critic@example.org", "token": "token=ZZZZZZZZZZZZZZZZZZZZZZZZ"},
+        ),
+    }
+
+    sanitized = postflight_scrub(payload)
+
+    assert sanitized["session"]["owner"]["email"] == "[REDACTED_EMAIL]"
+    assert sanitized["session"]["owner"]["token"] == "[REDACTED]"
+    history_entry = sanitized["session"]["history"][0]
+    assert history_entry["participant"] == "[REDACTED_EMAIL]"
+    assert history_entry["notes"] == "Call [REDACTED_EMAIL] ASAP"
+    attachment_block = sanitized["session"]["history"][1]["attachments"]
+    assert attachment_block[0]["apiKey"] == "[REDACTED]"
+    assert attachment_block[1]["AUTH"] == "[REDACTED]"
+    assert attachment_block[1]["memo"] == "Sent to [REDACTED_EMAIL]"
+    assert attachment_block[1]["description"] == "token=[REDACTED_SECRET]"
+    participant = sanitized["participants"][0]
+    assert participant["email"] == "[REDACTED_EMAIL]"
+    assert participant["token"] == "[REDACTED]"

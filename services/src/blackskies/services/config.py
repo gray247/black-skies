@@ -46,6 +46,61 @@ class ServiceSettings(BaseModel):
         ge=16 * 1024,
         description="Maximum allowed size in bytes for incoming request bodies.",
     )
+    draft_task_timeout_seconds: int = Field(
+        default=120,
+        ge=15,
+        description="Maximum duration allowed for draft generation/preflight tasks in seconds.",
+    )
+    draft_task_retry_attempts: int = Field(
+        default=1,
+        ge=0,
+        le=5,
+        description="Number of retry attempts for draft generation tasks after timeouts or transient failures.",
+    )
+    critique_task_timeout_seconds: int = Field(
+        default=90,
+        ge=10,
+        description="Maximum duration allowed for critique tasks in seconds.",
+    )
+    critique_task_retry_attempts: int = Field(
+        default=1,
+        ge=0,
+        le=5,
+        description="Number of retry attempts for critique tasks after transient failures.",
+    )
+    critique_circuit_failure_threshold: int = Field(
+        default=3,
+        ge=1,
+        le=10,
+        description="Number of consecutive critique failures before opening the circuit breaker.",
+    )
+    critique_circuit_reset_seconds: float = Field(
+        default=45.0,
+        ge=0.0,
+        description="Seconds before a tripped critique circuit allows new attempts.",
+    )
+    analytics_task_timeout_seconds: int = Field(
+        default=60,
+        ge=10,
+        description="Maximum duration allowed for analytics exports in seconds.",
+    )
+    analytics_task_retry_attempts: int = Field(
+        default=1,
+        ge=0,
+        le=5,
+        description="Number of retry attempts for analytics exports after transient failures.",
+    )
+    analytics_circuit_failure_threshold: int = Field(
+        default=3,
+        ge=1,
+        le=10,
+        description="Number of consecutive analytics failures before opening the circuit breaker.",
+    )
+    analytics_circuit_reset_seconds: float = Field(
+        default=60.0,
+        ge=0.0,
+        description="Seconds before a tripped analytics circuit allows new attempts.",
+    )
 
     @field_validator("project_base_dir")
     @classmethod

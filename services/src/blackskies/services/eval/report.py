@@ -33,6 +33,7 @@ class EvalMetrics:
     pass_rate: float
     avg_latency_ms: float
     p95_latency_ms: float
+    p99_latency_ms: float
 
 
 @dataclass(slots=True)
@@ -55,6 +56,7 @@ class EvalReport:
                 "pass_rate": self.metrics.pass_rate,
                 "avg_latency_ms": self.metrics.avg_latency_ms,
                 "p95_latency_ms": self.metrics.p95_latency_ms,
+                "p99_latency_ms": self.metrics.p99_latency_ms,
             },
             "results": [
                 {
@@ -71,11 +73,12 @@ class EvalReport:
         }
 
 
-def _compute_p95(values: Sequence[float]) -> float:
+def _compute_percentile(values: Sequence[float], percentile: float) -> float:
     if not values:
         return 0.0
     sorted_values = sorted(values)
-    index = int(round(0.95 * (len(sorted_values) - 1)))
+    percentile = max(0.0, min(1.0, percentile))
+    index = int(round(percentile * (len(sorted_values) - 1)))
     return sorted_values[index]
 
 
@@ -88,7 +91,8 @@ def build_report(results: Iterable[EvalCaseResult]) -> EvalReport:
     failed = total - passed
     latencies = [result.latency_ms for result in materialized]
     avg_latency = mean(latencies) if latencies else 0.0
-    p95_latency = _compute_p95(latencies)
+    p95_latency = _compute_percentile(latencies, 0.95)
+    p99_latency = _compute_percentile(latencies, 0.99)
     pass_rate = (passed / total) if total else 0.0
 
     metrics = EvalMetrics(
@@ -98,6 +102,7 @@ def build_report(results: Iterable[EvalCaseResult]) -> EvalReport:
         pass_rate=round(pass_rate, 4),
         avg_latency_ms=round(avg_latency, 4),
         p95_latency_ms=round(p95_latency, 4),
+        p99_latency_ms=round(p99_latency, 4),
     )
     generated_at = datetime.now(timezone.utc).isoformat()
     return EvalReport(generated_at=generated_at, metrics=metrics, results=materialized)
@@ -140,6 +145,7 @@ def render_html(report: EvalReport) -> str:
         <li>Pass rate: {report.metrics.pass_rate:.2%}</li>
         <li>Average latency (ms): {report.metrics.avg_latency_ms:.2f}</li>
         <li>P95 latency (ms): {report.metrics.p95_latency_ms:.2f}</li>
+        <li>P99 latency (ms): {report.metrics.p99_latency_ms:.2f}</li>
       </ul>
     </section>
     <section>
