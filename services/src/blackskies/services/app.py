@@ -12,6 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.datastructures import MutableHeaders
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
+from .backup_verifier import BackupVerificationDaemon, BackupVerifierState
 from .budgeting import load_project_budget_state
 from .constants import DEFAULT_HARD_BUDGET_LIMIT_USD, DEFAULT_SOFT_BUDGET_LIMIT_USD
 from .config import ServiceSettings
@@ -133,6 +134,30 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
             ),
         }
     )
+
+    if service_settings.backup_verifier_enabled:
+        backup_verifier = BackupVerificationDaemon(
+            settings=application.state.settings,
+            diagnostics=application.state.diagnostics,
+        )
+        application.state.backup_verifier = backup_verifier
+        application.state.backup_verifier_state = backup_verifier.state
+
+        async def _start_backup_verifier() -> None:
+            await backup_verifier.start()
+
+        async def _stop_backup_verifier() -> None:
+            await backup_verifier.stop()
+
+        application.add_event_handler("startup", _start_backup_verifier)
+        application.add_event_handler("shutdown", _stop_backup_verifier)
+    else:
+        application.state.backup_verifier = None
+        application.state.backup_verifier_state = BackupVerifierState(
+            enabled=False,
+            status="warning",
+            message="Backup verifier disabled by configuration.",
+        )
 
     async def http_exception_handler(_: Request, exc: Exception) -> Response:
         trace_id = ensure_trace_id()

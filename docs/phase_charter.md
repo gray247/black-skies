@@ -38,6 +38,7 @@ Scope remains: finalize GUI↔API parity, smoke tests, offline docs.
 - **Revision Streak Tracker** (days active, word delta)  
 - **Project Health Dashboard** (summary pane)  
 - **Outline Validation Engine** (detect missing beats)
+- **Planning Reference:** [Dashboard initiatives](./dashboard_initiatives.md)
 
 ### Impacted Docs
 `gui_layouts.md`, `data_model.md`, `exports.md`, `architecture.md`
@@ -54,6 +55,7 @@ Scope remains: finalize GUI↔API parity, smoke tests, offline docs.
 - **Corkboard Cards PDF** (finalize optional stub)  
 - **Batch Outline Report** (all decisions → MD/PDF)  
 - **Chapter/Scene Status Badges** (locked/rewrite/critique)
+- **Planning Reference:** [Accessibility toggles](./accessibility_toggles.md)
 
 ### Impacted Docs
 `exports.md`, `gui_layouts.md`, `policies.md` (back-up policy note)
@@ -71,6 +73,7 @@ Scope remains: finalize GUI↔API parity, smoke tests, offline docs.
 - **Multi-Project Dashboard** with recent list  
 - **Smart Merge Tool** for safe scene/chapter merges  
 - **Offline Mode Indicator** & cache manager
+- **Planning References:** [Backup verification daemon](./backup_verification_daemon.md), [Dashboard initiatives](./dashboard_initiatives.md), [Smart merge tool](./smart_merge_tool.md), [Offline cache manager](./offline_cache_manager.md)
 
 ### Impacted Docs
 `agents_and_services.md`, `architecture.md`, `gui_layouts.md`, `policies.md`, `phase_log.md`

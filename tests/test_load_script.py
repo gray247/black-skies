@@ -69,12 +69,17 @@ def test_build_profile_applies_overrides() -> None:
         p99_ms=140.0,
         max_error_rate=0.2,
         max_budget_usd=7.5,
+        scene_count=5,
+        wizard_steps=["input_scope", "structure"],
     )
     raw = {
         "total_cycles": 6,
         "concurrency": 2,
         "timeout": 30.0,
         "warmup_cycles": 0,
+        "scene_count": 3,
+        "wizard_steps": ["input_scope"],
+        "description": "Baseline regression profile",
         "thresholds": {
             "p95_ms": 150.0,
             "p99_ms": 240.0,
@@ -92,6 +97,9 @@ def test_build_profile_applies_overrides() -> None:
     assert profile.thresholds.p99_ms == pytest.approx(140.0)
     assert profile.thresholds.max_error_rate == pytest.approx(0.2)
     assert profile.thresholds.max_budget_usd == pytest.approx(7.5)
+    assert profile.scene_count == 5
+    assert profile.wizard_steps == ("input_scope", "structure")
+    assert profile.description == "Baseline regression profile"
 
 
 def test_build_profile_validates_positive_concurrency() -> None:

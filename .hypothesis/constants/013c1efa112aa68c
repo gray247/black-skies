@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\plugins\registry.py
+# hypothesis_version: 6.138.2
+
+['PluginRecord', 'PluginRegistry', 'enabled', 'manifest.json', 'module_path', 'python_executable', 'state.json', 'utf-8']

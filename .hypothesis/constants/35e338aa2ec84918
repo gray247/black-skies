@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\models\critique.py
+# hypothesis_version: 6.138.2
+
+['DraftCritiqueRequest', '\\s+', '^[a-z0-9._-]{3,64}$', '^sc_\\d{4}$', 'forbid', 'rubric', 'rubric_id']

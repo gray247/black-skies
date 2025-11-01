@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\app.py
+# hypothesis_version: 6.138.2
+
+[0.5, '*', '/', '/api/v1', '/favicon.ico', '1.0.0-rc1', 'Black Skies Services', 'BuildInProgressError', 'BuildTracker', 'RecoveryTracker', 'SERVICE_VERSION', 'analytics', 'api_base', 'app', 'black-skies', 'build_meta_header', 'create_app', 'critique', 'http', 'http.response.start', 'service', 'service_version', 'shutdown', 'startup', 'state', 'status', 'trace_id', 'type', 'version', 'warning']

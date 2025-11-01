@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\routers\draft\export.py
+# hypothesis_version: 6.138.2
+
+['/export', 'DraftExportRequest', 'INTERNAL', 'SERVICE_UNAVAILABLE', 'TIMEOUT', 'code', 'details', 'error', 'errors', 'export_manuscript', 'message', 'project_id', 'timeout_seconds']

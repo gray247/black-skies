@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\plugins\host.py
+# hypothesis_version: 6.138.2
+
+['--cpu-seconds', '--fd-limit', '--manifest', '--memory-bytes', '--request', '-m', '.json', 'PluginExecutionError', 'error', 'launch_plugin', 'ok', 'plugin_', 'response', 'utf-8']

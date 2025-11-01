@@ -10,6 +10,7 @@ import {
   type DiagnosticsLogLevel,
   type DiagnosticsLogPayload,
 } from '../shared/ipc/logging.js';
+import { redactSensitiveDetails } from './redaction.js';
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
@@ -68,31 +69,19 @@ function sanitizeDetails(details: unknown): unknown {
     return details;
   }
 
-  if (details instanceof Error) {
-    return {
-      name: details.name,
-      message: details.message,
-      stack: details.stack,
-    };
-  }
-
-  if (typeof details === 'bigint') {
-    return details.toString();
-  }
-
-  if (typeof details === 'object') {
-    try {
-      return JSON.parse(
-        JSON.stringify(details, (_key, value) =>
-          typeof value === 'bigint' ? value.toString() : value,
-        ),
-      );
-    } catch (error) {
-      return inspect(details, { depth: 1, breakLength: 80 });
+  const redacted = redactSensitiveDetails(details);
+  try {
+    return JSON.parse(
+      JSON.stringify(redacted, (_key, value) =>
+        typeof value === 'bigint' ? value.toString() : value,
+      ),
+    );
+  } catch (error) {
+    if (typeof redacted === 'string' || typeof redacted === 'number' || typeof redacted === 'boolean') {
+      return redacted;
     }
+    return inspect(redacted, { depth: 1, breakLength: 80 });
   }
-
-  return details;
 }
 
 function writeStructuredLog(entry: StructuredLogEntry): void {

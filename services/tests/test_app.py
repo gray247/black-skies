@@ -278,7 +278,16 @@ def test_health(test_client: TestClient) -> None:
 
     response = test_client.get(f"{API_PREFIX}/healthz")
     assert response.status_code == 200
-    assert response.json() == {"status": "ok", "version": SERVICE_VERSION}
+    payload = response.json()
+    assert payload["status"] == "ok"
+    assert payload["version"] == SERVICE_VERSION
+    assert payload["backup_status"] == "warning"
+    assert payload["backup_enabled"] is False
+    assert "backup_message" in payload
+    assert payload["backup_checked_snapshots"] == 0
+    assert payload["backup_failed_snapshots"] == 0
+    assert payload["backup_voice_notes_checked"] == 0
+    assert payload["backup_voice_note_issues"] == 0
     _assert_trace_header(response)
 
 

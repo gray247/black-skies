@@ -1,4 +1,5 @@
 ﻿import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { ReactNode } from "react";
 
 import ProjectHome, { type ActiveScenePayload, type ProjectLoadEvent } from "./components/ProjectHome";
 import CompanionOverlay from "./components/CompanionOverlay";
@@ -8,22 +9,27 @@ import RecoveryBanner from "./components/RecoveryBanner";
 import { PreflightModal } from "./components/PreflightModal";
 import { CritiqueModal } from "./components/CritiqueModal";
 import { ToastStack } from "./components/ToastStack";
+import DockWorkspace from "./components/docking/DockWorkspace";
 import type { LoadedProject } from "../shared/ipc/projectLoader";
 import type { DiagnosticsBridge } from "../shared/ipc/diagnostics";
 import type {
   DraftCritiqueBridgeResponse,
+  RecoveryStatusBridgeResponse,
   ServicesBridge,
 } from "../shared/ipc/services";
 import type { BudgetMeterProps } from "./components/BudgetMeter";
+import type { LayoutPaneId } from "../shared/ipc/layout";
 import useMountedRef from "./hooks/useMountedRef";
 import { useToasts } from "./hooks/useToasts";
 import { useServiceHealth } from "./hooks/useServiceHealth";
 import { isTestEnvironment } from "./utils/env";
 import { usePreflight } from "./hooks/usePreflight";
 import { useCritique, DEFAULT_CRITIQUE_RUBRIC } from "./hooks/useCritique";
+import type { CritiqueDialogState } from "./hooks/useCritique";
 import useRecovery from "./hooks/useRecovery";
 import type ProjectSummary from "./types/project";
 import { generateDraftId } from "./utils/draft";
+import { recordDebugEvent } from "./utils/debugLog";
 
 type BudgetSnapshotSource = {
   soft_limit_usd?: number | null;
@@ -36,6 +42,14 @@ type BudgetSnapshotSource = {
 };
 
 const BUDGET_EPSILON = 1e-6;
+
+const DOCKABLE_PANES: LayoutPaneId[] = [
+  "wizard",
+  "draft-board",
+  "critique",
+  "history",
+  "analytics",
+];
 
 function normaliseBudgetNumber(value?: number | null): number | undefined {
   if (typeof value !== "number" || Number.isNaN(value) || !Number.isFinite(value)) {
@@ -87,6 +101,18 @@ interface BatchCritiqueResult {
 export default function App(): JSX.Element {
   const services: ServicesBridge | undefined = window.services;
   const diagnostics: DiagnosticsBridge | undefined = window.diagnostics;
+  const runtimeUi = window.runtimeConfig?.ui;
+  const dockingEnabled = runtimeUi?.enableDocking === true;
+  const dockingHotkeysEnabled = runtimeUi?.hotkeys?.enablePresetHotkeys !== false;
+  const dockingFocusOrder = useMemo(() => {
+    const entries = runtimeUi?.hotkeys?.focusCycleOrder ?? DOCKABLE_PANES;
+    const allowed = new Set<LayoutPaneId>(DOCKABLE_PANES);
+    const filtered = entries
+      .map((item) => (typeof item === "string" ? (item.trim() as LayoutPaneId) : null))
+      .filter((item): item is LayoutPaneId => Boolean(item) && allowed.has(item));
+    return filtered.length > 0 ? filtered : DOCKABLE_PANES;
+  }, [runtimeUi]);
+  const defaultDockPreset = runtimeUi?.defaultPreset ?? "standard";
 
   const { toasts, pushToast, dismissToast } = useToasts();
   const isMountedRef = useMountedRef();
@@ -509,6 +535,18 @@ export default function App(): JSX.Element {
 
   const activateProject = useCallback(
     (project: LoadedProject, options?: { preserveSceneId?: string | null }) => {
+      console.info("[App] activateProject", {
+        path: project.path,
+        scenes: project.scenes.length,
+        drafts: Object.keys(project.drafts).length,
+        preserveSceneId: options?.preserveSceneId ?? null,
+      });
+      recordDebugEvent("app.activateProject", {
+        path: project.path,
+        scenes: project.scenes.length,
+        drafts: Object.keys(project.drafts).length,
+        preserveSceneId: options?.preserveSceneId ?? null,
+      });
       const projectId = deriveProjectIdFromPath(project.path);
       const unitIds = project.scenes.map((scene) => scene.id);
 
@@ -598,6 +636,14 @@ export default function App(): JSX.Element {
 
   const handleProjectLoaded = useCallback(
     (payload: ProjectLoadEvent | LoadedProject | null | undefined) => {
+      console.info("[App] handleProjectLoaded", {
+        received: payload ? (("status" in payload && payload.status) || "direct") : "null",
+        hasProject: Boolean(payload && ("status" in payload ? payload.project : payload)),
+      });
+      recordDebugEvent("app.handleProjectLoaded", {
+        received: payload ? (("status" in payload && payload.status) || "direct") : "null",
+        hasProject: Boolean(payload && ("status" in payload ? payload.project : payload)),
+      });
       if (!payload) {
         setProjectSummary(null);
         resetProjectState();
@@ -606,6 +652,17 @@ export default function App(): JSX.Element {
 
       if ("status" in payload) {
         const { status, project, lastOpenedPath } = payload;
+
+        console.info("[App] handleProjectLoaded(status)", {
+          status,
+          projectPath: project?.path ?? null,
+          lastOpenedPath: lastOpenedPath ?? null,
+        });
+        recordDebugEvent("app.handleProjectLoaded.status", {
+          status,
+          projectPath: project?.path ?? null,
+          lastOpenedPath: lastOpenedPath ?? null,
+        });
 
         if (status !== "loaded") {
           updateLastProjectPath(lastOpenedPath ?? null);
@@ -618,6 +675,7 @@ export default function App(): JSX.Element {
         }
 
         if (status === "failed" || status === "cleared") {
+          recordDebugEvent("app.handleProjectLoaded.reset", { status });
           setProjectSummary(null);
           resetProjectState();
           return;
@@ -635,6 +693,10 @@ export default function App(): JSX.Element {
       }
 
       updateLastProjectPath(payload.path);
+      console.info("[App] handleProjectLoaded(direct)", {
+        path: payload.path,
+      });
+      recordDebugEvent("app.handleProjectLoaded.direct", { path: payload.path });
       activateProject(payload);
     },
     [activateProject, resetProjectState, updateLastProjectPath],
@@ -701,15 +763,105 @@ export default function App(): JSX.Element {
   const diagnosticsDisabled = recoveryBusy || reopenBusy;
   const restoreLabel = recoveryAction === "restore" ? "Restoring…" : "Restore snapshot";
 
-  return (
-    <div className="app-shell">
-      <aside className="app-shell__dock" aria-label="Wizard dock">
-        <div className="app-shell__dock-header">
-          <h1>Black Skies</h1>
-          <p>Wizard steps</p>
+  const renderWizardPanel = () => (
+    <WizardPanel services={services} onToast={pushToast} onOutlineReady={handleOutlineReady} />
+  );
+
+  const renderRecoveryBanner = () => (
+    <RecoveryBanner
+      visible={recoveryBannerVisible}
+      snapshotLabel={recoverySnapshot?.label || recoverySnapshot?.snapshot_id || null}
+      snapshotTimestamp={recoverySnapshot?.created_at ?? null}
+      restoreDisabled={restoreDisabled}
+      reopenDisabled={reopenDisabled}
+      diagnosticsDisabled={diagnosticsDisabled}
+      restoreLabel={restoreLabel}
+      onRestore={() => void handleRestoreSnapshot()}
+      onReopen={() => void handleReopenLastProject()}
+      onOpenDiagnostics={() => void handleOpenDiagnostics()}
+    />
+  );
+
+  const renderProjectHome = () => (
+    <ProjectHome
+      onToast={pushToast}
+      onProjectLoaded={handleProjectLoaded}
+      reopenRequest={reopenRequest}
+      onReopenConsumed={handleReopenConsumed}
+      draftOverrides={draftEdits}
+      onActiveSceneChange={handleActiveSceneChange}
+      onDraftChange={handleDraftChange}
+    />
+  );
+
+  const dockPaneContent: Partial<Record<LayoutPaneId, React.ReactNode>> = dockingEnabled
+    ? {
+        wizard: <div className="dock-pane__scroll">{renderWizardPanel()}</div>,
+        "draft-board": (
+          <div className="dock-pane__scroll">
+            {renderRecoveryBanner()}
+            {renderProjectHome()}
+          </div>
+        ),
+        critique: (
+          <CritiqueSummaryPane
+            state={critiqueState}
+            onOpen={() => void openCritique()}
+            onReset={() => void resetCritique()}
+          />
+        ),
+        history: (
+          <HistoryPane
+            recoveryStatus={recoveryStatus}
+            recoveryAction={recoveryAction}
+            lastProjectPath={lastProjectPath}
+            onRestore={() => void handleRestoreSnapshot()}
+            onReopen={() => void handleReopenLastProject()}
+            onReload={() => void reloadProjectFromDisk()}
+          />
+        ),
+        analytics: (
+          <AnalyticsPane
+            companionOpen={companionOpen}
+            onOpenCompanion={() => setCompanionOpen(true)}
+            budget={budgetSnapshot}
+          />
+        ),
+      }
+    : {};
+
+  const workspaceBody = dockingEnabled ? (
+    <DockWorkspace
+      projectPath={projectSummary?.path ?? null}
+      panes={dockPaneContent}
+      defaultPreset={defaultDockPreset}
+      enableHotkeys={dockingHotkeysEnabled}
+      focusCycleOrder={dockingFocusOrder}
+      emptyState={
+        <div className="dock-workspace__empty-card">
+          {renderRecoveryBanner()}
+          {renderProjectHome()}
         </div>
-        <WizardPanel services={services} onToast={pushToast} onOutlineReady={handleOutlineReady} />
-      </aside>
+      }
+    />
+  ) : (
+    <div className="app-shell__workspace-scroll">
+      {renderRecoveryBanner()}
+      {renderProjectHome()}
+    </div>
+  );
+
+  return (
+    <div className={`app-shell${dockingEnabled ? " app-shell--dock-enabled" : ""}`}>
+      {!dockingEnabled && (
+        <aside className="app-shell__dock" aria-label="Wizard dock">
+          <div className="app-shell__dock-header">
+            <h1>Black Skies</h1>
+            <p>Wizard steps</p>
+          </div>
+          {renderWizardPanel()}
+        </aside>
+      )}
 
       <div className="app-shell__workspace">
         <WorkspaceHeader
@@ -726,32 +878,7 @@ export default function App(): JSX.Element {
           budget={budgetSnapshot ?? undefined}
         />
 
-        <main className="app-shell__workspace-body">
-          <div className="app-shell__workspace-scroll">
-            <RecoveryBanner
-              visible={recoveryBannerVisible}
-              snapshotLabel={recoverySnapshot?.label || recoverySnapshot?.snapshot_id || null}
-              snapshotTimestamp={recoverySnapshot?.created_at ?? null}
-              restoreDisabled={restoreDisabled}
-              reopenDisabled={reopenDisabled}
-              diagnosticsDisabled={diagnosticsDisabled}
-              restoreLabel={restoreLabel}
-              onRestore={() => void handleRestoreSnapshot()}
-              onReopen={() => void handleReopenLastProject()}
-              onOpenDiagnostics={() => void handleOpenDiagnostics()}
-            />
-
-            <ProjectHome
-              onToast={pushToast}
-              onProjectLoaded={handleProjectLoaded}
-              reopenRequest={reopenRequest}
-              onReopenConsumed={handleReopenConsumed}
-              draftOverrides={draftEdits}
-              onActiveSceneChange={handleActiveSceneChange}
-              onDraftChange={handleDraftChange}
-            />
-          </div>
-        </main>
+        <main className="app-shell__workspace-body">{workspaceBody}</main>
       </div>
 
       <CompanionOverlay
@@ -805,6 +932,137 @@ export default function App(): JSX.Element {
       />
     </div>
   );
+}
+
+interface CritiqueSummaryPaneProps {
+  state: CritiqueDialogState;
+  onOpen: () => void;
+  onReset: () => void;
+}
+
+function CritiqueSummaryPane({ state, onOpen, onReset }: CritiqueSummaryPaneProps): JSX.Element {
+  const summary = state.data?.summary?.trim();
+  return (
+    <div className="dock-pane__section">
+      <div>
+        <h3>Latest critique</h3>
+        {state.loading ? (
+          <p>Fetching critique…</p>
+        ) : summary ? (
+          <p>{summary}</p>
+        ) : (
+          <p>No critique has been generated in this session.</p>
+        )}
+        {state.error ? <p role="status">Last error: {state.error}</p> : null}
+      </div>
+      <div className="dock-pane__actions">
+        <button type="button" onClick={onOpen}>
+          {state.open ? "Focus critique modal" : "Open critique modal"}
+        </button>
+        <button type="button" onClick={onReset} disabled={state.loading}>
+          Clear results
+        </button>
+      </div>
+    </div>
+  );
+}
+
+interface HistoryPaneProps {
+  recoveryStatus: RecoveryStatusBridgeResponse | null;
+  recoveryAction: string;
+  lastProjectPath: string | null;
+  onRestore: () => void;
+  onReopen: () => void;
+  onReload: () => void;
+}
+
+function HistoryPane({
+  recoveryStatus,
+  recoveryAction,
+  lastProjectPath,
+  onRestore,
+  onReopen,
+  onReload,
+}: HistoryPaneProps): JSX.Element {
+  const snapshot = recoveryStatus?.last_snapshot;
+  return (
+    <div className="dock-pane__section">
+      <div>
+        <h3>Recovery</h3>
+        <p>Status: {recoveryStatus?.status ?? "No incidents detected"}</p>
+        {recoveryStatus?.message ? <p>{recoveryStatus.message}</p> : null}
+        {snapshot ? (
+          <p>
+            Last snapshot: {snapshot.label ?? snapshot.snapshot_id ?? "Unknown"}
+            {snapshot.created_at ? ` · ${snapshot.created_at}` : ""}
+          </p>
+        ) : (
+          <p>No snapshot has been written yet.</p>
+        )}
+      </div>
+      <div className="dock-pane__actions">
+        <button type="button" onClick={onRestore} disabled={recoveryAction !== "idle"}>
+          Restore snapshot
+        </button>
+        <button
+          type="button"
+          onClick={onReopen}
+          disabled={!lastProjectPath || recoveryAction !== "idle"}
+        >
+          Reopen last project
+        </button>
+        <button type="button" onClick={onReload}>
+          Refresh from disk
+        </button>
+      </div>
+    </div>
+  );
+}
+
+interface AnalyticsPaneProps {
+  companionOpen: boolean;
+  onOpenCompanion: () => void;
+  budget: BudgetMeterProps | null;
+}
+
+function AnalyticsPane({ companionOpen, onOpenCompanion, budget }: AnalyticsPaneProps): JSX.Element {
+  const statusCopy: Record<string, string> = {
+    ok: "Within limits",
+    "soft-limit": "Soft limit warning",
+    blocked: "Hard limit reached",
+  };
+
+  return (
+    <div className="dock-pane__section">
+      <div>
+        <h3>Companion overlay</h3>
+        <p>The companion overlay is currently {companionOpen ? "open" : "closed"}.</p>
+        <button type="button" onClick={onOpenCompanion}>
+          {companionOpen ? "Focus companion overlay" : "Open companion overlay"}
+        </button>
+      </div>
+      <div>
+        <h4>Budget snapshot</h4>
+        {budget ? (
+          <ul className="dock-pane__list">
+            <li>Projected spend: {formatCurrency(budget.projectedUsd)}</li>
+            <li>Spent to date: {formatCurrency(budget.spentUsd)}</li>
+            <li>Status: {statusCopy[budget.status] ?? budget.status}</li>
+            {budget.message ? <li>{budget.message}</li> : null}
+          </ul>
+        ) : (
+          <p>No budget estimates yet. Run a draft preflight to populate analytics.</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function formatCurrency(value?: number): string {
+  if (typeof value !== "number" || Number.isNaN(value)) {
+    return "—";
+  }
+  return `$${value.toFixed(2)}`;
 }
 
 

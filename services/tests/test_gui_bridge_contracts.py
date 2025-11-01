@@ -21,6 +21,18 @@ httpx = pytest.importorskip("httpx")
 
 pytestmark = pytest.mark.anyio("asyncio")
 
+EXPECTED_HEALTH_PAYLOAD = {
+    "status": "ok",
+    "version": SERVICE_VERSION,
+    "backup_status": "warning",
+    "backup_enabled": False,
+    "backup_message": "Backup verifier disabled by configuration.",
+    "backup_checked_snapshots": 0,
+    "backup_failed_snapshots": 0,
+    "backup_voice_notes_checked": 0,
+    "backup_voice_note_issues": 0,
+}
+
 
 @pytest.fixture()
 def anyio_backend() -> str:
@@ -34,7 +46,7 @@ async def test_health_endpoint_contract(async_client: httpx.AsyncClient) -> None
 
     response = await async_client.get(f"{API_PREFIX}/healthz")
     assert response.status_code == 200
-    assert response.json() == {"status": "ok", "version": SERVICE_VERSION}
+    assert response.json() == EXPECTED_HEALTH_PAYLOAD
     _assert_trace_header(response)
 
 

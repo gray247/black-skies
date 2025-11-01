@@ -13,6 +13,7 @@ const node_fs_2 = require("node:fs");
 const node_path_1 = require("node:path");
 const node_util_1 = require("node:util");
 const logging_js_1 = require("../shared/ipc/logging.js");
+const redaction_js_1 = require("./redaction.js");
 let loggingInitialized = false;
 let mainLogStream = null;
 let diagnosticsLogStream = null;
@@ -41,25 +42,16 @@ function sanitizeDetails(details) {
     if (details === undefined || details === null) {
         return details;
     }
-    if (details instanceof Error) {
-        return {
-            name: details.name,
-            message: details.message,
-            stack: details.stack,
-        };
+    const redacted = (0, redaction_js_1.redactSensitiveDetails)(details);
+    try {
+        return JSON.parse(JSON.stringify(redacted, (_key, value) => typeof value === 'bigint' ? value.toString() : value));
     }
-    if (typeof details === 'bigint') {
-        return details.toString();
-    }
-    if (typeof details === 'object') {
-        try {
-            return JSON.parse(JSON.stringify(details, (_key, value) => typeof value === 'bigint' ? value.toString() : value));
+    catch (error) {
+        if (typeof redacted === 'string' || typeof redacted === 'number' || typeof redacted === 'boolean') {
+            return redacted;
         }
-        catch (error) {
-            return (0, node_util_1.inspect)(details, { depth: 1, breakLength: 80 });
-        }
+        return (0, node_util_1.inspect)(redacted, { depth: 1, breakLength: 80 });
     }
-    return details;
 }
 function writeStructuredLog(entry) {
     const payload = { ...entry };

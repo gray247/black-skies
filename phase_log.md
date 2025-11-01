@@ -5,9 +5,19 @@ Chronological record of locked decisions and spec/version bumps. One-line summar
 
 ---
 
+## 2025-10-28 Phase 8 docking verification (IN PROGRESS)
+- Dock manager (react-mosaic) integrated via `DockWorkspace`; runtime config toggles docking and preset focus order.
+- Layout persistence writes schema v2 payloads with floating pane metadata; renderer reopens saved windows and hotkeys cover presets plus focus cycling.
+- Added Vitest coverage for layout bounds, logging redactors, and DockWorkspace hotkeys alongside pytest coverage for backup verifier includes and nested voice notes.
+- docs/gui_layouts.md and docs/phase8_gui_enhancements.md updated with current scope, verification checklist, and outstanding manual QA items.
+
 ## 2025-10-22 Phase 8 GUI enhancements scope (LOCKED)
 - Added Phase 8 planning entry covering IDE-style docking: drag/drop panes, floating windows, and saved layouts.
 - docs/gui_layouts.md and docs/architecture.md clarify the locked preset layout and capture serialization/multi-monitor requirements for the upcoming customization work.
+
+## 2025-10-07 — Phase 9/11 planning docs added (DRAFT)
+- Added planning documents for backup verification daemon (T-9142), dashboard initiatives (T-9143), smart merge tooling (T-9144), offline cache manager (T-9145), and accessibility toggles (T-9146).
+- docs/architecture.md, docs/phase_charter.md, docs/gui_layouts.md cross-link the new plans; CHANGELOG/RELEASE/support playbook updated for Phase 9 readiness.
 
 ## 2025-10-21 — Companion analytics & export summaries (LOCKED)
 - Companion overlay now surfaces emotion arc and pacing analytics within the workspace.

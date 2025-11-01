@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\models\draft.py
+# hypothesis_version: 6.138.2
+
+[0.0, 0.7, 1.0, 'DraftGenerateRequest', 'DraftUnitOverrides', 'DraftUnitScope', '^ch_\\d{4}$', '^sc_\\d{4}$', 'after', 'aftermath', 'beats', 'before', 'breath', 'chapter', 'dread', 'escalation', 'forbid', 'payoff', 'project_id', 'respite', 'revelation', 'scene', 'setup', 'tension']

@@ -36,6 +36,7 @@ Pygments==2.19.2
 pytest-cov==7.0.0
 pytest-rerunfailures==16.1
 pytest==8.4.2
+pytest-asyncio==0.24.0
 python-dotenv==1.1.1
 pytokens==0.1.10
 PyYAML==6.0.3

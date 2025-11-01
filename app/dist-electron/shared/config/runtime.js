@@ -41,6 +41,14 @@ exports.DEFAULT_RUNTIME_CONFIG = Object.freeze({
             fastThreshold: 0.8,
         },
     },
+    ui: {
+        enableDocking: false,
+        defaultPreset: "standard",
+        hotkeys: {
+            enablePresetHotkeys: true,
+            focusCycleOrder: ["wizard", "draft-board", "critique", "history", "analytics"],
+        },
+    },
 });
 let cachedConfig = null;
 function loadRuntimeConfig(explicitPath) {
@@ -101,6 +109,8 @@ function normalizeRuntimeConfig(parsed) {
     const analyticsSection = parsed.analytics ?? {};
     const emotionIntensity = normalizeEmotionIntensity(analyticsSection.emotion_intensity);
     const paceSection = analyticsSection.pace ?? {};
+    const uiSection = parsed.ui ?? {};
+    const uiHotkeysSection = uiSection.hotkeys ?? {};
     return {
         service: {
             portRange,
@@ -121,7 +131,47 @@ function normalizeRuntimeConfig(parsed) {
                 fastThreshold: toNumber(paceSection.fast_threshold, exports.DEFAULT_RUNTIME_CONFIG.analytics.pace.fastThreshold),
             },
         },
+        ui: {
+            enableDocking: toBoolean(uiSection.enable_docking, exports.DEFAULT_RUNTIME_CONFIG.ui.enableDocking),
+            defaultPreset: typeof uiSection.default_preset === "string"
+                ? uiSection.default_preset
+                : exports.DEFAULT_RUNTIME_CONFIG.ui.defaultPreset,
+            hotkeys: {
+                enablePresetHotkeys: toBoolean(uiHotkeysSection.enable_preset_hotkeys, exports.DEFAULT_RUNTIME_CONFIG.ui.hotkeys.enablePresetHotkeys),
+                focusCycleOrder: resolveFocusCycle(uiHotkeysSection.focus_cycle_order),
+            },
+        },
     };
+}
+function resolveFocusCycle(value) {
+    if (!Array.isArray(value)) {
+        return exports.DEFAULT_RUNTIME_CONFIG.ui.hotkeys.focusCycleOrder;
+    }
+    const normalised = value
+        .map((entry) => (typeof entry === "string" ? entry.trim() : ""))
+        .filter((entry) => entry.length > 0);
+    if (normalised.length === 0) {
+        return exports.DEFAULT_RUNTIME_CONFIG.ui.hotkeys.focusCycleOrder;
+    }
+    return normalised;
+}
+function toBoolean(value, fallback) {
+    if (typeof value === "boolean") {
+        return value;
+    }
+    if (typeof value === "string") {
+        const normalised = value.trim().toLowerCase();
+        if (normalised === "true") {
+            return true;
+        }
+        if (normalised === "false") {
+            return false;
+        }
+    }
+    if (typeof value === "number") {
+        return value !== 0;
+    }
+    return fallback;
 }
 function normalizePortRange(value) {
     if (value && typeof value === 'object') {

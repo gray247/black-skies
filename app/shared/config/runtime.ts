@@ -35,10 +35,22 @@ export interface AnalyticsConfig {
   };
 }
 
+export interface UiHotkeysConfig {
+  readonly enablePresetHotkeys: boolean;
+  readonly focusCycleOrder: readonly string[];
+}
+
+export interface UiConfig {
+  readonly enableDocking: boolean;
+  readonly defaultPreset: string;
+  readonly hotkeys: UiHotkeysConfig;
+}
+
 export interface RuntimeConfig {
   readonly service: ServiceConfig;
   readonly budget: BudgetConfig;
   readonly analytics: AnalyticsConfig;
+  readonly ui: UiConfig;
 }
 
 export const DEFAULT_SERVICE_PORT_RANGE: ServicePortRange = Object.freeze({
@@ -78,6 +90,14 @@ export const DEFAULT_RUNTIME_CONFIG: RuntimeConfig = Object.freeze({
     pace: {
       slowThreshold: 1.2,
       fastThreshold: 0.8,
+    },
+  },
+  ui: {
+    enableDocking: false,
+    defaultPreset: "standard",
+    hotkeys: {
+      enablePresetHotkeys: true,
+      focusCycleOrder: ["wizard", "draft-board", "critique", "history", "analytics"],
     },
   },
 });
@@ -147,6 +167,8 @@ function normalizeRuntimeConfig(parsed: Record<string, unknown>): RuntimeConfig 
   const analyticsSection = (parsed.analytics as Record<string, unknown> | undefined) ?? {};
   const emotionIntensity = normalizeEmotionIntensity(analyticsSection.emotion_intensity);
   const paceSection = (analyticsSection.pace as Record<string, unknown> | undefined) ?? {};
+  const uiSection = (parsed.ui as Record<string, unknown> | undefined) ?? {};
+  const uiHotkeysSection = (uiSection.hotkeys as Record<string, unknown> | undefined) ?? {};
 
   return {
     service: {
@@ -180,7 +202,56 @@ function normalizeRuntimeConfig(parsed: Record<string, unknown>): RuntimeConfig 
         ),
       },
     },
+    ui: {
+      enableDocking: toBoolean(
+        uiSection.enable_docking,
+        DEFAULT_RUNTIME_CONFIG.ui.enableDocking,
+      ),
+      defaultPreset:
+        typeof uiSection.default_preset === "string"
+          ? uiSection.default_preset
+          : DEFAULT_RUNTIME_CONFIG.ui.defaultPreset,
+      hotkeys: {
+        enablePresetHotkeys: toBoolean(
+          uiHotkeysSection.enable_preset_hotkeys,
+          DEFAULT_RUNTIME_CONFIG.ui.hotkeys.enablePresetHotkeys,
+        ),
+        focusCycleOrder: resolveFocusCycle(uiHotkeysSection.focus_cycle_order),
+      },
+    },
   };
+}
+
+function resolveFocusCycle(value: unknown): readonly string[] {
+  if (!Array.isArray(value)) {
+    return DEFAULT_RUNTIME_CONFIG.ui.hotkeys.focusCycleOrder;
+  }
+  const normalised = value
+    .map((entry) => (typeof entry === "string" ? entry.trim() : ""))
+    .filter((entry) => entry.length > 0);
+  if (normalised.length === 0) {
+    return DEFAULT_RUNTIME_CONFIG.ui.hotkeys.focusCycleOrder;
+  }
+  return normalised;
+}
+
+function toBoolean(value: unknown, fallback: boolean): boolean {
+  if (typeof value === "boolean") {
+    return value;
+  }
+  if (typeof value === "string") {
+    const normalised = value.trim().toLowerCase();
+    if (normalised === "true") {
+      return true;
+    }
+    if (normalised === "false") {
+      return false;
+    }
+  }
+  if (typeof value === "number") {
+    return value !== 0;
+  }
+  return fallback;
 }
 
 function normalizePortRange(value: unknown): ServicePortRange {

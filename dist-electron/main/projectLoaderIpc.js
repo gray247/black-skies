@@ -371,7 +371,10 @@ async function resolveSampleProjectPath() {
     const candidates = [
         node_path_1.default.resolve(electron_1.app.getAppPath(), '..', knownRelative),
         node_path_1.default.resolve(electron_1.app.getAppPath(), knownRelative),
+        node_path_1.default.resolve(electron_1.app.getAppPath(), '..', '..', knownRelative),
         node_path_1.default.resolve(process.cwd(), knownRelative),
+        node_path_1.default.resolve(process.cwd(), '..', knownRelative),
+        node_path_1.default.resolve(process.cwd(), '..', '..', knownRelative),
     ];
     for (const candidate of candidates) {
         try {

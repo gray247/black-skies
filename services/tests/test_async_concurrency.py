@@ -63,7 +63,9 @@ async def test_generate_allows_concurrent_health(
 
     health_response = await async_client.get(f"{API_PREFIX}/healthz")
     assert health_response.status_code == 200, health_response.text
-    assert health_response.json() == {"status": "ok", "version": SERVICE_VERSION}
+    health_payload = health_response.json()
+    assert health_payload["status"] == "ok"
+    assert health_payload["version"] == SERVICE_VERSION
 
     result = await generate_task
     assert result["project_id"] == project_id
@@ -97,7 +99,9 @@ async def test_critique_allows_concurrent_health(
 
     health_response = await async_client.get(f"{API_PREFIX}/healthz")
     assert health_response.status_code == 200, health_response.text
-    assert health_response.json() == {"status": "ok", "version": SERVICE_VERSION}
+    health_payload = health_response.json()
+    assert health_payload["status"] == "ok"
+    assert health_payload["version"] == SERVICE_VERSION
 
     result = await critique_task
     assert result["unit_id"] == payload["unit_id"]

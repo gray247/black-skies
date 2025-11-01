@@ -49,4 +49,4 @@ typing_extensions==4.15.0
 uvicorn==0.29.0
 watchfiles==1.1.0
 websockets==15.0.1
-﻿# Development dependencies lockfile generated via pip freeze.
+# Development dependencies lockfile generated via pip freeze.

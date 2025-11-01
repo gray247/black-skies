@@ -7,6 +7,83 @@ const logging_js_1 = require("../shared/ipc/logging.js");
 const runtime_js_1 = require("../shared/config/runtime.js");
 const projectLoader_js_1 = require("../shared/ipc/projectLoader.js");
 const diagnostics_js_1 = require("../shared/ipc/diagnostics.js");
+const layout_js_1 = require("../shared/ipc/layout.js");
+class BridgeCircuitOpenError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = 'BridgeCircuitOpenError';
+    }
+}
+class BridgeTimeoutError extends Error {
+    timeoutMs;
+    constructor(timeoutMs) {
+        super(`Request timed out after ${timeoutMs}ms.`);
+        this.timeoutMs = timeoutMs;
+        this.name = 'BridgeTimeoutError';
+    }
+}
+class BridgeNetworkError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = 'BridgeNetworkError';
+    }
+}
+class CircuitBreaker {
+    failureThreshold;
+    resetMs;
+    failureCount = 0;
+    state = 'closed';
+    openedAt = 0;
+    constructor(failureThreshold, resetMs) {
+        this.failureThreshold = failureThreshold;
+        this.resetMs = resetMs;
+    }
+    allow() {
+        if (this.state === 'open') {
+            if (this.resetMs === 0) {
+                return false;
+            }
+            const elapsed = Date.now() - this.openedAt;
+            if (elapsed >= this.resetMs) {
+                this.state = 'half-open';
+                return true;
+            }
+            return false;
+        }
+        return true;
+    }
+    recordSuccess() {
+        this.failureCount = 0;
+        this.state = 'closed';
+    }
+    recordFailure() {
+        this.failureCount += 1;
+        if (this.failureCount >= this.failureThreshold) {
+            this.state = 'open';
+            this.openedAt = Date.now();
+            return true;
+        }
+        return false;
+    }
+}
+function parsePositiveInt(value, fallback) {
+    if (!value) {
+        return fallback;
+    }
+    const parsed = Number.parseInt(value, 10);
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+        return fallback;
+    }
+    return parsed;
+}
+const REQUEST_POLICY = {
+    timeoutMs: parsePositiveInt(process.env.BLACKSKIES_BRIDGE_TIMEOUT_MS, 45_000),
+    maxAttempts: Math.max(1, parsePositiveInt(process.env.BLACKSKIES_BRIDGE_MAX_ATTEMPTS, 2)),
+    backoffMs: Math.max(0, parsePositiveInt(process.env.BLACKSKIES_BRIDGE_BACKOFF_MS, 250)),
+    circuitFailureThreshold: Math.max(1, parsePositiveInt(process.env.BLACKSKIES_BRIDGE_FAILURE_THRESHOLD, 3)),
+    circuitResetMs: Math.max(0, parsePositiveInt(process.env.BLACKSKIES_BRIDGE_RESET_MS, 15_000)),
+};
+const REQUEST_BREAKER = new CircuitBreaker(REQUEST_POLICY.circuitFailureThreshold, REQUEST_POLICY.circuitResetMs);
 const LOG_LEVEL_MAP = {
     log: 'info',
     info: 'info',
@@ -15,6 +92,14 @@ const LOG_LEVEL_MAP = {
     debug: 'debug',
 };
 const runtimeConfig = (0, runtime_js_1.loadRuntimeConfig)();
+async function sleep(milliseconds) {
+    if (milliseconds <= 0) {
+        return;
+    }
+    await new Promise((resolve) => {
+        setTimeout(resolve, milliseconds);
+    });
+}
 function currentServicePort() {
     const raw = process.env.BLACKSKIES_SERVICES_PORT;
     const parsed = raw ? Number.parseInt(raw, 10) : Number.NaN;
@@ -25,6 +110,58 @@ function normalizeError(message, extra) {
         message,
         ...extra,
     };
+}
+async function fetchWithTimeout(url, init, timeoutMs) {
+    if (timeoutMs <= 0) {
+        return fetch(url, init);
+    }
+    const controller = new AbortController();
+    const timeoutHandle = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+        return await fetch(url, { ...init, signal: controller.signal });
+    }
+    catch (error) {
+        if (error instanceof Error && error.name === 'AbortError') {
+            throw new BridgeTimeoutError(timeoutMs);
+        }
+        const message = error instanceof Error ? error.message : String(error);
+        throw new BridgeNetworkError(message);
+    }
+    finally {
+        clearTimeout(timeoutHandle);
+    }
+}
+async function fetchWithResilience(url, init, method) {
+    let lastError;
+    for (let attempt = 1; attempt <= REQUEST_POLICY.maxAttempts; attempt += 1) {
+        if (!REQUEST_BREAKER.allow()) {
+            throw new BridgeCircuitOpenError('Service bridge circuit is open.');
+        }
+        try {
+            const response = await fetchWithTimeout(url, init, REQUEST_POLICY.timeoutMs);
+            REQUEST_BREAKER.recordSuccess();
+            return response;
+        }
+        catch (error) {
+            lastError = error;
+            let circuitOpened = false;
+            if (!(error instanceof BridgeCircuitOpenError)) {
+                circuitOpened = REQUEST_BREAKER.recordFailure();
+                if (circuitOpened && !(error instanceof BridgeTimeoutError)) {
+                    lastError = new BridgeCircuitOpenError('Service bridge circuit is open.');
+                }
+            }
+            const retryable = method === 'GET' && attempt < REQUEST_POLICY.maxAttempts && !circuitOpened;
+            if (!retryable) {
+                break;
+            }
+            await sleep(REQUEST_POLICY.backoffMs * attempt);
+        }
+    }
+    if (lastError instanceof Error) {
+        throw lastError;
+    }
+    throw new Error('Service request failed.');
 }
 function formatLogArgument(argument) {
     if (typeof argument === 'string') {
@@ -109,12 +246,13 @@ async function makeServiceCall(path, method, body) {
     const headers = {
         'Content-Type': 'application/json',
     };
+    const requestInit = {
+        method,
+        headers,
+        body: body ? JSON.stringify(body) : undefined,
+    };
     try {
-        const response = await fetch(url, {
-            method,
-            headers,
-            body: body ? JSON.stringify(body) : undefined,
-        });
+        const response = await fetchWithResilience(url, requestInit, method);
         const traceId = response.headers.get('x-trace-id') ?? undefined;
         if (!response.ok) {
             const error = await parseErrorPayload(response, traceId);
@@ -138,6 +276,31 @@ async function makeServiceCall(path, method, body) {
         }
     }
     catch (error) {
+        if (error instanceof BridgeCircuitOpenError) {
+            return {
+                ok: false,
+                error: normalizeError('Service requests temporarily unavailable.', {
+                    code: 'SERVICE_UNAVAILABLE',
+                }),
+            };
+        }
+        if (error instanceof BridgeTimeoutError) {
+            return {
+                ok: false,
+                error: normalizeError(error.message, {
+                    code: 'TIMEOUT',
+                    details: { timeout_ms: error.timeoutMs },
+                }),
+            };
+        }
+        if (error instanceof BridgeNetworkError) {
+            return {
+                ok: false,
+                error: normalizeError(error.message, {
+                    code: 'NETWORK_ERROR',
+                }),
+            };
+        }
         const message = error instanceof Error ? error.message : String(error);
         return { ok: false, error: normalizeError(message) };
     }
@@ -152,7 +315,7 @@ async function probeHealth() {
     }
     const url = `http://127.0.0.1:${port}/api/v1/healthz`;
     try {
-        const response = await fetch(url);
+        const response = await fetchWithResilience(url, { method: 'GET' }, 'GET');
         const traceId = response.headers.get('x-trace-id') ?? undefined;
         if (!response.ok) {
             const error = await parseErrorPayload(response, traceId);
@@ -192,6 +355,27 @@ async function probeHealth() {
         };
     }
     catch (error) {
+        if (error instanceof BridgeCircuitOpenError) {
+            return {
+                ok: false,
+                error: normalizeError('Service requests temporarily unavailable.'),
+            };
+        }
+        if (error instanceof BridgeTimeoutError) {
+            return {
+                ok: false,
+                error: normalizeError(error.message, {
+                    code: 'TIMEOUT',
+                    details: { timeout_ms: error.timeoutMs },
+                }),
+            };
+        }
+        if (error instanceof BridgeNetworkError) {
+            return {
+                ok: false,
+                error: normalizeError(error.message, { code: 'NETWORK_ERROR' }),
+            };
+        }
         const message = error instanceof Error ? error.message : String(error);
         return { ok: false, error: normalizeError(message) };
     }
@@ -408,9 +592,71 @@ const servicesBridge = {
     getRecoveryStatus: exports.serviceApi.getRecoveryStatus,
     restoreSnapshot: exports.serviceApi.restoreSnapshot,
 };
+const layoutBridge = {
+    async loadLayout(request) {
+        try {
+            const response = await electron_1.ipcRenderer.invoke(layout_js_1.LAYOUT_CHANNELS.load, request);
+            if (response && typeof response === 'object') {
+                return response;
+            }
+            return { layout: null, floatingPanes: [], schemaVersion: 2 };
+        }
+        catch (error) {
+            console.warn('[preload] Failed to load layout', error);
+            return { layout: null, floatingPanes: [], schemaVersion: 2 };
+        }
+    },
+    async saveLayout(request) {
+        try {
+            await electron_1.ipcRenderer.invoke(layout_js_1.LAYOUT_CHANNELS.save, request);
+        }
+        catch (error) {
+            console.warn('[preload] Failed to save layout', error);
+        }
+    },
+    async resetLayout(request) {
+        try {
+            await electron_1.ipcRenderer.invoke(layout_js_1.LAYOUT_CHANNELS.reset, request);
+        }
+        catch (error) {
+            console.warn('[preload] Failed to reset layout', error);
+        }
+    },
+    async openFloatingPane(request) {
+        try {
+            const result = await electron_1.ipcRenderer.invoke(layout_js_1.LAYOUT_CHANNELS.openFloating, request);
+            return Boolean(result);
+        }
+        catch (error) {
+            console.warn('[preload] Failed to open floating pane', error);
+            return false;
+        }
+    },
+    async closeFloatingPane(request) {
+        try {
+            await electron_1.ipcRenderer.invoke(layout_js_1.LAYOUT_CHANNELS.closeFloating, request);
+        }
+        catch (error) {
+            console.warn('[preload] Failed to close floating pane', error);
+        }
+    },
+    async listFloatingPanes(projectPath) {
+        try {
+            const response = await electron_1.ipcRenderer.invoke(layout_js_1.LAYOUT_CHANNELS.listFloating, projectPath);
+            if (Array.isArray(response)) {
+                return response;
+            }
+        }
+        catch (error) {
+            console.warn('[preload] Failed to list floating panes', error);
+        }
+        return [];
+    },
+};
 registerConsoleForwarding();
 electron_1.contextBridge.exposeInMainWorld('projectLoader', projectLoaderApi);
 electron_1.contextBridge.exposeInMainWorld('services', servicesBridge);
 electron_1.contextBridge.exposeInMainWorld('diagnostics', diagnosticsBridge);
+electron_1.contextBridge.exposeInMainWorld('layout', layoutBridge);
 electron_1.contextBridge.exposeInMainWorld('runtimeConfig', runtimeConfig);
 //# sourceMappingURL=preload.js.map

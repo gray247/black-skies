@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import AliasChoices, BaseModel, ConfigDict, Field, field_validator
 
 _RUBRIC_ID_PATTERN = re.compile(r"^[a-z0-9._-]{3,64}$")
 _CATEGORY_PATTERN = re.compile(r"^[A-Za-z0-9 ,.&:/'-]+$")
@@ -35,7 +35,10 @@ class RubricDefinition(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    rubric_id: str = Field(validation_alias="id")
+    rubric_id: str = Field(
+        validation_alias=AliasChoices("id", "rubric_id"),
+        alias="rubric_id",
+    )
     label: str
     description: str | None = None
     categories: list[str] = Field(default_factory=list)

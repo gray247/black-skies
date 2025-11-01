@@ -24,7 +24,8 @@ export interface LayoutLoadRequest {
 
 export interface LayoutSaveRequest extends LayoutLoadRequest {
   layout: LayoutTree;
-  floatingPanes: FloatingPaneDescriptor[];
+  floatingPanes?: FloatingPaneDescriptor[];
+  schemaVersion?: number;
 }
 
 export interface LayoutResetRequest extends LayoutLoadRequest {}
@@ -32,11 +33,13 @@ export interface LayoutResetRequest extends LayoutLoadRequest {}
 export interface LayoutLoadResponse {
   layout: LayoutTree | null;
   floatingPanes: FloatingPaneDescriptor[];
+  schemaVersion?: number;
 }
 
 export interface FloatingPaneDescriptor {
   id: LayoutPaneId;
   bounds?: { x: number; y: number; width: number; height: number };
+  displayId?: number;
 }
 
 export interface LayoutBridge {
@@ -52,6 +55,7 @@ export interface FloatingPaneOpenRequest {
   projectPath: string;
   paneId: LayoutPaneId;
   bounds?: FloatingPaneDescriptor["bounds"];
+  displayId?: number;
 }
 
 export interface FloatingPaneCloseRequest {

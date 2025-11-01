@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\resilience.py
+# hypothesis_version: 6.138.2
+
+[0.0, 0.5, 30.0, 'CircuitOpenError', 'ResiliencePolicy', 'T', 'analytics', 'attempt', 'critique', 'error', 'extra_payload', 'service', 'service.circuit_open', 'service.failure', 'service.timeout', 'timeout_seconds']

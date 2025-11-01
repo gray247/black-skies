@@ -71,6 +71,8 @@ jobs:
         run: pnpm install --recursive --frozen-lockfile
       - name: Run app lint
         run: pnpm --filter app lint
+      - name: Build main bundle
+        run: pnpm --filter app build:main
       - name: Run app tests
         run: pnpm --filter app test
 

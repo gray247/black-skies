@@ -26,3 +26,14 @@ analytics:
   pace:
     slow_threshold: 1.2
     fast_threshold: 0.8
+ui:
+  enable_docking: true
+  default_preset: standard
+  hotkeys:
+    enable_preset_hotkeys: true
+    focus_cycle_order:
+      - wizard
+      - draft-board
+      - critique
+      - history
+      - analytics

@@ -474,7 +474,10 @@ async function resolveSampleProjectPath(): Promise<string | null> {
   const candidates = [
     path.resolve(app.getAppPath(), '..', knownRelative),
     path.resolve(app.getAppPath(), knownRelative),
+    path.resolve(app.getAppPath(), '..', '..', knownRelative),
     path.resolve(process.cwd(), knownRelative),
+    path.resolve(process.cwd(), '..', knownRelative),
+    path.resolve(process.cwd(), '..', '..', knownRelative),
   ];
 
   for (const candidate of candidates) {

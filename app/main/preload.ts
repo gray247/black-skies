@@ -57,6 +57,103 @@ type ConsoleMethod = 'log' | 'info' | 'warn' | 'error' | 'debug';
 
 type HttpMethod = 'GET' | 'POST';
 
+interface BridgeResiliencePolicy {
+  timeoutMs: number;
+  maxAttempts: number;
+  backoffMs: number;
+  circuitFailureThreshold: number;
+  circuitResetMs: number;
+}
+
+class BridgeCircuitOpenError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'BridgeCircuitOpenError';
+  }
+}
+
+class BridgeTimeoutError extends Error {
+  constructor(readonly timeoutMs: number) {
+    super(`Request timed out after ${timeoutMs}ms.`);
+    this.name = 'BridgeTimeoutError';
+  }
+}
+
+class BridgeNetworkError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'BridgeNetworkError';
+  }
+}
+
+class CircuitBreaker {
+  private failureCount = 0;
+  private state: 'closed' | 'open' | 'half-open' = 'closed';
+  private openedAt = 0;
+
+  constructor(
+    private readonly failureThreshold: number,
+    private readonly resetMs: number,
+  ) {}
+
+  allow(): boolean {
+    if (this.state === 'open') {
+      if (this.resetMs === 0) {
+        return false;
+      }
+      const elapsed = Date.now() - this.openedAt;
+      if (elapsed >= this.resetMs) {
+        this.state = 'half-open';
+        return true;
+      }
+      return false;
+    }
+    return true;
+  }
+
+  recordSuccess(): void {
+    this.failureCount = 0;
+    this.state = 'closed';
+  }
+
+  recordFailure(): boolean {
+    this.failureCount += 1;
+    if (this.failureCount >= this.failureThreshold) {
+      this.state = 'open';
+      this.openedAt = Date.now();
+      return true;
+    }
+    return false;
+  }
+}
+
+function parsePositiveInt(value: string | undefined, fallback: number): number {
+  if (!value) {
+    return fallback;
+  }
+  const parsed = Number.parseInt(value, 10);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    return fallback;
+  }
+  return parsed;
+}
+
+const REQUEST_POLICY: BridgeResiliencePolicy = {
+  timeoutMs: parsePositiveInt(process.env.BLACKSKIES_BRIDGE_TIMEOUT_MS, 45_000),
+  maxAttempts: Math.max(1, parsePositiveInt(process.env.BLACKSKIES_BRIDGE_MAX_ATTEMPTS, 2)),
+  backoffMs: Math.max(0, parsePositiveInt(process.env.BLACKSKIES_BRIDGE_BACKOFF_MS, 250)),
+  circuitFailureThreshold: Math.max(
+    1,
+    parsePositiveInt(process.env.BLACKSKIES_BRIDGE_FAILURE_THRESHOLD, 3),
+  ),
+  circuitResetMs: Math.max(0, parsePositiveInt(process.env.BLACKSKIES_BRIDGE_RESET_MS, 15_000)),
+};
+
+const REQUEST_BREAKER = new CircuitBreaker(
+  REQUEST_POLICY.circuitFailureThreshold,
+  REQUEST_POLICY.circuitResetMs,
+);
+
 const LOG_LEVEL_MAP: Record<ConsoleMethod, DiagnosticsLogLevel> = {
   log: 'info',
   info: 'info',
@@ -66,6 +163,15 @@ const LOG_LEVEL_MAP: Record<ConsoleMethod, DiagnosticsLogLevel> = {
 };
 
 const runtimeConfig = loadRuntimeConfig();
+
+async function sleep(milliseconds: number): Promise<void> {
+  if (milliseconds <= 0) {
+    return;
+  }
+  await new Promise((resolve) => {
+    setTimeout(resolve, milliseconds);
+  });
+}
 
 function currentServicePort(): number | null {
   const raw = process.env.BLACKSKIES_SERVICES_PORT;
@@ -78,6 +184,66 @@ function normalizeError(message: string, extra?: Partial<ServiceError>): Service
     message,
     ...extra,
   };
+}
+
+async function fetchWithTimeout(url: string, init: RequestInit, timeoutMs: number): Promise<Response> {
+  if (timeoutMs <= 0) {
+    return fetch(url, init);
+  }
+
+  const controller = new AbortController();
+  const timeoutHandle = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...init, signal: controller.signal });
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new BridgeTimeoutError(timeoutMs);
+    }
+    const message = error instanceof Error ? error.message : String(error);
+    throw new BridgeNetworkError(message);
+  } finally {
+    clearTimeout(timeoutHandle);
+  }
+}
+
+async function fetchWithResilience(
+  url: string,
+  init: RequestInit,
+  method: HttpMethod,
+): Promise<Response> {
+  let lastError: unknown;
+  for (let attempt = 1; attempt <= REQUEST_POLICY.maxAttempts; attempt += 1) {
+    if (!REQUEST_BREAKER.allow()) {
+      throw new BridgeCircuitOpenError('Service bridge circuit is open.');
+    }
+
+    try {
+      const response = await fetchWithTimeout(url, init, REQUEST_POLICY.timeoutMs);
+      REQUEST_BREAKER.recordSuccess();
+      return response;
+    } catch (error) {
+      lastError = error;
+      let circuitOpened = false;
+      if (!(error instanceof BridgeCircuitOpenError)) {
+        circuitOpened = REQUEST_BREAKER.recordFailure();
+        if (circuitOpened && !(error instanceof BridgeTimeoutError)) {
+          lastError = new BridgeCircuitOpenError('Service bridge circuit is open.');
+        }
+      }
+
+      const retryable =
+        method === 'GET' && attempt < REQUEST_POLICY.maxAttempts && !circuitOpened;
+      if (!retryable) {
+        break;
+      }
+      await sleep(REQUEST_POLICY.backoffMs * attempt);
+    }
+  }
+
+  if (lastError instanceof Error) {
+    throw lastError;
+  }
+  throw new Error('Service request failed.');
 }
 
 function formatLogArgument(argument: unknown): string {
@@ -188,13 +354,14 @@ export async function makeServiceCall<T>(
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   };
+  const requestInit: RequestInit = {
+    method,
+    headers,
+    body: body ? JSON.stringify(body) : undefined,
+  };
 
   try {
-    const response = await fetch(url, {
-      method,
-      headers,
-      body: body ? JSON.stringify(body) : undefined,
-    });
+    const response = await fetchWithResilience(url, requestInit, method);
 
     const traceId = response.headers.get('x-trace-id') ?? undefined;
 
@@ -221,6 +388,31 @@ export async function makeServiceCall<T>(
       return { ok: false, error, traceId };
     }
   } catch (error) {
+    if (error instanceof BridgeCircuitOpenError) {
+      return {
+        ok: false,
+        error: normalizeError('Service requests temporarily unavailable.', {
+          code: 'SERVICE_UNAVAILABLE',
+        }),
+      };
+    }
+    if (error instanceof BridgeTimeoutError) {
+      return {
+        ok: false,
+        error: normalizeError(error.message, {
+          code: 'TIMEOUT',
+          details: { timeout_ms: error.timeoutMs },
+        }),
+      };
+    }
+    if (error instanceof BridgeNetworkError) {
+      return {
+        ok: false,
+        error: normalizeError(error.message, {
+          code: 'NETWORK_ERROR',
+        }),
+      };
+    }
     const message = error instanceof Error ? error.message : String(error);
     return { ok: false, error: normalizeError(message) };
   }
@@ -238,7 +430,7 @@ async function probeHealth(): Promise<ServiceHealthResponse> {
   const url = `http://127.0.0.1:${port}/api/v1/healthz`;
 
   try {
-    const response = await fetch(url);
+    const response = await fetchWithResilience(url, { method: 'GET' }, 'GET');
     const traceId = response.headers.get('x-trace-id') ?? undefined;
     if (!response.ok) {
       const error = await parseErrorPayload(response, traceId);
@@ -279,6 +471,27 @@ async function probeHealth(): Promise<ServiceHealthResponse> {
       traceId,
     };
   } catch (error) {
+    if (error instanceof BridgeCircuitOpenError) {
+      return {
+        ok: false,
+        error: normalizeError('Service requests temporarily unavailable.'),
+      };
+    }
+    if (error instanceof BridgeTimeoutError) {
+      return {
+        ok: false,
+        error: normalizeError(error.message, {
+          code: 'TIMEOUT',
+          details: { timeout_ms: error.timeoutMs },
+        }),
+      };
+    }
+    if (error instanceof BridgeNetworkError) {
+      return {
+        ok: false,
+        error: normalizeError(error.message, { code: 'NETWORK_ERROR' }),
+      };
+    }
     const message = error instanceof Error ? error.message : String(error);
     return { ok: false, error: normalizeError(message) };
   }
@@ -607,10 +820,10 @@ const layoutBridge: LayoutBridge = {
       if (response && typeof response === 'object') {
         return response as LayoutLoadResponse;
       }
-      return { layout: null, floatingPanes: [] };
+      return { layout: null, floatingPanes: [], schemaVersion: 2 };
     } catch (error) {
       console.warn('[preload] Failed to load layout', error);
-      return { layout: null, floatingPanes: [] };
+      return { layout: null, floatingPanes: [], schemaVersion: 2 };
     }
   },
   async saveLayout(request: LayoutSaveRequest): Promise<void> {

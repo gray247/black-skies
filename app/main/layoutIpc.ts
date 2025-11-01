@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, screen } from 'electron';
 import { promises as fs } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 
@@ -20,7 +20,10 @@ interface RegisterLayoutIpcOptions {
   getMainWindow(): BrowserWindow | null;
 }
 
+const LAYOUT_SCHEMA_VERSION = 2;
+
 interface PersistedLayoutPayload {
+  version?: number;
   layout: unknown;
   floatingPanes: FloatingPaneDescriptor[];
 }
@@ -52,9 +55,46 @@ async function loadPersistedLayout(projectPath: string): Promise<PersistedLayout
     if (!parsed || typeof parsed !== 'object') {
       return null;
     }
+    const floating = Array.isArray(parsed.floatingPanes) ? parsed.floatingPanes : [];
+    const normalisedFloating = floating
+      .map((entry) => {
+        if (!entry || typeof entry !== 'object') {
+          return null;
+        }
+        const descriptor = entry as Partial<FloatingPaneDescriptor> & { id?: unknown };
+        if (typeof descriptor.id !== 'string') {
+          return null;
+        }
+        const bounds = descriptor.bounds;
+        const normalizedBounds =
+          bounds && typeof bounds === 'object'
+            ? {
+                x: Number.isFinite(bounds.x) ? bounds.x : undefined,
+                y: Number.isFinite(bounds.y) ? bounds.y : undefined,
+                width: Number.isFinite(bounds.width) ? bounds.width : undefined,
+                height: Number.isFinite(bounds.height) ? bounds.height : undefined,
+              }
+            : undefined;
+        const result: FloatingPaneDescriptor = {
+          id: descriptor.id as LayoutPaneId,
+          bounds:
+            normalizedBounds && normalizedBounds.width && normalizedBounds.height
+              ? {
+                  x: normalizedBounds.x ?? 0,
+                  y: normalizedBounds.y ?? 0,
+                  width: normalizedBounds.width,
+                  height: normalizedBounds.height,
+                }
+              : undefined,
+          displayId: typeof descriptor.displayId === 'number' ? descriptor.displayId : undefined,
+        };
+        return result;
+      })
+      .filter((entry): entry is FloatingPaneDescriptor => entry !== null);
     return {
+      version: typeof parsed.version === 'number' ? parsed.version : 1,
       layout: parsed.layout ?? null,
-      floatingPanes: Array.isArray(parsed.floatingPanes) ? parsed.floatingPanes : [],
+      floatingPanes: normalisedFloating,
     };
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
@@ -70,7 +110,15 @@ async function savePersistedLayout(
 ): Promise<void> {
   await ensureLayoutDir(projectPath);
   const filePath = resolveLayoutFile(projectPath);
-  const serialised = JSON.stringify(payload, null, 2);
+  const serialised = JSON.stringify(
+    {
+      version: payload.version ?? LAYOUT_SCHEMA_VERSION,
+      layout: payload.layout,
+      floatingPanes: payload.floatingPanes,
+    },
+    null,
+    2,
+  );
   await fs.writeFile(filePath, serialised, 'utf-8');
 }
 
@@ -105,6 +153,7 @@ function serializeFloatingWindows(projectPath: string): FloatingPaneDescriptor[]
       continue;
     }
     const bounds = window.getBounds();
+    const display = screen.getDisplayMatching(bounds);
     result.push({
       id: paneId,
       bounds: {
@@ -113,25 +162,55 @@ function serializeFloatingWindows(projectPath: string): FloatingPaneDescriptor[]
         width: bounds.width,
         height: bounds.height,
       },
+      displayId: display?.id,
     });
   }
   return result;
 }
 
+export function clampBoundsToDisplay(
+  bounds: FloatingPaneDescriptor['bounds'] | undefined,
+  displayId: number | undefined,
+): Electron.Rectangle | undefined {
+  if (!bounds) {
+    return undefined;
+  }
+  const displays = screen.getAllDisplays();
+  let targetDisplay = displayId ? displays.find((entry) => entry.id === displayId) : undefined;
+  if (!targetDisplay) {
+    targetDisplay = screen.getDisplayMatching(bounds) ?? screen.getPrimaryDisplay();
+  }
+  const workArea = targetDisplay.workArea;
+  const width = Math.max(240, Math.min(bounds.width, workArea.width));
+  const height = Math.max(180, Math.min(bounds.height, workArea.height));
+  const maxX = workArea.x + workArea.width - width;
+  const maxY = workArea.y + workArea.height - height;
+  const clampedX = Number.isFinite(bounds.x) ? Math.min(Math.max(bounds.x, workArea.x), maxX) : workArea.x;
+  const clampedY = Number.isFinite(bounds.y) ? Math.min(Math.max(bounds.y, workArea.y), maxY) : workArea.y;
+  return {
+    x: clampedX,
+    y: clampedY,
+    width,
+    height,
+  };
+}
+
 async function handleLoadLayout(request: LayoutLoadRequest): Promise<LayoutLoadResponse> {
   const payload = await loadPersistedLayout(request.projectPath);
   if (!payload) {
-    return { layout: null, floatingPanes: [] };
+    return { layout: null, floatingPanes: [], schemaVersion: LAYOUT_SCHEMA_VERSION };
   }
   return {
     layout: payload.layout as LayoutLoadResponse['layout'],
     floatingPanes: payload.floatingPanes ?? [],
+    schemaVersion: payload.version ?? 1,
   };
 }
 
 async function handleSaveLayout(request: LayoutSaveRequest): Promise<void> {
   const floatingState = request.floatingPanes ?? serializeFloatingWindows(request.projectPath);
   await savePersistedLayout(request.projectPath, {
+    version: request.schemaVersion ?? LAYOUT_SCHEMA_VERSION,
     layout: request.layout ?? null,
     floatingPanes: floatingState,
   });
@@ -174,12 +253,13 @@ async function openFloatingWindow(
   }
 
   const sandboxEnabled = app.isPackaged && process.platform !== 'win32';
+  const safeBounds = clampBoundsToDisplay(request.bounds, request.displayId);
   const parent = options.getMainWindow() ?? undefined;
   const window = new BrowserWindow({
-    width: request.bounds?.width ?? 640,
-    height: request.bounds?.height ?? 420,
-    x: request.bounds?.x,
-    y: request.bounds?.y,
+    width: safeBounds?.width ?? request.bounds?.width ?? 640,
+    height: safeBounds?.height ?? request.bounds?.height ?? 420,
+    x: safeBounds?.x ?? request.bounds?.x,
+    y: safeBounds?.y ?? request.bounds?.y,
     minWidth: 360,
     minHeight: 240,
     autoHideMenuBar: true,
@@ -251,4 +331,3 @@ export function registerLayoutIpc(options: RegisterLayoutIpcOptions): void {
     await closeFloatingWindow(request);
   });
 }
-

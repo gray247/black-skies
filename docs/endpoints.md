@@ -1,6 +1,6 @@
 # docs/endpoints.md — API Contracts (Source of truth)
-**Status:** LOCKED · 2025-09-17  
-**Version:** v1 (Phase 1 / 1.0)  
+**Status:** Draft · 2025-10-07  
+**Version:** v2 (Phase 9 staging)  
 Local-only FastAPI services the Electron app calls. All bodies are JSON (UTF-8). Keys are `snake_case`.
 
 ## Conventions
@@ -285,18 +285,31 @@ Rewrite a single unit (scene or chapter). Returns revised text and a word-level 
 **Request**
 ```json
 {
+  "project_id": "proj_123",
   "draft_id": "dr_004",
   "unit_id": "sc_0001",
   "instructions": "Tighten sentences 40–55; keep POV strict.",
-  "new_text": null
+  "unit": {
+    "id": "sc_0001",
+    "text": "The original cellar scene text…",
+    "meta": {
+      "title": "Storm Cellar",
+      "word_target": 850
+    },
+    "prompt_fingerprint": "fp_demo_001",
+    "model": {
+      "name": "draft-generator-v1",
+      "provider": "black-skies-local"
+    }
+  }
 }
 ```
 
-**Response 200**
+**Response 200** *(x-trace-id header echoed)*
 ```json
 {
   "unit_id": "sc_0001",
-  "revised_text": "The cellar stairs were slick...",
+  "revised_text": "The cellar stairs were slick…",
   "diff": {
     "added":   [ { "range": [120, 135], "text": "shorter beat." } ],
     "removed": [ { "range": [86, 119] } ],
@@ -304,7 +317,7 @@ Rewrite a single unit (scene or chapter). Returns revised text and a word-level 
     "anchors": { "left": 4, "right": 4 }
   },
   "schema_version": "DraftUnitSchema v1",
-  "model": { "name": "prose_model_vX", "provider": "openai" }
+  "model": { "name": "draft-rewriter-v1", "provider": "black-skies-local" }
 }
 ```
 
@@ -314,6 +327,69 @@ Rewrite a single unit (scene or chapter). Returns revised text and a word-level 
 - `BUDGET_EXCEEDED`
 - `INTERNAL`
 - Legacy `/draft/rewrite` was removed in `1.0.0-rc1`; use `/api/v1/draft/rewrite`.
+
+---
+
+## Draft accept
+
+### POST /api/v1/draft/accept
+Persist an accepted unit, update snapshots, and record budget spend.
+
+**Request**
+```json
+{
+  "project_id": "proj_123",
+  "draft_id": "dr_004",
+  "unit_id": "sc_0001",
+  "message": "Accept after QA fixes",
+  "snapshot_label": "accept-20251007",
+  "unit": {
+    "id": "sc_0001",
+    "previous_sha256": "4a1fe87d18d4cf2d8a7df85e8e4c4df3cc3734fdcc61ac07d7fa2f2b0a9d4d69",
+    "text": "Final cellar draft text…",
+    "meta": {
+      "title": "Storm Cellar",
+      "word_target": 900
+    },
+    "estimated_cost_usd": 0.18
+  }
+}
+```
+
+**Response 200** *(x-trace-id header echoed)*
+```json
+{
+  "project_id": "proj_123",
+  "unit_id": "sc_0001",
+  "status": "accepted",
+  "snapshot": {
+    "snapshot_id": "snap_20251007T120301Z",
+    "label": "accept-20251007",
+    "created_at": "2025-10-07T12:03:01Z",
+    "path": "history/snapshots/snap_20251007T120301Z.zip"
+  },
+  "diff": {
+    "added": [],
+    "removed": [],
+    "changed": [
+      { "range": [312, 347], "replacement": "She steadied herself." }
+    ],
+    "anchors": { "left": 4, "right": 4 }
+  },
+  "budget": {
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 1.82
+  },
+  "schema_version": "DraftAcceptResult v1"
+}
+```
+
+**Errors**
+- `VALIDATION` (payload shape, checksum mismatch)
+- `CONFLICT` (snapshot write failed, stale SHA)
+- `BUDGET_EXCEEDED`
+- `INTERNAL`
 
 ---
 
@@ -360,6 +436,189 @@ Runs critique on a unit using the rubric (see `docs/critique_rubric.md`). Non-de
 
 ---
 
+## Analytics
+
+### GET /api/v1/analytics/summary
+Return derived pacing/emotion/conflict analytics for a project. Results are cached on disk and refreshed when drafts or outlines change.
+
+**Query Parameters**
+- `project_id` (required)
+
+**Response 200** *(x-trace-id header echoed)*
+```json
+{
+  "analytics_version": "1.0",
+  "project_id": "proj_123",
+  "generated_at": "2025-10-07T11:21:33Z",
+  "emotion_arc": [
+    { "scene_id": "sc_0001", "order": 1, "title": "Storm Cellar", "emotion_tag": "tension", "intensity": 0.85 },
+    { "scene_id": "sc_0002", "order": 2, "title": "Basement Pulse", "emotion_tag": "aftermath", "intensity": 0.45 }
+  ],
+  "pacing": {
+    "average_word_count": 812.5,
+    "median_word_count": 795,
+    "standard_deviation_word_count": 121.4,
+    "scene_metrics": [
+      {
+        "scene_id": "sc_0001",
+        "order": 1,
+        "title": "Storm Cellar",
+        "word_count": 780,
+        "beats": 5,
+        "words_per_beat": 156,
+        "pace_label": "steady"
+      },
+      {
+        "scene_id": "sc_0002",
+        "order": 2,
+        "title": "Basement Pulse",
+        "word_count": 845,
+        "beats": 4,
+        "words_per_beat": 211.25,
+        "pace_label": "slow"
+      }
+    ]
+  },
+  "conflict_heatmap": [
+    {
+      "chapter_id": "ch_0001",
+      "title": "Arrival",
+      "intensity": 0.75,
+      "scenes": [
+        {
+          "scene_id": "sc_0001",
+          "order": 1,
+          "conflict_present": true,
+          "intensity": 0.75,
+          "conflict_summary": "Storm interrupts dinner."
+        }
+      ]
+    }
+  ],
+  "length_distribution": {
+    "buckets": [
+      { "label": "0-500", "lower_bound": 0, "upper_bound": 500, "scene_ids": [] },
+      { "label": "500-1000", "lower_bound": 500, "upper_bound": 1000, "scene_ids": ["sc_0001", "sc_0002"] }
+    ],
+    "outliers": {
+      "long": [],
+      "short": []
+    }
+  },
+  "revision_streaks": {
+    "current_streak": 3,
+    "longest_streak": 5,
+    "current_start": "2025-10-03T08:12:00Z",
+    "last_reset": "2025-09-29T16:47:11Z",
+    "events": [
+      { "snapshot_id": "snap_20251007T120301Z", "type": "accept", "timestamp": "2025-10-07T12:03:01Z" }
+    ]
+  }
+}
+```
+
+**Errors**
+- `VALIDATION` (missing/unknown project)
+- `INTERNAL`
+
+---
+
+## Voice notes
+
+### POST /api/v1/voice/transcribe
+Transcribe a previously recorded voice note. Supports local or external providers as configured.
+
+**Request**
+```json
+{
+  "project_id": "proj_123",
+  "note_id": "vn_0001",
+  "provider": "local",
+  "language": "en",
+  "diarization": false
+}
+```
+
+**Response 200** *(x-trace-id header echoed)*
+```json
+{
+  "note_id": "vn_0001",
+  "project_id": "proj_123",
+  "status": "transcribed",
+  "transcription": {
+    "text": "The draft still needs a stronger midpoint twist.",
+    "confidence": 0.93,
+    "segments": [
+      { "index": 0, "start_ms": 0, "end_ms": 4300, "text": "The draft still needs a stronger midpoint twist." }
+    ]
+  },
+  "duration_ms": 4300,
+  "cost": {
+    "estimated_usd": 0.18,
+    "provider": "local-whisper"
+  },
+  "budget": {
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 1.36,
+    "status": "ok"
+  }
+}
+```
+
+**Errors**
+- `VALIDATION` (note not found, provider disabled)
+- `BUDGET_EXCEEDED`
+- `INTERNAL`
+
+---
+
+### GET /api/v1/voice/notes
+List recorded voice notes for a project.
+
+**Query Parameters**
+- `project_id` (required)
+
+**Response 200**
+```json
+{
+  "project_id": "proj_123",
+  "notes": [
+    {
+      "note_id": "vn_0001",
+      "scene_id": "sc_0001",
+      "created_at": "2025-10-06T19:14:22Z",
+      "duration_ms": 4300,
+      "status": "transcribed",
+      "file_path": "history/voice_notes/vn_0001/audio.ogg",
+      "transcription_path": "history/voice_notes/vn_0001/transcript.json",
+      "cost_usd": 0.18,
+      "provider": "local-whisper"
+    }
+  ]
+}
+```
+
+**Errors**
+- `VALIDATION`
+- `INTERNAL`
+
+---
+
+### DELETE /api/v1/voice/notes/{note_id}
+Delete the stored audio + transcript for a note.
+
+**Path Parameters**
+- `note_id` (required)
+
+**Response 204 No Content** *(x-trace-id header echoed)*
+
+**Errors**
+- `VALIDATION` (unknown note/project mismatch)
+- `INTERNAL`
+
+---
+
 ## Notes on budgets & preflight (Phase 1 behavior)
 - Every generate/critique call performs a **token/cost preflight** and returns an estimated USD value in the response.  
 - `/api/v1/draft/preflight` exposes the estimate along with **current spend** and **projected total** so the UI can gate actions.
@@ -379,6 +638,7 @@ Runs critique on a unit using the rubric (see `docs/critique_rubric.md`). Non-de
 ---
 
 ## Versioning
-- This document: **v1**  
+- This document: **v2**  
 - Schemas: **OutlineSchema v1**, **DraftUnitSchema v1**, **CritiqueOutputSchema v1**  
+- Analytics payload: `analytics_version` **1.0** (see `docs/analytics_service_spec.md`)  
 - Future changes bump schema versions and are recorded in `phase_log.md`.

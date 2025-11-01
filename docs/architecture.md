@@ -7,9 +7,9 @@ Phase 11 analytics pipelines and Companion agents are defined in detail in [Agen
 
 ## New Components Added Post-RC1
 - **Analytics Service Module:** aggregates emotion/pacing/conflict metrics (see [Agents & Services](./agents_and_services.md#agent-roles) for producer responsibilities).
-- **Voice Input Handler:** dictation & voice-note recorder.  
-- **Agent Sandbox:** isolated execution for plugins/agents.  
-- **Backup Verifier Daemon:** periodic checksum and integrity reporter.
+- **Voice Input Handler:** dictation & voice-note recorder (see [Voice Notes plan](./voice_notes_transcription.md)).  
+- **Agent Sandbox:** isolated execution for plugins/agents (see [Plugin sandbox plan](./plugin_sandbox.md)).  
+- **Backup Verifier Daemon:** periodic checksum and integrity reporter (see [Backup Verification Daemon plan](./backup_verification_daemon.md)).
 
 ---
 
@@ -25,5 +25,5 @@ Renderer ⇄ FastAPI ⇄ Filesystem ⇄ Analytics/Agent Sub-services (orchestrat
 
 ## Desktop UI Layout Notes
 - The desktop shell ships with the locked preset described in [gui_layouts.md](./gui_layouts.md) (`Wizard | Draft Board | Critique | History`) plus the floating Analytics tab. Panes can be resized inside those bands but cannot yet be re-docked or detached.
-- Phase 8 "GUI Enhancements" will introduce full IDE-style docking (drag/drop, floating panes, custom presets) with layout state serialized to `layout.json`. These requirements are tracked in phase_log.md and the updated layout doc.
+- Phase 8 "GUI Enhancements" + Phase 9 dashboards are captured in [Docking plan](./phase8_gui_enhancements.md), [Dashboard initiatives](./dashboard_initiatives.md), and phase_log.md.
 

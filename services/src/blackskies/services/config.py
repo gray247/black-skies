@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 from typing import Any, ClassVar, cast
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator
 
 
 def _default_project_dir() -> Path:
@@ -101,6 +101,20 @@ class ServiceSettings(BaseModel):
         ge=0.0,
         description="Seconds before a tripped analytics circuit allows new attempts.",
     )
+    backup_verifier_enabled: bool = Field(
+        default=False,
+        description="Enable the background backup verification daemon.",
+    )
+    backup_verifier_interval_seconds: int = Field(
+        default=30 * 60,
+        ge=60,
+        description="Base interval in seconds between backup verification runs.",
+    )
+    backup_verifier_backoff_max_seconds: int = Field(
+        default=4 * 60 * 60,
+        ge=60,
+        description="Maximum interval in seconds when backing off due to idle cycles.",
+    )
 
     @field_validator("project_base_dir")
     @classmethod
@@ -116,6 +130,20 @@ class ServiceSettings(BaseModel):
     def _validate_body_limit(cls, value: int) -> int:
         if value <= 0:
             raise ValueError("max_request_body_bytes must be positive")
+        return value
+
+    @field_validator("backup_verifier_backoff_max_seconds")
+    @classmethod
+    def _validate_backup_backoff(
+        cls,
+        value: int,
+        info: ValidationInfo,
+    ) -> int:
+        """Ensure the maximum backoff interval is not shorter than the base interval."""
+
+        base_interval = info.data.get("backup_verifier_interval_seconds")
+        if base_interval is not None and value < int(base_interval):
+            raise ValueError("backup_verifier_backoff_max_seconds must be >= backup_verifier_interval_seconds")
         return value
 
     @staticmethod

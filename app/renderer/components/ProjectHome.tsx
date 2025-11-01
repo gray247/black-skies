@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import type {
   LoadedProject,
   ProjectIssue,
@@ -6,6 +6,12 @@ import type {
 } from '../../shared/ipc/projectLoader';
 import type { ToastPayload } from '../types/toast';
 import DraftEditor from '../DraftEditor';
+import {
+  clearDebugLog,
+  getDebugLogSnapshot,
+  recordDebugEvent,
+  subscribeDebugLog,
+} from '../utils/debugLog';
 
 export type ProjectLoadStatus = 'init' | 'loaded' | 'failed' | 'cleared';
 
@@ -40,6 +46,7 @@ interface RecentProjectEntry {
 
 const RECENTS_STORAGE_KEY = 'blackskies.recent-projects';
 const LAST_PROJECT_STORAGE_KEY = 'blackskies.last-project';
+// Ceiling: keep the recent-project list lightweight for the home view and storage churn.
 const MAX_RECENTS = 7;
 
 function readStoredRecents(): RecentProjectEntry[] {
@@ -156,6 +163,16 @@ export default function ProjectHome({
   const [storedLastProjectPath, setStoredLastProjectPath] = useState<string | null>(() =>
     readStoredLastProjectPath(),
   );
+  const sampleAttemptedRef = useRef(false);
+  const stalePathsRef = useRef<Set<string>>(new Set());
+
+  const debugLogSnapshot = useSyncExternalStore(subscribeDebugLog, getDebugLogSnapshot);
+  const debugLogEntries = debugLogSnapshot.events;
+  const debugLogText = useMemo(
+    () => JSON.stringify(debugLogSnapshot.events, null, 2),
+    [debugLogSnapshot],
+  );
+  const hasDebugLog = debugLogEntries.length > 0;
 
   const sortedRecents = useMemo(
     () =>
@@ -197,10 +214,73 @@ export default function ProjectHome({
     [onToast],
   );
 
+  const diagnostics = useMemo(
+    () => ({
+      loaderAvailable,
+      projectLoaderDefined: Boolean(projectLoader),
+      isLoading,
+      sampleAttempted: sampleAttemptedRef.current,
+      recentCount: recentProjects.length,
+      storedLastProjectPath,
+      activeProjectPath: activeProject?.path ?? null,
+      activeProjectName: activeProject?.name ?? null,
+      activeSceneId,
+      activeSceneTitle:
+        activeProject && activeSceneId
+          ? activeProject.scenes.find((scene) => scene.id === activeSceneId)?.title ?? null
+          : null,
+      sceneCount: activeProject?.scenes.length ?? 0,
+      draftCount: activeProject ? Object.keys(activeProject.drafts).length : 0,
+      issuesCount: issues.length,
+      lastIssues: issues.slice(0, 3).map((issue) => ({
+        level: issue.level,
+        message: issue.message,
+        detail: issue.detail ?? null,
+      })),
+      recentEntries: sortedRecents.slice(0, 3).map((entry) => ({
+        path: entry.path,
+        name: entry.name,
+        lastOpened: entry.lastOpened,
+      })),
+      debugLogVersion: debugLogSnapshot.version,
+    }),
+    [
+      activeProject,
+      activeSceneId,
+      issues,
+      loaderAvailable,
+      projectLoader,
+      recentProjects.length,
+      sortedRecents,
+      debugLogSnapshot,
+      storedLastProjectPath,
+    ],
+  );
+
+  const diagnosticsText = useMemo(
+    () => JSON.stringify(diagnostics, null, 2),
+    [diagnostics],
+  );
+
+  const handleCopyDebugLog = useCallback(() => {
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      void navigator.clipboard.writeText(debugLogText).catch(() => {
+        console.warn('[ProjectHome] Failed to copy debug log to clipboard');
+      });
+    }
+  }, [debugLogText]);
+
+  const handleClearDebugLog = useCallback(() => {
+    clearDebugLog();
+  }, []);
+
   const upsertRecent = useCallback((project: LoadedProject) => {
     setRecentProjects((previous) => {
       const now = Date.now();
-      const filtered = previous.filter((entry) => entry.path !== project.path);
+      const filtered = previous.filter(
+        (entry) =>
+          entry.path !== project.path && !stalePathsRef.current.has(entry.path),
+      );
       const nextEntries: RecentProjectEntry[] = [
         {
           path: project.path,
@@ -212,6 +292,50 @@ export default function ProjectHome({
       persistRecents(nextEntries);
       return nextEntries;
     });
+    stalePathsRef.current.delete(project.path);
+  }, []);
+
+  const pruneRecentImmediately = useCallback(
+    (targetPath: string) => {
+      const nextEntries = readStoredRecents().filter(
+        (entry) => entry.path !== targetPath,
+      );
+      persistRecents(nextEntries);
+      setRecentProjects(nextEntries);
+      setStoredLastProjectPath((previous) => {
+        if (previous === targetPath) {
+          persistLastProjectPath(null);
+          return null;
+        }
+        return previous;
+      });
+    },
+    [],
+  );
+
+  const removeRecent = useCallback((targetPath: string, retainMarker = false) => {
+    if (retainMarker) {
+      stalePathsRef.current.add(targetPath);
+    } else {
+      stalePathsRef.current.delete(targetPath);
+    }
+    setRecentProjects((previous) => {
+      const nextEntries = previous.filter((entry) => entry.path !== targetPath);
+      if (nextEntries.length !== previous.length) {
+        persistRecents(nextEntries);
+      }
+      return nextEntries;
+    });
+    setStoredLastProjectPath((previous) => {
+      if (previous === targetPath) {
+        persistLastProjectPath(null);
+        return null;
+      }
+      return previous;
+    });
+    if (!retainMarker) {
+      stalePathsRef.current.delete(targetPath);
+    }
   }, []);
 
   const loadProjectAtPath = useCallback(
@@ -220,9 +344,11 @@ export default function ProjectHome({
       options?: {
         reason?: 'bootstrap' | 'recent' | 'dialog' | 'recovery';
         silent?: boolean;
+        allowFallback?: boolean;
       },
     ): Promise<LoadedProject | null> => {
       if (!projectLoader) {
+        recordDebugEvent('project-home.load.missing-bridge', { targetPath, options });
         onToast({
           tone: 'error',
           title: 'Project loader unavailable',
@@ -239,13 +365,33 @@ export default function ProjectHome({
 
       setIsLoading(true);
       try {
+        recordDebugEvent('project-home.load.begin', { targetPath, options });
         const response = await projectLoader.loadProject({ path: targetPath });
         if (!response.ok) {
+          recordDebugEvent('project-home.load.failure', {
+            targetPath,
+            options,
+            error: response.error,
+          });
+          console.warn('[ProjectHome] Project load returned issues', {
+            targetPath,
+            code: response.error.code,
+            message: response.error.message,
+            issueCount: response.error.issues?.length ?? 0,
+          });
           setIssues(response.error.issues ?? []);
+          if (options?.reason === 'recent') {
+            removeRecent(targetPath, true);
+            pruneRecentImmediately(targetPath);
+          }
+          const detail = response.error.issues?.find((issue) => issue.detail)?.detail;
+          const description = detail
+            ? `${response.error.message} (${detail})`
+            : response.error.message;
           onToast({
             tone: 'error',
             title: 'Could not open project',
-            description: response.error.message,
+            description,
           });
           notifyIssues(response.error.issues ?? []);
           onProjectLoaded?.({
@@ -254,9 +400,75 @@ export default function ProjectHome({
             targetPath,
             lastOpenedPath: storedLastProjectPath,
           });
+          if (
+            options?.allowFallback !== false &&
+            options?.reason !== 'bootstrap' &&
+            projectLoader.getSampleProjectPath
+          ) {
+            void (async () => {
+              try {
+                recordDebugEvent('project-home.load.sample-attempt', {
+                  targetPath,
+                });
+                const samplePath = await projectLoader.getSampleProjectPath();
+                if (samplePath && samplePath !== targetPath) {
+                  const fallbackProject = await loadProjectAtPath(samplePath, {
+                    reason: 'bootstrap',
+                    silent: true,
+                    allowFallback: false,
+                  });
+                  if (fallbackProject) {
+                    setRecentProjects((previous) => {
+                      const filtered = previous.filter(
+                        (entry) =>
+                          entry.path !== fallbackProject.path && entry.path !== targetPath,
+                      );
+                      const nextEntries: RecentProjectEntry[] = [
+                        {
+                          path: fallbackProject.path,
+                          name: fallbackProject.name,
+                          lastOpened: Date.now(),
+                        },
+                        ...filtered,
+                      ].slice(0, MAX_RECENTS);
+                      persistRecents(nextEntries);
+                      return nextEntries;
+                    });
+                    persistLastProjectPath(fallbackProject.path);
+                    setStoredLastProjectPath(fallbackProject.path);
+                  }
+                  stalePathsRef.current.delete(targetPath);
+                } else {
+
+                }
+              } catch (fallbackError) {
+                stalePathsRef.current.delete(targetPath);
+                onToast({
+                  tone: 'warning',
+                  title: 'Sample project unavailable',
+                  description:
+                    fallbackError instanceof Error
+                      ? fallbackError.message
+                      : String(fallbackError),
+                });
+              }
+            })();
+          }
           return null;
         }
 
+        console.info('[ProjectHome] Loaded project successfully', {
+          path: response.project.path,
+          sceneCount: response.project.scenes.length,
+          issueCount: response.issues.length,
+        });
+        recordDebugEvent('project-home.load.success', {
+          targetPath,
+          options,
+          projectPath: response.project.path,
+          sceneCount: response.project.scenes.length,
+          issueCount: response.issues.length,
+        });
         setActiveProject(response.project);
         setActiveSceneId((previous) => {
           if (previous && response.project.drafts[previous]) {
@@ -302,10 +514,27 @@ export default function ProjectHome({
 
         return response.project;
       } catch (error) {
+        console.error('[ProjectHome] Project load failed', {
+          targetPath,
+          message: error instanceof Error ? error.message : String(error),
+        });
+        recordDebugEvent('project-home.load.exception', {
+          targetPath,
+          options,
+          message: error instanceof Error ? error.message : String(error),
+        });
+        if (options?.reason === 'recent') {
+          removeRecent(targetPath, true);
+          pruneRecentImmediately(targetPath);
+        } else if (recentProjects.some((entry) => entry.path === targetPath)) {
+          removeRecent(targetPath, true);
+          pruneRecentImmediately(targetPath);
+        }
+        const message = error instanceof Error ? error.message : String(error);
         onToast({
           tone: 'error',
           title: 'Project load failed',
-          description: error instanceof Error ? error.message : String(error),
+          description: message,
         });
         onProjectLoaded?.({
           status: 'failed',
@@ -313,6 +542,64 @@ export default function ProjectHome({
           targetPath,
           lastOpenedPath: storedLastProjectPath,
         });
+        if (
+          options?.allowFallback !== false &&
+          options?.reason !== 'bootstrap' &&
+          projectLoader?.getSampleProjectPath
+        ) {
+          try {
+            recordDebugEvent('project-home.load.sample-attempt', { targetPath });
+            const samplePath = await projectLoader.getSampleProjectPath();
+            if (samplePath && samplePath !== targetPath) {
+                  const fallbackProject = await loadProjectAtPath(samplePath, {
+                    reason: 'bootstrap',
+                    silent: true,
+                    allowFallback: false,
+                  });
+                  if (fallbackProject) {
+                    recordDebugEvent('project-home.load.sample-fallback', {
+                      originalPath: targetPath,
+                      samplePath,
+                    });
+
+                    setRecentProjects((previous) => {
+                  const filtered = previous.filter(
+                    (entry) =>
+                      entry.path !== fallbackProject.path && entry.path !== targetPath,
+                  );
+                  const nextEntries: RecentProjectEntry[] = [
+                    {
+                      path: fallbackProject.path,
+                      name: fallbackProject.name,
+                      lastOpened: Date.now(),
+                    },
+                    ...filtered,
+                  ].slice(0, MAX_RECENTS);
+                  persistRecents(nextEntries);
+                  return nextEntries;
+                });
+                persistLastProjectPath(fallbackProject.path);
+                setStoredLastProjectPath(fallbackProject.path);
+              }
+              stalePathsRef.current.delete(targetPath);
+            }
+          } catch (fallbackError) {
+            stalePathsRef.current.delete(targetPath);
+            recordDebugEvent('project-home.load.sample-fallback-error', {
+              originalPath: targetPath,
+              error:
+                fallbackError instanceof Error ? fallbackError.message : String(fallbackError),
+            });
+            onToast({
+              tone: 'warning',
+              title: 'Sample project unavailable',
+              description:
+                fallbackError instanceof Error
+                  ? fallbackError.message
+                  : String(fallbackError),
+            });
+          }
+        }
         return null;
       } finally {
         setIsLoading(false);
@@ -323,6 +610,9 @@ export default function ProjectHome({
       onProjectLoaded,
       onToast,
       projectLoader,
+      pruneRecentImmediately,
+      removeRecent,
+      recentProjects,
       storedLastProjectPath,
       upsertRecent,
     ],
@@ -337,12 +627,15 @@ export default function ProjectHome({
       });
       return;
     }
+    recordDebugEvent('project-home.dialog.open', {});
     setIsLoading(true);
     try {
       const result = await projectLoader.openProjectDialog();
       if (result.canceled || !result.filePath) {
+        recordDebugEvent('project-home.dialog.cancelled', {});
         return;
       }
+      recordDebugEvent('project-home.dialog.selected', { path: result.filePath });
       await loadProjectAtPath(result.filePath, { reason: 'dialog' });
     } finally {
       setIsLoading(false);
@@ -351,31 +644,44 @@ export default function ProjectHome({
 
   const handleOpenRecent = useCallback(
     async (entry: RecentProjectEntry) => {
+      recordDebugEvent('project-home.recent.open', { path: entry.path });
       await loadProjectAtPath(entry.path, { reason: 'recent' });
     },
     [loadProjectAtPath],
   );
 
   useEffect(() => {
-    if (!projectLoader || activeProject || recentProjects.length > 0) {
+    if (!projectLoader || activeProject || sampleAttemptedRef.current) {
       return;
     }
 
     let cancelled = false;
+    sampleAttemptedRef.current = true;
 
     const bootstrap = async () => {
       try {
+        recordDebugEvent('project-home.bootstrap.attempt', {});
         const samplePath = await projectLoader.getSampleProjectPath?.();
         if (!samplePath || cancelled) {
           return;
         }
-        await loadProjectAtPath(samplePath, { reason: 'bootstrap', silent: false });
-      } catch (error) {
-        onToast({
-          tone: 'warning',
-          title: 'Sample project unavailable',
-          description: error instanceof Error ? error.message : String(error),
+        await loadProjectAtPath(samplePath, {
+          reason: 'bootstrap',
+          silent: true,
+          allowFallback: false,
         });
+        recordDebugEvent('project-home.bootstrap.success', { samplePath });
+      } catch (error) {
+        recordDebugEvent('project-home.bootstrap.error', {
+          message: error instanceof Error ? error.message : String(error),
+        });
+        if (!cancelled) {
+          onToast({
+            tone: 'warning',
+            title: 'Sample project unavailable',
+            description: error instanceof Error ? error.message : String(error),
+          });
+        }
       }
     };
 
@@ -384,17 +690,7 @@ export default function ProjectHome({
     return () => {
       cancelled = true;
     };
-  }, [activeProject, loadProjectAtPath, onToast, projectLoader, recentProjects.length]);
-
-  useEffect(() => {
-    onProjectLoaded?.({
-      status: 'init',
-      project: activeProject,
-      targetPath: activeProject?.path ?? null,
-      lastOpenedPath: storedLastProjectPath,
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- notify consumer once when callback becomes available
-  }, [onProjectLoaded]);
+  }, [activeProject, loadProjectAtPath, onToast, projectLoader]);
 
   useEffect(() => {
     if (!onActiveSceneChange) {
@@ -456,6 +752,44 @@ export default function ProjectHome({
           {isLoading ? 'Loading...' : 'Open project...'}
         </button>
       </header>
+
+      <section className="project-home__diagnostics">
+        <div>
+          <h3>Troubleshooting snapshot</h3>
+          <p className="project-home__diagnostics-hint">
+            Copy this payload when reporting project-load issues. It represents the most recent loader state.
+          </p>
+        </div>
+        <textarea
+          className="project-home__diagnostics-output"
+          value={diagnosticsText}
+          readOnly
+          aria-label="Project loader diagnostics"
+        />
+      </section>
+
+      <section className="project-home__diagnostics">
+        <div>
+          <h3>Debug event log</h3>
+          <p className="project-home__diagnostics-hint">
+            Renderer-side events recorded during project loads and layout operations (up to 200 entries).
+          </p>
+        </div>
+        <div className="project-home__diagnostics-actions">
+          <button type="button" onClick={handleCopyDebugLog} disabled={!hasDebugLog}>
+            Copy log
+          </button>
+          <button type="button" onClick={handleClearDebugLog} disabled={!hasDebugLog}>
+            Clear log
+          </button>
+        </div>
+        <textarea
+          className="project-home__diagnostics-output"
+          value={debugLogText}
+          readOnly
+          aria-label="Renderer debug events"
+        />
+      </section>
 
       <div className="project-home__layout">
         <section className="project-home__main">

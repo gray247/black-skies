@@ -13,7 +13,7 @@ from uuid import uuid4
 from fastapi import Depends, HTTPException, status
 from pydantic import ValidationError
 
-from ...budgeting import derive_critique_cost
+from ...budgeting import derive_critique_cost, persist_project_budget as _persist_project_budget
 from ...config import ServiceSettings
 from ...critique import BLOCKED_RUBRIC_CATEGORIES, CritiqueService
 from ...diagnostics import DiagnosticLogger
@@ -35,6 +35,12 @@ from ..dependencies import (
 )
 from ..shared import utc_timestamp
 from . import router
+
+
+def persist_project_budget(state, new_spent_usd):
+    """Compatibility shim so tests can monkeypatch budget persistence."""
+
+    _persist_project_budget(state, new_spent_usd)
 
 
 def _apply_rewrite_instructions(original: str, instructions: str | None) -> str:
@@ -274,15 +280,16 @@ async def critique_draft(
                 project_root, raw_rubric_id, incoming_rubric or ()
             )
             payload_for_model["rubric"] = categories
-        elif not isinstance(payload_for_model.get("rubric"), list) or not payload_for_model.get(
-            "rubric"
-        ):
-            categories, resolved_rubric_id = resolve_rubric_categories(
-                project_root, None, ()
-            )
-            payload_for_model["rubric"] = categories
         else:
-            resolved_rubric_id = None
+            categories, resolved_rubric_id = resolve_rubric_categories(
+                project_root,
+                None,
+                payload_for_model.get("rubric") or incoming_rubric or (),
+            )
+            if not isinstance(payload_for_model.get("rubric"), list) or not payload_for_model.get(
+                "rubric"
+            ):
+                payload_for_model["rubric"] = categories
     except (ValueError, FileNotFoundError) as exc:
         raise_validation_error(
             message="Invalid draft critique request.",
@@ -393,7 +400,7 @@ async def critique_draft(
                 status=status_label,
                 message=message,
             )
-            budget_service.persist_spend(budget_state, total_after)
+            persist_project_budget(budget_state, total_after)
             budget_payload = summary.as_dict()
         except DraftRequestError as exc:
             raise_validation_error(
@@ -416,6 +423,8 @@ async def critique_draft(
     result.setdefault("rubric", request_model.rubric)
     if request_model.rubric_id:
         result["rubric_id"] = request_model.rubric_id
+    elif resolved_rubric_id:
+        result["rubric_id"] = resolved_rubric_id
 
     if project_root is not None and project_id is not None:
         _persist_batch_critique_summary(

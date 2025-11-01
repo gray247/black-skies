@@ -13,6 +13,7 @@ const node_path_1 = require("node:path");
 const projectLoaderIpc_1 = require("./projectLoaderIpc");
 const logging_js_1 = require("./logging.js");
 const diagnostics_js_1 = require("../shared/ipc/diagnostics.js");
+const layoutIpc_js_1 = require("./layoutIpc.js");
 const runtime_js_1 = require("../shared/config/runtime.js");
 const projectRoot = (0, node_path_1.resolve)(__dirname, '..');
 const repoRoot = (0, node_path_1.resolve)(projectRoot, '..');
@@ -21,6 +22,7 @@ const allowedPythonExecutables = runtimeConfig.service.allowedPythonExecutables.
 const bundledPythonPath = runtimeConfig.service.bundledPythonPath ?? '';
 const rendererDistDir = (0, node_path_1.join)(projectRoot, 'dist');
 const rendererIndexFile = (0, node_path_1.join)(rendererDistDir, 'index.html');
+const PRELOAD_PATH = (0, node_path_1.join)(__dirname, 'preload.js');
 const DEV_SERVER_URL = process.env.ELECTRON_RENDERER_URL ?? 'http://127.0.0.1:5173/';
 const isDev = !electron_1.app.isPackaged;
 const SERVICES_HOST = '127.0.0.1';
@@ -94,14 +96,20 @@ function resolvePythonExecutable() {
     return normalized;
 }
 function fallbackPythonExecutable() {
-    if (bundledPythonPath && (0, node_path_1.isAbsolute)(bundledPythonPath)) {
-        try {
-            if ((0, node_fs_1.statSync)(bundledPythonPath).isFile()) {
-                return bundledPythonPath;
+    if (bundledPythonPath) {
+        const resolvedBundled = resolveBundledExecutablePath(bundledPythonPath);
+        if (resolvedBundled) {
+            try {
+                if ((0, node_fs_1.statSync)(resolvedBundled).isFile()) {
+                    return resolvedBundled;
+                }
+            }
+            catch (error) {
+                console.warn('[main] Bundled Python path is not accessible.', error);
             }
         }
-        catch (error) {
-            console.warn('[main] Bundled Python path is not accessible.', error);
+        else if (bundledPythonPath.includes('{{APP_RESOURCES}}')) {
+            console.warn('[main] Unable to resolve bundled Python placeholder path.');
         }
     }
     return DEFAULT_PYTHON_EXECUTABLE;
@@ -141,6 +149,31 @@ async function selectServicePort() {
         }
     }
     throw new Error(`Unable to find an available port between ${min} and ${max}.`);
+}
+function resolveBundledExecutablePath(rawPath) {
+    const candidate = rawPath.trim();
+    if (!candidate) {
+        return null;
+    }
+    const resourcesPath = process.resourcesPath ??
+        process.env.BLACKSKIES_PACKAGE_RESOURCES ??
+        null;
+    let resolved = candidate;
+    if (resolved.includes('{{APP_RESOURCES}}')) {
+        if (!resourcesPath) {
+            return null;
+        }
+        resolved = resolved.replace(/\{\{APP_RESOURCES\}\}/g, resourcesPath);
+    }
+    if (!(0, node_path_1.isAbsolute)(resolved)) {
+        if (resourcesPath && !isDev) {
+            resolved = (0, node_path_1.resolve)(resourcesPath, resolved);
+        }
+        else {
+            resolved = (0, node_path_1.resolve)(repoRoot, resolved);
+        }
+    }
+    return (0, node_path_1.normalize)(resolved);
 }
 function pipeStreamToLogger(stream, logger, level, source) {
     let buffer = '';
@@ -407,7 +440,7 @@ async function createMainWindow() {
             contextIsolation: true,
             nodeIntegration: false,
             sandbox: sandboxEnabled,
-            preload: (0, node_path_1.join)(__dirname, 'preload.js'),
+            preload: PRELOAD_PATH,
         },
     });
     window.on('ready-to-show', () => {
@@ -499,6 +532,12 @@ else {
         (0, logging_js_1.registerRendererLogSink)();
         (0, projectLoaderIpc_1.registerProjectLoaderIpc)();
         registerDiagnosticsIpc();
+        (0, layoutIpc_js_1.registerLayoutIpc)({
+            devServerUrl: isDev ? DEV_SERVER_URL : null,
+            rendererIndexFile,
+            preloadPath: PRELOAD_PATH,
+            getMainWindow: () => mainWindow,
+        });
         ensureMainLogger().info('Electron app ready');
         setupAppEventHandlers();
         if (process.platform === 'win32') {

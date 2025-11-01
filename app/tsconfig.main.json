@@ -25,6 +25,8 @@
     "exclude":  [
                     "dist",
                     "dist-electron",
-                    "node_modules"
+                    "node_modules",
+                    "main/__tests__",
+                    "shared/__tests__"
                 ]
 }

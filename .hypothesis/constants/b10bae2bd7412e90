@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\models\rubric.py
+# hypothesis_version: 6.138.2
+
+['RubricDefinition', 'RubricStep', '\\s+', '^[a-z0-9._-]{3,64}$', 'blocked_categories', 'categories', 'error', 'forbid', 'id', 'info', 'label', 'prompt', 'rubric_id', 'title', 'warning']

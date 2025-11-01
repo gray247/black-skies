@@ -66,6 +66,9 @@ class LoadProfile:
     timeout: float
     thresholds: Thresholds
     warmup_cycles: int = 0
+    scene_count: int | None = None
+    wizard_steps: tuple[str, ...] | None = None
+    description: str | None = None
 
 
 @dataclass(slots=True)
@@ -215,32 +218,58 @@ def build_profile(name: str, raw: Mapping[str, Any], args: argparse.Namespace) -
         return override if override is not None else value
 
     total_cycles = int(
-        _override(raw.get("total_cycles", 12), args.total_cycles)
+        _override(raw.get("total_cycles", 12), getattr(args, "total_cycles", None))
     )
     concurrency = int(
-        _override(raw.get("concurrency", 3), args.concurrency)
+        _override(raw.get("concurrency", 3), getattr(args, "concurrency", None))
     )
     timeout = float(
-        _override(raw.get("timeout", smoke_runner.DEFAULT_TIMEOUT), args.timeout)
+        _override(raw.get("timeout", smoke_runner.DEFAULT_TIMEOUT), getattr(args, "timeout", None))
     )
     warmup_cycles = int(
-        _override(raw.get("warmup_cycles", 0), args.warmup_cycles)
+        _override(raw.get("warmup_cycles", 0), getattr(args, "warmup_cycles", None))
     )
 
     thresholds = Thresholds(
         p95_ms=float(
-            _override(thresholds_cfg.get("p95_ms", 1500.0), args.p95_ms)
+            _override(thresholds_cfg.get("p95_ms", 1500.0), getattr(args, "p95_ms", None))
         ),
         p99_ms=float(
-            _override(thresholds_cfg.get("p99_ms", 2500.0), args.p99_ms)
+            _override(thresholds_cfg.get("p99_ms", 2500.0), getattr(args, "p99_ms", None))
         ),
         max_error_rate=float(
-            _override(thresholds_cfg.get("max_error_rate", 0.05), args.max_error_rate)
+            _override(thresholds_cfg.get("max_error_rate", 0.05), getattr(args, "max_error_rate", None))
         ),
         max_budget_usd=float(
-            _override(thresholds_cfg.get("max_budget_usd", 5.0), args.max_budget_usd)
+            _override(thresholds_cfg.get("max_budget_usd", 5.0), getattr(args, "max_budget_usd", None))
         ),
     )
+
+    scene_count_override = getattr(args, "scene_count", None)
+    raw_scene_count = raw.get("scene_count")
+    scene_count_value = _override(raw_scene_count, scene_count_override)
+    scene_count = int(scene_count_value) if scene_count_value is not None else None
+
+    if scene_count is not None and scene_count <= 0:
+        raise ValueError("scene_count must be greater than zero when provided.")
+
+    wizard_steps: tuple[str, ...] | None = None
+    wizard_steps_override = getattr(args, "wizard_steps", None)
+    if wizard_steps_override:
+        wizard_steps = tuple(str(step).strip() for step in wizard_steps_override if str(step).strip())
+    elif raw.get("wizard_steps") is not None:
+        raw_steps = raw["wizard_steps"]
+        if not isinstance(raw_steps, Sequence):
+            raise TypeError("Profile wizard_steps must be a sequence of strings.")
+        wizard_steps = tuple(str(step).strip() for step in raw_steps if str(step).strip())
+        if not wizard_steps:
+            wizard_steps = None
+
+    description = raw.get("description")
+    if description is not None and not isinstance(description, str):
+        raise TypeError("Profile description must be a string.")
+    if isinstance(description, str):
+        description = description.strip() or None
 
     if concurrency <= 0:
         raise ValueError("Concurrency must be greater than zero.")
@@ -254,6 +283,9 @@ def build_profile(name: str, raw: Mapping[str, Any], args: argparse.Namespace) -
         timeout=timeout,
         thresholds=thresholds,
         warmup_cycles=warmup_cycles,
+        scene_count=scene_count,
+        wizard_steps=wizard_steps,
+        description=description,
     )
 
 
@@ -367,7 +399,9 @@ async def run_profile(profile: LoadProfile, args: argparse.Namespace, metrics: L
     project_root = project_base_dir / args.project_id
     wizard_steps = (
         tuple(args.wizard_steps)
-        if args.wizard_steps
+        if getattr(args, "wizard_steps", None)
+        else profile.wizard_steps
+        if profile.wizard_steps
         else smoke_runner.DEFAULT_WIZARD_STEPS
     )
     warmup_cycles = profile.warmup_cycles or 0
@@ -376,19 +410,24 @@ async def run_profile(profile: LoadProfile, args: argparse.Namespace, metrics: L
     planned_length = warmup_cycles + total_cycles
     scene_plan: list[str] | None = None
 
-    if args.scene_ids:
-        base_ids = list(args.scene_ids)
+    scene_ids_arg = getattr(args, "scene_ids", None)
+    scene_count_arg = getattr(args, "scene_count", None)
+
+    if scene_ids_arg:
+        base_ids = list(scene_ids_arg)
         if base_ids:
             scene_plan = [
                 base_ids[index % len(base_ids)]
                 for index in range(planned_length)
             ]
-    elif args.scene_count:
-        base_ids = smoke_runner.load_scene_ids(project_root, args.scene_count)
-        scene_plan = [
-            base_ids[index % len(base_ids)]
-            for index in range(planned_length)
-        ]
+    else:
+        requested_scene_count = scene_count_arg or profile.scene_count
+        if requested_scene_count:
+            base_ids = smoke_runner.load_scene_ids(project_root, requested_scene_count)
+            scene_plan = [
+                base_ids[index % len(base_ids)]
+                for index in range(planned_length)
+            ]
 
     if profile.warmup_cycles:
         LOGGER.info("Running %s warmup cycle(s) without metrics.", profile.warmup_cycles)
@@ -532,6 +571,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         profile.total_cycles,
         profile.concurrency,
     )
+    if profile.description:
+        LOGGER.info("Profile description: %s", profile.description)
 
     run_metadata = runs.start_run(
         "load-test",
