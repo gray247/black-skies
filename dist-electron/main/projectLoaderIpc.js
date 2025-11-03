@@ -12,8 +12,10 @@ const electron_1 = require("electron");
 const promises_1 = __importDefault(require("node:fs/promises"));
 const node_path_1 = __importDefault(require("node:path"));
 const projectLoader_1 = require("../shared/ipc/projectLoader");
+const layoutIpc_js_1 = require("./layoutIpc.js");
 const ISSUE_PREFIX = '[projectLoader]';
 exports.MAX_SCENE_READ_CONCURRENCY = 8;
+let devProjectPathOverride = null;
 function logIssue(issue) {
     const scope = issue.level === 'error' ? 'error' : 'warn';
     console[scope](ISSUE_PREFIX, issue.message, issue.path ? `(${issue.path})` : '', issue.detail ?? '');
@@ -22,7 +24,23 @@ function registerProjectLoaderIpc() {
     electron_1.ipcMain.removeHandler(projectLoader_1.PROJECT_LOADER_CHANNELS.openDialog);
     electron_1.ipcMain.removeHandler(projectLoader_1.PROJECT_LOADER_CHANNELS.loadProject);
     electron_1.ipcMain.removeHandler(projectLoader_1.PROJECT_LOADER_CHANNELS.getSamplePath);
+    electron_1.ipcMain.removeHandler(projectLoader_1.PROJECT_LOADER_CHANNELS.setDevProjectPath);
     electron_1.ipcMain.handle(projectLoader_1.PROJECT_LOADER_CHANNELS.openDialog, async () => {
+        const override = devProjectPathOverride;
+        if (override) {
+            try {
+                const stats = await promises_1.default.stat(override);
+                if (stats.isDirectory()) {
+                    return {
+                        canceled: false,
+                        filePath: override,
+                    };
+                }
+            }
+            catch (error) {
+                console.warn('[projectLoader] dev override path invalid', error);
+            }
+        }
         const result = await electron_1.dialog.showOpenDialog({
             properties: ['openDirectory'],
         });
@@ -30,6 +48,14 @@ function registerProjectLoaderIpc() {
             canceled: result.canceled,
             filePath: result.filePaths?.[0],
         };
+    });
+    electron_1.ipcMain.handle(projectLoader_1.PROJECT_LOADER_CHANNELS.setDevProjectPath, async (_event, nextPath) => {
+        if (typeof nextPath === 'string' && nextPath.trim().length > 0) {
+            devProjectPathOverride = node_path_1.default.resolve(nextPath);
+        }
+        else {
+            devProjectPathOverride = null;
+        }
     });
     electron_1.ipcMain.handle(projectLoader_1.PROJECT_LOADER_CHANNELS.loadProject, async (_event, request) => {
         if (!request?.path) {
@@ -44,6 +70,7 @@ function registerProjectLoaderIpc() {
         try {
             const { project, issues } = await loadProjectFromDisk(request.path);
             issues.forEach(logIssue);
+            (0, layoutIpc_js_1.authorizeProjectPath)(project.path);
             return { ok: true, project, issues };
         }
         catch (error) {

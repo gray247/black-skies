@@ -169,6 +169,7 @@ export function computePacingProfile(
 
   const metrics: ScenePacingMetric[] = [];
   const wordCounts: number[] = [];
+  let runningTotal = 0;
 
   for (const scene of sortedScenes) {
     const rawDraft = drafts[scene.id] ?? '';
@@ -176,8 +177,8 @@ export function computePacingProfile(
     const wordCount = countWords(body);
     wordCounts.push(wordCount);
 
-    const averageSoFar =
-      wordCounts.reduce((total, count) => total + count, 0) / wordCounts.length;
+    runningTotal += wordCount;
+    const averageSoFar = runningTotal / wordCounts.length;
     const paceLabel = classifyPace(wordCount, averageSoFar, config);
 
     const beats = Array.isArray(scene.beats) ? scene.beats : undefined;
@@ -197,9 +198,7 @@ export function computePacingProfile(
   }
 
   const averageWordCount =
-    wordCounts.length > 0
-      ? wordCounts.reduce((total, count) => total + count, 0) / wordCounts.length
-      : 0;
+    wordCounts.length > 0 ? runningTotal / wordCounts.length : 0;
   const medianWordCount = median(wordCounts);
   const standardDeviationWordCount = standardDeviation(wordCounts, averageWordCount);
 
@@ -210,4 +209,3 @@ export function computePacingProfile(
     sceneMetrics: metrics,
   };
 }
-

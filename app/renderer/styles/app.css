@@ -83,6 +83,8 @@ button:disabled {
 .app-shell__workspace {
   display: flex;
   flex-direction: column;
+  height: 100%;
+  min-height: 0;
   backdrop-filter: blur(18px);
 }
 
@@ -289,6 +291,7 @@ button:disabled {
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-height: 0;
   overflow: hidden;
   padding: 1.75rem;
 }
@@ -1929,12 +1932,86 @@ button:disabled {
   flex-direction: column;
   gap: 0.5rem;
   min-height: 0;
-  height: 100%;
+  flex: 1;
 }
 
 .dock-workspace__grid {
   flex: 1;
   min-height: 0;
+}
+
+.dock-workspace__grid .mosaic {
+  background: transparent;
+}
+
+.dock-workspace__grid .mosaic-root {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.dock-workspace__grid .mosaic-tile {
+  margin: 0;
+  padding: 0.25rem;
+}
+
+.dock-workspace__grid .mosaic-window {
+  background: transparent;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  box-shadow: none;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.dock-workspace__grid .mosaic-window-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: auto;
+  min-height: 0;
+  padding: 0.35rem 0.75rem;
+  background: rgba(15, 23, 42, 0.85);
+  color: rgba(226, 232, 240, 0.92);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.dock-workspace__grid .mosaic-window-title {
+  padding-left: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.dock-workspace__grid .mosaic-window-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.dock-workspace__grid .mosaic-window-controls .separator {
+  display: none;
+}
+
+.dock-workspace__grid .mosaic-window-controls .bp4-button,
+.dock-workspace__grid .mosaic-window-controls .mosaic-default-control {
+  border-radius: 0.5rem;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: rgba(15, 23, 42, 0.6);
+  color: rgba(226, 232, 240, 0.85);
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.dock-workspace__grid .mosaic-window-controls .bp4-button:hover,
+.dock-workspace__grid .mosaic-window-controls .mosaic-default-control:hover {
+  background: rgba(99, 102, 241, 0.25);
+  border-color: rgba(129, 140, 248, 0.45);
+}
+
+.dock-workspace__grid .mosaic-window-body {
+  background: rgba(15, 23, 42, 0.55);
 }
 
 .dock-workspace__status,

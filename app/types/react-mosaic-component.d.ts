@@ -43,3 +43,10 @@ declare module 'react-mosaic-component' {
   export function MosaicWindow<T extends string>(props: MosaicWindowProps<T>): JSX.Element;
   export function MosaicZeroState<T extends string>(props: MosaicZeroStateProps<T>): JSX.Element;
 }
+
+declare module 'react-mosaic-component/lib/buttons/defaultToolbarControls' {
+  import * as React from 'react';
+
+  export const DEFAULT_CONTROLS_WITH_CREATION: ReadonlyArray<React.ReactElement>;
+  export const DEFAULT_CONTROLS_WITHOUT_CREATION: ReadonlyArray<React.ReactElement>;
+}

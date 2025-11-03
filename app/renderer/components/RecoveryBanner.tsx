@@ -1,4 +1,5 @@
 import type { MouseEventHandler, ReactNode } from 'react';
+import { TID } from '../utils/testIds';
 
 interface RecoveryBannerProps {
   visible: boolean;
@@ -39,7 +40,11 @@ export function RecoveryBanner({
   );
 
   return (
-    <div className="app-shell__recovery-banner" role="alert">
+    <div
+      className="app-shell__recovery-banner"
+      role="alert"
+      data-testid={TID.recoveryBanner}
+    >
       <div className="app-shell__recovery-banner__content">
         <strong>Crash recovery available.</strong>
         {snapshotDescription}

@@ -33,7 +33,7 @@ $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot ".."))
 Set-Location $RepoRoot
 
 $VenvDir = Join-Path $RepoRoot ".venv"
-$PythonExe = Join-Path $VenvDir "Scripts" "python.exe"
+$PythonExe = Join-Path (Join-Path $VenvDir "Scripts") "python.exe"
 
 if (-not (Test-Path -LiteralPath $PythonExe)) {
   Write-SmokeLog -Level INFO -Message "Creating virtual environment at $VenvDir"

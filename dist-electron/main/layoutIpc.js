@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.authorizeProjectPath = authorizeProjectPath;
 exports.clampBoundsToDisplay = clampBoundsToDisplay;
 exports.registerLayoutIpc = registerLayoutIpc;
 const electron_1 = require("electron");
@@ -10,8 +11,17 @@ const LAYOUT_SCHEMA_VERSION = 2;
 const LAYOUT_DIR_NAME = '.blackskies';
 const LAYOUT_FILE_NAME = 'layout.json';
 const floatingWindows = new Map();
+const authorizedProjectRoots = new Set();
+function authorizeProjectPath(projectPath) {
+    const resolved = (0, node_path_1.resolve)(projectPath);
+    authorizedProjectRoots.add(resolved);
+}
+function getAuthorizedProjectPath(projectPath) {
+    const resolved = (0, node_path_1.resolve)(projectPath);
+    return authorizedProjectRoots.has(resolved) ? resolved : null;
+}
 function resolveLayoutDir(projectPath) {
-    return (0, node_path_1.join)((0, node_path_1.resolve)(projectPath), LAYOUT_DIR_NAME);
+    return (0, node_path_1.join)(projectPath, LAYOUT_DIR_NAME);
 }
 function resolveLayoutFile(projectPath) {
     return (0, node_path_1.join)(resolveLayoutDir(projectPath), LAYOUT_FILE_NAME);
@@ -154,7 +164,14 @@ function clampBoundsToDisplay(bounds, displayId) {
     };
 }
 async function handleLoadLayout(request) {
-    const payload = await loadPersistedLayout(request.projectPath);
+    const resolvedProjectPath = getAuthorizedProjectPath(request.projectPath);
+    if (!resolvedProjectPath) {
+        console.warn('[layout] Ignoring load for unauthorized project path', {
+            projectPath: request.projectPath,
+        });
+        return { layout: null, floatingPanes: [], schemaVersion: LAYOUT_SCHEMA_VERSION };
+    }
+    const payload = await loadPersistedLayout(resolvedProjectPath);
     if (!payload) {
         return { layout: null, floatingPanes: [], schemaVersion: LAYOUT_SCHEMA_VERSION };
     }
@@ -165,15 +182,23 @@ async function handleLoadLayout(request) {
     };
 }
 async function handleSaveLayout(request) {
-    const floatingState = request.floatingPanes ?? serializeFloatingWindows(request.projectPath);
-    await savePersistedLayout(request.projectPath, {
+    const resolvedProjectPath = getAuthorizedProjectPath(request.projectPath);
+    if (!resolvedProjectPath) {
+        throw new Error('Project path not authorized for layout persistence.');
+    }
+    const floatingState = request.floatingPanes ?? serializeFloatingWindows(resolvedProjectPath);
+    await savePersistedLayout(resolvedProjectPath, {
         version: request.schemaVersion ?? LAYOUT_SCHEMA_VERSION,
         layout: request.layout ?? null,
         floatingPanes: floatingState,
     });
 }
 async function handleResetLayout(request) {
-    await resetPersistedLayout(request.projectPath);
+    const resolvedProjectPath = getAuthorizedProjectPath(request.projectPath);
+    if (!resolvedProjectPath) {
+        throw new Error('Project path not authorized for layout reset.');
+    }
+    await resetPersistedLayout(resolvedProjectPath);
 }
 function makeFloatingWindowUrl(options, paneId, projectPath) {
     const searchParams = new URLSearchParams({
@@ -192,7 +217,11 @@ function makeFloatingWindowUrl(options, paneId, projectPath) {
     };
 }
 async function openFloatingWindow(options, request) {
-    const registry = getFloatingWindowRegistry(request.projectPath);
+    const resolvedProjectPath = getAuthorizedProjectPath(request.projectPath);
+    if (!resolvedProjectPath) {
+        throw new Error('Project path not authorized for floating window.');
+    }
+    const registry = getFloatingWindowRegistry(resolvedProjectPath);
     const existing = registry.get(request.paneId);
     if (existing && !existing.isDestroyed()) {
         existing.focus();
@@ -221,6 +250,31 @@ async function openFloatingWindow(options, request) {
     window.once('ready-to-show', () => {
         window.show();
     });
+    window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
+    const allowedOrigins = new Set();
+    if (options.devServerUrl) {
+        try {
+            allowedOrigins.add(new URL(options.devServerUrl).origin);
+        }
+        catch {
+            // ignore malformed dev server URLs, navigation guard will fall back to denying
+        }
+    }
+    window.webContents.on('will-navigate', (event, targetUrl) => {
+        if (targetUrl.startsWith('file://')) {
+            return;
+        }
+        let origin = null;
+        try {
+            origin = new URL(targetUrl).origin;
+        }
+        catch {
+            origin = null;
+        }
+        if (!origin || !allowedOrigins.has(origin)) {
+            event.preventDefault();
+        }
+    });
     window.on('closed', () => {
         registry.delete(request.paneId);
     });
@@ -235,7 +289,11 @@ async function openFloatingWindow(options, request) {
     return true;
 }
 async function closeFloatingWindow(request) {
-    const registry = floatingWindows.get(request.projectPath);
+    const resolvedProjectPath = getAuthorizedProjectPath(request.projectPath);
+    if (!resolvedProjectPath) {
+        return;
+    }
+    const registry = floatingWindows.get(resolvedProjectPath);
     if (!registry) {
         return;
     }
@@ -259,7 +317,14 @@ function registerLayoutIpc(options) {
         await handleResetLayout(request);
     });
     electron_1.ipcMain.handle(layout_js_1.LAYOUT_CHANNELS.listFloating, async (_event, projectPath) => {
-        return serializeFloatingWindows(projectPath);
+        const resolvedProjectPath = getAuthorizedProjectPath(projectPath);
+        if (!resolvedProjectPath) {
+            console.warn('[layout] Ignoring list floating panes for unauthorized project path', {
+                projectPath,
+            });
+            return [];
+        }
+        return serializeFloatingWindows(resolvedProjectPath);
     });
     electron_1.ipcMain.handle(layout_js_1.LAYOUT_CHANNELS.openFloating, async (_event, request) => {
         return openFloatingWindow(options, request);

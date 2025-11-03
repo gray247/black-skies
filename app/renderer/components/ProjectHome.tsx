@@ -12,6 +12,7 @@ import {
   recordDebugEvent,
   subscribeDebugLog,
 } from '../utils/debugLog';
+import { TID } from '../utils/testIds';
 
 export type ProjectLoadStatus = 'init' | 'loaded' | 'failed' | 'cleared';
 
@@ -748,6 +749,7 @@ export default function ProjectHome({
           className="project-home__open-button"
           onClick={handleOpenProject}
           disabled={!loaderAvailable || isLoading}
+          data-testid={TID.openProjectBtn}
         >
           {isLoading ? 'Loading...' : 'Open project...'}
         </button>
@@ -801,7 +803,7 @@ export default function ProjectHome({
             {sortedRecents.length === 0 ? (
               <p className="project-home__empty">No recent projects yet.</p>
             ) : (
-              <ul className="project-home__recent-list">
+              <ul className="project-home__recent-list" data-testid={TID.recentList}>
                 {sortedRecents.map((entry) => {
                   const isActive = activeProject?.path === entry.path;
                   return (

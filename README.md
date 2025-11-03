@@ -22,18 +22,19 @@ Prereqs: **Node 20 LTS**, **PNPM**, **Python 3.11**
 
 1. **Install workspace dependencies**
    ```bash
-   pnpm run install
+   pnpm install --recursive
    ```
 2. **Set up the Python services environment**
    ```bash
    cd services
    python -m venv .venv
-   # PowerShell (Windows)
+   # PowerShell activation (both 5.1 and 7+)
    .\.venv\Scripts\Activate.ps1
    # bash (WSL/macOS/Linux)
    source .venv/bin/activate
    pip install -c ../constraints.txt -e .[dev]
    ```
+   `start-codex.ps1 -OnlySetup` performs the same bootstrap automatically; use the manual commands above only when scripting custom environments.
    The editable install resolves to **FastAPI 0.118.x**, **Starlette 0.48.x**, and **HTTPX 0.27.x** while the shared constraints
    file keeps patch releases identical to CI and the lockfiles.
 3. **Launch the smoke test (Vite + Electron + services)**
@@ -41,7 +42,7 @@ Prereqs: **Node 20 LTS**, **PNPM**, **Python 3.11**
    powershell.exe -ExecutionPolicy Bypass -File .\start-codex.ps1 -SmokeTest
    ```
    Two terminals open: one runs `pnpm --filter app dev -- --host 127.0.0.1 --port 5173`, the other launches Electron with the
-   real preload and auto-starts the FastAPI bridge. When the status pill flips to “Services online” the stack is healthy. Close both
+   real preload and auto-starts the FastAPI bridge. When the status pill flips to "Services online" the stack is healthy. Close both
    windows to shut everything down.
 
    > Prefer manual control? Follow the step-by-step commands in `docs/quickstart.md`.
@@ -60,7 +61,7 @@ The overlay surfaces scene insights (word counts, pacing hints) and the meter tr
 
 ### Service configuration
 
-- Copy `.env.example` to `.env` before launching the stack. Update
+- Copy `.env.example` to `.env` before launching the stack (the template now includes `BLACK_SKIES_MODE` and a commented project path example). Update
   `BLACKSKIES_PROJECT_BASE_DIR` to point at your project root (or leave the
   default `./sample_project` when working inside the repo).
 - Runtime settings are provided by `ServiceSettings`
@@ -69,7 +70,7 @@ The overlay surfaces scene insights (word counts, pacing hints) and the meter tr
   `BLACKSKIES_PROJECT_BASE_DIR`.
 - Packaging and QA builds can override the default budget ceilings and
   plugin allow/deny lists via the optional entries in `.env.example`. Keep
-  the RC1 defaults (`$5` soft, `$10` hard) unless the release plan calls for
+  the RC1 defaults (`$12.50` soft, `$25.00` hard) unless the release plan calls for
   different values.
 - The configured project directory must exist (e.g.,
   `sample_project/Esther_Estate`). Misconfigured paths raise a validation
@@ -157,7 +158,7 @@ The directory mirrors the schema in `docs/data_model.md` (`outline.json`, `proje
 
 ## Budgets & Preflight
 The renderer queries `/api/v1/draft/preflight` before the **Generate** CTA unlocks. The service responds with the model that will run,
-scene metadata, and a `budget` block so the UI can enforce soft ($5) and hard ($10) caps tracked in each `project.json`.
+scene metadata, and a `budget` block so the UI can enforce soft ($12.50) and hard ($25.00) caps tracked in each `project.json`.
 
 ### Sample request
 ```json

@@ -32,3 +32,11 @@
 - **Voice notes tests**: mock transcription engine for unit tests, E2E covering record → transcribe → attach; privacy tests ensure deletion removes assets.
 - **Plugin tests**: sandboxed execution harness, permission enforcement, audit log verification, failure injection.
 - **Accessibility**: run `pnpm --filter app test:axe` (todo) to validate new UI flows meet WCAG AA.
+
+## Frontend Automation TODOs
+
+- [x] Introduce `app/renderer/utils/testIds.ts` and add `data-testid` hooks to ProjectHome, WizardPanel, DockWorkspace, and recovery banners for Playwright stability.
+- [x] Add Playwright Electron fixture (`app/tests/e2e/electron.launch.ts`) plus updated `playwright.config.ts` and `package.json` scripts (`e2e:build`, `e2e`, `e2e:headed`, `e2e:report`).
+- [x] Author Playwright specs: end-to-end smoke (`smoke.project.spec.ts`), visual snapshot (`visual.home.spec.ts`), and axe accessibility check (`a11y.smoke.spec.ts`).
+- [x] Extend renderer Vitest coverage for recovery banner, dock workspace, analytics helpers, and runtime config caching.
+- [ ] Enable `eslint-plugin-jsx-a11y`, disable animations when `PLAYWRIGHT===1`, and ensure CI uploads Playwright traces/screenshots on failure.

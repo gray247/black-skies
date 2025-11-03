@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\persistence\atomic.py
+# hypothesis_version: 6.138.2
+
+[0.05, 'dump_diagnostic', 'flush_handle', 'locked_path', 'replace_file', 'utf-8', 'w', 'winerror', 'write_json_atomic', 'write_text_atomic']

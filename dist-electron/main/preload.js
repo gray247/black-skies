@@ -659,4 +659,15 @@ electron_1.contextBridge.exposeInMainWorld('services', servicesBridge);
 electron_1.contextBridge.exposeInMainWorld('diagnostics', diagnosticsBridge);
 electron_1.contextBridge.exposeInMainWorld('layout', layoutBridge);
 electron_1.contextBridge.exposeInMainWorld('runtimeConfig', runtimeConfig);
+if (process.env.PLAYWRIGHT === '1') {
+    const devTools = {
+        async setProjectDir(dir) {
+            await electron_1.ipcRenderer.invoke(projectLoader_js_1.PROJECT_LOADER_CHANNELS.setDevProjectPath, dir);
+        },
+        overrideServices(overrides) {
+            Object.assign(servicesBridge, overrides);
+        },
+    };
+    electron_1.contextBridge.exposeInMainWorld('__dev', devTools);
+}
 //# sourceMappingURL=preload.js.map

@@ -84,6 +84,35 @@ jobs:
         with:
           name: safety-report
           path: safety-report.json
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          run_install: false
+      - name: Install JS dependencies
+        run: pnpm install --recursive --frozen-lockfile
+      - name: Run pnpm audit
+        id: pnpm_audit
+        run: |
+          set +e
+          pnpm audit --recursive --json > pnpm-audit-report.json
+          status=$?
+          if [ ! -f pnpm-audit-report.json ]; then
+            echo '{"error":"pnpm audit terminated before producing a report"}' > pnpm-audit-report.json
+          fi
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          exit 0
+      - name: Upload pnpm audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pnpm-audit-report
+          path: pnpm-audit-report.json
       - name: Run light-load sanity check
         run: |
           python scripts/load.py --total-cycles 4 --concurrency 2 --timeout 45 --start-service
@@ -117,9 +146,10 @@ PY
           name: dependency-report
           path: dependency-report.json
       - name: Fail if vulnerabilities detected
-        if: ${{ steps.pip_audit.outputs.status != '0' || steps.safety.outputs.status != '0' }}
+        if: ${{ steps.pip_audit.outputs.status != '0' || steps.safety.outputs.status != '0' || steps.pnpm_audit.outputs.status != '0' }}
         run: |
-          echo "Dependency vulnerabilities detected by pip-audit or Safety."
+          echo "Dependency vulnerabilities detected by pip-audit, Safety, or pnpm audit."
           cat pip-audit-report.json || true
           cat safety-report.json || true
+          cat pnpm-audit-report.json || true
           exit 1

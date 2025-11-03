@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\operations\draft_accept.py
+# hypothesis_version: 6.138.2
+
+['DraftAcceptResult v1', 'INTERNAL', 'accepted', 'added', 'anchors', 'budget', 'changed', 'diff', 'error', 'hard_limit_usd', 'project_id', 'removed', 'schema_version', 'snapshot', 'soft_limit_usd', 'spent_usd', 'status', 'unit_id']

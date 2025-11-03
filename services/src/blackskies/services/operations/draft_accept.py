@@ -101,7 +101,7 @@ class DraftAcceptService:
             diagnostics=self._diagnostics,
         )
         new_spent_total = budget_state.spent_usd + accept_cost
-        persist_project_budget(budget_state, new_spent_total)
+        await run_in_threadpool(persist_project_budget, budget_state, new_spent_total)
 
         response = {
             "project_id": request.project_id,

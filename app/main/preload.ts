@@ -876,3 +876,16 @@ contextBridge.exposeInMainWorld('services', servicesBridge);
 contextBridge.exposeInMainWorld('diagnostics', diagnosticsBridge);
 contextBridge.exposeInMainWorld('layout', layoutBridge);
 contextBridge.exposeInMainWorld('runtimeConfig', runtimeConfig);
+
+if (process.env.PLAYWRIGHT === '1') {
+  const devTools = {
+    async setProjectDir(dir: string | null): Promise<void> {
+      await ipcRenderer.invoke(PROJECT_LOADER_CHANNELS.setDevProjectPath, dir);
+    },
+    overrideServices(overrides: Partial<ServicesBridge>): void {
+      Object.assign(servicesBridge, overrides);
+    },
+  };
+
+  contextBridge.exposeInMainWorld('__dev', devTools);
+}

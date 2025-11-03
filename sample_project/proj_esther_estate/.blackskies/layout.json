@@ -1,0 +1,26 @@
+{
+  "version": 2,
+  "layout": {
+    "direction": "row",
+    "first": {
+      "direction": "column",
+      "first": "draft-board",
+      "second": "history",
+      "splitPercentage": 70
+    },
+    "second": "critique",
+    "splitPercentage": 30
+  },
+  "floatingPanes": [
+    {
+      "id": "critique",
+      "bounds": {
+        "x": -945,
+        "y": 257,
+        "width": 932,
+        "height": 507
+      },
+      "displayId": 2779098405
+    }
+  ]
+}

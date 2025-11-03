@@ -11,9 +11,9 @@ const appDir = path.join(repoRoot, "app");
 
 const require = createRequire(import.meta.url);
 
-let vitestExecutable;
+let vitestCliModule;
 try {
-  vitestExecutable = require.resolve(".bin/vitest", {
+  vitestCliModule = require.resolve("vitest/vitest.mjs", {
     paths: [
       path.join(appDir, "node_modules"),
       path.join(repoRoot, "node_modules")
@@ -34,11 +34,14 @@ try {
 }
 
 const vitestArgs = ["run", ...process.argv.slice(2)];
-const { status, error } = spawnSync(vitestExecutable, vitestArgs, {
+const { status, error } = spawnSync(
+  process.execPath,
+  [vitestCliModule, ...vitestArgs],
+  {
   cwd: appDir,
   stdio: "inherit",
-  shell: process.platform === "win32"
-});
+}
+);
 
 if (error) {
   throw error;

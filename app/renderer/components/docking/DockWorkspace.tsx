@@ -1,13 +1,6 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
-import {
-  Mosaic,
-  MosaicWindow,
-  MosaicZeroState,
-  type MosaicNode,
-  type MosaicPath,
-  type MosaicWindowToolbarProps,
-} from 'react-mosaic-component';
+import { Mosaic, MosaicZeroState, type MosaicNode, type MosaicPath } from 'react-mosaic-component';
 
 import 'react-mosaic-component/react-mosaic-component.css';
 
@@ -25,6 +18,10 @@ import {
   getPreset,
 } from './presets';
 import { recordDebugEvent } from '../../utils/debugLog';
+import DockPaneTile from './DockPaneTile';
+import { useDockHotkeys } from './useDockHotkeys';
+import { usePaneBoundsLogger } from './usePaneBoundsLogger';
+import { TID } from '../../utils/testIds';
 
 const LAYOUT_SCHEMA_VERSION = 2;
 
@@ -136,31 +133,7 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
     }
   }, []);
 
-  useEffect(() => {
-    recordDebugEvent('dock-workspace.state.updated', {
-      projectPath,
-      layoutState,
-    });
-    if (!projectPath) {
-      return;
-    }
-    const frame = window.requestAnimationFrame(() => {
-      const bounds: Array<{ paneId: LayoutPaneId; width: number; height: number }> = [];
-      for (const [paneId, element] of paneRefs.current.entries()) {
-        if (!element) {
-          bounds.push({ paneId, width: 0, height: 0 });
-          continue;
-        }
-        const rect = element.getBoundingClientRect();
-        bounds.push({ paneId, width: Math.round(rect.width), height: Math.round(rect.height) });
-      }
-      recordDebugEvent('dock-workspace.bounds', {
-        projectPath,
-        panes: bounds,
-      });
-    });
-    return () => window.cancelAnimationFrame(frame);
-  }, [layoutState, projectPath]);
+  usePaneBoundsLogger(projectPath, layoutState, paneRefs);
 
   const applyLayout = useCallback(
     (tree: LayoutTree) => {
@@ -320,55 +293,13 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
     [focusPane, paneOrder],
   );
 
-  useEffect(() => {
-    if (!enableHotkeys) {
-      return;
-    }
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.defaultPrevented) {
-        return;
-      }
-      if (!event.ctrlKey || !event.altKey) {
-        return;
-      }
-      const target = event.target as HTMLElement | null;
-      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
-        return;
-      }
-      switch (event.key) {
-        case '0':
-          event.preventDefault();
-          void resetToDefault();
-          break;
-        case '1':
-          event.preventDefault();
-          applyPreset(DEFAULT_PRESET_KEY);
-          break;
-        case '2':
-          event.preventDefault();
-          applyPreset('analysis');
-          break;
-        case '3':
-          event.preventDefault();
-          applyPreset('critique');
-          break;
-        case ']':
-          event.preventDefault();
-          cycleFocus(1);
-          break;
-        case '[':
-          event.preventDefault();
-          cycleFocus(-1);
-          break;
-        default:
-          break;
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [applyPreset, cycleFocus, enableHotkeys, resetToDefault]);
+  useDockHotkeys({
+    enableHotkeys,
+    applyPreset,
+    resetToDefault,
+    cycleFocus,
+    defaultPresetKey: resolvedDefaultPreset,
+  });
 
   const openFloatingPane = useCallback(
     async (paneId: LayoutPaneId) => {
@@ -407,58 +338,21 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
     [layoutBridge, persistLayout, projectPath],
   );
 
-  const renderToolbar = useCallback(
-    (paneId: LayoutPaneId, toolbarProps: MosaicWindowToolbarProps<LayoutPaneId>) => (
-      <div className="dock-pane__toolbar">
-        {toolbarProps.renderDefaultToolbar?.() ?? null}
-        <button
-          type="button"
-          className="dock-pane__toolbar-button"
-          onClick={() => void openFloatingPane(paneId)}
-          aria-label={`Detach ${PANE_TITLES[paneId]} pane`}
-        >
-          Float
-        </button>
-        <button
-          type="button"
-          className="dock-pane__toolbar-button"
-          onClick={() => focusPane(paneId)}
-          aria-label={`Focus ${PANE_TITLES[paneId]} pane`}
-        >
-          Focus
-        </button>
-      </div>
-    ),
-    [focusPane, openFloatingPane],
-  );
-
   const renderTile = useCallback(
     (paneId: LayoutPaneId, path: MosaicPath) => (
-      recordDebugEvent('dock-workspace.render-tile', {
-        projectPath,
-        paneId,
-        path,
-      }),
-      <MosaicWindow<LayoutPaneId>
-        className="dock-pane"
+      <DockPaneTile
+        projectPath={projectPath}
+        paneId={paneId}
+        paneTitle={PANE_TITLES[paneId]}
         path={path}
-        title={PANE_TITLES[paneId]}
-        renderToolbar={(toolbarProps) => renderToolbar(paneId, toolbarProps)}
-      >
-        <div
-          className="dock-pane__content"
-          tabIndex={0}
-          role="group"
-          aria-label={PANE_TITLES[paneId]}
-          aria-describedby={instructionsId}
-          ref={(element) => assignPaneRef(paneId, element)}
-          data-pane-id={paneId}
-        >
-          {panes[paneId] ?? <DockPlaceholder paneId={paneId} />}
-        </div>
-      </MosaicWindow>
+        instructionsId={instructionsId}
+        assignPaneRef={assignPaneRef}
+        onFloat={() => void openFloatingPane(paneId)}
+        onFocus={() => focusPane(paneId)}
+        content={panes[paneId] ?? <DockPlaceholder paneId={paneId} />}
+      />
     ),
-    [assignPaneRef, instructionsId, panes, renderToolbar],
+    [assignPaneRef, focusPane, instructionsId, openFloatingPane, panes, projectPath],
   );
 
   const zeroStateView = useMemo(
@@ -484,7 +378,11 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
   );
 
   return (
-    <section className="dock-workspace" aria-label="Docked workspace">
+    <section
+      className="dock-workspace"
+      aria-label="Docked workspace"
+      data-testid={TID.dockWorkspace}
+    >
       <p id={instructionsId} className="visually-hidden">
         Use Control plus Alt plus the number keys to switch docking presets. Control plus Alt plus zero
         resets the layout. Control plus Alt plus the right or left bracket keys moves focus between panes.

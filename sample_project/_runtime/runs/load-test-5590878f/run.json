@@ -1,0 +1,74 @@
+{
+  "run_id": "load-test-5590878f",
+  "kind": "load-test",
+  "params": {
+    "profile": "default",
+    "host": "127.0.0.1",
+    "port": 43750,
+    "project_id": "proj_esther_estate",
+    "total_cycles": 4,
+    "concurrency": 2
+  },
+  "status": "completed",
+  "created_at": "2025-11-02T20:24:13.449080Z",
+  "updated_at": "2025-11-02T20:24:16.232880Z",
+  "events": [],
+  "result": {
+    "metrics": {
+      "total_requests": 16,
+      "error_count": 0,
+      "error_rate": 0.0,
+      "avg_latency_ms": 29.933499998151092,
+      "p95_latency_ms": 79.08554999448825,
+      "p99_latency_ms": 79.12839000637177,
+      "total_budget_usd": 0.08,
+      "duration_seconds": 1.3204264999949373,
+      "requests_per_second": 12.117296949176152,
+      "error_budget_remaining": 0.05,
+      "error_budget_consumed": 0.0,
+      "per_path": {
+        "/api/v1/draft/wizard/lock": {
+          "count": 4,
+          "avg_ms": 27.104299995698966,
+          "p95_ms": 31.554109988792334,
+          "p99_ms": 31.58466198743554,
+          "error_count": 0
+        },
+        "/api/v1/draft/generate": {
+          "count": 4,
+          "avg_ms": 10.489724998478778,
+          "p95_ms": 11.896735003392678,
+          "p99_ms": 12.005587004532572,
+          "error_count": 0
+        },
+        "/api/v1/draft/critique": {
+          "count": 4,
+          "avg_ms": 4.752549997647293,
+          "p95_ms": 5.148114997427911,
+          "p99_ms": 5.203062996733934,
+          "error_count": 0
+        },
+        "/api/v1/draft/accept": {
+          "count": 4,
+          "avg_ms": 77.38742500077933,
+          "p95_ms": 79.12839000637177,
+          "p99_ms": 79.13695800874848,
+          "error_count": 0
+        }
+      }
+    },
+    "thresholds": {
+      "p95_ms": 220.0,
+      "p99_ms": 260.0,
+      "max_error_rate": 0.05,
+      "max_budget_usd": 5.0
+    },
+    "breaches": [],
+    "slo": {
+      "status": "ok",
+      "violations": [],
+      "error_budget_remaining": 0.05,
+      "error_budget_consumed": 0.0
+    }
+  }
+}

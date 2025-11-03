@@ -12,9 +12,11 @@ import {
   SceneDraftMetadata,
   PROJECT_LOADER_CHANNELS,
 } from '../shared/ipc/projectLoader';
+import { authorizeProjectPath } from './layoutIpc.js';
 
 const ISSUE_PREFIX = '[projectLoader]';
 export const MAX_SCENE_READ_CONCURRENCY = 8;
+let devProjectPathOverride: string | null = null;
 
 type ProjectLoadErrorCode = ProjectLoadFailure['error']['code'];
 
@@ -32,10 +34,26 @@ export function registerProjectLoaderIpc(): void {
   ipcMain.removeHandler(PROJECT_LOADER_CHANNELS.openDialog);
   ipcMain.removeHandler(PROJECT_LOADER_CHANNELS.loadProject);
   ipcMain.removeHandler(PROJECT_LOADER_CHANNELS.getSamplePath);
+  ipcMain.removeHandler(PROJECT_LOADER_CHANNELS.setDevProjectPath);
 
   ipcMain.handle(
     PROJECT_LOADER_CHANNELS.openDialog,
     async (): Promise<ProjectDialogResult> => {
+      const override = devProjectPathOverride;
+      if (override) {
+        try {
+          const stats = await fs.stat(override);
+          if (stats.isDirectory()) {
+            return {
+              canceled: false,
+              filePath: override,
+            };
+          }
+        } catch (error) {
+          console.warn('[projectLoader] dev override path invalid', error);
+        }
+      }
+
       const result = await dialog.showOpenDialog({
         properties: ['openDirectory'],
       });
@@ -43,6 +61,17 @@ export function registerProjectLoaderIpc(): void {
         canceled: result.canceled,
         filePath: result.filePaths?.[0],
       };
+    },
+  );
+
+  ipcMain.handle(
+    PROJECT_LOADER_CHANNELS.setDevProjectPath,
+    async (_event, nextPath: unknown): Promise<void> => {
+      if (typeof nextPath === 'string' && nextPath.trim().length > 0) {
+        devProjectPathOverride = path.resolve(nextPath);
+      } else {
+        devProjectPathOverride = null;
+      }
     },
   );
 
@@ -62,6 +91,7 @@ export function registerProjectLoaderIpc(): void {
       try {
         const { project, issues } = await loadProjectFromDisk(request.path);
         issues.forEach(logIssue);
+        authorizeProjectPath(project.path);
         return { ok: true, project, issues };
       } catch (error) {
         const message = error instanceof Error ? error.message : 'Unknown error';

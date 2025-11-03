@@ -102,28 +102,44 @@ export const DEFAULT_RUNTIME_CONFIG: RuntimeConfig = Object.freeze({
   },
 });
 
-let cachedConfig: RuntimeConfig | null = null;
+const MIN_TCP_PORT = 1;
+const MAX_TCP_PORT = 65535;
+
+const configCache = new Map<string, RuntimeConfig>();
+
+export function clearRuntimeConfigCache(explicitPath?: string): void {
+  if (explicitPath) {
+    const resolved = resolveConfigPath(explicitPath);
+    configCache.delete(resolved);
+    return;
+  }
+  configCache.clear();
+}
 
 export function loadRuntimeConfig(explicitPath?: string): RuntimeConfig {
-  if (cachedConfig) {
-    return cachedConfig;
-  }
-
   const configPath = resolveConfigPath(explicitPath);
-  if (!existsSync(configPath)) {
-    cachedConfig = DEFAULT_RUNTIME_CONFIG;
-    return cachedConfig;
+  const cached = configCache.get(configPath);
+  if (cached) {
+    return cached;
   }
 
-  try {
-    const raw = readFileSync(configPath, 'utf8');
-    const parsed = (parse(raw) ?? {}) as Record<string, unknown>;
-    cachedConfig = normalizeRuntimeConfig(parsed);
-  } catch (error) {
-    console.warn('[config] Failed to load runtime.yaml:', error);
-    cachedConfig = DEFAULT_RUNTIME_CONFIG;
+  let resolvedConfig: RuntimeConfig;
+  if (!existsSync(configPath)) {
+    console.warn(`[config] runtime.yaml not found at ${configPath}; using defaults.`);
+    resolvedConfig = DEFAULT_RUNTIME_CONFIG;
+  } else {
+    try {
+      const raw = readFileSync(configPath, 'utf8');
+      const parsed = (parse(raw) ?? {}) as Record<string, unknown>;
+      resolvedConfig = normalizeRuntimeConfig(parsed);
+    } catch (error) {
+      console.warn('[config] Failed to load runtime.yaml:', error);
+      resolvedConfig = DEFAULT_RUNTIME_CONFIG;
+    }
   }
-  return cachedConfig;
+
+  configCache.set(configPath, resolvedConfig);
+  return resolvedConfig;
 }
 
 function resolveConfigPath(explicitPath?: string): string {
@@ -257,11 +273,22 @@ function toBoolean(value: unknown, fallback: boolean): boolean {
 function normalizePortRange(value: unknown): ServicePortRange {
   if (value && typeof value === 'object') {
     const candidate = value as Record<string, unknown>;
-    const min = toNumber(candidate.min, DEFAULT_SERVICE_PORT_RANGE.min);
-    const max = toNumber(candidate.max, DEFAULT_SERVICE_PORT_RANGE.max);
-    if (Number.isFinite(min) && Number.isFinite(max) && min > 0 && max > min) {
-      return { min, max };
+    const rawMin = toNumber(candidate.min, Number.NaN);
+    const rawMax = toNumber(candidate.max, Number.NaN);
+    if (Number.isFinite(rawMin) && Number.isFinite(rawMax)) {
+      const clampedMin = Math.min(Math.max(Math.round(rawMin), MIN_TCP_PORT), MAX_TCP_PORT);
+      const clampedMax = Math.min(Math.max(Math.round(rawMax), MIN_TCP_PORT), MAX_TCP_PORT);
+      if (clampedMin < clampedMax) {
+        if (clampedMin !== rawMin || clampedMax !== rawMax) {
+          console.warn(
+            '[config] Adjusted service.port_range to stay within valid TCP bounds (1-65535).',
+            { requested: { min: rawMin, max: rawMax }, applied: { min: clampedMin, max: clampedMax } },
+          );
+        }
+        return { min: clampedMin, max: clampedMax };
+      }
     }
+    console.warn('[config] Invalid service.port_range; using defaults.', { requested: candidate });
   }
   return DEFAULT_SERVICE_PORT_RANGE;
 }

@@ -1,0 +1,9 @@
+{
+  "timestamp": "2025-11-02T20:24:16.123611Z",
+  "code": "SNAPSHOT",
+  "message": "Wizard step framing locked.",
+  "details": {
+    "step": "framing",
+    "snapshot_id": "20251102T202416108000Z"
+  }
+}

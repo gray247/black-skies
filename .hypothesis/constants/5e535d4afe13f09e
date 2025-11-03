@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\persistence\snapshot.py
+# hypothesis_version: 6.138.2
+
+['%Y%m%dT%H%M%S%fZ', '-', 'SNAPSHOT_ID_PATTERN', 'SnapshotPersistence', '[^a-zA-Z0-9_-]+', '_', 'accept', 'attempts', 'created_at', 'history', 'includes', 'label', 'metadata.json', 'path', 'project_id', 'r', 'snapshot.yaml', 'snapshot_id', 'snapshots', 'utf-8']

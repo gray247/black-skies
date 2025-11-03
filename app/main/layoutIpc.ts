@@ -32,9 +32,20 @@ const LAYOUT_DIR_NAME = '.blackskies';
 const LAYOUT_FILE_NAME = 'layout.json';
 
 const floatingWindows: Map<string, Map<LayoutPaneId, BrowserWindow>> = new Map();
+const authorizedProjectRoots = new Set<string>();
+
+export function authorizeProjectPath(projectPath: string): void {
+  const resolved = resolve(projectPath);
+  authorizedProjectRoots.add(resolved);
+}
+
+function getAuthorizedProjectPath(projectPath: string): string | null {
+  const resolved = resolve(projectPath);
+  return authorizedProjectRoots.has(resolved) ? resolved : null;
+}
 
 function resolveLayoutDir(projectPath: string): string {
-  return join(resolve(projectPath), LAYOUT_DIR_NAME);
+  return join(projectPath, LAYOUT_DIR_NAME);
 }
 
 function resolveLayoutFile(projectPath: string): string {
@@ -196,7 +207,14 @@ export function clampBoundsToDisplay(
 }
 
 async function handleLoadLayout(request: LayoutLoadRequest): Promise<LayoutLoadResponse> {
-  const payload = await loadPersistedLayout(request.projectPath);
+  const resolvedProjectPath = getAuthorizedProjectPath(request.projectPath);
+  if (!resolvedProjectPath) {
+    console.warn('[layout] Ignoring load for unauthorized project path', {
+      projectPath: request.projectPath,
+    });
+    return { layout: null, floatingPanes: [], schemaVersion: LAYOUT_SCHEMA_VERSION };
+  }
+  const payload = await loadPersistedLayout(resolvedProjectPath);
   if (!payload) {
     return { layout: null, floatingPanes: [], schemaVersion: LAYOUT_SCHEMA_VERSION };
   }
@@ -208,8 +226,13 @@ async function handleLoadLayout(request: LayoutLoadRequest): Promise<LayoutLoadR
 }
 
 async function handleSaveLayout(request: LayoutSaveRequest): Promise<void> {
-  const floatingState = request.floatingPanes ?? serializeFloatingWindows(request.projectPath);
-  await savePersistedLayout(request.projectPath, {
+  const resolvedProjectPath = getAuthorizedProjectPath(request.projectPath);
+  if (!resolvedProjectPath) {
+    throw new Error('Project path not authorized for layout persistence.');
+  }
+  const floatingState =
+    request.floatingPanes ?? serializeFloatingWindows(resolvedProjectPath);
+  await savePersistedLayout(resolvedProjectPath, {
     version: request.schemaVersion ?? LAYOUT_SCHEMA_VERSION,
     layout: request.layout ?? null,
     floatingPanes: floatingState,
@@ -217,7 +240,11 @@ async function handleSaveLayout(request: LayoutSaveRequest): Promise<void> {
 }
 
 async function handleResetLayout(request: LayoutLoadRequest): Promise<void> {
-  await resetPersistedLayout(request.projectPath);
+  const resolvedProjectPath = getAuthorizedProjectPath(request.projectPath);
+  if (!resolvedProjectPath) {
+    throw new Error('Project path not authorized for layout reset.');
+  }
+  await resetPersistedLayout(resolvedProjectPath);
 }
 
 function makeFloatingWindowUrl(
@@ -245,7 +272,11 @@ async function openFloatingWindow(
   options: RegisterLayoutIpcOptions,
   request: FloatingPaneOpenRequest,
 ): Promise<boolean> {
-  const registry = getFloatingWindowRegistry(request.projectPath);
+  const resolvedProjectPath = getAuthorizedProjectPath(request.projectPath);
+  if (!resolvedProjectPath) {
+    throw new Error('Project path not authorized for floating window.');
+  }
+  const registry = getFloatingWindowRegistry(resolvedProjectPath);
   const existing = registry.get(request.paneId);
   if (existing && !existing.isDestroyed()) {
     existing.focus();
@@ -276,6 +307,29 @@ async function openFloatingWindow(
   window.once('ready-to-show', () => {
     window.show();
   });
+  window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
+  const allowedOrigins = new Set<string>();
+  if (options.devServerUrl) {
+    try {
+      allowedOrigins.add(new URL(options.devServerUrl).origin);
+    } catch {
+      // ignore malformed dev server URLs, navigation guard will fall back to denying
+    }
+  }
+  window.webContents.on('will-navigate', (event, targetUrl) => {
+    if (targetUrl.startsWith('file://')) {
+      return;
+    }
+    let origin: string | null = null;
+    try {
+      origin = new URL(targetUrl).origin;
+    } catch {
+      origin = null;
+    }
+    if (!origin || !allowedOrigins.has(origin)) {
+      event.preventDefault();
+    }
+  });
   window.on('closed', () => {
     registry.delete(request.paneId);
   });
@@ -292,7 +346,11 @@ async function openFloatingWindow(
 }
 
 async function closeFloatingWindow(request: FloatingPaneCloseRequest): Promise<void> {
-  const registry = floatingWindows.get(request.projectPath);
+  const resolvedProjectPath = getAuthorizedProjectPath(request.projectPath);
+  if (!resolvedProjectPath) {
+    return;
+  }
+  const registry = floatingWindows.get(resolvedProjectPath);
   if (!registry) {
     return;
   }
@@ -320,7 +378,14 @@ export function registerLayoutIpc(options: RegisterLayoutIpcOptions): void {
   });
 
   ipcMain.handle(LAYOUT_CHANNELS.listFloating, async (_event, projectPath: string) => {
-    return serializeFloatingWindows(projectPath);
+    const resolvedProjectPath = getAuthorizedProjectPath(projectPath);
+    if (!resolvedProjectPath) {
+      console.warn('[layout] Ignoring list floating panes for unauthorized project path', {
+        projectPath,
+      });
+      return [];
+    }
+    return serializeFloatingWindows(resolvedProjectPath);
   });
 
   ipcMain.handle(LAYOUT_CHANNELS.openFloating, async (_event, request: FloatingPaneOpenRequest) => {

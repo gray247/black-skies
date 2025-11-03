@@ -1,17 +1,27 @@
 import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
-  testDir: 'tests/e2e',
+  testDir: './tests/e2e',
+  timeout: 90_000,
+  expect: {
+    timeout: 5_000,
+  },
+  fullyParallel: true,
+  retries: process.env.CI ? 2 : 0,
+  reporter: [['list'], ['html', { open: 'never' }]],
   use: {
-    baseURL: 'http://127.0.0.1:5173',
-    headless: true,
-    screenshot: 'only-on-failure',
     trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
+    launchOptions: {
+      headless: !!process.env.CI,
+    },
   },
-  webServer: {
-    command: 'pnpm --filter app dev -- --host 127.0.0.1 --port 5173',
-    port: 5173,
-    reuseExistingServer: true,
-    timeout: 120000,
-  },
+  projects: [
+    {
+      name: 'electron',
+      testMatch: /.*\.spec\.ts/,
+    },
+  ],
+  workers: process.env.CI ? 2 : undefined,
 });

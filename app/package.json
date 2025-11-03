@@ -20,7 +20,11 @@
     "test": "node ../scripts/run-vitest-offline.mjs",
     "package:dir": "vite build && tsc --project tsconfig.main.json && node ./scripts/write-dist-commonjs.cjs && electron-builder --config electron-builder.yml --dir",
     "package:win": "vite build && tsc --project tsconfig.main.json && node ./scripts/write-dist-commonjs.cjs && electron-builder --config electron-builder.yml --win nsis portable",
-    "test:e2e": "playwright test"
+    "e2e:build": "pnpm run build:production",
+    "e2e": "playwright test -c ./playwright.config.ts",
+    "e2e:headed": "playwright test -c ./playwright.config.ts --headed",
+    "e2e:report": "playwright show-report",
+    "test:e2e": "pnpm run e2e"
   },
   "dependencies": {
     "@codemirror/lang-markdown": "^6.2.4",
@@ -35,6 +39,7 @@
     "yaml": "^2.5.1"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.10.0",
     "@playwright/test": "^1.56.1",
     "@testing-library/jest-dom": "^6.5.0",
     "@testing-library/react": "^14.2.1",

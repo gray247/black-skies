@@ -11,6 +11,7 @@ from typing import Any
 from uuid import uuid4
 
 from fastapi import Depends, HTTPException, status
+from fastapi.concurrency import run_in_threadpool
 from pydantic import ValidationError
 
 from ...budgeting import derive_critique_cost, persist_project_budget as _persist_project_budget
@@ -192,38 +193,47 @@ async def rewrite_draft(
 
     persistence = DraftPersistence(settings=settings)
     target_path = project_root / "drafts" / f"{request_model.unit_id}.md"
-    backup_path: Path | None = None
-    try:
-        if target_path.exists():
-            backup_path = target_path.parent / f".{target_path.name}.{uuid4().hex}.bak"
-            shutil.copyfile(target_path, backup_path)
-        persistence.write_scene(request_model.project_id, updated_front_matter, normalized_revised)
-    except OSError as exc:
-        if backup_path and backup_path.exists():
-            try:
-                shutil.move(str(backup_path), str(target_path))
-            except OSError:  # pragma: no cover - best effort restore
-                pass
-        diagnostics.log(
-            project_root,
-            code="INTERNAL",
-            message="Failed to persist rewritten scene.",
-            details={"unit_id": request_model.unit_id, "error": str(exc)},
-        )
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail={
-                "code": "INTERNAL",
-                "message": "Failed to persist rewritten scene.",
-                "details": {"unit_id": request_model.unit_id},
-            },
-        ) from exc
-    else:
-        if backup_path and backup_path.exists():
-            try:
-                backup_path.unlink()
-            except OSError:  # pragma: no cover - cleanup best effort
-                pass
+
+    async def _persist_rewrite() -> None:
+        backup_path: Path | None = None
+        try:
+            if target_path.exists():
+                backup_path = target_path.parent / f".{target_path.name}.{uuid4().hex}.bak"
+                await run_in_threadpool(shutil.copyfile, target_path, backup_path)
+            await run_in_threadpool(
+                persistence.write_scene,
+                request_model.project_id,
+                updated_front_matter,
+                normalized_revised,
+            )
+        except OSError as exc:
+            if backup_path and backup_path.exists():
+                try:
+                    await run_in_threadpool(shutil.move, str(backup_path), str(target_path))
+                except OSError:  # pragma: no cover - best effort restore
+                    pass
+            diagnostics.log(
+                project_root,
+                code="INTERNAL",
+                message="Failed to persist rewritten scene.",
+                details={"unit_id": request_model.unit_id, "error": str(exc)},
+            )
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail={
+                    "code": "INTERNAL",
+                    "message": "Failed to persist rewritten scene.",
+                    "details": {"unit_id": request_model.unit_id},
+                },
+            ) from exc
+        else:
+            if backup_path and backup_path.exists():
+                try:
+                    await run_in_threadpool(backup_path.unlink)
+                except OSError:  # pragma: no cover - cleanup best effort
+                    pass
+
+    await _persist_rewrite()
 
     return {
         "unit_id": request_model.unit_id,

@@ -443,6 +443,33 @@ async function createMainWindow() {
             preload: PRELOAD_PATH,
         },
     });
+    window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
+    const allowedOrigins = new Set();
+    if (isDev) {
+        try {
+            allowedOrigins.add(new URL(DEV_SERVER_URL).origin);
+        }
+        catch (error) {
+            ensureMainLogger().warn('Failed to parse development server URL', {
+                error: error instanceof Error ? error.message : String(error),
+            });
+        }
+    }
+    window.webContents.on('will-navigate', (event, navigationUrl) => {
+        if (navigationUrl.startsWith('file://')) {
+            return;
+        }
+        let origin = null;
+        try {
+            origin = new URL(navigationUrl).origin;
+        }
+        catch {
+            origin = null;
+        }
+        if (!origin || !allowedOrigins.has(origin)) {
+            event.preventDefault();
+        }
+    });
     window.on('ready-to-show', () => {
         window.show();
     });

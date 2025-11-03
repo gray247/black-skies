@@ -268,7 +268,7 @@ if ($SmokeTest) {
   }
 
   Write-Host "Running headless smoke test..." -ForegroundColor Cyan
-  & $smokeScript -ProjectId "proj_esther_estate" -Cycles 3 -Host "127.0.0.1" -Port 43750 -TimeoutSeconds 60 -ProjectBaseDir $projectBaseDir -SkipInstall
+  & $smokeScript -ProjectId "proj_esther_estate" -Cycles 3 -ServiceHost "127.0.0.1" -Port 43750 -TimeoutSeconds 60 -ProjectBaseDir $projectBaseDir -SkipInstall
   if ($LASTEXITCODE -ne 0) {
     throw "Smoke test failed with exit code $LASTEXITCODE"
   }

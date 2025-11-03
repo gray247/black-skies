@@ -8,6 +8,7 @@ import type {
   WizardLockStepId,
 } from '../../shared/ipc/services';
 import type { ToastPayload } from '../types/toast';
+import { TID } from '../utils/testIds';
 
 const STORAGE_KEY = 'blackskies.wizard-locks.v2';
 const LEGACY_STORAGE_KEYS = ['blackskies.wizard-locks.v1'];
@@ -809,6 +810,7 @@ export default function WizardPanel({
     }
 
     const fieldId = `wizard-${step}`;
+    const outlineTestId = fieldConfig.valueKey === 'scenes' ? TID.outlineEditor : undefined;
     return (
       <div className="wizard-panel__section">
         <div className="wizard-panel__section-header">
@@ -824,13 +826,14 @@ export default function WizardPanel({
           className="wizard-panel__textarea"
           placeholder={fieldConfig.placeholder}
           disabled={locks[step].locked || lockRequests[step]}
+          data-testid={outlineTestId}
         />
       </div>
     );
   };
 
   return (
-    <div className="wizard-panel" aria-live="polite">
+    <div className="wizard-panel" aria-live="polite" data-testid={TID.wizardRoot}>
       <header className="wizard-panel__header">
         <h2>Wizard Controls</h2>
         <p>
@@ -902,6 +905,7 @@ export default function WizardPanel({
             className="wizard-panel__button"
             onClick={handleAdvance}
             disabled={!canGoNext || isSubmitting || hasPendingLock}
+            data-testid={TID.wizardNext}
           >
             Next
           </button>

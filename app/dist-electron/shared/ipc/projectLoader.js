@@ -5,5 +5,6 @@ exports.PROJECT_LOADER_CHANNELS = {
     openDialog: 'project-loader:open-dialog',
     loadProject: 'project-loader:load-project',
     getSamplePath: 'project-loader:get-sample-path',
+    setDevProjectPath: 'project-loader:set-dev-project-path',
 };
 //# sourceMappingURL=projectLoader.js.map

@@ -4,6 +4,11 @@ import type { DiagnosticsBridge } from '../../shared/ipc/diagnostics';
 import type { LayoutBridge } from '../../shared/ipc/layout';
 import type { RuntimeConfig } from '../../shared/config/runtime';
 
+type DevHarness = {
+  setProjectDir?: (path: string | null) => Promise<void>;
+  overrideServices?: (overrides: Partial<ServicesBridge>) => void;
+};
+
 declare global {
   interface Window {
     projectLoader?: ProjectLoaderApi;
@@ -11,6 +16,7 @@ declare global {
     diagnostics?: DiagnosticsBridge;
     runtimeConfig?: RuntimeConfig;
     layout?: LayoutBridge;
+    __dev?: DevHarness;
   }
 }
 

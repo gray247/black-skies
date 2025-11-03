@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DEFAULT_RUNTIME_CONFIG = exports.DEFAULT_HEALTH_PROBE = exports.DEFAULT_SERVICE_PORT_RANGE = void 0;
+exports.clearRuntimeConfigCache = clearRuntimeConfigCache;
 exports.loadRuntimeConfig = loadRuntimeConfig;
 const node_fs_1 = require("node:fs");
 const node_path_1 = require("node:path");
@@ -50,26 +51,41 @@ exports.DEFAULT_RUNTIME_CONFIG = Object.freeze({
         },
     },
 });
-let cachedConfig = null;
+const MIN_TCP_PORT = 1;
+const MAX_TCP_PORT = 65535;
+const configCache = new Map();
+function clearRuntimeConfigCache(explicitPath) {
+    if (explicitPath) {
+        const resolved = resolveConfigPath(explicitPath);
+        configCache.delete(resolved);
+        return;
+    }
+    configCache.clear();
+}
 function loadRuntimeConfig(explicitPath) {
-    if (cachedConfig) {
-        return cachedConfig;
-    }
     const configPath = resolveConfigPath(explicitPath);
+    const cached = configCache.get(configPath);
+    if (cached) {
+        return cached;
+    }
+    let resolvedConfig;
     if (!(0, node_fs_1.existsSync)(configPath)) {
-        cachedConfig = exports.DEFAULT_RUNTIME_CONFIG;
-        return cachedConfig;
+        console.warn(`[config] runtime.yaml not found at ${configPath}; using defaults.`);
+        resolvedConfig = exports.DEFAULT_RUNTIME_CONFIG;
     }
-    try {
-        const raw = (0, node_fs_1.readFileSync)(configPath, 'utf8');
-        const parsed = ((0, yaml_1.parse)(raw) ?? {});
-        cachedConfig = normalizeRuntimeConfig(parsed);
+    else {
+        try {
+            const raw = (0, node_fs_1.readFileSync)(configPath, 'utf8');
+            const parsed = ((0, yaml_1.parse)(raw) ?? {});
+            resolvedConfig = normalizeRuntimeConfig(parsed);
+        }
+        catch (error) {
+            console.warn('[config] Failed to load runtime.yaml:', error);
+            resolvedConfig = exports.DEFAULT_RUNTIME_CONFIG;
+        }
     }
-    catch (error) {
-        console.warn('[config] Failed to load runtime.yaml:', error);
-        cachedConfig = exports.DEFAULT_RUNTIME_CONFIG;
-    }
-    return cachedConfig;
+    configCache.set(configPath, resolvedConfig);
+    return resolvedConfig;
 }
 function resolveConfigPath(explicitPath) {
     if (explicitPath) {
@@ -176,11 +192,19 @@ function toBoolean(value, fallback) {
 function normalizePortRange(value) {
     if (value && typeof value === 'object') {
         const candidate = value;
-        const min = toNumber(candidate.min, exports.DEFAULT_SERVICE_PORT_RANGE.min);
-        const max = toNumber(candidate.max, exports.DEFAULT_SERVICE_PORT_RANGE.max);
-        if (Number.isFinite(min) && Number.isFinite(max) && min > 0 && max > min) {
-            return { min, max };
+        const rawMin = toNumber(candidate.min, Number.NaN);
+        const rawMax = toNumber(candidate.max, Number.NaN);
+        if (Number.isFinite(rawMin) && Number.isFinite(rawMax)) {
+            const clampedMin = Math.min(Math.max(Math.round(rawMin), MIN_TCP_PORT), MAX_TCP_PORT);
+            const clampedMax = Math.min(Math.max(Math.round(rawMax), MIN_TCP_PORT), MAX_TCP_PORT);
+            if (clampedMin < clampedMax) {
+                if (clampedMin !== rawMin || clampedMax !== rawMax) {
+                    console.warn('[config] Adjusted service.port_range to stay within valid TCP bounds (1-65535).', { requested: { min: rawMin, max: rawMax }, applied: { min: clampedMin, max: clampedMax } });
+                }
+                return { min: clampedMin, max: clampedMax };
+            }
         }
+        console.warn('[config] Invalid service.port_range; using defaults.', { requested: candidate });
     }
     return exports.DEFAULT_SERVICE_PORT_RANGE;
 }

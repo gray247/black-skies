@@ -33,3 +33,4 @@ dist/
 .codex_step
 .codex_history
 .env
+.aider*
