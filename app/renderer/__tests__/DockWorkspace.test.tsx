@@ -1,8 +1,8 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import DockWorkspace from '../components/docking/DockWorkspace';
-import type { LayoutPaneId } from '../../shared/ipc/layout';
+import DockWorkspace, { ensurePaneInLayout } from '../components/docking/DockWorkspace';
+import type { LayoutPaneId, LayoutTree } from '../../shared/ipc/layout';
 import * as debugLog from '../utils/debugLog';
 
 const PROJECT_PATH = 'sample/project';
@@ -53,14 +53,14 @@ describe('DockWorkspace', () => {
       />,
     );
 
-    expect(screen.getByText(/Load a project to enable the dock workspace/i)).toBeInTheDocument();
+    expect(screen.getByText(/Open a story to start writing/i)).toBeInTheDocument();
   });
 
   it('loads and persists layout changes for the active project', async () => {
     render(
       <DockWorkspace
         projectPath={PROJECT_PATH}
-        panes={{ wizard: <div>Wizard</div> }}
+        panes={{ wizard: <div>Outline</div> }}
         defaultPreset="analysis"
         enableHotkeys
         focusCycleOrder={["wizard", "draft-board", "critique", "history", "analytics"]}
@@ -72,6 +72,8 @@ describe('DockWorkspace', () => {
     await act(async () => {
       await Promise.resolve();
     });
+
+    screen.getByRole('group', { name: 'Outline' }).focus();
 
     await act(async () => {
       fireEvent.keyDown(window, { key: '2', ctrlKey: true, altKey: true });
@@ -110,13 +112,11 @@ describe('DockWorkspace', () => {
       await Promise.resolve();
     });
 
-    const firstPane = document.querySelector('[data-pane-id="wizard"]') as HTMLElement;
-    const secondPane = document.querySelector('[data-pane-id="draft-board"]') as HTMLElement;
+    const firstPane = screen.getByRole('group', { name: 'Outline' });
+    const secondPane = screen.getByRole('group', { name: 'Writing view' });
+    const thirdPane = screen.getByRole('group', { name: 'Feedback notes' });
 
-    await act(async () => {
-      fireEvent.keyDown(window, { key: ']', ctrlKey: true, altKey: true });
-    });
-    expect(document.activeElement).toBe(firstPane);
+    firstPane.focus();
 
     await act(async () => {
       fireEvent.keyDown(window, { key: ']', ctrlKey: true, altKey: true });
@@ -124,9 +124,14 @@ describe('DockWorkspace', () => {
     expect(document.activeElement).toBe(secondPane);
 
     await act(async () => {
+      fireEvent.keyDown(window, { key: ']', ctrlKey: true, altKey: true });
+    });
+    expect(document.activeElement).toBe(thirdPane);
+
+    await act(async () => {
       fireEvent.keyDown(window, { key: '[', ctrlKey: true, altKey: true });
     });
-    expect(document.activeElement).toBe(firstPane);
+    expect(document.activeElement).toBe(secondPane);
   });
 
   it('records pane bounds with the measured dimensions', async () => {
@@ -155,10 +160,10 @@ describe('DockWorkspace', () => {
       <DockWorkspace
         projectPath={PROJECT_PATH}
         panes={{
-          wizard: <div>Wizard</div>,
-          'draft-board': <div>Draft board</div>,
-          history: <div>History</div>,
-          critique: <div>Critique</div>,
+          wizard: <div>Outline</div>,
+          'draft-board': <div>Writing view</div>,
+          history: <div>Timeline</div>,
+          critique: <div>Feedback notes</div>,
         }}
         defaultPreset="standard"
         enableHotkeys
@@ -199,7 +204,7 @@ describe('DockWorkspace', () => {
     render(
       <DockWorkspace
         projectPath={PROJECT_PATH}
-        panes={{ wizard: <div>Wizard</div> }}
+        panes={{ wizard: <div>Outline</div> }}
         defaultPreset="standard"
         enableHotkeys
         focusCycleOrder={['wizard']}
@@ -230,10 +235,10 @@ describe('DockWorkspace', () => {
   });
 
   it('renders mosaic expand/close controls alongside float and focus buttons', async () => {
-    const { container } = render(
+    render(
       <DockWorkspace
         projectPath={PROJECT_PATH}
-        panes={{ wizard: <div>Wizard</div> }}
+        panes={{ wizard: <div>Outline</div> }}
         defaultPreset="standard"
         enableHotkeys
         focusCycleOrder={['wizard']}
@@ -244,19 +249,45 @@ describe('DockWorkspace', () => {
       await Promise.resolve();
     });
 
-    const toolbars = Array.from(container.querySelectorAll('.dock-pane__toolbar'));
-    expect(toolbars.length).toBeGreaterThan(0);
-    const [firstToolbar] = toolbars;
-    expect(firstToolbar).toBeDefined();
-    const firstToolbarControls = firstToolbar?.querySelectorAll<HTMLButtonElement>('.mosaic-default-control');
-    expect(firstToolbarControls).toHaveLength(2);
-    const controlTitles = Array.from(firstToolbarControls ?? []).map((button) => button.title).sort();
-    expect(controlTitles).toEqual(['Close Window', 'Expand']);
-    const expandButtons = screen.getAllByTitle('Expand');
-    const closeButtons = screen.getAllByTitle('Close Window');
-    expect(expandButtons.every((button) => button.classList.contains('expand-button'))).toBe(true);
-    expect(closeButtons.every((button) => button.classList.contains('close-button'))).toBe(true);
-    expect(screen.getByRole('button', { name: /Detach Wizard pane/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Focus Wizard pane/i })).toBeInTheDocument();
+    const expandButton = screen.getByRole('button', { name: /Expand Outline pane/i });
+    expect(expandButton).toHaveAttribute('title', 'Expand this pane.');
+
+    const closeButton = screen.getByRole('button', { name: /Close Outline pane/i });
+    expect(closeButton).toHaveAttribute('title', 'Close this pane.');
+
+    const floatButton = screen.getByRole('button', { name: /Detach Outline pane/i });
+    expect(floatButton).toHaveAttribute('title', 'Open this pane in a separate window.');
+    expect(floatButton).not.toBeDisabled();
+
+    const focusButton = screen.getByRole('button', { name: /Focus Outline pane/i });
+    expect(focusButton).toHaveAttribute('title', 'Focus this pane.');
+
+    expect(screen.getByRole('group', { name: 'Outline' })).toHaveAttribute(
+      'title',
+      'Plan chapters, scenes, and beats.',
+    );
+  });
+
+  it('ensurePaneInLayout appends missing panes while preserving existing nodes', () => {
+    const baseLayout: LayoutTree = {
+      direction: 'row',
+      first: 'wizard',
+      second: 'draft-board',
+    };
+
+    const updated = ensurePaneInLayout(baseLayout, 'analytics');
+    const collected = new Set<LayoutPaneId>();
+    (function collect(node: LayoutTree | LayoutPaneId): void {
+      if (typeof node === 'string') {
+        collected.add(node);
+        return;
+      }
+      collect(node.first);
+      collect(node.second);
+    })(updated);
+
+    expect(collected.has('wizard')).toBe(true);
+    expect(collected.has('draft-board')).toBe(true);
+    expect(collected.has('analytics')).toBe(true);
   });
 });

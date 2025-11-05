@@ -3,10 +3,29 @@
   font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
   background-color: #020617;
   color: #e2e8f0;
+  scrollbar-color: rgba(129, 140, 248, 0.45) rgba(15, 23, 42, 0.65);
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(129, 140, 248, 0.45);
+  border-radius: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.65);
 }
 
 * {
   box-sizing: border-box;
+}
+
+:focus-visible {
+  outline: 2px solid rgba(129, 140, 248, 0.9);
+  outline-offset: 2px;
 }
 
 html,
@@ -99,7 +118,7 @@ button:disabled {
 
 .app-shell__workspace-title {
   display: block;
-  font-size: 1.25rem;
+  font-size: 1.35rem;
   font-weight: 600;
 }
 
@@ -111,7 +130,8 @@ button:disabled {
 
 .app-shell__workspace-actions {
   display: flex;
-  gap: 0.75rem;
+  align-items: center;
+  gap: 0.6rem;
 }
 
 .budget-meter {
@@ -227,9 +247,9 @@ button:disabled {
 }
 
 .service-status-pill--checking {
-  border-color: rgba(251, 191, 36, 0.55);
-  background: rgba(202, 138, 4, 0.25);
-  color: rgba(254, 243, 199, 0.95);
+  border-color: rgba(234, 179, 8, 0.7);
+  background: #8a6a14;
+  color: #fffbea;
 }
 
 .service-status-pill--checking .service-status-pill__indicator {
@@ -274,6 +294,10 @@ button:disabled {
   padding: 0.5rem 1.25rem;
   font-weight: 500;
   transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.app-shell__workspace-button:focus-visible {
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.35);
 }
 
 .app-shell__workspace-button--active {
@@ -384,6 +408,49 @@ button:disabled {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+}
+
+.project-home__diagnostics-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.project-home__diagnostics-toggle {
+  border: 1px solid rgba(129, 140, 248, 0.5);
+  background: rgba(79, 70, 229, 0.2);
+  color: rgba(226, 232, 240, 0.95);
+  padding: 0.45rem 0.85rem;
+  border-radius: 0.65rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.project-home__diagnostics-toggle:hover {
+  background: rgba(129, 140, 248, 0.2);
+  border-color: rgba(129, 140, 248, 0.75);
+}
+
+.project-home__diagnostics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.project-home__diagnostics-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 0.85rem;
+  padding: 0.85rem;
+  background: rgba(15, 23, 42, 0.35);
+}
+
+.project-home__diagnostics-card-header h4 {
+  margin: 0;
+  font-size: 1rem;
 }
 
 .project-home__diagnostics-hint {
@@ -1932,6 +1999,7 @@ button:disabled {
   flex-direction: column;
   gap: 0.5rem;
   min-height: 0;
+  margin-top: 0.75rem;
   flex: 1;
 }
 
@@ -2046,9 +2114,34 @@ button:disabled {
   gap: 1rem;
 }
 
+.dock-workspace__hidden {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0.5rem 0;
+}
+
+.dock-workspace__hidden-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.74);
+}
+
+.dock-workspace__hidden-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
 .dock-workspace__footer {
   display: flex;
   gap: 0.5rem;
+}
+
+.dock-pane h2,
+.dock-pane__title {
+  font-size: 1.15rem;
 }
 
 .dock-pane {
@@ -2063,13 +2156,18 @@ button:disabled {
 }
 
 .dock-pane__toolbar-button {
-  border: 1px solid var(--color-border, #414550);
+  border: 1px solid rgba(129, 140, 248, 0.55);
   background: var(--color-surface-elevated, #1f2230);
-  color: inherit;
+  color: rgba(255, 255, 255, 0.86);
   padding: 0.2rem 0.55rem;
   border-radius: 4px;
   font-size: 0.75rem;
   cursor: pointer;
+}
+
+.dock-pane__toolbar-button:hover {
+  background: rgba(129, 140, 248, 0.16);
+  border-color: rgba(129, 140, 248, 0.8);
 }
 
 .dock-pane__toolbar-button:disabled {
@@ -2084,6 +2182,15 @@ button:disabled {
   overflow: auto;
   border-radius: 0.5rem;
   background: rgba(22, 24, 36, 0.55);
+}
+
+.dock-pane__content:focus-visible {
+  outline: 2px solid rgba(129, 140, 248, 0.9);
+  outline-offset: 0;
+}
+
+.dock-pane__content[data-focused="true"] {
+  box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.45);
 }
 
 .dock-pane__scroll {

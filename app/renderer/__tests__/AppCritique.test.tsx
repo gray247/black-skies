@@ -297,7 +297,7 @@ describe('App critique flow', () => {
     const companionButton = await screen.findByRole('button', { name: 'Companion' });
     fireEvent.click(companionButton);
 
-    await screen.findByRole('heading', { name: 'Companion Mode' });
+    await screen.findByRole('heading', { name: 'Companion' });
     const rubricInput = screen.getByLabelText('Add category');
     fireEvent.change(rubricInput, { target: { value: 'Atmosphere' } });
     fireEvent.click(screen.getByRole('button', { name: 'Add' }));
@@ -311,7 +311,7 @@ describe('App critique flow', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Close' }));
     await waitFor(() =>
-      expect(screen.queryByRole('heading', { name: 'Companion Mode' })).not.toBeInTheDocument(),
+      expect(screen.queryByRole('heading', { name: 'Companion' })).not.toBeInTheDocument(),
     );
   });
 
@@ -322,9 +322,9 @@ describe('App critique flow', () => {
     const companionButton = await screen.findByRole('button', { name: 'Companion' });
     fireEvent.click(companionButton);
 
-    await screen.findByRole('heading', { name: 'Companion Mode' });
+    await screen.findByRole('heading', { name: 'Companion' });
 
-    const runButton = await screen.findByRole('button', { name: 'Run batch critique' });
+    const runButton = await screen.findByRole('button', { name: 'Review selected scenes' });
     expect(runButton).toBeEnabled();
 
     fireEvent.click(runButton);
@@ -472,7 +472,7 @@ describe('App critique flow', () => {
     fireEvent.click(critiqueButton);
 
     await waitFor(() => expect(services.critiqueDraft).toHaveBeenCalled());
-    await screen.findByText(/Critique failed/i);
+    await screen.findByText(/Feedback unavailable/i);
     const bridgeErrors = screen.getAllByText(/Critique services offline/i);
     expect(bridgeErrors.length).toBeGreaterThan(0);
   });

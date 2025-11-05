@@ -887,5 +887,37 @@ if (process.env.PLAYWRIGHT === '1') {
     },
   };
 
+  if (process.env.PLAYWRIGHT_DISABLE_ANIMATIONS === '1') {
+    const disableAnimations = (): void => {
+      if (typeof document === 'undefined') {
+        return;
+      }
+      const existing = document.head.querySelector('[data-playwright-disable-animations="true"]');
+      if (existing) {
+        return;
+      }
+      const style = document.createElement('style');
+      style.setAttribute('data-playwright-disable-animations', 'true');
+      style.textContent = `
+        *, *::before, *::after {
+          transition-duration: 0.01ms !important;
+          animation-duration: 0.01ms !important;
+          animation-delay: 0ms !important;
+          animation-iteration-count: 1 !important;
+          scroll-behavior: auto !important;
+        }
+      `;
+      document.head.appendChild(style);
+    };
+
+    if (typeof window !== 'undefined') {
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', disableAnimations, { once: true });
+      } else {
+        disableAnimations();
+      }
+    }
+  }
+
   contextBridge.exposeInMainWorld('__dev', devTools);
 }

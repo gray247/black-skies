@@ -3,7 +3,7 @@ import { spawn, type ChildProcessByStdio } from 'node:child_process';
 import { once } from 'node:events';
 import net from 'node:net';
 import { setTimeout as delay } from 'node:timers/promises';
-import { statSync } from 'node:fs';
+import { existsSync, statSync } from 'node:fs';
 import { dirname, join, resolve, delimiter, basename, isAbsolute, normalize } from 'node:path';
 import type { Readable } from 'node:stream';
 
@@ -31,7 +31,29 @@ import {
   type ServicePortRange,
 } from '../shared/config/runtime.js';
 
-const projectRoot = resolve(__dirname, '..');
+function resolveProjectRoot(): string {
+  const immediate = resolve(__dirname, '..');
+  if (existsSync(join(immediate, 'dist', 'index.html'))) {
+    return immediate;
+  }
+  const parent = resolve(__dirname, '..', '..');
+  if (existsSync(join(parent, 'dist', 'index.html'))) {
+    return parent;
+  }
+  return immediate;
+}
+
+const projectRoot = resolveProjectRoot();
+
+process.on('exit', (code) => {
+  console.log('[main] Process exiting with code', code);
+});
+process.on('uncaughtException', (error) => {
+  console.error('[main] Uncaught exception', error);
+});
+process.on('unhandledRejection', (reason) => {
+  console.error('[main] Unhandled rejection', reason);
+});
 const repoRoot = resolve(projectRoot, '..');
 const runtimeConfig = loadRuntimeConfig(
   process.env.BLACKSKIES_CONFIG_PATH ?? join(repoRoot, 'config', 'runtime.yaml'),
@@ -46,6 +68,9 @@ const PRELOAD_PATH = join(__dirname, 'preload.js');
 
 const DEV_SERVER_URL = process.env.ELECTRON_RENDERER_URL ?? 'http://127.0.0.1:5173/';
 const isDev = !app.isPackaged;
+const isPlaywright = process.env.PLAYWRIGHT === '1';
+const shouldSpawnServices = process.env.BLACKSKIES_FORCE_SERVICES === '1' || !isPlaywright;
+const shouldUseDevServer = isDev && !isPlaywright;
 
 const SERVICES_HOST = '127.0.0.1';
 const PORT_RANGE_ENV = process.env.BLACKSKIES_SERVICE_PORT_RANGE;
@@ -63,6 +88,7 @@ let servicesProcess: ServicesProcess | null = null;
 let servicesPort: number | null = null;
 let shuttingDown = false;
 let mainLogger: Logger | null = null;
+let servicesSuppressed = false;
 
 function parseEnvInteger(key: string, fallback: number): number {
   const raw = process.env[key];
@@ -144,13 +170,19 @@ function fallbackPythonExecutable(): string {
   if (bundledPythonPath) {
     const resolvedBundled = resolveBundledExecutablePath(bundledPythonPath);
     if (resolvedBundled) {
+    if (existsSync(resolvedBundled)) {
       try {
         if (statSync(resolvedBundled).isFile()) {
           return resolvedBundled;
         }
       } catch (error) {
-        console.warn('[main] Bundled Python path is not accessible.', error);
+        console.warn('[main] Bundled Python path probe failed; ignoring.', error);
       }
+    } else {
+      console.warn('[main] Bundled Python path is not accessible or missing.', {
+        path: resolvedBundled,
+      });
+    }
     } else if (bundledPythonPath.includes('{{APP_RESOURCES}}')) {
       console.warn('[main] Unable to resolve bundled Python placeholder path.');
     }
@@ -349,6 +381,18 @@ async function startServices(): Promise<void> {
     return;
   }
 
+  if (!shouldSpawnServices) {
+    console.log('[main] Skipping service spawn (PLAYWRIGHT=1).');
+    if (!servicesSuppressed) {
+      ensureMainLogger().info('Skipping FastAPI services spawn because PLAYWRIGHT=1.');
+      servicesSuppressed = true;
+    }
+    servicesProcess = null;
+    servicesPort = null;
+    delete process.env.BLACKSKIES_SERVICES_PORT;
+    return;
+  }
+
   const logger = ensureMainLogger();
   const port = await selectServicePort();
   const args = ['-m', 'blackskies.services', '--host', SERVICES_HOST, '--port', String(port)];
@@ -518,6 +562,7 @@ function registerDiagnosticsIpc(): void {
 }
 
 async function createMainWindow(): Promise<BrowserWindow> {
+  console.log('[main] Creating main window. projectRoot=', projectRoot);
   const sandboxEnabled = app.isPackaged && process.platform !== 'win32';
   const window = new BrowserWindow({
     width: 1280,
@@ -571,11 +616,28 @@ async function createMainWindow(): Promise<BrowserWindow> {
       mainWindow = null;
     }
   });
+  window.webContents.on('render-process-gone', (_event, details) => {
+    console.error('[main] Renderer process gone', details);
+  });
+  window.on('unresponsive', () => {
+    console.error('[main] BrowserWindow became unresponsive.');
+  });
 
-  if (isDev) {
-    await window.loadURL(DEV_SERVER_URL);
-    window.webContents.openDevTools({ mode: 'detach' });
+  if (shouldUseDevServer) {
+    try {
+      await window.loadURL(DEV_SERVER_URL);
+    } catch (error) {
+      ensureMainLogger().warn('Failed to load dev renderer URL; falling back to static bundle.', {
+        error: error instanceof Error ? error.message : String(error),
+        url: DEV_SERVER_URL,
+      });
+      await window.loadFile(rendererIndexFile);
+    }
+    if (!isPlaywright) {
+      window.webContents.openDevTools({ mode: 'detach' });
+    }
   } else {
+    console.log('[main] Loading renderer from file', rendererIndexFile);
     await window.loadFile(rendererIndexFile);
   }
 
@@ -598,6 +660,7 @@ async function bootstrap(): Promise<void> {
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown startup error';
     ensureMainLogger().error('Bootstrap failed', { message });
+    console.error('[main] Bootstrap failed', message);
     dialog.showErrorBox('Black Skies failed to launch', message);
     app.quit();
   }
@@ -639,7 +702,14 @@ function setupAppEventHandlers(): void {
   process.on('SIGTERM', handleProcessSignal);
 }
 
-const hasSingleInstanceLock = app.requestSingleInstanceLock();
+let hasSingleInstanceLock = true;
+
+if (isPlaywright) {
+  console.log('[main] Skipping single instance lock enforcement (PLAYWRIGHT=1).');
+} else {
+  hasSingleInstanceLock = app.requestSingleInstanceLock();
+  console.log('[main] Single instance lock acquired?', hasSingleInstanceLock);
+}
 
 if (!hasSingleInstanceLock) {
   app.quit();

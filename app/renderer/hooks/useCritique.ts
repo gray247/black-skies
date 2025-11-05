@@ -90,24 +90,24 @@ export function useCritique({
     if (!services) {
       pushToast({
         tone: 'error',
-        title: 'Services unavailable',
-        description: 'Critique requires the local services bridge.',
+        title: 'Writing tools offline.',
+        description: 'Reconnect the writing tools before running feedback.',
       });
       return;
     }
     if (!projectSummary) {
       pushToast({
         tone: 'warning',
-        title: 'Load a project first',
-        description: 'Open a project before requesting a critique.',
+        title: 'Open a story to start writing.',
+        description: 'Select a story before requesting feedback.',
       });
       return;
     }
     if (!activeScene) {
       pushToast({
         tone: 'warning',
-        title: 'Select a scene',
-        description: 'Choose a scene to critique from the project panel.',
+        title: 'Select a scene for feedback.',
+        description: 'Choose a scene to request feedback for.',
       });
       return;
     }
@@ -120,8 +120,8 @@ export function useCritique({
     if (requestRubric.length === 0) {
       pushToast({
         tone: 'warning',
-        title: 'Select critique categories',
-        description: 'Add at least one rubric category before requesting a critique.',
+        title: 'Add focus points.',
+        description: 'Specify at least one focus point before requesting feedback.',
       });
       return;
     }
@@ -156,6 +156,11 @@ export function useCritique({
           data: result.data,
           traceId: result.traceId,
         }));
+        pushToast({
+          tone: 'success',
+          title: 'Feedback ready.',
+          traceId: result.traceId,
+        });
       } else {
         setState((previous) => ({
           ...previous,
@@ -165,7 +170,7 @@ export function useCritique({
         }));
         pushToast({
           tone: 'error',
-          title: 'Critique failed',
+          title: 'Feedback unavailable.',
           description: result.error.message,
           traceId: result.traceId ?? result.error.traceId,
         });
@@ -182,7 +187,7 @@ export function useCritique({
       }));
       pushToast({
         tone: 'error',
-        title: 'Critique failed',
+        title: 'Feedback unavailable.',
         description: message,
       });
     }
@@ -204,24 +209,24 @@ export function useCritique({
     if (!services) {
       pushToast({
         tone: 'error',
-        title: 'Services unavailable',
-        description: 'Accept requires the local services bridge.',
+        title: 'Writing tools offline.',
+        description: 'Reconnect the writing tools before accepting feedback.',
       });
       return;
     }
     if (!projectSummary) {
       pushToast({
         tone: 'warning',
-        title: 'Load a project first',
-        description: 'Select a project before running accept.',
+        title: 'Open a story to start writing.',
+        description: 'Select a story before accepting feedback.',
       });
       return;
     }
     if (!activeScene) {
       pushToast({
         tone: 'warning',
-        title: 'Select a scene',
-        description: 'Choose a scene to accept updates for.',
+        title: 'Select a scene for feedback.',
+        description: 'Choose a scene before accepting feedback.',
       });
       return;
     }
@@ -240,7 +245,7 @@ export function useCritique({
         error instanceof Error ? error.message : 'Unable to compute checksum for the current draft.';
       pushToast({
         tone: 'error',
-        title: 'Checksum unavailable',
+        title: 'Feedback unavailable.',
         description: message,
       });
       return;
@@ -313,8 +318,8 @@ export function useCritique({
         }
         pushToast({
           tone: 'success',
-          title: 'Draft accepted',
-          description: `Snapshot ${result.data.snapshot.snapshot_id} captured.`,
+          title: 'Revision accepted.',
+          description: 'Snapshot created.',
           traceId: result.traceId,
         });
       } else {
@@ -325,7 +330,7 @@ export function useCritique({
         }));
         pushToast({
           tone: 'error',
-          title: 'Accept failed',
+          title: 'Feedback unavailable.',
           description: result.error.message,
           traceId: result.traceId,
         });
@@ -338,7 +343,7 @@ export function useCritique({
       setState((previous) => ({ ...previous, accepting: false, error: message }));
       pushToast({
         tone: 'error',
-        title: 'Accept failed',
+        title: 'Feedback unavailable.',
         description: message,
       });
     }

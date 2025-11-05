@@ -20,12 +20,13 @@ module.exports = {
           jsx: true
         }
       },
-      plugins: ["@typescript-eslint", "react", "react-hooks"],
+      plugins: ["@typescript-eslint", "react", "react-hooks", "jsx-a11y"],
       extends: [
         "eslint:recommended",
         "plugin:@typescript-eslint/recommended",
         "plugin:react/recommended",
         "plugin:react-hooks/recommended",
+        "plugin:jsx-a11y/recommended",
         "plugin:react/jsx-runtime",
         "prettier"
       ],

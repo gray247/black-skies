@@ -3,7 +3,7 @@ productName: Black Skies
 artifactName: BlackSkies-${version}-${arch}.${ext}
 extraMetadata:
   version: 0.1.0
-  main: dist-electron/main.js
+  main: dist-electron/main/main.js
 directories:
   output: release
   buildResources: resources

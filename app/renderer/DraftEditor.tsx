@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import type { Extension } from '@codemirror/state';
 import { EditorState } from '@codemirror/state';
 import {
@@ -26,6 +26,9 @@ export interface DraftEditorProps {
   extensions?: Extension[];
   onChange?: (nextValue: string) => void;
   diffConfig?: DraftEditorDiffConfig | null;
+  ariaLabel?: string | null;
+  ariaLabelledBy?: string | null;
+  ariaDescribedBy?: string | null;
 }
 
 const editorTheme = EditorView.theme(
@@ -74,6 +77,9 @@ export default function DraftEditor({
   extensions,
   onChange,
   diffConfig,
+  ariaLabel,
+  ariaLabelledBy,
+  ariaDescribedBy,
 }: DraftEditorProps): JSX.Element {
   const mountRef = useRef<HTMLDivElement | null>(null);
   const viewRef = useRef<EditorView | null>(null);
@@ -92,6 +98,73 @@ export default function DraftEditor({
     // TODO: integrate merge/diff view once diff pipelines are available.
     return [];
   }, [diffConfig]);
+
+  const accessibilityAttributes = useMemo(() => {
+    const trimmedLabel = ariaLabel?.trim();
+    const trimmedLabelledBy = ariaLabelledBy?.trim() ?? null;
+    const trimmedDescribedBy = ariaDescribedBy?.trim() ?? null;
+    // Provide a fallback label when neither aria-label nor aria-labelledby is supplied.
+    const effectiveLabel =
+      trimmedLabel && trimmedLabel.length > 0
+        ? trimmedLabel
+        : trimmedLabelledBy
+          ? null
+          : 'Draft editor';
+
+    return {
+      label: effectiveLabel,
+      labelledBy: trimmedLabelledBy,
+      describedBy: trimmedDescribedBy,
+    };
+  }, [ariaLabel, ariaLabelledBy, ariaDescribedBy]);
+
+  const applyAccessibilityAttributes = useCallback(
+    (view: EditorView) => {
+      const { contentDOM, scrollDOM } = view;
+      const { label, labelledBy, describedBy } = accessibilityAttributes;
+
+      if (label) {
+        contentDOM.setAttribute('aria-label', label);
+      } else {
+        contentDOM.removeAttribute('aria-label');
+      }
+
+      if (labelledBy) {
+        contentDOM.setAttribute('aria-labelledby', labelledBy);
+      } else {
+        contentDOM.removeAttribute('aria-labelledby');
+      }
+
+      if (describedBy) {
+        contentDOM.setAttribute('aria-describedby', describedBy);
+      } else {
+        contentDOM.removeAttribute('aria-describedby');
+      }
+
+      scrollDOM.setAttribute('role', 'region');
+
+      if (label) {
+        scrollDOM.setAttribute('aria-label', label);
+      } else {
+        scrollDOM.removeAttribute('aria-label');
+      }
+
+      if (labelledBy) {
+        scrollDOM.setAttribute('aria-labelledby', labelledBy);
+      } else {
+        scrollDOM.removeAttribute('aria-labelledby');
+      }
+
+      if (describedBy) {
+        scrollDOM.setAttribute('aria-describedby', describedBy);
+      } else {
+        scrollDOM.removeAttribute('aria-describedby');
+      }
+
+      scrollDOM.setAttribute('tabindex', '0');
+    },
+    [accessibilityAttributes],
+  );
 
   const changeListener = useMemo(
     () =>
@@ -148,12 +221,13 @@ export default function DraftEditor({
 
     const view = new EditorView({ state, parent: mountRef.current });
     viewRef.current = view;
+    applyAccessibilityAttributes(view);
 
     return () => {
       view.destroy();
       viewRef.current = null;
     };
-  }, [baseExtensions]);
+  }, [applyAccessibilityAttributes, baseExtensions]);
 
   useEffect(() => {
     docRef.current = value;
@@ -170,6 +244,33 @@ export default function DraftEditor({
       changes: { from: 0, to: currentValue.length, insert: value },
     });
   }, [value]);
+
+  useEffect(() => {
+    const view = viewRef.current;
+    if (!view) {
+      return;
+    }
+    applyAccessibilityAttributes(view);
+  }, [applyAccessibilityAttributes]);
+
+  useEffect(() => {
+    const view = viewRef.current;
+    if (!view) {
+      return;
+    }
+
+    const { scrollDOM, contentDOM } = view;
+    const handleFocus = () => {
+      if (document.activeElement === scrollDOM) {
+        contentDOM.focus({ preventScroll: true });
+      }
+    };
+
+    scrollDOM.addEventListener('focus', handleFocus);
+    return () => {
+      scrollDOM.removeEventListener('focus', handleFocus);
+    };
+  }, []);
 
   return (
     <div className={`draft-editor ${className ?? ''}`}>

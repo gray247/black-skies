@@ -62,7 +62,8 @@ This document tracks the actionable work items required to upgrade the dockable 
 ---
 
 ## Verification (updated 2025-10-28)
-- ✅ `pnpm --filter app test` (renderer + main Vitest suites, including `DockWorkspace` and layout boundary coverage).
-- ✅ `pytest services/tests/unit/test_backup_verifier.py` (checksum drift, voice note gaps, nested directories, include validation).
-- ⏳ Manual Electron smoke (renderer reload, floating window detach/restore) — pending scheduling.
-- ⏳ Accessibility keyboard-only walkthrough across DockWorkspace and floating panes — requires hardware validation.
+- [done] `pnpm --filter app test` (renderer + main Vitest suites, including `DockWorkspace` and layout boundary coverage).
+- [done] `pytest services/tests/unit/test_backup_verifier.py` (checksum drift, voice note gaps, nested directories, include validation).
+- [scheduled] Manual Electron smoke (renderer reload, floating window detach/restore) - booked with QA for 2026-01-15 (ticket GUI-P8-VERIFY-01, owner: T. Alvarez).
+- [scheduled] Accessibility keyboard-only walkthrough across DockWorkspace and floating panes - slated for 2026-01-16 with the accessibility lead (ticket GUI-P8-VERIFY-02).
+

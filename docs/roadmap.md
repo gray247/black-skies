@@ -1,133 +1,93 @@
-# Black Skies ‚Äî Roadmap P0‚ÄìP9
+# Black Skies ó Phase Overview (P0ñP11)
 
-**Status snapshot**
-- P0 Foundation ‚Ä¶ ‚úÖ complete
-- P1 Core backend API ‚Ä¶ ‚úÖ complete
-- P2 GUI skeleton & panes ‚Ä¶ ‚úÖ complete
-- P3 Draft ‚Üí Critique loop ‚Ä¶ ‚úÖ complete
-- P4.0 Observability baseline (structured logs + /metrics) ‚Ä¶ ‚úÖ complete
-- P4.1 Documentation/tagging sweep ‚Ä¶ ‚úÖ complete
-- P5 Tools, Data, and Evaluation Harness ‚Ä¶ ‚úÖ complete (adapters, registry, eval gate live)
-- P6 End-to-End Integration & Contracts ‚Ä¶ ‚úÖ complete (GUI ‚Üî `/api/v1` wiring, session restore proven)
-- P7 Release Candidate (RC) ‚Ä¶ ‚óª planned
-- P8 Hardening, Performance, and Resilience ‚Ä¶ ‚óª planned
-- P9 GA (v1.0.0) & Post-GA Care ‚Ä¶ ‚óª planned
+This roadmap mirrors the scope defined in `docs/phase_charter.md` and layers in execution status so the two sources stay in sync. Treat the charter as the source of truth for **what** we ship, and this file as the tracker for **when** we land it.
 
----
+## Phase index
 
-## Phase objectives & deliverables
+| Phase | Name | Status | Scope reference | Notes |
+| :---- | :--- | :----- | :--------------- | :---- |
+| P0 | Foundation | ? complete | Charter v1.0 ß0 | Environment scaffolding, project bootstrap |
+| P1 | Core backend API | ? complete | Charter v1.0 ß1 | CRUD + core services landed |
+| P2 | GUI skeleton & panes | ? complete | Charter v1.0 ß2 | Wizard, Draft board, History primitives |
+| P3 | Draft & Critique loop | ? complete | Charter v1.0 ß3 | First end-to-end authoring loop |
+| P4.0 | Observability baseline | ? complete | Charter v1.0 ß4 | Metrics, structured logging |
+| P4.1 | Documentation/tagging sweep | ? complete | Charter v1.0 ß4.1 | Docs and schema tagging |
+| P5 | Tools, Data, & Evaluation Harness | ? complete | Charter v1.0 ß5 | Eval harness + tool adapters |
+| P6 | End-to-End Integration & Contracts | ? complete | Charter v1.0 ß6 | `/api/v1` contracts, session restore |
+| P7 | Release Candidate | ? complete | Charter v1.1 ß7 | v1.0.0-rc1 packaged and documented |
+| P8 | Companion & Critique Expansion | ?? in progress | Charter v1.1 ß8 | Companion overlay, rubric editor, critique UX, docking resilience |
+| P9 | Analytics & Visualization | ? planned | Charter v1.1 ß9 | Emotion arc & pacing graphs ó planning doc `docs/dashboard_initiatives.md` (draft) |
+| P10 | Accessibility & Writer Exports | ? planned | Charter v1.1 ß10 | Voice notes, contrast mode, export templates |
+| P11 | Agents & Plugins | ? planned | Charter v1.1 ß11 | Agent hooks, plugin registry, backup services |
 
-### P5 ‚Äî Tools, Data, and Evaluation Harness
-**Goal:** make the assistant useful with stable tools + offline evals you can run in CI.
-**Deliverables**
-1. Tool adapters (Python) for: file store, template renderer, summarizer, simple search (mock or local).
-2. Tool registry + permissioning (‚Äúdecision checklist‚Äù ‚Üí which tools may run, logging for each call).
-3. Dataset of 50‚Äì100 task cards (YAML) covering Wizard/Draft/Critique flows; golden outputs where possible.
-4. Offline evaluator (`scripts/eval.py`): runs tasks against the current build; emits JSON + HTML summary.
-5. Safety hooks: policy checks (see `docs/policies.md`) before/after tool calls; redact logs.
-6. CI job to run `eval.py` on PRs; fails on regressions beyond thresholds.
-
-**Status note:** Local-only summarizer and Markdown search adapters now ship alongside the file store
-and template renderer tools, with the tool registry enforcing decision-checklist permissions. The P5
-dataset and offline evaluator power the locked CI gate (`scripts/eval.py`) that now runs on PRs. These
-CPU-friendly adapters operate on checked-in `data/` assets; they do not yet cover semantic embeddings or
-fuzzy matching, so large documents and nuanced queries may still require manual follow-up.
-
-### P6 ‚Äî End-to-End Integration & Contracts
-**Goal:** wire GUI ‚Üî API with versioned contracts and traceability.
-**Deliverables**
-1. Contract docs in `docs/endpoints.md`: request/response schemas (pydantic), status codes, error shapes.
-2. Versioned `/api/v1` FastAPI router; deprecation header support.
-3. Frontend integration (IPC/HTTP) for: suggest, accept, lock, diff, critique tabs.
-4. Session state & autosave snapshots; restore from History pane.
-5. Trace IDs on every request; correlate in logs/`/metrics` and GUI console.
-6. Contract tests (pytest) exercising each endpoint with golden fixtures.
-
-**Status note:** `/api/v1` contracts are now fully versioned, and the renderer drives every Wizard ‚Üí Draft ‚Üí
-Critique interaction through those endpoints with trace IDs captured in logs. Session snapshots are
-persisted locally and the History pane restore path has been smoke-tested end-to-end.
-
-### P7 ‚Äî Release Candidate (RC)
-**Goal:** freeze interfaces; cut a candidate that can be installed and used end-to-end.
-**Deliverables**
-1. Freeze API & schema versions; tag `v1.0.0-rc1`.
-2. Packaging: `pip install .` (backend) + reproducible node build (if enabled) or ‚ÄúAPI-only‚Äù mode.
-3. Smoke test script `scripts/smoke.sh` (or `.ps1`) that boots API, runs 3 happy-path flows, exits 0.
-4. User docs: quickstart, config via `.env`, known issues.
-5. ‚ÄúOffline mode‚Äù path (no network): wheels cache, no remote model calls, predictable evals.
-
-### P8 ‚Äî Hardening, Performance, Resilience
-**Goal:** make it boring to operate.
-**Deliverables**
-1. Load test profiles (`scripts/load.py`) to 95th/99th latency targets; budget & resize.
-2. Timeouts, retries (tenacity), circuit breakers on tool calls; graceful shutdown.
-3. Input validation strict mode; large payload guards; log redaction verified.
-4. Error budget SLOs and alerts (even if local: exit codes in CI, thresholds in eval report).
-5. Security pass: `.env` handling, dependency review, license scan.
-6. GUI docking enhancements (Phase 8):
-   - Integrate dock manager with drag/drop panes + floating windows.
-   - Persist layouts to `layout.json`; restore presets per user/project.
-   - Ship accessibility + hotkeys for layout switching.
-
-   - See `docs/phase8_gui_enhancements.md` for ticket breakdown (GUI-P8-001..003).
-
-**Status note:** Companion overlay, batch critique workflow, custom rubric editing, and the workspace budget meter now ship in the renderer (`CompanionOverlay.tsx`, `BudgetMeter.tsx`), with batch tests covering the new flows.
-
-### P9 ‚Äî GA & Post-GA Care
-**Goal:** ship v1.0.0 and define how we maintain it.
-**Deliverables**
-1. Tag `v1.0.0`; changelog.
-2. ‚ÄúHow we release‚Äù doc; PR template with checkboxes (tests, docs, eval).
-3. Support playbook: bug triage labels, reproduction template, hotfix branch policy.
-4. Backlog for v1.1 (quality-of-life fixes from RC feedback).
+See `docs/phase_log.md` for dated milestones and unlock/lock history.
 
 ---
 
-## Milestone checklist (what Codex can execute)
+## Phase summaries
 
-- [x] Add tool adapters and registry (P5)
-- [x] Create eval dataset & `scripts/eval.py` (P5)
-- [x] Add `/api/v1` router + contracts in `docs/endpoints.md` (P6)
-- [x] Implement session snapshots & restore (P6)
-- [x] Package RC, smoke tests, docs (P7)
-- [x] Ship Companion overlay & batch critique prototype (P8)
-- [ ] Add load/e2e tests; resilience settings (P8)
-- [ ] Implement dock manager + layout persistence + accessibility pass (P8)
+### P7 ó Release Candidate (RC)
+**Goal:** Freeze public interfaces and cut a build that exercises every major workflow end to end.  
+**Deliverables:** API/schema freeze (`v1.0.0-rc1`), reproducible packaging, cross-platform smoke scripts, offline quickstart.  
+**Status:** ? Complete ó tagged `v1.0.0-rc1` (2025-10-10) with smoke + offline docs verified.
+
+### P8 ó Companion & Critique Expansion
+**Goal:** Add AI-assisted creative utilities inside the existing workspace while hardening the dock.  
+**Key deliverables (charter ß8):**
+- Companion overlay with contextual chat & scene insights  
+- Batch critique mode with rubric-aware bulk actions  
+- Custom rubric editor and critique export bundle  
+- Soft/hard budget meter with live cost display  
+- Quick restore toast for History actions  
+- AI rewrite assistant (multi-tone)
+
+**Supporting resilience backlog:**
+- Layout persistence & docking accessibility (see `docs/phase8_gui_enhancements.md`)  
+- Load/smoke suites, retries & circuit breakers, input validation strict mode  
+- Security + `.env` hardening, dependency review
+
+**Status:** ?? In progress ó companion overlay, batch critique UI, rubric editing, and budget meter are live in the renderer; docking hotkeys and persistence are undergoing manual verification (scheduled mid-Jan 2026).
+
+### P9 ó Analytics & Visualization
+**Goal:** Introduce quantitative story analysis and dashboards.  
+**Deliverables:** Emotion arc timeline, adaptive pacing graph, conflict heatmap, scene length analyzer, revision streak tracker, project health dashboard, outline validation engine (`docs/dashboard_initiatives.md`).  
+**Status:** ? Planned ó charter scope captured; implementation begins once P8 verification closes.
+
+### P10 ó Accessibility & Writer Exports
+**Goal:** Expand accessibility support and professional output tooling.  
+**Deliverables:** Voice notes/dictation, high-contrast & large-font toggles, dynamic export templates (MD/DOCX/PDF), corkboard cards PDF, batch outline report, chapter/scene status badges (`docs/accessibility_toggles.md`).  
+**Status:** ? Planned ó design stubs exist; execution queued after P9 analytics work.
+
+### P11 ó Agents & Plugins
+**Goal:** Deliver controlled automation and third-party integrations.  
+**Deliverables:** Read-only agent hooks, plugin registry + sandbox layout, AI safety layer, auto-backup verification, multi-project dashboard, smart merge tool, offline cache manager (`docs/backup_verification_daemon.md`, `docs/smart_merge_tool.md`, `docs/offline_cache_manager.md`).  
+**Status:** ? Planned ó scoping tracked in charter; depends on P9/P10 telemetry and export features.
+
+---
+
+## Milestone checklist (Codex-owned execution)
+
+- [x] Add tool adapters and registry (P5)  
+- [x] Create eval dataset & `scripts/eval.py` (P5)  
+- [x] Add `/api/v1` router + contracts in `docs/endpoints.md` (P6)  
+- [x] Implement session snapshots & restore (P6)  
+- [x] Package RC, smoke tests, docs (P7)  
+- [x] Ship Companion overlay & batch critique prototype (P8)  
+- [x] Add load/e2e tests; resilience settings (P8) ó automation suite (Vitest + Playwright) + CI artifacts  
+- [ ] Implement dock manager + layout persistence + accessibility pass (P8) ó pending Jan 2026 smoke/a11y sign-off  
 - [ ] Tag GA and add release/support docs (P9)
 
-## Release Plan
+---
 
-### v1.1 (P8‚ÄìP9 deliverables)
-- **Target dates**
-  - Feature freeze: 2026-01-15
-  - RC build: 2026-01-22
-  - GA release: 2026-02-05
-- **Readiness criteria**
-  - P8 hardening tasks complete (load, resilience, security).
-  - Analytics service (emotion/pacing/conflict) GA with accuracy benchmarks ¬±5% versus goldens.
-  - Voice notes MVP functional with local transcription option and budget tracking.
-  - All critical bugs triaged/resolved; zero open P0/P1 issues.
-  - Docs updated (analytics, rewrite assistant, voice notes).
-- **Gating**
-  - Eval benchmarks ‚â•95% pass with p95 latency < 800‚ÄØms.
-  - Accessibility audit on new surfaces (analytics panels, voice UI) meets WCAG AA.
-  - Security review for plugin registry endpoints complete.
+## Release plan
 
-### v1.2 (P10‚ÄìP11 deliverables)
-- **Target dates**
-  - Planning kickoff: 2026-02-12
-  - Feature freeze: 2026-03-20
-  - RC build: 2026-03-27
-  - GA release: 2026-04-10
-- **Scope**
-  - Dynamic export templates (DOCX/EPUB/PDF) with status badges.
-  - Plugin registry lifecycle (install, enable, audit) and agent integration.
-  - Additional automation agents per P11.
-- **Acceptance criteria**
-  - Export converters pass golden diff suite across sample projects.
-  - Plugin registry API & audit logging enabled; penetration test passes.
-  - Updated dashboards surface plugin outputs & analytics overlays.
-- **Gating**
-  - Eval suite expanded with plugin/analytics scenarios; pass rate ‚â•92%.
-  - Heavy export pipeline completes < 90‚ÄØs on reference hardware.
-  - Docs (exports, plugins, release notes) ready and reviewed.
+### v1.1 (P8ñP9 integration)
+- **Target dates:** Feature freeze 2026-01-15 ∑ RC build 2026-01-22 ∑ GA release 2026-02-05  
+- **Readiness criteria:** P8 hardening closed; analytics accuracy within ±5?% of golden set; voice notes MVP usable offline; zero open P0/P1 issues; docs updated.  
+- **Gating:** Eval benchmarks =95?% pass with p95 latency < 800?ms; accessibility audit (new panels) meets WCAG AA; plugin registry security review complete.
+
+### v1.2 (P10ñP11 finalisation)
+- **Target dates:** Planning kickoff 2026-02-12 ∑ Feature freeze 2026-03-20 ∑ RC build 2026-03-27 ∑ GA release 2026-04-10  
+- **Scope:** Export template engine, plugin lifecycle, automation agents, backup verification, multi-project UX.  
+- **Acceptance criteria:** Export diff suite green; plugin registry audited; dashboards surface plugin outputs & analytics overlays.  
+- **Gating:** Eval suite expanded with plugin/analytics scenarios (=92?% pass); heavy export pipeline < 90?s on reference hardware; release docs reviewed.

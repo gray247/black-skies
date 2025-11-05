@@ -273,7 +273,7 @@ export default function CompanionOverlay({
 
   const emotionContext = useMemo(() => {
     if (emotionArc.length === 0) {
-      return { active: null, previous: null, next: null, taggedCount: 0 };
+      return { active: null, previous: null, next: null, taggedCount: 0, ratio: 0 };
     }
     let index = -1;
     if (activeScene?.id) {
@@ -289,11 +289,13 @@ export default function CompanionOverlay({
       (total, point) => (point.emotionTag ? total + 1 : total),
       0,
     );
+    const ratio = emotionArc.length > 0 ? taggedCount / emotionArc.length : 0;
     return {
       active: activePoint,
       previous: previousPoint,
       next: nextPoint,
       taggedCount,
+      ratio,
     };
   }, [activeScene?.id, emotionArc]);
 
@@ -476,8 +478,8 @@ export default function CompanionOverlay({
       <div className="companion-overlay__panel">
         <header className="companion-overlay__header">
           <div>
-            <h2>Companion Mode</h2>
-            <p>Contextual insights and rubric controls for the active scene.</p>
+            <h2>Companion</h2>
+            <p>Guidance and pacing feedback for your current scene.</p>
           </div>
           <button
             ref={closeButtonRef}
@@ -610,7 +612,7 @@ export default function CompanionOverlay({
 
           <section className="companion-overlay__section companion-overlay__section--rubric">
             <header className="companion-overlay__section-header">
-              <h3>Critique rubric</h3>
+            <h3>Focus points</h3>
               <span>{rubric.length}</span>
             </header>
             {rubric.length > 0 ? (
@@ -648,6 +650,7 @@ export default function CompanionOverlay({
                       setRubricError(null);
                     }
                   }}
+                  aria-describedby={rubricError ? 'companion-rubric-error' : undefined}
                 />
                 <button type="button" onClick={handleAddCategory}>
                   Add
@@ -656,7 +659,15 @@ export default function CompanionOverlay({
                   Reset defaults
                 </button>
               </div>
-              {rubricError ? <p className="companion-overlay__error">{rubricError}</p> : null}
+              {rubricError ? (
+                <p
+                  id="companion-rubric-error"
+                  className="companion-overlay__error"
+                  aria-live="polite"
+                >
+                  {rubricError}
+                </p>
+              ) : null}
             </div>
 
             {quickAddOptions.length > 0 ? (
@@ -678,7 +689,7 @@ export default function CompanionOverlay({
           </section>
           <section className="companion-overlay__section companion-overlay__section--batch">
             <header className="companion-overlay__section-header">
-              <h3>Batch critique</h3>
+              <h3>Scene reviews</h3>
               <span>{selectedScenes.length}</span>
             </header>
             {sortedScenes.length === 0 ? (
@@ -703,6 +714,7 @@ export default function CompanionOverlay({
                             checked={isSelected}
                             disabled={batchState.running}
                             onChange={() => handleToggleScene(scene.id)}
+                            aria-label={`Select ${scene.title ?? scene.id}`}
                           />
                           <span>
                             <strong>{scene.title}</strong>
@@ -734,7 +746,7 @@ export default function CompanionOverlay({
                     Clear
                   </button>
                   <button type="button" onClick={handleRunBatch} disabled={disableBatchRun}>
-                    {batchState.running ? 'Running…' : 'Run batch critique'}
+                    {batchState.running ? 'Running…' : 'Review selected scenes'}
                   </button>
                 </div>
               </>

@@ -42,7 +42,7 @@ Prereqs: **Node 20 LTS**, **PNPM**, **Python 3.11**
    powershell.exe -ExecutionPolicy Bypass -File .\start-codex.ps1 -SmokeTest
    ```
    Two terminals open: one runs `pnpm --filter app dev -- --host 127.0.0.1 --port 5173`, the other launches Electron with the
-   real preload and auto-starts the FastAPI bridge. When the status pill flips to "Services online" the stack is healthy. Close both
+   real preload and auto-starts the FastAPI bridge. When the status pill flips to "Ready" the stack is healthy. Close both
    windows to shut everything down.
 
    > Prefer manual control? Follow the step-by-step commands in `docs/quickstart.md`.
@@ -145,6 +145,14 @@ flake8
 > ```
 
 The pinned toolchain applies the 100-character limit and vendor exclusions defined in `.flake8`, matching the CI configuration.
+
+### Documentation lint checks
+
+Markdown changes must pass `markdownlint` to ensure consistency with `docs/style.md`.
+
+```bash
+pnpm lint:docs
+```
 
 ### Sample project: Esther Estate
 

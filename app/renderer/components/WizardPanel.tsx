@@ -806,7 +806,7 @@ export default function WizardPanel({
 
     const fieldConfig = STEP_FIELDS[step];
     if (!fieldConfig) {
-      return null;
+      return <div className="wizard-panel__section" aria-hidden="true" />;
     }
 
     const fieldId = `wizard-${step}`;

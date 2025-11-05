@@ -15,7 +15,27 @@ const logging_js_1 = require("./logging.js");
 const diagnostics_js_1 = require("../shared/ipc/diagnostics.js");
 const layoutIpc_js_1 = require("./layoutIpc.js");
 const runtime_js_1 = require("../shared/config/runtime.js");
-const projectRoot = (0, node_path_1.resolve)(__dirname, '..');
+function resolveProjectRoot() {
+    const immediate = (0, node_path_1.resolve)(__dirname, '..');
+    if ((0, node_fs_1.existsSync)((0, node_path_1.join)(immediate, 'dist', 'index.html'))) {
+        return immediate;
+    }
+    const parent = (0, node_path_1.resolve)(__dirname, '..', '..');
+    if ((0, node_fs_1.existsSync)((0, node_path_1.join)(parent, 'dist', 'index.html'))) {
+        return parent;
+    }
+    return immediate;
+}
+const projectRoot = resolveProjectRoot();
+process.on('exit', (code) => {
+    console.log('[main] Process exiting with code', code);
+});
+process.on('uncaughtException', (error) => {
+    console.error('[main] Uncaught exception', error);
+});
+process.on('unhandledRejection', (reason) => {
+    console.error('[main] Unhandled rejection', reason);
+});
 const repoRoot = (0, node_path_1.resolve)(projectRoot, '..');
 const runtimeConfig = (0, runtime_js_1.loadRuntimeConfig)(process.env.BLACKSKIES_CONFIG_PATH ?? (0, node_path_1.join)(repoRoot, 'config', 'runtime.yaml'));
 const allowedPythonExecutables = runtimeConfig.service.allowedPythonExecutables.map((entry) => entry.toLowerCase());
@@ -25,6 +45,9 @@ const rendererIndexFile = (0, node_path_1.join)(rendererDistDir, 'index.html');
 const PRELOAD_PATH = (0, node_path_1.join)(__dirname, 'preload.js');
 const DEV_SERVER_URL = process.env.ELECTRON_RENDERER_URL ?? 'http://127.0.0.1:5173/';
 const isDev = !electron_1.app.isPackaged;
+const isPlaywright = process.env.PLAYWRIGHT === '1';
+const shouldSpawnServices = process.env.BLACKSKIES_FORCE_SERVICES === '1' || !isPlaywright;
+const shouldUseDevServer = isDev && !isPlaywright;
 const SERVICES_HOST = '127.0.0.1';
 const PORT_RANGE_ENV = process.env.BLACKSKIES_SERVICE_PORT_RANGE;
 const DEFAULT_PYTHON_EXECUTABLE = 'python';
@@ -35,6 +58,7 @@ let servicesProcess = null;
 let servicesPort = null;
 let shuttingDown = false;
 let mainLogger = null;
+let servicesSuppressed = false;
 function parseEnvInteger(key, fallback) {
     const raw = process.env[key];
     if (!raw) {
@@ -99,13 +123,20 @@ function fallbackPythonExecutable() {
     if (bundledPythonPath) {
         const resolvedBundled = resolveBundledExecutablePath(bundledPythonPath);
         if (resolvedBundled) {
-            try {
-                if ((0, node_fs_1.statSync)(resolvedBundled).isFile()) {
-                    return resolvedBundled;
+            if ((0, node_fs_1.existsSync)(resolvedBundled)) {
+                try {
+                    if ((0, node_fs_1.statSync)(resolvedBundled).isFile()) {
+                        return resolvedBundled;
+                    }
+                }
+                catch (error) {
+                    console.warn('[main] Bundled Python path probe failed; ignoring.', error);
                 }
             }
-            catch (error) {
-                console.warn('[main] Bundled Python path is not accessible.', error);
+            else {
+                console.warn('[main] Bundled Python path is not accessible or missing.', {
+                    path: resolvedBundled,
+                });
             }
         }
         else if (bundledPythonPath.includes('{{APP_RESOURCES}}')) {
@@ -285,6 +316,17 @@ async function startServices() {
     if (servicesProcess) {
         return;
     }
+    if (!shouldSpawnServices) {
+        console.log('[main] Skipping service spawn (PLAYWRIGHT=1).');
+        if (!servicesSuppressed) {
+            ensureMainLogger().info('Skipping FastAPI services spawn because PLAYWRIGHT=1.');
+            servicesSuppressed = true;
+        }
+        servicesProcess = null;
+        servicesPort = null;
+        delete process.env.BLACKSKIES_SERVICES_PORT;
+        return;
+    }
     const logger = ensureMainLogger();
     const port = await selectServicePort();
     const args = ['-m', 'blackskies.services', '--host', SERVICES_HOST, '--port', String(port)];
@@ -428,6 +470,7 @@ function registerDiagnosticsIpc() {
     });
 }
 async function createMainWindow() {
+    console.log('[main] Creating main window. projectRoot=', projectRoot);
     const sandboxEnabled = electron_1.app.isPackaged && process.platform !== 'win32';
     const window = new electron_1.BrowserWindow({
         width: 1280,
@@ -478,11 +521,29 @@ async function createMainWindow() {
             mainWindow = null;
         }
     });
-    if (isDev) {
-        await window.loadURL(DEV_SERVER_URL);
-        window.webContents.openDevTools({ mode: 'detach' });
+    window.webContents.on('render-process-gone', (_event, details) => {
+        console.error('[main] Renderer process gone', details);
+    });
+    window.on('unresponsive', () => {
+        console.error('[main] BrowserWindow became unresponsive.');
+    });
+    if (shouldUseDevServer) {
+        try {
+            await window.loadURL(DEV_SERVER_URL);
+        }
+        catch (error) {
+            ensureMainLogger().warn('Failed to load dev renderer URL; falling back to static bundle.', {
+                error: error instanceof Error ? error.message : String(error),
+                url: DEV_SERVER_URL,
+            });
+            await window.loadFile(rendererIndexFile);
+        }
+        if (!isPlaywright) {
+            window.webContents.openDevTools({ mode: 'detach' });
+        }
     }
     else {
+        console.log('[main] Loading renderer from file', rendererIndexFile);
         await window.loadFile(rendererIndexFile);
     }
     return window;
@@ -503,6 +564,7 @@ async function bootstrap() {
     catch (error) {
         const message = error instanceof Error ? error.message : 'Unknown startup error';
         ensureMainLogger().error('Bootstrap failed', { message });
+        console.error('[main] Bootstrap failed', message);
         electron_1.dialog.showErrorBox('Black Skies failed to launch', message);
         electron_1.app.quit();
     }
@@ -537,7 +599,14 @@ function setupAppEventHandlers() {
     process.on('SIGINT', handleProcessSignal);
     process.on('SIGTERM', handleProcessSignal);
 }
-const hasSingleInstanceLock = electron_1.app.requestSingleInstanceLock();
+let hasSingleInstanceLock = true;
+if (isPlaywright) {
+    console.log('[main] Skipping single instance lock enforcement (PLAYWRIGHT=1).');
+}
+else {
+    hasSingleInstanceLock = electron_1.app.requestSingleInstanceLock();
+    console.log('[main] Single instance lock acquired?', hasSingleInstanceLock);
+}
 if (!hasSingleInstanceLock) {
     electron_1.app.quit();
 }

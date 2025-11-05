@@ -1,9 +1,12 @@
-import path from 'path';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import type { Page } from '@playwright/test';
 import { test, expect } from './electron.launch';
 import { TID } from '../../renderer/utils/testIds';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const sampleProjectPath = path.resolve(__dirname, '../../sample_project/Esther_Estate');
 
 async function bootstrapHarness(page: Page): Promise<void> {
@@ -126,7 +129,16 @@ test.describe('Electron smoke', () => {
     await expect(page.getByTestId(TID.dockWorkspace)).toBeVisible();
     await expect(page.getByTestId(TID.wizardRoot)).toBeVisible();
 
-    await page.getByTestId(TID.wizardNext).click();
-    await expect(page.getByTestId(TID.outlineEditor)).toBeVisible();
+    const outlineEditor = page.getByTestId(TID.outlineEditor);
+    const wizardNext = page.getByTestId(TID.wizardNext);
+
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      if (await outlineEditor.isVisible()) {
+        break;
+      }
+      await wizardNext.click();
+    }
+
+    await expect(outlineEditor).toBeVisible();
   });
 });

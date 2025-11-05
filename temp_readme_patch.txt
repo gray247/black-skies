@@ -6,7 +6,7 @@
     powershell.exe -ExecutionPolicy Bypass -File .\start-codex.ps1 -SmokeTest
     ```
     Two terminals open: one runs `pnpm --filter app dev -- --host 127.0.0.1 --port 5173`, the other launches Electron with the
-    real preload and auto-starts the FastAPI bridge. When the status pill flips to “Services online” the stack is healthy. Close both
+    real preload and auto-starts the FastAPI bridge. When the status pill flips to “Ready” the stack is healthy. Close both
     windows to shut everything down.
  
     > Prefer manual control? Follow the step-by-step commands in `docs/quickstart.md`.
@@ -22,3 +22,6 @@
 +
 +The overlay surfaces scene insights (word counts, pacing hints) and the meter keeps an eye on projected spend so you can spot soft/hard-limit issues before submitting work.
 *** End Patch
+
+
+

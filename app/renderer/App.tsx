@@ -794,7 +794,7 @@ export default function App(): JSX.Element {
     />
   );
 
-  const dockPaneContent: Partial<Record<LayoutPaneId, React.ReactNode>> = dockingEnabled
+  const dockPaneContent: Partial<Record<LayoutPaneId, ReactNode>> = dockingEnabled
     ? {
         wizard: <div className="dock-pane__scroll">{renderWizardPanel()}</div>,
         "draft-board": (

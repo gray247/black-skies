@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, type RefObject } from 'react';
 
 interface DockHotkeyOptions {
   enableHotkeys: boolean;
@@ -6,10 +6,18 @@ interface DockHotkeyOptions {
   resetToDefault: () => void;
   cycleFocus: (direction: 1 | -1) => void;
   defaultPresetKey: string;
+  containerRef: RefObject<HTMLElement | null>;
 }
 
 export function useDockHotkeys(options: DockHotkeyOptions): void {
-  const { enableHotkeys, applyPreset, resetToDefault, cycleFocus, defaultPresetKey } = options;
+  const {
+    enableHotkeys,
+    applyPreset,
+    resetToDefault,
+    cycleFocus,
+    defaultPresetKey,
+    containerRef,
+  } = options;
 
   useEffect(() => {
     if (!enableHotkeys) {
@@ -19,11 +27,27 @@ export function useDockHotkeys(options: DockHotkeyOptions): void {
       if (event.defaultPrevented) {
         return;
       }
-      if (!(event.ctrlKey && event.altKey)) {
-        return;
-      }
       const target = event.target as HTMLElement | null;
       if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
+        return;
+      }
+      const container = containerRef.current;
+      if (container) {
+        const activeElement = document.activeElement;
+        const focusWithinContainer =
+          (activeElement instanceof HTMLElement && container.contains(activeElement)) ||
+          (target instanceof HTMLElement && container.contains(target));
+        if (!focusWithinContainer) {
+          return;
+        }
+      }
+      const hasCtrlOrMeta = event.ctrlKey || event.metaKey;
+      if (hasCtrlOrMeta && event.shiftKey && !event.altKey && (event.key === 'E' || event.key === 'e')) {
+        event.preventDefault();
+        cycleFocus(1);
+        return;
+      }
+      if (!(hasCtrlOrMeta && event.altKey)) {
         return;
       }
       switch (event.key) {
@@ -60,5 +84,5 @@ export function useDockHotkeys(options: DockHotkeyOptions): void {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [applyPreset, cycleFocus, defaultPresetKey, enableHotkeys, resetToDefault]);
+  }, [applyPreset, containerRef, cycleFocus, defaultPresetKey, enableHotkeys, resetToDefault]);
 }

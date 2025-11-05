@@ -58,7 +58,7 @@ test("performRestoreSnapshot returns updated recovery status on success", async 
   const result = await performRestoreSnapshot(validation.input);
   assert.equal(result.ok, true);
   assert.deepEqual(result.recoveryStatus, status);
-  assert.equal(result.toast.title, "Snapshot restored");
+  assert.equal(result.toast.title, "Restored earlier version.");
   assert.equal(result.toast.traceId, "trace-restore-success");
 });
 
@@ -171,4 +171,3 @@ test("openDiagnostics succeeds silently when folder is available", async () => {
   assert.equal(result.ok, true);
   assert.equal(result.toast, undefined);
 });
-

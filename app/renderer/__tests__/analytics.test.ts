@@ -6,6 +6,7 @@ import {
   resolveAnalyticsConfig,
   type ResolvedAnalyticsConfig,
 } from '../utils/analytics';
+import type { SceneDraftMetadata } from '../../shared/ipc/projectLoader';
 
 const SAMPLE_CONFIG: ResolvedAnalyticsConfig = {
   emotionIntensity: {
@@ -34,19 +35,19 @@ describe('analytics helpers', () => {
   });
 
   it('computes emotion arc intensity using config overrides', () => {
-    const scenes = [
+    const scenes: SceneDraftMetadata[] = [
       { id: 'a', order: 2, title: 'Two', emotion_tag: 'dread' },
       { id: 'b', order: 1, title: 'One', emotion_tag: 'unknown' },
     ];
 
-    const arc = computeEmotionArc(scenes as any, SAMPLE_CONFIG);
+    const arc = computeEmotionArc(scenes, SAMPLE_CONFIG);
     expect(arc.map((point) => point.sceneId)).toEqual(['b', 'a']);
     expect(arc[0].intensity).toBe(0.4); // falls back to default
     expect(arc[1].intensity).toBe(1);
   });
 
   it('computes pacing profile with running averages and summaries', () => {
-    const scenes = [
+    const scenes: SceneDraftMetadata[] = [
       { id: 'a', order: 1, title: 'One' },
       { id: 'b', order: 2, title: 'Two', beats: ['beat1', 'beat2'] },
     ];
@@ -55,7 +56,7 @@ describe('analytics helpers', () => {
       b: '# Scene B\n\nSecond scene has more words overall for testing.',
     };
 
-    const profile = computePacingProfile(scenes as any, drafts, SAMPLE_CONFIG);
+    const profile = computePacingProfile(scenes, drafts, SAMPLE_CONFIG);
     expect(profile.sceneMetrics).toHaveLength(2);
     expect(profile.sceneMetrics[0].paceLabel).toBe('steady');
     expect(profile.sceneMetrics[1].paceLabel).toBe('steady');

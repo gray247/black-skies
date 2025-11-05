@@ -76,6 +76,25 @@ jobs:
       - name: Run app tests
         run: pnpm --filter app test
 
+  docs-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - name: Install dependencies
+        run: pnpm install --recursive --frozen-lockfile
+      - name: Run markdownlint
+        run: pnpm lint:docs
+
   app-e2e:
     runs-on: ubuntu-latest
     steps:
@@ -95,13 +114,24 @@ jobs:
       - name: Install Playwright browsers
         run: pnpm --filter app exec playwright install --with-deps
       - name: Run Playwright tests
+        env:
+          PLAYWRIGHT_DISABLE_ANIMATIONS: '1'
         run: pnpm --filter app test:e2e
+      - name: Upload Playwright artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-artifacts
+          path: |
+            app/playwright-report
+            app/test-results
 
   eval:
     needs:
       - lint
       - typecheck
       - app-tests
+      - docs-lint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

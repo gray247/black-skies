@@ -73,7 +73,7 @@ What it does:
 1. Ensures deps are synchronized and builds the Electron main bundle (`pnpm --filter app build:main`).
 2. Opens a PowerShell window running `pnpm --filter app dev -- --host 127.0.0.1 --port 5173` (Vite renderer).
 3. Opens a second window running the real Electron shell (`pnpm --filter app exec electron ..\dist-electron\main\main.js`) with the correct env vars (`ELECTRON_RENDERER_URL`, `BLACKSKIES_PYTHON`, `BLACKSKIES_PROJECT_BASE_DIR`).
-4. Electron spawns the FastAPI service automatically; the status pill should transition from “Checking services” to “Services online” once `/api/v1/healthz` responds.
+4. Electron spawns the FastAPI service automatically; the status pill should transition from “Checking writing tools” to “Ready” once `/api/v1/healthz` responds.
 
 Close the two windows to stop the app.
 
@@ -87,7 +87,7 @@ Use this when verifying an air-gapped build. Perform the steps in order after di
 2. **Environment** — Open `.env` and verify the entries from the offline prerequisites (`BLACK_SKIES_MODE=offline`, `BLACKSKIES_PROJECT_BASE_DIR=…`). The loader now emits the `BLACK_SKIES_MODE` key by default, but legacy `.env` files with `BLACK_SKIES_BLACK_SKIES_MODE` still work and log a reminder to rename it.【F:services/src/blackskies/services/settings.py†L1-L134】【F:services/src/blackskies/services/config.py†L14-L74】
 3. **Project assets** — Ensure the directory referenced by `BLACKSKIES_PROJECT_BASE_DIR` includes `sample_project/Esther_Estate` (or your test project) so the wizard can load content.【F:README.md†L76-L95】
 4. **Smoke script** — Run `powershell.exe -ExecutionPolicy Bypass -File .\start-codex.ps1 -SmokeTest`. The script should complete without hitting the network; if packages are missing rerun the cache refresh sequence while online.【F:start-codex.ps1†L145-L261】
-5. **UI confirmation** — When Electron opens, watch the status pill advance to “Services online” and confirm `/api/v1/healthz` passes without external calls (monitor via Windows Resource Monitor or offline firewall logs).【F:docs/policies.md†L1-L35】
+5. **UI confirmation** — When Electron opens, watch the status pill advance to “Ready” and confirm `/api/v1/healthz` passes without external calls (monitor via Windows Resource Monitor or offline firewall logs).【F:docs/policies.md†L1-L35】
 
 ---
 

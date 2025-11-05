@@ -1,21 +1,23 @@
 {
-  "name": "black-skies",
-  "private": true,
-  "version": "1.0.0-rc1",
-  "type": "module",
-  "engines": {
-    "node": ">=20.0.0",
-    "pnpm": ">=8.0.0"
-  },
-  "scripts": {
-    "bootstrap": "pnpm install --recursive",
-    "lint": "pnpm -r lint",
-    "dev": "node ./scripts/dev-runner.mjs"
-  },
-  "devDependencies": {},
-  "packageManager": "pnpm@8.15.9+sha512.499434c9d8fdd1a2794ebf4552b3b25c0a633abcee5bb15e7b5de90f32f47b513aca98cd5cfd001c31f0db454bc3804edccd578501e4ca293a6816166bbd9f81",
-  "dependencies": {
-    "yaml": "^2.8.1"
-  }
+    "name":  "black-skies",
+    "private":  true,
+    "version":  "1.0.0-rc1",
+    "type":  "module",
+    "engines":  {
+                    "node":  "\u003e=20.0.0",
+                    "pnpm":  "\u003e=8.0.0"
+                },
+    "scripts":  {
+                    "bootstrap":  "pnpm install --recursive",
+                    "lint":  "pnpm -r lint",
+                    "dev":  "node ./scripts/dev-runner.mjs",
+                    "lint:docs":  "markdownlint \"CONTRIBUTING.md\" \"docs/style.md\" \"docs/roles.md\" \"docs/rollback_policy.md\" \"docs/ui_copy_spec_v1.md\""
+                },
+    "devDependencies":  {
+                            "markdownlint-cli":  "^0.45.0"
+                        },
+    "packageManager":  "pnpm@8.15.9+sha512.499434c9d8fdd1a2794ebf4552b3b25c0a633abcee5bb15e7b5de90f32f47b513aca98cd5cfd001c31f0db454bc3804edccd578501e4ca293a6816166bbd9f81",
+    "dependencies":  {
+                         "yaml":  "^2.8.1"
+                     }
 }
-

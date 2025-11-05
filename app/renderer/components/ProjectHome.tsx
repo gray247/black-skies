@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
+import { useCallback, useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import type {
   LoadedProject,
   ProjectIssue,
@@ -160,6 +160,7 @@ export default function ProjectHome({
   const [activeProject, setActiveProject] = useState<LoadedProject | null>(null);
   const [issues, setIssues] = useState<ProjectIssue[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [diagnosticsExpanded, setDiagnosticsExpanded] = useState<boolean>(false);
   const [activeSceneId, setActiveSceneId] = useState<string | null>(null);
   const [storedLastProjectPath, setStoredLastProjectPath] = useState<string | null>(() =>
     readStoredLastProjectPath(),
@@ -174,6 +175,9 @@ export default function ProjectHome({
     [debugLogSnapshot],
   );
   const hasDebugLog = debugLogEntries.length > 0;
+  const diagnosticsSectionId = useId();
+  const draftSceneTitleId = useId();
+  const draftSceneMetaId = useId();
 
   const sortedRecents = useMemo(
     () =>
@@ -249,6 +253,7 @@ export default function ProjectHome({
       activeProject,
       activeSceneId,
       issues,
+      isLoading,
       loaderAvailable,
       projectLoader,
       recentProjects.length,
@@ -439,8 +444,6 @@ export default function ProjectHome({
                     setStoredLastProjectPath(fallbackProject.path);
                   }
                   stalePathsRef.current.delete(targetPath);
-                } else {
-
                 }
               } catch (fallbackError) {
                 stalePathsRef.current.delete(targetPath);
@@ -756,41 +759,63 @@ export default function ProjectHome({
       </header>
 
       <section className="project-home__diagnostics">
-        <div>
-          <h3>Troubleshooting snapshot</h3>
-          <p className="project-home__diagnostics-hint">
-            Copy this payload when reporting project-load issues. It represents the most recent loader state.
-          </p>
-        </div>
-        <textarea
-          className="project-home__diagnostics-output"
-          value={diagnosticsText}
-          readOnly
-          aria-label="Project loader diagnostics"
-        />
-      </section>
-
-      <section className="project-home__diagnostics">
-        <div>
-          <h3>Debug event log</h3>
-          <p className="project-home__diagnostics-hint">
-            Renderer-side events recorded during project loads and layout operations (up to 200 entries).
-          </p>
-        </div>
-        <div className="project-home__diagnostics-actions">
-          <button type="button" onClick={handleCopyDebugLog} disabled={!hasDebugLog}>
-            Copy log
-          </button>
-          <button type="button" onClick={handleClearDebugLog} disabled={!hasDebugLog}>
-            Clear log
+        <div className="project-home__diagnostics-header">
+          <div>
+            <h3>Diagnostics</h3>
+            <p className="project-home__diagnostics-hint">
+              Access the story snapshot and activity log when you need to share troubleshooting details.
+            </p>
+          </div>
+          <button
+            type="button"
+            className="project-home__diagnostics-toggle"
+            onClick={() => setDiagnosticsExpanded((current) => !current)}
+            aria-expanded={diagnosticsExpanded}
+            aria-controls={diagnosticsSectionId}
+          >
+            {diagnosticsExpanded ? 'Hide diagnostics' : 'Show diagnostics'}
           </button>
         </div>
-        <textarea
-          className="project-home__diagnostics-output"
-          value={debugLogText}
-          readOnly
-          aria-label="Renderer debug events"
-        />
+        {diagnosticsExpanded ? (
+          <div className="project-home__diagnostics-grid" id={diagnosticsSectionId}>
+            <article className="project-home__diagnostics-card">
+              <div className="project-home__diagnostics-card-header">
+                <h4>Story snapshot</h4>
+                <p className="project-home__diagnostics-hint">
+                  Copy this payload when reporting project-load issues. It captures the latest loader state.
+                </p>
+              </div>
+              <textarea
+                className="project-home__diagnostics-output"
+                value={diagnosticsText}
+                readOnly
+                aria-label="Story snapshot details"
+              />
+            </article>
+            <article className="project-home__diagnostics-card">
+              <div className="project-home__diagnostics-card-header">
+                <h4>Activity log</h4>
+                <p className="project-home__diagnostics-hint">
+                  Renderer events recorded during project loads and layout operations.
+                </p>
+              </div>
+              <div className="project-home__diagnostics-actions">
+                <button type="button" onClick={handleCopyDebugLog} disabled={!hasDebugLog}>
+                  Copy log
+                </button>
+                <button type="button" onClick={handleClearDebugLog} disabled={!hasDebugLog}>
+                  Clear log
+                </button>
+              </div>
+              <textarea
+                className="project-home__diagnostics-output"
+                value={debugLogText}
+                readOnly
+                aria-label="Activity log entries"
+              />
+            </article>
+          </div>
+        ) : null}
       </section>
 
       <div className="project-home__layout">
@@ -880,9 +905,11 @@ export default function ProjectHome({
                 <>
                   <div className="project-home__draft-header-left">
                     <span className="project-home__draft-scene-id">{activeScene.id}</span>
-                    <h3 className="project-home__draft-title">{activeScene.title}</h3>
+                    <h3 id={draftSceneTitleId} className="project-home__draft-title">
+                      {activeScene.title}
+                    </h3>
                   </div>
-                  <div className="project-home__draft-header-meta">
+                  <div id={draftSceneMetaId} className="project-home__draft-header-meta">
                     {activeScene.emotion_tag ? (
                       <span
                         className={`project-home__scene-tag project-home__scene-tag--${activeScene.emotion_tag}`}
@@ -915,6 +942,15 @@ export default function ProjectHome({
                   value={activeSceneDraft}
                   placeholder="Scene text will appear once loaded."
                   className="project-home__draft-editor-host"
+                  ariaLabel={`Scene ${activeScene.id} draft editor${
+                    activeScene.title ? `: ${activeScene.title}` : ''
+                  }`}
+                  ariaLabelledBy={draftSceneTitleId}
+                  ariaDescribedBy={
+                    activeScene.emotion_tag || activeScene.purpose || activeScene.word_target
+                      ? draftSceneMetaId
+                      : null
+                  }
                   onChange={(nextValue) => {
                     onDraftChange?.(activeScene.id, nextValue);
                   }}

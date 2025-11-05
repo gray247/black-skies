@@ -441,7 +441,7 @@ describe('App preflight integration', () => {
     fireEvent.click(proceedButton);
 
     await waitFor(() => expect(services.generateDraft).toHaveBeenCalledTimes(1));
-    const message = await screen.findByText(/Draft generation requested/i);
+    const message = await screen.findByText(/New draft written/i);
     const toastCard = message.closest('.toast');
     expect(toastCard).not.toBeNull();
     if (toastCard) {
@@ -470,7 +470,7 @@ describe('App preflight integration', () => {
     fireEvent.click(proceedButton);
 
     await waitFor(() => expect(services.generateDraft).toHaveBeenCalledTimes(1));
-    const message = await screen.findByText(/Draft generation failed/i);
+    const message = await screen.findByText(/Couldn't write draft/i);
     const toastCard = message.closest('.toast');
     expect(toastCard).not.toBeNull();
     if (toastCard) {
@@ -490,7 +490,7 @@ describe('App preflight integration', () => {
     render(<App />);
 
     await waitFor(() => expect(services.checkHealth).toHaveBeenCalled());
-    await screen.findByRole('button', { name: /services offline/i });
+    await screen.findByRole('button', { name: /writing tools offline/i });
   });
 });
 

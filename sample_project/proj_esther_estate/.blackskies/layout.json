@@ -2,23 +2,25 @@
   "version": 2,
   "layout": {
     "direction": "row",
-    "first": {
-      "direction": "column",
-      "first": "draft-board",
-      "second": "history",
-      "splitPercentage": 70
-    },
-    "second": "critique",
-    "splitPercentage": 30
+    "first": "wizard",
+    "second": {
+      "direction": "row",
+      "first": {
+        "direction": "column",
+        "first": "draft-board",
+        "second": "history"
+      },
+      "second": "critique"
+    }
   },
   "floatingPanes": [
     {
-      "id": "critique",
+      "id": "wizard",
       "bounds": {
-        "x": -945,
-        "y": 257,
-        "width": 932,
-        "height": 507
+        "x": -1345,
+        "y": 270,
+        "width": 663,
+        "height": 450
       },
       "displayId": 2779098405
     }

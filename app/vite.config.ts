@@ -28,5 +28,31 @@ export default defineConfig({
     outDir: 'dist',
     emptyOutDir: true,
     target: 'es2020',
+    cssCodeSplit: true,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes('node_modules')) {
+            return undefined;
+          }
+          if (id.includes('@codemirror')) {
+            return 'codemirror';
+          }
+          if (id.includes('react-dom') || id.includes('react/jsx-runtime')) {
+            return 'react';
+          }
+          if (id.includes('react-mosaic-component')) {
+            return 'mosaic';
+          }
+          if (id.includes('react-rnd') || id.includes('react-resizable')) {
+            return 'layout-tools';
+          }
+          if (id.includes('node_modules')) {
+            return 'vendor';
+          }
+          return undefined;
+        },
+      },
+    },
   },
 });

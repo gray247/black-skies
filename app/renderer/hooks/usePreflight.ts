@@ -69,16 +69,16 @@ export function usePreflight({
     if (!services) {
       pushToast({
         tone: 'error',
-        title: 'Services unavailable',
-        description: 'Cannot connect to the local drafting service; preflight aborted.',
+        title: 'Writing tools offline.',
+        description: 'Connect the local writing tools before running a preflight.',
       });
       return;
     }
     if (!projectSummary) {
       pushToast({
         tone: 'warning',
-        title: 'Load a project first',
-        description: 'Select a project before running generation.',
+        title: 'Open a story to start writing.',
+        description: 'Select a story before running generation.',
       });
       return;
     }
@@ -128,16 +128,16 @@ export function usePreflight({
     if (!services) {
       pushToast({
         tone: 'error',
-        title: 'Services unavailable',
-        description: 'Cannot generate drafts while services are offline.',
+        title: 'Writing tools offline.',
+        description: 'Reconnect the writing tools before generating drafts.',
       });
       return;
     }
     if (!projectSummary) {
       pushToast({
         tone: 'warning',
-        title: 'Load a project first',
-        description: 'Select a project before running generation.',
+        title: 'Open a story to start writing.',
+        description: 'Select a story before running generation.',
       });
       return;
     }
@@ -179,7 +179,7 @@ export function usePreflight({
 
       pushToast({
         tone: 'success',
-        title: 'Draft generation requested',
+        title: 'New draft written.',
         description: `Draft ${result.data.draft_id} queued with ${result.data.units.length} unit(s).`,
         traceId: result.traceId,
       });
@@ -194,7 +194,7 @@ export function usePreflight({
       }));
       pushToast({
         tone: 'error',
-        title: 'Draft generation failed',
+        title: "Couldn't write draft.",
         description: result.error.message,
         traceId: result.traceId ?? result.error.traceId,
       });

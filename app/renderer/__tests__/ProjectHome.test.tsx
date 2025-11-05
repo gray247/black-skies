@@ -8,6 +8,7 @@ import type {
   ProjectIssue,
   ProjectLoaderApi,
 } from '../../shared/ipc/projectLoader';
+import type { ToastPayload } from '../types/toast';
 
 function createSampleProject(path: string): LoadedProject {
   const outline: OutlineFile = {
@@ -91,7 +92,7 @@ describe('ProjectHome recent project recovery', () => {
     };
 
     (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
-    const toaster: unknown[] = [];
+    const toaster: ToastPayload[] = [];
 
     render(
       <ProjectHome
@@ -119,9 +120,7 @@ describe('ProjectHome recent project recovery', () => {
       expect(storedRecents.some((entry) => entry.path === samplePath)).toBe(true);
     });
 
-    const errorToast = toaster.find(
-      (toast: any) => toast?.title === 'Could not open project',
-    ) as { description?: string } | undefined;
+    const errorToast = toaster.find((toast) => toast.title === 'Could not open project');
     expect(errorToast?.description).toContain('ENOENT');
   });
 
@@ -154,7 +153,7 @@ describe('ProjectHome recent project recovery', () => {
     };
 
     (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
-    const toasts: Array<{ title: string; description?: string }> = [];
+    const toasts: ToastPayload[] = [];
 
     render(<ProjectHome onToast={(toast) => toasts.push(toast)} onProjectLoaded={vi.fn()} />);
 

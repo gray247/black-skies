@@ -2,7 +2,7 @@
   "schema_version": "BatchCritiqueSummary v1",
   "project_id": "proj_esther_estate",
   "unit_id": "sc_0001",
-  "draft_id": "dr_sc0001_19a37880faf_a9c1a3",
+  "draft_id": "dr_sc0001_19a4c5dbf1e_73d597",
   "rubric": [
     "Continuity",
     "Pacing",
@@ -18,14 +18,14 @@
     "name": "critique_model_vY",
     "provider": "openai"
   },
-  "captured_at": "2025-10-30T23:50:55.161414Z",
+  "captured_at": "2025-11-04T00:56:43.570462Z",
   "budget": {
     "estimated_usd": 0.02,
     "status": "ok",
     "message": "Estimate within budget.",
     "soft_limit_usd": 12.5,
     "hard_limit_usd": 25.0,
-    "spent_usd": 0.86,
-    "total_after_usd": 0.86
+    "spent_usd": 0.9,
+    "total_after_usd": 0.9
   }
 }

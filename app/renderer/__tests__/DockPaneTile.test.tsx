@@ -1,18 +1,10 @@
 import { render, screen } from '@testing-library/react';
-import React from 'react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import userEvent from '@testing-library/user-event';
+import { describe, expect, it, vi } from 'vitest';
 
 import DockPaneTile from '../components/docking/DockPaneTile';
 import type { LayoutPaneId } from '../../shared/ipc/layout';
-
-type ToolbarProps = import('react-mosaic-component').MosaicWindowToolbarProps<LayoutPaneId> & {
-  createNode?: () => unknown;
-};
-
-declare global {
-  // eslint-disable-next-line vars-on-top,no-var
-  var __dockPaneToolbarProps: Partial<ToolbarProps> | undefined;
-}
+import { MosaicContext, MosaicWindowContext } from 'react-mosaic-component';
 
 vi.mock('react-mosaic-component', async () => {
   const actual = await vi.importActual<typeof import('react-mosaic-component')>('react-mosaic-component');
@@ -21,70 +13,128 @@ vi.mock('react-mosaic-component', async () => {
     MosaicWindow: ({
       renderToolbar,
       children,
-    }: import('react-mosaic-component').MosaicWindowProps<LayoutPaneId>) => {
-      const toolbarProps =
-        globalThis.__dockPaneToolbarProps ?? ({
-          path: [],
-          title: 'Mock pane',
-          renderDefaultToolbar: () => null,
-        } satisfies ToolbarProps);
-      const toolbar = renderToolbar ? renderToolbar(toolbarProps) : null;
-      return (
-        <div className="mosaic-window">
-          <div className="mosaic-window-toolbar">{toolbar}</div>
-          <div className="mosaic-window-body">{children}</div>
+    }: import('react-mosaic-component').MosaicWindowProps<LayoutPaneId>) => (
+      <div className="mosaic-window">
+        <div className="mosaic-window-toolbar">
+          {renderToolbar
+            ? renderToolbar({ title: 'Mock pane', path: [], renderDefaultToolbar: () => null } as any, true)
+            : null}
         </div>
-      );
-    },
-  };
-});
-
-vi.mock('react-mosaic-component/lib/buttons/defaultToolbarControls', () => {
-  const controls = [
-    <button key="replace" title="Replace" />,
-    <button key="split" title="Split" />,
-    <button key="expand" title="Expand" />,
-    <button key="close" title="Close Window" />,
-  ];
-  return {
-    DEFAULT_CONTROLS_WITH_CREATION: controls,
-    DEFAULT_CONTROLS_WITHOUT_CREATION: controls.slice(2),
+        <div className="mosaic-window-body">{children}</div>
+      </div>
+    ),
   };
 });
 
 describe('DockPaneTile toolbar controls', () => {
-  beforeEach(() => {
-    globalThis.__dockPaneToolbarProps = undefined;
-  });
-
-  it('renders default mosaic controls with creation actions when createNode is available', () => {
-    globalThis.__dockPaneToolbarProps = {
-      title: 'Wizard',
-      path: [],
-      renderDefaultToolbar: () => null,
-      // Provide a stub createNode to simulate Mosaic exposing creation actions.
-      createNode: vi.fn().mockResolvedValue('draft-board'),
-    } as Partial<ToolbarProps>;
+  it('renders pane toolbar controls with updated tooltips', () => {
+    const mockMosaicActions = {
+      expand: vi.fn(),
+      remove: vi.fn(),
+      hide: vi.fn(),
+      replaceWith: vi.fn(),
+      updateTree: vi.fn(),
+      getRoot: vi.fn(() => null),
+    };
+    const mockWindowActions = {
+      split: vi.fn().mockResolvedValue(undefined),
+      replaceWithNew: vi.fn().mockResolvedValue(undefined),
+      setAdditionalControlsOpen: vi.fn(),
+      getPath: vi.fn(() => ['wizard']),
+      connectDragSource: vi.fn((element) => element),
+    };
 
     render(
-      <DockPaneTile
-        projectPath="sample/project"
-        paneId="wizard"
-        paneTitle="Wizard"
-        path={['first']}
-        instructionsId="instructions"
-        assignPaneRef={() => undefined}
-        onFloat={() => undefined}
-        onFocus={() => undefined}
-        content={<div>Wizard content</div>}
-      />,
+      <MosaicContext.Provider
+        value={{ mosaicActions: mockMosaicActions, mosaicId: 'mosaic', blueprintNamespace: '' }}
+      >
+        <MosaicWindowContext.Provider
+          value={{ blueprintNamespace: '', mosaicWindowActions: mockWindowActions }}
+        >
+          <DockPaneTile
+            projectPath="sample/project"
+            paneId="wizard"
+            paneTitle="Wizard"
+            path={['first']}
+            instructionsId="instructions"
+            assignPaneRef={() => undefined}
+            canFloat
+            onFloat={() => undefined}
+            onFocusRequest={() => undefined}
+            onContentFocus={() => undefined}
+            onContentBlur={() => undefined}
+            isFocused={false}
+            paneDescription="Plan chapters, scenes, and beats."
+            content={<div>Wizard content</div>}
+          />
+        </MosaicWindowContext.Provider>
+      </MosaicContext.Provider>,
     );
 
-    expect(screen.getByTitle('Replace')).toBeInTheDocument();
-    expect(screen.getByTitle('Split')).toBeInTheDocument();
-    expect(screen.getByTitle('Expand')).toBeInTheDocument();
-    expect(screen.getByTitle('Close Window')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Detach Wizard pane/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Focus Wizard pane/i })).toBeInTheDocument();
+    const expandButton = screen.getByRole('button', { name: /Expand Wizard pane/i });
+    expect(expandButton).toHaveAttribute('title', 'Expand this pane.');
+
+    const closeButton = screen.getByRole('button', { name: /Close Wizard pane/i });
+    expect(closeButton).toHaveAttribute('title', 'Close this pane.');
+
+    const floatButton = screen.getByRole('button', { name: /Detach Wizard pane/i });
+    expect(floatButton).toHaveAttribute('title', 'Open this pane in a separate window.');
+    expect(floatButton).not.toBeDisabled();
+
+    const focusButton = screen.getByRole('button', { name: /Focus Wizard pane/i });
+    expect(focusButton).toHaveAttribute('title', 'Focus this pane.');
+    expect(focusButton).not.toBeDisabled();
+  });
+
+  it('invokes focus request handler', async () => {
+    const onFocusRequest = vi.fn();
+    const mockMosaicActions = {
+      expand: vi.fn(),
+      remove: vi.fn(),
+      hide: vi.fn(),
+      replaceWith: vi.fn(),
+      updateTree: vi.fn(),
+      getRoot: vi.fn(() => null),
+    };
+    const mockWindowActions = {
+      split: vi.fn().mockResolvedValue(undefined),
+      replaceWithNew: vi.fn().mockResolvedValue(undefined),
+      setAdditionalControlsOpen: vi.fn(),
+      getPath: vi.fn(() => ['wizard']),
+      connectDragSource: vi.fn((element) => element),
+    };
+
+    const user = userEvent.setup();
+
+    render(
+      <MosaicContext.Provider
+        value={{ mosaicActions: mockMosaicActions, mosaicId: 'mosaic', blueprintNamespace: '' }}
+      >
+        <MosaicWindowContext.Provider
+          value={{ blueprintNamespace: '', mosaicWindowActions: mockWindowActions }}
+        >
+          <DockPaneTile
+            projectPath="sample/project"
+            paneId="wizard"
+            paneTitle="Wizard"
+            path={['first']}
+            instructionsId="instructions"
+            assignPaneRef={() => undefined}
+            canFloat
+            onFloat={() => undefined}
+            onFocusRequest={onFocusRequest}
+            onContentFocus={() => undefined}
+            onContentBlur={() => undefined}
+            isFocused={false}
+            paneDescription="Plan chapters, scenes, and beats."
+            content={<div>Wizard content</div>}
+          />
+        </MosaicWindowContext.Provider>
+      </MosaicContext.Provider>,
+    );
+
+    const focusButton = screen.getByRole('button', { name: /Focus Wizard pane/i });
+    await user.click(focusButton);
+    expect(onFocusRequest).toHaveBeenCalledTimes(1);
   });
 });

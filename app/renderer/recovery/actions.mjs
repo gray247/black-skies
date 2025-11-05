@@ -2,14 +2,14 @@ import { isErrorLike } from "../../shared/util/isErrorLike.mjs";
 
 const SERVICES_UNAVAILABLE_TOAST = {
   tone: "error",
-  title: "Services unavailable",
-  description: "Cannot restore snapshots while services are offline.",
+  title: "Writing tools offline.",
+  description: "Reconnect the writing tools before restoring snapshots.",
 };
 
 const LOAD_PROJECT_FIRST_TOAST = {
   tone: "warning",
-  title: "Load a project first",
-  description: "Select a project to restore its latest snapshot.",
+  title: "Open a story to start writing.",
+  description: "Select a story to restore its latest snapshot.",
 };
 
 const NO_PROJECT_TO_REOPEN_TOAST = {
@@ -63,10 +63,10 @@ export async function performRestoreSnapshot(input) {
         recoveryStatus: result.data,
         toast: {
           tone: "success",
-          title: "Snapshot restored",
+          title: "Restored earlier version.",
           description: "Latest snapshot restored successfully.",
-          traceId: result.traceId ?? null,
-        },
+         traceId: result.traceId ?? null,
+       },
       };
     }
 
@@ -156,4 +156,3 @@ export async function openDiagnostics(input) {
     };
   }
 }
-

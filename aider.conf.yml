@@ -1,0 +1,51 @@
+@'
+# AIDER CONFIGURATION FILE
+model: ollama:qwen2.5-coder:7b
+openai-api-base: http://127.0.0.1:11434/v1
+openai-api-key: ollama
+no-show-model-warnings: true
+
+auto-commits: true
+commit-prompt: "chore(aider): {summary}"
+git: true
+pretty: true
+
+map-tokens: 30000
+no-show-model-warnings: true
+
+read:
+  - README.md
+  - docs/architecture.md
+
+ignore:
+  - "**/node_modules/**"
+  - "**/.venv/**"
+  - "**/dist/**"
+  - "**/build/**"
+  - "**/.next/**"
+  - "**/.cache/**"
+  - "**/.git/**"
+  - "**/*.png"
+  - "**/*.jpg"
+  - "**/*.jpeg"
+  - "**/*.gif"
+  - "**/*.mp4"
+  - "**/*.zip"
+  - "**/*.pdf"
+  - "**/*.exe"
+  - "**/*.dll"
+  - "**/*.bin"
+  - "**/*.log"
+  - "assets/**"
+  - "media/**"
+  - "static/**"
+  - "public/**"
+  - "coverage/**"
+  - ".pytest_cache/**"
+  - ".mypy_cache/**"
+  - ".ruff_cache/**"
+  - ".tox/**"
+
+run-cmd: |
+  pytest -x || echo "tests failed"
+'@ | Out-File -Encoding utf8 aider.conf.yml

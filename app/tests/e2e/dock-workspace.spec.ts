@@ -211,8 +211,8 @@ test.describe('Dock workspace interactions', () => {
     const wizardPane = page.locator('[data-pane-id="wizard"]');
     await expect(wizardPane).toBeVisible();
 
-    await expect(page.locator('.dock-pane__toolbar').first().getByTitle('Expand')).toBeVisible();
-    await expect(page.locator('.dock-pane__toolbar').first().getByTitle('Close Window')).toBeVisible();
+    await expect(page.locator('.dock-pane__toolbar').first().getByTitle('Expand this pane.')).toBeVisible();
+    await expect(page.locator('.dock-pane__toolbar').first().getByTitle('Close this pane.')).toBeVisible();
 
     const initialSaveCount = await page.evaluate(
       () => window.__layoutCallLog?.saveLayout.length ?? 0,
@@ -251,7 +251,16 @@ test.describe('Dock workspace interactions', () => {
     });
     expect(layoutHasSplit).toBe(true);
 
-    const floatButton = page.getByRole('button', { name: 'Detach Draft board pane' });
+    const draftPane = page.locator('[data-pane-id="draft-board"]');
+    await expect(draftPane).toBeVisible();
+    const draftPaneLabel = await draftPane.getAttribute('aria-label');
+    if (!draftPaneLabel) {
+      throw new Error('Draft board pane is missing an aria-label.');
+    }
+    const draftPaneContainer = page.locator('.dock-pane').filter({ has: draftPane });
+    const floatButton = draftPaneContainer.getByRole('button', {
+      name: `Detach ${draftPaneLabel} pane`,
+    });
     await floatButton.click();
 
     const openCalls = await page.evaluate(() => window.__layoutCallLog?.openFloating ?? []);
@@ -260,7 +269,9 @@ test.describe('Dock workspace interactions', () => {
 
     await page.mouse.click(5, 5);
 
-    const focusButton = page.getByRole('button', { name: 'Focus Draft board pane' });
+    const focusButton = draftPaneContainer.getByRole('button', {
+      name: `Focus ${draftPaneLabel} pane`,
+    });
     await focusButton.click();
 
     await expect

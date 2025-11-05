@@ -1,4 +1,6 @@
-﻿export type ServiceStatus = 'checking' | 'online' | 'offline';
+import { memo } from 'react';
+
+export type ServiceStatus = 'checking' | 'online' | 'offline';
 
 interface ServiceStatusPillProps {
   status: ServiceStatus;
@@ -6,12 +8,12 @@ interface ServiceStatusPillProps {
 }
 
 const STATUS_LABELS: Record<ServiceStatus, string> = {
-  checking: 'Checking services',
-  online: 'Services online',
-  offline: 'Services offline',
+  checking: 'Checking writing tools',
+  online: 'Ready',
+  offline: 'Writing tools offline',
 };
 
-export default function ServiceStatusPill({
+const ServiceStatusPill = memo(function ServiceStatusPill({
   status,
   onRetry,
 }: ServiceStatusPillProps): JSX.Element {
@@ -38,6 +40,8 @@ export default function ServiceStatusPill({
       ) : null}
     </button>
   );
-}
+});
 
+ServiceStatusPill.displayName = 'ServiceStatusPill';
 
+export default ServiceStatusPill;

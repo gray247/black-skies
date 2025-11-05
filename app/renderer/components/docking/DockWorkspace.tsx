@@ -37,12 +37,51 @@ interface DockWorkspaceProps {
 }
 
 const PANE_TITLES: Record<LayoutPaneId, string> = {
-  wizard: 'Wizard',
-  'draft-board': 'Draft board',
-  critique: 'Critique results',
-  history: 'History',
-  analytics: 'Analytics',
+  wizard: 'Outline',
+  'draft-board': 'Writing view',
+  critique: 'Feedback notes',
+  history: 'Timeline',
+  analytics: 'Story insights',
 };
+
+const PANE_DESCRIPTIONS: Record<LayoutPaneId, string> = {
+  wizard: 'Plan chapters, scenes, and beats.',
+  'draft-board': 'Write and edit your scene text.',
+  critique: 'Review feedback and suggested revisions.',
+  history: 'View previous versions and snapshots.',
+  analytics: 'See pacing and emotion data.',
+};
+
+function collectPaneIds(node: LayoutTree | null, result: Set<LayoutPaneId>): void {
+  if (!node) {
+    return;
+  }
+  if (typeof node === 'string') {
+    result.add(node);
+    return;
+  }
+  collectPaneIds(node.first, result);
+  collectPaneIds(node.second, result);
+}
+
+function layoutContainsPane(node: LayoutTree, paneId: LayoutPaneId): boolean {
+  if (typeof node === 'string') {
+    return node === paneId;
+  }
+  return layoutContainsPane(node.first, paneId) || layoutContainsPane(node.second, paneId);
+}
+
+export function ensurePaneInLayout(tree: LayoutTree, paneId: LayoutPaneId): LayoutTree {
+  if (layoutContainsPane(tree, paneId)) {
+    return cloneLayout(tree);
+  }
+  return {
+    direction: 'row',
+    first: cloneLayout(tree),
+    second: paneId,
+    splitPercentage: 70,
+  };
+}
 
 function isValidPaneId(value: unknown): value is LayoutPaneId {
   return typeof value === 'string' && (ALL_DOCK_PANES as readonly string[]).includes(value);
@@ -80,8 +119,10 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
   const saveTimerRef = useRef<number | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [focusedPaneId, setFocusedPaneId] = useState<LayoutPaneId | null>(null);
 
   const paneRefs = useRef(new Map<LayoutPaneId, HTMLDivElement>());
+  const containerRef = useRef<HTMLElement | null>(null);
 
   const resolvedDefaultPreset = useMemo(
     () => (defaultPreset in DOCK_PRESETS ? defaultPreset : DEFAULT_PRESET_KEY),
@@ -93,6 +134,19 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
     const filtered = focusCycleOrder.filter((pane): pane is LayoutPaneId => allowed.has(pane));
     return filtered.length > 0 ? filtered : (ALL_DOCK_PANES as LayoutPaneId[]);
   }, [focusCycleOrder]);
+  const floatingAvailable = useMemo(
+    () => Boolean(layoutBridge && typeof layoutBridge.openFloatingPane === 'function'),
+    [layoutBridge],
+  );
+  const activePaneIds = useMemo(() => {
+    const ids = new Set<LayoutPaneId>();
+    collectPaneIds(layoutState, ids);
+    return ids;
+  }, [layoutState]);
+  const hiddenPaneIds = useMemo(
+    () => (ALL_DOCK_PANES as LayoutPaneId[]).filter((paneId) => !activePaneIds.has(paneId)),
+    [activePaneIds],
+  );
 
   const assignPaneRef = useCallback((paneId: LayoutPaneId, element: HTMLDivElement | null) => {
     if (element) {
@@ -100,6 +154,12 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
     } else {
       paneRefs.current.delete(paneId);
     }
+  }, []);
+  const handlePaneFocused = useCallback((paneId: LayoutPaneId) => {
+    setFocusedPaneId(paneId);
+  }, []);
+  const handlePaneBlurred = useCallback((paneId: LayoutPaneId) => {
+    setFocusedPaneId((current) => (current === paneId ? null : current));
   }, []);
 
   const persistLayout = useCallback(
@@ -121,7 +181,7 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
         } catch (error) {
           console.warn('[dock] Failed to persist layout', error);
         }
-      }, 350);
+      }, 650);
     },
     [layoutBridge, projectPath],
   );
@@ -134,6 +194,12 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
   }, []);
 
   usePaneBoundsLogger(projectPath, layoutState, paneRefs);
+
+  useEffect(() => {
+    if (focusedPaneId && !activePaneIds.has(focusedPaneId)) {
+      setFocusedPaneId(null);
+    }
+  }, [activePaneIds, focusedPaneId]);
 
   const applyLayout = useCallback(
     (tree: LayoutTree) => {
@@ -268,6 +334,7 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
   }, [applyLayout, layoutBridge, projectPath, resolvedDefaultPreset]);
 
   const focusPane = useCallback((paneId: LayoutPaneId) => {
+    setFocusedPaneId(paneId);
     const element = paneRefs.current.get(paneId);
     if (element) {
       element.focus({ preventScroll: false });
@@ -299,6 +366,7 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
     resetToDefault,
     cycleFocus,
     defaultPresetKey: resolvedDefaultPreset,
+    containerRef,
   });
 
   const openFloatingPane = useCallback(
@@ -338,6 +406,17 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
     [layoutBridge, persistLayout, projectPath],
   );
 
+  const reopenPane = useCallback(
+    (paneId: LayoutPaneId) => {
+      const nextLayout = ensurePaneInLayout(layoutRef.current, paneId);
+      applyLayout(nextLayout);
+      window.setTimeout(() => {
+        focusPane(paneId);
+      }, 0);
+    },
+    [applyLayout, focusPane],
+  );
+
   const renderTile = useCallback(
     (paneId: LayoutPaneId, path: MosaicPath) => (
       <DockPaneTile
@@ -347,18 +426,34 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
         path={path}
         instructionsId={instructionsId}
         assignPaneRef={assignPaneRef}
+        canFloat={floatingAvailable}
         onFloat={() => void openFloatingPane(paneId)}
-        onFocus={() => focusPane(paneId)}
-        content={panes[paneId] ?? <DockPlaceholder paneId={paneId} />}
+        onFocusRequest={() => focusPane(paneId)}
+        onContentFocus={handlePaneFocused}
+        onContentBlur={handlePaneBlurred}
+        isFocused={focusedPaneId === paneId}
+        paneDescription={PANE_DESCRIPTIONS[paneId]}
+        content={panes[paneId] ?? <div style={{ minHeight: 1 }} />}
       />
     ),
-    [assignPaneRef, focusPane, instructionsId, openFloatingPane, panes, projectPath],
+    [
+      assignPaneRef,
+      focusPane,
+      focusedPaneId,
+      floatingAvailable,
+      handlePaneBlurred,
+      handlePaneFocused,
+      instructionsId,
+      openFloatingPane,
+      panes,
+      projectPath,
+    ],
   );
 
   const zeroStateView = useMemo(
     () => (
       <div className="dock-zero-state">
-        <p>All panes are hidden. Choose a preset to restore the workspace.</p>
+        <p>No panels open. Restore your workspace layout.</p>
         <div className="dock-zero-state__actions">
           {Object.keys(DOCK_PRESETS).map((key) => (
             <button
@@ -382,10 +477,12 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
       className="dock-workspace"
       aria-label="Docked workspace"
       data-testid={TID.dockWorkspace}
+      ref={containerRef}
     >
       <p id={instructionsId} className="visually-hidden">
-        Use Control plus Alt plus the number keys to switch docking presets. Control plus Alt plus zero
-        resets the layout. Control plus Alt plus the right or left bracket keys moves focus between panes.
+        Use Control or Command plus Alt with the number keys to switch docking presets. Control or Command plus
+        Alt plus zero resets the layout. Control or Command plus Alt plus the right or left bracket keys moves focus
+        between panes. Control or Command plus Shift plus E also cycles focus forward if bracket keys are unavailable.
       </p>
       {loadError ? (
         <div className="dock-workspace__status" role="status">
@@ -394,21 +491,41 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
       ) : null}
       {!projectPath ? (
         <div className="dock-workspace__status" role="status">
-          <p>Load a project to enable the dock workspace.</p>
+          <p>Open a story to start writing.</p>
           {emptyState ? <div className="dock-workspace__empty">{emptyState}</div> : null}
         </div>
       ) : (
-        <Mosaic<LayoutPaneId>
-          className="dock-workspace__grid"
-          value={layoutState}
-          onChange={(nextLayout) => applyLayout(sanitizeLayoutNode(nextLayout))}
-          renderTile={renderTile}
-          zeroStateView={zeroStateView}
-        />
+        <>
+          <Mosaic<LayoutPaneId>
+            className="dock-workspace__grid"
+            value={layoutState}
+            onChange={(nextLayout) => applyLayout(sanitizeLayoutNode(nextLayout))}
+            renderTile={renderTile}
+            zeroStateView={zeroStateView}
+          />
+          {hiddenPaneIds.length > 0 ? (
+            <div className="dock-workspace__hidden" role="region" aria-label="Hidden panes">
+              <span className="dock-workspace__hidden-label">Hidden panes</span>
+              <div className="dock-workspace__hidden-actions">
+                {hiddenPaneIds.map((paneId) => (
+                  <button
+                    key={paneId}
+                    type="button"
+                    className="dock-pane__toolbar-button"
+                    onClick={() => reopenPane(paneId)}
+                    title={`Reopen ${PANE_TITLES[paneId]}`}
+                  >
+                    {PANE_TITLES[paneId]}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : null}
+        </>
       )}
       {loading ? (
         <div className="dock-workspace__loading" role="status" aria-live="polite">
-          Restoring saved layout…
+          Rebuilding your workspace...
         </div>
       ) : null}
       <div className="dock-workspace__footer">
@@ -417,29 +534,20 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
           className="dock-pane__toolbar-button"
           onClick={() => applyPreset(resolvedDefaultPreset)}
           disabled={!projectPath}
+          title="Restore your saved layout preset."
         >
-          Apply preset
+          Restore layout
         </button>
         <button
           type="button"
           className="dock-pane__toolbar-button"
           onClick={() => void resetToDefault()}
           disabled={!projectPath}
+          title="Return to the default layout."
         >
-          Reset layout
+          Default view
         </button>
       </div>
     </section>
-  );
-}
-
-function DockPlaceholder({ paneId }: { paneId: LayoutPaneId }): JSX.Element {
-  return (
-    <div className="dock-pane__placeholder">
-      <p>
-        {PANE_TITLES[paneId]} pane is not available in this build. Use the preset hotkeys to load an
-        arrangement that includes active panes.
-      </p>
-    </div>
   );
 }
