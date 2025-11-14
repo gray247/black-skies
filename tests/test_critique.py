@@ -1,7 +1,10 @@
 from __future__ import annotations
 
-from blackskies.services.critique import CATEGORIES, apply_rubric
+import json
+
+from blackskies.services.critique import CATEGORIES, CritiqueService, apply_rubric
 from blackskies.services.models import Draft
+from blackskies.services.models.critique import DraftCritiqueRequest
 
 
 def test_apply_rubric_returns_required_fields() -> None:
@@ -38,3 +41,28 @@ def test_rubric_considers_sentence_length() -> None:
 
 def test_categories_remain_available() -> None:
     assert {"Logic", "Prose", "Horror"}.issubset(set(CATEGORIES))
+
+
+def test_service_falls_back_to_cached_draft(tmp_path) -> None:
+    cached = {
+        "response": {
+            "units": [
+                {
+                    "unit_id": "sc_0001",
+                    "title": "Cached Scene",
+                    "text": "She waits by the door. The static grows louder.",
+                }
+            ]
+        }
+    }
+    (tmp_path / "dr_cached.json").write_text(json.dumps(cached), encoding="utf-8")
+
+    request = DraftCritiqueRequest(draft_id="dr_cached", unit_id="sc_0001", rubric=["Logic"])
+    service = CritiqueService(data_dir=tmp_path)
+
+    result = service.run(request)
+
+    assert result["unit_id"] == "sc_0001"
+    assert result["rubric"] == ["Logic"]
+    assert result["summary"].startswith("Draft 'Cached Scene'")
+    assert result["model"]["name"] == "black-skies-rubric-v1"

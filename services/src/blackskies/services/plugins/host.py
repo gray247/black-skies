@@ -7,7 +7,7 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
-from typing import Any, Dict, Iterable
+from typing import Any, Dict, Iterable, Mapping, MutableMapping
 
 RUNNER_MODULE = "blackskies.services.plugins.runner"
 
@@ -30,6 +30,7 @@ def launch_plugin(
     cpu_seconds: int | None = None,
     memory_bytes: int | None = None,
     fd_limit: int | None = None,
+    env: Mapping[str, str] | None = None,
 ) -> Dict[str, Any]:
     """Execute a plugin inside the sandbox runner and return the response."""
 
@@ -51,11 +52,16 @@ def launch_plugin(
         cmd.extend(["--fd-limit", str(fd_limit)])
 
     try:
+        runner_env: MutableMapping[str, str] | None = None
+        if env is not None:
+            runner_env = dict(env)
+
         completed = subprocess.run(
             cmd,
             check=False,
             capture_output=True,
             text=True,
+            env=runner_env,
         )
     finally:
         try:

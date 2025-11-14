@@ -42,6 +42,45 @@ _DEFAULT_CONFIG: Mapping[str, Any] = {
             "fast_threshold": 0.8,
         },
     },
+    "draft_synthesizer": {
+        "povs": [
+            "Mara Ibarra",
+            "Ezra Cole",
+            "Jun Park",
+            "Sasha Reed",
+            "Luis Navarro",
+            "Rin Okada",
+            "Kira Beaumont",
+            "Elior Shaw",
+        ],
+        "goals": [
+            "stabilize the perimeter sensors",
+            "recover the coded broadcast",
+            "map the estate's sealed corridors",
+            "extract the survivor logs",
+            "keep the generator coil alive",
+            "decode the warding sigils",
+        ],
+        "conflicts": [
+            "humidity chews through every circuit",
+            "alarms cascade in the empty halls",
+            "footsteps echo from nowhere",
+            "the blackout shutters seize mid-drop",
+            "radio static lances through the air",
+            "old floorboards complain at every move",
+        ],
+        "turns": [
+            "a hidden relay spits out fresh co-ordinates",
+            "an old ally speaks through the static",
+            "the house remembers a forgotten route",
+            "a vault door seals with new intent",
+            "a warning flare cuts across the bay",
+            "the diary on the desk updates itself",
+        ],
+        "purposes": ["setup", "escalation", "payoff", "breath"],
+        "emotions": ["dread", "tension", "respite", "revelation", "aftermath"],
+        "word_target": {"base": 850, "per_order": 40},
+    },
 }
 
 
@@ -155,6 +194,66 @@ _pace = _analytics.get("pace", {})
 PACE_SLOW_THRESHOLD: Final[float] = _safe_float(_pace.get("slow_threshold"), 1.2)
 PACE_FAST_THRESHOLD: Final[float] = _safe_float(_pace.get("fast_threshold"), 0.8)
 
+_allowed_purposes = {"setup", "escalation", "payoff", "breath"}
+_allowed_emotions = {"dread", "tension", "respite", "revelation", "aftermath"}
+
+
+def _normalize_entries(value: Any) -> list[str]:
+    if isinstance(value, (list, tuple, set)):
+        normalized: list[str] = []
+        for entry in value:
+            if entry is None:
+                continue
+            text = str(entry).strip()
+            if text:
+                normalized.append(text)
+        return normalized
+    return []
+
+
+def _resolve_heuristic_list(
+    key: str,
+    *,
+    allowed: set[str] | None = None,
+) -> tuple[str, ...]:
+    runtime_section = _RUNTIME_CONFIG.get("draft_synthesizer", {})
+    if isinstance(runtime_section, dict):
+        entries = _normalize_entries(runtime_section.get(key))
+        if allowed is not None:
+            entries = [entry for entry in entries if entry in allowed]
+        if entries:
+            return tuple(entries)
+
+    defaults = _normalize_entries(_DEFAULT_CONFIG["draft_synthesizer"].get(key))
+    if allowed is not None:
+        defaults = [entry for entry in defaults if entry in allowed]
+    return tuple(defaults)
+
+
+def _word_target_config() -> dict[str, Any]:
+    runtime_section = _RUNTIME_CONFIG.get("draft_synthesizer", {})
+    if isinstance(runtime_section, dict):
+        candidate = runtime_section.get("word_target")
+        if isinstance(candidate, dict):
+            return candidate
+    return _DEFAULT_CONFIG["draft_synthesizer"]["word_target"]
+
+
+DRAFT_POV_CANDIDATES: Final[tuple[str, ...]] = _resolve_heuristic_list("povs")
+DRAFT_GOAL_CANDIDATES: Final[tuple[str, ...]] = _resolve_heuristic_list("goals")
+DRAFT_CONFLICT_CANDIDATES: Final[tuple[str, ...]] = _resolve_heuristic_list("conflicts")
+DRAFT_TURN_CANDIDATES: Final[tuple[str, ...]] = _resolve_heuristic_list("turns")
+DRAFT_PURPOSES: Final[tuple[str, ...]] = _resolve_heuristic_list(
+    "purposes", allowed=_allowed_purposes
+)
+DRAFT_EMOTIONS: Final[tuple[str, ...]] = _resolve_heuristic_list(
+    "emotions", allowed=_allowed_emotions
+)
+
+_word_target = _word_target_config()
+WORD_TARGET_BASE: Final[int] = max(0, _safe_int(_word_target.get("base"), 850))
+WORD_TARGET_PER_ORDER: Final[int] = max(0, _safe_int(_word_target.get("per_order"), 40))
+
 __all__ = [
     "DEFAULT_SOFT_BUDGET_LIMIT_USD",
     "DEFAULT_HARD_BUDGET_LIMIT_USD",
@@ -169,5 +268,13 @@ __all__ = [
     "DEFAULT_EMOTION_INTENSITY",
     "PACE_SLOW_THRESHOLD",
     "PACE_FAST_THRESHOLD",
+    "DRAFT_POV_CANDIDATES",
+    "DRAFT_GOAL_CANDIDATES",
+    "DRAFT_CONFLICT_CANDIDATES",
+    "DRAFT_TURN_CANDIDATES",
+    "DRAFT_PURPOSES",
+    "DRAFT_EMOTIONS",
+    "WORD_TARGET_BASE",
+    "WORD_TARGET_PER_ORDER",
     "load_runtime_config",
 ]

@@ -10,7 +10,7 @@ Covers: new export formats, metadata extensions, analytics inclusions.
 - **chapter_{n}.md** — per-chapter.  
 - **critique_bundle.pdf/md** — aggregated Batch Critiques per scene.  
 - **analytics_report.json** — emotion arc, pacing, heatmap metrics.  
-- **outline_report.pdf** — all Wizard decisions + validation summary.  
+- **outline_report.pdf** — all Outline decisions + validation summary.  
 - **corkboard_cards.pdf** — visual scene cards.  
 - **template_{name}.docx/pdf** — user-selected export layout.
 
@@ -20,6 +20,7 @@ Covers: new export formats, metadata extensions, analytics inclusions.
 - JSON exports now include AI metrics (arc, pacing, conflict, revision stats).  
 - Markdown/PDF exports may append summary of analytics and critique scores.  
 - All exports carry phase version tags (`meta.version: v1.1+`).
+- Exporters preserve every front-matter key emitted by `DraftPersistence._render`, including unknown extensions (e.g., `scene_mood`) so custom metadata survives a rewrite cycle.
 
 ## Dynamic Template Architecture
 - Introduce exporter plugins per format (`docx`, `epub`, `pdf`) under `services/src/blackskies/services/exporters/`.
@@ -60,3 +61,21 @@ Covers: new export formats, metadata extensions, analytics inclusions.
 2. Integrate Pandoc invocation with sandboxed temp directories.
 3. Extend UI to manage templates, preview badges, and queue exports.
 4. Add tests covering template manifest validation and export outputs.
+
+---
+
+## Packaging
+`ZIP` bundles follow the layout below:
+```
+/exports/
+  draft_full.md
+  chapters/
+    chapter_001.md …
+  metadata/
+    outline.json
+    draft_manifest.json
+  book/
+    book.pdf (optional)
+    book.epub (optional)
+```
+Every artifact publishes its SHA-256 to `/exports/checksums.txt`.

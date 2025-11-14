@@ -5,6 +5,7 @@ import { Mosaic, MosaicZeroState, type MosaicNode, type MosaicPath } from 'react
 import 'react-mosaic-component/react-mosaic-component.css';
 
 import type {
+  FloatingPaneClampInfo,
   FloatingPaneDescriptor,
   LayoutPaneId,
   LayoutTree,
@@ -22,8 +23,11 @@ import DockPaneTile from './DockPaneTile';
 import { useDockHotkeys } from './useDockHotkeys';
 import { usePaneBoundsLogger } from './usePaneBoundsLogger';
 import { TID } from '../../utils/testIds';
+import type { ToastPayload } from '../../types/toast';
+import { boundsDiffer } from '../../utils/layout';
 
 const LAYOUT_SCHEMA_VERSION = 2;
+const RELOCATION_HIGHLIGHT_DURATION = 2000;
 
 type PaneContentMap = Partial<Record<LayoutPaneId, ReactNode>>;
 
@@ -34,6 +38,10 @@ interface DockWorkspaceProps {
   enableHotkeys: boolean;
   focusCycleOrder: readonly LayoutPaneId[];
   emptyState?: ReactNode;
+  onToast?: (toast: ToastPayload) => void;
+  relocationNotifyEnabled: boolean;
+  autoSnapEnabled: boolean;
+  onRelocationNotifyChange?: (value: boolean) => void;
 }
 
 const PANE_TITLES: Record<LayoutPaneId, string> = {
@@ -111,8 +119,20 @@ function sanitizeLayoutNode(node: MosaicNode<LayoutPaneId> | null): LayoutTree {
 }
 
 export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
-  const { projectPath, panes, defaultPreset, enableHotkeys, focusCycleOrder, emptyState } = props;
+  const {
+    projectPath,
+    panes,
+    defaultPreset,
+    enableHotkeys,
+    focusCycleOrder,
+    emptyState,
+    onToast,
+    relocationNotifyEnabled,
+    autoSnapEnabled,
+    onRelocationNotifyChange,
+  } = props;
   const layoutBridge = typeof window !== 'undefined' ? window.layout : undefined;
+  const toastHandler = onToast;
   const instructionsId = useId();
   const [layoutState, setLayoutState] = useState<LayoutTree>(() => cloneLayout(DEFAULT_LAYOUT));
   const layoutRef = useRef<LayoutTree>(cloneLayout(DEFAULT_LAYOUT));
@@ -120,9 +140,170 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
   const [loading, setLoading] = useState<boolean>(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [focusedPaneId, setFocusedPaneId] = useState<LayoutPaneId | null>(null);
+  const [relocatedMap, setRelocatedMap] = useState<Record<LayoutPaneId, number>>({});
+  const relocationToastFiredRef = useRef(false);
+  const relocationTimersRef = useRef(new Map<LayoutPaneId, number>());
+  const clampHistoryRef = useRef(new Map<LayoutPaneId, FloatingPaneClampInfo>());
+  const processClampResultRef = useRef<
+    ((paneId: LayoutPaneId, clamp?: FloatingPaneClampInfo | null) => void) | null
+  >(null);
+  const autoSnapAttemptsRef = useRef(new Set<string>());
 
   const paneRefs = useRef(new Map<LayoutPaneId, HTMLDivElement>());
   const containerRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    recordDebugEvent('dock-workspace.rendered', {
+      projectPath,
+      layout: layoutState,
+    });
+    console.info(`[playwright] dock-workspace rendered projectPath=${projectPath ?? 'null'}`);
+  }, [layoutState, projectPath]);
+
+  const markRelocationHighlight = useCallback((paneId: LayoutPaneId) => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    setRelocatedMap((current) => {
+      if (current[paneId]) {
+        return current;
+      }
+      return { ...current, [paneId]: Date.now() };
+    });
+    const handle = window.setTimeout(() => {
+      setRelocatedMap((current) => {
+        if (!current[paneId]) {
+          return current;
+        }
+        const next = { ...current };
+        delete next[paneId];
+        return next;
+      });
+      relocationTimersRef.current.delete(paneId);
+    }, RELOCATION_HIGHLIGHT_DURATION);
+    const previous = relocationTimersRef.current.get(paneId);
+    if (previous) {
+      window.clearTimeout(previous);
+    }
+    relocationTimersRef.current.set(paneId, handle);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      relocationTimersRef.current.forEach((handle) => window.clearTimeout(handle));
+      relocationTimersRef.current.clear();
+    };
+  }, []);
+
+  const reopenAtBounds = useCallback(
+    async (paneId: LayoutPaneId, bounds: FloatingPaneDescriptor['bounds'], displayId?: number) => {
+      if (!layoutBridge || !projectPath) {
+        return;
+      }
+      try {
+        await layoutBridge.closeFloatingPane({ projectPath, paneId });
+      } catch (error) {
+        console.warn('[dock] Failed to close floating pane before relocating', error);
+      }
+      try {
+        const result = await layoutBridge.openFloatingPane({
+          projectPath,
+          paneId,
+          bounds,
+          displayId,
+        });
+        processClampResultRef.current?.(paneId, result?.clamp ?? null);
+      } catch (error) {
+        console.warn('[dock] Failed to reopen floating pane at preferred position', error);
+      }
+    },
+    [layoutBridge, projectPath],
+  );
+
+  const attemptAutoSnap = useCallback(
+    (paneId: LayoutPaneId, clamp: FloatingPaneClampInfo | null | undefined) => {
+      if (!autoSnapEnabled || !clamp?.before || typeof window === 'undefined') {
+        return;
+      }
+      const key = `${paneId}:${clamp.before.x}:${clamp.before.y}:${clamp.before.width}:${clamp.before.height}`;
+      if (autoSnapAttemptsRef.current.has(key)) {
+        return;
+      }
+      autoSnapAttemptsRef.current.add(key);
+      window.setTimeout(() => {
+        void reopenAtBounds(paneId, clamp.before!, clamp.requestedDisplayId);
+      }, 1200);
+    },
+    [autoSnapEnabled, reopenAtBounds],
+  );
+
+  const processClampResult = useCallback(
+    (paneId: LayoutPaneId, clamp: FloatingPaneClampInfo | null | undefined) => {
+      if (!clamp) {
+        return;
+      }
+      if (!boundsDiffer(clamp.before, clamp.after)) {
+        return;
+      }
+      clampHistoryRef.current.set(paneId, clamp);
+      recordDebugEvent('dock-workspace.floating.clamp', {
+        projectPath,
+        paneId,
+        clamp,
+      });
+      console.info('[dock] Floating pane relocated', {
+        projectPath,
+        paneId,
+        reason: clamp.reason,
+        before: clamp.before ?? null,
+        after: clamp.after,
+      });
+      markRelocationHighlight(paneId);
+      if (!relocationToastFiredRef.current && relocationNotifyEnabled && typeof toastHandler === 'function') {
+        const paneTitle = PANE_TITLES[paneId] ?? paneId;
+        const actions: Array<{ label: string; onPress: () => void; dismissOnPress?: boolean }> = [
+          { label: 'OK', onPress: () => {}, dismissOnPress: true },
+          {
+            label: "Don't show again",
+            onPress: () => {
+              onRelocationNotifyChange?.(false);
+            },
+            dismissOnPress: true,
+          },
+        ];
+        if (clamp.before) {
+          actions.push({
+            label: 'Try previous position',
+            onPress: () => {
+              void reopenAtBounds(paneId, clamp.before!, clamp.requestedDisplayId);
+            },
+          });
+        }
+        toastHandler({
+          tone: 'info',
+          title: `We moved ${paneTitle} onto this display.`,
+          description: 'Saved floating panes were moved into view after a monitor change.',
+          actions,
+          durationMs: 0,
+        });
+        relocationToastFiredRef.current = true;
+      }
+      attemptAutoSnap(paneId, clamp);
+    },
+    [
+      attemptAutoSnap,
+      markRelocationHighlight,
+      projectPath,
+      relocationNotifyEnabled,
+      reopenAtBounds,
+      onRelocationNotifyChange,
+      toastHandler,
+    ],
+  );
+
+  useEffect(() => {
+    processClampResultRef.current = processClampResult;
+  }, [processClampResult]);
 
   const resolvedDefaultPreset = useMemo(
     () => (defaultPreset in DOCK_PRESETS ? defaultPreset : DEFAULT_PRESET_KEY),
@@ -223,10 +404,30 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
     [applyLayout],
   );
 
+  const closeFloatingPanes = useCallback(async () => {
+    if (!projectPath || !layoutBridge) {
+      return;
+    }
+    try {
+      const floating = await layoutBridge.listFloatingPanes(projectPath);
+      await Promise.all(
+        floating.map((pane) =>
+          layoutBridge.closeFloatingPane({
+            projectPath,
+            paneId: pane.id,
+          }),
+        ),
+      );
+    } catch (error) {
+      console.warn('[dock] Failed to close floating panes', error);
+    }
+  }, [layoutBridge, projectPath]);
+
   const resetToDefault = useCallback(async () => {
     recordDebugEvent('dock-workspace.reset.invoke', { projectPath });
     if (projectPath && layoutBridge) {
       try {
+        await closeFloatingPanes();
         await layoutBridge.resetLayout({ projectPath });
       } catch (error) {
         console.warn('[dock] Failed to reset layout file', error);
@@ -242,7 +443,7 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
       projectPath,
       presetKey: resolvedDefaultPreset,
     });
-  }, [applyLayout, layoutBridge, projectPath, resolvedDefaultPreset]);
+  }, [applyLayout, layoutBridge, processClampResult, projectPath, resolvedDefaultPreset]);
 
   useEffect(() => {
     if (!projectPath || !layoutBridge) {
@@ -291,7 +492,7 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
                 break;
               }
               try {
-                await layoutBridge.openFloatingPane({
+                const result = await layoutBridge.openFloatingPane({
                   projectPath,
                   paneId: descriptor.id,
                   bounds: descriptor.bounds,
@@ -301,6 +502,7 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
                   projectPath,
                   paneId: descriptor.id,
                 });
+                processClampResult(descriptor.id, result?.clamp ?? null);
               } catch (error) {
                 console.warn('[dock] Failed to reopen floating pane', error);
                 recordDebugEvent('dock-workspace.floating.reopen-error', {
@@ -388,12 +590,13 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
             },
           } satisfies FloatingPaneDescriptor;
         }
-        await layoutBridge.openFloatingPane({
+        const result = await layoutBridge.openFloatingPane({
           projectPath,
           paneId,
           bounds: descriptor?.bounds,
         });
         persistLayout(layoutRef.current);
+        processClampResult(paneId, result?.clamp ?? null);
       } catch (error) {
         console.warn('[dock] Failed to open floating pane', error);
         recordDebugEvent('dock-workspace.floating.open-error', {
@@ -403,7 +606,7 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
         });
       }
     },
-    [layoutBridge, persistLayout, projectPath],
+    [layoutBridge, persistLayout, processClampResult, projectPath],
   );
 
   const reopenPane = useCallback(
@@ -432,6 +635,7 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
         onContentFocus={handlePaneFocused}
         onContentBlur={handlePaneBlurred}
         isFocused={focusedPaneId === paneId}
+        highlightRelocated={Boolean(relocatedMap[paneId])}
         paneDescription={PANE_DESCRIPTIONS[paneId]}
         content={panes[paneId] ?? <div style={{ minHeight: 1 }} />}
       />
@@ -446,6 +650,7 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
       instructionsId,
       openFloatingPane,
       panes,
+      relocatedMap,
       projectPath,
     ],
   );
@@ -543,9 +748,9 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
           className="dock-pane__toolbar-button"
           onClick={() => void resetToDefault()}
           disabled={!projectPath}
-          title="Return to the default layout."
-        >
-          Default view
+        title="Reset the layout to the default view."
+      >
+          Reset layout
         </button>
       </div>
     </section>

@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { TID } from '../utils/testIds';
 
 export type ServiceStatus = 'checking' | 'online' | 'offline';
 
@@ -19,10 +20,12 @@ const ServiceStatusPill = memo(function ServiceStatusPill({
 }: ServiceStatusPillProps): JSX.Element {
   const label = STATUS_LABELS[status];
   const className = `service-status-pill service-status-pill--${status}`;
+  const tooltip = status === 'offline' ? 'Connection lost — retrying.' : undefined;
   const handleClick = (): void => {
-    if (status === 'offline' && onRetry) {
-      onRetry();
+    if (!onRetry || status === 'checking') {
+      return;
     }
+    onRetry();
   };
 
   return (
@@ -32,6 +35,9 @@ const ServiceStatusPill = memo(function ServiceStatusPill({
       onClick={handleClick}
       disabled={status === 'checking'}
       aria-live="polite"
+      data-testid={TID.serviceStatusPill}
+      data-status={status}
+      title={tooltip}
     >
       <span className="service-status-pill__indicator" aria-hidden="true" />
       <span className="service-status-pill__label">{label}</span>

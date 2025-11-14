@@ -72,7 +72,7 @@ def _load_fixture_rubric(rubric_id: str) -> RubricDefinition:
         fixture = resources.files(_FIXTURE_PACKAGE).joinpath(f"{rubric_id}.json")
     except (FileNotFoundError, ModuleNotFoundError) as exc:
         raise FileNotFoundError(rubric_id) from exc
-    if not fixture.exists():
+    if not fixture.is_file():
         if rubric_id != "baseline":
             raise FileNotFoundError(rubric_id)
         fixture = resources.files(_FIXTURE_PACKAGE).joinpath(_DEFAULT_RUBRIC_FILE)

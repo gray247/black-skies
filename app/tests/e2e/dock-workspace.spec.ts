@@ -1,47 +1,20 @@
-import { test, expect } from '@playwright/test';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { test, expect } from './_electron.fixture';
+import { bootstrapHarness } from './_bootstrap';
+import { loadSampleProject } from './utils/sampleProject';
+import { loadPackagedRenderer } from './utils/loadRenderer';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const repoRoot = path.resolve(__dirname, '../../..');
-const projectId = 'proj_esther_estate';
-const projectRoot = path.join(repoRoot, 'sample_project', projectId);
-const outline = JSON.parse(fs.readFileSync(path.join(projectRoot, 'outline.json'), 'utf-8'));
-const projectMeta = JSON.parse(fs.readFileSync(path.join(projectRoot, 'project.json'), 'utf-8'));
-const draftsDir = path.join(projectRoot, 'drafts');
-const drafts = Object.fromEntries(
-  fs
-    .readdirSync(draftsDir)
-    .filter((file) => file.endsWith('.md'))
-    .map((file) => [path.basename(file, '.md'), fs.readFileSync(path.join(draftsDir, file), 'utf-8')]),
-);
-
-const scenes = outline.scenes.map((scene: any) => ({
-  id: scene.id,
-  title: scene.title,
-  order: scene.order,
-  chapter_id: scene.chapter_id,
-  beat_refs: scene.beat_refs,
-  purpose: 'escalation',
-  emotion_tag: 'tension',
-}));
-
-const loadedProject = {
-  path: projectRoot.replace(/\\/g, '/'),
-  name: projectMeta.name,
-  outline,
-  scenes,
-  drafts,
-  project_id: projectId,
-};
+const { loadedProject } = loadSampleProject();
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(({ project }) => {
     const layoutCalls = {
       openFloating: [] as Array<{ projectPath: string; paneId: string }>,
       saveLayout: [] as Array<{ projectPath: string; layout: unknown }>,
+      loadLayout: [] as Array<{ projectPath: string; layout: unknown | null }>,
+    };
+    const layoutState = {
+      savedLayout: null as unknown | null,
+      floatingPanes: [] as Array<{ id: string; bounds?: unknown; displayId?: number }>,
     };
 
     const services = {
@@ -164,24 +137,39 @@ test.beforeEach(async ({ page }) => {
     };
 
     const layoutBridge = {
-      async loadLayout() {
-        return { layout: null, floatingPanes: [], schemaVersion: 2 };
+      async loadLayout(request: { projectPath: string }) {
+        layoutCalls.loadLayout.push({ projectPath: request.projectPath, layout: layoutState.savedLayout });
+        return {
+          layout: layoutState.savedLayout,
+          floatingPanes: layoutState.floatingPanes,
+          schemaVersion: 2,
+        };
       },
       async saveLayout(request: { projectPath: string; layout: unknown }) {
         layoutCalls.saveLayout.push({ projectPath: request.projectPath, layout: request.layout });
+        layoutState.savedLayout = request.layout;
         return;
       },
       async resetLayout() {
+        layoutState.savedLayout = null;
+        layoutState.floatingPanes = [];
         return;
       },
       async listFloatingPanes() {
-        return [];
+        return layoutState.floatingPanes;
       },
       async openFloatingPane(request: { projectPath: string; paneId: string }) {
         layoutCalls.openFloating.push({ projectPath: request.projectPath, paneId: request.paneId });
-        return true;
+        layoutState.floatingPanes = layoutState.floatingPanes
+          .filter((entry) => entry.id !== request.paneId)
+          .concat({
+            id: request.paneId,
+            bounds: request.bounds,
+          });
+        return { opened: true, clamp: null };
       },
-      async closeFloatingPane() {
+      async closeFloatingPane(request: { paneId: string }) {
+        layoutState.floatingPanes = layoutState.floatingPanes.filter((entry) => entry.id !== request.paneId);
         return;
       },
     };
@@ -195,18 +183,18 @@ test.beforeEach(async ({ page }) => {
     };
 
     Object.defineProperty(window, '__layoutCallLog', { value: layoutCalls, configurable: true });
+    Object.defineProperty(window, '__layoutState', { value: layoutState, configurable: true });
     Object.defineProperty(window, 'runtimeConfig', { value: runtimeConfig, configurable: true });
+    Object.defineProperty(window, '__runtimeConfigOverride', { value: runtimeConfig, configurable: true });
     Object.defineProperty(window, 'layout', { value: layoutBridge, configurable: true });
     Object.defineProperty(window, 'services', { value: services, configurable: true });
     Object.defineProperty(window, 'projectLoader', { value: projectLoader, configurable: true });
   }, { project: loadedProject });
+  await bootstrapHarness(page);
 });
 
 test.describe('Dock workspace interactions', () => {
   test('supports drag, float, and focus controls', async ({ page }) => {
-    await page.goto('http://127.0.0.1:5173');
-
-    await page.getByRole('button', { name: 'Open project' }).click();
 
     const wizardPane = page.locator('[data-pane-id="wizard"]');
     await expect(wizardPane).toBeVisible();
@@ -250,6 +238,16 @@ test.describe('Dock workspace interactions', () => {
       return hasSplit(entry.layout);
     });
     expect(layoutHasSplit).toBe(true);
+    await expect
+      .poll(() => page.evaluate(() => (window.__layoutState?.savedLayout ?? null) !== null))
+      .toBe(true);
+
+    await page.reload();
+    await bootstrapHarness(page);
+
+    await expect
+      .poll(() => page.evaluate(() => window.__layoutCallLog?.loadLayout.length ?? 0))
+      .toBeGreaterThan(0);
 
     const draftPane = page.locator('[data-pane-id="draft-board"]');
     await expect(draftPane).toBeVisible();
@@ -266,6 +264,25 @@ test.describe('Dock workspace interactions', () => {
     const openCalls = await page.evaluate(() => window.__layoutCallLog?.openFloating ?? []);
     expect(openCalls.length).toBeGreaterThan(0);
     expect(openCalls.at(-1)?.paneId).toBe('draft-board');
+    const floatingState = await page.evaluate(() => window.__layoutState?.floatingPanes ?? []);
+    expect(floatingState.some((entry: any) => entry?.id === 'draft-board')).toBe(true);
+
+    await loadPackagedRenderer(page, {
+      floatingPane: 'draft-board',
+      projectPath: loadedProject.path,
+    });
+
+    await expect(page.getByRole('heading', { name: 'Project home' })).toBeVisible();
+    await expect(page.locator('.dock-pane__toolbar')).toHaveCount(0);
+    await expect(page.locator('[data-pane-id="wizard"]')).toHaveCount(0);
+
+    await page.evaluate(() => {
+      const url = new URL(window.location.href);
+      url.search = '';
+      window.history.replaceState(null, '', url.toString());
+    });
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await bootstrapHarness(page);
 
     await page.mouse.click(5, 5);
 
@@ -287,6 +304,11 @@ declare global {
     __layoutCallLog?: {
       openFloating: Array<{ projectPath: string; paneId: string }>;
       saveLayout: Array<{ projectPath: string; layout: unknown }>;
+      loadLayout: Array<{ projectPath: string; layout: unknown | null }>;
+    };
+    __layoutState?: {
+      savedLayout: unknown | null;
+      floatingPanes: Array<{ id: string }>;
     };
   }
 }

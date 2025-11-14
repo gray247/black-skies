@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\analytics\service.py
+# hypothesis_version: 6.138.2
+
+[0.0, '*/metadata.json', '+00:00', '.blackskies', 'ANALYTICS', 'Z', 'accept', 'analytics_overrides', 'budget', 'cache', 'cost_overlays', 'created_at', 'draft_id', 'emotion_intensity', 'error', 'estimated_usd', 'fast_threshold', 'feedback', 'fingerprint', 'generated_at', 'hard_limit_usd', 'history', 'id', 'json', 'label', 'last_generate', 'lock', 'meta', 'pace', 'path', 'payload', 'project_id', 'r', 'remaining_usd', 'runtime_hints', 'scene_id', 'slow_threshold', 'snapshot', 'snapshot_id', 'snapshots', 'soft_limit_usd', 'spent_usd', 'status', 'text', 'title', 'total_after_usd', 'unit_id', 'utf-8', 'wizard']

@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\settings.py
+# hypothesis_version: 6.138.2
+
+[30.0, '.env', 'BLACK_SKIES_MODE', 'Mode', 'OPENAI_API_KEY', 'PROJECT_BASE_DIR', 'Settings', 'before', 'black_skies_mode', 'companion', 'get_settings', 'ignore', 'live', 'mock', 'offline', 'sample_project', 'utf-8']

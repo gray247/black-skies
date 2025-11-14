@@ -247,7 +247,7 @@ describe('App critique flow', () => {
     const App = loadAppWithServices(services);
     render(<App />);
 
-    const critiqueButton = await screen.findByRole('button', { name: 'Critique' });
+    const critiqueButton = await screen.findByTestId('workspace-action-critique');
     await waitFor(() => expect(critiqueButton).not.toBeDisabled());
 
     fireEvent.click(critiqueButton);
@@ -294,7 +294,7 @@ describe('App critique flow', () => {
     const App = loadAppWithServices(services);
     render(<App />);
 
-    const companionButton = await screen.findByRole('button', { name: 'Companion' });
+    const companionButton = await screen.findByTestId('workspace-action-companion');
     fireEvent.click(companionButton);
 
     await screen.findByRole('heading', { name: 'Companion' });
@@ -319,7 +319,7 @@ describe('App critique flow', () => {
     const App = loadAppWithServices(services);
     render(<App />);
 
-    const companionButton = await screen.findByRole('button', { name: 'Companion' });
+    const companionButton = await screen.findByTestId('workspace-action-companion');
     fireEvent.click(companionButton);
 
     await screen.findByRole('heading', { name: 'Companion' });
@@ -346,7 +346,7 @@ describe('App critique flow', () => {
     const App = loadAppWithServices(services);
     render(<App />);
 
-    const generateButton = await screen.findByRole('button', { name: 'Generate' });
+    const generateButton = await screen.findByTestId('workspace-action-generate');
     await waitFor(() => expect(generateButton).not.toBeDisabled());
 
     fireEvent.click(generateButton);
@@ -361,13 +361,13 @@ describe('App critique flow', () => {
     const App = loadAppWithServices(services);
     render(<App />);
 
-    const generateButton = await screen.findByRole('button', { name: 'Generate' });
+    const generateButton = await screen.findByTestId('workspace-action-generate');
     await waitFor(() => expect(generateButton).not.toBeDisabled());
     fireEvent.click(generateButton);
     await waitFor(() => expect(services.preflightDraft).toHaveBeenCalledTimes(1));
     await screen.findByText('$1.75 / $10.00');
 
-    const critiqueButton = await screen.findByRole('button', { name: 'Critique' });
+    const critiqueButton = await screen.findByTestId('workspace-action-critique');
     await waitFor(() => expect(critiqueButton).not.toBeDisabled());
     fireEvent.click(critiqueButton);
 
@@ -427,7 +427,7 @@ describe('App critique flow', () => {
     await waitFor(() => expect(projectLoaderMock.loadProject).toHaveBeenCalledTimes(1));
     expect(projectLoaderMock.loadProject).toHaveBeenCalledWith({ path: loadedProject.path });
 
-    const critiqueButton = await screen.findByRole('button', { name: 'Critique' });
+    const critiqueButton = await screen.findByTestId('workspace-action-critique');
     await waitFor(() => expect(critiqueButton).not.toBeDisabled());
     fireEvent.click(critiqueButton);
 
@@ -466,7 +466,7 @@ describe('App critique flow', () => {
     const App = loadAppWithServices(services);
     render(<App />);
 
-    const critiqueButton = await screen.findByRole('button', { name: 'Critique' });
+    const critiqueButton = await screen.findByTestId('workspace-action-critique');
     await waitFor(() => expect(critiqueButton).not.toBeDisabled());
 
     fireEvent.click(critiqueButton);

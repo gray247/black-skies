@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\storage.py
+# hypothesis_version: 6.138.2
+
+['critique', 'critiques', 'draft', 'drafts', 'export', 'exports', 'id', 'kind', 'outline', 'outlines', 'project', 'projects', 'r', 'rewrite', 'rewrites', 'run', 'runs', 'template', 'templates', 'utf-8', 'w']

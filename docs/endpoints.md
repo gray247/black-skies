@@ -6,6 +6,8 @@ Local-only FastAPI services the Electron app calls. All bodies are JSON (UTF-8).
 ## Conventions
 - **Base path:** all canonical routes live under `/api/v1`. Legacy unversioned aliases (e.g., `/draft/generate`) were retired in
   release `1.0.0-rc1`; clients must call the versioned paths directly.
+- **Model Router:** AI-facing endpoints (`/outline/build`, `/draft/generate`, `/draft/critique`, `/batch/critique`) invoke the Model Router (`docs/model_backend.md`) before sourcing models, keeping budgets/privacy centralized.
+- **Project context:** `project_id` is held in the active project session and supplied automatically; clients should not prompt users to type it per request (see `docs/gui_layouts.md` for the UX contract).
 - **Content-Type:** `application/json`
 - **Auth:** none (same-machine services)
 - **Idempotency:** non-mutating calls safe to retry; write calls return versioned artifacts
@@ -77,9 +79,10 @@ request_latency_seconds_bucket{le="0.1"} 42
 ---
 
 ## Outline
+Calls assume the renderer provides the active `project_id`; users should not re-type it once a folder is open (see `docs/gui_layouts.md`).
 
 ### POST /api/v1/outline/build
-Builds an outline from **locked Wizard decisions**.
+Builds an outline from **locked Outline decisions**.
 
 **Request**
 ```json
@@ -111,7 +114,7 @@ Builds an outline from **locked Wizard decisions**.
 ```
 
 **Errors**
-- `VALIDATION` (e.g., missing Wizard locks)
+- `VALIDATION` (e.g., missing Outline locks)
 - `CONFLICT` (another build in progress)
 - Legacy `/outline/build` was removed in `1.0.0-rc1`; clients must use `/api/v1/outline/build`.
 
@@ -398,6 +401,8 @@ Persist an accepted unit, update snapshots, and record budget spend.
 ### POST /api/v1/draft/critique
 Runs critique on a unit using the rubric (see `docs/critique_rubric.md`). Non-destructive; suggestions are diffs to apply later.
 
+**Heuristic output:** Each critique includes a `heuristics` object (`pov_consistency`, `goal_clarity`, `conflict_clarity`, `pacing_fit`) derived from the metadata emitted by the synthesizer and the configured heuristics lists (`docs/data_model.md#heuristics-overrides`).
+
 **Request**
 ```json
 {
@@ -424,6 +429,13 @@ Runs critique on a unit using the rubric (see `docs/critique_rubric.md`). Non-de
     { "range": [410, 432], "replacement": "She kills the light and listens." }
   ],
   "model": { "name": "critique_model_vY", "provider": "openai" }
+  ,
+  "heuristics": {
+    "pov_consistency": 1.0,
+    "goal_clarity": 0.8,
+    "conflict_clarity": 0.9,
+    "pacing_fit": 0.75
+  }
 }
 ```
 
@@ -439,7 +451,7 @@ Runs critique on a unit using the rubric (see `docs/critique_rubric.md`). Non-de
 ## Analytics
 
 ### GET /api/v1/analytics/summary
-Return derived pacing/emotion/conflict analytics for a project. Results are cached on disk and refreshed when drafts or outlines change.
+Return derived emotion arc, adaptive pacing, conflict heatmap, scene length distribution, and revision streak analytics for a project. Results are cached on disk and refreshed when drafts or outlines change.
 
 **Query Parameters**
 - `project_id` (required)
@@ -495,7 +507,7 @@ Return derived pacing/emotion/conflict analytics for a project. Results are cach
       ]
     }
   ],
-  "length_distribution": {
+  "scene_length_distribution": {
     "buckets": [
       { "label": "0-500", "lower_bound": 0, "upper_bound": 500, "scene_ids": [] },
       { "label": "500-1000", "lower_bound": 500, "upper_bound": 1000, "scene_ids": ["sc_0001", "sc_0002"] }
@@ -642,3 +654,146 @@ Delete the stored audio + transcript for a note.
 - Schemas: **OutlineSchema v1**, **DraftUnitSchema v1**, **CritiqueOutputSchema v1**  
 - Analytics payload: `analytics_version` **1.0** (see `docs/analytics_service_spec.md`)  
 - Future changes bump schema versions and are recorded in `phase_log.md`.
+
+---
+
+## Batch Critique
+
+### POST /api/v1/batch/critique
+**Request**
+```json
+{ "project_id":"proj_123", "unit_scope":"scene", "unit_ids":["sc_0001"], "rubric":"clear_goal", "run_mode":"local-first" }
+```
+**Response**
+```json
+{ "job_id":"batch_456", "queued":3 }
+```
+
+### GET /api/v1/batch/critique/{job_id}
+**Response**
+```json
+{
+  "job_id":"batch_456",
+  "status":"running",
+  "results":[
+    { "unit_id":"sc_0001","status":"queued","summary":null,"counts":{"notes":0,"edits":0} }
+  ]
+}
+```
+
+### POST /api/v1/batch/rewrite/apply
+**Request**
+```json
+{
+  "draft_id":"dr_007",
+  "edits":[
+    { "unit_id":"sc_0001","replacement_ranges":[[120,140]] }
+  ],
+  "note":"accepted via Critique Pane"
+}
+```
+**Response**
+```json
+{ "applied":1, "failed":0 }
+```
+
+## Export Builder
+
+### POST /api/v1/export/build
+**Request**
+```json
+{
+  "project_id":"proj_123",
+  "targets":["md","pdf","zip"],
+  "options":{"appendix":true,"template_id":"print-compact"}
+}
+```
+**Response**
+```json
+{ "job_id":"export_789" }
+```
+
+### GET /api/v1/export/status/{job_id}
+**Response**
+```json
+{
+  "job_id":"export_789",
+  "status":"done",
+  "artifacts":[
+    { "type":"md","path":"/exports/draft_full.md","bytes":102400,"sha256":"sha256:abc..." }
+  ]
+}
+```
+
+## History
+
+### GET /api/v1/history/list
+**Request**
+```json
+{ "project_id":"proj_123" }
+```
+**Response**
+```json
+{
+  "items":[
+    { "id":"ss_20251112_213045","created_at":"2025-11-12T21:30:45Z","reason":"accept_edits","bytes":20480,"diff_summary":{"added":12,"removed":8,"changed":4} }
+  ],
+  "total":1
+}
+```
+
+### POST /api/v1/history/restore
+**Request**
+```json
+{ "project_id":"proj_123","id":"ss_20251112_213045" }
+```
+**Response**
+```json
+{ "restored_units":5 }
+```
+
+---
+
+## Analytics
+
+### POST /api/v1/analytics/build
+Enqueues reprocessing via the analytics service (`docs/analytics_service_spec.md`).
+
+**Response**
+```json
+{ "job_id":"analytics_321", "status":"queued" }
+```
+
+### POST /api/v1/analytics/refresh
+Forces cache refresh after bulk imports or plugin activity; writes `analytics/*.json`.
+
+**Response**
+```json
+{ "status":"ok", "refreshed":true }
+```
+
+### GET /api/v1/analytics/scene/{scene_id}
+Returns per-scene pacing, emotion, and rubric metrics for the Visuals Layer hover cards.
+
+**Response**
+```json
+{
+  "scene_id":"sc_0001",
+  "pacing":{...},
+  "emotion":{...},
+  "rubric":{...},
+  "trace_id":"uuidv4"
+}
+```
+
+### GET /api/v1/analytics/graph
+Returns relationship graph nodes/edges for Visuals Layer rendering.
+
+**Response**
+```json
+{
+  "nodes":[...],
+  "edges":[...],
+  "trace_id":"uuidv4"
+}
+```

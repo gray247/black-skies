@@ -17,12 +17,22 @@
     {
       "id": "wizard",
       "bounds": {
-        "x": -1345,
-        "y": 270,
-        "width": 663,
-        "height": 450
+        "x": -1245,
+        "y": 151,
+        "width": 845,
+        "height": 633
       },
       "displayId": 2779098405
+    },
+    {
+      "id": "draft-board",
+      "bounds": {
+        "x": 854,
+        "y": 182,
+        "width": 414,
+        "height": 285
+      },
+      "displayId": 2528732444
     }
   ]
 }

@@ -1,4 +1,4 @@
-# Backup Verification Daemon – Planning Notes (Phase 11)
+# Backup Verification Daemon – Planning Notes (Phase 11, Deferred)
 **Status:** In progress (T-9142) · 2025-10-07  
 **Owner:** Services Team  
 **Related Work:** docs/architecture.md (Runtime Services), docs/phase_charter.md (Phase 11 scope)
@@ -20,11 +20,9 @@ Guarantee that project snapshots and history archives remain readable. The daemo
 - **Failure remediation:** attempt single automatic retry; if still failing, mark snapshot as suspect and notify dashboard/support.
 
 ## Current Implementation Snapshot (2025-10-28)
-- `services/src/blackskies/services/backup_verifier.py` now computes SHA-256 digests for every file within a snapshot and compares them to the previously recorded checksum (stored in `_runtime/backup_verifier_state.json`). Deltas surface as `"checksum mismatch"` issues.
-- Snapshot manifests are parsed (YAML or JSON) and validated against `metadata.json`, ensuring includes/drafts resolve and that a deterministic sample file can be opened without IOError.
-- Voice note archives (`history/voice_notes`) are checked for transcript/audio parity and schema validity. Missing or unreadable artefacts raise `"transcript missing"` / `"audio file missing"` diagnostics.
-- Health responses expose the extended payload: `backup_checked_snapshots`, `backup_failed_snapshots`, `backup_voice_notes_checked`, and `backup_voice_note_issues`, alongside the human-readable status message.
-- Project-level diagnostics emitted under `history/diagnostics/BACKUP_VERIFIER_*.json` capture per-snapshot checksums, retry flags, and voice note issue summaries for support review.
+> The daemon is implemented behind a feature flag (`backup_verifier_enabled`) but **disabled in all builds**. Health endpoints return static `warning` status until Phase 11 ships.
+- `services/src/blackskies/services/backup_verifier.py` contains the hashing/manifest logic described below, but the scheduler is not started unless the flag is flipped.
+- Voice note coverage and dashboard hooks remain aspirational; treat the sections below as a plan rather than shipping behavior.
 
 ## Configuration & Runtime Notes
 - Settings live in `ServiceSettings`:

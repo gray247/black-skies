@@ -29,6 +29,7 @@ Defines Phase 11 agent and plugin interfaces.
 * Read-only until explicit approval; diffs must be human-applied.
 * Must respect token budgets and privacy policy.
 * Agents execute inside sandbox with limited I/O.
+* **Router-only external access:** Agents must never call external models directly; they rely on internal services that route through the Model Router (`docs/model_backend.md`) so budgets, Companion Mode, and policy toggles remain centralized.
 
 ## Registry API & Lifecycle
 - **Registry service** (`blackskies.services.plugins.registry`) exposes:

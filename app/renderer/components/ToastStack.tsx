@@ -33,13 +33,14 @@ interface ToastCardProps {
 }
 
 function ToastCard({ toast, onDismiss, autoDismissMs }: ToastCardProps): JSX.Element {
+  const dismissDelay = typeof toast.durationMs === 'number' ? toast.durationMs : autoDismissMs;
   useEffect(() => {
-    if (autoDismissMs <= 0) {
+    if (dismissDelay <= 0) {
       return () => {};
     }
-    const handle = window.setTimeout(() => onDismiss(toast.id), autoDismissMs);
+    const handle = window.setTimeout(() => onDismiss(toast.id), dismissDelay);
     return () => window.clearTimeout(handle);
-  }, [autoDismissMs, onDismiss, toast.id]);
+  }, [dismissDelay, onDismiss, toast.id]);
 
   const { traceId } = toast;
   const handleCopyTraceId = useCallback(() => {
@@ -72,6 +73,28 @@ function ToastCard({ toast, onDismiss, autoDismissMs }: ToastCardProps): JSX.Ele
             >
               Copy
             </button>
+          </div>
+        ) : null}
+        {toast.actions && toast.actions.length > 0 ? (
+          <div className="toast__actions">
+            {toast.actions.map((action, index) => (
+              <button
+                key={`${toast.id}-action-${index}`}
+                type="button"
+                className="toast__action-button"
+                onClick={() => {
+                  try {
+                    action.onPress();
+                  } finally {
+                    if (action.dismissOnPress !== false) {
+                      onDismiss(toast.id);
+                    }
+                  }
+                }}
+              >
+                {action.label}
+              </button>
+            ))}
           </div>
         ) : null}
       </div>

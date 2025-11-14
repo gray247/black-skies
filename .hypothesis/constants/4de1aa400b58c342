@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\critique.py
+# hypothesis_version: 6.138.2
+
+[120, 160, 200, 800, ',.;', '.', 'CATEGORIES', 'CRITIQUE_MODEL', 'Character', 'Continuity', 'CritiqueService', 'Horror', 'Logic', 'Pacing', 'Prose', 'apply_rubric', 'cache', 'data', 'draft_critique.json', 'draft_id', 'drafts', 'excerpt', 'high', 'line', 'low', 'medium', 'name', 'note', 'offline', 'project_id', 'provider', 'r', 'range', 'replacement', 'response', 'rubric', 'rubric_id', 'schema_version', 'source', 'text', 'title', 'unit_id', 'units', 'unknown', 'utf-8']

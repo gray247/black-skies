@@ -1,24 +1,45 @@
 {
   "unit_id": "sc_0001",
-  "schema_version": "CritiqueOutputSchema v1",
-  "summary": "Clear goal/stakes. Mid-scene lulls around lines 48–55.",
+  "summary": "Draft 'Scene 1' spans 8 words across 1 line(s). Average sentence length is 8.0 words; longest sentence uses 8 words.",
   "line_comments": [
-    {"line": 52, "note": "Break this sentence; sustain tension."}
+    {
+      "line": 1,
+      "note": "Longest line in the scene; tighten phrasing to sustain tension.",
+      "excerpt": "The cellar hums with static and distant thunder."
+    }
   ],
   "priorities": [
-    "Tighten run-ons at 48–55",
-    "Keep POV strict; remove two omniscient asides"
+    "Validate logical continuity between beats.",
+    "Ensure character motivation remains visible in each reversal.",
+    "Expand atmospheric detail to deepen horror tone."
   ],
+  "suggested_edits": [
+    {
+      "range": [
+        0,
+        48
+      ],
+      "replacement": "The cellar hums with static and distant thunder."
+    }
+  ],
+  "severity": "high",
+  "model": {
+    "name": "black-skies-rubric-v1",
+    "provider": "offline"
+  },
+  "heuristics": {
+    "pov_consistency": 1.0,
+    "goal_clarity": 0.0,
+    "conflict_clarity": 0.0,
+    "pacing_fit": 0.0
+  },
+  "schema_version": "CritiqueOutputSchema v1",
   "rubric": [
     "Logic",
     "Continuity",
     "Character"
   ],
   "rubric_id": "baseline",
-  "suggested_edits": [
-    {"range": [410, 432], "replacement": "She kills the light and listens."}
-  ],
-  "model": {"name": "critique_model_vY", "provider": "openai"},
   "budget": {
     "estimated_usd": 0.01,
     "status": "ok",

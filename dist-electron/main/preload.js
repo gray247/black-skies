@@ -3,6 +3,34 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.serviceApi = void 0;
 exports.makeServiceCall = makeServiceCall;
 const electron_1 = require("electron");
+const safeExpose = (key, api) => {
+    try {
+        if (process.contextIsolated) {
+            electron_1.contextBridge.exposeInMainWorld(key, api);
+        }
+        else {
+            console.warn(`[preload] contextIsolation=false; skipping expose ${key}`);
+        }
+    }
+    catch (err) {
+        console.warn(`[preload] expose ${key} failed:`, err);
+    }
+};
+const isPlaywright = process.env.PLAYWRIGHT === '1';
+safeExpose('__testEnv', { isPlaywright });
+const devApi = {
+    setProjectDir: (absPath) => window.dispatchEvent(new CustomEvent('test:set-project', { detail: absPath })),
+};
+// --- test/insights bridges ---
+safeExpose('__test', {
+    markBoot: () => console.log('[boot] renderer mounted'),
+});
+safeExpose('__dev', devApi);
+safeExpose('__testInsights', {
+    setServiceStatus: (status) => window.dispatchEvent(new CustomEvent('test:service-status', { detail: status })),
+    selectScene: (id) => window.dispatchEvent(new CustomEvent('test:select-scene', { detail: id })),
+});
+// --- end bridges ---
 const logging_js_1 = require("../shared/ipc/logging.js");
 const runtime_js_1 = require("../shared/config/runtime.js");
 const projectLoader_js_1 = require("../shared/ipc/projectLoader.js");
@@ -535,6 +563,10 @@ exports.serviceApi = {
         return makeServiceCall(`draft/recovery?${params.toString()}`, 'GET');
     },
     restoreSnapshot: (request) => makeServiceCall('draft/recovery/restore', 'POST', serializeRecoveryRestoreRequest(request)),
+    analyticsBudget: (request) => {
+        const params = new URLSearchParams({ project_id: request.projectId });
+        return makeServiceCall(`analytics/budget?${params.toString()}`, 'GET');
+    },
 };
 const projectLoaderApi = {
     async openProjectDialog() {
@@ -591,6 +623,7 @@ const servicesBridge = {
     createSnapshot: exports.serviceApi.createSnapshot,
     getRecoveryStatus: exports.serviceApi.getRecoveryStatus,
     restoreSnapshot: exports.serviceApi.restoreSnapshot,
+    analyticsBudget: exports.serviceApi.analyticsBudget,
 };
 const layoutBridge = {
     async loadLayout(request) {
@@ -625,12 +658,14 @@ const layoutBridge = {
     async openFloatingPane(request) {
         try {
             const result = await electron_1.ipcRenderer.invoke(layout_js_1.LAYOUT_CHANNELS.openFloating, request);
-            return Boolean(result);
+            if (result && typeof result === 'object') {
+                return result;
+            }
         }
         catch (error) {
             console.warn('[preload] Failed to open floating pane', error);
-            return false;
         }
+        return { opened: false, clamp: null };
     },
     async closeFloatingPane(request) {
         try {
@@ -699,6 +734,6 @@ if (process.env.PLAYWRIGHT === '1') {
             }
         }
     }
-    electron_1.contextBridge.exposeInMainWorld('__dev', devTools);
+    devApi.overrideServices = devTools.overrideServices;
 }
 //# sourceMappingURL=preload.js.map

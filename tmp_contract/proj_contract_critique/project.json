@@ -1,0 +1,9 @@
+{
+  "project_id": "proj_contract_critique",
+  "name": "Project proj_contract_critique",
+  "budget": {
+    "soft": 5.0,
+    "hard": 10.0,
+    "spent_usd": 0.01
+  }
+}

@@ -64,7 +64,7 @@ A compact worksheet writers (and Black Skies) use from **napkin → outline**. I
 ## Outputs this checklist drives
 - **Outline** (`outline.json`) with deterministic order
 - **Scene files** (`drafts/*.md`) with front‑matter (POV, purpose, emotion tag, word target)
-- **Wizard locks** + snapshots you can restore later
+- **Outline locks** + snapshots you can restore later
 
 **Tip:** Use [Read‑Through Mode](./gui_layouts.md#read-through-mode) to sanity‑check flow before generating prose. Pre‑runs show costs in the [Preflight Panel](./gui_layouts.md#preflight-panel).
 

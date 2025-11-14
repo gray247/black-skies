@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 from contextvars import ContextVar
 from pathlib import Path
+import errno
 from typing import Any, Final, NoReturn
 from uuid import UUID, uuid4
 
@@ -14,6 +15,7 @@ from fastapi.responses import JSONResponse
 
 from .diagnostics import DiagnosticLogger
 from .models.errors import ErrorResponse
+from .service_errors import DEFAULT_ERROR_DEFINITION, ERROR_DEFINITIONS, ServiceError
 
 LOGGER = logging.getLogger(__name__)
 
@@ -147,26 +149,27 @@ def _sanitize_details(details: Any) -> Any:
 
 def raise_service_error(
     *,
-    status_code: int,
+    status_code: int | None = None,
     code: str,
-    message: str,
+    message: str | None,
     details: dict[str, Any],
     diagnostics: DiagnosticLogger,
     project_root: Path | None,
 ) -> NoReturn:
-    """Raise an ``HTTPException`` with shared error formatting and logging."""
+    """Raise a structured ``ServiceError`` and log diagnostics."""
 
     safe_details = _sanitize_details(details)
+    definition = ERROR_DEFINITIONS.get(code, DEFAULT_ERROR_DEFINITION)
+    payload_message = message or definition.message
+    final_status = status_code or definition.status_code
     if project_root is not None:
-        diagnostics.log(project_root, code=code, message=message, details=safe_details)
-    trace_id = ensure_trace_id()
-    payload = build_error_payload(
-        code=code, message=message, details=safe_details, trace_id=trace_id
-    )
-    raise HTTPException(
-        status_code=status_code,
-        detail=payload.model_dump(),
-        headers={TRACE_ID_HEADER: trace_id},
+        diagnostics.log(project_root, code=code, message=payload_message, details=safe_details)
+    raise ServiceError(
+        code=code,
+        status_code=final_status,
+        message=payload_message,
+        details=safe_details,
+        project_root=project_root,
     )
 
 
@@ -180,7 +183,6 @@ def raise_conflict_error(
     """Log and raise a conflict response."""
 
     raise_service_error(
-        status_code=status.HTTP_409_CONFLICT,
         code="CONFLICT",
         message=message,
         details=details,
@@ -199,7 +201,6 @@ def raise_validation_error(
     """Raise a validation error and optionally log diagnostics."""
 
     raise_service_error(
-        status_code=status.HTTP_400_BAD_REQUEST,
         code="VALIDATION",
         message=message,
         details=details,
@@ -227,6 +228,41 @@ def raise_budget_error(
     )
 
 
+def _classify_filesystem_error(exc: OSError) -> tuple[int, str]:
+    errno_value = getattr(exc, "errno", None)
+    if isinstance(exc, FileNotFoundError):
+        return status.HTTP_404_NOT_FOUND, "FILESYSTEM_NOT_FOUND"
+    if errno_value in _FILESYSTEM_ERROR_MAP:
+        return _FILESYSTEM_ERROR_MAP[errno_value]
+    if isinstance(exc, PermissionError):
+        return status.HTTP_403_FORBIDDEN, "FILESYSTEM_DENIED"
+    return status.HTTP_500_INTERNAL_SERVER_ERROR, "FILESYSTEM_ERROR"
+
+
+def raise_filesystem_error(
+    exc: OSError,
+    *,
+    message: str,
+    details: dict[str, Any],
+    diagnostics: DiagnosticLogger,
+    project_root: Path | None,
+) -> NoReturn:
+    """Raise an HTTP error that reflects the filesystem failure."""
+
+    status_code, code = _classify_filesystem_error(exc)
+    fs_details = dict(details)
+    fs_details.setdefault("errno", getattr(exc, "errno", None))
+    fs_details.setdefault("error", str(exc))
+    raise_service_error(
+        status_code=status_code,
+        code=code,
+        message=message,
+        details=fs_details,
+        diagnostics=diagnostics,
+        project_root=project_root,
+    )
+
+
 __all__: list[str] = [
     "DEFAULT_ERROR_RESPONSES",
     "TRACE_ID_HEADER",
@@ -242,4 +278,13 @@ __all__: list[str] = [
     "raise_conflict_error",
     "raise_validation_error",
     "raise_budget_error",
+    "raise_filesystem_error",
 ]
+_FILESYSTEM_ERROR_MAP: dict[int, tuple[int, str]] = {
+    errno.EACCES: (status.HTTP_403_FORBIDDEN, "FILESYSTEM_DENIED"),
+    errno.EPERM: (status.HTTP_403_FORBIDDEN, "FILESYSTEM_DENIED"),
+    errno.ENOENT: (status.HTTP_404_NOT_FOUND, "FILESYSTEM_NOT_FOUND"),
+    errno.EEXIST: (status.HTTP_409_CONFLICT, "FILESYSTEM_CONFLICT"),
+    errno.ENOSPC: (status.HTTP_507_INSUFFICIENT_STORAGE, "FILESYSTEM_FULL"),
+    errno.EROFS: (status.HTTP_403_FORBIDDEN, "FILESYSTEM_READONLY"),
+}

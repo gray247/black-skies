@@ -1,10 +1,12 @@
 ﻿import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron';
+import type { BrowserWindowConstructorOptions } from 'electron';
 import { spawn, type ChildProcessByStdio } from 'node:child_process';
 import { once } from 'node:events';
 import net from 'node:net';
 import { setTimeout as delay } from 'node:timers/promises';
 import { existsSync, statSync } from 'node:fs';
 import { dirname, join, resolve, delimiter, basename, isAbsolute, normalize } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import type { Readable } from 'node:stream';
 
 import { registerProjectLoaderIpc } from './projectLoaderIpc';
@@ -33,12 +35,15 @@ import {
 
 function resolveProjectRoot(): string {
   const immediate = resolve(__dirname, '..');
-  if (existsSync(join(immediate, 'dist', 'index.html'))) {
-    return immediate;
-  }
-  const parent = resolve(__dirname, '..', '..');
-  if (existsSync(join(parent, 'dist', 'index.html'))) {
-    return parent;
+  const candidates = [
+    immediate,
+    resolve(immediate, '..', 'app'),
+    resolve(immediate, '..'),
+  ];
+  for (const candidate of candidates) {
+    if (existsSync(join(candidate, 'dist', 'index.html'))) {
+      return candidate;
+    }
   }
   return immediate;
 }
@@ -70,7 +75,18 @@ const DEV_SERVER_URL = process.env.ELECTRON_RENDERER_URL ?? 'http://127.0.0.1:51
 const isDev = !app.isPackaged;
 const isPlaywright = process.env.PLAYWRIGHT === '1';
 const shouldSpawnServices = process.env.BLACKSKIES_FORCE_SERVICES === '1' || !isPlaywright;
-const shouldUseDevServer = isDev && !isPlaywright;
+
+function getStartUrl(): string {
+  const override = process.env.ELECTRON_RENDERER_URL;
+  if (typeof override === 'string' && override.length > 0) {
+    return override;
+  }
+  const packaged = pathToFileURL(rendererIndexFile).toString();
+  if (app.isPackaged || process.env.PLAYWRIGHT === '1') {
+    return packaged;
+  }
+  return DEV_SERVER_URL;
+}
 
 const SERVICES_HOST = '127.0.0.1';
 const PORT_RANGE_ENV = process.env.BLACKSKIES_SERVICE_PORT_RANGE;
@@ -563,21 +579,23 @@ function registerDiagnosticsIpc(): void {
 
 async function createMainWindow(): Promise<BrowserWindow> {
   console.log('[main] Creating main window. projectRoot=', projectRoot);
-  const sandboxEnabled = app.isPackaged && process.platform !== 'win32';
-  const window = new BrowserWindow({
+  const windowOptions = {
     width: 1280,
     height: 840,
     minWidth: 960,
     minHeight: 640,
     show: false,
     autoHideMenuBar: true,
+    env: { ...process.env, PLAYWRIGHT: '1' },
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
-      sandbox: sandboxEnabled,
-    preload: PRELOAD_PATH,
-  },
-});
+      sandbox: false,
+      preload: PRELOAD_PATH,
+      additionalArguments: [],
+    },
+  } as BrowserWindowConstructorOptions & { env?: NodeJS.ProcessEnv };
+  const window = new BrowserWindow(windowOptions);
 
   window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
 
@@ -623,22 +641,29 @@ async function createMainWindow(): Promise<BrowserWindow> {
     console.error('[main] BrowserWindow became unresponsive.');
   });
 
-  if (shouldUseDevServer) {
-    try {
-      await window.loadURL(DEV_SERVER_URL);
-    } catch (error) {
-      ensureMainLogger().warn('Failed to load dev renderer URL; falling back to static bundle.', {
-        error: error instanceof Error ? error.message : String(error),
-        url: DEV_SERVER_URL,
-      });
-      await window.loadFile(rendererIndexFile);
+  const startUrl = getStartUrl();
+  console.log('[main] loading', startUrl);
+  try {
+    await window.loadURL(startUrl);
+  } catch (error) {
+    ensureMainLogger().warn('Failed to load renderer URL', {
+      error: error instanceof Error ? error.message : String(error),
+      url: startUrl,
+    });
+    if (startUrl !== rendererIndexFile) {
+      try {
+        await window.loadFile(rendererIndexFile);
+      } catch (innerError) {
+        ensureMainLogger().warn('Fallback loadFile failed', {
+          error: innerError instanceof Error ? innerError.message : String(innerError),
+          path: rendererIndexFile,
+        });
+      }
     }
-    if (!isPlaywright) {
-      window.webContents.openDevTools({ mode: 'detach' });
-    }
-  } else {
-    console.log('[main] Loading renderer from file', rendererIndexFile);
-    await window.loadFile(rendererIndexFile);
+  }
+
+  if (!app.isPackaged && !isPlaywright) {
+    window.webContents.openDevTools({ mode: 'detach' });
   }
 
   return window;

@@ -1,8 +1,8 @@
 # Dashboard Initiatives – Phases 9–11 Planning
 **Status:** In progress (T-9143) · 2025-10-07  
-**Owner:** Desktop/Services Collaboration  
+**Owner:** Solo maintainer  
 **Linked Charter Items:** docs/phase_charter.md §§39–41, 71  
-**Related Specs:** docs/analytics_service_spec.md, docs/gui_layouts.md
+**Related Specs:** docs/analytics_service_spec.md, docs/gui_layouts.md, docs/support_playbook.md
 
 ## Purpose
 Consolidate the roadmap for dashboard-related deliverables promised in Phases 9–11:
@@ -15,24 +15,24 @@ This document captures scope, dependencies, and task breakdowns to remove ambigu
 ---
 
 ## Phase 9 — Project Health Dashboard
-**Goal:** Surface snapshot of project status (budget, recent accepts/critique outcomes, analytics summaries).
+**Goal:** Surface a snapshot of project status (budget state, recent Outline/Writing/Feedback activity, analytics summary metrics).
 
 ### Scope
-- Renderer dashboard view (accessible via the docking analytics pane or dedicated route).
+- Renderer dashboard view accessible from the Story insights pane or dedicated launcher route.
 - Data sources:
-  - `/api/v1/analytics/summary`
-  - Budget meter (`project.json::budget`)
-  - Draft accept streaks + pending critiques.
-- Status badges (OK/Warning/Error) with tooltips linking to remediation steps.
+  - `GET /api/v1/analytics/summary?project_id=...` (emotion arc, pacing, conflict heatmap, length distribution, revision streaks).
+  - Budget meter (`project.json::budget`) shared by Outline/Writing flows.
+  - Feedback accept streaks + pending feedback items.
+- Status badges (`ok`/`warning`/`error`) with tooltips linking to remediation steps in `docs/support_playbook.md`.
 
 ### Tasks
-1. **Backend aggregation helper** returning `project_health` payload (Phase 9.1).
-2. **Renderer UI:** responsive card layout + docking integration (Phase 9.2).
-3. **Tests:** integration test hitting analytics/budget/diff sample; UI smoke via Playwright.
-4. **Docs:** Update `docs/gui_layouts.md`, support playbook.
+1. **Backend aggregation helper:** `blackskies.services.analytics.project_health` returning an enriched `project_health` payload (Phase 9.1).
+2. **Renderer UI:** responsive card layout + DockWorkspace integration, including Outline/Writing/Feedback quick links (Phase 9.2).
+3. **Tests:** `pytest -m "analytics"` contract coverage plus Playwright `analytics-visual` suite (Phase 9.3).
+4. **Docs:** Update `docs/gui_layouts.md`, `docs/support_playbook.md`, and this plan with final Endpoint/metrics references (Phase 9.4).
 
 ### Dependencies
-- Analytics service spec implementation (in progress).
+- `docs/analytics_service_spec.md` contract implementation (in progress).
 - Docking feature flag (Phase 8).
 
 ---
@@ -45,8 +45,8 @@ This document captures scope, dependencies, and task breakdowns to remove ambigu
 - Validation rules:
   - Gaps / duplicate orders
   - Missing linked draft/scene files
-  - Wizard decision conflicts
-- Renderer dashboard widget showing issue table + quick links.
+  - Outline decision conflicts
+- Renderer dashboard widget showing issue table + quick links back to the Outline pane.
 
 ### Tasks
 1. **Spec finalisation:** enumerate validation rules + severities (Phase 10.0).
@@ -85,5 +85,5 @@ This document captures scope, dependencies, and task breakdowns to remove ambigu
 
 ## Tracking & Reporting
 - Log milestones in `phase_log.md` as each sub-phase is planned/executed.
-- Link Jira/Linear tickets per workstream.
-- Support playbook to reference final dashboards once shipping.
+- Maintain personal tracker entries instead of team tickets.
+- Keep `docs/support_playbook.md` aligned with shipped dashboards and troubleshooting steps.

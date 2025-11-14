@@ -10,12 +10,12 @@ import random
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
-from typing import Any, Iterable, Literal, Sequence
+from typing import Any, Iterable, Literal, Sequence, cast
 
 try:  # pragma: no cover - optional dependency
     import yaml  # type: ignore[import-not-found]
 except ModuleNotFoundError:  # pragma: no cover - optional dependency
-    yaml = None
+    yaml = cast("Any", None)
 
 from .config import ServiceSettings
 from .diagnostics import DiagnosticLogger

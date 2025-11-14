@@ -29,6 +29,7 @@ class DraftUnitOverrides(BaseModel):
     pov: str | None = None
     goal: str | None = None
     conflict: str | None = None
+    conflict_type: str | None = None
     turn: str | None = None
     word_target: int | None = Field(default=None, ge=0)
     beats: list[str] | None = None

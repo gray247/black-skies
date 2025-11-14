@@ -9,8 +9,9 @@ from typing import Any
 from fastapi.concurrency import run_in_threadpool
 
 from ..budgeting import (
+    ProjectBudgetState,
     derive_accept_unit_cost,
-    load_project_budget_state,
+    edit_project_budget_state,
     persist_project_budget,
 )
 from ..diagnostics import DiagnosticLogger
@@ -30,10 +31,11 @@ class DraftAcceptanceResult:
 class DraftAcceptancePersistenceError(RuntimeError):
     """Raised when persisting the accepted draft scene fails."""
 
-    def __init__(self, *, unit_id: str, error: str) -> None:
+    def __init__(self, *, unit_id: str, error: str, original_exc: OSError | None = None) -> None:
         super().__init__(error)
         self.unit_id = unit_id
         self.error = error
+        self.original_exc = original_exc
 
 
 class DraftAcceptService:
@@ -80,6 +82,7 @@ class DraftAcceptService:
             raise DraftAcceptancePersistenceError(
                 unit_id=request.unit_id,
                 error=str(exc),
+                original_exc=exc,
             ) from exc
 
         diff_payload = compute_diff(current_normalized, normalized_text)
@@ -92,16 +95,21 @@ class DraftAcceptService:
             recovery_tracker=self._recovery_tracker,
         )
 
-        budget_state = load_project_budget_state(project_root, self._diagnostics)
-        accept_cost = derive_accept_unit_cost(
-            budget_state=budget_state,
-            request=request,
-            normalized_text=normalized_text,
-            project_root=project_root,
-            diagnostics=self._diagnostics,
-        )
-        new_spent_total = budget_state.spent_usd + accept_cost
-        await run_in_threadpool(persist_project_budget, budget_state, new_spent_total)
+
+        def _update_budget() -> tuple[ProjectBudgetState, float, float]:
+            with edit_project_budget_state(project_root, self._diagnostics) as budget_state:
+                accept_cost = derive_accept_unit_cost(
+                    budget_state=budget_state,
+                    request=request,
+                    normalized_text=normalized_text,
+                    project_root=project_root,
+                    diagnostics=self._diagnostics,
+                )
+                new_spent_total = budget_state.spent_usd + accept_cost
+                persist_project_budget(budget_state, new_spent_total)
+                return budget_state, new_spent_total, accept_cost
+
+        budget_state, new_spent_total, accept_cost = await run_in_threadpool(_update_budget)
 
         response = {
             "project_id": request.project_id,

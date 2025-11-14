@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\rubrics.py
+# hypothesis_version: 6.138.2
+
+['^[a-z0-9._-]{3,64}$', 'baseline', 'baseline.json', 'history', 'normalise_rubric_id', 'r', 'rubrics', 'utf-8']

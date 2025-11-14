@@ -5,12 +5,12 @@ from __future__ import annotations
 import asyncio
 from typing import Any
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, status
 from pydantic import BaseModel, ValidationError, field_validator
 
 from ...config import ServiceSettings
 from ...diagnostics import DiagnosticLogger
-from ...http import raise_service_error, raise_validation_error
+from ...http import raise_filesystem_error, raise_service_error, raise_validation_error
 from ...models._project_id import validate_project_id
 from ...scene_docs import DraftRequestError
 from ...resilience import CircuitOpenError, ServiceResilienceExecutor
@@ -109,14 +109,13 @@ async def export_manuscript(
             project_root=None,
         )
     except OSError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail={
-                "code": "INTERNAL",
-                "message": "Failed to write export artifacts.",
-                "details": {"project_id": request_model.project_id, "error": str(exc)},
-            },
-        ) from exc
+        raise_filesystem_error(
+            exc,
+            message="Failed to write export artifacts.",
+            details={"project_id": request_model.project_id},
+            diagnostics=diagnostics,
+            project_root=project_root,
+        )
 
     return result.payload
 

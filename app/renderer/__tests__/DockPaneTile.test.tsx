@@ -17,7 +17,11 @@ vi.mock('react-mosaic-component', async () => {
       <div className="mosaic-window">
         <div className="mosaic-window-toolbar">
           {renderToolbar
-            ? renderToolbar({ title: 'Mock pane', path: [], renderDefaultToolbar: () => null } as any, true)
+            ? renderToolbar({
+                title: 'Mock pane',
+                path: [],
+                renderDefaultToolbar: () => null,
+              })
             : null}
         </div>
         <div className="mosaic-window-body">{children}</div>

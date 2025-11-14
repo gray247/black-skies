@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\analytics\__init__.py
+# hypothesis_version: 6.138.2
+
+[0.0, 1.0, 10.0, 500, 1000, 1500, 2000, '+00:00', '1.0', 'AnalyticsPayload', 'ConflictChapter', 'ConflictHeatmap', 'ConflictScene', 'EmotionArcPoint', 'PacingSummary', 'RevisionEvent', 'RevisionStreaks', 'SceneLengthBucket', 'ScenePacingMetrics', 'Z', 'above', 'accept', 'beat_refs', 'below', 'chapter_id', 'chapters', 'compute_emotion_arc', 'conflict', 'emotion_tag', 'fast', 'feedback', 'id', 'meta', 'order', 'scene_id', 'scenes', 'slow', 'steady', 'text', 'title', 'unit_id', 'unknown']

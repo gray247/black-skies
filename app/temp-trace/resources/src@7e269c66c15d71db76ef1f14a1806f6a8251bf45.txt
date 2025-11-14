@@ -1,0 +1,293 @@
+import { expect, test } from '@playwright/test';
+import { TID } from '../../renderer/utils/testIds';
+import { loadSampleProject } from './utils/sampleProject';
+
+const { loadedProject } = loadSampleProject();
+
+declare global {
+  interface Window {
+    __setServiceStatus?: (state: 'online' | 'offline') => void;
+    __blackskiesDebugLog?: Array<{ scope: string }>;
+  }
+}
+
+test.beforeEach(async ({ page }) => {
+  page.on('console', (msg) => {
+    console.log(`[renderer:${msg.type()}] ${msg.text()}`);
+  });
+  await page.addInitScript(
+    ({ project }) => {
+      const layoutCalls = {
+        openFloating: [] as Array<{ projectPath: string; paneId: string }>,
+        saveLayout: [] as Array<{ projectPath: string; layout: unknown }>,
+        loadLayout: [] as Array<{ projectPath: string; layout: unknown | null }>,
+      };
+      const layoutState = {
+        savedLayout: null as unknown | null,
+        floatingPanes: [] as Array<{ id: string; bounds?: unknown; displayId?: number }>,
+      };
+      const healthState = { status: 'online' as 'online' | 'offline' };
+
+      const services = {
+        async checkHealth() {
+          if (healthState.status === 'online') {
+            return { ok: true, data: { status: 'online' }, traceId: 'trace-health' };
+          }
+          return {
+            ok: false,
+            error: { message: 'Bridge offline' },
+            traceId: 'trace-health-offline',
+          };
+        },
+        async buildOutline() {
+          return { ok: true, data: project.outline, traceId: 'trace-outline' };
+        },
+        async preflightDraft() {
+          return {
+            ok: true,
+            data: {
+              projectId: project.project_id,
+              unitScope: 'scene',
+              unitIds: [project.scenes[0]?.id ?? 'sc_0001'],
+              scenes: [
+                {
+                  id: project.scenes[0]?.id ?? 'sc_0001',
+                  title: project.scenes[0]?.title ?? 'Scene',
+                  order: project.scenes[0]?.order ?? 1,
+                  chapter_id: project.scenes[0]?.chapter_id,
+                },
+              ],
+              budget: {
+                estimated_usd: 1.25,
+                status: 'ok',
+                soft_limit_usd: 10,
+                hard_limit_usd: 10,
+                spent_usd: 1.25,
+                total_after_usd: 1.25,
+              },
+            },
+            traceId: 'trace-preflight',
+          };
+        },
+        async generateDraft() {
+          return {
+            ok: true,
+            data: {
+              draft_id: 'dr_stub',
+              schema_version: 'DraftUnitSchema v1',
+              units: [],
+              budget: { status: 'ok' },
+            },
+            traceId: 'trace-generate',
+          };
+        },
+        async critiqueDraft() {
+          return {
+            ok: true,
+            data: {
+              unit_id: project.scenes[0]?.id ?? 'sc_0001',
+              schema_version: 'CritiqueOutputSchema v1',
+              summary: 'Stub critique summary.',
+              model: { name: 'critique-stub', provider: 'stub' },
+              budget: {
+                estimated_usd: 0.15,
+                status: 'ok',
+                soft_limit_usd: 10,
+                hard_limit_usd: 10,
+                spent_usd: 1.4,
+                total_after_usd: 1.4,
+              },
+              line_comments: [],
+              priorities: ['Voice'],
+            },
+            traceId: 'trace-critique',
+          };
+        },
+        async acceptDraft() {
+          return {
+            ok: true,
+            data: {
+              unit_id: project.scenes[0]?.id ?? 'sc_0001',
+              checksum: 'stub-checksum',
+              schema_version: 'DraftAcceptResult v1',
+              snapshot: {
+                snapshot_id: '20250101T000000Z',
+                label: 'accept',
+                created_at: '2025-01-01T00:00:00Z',
+                path: 'history/snapshots/20250101T000000Z_accept',
+              },
+              budget: {
+                estimated_usd: 0.15,
+                status: 'ok',
+                soft_limit_usd: 10,
+                hard_limit_usd: 10,
+                spent_usd: 1.4,
+                total_after_usd: 1.4,
+              },
+            },
+            traceId: 'trace-accept',
+          };
+        },
+        async createSnapshot() {
+          return {
+            ok: true,
+            data: {
+              snapshot_id: '20250101T000000Z',
+              label: 'accept',
+              created_at: '2025-01-01T00:00:00Z',
+              path: 'history/snapshots/20250101T000000Z_accept',
+            },
+            traceId: 'trace-snapshot',
+          };
+        },
+        async getRecoveryStatus() {
+          return {
+            ok: true,
+            data: {
+              project_id: project.project_id,
+              status: 'idle',
+              needs_recovery: false,
+              last_snapshot: null,
+            },
+            traceId: 'trace-recovery',
+          };
+        },
+        async restoreSnapshot() {
+          return {
+            ok: true,
+            data: {
+              project_id: project.project_id,
+              status: 'idle',
+              needs_recovery: false,
+            },
+            traceId: 'trace-restore',
+          };
+        },
+      };
+
+      const projectLoader = {
+        async openProjectDialog() {
+          return { canceled: false, filePath: project.path };
+        },
+        async loadProject() {
+          return { ok: true, project, issues: [] };
+        },
+        async getSampleProjectPath() {
+          return project.path;
+        },
+      };
+
+      const layoutBridge = {
+        async loadLayout(request: { projectPath: string }) {
+          layoutCalls.loadLayout.push({ projectPath: request.projectPath, layout: layoutState.savedLayout });
+          return {
+            layout: layoutState.savedLayout,
+            floatingPanes: layoutState.floatingPanes,
+            schemaVersion: 2,
+          };
+        },
+        async saveLayout(request: { projectPath: string; layout: unknown }) {
+          layoutCalls.saveLayout.push({ projectPath: request.projectPath, layout: request.layout });
+          layoutState.savedLayout = request.layout;
+        },
+        async resetLayout() {
+          layoutState.savedLayout = null;
+          layoutState.floatingPanes = [];
+        },
+        async listFloatingPanes() {
+          return layoutState.floatingPanes;
+        },
+        async openFloatingPane(request: { projectPath: string; paneId: string }) {
+          layoutCalls.openFloating.push({ projectPath: request.projectPath, paneId: request.paneId });
+          layoutState.floatingPanes = layoutState.floatingPanes
+            .filter((entry) => entry.id !== request.paneId)
+            .concat({ id: request.paneId, bounds: request.bounds });
+          return { opened: true, clamp: null };
+        },
+        async closeFloatingPane(request: { paneId: string }) {
+          layoutState.floatingPanes = layoutState.floatingPanes.filter((entry) => entry.id !== request.paneId);
+        },
+      };
+
+      const runtimeConfig = {
+        ui: {
+          enableDocking: true,
+          defaultPreset: 'standard',
+          hotkeys: { enablePresetHotkeys: true, focusCycleOrder: ['wizard', 'draft-board', 'critique', 'history'] },
+        },
+      };
+
+      Object.defineProperty(window, '__layoutCallLog', { value: layoutCalls, configurable: true });
+      Object.defineProperty(window, '__layoutState', { value: layoutState, configurable: true });
+      Object.defineProperty(window, 'runtimeConfig', { value: runtimeConfig, configurable: true });
+      Object.defineProperty(window, '__runtimeConfigOverride', { value: runtimeConfig, configurable: true });
+      Object.defineProperty(window, 'layout', { value: layoutBridge, configurable: true });
+      Object.defineProperty(window, 'services', { value: services, configurable: true });
+      Object.defineProperty(window, 'projectLoader', { value: projectLoader, configurable: true });
+      Object.defineProperty(window, '__setServiceStatus', {
+        value: (nextStatus: 'online' | 'offline') => {
+          healthState.status = nextStatus;
+        },
+        configurable: true,
+      });
+    },
+    { project: loadedProject },
+  );
+});
+
+test('insights queue honors offline gating and resumes when online', async ({ page }) => {
+  await page.waitForLoadState('domcontentloaded');
+  const openProjectButton = page.getByTestId(TID.openProjectBtn);
+  const dockWorkspace = page.getByTestId(TID.dockWorkspace);
+
+  const projectButtonVisible = await openProjectButton
+    .waitFor({ state: 'visible', timeout: 45_000 })
+    .then(() => true)
+    .catch(() => false);
+
+  if (projectButtonVisible) {
+    await openProjectButton.click();
+  } else {
+    await expect(dockWorkspace).toBeVisible({ timeout: 60_000 });
+  }
+
+  const companionToggle = page.getByRole('button', { name: 'Companion' });
+  await companionToggle.click();
+
+  const statusPill = page.getByTestId('service-status-pill');
+  await expect(statusPill).toHaveAttribute('data-status', 'online');
+
+  await page.waitForFunction(() => typeof window.__serviceHealthRetry === 'function');
+  await page.evaluate(() => {
+    window.__setServiceStatus?.('offline');
+    window.__serviceHealthRetry?.();
+  });
+  const offlineBanner = page.getByText('Local Only — Model Insights Paused.');
+  await expect(offlineBanner).toBeVisible();
+
+  
+  await page.waitForFunction(() => typeof window.__selectSceneForTest === 'function');
+  await page.waitForFunction(() => window.__selectSceneForTest?.('sc_0001') === true);
+
+  const runAll = page.getByRole('button', { name: 'Run All Insights' });
+  await expect(runAll).toBeEnabled({ timeout: 30_000 });
+  await runAll.click();
+
+  const offlineHint = page.locator('text=1 Local Ran · 1 Will Resume When Online.');
+  await expect(offlineHint).toBeVisible();
+
+  await page.evaluate(() => {
+    window.__setServiceStatus?.('online');
+    window.__serviceHealthRetry?.();
+  });
+  await expect(statusPill).toHaveText('Ready');
+
+  await expect(offlineHint).toHaveCount(0);
+
+  const eventScopes = await page.evaluate(() =>
+    (window.__blackskiesDebugLog ?? []).map((entry) => entry.scope),
+  );
+  expect(eventScopes).toContain('insights.local_ran');
+  expect(eventScopes).toContain('insights.model_queued_offline');
+  expect(eventScopes).toContain('insights.model_ran_after_reconnect');
+});

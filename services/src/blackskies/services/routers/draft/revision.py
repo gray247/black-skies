@@ -14,13 +14,19 @@ from fastapi import Depends, HTTPException, status
 from fastapi.concurrency import run_in_threadpool
 from pydantic import ValidationError
 
+from ...analytics.runtime import log_runtime_event
 from ...budgeting import derive_critique_cost, persist_project_budget as _persist_project_budget
 from ...config import ServiceSettings
 from ...critique import BLOCKED_RUBRIC_CATEGORIES, CritiqueService
 from ...diagnostics import DiagnosticLogger
 from ...diff_engine import compute_diff
 from ...export import merge_front_matter, normalize_markdown
-from ...http import raise_conflict_error, raise_service_error, raise_validation_error
+from ...http import (
+    raise_budget_error,
+    raise_conflict_error,
+    raise_service_error,
+    raise_validation_error,
+)
 from ...models.critique import DraftCritiqueRequest
 from ...models.rewrite import DraftRewriteRequest
 from ...persistence import DraftPersistence, write_text_atomic
@@ -28,6 +34,7 @@ from ...scene_docs import DraftRequestError, read_scene_document
 from ...operations.budget_service import BudgetService
 from ...resilience import CircuitOpenError, ServiceResilienceExecutor
 from ...rubrics import resolve_rubric_categories
+from ...service_errors import ServiceError
 from ..dependencies import (
     get_critique_resilience,
     get_critique_service,
@@ -361,7 +368,11 @@ async def critique_draft(
     try:
         result = await critique_resilience.run(
             label="critique",
-            operation=lambda: critique_service.run(request_model),
+            operation=lambda: critique_service.run(
+                request_model,
+                project_root=project_root,
+                project_id=project_id,
+            ),
         )
     except CircuitOpenError as exc:
         raise_service_error(
@@ -395,23 +406,48 @@ async def critique_draft(
     if project_root is not None and project_id is not None:
         budget_service = BudgetService(settings=settings, diagnostics=diagnostics)
         try:
-            budget_state = budget_service.load_state(project_root)
-            _, front_matter, body = read_scene_document(project_root, request_model.unit_id)
-            critique_cost = derive_critique_cost(body, front_matter=front_matter)
-            status_label, message, total_after = budget_service.classify(
-                state=budget_state,
-                estimated_cost=critique_cost,
-            )
-            summary = budget_service.build_summary(
-                state=budget_state,
-                estimated_cost=critique_cost,
-                total_after=total_after,
-                spent_override=total_after,
-                status=status_label,
-                message=message,
-            )
-            persist_project_budget(budget_state, total_after)
-            budget_payload = summary.as_dict()
+            def _record_budget() -> dict[str, Any]:
+                with budget_service.edit_state(project_root) as budget_state:
+                    _, front_matter, body = read_scene_document(project_root, request_model.unit_id)
+                    critique_cost = derive_critique_cost(body, front_matter=front_matter)
+                    status_label, message, total_after = budget_service.classify(
+                        state=budget_state,
+                        estimated_cost=critique_cost,
+                    )
+                    if status_label == "blocked":
+                        raise_budget_error(
+                            message=message,
+                            details={
+                                "estimated_usd": critique_cost,
+                                "total_after_usd": total_after,
+                                "hard_limit_usd": budget_state.hard_limit,
+                                "soft_limit_usd": budget_state.soft_limit,
+                                "spent_usd": budget_state.spent_usd,
+                            },
+                            diagnostics=diagnostics,
+                            project_root=project_root,
+                        )
+                    summary = budget_service.build_summary(
+                        state=budget_state,
+                        estimated_cost=critique_cost,
+                        total_after=total_after,
+                        spent_override=total_after,
+                        status=status_label,
+                        message=message,
+                    )
+                    record_runtime_event(
+                        project_root=project_root,
+                        project_id=project_id,
+                        unit_id=request_model.unit_id,
+                        cost=critique_cost,
+                        word_count=len(body.split()),
+                        soft_limit=budget_state.soft_limit,
+                        diagnostics=diagnostics,
+                    )
+                    persist_project_budget(budget_state, total_after)
+                    return summary.as_dict()
+
+            budget_payload = await run_in_threadpool(_record_budget)
         except DraftRequestError as exc:
             raise_validation_error(
                 message=str(exc),
@@ -419,7 +455,7 @@ async def critique_draft(
                 diagnostics=diagnostics,
                 project_root=project_root,
             )
-        except Exception as exc:  # pragma: no cover - defensive logging
+        except OSError as exc:
             diagnostics.log(
                 project_root,
                 code="INTERNAL",
@@ -427,6 +463,17 @@ async def critique_draft(
                 details={"error": str(exc), "unit_id": request_model.unit_id},
             )
             budget_payload = None
+        except ServiceError:
+            raise
+        except Exception as exc:  # pragma: no cover - defensive logging
+            raise_service_error(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                code="INTERNAL",
+                message="Failed to record critique budget telemetry.",
+                details={"error": str(exc), "unit_id": request_model.unit_id},
+                diagnostics=diagnostics,
+                project_root=project_root,
+            )
 
     if budget_payload is not None:
         result["budget"] = budget_payload
@@ -447,5 +494,45 @@ async def critique_draft(
         )
 
     return result
+
+
+def record_runtime_event(
+    *,
+    project_root: Path,
+    project_id: str,
+    unit_id: str,
+    cost: float,
+    word_count: int,
+    soft_limit: float,
+    diagnostics: DiagnosticLogger,
+) -> None:
+    ratio = cost / soft_limit if soft_limit > 0 else 0.0
+    if ratio < 0.25:
+        hint = "cheap"
+    elif ratio < 0.75:
+        hint = "moderate"
+    else:
+        hint = "expensive"
+    try:
+        log_runtime_event(
+            project_root,
+            {
+                "service": "critique",
+                "project_id": project_id,
+                "unit_id": unit_id,
+                "estimated_usd": round(cost, 2),
+                "tokens": word_count,
+                "hint": hint,
+                "mode": "critique",
+            },
+        )
+    except Exception as exc:
+        diagnostics.log(
+            project_root,
+            code="ANALYTICS",
+            message="Failed to record analytics runtime event.",
+            details={"unit_id": unit_id, "error": str(exc)},
+        )
+
 
 __all__ = ["rewrite_draft", "critique_draft"]

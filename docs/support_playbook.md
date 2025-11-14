@@ -18,24 +18,17 @@ This playbook captures the day-2 operations for Phase 9 features. Update as the 
 ## Feature Runbooks
 
 ### Analytics Summary
-1. Hit `GET /api/v1/analytics/summary?project_id=…` with `curl -v`.
-2. If the payload is stale, delete `.blackskies/cache/analytics_summary.json` and retry.
-3. Inspect diagnostics under `history/diagnostics/*analytics*.json` for schema errors.
-4. Verify outline/draft files exist; missing drafts surface as `VALIDATION`.
+1. Hit `GET /api/v1/analytics/summary?project_id=…` with `curl -v` (matches `docs/analytics_service_spec.md`).
+2. If the payload is stale, delete `.blackskies/cache/analytics_summary.json` and retry; this forces cache regeneration for the Project Health drawer.
+3. Inspect diagnostics under `history/diagnostics/*analytics*.json` for schema errors or missing Outline/Writing artifacts.
+4. Verify Outline and Writing files exist; missing drafts surface as `VALIDATION` issues in the response.
+5. When triaging regressions, rerun `pytest -m "analytics"` to confirm the analytics contract still holds.
 
-### Backup Verification
-1. Probe `GET /api/v1/healthz` and confirm `backup_status`, `backup_checked_snapshots`, and `backup_voice_note_issues` are healthy (`ok`, zero counts).
-2. For warnings/errors, read `_runtime/backup_verifier_state.json` to identify the snapshot or voice note flagged (checksum deltas included).
-3. Review `history/diagnostics/BACKUP_VERIFIER_*.json` for per-project context (missing includes, retry flags, voice note gaps).
-4. If a snapshot reports a checksum mismatch, copy the directory to a quarantine location before attempting manual repairs or restores.
-5. Voice note issues typically pair with `"transcript missing"` or `"audio file missing"`; reconcile by re-running transcription or re-uploading the audio source.
+### Backup Verification (Disabled in v1.1)
+The daemon described in the charter is not shipping yet; `/api/v1/healthz` always reports `backup_status: "warning"` and zero counts. Leave this section as a placeholder until the verifier flag is enabled.
 
-### Voice Notes & Transcription
-1. Confirm microphone permissions in the OS and the app's Settings → Voice Notes toggle.
-2. Use the backup verifier diagnostics to locate recent `"voice_note:*"` issues before diving into raw files.
-3. Check `history/voice_notes/<note_id>/audio.ogg` for corruption (ffprobe).
-4. Retry `POST /api/v1/voice/transcribe` with `provider=local`; external providers require `BLACKSKIES_ALLOW_EXTERNAL_TRANSCRIPTION=1` in env.
-5. Budget errors surface as `402` — inspect `project.json::budget` before re-running.
+### Voice Notes & Transcription (Deferred)
+Voice input/recording are not exposed in v1.1 builds. Ignore the legacy plan references until the feature ships.
 
 ### Plugin Sandbox
 1. Ensure sandbox registry is enabled via Settings → Plugins (requires restart).

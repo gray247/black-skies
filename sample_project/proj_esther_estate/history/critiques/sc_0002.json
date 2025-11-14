@@ -2,30 +2,31 @@
   "schema_version": "BatchCritiqueSummary v1",
   "project_id": "proj_esther_estate",
   "unit_id": "sc_0002",
-  "draft_id": "dr_sc0002_19a3787ee5a_8c7a72",
+  "draft_id": "dr_sc0002_19a60a2b71d_02cbb4",
   "rubric": [
     "Continuity",
     "Pacing",
     "Voice"
   ],
   "rubric_id": "baseline",
-  "summary": "Clear goal/stakes. Mid-scene lulls around lines 48–55.",
+  "summary": "Draft 'Locked Parlor' spans 44 words across 3 line(s). Average sentence length is 14.7 words; longest sentence uses 22 words.",
   "priorities": [
-    "Tighten run-ons at 48–55",
-    "Keep POV strict; remove two omniscient asides"
+    "Validate logical continuity between beats.",
+    "Ensure character motivation remains visible in each reversal.",
+    "Expand atmospheric detail to deepen horror tone."
   ],
   "model": {
-    "name": "critique_model_vY",
-    "provider": "openai"
+    "name": "black-skies-rubric-v1",
+    "provider": "offline"
   },
-  "captured_at": "2025-10-30T23:50:46.639238Z",
+  "captured_at": "2025-11-07T23:24:27.846844Z",
   "budget": {
     "estimated_usd": 0.02,
     "status": "ok",
     "message": "Estimate within budget.",
     "soft_limit_usd": 12.5,
     "hard_limit_usd": 25.0,
-    "spent_usd": 0.82,
-    "total_after_usd": 0.82
+    "spent_usd": 0.94,
+    "total_after_usd": 0.94
   }
 }

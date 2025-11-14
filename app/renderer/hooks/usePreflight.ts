@@ -8,6 +8,7 @@ import type {
 import type { ToastPayload } from '../types/toast';
 import type ProjectSummary from '../types/project';
 import { mergeSceneMarkdown } from '../utils/sceneMarkdown';
+import { handleServiceError } from '../utils/serviceErrors';
 
 export interface PreflightState {
   open: boolean;
@@ -27,6 +28,7 @@ interface UsePreflightOptions {
   setDraftEdits: React.Dispatch<React.SetStateAction<Record<string, string>>>;
   reloadProjectFromDisk: () => Promise<void>;
   onBudgetUpdate?: (budget: DraftGenerateBridgeResponse['budget']) => void;
+  onBudgetBlock?: () => void;
 }
 
 const INITIAL_STATE: PreflightState = {
@@ -62,7 +64,9 @@ export function usePreflight({
   setDraftEdits,
   reloadProjectFromDisk,
   onBudgetUpdate,
+  onBudgetBlock,
 }: UsePreflightOptions) {
+  const onBudgetBlockHandler = onBudgetBlock;
   const [state, setState] = useState<PreflightState>(INITIAL_STATE);
 
   const openPreflight = useCallback(async () => {
@@ -192,12 +196,12 @@ export function usePreflight({
         error: result.error.message,
         errorDetails: result.error.details ?? null,
       }));
-      pushToast({
-        tone: 'error',
-        title: "Couldn't write draft.",
-        description: result.error.message,
-        traceId: result.traceId ?? result.error.traceId,
-      });
+      handleServiceError(
+        result.error,
+        'generation',
+        pushToast,
+        onBudgetBlockHandler,
+      );
     }
   }, [
     isMountedRef,
@@ -209,6 +213,7 @@ export function usePreflight({
     setDraftEdits,
     reloadProjectFromDisk,
     onBudgetUpdate,
+    onBudgetBlockHandler,
   ]);
 
   return {

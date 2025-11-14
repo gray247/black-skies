@@ -21,10 +21,12 @@
     "package:dir": "vite build && tsc --project tsconfig.main.json && node ./scripts/write-dist-commonjs.cjs && electron-builder --config electron-builder.yml --dir",
     "package:win": "vite build && tsc --project tsconfig.main.json && node ./scripts/write-dist-commonjs.cjs && electron-builder --config electron-builder.yml --win nsis portable",
     "e2e:build": "pnpm run build:production",
+    "e2e:test": "pnpm exec playwright test --project=electron --workers=1 --reporter=list --trace=on",
+    "e2e:last": "pnpm exec playwright test --last-failed --project=electron --workers=1 --reporter=list --trace=on",
     "e2e": "playwright test -c ./playwright.config.ts",
     "e2e:headed": "playwright test -c ./playwright.config.ts --headed",
     "e2e:report": "playwright show-report",
-    "test:e2e": "pnpm run e2e"
+    "test:e2e": "pnpm run build:renderer && pnpm run build:main && pnpm exec playwright test"
   },
   "dependencies": {
     "@codemirror/lang-markdown": "^6.2.4",

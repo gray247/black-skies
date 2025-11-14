@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import DockWorkspace, { ensurePaneInLayout } from '../components/docking/DockWorkspace';
@@ -11,6 +11,7 @@ describe('DockWorkspace', () => {
   const loadLayout = vi.fn();
   const saveLayout = vi.fn();
   const resetLayout = vi.fn();
+  const noop = () => {};
   let originalRequestAnimationFrame: typeof window.requestAnimationFrame;
   let originalCancelAnimationFrame: typeof window.cancelAnimationFrame;
 
@@ -26,7 +27,7 @@ describe('DockWorkspace', () => {
         loadLayout,
         saveLayout,
         resetLayout,
-        openFloatingPane: vi.fn().mockResolvedValue(true),
+        openFloatingPane: vi.fn().mockResolvedValue({ opened: true, clamp: null }),
         closeFloatingPane: vi.fn(),
         listFloatingPanes: vi.fn().mockResolvedValue([]),
       },
@@ -50,6 +51,9 @@ describe('DockWorkspace', () => {
         defaultPreset="standard"
         enableHotkeys
         focusCycleOrder={["wizard", "draft-board", "critique", "history", "analytics"]}
+        relocationNotifyEnabled
+        autoSnapEnabled={false}
+        onRelocationNotifyChange={noop}
       />,
     );
 
@@ -64,6 +68,9 @@ describe('DockWorkspace', () => {
         defaultPreset="analysis"
         enableHotkeys
         focusCycleOrder={["wizard", "draft-board", "critique", "history", "analytics"]}
+        relocationNotifyEnabled
+        autoSnapEnabled={false}
+        onRelocationNotifyChange={noop}
       />,
     );
 
@@ -105,6 +112,9 @@ describe('DockWorkspace', () => {
         defaultPreset="standard"
         enableHotkeys
         focusCycleOrder={paneIds}
+        relocationNotifyEnabled
+        autoSnapEnabled={false}
+        onRelocationNotifyChange={noop}
       />,
     );
 
@@ -168,6 +178,9 @@ describe('DockWorkspace', () => {
         defaultPreset="standard"
         enableHotkeys
         focusCycleOrder={['wizard', 'draft-board', 'history', 'critique']}
+        relocationNotifyEnabled
+        autoSnapEnabled={false}
+        onRelocationNotifyChange={noop}
       />,
     );
 
@@ -208,6 +221,9 @@ describe('DockWorkspace', () => {
         defaultPreset="standard"
         enableHotkeys
         focusCycleOrder={['wizard']}
+        relocationNotifyEnabled
+        autoSnapEnabled={false}
+        onRelocationNotifyChange={noop}
       />,
     );
 
@@ -242,6 +258,9 @@ describe('DockWorkspace', () => {
         defaultPreset="standard"
         enableHotkeys
         focusCycleOrder={['wizard']}
+        relocationNotifyEnabled
+        autoSnapEnabled={false}
+        onRelocationNotifyChange={noop}
       />,
     );
 

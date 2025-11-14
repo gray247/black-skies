@@ -9,6 +9,7 @@ import RecoveryBanner from "./components/RecoveryBanner";
 import { PreflightModal } from "./components/PreflightModal";
 import { CritiqueModal } from "./components/CritiqueModal";
 import { ToastStack } from "./components/ToastStack";
+import ServiceHealthBanner from "./components/ServiceHealthBanner";
 import DockWorkspace from "./components/docking/DockWorkspace";
 import type { LoadedProject } from "../shared/ipc/projectLoader";
 import type { DiagnosticsBridge } from "../shared/ipc/diagnostics";
@@ -23,6 +24,7 @@ import useMountedRef from "./hooks/useMountedRef";
 import { useToasts } from "./hooks/useToasts";
 import { useServiceHealth } from "./hooks/useServiceHealth";
 import { isTestEnvironment } from "./utils/env";
+import { normaliseBudgetNumber, type BudgetSnapshotSource } from "./utils/budgetIndicator";
 import { usePreflight } from "./hooks/usePreflight";
 import { useCritique, DEFAULT_CRITIQUE_RUBRIC } from "./hooks/useCritique";
 import type { CritiqueDialogState } from "./hooks/useCritique";
@@ -30,16 +32,26 @@ import useRecovery from "./hooks/useRecovery";
 import type ProjectSummary from "./types/project";
 import { generateDraftId } from "./utils/draft";
 import { recordDebugEvent } from "./utils/debugLog";
+import type { RuntimeConfig } from "../shared/config/runtime";
+import { useRelocationPreferences } from "./hooks/useRelocationPreferences";
+import { useBudgetIndicator } from "./hooks/useBudgetIndicator";
 
-type BudgetSnapshotSource = {
-  soft_limit_usd?: number | null;
-  hard_limit_usd?: number | null;
-  spent_usd?: number | null;
-  total_after_usd?: number | null;
-  estimated_usd?: number | null;
-  status?: string | null;
-  message?: string | null;
-};
+type DebugLogEntry = { scope: string; msg?: string };
+
+declare global {
+  interface Window {
+    __test?: {
+      markBoot?: () => void;
+    };
+    __testInsights?: {
+      setServiceStatus?: (status: "offline" | "online") => void;
+      selectScene?: (sceneId: string) => void;
+    };
+    __blackskiesDebugLog?: Array<DebugLogEntry>;
+  }
+}
+
+type TrackedLoadedProject = LoadedProject & { projectId?: string };
 
 const BUDGET_EPSILON = 1e-6;
 
@@ -51,11 +63,8 @@ const DOCKABLE_PANES: LayoutPaneId[] = [
   "analytics",
 ];
 
-function normaliseBudgetNumber(value?: number | null): number | undefined {
-  if (typeof value !== "number" || Number.isNaN(value) || !Number.isFinite(value)) {
-    return undefined;
-  }
-  return value;
+function isLayoutPaneId(value: string | null): value is LayoutPaneId {
+  return value !== null && (DOCKABLE_PANES as readonly string[]).includes(value);
 }
 
 function isBudgetStatus(value: string | null | undefined): value is BudgetMeterProps["status"] {
@@ -80,6 +89,7 @@ function deriveBudgetStatus(
   return "ok";
 }
 
+
 function deriveProjectIdFromPath(path: string): string {
   const segments = path.split(/[\\/]+/).filter(Boolean);
   const base = segments.at(-1);
@@ -101,9 +111,44 @@ interface BatchCritiqueResult {
 export default function App(): JSX.Element {
   const services: ServicesBridge | undefined = window.services;
   const diagnostics: DiagnosticsBridge | undefined = window.diagnostics;
-  const runtimeUi = window.runtimeConfig?.ui;
-  const dockingEnabled = runtimeUi?.enableDocking === true;
-  const dockingHotkeysEnabled = runtimeUi?.hotkeys?.enablePresetHotkeys !== false;
+  const runtimeConfigOverride =
+    (window as typeof window & { __runtimeConfigOverride?: RuntimeConfig }).__runtimeConfigOverride;
+  const runtimeUi = runtimeConfigOverride?.ui ?? window.runtimeConfig?.ui;
+  console.info(`[playwright] runtimeUi=${JSON.stringify(runtimeUi)}`);
+  const { floatingPaneId, floatingProjectPath, floatingRelocatedFlag } = useMemo(() => {
+    if (typeof window === "undefined") {
+      return { floatingPaneId: null, floatingProjectPath: null, floatingRelocatedFlag: false };
+    }
+    const params = new URLSearchParams(window.location.search);
+    const paneParam = params.get("floatingPane");
+    const projectPathParam = params.get("projectPath");
+    return {
+      floatingPaneId: isLayoutPaneId(paneParam) ? (paneParam as LayoutPaneId) : null,
+      floatingProjectPath: projectPathParam,
+      floatingRelocatedFlag: params.get("relocated") === "1",
+    };
+  }, []);
+  const isFloatingHost = floatingPaneId !== null;
+  const {
+    notifyEnabled: relocationNotifyEnabled,
+    setNotifyEnabled: setRelocationNotifyEnabled,
+    autoSnapEnabled,
+    setAutoSnapEnabled,
+  } = useRelocationPreferences();
+  const [floatingRelocated, setFloatingRelocated] = useState<boolean>(floatingRelocatedFlag);
+  useEffect(() => {
+    if (!isFloatingHost || !floatingRelocatedFlag) {
+      setFloatingRelocated(false);
+      return;
+    }
+    setFloatingRelocated(true);
+    const timer = window.setTimeout(() => setFloatingRelocated(false), 2000);
+    return () => window.clearTimeout(timer);
+  }, [floatingRelocatedFlag, isFloatingHost]);
+  const dockingEnabled = runtimeUi?.enableDocking === true && !isFloatingHost;
+  console.info(`[playwright] dockingEnabled=${dockingEnabled}`);
+  const dockingHotkeysEnabled =
+    dockingEnabled && runtimeUi?.hotkeys?.enablePresetHotkeys !== false;
   const dockingFocusOrder = useMemo(() => {
     const entries = runtimeUi?.hotkeys?.focusCycleOrder ?? DOCKABLE_PANES;
     const allowed = new Set<LayoutPaneId>(DOCKABLE_PANES);
@@ -117,30 +162,87 @@ export default function App(): JSX.Element {
   const { toasts, pushToast, dismissToast } = useToasts();
   const isMountedRef = useMountedRef();
   const isTestEnv = isTestEnvironment();
-  const { status: serviceStatus, retry: checkServices } = useServiceHealth(
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    window.__blackskiesDebugLog ??= [];
+    const dbg = (scope: string, msg?: string) => {
+      window.__blackskiesDebugLog!.push({ scope, msg });
+      console.log(`[dbg:${scope}] ${msg ?? ''}`);
+    };
+
+    const handleProjectLoaded = (event: Event) => {
+      const detail = (event as CustomEvent<string | null | undefined>).detail;
+      dbg('project.loaded', String(detail ?? 'null'));
+    };
+    const handleServiceStatus = (event: Event) => {
+      const detail = (event as CustomEvent<'offline' | 'online'>).detail;
+      if (detail === 'offline' || detail === 'online') {
+        dbg(`insights.service_${detail}`);
+      }
+    };
+    const handleSceneSelection = (event: Event) => {
+      const detail = (event as CustomEvent<string | null | undefined>).detail;
+      dbg('scene.selected', String(detail ?? 'null'));
+    };
+
+    window.addEventListener('test:set-project', handleProjectLoaded);
+    window.addEventListener('test:service-status', handleServiceStatus);
+    window.addEventListener('test:select-scene', handleSceneSelection);
+
+    window.__test?.markBoot?.();
+    const handleError = (event: ErrorEvent) => {
+      console.error('[renderer.unhandled]', event.error ?? event.message, event);
+    };
+    const handleRejection = (event: PromiseRejectionEvent) => {
+      console.error('[renderer.unhandledrejection]', event.reason);
+    };
+    window.addEventListener('error', handleError);
+    window.addEventListener('unhandledrejection', handleRejection);
+    return () => {
+      window.removeEventListener('test:set-project', handleProjectLoaded);
+      window.removeEventListener('test:service-status', handleServiceStatus);
+      window.removeEventListener('test:select-scene', handleSceneSelection);
+      window.removeEventListener('error', handleError);
+      window.removeEventListener('unhandledrejection', handleRejection);
+    };
+  }, []);
+  const {
+    status: serviceStatus,
+    retry: checkServices,
+    isPortUnavailable,
+    lastError,
+  } = useServiceHealth(
     services,
     isTestEnv ? { intervalMs: 0 } : undefined,
   );
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      (window as typeof window & { __serviceHealthRetry?: () => Promise<void> }).__serviceHealthRetry =
+        checkServices;
+    }
+  }, [checkServices]);
 
-  const [currentProject, setCurrentProject] = useState<LoadedProject | null>(null);
-  const [projectSummary, setProjectSummary] = useState<ProjectSummary | null>(null);
-  const [projectDrafts, setProjectDrafts] = useState<Record<string, string>>({});
-  const [draftEdits, setDraftEdits] = useState<Record<string, string>>({});
-  const [activeScene, setActiveScene] = useState<{ id: string; title: string | null } | null>(null);
-  const activeSceneId = activeScene?.id ?? null;
-  const [critiqueRubric, setCritiqueRubric] = useState<string[]>(() => [
-    ...DEFAULT_CRITIQUE_RUBRIC,
-  ]);
-  const [companionOpen, setCompanionOpen] = useState<boolean>(false);
-  const [batchCritiqueState, setBatchCritiqueState] = useState<{
-    running: boolean;
-    results: Record<string, BatchCritiqueResult>;
-  }>({
-    running: false,
-    results: {},
-  });
+  const [currentProject, setCurrentProject] = useState<TrackedLoadedProject | null>(null);
+  const currentProjectRef = useRef<LoadedProject | null>(null);
+  const pendingSceneSelectionRef = useRef<string | null>(null);
+  useEffect(() => {
+    currentProjectRef.current = currentProject;
+  }, [currentProject]);
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    const apiWindow = window as typeof window & { __appBootReady?: boolean };
+    apiWindow.__appBootReady = true;
+    return () => {
+      delete apiWindow.__appBootReady;
+    };
+  }, []);
+
   const [budgetSnapshot, setBudgetSnapshot] = useState<BudgetMeterProps | null>(null);
-  const batchJobRef = useRef<{ cancelled: boolean } | null>(null);
 
   const applyBudgetUpdate = useCallback(
     (source?: BudgetSnapshotSource | null) => {
@@ -199,6 +301,107 @@ export default function App(): JSX.Element {
     [setBudgetSnapshot],
   );
 
+  const serviceHealthy = serviceStatus === "online" && !isPortUnavailable;
+  const {
+    indicator: budgetIndicator,
+    blocked: budgetBlocked,
+    refreshBudget,
+    markBudgetBlocked,
+  } = useBudgetIndicator({
+    services,
+    projectId: currentProject?.projectId ?? null,
+    serviceHealthy,
+    pushToast,
+    onBudgetUpdate: applyBudgetUpdate,
+  });
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return () => {};
+    }
+    const apiWindow = window as typeof window & {
+      __budgetRefresh?: () => Promise<void>;
+    };
+    apiWindow.__budgetRefresh = refreshBudget;
+    return () => {
+      delete apiWindow.__budgetRefresh;
+    };
+  }, [refreshBudget]);
+  const [activeScene, setActiveScene] = useState<{ id: string; title: string | null } | null>(null);
+  const activeSceneId = activeScene?.id ?? null;
+  const applySceneSelection = useCallback(
+    (requestedSceneId?: string | null) => {
+      const scenesList = currentProjectRef.current?.scenes ?? [];
+      if (scenesList.length === 0) {
+        return false;
+      }
+      const fallbackScene = scenesList[0] ?? null;
+      const targetScene =
+        scenesList.find((scene) => scene.id === requestedSceneId) ?? fallbackScene;
+      if (!targetScene) {
+        return false;
+      }
+      setActiveScene({ id: targetScene.id, title: targetScene.title ?? null });
+      pendingSceneSelectionRef.current = null;
+      return true;
+    },
+    [setActiveScene],
+  );
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    const apiWindow = window as typeof window & {
+      __selectSceneForTest?: (sceneId?: string | null) => boolean;
+    };
+    apiWindow.__selectSceneForTest = (sceneId?: string | null) => {
+      pendingSceneSelectionRef.current = sceneId ?? null;
+      return applySceneSelection(pendingSceneSelectionRef.current);
+    };
+    return () => {
+      delete apiWindow.__selectSceneForTest;
+    };
+  }, [applySceneSelection]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    const handler = (event: Event) => {
+      const customEvent = event as CustomEvent<string | undefined>;
+      const sceneId = customEvent.detail;
+      if (typeof sceneId === 'string' && sceneId.length > 0) {
+        applySceneSelection(sceneId);
+      }
+    };
+    window.addEventListener('test:select-scene', handler);
+    return () => {
+      window.removeEventListener('test:select-scene', handler);
+    };
+  }, [applySceneSelection]);
+
+  useEffect(() => {
+    if (pendingSceneSelectionRef.current !== null) {
+      applySceneSelection(pendingSceneSelectionRef.current);
+    }
+  }, [applySceneSelection, currentProject]);
+  const [projectSummary, setProjectSummary] = useState<ProjectSummary | null>(null);
+  const [projectDrafts, setProjectDrafts] = useState<Record<string, string>>({});
+  const [draftEdits, setDraftEdits] = useState<Record<string, string>>({});
+  const [critiqueRubric, setCritiqueRubric] = useState<string[]>(() => [
+    ...DEFAULT_CRITIQUE_RUBRIC,
+  ]);
+  const [companionOpen, setCompanionOpen] = useState<boolean>(false);
+  const [batchCritiqueState, setBatchCritiqueState] = useState<{
+    running: boolean;
+    results: Record<string, BatchCritiqueResult>;
+  }>({
+    running: false,
+    results: {},
+  });
+  const batchJobRef = useRef<{ cancelled: boolean } | null>(null);
+
   const projectDraftsRef = useRef<Record<string, string>>({});
   useEffect(() => {
     projectDraftsRef.current = projectDrafts;
@@ -248,6 +451,7 @@ export default function App(): JSX.Element {
     isMountedRef,
     rubric: critiqueRubric,
     onBudgetUpdate: applyBudgetUpdate,
+    onBudgetBlock: markBudgetBlocked,
   });
 
   const resetProjectState = useCallback(() => {
@@ -550,7 +754,8 @@ export default function App(): JSX.Element {
       const projectId = deriveProjectIdFromPath(project.path);
       const unitIds = project.scenes.map((scene) => scene.id);
 
-      setCurrentProject(project);
+      const projectWithId: TrackedLoadedProject = { ...project, projectId };
+      setCurrentProject(projectWithId);
       const canonicalDrafts = { ...project.drafts };
       setProjectDrafts(canonicalDrafts);
       setDraftEdits({ ...canonicalDrafts });
@@ -578,7 +783,15 @@ export default function App(): JSX.Element {
       });
       void fetchRecoveryStatus(projectId);
     },
-    [fetchRecoveryStatus, resetCritique, setActiveScene, setCurrentProject, setDraftEdits, setProjectDrafts, setProjectSummary],
+    [
+      fetchRecoveryStatus,
+      resetCritique,
+      setActiveScene,
+      setCurrentProject,
+      setDraftEdits,
+      setProjectDrafts,
+      setProjectSummary,
+    ],
   );
 
   const reloadProjectFromDisk = useCallback(async () => {
@@ -632,6 +845,7 @@ export default function App(): JSX.Element {
     setDraftEdits,
     reloadProjectFromDisk,
     onBudgetUpdate: applyBudgetUpdate,
+    onBudgetBlock: markBudgetBlocked,
   });
 
   const handleProjectLoaded = useCallback(
@@ -753,6 +967,51 @@ export default function App(): JSX.Element {
     }
   }, [applyBudgetUpdate, preflightState.estimate]);
 
+  useEffect(() => {
+    if (!isFloatingHost || !floatingProjectPath) {
+      return;
+    }
+    const loader = window.projectLoader;
+    if (!loader?.loadProject) {
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const response = await loader.loadProject({ path: floatingProjectPath });
+        if (!isMountedRef.current || cancelled) {
+          return;
+        }
+        if (response?.ok) {
+          activateProject(response.project);
+        } else if (response?.error) {
+          const message =
+            typeof response.error.message === "string"
+              ? response.error.message
+              : "Unable to load project for floating pane.";
+          pushToast({
+            tone: "error",
+            title: "Floating pane failed to load project",
+            description: message,
+          });
+        }
+      } catch (error) {
+        if (!isMountedRef.current || cancelled) {
+          return;
+        }
+        const message = error instanceof Error ? error.message : String(error);
+        pushToast({
+          tone: "error",
+          title: "Floating pane failed to load project",
+          description: message,
+        });
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [activateProject, floatingProjectPath, isFloatingHost, isMountedRef, pushToast]);
+
   const projectLabel = useMemo(() => projectSummary?.path ?? "No project loaded", [projectSummary]);
   const recoverySnapshot = recoveryStatus?.last_snapshot ?? null;
   const recoveryBannerVisible = recoveryStatus?.needs_recovery ?? false;
@@ -791,44 +1050,53 @@ export default function App(): JSX.Element {
       draftOverrides={draftEdits}
       onActiveSceneChange={handleActiveSceneChange}
       onDraftChange={handleDraftChange}
+      relocationNotifyEnabled={relocationNotifyEnabled}
+      autoSnapEnabled={autoSnapEnabled}
+      onRelocationNotifyChange={setRelocationNotifyEnabled}
+      onAutoSnapChange={setAutoSnapEnabled}
     />
   );
 
+  const allPaneContent: Record<LayoutPaneId, ReactNode> = {
+    wizard: <div className="dock-pane__scroll">{renderWizardPanel()}</div>,
+    "draft-board": (
+      <div className="dock-pane__scroll">
+        {renderRecoveryBanner()}
+        {renderProjectHome()}
+      </div>
+    ),
+    critique: (
+      <CritiqueSummaryPane
+        state={critiqueState}
+        onOpen={() => void openCritique()}
+        onReset={() => void resetCritique()}
+      />
+    ),
+    history: (
+      <HistoryPane
+        recoveryStatus={recoveryStatus}
+        recoveryAction={recoveryAction}
+        recoveryAvailable={recoveryBannerVisible}
+        lastProjectPath={lastProjectPath}
+        onRestore={() => void handleRestoreSnapshot()}
+        onReopen={() => void handleReopenLastProject()}
+        onReload={() => void reloadProjectFromDisk()}
+      />
+    ),
+    analytics: (
+      <AnalyticsPane
+        companionOpen={companionOpen}
+        onOpenCompanion={() => setCompanionOpen(true)}
+        budget={budgetSnapshot}
+      />
+    ),
+  };
+
   const dockPaneContent: Partial<Record<LayoutPaneId, ReactNode>> = dockingEnabled
-    ? {
-        wizard: <div className="dock-pane__scroll">{renderWizardPanel()}</div>,
-        "draft-board": (
-          <div className="dock-pane__scroll">
-            {renderRecoveryBanner()}
-            {renderProjectHome()}
-          </div>
-        ),
-        critique: (
-          <CritiqueSummaryPane
-            state={critiqueState}
-            onOpen={() => void openCritique()}
-            onReset={() => void resetCritique()}
-          />
-        ),
-        history: (
-          <HistoryPane
-            recoveryStatus={recoveryStatus}
-            recoveryAction={recoveryAction}
-            lastProjectPath={lastProjectPath}
-            onRestore={() => void handleRestoreSnapshot()}
-            onReopen={() => void handleReopenLastProject()}
-            onReload={() => void reloadProjectFromDisk()}
-          />
-        ),
-        analytics: (
-          <AnalyticsPane
-            companionOpen={companionOpen}
-            onOpenCompanion={() => setCompanionOpen(true)}
-            budget={budgetSnapshot}
-          />
-        ),
-      }
+    ? allPaneContent
     : {};
+
+  const floatingPaneContent = floatingPaneId ? allPaneContent[floatingPaneId] ?? null : null;
 
   const workspaceBody = dockingEnabled ? (
     <DockWorkspace
@@ -837,6 +1105,10 @@ export default function App(): JSX.Element {
       defaultPreset={defaultDockPreset}
       enableHotkeys={dockingHotkeysEnabled}
       focusCycleOrder={dockingFocusOrder}
+      onToast={pushToast}
+      relocationNotifyEnabled={relocationNotifyEnabled}
+      autoSnapEnabled={autoSnapEnabled}
+      onRelocationNotifyChange={setRelocationNotifyEnabled}
       emptyState={
         <div className="dock-workspace__empty-card">
           {renderRecoveryBanner()}
@@ -844,16 +1116,34 @@ export default function App(): JSX.Element {
         </div>
       }
     />
-  ) : (
+  ) : isFloatingHost ? (
+    <div className={`floating-pane-shell${floatingRelocated ? " floating-pane-shell--relocated" : ""}`}>
+      <div className="dock-pane__content dock-pane__content--floating">
+        {floatingPaneContent ?? (
+          <div className="floating-pane-shell__empty">
+            Pane content unavailable for floating display.
+          </div>
+        )}
+      </div>
+    </div>
+) : (
     <div className="app-shell__workspace-scroll">
       {renderRecoveryBanner()}
       {renderProjectHome()}
     </div>
   );
 
+  const showServiceHealthBanner = serviceStatus === "offline" && isPortUnavailable;
+
   return (
-    <div className={`app-shell${dockingEnabled ? " app-shell--dock-enabled" : ""}`}>
-      {!dockingEnabled && (
+    <div
+      id="app-root"
+      data-testid="app-root"
+      className={`app-shell${dockingEnabled ? " app-shell--dock-enabled" : ""}${
+        isFloatingHost ? " app-shell--floating" : ""
+      }`}
+    >
+      {!dockingEnabled && !isFloatingHost && (
         <aside className="app-shell__dock" aria-label="Wizard dock">
           <div className="app-shell__dock-header">
             <h1>Black Skies</h1>
@@ -866,6 +1156,7 @@ export default function App(): JSX.Element {
       <div className="app-shell__workspace">
         <WorkspaceHeader
           projectLabel={projectLabel}
+          projectId={projectSummary?.projectId ?? null}
           serviceStatus={serviceStatus}
           onRetry={checkServices}
           onToggleCompanion={toggleCompanion}
@@ -873,9 +1164,18 @@ export default function App(): JSX.Element {
           onCritique={() => void openCritique()}
           companionOpen={companionOpen}
           disableCompanion={!currentProject}
-          disableGenerate={serviceStatus !== "online"}
-          disableCritique={serviceStatus !== "online"}
+          disableGenerate={serviceStatus !== "online" || budgetBlocked}
+          disableCritique={serviceStatus !== "online" || budgetBlocked}
           budget={budgetSnapshot ?? undefined}
+          budgetIndicator={budgetIndicator}
+        />
+        {/* When the service port is missing we surface a single banner with a retry action. */}
+        <ServiceHealthBanner
+          visible={showServiceHealthBanner}
+          serviceStatus={serviceStatus}
+          isPortUnavailable={isPortUnavailable}
+          errorMessage={lastError?.message ?? null}
+          onRetry={checkServices}
         />
 
         <main className="app-shell__workspace-body">{workspaceBody}</main>
@@ -899,6 +1199,7 @@ export default function App(): JSX.Element {
         activeSceneId={activeScene?.id ?? null}
         batchState={batchCritiqueState}
         onBatchCritique={runBatchCritique}
+        serviceStatus={serviceStatus}
       />
 
       <ToastStack
@@ -967,24 +1268,27 @@ function CritiqueSummaryPane({ state, onOpen, onReset }: CritiqueSummaryPaneProp
   );
 }
 
-interface HistoryPaneProps {
+export interface HistoryPaneProps {
   recoveryStatus: RecoveryStatusBridgeResponse | null;
   recoveryAction: string;
+  recoveryAvailable: boolean;
   lastProjectPath: string | null;
   onRestore: () => void;
   onReopen: () => void;
   onReload: () => void;
 }
 
-function HistoryPane({
+export function HistoryPane({
   recoveryStatus,
   recoveryAction,
+  recoveryAvailable,
   lastProjectPath,
   onRestore,
   onReopen,
   onReload,
 }: HistoryPaneProps): JSX.Element {
   const snapshot = recoveryStatus?.last_snapshot;
+  const canRestoreSnapshot = recoveryAvailable && recoveryAction === "idle";
   return (
     <div className="dock-pane__section">
       <div>
@@ -1001,9 +1305,13 @@ function HistoryPane({
         )}
       </div>
       <div className="dock-pane__actions">
-        <button type="button" onClick={onRestore} disabled={recoveryAction !== "idle"}>
-          Restore snapshot
-        </button>
+        {recoveryAvailable ? (
+          <button type="button" onClick={onRestore} disabled={!canRestoreSnapshot}>
+            Restore snapshot
+          </button>
+        ) : (
+          <p aria-live="polite">No recovery actions pending.</p>
+        )}
         <button
           type="button"
           onClick={onReopen}
@@ -1064,7 +1372,3 @@ function formatCurrency(value?: number): string {
   }
   return `$${value.toFixed(2)}`;
 }
-
-
-
-

@@ -111,7 +111,7 @@ The renderer window keeps Vite hot reloading; close it to stop the dev server. T
 
 ### Runtime configuration overrides
 
-Defaults for port ranges, health probe timing, bundled Python interpreters, and analytics thresholds live in `config/runtime.yaml`. Update this file (or point `BLACKSKIES_CONFIG_PATH` at a custom copy) when you need to harden deployments—changes are picked up by both the FastAPI backend and the Electron main/preload processes.
+Defaults for port ranges, health probe timing, bundled Python interpreters, analytics thresholds, and the draft synthesizer heuristics live in `config/runtime.yaml`. Update this file (or point `BLACKSKIES_CONFIG_PATH` at a custom copy) when you need to harden deployments—changes are picked up by both the FastAPI backend and the Electron main/preload processes. The `draft_synthesizer` section lets you override POV/goal/conflict/turn/emotion lists or adjust the word-target curve without touching code, which is handy when running branded demos or expanding the companion cast.
 
 ---
 
@@ -135,8 +135,8 @@ The output lands in `app/release/win-unpacked`. Running `package:win` generates 
 
 Use the bundled `sample_project/Esther_Estate` for smoke tests:
 
-- Automated: `./scripts/smoke.sh` (or `powershell -File .\scripts\smoke.ps1`) bootstraps the venv, starts the API, and runs three Wizard → Draft → Critique → Accept cycles against `proj_esther_estate`.
-- Manual: Launch the desktop shell, choose **Open Project**, browse to `sample_project/Esther_Estate`, and step through the Wizard → Generate → Critique → Accept flow to confirm the budget pill and recovery banner respond as expected.
+- Automated: `./scripts/smoke.sh` (or `powershell -File .\scripts\smoke.ps1`) bootstraps the venv, starts the API, and runs three Outline → Writing → Feedback → Accept cycles against `proj_esther_estate`.
+- Manual: Launch the desktop shell, choose **Open Project**, browse to `sample_project/Esther_Estate`, and step through the Outline → Writing → Feedback → Accept flow to confirm the budget pill and recovery banner respond as expected.
 - Load sanity: python scripts/load.py --total-cycles 4 --concurrency 2 --start-service --scene-count 4 autostarts the FastAPI bridge, waits for /api/v1/healthz, rotates four scenes, and verifies critique telemetry updates the budget meter and ledger.
 
 ### Recovery banner smoke (manual trigger)

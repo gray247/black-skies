@@ -42,11 +42,24 @@ export interface FloatingPaneDescriptor {
   displayId?: number;
 }
 
+export interface FloatingPaneClampInfo {
+  reason: 'off-screen-clamp';
+  before?: FloatingPaneDescriptor['bounds'];
+  after: FloatingPaneDescriptor['bounds'];
+  requestedDisplayId?: number;
+  appliedDisplayId?: number;
+}
+
+export interface FloatingPaneOpenResult {
+  opened: boolean;
+  clamp?: FloatingPaneClampInfo | null;
+}
+
 export interface LayoutBridge {
   loadLayout(request: LayoutLoadRequest): Promise<LayoutLoadResponse>;
   saveLayout(request: LayoutSaveRequest): Promise<void>;
   resetLayout(request: LayoutResetRequest): Promise<void>;
-  openFloatingPane(request: FloatingPaneOpenRequest): Promise<boolean>;
+  openFloatingPane(request: FloatingPaneOpenRequest): Promise<FloatingPaneOpenResult>;
   closeFloatingPane(request: FloatingPaneCloseRequest): Promise<void>;
   listFloatingPanes(projectPath: string): Promise<FloatingPaneDescriptor[]>;
 }
@@ -76,4 +89,3 @@ export const DEFAULT_LAYOUT: LayoutTree = {
     second: "critique",
   },
 };
-

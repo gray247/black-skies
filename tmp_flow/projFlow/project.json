@@ -1,0 +1,74 @@
+{
+  "project_id": "projFlow",
+  "budget": {
+    "soft": 5.0,
+    "hard": 10.0,
+    "spent_usd": 0.0,
+    "last_request_fingerprint": "6ee82a9c2ded7669aa81eec229ec97532d15b6216d57f41bef3463e91460306b",
+    "last_generate_response": {
+      "project_id": "projFlow",
+      "unit_scope": "scene",
+      "unit_ids": [
+        "sc_0001"
+      ],
+      "draft_id": "dr_c059479d",
+      "schema_version": "DraftUnitSchema v1",
+      "units": [
+        {
+          "id": "sc_0001",
+          "text": "Kira Beaumont enters Scene 1 to decode the warding sigils. The atmosphere leans toward respite as old floorboards complain at every move.\n\nThe beat shifts when the diary on the desk updates itself, keeping the scene in escalation mode and aiming for roughly 1000 words.",
+          "meta": {
+            "pov": "Kira Beaumont",
+            "purpose": "escalation",
+            "emotion_tag": "respite",
+            "word_target": 1000,
+            "conflict": "old floorboards complain at every move",
+            "conflict_type": "environmental",
+            "pacing_target": "slow",
+            "order": 1,
+            "chapter_id": "ch_0001"
+          },
+          "prompt_fingerprint": "sha256:e7a9b9e5f1dedbf873e8fe63e5ca9423cfef8d067831a25168982492c8d9623b",
+          "model": {
+            "name": "draft-synthesizer-v1",
+            "provider": "black-skies-local"
+          },
+          "seed": 3395503721
+        }
+      ],
+      "budget": {
+        "estimated_usd": 0.02,
+        "status": "ok",
+        "message": "Estimate within budget.",
+        "soft_limit_usd": 5.0,
+        "hard_limit_usd": 10.0,
+        "spent_usd": 0.0,
+        "total_after_usd": 0.02
+      }
+    },
+    "last_generate_artifacts": [
+      {
+        "scene_id": "sc_0001",
+        "front_matter": {
+          "id": "sc_0001",
+          "slug": "scene-1",
+          "title": "Scene 1",
+          "pov": "Kira Beaumont",
+          "purpose": "escalation",
+          "goal": "decode the warding sigils",
+          "conflict": "old floorboards complain at every move",
+          "conflict_type": "environmental",
+          "turn": "the diary on the desk updates itself",
+          "emotion_tag": "respite",
+          "word_target": 1000,
+          "pacing_target": "slow",
+          "order": 1,
+          "chapter_id": "ch_0001",
+          "beats": []
+        },
+        "body": "Kira Beaumont enters Scene 1 to decode the warding sigils. The atmosphere leans toward respite as old floorboards complain at every move.\n\nThe beat shifts when the diary on the desk updates itself, keeping the scene in escalation mode and aiming for roughly 1000 words.",
+        "durable": true
+      }
+    ]
+  }
+}

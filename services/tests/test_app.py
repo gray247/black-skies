@@ -8,6 +8,7 @@ import hashlib
 import json
 import threading
 import time
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 from uuid import UUID
@@ -26,12 +27,16 @@ try:
 except ModuleNotFoundError as exc:  # pragma: no cover - environment dependent
     pytest.skip(f"yaml is required for service tests: {exc}", allow_module_level=True)
 
+from blackskies.services.analytics.service import AnalyticsSummaryService
 from blackskies.services.app import SERVICE_VERSION, BuildTracker
 from blackskies.services.config import ServiceSettings
 from blackskies.services.diagnostics import DiagnosticLogger
 from blackskies.services.persistence import DraftPersistence, SnapshotPersistence
 from blackskies.services.routers.recovery import RecoveryTracker
 from blackskies.services.critique import CritiqueService
+from blackskies.services.operations.draft_accept import DraftAcceptService
+from blackskies.services.operations.draft_generation import DraftGenerationService
+from blackskies.services.scene_docs import DraftRequestError
 
 TRACE_HEADER = "x-trace-id"
 API_PREFIX = "/api/v1"
@@ -54,6 +59,15 @@ def _read_error(response: Any) -> dict[str, object]:
     trace_id = _assert_trace_header(response)
     assert payload["trace_id"] == trace_id
     return payload
+
+
+def _fetch_analytics_budget(test_client: TestClient, project_id: str) -> Any:
+    """Retrieve the analytics budget payload for a given project."""
+
+    return test_client.get(
+        f"{API_PREFIX}/analytics/budget",
+        params={"project_id": project_id},
+    )
 
 
 def test_service_index_reports_manifest(test_client: TestClient) -> None:
@@ -304,6 +318,198 @@ def test_metrics_endpoint(test_client: TestClient) -> None:
     _assert_trace_header(response)
 
 
+def test_analytics_summary_handles_internal_error(
+    test_client: TestClient, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Analytics summary surfaces INTERNAL responses when the service fails."""
+
+    project_id = "proj_analytics_error"
+    (tmp_path / project_id).mkdir(parents=True, exist_ok=True)
+
+    def _raise_summary(self: AnalyticsSummaryService, project_id: str) -> dict[str, Any]:
+        raise RuntimeError("analytics subsystem offline")
+
+    monkeypatch.setattr(AnalyticsSummaryService, "build_summary", _raise_summary)
+
+    response = test_client.get(
+        f"{API_PREFIX}/analytics/summary",
+        params={"project_id": project_id},
+    )
+    assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
+    detail = _read_error(response)
+    assert detail["code"] == "INTERNAL"
+
+
+def test_analytics_budget_tracks_spend_and_hints(
+    test_client: TestClient,
+    tmp_path: Path,
+) -> None:
+    """Analytics budget surfaces project spend, limits, and hint metadata."""
+
+    project_id = "proj_analytics_budget_normal"
+    scene_ids = _bootstrap_outline(tmp_path, project_id, scene_count=1)
+    _bootstrap_scene(tmp_path, project_id, scene_id=scene_ids[0])
+
+    critique_payload = _build_critique_payload(unit_id=scene_ids[0])
+    critique_payload["project_id"] = project_id
+    critique_response = test_client.post(
+        f"{API_PREFIX}/draft/critique",
+        json=critique_payload,
+    )
+    assert critique_response.status_code == status.HTTP_200_OK
+    critique_budget = critique_response.json()["budget"]
+
+    analytics_response = _fetch_analytics_budget(test_client, project_id)
+    assert analytics_response.status_code == status.HTTP_200_OK
+    analytics_payload = analytics_response.json()
+    assert analytics_payload["project_id"] == project_id
+    budget_payload = analytics_payload["budget"]
+    assert budget_payload["soft_limit_usd"] == pytest.approx(5.0)
+    assert budget_payload["hard_limit_usd"] == pytest.approx(10.0)
+    assert budget_payload["spent_usd"] == pytest.approx(critique_budget["spent_usd"])
+    assert budget_payload["remaining_usd"] == pytest.approx(
+        10.0 - budget_payload["spent_usd"]
+    )
+    assert analytics_payload["hint"] == "ample"
+
+
+def test_analytics_budget_near_cap_reflects_block(
+    test_client: TestClient,
+    tmp_path: Path,
+) -> None:
+    """Blocked budget attempts keep hint metadata aligned with thresholds."""
+
+    project_id = "proj_analytics_budget_near_cap"
+    scene_ids = _bootstrap_outline(
+        tmp_path,
+        project_id,
+        scene_count=1,
+        spent_usd=5.01,
+    )
+
+    payload = {
+        "project_id": project_id,
+        "unit_scope": "scene",
+        "unit_ids": scene_ids,
+        "overrides": {scene_ids[0]: {"word_target": 300000}},
+    }
+
+    response = test_client.post(f"{API_PREFIX}/draft/generate", json=payload)
+    assert response.status_code == status.HTTP_402_PAYMENT_REQUIRED
+    detail = _read_error(response)
+    assert detail["code"] == "BUDGET_EXCEEDED"
+
+    analytics_response = _fetch_analytics_budget(test_client, project_id)
+    assert analytics_response.status_code == status.HTTP_200_OK
+    analytics_payload = analytics_response.json()
+    assert analytics_payload["hint"] == "near_cap"
+    budget_payload = analytics_payload["budget"]
+    assert budget_payload["spent_usd"] == pytest.approx(5.01)
+    assert budget_payload["remaining_usd"] == pytest.approx(10.0 - 5.01)
+
+
+def test_analytics_budget_handles_store_errors(
+    test_client: TestClient,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Budget API surfaces structured code when storage fails."""
+
+    project_id = "proj_analytics_budget_store_failure"
+    _bootstrap_outline(tmp_path, project_id, scene_count=1)
+
+    def _fail_load_state(*_args: Any, **_kwargs: Any) -> None:
+        raise RuntimeError("budget store offline")
+
+    monkeypatch.setattr(
+        "blackskies.services.operations.budget_service.BudgetService.load_state",
+        _fail_load_state,
+    )
+
+    response = _fetch_analytics_budget(test_client, project_id)
+    assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
+    detail = _read_error(response)
+    assert detail["code"] == "INTERNAL"
+    assert "Failed to load budget information." in detail["message"]
+    assert detail["details"]["error"] == "budget store offline"
+
+
+def test_analytics_runtime_event_failure_logs_and_continues(
+    test_client: TestClient,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Analytics write failures log diagnostics but do not break text flows."""
+
+    project_id = "proj_analytics_runtime_failure"
+    scene_ids = _bootstrap_outline(tmp_path, project_id, scene_count=1)
+    _bootstrap_scene(tmp_path, project_id, scene_id=scene_ids[0])
+
+    captured: list[dict[str, Any]] = []
+    original_log = DiagnosticLogger.log
+
+    def _capture_log(
+        self: DiagnosticLogger,
+        project_root: Path,
+        *,
+        code: str,
+        message: str,
+        details: dict[str, Any] | None = None,
+    ) -> Path:
+        path = original_log(
+            self,
+            project_root,
+            code=code,
+            message=message,
+            details=details,
+        )
+        captured.append({"code": code, "message": message, "details": details or {}})
+        return path
+
+    monkeypatch.setattr(DiagnosticLogger, "log", _capture_log)
+
+    def _broken_logger(*_args: Any, **_kwargs: Any) -> None:
+        raise RuntimeError("analytics disk failure")
+
+    for target in (
+        "blackskies.services.analytics.runtime.log_runtime_event",
+        "blackskies.services.operations.draft_generation.log_runtime_event",
+        "blackskies.services.routers.draft.revision.log_runtime_event",
+    ):
+        monkeypatch.setattr(target, _broken_logger)
+
+    generate_payload = {
+        "project_id": project_id,
+        "unit_scope": "scene",
+        "unit_ids": scene_ids,
+    }
+    generate_response = test_client.post(
+        f"{API_PREFIX}/draft/generate",
+        json=generate_payload,
+    )
+    assert generate_response.status_code == status.HTTP_200_OK
+
+    critique_payload = _build_critique_payload(unit_id=scene_ids[0])
+    critique_payload["project_id"] = project_id
+    critique_response = test_client.post(
+        f"{API_PREFIX}/draft/critique",
+        json=critique_payload,
+    )
+    assert critique_response.status_code == status.HTTP_200_OK
+
+    analytics_response = _fetch_analytics_budget(test_client, project_id)
+    assert analytics_response.status_code == status.HTTP_200_OK
+
+    analytics_failures = [
+        entry for entry in captured if entry["code"] == "ANALYTICS"
+    ]
+    assert len(analytics_failures) >= 2
+    assert all(
+        "Failed to record analytics runtime event." in entry["message"]
+        for entry in analytics_failures
+    )
+
+
 @pytest.mark.contract
 def test_contract_outline_build(test_client: TestClient, tmp_path: Path) -> None:
     """Outline build matches the golden contract snapshot."""
@@ -483,6 +689,33 @@ def test_draft_generate_rehydrates_cached_units(test_client: TestClient, tmp_pat
     assert project_meta["budget"]["spent_usd"] == pytest.approx(
         first_data["budget"]["spent_usd"]
     )
+
+
+def test_draft_generate_handles_request_error(
+    test_client: TestClient,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Draft generation surfaces service-level DraftRequestError as validation failures."""
+
+    project_id = "proj_draft_request_error"
+    scene_ids = _bootstrap_outline(tmp_path, project_id, scene_count=1)
+    payload = {
+        "project_id": project_id,
+        "unit_scope": "scene",
+        "unit_ids": scene_ids,
+    }
+
+    async def _raise_request_error(self, *_args: Any, **_kwargs: Any) -> Any:
+        raise DraftRequestError("Scene markdown is missing.", {"unit_id": scene_ids[0]})
+
+    monkeypatch.setattr(DraftGenerationService, "generate", _raise_request_error)
+
+    response = test_client.post(f"{API_PREFIX}/draft/generate", json=payload)
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    detail = _read_error(response)
+    assert detail["code"] == "VALIDATION"
+    assert detail["details"]["unit_id"] == scene_ids[0]
 
 
 def test_draft_generate_scene_limit(test_client: TestClient, tmp_path: Path) -> None:
@@ -814,6 +1047,101 @@ def test_draft_critique_budget_logging(
     )
 
 
+def test_draft_critique_budget_handles_generic_errors(
+    test_client: TestClient,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Budget telemetry errors return a structured INTERNAL response instead of generic failures."""
+
+    project_id = "proj_batch_budget_error"
+    scene_id = _bootstrap_outline(tmp_path, project_id, scene_count=1)[0]
+    _bootstrap_scene(tmp_path, project_id, scene_id=scene_id)
+
+    @contextmanager
+    def _failing_edit_state(*_args: Any, **_kwargs: Any):
+        raise RuntimeError("budget subsystem offline")
+        yield  # pragma: no cover - unreachable
+
+    monkeypatch.setattr(
+        "blackskies.services.operations.budget_service.BudgetService.edit_state",
+        _failing_edit_state,
+    )
+
+    payload = _build_critique_payload(unit_id=scene_id)
+    payload["project_id"] = project_id
+
+    response = test_client.post(f"{API_PREFIX}/draft/critique", json=payload)
+    assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
+    detail = _read_error(response)
+    assert detail["code"] == "INTERNAL"
+    assert detail["message"] == "Failed to record critique budget telemetry."
+
+
+def test_budget_guardrail_smoke(test_client: TestClient, tmp_path: Path) -> None:
+    """Multi-route write paths respect the hard budget guardrail."""
+
+    project_id = "proj_budget_guardrail_smoke"
+    scene_ids = _bootstrap_outline(
+        tmp_path,
+        project_id,
+        scene_count=1,
+        soft_limit=0.05,
+        hard_limit=0.06,
+        spent_usd=0.03,
+    )
+
+    draft_payload = {
+        "project_id": project_id,
+        "unit_scope": "scene",
+        "unit_ids": scene_ids,
+        "overrides": {scene_ids[0]: {"word_target": 1200}},
+    }
+
+    first_response = test_client.post(f"{API_PREFIX}/draft/generate", json=draft_payload)
+    assert first_response.status_code == status.HTTP_200_OK
+    first_budget = first_response.json()["budget"]
+    assert first_budget["status"] in {"ok", "soft-limit"}
+
+    long_body = " ".join("word" for _ in range(1200))
+    _bootstrap_scene(tmp_path, project_id, scene_id=scene_ids[0], body=long_body)
+
+    critique_payload = _build_critique_payload(
+        draft_id=first_response.json()["draft_id"],
+        unit_id=scene_ids[0],
+    )
+    critique_payload["project_id"] = project_id
+
+    critique_response = test_client.post(f"{API_PREFIX}/draft/critique", json=critique_payload)
+    assert critique_response.status_code == status.HTTP_200_OK
+    critique_budget = critique_response.json()["budget"]
+    assert critique_budget["status"] in {"ok", "soft-limit"}
+
+    project_meta_path = tmp_path / project_id / "project.json"
+    project_meta = json.loads(project_meta_path.read_text(encoding="utf-8"))
+    assert project_meta["budget"]["spent_usd"] == pytest.approx(critique_budget["spent_usd"])
+
+    blocked_payload = {
+        "project_id": project_id,
+        "unit_scope": "scene",
+        "unit_ids": scene_ids,
+        "overrides": {scene_ids[0]: {"word_target": 500000}},
+    }
+    blocked_generate = test_client.post(f"{API_PREFIX}/draft/generate", json=blocked_payload)
+    assert blocked_generate.status_code == status.HTTP_402_PAYMENT_REQUIRED
+
+    blocked_critique = test_client.post(f"{API_PREFIX}/draft/critique", json=critique_payload)
+    assert blocked_critique.status_code == status.HTTP_402_PAYMENT_REQUIRED
+
+    analytics_response = _fetch_analytics_budget(test_client, project_id)
+    assert analytics_response.status_code == status.HTTP_200_OK
+    analytics_payload = analytics_response.json()
+    assert analytics_payload["hint"] == "near_cap"
+    assert analytics_payload["budget"]["spent_usd"] == pytest.approx(
+        critique_budget["spent_usd"]
+    )
+
+
 @pytest.mark.anyio("asyncio")
 async def test_draft_critique_handles_concurrent_requests(
     async_client: "httpx.AsyncClient",
@@ -837,7 +1165,7 @@ async def test_draft_critique_handles_concurrent_requests(
     peak_calls = 0
     lock = threading.Lock()
 
-    def _concurrent_run(self: CritiqueService, request: Any) -> dict[str, Any]:
+    def _concurrent_run(self: CritiqueService, request: Any, **_: Any) -> dict[str, Any]:
         nonlocal active_calls, peak_calls
         with lock:
             active_calls += 1
@@ -996,6 +1324,87 @@ def test_draft_preflight_soft_limit(test_client: TestClient, tmp_path: Path) -> 
     assert budget["total_after_usd"] == pytest.approx(budget["estimated_usd"])
 
 
+def test_wizard_to_draft_flow(test_client: TestClient, tmp_path: Path) -> None:
+    """Wizard/binder flow can build an outline and produce a draft without errors."""
+
+    project_id = "proj_wizard_draft_flow"
+    payload = _build_payload()
+    payload["project_id"] = project_id
+
+    response = test_client.post(f"{API_PREFIX}/outline/build", json=payload)
+    assert response.status_code == 200
+    build_payload = response.json()
+    scene_ids = [scene["id"] for scene in build_payload["scenes"]]
+
+    draft_payload = {
+        "project_id": project_id,
+        "unit_scope": "scene",
+        "unit_ids": scene_ids[:1],
+        "overrides": {scene_ids[0]: {"word_target": 1200}},
+    }
+
+    generate_response = test_client.post(f"{API_PREFIX}/draft/generate", json=draft_payload)
+    assert generate_response.status_code == status.HTTP_200_OK
+    generate_data = generate_response.json()
+    assert generate_data["project_id"] == project_id
+    assert generate_data["budget"]["status"] == "ok"
+    units = generate_data["units"]
+    assert units
+    first_unit = units[0]
+    assert first_unit["text"].strip()
+    meta = first_unit["meta"]
+    for field_name in ("pov", "conflict", "pacing_target"):
+        assert meta.get(field_name)
+
+    summary_response = test_client.get(
+        f"{API_PREFIX}/analytics/summary",
+        params={"project_id": project_id},
+    )
+    assert summary_response.status_code == status.HTTP_200_OK
+    summary = summary_response.json()
+    assert summary["runtime_hints"]["budget"]["soft_limit_usd"] > 0
+    assert summary["pacing"]["scene_metrics"]
+    pacing_scene = summary["pacing"]["scene_metrics"][0]
+    assert pacing_scene["scene_id"] == scene_ids[0]
+    assert summary["emotion_arc"]
+    assert summary["cost_overlays"]["budget"]["spent_usd"] == pytest.approx(
+        generate_data["budget"]["spent_usd"]
+    )
+
+
+def test_draft_to_critique_flow(test_client: TestClient, tmp_path: Path) -> None:
+    """Draft production flows into critique with heuristics and budget metadata."""
+
+    project_id = "proj_draft_critique_flow"
+    payload = _build_payload()
+    payload["project_id"] = project_id
+    build_response = test_client.post(f"{API_PREFIX}/outline/build", json=payload)
+    assert build_response.status_code == 200
+    scene_ids = [scene["id"] for scene in build_response.json()["scenes"]]
+
+    draft_payload = {
+        "project_id": project_id,
+        "unit_scope": "scene",
+        "unit_ids": scene_ids[:1],
+    }
+    generate_response = test_client.post(f"{API_PREFIX}/draft/generate", json=draft_payload)
+    assert generate_response.status_code == status.HTTP_200_OK
+    draft_data = generate_response.json()
+
+    critique_payload = _build_critique_payload(
+        draft_id=draft_data["draft_id"],
+        unit_id=scene_ids[0],
+    )
+    critique_payload["project_id"] = project_id
+
+    critique_response = test_client.post(f"{API_PREFIX}/draft/critique", json=critique_payload)
+    assert critique_response.status_code == status.HTTP_200_OK
+    critique_data = critique_response.json()
+    assert critique_data["summary"]
+    assert critique_data["heuristics"]
+    assert critique_data["budget"]["status"] == "ok"
+    assert critique_data["budget"]["estimated_usd"] > 0
+
 def test_draft_preflight_blocked(test_client: TestClient, tmp_path: Path) -> None:
     """Preflight reports blocked status when hard limit would be exceeded."""
 
@@ -1039,6 +1448,33 @@ def test_draft_preflight_missing_scene(test_client: TestClient, tmp_path: Path) 
     detail = _read_error(response)
     assert detail["code"] == "VALIDATION"
     assert detail["details"]["missing_scene_ids"] == ["sc_9999"]
+
+
+def test_draft_preflight_handles_request_error(
+    test_client: TestClient,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Preflight surfaces DraftRequestError values raised during service execution."""
+
+    project_id = "proj_preflight_request_error"
+    scene_ids = _bootstrap_outline(tmp_path, project_id, scene_count=1)
+    payload = {
+        "project_id": project_id,
+        "unit_scope": "scene",
+        "unit_ids": scene_ids,
+    }
+
+    async def _preflight_raise(self, *_args: Any, **_kwargs: Any) -> Any:
+        raise DraftRequestError("Chapter metadata missing.", {"chapter_id": "ch_9999"})
+
+    monkeypatch.setattr(DraftGenerationService, "preflight", _preflight_raise)
+
+    response = test_client.post(f"{API_PREFIX}/draft/preflight", json=payload)
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    detail = _read_error(response)
+    assert detail["code"] == "VALIDATION"
+    assert detail["details"]["chapter_id"] == "ch_9999"
 
 
 def test_draft_rewrite_success(test_client: TestClient, tmp_path: Path) -> None:
@@ -1185,6 +1621,42 @@ def test_draft_accept_success_creates_snapshot(test_client: TestClient, tmp_path
     assert draft_entry["path"].startswith("drafts/")
     assert draft_entry["purpose"] == "payoff"
     assert "missing_drafts" not in manifest
+
+
+def test_draft_accept_handles_unexpected_error(
+    test_client: TestClient,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Unexpected acceptance errors surface INTERNAL responses."""
+
+    project_id = "proj_accept_unexpected"
+    scene_body = _bootstrap_scene(tmp_path, project_id)
+    checksum = _compute_sha256(scene_body)
+
+    def _raise_runtime(*_args: Any, **_kwargs: Any) -> None:
+        raise RuntimeError("acceptance pipeline offline")
+
+    monkeypatch.setattr(DraftAcceptService, "accept", _raise_runtime)
+
+    payload = {
+        "project_id": project_id,
+        "draft_id": "dr_unexpected",
+        "unit_id": "sc_0001",
+        "unit": {
+            "id": "sc_0001",
+            "previous_sha256": checksum,
+            "text": scene_body,
+            "meta": {"purpose": "setup"},
+        },
+        "message": "Trigger unexpected failure.",
+    }
+
+    response = test_client.post(f"{API_PREFIX}/draft/accept", json=payload)
+    assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
+    detail = _read_error(response)
+    assert detail["code"] == "INTERNAL"
+    assert detail["message"] == "Failed to accept draft unit."
 
 
 def test_draft_accept_ignores_tampered_cost(test_client: TestClient, tmp_path: Path) -> None:
@@ -1364,6 +1836,67 @@ def test_wizard_lock_rejects_malicious_include(test_client: TestClient, tmp_path
     assert list(snapshots_dir.iterdir()) == []
 
 
+def test_snapshot_restore_flow(test_client: TestClient, tmp_path: Path) -> None:
+    """Create a snapshot, mutate the project, and restore to verified state."""
+
+    project_id = "proj_snapshot_restore_flow"
+    payload = _build_payload()
+    payload["project_id"] = project_id
+
+    build_response = test_client.post(f"{API_PREFIX}/outline/build", json=payload)
+    assert build_response.status_code == 200
+    outline_path = tmp_path / project_id / "outline.json"
+    original_outline = outline_path.read_text(encoding="utf-8")
+
+    scene_ids = [scene["id"] for scene in build_response.json()["scenes"]]
+    draft_response = test_client.post(
+        f"{API_PREFIX}/draft/generate",
+        json={
+            "project_id": project_id,
+            "unit_scope": "scene",
+            "unit_ids": [scene_ids[0]],
+        },
+    )
+    assert draft_response.status_code == status.HTTP_200_OK
+    draft_unit = draft_response.json()["units"][0]
+    draft_path = tmp_path / project_id / "drafts" / f"{scene_ids[0]}.md"
+    original_draft = draft_path.read_text(encoding="utf-8")
+
+    snapshot_response = test_client.post(
+        f"{API_PREFIX}/draft/wizard/lock",
+        json={
+            "project_id": project_id,
+            "step": "structure",
+            "label": "snapshot-restore",
+            "includes": ["outline.json", "drafts"],
+        },
+    )
+    assert snapshot_response.status_code == 200
+    snapshot_info = snapshot_response.json()
+    outline_path.write_text("{}", encoding="utf-8")
+    draft_path.write_text("corrupted text", encoding="utf-8")
+
+    restore_response = test_client.post(
+        f"{API_PREFIX}/draft/recovery/restore",
+        json={"project_id": project_id, "snapshot_id": snapshot_info["snapshot_id"]},
+    )
+    assert restore_response.status_code == status.HTTP_200_OK
+    restored_outline = outline_path.read_text(encoding="utf-8")
+    restored_draft = draft_path.read_text(encoding="utf-8")
+    # Normalise JSON to account for formatting differences.
+    assert json.loads(restored_outline) == json.loads(original_outline)
+    assert restored_draft == original_draft
+
+    critique_payload = _build_critique_payload(
+        draft_id=draft_response.json()["draft_id"],
+        unit_id=scene_ids[0],
+    )
+    critique_payload["project_id"] = project_id
+
+    critique_response = test_client.post(f"{API_PREFIX}/draft/critique", json=critique_payload)
+    assert critique_response.status_code == status.HTTP_200_OK
+
+
 def test_draft_accept_conflict_on_checksum(test_client: TestClient, tmp_path: Path) -> None:
     """Out-of-date accept requests return a conflict."""
 
@@ -1535,6 +2068,87 @@ def test_recovery_restore_overwrites_scene(test_client: TestClient, tmp_path: Pa
     assert state["status"] == "idle"
     assert state["needs_recovery"] is False
     assert state["last_snapshot"]["path"] == snapshot_rel_path
+
+
+def test_recovery_restore_normalises_legacy_flag(
+    test_client: TestClient, tmp_path: Path
+) -> None:
+    """Restoring snapshots clears stale recovery flags that predate status fields."""
+
+    project_id = "proj_recovery_normalise"
+    scene_body = _bootstrap_scene(tmp_path, project_id)
+    checksum = _compute_sha256(scene_body)
+    accept_payload = {
+        "project_id": project_id,
+        "draft_id": "dr_legacy",
+        "unit_id": "sc_0001",
+        "unit": {
+            "id": "sc_0001",
+            "previous_sha256": checksum,
+            "text": scene_body,
+        },
+    }
+
+    response = test_client.post(f"{API_PREFIX}/draft/accept", json=accept_payload)
+    assert response.status_code == 200
+
+    state_path = tmp_path / project_id / "history" / "recovery" / "state.json"
+    state_path.parent.mkdir(parents=True, exist_ok=True)
+    state_path.write_text(json.dumps({"needs_recovery": True}), encoding="utf-8")
+
+    restore_response = test_client.post(
+        f"{API_PREFIX}/draft/recovery/restore",
+        json={"project_id": project_id},
+    )
+    assert restore_response.status_code == 200
+
+    restored_state = json.loads(state_path.read_text(encoding="utf-8"))
+    assert restored_state["needs_recovery"] is False
+    assert restored_state["status"] == "idle"
+
+
+def test_snapshot_restore_resets_project_state(test_client: TestClient, tmp_path: Path) -> None:
+    """Snapshot restore reinstates accepted metadata after destructive edits."""
+
+    project_id = "proj_snapshot_state"
+    scene_body = _bootstrap_scene(tmp_path, project_id)
+    checksum = _compute_sha256(scene_body)
+    accepted_text = f"{scene_body}\n\nArchive path confirmed."
+
+    accept_payload = {
+        "project_id": project_id,
+        "draft_id": "dr_snapshot_state",
+        "unit_id": "sc_0001",
+        "unit": {
+            "id": "sc_0001",
+            "previous_sha256": checksum,
+            "text": accepted_text,
+        },
+    }
+
+    accept_response = test_client.post(f"{API_PREFIX}/draft/accept", json=accept_payload)
+    assert accept_response.status_code == 200
+
+    project_json_path = tmp_path / project_id / "project.json"
+    original_project = json.loads(project_json_path.read_text(encoding="utf-8"))
+
+    drafts_path = tmp_path / project_id / "drafts" / "sc_0001.md"
+    drafts_path.write_text("Corrupted content", encoding="utf-8")
+    tampered_project = dict(original_project)
+    tampered_project["name"] = "Tampered Name"
+    tampered_project["budget"]["soft"] = 999.0
+    project_json_path.write_text(json.dumps(tampered_project, indent=2), encoding="utf-8")
+
+    restore_response = test_client.post(
+        f"{API_PREFIX}/draft/recovery/restore",
+        json={"project_id": project_id},
+    )
+    assert restore_response.status_code == 200
+
+    restored_project = json.loads(project_json_path.read_text(encoding="utf-8"))
+    assert restored_project["project_id"] == original_project["project_id"]
+    restored_draft = drafts_path.read_text(encoding="utf-8")
+    assert "Archive path confirmed." in restored_draft
 
 
 def test_recovery_restore_rejects_malicious_include(

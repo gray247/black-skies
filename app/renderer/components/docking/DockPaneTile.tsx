@@ -24,6 +24,7 @@ interface DockPaneTileProps {
   onContentFocus?: (paneId: LayoutPaneId) => void;
   onContentBlur?: (paneId: LayoutPaneId) => void;
   isFocused: boolean;
+  highlightRelocated?: boolean;
   paneDescription?: string;
   content: ReactNode;
 }
@@ -41,6 +42,7 @@ export default function DockPaneTile({
   onContentFocus,
   onContentBlur,
   isFocused,
+  highlightRelocated,
   paneDescription,
   content,
 }: DockPaneTileProps): JSX.Element {
@@ -56,6 +58,7 @@ export default function DockPaneTile({
 
   const handleContentFocus = useCallback(
     (_event: FocusEvent<HTMLDivElement>) => {
+      void _event;
       onContentFocus?.(paneId);
     },
     [onContentFocus, paneId],
@@ -93,50 +96,66 @@ export default function DockPaneTile({
   }, [hasDockingContext, mosaicContext, windowContext]);
 
   const renderToolbar = useCallback(
-    (_toolbarProps: MosaicWindowToolbarProps<LayoutPaneId>) => (
+    (_toolbarProps: MosaicWindowToolbarProps<LayoutPaneId>) => {
+      void _toolbarProps;
+      return (
       <div className="dock-pane__toolbar">
-        <button
-          type="button"
-          className="dock-pane__toolbar-button"
-          onClick={handleExpand}
-          title="Expand this pane."
-          aria-label={`Expand ${paneTitle} pane`}
-          disabled={!hasDockingContext}
-        >
-          Expand
-        </button>
-        <button
-          type="button"
-          className="dock-pane__toolbar-button"
-          onClick={handleClose}
-          title="Close this pane."
-          aria-label={`Close ${paneTitle} pane`}
-          disabled={!hasDockingContext}
-        >
-          Close
-        </button>
-        <button
-          type="button"
-          className="dock-pane__toolbar-button"
-          onClick={onFloat}
-          aria-label={`Detach ${paneTitle} pane`}
-          title="Open this pane in a separate window."
-          disabled={!canFloat}
-        >
-          Float
-        </button>
-        <button
-          type="button"
-          className="dock-pane__toolbar-button"
-          onClick={onFocusRequest}
-          aria-label={`Focus ${paneTitle} pane`}
-          title="Focus this pane."
-        >
-          Focus
-        </button>
+        <span className="dock-pane__titlebar" aria-hidden="true">
+          {paneTitle}
+        </span>
+        <div className="dock-pane__toolbar-actions">
+          <button
+            type="button"
+            className="dock-pane__toolbar-button"
+            onClick={handleExpand}
+            title="Expand this pane."
+            aria-label={`Expand ${paneTitle} pane`}
+            disabled={!hasDockingContext}
+          >
+            Expand
+          </button>
+          <button
+            type="button"
+            className="dock-pane__toolbar-button"
+            onClick={handleClose}
+            title="Close this pane."
+            aria-label={`Close ${paneTitle} pane`}
+            disabled={!hasDockingContext}
+          >
+            Close
+          </button>
+          <button
+            type="button"
+            className="dock-pane__toolbar-button"
+            onClick={onFloat}
+            aria-label={`Detach ${paneTitle} pane`}
+            title="Open this pane in a separate window."
+            disabled={!canFloat}
+          >
+            Float
+          </button>
+          <button
+            type="button"
+            className="dock-pane__toolbar-button"
+            onClick={onFocusRequest}
+            aria-label={`Focus ${paneTitle} pane`}
+            title="Focus this pane."
+          >
+            Focus
+          </button>
+        </div>
       </div>
-    ),
-    [canFloat, handleClose, handleExpand, hasDockingContext, onFloat, onFocusRequest, paneTitle],
+      );
+    },
+    [
+      canFloat,
+      handleClose,
+      handleExpand,
+      hasDockingContext,
+      onFloat,
+      onFocusRequest,
+      paneTitle,
+    ],
   );
 
   useEffect(() => {
@@ -147,11 +166,15 @@ export default function DockPaneTile({
     });
   }, [paneId, projectPath, serializedPath]);
 
+  const safeContent = content ?? <div className="dock-pane__content-fallback" aria-hidden="true" />;
+
   return (
     <MosaicWindow<LayoutPaneId>
-      className="dock-pane"
+      className={`dock-pane${isFocused ? ' dock-pane--focused' : ''}${
+        highlightRelocated ? ' dock-pane--relocated' : ''
+      }`}
       path={path}
-      title={paneTitle}
+      title=""
       renderToolbar={renderToolbar}
     >
       {/* eslint-disable jsx-a11y/no-noninteractive-tabindex -- pane content must be focusable for keyboard-only navigation */}
@@ -168,7 +191,7 @@ export default function DockPaneTile({
         onFocus={handleContentFocus}
         onBlur={handleContentBlur}
       >
-        {content}
+        {safeContent}
       </div>
       {/* eslint-enable jsx-a11y/no-noninteractive-tabindex */}
     </MosaicWindow>

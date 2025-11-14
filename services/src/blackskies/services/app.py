@@ -9,6 +9,7 @@ from typing import Awaitable, Callable, Final
 from fastapi import FastAPI, HTTPException, Request, Response, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from starlette.datastructures import MutableHeaders
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
@@ -27,6 +28,7 @@ from .http import (
     internal_error_response,
     request_validation_response,
     resolve_trace_id,
+    build_error_payload,
 )
 from .middleware import BodySizeLimitMiddleware
 from .metrics import record_request
@@ -37,6 +39,7 @@ from .routers.outline import BuildInProgressError, BuildTracker
 from .routers.recovery import RecoveryTracker
 from .critique import CritiqueService
 from .resilience import ResiliencePolicy, ServiceResilienceRegistry
+from .service_errors import ServiceError
 
 LOGGER = logging.getLogger(__name__)
 
@@ -80,6 +83,32 @@ class TraceMiddleware:
             response = request_validation_response(exc, trace_id)
             status_holder["status"] = status.HTTP_400_BAD_REQUEST
             await response(scope, receive, send)
+        except ServiceError as exc:
+            payload = build_error_payload(
+                code=exc.code,
+                message=exc.message,
+                details=exc.details,
+                trace_id=trace_id,
+            )
+            response = JSONResponse(
+                status_code=exc.status_code,
+                content=payload.model_dump(),
+                headers={TRACE_ID_HEADER: trace_id},
+            )
+            status_holder["status"] = exc.status_code
+            diagnostics = getattr(scope["app"].state, "diagnostics", None)
+            if diagnostics and exc.project_root is not None:
+                audit_details = dict(exc.details)
+                audit_details.setdefault("method", request.method)
+                audit_details.setdefault("path", str(request.url.path))
+                audit_details.setdefault("trace_id", trace_id)
+                diagnostics.log(
+                    exc.project_root,
+                    code=exc.code,
+                    message=exc.message,
+                    details=audit_details,
+                )
+            await response(scope, receive, send)
         except Exception as exc:  # pragma: no cover - defensive guard
             LOGGER.exception(
                 "Unhandled error processing %s %s",
@@ -114,6 +143,7 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
     application.state.recovery_tracker = RecoveryTracker(settings=application.state.settings)
     application.state.critique_service = CritiqueService()
     application.state.service_version = SERVICE_VERSION
+    resilience_state_dir = service_settings.project_base_dir / "_runtime" / "resilience"
     application.state.resilience_registry = ServiceResilienceRegistry(
         {
             "critique": ResiliencePolicy(
@@ -132,7 +162,8 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
                 circuit_failure_threshold=int(service_settings.analytics_circuit_failure_threshold),
                 circuit_reset_seconds=float(service_settings.analytics_circuit_reset_seconds),
             ),
-        }
+        },
+        state_dir=resilience_state_dir,
     )
 
     if service_settings.backup_verifier_enabled:

@@ -25,12 +25,12 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Final
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 from pydantic import BaseModel, ValidationError, field_validator
 
 from ..config import ServiceSettings
 from ..diagnostics import DiagnosticLogger
-from ..http import default_error_responses, raise_validation_error
+from ..http import default_error_responses, raise_filesystem_error, raise_validation_error
 from ..models._project_id import validate_project_id
 from ..operations.recovery import RecoveryService
 from ..persistence import SNAPSHOT_ID_PATTERN, SnapshotPersistence, write_json_atomic
@@ -357,21 +357,14 @@ async def recovery_restore(
             project_root=project_root,
         )
     except OSError as exc:
-        diagnostics.log(
-            project_root,
-            code="INTERNAL",
-            message="Failed to restore snapshot.",
-            details={"snapshot_id": snapshot_id, "error": str(exc)},
-        )
         recovery_tracker.mark_needs_recovery(request_model.project_id, reason=str(exc))
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail={
-                "code": "INTERNAL",
-                "message": "Failed to restore snapshot.",
-                "details": {"snapshot_id": snapshot_id},
-            },
-        ) from exc
+        raise_filesystem_error(
+            exc,
+            message="Failed to restore snapshot.",
+            details={"snapshot_id": snapshot_id},
+            diagnostics=diagnostics,
+            project_root=project_root,
+        )
 
     snapshot_path = Path(snapshot_info["path"])
     try:

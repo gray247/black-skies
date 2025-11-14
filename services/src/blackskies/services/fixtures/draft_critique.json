@@ -12,5 +12,11 @@
   "suggested_edits": [
     { "range": [410, 432], "replacement": "She kills the light and listens." }
   ],
-  "model": { "name": "critique_model_vY", "provider": "openai" }
+  "model": { "name": "critique_model_vY", "provider": "openai" },
+  "heuristics": {
+    "pov_consistency": 1.0,
+    "goal_clarity": 0.8,
+    "conflict_clarity": 0.9,
+    "pacing_fit": 0.75
+  }
 }

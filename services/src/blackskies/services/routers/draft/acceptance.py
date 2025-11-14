@@ -10,7 +10,12 @@ from pydantic import ValidationError
 from ...config import ServiceSettings
 from ...diagnostics import DiagnosticLogger
 from ...export import merge_front_matter, normalize_markdown
-from ...http import raise_conflict_error, raise_service_error, raise_validation_error
+from ...http import (
+    raise_conflict_error,
+    raise_filesystem_error,
+    raise_service_error,
+    raise_validation_error,
+)
 from ...models.accept import DraftAcceptRequest
 from ...persistence import SnapshotPersistence
 from ...scene_docs import DraftRequestError, read_scene_document
@@ -109,14 +114,23 @@ async def accept_draft(
             current_normalized=current_normalized,
         )
     except DraftAcceptancePersistenceError as exc:
-        raise HTTPException(
+        original_error = getattr(exc, "original_exc", None)
+        if isinstance(original_error, OSError):
+            raise_filesystem_error(
+                original_error,
+                message="Failed to persist accepted scene.",
+                details={"unit_id": exc.unit_id},
+                diagnostics=diagnostics,
+                project_root=project_root,
+            )
+        raise_service_error(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail={
-                "code": "INTERNAL",
-                "message": "Failed to persist accepted scene.",
-                "details": {"unit_id": exc.unit_id},
-            },
-        ) from exc
+            code="INTERNAL",
+            message="Failed to persist accepted scene.",
+            details={"unit_id": exc.unit_id, "error": exc.error},
+            diagnostics=diagnostics,
+            project_root=project_root,
+        )
     except SnapshotPersistenceError as exc:
         diagnostics.log(
             project_root,
@@ -143,7 +157,7 @@ async def accept_draft(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             code="INTERNAL",
             message="Failed to accept draft unit.",
-            details={"unit_id": request_model.unit_id},
+            details={"unit_id": request_model.unit_id, "error": str(exc)},
             diagnostics=diagnostics,
             project_root=project_root,
         )

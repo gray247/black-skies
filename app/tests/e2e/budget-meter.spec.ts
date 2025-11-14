@@ -1,4 +1,5 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './_electron.fixture';
+import { bootstrapHarness } from './_bootstrap';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -155,13 +156,11 @@ test.beforeEach(async ({ page }) => {
       accept: acceptResponse,
     },
   );
+  await bootstrapHarness(page);
 });
 
 test.describe('Budget meter (packaged)', () => {
   test('updates immediately after critique', async ({ page }) => {
-    await page.goto('http://127.0.0.1:5173');
-
-    await page.getByRole('button', { name: 'Open project' }).click();
     await expect(page.getByRole('heading', { name: projectMeta.name })).toBeVisible();
 
     const generateButton = page.getByRole('button', { name: 'Generate' });

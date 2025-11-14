@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\routers\__init__.py
+# hypothesis_version: 6.138.2
+
+['analytics_router', 'api_router', 'draft_router', 'outline_router', 'recovery_router']

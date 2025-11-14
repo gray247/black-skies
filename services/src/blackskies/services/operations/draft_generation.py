@@ -14,12 +14,15 @@ from uuid import uuid4
 from ..config import ServiceSettings
 from ..diagnostics import DiagnosticLogger
 from ..draft_synthesizer import DraftSynthesizer
+from ..heuristics import load_project_heuristics
+from ..analytics.runtime import log_runtime_event
 from ..http import raise_budget_error
 from ..models.draft import DraftGenerateRequest, DraftUnitOverrides, DraftUnitScope
 from ..models.outline import OutlineArtifact, OutlineScene
 from ..persistence import DraftPersistence
 from ..scene_docs import DraftRequestError
 from .budget_service import BudgetService, BudgetSummary
+from ..constants import DEFAULT_SOFT_BUDGET_LIMIT_USD
 
 
 @dataclass(slots=True)
@@ -115,7 +118,6 @@ class DraftGenerationService:
         self._settings = settings
         self._diagnostics = diagnostics
         self._persistence = DraftPersistence(settings=settings, durable_writes=False)
-        self._synthesizer = DraftSynthesizer()
         self._timeout_seconds = getattr(settings, "draft_task_timeout_seconds", 120)
         self._retry_attempts = max(0, int(getattr(settings, "draft_task_retry_attempts", 1)))
         self._budget_service = BudgetService(settings=settings, diagnostics=diagnostics)
@@ -182,12 +184,14 @@ class DraftGenerationService:
                 project_root=project_root,
             )
 
+        synthesizer = self._create_synthesizer(project_root)
         response_payload, artifacts = await self._run_with_timeout(
             self._execute_generation,
             request,
             list(scenes),
             estimated_cost,
             summary,
+            synthesizer,
             project_root=project_root,
         )
 
@@ -196,6 +200,7 @@ class DraftGenerationService:
         budget_meta["last_generate_artifacts"] = artifacts
 
         self._budget_service.persist_spend(budget_state, budget_state.spent_usd)
+        self._log_runtime_event(project_root, request, response_payload["units"], estimated_cost)
 
         return DraftGenerationResult(response=response_payload)
 
@@ -252,14 +257,20 @@ class DraftGenerationService:
 
         budget_state = self._budget_service.load_state(project_root)
 
+        synthesizer = self._create_synthesizer(project_root)
         payload = await self._run_with_timeout(
             self._compute_preflight_payload,
             request,
             list(scenes),
             budget_state,
+            synthesizer,
             project_root=project_root,
         )
         return DraftPreflightResult(payload=payload)
+
+    def _create_synthesizer(self, project_root: Path | None) -> DraftSynthesizer:
+        heuristics = load_project_heuristics(project_root)
+        return DraftSynthesizer(heuristics=heuristics)
 
     def _execute_generation(
         self,
@@ -267,6 +278,7 @@ class DraftGenerationService:
         scenes: list[OutlineScene],
         estimated_cost: float,
         summary: BudgetSummary,
+        synthesizer: DraftSynthesizer,
     ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
         units: list[dict[str, Any]] = []
         artifacts: list[dict[str, Any]] = []
@@ -274,7 +286,7 @@ class DraftGenerationService:
 
         for index, scene in enumerate(scenes):
             overrides = request.overrides.get(scene.id)
-            synthesis = self._synthesizer.synthesize(
+            synthesis = synthesizer.synthesize(
                 request=request,
                 scene=scene,
                 overrides=overrides,
@@ -316,6 +328,7 @@ class DraftGenerationService:
         request: DraftGenerateRequest,
         scenes: list[OutlineScene],
         budget_state,
+        synthesizer: DraftSynthesizer,
     ) -> dict[str, Any]:
         total_words = 0
         for scene in scenes:
@@ -353,10 +366,35 @@ class DraftGenerationService:
             "project_id": request.project_id,
             "unit_scope": request.unit_scope.value,
             "unit_ids": request.unit_ids,
-            "model": dict(self._synthesizer._MODEL),
+            "model": dict(synthesizer._MODEL),
             "scenes": scenes_payload,
             "budget": summary.as_dict(),
         }
+
+    def _log_runtime_event(self, project_root: Path, request: DraftGenerateRequest, units: list[dict[str, Any]], estimated_cost: float) -> None:
+        total_tokens = sum(len(unit.get("text", "").split()) for unit in units)
+        hint = "cheap"
+        if estimated_cost >= DEFAULT_SOFT_BUDGET_LIMIT_USD * 0.5:
+            hint = "expensive"
+        event = {
+            "service": "draft_generate",
+            "project_id": request.project_id,
+            "unit_scope": request.unit_scope.value,
+            "unit_count": len(units),
+            "estimated_usd": round(estimated_cost, 2),
+            "tokens": total_tokens,
+            "mode": "local" if request.unit_scope is DraftUnitScope.SCENE else "batch",
+            "hint": hint,
+        }
+        try:
+            log_runtime_event(project_root, event)
+        except Exception as exc:
+            self._diagnostics.log(
+                project_root,
+                code="ANALYTICS",
+                message="Failed to record analytics runtime event.",
+                details={"error": str(exc)},
+            )
 
     async def _run_with_timeout(self, func, *args, project_root: Path | None = None) -> Any:
         timeout = max(5, int(self._timeout_seconds))

@@ -301,8 +301,7 @@ if ($NoCodex) {
 
 if (Get-Command codex -ErrorAction SilentlyContinue) {
   Write-Host "`nLaunching Codex CLI..." -ForegroundColor Green
-  codex --full-auto
+  codex
 } else {
   Write-Warning "Codex CLI not found. Install with: npm install -g @openai/codex"
 }
-

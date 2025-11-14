@@ -9,6 +9,12 @@ if (!container) {
   throw new Error('Renderer root element not found');
 }
 
+// deterministic app boot flag for tests
+// @ts-ignore
+window.__APP_READY__ = true;
+document.documentElement.setAttribute('data-app-ready', '1');
+console.log('[dbg:boot] app ready');
+
 createRoot(container).render(
   <React.StrictMode>
     <App />

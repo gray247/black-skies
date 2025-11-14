@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\plugins\runner.py
+# hypothesis_version: 6.138.2
+
+[512, 1024, '--cpu-seconds', '--fd-limit', '--manifest', '--memory-bytes', '--request', ':', '__main__', 'details', 'entrypoint', 'error', 'main', 'module_path', 'ok', 'plugin-runner', 'r', 'response', 'run', 'stack', 'utf-8']

@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import json
+import os
+import re
 import shutil
 import sys
 from dataclasses import dataclass
@@ -19,6 +21,22 @@ class PluginRecord:
     plugin_id: str
     manifest_path: Path
     enabled: bool = True
+
+
+_PLUGIN_ID_RE = re.compile(r"^[a-z0-9](?:[a-z0-9_\-]{0,63})$", re.IGNORECASE)
+_SAFE_ENV_VARS = (
+    "PATH",
+    "PATHEXT",
+    "SYSTEMROOT",
+    "WINDIR",
+    "COMSPEC",
+    "HOME",
+    "USERPROFILE",
+    "TMP",
+    "TEMP",
+    "PYTHONPATH",
+)
+_ALLOWED_MANIFEST_KEYS = {"entrypoint", "module_path", "metadata"}
 
 
 class PluginRegistry:
@@ -38,6 +56,7 @@ class PluginRegistry:
     ) -> PluginRecord:
         """Install or update a plugin manifest."""
 
+        self._validate_plugin_id(plugin_id)
         plugin_dir = self._base_dir / plugin_id
         plugin_dir.mkdir(parents=True, exist_ok=True)
 
@@ -49,11 +68,13 @@ class PluginRegistry:
                 shutil.copytree(source_path, dest)
             else:
                 shutil.copy2(source_path, dest)
+                dest = plugin_dir  # module lives in plugin dir root
             manifest = dict(manifest)
-            manifest.setdefault("module_path", str(dest))
+            manifest["module_path"] = str(dest)
 
         manifest_path = plugin_dir / "manifest.json"
-        manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+        sanitised_manifest = self._sanitise_manifest(manifest, plugin_dir)
+        manifest_path.write_text(json.dumps(sanitised_manifest, indent=2), encoding="utf-8")
 
         state_path = plugin_dir / "state.json"
         state = {"enabled": True}
@@ -98,10 +119,13 @@ class PluginRegistry:
             raise PluginExecutionError(f"Plugin '{plugin_id}' is disabled.")
 
         manifest = json.loads(record.manifest_path.read_text(encoding="utf-8"))
+        plugin_dir = record.manifest_path.parent
+        env = self._build_runner_env(plugin_dir=plugin_dir, plugin_id=plugin_id, manifest=manifest)
         return launch_plugin(
             manifest_path=record.manifest_path,
             request_payload=request,
-            python_executable=self._python or manifest.get("python_executable") or sys.executable,
+            python_executable=self._python or sys.executable,
+            env=env,
         )
 
     def _get_plugin(self, plugin_id: str) -> PluginRecord:
@@ -109,6 +133,68 @@ class PluginRegistry:
             if record.plugin_id == plugin_id:
                 return record
         raise PluginExecutionError(f"Plugin '{plugin_id}' is not installed.")
+
+    def _validate_plugin_id(self, plugin_id: str) -> None:
+        if not _PLUGIN_ID_RE.match(plugin_id):
+            raise ValueError("Plugin ID must be alphanumeric with dashes/underscores (max 64 chars).")
+
+    def _sanitise_manifest(self, manifest: Dict[str, Any], plugin_dir: Path) -> Dict[str, Any]:
+        unknown_keys = set(manifest.keys()) - _ALLOWED_MANIFEST_KEYS
+        if unknown_keys:
+            raise ValueError(f"Unsupported manifest keys: {', '.join(sorted(unknown_keys))}")
+
+        entrypoint = manifest.get("entrypoint")
+        if not isinstance(entrypoint, str) or not entrypoint.strip():
+            raise ValueError("Plugin manifest must define a non-empty 'entrypoint'.")
+
+        module_path = manifest.get("module_path")
+        if module_path is None:
+            module_path = str(plugin_dir)
+        elif not isinstance(module_path, str):
+            raise ValueError("Plugin manifest 'module_path' must be a string.")
+        module_path_resolved = self._resolve_module_path(plugin_dir, module_path)
+
+        metadata = manifest.get("metadata")
+        if metadata is not None and not isinstance(metadata, dict):
+            raise ValueError("Plugin manifest 'metadata' must be an object.")
+
+        sanitised: Dict[str, Any] = {
+            "entrypoint": entrypoint.strip(),
+            "module_path": module_path_resolved,
+        }
+        if metadata is not None:
+            sanitised["metadata"] = metadata
+        return sanitised
+
+    def _resolve_module_path(self, plugin_dir: Path, module_path: str) -> str:
+        base = plugin_dir.resolve()
+        candidate = Path(module_path)
+        if not candidate.is_absolute():
+            candidate = (plugin_dir / candidate).resolve()
+        else:
+            candidate = candidate.resolve()
+        try:
+            candidate.relative_to(base)
+        except ValueError as exc:  # pragma: no cover - defensive
+            raise ValueError("Plugin module_path must be within the plugin directory.") from exc
+        if not candidate.exists():
+            raise ValueError("Plugin module_path must exist within the plugin directory.")
+        return str(candidate)
+
+    def _build_runner_env(self, *, plugin_dir: Path, plugin_id: str, manifest: Dict[str, Any]) -> Dict[str, str]:
+        env: Dict[str, str] = {}
+        for key in _SAFE_ENV_VARS:
+            value = os.environ.get(key)
+            if value:
+                env[key] = value
+
+        module_path = manifest.get("module_path")
+        if isinstance(module_path, str):
+            existing = env.get("PYTHONPATH")
+            env["PYTHONPATH"] = os.pathsep.join(filter(None, [module_path, existing]))
+        env["BLACKSKIES_PLUGIN_ID"] = plugin_id
+        env["BLACKSKIES_PLUGIN_DIR"] = str(plugin_dir)
+        return env
 
 
 __all__ = ["PluginRegistry", "PluginRecord"]

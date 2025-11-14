@@ -10,6 +10,7 @@ import type {
 import { computeSha256 } from '../utils/crypto';
 import { generateDraftId } from '../utils/draft';
 import { extractSceneBody, mergeSceneMarkdown } from '../utils/sceneMarkdown';
+import { handleServiceError } from '../utils/serviceErrors';
 import type { ToastPayload } from '../types/toast';
 import type ProjectSummary from '../types/project';
 
@@ -55,6 +56,7 @@ interface UseCritiqueOptions {
   onBudgetUpdate?: (
     budget: DraftCritiqueBridgeResponse['budget'] | DraftAcceptBridgeResponse['budget'],
   ) => void;
+  onBudgetBlock?: () => void;
 }
 
 export function useCritique({
@@ -71,8 +73,10 @@ export function useCritique({
   isMountedRef,
   rubric,
   onBudgetUpdate,
+  onBudgetBlock,
 }: UseCritiqueOptions) {
   const [state, setState] = useState<CritiqueDialogState>(createInitialCritiqueState());
+  const onBudgetBlockHandler = onBudgetBlock;
   const activeRubric = useMemo(
     () => (Array.isArray(rubric) && rubric.length > 0 ? [...rubric] : [...DEFAULT_CRITIQUE_RUBRIC]),
     [rubric],
@@ -162,18 +166,18 @@ export function useCritique({
           traceId: result.traceId,
         });
       } else {
-        setState((previous) => ({
-          ...previous,
-          loading: false,
-          error: result.error.message,
-          traceId: result.traceId ?? result.error.traceId,
-        }));
-        pushToast({
-          tone: 'error',
-          title: 'Feedback unavailable.',
-          description: result.error.message,
-          traceId: result.traceId ?? result.error.traceId,
-        });
+      setState((previous) => ({
+        ...previous,
+        loading: false,
+        error: result.error.message,
+        traceId: result.traceId ?? result.error.traceId,
+      }));
+      handleServiceError(
+        result.error,
+        'critique',
+        pushToast,
+        onBudgetBlock,
+      );
       }
     } catch (error) {
       if (!isMountedRef.current) {
@@ -196,6 +200,7 @@ export function useCritique({
     activeRubric,
     isMountedRef,
     onBudgetUpdate,
+    onBudgetBlock,
     projectSummary,
     pushToast,
     services,
@@ -328,12 +333,7 @@ export function useCritique({
           accepting: false,
           error: result.error.message,
         }));
-        pushToast({
-          tone: 'error',
-          title: 'Feedback unavailable.',
-          description: result.error.message,
-          traceId: result.traceId,
-        });
+        handleServiceError(result.error, 'critique', pushToast, onBudgetBlockHandler);
       }
     } catch (error) {
       if (!isMountedRef.current) {
@@ -351,6 +351,7 @@ export function useCritique({
     activeScene,
     draftEdits,
     isMountedRef,
+    onBudgetBlockHandler,
     projectDrafts,
     projectSummary,
     pushToast,

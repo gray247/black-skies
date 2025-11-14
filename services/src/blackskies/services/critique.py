@@ -4,11 +4,14 @@ from __future__ import annotations
 
 import copy
 import json
+import logging
 from importlib import resources
+from pathlib import Path
 from typing import Any, Final, Iterable
 
 from .models import Critique, Draft
 from .models.critique import DraftCritiqueRequest
+from .scene_docs import DraftRequestError, read_scene_document
 
 CRITIQUE_MODEL: Final[dict[str, str]] = {
     "name": "black-skies-rubric-v1",
@@ -23,6 +26,7 @@ CATEGORIES: Final[list[str]] = [
     "Horror",
 ]
 BLOCKED_RUBRIC_CATEGORIES: Final[set[str]] = {"unknown"}
+LOGGER = logging.getLogger(__name__)
 
 
 def _sentence_lengths(text: str) -> list[int]:
@@ -46,6 +50,31 @@ def _longest_line(lines: Iterable[str]) -> tuple[int, str]:
             best_line = line
             best_index = index
     return best_index, best_line
+
+
+def _compute_heuristics(draft: Draft) -> dict[str, float]:
+    metadata = draft.metadata or {}
+    word_count = len(draft.text.split())
+    heuristics: dict[str, float] = {
+        "pov_consistency": 1.0 if metadata.get("pov") else 0.0,
+        "goal_clarity": 0.0,
+        "conflict_clarity": 1.0 if metadata.get("conflict") else 0.0,
+        "pacing_fit": 0.0,
+    }
+
+    goal = str(metadata.get("goal") or "").strip()
+    if goal:
+        goal_length = len(goal.split())
+        heuristics["goal_clarity"] = round(goal_length / (goal_length + 4), 2)
+
+    target = metadata.get("word_target")
+    if isinstance(target, (int, float)):
+        target_value = float(target)
+        if target_value > 0:
+            deviation = abs(word_count - target_value)
+            heuristics["pacing_fit"] = round(max(0.0, 1.0 - min(deviation / target_value, 1.0)), 2)
+
+    return heuristics
 
 
 def apply_rubric(draft: Draft) -> Critique:
@@ -107,6 +136,7 @@ def apply_rubric(draft: Draft) -> Critique:
     elif avg_sentence < 12 and word_count > 800:
         severity = "low"
 
+    heuristics = _compute_heuristics(draft)
     critique = Critique(
         unit_id=draft.unit_id,
         summary=" ".join(summary_parts),
@@ -115,6 +145,7 @@ def apply_rubric(draft: Draft) -> Critique:
         suggested_edits=suggested_edits,
         severity=severity,
         model=CRITIQUE_MODEL,
+        heuristics=heuristics,
     )
     return critique
 
@@ -125,21 +156,134 @@ class CritiqueService:
     _FIXTURE_PACKAGE: Final[str] = "blackskies.services.fixtures"
     _FIXTURE_NAME: Final[str] = "draft_critique.json"
     _SCHEMA_VERSION: Final[str] = "CritiqueOutputSchema v1"
+    _DATA_DIR: Final[Path] = Path(__file__).resolve().parents[4] / "data" / "drafts"
 
-    def __init__(self, fixtures_package: str | None = None) -> None:
+    def __init__(
+        self,
+        fixtures_package: str | None = None,
+        *,
+        data_dir: Path | None = None,
+    ) -> None:
         self._fixtures_package = fixtures_package or self._FIXTURE_PACKAGE
         self._cached_fixture: dict[str, Any] | None = None
+        self._data_dir = data_dir or self._DATA_DIR
 
-    def run(self, request: DraftCritiqueRequest) -> dict[str, Any]:
+    def run(
+        self,
+        request: DraftCritiqueRequest,
+        *,
+        project_root: Path | None = None,
+        project_id: str | None = None,
+    ) -> dict[str, Any]:
         """Return a critique payload tailored to the requested unit."""
 
-        payload = copy.deepcopy(self._load_fixture())
-        payload["unit_id"] = request.unit_id
-        payload["schema_version"] = self._SCHEMA_VERSION
-        payload.setdefault("rubric", request.rubric)
+        draft = self._load_draft(
+            request=request,
+            project_root=project_root,
+            project_id=project_id,
+        )
+        if draft is None:
+            LOGGER.debug(
+                "Falling back to critique fixture for %s due to missing draft text.",
+                request.unit_id,
+            )
+            payload = copy.deepcopy(self._load_fixture())
+            payload["unit_id"] = request.unit_id
+            payload["schema_version"] = self._SCHEMA_VERSION
+            payload["rubric"] = request.rubric
+            if request.rubric_id:
+                payload["rubric_id"] = request.rubric_id
+            return payload
+
+        critique = apply_rubric(draft)
+        payload = critique.to_dict()
+        payload["rubric"] = request.rubric
         if request.rubric_id:
             payload["rubric_id"] = request.rubric_id
         return payload
+
+    def _load_draft(
+        self,
+        *,
+        request: DraftCritiqueRequest,
+        project_root: Path | None,
+        project_id: str | None,
+    ) -> Draft | None:
+        draft = None
+        if project_root is not None and project_root.exists():
+            draft = self._draft_from_scene(
+                request=request,
+                project_root=project_root,
+                project_id=project_id,
+            )
+        if draft is None:
+            draft = self._draft_from_cache(request)
+        return draft
+
+    def _draft_from_scene(
+        self,
+        *,
+        request: DraftCritiqueRequest,
+        project_root: Path,
+        project_id: str | None,
+    ) -> Draft | None:
+        try:
+            _, front_matter, body = read_scene_document(project_root, request.unit_id)
+        except DraftRequestError as exc:
+            LOGGER.debug(
+                "Scene %s unavailable for project %s: %s",
+                request.unit_id,
+                project_root,
+                exc,
+            )
+            return None
+
+        title = str(front_matter.get("title") or request.unit_id)
+        metadata = dict(front_matter)
+        if project_id:
+            metadata["project_id"] = project_id
+        return Draft(
+            unit_id=request.unit_id,
+            title=title,
+            text=body,
+            metadata=metadata,
+        )
+
+    def _draft_from_cache(self, request: DraftCritiqueRequest) -> Draft | None:
+        """Load draft units from cached generation artifacts when available."""
+
+        try:
+            data_dir = Path(self._data_dir)
+        except TypeError:  # pragma: no cover - defensive
+            return None
+
+        path = data_dir / f"{request.draft_id}.json"
+        if not path.exists():
+            return None
+
+        try:
+            raw = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            LOGGER.debug("Failed to read cached draft %s: %s", path, exc)
+            return None
+
+        units: list[dict[str, Any]] = []
+        response = raw.get("response")
+        if isinstance(response, dict):
+            units = response.get("units") or []
+        if not units and isinstance(raw.get("units"), list):
+            units = raw["units"]
+
+        for unit in units:
+            if not isinstance(unit, dict):
+                continue
+            if unit.get("unit_id") != request.unit_id:
+                continue
+            text = str(unit.get("text") or "")
+            title = str(unit.get("title") or request.unit_id)
+            metadata = {"source": "cache", "draft_id": request.draft_id}
+            return Draft(unit_id=request.unit_id, title=title, text=text, metadata=metadata)
+        return None
 
     def _load_fixture(self) -> dict[str, Any]:
         """Load and cache the baseline critique fixture."""

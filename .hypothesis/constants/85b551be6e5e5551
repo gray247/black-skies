@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\tools\search.py
+# hypothesis_version: 6.138.2
+
+[256, '*.md', 'DEFAULT_MAX_RESULTS', 'MarkdownSearchTool', "[A-Za-z0-9']+", 'data', 'excerpt', 'filesystem-scan', 'limit', 'markdown_search', 'operation', 'path', 'query_terms', 'results', 'score', 'search', 'status', 'success', 'utf-8', '…']

@@ -7,8 +7,9 @@ import json
 import logging
 import re
 from dataclasses import dataclass
+from contextlib import contextmanager
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Mapping
+from typing import TYPE_CHECKING, Any, Iterator, Mapping
 
 from .diagnostics import DiagnosticLogger
 from .constants import (
@@ -17,6 +18,7 @@ from .constants import (
     DEFAULT_SOFT_BUDGET_LIMIT_USD,
 )
 from .persistence import write_text_atomic
+from .persistence.atomic import locked_path
 
 if TYPE_CHECKING:
     from .models.accept import DraftAcceptRequest
@@ -118,11 +120,27 @@ def _coerce_budget_value(
 
 
 def load_project_budget_state(
-    project_root: Path, diagnostics: DiagnosticLogger
+    project_root: Path,
+    diagnostics: DiagnosticLogger,
+    *,
+    _locked: bool = False,
 ) -> ProjectBudgetState:
     """Read the project's persisted budget state from disk."""
 
     project_path = project_root / "project.json"
+    if not _locked:
+        with locked_path(project_path):
+            return load_project_budget_state(project_root, diagnostics, _locked=True)
+
+    return _load_budget_state_unlocked(project_root, diagnostics, project_path)
+
+
+def _load_budget_state_unlocked(
+    project_root: Path,
+    diagnostics: DiagnosticLogger,
+    project_path: Path,
+) -> ProjectBudgetState:
+    """Internal helper that assumes the caller is holding the project.json lock."""
     base_payload: dict[str, Any] = {
         "project_id": project_root.name,
         "budget": {
@@ -254,6 +272,21 @@ def persist_project_budget(state: ProjectBudgetState, new_spent_usd: float) -> N
 
     state.project_root.mkdir(parents=True, exist_ok=True)
     write_text_atomic(state.project_path, serialized, durable=True)
+    state.metadata = payload
+    state.spent_usd = budget_section["spent_usd"]
+
+
+@contextmanager
+def edit_project_budget_state(
+    project_root: Path,
+    diagnostics: DiagnosticLogger,
+) -> Iterator[ProjectBudgetState]:
+    """Acquire a lock around project budget state for read/modify/write operations."""
+
+    project_path = project_root / "project.json"
+    with locked_path(project_path):
+        state = load_project_budget_state(project_root, diagnostics, _locked=True)
+        yield state
 
 
 __all__ = [
@@ -265,6 +298,7 @@ __all__ = [
     "derive_critique_cost",
     "classify_budget",
     "load_project_budget_state",
+    "edit_project_budget_state",
     "persist_project_budget",
 ]
 

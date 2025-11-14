@@ -1,0 +1,821 @@
+[
+  {
+    "milestone": "Milestone 0 \u2014 Environment, Offline Safety, Hygiene",
+    "mandatory_for_rc": false,
+    "steps": [
+      {
+        "step": 1,
+        "summary": "Create setup script (offline-safe)",
+        "what": "Bash `scripts/setup` to create `.venv`, install pinned deps (or local wheels), and write `.env`.",
+        "files": "`scripts/setup`",
+        "command": "`bash scripts/setup`",
+        "acceptance": "exits 0; `.venv/` exists; `.env` has `OPENAI_API_KEY=dummy`.",
+        "codex_ask": "\u201cAdd offline-safe `scripts/setup` that creates venv, installs from `vendor/wheels` if present, and writes `.env`.\u201d"
+      },
+      {
+        "step": 2,
+        "summary": "Create maintenance script",
+        "what": "Bash `scripts/maint` to run `black --check`, linter, and `pytest`; never touches `.venv`.",
+        "files": "`scripts/maint`",
+        "command": "`bash scripts/maint`",
+        "acceptance": "runs offline; doesn\u2019t install anything.",
+        "codex_ask": "\u201cAdd `scripts/maint` to run format/lint/tests excluding `.venv`, `vendor`, `node_modules`.\u201d"
+      },
+      {
+        "step": 3,
+        "summary": "Pin Python deps (runtime)",
+        "what": "Add `requirements.lock` with exact versions (fastapi, starlette, pydantic, uvicorn[standard], httpx, tenacity, etc.).",
+        "files": "`requirements.lock`",
+        "command": "`python -m pip install -r requirements.lock`",
+        "acceptance": "installs cleanly online.",
+        "codex_ask": "\u201cCreate `requirements.lock` with exact versions for runtime deps.\u201d"
+      },
+      {
+        "step": 4,
+        "summary": "Pin Python deps (dev)",
+        "what": "Add `requirements.dev.lock` (pytest, pytest-cov, pytest-rerunfailures, black, flake8/ruff).",
+        "files": "`requirements.dev.lock`",
+        "command": "`python -m pip install -r requirements.dev.lock`",
+        "acceptance": "dev tools install cleanly online.",
+        "codex_ask": "\u201cCreate `requirements.dev.lock` with exact versions for dev/test deps.\u201d"
+      },
+      {
+        "step": 5,
+        "summary": "Wheels freezer",
+        "what": "`scripts/freeze_wheels.sh` downloads wheels into `vendor/wheels/` for both lockfiles.",
+        "files": "`scripts/freeze_wheels.sh`, `vendor/wheels/`",
+        "command": "`bash scripts/freeze_wheels.sh`",
+        "acceptance": "directory populated with wheels; offline install works.",
+        "codex_ask": "\u201cAdd `scripts/freeze_wheels.sh` that downloads all wheels for offline use.\u201d"
+      },
+      {
+        "step": 6,
+        "summary": "Setup prefers local wheels",
+        "what": "Make `scripts/setup` try `--no-index --find-links vendor/wheels` first, then fall back online.",
+        "files": "`scripts/setup`",
+        "command": "`bash scripts/setup`",
+        "acceptance": "offline path succeeds when wheels exist.",
+        "codex_ask": "\u201cModify setup to prefer local wheels; fall back to online gracefully.\u201d"
+      },
+      {
+        "step": 7,
+        "summary": "Ignore junk files",
+        "what": "Add `.gitignore` entries for `.venv`, `vendor/wheels`, `node_modules`, caches.",
+        "files": "`.gitignore`",
+        "command": "`git status`",
+        "acceptance": "build artifacts ignored.",
+        "codex_ask": "\u201cAdd comprehensive `.gitignore`.\u201d"
+      },
+      {
+        "step": 8,
+        "summary": "Editorconfig",
+        "what": "Add `.editorconfig` (UTF-8, LF, 2 or 4 spaces).",
+        "files": "`.editorconfig`",
+        "command": "\u2014",
+        "acceptance": "file present with sane defaults.",
+        "codex_ask": "\u201cAdd `.editorconfig` with LF, UTF-8, consistent indentation.\u201d"
+      },
+      {
+        "step": 9,
+        "summary": "Pytest config suppresses site-packages",
+        "what": "Configure pytest to ignore `.venv` and third-party paths.",
+        "files": "`pyproject.toml` or `pytest.ini`",
+        "command": "`pytest -q`",
+        "acceptance": "no collection from site-packages.",
+        "codex_ask": "\u201cConfigure pytest to ignore `.venv`, `vendor`, `node_modules`.\u201d"
+      },
+      {
+        "step": 10,
+        "summary": "Linter config",
+        "what": "Add `.flake8` or `ruff.toml` with excludes & line length 100.",
+        "files": "`.flake8` or `ruff.toml`",
+        "command": "`flake8` (or `ruff check .`)",
+        "acceptance": "lints only our code.",
+        "codex_ask": "\u201cAdd linter config excluding `.venv`, `vendor`, `node_modules`, set max-line-length=100.\u201d"
+      },
+      {
+        "step": 11,
+        "summary": "Black config in pyproject",
+        "what": "Centralize black/pytest coverage settings in `pyproject.toml`.",
+        "files": "`pyproject.toml`",
+        "command": "`black --check .`",
+        "acceptance": "format/lint/test configs live together.",
+        "codex_ask": "\u201cAdd black/pytest configs to `pyproject.toml`.\u201d"
+      },
+      {
+        "step": 12,
+        "summary": "Node guard rails (optional)",
+        "what": "Gate Node install behind `BS_ALLOW_NODE=1`; skip if registry blocked.",
+        "files": "`scripts/setup`",
+        "command": "`BS_ALLOW_NODE=1 bash scripts/setup`",
+        "acceptance": "no hard failures when Node unavailable.",
+        "codex_ask": "\u201cGate Node steps behind env flag and check registry before install.\u201d"
+      }
+    ]
+  },
+  {
+    "milestone": "Milestone 1 \u2014 Package Skeleton & App Foundation",
+    "mandatory_for_rc": false,
+    "steps": [
+      {
+        "step": 13,
+        "summary": "Create package skeleton",
+        "what": "`black_skies/` with `app/ core/ storage/ agents/ exports/ critique/ util/ __init__.py`.",
+        "files": "package tree",
+        "command": "`pytest -q`",
+        "acceptance": "package importable.",
+        "codex_ask": "\u201cCreate Python package skeleton with the listed subpackages.\u201d"
+      },
+      {
+        "step": 14,
+        "summary": "Settings via pydantic-settings",
+        "what": "`core/settings.py` with `OPENAI_API_KEY`, `BLACK_SKIES_MODE` (defaulting to `offline`), etc.",
+        "files": "`black_skies/core/settings.py`",
+        "command": "`python -c \"from black_skies.core.settings import Settings; print(Settings())\"`",
+        "acceptance": "defaults read from `.env`, env overrides work.",
+        "codex_ask": "\u201cAdd Settings model using pydantic-settings reading `.env`.\u201d"
+      },
+      {
+        "step": 15,
+        "summary": "App factory",
+        "what": "`app/factory.py` \u2192 FastAPI `create_app()` with `/api/v1/healthz`.",
+        "files": "`black_skies/app/factory.py`",
+        "command": "`uvicorn black_skies.app.factory:create_app`",
+        "acceptance": "GET `/api/v1/healthz` \u2192 `{\"ok\": true}`.",
+        "codex_ask": "\u201cAdd FastAPI app factory with `/api/v1/healthz` route.\u201d"
+      },
+      {
+        "step": 16,
+        "summary": "CORS & compression",
+        "what": "add CORS (dev defaults) and gzip middleware.",
+        "files": "`black_skies/app/factory.py`",
+        "command": "hit `/openapi.json`",
+        "acceptance": "middleware engaged.",
+        "codex_ask": "\u201cEnable CORS and GZip middleware in app factory.\u201d"
+      },
+      {
+        "step": 17,
+        "summary": "Error handler baseline",
+        "what": "central 422/500 JSON error shape.",
+        "files": "`black_skies/app/errors.py`",
+        "command": "trigger 422",
+        "acceptance": "consistent error JSON.",
+        "codex_ask": "\u201cAdd error handlers for 422/500 and wire them.\u201d"
+      },
+      {
+        "step": 18,
+        "summary": "Logging config",
+        "what": "JSON logs + request IDs.",
+        "files": "`black_skies/util/logging.py`",
+        "command": "curl endpoint; inspect logs",
+        "acceptance": "request_id present.",
+        "codex_ask": "\u201cAdd structured logging + request ID middleware.\u201d"
+      },
+      {
+        "step": 19,
+        "summary": "OpenAPI metadata",
+        "what": "title, version, tags, server URL notes.",
+        "files": "`black_skies/app/factory.py`",
+        "command": "view `/docs`",
+        "acceptance": "docs show metadata.",
+        "codex_ask": "\u201cSet OpenAPI title/version/tags.\u201d"
+      },
+      {
+        "step": 20,
+        "summary": "CLI entrypoint (serve)",
+        "what": "`black_skies/cli.py` with `serve` command.",
+        "files": "`black_skies/cli.py`, `pyproject.toml`",
+        "command": "`black-skies serve`",
+        "acceptance": "server launches.",
+        "codex_ask": "\u201cAdd console_script `black-skies` with `serve` subcommand.\u201d"
+      },
+      {
+        "step": 21,
+        "summary": "Tests: health & settings",
+        "what": "`tests/test_health.py`, `tests/test_settings.py`.",
+        "files": "`tests/`",
+        "command": "`pytest -q`",
+        "acceptance": "both pass.",
+        "codex_ask": "\u201cAdd smoke tests for `/api/v1/healthz` and Settings.\u201d"
+      }
+    ]
+  },
+  {
+    "milestone": "Milestone 2 \u2014 Data Model & Storage",
+    "mandatory_for_rc": false,
+    "steps": [
+      {
+        "step": 22,
+        "summary": "Data models",
+        "what": "Pydantic `Outline`, `DraftUnit`, `Revision`, `HistoryEntry`.",
+        "files": "`black_skies/core/models.py`",
+        "command": "`pytest -q`",
+        "acceptance": "schemas work.",
+        "codex_ask": "\u201cImplement core Pydantic models per spec.\u201d"
+      },
+      {
+        "step": 23,
+        "summary": "ID helpers",
+        "what": "deterministic ID generators (`proj_0001`, `ch_0001`, etc.).",
+        "files": "`black_skies/util/ids.py`",
+        "command": "`python -c \"import ...\"`",
+        "acceptance": "deterministic outputs.",
+        "codex_ask": "\u201cAdd deterministic ID helpers.\u201d"
+      },
+      {
+        "step": 24,
+        "summary": "JSON serialization utils",
+        "what": "read/write helpers with timezone-aware timestamps.",
+        "files": "`black_skies/util/jsonio.py`",
+        "command": "round-trip a model",
+        "acceptance": "equality preserved.",
+        "codex_ask": "\u201cAdd JSON read/write helpers with tz handling.\u201d"
+      },
+      {
+        "step": 25,
+        "summary": "FS layout",
+        "what": "canonical paths for outline/drafts/revisions/history.",
+        "files": "`black_skies/storage/fs_layout.py`",
+        "command": "`pytest -q`",
+        "acceptance": "helpers return expected paths.",
+        "codex_ask": "\u201cDefine canonical FS layout helpers.\u201d"
+      },
+      {
+        "step": 26,
+        "summary": "Repository with atomic writes",
+        "what": "read/write models with temp file + rename.",
+        "files": "`black_skies/storage/repository.py`",
+        "command": "repo tests",
+        "acceptance": "atomic, idempotent writes.",
+        "codex_ask": "\u201cImplement repository with atomic JSON writes.\u201d"
+      },
+      {
+        "step": 27,
+        "summary": "Model validation tests",
+        "what": "round-trip, required fields, invalid payloads.",
+        "files": "`tests/test_models.py`",
+        "command": "`pytest -q`",
+        "acceptance": "green.",
+        "codex_ask": "\u201cAdd model validation & round-trip tests.\u201d"
+      },
+      {
+        "step": 28,
+        "summary": "Temp project fixture",
+        "what": "`tests/conftest.py` fixture `tmp_project_dir` with canonical tree.",
+        "files": "`tests/conftest.py`",
+        "command": "`pytest -q`",
+        "acceptance": "fixture available.",
+        "codex_ask": "\u201cAdd tmp_project_dir fixture.\u201d"
+      },
+      {
+        "step": 29,
+        "summary": "File lock for concurrency",
+        "what": "lock file helper (fcntl or portalocker) for writes.",
+        "files": "`black_skies/storage/lock.py`",
+        "command": "concurrency test",
+        "acceptance": "no torn writes.",
+        "codex_ask": "\u201cAdd storage lock and use it in repository writes.\u201d"
+      }
+    ]
+  },
+  {
+    "milestone": "Milestone 3 \u2014 Endpoints MVP (CRUD + Lists)",
+    "mandatory_for_rc": false,
+    "steps": [
+      {
+        "step": 30,
+        "summary": "GET outline",
+        "what": "serve `outline.json` or 404 with friendly detail.",
+        "files": "`black_skies/app/routes_outline.py`",
+        "command": "curl",
+        "acceptance": "200/404 as expected.",
+        "codex_ask": "\u201cAdd GET /v1/projects/{id}/outline.\u201d"
+      },
+      {
+        "step": 31,
+        "summary": "PUT outline",
+        "what": "validate schema, write file.",
+        "files": "same module",
+        "command": "curl PUT",
+        "acceptance": "200 and content persisted.",
+        "codex_ask": "\u201cAdd PUT /v1/projects/{id}/outline with validation.\u201d"
+      },
+      {
+        "step": 32,
+        "summary": "POST draft (create)",
+        "what": "store `DraftUnit`, return id.",
+        "files": "`black_skies/app/routes_drafts.py`",
+        "command": "curl POST",
+        "acceptance": "201 with new id.",
+        "codex_ask": "\u201cAdd POST /v1/projects/{id}/drafts (create).\u201d"
+      },
+      {
+        "step": 33,
+        "summary": "GET draft by id",
+        "what": "fetch stored draft.",
+        "files": "`routes_drafts.py`",
+        "command": "curl GET",
+        "acceptance": "200 or 404.",
+        "codex_ask": "\u201cAdd GET /v1/projects/{id}/drafts/{draft_id}.\u201d"
+      },
+      {
+        "step": 34,
+        "summary": "POST revision (create)",
+        "what": "persist manual revision payload.",
+        "files": "`black_skies/app/routes_revisions.py`",
+        "command": "curl POST",
+        "acceptance": "201 with id.",
+        "codex_ask": "\u201cAdd POST /v1/projects/{id}/revisions.\u201d"
+      },
+      {
+        "step": 35,
+        "summary": "List endpoints",
+        "what": "`GET /v1/projects/{id}/drafts` + `/revisions` with pagination.",
+        "files": "routes",
+        "command": "curl lists",
+        "acceptance": "pagination fields present.",
+        "codex_ask": "\u201cAdd list endpoints with limit/offset.\u201d"
+      },
+      {
+        "step": 36,
+        "summary": "Dependencies for project root",
+        "what": "FastAPI dependency to resolve project path & ensure dirs.",
+        "files": "`black_skies/app/deps.py`",
+        "command": "run any endpoint",
+        "acceptance": "directories created as needed.",
+        "codex_ask": "\u201cAdd dependency that resolves/creates project directories.\u201d"
+      },
+      {
+        "step": 37,
+        "summary": "Response models + examples",
+        "what": "Pydantic response models & OpenAPI examples.",
+        "files": "routes + `core/schemas.py`",
+        "command": "view `/docs`",
+        "acceptance": "examples visible.",
+        "codex_ask": "\u201cDefine response schemas and OpenAPI examples.\u201d"
+      },
+      {
+        "step": 38,
+        "summary": "Endpoint tests (happy paths)",
+        "what": "tests for outline/draft/revision CRUD.",
+        "files": "`tests/test_endpoints_basic.py`",
+        "command": "`pytest -q`",
+        "acceptance": "green.",
+        "codex_ask": "\u201cAdd endpoint happy-path tests.\u201d"
+      },
+      {
+        "step": 39,
+        "summary": "Endpoint tests (edge cases)",
+        "what": "404s, invalid payloads, pagination limits.",
+        "files": "`tests/test_endpoints_edges.py`",
+        "command": "`pytest -q`",
+        "acceptance": "green.",
+        "codex_ask": "\u201cAdd endpoint edge-case tests.\u201d"
+      }
+    ]
+  },
+  {
+    "milestone": "Milestone 4 \u2014 Policies & Exporters",
+    "mandatory_for_rc": false,
+    "steps": [
+      {
+        "step": 40,
+        "summary": "Policy hooks",
+        "what": "`core/policies.py` with `check_project_limits`, `redact_sensitive`, `validate_export_target`.",
+        "files": "`black_skies/core/policies.py`",
+        "command": "policy tests",
+        "acceptance": "helpers documented, callable.",
+        "codex_ask": "\u201cAdd core policy functions.\u201d"
+      },
+      {
+        "step": 41,
+        "summary": "Wire policies on write",
+        "what": "call policies in PUT/POST endpoints.",
+        "files": "routes",
+        "command": "run existing tests",
+        "acceptance": "blocked inputs rejected.",
+        "codex_ask": "\u201cIntegrate policies into write endpoints.\u201d"
+      },
+      {
+        "step": 42,
+        "summary": "Export target validation",
+        "what": "ensure format/path validated.",
+        "files": "export endpoint",
+        "command": "attempt invalid export",
+        "acceptance": "400 with message.",
+        "codex_ask": "\u201cValidate export targets with clear errors.\u201d"
+      },
+      {
+        "step": 43,
+        "summary": "Markdown exporter",
+        "what": "outline + drafts \u2192 `draft_full.md`.",
+        "files": "`black_skies/exports/markdown.py`",
+        "command": "invoke exporter",
+        "acceptance": "file matches spec.",
+        "codex_ask": "\u201cAdd markdown exporter.\u201d"
+      },
+      {
+        "step": 44,
+        "summary": "JSONL exporter",
+        "what": "each draft unit as JSON line.",
+        "files": "`black_skies/exports/jsonl.py`",
+        "command": "invoke exporter",
+        "acceptance": "newline-delimited JSON.",
+        "codex_ask": "\u201cAdd JSONL exporter.\u201d"
+      },
+      {
+        "step": 45,
+        "summary": "Export endpoint",
+        "what": "`POST /v1/projects/{id}/export` with `{\"format\":\"markdown|jsonl\"}`.",
+        "files": "`black_skies/app/routes_export.py`",
+        "command": "curl POST",
+        "acceptance": "200 with export info.",
+        "codex_ask": "\u201cAdd export endpoint.\u201d"
+      },
+      {
+        "step": 46,
+        "summary": "Exporter tests",
+        "what": "unit tests for markdown/jsonl output.",
+        "files": "`tests/test_exporters.py`",
+        "command": "`pytest -q`",
+        "acceptance": "green.",
+        "codex_ask": "\u201cAdd exporter tests (golden output).\u201d"
+      },
+      {
+        "step": 47,
+        "summary": "Policy tests",
+        "what": "verification for redaction/limits.",
+        "files": "`tests/test_policies.py`",
+        "command": "`pytest -q`",
+        "acceptance": "green.",
+        "codex_ask": "\u201cAdd policy tests.\u201d"
+      }
+    ]
+  },
+  {
+    "milestone": "Milestone 5 \u2014 Agents, Pipeline, Critique, Gates, Observability",
+    "mandatory_for_rc": false,
+    "steps": [
+      {
+        "step": 48,
+        "summary": "Agent stubs",
+        "what": "`OutlineAgent`, `DraftAgent`, `RevisionAgent` (no LLM yet).",
+        "files": "`black_skies/agents/*.py`",
+        "command": "import in REPL",
+        "acceptance": "docstrings + signatures.",
+        "codex_ask": "\u201cCreate agent class stubs with documented interfaces.\u201d"
+      },
+      {
+        "step": 49,
+        "summary": "Pipeline orchestrator",
+        "what": "`core/pipeline.py` orchestrates Outline\u2192Draft\u2192Revision with retries.",
+        "files": "`black_skies/core/pipeline.py`",
+        "command": "pipeline tests",
+        "acceptance": "retries configurable; returns artifact summary.",
+        "codex_ask": "\u201cAdd pipeline orchestrator with retry.\u201d"
+      },
+      {
+        "step": 50,
+        "summary": "Persist history",
+        "what": "write `history/` entries per pipeline step.",
+        "files": "repository/pipeline",
+        "command": "run pipeline stub",
+        "acceptance": "history JSON files appear.",
+        "codex_ask": "\u201cPersist pipeline history entries.\u201d"
+      },
+      {
+        "step": 51,
+        "summary": "Critique rubric",
+        "what": "scoring + rationale functions.",
+        "files": "`black_skies/critique/rubric.py`",
+        "command": "rubric tests",
+        "acceptance": "deterministic results.",
+        "codex_ask": "\u201cAdd critique rubric module.\u201d"
+      },
+      {
+        "step": 52,
+        "summary": "Decision checklist gating",
+        "what": "gating logic before exports/accepts.",
+        "files": "`black_skies/core/checklist.py`",
+        "command": "failing gate test",
+        "acceptance": "export blocked with reason.",
+        "codex_ask": "\u201cAdd decision checklist gates and integrate.\u201d"
+      },
+      {
+        "step": 53,
+        "summary": "/v2 endpoint to run pipeline",
+        "what": "`POST /v2/projects/{id}/draft` to orchestrate pipeline.",
+        "files": "`black_skies/app/routes_v2.py`",
+        "command": "curl POST",
+        "acceptance": "202/200 with artifact metadata.",
+        "codex_ask": "\u201cAdd v2 endpoint that runs pipeline.\u201d"
+      },
+      {
+        "step": 54,
+        "summary": "(Optional) SSE streaming",
+        "what": "stream progress events.",
+        "files": "pipeline routes",
+        "command": "curl with `Accept: text/event-stream`",
+        "acceptance": "events received.",
+        "codex_ask": "\u201cAdd optional SSE progress streaming.\u201d"
+      },
+      {
+        "step": 55,
+        "summary": "Metrics endpoint",
+        "what": "`/api/v1/metrics` with counters for requests/pipelines/errors.",
+        "files": "`black_skies/app/metrics.py`",
+        "command": "curl `/api/v1/metrics`",
+        "acceptance": "counters increment in tests.",
+        "codex_ask": "\u201cAdd Prometheus metrics endpoint and counters.\u201d"
+      },
+      {
+        "step": 56,
+        "summary": "Structured logs everywhere",
+        "what": "include request_id, project_id, step, duration in logs.",
+        "files": "logging wrappers",
+        "command": "run pipeline; inspect logs",
+        "acceptance": "fields present.",
+        "codex_ask": "\u201cEnrich logs with structured fields.\u201d"
+      },
+      {
+        "step": 57,
+        "summary": "Integration test (pipeline)",
+        "what": "e2e test: outline \u2192 pipeline \u2192 revision \u2192 export.",
+        "files": "`tests/test_integration_pipeline.py`",
+        "command": "`pytest -q`",
+        "acceptance": "green.",
+        "codex_ask": "\u201cAdd pipeline integration test.\u201d"
+      }
+    ]
+  },
+  {
+    "milestone": "Milestone 6 \u2014 CLI, UI, Packaging, CI",
+    "mandatory_for_rc": false,
+    "steps": [
+      {
+        "step": 58,
+        "summary": "CLI: init-project",
+        "what": "`black-skies init-project PATH` creates directories & seed outline.",
+        "files": "`black_skies/cli.py`",
+        "command": "`black-skies init-project /tmp/demo`",
+        "acceptance": "tree created.",
+        "codex_ask": "\u201cAdd CLI subcommand `init-project`.\u201d"
+      },
+      {
+        "step": 59,
+        "summary": "CLI: export",
+        "what": "`black-skies export PATH --format markdown|jsonl`.",
+        "files": "`black_skies/cli.py`",
+        "command": "run export",
+        "acceptance": "export files appear.",
+        "codex_ask": "\u201cAdd CLI subcommand `export`.\u201d"
+      },
+      {
+        "step": 60,
+        "summary": "Static UI (build-less)",
+        "what": "`ui/index.html` using fetch for health, outline load/save, pipeline trigger, export download.",
+        "files": "`ui/index.html`",
+        "command": "open in browser",
+        "acceptance": "flows work without Node build.",
+        "codex_ask": "\u201cAdd build-less static UI served by FastAPI.\u201d"
+      },
+      {
+        "step": 61,
+        "summary": "Serve static assets",
+        "what": "mount `/` to serve `ui/index.html` & assets.",
+        "files": "app factory",
+        "command": "open `/`",
+        "acceptance": "page loads.",
+        "codex_ask": "\u201cServe static UI from app.\u201d"
+      },
+      {
+        "step": 62,
+        "summary": "Dockerfile (offline-capable)",
+        "what": "multi-stage image copying wheels; install with `--no-index`.",
+        "files": "`Dockerfile`",
+        "command": "`docker build .`",
+        "acceptance": "builds offline (wheels present).",
+        "codex_ask": "\u201cAdd Dockerfile that installs from local wheels.\u201d"
+      },
+      {
+        "step": 63,
+        "summary": "Makefile (quality-of-life)",
+        "what": "`make setup`, `make test`, `make serve`, `make wheels`.",
+        "files": "`Makefile`",
+        "command": "`make test`",
+        "acceptance": "targets succeed.",
+        "codex_ask": "\u201cAdd Makefile with common targets.\u201d"
+      },
+      {
+        "step": 64,
+        "summary": "GitHub Actions: lint+test",
+        "what": "workflow runs `scripts/setup` + `scripts/maint`; caches wheels/venv by hash.",
+        "files": "`.github/workflows/lint-test.yml`",
+        "command": "push PR; observe CI",
+        "acceptance": "CI passes.",
+        "codex_ask": "\u201cAdd CI workflow to run setup/maint with caching.\u201d"
+      },
+      {
+        "step": 65,
+        "summary": "CI: build & push image on tags",
+        "what": "publish image to GHCR on `v*` tags.",
+        "files": "`.github/workflows/release.yml`",
+        "command": "tag push",
+        "acceptance": "image published.",
+        "codex_ask": "\u201cAdd release workflow to build/push Docker image on tags.\u201d"
+      },
+      {
+        "step": 66,
+        "summary": "README overhaul",
+        "what": "quickstart (offline wheels), commands, API, UI walkthrough.",
+        "files": "`README.md`",
+        "command": "fresh clone; follow steps",
+        "acceptance": "works end-to-end.",
+        "codex_ask": "\u201cRewrite README with offline quickstart.\u201d"
+      },
+      {
+        "step": 67,
+        "summary": "CHANGELOG + versioning",
+        "what": "`CHANGELOG.md` (Keep a Changelog), bump to `1.0.0`.",
+        "files": "`CHANGELOG.md`, `pyproject.toml`",
+        "command": "\u2014",
+        "acceptance": "release notes recorded.",
+        "codex_ask": "\u201cAdd CHANGELOG and bump version.\u201d"
+      },
+      {
+        "step": 68,
+        "summary": "Sample data seeds",
+        "what": "`samples/demo_project/` with outline/drafts.",
+        "files": "sample tree",
+        "command": "run flows against sample",
+        "acceptance": "good for demos/tests.",
+        "codex_ask": "\u201cAdd sample project data.\u201d"
+      },
+      {
+        "step": 69,
+        "summary": "MkDocs site (optional)",
+        "what": "`mkdocs.yml`, docs pages linking architecture, endpoints, build plan.",
+        "files": "`mkdocs.yml`, `docs/*.md`",
+        "command": "`mkdocs serve`",
+        "acceptance": "site renders locally.",
+        "codex_ask": "\u201cAdd MkDocs config and docs index.\u201d"
+      }
+    ]
+  },
+  {
+    "milestone": "Milestone 7 \u2014 LLM Integration, Prompts, Safety, Costs",
+    "mandatory_for_rc": false,
+    "steps": [
+      {
+        "step": 70,
+        "summary": "LLM adapter layer",
+        "what": "`core/llm.py` interface with `NullProvider` + `OpenAIProvider`.",
+        "files": "`black_skies/core/llm.py`",
+        "command": "unit tests",
+        "acceptance": "both implement same interface.",
+        "codex_ask": "\u201cCreate LLM adapter with Null + OpenAI providers.\u201d"
+      },
+      {
+        "step": 71,
+        "summary": "Provider selection via settings",
+        "what": "choose provider based on env/config; default Null.",
+        "files": "`settings.py`, `llm.py`",
+        "command": "`OPENAI_API_KEY=dummy` run pipeline",
+        "acceptance": "Null used by default; OpenAI when key set.",
+        "codex_ask": "\u201cWire provider selection through settings.\u201d"
+      },
+      {
+        "step": 72,
+        "summary": "Prompt templates",
+        "what": "outline/draft/revision templates (jinja or format strings).",
+        "files": "`black_skies/agents/prompts.py`",
+        "command": "prompt tests",
+        "acceptance": "renders with placeholders.",
+        "codex_ask": "\u201cAdd prompt templates and render helpers.\u201d"
+      },
+      {
+        "step": 73,
+        "summary": "Safety hooks",
+        "what": "pre-LLM redaction; post-LLM moderation/sanitization.",
+        "files": "integrate with agents/policies",
+        "command": "tests for redaction/moderation",
+        "acceptance": "unsafe content blocked or tagged.",
+        "codex_ask": "\u201cIntegrate safety hooks around LLM calls.\u201d"
+      },
+      {
+        "step": 74,
+        "summary": "Backoff & rate limits",
+        "what": "retries/backoff and simple rate limiter around LLM calls.",
+        "files": "`core/llm.py`",
+        "command": "simulated transient error test",
+        "acceptance": "retries then fail with clear error.",
+        "codex_ask": "\u201cAdd retry/backoff and basic rate limiting to LLM calls.\u201d"
+      },
+      {
+        "step": 75,
+        "summary": "Cost/logging & metrics",
+        "what": "log token counts, redact keys, expose metrics per model.",
+        "files": "logging/api/v1/metrics integration",
+        "command": "run pipeline; inspect logs/api/v1/metrics",
+        "acceptance": "cost fields present (0 for Null).",
+        "codex_ask": "\u201cAdd cost logging and redact secrets.\u201d"
+      },
+      {
+        "step": 76,
+        "summary": "Agents call through adapter",
+        "what": "`OutlineAgent/DraftAgent/RevisionAgent` call `llm.generate()` when provider \u2260 Null.",
+        "files": "agent modules",
+        "command": "unit tests with Null + mocked OpenAI",
+        "acceptance": "interface consistent.",
+        "codex_ask": "\u201cRoute agents through LLM adapter.\u201d"
+      },
+      {
+        "step": 77,
+        "summary": "E2E tests with Null provider",
+        "what": "deterministic pipeline run using NullProvider.",
+        "files": "`tests/test_e2e_null_llm.py`",
+        "command": "`pytest -q`",
+        "acceptance": "green, stable output.",
+        "codex_ask": "\u201cAdd pipeline tests using Null provider.\u201d"
+      },
+      {
+        "step": 78,
+        "summary": "Optional smoke with real OpenAI",
+        "what": "test marked `@pytest.mark.optional` when `OPENAI_API_KEY` set.",
+        "files": "`tests/test_optional_openai.py`",
+        "command": "`OPENAI_API_KEY=... pytest -q -m optional`",
+        "acceptance": "passes when key present; skipped otherwise.",
+        "codex_ask": "\u201cAdd optional smoke tests that skip without API key.\u201d"
+      }
+    ]
+  },
+  {
+    "milestone": "Milestone 8 \u2014 Finishing Touches",
+    "mandatory_for_rc": false,
+    "steps": [
+      {
+        "step": 79,
+        "summary": "Config matrix & env examples",
+        "what": "`configs/` sample envs (dev/offline/ci), `.env.example`.",
+        "files": "`configs/*`, `.env.example`",
+        "command": "copy examples and run setup",
+        "acceptance": "all modes work.",
+        "codex_ask": "\u201cAdd config samples and `.env.example`.\u201d"
+      },
+      {
+        "step": 80,
+        "summary": "Security review pass",
+        "what": "secrets scanning, log redaction check, dependency audit summary.",
+        "files": "`docs/security.md`",
+        "command": "run scanner locally if available",
+        "acceptance": "findings documented.",
+        "codex_ask": "\u201cAdd security checklist doc and secret redaction tests.\u201d"
+      },
+      {
+        "step": 81,
+        "summary": "Performance sanity",
+        "what": "simple load test script for `/v2/.../draft` (Null provider).",
+        "files": "`scripts/loadtest.py`",
+        "command": "`python scripts/loadtest.py`",
+        "acceptance": "baseline throughput recorded.",
+        "codex_ask": "\u201cAdd load test script for pipeline with Null provider.\u201d"
+      },
+      {
+        "step": 82,
+        "summary": "Release notes & tags",
+        "what": "update `CHANGELOG.md` to new version; create Git tag.",
+        "files": "`CHANGELOG.md`",
+        "command": "`git tag v2.0.0`",
+        "acceptance": "notes match shipped features.",
+        "codex_ask": "\u201cUpdate changelog and create release tags.\u201d"
+      },
+      {
+        "step": 83,
+        "summary": "Contribution guide",
+        "what": "`CONTRIBUTING.md` (branching, PR format, tests, offline rules).",
+        "files": "`CONTRIBUTING.md`",
+        "command": "\u2014",
+        "acceptance": "doc present.",
+        "codex_ask": "\u201cAdd CONTRIBUTING.md with PR/CI rules.\u201d"
+      },
+      {
+        "step": 84,
+        "summary": "Issue templates",
+        "what": "GitHub issue/PR templates.",
+        "files": "`.github/ISSUE_TEMPLATE/*.yml`, `.github/pull_request_template.md`",
+        "command": "\u2014",
+        "acceptance": "templates appear on GitHub.",
+        "codex_ask": "\u201cAdd GitHub issue and PR templates.\u201d"
+      },
+      {
+        "step": 85,
+        "summary": "Post-release smoke checklist",
+        "what": "create `docs/post_release_checklist.md` with manual QA (installer, pipeline run, export verify).",
+        "files": "`docs/post_release_checklist.md`",
+        "command": "follow checklist on release",
+        "acceptance": "future releases have playbook.",
+        "codex_ask": "\u201cAdd post-release checklist doc.\u201d"
+      }
+    ]
+  }
+]

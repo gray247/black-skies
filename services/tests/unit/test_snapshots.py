@@ -217,3 +217,31 @@ def test_create_wizard_lock_snapshot_persistence_error(tmp_path: Path) -> None:
     entries = _collect_diagnostics(tmp_path)
     assert entries, "Expected diagnostic entry for persistence error"
     assert entries[-1]["code"] == "INTERNAL"
+
+
+def test_restore_snapshot_without_metadata_file(tmp_path: Path) -> None:
+    project_id = "proj_meta_fallback"
+    snapshot_id = "20240101T123000Z"
+    settings = ServiceSettings(project_base_dir=tmp_path)
+    persistence = SnapshotPersistence(settings=settings)
+
+    snapshot_dir = (
+        tmp_path
+        / project_id
+        / "history"
+        / "snapshots"
+        / f"{snapshot_id}_accept"
+    )
+    drafts_dir = snapshot_dir / "drafts"
+    drafts_dir.mkdir(parents=True, exist_ok=True)
+    (drafts_dir / "sc_0001.md").write_text("Recovered body", encoding="utf-8")
+    (snapshot_dir / "outline.json").write_text("{}", encoding="utf-8")
+    (snapshot_dir / "project.json").write_text("{}", encoding="utf-8")
+
+    result = persistence.restore_snapshot(project_id, snapshot_id)
+
+    restored_draft = tmp_path / project_id / "drafts" / "sc_0001.md"
+    assert restored_draft.read_text(encoding="utf-8") == "Recovered body"
+    assert result["snapshot_id"] == snapshot_id
+    assert result["label"] == "accept"
+    assert "drafts" in result["includes"]

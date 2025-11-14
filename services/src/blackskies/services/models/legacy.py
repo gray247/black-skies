@@ -33,6 +33,7 @@ class Critique:
     suggested_edits: list[dict[str, Any]]
     severity: str
     model: dict[str, str]
+    heuristics: dict[str, float] = field(default_factory=dict)
     schema_version: str = "CritiqueOutputSchema v1"
 
     def to_dict(self) -> dict[str, Any]:
@@ -44,6 +45,7 @@ class Critique:
             "suggested_edits": self.suggested_edits,
             "severity": self.severity,
             "model": self.model,
+            "heuristics": self.heuristics,
             "schema_version": self.schema_version,
         }
 

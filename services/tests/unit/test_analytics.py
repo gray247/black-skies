@@ -10,9 +10,12 @@ from blackskies.services.analytics import (
     ConflictHeatmap,
     EmotionArcPoint,
     PacingSummary,
+    RevisionEvent,
     compute_conflict_heatmap,
     compute_emotion_arc,
     compute_pacing_metrics,
+    compute_revision_streaks,
+    compute_scene_length_distribution,
     generate_analytics_payload,
 )
 
@@ -128,12 +131,22 @@ def test_compute_conflict_heatmap_groups_by_chapter(
 def test_generate_analytics_payload_composes_metrics(
     outline_payload: dict, draft_units: list[dict]
 ) -> None:
-    payload = generate_analytics_payload(outline=outline_payload, draft_units=draft_units)
+    events = [
+        RevisionEvent(snapshot_id="20230101T000000Z", type="accept", timestamp="2023-01-01T00:00:00Z"),
+        RevisionEvent(snapshot_id="20230102T000000Z", type="feedback", timestamp="2023-01-02T00:00:00Z"),
+    ]
+    payload = generate_analytics_payload(
+        outline=outline_payload,
+        draft_units=draft_units,
+        revision_events=events,
+    )
 
     assert isinstance(payload, AnalyticsPayload)
     assert all(isinstance(point, EmotionArcPoint) for point in payload.emotion_arc)
     assert isinstance(payload.pacing, PacingSummary)
     assert isinstance(payload.conflict_heatmap, ConflictHeatmap)
+    assert payload.scene_length_distribution.buckets
+    assert payload.revision_streaks.longest_streak >= 1
 
 
 def test_empty_outline_returns_empty_metrics() -> None:
@@ -144,3 +157,29 @@ def test_empty_outline_returns_empty_metrics() -> None:
     assert payload.pacing.average_word_count == 0.0
     assert payload.pacing.scene_metrics == []
     assert payload.conflict_heatmap.chapters == []
+    assert payload.scene_length_distribution.buckets == []
+    assert payload.revision_streaks.current_streak == 0
+
+
+def test_scene_length_distribution_detects_outliers(outline_payload: dict, draft_units: list[dict]) -> None:
+    summary = compute_pacing_metrics(outline_payload, draft_units)
+    distribution = compute_scene_length_distribution(summary.scene_metrics)
+
+    assert distribution.buckets
+    assert "above" in distribution.outliers
+    assert "below" in distribution.outliers
+
+
+def test_compute_revision_streaks_tracks_resets() -> None:
+    events = [
+        RevisionEvent(snapshot_id="s1", type="accept", timestamp="2023-05-01T00:00:00Z"),
+        RevisionEvent(snapshot_id="s2", type="accept", timestamp="2023-05-02T00:00:00Z"),
+        RevisionEvent(snapshot_id="s3", type="feedback", timestamp="2023-05-03T00:00:00Z"),
+        RevisionEvent(snapshot_id="s4", type="accept", timestamp="2023-05-04T00:00:00Z"),
+    ]
+
+    streaks = compute_revision_streaks(events)
+
+    assert streaks.current_streak == 1
+    assert streaks.longest_streak == 2
+    assert streaks.last_reset == "2023-05-03T00:00:00Z"

@@ -14,6 +14,7 @@ from ...export import load_outline_artifact
 from ...http import raise_service_error, raise_validation_error
 from ...models.draft import DraftGenerateRequest
 from ...scene_docs import DraftRequestError
+from ...service_errors import ServiceError
 from ..dependencies import get_diagnostics, get_settings
 from ...operations.draft_generation import (
     DraftGenerationService,
@@ -73,6 +74,13 @@ async def generate_draft(
             scene_summaries,
             project_root=project_root,
         )
+    except DraftRequestError as exc:
+        raise_validation_error(
+            message=str(exc),
+            details=exc.details,
+            diagnostics=diagnostics,
+            project_root=project_root,
+        )
     except DraftGenerationTimeoutError as exc:
         diagnostics.log(
             project_root,
@@ -89,6 +97,8 @@ async def generate_draft(
             project_root=project_root,
         )
     except HTTPException:
+        raise
+    except ServiceError:
         raise
     except Exception as exc:  # pragma: no cover - surfaced via diagnostics
         diagnostics.log(
@@ -156,6 +166,13 @@ async def preflight_draft(
         result = await generation_service.preflight(
             request_model,
             scene_summaries,
+            project_root=project_root,
+        )
+    except DraftRequestError as exc:
+        raise_validation_error(
+            message=str(exc),
+            details=exc.details,
+            diagnostics=diagnostics,
             project_root=project_root,
         )
     except DraftGenerationTimeoutError as exc:

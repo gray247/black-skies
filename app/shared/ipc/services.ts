@@ -255,6 +255,24 @@ export interface DraftPreflightEstimate {
   };
 }
 
+export type AnalyticsBudgetHint = 'stable' | 'near_cap' | 'over_budget' | 'ample';
+
+export interface AnalyticsBudgetBridgeRequest {
+  projectId: string;
+}
+
+export interface AnalyticsBudgetBridgeResponse {
+  project_id: string;
+  budget: {
+    soft_limit_usd: number;
+    hard_limit_usd: number;
+    spent_usd: number;
+    remaining_usd: number;
+  };
+  hint: AnalyticsBudgetHint;
+  message?: string;
+}
+
 export interface ServicesBridge {
   checkHealth: () => Promise<ServiceHealthResponse>;
   buildOutline: (
@@ -281,6 +299,9 @@ export interface ServicesBridge {
   restoreSnapshot: (
     request: RecoveryRestoreBridgeRequest,
   ) => Promise<ServiceResult<RecoveryRestoreBridgeResponse>>;
+  analyticsBudget: (
+    request: AnalyticsBudgetBridgeRequest,
+  ) => Promise<ServiceResult<AnalyticsBudgetBridgeResponse>>;
 }
 
 export type ServicesChannel = never;

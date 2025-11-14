@@ -7,10 +7,12 @@ import json
 import random
 import re
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Sequence
 
+from .heuristics import DEFAULT_HEURISTICS, Heuristics
 from .models.draft import DraftGenerateRequest, DraftUnitOverrides
 from .models.outline import OutlineScene
+from .constants import WORD_TARGET_BASE, WORD_TARGET_PER_ORDER
 
 
 @dataclass
@@ -26,42 +28,9 @@ class DraftSynthesizer:
     """Deterministically synthesize draft units from outline metadata."""
 
     _MODEL = {"name": "draft-synthesizer-v1", "provider": "black-skies-local"}
-    _POVS = [
-        "Mara Ibarra",
-        "Ezra Cole",
-        "Jun Park",
-        "Sasha Reed",
-        "Luis Navarro",
-        "Rin Okada",
-        "Kira Beaumont",
-        "Elior Shaw",
-    ]
-    _GOALS = [
-        "stabilize the perimeter sensors",
-        "recover the coded broadcast",
-        "map the estate's sealed corridors",
-        "extract the survivor logs",
-        "keep the generator coil alive",
-        "decode the warding sigils",
-    ]
-    _CONFLICTS = [
-        "humidity chews through every circuit",
-        "alarms cascade in the empty halls",
-        "footsteps echo from nowhere",
-        "the blackout shutters seize mid-drop",
-        "radio static lances through the air",
-        "old floorboards complain at every move",
-    ]
-    _TURNS = [
-        "a hidden relay spits out fresh co-ordinates",
-        "an old ally speaks through the static",
-        "the house remembers a forgotten route",
-        "a vault door seals with new intent",
-        "a warning flare cuts across the bay",
-        "the diary on the desk updates itself",
-    ]
-    _PURPOSES = ["setup", "escalation", "payoff", "breath"]
-    _EMOTIONS = ["dread", "tension", "respite", "revelation", "aftermath"]
+
+    def __init__(self, heuristics: Heuristics | None = None) -> None:
+        self._heuristics = heuristics or DEFAULT_HEURISTICS
 
     def synthesize(
         self,
@@ -88,7 +57,7 @@ class DraftSynthesizer:
 
         response_meta = {
             key: meta[key]
-            for key in ("pov", "purpose", "emotion_tag", "word_target")
+            for key in ("pov", "purpose", "emotion_tag", "word_target", "conflict", "conflict_type", "pacing_target")
             if meta.get(key) is not None
         }
         response_meta["order"] = meta["order"]
@@ -118,45 +87,53 @@ class DraftSynthesizer:
         overrides: DraftUnitOverrides | None,
         rng: random.Random,
     ) -> dict[str, Any]:
-        purpose = (
+        purpose: str = (
             overrides.purpose
             if overrides and overrides.purpose
-            else self._select(self._PURPOSES, scene.order)
+            else self._select(self._heuristics.purposes, scene.order)
         )
-        emotion_tag = (
+        emotion_tag: str = (
             overrides.emotion_tag
             if overrides and overrides.emotion_tag
-            else self._select(self._EMOTIONS, scene.order + 1)
+            else self._select(self._heuristics.emotions, scene.order + 1)
         )
-        pov = (
+        pov: str = (
             overrides.pov
             if overrides and overrides.pov
-            else self._select(self._POVS, scene.order, rng)
+            else self._select(self._heuristics.povs, scene.order, rng)
         )
-        goal = (
+        goal: str = (
             overrides.goal
             if overrides and overrides.goal
-            else self._select(self._GOALS, scene.order + 2, rng)
+            else self._select(self._heuristics.goals, scene.order + 2, rng)
         )
-        conflict = (
-            overrides.conflict
-            if overrides and overrides.conflict
-            else self._select(self._CONFLICTS, scene.order + 3, rng)
-        )
+        conflict_text: str
+        conflict_type = "custom"
+        if overrides and overrides.conflict:
+            conflict_text = overrides.conflict
+            conflict_type_override = getattr(overrides, "conflict_type", None)
+            if conflict_type_override:
+                conflict_type = conflict_type_override
+        else:
+            conflict_option = self._select(self._heuristics.conflict_options, scene.order + 3, rng)
+            conflict_text = conflict_option.description
+            conflict_type = conflict_option.type
         turn = (
             overrides.turn
             if overrides and overrides.turn
-            else self._select(self._TURNS, scene.order + 4, rng)
+            else self._select(self._heuristics.turns, scene.order + 4, rng)
         )
         order_value = overrides.order if overrides and overrides.order is not None else scene.order
         word_target = (
             overrides.word_target
             if overrides and overrides.word_target is not None
-            else 850 + (order_value * 40)
+            else self._heuristics.word_target_base + (order_value * self._heuristics.word_target_step)
         )
         beats = list(scene.beat_refs)
         if overrides and overrides.beats is not None:
             beats = [beat for beat in overrides.beats]
+
+        pacing_target = self._pacing_label(word_target, order_value)
 
         meta = {
             "id": scene.id,
@@ -165,10 +142,12 @@ class DraftSynthesizer:
             "pov": pov,
             "purpose": purpose,
             "goal": goal,
-            "conflict": conflict,
+            "conflict": conflict_text,
             "turn": turn,
             "emotion_tag": emotion_tag,
             "word_target": word_target,
+            "conflict_type": conflict_type,
+            "pacing_target": pacing_target,
             "order": order_value,
             "chapter_id": scene.chapter_id,
             "beats": beats,
@@ -199,9 +178,11 @@ class DraftSynthesizer:
             "purpose": meta.get("purpose"),
             "goal": meta.get("goal"),
             "conflict": meta.get("conflict"),
+            "conflict_type": meta.get("conflict_type"),
             "turn": meta.get("turn"),
             "emotion_tag": meta.get("emotion_tag"),
             "word_target": meta.get("word_target"),
+            "pacing_target": meta.get("pacing_target"),
             "order": meta.get("order"),
             "chapter_id": meta.get("chapter_id"),
             "beats": meta.get("beats", []),
@@ -231,14 +212,29 @@ class DraftSynthesizer:
         return slug or "scene"
 
     @staticmethod
-    def _select(options: list[str], key: int, rng: random.Random | None = None) -> str:
+    def _select(options: Sequence[Any], key: int, rng: random.Random | None = None) -> Any:
         if not options:
-            return ""
+            raise ValueError("Heuristic options list is empty.")
         if rng is None:
             index = key % len(options)
         else:
             index = rng.randrange(len(options))
         return options[index]
+
+    def _pacing_label(self, word_target: int, order_value: int) -> str:
+        expected = (
+            self._heuristics.word_target_base
+            + (order_value * self._heuristics.word_target_step)
+        )
+        if expected <= 0:
+            return "steady"
+        ratio = word_target / expected
+        slow_threshold, fast_threshold = self._heuristics.pacing_thresholds
+        if ratio >= slow_threshold:
+            return "slow"
+        if ratio <= fast_threshold:
+            return "fast"
+        return "steady"
 
 
 __all__ = ["DraftSynthesizer", "SynthesisResult"]

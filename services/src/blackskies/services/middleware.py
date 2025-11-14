@@ -26,14 +26,10 @@ class BodySizeLimitMiddleware:
         headers = {key.decode("latin-1"): value.decode("latin-1") for key, value in scope["headers"]}
         content_length_header = headers.get("content-length")
         if content_length_header:
-            try:
-                content_length = int(content_length_header)
-            except ValueError:
-                content_length = None
-            else:
-                if content_length > self._limit:
-                    await self._reject(send)
-                    return
+            content_length = self._parse_content_length(content_length_header)
+            if content_length is not None and content_length > self._limit:
+                await self._reject(send)
+                return
 
         consumed = 0
 
@@ -64,6 +60,13 @@ class BodySizeLimitMiddleware:
             content=payload.model_dump(),
             trace_id=trace_id,
         )
+
+    @staticmethod
+    def _parse_content_length(value: str) -> int | None:
+        try:
+            return int(value)
+        except ValueError:
+            return None
 
 
 async def _send_json_response(

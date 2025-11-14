@@ -10,6 +10,7 @@ const node_net_1 = __importDefault(require("node:net"));
 const promises_1 = require("node:timers/promises");
 const node_fs_1 = require("node:fs");
 const node_path_1 = require("node:path");
+const node_url_1 = require("node:url");
 const projectLoaderIpc_1 = require("./projectLoaderIpc");
 const logging_js_1 = require("./logging.js");
 const diagnostics_js_1 = require("../shared/ipc/diagnostics.js");
@@ -17,12 +18,15 @@ const layoutIpc_js_1 = require("./layoutIpc.js");
 const runtime_js_1 = require("../shared/config/runtime.js");
 function resolveProjectRoot() {
     const immediate = (0, node_path_1.resolve)(__dirname, '..');
-    if ((0, node_fs_1.existsSync)((0, node_path_1.join)(immediate, 'dist', 'index.html'))) {
-        return immediate;
-    }
-    const parent = (0, node_path_1.resolve)(__dirname, '..', '..');
-    if ((0, node_fs_1.existsSync)((0, node_path_1.join)(parent, 'dist', 'index.html'))) {
-        return parent;
+    const candidates = [
+        immediate,
+        (0, node_path_1.resolve)(immediate, '..', 'app'),
+        (0, node_path_1.resolve)(immediate, '..'),
+    ];
+    for (const candidate of candidates) {
+        if ((0, node_fs_1.existsSync)((0, node_path_1.join)(candidate, 'dist', 'index.html'))) {
+            return candidate;
+        }
     }
     return immediate;
 }
@@ -47,7 +51,17 @@ const DEV_SERVER_URL = process.env.ELECTRON_RENDERER_URL ?? 'http://127.0.0.1:51
 const isDev = !electron_1.app.isPackaged;
 const isPlaywright = process.env.PLAYWRIGHT === '1';
 const shouldSpawnServices = process.env.BLACKSKIES_FORCE_SERVICES === '1' || !isPlaywright;
-const shouldUseDevServer = isDev && !isPlaywright;
+function getStartUrl() {
+    const override = process.env.ELECTRON_RENDERER_URL;
+    if (typeof override === 'string' && override.length > 0) {
+        return override;
+    }
+    const packaged = (0, node_url_1.pathToFileURL)(rendererIndexFile).toString();
+    if (electron_1.app.isPackaged || process.env.PLAYWRIGHT === '1') {
+        return packaged;
+    }
+    return DEV_SERVER_URL;
+}
 const SERVICES_HOST = '127.0.0.1';
 const PORT_RANGE_ENV = process.env.BLACKSKIES_SERVICE_PORT_RANGE;
 const DEFAULT_PYTHON_EXECUTABLE = 'python';
@@ -471,21 +485,23 @@ function registerDiagnosticsIpc() {
 }
 async function createMainWindow() {
     console.log('[main] Creating main window. projectRoot=', projectRoot);
-    const sandboxEnabled = electron_1.app.isPackaged && process.platform !== 'win32';
-    const window = new electron_1.BrowserWindow({
+    const windowOptions = {
         width: 1280,
         height: 840,
         minWidth: 960,
         minHeight: 640,
         show: false,
         autoHideMenuBar: true,
+        env: { ...process.env, PLAYWRIGHT: '1' },
         webPreferences: {
             contextIsolation: true,
             nodeIntegration: false,
-            sandbox: sandboxEnabled,
+            sandbox: false,
             preload: PRELOAD_PATH,
+            additionalArguments: [],
         },
-    });
+    };
+    const window = new electron_1.BrowserWindow(windowOptions);
     window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
     const allowedOrigins = new Set();
     if (isDev) {
@@ -527,24 +543,30 @@ async function createMainWindow() {
     window.on('unresponsive', () => {
         console.error('[main] BrowserWindow became unresponsive.');
     });
-    if (shouldUseDevServer) {
-        try {
-            await window.loadURL(DEV_SERVER_URL);
-        }
-        catch (error) {
-            ensureMainLogger().warn('Failed to load dev renderer URL; falling back to static bundle.', {
-                error: error instanceof Error ? error.message : String(error),
-                url: DEV_SERVER_URL,
-            });
-            await window.loadFile(rendererIndexFile);
-        }
-        if (!isPlaywright) {
-            window.webContents.openDevTools({ mode: 'detach' });
+    const startUrl = getStartUrl();
+    console.log('[main] loading', startUrl);
+    try {
+        await window.loadURL(startUrl);
+    }
+    catch (error) {
+        ensureMainLogger().warn('Failed to load renderer URL', {
+            error: error instanceof Error ? error.message : String(error),
+            url: startUrl,
+        });
+        if (startUrl !== rendererIndexFile) {
+            try {
+                await window.loadFile(rendererIndexFile);
+            }
+            catch (innerError) {
+                ensureMainLogger().warn('Fallback loadFile failed', {
+                    error: innerError instanceof Error ? innerError.message : String(innerError),
+                    path: rendererIndexFile,
+                });
+            }
         }
     }
-    else {
-        console.log('[main] Loading renderer from file', rendererIndexFile);
-        await window.loadFile(rendererIndexFile);
+    if (!electron_1.app.isPackaged && !isPlaywright) {
+        window.webContents.openDevTools({ mode: 'detach' });
     }
     return window;
 }

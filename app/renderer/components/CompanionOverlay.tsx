@@ -6,6 +6,8 @@ import {
   resolveAnalyticsConfig,
 } from '../utils/analytics';
 import type { EmotionArcPoint, ScenePacingMetric } from '../utils/analytics';
+import type { ServiceStatus } from './ServiceStatusPill';
+import { recordDebugEvent } from '../utils/debugLog';
 
 const RUBRIC_PATTERN = /^[A-Za-z0-9 ,.&:/'-]+$/;
 const MAX_RUBRIC_LENGTH = 40;
@@ -24,6 +26,7 @@ interface CompanionOverlayProps {
   activeSceneId: string | null;
   batchState: BatchCritiqueState;
   onBatchCritique: (sceneIds: string[]) => void | Promise<void>;
+  serviceStatus: ServiceStatus;
 }
 
 interface SceneInsight {
@@ -51,6 +54,12 @@ interface BatchCritiqueSceneResult {
 interface BatchCritiqueState {
   running: boolean;
   results: Record<string, BatchCritiqueSceneResult>;
+}
+
+interface ModelInsight {
+  id: string;
+  title: string;
+  detail: string;
 }
 
 function normaliseWhitespace(text: string): string {
@@ -129,6 +138,49 @@ function buildInsights(
   return suggestions;
 }
 
+function buildModelInsights(
+  analysis: DraftAnalysis,
+  scene: SceneDraftMetadata | null,
+): ModelInsight[] {
+  const toneDescriptor =
+    analysis.sentenceAverage > 24
+      ? 'Measured'
+      : analysis.sentenceAverage < 12
+      ? 'Airy'
+      : 'Balanced';
+  const pacingDescriptor =
+    analysis.wordCount > 700 ? 'Expansive' : analysis.wordCount < 250 ? 'Compact' : 'Steady';
+  const symbolismDetail = scene?.emotion_tag
+    ? `Symbolism echoes the ${scene.emotion_tag} cue.`
+    : 'Symbolism cues are sparse; tag the mood to help the model.';
+  const rewriteDetail = scene?.purpose
+    ? `Model can reshape the scene to highlight the ${scene.purpose} aim.`
+    : 'Model can help crystallize the scene purpose for clearer stakes.';
+
+  return [
+    {
+      id: 'tone-balance',
+      title: 'Tone Balance',
+      detail: `Model insights note a ${toneDescriptor.toLowerCase()} cadence across the scene.`,
+    },
+    {
+      id: 'pacing-critique',
+      title: 'Pacing Critique',
+      detail: `Model suggests the pacing feels ${pacingDescriptor.toLowerCase()} for the current beats.`,
+    },
+    {
+      id: 'symbolism-scan',
+      title: 'Symbolism Scan',
+      detail: symbolismDetail,
+    },
+    {
+      id: 'style-rewrite',
+      title: 'Style Rewrite Prompt',
+      detail: rewriteDetail,
+    },
+  ];
+}
+
 function statusLabel(status: BatchCritiqueStatus): string {
   switch (status) {
     case 'running':
@@ -192,11 +244,16 @@ export default function CompanionOverlay({
   activeSceneId,
   batchState,
   onBatchCritique,
+  serviceStatus,
 }: CompanionOverlayProps): JSX.Element | null {
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const [newCategory, setNewCategory] = useState('');
   const [rubricError, setRubricError] = useState<string | null>(null);
   const [selectedScenes, setSelectedScenes] = useState<string[]>([]);
+  const [localRunCount, setLocalRunCount] = useState(0);
+  const [queuedModelRuns, setQueuedModelRuns] = useState(0);
+  const [modelResumedCount, setModelResumedCount] = useState(0);
+  const prevServiceStatusRef = useRef<ServiceStatus>(serviceStatus);
 
   useEffect(() => {
     if (!open) {
@@ -340,9 +397,13 @@ export default function CompanionOverlay({
   }, [project, activeScene]);
 
   const analysis = useMemo(() => analyseDraft(activeDraft), [activeDraft]);
-  const insights = useMemo(
+  const localInsights = useMemo(
     () => buildInsights(analysis, sceneMeta, activeDraft.trim().length === 0),
     [analysis, sceneMeta, activeDraft],
+  );
+  const modelInsights = useMemo(
+    () => buildModelInsights(analysis, sceneMeta),
+    [analysis, sceneMeta],
   );
 
   const stats: SceneInsight[] = useMemo(() => {
@@ -391,6 +452,13 @@ export default function CompanionOverlay({
 
   const selectionSet = useMemo(() => new Set(selectedScenes), [selectedScenes]);
   const disableBatchRun = batchState.running || selectedScenes.length === 0;
+  const runAllDisabled = !activeScene;
+  const offlineRunHint = useMemo(() => {
+    if (serviceStatus !== 'online' && queuedModelRuns > 0) {
+      return `${localRunCount} Local Ran · ${queuedModelRuns} Will Resume When Online.`;
+    }
+    return null;
+  }, [localRunCount, queuedModelRuns, serviceStatus]);
 
   const handleRemoveCategory = useCallback(
     (category: string) => {
@@ -429,6 +497,31 @@ export default function CompanionOverlay({
     }
     onBatchCritique(selectedScenes);
   }, [batchState.running, onBatchCritique, selectedScenes]);
+
+  const runLocalInsights = useCallback(() => {
+    setLocalRunCount((previous) => previous + 1);
+    recordDebugEvent('insights.local_ran', {
+      sceneId: activeScene?.id ?? null,
+    });
+  }, [activeScene?.id]);
+
+  const queueModelInsightsForLater = useCallback(() => {
+    setQueuedModelRuns((previous) => previous + 1);
+    recordDebugEvent('insights.model_queued_offline', {
+      sceneId: activeScene?.id ?? null,
+    });
+  }, [activeScene?.id]);
+
+  const handleRunAllInsights = useCallback(() => {
+    runLocalInsights();
+    if (serviceStatus === 'online') {
+      recordDebugEvent('insights.model_run_online', {
+        sceneId: activeScene?.id ?? null,
+      });
+      return;
+    }
+    queueModelInsightsForLater();
+  }, [activeScene?.id, queueModelInsightsForLater, runLocalInsights, serviceStatus]);
 
   const handleAddCategory = useCallback(() => {
     const trimmed = newCategory.trim();
@@ -469,12 +562,34 @@ export default function CompanionOverlay({
     setRubricError(null);
   }, [builtInRubric, onRubricChange]);
 
+  useEffect(() => {
+    const previousStatus = prevServiceStatusRef.current;
+    if (serviceStatus !== 'online') {
+      setModelResumedCount(0);
+    }
+    if (previousStatus !== 'online' && serviceStatus === 'online' && queuedModelRuns > 0) {
+      setModelResumedCount(queuedModelRuns);
+      recordDebugEvent('insights.model_ran_after_reconnect', {
+        sceneId: activeScene?.id ?? null,
+        count: queuedModelRuns,
+      });
+      setQueuedModelRuns(0);
+    }
+    prevServiceStatusRef.current = serviceStatus;
+  }, [serviceStatus, queuedModelRuns, activeScene?.id]);
+
   if (!open) {
     return null;
   }
 
   return (
-    <div className="companion-overlay" role="dialog" aria-modal="true" aria-label="Companion overlay">
+    <div
+      className="companion-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Companion overlay"
+      data-testid="companion-overlay"
+    >
       <div className="companion-overlay__panel">
         <header className="companion-overlay__header">
           <div>
@@ -491,12 +606,51 @@ export default function CompanionOverlay({
           </button>
         </header>
 
-        <div className="companion-overlay__content">
+      <div className="companion-overlay__content">
+        {serviceStatus !== 'online' ? (
+          <div className="companion-overlay__offline-banner" role="status" aria-live="polite">
+            Local Only — Model Insights Paused.
+          </div>
+        ) : null}
           <section className="companion-overlay__section">
-            <header className="companion-overlay__section-header">
-              <h3>Scene insights</h3>
-              {activeScene ? <span>{activeScene.id}</span> : null}
+            <header className="companion-overlay__section-header" data-testid="insights-toolbar">
+              <div className="companion-overlay__section-heading">
+                <h3>Scene Insights</h3>
+                {activeScene ? <span>{activeScene.id}</span> : null}
+              </div>
+              <button
+                type="button"
+                className="companion-overlay__run-all"
+                onClick={handleRunAllInsights}
+                disabled={runAllDisabled}
+                title={runAllDisabled ? 'Select A Scene To Run Insights.' : undefined}
+              >
+                Run All Insights
+              </button>
             </header>
+            {offlineRunHint ? (
+              <>
+                <p className="companion-overlay__run-hint">{offlineRunHint}</p>
+                <div className="companion-overlay__run-hint companion-overlay__run-hint--status">
+                  <span data-testid="insights-local-ran">
+                    {localRunCount} Local insights ran
+                  </span>
+                  <span data-testid="insights-model-queued">
+                    {queuedModelRuns} model insights queued
+                  </span>
+                </div>
+              </>
+            ) : null}
+            {modelResumedCount > 0 ? (
+              <div
+                className="companion-overlay__run-hint companion-overlay__run-hint--resumed"
+                data-testid="insights-model-resumed"
+              >
+                {modelResumedCount === 1
+                  ? 'Queued model insight resumed'
+                  : `Queued ${modelResumedCount} model insights resumed`}
+              </div>
+            ) : null}
             {activeScene ? (
               <>
                 <p className="companion-overlay__scene-title">
@@ -589,13 +743,47 @@ export default function CompanionOverlay({
                   </div>
                 </div>
                 <ul className="companion-overlay__insights">
-                  {insights.map((suggestion) => (
+                  {localInsights.map((suggestion) => (
                     <li key={suggestion}>{suggestion}</li>
                   ))}
-                  {insights.length === 0 ? (
+                  {localInsights.length === 0 ? (
                     <li>Scene metrics look healthy. Iterate or expand before running a critique.</li>
                   ) : null}
                 </ul>
+                <div className="companion-overlay__model-insights">
+                  <div className="companion-overlay__model-insights-header">
+                    <h4>Model Insights</h4>
+                    <p className="companion-overlay__model-insights-subhead">
+                      {serviceStatus === 'online'
+                        ? 'Model-Backed Guidance Is Ready.'
+                        : 'Model Insights Require Writing Tools.'}
+                    </p>
+                  </div>
+                  <ul className="companion-overlay__model-insights-list">
+                    {modelInsights.map((entry) => (
+                      <li
+                        key={entry.id}
+                        className={`companion-overlay__model-insight${
+                          serviceStatus === 'online' ? '' : ' companion-overlay__model-insight--disabled'
+                        }`}
+                        title={
+                          serviceStatus === 'online'
+                            ? 'Model Insights Are Ready.'
+                            : 'Needs The Model. Reconnect To Run.'
+                        }
+                        aria-disabled={serviceStatus !== 'online'}
+                      >
+                        <div>
+                          <strong>{entry.title}</strong>
+                          <p>{entry.detail}</p>
+                        </div>
+                        <span className="companion-overlay__model-insight-state">
+                          {serviceStatus === 'online' ? 'Model Ready' : 'Model Offline'}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
                 {analysis.longestSentenceLength > 28 && analysis.longestSentence ? (
                   <blockquote className="companion-overlay__highlight">
                     <strong>Longest sentence snapshot:</strong>

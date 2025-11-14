@@ -1,7 +1,7 @@
 export const TID = {
   // Project home / navigation
   createProjectBtn: 'project-create-btn',
-  openProjectBtn: 'project-open-btn',
+  openProjectBtn: 'open-project',
   recentList: 'recent-projects-list',
   diagnosticsButton: 'project-diagnostics-btn',
 
@@ -15,6 +15,10 @@ export const TID = {
   dockWorkspace: 'dock-workspace',
   sceneAddBtn: 'scene-add-btn',
   saveBtn: 'scene-save-btn',
+  serviceStatusPill: 'service-status-pill',
+  budgetIndicator: 'budget-indicator',
+  serviceHealthBanner: 'service-health-banner',
+  serviceHealthRetry: 'service-health-retry',
 
   // Export & toast notifications
   exportBtn: 'export-btn',

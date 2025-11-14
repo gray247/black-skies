@@ -1,5 +1,6 @@
 import asyncio
 from collections.abc import Callable
+from pathlib import Path
 
 import pytest
 
@@ -93,3 +94,26 @@ def test_service_resilience_executor_honors_timeouts(
 
     with pytest.raises(asyncio.TimeoutError):
         asyncio.run(executor.run(operation=fast_operation))
+
+
+def test_persistent_circuit_state_shared_across_executors(tmp_path: Path) -> None:
+    policy = ResiliencePolicy(
+        name="shared-service",
+        timeout_seconds=0.0,
+        max_attempts=1,
+        backoff_seconds=0.0,
+        circuit_failure_threshold=1,
+        circuit_reset_seconds=600.0,
+    )
+    state_path = tmp_path / "shared-service.json"
+    executor_a = ServiceResilienceExecutor(policy, state_path=state_path)
+
+    def failing_operation() -> None:
+        raise RuntimeError("fail")
+
+    with pytest.raises(RuntimeError):
+        asyncio.run(executor_a.run(operation=failing_operation))
+
+    executor_b = ServiceResilienceExecutor(policy, state_path=state_path)
+    with pytest.raises(CircuitOpenError):
+        asyncio.run(executor_b.run(operation=failing_operation))

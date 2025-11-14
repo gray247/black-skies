@@ -32,9 +32,12 @@ class ServiceSettings(BaseModel):
     ENV_FILE: ClassVar[str | None] = ".env"
     ENV_FILE_ENCODING: ClassVar[str] = "utf-8"
 
-    model_config: ClassVar[ConfigDict] = ConfigDict(
-        extra="ignore",
-        env_prefix=ENV_PREFIX,
+    model_config: ClassVar[ConfigDict] = cast(
+        ConfigDict,
+        {
+            "extra": "ignore",
+            "env_prefix": ENV_PREFIX,
+        },
     )
 
     project_base_dir: Path = Field(

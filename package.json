@@ -11,7 +11,7 @@
                     "bootstrap":  "pnpm install --recursive",
                     "lint":  "pnpm -r lint",
                     "dev":  "node ./scripts/dev-runner.mjs",
-                    "lint:docs":  "markdownlint \"CONTRIBUTING.md\" \"docs/style.md\" \"docs/roles.md\" \"docs/rollback_policy.md\" \"docs/ui_copy_spec_v1.md\""
+                    "lint:docs":  "markdownlint \"CONTRIBUTING.md\" \"docs/style.md\" \"docs/rollback_policy.md\" \"docs/ui_copy_spec_v1.md\""
                 },
     "devDependencies":  {
                             "markdownlint-cli":  "^0.45.0"

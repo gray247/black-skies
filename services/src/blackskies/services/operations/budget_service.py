@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Tuple
+from typing import Any, Iterator, Tuple
 
 from ..budgeting import (
     classify_budget,
+    edit_project_budget_state,
     load_project_budget_state,
     persist_project_budget,
     ProjectBudgetState,
@@ -94,6 +96,13 @@ class BudgetService:
         """Persist the new spend total to the project metadata."""
 
         persist_project_budget(state, new_spent_usd)
+
+    @contextmanager
+    def edit_state(self, project_root: Path) -> Iterator[ProjectBudgetState]:
+        """Context manager that locks the budget state for read/write operations."""
+
+        with edit_project_budget_state(project_root, self._diagnostics) as state:
+            yield state
 
 
 __all__ = ["BudgetService", "BudgetSummary"]

@@ -1,16 +1,18 @@
-# Voice Notes & Transcription Plan
+# Voice Notes & Transcription Plan (Deferred)
+
+> **Status:** This feature is scoped but **not** shipping in v1.1. The plan remains for future phases; renderer and services do not expose voice note recording/transcription today.
 
 ## Objectives
 - Enable creators to record voice notes, transcribe them into scene annotations, and manage audio assets within budget constraints.
 - Ensure privacy controls and local-first storage while allowing optional cloud transcription.
 
-## Functional Scope
+## Functional Scope (future)
 1. **Record**: capture microphone input, show waveform + timer, allow pause/resume.
 2. **Playback**: inline player per note with seek, speed control, delete.
 3. **Transcription**: convert audio to text via local model or external API (configurable).
 4. **Editing & Linking**: edit transcripts, attach to scenes, and push into critique or rewrite workflows.
 
-## Architecture
+## Architecture (future)
 - Electron renderer handles recording via `MediaRecorder`; stores temporary chunks in app data folder.
 - Main process exposes IPC (`voice-notes:*`) to manage file persistence, metadata, and playback.
 - Services side adds `/api/v1/voice/transcribe` endpoint for offline transcription or bridging to external provider.

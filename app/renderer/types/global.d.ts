@@ -17,6 +17,8 @@ declare global {
     runtimeConfig?: RuntimeConfig;
     layout?: LayoutBridge;
     __dev?: DevHarness;
+    __serviceHealthRetry?: () => Promise<void>;
+    __selectSceneForTest?: (sceneId?: string | null) => boolean;
   }
 }
 

@@ -1,0 +1,8 @@
+{
+  "project_id": "proj_draft_blocked",
+  "budget": {
+    "soft": 5.0,
+    "hard": 10.0,
+    "spent_usd": 9.75
+  }
+}

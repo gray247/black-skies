@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import json
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import pytest
 
 from blackskies.services.budgeting import (
     ProjectBudgetState,
+    edit_project_budget_state,
     load_project_budget_state,
     persist_project_budget as _persist_project_budget,
 )
@@ -155,3 +157,50 @@ def test_persist_project_budget_updates_spend(tmp_path: Path) -> None:
     assert payload["project_id"] == "proj"
 
     assert (project_root / "project.json").exists()
+
+
+def test_edit_project_budget_state_provides_locked_state(
+    project_root: Path, diagnostics: DiagnosticLogger
+) -> None:
+    _write_project_file(
+        project_root,
+        {
+            "project_id": project_root.name,
+            "budget": {"soft": 10, "hard": 20, "spent_usd": 5},
+        },
+    )
+
+    with edit_project_budget_state(project_root, diagnostics) as state:
+        assert state.spent_usd == pytest.approx(5)
+        _persist_project_budget(state, new_spent_usd=7.25)
+
+    payload = _read_project_payload(project_root)
+    assert payload["budget"]["spent_usd"] == pytest.approx(7.25)
+
+
+def test_edit_project_budget_state_serializes_concurrent_updates(
+    project_root: Path, diagnostics: DiagnosticLogger
+) -> None:
+    _write_project_file(
+        project_root,
+        {
+            "project_id": project_root.name,
+            "budget": {"soft": 10, "hard": 20, "spent_usd": 0},
+        },
+    )
+
+    def _apply_increment(delta: float) -> None:
+        with edit_project_budget_state(project_root, diagnostics) as state:
+            new_spent = state.spent_usd + delta
+            _persist_project_budget(state, new_spent_usd=new_spent)
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        futures = [
+            executor.submit(_apply_increment, 1.5),
+            executor.submit(_apply_increment, 2.25),
+        ]
+        for future in futures:
+            future.result()
+
+    payload = _read_project_payload(project_root)
+    assert payload["budget"]["spent_usd"] == pytest.approx(3.75)

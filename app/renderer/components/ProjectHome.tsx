@@ -1,4 +1,13 @@
-import { useCallback, useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type ChangeEvent,
+} from 'react';
 import type {
   LoadedProject,
   ProjectIssue,
@@ -37,6 +46,10 @@ export interface ProjectHomeProps {
   draftOverrides?: Record<string, string>;
   onActiveSceneChange?: (payload: ActiveScenePayload | null) => void;
   onDraftChange?: (sceneId: string, draft: string) => void;
+  relocationNotifyEnabled?: boolean;
+  autoSnapEnabled?: boolean;
+  onRelocationNotifyChange?: (value: boolean) => void;
+  onAutoSnapChange?: (value: boolean) => void;
 }
 
 interface RecentProjectEntry {
@@ -150,6 +163,10 @@ export default function ProjectHome({
   draftOverrides,
   onActiveSceneChange,
   onDraftChange,
+  relocationNotifyEnabled = true,
+  autoSnapEnabled = false,
+  onRelocationNotifyChange,
+  onAutoSnapChange,
 }: ProjectHomeProps): JSX.Element {
   const projectLoader: ProjectLoaderApi | undefined = window.projectLoader;
   const loaderAvailable = Boolean(projectLoader);
@@ -279,6 +296,20 @@ export default function ProjectHome({
   const handleClearDebugLog = useCallback(() => {
     clearDebugLog();
   }, []);
+
+  const handleRelocationNotifyToggle = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      onRelocationNotifyChange?.(event.target.checked);
+    },
+    [onRelocationNotifyChange],
+  );
+
+  const handleAutoSnapToggle = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      onAutoSnapChange?.(event.target.checked);
+    },
+    [onAutoSnapChange],
+  );
 
   const upsertRecent = useCallback((project: LoadedProject) => {
     setRecentProjects((previous) => {
@@ -740,7 +771,7 @@ export default function ProjectHome({
     <div className="project-home">
       <header className="project-home__header">
         <div>
-          <h2>Project home</h2>
+          <h2>Project Home</h2>
           <p>
             {loaderAvailable
               ? 'Browse a project folder to populate the dock and workspace.'
@@ -818,11 +849,54 @@ export default function ProjectHome({
         ) : null}
       </section>
 
+      <section className="project-home__relocation">
+        <div className="project-home__relocation-header">
+          <div>
+            <h3>Floating window behavior</h3>
+            <p className="project-home__diagnostics-hint">
+              Control how docked panes behave when their saved position is off-screen.
+            </p>
+          </div>
+        </div>
+        <div className="project-home__relocation-options">
+          <label className="project-home__toggle">
+            <input
+              type="checkbox"
+              className="project-home__toggle-input"
+              checked={relocationNotifyEnabled}
+              onChange={handleRelocationNotifyToggle}
+              disabled={!onRelocationNotifyChange}
+            />
+            <div>
+              <span>Show relocation toast</span>
+              <p className="project-home__toggle-caption">
+                Alert me when floating panes are moved back onto an active display.
+              </p>
+            </div>
+          </label>
+          <label className="project-home__toggle">
+            <input
+              type="checkbox"
+              className="project-home__toggle-input"
+              checked={autoSnapEnabled}
+              onChange={handleAutoSnapToggle}
+              disabled={!onAutoSnapChange}
+            />
+            <div>
+              <span>Auto-snap to preferred display</span>
+              <p className="project-home__toggle-caption">
+                After we recover a pane, try to reopen it at the last known position automatically.
+              </p>
+            </div>
+          </label>
+        </div>
+      </section>
+
       <div className="project-home__layout">
         <section className="project-home__main">
           <section className="project-home__recents">
             <div className="project-home__section-header">
-              <h3>Recent projects</h3>
+            <h3>Recent Projects</h3>
               <span className="project-home__count">{sortedRecents.length}</span>
             </div>
             {sortedRecents.length === 0 ? (
@@ -851,7 +925,7 @@ export default function ProjectHome({
           </section>
 
           <section className="project-home__details">
-            <h3>Project details</h3>
+            <h3>Project Details</h3>
             {activeProject ? (
               <div className="project-home__details-card">
                 <div className="project-home__details-header">
@@ -929,7 +1003,7 @@ export default function ProjectHome({
                 </>
               ) : (
                 <div className="project-home__draft-header-empty">
-                  <h3 className="project-home__draft-title">Draft preview</h3>
+                  <h3 className="project-home__draft-title">Draft Preview</h3>
                   <span className="project-home__draft-hint">
                     Choose a scene from the sidebar to load its Markdown draft.
                   </span>
@@ -966,7 +1040,7 @@ export default function ProjectHome({
 
         <aside className="project-home__sidebar">
           <div className="project-home__sidebar-header">
-            <h3>Scene metadata</h3>
+            <h3>Scene Metadata</h3>
             <span>{activeProject?.scenes.length ?? 0}</span>
           </div>
           {activeProject ? (

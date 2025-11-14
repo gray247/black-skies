@@ -9,8 +9,8 @@ Authoritative policies for platform support, privacy, budgets, models, limits, a
 ## Platform Support (LOCKED)
 - **Supported OS (1.0):** Windows 11 only.  
 - **Not supported (1.0):** macOS, Linux.  
-- **Packaging:** Electron → **NSIS installer** + optional **portable ZIP**.  
-- **Updates:** auto‑update **disabled** in 1.0 (manual installs only).  
+- **Packaging:** Electron → **NSIS installer** + optional **portable EXE** (see [docs/packaging.md](./packaging.md) for commands).  
+- **Updates:** auto-update **disabled** in 1.0 (manual installs only).  
 - **Telemetry:** **none**. Crash logs saved locally to `history/diagnostics/`.
 
 ---
@@ -21,6 +21,7 @@ Authoritative policies for platform support, privacy, budgets, models, limits, a
 - **Companion Mode:** Opens the user’s ChatGPT subscription in their **system browser**. The app copies selected text and context to the clipboard **only on explicit user action**; it never auto‑sends manuscript text.  
 - **No analytics/telemetry.** Only local diagnostics files are written on errors.  
 - **Redaction (optional):** Companion redaction toggle (off by default) can scrub names/emails from copied text before the browser opens.
+- **Model Router:** See `docs/model_backend.md` for how budgets, routing rules, and privacy checks are centralized before any service touches an external provider.
 
 ---
 
@@ -35,10 +36,10 @@ Authoritative policies for platform support, privacy, budgets, models, limits, a
 ---
 
 ## Budget Policy (LOCKED)
-- **Budgets are per‑project.**  
+- **Budgets are per-project.**  
 - **Soft cap:** **$5.00** — show Preflight with a warning; allow proceed.  
 - **Hard cap:** **$10.00** — return `BUDGET_EXCEEDED`; user may raise the cap explicitly.  
-- **Preflight estimate:** Every Generate/Critique run must compute a token/$ estimate **before** execution and surface it in the Preflight panel.  
+- **Preflight estimate:** Every Writing/Feedback run must compute a token/$ estimate **before** execution and surface it in the Preflight panel.  
 - **Accounting:** Responses include `{ budget: { estimated_usd } }`. Totals are tracked in **`project.json`** under `budget.spent_usd`.
 
 ---
@@ -80,6 +81,9 @@ Authoritative policies for platform support, privacy, budgets, models, limits, a
 - Initial diff render **< 500 ms** on the same dataset.  
 - Decorations and diff hunks must be virtualized to sustain targets.
 
+## Packaging & Distribution (LOCKED)
+- Installer guidance lives in `docs/packaging.md`; it captures platform targets, install locations, and first-run behaviors that complement this policy baseline.
+
 ---
 
 ## Plugins / BYO Endpoint (LOCKED)
@@ -89,9 +93,9 @@ Authoritative policies for platform support, privacy, budgets, models, limits, a
 ---
 
 ## Security & Licensing (LOCKED)
-- **Dependency licenses:** prefer MIT/BSD/Apache‑2.0. No copyleft dependencies in the shipping app.  
-- **Signing:** Dev‑signed builds during beta; production Authenticode optional post‑1.0.  
-- **Network policy:** No background network calls; all external requests originate from explicit user actions (API Mode or Companion).
+- **Dependency licenses:** prefer MIT/BSD/Apache-2.0. No copyleft dependencies in the shipping app. Capture sweep artefacts via [docs/security_sweep.md](./security_sweep.md).  
+- **Signing:** Dev-signed builds during beta; production Authenticode optional post-1.0.  
+- **Network policy:** No background network calls; all external requests originate from explicit user actions (API Mode, Story insights overlay, or Companion).
 
 ---
 

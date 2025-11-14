@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\service_errors.py
+# hypothesis_version: 6.138.2
+
+['BUDGET_EXCEEDED', 'CONFLICT', 'CRITIQUE_FAILURE', 'Conflict occurred.', 'FILESYSTEM_CONFLICT', 'FILESYSTEM_DENIED', 'FILESYSTEM_FULL', 'FILESYSTEM_NOT_FOUND', 'FILESYSTEM_READONLY', 'Filesystem full.', 'INTERNAL', 'IO_READ_FAILED', 'MODEL_ERROR', 'Operation timed out.', 'RATE_LIMIT', 'ROUTING_FAILURE', 'Rate limit exceeded.', 'TIMEOUT', 'UNEXPECTED_ERROR', 'VALIDATION', 'Validation failed.']

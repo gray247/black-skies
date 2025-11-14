@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime, timezone
 import logging
 from statistics import mean, median, pstdev
 from typing import Any, Iterable, Mapping, Sequence
@@ -15,6 +16,8 @@ from ..constants import (
 )
 
 logger = logging.getLogger(__name__)
+
+ANALYTICS_VERSION = "1.0"
 
 EmotionTag = str | None
 
@@ -87,12 +90,53 @@ class ConflictHeatmap:
 
 
 @dataclass(frozen=True)
+class SceneLengthBucket:
+    """Histogram bucket describing scene length distribution."""
+
+    label: str
+    lower_bound: int
+    upper_bound: int | None
+    scene_ids: list[str]
+
+
+@dataclass(frozen=True)
+class SceneLengthDistribution:
+    """Scene length distribution and outlier detection."""
+
+    buckets: list[SceneLengthBucket]
+    outliers: dict[str, list[str]]
+
+
+@dataclass(frozen=True)
+class RevisionEvent:
+    """Individual revision event derived from snapshot history."""
+
+    snapshot_id: str
+    type: str
+    timestamp: str
+
+
+@dataclass(frozen=True)
+class RevisionStreaks:
+    """Revision streak metadata for UI badges."""
+
+    current_streak: int
+    longest_streak: int
+    current_start: str | None
+    last_reset: str | None
+    events: list[RevisionEvent]
+
+
+@dataclass(frozen=True)
 class AnalyticsPayload:
     """Composite analytics payload consumed by the UI."""
 
+    analytics_version: str
     emotion_arc: list[EmotionArcPoint]
     pacing: PacingSummary
     conflict_heatmap: ConflictHeatmap
+    scene_length_distribution: SceneLengthDistribution
+    revision_streaks: RevisionStreaks
 
 
 def _as_dict(item: Any, key: str, default: Any = None) -> Any:
@@ -337,25 +381,170 @@ def compute_conflict_heatmap(
     return ConflictHeatmap(chapters=chapters_payload)
 
 
+DEFAULT_LENGTH_BUCKETS: Sequence[tuple[int, int | None]] = (
+    (0, 500),
+    (500, 1000),
+    (1000, 1500),
+    (1500, 2000),
+    (2000, None),
+)
+
+
+def compute_scene_length_distribution(
+    scene_metrics: Sequence[ScenePacingMetrics],
+    *,
+    buckets: Sequence[tuple[int, int | None]] = DEFAULT_LENGTH_BUCKETS,
+) -> SceneLengthDistribution:
+    """Create histogram buckets and outlier detection for scene lengths."""
+
+    distribution_buckets: list[SceneLengthBucket] = []
+    word_counts = [metric.word_count for metric in scene_metrics]
+
+    if not scene_metrics:
+        return SceneLengthDistribution(buckets=[], outliers={"above": [], "below": []})
+
+    def _bucket_label(lower: int, upper: int | None) -> str:
+        if upper is None:
+            return f"{lower}+"
+        return f"{lower}-{upper}"
+
+    bucket_containers: list[list[str]] = [[] for _ in buckets]
+    open_bucket: list[str] = []
+
+    for metric in scene_metrics:
+        placed = False
+        for index, (lower, upper) in enumerate(buckets):
+            if (metric.word_count >= lower) and (upper is None or metric.word_count < upper):
+                bucket_containers[index].append(metric.scene_id)
+                placed = True
+                break
+        if not placed:
+            open_bucket.append(metric.scene_id)
+
+    for (lower, upper), scene_ids in zip(buckets, bucket_containers):
+        distribution_buckets.append(
+            SceneLengthBucket(
+                label=_bucket_label(lower, upper),
+                lower_bound=lower,
+                upper_bound=upper,
+                scene_ids=sorted(scene_ids),
+            )
+        )
+
+    if open_bucket:
+        distribution_buckets.append(
+            SceneLengthBucket(
+                label=_bucket_label(buckets[-1][1] or buckets[-1][0], None),
+                lower_bound=buckets[-1][1] or buckets[-1][0],
+                upper_bound=None,
+                scene_ids=sorted(open_bucket),
+            )
+        )
+
+    if not word_counts:
+        return SceneLengthDistribution(buckets=distribution_buckets, outliers={"above": [], "below": []})
+
+    mean_value = float(mean(word_counts))
+    std_dev = float(pstdev(word_counts)) if len(word_counts) >= 2 else 0.0
+    high_threshold = mean_value + (2 * std_dev)
+    low_threshold = mean_value - (2 * std_dev)
+
+    above: list[str] = []
+    below: list[str] = []
+    for metric in scene_metrics:
+        if std_dev == 0.0:
+            break
+        if metric.word_count > high_threshold:
+            above.append(metric.scene_id)
+        elif metric.word_count < low_threshold:
+            below.append(metric.scene_id)
+
+    return SceneLengthDistribution(
+        buckets=distribution_buckets,
+        outliers={"above": sorted(above), "below": sorted(below)},
+    )
+
+
+def _parse_timestamp(value: str) -> datetime:
+    if not value:
+        return datetime.fromtimestamp(0, tz=timezone.utc)
+    normalized = value.replace("Z", "+00:00") if value.endswith("Z") else value
+    try:
+        return datetime.fromisoformat(normalized)
+    except ValueError:
+        logger.debug("Failed to parse timestamp %s", value)
+        return datetime.fromtimestamp(0, tz=timezone.utc)
+
+
+def compute_revision_streaks(events: Sequence[RevisionEvent]) -> RevisionStreaks:
+    """Compute streak metadata from a list of revision events."""
+
+    if not events:
+        return RevisionStreaks(
+            current_streak=0,
+            longest_streak=0,
+            current_start=None,
+            last_reset=None,
+            events=[],
+        )
+
+    sorted_events = sorted(events, key=lambda event: _parse_timestamp(event.timestamp))
+    current_streak = 0
+    longest_streak = 0
+    current_start: str | None = None
+    last_reset: str | None = None
+
+    for event in sorted_events:
+        if event.type == "accept":
+            if current_streak == 0:
+                current_start = event.timestamp
+            current_streak += 1
+            if current_streak > longest_streak:
+                longest_streak = current_streak
+        elif event.type == "feedback":
+            if current_streak > 0:
+                last_reset = event.timestamp
+            current_streak = 0
+            current_start = None
+
+    return RevisionStreaks(
+        current_streak=current_streak,
+        longest_streak=longest_streak,
+        current_start=current_start,
+        last_reset=last_reset,
+        events=list(sorted_events),
+    )
+
+
 def generate_analytics_payload(
     *,
     outline: Mapping[str, Any] | Any,
     draft_units: Sequence[Mapping[str, Any] | Any],
+    revision_events: Sequence[RevisionEvent] | None = None,
 ) -> AnalyticsPayload:
     """Return a composite analytics payload expected by the UI."""
 
     emotion_arc = compute_emotion_arc(outline, draft_units)
     pacing = compute_pacing_metrics(outline, draft_units)
     conflict_heatmap = compute_conflict_heatmap(outline, draft_units)
+    scene_length_distribution = compute_scene_length_distribution(pacing.scene_metrics)
+    revision_streaks = compute_revision_streaks(revision_events or [])
     return AnalyticsPayload(
+        analytics_version=ANALYTICS_VERSION,
         emotion_arc=emotion_arc,
         pacing=pacing,
         conflict_heatmap=conflict_heatmap,
+        scene_length_distribution=scene_length_distribution,
+        revision_streaks=revision_streaks,
     )
 
 
 __all__ = [
     "AnalyticsPayload",
+    "SceneLengthDistribution",
+    "SceneLengthBucket",
+    "RevisionEvent",
+    "RevisionStreaks",
     "ConflictChapter",
     "ConflictHeatmap",
     "ConflictScene",
@@ -364,6 +553,8 @@ __all__ = [
     "ScenePacingMetrics",
     "compute_conflict_heatmap",
     "compute_emotion_arc",
+    "compute_revision_streaks",
     "compute_pacing_metrics",
+    "compute_scene_length_distribution",
     "generate_analytics_payload",
 ]

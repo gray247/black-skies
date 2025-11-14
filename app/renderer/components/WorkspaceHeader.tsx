@@ -1,10 +1,15 @@
 import { useMemo } from 'react';
 import BudgetMeter, { type BudgetMeterProps } from './BudgetMeter';
+import BudgetIndicator, {
+  DEFAULT_BUDGET_INDICATOR_STATE,
+  type BudgetIndicatorState,
+} from './BudgetIndicator';
 import ServiceStatusPill from './ServiceStatusPill';
 import type { ServiceStatus } from './ServiceStatusPill';
 
 interface WorkspaceHeaderProps {
   projectLabel: string;
+  projectId: string | null;
   serviceStatus: ServiceStatus;
   onRetry: () => Promise<void>;
   onToggleCompanion: () => void;
@@ -15,10 +20,12 @@ interface WorkspaceHeaderProps {
   disableGenerate: boolean;
   disableCritique: boolean;
   budget?: BudgetMeterProps;
+  budgetIndicator?: BudgetIndicatorState | null;
 }
 
 export function WorkspaceHeader({
   projectLabel,
+  projectId,
   serviceStatus,
   onRetry,
   onToggleCompanion,
@@ -29,6 +36,7 @@ export function WorkspaceHeader({
   disableGenerate,
   disableCritique,
   budget,
+  budgetIndicator,
 }: WorkspaceHeaderProps): JSX.Element {
   const serviceStatusProps = useMemo(
     () => ({
@@ -48,11 +56,17 @@ export function WorkspaceHeader({
 
   return (
     <header className="app-shell__workspace-header">
-      <div>
+      <div className="app-shell__workspace-heading">
         <span className="app-shell__workspace-title">Your Story</span>
         <p className="app-shell__workspace-subtitle">{projectLabel}</p>
+        {projectId ? (
+          <p className="app-shell__workspace-meta">Project ID: {projectId}</p>
+        ) : null}
       </div>
       <div className="app-shell__workspace-actions">
+        <div className="workspace-header__budget-indicator" data-testid="budget-indicator">
+          <BudgetIndicator state={budgetIndicator ?? DEFAULT_BUDGET_INDICATOR_STATE} />
+        </div>
         {budget ? <BudgetMeter {...budget} /> : null}
         <ServiceStatusPill {...serviceStatusProps} />
         <button
@@ -60,6 +74,8 @@ export function WorkspaceHeader({
           className={companionButtonClassName}
           disabled={disableCompanion}
           aria-pressed={companionOpen}
+          aria-label="Toggle companion overlay"
+          data-testid="workspace-action-companion"
           onClick={onToggleCompanion}
         >
           Companion
@@ -68,6 +84,8 @@ export function WorkspaceHeader({
           type="button"
           className="app-shell__workspace-button"
           disabled={disableGenerate}
+          aria-label="Generate draft"
+          data-testid="workspace-action-generate"
           onClick={onGenerate}
         >
           Generate
@@ -76,6 +94,8 @@ export function WorkspaceHeader({
           type="button"
           className="app-shell__workspace-button"
           disabled={disableCritique}
+          aria-label="Run critique workflow"
+          data-testid="workspace-action-critique"
           onClick={onCritique}
         >
           Critique

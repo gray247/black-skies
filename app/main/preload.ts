@@ -1,5 +1,43 @@
 ﻿import { contextBridge, ipcRenderer } from 'electron';
 
+const safeExpose = (key: string, api: unknown) => {
+  try {
+    if ((process as any).contextIsolated) {
+      contextBridge.exposeInMainWorld(key, api);
+    } else {
+      console.warn(`[preload] contextIsolation=false; skipping expose ${key}`);
+    }
+  } catch (err) {
+    console.warn(`[preload] expose ${key} failed:`, err);
+  }
+};
+
+const isPlaywright = process.env.PLAYWRIGHT === '1';
+safeExpose('__testEnv', { isPlaywright });
+
+const devApi: {
+  setProjectDir: (absPath: string | null) => boolean;
+  overrideServices?: (overrides: Partial<ServicesBridge>) => void;
+} = {
+  setProjectDir: (absPath: string | null) =>
+    window.dispatchEvent(new CustomEvent('test:set-project', { detail: absPath })),
+};
+
+// --- test/insights bridges ---
+safeExpose('__test', {
+  markBoot: () => console.log('[boot] renderer mounted'),
+});
+
+safeExpose('__dev', devApi);
+
+safeExpose('__testInsights', {
+  setServiceStatus: (status: 'offline' | 'online') =>
+    window.dispatchEvent(new CustomEvent('test:service-status', { detail: status })),
+  selectScene: (id: string) =>
+    window.dispatchEvent(new CustomEvent('test:select-scene', { detail: id })),
+});
+// --- end bridges ---
+
 import {
   LOGGING_CHANNELS,
   type DiagnosticsLogPayload,
@@ -23,6 +61,7 @@ import {
   type FloatingPaneCloseRequest,
   type FloatingPaneDescriptor,
   type FloatingPaneOpenRequest,
+  type FloatingPaneOpenResult,
   type LayoutBridge,
   type LayoutLoadRequest,
   type LayoutLoadResponse,
@@ -51,6 +90,8 @@ import type {
   ServicesBridge,
   WizardLockSnapshotBridgeRequest,
   WizardLockSnapshotBridgeResponse,
+  AnalyticsBudgetBridgeRequest,
+  AnalyticsBudgetBridgeResponse,
 } from '../shared/ipc/services.js';
 
 type ConsoleMethod = 'log' | 'info' | 'warn' | 'error' | 'debug';
@@ -749,6 +790,13 @@ export const serviceApi = {
       'POST',
       serializeRecoveryRestoreRequest(request),
     ),
+  analyticsBudget: (request: AnalyticsBudgetBridgeRequest) => {
+    const params = new URLSearchParams({ project_id: request.projectId });
+    return makeServiceCall<AnalyticsBudgetBridgeResponse>(
+      `analytics/budget?${params.toString()}`,
+      'GET',
+    );
+  },
 };
 
 const projectLoaderApi: ProjectLoaderApi = {
@@ -811,6 +859,7 @@ const servicesBridge: ServicesBridge = {
   createSnapshot: serviceApi.createSnapshot,
   getRecoveryStatus: serviceApi.getRecoveryStatus,
   restoreSnapshot: serviceApi.restoreSnapshot,
+  analyticsBudget: serviceApi.analyticsBudget,
 };
 
 const layoutBridge: LayoutBridge = {
@@ -840,14 +889,16 @@ const layoutBridge: LayoutBridge = {
       console.warn('[preload] Failed to reset layout', error);
     }
   },
-  async openFloatingPane(request: FloatingPaneOpenRequest): Promise<boolean> {
+  async openFloatingPane(request: FloatingPaneOpenRequest): Promise<FloatingPaneOpenResult> {
     try {
       const result = await ipcRenderer.invoke(LAYOUT_CHANNELS.openFloating, request);
-      return Boolean(result);
+      if (result && typeof result === 'object') {
+        return result as FloatingPaneOpenResult;
+      }
     } catch (error) {
       console.warn('[preload] Failed to open floating pane', error);
-      return false;
     }
+    return { opened: false, clamp: null };
   },
   async closeFloatingPane(request: FloatingPaneCloseRequest): Promise<void> {
     try {
@@ -919,5 +970,5 @@ if (process.env.PLAYWRIGHT === '1') {
     }
   }
 
-  contextBridge.exposeInMainWorld('__dev', devTools);
+  devApi.overrideServices = devTools.overrideServices;
 }

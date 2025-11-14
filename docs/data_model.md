@@ -39,7 +39,7 @@ Canonical shapes for files written to a Black Skies **project folder**. This is 
 ---
 
 ## outline.json — OutlineSchema v1 (LOCKED)
-The canonical project index built by the Wizard and used by services.
+The canonical project index built by the Outline flow and used by services.
 
 **Required fields**
 - `schema_version` — literal string: `"OutlineSchema v1"`  
@@ -233,6 +233,63 @@ Stores the canonical `project_id` and budget ledger on disk so UI/API ↔ files 
 ```
 
 **Rules**
-- `project_id` is required and immutable once created.
+- `project_id` is required and immutable once created. It serves as the stable identifier for outlines, drafts, history, analytics, and exports.
 - Budget fields reflect current settings and running total; services update `spent_usd` after successful runs.
-- Endpoints that accept `project_id` must match this file.
+- Endpoints that accept `project_id` must match this file; the UI reads it from the active project context so users do not manually re-enter it for each action.
+
+---
+
+## History Objects
+Snapshots follow the schema in `docs/phase10_recovery_pipeline.md` and appear under `/history/SS_YYYYmmdd_HHMMSS.json`.
+```
+{
+  "id": "ss_2025-11-12_213045",
+  "version": 1,
+  "created_at": "2025-11-12T21:30:45Z",
+  "reason": "accept_edits|chapter_save|export|shutdown",
+  "outline_ref": "outline.json#sha256:…",
+  "draft_refs": [{"unit_id":"sc_0007","sha256":"…"}],
+  "diff_summary": {"added":12,"removed":8,"changed":4},
+  "note": "auto"
+}
+```
+Each `draft_refs` entry includes a SHA-256 checksum that the restore path verifies.
+
+## Journal file
+`/history/_journal.json`
+```
+{ "open_units":["sc_0003"], "caret":{"sc_0003":128}, "layout":"dock:W|D|C|H" }
+```
+The journal records which units are open, caret offsets, and pane layout to streamline crash restoration.
+
+---
+
+## Heuristics Overrides (`.blackskies/heuristics.yaml`)
+Per-project heuristics (POVs, goals, conflicts, pacing) live in `.blackskies/heuristics.yaml`. The defaults are defined by `services/src/blackskies/services/heuristics.py`, but each project can override the lists and thresholds without touching service code.
+
+**Keys**
+- `povs`: list of allowed point-of-view strings.
+- `goals`: scene goals (e.g., `introduce character`, `raise stakes`, `payoff`, `breather`).
+- `conflicts`: list of strings or objects (`description`, `type`). Types can be `internal`, `interpersonal`, `environmental`, `cosmic`, etc.
+- `word_target`: `{ "base": 950, "per_order": 40 }` to influence pacing.
+- `pacing_thresholds`: `[slow_threshold, fast_threshold]` ratios for pacing classification.
+- `turns`, `purposes`, `emotions`: optional lists that override playlists used by the synthesizer.
+
+**Example**
+```yaml
+povs:
+  - "Mara Ibarra"
+  - "Ezra Cole"
+goals:
+  - "stabilize the perimeter sensors"
+  - "keep the generator coil alive"
+conflicts:
+  - description: "humidity chews through every circuit"
+    type: "environmental"
+word_target:
+  base: 900
+  per_order: 20
+pacing_thresholds: [1.1, 0.9]
+```
+
+The synthesizer loads this file via `load_project_heuristics()` before generating drafts so the returned units include `pov`, `goal`, `conflict`, `conflict_type`, and `pacing_target` metadata. Critique scoring then uses those metadata fields for the heuristic metrics returned to the renderer.

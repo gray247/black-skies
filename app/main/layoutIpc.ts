@@ -4,9 +4,11 @@ import { dirname, join, resolve } from 'node:path';
 
 import {
   LAYOUT_CHANNELS,
+  type FloatingPaneClampInfo,
   type FloatingPaneCloseRequest,
   type FloatingPaneDescriptor,
   type FloatingPaneOpenRequest,
+  type FloatingPaneOpenResult,
   type LayoutLoadRequest,
   type LayoutLoadResponse,
   type LayoutPaneId,
@@ -251,11 +253,19 @@ function makeFloatingWindowUrl(
   options: RegisterLayoutIpcOptions,
   paneId: LayoutPaneId,
   projectPath: string,
+  extraSearchParams?: Record<string, string | undefined>,
 ): string | { file: string; search: string } {
   const searchParams = new URLSearchParams({
     floatingPane: paneId,
     projectPath,
   });
+  if (extraSearchParams) {
+    Object.entries(extraSearchParams).forEach(([key, value]) => {
+      if (typeof value === 'string' && value.length > 0) {
+        searchParams.set(key, value);
+      }
+    });
+  }
   if (options.devServerUrl) {
     const base = options.devServerUrl.endsWith('/')
       ? options.devServerUrl.slice(0, -1)
@@ -268,10 +278,42 @@ function makeFloatingWindowUrl(
   };
 }
 
+function buildClampNotice(
+  requestedBounds: FloatingPaneDescriptor['bounds'] | undefined,
+  appliedBounds: Electron.Rectangle | undefined,
+  requestedDisplayId: number | undefined,
+): FloatingPaneClampInfo | null {
+  if (!requestedBounds || !appliedBounds) {
+    return null;
+  }
+  const { x, y, width, height } = requestedBounds;
+  if (
+    x === appliedBounds.x &&
+    y === appliedBounds.y &&
+    width === appliedBounds.width &&
+    height === appliedBounds.height
+  ) {
+    return null;
+  }
+  const appliedDisplay = screen.getDisplayMatching(appliedBounds);
+  return {
+    reason: 'off-screen-clamp',
+    before: requestedBounds,
+    after: {
+      x: appliedBounds.x,
+      y: appliedBounds.y,
+      width: appliedBounds.width,
+      height: appliedBounds.height,
+    },
+    requestedDisplayId,
+    appliedDisplayId: appliedDisplay?.id,
+  };
+}
+
 async function openFloatingWindow(
   options: RegisterLayoutIpcOptions,
   request: FloatingPaneOpenRequest,
-): Promise<boolean> {
+): Promise<FloatingPaneOpenResult> {
   const resolvedProjectPath = getAuthorizedProjectPath(request.projectPath);
   if (!resolvedProjectPath) {
     throw new Error('Project path not authorized for floating window.');
@@ -280,11 +322,11 @@ async function openFloatingWindow(
   const existing = registry.get(request.paneId);
   if (existing && !existing.isDestroyed()) {
     existing.focus();
-    return false;
+    return { opened: false, clamp: null };
   }
 
-  const sandboxEnabled = app.isPackaged && process.platform !== 'win32';
   const safeBounds = clampBoundsToDisplay(request.bounds, request.displayId);
+  const clampInfo = buildClampNotice(request.bounds, safeBounds, request.displayId);
   const parent = options.getMainWindow() ?? undefined;
   const window = new BrowserWindow({
     width: safeBounds?.width ?? request.bounds?.width ?? 640,
@@ -299,8 +341,9 @@ async function openFloatingWindow(
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
-      sandbox: sandboxEnabled,
       preload: options.preloadPath,
+      sandbox: false,
+      additionalArguments: [],
     },
   });
 
@@ -334,7 +377,12 @@ async function openFloatingWindow(
     registry.delete(request.paneId);
   });
 
-  const target = makeFloatingWindowUrl(options, request.paneId, request.projectPath);
+  const target = makeFloatingWindowUrl(
+    options,
+    request.paneId,
+    request.projectPath,
+    clampInfo ? { relocated: '1' } : undefined,
+  );
   if (typeof target === 'string') {
     await window.loadURL(target);
   } else {
@@ -342,7 +390,7 @@ async function openFloatingWindow(
   }
 
   registry.set(request.paneId, window);
-  return true;
+  return { opened: true, clamp: clampInfo };
 }
 
 async function closeFloatingWindow(request: FloatingPaneCloseRequest): Promise<void> {

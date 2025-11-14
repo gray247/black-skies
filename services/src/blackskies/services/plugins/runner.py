@@ -10,10 +10,14 @@ import traceback
 from pathlib import Path
 from typing import Any, Dict, TextIO
 
-try:
-    import resource  # type: ignore[attr-defined]
+from typing import Any, Dict, TextIO, cast
+
+try:  # pragma: no branch - platform-dependent import
+    import resource as _resource  # type: ignore[import-not-found]
 except ModuleNotFoundError:  # pragma: no cover - Windows fallback
-    resource = None  # type: ignore[assignment]
+    _resource_module: Any | None = None
+else:
+    _resource_module = cast(Any, _resource)
 
 DEFAULT_CPU_SECONDS = 10
 DEFAULT_MEMORY_BYTES = 512 * 1024 * 1024  # 512 MB
@@ -26,11 +30,11 @@ def _configure_resource_limits(
     memory_bytes: int,
     fd_limit: int,
 ) -> None:
-    if resource is None:
+    if _resource_module is None:
         return
-    resource.setrlimit(resource.RLIMIT_CPU, (cpu_seconds, cpu_seconds + 1))
-    resource.setrlimit(resource.RLIMIT_AS, (memory_bytes, memory_bytes))
-    resource.setrlimit(resource.RLIMIT_NOFILE, (fd_limit, fd_limit))
+    _resource_module.setrlimit(_resource_module.RLIMIT_CPU, (cpu_seconds, cpu_seconds + 1))
+    _resource_module.setrlimit(_resource_module.RLIMIT_AS, (memory_bytes, memory_bytes))
+    _resource_module.setrlimit(_resource_module.RLIMIT_NOFILE, (fd_limit, fd_limit))
 
 
 def _load_plugin_descriptor(path: Path) -> Dict[str, Any]:
