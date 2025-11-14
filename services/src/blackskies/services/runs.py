@@ -53,6 +53,7 @@ def start_run(kind: str, params: Dict[str, Any], *, project_root: Path | None = 
 
     run_id = f"{kind}-{uuid4().hex[:8]}"
     created_at = _timestamp()
+    run_dir = _ensure_directory(_run_dir(run_id, project_root))
     metadata: Dict[str, Any] = {
         "run_id": run_id,
         "kind": kind,
@@ -63,7 +64,7 @@ def start_run(kind: str, params: Dict[str, Any], *, project_root: Path | None = 
         "events": [],
         "run_root": str(run_dir),
     }
-    ledger_path = _ledger_path(run_id, project_root)
+    ledger_path = run_dir / "run.json"
     atomic_write_json(ledger_path, metadata)
     return metadata
 
