@@ -6,6 +6,11 @@ from pathlib import Path
 
 import pytest
 
+
+@pytest.fixture(autouse=True)
+def _enable_plugins(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("BLACKSKIES_ENABLE_PLUGINS", "1")
+
 from blackskies.services.plugins import PluginExecutionError, PluginRegistry
 
 

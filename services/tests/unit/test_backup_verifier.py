@@ -9,6 +9,11 @@ from typing import Iterable
 
 import pytest
 
+
+@pytest.fixture(autouse=True)
+def _enable_voice_notes(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("BLACKSKIES_ENABLE_VOICE_NOTES", "1")
+
 from blackskies.services.backup_verifier import BackupVerificationDaemon
 from blackskies.services.config import ServiceSettings
 from blackskies.services.diagnostics import DiagnosticLogger
@@ -131,6 +136,7 @@ async def test_backup_verifier_success_updates_state(tmp_path: Path) -> None:
 
     state_path = daemon.state_path
     assert state_path.exists()
+    assert "service_state" in str(state_path)
     persisted = json.loads(state_path.read_text(encoding="utf-8"))
     assert persisted["status"] == "ok"
     assert persisted["checked_snapshots"] == 1

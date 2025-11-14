@@ -114,6 +114,7 @@ async def generate_draft(
             details={"project_id": request_model.project_id},
             diagnostics=diagnostics,
             project_root=project_root,
+            cause=exc,
         )
     return result.response
 

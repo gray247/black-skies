@@ -209,6 +209,9 @@ notes: >
 - **revisions/agents/** — outputs from contained agents (Phase 2).  
 - **history/snapshots/** — timestamped snapshots created on **Accept/Lock**; used for restore.  
 - **history/diagnostics/** — local crash logs.
+- **history/cache/** — per-project AI/cache artifacts such as prompt/response digests maintained by the services cache helpers.
+- **history/runs/** — structured run ledgers created by `services.runs` (one folder per run); run metadata, events, and SLO scrub logs live here.
+- **history/backup_verifier/** — per-project backup verification checkpoint files (`backup_verifier.json`) and diagnostics summaries emitted by the verifier.
 
 ---
 

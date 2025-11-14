@@ -39,10 +39,12 @@ class DraftExportService:
         settings: ServiceSettings,
         diagnostics: DiagnosticLogger,
         analytics_resilience: ServiceResilienceExecutor | None = None,
+        analytics_enabled: bool = False,
     ) -> None:
         self._settings = settings
         self._diagnostics = diagnostics
         self._analytics_resilience = analytics_resilience
+        self._analytics_enabled = analytics_enabled
 
     async def export(self, *, project_id: str, include_meta_header: bool) -> DraftExportResult:
         project_root = self._settings.project_base_dir / project_id
@@ -74,15 +76,18 @@ class DraftExportService:
             unit_collector=collect_unit,
         )
 
-        analytics_path = project_root / "analytics_report.json"
-        analytics_payload = await self._run_analytics(outline, draft_units)
-        await asyncio.to_thread(
-            self._write_json,
-            analytics_path,
-            analytics_payload,
-            project_root,
-            "analytics_report.json",
-        )
+        artifacts: dict[str, str] = {}
+        if self._analytics_enabled and self._analytics_resilience is not None:
+            analytics_path = project_root / "analytics_report.json"
+            analytics_payload = await self._run_analytics(outline, draft_units)
+            await asyncio.to_thread(
+                self._write_json,
+                analytics_path,
+                analytics_payload,
+                project_root,
+                "analytics_report.json",
+            )
+            artifacts["analytics_report"] = self._relative_path(analytics_path, project_root)
 
         critique_bundle_path = await asyncio.to_thread(
             self._write_critique_bundle,
@@ -100,11 +105,8 @@ class DraftExportService:
             "draft_full.md",
         )
 
+        artifacts["critique_bundle"] = self._relative_path(critique_bundle_path, project_root)
         export_path = self._relative_path(draft_path, project_root)
-        artifacts = {
-            "analytics_report": self._relative_path(analytics_path, project_root),
-            "critique_bundle": self._relative_path(critique_bundle_path, project_root),
-        }
 
         payload = {
             "project_id": project_id,

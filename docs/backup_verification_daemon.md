@@ -23,13 +23,14 @@ Guarantee that project snapshots and history archives remain readable. The daemo
 > The daemon is implemented behind a feature flag (`backup_verifier_enabled`) but **disabled in all builds**. Health endpoints return static `warning` status until Phase 11 ships.
 - `services/src/blackskies/services/backup_verifier.py` contains the hashing/manifest logic described below, but the scheduler is not started unless the flag is flipped.
 - Voice note coverage and dashboard hooks remain aspirational; treat the sections below as a plan rather than shipping behavior.
+- Voice note validation only runs when `BLACKSKIES_ENABLE_VOICE_NOTES=1`; the default Phase 8 surface skips any audio/transcript inspection even if assets exist in `history/voice_notes/`.
 
 ## Configuration & Runtime Notes
 - Settings live in `ServiceSettings`:
   - `backup_verifier_enabled` (default: `false`) toggles the scheduler.
   - `backup_verifier_interval_seconds` controls the base cadence (default: 30 minutes).
   - `backup_verifier_backoff_max_seconds` caps the exponential back-off while idle.
-- State file location: `<project_base_dir>/_runtime/backup_verifier_state.json`. This file is rehydrated on service boot to retain checksum history.
+- State file location: `<project_base_dir>/service_state/backup_verifier/backup_verifier_state.json`. This aggregated service file is rehydrated on boot so the daemon can remember past checksum summaries without touching `_runtime`.
 - Operational hooks:
   - `/api/v1/healthz` provides the quick status for dashboards.
   - Structured diagnostics accumulate under `<project>/history/diagnostics/` with `BACKUP_VERIFIER_OK|ERROR` codes.

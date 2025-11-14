@@ -17,10 +17,13 @@ Authoritative policies for platform support, privacy, budgets, models, limits, a
 
 ## Privacy & Data Handling (LOCKED)
 - **Local‑first:** All content (outline, scenes, lore, reports) is stored in the **project folder** on disk.  
+- **Project metadata:** Cache files, run ledgers, and backup verifier checkpoints live under each project’s `history/` tree; `_runtime/` only holds global service resilience state and never contains project identifiers or user text.
 - **API Mode (optional):** External calls only occur when the user supplies their own API key. No keys are stored in cloud services.  
 - **Companion Mode:** Opens the user’s ChatGPT subscription in their **system browser**. The app copies selected text and context to the clipboard **only on explicit user action**; it never auto‑sends manuscript text.  
 - **No analytics/telemetry.** Only local diagnostics files are written on errors.  
+- **Analytics services deferred:** The analytics router and its derived dashboards remain disabled in Phase 8; enabling them requires explicit Phase 9 feature flags and never ships data outside the local machine.
 - **Redaction (optional):** Companion redaction toggle (off by default) can scrub names/emails from copied text before the browser opens.
+- **Voice notes & transcription:** The dictation and voice-note workflow remains deferred; Phase 8 services never accept or process audio/transcripts unless `BLACKSKIES_ENABLE_VOICE_NOTES=1` is explicitly supplied in non-production builds.
 - **Model Router:** See `docs/model_backend.md` for how budgets, routing rules, and privacy checks are centralized before any service touches an external provider.
 
 ---
@@ -89,6 +92,7 @@ Authoritative policies for platform support, privacy, budgets, models, limits, a
 ## Plugins / BYO Endpoint (LOCKED)
 - **BYO endpoint switch:** Present in Settings; **off by default**. Shows provider/model next to Preflight when enabled.  
 - **Plugins v1 (read‑only):** Plugins may read a **snapshot** of project data and emit a **report** to `revisions/agents/`. They cannot modify files directly; all apply happens via the core UI.
+- **Plugin execution (disabled):** Plugin/agent execution is gated by `BLACKSKIES_ENABLE_PLUGINS` and is disabled in Phase 8 builds. The sandbox runner will reject requests unless that guard is explicitly enabled for future phases 11+.
 
 ---
 

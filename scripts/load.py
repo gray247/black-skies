@@ -584,6 +584,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             "total_cycles": profile.total_cycles,
             "concurrency": profile.concurrency,
         },
+        project_root=project_root,
     )
     run_id = run_metadata["run_id"]
 
@@ -594,17 +595,23 @@ def main(argv: Sequence[str] | None = None) -> int:
             asyncio.run(run_profile(profile, args, metrics))
         except Exception as exc:  # pragma: no cover - CLI surface
             LOGGER.error("Load execution failed: %s", exc)
-            runs.finalize_run(run_id, status="failed", result={"error": str(exc)})
+            runs.finalize_run(
+                run_id,
+                status="failed",
+                result={"error": str(exc)},
+                project_root=project_root,
+            )
             return 1
 
     breaches = evaluate_thresholds(metrics, profile.thresholds)
-    result_payload = build_result_payload(metrics, profile.thresholds, breaches)
+        result_payload = build_result_payload(metrics, profile.thresholds, breaches)
     runs.finalize_run(
         run_id,
         status="failed" if breaches else "completed",
         result=result_payload,
+        project_root=project_root,
     )
-    ledger_path = runs.get_runs_root() / run_id / "run.json"
+    ledger_path = runs.get_runs_root(project_root) / run_id / "run.json"
 
     if args.slo_report:
         slo_path = args.slo_report.resolve()

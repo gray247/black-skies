@@ -4,6 +4,8 @@
 - Quantify pacing, emotional flow, rubric coverage, and character relationships so every analytics surface (Story insights, Project Health, the Visuals Layer) reuses the same backend truth.
 - Provide a documented contract so renderer prefabs can render timelines, heatmaps, and graphs without reverse-engineering service internals.
 
+> **Phase 8 status:** The analytics service is documented here for Phase 9 planning, but the service and its endpoints are disabled in Phase 8 builds.
+
 ## Bookend 2 – Visuals Layer
 The Visuals Layer preset (left: Visuals, center: Draft Board, right: Critique + History) renders the Emotion & Pacing Timeline, Critique Trendline, Relationship Graph, and Coverage Heatmap. Each visualization reads from this service and the cached analytics files the service writes (`analytics/scene_metrics.json`, `analytics/critique_scores.json`, `analytics/graph.json`).
 
@@ -64,3 +66,4 @@ The Visuals Layer preset (left: Visuals, center: Draft Board, right: Critique + 
 
 ## Phase Alignment
 - Analytics spec sits ready so Bookend 2 (Visuals Layer, heatmaps) can consume consistent data once Phase 11 exports and automation land.
+- Phase 8 does not ship these endpoints; see `docs/endpoints.md` for the deferred checklist and gating details.

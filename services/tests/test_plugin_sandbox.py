@@ -3,13 +3,17 @@ from __future__ import annotations
 from pathlib import Path
 
 import json
-import os
 import sys
 from textwrap import dedent
 
 import pytest
 
 from blackskies.services.plugins import PluginExecutionError, PluginRegistry
+
+
+@pytest.fixture(autouse=True)
+def _enable_plugins(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("BLACKSKIES_ENABLE_PLUGINS", "1")
 
 
 def _create_plugin_source(tmp_path: Path, code: str, module_name: str) -> Path:

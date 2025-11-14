@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Iterable, List
 
+from ..feature_flags import plugins_enabled
 from .host import PluginExecutionError, launch_plugin
 
 
@@ -113,6 +114,9 @@ class PluginRegistry:
 
     def execute(self, plugin_id: str, request: Dict[str, Any]) -> Dict[str, Any]:
         """Execute a plugin inside the sandbox runner and return its response."""
+
+        if not plugins_enabled():
+            raise PluginExecutionError("Plugin execution is disabled in Phase 8.")
 
         record = self._get_plugin(plugin_id)
         if not record.enabled:

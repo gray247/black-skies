@@ -160,6 +160,7 @@ async def accept_draft(
             details={"unit_id": request_model.unit_id, "error": str(exc)},
             diagnostics=diagnostics,
             project_root=project_root,
+            cause=exc,
         )
 
     return acceptance.response

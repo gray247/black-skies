@@ -473,6 +473,7 @@ async def critique_draft(
                 details={"error": str(exc), "unit_id": request_model.unit_id},
                 diagnostics=diagnostics,
                 project_root=project_root,
+                cause=exc,
             )
 
     if budget_payload is not None:

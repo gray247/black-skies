@@ -27,11 +27,13 @@ def checklist_file(tmp_path: Path) -> Path:
 
 @pytest.fixture
 def run_factory(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
-    runs_root = tmp_path / "runs"
+    project_root = tmp_path / "proj"
+    project_root.mkdir()
+    runs_root = project_root / "history" / "runs"
     monkeypatch.setattr(runs, "RUNS_ROOT", runs_root, raising=False)
 
     def _start(kind: str = "test", params: dict | None = None):
-        return runs.start_run(kind, params or {})
+        return runs.start_run(kind, params or {}, project_root=project_root)
 
     return _start
 

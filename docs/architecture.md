@@ -12,6 +12,7 @@ Phase 11 analytics pipelines and Companion agents are defined in detail in [Agen
 ## Deferred / Flagged Features
 - **Voice Input Handler (Deferred):** The dictation & voice-note workflow described in [Voice Notes plan](./voice_notes_transcription.md) remains on the roadmap but no recorder/transcription endpoints ship in v1.1.
 - **Backup Verifier Daemon (Flagged Off):** The daemon exists behind `backup_verifier_enabled`, but it is disabled in all builds and the UX mentioned in [Backup Verification Daemon plan](./backup_verification_daemon.md) is not surfaced. Health responses continue to report static `"warning"` status until the verifier ships.
+- **Plugin Runner (Deferred):** Plugin/agent execution sits behind the `BLACKSKIES_ENABLE_PLUGINS` guard and remains disabled for Phase 8; no plugin process is invoked in the production surface described here.
 
 ---
 

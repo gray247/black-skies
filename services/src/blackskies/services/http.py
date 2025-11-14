@@ -155,6 +155,7 @@ def raise_service_error(
     details: dict[str, Any],
     diagnostics: DiagnosticLogger,
     project_root: Path | None,
+    cause: BaseException | None = None,
 ) -> NoReturn:
     """Raise a structured ``ServiceError`` and log diagnostics."""
 
@@ -164,13 +165,16 @@ def raise_service_error(
     final_status = status_code or definition.status_code
     if project_root is not None:
         diagnostics.log(project_root, code=code, message=payload_message, details=safe_details)
-    raise ServiceError(
+    service_error = ServiceError(
         code=code,
         status_code=final_status,
         message=payload_message,
         details=safe_details,
         project_root=project_root,
     )
+    if cause is not None:
+        raise service_error from cause
+    raise service_error
 
 
 def raise_conflict_error(

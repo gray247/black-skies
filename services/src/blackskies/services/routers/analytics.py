@@ -5,11 +5,12 @@ from __future__ import annotations
 import asyncio
 from typing import Any
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from ..analytics.service import AnalyticsSummaryService
 from ..config import ServiceSettings
 from ..diagnostics import DiagnosticLogger
+from ..feature_flags import analytics_enabled
 from ..http import raise_service_error, raise_validation_error
 from ..operations.budget_service import BudgetService
 from ..resilience import CircuitOpenError, ServiceResilienceExecutor
@@ -20,7 +21,22 @@ from .dependencies import (
     get_settings,
 )
 
-router = APIRouter(prefix="/analytics", tags=["analytics"])
+
+def _require_analytics_enabled() -> None:
+    """Raise 404 when analytics are not enabled."""
+
+    if not analytics_enabled():
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Analytics endpoints are deferred to Phase 9.",
+        )
+
+
+router = APIRouter(
+    prefix="/analytics",
+    tags=["analytics"],
+    dependencies=[Depends(_require_analytics_enabled)],
+)
 
 
 @router.get("/summary")
@@ -78,6 +94,7 @@ async def get_analytics_summary(
             details={"error": str(exc)},
             diagnostics=diagnostics,
             project_root=settings.project_base_dir / project_id,
+            cause=exc,
         )
 
 
@@ -102,6 +119,7 @@ async def get_analytics_budget(
             details={"error": str(exc)},
             diagnostics=diagnostics,
             project_root=project_root,
+            cause=exc,
         )
 
     spent = state.spent_usd

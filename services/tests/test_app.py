@@ -9,6 +9,7 @@ import json
 import threading
 import time
 from contextlib import contextmanager
+import os
 from pathlib import Path
 from typing import Any
 from uuid import UUID
@@ -28,7 +29,7 @@ except ModuleNotFoundError as exc:  # pragma: no cover - environment dependent
     pytest.skip(f"yaml is required for service tests: {exc}", allow_module_level=True)
 
 from blackskies.services.analytics.service import AnalyticsSummaryService
-from blackskies.services.app import SERVICE_VERSION, BuildTracker
+from blackskies.services.app import SERVICE_VERSION, BuildTracker, create_app
 from blackskies.services.config import ServiceSettings
 from blackskies.services.diagnostics import DiagnosticLogger
 from blackskies.services.persistence import DraftPersistence, SnapshotPersistence
@@ -287,8 +288,10 @@ def _compute_sha256(content: str) -> str:
     return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
 
 
-def test_health(test_client: TestClient) -> None:
+def test_health(test_client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
     """The versioned health endpoint returns the expected payload."""
+
+    monkeypatch.setenv("BLACKSKIES_ENABLE_VOICE_NOTES", "1")
 
     response = test_client.get(f"{API_PREFIX}/healthz")
     assert response.status_code == 200
@@ -338,6 +341,51 @@ def test_analytics_summary_handles_internal_error(
     assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
     detail = _read_error(response)
     assert detail["code"] == "INTERNAL"
+
+
+def test_analytics_routes_are_hidden_when_disabled(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Analytics endpoints respond 404 when the feature is not enabled."""
+
+    monkeypatch.delenv("BLACKSKIES_ENABLE_ANALYTICS", raising=False)
+    monkeypatch.setenv("BLACKSKIES_PROJECT_BASE_DIR", str(tmp_path))
+    app = create_app()
+    with TestClient(app) as client:
+        summary_response = client.get(
+            f"{API_PREFIX}/analytics/summary",
+            params={"project_id": "proj_analytics_disabled"},
+        )
+        assert summary_response.status_code == status.HTTP_404_NOT_FOUND
+
+        budget_response = client.get(
+            f"{API_PREFIX}/analytics/budget",
+            params={"project_id": "proj_analytics_disabled"},
+        )
+        assert budget_response.status_code == status.HTTP_404_NOT_FOUND
+
+
+def test_export_omits_analytics_when_disabled(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Export defaults no longer include analytics_report without the feature flag."""
+
+    project_id = "proj_export_no_analytics"
+    scene_ids = _bootstrap_outline(tmp_path, project_id, scene_count=1)
+    _bootstrap_scene(tmp_path, project_id, scene_id=scene_ids[0], body="Scene text.")
+
+    monkeypatch.delenv("BLACKSKIES_ENABLE_ANALYTICS", raising=False)
+    monkeypatch.setenv("BLACKSKIES_PROJECT_BASE_DIR", str(tmp_path))
+    app = create_app()
+    with TestClient(app) as client:
+        response = client.post(
+            f"{API_PREFIX}/draft/export",
+            json={"project_id": project_id},
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert "analytics_report" not in data["artifacts"]
+
+    analytics_path = tmp_path / project_id / "analytics_report.json"
+    assert not analytics_path.exists()
 
 
 def test_analytics_budget_tracks_spend_and_hints(

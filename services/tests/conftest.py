@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+import os
 import sys
 from collections.abc import AsyncIterator, Iterator
 from pathlib import Path
 
 import pytest
+
+os.environ.setdefault("BLACKSKIES_ENABLE_ANALYTICS", "1")
 
 try:
     import httpx

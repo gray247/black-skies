@@ -19,6 +19,8 @@ except ModuleNotFoundError:  # pragma: no cover - optional dependency
 
 from .config import ServiceSettings
 from .diagnostics import DiagnosticLogger
+from .io import atomic_write_json, read_json
+from .feature_flags import voice_notes_enabled
 
 LOGGER = logging.getLogger(__name__)
 
@@ -276,7 +278,7 @@ class BackupVerificationDaemon:
     ) -> None:
         self._settings = settings
         self._diagnostics = diagnostics
-        self._state_dir = state_dir or (settings.project_base_dir / "_runtime")
+        self._state_dir = state_dir or (settings.project_base_dir / "service_state" / "backup_verifier")
         self._state_dir.mkdir(parents=True, exist_ok=True)
         self._state_path = self._state_dir / "backup_verifier_state.json"
         self._state = BackupVerifierState(
@@ -408,8 +410,8 @@ class BackupVerificationDaemon:
         if not self._state_path.exists():
             return
         try:
-            payload = json.loads(self._state_path.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError) as exc:
+            payload = read_json(self._state_path)
+        except (OSError, json.JSONDecodeError) as exc:  # pragma: no branch - guard
             LOGGER.warning("Failed to load backup verifier state: %s", exc)
             return
 
@@ -454,8 +456,7 @@ class BackupVerificationDaemon:
 
             payload = self._state.as_dict()
             self._state_dir.mkdir(parents=True, exist_ok=True)
-            with self._state_path.open("w", encoding="utf-8") as handle:
-                json.dump(payload, handle, indent=2, ensure_ascii=False)
+            atomic_write_json(self._state_path, payload)
 
         # Update checksum cache outside of the lock to avoid holding it unnecessarily.
         for project in report.projects:
@@ -813,6 +814,9 @@ class BackupVerificationDaemon:
         project_root: Path,
     ) -> tuple[int, list[BackupIssue]]:
         """Validate voice note audio and transcript pairs."""
+
+        if not voice_notes_enabled():
+            return 0, []
 
         voice_notes_dir = project_root / "history" / "voice_notes"
         if not voice_notes_dir.exists():

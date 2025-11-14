@@ -9,6 +9,7 @@ from fastapi import Request
 from ..config import ServiceSettings
 from ..critique import CritiqueService
 from ..diagnostics import DiagnosticLogger
+from ..feature_flags import analytics_enabled
 from ..operations.recovery import RecoveryService
 from ..persistence import SnapshotPersistence
 from ..resilience import ServiceResilienceExecutor, ServiceResilienceRegistry
@@ -28,6 +29,7 @@ __all__ = [
     "get_resilience_registry",
     "get_analytics_resilience",
     "get_critique_resilience",
+    "get_optional_analytics_resilience",
 ]
 
 
@@ -90,3 +92,11 @@ def get_critique_resilience(request: Request) -> ServiceResilienceExecutor:
     """Return the critique resilience executor."""
 
     return cast(ServiceResilienceExecutor, get_resilience_registry(request).critique)
+
+
+def get_optional_analytics_resilience(request: Request) -> ServiceResilienceExecutor | None:
+    """Return the analytics resiliency executor when analytics are enabled."""
+
+    if not analytics_enabled():
+        return None
+    return get_analytics_resilience(request)

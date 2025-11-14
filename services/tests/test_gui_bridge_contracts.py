@@ -41,8 +41,12 @@ def anyio_backend() -> str:
     return "asyncio"
 
 
-async def test_health_endpoint_contract(async_client: httpx.AsyncClient) -> None:
+async def test_health_endpoint_contract(
+    async_client: httpx.AsyncClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
     """The health probe returns the expected payload and trace headers."""
+
+    monkeypatch.setenv("BLACKSKIES_ENABLE_VOICE_NOTES", "1")
 
     response = await async_client.get(f"{API_PREFIX}/healthz")
     assert response.status_code == 200

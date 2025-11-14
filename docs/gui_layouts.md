@@ -15,7 +15,7 @@ Outline (left) | Writing view (center) | Feedback notes (right). The Timeline re
 - Layout state persists only per-pane width and Collapse/Expand toggles in `.blackskies/layout.json`. There is no multi-display awareness or floating window metadata yet.
 - Presets (`standard`, `analysis`, `critique`) are defined but hidden; the renderer always loads the standard arrangement until docking ships.
 - Keyboard navigation still focuses each pane (`Ctrl+Alt+]` / `Ctrl+Alt+[`) and panes keep `role="group"` for assistive tooling.
-- The Analytics/Story insights view opens as a side panel launched from the toolbar button (`Ctrl+Shift+A`) and closes back into the Feedback column when dismissed.
+- The Analytics/Story insights view button exists in the toolbar (`Ctrl+Shift+A`) but currently only opens a placeholder overlay; the analytics service is disabled until Phase 9, so no derived data is shown.
 
 ---
 
@@ -23,7 +23,7 @@ Outline (left) | Writing view (center) | Feedback notes (right). The Timeline re
 - **Outline:** Decision checklist, scene planning, and quick links to validation panels.
 - **Writing view:** Scene editor, diff toggle, Companion overlay, and budget meter.
 - **Feedback notes:** Feedback threads, accept/undo controls, rubric editor, plus the collapsible Timeline drawer.
-- **Analytics drawer (Collapsible):** Emotion arc timeline, adaptive pacing, conflict heatmap, scene length distribution pulled from `/api/v1/analytics/summary`. This replaces the previously documented floating “Story insights” window.
+- **Analytics drawer (Collapsible):** Placeholder region reserved for emotion arc, adaptive pacing, conflict heatmap, and scene length distribution metrics; the actual data will be sourced from `/api/v1/analytics/summary` only once Phase 9 enables the analytics service. This future drawer replaces the previously documented floating “Story insights” window.
 
 ---
 
@@ -45,7 +45,7 @@ The Preflight panel lives in the Draft Board sidebar below the Outline. It surfa
 ---
 
 ## Read-Through Mode
-Read-Through remains the distraction-free preview overlay. Inline analytics badges only appear when `/api/v1/analytics/summary` has data; there is no docking integration yet.
+Read-Through remains the distraction-free preview overlay. Analytics badges stay hidden in Phase 8 because `/api/v1/analytics/summary` is not yet enabled; there is no docking integration until Phase 9.
 
 ---
 

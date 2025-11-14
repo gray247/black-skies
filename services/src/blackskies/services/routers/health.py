@@ -7,6 +7,7 @@ from typing import Any
 from fastapi import APIRouter, Depends, Request, Response
 
 from ..metrics import render
+from ..feature_flags import voice_notes_enabled
 
 __all__ = ["router", "get_service_version", "health", "metrics_endpoint"]
 
@@ -46,8 +47,9 @@ def _health_payload(request: Request, version: str) -> dict[str, Any]:
         payload["backup_last_error"] = summary["last_error"]
     payload["backup_checked_snapshots"] = summary.get("checked_snapshots", 0)
     payload["backup_failed_snapshots"] = summary.get("failed_snapshots", 0)
-    payload["backup_voice_notes_checked"] = summary.get("voice_notes_checked", 0)
-    payload["backup_voice_note_issues"] = summary.get("voice_note_issues", 0)
+    if voice_notes_enabled():
+        payload["backup_voice_notes_checked"] = summary.get("voice_notes_checked", 0)
+        payload["backup_voice_note_issues"] = summary.get("voice_note_issues", 0)
     return payload
 
 

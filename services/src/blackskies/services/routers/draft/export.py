@@ -14,7 +14,12 @@ from ...http import raise_filesystem_error, raise_service_error, raise_validatio
 from ...models._project_id import validate_project_id
 from ...scene_docs import DraftRequestError
 from ...resilience import CircuitOpenError, ServiceResilienceExecutor
-from ..dependencies import get_analytics_resilience, get_diagnostics, get_settings
+from ...feature_flags import analytics_enabled
+from ..dependencies import (
+    get_diagnostics,
+    get_optional_analytics_resilience,
+    get_settings,
+)
 from . import router
 from ...operations.draft_export import DraftExportService
 
@@ -36,7 +41,7 @@ async def export_manuscript(
     payload: dict[str, Any],
     settings: ServiceSettings = Depends(get_settings),
     diagnostics: DiagnosticLogger = Depends(get_diagnostics),
-    analytics_resilience: ServiceResilienceExecutor = Depends(get_analytics_resilience),
+    analytics_resilience: ServiceResilienceExecutor | None = Depends(get_optional_analytics_resilience),
 ) -> dict[str, Any]:
     """Compile the manuscript to disk with optional metadata headers."""
 
@@ -64,11 +69,13 @@ async def export_manuscript(
         )
 
     analytics_timeout = getattr(settings, "analytics_task_timeout_seconds", 60)
+    analytics_flag = analytics_enabled()
 
     export_service = DraftExportService(
         settings=settings,
         diagnostics=diagnostics,
         analytics_resilience=analytics_resilience,
+        analytics_enabled=analytics_flag,
     )
 
     try:
