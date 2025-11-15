@@ -97,4 +97,4 @@ The version originates from `app/package.json` and is injected into the packaged
 - Export artifacts default to the project’s `/exports/` folder; installers do not redirect exported output.
 
 ## Phase Alignment
-- Packaging & Distribution tops the roadmap after Phases 9–11 and Bookends 1/2 stabilize. See the “Packaging & Distribution” phase in `docs/phase_charter.md` for the gate criteria before releasing installers.
+- Packaging & Distribution tops the roadmap after Phases 9–11 and Bookends 1/2 stabilize. See the “Packaging & Distribution” phase in `docs/phases/phase_charter.md` for the gate criteria before releasing installers.

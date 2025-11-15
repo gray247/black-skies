@@ -1,7 +1,7 @@
 # Offline Status & Cache Manager – Planning Notes (Phase 11)
 **Status:** In progress (T-9145) · 2025-10-07  
 **Owner:** Desktop Runtime Team  
-**Charter Reference:** docs/phase_charter.md §73
+**Charter Reference:** docs/phases/phase_charter.md §73
 
 ## Goal
 Surface reliable offline/online status in the desktop shell and manage cached API responses so the app degrades gracefully without connectivity.

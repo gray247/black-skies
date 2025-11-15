@@ -6,7 +6,7 @@
 - Node 20.x + pnpm 8.x
 - Local wheel cache populated under `vendor/wheels/`
 - Clean `git status`
-- Regenerate documentation (`docs/endpoints.md`, `docs/gui_layouts.md`, `docs/voice_notes_transcription.md`) as features land
+- Regenerate documentation (`docs/specs/endpoints.md`, `docs/gui/gui_layouts.md`, `docs/deferred/voice_notes_transcription.md`) as features land
 
 ## Release Checklist
 1. Update versions:
@@ -14,7 +14,7 @@
    - `services/src/blackskies/services/app.py::SERVICE_VERSION`
    - `app/package.json` + `app/main/main.ts` banner
 2. Refresh API contract assets:
-   - Verify `docs/endpoints.md` + `/openapi.json`
+   - Verify `docs/specs/endpoints.md` + `/openapi.json`
    - Confirm analytics + voice note samples match current responses
 3. Regenerate desktop bundles:
    ```bash

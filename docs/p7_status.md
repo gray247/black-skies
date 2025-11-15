@@ -14,5 +14,5 @@ The table below records the completion state of the P7 (RC packaging + smoke) de
 
 **Release traceability**
 
-- `docs/phase_log.md` marks P7 as complete with a `v1.0.0-rc1` entry, aligning the documentation timeline with the code freeze.【F:docs/phase_log.md†L1-L11】
+- `docs/phases/phase_log.md` marks P7 as complete with a `v1.0.0-rc1` entry, aligning the documentation timeline with the code freeze.【F:docs/phases/phase_log.md†L1-L11】
 - `CHANGELOG.md` summarizes the RC readiness work so the release tag has an auditable change note.【F:CHANGELOG.md†L3-L8】

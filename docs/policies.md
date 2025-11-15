@@ -2,7 +2,7 @@
 **Status:** LOCKED · 2025-09-23
 **Version:** v1 (Phase 1 / 1.0)
 
-Authoritative policies for platform support, privacy, budgets, models, limits, and error handling. UX specifics live in `docs/gui_layouts.md`. API contracts live in `docs/endpoints.md`.
+Authoritative policies for platform support, privacy, budgets, models, limits, and error handling. UX specifics live in `docs/gui/gui_layouts.md`. API contracts live in `docs/specs/endpoints.md`.
 
 ---
 
@@ -24,7 +24,7 @@ Authoritative policies for platform support, privacy, budgets, models, limits, a
 - **Analytics services deferred:** The analytics router and its derived dashboards remain disabled in Phase 8; enabling them requires explicit Phase 9 feature flags and never ships data outside the local machine.
 - **Redaction (optional):** Companion redaction toggle (off by default) can scrub names/emails from copied text before the browser opens.
 - **Voice notes & transcription:** The dictation and voice-note workflow remains deferred; Phase 8 services never accept or process audio/transcripts unless `BLACKSKIES_ENABLE_VOICE_NOTES=1` is explicitly supplied in non-production builds.
-- **Model Router:** See `docs/model_backend.md` for how budgets, routing rules, and privacy checks are centralized before any service touches an external provider.
+- **Model Router:** See `docs/specs/model_backend.md` for how budgets, routing rules, and privacy checks are centralized before any service touches an external provider.
 
 ---
 
@@ -48,7 +48,7 @@ Authoritative policies for platform support, privacy, budgets, models, limits, a
 ---
 
 ## Request Limits (LOCKED)
-(Enforced by services; mirrored in UI. See `docs/endpoints.md` for details.)
+(Enforced by services; mirrored in UI. See `docs/specs/endpoints.md` for details.)
 
 - **/api/v1/draft/generate** → max **5 scenes** or **1 chapter** per request (legacy `/draft/generate` alias removed in `1.0.0-rc1`)
 - **/api/v1/draft/rewrite** → **1 unit** per request
@@ -74,7 +74,7 @@ Authoritative policies for platform support, privacy, budgets, models, limits, a
 
 ## Accessibility & Motion (LOCKED)
 - Respect `prefers-reduced-motion`: spinner rotation disabled; keep gentle opacity pulse.  
-- Keyboard navigation fully supported (see hotkeys in `docs/gui_layouts.md`).  
+- Keyboard navigation fully supported (see hotkeys in `docs/gui/gui_layouts.md`).  
 - Minimum contrast: **4.5:1** for text; **3:1** for focus rings/icons.
 
 ---
@@ -97,7 +97,7 @@ Authoritative policies for platform support, privacy, budgets, models, limits, a
 ---
 
 ## Security & Licensing (LOCKED)
-- **Dependency licenses:** prefer MIT/BSD/Apache-2.0. No copyleft dependencies in the shipping app. Capture sweep artefacts via [docs/security_sweep.md](./security_sweep.md).  
+- **Dependency licenses:** prefer MIT/BSD/Apache-2.0. No copyleft dependencies in the shipping app. Capture sweep artefacts via [docs/ops/security_sweep.md](./security_sweep.md).  
 - **Signing:** Dev-signed builds during beta; production Authenticode optional post-1.0.  
 - **Network policy:** No background network calls; all external requests originate from explicit user actions (API Mode, Story insights overlay, or Companion).
 

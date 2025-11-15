@@ -1,6 +1,6 @@
 # Roadmap
 
-This roadmap mirrors the scope defined in [docs/phase_charter.md](./phase_charter.md) and stays in lock-step with the change history recorded in [phase_log.md](../phase_log.md). Treat the charter as the source of truth for **what** we ship, the phase log for **when** events were locked, and this roadmap for a quick status snapshot.
+This roadmap mirrors the scope defined in [docs/phases/phase_charter.md](./phases/phase_charter.md) and stays in lock-step with the change history recorded in [docs/phases/phase_log.md](./phases/phase_log.md). Treat the charter as the source of truth for **what** we ship, the phase log for **when** events were locked, and this roadmap for a quick status snapshot.
 
 ## Status legend
 | Label | Meaning |
@@ -26,6 +26,18 @@ This roadmap mirrors the scope defined in [docs/phase_charter.md](./phase_charte
 | P9 | Analytics & visualization | Planned | 2025-11 | Charter v1.1 |
 | P10 | Accessibility & professional exports | Planned | 2025-12 | Charter v1.1 |
 | P11 | Agents & plugins | Planned | 2026-01 | Charter v1.1 |
+
+## Deferred Features (Not in v1.1)
+
+The following planning docs describe capabilities that remain on the roadmap beyond the Phase 8 shipping surface. Update them when the corresponding phase gates open.
+
+- [`docs/deferred/voice_notes_transcription.md`](./deferred/voice_notes_transcription.md) – Voice note recording, transcription, and playback flows that ship in later accessibility/insights phases.
+- [`docs/specs/plugin_sandbox.md`](./specs/plugin_sandbox.md) – Plugin/agent sandboxing, permission gating, and auditing planned for Phase 11.
+- [`docs/specs/backup_verification_daemon.md`](./specs/backup_verification_daemon.md) – Backup verifier daemon, diagnostics, and health payload extensions that stay disabled in v1.1.
+- [`docs/deferred/smart_merge_tool.md`](./deferred/smart_merge_tool.md) – Smart merge workflow for combining scene variants and annotations (Phase 11 editorial tooling).
+- [`docs/gui/accessibility_toggles.md`](./gui/accessibility_toggles.md) – Large-font + high-contrast theming toggles (Phase 10 accessibility focus).
+- [`docs/phases/phase10_recovery_pipeline.md`](./phases/phase10_recovery_pipeline.md) – Snapshot/hot restore UX improvements scoped for Phase 10.
+- [`docs/phases/phase11_export_pipeline.md`](./phases/phase11_export_pipeline.md) – Export builder advances (Markdown/JSON/PDF/EPUB/ZIP) slated for Phase 11.
 
 ## Phase detail
 

@@ -96,6 +96,10 @@ The overlay surfaces scene insights (word counts, pacing hints) and the meter tr
   ```
 - On Windows PowerShell, activate with `..\.venv\Scripts\Activate.ps1` before running the same commands.
 
+### Dev / Ops Notes
+
+- See `docs/ops/dev_ops_notes.md` for the curated list of troubleshooting and operational helpers (start-codex troubleshooting, GUI rescue kit, support playbook, etc.).
+
 ### Load sanity check (P8)
 
 - Install the dev lockfile (`pip install -r requirements.dev.lock`) before running load or e2e sweeps so `pydantic-settings` is available and (on Linux/macOS) `uvloop` can accelerate asyncio; Windows installs will skip `uvloop` automatically.
@@ -162,7 +166,7 @@ During 0.1 testing, load the prebuilt project from `sample_project/Esther_Estate
 2. Browse to the `sample_project/Esther_Estate` folder (keep the folder structure intact).
 3. Confirm the loader detects `project.json`; the outline will surface scenes `sc_0001`–`sc_0002` with matching drafts in `/drafts`.
 
-The directory mirrors the schema in `docs/data_model.md` (`outline.json`, `project.json`, `drafts/`, `revisions/`, `history/`, `lore/`). Use it for smoke tests until the Wizard flow is stable.
+The directory mirrors the schema in `docs/specs/data_model.md` (`outline.json`, `project.json`, `drafts/`, `revisions/`, `history/`, `lore/`). Use it for smoke tests until the Wizard flow is stable.
 
 ## Budgets & Preflight
 The renderer queries `/api/v1/draft/preflight` before the **Generate** CTA unlocks. The service responds with the model that will run,
@@ -238,7 +242,7 @@ scene metadata, and a `budget` block so the UI can enforce soft ($12.50) and har
 }
 ```
 
-See `docs/endpoints.md` for full contract notes and error responses.
+See `docs/specs/endpoints.md` for full contract notes and error responses.
 
 ## Repo Map
 ```
@@ -248,13 +252,13 @@ See `docs/endpoints.md` for full contract notes and error responses.
 /tools             Packaging scripts, schema validators
 /sample_project    Example project for dev & QA
 ```
-(See **docs/architecture.md** for more detail.)
+(See **docs/specs/architecture.md** for more detail.)
 
 ## Core Docs (v1)
-- `docs/phase_charter.md` — Phase scope, milestones, DoD
+- `docs/phases/phase_charter.md` — Phase scope, milestones, DoD
 - `docs/policies.md` — Platform, privacy, budgets, limits
-- `docs/gui_layouts.md` — Screens, a11y, motion, hotkeys
-- `docs/data_model.md` — Files & schemas (scene markdown, artifacts, lore)
-- `docs/endpoints.md` — API contracts (error model, limits, validation)
-- `docs/exports.md` — Manuscript/outline exports and reports
-- `docs/architecture.md` — Processes, data flow, packaging
+- `docs/gui/gui_layouts.md` — Screens, a11y, motion, hotkeys
+- `docs/specs/data_model.md` — Files & schemas (scene markdown, artifacts, lore)
+- `docs/specs/endpoints.md` — API contracts (error model, limits, validation)
+- `docs/gui/exports.md` — Manuscript/outline exports and reports
+- `docs/specs/architecture.md` — Processes, data flow, packaging

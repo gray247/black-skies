@@ -9,7 +9,7 @@ Define how errors surface across Model Router failures, exports, and snapshot re
 - **Blocking modals:** Critical issues (snapshot hash mismatch, unrecoverable export failure, API credentials revoked) require explicit acknowledgment and optionally direct the user to “Open logs” or “Contact support”.
 
 ## Model Backend Failures
-- For local model faults, show a toast with “Retry Local Critique” plus the ability to fallback to API mode if policy allows (`docs/model_backend.md`).
+- For local model faults, show a toast with “Retry Local Critique” plus the ability to fallback to API mode if policy allows (`docs/specs/model_backend.md`).
 - For external API rejections, display the budget error toast with details (`BUDGET_EXCEEDED`, quotas).
 - Companion Mode suppresses remote error toasts by showing a helper badge (“API blocked in Companion Mode”) instead of raising UX-level alerts.
 

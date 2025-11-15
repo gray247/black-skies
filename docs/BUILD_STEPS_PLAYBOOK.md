@@ -1,4 +1,6 @@
 # Build Steps Playbook
+> **Source of Truth:** Canonical Build & Verification reference; merge or prune other build docs before hitting this plan.
+> **Status:** Reference doc for every milestone command.
 
 Reference of every step with commands, acceptance notes, and Codex prompts. Generated from build_steps.json.
 
@@ -663,7 +665,7 @@ Reference of every step with commands, acceptance notes, and Codex prompts. Gene
 
 ### Step 80: Security review pass
 - **Profiles:** All
-- **Primary artifacts:** `docs/security.md`
+- **Primary artifacts:** `docs/ops/security.md`
 - **What:** secrets scanning, log redaction check, dependency audit summary.
 - **Command:** run scanner locally if available
 - **Acceptance:** findings documented.

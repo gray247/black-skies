@@ -26,4 +26,4 @@ Capture logging, debugging, and redaction policies so analytics, Model Router, a
 
 ## Integration
 - Error UX (`docs/error_ux.md`) links back to these logs via “View diagnostics” actions in toasts/modals.
-- Performance telemetry (`docs/performance_telemetry_policy.md`) references the diagnostics stream for smoothing high-latency events.
+- Performance telemetry (`docs/specs/performance_telemetry_policy.md`) references the diagnostics stream for smoothing high-latency events.

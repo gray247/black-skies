@@ -164,4 +164,4 @@ The JSON should show `"status": "needs-recovery"` and `"needs_recovery": true`. 
 | Smoke script fails offline with missing wheels | Rebuild the cache while online (`bash scripts/freeze_wheels.sh`) and rerun `bash scripts/setup`; see the Milestone 0 checklist for the expected artifacts.【F:docs/milestone0_verification.md†L63-L87】【F:scripts/setup†L1-L129】 |
 | Services attempt external providers | Set `BLACK_SKIES_MODE=offline` (default) and a valid `BLACKSKIES_PROJECT_BASE_DIR` in `.env`; refer to the service configuration notes in the README. Legacy `.env` files using `BLACK_SKIES_BLACK_SKIES_MODE` still load but log a rename warning.【F:services/src/blackskies/services/settings.py†L1-L134】【F:services/src/blackskies/services/config.py†L14-L74】【F:README.md†L32-L55】 |
 
-For deeper debugging see `docs/packaging.md`, `docs/tests.md`, and `docs/endpoints.md`.
+For deeper debugging see `docs/packaging.md`, `docs/tests.md`, and `docs/specs/endpoints.md`.

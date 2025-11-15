@@ -14,9 +14,9 @@ Refer to [docs/ui_copy_spec_v1.md](./ui_copy_spec_v1.md) for the approved UI str
 ## Superseded content index
 | Legacy section | Canonical reference |
 | :------------- | :------------------ |
-| P2 detailed tasks | [docs/P2_ACCEPT_PLAN.md](./P2_ACCEPT_PLAN.md) |
-| Historic `black_skies/` vs `services/src/...` layout notes | [docs/phase_log.md](./phase_log.md) – 2025-09 entries |
-| Critique UX wireframes | [docs/phase8_gui_enhancements.md](./phase8_gui_enhancements.md) |
+| P2 detailed tasks | [docs/archive/P2_ACCEPT_PLAN.md](./P2_ACCEPT_PLAN.md) |
+| Historic `black_skies/` vs `services/src/...` layout notes | [docs/phases/phase_log.md](./phase_log.md) – 2025-09 entries |
+| Critique UX wireframes | [docs/phases/phase8_gui_enhancements.md](./phase8_gui_enhancements.md) |
 
 ---
 
@@ -33,7 +33,7 @@ Refer to [docs/ui_copy_spec_v1.md](./ui_copy_spec_v1.md) for the approved UI str
 **Accept when**
 - `/api/v1/draft/preflight` responds with a status + estimate for valid requests and surfaces validation errors for bad IDs/over-limit batches.
 - Pytest includes success + validation cases.
-- API examples appear in [docs/endpoints.md](./endpoints.md#draft-preflight).
+- API examples appear in [docs/specs/endpoints.md](./endpoints.md#draft-preflight).
 
 ### P1.1 Renderer integration
 **Do**
@@ -49,7 +49,7 @@ Refer to [docs/ui_copy_spec_v1.md](./ui_copy_spec_v1.md) for the approved UI str
 
 ### P1.2 Docs & regression tests
 **Do**
-- Document the preflight workflow in `README.md` and `docs/endpoints.md`.
+- Document the preflight workflow in `README.md` and `docs/specs/endpoints.md`.
 - Add regression tests for the Outline → Writing flow (pytest + Vitest).
 - Update `phase_log.md` with the new capability.
 
@@ -61,7 +61,7 @@ Refer to [docs/ui_copy_spec_v1.md](./ui_copy_spec_v1.md) for the approved UI str
 ---
 
 ## Milestone P2 – Feedback Accept & Snapshots  
-*Status: Completed 2025-09-29. Detailed guidance now lives in [docs/P2_ACCEPT_PLAN.md](./P2_ACCEPT_PLAN.md).*
+*Status: Completed 2025-09-29. Detailed guidance now lives in [docs/archive/P2_ACCEPT_PLAN.md](./P2_ACCEPT_PLAN.md).*
 
 ### P2.0 Feedback accept API
 **Do**
@@ -100,7 +100,7 @@ Refer to [docs/ui_copy_spec_v1.md](./ui_copy_spec_v1.md) for the approved UI str
 
 ### P3.0 Export pipeline polish
 **Do**
-- Produce `draft_full.md` and YAML snapshots per [docs/data_model.md](./data_model.md).
+- Produce `draft_full.md` and YAML snapshots per [docs/specs/data_model.md](./data_model.md).
 - Ensure exports include latest accepted revisions and metadata.
 - Add pytest coverage for export outputs.
 
@@ -121,7 +121,7 @@ Refer to [docs/ui_copy_spec_v1.md](./ui_copy_spec_v1.md) for the approved UI str
 ### P3.2 README & phase log updates
 **Do**
 - Refresh `README.md` with quickstart, preflight, feedback, export instructions.
-- Update `docs/phase_log.md` with milestones achieved.
+- Update `docs/phases/phase_log.md` with milestones achieved.
 - Add CHANGELOG entry summarising Phase 1 completion.
 
 **Accept when**

@@ -12,11 +12,11 @@ Describe first-run and returning-user flows that connect Bookend 1 (Spark Pad) a
 ## Returning User Flow
 - The home screen lists “Recent Projects” with their folder, project name, and last open timestamp.
 - A “Reopen Last Project” tile immediately launches the previously active project (restoring layout, caret positions, and story state).
-- Expose a “Project Info” panel (see `docs/gui_layouts.md`) that shows project_id, schema version, folder path, and runtime flags for diagnostics.
+- Expose a “Project Info” panel (see `docs/gui/gui_layouts.md`) that shows project_id, schema version, folder path, and runtime flags for diagnostics.
 
 ## Bookend Presentation
 - Bookend 1 (Spark Pad) and Bookend 2 (Visuals Layer) exist as preset combos inside Settings > Layout Presets; users may switch between them at any time.
-- Bookend 1 sets the stage for Spark Pad + Wizard; Bookend 2 surfaces Visuals + Critique. Theme choice (`docs/gui_theming.md`) and accessibility toggles apply equally to both.
+- Bookend 1 sets the stage for Spark Pad + Wizard; Bookend 2 surfaces Visuals + Critique. Theme choice (`docs/gui/gui_theming.md`) and accessibility toggles apply equally to both.
 
 ## Notes
 - The onboarding flow respects `docs/settings.md` AI mode selection—the Model Router only activates API calls after the user consents via the settings panel.

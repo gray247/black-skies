@@ -10,11 +10,11 @@ This report closes out Milestone P4.1 (Documentation sweep & release tag). It li
 ## Detailed Checklist
 | Step | Description | Status | Evidence |
 | --- | --- | --- | --- |
-| 1 | API docs refreshed | Complete | [`docs/endpoints.md`](endpoints.md) documents `/api/v1/healthz`, `/api/v1/metrics`, and the `trace_id` + `x-trace-id` error contract. |
-| 2 | Architecture docs updated | Complete | [`docs/architecture.md`](architecture.md) calls out `/api/v1/healthz`, Prometheus metrics, and trace headers in the service overview. |
+| 1 | API docs refreshed | Complete | [`docs/specs/endpoints.md`](endpoints.md) documents `/api/v1/healthz`, `/api/v1/metrics`, and the `trace_id` + `x-trace-id` error contract. |
+| 2 | Architecture docs updated | Complete | [`docs/specs/architecture.md`](architecture.md) calls out `/api/v1/healthz`, Prometheus metrics, and trace headers in the service overview. |
 | 3 | Top-level README aligned | Complete | [`README.md`](../README.md) directs operators to `/api/v1/healthz`, `/api/v1/metrics`, and trace headers in the Observability section. |
 | 4 | Runbook observability notes | Complete | [`RUNBOOK.md`](../RUNBOOK.md) includes `X-Trace-Id` guidance and `/api/v1/metrics` coverage for operators. |
-| 5 | Roadmap & logs flipped to ✅ | Complete | [`docs/roadmap.md`](roadmap.md) and [`docs/phase_log.md`](phase_log.md) mark P4.1 complete with release notes. |
+| 5 | Roadmap & logs flipped to ✅ | Complete | [`docs/roadmap.md`](roadmap.md) and [`docs/phases/phase_log.md`](phase_log.md) mark P4.1 complete with release notes. |
 | 6 | Release metadata locked | Complete | [`pyproject.toml`](../pyproject.toml), [`services/src/blackskies/services/__init__.py`](../services/src/blackskies/services/__init__.py), and [`CHANGELOG.md`](../CHANGELOG.md) carry version `1.0.0+phase1`; annotated tag `v1.0.0-phase1` recorded in [`phase_log.md`](../phase_log.md). |
 | 7 | Regression & packaging checks | Complete | [`phase_log.md`](../phase_log.md) captures successful `python -m pytest -q` and `python -m build --wheel --no-isolation` runs for the release. |
 

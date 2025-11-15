@@ -8,7 +8,7 @@ Chronological record of locked decisions and spec/version bumps. One-line summar
 ## Open items snapshot
 | Item | Owner | Artifact | Blocking PRs | Milestone |
 | :--- | :----- | :-------- | :------------ | :--------- |
-| Phase 8 docking verification | QA Lead (Jess K.) | `docs/phase8_gui_enhancements.md` checklist; `app/playwright-report/docking/index.html` | #482, #483 | GitHub milestone "Phase 8 - Docking Verification" |
+| Phase 8 docking verification | QA Lead (Jess K.) | `docs/phases/phase8_gui_enhancements.md` checklist; `app/playwright-report/docking/index.html` | #482, #483 | GitHub milestone "Phase 8 - Docking Verification" |
 
 ---
 
@@ -19,18 +19,18 @@ Chronological record of locked decisions and spec/version bumps. One-line summar
 
 ## 2025-10-28 Phase 8 docking verification (IN PROGRESS)
 - Owner: QA Lead (Jess K.)
-- Artifact: `docs/phase8_gui_enhancements.md` checklist, Playwright report `app/playwright-report/docking/index.html`, pytest report `reports/docking-verification.xml`
+- Artifact: `docs/phases/phase8_gui_enhancements.md` checklist, Playwright report `app/playwright-report/docking/index.html`, pytest report `reports/docking-verification.xml`
 - Blocking PRs: #482 (renderer docking), #483 (layout persistence service)
 - Milestone: GitHub milestone "Phase 8 - Docking Verification"
 - Summary: Dock manager integrated via `DockWorkspace`; runtime config toggles docking and preset focus order. Layout persistence writes schema v2 payloads with floating pane metadata; renderer reopens saved windows and hotkeys cover presets plus focus cycling. Vitest covers layout bounds and logging; pytest covers recovery and voice notes. Documentation updated with outstanding manual QA items.
 
 ## 2025-10-22 Phase 8 GUI enhancements scope (LOCKED)
 - Added Phase 8 planning entry covering IDE-style docking: drag/drop panes, floating windows, and saved layouts.
-- docs/gui_layouts.md and docs/architecture.md clarify the locked preset layout and capture serialization/multi-monitor requirements for the upcoming customization work.
+- docs/gui/gui_layouts.md and docs/specs/architecture.md clarify the locked preset layout and capture serialization/multi-monitor requirements for the upcoming customization work.
 
 ## 2025-10-07 â€” Phase 9/11 planning docs added (DRAFT)
 - Added planning documents for backup verification daemon (T-9142), dashboard initiatives (T-9143), smart merge tooling (T-9144), offline cache manager (T-9145), and accessibility toggles (T-9146).
-- docs/architecture.md, docs/phase_charter.md, docs/gui_layouts.md cross-link the new plans; CHANGELOG/RELEASE/support playbook updated for Phase 9 readiness.
+- docs/specs/architecture.md, docs/phases/phase_charter.md, docs/gui/gui_layouts.md cross-link the new plans; CHANGELOG/RELEASE/support playbook updated for Phase 9 readiness.
 
 ## 2025-10-21 â€” Companion analytics & export summaries (LOCKED)
 - Companion overlay now surfaces emotion arc and pacing analytics within the workspace.
@@ -82,13 +82,13 @@ Chronological record of locked decisions and spec/version bumps. One-line summar
 - Authored `docs/packaging.md` with Windows prerequisites, build commands, and verification checks.
 
 ## 2025-09-23 â€” Docs synced to Phase 1 (v1)
-- Locked and published: docs/endpoints.md (v1), docs/data_model.md (v1), docs/gui_layouts.md (v1), docs/exports.md (v1), docs/policies.md (v1), docs/phase_charter.md (v1),
-  docs/architecture.md (v1), docs/agents_and_services.md (v1).
+- Locked and published: docs/specs/endpoints.md (v1), docs/specs/data_model.md (v1), docs/gui/gui_layouts.md (v1), docs/gui/exports.md (v1), docs/policies.md (v1), docs/phases/phase_charter.md (v1),
+  docs/specs/architecture.md (v1), docs/specs/agents_and_services.md (v1).
 - Scope: Windows 11 only; local-first; CM6 editor; scene cap 20k; emotion tags (5); preflight & budgets.
 
 ## 2025-09-24 â€” Preflight docs & renderer coverage (LOCKED)
 - Milestone P1.2 complete; documentation and renderer coverage accepted for release.
-- Expanded README and docs/endpoints.md with `/draft/preflight` walkthroughs for ok, soft-limit, and blocked responses.
+- Expanded README and docs/specs/endpoints.md with `/draft/preflight` walkthroughs for ok, soft-limit, and blocked responses.
 - Added Vitest regression coverage for soft-limit warnings and blocked hard-limit states in the renderer harness.
 
 ## 2025-09-25 â€” Milestone 0 automation verified (LOCKED)

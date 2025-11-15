@@ -4,11 +4,11 @@
 Define global and per-project settings so the renderer, services, and Model Router share the same user preferences.
 
 ## Settings Categories
-- **AI Mode** (`local_only`, `local_then_api`, `api_only`): controls Model Router routing (`docs/model_backend.md`). Stored globally and can be overridden per project for experimentation.
-- **Theme selection:** references token manifests (`docs/gui_theming.md`). Global selection lives in `~/.black-skies/config.json`; per-project overrides land in `project-root/settings.json`.
+- **AI Mode** (`local_only`, `local_then_api`, `api_only`): controls Model Router routing (`docs/specs/model_backend.md`). Stored globally and can be overridden per project for experimentation.
+- **Theme selection:** references token manifests (`docs/gui/gui_theming.md`). Global selection lives in `~/.black-skies/config.json`; per-project overrides land in `project-root/settings.json`.
 - **Accessibility preferences:** large font, high contrast, reduced motion toggles persist globally; they interact with theme overrides (e.g., `high_contrast_overrides`).
 - **Analytics / telemetry toggles:** `analytics.enabled`, `telemetry.perf.enabled`, `telemetry.critique.enabled` default to `true` for local JSONL writes but can be disabled per project for privacy.
-- **Autosave cadence:** default 30s with a 5s debounce (see `docs/phase10_recovery_pipeline.md`); advanced users may adjust via this settings document.
+- **Autosave cadence:** default 30s with a 5s debounce (see `docs/phases/phase10_recovery_pipeline.md`); advanced users may adjust via this settings document.
 - **Storage locations:** global settings file (`~/.black-skies/config.json`) and per-project file (`project-root/settings.json`). Projects may also include `settings.json` inside `.blackskies/`.
 
 ## Storage Conventions
@@ -27,4 +27,4 @@ Define global and per-project settings so the renderer, services, and Model Rout
 
 ## References
 - Gamer mode toggles and theme selection surfaced in the renderer from this doc.
-- Telemetry toggles correlate with `docs/performance_telemetry_policy.md`.
+- Telemetry toggles correlate with `docs/specs/performance_telemetry_policy.md`.

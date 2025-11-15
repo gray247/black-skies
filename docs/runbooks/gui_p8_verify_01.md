@@ -2,7 +2,7 @@
 **Status:** Scheduled – 2026-01-15  
 **Owner:** Maintainer (solo)
 
-This runbook verifies DockWorkspace stability for Phase 8 across the Outline and shared layout surfaces. It confirms that the renamed Outline/Writing/Feedback panes, Story insights overlay, and layout persistence behave as documented in `docs/phase8_gui_enhancements.md`.
+This runbook verifies DockWorkspace stability for Phase 8 across the Outline and shared layout surfaces. It confirms that the renamed Outline/Writing/Feedback panes, Story insights overlay, and layout persistence behave as documented in `docs/phases/phase8_gui_enhancements.md`.
 
 ## Prerequisites
 - Windows 11 test machine with multi-monitor setup (internal + external recommended).
@@ -46,4 +46,4 @@ This runbook verifies DockWorkspace stability for Phase 8 across the Outline and
 - Dock manager crashes: export crash dump from `%APPDATA%/BlackSkies/crash/` and note reproduction steps.
 
 ## Sign-off
-Upon successful completion, update the `Verification & QA` table in `docs/phase8_gui_enhancements.md` with the actual run date and archive notes in your personal tracker.
+Upon successful completion, update the `Verification & QA` table in `docs/phases/phase8_gui_enhancements.md` with the actual run date and archive notes in your personal tracker.

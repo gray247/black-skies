@@ -2,7 +2,7 @@
 **Status:** Scheduled – 2026-01-16  
 **Owner:** Maintainer (solo)
 
-This runbook validates keyboard-only workflows and accessibility affordances for DockWorkspace across the Writing and Feedback flows. It ensures the renamed panes, hotkeys, and focus states align with `docs/phase8_gui_enhancements.md` and `docs/ui_copy_spec_v1.md`.
+This runbook validates keyboard-only workflows and accessibility affordances for DockWorkspace across the Writing and Feedback flows. It ensures the renamed panes, hotkeys, and focus states align with `docs/phases/phase8_gui_enhancements.md` and `docs/ui_copy_spec_v1.md`.
 
 ## Prerequisites
 - Windows 11 accessibility rig with screen reader (Narrator or NVDA) and high-contrast mode available.
@@ -47,4 +47,4 @@ This runbook validates keyboard-only workflows and accessibility affordances for
 - Overlay trapping focus: record screen share, collect renderer logs, and log the scenario in your tracker for fix-up.
 
 ## Sign-off
-After running, update `docs/phase8_gui_enhancements.md` with the actual run details and mark this runbook as completed in your personal tracker.
+After running, update `docs/phases/phase8_gui_enhancements.md` with the actual run details and mark this runbook as completed in your personal tracker.
