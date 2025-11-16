@@ -1,3 +1,7 @@
+Status: Active
+Version: 1.0.0
+Last Reviewed: 2025-11-15
+
 # Insight Gating & Float Notifications Plan
 > **Status:** Supporting doc – extends `docs/gui/gui_fix_plan.md`.
 > **Version:** v1

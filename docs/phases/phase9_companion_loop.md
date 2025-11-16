@@ -1,11 +1,18 @@
+Status: Draft
+Version: 1.0
+Last Reviewed: 2025-11-05
+Source of Truth: Phase 9 scope lives in `docs/phases/phase_charter.md`; align this companion loop plan with that charter.
+
 # docs/phases/phase9_companion_loop.md — DRAFT
-> **Status:** Draft
-> **Version:** v1
-> **Last Reviewed:** 2025-11-05
-> **Source of Truth:** Phase 9 scope lives in `docs/phases/phase_charter.md`; align this companion loop plan with that charter.
+> Implementation trace: `docs/BUILD_PLAN.md` → Phase 9 row.
 
 ## Scope
 Automate critique reviews at the scene or chapter level with Overseer-driven orchestration, strict privacy isolation, and Critique Pane toggles that show each batch’s progress and status.
+
+## Done When
+- Insights Overlay analysis keeps content on disk while automation toggles and endpoints stay gated as per `docs/specs/model_backend.md`.
+- Overseer enforces budgets/telemetry described here and exposes Accept/Rollback flows that log to `docs/specs/data_model.md` revision history.
+- The Critique Pane renders automation states/telemetry while honoring offline banners defined in `docs/gui/gui_layouts.md`.
 
 ## Roles
 - **Overseer:** queues critique work, enforces token budgets, throttles retries, and watches telemetry/budget telemetry for health and policy violations.
@@ -28,7 +35,7 @@ Runs default to local-only. Model queues require an explicit toggle in the UI, s
 
 Token budgets are tracked per session and per project; surpassing the hard cap logs the guardrail and surfaces a toast explaining why the batch was blocked.
 
-Companion Mode keeps writer content on disk and never exports it to a remote model; if Companion Mode is active, automation toggles and endpoints remain disabled and the Critique Pane only permits manual inspection.
+Insights Overlay keeps writer content on disk and never exports it to a remote model; if Insights Overlay is active, automation toggles and endpoints remain disabled and the Critique Pane only permits manual inspection.
 
 ## Telemetry (see `docs/specs/performance_telemetry_policy.md`)
 - `critique.queue_time_ms`
@@ -38,7 +45,7 @@ Companion Mode keeps writer content on disk and never exports it to a remote mod
 - `critique.accept_rate`
 - `rewrite.apply_latency_ms`
 
-All metrics are anonymized, project-scoped, and written to the local `.perf/` stream; no telemetry leaves disk in Companion Mode.
+All metrics are anonymized, project-scoped, and written to the local `.perf/` stream; no telemetry leaves disk in Insights Overlay.
 
 ## GUI Wiring (see `docs/gui/gui_layouts.md`)
 - Automation Toggle (Local / Local→Model)
@@ -50,4 +57,4 @@ All metrics are anonymized, project-scoped, and written to the local `.perf/` st
 ## Acceptance
 1. A batch run of 20 scenes (local-only) completes within N minutes without freezing the Critique Pane.
 2. Model queue is opt-in, respects the hard budget, and shows visible cost/budget counters.
-3. Accept/Rollback flows remain undoable, logged, and reload without sending content off-disk when Companion Mode is on.
+3. Accept/Rollback flows remain undoable, logged, and reload without sending content off-disk when Insights Overlay is on.

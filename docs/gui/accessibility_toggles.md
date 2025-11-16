@@ -1,3 +1,7 @@
+Status: Active
+Version: 1.0.0
+Last Reviewed: 2025-11-15
+
 # Accessibility Toggles – Implementation Plan (Phase 10)
 > **Status:** In progress (T-9146) · 2025-10-07
 > **Version:** v1

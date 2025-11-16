@@ -1,7 +1,8 @@
+Status: Draft
+Version: 1.0
+Last Reviewed: 2025-11-05
+
 # docs/specs/model_backend.md — DRAFT
-> **Status:** Draft
-> **Version:** v1
-> **Last Reviewed:** 2025-11-05
 
 ## Purpose
 Introduce the **Model Router** abstraction so every AI-powered call flows through a single, policy-aware layer instead of services invoking external providers directly.
@@ -10,7 +11,7 @@ Introduce the **Model Router** abstraction so every AI-powered call flows throug
 - **Provider orchestration:** expose drivers for `local_llm`, `openai`, and other optional vendors (e.g., `deepseek`) via a pluggable registry.
 - **Per-task routing:** determine which provider(s) execute specific jobs (`outline`, `draft`, `critique`, future `analytics`) based on policy configuration and budget state.
 - **Token/cost accounting:** measure tokens in/out, map to dollar estimates, and update session/project budgets before and after every routed call.
-- **Privacy enforcement:** honor Companion Mode by blocking external API calls, require explicit user consent before enabling API Mode, and log decisions for audits.
+- **Privacy enforcement:** honor Insights Overlay by blocking external API calls, require explicit user consent before enabling API Mode, and log decisions for audits.
 - **Telemetry hooks:** emit routing decisions, durations, and rejection reasons to `.perf/` (see `./performance_telemetry_policy.md`).
 
 ## Routing Rules
@@ -35,7 +36,7 @@ Policy keys live in `settings.json` and reference `Model Router` behaviors (`AiM
 - `local_then_api_fallback` — prefer local, allow external call when fallback flag is enabled (per user toggle).
 - `api_only` — explicit consent for remote execution; still subject to budgets and privacy rules.
 
-Companion Mode overrides these settings: when active, the router refuses to create outbound API calls regardless of policy.
+Insights Overlay overrides these settings: when active, the router refuses to create outbound API calls regardless of policy.
 
 ## Token & Cost Accounting
 - Track `tokens_in`, `tokens_out`, `estimated_cost_usd`, and update `project.json::budget` atomically.
@@ -44,7 +45,7 @@ Companion Mode overrides these settings: when active, the router refuses to crea
 
 ## Privacy Rules
 - External providers only reachable from **API Mode** with a stored API key or explicit toggle.
-- Companion Mode sets a hard block; UI automations use the router to verify status before triggering critique threads.
+- Insights Overlay sets a hard block; UI automations use the router to verify status before triggering critique threads.
 - All routed calls redact manuscript text (hashes allowed) in logs and emit telemetry flagged as `companion=false` or `true`.
 
 ## Integration & References

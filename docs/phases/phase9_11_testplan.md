@@ -1,8 +1,10 @@
+Status: Draft
+Version: 1.0
+Last Reviewed: 2025-11-05
+Source of Truth: `docs/phases/phase_charter.md` defines the Phase 9/11 scope; sync test coverage to that charter.
+
 # docs/phases/phase9_11_testplan.md — DRAFT
-> **Status:** Draft
-> **Version:** v1
-> **Last Reviewed:** 2025-11-05
-> **Source of Truth:** `docs/phases/phase_charter.md` defines the Phase 9/11 scope; sync test coverage to that charter.
+> Implementation trace: `docs/BUILD_PLAN.md` → phases 9/11 rows.
 
 ## Strategy
 Blend Playwright, backend service mocks, and golden text diff comparisons to cover Critique automation, recovery, and export scenarios introduced in Phases 9–11.
@@ -13,3 +15,8 @@ Blend Playwright, backend service mocks, and golden text diff comparisons to cov
 - **Export:** Generate MD/JSON/PDF/EPUB artifacts, confirm their existence, validate SHA-256, and assert Markdown outputs contain zero inline critique notes. Run `scripts/export_diff.py` against a golden baseline for the Markdown artifact.
 - **Telemetry Assertions:** Ensure `critique.accept_rate` stays between 0–100, durations are captured, and no PII is emitted. Validate telemetry counters from `docs/specs/performance_telemetry_policy.md` appear in the JSONL stream.
 - **Visuals & Analytics:** `POST /api/v1/analytics/build` and `/api/v1/analytics/refresh` respond within budget and update cache files. Validate coverage heatmap, critique trendline, and Relationship Graph rendering (heatmap intensities match rubric coverage; clicking data points navigates to the correct scene and filters notes).
+
+## Done When
+- Critical regression suites cover analytics gating, export flows, and schema enforcement described in `docs/specs/endpoints.md` and `docs/specs/analytics_service_spec.md`.
+- Companion automation, recovery, and export tests exercise Insights Overlay budgets and offline states.
+- Telemetry counter validations align with `docs/specs/performance_telemetry_policy.md`.

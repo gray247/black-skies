@@ -1,3 +1,7 @@
+Status: Archived
+Version: 0.1.0
+Last Reviewed: 2025-11-15
+
 # Task: Black Skies Docs Cleanup – Phase 1 & Phase 2 Execution
 
 You are working in the **black-skies** repository.
@@ -192,9 +196,9 @@ Now align the “Book of Record” docs and make sure everything else points at 
 
 1. Confirm roles:
 
-   - `docs/architecture.md` → High-level system layout, services, data flows.
+   - `docs/specs/architecture.md` → High-level system layout, services, data flows.
    - `docs/data_model.md` → Concrete JSON/data schemas and persistence rules.
-   - `docs/endpoints.md` → HTTP/FastAPI endpoints, request/response contracts.
+   - `docs/specs/endpoints.md` → HTTP/FastAPI endpoints, request/response contracts.
 
 2. Find places where other docs re-describe these layers in detail (especially phase docs and feature plans):
 
@@ -216,11 +220,11 @@ Now align the “Book of Record” docs and make sure everything else points at 
 
 ### 2.3 Consolidate GUI / UX Specs
 
-1. Decide which doc is the **primary GUI/UX spec** (likely `docs/gui_layouts.md`).
+1. Decide which doc is the **primary GUI/UX spec** (likely `docs/gui/gui_layouts.md`).
 
 2. Update GUI-related docs like:
 
-   - `docs/gui_layouts.md`
+   - `docs/gui/gui_layouts.md`
    - `docs/gui_theming.md`
    - `docs/phase8_gui_enhancements.md`
    - `docs/gui_fix_plan.md`
@@ -253,7 +257,7 @@ Now align the “Book of Record” docs and make sure everything else points at 
 
 1. Identify all analytics / telemetry / dashboard-related docs, including:
    - `docs/phase9_charter.md`
-   - `docs/analytics_service_spec.md`
+   - `docs/specs/analytics_service_spec.md`
    - `docs/dashboard_initiatives.md`
    - `docs/performance_telemetry_policy.md`
    - Any others clearly in this space.

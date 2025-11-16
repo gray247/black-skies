@@ -1,0 +1,18 @@
+{
+  "status": "Active (Canonical)",
+  "version": "1.0.0",
+  "last_reviewed": "2025-11-15",
+  "reference_docs": [
+    "docs/BUILD_PLAN.md",
+    "docs/phases/phase_charter.md",
+    "docs/specs/architecture.md",
+    "docs/specs/data_model.md",
+    "docs/specs/endpoints.md",
+    "docs/specs/analytics_service_spec.md",
+    "docs/specs/agents_and_services.md",
+    "docs/specs/backup_verification_daemon.md",
+    "docs/gui/gui_layouts.md",
+    "docs/CHANGELOG.md"
+  ],
+  "notes": "Phase 4 verification confirmed the canonical doc surface, healed naming/path drift, and archived obsolete reviews."
+}

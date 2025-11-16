@@ -1,3 +1,7 @@
+Status: Active
+Version: 1.0.0
+Last Reviewed: 2025-11-15
+
 # GUI-P8-VERIFY-01 — DockWorkspace Smoke (Outline & Layout Persistence)
 **Status:** Scheduled – 2026-01-15  
 **Owner:** Maintainer (solo)

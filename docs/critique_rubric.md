@@ -1,6 +1,16 @@
+Status: Active
+Version: 1.0.0
+Last Reviewed: 2025-11-15
+
 # docs/critique_rubric.md — Critique Rubric & Output (Source of truth)
-**Status:** LOCKED · 2025-09-23
-**Version:** v1
+Spec Index:
+- Architecture (`./architecture.md`)
+- Data Model (`./data_model.md`)
+- Endpoints (`./endpoints.md`)
+- GUI Layouts (`../gui/gui_layouts.md`)
+- Analytics Spec (`./analytics_service_spec.md`)
+- BUILD_PLAN (TBD)
+- Phase Charter (`../phases/phase_charter.md`)
 
 Categories are used by services and the GUI to filter feedback. Output must validate against **CritiqueOutputSchema v1** (see below).
 

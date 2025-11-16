@@ -1,12 +1,19 @@
+Status: Draft
+Version: 1.0
+Last Reviewed: 2025-11-15
+Phase: Phase 11 (Export & packaging)
+Source of Truth: Align with `docs/phases/phase_charter.md` Phase 11 scope; do not diverge from that source.
+
 # docs/phases/phase11_export_pipeline.md — DRAFT
-> **Status:** Planned
-> **Version:** v1
-> **Last Reviewed:** 2025-11-05
-> **Phase:** Phase 11 (Export & packaging)
-> **Source of Truth:** Align with `docs/phases/phase_charter.md` Phase 11 scope; do not diverge from that source.
+> Implementation trace: `docs/BUILD_PLAN.md` → Phase 11 row.
 
 ## Scope
 Deliver clean, writer-facing exports with packaging options for Markdown, JSON, PDF, EPUB, and ZIP bundles while protecting critique metadata and keeping the UI responsive.
+
+## Done When
+- Export builder endpoints (`/export/build`, `/export/status/{job_id}`) align with the payloads described in `docs/specs/endpoints.md` and produce artifacts matching `docs/gui/exports.md`.
+- Analytics appendices remain opt-in and gated by Phase 9 feature flags while the Phase 11 export bundler wraps up the zip/metadata requirements.
+- Diagnostics and progress status integrate with `docs/specs/backup_verification_daemon.md` health signals for multi-format deliveries.
 
 ## Formats
 - **Markdown:** `draft_full.md` plus per-chapter `chapter_{n}.md`, all free of critique notes unless the appendix option is selected.

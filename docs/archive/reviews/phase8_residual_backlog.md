@@ -1,3 +1,7 @@
+Status: Archived
+Version: 0.1.0
+Last Reviewed: 2025-11-15
+
 # Phase 8 Residual Backlog
 
 This file partitions the original Phase 8 master list into issues addressed by the Phase 8 fixes, items destined for the Phase 9+ backlog, and a tiny set needing manual review.

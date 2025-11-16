@@ -1,3 +1,7 @@
+Status: Deferred
+Version: 0.5.0
+Last Reviewed: 2025-11-15
+
 # Smart Merge Tool – Design Outline (Phase 11)
 **Status:** In progress (T-9144) · 2025-10-07  
 **Owner:** Desktop Editor Team  

@@ -1,8 +1,17 @@
+Status: Active (Canonical)
+Version: 1.0.0
+Last Reviewed: 2025-11-15
+
 # docs/specs/endpoints.md — API Contracts (Source of truth)
-> **Status:** Draft · 2025-10-07
-> **Version:** v2 (Phase 9 staging)
-> **Last Reviewed:** 2025-11-05
-> **Spec Index:** For architecture context, see `./architecture.md`; for data schemas, see `./data_model.md`.
+
+Spec Index:
+- Architecture (`./architecture.md`)
+- Data Model (`./data_model.md`)
+- Endpoints (`./endpoints.md`)
+- GUI Layouts (`../gui/gui_layouts.md`)
+- Analytics Spec (`./analytics_service_spec.md`)
+- BUILD_PLAN (TBD)
+- Phase Charter (`../phases/phase_charter.md`)
 
 Local-only FastAPI services the Electron app calls. All bodies are JSON (UTF-8). Keys are `snake_case`.
 
@@ -455,7 +464,8 @@ Runs critique on a unit using the rubric (see `../critique_rubric.md`). Non-dest
 
 ## Analytics (Deferred to Phase 9)
 
-Phase 8 does not expose analytics endpoints. See the Deferred (Phase 9) section below for the roadmaped analytics router and payloads.
+Phase 8 builds return 404 for `/api/v1/analytics/*` unless `BLACKSKIES_ENABLE_ANALYTICS=1` flips the flag; these routes ship in Phase 9.
+The analytics drawer defined in `docs/gui/gui_layouts.md` and dashboards described in `docs/phases/dashboard_initiatives.md` rely on the payloads below once enabled.
 
 
 ## Export Builder

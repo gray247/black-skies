@@ -1,3 +1,7 @@
+Status: Active
+Version: 1.0.0
+Last Reviewed: 2025-11-15
+
 # Black Skies Planning Docs Cleanup Checklist
 
 > Goal: tame the “rat’s nest” of planning/docs **before** we touch new planning or run Agent Mode again.
@@ -150,7 +154,7 @@ You can also add `(#issue-number)` or PR links after each item.
 
 > Once the structure is sane, we do a last manual sweep, then let the Agent take a fresh pass over the repo.
 
-- [x] 🔴 Scan for obviously conflicting statements (e.g. two different export formats described as “final”, or two different meanings of “Companion Mode”). Add TODO comments or notes where conflicts still exist.
+- [x] 🔴 Scan for obviously conflicting statements (e.g. two different export formats described as “final”, or two different meanings of “Insights Overlay”). Add TODO comments or notes where conflicts still exist.
 - [x] 🟠 Search for key terms that changed over time (e.g. old feature names, file paths, environment variables) and update or tag them as legacy.
 - [x] 🟢 Run a quick search for “TODO”, “TBD”, “???”, and make sure each is either:
   - [x] Turned into a tracked task, **or**

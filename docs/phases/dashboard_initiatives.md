@@ -1,10 +1,12 @@
-# Dashboard Initiatives – Phases 9–11 Planning
-> **Status:** In progress (T-9143) · 2025-10-07
-> **Version:** v1
-> **Last Reviewed:** 2025-11-05
-> **Owner:** Solo maintainer
-> **Linked Charter Items:** docs/phases/phase_charter.md §§39–41, 71
-> **Related Specs:** docs/specs/analytics_service_spec.md, docs/gui/gui_layouts.md, docs/ops/support_playbook.md
+Status: Draft
+Version: 1.0
+Last Reviewed: 2025-11-15
+
+# Dashboard Initiatives — Phases 9–11 Planning
+> Implementation trace: `docs/BUILD_PLAN.md` → Phase 9 dashboards entry.
+Owner: Solo maintainer
+Linked Charter Items: docs/phases/phase_charter.md §§39–41, 71
+Related Specs: docs/specs/analytics_service_spec.md, docs/gui/gui_layouts.md, docs/ops/support_playbook.md
 
 ## Purpose
 Consolidate the roadmap for dashboard-related deliverables promised in Phases 9–11:
@@ -89,3 +91,8 @@ This document captures scope, dependencies, and task breakdowns to remove ambigu
 - Log milestones in `phase_log.md` as each sub-phase is planned/executed.
 - Maintain personal tracker entries instead of team tickets.
 - Keep `docs/ops/support_playbook.md` aligned with shipped dashboards and troubleshooting steps.
+
+## Done When
+- Project Health, Outline validation, and multi-project dashboards show the metrics described above and read from `docs/specs/analytics_service_spec.md`.
+- Health badges rely on `docs/specs/backup_verification_daemon.md` and `docs/specs/plugin_sandbox.md` signals per the dependencies.
+- Support playbook references this plan when triaging dashboard issues.

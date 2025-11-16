@@ -1,3 +1,7 @@
+Status: Active
+Version: 1.0.0
+Last Reviewed: 2025-11-15
+
 # docs/phase_bridge.md — DRAFT
 
 ## Purpose

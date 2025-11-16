@@ -1,3 +1,7 @@
+Status: Active
+Version: 1.0.0
+Last Reviewed: 2025-11-15
+
 # docs/specs/performance_telemetry_policy.md — DRAFT
 > **Status:** Draft
 > **Version:** v1

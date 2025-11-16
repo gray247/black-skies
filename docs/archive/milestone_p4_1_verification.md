@@ -1,3 +1,7 @@
+Status: Archived
+Version: 0.1.0
+Last Reviewed: 2025-11-15
+
 # Milestone P4.1 Verification Report
 
 This report closes out Milestone P4.1 (Documentation sweep & release tag). It lists the completion evidence for each acceptance criterion alongside follow-up verification commands.

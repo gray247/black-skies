@@ -1,3 +1,7 @@
+Status: Active
+Version: 1.0.0
+Last Reviewed: 2025-11-15
+
 # docs/error_ux.md — DRAFT
 
 ## Purpose
@@ -11,7 +15,7 @@ Define how errors surface across Model Router failures, exports, and snapshot re
 ## Model Backend Failures
 - For local model faults, show a toast with “Retry Local Critique” plus the ability to fallback to API mode if policy allows (`docs/specs/model_backend.md`).
 - For external API rejections, display the budget error toast with details (`BUDGET_EXCEEDED`, quotas).
-- Companion Mode suppresses remote error toasts by showing a helper badge (“API blocked in Companion Mode”) instead of raising UX-level alerts.
+- Insights Overlay suppresses remote error toasts by showing a helper badge (“API blocked in Insights Overlay”) instead of raising UX-level alerts.
 
 ## Export Failures
 - Export builder errors emit blocking modals when artifacts cannot be created; provide “Retry export” and “Open logs” options.

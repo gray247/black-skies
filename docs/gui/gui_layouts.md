@@ -1,8 +1,18 @@
+Status: Active (Canonical)
+Version: 1.0.0
+Last Reviewed: 2025-11-15
+Source of Truth: Canonical pane layout for Outline/Writing/Feedback + drawer/overlay behavior; other GUI docs extend from these expectations.
+
+Spec Index:
+- Architecture (`../specs/architecture.md`)
+- Data Model (`../specs/data_model.md`)
+- Endpoints (`../specs/endpoints.md`)
+- GUI Layouts (`./gui_layouts.md`)
+- Analytics Spec (`../specs/analytics_service_spec.md`)
+- BUILD_PLAN (TBD)
+- Phase Charter (`../phases/phase_charter.md`)
+
 # docs/gui/gui_layouts.md - Black Skies v1.1
-> **Status:** Updated - 2025-10-20
-> **Version:** v1.1
-> **Last Reviewed:** 2025-11-05
-> **Source of Truth:** Canonical pane layout for Outline/Writing/Feedback + drawer/overlay behavior; other GUI docs extend from these expectations.
 
 The renderer still ships the fixed three-pane layout (Outline | Writing | Feedback) with a collapsible Timeline drawer. Docking, floating Story insights panes, and Phase 9 dashboards remain experimental and are not available in production builds even though runtime flags exist.
 
@@ -15,6 +25,7 @@ Outline (left) | Writing view (center) | Feedback notes (right). The Timeline re
 
 ### Current Scope
 - Docking is **not** available in packaged builds. The `ui.enable_docking` flag exists for internal experiments but is left disabled by default and is not supported.
+- Docking Mode remains experimental/disabled in production; Silver builds may expose it behind `ui.enable_docking`, but the default is the fixed three-pane layout described above.
 - Layout state persists only per-pane width and Collapse/Expand toggles in `.blackskies/layout.json`. There is no multi-display awareness or floating window metadata yet.
 - Presets (`standard`, `analysis`, `critique`) are defined but hidden; the renderer always loads the standard arrangement until docking ships.
 - Keyboard navigation still focuses each pane (`Ctrl+Alt+]` / `Ctrl+Alt+[`) and panes keep `role="group"` for assistive tooling.
@@ -31,7 +42,7 @@ Outline (left) | Writing view (center) | Feedback notes (right). The Timeline re
 ---
 
 ## Story Insights & Project Health (future state)
-The floating Story insights / Project Health pane referenced in earlier drafts is still on the roadmap. Until docking lands, analytics content stays in the drawer described above. Agents that emit new reports can continue to target the analytics service—the UI will pick them up once the floating pane ships.
+The floating Story insights / Project Health pane referenced in earlier drafts is still on the roadmap. Analytics data remains gated: the drawer pulls from `docs/specs/analytics_service_spec.md` payloads once `BLACKSKIES_ENABLE_ANALYTICS=1` flips in Phase 9. Until then, the placeholder overlay is shown even if internal flags exist.
 
 ---
 

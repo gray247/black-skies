@@ -1,3 +1,7 @@
+Status: Archived
+Version: 0.1.0
+Last Reviewed: 2025-11-15
+
 # Phase 8 Sign-off
 
 ## Goals vs Completed Work
@@ -36,7 +40,7 @@ Covered original bullets and their P8 ticket mappings:
 50. Export/privacy docs already call out deferred analytics (P8-009).
 
 ## Gating Status
-- **Voice:** `docs/endpoints.md`, `docs/architecture.md`, and `docs/policies.md` all declare `/api/v1/voice/*` deferred; renderer/backend never expose those routes unless `BLACKSKIES_ENABLE_VOICE_NOTES=1` is forced in non-production.  
+- **Voice:** `docs/specs/endpoints.md`, `docs/specs/architecture.md`, and `docs/policies.md` all declare `/api/v1/voice/*` deferred; renderer/backend never expose those routes unless `BLACKSKIES_ENABLE_VOICE_NOTES=1` is forced in non-production.  
 - **Plugins:** `services/plugins/registry.py` rejects execution unless `BLACKSKIES_ENABLE_PLUGINS=1`; docs describe the deferred runner.  
 - **Analytics:** All `/api/v1/analytics/*` routes, exports, and GUI hints now require `BLACKSKIES_ENABLE_ANALYTICS=1`.  
 - **Global `_runtime`:** Backing stores now live under `<project>/history/`; `_runtime` is limited to resilience state for circuit breakers and non-project services.

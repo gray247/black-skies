@@ -1,7 +1,8 @@
+Status: Draft
+Version: 1.0
+Last Reviewed: 2025-11-05
+
 # docs/gui/gui_theming.md — DRAFT
-> **Status:** Draft
-> **Version:** v1
-> **Last Reviewed:** 2025-11-05
 
 ## Purpose
 Separate layout (see `docs/gui/gui_layouts.md`) from theming so visual treatments can evolve without disrupting pane placement or keyboard navigation.

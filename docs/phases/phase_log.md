@@ -1,7 +1,9 @@
-﻿# Phase log — change history
-> **Status:** Reference log – rolling summary of release milestones
-> **Version:** v1.1
-> **Last Reviewed:** 2025-11-05
+Status: Active
+Version: 1.1
+Last Reviewed: 2025-11-15
+
+# Phase log — change history
+> Each entry corresponds to the scope tracked in `docs/BUILD_PLAN.md`.
 
 **2025-09-15** — Locked Phase Charter v1.0 (original RC scope)
 **2025-10-09** — Added Phase 8–11 roadmap (~30 feature expansion) · unlocked v1.1 docs

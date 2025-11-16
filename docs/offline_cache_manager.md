@@ -1,3 +1,7 @@
+Status: Draft
+Version: 0.9.0
+Last Reviewed: 2025-11-15
+
 # Offline Status & Cache Manager – Planning Notes (Phase 11)
 **Status:** In progress (T-9145) · 2025-10-07  
 **Owner:** Desktop Runtime Team  

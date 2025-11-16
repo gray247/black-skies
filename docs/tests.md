@@ -1,4 +1,8 @@
-﻿# Test Strategy & Commands
+Status: Active
+Version: 1.0.0
+Last Reviewed: 2025-11-15
+
+# Test Strategy & Commands
 
 This guide maps every automated surface (services, renderer, packaging) to the current product vocabulary: Outline -> Writing -> Feedback. It documents the commands, artifacts, and thresholds that gate each release phase.
 

@@ -1,3 +1,7 @@
+Status: Archived
+Version: 0.1.0
+Last Reviewed: 2025-11-15
+
 # docs/p7_status.md — Phase 7 RC Deliverable Audit
 
 The table below records the completion state of the P7 (RC packaging + smoke) deliverables. Each entry links to the source files that fulfill the requirement so QA and release engineering can confirm readiness without re-scanning the entire tree.

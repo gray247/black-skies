@@ -1,3 +1,7 @@
+Status: Active
+Version: 1.0.0
+Last Reviewed: 2025-11-15
+
 # docs/diagnostics.md — DRAFT
 
 ## Purpose
@@ -11,7 +15,7 @@ Capture logging, debugging, and redaction policies so analytics, Model Router, a
 
 ## Content & Levels
 - Logs include timestamps, severity (`INFO`, `WARN`, `ERROR`), trace IDs, and event metadata (IDs, counts, budgets).
-- The Model Router logs include provider name, tokens_in/out, estimated USD, and policy decisions (Companion Mode block, budget hit).
+- The Model Router logs include provider name, tokens_in/out, estimated USD, and policy decisions (Insights Overlay block, budget hit).
 - Diagnostics events referencing exports, snapshots, or analytics include pointer to `project_id` + `trace_id`.
 
 ## Redaction Policy

@@ -1,3 +1,7 @@
+Status: Active
+Version: 1.0.0
+Last Reviewed: 2025-11-15
+
 # docs/ops/security.md — Security Posture Summary
 **Status:** Active · 2025-10-28  
 **Scope:** Consolidates the security artefacts, automation hooks, and open follow-ups referenced in the Phase 8/9 plan.

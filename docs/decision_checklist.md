@@ -1,3 +1,7 @@
+Status: Active
+Version: 1.0.0
+Last Reviewed: 2025-11-15
+
 # docs/decision_checklist.md — Writer Decision Checklist (Source of truth)
 **Status:** LOCKED · 2025-09-23
 **Version:** v1 (Phase 1 / 1.0)

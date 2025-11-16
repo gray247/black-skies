@@ -1,3 +1,7 @@
+Status: Active
+Version: 1.0.0
+Last Reviewed: 2025-11-15
+
 # docs/packaging.md - Windows Packaging Guide
 **Status:** Active (last reviewed 2025-10-28)
 

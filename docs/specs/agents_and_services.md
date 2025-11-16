@@ -1,8 +1,18 @@
+Status: Active (Canonical)
+Version: 1.0.0
+Last Reviewed: 2025-11-15
+Note: Defines Phase 11 agent and plugin interfaces.
+
 # docs/specs/agents_and_services.md — Agent Hooks v1.1
-> **Status:** Active – UNLOCKED · 2025-10-09
-> **Version:** v1.1
-> **Last Reviewed:** 2025-11-05
-> **Note:** Defines Phase 11 agent and plugin interfaces.
+
+Spec Index:
+- Architecture (`./architecture.md`)
+- Data Model (`./data_model.md`)
+- Endpoints (`./endpoints.md`)
+- GUI Layouts (`../gui/gui_layouts.md`)
+- Analytics Spec (`./analytics_service_spec.md`)
+- BUILD_PLAN (TBD)
+- Phase Charter (`../phases/phase_charter.md`)
 
 ---
 
@@ -31,7 +41,7 @@
 * Read-only until explicit approval; diffs must be human-applied.
 * Must respect token budgets and privacy policy.
 * Agents execute inside sandbox with limited I/O.
-* **Router-only external access:** Agents must never call external models directly; they rely on internal services that route through the Model Router (`./model_backend.md`) so budgets, Companion Mode, and policy toggles remain centralized.
+* **Router-only external access:** Agents must never call external models directly; they rely on internal services that route through the Model Router (`./model_backend.md`) so budgets, Insights Overlay, and policy toggles remain centralized.
 
 ## Registry API & Lifecycle
 - **Registry service** (`blackskies.services.plugins.registry`) exposes:

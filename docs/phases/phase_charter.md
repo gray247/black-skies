@@ -1,11 +1,24 @@
-﻿# Black Skies – Phase Charter (v1.1)
-> **Status:** Active – UNLOCKED · 2025-10-09
-> **Version:** v1.1
-> **Last Reviewed:** 2025-11-05
-> **Purpose:** Extend the roadmap beyond P7 (RC1) into the P8–P11 expansion cycles.
-> **Source of Truth:** This charter defines the phase sequence, scope, and gating for v1.1; reference it before aligning other phase materials.
+Status: Active (Canonical)
+Version: 1.0.0
+Last Reviewed: 2025-11-15
 
-_Status tracking lives in [docs/roadmap.md](../roadmap.md); use this charter as the scope authority._
+# Black Skies – Phase Charter (v1.1)
+
+Purpose: Extend the roadmap beyond P7 (RC1) into the P8–P11 expansion cycles.
+Source of Truth: This charter defines the phase sequence, scope, and gating for v1.1; reference it before aligning other phase materials.
+
+Status tracking lives in [docs/roadmap.md](../roadmap.md); use this charter as the scope authority.
+
+Canonical Links:
+- `docs/BUILD_PLAN.md`
+- `docs/specs/architecture.md`
+- `docs/specs/data_model.md`
+- `docs/specs/endpoints.md`
+- `docs/gui/gui_layouts.md`
+- `docs/specs/analytics_service_spec.md`
+- `docs/specs/agents_and_services.md`
+- `docs/CHANGELOG.md`
+- `docs/version_manifest.json`
 
 ---
 
@@ -15,7 +28,7 @@ _Status tracking lives in [docs/roadmap.md](../roadmap.md); use this charter as 
 | Outline flow | The planning workflow that replaces the legacy "Wizard" terminology. |
 | Writing flow | Draft creation experience formerly labelled "Generate." |
 | Feedback flow | Review experience previously called "Critique." |
-| Insights overlay | Contextual assistant surface that succeeded "Companion Mode." |
+| Insights overlay | Contextual assistant surface that succeeded "Insights Overlay." |
 | Budget meter | Soft/Hard budget indicator rendered in Outline/Writing flows. |
 | Feedback export bundle | Packaged PDF/Markdown bundle replacing "Critique export." |
 
@@ -98,12 +111,6 @@ Scope remains: finalize GUI + API parity, smoke tests, offline docs.
 **Goal:** Expand accessibility and professional output support.
 
 ### Key deliverables
-- **Large-font & high-contrast mode** toggles  
-- **Dynamic export templates** (MD/DOCX/PDF layout selection)  
-- **Corkboard cards PDF** (finalise optional stub)  
-- **Batch outline report** (decisions + MD/PDF)  
-- **Chapter/scene status badges** (locked/rewrite/feedback)  
-- Planning reference: [Accessibility toggles](../gui/accessibility_toggles.md)
 - **Large-font & high-contrast mode** toggles  
 - **Dynamic export templates** (MD/DOCX/PDF layout selection)  
 - **Corkboard cards PDF** (finalise optional stub)  
@@ -195,6 +202,12 @@ Scope remains: finalize GUI + API parity, smoke tests, offline docs.
 - v1.2 → P10–P11 finalisation branch
 
 ---
+
+## Done When
+- Phase 8 docking, Insights overlay persistence, and budget meter polish ship per this charter and `docs/gui/gui_layouts.md`.
+- Phase 9 analytics dashboards + Companion automation run on the analytics service defined in `docs/specs/analytics_service_spec.md`.
+- Phase 10 accessibility toggles + exports honor the themes and templates defined in `docs/gui/accessibility_toggles.md` and `docs/gui/exports.md`.
+- Phase 11 agent/plugin/backups integrate `docs/specs/agents_and_services.md`, `docs/specs/plugin_sandbox.md`, and `docs/specs/backup_verification_daemon.md`.
 
 ## Future Work (Not yet implemented)
 - **Voice Input / Notes:** The planned recorder/transcription workflow continues to be scoped in `docs/deferred/voice_notes_transcription.md` but has no shipping UI or services in v1.1.

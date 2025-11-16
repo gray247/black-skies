@@ -1,3 +1,7 @@
+Status: Draft
+Version: 0.9.0
+Last Reviewed: 2025-11-15
+
 # docs/scripts_phase9_11.md — DRAFT
 
 ## CLI / Scripts

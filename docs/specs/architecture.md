@@ -1,8 +1,17 @@
+Status: Active (Canonical)
+Version: 1.0.0
+Last Reviewed: 2025-11-15
+
 # docs/specs/architecture.md — System Architecture v1.1
-> **Status:** Active – UNLOCKED · 2025-10-09
-> **Version:** v1.1
-> **Last Reviewed:** 2025-11-05
-> **Spec Index:** For data schemas, see `./data_model.md`; for API contracts, see `./endpoints.md`.
+
+Spec Index:
+- Architecture (`./architecture.md`)
+- Data Model (`./data_model.md`)
+- Endpoints (`./endpoints.md`)
+- GUI Layouts (`../gui/gui_layouts.md`)
+- Analytics Spec (`./analytics_service_spec.md`)
+- BUILD_PLAN (TBD)
+- Phase Charter (`../phases/phase_charter.md`)
 
 Phase 11 analytics pipelines and Companion agents are defined in detail in [Agents & Services](./agents_and_services.md); the sections below highlight where those modules slot into the runtime topology.
 
@@ -27,7 +36,7 @@ This mirrors the running services: `/outline/build`, `/draft/generate`, `/draft/
 ---
 
 ## Model Router Boundary (Phase 2+)
-All AI calls (outline, draft, critique, and automation endpoints) traverse the Model Router before reaching `local_llm`, `openai`, or future providers such as `deepseek`. This layer enforces budgets, Companion Mode privacy, and policy-aware routing so FastAPI services never directly invoke external APIs.
+All AI calls (outline, draft, critique, and automation endpoints) traverse the Model Router before reaching `local_llm`, `openai`, or future providers such as `deepseek`. This layer enforces budgets, Insights Overlay privacy, and policy-aware routing so FastAPI services never directly invoke external APIs.
 
 ---
 

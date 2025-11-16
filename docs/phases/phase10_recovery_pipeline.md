@@ -1,12 +1,19 @@
+Status: Draft
+Version: 1.0
+Last Reviewed: 2025-11-15
+Phase: Phase 10 (Accessibility & recovery)
+Source of Truth: See `docs/phases/phase_charter.md` for the Phase 10 commitments and out-of-scope list.
+
 # docs/phases/phase10_recovery_pipeline.md — DRAFT
-> **Status:** Planned
-> **Version:** v1
-> **Last Reviewed:** 2025-11-05
-> **Phase:** Phase 10 (Accessibility & recovery)
-> **Source of Truth:** See `docs/phases/phase_charter.md` for the Phase 10 commitments and out-of-scope list.
+> Implementation trace: `docs/BUILD_PLAN.md` → Phase 10 row.
 
 ## Scope
 Define the autosave cadence, snapshot schema, crash restoration, and History pane rollback experience that keep the writer in control after interruptions.
+
+## Done When
+- Accessibility toggles (large-font/high-contrast) are wired through `docs/gui/accessibility_toggles.md`, persisted in settings, and remain accessible from the renderer without additional flags.
+- Export templates deliver Markdown/PDF/EPUB bundles per `docs/gui/exports.md`, and the backend enforces the data shapes in `docs/specs/data_model.md`.
+- Recovery snapshots, journal detection, and hash checks operate as described here with the failure UX referencing `docs/gui/gui_layouts.md`.
 
 ## Autosave & Snapshots
 - Autosave every 30 seconds while any unit is dirty, with a 5 second debounce after edits stop to avoid excessive writes.

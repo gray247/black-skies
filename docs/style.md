@@ -1,4 +1,8 @@
-﻿# Documentation Style Guide (Draft)
+Status: Active
+Version: 1.0.0
+Last Reviewed: 2025-11-15
+
+# Documentation Style Guide (Draft)
 
 ## Headings
 - Use sentence case (e.g. "Phase overview").

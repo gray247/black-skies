@@ -1,8 +1,9 @@
+Status: Active
+Version: 1.1
+Last Reviewed: 2025-11-05
+Covers: new export formats, metadata extensions, and critique summaries (analytics bundles deferred to Phase 9).
+
 # docs/gui/exports.md — Writer-Facing Outputs v1.1
-> **Status:** Active – UNLOCKED · 2025-10-09
-> **Version:** v1.1
-> **Last Reviewed:** 2025-11-05
-> Covers: new export formats, metadata extensions, and critique summaries (analytics bundles deferred to Phase 9).
 
 ---
 

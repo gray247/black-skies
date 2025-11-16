@@ -1,3 +1,7 @@
+Status: Archived
+Version: 0.1.0
+Last Reviewed: 2025-11-15
+
 # Legacy `black_skies` Package Migration Summary
 
 The standalone `black_skies/` package has been removed in favour of the canonical FastAPI service hosted under

@@ -1,8 +1,9 @@
+Status: Deferred
+Version: 1.0
+Last Reviewed: 2025-11-05
+Phase: Phase 11 (Agents & Plugins)
+
 # Plugin Sandbox Design
-> **Status:** Deferred – Phase 11 Agents & Plugins sandbox plan; not shipping in v1.1.
-> **Version:** v1
-> **Last Reviewed:** 2025-11-05
-> **Phase:** Phase 11 (Agents & Plugins)
 
 ## Goals
 - Execute third-party plugins with least privilege.

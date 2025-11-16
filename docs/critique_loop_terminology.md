@@ -1,6 +1,10 @@
+Status: Active
+Version: 1.0.0
+Last Reviewed: 2025-11-15
+
 # docs/critique_loop_terminology.md — DRAFT
 
-## Companion Mode
+## Insights Overlay
 A renderer-only workspace that opens ChatGPT in an isolated pane, disables all Critique automation endpoints, and ensures no writer content leaves the disk.
 
 ## Critique Automation
@@ -16,4 +20,4 @@ UI action that kicks off a batch critique across the current scope (acts/chapter
 Actions that apply or revert suggested edits from critiques. Accept still honors Ctrl/Cmd+ hotkeys and triggers an Undo toast; rollback operations log the event and preserve the original draft in snapshots.
 
 ## Canonical Usage
-Use these terms consistently across UI strings, telemetry counters, and docs to avoid ambiguity between manual review, Companion Mode, and automated critique pipelines.
+Use these terms consistently across UI strings, telemetry counters, and docs to avoid ambiguity between manual review, Insights Overlay, and automated critique pipelines.

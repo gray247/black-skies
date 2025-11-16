@@ -1,3 +1,7 @@
+Status: Active
+Version: 1.0.0
+Last Reviewed: 2025-11-15
+
 # Build Steps Playbook
 > **Source of Truth:** Canonical Build & Verification reference; merge or prune other build docs before hitting this plan.
 > **Status:** Reference doc for every milestone command.

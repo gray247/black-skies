@@ -1,3 +1,7 @@
+Status: Deferred
+Version: 0.5.0
+Last Reviewed: 2025-11-15
+
 # Voice Notes & Transcription Plan (Deferred)
 
 > **Status:** This feature is scoped but **not** shipping in v1.1. The plan remains for future phases; renderer and services do not expose voice note recording/transcription today.

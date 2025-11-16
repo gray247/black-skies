@@ -1,3 +1,7 @@
+Status: Active
+Version: 1.0.0
+Last Reviewed: 2025-11-15
+
 # Dev / Ops Notes
 
 > A curated index of operational and troubleshooting docs so the team can find the right rescue kit quickly.

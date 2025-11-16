@@ -1,3 +1,7 @@
+Status: Archived
+Version: 0.1.0
+Last Reviewed: 2025-11-15
+
 # Phase 9 Candidate Themes
 
 This document translates the 162 residual Phase 8 audit bullets (see `phase8_residual_backlog.md`) into a handful of strategic Phase 9 themes. Each theme lists a short description, a sample of the backlog issues it covers (with original issue numbers and suggested P9 tags), and a priority recommendation.

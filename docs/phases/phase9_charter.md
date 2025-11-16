@@ -1,8 +1,10 @@
+Status: Draft
+Version: 1.0
+Last Reviewed: 2025-11-05
+Source of Truth: This charter follows the master scope listed in `docs/phases/phase_charter.md`; keep status/scope aligned with that doc.
+
 # Phase 9 Charter — Analytics & Stability
-> **Status:** Draft · 2025-11-05
-> **Version:** v1 (Phase 9)
-> **Last Reviewed:** 2025-11-05
-> **Source of Truth:** This charter follows the master scope listed in `docs/phases/phase_charter.md`; keep status/scope aligned with that doc.
+> Implementation trace: `docs/BUILD_PLAN.md` → Phase 9 row.
 
 This charter mirrors the structure of `docs/phases/phase_charter.md` and captures the Phase 9 focus areas—bringing analytics online while tightening API contracts, revision safety, and GUI stability. It names what Phase 9 will ship, what remains deferred, and the gates/tests required before we graduate to later phases.
 
@@ -33,6 +35,12 @@ This charter mirrors the structure of `docs/phases/phase_charter.md` and capture
 - Schema validation errors surface `VALIDATION` payloads with consistent details; there is no uncaught crashing via broad `except Exception`.  
 - Revision/store integrity improves: snapshots include checksums, revision folder policies prevent orphaned files, and restore flows show previews/diff prompts.  
 - GUI docs/hotkeys/offline signals match the actual renderer (no undocumented docking or hotkeys) and offline banners follow the service health contract from Phase 8.
+
+## Done When
+- Analytics service endpoints are operable when `BLACKSKIES_ENABLE_ANALYTICS=1`, and disabled Phase 8 builds return 404s.  
+- The analytics drawer renders emotion/pacing metrics pulled from `docs/specs/analytics_service_spec.md` cache files and matches `docs/gui/gui_layouts.md`.  
+- Companion automation workflows obey Model Router budgets and emit the telemetry counters listed in `docs/phases/phase9_11_testplan.md`.  
+- Dashboard initiatives document Project Health + Outline validation panels, linking back to this charter for acceptance.
 
 ## Testing Requirements
 - Regression suites should cover analytics gating (`pnpm --filter app exec playwright test --grep "analytics"`), export behaviors (`pytest services/tests/test_app.py -k export`), and schema-enforced endpoints (`pytest services/tests/test_app.py -k validation`).  

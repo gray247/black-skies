@@ -1,3 +1,7 @@
+Status: Archived
+Version: 0.1.0
+Last Reviewed: 2025-11-15
+
 # Black Skies Services Review (2024-04-21)
 
 ## Overview
@@ -47,4 +51,3 @@ This review focuses on the FastAPI service under `services/src/blackskies/servic
 5. **Monolithic draft router.** `routers/draft.py` combines budget loaders, diffing, export helpers, wizard snapshots, and every `/draft` route in a single ~1.2k line module. The sheer size makes it hard to reason about shared helpers such as `_load_project_budget_state` and `_compile_manuscript` in isolation and encourages tight coupling between unrelated concerns (preflight, accept, export, critique). Splitting persistence, budgeting, and rewrite helpers into dedicated service modules would improve readability and unlock targeted tests.【F:services/src/blackskies/services/routers/draft.py†L1-L1203】
 6. **Header casing inconsistency.** `metrics_endpoint` sets `headers={"content-type": ...}` while other routes rely on FastAPI's default `Content-Type`. Although HTTP header names are case-insensitive, lower-case constants can confuse debugging scripts and violate internal style guides that mirror RFC casing. Aligning the header name keeps responses uniform.【F:services/src/blackskies/services/routers/health.py†L35-L40】
 7. **CI drift from dependency locks.** The GitHub workflow installs dynamic dependencies via `pip install .[dev]`, ignoring `requirements.lock`. A sudden upstream release (for example `pytest>=8.4`) can break CI even though the repo already curates frozen requirements for reproducibility. Switching the workflow to `pip install -r requirements.lock -r requirements.dev.lock` (or generating wheels from the lock file) keeps CI deterministic.【F:.github/workflows/eval.yml†L15-L27】【F:requirements.lock†L1-L22】
-

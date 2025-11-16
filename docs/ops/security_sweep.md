@@ -1,3 +1,7 @@
+Status: Active
+Version: 1.0.0
+Last Reviewed: 2025-11-15
+
 # P8 Security Sweep Checklist
 
 This document records the baseline dependency and configuration audit completed for Phase 8.

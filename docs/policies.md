@@ -1,6 +1,8 @@
+Status: Active
+Version: 1.0
+Last Reviewed: 2025-11-15
+
 # docs/policies.md — Operating Policies (Source of truth)
-**Status:** LOCKED · 2025-09-23
-**Version:** v1 (Phase 1 / 1.0)
 
 Authoritative policies for platform support, privacy, budgets, models, limits, and error handling. UX specifics live in `docs/gui/gui_layouts.md`. API contracts live in `docs/specs/endpoints.md`.
 
@@ -19,7 +21,7 @@ Authoritative policies for platform support, privacy, budgets, models, limits, a
 - **Local‑first:** All content (outline, scenes, lore, reports) is stored in the **project folder** on disk.  
 - **Project metadata:** Cache files, run ledgers, and backup verifier checkpoints live under each project’s `history/` tree; `_runtime/` only holds global service resilience state and never contains project identifiers or user text.
 - **API Mode (optional):** External calls only occur when the user supplies their own API key. No keys are stored in cloud services.  
-- **Companion Mode:** Opens the user’s ChatGPT subscription in their **system browser**. The app copies selected text and context to the clipboard **only on explicit user action**; it never auto‑sends manuscript text.  
+- **Insights Overlay:** Opens the user’s ChatGPT subscription in their **system browser**. The app copies selected text and context to the clipboard **only on explicit user action**; it never auto‑sends manuscript text.  
 - **No analytics/telemetry.** Only local diagnostics files are written on errors.  
 - **Analytics services deferred:** The analytics router and its derived dashboards remain disabled in Phase 8; enabling them requires explicit Phase 9 feature flags and never ships data outside the local machine.
 - **Redaction (optional):** Companion redaction toggle (off by default) can scrub names/emails from copied text before the browser opens.

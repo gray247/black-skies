@@ -1,3 +1,7 @@
+Status: Active
+Version: 1.0.0
+Last Reviewed: 2025-11-15
+
 # GUI Fix Plan (Consolidated)
 > **Status:** Active – keep this file synced with the renderer fixes that ship with Phase 8/9.
 > **Version:** v1

@@ -1,8 +1,17 @@
+Status: Active (Canonical)
+Version: 1.0.0
+Last Reviewed: 2025-11-15
+
 # docs/specs/data_model.md — Data Model (Source of truth)
-> **Status:** Locked
-> **Version:** v1 (Phase 1 / 1.0)
-> **Last Reviewed:** 2025-09-17
-> **Spec Index:** For architecture context, see `./architecture.md`; for API contracts, see `./endpoints.md`.
+
+Spec Index:
+- Architecture (`./architecture.md`)
+- Data Model (`./data_model.md`)
+- Endpoints (`./endpoints.md`)
+- GUI Layouts (`../gui/gui_layouts.md`)
+- Analytics Spec (`./analytics_service_spec.md`)
+- BUILD_PLAN (TBD)
+- Phase Charter (`../phases/phase_charter.md`)
 
 Canonical shapes for files written to a Black Skies **project folder**. This is the source of truth for storage; endpoints must align with these shapes.
 
@@ -182,7 +191,7 @@ Formal shape for critique output (see rubric doc for category semantics).
 
 ---
 
-## Lore entries — YAML (LOCKED, advisory in 1.x)
+# <PLACEHOLDER>
 YAML files under `/lore/` that power the World-card dock and continuity warnings.
 
 ```yaml
@@ -298,3 +307,28 @@ pacing_thresholds: [1.1, 0.9]
 ```
 
 The synthesizer loads this file via `load_project_heuristics()` before generating drafts so the returned units include `pov`, `goal`, `conflict`, `conflict_type`, and `pacing_target` metadata. Critique scoring then uses those metadata fields for the heuristic metrics returned to the renderer.
+
+## ID & Slug Lifecycle
+- IDs (`sc_{n}`, `ch_{n}`, `dr_{n}`) are assigned once and never reused; slugs update only via `slug_history` entries saved next to the outline.
+- Renaming a scene adds a slug entry without altering the immutable ID, ensuring links remain stable for analytics, exports, and snapshots.
+- IDs increase sequentially even if deletion leaves gaps; clients should rely on `order` for ordering rather than numeric ID semantics.
+
+## Pagination & Ordering
+- List endpoints default to `per_page=20` and enforce `per_page ≤ 100`; missing values default to `page=1`.
+- Offset pagination sorts scenes/chapters by `order`; logs and diagnostics sort by `created_at`. Cursor pagination uses the last item’s `order` plus direction for deterministic continuation.
+- When requests exceed caps, services trim the payload and include `next_cursor` tokens referencing the last returned `order`.
+
+## Field Size Constraints
+- Titles, slugs, rubric entries, and heuristic labels cap at 256 characters; longer submissions produce `VALIDATION` errors.
+- Scene bodies max at 100,000 characters and ~1 MB per draft file; inbound payloads larger than the limit are rejected with helpful diagnostics.
+- Metadata fields (`purpose`, `emotion_tag`, `beats`) are restricted to 64 characters per entry to avoid UI truncation and maintain export parity.
+
+## Revision History Policy
+- Snapshots under `/history/revisions/*.json` store `{ revision_id, draft_id, created_at, checksum, description }`.
+- Keep the latest 20 revisions uncompressed; older revisions compress to `.gz` and the system rotates the queue to limit disk usage.
+- Restoration flows require matching checksums before enabling the “Restore” button; mismatched hashes show warnings but still allow manual confirmation.
+
+## Scene Ordering Rules
+- Scenes sort by their `order` integer; reassignments adjust numbering without renaming IDs and run normalization through `reorder_scenes` to avoid duplicates.
+- Inserts use fractional order values (e.g., 1.5) until normalization rebalances to integers.
+- Chapter moves update both `chapter_id` and `order` atomically so outline and renderer views refresh without mid-flight inconsistencies.

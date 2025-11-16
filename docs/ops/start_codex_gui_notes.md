@@ -1,3 +1,7 @@
+Status: Active
+Version: 1.0.0
+Last Reviewed: 2025-11-15
+
 # start-codex.ps1 GUI Troubleshooting
 > **Category:** Troubleshooting / Ops
 > **Reference:** See `docs/ops/dev_ops_notes.md` for other operational helpers.

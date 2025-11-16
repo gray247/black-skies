@@ -1,8 +1,22 @@
+Status: Active (Canonical)
+Version: 1.0.0
+Last Reviewed: 2025-11-15
+
 # Analytics Service Specification
-> **Status:** Draft
-> **Version:** v1
-> **Last Reviewed:** 2025-11-05
-> **Spec Index:** For architecture, see `./architecture.md`; for data schemas, see `./data_model.md`; for endpoints, see `./endpoints.md`.
+
+Spec Index:
+- Architecture (`./architecture.md`)
+- Data Model (`./data_model.md`)
+- Endpoints (`./endpoints.md`)
+- GUI Layouts (`../gui/gui_layouts.md`)
+- Analytics Spec (`./analytics_service_spec.md`)
+- BUILD_PLAN (TBD)
+- Phase Charter (`../phases/phase_charter.md`)
+
+## Availability
+- Analytics endpoints are disabled for Phase 8 by default (`BLACKSKIES_ENABLE_ANALYTICS=0`); calls return 404 until the Phase 9 gate flips the flag on.
+- Phase 9 introduces the Project Health dashboard and the analytics drawer; enablement requires the analytics service and cache files to be present so the GUI drawer (see `docs/gui/gui_layouts.md`) can render emotion/pacing metrics.
+- Treat this doc as Draft until Phase 9 has a verified release.
 
 ## Goals
 - Quantify pacing, emotional flow, rubric coverage, and character relationships so every analytics surface (Story insights, Project Health, the Visuals Layer) reuses the same backend truth.

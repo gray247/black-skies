@@ -1,3 +1,7 @@
+Status: Active
+Version: 1.0.0
+Last Reviewed: 2025-11-15
+
 # Support Playbook — Phase 9 Preview
 **Status:** Draft · 2025-10-07
 > **Category:** Troubleshooting / Ops

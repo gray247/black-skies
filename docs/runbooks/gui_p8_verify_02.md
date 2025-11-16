@@ -1,3 +1,7 @@
+Status: Active
+Version: 1.0.0
+Last Reviewed: 2025-11-15
+
 # GUI-P8-VERIFY-02 — Keyboard & Accessibility Walkthrough
 **Status:** Scheduled – 2026-01-16  
 **Owner:** Maintainer (solo)

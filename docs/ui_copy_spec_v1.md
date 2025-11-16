@@ -1,3 +1,7 @@
+Status: Active
+Version: 1.0.0
+Last Reviewed: 2025-11-15
+
 # Black Skies writer UI copy spec v1
 
 This document defines approved UI text, tooltips, toasts, dialogs, and inline hints. Tone: calm, writer-first, professional (no emojis or exclamation marks).

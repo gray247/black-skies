@@ -1,9 +1,11 @@
-﻿# Phase 8 – GUI Docking Enhancements
-> **Status:** Verification pending
-> **Version:** v1.1
-> **Last Reviewed:** 2025-10-28
-> **Owner:** Solo maintainer
-> **Linked Phase:** P8 – Hardening, Performance, Resilience
+Status: Draft
+Version: 1.1
+Last Reviewed: 2025-11-15
+
+# Phase 8 — GUI Docking Enhancements
+> Implementation trace: `docs/BUILD_PLAN.md` → Phase 8 row.
+Owner: Solo maintainer
+Linked Phase: P8 – Hardening, Performance, Resilience
 > **Source of Truth:** `docs/gui/gui_layouts.md`
 
 > **Source of Truth:** `docs/gui/gui_layouts.md` captures the shipped pane layout; this document tracks the Phase 8 docking extensions that build on that baseline.
@@ -76,6 +78,12 @@ This document tracks the actionable work items required to upgrade the dockable 
 - Documentation reflects the Outline/Writing/Feedback vocabulary for both the default preset and customizable docking workflows.
 
 ---
+
+## Done When
+- Docking workspace integrations follow the panel layout defined in `docs/gui/gui_layouts.md` while preserving the default fixed preset when the `ui.enable_docking` flag is off.
+- Layout persistence stores schema v2 metadata as described in `docs/gui/gui_layouts.md`, and the renderer restores user-defined presets without exposing the floating layouts to disabled builds.
+- Accessibility hotkeys, focus management, and multi-monitor behaviors reference the guidance in `docs/policies.md` and `docs/gui/gui_layouts.md`, ensuring keyboard-only workflows match the documented controls.
+- Phase 8 verification artifacts (GUI-P8-VERIFY-01/02 runbooks) reference the deployment steps in `docs/BUILD_PLAN.md` Phase 8 row as evidence for finish-line signoff.
 
 ## Verification & QA (updated 2025-10-28)
 

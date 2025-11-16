@@ -1,11 +1,14 @@
-﻿# docs/good_idea_fairies.md — Futures Parking Lot
+Status: Archived
+Version: 0.1
+Last Reviewed: 2025-11-05
 
-**Status:** NON-BINDING · IDEA PARKING ONLY  
-**Purpose:** Capture ambitious, experimental, or out-of-scope ideas so they are not lost, without committing them to any current phase.
+# docs/good_idea_fairies.md — Futures Parking Lot
 
-This doc is _not_ a roadmap. Items here are candidates for future phases only if/when they prove valuable, feasible, and compatible with core goals.
+Purpose: Capture ambitious, experimental, or out-of-scope ideas so they are not lost, without committing them to any current phase.
 
 > **Note:** Use `docs/idea_backlog.md` for a curated, current backlog. This file remains for historical context or tactile brainstorming.
+>
+> This content has been migrated to `docs/idea_backlog.md`.
 ---
 
 ## Ground Rules

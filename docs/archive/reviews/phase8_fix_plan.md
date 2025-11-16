@@ -1,3 +1,7 @@
+Status: Archived
+Version: 0.1.0
+Last Reviewed: 2025-11-15
+
 # Phase 8 Fix Plan
 
 This checklist summarizes every item from the Phase 8 master audit so we can methodically scope work, prioritize gating issues, and surface batchable workgroups before moving forward.
@@ -8,15 +12,15 @@ Critical: 1 · High: 6 · Medium: 2 · Low: 0
 
 | ID | Priority | Category | Short name | Source text |
 | --- | --- | --- | --- | --- |
-| P8-001 | High | API & Endpoints | Remove deferred voice-note API | Voice-note endpoints are absent from the Phase 8 API surface; docs/endpoints.md now states `/api/v1/voice/*` is deferred and architecture/policies reference the Phase 9 plan (`docs/voice_notes_transcription.md`). |
+| P8-001 | High | API & Endpoints | Remove deferred voice-note API | Voice-note endpoints are absent from the Phase 8 API surface; docs/specs/endpoints.md now states `/api/v1/voice/*` is deferred and architecture/policies reference the Phase 9 plan (`docs/voice_notes_transcription.md`). |
 | P8-002 | High | Runtime & Storage | Scope BackupVerifier to Phase 8 storage | BackupVerifier daemon processes voice notes/snapshots only when `backup_verifier_enabled` and `BLACKSKIES_ENABLE_VOICE_NOTES=1`; Phase 8 docs highlight the gate and missing voice analysis (`services/backup_verifier.py`, `docs/backup_verification_daemon.md`). |
 | P8-003 | High | Runtime & Storage | Localize BackupVerifier storage | BackupVerifier reads/writes global `_runtime/` state instead of per-project storage (status: now uses `project_root/history/backup_verifier/` + atomic state files (see `services/backup_verifier.py`, `docs/data_model.md`, `docs/policies.md`, `services/io.py`). |
 | P8-004 | High | Runtime & Storage | Harden `_runtime/` boundaries | Global `_runtime/` folder used for caches and run ledgers; violates data_model and risks cross-project leakage (status: cache/runs now stored per-project under `history/cache/` and `history/runs/` with atomic helpers; see `services/cache.py`, `services/runs.py`, `docs/data_model.md`, `docs/policies.md`). |
-| P8-005 | Critical | Security & Plugins/Agents | Sandboxed plugin runner | Plugin runner execution stays disabled unless `BLACKSKIES_ENABLE_PLUGINS=1`; docs/architecture.md and docs/policies.md explain the deferred status while services/plugins/registry.py enforces the guard. |
+| P8-005 | Critical | Security & Plugins/Agents | Sandboxed plugin runner | Plugin runner execution stays disabled unless `BLACKSKIES_ENABLE_PLUGINS=1`; docs/specs/architecture.md and docs/policies.md explain the deferred status while services/plugins/registry.py enforces the guard. |
 | P8-006 | Medium | Security & Plugins/Agents | Scrub sensitive logs | Diagnostic logging now redacts path/project/snapshot metadata before persisting diagnostics, preventing leaks of sensitive file locations (`services/diagnostics.py`). |
 | P8-007 | Medium | General | Tighten exception handling | Broad `except Exception` handlers now chain causes through `raise_service_error(..., cause=exc)` so crashes bubble with their stack traces (`services/http.py`, `services/routers/draft/generation.py`, `services/routers/draft/acceptance.py`, `services/routers/draft/revision.py`, `services/routers/analytics.py`). |
 | P8-008 | High | Runtime & Storage | Lock `_runtime/` writes | `_runtime/` writes have no locking; risk of concurrent corruption (status: atomic JSON writes using `services/io.py` ensure durability for per-project files in `history/` and global resilience state under `_runtime/resilience`; see `services/app.py`, `docs/data_model.md`, `docs/policies.md`). |
-| P8-009 | High | Analytics & Phase Scope | Gate analytics endpoints | Analytics endpoints (`/analytics/*`) now 404 unless `BLACKSKIES_ENABLE_ANALYTICS=1`, exports skip analytics bundles, and docs emphasize the Phase 9-only surface (`services/routers/analytics.py`, `services/routers/draft/export.py`, `services/operations/draft_export.py`, `docs/endpoints.md`, `docs/exports.md`, `docs/gui_layouts.md`, `docs/analytics_service_spec.md`, `docs/policies.md`). |
+| P8-009 | High | Analytics & Phase Scope | Gate analytics endpoints | Analytics endpoints (`/analytics/*`) now 404 unless `BLACKSKIES_ENABLE_ANALYTICS=1`, exports skip analytics bundles, and docs emphasize the Phase 9-only surface (`services/routers/analytics.py`, `services/routers/draft/export.py`, `services/operations/draft_export.py`, `docs/specs/endpoints.md`, `docs/exports.md`, `docs/gui/gui_layouts.md`, `docs/specs/analytics_service_spec.md`, `docs/policies.md`). |
 
 ## Checklists by Priority
 

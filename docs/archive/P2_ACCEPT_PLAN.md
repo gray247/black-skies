@@ -1,3 +1,7 @@
+Status: Archived
+Version: 0.1.0
+Last Reviewed: 2025-11-15
+
 # Phase 2 Critique Accept & Recovery Plan
 
 This plan refines milestones **P2.0 – P2.2** from `docs/BUILD_PLAN.md`. Each task is mapped to the stub locations already present in the renderer and service so future work can hook directly into the correct modules.

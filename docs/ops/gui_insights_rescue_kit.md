@@ -1,3 +1,7 @@
+Status: Active
+Version: 1.0.0
+Last Reviewed: 2025-11-15
+
 # GUI Insights Rescue Kit
 > **Category:** Troubleshooting / Ops · Supporting plan / Rescue kit / Deep-dive
 > **Status:** Ops rescue kit for Insights automation stability; not a canonical spec.

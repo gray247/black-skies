@@ -1,3 +1,7 @@
+Status: Draft
+Version: 0.9.0
+Last Reviewed: 2025-11-15
+
 # Scene Rewrite Assistant Design
 
 ## Objective

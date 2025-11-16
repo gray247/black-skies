@@ -1,9 +1,27 @@
-# Backup Verification Daemon – Planning Notes (Phase 11, Deferred)
-> **Status:** Deferred – Phase 11 backup verification daemon is gated out of v1.1 builds.
-> **Version:** v1
-> **Last Reviewed:** 2025-11-05
-> **Owner:** Services Team
-> **Related Work:** `./architecture.md` (Runtime Services), docs/phases/phase_charter.md (Phase 11 scope)
+Status: Active (Canonical)
+Version: 1.0.0
+Last Reviewed: 2025-11-15
+Owner: Services Team
+Related Work: `./architecture.md` (Runtime Services), docs/phases/phase_charter.md (Phase 11 scope)
+
+# Backup Verification Daemon – Planning Notes (Phase 11)
+
+Spec Index:
+- Architecture (`./architecture.md`)
+- Data Model (`./data_model.md`)
+- Endpoints (`./endpoints.md`)
+- GUI Layouts (`../gui/gui_layouts.md`)
+- Analytics Spec (`./analytics_service_spec.md`)
+- BUILD_PLAN (TBD)
+- Phase Charter (`../phases/phase_charter.md`)
+- Version Manifest (`../version_manifest.json`)
+- Agent Reading Guide (`../agent_reading_guide.md`)
+
+Canonical Links:
+- `../BUILD_PLAN.md` (Phase 11 row)
+- `../phases/phase_charter.md`
+- `../phases/dashboard_initiatives.md`
+- `../docs/CHANGELOG.md`
 
 ## Goal
 Guarantee that project snapshots and history archives remain readable. The daemon should routinely verify backups, surface corruption early, and expose status for dashboards/support tooling.
