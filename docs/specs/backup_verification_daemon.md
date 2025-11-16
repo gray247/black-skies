@@ -1,8 +1,10 @@
-Status: Active (Canonical)
+Status: Active (Canonical – Phase 11 Deliverable)
 Version: 1.0.0
 Last Reviewed: 2025-11-15
 Owner: Services Team
 Related Work: `./architecture.md` (Runtime Services), docs/phases/phase_charter.md (Phase 11 scope)
+
+This document is classified as a Phase 11 canonical deliverable per `docs/BUILD_PLAN.md`.
 
 # Backup Verification Daemon – Planning Notes (Phase 11)
 
@@ -14,14 +16,6 @@ Spec Index:
 - Analytics Spec (`./analytics_service_spec.md`)
 - BUILD_PLAN (TBD)
 - Phase Charter (`../phases/phase_charter.md`)
-- Version Manifest (`../version_manifest.json`)
-- Agent Reading Guide (`../agent_reading_guide.md`)
-
-Canonical Links:
-- `../BUILD_PLAN.md` (Phase 11 row)
-- `../phases/phase_charter.md`
-- `../phases/dashboard_initiatives.md`
-- `../docs/CHANGELOG.md`
 
 ## Goal
 Guarantee that project snapshots and history archives remain readable. The daemon should routinely verify backups, surface corruption early, and expose status for dashboards/support tooling.
