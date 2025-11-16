@@ -18,7 +18,7 @@ Spec Index:
 - Phase Charter (`../phases/phase_charter.md`)
 
 ## Goal
-Guarantee that project snapshots and history archives remain readable. The daemon should routinely verify backups, surface corruption early, and expose status for dashboards/support tooling.
+Guarantee that both the short-term snapshots and the long-term ZIP backup archives remain readable. The daemon should routinely verify snapshot integrity, sanity-check the ZIP bundles, surface corruption early, and expose status for dashboards/support tooling.
 
 ## Key Outcomes
 1. Detect corrupted or missing snapshots within 15 minutes of creation.
@@ -26,9 +26,11 @@ Guarantee that project snapshots and history archives remain readable. The daemo
 3. Provide a CLI hook (`scripts/verify_backups.py`) and service health endpoint for support automation.
 
 ## Functional Requirements
-- **Scope:** `.blackskies/history/snapshots/` archives + voice note audio/transcripts.
+- **Scope:** `.blackskies/history/snapshots/` archives plus the long-term ZIP backup bundles under `<project_base_dir>/backups/BS_*.zip`, along with voice note audio/transcripts.
+- **Snapshot coverage:** walk the snapshot directory (using `history/snapshots/index.json` when present) to capture each entry, validate its stored SHA-256, and flag missing files before rotation.
+- **Backup coverage:** iterate `backups/` bundles, read `checksums.json`, and open each ZIP to verify the manifest and a random entry so long-term archives stay readable.
 - **Verification cadence:** configurable (default every 30 minutes) with exponential back-off when idle.
-- **Checks:** checksum validation (sha256), manifest completeness, ability to extract a random sample file.
+- **Checks:** checksum validation (sha256), manifest completeness, and the ability to extract a random sample file from the snapshot index or the ZIP backup bundle to ensure archives are readable.
 - **Reporting:** write structured diagnostics (`history/diagnostics/backup_verifier_*.json`) and update a shared state file summarising last run/last failure.
 - **Alerting hooks:** emit `/api/v1/healthz` extension flag (`"backup_status": "ok|warning|error"`) and send structured log events for support ingestion.
 - **Failure remediation:** attempt single automatic retry; if still failing, mark snapshot as suspect and notify dashboard/support.

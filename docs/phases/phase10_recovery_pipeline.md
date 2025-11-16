@@ -10,6 +10,8 @@ Source of Truth: See `docs/phases/phase_charter.md` for the Phase 10 commitments
 ## Scope
 Define the autosave cadence, snapshot schema, crash restoration, and History pane rollback experience that keep the writer in control after interruptions.
 
+This phase focuses on automatic snapshots and short-term recovery flows. Long-term ZIP backups (for migration and archival) are defined in `backup_and_migration.md`.
+
 ## Done When
 - Accessibility toggles (large-font/high-contrast) are wired through `docs/gui/accessibility_toggles.md`, persisted in settings, and remain accessible from the renderer without additional flags.
 - Export templates deliver Markdown/PDF/EPUB bundles per `docs/gui/exports.md`, and the backend enforces the data shapes in `docs/specs/data_model.md`.

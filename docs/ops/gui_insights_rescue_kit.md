@@ -1,4 +1,8 @@
-Status: Active
+- **Status:** Historical troubleshooting doc.  
+- Used for stabilizing Insights E2E and renderer behavior during earlier hardening work.  
+- Kept for reference; not a live roadmap doc.
+
+Status: Historical
 Version: 1.0.0
 Last Reviewed: 2025-11-15
 
@@ -9,6 +13,7 @@ Last Reviewed: 2025-11-15
 > **Index:** `docs/ops/dev_ops_notes.md`
 
 When `app/tests/e2e/gui.insights.spec.ts` locks up on a blank Electron window, the symptoms line up with the stray `page.goto`, missing renderer logs, and the trace that never reaches `dock-workspace`. This rescue kit forces the packaged renderer, captures the crash trace, and requires a tiny smoke gate before rerunning the Insights scenario.
+Use it as a historical troubleshooting reference for that class of Insights failures rather than a recurring phase gate—current test plans should rely on the documented checks in `docs/gui/insights_playwright_status.md` and `docs/gui/gui_layouts.md`.
 
 ## What the kit does
 - rebuilds `app/dist` and `app/dist-electron` so `ELECTRON_RENDERER_URL` points at the packaged bundle instead of a dev server.

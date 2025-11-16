@@ -2,7 +2,13 @@ Status: Draft
 Version: 0.9.0
 Last Reviewed: 2025-11-15
 
-# docs/backup_and_migration.md — DRAFT
+# docs/backup_and_migration.md – DRAFT
+
+## Snapshots vs Backups
+
+- **Snapshots** are short-term, automatic safety copies stored inside the project tree (for example under `.snapshots/` or `history/snapshots/`). They use a rolling retention window (for example, the last N snapshots or roughly the last 7 days). Snapshots exist to recover from crashes, accidental edits, or “I want yesterday’s state back” while you are actively working on the project. They are NOT meant as long-term archives or a portable format for moving projects between machines.
+
+- **Backups** are explicit, long-term ZIP archives that capture the entire project folder for migration and archival. The user triggers them (or they run on a slower schedule), and they live outside the active project tree (for example, under a `backups/` root or an external path). Backups are meant for long-term retention, machine migration, and “I never want to lose this point-in-time snapshot”, and they are not automatically deleted.
 
 ## Backup Story
 - **Recommended backup:** Zip the entire project folder (`outline.json`, `/drafts/`, `/history/`, `/analytics/`, `/exports/`) and store it under `backups/` outside the project root. By default, exclude `logs/` and `.perf/`.

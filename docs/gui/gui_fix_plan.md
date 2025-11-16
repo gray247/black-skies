@@ -1,17 +1,23 @@
-Status: Active
+> **Status:** Historical / Phase 8 GUI rescue doc.  
+> Docking + Insights tests are now passing.  
+> For the *current* GUI behavior and layout, see:  
+> - `docs/gui_layouts.md` (canonical layouts)  
+> - `docs/BUILD_PLAN.md` / phase charters (current scope)
+
+Status: Historical
 Version: 1.0.0
 Last Reviewed: 2025-11-15
 
 # GUI Fix Plan (Consolidated)
-> **Status:** Active – keep this file synced with the renderer fixes that ship with Phase 8/9.
+> **Status:** Historical – retain this Phase 8/9 rescue reference; follow the current charters for living scope.
 > **Version:** v1
 > **Last Reviewed:** 2025-11-05
-> **Source of Truth:** Canonical GUI fix/rescue plan for Insights gating & offline resilience; other GUI docs should point here.
-> **Category:** GUI fix / Rescue plan
+> **Source of Truth:** Snapshot of the GUI rescue work that kept Insights gating and offline resilience stable.
+> **Category:** GUI rescue reference
 
 ## Background
 - `docs/gui_fix_plan_todo.md`, `docs/gui_insights_playwright_status.md`, and `tools/gui fixes 2.md` previously tracked outstanding GUI items (Insights gating, floating-pane messaging, Playwright instability). This file replaces them with a single reference so future updates live in one spot.
-- The goals remain: keep the packaged renderer stable for Playwright, ensure offline/model gating behaves predictably, and document the verification/rescue steps for GUI automation.
+- The goals remain: keep the packaged renderer stable for Playwright, ensure offline/model gating behaves predictably, and document the verification/rescue steps for GUI automation; treat this as a historical snapshot of the Phase 8 rescue work rather than the active GUI charter.
 
 ## Completed Plan Items
 1. **Insights offline gating + telemetry** – Local vs. model chips are classified, the offline banner/tooltip copy is wired to `bridge.status`, and the companion overlay emits `insights.local_ran`, `insights.model_queued_offline`, and `insights.model_ran_after_reconnect`.
