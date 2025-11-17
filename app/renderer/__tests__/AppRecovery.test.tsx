@@ -221,6 +221,19 @@ function createServicesMock(): ServicesBridge {
         path: 'history/snapshots/snap-test',
       },
     }),
+    exportProject: vi.fn().mockResolvedValue({
+      ok: true,
+      data: {
+        project_id: 'demo_project',
+        path: 'exports/demo_project.md',
+        format: 'md',
+        chapters: 1,
+        scenes: 1,
+        meta_header: false,
+        exported_at: '2025-01-01T00:00:00Z',
+        schema_version: 'ProjectExportResult v1',
+      },
+    }),
     getRecoveryStatus: vi.fn(),
     restoreSnapshot: vi.fn(),
   };

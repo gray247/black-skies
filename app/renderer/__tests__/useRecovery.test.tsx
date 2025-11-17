@@ -55,6 +55,19 @@ function buildServices(overrides?: {
   const partial: Partial<ServicesBridge> = {
     getRecoveryStatus,
     restoreSnapshot,
+    exportProject: vi.fn().mockResolvedValue({
+      ok: true,
+      data: {
+        project_id: defaultProjectSummary.projectId,
+        path: 'exports/recovery.md',
+        format: 'md',
+        chapters: 1,
+        scenes: 1,
+        meta_header: false,
+        exported_at: '2025-01-01T00:00:00Z',
+        schema_version: 'ProjectExportResult v1',
+      },
+    }),
   };
 
   return { services: partial as ServicesBridge, mocks: { getRecoveryStatus, restoreSnapshot } };

@@ -1,43 +1,114 @@
 import { useCallback, useMemo, useState } from 'react';
-import type { MutableRefObject } from 'react';
+import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
 import type { LoadedProject } from '../../shared/ipc/projectLoader';
 import type {
-  DraftAcceptBridgeResponse,
-  DraftCritiqueBridgeResponse,
+  Phase4CritiqueBridgeRequest,
+  Phase4CritiqueBridgeResponse,
+  Phase4CritiqueMode,
+  Phase4RewriteBridgeRequest,
+  Phase4RewriteBridgeResponse,
   RecoveryStatusBridgeResponse,
   ServicesBridge,
 } from '../../shared/ipc/services';
-import { computeSha256 } from '../utils/crypto';
-import { generateDraftId } from '../utils/draft';
-import { extractSceneBody, mergeSceneMarkdown } from '../utils/sceneMarkdown';
-import { handleServiceError } from '../utils/serviceErrors';
-import type { ToastPayload } from '../types/toast';
 import type ProjectSummary from '../types/project';
+import type { ToastPayload } from '../types/toast';
+import { generateDraftId } from '../utils/draft';
+
+export type CritiqueLoopPhase =
+  | 'idle'
+  | 'critique_running'
+  | 'critique_ready'
+  | 'critique_error'
+  | 'rewrite_running'
+  | 'rewrite_ready'
+  | 'rewrite_error';
+
+export interface RewritePreview {
+  originalText: string;
+  revisedText: string;
+}
 
 export interface CritiqueDialogState {
   open: boolean;
+  phase: CritiqueLoopPhase;
   loading: boolean;
   error: string | null;
-  data: DraftCritiqueBridgeResponse | null;
+  critique: Phase4CritiqueBridgeResponse | null;
   traceId?: string;
   draftId: string | null;
   unitId: string | null;
-  accepting: boolean;
+  instructions: string;
+  rewrite: RewritePreview | null;
+  rewriteLoading: boolean;
+  rewriteError: string | null;
 }
 
-const DEFAULT_CRITIQUE_RUBRIC = ['Continuity', 'Pacing', 'Voice'] as const;
+export const DEFAULT_CRITIQUE_RUBRIC = ['Continuity', 'Pacing', 'Voice'] as const;
 
-function createInitialCritiqueState(): CritiqueDialogState {
+export function createInitialCritiqueState(): CritiqueDialogState {
   return {
     open: false,
+    phase: 'idle',
     loading: false,
     error: null,
-    data: null,
+    critique: null,
     traceId: undefined,
     draftId: null,
     unitId: null,
-    accepting: false,
+    instructions: '',
+    rewrite: null,
+    rewriteLoading: false,
+    rewriteError: null,
   };
+}
+
+function normalizeRubric(rubric?: string[]): string[] {
+  if (!Array.isArray(rubric) || rubric.length === 0) {
+    return [...DEFAULT_CRITIQUE_RUBRIC];
+  }
+  const normalized: string[] = [];
+  const seen = new Set<string>();
+  for (const entry of rubric) {
+    if (typeof entry !== 'string') {
+      continue;
+    }
+    const trimmed = entry.trim();
+    if (!trimmed) {
+      continue;
+    }
+    const key = trimmed.toLowerCase();
+    if (seen.has(key)) {
+      continue;
+    }
+    seen.add(key);
+    normalized.push(trimmed);
+  }
+  if (normalized.length === 0) {
+    return [...DEFAULT_CRITIQUE_RUBRIC];
+  }
+  return normalized;
+}
+
+function deriveCritiqueMode(categories: string[]): Phase4CritiqueMode {
+  const normalized = categories.map((item) => item.toLowerCase());
+  if (normalized.some((value) => value.includes('line') || value.includes('edit'))) {
+    return 'line_edit';
+  }
+  if (normalized.some((value) => value.includes('pacing'))) {
+    return 'pacing';
+  }
+  if (normalized.some((value) => value.includes('tone'))) {
+    return 'tone';
+  }
+  return 'big_picture';
+}
+
+function buildSceneText(
+  unitId: string,
+  edits: Record<string, string>,
+  drafts: Record<string, string>,
+): string {
+  return (edits[unitId] ?? drafts[unitId] ?? '').trim();
 }
 
 interface UseCritiqueOptions {
@@ -46,17 +117,12 @@ interface UseCritiqueOptions {
   activeScene: { id: string; title: string | null } | null;
   projectDrafts: Record<string, string>;
   draftEdits: Record<string, string>;
-  setProjectDrafts: React.Dispatch<React.SetStateAction<Record<string, string>>>;
-  setDraftEdits: React.Dispatch<React.SetStateAction<Record<string, string>>>;
-  setCurrentProject: React.Dispatch<React.SetStateAction<LoadedProject | null>>;
-  setRecoveryStatus: React.Dispatch<React.SetStateAction<RecoveryStatusBridgeResponse | null>>;
+  setProjectDrafts: Dispatch<SetStateAction<Record<string, string>>>;
+  setDraftEdits: Dispatch<SetStateAction<Record<string, string>>>;
+  setCurrentProject: Dispatch<SetStateAction<LoadedProject | null>>;
   pushToast: (toast: ToastPayload) => void;
   isMountedRef: MutableRefObject<boolean>;
   rubric?: string[];
-  onBudgetUpdate?: (
-    budget: DraftCritiqueBridgeResponse['budget'] | DraftAcceptBridgeResponse['budget'],
-  ) => void;
-  onBudgetBlock?: () => void;
 }
 
 export function useCritique({
@@ -68,116 +134,105 @@ export function useCritique({
   setProjectDrafts,
   setDraftEdits,
   setCurrentProject,
-  setRecoveryStatus,
   pushToast,
   isMountedRef,
   rubric,
-  onBudgetUpdate,
-  onBudgetBlock,
 }: UseCritiqueOptions) {
   const [state, setState] = useState<CritiqueDialogState>(createInitialCritiqueState());
-  const onBudgetBlockHandler = onBudgetBlock;
-  const activeRubric = useMemo(
-    () => (Array.isArray(rubric) && rubric.length > 0 ? [...rubric] : [...DEFAULT_CRITIQUE_RUBRIC]),
-    [rubric],
-  );
+  const activeRubric = useMemo(() => normalizeRubric(rubric), [rubric]);
+  const critiqueMode = useMemo(() => deriveCritiqueMode(activeRubric), [activeRubric]);
 
-  const resetCritique = useCallback(() => {
-    setState(createInitialCritiqueState());
+  const setInstructions = useCallback((next: string) => {
+    setState((previous) => ({ ...previous, instructions: next }));
   }, []);
 
-  const closeCritique = useCallback(() => {
-    setState((previous) => ({ ...previous, open: false }));
-  }, []);
-
-  const openCritique = useCallback(async () => {
+  const runCritique = useCallback(async () => {
     if (!services) {
       pushToast({
         tone: 'error',
         title: 'Writing tools offline.',
-        description: 'Reconnect the writing tools before running feedback.',
+        description: 'Reconnect the services before requesting feedback.',
       });
       return;
     }
     if (!projectSummary) {
       pushToast({
         tone: 'warning',
-        title: 'Open a story to start writing.',
-        description: 'Select a story before requesting feedback.',
+        title: 'Open a story first.',
+        description: 'Load a project before running critique.',
       });
       return;
     }
     if (!activeScene) {
       pushToast({
         tone: 'warning',
-        title: 'Select a scene for feedback.',
-        description: 'Choose a scene to request feedback for.',
+        title: 'Select a scene.',
+        description: 'Choose a scene before requesting feedback.',
       });
       return;
     }
 
-    const draftId = generateDraftId(activeScene.id);
-    const unitId = activeScene.id;
-    const requestRubric = [...new Set(activeRubric.map((item) => item.trim()))].filter(
-      (item) => item.length > 0,
-    );
-    if (requestRubric.length === 0) {
+    const sceneText = buildSceneText(activeScene.id, draftEdits, projectDrafts);
+    if (!sceneText) {
       pushToast({
         tone: 'warning',
-        title: 'Add focus points.',
-        description: 'Specify at least one focus point before requesting feedback.',
+        title: 'Empty scene.',
+        description: 'Add some text before requesting critique.',
       });
       return;
     }
-    setState({
+
+    const request: Phase4CritiqueBridgeRequest = {
+      projectId: projectSummary.projectId,
+      sceneId: activeScene.id,
+      text: sceneText,
+      mode: critiqueMode,
+    };
+
+    setState((previous) => ({
+      ...previous,
       open: true,
       loading: true,
+      phase: 'critique_running',
       error: null,
-      data: null,
       traceId: undefined,
-      draftId,
-      unitId,
-      accepting: false,
-    });
+      draftId: generateDraftId(activeScene.id),
+      unitId: activeScene.id,
+      critique: null,
+      instructions: '',
+      rewrite: null,
+      rewriteError: null,
+      rewriteLoading: false,
+    }));
 
     try {
-      const result = await services.critiqueDraft({
-        projectId: projectSummary.projectId,
-        draftId,
-        unitId,
-        rubric: requestRubric,
-      });
+      const result = await services.phase4Critique(request);
       if (!isMountedRef.current) {
         return;
       }
       if (result.ok) {
-        if (result.data.budget) {
-          onBudgetUpdate?.(result.data.budget);
-        }
+        const instructionHint = result.data.suggestions.join(' ').trim();
         setState((previous) => ({
           ...previous,
           loading: false,
-          data: result.data,
+          phase: 'critique_ready',
+          critique: result.data,
+          traceId: result.traceId,
+          instructions: instructionHint,
+        }));
+      } else {
+        setState((previous) => ({
+          ...previous,
+          loading: false,
+          phase: 'critique_error',
+          error: result.error.message,
           traceId: result.traceId,
         }));
         pushToast({
-          tone: 'success',
-          title: 'Feedback ready.',
-          traceId: result.traceId,
+          tone: 'error',
+          title: 'Feedback unavailable.',
+          description: result.error.message,
         });
-      } else {
-      setState((previous) => ({
-        ...previous,
-        loading: false,
-        error: result.error.message,
-        traceId: result.traceId ?? result.error.traceId,
-      }));
-      handleServiceError(
-        result.error,
-        'critique',
-        pushToast,
-        onBudgetBlock,
-      );
       }
     } catch (error) {
       if (!isMountedRef.current) {
@@ -187,6 +242,7 @@ export function useCritique({
       setState((previous) => ({
         ...previous,
         loading: false,
+        phase: 'critique_error',
         error: message,
       }));
       pushToast({
@@ -196,185 +252,195 @@ export function useCritique({
       });
     }
   }, [
-    activeScene,
-    activeRubric,
-    isMountedRef,
-    onBudgetUpdate,
-    onBudgetBlock,
-    projectSummary,
-    pushToast,
     services,
+    projectSummary,
+    activeScene,
+    projectDrafts,
+    draftEdits,
+    critiqueMode,
+    isMountedRef,
+    pushToast,
   ]);
 
-  const rejectCritique = useCallback(() => {
-    resetCritique();
-  }, [resetCritique]);
+  const openCritique = useCallback(() => {
+    void runCritique();
+  }, [runCritique]);
 
-  const acceptCritique = useCallback(async () => {
+  const closeCritique = useCallback(() => {
+    setState((previous) => ({ ...previous, open: false }));
+  }, []);
+
+  const rejectCritique = useCallback(() => {
+    setState((previous) => ({ ...previous, open: false }));
+  }, []);
+
+  const resetCritique = useCallback(() => {
+    setState(createInitialCritiqueState());
+  }, []);
+
+  const runRewrite = useCallback(async () => {
     if (!services) {
       pushToast({
         tone: 'error',
         title: 'Writing tools offline.',
-        description: 'Reconnect the writing tools before accepting feedback.',
+        description: 'Reconnect the services before requesting a rewrite.',
       });
       return;
     }
     if (!projectSummary) {
       pushToast({
         tone: 'warning',
-        title: 'Open a story to start writing.',
-        description: 'Select a story before accepting feedback.',
+        title: 'Open a story first.',
+        description: 'Load a project before requesting a rewrite.',
       });
       return;
     }
-    if (!activeScene) {
+    if (!state.unitId) {
       pushToast({
         tone: 'warning',
-        title: 'Select a scene for feedback.',
-        description: 'Choose a scene before accepting feedback.',
+        title: 'Select a scene.',
+        description: 'Run a critique before asking for a rewrite.',
       });
       return;
     }
-    const unitId = activeScene.id;
-    const draftId = state.draftId ?? generateDraftId(unitId);
-    const canonicalText = projectDrafts[unitId] ?? '';
-    const nextText = draftEdits[unitId] ?? canonicalText;
-    const canonicalBody = extractSceneBody(canonicalText);
-    const nextBody = extractSceneBody(nextText);
 
-    let previousSha: string;
-    try {
-      previousSha = await computeSha256(canonicalBody);
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'Unable to compute checksum for the current draft.';
+    const sceneText = buildSceneText(state.unitId, draftEdits, projectDrafts);
+    if (!sceneText) {
       pushToast({
-        tone: 'error',
-        title: 'Feedback unavailable.',
-        description: message,
+        tone: 'warning',
+        title: 'Empty scene.',
+        description: 'Add text before requesting a rewrite.',
       });
       return;
     }
 
     setState((previous) => ({
       ...previous,
-      accepting: true,
-      error: null,
-      draftId,
-      unitId,
+      rewriteLoading: true,
+      rewriteError: null,
+      phase: 'rewrite_running',
     }));
 
+    const rewriteRequest: Phase4RewriteBridgeRequest = {
+      projectId: projectSummary.projectId,
+      sceneId: state.unitId,
+      originalText: sceneText,
+      instructions: previousInstructions(state.instructions),
+    };
+
     try {
-      const result = await services.acceptDraft({
-        projectId: projectSummary.projectId,
-        draftId,
-        unitId,
-        unit: {
-          id: unitId,
-          previous_sha256: previousSha,
-          text: nextBody,
-        },
-        message: `Accepted critique for ${activeScene.title ?? unitId}`,
-        snapshotLabel: 'accept',
-      });
+      const result = await services.phase4Rewrite(rewriteRequest);
       if (!isMountedRef.current) {
         return;
       }
       if (result.ok) {
-        const mergedDraft = mergeSceneMarkdown(canonicalText, nextBody);
-        setProjectDrafts((previous) => ({ ...previous, [unitId]: mergedDraft }));
-        setDraftEdits((previous) => ({ ...previous, [unitId]: mergedDraft }));
-        setCurrentProject((previous) => {
-          if (!previous) {
-            return previous;
-          }
-          return {
-            ...previous,
-            drafts: {
-              ...previous.drafts,
-              [unitId]: mergedDraft,
-            },
-          };
-        });
-        setRecoveryStatus((previous) => {
-          if (previous) {
-            return {
-              ...previous,
-              status: 'idle',
-              needs_recovery: false,
-              last_snapshot: result.data.snapshot,
-            };
-          }
-          return {
-            project_id: projectSummary.projectId,
-            status: 'idle',
-            needs_recovery: false,
-            pending_unit_id: null,
-            draft_id: null,
-            started_at: null,
-            last_snapshot: result.data.snapshot,
-            message: null,
-            failure_reason: null,
-          };
-        });
-        resetCritique();
-        if (result.data.budget) {
-          onBudgetUpdate?.(result.data.budget);
-        }
-        pushToast({
-          tone: 'success',
-          title: 'Revision accepted.',
-          description: 'Snapshot created.',
-          traceId: result.traceId,
-        });
+        setState((previous) => ({
+          ...previous,
+          rewriteLoading: false,
+          rewrite: {
+            originalText: sceneText,
+            revisedText: result.data.revisedText,
+          },
+          phase: 'rewrite_ready',
+        }));
       } else {
         setState((previous) => ({
           ...previous,
-          accepting: false,
-          error: result.error.message,
+          rewriteLoading: false,
+          rewriteError: result.error.message,
+          phase: 'rewrite_error',
         }));
-        handleServiceError(result.error, 'critique', pushToast, onBudgetBlockHandler);
+        pushToast({
+          tone: 'error',
+          title: 'Rewrite failed.',
+          description: result.error.message,
+        });
       }
     } catch (error) {
       if (!isMountedRef.current) {
         return;
       }
       const message = error instanceof Error ? error.message : String(error);
-      setState((previous) => ({ ...previous, accepting: false, error: message }));
+      setState((previous) => ({
+        ...previous,
+        rewriteLoading: false,
+        rewriteError: message,
+        phase: 'rewrite_error',
+      }));
       pushToast({
         tone: 'error',
-        title: 'Feedback unavailable.',
+        title: 'Rewrite failed.',
         description: message,
       });
     }
   }, [
-    activeScene,
-    draftEdits,
-    isMountedRef,
-    onBudgetBlockHandler,
-    projectDrafts,
-    projectSummary,
-    pushToast,
-    resetCritique,
     services,
-    setCurrentProject,
-    setDraftEdits,
-    setProjectDrafts,
-    setRecoveryStatus,
-    state.draftId,
-    onBudgetUpdate,
+    projectSummary,
+    state.unitId,
+    state.instructions,
+    draftEdits,
+    projectDrafts,
+    isMountedRef,
+    pushToast,
   ]);
+
+  const applyRewrite = useCallback(() => {
+    if (!state.rewrite || !state.unitId) {
+      return;
+    }
+    const updatedText = state.rewrite.revisedText;
+    const targetId = state.unitId;
+    setProjectDrafts((previous) => ({ ...previous, [targetId]: updatedText }));
+    setDraftEdits((previous) => ({ ...previous, [targetId]: updatedText }));
+    setCurrentProject((previous) => {
+      if (!previous) {
+        return previous;
+      }
+      return {
+        ...previous,
+        drafts: {
+          ...previous.drafts,
+          [targetId]: updatedText,
+        },
+      };
+    });
+    setState((previous) => ({
+      ...createInitialCritiqueState(),
+      open: false,
+    }));
+    pushToast({
+      tone: 'success',
+      title: 'Rewrite applied',
+      description: 'Scene text updated with the mock revision.',
+      traceId: state.traceId,
+    });
+  }, [state.rewrite, state.unitId, state.traceId, setProjectDrafts, setDraftEdits, setCurrentProject, pushToast]);
+
+  const discardRewrite = useCallback(() => {
+    setState((previous) => ({
+      ...previous,
+      rewrite: null,
+      rewriteError: null,
+      rewriteLoading: false,
+      phase: previous.critique ? 'critique_ready' : 'idle',
+    }));
+  }, []);
 
   return {
     state,
     openCritique,
     closeCritique,
     rejectCritique,
-    acceptCritique,
     resetCritique,
+    setInstructions,
+    runCritique,
+    runRewrite,
+    applyRewrite,
+    discardRewrite,
   };
 }
 
-export { DEFAULT_CRITIQUE_RUBRIC, createInitialCritiqueState };
-
-export default useCritique;
+function previousInstructions(value: string): string | undefined {
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : undefined;
+}

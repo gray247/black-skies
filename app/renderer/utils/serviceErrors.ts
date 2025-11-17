@@ -26,38 +26,42 @@ const SANDBOX_WARNING = {
 export function mapServiceErrorToToast(
   error: ServiceError,
   context: ServiceErrorContext,
+  traceId?: string,
 ): StructuredServiceError {
   const message = error.message || GENERIC_ERROR_DESC;
   const code = (error.code ?? '').toUpperCase();
+  const resolvedTraceId = traceId ?? error.traceId;
+  const attachTraceId = (payload: ToastPayload): ToastPayload =>
+    resolvedTraceId ? { ...payload, traceId: resolvedTraceId } : payload;
 
   if (code === 'BUDGET_EXCEEDED' || (error.httpStatus === 402 && code === '')) {
     return {
       budgetBlock: true,
-      toast: {
+      toast: attachTraceId({
         tone: 'error',
         title: 'Budget exhausted.',
         description:
           'Budget exhausted for this project/session. Adjust settings or wait/reset.',
-      },
+      }),
     };
   }
 
   if (context === 'analytics') {
     if (code === 'SERVICE_UNAVAILABLE' || code === 'TIMEOUT' || code === 'INTERNAL') {
-      return { toast: ANALYTICS_WARNING };
+      return { toast: attachTraceId(ANALYTICS_WARNING) };
     }
   }
 
   if (code.startsWith('SANDBOX') || code === 'SANDBOX_POLICY') {
-    return { toast: SANDBOX_WARNING };
+    return { toast: attachTraceId(SANDBOX_WARNING) };
   }
 
   return {
-    toast: {
+    toast: attachTraceId({
       tone: 'error',
       title: GENERIC_ERROR_TITLE,
       description: message,
-    },
+    }),
   };
 }
 
@@ -66,8 +70,9 @@ export function handleServiceError(
   context: ServiceErrorContext,
   pushToast: (toast: ToastPayload) => void,
   onBudgetBlock?: () => void,
+  traceId?: string,
 ): void {
-  const interpretation = mapServiceErrorToToast(error, context);
+  const interpretation = mapServiceErrorToToast(error, context, traceId);
   if (interpretation.budgetBlock) {
     onBudgetBlock?.();
   }

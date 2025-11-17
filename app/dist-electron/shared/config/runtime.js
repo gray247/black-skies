@@ -70,7 +70,7 @@ function loadRuntimeConfig(explicitPath) {
     }
     let resolvedConfig;
     if (!(0, node_fs_1.existsSync)(configPath)) {
-        console.warn(`[config] runtime.yaml not found at ${configPath}; using defaults.`);
+        console.info(`[config] runtime.yaml not found at ${configPath}; using defaults.`);
         resolvedConfig = exports.DEFAULT_RUNTIME_CONFIG;
     }
     else {

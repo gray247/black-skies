@@ -5,6 +5,7 @@ import ProjectHome, { type ActiveScenePayload, type ProjectLoadEvent } from "./c
 import CompanionOverlay from "./components/CompanionOverlay";
 import WizardPanel from "./components/WizardPanel";
 import WorkspaceHeader from "./components/WorkspaceHeader";
+import SnapshotsPanel from "./components/SnapshotsPanel";
 import RecoveryBanner from "./components/RecoveryBanner";
 import { PreflightModal } from "./components/PreflightModal";
 import { CritiqueModal } from "./components/CritiqueModal";
@@ -15,6 +16,7 @@ import type { LoadedProject } from "../shared/ipc/projectLoader";
 import type { DiagnosticsBridge } from "../shared/ipc/diagnostics";
 import type {
   DraftCritiqueBridgeResponse,
+  ExportFormat,
   RecoveryStatusBridgeResponse,
   ServicesBridge,
 } from "../shared/ipc/services";
@@ -88,6 +90,12 @@ function deriveBudgetStatus(
   }
   return "ok";
 }
+
+const EXPORT_FORMAT_LABELS: Record<ExportFormat, string> = {
+  md: "Markdown",
+  txt: "Plain text",
+  zip: "ZIP archive",
+};
 
 
 function deriveProjectIdFromPath(path: string): string {
@@ -400,6 +408,11 @@ export default function App(): JSX.Element {
     running: false,
     results: {},
   });
+  const [exporting, setExporting] = useState<boolean>(false);
+  const [snapshotting, setSnapshotting] = useState<boolean>(false);
+  const [verifying, setVerifying] = useState<boolean>(false);
+  const [showSnapshotsPanel, setShowSnapshotsPanel] = useState<boolean>(false);
+  const [exportFormat, setExportFormat] = useState<ExportFormat>("md");
   const batchJobRef = useRef<{ cancelled: boolean } | null>(null);
 
   const projectDraftsRef = useRef<Record<string, string>>({});
@@ -435,8 +448,11 @@ export default function App(): JSX.Element {
     openCritique,
     closeCritique,
     rejectCritique,
-    acceptCritique,
     resetCritique,
+    setInstructions,
+    runRewrite,
+    applyRewrite,
+    discardRewrite,
   } = useCritique({
     services,
     projectSummary,
@@ -446,12 +462,9 @@ export default function App(): JSX.Element {
     setProjectDrafts,
     setDraftEdits,
     setCurrentProject,
-    setRecoveryStatus,
     pushToast,
     isMountedRef,
     rubric: critiqueRubric,
-    onBudgetUpdate: applyBudgetUpdate,
-    onBudgetBlock: markBudgetBlocked,
   });
 
   const resetProjectState = useCallback(() => {
@@ -848,6 +861,222 @@ export default function App(): JSX.Element {
     onBudgetBlock: markBudgetBlocked,
   });
 
+  const handleExportFormatChange = useCallback((nextFormat: ExportFormat) => {
+    setExportFormat(nextFormat);
+  }, []);
+
+  const handleCreateSnapshot = useCallback(async () => {
+    if (snapshotting) {
+      return;
+    }
+
+    const snapshotApi = services?.createProjectSnapshot;
+    if (!snapshotApi) {
+      pushToast({
+        tone: 'warning',
+        title: 'Snapshot unavailable',
+        description: 'Local services are not ready.',
+      });
+      return;
+    }
+
+    const projectId = projectSummary?.projectId;
+    if (!projectId) {
+      pushToast({
+        tone: 'warning',
+        title: 'Snapshot unavailable',
+        description: 'Open a project before creating a snapshot.',
+      });
+      return;
+    }
+
+    setSnapshotting(true);
+    try {
+      const response = await snapshotApi({ projectId });
+      if (!response.ok) {
+        pushToast({
+          tone: 'error',
+          title: 'Snapshot failed',
+          description: response.error?.message ?? 'Unable to create snapshot.',
+        });
+        return;
+      }
+
+      const snapshotPath =
+        response.data?.path ?? (projectSummary?.path ? `${projectSummary.path}/.snapshots` : undefined);
+      const snapshotName = response.data?.snapshot_id ? `Snapshot ${response.data.snapshot_id}` : 'Snapshot saved';
+
+      pushToast({
+        tone: 'success',
+        title: 'Snapshot created',
+        description: snapshotName,
+        actions:
+          snapshotPath && services?.revealPath
+            ? [
+                {
+                  label: 'Show snapshots',
+                  onAction: () => void services.revealPath(snapshotPath),
+                },
+              ]
+            : undefined,
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      pushToast({
+        tone: 'error',
+        title: 'Snapshot failed',
+        description: message,
+      });
+    } finally {
+      setSnapshotting(false);
+    }
+  }, [projectSummary?.path, projectSummary?.projectId, pushToast, services, snapshotting]);
+
+  const handleVerifySnapshots = useCallback(async () => {
+    if (verifying) {
+      return;
+    }
+
+    const verifier = services?.runBackupVerification;
+    if (!verifier) {
+      pushToast({
+        tone: 'warning',
+        title: 'Verification unavailable',
+        description: 'Local services are not ready.',
+      });
+      return;
+    }
+
+    const projectId = projectSummary?.projectId;
+    if (!projectId) {
+      pushToast({
+        tone: 'warning',
+        title: 'Verification unavailable',
+        description: 'Open a project before running verification.',
+      });
+      return;
+    }
+
+    setVerifying(true);
+    try {
+      const response = await verifier({ projectId, latestOnly: true });
+      if (!response.ok) {
+        pushToast({
+          tone: 'error',
+          title: 'Verification failed',
+          description: response.error?.message ?? 'Unable to verify snapshots.',
+        });
+        return;
+      }
+
+      const snapshotReport = response.data?.snapshots[0];
+      const status = snapshotReport?.status ?? 'ok';
+      const message =
+        status === 'ok'
+          ? 'Latest snapshot verified'
+          : `${snapshotReport?.errors?.length ?? 1} issue(s) detected`;
+      const reportPath = projectSummary?.path
+        ? `${projectSummary.path}/.snapshots/last_verification.json`
+        : undefined;
+
+      pushToast({
+        tone: status === 'ok' ? 'success' : 'warning',
+        title: 'Snapshot verification',
+        description: message,
+        actions:
+          reportPath && services?.revealPath
+            ? [
+                {
+                  label: 'View report',
+                  onAction: () => void services.revealPath(reportPath),
+                },
+              ]
+            : undefined,
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      pushToast({
+        tone: 'error',
+        title: 'Verification failed',
+        description: message,
+      });
+    } finally {
+      setVerifying(false);
+    }
+  }, [projectSummary?.path, projectSummary?.projectId, pushToast, services, verifying]);
+
+  const handleExportProject = useCallback(async () => {
+    if (exporting) {
+      return;
+    }
+
+    const exportApi = services?.exportProject;
+    if (!exportApi) {
+      pushToast({
+        tone: "warning",
+        title: "Export unavailable",
+        description: "Local services are still starting up.",
+      });
+      return;
+    }
+
+    const projectId = projectSummary?.projectId;
+    if (!projectId) {
+      pushToast({
+        tone: "warning",
+        title: "Export unavailable",
+        description: "Open a project before exporting.",
+      });
+      return;
+    }
+
+    setExporting(true);
+    try {
+      const response = await exportApi({
+        projectId,
+        format: exportFormat,
+      });
+
+      if (!response.ok) {
+        const message = response.error?.message ?? "Unable to export this project.";
+        console.error("Export failed", response.error);
+        pushToast({
+          tone: "error",
+          title: "Export failed",
+          description: message,
+        });
+        return;
+      }
+
+      const formatLabel = EXPORT_FORMAT_LABELS[exportFormat] ?? exportFormat;
+      const exportPath = response.data?.path ?? "exports/";
+      pushToast({
+        tone: "success",
+        title: "Export complete",
+        description: `Exported ${formatLabel} to ${exportPath}`,
+        actions:
+          services?.revealPath && projectSummary?.path
+            ? [
+                {
+                  label: "Reveal export folder",
+                  onAction: () => void services.revealPath(`${projectSummary.path}/exports`),
+                },
+              ]
+            : undefined,
+      });
+    } catch (error) {
+      console.error("Export request failed", error);
+      const message = error instanceof Error ? error.message : String(error);
+      pushToast({
+        tone: "error",
+        title: "Export failed",
+        description: message,
+      });
+    } finally {
+      setExporting(false);
+    }
+  }, [exportFormat, exporting, projectSummary?.path, projectSummary?.projectId, pushToast, services]);
+
   const handleProjectLoaded = useCallback(
     (payload: ProjectLoadEvent | LoadedProject | null | undefined) => {
       console.info("[App] handleProjectLoaded", {
@@ -1134,6 +1363,17 @@ export default function App(): JSX.Element {
   );
 
   const showServiceHealthBanner = serviceStatus === "offline" && isPortUnavailable;
+  const disableExport =
+    serviceStatus !== "online" ||
+    budgetBlocked ||
+    exporting ||
+    !projectSummary?.projectId ||
+    !services?.exportProject;
+  const disableSnapshot =
+    disableExport || snapshotting || !services?.createProjectSnapshot;
+  const disableVerify =
+    disableExport || verifying || !services?.runBackupVerification;
+  const disableSnapshots = disableExport || showSnapshotsPanel || !services?.listSnapshots;
 
   return (
     <div
@@ -1162,10 +1402,20 @@ export default function App(): JSX.Element {
           onToggleCompanion={toggleCompanion}
           onGenerate={() => void openPreflight()}
           onCritique={() => void openCritique()}
+          onExport={() => void handleExportProject()}
+          onSnapshot={() => void handleCreateSnapshot()}
+          onVerify={() => void handleVerifySnapshots()}
+          onSnapshots={() => setShowSnapshotsPanel(true)}
+          exportFormat={exportFormat}
+          onExportFormatChange={handleExportFormatChange}
           companionOpen={companionOpen}
           disableCompanion={!currentProject}
           disableGenerate={serviceStatus !== "online" || budgetBlocked}
           disableCritique={serviceStatus !== "online" || budgetBlocked}
+          disableExport={disableExport}
+          disableSnapshot={disableSnapshot}
+          disableVerify={disableVerify}
+          disableSnapshots={disableSnapshots}
           budget={budgetSnapshot ?? undefined}
           budgetIndicator={budgetIndicator}
         />
@@ -1207,19 +1457,32 @@ export default function App(): JSX.Element {
         onDismiss={dismissToast}
         autoDismissMs={isTestEnv ? 0 : undefined}
       />
+      {showSnapshotsPanel && projectSummary?.projectId ? (
+        <SnapshotsPanel
+          projectId={projectSummary.projectId}
+          services={services}
+          onClose={() => setShowSnapshotsPanel(false)}
+        />
+      ) : null}
 
       <CritiqueModal
         isOpen={critiqueState.open}
         loading={critiqueState.loading}
         error={critiqueState.error}
-        critique={critiqueState.data}
+        critique={critiqueState.critique}
         traceId={critiqueState.traceId}
-        accepting={critiqueState.accepting}
         sceneId={critiqueState.unitId}
         sceneTitle={activeScene?.title ?? null}
+        instructions={critiqueState.instructions}
+        rewrite={critiqueState.rewrite}
+        rewriteLoading={critiqueState.rewriteLoading}
+        rewriteError={critiqueState.rewriteError}
+        onChangeInstructions={setInstructions}
+        onRunRewrite={() => void runRewrite()}
+        onApplyRewrite={() => void applyRewrite()}
+        onDiscardRewrite={() => discardRewrite()}
         onClose={closeCritique}
         onReject={rejectCritique}
-        onAccept={() => void acceptCritique()}
       />
 
       <PreflightModal
@@ -1242,7 +1505,7 @@ interface CritiqueSummaryPaneProps {
 }
 
 function CritiqueSummaryPane({ state, onOpen, onReset }: CritiqueSummaryPaneProps): JSX.Element {
-  const summary = state.data?.summary?.trim();
+  const summary = state.critique?.summary?.trim();
   return (
     <div className="dock-pane__section">
       <div>

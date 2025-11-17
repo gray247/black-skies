@@ -5,9 +5,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import App from '../App';
 
 import type {
+  BackupVerificationReport,
   DraftGenerateBridgeResponse,
   DraftPreflightEstimate,
   ServicesBridge,
+  SnapshotManifest,
 } from '../../shared/ipc/services';
 import type { LoadedProject, ProjectLoaderApi } from '../../shared/ipc/projectLoader';
 
@@ -118,7 +120,21 @@ function createServicesMock(): ServicesBridge {
       data: draftResponse,
       traceId: 'trace-generate',
     }),
-      critiqueDraft: vi.fn().mockResolvedValue({
+    analyticsBudget: vi.fn().mockResolvedValue({
+      ok: true,
+      data: {
+        project_id: 'demo_project',
+        budget: {
+          soft_limit_usd: 5,
+          hard_limit_usd: 10,
+          spent_usd: 0,
+          remaining_usd: 5,
+        },
+        hint: 'ample',
+      },
+      traceId: 'trace-analytics',
+    }),
+    critiqueDraft: vi.fn().mockResolvedValue({
         ok: true,
         data: {
           unit_id: 'sc_0001',
@@ -127,15 +143,30 @@ function createServicesMock(): ServicesBridge {
         },
         traceId: 'trace-critique',
       }),
-      createSnapshot: vi.fn().mockResolvedValue({
-        ok: true,
-        data: {
-          snapshot_id: 'snap-test',
-          label: 'wizard-structure',
-          created_at: '2025-01-01T00:00:00Z',
-          path: 'history/snapshots/snap-test',
-        },
-      }),
+    createProjectSnapshot: vi.fn().mockResolvedValue({
+      ok: true,
+      data: {
+        snapshot_id: 'snap-test',
+        created_at: '2025-01-01T00:00:00Z',
+        path: '.snapshots/snap-test',
+        files_included: [],
+      } as SnapshotManifest,
+    }),
+    listProjectSnapshots: vi.fn().mockResolvedValue({ ok: true, data: [] }),
+    exportProject: vi.fn().mockResolvedValue({
+      ok: true,
+      data: {
+        project_id: 'demo_project',
+        path: 'exports/demo_project.md',
+        format: 'md',
+        chapters: 1,
+        scenes: 1,
+        meta_header: false,
+        exported_at: '2025-01-01T00:00:00Z',
+        schema_version: 'ProjectExportResult v1',
+      },
+      traceId: 'trace-export',
+    }),
     preflightDraft: vi.fn().mockResolvedValue({
       ok: true,
       data: {
@@ -191,6 +222,14 @@ function createServicesMock(): ServicesBridge {
       },
       traceId: 'trace-restore',
     }),
+    runBackupVerification: vi.fn().mockResolvedValue({
+      ok: true,
+      data: {
+        project_id: 'demo_project',
+        snapshots: [{ snapshot_id: 'snap-test', status: 'ok', errors: [] }],
+      } satisfies BackupVerificationReport,
+    }),
+    revealPath: vi.fn().mockResolvedValue(undefined),
   };
 }
 
@@ -470,7 +509,7 @@ describe('App preflight integration', () => {
     fireEvent.click(proceedButton);
 
     await waitFor(() => expect(services.generateDraft).toHaveBeenCalledTimes(1));
-    const message = await screen.findByText(/Couldn't write draft/i);
+    const message = await screen.findByText(/Something went wrong\./i);
     const toastCard = message.closest('.toast');
     expect(toastCard).not.toBeNull();
     if (toastCard) {
@@ -492,5 +531,28 @@ describe('App preflight integration', () => {
     await waitFor(() => expect(services.checkHealth).toHaveBeenCalled());
     await screen.findByRole('button', { name: /writing tools offline/i });
   });
-});
 
+  it('triggers snapshot and verification from the header', async () => {
+    const App = loadAppWithServices(services);
+    render(<App />);
+
+    const snapshotButton = await screen.findByTestId('workspace-action-snapshot');
+    fireEvent.click(snapshotButton);
+    await waitFor(() => {
+      expect(services.createProjectSnapshot).toBeDefined();
+      services.createProjectSnapshot && expect(services.createProjectSnapshot).toHaveBeenCalled();
+    });
+
+    const verifyButton = await screen.findByTestId('workspace-action-verify');
+    fireEvent.click(verifyButton);
+    await waitFor(() => {
+      expect(services.runBackupVerification).toBeDefined();
+      services.runBackupVerification &&
+        expect(services.runBackupVerification).toHaveBeenCalledWith({
+          projectId: 'demo',
+          latestOnly: true,
+        });
+    });
+  });
+
+});

@@ -118,6 +118,11 @@ class ServiceSettings(BaseModel):
         ge=60,
         description="Maximum interval in seconds when backing off due to idle cycles.",
     )
+    verifier_schedule_seconds: int = Field(
+        default=3600,
+        ge=60,
+        description="Interval in seconds for the scheduled snapshot verifier.",
+    )
 
     @field_validator("project_base_dir")
     @classmethod

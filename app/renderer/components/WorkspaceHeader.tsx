@@ -6,6 +6,7 @@ import BudgetIndicator, {
 } from './BudgetIndicator';
 import ServiceStatusPill from './ServiceStatusPill';
 import type { ServiceStatus } from './ServiceStatusPill';
+import type { ExportFormat } from '../shared/ipc/services';
 
 interface WorkspaceHeaderProps {
   projectLabel: string;
@@ -15,29 +16,51 @@ interface WorkspaceHeaderProps {
   onToggleCompanion: () => void;
   onGenerate: () => void;
   onCritique: () => void;
+  onExport: () => void;
+  exportFormat: ExportFormat;
+  onExportFormatChange: (next: ExportFormat) => void;
+  onSnapshot: () => void;
+  onVerify: () => void;
+  onSnapshots: () => void;
   companionOpen: boolean;
   disableCompanion: boolean;
   disableGenerate: boolean;
   disableCritique: boolean;
+  disableExport: boolean;
+  disableSnapshot: boolean;
+  disableVerify: boolean;
+  disableSnapshots: boolean;
   budget?: BudgetMeterProps;
   budgetIndicator?: BudgetIndicatorState | null;
 }
 
-export function WorkspaceHeader({
-  projectLabel,
-  projectId,
-  serviceStatus,
-  onRetry,
-  onToggleCompanion,
-  onGenerate,
-  onCritique,
-  companionOpen,
-  disableCompanion,
-  disableGenerate,
-  disableCritique,
-  budget,
-  budgetIndicator,
-}: WorkspaceHeaderProps): JSX.Element {
+export function WorkspaceHeader(props: WorkspaceHeaderProps): JSX.Element {
+  const {
+    projectLabel,
+    projectId,
+    serviceStatus,
+    onRetry,
+    onToggleCompanion,
+    onGenerate,
+    onCritique,
+    onExport,
+    exportFormat,
+    onExportFormatChange,
+    onSnapshot,
+    onVerify,
+    companionOpen,
+    disableCompanion,
+    disableGenerate,
+    disableCritique,
+    disableExport,
+    disableSnapshot,
+    disableVerify,
+    budget,
+    budgetIndicator,
+  } = props;
+
+  const disableSnapshots = props.disableSnapshots;
+  const onSnapshots = props.onSnapshots;
   const serviceStatusProps = useMemo(
     () => ({
       status: serviceStatus,
@@ -100,6 +123,65 @@ export function WorkspaceHeader({
         >
           Critique
         </button>
+        <div className="workspace-header__export-picker">
+          <label htmlFor="workspace-export-format" className="visually-hidden">
+            Export format
+          </label>
+          <select
+            id="workspace-export-format"
+            className="workspace-header__export-select"
+            data-testid="workspace-export-format"
+            value={exportFormat}
+            disabled={disableExport}
+            onChange={(event) => onExportFormatChange(event.target.value as ExportFormat)}
+          >
+            <option value="md">Markdown</option>
+            <option value="txt">Plain text</option>
+            <option value="zip">ZIP archive</option>
+          </select>
+        </div>
+        <div className="workspace-header__export-actions">
+          <button
+            type="button"
+            className="app-shell__workspace-button"
+            disabled={disableSnapshot}
+            aria-label="Create snapshot"
+            data-testid="workspace-action-snapshot"
+            onClick={onSnapshot}
+          >
+            Snapshot
+          </button>
+          <button
+            type="button"
+            className="app-shell__workspace-button"
+            disabled={disableVerify}
+            aria-label="Verify snapshots"
+            data-testid="workspace-action-verify"
+            onClick={onVerify}
+          >
+            Verify
+          </button>
+          <button
+            type="button"
+            className="app-shell__workspace-button"
+            disabled={disableSnapshots}
+            aria-label="Open snapshots panel"
+            data-testid="workspace-action-snapshots"
+            onClick={onSnapshots}
+          >
+            Snapshots
+          </button>
+          <button
+            type="button"
+            className="app-shell__workspace-button"
+            disabled={disableExport}
+            aria-label="Export project manuscript"
+            data-testid="workspace-action-export"
+            onClick={onExport}
+          >
+            Export
+          </button>
+        </div>
       </div>
     </header>
   );

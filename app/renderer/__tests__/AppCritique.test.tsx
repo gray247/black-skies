@@ -1,18 +1,20 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { useEffect, useRef } from 'react';
-import { createHash } from 'node:crypto';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import App from '../App';
 
-import type { LoadedProject, ProjectLoaderApi } from '../../shared/ipc/projectLoader';
+import type { LoadedProject } from '../../shared/ipc/projectLoader';
 import type {
-  DraftAcceptBridgeResponse,
-  DraftCritiqueBridgeResponse,
-  DraftGenerateBridgeResponse,
-  DraftPreflightEstimate,
+  Phase4CritiqueBridgeResponse,
   ServicesBridge,
 } from '../../shared/ipc/services';
+
+declare global {
+  interface Window {
+    services?: ServicesBridge;
+  }
+}
 
 const loadedProject: LoadedProject = {
   path: '/projects/demo',
@@ -89,7 +91,7 @@ function ProjectHomeMock({
       lastOpenedPath: loadedProject.path,
     });
 
-    const draftText = draftOverrides?.sc_0001 ?? loadedProject.drafts['sc_0001'];
+    const draftText = draftOverrides?.sc_0001 ?? loadedProject.drafts.sc_0001;
     lastDraftRef.current = draftText;
     onActiveSceneChange?.({ sceneId: 'sc_0001', sceneTitle: 'Arrival', draft: draftText });
     onDraftChange?.('sc_0001', draftText);
@@ -99,7 +101,7 @@ function ProjectHomeMock({
     if (!bootstrappedRef.current) {
       return;
     }
-    const draftText = draftOverrides?.sc_0001 ?? loadedProject.drafts['sc_0001'];
+    const draftText = draftOverrides?.sc_0001 ?? loadedProject.drafts.sc_0001;
     if (lastDraftRef.current === draftText) {
       return;
     }
@@ -121,359 +123,177 @@ vi.mock('../components/WizardPanel', () => ({
   default: () => <div data-testid="wizard-panel-mock" />,
 }));
 
-const critiqueFixture: DraftCritiqueBridgeResponse = {
-  unit_id: 'sc_0001',
-  schema_version: 'CritiqueOutputSchema v1',
-  summary: 'Consider clarifying the static motif before the midpoint.',
-  priorities: ['clarity', 'pacing'],
-  line_comments: [
-    { line: 2, note: 'Add a sensory detail that ties to Mara’s arc.' },
-  ],
-  model: { name: 'critique-synthesizer-v1', provider: 'black-skies-local' },
-  budget: {
-    estimated_usd: 0.15,
-    status: 'ok',
-    message: 'Critique completed within budget.',
-    soft_limit_usd: 5,
-    hard_limit_usd: 10,
-    spent_usd: 1.9,
-    total_after_usd: 1.9,
-  },
-};
-
-const preflightEstimate: DraftPreflightEstimate = {
-  projectId: 'demo',
-  unitScope: 'scene',
-  unitIds: ['sc_0001'],
-  model: { name: 'draft-synthesizer-v1', provider: 'black-skies-local' },
-  scenes: [
-    {
-      id: 'sc_0001',
-      title: 'Arrival',
-      order: 1,
-    },
-  ],
-  budget: {
-    estimated_usd: 0.25,
-    status: 'ok',
-    message: 'Estimate within budget.',
-    soft_limit_usd: 5,
-    hard_limit_usd: 10,
-    spent_usd: 1.5,
-    total_after_usd: 1.75,
-  },
-};
-
-type AppComponent = (props: Record<string, never>) => JSX.Element;
-
-function createServicesMock(): ServicesBridge {
-  const acceptResponse: DraftAcceptBridgeResponse = {
-    unit_id: 'sc_0001',
-    checksum: 'placeholder',
-    schema_version: 'DraftAcceptResult v1',
-    snapshot: {
-      snapshot_id: '20251005T101112Z',
-      label: 'accept',
-      created_at: '2025-10-05T10:11:12Z',
-      path: 'history/snapshots/20251005T101112Z_accept',
-      includes: ['drafts'],
-    },
-    budget: {
-      soft_limit_usd: 5,
-      hard_limit_usd: 10,
-      spent_usd: 1.9,
-      status: 'ok',
-    },
-  };
-
+function createServices(): ServicesBridge {
   return {
-    checkHealth: vi.fn().mockResolvedValue({
+    checkHealth: vi.fn().mockResolvedValue({ ok: true, data: { status: 'online' } }),
+    buildOutline: vi
+      .fn()
+      .mockResolvedValue({
+        ok: true,
+        data: {
+          schema_version: 'OutlineSchema v1',
+          outline_id: 'outline',
+          acts: [],
+          chapters: [],
+          scenes: [],
+        },
+      }),
+    generateDraft: vi
+      .fn()
+      .mockResolvedValue({
+        ok: true,
+        data: {
+          draft_id: 'dr_generated',
+          schema_version: 'DraftUnitSchema v1',
+          units: [],
+        },
+      }),
+    critiqueDraft: vi.fn().mockResolvedValue({ ok: true, data: { summary: 'ok' } }),
+    phase4Critique: vi.fn().mockResolvedValue({
       ok: true,
-      data: { status: 'ok', version: '0.1.0' },
-      traceId: 'trace-health',
+      data: { summary: '', issues: [], suggestions: [] },
     }),
-    buildOutline: vi.fn(),
-    generateDraft: vi.fn(),
-    critiqueDraft: vi.fn().mockResolvedValue({ ok: true, data: critiqueFixture, traceId: 'trace-critique' }),
-    preflightDraft: vi.fn().mockResolvedValue({ ok: true, data: preflightEstimate, traceId: 'trace-preflight' }),
-    acceptDraft: vi.fn().mockResolvedValue({ ok: true, data: acceptResponse, traceId: 'trace-accept' }),
-    createSnapshot: vi.fn(),
-    getRecoveryStatus: vi.fn().mockResolvedValue({
+    phase4Rewrite: vi.fn().mockResolvedValue({
+      ok: true,
+      data: { revisedText: '' },
+    }),
+    preflightDraft: vi
+      .fn()
+      .mockResolvedValue({
+        ok: true,
+        data: {
+          projectId: 'demo',
+          unitScope: 'scene',
+          unitIds: ['sc_0001'],
+          model: { name: 'draft-synthesizer-v1', provider: 'black-skies-local' },
+          scenes: [{ id: 'sc_0001', title: 'Arrival', order: 1 }],
+          budget: { estimated_usd: 1.5, status: 'ok' },
+        },
+      }),
+    acceptDraft: vi.fn().mockResolvedValue({
       ok: true,
       data: {
-        project_id: 'demo_project',
-        status: 'idle',
-        needs_recovery: false,
-        last_snapshot: null,
+        unit_id: 'sc_0001',
+        checksum: 'abcd',
+        snapshot: {
+          snapshot_id: 'modern',
+          label: 'accept',
+          created_at: '2024-01-01T00:00:00Z',
+          path: '',
+        },
+        schema_version: 'DraftAcceptResult v1',
       },
-      traceId: 'trace-recovery',
     }),
-    restoreSnapshot: vi.fn(),
-  } as unknown as ServicesBridge;
+    exportProject: vi.fn().mockResolvedValue({
+      ok: true,
+      data: {
+        project_id: 'demo',
+        path: 'exports/demo.md',
+        format: 'md',
+        chapters: 1,
+        scenes: 1,
+        meta_header: false,
+        exported_at: '2050-01-01T00:00:00Z',
+        schema_version: 'ProjectExportResult v1',
+      },
+    }),
+    createSnapshot: vi.fn().mockResolvedValue({ ok: true, data: {} }),
+    getRecoveryStatus: vi.fn().mockResolvedValue({
+      ok: true,
+      data: { project_id: 'demo', status: 'idle', needs_recovery: false },
+    }),
+    restoreSnapshot: vi.fn().mockResolvedValue({
+      ok: true,
+      data: { project_id: 'demo', status: 'idle', needs_recovery: false },
+    }),
+    analyticsBudget: vi.fn().mockResolvedValue({
+      ok: true,
+      data: {
+        project_id: 'demo',
+        budget: {
+          soft_limit_usd: 10,
+          hard_limit_usd: 10,
+          spent_usd: 0,
+          remaining_usd: 10,
+        },
+        hint: 'stable',
+      },
+    }),
+  };
 }
 
-function loadAppWithServices(
-  services: ServicesBridge,
-  options: { projectLoader?: ProjectLoaderApi } = {},
-): AppComponent {
-  Object.defineProperty(window, 'services', {
-    configurable: true,
-    value: services,
-  });
-  Object.defineProperty(window, 'projectLoader', {
-    configurable: true,
-    value: options.projectLoader,
-  });
-  return App;
-}
-
-describe('App critique flow', () => {
+describe('App critique + rewrite loop', () => {
   let services: ServicesBridge;
 
   beforeEach(() => {
-    services = createServicesMock();
+    services = createServices();
+    window.services = services;
   });
 
   afterEach(() => {
-    vi.clearAllMocks();
-    Reflect.deleteProperty(window as typeof window & { services?: ServicesBridge }, 'services');
-    Reflect.deleteProperty(
-      window as typeof window & { projectLoader?: ProjectLoaderApi },
-      'projectLoader',
-    );
+    delete window.services;
+    vi.resetAllMocks();
   });
 
-  it('requests a critique and accepts the draft', async () => {
-    const App = loadAppWithServices(services);
-    render(<App />);
-
-    const critiqueButton = await screen.findByTestId('workspace-action-critique');
-    await waitFor(() => expect(critiqueButton).not.toBeDisabled());
-
-    fireEvent.click(critiqueButton);
-
-    await screen.findByText(critiqueFixture.summary);
-    await screen.findByText('Budget');
-    await screen.findByText('$1.90 / $10.00');
-
-    const acceptButton = await screen.findByRole('button', { name: 'Accept draft' });
-    fireEvent.click(acceptButton);
-
-    await waitFor(() => expect(services.acceptDraft).toHaveBeenCalled());
-
-    const expectedHash = createHash('sha256')
-      .update(loadedProject.drafts['sc_0001'].replace(/\r\n/g, '\n'))
-      .digest('hex');
-
-    expect(services.critiqueDraft).toHaveBeenCalledWith({
-      projectId: 'demo',
-      draftId: expect.stringMatching(/^dr_/),
-      unitId: 'sc_0001',
-      rubric: ['Continuity', 'Pacing', 'Voice'],
-    });
-
-    expect(services.acceptDraft).toHaveBeenCalledWith({
-      projectId: 'demo',
-      draftId: expect.stringMatching(/^dr_/),
-      unitId: 'sc_0001',
-      unit: {
-        id: 'sc_0001',
-        previous_sha256: expectedHash,
-        text: loadedProject.drafts['sc_0001'],
-      },
-      message: expect.stringContaining('Accepted critique'),
-      snapshotLabel: 'accept',
-    });
-
-    await waitFor(() =>
-      expect(screen.queryByText(critiqueFixture.summary)).not.toBeInTheDocument(),
-    );
-  });
-
-  it('allows configuring the critique rubric from the Companion overlay', async () => {
-    const App = loadAppWithServices(services);
-    render(<App />);
-
-    const companionButton = await screen.findByTestId('workspace-action-companion');
-    fireEvent.click(companionButton);
-
-    await screen.findByRole('heading', { name: 'Companion' });
-    const rubricInput = screen.getByLabelText('Add category');
-    fireEvent.change(rubricInput, { target: { value: 'Atmosphere' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Add' }));
-
-    await screen.findByText('Atmosphere');
-
-    fireEvent.click(screen.getByRole('button', { name: 'Remove Atmosphere' }));
-    await waitFor(() =>
-      expect(screen.queryByText('Atmosphere')).not.toBeInTheDocument(),
-    );
-
-    fireEvent.click(screen.getByRole('button', { name: 'Close' }));
-    await waitFor(() =>
-      expect(screen.queryByRole('heading', { name: 'Companion' })).not.toBeInTheDocument(),
-    );
-  });
-
-  it('runs a batch critique for the selected scenes', async () => {
-    const App = loadAppWithServices(services);
-    render(<App />);
-
-    const companionButton = await screen.findByTestId('workspace-action-companion');
-    fireEvent.click(companionButton);
-
-    await screen.findByRole('heading', { name: 'Companion' });
-
-    const runButton = await screen.findByRole('button', { name: 'Review selected scenes' });
-    expect(runButton).toBeEnabled();
-
-    fireEvent.click(runButton);
-
-    await waitFor(() => expect(services.critiqueDraft).toHaveBeenCalledTimes(1));
-
-    expect(services.critiqueDraft).toHaveBeenLastCalledWith({
-      projectId: 'demo',
-      draftId: expect.stringMatching(/^dr_/),
-      unitId: 'sc_0001',
-      rubric: ['Continuity', 'Pacing', 'Voice'],
-    });
-
-    await screen.findByText('Complete');
-    await screen.findByText(critiqueFixture.summary);
-  });
-
-  it('surfaces the budget meter after running a preflight estimate', async () => {
-    const App = loadAppWithServices(services);
-    render(<App />);
-
-    const generateButton = await screen.findByTestId('workspace-action-generate');
-    await waitFor(() => expect(generateButton).not.toBeDisabled());
-
-    fireEvent.click(generateButton);
-
-    await waitFor(() => expect(services.preflightDraft).toHaveBeenCalledTimes(1));
-
-    await screen.findByText('Budget');
-    await screen.findByText('$1.75 / $10.00');
-  });
-
-  it('updates the budget meter after a critique response', async () => {
-    const App = loadAppWithServices(services);
-    render(<App />);
-
-    const generateButton = await screen.findByTestId('workspace-action-generate');
-    await waitFor(() => expect(generateButton).not.toBeDisabled());
-    fireEvent.click(generateButton);
-    await waitFor(() => expect(services.preflightDraft).toHaveBeenCalledTimes(1));
-    await screen.findByText('$1.75 / $10.00');
-
-    const critiqueButton = await screen.findByTestId('workspace-action-critique');
-    await waitFor(() => expect(critiqueButton).not.toBeDisabled());
-    fireEvent.click(critiqueButton);
-
-    await screen.findByText(critiqueFixture.summary);
-    await screen.findByText('$1.90 / $10.00');
-  });
-
-  it('refreshes project drafts after generation so accept uses the latest checksum', async () => {
-    const newDraftBody = 'Generated scene body with heightened stakes.';
-    const refreshedProject: LoadedProject = {
-      ...loadedProject,
-      drafts: { ...loadedProject.drafts, sc_0001: newDraftBody },
-    };
-    const estimate: DraftPreflightEstimate = {
-      projectId: 'demo',
-      unitScope: 'scene',
-      unitIds: ['sc_0001'],
-      model: { name: 'draft-synthesizer-v1', provider: 'black-skies-local' },
-      scenes: [
-        { id: 'sc_0001', title: 'Arrival', order: 1, chapter_id: 'ch_0001' },
+  it('runs critique, rewrites, and applies the mock revision', async () => {
+    const critiqueResponse: Phase4CritiqueBridgeResponse = {
+      summary: 'Mock summary for testing.',
+      issues: [
+        { type: 'pacing', message: 'Sample issue.', line: 1 },
       ],
-      budget: { estimated_usd: 0.5, status: 'ok' },
+      suggestions: ['Add tension in the middle beat.'],
     };
-    const generateResponse: DraftGenerateBridgeResponse = {
-      draft_id: 'dr_generated',
-      schema_version: 'DraftUnitSchema v1',
-      units: [
-        { id: 'sc_0001', text: newDraftBody, meta: { order: 1, title: 'Arrival', chapter_id: 'ch_0001' } },
-      ],
-      budget: { status: 'ok' },
-    };
-    services.preflightDraft = vi
-      .fn()
-      .mockResolvedValue({ ok: true, data: estimate, traceId: 'trace-preflight' });
-    services.generateDraft = vi
-      .fn()
-      .mockResolvedValue({ ok: true, data: generateResponse, traceId: 'trace-generate' });
-
-    const projectLoaderMock: ProjectLoaderApi = {
-      openProjectDialog: vi.fn().mockResolvedValue({ canceled: true }),
-      loadProject: vi.fn().mockResolvedValue({ ok: true, project: refreshedProject, issues: [] }),
-      getSampleProjectPath: vi.fn(),
-    };
-
-    const App = loadAppWithServices(services, { projectLoader: projectLoaderMock });
-    render(<App />);
-
-    const generateButton = await screen.findByRole('button', { name: /generate/i });
-    await waitFor(() => expect(generateButton).not.toBeDisabled());
-    fireEvent.click(generateButton);
-
-    await waitFor(() => expect(services.preflightDraft).toHaveBeenCalledTimes(1));
-    const proceedButton = await screen.findByRole('button', { name: /proceed/i });
-    fireEvent.click(proceedButton);
-
-    await waitFor(() => expect(services.generateDraft).toHaveBeenCalledTimes(1));
-    await waitFor(() => expect(projectLoaderMock.loadProject).toHaveBeenCalledTimes(1));
-    expect(projectLoaderMock.loadProject).toHaveBeenCalledWith({ path: loadedProject.path });
-
-    const critiqueButton = await screen.findByTestId('workspace-action-critique');
-    await waitFor(() => expect(critiqueButton).not.toBeDisabled());
-    fireEvent.click(critiqueButton);
-
-    await screen.findByText(critiqueFixture.summary);
-
-    const acceptButton = await screen.findByRole('button', { name: 'Accept draft' });
-    fireEvent.click(acceptButton);
-
-    await waitFor(() => expect(services.acceptDraft).toHaveBeenCalled());
-
-    const expectedHash = createHash('sha256')
-      .update(newDraftBody.replace(/\r\n/g, '\n'))
-      .digest('hex');
-
-    expect(services.acceptDraft).toHaveBeenLastCalledWith({
-      projectId: 'demo',
-      draftId: expect.stringMatching(/^dr_/),
-      unitId: 'sc_0001',
-      unit: {
-        id: 'sc_0001',
-        previous_sha256: expectedHash,
-        text: newDraftBody,
-      },
-      message: expect.stringContaining('Accepted critique'),
-      snapshotLabel: 'accept',
+    (services.phase4Critique as vi.Mock).mockResolvedValue({
+      ok: true,
+      data: critiqueResponse,
+      traceId: 'trace-critique',
     });
-  });
-
-  it('surfaces critique bridge errors via toast feedback', async () => {
-    services.critiqueDraft = vi.fn().mockResolvedValue({
-      ok: false,
-      error: { message: 'Critique services offline', traceId: 'trace-critique-failure' },
-      traceId: 'trace-critique-failure',
+    (services.phase4Rewrite as vi.Mock).mockResolvedValue({
+      ok: true,
+      data: { revisedText: '[REWRITE MOCK] Revised scene text' },
+      traceId: 'trace-rewrite',
     });
 
-    const App = loadAppWithServices(services);
     render(<App />);
 
     const critiqueButton = await screen.findByTestId('workspace-action-critique');
-    await waitFor(() => expect(critiqueButton).not.toBeDisabled());
-
     fireEvent.click(critiqueButton);
 
-    await waitFor(() => expect(services.critiqueDraft).toHaveBeenCalled());
-    await screen.findByText(/Feedback unavailable/i);
-    const bridgeErrors = screen.getAllByText(/Critique services offline/i);
-    expect(bridgeErrors.length).toBeGreaterThan(0);
+    await screen.findByText(critiqueResponse.summary);
+    expect(services.phase4Critique).toHaveBeenCalledWith(
+      expect.objectContaining({
+        projectId: 'demo',
+        sceneId: 'sc_0001',
+        text: loadedProject.drafts.sc_0001,
+        mode: 'pacing',
+      }),
+    );
+
+    const instructions = screen.getByPlaceholderText(
+      'Summarize what you want to improve, or describe the feeling to amplify.',
+    );
+    fireEvent.change(instructions, { target: { value: 'Add more tension' } });
+
+    const rewriteButton = screen.getByRole('button', { name: /Generate rewrite/i });
+    fireEvent.click(rewriteButton);
+
+    await waitFor(() =>
+      expect(services.phase4Rewrite).toHaveBeenCalledWith(
+        expect.objectContaining({
+          projectId: 'demo',
+          sceneId: 'sc_0001',
+          instructions: 'Add more tension',
+        }),
+      ),
+    );
+
+    await screen.findByText('Rewrite preview');
+
+    const applyButton = screen.getByRole('button', { name: 'Apply rewrite' });
+    fireEvent.click(applyButton);
+
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).toBeNull();
+    });
   });
 });

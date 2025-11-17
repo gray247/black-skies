@@ -201,6 +201,7 @@ export function usePreflight({
         'generation',
         pushToast,
         onBudgetBlockHandler,
+        result.traceId ?? result.error.traceId,
       );
     }
   }, [

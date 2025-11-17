@@ -72,6 +72,19 @@ describe('WizardPanel', () => {
         },
         traceId: 'trace-preflight',
       }),
+      exportProject: vi.fn().mockResolvedValue({
+        ok: true,
+        data: {
+          project_id: 'placeholder',
+          path: 'exports/placeholder.md',
+          format: 'md',
+          chapters: 1,
+          scenes: 1,
+          meta_header: false,
+          exported_at: '2025-01-01T00:00:00Z',
+          schema_version: 'ProjectExportResult v1',
+        },
+      }),
     };
     return services;
   };

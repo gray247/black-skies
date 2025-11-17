@@ -1,4 +1,4 @@
-﻿import { contextBridge, ipcRenderer } from 'electron';
+﻿import { contextBridge, ipcRenderer, shell } from 'electron';
 
 const safeExpose = (key: string, api: unknown) => {
   try {
@@ -69,10 +69,13 @@ import {
   type LayoutResetRequest,
 } from '../shared/ipc/layout.js';
 import type {
-  DraftCritiqueBridgeRequest,
-  DraftCritiqueBridgeResponse,
+  AnalyticsBudgetBridgeRequest,
+  AnalyticsBudgetBridgeResponse,
+  BackupVerificationReport,
   DraftAcceptBridgeRequest,
   DraftAcceptBridgeResponse,
+  DraftCritiqueBridgeRequest,
+  DraftCritiqueBridgeResponse,
   DraftGenerateBridgeRequest,
   DraftGenerateBridgeResponse,
   DraftPreflightBridgeRequest,
@@ -80,6 +83,13 @@ import type {
   DraftUnitOverrides,
   OutlineBuildBridgeRequest,
   OutlineBuildBridgeResponse,
+  ExportFormat,
+  Phase4CritiqueBridgeRequest,
+  Phase4CritiqueBridgeResponse,
+  Phase4RewriteBridgeRequest,
+  Phase4RewriteBridgeResponse,
+  ProjectExportBridgeRequest,
+  ProjectExportBridgeResponse,
   RecoveryRestoreBridgeRequest,
   RecoveryRestoreBridgeResponse,
   RecoveryStatusBridgeRequest,
@@ -88,10 +98,9 @@ import type {
   ServiceHealthResponse,
   ServiceResult,
   ServicesBridge,
+  SnapshotManifest,
   WizardLockSnapshotBridgeRequest,
   WizardLockSnapshotBridgeResponse,
-  AnalyticsBudgetBridgeRequest,
-  AnalyticsBudgetBridgeResponse,
 } from '../shared/ipc/services.js';
 
 type ConsoleMethod = 'log' | 'info' | 'warn' | 'error' | 'debug';
@@ -720,6 +729,35 @@ function serializeAcceptRequest({
   return payload;
 }
 
+function serializePhase4CritiqueRequest({
+  projectId,
+  sceneId,
+  text,
+  mode,
+}: Phase4CritiqueBridgeRequest): Record<string, unknown> {
+  return {
+    project_id: projectId,
+    scene_id: sceneId,
+    text,
+    mode,
+  };
+}
+
+function serializePhase4RewriteRequest({
+  projectId,
+  sceneId,
+  originalText,
+  instructions,
+}: Phase4RewriteBridgeRequest): Record<string, unknown> {
+  const payload: Record<string, unknown> = {
+    project_id: projectId,
+    scene_id: sceneId,
+    original_text: originalText,
+  };
+  setOptionalString(payload, 'instructions', instructions);
+  return payload;
+}
+
 function serializePreflightRequest({
   projectId,
   unitScope,
@@ -759,6 +797,18 @@ export const serviceApi = {
       'POST',
       serializeCritiqueRequest(request),
     ),
+  phase4Critique: (request: Phase4CritiqueBridgeRequest) =>
+    makeServiceCall<Phase4CritiqueBridgeResponse>(
+      'phase4/critique',
+      'POST',
+      serializePhase4CritiqueRequest(request),
+    ),
+  phase4Rewrite: (request: Phase4RewriteBridgeRequest) =>
+    makeServiceCall<Phase4RewriteBridgeResponse>(
+      'phase4/rewrite',
+      'POST',
+      serializePhase4RewriteRequest(request),
+    ),
   preflightDraft: (request: DraftPreflightBridgeRequest) =>
     makeServiceCall<DraftPreflightEstimate>(
       'draft/preflight',
@@ -795,6 +845,32 @@ export const serviceApi = {
     return makeServiceCall<AnalyticsBudgetBridgeResponse>(
       `analytics/budget?${params.toString()}`,
       'GET',
+    );
+  },
+  exportProject: (request: ProjectExportBridgeRequest) =>
+    makeServiceCall<ProjectExportBridgeResponse>('export', 'POST', {
+      project_id: request.projectId,
+      ...(request.format ? { format: request.format } : {}),
+      include_meta_header: Boolean(request.includeMetaHeader),
+    }),
+  createProjectSnapshot: (request: { projectId: string }) =>
+    makeServiceCall<SnapshotManifest>(
+      'snapshots',
+      'POST',
+      { project_id: request.projectId },
+    ),
+  listProjectSnapshots: (request: { projectId: string }) => {
+    const params = new URLSearchParams({ project_id: request.projectId });
+    return makeServiceCall<SnapshotManifest[]>(`snapshots?${params.toString()}`, 'GET');
+  },
+  runBackupVerification: (request: { projectId: string; latestOnly: boolean }) => {
+    const params = new URLSearchParams({
+      project_id: request.projectId,
+      latest_only: request.latestOnly ? 'true' : 'false',
+    });
+    return makeServiceCall<BackupVerificationReport>(
+      `backup_verifier/run?${params.toString()}`,
+      'POST',
     );
   },
 };
@@ -854,12 +930,28 @@ const servicesBridge: ServicesBridge = {
   buildOutline: serviceApi.buildOutline,
   generateDraft: serviceApi.generateDraft,
   critiqueDraft: serviceApi.critiqueDraft,
+  phase4Critique: serviceApi.phase4Critique,
+  phase4Rewrite: serviceApi.phase4Rewrite,
   preflightDraft: serviceApi.preflightDraft,
   acceptDraft: serviceApi.acceptDraft,
   createSnapshot: serviceApi.createSnapshot,
+  createProjectSnapshot: (request: { projectId: string }) =>
+    serviceApi.createProjectSnapshot?.(request),
   getRecoveryStatus: serviceApi.getRecoveryStatus,
   restoreSnapshot: serviceApi.restoreSnapshot,
   analyticsBudget: serviceApi.analyticsBudget,
+  exportProject: serviceApi.exportProject,
+  listProjectSnapshots: (request: { projectId: string }) =>
+    serviceApi.listProjectSnapshots?.(request),
+  runBackupVerification: (request: { projectId: string; latestOnly: boolean }) =>
+    serviceApi.runBackupVerification?.(request),
+  revealPath: async (path: string) => {
+    try {
+      await shell.openPath(path);
+    } catch (error) {
+      console.warn('[preload] revealPath failed', error);
+    }
+  },
 };
 
 const layoutBridge: LayoutBridge = {

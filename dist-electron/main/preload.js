@@ -540,6 +540,23 @@ function serializeAcceptRequest({ projectId, draftId, unitId, unit, message, sna
     setOptionalString(payload, 'snapshot_label', snapshotLabel);
     return payload;
 }
+function serializePhase4CritiqueRequest({ projectId, sceneId, text, mode, }) {
+    return {
+        project_id: projectId,
+        scene_id: sceneId,
+        text,
+        mode,
+    };
+}
+function serializePhase4RewriteRequest({ projectId, sceneId, originalText, instructions, }) {
+    const payload = {
+        project_id: projectId,
+        scene_id: sceneId,
+        original_text: originalText,
+    };
+    setOptionalString(payload, 'instructions', instructions);
+    return payload;
+}
 function serializePreflightRequest({ projectId, unitScope, unitIds, }) {
     return buildProjectPayload(projectId, {
         unit_scope: unitScope,
@@ -555,6 +572,8 @@ exports.serviceApi = {
     buildOutline: (request) => makeServiceCall('outline/build', 'POST', serializeOutlineRequest(request)),
     generateDraft: (request) => makeServiceCall('draft/generate', 'POST', serializeDraftGenerateRequest(request)),
     critiqueDraft: (request) => makeServiceCall('draft/critique', 'POST', serializeCritiqueRequest(request)),
+    phase4Critique: (request) => makeServiceCall('phase4/critique', 'POST', serializePhase4CritiqueRequest(request)),
+    phase4Rewrite: (request) => makeServiceCall('phase4/rewrite', 'POST', serializePhase4RewriteRequest(request)),
     preflightDraft: (request) => makeServiceCall('draft/preflight', 'POST', serializePreflightRequest(request)),
     acceptDraft: (request) => makeServiceCall('draft/accept', 'POST', serializeAcceptRequest(request)),
     createSnapshot: (request) => makeServiceCall('draft/wizard/lock', 'POST', serializeWizardSnapshotRequest(request)),
@@ -566,6 +585,23 @@ exports.serviceApi = {
     analyticsBudget: (request) => {
         const params = new URLSearchParams({ project_id: request.projectId });
         return makeServiceCall(`analytics/budget?${params.toString()}`, 'GET');
+    },
+    exportProject: (request) => makeServiceCall('export', 'POST', {
+        project_id: request.projectId,
+        ...(request.format ? { format: request.format } : {}),
+        include_meta_header: Boolean(request.includeMetaHeader),
+    }),
+    createProjectSnapshot: (request) => makeServiceCall('snapshots', 'POST', { project_id: request.projectId }),
+    listProjectSnapshots: (request) => {
+        const params = new URLSearchParams({ project_id: request.projectId });
+        return makeServiceCall(`snapshots?${params.toString()}`, 'GET');
+    },
+    runBackupVerification: (request) => {
+        const params = new URLSearchParams({
+            project_id: request.projectId,
+            latest_only: request.latestOnly ? 'true' : 'false',
+        });
+        return makeServiceCall(`backup_verifier/run?${params.toString()}`, 'POST');
     },
 };
 const projectLoaderApi = {
@@ -618,12 +654,26 @@ const servicesBridge = {
     buildOutline: exports.serviceApi.buildOutline,
     generateDraft: exports.serviceApi.generateDraft,
     critiqueDraft: exports.serviceApi.critiqueDraft,
+    phase4Critique: exports.serviceApi.phase4Critique,
+    phase4Rewrite: exports.serviceApi.phase4Rewrite,
     preflightDraft: exports.serviceApi.preflightDraft,
     acceptDraft: exports.serviceApi.acceptDraft,
     createSnapshot: exports.serviceApi.createSnapshot,
+    createProjectSnapshot: (request) => exports.serviceApi.createProjectSnapshot?.(request),
     getRecoveryStatus: exports.serviceApi.getRecoveryStatus,
     restoreSnapshot: exports.serviceApi.restoreSnapshot,
     analyticsBudget: exports.serviceApi.analyticsBudget,
+    exportProject: exports.serviceApi.exportProject,
+    listProjectSnapshots: (request) => exports.serviceApi.listProjectSnapshots?.(request),
+    runBackupVerification: (request) => exports.serviceApi.runBackupVerification?.(request),
+    revealPath: async (path) => {
+        try {
+            await electron_1.shell.openPath(path);
+        }
+        catch (error) {
+            console.warn('[preload] revealPath failed', error);
+        }
+    },
 };
 const layoutBridge = {
     async loadLayout(request) {

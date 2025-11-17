@@ -46,6 +46,7 @@ describe('useServiceHealth', () => {
         data: { status: 'online' },
         traceId: 'trace-online',
       } satisfies ServiceHealthResponse),
+      exportProject: vi.fn(),
     } as ServicesBridge;
 
     render(<Harness services={services} />);
@@ -59,6 +60,7 @@ describe('useServiceHealth', () => {
       checkHealth: vi
         .fn()
         .mockResolvedValue({ ok: true, data: { status: 'online' }, traceId: 'trace-online' }),
+      exportProject: vi.fn(),
     } as ServicesBridge;
 
     render(<Harness services={services} />);
@@ -77,6 +79,7 @@ describe('useServiceHealth', () => {
           traceId: 'trace-port',
         },
       }),
+      exportProject: vi.fn(),
     } as ServicesBridge;
 
     render(<Harness services={services} />);

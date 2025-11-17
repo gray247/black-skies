@@ -19,8 +19,9 @@ except ModuleNotFoundError:  # pragma: no cover - optional dependency
 
 from .config import ServiceSettings
 from .diagnostics import DiagnosticLogger
-from .io import atomic_write_json, read_json
 from .feature_flags import voice_notes_enabled
+from .io import atomic_write_json, read_json
+from .snapshots import SNAPSHOT_DIR_NAME, list_snapshots
 
 LOGGER = logging.getLogger(__name__)
 
@@ -919,6 +920,52 @@ def _hash_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def run_verification(project_root: Path, *, latest_only: bool = False) -> dict[str, Any]:
+    """Inspect backups/snapshots and report missing or corrupted files."""
+
+    snapshots = list_snapshots(project_root)
+    if latest_only and snapshots:
+        snapshots = snapshots[:1]
+
+    results: list[dict[str, Any]] = []
+    for snapshot in snapshots:
+        snapshot_id = snapshot.get("snapshot_id") or snapshot["path"].split("/")[-1]
+        snapshot_dir = project_root / SNAPSHOT_DIR_NAME / snapshot_id
+        manifest_path = snapshot_dir / "manifest.json"
+        errors: list[str] = []
+
+        if not manifest_path.exists():
+            errors.append("manifest missing")
+            results.append({"snapshot_id": snapshot_id, "status": "errors", "errors": errors})
+            continue
+
+        try:
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            errors.append("manifest invalid")
+            results.append({"snapshot_id": snapshot_id, "status": "errors", "errors": errors})
+            continue
+
+        for entry in manifest.get("files_included", []):
+            relative = entry.get("path")
+            if not relative:
+                continue
+            candidate = snapshot_dir / relative
+            if not candidate.exists():
+                errors.append(f"missing {relative}")
+                continue
+            checksum = entry.get("checksum")
+            if checksum:
+                actual = _hash_file(candidate)
+                if actual != checksum:
+                    errors.append(f"checksum mismatch {relative}")
+
+        status = "ok" if not errors else "errors"
+        results.append({"snapshot_id": snapshot_id, "status": status, "errors": errors})
+
+    return {"project_id": project_root.name, "snapshots": results}
+
+
 __all__ = [
     "BackupVerificationDaemon",
     "BackupVerificationReport",
@@ -926,4 +973,5 @@ __all__ = [
     "BackupIssue",
     "ProjectVerificationReport",
     "SnapshotVerificationResult",
+    "run_verification",
 ]

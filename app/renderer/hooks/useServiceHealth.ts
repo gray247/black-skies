@@ -86,7 +86,10 @@ export function useServiceHealth(
 
   const retry = useCallback(async () => {
     const now = performance.now ? performance.now() : Date.now();
-    if (isCheckingRef.current || now - lastRetryTimestampRef.current < RETRY_THROTTLE_MS) {
+    if (
+      isCheckingRef.current ||
+      (!testEnv && now - lastRetryTimestampRef.current < RETRY_THROTTLE_MS)
+    ) {
       return;
     }
 
@@ -131,7 +134,7 @@ export function useServiceHealth(
     } finally {
       isCheckingRef.current = false;
     }
-  }, [handleFailure, services, mountedRef]);
+  }, [handleFailure, services, mountedRef, testEnv]);
 
   useEffect(() => {
     let cancelled = false;

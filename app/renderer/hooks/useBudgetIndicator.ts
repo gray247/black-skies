@@ -52,7 +52,7 @@ export function useBudgetIndicator({
     if (typeof window !== "undefined" && window.__testBudgetResponse !== undefined) {
       return window.__testBudgetResponse;
     }
-    if (!services || !projectId || !serviceHealthy) {
+    if (!services || !projectId || !serviceHealthy || typeof services.analyticsBudget !== 'function') {
       return null;
     }
 
@@ -66,7 +66,13 @@ export function useBudgetIndicator({
     }
 
     if (result.error) {
-      handleServiceError(result.error, "analytics", pushToast, () => setBlocked(true));
+      handleServiceError(
+        result.error,
+        "analytics",
+        pushToast,
+        () => setBlocked(true),
+        result.traceId ?? result.error.traceId,
+      );
     } else {
       pushToast({
         tone: "warning",

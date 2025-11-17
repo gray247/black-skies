@@ -40,6 +40,7 @@ from .routers.recovery import RecoveryTracker
 from .critique import CritiqueService
 from .resilience import ResiliencePolicy, ServiceResilienceRegistry
 from .service_errors import ServiceError
+from .scheduler import VerificationScheduler
 
 LOGGER = logging.getLogger(__name__)
 
@@ -189,6 +190,18 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
             status="warning",
             message="Backup verifier disabled by configuration.",
         )
+
+    scheduler = VerificationScheduler(settings=application.state.settings)
+    application.state.verification_scheduler = scheduler
+
+    async def _start_scheduler() -> None:
+        scheduler.start()
+
+    async def _stop_scheduler() -> None:
+        scheduler.shutdown()
+
+    application.add_event_handler("startup", _start_scheduler)
+    application.add_event_handler("shutdown", _stop_scheduler)
 
     async def http_exception_handler(_: Request, exc: Exception) -> Response:
         trace_id = ensure_trace_id()

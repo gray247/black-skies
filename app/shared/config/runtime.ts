@@ -125,7 +125,7 @@ export function loadRuntimeConfig(explicitPath?: string): RuntimeConfig {
 
   let resolvedConfig: RuntimeConfig;
   if (!existsSync(configPath)) {
-    console.warn(`[config] runtime.yaml not found at ${configPath}; using defaults.`);
+    console.info(`[config] runtime.yaml not found at ${configPath}; using defaults.`);
     resolvedConfig = DEFAULT_RUNTIME_CONFIG;
   } else {
     try {

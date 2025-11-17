@@ -24,6 +24,8 @@ export interface ServiceHealthResponse {
   traceId?: string;
 }
 
+export type ExportFormat = 'docx' | 'pdf' | 'rtf' | 'txt' | 'md' | 'zip';
+
 export interface WizardActLock {
   title: string;
 }
@@ -157,12 +159,60 @@ export interface DraftCritiqueBridgeResponse {
   };
 }
 
+export type Phase4CritiqueMode = 'line_edit' | 'big_picture' | 'pacing' | 'tone';
+
+export interface Phase4CritiqueBridgeRequest {
+  projectId: string;
+  sceneId: string;
+  text: string;
+  mode: Phase4CritiqueMode;
+}
+
+export interface Phase4Issue {
+  line?: number;
+  type: string;
+  message: string;
+}
+
+export interface Phase4CritiqueBridgeResponse {
+  summary: string;
+  issues: Phase4Issue[];
+  suggestions: string[];
+}
+
+export interface Phase4RewriteBridgeRequest {
+  projectId: string;
+  sceneId: string;
+  originalText: string;
+  instructions?: string;
+}
+
+export interface Phase4RewriteBridgeResponse {
+  revisedText: string;
+}
+
 export interface SnapshotSummary {
   snapshot_id: string;
   label: string;
   created_at: string;
   path: string;
   includes?: string[];
+}
+
+export interface SnapshotManifest {
+  snapshot_id: string;
+  created_at: string;
+  path: string;
+  files_included: Array<{ path: string; checksum: string }>;
+}
+
+export interface BackupVerificationReport {
+  project_id: string;
+  snapshots: Array<{
+    snapshot_id: string;
+    status: 'ok' | 'errors';
+    errors?: string[];
+  }>;
 }
 
 export interface DraftAcceptUnitPayload {
@@ -273,6 +323,23 @@ export interface AnalyticsBudgetBridgeResponse {
   message?: string;
 }
 
+export interface ProjectExportBridgeRequest {
+  projectId: string;
+  format?: ExportFormat;
+  includeMetaHeader?: boolean;
+}
+
+export interface ProjectExportBridgeResponse {
+  project_id: string;
+  path: string;
+  format: ExportFormat;
+  chapters: number;
+  scenes: number;
+  meta_header: boolean;
+  exported_at: string;
+  schema_version: 'ProjectExportResult v1';
+}
+
 export interface ServicesBridge {
   checkHealth: () => Promise<ServiceHealthResponse>;
   buildOutline: (
@@ -284,6 +351,12 @@ export interface ServicesBridge {
   critiqueDraft: (
     request: DraftCritiqueBridgeRequest,
   ) => Promise<ServiceResult<DraftCritiqueBridgeResponse>>;
+  phase4Critique: (
+    request: Phase4CritiqueBridgeRequest,
+  ) => Promise<ServiceResult<Phase4CritiqueBridgeResponse>>;
+  phase4Rewrite: (
+    request: Phase4RewriteBridgeRequest,
+  ) => Promise<ServiceResult<Phase4RewriteBridgeResponse>>;
   preflightDraft: (
     request: DraftPreflightBridgeRequest,
   ) => Promise<ServiceResult<DraftPreflightEstimate>>;
@@ -293,6 +366,12 @@ export interface ServicesBridge {
   createSnapshot: (
     request: WizardLockSnapshotBridgeRequest,
   ) => Promise<ServiceResult<WizardLockSnapshotBridgeResponse>>;
+  createProjectSnapshot?: (
+    request: { projectId: string },
+  ) => Promise<ServiceResult<SnapshotManifest>>;
+  listProjectSnapshots?: (
+    request: { projectId: string },
+  ) => Promise<ServiceResult<SnapshotManifest[]>>;
   getRecoveryStatus: (
     request: RecoveryStatusBridgeRequest,
   ) => Promise<ServiceResult<RecoveryStatusBridgeResponse>>;
@@ -302,6 +381,13 @@ export interface ServicesBridge {
   analyticsBudget: (
     request: AnalyticsBudgetBridgeRequest,
   ) => Promise<ServiceResult<AnalyticsBudgetBridgeResponse>>;
+  exportProject: (
+    request: ProjectExportBridgeRequest,
+  ) => Promise<ServiceResult<ProjectExportBridgeResponse>>;
+  runBackupVerification?: (
+    request: { projectId: string; latestOnly: boolean },
+  ) => Promise<ServiceResult<BackupVerificationReport>>;
+  revealPath?: (path: string) => Promise<void>;
 }
 
 export type ServicesChannel = never;
