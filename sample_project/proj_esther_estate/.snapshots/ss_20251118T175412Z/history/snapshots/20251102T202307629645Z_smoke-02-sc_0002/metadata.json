@@ -1,0 +1,11 @@
+{
+  "snapshot_id": "20251102T202307629645Z",
+  "project_id": "proj_esther_estate",
+  "label": "smoke-02-sc_0002",
+  "created_at": "2025-11-02T20:23:07.636863Z",
+  "includes": [
+    "drafts",
+    "outline.json",
+    "project.json"
+  ]
+}

@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\operations\draft_generation.py
+# hypothesis_version: 6.138.2
+
+[0.02, 0.5, 120, 850, 1000, ',', ':', 'ANALYTICS', 'Draft task failed.', 'DraftPreflightResult', 'DraftUnitSchema v1', 'INTERNAL', 'TIMEOUT', 'attempt', 'batch', 'beat_refs', 'blocked', 'body', 'budget', 'chapter_id', 'cheap', 'draft_generate', 'draft_id', 'durable', 'error', 'estimate_word_target', 'estimated_usd', 'expensive', 'front_matter', 'hard_limit_usd', 'hint', 'id', 'json', 'local', 'missing_scene_ids', 'mode', 'model', 'order', 'overrides', 'project_id', 'request', 'scene_id', 'scenes', 'schema_version', 'service', 'soft_limit_usd', 'spent_usd', 'text', 'timeout_seconds', 'title', 'tokens', 'total_after_usd', 'unit_count', 'unit_ids', 'unit_scope', 'units', 'utf-8']

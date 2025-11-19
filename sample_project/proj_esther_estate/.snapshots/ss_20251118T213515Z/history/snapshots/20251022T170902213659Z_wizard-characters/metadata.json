@@ -1,0 +1,11 @@
+{
+  "snapshot_id": "20251022T170902213659Z",
+  "project_id": "proj_esther_estate",
+  "label": "wizard-characters",
+  "created_at": "2025-10-22T17:09:02.221080Z",
+  "includes": [
+    "drafts",
+    "outline.json",
+    "project.json"
+  ]
+}

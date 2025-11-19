@@ -183,4 +183,6 @@ When you finish something, jot it here with a date so you can see Phase 5 moving
 
 - [x] 2025-11-16 – Implemented Markdown/TXT exports and export-format picker with UI feedback.
 - [x] 2025-11-17 – Added Canonical Project ZIP export bundle and manifest for Phase 5 backups.
+- [x] 2025-11-18 – Snapshots panel: verification details (UI) added.
+- [x] 2025-11-19 – Added Restore-from-ZIP flow that duplicates projects into `{slug}_restored_<timestamp>` via the Snapshots panel.
 - [ ] YYYY-MM-DD – …

@@ -1,0 +1,8 @@
+{
+  "timestamp": "2025-10-07T21:17:05.839651Z",
+  "code": "CONFLICT",
+  "message": "The submitted draft unit is out of date.",
+  "details": {
+    "unit_id": "sc_0001"
+  }
+}

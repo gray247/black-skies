@@ -12,7 +12,7 @@ export default defineConfig({
     globals: true,
     include: ['renderer/**/*.test.{ts,tsx}', 'main/**/*.test.{ts,tsx}'],
     environmentMatchGlobs: [['main/**/*.test.{ts,tsx}', 'node']],
-    setupFiles: ['./renderer/testSetup.ts'],
+    setupFiles: ['./renderer/testSetup.ts', './renderer/vitest.setup.ts'],
   },
   server: {
     host: '127.0.0.1',

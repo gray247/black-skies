@@ -1,0 +1,5 @@
+# services/requirements-dev.txt
+# Dev-only dependencies for running backend locally
+fastapi
+PyYAML
+uvicorn==0.29.0

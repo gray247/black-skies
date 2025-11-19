@@ -1,0 +1,9 @@
+{
+  "timestamp": "2025-10-22T17:08:34.745040Z",
+  "code": "SNAPSHOT",
+  "message": "Wizard step finalize locked.",
+  "details": {
+    "step": "finalize",
+    "snapshot_id": "20251022T170834716710Z"
+  }
+}

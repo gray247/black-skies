@@ -10,6 +10,7 @@ from pydantic import BaseModel, ValidationError, field_validator
 from ..backup_verifier import run_verification
 from ..config import ServiceSettings
 from ..diagnostics import DiagnosticLogger
+from ..e2e_mode import e2e_backup_verification, is_e2e_mode
 from ..http import raise_validation_error
 from ..models._project_id import validate_project_id
 from .dependencies import get_diagnostics, get_settings
@@ -69,4 +70,6 @@ async def run_backup_verifier(
             project_root=None,
         )
 
+    if is_e2e_mode():
+        return e2e_backup_verification(validated_id)
     return run_verification(project_root, latest_only=latest_only)

@@ -1,0 +1,11 @@
+povs:
+  - "Mara Ibarra"
+  - "Ezra Cole"
+goals:
+  - "stabilize the perimeter sensors"
+  - "keep the generator coil alive"
+conflicts:
+  - description: "humidity chews through every circuit"
+    type: "environmental"
+  - description: "internal doubt about the mission"
+    type: "internal"

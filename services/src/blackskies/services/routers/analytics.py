@@ -10,6 +10,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from ..analytics.service import AnalyticsSummaryService
 from ..config import ServiceSettings
 from ..diagnostics import DiagnosticLogger
+from ..e2e_mode import e2e_analytics_budget, is_e2e_mode
 from ..feature_flags import analytics_enabled
 from ..http import raise_service_error, raise_validation_error
 from ..operations.budget_service import BudgetService
@@ -106,6 +107,9 @@ async def get_analytics_budget(
     diagnostics: DiagnosticLogger = Depends(get_diagnostics),
 ) -> dict[str, Any]:
     """Return the current budget state and simple hints."""
+
+    if is_e2e_mode():
+        return e2e_analytics_budget(project_id)
 
     project_root = settings.project_base_dir / project_id
     try:

@@ -1,0 +1,157 @@
+{
+  "schema_version": "SnapshotManifest v1",
+  "snapshot_id": "20251102T203533845300Z",
+  "project_id": "proj_esther_estate",
+  "label": "smoke-02-sc_0002",
+  "created_at": "2025-11-02T20:35:33.851708Z",
+  "includes": [
+    "drafts",
+    "outline.json",
+    "project.json"
+  ],
+  "project": {
+    "project_id": "proj_esther_estate",
+    "name": "Esther Estate",
+    "created": "2025-09-23T17:10:00Z",
+    "budget": {
+      "soft": 12.5,
+      "hard": 25.0,
+      "spent_usd": 0.86,
+      "last_request_fingerprint": "ff27e4f7704230ee3b9cf63aed659f8ed3effa33d655e465b930b06c015cd899",
+      "last_generate_response": {
+        "project_id": "proj_esther_estate",
+        "unit_scope": "scene",
+        "unit_ids": [
+          "sc_0001"
+        ],
+        "draft_id": "dr_cb24622b",
+        "schema_version": "DraftUnitSchema v1",
+        "units": [
+          {
+            "id": "sc_0001",
+            "text": "Ezra Cole enters Basement Pulse to stabilize the perimeter sensors. The atmosphere leans toward respite as old floorboards complain at every move.\n\nThe beat shifts when the house remembers a forgotten route, keeping the scene in escalation mode and aiming for roughly 890 words.",
+            "meta": {
+              "pov": "Ezra Cole",
+              "purpose": "escalation",
+              "emotion_tag": "respite",
+              "word_target": 890,
+              "order": 1,
+              "chapter_id": "ch_0001"
+            },
+            "prompt_fingerprint": "sha256:3cc22010eba459d8506eae2e2aa8328db5bf2dfc037cd0750821483eb4b4559d",
+            "model": {
+              "name": "draft-synthesizer-v1",
+              "provider": "black-skies-local"
+            },
+            "seed": 42
+          }
+        ],
+        "budget": {
+          "estimated_usd": 0.02,
+          "status": "ok",
+          "message": "Estimate within budget.",
+          "soft_limit_usd": 12.5,
+          "hard_limit_usd": 25.0,
+          "spent_usd": 0.86,
+          "total_after_usd": 0.88
+        }
+      },
+      "last_generate_artifacts": [
+        {
+          "scene_id": "sc_0001",
+          "front_matter": {
+            "id": "sc_0001",
+            "slug": "basement-pulse",
+            "title": "Basement Pulse",
+            "pov": "Ezra Cole",
+            "purpose": "escalation",
+            "goal": "stabilize the perimeter sensors",
+            "conflict": "old floorboards complain at every move",
+            "turn": "the house remembers a forgotten route",
+            "emotion_tag": "respite",
+            "word_target": 890,
+            "order": 1,
+            "chapter_id": "ch_0001",
+            "beats": [
+              "inciting"
+            ]
+          },
+          "body": "Ezra Cole enters Basement Pulse to stabilize the perimeter sensors. The atmosphere leans toward respite as old floorboards complain at every move.\n\nThe beat shifts when the house remembers a forgotten route, keeping the scene in escalation mode and aiming for roughly 890 words.",
+          "durable": true
+        }
+      ]
+    }
+  },
+  "outline": {
+    "schema_version": "OutlineSchema v1",
+    "outline_id": "out_001",
+    "acts": [
+      "Act I: Gathered Storm"
+    ],
+    "chapters": [
+      {
+        "id": "ch_0001",
+        "order": 1,
+        "title": "The Summons"
+      }
+    ],
+    "scenes": [
+      {
+        "id": "sc_0001",
+        "order": 1,
+        "title": "Basement Pulse",
+        "chapter_id": "ch_0001",
+        "beat_refs": [
+          "inciting"
+        ]
+      },
+      {
+        "id": "sc_0002",
+        "order": 2,
+        "title": "Locked Parlor",
+        "chapter_id": "ch_0001",
+        "beat_refs": [
+          "turn"
+        ]
+      }
+    ]
+  },
+  "drafts": [
+    {
+      "id": "sc_0001",
+      "slug": "basement-pulse",
+      "title": "Basement Pulse",
+      "pov": "Ezra Cole",
+      "purpose": "escalation",
+      "goal": "stabilize the perimeter sensors",
+      "conflict": "old floorboards complain at every move",
+      "turn": "the house remembers a forgotten route",
+      "emotion_tag": "respite",
+      "word_target": 890,
+      "order": 1,
+      "chapter_id": "ch_0001",
+      "beats": [
+        "inciting"
+      ],
+      "path": "drafts/sc_0001.md"
+    },
+    {
+      "id": "sc_0002",
+      "slug": "locked-parlor",
+      "title": "Locked Parlor",
+      "pov": "Mara Ibarra",
+      "purpose": "payoff",
+      "goal": "map the estate's sealed corridors",
+      "conflict": "old floorboards complain at every move",
+      "turn": "an old ally speaks through the static",
+      "emotion_tag": "revelation",
+      "word_target": 930,
+      "order": 2,
+      "chapter_id": "ch_0001",
+      "beats": [
+        "turn"
+      ],
+      "path": "drafts/sc_0002.md"
+    }
+  ]
+}

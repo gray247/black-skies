@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\routers\analytics.py
+# hypothesis_version: 6.138.2
+
+[0.0, 0.25, '/analytics', '/budget', '/summary', 'INTERNAL', 'SERVICE_UNAVAILABLE', 'TIMEOUT', 'ample', 'analytics', 'budget', 'error', 'hard_limit_usd', 'hint', 'near_cap', 'over_budget', 'project_id', 'remaining_usd', 'router', 'soft_limit_usd', 'spent_usd', 'stable']

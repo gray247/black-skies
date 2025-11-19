@@ -6,17 +6,17 @@ export type ServiceErrorContext = 'preflight' | 'generation' | 'critique' | 'ana
 export interface StructuredServiceError {
   toast: ToastPayload;
   budgetBlock?: boolean;
+  analyticsWarning?: boolean;
 }
+
+export const ANALYTICS_WARNING_TOAST: ToastPayload = {
+  tone: 'warning',
+  title: 'Usage analytics temporarily unavailable.',
+  description: 'Usage analytics temporarily unreachable; generation still works.',
+};
 
 const GENERIC_ERROR_TITLE = 'Something went wrong.';
 const GENERIC_ERROR_DESC = 'An unexpected issue occurred. Try again or contact support.';
-
-const ANALYTICS_WARNING = {
-  tone: 'warning' as const,
-  title: 'Usage analytics temporarily unavailable.',
-  description: 'Usage analytics temporarily unavailable; generation still works.',
-};
-
 const SANDBOX_WARNING = {
   tone: 'warning' as const,
   title: 'Sandbox policy violation.',
@@ -48,7 +48,10 @@ export function mapServiceErrorToToast(
 
   if (context === 'analytics') {
     if (code === 'SERVICE_UNAVAILABLE' || code === 'TIMEOUT' || code === 'INTERNAL') {
-      return { toast: attachTraceId(ANALYTICS_WARNING) };
+      return {
+        toast: attachTraceId(ANALYTICS_WARNING_TOAST),
+        analyticsWarning: true,
+      };
     }
   }
 
@@ -65,18 +68,26 @@ export function mapServiceErrorToToast(
   };
 }
 
+export interface HandleServiceErrorOptions {
+  suppressToast?: boolean;
+}
+
 export function handleServiceError(
   error: ServiceError,
   context: ServiceErrorContext,
   pushToast: (toast: ToastPayload) => void,
   onBudgetBlock?: () => void,
   traceId?: string,
-): void {
+  options?: HandleServiceErrorOptions,
+): StructuredServiceError {
   const interpretation = mapServiceErrorToToast(error, context, traceId);
+  if (!options?.suppressToast) {
+    pushToast(interpretation.toast);
+  }
   if (interpretation.budgetBlock) {
     onBudgetBlock?.();
   }
-  pushToast(interpretation.toast);
+  return interpretation;
 }
 
 export default handleServiceError;

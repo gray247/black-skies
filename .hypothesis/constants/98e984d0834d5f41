@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\models\phase4_loop.py
+# hypothesis_version: 6.138.2
+
+['CritiqueMode', 'Phase4Issue', 'Phase4RewriteRequest', 'big_picture', 'line_edit', 'pacing', 'tone']

@@ -32,6 +32,7 @@ interface WorkspaceHeaderProps {
   disableSnapshots: boolean;
   budget?: BudgetMeterProps;
   budgetIndicator?: BudgetIndicatorState | null;
+  showSnapshotsPanel: boolean;
 }
 
 export function WorkspaceHeader(props: WorkspaceHeaderProps): JSX.Element {
@@ -61,6 +62,7 @@ export function WorkspaceHeader(props: WorkspaceHeaderProps): JSX.Element {
 
   const disableSnapshots = props.disableSnapshots;
   const onSnapshots = props.onSnapshots;
+  const { showSnapshotsPanel } = props;
   const serviceStatusProps = useMemo(
     () => ({
       status: serviceStatus,
@@ -163,11 +165,17 @@ export function WorkspaceHeader(props: WorkspaceHeaderProps): JSX.Element {
           </button>
           <button
             type="button"
-            className="app-shell__workspace-button"
-            disabled={disableSnapshots}
-            aria-label="Open snapshots panel"
-            data-testid="workspace-action-snapshots"
-            onClick={onSnapshots}
+            className={`app-shell__workspace-button${
+              disableSnapshots ? ' app-shell__workspace-button--disabled' : ''
+            }`}
+            aria-controls="snapshots-panel"
+            aria-expanded={showSnapshotsPanel ? 'true' : 'false'}
+            aria-label="Open Snapshots panel"
+            aria-disabled={disableSnapshots}
+            data-testid="snapshots-open-button"
+            onClick={() => {
+              onSnapshots();
+            }}
           >
             Snapshots
           </button>

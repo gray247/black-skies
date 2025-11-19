@@ -1,0 +1,9 @@
+{
+  "timestamp": "2025-10-22T17:08:44.832269Z",
+  "code": "SNAPSHOT",
+  "message": "Wizard step scenes locked.",
+  "details": {
+    "step": "scenes",
+    "snapshot_id": "20251022T170844805557Z"
+  }
+}

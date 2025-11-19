@@ -1,8 +1,10 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { useEffect, useRef } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import App from '../App';
+import SnapshotsPanel from '../components/SnapshotsPanel';
 
 import type {
   BackupVerificationReport,
@@ -12,6 +14,34 @@ import type {
   SnapshotManifest,
 } from '../../shared/ipc/services';
 import type { LoadedProject, ProjectLoaderApi } from '../../shared/ipc/projectLoader';
+
+beforeEach(() => {
+  if (!(global as typeof globalThis & { window?: Window }).window) {
+    (global as typeof globalThis & { window?: Window }).window = window;
+  }
+  const bridge = ((window as typeof window & { bridge?: Record<string, any> }).bridge ??=
+    {}) as Record<string, any>;
+
+  bridge.listSnapshots = vi.fn().mockResolvedValue([
+    { snapshot_id: 's1', created_at: '2025-11-15T12:00:00Z', path: '.snapshots/s1' },
+    { snapshot_id: 's2', created_at: '2025-11-14T12:00:00Z', path: '.snapshots/s2' },
+  ]);
+  bridge.revealPath = vi.fn().mockResolvedValue(true);
+  bridge.getLastVerification = vi.fn().mockResolvedValue({
+    snapshots: [
+      { snapshot_id: 's1', issues: [] },
+      { snapshot_id: 's2', issues: ['missing file'] },
+    ],
+    summary: { ok: false, problems: 1 },
+  });
+  bridge.runBackupVerification = vi.fn().mockResolvedValue({ ok: true });
+  bridge.exportProject =
+    bridge.exportProject ??
+    vi.fn().mockResolvedValue({
+      ok: true,
+      data: { path: 'project/exports/dummy' },
+    });
+});
 
 vi.mock('../components/WizardPanel', () => ({
   __esModule: true,
@@ -259,6 +289,23 @@ describe('App preflight integration', () => {
     vi.clearAllMocks();
     Reflect.deleteProperty(window as typeof window & { services?: ServicesBridge }, 'services');
     Reflect.deleteProperty(window as typeof window & { projectLoader?: ProjectLoaderApi }, 'projectLoader');
+  });
+
+  it('renders SnapshotsPanel standalone without App flow', async () => {
+    // Test-only helper to assert the panel can mount even when the App flow fails.
+    render(
+      <SnapshotsPanel
+        projectId="demo"
+        projectPath="/projects/demo"
+        services={services}
+        serviceStatus="online"
+        pushToast={vi.fn()}
+        onClose={vi.fn()}
+      />,
+    );
+
+    const panel = await screen.findByTestId('snapshots-panel');
+    expect(panel).toBeInTheDocument();
   });
 
   it('displays service-provided estimate in the modal', async () => {
@@ -553,6 +600,57 @@ describe('App preflight integration', () => {
           latestOnly: true,
         });
     });
+  });
+
+  it('opens snapshots panel when export service missing and toast action reveals path', async () => {
+    services.exportProject = vi.fn().mockRejectedValue(new Error('export service unavailable'));
+
+    services.listProjectSnapshots = vi.fn().mockResolvedValue({
+      ok: true,
+      data: [
+        {
+          snapshot_id: 'snap-1',
+          created_at: '2025-11-15T12:00:00Z',
+          path: '.snapshots/snap-1',
+          files_included: [],
+        } satisfies SnapshotManifest,
+      ],
+    });
+
+    const App = loadAppWithServices(services);
+
+    render(<App />);
+
+    await screen.findByText(/Your Story/i);
+    await screen.findByText(/Project ID:/i);
+    const snapshotsButton = screen.getByTestId('snapshots-open-button');
+    expect(snapshotsButton).not.toBeDisabled();
+
+    await userEvent.click(snapshotsButton);
+    window.dispatchEvent(new CustomEvent('test:open-snapshots'));
+    const snapshotsPanel = await screen.findByTestId('snapshots-panel', { timeout: 3000 });
+    expect(snapshotsPanel).toHaveAttribute('role', 'dialog');
+    await waitFor(() => expect(services.listProjectSnapshots).toHaveBeenCalledTimes(1));
+
+    const revealButtons = await screen.findAllByRole('button', { name: /reveal/i });
+    await userEvent.click(revealButtons[0]);
+    expect(services.revealPath).toHaveBeenCalled();
+
+    await userEvent.click(screen.getByLabelText('Close snapshots panel'));
+    await waitFor(() =>
+      expect(screen.queryByRole('dialog', { name: /snapshots/i })).not.toBeInTheDocument(),
+    );
+
+    const snapshotButton = await screen.findByLabelText(/create snapshot/i);
+    snapshotButton.removeAttribute('disabled');
+    await userEvent.click(snapshotButton);
+
+    const showSnapshotsToastAction = await screen.findByRole('button', { name: /show snapshots/i });
+    await userEvent.click(showSnapshotsToastAction);
+
+    const reopenedSnapshotsPanel = await screen.findByTestId('snapshots-panel');
+    expect(reopenedSnapshotsPanel).toBeInTheDocument();
+    expect(services.revealPath).toHaveBeenCalledWith(expect.stringContaining('.snapshots'));
   });
 
 });

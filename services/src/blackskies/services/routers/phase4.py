@@ -4,6 +4,11 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
+from ..e2e_mode import (
+    e2e_phase4_critique_response,
+    e2e_phase4_rewrite_response,
+    is_e2e_mode,
+)
 from ..models.phase4_loop import (
     CritiqueMode,
     Phase4CritiqueRequest,
@@ -100,6 +105,9 @@ def _mock_rewrite(original_text: str, instructions: str | None) -> str:
 async def critique_phase4(payload: Phase4CritiqueRequest) -> Phase4CritiqueResponse:
     """Return deterministic mock feedback for the requested scene."""
 
+    if is_e2e_mode():
+        return e2e_phase4_critique_response(payload.scene_id)
+
     normalized_text = payload.text.strip()
     summary = _build_summary(normalized_text, payload.mode)
     lines = _split_lines(normalized_text)
@@ -111,6 +119,9 @@ async def critique_phase4(payload: Phase4CritiqueRequest) -> Phase4CritiqueRespo
 @router.post("/rewrite", response_model=Phase4RewriteResponse)
 async def rewrite_phase4(payload: Phase4RewriteRequest) -> Phase4RewriteResponse:
     """Apply lightweight mock edits to the submitted text."""
+
+    if is_e2e_mode():
+        return e2e_phase4_rewrite_response(payload.scene_id, payload.instructions)
 
     revised_text = _mock_rewrite(payload.original_text, payload.instructions)
     return Phase4RewriteResponse(revised_text=revised_text)

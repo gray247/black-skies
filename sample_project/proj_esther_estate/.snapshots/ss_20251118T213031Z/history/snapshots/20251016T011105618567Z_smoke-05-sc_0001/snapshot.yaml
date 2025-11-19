@@ -1,0 +1,157 @@
+{
+  "schema_version": "SnapshotManifest v1",
+  "snapshot_id": "20251016T011105618567Z",
+  "project_id": "proj_esther_estate",
+  "label": "smoke-05-sc_0001",
+  "created_at": "2025-10-16T01:11:05.627037Z",
+  "includes": [
+    "drafts",
+    "outline.json",
+    "project.json"
+  ],
+  "project": {
+    "project_id": "proj_esther_estate",
+    "name": "Esther Estate",
+    "created": "2025-09-23T17:10:00Z",
+    "budget": {
+      "soft": 12.5,
+      "hard": 25.0,
+      "spent_usd": 0.4,
+      "last_request_fingerprint": "2b175afdc2cd710a9db0f985ce1296de975794bbcf0c450e521fbed5bd9484ca",
+      "last_generate_response": {
+        "project_id": "proj_esther_estate",
+        "unit_scope": "scene",
+        "unit_ids": [
+          "sc_0002"
+        ],
+        "draft_id": "dr_318f355f",
+        "schema_version": "DraftUnitSchema v1",
+        "units": [
+          {
+            "id": "sc_0002",
+            "text": "Luis Navarro enters Locked Parlor to extract the survivor logs. The atmosphere leans toward revelation as the blackout shutters seize mid-drop.\n\nThe beat shifts when the house remembers a forgotten route, keeping the scene in payoff mode and aiming for roughly 930 words.",
+            "meta": {
+              "pov": "Luis Navarro",
+              "purpose": "payoff",
+              "emotion_tag": "revelation",
+              "word_target": 930,
+              "order": 2,
+              "chapter_id": "ch_0001"
+            },
+            "prompt_fingerprint": "sha256:613571a599490a5390f9c213982c11fb29a4126f201d95d04cff49eceb5575ac",
+            "model": {
+              "name": "draft-synthesizer-v1",
+              "provider": "black-skies-local"
+            },
+            "seed": 45
+          }
+        ],
+        "budget": {
+          "estimated_usd": 0.02,
+          "status": "ok",
+          "message": "Estimate within budget.",
+          "soft_limit_usd": 12.5,
+          "hard_limit_usd": 25.0,
+          "spent_usd": 0.4,
+          "total_after_usd": 0.4
+        }
+      },
+      "last_generate_artifacts": [
+        {
+          "scene_id": "sc_0002",
+          "front_matter": {
+            "id": "sc_0002",
+            "slug": "locked-parlor",
+            "title": "Locked Parlor",
+            "pov": "Luis Navarro",
+            "purpose": "payoff",
+            "goal": "extract the survivor logs",
+            "conflict": "the blackout shutters seize mid-drop",
+            "turn": "the house remembers a forgotten route",
+            "emotion_tag": "revelation",
+            "word_target": 930,
+            "order": 2,
+            "chapter_id": "ch_0001",
+            "beats": [
+              "turn"
+            ]
+          },
+          "body": "Luis Navarro enters Locked Parlor to extract the survivor logs. The atmosphere leans toward revelation as the blackout shutters seize mid-drop.\n\nThe beat shifts when the house remembers a forgotten route, keeping the scene in payoff mode and aiming for roughly 930 words.",
+          "durable": true
+        }
+      ]
+    }
+  },
+  "outline": {
+    "schema_version": "OutlineSchema v1",
+    "outline_id": "out_001",
+    "acts": [
+      "Act I: Gathered Storm"
+    ],
+    "chapters": [
+      {
+        "id": "ch_0001",
+        "order": 1,
+        "title": "The Summons"
+      }
+    ],
+    "scenes": [
+      {
+        "id": "sc_0001",
+        "order": 1,
+        "title": "Basement Pulse",
+        "chapter_id": "ch_0001",
+        "beat_refs": [
+          "inciting"
+        ]
+      },
+      {
+        "id": "sc_0002",
+        "order": 2,
+        "title": "Locked Parlor",
+        "chapter_id": "ch_0001",
+        "beat_refs": [
+          "turn"
+        ]
+      }
+    ]
+  },
+  "drafts": [
+    {
+      "id": "sc_0001",
+      "slug": "basement-pulse",
+      "title": "Basement Pulse",
+      "pov": "Kira Beaumont",
+      "purpose": "escalation",
+      "goal": "keep the generator coil alive",
+      "conflict": "radio static lances through the air",
+      "turn": "the diary on the desk updates itself",
+      "emotion_tag": "respite",
+      "word_target": 890,
+      "order": 1,
+      "chapter_id": "ch_0001",
+      "beats": [
+        "inciting"
+      ],
+      "path": "drafts/sc_0001.md"
+    },
+    {
+      "id": "sc_0002",
+      "slug": "locked-parlor",
+      "title": "Locked Parlor",
+      "pov": "Luis Navarro",
+      "purpose": "payoff",
+      "goal": "extract the survivor logs",
+      "conflict": "the blackout shutters seize mid-drop",
+      "turn": "the house remembers a forgotten route",
+      "emotion_tag": "revelation",
+      "word_target": 930,
+      "order": 2,
+      "chapter_id": "ch_0001",
+      "beats": [
+        "turn"
+      ],
+      "path": "drafts/sc_0002.md"
+    }
+  ]
+}

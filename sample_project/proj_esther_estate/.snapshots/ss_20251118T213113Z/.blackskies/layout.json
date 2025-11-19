@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "layout": {
+    "direction": "row",
+    "first": "wizard",
+    "second": {
+      "direction": "row",
+      "first": {
+        "direction": "column",
+        "first": "draft-board",
+        "second": "history"
+      },
+      "second": "critique"
+    }
+  },
+  "floatingPanes": [
+    {
+      "id": "wizard",
+      "bounds": {
+        "x": -1245,
+        "y": 151,
+        "width": 845,
+        "height": 633
+      },
+      "displayId": 2779098405
+    },
+    {
+      "id": "draft-board",
+      "bounds": {
+        "x": 854,
+        "y": 182,
+        "width": 414,
+        "height": 285
+      },
+      "displayId": 2528732444
+    }
+  ]
+}

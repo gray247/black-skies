@@ -263,12 +263,29 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
     return application
 
 
-app = create_app()
+# --- dev wrapper to add near the module-level app creation (paste where app = create_app() currently occurs) ---
+# Dev: clearer create_app startup errors (safe, reversible)
+import traceback, sys, logging
+logger = logging.getLogger(__name__)
+
+try:
+    # prefer create_app() if present, otherwise use existing app object if defined earlier
+    if "create_app" in globals():
+        app = create_app()
+    else:
+        app = globals().get("app", None)
+except Exception:
+    # Print to console and re-raise so uvicorn shows the traceback
+    logger.exception("CREATE_APP FAILED: Backend failed to initialize. Run services/tools/check_startup.py for details.")
+    print("CREATE_APP FAILED — check services/tools/check_startup.py for details")
+    traceback.print_exc()
+    raise
+# --- end patch ---
+
 
 __all__ = [
     "app",
     "create_app",
-    "SERVICE_VERSION",
     "DEFAULT_SOFT_BUDGET_LIMIT_USD",
     "DEFAULT_HARD_BUDGET_LIMIT_USD",
     "BuildTracker",

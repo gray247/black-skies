@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\snapshots.py
+# hypothesis_version: 6.138.2
+
+[8192, '*', '+00:00', '.snapshots', 'INTERNAL', 'SNAPSHOT', 'SnapshotManifest v1', 'Z', 'accept', 'checksum', 'create_snapshot', 'created_at', 'errno', 'error', 'exports', 'files_included', 'includes', 'label', 'list_snapshots', 'manifest.json', 'path', 'project_id', 'prune_snapshots', 'rb', 'schema_version', 'snapshot_id', 'ss_%Y%m%dT%H%M%SZ', 'step', 'utf-8']

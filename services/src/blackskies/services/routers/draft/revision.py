@@ -43,6 +43,7 @@ from ..dependencies import (
 )
 from ..shared import utc_timestamp
 from . import router
+from ...e2e_mode import e2e_critique_response, is_e2e_mode
 
 
 def persist_project_budget(state, new_spent_usd):
@@ -363,6 +364,10 @@ async def critique_draft(
             diagnostics=diagnostics,
             project_root=project_root,
         )
+
+    if is_e2e_mode():
+        response_root = project_root or settings.project_base_dir / (project_id or "")
+        return e2e_critique_response(response_root, request_model.project_id, request_model.unit_id)
 
     timeout = getattr(settings, "critique_task_timeout_seconds", 90)
     try:

@@ -3,6 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.serviceApi = void 0;
 exports.makeServiceCall = makeServiceCall;
 const electron_1 = require("electron");
+const node_fs_1 = require("node:fs");
+const node_path_1 = require("node:path");
 const safeExpose = (key, api) => {
     try {
         if (process.contextIsolated) {
@@ -138,6 +140,43 @@ function normalizeError(message, extra) {
         message,
         ...extra,
     };
+}
+function isFileMissingError(error) {
+    if (typeof error !== 'object' || error === null) {
+        return false;
+    }
+    const candidate = error;
+    return candidate.code === 'ENOENT';
+}
+async function readLastVerificationFromPath(projectPath) {
+    if (!projectPath) {
+        return { ok: true, data: null };
+    }
+    const normalized = (0, node_path_1.resolve)(projectPath);
+    const verificationPath = (0, node_path_1.join)(normalized, '.snapshots', 'last_verification.json');
+    const relativePath = (0, node_path_1.relative)(normalized, verificationPath);
+    if (relativePath.startsWith('..')) {
+        return {
+            ok: false,
+            error: normalizeError('Project path resolves outside the project root.'),
+        };
+    }
+    try {
+        const contents = await node_fs_1.promises.readFile(verificationPath, { encoding: 'utf-8' });
+        if (!contents) {
+            return { ok: true, data: null };
+        }
+        const payload = JSON.parse(contents);
+        return { ok: true, data: payload };
+    }
+    catch (error) {
+        if (isFileMissingError(error)) {
+            return { ok: true, data: null };
+        }
+        const message = error instanceof Error ? error.message : 'Unable to read verification data.';
+        console.warn('[preload] Failed to read last_verification.json', error);
+        return { ok: false, error: normalizeError(message) };
+    }
 }
 async function fetchWithTimeout(url, init, timeoutMs) {
     if (timeoutMs <= 0) {
@@ -596,9 +635,10 @@ exports.serviceApi = {
         const params = new URLSearchParams({ project_id: request.projectId });
         return makeServiceCall(`snapshots?${params.toString()}`, 'GET');
     },
+    getLastVerification: (request) => readLastVerificationFromPath(request.projectPath),
     runBackupVerification: (request) => {
         const params = new URLSearchParams({
-            project_id: request.projectId,
+            projectId: request.projectId,
             latest_only: request.latestOnly ? 'true' : 'false',
         });
         return makeServiceCall(`backup_verifier/run?${params.toString()}`, 'POST');
@@ -665,6 +705,7 @@ const servicesBridge = {
     analyticsBudget: exports.serviceApi.analyticsBudget,
     exportProject: exports.serviceApi.exportProject,
     listProjectSnapshots: (request) => exports.serviceApi.listProjectSnapshots?.(request),
+    getLastVerification: (request) => exports.serviceApi.getLastVerification?.(request),
     runBackupVerification: (request) => exports.serviceApi.runBackupVerification?.(request),
     revealPath: async (path) => {
         try {

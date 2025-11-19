@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\routers\draft\acceptance.py
+# hypothesis_version: 6.138.2
+
+['/accept', 'CONFLICT', 'INTERNAL', 'accept_draft', 'code', 'details', 'error', 'errors', 'id', 'message', 'original_exc', 'project_id', 'unit_id']

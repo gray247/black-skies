@@ -25,8 +25,47 @@ export async function bootstrapHarness(page: Page): Promise<void> {
 
   const openProject = page.getByTestId('open-project');
   if (await openProject.isVisible({ timeout: 10_000 }).catch(() => false)) {
-    await openProject.click();
+    await page
+      .waitForFunction(
+        () => {
+          const button = document.querySelector('[data-testid="open-project"]') as
+            | HTMLButtonElement
+            | null;
+          return button !== null && !button.disabled;
+        },
+        null,
+        { timeout: 10_000 },
+      )
+      .catch(() => undefined);
+    if (await openProject.isEnabled().catch(() => false)) {
+      await openProject.click();
+    }
   }
+
+  await page.evaluate(() => {
+    window.__dev?.overrideServices?.({
+      async checkHealth() {
+        return {
+          ok: true,
+          data: { status: 'online' },
+          traceId: 'pw-health',
+        };
+      },
+    });
+    window.dispatchEvent(
+      new CustomEvent('test:service-health', {
+        detail: { status: 'online' },
+      }),
+    );
+  });
+
+  await page.waitForFunction(
+    () =>
+      (document.querySelector('[data-testid="service-status-pill"]') as HTMLElement | null)
+        ?.getAttribute('data-status') === 'online',
+    null,
+    { timeout: 30_000 },
+  );
 
   await page.getByTestId('dock-workspace').waitFor({ timeout: 30_000 });
 }

@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\routers\health.py
+# hypothesis_version: 6.138.2
+
+['/api/v1', '/healthz', '/metrics', 'Content-Type', 'backup_enabled', 'backup_last_error', 'backup_last_run', 'backup_last_success', 'backup_message', 'backup_status', 'checked_snapshots', 'enabled', 'failed_snapshots', 'get_service_version', 'health', 'last_error', 'last_run', 'last_success', 'message', 'metrics_endpoint', 'ok', 'router', 'service_version', 'status', 'unknown', 'utf-8', 'version', 'voice_note_issues', 'voice_notes_checked', 'warning']

@@ -1,0 +1,73 @@
+{
+  "project_id": "proj_esther_estate",
+  "name": "Esther Estate",
+  "created": "2025-09-23T17:10:00Z",
+  "budget": {
+    "soft": 12.5,
+    "hard": 25.0,
+    "spent_usd": 0.38,
+    "last_request_fingerprint": "a4f8f9b02da478f8cd35cbcaabbad7041c0ffc8cbdbe1250532ce99b8ff2010e",
+    "last_generate_response": {
+      "project_id": "proj_esther_estate",
+      "unit_scope": "scene",
+      "unit_ids": [
+        "sc_0001"
+      ],
+      "draft_id": "dr_25c1c9e8",
+      "schema_version": "DraftUnitSchema v1",
+      "units": [
+        {
+          "id": "sc_0001",
+          "text": "Kira Beaumont enters Basement Pulse to keep the generator coil alive. The atmosphere leans toward respite as radio static lances through the air.\n\nThe beat shifts when the diary on the desk updates itself, keeping the scene in escalation mode and aiming for roughly 890 words.",
+          "meta": {
+            "pov": "Kira Beaumont",
+            "purpose": "escalation",
+            "emotion_tag": "respite",
+            "word_target": 890,
+            "order": 1,
+            "chapter_id": "ch_0001"
+          },
+          "prompt_fingerprint": "sha256:bceaf9178d77362ac629eb65f293fb4644315c283aabbbacc07d09394cd2e47c",
+          "model": {
+            "name": "draft-synthesizer-v1",
+            "provider": "black-skies-local"
+          },
+          "seed": 44
+        }
+      ],
+      "budget": {
+        "estimated_usd": 0.02,
+        "status": "ok",
+        "message": "Estimate within budget.",
+        "soft_limit_usd": 12.5,
+        "hard_limit_usd": 25.0,
+        "spent_usd": 0.38,
+        "total_after_usd": 0.38
+      }
+    },
+    "last_generate_artifacts": [
+      {
+        "scene_id": "sc_0001",
+        "front_matter": {
+          "id": "sc_0001",
+          "slug": "basement-pulse",
+          "title": "Basement Pulse",
+          "pov": "Kira Beaumont",
+          "purpose": "escalation",
+          "goal": "keep the generator coil alive",
+          "conflict": "radio static lances through the air",
+          "turn": "the diary on the desk updates itself",
+          "emotion_tag": "respite",
+          "word_target": 890,
+          "order": 1,
+          "chapter_id": "ch_0001",
+          "beats": [
+            "inciting"
+          ]
+        },
+        "body": "Kira Beaumont enters Basement Pulse to keep the generator coil alive. The atmosphere leans toward respite as radio static lances through the air.\n\nThe beat shifts when the diary on the desk updates itself, keeping the scene in escalation mode and aiming for roughly 890 words.",
+        "durable": true
+      }
+    ]
+  }
+}

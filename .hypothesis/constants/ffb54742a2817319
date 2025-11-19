@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\routers\draft\revision.py
+# hypothesis_version: 6.138.2
+
+[0.0, 0.25, 0.75, '/critique', '/rewrite', 'ANALYTICS', 'DraftUnitSchema v1', 'INTERNAL', 'SERVICE_UNAVAILABLE', 'TIMEOUT', 'added', 'anchors', 'black-skies-local', 'blocked', 'blocked_categories', 'budget', 'captured_at', 'changed', 'cheap', 'code', 'critique', 'critique_draft', 'critiques', 'ctx', 'details', 'diff', 'draft-rewriter-v1', 'draft_id', 'drafts', 'error', 'errors', 'estimated_usd', 'expensive', 'hard_limit_usd', 'hint', 'history', 'id', 'loc', 'message', 'mode', 'model', 'moderate', 'msg', 'name', 'priorities', 'project_id', 'provider', 'removed', 'revised_text', 'rewrite_draft', 'rubric', 'rubric_id', 'schema_version', 'service', 'soft_limit_usd', 'spent_usd', 'status', 'summary', 'timeout_seconds', 'tokens', 'total_after_usd', 'type', 'unit_id', 'utf-8']

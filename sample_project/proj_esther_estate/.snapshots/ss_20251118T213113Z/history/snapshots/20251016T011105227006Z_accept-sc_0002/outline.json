@@ -1,0 +1,34 @@
+{
+  "schema_version": "OutlineSchema v1",
+  "outline_id": "out_001",
+  "acts": [
+    "Act I: Gathered Storm"
+  ],
+  "chapters": [
+    {
+      "id": "ch_0001",
+      "order": 1,
+      "title": "The Summons"
+    }
+  ],
+  "scenes": [
+    {
+      "id": "sc_0001",
+      "order": 1,
+      "title": "Basement Pulse",
+      "chapter_id": "ch_0001",
+      "beat_refs": [
+        "inciting"
+      ]
+    },
+    {
+      "id": "sc_0002",
+      "order": 2,
+      "title": "Locked Parlor",
+      "chapter_id": "ch_0001",
+      "beat_refs": [
+        "turn"
+      ]
+    }
+  ]
+}

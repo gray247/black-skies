@@ -1,0 +1,69 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e4]:
+  - banner [ref=e5]:
+    - generic [ref=e6]:
+      - generic [ref=e7]: Your Story
+      - paragraph [ref=e8]: No project loaded
+    - generic [ref=e9]:
+      - button "Ready" [ref=e10] [cursor=pointer]:
+        - generic [ref=e12]: Ready
+      - button "Toggle companion overlay" [disabled] [ref=e13]: Companion
+      - button "Generate draft" [ref=e14] [cursor=pointer]: Generate
+      - button "Run critique workflow" [ref=e15] [cursor=pointer]: Critique
+  - main [ref=e16]:
+    - region "Docked workspace" [ref=e17]:
+      - paragraph [ref=e18]: Use Control or Command plus Alt with the number keys to switch docking presets. Control or Command plus Alt plus zero resets the layout. Control or Command plus Alt plus the right or left bracket keys moves focus between panes. Control or Command plus Shift plus E also cycles focus forward if bracket keys are unavailable.
+      - status [ref=e19]:
+        - paragraph [ref=e20]: Open a story to start writing.
+        - generic [ref=e23]:
+          - generic [ref=e24]:
+            - generic [ref=e25]:
+              - heading "Project Home" [level=2] [ref=e26]
+              - paragraph [ref=e27]: Browse a project folder to populate the dock and workspace.
+            - button "Loading..." [disabled] [ref=e28]
+          - generic [ref=e30]:
+            - generic [ref=e31]:
+              - heading "Diagnostics" [level=3] [ref=e32]
+              - paragraph [ref=e33]: Access the story snapshot and activity log when you need to share troubleshooting details.
+            - button "Show diagnostics" [ref=e34] [cursor=pointer]
+          - generic [ref=e35]:
+            - generic [ref=e37]:
+              - heading "Floating window behavior" [level=3] [ref=e38]
+              - paragraph [ref=e39]: Control how docked panes behave when their saved position is off-screen.
+            - generic [ref=e40]:
+              - generic [ref=e41]:
+                - checkbox "Show relocation toast Alert me when floating panes are moved back onto an active display." [checked] [ref=e42]
+                - generic [ref=e43]:
+                  - text: Show relocation toast
+                  - paragraph [ref=e44]: Alert me when floating panes are moved back onto an active display.
+              - generic [ref=e45]:
+                - checkbox "Auto-snap to preferred display After we recover a pane, try to reopen it at the last known position automatically." [ref=e46]
+                - generic [ref=e47]:
+                  - text: Auto-snap to preferred display
+                  - paragraph [ref=e48]: After we recover a pane, try to reopen it at the last known position automatically.
+          - generic [ref=e49]:
+            - generic [ref=e50]:
+              - generic [ref=e51]:
+                - generic [ref=e52]:
+                  - heading "Recent Projects" [level=3] [ref=e53]
+                  - generic [ref=e54]: "0"
+                - paragraph [ref=e55]: No recent projects yet.
+              - generic [ref=e56]:
+                - heading "Project Details" [level=3] [ref=e57]
+                - paragraph [ref=e58]: Select a project to preview its outline and scenes.
+              - generic [ref=e59]:
+                - generic [ref=e61]:
+                  - heading "Draft Preview" [level=3] [ref=e62]
+                  - generic [ref=e63]: Choose a scene from the sidebar to load its Markdown draft.
+                - paragraph [ref=e65]: Select a scene to preview its Markdown draft.
+            - complementary [ref=e66]:
+              - generic [ref=e67]:
+                - heading "Scene Metadata" [level=3] [ref=e68]
+                - generic [ref=e69]: "0"
+              - paragraph [ref=e70]: Load a project to review scene metadata.
+      - generic [ref=e71]:
+        - button "Restore layout" [disabled] [ref=e72]
+        - button "Reset layout" [disabled] [ref=e73]
+```

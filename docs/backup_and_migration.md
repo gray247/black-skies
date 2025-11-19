@@ -14,8 +14,10 @@ Last Reviewed: 2025-11-15
   - Verification can be invoked via `POST /api/v1/backup_verifier/run?projectId=<id>` (add `&latest_only=true` to limit to the newest snapshot); this routine inspects each manifest and reports missing/corrupt files.
 - **Scheduled verification:** A background runner (controlled by `VERIFIER_SCHEDULE_SECONDS`, default 3600) iterates project roots every interval, calls `run_verification`, and persists the latest report under `.snapshots/last_verification.json`.
 - The Workspace header exposes “Snapshot” and “Verify” buttons that call these endpoints directly and show a toast with a “Reveal” action afterward.
+- The Snapshots panel now shows per-snapshot verification statuses, issue summaries, and quick actions to view the latest report or re-run verification.
 
 - **Backups** are explicit, long-term ZIP archives that capture the entire project folder for migration and archival. The user triggers them (or they run on a slower schedule), and they live outside the active project tree (for example, under a `backups/` root or an external path). Backups are meant for long-term retention, machine migration, and “I never want to lose this point-in-time snapshot”, and they are not automatically deleted.
+  - Restoring from a backup ZIP now duplicates the archive into a sibling folder named `{slug}_restored_{YYYYMMDD_HHMMSS}`, keeping the active project untouched while you inspect the restored copy.
 
 ## Backup Story
 - **Recommended backup:** Zip the entire project folder (`outline.json`, `/drafts/`, `/history/`, `/analytics/`, `/exports/`) and store it under `backups/` outside the project root. By default, exclude `logs/` and `.perf/`.

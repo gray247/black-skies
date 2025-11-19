@@ -1,0 +1,9 @@
+{
+  "timestamp": "2025-10-22T03:14:26.786907Z",
+  "code": "SNAPSHOT",
+  "message": "Wizard step input_scope locked.",
+  "details": {
+    "step": "input_scope",
+    "snapshot_id": "20251022T031426771955Z"
+  }
+}

@@ -193,6 +193,14 @@ test.beforeEach(async ({ page }) => {
   await bootstrapHarness(page);
 });
 
+test('smoke_dock_workspace_basics (UI)', async ({ page }) => {
+  await bootstrapHarness(page);
+  await expect(page.getByRole('heading', { name: 'Project home' })).toBeVisible({
+    timeout: 30_000,
+  });
+  await expect(page.getByTestId('workspace-action-generate')).toBeVisible();
+});
+
 test.describe('Dock workspace interactions', () => {
   test('supports drag, float, and focus controls', async ({ page }) => {
 
@@ -297,6 +305,7 @@ test.describe('Dock workspace interactions', () => {
       )
       .toBe('draft-board');
   });
+
 });
 
 declare global {

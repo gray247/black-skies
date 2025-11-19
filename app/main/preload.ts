@@ -1,4 +1,6 @@
 ﻿import { contextBridge, ipcRenderer, shell } from 'electron';
+import { promises as fs } from 'node:fs';
+import { join, relative, resolve } from 'node:path';
 
 const safeExpose = (key: string, api: unknown) => {
   try {
@@ -94,6 +96,8 @@ import type {
   RecoveryRestoreBridgeResponse,
   RecoveryStatusBridgeRequest,
   RecoveryStatusBridgeResponse,
+  RestoreFromZipRequest,
+  RestoreFromZipResponse,
   ServiceError,
   ServiceHealthResponse,
   ServiceResult,
@@ -234,6 +238,47 @@ function normalizeError(message: string, extra?: Partial<ServiceError>): Service
     message,
     ...extra,
   };
+}
+
+function isFileMissingError(error: unknown): boolean {
+  if (typeof error !== 'object' || error === null) {
+    return false;
+  }
+  const candidate = error as { code?: string };
+  return candidate.code === 'ENOENT';
+}
+
+async function readLastVerificationFromPath(
+  projectPath?: string | null,
+): Promise<ServiceResult<BackupVerificationReport | null>> {
+  if (!projectPath) {
+    return { ok: true, data: null };
+  }
+  const normalized = resolve(projectPath);
+  const verificationPath = join(normalized, '.snapshots', 'last_verification.json');
+  const relativePath = relative(normalized, verificationPath);
+  if (relativePath.startsWith('..')) {
+    return {
+      ok: false,
+      error: normalizeError('Project path resolves outside the project root.'),
+    };
+  }
+  try {
+    const contents = await fs.readFile(verificationPath, { encoding: 'utf-8' });
+    if (!contents) {
+      return { ok: true, data: null };
+    }
+    const payload = JSON.parse(contents);
+    return { ok: true, data: payload as BackupVerificationReport };
+  } catch (error) {
+    if (isFileMissingError(error)) {
+      return { ok: true, data: null };
+    }
+    const message =
+      error instanceof Error ? error.message : 'Unable to read verification data.';
+    console.warn('[preload] Failed to read last_verification.json', error);
+    return { ok: false, error: normalizeError(message) };
+  }
 }
 
 async function fetchWithTimeout(url: string, init: RequestInit, timeoutMs: number): Promise<Response> {
@@ -840,6 +885,12 @@ export const serviceApi = {
       'POST',
       serializeRecoveryRestoreRequest(request),
     ),
+  restoreFromZip: (request: RestoreFromZipRequest) =>
+    makeServiceCall<RestoreFromZipResponse>('restore', 'POST', {
+      project_id: request.projectId,
+      ...(request.zipName ? { zip_name: request.zipName } : {}),
+      ...(request.restoreAsNew !== undefined ? { restore_as_new: request.restoreAsNew } : {}),
+    }),
   analyticsBudget: (request: AnalyticsBudgetBridgeRequest) => {
     const params = new URLSearchParams({ project_id: request.projectId });
     return makeServiceCall<AnalyticsBudgetBridgeResponse>(
@@ -863,9 +914,11 @@ export const serviceApi = {
     const params = new URLSearchParams({ project_id: request.projectId });
     return makeServiceCall<SnapshotManifest[]>(`snapshots?${params.toString()}`, 'GET');
   },
+  getLastVerification: (request: { projectId: string; projectPath?: string | null }) =>
+    readLastVerificationFromPath(request.projectPath),
   runBackupVerification: (request: { projectId: string; latestOnly: boolean }) => {
     const params = new URLSearchParams({
-      project_id: request.projectId,
+      projectId: request.projectId,
       latest_only: request.latestOnly ? 'true' : 'false',
     });
     return makeServiceCall<BackupVerificationReport>(
@@ -939,10 +992,13 @@ const servicesBridge: ServicesBridge = {
     serviceApi.createProjectSnapshot?.(request),
   getRecoveryStatus: serviceApi.getRecoveryStatus,
   restoreSnapshot: serviceApi.restoreSnapshot,
+  restoreFromZip: serviceApi.restoreFromZip,
   analyticsBudget: serviceApi.analyticsBudget,
   exportProject: serviceApi.exportProject,
   listProjectSnapshots: (request: { projectId: string }) =>
     serviceApi.listProjectSnapshots?.(request),
+  getLastVerification: (request: { projectId: string; projectPath?: string | null }) =>
+    serviceApi.getLastVerification?.(request),
   runBackupVerification: (request: { projectId: string; latestOnly: boolean }) =>
     serviceApi.runBackupVerification?.(request),
   revealPath: async (path: string) => {

@@ -1,0 +1,157 @@
+{
+  "schema_version": "SnapshotManifest v1",
+  "snapshot_id": "20251016T011105292499Z",
+  "project_id": "proj_esther_estate",
+  "label": "smoke-03-sc_0001",
+  "created_at": "2025-10-16T01:11:05.305774Z",
+  "includes": [
+    "drafts",
+    "outline.json",
+    "project.json"
+  ],
+  "project": {
+    "project_id": "proj_esther_estate",
+    "name": "Esther Estate",
+    "created": "2025-09-23T17:10:00Z",
+    "budget": {
+      "soft": 12.5,
+      "hard": 25.0,
+      "spent_usd": 0.36,
+      "last_request_fingerprint": "a8626597d0555a24c759848d803ef7b8250a6ad69dbdcc5edefac18ef46d9ae2",
+      "last_generate_response": {
+        "project_id": "proj_esther_estate",
+        "unit_scope": "scene",
+        "unit_ids": [
+          "sc_0002"
+        ],
+        "draft_id": "dr_f0967302",
+        "schema_version": "DraftUnitSchema v1",
+        "units": [
+          {
+            "id": "sc_0002",
+            "text": "Mara Ibarra enters Locked Parlor to map the estate's sealed corridors. The atmosphere leans toward revelation as old floorboards complain at every move.\n\nThe beat shifts when an old ally speaks through the static, keeping the scene in payoff mode and aiming for roughly 930 words.",
+            "meta": {
+              "pov": "Mara Ibarra",
+              "purpose": "payoff",
+              "emotion_tag": "revelation",
+              "word_target": 930,
+              "order": 2,
+              "chapter_id": "ch_0001"
+            },
+            "prompt_fingerprint": "sha256:35520782552e1b8176a0087de88d447738f032ccb0900d6b2a04f4ffa1ba4417",
+            "model": {
+              "name": "draft-synthesizer-v1",
+              "provider": "black-skies-local"
+            },
+            "seed": 43
+          }
+        ],
+        "budget": {
+          "estimated_usd": 0.02,
+          "status": "ok",
+          "message": "Estimate within budget.",
+          "soft_limit_usd": 12.5,
+          "hard_limit_usd": 25.0,
+          "spent_usd": 0.36,
+          "total_after_usd": 0.36
+        }
+      },
+      "last_generate_artifacts": [
+        {
+          "scene_id": "sc_0002",
+          "front_matter": {
+            "id": "sc_0002",
+            "slug": "locked-parlor",
+            "title": "Locked Parlor",
+            "pov": "Mara Ibarra",
+            "purpose": "payoff",
+            "goal": "map the estate's sealed corridors",
+            "conflict": "old floorboards complain at every move",
+            "turn": "an old ally speaks through the static",
+            "emotion_tag": "revelation",
+            "word_target": 930,
+            "order": 2,
+            "chapter_id": "ch_0001",
+            "beats": [
+              "turn"
+            ]
+          },
+          "body": "Mara Ibarra enters Locked Parlor to map the estate's sealed corridors. The atmosphere leans toward revelation as old floorboards complain at every move.\n\nThe beat shifts when an old ally speaks through the static, keeping the scene in payoff mode and aiming for roughly 930 words.",
+          "durable": true
+        }
+      ]
+    }
+  },
+  "outline": {
+    "schema_version": "OutlineSchema v1",
+    "outline_id": "out_001",
+    "acts": [
+      "Act I: Gathered Storm"
+    ],
+    "chapters": [
+      {
+        "id": "ch_0001",
+        "order": 1,
+        "title": "The Summons"
+      }
+    ],
+    "scenes": [
+      {
+        "id": "sc_0001",
+        "order": 1,
+        "title": "Basement Pulse",
+        "chapter_id": "ch_0001",
+        "beat_refs": [
+          "inciting"
+        ]
+      },
+      {
+        "id": "sc_0002",
+        "order": 2,
+        "title": "Locked Parlor",
+        "chapter_id": "ch_0001",
+        "beat_refs": [
+          "turn"
+        ]
+      }
+    ]
+  },
+  "drafts": [
+    {
+      "id": "sc_0001",
+      "slug": "basement-pulse",
+      "title": "Basement Pulse",
+      "pov": "Ezra Cole",
+      "purpose": "escalation",
+      "goal": "stabilize the perimeter sensors",
+      "conflict": "old floorboards complain at every move",
+      "turn": "the house remembers a forgotten route",
+      "emotion_tag": "respite",
+      "word_target": 890,
+      "order": 1,
+      "chapter_id": "ch_0001",
+      "beats": [
+        "inciting"
+      ],
+      "path": "drafts/sc_0001.md"
+    },
+    {
+      "id": "sc_0002",
+      "slug": "locked-parlor",
+      "title": "Locked Parlor",
+      "pov": "Mara Ibarra",
+      "purpose": "payoff",
+      "goal": "map the estate's sealed corridors",
+      "conflict": "old floorboards complain at every move",
+      "turn": "an old ally speaks through the static",
+      "emotion_tag": "revelation",
+      "word_target": 930,
+      "order": 2,
+      "chapter_id": "ch_0001",
+      "beats": [
+        "turn"
+      ],
+      "path": "drafts/sc_0002.md"
+    }
+  ]
+}

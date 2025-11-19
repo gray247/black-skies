@@ -1,0 +1,8 @@
+{
+  "timestamp": "2025-10-05T15:16:19.491990Z",
+  "code": "VALIDATION",
+  "message": "No snapshots available to restore.",
+  "details": {
+    "project_id": "Esther_Estate"
+  }
+}

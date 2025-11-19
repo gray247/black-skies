@@ -30,6 +30,7 @@ from pydantic import BaseModel, ValidationError, field_validator
 
 from ..config import ServiceSettings
 from ..diagnostics import DiagnosticLogger
+from ..e2e_mode import e2e_recovery_restore, e2e_recovery_status, is_e2e_mode
 from ..http import default_error_responses, raise_filesystem_error, raise_validation_error
 from ..models._project_id import validate_project_id
 from ..operations.recovery import RecoveryService
@@ -273,6 +274,9 @@ async def recovery_status(
             project_root=None,
         )
 
+    if is_e2e_mode():
+        return e2e_recovery_status(project_id)
+
     state = recovery_tracker.status(project_id, snapshot_persistence)
     return {
         "project_id": project_id,
@@ -314,6 +318,9 @@ async def recovery_restore(
             diagnostics=diagnostics,
             project_root=None,
         )
+
+    if is_e2e_mode():
+        return e2e_recovery_restore(request_model.project_id)
 
     snapshot_id = request_model.snapshot_id
     if snapshot_id is None:

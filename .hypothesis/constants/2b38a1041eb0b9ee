@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\plugins\registry.py
+# hypothesis_version: 6.138.2
+
+['BLACKSKIES_PLUGIN_ID', 'COMSPEC', 'HOME', 'PATH', 'PATHEXT', 'PYTHONPATH', 'PluginRecord', 'PluginRegistry', 'SYSTEMROOT', 'TEMP', 'TMP', 'USERPROFILE', 'WINDIR', 'enabled', 'entrypoint', 'manifest.json', 'metadata', 'module_path', 'state.json', 'utf-8']

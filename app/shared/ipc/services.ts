@@ -206,13 +206,16 @@ export interface SnapshotManifest {
   files_included: Array<{ path: string; checksum: string }>;
 }
 
+export interface SnapshotVerificationSummary {
+  snapshot_id: string;
+  status?: 'ok' | 'errors' | string;
+  errors?: string[];
+  issues?: Array<string | { reason?: string; [key: string]: unknown }>;
+}
+
 export interface BackupVerificationReport {
   project_id: string;
-  snapshots: Array<{
-    snapshot_id: string;
-    status: 'ok' | 'errors';
-    errors?: string[];
-  }>;
+  snapshots: SnapshotVerificationSummary[];
 }
 
 export interface DraftAcceptUnitPayload {
@@ -340,6 +343,20 @@ export interface ProjectExportBridgeResponse {
   schema_version: 'ProjectExportResult v1';
 }
 
+export interface RestoreFromZipRequest {
+  projectId: string;
+  zipName?: string;
+  restoreAsNew?: boolean;
+}
+
+export interface RestoreFromZipResponse {
+  status: 'ok' | 'error';
+  restored_path?: string;
+  restored_project_slug?: string;
+  message?: string;
+  details?: unknown;
+}
+
 export interface ServicesBridge {
   checkHealth: () => Promise<ServiceHealthResponse>;
   buildOutline: (
@@ -378,6 +395,9 @@ export interface ServicesBridge {
   restoreSnapshot: (
     request: RecoveryRestoreBridgeRequest,
   ) => Promise<ServiceResult<RecoveryRestoreBridgeResponse>>;
+  restoreFromZip?: (
+    request: RestoreFromZipRequest,
+  ) => Promise<ServiceResult<RestoreFromZipResponse>>;
   analyticsBudget: (
     request: AnalyticsBudgetBridgeRequest,
   ) => Promise<ServiceResult<AnalyticsBudgetBridgeResponse>>;
@@ -387,6 +407,9 @@ export interface ServicesBridge {
   runBackupVerification?: (
     request: { projectId: string; latestOnly: boolean },
   ) => Promise<ServiceResult<BackupVerificationReport>>;
+  getLastVerification?: (
+    request: { projectId: string; projectPath?: string | null },
+  ) => Promise<ServiceResult<BackupVerificationReport | null>>;
   revealPath?: (path: string) => Promise<void>;
 }
 

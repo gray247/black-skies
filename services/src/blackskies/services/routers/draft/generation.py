@@ -22,6 +22,11 @@ from ...operations.draft_generation import (
     resolve_requested_scenes,
 )
 from . import router
+from ...e2e_mode import (
+    e2e_generate_response,
+    e2e_preflight_response,
+    is_e2e_mode,
+)
 
 
 @router.post("/generate")
@@ -55,6 +60,14 @@ async def generate_draft(
             details=exc.details,
             diagnostics=diagnostics,
             project_root=project_root,
+        )
+
+    if is_e2e_mode():
+        return e2e_generate_response(
+            project_root=project_root,
+            project_id=request_model.project_id,
+            unit_scope=request_model.unit_scope,
+            unit_ids=request_model.unit_ids,
         )
 
     try:
@@ -152,6 +165,13 @@ async def preflight_draft(
             project_root=project_root,
         )
 
+    if is_e2e_mode():
+        return e2e_preflight_response(
+            project_id=request_model.project_id,
+            unit_scope=request_model.unit_scope,
+            unit_ids=request_model.unit_ids,
+        )
+
     try:
         scene_summaries = resolve_requested_scenes(request_model, outline)
     except DraftRequestError as exc:
@@ -161,7 +181,6 @@ async def preflight_draft(
             diagnostics=diagnostics,
             project_root=project_root,
         )
-
     generation_service = DraftGenerationService(settings=settings, diagnostics=diagnostics)
     try:
         result = await generation_service.preflight(

@@ -319,22 +319,10 @@ export default function App(): JSX.Element {
     services,
     projectId: currentProject?.projectId ?? null,
     serviceHealthy,
+    serviceStatus,
     pushToast,
     onBudgetUpdate: applyBudgetUpdate,
   });
-
-  useEffect(() => {
-    if (typeof window === "undefined") {
-      return () => {};
-    }
-    const apiWindow = window as typeof window & {
-      __budgetRefresh?: () => Promise<void>;
-    };
-    apiWindow.__budgetRefresh = refreshBudget;
-    return () => {
-      delete apiWindow.__budgetRefresh;
-    };
-  }, [refreshBudget]);
   const [activeScene, setActiveScene] = useState<{ id: string; title: string | null } | null>(null);
   const activeSceneId = activeScene?.id ?? null;
   const applySceneSelection = useCallback(
@@ -412,6 +400,10 @@ export default function App(): JSX.Element {
   const [snapshotting, setSnapshotting] = useState<boolean>(false);
   const [verifying, setVerifying] = useState<boolean>(false);
   const [showSnapshotsPanel, setShowSnapshotsPanel] = useState<boolean>(false);
+  const openSnapshotsPanel = useCallback(() => {
+    // Snapshots panel is minimally wired for Phase 8; this just toggles that dialog.
+    setShowSnapshotsPanel(true);
+  }, [setShowSnapshotsPanel]);
   const [exportFormat, setExportFormat] = useState<ExportFormat>("md");
   const batchJobRef = useRef<{ cancelled: boolean } | null>(null);
 
@@ -911,14 +903,20 @@ export default function App(): JSX.Element {
         title: 'Snapshot created',
         description: snapshotName,
         actions:
-          snapshotPath && services?.revealPath
-            ? [
-                {
-                  label: 'Show snapshots',
-                  onAction: () => void services.revealPath(snapshotPath),
+          projectSummary?.projectId
+          ? [
+              {
+                label: 'Show snapshots',
+                onPress: () => {
+                  // Snapshots panel is minimally wired for Phase 8; this only toggles that dialog.
+                  setShowSnapshotsPanel(true);
+                  if (snapshotPath && services?.revealPath) {
+                    void services.revealPath(snapshotPath);
+                  }
                 },
-              ]
-            : undefined,
+              },
+            ]
+          : undefined,
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
@@ -930,7 +928,14 @@ export default function App(): JSX.Element {
     } finally {
       setSnapshotting(false);
     }
-  }, [projectSummary?.path, projectSummary?.projectId, pushToast, services, snapshotting]);
+  }, [
+    projectSummary?.path,
+    projectSummary?.projectId,
+    pushToast,
+    services,
+    snapshotting,
+    setShowSnapshotsPanel,
+  ]);
 
   const handleVerifySnapshots = useCallback(async () => {
     if (verifying) {
@@ -985,13 +990,13 @@ export default function App(): JSX.Element {
         description: message,
         actions:
           reportPath && services?.revealPath
-            ? [
-                {
-                  label: 'View report',
-                  onAction: () => void services.revealPath(reportPath),
-                },
-              ]
-            : undefined,
+          ? [
+              {
+                label: 'View report',
+                onPress: () => void services.revealPath(reportPath),
+              },
+            ]
+          : undefined,
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
@@ -1056,13 +1061,13 @@ export default function App(): JSX.Element {
         description: `Exported ${formatLabel} to ${exportPath}`,
         actions:
           services?.revealPath && projectSummary?.path
-            ? [
-                {
-                  label: "Reveal export folder",
-                  onAction: () => void services.revealPath(`${projectSummary.path}/exports`),
-                },
-              ]
-            : undefined,
+          ? [
+              {
+                label: "Reveal export folder",
+                onPress: () => void services.revealPath(`${projectSummary.path}/exports`),
+              },
+            ]
+          : undefined,
       });
     } catch (error) {
       console.error("Export request failed", error);
@@ -1373,7 +1378,8 @@ export default function App(): JSX.Element {
     disableExport || snapshotting || !services?.createProjectSnapshot;
   const disableVerify =
     disableExport || verifying || !services?.runBackupVerification;
-  const disableSnapshots = disableExport || showSnapshotsPanel || !services?.listSnapshots;
+  const disableSnapshots =
+    showSnapshotsPanel || !services?.listProjectSnapshots;
 
   return (
     <div
@@ -1405,7 +1411,7 @@ export default function App(): JSX.Element {
           onExport={() => void handleExportProject()}
           onSnapshot={() => void handleCreateSnapshot()}
           onVerify={() => void handleVerifySnapshots()}
-          onSnapshots={() => setShowSnapshotsPanel(true)}
+          onSnapshots={openSnapshotsPanel}
           exportFormat={exportFormat}
           onExportFormatChange={handleExportFormatChange}
           companionOpen={companionOpen}
@@ -1416,6 +1422,7 @@ export default function App(): JSX.Element {
           disableSnapshot={disableSnapshot}
           disableVerify={disableVerify}
           disableSnapshots={disableSnapshots}
+          showSnapshotsPanel={showSnapshotsPanel}
           budget={budgetSnapshot ?? undefined}
           budgetIndicator={budgetIndicator}
         />
@@ -1460,7 +1467,10 @@ export default function App(): JSX.Element {
       {showSnapshotsPanel && projectSummary?.projectId ? (
         <SnapshotsPanel
           projectId={projectSummary.projectId}
+          projectPath={projectSummary?.path ?? null}
           services={services}
+          serviceStatus={serviceStatus}
+          pushToast={pushToast}
           onClose={() => setShowSnapshotsPanel(false)}
         />
       ) : null}

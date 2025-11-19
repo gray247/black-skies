@@ -1,0 +1,9 @@
+{
+  "timestamp": "2025-11-02T20:22:06.256453Z",
+  "code": "SNAPSHOT",
+  "message": "Wizard step structure locked.",
+  "details": {
+    "step": "structure",
+    "snapshot_id": "20251102T202206241684Z"
+  }
+}

@@ -34,7 +34,7 @@ LOGGING_CONFIG = {
     "disable_existing_loggers": False,
     "formatters": {
         "json": {
-            "()": "blackskies.services.logging_config.JsonFormatter",
+            "()": JsonFormatter,
         }
     },
     "handlers": {

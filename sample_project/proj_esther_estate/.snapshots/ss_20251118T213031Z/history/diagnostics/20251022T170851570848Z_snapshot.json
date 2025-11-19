@@ -1,0 +1,9 @@
+{
+  "timestamp": "2025-10-22T17:08:51.570939Z",
+  "code": "SNAPSHOT",
+  "message": "Wizard step pacing locked.",
+  "details": {
+    "step": "pacing",
+    "snapshot_id": "20251022T170851548899Z"
+  }
+}

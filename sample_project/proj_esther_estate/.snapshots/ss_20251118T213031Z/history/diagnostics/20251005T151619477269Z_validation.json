@@ -1,0 +1,10 @@
+{
+  "timestamp": "2025-10-05T15:16:19.477305Z",
+  "code": "VALIDATION",
+  "message": "One or more scene IDs are not present in the outline.",
+  "details": {
+    "missing_scene_ids": [
+      "sc_9999"
+    ]
+  }
+}

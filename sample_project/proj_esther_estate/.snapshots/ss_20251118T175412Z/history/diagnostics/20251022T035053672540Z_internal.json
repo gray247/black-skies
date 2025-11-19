@@ -1,0 +1,8 @@
+{
+  "timestamp": "2025-10-22T03:50:53.672622Z",
+  "code": "INTERNAL",
+  "message": "Unable to derive cost from cache; text produced zero-cost fallback.",
+  "details": {
+    "unit_id": "sc_0001"
+  }
+}
