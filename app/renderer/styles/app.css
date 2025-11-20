@@ -2805,6 +2805,175 @@ button:disabled {
   background: #111f3b;
 }
 
+.snapshots-panel__health {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  background: rgba(15, 23, 42, 0.3);
+  margin-bottom: 0.8rem;
+}
+
+.snapshots-panel__health__details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  color: #e2e8f0;
+}
+
+.snapshots-panel__health__label {
+  margin: 0;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.snapshots-panel__health__status {
+  margin: 0;
+  font-weight: 600;
+}
+
+.snapshots-panel__health__timestamp,
+.snapshots-panel__health__message {
+  margin: 0;
+  font-size: 0.85rem;
+  color: rgba(226, 232, 240, 0.75);
+}
+
+.snapshots-panel__health__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.snapshots-panel__health-button {
+  border: 1px solid rgba(148, 163, 184, 0.6);
+  background: #111c30;
+  color: #f8fafc;
+  padding: 0.45rem 0.85rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.2s ease, border 0.2s ease;
+}
+
+.snapshots-panel__health-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.snapshots-panel__health-button:not(:disabled):hover {
+  background: #151f37;
+  border-color: rgba(148, 163, 184, 0.9);
+}
+
+.snapshots-panel__backups {
+  margin-bottom: 0.75rem;
+}
+
+.snapshots-panel__backups-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.4rem;
+}
+
+.snapshots-panel__backups-create {
+  border: 1px solid rgba(148, 163, 184, 0.6);
+  border-radius: 6px;
+  padding: 0.35rem 0.85rem;
+  background: #0f172a;
+  color: #e2e8f0;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, border 0.2s ease;
+}
+
+.snapshots-panel__backups-create:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.snapshots-panel__backups-create:not(:disabled):hover {
+  background: #111f3b;
+  border-color: rgba(148, 163, 184, 0.9);
+}
+
+.snapshots-panel__backups-content {
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 10px;
+  padding: 0.6rem;
+  background: rgba(15, 23, 42, 0.35);
+  color: #e2e8f0;
+}
+
+.snapshots-panel__backups-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.snapshots-panel__backup-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.65rem;
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.snapshots-panel__backup-meta {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  font-size: 0.85rem;
+  color: #e2e8f0;
+}
+
+.snapshots-panel__backup-path {
+  font-size: 0.75rem;
+  color: rgba(226, 232, 240, 0.6);
+}
+
+.snapshots-panel__backup-actions button {
+  border: 1px solid rgba(148, 163, 184, 0.6);
+  border-radius: 6px;
+  padding: 0.35rem 0.85rem;
+  background: #0f172a;
+  color: #e2e8f0;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, border 0.2s ease;
+}
+
+.snapshots-panel__backup-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.snapshots-panel__backup-actions button:not(:disabled):hover {
+  background: #111f3b;
+  border-color: rgba(148, 163, 184, 0.9);
+}
+
+.snapshots-panel__backups-empty {
+  margin: 0;
+  font-size: 0.85rem;
+  color: rgba(226, 232, 240, 0.75);
+  text-align: center;
+}
+
 .snapshots-panel__modal-backdrop {
   position: absolute;
   inset: 0;

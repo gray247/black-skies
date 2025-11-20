@@ -1,0 +1,103 @@
+{
+  "schema_version": "SnapshotManifest v1",
+  "snapshot_id": "ss_20251120T013057Z",
+  "created_at": "2025-11-20T01:30:57.610116Z",
+  "files_included": [
+    {
+      "path": "outline.json",
+      "checksum": "85581e83ec996fb651cf3d333c82bb86cbb08f4db203323016ec231786791fbb"
+    },
+    {
+      "path": "project.json",
+      "checksum": "98904a701b7f9ef960aebe69598d6087749e87d647ea8780b7a640d2cc598de5"
+    },
+    {
+      "path": ".blackskies/layout.json",
+      "checksum": "81bdd25946e103e22374534647633651fb9c938fec7178f3068f4f19d7b542a3"
+    },
+    {
+      "path": "drafts/sc_0001.md",
+      "checksum": "26c4dd69e3278c495da7945a2b3cc56b74a44352f4acb09a569b5995de5fe811"
+    },
+    {
+      "path": "drafts/sc_0002.md",
+      "checksum": "e7e7243f172fbc5bbeea5a369ddbedc9d14cd26bec53f5ffb637bc8174f4f7ce"
+    },
+    {
+      "path": "lore/char_mara.yaml",
+      "checksum": "0bbab68ef27c8d21b46b03fec2f2dcc9b0655420bca4215c5b56a6fd882ae33c"
+    },
+    {
+      "path": "revisions/continuity_review.md",
+      "checksum": "2f90b98d1ccaf4e5b868846bfd1c970c78704a81fe24ac5a9a1867d9128828e7"
+    },
+    {
+      "path": "revisions/problem_finder.md",
+      "checksum": "858523bb08383c12283a5525b53de048f4131ad192dc5678811d60c694845ae2"
+    },
+    {
+      "path": "revisions/agents/.gitkeep",
+      "checksum": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "proj_demo/history/diagnostics/20251004T221419753826Z_validation.json",
+      "checksum": "6b807f7d4f4b3d63b365d96c52bdb011819329758642f517c35893bb76c0e413"
+    },
+    {
+      "path": "history/critiques/sc_0001.json",
+      "checksum": "1ca762e63940ea1e4b974a6400ee5309af056c5f6132b62a3bdd910a0f780d5b"
+    },
+    {
+      "path": "history/diagnostics/.gitkeep",
+      "checksum": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "history/diagnostics/20251005T151619477269Z_validation.json",
+      "checksum": "5b48ecb75117a66c9f2b49cd9a789577a1b10a9beeac5471316600f7b360a835"
+    },
+    {
+      "path": "history/diagnostics/20251005T151619491962Z_validation.json",
+      "checksum": "99b1a22aaa4d4ef8ae00cd933781015b909072e08cca4b7bbb20697018d279a6"
+    },
+    {
+      "path": "history/diagnostics/20251006T212346526060Z_conflict.json",
+      "checksum": "cf28df1875802cdd83f2b0d533bc9cbac82e8171daf000e5abad3b522418b776"
+    },
+    {
+      "path": "history/diagnostics/20251006T214344962415Z_conflict.json",
+      "checksum": "eefc1e80e20aa2c96d90934d0e6f3622b1dfd659144205f71a848f318acecab3"
+    },
+    {
+      "path": "history/diagnostics/20251007T220705955277Z_conflict.json",
+      "checksum": "8539b6a5ce1ecc5fd02a5548a56ed9c047bb1552e8188bc1da2f922cbb2541c9"
+    },
+    {
+      "path": "history/snapshots/.gitkeep",
+      "checksum": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "Esther_Estate/history/diagnostics/20251004T221453703331Z_validation.json",
+      "checksum": "8c58710f61621e9b815a131c138449945d472d1e6282a41791b344dfbe8fd73f"
+    },
+    {
+      "path": "Esther_Estate/history/diagnostics/20251004T221522208340Z_validation.json",
+      "checksum": "4ac8044d2ea97a5c6aad4bd85ef115c913e4b70e0121ca376819d6f7933470b2"
+    },
+    {
+      "path": "Esther_Estate/history/diagnostics/20251007T200828697546Z_validation.json",
+      "checksum": "4758f2e46928af49900fae17e73a797c7650afd989bd222d3266089b4265c345"
+    },
+    {
+      "path": "Esther_Estate/history/diagnostics/20251007T201100998604Z_validation.json",
+      "checksum": "0d061b536ed420390d1b670b6023d7a93c6ed62430b6505deaf6d2f069a962ab"
+    },
+    {
+      "path": "Esther_Estate/history/diagnostics/20251007T205210200244Z_validation.json",
+      "checksum": "d62f7558433e81cf1c1a76ccd1063894b5620aa82b4b661c1b1ebcbe33f20e7c"
+    },
+    {
+      "path": "Esther_Estate/history/diagnostics/20251007T205234336658Z_validation.json",
+      "checksum": "8b9988025d4f0136167f2941f775d414913d23b72bc4a4d5ce6af4de627e4749"
+    }
+  ]
+}

@@ -52,7 +52,7 @@ class VerificationScheduler:
     def _run_all(self) -> None:
         for project_root in self._project_roots():
             try:
-                report = run_verification(project_root, latest_only=False)
+                report = run_verification(project_root, settings=self._settings, latest_only=False)
                 self._persist_report(project_root, report)
             except Exception as exc:  # pragma: no cover - defensive guard
                 LOGGER.exception("Scheduled verification failed for %s", project_root, exc_info=exc)

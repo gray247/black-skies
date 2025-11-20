@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type {
+  BackupSummary,
   BackupVerificationReport,
   ServicesBridge,
   SnapshotVerificationSummary,
@@ -23,6 +24,7 @@ interface SnapshotsPanelProps {
   onClose?: () => void;
   serviceStatus: ServiceStatus;
   pushToast: (payload: ToastPayload) => void;
+  onRunVerification?: () => Promise<void> | void;
 }
 
 type IssuePayload = string | { reason?: unknown; [key: string]: unknown };
@@ -64,6 +66,7 @@ export default function SnapshotsPanel({
   onClose,
   serviceStatus,
   pushToast,
+  onRunVerification,
 }: SnapshotsPanelProps) {
   const [snapshots, setSnapshots] = useState<SnapshotRow[]>([]);
   const [verification, setVerification] = useState<BackupVerificationReport | null>(null);
@@ -72,6 +75,11 @@ export default function SnapshotsPanel({
   const [runningSnapshotId, setRunningSnapshotId] = useState<string | null>(null);
   const [isRestoreConfirmOpen, setRestoreConfirmOpen] = useState(false);
   const [restoringZip, setRestoringZip] = useState(false);
+  const [backups, setBackups] = useState<BackupSummary[]>([]);
+  const [loadingBackups, setLoadingBackups] = useState<boolean>(true);
+  const [creatingBackup, setCreatingBackup] = useState<boolean>(false);
+  const [restoringBackup, setRestoringBackup] = useState<string | null>(null);
+  const [runningVerification, setRunningVerification] = useState<boolean>(false);
 
   const verificationById = useMemo(() => {
     const index: Record<string, SnapshotVerificationSummary> = {};
@@ -82,6 +90,29 @@ export default function SnapshotsPanel({
     });
     return index;
   }, [verification]);
+
+  const fetchBackups = useCallback(async () => {
+    if (!services?.listBackups || !projectId) {
+      setBackups([]);
+      setLoadingBackups(false);
+      return;
+    }
+
+    setLoadingBackups(true);
+    try {
+      const response = await services.listBackups({ projectId });
+      if (response.ok && Array.isArray(response.data)) {
+        setBackups(response.data);
+      } else {
+        setBackups([]);
+      }
+    } catch (error) {
+      console.warn('[SnapshotsPanel] Failed to refresh backups', error);
+      setBackups([]);
+    } finally {
+      setLoadingBackups(false);
+    }
+  }, [projectId, services]);
 
   const fetchData = useCallback(async () => {
     if (!services) {
@@ -124,8 +155,9 @@ export default function SnapshotsPanel({
       }
     } finally {
       setLoading(false);
+      void fetchBackups();
     }
-  }, [projectId, projectPath, services]);
+  }, [projectId, projectPath, services, fetchBackups]);
 
   useEffect(() => {
     void fetchData();
@@ -154,6 +186,7 @@ export default function SnapshotsPanel({
   const canRevealReport = Boolean(projectPath && services?.revealPath);
   const hasProject = Boolean(projectId || projectPath);
   const canRestoreFromZip = Boolean(projectId && services?.restoreFromZip && !offline);
+  const backupsUnavailable = Boolean(!services?.listBackups);
   const statusLabel = useMemo(() => {
     if (loading) {
       return 'Refreshing verification...';
@@ -170,6 +203,20 @@ export default function SnapshotsPanel({
     }
     return 'Verification issues detected';
   }, [loading, verification]);
+
+  const lastVerificationTimestamp = useMemo(() => {
+    if (!verification?.verified_at) {
+      return 'Not checked yet';
+    }
+    const parsed = new Date(verification.verified_at);
+    if (Number.isNaN(parsed.getTime())) {
+      return verification.verified_at;
+    }
+    return parsed.toLocaleString();
+  }, [verification?.verified_at]);
+
+  const verificationMessage =
+    verification?.message ?? 'Last verification report not available.';
 
   const handleReRun = useCallback(
     async (snapshotId: string) => {
@@ -238,6 +285,234 @@ export default function SnapshotsPanel({
       }
     },
     [fetchData, offline, projectId, pushToast, runningSnapshotId, services],
+  );
+
+  const handleManualVerification = useCallback(async () => {
+    if (runningVerification) {
+      return;
+    }
+
+    if (!projectId) {
+      pushToast({
+        tone: 'warning',
+        title: 'Verification unavailable',
+        description: 'Open a project before running verification.',
+      });
+      return;
+    }
+
+    if (onRunVerification) {
+      setRunningVerification(true);
+      try {
+        await onRunVerification();
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unable to verify snapshots.';
+        pushToast({
+          tone: 'error',
+          title: 'Verification failed',
+          description: message,
+        });
+      } finally {
+        setRunningVerification(false);
+        void fetchData();
+      }
+      return;
+    }
+
+    if (!services?.runBackupVerification || offline) {
+      pushToast({
+        tone: 'warning',
+        title: 'Verification unavailable',
+        description: 'Local services are still starting.',
+      });
+      return;
+    }
+
+    setRunningVerification(true);
+    pushToast({
+      tone: 'info',
+      title: 'Running verification',
+      description: 'Checking backups and snapshots.',
+    });
+    try {
+      const response = await services.runBackupVerification({
+        projectId,
+        latestOnly: true,
+      });
+      if (!response.ok) {
+        pushToast({
+          tone: 'error',
+          title: 'Verification failed',
+          description: response.error?.message ?? 'Unable to verify snapshots.',
+        });
+        return;
+      }
+
+      const latestResult = response.data?.snapshots?.[0];
+      const hasIssues =
+        latestResult?.status === 'errors' ||
+        (latestResult?.errors?.length ?? 0) > 0 ||
+        (latestResult?.issues?.length ?? 0) > 0;
+      const tone: ToastPayload['tone'] = hasIssues ? 'warning' : 'success';
+      const issueCount =
+        latestResult?.errors?.length ??
+        latestResult?.issues?.length ??
+        (hasIssues ? 1 : 0);
+
+      pushToast({
+        tone,
+        title: 'Snapshot verification',
+        description: hasIssues
+          ? `${issueCount} issue(s) detected`
+          : 'Latest snapshot verified',
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unable to verify snapshots.';
+      pushToast({
+        tone: 'error',
+        title: 'Verification failed',
+        description: message,
+      });
+    } finally {
+      setRunningVerification(false);
+      void fetchData();
+    }
+  }, [fetchData, offline, onRunVerification, projectId, pushToast, runningVerification, services]);
+
+  const handleCreateBackup = useCallback(async () => {
+    if (creatingBackup) {
+      return;
+    }
+
+    if (!projectId) {
+      pushToast({
+        tone: 'warning',
+        title: 'Backup unavailable',
+        description: 'Open a project before creating a backup.',
+      });
+      return;
+    }
+
+    if (!services?.createBackup || offline) {
+      pushToast({
+        tone: 'warning',
+        title: 'Backup unavailable',
+        description: 'Local services are still starting.',
+      });
+      return;
+    }
+
+    setCreatingBackup(true);
+    try {
+      const response = await services.createBackup({ projectId });
+      if (!response.ok) {
+        pushToast({
+          tone: 'error',
+          title: 'Backup failed',
+          description: response.error?.message ?? 'Unable to create backup.',
+        });
+        return;
+      }
+
+      const backupName = response.data?.filename ?? 'backup bundle';
+      pushToast({
+        tone: 'success',
+        title: 'Backup created',
+        description: `Created backup ${backupName}`,
+      });
+      void fetchBackups();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unable to create backup.';
+      pushToast({
+        tone: 'error',
+        title: 'Backup failed',
+        description: message,
+      });
+    } finally {
+      setCreatingBackup(false);
+    }
+  }, [creatingBackup, fetchBackups, offline, projectId, pushToast, services]);
+
+  const handleRestoreBackup = useCallback(
+    async (backupName: string) => {
+      if (!projectId) {
+        pushToast({
+          tone: 'warning',
+          title: 'Backup restore unavailable',
+          description: 'Open a project before restoring a backup.',
+        });
+        return;
+      }
+
+      if (!services?.restoreBackup || offline) {
+        pushToast({
+          tone: 'warning',
+          title: 'Backup restore unavailable',
+          description: 'Local services are still starting.',
+        });
+        return;
+      }
+
+      const confirmed =
+        typeof window !== 'undefined'
+          ? window.confirm(`Restore backup "${backupName}" into a new project folder?`)
+          : true;
+      if (!confirmed) {
+        return;
+      }
+
+      setRestoringBackup(backupName);
+      try {
+        const response = await services.restoreBackup({ backupName });
+        if (!response.ok) {
+          pushToast({
+            tone: 'error',
+            title: 'Backup restore failed',
+            description: response.error?.message ?? 'Unable to restore backup.',
+          });
+          return;
+        }
+
+        const payload = response.data;
+        if (payload?.status !== 'ok') {
+          pushToast({
+            tone: 'error',
+            title: 'Backup restore failed',
+            description: payload?.message ?? 'Unable to restore backup.',
+          });
+          return;
+        }
+
+        pushToast({
+          tone: 'success',
+          title: 'Backup restored',
+          description: payload.restored_project_slug
+            ? `Restored as ${payload.restored_project_slug}`
+            : 'Backup restored successfully.',
+          actions:
+            payload.restored_path && services.revealPath
+              ? [
+                  {
+                    label: 'Open folder',
+                    onPress: () => {
+                      void services.revealPath?.(payload.restored_path);
+                    },
+                  },
+                ]
+              : undefined,
+        });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unable to restore backup.';
+        pushToast({
+          tone: 'error',
+          title: 'Backup restore failed',
+          description: message,
+        });
+      } finally {
+        setRestoringBackup(null);
+      }
+    },
+    [offline, projectId, pushToast, services],
   );
 
   const handleConfirmRestore = useCallback(async () => {
@@ -335,6 +610,95 @@ export default function SnapshotsPanel({
           Close
         </button>
       </div>
+      <div className="snapshots-panel__health">
+        <div className="snapshots-panel__health__details">
+          <p className="snapshots-panel__health__label">Backup & snapshots health</p>
+          <p
+            className="snapshots-panel__health__status"
+            data-testid="snapshots-health-status"
+          >
+            {statusLabel}
+          </p>
+          <p className="snapshots-panel__health__timestamp">
+            Last check: {lastVerificationTimestamp}
+          </p>
+          <p className="snapshots-panel__health__message">{verificationMessage}</p>
+        </div>
+        <div className="snapshots-panel__health__actions">
+          <button
+            type="button"
+            className="snapshots-panel__health-button"
+            data-testid="snapshots-refresh-status-button"
+            onClick={fetchData}
+            disabled={loading}
+          >
+            {loading ? 'Refreshing…' : 'Refresh status'}
+          </button>
+          <button
+            type="button"
+            className="snapshots-panel__health-button"
+            data-testid="snapshots-manual-verify-button"
+            onClick={handleManualVerification}
+            disabled={runningVerification || offline}
+          >
+            {runningVerification ? 'Running verification…' : 'Run verification'}
+          </button>
+        </div>
+      </div>
+      <div className="snapshots-panel__backups">
+        <div className="snapshots-panel__backups-header">
+          <strong>Backups</strong>
+          <button
+            type="button"
+            className="snapshots-panel__backups-create"
+            data-testid="snapshots-backup-create"
+            onClick={handleCreateBackup}
+            disabled={creatingBackup || offline || backupsUnavailable || !services?.createBackup}
+          >
+            {creatingBackup ? 'Creating backup…' : 'Create backup'}
+          </button>
+        </div>
+        <div className="snapshots-panel__backups-content">
+          {backupsUnavailable ? (
+            <p className="snapshots-panel__backups-empty">
+              Backup listing is unavailable while services start.
+            </p>
+          ) : loadingBackups ? (
+            <p className="snapshots-panel__backups-empty">Loading backups…</p>
+          ) : backups.length ? (
+            <ul className="snapshots-panel__backups-list">
+              {backups.map((entry) => (
+                <li
+                  key={entry.filename}
+                  className="snapshots-panel__backup-row"
+                  data-testid="snapshots-backup-row"
+                >
+                  <div className="snapshots-panel__backup-meta">
+                    <strong>{entry.filename}</strong>
+                    <p>{entry.created_at}</p>
+                    <p className="snapshots-panel__backup-path">{entry.path}</p>
+                  </div>
+                  <div className="snapshots-panel__backup-actions">
+                    <button
+                      type="button"
+                      aria-label={`Restore backup ${entry.filename}`}
+                      data-testid={`snapshots-backup-restore-${entry.filename}`}
+                      onClick={() => handleRestoreBackup(entry.filename)}
+                      disabled={
+                        restoringBackup === entry.filename || offline || !services?.restoreBackup
+                      }
+                    >
+                      {restoringBackup === entry.filename ? 'Restoring…' : 'Restore'}
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="snapshots-panel__backups-empty">No backups available yet.</p>
+          )}
+        </div>
+      </div>
       <div className="snapshots-panel__restore">
         <button
           type="button"
@@ -343,12 +707,6 @@ export default function SnapshotsPanel({
           disabled={!canRestoreFromZip || restoringZip}
         >
           Restore latest ZIP
-        </button>
-      </div>
-      <div className="snapshots-panel__status">
-        <span>{statusLabel}</span>
-        <button type="button" onClick={fetchData} disabled={loading}>
-          {loading ? 'Refreshing…' : 'Refresh'}
         </button>
       </div>
       <ul className="snapshots-panel__list snapshots-list">

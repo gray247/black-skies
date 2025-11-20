@@ -338,7 +338,16 @@ async function startServices() {
         }
         servicesProcess = null;
         servicesPort = null;
-        delete process.env.BLACKSKIES_SERVICES_PORT;
+        if (process.env.BLACKSKIES_E2E_MODE === '1' && process.env.BLACKSKIES_E2E_PORT) {
+            process.env.BLACKSKIES_SERVICES_PORT = process.env.BLACKSKIES_E2E_PORT;
+        }
+        else {
+            delete process.env.BLACKSKIES_SERVICES_PORT;
+        }
+        console.log('[main] Playwright ports', {
+            BLACKSKIES_SERVICES_PORT: process.env.BLACKSKIES_SERVICES_PORT,
+            BLACKSKIES_E2E_PORT: process.env.BLACKSKIES_E2E_PORT,
+        });
         return;
     }
     const logger = ensureMainLogger();

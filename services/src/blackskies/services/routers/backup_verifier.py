@@ -72,4 +72,8 @@ async def run_backup_verifier(
 
     if is_e2e_mode():
         return e2e_backup_verification(validated_id)
-    return run_verification(project_root, latest_only=latest_only)
+    return run_verification(
+        project_root,
+        settings=settings,
+        latest_only=latest_only,
+    )

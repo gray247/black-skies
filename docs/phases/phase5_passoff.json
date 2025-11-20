@@ -1,0 +1,70 @@
+{
+  "phase": "Phase 5",
+  "status": "complete",
+  "summary": [
+    "Full export, snapshot, backup, and verification stack now ships together.",
+    "Integrity validator protects exports, restores, and verification runs.",
+    "Renderer snapshot/backup panel is fully wired to the bridge and toast flows.",
+    "Phase 5 smoke e2e spec passes in this environment."
+  ],
+  "backend": {
+    "snapshots": "Creation/list/restore hardened with consistent metadata.",
+    "backup_service": "Creates/lists/restores checksum-backed BS_*.zip bundles.",
+    "verification": "Daemon validates snapshots/backups and emits JSON reports.",
+    "integrity": "Ensures scene IDs, binder/draft mapping, manifest, timestamps are consistent.",
+    "endpoints": {
+      "backups": "POST /api/v1/backups (create) and GET /api/v1/backups (list)",
+      "backup_restore": "POST /api/v1/backups/restore",
+      "export": "POST /api/v1/export",
+      "snapshots": "GET/POST /api/v1/snapshots",
+      "backup_verifier": "POST /api/v1/backup_verifier/run"
+    },
+    "config": "ServiceSettings gains backups_dir plus scheduler hooks for recurring verification."
+  },
+  "renderer": {
+    "bridge": [
+      "createProjectSnapshot",
+      "listProjectSnapshots",
+      "createBackup",
+      "listBackups",
+      "restoreBackup",
+      "runVerification"
+    ],
+    "preload": "Port handing now respects FastAPI and E2E env vars for the services bridge.",
+    "ui": "SnapshotsPanel shows health block, snapshot list, backups, restore controls, and toasts.",
+    "tests": "Test IDs exposed so AppSnapshotsVerification tx can target the new flows.",
+    "app": "App.tsx wires verification actions through the panel controls."
+  },
+  "tests": {
+    "services": [
+      "services/tests/test_snapshot_endpoints.py",
+      "services/tests/test_backups.py",
+      "services/tests/test_export_endpoints.py",
+      "services/tests/test_integrity_validator.py",
+      "services/tests/unit/test_backup_verifier.py"
+    ],
+    "renderer": [
+      "app/renderer/__tests__/AppSnapshotsVerification.test.tsx"
+    ],
+    "status": "All passing."
+  },
+  "e2e": {
+    "spec": "app/tests/e2e/phase5-export-integrity-flow.spec.ts",
+    "harness": "scripts/e2e-with-backend.mjs (corepack-agnostic)",
+    "result": "1 passed (~3.2s)",
+    "scope": "Snapshot → backup → verification → restore → export through renderer bridge."
+  },
+  "deferred": [
+    "Import surfaces (TXT, MD, HTML, PDF, OCR, etc.)",
+    "Advanced GUI dashboards",
+    "Import validation pipeline",
+    "Non-essential rich export formats"
+  ],
+  "artifacts": [
+    "Checksum-enabled BS_*.zip backup bundles",
+    "Snapshot metadata plus verification JSON",
+    "Full export bundles",
+    "This passoff JSON"
+  ],
+  "version": 1
+}

@@ -1,7 +1,12 @@
 #!/usr/bin/env node
 import net from 'node:net';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
 import { setTimeout as delay } from 'node:timers/promises';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const SERVICE_PORT = 9999;
 const HEALTH_PATH = `/api/v1/healthz`;
@@ -12,6 +17,7 @@ const PLAYWRIGHT_ARGS = [
   '--reporter=list',
   '--trace=on',
 ];
+const REPO_ROOT = path.resolve(__dirname, '..');
 
 function splitCommand(command) {
   const tokens = [];
@@ -104,9 +110,11 @@ async function run() {
   const backendEnv = {
     ...process.env,
     BLACKSKIES_SERVICES_PORT: String(SERVICE_PORT),
+    BLACKSKIES_E2E_PORT: String(SERVICE_PORT),
     BLACKSKIES_E2E_MODE: "1",
   };
   process.env.BLACKSKIES_SERVICES_PORT = String(SERVICE_PORT);
+  process.env.BLACKSKIES_E2E_PORT = String(SERVICE_PORT);
   process.env.BLACKSKIES_E2E_MODE = "1";
   process.env.PATH = `C:/Dev/black-skies/.venv/Scripts;` + process.env.PATH;
   const backend = spawn(backendCommand, backendArgs, {
@@ -133,29 +141,36 @@ async function run() {
     const tests = process.argv.slice(2);
     const testFiles = tests.length ? tests : ['gui.flows.spec.ts', 'dock-workspace.spec.ts'];
     const runFullSuite = process.env.FULL_ANALYTICS_E2E === '1';
-    const smokeFilterArgs = runFullSuite ? [] : ['--grep', 'smoke_'];
-    const testArgs = [
-      '--filter',
+    const smokeFilterArgs =
+      runFullSuite || tests.length > 0 ? [] : ['--grep', 'smoke_'];
+    const playwrightBin = path.resolve(
+      __dirname,
+      '..',
       'app',
-      'exec',
-      'playwright',
+      'node_modules',
+      '.bin',
+      process.platform === 'win32' ? 'playwright.cmd' : 'playwright',
+    );
+    const playwrightArgs = [
       'test',
       ...PLAYWRIGHT_ARGS,
       ...smokeFilterArgs,
       ...testFiles,
     ];
-    const pnpmExecPath = process.env.npm_execpath;
-    let pnpmCommand;
-    let pnpmArgs;
-    if (pnpmExecPath) {
-      pnpmCommand = process.execPath;
-      pnpmArgs = [pnpmExecPath, ...testArgs];
-    } else {
-      pnpmCommand = 'corepack';
-      pnpmArgs = ['pnpm', ...testArgs];
-    }
-    const exitCode = await spawnCommand(pnpmCommand, pnpmArgs, {
+    const isWindows = process.platform === 'win32';
+    const command = isWindows ? 'cmd.exe' : playwrightBin;
+    const args = isWindows
+      ? ['/c', playwrightBin, ...playwrightArgs]
+      : playwrightArgs;
+    console.log('[e2e] running', command, args);
+    process.env.PLAYWRIGHT = '1';
+    const exitCode = await spawnCommand(command, args, {
       stdio: 'inherit',
+      env: {
+        ...process.env,
+        PLAYWRIGHT: '1',
+      },
+      cwd: path.resolve(REPO_ROOT, 'app'),
     });
     process.exitCode = exitCode;
   } finally {

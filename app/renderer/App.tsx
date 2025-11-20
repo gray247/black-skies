@@ -1472,6 +1472,7 @@ export default function App(): JSX.Element {
           serviceStatus={serviceStatus}
           pushToast={pushToast}
           onClose={() => setShowSnapshotsPanel(false)}
+          onRunVerification={handleVerifySnapshots}
         />
       ) : null}
 

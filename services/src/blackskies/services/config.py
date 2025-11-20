@@ -208,5 +208,11 @@ class ServiceSettings(BaseModel):
         typed_overrides = cast(dict[str, Any], overrides)
         return cls(**typed_overrides)
 
+    @property
+    def backups_dir(self) -> Path:
+        """Root directory where long-term backup bundles live."""
+
+        return self.project_base_dir / "backups"
+
 
 __all__: list[str] = ["ServiceSettings"]

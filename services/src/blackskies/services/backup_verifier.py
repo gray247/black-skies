@@ -7,6 +7,7 @@ import hashlib
 import json
 import logging
 import random
+import zipfile
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
@@ -17,11 +18,14 @@ try:  # pragma: no cover - optional dependency
 except ModuleNotFoundError:  # pragma: no cover - optional dependency
     yaml = cast("Any", None)
 
+from .backup_service import BACKUP_CHECKSUMS
 from .config import ServiceSettings
 from .diagnostics import DiagnosticLogger
 from .feature_flags import voice_notes_enabled
+from .integrity import validate_project
 from .io import atomic_write_json, read_json
 from .snapshots import SNAPSHOT_DIR_NAME, list_snapshots
+from .utils.paths import to_posix
 
 LOGGER = logging.getLogger(__name__)
 
@@ -920,50 +924,190 @@ def _hash_file(path: Path) -> str:
     return digest.hexdigest()
 
 
-def run_verification(project_root: Path, *, latest_only: bool = False) -> dict[str, Any]:
+def _verify_snapshot_entries(project_root: Path, snapshots: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], int, int]:
+    entries: list[dict[str, Any]] = []
+    checked_snapshots = 0
+    failed_snapshots = 0
+    for snapshot in snapshots:
+        snapshot_id = snapshot.get("snapshot_id") or snapshot.get("path", "").split("/")[-1]
+        snapshot_dir = project_root / SNAPSHOT_DIR_NAME / snapshot_id
+        manifest_path = snapshot_dir / "manifest.json"
+        errors: list[str] = []
+        if not manifest_path.exists():
+            errors.append("manifest missing")
+        else:
+            try:
+                manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            except json.JSONDecodeError:
+                errors.append("manifest invalid")
+                manifest = {}
+            for entry in manifest.get("files_included", []):
+                relative = entry.get("path")
+                if not relative:
+                    continue
+                candidate = snapshot_dir / relative
+                if not candidate.exists():
+                    errors.append(f"missing {relative}")
+                    continue
+                checksum = entry.get("checksum")
+                if checksum:
+                    actual = _hash_file(candidate)
+                    if actual != checksum:
+                        errors.append(f"checksum mismatch {relative}")
+        status = "ok" if not errors else "errors"
+        entries.append(
+            {
+                "snapshot_id": snapshot_id,
+                "path": snapshot.get("path"),
+                "status": status,
+                "errors": errors,
+            }
+        )
+        checked_snapshots += 1
+        if status != "ok":
+            failed_snapshots += 1
+    return entries, checked_snapshots, failed_snapshots
+
+
+def _verify_backup_entries(project_root: Path, backups_dir: Path) -> tuple[list[dict[str, Any]], int, int]:
+    entries: list[dict[str, Any]] = []
+    checked_backups = 0
+    failed_backups = 0
+    if not backups_dir.exists():
+        return entries, checked_backups, failed_backups
+
+    for archive_path in sorted(backups_dir.glob("BS_*.zip")):
+        errors: list[str] = []
+        status = "ok"
+        project_matches = False
+        try:
+            with zipfile.ZipFile(archive_path) as archive:
+                names = {name for name in archive.namelist() if name}
+                if BACKUP_CHECKSUMS not in names:
+                    errors.append(f"{BACKUP_CHECKSUMS} missing in archive")
+                else:
+                    data = archive.read(BACKUP_CHECKSUMS).decode("utf-8")
+                    checksums_payload = json.loads(data)
+                    zipped_project = checksums_payload.get("project_id")
+                    if zipped_project != project_root.name:
+                        continue
+                    project_matches = True
+                    for required in ("project.json", "outline.json"):
+                        if required not in names:
+                            errors.append(f"{required} missing in archive")
+                    if not any(name.startswith("drafts/") for name in names):
+                        errors.append("drafts/ directory missing")
+                    for entry in checksums_payload.get("files", []):
+                        relative = entry.get("path")
+                        if not relative:
+                            continue
+                        if relative not in names:
+                            errors.append(f"missing {relative}")
+                            continue
+                        expected = entry.get("checksum")
+                        if expected:
+                            actual = hashlib.sha256(archive.read(relative)).hexdigest()
+                            if actual != expected:
+                                errors.append(f"checksum mismatch {relative}")
+        except zipfile.BadZipFile as exc:
+            errors.append(f"invalid archive: {exc}")
+        except (OSError, json.JSONDecodeError) as exc:
+            errors.append(str(exc))
+
+        if not project_matches:
+            continue
+
+        if errors:
+            status = "errors"
+        entries.append(
+            {
+                "name": archive_path.name,
+                "path": to_posix(
+                    archive_path.relative_to(project_root.parent)
+                    if archive_path.is_relative_to(project_root.parent)
+                    else archive_path
+                ),
+                "status": status,
+                "errors": errors,
+            }
+        )
+        checked_backups += 1
+        if status != "ok":
+            failed_backups += 1
+
+    return entries, checked_backups, failed_backups
+
+
+def _compute_status(
+    *,
+    checked_snapshots: int,
+    failed_snapshots: int,
+    checked_backups: int,
+    failed_backups: int,
+) -> tuple[str, str]:
+    if failed_snapshots or failed_backups:
+        message_parts = []
+        if failed_snapshots:
+            message_parts.append(f"{failed_snapshots} snapshot issue(s)")
+        if failed_backups:
+            message_parts.append(f"{failed_backups} backup issue(s)")
+        message = " and ".join(message_parts) + " detected."
+        return "error", message
+    if checked_snapshots == 0 and checked_backups == 0:
+        return "warning", "No snapshots or backups observed during verification."
+    return "ok", (
+        f"Verified {checked_snapshots} snapshot(s) and {checked_backups} backup(s) with no issues."
+    )
+
+
+def run_verification(
+    project_root: Path,
+    *,
+    settings: ServiceSettings,
+    latest_only: bool = False,
+) -> dict[str, Any]:
     """Inspect backups/snapshots and report missing or corrupted files."""
+
+    integrity_result = validate_project(settings, project_root=project_root)
 
     snapshots = list_snapshots(project_root)
     if latest_only and snapshots:
         snapshots = snapshots[:1]
+    snapshot_entries, checked_snapshots, failed_snapshots = _verify_snapshot_entries(
+        project_root,
+        snapshots,
+    )
+    backups_dir = settings.backups_dir
+    backup_entries, checked_backups, failed_backups = _verify_backup_entries(
+        project_root,
+        backups_dir,
+    )
+    status, message = _compute_status(
+        checked_snapshots=checked_snapshots,
+        failed_snapshots=failed_snapshots,
+        checked_backups=checked_backups,
+        failed_backups=failed_backups,
+    )
 
-    results: list[dict[str, Any]] = []
-    for snapshot in snapshots:
-        snapshot_id = snapshot.get("snapshot_id") or snapshot["path"].split("/")[-1]
-        snapshot_dir = project_root / SNAPSHOT_DIR_NAME / snapshot_id
-        manifest_path = snapshot_dir / "manifest.json"
-        errors: list[str] = []
-
-        if not manifest_path.exists():
-            errors.append("manifest missing")
-            results.append({"snapshot_id": snapshot_id, "status": "errors", "errors": errors})
-            continue
-
-        try:
-            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-        except json.JSONDecodeError:
-            errors.append("manifest invalid")
-            results.append({"snapshot_id": snapshot_id, "status": "errors", "errors": errors})
-            continue
-
-        for entry in manifest.get("files_included", []):
-            relative = entry.get("path")
-            if not relative:
-                continue
-            candidate = snapshot_dir / relative
-            if not candidate.exists():
-                errors.append(f"missing {relative}")
-                continue
-            checksum = entry.get("checksum")
-            if checksum:
-                actual = _hash_file(candidate)
-                if actual != checksum:
-                    errors.append(f"checksum mismatch {relative}")
-
-        status = "ok" if not errors else "errors"
-        results.append({"snapshot_id": snapshot_id, "status": status, "errors": errors})
-
-    return {"project_id": project_root.name, "snapshots": results}
+    return {
+        "project_id": project_root.name,
+        "verified_at": _isoformat(_now()),
+        "status": status,
+        "message": message,
+        "checked_snapshots": checked_snapshots,
+        "failed_snapshots": failed_snapshots,
+        "checked_backups": checked_backups,
+        "failed_backups": failed_backups,
+        "snapshot_dir": str(project_root / SNAPSHOT_DIR_NAME),
+        "backups_dir": to_posix(
+            settings.backups_dir.relative_to(settings.project_base_dir)
+            if settings.backups_dir.exists()
+            else settings.backups_dir
+        ),
+        "snapshots": snapshot_entries,
+        "backups": backup_entries,
+        "integrity": integrity_result.model_dump(),
+    }
 
 
 __all__ = [

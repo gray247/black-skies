@@ -74,6 +74,10 @@ import type {
   AnalyticsBudgetBridgeRequest,
   AnalyticsBudgetBridgeResponse,
   BackupVerificationReport,
+  BackupCreateBridgeRequest,
+  BackupCreateBridgeResponse,
+  BackupListBridgeRequest,
+  BackupListBridgeResponse,
   DraftAcceptBridgeRequest,
   DraftAcceptBridgeResponse,
   DraftCritiqueBridgeRequest,
@@ -102,6 +106,8 @@ import type {
   ServiceHealthResponse,
   ServiceResult,
   ServicesBridge,
+  BackupRestoreBridgeRequest,
+  BackupRestoreBridgeResponse,
   SnapshotManifest,
   WizardLockSnapshotBridgeRequest,
   WizardLockSnapshotBridgeResponse,
@@ -228,7 +234,15 @@ async function sleep(milliseconds: number): Promise<void> {
 }
 
 function currentServicePort(): number | null {
-  const raw = process.env.BLACKSKIES_SERVICES_PORT;
+  const [primaryRaw, fallbackRaw] = [
+    process.env.BLACKSKIES_SERVICES_PORT,
+    process.env.BLACKSKIES_E2E_PORT,
+  ];
+  console.log('[preload] service port envs', {
+    BLACKSKIES_SERVICES_PORT: primaryRaw ?? null,
+    BLACKSKIES_E2E_PORT: fallbackRaw ?? null,
+  });
+  const raw = primaryRaw ?? fallbackRaw;
   const parsed = raw ? Number.parseInt(raw, 10) : Number.NaN;
   return Number.isFinite(parsed) ? parsed : null;
 }
@@ -441,6 +455,16 @@ export async function makeServiceCall<T>(
 ): Promise<ServiceResult<T>> {
   const port = currentServicePort();
   if (!port) {
+    console.warn(
+      '[preload] makeServiceCall missing service port for',
+      path,
+      {
+        env: {
+          BLACKSKIES_SERVICES_PORT: process.env.BLACKSKIES_SERVICES_PORT,
+          BLACKSKIES_E2E_PORT: process.env.BLACKSKIES_E2E_PORT,
+        },
+      },
+    );
     return { ok: false, error: normalizeError('Service port is unavailable.') };
   }
 
@@ -501,6 +525,9 @@ export async function makeServiceCall<T>(
       };
     }
     if (error instanceof BridgeNetworkError) {
+      console.warn('[preload] makeServiceCall network failure for', url, {
+        message: error.message,
+      });
       return {
         ok: false,
         error: normalizeError(error.message, {
@@ -892,12 +919,24 @@ export const serviceApi = {
       ...(request.restoreAsNew !== undefined ? { restore_as_new: request.restoreAsNew } : {}),
     }),
   analyticsBudget: (request: AnalyticsBudgetBridgeRequest) => {
-    const params = new URLSearchParams({ project_id: request.projectId });
+    const params = new URLSearchParams({ projectId: request.projectId });
     return makeServiceCall<AnalyticsBudgetBridgeResponse>(
       `analytics/budget?${params.toString()}`,
       'GET',
     );
   },
+  createBackup: (request: BackupCreateBridgeRequest) =>
+    makeServiceCall<BackupCreateBridgeResponse>('backups', 'POST', {
+      projectId: request.projectId,
+    }),
+  listBackups: (request: BackupListBridgeRequest) => {
+    const params = new URLSearchParams({ projectId: request.projectId });
+    return makeServiceCall<BackupListBridgeResponse>(`backups?${params.toString()}`, 'GET');
+  },
+  restoreBackup: (request: BackupRestoreBridgeRequest) =>
+    makeServiceCall<BackupRestoreBridgeResponse>('backups/restore', 'POST', {
+      backupName: request.backupName,
+    }),
   exportProject: (request: ProjectExportBridgeRequest) =>
     makeServiceCall<ProjectExportBridgeResponse>('export', 'POST', {
       project_id: request.projectId,
@@ -911,7 +950,7 @@ export const serviceApi = {
       { project_id: request.projectId },
     ),
   listProjectSnapshots: (request: { projectId: string }) => {
-    const params = new URLSearchParams({ project_id: request.projectId });
+    const params = new URLSearchParams({ projectId: request.projectId });
     return makeServiceCall<SnapshotManifest[]>(`snapshots?${params.toString()}`, 'GET');
   },
   getLastVerification: (request: { projectId: string; projectPath?: string | null }) =>
@@ -994,6 +1033,9 @@ const servicesBridge: ServicesBridge = {
   restoreSnapshot: serviceApi.restoreSnapshot,
   restoreFromZip: serviceApi.restoreFromZip,
   analyticsBudget: serviceApi.analyticsBudget,
+  createBackup: (request) => serviceApi.createBackup(request),
+  listBackups: (request) => serviceApi.listBackups?.(request),
+  restoreBackup: (request) => serviceApi.restoreBackup?.(request),
   exportProject: serviceApi.exportProject,
   listProjectSnapshots: (request: { projectId: string }) =>
     serviceApi.listProjectSnapshots?.(request),

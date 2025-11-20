@@ -218,6 +218,43 @@ export interface BackupVerificationReport {
   snapshots: SnapshotVerificationSummary[];
 }
 
+export interface BackupSummary {
+  project_id: string;
+  filename: string;
+  path: string;
+  created_at: string;
+  checksum: string;
+}
+
+export interface BackupCreateBridgeRequest {
+  projectId: string;
+}
+
+export interface BackupCreateBridgeResponse {
+  project_id: string;
+  filename: string;
+  path: string;
+  created_at: string;
+  checksum: string;
+}
+
+export interface BackupListBridgeRequest {
+  projectId: string;
+}
+
+export type BackupListBridgeResponse = BackupSummary[];
+
+export interface BackupRestoreBridgeRequest {
+  backupName: string;
+}
+
+export interface BackupRestoreBridgeResponse {
+  status: 'ok' | string;
+  restored_path?: string;
+  restored_project_slug?: string;
+  message?: string;
+}
+
 export interface DraftAcceptUnitPayload {
   id: string;
   previous_sha256: string;
@@ -404,6 +441,15 @@ export interface ServicesBridge {
   exportProject: (
     request: ProjectExportBridgeRequest,
   ) => Promise<ServiceResult<ProjectExportBridgeResponse>>;
+  createBackup?: (
+    request: BackupCreateBridgeRequest,
+  ) => Promise<ServiceResult<BackupCreateBridgeResponse>>;
+  listBackups?: (
+    request: BackupListBridgeRequest,
+  ) => Promise<ServiceResult<BackupListBridgeResponse>>;
+  restoreBackup?: (
+    request: BackupRestoreBridgeRequest,
+  ) => Promise<ServiceResult<BackupRestoreBridgeResponse>>;
   runBackupVerification?: (
     request: { projectId: string; latestOnly: boolean },
   ) => Promise<ServiceResult<BackupVerificationReport>>;

@@ -5,6 +5,7 @@ from __future__ import annotations
 from fastapi import APIRouter
 
 from .analytics import router as analytics_router
+from .backups import router as backups_router
 from .draft import router as draft_router
 from .outline import router as outline_router
 from .export import router as export_router
@@ -21,6 +22,7 @@ router.include_router(recovery_router)
 router.include_router(analytics_router)
 router.include_router(snapshots_router)
 router.include_router(backup_verifier_router)
+router.include_router(backups_router)
 router.include_router(export_router)
 router.include_router(phase4_router)
 router.include_router(restore_router)

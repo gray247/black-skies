@@ -1,0 +1,18 @@
+{
+  "version": 2,
+  "layout": {
+    "direction": "row",
+    "first": "wizard",
+    "second": {
+      "direction": "row",
+      "first": {
+        "direction": "column",
+        "first": "draft-board",
+        "second": "history",
+        "splitPercentage": 49.952354445570705
+      },
+      "second": "critique"
+    }
+  },
+  "floatingPanes": []
+}

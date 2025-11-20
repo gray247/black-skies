@@ -14,6 +14,7 @@ from typing import Iterable
 from .config import ServiceSettings
 from .diagnostics import DiagnosticLogger
 from .export import compile_manuscript, load_outline_artifact
+from .integrity import validate_project
 from .persistence import write_text_atomic
 from .scene_docs import DraftRequestError
 from .utils.paths import to_posix
@@ -71,6 +72,19 @@ class ProjectExportService:
             raise DraftRequestError(
                 "Requested export format is not yet implemented.",
                 {"format": format.value, "supported": [fmt.value for fmt in ExportFormat.supported()]},
+            )
+
+        integrity = validate_project(self._settings, project_root=project_root)
+        if not integrity.is_ok:
+            self._diagnostics.log(
+                project_root,
+                code="INTEGRITY_CHECK_FAILED",
+                message="Project integrity validation failed before export.",
+                details={"errors": integrity.errors, "warnings": integrity.warnings},
+            )
+            raise DraftRequestError(
+                "Project integrity check failed.",
+                {"errors": integrity.errors, "warnings": integrity.warnings},
             )
 
         outline = load_outline_artifact(project_root)
