@@ -1,6 +1,11 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { parse } from 'yaml';
+import {
+  CANONICAL_PANES,
+  normalisePaneId,
+  type LayoutPaneId,
+} from '../ipc/layout';
 
 export interface ServicePortRange {
   readonly min: number;
@@ -37,7 +42,7 @@ export interface AnalyticsConfig {
 
 export interface UiHotkeysConfig {
   readonly enablePresetHotkeys: boolean;
-  readonly focusCycleOrder: readonly string[];
+  readonly focusCycleOrder: readonly LayoutPaneId[];
 }
 
 export interface UiConfig {
@@ -72,6 +77,17 @@ const DEFAULT_ANALYTICS_INTENSITY: Record<string, number> = Object.freeze({
   respite: 0.25,
 });
 
+const DEFAULT_FOCUS_CYCLE_ORDER: readonly LayoutPaneId[] = [
+  'outline',
+  'draftPreview',
+  'storyInsights',
+  'corkboard',
+  'timeline',
+  'critique',
+] as const;
+
+const VALID_PANE_IDS = new Set<LayoutPaneId>(CANONICAL_PANES);
+
 export const DEFAULT_RUNTIME_CONFIG: RuntimeConfig = Object.freeze({
   service: {
     portRange: DEFAULT_SERVICE_PORT_RANGE,
@@ -97,7 +113,7 @@ export const DEFAULT_RUNTIME_CONFIG: RuntimeConfig = Object.freeze({
     defaultPreset: "standard",
     hotkeys: {
       enablePresetHotkeys: true,
-      focusCycleOrder: ["wizard", "draft-board", "critique", "history", "analytics"],
+      focusCycleOrder: DEFAULT_FOCUS_CYCLE_ORDER,
     },
   },
 });
@@ -238,13 +254,20 @@ function normalizeRuntimeConfig(parsed: Record<string, unknown>): RuntimeConfig 
   };
 }
 
-function resolveFocusCycle(value: unknown): readonly string[] {
+function resolveFocusCycle(value: unknown): readonly LayoutPaneId[] {
   if (!Array.isArray(value)) {
     return DEFAULT_RUNTIME_CONFIG.ui.hotkeys.focusCycleOrder;
   }
-  const normalised = value
-    .map((entry) => (typeof entry === "string" ? entry.trim() : ""))
-    .filter((entry) => entry.length > 0);
+  const normalised: LayoutPaneId[] = [];
+  for (const entry of value) {
+    if (typeof entry !== "string") {
+      continue;
+    }
+    const parsed = normalisePaneId(entry.trim());
+    if (parsed && VALID_PANE_IDS.has(parsed)) {
+      normalised.push(parsed);
+    }
+  }
   if (normalised.length === 0) {
     return DEFAULT_RUNTIME_CONFIG.ui.hotkeys.focusCycleOrder;
   }

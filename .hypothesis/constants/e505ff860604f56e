@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\analytics_stub.py
+# hypothesis_version: 6.138.2
+
+[0.0, '"', "'", '[.!?]+', '[^\\w]+', '_', 'analytics_overrides', 'appearsIn', 'avgReadability', 'budget', 'character', 'characters', 'cost_overlays', 'density', 'dialogueRatio', 'edges', 'emotion_intensity', 'fast_threshold', 'from', 'hard_limit_usd', 'id', 'index', 'kind', 'label', 'narrationRatio', 'nodes', 'pace', 'pov', 'project.json', 'projectId', 'projectPath', 'project_id', 'readability', 'runtime_hints', 'scene', 'sceneId', 'scenes', 'slow_threshold', 'soft_limit_usd', 'title', 'to', 'type', 'unknown', 'wordCount']

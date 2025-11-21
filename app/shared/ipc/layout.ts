@@ -9,14 +9,147 @@ export const LAYOUT_CHANNELS = {
   closeFloating: "layout:floating:close",
 } as const;
 
-export type LayoutPaneId =
-  | "wizard"
-  | "draft-board"
-  | "critique"
-  | "history"
-  | "analytics";
+export const CANONICAL_PANES = [
+  "outline",
+  "draftPreview",
+  "storyInsights",
+  "corkboard",
+  "timeline",
+  "critique",
+  "relationshipGraph",
+] as const;
 
-export type LayoutTree = MosaicNode<LayoutPaneId>;
+export type LayoutPaneId = (typeof CANONICAL_PANES)[number];
+
+export const DEFAULT_PANE_IDS: readonly LayoutPaneId[] = CANONICAL_PANES;
+
+export interface PaneMetadata {
+  readonly title: string;
+  readonly description: string;
+  readonly hidden?: boolean;
+}
+
+export const PANE_METADATA: Record<LayoutPaneId, PaneMetadata> = {
+  outline: {
+    title: "Outline",
+    description: "Plan chapters, scenes, and beats.",
+  },
+  draftPreview: {
+    title: "Draft preview",
+    description: "Write and edit your scene text.",
+  },
+  timeline: {
+    title: "Timeline",
+    description: "Review your history and progress.",
+  },
+  storyInsights: {
+    title: "Story Insights",
+    description: "See pacing and emotion data.",
+  },
+  corkboard: {
+    title: "Corkboard",
+    description: "Browse scene cards with metadata.",
+  },
+  relationshipGraph: {
+    title: "Relationship Graph",
+    description: "Explore character-scene relationships.",
+    hidden: true,
+  },
+  critique: {
+    title: "Critique",
+    description: "Review feedback and suggested revisions.",
+  },
+};
+
+const MIN_SPLIT_WEIGHT = 0.05;
+const DEFAULT_SPLIT_WEIGHTS: [number, number] = [0.5, 0.5];
+
+export type LayoutSplitWeights = [number, number];
+
+export interface LayoutSplitNode extends Omit<MosaicNode<LayoutPaneId>, 'first' | 'second'> {
+  first: LayoutTree;
+  second: LayoutTree;
+  weights: LayoutSplitWeights;
+}
+
+export type LayoutTree = LayoutPaneId | LayoutSplitNode;
+
+function sanitizeWeightPair(input?: LayoutSplitWeights): LayoutSplitWeights {
+  const sanitized: LayoutSplitWeights = [
+    Number.isFinite(input?.[0]) ? Math.max(input![0], 0) : 0,
+    Number.isFinite(input?.[1]) ? Math.max(input![1], 0) : 0,
+  ];
+  const total = sanitized[0] + sanitized[1];
+  if (total <= 0) {
+    return DEFAULT_SPLIT_WEIGHTS;
+  }
+  const normalized: LayoutSplitWeights = [sanitized[0] / total, sanitized[1] / total];
+  const clamped: LayoutSplitWeights = [
+    Math.min(1 - MIN_SPLIT_WEIGHT, Math.max(MIN_SPLIT_WEIGHT, normalized[0])),
+    Math.min(1 - MIN_SPLIT_WEIGHT, Math.max(MIN_SPLIT_WEIGHT, normalized[1])),
+  ];
+  const reTotal = clamped[0] + clamped[1];
+  if (reTotal <= 0) {
+    return DEFAULT_SPLIT_WEIGHTS;
+  }
+  return [clamped[0] / reTotal, clamped[1] / reTotal];
+}
+
+function weightsFromSplitPercentage(splitPercentage?: number): LayoutSplitWeights {
+  if (typeof splitPercentage !== 'number' || Number.isNaN(splitPercentage)) {
+    return DEFAULT_SPLIT_WEIGHTS;
+  }
+  const bounded = Math.min(95, Math.max(5, splitPercentage));
+  return sanitizeWeightPair([bounded / 100, (100 - bounded) / 100]);
+}
+
+function splitPercentageFromWeights(weights: LayoutSplitWeights): number {
+  return Math.min(95, Math.max(5, weights[0] * 100));
+}
+
+export function applySplitWeights(node: LayoutSplitNode, weights: LayoutSplitWeights): LayoutSplitNode {
+  const normalized = sanitizeWeightPair(weights);
+  return {
+    ...node,
+    weights: normalized,
+    splitPercentage: splitPercentageFromWeights(normalized),
+  };
+}
+
+function makeSplitNode(
+  direction: LayoutSplitNode['direction'],
+  first: LayoutTree,
+  second: LayoutTree,
+  splitPercentage?: number,
+  weights?: LayoutSplitWeights,
+): LayoutSplitNode {
+  const bundle = weights ?? weightsFromSplitPercentage(splitPercentage);
+  const normalized = sanitizeWeightPair(bundle);
+  return {
+    direction,
+    first,
+    second,
+    weights: normalized,
+    splitPercentage: splitPercentageFromWeights(normalized),
+  };
+}
+
+export const LAYOUT_SCHEMA_VERSION = 3;
+
+export const LEGACY_PANE_ALIASES: Record<string, LayoutPaneId> = {
+  wizard: "outline",
+  "draft-board": "draftPreview",
+  history: "timeline",
+  analytics: "storyInsights",
+  relationships: "relationshipGraph",
+};
+
+const REQUIRED_LAYOUT_PANES: readonly LayoutPaneId[] = [
+  "outline",
+  "draftPreview",
+  "storyInsights",
+  "corkboard",
+] as const;
 
 export interface LayoutLoadRequest {
   projectPath: string;
@@ -76,16 +209,101 @@ export interface FloatingPaneCloseRequest {
   paneId: LayoutPaneId;
 }
 
-export const DEFAULT_LAYOUT: LayoutTree = {
-  direction: "row",
-  first: "wizard",
-  second: {
-    direction: "row",
-    first: {
-      direction: "column",
-      first: "draft-board",
-      second: "history",
-    },
-    second: "critique",
-  },
-};
+export function normalisePaneId(value: string | null | undefined): LayoutPaneId | null {
+  if (!value) {
+    return null;
+  }
+  if ((CANONICAL_PANES as readonly string[]).includes(value)) {
+    return value as LayoutPaneId;
+  }
+  const alias = LEGACY_PANE_ALIASES[value];
+  return alias ?? null;
+}
+
+export const DEFAULT_LAYOUT: LayoutTree = makeSplitNode(
+  'column',
+  makeSplitNode('row', 'draftPreview', 'storyInsights', 50),
+  makeSplitNode('row', 'outline', 'corkboard', 50),
+  50,
+);
+
+function normalizeLegacyPane(value: string | null | undefined): LayoutPaneId | null {
+  if (!value) {
+    return null;
+  }
+  if ((CANONICAL_PANES as readonly string[]).includes(value)) {
+    return value as LayoutPaneId;
+  }
+  return LEGACY_PANE_ALIASES[value] ?? null;
+}
+
+function collectPaneIds(
+  node: LayoutTree | LayoutPaneId,
+  result: LayoutPaneId[],
+  seen: Set<LayoutPaneId>,
+): boolean {
+  if (typeof node === "string") {
+    if (seen.has(node)) {
+      return false;
+    }
+    seen.add(node);
+    result.push(node);
+    return true;
+  }
+  if (!collectPaneIds(node.first, result, seen)) {
+    return false;
+  }
+  if (!collectPaneIds(node.second, result, seen)) {
+    return false;
+  }
+  return true;
+}
+
+function treeMeetsRequirements(tree: LayoutTree): boolean {
+  const ids: LayoutPaneId[] = [];
+  if (!collectPaneIds(tree, ids, new Set())) {
+    return false;
+  }
+  const present = new Set(ids);
+  for (const required of REQUIRED_LAYOUT_PANES) {
+    if (!present.has(required)) {
+      return false;
+    }
+  }
+  if (ids.length !== REQUIRED_LAYOUT_PANES.length) {
+    return false;
+  }
+  return true;
+}
+
+function logInvalidLayout(reason: string): void {
+  console.warn('[dock] Invalid saved layout ignored; using default layout', { reason });
+}
+
+export function sanitizeLayoutNode(node: MosaicNode<LayoutPaneId> | null): LayoutTree | null {
+  if (!node) {
+    return null;
+  }
+  if (typeof node === 'string') {
+    const normalized = normalizeLegacyPane(node);
+    return normalized ?? null;
+  }
+  const first = sanitizeLayoutNode(node.first);
+  const second = sanitizeLayoutNode(node.second);
+  if (!first || !second) {
+    return null;
+  }
+  const direction = node.direction ?? 'row';
+  const candidate: LayoutTree = makeSplitNode(
+    direction,
+    first,
+    second,
+    node.splitPercentage,
+    (node as LayoutSplitNode).weights,
+  );
+  if (!treeMeetsRequirements(candidate)) {
+    logInvalidLayout('layout contains duplicates or missing required panes');
+    return null;
+  }
+  return candidate;
+}

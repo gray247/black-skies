@@ -44,7 +44,7 @@ describe('DockPaneTile toolbar controls', () => {
       split: vi.fn().mockResolvedValue(undefined),
       replaceWithNew: vi.fn().mockResolvedValue(undefined),
       setAdditionalControlsOpen: vi.fn(),
-      getPath: vi.fn(() => ['wizard']),
+      getPath: vi.fn(() => ['outline']),
       connectDragSource: vi.fn((element) => element),
     };
 
@@ -57,7 +57,7 @@ describe('DockPaneTile toolbar controls', () => {
         >
           <DockPaneTile
             projectPath="sample/project"
-            paneId="wizard"
+            paneId="outline"
             paneTitle="Wizard"
             path={['first']}
             instructionsId="instructions"
@@ -104,7 +104,7 @@ describe('DockPaneTile toolbar controls', () => {
       split: vi.fn().mockResolvedValue(undefined),
       replaceWithNew: vi.fn().mockResolvedValue(undefined),
       setAdditionalControlsOpen: vi.fn(),
-      getPath: vi.fn(() => ['wizard']),
+      getPath: vi.fn(() => ['outline']),
       connectDragSource: vi.fn((element) => element),
     };
 
@@ -119,7 +119,7 @@ describe('DockPaneTile toolbar controls', () => {
         >
           <DockPaneTile
             projectPath="sample/project"
-            paneId="wizard"
+            paneId="outline"
             paneTitle="Wizard"
             path={['first']}
             instructionsId="instructions"

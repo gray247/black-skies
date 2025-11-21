@@ -34,6 +34,14 @@ beforeEach(() => {
     window.bridge.getLastVerification || vi.fn().mockResolvedValue(null);
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
+  window.bridge.getBackupVerificationReport =
+    window.bridge.getBackupVerificationReport ||
+    vi.fn().mockResolvedValue({
+      ok: true,
+      data: { project_id: 'stub', snapshots: [] },
+    });
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   window.bridge.runBackupVerification =
     window.bridge.runBackupVerification || vi.fn().mockResolvedValue({ ok: true });
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment

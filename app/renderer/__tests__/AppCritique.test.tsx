@@ -206,19 +206,6 @@ function createServices(): ServicesBridge {
       ok: true,
       data: { project_id: 'demo', status: 'idle', needs_recovery: false },
     }),
-    analyticsBudget: vi.fn().mockResolvedValue({
-      ok: true,
-      data: {
-        project_id: 'demo',
-        budget: {
-          soft_limit_usd: 10,
-          hard_limit_usd: 10,
-          spent_usd: 0,
-          remaining_usd: 10,
-        },
-        hint: 'stable',
-      },
-    }),
   };
 }
 

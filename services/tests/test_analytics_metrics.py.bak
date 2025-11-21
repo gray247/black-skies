@@ -1,0 +1,75 @@
+"""Unit tests for the Phase 6 analytics metric helpers."""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+import pytest
+
+from blackskies.services.analytics_stub import get_project_summary, get_scene_metrics
+from blackskies.services.config import ServiceSettings
+
+
+def _seed_project(base_dir: Path, project_id: str) -> Path:
+    project_root = base_dir / project_id
+    project_root.mkdir(parents=True, exist_ok=True)
+    project_root.joinpath("project.json").write_text(
+        '{"project_id": "%s", "name": "Metric Test"}' % project_id, encoding="utf-8"
+    )
+    outline = {
+        "schema_version": "OutlineSchema v1",
+        "outline_id": "out_001",
+        "acts": ["Act I"],
+        "chapters": [{"id": "ch_0001", "order": 1, "title": "Act One"}],
+        "scenes": [
+            {"id": "sc_0001", "order": 1, "title": "First Scene", "chapter_id": "ch_0001"},
+            {"id": "sc_0002", "order": 2, "title": "Second Scene", "chapter_id": "ch_0001"},
+        ],
+    }
+    project_root.joinpath("outline.json").write_text(
+        json.dumps(outline, indent=2), encoding="utf-8"
+    )
+    drafts_dir = project_root / "drafts"
+    drafts_dir.mkdir(exist_ok=True)
+    drafts_dir.joinpath("sc_0001.md").write_text(
+        "---\nid: sc_0001\ntitle: First Scene\norder: 1\n---\n\"Hello world.\"\nNarration line.\n",
+        encoding="utf-8",
+    )
+    drafts_dir.joinpath("sc_0002.md").write_text(
+        "---\nid: sc_0002\ntitle: Second Scene\norder: 2\n---\nNarration again.\n\"Echo.\"",
+        encoding="utf-8",
+    )
+    return project_root
+
+
+@pytest.fixture()
+def settings(tmp_path: Path) -> ServiceSettings:
+    return ServiceSettings(project_base_dir=tmp_path)
+
+
+def test_project_summary_counts(settings: ServiceSettings) -> None:
+    project_id = "metrics-summary"
+    _seed_project(settings.project_base_dir, project_id)
+    summary = get_project_summary(settings, project_id)
+    assert summary["projectId"] == project_id
+    assert summary["scenes"] == 2
+    assert summary["wordCount"] > 0
+    assert summary["avgReadability"] is not None
+
+
+def test_scene_metrics_structure(settings: ServiceSettings) -> None:
+    project_id = "metrics-scenes"
+    _seed_project(settings.project_base_dir, project_id)
+    payload = get_scene_metrics(settings, project_id)
+    assert payload["projectId"] == project_id
+    assert payload["scenes"]
+    first_scene = payload["scenes"][0]
+    assert first_scene["sceneId"]
+    assert isinstance(first_scene["wordCount"], int)
+    density = first_scene["density"]
+    assert 0.0 <= density["dialogueRatio"] <= 1.0
+    assert 0.0 <= density["narrationRatio"] <= 1.0
+    assert pytest.approx(
+        1.0, rel=1e-2
+    ) == density["dialogueRatio"] + density["narrationRatio"]

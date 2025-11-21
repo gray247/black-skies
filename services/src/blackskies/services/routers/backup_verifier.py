@@ -4,15 +4,17 @@ from __future__ import annotations
 
 from typing import Any
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, ValidationError, field_validator
 
 from ..backup_verifier import run_verification
 from ..config import ServiceSettings
 from ..diagnostics import DiagnosticLogger
+from ..io import read_json
 from ..e2e_mode import e2e_backup_verification, is_e2e_mode
 from ..http import raise_validation_error
 from ..models._project_id import validate_project_id
+from ..snapshots import SNAPSHOT_DIR_NAME
 from .dependencies import get_diagnostics, get_settings
 
 router = APIRouter(prefix="/backup_verifier", tags=["backup_verifier"])
@@ -77,3 +79,54 @@ async def run_backup_verifier(
         settings=settings,
         latest_only=latest_only,
     )
+
+
+@router.get("/report", status_code=status.HTTP_200_OK)
+async def get_backup_verification_report(
+    project_id: str | None = Query(None, alias="projectId"),
+    settings: ServiceSettings = Depends(get_settings),
+    diagnostics: DiagnosticLogger = Depends(get_diagnostics),
+) -> dict[str, Any]:
+    """Fetch the last stored verification report."""
+
+    if not isinstance(project_id, str):
+        raise_validation_error(
+            message="Missing project identifier.",
+            details={"project_id": project_id},
+            diagnostics=diagnostics,
+            project_root=None,
+        )
+
+    try:
+        validated_id = validate_project_id(project_id)
+    except ValueError as exc:
+        raise_validation_error(
+            message="Invalid project identifier.",
+            details={"errors": str(exc)},
+            diagnostics=diagnostics,
+            project_root=None,
+        )
+
+    project_root = settings.project_base_dir / validated_id
+    if not project_root.exists():
+        raise_validation_error(
+            message="Project root is missing.",
+            details={"project_id": validated_id},
+            diagnostics=diagnostics,
+            project_root=None,
+        )
+
+    report_path = project_root / SNAPSHOT_DIR_NAME / "last_verification.json"
+    if not report_path.exists():
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Verification report not found.",
+        )
+
+    try:
+        return read_json(report_path)
+    except (OSError, ValueError):
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Unable to read verification report.",
+        )

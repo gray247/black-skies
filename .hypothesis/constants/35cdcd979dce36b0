@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\logging_config.py
+# hypothesis_version: 6.138.2
+
+['()', 'INFO', 'WARNING', 'blackskies.services', 'class', 'configure_logging', 'console', 'exc_info', 'extra_payload', 'formatter', 'formatters', 'handlers', 'json', 'level', 'logger', 'loggers', 'message', 'propagate', 'root', 'timestamp', 'uvicorn.access', 'uvicorn.error', 'version']

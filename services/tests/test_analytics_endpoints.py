@@ -1,0 +1,87 @@
+"""Smoke tests for the Phase 6 analytics endpoints."""
+
+import json
+from pathlib import Path
+
+import pytest
+from fastapi.testclient import TestClient
+
+
+def _seed_project(client: TestClient, project_id: str) -> None:
+    base_dir = Path(client.app.state.settings.project_base_dir)
+    project_root = base_dir / project_id
+    project_root.mkdir(parents=True)
+    project_root.joinpath("project.json").write_text(
+        json.dumps({"project_id": project_id, "name": "Endpoint Metrics"}),
+        encoding="utf-8",
+    )
+    outline = {
+        "schema_version": "OutlineSchema v1",
+        "outline_id": "out_001",
+        "acts": ["Act I"],
+        "chapters": [{"id": "ch_0001", "order": 1, "title": "Act One"}],
+        "scenes": [
+            {"id": "sc_0001", "order": 1, "title": "Scene One", "chapter_id": "ch_0001"},
+            {"id": "sc_0002", "order": 2, "title": "Scene Two", "chapter_id": "ch_0001"},
+        ],
+    }
+    project_root.joinpath("outline.json").write_text(json.dumps(outline, indent=2), encoding="utf-8")
+    drafts_dir = project_root / "drafts"
+    drafts_dir.mkdir()
+    drafts_dir.joinpath("sc_0001.md").write_text(
+        "---\nid: sc_0001\ntitle: Scene One\norder: 1\npov: Alice\ncharacters: [\"Alice\", \"Rae\"]\n---\n\"Hello world.\"\nStory text.\n",
+        encoding="utf-8",
+    )
+    drafts_dir.joinpath("sc_0002.md").write_text(
+        "---\nid: sc_0002\ntitle: Scene Two\norder: 2\npov: Ben\ncharacters: [\"Ben\", \"Rae\"]\n---\nBackdrop.\n\"Response.\"",
+        encoding="utf-8",
+    )
+
+
+def test_analytics_summary_endpoint_returns_metrics(test_client: TestClient) -> None:
+    project_id = "analytics-summary"
+    _seed_project(test_client, project_id)
+    response = test_client.get("/api/v1/analytics/summary", params={"project_id": project_id})
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["projectId"] == project_id
+    assert payload["scenes"] == 2
+    assert payload["wordCount"] > 0
+    assert payload["avgReadability"] is not None
+
+
+def test_analytics_scenes_endpoint_returns_metrics(test_client: TestClient) -> None:
+    project_id = "analytics-scenes"
+    _seed_project(test_client, project_id)
+    response = test_client.get("/api/v1/analytics/scenes", params={"project_id": project_id})
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["projectId"] == project_id
+    scenes = payload["scenes"]
+    assert isinstance(scenes, list) and scenes
+    first_scene = scenes[0]
+    assert first_scene["wordCount"] > 0
+    density = first_scene["density"]
+    assert 0.0 <= density["dialogueRatio"] <= 1.0
+    assert 0.0 <= density["narrationRatio"] <= 1.0
+    assert density["dialogueRatio"] + density["narrationRatio"] == pytest.approx(1.0, rel=1e-2)
+
+
+def test_analytics_relationships_endpoint_returns_graph(test_client: TestClient) -> None:
+    project_id = "analytics-relationships"
+    _seed_project(test_client, project_id)
+    response = test_client.get("/api/v1/analytics/relationships", params={"project_id": project_id})
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["projectId"] == project_id
+    nodes = payload["nodes"]
+    edges = payload["edges"]
+    assert isinstance(nodes, list)
+    assert isinstance(edges, list)
+    assert any(str(node["id"]).startswith("scene:") for node in nodes)
+    assert any(node.get("type") == "character" for node in nodes)
+    assert edges
+    for edge in edges:
+        assert edge["kind"] == "appearsIn"
+        assert edge["from"].startswith("char:")
+        assert edge["to"].startswith("scene:")

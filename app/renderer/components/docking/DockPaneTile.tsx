@@ -1,9 +1,7 @@
-import { useCallback, useContext, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import type { FocusEvent, ReactNode } from 'react';
 import {
-  MosaicContext,
   MosaicWindow,
-  MosaicWindowContext,
   type MosaicPath,
   type MosaicWindowToolbarProps,
 } from 'react-mosaic-component';
@@ -20,13 +18,17 @@ interface DockPaneTileProps {
   assignPaneRef: (paneId: LayoutPaneId, element: HTMLDivElement | null) => void;
   canFloat: boolean;
   onFloat: () => void;
-  onFocusRequest: () => void;
+  onFocusRequest: (paneId: LayoutPaneId) => void;
   onContentFocus?: (paneId: LayoutPaneId) => void;
   onContentBlur?: (paneId: LayoutPaneId) => void;
   isFocused: boolean;
   highlightRelocated?: boolean;
   paneDescription?: string;
   content: ReactNode;
+  onExpand?: (paneId: LayoutPaneId) => void;
+  onClose?: (paneId: LayoutPaneId) => void;
+  controlsEnabled?: boolean;
+  isExpanded?: boolean;
 }
 
 export default function DockPaneTile({
@@ -45,12 +47,12 @@ export default function DockPaneTile({
   highlightRelocated,
   paneDescription,
   content,
+  onExpand,
+  onClose,
+  controlsEnabled = true,
+  isExpanded = false,
 }: DockPaneTileProps): JSX.Element {
   const serializedPath = useMemo(() => path.join('.'), [path]);
-  const mosaicContext = useContext(MosaicContext);
-  const windowContext = useContext(MosaicWindowContext);
-  const hasDockingContext = Boolean(mosaicContext && windowContext);
-
   const handleAssignRef = useCallback(
     (element: HTMLDivElement | null) => assignPaneRef(paneId, element),
     [assignPaneRef, paneId],
@@ -74,27 +76,18 @@ export default function DockPaneTile({
   );
 
   const handleExpand = useCallback(() => {
-    if (!hasDockingContext || !mosaicContext || !windowContext) {
-      return;
-    }
-    try {
-      mosaicContext.mosaicActions.expand(windowContext.mosaicWindowActions.getPath());
-    } catch (error) {
-      console.warn('[dock] Failed to expand pane', error);
-    }
-  }, [hasDockingContext, mosaicContext, windowContext]);
+    onExpand?.(paneId);
+  }, [onExpand, paneId]);
 
   const handleClose = useCallback(() => {
-    if (!hasDockingContext || !mosaicContext || !windowContext) {
-      return;
-    }
-    try {
-      mosaicContext.mosaicActions.remove(windowContext.mosaicWindowActions.getPath());
-    } catch (error) {
-      console.warn('[dock] Failed to close pane', error);
-    }
-  }, [hasDockingContext, mosaicContext, windowContext]);
+    onClose?.(paneId);
+  }, [onClose, paneId]);
 
+  const handleFocus = useCallback(() => {
+    onFocusRequest(paneId);
+  }, [onFocusRequest, paneId]);
+
+  const actionDisabled = !controlsEnabled;
   const renderToolbar = useCallback(
     (_toolbarProps: MosaicWindowToolbarProps<LayoutPaneId>) => {
       void _toolbarProps;
@@ -110,7 +103,7 @@ export default function DockPaneTile({
             onClick={handleExpand}
             title="Expand this pane."
             aria-label={`Expand ${paneTitle} pane`}
-            disabled={!hasDockingContext}
+            disabled={actionDisabled}
           >
             Expand
           </button>
@@ -120,7 +113,7 @@ export default function DockPaneTile({
             onClick={handleClose}
             title="Close this pane."
             aria-label={`Close ${paneTitle} pane`}
-            disabled={!hasDockingContext}
+            disabled={actionDisabled}
           >
             Close
           </button>
@@ -130,14 +123,14 @@ export default function DockPaneTile({
             onClick={onFloat}
             aria-label={`Detach ${paneTitle} pane`}
             title="Open this pane in a separate window."
-            disabled={!canFloat}
+            disabled={!canFloat || actionDisabled}
           >
             Float
           </button>
           <button
             type="button"
             className="dock-pane__toolbar-button"
-            onClick={onFocusRequest}
+            onClick={handleFocus}
             aria-label={`Focus ${paneTitle} pane`}
             title="Focus this pane."
           >
@@ -147,15 +140,7 @@ export default function DockPaneTile({
       </div>
       );
     },
-    [
-      canFloat,
-      handleClose,
-      handleExpand,
-      hasDockingContext,
-      onFloat,
-      onFocusRequest,
-      paneTitle,
-    ],
+    [actionDisabled, canFloat, handleClose, handleExpand, handleFocus, onFloat, paneTitle],
   );
 
   useEffect(() => {
@@ -172,7 +157,7 @@ export default function DockPaneTile({
     <MosaicWindow<LayoutPaneId>
       className={`dock-pane${isFocused ? ' dock-pane--focused' : ''}${
         highlightRelocated ? ' dock-pane--relocated' : ''
-      }`}
+      }${isExpanded ? ' dock-pane--expanded' : ''}`}
       path={path}
       title=""
       renderToolbar={renderToolbar}

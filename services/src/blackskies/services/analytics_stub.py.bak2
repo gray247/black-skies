@@ -1,0 +1,210 @@
+"""Local analytics helpers providing basic word counts and scene metrics."""
+
+from __future__ import annotations
+
+import json
+import re
+from dataclasses import dataclass
+from pathlib import Path
+from statistics import mean
+from typing import Any, Iterable
+
+from .config import ServiceSettings
+from .export import load_outline_artifact
+from .io import read_json
+from .scene_docs import DraftRequestError, read_scene_document
+
+
+SENTENCE_SPLIT = re.compile(r"[.!?]+")
+
+
+def get_project_summary(settings: ServiceSettings, project_id: str) -> dict[str, object]:
+    """Return a lightweight analytics summary for the requested project."""
+
+    project_root = _resolve_project_root(settings, project_id)
+    outline = load_outline_artifact(project_root)
+    scenes = list(_generate_scene_stats(project_root, outline))
+    word_count = sum(scene.word_count for scene in scenes)
+    readability_values = [scene.readability for scene in scenes if scene.readability is not None]
+    avg_readability = round(mean(readability_values), 2) if readability_values else None
+    metadata = _load_project_metadata(project_root)
+    return {
+        "projectId": metadata or project_id,
+        "projectPath": str(project_root.resolve()),
+        "scenes": len(scenes),
+        "wordCount": word_count,
+        "avgReadability": avg_readability,
+    }
+
+
+def get_scene_metrics(settings: ServiceSettings, project_id: str) -> dict[str, object]:
+    """Return per-scene metrics for the requested project."""
+
+    project_root = _resolve_project_root(settings, project_id)
+    outline = load_outline_artifact(project_root)
+    scenes = [scene.to_dict() for scene in _generate_scene_stats(project_root, outline)]
+    metadata = _load_project_metadata(project_root)
+    return {
+        "projectId": metadata or project_id,
+        "projectPath": str(project_root.resolve()),
+        "scenes": scenes,
+    }
+
+
+def get_relationship_graph(settings: ServiceSettings, project_id: str) -> dict[str, object]:
+    """Return a simple relationship graph for the requested project."""
+
+    project_root = _resolve_project_root(settings, project_id)
+    outline = load_outline_artifact(project_root)
+    nodes: list[dict[str, object]] = []
+    char_nodes: dict[str, dict[str, object]] = {}
+    edges: list[dict[str, object]] = []
+
+    for scene in sorted(outline.scenes, key=lambda scene: scene.order):
+        front_matter = _load_scene_front_matter(project_root, scene.id)
+        title = front_matter.get("title") or scene.title or scene.id
+        scene_node_id = f"scene:{scene.id}"
+        nodes.append({"id": scene_node_id, "label": title, "type": "scene"})
+        seen_character_ids: set[str] = set()
+        for character_name in _extract_character_names(front_matter):
+            char_id = _normalize_character_id(character_name)
+            if char_id in seen_character_ids:
+                continue
+            seen_character_ids.add(char_id)
+            if char_id not in char_nodes:
+                char_nodes[char_id] = {"id": char_id, "label": character_name, "type": "character"}
+            edges.append({"from": char_id, "to": scene_node_id, "kind": "appearsIn"})
+
+    nodes.extend(char_nodes.values())
+    metadata = _load_project_metadata(project_root)
+    return {
+        "projectId": metadata or project_id,
+        "nodes": nodes,
+        "edges": edges,
+    }
+
+
+@dataclass(frozen=True)
+class SceneMetrics:
+    scene_id: str
+    index: int
+    title: str
+    word_count: int
+    readability: float | None
+    dialogue_ratio: float
+    narration_ratio: float
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "sceneId": self.scene_id,
+            "index": self.index,
+            "title": self.title,
+            "wordCount": self.word_count,
+            "readability": self.readability,
+            "density": {
+                "dialogueRatio": round(self.dialogue_ratio, 2),
+                "narrationRatio": round(self.narration_ratio, 2),
+            },
+        }
+
+
+def _resolve_project_root(settings: ServiceSettings, project_id: str) -> Path:
+    project_root = settings.project_base_dir / project_id
+    if not project_root.exists():
+        raise DraftRequestError("Project root does not exist.", {"project_id": project_id})
+    return project_root
+
+
+def _load_project_metadata(project_root: Path) -> str | None:
+    project_json = project_root / "project.json"
+    if not project_json.exists():
+        return None
+    try:
+        payload = read_json(project_json)
+    except json.JSONDecodeError:
+        return None
+    return payload.get("project_id")
+
+
+def _generate_scene_stats(project_root: Path, outline) -> Iterable[SceneMetrics]:
+    sorted_scenes = sorted(outline.scenes, key=lambda scene: scene.order)
+    for index, scene in enumerate(sorted_scenes):
+        try:
+            _, front_matter, body = read_scene_document(project_root, scene.id)
+        except DraftRequestError as exc:
+            raise
+        word_count = _count_words(body)
+        readability = _compute_readability(body)
+        dialogue_words, narration_words = _split_dialogue_narration(body)
+        total_words = dialogue_words + narration_words
+        if total_words > 0:
+            dialogue_ratio = dialogue_words / total_words
+            narration_ratio = narration_words / total_words
+        else:
+            dialogue_ratio = narration_ratio = 0.0
+        title = front_matter.get("title") or scene.title or f"Scene {scene.id}"
+        yield SceneMetrics(
+            scene_id=scene.id,
+            index=index,
+            title=title,
+            word_count=word_count,
+            readability=readability,
+            dialogue_ratio=dialogue_ratio,
+            narration_ratio=narration_ratio,
+        )
+
+
+def _count_words(text: str) -> int:
+    return sum(1 for token in text.split() if token)
+
+
+def _compute_readability(text: str) -> float | None:
+    word_count = _count_words(text)
+    if word_count == 0:
+        return None
+    sentences = [segment for segment in SENTENCE_SPLIT.split(text) if segment.strip()]
+    sentence_count = len(sentences) or 1
+    return round(word_count / sentence_count, 2)
+
+
+def _split_dialogue_narration(text: str) -> tuple[int, int]:
+    dialogue = 0
+    narration = 0
+    for line in text.splitlines():
+        words = [token for token in line.split() if token]
+        if not words:
+            continue
+        stripped = line.strip()
+        is_dialogue = stripped.startswith('"') or stripped.startswith("'") or '"' in stripped
+        if is_dialogue:
+            dialogue += len(words)
+        else:
+            narration += len(words)
+    return dialogue, narration
+
+
+def _load_scene_front_matter(project_root: Path, scene_id: str) -> dict[str, Any]:
+    _, front_matter, _ = read_scene_document(project_root, scene_id)
+    return front_matter
+
+
+def _extract_character_names(front_matter: dict[str, Any]) -> list[str]:
+    names: list[str] = []
+    pov = front_matter.get("pov")
+    if isinstance(pov, str) and pov.strip():
+        names.append(pov.strip())
+    characters = front_matter.get("characters")
+    if isinstance(characters, list):
+        for entry in characters:
+            if isinstance(entry, str) and entry.strip():
+                names.append(entry.strip())
+    elif isinstance(characters, str) and characters.strip():
+        names.append(characters.strip())
+    return names
+
+
+def _normalize_character_id(name: str) -> str:
+    base = re.sub(r"[^\w]+", "_", name.lower()).strip("_")
+    if not base:
+        base = "unknown"
+    return f"char:{base}"

@@ -1,0 +1,48 @@
+# Node
+node_modules
+pnpm-lock.yaml
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+app/dist
+app/.vite
+
+# Logs
+*.log
+
+# Editor
+.DS_Store
+.idea/
+.vscode/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+services/.venv/
+vendor/wheels/
+
+# Coverage
+coverage/
+.pytest_cache/
+
+# Build artifacts
+build/
+dist/
+.codex_step
+.codex_history
+.env
+.aider*
+
+# --- Snapshot auto-generated diagnostics (safe to ignore) ---
+sample_project/*/.snapshots/**/history/diagnostics/**
+sample_project/*/.snapshots/**/diagnostics/**
+sample_project/*/.snapshots/**/history/temp/**
+sample_project/*/.snapshots/**/history/debug/**
+*.trace
+*.har
+*.e2e-artifacts/
+
+# Optional: ignore old /archive snapshots to speed Codex scanning
+archive/**/.snapshots/**

@@ -13,6 +13,7 @@ interface UseServiceHealthResult {
   retry: () => Promise<void>;
   isPortUnavailable: boolean;
   lastError: ServiceError | null;
+  serviceUnavailable: boolean;
 }
 
 declare global {
@@ -99,14 +100,13 @@ export function useServiceHealth(
     }
     isCheckingRef.current = true;
 
-    if (!services) {
-      console.error('[useServiceHealth] Services bridge unavailable; project actions disabled');
-      handleFailure(
-        {
-          message: 'Services bridge unavailable; project actions disabled',
-        },
-        true,
-      );
+      if (!services) {
+        handleFailure(
+          {
+            message: 'Services bridge unavailable; project actions disabled',
+          },
+          true,
+        );
       isCheckingRef.current = false;
       return;
     }
@@ -206,7 +206,8 @@ export function useServiceHealth(
     };
   }, [mountedRef]);
 
-  return { status, retry, isPortUnavailable, lastError };
+  const serviceUnavailable = status === 'offline' || isPortUnavailable;
+  return { status, retry, isPortUnavailable, lastError, serviceUnavailable };
 }
 
 export default useServiceHealth;

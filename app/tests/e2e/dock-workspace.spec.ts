@@ -86,7 +86,7 @@ test.beforeEach(async ({ page }) => {
             snapshot_id: '20250101T000000Z',
             label: 'accept',
             created_at: '2025-01-01T00:00:00Z',
-            path: 'history/snapshots/20250101T000000Z_accept',
+            path: 'timeline/snapshots/20250101T000000Z_accept',
           },
           budget: {
             estimated_usd: 0.15,
@@ -105,7 +105,7 @@ test.beforeEach(async ({ page }) => {
           snapshot_id: '20250101T000000Z',
           label: 'accept',
           created_at: '2025-01-01T00:00:00Z',
-          path: 'history/snapshots/20250101T000000Z_accept',
+          path: 'timeline/snapshots/20250101T000000Z_accept',
         },
         traceId: 'trace-snapshot',
       }),
@@ -178,7 +178,7 @@ test.beforeEach(async ({ page }) => {
       ui: {
         enableDocking: true,
         defaultPreset: 'standard',
-        hotkeys: { enablePresetHotkeys: true, focusCycleOrder: ['wizard', 'draft-board', 'critique', 'history'] },
+        hotkeys: { enablePresetHotkeys: true, focusCycleOrder: ['outline', 'draftPreview', 'critique', 'timeline'] },
       },
     };
 
@@ -204,8 +204,8 @@ test('smoke_dock_workspace_basics (UI)', async ({ page }) => {
 test.describe('Dock workspace interactions', () => {
   test('supports drag, float, and focus controls', async ({ page }) => {
 
-    const wizardPane = page.locator('[data-pane-id="wizard"]');
-    await expect(wizardPane).toBeVisible();
+    const outlinePane = page.locator('[data-pane-id="outline"]');
+    await expect(outlinePane).toBeVisible();
 
     await expect(page.locator('.dock-pane__toolbar').first().getByTitle('Expand this pane.')).toBeVisible();
     await expect(page.locator('.dock-pane__toolbar').first().getByTitle('Close this pane.')).toBeVisible();
@@ -257,7 +257,7 @@ test.describe('Dock workspace interactions', () => {
       .poll(() => page.evaluate(() => window.__layoutCallLog?.loadLayout.length ?? 0))
       .toBeGreaterThan(0);
 
-    const draftPane = page.locator('[data-pane-id="draft-board"]');
+    const draftPane = page.locator('[data-pane-id="draftPreview"]');
     await expect(draftPane).toBeVisible();
     const draftPaneLabel = await draftPane.getAttribute('aria-label');
     if (!draftPaneLabel) {
@@ -271,23 +271,23 @@ test.describe('Dock workspace interactions', () => {
 
     const openCalls = await page.evaluate(() => window.__layoutCallLog?.openFloating ?? []);
     expect(openCalls.length).toBeGreaterThan(0);
-    expect(openCalls.at(-1)?.paneId).toBe('draft-board');
+    expect(openCalls.at(-1)?.paneId).toBe('draftPreview');
     const floatingState = await page.evaluate(() => window.__layoutState?.floatingPanes ?? []);
-    expect(floatingState.some((entry: any) => entry?.id === 'draft-board')).toBe(true);
+    expect(floatingState.some((entry: any) => entry?.id === 'draftPreview')).toBe(true);
 
     await loadPackagedRenderer(page, {
-      floatingPane: 'draft-board',
+      floatingPane: 'draftPreview',
       projectPath: loadedProject.path,
     });
 
     await expect(page.getByRole('heading', { name: 'Project home' })).toBeVisible();
     await expect(page.locator('.dock-pane__toolbar')).toHaveCount(0);
-    await expect(page.locator('[data-pane-id="wizard"]')).toHaveCount(0);
+    await expect(page.locator('[data-pane-id="outline"]')).toHaveCount(0);
 
     await page.evaluate(() => {
       const url = new URL(window.location.href);
       url.search = '';
-      window.history.replaceState(null, '', url.toString());
+      window.timeline.replaceState(null, '', url.toString());
     });
     await page.reload({ waitUntil: 'domcontentloaded' });
     await bootstrapHarness(page);
@@ -303,7 +303,7 @@ test.describe('Dock workspace interactions', () => {
       .poll(async () =>
         page.evaluate(() => (document.activeElement as HTMLElement | null)?.dataset?.paneId ?? null),
       )
-      .toBe('draft-board');
+      .toBe('draftPreview');
   });
 
 });

@@ -1,45 +1,17 @@
-import type { LayoutPaneId, LayoutTree } from '../../../shared/ipc/layout';
-import { DEFAULT_LAYOUT } from '../../../shared/ipc/layout';
+import {
+  CANONICAL_PANES,
+  DEFAULT_LAYOUT,
+  type LayoutPaneId,
+  type LayoutTree,
+} from '../../../shared/ipc/layout';
 
 export const DEFAULT_PRESET_KEY = 'standard';
 
-const ANALYSIS_PRESET: LayoutTree = {
-  direction: 'row',
-  first: {
-    direction: 'column',
-    first: 'wizard',
-    second: 'history',
-  },
-  second: {
-    direction: 'column',
-    first: 'draft-board',
-    second: 'analytics',
-  },
-};
-
-const CRITIQUE_PRESET: LayoutTree = {
-  direction: 'column',
-  first: 'draft-board',
-  second: {
-    direction: 'row',
-    first: 'critique',
-    second: 'wizard',
-  },
-};
-
 export const DOCK_PRESETS: Record<string, LayoutTree> = {
   [DEFAULT_PRESET_KEY]: DEFAULT_LAYOUT,
-  analysis: ANALYSIS_PRESET,
-  critique: CRITIQUE_PRESET,
 };
 
-export const ALL_DOCK_PANES: readonly LayoutPaneId[] = [
-  'wizard',
-  'draft-board',
-  'critique',
-  'history',
-  'analytics',
-];
+export const ALL_DOCK_PANES: readonly LayoutPaneId[] = CANONICAL_PANES;
 
 function cloneNode(node: LayoutTree | LayoutPaneId): LayoutTree | LayoutPaneId {
   if (typeof node === 'string') {

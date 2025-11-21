@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import os
 
+os.environ.setdefault("BLACKSKIES_ENABLE_ANALYTICS", "1")
+
 
 def voice_notes_enabled() -> bool:
     """Return True when voice-note recording/transcription is explicitly enabled."""

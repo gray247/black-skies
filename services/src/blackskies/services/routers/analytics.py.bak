@@ -1,0 +1,68 @@
+"""Minimal Analytics endpoints used until Phase 6 metrics arrive."""
+
+from __future__ import annotations
+
+from fastapi import APIRouter, Depends, Query
+from pydantic import BaseModel, ConfigDict, Field
+
+from ..analytics_stub import get_project_summary, get_relationship_graph, get_scene_metrics
+from ..config import ServiceSettings
+from .dependencies import get_settings
+
+router = APIRouter(prefix="/analytics", tags=["analytics"])
+
+
+@router.get("/summary")
+def get_analytics_summary(
+    *,
+    project_id: str = Query(..., min_length=1),
+    settings: ServiceSettings = Depends(get_settings),
+) -> dict[str, object]:
+    """Return a lightweight summary for the requested project."""
+
+    return get_project_summary(settings, project_id)
+
+
+@router.get("/scenes")
+def get_analytics_scenes(
+    *,
+    project_id: str = Query(..., min_length=1),
+    settings: ServiceSettings = Depends(get_settings),
+) -> dict[str, object]:
+    """Return stubbed scene metrics for the requested project."""
+
+    return get_scene_metrics(settings, project_id)
+
+
+class AnalyticsRelationshipNode(BaseModel):
+    id: str
+    label: str
+    type: str
+
+
+class AnalyticsRelationshipEdge(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+    from_: str = Field(..., alias="from")
+    to: str
+    kind: str
+
+
+class AnalyticsRelationshipGraph(BaseModel):
+    projectId: str
+    nodes: list[AnalyticsRelationshipNode]
+    edges: list[AnalyticsRelationshipEdge]
+
+
+@router.get("/relationships")
+def get_analytics_relationships(
+    *,
+    project_id: str = Query(..., min_length=1),
+    settings: ServiceSettings = Depends(get_settings),
+) -> AnalyticsRelationshipGraph:
+    """Return relationship graph data for the requested project."""
+
+    graph = get_relationship_graph(settings, project_id)
+    return AnalyticsRelationshipGraph.model_validate(graph)
+
+
+__all__ = ["router"]

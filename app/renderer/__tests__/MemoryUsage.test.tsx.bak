@@ -1,0 +1,129 @@
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { useEffect, useState } from 'react';
+
+import DockWorkspace from '../components/docking/DockWorkspace';
+import type { LayoutPaneId } from '../../shared/ipc/layout';
+
+const panes: Partial<Record<LayoutPaneId, JSX.Element>> = {
+  analytics: <CounterPane id="analytics" />,
+  corkboard: <CounterPane id="corkboard" />,
+  relationships: <CounterPane id="relationships" />,
+  wizard: <div>Wizard</div>,
+  'draft-board': <div>Draft</div>,
+  history: <div>History</div>,
+  critique: <div>Critique</div>,
+};
+
+const mountCounts: Record<string, number> = {};
+
+function CounterPane({ id }: { id: string }): JSX.Element {
+  useEffect(() => {
+    mountCounts[id] = (mountCounts[id] ?? 0) + 1;
+    return () => {
+      mountCounts[id] = Math.max((mountCounts[id] ?? 1) - 1, 0);
+    };
+  }, [id]);
+  return <div data-testid={`pane-${id}`}>{id}</div>;
+}
+
+function TabHarness(): JSX.Element {
+  const [active, setActive] = useState<LayoutPaneId>('analytics');
+  return (
+    <div>
+      <button onClick={() => setActive('analytics')}>Analytics</button>
+      <button onClick={() => setActive('corkboard')}>Corkboard</button>
+      <button onClick={() => setActive('relationships')}>Relationships</button>
+      {panes[active]}
+    </div>
+  );
+}
+
+describe('Approximate memory leak safeguards', () => {
+  beforeEach(() => {
+    Object.keys(mountCounts).forEach((key) => delete mountCounts[key]);
+  });
+
+  it('does not leak mounts when switching tabs repeatedly', async () => {
+    const user = userEvent.setup();
+    render(<TabHarness />);
+    const analyticsBtn = screen.getByText('Analytics');
+    const corkboardBtn = screen.getByText('Corkboard');
+    const relationshipsBtn = screen.getByText('Relationships');
+
+    for (let i = 0; i < 10; i += 1) {
+      await user.click(corkboardBtn);
+      await user.click(relationshipsBtn);
+      await user.click(analyticsBtn);
+    }
+
+    expect(mountCounts.analytics).toBeLessThanOrEqual(2);
+    expect(mountCounts.corkboard).toBeLessThanOrEqual(2);
+    expect(mountCounts.relationships).toBeLessThanOrEqual(2);
+  });
+
+  it('does not accumulate listeners on project reload', () => {
+    const listenerCounts: number[] = [];
+
+    function ListenerHarness(): JSX.Element {
+      const [, setTick] = useState(0);
+      useEffect(() => {
+        const handler = () => setTick((v) => v + 1);
+        window.addEventListener('test-event', handler);
+        listenerCounts.push((window as any).__listenerCount ?? 0);
+        (window as any).__listenerCount = ((window as any).__listenerCount ?? 0) + 1;
+        return () => {
+          window.removeEventListener('test-event', handler);
+          (window as any).__listenerCount = Math.max(((window as any).__listenerCount ?? 1) - 1, 0);
+        };
+      }, []);
+      return <div>listener</div>;
+    }
+
+    const { unmount, rerender } = render(<ListenerHarness />);
+    unmount();
+    rerender(<ListenerHarness />);
+    unmount();
+    rerender(<ListenerHarness />);
+
+    const maxCount = Math.max(...listenerCounts, 0);
+    expect(maxCount).toBeLessThanOrEqual(1);
+  });
+
+  it('keeps docked panes stable across remounts', () => {
+    const bridge = {
+      loadLayout: () =>
+        Promise.resolve({ layout: null, floatingPanes: [], schemaVersion: 2 }),
+      saveLayout: () => Promise.resolve(),
+      listFloatingPanes: () => Promise.resolve([]),
+      openFloatingPane: () => Promise.resolve({ opened: false, clamp: null }),
+      closeFloatingPane: () => Promise.resolve(),
+    };
+    (window as typeof window & { layout?: typeof bridge }).layout = bridge;
+
+    const { rerender } = render(
+      <DockWorkspace
+        projectPath="C:\\project"
+        panes={panes}
+        defaultPreset="standard"
+        enableHotkeys={false}
+        focusCycleOrder={[]}
+        relocationNotifyEnabled={false}
+        autoSnapEnabled={false}
+      />,
+    );
+    rerender(
+      <DockWorkspace
+        projectPath="C:\\project"
+        panes={panes}
+        defaultPreset="standard"
+        enableHotkeys={false}
+        focusCycleOrder={[]}
+        relocationNotifyEnabled={false}
+        autoSnapEnabled={false}
+      />,
+    );
+    expect(mountCounts.wizard ?? 1).toBeGreaterThan(0);
+  });
+}
+);

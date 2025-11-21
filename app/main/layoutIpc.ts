@@ -4,6 +4,7 @@ import { dirname, join, resolve } from 'node:path';
 
 import {
   LAYOUT_CHANNELS,
+  LAYOUT_SCHEMA_VERSION,
   type FloatingPaneClampInfo,
   type FloatingPaneCloseRequest,
   type FloatingPaneDescriptor,
@@ -21,8 +22,6 @@ interface RegisterLayoutIpcOptions {
   preloadPath: string;
   getMainWindow(): BrowserWindow | null;
 }
-
-const LAYOUT_SCHEMA_VERSION = 2;
 
 interface PersistedLayoutPayload {
   version?: number;
@@ -93,19 +92,29 @@ async function loadPersistedLayout(projectPath: string): Promise<PersistedLayout
           bounds:
             normalizedBounds && normalizedBounds.width && normalizedBounds.height
               ? {
-                  x: normalizedBounds.x ?? 0,
-                  y: normalizedBounds.y ?? 0,
-                  width: normalizedBounds.width,
-                  height: normalizedBounds.height,
-                }
+                x: normalizedBounds.x ?? 0,
+                y: normalizedBounds.y ?? 0,
+                width: normalizedBounds.width,
+                height: normalizedBounds.height,
+              }
               : undefined,
           displayId: typeof descriptor.displayId === 'number' ? descriptor.displayId : undefined,
         };
         return result;
       })
       .filter((entry): entry is FloatingPaneDescriptor => entry !== null);
+    const payloadVersion = typeof parsed.version === 'number' ? parsed.version : 1;
+    if (payloadVersion !== LAYOUT_SCHEMA_VERSION) {
+      await resetPersistedLayout(projectPath);
+      console.info('[layout] Discarded saved layout due to schema mismatch', {
+        projectPath,
+        foundVersion: payloadVersion,
+        expectedVersion: LAYOUT_SCHEMA_VERSION,
+      });
+      return null;
+    }
     return {
-      version: typeof parsed.version === 'number' ? parsed.version : 1,
+      version: payloadVersion,
       layout: parsed.layout ?? null,
       floatingPanes: normalisedFloating,
     };

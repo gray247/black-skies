@@ -6,8 +6,10 @@ import {
   resolveAnalyticsConfig,
 } from '../utils/analytics';
 import type { EmotionArcPoint, ScenePacingMetric } from '../utils/analytics';
+import type { AnalyticsScenes, AnalyticsSummary, SceneMetric } from '../../shared/ipc/services';
 import type { ServiceStatus } from './ServiceStatusPill';
 import { recordDebugEvent } from '../utils/debugLog';
+import { LABEL_AVG_READABILITY } from './storyInsightsLabels';
 
 const RUBRIC_PATTERN = /^[A-Za-z0-9 ,.&:/'-]+$/;
 const MAX_RUBRIC_LENGTH = 40;
@@ -199,6 +201,141 @@ function formatIntensity(value: number): string {
     return '0.00';
   }
   return value.toFixed(2);
+}
+
+interface InsightsAnalyticsProps {
+  projectId?: string | null;
+  serviceStatus: ServiceStatus;
+}
+
+interface InsightsAnalyticsState {
+  summary: AnalyticsSummary | null;
+  scenes: SceneMetric[];
+  loading: boolean;
+  error: string | null;
+}
+
+const ANALYTICS_SCENE_LIMIT = 3;
+
+const formatRatio = (value: number): string => `${(value * 100).toFixed(0)}%`;
+
+export function InsightsAnalytics({ projectId, serviceStatus }: InsightsAnalyticsProps): JSX.Element {
+  const [state, setState] = useState<InsightsAnalyticsState>({
+    summary: null,
+    scenes: [],
+    loading: false,
+    error: null,
+  });
+
+  useEffect(() => {
+    if (!projectId) {
+      setState({ summary: null, scenes: [], loading: false, error: null });
+      return;
+    }
+    const services = window.services;
+    if (!services?.getAnalyticsSummary || !services?.getAnalyticsScenes) {
+      setState({
+        summary: null,
+        scenes: [],
+        loading: false,
+        error: 'Story Insights bridge unavailable.',
+      });
+      return;
+    }
+    let cancelled = false;
+    setState((prev) => ({ ...prev, loading: true, error: null }));
+    Promise.all([
+      services.getAnalyticsSummary({ projectId }),
+      services.getAnalyticsScenes({ projectId }),
+    ])
+      .then(([summaryResp, scenesResp]) => {
+        if (cancelled) {
+          return;
+        }
+        if (!summaryResp.ok || !scenesResp.ok) {
+          throw new Error(summaryResp.error?.message ?? scenesResp.error?.message ?? 'Failed to load analytics.');
+        }
+        setState({
+          summary: summaryResp.data,
+          scenes: scenesResp.data.scenes,
+          loading: false,
+          error: null,
+        });
+      })
+      .catch((error) => {
+        if (cancelled) {
+          return;
+        }
+        setState({
+          summary: null,
+          scenes: [],
+          loading: false,
+          error: error instanceof Error ? error.message : 'Unknown error',
+        });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [projectId]);
+
+  const limitedScenes = state.scenes.slice(0, ANALYTICS_SCENE_LIMIT);
+
+  return (
+    <section className="companion-overlay__section companion-overlay__section--analytics">
+      <header className="companion-overlay__section-header">
+        <h3>Local analytics</h3>
+        <span>{state.summary?.scenes ?? 0} scenes</span>
+      </header>
+      {state.error && (
+        <p className="companion-overlay__error" data-testid="insights-analytics-error">
+          {state.error}
+        </p>
+      )}
+      {state.loading && (
+        <p className="companion-overlay__placeholder" data-testid="insights-analytics-loading">
+          Loading analytics…
+        </p>
+      )}
+      {state.summary && (
+        <div className="companion-overlay__analytics-summary" data-testid="insights-analytics-summary">
+          <div>
+            <strong>Word count</strong>
+            <span>{state.summary.wordCount}</span>
+          </div>
+          <div>
+            <strong>{LABEL_AVG_READABILITY}</strong>
+            <span>{state.summary.avgReadability !== null ? state.summary.avgReadability.toFixed(1) : '-'}</span>
+          </div>
+          <div>
+            <strong>Project</strong>
+            <span>{state.summary.projectId}</span>
+          </div>
+        </div>
+      )}
+      {limitedScenes.length > 0 && (
+        <div className="companion-overlay__analytics-scenes" data-testid="insights-analytics-scenes">
+          {limitedScenes.map((scene) => (
+            <div key={scene.sceneId} className="companion-overlay__analytics-scene">
+              <strong>{scene.title ?? scene.sceneId}</strong>
+              <p>
+                Words: {scene.wordCount} · Readability:{' '}
+                {scene.readability !== null ? scene.readability.toFixed(1) : '-'}
+              </p>
+              <p>
+                Dialogue: {formatRatio(scene.density.dialogueRatio)} · Narration:{' '}
+                {formatRatio(scene.density.narrationRatio)}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
+      {serviceStatus !== 'online' && (
+        <p className="companion-overlay__placeholder" data-testid="insights-analytics-offline">
+          Story Insights require services; reconnect to refresh the latest data.
+        </p>
+      )}
+    </section>
+  );
 }
 
 function formatWordCount(value: number): string {
@@ -742,6 +879,10 @@ export default function CompanionOverlay({
                     )}
                   </div>
                 </div>
+                <InsightsAnalytics
+                  projectId={project?.projectId ?? null}
+                  serviceStatus={serviceStatus}
+                />
                 <ul className="companion-overlay__insights">
                   {localInsights.map((suggestion) => (
                     <li key={suggestion}>{suggestion}</li>

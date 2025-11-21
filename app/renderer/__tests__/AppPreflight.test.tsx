@@ -150,20 +150,6 @@ function createServicesMock(): ServicesBridge {
       data: draftResponse,
       traceId: 'trace-generate',
     }),
-    analyticsBudget: vi.fn().mockResolvedValue({
-      ok: true,
-      data: {
-        project_id: 'demo_project',
-        budget: {
-          soft_limit_usd: 5,
-          hard_limit_usd: 10,
-          spent_usd: 0,
-          remaining_usd: 5,
-        },
-        hint: 'ample',
-      },
-      traceId: 'trace-analytics',
-    }),
     critiqueDraft: vi.fn().mockResolvedValue({
         ok: true,
         data: {

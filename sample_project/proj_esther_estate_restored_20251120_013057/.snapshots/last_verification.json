@@ -1,4 +1,30 @@
 {
-  "project_id": "Esther_Estate",
-  "snapshots": []
+  "project_id": "proj_esther_estate_restored_20251120_013057",
+  "verified_at": "2025-11-20T22:22:02.491829Z",
+  "status": "ok",
+  "message": "Verified 1 snapshot(s) and 0 backup(s) with no issues.",
+  "checked_snapshots": 1,
+  "failed_snapshots": 0,
+  "checked_backups": 0,
+  "failed_backups": 0,
+  "snapshot_dir": "C:\\Dev\\black-skies\\sample_project\\proj_esther_estate_restored_20251120_013057\\.snapshots",
+  "backups_dir": "backups",
+  "snapshots": [
+    {
+      "snapshot_id": "ss_20251120T013057Z",
+      "path": ".snapshots/ss_20251120T013057Z",
+      "status": "ok",
+      "errors": []
+    }
+  ],
+  "backups": [],
+  "integrity": {
+    "project_id": "proj_esther_estate_restored_20251120_013057",
+    "project_root": "C:\\Dev\\black-skies\\sample_project\\proj_esther_estate_restored_20251120_013057",
+    "is_ok": true,
+    "errors": [],
+    "warnings": [
+      "project.json project_id differs from directory name."
+    ]
+  }
 }

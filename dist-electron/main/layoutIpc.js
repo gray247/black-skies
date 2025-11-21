@@ -7,7 +7,6 @@ const electron_1 = require("electron");
 const node_fs_1 = require("node:fs");
 const node_path_1 = require("node:path");
 const layout_js_1 = require("../shared/ipc/layout.js");
-const LAYOUT_SCHEMA_VERSION = 2;
 const LAYOUT_DIR_NAME = '.blackskies';
 const LAYOUT_FILE_NAME = 'layout.json';
 const floatingWindows = new Map();
@@ -73,8 +72,18 @@ async function loadPersistedLayout(projectPath) {
             return result;
         })
             .filter((entry) => entry !== null);
+        const payloadVersion = typeof parsed.version === 'number' ? parsed.version : 1;
+        if (payloadVersion !== layout_js_1.LAYOUT_SCHEMA_VERSION) {
+            await resetPersistedLayout(projectPath);
+            console.info('[layout] Discarded saved layout due to schema mismatch', {
+                projectPath,
+                foundVersion: payloadVersion,
+                expectedVersion: layout_js_1.LAYOUT_SCHEMA_VERSION,
+            });
+            return null;
+        }
         return {
-            version: typeof parsed.version === 'number' ? parsed.version : 1,
+            version: payloadVersion,
             layout: parsed.layout ?? null,
             floatingPanes: normalisedFloating,
         };
@@ -90,7 +99,7 @@ async function savePersistedLayout(projectPath, payload) {
     await ensureLayoutDir(projectPath);
     const filePath = resolveLayoutFile(projectPath);
     const serialised = JSON.stringify({
-        version: payload.version ?? LAYOUT_SCHEMA_VERSION,
+        version: payload.version ?? layout_js_1.LAYOUT_SCHEMA_VERSION,
         layout: payload.layout,
         floatingPanes: payload.floatingPanes,
     }, null, 2);
@@ -169,11 +178,11 @@ async function handleLoadLayout(request) {
         console.warn('[layout] Ignoring load for unauthorized project path', {
             projectPath: request.projectPath,
         });
-        return { layout: null, floatingPanes: [], schemaVersion: LAYOUT_SCHEMA_VERSION };
+        return { layout: null, floatingPanes: [], schemaVersion: layout_js_1.LAYOUT_SCHEMA_VERSION };
     }
     const payload = await loadPersistedLayout(resolvedProjectPath);
     if (!payload) {
-        return { layout: null, floatingPanes: [], schemaVersion: LAYOUT_SCHEMA_VERSION };
+        return { layout: null, floatingPanes: [], schemaVersion: layout_js_1.LAYOUT_SCHEMA_VERSION };
     }
     return {
         layout: payload.layout,
@@ -188,7 +197,7 @@ async function handleSaveLayout(request) {
     }
     const floatingState = request.floatingPanes ?? serializeFloatingWindows(resolvedProjectPath);
     await savePersistedLayout(resolvedProjectPath, {
-        version: request.schemaVersion ?? LAYOUT_SCHEMA_VERSION,
+        version: request.schemaVersion ?? layout_js_1.LAYOUT_SCHEMA_VERSION,
         layout: request.layout ?? null,
         floatingPanes: floatingState,
     });

@@ -2,13 +2,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import type { AnalyticsBudgetBridgeResponse, ServicesBridge } from "../../shared/ipc/services";
 import type { ToastPayload } from "../types/toast";
-import { ANALYTICS_WARNING_TOAST, handleServiceError } from "../utils/serviceErrors";
+import { ANALYTICS_WARNING_TOAST } from "../utils/serviceErrors";
 import { buildBudgetIndicatorState, type BudgetSnapshotSource } from "../utils/budgetIndicator";
 import useMountedRef from "./useMountedRef";
 import type { BudgetIndicatorState } from "../components/BudgetIndicator";
 import type { ServiceStatus } from "../components/ServiceStatusPill";
-
-const REFRESH_INTERVAL_MS = 45_000;
 
 declare global {
   interface Window {
@@ -52,6 +50,7 @@ export function useBudgetIndicator({
   const [blocked, setBlocked] = useState<boolean>(false);
   const analyticsToastShownRef = useRef(false);
   const prevServiceStatusRef = useRef<ServiceStatus>(serviceStatus);
+  const budgetBridgeWarningRef = useRef(false);
 
   const fetchResponse = useCallback(
     async (options: { force?: boolean } = {}): Promise<AnalyticsBudgetBridgeResponse | null> => {
@@ -59,38 +58,22 @@ export function useBudgetIndicator({
       if (typeof window !== "undefined" && window.__testBudgetResponse !== undefined) {
         return window.__testBudgetResponse;
       }
-      if (!services || !projectId || !serviceHealthy || typeof services.analyticsBudget !== 'function') {
+      if (!projectId) {
         return null;
       }
       if (!force && serviceStatus !== 'online') {
         return null;
       }
-
-      const result = await services.analyticsBudget({ projectId });
-      if (!mountedRef.current) {
+      if (services?.analyticsBudget && !budgetBridgeWarningRef.current) {
+        console.info('[budget] Skipping analyticsBudget bridge call; endpoint disabled.');
+        budgetBridgeWarningRef.current = true;
+      }
+      if (!serviceHealthy) {
         return null;
-      }
-
-      if (result.ok && result.data) {
-        return result.data;
-      }
-
-      if (!force && serviceStatus === 'online' && result.error) {
-        const interpretation = handleServiceError(
-          result.error,
-          'analytics',
-          pushToast,
-          undefined,
-          result.traceId ?? result.error.traceId,
-          { suppressToast: analyticsToastShownRef.current },
-        );
-        if (interpretation.analyticsWarning) {
-          analyticsToastShownRef.current = true;
-        }
       }
       return null;
     },
-    [mountedRef, projectId, pushToast, serviceHealthy, serviceStatus, services],
+    [projectId, serviceHealthy, serviceStatus, services],
   );
 
   const maybeShowAnalyticsToast = useCallback(() => {
@@ -159,32 +142,14 @@ export function useBudgetIndicator({
       };
     }
 
-    void refreshBudget();
-
-    if (!serviceHealthy) {
-      return () => {
-        if (typeof window !== "undefined" && window.__budgetRefresh) {
-          window.__budgetRefresh = undefined;
-        }
-      };
-    }
-
-    let timer: ReturnType<typeof window.setInterval> | undefined;
-    if (typeof window !== "undefined") {
-      timer = window.setInterval(() => {
-        void refreshBudget();
-      }, REFRESH_INTERVAL_MS);
-    }
+    void refreshBudget({ force: true });
 
     return () => {
-      if (timer !== undefined && typeof window !== "undefined") {
-        window.clearInterval(timer);
-      }
       if (typeof window !== "undefined" && window.__budgetRefresh) {
         window.__budgetRefresh = undefined;
       }
     };
-  }, [projectId, refreshBudget, serviceHealthy]);
+  }, [projectId, refreshBudget]);
 
   const resolvedIndicator = useMemo(() => indicator, [indicator]);
 

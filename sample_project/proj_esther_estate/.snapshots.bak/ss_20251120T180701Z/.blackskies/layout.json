@@ -1,0 +1,43 @@
+{
+  "version": 2,
+  "layout": {
+    "direction": "row",
+    "first": {
+      "direction": "row",
+      "first": {
+        "direction": "row",
+        "first": {
+          "direction": "row",
+          "first": "wizard",
+          "second": {
+            "direction": "row",
+            "first": {
+              "direction": "column",
+              "first": "draft-board",
+              "second": "history"
+            },
+            "second": "critique"
+          }
+        },
+        "second": "corkboard",
+        "splitPercentage": 53.06399558686653
+      },
+      "second": "relationships",
+      "splitPercentage": 44.16203778946985
+    },
+    "second": "analytics",
+    "splitPercentage": 70
+  },
+  "floatingPanes": [
+    {
+      "id": "relationships",
+      "bounds": {
+        "x": -932,
+        "y": 373,
+        "width": 517,
+        "height": 390
+      },
+      "displayId": 2779098405
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "project_id": "proj_esther_estate",
+  "name": "Esther Estate",
+  "created": "2025-09-23T17:10:00Z",
+  "budget": {
+    "soft": 12.5,
+    "hard": 25.0,
+    "spent_usd": 0.08,
+    "last_request_fingerprint": "da445d4a3e6753af135f910df5f823945f03d189e6e3bfd43aeb4eaa9b3ddbdf",
+    "last_generate_response": {
+      "project_id": "proj_esther_estate",
+      "unit_scope": "scene",
+      "unit_ids": [
+        "sc_0001",
+        "sc_0002"
+      ],
+      "draft_id": "dr_18526ed6",
+      "schema_version": "DraftUnitSchema v1",
+      "units": [
+        {
+          "id": "sc_0001",
+          "text": "Mara Ibarra enters Basement Pulse to map the estate's sealed corridors. The atmosphere leans toward respite as footsteps echo from nowhere.\n\nThe beat shifts when an old ally speaks through the static, keeping the scene in escalation mode and aiming for roughly 890 words.",
+          "meta": {
+            "pov": "Mara Ibarra",
+            "purpose": "escalation",
+            "emotion_tag": "respite",
+            "word_target": 890,
+            "order": 1,
+            "chapter_id": "ch_0001"
+          },
+          "prompt_fingerprint": "sha256:3faec2bb495b57e0879c07b4dd78c039fea634c71a1d148cc5a79536c3e606ee",
+          "model": {
+            "name": "draft-synthesizer-v1",
+            "provider": "black-skies-local"
+          },
+          "seed": 3597615096
+        },
+        {
+          "id": "sc_0002",
+          "text": "Ezra Cole enters Locked Parlor to keep the generator coil alive. The atmosphere leans toward revelation as old floorboards complain at every move.\n\nThe beat shifts when the diary on the desk updates itself, keeping the scene in payoff mode and aiming for roughly 930 words.",
+          "meta": {
+            "pov": "Ezra Cole",
+            "purpose": "payoff",
+            "emotion_tag": "revelation",
+            "word_target": 930,
+            "order": 2,
+            "chapter_id": "ch_0001"
+          },
+          "prompt_fingerprint": "sha256:9aa034d4cce4692367fa50db832187efd216b368e5d7f910da7f5f09b51f47fb",
+          "model": {
+            "name": "draft-synthesizer-v1",
+            "provider": "black-skies-local"
+          },
+          "seed": 1185936955
+        }
+      ],
+      "budget": {
+        "estimated_usd": 0.04,
+        "status": "ok",
+        "message": "Estimate within budget.",
+        "soft_limit_usd": 12.5,
+        "hard_limit_usd": 25.0,
+        "spent_usd": 0.06,
+        "total_after_usd": 0.06
+      }
+    }
+  }
+}

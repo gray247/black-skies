@@ -6,6 +6,7 @@ exports.loadRuntimeConfig = loadRuntimeConfig;
 const node_fs_1 = require("node:fs");
 const node_path_1 = require("node:path");
 const yaml_1 = require("yaml");
+const layout_1 = require("../ipc/layout");
 exports.DEFAULT_SERVICE_PORT_RANGE = Object.freeze({
     min: 43750,
     max: 43850,
@@ -22,6 +23,14 @@ const DEFAULT_ANALYTICS_INTENSITY = Object.freeze({
     aftermath: 0.45,
     respite: 0.25,
 });
+const DEFAULT_FOCUS_CYCLE_ORDER = [
+    'outline',
+    'draftPreview',
+    'storyInsights',
+    'corkboard',
+    'timeline',
+];
+const VALID_PANE_IDS = new Set(layout_1.CANONICAL_PANES);
 exports.DEFAULT_RUNTIME_CONFIG = Object.freeze({
     service: {
         portRange: exports.DEFAULT_SERVICE_PORT_RANGE,
@@ -47,7 +56,7 @@ exports.DEFAULT_RUNTIME_CONFIG = Object.freeze({
         defaultPreset: "standard",
         hotkeys: {
             enablePresetHotkeys: true,
-            focusCycleOrder: ["wizard", "draft-board", "critique", "history", "analytics"],
+            focusCycleOrder: DEFAULT_FOCUS_CYCLE_ORDER,
         },
     },
 });
@@ -163,9 +172,16 @@ function resolveFocusCycle(value) {
     if (!Array.isArray(value)) {
         return exports.DEFAULT_RUNTIME_CONFIG.ui.hotkeys.focusCycleOrder;
     }
-    const normalised = value
-        .map((entry) => (typeof entry === "string" ? entry.trim() : ""))
-        .filter((entry) => entry.length > 0);
+    const normalised = [];
+    for (const entry of value) {
+        if (typeof entry !== "string") {
+            continue;
+        }
+        const parsed = (0, layout_1.normalisePaneId)(entry.trim());
+        if (parsed && VALID_PANE_IDS.has(parsed)) {
+            normalised.push(parsed);
+        }
+    }
     if (normalised.length === 0) {
         return exports.DEFAULT_RUNTIME_CONFIG.ui.hotkeys.focusCycleOrder;
     }

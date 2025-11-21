@@ -1,0 +1,93 @@
+import { render, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { vi } from 'vitest';
+
+import AnalyticsDashboard from '../components/AnalyticsDashboard';
+import RelationshipGraph from '../components/RelationshipGraph';
+
+const allowedPaths = [
+  '/api/v1/analytics/summary',
+  '/api/v1/analytics/scenes',
+  '/api/v1/analytics/relationships',
+];
+
+function setupFetchRecorder(): { fetchMock: ReturnType<typeof vi.fn>; urls: string[] } {
+  const urls: string[] = [];
+  const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+    const url = typeof input === 'string' ? input : input.toString();
+    urls.push(url);
+    if (!allowedPaths.some((path) => url.includes(path))) {
+      throw new Error(`Unexpected analytics URL: ${url}`);
+    }
+    return new Response(
+      JSON.stringify({
+        projectId: 'proj',
+        projectPath: '/proj',
+        scenes: 0,
+        wordCount: 0,
+        avgReadability: null,
+        nodes: [],
+        edges: [],
+      }),
+      {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      },
+    );
+  });
+  global.fetch = fetchMock as any;
+  return { fetchMock, urls };
+}
+
+describe('Analytics requests stay on valid endpoints', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+    (window as typeof window & { services?: unknown }).services = undefined;
+  });
+
+  it('only issues summary/scenes/relationships calls when analytics are opened', async () => {
+    const { urls } = setupFetchRecorder();
+
+    const buildAnalyticsService = (path: string) =>
+      vi.fn(async ({ projectId }: { projectId: string }) => {
+        const url = `http://127.0.0.1:9999${path}?project_id=${projectId}`;
+        const response = await fetch(url);
+        const payload = await response.json();
+        return { ok: true, data: payload };
+      });
+
+    const getAnalyticsSummary = buildAnalyticsService('/api/v1/analytics/summary');
+    const getAnalyticsScenes = buildAnalyticsService('/api/v1/analytics/scenes');
+    const getAnalyticsRelationships = buildAnalyticsService('/api/v1/analytics/relationships');
+
+    (window as typeof window & { services?: unknown }).services = {
+      getAnalyticsSummary,
+      getAnalyticsScenes,
+      getAnalyticsRelationships,
+    };
+
+    const OpenAnalytics = () => {
+      const handleOpen = () => {
+        render(<AnalyticsDashboard projectId="proj" />);
+        render(<RelationshipGraph projectId="proj" />);
+      };
+      return (
+        <button type="button" onClick={handleOpen}>
+          Open Analytics
+        </button>
+      );
+    };
+
+    const user = userEvent.setup();
+    const { getByRole } = render(<OpenAnalytics />);
+    await user.click(getByRole('button', { name: /open analytics/i }));
+
+    await waitFor(() => expect(urls.length).toBe(3));
+    urls.forEach((url) => {
+      expect(allowedPaths.some((path) => url.includes(path))).toBe(true);
+      expect(url.includes('budget')).toBe(false);
+      expect(url).not.toContain('budget');
+      expect(url).not.toContain('analytics/budget');
+    });
+  });
+});

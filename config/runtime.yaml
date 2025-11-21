@@ -77,8 +77,9 @@ ui:
   hotkeys:
     enable_preset_hotkeys: true
     focus_cycle_order:
-      - wizard
-      - draft-board
+      - outline
+      - draftPreview
+      - storyInsights
+      - corkboard
+      - timeline
       - critique
-      - history
-      - analytics

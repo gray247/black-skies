@@ -1,9 +1,0 @@
-{
-  "timestamp": "2025-10-22T17:08:47.984915Z",
-  "code": "SNAPSHOT",
-  "message": "Wizard step conflict locked.",
-  "details": {
-    "step": "conflict",
-    "snapshot_id": "20251022T170847956583Z"
-  }
-}

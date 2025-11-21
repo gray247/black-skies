@@ -1,0 +1,30 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`IPC contract stability > captures stable IPC shapes for analytics and backup/export bridges 1`] = `
+{
+  "backupReq": {
+    "projectId": "proj",
+  },
+  "exportReq": {
+    "format": "md",
+    "projectId": "proj",
+  },
+  "graph": {
+    "edges": [],
+    "nodes": [],
+    "projectId": "proj",
+  },
+  "scenes": {
+    "projectId": "proj",
+    "projectPath": "/proj",
+    "scenes": [],
+  },
+  "summary": {
+    "avgReadability": 12.3,
+    "projectId": "proj",
+    "projectPath": "/proj",
+    "scenes": 2,
+    "wordCount": 1000,
+  },
+}
+`;

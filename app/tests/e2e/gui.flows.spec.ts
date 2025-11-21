@@ -127,31 +127,7 @@ const restoreResponse = {
 };
 
 async function stubServiceEndpoints(page: Page, scenario: ServiceScenario): Promise<void> {
-  let analyticsBudgetCalls = 0;
   await page.route(`http://127.0.0.1:${SERVICE_PORT}/api/v1/*`, (route) => {
-    const respondBudget = (hint: 'stable' | 'near_cap' | 'over_budget', payload?: Partial<{ spent: number; remaining: number }>) => {
-      const base = {
-        soft_limit_usd: 5.0,
-        hard_limit_usd: 10.0,
-        spent_usd: payload?.spent ?? 0.02,
-        remaining_usd: payload?.remaining ?? 9.98,
-      };
-      route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          project_id: loadedProject.project_id,
-          budget: base,
-          hint,
-          message:
-            hint === 'over_budget'
-              ? 'Budget exhausted for this project/session.'
-              : hint === 'near_cap'
-                ? 'Approaching soft cap.'
-                : 'Budget healthy.',
-        }),
-      });
-    };
     const url = new URL(route.request().url());
     const path = url.pathname.replace('/api/v1', '');
     const respond = (data: unknown, options?: { status?: number }) =>
@@ -191,20 +167,13 @@ async function stubServiceEndpoints(page: Page, scenario: ServiceScenario): Prom
         }
         return;
       case '/analytics/budget':
-      analyticsBudgetCalls += 1;
-        if (scenario === 'budget-indicator') {
-          if (analyticsBudgetCalls === 1) {
-            respondBudget('near_cap', { spent: 4.7, remaining: 0.3 });
-            return;
-          }
-          if (analyticsBudgetCalls === 2) {
-            respondBudget('over_budget', { spent: 10.5, remaining: 0 });
-            return;
-          }
-          respondBudget('stable', { spent: 0.5, remaining: 9.5 });
-          return;
-        }
-        respondBudget('stable');
+        respond(
+          {
+            code: 'ANALYTICS_DISABLED',
+            message: 'Budget analytics calls are suppressed in this build.',
+          },
+          { status: 410 },
+        );
         return;
       case '/draft/wizard/lock':
         respond(snapshotResponse);

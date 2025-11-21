@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\config.py
+# hypothesis_version: 6.138.2
+
+[0.0, 45.0, 60.0, 120, 512, 1024, 3600, '"', '#', "'", '.env', '=', 'BLACKSKIES_', 'ServiceSettings', 'backups', 'env_prefix', 'export ', 'extra', 'ignore', 'project_base_dir', 'sample_project', 'utf-8']

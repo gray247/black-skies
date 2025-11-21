@@ -1,0 +1,71 @@
+{
+  "project_id": "proj_esther_estate",
+  "verified_at": "2025-11-20T22:22:02.387362Z",
+  "status": "ok",
+  "message": "Verified 7 snapshot(s) and 1 backup(s) with no issues.",
+  "checked_snapshots": 7,
+  "failed_snapshots": 0,
+  "checked_backups": 1,
+  "failed_backups": 0,
+  "snapshot_dir": "C:\\Dev\\black-skies\\sample_project\\proj_esther_estate\\.snapshots",
+  "backups_dir": "backups",
+  "snapshots": [
+    {
+      "snapshot_id": "ss_20251120T180701Z",
+      "path": ".snapshots/ss_20251120T180701Z",
+      "status": "ok",
+      "errors": []
+    },
+    {
+      "snapshot_id": "ss_20251120T170139Z",
+      "path": ".snapshots/ss_20251120T170139Z",
+      "status": "ok",
+      "errors": []
+    },
+    {
+      "snapshot_id": "ss_20251118T213550Z",
+      "path": ".snapshots/ss_20251118T213550Z",
+      "status": "ok",
+      "errors": []
+    },
+    {
+      "snapshot_id": "ss_20251118T213515Z",
+      "path": ".snapshots/ss_20251118T213515Z",
+      "status": "ok",
+      "errors": []
+    },
+    {
+      "snapshot_id": "ss_20251118T213113Z",
+      "path": ".snapshots/ss_20251118T213113Z",
+      "status": "ok",
+      "errors": []
+    },
+    {
+      "snapshot_id": "ss_20251118T213031Z",
+      "path": ".snapshots/ss_20251118T213031Z",
+      "status": "ok",
+      "errors": []
+    },
+    {
+      "snapshot_id": "ss_20251118T213018Z",
+      "path": ".snapshots/ss_20251118T213018Z",
+      "status": "ok",
+      "errors": []
+    }
+  ],
+  "backups": [
+    {
+      "name": "BS_20251120_180951.zip",
+      "path": "backups/BS_20251120_180951.zip",
+      "status": "ok",
+      "errors": []
+    }
+  ],
+  "integrity": {
+    "project_id": "proj_esther_estate",
+    "project_root": "C:\\Dev\\black-skies\\sample_project\\proj_esther_estate",
+    "is_ok": true,
+    "errors": [],
+    "warnings": []
+  }
+}

@@ -71,8 +71,9 @@ import {
   type LayoutResetRequest,
 } from '../shared/ipc/layout.js';
 import type {
-  AnalyticsBudgetBridgeRequest,
-  AnalyticsBudgetBridgeResponse,
+  AnalyticsSummary,
+  AnalyticsScenes,
+  AnalyticsRelationshipGraph,
   BackupVerificationReport,
   BackupCreateBridgeRequest,
   BackupCreateBridgeResponse,
@@ -223,6 +224,7 @@ const LOG_LEVEL_MAP: Record<ConsoleMethod, DiagnosticsLogLevel> = {
 };
 
 const runtimeConfig = loadRuntimeConfig();
+let loggedServicePorts = false;
 
 async function sleep(milliseconds: number): Promise<void> {
   if (milliseconds <= 0) {
@@ -238,10 +240,13 @@ function currentServicePort(): number | null {
     process.env.BLACKSKIES_SERVICES_PORT,
     process.env.BLACKSKIES_E2E_PORT,
   ];
-  console.log('[preload] service port envs', {
-    BLACKSKIES_SERVICES_PORT: primaryRaw ?? null,
-    BLACKSKIES_E2E_PORT: fallbackRaw ?? null,
-  });
+  if (!loggedServicePorts) {
+    console.log('[preload] service port envs', {
+      BLACKSKIES_SERVICES_PORT: primaryRaw ?? null,
+      BLACKSKIES_E2E_PORT: fallbackRaw ?? null,
+    });
+    loggedServicePorts = true;
+  }
   const raw = primaryRaw ?? fallbackRaw;
   const parsed = raw ? Number.parseInt(raw, 10) : Number.NaN;
   return Number.isFinite(parsed) ? parsed : null;
@@ -465,7 +470,16 @@ export async function makeServiceCall<T>(
         },
       },
     );
-    return { ok: false, error: normalizeError('Service port is unavailable.') };
+    return {
+      ok: false,
+      error: normalizeError('Service port is unavailable. Set BLACKSKIES_SERVICES_PORT.', {
+        code: 'PORT_UNAVAILABLE',
+        details: {
+          service_port: process.env.BLACKSKIES_SERVICES_PORT ?? null,
+          e2e_port: process.env.BLACKSKIES_E2E_PORT ?? null,
+        },
+      }),
+    };
   }
 
   const normalizedPath = path.startsWith('/') ? path.slice(1) : path;
@@ -528,10 +542,12 @@ export async function makeServiceCall<T>(
       console.warn('[preload] makeServiceCall network failure for', url, {
         message: error.message,
       });
+      const message = error.message || 'Network request failed.';
       return {
         ok: false,
-        error: normalizeError(error.message, {
+        error: normalizeError(`Service request to ${url} failed: ${message}`, {
           code: 'NETWORK_ERROR',
+          details: { url, message },
         }),
       };
     }
@@ -918,10 +934,18 @@ export const serviceApi = {
       ...(request.zipName ? { zip_name: request.zipName } : {}),
       ...(request.restoreAsNew !== undefined ? { restore_as_new: request.restoreAsNew } : {}),
     }),
-  analyticsBudget: (request: AnalyticsBudgetBridgeRequest) => {
-    const params = new URLSearchParams({ projectId: request.projectId });
-    return makeServiceCall<AnalyticsBudgetBridgeResponse>(
-      `analytics/budget?${params.toString()}`,
+  analyticsSummary: (projectId: string) => {
+    const params = new URLSearchParams({ project_id: projectId });
+    return makeServiceCall<AnalyticsSummary>(`analytics/summary?${params.toString()}`, 'GET');
+  },
+  analyticsScenes: (projectId: string) => {
+    const params = new URLSearchParams({ project_id: projectId });
+    return makeServiceCall<AnalyticsScenes>(`analytics/scenes?${params.toString()}`, 'GET');
+  },
+  analyticsRelationships: (projectId: string) => {
+    const params = new URLSearchParams({ project_id: projectId });
+    return makeServiceCall<AnalyticsRelationshipGraph>(
+      `analytics/relationships?${params.toString()}`,
       'GET',
     );
   },
@@ -952,6 +976,13 @@ export const serviceApi = {
   listProjectSnapshots: (request: { projectId: string }) => {
     const params = new URLSearchParams({ projectId: request.projectId });
     return makeServiceCall<SnapshotManifest[]>(`snapshots?${params.toString()}`, 'GET');
+  },
+  getBackupVerificationReport: (request: { projectId: string }) => {
+    const params = new URLSearchParams({ projectId: request.projectId });
+    return makeServiceCall<BackupVerificationReport>(
+      `backup_verifier/report?${params.toString()}`,
+      'GET',
+    );
   },
   getLastVerification: (request: { projectId: string; projectPath?: string | null }) =>
     readLastVerificationFromPath(request.projectPath),
@@ -1032,7 +1063,6 @@ const servicesBridge: ServicesBridge = {
   getRecoveryStatus: serviceApi.getRecoveryStatus,
   restoreSnapshot: serviceApi.restoreSnapshot,
   restoreFromZip: serviceApi.restoreFromZip,
-  analyticsBudget: serviceApi.analyticsBudget,
   createBackup: (request) => serviceApi.createBackup(request),
   listBackups: (request) => serviceApi.listBackups?.(request),
   restoreBackup: (request) => serviceApi.restoreBackup?.(request),
@@ -1043,6 +1073,14 @@ const servicesBridge: ServicesBridge = {
     serviceApi.getLastVerification?.(request),
   runBackupVerification: (request: { projectId: string; latestOnly: boolean }) =>
     serviceApi.runBackupVerification?.(request),
+  getBackupVerificationReport: (request: { projectId: string }) =>
+    serviceApi.getBackupVerificationReport?.(request),
+  getAnalyticsSummary: (request: { projectId: string }) =>
+    serviceApi.analyticsSummary(request.projectId),
+  getAnalyticsScenes: (request: { projectId: string }) =>
+    serviceApi.analyticsScenes(request.projectId),
+  getAnalyticsRelationships: (request: { projectId: string }) =>
+    serviceApi.analyticsRelationships?.(request.projectId),
   revealPath: async (path: string) => {
     try {
       await shell.openPath(path);

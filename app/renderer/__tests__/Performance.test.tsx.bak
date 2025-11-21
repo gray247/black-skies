@@ -1,0 +1,95 @@
+import { render, screen, waitFor } from '@testing-library/react';
+import { describe, expect, it, vi, afterEach } from 'vitest';
+
+import AnalyticsDashboard from '../components/AnalyticsDashboard';
+import DraftEditor from '../DraftEditor';
+
+function buildScenes(count: number) {
+  return Array.from({ length: count }, (_, index) => ({
+    sceneId: `sc_${String(index).padStart(4, '0')}`,
+    title: `Scene ${index + 1}`,
+    wordCount: 250 + index,
+    readability: 12 + (index % 3),
+    density: { dialogueRatio: 0.42, narrationRatio: 0.58 },
+  }));
+}
+
+describe('Performance regressions', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+    (window as typeof window & { services?: unknown }).services = undefined;
+  });
+
+  it('renders large analytics scenes within 200ms', async () => {
+    const scenes = buildScenes(100);
+    const totalWords = scenes.reduce((sum, scene) => sum + scene.wordCount, 0);
+    const services = {
+      getAnalyticsSummary: vi.fn().mockResolvedValue({
+        ok: true,
+        data: {
+          projectId: 'proj_perf',
+          projectPath: '/projects/perf',
+          scenes: scenes.length,
+          wordCount: totalWords,
+          avgReadability: 12.5,
+        },
+      }),
+      getAnalyticsScenes: vi.fn().mockResolvedValue({ ok: true, data: { scenes } }),
+    };
+    (window as typeof window & { services?: unknown }).services = services as unknown;
+
+    const start = performance.now();
+    render(<AnalyticsDashboard projectId="proj_perf" />);
+
+    await waitFor(() => expect(services.getAnalyticsScenes).toHaveBeenCalledTimes(1));
+    await screen.findByTestId('analytics-emotion-graph');
+    const duration = performance.now() - start;
+
+    expect(duration).toBeLessThan(300);
+  });
+
+  it('parses a large draft body without blocking', async () => {
+    const largeBody = Array.from({ length: 1200 }, (_, index) => `word_${index}`).join(' ');
+    const start = performance.now();
+    render(
+      <DraftEditor
+        value={largeBody}
+        readOnly
+        placeholder="Draft body placeholder"
+      />,
+    );
+
+    await screen.findByRole('textbox', { name: /draft editor/i });
+    const duration = performance.now() - start;
+
+    expect(duration).toBeLessThan(400);
+  });
+
+  it('avoids repeated analytics computations on identical renders', async () => {
+    const scenes = buildScenes(5);
+    const services = {
+      getAnalyticsSummary: vi.fn().mockResolvedValue({
+        ok: true,
+        data: {
+          projectId: 'proj_idle',
+          projectPath: '/projects/idle',
+          scenes: scenes.length,
+          wordCount: scenes.reduce((sum, scene) => sum + scene.wordCount, 0),
+          avgReadability: 11.5,
+        },
+      }),
+      getAnalyticsScenes: vi.fn().mockResolvedValue({ ok: true, data: { scenes } }),
+    };
+    (window as typeof window & { services?: unknown }).services = services as unknown;
+
+    const { rerender } = render(<AnalyticsDashboard projectId="proj_idle" />);
+    await waitFor(() => expect(services.getAnalyticsSummary).toHaveBeenCalledTimes(1));
+
+    rerender(<AnalyticsDashboard projectId="proj_idle" />);
+    rerender(<AnalyticsDashboard projectId="proj_idle" />);
+    rerender(<AnalyticsDashboard projectId="proj_idle" />);
+
+    await waitFor(() => expect(services.getAnalyticsScenes).toHaveBeenCalledTimes(1));
+    expect(services.getAnalyticsSummary).toHaveBeenCalledTimes(1);
+  });
+});

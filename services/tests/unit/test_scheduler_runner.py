@@ -20,7 +20,13 @@ def test_scheduler_writes_last_report(tmp_path: Path, monkeypatch) -> None:
 
     called: list[Path] = []
 
-    def fake_verification(root: Path, *, latest_only: bool = False) -> dict[str, object]:
+    def fake_verification(
+        root: Path,
+        *,
+        latest_only: bool = False,
+        settings: ServiceSettings | None = None,
+        **kwargs: object,
+    ) -> dict[str, object]:
         assert not latest_only
         called.append(root)
         return report

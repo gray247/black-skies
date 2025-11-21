@@ -1,38 +1,33 @@
 {
-  "version": 2,
+  "version": 3,
   "layout": {
     "direction": "row",
-    "first": "wizard",
-    "second": {
+    "first": {
       "direction": "row",
-      "first": {
+      "first": "outline",
+      "second": {
         "direction": "column",
-        "first": "draft-board",
-        "second": "history"
-      },
-      "second": "critique"
-    }
+        "first": "draftPreview",
+        "second": {
+          "direction": "column",
+          "first": "storyInsights",
+          "second": "corkboard"
+        }
+      }
+    },
+    "second": "relationshipGraph",
+    "splitPercentage": 70
   },
   "floatingPanes": [
     {
-      "id": "wizard",
+      "id": "relationshipGraph",
       "bounds": {
-        "x": -1245,
-        "y": 151,
-        "width": 845,
-        "height": 633
+        "x": -410,
+        "y": 389,
+        "width": 397,
+        "height": 331
       },
       "displayId": 2779098405
-    },
-    {
-      "id": "draft-board",
-      "bounds": {
-        "x": 854,
-        "y": 182,
-        "width": 414,
-        "height": 285
-      },
-      "displayId": 2528732444
     }
   ]
 }

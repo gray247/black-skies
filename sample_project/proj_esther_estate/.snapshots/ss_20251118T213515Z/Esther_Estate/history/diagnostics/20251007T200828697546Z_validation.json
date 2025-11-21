@@ -1,8 +1,0 @@
-{
-  "timestamp": "2025-10-07T20:08:28.697546Z",
-  "code": "VALIDATION",
-  "message": "Outline artifact is missing.",
-  "details": {
-    "path": "C:/Dev/black-skies/sample_project/Esther_Estate/Esther_Estate/outline.json"
-  }
-}

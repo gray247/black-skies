@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\analytics_stub.py
+# hypothesis_version: 6.138.2
+
+[0.0, '"', "'", '[.!?]+', '[^\\w]+', '_', 'appearsIn', 'avgReadability', 'character', 'characters', 'density', 'dialogueRatio', 'edges', 'from', 'id', 'index', 'kind', 'label', 'narrationRatio', 'nodes', 'pov', 'project.json', 'projectId', 'projectPath', 'project_id', 'readability', 'scene', 'sceneId', 'scenes', 'title', 'to', 'type', 'unknown', 'wordCount']

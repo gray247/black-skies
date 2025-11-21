@@ -1,0 +1,246 @@
+import type { MosaicNode } from "react-mosaic-component";
+
+export const LAYOUT_CHANNELS = {
+  load: "layout:load",
+  save: "layout:save",
+  reset: "layout:reset",
+  listFloating: "layout:floating:list",
+  openFloating: "layout:floating:open",
+  closeFloating: "layout:floating:close",
+} as const;
+
+export const CANONICAL_PANES = [
+  "outline",
+  "draftPreview",
+  "storyInsights",
+  "corkboard",
+  "timeline",
+  "critique",
+  "relationshipGraph",
+] as const;
+
+export type LayoutPaneId = (typeof CANONICAL_PANES)[number];
+
+export const DEFAULT_PANE_IDS: readonly LayoutPaneId[] = CANONICAL_PANES;
+
+export interface PaneMetadata {
+  readonly title: string;
+  readonly description: string;
+  readonly hidden?: boolean;
+}
+
+export const PANE_METADATA: Record<LayoutPaneId, PaneMetadata> = {
+  outline: {
+    title: "Outline",
+    description: "Plan chapters, scenes, and beats.",
+  },
+  draftPreview: {
+    title: "Draft preview",
+    description: "Write and edit your scene text.",
+  },
+  timeline: {
+    title: "Timeline",
+    description: "Review your history and progress.",
+  },
+  storyInsights: {
+    title: "Story Insights",
+    description: "See pacing and emotion data.",
+  },
+  corkboard: {
+    title: "Corkboard",
+    description: "Browse scene cards with metadata.",
+  },
+  relationshipGraph: {
+    title: "Relationship Graph",
+    description: "Explore character-scene relationships.",
+    hidden: true,
+  },
+  critique: {
+    title: "Critique",
+    description: "Review feedback and suggested revisions.",
+  },
+};
+
+export const LAYOUT_SCHEMA_VERSION = 3;
+
+export const LEGACY_PANE_ALIASES: Record<string, LayoutPaneId> = {
+  wizard: "outline",
+  "draft-board": "draftPreview",
+  history: "timeline",
+  analytics: "storyInsights",
+  relationships: "relationshipGraph",
+};
+
+export type LayoutTree = MosaicNode<LayoutPaneId>;
+
+const REQUIRED_LAYOUT_PANES: readonly LayoutPaneId[] = [
+  "outline",
+  "draftPreview",
+  "storyInsights",
+  "corkboard",
+] as const;
+
+export interface LayoutLoadRequest {
+  projectPath: string;
+}
+
+export interface LayoutSaveRequest extends LayoutLoadRequest {
+  layout: LayoutTree;
+  floatingPanes?: FloatingPaneDescriptor[];
+  schemaVersion?: number;
+}
+
+export interface LayoutResetRequest extends LayoutLoadRequest {}
+
+export interface LayoutLoadResponse {
+  layout: LayoutTree | null;
+  floatingPanes: FloatingPaneDescriptor[];
+  schemaVersion?: number;
+}
+
+export interface FloatingPaneDescriptor {
+  id: LayoutPaneId;
+  bounds?: { x: number; y: number; width: number; height: number };
+  displayId?: number;
+}
+
+export interface FloatingPaneClampInfo {
+  reason: 'off-screen-clamp';
+  before?: FloatingPaneDescriptor['bounds'];
+  after: FloatingPaneDescriptor['bounds'];
+  requestedDisplayId?: number;
+  appliedDisplayId?: number;
+}
+
+export interface FloatingPaneOpenResult {
+  opened: boolean;
+  clamp?: FloatingPaneClampInfo | null;
+}
+
+export interface LayoutBridge {
+  loadLayout(request: LayoutLoadRequest): Promise<LayoutLoadResponse>;
+  saveLayout(request: LayoutSaveRequest): Promise<void>;
+  resetLayout(request: LayoutResetRequest): Promise<void>;
+  openFloatingPane(request: FloatingPaneOpenRequest): Promise<FloatingPaneOpenResult>;
+  closeFloatingPane(request: FloatingPaneCloseRequest): Promise<void>;
+  listFloatingPanes(projectPath: string): Promise<FloatingPaneDescriptor[]>;
+}
+
+export interface FloatingPaneOpenRequest {
+  projectPath: string;
+  paneId: LayoutPaneId;
+  bounds?: FloatingPaneDescriptor["bounds"];
+  displayId?: number;
+}
+
+export interface FloatingPaneCloseRequest {
+  projectPath: string;
+  paneId: LayoutPaneId;
+}
+
+export function normalisePaneId(value: string | null | undefined): LayoutPaneId | null {
+  if (!value) {
+    return null;
+  }
+  if ((CANONICAL_PANES as readonly string[]).includes(value)) {
+    return value as LayoutPaneId;
+  }
+  const alias = LEGACY_PANE_ALIASES[value];
+  return alias ?? null;
+}
+
+export const DEFAULT_LAYOUT: LayoutTree = {
+  direction: "column",
+  first: {
+    direction: "row",
+    first: "draftPreview",
+    second: "storyInsights",
+    splitPercentage: 50,
+  },
+  second: {
+    direction: "row",
+    first: "outline",
+    second: "corkboard",
+    splitPercentage: 50,
+  },
+  splitPercentage: 60,
+};
+
+function normalizeLegacyPane(value: string | null | undefined): LayoutPaneId | null {
+  if (!value) {
+    return null;
+  }
+  if ((CANONICAL_PANES as readonly string[]).includes(value)) {
+    return value as LayoutPaneId;
+  }
+  return LEGACY_PANE_ALIASES[value] ?? null;
+}
+
+function collectPaneIds(
+  node: LayoutTree | LayoutPaneId,
+  result: LayoutPaneId[],
+  seen: Set<LayoutPaneId>,
+): boolean {
+  if (typeof node === "string") {
+    if (seen.has(node)) {
+      return false;
+    }
+    seen.add(node);
+    result.push(node);
+    return true;
+  }
+  if (!collectPaneIds(node.first, result, seen)) {
+    return false;
+  }
+  if (!collectPaneIds(node.second, result, seen)) {
+    return false;
+  }
+  return true;
+}
+
+function treeMeetsRequirements(tree: LayoutTree): boolean {
+  const ids: LayoutPaneId[] = [];
+  if (!collectPaneIds(tree, ids, new Set())) {
+    return false;
+  }
+  const present = new Set(ids);
+  for (const required of REQUIRED_LAYOUT_PANES) {
+    if (!present.has(required)) {
+      return false;
+    }
+  }
+  if (ids.length !== REQUIRED_LAYOUT_PANES.length) {
+    return false;
+  }
+  return true;
+}
+
+function logInvalidLayout(reason: string): void {
+  console.warn('[dock] Invalid saved layout ignored; using default layout', { reason });
+}
+
+export function sanitizeLayoutNode(node: MosaicNode<LayoutPaneId> | null): LayoutTree | null {
+  if (!node) {
+    return null;
+  }
+  if (typeof node === 'string') {
+    const normalized = normalizeLegacyPane(node);
+    return normalized ?? null;
+  }
+  const first = sanitizeLayoutNode(node.first);
+  const second = sanitizeLayoutNode(node.second);
+  if (!first || !second) {
+    return null;
+  }
+  const candidate: LayoutTree = {
+    direction: node.direction,
+    first,
+    second,
+    splitPercentage: node.splitPercentage,
+  };
+  if (!treeMeetsRequirements(candidate)) {
+    logInvalidLayout('layout contains duplicates or missing required panes');
+    return null;
+  }
+  return candidate;
+}

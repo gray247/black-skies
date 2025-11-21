@@ -8,6 +8,11 @@ from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 from .http import TRACE_ID_HEADER, build_error_payload, ensure_trace_id
 
+# Prefer the newer constant when available to avoid deprecation warnings while
+# remaining compatible with older Starlette versions (such as the one bundled
+# with FastAPI 0.110).
+HTTP_STATUS_PAYLOAD_TOO_LARGE = getattr(status, "HTTP_413_CONTENT_TOO_LARGE", 413)
+
 
 class BodySizeLimitMiddleware:
     """Reject requests whose bodies exceed a configured byte threshold."""
@@ -56,7 +61,7 @@ class BodySizeLimitMiddleware:
         )
         await _send_json_response(
             send,
-            status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+            status_code=HTTP_STATUS_PAYLOAD_TOO_LARGE,
             content=payload.model_dump(),
             trace_id=trace_id,
         )

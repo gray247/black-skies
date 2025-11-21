@@ -1,0 +1,62 @@
+{
+  "phase": "Phase 6",
+  "status": "feature-complete",
+  "summary": [
+    "AnalyticsService now emits project summary, scene metrics, and relationship graph data derived from outlines and draft text.",
+    "The renderer ships a Story Insights dashboard (AnalyticsDashboard) with emotion/pacing visuals, a Corkboard of scene cards, and a RelationshipGraph pane.",
+    "Insights now surfaces the same local analytics data with clear offline messaging and dedicated test hooks.",
+    "Passoff artifacts, tracker notes, and refinement documentation capture what ships versus what remains deferred."
+  ],
+  "backend": {
+    "analytics": "analytics_stub aggregates outline, drafts, and front-matter to compute summaries, scene metrics, and relationship nodes/edges.",
+    "endpoints": {
+      "summary": "GET /api/v1/analytics/summary",
+      "scenes": "GET /api/v1/analytics/scenes",
+      "relationships": "GET /api/v1/analytics/relationships"
+    },
+    "tests": [
+      "services/tests/test_analytics_metrics.py",
+      "services/tests/test_analytics_endpoints.py"
+    ]
+  },
+  "renderer": {
+    "bridge": [
+      "getAnalyticsSummary",
+      "getAnalyticsScenes",
+      "getAnalyticsRelationships"
+    ],
+    "surfaces": [
+      "Story Insights dashboard (AnalyticsDashboard: summary rows, emotion graph, pacing strip, scene grid)",
+      "Corkboard scene cards (sceneId/title/index/word count + density ratios)",
+      "RelationshipGraph pane (character/scene nodes + appearsIn edges)",
+      "Insights analytics block with offline-aware messaging"
+    ],
+    "tests": [
+      "app/renderer/__tests__/AnalyticsDashboard.test.tsx",
+      "app/renderer/__tests__/Corkboard.test.tsx",
+      "app/renderer/__tests__/RelationshipGraph.test.tsx"
+    ]
+  },
+  "tests": {
+    "status": "Passing in the service and renderer suites.",
+    "details": [
+      "Server-side metric and endpoint coverage in pytest.",
+      "Renderer Vitest coverage for AnalyticsDashboard, Corkboard, and RelationshipGraph."
+    ]
+  },
+  "e2e": {
+    "status": "Not yet implemented for Phase 6.",
+    "notes": "Phase 5 smoke spec covers export/integrity; future phases may add analytics e2e coverage."
+  },
+  "deferred": [
+    "Sophisticated emotion/pacing models and offline caching strategies (see Bucket 9 refinement notes).",
+    "Relationship graph layout/interaction beyond a lightweight list of connections.",
+    "Insights automation or import analytics beyond local metrics."
+  ],
+  "artifacts": [
+    "docs/phase6_analytics_refinement_notes.md",
+    "work/phase6/phase6_tracker.md",
+    "Renderer analytics components and test fixtures"
+  ],
+  "version": 1
+}

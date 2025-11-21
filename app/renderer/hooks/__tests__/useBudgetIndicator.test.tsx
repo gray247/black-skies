@@ -41,16 +41,43 @@ function BudgetHarness({
 }
 
 describe('useBudgetIndicator analytics toasts', () => {
-  it('shows analytics toast once per failure cycle', async () => {
+  it('suppresses analyticsBudget bridge calls even when provided', async () => {
     const pushToast = vi.fn();
     const services = {
       analyticsBudget: vi.fn().mockResolvedValue({
-        ok: false,
-        error: { message: 'Analytics down', code: 'SERVICE_UNAVAILABLE' },
-        traceId: 'trace-analytics',
+        ok: true,
+        data: null,
       }),
     } as unknown as ServicesBridge;
 
+    let refreshFn: ((options?: { force?: boolean }) => Promise<void>) | undefined;
+    const handleReady = (refresh: (options?: { force?: boolean }) => Promise<void>) => {
+      refreshFn = refresh;
+    };
+
+    render(
+      <BudgetHarness
+        services={services}
+        serviceHealthy
+        serviceStatus="online"
+        projectId="demo"
+        pushToast={pushToast}
+        onReady={handleReady}
+      />,
+    );
+
+    await waitFor(() => expect(refreshFn).toBeDefined());
+    await act(async () => {
+      await refreshFn?.({ force: true });
+    });
+
+    expect(services.analyticsBudget).not.toHaveBeenCalled();
+    expect(pushToast).not.toHaveBeenCalled();
+  });
+
+  it('emits analytics warning once per offline transition', async () => {
+    const pushToast = vi.fn();
+    const services = {} as ServicesBridge;
     let refreshFn: ((options?: { force?: boolean }) => Promise<void>) | undefined;
     const handleReady = (refresh: (options?: { force?: boolean }) => Promise<void>) => {
       refreshFn = refresh;
@@ -67,12 +94,8 @@ describe('useBudgetIndicator analytics toasts', () => {
       />,
     );
 
-    await waitFor(() => expect(pushToast).toHaveBeenCalledTimes(1));
-    await act(async () => {
-      await refreshFn?.();
-    });
-    expect(pushToast).toHaveBeenCalledTimes(1);
-    expect(services.analyticsBudget).toHaveBeenCalledTimes(2);
+    await waitFor(() => expect(refreshFn).toBeDefined());
+    expect(pushToast).not.toHaveBeenCalled();
 
     rerender(
       <BudgetHarness
@@ -85,6 +108,8 @@ describe('useBudgetIndicator analytics toasts', () => {
       />,
     );
 
+    await waitFor(() => expect(pushToast).toHaveBeenCalledTimes(1));
+
     rerender(
       <BudgetHarness
         services={services}
@@ -96,7 +121,17 @@ describe('useBudgetIndicator analytics toasts', () => {
       />,
     );
 
-    await waitFor(() => expect(services.analyticsBudget).toHaveBeenCalledTimes(3));
-    expect(pushToast).toHaveBeenCalledTimes(2);
+    rerender(
+      <BudgetHarness
+        services={services}
+        serviceHealthy
+        serviceStatus="offline"
+        projectId="demo"
+        pushToast={pushToast}
+        onReady={handleReady}
+      />,
+    );
+
+    await waitFor(() => expect(pushToast).toHaveBeenCalledTimes(2));
   });
 });

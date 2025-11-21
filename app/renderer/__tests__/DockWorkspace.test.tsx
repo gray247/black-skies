@@ -50,7 +50,7 @@ describe('DockWorkspace', () => {
         panes={{}}
         defaultPreset="standard"
         enableHotkeys
-        focusCycleOrder={["wizard", "draft-board", "critique", "history", "analytics"]}
+        focusCycleOrder={["outline", "draftPreview", "critique", "timeline", "storyInsights"]}
         relocationNotifyEnabled
         autoSnapEnabled={false}
         onRelocationNotifyChange={noop}
@@ -64,10 +64,10 @@ describe('DockWorkspace', () => {
     render(
       <DockWorkspace
         projectPath={PROJECT_PATH}
-        panes={{ wizard: <div>Outline</div> }}
+        panes={{ outline: <div>Outline</div> }}
         defaultPreset="analysis"
         enableHotkeys
-        focusCycleOrder={["wizard", "draft-board", "critique", "history", "analytics"]}
+        focusCycleOrder={["outline", "draftPreview", "critique", "timeline", "storyInsights"]}
         relocationNotifyEnabled
         autoSnapEnabled={false}
         onRelocationNotifyChange={noop}
@@ -92,9 +92,9 @@ describe('DockWorkspace', () => {
 
   it('cycles focus between panes with hotkeys', async () => {
     const paneIds: LayoutPaneId[] = [
-      'wizard',
-      'draft-board',
-      'critique',
+      'outline',
+      'draftPreview',
+      'storyInsights',
     ];
 
     const panes = paneIds.reduce<Partial<Record<LayoutPaneId, JSX.Element>>>(
@@ -123,8 +123,8 @@ describe('DockWorkspace', () => {
     });
 
     const firstPane = screen.getByRole('group', { name: 'Outline' });
-    const secondPane = screen.getByRole('group', { name: 'Writing view' });
-    const thirdPane = screen.getByRole('group', { name: 'Feedback notes' });
+    const secondPane = screen.getByRole('group', { name: 'Draft preview' });
+    const thirdPane = screen.getByRole('group', { name: 'Story Insights' });
 
     firstPane.focus();
 
@@ -151,7 +151,7 @@ describe('DockWorkspace', () => {
       .mockImplementation(function getBoundingClientRect(this: HTMLElement) {
         const paneId = this.dataset?.paneId ?? 'unknown';
         const dimensions =
-          paneId === 'wizard'
+          paneId === 'outline'
             ? { width: 640, height: 420 }
             : { width: 320, height: 360 };
         return {
@@ -170,14 +170,14 @@ describe('DockWorkspace', () => {
       <DockWorkspace
         projectPath={PROJECT_PATH}
         panes={{
-          wizard: <div>Outline</div>,
-          'draft-board': <div>Writing view</div>,
-          history: <div>Timeline</div>,
+          outline: <div>Outline</div>,
+        'draftPreview': <div>Draft preview</div>,
+          timeline: <div>Timeline</div>,
           critique: <div>Feedback notes</div>,
         }}
         defaultPreset="standard"
         enableHotkeys
-        focusCycleOrder={['wizard', 'draft-board', 'history', 'critique']}
+        focusCycleOrder={['outline', 'draftPreview', 'timeline', 'critique']}
         relocationNotifyEnabled
         autoSnapEnabled={false}
         onRelocationNotifyChange={noop}
@@ -197,8 +197,8 @@ describe('DockWorkspace', () => {
     expect(payload).toEqual({
       projectPath: PROJECT_PATH,
       panes: expect.arrayContaining([
-        expect.objectContaining({ paneId: 'wizard', height: 420, width: 640 }),
-        expect.objectContaining({ paneId: 'draft-board', height: 360, width: 320 }),
+        expect.objectContaining({ paneId: 'outline', height: 420, width: 640 }),
+        expect.objectContaining({ paneId: 'draftPreview', height: 360, width: 320 }),
       ]),
     });
 
@@ -217,10 +217,10 @@ describe('DockWorkspace', () => {
     render(
       <DockWorkspace
         projectPath={PROJECT_PATH}
-        panes={{ wizard: <div>Outline</div> }}
+        panes={{ outline: <div>Outline</div> }}
         defaultPreset="standard"
         enableHotkeys
-        focusCycleOrder={['wizard']}
+        focusCycleOrder={['outline']}
         relocationNotifyEnabled
         autoSnapEnabled={false}
         onRelocationNotifyChange={noop}
@@ -254,10 +254,10 @@ describe('DockWorkspace', () => {
     render(
       <DockWorkspace
         projectPath={PROJECT_PATH}
-        panes={{ wizard: <div>Outline</div> }}
+        panes={{ outline: <div>Outline</div> }}
         defaultPreset="standard"
         enableHotkeys
-        focusCycleOrder={['wizard']}
+        focusCycleOrder={['outline']}
         relocationNotifyEnabled
         autoSnapEnabled={false}
         onRelocationNotifyChange={noop}
@@ -290,11 +290,11 @@ describe('DockWorkspace', () => {
   it('ensurePaneInLayout appends missing panes while preserving existing nodes', () => {
     const baseLayout: LayoutTree = {
       direction: 'row',
-      first: 'wizard',
-      second: 'draft-board',
+      first: 'outline',
+      second: 'draftPreview',
     };
 
-    const updated = ensurePaneInLayout(baseLayout, 'analytics');
+    const updated = ensurePaneInLayout(baseLayout, 'storyInsights');
     const collected = new Set<LayoutPaneId>();
     (function collect(node: LayoutTree | LayoutPaneId): void {
       if (typeof node === 'string') {
@@ -305,8 +305,8 @@ describe('DockWorkspace', () => {
       collect(node.second);
     })(updated);
 
-    expect(collected.has('wizard')).toBe(true);
-    expect(collected.has('draft-board')).toBe(true);
-    expect(collected.has('analytics')).toBe(true);
+    expect(collected.has('outline')).toBe(true);
+    expect(collected.has('draftPreview')).toBe(true);
+    expect(collected.has('storyInsights')).toBe(true);
   });
 });

@@ -8,11 +8,11 @@ const __dirname = path.dirname(__filename);
 const repoRoot = path.resolve(__dirname, '../../../..');
 
 const PANE_KEY_TO_ID: Record<string, LayoutPaneId> = {
-  'Wizard pane': 'wizard',
-  'Draft board': 'draft-board',
+  'Outline pane': 'outline',
+  'Draft preview': 'draftPreview',
   'Critique results': 'critique',
-  'History pane': 'history',
-  'Analytics pane': 'analytics',
+  'History pane': 'timeline',
+  'Story insights pane': 'storyInsights',
 };
 
 export interface GuiContract {
@@ -22,7 +22,14 @@ export interface GuiContract {
 
 export function loadGuiContract(): GuiContract {
   const uiCopy = fs.readFileSync(path.join(repoRoot, 'docs', 'ui_copy_spec_v1.md'), 'utf-8');
-  const guiLayouts = fs.readFileSync(path.join(repoRoot, 'docs', 'gui_layouts.md'), 'utf-8');
+  const guiLayoutsPathCandidates = [
+    path.join(repoRoot, 'docs', 'gui_layouts.md'),
+    path.join(repoRoot, 'docs', 'gui', 'gui_layouts.md'),
+  ];
+  const guiLayoutsPath =
+    guiLayoutsPathCandidates.find((candidate) => fs.existsSync(candidate)) ??
+    guiLayoutsPathCandidates[0];
+  const guiLayouts = fs.readFileSync(guiLayoutsPath, 'utf-8');
 
   const paneLabels: Record<LayoutPaneId, string> = {} as Record<LayoutPaneId, string>;
 
@@ -44,7 +51,7 @@ export function loadGuiContract(): GuiContract {
     guiLayouts
       .split('\n')
       .map((line) => line.trim())
-      .find((line) => /^\w.+\|\s*\w/.test(line) && line.includes('Writing view')) ?? '';
+      .find((line) => /^\w.+\|\s*\w/.test(line) && line.toLowerCase().includes('draft preview')) ?? '';
   const defaultPresetOrder = defaultPresetLine
     .split('|')
     .map((segment) => segment.trim())

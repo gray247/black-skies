@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\routers\restore.py
+# hypothesis_version: 6.138.2
+
+['/restore', 'Project identifier', 'Restore failed', 'errors', 'message', 'ok', 'restore', 'restored_path', 'status', 'warnings']

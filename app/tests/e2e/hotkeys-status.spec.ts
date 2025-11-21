@@ -15,7 +15,7 @@ test.describe('Hotkeys status', () => {
           snapshot_id: '20250101T000000Z',
           label: 'accept',
           created_at: '2025-01-01T00:00:00Z',
-          path: 'history/snapshots/20250101T000000Z_accept',
+          path: 'timeline/snapshots/20250101T000000Z_accept',
         },
       };
 
@@ -99,7 +99,7 @@ test.describe('Hotkeys status', () => {
               snapshot_id: '20250101T000000Z',
               label: 'accept',
               created_at: '2025-01-01T00:00:00Z',
-              path: 'history/snapshots/20250101T000000Z_accept',
+              path: 'timeline/snapshots/20250101T000000Z_accept',
             },
             budget: {
               estimated_usd: 0.15,
@@ -118,7 +118,7 @@ test.describe('Hotkeys status', () => {
             snapshot_id: '20250101T000000Z',
             label: 'accept',
             created_at: '2025-01-01T00:00:00Z',
-            path: 'history/snapshots/20250101T000000Z_accept',
+            path: 'timeline/snapshots/20250101T000000Z_accept',
           },
           traceId: 'trace-snapshot',
         }),
@@ -182,7 +182,7 @@ test.describe('Hotkeys status', () => {
           defaultPreset: 'standard',
           hotkeys: {
             enablePresetHotkeys: true,
-            focusCycleOrder: ['wizard', 'draft-board', 'critique', 'history'],
+            focusCycleOrder: ['outline', 'draftPreview', 'critique', 'timeline'],
           },
         },
       };
@@ -223,27 +223,27 @@ test.describe('Hotkeys status', () => {
         return null;
       });
 
-    const outlinePane = page.locator('[data-pane-id="wizard"]');
+    const outlinePane = page.locator('[data-pane-id="outline"]');
     await outlinePane.focus();
-    await expect.poll(getActivePaneId).toBe('wizard');
+    await expect.poll(getActivePaneId).toBe('outline');
 
     await page.keyboard.press('Control+Alt+BracketRight');
-    await expect.poll(getActivePaneId).toBe('draft-board');
+    await expect.poll(getActivePaneId).toBe('draftPreview');
 
     await page.keyboard.press('Control+Alt+BracketRight');
     await expect.poll(getActivePaneId).toBe('critique');
 
     await page.keyboard.press('Control+Alt+BracketLeft');
-    await expect.poll(getActivePaneId).toBe('draft-board');
+    await expect.poll(getActivePaneId).toBe('draftPreview');
 
     await page.keyboard.press('Control+Alt+Digit1');
-    await expect(page.locator('[data-pane-id="analytics"]')).toHaveCount(0);
+    await expect(page.locator('[data-pane-id="storyInsights"]')).toHaveCount(0);
 
     await page.keyboard.press('Control+Alt+Digit2');
-    await expect(page.locator('[data-pane-id="analytics"]')).toBeVisible();
+    await expect(page.locator('[data-pane-id="storyInsights"]')).toBeVisible();
 
     await page.keyboard.press('Control+Alt+Digit3');
-    await expect(page.locator('[data-pane-id="analytics"]')).toHaveCount(0);
+    await expect(page.locator('[data-pane-id="storyInsights"]')).toHaveCount(0);
     await expect(page.locator('[data-pane-id="critique"]')).toBeVisible();
   });
 
