@@ -5,11 +5,10 @@ import type {
   AnalyticsRelationshipNode,
 } from "../../shared/ipc/services";
 import OfflineBanner from "./OfflineBanner";
+import { useServiceHealthContext } from "../contexts/serviceHealthContext";
 
 interface RelationshipGraphProps {
   projectId?: string | null;
-  serviceUnavailable?: boolean;
-  onRetry?: () => void;
 }
 
 interface GraphState {
@@ -28,11 +27,8 @@ function formatEdgeLabel(kind: string): string {
   return kind === "appearsIn" ? "Appears In" : kind;
 }
 
-function RelationshipGraph({
-  projectId,
-  serviceUnavailable = false,
-  onRetry,
-}: RelationshipGraphProps): JSX.Element {
+function RelationshipGraph({ projectId }: RelationshipGraphProps): JSX.Element {
+  const { serviceUnavailable, onRetry } = useServiceHealthContext();
   const [state, setState] = useState<GraphState>(initialState);
 
   useEffect(() => {

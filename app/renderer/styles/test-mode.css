@@ -1,0 +1,85 @@
+﻿/* Test-only flat layout (Playwright) */
+body[data-test-mode="flat"] .test-flat-home {
+  position: relative;
+  z-index: 999999 !important;
+}
+
+body[data-test-mode="flat"] .test-flat-home__wizard {
+  margin-bottom: 1rem;
+}
+
+body[data-test-mode="flat"] .test-flat-home__workspace-header {
+  margin-bottom: 1rem;
+}
+
+body[data-test-mode="flat"] .test-flat-home__panes {
+  display: flex;
+  gap: 0.75rem;
+}
+
+body[data-test-mode="flat"] .test-pane {
+  width: 4rem;
+  height: 3rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 0.5rem;
+}
+
+body[data-test-mode="flat"] .test-snapshot-controls {
+  margin-top: 1rem;
+  display: flex;
+  gap: 0.75rem;
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  z-index: 999999;
+}
+
+body[data-test-mode="flat"] .cm-gutter,
+body[data-test-mode="flat"] .cm-gutters,
+body[data-test-mode="flat"] .cm-gutters-before,
+body[data-test-mode="flat"] .cm-gutters-after,
+body[data-test-mode="flat"] .cm-lineNumbers {
+  pointer-events: none;
+}
+body[data-test-mode="flat"] .cm-scroller {
+  pointer-events: none;
+}
+body[data-test-mode="flat"] .cm-editor {
+  pointer-events: none;
+}
+
+body[data-test-mode="flat"] .dock-workspace,
+body[data-test-mode="flat"] .mosaic-root,
+body[data-test-mode="flat"] .mosaic-window,
+body[data-test-mode="flat"] .mosaic-split,
+body[data-test-mode="flat"] .dock-pane__titlebar,
+body[data-test-mode="flat"] .dock-pane__content,
+body[data-test-mode="flat"] .scene-word-count,
+body[data-test-mode="flat"] .project-toolbar,
+body[data-test-mode="flat"] .thought-graph-dialog,
+body[data-test-mode="flat"] .snapshot-overlay,
+body[data-test-mode="flat"] .snapshots-panel,
+body[data-test-mode="flat"] .snapshots-panel__modal,
+body[data-test-mode="flat"] .snapshots-panel__modal-backdrop {
+  display: none !important;
+}
+
+body[data-test-mode="flat"] .cm-content {
+  pointer-events: auto !important;
+  z-index: 999999 !important;
+}
+
+body[data-test-mode] * {
+  transition: none !important;
+  animation: none !important;
+}
+
+body[data-test-mode="full"] .mosaic-split:hover,
+body[data-test-mode="full"] .dock-split-handle:hover {
+  opacity: 1 !important;
+}
+
+body[data-test-stable-dock="1"] * {
+  transition: none !important;
+  animation: none !important;
+}

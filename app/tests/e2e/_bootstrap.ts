@@ -22,6 +22,18 @@ export async function bootstrapHarness(page: Page): Promise<void> {
   await page.evaluate((projectPath) => {
     (window as any).__dev?.setProjectDir?.(projectPath ?? null);
   }, sampleProjectPath);
+  const sampleProjectId = path.basename(sampleProjectPath);
+  await page.evaluate(
+    ({ projectId, projectPath }: { projectId: string; projectPath: string }) => {
+      const win = window as typeof window & {
+        __testEnvDefaultProjectId?: string;
+        __testEnvDefaultProjectPath?: string;
+      };
+      win.__testEnvDefaultProjectId = projectId;
+      win.__testEnvDefaultProjectPath = projectPath;
+    },
+    { projectId: sampleProjectId, projectPath: sampleProjectPath },
+  );
 
   const openProject = page.getByTestId('open-project');
   if (await openProject.isVisible({ timeout: 10_000 }).catch(() => false)) {

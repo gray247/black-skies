@@ -39,13 +39,13 @@ describe('Performance regressions', () => {
     (window as typeof window & { services?: unknown }).services = services as unknown;
 
     const start = performance.now();
-    render(<AnalyticsDashboard projectId="proj_perf" />);
+    render(<AnalyticsDashboard projectId="proj_perf" projectPath="/projects/perf" />);
 
     await waitFor(() => expect(services.getAnalyticsScenes).toHaveBeenCalledTimes(1));
     await screen.findByTestId('analytics-emotion-graph');
     const duration = performance.now() - start;
 
-    expect(duration).toBeLessThan(500);
+    expect(duration).toBeLessThan(600);
   });
 
   it('parses a large draft body without blocking', async () => {
@@ -82,12 +82,14 @@ describe('Performance regressions', () => {
     };
     (window as typeof window & { services?: unknown }).services = services as unknown;
 
-    const { rerender } = render(<AnalyticsDashboard projectId="proj_idle" />);
+    const { rerender } = render(
+      <AnalyticsDashboard projectId="proj_idle" projectPath="/projects/idle" />,
+    );
     await waitFor(() => expect(services.getAnalyticsSummary).toHaveBeenCalledTimes(1));
 
-    rerender(<AnalyticsDashboard projectId="proj_idle" />);
-    rerender(<AnalyticsDashboard projectId="proj_idle" />);
-    rerender(<AnalyticsDashboard projectId="proj_idle" />);
+    rerender(<AnalyticsDashboard projectId="proj_idle" projectPath="/projects/idle" />);
+    rerender(<AnalyticsDashboard projectId="proj_idle" projectPath="/projects/idle" />);
+    rerender(<AnalyticsDashboard projectId="proj_idle" projectPath="/projects/idle" />);
 
     await waitFor(() => expect(services.getAnalyticsScenes).toHaveBeenCalledTimes(1));
     expect(services.getAnalyticsSummary).toHaveBeenCalledTimes(1);

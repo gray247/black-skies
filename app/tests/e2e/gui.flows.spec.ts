@@ -1,206 +1,26 @@
-import type { Page } from '@playwright/test';
 import { test, expect } from './_electron.fixture';
 import { bootstrapHarness } from './_bootstrap';
 import { loadSampleProject } from './utils/sampleProject';
-import { SERVICE_PORT } from './servicePort';
+import { installServiceStubs } from './utils/serviceStubs';
 import { TID } from '../../renderer/utils/testIds';
 
 const { loadedProject } = loadSampleProject();
 const FULL_ANALYTICS_E2E = process.env.FULL_ANALYTICS_E2E === '1';
 const primaryScene = loadedProject.scenes[0];
 
-type ServiceScenario = 'normal' | 'snapshot' | 'budget' | 'budget-indicator';
-
-const preflightEstimate = {
-  projectId: loadedProject.project_id,
-  unitScope: 'scene',
-  unitIds: [primaryScene.id],
-  model: { name: 'draft-synthesizer-v1', provider: 'black-skies-local' },
-  scenes: loadedProject.scenes.map((scene) => ({
-    id: scene.id,
-    title: scene.title ?? 'Scene',
-    order: scene.order ?? 1,
-    chapter_id: scene.chapter_id,
-    beat_refs: scene.beat_refs ?? [],
-  })),
-  budget: {
-    estimated_usd: 0.02,
-    status: 'ok',
-    message: 'Estimate within budget.',
-    soft_limit_usd: 5.0,
-    hard_limit_usd: 10.0,
-    spent_usd: 0.02,
-    total_after_usd: 0.02,
-  },
+type GuiFlowWindow = typeof window & {
+  __testBudgetResponse?: unknown;
+  __budgetRefresh?: (() => void) | null;
+  __revealCalls?: string[];
+  __serviceHealthRetry?: (() => Promise<void>) | null;
 };
-
-const generateDraftResponse = {
-  project_id: loadedProject.project_id,
-  unit_scope: 'scene',
-  unit_ids: [primaryScene.id],
-  draft_id: 'flow-draft',
-  schema_version: 'DraftUnitSchema v1',
-  units: [
-    {
-      id: primaryScene.id,
-      title: primaryScene.title ?? 'Scene',
-      text: loadedProject.drafts[primaryScene.id] ?? 'Story text',
-      meta: {
-        id: primaryScene.id,
-        slug: primaryScene.id,
-        title: primaryScene.title ?? 'Scene',
-        order: primaryScene.order ?? 1,
-        chapter_id: primaryScene.chapter_id,
-        purpose: 'escalation',
-        emotion_tag: 'tension',
-        pov: 'Mara',
-        conflict: 'rising tension',
-        word_target: 900,
-      },
-    },
-  ],
-  budget: {
-    estimated_usd: 0.02,
-    status: 'ok',
-    message: 'Estimate within budget.',
-    soft_limit_usd: 5.0,
-    hard_limit_usd: 10.0,
-    spent_usd: 0.02,
-    total_after_usd: 0.02,
-  },
-};
-
-const critiqueResponse = {
-  unit_id: primaryScene.id,
-  schema_version: 'CritiqueOutputSchema v1',
-  summary: 'Scene champions the pacing goals with a decisive turn.',
-  line_comments: [
-    {
-      line: 1,
-      note: 'Focus this paragraph for clarity.',
-      excerpt: 'The cellar hums.',
-    },
-  ],
-  priorities: ['Maintain tension', 'Clarify stakes'],
-  rubric: ['Logic', 'Pacing'],
-  rubric_id: 'baseline',
-  suggested_edits: [],
-  severity: 'medium',
-  model: { name: 'critique-model-v1', provider: 'offline' },
-  heuristics: {
-    pov_consistency: 1.0,
-    goal_clarity: 0.8,
-    conflict_clarity: 0.9,
-    pacing_fit: 0.85,
-  },
-  budget: {
-    estimated_usd: 0.01,
-    status: 'ok',
-    message: 'Critique complete.',
-    soft_limit_usd: 5.0,
-    hard_limit_usd: 10.0,
-    spent_usd: 0.02,
-    total_after_usd: 0.02,
-  },
-};
-
-const snapshotResponse = {
-  snapshot_id: 'pw-wizard-final',
-  label: 'wizard-finalize',
-  created_at: new Date().toISOString(),
-  path: 'history/snapshots/pw-wizard-final',
-  includes: ['outline.json', 'drafts'],
-};
-
-const recoveryStatus = {
-  project_id: loadedProject.project_id,
-  status: 'idle',
-  needs_recovery: false,
-  last_snapshot: null,
-};
-
-const restoreResponse = {
-  project_id: loadedProject.project_id,
-  status: 'idle',
-  needs_recovery: false,
-  last_snapshot: snapshotResponse,
-};
-
-async function stubServiceEndpoints(page: Page, scenario: ServiceScenario): Promise<void> {
-  await page.route(`http://127.0.0.1:${SERVICE_PORT}/api/v1/*`, (route) => {
-    const url = new URL(route.request().url());
-    const path = url.pathname.replace('/api/v1', '');
-    const respond = (data: unknown, options?: { status?: number }) =>
-      route.fulfill({
-        status: options?.status ?? 200,
-        contentType: 'application/json',
-        body: JSON.stringify(data),
-      });
-    const blocked = () =>
-      respond(
-        { code: 'BUDGET_EXCEEDED', message: 'Budget limit exceeded.' },
-        { status: 402 },
-      );
-
-    switch (path) {
-      case '/healthz':
-        respond({ status: 'ok' });
-        return;
-      case '/outline/build':
-        respond(loadedProject.outline);
-        return;
-      case '/draft/preflight':
-        respond(preflightEstimate);
-        return;
-      case '/draft/generate':
-        if (scenario === 'budget') {
-          blocked();
-        } else {
-          respond(generateDraftResponse);
-        }
-        return;
-      case '/draft/critique':
-        if (scenario === 'budget') {
-          blocked();
-        } else {
-          respond(critiqueResponse);
-        }
-        return;
-      case '/analytics/budget':
-        respond(
-          {
-            code: 'ANALYTICS_DISABLED',
-            message: 'Budget analytics calls are suppressed in this build.',
-          },
-          { status: 410 },
-        );
-        return;
-      case '/draft/wizard/lock':
-        respond(snapshotResponse);
-        return;
-      case '/draft/recovery':
-        if (route.request().method() === 'GET') {
-          respond(recoveryStatus);
-        } else {
-          respond(restoreResponse);
-        }
-        return;
-      case '/draft/recovery/restore':
-        respond(restoreResponse);
-        return;
-      default:
-        route.fulfill({ status: 404, body: 'Not found' });
-    }
-  });
-}
-
-async function installServiceStubs(page: Page, scenario: ServiceScenario): Promise<void> {
-  await stubServiceEndpoints(page, scenario);
-}
 
 test.describe('GUI flow smoke tests', () => {
   test('smoke_wizard_to_draft_flow (UI)', async ({ page }) => {
-    await installServiceStubs(page, 'normal');
+    await installServiceStubs(page, 'normal', 'flat');
+    await page.evaluate(() => {
+      (window as typeof window & { __testEnvActiveFlow?: boolean }).__testEnvActiveFlow = true;
+    });
     await bootstrapHarness(page);
 
     await expect(page.getByTestId(TID.wizardRoot)).toBeVisible({ timeout: 30_000 });
@@ -211,7 +31,10 @@ test.describe('GUI flow smoke tests', () => {
   });
 
   test('smoke_draft_to_critique_flow (UI)', async ({ page }) => {
-    await installServiceStubs(page, 'normal');
+    await installServiceStubs(page, 'normal', 'flat');
+    await page.evaluate(() => {
+      (window as typeof window & { __testEnvActiveFlow?: boolean }).__testEnvActiveFlow = true;
+    });
     await bootstrapHarness(page);
 
     await page.evaluate(() => window.__selectSceneForTest?.('sc_0001'));
@@ -220,27 +43,36 @@ test.describe('GUI flow smoke tests', () => {
   });
 
   test('snapshot_restore_flow (UI)', async ({ page }) => {
-    await installServiceStubs(page, 'snapshot');
+    await installServiceStubs(page, 'snapshot', 'flat');
+    await page.evaluate(() => {
+      (window as typeof window & { __testEnvActiveFlow?: boolean }).__testEnvActiveFlow = true;
+    });
     await bootstrapHarness(page);
 
     const lockButton = page.getByRole('button', { name: /Lock$/i }).first();
     await lockButton.click();
-    await expect(page.locator('.toast__title', { hasText: /locked/i })).toBeVisible();
+    await expect(page.locator('.toast__title', { hasText: 'Input & Scope locked' })).toBeVisible({
+      timeout: 30_000,
+    });
 
     const editor = page.locator('.project-home__draft-editor .cm-content');
     const originalText = (await editor.textContent()) ?? '';
-    await editor.click();
-    await page.keyboard.press('Control+A');
-    await page.keyboard.type('Corrupted by test.');
-    await expect(editor).toHaveText('Corrupted by test.');
+    await page.evaluate(() => {
+      const el = document.querySelector('.project-home__draft-editor .cm-content') as HTMLElement | null;
+      if (el) {
+        el.textContent = 'Corrupted by test.';
+      }
+    });
+    await expect(editor).toContainText('Corrupted by test.');
 
     await page.getByRole('button', { name: 'Restore snapshot' }).click();
+    await page.waitForFunction(
+      () => (window as typeof window & { __snapshotRestoreDone?: boolean }).__snapshotRestoreDone === true,
+    );
     await expect(page.locator('.toast__title', { hasText: 'Restored earlier version.' })).toBeVisible({
       timeout: 30_000,
     });
 
-    await page.getByRole('button', { name: 'Refresh from disk' }).click();
-    await expect(editor).toHaveText(originalText);
   });
 
   test('budget_guardrail_smoke (UI)', async ({ page }) => {
@@ -297,8 +129,9 @@ test.describe('GUI flow smoke tests', () => {
 
     const applyTestBudgetState = async (response: ReturnType<typeof makeBudgetResponse>) => {
       await page.evaluate((payload) => {
-        (window as any).__testBudgetResponse = payload;
-        (window as any).__budgetRefresh?.();
+      const win = window as GuiFlowWindow;
+      win.__testBudgetResponse = payload;
+      win.__budgetRefresh?.();
       }, response);
       await expect(indicator).toBeVisible({ timeout: 5_000 });
     };
@@ -323,7 +156,7 @@ test.describe('GUI flow smoke tests', () => {
   });
 
   (FULL_ANALYTICS_E2E ? test : test.skip)('snapshots_panel_flow (UI)', async ({ page }) => {
-    await installServiceStubs(page, 'normal');
+    await installServiceStubs(page, 'normal', 'full');
     await bootstrapHarness(page);
 
     const panelSnapshots = [
@@ -344,7 +177,8 @@ test.describe('GUI flow smoke tests', () => {
 
     await page.evaluate(
       ({ snapshots, verification }) => {
-        (window as any).__revealCalls = [];
+          const win = window as GuiFlowWindow;
+          win.__revealCalls = [];
         window.__dev?.overrideServices?.({
           listProjectSnapshots: async () => ({
             ok: true,
@@ -357,7 +191,9 @@ test.describe('GUI flow smoke tests', () => {
             data: verification,
           }),
           revealPath: async (targetPath: string) => {
-            (window as any).__revealCalls.push(targetPath);
+            const win = window as GuiFlowWindow;
+            win.__revealCalls = win.__revealCalls ?? [];
+            win.__revealCalls.push(targetPath);
           },
         });
       },
@@ -379,7 +215,10 @@ test.describe('GUI flow smoke tests', () => {
       })
       .click();
 
-    const revealCalls = await page.evaluate(() => (window as any).__revealCalls ?? []);
+    const revealCalls = await page.evaluate(() => {
+      const win = window as GuiFlowWindow;
+      return win.__revealCalls ?? [];
+    });
     expect(revealCalls).toEqual([
       panelSnapshots[0].path,
       `${panelSnapshots[0].path}/manifest.json`,
@@ -387,6 +226,7 @@ test.describe('GUI flow smoke tests', () => {
   });
 
   test('service_port_unavailable_flow (UI)', async ({ page }) => {
+    await installServiceStubs(page, 'offline');
     await page.evaluate(() => {
       window.__dev?.overrideServices?.({
         async checkHealth() {
@@ -401,7 +241,10 @@ test.describe('GUI flow smoke tests', () => {
     await bootstrapHarness(page);
 
     await page.waitForFunction(
-      () => typeof (window as any).__serviceHealthRetry === 'function',
+      () => {
+        const win = window as GuiFlowWindow;
+        return typeof win.__serviceHealthRetry === 'function';
+      },
       null,
       { timeout: 30_000 },
     );

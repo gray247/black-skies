@@ -1,0 +1,41 @@
+body[data-test-stablehome="1"] {
+  font-family: "Inter", "Segoe UI", Arial, sans-serif;
+  background-color: #ffffff;
+  color: #111827;
+}
+
+body[data-test-stablehome="1"] * {
+  transition: none !important;
+  animation: none !important;
+}
+
+body[data-test-stablehome="1"] .app-shell {
+  min-height: 920px;
+  min-width: 1280px;
+}
+
+body[data-test-stablehome="1"] #app-root {
+  width: 1280px;
+  height: 900px;
+}
+
+body[data-test-stablehome="1"] .test-home-lock {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  height: 100%;
+  padding: 0;
+}
+
+body[data-test-stablehome="1"] .test-home-lock main {
+  height: 100%;
+  width: 100%;
+}
+
+body[data-test-stablehome="1"] .test-home-lock__content {
+  flex: 1;
+  width: 100%;
+  padding: 32px;
+  box-sizing: border-box;
+}

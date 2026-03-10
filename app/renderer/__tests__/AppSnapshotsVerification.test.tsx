@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 import SnapshotsPanel from '../components/SnapshotsPanel';
@@ -9,6 +9,59 @@ import type {
   ServicesBridge,
   SnapshotManifest,
 } from '../../shared/ipc/services';
+
+const createSnapshotFsMock = ({
+  metadata,
+  manifest,
+  statSize = 2048,
+}: {
+  metadata?: Record<string, unknown>;
+  manifest?: { files_included?: Array<{ path?: string }> };
+  statSize?: number;
+} = {}) => {
+  const defaultMetadata = {
+    snapshot_id: 'snapshot-default',
+    created_at: '2025-11-17T12:00:00Z',
+    label: 'accept',
+  };
+  const defaultManifest = {
+    files_included: [
+      { path: 'project.json' },
+      { path: 'outline.json' },
+      { path: 'drafts/sc_0001.md' },
+    ],
+  };
+  return {
+    resolvePath: (...segments: string[]) => segments.filter(Boolean).join('/'),
+    readJson: vi.fn(async (path: string) => {
+      if (path.endsWith('snapshot.json')) {
+        throw Object.assign(new Error('snapshot.json missing'), { code: 'ENOENT' });
+      }
+      if (path.endsWith('metadata.json')) {
+        return metadata ?? defaultMetadata;
+      }
+      if (path.endsWith('manifest.json')) {
+        return manifest ?? defaultManifest;
+      }
+      throw Object.assign(new Error('File missing'), { code: 'ENOENT' });
+    }),
+    readDir: vi.fn(async () => []),
+    stat: vi.fn(async () => ({
+      size: statSize,
+      isFile: true,
+      isDirectory: false,
+      mtimeMs: 0,
+    })),
+  };
+};
+
+const attachFsMock = (mock: ReturnType<typeof createSnapshotFsMock>) => {
+  window.__electronApi = { fs: mock };
+};
+
+beforeEach(() => {
+  attachFsMock(createSnapshotFsMock());
+});
 
 describe('SnapshotsPanel verification details', () => {
   it('shows badges, expands issues, and re-runs verification', async () => {
@@ -107,15 +160,39 @@ describe('SnapshotsPanel verification details', () => {
     );
     expect(await screen.findByText('missing foo')).toBeTruthy();
 
-    fireEvent.click(screen.getByRole('button', { name: /view full report/i }));
-    await waitFor(() =>
-      expect(getBackupVerificationReport).toHaveBeenCalledWith({ projectId: 'proj' }),
+    attachFsMock(
+      createSnapshotFsMock({
+        metadata: {
+          snapshot_id: 'snapshot-issues',
+          created_at: '2025-11-17T13:00:00Z',
+          label: 'accept',
+        },
+      }),
     );
+    const issueDetails = screen.getByTestId('snapshot-issues-snapshot-issues');
+    fireEvent.click(
+      within(issueDetails).getByRole('button', { name: /view full report/i }),
+    );
+    await waitFor(() =>
+      expect(window.__electronApi?.fs.readJson).toHaveBeenCalledWith(
+        expect.stringMatching(/metadata\.json$/),
+      ),
+    );
+    await waitFor(() =>
+      expect(window.__electronApi?.fs.readJson).toHaveBeenCalledWith(
+        expect.stringMatching(/manifest\.json$/),
+      ),
+    );
+    expect(window.__electronApi?.fs.stat).toHaveBeenCalledTimes(4);
     expect(screen.getByTestId('verification-report-modal')).toBeInTheDocument();
+    expect(screen.getByText('snapshot-issues')).toBeInTheDocument();
+    expect(screen.getByText('Snapshot ID')).toBeInTheDocument();
+    expect(screen.getByText('Files')).toBeInTheDocument();
+    expect(screen.getByText('6.0 KB')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Close' }));
 
     fireEvent.click(
-      screen.getByRole('button', { name: 'Re-run verification for this snapshot' }),
+      within(issueDetails).getByRole('button', { name: 'Re-run verification for this snapshot' }),
     );
     await waitFor(() =>
       expect(runBackupVerification).toHaveBeenCalledWith({
@@ -206,12 +283,26 @@ describe('SnapshotsPanel verification details', () => {
     const action = successToast?.actions?.[0];
     expect(action).toBeDefined();
 
+    attachFsMock(
+      createSnapshotFsMock({
+        metadata: {
+          snapshot_id: 'snapshot-a',
+          created_at: '2025-11-17T12:00:00Z',
+          label: 'analytics',
+        },
+      }),
+    );
     await act(async () => {
       await action?.onPress();
     });
 
-    await waitFor(() => expect(getBackupVerificationReport).toHaveBeenCalledWith({ projectId: 'proj' }));
+    await waitFor(() =>
+      expect(window.__electronApi?.fs.readJson).toHaveBeenCalledWith(
+        expect.stringMatching(/metadata\.json$/),
+      ),
+    );
     expect(screen.getByTestId('verification-report-modal')).toBeInTheDocument();
+    expect(screen.getByText('snapshot-a')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Close' }));
   });
 
@@ -286,12 +377,24 @@ describe('SnapshotsPanel verification details', () => {
     const action = successToast?.actions?.[0];
     expect(action).toBeDefined();
 
+    const failingFsMock = createSnapshotFsMock();
+    const baseReadJson = failingFsMock.readJson;
+    failingFsMock.readJson = vi.fn(async (path: string) => {
+      if (path.endsWith('metadata.json')) {
+        throw new Error('Bridge offline');
+      }
+      return baseReadJson(path);
+    });
+    attachFsMock(failingFsMock);
+
     await act(async () => {
       await action?.onPress();
     });
 
     await waitFor(() =>
-      expect(pushToast.mock.calls.at(-1)?.[0]?.title).toBe('Verification report unavailable'),
+      expect(
+        pushToast.mock.calls.some((call) => call[0]?.title === 'Verification report unavailable'),
+      ).toBe(true),
     );
     expect(screen.getByTestId('verification-report-modal')).toBeInTheDocument();
     expect(screen.getByText(/Bridge offline/i)).toBeInTheDocument();
@@ -405,7 +508,7 @@ it('renders backup list and triggers backup actions', async () => {
   );
   await waitFor(() => expect(listBackups).toHaveBeenCalledTimes(2));
 
-  const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
+const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
   fireEvent.click(
     await screen.findByRole('button', {
       name: /Restore backup BS_20251119_120000\.zip/i,
@@ -417,4 +520,52 @@ it('renders backup list and triggers backup actions', async () => {
     }),
   );
   confirmSpy.mockRestore();
+});
+
+it('renders the updated snapshot and verification sections', async () => {
+  const snapshots: SnapshotManifest[] = [
+    {
+      snapshot_id: 'snapshot-latest',
+      created_at: '2025-11-17T14:00:00Z',
+      path: '.snapshots/snapshot-latest',
+      files_included: [],
+    },
+  ];
+
+  const listProjectSnapshots = vi.fn().mockResolvedValue({
+    ok: true,
+    data: snapshots,
+  });
+  const getLastVerification = vi.fn().mockResolvedValue({
+    ok: true,
+    data: {
+      project_id: 'proj',
+      snapshots: [
+        {
+          snapshot_id: 'snapshot-latest',
+          status: 'ok',
+        },
+      ],
+    },
+  });
+
+  render(
+    <SnapshotsPanel
+      projectId="proj"
+      projectPath="/projects/proj"
+      services={{
+        listProjectSnapshots,
+        getLastVerification,
+      } as Partial<ServicesBridge>}
+      serviceStatus="online"
+      pushToast={vi.fn()}
+    />,
+  );
+
+  await waitFor(() =>
+    expect(listProjectSnapshots).toHaveBeenCalledWith({ projectId: 'proj' }),
+  );
+  expect(screen.getByText('Latest verification')).toBeInTheDocument();
+  expect(screen.getByText('Project backups')).toBeInTheDocument();
+  expect(screen.getByText('Saved snapshots')).toBeInTheDocument();
 });

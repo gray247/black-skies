@@ -1,0 +1,14 @@
+{
+  "scene_id": "sc_0002",
+  "order": 2,
+  "title": "Locked Parlor",
+  "word_count": 930,
+  "dialogue_ratio": 0.35,
+  "narration_ratio": 0.65,
+  "readability_metrics": {
+    "avg_sentence_len": 16.4,
+    "pct_long_sentences": 0.15,
+    "ttr": 0.72,
+    "bucket": "Moderate"
+  }
+}

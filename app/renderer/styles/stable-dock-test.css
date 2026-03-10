@@ -1,0 +1,21 @@
+body[data-test-env="1"] *,
+body[data-test-env="1"] .dock-workspace,
+body[data-test-env="1"] .dock-workspace__grid,
+body[data-test-env="1"] .dock-pane {
+  transition: none !important;
+  animation: none !important;
+}
+
+body[data-test-env="1"] [data-testid="dock-workspace"] {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+body[data-test-env="1"] [data-testid="dock-split-handle-horizontal"] {
+  display: block !important;
+  width: 6px !important;
+  height: 60px !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}

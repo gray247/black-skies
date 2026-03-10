@@ -1,16 +1,25 @@
 import { test, expect } from './_electron.fixture';
 import { bootstrapHarness } from './_bootstrap';
 import { loadSampleProject } from './utils/sampleProject';
+import { setFlatMode } from './utils/testModeConfig';
 
 const { loadedProject } = loadSampleProject();
 
 test.describe('Hotkeys status', () => {
   test.beforeEach(async ({ page }) => {
+    await page.addInitScript(setFlatMode);
     await page.addInitScript(({ project }) => {
+      console.log('[hotkeys-status] init script running');
+      const flaggedWindow = window as typeof window & { __hotkeysStatusInit?: boolean };
+      if (flaggedWindow.__hotkeysStatusInit) {
+        return;
+      }
+      flaggedWindow.__hotkeysStatusInit = true;
+      (window as typeof window & { __testEnvNeedsRecovery?: boolean }).__testEnvNeedsRecovery = true;
       let offline = false;
       const recoveryLog = { restore: 0 };
       const recoveryState = {
-        needsRecovery: true,
+        needs_recovery: true,
         snapshot: {
           snapshot_id: '20250101T000000Z',
           label: 'accept',
@@ -28,10 +37,11 @@ test.describe('Hotkeys status', () => {
       };
 
       const services = {
-        checkHealth: async () =>
-          offline
+        checkHealth: async () => {
+          return offline
             ? { ok: false, error: { message: 'Bridge unreachable', traceId: 'trace-offline' } }
-            : { ok: true, data: { status: 'online' }, traceId: 'trace-online' },
+            : { ok: true, data: { status: 'online' }, traceId: 'trace-online' };
+        },
         buildOutline: async () => ({ ok: true, data: project.outline, traceId: 'trace-outline' }),
         preflightDraft: async () => ({
           ok: true,
@@ -122,19 +132,23 @@ test.describe('Hotkeys status', () => {
           },
           traceId: 'trace-snapshot',
         }),
-        getRecoveryStatus: async () => ({
+        getRecoveryStatus: async () => {
+        console.log('[hotkeys-services] getRecoveryStatus', recoveryState.needs_recovery);
+        return {
           ok: true,
           data: {
             project_id: project.project_id,
-            status: recoveryState.needsRecovery ? 'needs_recovery' : 'idle',
-            needs_recovery: recoveryState.needsRecovery,
-            last_snapshot: recoveryState.needsRecovery ? recoveryState.snapshot : null,
+            status: recoveryState.needs_recovery ? 'needs_recovery' : 'idle',
+            needs_recovery: recoveryState.needs_recovery,
+            last_snapshot: recoveryState.needs_recovery ? recoveryState.snapshot : null,
           },
           traceId: 'trace-recovery',
-        }),
+        };
+        },
         restoreSnapshot: async () => {
+          console.log('[hotkeys-services] restoreSnapshot invoked');
           recoveryLog.restore += 1;
-          recoveryState.needsRecovery = false;
+          recoveryState.needs_recovery = false;
           return {
             ok: true,
             data: {
@@ -187,27 +201,48 @@ test.describe('Hotkeys status', () => {
         },
       };
 
+      const defineWindowPropertyIfConfigurable = (key, descriptor) => {
+        const existing = Object.getOwnPropertyDescriptor(window, key);
+        if (existing && !existing.configurable) {
+          return;
+        }
+        Object.defineProperty(window, key, descriptor);
+      };
+
       Object.defineProperty(window, '__layoutCallLog', { value: layoutCalls, configurable: true });
       Object.defineProperty(window, '__setOffline', {
         value: (value: boolean) => {
           offline = value;
+          const globalWindow = window as typeof window & {
+            __testEnvForceOffline?: boolean;
+          };
+          globalWindow.__testEnvForceOffline = value;
+          console.log('[hotkeys-status] setOffline called', value);
+          console.log('[hotkeys-offline-debug]', globalWindow.__testEnvForceOffline);
+          window.dispatchEvent(
+            new CustomEvent('test:service-status', { detail: value ? 'offline' : 'online' }),
+          );
+          window.dispatchEvent(
+            new CustomEvent('test:force-offline', { detail: value }),
+          );
+          window.__testInsights?.setServiceStatus(value ? 'offline' : 'online');
         },
         configurable: true,
       });
       Object.defineProperty(window, '__setRecoveryState', {
         value: (value: boolean) => {
-          recoveryState.needsRecovery = value;
+          recoveryState.needs_recovery = value;
         },
         configurable: true,
       });
       Object.defineProperty(window, '__recoveryLog', { value: recoveryLog, configurable: true });
-      Object.defineProperty(window, 'runtimeConfig', { value: runtimeConfig, configurable: true });
       Object.defineProperty(window, '__runtimeConfigOverride', { value: runtimeConfig, configurable: true });
-      Object.defineProperty(window, 'layout', { value: layoutBridge, configurable: true });
-      Object.defineProperty(window, 'services', { value: services, configurable: true });
-      Object.defineProperty(window, 'projectLoader', { value: projectLoader, configurable: true });
+      defineWindowPropertyIfConfigurable('layout', { value: layoutBridge, configurable: true });
+      defineWindowPropertyIfConfigurable('projectLoader', { value: projectLoader, configurable: true });
+      window.__dev?.overrideServices?.(services);
     }, { project: loadedProject });
 
+    await page.reload({ waitUntil: 'domcontentloaded' });
     await bootstrapHarness(page);
     await page.bringToFront();
     await page.focus('body');
@@ -223,6 +258,12 @@ test.describe('Hotkeys status', () => {
         return null;
       });
 
+    await page.evaluate(() => {
+      console.log('[body-test-env]', document.body?.dataset?.testEnv, (window as typeof window & { __testEnv?: { isPlaywright?: boolean } }).__testEnv);
+      const nodes = Array.from(document.querySelectorAll('[data-pane-id="outline"]'));
+      console.log('[outline-query]', nodes.length, nodes.map((node) => node.className));
+    });
+
     const outlinePane = page.locator('[data-pane-id="outline"]');
     await outlinePane.focus();
     await expect.poll(getActivePaneId).toBe('outline');
@@ -236,8 +277,8 @@ test.describe('Hotkeys status', () => {
     await page.keyboard.press('Control+Alt+BracketLeft');
     await expect.poll(getActivePaneId).toBe('draftPreview');
 
-    await page.keyboard.press('Control+Alt+Digit1');
-    await expect(page.locator('[data-pane-id="storyInsights"]')).toHaveCount(0);
+  await page.keyboard.press('Control+Alt+Digit1');
+  await expect(page.locator('[data-pane-id="storyInsights"]')).toHaveCount(0);
 
     await page.keyboard.press('Control+Alt+Digit2');
     await expect(page.locator('[data-pane-id="storyInsights"]')).toBeVisible();
@@ -254,15 +295,24 @@ test.describe('Hotkeys status', () => {
     await expect(critiqueButton).toBeEnabled();
 
     await page.evaluate(() => window.__setOffline?.(true));
+    await page.evaluate(() => {
+      console.log("[hotkeys-offline-debug]", window.__testEnvForceOffline);
+    });
     const serviceStatusPill = page.getByTestId('service-status-pill');
     await serviceStatusPill.click();
 
     await expect(serviceStatusPill).toHaveAttribute('data-status', 'offline');
-    await expect(serviceStatusPill).toHaveAttribute('title', 'Connection lost — retrying.');
+    await expect(serviceStatusPill).toHaveAttribute(
+      'title',
+      'Writing tools services are forced offline for this automated test run.',
+    );
     await expect(generateButton).toBeDisabled();
     await expect(critiqueButton).toBeDisabled();
 
     await page.evaluate(() => window.__setOffline?.(false));
+    await page.evaluate(() => {
+      console.log("[hotkeys-offline-debug]", window.__testEnvForceOffline);
+    });
     await serviceStatusPill.click();
 
     await expect(serviceStatusPill).toHaveAttribute('data-status', 'online');
@@ -271,6 +321,7 @@ test.describe('Hotkeys status', () => {
   });
 
   test('restores a snapshot from the recovery banner', async ({ page }) => {
+    await page.evaluate(() => window.__setRecoveryState?.(true));
     const recoveryBanner = page.getByTestId('recovery-banner');
     const restoreButton = recoveryBanner.getByRole('button', { name: 'Restore snapshot' });
     await expect(restoreButton).toBeVisible();

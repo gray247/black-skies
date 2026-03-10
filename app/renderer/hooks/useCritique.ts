@@ -6,13 +6,12 @@ import type {
   Phase4CritiqueBridgeResponse,
   Phase4CritiqueMode,
   Phase4RewriteBridgeRequest,
-  Phase4RewriteBridgeResponse,
-  RecoveryStatusBridgeResponse,
   ServicesBridge,
 } from '../../shared/ipc/services';
 import type ProjectSummary from '../types/project';
 import type { ToastPayload } from '../types/toast';
 import { generateDraftId } from '../utils/draft';
+import type { BudgetSnapshotSource } from '../utils/budgetIndicator';
 
 export type CritiqueLoopPhase =
   | 'idle'
@@ -123,6 +122,7 @@ interface UseCritiqueOptions {
   pushToast: (toast: ToastPayload) => void;
   isMountedRef: MutableRefObject<boolean>;
   rubric?: string[];
+  onBudgetUpdate?: (payload: BudgetSnapshotSource) => void;
 }
 
 export function useCritique({
@@ -137,6 +137,7 @@ export function useCritique({
   pushToast,
   isMountedRef,
   rubric,
+  onBudgetUpdate,
 }: UseCritiqueOptions) {
   const [state, setState] = useState<CritiqueDialogState>(createInitialCritiqueState());
   const activeRubric = useMemo(() => normalizeRubric(rubric), [rubric]);
@@ -150,7 +151,7 @@ export function useCritique({
     if (!services) {
       pushToast({
         tone: 'error',
-        title: 'Writing tools offline.',
+        title: 'Feedback unavailable.',
         description: 'Reconnect the services before requesting feedback.',
       });
       return;
@@ -205,8 +206,19 @@ export function useCritique({
       rewriteLoading: false,
     }));
 
+    const critiqueHandler = services.phase4Critique ?? services.critiqueDraft;
+    if (!critiqueHandler) {
+      setState((previous) => ({ ...previous, loading: false, phase: 'critique_error', error: 'Critique unavailable.' }));
+      pushToast({
+        tone: 'error',
+        title: 'Feedback unavailable.',
+        description: 'Critique service is not available.',
+      });
+      return;
+    }
+
     try {
-      const result = await services.phase4Critique(request);
+      const result = await critiqueHandler(request as Phase4CritiqueBridgeRequest);
       if (!isMountedRef.current) {
         return;
       }
@@ -220,6 +232,10 @@ export function useCritique({
           traceId: result.traceId,
           instructions: instructionHint,
         }));
+        if (result.data.budget) {
+          console.info('[budget:critique]', result.data.budget);
+          onBudgetUpdate?.(result.data.budget);
+        }
       } else {
         setState((previous) => ({
           ...previous,
@@ -260,6 +276,7 @@ export function useCritique({
     critiqueMode,
     isMountedRef,
     pushToast,
+    onBudgetUpdate,
   ]);
 
   const openCritique = useCallback(() => {
@@ -404,10 +421,10 @@ export function useCritique({
         },
       };
     });
-    setState((previous) => ({
+    setState({
       ...createInitialCritiqueState(),
       open: false,
-    }));
+    });
     pushToast({
       tone: 'success',
       title: 'Rewrite applied',

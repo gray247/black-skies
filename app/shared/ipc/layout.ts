@@ -1,4 +1,4 @@
-import type { MosaicNode } from "react-mosaic-component";
+import type { MosaicDirection, MosaicNode } from "react-mosaic-component";
 
 export const LAYOUT_CHANNELS = {
   load: "layout:load",
@@ -51,7 +51,7 @@ export const PANE_METADATA: Record<LayoutPaneId, PaneMetadata> = {
     description: "Browse scene cards with metadata.",
   },
   relationshipGraph: {
-    title: "Relationship Graph",
+    title: "Feedback notes",
     description: "Explore character-scene relationships.",
     hidden: true,
   },
@@ -66,9 +66,11 @@ const DEFAULT_SPLIT_WEIGHTS: [number, number] = [0.5, 0.5];
 
 export type LayoutSplitWeights = [number, number];
 
-export interface LayoutSplitNode extends Omit<MosaicNode<LayoutPaneId>, 'first' | 'second'> {
+export interface LayoutSplitNode {
+  direction: MosaicDirection;
   first: LayoutTree;
   second: LayoutTree;
+  splitPercentage?: number;
   weights: LayoutSplitWeights;
 }
 
@@ -116,8 +118,22 @@ export function applySplitWeights(node: LayoutSplitNode, weights: LayoutSplitWei
   };
 }
 
+type MosaicSplitNodeWithWeights = {
+  direction: MosaicDirection;
+  first: MosaicNode<LayoutPaneId>;
+  second: MosaicNode<LayoutPaneId>;
+  splitPercentage?: number;
+  weights?: LayoutSplitWeights;
+};
+
+function hasWeights(
+  node: MosaicNode<LayoutPaneId>,
+): node is MosaicSplitNodeWithWeights {
+  return typeof node === "object" && node !== null && "weights" in node;
+}
+
 function makeSplitNode(
-  direction: LayoutSplitNode['direction'],
+  direction: LayoutSplitNode["direction"],
   first: LayoutTree,
   second: LayoutTree,
   splitPercentage?: number,
@@ -299,7 +315,7 @@ export function sanitizeLayoutNode(node: MosaicNode<LayoutPaneId> | null): Layou
     first,
     second,
     node.splitPercentage,
-    (node as LayoutSplitNode).weights,
+    hasWeights(node) ? node.weights : undefined,
   );
   if (!treeMeetsRequirements(candidate)) {
     logInvalidLayout('layout contains duplicates or missing required panes');

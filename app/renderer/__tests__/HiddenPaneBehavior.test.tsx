@@ -3,7 +3,7 @@ import { vi } from 'vitest';
 
 import DockWorkspace from '../components/docking/DockWorkspace';
 import type { LayoutPaneId, LayoutTree } from '../../shared/ipc/layout';
-import { DEFAULT_LAYOUT, LAYOUT_SCHEMA_VERSION } from '../../shared/ipc/layout';
+import { LAYOUT_SCHEMA_VERSION } from '../../shared/ipc/layout';
 
 const PROJECT_PATH = 'sample/project';
 

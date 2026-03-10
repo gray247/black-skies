@@ -1,10 +1,12 @@
 import { test, expect } from './_electron.fixture';
 import { bootstrapHarness } from './_bootstrap';
+import { installServiceStubs } from './utils/serviceStubs';
 import { loadSampleProject } from './utils/sampleProject';
 import { TID } from '../../renderer/utils/testIds';
 
 test.describe('Phase 5 Export & Integrity flow', () => {
   test('creates snapshot, backup, verification, restore, and export', async ({ page }) => {
+    await installServiceStubs(page, 'normal', 'full');
     await bootstrapHarness(page);
 
     const { projectRoot, projectId } = loadSampleProject('Esther_Estate');

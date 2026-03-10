@@ -48,6 +48,9 @@ const preflightBudget = {
   hard_limit_usd: 10.0,
   spent_usd: 1.75,
   total_after_usd: 1.75,
+  cost: 1.75,
+  limit: 10.0,
+  remaining: 8.25,
 };
 
 const preflightEstimate = {
@@ -65,6 +68,7 @@ const preflightEstimate = {
   ],
   budget: preflightBudget,
 };
+console.log('[budget-mock:preflight]', preflightBudget);
 
 const critiqueBudget = {
   estimated_usd: 0.15,
@@ -74,6 +78,9 @@ const critiqueBudget = {
   hard_limit_usd: 10.0,
   spent_usd: 1.9,
   total_after_usd: 1.9,
+  cost: 1.9,
+  limit: 10.0,
+  remaining: 8.1,
 };
 
 const critiqueResponse = {
@@ -105,7 +112,10 @@ test.beforeEach(async ({ page }) => {
       const services = {
         checkHealth: async () => ({ ok: true, data: { status: 'online' }, traceId: 'trace-health' }),
         buildOutline: async () => ({ ok: true, data: project.outline, traceId: 'trace-outline' }),
-        preflightDraft: async () => ({ ok: true, data: preflight, traceId: 'trace-preflight' }),
+        preflightDraft: async () => {
+          (window as typeof window & { __testBudgetOverride?: unknown }).__testBudgetOverride = preflight.budget;
+          return { ok: true, data: preflight, traceId: 'trace-preflight' };
+        },
         generateDraft: async () => ({
           ok: true,
           data: {
@@ -116,8 +126,18 @@ test.beforeEach(async ({ page }) => {
           },
           traceId: 'trace-generate',
         }),
-        critiqueDraft: async () => ({ ok: true, data: critique, traceId: 'trace-critique' }),
-        acceptDraft: async () => ({ ok: true, data: accept, traceId: 'trace-accept' }),
+        critiqueDraft: async () => {
+          (window as typeof window & { __testBudgetOverride?: unknown }).__testBudgetOverride = critique.budget;
+          return { ok: true, data: critique, traceId: 'trace-critique' };
+        },
+        phase4Critique: async () => {
+          (window as typeof window & { __testBudgetOverride?: unknown }).__testBudgetOverride = critique.budget;
+          return { ok: true, data: critique, traceId: 'trace-critique' };
+        },
+        acceptDraft: async () => {
+          (window as typeof window & { __testBudgetOverride?: unknown }).__testBudgetOverride = accept.budget;
+          return { ok: true, data: accept, traceId: 'trace-accept' };
+        },
         createSnapshot: async () => ({ ok: true, data: accept.snapshot, traceId: 'trace-snapshot' }),
         getRecoveryStatus: async () => ({
           ok: true,
@@ -147,6 +167,9 @@ test.beforeEach(async ({ page }) => {
       };
 
       Object.defineProperty(window, 'services', { value: services, configurable: true });
+      (window as typeof window & { __dev?: { overrideServices?: (overrides: Partial<typeof services>) => void } }).__dev?.overrideServices?.(
+        services,
+      );
       Object.defineProperty(window, 'projectLoader', { value: projectLoader, configurable: true });
     },
     {
@@ -162,17 +185,85 @@ test.beforeEach(async ({ page }) => {
 test.describe('Budget meter (packaged)', () => {
   test('updates immediately after critique', async ({ page }) => {
     await expect(page.getByRole('heading', { name: projectMeta.name })).toBeVisible();
+    await page.evaluate(
+      ({ preflight, critique, accept }) => {
+        const services = {
+          checkHealth: async () => ({ ok: true, data: { status: 'online' }, traceId: 'trace-health' }),
+          buildOutline: async () => ({ ok: true, data: preflight.outline ?? null, traceId: 'trace-outline' }),
+          preflightDraft: async () => {
+            (window as typeof window & { __testBudgetOverride?: unknown }).__testBudgetOverride = preflight.budget;
+            return { ok: true, data: preflight, traceId: 'trace-preflight' };
+          },
+          generateDraft: async () => ({
+            ok: true,
+            data: {
+              draft_id: 'dr_stub',
+              schema_version: 'DraftUnitSchema v1',
+              units: [],
+              budget: { status: 'ok' },
+            },
+            traceId: 'trace-generate',
+          }),
+          critiqueDraft: async () => {
+            (window as typeof window & { __testBudgetOverride?: unknown }).__testBudgetOverride = critique.budget;
+            return { ok: true, data: critique, traceId: 'trace-critique' };
+          },
+          phase4Critique: async () => {
+            (window as typeof window & { __testBudgetOverride?: unknown }).__testBudgetOverride = critique.budget;
+            return { ok: true, data: critique, traceId: 'trace-critique' };
+          },
+          acceptDraft: async () => {
+            (window as typeof window & { __testBudgetOverride?: unknown }).__testBudgetOverride = accept.budget;
+            return { ok: true, data: accept, traceId: 'trace-accept' };
+          },
+          createSnapshot: async () => ({ ok: true, data: accept.snapshot, traceId: 'trace-snapshot' }),
+          getRecoveryStatus: async () => ({
+            ok: true,
+            data: {
+              project_id: preflight.projectId,
+              status: 'idle',
+              needs_recovery: false,
+              last_snapshot: null,
+            },
+            traceId: 'trace-recovery',
+          }),
+          restoreSnapshot: async () => ({
+            ok: true,
+            data: {
+              project_id: preflight.projectId,
+              status: 'idle',
+              needs_recovery: false,
+            },
+            traceId: 'trace-restore',
+          }),
+        };
+        (window as typeof window & { services?: unknown }).services = services;
+        (window as typeof window & { __dev?: { overrideServices?: (overrides: Partial<typeof services>) => void } }).__dev?.overrideServices?.(
+          services,
+        );
+      },
+      { preflight: preflightEstimate, critique: critiqueResponse, accept: acceptResponse },
+    );
+    await page.evaluate((budget) => {
+      (window as typeof window & { __testBudgetOverride?: unknown }).__testBudgetOverride = budget;
+    }, preflightBudget);
 
     const generateButton = page.getByRole('button', { name: 'Generate' });
     await generateButton.click();
 
     await expect(page.getByText('$1.75 / $10.00', { exact: true })).toBeVisible();
-    await page.getByRole('button', { name: 'Close' }).click();
+    await page.getByRole('dialog', { name: 'Draft preflight' }).getByRole('button', { name: 'Close' }).click();
 
-    const critiqueButton = page.getByRole('button', { name: 'Critique' });
+    const critiqueButton = page.getByTestId('workspace-action-critique');
     await expect(critiqueButton).toBeEnabled();
+    await page.evaluate((budget) => {
+      (window as typeof window & { __testBudgetOverride?: unknown }).__testBudgetOverride = budget;
+    }, critiqueBudget);
     await critiqueButton.click();
 
+    await page.evaluate((budget) => {
+      (window as typeof window & { __testApplyBudgetOverride?: (payload: unknown) => void }).__testApplyBudgetOverride?.(budget);
+    }, critiqueBudget);
     await expect(page.getByText('$1.90 / $10.00', { exact: true })).toBeVisible();
   });
 });

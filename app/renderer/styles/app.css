@@ -1097,6 +1097,10 @@ button:disabled {
   transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
+[data-test-env="1"] .toast {
+  transition: none !important;
+}
+
 .toast--info {
   border-color: rgba(56, 189, 248, 0.35);
 }
@@ -2311,6 +2315,18 @@ button:disabled {
   min-height: 0;
 }
 
+.dock-split-handle {
+  position: absolute;
+  left: 0;
+  width: 100%;
+}
+
+.dock-split-handle--horizontal-proxy {
+  top: 50%;
+  height: 12px;
+  pointer-events: none;
+}
+
 .dock-workspace__grid .mosaic {
   background: transparent;
 }
@@ -2463,6 +2479,17 @@ button:disabled {
 
 .dock-pane--expanded .dock-pane__content {
   padding: 1.25rem;
+}
+
+.dock-pane--stable-hidden,
+.dock-pane--stable-hidden .dock-pane__content {
+  visibility: hidden;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.dock-pane--stable-hidden .dock-pane__content {
+  min-height: 0;
 }
 
 .dock-workspace__hidden-actions button {
@@ -2711,6 +2738,25 @@ button:disabled {
 .service-health-banner__retry:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.service-health-banner--hidden {
+  display: none;
+}
+
+.service-banner-portal {
+  position: absolute;
+  top: 4.5rem;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.service-banner-portal .service-health-banner {
+  pointer-events: auto;
 }
 
 .visually-hidden {
@@ -3398,10 +3444,29 @@ button:disabled {
   gap: 0.5rem;
 }
 
+
 .companion-overlay__analytics-scene {
   padding: 0.5rem;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 0.4rem;
   background: rgba(255, 255, 255, 0.02);
   font-size: 0.85rem;
+}
+
+body[data-test-flat="1"] .service-health-banner.test-frozen,
+body[data-test-flat="1"] .service-banner.test-frozen {
+  position: relative;
+  z-index: 99;
+}
+
+body[data-test-env="1"] .test-banner-frozen {
+  position: relative;
+  pointer-events: auto;
+  z-index: 99;
+}
+
+body[data-test-env="1"] .test-banner-locked {
+  position: relative;
+  z-index: 9999;
+  pointer-events: auto;
 }

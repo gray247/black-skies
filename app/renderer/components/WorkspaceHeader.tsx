@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import BudgetMeter, { type BudgetMeterProps } from './BudgetMeter';
 import BudgetIndicator, {
   DEFAULT_BUDGET_INDICATOR_STATE,
@@ -12,6 +12,7 @@ interface WorkspaceHeaderProps {
   projectLabel: string;
   projectId: string | null;
   serviceStatus: ServiceStatus;
+  serviceReason?: string;
   onRetry: () => Promise<void>;
   onToggleCompanion: () => void;
   onGenerate: () => void;
@@ -33,6 +34,8 @@ interface WorkspaceHeaderProps {
   budget?: BudgetMeterProps;
   budgetIndicator?: BudgetIndicatorState | null;
   showSnapshotsPanel: boolean;
+  serviceOffline: boolean;
+  testFreezeActions?: boolean;
 }
 
 export function WorkspaceHeader(props: WorkspaceHeaderProps): JSX.Element {
@@ -40,6 +43,7 @@ export function WorkspaceHeader(props: WorkspaceHeaderProps): JSX.Element {
     projectLabel,
     projectId,
     serviceStatus,
+    serviceReason,
     onRetry,
     onToggleCompanion,
     onGenerate,
@@ -58,7 +62,9 @@ export function WorkspaceHeader(props: WorkspaceHeaderProps): JSX.Element {
     disableVerify,
     budget,
     budgetIndicator,
-  } = props;
+  serviceOffline,
+  testFreezeActions = false,
+} = props;
 
   const disableSnapshots = props.disableSnapshots;
   const onSnapshots = props.onSnapshots;
@@ -66,18 +72,22 @@ export function WorkspaceHeader(props: WorkspaceHeaderProps): JSX.Element {
   const serviceStatusProps = useMemo(
     () => ({
       status: serviceStatus,
+      reason: serviceReason,
       onRetry,
+      serviceOffline,
     }),
-    [serviceStatus, onRetry],
+    [serviceStatus, serviceReason, onRetry, serviceOffline],
   );
 
   const companionButtonClassName = useMemo(
-    () =>
-      companionOpen
-        ? 'app-shell__workspace-button app-shell__workspace-button--active'
-        : 'app-shell__workspace-button',
-    [companionOpen],
-  );
+      () =>
+        companionOpen
+          ? 'app-shell__workspace-button app-shell__workspace-button--active'
+          : 'app-shell__workspace-button',
+      [companionOpen],
+    );
+  const computedDisableGenerate = testFreezeActions ? serviceOffline : disableGenerate;
+  const computedDisableCritique = testFreezeActions ? serviceOffline : disableCritique;
 
   return (
     <header className="app-shell__workspace-header">
@@ -108,7 +118,7 @@ export function WorkspaceHeader(props: WorkspaceHeaderProps): JSX.Element {
         <button
           type="button"
           className="app-shell__workspace-button"
-          disabled={disableGenerate}
+          disabled={computedDisableGenerate}
           aria-label="Generate draft"
           data-testid="workspace-action-generate"
           onClick={onGenerate}
@@ -118,7 +128,7 @@ export function WorkspaceHeader(props: WorkspaceHeaderProps): JSX.Element {
         <button
           type="button"
           className="app-shell__workspace-button"
-          disabled={disableCritique}
+          disabled={computedDisableCritique}
           aria-label="Run critique workflow"
           data-testid="workspace-action-critique"
           onClick={onCritique}
@@ -195,4 +205,6 @@ export function WorkspaceHeader(props: WorkspaceHeaderProps): JSX.Element {
   );
 }
 
-export default WorkspaceHeader;
+const MemoizedWorkspaceHeader = memo(WorkspaceHeader);
+
+export default MemoizedWorkspaceHeader;

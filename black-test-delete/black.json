@@ -1,0 +1,16 @@
+{
+  "id": "clip-1765858486757-6679f23facb4a",
+  "sectionId": "black",
+  "title": "black",
+  "text": "SYSTEM / CODING TASK\n\nYou are unifying modal styling in SnipBoard using the existing design tokens (CSS variables).\n\nHARD RULES (DO NOT VIOLATE)\n\nModify only styles.css\n\nDo NOT modify HTML\n\nDo NOT modify JavaScript\n\nDo NOT change modal behavior, logic, or structure\n\nDo NOT add or remove UI elements\n\nDo NOT introduce animations or transitions\n\nThis task is visual consistency only.\n\nGOAL\n\nEnsure all modals (including color picker and icon picker):\n\nshare the same typography\n\nshare the same spacing rhythm\n\nshare the same corner radius\n\nshare the same button styling\n\nModals should feel like first-class panels, not special-case popups.\n\nMODALS IN SCOPE\n\nThis includes (but is not limited to):\n\nColor picker modal\n\nIcon picker modal\n\nAny generic .modal or .dialog containers\n\nREQUIRED STYLING RULES\n\nApply the following using existing design tokens:\n\n1. Modal Container\n\nUse --radius-xl for modal corners\n\nApply consistent internal padding using --space-md\n\nUse the same font family and base font s",
+  "notes": "",
+  "tags": [],
+  "sourceUrl": "",
+  "sourceTitle": "",
+  "capturedAt": "2025-12-17T05:14",
+  "screenshots": [
+    "screenshots\\Monitor-1-1765858765889.png"
+  ],
+  "icon": null,
+  "color": null
+}

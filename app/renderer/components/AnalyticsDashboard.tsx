@@ -3,9 +3,12 @@ import { useEffect, useMemo, useState } from "react";
 import type { AnalyticsScenes, AnalyticsSummary, SceneMetric } from "../../shared/ipc/services";
 import { LABEL_AVG_READABILITY } from "./storyInsightsLabels";
 import OfflineBanner from "./OfflineBanner";
+import { useServiceHealthContext } from "../contexts/serviceHealthContext";
+import { useLocalAnalyticsCache } from "../hooks/useLocalAnalyticsCache";
 
 interface AnalyticsDashboardProps {
   projectId?: string | null;
+  projectPath?: string | null;
   serviceUnavailable?: boolean;
   onRetry?: () => void;
 }
@@ -21,7 +24,7 @@ const sceneColumns = [
   { label: "Scene", key: "title" },
   { label: "Words", key: "wordCount" },
   { label: "Readability", key: "readability" },
-  { label: "Dialogue %", key: "density.dialogueRatio" },
+  { label: "Dialogue ratio", key: "density.dialogueRatio" },
   { label: "Narration %", key: "density.narrationRatio" },
 ];
 
@@ -57,8 +60,11 @@ function computePacing(scene: SceneMetric, maxWords: number): number {
   return clampToUnit(1 - relative);
 }
 
+export const STORY_INSIGHTS_HEADING_ID = "story-insights-heading";
+
 function AnalyticsDashboard({
   projectId,
+  projectPath,
   serviceUnavailable = false,
   onRetry,
 }: AnalyticsDashboardProps): JSX.Element {
@@ -68,15 +74,24 @@ function AnalyticsDashboard({
     loading: false,
     error: null,
   });
+  const { serviceUnavailable: contextServiceUnavailable, onRetry: contextOnRetry } =
+    useServiceHealthContext();
+  const isServiceUnavailable = serviceUnavailable ?? contextServiceUnavailable;
+  const retryHandler = onRetry ?? contextOnRetry;
+  const cacheProjectPath = projectPath ?? null;
+  const cachedState = useLocalAnalyticsCache(
+    cacheProjectPath,
+    projectId ?? null,
+    Boolean(isServiceUnavailable && cacheProjectPath),
+  );
 
   useEffect(() => {
-    if (serviceUnavailable) {
-      setState({
-        summary: null,
-        scenes: null,
+    if (isServiceUnavailable) {
+      setState((prev) => ({
+        ...prev,
         loading: false,
         error: "Writing tools are offline. Analytics data is unavailable.",
-      });
+      }));
       return;
     }
     if (!projectId) {
@@ -126,25 +141,35 @@ function AnalyticsDashboard({
     return () => {
       cancelled = true;
     };
-  }, [projectId, serviceUnavailable]);
+  }, [projectId, isServiceUnavailable]);
+
+  const activeSummary = isServiceUnavailable
+    ? cachedState.summary ?? state.summary
+    : state.summary;
+  const activeScenes = isServiceUnavailable ? cachedState.scenes ?? state.scenes : state.scenes;
+  const hasRemoteData = Boolean(state.summary || state.scenes);
+  const isLoading = isServiceUnavailable
+    ? Boolean(cachedState.loading && !hasRemoteData)
+    : state.loading;
+  const errorMessage = isServiceUnavailable ? cachedState.error ?? state.error : state.error;
 
   const summaryRows = useMemo(() => {
-    if (!state.summary) {
+    if (!activeSummary) {
       return [];
     }
     return [
-      ["Project ID", state.summary.projectId],
-      ["Project path", state.summary.projectPath],
-      ["Scenes", state.summary.scenes],
-      ["Word count", state.summary.wordCount],
+      ["Project ID", activeSummary.projectId],
+      ["Project path", activeSummary.projectPath],
+      ["Scenes", activeSummary.scenes],
+      ["Word count", activeSummary.wordCount],
       [
         LABEL_AVG_READABILITY,
-        state.summary.avgReadability !== null ? state.summary.avgReadability.toFixed(2) : "-",
+        activeSummary.avgReadability !== null ? activeSummary.avgReadability.toFixed(2) : "-",
       ],
     ];
-  }, [state.summary]);
+  }, [activeSummary]);
 
-  const scenesList = useMemo(() => state.scenes?.scenes ?? [], [state.scenes]);
+  const scenesList = useMemo(() => activeScenes?.scenes ?? [], [activeScenes]);
 
   const emotionPoints = useMemo(() => {
     if (!scenesList.length) {
@@ -182,18 +207,18 @@ function AnalyticsDashboard({
 
   return (
     <div className="analytics-dashboard">
-        <header>
+        <header id={STORY_INSIGHTS_HEADING_ID}>
           <h2>Story Insights</h2>
           <p>Live story insights for the current project.</p>
         </header>
-        {serviceUnavailable && (
+        {isServiceUnavailable && (
         <OfflineBanner
           message="Story Insights data requires an online connection."
-          onRetry={onRetry}
+          onRetry={retryHandler}
         />
         )}
-      {state.error && <p className="analytics-dashboard__error">{state.error}</p>}
-      {state.loading && <p className="analytics-dashboard__loading">Loading metrics…</p>}
+      {errorMessage && <p className="analytics-dashboard__error">{errorMessage}</p>}
+      {isLoading && <p className="analytics-dashboard__loading">Loading metrics…</p>}
       {emotionPoints.length > 0 && (
         <section
           className="analytics-dashboard__chart"
@@ -229,12 +254,13 @@ function AnalyticsDashboard({
           </div>
         </section>
       )}
-      {!state.loading && state.summary && (
+      {!isLoading && activeSummary && (
         <section className="analytics-dashboard__summary">
+          <div className="analytics-dashboard__readability-badge">{activeSummary.avgReadability !== null ? activeSummary.avgReadability.toFixed(2) : '-'}</div>
           <table>
             <tbody>
-              {summaryRows.map(([label, value]) => (
-                <tr key={label}>
+              {summaryRows.map(([label, value], index) => (
+                <tr key={`${label}-${index}`}>
                   <th>{label}</th>
                   <td>{value}</td>
                 </tr>
@@ -243,7 +269,7 @@ function AnalyticsDashboard({
           </table>
         </section>
       )}
-      {!state.loading && state.scenes && scenesList.length > 0 && (
+      {!isLoading && activeScenes && scenesList.length > 0 && (
         <section className="analytics-dashboard__scenes">
           <h3>Scenes</h3>
           <div className="analytics-dashboard__scenes-grid">
@@ -266,10 +292,10 @@ function AnalyticsDashboard({
           </div>
         </section>
       )}
-      {!state.loading && state.scenes && scenesList.length === 0 && (
+      {!isLoading && activeScenes && scenesList.length === 0 && (
         <p>No scene metrics yet. Generate drafts to populate story insights.</p>
       )}
-      {!state.loading && !state.summary && !state.error && (
+      {!isLoading && !activeSummary && !errorMessage && (
         <p>Select a project to load story insights data.</p>
       )}
     </div>

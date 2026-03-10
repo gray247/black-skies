@@ -20,24 +20,26 @@ router = APIRouter(prefix="/analytics", tags=["analytics"])
 def get_analytics_summary(
     *,
     project_id: str = Query(..., min_length=1),
+    force_refresh: bool = Query(False),
     settings: ServiceSettings = Depends(get_settings),
 ) -> dict[str, object]:
     """Return a lightweight summary for the requested project."""
 
     _assert_analytics_enabled()
-    return get_project_summary(settings, project_id)
+    return get_project_summary(settings, project_id, force_refresh=force_refresh)
 
 
 @router.get("/scenes")
 def get_analytics_scenes(
     *,
     project_id: str = Query(..., min_length=1),
+    force_refresh: bool = Query(False),
     settings: ServiceSettings = Depends(get_settings),
 ) -> dict[str, object]:
     """Return stubbed scene metrics for the requested project."""
 
     _assert_analytics_enabled()
-    return get_scene_metrics(settings, project_id)
+    return get_scene_metrics(settings, project_id, force_refresh=force_refresh)
 
 
 class AnalyticsRelationshipNode(BaseModel):

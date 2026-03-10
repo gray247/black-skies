@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\analytics\text_utils.py
+# hypothesis_version: 6.138.2
+
+[0.0, 0.1, 0.2, 0.9, 1.0, 1.1, 14.0, 20.0, '(["\\\'])(.+?)\\1', '.', '.!?"\'', 'ConversationSpan', 'Dense', 'Easy', 'Fast', 'Moderate', 'Neutral', 'Slow', '[.!?]+', '[A-Za-z0-9]+', 'avg_sentence_len', 'bucket', 'capt', 'dialogue_chars', 'dialogue_ratio', 'dialogue_tokens', 'dr', 'e.g', 'end', 'etc', 'i.e', 'jr', 'lt', 'mr', 'mrs', 'ms', 'narration_chars', 'narration_ratio', 'narration_tokens', 'pacing_bucket', 'pct_long_sentences', 'prof', 'scene_id', 'sr', 'start', 'structural_score', 'text', 'ttr', 'vs', 'word_count']

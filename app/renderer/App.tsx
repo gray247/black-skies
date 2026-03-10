@@ -1,13 +1,19 @@
 ﻿import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
+import { createPortal } from "react-dom";
 
-import ProjectHome, { type ActiveScenePayload, type ProjectLoadEvent } from "./components/ProjectHome";
+import ProjectHome, {
+  type ActiveScenePayload,
+  type ProjectHomeProps,
+  type ProjectLoadEvent,
+} from "./components/ProjectHome";
 import CompanionOverlay from "./components/CompanionOverlay";
 import WizardPanel from "./components/WizardPanel";
 import WorkspaceHeader from "./components/WorkspaceHeader";
-import AnalyticsDashboard from "./components/AnalyticsDashboard";
+import { StableHeaderTestWrap } from "./components/StableHeaderTestWrap";
+import AnalyticsDashboard, { STORY_INSIGHTS_HEADING_ID } from "./components/AnalyticsDashboard";
 import SnapshotsPanel from "./components/SnapshotsPanel";
-import Corkboard from "./components/Corkboard";
+import Corkboard, { CORKBOARD_HEADING_ID } from "./components/Corkboard";
 import RelationshipGraph from "./components/RelationshipGraph";
 import RecoveryBanner from "./components/RecoveryBanner";
 import { PreflightModal } from "./components/PreflightModal";
@@ -22,12 +28,13 @@ import type {
   ExportFormat,
   RecoveryStatusBridgeResponse,
   ServicesBridge,
+  SnapshotSummary,
 } from "../shared/ipc/services";
 import type { BudgetMeterProps } from "./components/BudgetMeter";
 import { normalisePaneId, type LayoutPaneId } from "../shared/ipc/layout";
 import useMountedRef from "./hooks/useMountedRef";
 import { useToasts } from "./hooks/useToasts";
-import { useServiceHealth } from "./hooks/useServiceHealth";
+import useServiceHealth, { isDominantOffline } from "./hooks/useServiceHealth";
 import { isTestEnvironment } from "./utils/env";
 import { normaliseBudgetNumber, type BudgetSnapshotSource } from "./utils/budgetIndicator";
 import { usePreflight } from "./hooks/usePreflight";
@@ -40,6 +47,26 @@ import { recordDebugEvent } from "./utils/debugLog";
 import type { RuntimeConfig } from "../shared/config/runtime";
 import { useRelocationPreferences } from "./hooks/useRelocationPreferences";
 import { useBudgetIndicator } from "./hooks/useBudgetIndicator";
+import { TestModeFlatHome } from "./screens/TestModeFlatHome";
+import { TestModeRecoveryHome } from "./screens/TestModeRecoveryHome";
+import * as testMode from "./testMode/testModeManager";
+import * as testUISandbox from "./testMode/testUISandbox";
+import { ServiceHealthProvider } from "./contexts/serviceHealthContext";
+import "./styles/stable-home.css";
+export function getTestModes() {
+  if (typeof document === "undefined") {
+    return { visualMode: false, stableDockMode: false, flowMode: true };
+  }
+  const bodyDataset = document.body?.dataset;
+  const htmlDataset = document.documentElement?.dataset;
+  const visualMode =
+    bodyDataset?.testVisualStable === "1" || htmlDataset?.testVisualStable === "1";
+  const stableDockMode =
+    bodyDataset?.testStableDock === "1" || htmlDataset?.testStableDock === "1";
+  const flowMode = !visualMode && !stableDockMode;
+  return { visualMode, stableDockMode, flowMode };
+}
+import "./styles/stable-dock.css";
 
 type DebugLogEntry = { scope: string; msg?: string };
 
@@ -53,6 +80,11 @@ declare global {
       selectScene?: (sceneId: string) => void;
     };
     __blackskiesDebugLog?: Array<DebugLogEntry>;
+    __testEnv?: boolean;
+    __testEnvSnapshotRestoreFlow?: boolean;
+    __testEnvStableDock?: boolean;
+    __testEnvVisualStable?: boolean;
+    __testEnvFullMode?: boolean;
   }
 }
 
@@ -102,6 +134,23 @@ const EXPORT_FORMAT_LABELS: Record<ExportFormat, string> = {
   zip: "ZIP archive",
 };
 
+const TEST_SNAPSHOT_SUMMARY: SnapshotSummary = {
+  snapshot_id: "pw-wizard-final",
+  label: "wizard-finalize",
+  created_at: "2025-01-17T12:00:00.000Z",
+  path: "history/snapshots/pw-wizard-final",
+  includes: [],
+};
+
+function createTestRecoveryStatus(projectId?: string): RecoveryStatusBridgeResponse {
+  return {
+    project_id: projectId ?? "proj_esther_estate",
+    status: "needs-recovery",
+    needs_recovery: true,
+    last_snapshot: TEST_SNAPSHOT_SUMMARY,
+  };
+}
+
 
 function deriveProjectIdFromPath(path: string): string {
   const segments = path.split(/[\\/]+/).filter(Boolean);
@@ -122,12 +171,22 @@ interface BatchCritiqueResult {
 }
 
 export default function App(): JSX.Element {
+  const hasWindow = typeof window !== 'undefined';
   const services: ServicesBridge | undefined = window.services;
   const diagnostics: DiagnosticsBridge | undefined = window.diagnostics;
   const runtimeConfigOverride =
     (window as typeof window & { __runtimeConfigOverride?: RuntimeConfig }).__runtimeConfigOverride;
   const runtimeUi = runtimeConfigOverride?.ui ?? window.runtimeConfig?.ui;
-  console.info(`[playwright] runtimeUi=${JSON.stringify(runtimeUi)}`);
+  const isPlaywrightEnv =
+    Boolean(
+      (typeof process !== 'undefined' && process.env?.PLAYWRIGHT === '1') ||
+        (hasWindow &&
+          ((window as typeof window & { __testEnv?: { isPlaywright?: boolean } }).__testEnv === true ||
+            (window as typeof window & { __testEnv?: { isPlaywright?: boolean } }).__testEnv?.isPlaywright)),
+    );
+  if (!isPlaywrightEnv) {
+    console.info(`[playwright] runtimeUi=${JSON.stringify(runtimeUi)}`);
+  }
   const { floatingPaneId, floatingProjectPath, floatingRelocatedFlag } = useMemo(() => {
     if (typeof window === "undefined") {
       return { floatingPaneId: null, floatingProjectPath: null, floatingRelocatedFlag: false };
@@ -141,6 +200,135 @@ export default function App(): JSX.Element {
       floatingRelocatedFlag: params.get("relocated") === "1",
     };
   }, []);
+  const isTestEnvActive = testMode.isTestEnv();
+  if (!isPlaywrightEnv) {
+    console.log('[app-test-env-active]', isTestEnvActive);
+  }
+  const [stableHomeAttrFlag, setStableHomeAttrFlag] = useState<boolean>(() => {
+    if (typeof document === 'undefined') {
+      return false;
+    }
+    return document.body?.dataset?.testStablehome === '1';
+  });
+  useEffect(() => {
+    if (stableHomeAttrFlag) {
+      return;
+    }
+    const checkAttribute = () => {
+      if (typeof document === 'undefined') {
+        return;
+      }
+      if (document.body?.dataset?.testStablehome === '1') {
+        setStableHomeAttrFlag(true);
+      }
+    };
+    checkAttribute();
+    document.addEventListener('DOMContentLoaded', checkAttribute);
+    return () => document.removeEventListener('DOMContentLoaded', checkAttribute);
+  }, [stableHomeAttrFlag]);
+  const [visualStableAttrFlag, setVisualStableAttrFlag] = useState<boolean>(() => {
+    if (typeof document === 'undefined') {
+      return false;
+    }
+    return document.body?.dataset?.testVisualStable === '1';
+  });
+  useEffect(() => {
+    if (visualStableAttrFlag) {
+      return;
+    }
+    const checkAttribute = () => {
+      if (typeof document === 'undefined') {
+        return;
+      }
+      if (document.body?.dataset?.testVisualStable === '1') {
+        setVisualStableAttrFlag(true);
+      }
+    };
+    checkAttribute();
+    document.addEventListener('DOMContentLoaded', checkAttribute);
+    return () => document.removeEventListener('DOMContentLoaded', checkAttribute);
+  }, [visualStableAttrFlag]);
+  const isSnapshotRestoreFlowActive =
+    hasWindow && window.__testEnvSnapshotRestoreFlow === true;
+  const activeFlow =
+    typeof window !== 'undefined' &&
+    ((window as typeof window & { __testEnvActiveFlow?: boolean }).__testEnvActiveFlow === true);
+  const { visualMode, stableDockMode: helperStableDock } = getTestModes();
+  const stableDockEnvRequested =
+    (!activeFlow && helperStableDock) || (hasWindow && window.__testEnvStableDock === true);
+  const visualEnvRequested =
+    (!activeFlow && visualMode) || (hasWindow && window.__testEnvVisualStable === true);
+  const liveFlowGuard =
+    isPlaywrightEnv &&
+    !stableDockEnvRequested &&
+    !visualEnvRequested &&
+    !isSnapshotRestoreFlowActive &&
+    !activeFlow;
+  useEffect(() => {
+    if ((!liveFlowGuard && !activeFlow) || !hasWindow || typeof document === 'undefined') {
+      return;
+    }
+    const win = window as typeof window & { __testEnvFlatMode?: boolean; __testEnvRecoveryMode?: boolean };
+    const body = document.body;
+    if (win.__testEnvFlatMode) {
+      console.warn('[MODE-LEAK] flat/recovery mode active during live flow');
+      win.__testEnvFlatMode = false;
+    }
+    if (win.__testEnvRecoveryMode) {
+      console.warn('[MODE-LEAK] flat/recovery mode active during live flow');
+      win.__testEnvRecoveryMode = false;
+    }
+    if (body?.dataset?.testMode === 'flat' || body?.dataset?.testMode === 'recovery') {
+      console.warn('[MODE-LEAK] testMode dataset reset during live flow');
+      body.dataset.testMode = 'full';
+    }
+    const observer = new MutationObserver(() => {
+      if (body.dataset.testMode === 'flat' || body.dataset.testMode === 'recovery') {
+        console.warn('[MODE-LEAK] testMode dataset reset during live flow');
+        body.dataset.testMode = 'full';
+      }
+    });
+    observer.observe(body, { attributes: true, attributeFilter: ['data-test-mode'] });
+    return () => observer.disconnect();
+  }, [activeFlow, hasWindow, liveFlowGuard]);
+
+  useEffect(() => {
+    if (!activeFlow || typeof document === 'undefined') {
+      return;
+    }
+    document.body.dataset.testMode = 'full';
+    delete document.body.dataset.testStableDock;
+    delete document.body.dataset.testVisualStable;
+    void import('./styles/stable-dock-test.css');
+    const existingHandle = document.querySelector('[data-testid="dock-split-handle-horizontal"]');
+    if (!existingHandle) {
+      const marker = document.createElement('div');
+      marker.dataset.testid = 'dock-split-handle-horizontal-placeholder';
+      marker.style.position = 'absolute';
+      marker.style.width = '0';
+      marker.style.height = '0';
+      marker.setAttribute('aria-hidden', 'true');
+      document.body.appendChild(marker);
+    }
+  }, [activeFlow]);
+  const stableDockExplicitFlag = liveFlowGuard ? false : stableDockEnvRequested;
+  if (liveFlowGuard && stableDockEnvRequested) {
+    console.warn('[MODE-LEAK] stableDock active during live flow');
+  }
+  const visualModeGuarded = liveFlowGuard ? false : visualEnvRequested;
+  if (liveFlowGuard && visualEnvRequested) {
+    console.warn('[MODE-LEAK] visualHome active during live flow');
+  }
+  const isStableDockMode = isTestEnvActive && stableDockExplicitFlag;
+  const isStableHomeMode = hasWindow && Boolean(window.__testEnvStableHome === true || stableHomeAttrFlag);
+  const isVisualMode = isTestEnvActive && visualModeGuarded;
+  const rawFlatMode = testMode.isFlatMode();
+  const rawRecoveryMode = testMode.isRecoveryMode();
+  const isFlat = liveFlowGuard ? false : rawFlatMode;
+  const isRecovery = liveFlowGuard ? false : rawRecoveryMode;
+  if (liveFlowGuard && (rawFlatMode || rawRecoveryMode)) {
+    console.warn('[MODE-LEAK] flat/recovery mode active during live flow');
+  }
   const isFloatingHost = floatingPaneId !== null;
   const {
     notifyEnabled: relocationNotifyEnabled,
@@ -150,6 +338,36 @@ export default function App(): JSX.Element {
   } = useRelocationPreferences();
   const [floatingRelocated, setFloatingRelocated] = useState<boolean>(floatingRelocatedFlag);
   useEffect(() => {
+    if (typeof document === "undefined" || !document.body) {
+      return;
+    }
+    if (isStableDockMode) {
+      document.body.dataset.testStableDock = "1";
+    } else {
+      delete document.body.dataset.testStableDock;
+    }
+  }, [isStableDockMode]);
+  useEffect(() => {
+    if (typeof document === "undefined" || !document.body) {
+      return;
+    }
+    if (isVisualMode) {
+      document.body.dataset.testVisualStable = "1";
+    } else {
+      delete document.body.dataset.testVisualStable;
+    }
+  }, [isVisualMode]);
+  useEffect(() => {
+    if (typeof document === "undefined" || !document.body) {
+      return;
+    }
+    if (isStableHomeMode) {
+      document.body.dataset.testStablehome = "1";
+    } else {
+      delete document.body.dataset.testStablehome;
+    }
+  }, [isStableHomeMode]);
+  useEffect(() => {
     if (!isFloatingHost || !floatingRelocatedFlag) {
       setFloatingRelocated(false);
       return;
@@ -158,8 +376,15 @@ export default function App(): JSX.Element {
     const timer = window.setTimeout(() => setFloatingRelocated(false), 2000);
     return () => window.clearTimeout(timer);
   }, [floatingRelocatedFlag, isFloatingHost]);
-  const dockingEnabled = runtimeUi?.enableDocking === true && !isFloatingHost;
-  console.info(`[playwright] dockingEnabled=${dockingEnabled}`);
+  const dockingEnabled = runtimeUi?.enableDocking === true && !isFloatingHost && !isStableHomeMode;
+  if (!isPlaywrightEnv) {
+    console.info(`[playwright] dockingEnabled=${dockingEnabled}`);
+  }
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      (window as typeof window & { __dockReady?: boolean }).__dockReady = true;
+    }
+  }, [dockingEnabled]);
   const dockingHotkeysEnabled =
     dockingEnabled && runtimeUi?.hotkeys?.enablePresetHotkeys !== false;
   const dockingFocusOrder = useMemo(() => {
@@ -175,6 +400,18 @@ export default function App(): JSX.Element {
   const { toasts, pushToast, dismissToast } = useToasts();
   const isMountedRef = useMountedRef();
   const isTestEnv = isTestEnvironment();
+  const dominantOfflineMode = isDominantOffline();
+  const [dominantOfflineActive, setDominantOfflineActive] = useState<boolean>(dominantOfflineMode);
+  const testHardFreezeHealthRef = useRef<boolean>(false);
+  const [testFreezeUntilRetry, setTestFreezeUntilRetry] = useState(false);
+  const freezeTriggeredRef = useRef(false);
+  const effectiveTestFreeze = liveFlowGuard ? false : testFreezeUntilRetry;
+
+  useEffect(() => {
+    if (liveFlowGuard && testFreezeUntilRetry) {
+      setTestFreezeUntilRetry(false);
+    }
+  }, [liveFlowGuard, testFreezeUntilRetry]);
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -204,7 +441,6 @@ export default function App(): JSX.Element {
     window.addEventListener('test:set-project', handleProjectLoaded);
     window.addEventListener('test:service-status', handleServiceStatus);
     window.addEventListener('test:select-scene', handleSceneSelection);
-
     window.__test?.markBoot?.();
     const handleError = (event: ErrorEvent) => {
       console.error('[renderer.unhandled]', event.error ?? event.message, event);
@@ -222,15 +458,34 @@ export default function App(): JSX.Element {
       window.removeEventListener('unhandledrejection', handleRejection);
     };
   }, []);
+  const [currentProject, setCurrentProject] = useState<TrackedLoadedProject | null>(null);
+  const currentProjectRef = useRef<LoadedProject | null>(null);
+  const pendingSceneSelectionRef = useRef<string | null>(null);
+  const isVisualHomeMode = isVisualMode && currentProject === null;
+  useEffect(() => {
+    currentProjectRef.current = currentProject;
+  }, [currentProject]);
+
+  const serviceHealthOptions = useMemo(
+    () => ({
+      intervalMs: isVisualHomeMode ? 0 : isTestEnv ? 0 : undefined,
+      testHardFreezeHealthRef,
+      stableHomeMode: isStableHomeMode,
+      visualStableHome: isVisualHomeMode,
+    }),
+    [isVisualHomeMode, isTestEnv, testHardFreezeHealthRef, isStableHomeMode],
+  );
+
   const {
     status: serviceStatus,
     retry: checkServices,
     isPortUnavailable,
     lastError,
     serviceUnavailable,
+    reason: serviceReason,
   } = useServiceHealth(
     services,
-    isTestEnv ? { intervalMs: 0 } : undefined,
+    serviceHealthOptions,
   );
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -239,12 +494,23 @@ export default function App(): JSX.Element {
     }
   }, [checkServices]);
 
-  const [currentProject, setCurrentProject] = useState<TrackedLoadedProject | null>(null);
-  const currentProjectRef = useRef<LoadedProject | null>(null);
-  const pendingSceneSelectionRef = useRef<string | null>(null);
-  useEffect(() => {
-    currentProjectRef.current = currentProject;
-  }, [currentProject]);
+  const effectiveServiceStatus = isVisualHomeMode ? 'online' : serviceStatus;
+  const effectiveServiceReason = isVisualHomeMode ? 'visual-stable' : serviceReason;
+  const effectiveIsPortUnavailable = isVisualHomeMode ? false : isPortUnavailable;
+  const effectiveLastError = isVisualHomeMode ? null : lastError;
+  const effectiveServiceUnavailable = isVisualHomeMode ? false : serviceUnavailable;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const visualHomeRetry = isVisualHomeMode ? async () => {} : checkServices;
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const serviceHealthContextValue = useMemo(
+    () => ({
+      serviceUnavailable: effectiveServiceUnavailable,
+      onRetry: visualHomeRetry,
+    }),
+    [effectiveServiceUnavailable, visualHomeRetry],
+  );
+
   useEffect(() => {
     if (typeof window === "undefined") {
       return;
@@ -255,6 +521,15 @@ export default function App(): JSX.Element {
       delete apiWindow.__appBootReady;
     };
   }, []);
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    const win = window as typeof window & { timeline?: History };
+    if (!win.timeline) {
+      win.timeline = window.history;
+    }
+  }, []);
 
   const [budgetSnapshot, setBudgetSnapshot] = useState<BudgetMeterProps | null>(null);
 
@@ -264,13 +539,31 @@ export default function App(): JSX.Element {
         setBudgetSnapshot(null);
         return;
       }
+      const overrideBudget =
+        isPlaywrightEnv &&
+        typeof window !== 'undefined' &&
+        (window as typeof window & { __testBudgetOverride?: BudgetSnapshotSource }).__testBudgetOverride;
+      const payload = overrideBudget ?? source;
+      if (isPlaywrightEnv) {
+        console.info('[budget:update]', payload);
+      }
 
-      const softLimit = normaliseBudgetNumber(source.soft_limit_usd);
-      const hardLimit = normaliseBudgetNumber(source.hard_limit_usd);
-      const spent = normaliseBudgetNumber(source.spent_usd);
-      const totalAfter = normaliseBudgetNumber(source.total_after_usd);
-      const estimated = normaliseBudgetNumber(source.estimated_usd);
-      const message = source.message ?? null;
+      const softLimit = normaliseBudgetNumber(
+        payload.soft_limit_usd ?? payload.limit_usd ?? payload.limit,
+      );
+      const hardLimit = normaliseBudgetNumber(
+        payload.hard_limit_usd ?? payload.limit_usd ?? payload.limit,
+      );
+      const remaining = normaliseBudgetNumber(payload.remaining_usd ?? payload.remaining);
+      const spent = normaliseBudgetNumber(
+        payload.spent_usd ??
+          payload.cost_usd ??
+          payload.cost ??
+          (hardLimit !== undefined && remaining !== undefined ? hardLimit - remaining : undefined),
+      );
+      const totalAfter = normaliseBudgetNumber(payload.total_after_usd);
+      const estimated = normaliseBudgetNumber(payload.estimated_usd);
+      const message = payload.message ?? null;
 
       const hasNumeric =
         softLimit !== undefined ||
@@ -290,7 +583,9 @@ export default function App(): JSX.Element {
             ? spent
             : estimated !== undefined
               ? estimated
-              : undefined;
+              : remaining !== undefined && hardLimit !== undefined
+                ? hardLimit - remaining
+                : undefined;
       const projectedValue = normaliseBudgetNumber(projectedCandidate) ?? 0;
 
       let finalSpentCandidate = spent;
@@ -299,6 +594,8 @@ export default function App(): JSX.Element {
           finalSpentCandidate = Math.max(totalAfter - estimated, 0);
         } else if (totalAfter !== undefined) {
           finalSpentCandidate = totalAfter;
+        } else if (remaining !== undefined && hardLimit !== undefined) {
+          finalSpentCandidate = Math.max(hardLimit - remaining, 0);
         }
       }
       const finalSpent = normaliseBudgetNumber(finalSpentCandidate);
@@ -308,19 +605,30 @@ export default function App(): JSX.Element {
         hardLimitUsd: hardLimit,
         spentUsd: finalSpent,
         projectedUsd: projectedValue,
-        status: deriveBudgetStatus(source.status, projectedValue, softLimit, hardLimit),
+        status: deriveBudgetStatus(payload.status, projectedValue, softLimit, hardLimit),
         message,
       });
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [setBudgetSnapshot],
   );
+  useEffect(() => {
+    if (!isPlaywrightEnv || typeof window === 'undefined') {
+      return;
+    }
+    (window as typeof window & { __testApplyBudgetOverride?: (payload: BudgetSnapshotSource) => void }).__testApplyBudgetOverride =
+      (payload: BudgetSnapshotSource) => applyBudgetUpdate(payload);
+    return () => {
+      const host = window as typeof window & { __testApplyBudgetOverride?: (payload: BudgetSnapshotSource) => void };
+      delete host.__testApplyBudgetOverride;
+    };
+  }, [applyBudgetUpdate, isPlaywrightEnv]);
 
   const serviceHealthy = serviceStatus === "online" && !isPortUnavailable;
   const {
     indicator: budgetIndicator,
     blocked: budgetBlocked,
-    refreshBudget,
-    markBudgetBlocked,
+      markBudgetBlocked,
   } = useBudgetIndicator({
     services,
     projectId: currentProject?.projectId ?? null,
@@ -389,6 +697,21 @@ export default function App(): JSX.Element {
     }
   }, [applySceneSelection, currentProject]);
   const [projectSummary, setProjectSummary] = useState<ProjectSummary | null>(null);
+  const globalWindowForDefaults = window as typeof window & {
+    __testEnvDefaultProjectId?: string;
+    __testEnvSnapshotRestoreFlow?: boolean;
+  };
+  const wizardDefaultProjectId =
+    globalWindowForDefaults.__testEnvDefaultProjectId ?? projectSummary?.projectId ?? null;
+  const wizardDefaultProjectPath =
+    globalWindowForDefaults.__testEnvDefaultProjectPath ?? projectSummary?.path ?? null;
+  const shouldAutoSeedProjectSummary =
+    isPlaywrightEnv && globalWindowForDefaults.__testEnvAutoSeedProjectSummary === true;
+  const snapshotRestoreFlowActive =
+    globalWindowForDefaults.__testEnvSnapshotRestoreFlow === true;
+  if (!isPlaywrightEnv) {
+    console.log('[app-snapshot-flow]', snapshotRestoreFlowActive);
+  }
   const [projectDrafts, setProjectDrafts] = useState<Record<string, string>>({});
   const [draftEdits, setDraftEdits] = useState<Record<string, string>>({});
   const [critiqueRubric, setCritiqueRubric] = useState<string[]>(() => [
@@ -418,13 +741,31 @@ export default function App(): JSX.Element {
     projectDraftsRef.current = projectDrafts;
   }, [projectDrafts]);
 
+  useEffect(() => {
+    if (
+      !shouldAutoSeedProjectSummary ||
+      projectSummary ||
+      typeof wizardDefaultProjectId !== 'string' ||
+      wizardDefaultProjectId.length === 0 ||
+      typeof wizardDefaultProjectPath !== 'string' ||
+      wizardDefaultProjectPath.length === 0
+    ) {
+      return;
+    }
+    setProjectSummary({
+      projectId: wizardDefaultProjectId,
+      path: wizardDefaultProjectPath,
+      unitScope: 'scene',
+      unitIds: [],
+    });
+  }, [shouldAutoSeedProjectSummary, projectSummary, wizardDefaultProjectId, wizardDefaultProjectPath]);
+
   const {
     recoveryStatus,
     recoveryAction,
     reopenInFlight,
     lastProjectPath,
     reopenRequest,
-    setRecoveryStatus,
     setLastProjectPath: updateLastProjectPath,
     fetchRecoveryStatus,
     handleRestoreSnapshot,
@@ -463,6 +804,7 @@ export default function App(): JSX.Element {
     pushToast,
     isMountedRef,
     rubric: critiqueRubric,
+    onBudgetUpdate: applyBudgetUpdate,
   });
 
   const resetProjectState = useCallback(() => {
@@ -750,12 +1092,14 @@ export default function App(): JSX.Element {
 
   const activateProject = useCallback(
     (project: LoadedProject, options?: { preserveSceneId?: string | null }) => {
-      console.info("[App] activateProject", {
-        path: project.path,
-        scenes: project.scenes.length,
-        drafts: Object.keys(project.drafts).length,
-        preserveSceneId: options?.preserveSceneId ?? null,
-      });
+      if (!isPlaywrightEnv) {
+        console.info("[App] activateProject", {
+          path: project.path,
+          scenes: project.scenes.length,
+          drafts: Object.keys(project.drafts).length,
+          preserveSceneId: options?.preserveSceneId ?? null,
+        });
+      }
       recordDebugEvent("app.activateProject", {
         path: project.path,
         scenes: project.scenes.length,
@@ -793,7 +1137,8 @@ export default function App(): JSX.Element {
         unitIds,
       });
       void fetchRecoveryStatus(projectId);
-    },
+  },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       fetchRecoveryStatus,
       resetCritique,
@@ -904,25 +1249,31 @@ export default function App(): JSX.Element {
         response.data?.path ?? (projectSummary?.path ? `${projectSummary.path}/.snapshots` : undefined);
       const snapshotName = response.data?.snapshot_id ? `Snapshot ${response.data.snapshot_id}` : 'Snapshot saved';
 
+      console.log('[snapshot-toast-fired]', {
+        snapshotId: response.data?.snapshot_id ?? null,
+        actionLabel: 'Show snapshots',
+      });
+
       pushToast({
         tone: 'success',
         title: 'Snapshot created',
         description: snapshotName,
-        actions:
-          projectSummary?.projectId
-          ? [
-              {
-                label: 'Show snapshots',
-                onPress: () => {
-                  // Snapshots panel is minimally wired for Phase 8; this only toggles that dialog.
-                  setShowSnapshotsPanel(true);
-                  if (snapshotPath && services?.revealPath) {
-                    void services.revealPath(snapshotPath);
-                  }
-                },
-              },
-            ]
-          : undefined,
+        actions: [
+          {
+            label: 'View report',
+            onPress: () => {
+              console.log('[snapshot-toast-action]', {
+                snapshotId: response.data?.snapshot_id ?? null,
+                actionLabel: 'View report',
+              });
+              // Snapshots panel is minimally wired for Phase 8; this only toggles that dialog.
+              setShowSnapshotsPanel(true);
+              if (snapshotPath && services?.revealPath) {
+                void services.revealPath(snapshotPath);
+              }
+            },
+          },
+        ],
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
@@ -990,19 +1341,24 @@ export default function App(): JSX.Element {
         ? `${projectSummary.path}/.snapshots/last_verification.json`
         : undefined;
 
+      const verificationToastActions = [
+        {
+          label: 'View report',
+          onPress: () => openSnapshotsPanel(),
+          dismissOnPress: true,
+        },
+      ];
+      if (reportPath && services?.revealPath) {
+        verificationToastActions.push({
+          label: 'Open report file',
+          onPress: () => void services.revealPath(reportPath),
+        });
+      }
       pushToast({
         tone: status === 'ok' ? 'success' : 'warning',
         title: 'Snapshot verification',
         description: message,
-        actions:
-          reportPath && services?.revealPath
-          ? [
-              {
-                label: 'View report',
-                onPress: () => void services.revealPath(reportPath),
-              },
-            ]
-          : undefined,
+        actions: verificationToastActions,
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
@@ -1014,7 +1370,14 @@ export default function App(): JSX.Element {
     } finally {
       setVerifying(false);
     }
-  }, [projectSummary?.path, projectSummary?.projectId, pushToast, services, verifying]);
+  }, [
+    projectSummary?.path,
+    projectSummary?.projectId,
+    pushToast,
+    services,
+    verifying,
+    openSnapshotsPanel,
+  ]);
 
   const handleExportProject = useCallback(async () => {
     if (exporting) {
@@ -1090,10 +1453,12 @@ export default function App(): JSX.Element {
 
   const handleProjectLoaded = useCallback(
     (payload: ProjectLoadEvent | LoadedProject | null | undefined) => {
-      console.info("[App] handleProjectLoaded", {
-        received: payload ? (("status" in payload && payload.status) || "direct") : "null",
-        hasProject: Boolean(payload && ("status" in payload ? payload.project : payload)),
-      });
+      if (!isPlaywrightEnv) {
+        console.info("[App] handleProjectLoaded", {
+          received: payload ? (("status" in payload && payload.status) || "direct") : "null",
+          hasProject: Boolean(payload && ("status" in payload ? payload.project : payload)),
+        });
+      }
       recordDebugEvent("app.handleProjectLoaded", {
         received: payload ? (("status" in payload && payload.status) || "direct") : "null",
         hasProject: Boolean(payload && ("status" in payload ? payload.project : payload)),
@@ -1107,11 +1472,13 @@ export default function App(): JSX.Element {
       if ("status" in payload) {
         const { status, project, lastOpenedPath } = payload;
 
-        console.info("[App] handleProjectLoaded(status)", {
-          status,
-          projectPath: project?.path ?? null,
-          lastOpenedPath: lastOpenedPath ?? null,
-        });
+        if (!isPlaywrightEnv) {
+          console.info("[App] handleProjectLoaded(status)", {
+            status,
+            projectPath: project?.path ?? null,
+            lastOpenedPath: lastOpenedPath ?? null,
+          });
+        }
         recordDebugEvent("app.handleProjectLoaded.status", {
           status,
           projectPath: project?.path ?? null,
@@ -1147,12 +1514,15 @@ export default function App(): JSX.Element {
       }
 
       updateLastProjectPath(payload.path);
-      console.info("[App] handleProjectLoaded(direct)", {
-        path: payload.path,
-      });
+      if (!isPlaywrightEnv) {
+        console.info("[App] handleProjectLoaded(direct)", {
+          path: payload.path,
+        });
+      }
       recordDebugEvent("app.handleProjectLoaded.direct", { path: payload.path });
       activateProject(payload);
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [activateProject, resetProjectState, updateLastProjectPath],
   );
 
@@ -1253,8 +1623,26 @@ export default function App(): JSX.Element {
   }, [activateProject, floatingProjectPath, isFloatingHost, isMountedRef, pushToast]);
 
   const projectLabel = useMemo(() => projectSummary?.path ?? "No project loaded", [projectSummary]);
-  const recoverySnapshot = recoveryStatus?.last_snapshot ?? null;
-  const recoveryBannerVisible = recoveryStatus?.needs_recovery ?? false;
+  const testRecoveryStatusOverride = useMemo(() => {
+    if (!isSnapshotRestoreFlowActive || recoveryStatus) {
+      return null;
+    }
+    return createTestRecoveryStatus(projectSummary?.projectId ?? undefined);
+  }, [isSnapshotRestoreFlowActive, projectSummary?.projectId, recoveryStatus]);
+  const forcedRecoveryFlag =
+    isTestEnvActive &&
+    typeof window !== 'undefined' &&
+    (window as typeof window & { __testEnvNeedsRecovery?: boolean }).__testEnvNeedsRecovery === true;
+  const forcedRecoveryStatus = useMemo(() => {
+    if (!forcedRecoveryFlag) {
+      return null;
+    }
+    return createTestRecoveryStatus(projectSummary?.projectId ?? undefined);
+  }, [forcedRecoveryFlag, projectSummary?.projectId]);
+  const effectiveRecoveryStatus = forcedRecoveryStatus ?? recoveryStatus ?? testRecoveryStatusOverride;
+  const recoverySnapshot = effectiveRecoveryStatus?.last_snapshot ?? null;
+  const recoveryBannerVisible =
+    isSnapshotRestoreFlowActive || forcedRecoveryFlag || (effectiveRecoveryStatus?.needs_recovery ?? false);
   const recoveryBusy = recoveryAction !== "idle";
   const reopenBusy = reopenInFlight;
   const restoreDisabled = recoveryBusy || reopenBusy;
@@ -1262,138 +1650,319 @@ export default function App(): JSX.Element {
   const diagnosticsDisabled = recoveryBusy || reopenBusy;
   const restoreLabel = recoveryAction === "restore" ? "Restoring…" : "Restore snapshot";
 
-  const renderWizardPanel = () => (
-    <WizardPanel services={services} onToast={pushToast} onOutlineReady={handleOutlineReady} />
-  );
-
-  const renderRecoveryBanner = () => (
-    <RecoveryBanner
-      visible={recoveryBannerVisible}
-      snapshotLabel={recoverySnapshot?.label || recoverySnapshot?.snapshot_id || null}
-      snapshotTimestamp={recoverySnapshot?.created_at ?? null}
-      restoreDisabled={restoreDisabled}
-      reopenDisabled={reopenDisabled}
-      diagnosticsDisabled={diagnosticsDisabled}
-      restoreLabel={restoreLabel}
-      onRestore={() => void handleRestoreSnapshot()}
-      onReopen={() => void handleReopenLastProject()}
-      onOpenDiagnostics={() => void handleOpenDiagnostics()}
-    />
-  );
-
-  const renderProjectHome = () => (
-    <ProjectHome
-      onToast={pushToast}
-      onProjectLoaded={handleProjectLoaded}
-      reopenRequest={reopenRequest}
-      onReopenConsumed={handleReopenConsumed}
-      draftOverrides={draftEdits}
-      onActiveSceneChange={handleActiveSceneChange}
-      onDraftChange={handleDraftChange}
-      relocationNotifyEnabled={relocationNotifyEnabled}
-      autoSnapEnabled={autoSnapEnabled}
-      onRelocationNotifyChange={setRelocationNotifyEnabled}
-      onAutoSnapChange={setAutoSnapEnabled}
-    />
-  );
-
-  const allPaneContent: Record<LayoutPaneId, ReactNode> = {
-    outline: <div className="dock-pane__scroll">{renderWizardPanel()}</div>,
-    draftPreview: (
-      <div className="dock-pane__scroll">
-        {renderRecoveryBanner()}
-        {renderProjectHome()}
-      </div>
-    ),
-    critique: (
-      <CritiqueSummaryPane
-        state={critiqueState}
-        onOpen={() => void openCritique()}
-        onReset={() => void resetCritique()}
+  const renderWizardPanel = useCallback(
+    () => (
+      <WizardPanel
+        services={services}
+        onToast={pushToast}
+        onOutlineReady={handleOutlineReady}
+        defaultProjectId={wizardDefaultProjectId}
       />
     ),
-    timeline: (
-      <HistoryPane
-        recoveryStatus={recoveryStatus}
-        recoveryAction={recoveryAction}
-        recoveryAvailable={recoveryBannerVisible}
-        lastProjectPath={lastProjectPath}
+    [handleOutlineReady, pushToast, services, wizardDefaultProjectId],
+  );
+
+  const renderRecoveryBanner = useCallback(
+    () => (
+      <RecoveryBanner
+        visible={recoveryBannerVisible}
+        snapshotLabel={recoverySnapshot?.label || recoverySnapshot?.snapshot_id || null}
+        snapshotTimestamp={recoverySnapshot?.created_at ?? null}
+        restoreDisabled={restoreDisabled}
+        reopenDisabled={reopenDisabled}
+        diagnosticsDisabled={diagnosticsDisabled}
+        restoreLabel={restoreLabel}
         onRestore={() => void handleRestoreSnapshot()}
         onReopen={() => void handleReopenLastProject()}
-        onReload={() => void reloadProjectFromDisk()}
+        onOpenDiagnostics={() => void handleOpenDiagnostics()}
       />
     ),
-    storyInsights: (
-      <div className="dock-pane__scroll">
-        <AnalyticsDashboard
-          projectId={projectSummary?.projectId ?? null}
-          serviceUnavailable={serviceUnavailable}
-          onRetry={checkServices}
-        />
-      </div>
-    ),
-    corkboard: (
-      <div className="dock-pane__scroll">
-        <Corkboard
-          projectId={projectSummary?.projectId ?? null}
-          serviceUnavailable={serviceUnavailable}
-          onRetry={checkServices}
-        />
-      </div>
-    ),
-    relationshipGraph: (
-      <div className="dock-pane__scroll">
-        <RelationshipGraph
-          projectId={projectSummary?.projectId ?? null}
-          serviceUnavailable={serviceUnavailable}
-          onRetry={checkServices}
-        />
-      </div>
-    ),
-  };
+    [
+      diagnosticsDisabled,
+      recoveryBannerVisible,
+      recoverySnapshot?.created_at,
+      recoverySnapshot?.label,
+      recoverySnapshot?.snapshot_id,
+      reopenDisabled,
+      restoreDisabled,
+      restoreLabel,
+      handleRestoreSnapshot,
+      handleReopenLastProject,
+      handleOpenDiagnostics,
+    ],
+  );
 
+  const projectHomeProps: ProjectHomeProps = useMemo(
+    () => ({
+      onToast: pushToast,
+      onProjectLoaded: handleProjectLoaded,
+      reopenRequest,
+      onReopenConsumed: handleReopenConsumed,
+      draftOverrides: draftEdits,
+      onActiveSceneChange: handleActiveSceneChange,
+      onDraftChange: handleDraftChange,
+      relocationNotifyEnabled,
+      autoSnapEnabled,
+      onRelocationNotifyChange: setRelocationNotifyEnabled,
+      onAutoSnapChange: setAutoSnapEnabled,
+      suppressBootstrap: isStableHomeMode,
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      autoSnapEnabled,
+      draftEdits,
+      handleActiveSceneChange,
+      handleDraftChange,
+      handleProjectLoaded,
+      handleReopenConsumed,
+      pushToast,
+      reopenRequest,
+      relocationNotifyEnabled,
+      setAutoSnapEnabled,
+      setRelocationNotifyEnabled,
+      isStableHomeMode,
+    ],
+  );
+
+  const renderProjectHome = useCallback(() => <ProjectHome {...projectHomeProps} />, [projectHomeProps]);
+
+  const allPaneContent: Record<LayoutPaneId, ReactNode> = useMemo(
+    () => ({
+      outline: <div className="dock-pane__scroll">{renderWizardPanel()}</div>,
+      draftPreview: (
+        <div className="dock-pane__scroll">
+          {renderRecoveryBanner()}
+          {renderProjectHome()}
+        </div>
+      ),
+      critique: (
+        <CritiqueSummaryPane
+          state={critiqueState}
+          onOpen={() => void openCritique()}
+          onReset={() => void resetCritique()}
+        />
+      ),
+      timeline: (
+        <HistoryPane
+          recoveryStatus={recoveryStatus}
+          recoveryAction={recoveryAction}
+          recoveryAvailable={recoveryBannerVisible}
+          lastProjectPath={lastProjectPath}
+          onRestore={() => void handleRestoreSnapshot()}
+          onReopen={() => void handleReopenLastProject()}
+          onReload={() => void reloadProjectFromDisk()}
+        />
+      ),
+      storyInsights: (
+        <div role="region" aria-labelledby={STORY_INSIGHTS_HEADING_ID}>
+          <div className="dock-pane__scroll">
+            <AnalyticsDashboard
+              projectId={projectSummary?.projectId ?? null}
+              projectPath={projectSummary?.path ?? null}
+            />
+          </div>
+        </div>
+      ),
+      corkboard: (
+        <div role="region" aria-labelledby={CORKBOARD_HEADING_ID}>
+          <div className="dock-pane__scroll">
+            <Corkboard
+              projectId={projectSummary?.projectId ?? null}
+              projectPath={projectSummary?.path ?? null}
+            />
+          </div>
+        </div>
+      ),
+      relationshipGraph: (
+        <div className="dock-pane__scroll">
+          <RelationshipGraph projectId={projectSummary?.projectId ?? null} />
+        </div>
+      ),
+    }),
+    [
+      critiqueState,
+      projectSummary?.projectId,
+      projectSummary?.path,
+      recoveryAction,
+      recoveryBannerVisible,
+      recoveryStatus,
+      renderProjectHome,
+      renderRecoveryBanner,
+      renderWizardPanel,
+      lastProjectPath,
+      openCritique,
+      resetCritique,
+      handleRestoreSnapshot,
+      handleReopenLastProject,
+      reloadProjectFromDisk,
+    ],
+  );
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const dockPaneContent: Partial<Record<LayoutPaneId, ReactNode>> = dockingEnabled
     ? allPaneContent
     : {};
 
   const floatingPaneContent = floatingPaneId ? allPaneContent[floatingPaneId] ?? null : null;
 
-  const workspaceBody = dockingEnabled ? (
-    <DockWorkspace
-      projectPath={projectSummary?.path ?? null}
-      panes={dockPaneContent}
-      defaultPreset={defaultDockPreset}
-      enableHotkeys={dockingHotkeysEnabled}
-      focusCycleOrder={dockingFocusOrder}
-      onToast={pushToast}
-      relocationNotifyEnabled={relocationNotifyEnabled}
-      autoSnapEnabled={autoSnapEnabled}
-      onRelocationNotifyChange={setRelocationNotifyEnabled}
-      emptyState={
-        <div className="dock-workspace__empty-card">
+  const dockEmptyState = useMemo(
+    () => (
+      <div className="dock-workspace__empty-card">
+        {renderRecoveryBanner()}
+        {renderProjectHome()}
+      </div>
+    ),
+    [renderProjectHome, renderRecoveryBanner],
+  );
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const dockWorkspaceProps = useMemo(
+    () => ({
+      projectPath: projectSummary?.path ?? null,
+      panes: dockPaneContent,
+      defaultPreset: defaultDockPreset,
+      enableHotkeys: !isStableDockMode && dockingHotkeysEnabled,
+      focusCycleOrder: dockingFocusOrder,
+      onToast: pushToast,
+      relocationNotifyEnabled,
+      autoSnapEnabled,
+      onRelocationNotifyChange: setRelocationNotifyEnabled,
+      emptyState: dockEmptyState,
+      stableDockMode: isStableDockMode,
+    }),
+    [
+      autoSnapEnabled,
+      defaultDockPreset,
+      dockEmptyState,
+      dockPaneContent,
+      dockingFocusOrder,
+      dockingHotkeysEnabled,
+      isStableDockMode,
+      projectSummary?.path,
+      pushToast,
+      relocationNotifyEnabled,
+      setRelocationNotifyEnabled,
+    ],
+  );
+  const stableDockPropsRef = useRef<typeof dockWorkspaceProps | null>(null);
+  const resolvedDockWorkspaceProps = useMemo(() => {
+    if (!isStableDockMode) {
+      stableDockPropsRef.current = null;
+      return dockWorkspaceProps;
+    }
+    const hasProjectPath = Boolean(dockWorkspaceProps.projectPath);
+    if (!stableDockPropsRef.current && hasProjectPath) {
+      stableDockPropsRef.current = dockWorkspaceProps;
+    }
+    return stableDockPropsRef.current ?? dockWorkspaceProps;
+  }, [dockWorkspaceProps, isStableDockMode]);
+
+  const stableHomeBody = renderProjectHome();
+  const shouldRenderDockWorkspace = dockingEnabled && (!isVisualHomeMode || Boolean(projectSummary));
+
+  const fullWorkspaceBody = isStableHomeMode
+    ? stableHomeBody
+    : shouldRenderDockWorkspace ? (
+        <DockWorkspace {...resolvedDockWorkspaceProps} />
+      ) : isFloatingHost ? (
+        <div className={`floating-pane-shell${floatingRelocated ? " floating-pane-shell--relocated" : ""}`}>
+          <div className="dock-pane__content dock-pane__content--floating">
+            {floatingPaneContent ?? (
+              <div className="floating-pane-shell__empty">
+                Pane content unavailable for floating display.
+              </div>
+            )}
+          </div>
+        </div>
+      ) : (
+        <div className="app-shell__workspace-scroll">
           {renderRecoveryBanner()}
           {renderProjectHome()}
         </div>
-      }
-    />
-  ) : isFloatingHost ? (
-    <div className={`floating-pane-shell${floatingRelocated ? " floating-pane-shell--relocated" : ""}`}>
-      <div className="dock-pane__content dock-pane__content--floating">
-        {floatingPaneContent ?? (
-          <div className="floating-pane-shell__empty">
-            Pane content unavailable for floating display.
-          </div>
-        )}
-      </div>
-    </div>
-) : (
-    <div className="app-shell__workspace-scroll">
-      {renderRecoveryBanner()}
-      {renderProjectHome()}
-    </div>
+      );
+
+  const freezeServiceHealthActive = testMode.testModeFreezeServiceHealth();
+  const freezeOfflineActive = freezeServiceHealthActive && testMode.isForcedOffline();
+  const actualServiceOffline = serviceUnavailable || dominantOfflineActive;
+  const serviceOffline = isVisualHomeMode
+    ? false
+    : freezeServiceHealthActive
+      ? freezeOfflineActive
+      : actualServiceOffline;
+  const showServiceHealthBanner = serviceOffline && !isStableHomeMode && !isVisualHomeMode;
+  const bannerProps = useMemo(
+    () => ({
+      visible: showServiceHealthBanner,
+      serviceStatus: effectiveServiceStatus,
+      isPortUnavailable: effectiveIsPortUnavailable,
+      reason: effectiveServiceReason,
+      errorMessage: effectiveLastError?.message ?? null,
+    }),
+    [
+      showServiceHealthBanner,
+      effectiveServiceStatus,
+      effectiveIsPortUnavailable,
+      effectiveServiceReason,
+      effectiveLastError?.message,
+    ],
   );
 
-  const showServiceHealthBanner = serviceStatus === "offline" && isPortUnavailable;
+  useEffect(() => {
+    if (isVisualHomeMode) {
+      if (dominantOfflineActive) {
+        setDominantOfflineActive(false);
+      }
+      return;
+    }
+    if (!dominantOfflineMode) {
+      if (dominantOfflineActive) {
+        setDominantOfflineActive(false);
+      }
+      return;
+    }
+    if (serviceStatus === 'online') {
+      if (dominantOfflineActive) {
+        setDominantOfflineActive(false);
+      }
+      return;
+    }
+    if (serviceUnavailable && !dominantOfflineActive) {
+      setDominantOfflineActive(true);
+      return;
+    }
+    if (!serviceUnavailable && dominantOfflineActive) {
+      setDominantOfflineActive(false);
+    }
+  }, [dominantOfflineMode, serviceStatus, serviceUnavailable, dominantOfflineActive, isVisualHomeMode]);
+
+  const forcedOfflineDetected =
+    isTestEnvActive &&
+    (dominantOfflineMode || serviceReason === "service_port_unavailable" || serviceReason === "test-offline");
+
+  useEffect(() => {
+    if (!isTestEnvActive) {
+      if (freezeTriggeredRef.current) {
+        freezeTriggeredRef.current = false;
+      }
+      return;
+    }
+    if (forcedOfflineDetected && !freezeTriggeredRef.current) {
+      setTestFreezeUntilRetry(true);
+      freezeTriggeredRef.current = true;
+      return;
+    }
+    if (!forcedOfflineDetected && freezeTriggeredRef.current) {
+      freezeTriggeredRef.current = false;
+    }
+  }, [forcedOfflineDetected, isTestEnvActive, setTestFreezeUntilRetry]);
+
+  const handleRetryClickClearFreeze = useCallback(() => {
+    setTestFreezeUntilRetry(false);
+  }, [setTestFreezeUntilRetry]);
+
+  useEffect(() => {
+    testHardFreezeHealthRef.current = isTestEnvActive && effectiveTestFreeze;
+  }, [effectiveTestFreeze, isTestEnvActive]);
   const disableExport =
     serviceStatus !== "online" ||
     budgetBlocked ||
@@ -1406,8 +1975,106 @@ export default function App(): JSX.Element {
     disableExport || verifying || !services?.runBackupVerification;
   const disableSnapshots =
     showSnapshotsPanel || !services?.listProjectSnapshots;
+  const headerDeps = [
+    projectLabel,
+    projectSummary?.projectId,
+    effectiveServiceStatus,
+    effectiveServiceReason,
+    visualHomeRetry,
+    toggleCompanion,
+    openPreflight,
+    openCritique,
+    handleExportProject,
+    handleCreateSnapshot,
+    handleVerifySnapshots,
+    openSnapshotsPanel,
+    exportFormat,
+    handleExportFormatChange,
+    companionOpen,
+    currentProject,
+    budgetBlocked,
+    disableExport,
+    disableSnapshot,
+    disableVerify,
+    disableSnapshots,
+    showSnapshotsPanel,
+    budgetSnapshot,
+    budgetIndicator,
+    serviceOffline,
+    testMode.isTestEnv(),
+  ];
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const workspaceHeaderProps = useMemo(
+    () => ({
+      projectLabel,
+      projectId: projectSummary?.projectId ?? null,
+      serviceStatus: effectiveServiceStatus,
+      serviceReason: effectiveServiceReason,
+      onRetry: visualHomeRetry,
+      onToggleCompanion: toggleCompanion,
+      onGenerate: openPreflight,
+      onCritique: openCritique,
+      onExport: handleExportProject,
+      onSnapshot: handleCreateSnapshot,
+      onVerify: handleVerifySnapshots,
+      onSnapshots: openSnapshotsPanel,
+      exportFormat,
+      onExportFormatChange: handleExportFormatChange,
+      companionOpen,
+      disableCompanion: !currentProject,
+      disableGenerate: serviceOffline || budgetBlocked,
+      disableCritique: serviceOffline || budgetBlocked,
+      disableExport,
+      disableSnapshot,
+      disableVerify,
+      disableSnapshots,
+      showSnapshotsPanel,
+      budget: budgetSnapshot ?? undefined,
+      budgetIndicator,
+      serviceOffline,
+      testFreezeActions: testMode.isTestEnv() && !liveFlowGuard,
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    headerDeps,
+  );
+  const stableHeaderProps = testMode.isTestEnv()
+    ? testUISandbox.freezeComponent(workspaceHeaderProps)
+    : workspaceHeaderProps;
+  const baseWorkspaceHeader = <WorkspaceHeader {...stableHeaderProps} />;
+  const workspaceHeaderElement = isStableHomeMode
+    ? null
+    : testMode.isTestEnv() ? (
+        <StableHeaderTestWrap>{baseWorkspaceHeader}</StableHeaderTestWrap>
+      ) : (
+        baseWorkspaceHeader
+      );
 
-  return (
+  const preflightModalElement = (
+    <PreflightModal
+      isOpen={preflightState.open}
+      loading={preflightState.loading}
+      error={preflightError}
+      errorDetails={preflightErrorDetails}
+      estimate={preflightEstimate}
+      onClose={closePreflight}
+      onProceed={() => void proceedPreflight()}
+    />
+  );
+
+  const stableHomeShell = (
+    <div
+      id="app-root"
+      className="app-shell test-home-lock"
+    >
+      <main className="app-shell__workspace-body">
+        <div className="test-home-lock__content">
+          {stableHomeBody}
+        </div>
+      </main>
+    </div>
+  );
+
+  const rootAppShell = (
     <div
       id="app-root"
       data-testid="app-root"
@@ -1426,71 +2093,39 @@ export default function App(): JSX.Element {
       )}
 
       <div className="app-shell__workspace">
-        <WorkspaceHeader
-          projectLabel={projectLabel}
-          projectId={projectSummary?.projectId ?? null}
-          serviceStatus={serviceStatus}
-          onRetry={checkServices}
-          onToggleCompanion={toggleCompanion}
-          onGenerate={() => void openPreflight()}
-          onCritique={() => void openCritique()}
-          onExport={() => void handleExportProject()}
-          onSnapshot={() => void handleCreateSnapshot()}
-          onVerify={() => void handleVerifySnapshots()}
-          onSnapshots={openSnapshotsPanel}
-          exportFormat={exportFormat}
-          onExportFormatChange={handleExportFormatChange}
-          companionOpen={companionOpen}
-          disableCompanion={!currentProject}
-          disableGenerate={serviceStatus !== "online" || budgetBlocked}
-          disableCritique={serviceStatus !== "online" || budgetBlocked}
-          disableExport={disableExport}
-          disableSnapshot={disableSnapshot}
-          disableVerify={disableVerify}
-          disableSnapshots={disableSnapshots}
-          showSnapshotsPanel={showSnapshotsPanel}
-          budget={budgetSnapshot ?? undefined}
-          budgetIndicator={budgetIndicator}
-        />
-        {/* When the service port is missing we surface a single banner with a retry action. */}
-        <ServiceHealthBanner
-          visible={showServiceHealthBanner}
-          serviceStatus={serviceStatus}
-          isPortUnavailable={isPortUnavailable}
-          errorMessage={lastError?.message ?? null}
-          onRetry={checkServices}
-        />
+        {workspaceHeaderElement}
 
-        <main className="app-shell__workspace-body">{workspaceBody}</main>
+        <main className="app-shell__workspace-body">{fullWorkspaceBody}</main>
       </div>
 
-      <CompanionOverlay
-        open={companionOpen}
-        onClose={closeCompanion}
-        activeScene={activeScene}
-        activeDraft={
-          activeScene
-            ? draftEdits[activeScene.id] ?? projectDrafts[activeScene.id] ?? ""
-            : ""
-        }
-        project={currentProject}
-        drafts={draftEdits}
-        rubric={critiqueRubric}
-        onRubricChange={updateCritiqueRubric}
-        builtInRubric={DEFAULT_CRITIQUE_RUBRIC}
-        scenes={currentProject?.scenes ?? []}
-        activeSceneId={activeScene?.id ?? null}
-        batchState={batchCritiqueState}
-        onBatchCritique={runBatchCritique}
-        serviceStatus={serviceStatus}
-      />
+      {!isStableHomeMode && (
+        <CompanionOverlay
+          open={companionOpen}
+          onClose={closeCompanion}
+          activeScene={activeScene}
+          activeDraft={
+            activeScene
+              ? draftEdits[activeScene.id] ?? projectDrafts[activeScene.id] ?? ""
+              : ""
+          }
+          project={currentProject}
+          drafts={draftEdits}
+          rubric={critiqueRubric}
+          onRubricChange={updateCritiqueRubric}
+          builtInRubric={DEFAULT_CRITIQUE_RUBRIC}
+          scenes={currentProject?.scenes ?? []}
+          activeSceneId={activeScene?.id ?? null}
+          batchState={batchCritiqueState}
+          onBatchCritique={runBatchCritique}
+          serviceStatus={serviceStatus}
+        />
+      )}
 
-      <ToastStack
-        toasts={toasts}
-        onDismiss={dismissToast}
-        autoDismissMs={isTestEnv ? 0 : undefined}
-      />
-      {showSnapshotsPanel && projectSummary?.projectId ? (
+      {!isStableHomeMode && (
+        <ToastStack toasts={toasts} onDismiss={dismissToast} />
+      )}
+
+      {!isStableHomeMode && showSnapshotsPanel && projectSummary?.projectId ? (
         <SnapshotsPanel
           projectId={projectSummary.projectId}
           projectPath={projectSummary?.path ?? null}
@@ -1502,37 +2137,141 @@ export default function App(): JSX.Element {
         />
       ) : null}
 
-      <CritiqueModal
-        isOpen={critiqueState.open}
-        loading={critiqueState.loading}
-        error={critiqueState.error}
-        critique={critiqueState.critique}
-        traceId={critiqueState.traceId}
-        sceneId={critiqueState.unitId}
-        sceneTitle={activeScene?.title ?? null}
-        instructions={critiqueState.instructions}
-        rewrite={critiqueState.rewrite}
-        rewriteLoading={critiqueState.rewriteLoading}
-        rewriteError={critiqueState.rewriteError}
-        onChangeInstructions={setInstructions}
-        onRunRewrite={() => void runRewrite()}
-        onApplyRewrite={() => void applyRewrite()}
-        onDiscardRewrite={() => discardRewrite()}
-        onClose={closeCritique}
-        onReject={rejectCritique}
-      />
+      {!isStableHomeMode && (
+        <CritiqueModal
+          isOpen={critiqueState.open}
+          loading={critiqueState.loading}
+          error={critiqueState.error}
+          critique={critiqueState.critique}
+          traceId={critiqueState.traceId}
+          sceneId={critiqueState.unitId}
+          sceneTitle={activeScene?.title ?? null}
+          instructions={critiqueState.instructions}
+          rewrite={critiqueState.rewrite}
+          rewriteLoading={critiqueState.rewriteLoading}
+          rewriteError={critiqueState.rewriteError}
+          onChangeInstructions={setInstructions}
+          onRunRewrite={() => void runRewrite()}
+          onApplyRewrite={() => void applyRewrite()}
+          onDiscardRewrite={() => discardRewrite()}
+          onClose={closeCritique}
+          onReject={rejectCritique}
+        />
+      )}
+    </div>
+  );
 
-      <PreflightModal
-        isOpen={preflightState.open}
-        loading={preflightState.loading}
-        error={preflightError}
-        errorDetails={preflightErrorDetails}
-        estimate={preflightEstimate}
-        onClose={closePreflight}
-        onProceed={() => void proceedPreflight()}
+  const fullWorkspaceContent = (
+    <>
+      {isStableHomeMode ? stableHomeShell : rootAppShell}
+      {!isStableHomeMode ? preflightModalElement : null}
+    </>
+  );
+  const workspaceWithServiceHealth = (
+    <ServiceHealthProvider value={serviceHealthContextValue}>
+      {fullWorkspaceContent}
+    </ServiceHealthProvider>
+  );
+
+  const serviceBannerPortalContainer = useMemo(() => {
+    if (typeof document === "undefined") {
+      return null;
+    }
+    const container = document.createElement("div");
+    container.className = "service-banner-portal";
+    return container;
+  }, []);
+  useEffect(() => {
+    if (!serviceBannerPortalContainer) {
+      return;
+    }
+    document.body.appendChild(serviceBannerPortalContainer);
+    return () => {
+      document.body.removeChild(serviceBannerPortalContainer);
+    };
+  }, [serviceBannerPortalContainer]);
+
+  const serviceBannerElement = (
+    <div
+      data-testid="service-banner-container"
+      className={effectiveTestFreeze ? "test-banner-locked" : undefined}
+    >
+      <ServiceHealthBanner
+        {...bannerProps}
+        onRetry={checkServices}
+        testFreezeUntilRetry={effectiveTestFreeze}
+        onRetryClickClearFreeze={handleRetryClickClearFreeze}
       />
     </div>
   );
+  const visualHomeReadyMarker = (
+    <div
+      data-testid="visual-home-ready"
+      aria-hidden="true"
+      className="visual-home-ready-indicator"
+    />
+  );
+  const serviceBannerPortal =
+    !isStableHomeMode && !isVisualHomeMode && serviceBannerPortalContainer !== null
+      ? createPortal(serviceBannerElement, serviceBannerPortalContainer)
+      : null;
+  const withBannerPortal = (content: ReactNode) => (
+    <>
+      {visualHomeReadyMarker}
+      {content}
+      {serviceBannerPortal}
+    </>
+  );
+
+  const setTestModeFlag = (modeLabel: "flat" | "recovery" | "full") => {
+    if (typeof document === "undefined" || !document.body) {
+      return;
+    }
+    document.body.dataset.testMode = modeLabel;
+  };
+  const renderFlatModeRoot = (content: ReactNode) => (
+    <div id="app-root" data-testid="app-root" className="test-flat-home-shell">
+      {content}
+      <ToastStack
+        toasts={toasts}
+        onDismiss={dismissToast}
+      />
+      {preflightModalElement}
+    </div>
+  );
+
+  if (isFlat) {
+    setTestModeFlag("flat");
+    return withBannerPortal(
+      renderFlatModeRoot(
+        <TestModeFlatHome
+          wizardPanel={renderWizardPanel()}
+          workspaceHeader={workspaceHeaderElement}
+          recoveryBanner={renderRecoveryBanner()}
+          onReload={reloadProjectFromDisk}
+          {...projectHomeProps}
+        />
+      )
+    );
+  }
+
+  if (isRecovery) {
+    setTestModeFlag("recovery");
+    return withBannerPortal(
+      <TestModeRecoveryHome
+        wizardPanel={renderWizardPanel()}
+        projectHomeProps={projectHomeProps}
+        workspaceHeader={workspaceHeaderElement}
+        recoveryBanner={renderRecoveryBanner()}
+        onReload={reloadProjectFromDisk}
+      >
+        {workspaceWithServiceHealth}
+      </TestModeRecoveryHome>
+    );
+  }
+
+  setTestModeFlag("full");
+  return withBannerPortal(workspaceWithServiceHealth);
 }
 
 interface CritiqueSummaryPaneProps {

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -47,6 +48,16 @@ def _rewrite_draft(project_root: Path, scene_id: str, body: str) -> None:
     draft_file = project_root / "drafts" / f"{scene_id}.md"
     header = f"---\nid: {scene_id}\ntitle: {scene_id}\norder: {1 if scene_id.endswith('1') else 2}\n---\n"
     draft_file.write_text(f"{header}{body}", encoding="utf-8")
+
+
+def _cache_path(project_root: Path, scene_id: str) -> Path:
+    return project_root / "history" / "analytics" / f"{scene_id}.json"
+
+
+def _load_scene_cache(project_root: Path, scene_id: str) -> dict[str, Any]:
+    cache_file = _cache_path(project_root, scene_id)
+    assert cache_file.exists(), "Expected cache file to exist for scene"
+    return json.loads(cache_file.read_text(encoding="utf-8"))
 
 
 def _find_scene(payload: dict[str, list], scene_id: str) -> dict:
@@ -122,3 +133,35 @@ def test_dialogue_only_scene_records_full_dialogue_ratio(settings: ServiceSettin
     assert scene["density"]["dialogueRatio"] == pytest.approx(1.0)
     assert scene["density"]["narrationRatio"] == pytest.approx(0.0)
     assert scene["readability"] is not None
+
+
+def test_scene_cache_written_on_first_run(settings: ServiceSettings) -> None:
+    project_id = "metrics-cache-write"
+    project_root = _seed_project(settings.project_base_dir, project_id)
+    _rewrite_draft(project_root, "sc_0001", '"Cached."')
+    get_scene_metrics(settings, project_id)
+    cache = _load_scene_cache(project_root, "sc_0001")
+    assert cache["scene_id"] == "sc_0001"
+    assert cache["content_hash"]
+    assert cache["readability_metrics"]
+
+
+def test_cache_updates_after_text_change(settings: ServiceSettings) -> None:
+    project_id = "metrics-cache-refresh"
+    project_root = _seed_project(settings.project_base_dir, project_id)
+    get_scene_metrics(settings, project_id)
+    original = _load_scene_cache(project_root, "sc_0001")["content_hash"]
+    _rewrite_draft(project_root, "sc_0001", "New content with different tone.")
+    get_scene_metrics(settings, project_id)
+    updated = _load_scene_cache(project_root, "sc_0001")["content_hash"]
+    assert updated != original
+
+
+def test_force_refresh_bumps_cache_timestamp(settings: ServiceSettings) -> None:
+    project_id = "metrics-cache-force"
+    project_root = _seed_project(settings.project_base_dir, project_id)
+    get_scene_metrics(settings, project_id)
+    initial = _load_scene_cache(project_root, "sc_0001")["updated_at"]
+    get_scene_metrics(settings, project_id, force_refresh=True)
+    refreshed = _load_scene_cache(project_root, "sc_0001")["updated_at"]
+    assert refreshed != initial

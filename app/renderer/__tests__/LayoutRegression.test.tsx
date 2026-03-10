@@ -4,6 +4,7 @@ import { vi } from 'vitest';
 
 import DockWorkspace from '../components/docking/DockWorkspace';
 import type { LayoutPaneId, LayoutTree } from '../../shared/ipc/layout';
+import type { ServicesBridge } from '../../shared/ipc/services';
 
 type MockLayoutBridge = {
   loadLayout: ReturnType<typeof vi.fn>;
@@ -14,7 +15,12 @@ type MockLayoutBridge = {
   closeFloatingPane: ReturnType<typeof vi.fn>;
 };
 
-function setupLayoutBridge(layout: LayoutTree | null, floatingPanes = []): MockLayoutBridge {
+type FloatingPaneState = {
+  id: LayoutPaneId;
+  bounds: { x: number; y: number; width: number; height: number };
+};
+
+function setupLayoutBridge(layout: LayoutTree | null, floatingPanes: FloatingPaneState[] = []): MockLayoutBridge {
   const bridge = {
     loadLayout: vi.fn().mockResolvedValue({
       layout,
@@ -83,7 +89,8 @@ describe('Layout regressions', () => {
       getAnalyticsScenes: vi.fn(),
       getAnalyticsRelationships: vi.fn(),
     };
-    (window as typeof window & { services?: typeof services }).services = services as any;
+    const servicesMock: Partial<ServicesBridge> = services;
+    (window as typeof window & { services?: ServicesBridge }).services = servicesMock as ServicesBridge;
 
     const storyInsightsSpy = vi.fn();
     const corkboardSpy = vi.fn();
@@ -167,7 +174,7 @@ describe('Layout regressions', () => {
         status: 200,
         headers: { 'Content-Type': 'application/json' },
       });
-    }) as any;
+    }) as unknown as typeof fetch;
 
     await Promise.all([
       fetch('http://127.0.0.1:9999/api/v1/analytics/summary'),

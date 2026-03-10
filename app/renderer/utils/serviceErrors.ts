@@ -23,6 +23,15 @@ const SANDBOX_WARNING = {
   description: 'This plugin tried to do something that’s not allowed.',
 };
 
+const BUDGET_TITLE_BY_CONTEXT: Record<ServiceErrorContext, string> = {
+  generation: "Couldn't write draft.",
+  critique: 'Feedback unavailable.',
+  preflight: 'Budget limit exceeded.',
+  analytics: 'Budget exhausted.',
+};
+
+const BUDGET_DESCRIPTION = 'Budget limit exceeded.';
+
 export function mapServiceErrorToToast(
   error: ServiceError,
   context: ServiceErrorContext,
@@ -39,9 +48,8 @@ export function mapServiceErrorToToast(
       budgetBlock: true,
       toast: attachTraceId({
         tone: 'error',
-        title: 'Budget exhausted.',
-        description:
-          'Budget exhausted for this project/session. Adjust settings or wait/reset.',
+        title: BUDGET_TITLE_BY_CONTEXT[context] ?? 'Budget exhausted.',
+        description: BUDGET_DESCRIPTION,
       }),
     };
   }

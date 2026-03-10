@@ -149,14 +149,29 @@ async function loadProjectFromDisk(projectPath: string): Promise<{
   const normalizedPath = path.resolve(projectPath);
   const outline = await readOutline(normalizedPath);
   const { scenes, issues, drafts } = await readScenes(normalizedPath);
+  const metadata = await readProjectMetadata(normalizedPath);
   const project: LoadedProject = {
     path: normalizedPath,
-    name: path.basename(normalizedPath),
+    name: metadata.name ?? path.basename(normalizedPath),
     outline,
     scenes,
     drafts,
   };
   return { project, issues };
+}
+
+async function readProjectMetadata(projectPath: string): Promise<{ name?: string }> {
+  const metadataPath = path.join(projectPath, 'project.json');
+  try {
+    const raw = await fs.readFile(metadataPath, 'utf8');
+    const parsed = JSON.parse(raw) as { name?: string };
+    if (typeof parsed.name === 'string' && parsed.name.trim().length > 0) {
+      return { name: parsed.name };
+    }
+  } catch {
+    // best effort: ignore missing or invalid metadata
+  }
+  return {};
 }
 
 async function readOutline(projectPath: string): Promise<OutlineFile> {

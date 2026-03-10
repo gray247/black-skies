@@ -1,0 +1,92 @@
+:is([data-visual-stable="1"], [data-test-visual-stable="1"]) body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-weight: 400;
+  color: #111827;
+  background-color: #f8fafc;
+  color-scheme: light;
+  zoom: 1;
+}
+
+:is([data-visual-stable="1"], [data-test-visual-stable="1"]) body *,
+:is([data-visual-stable="1"], [data-test-visual-stable="1"]) body *::before,
+:is([data-visual-stable="1"], [data-test-visual-stable="1"]) body *::after {
+  transition: none !important;
+  animation: none !important;
+  will-change: auto !important;
+}
+
+:is([data-visual-stable="1"], [data-test-visual-stable="1"]) body #app-root {
+  width: 1280px;
+  min-height: 920px;
+}
+
+:is([data-visual-stable="1"], [data-test-visual-stable="1"]) body .app-shell {
+  padding: 0;
+  min-height: 920px;
+}
+
+:is([data-visual-stable="1"], [data-test-visual-stable="1"]) body .app-shell__workspace {
+  min-height: 820px;
+  padding: 0;
+}
+
+:is([data-visual-stable="1"], [data-test-visual-stable="1"]) body .app-shell__workspace-scroll {
+  position: relative;
+}
+
+:is([data-visual-stable="1"], [data-test-visual-stable="1"]) body .app-shell__workspace-header {
+  height: 96px;
+  padding: 16px 40px;
+}
+
+:is([data-visual-stable="1"], [data-test-visual-stable="1"]) body .app-shell__workspace-heading {
+  gap: 4px;
+}
+
+:is([data-visual-stable="1"], [data-test-visual-stable="1"]) body .app-shell__workspace-actions {
+  gap: 0.75rem;
+}
+
+:is([data-visual-stable="1"], [data-test-visual-stable="1"]) body .app-shell__workspace-body {
+  padding: 0 32px 32px;
+}
+
+:is([data-visual-stable="1"], [data-test-visual-stable="1"]) body .project-home {
+  padding: 32px 40px !important;
+  margin: 0 auto !important;
+  max-width: 1200px !important;
+}
+
+:is([data-visual-stable="1"], [data-test-visual-stable="1"]) body .project-home__layout {
+  gap: 32px !important;
+  width: 100% !important;
+}
+
+:is([data-visual-stable="1"], [data-test-visual-stable="1"]) body .project-home__main,
+:is([data-visual-stable="1"], [data-test-visual-stable="1"]) body .project-home__sidebar {
+  min-height: 520px !important;
+}
+
+:is([data-visual-stable="1"], [data-test-visual-stable="1"]) body .project-home__header,
+:is([data-visual-stable="1"], [data-test-visual-stable="1"]) body .project-home__section-header {
+  margin-bottom: 26px !important;
+}
+
+:is([data-visual-stable="1"], [data-test-visual-stable="1"]) body .project-home__recents,
+:is([data-visual-stable="1"], [data-test-visual-stable="1"]) body .project-home__details,
+:is([data-visual-stable="1"], [data-test-visual-stable="1"]) body .project-home__draft,
+:is([data-visual-stable="1"], [data-test-visual-stable="1"]) body .project-home__sidebar {
+  padding: 24px !important;
+  border-radius: 18px !important;
+  background-color: #ffffff !important;
+  box-shadow: 0 25px 60px rgba(15, 23, 42, 0.08) !important;
+}
+
+:is([data-visual-stable="1"], [data-test-visual-stable="1"]) body .project-home__recents ul,
+:is([data-visual-stable="1"], [data-test-visual-stable="1"]) body .project-home__scene-list {
+  gap: 12px !important;
+}
+
+:is([data-visual-stable="1"], [data-test-visual-stable="1"]) body .app-shell__workspace-button {
+  font-weight: 500 !important;
+}

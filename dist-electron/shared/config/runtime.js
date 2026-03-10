@@ -29,6 +29,7 @@ const DEFAULT_FOCUS_CYCLE_ORDER = [
     'storyInsights',
     'corkboard',
     'timeline',
+    'critique',
 ];
 const VALID_PANE_IDS = new Set(layout_1.CANONICAL_PANES);
 exports.DEFAULT_RUNTIME_CONFIG = Object.freeze({

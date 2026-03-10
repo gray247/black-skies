@@ -48,7 +48,7 @@ describe('Corkboard', () => {
   });
 
   it('renders a card per scene', async () => {
-    render(<Corkboard projectId="proj" />);
+    render(<Corkboard projectId="proj" projectPath="/path/proj" />);
     await waitFor(() => {
       expect(screen.getAllByTestId('corkboard-card').length).toBe(2);
     });

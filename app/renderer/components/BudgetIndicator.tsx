@@ -57,7 +57,7 @@ const BudgetIndicator = memo(function BudgetIndicator({
       }
     }
     return null;
-  }, [state.hint, state.remaining, state.softLimit, state.spent, state.message, state.status]);
+  }, [state.remaining, state.softLimit, state.spent, state.message, state.status]);
 
   return (
     <div

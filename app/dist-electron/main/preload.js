@@ -1,10 +1,44 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.serviceApi = void 0;
 exports.makeServiceCall = makeServiceCall;
 const electron_1 = require("electron");
 const node_fs_1 = require("node:fs");
 const node_path_1 = require("node:path");
+const testMode = __importStar(require("../renderer/testMode/testModeManager"));
 const safeExpose = (key, api) => {
     try {
         if (process.contextIsolated) {
@@ -18,8 +52,125 @@ const safeExpose = (key, api) => {
         console.warn(`[preload] expose ${key} failed:`, err);
     }
 };
+const electronFsApi = {
+    resolvePath: (...segments) => (0, node_path_1.resolve)(...segments),
+    async readJson(targetPath) {
+        const resolved = (0, node_path_1.resolve)(targetPath);
+        const contents = await node_fs_1.promises.readFile(resolved, { encoding: 'utf-8' });
+        return JSON.parse(contents);
+    },
+    async readDir(targetPath) {
+        const resolved = (0, node_path_1.resolve)(targetPath);
+        const entries = await node_fs_1.promises.readdir(resolved, { withFileTypes: true });
+        return entries.map((entry) => ({
+            name: entry.name,
+            isDirectory: entry.isDirectory(),
+            isFile: entry.isFile(),
+        }));
+    },
+    async stat(targetPath) {
+        const resolved = (0, node_path_1.resolve)(targetPath);
+        const stats = await node_fs_1.promises.stat(resolved);
+        return {
+            size: stats.size,
+            isDirectory: stats.isDirectory(),
+            isFile: stats.isFile(),
+            mtimeMs: stats.mtimeMs,
+        };
+    },
+};
+safeExpose('__electronApi', { fs: electronFsApi });
 const isPlaywright = process.env.PLAYWRIGHT === '1';
+const setPlaywrightTestAttribute = () => {
+    if (typeof document === 'undefined') {
+        return;
+    }
+    const root = document.documentElement;
+    if (root) {
+        root.setAttribute('data-test-env', '1');
+    }
+    document.body?.setAttribute('data-test-env', '1');
+};
+if (isPlaywright) {
+    if (typeof document !== 'undefined') {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', setPlaywrightTestAttribute, { once: true });
+        }
+        else {
+            setPlaywrightTestAttribute();
+        }
+    }
+}
 safeExpose('__testEnv', { isPlaywright });
+if (typeof window !== 'undefined') {
+    const globalWindow = window;
+    globalWindow.__testEnvFlatMode ??= false;
+    globalWindow.__testEnvFullMode ??= true;
+    globalWindow.__testEnvRecoveryMode ??= false;
+    globalWindow.__testEnvStableDock ??= process.env.BLACKSKIES_STABLE_DOCK === '1';
+    globalWindow.__testEnvStableHome ??= process.env.BLACKSKIES_STABLE_HOME === '1';
+    globalWindow.__testEnvVisualStable ??= process.env.BLACKSKIES_VISUAL_STABLE === '1';
+    if (process.env.BLACKSKIES_STABLE_HOME === '1') {
+        const applyStableHomeAttr = () => {
+            if (typeof document === 'undefined') {
+                return;
+            }
+            const target = document.body ?? document.documentElement;
+            if (target) {
+                target.dataset.testStablehome = '1';
+            }
+        };
+        if (typeof document !== 'undefined') {
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', applyStableHomeAttr, { once: true });
+            }
+            else {
+                applyStableHomeAttr();
+            }
+        }
+    }
+    if (process.env.BLACKSKIES_STABLE_DOCK === '1') {
+        const applyStableDockAttr = () => {
+            if (typeof document === 'undefined') {
+                return;
+            }
+            const target = document.body ?? document.documentElement;
+            if (target) {
+                target.dataset.testStableDock = '1';
+            }
+        };
+        if (typeof document !== 'undefined') {
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', applyStableDockAttr, { once: true });
+            }
+            else {
+                applyStableDockAttr();
+            }
+        }
+    }
+    if (process.env.BLACKSKIES_VISUAL_STABLE === '1') {
+        const applyVisualStableAttr = () => {
+            if (typeof document === 'undefined') {
+                return;
+            }
+            const target = document.body ?? document.documentElement;
+            if (target) {
+                target.dataset.testVisualStable = '1';
+            }
+        };
+        if (typeof document !== 'undefined') {
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', applyVisualStableAttr, { once: true });
+            }
+            else {
+                applyVisualStableAttr();
+            }
+        }
+    }
+}
+if (isPlaywright && typeof window !== 'undefined') {
+    console.log('[preload-offline-debug]', window.__testEnvForceOffline ?? null);
+}
 const devApi = {
     setProjectDir: (absPath) => window.dispatchEvent(new CustomEvent('test:set-project', { detail: absPath })),
 };
@@ -33,6 +184,22 @@ safeExpose('__testInsights', {
     selectScene: (id) => window.dispatchEvent(new CustomEvent('test:select-scene', { detail: id })),
 });
 // --- end bridges ---
+safeExpose('testMode', {
+    getMode: testMode.getMode,
+    isFlat: testMode.isFlat,
+    isRecovery: testMode.isRecovery,
+    isFull: testMode.isFull,
+    getOfflineReason: testMode.getOfflineReason,
+    debug() {
+        console.log('[test-mode-debug]', {
+            mode: testMode.getMode(),
+            isFlat: testMode.isFlat(),
+            isRecovery: testMode.isRecovery(),
+            isFull: testMode.isFull(),
+            offlineReason: testMode.getOfflineReason(),
+        });
+    },
+});
 const logging_js_1 = require("../shared/ipc/logging.js");
 const runtime_js_1 = require("../shared/config/runtime.js");
 const projectLoader_js_1 = require("../shared/ipc/projectLoader.js");
@@ -658,12 +825,18 @@ exports.serviceApi = {
         ...(request.zipName ? { zip_name: request.zipName } : {}),
         ...(request.restoreAsNew !== undefined ? { restore_as_new: request.restoreAsNew } : {}),
     }),
-    analyticsSummary: (projectId) => {
+    analyticsSummary: (projectId, forceRefresh = false) => {
         const params = new URLSearchParams({ project_id: projectId });
+        if (forceRefresh) {
+            params.set('force_refresh', 'true');
+        }
         return makeServiceCall(`analytics/summary?${params.toString()}`, 'GET');
     },
-    analyticsScenes: (projectId) => {
+    analyticsScenes: (projectId, forceRefresh = false) => {
         const params = new URLSearchParams({ project_id: projectId });
+        if (forceRefresh) {
+            params.set('force_refresh', 'true');
+        }
         return makeServiceCall(`analytics/scenes?${params.toString()}`, 'GET');
     },
     analyticsRelationships: (projectId) => {
@@ -748,6 +921,12 @@ const diagnosticsBridge = {
 };
 const servicesBridge = {
     async checkHealth() {
+        if (isPlaywright && typeof window !== 'undefined') {
+            const globalWindow = window;
+            console.log('[preload-services-debug]', {
+                forceOffline: globalWindow.__testEnvForceOffline ?? null,
+            });
+        }
         return probeHealth();
     },
     buildOutline: exports.serviceApi.buildOutline,
@@ -770,8 +949,8 @@ const servicesBridge = {
     getLastVerification: (request) => exports.serviceApi.getLastVerification?.(request),
     runBackupVerification: (request) => exports.serviceApi.runBackupVerification?.(request),
     getBackupVerificationReport: (request) => exports.serviceApi.getBackupVerificationReport?.(request),
-    getAnalyticsSummary: (request) => exports.serviceApi.analyticsSummary(request.projectId),
-    getAnalyticsScenes: (request) => exports.serviceApi.analyticsScenes(request.projectId),
+    getAnalyticsSummary: (request) => exports.serviceApi.analyticsSummary(request.projectId, Boolean(request.forceRefresh)),
+    getAnalyticsScenes: (request) => exports.serviceApi.analyticsScenes(request.projectId, Boolean(request.forceRefresh)),
     getAnalyticsRelationships: (request) => exports.serviceApi.analyticsRelationships?.(request.projectId),
     revealPath: async (path) => {
         try {
@@ -860,6 +1039,9 @@ if (process.env.PLAYWRIGHT === '1') {
             Object.assign(servicesBridge, overrides);
         },
     };
+    if (typeof window !== 'undefined') {
+        window.__testEnvNeedsRecovery = true;
+    }
     if (process.env.PLAYWRIGHT_DISABLE_ANIMATIONS === '1') {
         const disableAnimations = () => {
             if (typeof document === 'undefined') {

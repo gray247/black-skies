@@ -1,11 +1,11 @@
 {
   "phase": "Phase 6",
-  "status": "feature-complete",
+  "status": "in-progress",
   "summary": [
-    "AnalyticsService now emits project summary, scene metrics, and relationship graph data derived from outlines and draft text.",
-    "The renderer ships the Story Insights Dashboard (AnalyticsDashboard) with emotion/pacing visuals, the Corkboard of scene cards, and the Relationship Graph pane.",
-    "Insights surfaces the same local Story Insights data with clear offline messaging and dedicated test hooks.",
-    "Passoff artifacts, tracker notes, and refinement documentation capture what ships versus what remains deferred."
+    "AnalyticsService now emits project summary, scene metrics, and relationship graph data derived from outlines and draft text while scene-level caches in history/analytics/ memoize metrics per scene-id + content hash so repeated requests stay fast.",
+    "The renderer ships the Story Insights Dashboard (AnalyticsDashboard) with emotion/pacing visuals, the Corkboard of scene cards, and the Relationship Graph pane while the Snapshot/Verification modal now surfaces local metadata, sticky toasts, and dark-theme contrast for manual verification insights.",
+    "Insights surfaces the same local Story Insights data with the offline banner “Analytics service offline — using cached metrics,” and the Refresh Analytics control plus cached payloads keep the UI alive when FastAPI is unreachable without issuing new /analytics/* calls.",
+    "Passoff artifacts, tracker notes, and refinement documentation now capture both what ships and what is deferred for final verification."
   ],
   "backend": {
     "analytics": "analytics_stub aggregates outline, drafts, and front-matter to compute summaries, scene metrics, and relationship nodes/edges.",
@@ -53,11 +53,13 @@
     "notes": "Phase 5 smoke spec covers export/integrity; future phases may add analytics e2e coverage."
   },
   "deferred": [
-    "Sophisticated emotion/pacing models and offline caching strategies (see Bucket 9 refinement notes).",
-    "Relationship graph layout/interaction beyond a lightweight list of connections.",
-    "Insights automation or import analytics beyond local metrics.",
-    "Future cross-surface e2e for Story Insights once Phase 9 enables the analytics service."
+    "Relationship graph layout/interaction beyond the current lightweight nodes/edges list.",
+    "Insights automation or import analytics beyond local metrics."
   ],
+  "human_verification": {
+    "status": "pending",
+    "notes": "Manual GUI review pending for the caching/offline Story Insights flows; see work/phase6/verification_notes.md for ongoing notes."
+  },
   "artifacts": [
     "docs/phase6_analytics_refinement_notes.md",
     "work/phase6/phase6_tracker.md",

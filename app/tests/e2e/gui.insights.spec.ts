@@ -32,8 +32,14 @@ test('queues model insights offline and resumes when online', async ({ page }) =
   );
 
   await page.evaluate(() => {
-    (window as any).__testInsights.selectScene('sc_0001');
-    (window as any).__testInsights.setServiceStatus('offline');
+    const win = window as typeof window & {
+      __testInsights?: {
+        selectScene?: (sceneId: string) => void;
+        setServiceStatus?: (status: 'online' | 'offline') => void;
+      };
+    };
+    win.__testInsights?.selectScene?.('sc_0001');
+    win.__testInsights?.setServiceStatus?.('offline');
   });
 
   const runAllInsights = page.getByRole('button', { name: /run all insights/i });
@@ -43,7 +49,12 @@ test('queues model insights offline and resumes when online', async ({ page }) =
   await expect(page.getByTestId('insights-local-ran')).toBeVisible({ timeout: 30_000 });
   await expect(page.getByTestId('insights-model-queued')).toBeVisible({ timeout: 30_000 });
 
-  await page.evaluate(() => (window as any).__testInsights.setServiceStatus('online'));
+  await page.evaluate(() => {
+    const win = window as typeof window & {
+      __testInsights?: { setServiceStatus?: (status: 'online' | 'offline') => void };
+    };
+    win.__testInsights?.setServiceStatus?.('online');
+  });
 
   await expect(page.getByTestId('insights-model-resumed')).toBeVisible({ timeout: 30_000 });
 });

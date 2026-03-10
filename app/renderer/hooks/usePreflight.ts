@@ -106,6 +106,11 @@ export function usePreflight({
     }
 
     if (result.ok) {
+      console.info('[preflight] result', { budget: result.data.budget });
+      if (result.data.budget) {
+        console.info('[budget:preflight]', result.data.budget);
+        onBudgetUpdate?.(result.data.budget);
+      }
       setState({
         open: true,
         loading: false,
@@ -122,6 +127,7 @@ export function usePreflight({
         estimate: undefined,
       });
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMountedRef, projectSummary, services, pushToast]);
 
   const closePreflight = useCallback(() => {

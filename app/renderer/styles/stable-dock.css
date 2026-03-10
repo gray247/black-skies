@@ -1,0 +1,31 @@
+body[data-test-stable-dock="1"] {
+  min-width: 1280px;
+  min-height: 900px;
+}
+
+body[data-test-stable-dock="1"] *,
+body[data-test-stable-dock="1"] .dock-workspace,
+body[data-test-stable-dock="1"] .dock-workspace__grid,
+body[data-test-stable-dock="1"] .dock-pane {
+  transition: none !important;
+  animation: none !important;
+  will-change: auto !important;
+}
+
+body[data-test-stable-dock="1"] #app-root {
+  width: 1280px;
+  height: 920px;
+}
+
+body[data-test-stable-dock="1"] .dock-workspace {
+  padding: 0;
+}
+
+body[data-test-stable-dock="1"] .dock-split-handle,
+body[data-test-stable-dock="1"] .dock-split-handle--horizontal-proxy {
+  opacity: 1 !important;
+}
+
+body[data-test-stable-dock="1"] .dock-pane--stable-hidden {
+  transition: none !important;
+}

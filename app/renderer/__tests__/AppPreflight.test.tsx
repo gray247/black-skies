@@ -19,8 +19,8 @@ beforeEach(() => {
   if (!(global as typeof globalThis & { window?: Window }).window) {
     (global as typeof globalThis & { window?: Window }).window = window;
   }
-  const bridge = ((window as typeof window & { bridge?: Record<string, any> }).bridge ??=
-    {}) as Record<string, any>;
+  const bridge = ((window as typeof window & { bridge?: Record<string, unknown> }).bridge ??=
+    {}) as Record<string, unknown>;
 
   bridge.listSnapshots = vi.fn().mockResolvedValue([
     { snapshot_id: 's1', created_at: '2025-11-15T12:00:00Z', path: '.snapshots/s1' },

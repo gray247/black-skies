@@ -1,12 +1,15 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
-import type { AnalyticsScenes, SceneMetric } from "../../shared/ipc/services";
+import type { SceneMetric } from "../../shared/ipc/services";
 import OfflineBanner from "./OfflineBanner";
+import { useServiceHealthContext } from "../contexts/serviceHealthContext";
+import { useLocalAnalyticsCache } from "../hooks/useLocalAnalyticsCache";
+
+export const CORKBOARD_HEADING_ID = "corkboard-heading";
 
 interface CorkboardProps {
   projectId?: string | null;
-  serviceUnavailable?: boolean;
-  onRetry?: () => void;
+  projectPath?: string | null;
 }
 
 interface CorkboardState {
@@ -18,16 +21,27 @@ interface CorkboardState {
 const formatRatio = (value: number): string =>
   Number.isFinite(value) ? `${(value * 100).toFixed(0)}%` : "-";
 
-function Corkboard({ projectId, serviceUnavailable = false, onRetry }: CorkboardProps): JSX.Element {
+function Corkboard({ projectId, projectPath }: CorkboardProps): JSX.Element {
+  const { serviceUnavailable, onRetry } = useServiceHealthContext();
   const [state, setState] = useState<CorkboardState>({
     scenes: [],
     loading: false,
     error: null,
   });
+  const safeProjectPath = projectPath ?? "";
+  const cachedState = useLocalAnalyticsCache(safeProjectPath, projectId ?? null, serviceUnavailable);
+  const sceneRows = serviceUnavailable ? cachedState.scenes?.scenes ?? [] : state.scenes;
+  const isLoading = serviceUnavailable ? cachedState.loading : state.loading;
+  const errorMessage = serviceUnavailable ? cachedState.error : state.error;
+  const noProject = !safeProjectPath && !serviceUnavailable;
 
   useEffect(() => {
+    if (noProject) {
+      setState({ scenes: [], loading: false, error: null });
+      return;
+    }
     if (serviceUnavailable) {
-      setState({ scenes: [], loading: false, error: "Story Insights is offline." });
+      setState({ scenes: [], loading: false, error: null });
       return;
     }
     if (!projectId) {
@@ -69,37 +83,39 @@ function Corkboard({ projectId, serviceUnavailable = false, onRetry }: Corkboard
     return () => {
       cancelled = true;
     };
-  }, [projectId, serviceUnavailable]);
+  }, [noProject, projectId, serviceUnavailable]);
 
-  const columns = useMemo(
-    () => [
-      { label: "Index", accessor: (scene: SceneMetric) => scene.index + 1 },
-      { label: "Title", accessor: (scene: SceneMetric) => scene.title ?? scene.sceneId },
-      { label: "Words", accessor: (scene: SceneMetric) => scene.wordCount },
-      { label: "Readability", accessor: (scene: SceneMetric) =>
-          scene.readability !== null ? scene.readability.toFixed(1) : "-" },
-      { label: "Dialogue", accessor: (scene: SceneMetric) =>
-          formatRatio(scene.density.dialogueRatio) },
-    ],
-    [],
-  );
+  if (noProject) {
+    return (
+      <div className="corkboard corkboard--no-project">
+        <header>
+          <h2 id={CORKBOARD_HEADING_ID}>Corkboard</h2>
+        </header>
+        <p className="corkboard__placeholder">No project selected. Open a project to view scene cards.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="corkboard">
       <header>
-        <h2>Corkboard</h2>
+        <h2 id={CORKBOARD_HEADING_ID}>Corkboard</h2>
         <p>Scene cards ordered by the outline.</p>
       </header>
       {serviceUnavailable && (
         <OfflineBanner
-          message="Corkboard content is unavailable while writing tools are offline."
+          message="Analytics service offline — using cached metrics."
           onRetry={onRetry}
         />
       )}
-      {state.error && <p className="corkboard__error">{state.error}</p>}
-      {state.loading && <p className="corkboard__loading">Loading scenes…</p>}
+      {errorMessage && <p className="corkboard__error">{errorMessage}</p>}
+      {isLoading && (
+        <p className="corkboard__loading">
+          {serviceUnavailable ? "Loading cached analytics…" : "Loading scenes…"}
+        </p>
+      )}
       <div className="corkboard__grid">
-        {state.scenes.map((scene) => (
+        {sceneRows.map((scene) => (
           <article
             key={scene.sceneId}
             className="corkboard-card"
@@ -135,7 +151,7 @@ function Corkboard({ projectId, serviceUnavailable = false, onRetry }: Corkboard
           </article>
         ))}
       </div>
-      {!state.loading && state.scenes.length === 0 && !state.error && (
+      {!isLoading && sceneRows.length === 0 && !errorMessage && (
         <p>No scene cards yet. Load a project to view the corkboard.</p>
       )}
     </div>

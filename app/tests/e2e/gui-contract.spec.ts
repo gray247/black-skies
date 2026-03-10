@@ -169,6 +169,7 @@ test.beforeEach(async ({ page }) => {
 
 test('matches pane labels defined in documentation', async ({ page }) => {
   await bootstrapHarness(page);
+  await page.waitForFunction(() => (window as typeof window & { __paneReady?: number }).__paneReady ?? 0 >= 4);
 
 const hiddenPanes = new Set(['timeline', 'critique', 'relationshipGraph']);
   for (const [paneId, expectedLabel] of Object.entries(guiContract.paneLabels)) {
@@ -186,6 +187,7 @@ const hiddenPanes = new Set(['timeline', 'critique', 'relationshipGraph']);
 
 test('hidden pane dropdown restores removed panes and retains focus', async ({ page }) => {
   await bootstrapHarness(page);
+  await page.waitForFunction(() => (window as typeof window & { __paneReady?: number }).__paneReady ?? 0 >= 4);
   const closeButton = page.getByRole('button', { name: /Close Outline pane/i }).first();
   await closeButton.click();
   const hiddenRegion = page.getByRole('region', { name: 'Hidden panes' });

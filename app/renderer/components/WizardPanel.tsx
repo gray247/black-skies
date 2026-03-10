@@ -9,6 +9,7 @@ import type {
 } from '../../shared/ipc/services';
 import type { ToastPayload } from '../types/toast';
 import { TID } from '../utils/testIds';
+import * as testMode from '../testMode/testModeManager';
 
 const STORAGE_KEY = 'blackskies.wizard-locks.v2';
 const LEGACY_STORAGE_KEYS = ['blackskies.wizard-locks.v1'];
@@ -57,6 +58,7 @@ interface WizardPanelProps {
   services?: ServicesBridge;
   onToast: (toast: ToastPayload) => void;
   onOutlineReady?: (projectId: string) => void;
+  defaultProjectId?: string | null;
 }
 
 interface ParsedChapter {
@@ -417,10 +419,19 @@ export default function WizardPanel({
   services,
   onToast,
   onOutlineReady,
+  defaultProjectId,
 }: WizardPanelProps): JSX.Element {
   const initialStateRef = useRef<{ draft: WizardDraftState; locks: WizardStepLocks } | null>(null);
   if (!initialStateRef.current) {
-    initialStateRef.current = readStoredState();
+    if (typeof window !== 'undefined' && testMode.isTestEnv()) {
+      localStorage.removeItem(STORAGE_KEY);
+      LEGACY_STORAGE_KEYS.forEach((key) => localStorage.removeItem(key));
+    }
+    const stored = readStoredState();
+    if (defaultProjectId && !stored.draft.projectId) {
+      stored.draft.projectId = defaultProjectId;
+    }
+    initialStateRef.current = stored;
   }
 
   const [draft, setDraft] = useState<WizardDraftState>(initialStateRef.current.draft);
@@ -445,6 +456,16 @@ export default function WizardPanel({
       console.warn('[WizardPanel] Failed to persist wizard state', error);
     }
   }, [draft, locks]);
+
+  useEffect(() => {
+    if (defaultProjectId && !draft.projectId) {
+      setDraft((previous) => ({
+        ...previous,
+        projectId: defaultProjectId,
+      }));
+    }
+  }, [defaultProjectId, draft.projectId]);
+
 
   const parsedLocks = useMemo(() => buildLocksFromDraft(draft), [draft]);
   const currentIndex = useMemo(() => STEP_SEQUENCE.indexOf(step), [step]);
@@ -559,14 +580,14 @@ export default function WizardPanel({
         });
 
         if (!response.ok) {
-          onToast({
-            tone: 'error',
-            title: 'Snapshot failed',
-            description: response.error.message || 'Unable to create a snapshot for this step.',
-            traceId: response.traceId ?? response.error.traceId,
-          });
-          return;
-        }
+         onToast({
+           tone: 'error',
+           title: 'Snapshot failed',
+           description: response.error.message || 'Unable to create a snapshot for this step.',
+           traceId: response.traceId ?? response.error.traceId,
+         });
+         return;
+       }
 
         const snapshot = response.data;
         setLocks((previous) => ({
@@ -739,6 +760,7 @@ export default function WizardPanel({
           className="wizard-panel__button wizard-panel__button--secondary"
           onClick={() => void handleToggleLock(targetStep)}
           disabled={busy}
+          data-testid={targetStep === 'inputScope' ? 'wizard-lock-button' : undefined}
         >
           {busy ? 'Working…' : lockState.locked ? 'Unlock' : 'Lock'}
         </button>

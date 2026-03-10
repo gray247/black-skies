@@ -18,11 +18,13 @@ Last Reviewed: 2025-11-15
 - **P10:** Accessibility & export suite.
 - **P11:** Agents & plugin framework.
 
-## Open follow-up items
+-## Open follow-up items
 - Track **budget constant reuse**: replace hard-coded `0.02` pricing in `DraftGenerationService` with `COST_PER_1000_WORDS_USD` and audit for other stragglers.
 - Simplify **fingerprint generation** by relying on `json.dumps(..., sort_keys=True)` (no manual override sorting) and update tests to assert determinism.
 - Document and standardise **threadpool usage** (`run_in_threadpool` vs `asyncio.to_thread`), and schedule tests/docs for the recovery state machine and snapshot validation scenarios.
 - Harden budget meter with **live spend telemetry** (generation + critique) and persist the latest ledger snapshot for recovery screens.
+
+- **2025-11-20** – Human verification run logged; C4.2 snapshot/verification UI polish and C5 analytics refinement remain open, refs: `work/phase6/verification_notes.md`, `docs/phases/phase6_passoff.json`.
 
 ---
 

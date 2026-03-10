@@ -33,7 +33,12 @@ interface ToastCardProps {
 }
 
 function ToastCard({ toast, onDismiss, autoDismissMs }: ToastCardProps): JSX.Element {
-  const dismissDelay = typeof toast.durationMs === 'number' ? toast.durationMs : autoDismissMs;
+  const testEnv =
+    typeof window !== 'undefined' &&
+    ((window as typeof window & { __testEnv?: { isPlaywright?: boolean } }).__testEnv?.isPlaywright === true ||
+      document.body?.dataset?.testEnv === '1');
+  const baseDelay = typeof toast.durationMs === 'number' ? toast.durationMs : autoDismissMs;
+  const dismissDelay = testEnv ? 0 : baseDelay;
   useEffect(() => {
     if (dismissDelay <= 0) {
       return () => {};

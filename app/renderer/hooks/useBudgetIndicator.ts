@@ -106,17 +106,21 @@ export function useBudgetIndicator({
         return;
       }
 
+      const projectedAfter =
+        response.budget.hard_limit_usd !== undefined && response.budget.remaining_usd !== undefined
+          ? response.budget.hard_limit_usd - response.budget.remaining_usd
+          : undefined;
       const nextIndicator = buildBudgetIndicatorState(response);
-      setIndicator(nextIndicator);
+      setIndicator({ ...nextIndicator });
       setBlocked(nextIndicator.status === "blocked");
       const meterStatus = nextIndicator.status === "warning" ? "soft-limit" : nextIndicator.status;
       onBudgetUpdate?.({
         soft_limit_usd: response.budget.soft_limit_usd,
         hard_limit_usd: response.budget.hard_limit_usd,
         spent_usd: response.budget.spent_usd,
-        total_after_usd: response.budget.total_after_usd,
+        total_after_usd: projectedAfter,
         estimated_usd: response.budget.remaining_usd,
-        message: response.message ?? nextIndicator.message ?? undefined,
+        remaining_usd: response.budget.remaining_usd,
         status: meterStatus,
       });
     },

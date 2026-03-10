@@ -28,6 +28,21 @@ if (typeof window !== 'undefined') {
   }
 }
 
+function shouldLogToConsole(): boolean {
+  if (typeof window !== 'undefined') {
+    const win = window as typeof window & { __testEnv?: { isPlaywright?: boolean } };
+    if (
+      (typeof process !== 'undefined' && process.env?.PLAYWRIGHT === '1') ||
+      win.__testEnv === true ||
+      win.__testEnv?.isPlaywright ||
+      document.body?.dataset?.testStableDock === '1'
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
+
 function notifyListeners(): void {
   for (const listener of listeners) {
     try {
@@ -57,7 +72,9 @@ export function recordDebugEvent(scope: string, data: unknown): void {
     scope,
     data,
   };
-  console.info(`[Debug:${scope}]`, JSON.stringify(entry));
+  if (shouldLogToConsole()) {
+    console.info(`[Debug:${scope}]`, JSON.stringify(entry));
+  }
   appendEvent(entry);
 }
 

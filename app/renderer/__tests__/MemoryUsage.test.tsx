@@ -69,12 +69,13 @@ describe('Approximate memory leak safeguards', () => {
       const [, setTick] = useState(0);
       useEffect(() => {
         const handler = () => setTick((v) => v + 1);
+        const win = window as typeof window & { __listenerCount?: number };
         window.addEventListener('test-event', handler);
-        listenerCounts.push((window as any).__listenerCount ?? 0);
-        (window as any).__listenerCount = ((window as any).__listenerCount ?? 0) + 1;
+        listenerCounts.push(win.__listenerCount ?? 0);
+        win.__listenerCount = (win.__listenerCount ?? 0) + 1;
         return () => {
           window.removeEventListener('test-event', handler);
-          (window as any).__listenerCount = Math.max(((window as any).__listenerCount ?? 1) - 1, 0);
+          win.__listenerCount = Math.max((win.__listenerCount ?? 1) - 1, 0);
         };
       }, []);
       return <div>listener</div>;

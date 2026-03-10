@@ -35,7 +35,7 @@ function setupFetchRecorder(): { fetchMock: ReturnType<typeof vi.fn>; urls: stri
       },
     );
   });
-  global.fetch = fetchMock as any;
+  global.fetch = fetchMock as unknown as typeof fetch;
   return { fetchMock, urls };
 }
 
@@ -68,7 +68,7 @@ describe('Analytics requests stay on valid endpoints', () => {
 
     const OpenAnalytics = () => {
       const handleOpen = () => {
-        render(<AnalyticsDashboard projectId="proj" />);
+        render(<AnalyticsDashboard projectId="proj" projectPath="/projects/proj" />);
         render(<RelationshipGraph projectId="proj" />);
       };
       return (

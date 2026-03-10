@@ -21,7 +21,7 @@ const panes: Partial<Record<LayoutPaneId, JSX.Element>> = {
   storyInsights: <div data-testid="pane-storyInsights">Story Insights</div>,
 };
 
-function setupBridge(result: { layout: LayoutTree | null; floating?: any[] }): MockBridge {
+function setupBridge(result: { layout: LayoutTree | null; floating?: Array<unknown> }): MockBridge {
   const bridge = {
     loadLayout: vi.fn().mockResolvedValue({
       layout: result.layout,

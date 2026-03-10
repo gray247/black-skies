@@ -1,0 +1,14 @@
+{
+  "scene_id": "sc_0001",
+  "order": 1,
+  "title": "Basement Pulse",
+  "word_count": 912,
+  "dialogue_ratio": 0.42,
+  "narration_ratio": 0.58,
+  "readability_metrics": {
+    "avg_sentence_len": 18.2,
+    "pct_long_sentences": 0.12,
+    "ttr": 0.68,
+    "bucket": "Moderate"
+  }
+}

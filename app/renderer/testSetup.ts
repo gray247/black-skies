@@ -24,3 +24,23 @@ if (typeof window !== 'undefined' && typeof window.HTMLElement !== 'undefined') 
     elementPrototype.scrollIntoView = () => {};
   }
 }
+
+if (typeof window !== 'undefined' && !window.__electronApi) {
+  window.__electronApi = {
+    fs: {
+      resolvePath: (...segments: string[]) => segments.filter(Boolean).join('/'),
+      readJson: async () => {
+        const error = new Error('Filesystem bridge unavailable');
+        (error as { code?: string }).code = 'ENOENT';
+        throw error;
+      },
+      readDir: async () => [],
+      stat: async () => ({
+        size: 0,
+        isDirectory: false,
+        isFile: true,
+        mtimeMs: 0,
+      }),
+    },
+  };
+}

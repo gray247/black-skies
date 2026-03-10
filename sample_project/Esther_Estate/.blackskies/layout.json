@@ -1,0 +1,15 @@
+{
+  "version": 3,
+  "layout": {
+    "direction": "column",
+    "first": "draftPreview",
+    "second": {
+      "direction": "row",
+      "first": "outline",
+      "second": "corkboard",
+      "splitPercentage": 50
+    },
+    "splitPercentage": 50
+  },
+  "floatingPanes": []
+}

@@ -3,7 +3,7 @@ import { vi } from 'vitest';
 
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
 import * as analyticsUtils from '../utils/analytics';
-import type { SceneMetric } from '../../shared/ipc/services';
+import type { SceneMetric, ServicesBridge } from '../../shared/ipc/services';
 
 function buildScenes(count: number): SceneMetric[] {
   return Array.from({ length: count }, (_, index) => ({
@@ -24,7 +24,7 @@ describe('Performance regressions for analytics surfaces', () => {
 
   it('renders large scene set within budget', () => {
     const scenes = buildScenes(120);
-    (window as typeof window & { services?: any }).services = {
+    const servicesMock: Partial<ServicesBridge> = {
       getAnalyticsSummary: vi.fn().mockResolvedValue({
         ok: true,
         data: { projectId: 'proj', projectPath: '/proj', scenes: scenes.length, wordCount: 100000, avgReadability: 12 },
@@ -34,9 +34,10 @@ describe('Performance regressions for analytics surfaces', () => {
         data: { projectId: 'proj', projectPath: '/proj', scenes },
       }),
     };
+    (window as typeof window & { services?: ServicesBridge }).services = servicesMock as ServicesBridge;
 
     const start = performance.now();
-    render(<AnalyticsDashboard projectId="proj" />);
+    render(<AnalyticsDashboard projectId="proj" projectPath="/projects/proj" />);
     const elapsed = performance.now() - start;
 
     // Ensure synthetic render stays under a generous local threshold.
@@ -46,7 +47,7 @@ describe('Performance regressions for analytics surfaces', () => {
   it('avoids repeated heavy calculations on identical props', async () => {
     const scenes = buildScenes(10);
     const computeSpy = vi.spyOn(analyticsUtils, 'computeEmotionArc');
-    (window as typeof window & { services?: any }).services = {
+    const servicesMock: Partial<ServicesBridge> = {
       getAnalyticsSummary: vi.fn().mockResolvedValue({
         ok: true,
         data: { projectId: 'proj', projectPath: '/proj', scenes: scenes.length, wordCount: 5000, avgReadability: 10 },
@@ -56,10 +57,13 @@ describe('Performance regressions for analytics surfaces', () => {
         data: { projectId: 'proj', projectPath: '/proj', scenes },
       }),
     };
+    (window as typeof window & { services?: ServicesBridge }).services = servicesMock as ServicesBridge;
 
-    const { rerender } = render(<AnalyticsDashboard projectId="proj" />);
-    rerender(<AnalyticsDashboard projectId="proj" />);
-    rerender(<AnalyticsDashboard projectId="proj" />);
+    const { rerender } = render(
+      <AnalyticsDashboard projectId="proj" projectPath="/projects/proj" />,
+    );
+    rerender(<AnalyticsDashboard projectId="proj" projectPath="/projects/proj" />);
+    rerender(<AnalyticsDashboard projectId="proj" projectPath="/projects/proj" />);
 
     const calls = computeSpy.mock.calls.length;
     expect(calls).toBeLessThanOrEqual(1);

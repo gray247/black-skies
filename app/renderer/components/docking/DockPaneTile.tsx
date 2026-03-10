@@ -29,6 +29,8 @@ interface DockPaneTileProps {
   onClose?: (paneId: LayoutPaneId) => void;
   controlsEnabled?: boolean;
   isExpanded?: boolean;
+  isHidden?: boolean;
+  dataPaneId?: string;
 }
 
 export default function DockPaneTile({
@@ -51,12 +53,25 @@ export default function DockPaneTile({
   onClose,
   controlsEnabled = true,
   isExpanded = false,
+  isHidden = false,
+  dataPaneId,
 }: DockPaneTileProps): JSX.Element {
   const serializedPath = useMemo(() => path.join('.'), [path]);
   const handleAssignRef = useCallback(
     (element: HTMLDivElement | null) => assignPaneRef(paneId, element),
     [assignPaneRef, paneId],
   );
+
+  useEffect(() => {
+    const isStable = typeof document !== 'undefined' && document.body?.dataset?.testStableDock === '1';
+    if (!isStable) {
+      return;
+    }
+    console.log(`[stable-dock] mount ${paneId}`);
+    return () => {
+      console.log(`[stable-dock] unmount ${paneId}`);
+    };
+  }, [paneId]);
 
   const handleContentFocus = useCallback(
     (_event: FocusEvent<HTMLDivElement>) => {
@@ -82,21 +97,35 @@ export default function DockPaneTile({
   const handleClose = useCallback(() => {
     onClose?.(paneId);
   }, [onClose, paneId]);
+  const actionDisabled = !controlsEnabled;
+  const closeButton = useMemo(
+    () => (
+      <button
+        type="button"
+        className="dock-pane__toolbar-button"
+        onClick={handleClose}
+        title="Close this pane."
+        aria-label={`Close ${paneTitle} pane`}
+        data-testid={paneId === 'outline' ? 'close-outline-pane' : undefined}
+        disabled={actionDisabled}
+      >
+        Close
+      </button>
+    ),
+    [actionDisabled, handleClose, paneId, paneTitle],
+  );
 
   const handleFocus = useCallback(() => {
     onFocusRequest(paneId);
   }, [onFocusRequest, paneId]);
 
-  const actionDisabled = !controlsEnabled;
-  const renderToolbar = useCallback(
-    (_toolbarProps: MosaicWindowToolbarProps<LayoutPaneId>) => {
-      void _toolbarProps;
-      return (
+  const toolbarContent = useMemo(
+    () => (
       <div className="dock-pane__toolbar">
         <span className="dock-pane__titlebar" aria-hidden="true">
           {paneTitle}
         </span>
-        <div className="dock-pane__toolbar-actions">
+        <div className="dock-pane__toolbar-actions" data-testid="dock-pane-toolbar-actions">
           <button
             type="button"
             className="dock-pane__toolbar-button"
@@ -107,16 +136,7 @@ export default function DockPaneTile({
           >
             Expand
           </button>
-          <button
-            type="button"
-            className="dock-pane__toolbar-button"
-            onClick={handleClose}
-            title="Close this pane."
-            aria-label={`Close ${paneTitle} pane`}
-            disabled={actionDisabled}
-          >
-            Close
-          </button>
+          {closeButton}
           <button
             type="button"
             className="dock-pane__toolbar-button"
@@ -138,9 +158,16 @@ export default function DockPaneTile({
           </button>
         </div>
       </div>
-      );
+    ),
+    [actionDisabled, canFloat, closeButton, handleExpand, handleFocus, onFloat, paneTitle],
+  );
+
+  const renderToolbar = useCallback(
+    (_toolbarProps: MosaicWindowToolbarProps<LayoutPaneId>) => {
+      void _toolbarProps;
+      return toolbarContent;
     },
-    [actionDisabled, canFloat, handleClose, handleExpand, handleFocus, onFloat, paneTitle],
+    [toolbarContent],
   );
 
   useEffect(() => {
@@ -153,11 +180,18 @@ export default function DockPaneTile({
 
   const safeContent = content ?? <div className="dock-pane__content-fallback" aria-hidden="true" />;
 
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const win = window as typeof window & { __paneReady?: number };
+      win.__paneReady = (win.__paneReady ?? 0) + 1;
+    }
+  }, []);
+
   return (
     <MosaicWindow<LayoutPaneId>
       className={`dock-pane${isFocused ? ' dock-pane--focused' : ''}${
         highlightRelocated ? ' dock-pane--relocated' : ''
-      }${isExpanded ? ' dock-pane--expanded' : ''}`}
+      }${isExpanded ? ' dock-pane--expanded' : ''}${isHidden ? ' dock-pane--stable-hidden' : ''}`}
       path={path}
       title=""
       renderToolbar={renderToolbar}
@@ -171,8 +205,10 @@ export default function DockPaneTile({
         aria-describedby={instructionsId}
         title={paneDescription}
         ref={handleAssignRef}
-        data-pane-id={paneId}
+        data-pane-id={dataPaneId ?? paneId}
         data-focused={isFocused ? 'true' : undefined}
+        data-hidden={isHidden ? 'true' : undefined}
+        aria-hidden={isHidden ? 'true' : undefined}
         onFocus={handleContentFocus}
         onBlur={handleContentBlur}
       >

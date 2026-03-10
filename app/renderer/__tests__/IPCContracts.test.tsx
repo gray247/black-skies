@@ -1,5 +1,3 @@
-import { render, screen } from '@testing-library/react';
-import { useEffect, useState } from 'react';
 import { vi } from 'vitest';
 
 import type {
@@ -37,7 +35,7 @@ describe('IPC contract stability', () => {
 
   it('rejects malformed payloads before reaching fetch', () => {
     const fetchSpy = vi.fn();
-    global.fetch = fetchSpy as any;
+    global.fetch = fetchSpy as unknown as typeof fetch;
 
     const bridgeCall = (payload: Partial<BackupCreateBridgeRequest>) => {
       if (!payload.projectId || typeof payload.projectId !== 'string') {
@@ -46,13 +44,13 @@ describe('IPC contract stability', () => {
       throw new Error('Should not reach network');
     };
 
-    expect(() => bridgeCall({ projectId: 123 as any })).toThrow(/BridgeInputError/);
+    expect(() => bridgeCall({ projectId: 123 as unknown as string })).toThrow(/BridgeInputError/);
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 
   it('blocks forbidden endpoints before any network attempt', () => {
     const fetchSpy = vi.fn();
-    global.fetch = fetchSpy as any;
+    global.fetch = fetchSpy as unknown as typeof fetch;
     const allowed = new Set(['analytics/summary', 'analytics/scenes', 'analytics/relationships']);
 
     const callEndpoint = (path: string) => {

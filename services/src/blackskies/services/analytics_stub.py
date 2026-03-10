@@ -21,22 +21,70 @@ from .constants import (
 from .export import load_outline_artifact
 from .io import read_json
 from .scene_docs import DraftRequestError, read_scene_document
+from .analytics.cache import (
+    compute_content_hash,
+    read_scene_cache,
+    write_scene_cache,
+)
 from .diagnostics import DiagnosticLogger
 from .operations.budget_service import BudgetService
+from .analytics.text_utils import (
+    compute_dialogue_narration_metrics,
+    compute_readability_metrics,
+    score_scene_pacing,
+)
 
 
 SENTENCE_SPLIT = re.compile(r"[.!?]+")
 
 
-def get_project_summary(settings: ServiceSettings, project_id: str) -> dict[str, object]:
+def get_project_summary(
+    settings: ServiceSettings,
+    project_id: str,
+    *,
+    force_refresh: bool = False,
+) -> dict[str, object]:
     """Return a lightweight analytics summary for the requested project."""
 
     project_root = _resolve_project_root(settings, project_id)
     outline = load_outline_artifact(project_root)
-    scenes = list(_generate_scene_stats(project_root, outline))
+    scenes = list(
+        _generate_scene_stats(project_root, outline, force_refresh=force_refresh)
+    )
+    pacing_results = score_scene_pacing(
+        [(scene.scene_id, scene.word_count, scene.dialogue_ratio) for scene in scenes]
+    )
+    pacing_map = {entry["scene_id"]: entry for entry in pacing_results}
+    for scene in scenes:
+        pacing_entry = pacing_map.get(scene.scene_id)
+        if pacing_entry:
+            scene.structural_score = pacing_entry["structural_score"]
+            scene.pacing_bucket = pacing_entry["pacing_bucket"]
     word_count = sum(scene.word_count for scene in scenes)
-    readability_values = [scene.readability for scene in scenes if scene.readability is not None]
-    avg_readability = round(mean(readability_values), 2) if readability_values else None
+    readability_details = [
+        scene.readability_metrics
+        for scene in scenes
+        if isinstance(scene.readability_metrics, dict)
+    ]
+    def _agg_float(key: str) -> float | None:
+        items = [
+            scene.get(key)
+            for scene in readability_details
+            if isinstance(scene.get(key), (int, float))
+        ]
+        if not items:
+            return None
+        return round(mean(items), 3 if key == "pct_long_sentences" else 2)
+
+    avg_sentence_len = _agg_float("avg_sentence_len")
+    pct_long_sentences = _agg_float("pct_long_sentences")
+    ttr = _agg_float("ttr")
+    bucket_counts: dict[str, int] = {}
+    for scene in readability_details:
+        bucket = scene.get("bucket")
+        if isinstance(bucket, str):
+            bucket_counts[bucket] = bucket_counts.get(bucket, 0) + 1
+    readability_bucket = max(bucket_counts.items(), key=lambda item: item[1])[0] if bucket_counts else "Moderate"
     word_counts = [scene.word_count for scene in scenes]
     pacing_scene_metrics = [
         {
@@ -44,9 +92,8 @@ def get_project_summary(settings: ServiceSettings, project_id: str) -> dict[str,
             "order": scene.index,
             "title": scene.title,
             "word_count": scene.word_count,
-            "beat_count": None,
-            "words_per_beat": None,
-            "pace_label": "steady",
+            "structural_score": scene.structural_score,
+            "pacing_bucket": scene.pacing_bucket,
         }
         for scene in scenes
     ]
@@ -63,12 +110,24 @@ def get_project_summary(settings: ServiceSettings, project_id: str) -> dict[str,
         cost_overlays["budget"] = {"spent_usd": round(budget_state.spent_usd, 2)}
     except Exception:
         cost_overlays["budget"] = {"spent_usd": 0.0}
+    dialogue_ratios = [scene.dialogue_ratio for scene in scenes if isinstance(scene.dialogue_ratio, (int, float))]
+    narration_ratios = [scene.narration_ratio for scene in scenes if isinstance(scene.narration_ratio, (int, float))]
+    dialogue_avg = round(mean(dialogue_ratios), 3) if dialogue_ratios else 0.0
+    narration_avg = round(mean(narration_ratios), 3) if narration_ratios else 0.0
     return {
         "projectId": metadata or project_id,
         "projectPath": str(project_root.resolve()),
         "scenes": len(scenes),
         "wordCount": word_count,
-        "avgReadability": avg_readability,
+        "avgReadability": avg_sentence_len,
+        "readability": {
+            "avg_sentence_len": avg_sentence_len,
+            "pct_long_sentences": pct_long_sentences,
+            "ttr": ttr,
+            "bucket": readability_bucket,
+        },
+        "dialogue_ratio": dialogue_avg,
+        "narration_ratio": narration_avg,
         "pacing": {
             "average_word_count": average_word_count,
             "median_word_count": median_word_count,
@@ -103,12 +162,20 @@ def get_project_summary(settings: ServiceSettings, project_id: str) -> dict[str,
     }
 
 
-def get_scene_metrics(settings: ServiceSettings, project_id: str) -> dict[str, object]:
+def get_scene_metrics(
+    settings: ServiceSettings,
+    project_id: str,
+    *,
+    force_refresh: bool = False,
+) -> dict[str, object]:
     """Return per-scene metrics for the requested project."""
 
     project_root = _resolve_project_root(settings, project_id)
     outline = load_outline_artifact(project_root)
-    scenes = [scene.to_dict() for scene in _generate_scene_stats(project_root, outline)]
+    scenes = [
+        scene.to_dict()
+        for scene in _generate_scene_stats(project_root, outline, force_refresh=force_refresh)
+    ]
     metadata = _load_project_metadata(project_root)
     return {
         "projectId": metadata or project_id,
@@ -150,7 +217,7 @@ def get_relationship_graph(settings: ServiceSettings, project_id: str) -> dict[s
     }
 
 
-@dataclass(frozen=True)
+@dataclass
 class SceneMetrics:
     scene_id: str
     index: int
@@ -159,6 +226,11 @@ class SceneMetrics:
     readability: float | None
     dialogue_ratio: float
     narration_ratio: float
+    structural_score: float
+    pacing_bucket: str
+    readability_metrics: dict[str, object] | None = None
+    structural_score: float = 0.0
+    pacing_bucket: str = "Neutral"
 
     def to_dict(self) -> dict[str, object]:
         return {
@@ -167,9 +239,14 @@ class SceneMetrics:
             "title": self.title,
             "wordCount": self.word_count,
             "readability": self.readability,
+            "readabilityMetrics": self.readability_metrics or None,
             "density": {
                 "dialogueRatio": round(self.dialogue_ratio, 2),
                 "narrationRatio": round(self.narration_ratio, 2),
+            },
+            "pacing": {
+                "structuralScore": round(self.structural_score, 2),
+                "bucket": self.pacing_bucket,
             },
         }
 
@@ -192,31 +269,60 @@ def _load_project_metadata(project_root: Path) -> str | None:
     return payload.get("project_id")
 
 
-def _generate_scene_stats(project_root: Path, outline) -> Iterable[SceneMetrics]:
+def _generate_scene_stats(
+    project_root: Path,
+    outline,
+    *,
+    force_refresh: bool = False,
+) -> Iterable[SceneMetrics]:
     sorted_scenes = sorted(outline.scenes, key=lambda scene: scene.order)
     for index, scene in enumerate(sorted_scenes):
         try:
             _, front_matter, body = read_scene_document(project_root, scene.id)
         except DraftRequestError:
             continue
-        word_count = _count_words(body)
-        readability = _compute_readability(body)
-        dialogue_words, narration_words = _split_dialogue_narration(body)
-        total_words = dialogue_words + narration_words
-        if total_words > 0:
-            dialogue_ratio = dialogue_words / total_words
-            narration_ratio = narration_words / total_words
-        else:
-            dialogue_ratio = narration_ratio = 0.0
+        text = body or ""
+        word_count = _count_words(text)
         title = front_matter.get("title") or scene.title or f"Scene {scene.id}"
+        content_hash = compute_content_hash(text)
+        cache_payload = None if force_refresh else read_scene_cache(project_root, scene.id)
+        if cache_payload and cache_payload.get("content_hash") == content_hash:
+            readability_metrics = cache_payload.get("readability_metrics") or {}
+            dialogue_ratio = float(cache_payload.get("dialogue_ratio") or 0.0)
+            narration_ratio = float(cache_payload.get("narration_ratio") or 0.0)
+        else:
+            readability_metrics = compute_readability_metrics(text)
+            dialogue = compute_dialogue_narration_metrics(text)
+            dialogue_ratio = dialogue["dialogue_ratio"]
+            narration_ratio = dialogue["narration_ratio"]
+            try:
+                write_scene_cache(
+                    project_root,
+                    scene_id=scene.id,
+                    order=getattr(scene, "order", index),
+                    title=title,
+                    word_count=word_count,
+                    dialogue_ratio=dialogue_ratio,
+                    narration_ratio=narration_ratio,
+                    readability_metrics=readability_metrics,
+                    content_hash=content_hash,
+                )
+            except Exception:
+                pass
+        avg_sentence_len = readability_metrics.get("avg_sentence_len")
         yield SceneMetrics(
             scene_id=scene.id,
             index=index,
             title=title,
             word_count=word_count,
-            readability=readability,
+            readability=round(avg_sentence_len, 2)
+            if isinstance(avg_sentence_len, (int, float)) and avg_sentence_len > 0
+            else None,
             dialogue_ratio=dialogue_ratio,
             narration_ratio=narration_ratio,
+            structural_score=0.0,
+            pacing_bucket="Neutral",
+            readability_metrics=readability_metrics,
         )
 
 

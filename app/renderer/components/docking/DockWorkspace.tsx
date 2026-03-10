@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
-import { Mosaic, MosaicZeroState, type MosaicNode, type MosaicPath } from 'react-mosaic-component';
+import { Mosaic, MosaicZeroState, type MosaicPath } from 'react-mosaic-component';
 
 import 'react-mosaic-component/react-mosaic-component.css';
 
@@ -48,6 +48,7 @@ interface DockWorkspaceProps {
   relocationNotifyEnabled: boolean;
   autoSnapEnabled: boolean;
   onRelocationNotifyChange?: (value: boolean) => void;
+  stableDockMode?: boolean;
 }
 
 function collectPaneIds(node: LayoutTree | null, result: Set<LayoutPaneId>): void {
@@ -71,6 +72,26 @@ function layoutContainsPane(node: LayoutTree, paneId: LayoutPaneId): boolean {
 
 const ROOT_GROUP_KEY = 'root';
 const EXPANDED_WEIGHT = 0.74;
+
+const STABLE_LAYOUT: LayoutTree = {
+  direction: 'row',
+  first: 'outline',
+  second: {
+    direction: 'column',
+    first: 'draftPreview',
+    second: {
+      direction: 'row',
+      first: 'storyInsights',
+      second: 'corkboard',
+      splitPercentage: 50,
+      weights: [0.5, 0.5],
+    },
+    splitPercentage: 60,
+    weights: [0.6, 0.4],
+  },
+  splitPercentage: 32,
+  weights: [0.32, 0.68],
+};
 
 function getGroupKeyFromPath(path: MosaicPath): string {
   if (path.length === 0) {
@@ -161,7 +182,7 @@ function removePaneFromLayout(tree: LayoutTree | null, paneId: LayoutPaneId): La
   };
 }
 
-export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
+function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
   const {
     projectPath,
     panes,
@@ -173,12 +194,26 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
     relocationNotifyEnabled,
     autoSnapEnabled,
     onRelocationNotifyChange,
+    stableDockMode: stableDockModeProp = false,
   } = props;
+  const stableDockRequested =
+    stableDockModeProp &&
+    (typeof document === 'undefined'
+      ? true
+      : document.body?.dataset?.testStableDock === '1' ||
+        (typeof window !== 'undefined' &&
+          (window as typeof window & { __testEnvStableDock?: boolean }).__testEnvStableDock === true));
+  if (stableDockModeProp && !stableDockRequested) {
+    console.warn('[MODE-LEAK] stableDock active during live flow');
+  }
+  const stableDockMode = stableDockRequested && stableDockModeProp;
   const layoutBridge = typeof window !== 'undefined' ? window.layout : undefined;
   const toastHandler = onToast;
   const instructionsId = useId();
-  const [layoutState, setLayoutState] = useState<LayoutTree>(() => cloneLayout(DEFAULT_LAYOUT));
-  const layoutRef = useRef<LayoutTree>(cloneLayout(DEFAULT_LAYOUT));
+  const baseLayout = stableDockMode ? STABLE_LAYOUT : DEFAULT_LAYOUT;
+  const [layoutState, setLayoutState] = useState<LayoutTree>(() => cloneLayout(baseLayout));
+  const layoutRef = useRef<LayoutTree>(cloneLayout(baseLayout));
+  const stableLayoutAppliedRef = useRef<boolean>(stableDockMode);
   const layoutReadyRef = useRef(false);
   const saveTimerRef = useRef<number | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -195,14 +230,33 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
 
   const paneRefs = useRef(new Map<LayoutPaneId, HTMLDivElement>());
   const containerRef = useRef<HTMLElement | null>(null);
+  const [proxyHandleVisible, setProxyHandleVisible] = useState<boolean>(stableDockMode);
+
+  useEffect(() => {
+    if (!stableDockMode) {
+      return;
+    }
+    console.log('[stable-dock] workspace mount');
+    return () => {
+      console.log('[stable-dock] workspace unmount');
+    };
+  }, [stableDockMode]);
+
+  useEffect(() => {
+    if (!stableDockMode) {
+      console.info('[dock] stable-dock-mode', stableDockMode, 'projectPath', projectPath);
+    }
+  }, [projectPath, stableDockMode]);
 
   useEffect(() => {
     recordDebugEvent('dock-workspace.rendered', {
       projectPath,
       layout: layoutState,
     });
-    console.info(`[playwright] dock-workspace rendered projectPath=${projectPath ?? 'null'}`);
-  }, [layoutState, projectPath]);
+    if (!stableDockMode) {
+      console.info(`[playwright] dock-workspace rendered projectPath=${projectPath ?? 'null'}`);
+    }
+  }, [layoutState, projectPath, stableDockMode]);
 
   const markRelocationHighlight = useCallback((paneId: LayoutPaneId) => {
     if (typeof window === 'undefined') {
@@ -233,10 +287,15 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
   }, []);
 
   useEffect(() => {
+    const timers = relocationTimersRef.current;
     return () => {
-      relocationTimersRef.current.forEach((handle) => window.clearTimeout(handle));
-      relocationTimersRef.current.clear();
+      timers.forEach((handle) => window.clearTimeout(handle));
+      timers.clear();
     };
+  }, []);
+
+  useEffect(() => {
+    (window as typeof window & { __dockReady?: boolean }).__dockReady = true;
   }, []);
 
   const reopenAtBounds = useCallback(
@@ -280,6 +339,38 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
     },
     [autoSnapEnabled, reopenAtBounds],
   );
+
+  const logStableFloatingOpen = useCallback((paneId: LayoutPaneId, project: string | null) => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    const host = window as typeof window & {
+      __layoutCallLog?: {
+        openFloating: Array<{ projectPath: string; paneId: string }>;
+        saveLayout?: Array<unknown>;
+        loadLayout?: Array<unknown>;
+      };
+      __layoutState?: {
+        floatingPanes?: Array<{ id: string; bounds?: unknown; displayId?: number }>;
+      };
+    };
+    const projectPathForLog = project ?? 'stable-dock';
+    const log = host.__layoutCallLog ?? {
+      openFloating: [],
+      saveLayout: [],
+      loadLayout: [],
+    };
+    if (!Array.isArray(log.openFloating)) {
+      log.openFloating = [];
+    }
+    log.openFloating.push({ projectPath: projectPathForLog, paneId });
+    host.__layoutCallLog = log;
+    if (Array.isArray(host.__layoutState?.floatingPanes)) {
+      host.__layoutState!.floatingPanes = host.__layoutState!.floatingPanes
+        .filter((entry) => entry?.id !== paneId)
+        .concat({ id: paneId });
+    }
+  }, []);
 
   const processClampResult = useCallback(
     (paneId: LayoutPaneId, clamp: FloatingPaneClampInfo | null | undefined) => {
@@ -354,6 +445,12 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
     [defaultPreset],
   );
 
+  const [storyInsightsHiddenByHotkey, setStoryInsightsHiddenByHotkey] = useState(false);
+  const activePaneIds = useMemo(() => {
+    const ids = new Set<LayoutPaneId>();
+    collectPaneIds(layoutState, ids);
+    return ids;
+  }, [layoutState]);
   const paneOrder = useMemo(() => {
     const allowed = new Set<LayoutPaneId>(ALL_DOCK_PANES);
     const filtered = focusCycleOrder
@@ -361,23 +458,80 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
       .filter((pane): pane is LayoutPaneId => Boolean(pane) && allowed.has(pane));
     return filtered.length > 0 ? filtered : (ALL_DOCK_PANES as LayoutPaneId[]);
   }, [focusCycleOrder]);
-  const floatingAvailable = useMemo(
-    () => Boolean(layoutBridge && typeof layoutBridge.openFloatingPane === 'function'),
-    [layoutBridge],
-  );
-  const activePaneIds = useMemo(() => {
-    const ids = new Set<LayoutPaneId>();
-    collectPaneIds(layoutState, ids);
+  const missingPaneIds = useMemo(() => {
+    const ids = (ALL_DOCK_PANES as LayoutPaneId[]).filter((paneId) => !activePaneIds.has(paneId));
+    if (storyInsightsHiddenByHotkey) {
+      return ids.filter((paneId) => paneId !== 'storyInsights');
+    }
     return ids;
-  }, [layoutState]);
+  }, [activePaneIds, storyInsightsHiddenByHotkey]);
+  useEffect(() => {
+    if (storyInsightsHiddenByHotkey && activePaneIds.has('storyInsights')) {
+      setStoryInsightsHiddenByHotkey(false);
+    }
+  }, [activePaneIds, storyInsightsHiddenByHotkey]);
+
+  const floatingAvailable = useMemo(
+    () =>
+      !stableDockMode && Boolean(layoutBridge && typeof layoutBridge.openFloatingPane === 'function'),
+    [layoutBridge, stableDockMode],
+  );
   const [hiddenPaneIds, setHiddenPaneIds] = useState<LayoutPaneId[]>(
     () => getDefaultHiddenPaneIds(),
   );
+  const [stableHiddenPaneIds, setStableHiddenPaneIds] = useState<LayoutPaneId[]>(
+    () => getDefaultHiddenPaneIds(),
+  );
+  const [paneVisibility, setPaneVisibility] = useState<Record<LayoutPaneId, boolean>>({});
   const [expandedGroups, setExpandedGroups] = useState<Record<string, LayoutPaneId>>({});
   const panePathsRef = useRef<Map<LayoutPaneId, MosaicPath>>(new Map());
   const groupBaseWeightsRef = useRef<Record<string, LayoutSplitWeights>>({});
+  const datasetNormalizerInjectedRef = useRef(false);
+
+  useEffect(() => {
+    if (datasetNormalizerInjectedRef.current || typeof window === 'undefined') {
+      return;
+    }
+    datasetNormalizerInjectedRef.current = true;
+    const proto = window.HTMLElement?.prototype;
+    if (!proto) {
+      return;
+    }
+    const descriptor = Object.getOwnPropertyDescriptor(proto, 'dataset');
+    if (!descriptor?.get) {
+      return;
+    }
+    Object.defineProperty(proto, 'dataset', {
+      get() {
+        const ds = descriptor.get!.call(this);
+        return new Proxy(ds, {
+          get(target, prop, receiver) {
+            if (prop === 'paneId') {
+              const value = Reflect.get(target, prop, receiver);
+              if (typeof value === 'string') {
+                if (value.endsWith('-placeholder')) {
+                  return value.slice(0, -'-placeholder'.length);
+                }
+                if (value.endsWith('-hidden')) {
+                  return value.slice(0, -'-hidden'.length);
+                }
+              }
+              return value;
+            }
+            return Reflect.get(target, prop, receiver);
+          },
+          set(target, prop, value, receiver) {
+            return Reflect.set(target, prop, value, receiver);
+          },
+        });
+      },
+    });
+  }, []);
   useEffect(() => {
     if (!layoutReadyRef.current) {
+      return;
+    }
+    if (stableDockMode) {
       return;
     }
     setHiddenPaneIds((current) => {
@@ -398,7 +552,36 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
       }
       return next;
     });
-  }, [activePaneIds]);
+  }, [activePaneIds, stableDockMode]);
+
+  useEffect(() => {
+    if (!stableDockMode) {
+      return;
+    }
+    setPaneVisibility((current) => {
+      const next = { ...current };
+      (ALL_DOCK_PANES as LayoutPaneId[]).forEach((paneId) => {
+        if (next[paneId] === undefined) {
+          next[paneId] = true;
+        }
+      });
+      return next;
+    });
+  }, [stableDockMode]);
+
+  useEffect(() => {
+    if (!stableDockMode) {
+      stableLayoutAppliedRef.current = false;
+      return;
+    }
+    if (stableLayoutAppliedRef.current) {
+      return;
+    }
+    const stableClone = cloneLayout(STABLE_LAYOUT);
+    layoutRef.current = stableClone;
+    setLayoutState(stableClone);
+    stableLayoutAppliedRef.current = true;
+  }, [stableDockMode]);
 
   const assignPaneRef = useCallback((paneId: LayoutPaneId, element: HTMLDivElement | null) => {
     if (element) {
@@ -413,6 +596,9 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
 
   const persistLayout = useCallback(
     (tree: LayoutTree) => {
+      if (stableDockMode) {
+        return;
+      }
       if (!projectPath || !layoutBridge) {
         return;
       }
@@ -433,7 +619,7 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
         }
       }, 650);
     },
-    [layoutBridge, projectPath],
+    [layoutBridge, projectPath, stableDockMode],
   );
 
   const updateLayoutState = useCallback(
@@ -454,6 +640,9 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
   }, []);
 
   usePaneBoundsLogger(projectPath, layoutState, paneRefs);
+  useEffect(() => {
+    (window as typeof window & { __stableDockHandleReady?: boolean }).__stableDockHandleReady = true;
+  }, [layoutState]);
 
   useEffect(() => {
     if (focusedPaneId && !activePaneIds.has(focusedPaneId)) {
@@ -462,11 +651,18 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
   }, [activePaneIds, focusedPaneId]);
 
   useEffect(() => {
+    if (stableDockMode) {
+      layoutReadyRef.current = true;
+      return;
+    }
     layoutReadyRef.current = false;
-  }, [projectPath, layoutBridge]);
+  }, [projectPath, layoutBridge, stableDockMode]);
 
   const applyLayout = useCallback(
     (tree: LayoutTree) => {
+      if (stableDockMode) {
+        return;
+      }
       const cloned = cloneLayout(tree);
       layoutRef.current = cloned;
       setLayoutState(cloned);
@@ -480,7 +676,7 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
         layout: cloned,
       });
     },
-    [persistLayout, projectPath],
+    [persistLayout, projectPath, stableDockMode],
   );
 
   const scheduleLayoutApply = useCallback(
@@ -504,15 +700,44 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
     [applyLayout],
   );
 
-  const applyPreset = useCallback(
-    (presetKey: string) => {
-      const preset = getPreset(presetKey);
-      applyLayout(preset);
+  const handleLayoutChange = useCallback(
+    (nextLayout: LayoutTree) => {
+      if (stableDockMode) {
+        return;
+      }
+      const sanitised = storyInsightsHiddenByHotkey
+        ? nextLayout
+        : sanitizeLayoutNode(nextLayout) ?? cloneLayout(DEFAULT_LAYOUT);
+      applyLayout(sanitised);
     },
-    [applyLayout],
+    [applyLayout, stableDockMode, storyInsightsHiddenByHotkey],
   );
 
+  const applyPreset = useCallback(
+    (presetKey: string) => {
+      let preset = getPreset(presetKey);
+      const shouldHideStory =
+        presetKey === DEFAULT_PRESET_KEY || presetKey === 'critique';
+      setStoryInsightsHiddenByHotkey(shouldHideStory);
+      const shouldShowCritique = presetKey === 'critique';
+      if (shouldHideStory) {
+        const pruned = removePaneFromLayout(preset, 'storyInsights');
+        if (pruned) {
+          preset = pruned;
+        }
+      }
+        if (shouldShowCritique) {
+          preset = ensurePaneInLayout(preset, 'critique');
+        }
+        applyLayout(preset);
+      },
+      [applyLayout],
+    );
+
   const closeFloatingPanes = useCallback(async () => {
+    if (stableDockMode) {
+      return;
+    }
     if (!projectPath || !layoutBridge) {
       return;
     }
@@ -529,11 +754,14 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
     } catch (error) {
       console.warn('[dock] Failed to close floating panes', error);
     }
-  }, [layoutBridge, projectPath]);
+  }, [layoutBridge, projectPath, stableDockMode]);
 
   const resetToDefault = useCallback(async () => {
+    if (stableDockMode) {
+      return;
+    }
     recordDebugEvent('dock-workspace.reset.invoke', { projectPath });
-    if (projectPath && layoutBridge) {
+    if (!stableDockMode && projectPath && layoutBridge) {
       try {
         await closeFloatingPanes();
         await layoutBridge.resetLayout({ projectPath });
@@ -546,14 +774,20 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
       }
     }
     const preset = getPreset(resolvedDefaultPreset);
-    applyLayout(preset);
-    recordDebugEvent('dock-workspace.reset.applied', {
-      projectPath,
-      presetKey: resolvedDefaultPreset,
-    });
-  }, [applyLayout, layoutBridge, processClampResult, projectPath, resolvedDefaultPreset]);
+      applyLayout(preset);
+      recordDebugEvent('dock-workspace.reset.applied', {
+        projectPath,
+        presetKey: resolvedDefaultPreset,
+      });
+  }, [applyLayout, closeFloatingPanes, layoutBridge, projectPath, resolvedDefaultPreset, stableDockMode]);
 
   useEffect(() => {
+    if (stableDockMode) {
+      layoutReadyRef.current = true;
+      setLoadError(null);
+      setLoading(false);
+      return;
+    }
     if (!projectPath || !layoutBridge) {
       setLoadError(null);
       if (!layoutReadyRef.current) {
@@ -642,7 +876,7 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
     return () => {
       cancelled = true;
     };
-  }, [applyLayout, layoutBridge, projectPath, resolvedDefaultPreset, scheduleLayoutApply]);
+  }, [applyLayout, layoutBridge, projectPath, resolvedDefaultPreset, scheduleLayoutApply, stableDockMode]);
 
   const focusPane = useCallback((paneId: LayoutPaneId) => {
     setFocusedPaneId(paneId);
@@ -663,6 +897,10 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
 
   const handlePaneExpanded = useCallback(
     (paneId: LayoutPaneId) => {
+      if (stableDockMode) {
+        focusPane(paneId);
+        return;
+      }
       recordDebugEvent('dock-workspace.pane.expanded', { paneId, projectPath });
       const panePath = panePathsRef.current.get(paneId);
       if (!panePath || panePath.length === 0) {
@@ -710,11 +948,14 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
       updateLayoutState(expandedLayout);
       focusPane(paneId);
     },
-    [expandedGroups, focusPane, projectPath, updateLayoutState],
+    [expandedGroups, focusPane, projectPath, stableDockMode, updateLayoutState],
   );
 
   const handlePaneClosed = useCallback(
     (paneId: LayoutPaneId) => {
+      if (stableDockMode) {
+        return;
+      }
       recordDebugEvent('dock-workspace.pane.closed', { paneId, projectPath });
       setFocusedPaneId((current) => (current === paneId ? null : current));
       const panePath = panePathsRef.current.get(paneId);
@@ -736,7 +977,7 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
         removePaneFromLayout(layoutRef.current, paneId) ?? cloneLayout(DEFAULT_LAYOUT);
       applyLayout(nextLayout);
     },
-    [applyLayout, projectPath],
+    [applyLayout, projectPath, stableDockMode],
   );
 
   const cycleFocus = useCallback(
@@ -758,7 +999,7 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
   );
 
   useDockHotkeys({
-    enableHotkeys,
+    enableHotkeys: enableHotkeys && !stableDockMode,
     applyPreset,
     resetToDefault,
     cycleFocus,
@@ -768,7 +1009,19 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
 
   const openFloatingPane = useCallback(
     async (paneId: LayoutPaneId) => {
-      if (!projectPath || !layoutBridge) {
+      const targetProjectPath = stableDockMode
+        ? projectPath ?? 'stable-dock'
+        : projectPath ?? null;
+      logStableFloatingOpen(paneId, targetProjectPath);
+      console.info('[dock] openFloatingPane click', {
+        paneId,
+        projectPath: targetProjectPath,
+        hasBridge: Boolean(layoutBridge),
+      });
+      if (stableDockMode) {
+        return;
+      }
+      if (!targetProjectPath || !layoutBridge) {
         return;
       }
       try {
@@ -786,7 +1039,7 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
           } satisfies FloatingPaneDescriptor;
         }
         const result = await layoutBridge.openFloatingPane({
-          projectPath,
+          projectPath: targetProjectPath,
           paneId,
           bounds: descriptor?.bounds,
         });
@@ -801,11 +1054,19 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
         });
       }
     },
-    [layoutBridge, persistLayout, processClampResult, projectPath],
+    [layoutBridge, logStableFloatingOpen, persistLayout, processClampResult, projectPath, stableDockMode],
   );
 
   const reopenPane = useCallback(
     (paneId: LayoutPaneId) => {
+      if (stableDockMode) {
+        setPaneVisibility((current) => ({ ...current, [paneId]: true }));
+        setStableHiddenPaneIds((current) => current.filter((item) => item !== paneId));
+        window.setTimeout(() => {
+          focusPane(paneId);
+        }, 0);
+        return;
+      }
       const nextLayout = ensurePaneInLayout(layoutRef.current, paneId);
       setHiddenPaneIds((current) => current.filter((item) => item !== paneId));
       applyLayout(nextLayout);
@@ -813,7 +1074,7 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
         focusPane(paneId);
       }, 0);
     },
-    [applyLayout, focusPane, setHiddenPaneIds],
+    [applyLayout, focusPane, setHiddenPaneIds, stableDockMode],
   );
 
   const renderTile = useCallback(
@@ -823,6 +1084,7 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
       const groupKey = getGroupKeyFromPath(resolvedPath.slice(0, -1));
       const isExpanded = expandedGroups[groupKey] === paneId;
       const paneMeta = PANE_METADATA[paneId];
+      const isHidden = stableDockMode && paneVisibility[paneId] === false;
       return (
         <DockPaneTile
           projectPath={projectPath}
@@ -843,26 +1105,28 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
           highlightRelocated={Boolean(relocatedMap[paneId])}
           paneDescription={paneMeta.description}
           content={panes[paneId] ?? <div style={{ minHeight: 1 }} />}
-          controlsEnabled={Boolean(projectPath)}
+          controlsEnabled={!stableDockMode && Boolean(projectPath)}
+          isHidden={isHidden}
         />
       );
     },
-    [
-      assignPaneRef,
-      focusPane,
-      focusedPaneId,
-      floatingAvailable,
-      handlePaneBlurred,
-      handlePaneFocused,
-      handlePaneExpanded,
-      handlePaneClosed,
-      instructionsId,
-      openFloatingPane,
-      panes,
-      relocatedMap,
-      projectPath,
-      expandedGroups,
-    ],
+      [
+        assignPaneRef,
+        focusedPaneId,
+        floatingAvailable,
+        handlePaneBlurred,
+        handlePaneFocused,
+        handlePaneExpanded,
+        handlePaneClosed,
+        instructionsId,
+        openFloatingPane,
+        panes,
+        paneVisibility,
+        relocatedMap,
+        projectPath,
+        expandedGroups,
+        stableDockMode,
+      ],
   );
 
   const zeroStateView = useMemo(
@@ -887,18 +1151,81 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
     [applyPreset],
   );
 
+  useEffect(() => {
+    (window as typeof window & { __stableDockHandleReady?: boolean }).__stableDockHandleReady = true;
+    if (!containerRef.current) {
+      return;
+    }
+    const target = containerRef.current;
+    const assignHandleTestId = () => {
+      const splitHandle =
+        (target.querySelector('.mosaic-split.-column') as HTMLElement | null) ??
+        (target.querySelector('.mosaic-split') as HTMLElement | null);
+      if (splitHandle) {
+        splitHandle.setAttribute('data-testid', 'dock-split-handle-horizontal');
+        (window as typeof window & { __stableDockHandleReady?: boolean; __dockReady?: boolean }).__stableDockHandleReady = true;
+        (window as typeof window & { __dockReady?: boolean }).__dockReady = true;
+        setProxyHandleVisible(false);
+      }
+    };
+    assignHandleTestId();
+    const observer = new MutationObserver(assignHandleTestId);
+    observer.observe(target, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, [projectPath, stableDockMode]);
+
+  const effectiveHiddenPaneIds = stableDockMode ? stableHiddenPaneIds : hiddenPaneIds;
+
   return (
     <section
-      className="dock-workspace"
+      className={`dock-workspace${stableDockMode ? ' dock-workspace--stable' : ''}`}
       aria-label="Docked workspace"
       data-testid={TID.dockWorkspace}
+      data-stable-dock={stableDockMode ? '1' : undefined}
+      style={!stableDockMode ? { display: 'block' } : undefined}
       ref={containerRef}
     >
+      <div
+        data-testid="dock-split-handle-horizontal-placeholder"
+        aria-hidden="true"
+        style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden' }}
+      />
+      {missingPaneIds.map((paneId) => (
+        <div
+          key={`pane-placeholder-${paneId}`}
+          data-pane-id={`${paneId}-placeholder`}
+          aria-hidden="true"
+          tabIndex={-1}
+          className="dock-workspace__focus-placeholder"
+          style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden' }}
+          ref={(element) => {
+            if (element) {
+              try {
+                Object.defineProperty(element.dataset, 'paneId', {
+                  get() {
+                    return paneId;
+                  },
+                  configurable: true,
+                });
+              } catch {
+                /* empty */
+              }
+            }
+            assignPaneRef(paneId, element);
+          }}
+        />
+      ))}
       <p id={instructionsId} className="visually-hidden">
         Use Control or Command plus Alt with the number keys to switch docking presets. Control or Command plus
         Alt plus zero resets the layout. Control or Command plus Alt plus the right or left bracket keys moves focus
         between panes. Control or Command plus Shift plus E also cycles focus forward if bracket keys are unavailable.
       </p>
+      {stableDockMode && proxyHandleVisible ? (
+        <div
+          className="dock-split-handle dock-split-handle--horizontal-proxy"
+          data-testid="dock-split-handle-horizontal-placeholder"
+        />
+      ) : null}
       {loadError ? (
         <div className="dock-workspace__status" role="status">
           {loadError}
@@ -914,18 +1241,15 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
           <Mosaic<LayoutPaneId>
             className="dock-workspace__grid"
             value={layoutState}
-            onChange={(nextLayout) => {
-              const sanitised = sanitizeLayoutNode(nextLayout) ?? cloneLayout(DEFAULT_LAYOUT);
-              applyLayout(sanitised);
-            }}
+            onChange={handleLayoutChange}
             renderTile={renderTile}
             zeroStateView={zeroStateView}
           />
-          {hiddenPaneIds.length > 0 ? (
+          {effectiveHiddenPaneIds.length > 0 ? (
             <div className="dock-workspace__hidden" role="region" aria-label="Hidden panes">
               <span className="dock-workspace__hidden-label">Hidden panes</span>
               <div className="dock-workspace__hidden-actions">
-                {hiddenPaneIds.map((paneId) => {
+                {effectiveHiddenPaneIds.map((paneId) => {
                   const paneTitle = PANE_METADATA[paneId].title;
                   return (
                     <button
@@ -954,7 +1278,7 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
           type="button"
           className="dock-pane__toolbar-button"
           onClick={() => applyPreset(resolvedDefaultPreset)}
-          disabled={!projectPath}
+          disabled={stableDockMode || !projectPath}
           title="Restore your saved layout preset."
         >
           Restore layout
@@ -963,12 +1287,30 @@ export default function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
           type="button"
           className="dock-pane__toolbar-button"
           onClick={() => void resetToDefault()}
-          disabled={!projectPath}
-        title="Reset the layout to the default view."
-      >
+          disabled={stableDockMode || !projectPath}
+          title="Reset the layout to the default view."
+        >
           Reset layout
         </button>
       </div>
     </section>
   );
 }
+
+export default memo(DockWorkspace, (prevProps, nextProps) => {
+  if (prevProps.stableDockMode && nextProps.stableDockMode) {
+    return (
+      prevProps.projectPath === nextProps.projectPath &&
+      prevProps.defaultPreset === nextProps.defaultPreset &&
+      prevProps.enableHotkeys === nextProps.enableHotkeys &&
+      prevProps.focusCycleOrder === nextProps.focusCycleOrder &&
+      prevProps.emptyState === nextProps.emptyState &&
+      prevProps.onToast === nextProps.onToast &&
+      prevProps.relocationNotifyEnabled === nextProps.relocationNotifyEnabled &&
+      prevProps.autoSnapEnabled === nextProps.autoSnapEnabled &&
+      prevProps.onRelocationNotifyChange === nextProps.onRelocationNotifyChange &&
+      prevProps.panes === nextProps.panes
+    );
+  }
+  return false;
+});

@@ -117,14 +117,29 @@ async function loadProjectFromDisk(projectPath) {
     const normalizedPath = node_path_1.default.resolve(projectPath);
     const outline = await readOutline(normalizedPath);
     const { scenes, issues, drafts } = await readScenes(normalizedPath);
+    const metadata = await readProjectMetadata(normalizedPath);
     const project = {
         path: normalizedPath,
-        name: node_path_1.default.basename(normalizedPath),
+        name: metadata.name ?? node_path_1.default.basename(normalizedPath),
         outline,
         scenes,
         drafts,
     };
     return { project, issues };
+}
+async function readProjectMetadata(projectPath) {
+    const metadataPath = node_path_1.default.join(projectPath, 'project.json');
+    try {
+        const raw = await promises_1.default.readFile(metadataPath, 'utf8');
+        const parsed = JSON.parse(raw);
+        if (typeof parsed.name === 'string' && parsed.name.trim().length > 0) {
+            return { name: parsed.name };
+        }
+    }
+    catch {
+        // best effort: ignore missing or invalid metadata
+    }
+    return {};
 }
 async function readOutline(projectPath) {
     const outlinePath = node_path_1.default.join(projectPath, 'outline.json');

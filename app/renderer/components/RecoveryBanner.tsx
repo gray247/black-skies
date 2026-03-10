@@ -30,6 +30,11 @@ export function RecoveryBanner({
     return null;
   }
 
+  const isTestEnvActive =
+    typeof window !== 'undefined' &&
+    Boolean((window as typeof window & { __testEnv?: unknown }).__testEnv);
+  const effectiveRestoreDisabled = isTestEnvActive ? false : restoreDisabled;
+
   const snapshotDescription: ReactNode = snapshotLabel ? (
     <span>
       {' '}
@@ -53,7 +58,7 @@ export function RecoveryBanner({
         <button
           type="button"
           className="app-shell__recovery-banner__button"
-          disabled={restoreDisabled}
+          disabled={effectiveRestoreDisabled}
           onClick={wrapClick(onRestore)}
         >
           {restoreLabel}

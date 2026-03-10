@@ -7,6 +7,12 @@ export type BudgetSnapshotSource = {
   spent_usd?: number | null;
   total_after_usd?: number | null;
   estimated_usd?: number | null;
+  cost_usd?: number | null;
+  cost?: number | null;
+  limit_usd?: number | null;
+  limit?: number | null;
+  remaining_usd?: number | null;
+  remaining?: number | null;
   status?: string | null;
   message?: string | null;
 };

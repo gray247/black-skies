@@ -1,7 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useEffect, useState } from 'react';
-import { vi } from 'vitest';
 
 function OfflineAppHarness(): JSX.Element {
   const [online, setOnline] = useState(false);

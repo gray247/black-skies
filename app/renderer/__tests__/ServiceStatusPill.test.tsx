@@ -9,7 +9,7 @@ describe('ServiceStatusPill', () => {
     { status: 'online', label: /Ready/i },
     { status: 'offline', label: /Writing tools offline/i },
   ] as const)('renders label and data attributes for $status', ({ status, label }) => {
-    render(<ServiceStatusPill status={status} />);
+    render(<ServiceStatusPill status={status} serviceOffline={status === 'offline'} />);
 
     const button = screen.getByRole('button', { name: label });
     expect(button).toHaveAttribute('data-status', status);
@@ -22,7 +22,7 @@ describe('ServiceStatusPill', () => {
 
   it('invokes retry handler while offline', () => {
     const onRetry = vi.fn();
-    render(<ServiceStatusPill status="offline" onRetry={onRetry} />);
+    render(<ServiceStatusPill status="offline" onRetry={onRetry} serviceOffline />);
 
     fireEvent.click(screen.getByRole('button', { name: /Writing tools offline/i }));
     expect(onRetry).toHaveBeenCalledTimes(1);
@@ -30,7 +30,7 @@ describe('ServiceStatusPill', () => {
 
   it('prevents retry while checking status', () => {
     const onRetry = vi.fn();
-    render(<ServiceStatusPill status="checking" onRetry={onRetry} />);
+    render(<ServiceStatusPill status="checking" onRetry={onRetry} serviceOffline={false} />);
 
     const button = screen.getByRole('button', { name: /Checking writing tools/i });
     expect(button).toBeDisabled();

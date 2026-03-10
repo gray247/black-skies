@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\analytics\cache.py
+# hypothesis_version: 6.138.2
+
+['[^A-Za-z0-9_-]', '_', 'analytics', 'content_hash', 'dialogue_ratio', 'history', 'narration_ratio', 'order', 'r', 'readability_metrics', 'scene', 'scene_id', 'title', 'updated_at', 'utf-8', 'word_count']

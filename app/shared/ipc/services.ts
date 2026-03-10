@@ -178,6 +178,8 @@ export interface Phase4CritiqueBridgeResponse {
   summary: string;
   issues: Phase4Issue[];
   suggestions: string[];
+  budget?: DraftCritiqueBridgeResponse['budget'];
+  heuristics?: Record<string, unknown>;
 }
 
 export interface Phase4RewriteBridgeRequest {
@@ -384,6 +386,11 @@ export interface AnalyticsBudgetBridgeResponse {
   message?: string;
 }
 
+export interface AnalyticsBridgeRequest {
+  projectId: string;
+  forceRefresh?: boolean;
+}
+
 export interface ProjectExportBridgeRequest {
   projectId: string;
   format?: ExportFormat;
@@ -482,14 +489,26 @@ export interface ServicesBridge {
   ) => Promise<ServiceResult<BackupVerificationReport>>;
   revealPath?: (path: string) => Promise<void>;
   getAnalyticsSummary?: (
-    request: { projectId: string },
+    request: AnalyticsBridgeRequest,
   ) => Promise<ServiceResult<AnalyticsSummary>>;
   getAnalyticsScenes?: (
-    request: { projectId: string },
+    request: AnalyticsBridgeRequest,
   ) => Promise<ServiceResult<AnalyticsScenes>>;
   getAnalyticsRelationships?: (
     request: { projectId: string },
   ) => Promise<ServiceResult<AnalyticsRelationshipGraph>>;
+}
+
+export interface ReadabilityMetrics {
+  avg_sentence_len?: number | null;
+  pct_long_sentences?: number | null;
+  ttr?: number | null;
+  bucket?: "Easy" | "Moderate" | "Dense" | string;
+}
+
+export interface ScenePacingData {
+  structuralScore?: number | null;
+  bucket?: string;
 }
 
 export interface SceneDensity {
@@ -503,7 +522,9 @@ export interface SceneMetric {
   title: string;
   wordCount: number;
   readability: number | null;
+  readabilityMetrics?: ReadabilityMetrics | null;
   density: SceneDensity;
+  pacing?: ScenePacingData | null;
 }
 
 export interface AnalyticsSummary {
@@ -512,6 +533,9 @@ export interface AnalyticsSummary {
   scenes: number;
   wordCount: number;
   avgReadability: number | null;
+  readability?: ReadabilityMetrics | null;
+  dialogue_ratio?: number;
+  narration_ratio?: number;
 }
 
 export interface AnalyticsScenes {

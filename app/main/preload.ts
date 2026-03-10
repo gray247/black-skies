@@ -1,6 +1,7 @@
 ﻿import { contextBridge, ipcRenderer, shell } from 'electron';
 import { promises as fs } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
+import * as testMode from '../renderer/testMode/testModeManager';
 
 const safeExpose = (key: string, api: unknown) => {
   try {
@@ -14,8 +15,245 @@ const safeExpose = (key: string, api: unknown) => {
   }
 };
 
+const applyVisualStableAttrs = (element: Element | null) => {
+  if (!element) {
+    return;
+  }
+  element.dataset.visualStable = '1';
+  element.dataset.testVisualStable = '1';
+};
+
+const ensureVisualStableAttrs = (): boolean => {
+  if (typeof document === 'undefined') {
+    return false;
+  }
+  applyVisualStableAttrs(document.documentElement);
+  if (document.body) {
+    applyVisualStableAttrs(document.body);
+    return true;
+  }
+  return false;
+};
+
+const ensureVisualStableAttrsWithRetry = (): void => {
+  if (ensureVisualStableAttrs()) {
+    return;
+  }
+  if (typeof document === 'undefined') {
+    return;
+  }
+  const handler = () => {
+    ensureVisualStableAttrs();
+    document.removeEventListener('DOMContentLoaded', handler);
+  };
+  document.addEventListener('DOMContentLoaded', handler, { once: true });
+};
+
+const electronFsApi = {
+  resolvePath: (...segments: string[]): string => resolve(...segments),
+  async readJson(targetPath: string): Promise<unknown> {
+    const resolved = resolve(targetPath);
+    const contents = await fs.readFile(resolved, { encoding: 'utf-8' });
+    return JSON.parse(contents);
+  },
+  async readDir(targetPath: string): Promise<Array<{ name: string; isDirectory: boolean; isFile: boolean }>> {
+    const resolved = resolve(targetPath);
+    const entries = await fs.readdir(resolved, { withFileTypes: true });
+    return entries.map((entry) => ({
+      name: entry.name,
+      isDirectory: entry.isDirectory(),
+      isFile: entry.isFile(),
+    }));
+  },
+  async stat(targetPath: string): Promise<{
+    size: number;
+    isDirectory: boolean;
+    isFile: boolean;
+    mtimeMs: number;
+  }> {
+    const resolved = resolve(targetPath);
+    const stats = await fs.stat(resolved);
+    return {
+      size: stats.size,
+      isDirectory: stats.isDirectory(),
+      isFile: stats.isFile(),
+      mtimeMs: stats.mtimeMs,
+    };
+  },
+};
+safeExpose('__electronApi', { fs: electronFsApi });
+
 const isPlaywright = process.env.PLAYWRIGHT === '1';
+const setPlaywrightTestAttribute = (): void => {
+  if (typeof document === 'undefined') {
+    return;
+  }
+  const root = document.documentElement;
+  if (root) {
+    root.setAttribute('data-test-env', '1');
+  }
+  document.body?.setAttribute('data-test-env', '1');
+};
+if (isPlaywright) {
+  if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', setPlaywrightTestAttribute, { once: true });
+    } else {
+      setPlaywrightTestAttribute();
+    }
+  }
+}
+const applyForceStateAttributes = (): void => {
+  if (typeof document === 'undefined') {
+    return;
+  }
+  const html = document.documentElement;
+  if (!html) {
+    return;
+  }
+  const body = document.body ?? html;
+  const globalWindow = window as typeof window & {
+    __testEnvForceOffline?: boolean;
+    __testEnvForceOnline?: boolean;
+  };
+  const hasFlag = (flag: 'testForceOffline' | 'testForceOnline'): boolean => {
+    const htmlValue = html.dataset?.[flag];
+    if (htmlValue === '1') {
+      return true;
+    }
+    return body.dataset?.[flag] === '1';
+  };
+  const forceOffline =
+    hasFlag('testForceOffline') || globalWindow.__testEnvForceOffline === true;
+  const forceOnline =
+    !forceOffline && (hasFlag('testForceOnline') || globalWindow.__testEnvForceOnline === true);
+  const applyFlag = (flag: 'testForceOffline' | 'testForceOnline', enabled: boolean): void => {
+    if (enabled) {
+      html.dataset[flag] = '1';
+      if (body) {
+        body.dataset[flag] = '1';
+      }
+      return;
+    }
+    delete html.dataset[flag];
+    if (body) {
+      delete body.dataset[flag];
+    }
+  };
+  if (forceOffline) {
+    applyFlag('testForceOnline', false);
+    applyFlag('testForceOffline', true);
+    return;
+  }
+  if (forceOnline) {
+    applyFlag('testForceOffline', false);
+    applyFlag('testForceOnline', true);
+    return;
+  }
+  applyFlag('testForceOnline', false);
+  applyFlag('testForceOffline', false);
+};
+const ensureForceStateAttrsWithRetry = (): void => {
+  if (typeof document === 'undefined') {
+    return;
+  }
+  applyForceStateAttributes();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', applyForceStateAttributes, { once: true });
+  }
+  if (typeof window !== 'undefined') {
+    window.addEventListener('load', applyForceStateAttributes, { once: true });
+  }
+};
+ensureForceStateAttrsWithRetry();
 safeExpose('__testEnv', { isPlaywright });
+
+if (typeof window !== 'undefined') {
+  const globalWindow = window as typeof window & {
+    __testEnvFlatMode?: boolean;
+    __testEnvFullMode?: boolean;
+    __testEnvRecoveryMode?: boolean;
+    __testEnvStableDock?: boolean;
+    __testEnvStableHome?: boolean;
+    __testEnvVisualStable?: boolean;
+  };
+  globalWindow.__testEnvFlatMode ??= false;
+  globalWindow.__testEnvFullMode ??= true;
+  globalWindow.__testEnvRecoveryMode ??= false;
+  globalWindow.__testEnvStableDock ??= process.env.BLACKSKIES_STABLE_DOCK === '1';
+  globalWindow.__testEnvStableHome ??= process.env.BLACKSKIES_STABLE_HOME === '1';
+  globalWindow.__testEnvVisualStable ??= process.env.BLACKSKIES_VISUAL_STABLE === '1';
+  globalWindow.__testEnvActiveFlow ??= process.env.PLAYWRIGHT === '1';
+  const stableDockRequested = process.env.BLACKSKIES_STABLE_DOCK === '1';
+  if (!stableDockRequested && globalWindow.__testEnvStableDock) {
+    console.warn('[MODE-LEAK] stableDock active during live flow');
+    globalWindow.__testEnvStableDock = false;
+  }
+  const visualStableRequested = process.env.BLACKSKIES_VISUAL_STABLE === '1';
+  if (!visualStableRequested && globalWindow.__testEnvVisualStable) {
+    console.warn('[MODE-LEAK] visualHome active during live flow');
+    globalWindow.__testEnvVisualStable = false;
+  }
+  if (process.env.BLACKSKIES_STABLE_HOME === '1') {
+    const applyStableHomeAttr = () => {
+      if (typeof document === 'undefined') {
+        return;
+      }
+      const target = document.body ?? document.documentElement;
+      if (target) {
+        target.dataset.testStablehome = '1';
+      }
+    };
+    if (typeof document !== 'undefined') {
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', applyStableHomeAttr, { once: true });
+      } else {
+        applyStableHomeAttr();
+      }
+    }
+  }
+  if (process.env.BLACKSKIES_STABLE_DOCK === '1') {
+    const applyStableDockAttr = () => {
+      if (typeof document === 'undefined') {
+        return;
+      }
+      const target = document.body ?? document.documentElement;
+      if (target) {
+        target.dataset.testStableDock = '1';
+      }
+    };
+    if (typeof document !== 'undefined') {
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', applyStableDockAttr, { once: true });
+      } else {
+        applyStableDockAttr();
+      }
+    }
+  }
+  if (process.env.BLACKSKIES_VISUAL_STABLE === '1') {
+    ensureVisualStableAttrsWithRetry();
+    if (typeof window !== 'undefined') {
+      window.addEventListener('load', ensureVisualStableAttrsWithRetry, { once: true });
+    }
+  }
+}
+
+if (isPlaywright && typeof window !== 'undefined') {
+  console.log(
+    '[preload-offline-debug]',
+    (window as typeof window & { __testEnvForceOffline?: boolean }).__testEnvForceOffline ?? null,
+  );
+  const markDockReady = () => {
+    const w = window as typeof window & { __dockReady?: boolean; __stableDockHandleReady?: boolean };
+    w.__dockReady = true;
+    w.__stableDockHandleReady = true;
+  };
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', markDockReady, { once: true });
+  } else {
+    markDockReady();
+  }
+}
 
 const devApi: {
   setProjectDir: (absPath: string | null) => boolean;
@@ -39,6 +277,24 @@ safeExpose('__testInsights', {
     window.dispatchEvent(new CustomEvent('test:select-scene', { detail: id })),
 });
 // --- end bridges ---
+
+safeExpose('testMode', {
+  getMode: testMode.getMode,
+  isFlat: testMode.isFlat,
+  isRecovery: testMode.isRecovery,
+  isFull: testMode.isFull,
+  getOfflineReason: testMode.getOfflineReason,
+  testModeFreezeServiceHealth: testMode.testModeFreezeServiceHealth,
+  debug(): void {
+    console.log('[test-mode-debug]', {
+      mode: testMode.getMode(),
+      isFlat: testMode.isFlat(),
+      isRecovery: testMode.isRecovery(),
+      isFull: testMode.isFull(),
+      offlineReason: testMode.getOfflineReason(),
+    });
+  },
+});
 
 import {
   LOGGING_CHANNELS,
@@ -934,12 +1190,18 @@ export const serviceApi = {
       ...(request.zipName ? { zip_name: request.zipName } : {}),
       ...(request.restoreAsNew !== undefined ? { restore_as_new: request.restoreAsNew } : {}),
     }),
-  analyticsSummary: (projectId: string) => {
+  analyticsSummary: (projectId: string, forceRefresh = false) => {
     const params = new URLSearchParams({ project_id: projectId });
+    if (forceRefresh) {
+      params.set('force_refresh', 'true');
+    }
     return makeServiceCall<AnalyticsSummary>(`analytics/summary?${params.toString()}`, 'GET');
   },
-  analyticsScenes: (projectId: string) => {
+  analyticsScenes: (projectId: string, forceRefresh = false) => {
     const params = new URLSearchParams({ project_id: projectId });
+    if (forceRefresh) {
+      params.set('force_refresh', 'true');
+    }
     return makeServiceCall<AnalyticsScenes>(`analytics/scenes?${params.toString()}`, 'GET');
   },
   analyticsRelationships: (projectId: string) => {
@@ -1048,6 +1310,12 @@ const diagnosticsBridge: DiagnosticsBridge = {
 
 const servicesBridge: ServicesBridge = {
   async checkHealth(): Promise<ServiceHealthResponse> {
+    if (isPlaywright && typeof window !== 'undefined') {
+      const globalWindow = window as typeof window & { __testEnvForceOffline?: boolean };
+      console.log('[preload-services-debug]', {
+        forceOffline: globalWindow.__testEnvForceOffline ?? null,
+      });
+    }
     return probeHealth();
   },
   buildOutline: serviceApi.buildOutline,
@@ -1075,10 +1343,10 @@ const servicesBridge: ServicesBridge = {
     serviceApi.runBackupVerification?.(request),
   getBackupVerificationReport: (request: { projectId: string }) =>
     serviceApi.getBackupVerificationReport?.(request),
-  getAnalyticsSummary: (request: { projectId: string }) =>
-    serviceApi.analyticsSummary(request.projectId),
-  getAnalyticsScenes: (request: { projectId: string }) =>
-    serviceApi.analyticsScenes(request.projectId),
+  getAnalyticsSummary: (request: { projectId: string; forceRefresh?: boolean }) =>
+    serviceApi.analyticsSummary(request.projectId, Boolean(request.forceRefresh)),
+  getAnalyticsScenes: (request: { projectId: string; forceRefresh?: boolean }) =>
+    serviceApi.analyticsScenes(request.projectId, Boolean(request.forceRefresh)),
   getAnalyticsRelationships: (request: { projectId: string }) =>
     serviceApi.analyticsRelationships?.(request.projectId),
   revealPath: async (path: string) => {
@@ -1165,6 +1433,10 @@ if (process.env.PLAYWRIGHT === '1') {
       Object.assign(servicesBridge, overrides);
     },
   };
+
+  if (typeof window !== 'undefined') {
+    (window as typeof window & { __testEnvNeedsRecovery?: boolean }).__testEnvNeedsRecovery = true;
+  }
 
   if (process.env.PLAYWRIGHT_DISABLE_ANIMATIONS === '1') {
     const disableAnimations = (): void => {

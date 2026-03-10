@@ -52,14 +52,15 @@ EmotionScore blends dialogueRatio plus normalized readability; pacingScore is de
 ### Notes:
 Corkboard cards live at `app/renderer/components/Corkboard.tsx`, rendering scene metadata after calling `getAnalyticsScenes`. Each card uses `data-testid="corkboard-card"` and fits into the `.corkboard__grid` layout with headers and metadata values.
 
-## Bucket 6 ― Insights Integration & Offline Behavior
+## Bucket 6 – Insights Integration & Offline Behavior
 
 - [x] Wire story insights data into the Insights panel.
 - [x] Confirm story insights work when services are offline.
 - [x] Add tests that cover offline fallbacks.
 
 ### Notes:
-The Insights panel gained a “Local story insights” section that calls `getAnalyticsSummary`/`getAnalyticsScenes`, surfaces scenes/word counts, and gracefully reports offline service status. The block ships with `data-testid="insights-analytics-summary"` for the summary and `data-testid="insights-analytics-scenes"` for the scene grid, ensuring the offline notice still renders without hiding the rest of Insights.
+- The Insights panel gained a “Local story insights” section that calls `getAnalyticsSummary`/`getAnalyticsScenes`, surfaces scenes/word counts, and gracefully reports offline service status. The block ships with `data-testid="insights-analytics-summary"` for the summary and `data-testid="insights-analytics-scenes"` for the scene grid, ensuring the offline notice still renders without hiding the rest of Insights.
+- C4.2 Snapshot/Verification UI polish completed: the View Report toast now sticks until dismissed, only the action button opens the modal, and the modal renders locally-loaded history snapshot metadata/manifest summaries with dark-theme emphasis and offline-resilient fallback scanning.
 
 ## Bucket 7 — Stretch: Relationship Graph
 
@@ -79,18 +80,22 @@ Exposed `/api/v1/analytics/relationships` returning `nodes` and `edges`. The ren
 ### Notes:
 - Phase 6 passoff JSON now lives at `docs/phases/phase6_passoff.json` and records analytics summaries, renderer surfaces, tests, and deferred work.
 - `archive/phase6/README.md` exists to mirror the future archive location; the actual move of `work/phase6/` will happen after Bucket 9 completes (see refinement notes).
+**C5-1 Progress:** Sentence/token utilities (C5-1A) implemented; readability metric (C5-1B), dialogue/narration ratios (C5-1C), structural pacing (C5-1D), analytics endpoints (C5-1E), and Insights UI/tooltips (C5-1F) now deliver the enriched payloads; C5-1G documents & tracker updates are complete.
 
-## Bucket 9 — Story Insights Refinement & QA (End-of-Phase Pass)
+C5-1G: Docs + tracker update completed ✅
+
+## Bucket 9 – Story Insights Refinement & QA (End-of-Phase Pass)
 
 **Goal:** Run a focused polish pass on all Phase 6 Story Insights features once Buckets 1–8 are functionally complete.
 
 - [ ] Revisit metric heuristics:
   - Tune readability (move beyond simple words-per-sentence if needed).
   - Rebalance emotionScore weights (dialogue vs readability vs any future signals).
-  - Revisit pacingScore definition to better match real “fast vs slow” feel.
-- [ ] Validate performance and caching:
-  - Ensure Story Insights run quickly on large projects.
-  - Introduce caching or incremental recompute if metrics are slow.
+  - Revisit pacingScore definition to better match real "fast vs slow" feel.
+- [x] Validate performance and caching:
+  - Scene-level caching under `history/analytics/` now memoizes metrics using scene-id + content hashes.
+  - Added a Refresh Analytics control that triggers the `force_refresh` query and updates caches on demand.
+  - Renderer surfaces cached summaries before hitting the service to keep Story Insights responsive.
 - [x] Strengthen tests:
   - Expand Story Insights dashboard tests for edge cases (no scenes, large scene counts).
   - Lock regression coverage for corkboard jitter, relationship graph empty states, hidden pane policy, valid endpoints, and error banner behavior.
@@ -99,17 +104,40 @@ Exposed `/api/v1/analytics/relationships` returning `nodes` and `edges`. The ren
   - Confirm graphs and tables remain usable at common resolutions.
   - Check keyboard navigation and basic accessibility affordances.
   - Adjust labels/tooltips so metrics and graphs are understandable to writers.
-- [ ] Offline/online behavior audit:
-  - Verify Story Insights still behave correctly when services/backend are offline.
-  - Confirm the dashboard degrades gracefully and messaging is clear.
+- [x] Offline/online behavior audit:
+  - Cached scene metrics now populate the dashboard and corkboard whenever the FastAPI bridge is unreachable.
+  - Offline messaging reads "Analytics service offline — using cached metrics" while `/analytics/*` calls are suppressed.
+
+### Notes:
+- C5 Analytics refinement now includes caching, refresh, and offline fallbacks: scene-level caches live under `history/analytics/`, the Refresh Analytics control drives `force_refresh`, and offline Story Insights reuse cached metrics with the new banner message instead of hitting `/analytics/*`.
 
 Notes:
 - This bucket should run near the end of Phase 6, after Buckets 1–8 are shipping.
 - No new features are required; this is a polish and QA pass targeted at Story Insights quality.
 
+## Phase 6 Renderer Regression Repair Plan
+
+- [x] Budget meter override path (ensure stub overrides preload/renderer).
+- [x] Dock layout persistence logging (log each saveLayout call).
+- [ ] Toast & ribbon flow repair (single View Report, unique toast IDs, instrumentation).
+- [ ] Offline status pill + recovery banner (health stub toggles and offline UI).
+- [ ] Backup stub/export integrity (stub response ok:true, renderer check).
+- [ ] Visual snapshot stabilization (home ready signal and adjusted spec).
+- [ ] Full Electron run and tracker update once renderer passes stabilize.
+
+Notes:
+- The next wave of work focuses purely on renderer-level fixes to unblock the Phase 6 Electron suite.
+- After these steps, rerun the targeted specs and the full electron project to confirm progress before documenting the Phase 6 pass.
+### C6 Recovery Plan
+- [ ] Stabilize renderer-level regressions that still block `budget-meter.spec.ts` and `dock-workspace.spec.ts` (budget propagation after critiques, layout save logging, floating panes).
+- [ ] Re-run the focused Electron specs (`gui-contract.spec.ts`, `gui.analytics_offline_cache_flow.spec.ts`) once the renderer fixes are in place, followed by the full Electron suite.
+
 ## Done Log
 
 - YYYY-MM-DD — [x] Created `docs/phases/phase6_passoff.json` as part of Phase 6 passoff preparations.
 - YYYY-MM-DD — [ ] Phase 6 Story Insights refinement pass (run after Buckets 1–8).
+- 2025-11-25 — [x] Wrote history/analytics caching, Refresh Analytics action, and offline-only fallbacks for Story Insights (C5-2 polish).
 - 2025-11-20 — [x] Added Story Insights regression tests (error banners, hidden panes, valid endpoints, corkboard/graph stability).
 - 2025-11-20 — [x] Synced passoff JSON, QA notes, and Story Insights naming across docs.
+- 2025-11-27 — [x] Applied the C5-3 regression patch so floating windows inherit projectPath and panels fall back safely when that metadata is missing.
+- 2025-11-26 — [x] Ensured AnalyticsDashboard gets a sanitized projectPath and shows a placeholder when the path is missing.

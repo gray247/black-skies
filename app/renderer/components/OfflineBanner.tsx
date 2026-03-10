@@ -10,7 +10,7 @@ const OfflineBanner = memo(function OfflineBanner({
   onRetry,
 }: OfflineBannerProps): JSX.Element {
   return (
-    <div className="offline-banner" role="status" aria-live="polite">
+    <div className="offline-banner" role="status" aria-live="polite" data-testid="analytics-offline-banner">
       <div className="offline-banner__content">
         <strong>Writing tools offline</strong>
         <p>{message ?? 'Analytics data is temporarily unavailable.'}</p>

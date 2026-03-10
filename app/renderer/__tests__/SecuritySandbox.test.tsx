@@ -1,17 +1,23 @@
 import { vi } from 'vitest';
 
+type SecurityWindow = typeof window & {
+  services?: { call: (path: string) => boolean };
+  __cspLogged?: boolean;
+};
+
 describe('Security and sandbox regressions', () => {
   afterEach(() => {
     vi.restoreAllMocks();
-    (window as typeof window & { services?: unknown }).services = undefined;
-    global.fetch = undefined as any;
-    delete (window as any).__cspLogged;
+    (window as SecurityWindow).services = undefined;
+    global.fetch = undefined as unknown as typeof fetch;
+    delete (window as SecurityWindow).__cspLogged;
   });
 
   it('rejects forbidden service endpoints without touching network', () => {
     const fetchSpy = vi.fn();
-    global.fetch = fetchSpy as any;
-    (window as typeof window & { services?: any }).services = {
+    global.fetch = fetchSpy as unknown as typeof fetch;
+    const win = window as SecurityWindow;
+    win.services = {
       call: (path: string) => {
         if (!['analytics/summary', 'analytics/scenes', 'analytics/relationships'].includes(path)) {
           throw new Error('BridgeInputError');
@@ -20,7 +26,7 @@ describe('Security and sandbox regressions', () => {
       },
     };
 
-    expect(() => (window as any).services.call('analytics/budget')).toThrow(/BridgeInputError/);
+    expect(() => win.services?.call('analytics/budget')).toThrow(/BridgeInputError/);
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 
@@ -37,7 +43,7 @@ describe('Security and sandbox regressions', () => {
 
   it('rejects non-http schemes and remote URLs before fetch executes', () => {
     const fetchSpy = vi.fn();
-    global.fetch = fetchSpy as any;
+    global.fetch = fetchSpy as unknown as typeof fetch;
     const callRemote = (url: string) => {
       if (!url.startsWith('http://127.0.0.1') && !url.startsWith('https://localhost')) {
         throw new Error('BridgeNetworkError');
@@ -53,9 +59,10 @@ describe('Security and sandbox regressions', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const message = 'Electron Security Warning (Insecure Content-Security-Policy)';
     const logWarning = () => {
-      if (!(window as any).__cspLogged) {
+      const win = window as SecurityWindow;
+      if (!win.__cspLogged) {
         warn(message);
-        (window as any).__cspLogged = true;
+        win.__cspLogged = true;
       }
     };
     logWarning();

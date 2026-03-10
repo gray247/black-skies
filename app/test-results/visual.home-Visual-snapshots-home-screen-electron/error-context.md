@@ -1,0 +1,305 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - banner [ref=e6]:
+      - generic [ref=e7]:
+        - generic [ref=e8]: Your Story
+        - paragraph [ref=e9]: C:\Dev\black-skies\sample_project\Esther_Estate
+        - paragraph [ref=e10]: "Project ID: Esther_Estate"
+      - generic [ref=e11]:
+        - generic [ref=e13]:
+          - generic [ref=e14]: Budget OK
+          - generic [ref=e15]: Budget healthy.
+        - button "Ready" [ref=e16] [cursor=pointer]:
+          - generic [ref=e18]: Ready
+        - button "Toggle companion overlay" [ref=e19] [cursor=pointer]: Companion
+        - button "Generate draft" [ref=e20] [cursor=pointer]: Generate
+        - button "Run critique workflow" [ref=e21] [cursor=pointer]: Critique
+        - generic [ref=e22]:
+          - generic [ref=e23]: Export format
+          - combobox "Export format" [ref=e24]:
+            - option "Markdown" [selected]
+            - option "Plain text"
+            - option "ZIP archive"
+        - generic [ref=e25]:
+          - button "Create snapshot" [ref=e26] [cursor=pointer]: Snapshot
+          - button "Verify snapshots" [ref=e27] [cursor=pointer]: Verify
+          - button "Open Snapshots panel" [ref=e28] [cursor=pointer]: Snapshots
+          - button "Export project manuscript" [ref=e29] [cursor=pointer]: Export
+    - main [ref=e30]:
+      - region "Docked workspace" [ref=e31]:
+        - paragraph [ref=e32]: Use Control or Command plus Alt with the number keys to switch docking presets. Control or Command plus Alt plus zero resets the layout. Control or Command plus Alt plus the right or left bracket keys moves focus between panes. Control or Command plus Shift plus E also cycles focus forward if bracket keys are unavailable.
+        - generic [ref=e34]:
+          - generic [ref=e36]:
+            - generic [ref=e38]:
+              - generic [ref=e39]: Draft preview
+              - generic [ref=e40]:
+                - button "Expand Draft preview pane" [ref=e41] [cursor=pointer]: Expand
+                - button "Close Draft preview pane" [ref=e42] [cursor=pointer]: Close
+                - button "Detach Draft preview pane" [ref=e43] [cursor=pointer]: Float
+                - button "Focus Draft preview pane" [ref=e44] [cursor=pointer]: Focus
+            - group "Draft preview" [ref=e46]:
+              - generic [ref=e48]:
+                - generic [ref=e49]:
+                  - generic [ref=e50]:
+                    - heading "Project Home" [level=2] [ref=e51]
+                    - paragraph [ref=e52]: Browse a project folder to populate the dock and workspace.
+                  - button "Open project..." [ref=e53] [cursor=pointer]
+                - generic [ref=e55]:
+                  - generic [ref=e56]:
+                    - heading "Diagnostics" [level=3] [ref=e57]
+                    - paragraph [ref=e58]: Access the story snapshot and activity log when you need to share troubleshooting details.
+                  - button "Show diagnostics" [ref=e59] [cursor=pointer]
+                - generic [ref=e60]:
+                  - generic [ref=e62]:
+                    - heading "Floating window behavior" [level=3] [ref=e63]
+                    - paragraph [ref=e64]: Control how docked panes behave when their saved position is off-screen.
+                  - generic [ref=e65]:
+                    - generic "Toggle relocation toast" [ref=e66]:
+                      - checkbox "Toggle relocation toast" [checked] [ref=e67]
+                      - generic [ref=e68]:
+                        - generic [ref=e69]:
+                          - generic [ref=e70]: Toggle relocation toast
+                          - text: Show relocation toast
+                        - paragraph [ref=e71]: Alert me when floating panes are moved back onto an active display.
+                    - generic "Toggle auto snap" [ref=e72]:
+                      - checkbox "Toggle auto snap" [ref=e73]
+                      - generic [ref=e74]:
+                        - generic [ref=e75]:
+                          - generic [ref=e76]: Toggle auto snap
+                          - text: Auto-snap to preferred display
+                        - paragraph [ref=e77]: After we recover a pane, try to reopen it at the last known position automatically.
+                - generic:
+                  - generic:
+                    - generic [ref=e78]:
+                      - generic [ref=e79]:
+                        - heading "Recent Projects" [level=3] [ref=e80]
+                        - generic [ref=e81]: "2"
+                      - list [ref=e82]:
+                        - listitem [ref=e83]:
+                          - button "Esther Estate C:\\Dev\\black-skies\\sample_project\\Esther_Estate" [ref=e84] [cursor=pointer]:
+                            - generic [ref=e85]: Esther Estate
+                            - generic [ref=e86]: C:\Dev\black-skies\sample_project\Esther_Estate
+                        - listitem [ref=e87]:
+                          - button "proj_esther_estate C:\\Dev\\black-skies\\sample_project\\proj_esther_estate" [ref=e88] [cursor=pointer]:
+                            - generic [ref=e89]: proj_esther_estate
+                            - generic [ref=e90]: C:\Dev\black-skies\sample_project\proj_esther_estate
+                    - generic [ref=e91]:
+                      - heading "Project Details" [level=3] [ref=e92]
+                      - generic [ref=e93]:
+                        - generic [ref=e94]:
+                          - heading "Esther Estate" [level=4] [ref=e95]
+                          - text: C:\Dev\black-skies\sample_project\Esther_Estate
+                        - generic [ref=e96]:
+                          - generic [ref=e97]:
+                            - term [ref=e98]: Acts
+                            - definition [ref=e99]: "1"
+                          - generic [ref=e100]:
+                            - term [ref=e101]: Chapters
+                            - definition [ref=e102]: "1"
+                          - generic [ref=e103]:
+                            - term [ref=e104]: Scenes
+                            - definition [ref=e105]: "2"
+                        - paragraph [ref=e106]: Outline and draft metadata look healthy.
+                    - generic [ref=e107]:
+                      - generic [ref=e108]:
+                        - generic [ref=e109]:
+                          - generic [ref=e110]: sc_0001
+                          - heading "Basement Pulse" [level=3] [ref=e111]
+                        - generic [ref=e112]:
+                          - generic [ref=e113]: respite
+                          - generic [ref=e114]: escalation
+                          - generic [ref=e115]: 890 words
+                      - region "Basement Pulse" [ref=e117]:
+                        - generic [ref=e119]:
+                          - generic [ref=e120]: "1"
+                          - generic [ref=e121]: "2"
+                          - generic [ref=e122]: "3"
+                          - generic [ref=e123]: "4"
+                          - generic [ref=e124]: "5"
+                          - generic [ref=e125]: "6"
+                          - generic [ref=e126]: "7"
+                          - generic [ref=e127]: "8"
+                          - generic [ref=e128]: "9"
+                          - generic [ref=e129]: "10"
+                          - generic [ref=e130]: "11"
+                          - generic [ref=e131]: "12"
+                          - generic [ref=e132]: "13"
+                          - generic [ref=e133]: "14"
+                          - generic [ref=e134]: "15"
+                          - generic [ref=e135]: "16"
+                          - generic [ref=e136]: "17"
+                          - generic [ref=e137]: "18"
+                          - generic [ref=e138]: "19"
+                        - textbox "Basement Pulse" [ref=e139]:
+                          - generic [ref=e140]: "---"
+                          - generic [ref=e141]: "id: sc_0001"
+                          - generic [ref=e142]: "slug: basement-pulse"
+                          - generic [ref=e143]: "title: Basement Pulse"
+                          - generic [ref=e144]: "pov: Mara Ibarra"
+                          - generic [ref=e145]: "purpose: escalation"
+                          - generic [ref=e146]: "goal: map the estate's sealed corridors"
+                          - generic [ref=e147]: "conflict: footsteps echo from nowhere"
+                          - generic [ref=e148]: "turn: an old ally speaks through the static"
+                          - generic [ref=e149]: "emotion_tag: respite"
+                          - generic [ref=e150]: "word_target: 890"
+                          - generic [ref=e151]: "order: 1"
+                          - generic [ref=e152]: "chapter_id: ch_0001"
+                          - generic [ref=e153]: "beats: [inciting]"
+                          - generic [ref=e154]: "---"
+                          - generic [ref=e155]: Mara Ibarra enters Basement Pulse to map the estate's sealed corridors. The atmosphere leans toward respite as footsteps echo from nowhere.
+                          - generic [ref=e157]: The beat shifts when an old ally speaks through the static, keeping the scene in escalation mode and aiming for roughly 890 words.
+                  - complementary [ref=e159]:
+                    - generic [ref=e160]:
+                      - heading "Scene Metadata" [level=3] [ref=e161]
+                      - generic [ref=e162]: "2"
+                    - list:
+                      - listitem [ref=e163]:
+                        - 'button "sc_0001 #1 Basement Pulse respite escalation 890 words inciting" [pressed] [ref=e164] [cursor=pointer]':
+                          - generic [ref=e165]:
+                            - generic [ref=e166]: sc_0001
+                            - generic [ref=e167]: "#1"
+                          - heading "Basement Pulse" [level=4] [ref=e168]
+                          - generic [ref=e169]:
+                            - generic [ref=e170]: respite
+                            - generic [ref=e171]: escalation
+                            - generic [ref=e172]: 890 words
+                          - generic [ref=e174]: inciting
+                      - listitem [ref=e175]:
+                        - 'button "sc_0002 #2 Locked Parlor revelation payoff 930 words turn" [ref=e176] [cursor=pointer]':
+                          - generic [ref=e177]:
+                            - generic [ref=e178]: sc_0002
+                            - generic [ref=e179]: "#2"
+                          - heading "Locked Parlor" [level=4] [ref=e180]
+                          - generic [ref=e181]:
+                            - generic [ref=e182]: revelation
+                            - generic [ref=e183]: payoff
+                            - generic [ref=e184]: 930 words
+                          - generic [ref=e186]: turn
+            - generic [ref=e189]:
+              - heading [level=4]
+          - generic [ref=e193]:
+            - generic [ref=e195]:
+              - generic [ref=e196]: Story Insights
+              - generic [ref=e197]:
+                - button "Expand Story Insights pane" [ref=e198] [cursor=pointer]: Expand
+                - button "Close Story Insights pane" [ref=e199] [cursor=pointer]: Close
+                - button "Detach Story Insights pane" [ref=e200] [cursor=pointer]: Float
+                - button "Focus Story Insights pane" [ref=e201] [cursor=pointer]: Focus
+            - group "Story Insights" [ref=e203]:
+              - region "Story Insights Live story insights for the current project." [ref=e204]:
+                - generic [ref=e206]:
+                  - generic [ref=e207]:
+                    - heading "Story Insights" [level=2] [ref=e208]
+                    - paragraph [ref=e209]: Live story insights for the current project.
+                  - paragraph [ref=e210]: Service port is unavailable. Set BLACKSKIES_SERVICES_PORT.
+            - generic [ref=e213]:
+              - heading [level=4]
+          - generic [ref=e217]:
+            - generic [ref=e219]:
+              - generic [ref=e220]: Outline
+              - generic [ref=e221]:
+                - button "Expand Outline pane" [ref=e222] [cursor=pointer]: Expand
+                - button "Close Outline pane" [ref=e223] [cursor=pointer]: Close
+                - button "Detach Outline pane" [ref=e224] [cursor=pointer]: Float
+                - button "Focus Outline pane" [ref=e225] [cursor=pointer]: Focus
+            - group "Outline" [ref=e227]:
+              - generic [ref=e229]:
+                - generic [ref=e230]:
+                  - heading "Wizard Controls" [level=2] [ref=e231]
+                  - paragraph [ref=e232]: Lock each step to freeze your outline decisions and create a snapshot before building. Follow the formats below so acts, chapters, and scenes are saved exactly as listed.
+                - generic [ref=e233]:
+                  - generic [ref=e234]: Project ID
+                  - textbox "Project ID" [ref=e235]:
+                    - /placeholder: e.g., esther_estate
+                    - text: Esther_Estate
+                  - paragraph [ref=e236]: The project ID should match the folder within your project root. It will be normalised to snake_case when saved.
+                - navigation "Wizard progress" [ref=e237]:
+                  - list [ref=e238]:
+                    - listitem [ref=e239]:
+                      - button "1. Input & Scope" [ref=e240] [cursor=pointer]
+                    - listitem [ref=e241]:
+                      - button "2. Framing" [ref=e242] [cursor=pointer]
+                    - listitem [ref=e243]:
+                      - button "3. Structure" [ref=e244] [cursor=pointer]
+                    - listitem [ref=e245]:
+                      - button "4. Scenes" [ref=e246] [cursor=pointer]
+                    - listitem [ref=e247]:
+                      - button "5. Characters" [ref=e248] [cursor=pointer]
+                    - listitem [ref=e249]:
+                      - button "6. Conflict" [ref=e250] [cursor=pointer]
+                    - listitem [ref=e251]:
+                      - button "7. Beats" [ref=e252] [cursor=pointer]
+                    - listitem [ref=e253]:
+                      - button "8. Pacing" [ref=e254] [cursor=pointer]
+                    - listitem [ref=e255]:
+                      - button "9. Chapters" [ref=e256] [cursor=pointer]
+                    - listitem [ref=e257]:
+                      - button "10. Themes" [ref=e258] [cursor=pointer]
+                    - listitem [ref=e259]:
+                      - button "11. Finalize" [ref=e260] [cursor=pointer]
+                - generic [ref=e261]:
+                  - generic [ref=e262]:
+                    - generic [ref=e263]: Input & Scope
+                    - generic [ref=e264]:
+                      - generic [ref=e266]: Unlocked
+                      - button "Lock" [ref=e267] [cursor=pointer]
+                  - paragraph [ref=e268]: Collect your raw notes, premise bullets, and scope decisions.
+                  - textbox "Input & Scope" [ref=e269]
+                - generic [ref=e270]:
+                  - generic [ref=e271]:
+                    - button "Back" [disabled] [ref=e272]
+                    - button "Next" [ref=e273] [cursor=pointer]
+                  - button "Reset" [ref=e275] [cursor=pointer]
+            - generic [ref=e278]:
+              - heading [level=4]
+          - generic [ref=e282]:
+            - generic [ref=e284]:
+              - generic [ref=e285]: Corkboard
+              - generic [ref=e286]:
+                - button "Expand Corkboard pane" [ref=e287] [cursor=pointer]: Expand
+                - button "Close Corkboard pane" [ref=e288] [cursor=pointer]: Close
+                - button "Detach Corkboard pane" [ref=e289] [cursor=pointer]: Float
+                - button "Focus Corkboard pane" [ref=e290] [cursor=pointer]: Focus
+            - group "Corkboard" [ref=e292]:
+              - region "Corkboard" [ref=e293]:
+                - generic [ref=e295]:
+                  - generic [ref=e296]:
+                    - heading "Corkboard" [level=2] [ref=e297]
+                    - paragraph [ref=e298]: Scene cards ordered by the outline.
+                  - paragraph [ref=e299]: Service port is unavailable. Set BLACKSKIES_SERVICES_PORT.
+            - generic [ref=e302]:
+              - heading [level=4]
+        - region "Hidden panes" [ref=e303]:
+          - generic [ref=e304]: Hidden panes
+          - generic [ref=e305]:
+            - button "Timeline" [ref=e306] [cursor=pointer]
+            - button "Critique" [ref=e307] [cursor=pointer]
+            - button "Feedback notes" [ref=e308] [cursor=pointer]
+        - generic [ref=e309]:
+          - button "Restore layout" [ref=e310] [cursor=pointer]
+          - button "Reset layout" [ref=e311] [cursor=pointer]
+  - generic:
+    - status [ref=e312]:
+      - generic [ref=e313]:
+        - generic [ref=e314]: Recovery status unavailable
+        - generic [ref=e315]: Service port is unavailable. Set BLACKSKIES_SERVICES_PORT.
+      - button "Dismiss notification" [ref=e316] [cursor=pointer]: ×
+    - status [ref=e317]:
+      - generic [ref=e318]:
+        - generic [ref=e319]: Recovery status unavailable
+        - generic [ref=e320]: Service port is unavailable. Set BLACKSKIES_SERVICES_PORT.
+      - button "Dismiss notification" [ref=e321] [cursor=pointer]: ×
+    - status [ref=e322]:
+      - generic [ref=e323]:
+        - generic [ref=e324]: Recovery status unavailable
+        - generic [ref=e325]: Service port is unavailable. Set BLACKSKIES_SERVICES_PORT.
+      - button "Dismiss notification" [ref=e326] [cursor=pointer]: ×
+    - status [ref=e327]:
+      - generic [ref=e328]:
+        - generic [ref=e329]: Recovery status unavailable
+        - generic [ref=e330]: Service port is unavailable. Set BLACKSKIES_SERVICES_PORT.
+      - button "Dismiss notification" [ref=e331] [cursor=pointer]: ×
+```

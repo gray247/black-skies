@@ -859,7 +859,7 @@ export default function ProjectHome({
           </div>
         </div>
         <div className="project-home__relocation-options">
-          <label className="project-home__toggle">
+          <label className="project-home__toggle" aria-label="Toggle relocation toast">
             <input
               type="checkbox"
               className="project-home__toggle-input"
@@ -868,13 +868,16 @@ export default function ProjectHome({
               disabled={!onRelocationNotifyChange}
             />
             <div>
-              <span>Show relocation toast</span>
+              <span className="project-home__toggle-label">
+                <span className="visually-hidden">Toggle relocation toast</span>
+                <span aria-hidden="true">Show relocation toast</span>
+              </span>
               <p className="project-home__toggle-caption">
                 Alert me when floating panes are moved back onto an active display.
               </p>
             </div>
           </label>
-          <label className="project-home__toggle">
+          <label className="project-home__toggle" aria-label="Toggle auto snap">
             <input
               type="checkbox"
               className="project-home__toggle-input"
@@ -883,7 +886,10 @@ export default function ProjectHome({
               disabled={!onAutoSnapChange}
             />
             <div>
-              <span>Auto-snap to preferred display</span>
+              <span className="project-home__toggle-label">
+                <span className="visually-hidden">Toggle auto snap</span>
+                <span aria-hidden="true">Auto-snap to preferred display</span>
+              </span>
               <p className="project-home__toggle-caption">
                 After we recover a pane, try to reopen it at the last known position automatically.
               </p>

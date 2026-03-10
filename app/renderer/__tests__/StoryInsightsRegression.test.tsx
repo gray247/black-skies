@@ -6,6 +6,7 @@ import { useState } from 'react';
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
 import Corkboard from '../components/Corkboard';
 import RelationshipGraph from '../components/RelationshipGraph';
+import type { ServicesBridge } from '../../shared/ipc/services';
 
 const buildScenes = (count: number) =>
   Array.from({ length: count }, (_, index) => ({
@@ -16,17 +17,21 @@ const buildScenes = (count: number) =>
     readability: 12.5,
     density: { dialogueRatio: 0.45, narrationRatio: 0.55 },
   }));
+const SAMPLE_PROJECT_PATH = '/projects/proj';
+
+type StoryInsightsWindow = typeof window & { services?: ServicesBridge };
 
 describe('Story Insights regressions', () => {
   afterEach(() => {
     vi.restoreAllMocks();
-    (window as typeof window & { services?: unknown }).services = undefined;
-    global.fetch = undefined as any;
+    (window as StoryInsightsWindow).services = undefined;
+    global.fetch = undefined as unknown as typeof fetch;
   });
 
   it('renders Story Insights surfaces without error banners', async () => {
     const scenes = buildScenes(3);
-    (window as typeof window & { services?: any }).services = {
+    const win = window as StoryInsightsWindow;
+    const servicesMock: Partial<ServicesBridge> = {
       getAnalyticsSummary: vi.fn().mockResolvedValue({
         ok: true,
         data: {
@@ -39,8 +44,9 @@ describe('Story Insights regressions', () => {
       }),
       getAnalyticsScenes: vi.fn().mockResolvedValue({ ok: true, data: { scenes } }),
     };
+    win.services = servicesMock as ServicesBridge;
 
-    render(<AnalyticsDashboard projectId="proj" />);
+    render(<AnalyticsDashboard projectId="proj" projectPath={SAMPLE_PROJECT_PATH} />);
 
     await waitFor(() => expect(screen.getByText('Story Insights')).toBeInTheDocument());
     expect(screen.queryByText(/Something went wrong/i)).toBeNull();
@@ -48,16 +54,18 @@ describe('Story Insights regressions', () => {
     expect(await screen.findByTestId('analytics-pacing-strip')).toBeInTheDocument();
     expect(screen.getByText(/Project ID/i)).toBeInTheDocument();
     expect(screen.getByText('Scene 1')).toBeInTheDocument();
-    expect(screen.queryByText(/\bAnalytics\b/i)).toBeNull();
+    expect(screen.getByRole('button', { name: /refresh analytics/i })).toBeInTheDocument();
   });
 
   it('only shows the error banner when Story Insights calls fail', async () => {
-    (window as typeof window & { services?: any }).services = {
+    const win = window as StoryInsightsWindow;
+    const servicesMock: Partial<ServicesBridge> = {
       getAnalyticsSummary: vi.fn().mockRejectedValue(new Error('Network failure')),
       getAnalyticsScenes: vi.fn().mockRejectedValue(new Error('Network failure')),
     };
+    win.services = servicesMock as ServicesBridge;
 
-    render(<AnalyticsDashboard projectId="proj" />);
+    render(<AnalyticsDashboard projectId="proj" projectPath={SAMPLE_PROJECT_PATH} />);
 
     await screen.findByText(/network failure/i);
     expect(screen.getByText(/network failure/i)).toBeInTheDocument();
@@ -65,11 +73,13 @@ describe('Story Insights regressions', () => {
 
   it('handles many scenes in the corkboard without overflow', async () => {
     const scenes = buildScenes(12);
-    (window as typeof window & { services?: any }).services = {
+    const win = window as StoryInsightsWindow;
+    const servicesMock: Partial<ServicesBridge> = {
       getAnalyticsScenes: vi.fn().mockResolvedValue({ ok: true, data: { scenes } }),
     };
+    win.services = servicesMock as ServicesBridge;
 
-    render(<Corkboard projectId="proj" />);
+    render(<Corkboard projectId="proj" projectPath={SAMPLE_PROJECT_PATH} />);
 
     await waitFor(() => expect(screen.getAllByTestId('corkboard-card').length).toBe(12));
     expect(screen.queryByText(/Something went wrong/i)).toBeNull();
@@ -91,7 +101,9 @@ describe('Story Insights regressions', () => {
           },
         }),
     };
-    (window as typeof window & { services?: any }).services = services;
+    const win = window as StoryInsightsWindow;
+    const servicesMock: Partial<ServicesBridge> = services;
+    win.services = servicesMock as ServicesBridge;
 
     const { rerender } = render(<RelationshipGraph projectId="proj-empty" />);
     await screen.findByText(/No relationship data has been gathered yet./i);
@@ -126,7 +138,7 @@ describe('Story Insights regressions', () => {
       const url = typeof input === 'string' ? input : input.toString();
       urls.push(url);
       return new Response('{}', { status: 200, headers: { 'Content-Type': 'application/json' } });
-    }) as any;
+    }) as unknown as typeof fetch;
 
     const buildService = (path: string) =>
       vi.fn(async ({ projectId }: { projectId: string }) => {
@@ -154,13 +166,15 @@ describe('Story Insights regressions', () => {
         return { ok: true, data: { nodes: [], edges: [] } };
       });
 
-    (window as typeof window & { services?: any }).services = {
+    const win = window as StoryInsightsWindow;
+    const servicesMock: Partial<ServicesBridge> = {
       getAnalyticsSummary: buildService('/api/v1/analytics/summary'),
       getAnalyticsScenes: buildService('/api/v1/analytics/scenes'),
       getAnalyticsRelationships: buildService('/api/v1/analytics/relationships'),
     };
+    win.services = servicesMock as ServicesBridge;
 
-    render(<AnalyticsDashboard projectId="proj" />);
+    render(<AnalyticsDashboard projectId="proj" projectPath={SAMPLE_PROJECT_PATH} />);
     await waitFor(() => expect(urls.length).toBeGreaterThanOrEqual(2));
 
     urls.forEach((url) => {

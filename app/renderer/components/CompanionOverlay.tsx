@@ -6,7 +6,7 @@ import {
   resolveAnalyticsConfig,
 } from '../utils/analytics';
 import type { EmotionArcPoint, ScenePacingMetric } from '../utils/analytics';
-import type { AnalyticsScenes, AnalyticsSummary, SceneMetric } from '../../shared/ipc/services';
+import type { AnalyticsSummary, SceneMetric } from '../../shared/ipc/services';
 import type { ServiceStatus } from './ServiceStatusPill';
 import { recordDebugEvent } from '../utils/debugLog';
 import { LABEL_AVG_READABILITY } from './storyInsightsLabels';
@@ -912,7 +912,6 @@ export default function CompanionOverlay({
                             ? 'Model Insights Are Ready.'
                             : 'Needs The Model. Reconnect To Run.'
                         }
-                        aria-disabled={serviceStatus !== 'online'}
                       >
                         <div>
                           <strong>{entry.title}</strong>
