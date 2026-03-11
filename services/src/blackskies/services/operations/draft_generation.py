@@ -23,6 +23,13 @@ from ..persistence import DraftPersistence
 from ..scene_docs import DraftRequestError
 from .budget_service import BudgetService, BudgetSummary
 from ..constants import DEFAULT_SOFT_BUDGET_LIMIT_USD
+from ..model_router import (
+    ModelRouter,
+    ModelTask,
+    ModelRouteDecision,
+    format_route_metadata,
+)
+from ..model_adapters import AdapterError, BaseAdapter
 
 
 @dataclass(slots=True)
@@ -114,6 +121,7 @@ class DraftGenerationService:
         *,
         settings: ServiceSettings,
         diagnostics: DiagnosticLogger,
+        model_router: ModelRouter | None = None,
     ) -> None:
         self._settings = settings
         self._diagnostics = diagnostics
@@ -121,6 +129,9 @@ class DraftGenerationService:
         self._timeout_seconds = getattr(settings, "draft_task_timeout_seconds", 120)
         self._retry_attempts = max(0, int(getattr(settings, "draft_task_retry_attempts", 1)))
         self._budget_service = BudgetService(settings=settings, diagnostics=diagnostics)
+        self._model_router = model_router
+        self._last_route: ModelRouteDecision | None = None
+        self._last_adapter: BaseAdapter | None = None
 
     async def generate(
         self,
@@ -169,6 +180,7 @@ class DraftGenerationService:
             status=status_label,
             message=message,
         )
+        budget_payload = summary.as_dict()
 
         if status_label == "blocked":
             raise_budget_error(
@@ -185,13 +197,28 @@ class DraftGenerationService:
             )
 
         synthesizer = self._create_synthesizer(project_root)
+        if (
+            self._model_router
+            and self._model_router.config.routing_metadata_enabled
+            and self._last_route
+        ):
+            budget_payload["routing"] = format_route_metadata(self._last_route)
+        if self._last_route:
+            budget_meta["last_route"] = {
+                "policy": self._last_route.policy.value,
+                "provider": self._last_route.provider,
+                "model": self._last_route.model.name,
+                "fallback_used": self._last_route.fallback_used,
+            }
         response_payload, artifacts = await self._run_with_timeout(
             self._execute_generation,
             request,
             list(scenes),
             estimated_cost,
+            budget_payload,
             summary,
             synthesizer,
+            project_root,
             project_root=project_root,
         )
 
@@ -270,19 +297,69 @@ class DraftGenerationService:
 
     def _create_synthesizer(self, project_root: Path | None) -> DraftSynthesizer:
         heuristics = load_project_heuristics(project_root)
-        return DraftSynthesizer(heuristics=heuristics)
+        model = self._resolve_model(ModelTask.DRAFT)
+        return DraftSynthesizer(heuristics=heuristics, model=model)
+
+    def _resolve_model(self, task: ModelTask) -> dict[str, str]:
+        if not self._model_router:
+            return DraftSynthesizer._MODEL.copy()
+        decision = self._model_router.route(task)
+        self._last_route = decision
+        self._last_adapter = None
+        if self._model_router.config.provider_calls_enabled:
+            provider = self._model_router.providers.get(decision.provider)
+            if provider and provider.supports(task):
+                self._last_adapter = provider.adapter()
+        return {"name": decision.model.name, "provider": decision.model.provider}
+
+    def _build_adapter_prompt(
+        self,
+        *,
+        scene: OutlineScene,
+        front_matter: dict[str, Any],
+        overrides: DraftUnitOverrides | None,
+    ) -> str:
+        beats = front_matter.get("beats") or []
+        beat_line = ", ".join(str(beat) for beat in beats) if beats else "None"
+        notes = []
+        if overrides and overrides.purpose:
+            notes.append(f"Purpose override: {overrides.purpose}")
+        if overrides and overrides.emotion_tag:
+            notes.append(f"Emotion override: {overrides.emotion_tag}")
+        if overrides and overrides.word_target is not None:
+            notes.append(f"Word target override: {overrides.word_target}")
+        notes_line = " | ".join(notes) if notes else "None"
+        return "\n".join(
+            [
+                "Write a scene draft for the following outline beat.",
+                f"Scene title: {scene.title}",
+                f"POV: {front_matter.get('pov')}",
+                f"Goal: {front_matter.get('goal')}",
+                f"Conflict: {front_matter.get('conflict')}",
+                f"Turn: {front_matter.get('turn')}",
+                f"Emotion: {front_matter.get('emotion_tag')}",
+                f"Target words: {front_matter.get('word_target')}",
+                f"Pacing target: {front_matter.get('pacing_target')}",
+                f"Beats: {beat_line}",
+                f"Notes: {notes_line}",
+                "Return plain text only, no markdown fences.",
+            ]
+        )
 
     def _execute_generation(
         self,
         request: DraftGenerateRequest,
         scenes: list[OutlineScene],
         estimated_cost: float,
+        budget_payload: dict[str, Any],
         summary: BudgetSummary,
         synthesizer: DraftSynthesizer,
+        project_root: Path,
     ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
         units: list[dict[str, Any]] = []
         artifacts: list[dict[str, Any]] = []
         total_scenes = len(scenes)
+        adapter = self._last_adapter
 
         for index, scene in enumerate(scenes):
             overrides = request.overrides.get(scene.id)
@@ -292,6 +369,30 @@ class DraftGenerationService:
                 overrides=overrides,
                 unit_index=index,
             )
+            if adapter is not None:
+                prompt = self._build_adapter_prompt(
+                    scene=scene,
+                    front_matter=synthesis.front_matter,
+                    overrides=overrides,
+                )
+                payload = {
+                    "prompt": prompt,
+                    "temperature": request.temperature,
+                    "options": {"temperature": request.temperature} if request.temperature is not None else None,
+                }
+                try:
+                    adapter_response = adapter.generate_draft(payload)
+                    adapter_text = adapter_response.get("text")
+                    if isinstance(adapter_text, str) and adapter_text.strip():
+                        synthesis.body = adapter_text.strip()
+                        synthesis.unit["text"] = synthesis.body
+                except AdapterError as exc:
+                    self._diagnostics.log(
+                        project_root,
+                        code="ADAPTER",
+                        message="Draft adapter failed; falling back to local synthesis.",
+                        details={"error": str(exc)},
+                    )
             durable_write = index == (total_scenes - 1)
             self._persistence.write_scene(
                 request.project_id,
@@ -318,7 +419,8 @@ class DraftGenerationService:
             "draft_id": draft_id,
             "schema_version": "DraftUnitSchema v1",
             "units": units,
-            "budget": summary.as_dict(),
+            "model": dict(synthesizer._model),
+            "budget": budget_payload,
         }
 
         return response_payload, artifacts
@@ -348,6 +450,13 @@ class DraftGenerationService:
             status=status_label,
             message=message,
         )
+        budget_payload = summary.as_dict()
+        if (
+            self._model_router
+            and self._model_router.config.routing_metadata_enabled
+            and self._last_route
+        ):
+            budget_payload["routing"] = format_route_metadata(self._last_route)
 
         scenes_payload: list[dict[str, Any]] = []
         for scene in scenes:
@@ -366,9 +475,9 @@ class DraftGenerationService:
             "project_id": request.project_id,
             "unit_scope": request.unit_scope.value,
             "unit_ids": request.unit_ids,
-            "model": dict(synthesizer._MODEL),
+            "model": dict(synthesizer._model),
             "scenes": scenes_payload,
-            "budget": summary.as_dict(),
+            "budget": budget_payload,
         }
 
     def _log_runtime_event(self, project_root: Path, request: DraftGenerateRequest, units: list[dict[str, Any]], estimated_cost: float) -> None:
@@ -376,6 +485,7 @@ class DraftGenerationService:
         hint = "cheap"
         if estimated_cost >= DEFAULT_SOFT_BUDGET_LIMIT_USD * 0.5:
             hint = "expensive"
+        route = self._last_route
         event = {
             "service": "draft_generate",
             "project_id": request.project_id,
@@ -385,6 +495,10 @@ class DraftGenerationService:
             "tokens": total_tokens,
             "mode": "local" if request.unit_scope is DraftUnitScope.SCENE else "batch",
             "hint": hint,
+            "routing_policy": route.policy.value if route else None,
+            "routing_provider": route.provider if route else None,
+            "routing_model": route.model.name if route else None,
+            "routing_fallback": route.fallback_used if route else None,
         }
         try:
             log_runtime_event(project_root, event)

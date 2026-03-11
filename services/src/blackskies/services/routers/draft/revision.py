@@ -40,10 +40,13 @@ from ..dependencies import (
     get_critique_service,
     get_diagnostics,
     get_settings,
+    get_model_router,
 )
 from ..shared import utc_timestamp
 from . import router
 from ...e2e_mode import e2e_critique_response, is_e2e_mode
+from ...model_router import ModelRouter, ModelTask, format_route_metadata
+from ...model_adapters import AdapterError
 
 
 def persist_project_budget(state, new_spent_usd):
@@ -141,6 +144,7 @@ async def rewrite_draft(
     payload: dict[str, Any],
     settings: ServiceSettings = Depends(get_settings),
     diagnostics: DiagnosticLogger = Depends(get_diagnostics),
+    model_router: ModelRouter = Depends(get_model_router),
 ) -> dict[str, Any]:
     """Apply rewrite instructions and persist the revised draft unit."""
 
@@ -182,17 +186,66 @@ async def rewrite_draft(
         )
 
     revised_text = request_model.new_text
+    decision = model_router.route(ModelTask.REWRITE)
+    adapter = None
+    if model_router.config.provider_calls_enabled:
+        provider = model_router.providers.get(decision.provider)
+        if provider and provider.supports(ModelTask.REWRITE):
+            adapter = provider.adapter()
     if revised_text is None:
-        revised_text = _apply_rewrite_instructions(current_body, request_model.instructions)
+        adapter_used = False
+        if adapter is not None:
+            system = (
+                "You are a rewrite engine. Return only the revised draft text, "
+                "preserving paragraph breaks."
+            )
+            prompt = "\n".join(
+                [
+                    f"Instructions: {request_model.instructions or 'Maintain current tone.'}",
+                    "Original draft:",
+                    current_body,
+                ]
+            )
+            try:
+                adapter_result = adapter.rewrite({"system": system, "prompt": prompt})
+                adapter_text = adapter_result.get("text")
+                if isinstance(adapter_text, str):
+                    candidate = normalize_markdown(adapter_text)
+                    if candidate.strip():
+                        revised_text = adapter_text
+                        adapter_used = True
+                    else:
+                        diagnostics.log(
+                            project_root,
+                            code="ADAPTER",
+                            message="Rewrite adapter returned empty text; falling back to local rewrite.",
+                            details={"unit_id": request_model.unit_id},
+                        )
+            except AdapterError as exc:
+                diagnostics.log(
+                    project_root,
+                    code="ADAPTER",
+                    message="Rewrite adapter failed; falling back to local rewrite.",
+                    details={"error": str(exc)},
+                )
+        if revised_text is None:
+            revised_text = _apply_rewrite_instructions(current_body, request_model.instructions)
+            adapter_used = False
+    else:
+        adapter_used = False
 
     normalized_revised = normalize_markdown(revised_text)
     if not normalized_revised.strip():
-        raise_validation_error(
-            message="Revised text must not be empty.",
-            details={"unit_id": request_model.unit_id},
-            diagnostics=diagnostics,
-            project_root=project_root,
-        )
+        if adapter_used:
+            revised_text = _apply_rewrite_instructions(current_body, request_model.instructions)
+            normalized_revised = normalize_markdown(revised_text)
+        if not normalized_revised.strip():
+            raise_validation_error(
+                message="Revised text must not be empty.",
+                details={"unit_id": request_model.unit_id},
+                diagnostics=diagnostics,
+                project_root=project_root,
+            )
 
     diff_payload = compute_diff(current_normalized, normalized_revised)
 
@@ -243,7 +296,7 @@ async def rewrite_draft(
 
     await _persist_rewrite()
 
-    return {
+    response_payload = {
         "unit_id": request_model.unit_id,
         "revised_text": normalized_revised,
         "diff": {
@@ -253,8 +306,11 @@ async def rewrite_draft(
             "anchors": diff_payload.anchors,
         },
         "schema_version": "DraftUnitSchema v1",
-        "model": {"name": "draft-rewriter-v1", "provider": "black-skies-local"},
+        "model": {"name": decision.model.name, "provider": decision.model.provider},
     }
+    if model_router.config.routing_metadata_enabled:
+        response_payload["routing"] = format_route_metadata(decision)
+    return response_payload
 
 
 @router.post("/critique")
@@ -411,6 +467,10 @@ async def critique_draft(
     if project_root is not None and project_id is not None:
         budget_service = BudgetService(settings=settings, diagnostics=diagnostics)
         try:
+            route_decision = (
+                critique_service.last_route if settings.model_router_metadata_enabled else None
+            )
+
             def _record_budget() -> dict[str, Any]:
                 with budget_service.edit_state(project_root) as budget_state:
                     _, front_matter, body = read_scene_document(project_root, request_model.unit_id)
@@ -440,6 +500,9 @@ async def critique_draft(
                         status=status_label,
                         message=message,
                     )
+                    budget_payload = summary.as_dict()
+                    if route_decision:
+                        budget_payload["routing"] = format_route_metadata(route_decision)
                     record_runtime_event(
                         project_root=project_root,
                         project_id=project_id,
@@ -450,7 +513,7 @@ async def critique_draft(
                         diagnostics=diagnostics,
                     )
                     persist_project_budget(budget_state, total_after)
-                    return summary.as_dict()
+                    return budget_payload
 
             budget_payload = await run_in_threadpool(_record_budget)
         except DraftRequestError as exc:

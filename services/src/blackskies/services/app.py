@@ -41,6 +41,8 @@ from .critique import CritiqueService
 from .resilience import ResiliencePolicy, ServiceResilienceRegistry
 from .service_errors import ServiceError
 from .scheduler import VerificationScheduler
+from .model_routing import ModelRouterConfig
+from .model_router import create_default_model_router
 
 LOGGER = logging.getLogger(__name__)
 
@@ -138,11 +140,31 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
     application.state.settings = service_settings
     application.state.build_tracker = BuildTracker()
     application.state.diagnostics = DiagnosticLogger()
+    application.state.model_router = create_default_model_router(
+        ModelRouterConfig(
+            policy=service_settings.model_routing_policy,
+            openai_api_key=service_settings.openai_api_key,
+            provider_calls_enabled=service_settings.model_router_provider_calls_enabled,
+            local_llm_available=service_settings.local_llm_available,
+            local_llm_base_url=service_settings.local_llm_base_url,
+            local_llm_model=service_settings.local_llm_model,
+            local_llm_health_check=service_settings.local_llm_health_check,
+            local_llm_timeout_seconds=service_settings.local_llm_timeout_seconds,
+            openai_model=service_settings.openai_model,
+            openai_base_url=service_settings.openai_base_url,
+            openai_health_check=service_settings.openai_health_check,
+            openai_timeout_seconds=service_settings.openai_timeout_seconds,
+            log_decisions=service_settings.model_router_log_decisions,
+            routing_metadata_enabled=service_settings.model_router_metadata_enabled,
+        )
+    )
     application.state.snapshot_persistence = SnapshotPersistence(
         settings=application.state.settings
     )
     application.state.recovery_tracker = RecoveryTracker(settings=application.state.settings)
-    application.state.critique_service = CritiqueService()
+    application.state.critique_service = CritiqueService(
+        model_router=application.state.model_router,
+    )
     application.state.service_version = SERVICE_VERSION
     resilience_state_dir = service_settings.project_base_dir / "_runtime" / "resilience"
     application.state.resilience_registry = ServiceResilienceRegistry(

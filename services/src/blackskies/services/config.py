@@ -8,6 +8,7 @@ from typing import Any, ClassVar, cast
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator
 
+from .model_routing import ModelRoutingPolicy
 
 def _default_project_dir() -> Path:
     """Determine a sensible default project directory."""
@@ -104,6 +105,64 @@ class ServiceSettings(BaseModel):
         ge=0.0,
         description="Seconds before a tripped analytics circuit allows new attempts.",
     )
+    model_routing_policy: ModelRoutingPolicy = Field(
+        default=ModelRoutingPolicy.LOCAL_ONLY,
+        description="Routing policy for model-backed calls.",
+    )
+    model_router_log_decisions: bool = Field(
+        default=True,
+        description="Enable routing decision logs for model-backed calls.",
+    )
+    model_router_metadata_enabled: bool = Field(
+        default=False,
+        description="Include optional routing metadata in service responses.",
+    )
+    model_router_provider_calls_enabled: bool = Field(
+        default=False,
+        description="Allow routed calls to invoke provider adapters.",
+    )
+    local_llm_available: bool = Field(
+        default=True,
+        description="Whether the local model provider is healthy and available.",
+    )
+    local_llm_base_url: str = Field(
+        default="http://127.0.0.1:11434",
+        description="Base URL for the local LLM provider (Ollama).",
+    )
+    local_llm_model: str = Field(
+        default="qwen3:4b",
+        description="Default local LLM model name.",
+    )
+    local_llm_health_check: bool = Field(
+        default=False,
+        description="Enable health probing for the local LLM provider.",
+    )
+    local_llm_timeout_seconds: float = Field(
+        default=12.0,
+        ge=0.5,
+        description="Timeout in seconds for local LLM requests.",
+    )
+    openai_api_key: str | None = Field(
+        default=None,
+        description="API key for OpenAI-backed providers.",
+    )
+    openai_model: str = Field(
+        default="gpt-4o-mini",
+        description="Default OpenAI model name.",
+    )
+    openai_base_url: str = Field(
+        default="https://api.openai.com/v1",
+        description="Base URL for OpenAI API requests.",
+    )
+    openai_health_check: bool = Field(
+        default=False,
+        description="Enable health probing for OpenAI providers.",
+    )
+    openai_timeout_seconds: float = Field(
+        default=30.0,
+        ge=1.0,
+        description="Timeout in seconds for OpenAI API requests.",
+    )
     backup_verifier_enabled: bool = Field(
         default=False,
         description="Enable the background backup verification daemon.",
@@ -198,12 +257,23 @@ class ServiceSettings(BaseModel):
                 file_values = cls._parse_env_file(env_file_path, env_encoding)
 
         overrides: dict[str, str] = {}
+        alias_keys: dict[str, list[str]] = {
+            "openai_api_key": ["OPENAI_API_KEY"],
+        }
         for field_name in cls.model_fields:
             env_key = f"{env_prefix}{field_name.upper()}"
             if env_key in os.environ:
                 overrides[field_name] = os.environ[env_key]
             elif env_key in file_values:
                 overrides[field_name] = file_values[env_key]
+            elif field_name in alias_keys:
+                for alias in alias_keys[field_name]:
+                    if alias in os.environ:
+                        overrides[field_name] = os.environ[alias]
+                        break
+                    if alias in file_values:
+                        overrides[field_name] = file_values[alias]
+                        break
 
         typed_overrides = cast(dict[str, Any], overrides)
         return cls(**typed_overrides)

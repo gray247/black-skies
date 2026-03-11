@@ -7,11 +7,15 @@ import json
 import logging
 from importlib import resources
 from pathlib import Path
-from typing import Any, Final, Iterable
+from typing import Any, Final, Iterable, Literal
+
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from .models import Critique, Draft
 from .models.critique import DraftCritiqueRequest
 from .scene_docs import DraftRequestError, read_scene_document
+from .model_router import ModelRouter, ModelRouteDecision, ModelTask
+from .model_adapters import AdapterError, BaseAdapter
 
 CRITIQUE_MODEL: Final[dict[str, str]] = {
     "name": "black-skies-rubric-v1",
@@ -27,6 +31,42 @@ CATEGORIES: Final[list[str]] = [
 ]
 BLOCKED_RUBRIC_CATEGORIES: Final[set[str]] = {"unknown"}
 LOGGER = logging.getLogger(__name__)
+
+
+class _AdapterLineComment(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    line: int = Field(..., ge=1)
+    note: str
+    excerpt: str | None = None
+
+
+class _AdapterSuggestedEdit(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    range: tuple[int, int]
+    replacement: str
+
+    @model_validator(mode="after")
+    def _validate_range(self) -> "_AdapterSuggestedEdit":
+        start, end = self.range
+        if start < 0 or end < 0:
+            msg = "Suggested edit range positions must be non-negative."
+            raise ValueError(msg)
+        if end < start:
+            msg = "Suggested edit range end must be >= start."
+            raise ValueError(msg)
+        return self
+
+
+class _AdapterCritiquePayload(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    summary: str = Field(min_length=1)
+    priorities: list[str]
+    line_comments: list[_AdapterLineComment]
+    suggested_edits: list[_AdapterSuggestedEdit]
+    severity: Literal["low", "medium", "high"]
 
 
 def _sentence_lengths(text: str) -> list[int]:
@@ -77,7 +117,7 @@ def _compute_heuristics(draft: Draft) -> dict[str, float]:
     return heuristics
 
 
-def apply_rubric(draft: Draft) -> Critique:
+def apply_rubric(draft: Draft, *, model: dict[str, str] | None = None) -> Critique:
     """Evaluate a draft against the baseline rubric and produce a critique."""
 
     text = draft.text
@@ -144,7 +184,7 @@ def apply_rubric(draft: Draft) -> Critique:
         priorities=priorities,
         suggested_edits=suggested_edits,
         severity=severity,
-        model=CRITIQUE_MODEL,
+        model=model or CRITIQUE_MODEL,
         heuristics=heuristics,
     )
     return critique
@@ -163,10 +203,69 @@ class CritiqueService:
         fixtures_package: str | None = None,
         *,
         data_dir: Path | None = None,
+        model_router: ModelRouter | None = None,
     ) -> None:
         self._fixtures_package = fixtures_package or self._FIXTURE_PACKAGE
         self._cached_fixture: dict[str, Any] | None = None
         self._data_dir = data_dir or self._DATA_DIR
+        self._model_router = model_router
+        self._last_adapter: BaseAdapter | None = None
+        self._last_route: ModelRouteDecision | None = None
+
+    def _resolve_model(self) -> dict[str, str]:
+        if not self._model_router:
+            return CRITIQUE_MODEL.copy()
+        decision = self._model_router.route(ModelTask.CRITIQUE)
+        self._last_route = decision
+        self._last_adapter = None
+        if self._model_router.config.provider_calls_enabled:
+            provider = self._model_router.providers.get(decision.provider)
+            if provider and provider.supports(ModelTask.CRITIQUE):
+                self._last_adapter = provider.adapter()
+        return {"name": decision.model.name, "provider": decision.model.provider}
+
+    @property
+    def last_route(self) -> ModelRouteDecision | None:
+        return self._last_route
+
+    def _build_adapter_prompt(
+        self,
+        *,
+        draft: Draft,
+        rubric: list[str],
+    ) -> tuple[str, str]:
+        system = (
+            "You are a narrative critique engine. Return a JSON object with keys "
+            "summary (string), priorities (list of strings), line_comments (list of objects "
+            "with line, note, excerpt), suggested_edits (list of objects with range and replacement), "
+            "severity (low|medium|high)."
+        )
+        rubric_text = ", ".join(rubric)
+        prompt = "\n".join(
+            [
+                f"Rubric categories: {rubric_text}",
+                "Draft text:",
+                draft.text,
+                "Return JSON only.",
+            ]
+        )
+        return system, prompt
+
+    @staticmethod
+    def _extract_json_payload(text: str) -> dict[str, Any] | None:
+        try:
+            parsed = json.loads(text)
+            return parsed if isinstance(parsed, dict) else None
+        except json.JSONDecodeError:
+            start = text.find("{")
+            end = text.rfind("}")
+            if start == -1 or end <= start:
+                return None
+            try:
+                parsed = json.loads(text[start : end + 1])
+                return parsed if isinstance(parsed, dict) else None
+            except json.JSONDecodeError:
+                return None
 
     def run(
         self,
@@ -182,6 +281,7 @@ class CritiqueService:
             project_root=project_root,
             project_id=project_id,
         )
+        model = self._resolve_model()
         if draft is None:
             LOGGER.debug(
                 "Falling back to critique fixture for %s due to missing draft text.",
@@ -190,12 +290,54 @@ class CritiqueService:
             payload = copy.deepcopy(self._load_fixture())
             payload["unit_id"] = request.unit_id
             payload["schema_version"] = self._SCHEMA_VERSION
+            payload["model"] = model
             payload["rubric"] = request.rubric
             if request.rubric_id:
                 payload["rubric_id"] = request.rubric_id
             return payload
 
-        critique = apply_rubric(draft)
+        adapter = self._last_adapter
+        if adapter is not None:
+            system, prompt = self._build_adapter_prompt(draft=draft, rubric=request.rubric)
+            try:
+                adapter_result = adapter.critique({"system": system, "prompt": prompt})
+                adapter_text = adapter_result.get("text")
+                if isinstance(adapter_text, str):
+                    parsed = self._extract_json_payload(adapter_text)
+                    if parsed:
+                        try:
+                            validated = _AdapterCritiquePayload.model_validate(parsed)
+                        except ValidationError as exc:
+                            LOGGER.warning(
+                                "Critique adapter payload invalid; falling back to rubric. %s",
+                                exc,
+                            )
+                        else:
+                            critique = Critique(
+                                unit_id=draft.unit_id,
+                                summary=validated.summary,
+                                line_comments=[
+                                    entry.model_dump(mode="json")
+                                    for entry in validated.line_comments
+                                ],
+                                priorities=list(validated.priorities),
+                                suggested_edits=[
+                                    entry.model_dump(mode="json")
+                                    for entry in validated.suggested_edits
+                                ],
+                                severity=validated.severity,
+                                model=model,
+                                heuristics=_compute_heuristics(draft),
+                            )
+                            payload = critique.to_dict()
+                            payload["rubric"] = request.rubric
+                            if request.rubric_id:
+                                payload["rubric_id"] = request.rubric_id
+                            return payload
+            except AdapterError as exc:
+                LOGGER.warning("Critique adapter failed; falling back to rubric. %s", exc)
+
+        critique = apply_rubric(draft, model=model)
         payload = critique.to_dict()
         payload["rubric"] = request.rubric
         if request.rubric_id:
