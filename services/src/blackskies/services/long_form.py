@@ -243,6 +243,9 @@ def is_usable_long_form_output(text: str | None, *, prior_excerpt: str | None = 
 def _chunk_dir(project_root: Path) -> Path:
     return project_root / ".blackskies" / "long_form" / "chunks"
 
+def _chunk_text_dir(project_root: Path) -> Path:
+    return project_root / ".blackskies" / "long_form" / "texts"
+
 
 def persist_long_form_chunk(project_root: Path, chunk: LongFormChunk) -> Path:
     path = _chunk_dir(project_root)
@@ -262,6 +265,13 @@ def persist_long_form_chunk(project_root: Path, chunk: LongFormChunk) -> Path:
         "routing_snapshot": chunk.routing_snapshot,
     }
     target.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
+    return target
+
+def persist_long_form_text(project_root: Path, chunk_id: str, text: str) -> Path:
+    path = _chunk_text_dir(project_root)
+    path.mkdir(parents=True, exist_ok=True)
+    target = path / f"{chunk_id}.md"
+    target.write_text(text, encoding="utf-8")
     return target
 
 
@@ -313,6 +323,7 @@ __all__ = [
     "evaluate_long_form_output",
     "is_usable_long_form_output",
     "persist_long_form_chunk",
+    "persist_long_form_text",
     "load_long_form_chunk",
     "aggregate_long_form_budget",
 ]
