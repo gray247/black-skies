@@ -24,8 +24,8 @@
   ],
   "severity": "high",
   "model": {
-    "name": "black-skies-rubric-v1",
-    "provider": "offline"
+    "name": "qwen3:4b",
+    "provider": "ollama"
   },
   "heuristics": {
     "pov_consistency": 1.0,

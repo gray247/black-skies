@@ -29,8 +29,14 @@ class DraftSynthesizer:
 
     _MODEL = {"name": "draft-synthesizer-v1", "provider": "black-skies-local"}
 
-    def __init__(self, heuristics: Heuristics | None = None) -> None:
+    def __init__(
+        self,
+        heuristics: Heuristics | None = None,
+        *,
+        model: dict[str, str] | None = None,
+    ) -> None:
         self._heuristics = heuristics or DEFAULT_HEURISTICS
+        self._model = model or self._MODEL.copy()
 
     def synthesize(
         self,
@@ -68,7 +74,7 @@ class DraftSynthesizer:
             "text": body,
             "meta": response_meta,
             "prompt_fingerprint": prompt_fingerprint,
-            "model": self._MODEL.copy(),
+            "model": self._model.copy(),
             "seed": derived_seed,
         }
 

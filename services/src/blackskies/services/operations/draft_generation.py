@@ -331,7 +331,10 @@ class DraftGenerationService:
         notes_line = " | ".join(notes) if notes else "None"
         return "\n".join(
             [
-                "Write a scene draft for the following outline beat.",
+                "Write immersive scene prose (not a summary) for the following outline beat.",
+                "Use concrete sensory detail, character action, and internal POV.",
+                "Avoid bullet points, outlines, headings, or meta commentary.",
+                "Write in continuous paragraphs and keep proper scene flow.",
                 f"Scene title: {scene.title}",
                 f"POV: {front_matter.get('pov')}",
                 f"Goal: {front_matter.get('goal')}",

@@ -131,6 +131,7 @@ def test_rewrite_adapter_success_uses_text(
     settings = ServiceSettings(
         project_base_dir=tmp_path,
         model_router_provider_calls_enabled=True,
+        model_router_metadata_enabled=True,
     )
     app = create_app(settings)
 
@@ -152,9 +153,44 @@ def test_rewrite_adapter_success_uses_text(
         assert response.status_code == 200
         data = response.json()
         assert data["revised_text"] == "Rewritten sentence."
+        assert data["routing"]["policy"] == "local_only"
 
 
-def test_critique_budget_includes_routing_metadata(tmp_path: Path) -> None:
+def test_rewrite_routing_metadata_gated_off(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    project_id = "proj_rewrite_routing_off"
+    body = _bootstrap_scene(tmp_path, project_id)
+    settings = ServiceSettings(
+        project_base_dir=tmp_path,
+        model_router_provider_calls_enabled=True,
+        model_router_metadata_enabled=False,
+    )
+    app = create_app(settings)
+
+    monkeypatch.setattr(
+        "blackskies.services.model_adapters.OllamaAdapter.rewrite",
+        lambda self, _payload: {"text": "Rewritten sentence."},
+    )
+
+    payload = {
+        "project_id": project_id,
+        "draft_id": "dr_004",
+        "unit_id": "sc_0001",
+        "instructions": "Ignore.",
+        "unit": {"id": "sc_0001", "text": body, "meta": {}},
+    }
+
+    with TestClient(app) as client:
+        response = client.post(f"{API_PREFIX}/draft/rewrite", json=payload)
+        assert response.status_code == 200
+        data = response.json()
+        assert "routing" not in data
+
+
+def test_critique_budget_includes_routing_metadata(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     project_id = "proj_critique_routing"
     project_root = tmp_path / project_id
     _write_project_budget(project_root)
@@ -162,8 +198,24 @@ def test_critique_budget_includes_routing_metadata(tmp_path: Path) -> None:
     settings = ServiceSettings(
         project_base_dir=tmp_path,
         model_router_metadata_enabled=True,
+        model_router_provider_calls_enabled=True,
     )
     app = create_app(settings)
+
+    monkeypatch.setattr(
+        "blackskies.services.model_adapters.OllamaAdapter.critique",
+        lambda self, _payload: {
+            "text": json.dumps(
+                {
+                    "summary": "Adapter summary.",
+                    "priorities": ["Tighten beats."],
+                    "line_comments": [{"line": 1, "note": "Sharper opening."}],
+                    "suggested_edits": [{"range": [0, 10], "replacement": "New opening."}],
+                    "severity": "low",
+                }
+            )
+        },
+    )
 
     payload = {
         "project_id": project_id,
@@ -176,9 +228,53 @@ def test_critique_budget_includes_routing_metadata(tmp_path: Path) -> None:
         response = client.post(f"{API_PREFIX}/draft/critique", json=payload)
         assert response.status_code == 200
         data = response.json()
+        assert data["summary"] == "Adapter summary."
         routing = data["budget"]["routing"]
         assert routing["policy"] == "local_only"
         assert routing["provider"] == "local_llm"
         assert routing["model"]
         assert routing["reason"]
         assert routing["fallback_used"] is False
+
+
+def test_critique_routing_metadata_gated_off(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    project_id = "proj_critique_routing_off"
+    project_root = tmp_path / project_id
+    _write_project_budget(project_root)
+    _bootstrap_scene(tmp_path, project_id)
+    settings = ServiceSettings(
+        project_base_dir=tmp_path,
+        model_router_metadata_enabled=False,
+        model_router_provider_calls_enabled=True,
+    )
+    app = create_app(settings)
+
+    monkeypatch.setattr(
+        "blackskies.services.model_adapters.OllamaAdapter.critique",
+        lambda self, _payload: {
+            "text": json.dumps(
+                {
+                    "summary": "Adapter summary.",
+                    "priorities": ["Tighten beats."],
+                    "line_comments": [{"line": 1, "note": "Sharper opening."}],
+                    "suggested_edits": [{"range": [0, 10], "replacement": "New opening."}],
+                    "severity": "low",
+                }
+            )
+        },
+    )
+
+    payload = {
+        "project_id": project_id,
+        "draft_id": "dr_005",
+        "unit_id": "sc_0001",
+        "rubric": ["Logic"],
+    }
+
+    with TestClient(app) as client:
+        response = client.post(f"{API_PREFIX}/draft/critique", json=payload)
+        assert response.status_code == 200
+        data = response.json()
+        assert "routing" not in data.get("budget", {})

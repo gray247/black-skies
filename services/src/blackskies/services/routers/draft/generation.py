@@ -15,12 +15,13 @@ from ...http import raise_service_error, raise_validation_error
 from ...models.draft import DraftGenerateRequest
 from ...scene_docs import DraftRequestError
 from ...service_errors import ServiceError
-from ..dependencies import get_diagnostics, get_settings
+from ..dependencies import get_diagnostics, get_settings, get_model_router
 from ...operations.draft_generation import (
     DraftGenerationService,
     DraftGenerationTimeoutError,
     resolve_requested_scenes,
 )
+from ...model_router import ModelRouter
 from . import router
 from ...e2e_mode import (
     e2e_generate_response,
@@ -34,6 +35,7 @@ async def generate_draft(
     payload: dict[str, Any],
     settings: ServiceSettings = Depends(get_settings),
     diagnostics: DiagnosticLogger = Depends(get_diagnostics),
+    model_router: ModelRouter = Depends(get_model_router),
 ) -> dict[str, Any]:
     """Synthesize a draft by walking the outline and writing scene documents."""
 
@@ -80,7 +82,11 @@ async def generate_draft(
             project_root=project_root,
         )
 
-    generation_service = DraftGenerationService(settings=settings, diagnostics=diagnostics)
+    generation_service = DraftGenerationService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=model_router,
+    )
     try:
         result = await generation_service.generate(
             request_model,
@@ -137,6 +143,7 @@ async def preflight_draft(
     payload: dict[str, Any],
     settings: ServiceSettings = Depends(get_settings),
     diagnostics: DiagnosticLogger = Depends(get_diagnostics),
+    model_router: ModelRouter = Depends(get_model_router),
 ) -> dict[str, Any]:
     """Return metadata and budget projections for a prospective draft."""
 
@@ -181,7 +188,11 @@ async def preflight_draft(
             diagnostics=diagnostics,
             project_root=project_root,
         )
-    generation_service = DraftGenerationService(settings=settings, diagnostics=diagnostics)
+    generation_service = DraftGenerationService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=model_router,
+    )
     try:
         result = await generation_service.preflight(
             request_model,

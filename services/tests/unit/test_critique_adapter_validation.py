@@ -95,6 +95,7 @@ def test_critique_adapter_valid_payload_used(
     assert payload["summary"] == "Adapter summary."
     assert payload["severity"] == "low"
     assert payload["line_comments"][0]["line"] == 1
+    assert payload["priorities"] == ["Tighten beats."]
 
 
 def test_critique_adapter_missing_fields_falls_back(

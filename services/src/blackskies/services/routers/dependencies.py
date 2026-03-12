@@ -13,6 +13,7 @@ from ..feature_flags import analytics_enabled
 from ..operations.recovery import RecoveryService
 from ..persistence import SnapshotPersistence
 from ..resilience import ServiceResilienceExecutor, ServiceResilienceRegistry
+from ..model_router import ModelRouter
 
 if TYPE_CHECKING:  # pragma: no cover - import for typing only
     from .outline import BuildTracker
@@ -30,6 +31,7 @@ __all__ = [
     "get_analytics_resilience",
     "get_critique_resilience",
     "get_optional_analytics_resilience",
+    "get_model_router",
 ]
 
 
@@ -80,6 +82,12 @@ def get_resilience_registry(request: Request) -> ServiceResilienceRegistry:
     """Return the resilience registry stored on the application state."""
 
     return cast(ServiceResilienceRegistry, request.app.state.resilience_registry)
+
+
+def get_model_router(request: Request) -> ModelRouter:
+    """Return the model router stored on the application state."""
+
+    return cast(ModelRouter, request.app.state.model_router)
 
 
 def get_analytics_resilience(request: Request) -> ServiceResilienceExecutor:

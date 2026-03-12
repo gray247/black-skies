@@ -62,6 +62,7 @@ class BuildTracker:
 def get_outline_builder() -> OutlineBuilder:
     """Provide an outline builder instance for request handling."""
 
+    # Outline builds remain local-only; model routing is introduced for draft/critique/rewrite first.
     return OutlineBuilder()
 
 

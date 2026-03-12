@@ -3,8 +3,8 @@
   "unit_scope": "scene",
   "unit_ids": ["sc_0001"],
   "model": {
-    "name": "draft-synthesizer-v1",
-    "provider": "black-skies-local"
+    "name": "qwen3:4b",
+    "provider": "ollama"
   },
   "scenes": [
     {

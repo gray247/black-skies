@@ -1332,8 +1332,8 @@ def test_draft_preflight_success(test_client: TestClient, tmp_path: Path) -> Non
     data = response.json()
     budget = data["budget"]
     assert data["project_id"] == project_id
-    assert data["model"]["name"] == "draft-synthesizer-v1"
-    assert data["model"]["provider"] == "black-skies-local"
+    assert data["model"]["name"] == "qwen3:4b"
+    assert data["model"]["provider"] == "ollama"
     assert len(data["scenes"]) == len(scene_ids)
     assert data["scenes"][0]["id"] == scene_ids[0]
     assert data["scenes"][0]["title"].startswith("Scene ")
@@ -1362,7 +1362,7 @@ def test_draft_preflight_soft_limit(test_client: TestClient, tmp_path: Path) -> 
 
     payload = response.json()
     budget = payload["budget"]
-    assert payload["model"]["name"] == "draft-synthesizer-v1"
+    assert payload["model"]["name"] == "qwen3:4b"
     assert len(payload["scenes"]) == 1
     assert budget["status"] == "soft-limit"
     assert budget["estimated_usd"] >= 5.0
@@ -1396,6 +1396,8 @@ def test_wizard_to_draft_flow(test_client: TestClient, tmp_path: Path) -> None:
     generate_data = generate_response.json()
     assert generate_data["project_id"] == project_id
     assert generate_data["budget"]["status"] == "ok"
+    assert generate_data["model"]["name"] == "qwen3:4b"
+    assert generate_data["model"]["provider"] == "ollama"
     units = generate_data["units"]
     assert units
     first_unit = units[0]
@@ -1452,6 +1454,8 @@ def test_draft_to_critique_flow(test_client: TestClient, tmp_path: Path) -> None
     assert critique_data["heuristics"]
     assert critique_data["budget"]["status"] == "ok"
     assert critique_data["budget"]["estimated_usd"] > 0
+    assert critique_data["model"]["name"] == "qwen3:4b"
+    assert critique_data["model"]["provider"] == "ollama"
 
 def test_draft_preflight_blocked(test_client: TestClient, tmp_path: Path) -> None:
     """Preflight reports blocked status when hard limit would be exceeded."""
@@ -1470,7 +1474,7 @@ def test_draft_preflight_blocked(test_client: TestClient, tmp_path: Path) -> Non
 
     payload = response.json()
     budget = payload["budget"]
-    assert payload["model"]["name"] == "draft-synthesizer-v1"
+    assert payload["model"]["name"] == "qwen3:4b"
     assert len(payload["scenes"]) == 1
     assert budget["status"] == "blocked"
     assert budget["estimated_usd"] >= 10.0
@@ -1551,7 +1555,8 @@ def test_draft_rewrite_success(test_client: TestClient, tmp_path: Path) -> None:
 
     data = response.json()
     assert data["schema_version"] == "DraftUnitSchema v1"
-    assert data["model"]["name"] == "draft-rewriter-v1"
+    assert data["model"]["name"] == "qwen3:4b"
+    assert data["model"]["provider"] == "ollama"
     assert data["unit_id"] == scene_ids[0]
     assert data["revised_text"].endswith("New beat emerges along the stairwell.")
 
