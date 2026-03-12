@@ -77,7 +77,7 @@ class LocalLLMProvider:
 
     name = "local_llm"
 
-    def __init__(self, adapter: OllamaAdapter) -> None:
+    def __init__(self, adapter: BaseAdapter) -> None:
         self._adapter = adapter
 
     def is_available(self, config: ModelRouterConfig) -> bool:
@@ -239,13 +239,22 @@ class ModelRouter:
 def create_default_model_router(config: ModelRouterConfig) -> ModelRouter:
     """Create a model router with default providers registered."""
 
-    local_adapter = OllamaAdapter(
-        AdapterConfig(
-            base_url=config.local_llm_base_url,
-            model=config.local_llm_model,
-            timeout_seconds=config.local_llm_timeout_seconds,
+    router = ModelRouter(config=config)
+    if config.local_provider.lower() == "ollama":
+        local_adapter = OllamaAdapter(
+            AdapterConfig(
+                base_url=config.local_llm_base_url,
+                model=config.local_llm_model,
+                timeout_seconds=config.local_llm_timeout_seconds,
+            )
         )
-    )
+        router.register_provider(LocalLLMProvider(adapter=local_adapter))
+    else:
+        LOGGER.warning(
+            "model_router unsupported local_provider=%s; local provider disabled",
+            config.local_provider,
+        )
+
     openai_adapter = OpenAIAdapter(
         AdapterConfig(
             base_url=config.openai_base_url,
@@ -254,8 +263,6 @@ def create_default_model_router(config: ModelRouterConfig) -> ModelRouter:
         ),
         api_key=config.openai_api_key,
     )
-    router = ModelRouter(config=config)
-    router.register_provider(LocalLLMProvider(adapter=local_adapter))
     router.register_provider(OpenAIProvider(adapter=openai_adapter))
     return router
 

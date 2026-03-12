@@ -121,6 +121,10 @@ class ServiceSettings(BaseModel):
         default=False,
         description="Allow routed calls to invoke provider adapters.",
     )
+    local_provider: str = Field(
+        default="ollama",
+        description="Local model provider identifier (currently supports ollama).",
+    )
     local_llm_available: bool = Field(
         default=True,
         description="Whether the local model provider is healthy and available.",
@@ -259,6 +263,8 @@ class ServiceSettings(BaseModel):
         overrides: dict[str, str] = {}
         alias_keys: dict[str, list[str]] = {
             "openai_api_key": ["OPENAI_API_KEY"],
+            "local_llm_model": ["BLACKSKIES_LOCAL_MODEL"],
+            "local_llm_timeout_seconds": ["BLACKSKIES_LOCAL_TIMEOUT_SECONDS"],
         }
         for field_name in cls.model_fields:
             env_key = f"{env_prefix}{field_name.upper()}"

@@ -21,6 +21,7 @@ class ModelRouterConfig:
     policy: ModelRoutingPolicy
     openai_api_key: str | None = None
     provider_calls_enabled: bool = False
+    local_provider: str = "ollama"
     local_llm_available: bool = True
     local_llm_base_url: str = "http://127.0.0.1:11434"
     local_llm_model: str = "qwen3:4b"

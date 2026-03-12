@@ -145,6 +145,7 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
             policy=service_settings.model_routing_policy,
             openai_api_key=service_settings.openai_api_key,
             provider_calls_enabled=service_settings.model_router_provider_calls_enabled,
+            local_provider=service_settings.local_provider,
             local_llm_available=service_settings.local_llm_available,
             local_llm_base_url=service_settings.local_llm_base_url,
             local_llm_model=service_settings.local_llm_model,
