@@ -92,7 +92,15 @@ async def test_provider_backed_draft_success(
 ) -> None:
     project_root = tmp_path / "proj_provider_success"
     _write_project_budget(project_root)
-    adapter = _StubAdapter(text="Adapter draft.")
+    adapter = _StubAdapter(
+        text=(
+            "Mara steadied her breath as the chandelier swayed. "
+            "The dust smelled of old rain and iron. "
+            "She whispered, \"Who's there?\" and the hallway answered with a hush. "
+            "A cold draft curled around her wrists, and the floorboards groaned beneath her step. "
+            "She held her lamp higher, watching the shadows thin and thicken."
+        )
+    )
     service = _build_service(
         tmp_path,
         adapter,
@@ -102,7 +110,7 @@ async def test_provider_backed_draft_success(
 
     result = await service.generate(_request(project_root), _scenes(), project_root=project_root)
 
-    assert result.response["units"][0]["text"] == "Adapter draft."
+    assert "chandelier" in result.response["units"][0]["text"]
     assert adapter.calls == 1
 
 
@@ -152,7 +160,13 @@ async def test_provider_calls_disabled_skips_adapter(
 ) -> None:
     project_root = tmp_path / "proj_provider_disabled"
     _write_project_budget(project_root)
-    adapter = _StubAdapter(text="Adapter draft.")
+    adapter = _StubAdapter(
+        text=(
+            "Mara steadied her breath as the chandelier swayed. "
+            "The dust smelled of old rain and iron. "
+            "She whispered, \"Who's there?\" and the hallway answered with a hush."
+        )
+    )
     service = _build_service(
         tmp_path,
         adapter,
