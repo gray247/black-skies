@@ -30,6 +30,14 @@ from ..model_router import (
     format_route_metadata,
 )
 from ..model_adapters import AdapterError, BaseAdapter
+from ..prompt_pipeline import (
+    SceneContext,
+    assemble_scene_context,
+    compile_draft_prompt,
+    is_usable_draft,
+    select_profile,
+)
+from ..scene_memory import evaluate_continuity, extract_carryover, persist_carryover
 
 
 @dataclass(slots=True)
@@ -318,36 +326,21 @@ class DraftGenerationService:
         scene: OutlineScene,
         front_matter: dict[str, Any],
         overrides: DraftUnitOverrides | None,
+        project_root: Path,
+        scene_lookup: dict[str, OutlineScene],
+        provider_name: str | None,
+        context: SceneContext | None = None,
     ) -> str:
-        beats = front_matter.get("beats") or []
-        beat_line = ", ".join(str(beat) for beat in beats) if beats else "None"
-        notes = []
-        if overrides and overrides.purpose:
-            notes.append(f"Purpose override: {overrides.purpose}")
-        if overrides and overrides.emotion_tag:
-            notes.append(f"Emotion override: {overrides.emotion_tag}")
-        if overrides and overrides.word_target is not None:
-            notes.append(f"Word target override: {overrides.word_target}")
-        notes_line = " | ".join(notes) if notes else "None"
-        return "\n".join(
-            [
-                "Write immersive scene prose (not a summary) for the following outline beat.",
-                "Use concrete sensory detail, character action, and internal POV.",
-                "Avoid bullet points, outlines, headings, or meta commentary.",
-                "Write in continuous paragraphs and keep proper scene flow.",
-                f"Scene title: {scene.title}",
-                f"POV: {front_matter.get('pov')}",
-                f"Goal: {front_matter.get('goal')}",
-                f"Conflict: {front_matter.get('conflict')}",
-                f"Turn: {front_matter.get('turn')}",
-                f"Emotion: {front_matter.get('emotion_tag')}",
-                f"Target words: {front_matter.get('word_target')}",
-                f"Pacing target: {front_matter.get('pacing_target')}",
-                f"Beats: {beat_line}",
-                f"Notes: {notes_line}",
-                "Return plain text only, no markdown fences.",
-            ]
-        )
+        if context is None:
+            context = assemble_scene_context(
+                scene=scene,
+                front_matter=front_matter,
+                overrides=overrides,
+                project_root=project_root,
+                scene_lookup=scene_lookup,
+            )
+        profile = select_profile(provider_name)
+        return compile_draft_prompt(context, profile=profile)
 
     def _execute_generation(
         self,
@@ -363,6 +356,7 @@ class DraftGenerationService:
         artifacts: list[dict[str, Any]] = []
         total_scenes = len(scenes)
         adapter = self._last_adapter
+        scene_lookup = {scene.id: scene for scene in scenes}
 
         for index, scene in enumerate(scenes):
             overrides = request.overrides.get(scene.id)
@@ -372,11 +366,22 @@ class DraftGenerationService:
                 overrides=overrides,
                 unit_index=index,
             )
+            context = assemble_scene_context(
+                scene=scene,
+                front_matter=synthesis.front_matter,
+                overrides=overrides,
+                project_root=project_root,
+                scene_lookup=scene_lookup,
+            )
             if adapter is not None:
                 prompt = self._build_adapter_prompt(
                     scene=scene,
                     front_matter=synthesis.front_matter,
                     overrides=overrides,
+                    project_root=project_root,
+                    scene_lookup=scene_lookup,
+                    provider_name=self._last_route.model.provider if self._last_route else None,
+                    context=context,
                 )
                 payload = {
                     "prompt": prompt,
@@ -386,7 +391,7 @@ class DraftGenerationService:
                 try:
                     adapter_response = adapter.generate_draft(payload)
                     adapter_text = adapter_response.get("text")
-                    if isinstance(adapter_text, str) and adapter_text.strip():
+                    if is_usable_draft(adapter_text):
                         synthesis.body = adapter_text.strip()
                         synthesis.unit["text"] = synthesis.body
                 except AdapterError as exc:
@@ -396,6 +401,28 @@ class DraftGenerationService:
                         message="Draft adapter failed; falling back to local synthesis.",
                         details={"error": str(exc)},
                     )
+            continuity = evaluate_continuity(
+                text=synthesis.body,
+                pov=context.pov,
+                memory=context.memory,
+            )
+            if continuity["has_issues"]:
+                self._diagnostics.log(
+                    project_root,
+                    code="CONTINUITY",
+                    message="Draft continuity issues detected.",
+                    details={"scene_id": scene.id, "issues": continuity["issues"]},
+                )
+            try:
+                carryover = extract_carryover(synthesis.body)
+                persist_carryover(project_root, scene.id, carryover)
+            except OSError as exc:
+                self._diagnostics.log(
+                    project_root,
+                    code="CONTINUITY",
+                    message="Failed to persist scene continuity payload.",
+                    details={"scene_id": scene.id, "error": str(exc)},
+                )
             durable_write = index == (total_scenes - 1)
             self._persistence.write_scene(
                 request.project_id,
