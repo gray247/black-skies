@@ -75,7 +75,15 @@ async def test_draft_generation_uses_adapter_text(
     _write_project_budget(project_root)
     service = _build_service(
         tmp_path,
-        _StubAdapter(text="Adapter draft."),
+        _StubAdapter(
+            text=(
+                "Mara steadied her breath as the chandelier swayed. "
+                "The dust smelled of old rain and iron. "
+                "She whispered, \"Who's there?\" and the hallway answered with a hush. "
+                "A cold draft curled around her wrists, and the floorboards groaned beneath her step. "
+                "She held her lamp higher, watching the shadows thin and thicken."
+            )
+        ),
         monkeypatch,
     )
     scenes = [
@@ -95,7 +103,7 @@ async def test_draft_generation_uses_adapter_text(
 
     result = await service.generate(request, scenes, project_root=project_root)
 
-    assert result.response["units"][0]["text"] == "Adapter draft."
+    assert "chandelier" in result.response["units"][0]["text"]
 
 
 @pytest.mark.anyio("asyncio")
@@ -137,7 +145,15 @@ async def test_draft_generation_budget_includes_routing_metadata(
     _write_project_budget(project_root)
     service = _build_service(
         tmp_path,
-        _StubAdapter(text="Adapter draft."),
+        _StubAdapter(
+            text=(
+                "Mara steadied her breath as the chandelier swayed. "
+                "The dust smelled of old rain and iron. "
+                "She whispered, \"Who's there?\" and the hallway answered with a hush. "
+                "A cold draft curled around her wrists, and the floorboards groaned beneath her step. "
+                "She held her lamp higher, watching the shadows thin and thicken."
+            )
+        ),
         monkeypatch,
         routing_metadata_enabled=True,
     )

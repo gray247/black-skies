@@ -29,6 +29,7 @@ from ..model_router import (
     ModelRouteDecision,
     format_route_metadata,
 )
+from ..run_policy import RunPolicyDecision, format_run_policy_metadata
 from ..model_adapters import AdapterError, BaseAdapter
 from ..prompt_pipeline import (
     SceneContext,
@@ -140,6 +141,7 @@ class DraftGenerationService:
         self._model_router = model_router
         self._last_route: ModelRouteDecision | None = None
         self._last_adapter: BaseAdapter | None = None
+        self._last_policy: RunPolicyDecision | None = None
 
     async def generate(
         self,
@@ -204,13 +206,20 @@ class DraftGenerationService:
                 project_root=project_root,
             )
 
-        synthesizer = self._create_synthesizer(project_root)
+        policy_decision = self._evaluate_run_policy(
+            task=ModelTask.DRAFT,
+            budget_status=status_label,
+        )
+        synthesizer = self._create_synthesizer(project_root, policy_decision=policy_decision)
         if (
             self._model_router
             and self._model_router.config.routing_metadata_enabled
             and self._last_route
         ):
-            budget_payload["routing"] = format_route_metadata(self._last_route)
+            routing_payload = format_route_metadata(self._last_route)
+            if self._last_policy:
+                routing_payload["run_policy"] = format_run_policy_metadata(self._last_policy)
+            budget_payload["routing"] = routing_payload
         if self._last_route:
             budget_meta["last_route"] = {
                 "policy": self._last_route.policy.value,
@@ -218,6 +227,20 @@ class DraftGenerationService:
                 "model": self._last_route.model.name,
                 "fallback_used": self._last_route.fallback_used,
             }
+        if self._last_policy:
+            budget_meta["last_run_policy"] = format_run_policy_metadata(self._last_policy)
+            self._diagnostics.log(
+                project_root,
+                code="POLICY",
+                message="Run policy decision recorded.",
+                details={
+                    "task": self._last_policy.task,
+                    "reason": self._last_policy.reason,
+                    "budget_status": self._last_policy.budget_status,
+                    "allow_local": self._last_policy.allow_local,
+                    "allow_api": self._last_policy.allow_api,
+                },
+            )
         response_payload, artifacts = await self._run_with_timeout(
             self._execute_generation,
             request,
@@ -291,8 +314,21 @@ class DraftGenerationService:
         """Return cost projections and metadata for a draft request."""
 
         budget_state = self._budget_service.load_state(project_root)
+        total_words = 0
+        for scene in scenes:
+            overrides = request.overrides.get(scene.id)
+            total_words += estimate_word_target(scene, overrides)
+        estimated_cost = round((total_words / 1000) * 0.02, 2)
+        status_label, _, _ = self._budget_service.classify(
+            state=budget_state,
+            estimated_cost=estimated_cost,
+        )
 
-        synthesizer = self._create_synthesizer(project_root)
+        policy_decision = self._evaluate_run_policy(
+            task=ModelTask.DRAFT,
+            budget_status=status_label,
+        )
+        synthesizer = self._create_synthesizer(project_root, policy_decision=policy_decision)
         payload = await self._run_with_timeout(
             self._compute_preflight_payload,
             request,
@@ -303,15 +339,30 @@ class DraftGenerationService:
         )
         return DraftPreflightResult(payload=payload)
 
-    def _create_synthesizer(self, project_root: Path | None) -> DraftSynthesizer:
+    def _create_synthesizer(
+        self,
+        project_root: Path | None,
+        *,
+        policy_decision: RunPolicyDecision | None = None,
+    ) -> DraftSynthesizer:
         heuristics = load_project_heuristics(project_root)
-        model = self._resolve_model(ModelTask.DRAFT)
+        model = self._resolve_model(ModelTask.DRAFT, policy_decision=policy_decision)
         return DraftSynthesizer(heuristics=heuristics, model=model)
 
-    def _resolve_model(self, task: ModelTask) -> dict[str, str]:
+    def _resolve_model(
+        self,
+        task: ModelTask,
+        *,
+        policy_decision: RunPolicyDecision | None = None,
+    ) -> dict[str, str]:
         if not self._model_router:
             return DraftSynthesizer._MODEL.copy()
-        decision = self._model_router.route(task)
+        if policy_decision:
+            decision = self._model_router.route_with_policy(task, policy_decision)
+            self._last_policy = policy_decision
+        else:
+            decision = self._model_router.route(task)
+            self._last_policy = None
         self._last_route = decision
         self._last_adapter = None
         if self._model_router.config.provider_calls_enabled:
@@ -319,6 +370,16 @@ class DraftGenerationService:
             if provider and provider.supports(task):
                 self._last_adapter = provider.adapter()
         return {"name": decision.model.name, "provider": decision.model.provider}
+
+    def _evaluate_run_policy(
+        self,
+        *,
+        task: ModelTask,
+        budget_status: str,
+    ) -> RunPolicyDecision | None:
+        if not self._model_router:
+            return None
+        return self._model_router.evaluate_run_policy(task, budget_status=budget_status)
 
     def _build_adapter_prompt(
         self,
@@ -486,7 +547,10 @@ class DraftGenerationService:
             and self._model_router.config.routing_metadata_enabled
             and self._last_route
         ):
-            budget_payload["routing"] = format_route_metadata(self._last_route)
+            routing_payload = format_route_metadata(self._last_route)
+            if self._last_policy:
+                routing_payload["run_policy"] = format_run_policy_metadata(self._last_policy)
+            budget_payload["routing"] = routing_payload
 
         scenes_payload: list[dict[str, Any]] = []
         for scene in scenes:

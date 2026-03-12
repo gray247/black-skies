@@ -8,6 +8,7 @@ from enum import Enum
 from typing import Callable, Protocol
 
 from .model_routing import ModelRouterConfig, ModelRoutingPolicy
+from .run_policy import RunPolicyDecision, RunPolicyEngine
 from .model_adapters import AdapterConfig, BaseAdapter, OllamaAdapter, OpenAIAdapter
 
 LOGGER = logging.getLogger(__name__)
@@ -137,17 +138,23 @@ class ModelRouter:
     def register_provider(self, provider: ModelProvider) -> None:
         self.providers[provider.name] = provider
 
-    def route(self, task: ModelTask) -> ModelRouteDecision:
-        policy = self.config.policy
+    def _availability(self, task: ModelTask) -> tuple[bool, bool]:
         local = self.providers.get("local_llm")
         api = self.providers.get("openai")
-        fallback_used = False
         local_available = bool(
             local and local.supports(task) and local.is_available(self.config)
         )
         api_available = bool(
             api and api.supports(task) and api.is_available(self.config)
         )
+        return local_available, api_available
+
+    def route(self, task: ModelTask) -> ModelRouteDecision:
+        policy = self.config.policy
+        local = self.providers.get("local_llm")
+        api = self.providers.get("openai")
+        fallback_used = False
+        local_available, api_available = self._availability(task)
 
         if policy is ModelRoutingPolicy.API_ONLY:
             if api_available:
@@ -192,6 +199,65 @@ class ModelRouter:
             policy.value,
             local_available,
             api_available,
+        )
+        raise RuntimeError("No healthy model providers available.")
+
+    def evaluate_run_policy(self, task: ModelTask, *, budget_status: str) -> RunPolicyDecision:
+        local_available, api_available = self._availability(task)
+        engine = RunPolicyEngine()
+        return engine.evaluate(
+            task=task.value,
+            policy=self.config.policy,
+            budget_status=budget_status,
+            local_available=local_available,
+            api_available=api_available,
+        )
+
+    def route_with_policy(
+        self,
+        task: ModelTask,
+        policy_decision: RunPolicyDecision,
+    ) -> ModelRouteDecision:
+        local = self.providers.get("local_llm")
+        api = self.providers.get("openai")
+        local_available, api_available = self._availability(task)
+
+        allow_local = bool(policy_decision.allow_local and local_available and local)
+        allow_api = bool(policy_decision.allow_api and api_available and api)
+        fallback_used = False
+
+        if policy_decision.prefer_local:
+            if allow_local:
+                decision = self._build_decision(task, local, policy_decision.reason)
+                self._trace(decision)
+                return decision
+            fallback_used = True
+            if allow_api:
+                decision = self._build_decision(task, api, policy_decision.reason)
+                decision = ModelRouteDecision(
+                    **{**decision.__dict__, "fallback_used": True},
+                )
+                self._trace(decision)
+                return decision
+        else:
+            if allow_api:
+                decision = self._build_decision(task, api, policy_decision.reason)
+                self._trace(decision)
+                return decision
+            fallback_used = True
+            if allow_local:
+                decision = self._build_decision(task, local, policy_decision.reason)
+                decision = ModelRouteDecision(
+                    **{**decision.__dict__, "fallback_used": True},
+                )
+                self._trace(decision)
+                return decision
+
+        LOGGER.warning(
+            "model_router policy blocked providers task=%s policy=%s budget=%s",
+            task.value,
+            policy_decision.policy.value,
+            policy_decision.budget_status,
         )
         raise RuntimeError("No healthy model providers available.")
 
