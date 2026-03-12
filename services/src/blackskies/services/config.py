@@ -121,6 +121,10 @@ class ServiceSettings(BaseModel):
         default=False,
         description="Allow routed calls to invoke provider adapters.",
     )
+    long_form_provider_enabled: bool = Field(
+        default=False,
+        description="Enable provider-backed long-form execution loop (opt-in).",
+    )
     local_provider: str = Field(
         default="ollama",
         description="Local model provider identifier (currently supports ollama).",

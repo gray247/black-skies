@@ -7,7 +7,7 @@ from blackskies.services.config import ServiceSettings
 from blackskies.services.diagnostics import DiagnosticLogger
 from blackskies.services.model_router import ModelRouter, ModelSpec, ModelTask
 from blackskies.services.model_routing import ModelRouterConfig, ModelRoutingPolicy
-from blackskies.services.model_adapters import AdapterConfig, BaseAdapter
+from blackskies.services.model_adapters import AdapterConfig, AdapterError, BaseAdapter
 from blackskies.services.operations.long_form_execution import LongFormExecutionService
 
 
@@ -31,6 +31,11 @@ class _FakeAdapter(BaseAdapter):
         return {"text": self._text}
 
 
+class _ErrorAdapter(_FakeAdapter):
+    def generate_draft(self, payload: dict[str, object]) -> dict[str, object]:
+        raise AdapterError("adapter failed")
+
+
 class _FakeProvider:
     name = "local_llm"
 
@@ -51,7 +56,7 @@ class _FakeProvider:
 
 
 def _service(tmp_path: Path, adapter_text: str) -> LongFormExecutionService:
-    settings = ServiceSettings(project_base_dir=tmp_path)
+    settings = ServiceSettings(project_base_dir=tmp_path, long_form_provider_enabled=True)
     diagnostics = DiagnosticLogger()
     router = ModelRouter(
         config=ModelRouterConfig(
@@ -117,3 +122,60 @@ def test_long_form_execution_stops_on_invalid_output(tmp_path: Path) -> None:
     assert result.stopped_reason == "invalid_output"
     assert len(result.chunks) == 1
     assert result.chunks[0].continuity_snapshot["fallback_reason"] == "invalid_output"
+
+
+def test_long_form_execution_disabled_toggle(tmp_path: Path) -> None:
+    settings = ServiceSettings(project_base_dir=tmp_path, long_form_provider_enabled=False)
+    diagnostics = DiagnosticLogger()
+    router = ModelRouter(
+        config=ModelRouterConfig(
+            policy=ModelRoutingPolicy.LOCAL_ONLY,
+            provider_calls_enabled=True,
+        )
+    )
+    router.register_provider(_FakeProvider(_FakeAdapter("Mara moved through the hall. " * 10)))
+    service = LongFormExecutionService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=router,
+        enabled=True,
+    )
+
+    result = service.execute(
+        project_root=tmp_path,
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+    )
+
+    assert result.stopped_reason == "disabled"
+    assert result.chunks == []
+
+
+def test_long_form_execution_adapter_error_fallback(tmp_path: Path) -> None:
+    settings = ServiceSettings(project_base_dir=tmp_path, long_form_provider_enabled=True)
+    diagnostics = DiagnosticLogger()
+    router = ModelRouter(
+        config=ModelRouterConfig(
+            policy=ModelRoutingPolicy.LOCAL_ONLY,
+            provider_calls_enabled=True,
+        )
+    )
+    router.register_provider(_FakeProvider(_ErrorAdapter("unused")))
+    service = LongFormExecutionService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=router,
+        enabled=True,
+    )
+
+    result = service.execute(
+        project_root=tmp_path,
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001", "sc_0002"],
+        chunk_size=1,
+        target_words_per_chunk=900,
+    )
+
+    assert result.stopped_reason == "adapter_error"
+    assert len(result.chunks) == 1
+    assert result.chunks[0].continuity_snapshot["fallback_reason"] == "adapter_error"

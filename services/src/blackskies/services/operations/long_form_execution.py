@@ -69,7 +69,7 @@ class LongFormExecutionService:
         target_words_per_chunk: int | None = None,
         constraints: list[str] | None = None,
     ) -> LongFormExecutionResult:
-        if not self._enabled:
+        if not self._enabled or not self._settings.long_form_provider_enabled:
             return LongFormExecutionResult(
                 chunks=[],
                 stopped_reason="disabled",
@@ -253,11 +253,16 @@ class LongFormExecutionService:
         lines.extend(
             [
                 "Write continuous prose for a long-form chapter draft.",
+                "Avoid summaries, outlines, or bullet lists.",
+                "Stay grounded in immediate sensory detail and action.",
                 f"Chapter: {memory.chapter_context or memory.chapter_id}",
                 f"Scene ids: {', '.join(scene_ids)}",
-                f"Target words: {continuation.target_words}",
             ]
         )
+        if continuation.target_words:
+            min_target = max(100, int(continuation.target_words * 0.9))
+            max_target = int(continuation.target_words * 1.1)
+            lines.append(f"Target word range: {min_target}-{max_target}")
         if memory.locked_facts:
             lines.append(f"Locked facts: {'; '.join(memory.locked_facts)}")
         if memory.accumulated_summaries:
@@ -270,6 +275,8 @@ class LongFormExecutionService:
             lines.append(f"Prior summary: {continuation.prior_summary}")
         if continuation.prior_excerpt:
             lines.append(f"Prior excerpt: {continuation.prior_excerpt}")
+        if not continuation.prior_summary and not continuation.prior_excerpt:
+            lines.append("Open the chapter with immersive scene prose.")
         if continuation.constraints:
             lines.append(f"Constraints: {' | '.join(continuation.constraints)}")
         lines.append("Return plain text only, no markdown fences.")
@@ -282,8 +289,10 @@ class LongFormExecutionService:
         prompt: str,
         continuation,
     ) -> tuple[str, str | None, bool]:
+        if not self._model_router or not self._model_router.config.provider_calls_enabled:
+            return self._fallback_text(continuation), "provider_calls_disabled", False
         if adapter is None:
-            return self._fallback_text(continuation), "provider_disabled", False
+            return self._fallback_text(continuation), "provider_unavailable", False
 
         try:
             response = adapter.generate_draft({"prompt": prompt})
