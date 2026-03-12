@@ -23,6 +23,8 @@ See [Agents & Services](./agents_and_services.md) for the long-term analytics/ag
 ## Default Layout (shipping)
 Outline (left) | Writing view (center) | Feedback notes (right). The Timeline renders as a drawer below Feedback and can be toggled via the toolbar. Analytics uses the existing drawer/modal rather than a floating window.
 
+Implementation priority note: **ModelRouter seam and routing/policy/budget plumbing come before any splash/onboarding expansion.** GUI work must not block the router-first rollout.
+
 ### Current Scope
 - Docking is **not** available in packaged builds. The `ui.enable_docking` flag exists for internal experiments but is left disabled by default and is not supported.
 - Docking Mode remains experimental/disabled in production; Silver builds may expose it behind `ui.enable_docking`, but the default is the fixed three-pane layout described above.
@@ -38,6 +40,7 @@ Outline (left) | Writing view (center) | Feedback notes (right). The Timeline re
 - **Writing view:** Scene editor, diff toggle, Companion overlay, and budget meter.
 - **Feedback notes:** Feedback threads, accept/undo controls, rubric editor, plus the collapsible Timeline drawer.
 - **Analytics drawer (Collapsible):** Placeholder region reserved for emotion arc, adaptive pacing, conflict heatmap, and scene length distribution metrics; the actual data will be sourced from `/api/v1/analytics/summary` only once Phase 9 enables the analytics service. This future drawer replaces the previously documented floating “Story insights” window.
+- **Companion overlay (Writing view):** A dockable in-app browser pane/window that opens ChatGPT. Companion Mode is separate from API Mode and does not route prompts through service providers or ModelRouter.
 
 ---
 

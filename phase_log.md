@@ -12,6 +12,11 @@ Chronological record of locked decisions and spec/version bumps. One-line summar
 
 ---
 
+## 2026-03-10 — Companion boundary + router-first priority (LOCKED)
+- Companion is **not** an SDK; it is an integrated, dockable in-app browser pane/window that opens ChatGPT.
+- Companion Mode is separate from API Mode; no service-based model routing or content exfiltration occurs through Companion Mode.
+- Router-first implementation order is official: ModelRouter seam + routing/policy/budget plumbing come before splash/onboarding expansion.
+
 ## 2025-11-14 Phase 7 tightening (IN PROGRESS)
 - Service health UX (port offline) - done
 - Budget & analytics UX (indicator, near-cap hints, 402 guardrails in UI) - done
