@@ -11,6 +11,14 @@ from blackskies.services.model_adapters import AdapterConfig, AdapterError, Base
 from blackskies.services.operations.long_form_execution import LongFormExecutionService
 
 
+class _RecordingDiagnostics:
+    def __init__(self) -> None:
+        self.entries: list[tuple[str, str, dict[str, object] | None]] = []
+
+    def log(self, _project_root: Path, *, code: str, message: str, details=None):
+        self.entries.append((code, message, details))
+
+
 class _FakeAdapter(BaseAdapter):
     provider_name = "ollama"
 
@@ -36,6 +44,18 @@ class _FakeAdapter(BaseAdapter):
 class _ErrorAdapter(_FakeAdapter):
     def generate_draft(self, payload: dict[str, object]) -> dict[str, object]:
         raise AdapterError("adapter failed")
+
+
+class _RawOnlyAdapter(_FakeAdapter):
+    def generate_draft(self, payload: dict[str, object]) -> dict[str, object]:
+        self.last_payload = payload
+        return {"raw": {"response": self._text}}
+
+
+class _RawTopLevelAdapter(_FakeAdapter):
+    def generate_draft(self, payload: dict[str, object]) -> dict[str, object]:
+        self.last_payload = payload
+        return {"response": self._text}
 
 
 class _FakeProvider:
@@ -133,6 +153,41 @@ def test_long_form_execution_stops_on_invalid_output(tmp_path: Path) -> None:
     assert result.chunks[0].continuity_snapshot["fallback_reason"] == "invalid_output"
 
 
+def test_long_form_invalid_output_logs_excerpt(tmp_path: Path) -> None:
+    project_root = tmp_path / "proj_invalid_log"
+    project_root.mkdir(parents=True, exist_ok=True)
+    adapter_text = "Summary: The scene will introduce the conflict."
+    settings = ServiceSettings(project_base_dir=tmp_path, long_form_provider_enabled=True)
+    diagnostics = _RecordingDiagnostics()
+    router = ModelRouter(
+        config=ModelRouterConfig(
+            policy=ModelRoutingPolicy.LOCAL_ONLY,
+            provider_calls_enabled=True,
+        )
+    )
+    router.register_provider(_FakeProvider(_FakeAdapter(adapter_text)))
+    service = LongFormExecutionService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=router,
+        enabled=True,
+    )
+
+    result = service.execute(
+        project_root=project_root,
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chunk_size=1,
+        target_words_per_chunk=300,
+    )
+
+    assert result.stopped_reason == "invalid_output"
+    assert any(entry[0] == "VALIDATION" for entry in diagnostics.entries)
+    entry = next(entry for entry in diagnostics.entries if entry[0] == "VALIDATION")
+    assert entry[2] is not None
+    assert entry[2].get("raw_excerpt")
+
+
 def test_long_form_execution_disabled_toggle(tmp_path: Path) -> None:
     settings = ServiceSettings(project_base_dir=tmp_path, long_form_provider_enabled=False)
     diagnostics = DiagnosticLogger()
@@ -188,3 +243,65 @@ def test_long_form_execution_adapter_error_fallback(tmp_path: Path) -> None:
     assert result.stopped_reason == "adapter_error"
     assert len(result.chunks) == 1
     assert result.chunks[0].continuity_snapshot["fallback_reason"] == "adapter_error"
+
+
+def test_long_form_execution_extracts_raw_response(tmp_path: Path) -> None:
+    project_root = tmp_path / "proj_raw"
+    project_root.mkdir(parents=True, exist_ok=True)
+    settings = ServiceSettings(project_base_dir=tmp_path, long_form_provider_enabled=True)
+    diagnostics = DiagnosticLogger()
+    router = ModelRouter(
+        config=ModelRouterConfig(
+            policy=ModelRoutingPolicy.LOCAL_ONLY,
+            provider_calls_enabled=True,
+        )
+    )
+    router.register_provider(_FakeProvider(_RawOnlyAdapter("Mara moved through the hall. " * 14)))
+    service = LongFormExecutionService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=router,
+        enabled=True,
+    )
+
+    result = service.execute(
+        project_root=project_root,
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chunk_size=1,
+        target_words_per_chunk=300,
+    )
+
+    assert result.stopped_reason is None
+    assert result.chunks[0].continuity_snapshot["fallback_reason"] is None
+
+
+def test_long_form_execution_extracts_top_level_response(tmp_path: Path) -> None:
+    project_root = tmp_path / "proj_raw_top"
+    project_root.mkdir(parents=True, exist_ok=True)
+    settings = ServiceSettings(project_base_dir=tmp_path, long_form_provider_enabled=True)
+    diagnostics = DiagnosticLogger()
+    router = ModelRouter(
+        config=ModelRouterConfig(
+            policy=ModelRoutingPolicy.LOCAL_ONLY,
+            provider_calls_enabled=True,
+        )
+    )
+    router.register_provider(_FakeProvider(_RawTopLevelAdapter("Mara moved through the hall. " * 14)))
+    service = LongFormExecutionService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=router,
+        enabled=True,
+    )
+
+    result = service.execute(
+        project_root=project_root,
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chunk_size=1,
+        target_words_per_chunk=300,
+    )
+
+    assert result.stopped_reason is None
+    assert result.chunks[0].continuity_snapshot["fallback_reason"] is None

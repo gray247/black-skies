@@ -20,6 +20,7 @@ from ..long_form import (
     assemble_chapter_memory,
     assemble_continuation_packet,
     fingerprint_long_form_prompt,
+    evaluate_long_form_output,
     is_usable_long_form_output,
     normalize_long_form_output,
     persist_long_form_chunk,
@@ -307,9 +308,39 @@ class LongFormExecutionService:
         try:
             response = adapter.generate_draft(payload)
             raw_text = response.get("text")
+            if not isinstance(raw_text, str) or not raw_text.strip():
+                raw_payload = response.get("raw") if isinstance(response, dict) else None
+                if not isinstance(raw_payload, dict) and isinstance(response, dict):
+                    raw_payload = response
+                if isinstance(raw_payload, dict):
+                    candidate = raw_payload.get("response")
+                    if isinstance(candidate, str) and candidate.strip():
+                        raw_text = candidate
+                    else:
+                        choices = raw_payload.get("choices")
+                        if isinstance(choices, list) and choices:
+                            first = choices[0]
+                            if isinstance(first, dict):
+                                message = first.get("message")
+                                if isinstance(message, dict):
+                                    content = message.get("content")
+                                    if isinstance(content, str) and content.strip():
+                                        raw_text = content
             cleaned = normalize_long_form_output(raw_text)
             if is_usable_long_form_output(cleaned, prior_excerpt=continuation.prior_excerpt):
                 return cleaned.strip(), None, False
+            report = evaluate_long_form_output(cleaned, prior_excerpt=continuation.prior_excerpt)
+            self._diagnostics.log(
+                Path(self._settings.project_base_dir),
+                code="VALIDATION",
+                message="Long-form output rejected.",
+                details={
+                    "reason": report,
+                    "raw_length": len(raw_text) if isinstance(raw_text, str) else 0,
+                    "raw_excerpt": (raw_text[:400] if isinstance(raw_text, str) else None),
+                    "cleaned_excerpt": (cleaned[:400] if isinstance(cleaned, str) else None),
+                },
+            )
             return self._fallback_text(continuation), "invalid_output", True
         except AdapterError as exc:
             self._diagnostics.log(
