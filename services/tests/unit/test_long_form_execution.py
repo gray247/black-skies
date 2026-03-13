@@ -17,11 +17,13 @@ class _FakeAdapter(BaseAdapter):
     def __init__(self, text: str) -> None:
         super().__init__(AdapterConfig(base_url="http://fake", model="fake"))
         self._text = text
+        self.last_payload: dict[str, object] | None = None
 
     def health_check(self) -> bool:
         return True
 
     def generate_draft(self, payload: dict[str, object]) -> dict[str, object]:
+        self.last_payload = payload
         return {"text": self._text}
 
     def critique(self, payload: dict[str, object]) -> dict[str, object]:
@@ -103,6 +105,13 @@ def test_long_form_execution_persists_chunks(tmp_path: Path) -> None:
     assert (chunk_dir / f"{result.chunks[0].chunk_id}.json").exists()
     assert (text_dir / f"{result.chunks[0].chunk_id}.md").exists()
     assert result.budget_summary["chunk_count"] == 2
+
+    provider = service._model_router.providers["local_llm"]
+    adapter = provider.adapter()
+    assert adapter.last_payload is not None
+    assert "prompt" in adapter.last_payload
+    assert "options" in adapter.last_payload
+    assert adapter.last_payload.get("options", {}).get("num_predict") == 300
 
 
 def test_long_form_execution_stops_on_invalid_output(tmp_path: Path) -> None:

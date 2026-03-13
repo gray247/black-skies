@@ -294,8 +294,17 @@ class LongFormExecutionService:
         if adapter is None:
             return self._fallback_text(continuation), "provider_unavailable", False
 
+        payload: dict[str, Any] = {
+            "prompt": prompt,
+            "temperature": 0.7,
+            "options": {"temperature": 0.7},
+        }
+        if continuation.target_words:
+            payload["max_tokens"] = int(continuation.target_words * 1.3)
+            # Cap local generation length to reduce Ollama timeouts.
+            payload["options"]["num_predict"] = min(300, int(continuation.target_words))
         try:
-            response = adapter.generate_draft({"prompt": prompt})
+            response = adapter.generate_draft(payload)
             text = response.get("text")
             if is_usable_long_form_output(text, prior_excerpt=continuation.prior_excerpt):
                 return text.strip(), None, False
