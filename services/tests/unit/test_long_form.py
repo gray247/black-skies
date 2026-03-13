@@ -10,6 +10,7 @@ from blackskies.services.long_form import (
     assemble_chapter_memory,
     assemble_continuation_packet,
     evaluate_long_form_output,
+    normalize_long_form_output,
     load_long_form_chunk,
     persist_long_form_chunk,
 )
@@ -153,6 +154,23 @@ def test_long_form_validation_allows_shorter_prose() -> None:
     text = "Mara listened to the rain on the window and kept her hand on the latch. " * 6
     report = evaluate_long_form_output(text)
     assert report["usable"] is True
+
+
+def test_normalize_long_form_output_strips_prompt_headers() -> None:
+    raw = (
+        "Chapter: Act I - The Summons\n"
+        "Scene ids: sc_0001\n"
+        "Prior summary: Mara forced the door.\n"
+        "\n"
+        "Mara stepped into the hall, the air cold and damp. "
+        "Mara stepped into the hall, the air cold and damp. "
+        "Mara stepped into the hall, the air cold and damp.\n"
+    )
+    cleaned = normalize_long_form_output(raw)
+    assert cleaned is not None
+    assert "Chapter:" not in cleaned
+    assert "Scene ids:" not in cleaned
+    assert "Prior summary:" not in cleaned
 
 
 def test_chunk_persistence_and_budget_aggregation(tmp_path: Path) -> None:

@@ -21,6 +21,7 @@ from ..long_form import (
     assemble_continuation_packet,
     fingerprint_long_form_prompt,
     is_usable_long_form_output,
+    normalize_long_form_output,
     persist_long_form_chunk,
     persist_long_form_text,
     aggregate_long_form_budget,
@@ -305,9 +306,10 @@ class LongFormExecutionService:
             payload["options"]["num_predict"] = min(300, int(continuation.target_words))
         try:
             response = adapter.generate_draft(payload)
-            text = response.get("text")
-            if is_usable_long_form_output(text, prior_excerpt=continuation.prior_excerpt):
-                return text.strip(), None, False
+            raw_text = response.get("text")
+            cleaned = normalize_long_form_output(raw_text)
+            if is_usable_long_form_output(cleaned, prior_excerpt=continuation.prior_excerpt):
+                return cleaned.strip(), None, False
             return self._fallback_text(continuation), "invalid_output", True
         except AdapterError as exc:
             self._diagnostics.log(

@@ -235,6 +235,35 @@ def evaluate_long_form_output(
     }
 
 
+def normalize_long_form_output(text: str | None) -> str | None:
+    if not isinstance(text, str):
+        return None
+    cleaned = text.strip()
+    if not cleaned:
+        return None
+    lines = [line.strip() for line in cleaned.splitlines() if line.strip()]
+    if not lines:
+        return None
+    filtered: list[str] = []
+    drop_prefixes = (
+        "chapter:",
+        "scene ids:",
+        "prior summary:",
+        "prior excerpt:",
+        "locked facts:",
+        "constraints:",
+        "target word range:",
+    )
+    for line in lines:
+        lowered = line.lower()
+        if lowered.startswith(drop_prefixes):
+            continue
+        filtered.append(line)
+    if not filtered:
+        return cleaned
+    return "\n".join(filtered).strip()
+
+
 def is_usable_long_form_output(text: str | None, *, prior_excerpt: str | None = None) -> bool:
     report = evaluate_long_form_output(text, prior_excerpt=prior_excerpt)
     return bool(report.get("usable"))
@@ -321,6 +350,7 @@ __all__ = [
     "assemble_continuation_packet",
     "fingerprint_long_form_prompt",
     "evaluate_long_form_output",
+    "normalize_long_form_output",
     "is_usable_long_form_output",
     "persist_long_form_chunk",
     "persist_long_form_text",
