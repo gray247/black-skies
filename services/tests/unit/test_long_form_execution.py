@@ -58,6 +58,24 @@ class _RawTopLevelAdapter(_FakeAdapter):
         return {"response": self._text}
 
 
+class _RawMessageAdapter(_FakeAdapter):
+    def generate_draft(self, payload: dict[str, object]) -> dict[str, object]:
+        self.last_payload = payload
+        return {"raw": {"message": {"content": self._text}}}
+
+
+class _RawNestedDataAdapter(_FakeAdapter):
+    def generate_draft(self, payload: dict[str, object]) -> dict[str, object]:
+        self.last_payload = payload
+        return {"raw": {"data": {"response": self._text}}}
+
+
+class _RawUnknownShapeAdapter(_FakeAdapter):
+    def generate_draft(self, payload: dict[str, object]) -> dict[str, object]:
+        self.last_payload = payload
+        return {"raw": {"data": {"note": "missing text"}}}
+
+
 class _FakeProvider:
     name = "local_llm"
 
@@ -305,3 +323,101 @@ def test_long_form_execution_extracts_top_level_response(tmp_path: Path) -> None
 
     assert result.stopped_reason is None
     assert result.chunks[0].continuity_snapshot["fallback_reason"] is None
+
+
+def test_long_form_execution_extracts_message_content(tmp_path: Path) -> None:
+    project_root = tmp_path / "proj_raw_message"
+    project_root.mkdir(parents=True, exist_ok=True)
+    settings = ServiceSettings(project_base_dir=tmp_path, long_form_provider_enabled=True)
+    diagnostics = DiagnosticLogger()
+    router = ModelRouter(
+        config=ModelRouterConfig(
+            policy=ModelRoutingPolicy.LOCAL_ONLY,
+            provider_calls_enabled=True,
+        )
+    )
+    router.register_provider(_FakeProvider(_RawMessageAdapter("Mara moved through the hall. " * 14)))
+    service = LongFormExecutionService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=router,
+        enabled=True,
+    )
+
+    result = service.execute(
+        project_root=project_root,
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chunk_size=1,
+        target_words_per_chunk=300,
+    )
+
+    assert result.stopped_reason is None
+    assert result.chunks[0].continuity_snapshot["fallback_reason"] is None
+
+
+def test_long_form_execution_extracts_nested_data_response(tmp_path: Path) -> None:
+    project_root = tmp_path / "proj_raw_data"
+    project_root.mkdir(parents=True, exist_ok=True)
+    settings = ServiceSettings(project_base_dir=tmp_path, long_form_provider_enabled=True)
+    diagnostics = DiagnosticLogger()
+    router = ModelRouter(
+        config=ModelRouterConfig(
+            policy=ModelRoutingPolicy.LOCAL_ONLY,
+            provider_calls_enabled=True,
+        )
+    )
+    router.register_provider(
+        _FakeProvider(_RawNestedDataAdapter("Mara moved through the hall. " * 14))
+    )
+    service = LongFormExecutionService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=router,
+        enabled=True,
+    )
+
+    result = service.execute(
+        project_root=project_root,
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chunk_size=1,
+        target_words_per_chunk=300,
+    )
+
+    assert result.stopped_reason is None
+    assert result.chunks[0].continuity_snapshot["fallback_reason"] is None
+
+
+def test_long_form_invalid_output_logs_raw_payload(tmp_path: Path) -> None:
+    project_root = tmp_path / "proj_raw_diag"
+    project_root.mkdir(parents=True, exist_ok=True)
+    settings = ServiceSettings(project_base_dir=tmp_path, long_form_provider_enabled=True)
+    diagnostics = _RecordingDiagnostics()
+    router = ModelRouter(
+        config=ModelRouterConfig(
+            policy=ModelRoutingPolicy.LOCAL_ONLY,
+            provider_calls_enabled=True,
+        )
+    )
+    router.register_provider(_FakeProvider(_RawUnknownShapeAdapter("unused")))
+    service = LongFormExecutionService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=router,
+        enabled=True,
+    )
+
+    result = service.execute(
+        project_root=project_root,
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chunk_size=1,
+        target_words_per_chunk=300,
+    )
+
+    assert result.stopped_reason == "invalid_output"
+    entry = next(entry for entry in diagnostics.entries if entry[0] == "VALIDATION")
+    assert entry[2] is not None
+    assert "raw_payload_keys" in entry[2]
+    assert entry[2].get("raw_payload_preview")

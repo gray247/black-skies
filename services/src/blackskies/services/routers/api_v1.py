@@ -9,6 +9,7 @@ from .backups import router as backups_router
 from .draft import router as draft_router
 from .outline import router as outline_router
 from .export import router as export_router
+from .long_form import router as long_form_router
 from .backup_verifier import router as backup_verifier_router
 from .phase4 import router as phase4_router
 from .recovery import router as recovery_router
@@ -24,6 +25,7 @@ router.include_router(snapshots_router)
 router.include_router(backup_verifier_router)
 router.include_router(backups_router)
 router.include_router(export_router)
+router.include_router(long_form_router)
 router.include_router(phase4_router)
 router.include_router(restore_router)
 router.include_router(restore_router)
