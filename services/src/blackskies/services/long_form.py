@@ -226,7 +226,7 @@ def evaluate_long_form_output(
         tokens = [token for token in prior_excerpt.split() if len(token) > 4]
         lowered = stripped.lower()
         missing_carryover = not any(token.lower() in lowered for token in tokens)
-    usable = word_count >= 80 and not meta
+    usable = word_count >= 60 and not meta
     return {
         "usable": usable,
         "word_count": word_count,

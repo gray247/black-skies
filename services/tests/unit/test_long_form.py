@@ -149,6 +149,12 @@ def test_long_form_validation_accepts_prose() -> None:
     assert report["usable"] is True
 
 
+def test_long_form_validation_allows_shorter_prose() -> None:
+    text = "Mara listened to the rain on the window and kept her hand on the latch. " * 6
+    report = evaluate_long_form_output(text)
+    assert report["usable"] is True
+
+
 def test_chunk_persistence_and_budget_aggregation(tmp_path: Path) -> None:
     project_root = tmp_path / "proj_chunks"
     chunk = LongFormChunk(
