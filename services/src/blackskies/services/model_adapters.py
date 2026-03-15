@@ -16,6 +16,85 @@ class AdapterError(RuntimeError):
     """Raised when adapter calls fail."""
 
 
+def _strip_reasoning_leadin(text: str) -> str:
+    cleaned = text.strip()
+    if not cleaned:
+        return cleaned
+    lines = [line.strip() for line in cleaned.splitlines() if line.strip()]
+    if not lines:
+        return cleaned
+    first = lines[0].lower()
+    leadins = (
+        "thinking:",
+        "thoughts:",
+        "analysis:",
+        "okay",
+        "sure",
+        "let's",
+        "first,",
+        "plan:",
+        "the user",
+        "i will",
+        "i'll",
+        "we need",
+        "i need",
+    )
+    if (any(first.startswith(prefix) for prefix in leadins) or "the user" in first) and len(
+        lines[0]
+    ) < 180 and len(lines) > 1:
+        lines = lines[1:]
+    return "\n".join(lines).strip() or cleaned
+
+
+def normalize_ollama_payload(response: dict[str, Any] | None) -> tuple[str | None, bool]:
+    if not isinstance(response, dict):
+        return None, False
+    text = response.get("text")
+    if isinstance(text, str) and text.strip():
+        return text, False
+    raw_payload = response.get("raw") if isinstance(response.get("raw"), dict) else response
+    if not isinstance(raw_payload, dict):
+        return None, False
+    candidate = raw_payload.get("response")
+    if isinstance(candidate, str) and candidate.strip():
+        return candidate, False
+    choices = raw_payload.get("choices")
+    if isinstance(choices, list) and choices:
+        first = choices[0]
+        if isinstance(first, dict):
+            message = first.get("message")
+            if isinstance(message, dict):
+                content = message.get("content")
+                if isinstance(content, str) and content.strip():
+                    return content, False
+    message = raw_payload.get("message")
+    if isinstance(message, dict):
+        content = message.get("content")
+        if isinstance(content, str) and content.strip():
+            return content, False
+    data = raw_payload.get("data")
+    if isinstance(data, dict):
+        for key in ("response", "text", "content", "output"):
+            value = data.get(key)
+            if isinstance(value, str) and value.strip():
+                return value, False
+        data_choices = data.get("choices")
+        if isinstance(data_choices, list) and data_choices:
+            first = data_choices[0]
+            if isinstance(first, dict):
+                message = first.get("message")
+                if isinstance(message, dict):
+                    content = message.get("content")
+                    if isinstance(content, str) and content.strip():
+                        return content, False
+    response_value = raw_payload.get("response")
+    if isinstance(response_value, str) and not response_value.strip():
+        thinking = raw_payload.get("thinking")
+        if isinstance(thinking, str) and thinking.strip():
+            return _strip_reasoning_leadin(thinking), True
+    return None, False
+
+
 @dataclass(frozen=True)
 class AdapterConfig:
     base_url: str
@@ -187,4 +266,5 @@ __all__ = [
     "BaseAdapter",
     "OllamaAdapter",
     "OpenAIAdapter",
+    "normalize_ollama_payload",
 ]

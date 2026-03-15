@@ -10,7 +10,7 @@ from uuid import uuid4
 
 from ..budgeting import classify_budget
 from ..diagnostics import DiagnosticLogger
-from ..model_adapters import AdapterError, BaseAdapter
+from ..model_adapters import AdapterError, BaseAdapter, normalize_ollama_payload
 from ..model_router import ModelRouter, ModelTask, format_route_metadata
 from ..operations.budget_service import BudgetService
 from ..prompt_pipeline import ProviderProfile, select_profile
@@ -24,6 +24,7 @@ from ..long_form import (
     evaluate_long_form_output,
     is_usable_long_form_output,
     normalize_long_form_output,
+    extract_narrative_prose,
     persist_long_form_chunk,
     persist_long_form_text,
     aggregate_long_form_budget,
@@ -251,38 +252,58 @@ class LongFormExecutionService:
     ) -> str:
         style_lines = list(profile.draft_style)
         memory = continuation.chapter_memory
+        prior_excerpt = continuation.prior_excerpt
+        if isinstance(prior_excerpt, str) and len(prior_excerpt) > 600:
+            prior_excerpt = f"{prior_excerpt[:600].rstrip()}…"
+        location_state = (
+            continuation.continuity_snapshot.get("location")
+            or continuation.continuity_snapshot.get("world_state")
+            or continuation.continuity_snapshot.get("setting")
+        )
+        location_state = location_state if isinstance(location_state, str) and location_state else "unspecified"
         lines: list[str] = []
         lines.extend(style_lines)
         lines.extend(
             [
-                "Write continuous prose for a long-form chapter draft.",
-                "Avoid summaries, outlines, or bullet lists.",
-                "Stay grounded in immediate sensory detail and action.",
-                f"Chapter: {memory.chapter_context or memory.chapter_id}",
-                f"Scene ids: {', '.join(scene_ids)}",
+                "ROLE: You are a novelist continuing a single chapter in-scene.",
+                "OUTPUT CONTRACT: Return only narrative prose. No headings, no lists, no meta commentary.",
+                "ANTI-REASONING: Do not reveal planning, analysis, or chain-of-thought.",
+                "ANTI-RECAP: Do not recap prior scenes or reset the scene.",
+                "ANTI-PROMPT-ECHO: Never repeat prompt labels or instructions.",
+                "CHAPTER CONTINUITY: Stay consistent with established events and tone.",
+                f"CHAPTER: {memory.chapter_context or memory.chapter_id}",
+                f"SCENE IDS: {', '.join(scene_ids)}",
             ]
         )
         if continuation.target_words:
             min_target = max(100, int(continuation.target_words * 0.9))
             max_target = int(continuation.target_words * 1.1)
-            lines.append(f"Target word range: {min_target}-{max_target}")
+            lines.append(f"TARGET WORD RANGE: {min_target}-{max_target}")
         if memory.locked_facts:
-            lines.append(f"Locked facts: {'; '.join(memory.locked_facts)}")
+            lines.append(f"LOCKED FACTS: {'; '.join(memory.locked_facts)}")
         if memory.accumulated_summaries:
-            lines.append(f"Chapter memory: {' | '.join(memory.accumulated_summaries)}")
+            lines.append(f"CHAPTER MEMORY: {' | '.join(memory.accumulated_summaries)}")
         if memory.unresolved_tensions:
-            lines.append(f"Unresolved tensions: {', '.join(memory.unresolved_tensions)}")
+            lines.append(f"UNRESOLVED TENSIONS: {', '.join(memory.unresolved_tensions)}")
         if memory.emotional_carryover:
-            lines.append(f"Emotional carryover: {memory.emotional_carryover}")
+            lines.append(f"EMOTIONAL CARRYOVER: {memory.emotional_carryover}")
+        lines.append(f"LOCATION/WORLD STATE: {location_state}")
         if continuation.prior_summary:
-            lines.append(f"Prior summary: {continuation.prior_summary}")
-        if continuation.prior_excerpt:
-            lines.append(f"Prior excerpt: {continuation.prior_excerpt}")
+            lines.append(f"PRIOR SUMMARY: {continuation.prior_summary}")
+        if prior_excerpt:
+            lines.append(f"PRIOR EXCERPT: {prior_excerpt}")
         if not continuation.prior_summary and not continuation.prior_excerpt:
-            lines.append("Open the chapter with immersive scene prose.")
+            lines.append("CHUNK OBJECTIVE: Open the chapter with immersive scene prose.")
         if continuation.constraints:
-            lines.append(f"Constraints: {' | '.join(continuation.constraints)}")
-        lines.append("Return plain text only, no markdown fences.")
+            lines.append(f"NEGATIVE CONSTRAINTS: {' | '.join(continuation.constraints)}")
+        lines.extend(
+            [
+                "POV RULES: Stay in a consistent POV; do not head-hop.",
+                "PROSE RULES: Show action, sensation, and dialogue where natural.",
+                "FINAL: Begin the scene now with concrete action.",
+                "NO PREFACE: Do not include planning, analysis, or acknowledgements.",
+            ]
+        )
         return "\n".join(lines)
 
     def _run_chunk_generation(
@@ -300,52 +321,56 @@ class LongFormExecutionService:
         payload: dict[str, Any] = {
             "prompt": prompt,
             "temperature": 0.7,
-            "options": {"temperature": 0.7},
+            "system": "You are a novelist. Output only narrative prose. Do not include analysis or planning.",
+            "options": {
+                "temperature": 0.7,
+                "reasoning": False,
+            },
         }
         if continuation.target_words:
             payload["max_tokens"] = int(continuation.target_words * 1.3)
             # Cap local generation length to reduce Ollama timeouts.
-            payload["options"]["num_predict"] = min(300, int(continuation.target_words))
+            payload["options"]["num_ctx"] = 2048
+            payload["options"]["num_predict"] = min(200, int(continuation.target_words))
         try:
-            response = adapter.generate_draft(payload)
-            raw_text = response.get("text")
-            if not isinstance(raw_text, str) or not raw_text.strip():
-                raw_payload = response.get("raw") if isinstance(response, dict) else None
-                if not isinstance(raw_payload, dict) and isinstance(response, dict):
-                    raw_payload = response
-                if isinstance(raw_payload, dict):
-                    for key in ("response", "text", "content", "output"):
-                        candidate = raw_payload.get(key)
-                        if isinstance(candidate, str) and candidate.strip():
-                            raw_text = candidate
-                            break
-                    if not isinstance(raw_text, str) or not raw_text.strip():
-                        message = raw_payload.get("message")
-                        if isinstance(message, dict):
-                            content = message.get("content")
-                            if isinstance(content, str) and content.strip():
-                                raw_text = content
-                    if not isinstance(raw_text, str) or not raw_text.strip():
-                        data = raw_payload.get("data")
-                        if isinstance(data, dict):
-                            for key in ("response", "text", "content", "output"):
-                                candidate = data.get(key)
-                                if isinstance(candidate, str) and candidate.strip():
-                                    raw_text = candidate
-                                    break
-                    if not isinstance(raw_text, str) or not raw_text.strip():
-                        choices = raw_payload.get("choices")
-                        if isinstance(choices, list) and choices:
-                            first = choices[0]
-                            if isinstance(first, dict):
-                                message = first.get("message")
-                                if isinstance(message, dict):
-                                    content = message.get("content")
-                                    if isinstance(content, str) and content.strip():
-                                        raw_text = content
-            cleaned = normalize_long_form_output(raw_text)
-            if is_usable_long_form_output(cleaned, prior_excerpt=continuation.prior_excerpt):
+            def _attempt(request_payload: dict[str, Any]) -> tuple[str | None, bool, dict[str, Any], str | None]:
+                response = adapter.generate_draft(request_payload)
+                raw_text, thinking_fallback = normalize_ollama_payload(response)
+                if thinking_fallback:
+                    self._diagnostics.log(
+                        Path(self._settings.project_base_dir),
+                        code="ADAPTER",
+                        message="Ollama thinking fallback used.",
+                        details={"thinking_fallback": True},
+                    )
+                cleaned = normalize_long_form_output(raw_text)
+                cleaned = extract_narrative_prose(cleaned)
+                if cleaned and cleaned.lower().startswith(("okay", "hmm", "the user", "i should", "i'll")):
+                    cleaned = cleaned.split("\n\n", 1)[-1]
+                if cleaned:
+                    cleaned = cleaned.lstrip("* ").strip()
+                return cleaned, bool(raw_text), response, raw_text
+
+            cleaned, had_raw, response, raw_text = _attempt(payload)
+            if cleaned and is_usable_long_form_output(
+                cleaned, prior_excerpt=continuation.prior_excerpt
+            ):
                 return cleaned.strip(), None, False
+            if not cleaned and had_raw:
+                retry_payload = dict(payload)
+                retry_payload["prompt"] = (
+                    f"{prompt}\nFINAL OVERRIDE: Start with scene action immediately. "
+                    "Do not include planning or analysis."
+                )
+                retry_payload["system"] = (
+                    "Output only narrative prose. Start with concrete action. "
+                    "No analysis, no planning, no acknowledgements."
+                )
+                cleaned, _, response, raw_text = _attempt(retry_payload)
+                if cleaned and is_usable_long_form_output(
+                    cleaned, prior_excerpt=continuation.prior_excerpt
+                ):
+                    return cleaned.strip(), None, False
             report = evaluate_long_form_output(cleaned, prior_excerpt=continuation.prior_excerpt)
             raw_payload = response.get("raw") if isinstance(response, dict) else None
             if not isinstance(raw_payload, dict) and isinstance(response, dict):

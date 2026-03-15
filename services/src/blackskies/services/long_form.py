@@ -264,6 +264,81 @@ def normalize_long_form_output(text: str | None) -> str | None:
     return "\n".join(filtered).strip()
 
 
+def extract_narrative_prose(text: str | None) -> str | None:
+    if not isinstance(text, str):
+        return None
+    cleaned = text.strip()
+    if not cleaned:
+        return None
+    paragraphs = [para.strip() for para in cleaned.split("\n\n") if para.strip()]
+    if not paragraphs:
+        return None
+    first = paragraphs[0]
+    lowered = first.lower()
+    reasoning_prefixes = (
+        "okay",
+        "hmm",
+        "the user",
+        "i should",
+        "i need",
+        "looking at",
+        "they want",
+    )
+    def _strip_leadin(line: str) -> str:
+        return line.lstrip("* ").strip()
+
+    if any(lowered.startswith(prefix) for prefix in reasoning_prefixes):
+        if len(paragraphs) > 1:
+            for index, para in enumerate(paragraphs[1:], start=1):
+                if len(para.split()) > 20:
+                    return "\n\n".join([para, *paragraphs[index + 1 :]]).strip()
+            return "\n\n".join(paragraphs[1:]).strip() or cleaned
+        sentences = [seg.strip() for seg in first.split(". ") if seg.strip()]
+        if len(sentences) > 1:
+            trimmed = ". ".join(sentences[1:]).strip()
+            trimmed = _strip_leadin(trimmed)
+            planning_markers = (
+                "the user wants",
+                "i need to",
+                "i should",
+                "i will",
+                "i'll",
+                "must",
+                "instructions",
+                "word count",
+                "avoid any",
+                "no headings",
+                "no bullet",
+            )
+            if any(marker in trimmed.lower() for marker in planning_markers):
+                return ""
+            return trimmed or ""
+        return ""
+    planning_markers = (
+        "the user wants",
+        "i need to",
+        "i should",
+        "i will",
+        "i'll",
+        "must",
+        "instructions",
+        "word count",
+        "avoid any",
+        "no headings",
+        "no bullet",
+    )
+    if any(marker in lowered for marker in planning_markers):
+        sentences = [seg.strip() for seg in cleaned.split(". ") if seg.strip()]
+        if len(sentences) > 1:
+            trimmed = ". ".join(sentences[1:]).strip()
+            trimmed = _strip_leadin(trimmed)
+            if any(marker in trimmed.lower() for marker in planning_markers):
+                return ""
+            return trimmed or ""
+        return ""
+    return cleaned
+
+
 def is_usable_long_form_output(text: str | None, *, prior_excerpt: str | None = None) -> bool:
     report = evaluate_long_form_output(text, prior_excerpt=prior_excerpt)
     return bool(report.get("usable"))
@@ -351,6 +426,7 @@ __all__ = [
     "fingerprint_long_form_prompt",
     "evaluate_long_form_output",
     "normalize_long_form_output",
+    "extract_narrative_prose",
     "is_usable_long_form_output",
     "persist_long_form_chunk",
     "persist_long_form_text",

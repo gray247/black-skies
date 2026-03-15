@@ -76,6 +76,32 @@ class _RawUnknownShapeAdapter(_FakeAdapter):
         return {"raw": {"data": {"note": "missing text"}}}
 
 
+class _RawChoicesAdapter(_FakeAdapter):
+    def generate_draft(self, payload: dict[str, object]) -> dict[str, object]:
+        self.last_payload = payload
+        return {"raw": {"choices": [{"message": {"content": self._text}}]}}
+
+
+class _RawThinkingAdapter(_FakeAdapter):
+    def generate_draft(self, payload: dict[str, object]) -> dict[str, object]:
+        self.last_payload = payload
+        return {"raw": {"response": "", "thinking": self._text}}
+
+
+class _RetryAdapter(_FakeAdapter):
+    def __init__(self, first_text: str, second_text: str) -> None:
+        super().__init__(first_text)
+        self._second = second_text
+        self._count = 0
+
+    def generate_draft(self, payload: dict[str, object]) -> dict[str, object]:
+        self.last_payload = payload
+        self._count += 1
+        if self._count == 1:
+            return {"raw": {"response": self._text}}
+        return {"raw": {"response": self._second}}
+
+
 class _FakeProvider:
     name = "local_llm"
 
@@ -125,7 +151,7 @@ def test_long_form_execution_persists_chunks(tmp_path: Path) -> None:
         ),
         encoding="utf-8",
     )
-    adapter_text = "Mara pushed the door, and the hinges groaned. " * 10
+    adapter_text = "Mara pushed the door, and the hinges groaned. " * 40
     service = _service(tmp_path, adapter_text)
 
     result = service.execute(
@@ -148,8 +174,18 @@ def test_long_form_execution_persists_chunks(tmp_path: Path) -> None:
     adapter = provider.adapter()
     assert adapter.last_payload is not None
     assert "prompt" in adapter.last_payload
+    assert adapter.last_payload.get("system")
     assert "options" in adapter.last_payload
-    assert adapter.last_payload.get("options", {}).get("num_predict") == 300
+    assert adapter.last_payload.get("options", {}).get("num_ctx") == 2048
+    assert adapter.last_payload.get("options", {}).get("num_predict") == 200
+    prompt = adapter.last_payload["prompt"]
+    assert "ROLE:" in prompt
+    assert "OUTPUT CONTRACT:" in prompt
+    assert "CHAPTER CONTINUITY:" in prompt
+    assert "PRIOR EXCERPT:" in prompt
+    prior_line = next(line for line in prompt.splitlines() if line.startswith("PRIOR EXCERPT:"))
+    assert len(prior_line) <= 620
+    assert adapter.last_payload.get("options", {}).get("reasoning") is False
 
 
 def test_long_form_execution_stops_on_invalid_output(tmp_path: Path) -> None:
@@ -389,6 +425,73 @@ def test_long_form_execution_extracts_nested_data_response(tmp_path: Path) -> No
     assert result.chunks[0].continuity_snapshot["fallback_reason"] is None
 
 
+def test_long_form_execution_extracts_choices_message_content(tmp_path: Path) -> None:
+    project_root = tmp_path / "proj_raw_choices"
+    project_root.mkdir(parents=True, exist_ok=True)
+    settings = ServiceSettings(project_base_dir=tmp_path, long_form_provider_enabled=True)
+    diagnostics = DiagnosticLogger()
+    router = ModelRouter(
+        config=ModelRouterConfig(
+            policy=ModelRoutingPolicy.LOCAL_ONLY,
+            provider_calls_enabled=True,
+        )
+    )
+    router.register_provider(_FakeProvider(_RawChoicesAdapter("Mara moved through the hall. " * 14)))
+    service = LongFormExecutionService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=router,
+        enabled=True,
+    )
+
+    result = service.execute(
+        project_root=project_root,
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chunk_size=1,
+        target_words_per_chunk=300,
+    )
+
+    assert result.stopped_reason is None
+    assert result.chunks[0].continuity_snapshot["fallback_reason"] is None
+
+
+def test_long_form_execution_retries_after_planning_output(tmp_path: Path) -> None:
+    project_root = tmp_path / "proj_retry"
+    project_root.mkdir(parents=True, exist_ok=True)
+    settings = ServiceSettings(project_base_dir=tmp_path, long_form_provider_enabled=True)
+    diagnostics = DiagnosticLogger()
+    router = ModelRouter(
+        config=ModelRouterConfig(
+            policy=ModelRoutingPolicy.LOCAL_ONLY,
+            provider_calls_enabled=True,
+        )
+    )
+    adapter = _RetryAdapter(
+        "The user wants me to write an immersive scene. No headings or meta commentary.",
+        "Mara moved through the hall. " * 14,
+    )
+    router.register_provider(_FakeProvider(adapter))
+    service = LongFormExecutionService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=router,
+        enabled=True,
+    )
+
+    result = service.execute(
+        project_root=project_root,
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chunk_size=1,
+        target_words_per_chunk=300,
+    )
+
+    assert result.stopped_reason is None
+    assert result.chunks[0].continuity_snapshot["fallback_reason"] is None
+    assert adapter._count == 2
+
+
 def test_long_form_invalid_output_logs_raw_payload(tmp_path: Path) -> None:
     project_root = tmp_path / "proj_raw_diag"
     project_root.mkdir(parents=True, exist_ok=True)
@@ -421,3 +524,53 @@ def test_long_form_invalid_output_logs_raw_payload(tmp_path: Path) -> None:
     assert entry[2] is not None
     assert "raw_payload_keys" in entry[2]
     assert entry[2].get("raw_payload_preview")
+
+
+def test_long_form_execution_extracts_thinking_when_response_empty(tmp_path: Path) -> None:
+    project_root = tmp_path / "proj_raw_thinking"
+    project_root.mkdir(parents=True, exist_ok=True)
+    settings = ServiceSettings(project_base_dir=tmp_path, long_form_provider_enabled=True)
+    diagnostics = _RecordingDiagnostics()
+    router = ModelRouter(
+        config=ModelRouterConfig(
+            policy=ModelRoutingPolicy.LOCAL_ONLY,
+            provider_calls_enabled=True,
+        )
+    )
+    router.register_provider(
+        _FakeProvider(
+            _RawThinkingAdapter(
+                "Okay, I will write a scene.\n\n"
+                + ("Mara moved through the hall. " * 14)
+            )
+        )
+    )
+    service = LongFormExecutionService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=router,
+        enabled=True,
+    )
+
+    result = service.execute(
+        project_root=project_root,
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chunk_size=1,
+        target_words_per_chunk=300,
+    )
+
+    assert result.stopped_reason is None
+    assert result.chunks[0].continuity_snapshot["fallback_reason"] is None
+    entry = next(entry for entry in diagnostics.entries if entry[0] == "ADAPTER")
+    assert entry[2] is not None
+    assert entry[2].get("thinking_fallback") is True
+    text_path = (
+        project_root
+        / ".blackskies"
+        / "long_form"
+        / "texts"
+        / f"{result.chunks[0].chunk_id}.md"
+    )
+    text = text_path.read_text(encoding="utf-8")
+    assert text.startswith("Mara moved")

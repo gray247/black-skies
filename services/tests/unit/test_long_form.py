@@ -10,6 +10,7 @@ from blackskies.services.long_form import (
     assemble_chapter_memory,
     assemble_continuation_packet,
     evaluate_long_form_output,
+    extract_narrative_prose,
     normalize_long_form_output,
     load_long_form_chunk,
     persist_long_form_chunk,
@@ -171,6 +172,40 @@ def test_normalize_long_form_output_strips_prompt_headers() -> None:
     assert "Chapter:" not in cleaned
     assert "Scene ids:" not in cleaned
     assert "Prior summary:" not in cleaned
+
+
+def test_extract_narrative_prose_skips_reasoning_paragraph() -> None:
+    raw = (
+        "Okay, the user wants me to write an immersive scene.\n\n"
+        "Mara stepped into the hall, the air cold and damp. "
+        "Mara stepped into the hall, the air cold and damp. "
+        "Mara stepped into the hall, the air cold and damp.\n\n"
+        "The floorboards creaked beneath her boots."
+    )
+    cleaned = extract_narrative_prose(raw)
+    assert cleaned is not None
+    assert cleaned.startswith("Mara stepped into the hall")
+
+
+def test_extract_narrative_prose_trims_single_paragraph_reasoning() -> None:
+    raw = (
+        "Okay, the user wants me to write an immersive scene. "
+        "Mara stepped into the hall, the air cold and damp. "
+        "The floorboards creaked beneath her boots."
+    )
+    cleaned = extract_narrative_prose(raw)
+    assert cleaned is not None
+    assert cleaned.startswith("Mara stepped into the hall")
+
+
+def test_extract_narrative_prose_drops_planning_only_output() -> None:
+    raw = (
+        "The user wants me to write an immersive scene. "
+        "The word count should be between 540-660 words. "
+        "No headings or meta commentary."
+    )
+    cleaned = extract_narrative_prose(raw)
+    assert cleaned == ""
 
 
 def test_chunk_persistence_and_budget_aggregation(tmp_path: Path) -> None:
