@@ -419,7 +419,7 @@ def persist_long_form_text(project_root: Path, chunk_id: str, text: str) -> Path
     path = _chunk_text_dir(project_root)
     path.mkdir(parents=True, exist_ok=True)
     target = path / f"{chunk_id}.md"
-    target.write_text(text, encoding="utf-8")
+    target.write_text(text, encoding="utf-8-sig")
     return target
 
 

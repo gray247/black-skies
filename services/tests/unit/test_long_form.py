@@ -15,6 +15,7 @@ from blackskies.services.long_form import (
     normalize_long_form_output,
     load_long_form_chunk,
     persist_long_form_chunk,
+    persist_long_form_text,
 )
 
 
@@ -256,3 +257,10 @@ def test_chunk_persistence_and_budget_aggregation(tmp_path: Path) -> None:
     assert loaded.chunk_id == "lf_001"
     summary = aggregate_long_form_budget([loaded])
     assert summary["estimated_usd"] == 0.4
+
+
+def test_long_form_text_round_trip_utf8(tmp_path: Path) -> None:
+    project_root = tmp_path / "proj_text"
+    text = "Mara’s door — “shut,” she whispered."
+    path = persist_long_form_text(project_root, "lf_utf8", text)
+    assert path.read_text(encoding="utf-8-sig") == text

@@ -638,5 +638,5 @@ def test_long_form_execution_extracts_thinking_when_response_empty(tmp_path: Pat
         / "texts"
         / f"{result.chunks[0].chunk_id}.md"
     )
-    text = text_path.read_text(encoding="utf-8")
+    text = text_path.read_text(encoding="utf-8-sig")
     assert text.startswith("Mara pushed")
