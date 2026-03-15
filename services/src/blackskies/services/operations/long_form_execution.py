@@ -340,6 +340,13 @@ class LongFormExecutionService:
             lines.append(f"PRIOR SUMMARY: {continuation.prior_summary}")
         if prior_excerpt:
             lines.append(f"PRIOR EXCERPT: {prior_excerpt}")
+        if continuation.prior_summary or prior_excerpt:
+            lines.append(
+                "CONTINUITY PRESSURE: carry forward at least one concrete detail from the prior summary/excerpt."
+            )
+            lines.append(
+                "CONTINUITY CHECKLIST: location state, object state, emotional carryover."
+            )
         if not continuation.prior_summary and not continuation.prior_excerpt:
             lines.append("CHUNK OBJECTIVE: Open the chapter with immersive scene prose.")
         if continuation.constraints:

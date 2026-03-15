@@ -228,6 +228,8 @@ def test_long_form_execution_persists_chunks(tmp_path: Path) -> None:
     assert "WRITE ONLY THE STORY." in prompt
     assert "BEGIN WITH NARRATIVE ON LINE 1." in prompt
     assert "PRIOR EXCERPT:" in prompt
+    assert "CONTINUITY PRESSURE:" in prompt
+    assert "CONTINUITY CHECKLIST:" in prompt
     prior_line = next(line for line in prompt.splitlines() if line.startswith("PRIOR EXCERPT:"))
     assert len(prior_line) <= 620
     assert adapter.last_payload.get("options", {}).get("reasoning") is False
