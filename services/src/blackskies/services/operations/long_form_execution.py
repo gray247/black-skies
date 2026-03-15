@@ -56,6 +56,8 @@ class LongFormExecutionService:
     _QUALITY_MIN_TOTAL = 28
     _QUALITY_MIN_COHERENCE = 3
     _QUALITY_MIN_CONTINUITY = 3
+    _QUALITY_MIN_SPECIFICITY = 3
+    _QUALITY_MIN_CLARITY = 3
 
     def __init__(
         self,
@@ -688,6 +690,8 @@ class LongFormExecutionService:
         total = quality_snapshot.get("total_score", 0)
         coherence = scores.get("coherence", 0)
         continuity = scores.get("continuity", 0)
+        specificity = scores.get("specificity", 0)
+        clarity = scores.get("clarity", 0)
         meta_free = scores.get("meta_free", 0)
         if meta_free <= 0:
             return False
@@ -695,6 +699,8 @@ class LongFormExecutionService:
             total >= self._QUALITY_MIN_TOTAL
             and coherence >= self._QUALITY_MIN_COHERENCE
             and continuity >= self._QUALITY_MIN_CONTINUITY
+            and specificity >= self._QUALITY_MIN_SPECIFICITY
+            and clarity >= self._QUALITY_MIN_CLARITY
         )
 
     def _run_chunk_critique(
