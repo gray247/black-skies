@@ -107,11 +107,13 @@ class _CritiqueRewriteAdapter(_FakeAdapter):
         super().__init__(draft_text)
         self._critique = critique_text
         self._rewrite = rewrite_text
+        self.last_rewrite_payload: dict[str, object] | None = None
 
     def critique(self, payload: dict[str, object]) -> dict[str, object]:
         return {"text": self._critique}
 
     def rewrite(self, payload: dict[str, object]) -> dict[str, object]:
+        self.last_rewrite_payload = payload
         return {"text": self._rewrite}
 
 
@@ -162,9 +164,9 @@ def _service(tmp_path: Path, adapter_text: str) -> LongFormExecutionService:
 
 def _long_text() -> str:
     return (
-        "Mara pushed the door, and the hinges groaned. " * 20
+        "Mara pushed the door, and the hinges groaned, the cold rain and metal scent filling the air. " * 20
         + "\n\n"
-        + "The hallway breathed cold air around her boots. " * 12
+        + "The hallway breathed cold air around her boots, the wood and dust and shadow pressing close. " * 12
     )
 
 
@@ -560,6 +562,12 @@ def test_long_form_execution_rewrites_after_quality_failure(tmp_path: Path) -> N
     assert chunk.acceptance_reason == "rewrite_pass"
     assert chunk.quality_snapshot is not None
     assert chunk.critique_snapshot is not None
+    assert adapter.last_rewrite_payload is not None
+    rewrite_prompt = adapter.last_rewrite_payload.get("prompt")
+    assert isinstance(rewrite_prompt, str)
+    assert "PRIMARY TARGETS:" in rewrite_prompt
+    assert "REMOVE:" in rewrite_prompt
+    assert "OUTPUT RULES:" in rewrite_prompt
 
     diag_path = (
         project_root

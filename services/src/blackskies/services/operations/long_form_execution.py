@@ -781,11 +781,14 @@ class LongFormExecutionService:
         goals = critique_snapshot.get("rewrite_goals") if critique_snapshot else None
         weaknesses = critique_snapshot.get("weaknesses") if critique_snapshot else None
         return (
-            "Rewrite the scene to address the critique while preserving story intent.\n"
+            "Rewrite the scene to address critique while preserving story intent.\n"
             f"PRIOR SUMMARY: {continuation.prior_summary or 'No prior summary.'}\n"
+            f"PRIOR EXCERPT: {continuation.prior_excerpt or 'None'}\n"
             f"WEAKNESSES: {', '.join(weaknesses) if weaknesses else 'None'}\n"
             f"REWRITE GOALS: {', '.join(goals) if goals else 'Improve clarity and specificity'}\n"
-            "OUTPUT RULES: Narrative prose only. No analysis, no headings, no meta.\n\n"
+            "PRIMARY TARGETS: specificity, continuity carryover, scene momentum.\n"
+            "REMOVE: generic filler, vague summary language, meta/planning lines.\n"
+            "OUTPUT RULES: narrative prose only; no analysis, no headings, no notes.\n\n"
             "ORIGINAL SCENE:\n"
             f"{original_text}\n"
         )
