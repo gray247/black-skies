@@ -9,6 +9,7 @@ Last Reviewed: 2025-11-15
 **2025-10-09** — Added Phase 8–11 roadmap (~30 feature expansion) · unlocked v1.1 docs
 **2025-10-10** — P7 RC packaging complete · tagged `v1.0.0-rc1` · smoke + offline docs verified
 **2025-10-15** — P8 companion overlay + batch critique UI landed; budget meter added to workspace header
+**2026-03-15** — Backend milestone complete (P8 window): API-backed long-form execution loop verified. Routing policy `api_only` with `long_form.prefer_api` confirmed. Chunk persistence under `.blackskies/long_form/chunks`, per-chunk diagnostics under `.blackskies/long_form/diagnostics`, UTF-8 markdown persistence verified. Evidence chunks: `lf_5d6da836`, `lf_52501598`. (UI-focused P8 scope remains in progress.)
 
 ## Upcoming milestones
 - ~~**P7 — RC1:** Smoke tests complete; publish quickstart.~~ *(closed 2025-10-10)*
@@ -18,7 +19,7 @@ Last Reviewed: 2025-11-15
 - **P10:** Accessibility & export suite.
 - **P11:** Agents & plugin framework.
 
--## Open follow-up items
+## Open follow-up items
 - Track **budget constant reuse**: replace hard-coded `0.02` pricing in `DraftGenerationService` with `COST_PER_1000_WORDS_USD` and audit for other stragglers.
 - Simplify **fingerprint generation** by relying on `json.dumps(..., sort_keys=True)` (no manual override sorting) and update tests to assert determinism.
 - Document and standardise **threadpool usage** (`run_in_threadpool` vs `asyncio.to_thread`), and schedule tests/docs for the recovery state machine and snapshot validation scenarios.

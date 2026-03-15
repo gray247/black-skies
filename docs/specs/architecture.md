@@ -39,6 +39,13 @@ This mirrors the running services: `/outline/build`, `/draft/generate`, `/draft/
 All AI calls (outline, draft, critique, and automation endpoints) traverse the Model Router before reaching `local_llm`, `openai`, or future providers such as `deepseek`. This layer enforces budgets, Insights Overlay privacy, and policy-aware routing so FastAPI services never directly invoke external APIs.
 Implementation priority: **ModelRouter seam and routing/policy/budget plumbing now precede splash/onboarding expansion**. Any new UI flows must not block the router-first rollout.
 
+## Long-Form Routing Policy (Backend Milestone)
+Heavy long-form generation should use API-backed providers. Local models remain available for lightweight helper tasks.
+
+Recommended settings:
+- `BLACKSKIES_LONG_FORM_PREFER_API=true`
+- `BLACKSKIES_MODEL_ROUTING_POLICY=api_only`
+
 ## Companion Mode Boundary (Locked)
 Companion is **not** an SDK. It is an integrated, dockable in-app browser pane/window that opens ChatGPT.  
 Companion Mode remains separate from API Mode: it does not call the service backend for model inference, does not participate in ModelRouter policy, and **must not** exfiltrate content or route prompts through service-based providers.

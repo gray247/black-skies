@@ -28,6 +28,15 @@ Heavy long-form drafting should prefer API providers:
 
 Local models are still available for lighter/cheaper helper work, but not for heavy long-form drafting.
 
+## Manual Verification (API-backed run)
+
+### Run the execute endpoint
+```powershell
+Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:8000/api/v1/long-form/execute" `
+  -ContentType "application/json" `
+  -InFile "longform.json"
+```
+
 ## How To Inspect Latest Artifacts
 
 ### Newest chunk JSON
