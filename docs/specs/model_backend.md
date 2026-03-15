@@ -58,3 +58,6 @@ Insights Overlay overrides these settings: when active, the router refuses to cr
 ## Phase Alignment
 - Router ships early (Phase 2+) to serve outline/draft/critique flows.
 - Phase 9’s batch critique automation explicitly uses the Model Router to honor budget guards before spinning up remote evaluations.
+
+## Current Engine Priority (Sequencing)
+With API-backed long-form execution validated, the next engine milestone focuses on the rewrite/critique loop (scoring, retry/acceptance logic, quality gates). UI docking/accessibility polish remains important but is tracked separately from this engine progression.

@@ -69,3 +69,6 @@ Get-ChildItem .\sample_project\proj_esther_estate\.blackskies\long_form\texts |
 - Batch export / scene operations
 - Additional quality tuning beyond the current prompt and validation hardening
 - UI expansion or polish
+
+## Sequencing Note
+UI docking/accessibility polish remains important, but it is treated as non-blocking for the next engine milestone. The immediate engine focus shifts to rewrite/critique loops, acceptance/retry logic, and quality gates.

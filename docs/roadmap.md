@@ -49,6 +49,7 @@ The following planning docs describe capabilities that remain on the roadmap bey
 - Docking-aware Insights overlay, batch feedback mode, rubric editor, budget meter, quick restore toast.
 - Milestone tracking: GitHub milestone “Phase 8 – Docking Verification”.
 - Latest details: see phase log entry `2025-10-28 Phase 8 docking verification (IN PROGRESS)`.
+- Note: UI docking/accessibility polish remains important but is not treated as a hard blocker for core writing-engine milestones. Next engine focus: rewrite/critique loop, acceptance/retry logic, and quality gates.
 
 ### P9 – Analytics & visualization (Planned)
 - Emotion arc timeline, adaptive pacing graph, conflict heatmap, scene length analyzer, revision streak tracker, project health dashboard, outline validation engine.

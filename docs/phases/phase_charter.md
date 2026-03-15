@@ -65,6 +65,8 @@ Scope remains: finalize GUI + API parity, smoke tests, offline docs.
 ## Phase 8 – Insights & feedback expansion
 **Goal:** Add AI-assisted creative utilities within existing panes.
 
+**Sequencing note:** UI polish (docking persistence, accessibility sign-off) remains important, but core writing-engine milestones may proceed in parallel. UI polish is not treated as a hard blocker for backend engine progress.
+
 ### Key deliverables
 - Inline **Insights overlay** for contextual guidance and feedback  
 - **Batch Feedback mode** across multiple scenes  
