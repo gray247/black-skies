@@ -339,7 +339,7 @@ def extract_narrative_prose(text: str | None) -> str | None:
         "no headings",
         "no bullet",
     )
-    if any(marker in lowered for marker in planning_markers):
+    if any(lowered.startswith(marker) for marker in planning_markers):
         sentences = [seg.strip() for seg in cleaned.split(". ") if seg.strip()]
         if len(sentences) > 1:
             trimmed = ". ".join(sentences[1:]).strip()
