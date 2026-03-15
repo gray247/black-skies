@@ -57,6 +57,17 @@ Observed metadata on accepted chunks:
 
 Note: per-chunk diagnostics are only emitted on invalid output or rewrite passes; clean runs may not create new diagnostic files.
 
+### Rewrite loop live proof (forced threshold)
+To prove the rewrite/critique loop live, the quality threshold was temporarily raised to force a rewrite attempt, then reverted. The run produced:
+- `attempt_count: 2`
+- `rewrite_used: true`
+- `critique_snapshot` populated
+- `acceptance_reason: quality_failed` (expected due to forced threshold)
+
+Artifacts:
+- `sample_project/proj_esther_estate_verify_longform/.blackskies/long_form/chunks/lf_f4e03e8c.json`
+- `sample_project/proj_esther_estate_verify_longform/.blackskies/long_form/diagnostics/lf_f4e03e8c.json`
+
 ## How To Inspect Latest Artifacts
 
 ### Newest chunk JSON
