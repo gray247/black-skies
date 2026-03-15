@@ -10,6 +10,8 @@ This report verifies the Phase 8 target against repository evidence only: source
 ## Final Verdict
 **Phase 8 closed in docs but not fully evidenced in repo.**
 
+Planning disposition after verification: keep Phase 8 closed for engine progression, but treat the unresolved UI/verification items below as explicit follow-up exceptions rather than as completed closeout work.
+
 The repo contains a real Insights overlay, batch critique workflow, rewrite flow, budget UI, docking infrastructure, and restore-to-toast flow. Phase 8 is not fully evidenced as complete because:
 
 - the rubric deliverable is only a lightweight in-overlay category editor, not a full persisted rubric editor workflow
