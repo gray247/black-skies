@@ -66,6 +66,11 @@ def main() -> int:
 
     response = _post_json(f"{args.base_url.rstrip('/')}/api/v1/long-form/execute", request_payload)
     chunks = response.get("chunks") if isinstance(response.get("chunks"), list) else []
+    response_chunk_ids = [
+        chunk.get("chunk_id")
+        for chunk in chunks
+        if isinstance(chunk, dict) and chunk.get("chunk_id")
+    ]
     stopped_reason = response.get("stopped_reason")
 
     project_root = REPO_ROOT / "sample_project" / args.project_id
@@ -73,7 +78,10 @@ def main() -> int:
         project_root = REPO_ROOT / args.project_id
     persisted_chunks = load_chunk_payloads(project_root)
     if persisted_chunks:
-        chunks = persisted_chunks
+        if response_chunk_ids:
+            chunks = [chunk for chunk in persisted_chunks if chunk.get("chunk_id") in response_chunk_ids]
+        else:
+            chunks = persisted_chunks
 
     summary = summarize_long_form_run(
         project_id=args.project_id,
