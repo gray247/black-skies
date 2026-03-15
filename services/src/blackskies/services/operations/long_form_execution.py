@@ -23,6 +23,7 @@ from ..long_form import (
     fingerprint_long_form_prompt,
     evaluate_long_form_output,
     is_usable_long_form_output,
+    score_long_form_quality,
     normalize_long_form_output,
     extract_narrative_prose,
     trim_initial_reasoning_block,
@@ -50,6 +51,11 @@ def plan_chunk_sequence(scene_ids: Iterable[str], chunk_size: int) -> list[list[
 
 class LongFormExecutionService:
     """Execute a controlled, opt-in long-form chunk sequence."""
+
+    _MAX_ATTEMPTS = 2
+    _QUALITY_MIN_TOTAL = 28
+    _QUALITY_MIN_COHERENCE = 3
+    _QUALITY_MIN_CONTINUITY = 3
 
     def __init__(
         self,
@@ -160,7 +166,16 @@ class LongFormExecutionService:
                 }
             )
 
-            text, fallback_reason, provider_failed = self._run_chunk_generation(
+            (
+                text,
+                fallback_reason,
+                provider_failed,
+                attempt_count,
+                quality_snapshot,
+                critique_snapshot,
+                acceptance_reason,
+                rewrite_used,
+            ) = self._run_chunk_attempts(
                 adapter=adapter,
                 prompt=prompt,
                 continuation=continuation,
@@ -196,6 +211,11 @@ class LongFormExecutionService:
                 continuity_snapshot=continuity_snapshot,
                 budget_snapshot=budget_snapshot,
                 routing_snapshot=routing_snapshot,
+                quality_snapshot=quality_snapshot,
+                critique_snapshot=critique_snapshot,
+                attempt_count=attempt_count,
+                acceptance_reason=acceptance_reason,
+                rewrite_used=rewrite_used,
             )
             persist_long_form_chunk(project_root, chunk)
             persist_long_form_text(project_root, chunk_id, text)
@@ -334,18 +354,45 @@ class LongFormExecutionService:
         )
         return "\n".join(lines)
 
-    def _run_chunk_generation(
+    def _run_chunk_attempts(
         self,
         *,
         adapter: BaseAdapter | None,
         prompt: str,
         continuation,
         project_root: Path,
-    ) -> tuple[str, str | None, bool]:
+    ) -> tuple[
+        str,
+        str | None,
+        bool,
+        int,
+        dict[str, Any] | None,
+        dict[str, Any] | None,
+        str | None,
+        bool,
+    ]:
         if not self._model_router or not self._model_router.config.provider_calls_enabled:
-            return self._fallback_text(continuation), "provider_calls_disabled", False
+            return (
+                self._fallback_text(continuation),
+                "provider_calls_disabled",
+                False,
+                0,
+                None,
+                None,
+                "provider_calls_disabled",
+                False,
+            )
         if adapter is None:
-            return self._fallback_text(continuation), "provider_unavailable", False
+            return (
+                self._fallback_text(continuation),
+                "provider_unavailable",
+                False,
+                0,
+                None,
+                None,
+                "provider_unavailable",
+                False,
+            )
 
         payload: dict[str, Any] = {
             "prompt": prompt,
@@ -361,73 +408,226 @@ class LongFormExecutionService:
             # Cap local generation length to reduce Ollama timeouts.
             payload["options"]["num_ctx"] = 2048
             payload["options"]["num_predict"] = min(200, int(continuation.target_words))
+        attempt_diagnostics: list[dict[str, Any]] = []
+        critique_snapshot: dict[str, Any] | None = None
+        quality_snapshot: dict[str, Any] | None = None
+        acceptance_reason: str | None = None
+        rewrite_used = False
+
         try:
-            def _attempt(
-                request_payload: dict[str, Any],
-            ) -> tuple[str | None, bool, dict[str, Any], str | None, str | None, bool]:
-                response = adapter.generate_draft(request_payload)
-                raw_text, thinking_fallback, extracted_field = normalize_ollama_payload(response)
-                if thinking_fallback:
+            current_payload = dict(payload)
+            for attempt in range(1, self._MAX_ATTEMPTS + 1):
+                attempt_kind = "draft" if attempt == 1 else "rewrite"
+                if attempt > 1:
+                    rewrite_used = True
+                candidate = self._generate_candidate(
+                    adapter=adapter,
+                    payload=current_payload,
+                    continuation=continuation,
+                    project_root=project_root,
+                    call_mode=attempt_kind,
+                )
+                attempt_record = {
+                    "attempt": attempt,
+                    "mode": attempt_kind,
+                    "extracted_field": candidate.get("extracted_field"),
+                    "thinking_fallback": candidate.get("thinking_fallback"),
+                    "reasoning_trim_applied": candidate.get("reasoning_trim_applied"),
+                }
+                if candidate.get("adapter_error"):
+                    attempt_record["error"] = candidate["adapter_error"]
+                    attempt_diagnostics.append(attempt_record)
+                    persist_long_form_diagnostic(
+                        project_root,
+                        continuation.chunk_id,
+                        {
+                            "chunk_id": continuation.chunk_id,
+                            "validation_decision": False,
+                            "fallback_reason": "adapter_error",
+                            "attempts": attempt_diagnostics,
+                        },
+                    )
+                    return (
+                        self._fallback_text(continuation),
+                        "adapter_error",
+                        True,
+                        attempt,
+                        quality_snapshot,
+                        critique_snapshot,
+                        "adapter_error",
+                        rewrite_used,
+                    )
+                cleaned = candidate.get("text")
+                report = evaluate_long_form_output(
+                    cleaned, prior_excerpt=continuation.prior_excerpt
+                )
+                attempt_record["basic_validation"] = report
+                attempt_record["raw_preview"] = candidate.get("raw_preview")
+                attempt_record["normalized_preview"] = candidate.get("normalized_preview")
+                attempt_record["raw_length"] = candidate.get("raw_length")
+                attempt_record["normalized_length"] = candidate.get("normalized_length")
+                attempt_record["raw_payload_keys"] = candidate.get("raw_payload_keys")
+                attempt_record["raw_payload_preview"] = candidate.get("raw_payload_preview")
+                attempt_diagnostics.append(attempt_record)
+
+                if not report.get("usable"):
                     self._diagnostics.log(
                         project_root,
-                        code="ADAPTER",
-                        message="Ollama thinking fallback used.",
-                        details={"thinking_fallback": True},
+                        code="VALIDATION",
+                        message="Long-form output rejected (basic validation).",
+                        details={"reason": report, "attempt": attempt},
                     )
-                cleaned = normalize_long_form_output(raw_text)
-                cleaned = extract_narrative_prose(cleaned)
-                cleaned, reasoning_trim_applied = trim_initial_reasoning_block(cleaned)
-                if cleaned and cleaned.lower().startswith(("okay", "hmm", "the user", "i should", "i'll")):
-                    cleaned = cleaned.split("\n\n", 1)[-1]
-                if cleaned:
-                    cleaned = cleaned.lstrip("* ").strip()
-                return (
-                    cleaned,
-                    bool(raw_text),
-                    response,
-                    raw_text,
-                    extracted_field,
-                    reasoning_trim_applied,
-                    thinking_fallback,
-                )
+                    persist_long_form_diagnostic(
+                        project_root,
+                        continuation.chunk_id,
+                        {
+                            "chunk_id": continuation.chunk_id,
+                            "reason": report,
+                            "validation_decision": False,
+                            "fallback_reason": "invalid_output",
+                            "attempts": attempt_diagnostics,
+                        },
+                    )
+                    return (
+                        self._fallback_text(continuation),
+                        "invalid_output",
+                        True,
+                        attempt,
+                        quality_snapshot,
+                        critique_snapshot,
+                        "invalid_output",
+                        rewrite_used,
+                    )
 
-            (
-                cleaned,
-                had_raw,
-                response,
-                raw_text,
-                extracted_field,
-                reasoning_trim_applied,
-                thinking_fallback,
-            ) = _attempt(payload)
-            if cleaned and is_usable_long_form_output(
-                cleaned, prior_excerpt=continuation.prior_excerpt
-            ):
-                return cleaned.strip(), None, False
-            if not cleaned and had_raw:
-                retry_payload = dict(payload)
-                retry_payload["prompt"] = (
-                    f"{prompt}\nFINAL OVERRIDE: Start with scene action immediately. "
-                    "Do not include planning or analysis."
-                )
-                retry_payload["system"] = (
-                    "Output only narrative prose. Start with concrete action. "
-                    "No analysis, no planning, no acknowledgements."
-                )
-                (
-                    cleaned,
-                    _,
-                    response,
-                    raw_text,
-                    extracted_field,
-                    reasoning_trim_applied,
-                    thinking_fallback,
-                ) = _attempt(retry_payload)
-                if cleaned and is_usable_long_form_output(
+                quality_snapshot = score_long_form_quality(
                     cleaned, prior_excerpt=continuation.prior_excerpt
-                ):
-                    return cleaned.strip(), None, False
-            report = evaluate_long_form_output(cleaned, prior_excerpt=continuation.prior_excerpt)
+                )
+                quality_pass = self._quality_passes(quality_snapshot)
+                attempt_record["quality_snapshot"] = quality_snapshot
+                attempt_record["quality_pass"] = quality_pass
+
+                if quality_pass:
+                    acceptance_reason = "quality_pass" if attempt == 1 else "rewrite_pass"
+                    if rewrite_used:
+                        persist_long_form_diagnostic(
+                            project_root,
+                            continuation.chunk_id,
+                            {
+                                "chunk_id": continuation.chunk_id,
+                                "validation_decision": True,
+                                "attempts": attempt_diagnostics,
+                                "acceptance_reason": acceptance_reason,
+                                "critique_snapshot": critique_snapshot,
+                            },
+                        )
+                    return (
+                        cleaned.strip(),
+                        None,
+                        False,
+                        attempt,
+                        quality_snapshot,
+                        critique_snapshot,
+                        acceptance_reason,
+                        rewrite_used,
+                    )
+
+                if attempt < self._MAX_ATTEMPTS:
+                    critique_snapshot = self._run_chunk_critique(
+                        adapter=adapter,
+                        text=cleaned,
+                        continuation=continuation,
+                        project_root=project_root,
+                        quality_snapshot=quality_snapshot,
+                    )
+                    current_payload = dict(payload)
+                    current_payload["prompt"] = self._build_rewrite_prompt(
+                        original_text=cleaned,
+                        critique_snapshot=critique_snapshot,
+                        continuation=continuation,
+                    )
+                    current_payload["system"] = (
+                        "Rewrite the scene. Output only narrative prose. "
+                        "No analysis, no planning, no headings."
+                    )
+                    continue
+
+                persist_long_form_diagnostic(
+                    project_root,
+                    continuation.chunk_id,
+                    {
+                        "chunk_id": continuation.chunk_id,
+                        "validation_decision": False,
+                        "fallback_reason": "quality_failed",
+                        "attempts": attempt_diagnostics,
+                        "quality_snapshot": quality_snapshot,
+                        "critique_snapshot": critique_snapshot,
+                    },
+                )
+                self._diagnostics.log(
+                    project_root,
+                    code="VALIDATION",
+                    message="Long-form output rejected (quality threshold).",
+                    details={"quality_snapshot": quality_snapshot, "attempts": attempt_diagnostics},
+                )
+                return (
+                    self._fallback_text(continuation),
+                    "quality_failed",
+                    True,
+                    attempt,
+                    quality_snapshot,
+                    critique_snapshot,
+                    "quality_failed",
+                    rewrite_used,
+                )
+        except AdapterError as exc:
+            self._diagnostics.log(
+                Path(self._settings.project_base_dir),
+                code="ADAPTER",
+                message="Long-form adapter failed; falling back.",
+                details={"error": str(exc)},
+            )
+            return (
+                self._fallback_text(continuation),
+                "adapter_error",
+                True,
+                1,
+                quality_snapshot,
+                critique_snapshot,
+                "adapter_error",
+                rewrite_used,
+            )
+        except Exception as exc:  # pragma: no cover - defensive
+            self._diagnostics.log(
+                Path(self._settings.project_base_dir),
+                code="ADAPTER",
+                message="Long-form adapter unexpected error; falling back.",
+                details={"error": str(exc)},
+            )
+            return (
+                self._fallback_text(continuation),
+                "adapter_exception",
+                True,
+                1,
+                quality_snapshot,
+                critique_snapshot,
+                "adapter_exception",
+                rewrite_used,
+            )
+
+    def _generate_candidate(
+        self,
+        *,
+        adapter: BaseAdapter,
+        payload: dict[str, Any],
+        continuation,
+        project_root: Path,
+        call_mode: str,
+    ) -> dict[str, Any]:
+        try:
+            if call_mode == "rewrite":
+                response = adapter.rewrite(payload)
+            else:
+                response = adapter.generate_draft(payload)
             raw_payload = response.get("raw") if isinstance(response, dict) else None
             if not isinstance(raw_payload, dict) and isinstance(response, dict):
                 raw_payload = response
@@ -443,60 +643,152 @@ class LongFormExecutionService:
                     )[:500]
                 except Exception:  # pragma: no cover - defensive
                     raw_payload_preview = None
-            diagnostic_payload = {
-                "chunk_id": continuation.chunk_id,
-                "reason": report,
-                "validation_decision": bool(report.get("usable")),
-                "fallback_reason": "invalid_output",
-                "extracted_field": extracted_field,
-                "thinking_fallback": thinking_fallback,
-                "reasoning_trim_applied": reasoning_trim_applied,
+            raw_text, thinking_fallback, extracted_field = normalize_ollama_payload(response)
+            if thinking_fallback:
+                self._diagnostics.log(
+                    project_root,
+                    code="ADAPTER",
+                    message="Ollama thinking fallback used.",
+                    details={"thinking_fallback": True},
+                )
+            cleaned = normalize_long_form_output(raw_text)
+            cleaned = extract_narrative_prose(cleaned)
+            cleaned, reasoning_trim_applied = trim_initial_reasoning_block(cleaned)
+            if cleaned and cleaned.lower().startswith(("okay", "hmm", "the user", "i should", "i'll")):
+                cleaned = cleaned.split("\n\n", 1)[-1]
+            if cleaned:
+                cleaned = cleaned.lstrip("* ").strip()
+            return {
+                "text": cleaned.strip() if isinstance(cleaned, str) and cleaned else cleaned,
+                "raw_text": raw_text,
+                "raw_preview": raw_text[:200] if isinstance(raw_text, str) else None,
+                "normalized_preview": cleaned[:200] if isinstance(cleaned, str) else None,
                 "raw_length": len(raw_text) if isinstance(raw_text, str) else 0,
                 "normalized_length": len(cleaned) if isinstance(cleaned, str) else 0,
-                "raw_preview": (raw_text[:200] if isinstance(raw_text, str) else None),
-                "normalized_preview": (cleaned[:200] if isinstance(cleaned, str) else None),
-                "word_count": report.get("word_count"),
-                "paragraph_count": report.get("paragraph_count"),
+                "extracted_field": extracted_field,
+                "reasoning_trim_applied": reasoning_trim_applied,
+                "thinking_fallback": thinking_fallback,
+                "raw_payload_keys": raw_payload_keys,
+                "raw_payload_preview": raw_payload_preview,
             }
-            persist_long_form_diagnostic(project_root, continuation.chunk_id, diagnostic_payload)
-            self._diagnostics.log(
-                project_root,
-                code="VALIDATION",
-                message="Long-form output rejected.",
-                details={
-                    "reason": report,
-                    "raw_length": len(raw_text) if isinstance(raw_text, str) else 0,
-                    "normalized_length": len(cleaned) if isinstance(cleaned, str) else 0,
-                    "extracted_field": extracted_field,
-                    "raw_excerpt": (raw_text[:400] if isinstance(raw_text, str) else None),
-                    "cleaned_excerpt": (cleaned[:400] if isinstance(cleaned, str) else None),
-                    "raw_preview": (raw_text[:200] if isinstance(raw_text, str) else None),
-                    "normalized_preview": (cleaned[:200] if isinstance(cleaned, str) else None),
-                    "reasoning_trim_applied": reasoning_trim_applied,
-                    "thinking_fallback": thinking_fallback,
-                    "word_count": report.get("word_count"),
-                    "paragraph_count": report.get("paragraph_count"),
-                    "raw_payload_keys": raw_payload_keys,
-                    "raw_payload_preview": raw_payload_preview,
-                },
-            )
-            return self._fallback_text(continuation), "invalid_output", True
+        except AdapterError as exc:
+            return {"adapter_error": str(exc)}
+
+    def _quality_passes(self, quality_snapshot: dict[str, Any] | None) -> bool:
+        if not quality_snapshot or not quality_snapshot.get("usable"):
+            return False
+        scores = quality_snapshot.get("scores") or {}
+        total = quality_snapshot.get("total_score", 0)
+        coherence = scores.get("coherence", 0)
+        continuity = scores.get("continuity", 0)
+        meta_free = scores.get("meta_free", 0)
+        if meta_free <= 0:
+            return False
+        return (
+            total >= self._QUALITY_MIN_TOTAL
+            and coherence >= self._QUALITY_MIN_COHERENCE
+            and continuity >= self._QUALITY_MIN_CONTINUITY
+        )
+
+    def _run_chunk_critique(
+        self,
+        *,
+        adapter: BaseAdapter,
+        text: str,
+        continuation,
+        project_root: Path,
+        quality_snapshot: dict[str, Any] | None,
+    ) -> dict[str, Any]:
+        prompt = self._build_critique_prompt(
+            text=text,
+            continuation=continuation,
+            quality_snapshot=quality_snapshot,
+        )
+        payload: dict[str, Any] = {
+            "prompt": prompt,
+            "temperature": 0.3,
+            "system": "Return JSON only. Do not include any extra text.",
+        }
+        try:
+            response = adapter.critique(payload)
+            raw_text, _, _ = normalize_ollama_payload(response)
+            if not isinstance(raw_text, str):
+                raise AdapterError("Critique response missing text.")
+            return self._parse_critique(raw_text)
         except AdapterError as exc:
             self._diagnostics.log(
-                Path(self._settings.project_base_dir),
-                code="ADAPTER",
-                message="Long-form adapter failed; falling back.",
+                project_root,
+                code="CRITIQUE",
+                message="Long-form critique failed; using default notes.",
                 details={"error": str(exc)},
             )
-            return self._fallback_text(continuation), "adapter_error", True
-        except Exception as exc:  # pragma: no cover - defensive
-            self._diagnostics.log(
-                Path(self._settings.project_base_dir),
-                code="ADAPTER",
-                message="Long-form adapter unexpected error; falling back.",
-                details={"error": str(exc)},
-            )
-            return self._fallback_text(continuation), "adapter_exception", True
+            return {
+                "summary": "Critique unavailable; tighten clarity, continuity, and specificity.",
+                "weaknesses": ["clarity", "continuity", "specificity"],
+                "rewrite_goals": ["Increase scene specificity", "Strengthen continuity cues"],
+            }
+
+    def _build_critique_prompt(
+        self,
+        *,
+        text: str,
+        continuation,
+        quality_snapshot: dict[str, Any] | None,
+    ) -> str:
+        summary = continuation.prior_summary or "No prior summary."
+        rubric = json.dumps(quality_snapshot or {}, ensure_ascii=False)
+        return (
+            "You are an editor. Critique the following scene prose. "
+            "Return a JSON object with keys: summary, weaknesses, continuity_issues, "
+            "pacing_issues, meta_contamination, rewrite_goals.\n\n"
+            f"PRIOR SUMMARY: {summary}\n"
+            f"RUBRIC SNAPSHOT: {rubric}\n"
+            "SCENE TEXT:\n"
+            f"{text}\n"
+        )
+
+    def _parse_critique(self, raw_text: str) -> dict[str, Any]:
+        try:
+            payload = json.loads(raw_text)
+        except json.JSONDecodeError:
+            return {
+                "summary": raw_text.strip()[:200],
+                "weaknesses": ["clarity"],
+                "rewrite_goals": ["Clarify scene focus"],
+            }
+        if not isinstance(payload, dict):
+            return {
+                "summary": raw_text.strip()[:200],
+                "weaknesses": ["clarity"],
+                "rewrite_goals": ["Clarify scene focus"],
+            }
+        return {
+            "summary": str(payload.get("summary") or "").strip(),
+            "weaknesses": list(payload.get("weaknesses") or []),
+            "continuity_issues": list(payload.get("continuity_issues") or []),
+            "pacing_issues": list(payload.get("pacing_issues") or []),
+            "meta_contamination": bool(payload.get("meta_contamination")),
+            "rewrite_goals": list(payload.get("rewrite_goals") or []),
+        }
+
+    def _build_rewrite_prompt(
+        self,
+        *,
+        original_text: str,
+        critique_snapshot: dict[str, Any] | None,
+        continuation,
+    ) -> str:
+        goals = critique_snapshot.get("rewrite_goals") if critique_snapshot else None
+        weaknesses = critique_snapshot.get("weaknesses") if critique_snapshot else None
+        return (
+            "Rewrite the scene to address the critique while preserving story intent.\n"
+            f"PRIOR SUMMARY: {continuation.prior_summary or 'No prior summary.'}\n"
+            f"WEAKNESSES: {', '.join(weaknesses) if weaknesses else 'None'}\n"
+            f"REWRITE GOALS: {', '.join(goals) if goals else 'Improve clarity and specificity'}\n"
+            "OUTPUT RULES: Narrative prose only. No analysis, no headings, no meta.\n\n"
+            "ORIGINAL SCENE:\n"
+            f"{original_text}\n"
+        )
 
     def _fallback_text(self, continuation) -> str:
         memory = continuation.chapter_memory

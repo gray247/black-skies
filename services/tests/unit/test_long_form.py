@@ -10,6 +10,7 @@ from blackskies.services.long_form import (
     assemble_chapter_memory,
     assemble_continuation_packet,
     evaluate_long_form_output,
+    score_long_form_quality,
     trim_initial_reasoning_block,
     extract_narrative_prose,
     normalize_long_form_output,
@@ -161,6 +162,24 @@ def test_long_form_validation_rejects_short_prose() -> None:
     text = "Mara listened to the rain on the window and kept her hand on the latch. " * 6
     report = evaluate_long_form_output(text)
     assert report["usable"] is False
+
+
+def test_long_form_quality_scoring_flags_meta_summary() -> None:
+    text = "Summary: The scene will introduce the conflict."
+    report = score_long_form_quality(text)
+    assert report["usable"] is False
+    assert report.get("meta_summary") is True
+
+
+def test_long_form_quality_scoring_accepts_prose() -> None:
+    text = (
+        "Mara pushed the door, and the hinges groaned. " * 12
+        + "\n\n"
+        + "The hallway breathed cold air around her boots. " * 9
+    )
+    report = score_long_form_quality(text, prior_excerpt="door hinges groaned")
+    assert report["usable"] is True
+    assert report["total_score"] > 0
 
 
 def test_normalize_long_form_output_strips_prompt_headers() -> None:

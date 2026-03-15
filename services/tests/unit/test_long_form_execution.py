@@ -102,6 +102,19 @@ class _RetryAdapter(_FakeAdapter):
         return {"raw": {"response": self._second}}
 
 
+class _CritiqueRewriteAdapter(_FakeAdapter):
+    def __init__(self, draft_text: str, critique_text: str, rewrite_text: str) -> None:
+        super().__init__(draft_text)
+        self._critique = critique_text
+        self._rewrite = rewrite_text
+
+    def critique(self, payload: dict[str, object]) -> dict[str, object]:
+        return {"text": self._critique}
+
+    def rewrite(self, payload: dict[str, object]) -> dict[str, object]:
+        return {"text": self._rewrite}
+
+
 class _ApiAdapter(_FakeAdapter):
     provider_name = "openai"
 
@@ -155,6 +168,14 @@ def _long_text() -> str:
     )
 
 
+def _low_quality_text() -> str:
+    return (
+        ("It was a thing that happened. " * 30).strip()
+        + "\n\n"
+        + ("It was a thing and it kept happening. " * 30).strip()
+    )
+
+
 def test_long_form_execution_persists_chunks(tmp_path: Path) -> None:
     project_root = tmp_path / "proj_exec"
     project_root.mkdir(parents=True, exist_ok=True)
@@ -180,6 +201,10 @@ def test_long_form_execution_persists_chunks(tmp_path: Path) -> None:
 
     assert result.stopped_reason is None
     assert len(result.chunks) == 2
+    assert result.chunks[0].acceptance_reason == "quality_pass"
+    assert result.chunks[0].attempt_count == 1
+    assert result.chunks[0].rewrite_used is False
+    assert result.chunks[0].quality_snapshot is not None
     chunk_dir = project_root / ".blackskies" / "long_form" / "chunks"
     text_dir = project_root / ".blackskies" / "long_form" / "texts"
     assert (chunk_dir / f"{result.chunks[0].chunk_id}.json").exists()
@@ -223,6 +248,7 @@ def test_long_form_execution_stops_on_invalid_output(tmp_path: Path) -> None:
     assert result.stopped_reason == "invalid_output"
     assert len(result.chunks) == 1
     assert result.chunks[0].continuity_snapshot["fallback_reason"] == "invalid_output"
+    assert result.chunks[0].acceptance_reason == "invalid_output"
     diagnostic_path = (
         project_root
         / ".blackskies"
@@ -233,11 +259,13 @@ def test_long_form_execution_stops_on_invalid_output(tmp_path: Path) -> None:
     assert diagnostic_path.exists()
     payload = json.loads(diagnostic_path.read_text(encoding="utf-8"))
     assert payload.get("reason")
-    assert payload.get("extracted_field") is not None
-    assert "raw_length" in payload
-    assert "normalized_length" in payload
-    assert "word_count" in payload
-    assert "paragraph_count" in payload
+    attempts = payload.get("attempts") or []
+    assert attempts
+    assert attempts[0].get("extracted_field") is not None
+    assert "raw_length" in attempts[0]
+    assert "normalized_length" in attempts[0]
+    assert "word_count" in attempts[0]["basic_validation"]
+    assert "paragraph_count" in attempts[0]["basic_validation"]
 
 
 def test_long_form_invalid_output_logs_excerpt(tmp_path: Path) -> None:
@@ -272,7 +300,7 @@ def test_long_form_invalid_output_logs_excerpt(tmp_path: Path) -> None:
     assert any(entry[0] == "VALIDATION" for entry in diagnostics.entries)
     entry = next(entry for entry in diagnostics.entries if entry[0] == "VALIDATION")
     assert entry[2] is not None
-    assert entry[2].get("raw_excerpt")
+    assert entry[2].get("reason")
 
 
 def test_long_form_execution_disabled_toggle(tmp_path: Path) -> None:
@@ -487,8 +515,8 @@ def test_long_form_execution_extracts_choices_message_content(tmp_path: Path) ->
     assert result.chunks[0].continuity_snapshot["fallback_reason"] is None
 
 
-def test_long_form_execution_retries_after_planning_output(tmp_path: Path) -> None:
-    project_root = tmp_path / "proj_retry"
+def test_long_form_execution_rewrites_after_quality_failure(tmp_path: Path) -> None:
+    project_root = tmp_path / "proj_rewrite"
     project_root.mkdir(parents=True, exist_ok=True)
     settings = ServiceSettings(project_base_dir=tmp_path, long_form_provider_enabled=True)
     diagnostics = DiagnosticLogger()
@@ -498,10 +526,17 @@ def test_long_form_execution_retries_after_planning_output(tmp_path: Path) -> No
             provider_calls_enabled=True,
         )
     )
-    adapter = _RetryAdapter(
-        "The user wants me to write an immersive scene. No headings or meta commentary.",
-        _long_text(),
+    critique = json.dumps(
+        {
+            "summary": "Needs stronger specificity.",
+            "weaknesses": ["specificity"],
+            "continuity_issues": [],
+            "pacing_issues": [],
+            "meta_contamination": False,
+            "rewrite_goals": ["Add concrete sensory detail"],
+        }
     )
+    adapter = _CritiqueRewriteAdapter(_low_quality_text(), critique, _long_text())
     router.register_provider(_FakeProvider(adapter))
     service = LongFormExecutionService(
         settings=settings,
@@ -519,8 +554,65 @@ def test_long_form_execution_retries_after_planning_output(tmp_path: Path) -> No
     )
 
     assert result.stopped_reason is None
-    assert result.chunks[0].continuity_snapshot["fallback_reason"] is None
-    assert adapter._count == 2
+    chunk = result.chunks[0]
+    assert chunk.rewrite_used is True
+    assert chunk.attempt_count == 2
+    assert chunk.acceptance_reason == "rewrite_pass"
+    assert chunk.quality_snapshot is not None
+    assert chunk.critique_snapshot is not None
+
+    diag_path = (
+        project_root
+        / ".blackskies"
+        / "long_form"
+        / "diagnostics"
+        / f"{chunk.chunk_id}.json"
+    )
+    payload = json.loads(diag_path.read_text(encoding="utf-8"))
+    assert payload["validation_decision"] is True
+    assert payload.get("attempts")
+    assert payload.get("critique_snapshot")
+
+
+def test_long_form_execution_stops_after_max_attempts(tmp_path: Path) -> None:
+    project_root = tmp_path / "proj_quality_fail"
+    project_root.mkdir(parents=True, exist_ok=True)
+    settings = ServiceSettings(project_base_dir=tmp_path, long_form_provider_enabled=True)
+    diagnostics = DiagnosticLogger()
+    router = ModelRouter(
+        config=ModelRouterConfig(
+            policy=ModelRoutingPolicy.LOCAL_ONLY,
+            provider_calls_enabled=True,
+        )
+    )
+    critique = json.dumps(
+        {
+            "summary": "Needs stronger specificity.",
+            "weaknesses": ["specificity"],
+            "rewrite_goals": ["Add concrete sensory detail"],
+        }
+    )
+    adapter = _CritiqueRewriteAdapter(_low_quality_text(), critique, _low_quality_text())
+    router.register_provider(_FakeProvider(adapter))
+    service = LongFormExecutionService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=router,
+        enabled=True,
+    )
+
+    result = service.execute(
+        project_root=project_root,
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chunk_size=1,
+        target_words_per_chunk=300,
+    )
+
+    assert result.stopped_reason == "quality_failed"
+    chunk = result.chunks[0]
+    assert chunk.continuity_snapshot["fallback_reason"] == "quality_failed"
+    assert chunk.acceptance_reason == "quality_failed"
 
 
 def test_long_form_execution_prefers_api_when_enabled(tmp_path: Path) -> None:
@@ -587,10 +679,18 @@ def test_long_form_invalid_output_logs_raw_payload(tmp_path: Path) -> None:
     )
 
     assert result.stopped_reason == "invalid_output"
-    entry = next(entry for entry in diagnostics.entries if entry[0] == "VALIDATION")
-    assert entry[2] is not None
-    assert "raw_payload_keys" in entry[2]
-    assert entry[2].get("raw_payload_preview")
+    diag_path = (
+        project_root
+        / ".blackskies"
+        / "long_form"
+        / "diagnostics"
+        / f"{result.chunks[0].chunk_id}.json"
+    )
+    payload = json.loads(diag_path.read_text(encoding="utf-8"))
+    attempts = payload.get("attempts") or []
+    assert attempts
+    assert attempts[0].get("raw_payload_keys")
+    assert attempts[0].get("raw_payload_preview")
 
 
 def test_long_form_execution_extracts_thinking_when_response_empty(tmp_path: Path) -> None:

@@ -36,6 +36,11 @@ class LongFormChunk:
     continuity_snapshot: dict[str, Any]
     budget_snapshot: dict[str, Any]
     routing_snapshot: dict[str, Any] | None = None
+    quality_snapshot: dict[str, Any] | None = None
+    critique_snapshot: dict[str, Any] | None = None
+    attempt_count: int | None = None
+    acceptance_reason: str | None = None
+    rewrite_used: bool = False
 
 
 @dataclass(frozen=True)
@@ -388,6 +393,89 @@ def is_usable_long_form_output(text: str | None, *, prior_excerpt: str | None = 
     return bool(report.get("usable"))
 
 
+def score_long_form_quality(
+    text: str | None,
+    *,
+    prior_excerpt: str | None = None,
+) -> dict[str, Any]:
+    report = evaluate_long_form_output(text, prior_excerpt=prior_excerpt)
+    if not report.get("usable"):
+        return {
+            "usable": False,
+            "reason": report.get("reason"),
+            "scores": {},
+            "total_score": 0,
+            "max_score": 0,
+            "meta_summary": report.get("meta_summary"),
+            "missing_carryover": report.get("missing_carryover"),
+            "word_count": report.get("word_count"),
+            "paragraph_count": report.get("paragraph_count"),
+        }
+
+    stripped = (text or "").strip()
+    lowered = stripped.lower()
+    word_count = report.get("word_count") or 0
+    paragraph_count = report.get("paragraph_count") or 0
+    meta_summary = bool(report.get("meta_summary"))
+    missing_carryover = bool(report.get("missing_carryover"))
+    dialogue_present = any(mark in stripped for mark in ("\"", "“", "”"))
+    sensory_words = (
+        "scent",
+        "smell",
+        "taste",
+        "salt",
+        "wind",
+        "rain",
+        "heat",
+        "cold",
+        "dust",
+        "blood",
+        "footsteps",
+        "breath",
+        "heartbeat",
+        "light",
+        "shadow",
+        "grit",
+        "glass",
+        "metal",
+        "wood",
+        "whisper",
+    )
+    sensory_hits = sum(1 for token in sensory_words if token in lowered)
+
+    coherence = 5 if paragraph_count >= 2 and word_count >= 120 else 2
+    continuity = 5 if not missing_carryover else 2
+    clarity = 4 if not meta_summary else 1
+    pacing = 4 if word_count >= 240 else 2
+    specificity = 4 if sensory_hits >= 3 else (2 if sensory_hits >= 1 else 1)
+    dialogue = 4 if dialogue_present else 3
+    meta = 0 if meta_summary else 5
+
+    scores = {
+        "coherence": coherence,
+        "continuity": continuity,
+        "clarity": clarity,
+        "pacing": pacing,
+        "specificity": specificity,
+        "dialogue": dialogue,
+        "meta_free": meta,
+    }
+    total_score = sum(scores.values())
+    max_score = 5 * len(scores)
+    return {
+        "usable": True,
+        "scores": scores,
+        "total_score": total_score,
+        "max_score": max_score,
+        "meta_summary": meta_summary,
+        "missing_carryover": missing_carryover,
+        "word_count": word_count,
+        "paragraph_count": paragraph_count,
+        "dialogue_present": dialogue_present,
+        "sensory_hits": sensory_hits,
+    }
+
+
 def _chunk_dir(project_root: Path) -> Path:
     return project_root / ".blackskies" / "long_form" / "chunks"
 
@@ -411,6 +499,11 @@ def persist_long_form_chunk(project_root: Path, chunk: LongFormChunk) -> Path:
         "continuity_snapshot": chunk.continuity_snapshot,
         "budget_snapshot": chunk.budget_snapshot,
         "routing_snapshot": chunk.routing_snapshot,
+        "quality_snapshot": chunk.quality_snapshot,
+        "critique_snapshot": chunk.critique_snapshot,
+        "attempt_count": chunk.attempt_count,
+        "acceptance_reason": chunk.acceptance_reason,
+        "rewrite_used": chunk.rewrite_used,
     }
     target.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
     return target
@@ -457,6 +550,11 @@ def load_long_form_chunk(project_root: Path, chunk_id: str) -> LongFormChunk | N
         continuity_snapshot=dict(payload.get("continuity_snapshot") or {}),
         budget_snapshot=dict(payload.get("budget_snapshot") or {}),
         routing_snapshot=payload.get("routing_snapshot"),
+        quality_snapshot=payload.get("quality_snapshot"),
+        critique_snapshot=payload.get("critique_snapshot"),
+        attempt_count=payload.get("attempt_count"),
+        acceptance_reason=payload.get("acceptance_reason"),
+        rewrite_used=bool(payload.get("rewrite_used")),
     )
 
 
@@ -485,6 +583,7 @@ __all__ = [
     "extract_narrative_prose",
     "trim_initial_reasoning_block",
     "is_usable_long_form_output",
+    "score_long_form_quality",
     "persist_long_form_chunk",
     "persist_long_form_text",
     "persist_long_form_diagnostic",
