@@ -102,6 +102,10 @@ class _RetryAdapter(_FakeAdapter):
         return {"raw": {"response": self._second}}
 
 
+class _ApiAdapter(_FakeAdapter):
+    provider_name = "openai"
+
+
 class _FakeProvider:
     name = "local_llm"
 
@@ -119,6 +123,10 @@ class _FakeProvider:
 
     def adapter(self) -> BaseAdapter | None:
         return self._adapter
+
+
+class _ApiProvider(_FakeProvider):
+    name = "openai"
 
 
 def _service(tmp_path: Path, adapter_text: str) -> LongFormExecutionService:
@@ -190,6 +198,8 @@ def test_long_form_execution_persists_chunks(tmp_path: Path) -> None:
     assert "ROLE:" in prompt
     assert "OUTPUT CONTRACT:" in prompt
     assert "CHAPTER CONTINUITY:" in prompt
+    assert "WRITE ONLY THE STORY." in prompt
+    assert "BEGIN WITH NARRATIVE ON LINE 1." in prompt
     assert "PRIOR EXCERPT:" in prompt
     prior_line = next(line for line in prompt.splitlines() if line.startswith("PRIOR EXCERPT:"))
     assert len(prior_line) <= 620
@@ -511,6 +521,42 @@ def test_long_form_execution_retries_after_planning_output(tmp_path: Path) -> No
     assert result.stopped_reason is None
     assert result.chunks[0].continuity_snapshot["fallback_reason"] is None
     assert adapter._count == 2
+
+
+def test_long_form_execution_prefers_api_when_enabled(tmp_path: Path) -> None:
+    project_root = tmp_path / "proj_api"
+    project_root.mkdir(parents=True, exist_ok=True)
+    settings = ServiceSettings(
+        project_base_dir=tmp_path,
+        long_form_provider_enabled=True,
+        long_form_prefer_api=True,
+    )
+    diagnostics = DiagnosticLogger()
+    router = ModelRouter(
+        config=ModelRouterConfig(
+            policy=ModelRoutingPolicy.LOCAL_THEN_API_FALLBACK,
+            provider_calls_enabled=True,
+        )
+    )
+    router.register_provider(_FakeProvider(_FakeAdapter(_long_text())))
+    router.register_provider(_ApiProvider(_ApiAdapter(_long_text())))
+    service = LongFormExecutionService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=router,
+        enabled=True,
+    )
+
+    result = service.execute(
+        project_root=project_root,
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chunk_size=1,
+        target_words_per_chunk=300,
+    )
+
+    assert result.stopped_reason is None
+    assert result.chunks[0].provider == "openai"
 
 
 def test_long_form_invalid_output_logs_raw_payload(tmp_path: Path) -> None:

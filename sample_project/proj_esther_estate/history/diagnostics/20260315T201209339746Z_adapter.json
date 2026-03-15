@@ -1,0 +1,8 @@
+{
+  "timestamp": "2026-03-15T20:12:09.340575Z",
+  "code": "ADAPTER",
+  "message": "Ollama thinking fallback used.",
+  "details": {
+    "thinking_fallback": true
+  }
+}

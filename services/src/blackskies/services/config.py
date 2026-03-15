@@ -125,6 +125,10 @@ class ServiceSettings(BaseModel):
         default=False,
         description="Enable provider-backed long-form execution loop (opt-in).",
     )
+    long_form_prefer_api: bool = Field(
+        default=False,
+        description="Prefer API-backed providers for long-form execution when available.",
+    )
     local_provider: str = Field(
         default="ollama",
         description="Local model provider identifier (currently supports ollama).",

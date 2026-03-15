@@ -1,0 +1,41 @@
+{
+  "timestamp": "2026-03-15T19:01:58.013629Z",
+  "code": "VALIDATION",
+  "message": "Long-form output rejected.",
+  "details": {
+    "reason": {
+      "usable": false,
+      "word_count": 1,
+      "paragraph_count": 1,
+      "meta_summary": false,
+      "missing_carryover": false
+    },
+    "raw_length": 898,
+    "normalized_length": 3,
+    "extracted_field": "thinking",
+    "raw_excerpt": "Hmm, the user wants me to write immersive scene prose for a novel chapter. They've given very specific instructions: I need to start with concrete action, avoid any analysis or planning, and keep it strictly in the POV character's perceptions. The chapter is called \"Act I: Gathered Storm - The Summons\" with scene ID sc_0001.\n\nI should focus on creating vivid sensory details - what the character se",
+    "cleaned_excerpt": "For",
+    "raw_preview": "Hmm, the user wants me to write immersive scene prose for a novel chapter. They've given very specific instructions: I need to start with concrete action, avoid any analysis or planning, and keep it s",
+    "normalized_preview": "For",
+    "reasoning_trim_applied": true,
+    "thinking_fallback": true,
+    "word_count": 1,
+    "paragraph_count": 1,
+    "raw_payload_keys": [
+      "context",
+      "created_at",
+      "done",
+      "done_reason",
+      "eval_count",
+      "eval_duration",
+      "load_duration",
+      "model",
+      "prompt_eval_count",
+      "prompt_eval_duration",
+      "response",
+      "thinking",
+      "total_duration"
+    ],
+    "raw_payload_preview": "{\"model\": \"qwen3:4b\", \"created_at\": \"2026-03-15T19:01:57.9993307Z\", \"response\": \"\", \"thinking\": \"Hmm, the user wants me to write immersive scene prose for a novel chapter. They've given very specific instructions: I need to start with concrete action, avoid any analysis or planning, and keep it strictly in the POV character's perceptions. The chapter is called \\\"Act I: Gathered Storm - The Summons\\\" with scene ID sc_0001.\\n\\nI should focus on creating vivid sensory details - what the character s"
+  }
+}

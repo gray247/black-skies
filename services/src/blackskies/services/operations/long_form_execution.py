@@ -110,6 +110,22 @@ class LongFormExecutionService:
             )
 
             policy_decision = self._evaluate_run_policy(status_label)
+            if (
+                self._settings.long_form_prefer_api
+                and policy_decision
+                and policy_decision.allow_api
+            ):
+                policy_decision = RunPolicyDecision(
+                    task=policy_decision.task,
+                    policy=policy_decision.policy,
+                    budget_status=policy_decision.budget_status,
+                    allow_local=policy_decision.allow_local,
+                    allow_api=policy_decision.allow_api,
+                    prefer_local=False,
+                    reason="long_form.prefer_api",
+                    warnings=list(policy_decision.warnings),
+                    blocked=policy_decision.blocked,
+                )
             route, adapter = self._resolve_provider(
                 policy_decision=policy_decision,
             )
@@ -278,6 +294,15 @@ class LongFormExecutionService:
                 f"SCENE IDS: {', '.join(scene_ids)}",
             ]
         )
+        if profile.name.startswith("local_ollama"):
+            lines.extend(
+                [
+                    "WRITE ONLY THE STORY. Do not explain what you are about to write.",
+                    "NO ANALYSIS, NO PLANNING, NO NOTES, NO PREFACE.",
+                    "DO NOT USE LABELS like 'Scene:', 'Draft:', 'Analysis:', or 'Notes:'.",
+                    "BEGIN WITH NARRATIVE ON LINE 1.",
+                ]
+            )
         if continuation.target_words:
             min_target = max(100, int(continuation.target_words * 0.9))
             max_target = int(continuation.target_words * 1.1)
