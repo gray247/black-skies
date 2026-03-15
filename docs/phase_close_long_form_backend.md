@@ -37,6 +37,26 @@ Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:8000/api/v1/long-form/exec
   -InFile "longform.json"
 ```
 
+### Latest verification run (2026-03-15)
+Project: `proj_esther_estate_verify_longform`  
+Scenes: `sc_0001`–`sc_0005` (chunk_size=1)
+
+Accepted chunks (quality pass on first attempt):
+- `lf_6daa7008`
+- `lf_54a1d6c5`
+- `lf_2414aa35`
+- `lf_e4f7a592`
+- `lf_71fb0c4e`
+
+Observed metadata on accepted chunks:
+- `attempt_count: 1`
+- `rewrite_used: false`
+- `acceptance_reason: quality_pass`
+- `quality_snapshot` populated
+- `critique_snapshot: null` (no rewrite needed)
+
+Note: per-chunk diagnostics are only emitted on invalid output or rewrite passes; clean runs may not create new diagnostic files.
+
 ## How To Inspect Latest Artifacts
 
 ### Newest chunk JSON
