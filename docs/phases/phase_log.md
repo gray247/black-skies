@@ -11,6 +11,7 @@ Last Reviewed: 2025-11-15
 **2025-10-15** — P8 companion overlay + batch critique UI landed; budget meter added to workspace header
 **2026-03-15** — Backend milestone complete (P8 window): API-backed long-form execution loop verified. Routing policy `api_only` with `long_form.prefer_api` confirmed. Chunk persistence under `.blackskies/long_form/chunks`, per-chunk diagnostics under `.blackskies/long_form/diagnostics`, UTF-8 markdown persistence verified. Evidence chunks: `lf_5d6da836`, `lf_52501598`. (UI-focused P8 scope remains in progress.)
 **2026-03-15** — Engine sequencing note: UI docking/accessibility polish remains important but is treated as non-blocking for core writing-engine progression. Next engine milestone focus: rewrite/critique loop, acceptance/retry logic, and quality gates.
+**2026-03-15** — P8 UI gates closed in roadmap tracking. Docking persistence + accessibility sign-off marked complete; verification summary captured in `docs/phases/phase8_ui_gate_closeout.md`.
 
 ## Upcoming milestones
 - ~~**P7 — RC1:** Smoke tests complete; publish quickstart.~~ *(closed 2025-10-10)*
