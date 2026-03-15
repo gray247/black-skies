@@ -419,6 +419,16 @@ def score_long_form_quality(
     meta_summary = bool(report.get("meta_summary"))
     missing_carryover = bool(report.get("missing_carryover"))
     dialogue_present = any(mark in stripped for mark in ("\"", "“", "”"))
+    meta_markers = (
+        "word count",
+        "no headings",
+        "no bullet",
+        "analysis:",
+        "outline:",
+        "scene title:",
+        "the user wants",
+    )
+    meta_contamination = any(marker in lowered for marker in meta_markers)
     sensory_words = (
         "scent",
         "smell",
@@ -443,13 +453,27 @@ def score_long_form_quality(
     )
     sensory_hits = sum(1 for token in sensory_words if token in lowered)
 
-    coherence = 5 if paragraph_count >= 2 and word_count >= 120 else 2
-    continuity = 5 if not missing_carryover else 2
-    clarity = 4 if not meta_summary else 1
-    pacing = 4 if word_count >= 240 else 2
-    specificity = 4 if sensory_hits >= 3 else (2 if sensory_hits >= 1 else 1)
-    dialogue = 4 if dialogue_present else 3
-    meta = 0 if meta_summary else 5
+    coherence = 5 if paragraph_count >= 2 and word_count >= 160 else 2
+    if prior_excerpt:
+        continuity = 5 if not missing_carryover else 1
+    else:
+        continuity = 3
+    clarity = 4 if not (meta_summary or meta_contamination) else 2
+    pacing = 5 if word_count >= 360 else (4 if word_count >= 240 else 2)
+    generic_markers = ("something", "things", "stuff", "nice", "good", "bad", "various")
+    generic_hits = sum(1 for token in generic_markers if token in lowered)
+    if sensory_hits >= 4:
+        specificity = 5
+    elif sensory_hits >= 2:
+        specificity = 4
+    elif sensory_hits >= 1:
+        specificity = 2
+    else:
+        specificity = 1
+    if generic_hits >= 3 and specificity > 1:
+        specificity -= 1
+    dialogue = 4 if dialogue_present else 2
+    meta = 0 if (meta_summary or meta_contamination) else 5
 
     scores = {
         "coherence": coherence,
@@ -468,11 +492,13 @@ def score_long_form_quality(
         "total_score": total_score,
         "max_score": max_score,
         "meta_summary": meta_summary,
+        "meta_contamination": meta_contamination,
         "missing_carryover": missing_carryover,
         "word_count": word_count,
         "paragraph_count": paragraph_count,
         "dialogue_present": dialogue_present,
         "sensory_hits": sensory_hits,
+        "generic_hits": generic_hits,
     }
 
 

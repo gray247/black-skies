@@ -182,6 +182,38 @@ def test_long_form_quality_scoring_accepts_prose() -> None:
     assert report["total_score"] > 0
 
 
+def test_long_form_quality_penalizes_missing_carryover() -> None:
+    text = (
+        "Mara pushed the door, and the hinges groaned. " * 10
+        + "\n\n"
+        + "The hallway breathed cold air around her boots. " * 8
+    )
+    report = score_long_form_quality(text, prior_excerpt="lantern sputtered")
+    assert report["scores"]["continuity"] == 1
+
+
+def test_long_form_quality_flags_meta_contamination() -> None:
+    text = (
+        "Mara pushed the door, and the hinges groaned. " * 10
+        + "Word count target is 600.\n\n"
+        + "The hallway breathed cold air around her boots. " * 8
+    )
+    report = score_long_form_quality(text)
+    assert report["meta_contamination"] is True
+    assert report["scores"]["meta_free"] == 0
+
+
+def test_long_form_quality_penalizes_generic_language() -> None:
+    text = (
+        "Something happened in the room. " * 12
+        + "\n\n"
+        + "It was a thing with stuff and various things. " * 8
+    )
+    report = score_long_form_quality(text)
+    assert report["generic_hits"] >= 3
+    assert report["scores"]["specificity"] <= 1
+
+
 def test_normalize_long_form_output_strips_prompt_headers() -> None:
     raw = (
         "Chapter: Act I - The Summons\n"
