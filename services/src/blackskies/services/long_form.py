@@ -220,16 +220,19 @@ def evaluate_long_form_output(
         return {"usable": False, "reason": "empty"}
     words = [token for token in stripped.split() if token]
     word_count = len(words)
+    paragraphs = [para for para in stripped.split("\n\n") if para.strip()]
+    paragraph_count = len(paragraphs)
     meta = _meta_summary_detected(stripped)
     missing_carryover = False
     if prior_excerpt:
         tokens = [token for token in prior_excerpt.split() if len(token) > 4]
         lowered = stripped.lower()
         missing_carryover = not any(token.lower() in lowered for token in tokens)
-    usable = word_count >= 60 and not meta
+    usable = word_count >= 120 and paragraph_count >= 2 and not meta
     return {
         "usable": usable,
         "word_count": word_count,
+        "paragraph_count": paragraph_count,
         "meta_summary": meta,
         "missing_carryover": missing_carryover,
     }
@@ -241,10 +244,9 @@ def normalize_long_form_output(text: str | None) -> str | None:
     cleaned = text.strip()
     if not cleaned:
         return None
-    lines = [line.strip() for line in cleaned.splitlines() if line.strip()]
-    if not lines:
-        return None
+    raw_lines = [line.rstrip() for line in cleaned.splitlines()]
     filtered: list[str] = []
+    saw_content = False
     drop_prefixes = (
         "chapter:",
         "scene ids:",
@@ -254,13 +256,18 @@ def normalize_long_form_output(text: str | None) -> str | None:
         "constraints:",
         "target word range:",
     )
-    for line in lines:
-        lowered = line.lower()
+    for line in raw_lines:
+        if not line.strip():
+            if saw_content and (not filtered or filtered[-1] != ""):
+                filtered.append("")
+            continue
+        saw_content = True
+        lowered = line.strip().lower()
         if lowered.startswith(drop_prefixes):
             continue
-        filtered.append(line)
+        filtered.append(line.strip())
     if not filtered:
-        return cleaned
+        return None
     return "\n".join(filtered).strip()
 
 
@@ -339,6 +346,43 @@ def extract_narrative_prose(text: str | None) -> str | None:
     return cleaned
 
 
+def trim_initial_reasoning_block(text: str | None) -> tuple[str | None, bool]:
+    if not isinstance(text, str):
+        return None, False
+    cleaned = text.strip()
+    if not cleaned:
+        return None, False
+    paragraphs = [para.strip() for para in cleaned.split("\n\n") if para.strip()]
+    if not paragraphs:
+        return None, False
+    reasoning_markers = (
+        "okay",
+        "ok",
+        "hmm",
+        "the user",
+        "they want",
+        "i should",
+        "i need",
+        "looking at",
+        "let me",
+        "instructions",
+        "word count",
+        "avoid any",
+    )
+    trimmed_any = False
+    kept: list[str] = []
+    for index, para in enumerate(paragraphs[:12]):
+        lowered = para.lower()
+        if any(lowered.startswith(marker) for marker in reasoning_markers):
+            trimmed_any = True
+            continue
+        kept = paragraphs[index:]
+        break
+    if not kept:
+        return ("" if trimmed_any else cleaned), trimmed_any
+    return "\n\n".join(kept).strip(), trimmed_any
+
+
 def is_usable_long_form_output(text: str | None, *, prior_excerpt: str | None = None) -> bool:
     report = evaluate_long_form_output(text, prior_excerpt=prior_excerpt)
     return bool(report.get("usable"))
@@ -376,6 +420,18 @@ def persist_long_form_text(project_root: Path, chunk_id: str, text: str) -> Path
     path.mkdir(parents=True, exist_ok=True)
     target = path / f"{chunk_id}.md"
     target.write_text(text, encoding="utf-8")
+    return target
+
+
+def persist_long_form_diagnostic(
+    project_root: Path,
+    chunk_id: str,
+    payload: dict[str, Any],
+) -> Path:
+    path = project_root / ".blackskies" / "long_form" / "diagnostics"
+    path.mkdir(parents=True, exist_ok=True)
+    target = path / f"{chunk_id}.json"
+    target.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
     return target
 
 
@@ -427,9 +483,11 @@ __all__ = [
     "evaluate_long_form_output",
     "normalize_long_form_output",
     "extract_narrative_prose",
+    "trim_initial_reasoning_block",
     "is_usable_long_form_output",
     "persist_long_form_chunk",
     "persist_long_form_text",
+    "persist_long_form_diagnostic",
     "load_long_form_chunk",
     "aggregate_long_form_budget",
 ]

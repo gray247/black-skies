@@ -20,10 +20,10 @@ def _strip_reasoning_leadin(text: str) -> str:
     cleaned = text.strip()
     if not cleaned:
         return cleaned
-    lines = [line.strip() for line in cleaned.splitlines() if line.strip()]
-    if not lines:
+    raw_lines = [line.rstrip() for line in cleaned.splitlines()]
+    if not raw_lines:
         return cleaned
-    first = lines[0].lower()
+    first = raw_lines[0].strip().lower()
     leadins = (
         "thinking:",
         "thoughts:",
@@ -40,59 +40,60 @@ def _strip_reasoning_leadin(text: str) -> str:
         "i need",
     )
     if (any(first.startswith(prefix) for prefix in leadins) or "the user" in first) and len(
-        lines[0]
-    ) < 180 and len(lines) > 1:
-        lines = lines[1:]
-    return "\n".join(lines).strip() or cleaned
+        raw_lines[0]
+    ) < 180 and len(raw_lines) > 1:
+        raw_lines = raw_lines[1:]
+    return "\n".join(raw_lines).strip() or cleaned
 
 
-def normalize_ollama_payload(response: dict[str, Any] | None) -> tuple[str | None, bool]:
+def normalize_ollama_payload(
+    response: dict[str, Any] | None,
+) -> tuple[str | None, bool, str | None]:
     if not isinstance(response, dict):
-        return None, False
-    text = response.get("text")
-    if isinstance(text, str) and text.strip():
-        return text, False
+        return None, False, None
     raw_payload = response.get("raw") if isinstance(response.get("raw"), dict) else response
     if not isinstance(raw_payload, dict):
-        return None, False
+        return None, False, None
     candidate = raw_payload.get("response")
     if isinstance(candidate, str) and candidate.strip():
-        return candidate, False
-    choices = raw_payload.get("choices")
-    if isinstance(choices, list) and choices:
-        first = choices[0]
-        if isinstance(first, dict):
-            message = first.get("message")
-            if isinstance(message, dict):
-                content = message.get("content")
-                if isinstance(content, str) and content.strip():
-                    return content, False
+        return candidate.strip(), False, "response"
     message = raw_payload.get("message")
     if isinstance(message, dict):
         content = message.get("content")
         if isinstance(content, str) and content.strip():
-            return content, False
+            return content.strip(), False, "message.content"
+    output_text = raw_payload.get("output_text")
+    if isinstance(output_text, str) and output_text.strip():
+        return output_text.strip(), False, "output_text"
+    text = raw_payload.get("text")
+    if isinstance(text, str) and text.strip():
+        return text.strip(), False, "text"
+    choices = raw_payload.get("choices")
+    if isinstance(choices, list) and choices:
+        first = choices[0]
+        if isinstance(first, dict):
+            choice_message = first.get("message")
+            if isinstance(choice_message, dict):
+                content = choice_message.get("content")
+                if isinstance(content, str) and content.strip():
+                    return content.strip(), False, "choices.message.content"
     data = raw_payload.get("data")
     if isinstance(data, dict):
-        for key in ("response", "text", "content", "output"):
-            value = data.get(key)
-            if isinstance(value, str) and value.strip():
-                return value, False
-        data_choices = data.get("choices")
-        if isinstance(data_choices, list) and data_choices:
-            first = data_choices[0]
-            if isinstance(first, dict):
-                message = first.get("message")
-                if isinstance(message, dict):
-                    content = message.get("content")
-                    if isinstance(content, str) and content.strip():
-                        return content, False
-    response_value = raw_payload.get("response")
-    if isinstance(response_value, str) and not response_value.strip():
-        thinking = raw_payload.get("thinking")
-        if isinstance(thinking, str) and thinking.strip():
-            return _strip_reasoning_leadin(thinking), True
-    return None, False
+        data_response = data.get("response")
+        if isinstance(data_response, str) and data_response.strip():
+            return data_response.strip(), False, "data.response"
+        data_message = data.get("message")
+        if isinstance(data_message, dict):
+            content = data_message.get("content")
+            if isinstance(content, str) and content.strip():
+                return content.strip(), False, "data.message.content"
+        data_output = data.get("output_text")
+        if isinstance(data_output, str) and data_output.strip():
+            return data_output.strip(), False, "data.output_text"
+    thinking = raw_payload.get("thinking")
+    if isinstance(thinking, str) and thinking.strip():
+        return _strip_reasoning_leadin(thinking), True, "thinking"
+    return None, False, None
 
 
 @dataclass(frozen=True)

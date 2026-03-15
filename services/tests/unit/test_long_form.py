@@ -10,6 +10,7 @@ from blackskies.services.long_form import (
     assemble_chapter_memory,
     assemble_continuation_packet,
     evaluate_long_form_output,
+    trim_initial_reasoning_block,
     extract_narrative_prose,
     normalize_long_form_output,
     load_long_form_chunk,
@@ -146,15 +147,19 @@ def test_long_form_validation_rejects_meta_summary() -> None:
 
 
 def test_long_form_validation_accepts_prose() -> None:
-    text = "Mara pushed the door, and the hinges groaned. " * 10
+    text = (
+        "Mara pushed the door, and the hinges groaned. " * 10
+        + "\n\n"
+        + "The hallway breathed cold air around her boots. " * 8
+    )
     report = evaluate_long_form_output(text, prior_excerpt="door hinges groaned")
     assert report["usable"] is True
 
 
-def test_long_form_validation_allows_shorter_prose() -> None:
+def test_long_form_validation_rejects_short_prose() -> None:
     text = "Mara listened to the rain on the window and kept her hand on the latch. " * 6
     report = evaluate_long_form_output(text)
-    assert report["usable"] is True
+    assert report["usable"] is False
 
 
 def test_normalize_long_form_output_strips_prompt_headers() -> None:
@@ -206,6 +211,28 @@ def test_extract_narrative_prose_drops_planning_only_output() -> None:
     )
     cleaned = extract_narrative_prose(raw)
     assert cleaned == ""
+
+
+def test_trim_initial_reasoning_block_removes_preface() -> None:
+    raw = (
+        "Okay, I should write the scene now.\n\n"
+        "Mara stepped into the hall, the air cold and damp. "
+        "The floorboards creaked beneath her boots."
+    )
+    cleaned, applied = trim_initial_reasoning_block(raw)
+    assert applied is True
+    assert cleaned is not None
+    assert cleaned.startswith("Mara stepped into the hall")
+
+
+def test_trim_initial_reasoning_block_keeps_narrative() -> None:
+    raw = (
+        "Mara stepped into the hall, the air cold and damp.\n\n"
+        "The floorboards creaked beneath her boots."
+    )
+    cleaned, applied = trim_initial_reasoning_block(raw)
+    assert applied is False
+    assert cleaned == raw
 
 
 def test_chunk_persistence_and_budget_aggregation(tmp_path: Path) -> None:

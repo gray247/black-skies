@@ -139,6 +139,14 @@ def _service(tmp_path: Path, adapter_text: str) -> LongFormExecutionService:
     )
 
 
+def _long_text() -> str:
+    return (
+        "Mara pushed the door, and the hinges groaned. " * 20
+        + "\n\n"
+        + "The hallway breathed cold air around her boots. " * 12
+    )
+
+
 def test_long_form_execution_persists_chunks(tmp_path: Path) -> None:
     project_root = tmp_path / "proj_exec"
     project_root.mkdir(parents=True, exist_ok=True)
@@ -151,7 +159,7 @@ def test_long_form_execution_persists_chunks(tmp_path: Path) -> None:
         ),
         encoding="utf-8",
     )
-    adapter_text = "Mara pushed the door, and the hinges groaned. " * 40
+    adapter_text = _long_text()
     service = _service(tmp_path, adapter_text)
 
     result = service.execute(
@@ -205,6 +213,21 @@ def test_long_form_execution_stops_on_invalid_output(tmp_path: Path) -> None:
     assert result.stopped_reason == "invalid_output"
     assert len(result.chunks) == 1
     assert result.chunks[0].continuity_snapshot["fallback_reason"] == "invalid_output"
+    diagnostic_path = (
+        project_root
+        / ".blackskies"
+        / "long_form"
+        / "diagnostics"
+        / f"{result.chunks[0].chunk_id}.json"
+    )
+    assert diagnostic_path.exists()
+    payload = json.loads(diagnostic_path.read_text(encoding="utf-8"))
+    assert payload.get("reason")
+    assert payload.get("extracted_field") is not None
+    assert "raw_length" in payload
+    assert "normalized_length" in payload
+    assert "word_count" in payload
+    assert "paragraph_count" in payload
 
 
 def test_long_form_invalid_output_logs_excerpt(tmp_path: Path) -> None:
@@ -310,7 +333,7 @@ def test_long_form_execution_extracts_raw_response(tmp_path: Path) -> None:
             provider_calls_enabled=True,
         )
     )
-    router.register_provider(_FakeProvider(_RawOnlyAdapter("Mara moved through the hall. " * 14)))
+    router.register_provider(_FakeProvider(_RawOnlyAdapter(_long_text())))
     service = LongFormExecutionService(
         settings=settings,
         diagnostics=diagnostics,
@@ -341,7 +364,7 @@ def test_long_form_execution_extracts_top_level_response(tmp_path: Path) -> None
             provider_calls_enabled=True,
         )
     )
-    router.register_provider(_FakeProvider(_RawTopLevelAdapter("Mara moved through the hall. " * 14)))
+    router.register_provider(_FakeProvider(_RawTopLevelAdapter(_long_text())))
     service = LongFormExecutionService(
         settings=settings,
         diagnostics=diagnostics,
@@ -372,7 +395,7 @@ def test_long_form_execution_extracts_message_content(tmp_path: Path) -> None:
             provider_calls_enabled=True,
         )
     )
-    router.register_provider(_FakeProvider(_RawMessageAdapter("Mara moved through the hall. " * 14)))
+    router.register_provider(_FakeProvider(_RawMessageAdapter(_long_text())))
     service = LongFormExecutionService(
         settings=settings,
         diagnostics=diagnostics,
@@ -403,9 +426,7 @@ def test_long_form_execution_extracts_nested_data_response(tmp_path: Path) -> No
             provider_calls_enabled=True,
         )
     )
-    router.register_provider(
-        _FakeProvider(_RawNestedDataAdapter("Mara moved through the hall. " * 14))
-    )
+    router.register_provider(_FakeProvider(_RawNestedDataAdapter(_long_text())))
     service = LongFormExecutionService(
         settings=settings,
         diagnostics=diagnostics,
@@ -436,7 +457,7 @@ def test_long_form_execution_extracts_choices_message_content(tmp_path: Path) ->
             provider_calls_enabled=True,
         )
     )
-    router.register_provider(_FakeProvider(_RawChoicesAdapter("Mara moved through the hall. " * 14)))
+    router.register_provider(_FakeProvider(_RawChoicesAdapter(_long_text())))
     service = LongFormExecutionService(
         settings=settings,
         diagnostics=diagnostics,
@@ -469,7 +490,7 @@ def test_long_form_execution_retries_after_planning_output(tmp_path: Path) -> No
     )
     adapter = _RetryAdapter(
         "The user wants me to write an immersive scene. No headings or meta commentary.",
-        "Mara moved through the hall. " * 14,
+        _long_text(),
     )
     router.register_provider(_FakeProvider(adapter))
     service = LongFormExecutionService(
@@ -540,8 +561,7 @@ def test_long_form_execution_extracts_thinking_when_response_empty(tmp_path: Pat
     router.register_provider(
         _FakeProvider(
             _RawThinkingAdapter(
-                "Okay, I will write a scene.\n\n"
-                + ("Mara moved through the hall. " * 14)
+                "Okay, I will write a scene.\n\n" + _long_text()
             )
         )
     )
@@ -573,4 +593,4 @@ def test_long_form_execution_extracts_thinking_when_response_empty(tmp_path: Pat
         / f"{result.chunks[0].chunk_id}.md"
     )
     text = text_path.read_text(encoding="utf-8")
-    assert text.startswith("Mara moved")
+    assert text.startswith("Mara pushed")

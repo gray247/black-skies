@@ -25,8 +25,10 @@ from ..long_form import (
     is_usable_long_form_output,
     normalize_long_form_output,
     extract_narrative_prose,
+    trim_initial_reasoning_block,
     persist_long_form_chunk,
     persist_long_form_text,
+    persist_long_form_diagnostic,
     aggregate_long_form_budget,
 )
 from ..config import ServiceSettings
@@ -146,6 +148,7 @@ class LongFormExecutionService:
                 adapter=adapter,
                 prompt=prompt,
                 continuation=continuation,
+                project_root=project_root,
             )
             continuity_snapshot = self._build_continuity_snapshot(
                 text,
@@ -312,6 +315,7 @@ class LongFormExecutionService:
         adapter: BaseAdapter | None,
         prompt: str,
         continuation,
+        project_root: Path,
     ) -> tuple[str, str | None, bool]:
         if not self._model_router or not self._model_router.config.provider_calls_enabled:
             return self._fallback_text(continuation), "provider_calls_disabled", False
@@ -333,25 +337,44 @@ class LongFormExecutionService:
             payload["options"]["num_ctx"] = 2048
             payload["options"]["num_predict"] = min(200, int(continuation.target_words))
         try:
-            def _attempt(request_payload: dict[str, Any]) -> tuple[str | None, bool, dict[str, Any], str | None]:
+            def _attempt(
+                request_payload: dict[str, Any],
+            ) -> tuple[str | None, bool, dict[str, Any], str | None, str | None, bool]:
                 response = adapter.generate_draft(request_payload)
-                raw_text, thinking_fallback = normalize_ollama_payload(response)
+                raw_text, thinking_fallback, extracted_field = normalize_ollama_payload(response)
                 if thinking_fallback:
                     self._diagnostics.log(
-                        Path(self._settings.project_base_dir),
+                        project_root,
                         code="ADAPTER",
                         message="Ollama thinking fallback used.",
                         details={"thinking_fallback": True},
                     )
                 cleaned = normalize_long_form_output(raw_text)
                 cleaned = extract_narrative_prose(cleaned)
+                cleaned, reasoning_trim_applied = trim_initial_reasoning_block(cleaned)
                 if cleaned and cleaned.lower().startswith(("okay", "hmm", "the user", "i should", "i'll")):
                     cleaned = cleaned.split("\n\n", 1)[-1]
                 if cleaned:
                     cleaned = cleaned.lstrip("* ").strip()
-                return cleaned, bool(raw_text), response, raw_text
+                return (
+                    cleaned,
+                    bool(raw_text),
+                    response,
+                    raw_text,
+                    extracted_field,
+                    reasoning_trim_applied,
+                    thinking_fallback,
+                )
 
-            cleaned, had_raw, response, raw_text = _attempt(payload)
+            (
+                cleaned,
+                had_raw,
+                response,
+                raw_text,
+                extracted_field,
+                reasoning_trim_applied,
+                thinking_fallback,
+            ) = _attempt(payload)
             if cleaned and is_usable_long_form_output(
                 cleaned, prior_excerpt=continuation.prior_excerpt
             ):
@@ -366,7 +389,15 @@ class LongFormExecutionService:
                     "Output only narrative prose. Start with concrete action. "
                     "No analysis, no planning, no acknowledgements."
                 )
-                cleaned, _, response, raw_text = _attempt(retry_payload)
+                (
+                    cleaned,
+                    _,
+                    response,
+                    raw_text,
+                    extracted_field,
+                    reasoning_trim_applied,
+                    thinking_fallback,
+                ) = _attempt(retry_payload)
                 if cleaned and is_usable_long_form_output(
                     cleaned, prior_excerpt=continuation.prior_excerpt
                 ):
@@ -387,15 +418,39 @@ class LongFormExecutionService:
                     )[:500]
                 except Exception:  # pragma: no cover - defensive
                     raw_payload_preview = None
+            diagnostic_payload = {
+                "chunk_id": continuation.chunk_id,
+                "reason": report,
+                "validation_decision": bool(report.get("usable")),
+                "fallback_reason": "invalid_output",
+                "extracted_field": extracted_field,
+                "thinking_fallback": thinking_fallback,
+                "reasoning_trim_applied": reasoning_trim_applied,
+                "raw_length": len(raw_text) if isinstance(raw_text, str) else 0,
+                "normalized_length": len(cleaned) if isinstance(cleaned, str) else 0,
+                "raw_preview": (raw_text[:200] if isinstance(raw_text, str) else None),
+                "normalized_preview": (cleaned[:200] if isinstance(cleaned, str) else None),
+                "word_count": report.get("word_count"),
+                "paragraph_count": report.get("paragraph_count"),
+            }
+            persist_long_form_diagnostic(project_root, continuation.chunk_id, diagnostic_payload)
             self._diagnostics.log(
-                Path(self._settings.project_base_dir),
+                project_root,
                 code="VALIDATION",
                 message="Long-form output rejected.",
                 details={
                     "reason": report,
                     "raw_length": len(raw_text) if isinstance(raw_text, str) else 0,
+                    "normalized_length": len(cleaned) if isinstance(cleaned, str) else 0,
+                    "extracted_field": extracted_field,
                     "raw_excerpt": (raw_text[:400] if isinstance(raw_text, str) else None),
                     "cleaned_excerpt": (cleaned[:400] if isinstance(cleaned, str) else None),
+                    "raw_preview": (raw_text[:200] if isinstance(raw_text, str) else None),
+                    "normalized_preview": (cleaned[:200] if isinstance(cleaned, str) else None),
+                    "reasoning_trim_applied": reasoning_trim_applied,
+                    "thinking_fallback": thinking_fallback,
+                    "word_count": report.get("word_count"),
+                    "paragraph_count": report.get("paragraph_count"),
                     "raw_payload_keys": raw_payload_keys,
                     "raw_payload_preview": raw_payload_preview,
                 },
