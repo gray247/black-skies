@@ -13,7 +13,7 @@
 
 ## Focused verification
 - `pytest services/tests/unit/test_long_form.py services/tests/unit/test_long_form_execution.py -q`
-- result: `38 passed`
+- result: `43 passed`
 
 ## Eval artifact paths
 - Before clean 600: `sample_project/proj_esther_estate_verify_longform/.blackskies/long_form/eval/eval_threshold_tightened_600_patched.json`
@@ -28,6 +28,8 @@
 - After critique-targeted carryover calibration adversarial 600: `sample_project/proj_esther_estate_eval_adversarial/.blackskies/long_form/eval/eval_critique_targeted_adversarial_600.json`
 - After clean-recovery stabilization clean 600: `sample_project/proj_esther_estate_verify_longform/.blackskies/long_form/eval/eval_clean_recovery_stabilized_600.json`
 - After clean-recovery stabilization adversarial 600: `sample_project/proj_esther_estate_eval_adversarial/.blackskies/long_form/eval/eval_clean_recovery_guard_adversarial_600.json`
+- After split recovery clean 600: `sample_project/proj_esther_estate_verify_longform/.blackskies/long_form/eval/eval_split_recovery_clean_600.json`
+- After split recovery adversarial 600: `sample_project/proj_esther_estate_eval_adversarial/.blackskies/long_form/eval/eval_split_recovery_adversarial_600.json`
 
 ## Before / after
 | Dataset | Run | Chunks | Accepted | Rewrites | Fallbacks | Avg Quality | Avg Attempts | Continuity Warnings | Est. Cost | Stopped |
@@ -38,27 +40,42 @@
 | Clean | After rewrite-effectiveness tuning | 2 | 1 | 1 | 1 | 28.5 | 1.5 | 0 | 0.02 | quality_failed |
 | Clean | After critique-targeted carryover calibration | 1 | 0 | 1 | 1 | 29.0 | 2.0 | 0 | 0.01 | quality_failed |
 | Clean | After clean-recovery stabilization | 2 | 1 | 1 | 1 | 29.5 | 1.5 | 0 | 0.02 | quality_failed |
+| Clean | After split recovery | 2 | 1 | 1 | 1 | 27.5 | 1.5 | 0 | 0.02 | quality_failed |
 | Adversarial | Before | 5 | 5 | 0 | 0 | 32.6 | 1.0 | 0 | 0.05 | null |
 | Adversarial | After sensitivity tune | 5 | 5 | 0 | 0 | 31.8 | 1.0 | 0 | 0.05 | null |
 | Adversarial | After rewrite-recovery calibration | 5 | 5 | 0 | 0 | 30.4 | 1.0 | 0 | 0.05 | null |
 | Adversarial | After rewrite-effectiveness tuning | 5 | 5 | 0 | 0 | 30.8 | 1.0 | 0 | 0.05 | null |
 | Adversarial | After critique-targeted carryover calibration | 5 | 5 | 1 | 0 | 30.4 | 1.2 | 0 | 0.05 | null |
 | Adversarial | After clean-recovery stabilization | 5 | 5 | 0 | 0 | 30.8 | 1.0 | 0 | 0.05 | null |
+| Adversarial | After split recovery | 5 | 5 | 1 | 0 | 31.0 | 1.2 | 0 | 0.05 | null |
 
 ## Result
 Natural rewrites occur in end-to-end evaluation, but rewrite recovery is still not naturally stable.
 
-- Yes: the clean `600` runs still trigger `rewrite_count = 1`
-- No: the latest adversarial rerun dropped back to `rewrite_count = 0`
+- Yes: the clean `600` run still triggers `rewrite_count = 1`
+- Yes: the split pass restored the adversarial `600` natural rewrite trigger to `rewrite_count = 1`
 - No: rewrite recovery is still not stable enough because the clean `600` rerun still stopped with `quality_failed`
 
-This means the loop is still generation-sensitive. The latest opening-chunk recovery credit improves scoring on paper and in focused tests, but it did not clear the clean live failure and it also did not preserve the adversarial rewrite trigger in the latest rerun. This pass should be treated as incomplete.
+This means the loop is still generation-sensitive. Splitting opening recovery from continuation rewrite triggering fixed the cross-coupling regression on the adversarial dataset, but the clean live failure remains and is now clearly isolated to a continuation chunk whose rewrite still fails to improve the critique-targeted dimensions that matter in scoring. This pass should still be treated as incomplete.
 
 ## This pass
-- critique payloads now include `replacement_targets`, `grounding_targets`, and `carryover_targets`
-- rewritten chunks must improve at least one critique-targeted dimension, not just an unrelated score
-- continuation carryover now distinguishes material reuse from token reuse
-- continuation chunks with generic atmosphere plus non-material carryover take an extra specificity hit before rewrite
+- opening and continuation rewrite recovery now branch explicitly in the acceptance path
+- opening rewrites use their own recovery checks instead of inheriting continuation-oriented heuristics
+- continuation rewrites preserve the earlier material-carryover and generic-continuation trigger logic
+- critique payloads now include `generic_phrase_targets`, `detail_targets`, `dialogue_grounding_targets`, `emotional_show_targets`, `replacement_targets`, `grounding_targets`, and `carryover_targets`
+- rewritten chunks must improve at least one critique-targeted dimension for their chunk type instead of passing on unrelated score movement
+
+## Split-pass evidence
+Clean `600` still failed on continuation chunk `lf_937507fa`:
+
+- first pass: `total_score 26`, `clarity 2`, `specificity 2`, `stock_phrase_hits 4`, `carryover_hits 5`, `material_carryover_hits 0`
+- rewrite pass: `total_score 26`, `clarity 2`, `specificity 2`, `stock_phrase_hits 5`, `carryover_hits 6`, `material_carryover_hits 0`
+- acceptance reason: `quality_failed`
+
+This failure mode is narrower than the previous mixed-path behavior:
+
+- the continuation trigger regression is fixed in the adversarial dataset
+- the remaining clean failure is a continuation rewrite that preserves token carryover but does not materially improve specificity, clarity, or stock-phrase load after critique
 
 ## Failed continuation evidence
 Chunk that rewrote and failed during the sensitivity run:
@@ -131,9 +148,9 @@ Critique snapshot:
 ```
 
 ## Recommendation
-Single next tuning target: isolate the clean opening-chunk failure path from the continuation-path logic instead of sharing the same rewrite-recovery heuristics.
+Single next tuning target: improve continuation rewrite follow-through so critique-targeted continuation rewrites materially raise specificity or clarity while reducing stock phrasing, instead of relying on path separation alone.
 
 Reason:
-- the latest patch mixed opening-scene credit with the existing continuation logic
-- that helped unit-level opening recovery but did not hold in live eval
-- the adversarial trigger is now unstable again, so the next pass should separate opening-chunk rewrite recovery from continuation-chunk rewrite activation
+- the split patch restored adversarial rewrite triggering without increasing fallbacks
+- the clean failure is now isolated to a continuation rewrite that changed wording but not the scored weaknesses
+- the next pass should target continuation rewrite effectiveness on critique-called weaknesses, not the opening/continuation branching itself

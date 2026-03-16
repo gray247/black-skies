@@ -519,6 +519,7 @@ class LongFormExecutionService:
                     rewrite_used=rewrite_used,
                     previous_quality_snapshot=previous_quality_snapshot,
                     critique_snapshot=critique_snapshot,
+                    continuation_chunk=bool(continuation.prior_summary or continuation.prior_excerpt),
                 )
                 attempt_record["quality_snapshot"] = quality_snapshot
                 attempt_record["quality_pass"] = quality_pass
@@ -712,6 +713,7 @@ class LongFormExecutionService:
         rewrite_used: bool = False,
         previous_quality_snapshot: dict[str, Any] | None = None,
         critique_snapshot: dict[str, Any] | None = None,
+        continuation_chunk: bool = False,
     ) -> bool:
         if not quality_snapshot or not quality_snapshot.get("usable"):
             return False
@@ -733,28 +735,61 @@ class LongFormExecutionService:
             return False
         if weak_carryover:
             return False
-        rewrite_recovery_pass = (
-            rewrite_used
-            and generic_risk
-            and continuity >= 4
-            and specificity >= max(3, required_specificity - 1)
-            and clarity >= self._QUALITY_MIN_CLARITY
-            and total >= max(self._QUALITY_MIN_TOTAL, 30)
-            and stock_phrase_hits <= 3
-        )
+        if continuation_chunk:
+            rewrite_recovery_pass = (
+                rewrite_used
+                and generic_risk
+                and continuity >= 4
+                and specificity >= max(3, required_specificity - 1)
+                and clarity >= self._QUALITY_MIN_CLARITY
+                and total >= max(self._QUALITY_MIN_TOTAL, 30)
+                and stock_phrase_hits <= 3
+            )
+            if generic_risk and not rewrite_recovery_pass and (
+                specificity < required_specificity or clarity <= 2
+            ):
+                return False
+            base_pass = (
+                total >= self._QUALITY_MIN_TOTAL
+                and coherence >= self._QUALITY_MIN_COHERENCE
+                and continuity >= self._QUALITY_MIN_CONTINUITY
+                and specificity >= required_specificity
+                and clarity >= self._QUALITY_MIN_CLARITY
+            )
+            if base_pass and rewrite_used and previous_quality_snapshot is not None:
+                return self._rewrite_delta_passes(
+                    previous_quality_snapshot=previous_quality_snapshot,
+                    rewritten_quality_snapshot=quality_snapshot,
+                    continuation_chunk=True,
+                ) and self._rewrite_targets_aligned(
+                    previous_quality_snapshot=previous_quality_snapshot,
+                    rewritten_quality_snapshot=quality_snapshot,
+                    critique_snapshot=critique_snapshot,
+                    continuation_chunk=True,
+                )
+            if base_pass:
+                return True
+            if rewrite_recovery_pass:
+                return self._rewrite_delta_passes(
+                    previous_quality_snapshot=previous_quality_snapshot,
+                    rewritten_quality_snapshot=quality_snapshot,
+                    continuation_chunk=True,
+                ) and self._rewrite_targets_aligned(
+                    previous_quality_snapshot=previous_quality_snapshot,
+                    rewritten_quality_snapshot=quality_snapshot,
+                    critique_snapshot=critique_snapshot,
+                    continuation_chunk=True,
+                )
+            return False
+
         opening_rewrite_recovery_pass = (
             rewrite_used
-            and not carryover_terms
             and coherence >= self._QUALITY_MIN_COHERENCE
             and continuity >= self._QUALITY_MIN_CONTINUITY
             and clarity >= 4
             and specificity >= 3
             and total >= self._QUALITY_MIN_TOTAL + 1
         )
-        if generic_risk and not rewrite_recovery_pass and (
-            specificity < required_specificity or clarity <= 2
-        ):
-            return False
         base_pass = (
             total >= self._QUALITY_MIN_TOTAL
             and coherence >= self._QUALITY_MIN_COHERENCE
@@ -766,30 +801,25 @@ class LongFormExecutionService:
             return self._rewrite_delta_passes(
                 previous_quality_snapshot=previous_quality_snapshot,
                 rewritten_quality_snapshot=quality_snapshot,
+                continuation_chunk=False,
             ) and self._rewrite_targets_aligned(
                 previous_quality_snapshot=previous_quality_snapshot,
                 rewritten_quality_snapshot=quality_snapshot,
                 critique_snapshot=critique_snapshot,
+                continuation_chunk=False,
             )
         if base_pass:
             return True
-        if rewrite_recovery_pass:
-            return self._rewrite_delta_passes(
-                previous_quality_snapshot=previous_quality_snapshot,
-                rewritten_quality_snapshot=quality_snapshot,
-            ) and self._rewrite_targets_aligned(
-                previous_quality_snapshot=previous_quality_snapshot,
-                rewritten_quality_snapshot=quality_snapshot,
-                critique_snapshot=critique_snapshot,
-            )
         if opening_rewrite_recovery_pass:
             return self._rewrite_delta_passes(
                 previous_quality_snapshot=previous_quality_snapshot,
                 rewritten_quality_snapshot=quality_snapshot,
+                continuation_chunk=False,
             ) and self._rewrite_targets_aligned(
                 previous_quality_snapshot=previous_quality_snapshot,
                 rewritten_quality_snapshot=quality_snapshot,
                 critique_snapshot=critique_snapshot,
+                continuation_chunk=False,
             )
         return False
 
@@ -798,6 +828,7 @@ class LongFormExecutionService:
         *,
         previous_quality_snapshot: dict[str, Any] | None,
         rewritten_quality_snapshot: dict[str, Any] | None,
+        continuation_chunk: bool,
     ) -> bool:
         if not previous_quality_snapshot or not rewritten_quality_snapshot:
             return False
@@ -825,9 +856,9 @@ class LongFormExecutionService:
             return True
         if stock_delta >= 1 and (specificity_delta >= 1 or clarity_delta >= 1 or continuity_delta >= 1):
             return True
-        if stock_delta >= 1 and concrete_delta >= 1 and clarity_delta >= 0:
+        if not continuation_chunk and stock_delta >= 1 and concrete_delta >= 1:
             return True
-        if previous_scores.get("continuity", 0) <= 3 and continuity_delta >= 1 and total_delta >= 1:
+        if continuation_chunk and previous_scores.get("continuity", 0) <= 3 and continuity_delta >= 1 and total_delta >= 1:
             return True
         return False
 
@@ -837,6 +868,7 @@ class LongFormExecutionService:
         previous_quality_snapshot: dict[str, Any] | None,
         rewritten_quality_snapshot: dict[str, Any] | None,
         critique_snapshot: dict[str, Any] | None,
+        continuation_chunk: bool,
     ) -> bool:
         if not previous_quality_snapshot or not rewritten_quality_snapshot or not critique_snapshot:
             return False
@@ -849,14 +881,18 @@ class LongFormExecutionService:
         replacement_targets = critique_snapshot.get("replacement_targets") or []
         grounding_targets = critique_snapshot.get("grounding_targets") or []
         carryover_targets = critique_snapshot.get("carryover_targets") or []
+        generic_phrase_targets = critique_snapshot.get("generic_phrase_targets") or []
+        detail_targets = critique_snapshot.get("detail_targets") or []
+        dialogue_grounding_targets = critique_snapshot.get("dialogue_grounding_targets") or []
+        emotional_show_targets = critique_snapshot.get("emotional_show_targets") or []
 
         targeted_improvements: list[bool] = []
-        if "generic" in weaknesses or "stock" in weaknesses or replacement_targets:
+        if "generic" in weaknesses or "stock" in weaknesses or replacement_targets or generic_phrase_targets:
             targeted_improvements.append(
                 int(previous_quality_snapshot.get("stock_phrase_hits") or 0)
                 > int(rewritten_quality_snapshot.get("stock_phrase_hits") or 0)
             )
-        if "dialogue" in weaknesses or grounding_targets:
+        if "dialogue" in weaknesses or grounding_targets or dialogue_grounding_targets:
             targeted_improvements.append(
                 bool(rewritten_quality_snapshot.get("dialogue_grounded"))
                 and (
@@ -865,11 +901,13 @@ class LongFormExecutionService:
                     > int(previous_scores.get("dialogue") or 0)
                 )
             )
-        if (
+        if continuation_chunk and (
             "vague" in weaknesses
             or "specific" in weaknesses
             or "emotion" in weaknesses
             or replacement_targets
+            or detail_targets
+            or emotional_show_targets
         ):
             targeted_improvements.append(
                 int(rewritten_scores.get("specificity") or 0)
@@ -879,7 +917,20 @@ class LongFormExecutionService:
                 or int(rewritten_quality_snapshot.get("concrete_hits") or 0)
                 > int(previous_quality_snapshot.get("concrete_hits") or 0)
             )
-        if "continuity" in continuity_notes or "flow" in continuity_notes or carryover_targets:
+        if not continuation_chunk and (
+            "vague" in weaknesses
+            or "specific" in weaknesses
+            or replacement_targets
+            or detail_targets
+            or emotional_show_targets
+        ):
+            targeted_improvements.append(
+                int(rewritten_quality_snapshot.get("concrete_hits") or 0)
+                > int(previous_quality_snapshot.get("concrete_hits") or 0)
+                or int(rewritten_scores.get("specificity") or 0)
+                > int(previous_scores.get("specificity") or 0)
+            )
+        if continuation_chunk and ("continuity" in continuity_notes or "flow" in continuity_notes or carryover_targets):
             targeted_improvements.append(
                 int(rewritten_scores.get("continuity") or 0)
                 > int(previous_scores.get("continuity") or 0)
@@ -926,6 +977,10 @@ class LongFormExecutionService:
                 "summary": "Critique unavailable; tighten clarity, continuity, and specificity.",
                 "weaknesses": ["clarity", "continuity", "specificity"],
                 "rewrite_goals": ["Increase scene specificity", "Strengthen continuity cues"],
+                "generic_phrase_targets": ["Replace generic stock phrasing with concrete scene detail"],
+                "detail_targets": ["Add concrete environmental detail"],
+                "dialogue_grounding_targets": ["Attach dialogue to action or setting"],
+                "emotional_show_targets": ["Show emotion through behavior or sensation"],
                 "replacement_targets": ["Replace generic atmosphere lines with concrete scene detail"],
                 "grounding_targets": ["Anchor dialogue in object handling or physical movement"],
                 "carryover_targets": ["Reuse prior-scene objects in meaningful action"],
@@ -943,7 +998,7 @@ class LongFormExecutionService:
         return (
             "You are an editor. Critique the following scene prose. "
             "Return a JSON object with keys: summary, weaknesses, continuity_issues, "
-            "pacing_issues, meta_contamination, rewrite_goals, replacement_targets, grounding_targets, carryover_targets.\n"
+            "pacing_issues, meta_contamination, rewrite_goals, generic_phrase_targets, detail_targets, dialogue_grounding_targets, emotional_show_targets, replacement_targets, grounding_targets, carryover_targets.\n"
             "Focus on weak continuity carryover, generic stock phrasing, vague scene detail, "
             "and dialogue that is not grounded in physical action or setting.\n\n"
             f"PRIOR SUMMARY: {summary}\n"
@@ -960,6 +1015,10 @@ class LongFormExecutionService:
                 "summary": raw_text.strip()[:200],
                 "weaknesses": ["clarity"],
                 "rewrite_goals": ["Clarify scene focus"],
+                "generic_phrase_targets": [],
+                "detail_targets": [],
+                "dialogue_grounding_targets": [],
+                "emotional_show_targets": [],
                 "replacement_targets": [],
                 "grounding_targets": [],
                 "carryover_targets": [],
@@ -969,6 +1028,10 @@ class LongFormExecutionService:
                 "summary": raw_text.strip()[:200],
                 "weaknesses": ["clarity"],
                 "rewrite_goals": ["Clarify scene focus"],
+                "generic_phrase_targets": [],
+                "detail_targets": [],
+                "dialogue_grounding_targets": [],
+                "emotional_show_targets": [],
                 "replacement_targets": [],
                 "grounding_targets": [],
                 "carryover_targets": [],
@@ -980,6 +1043,10 @@ class LongFormExecutionService:
             "pacing_issues": list(payload.get("pacing_issues") or []),
             "meta_contamination": bool(payload.get("meta_contamination")),
             "rewrite_goals": list(payload.get("rewrite_goals") or []),
+            "generic_phrase_targets": list(payload.get("generic_phrase_targets") or []),
+            "detail_targets": list(payload.get("detail_targets") or []),
+            "dialogue_grounding_targets": list(payload.get("dialogue_grounding_targets") or []),
+            "emotional_show_targets": list(payload.get("emotional_show_targets") or []),
             "replacement_targets": list(payload.get("replacement_targets") or []),
             "grounding_targets": list(payload.get("grounding_targets") or []),
             "carryover_targets": list(payload.get("carryover_targets") or []),
@@ -994,6 +1061,10 @@ class LongFormExecutionService:
     ) -> str:
         goals = critique_snapshot.get("rewrite_goals") if critique_snapshot else None
         weaknesses = critique_snapshot.get("weaknesses") if critique_snapshot else None
+        generic_phrase_targets = critique_snapshot.get("generic_phrase_targets") if critique_snapshot else None
+        detail_targets = critique_snapshot.get("detail_targets") if critique_snapshot else None
+        dialogue_grounding_targets = critique_snapshot.get("dialogue_grounding_targets") if critique_snapshot else None
+        emotional_show_targets = critique_snapshot.get("emotional_show_targets") if critique_snapshot else None
         replacement_targets = critique_snapshot.get("replacement_targets") if critique_snapshot else None
         grounding_targets = critique_snapshot.get("grounding_targets") if critique_snapshot else None
         carryover_targets = critique_snapshot.get("carryover_targets") if critique_snapshot else None
@@ -1003,6 +1074,10 @@ class LongFormExecutionService:
             f"PRIOR EXCERPT: {continuation.prior_excerpt or 'None'}\n"
             f"WEAKNESSES: {', '.join(weaknesses) if weaknesses else 'None'}\n"
             f"REWRITE GOALS: {', '.join(goals) if goals else 'Improve clarity and specificity'}\n"
+            f"GENERIC PHRASE TARGETS: {', '.join(generic_phrase_targets) if generic_phrase_targets else 'Replace generic stock phrasing.'}\n"
+            f"DETAIL TARGETS: {', '.join(detail_targets) if detail_targets else 'Add concrete scene detail.'}\n"
+            f"DIALOGUE GROUNDING TARGETS: {', '.join(dialogue_grounding_targets) if dialogue_grounding_targets else 'Ground dialogue in action or setting.'}\n"
+            f"EMOTIONAL SHOW TARGETS: {', '.join(emotional_show_targets) if emotional_show_targets else 'Show emotion through behavior or sensation.'}\n"
             f"REPLACEMENT TARGETS: {', '.join(replacement_targets) if replacement_targets else 'Replace generic lines with concrete detail.'}\n"
             f"GROUNDING TARGETS: {', '.join(grounding_targets) if grounding_targets else 'Anchor dialogue in action or setting.'}\n"
             f"CARRYOVER TARGETS: {', '.join(carryover_targets) if carryover_targets else 'Use prior-scene objects in meaningful action.'}\n"
