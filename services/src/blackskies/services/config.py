@@ -145,6 +145,10 @@ class ServiceSettings(BaseModel):
         default="qwen3:4b",
         description="Default local LLM model name.",
     )
+    local_llm_rewrite_retry_model: str | None = Field(
+        default=None,
+        description="Optional stronger local model name reserved for borderline rewrite retries.",
+    )
     local_llm_health_check: bool = Field(
         default=False,
         description="Enable health probing for the local LLM provider.",
@@ -161,6 +165,10 @@ class ServiceSettings(BaseModel):
     openai_model: str = Field(
         default="gpt-4o-mini",
         description="Default OpenAI model name.",
+    )
+    openai_rewrite_retry_model: str | None = Field(
+        default="gpt-4o",
+        description="Optional stronger OpenAI model name reserved for borderline rewrite retries.",
     )
     openai_base_url: str = Field(
         default="https://api.openai.com/v1",

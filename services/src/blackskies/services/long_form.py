@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -22,6 +22,8 @@ class ChapterMemoryPacket:
     unresolved_tensions: list[str]
     emotional_carryover: str | None
     pacing_carryover: str | None
+    scene_titles: list[str] = field(default_factory=list)
+    beat_refs: list[str] = field(default_factory=list)
 
 
 @dataclass(frozen=True)
@@ -43,6 +45,7 @@ class LongFormChunk:
     acceptance_reason: str | None = None
     rewrite_used: bool = False
     retry_snapshot: dict[str, Any] | None = None
+    guardrail_snapshot: dict[str, Any] | None = None
 
 
 @dataclass(frozen=True)
@@ -110,6 +113,45 @@ def _read_chapter_context(project_root: Path | None, chapter_id: str) -> str | N
     return str(chapter_title)
 
 
+def _read_scene_outline_context(
+    project_root: Path | None,
+    *,
+    chapter_id: str,
+    scene_ids: list[str],
+) -> tuple[list[str], list[str]]:
+    if project_root is None:
+        return [], []
+    outline_path = project_root / "outline.json"
+    if not outline_path.exists():
+        return [], []
+    try:
+        payload = json.loads(outline_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return [], []
+    if not isinstance(payload, dict):
+        return [], []
+    scenes = payload.get("scenes")
+    if not isinstance(scenes, list):
+        return [], []
+    wanted = set(scene_ids)
+    scene_titles: list[str] = []
+    beat_refs: list[str] = []
+    for entry in scenes:
+        if not isinstance(entry, dict):
+            continue
+        if entry.get("chapter_id") != chapter_id:
+            continue
+        if str(entry.get("id") or "") not in wanted:
+            continue
+        title = entry.get("title")
+        if isinstance(title, str) and title.strip():
+            scene_titles.append(title.strip())
+        refs = entry.get("beat_refs")
+        if isinstance(refs, list):
+            beat_refs.extend(str(item).strip() for item in refs if str(item).strip())
+    return scene_titles, beat_refs
+
+
 def assemble_chapter_memory(
     *,
     project_root: Path | None,
@@ -120,6 +162,11 @@ def assemble_chapter_memory(
     unresolved_tensions: list[str] = []
     emotional_carryover = None
     pacing_carryover = None
+    scene_titles, beat_refs = _read_scene_outline_context(
+        project_root,
+        chapter_id=chapter_id,
+        scene_ids=scene_ids,
+    )
 
     if project_root is not None:
         for scene_id in scene_ids:
@@ -145,6 +192,8 @@ def assemble_chapter_memory(
         chapter_id=chapter_id,
         scene_ids=list(scene_ids),
         chapter_context=_read_chapter_context(project_root, chapter_id),
+        scene_titles=scene_titles,
+        beat_refs=beat_refs,
         locked_facts=_read_locked_facts(project_root),
         accumulated_summaries=accumulated_summaries,
         unresolved_tensions=unresolved_tensions,
@@ -938,6 +987,7 @@ def persist_long_form_chunk(project_root: Path, chunk: LongFormChunk) -> Path:
         "acceptance_reason": chunk.acceptance_reason,
         "rewrite_used": chunk.rewrite_used,
         "retry_snapshot": chunk.retry_snapshot,
+        "guardrail_snapshot": chunk.guardrail_snapshot,
     }
     target.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
     return target
@@ -990,6 +1040,7 @@ def load_long_form_chunk(project_root: Path, chunk_id: str) -> LongFormChunk | N
         acceptance_reason=payload.get("acceptance_reason"),
         rewrite_used=bool(payload.get("rewrite_used")),
         retry_snapshot=payload.get("retry_snapshot"),
+        guardrail_snapshot=payload.get("guardrail_snapshot"),
     )
 
 

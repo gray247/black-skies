@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import json
+import re
+from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable
@@ -10,7 +12,14 @@ from uuid import uuid4
 
 from ..budgeting import classify_budget
 from ..diagnostics import DiagnosticLogger
-from ..model_adapters import AdapterError, BaseAdapter, normalize_ollama_payload
+from ..model_adapters import (
+    AdapterConfig,
+    AdapterError,
+    BaseAdapter,
+    OllamaAdapter,
+    OpenAIAdapter,
+    normalize_ollama_payload,
+)
 from ..model_router import ModelRouter, ModelTask, format_route_metadata
 from ..operations.budget_service import BudgetService
 from ..prompt_pipeline import ProviderProfile, select_profile
@@ -59,6 +68,8 @@ class LongFormExecutionService:
     _QUALITY_MIN_SPECIFICITY = 5
     _QUALITY_MIN_CLARITY = 3
     _MAX_BORDERLINE_RECOVERY_RETRIES = 1
+    _REWRITE_LENGTH_LOWER_RATIO = 0.60
+    _REWRITE_LENGTH_UPPER_RATIO = 2.10
 
     def __init__(
         self,
@@ -179,8 +190,10 @@ class LongFormExecutionService:
                 acceptance_reason,
                 rewrite_used,
                 retry_snapshot,
+                guardrail_snapshot,
             ) = self._run_chunk_attempts(
                 adapter=adapter,
+                route=route,
                 prompt=prompt,
                 continuation=continuation,
                 project_root=project_root,
@@ -221,6 +234,7 @@ class LongFormExecutionService:
                 acceptance_reason=acceptance_reason,
                 rewrite_used=rewrite_used,
                 retry_snapshot=retry_snapshot,
+                guardrail_snapshot=guardrail_snapshot,
             )
             persist_long_form_chunk(project_root, chunk)
             persist_long_form_text(project_root, chunk_id, text)
@@ -334,6 +348,10 @@ class LongFormExecutionService:
             lines.append(f"TARGET WORD RANGE: {min_target}-{max_target}")
         if memory.locked_facts:
             lines.append(f"LOCKED FACTS: {'; '.join(memory.locked_facts)}")
+        if memory.scene_titles:
+            lines.append(f"SCENE OUTLINE TITLES: {' | '.join(memory.scene_titles)}")
+        if memory.beat_refs:
+            lines.append(f"SCENE BEAT REFS: {', '.join(memory.beat_refs)}")
         if memory.accumulated_summaries:
             lines.append(f"CHAPTER MEMORY: {' | '.join(memory.accumulated_summaries)}")
         if memory.unresolved_tensions:
@@ -360,6 +378,7 @@ class LongFormExecutionService:
             [
                 "POV RULES: Stay in a consistent POV; do not head-hop.",
                 "PROSE RULES: Show action, sensation, and dialogue where natural.",
+                "OUTLINE RULES: Stay faithful to the outline, current scene subject, and locked facts. Do not invent new roles, twists, or off-outline events.",
                 "FINAL: Begin the scene now with concrete action.",
                 "NO PREFACE: Do not include planning, analysis, or acknowledgements.",
             ]
@@ -370,6 +389,7 @@ class LongFormExecutionService:
         self,
         *,
         adapter: BaseAdapter | None,
+        route: Any | None,
         prompt: str,
         continuation,
         project_root: Path,
@@ -383,6 +403,7 @@ class LongFormExecutionService:
         str | None,
         bool,
         dict[str, Any] | None,
+        dict[str, Any] | None,
     ]:
         if not self._model_router or not self._model_router.config.provider_calls_enabled:
             return (
@@ -395,6 +416,7 @@ class LongFormExecutionService:
                 "provider_calls_disabled",
                 False,
                 None,
+                {"evaluated": False},
             )
         if adapter is None:
             return (
@@ -407,6 +429,7 @@ class LongFormExecutionService:
                 "provider_unavailable",
                 False,
                 None,
+                {"evaluated": False},
             )
 
         payload: dict[str, Any] = {
@@ -431,6 +454,7 @@ class LongFormExecutionService:
         rewrite_used = False
         retry_snapshot: dict[str, Any] | None = None
         retry_attempts_used = 0
+        guardrail_snapshot: dict[str, Any] | None = {"evaluated": False}
 
         try:
             current_payload = dict(payload)
@@ -444,8 +468,24 @@ class LongFormExecutionService:
                     attempt_kind = "rewrite"
                 if attempt > 1:
                     rewrite_used = True
+                attempt_adapter = adapter
+                model_snapshot = self._build_attempt_model_snapshot(
+                    route=route,
+                    adapter=attempt_adapter,
+                    mode=attempt_kind,
+                    escalated=False,
+                    reason="draft_route" if attempt_kind == "draft" else "rewrite_default",
+                )
+                if attempt_kind == "recovery_retry":
+                    attempt_adapter, model_snapshot = self._resolve_rewrite_retry_adapter(
+                        route=route,
+                        default_adapter=adapter,
+                    )
+                    if retry_snapshot is not None:
+                        retry_snapshot["model_snapshot"] = model_snapshot
+                        retry_snapshot["stronger_model_used"] = bool(model_snapshot.get("escalated"))
                 candidate = self._generate_candidate(
-                    adapter=adapter,
+                    adapter=attempt_adapter,
                     payload=current_payload,
                     continuation=continuation,
                     project_root=project_root,
@@ -457,6 +497,7 @@ class LongFormExecutionService:
                     "extracted_field": candidate.get("extracted_field"),
                     "thinking_fallback": candidate.get("thinking_fallback"),
                     "reasoning_trim_applied": candidate.get("reasoning_trim_applied"),
+                    "model_snapshot": model_snapshot,
                 }
                 if candidate.get("adapter_error"):
                     attempt_record["error"] = candidate["adapter_error"]
@@ -481,6 +522,7 @@ class LongFormExecutionService:
                         "adapter_error",
                         rewrite_used,
                         retry_snapshot,
+                        guardrail_snapshot,
                     )
                 cleaned = candidate.get("text")
                 report = evaluate_long_form_output(
@@ -523,6 +565,7 @@ class LongFormExecutionService:
                         "invalid_output",
                         rewrite_used,
                         retry_snapshot,
+                        guardrail_snapshot,
                     )
 
                 quality_snapshot = score_long_form_quality(
@@ -530,6 +573,51 @@ class LongFormExecutionService:
                     prior_excerpt=continuation.prior_excerpt,
                     prior_summary=continuation.prior_summary,
                 )
+                if attempt_kind in {"rewrite", "recovery_retry"}:
+                    guardrail_snapshot = self._evaluate_rewrite_guardrails(
+                        original_text=previous_quality_snapshot.get("text") if isinstance(previous_quality_snapshot, dict) else None,
+                        fallback_original_text=None,
+                        rewritten_text=cleaned,
+                        continuation=continuation,
+                        chapter_memory=continuation.chapter_memory,
+                        quality_snapshot=quality_snapshot,
+                        mode=attempt_kind,
+                    )
+                    attempt_record["guardrail_snapshot"] = guardrail_snapshot
+                    if not guardrail_snapshot.get("accepted"):
+                        attempt_record["guardrail_blocked"] = True
+                        persist_long_form_diagnostic(
+                            project_root,
+                            continuation.chunk_id,
+                            {
+                                "chunk_id": continuation.chunk_id,
+                                "validation_decision": False,
+                                "fallback_reason": "rewrite_guardrail_failed",
+                                "attempts": attempt_diagnostics,
+                                "quality_snapshot": quality_snapshot,
+                                "critique_snapshot": critique_snapshot,
+                                "retry_snapshot": retry_snapshot,
+                                "guardrail_snapshot": guardrail_snapshot,
+                            },
+                        )
+                        self._diagnostics.log(
+                            project_root,
+                            code="VALIDATION",
+                            message="Rewrite rejected by outline/length guardrails.",
+                            details={"guardrail_snapshot": guardrail_snapshot, "attempt": attempt},
+                        )
+                        return (
+                            self._fallback_text(continuation),
+                            "rewrite_guardrail_failed",
+                            True,
+                            attempt,
+                            quality_snapshot,
+                            critique_snapshot,
+                            "rewrite_guardrail_failed",
+                            rewrite_used,
+                            retry_snapshot,
+                            guardrail_snapshot,
+                        )
                 quality_pass = self._quality_passes(
                     quality_snapshot,
                     rewrite_used=rewrite_used,
@@ -573,6 +661,7 @@ class LongFormExecutionService:
                                 "acceptance_reason": acceptance_reason,
                                 "critique_snapshot": critique_snapshot,
                                 "retry_snapshot": retry_snapshot,
+                                "guardrail_snapshot": guardrail_snapshot,
                             },
                         )
                     return (
@@ -585,12 +674,14 @@ class LongFormExecutionService:
                         acceptance_reason,
                         rewrite_used,
                         retry_snapshot,
+                        guardrail_snapshot,
                     )
 
                 if attempt < self._MAX_ATTEMPTS:
                     previous_quality_snapshot = quality_snapshot
+                    previous_quality_snapshot["text"] = cleaned
                     critique_snapshot = self._run_chunk_critique(
-                        adapter=adapter,
+                        adapter=attempt_adapter,
                         text=cleaned,
                         continuation=continuation,
                         project_root=project_root,
@@ -631,6 +722,7 @@ class LongFormExecutionService:
                         "failure_classification": failure_classification,
                         "reason": failure_classification.get("reason"),
                         "triggered_after_attempt": attempt,
+                        "stronger_model_used": False,
                     }
                     attempt_record["retry_decision"] = {
                         "eligible": True,
@@ -638,6 +730,7 @@ class LongFormExecutionService:
                         "classification": failure_classification.get("classification"),
                     }
                     previous_quality_snapshot = quality_snapshot
+                    previous_quality_snapshot["text"] = cleaned
                     current_payload = dict(payload)
                     current_payload["prompt"] = self._build_recovery_retry_prompt(
                         original_text=cleaned,
@@ -663,6 +756,7 @@ class LongFormExecutionService:
                         "attempts": attempt_diagnostics,
                         "quality_snapshot": quality_snapshot,
                         "critique_snapshot": critique_snapshot,
+                        "guardrail_snapshot": guardrail_snapshot,
                         "retry_snapshot": retry_snapshot
                         or {
                             "used": False,
@@ -700,6 +794,7 @@ class LongFormExecutionService:
                         "failure_classification": failure_classification,
                         "reason": failure_classification.get("reason"),
                     },
+                    guardrail_snapshot,
                 )
         except AdapterError as exc:
             self._diagnostics.log(
@@ -718,6 +813,7 @@ class LongFormExecutionService:
                 "adapter_error",
                 rewrite_used,
                 retry_snapshot,
+                guardrail_snapshot,
             )
         except Exception as exc:  # pragma: no cover - defensive
             self._diagnostics.log(
@@ -736,7 +832,98 @@ class LongFormExecutionService:
                 "adapter_exception",
                 rewrite_used,
                 retry_snapshot,
+                guardrail_snapshot,
             )
+
+    def _build_attempt_model_snapshot(
+        self,
+        *,
+        route: Any | None,
+        adapter: BaseAdapter,
+        mode: str,
+        escalated: bool,
+        reason: str,
+    ) -> dict[str, Any]:
+        provider = route.provider if route is not None else adapter.provider_name
+        route_model = route.model.name if route is not None else None
+        adapter_model = getattr(adapter.config, "model", None)
+        return {
+            "provider": provider,
+            "model": adapter_model or route_model,
+            "baseline_model": route_model or adapter_model,
+            "mode": mode,
+            "escalated": escalated,
+            "reason": reason,
+        }
+
+    def _resolve_rewrite_retry_adapter(
+        self,
+        *,
+        route: Any | None,
+        default_adapter: BaseAdapter,
+    ) -> tuple[BaseAdapter, dict[str, Any]]:
+        if route is not None and route.provider == "openai":
+            model = (
+                self._settings.openai_rewrite_retry_model
+                or self._settings.openai_model
+            )
+            if not isinstance(default_adapter, OpenAIAdapter):
+                return default_adapter, self._build_attempt_model_snapshot(
+                    route=route,
+                    adapter=default_adapter,
+                    mode="recovery_retry",
+                    escalated=model != route.model.name,
+                    reason="rewrite_retry_model_stub",
+                )
+            adapter = OpenAIAdapter(
+                AdapterConfig(
+                    base_url=self._settings.openai_base_url,
+                    model=model,
+                    timeout_seconds=self._settings.openai_timeout_seconds,
+                ),
+                api_key=self._settings.openai_api_key,
+            )
+            return adapter, self._build_attempt_model_snapshot(
+                route=route,
+                adapter=adapter,
+                mode="recovery_retry",
+                escalated=model != route.model.name,
+                reason="rewrite_retry_model",
+            )
+        if route is not None and route.provider == "local_llm":
+            model = (
+                self._settings.local_llm_rewrite_retry_model
+                or self._settings.local_llm_model
+            )
+            if not isinstance(default_adapter, OllamaAdapter):
+                return default_adapter, self._build_attempt_model_snapshot(
+                    route=route,
+                    adapter=default_adapter,
+                    mode="recovery_retry",
+                    escalated=model != route.model.name,
+                    reason="rewrite_retry_model_stub",
+                )
+            adapter = OllamaAdapter(
+                AdapterConfig(
+                    base_url=self._settings.local_llm_base_url,
+                    model=model,
+                    timeout_seconds=self._settings.local_llm_timeout_seconds,
+                )
+            )
+            return adapter, self._build_attempt_model_snapshot(
+                route=route,
+                adapter=adapter,
+                mode="recovery_retry",
+                escalated=model != route.model.name,
+                reason="rewrite_retry_model",
+            )
+        return default_adapter, self._build_attempt_model_snapshot(
+            route=route,
+            adapter=default_adapter,
+            mode="recovery_retry",
+            escalated=False,
+            reason="rewrite_retry_model_unavailable",
+        )
 
     def _classify_quality_failure(
         self,
@@ -840,10 +1027,141 @@ class LongFormExecutionService:
             "RECOVERY RETRY RULES:\n"
             "This is the only allowed recovery retry after a borderline rewrite miss.\n"
             f"Retry reason: {failure_classification.get('reason')}\n"
+            "Use the stronger rewrite model path to improve quality without drifting from the outline.\n"
             "Do not change the scene direction. Improve only the unresolved quality weaknesses.\n"
             "UNRESOLVED QUALITY TARGETS:\n"
             f"{unresolved_text}\n"
         )
+
+    def _rewrite_length_bounds(self, original_word_count: int) -> tuple[int, int]:
+        min_words = max(80, int(original_word_count * self._REWRITE_LENGTH_LOWER_RATIO))
+        max_words = max(min_words + 40, int(original_word_count * self._REWRITE_LENGTH_UPPER_RATIO))
+        return min_words, max_words
+
+    def _anchor_terms(self, text: str | None, *, limit: int = 12) -> list[str]:
+        if not text:
+            return []
+        words = re.findall(r"[A-Za-z][A-Za-z'-]{2,}", text.lower())
+        stopwords = {
+            "about", "after", "again", "along", "around", "before", "being", "between",
+            "could", "every", "first", "from", "into", "just", "like", "maybe", "might",
+            "other", "over", "still", "their", "there", "these", "those", "through",
+            "under", "until", "while", "with", "would",
+        }
+        counts = Counter(word for word in words if word not in stopwords)
+        return [term for term, _ in counts.most_common(limit)]
+
+    def _capitalized_terms(self, text: str | None) -> set[str]:
+        if not text:
+            return set()
+        blocked = {
+            "the", "a", "an", "and", "but", "for", "her", "his", "their", "they", "he", "she",
+            "it", "this", "that", "again", "hold", "storm", "chapter", "scene",
+            "did", "does", "do", "can", "could", "would", "should", "will", "was", "were", "are",
+        }
+        tokens = re.findall(r"\b[A-Z][a-z]{2,}\b", text)
+        return {token.lower() for token in tokens if token.lower() not in blocked}
+
+    def _capitalized_term_counts(self, text: str | None) -> Counter[str]:
+        if not text:
+            return Counter()
+        blocked = {
+            "the", "a", "an", "and", "but", "for", "her", "his", "their", "they", "he", "she",
+            "it", "this", "that", "again", "hold", "storm", "chapter", "scene",
+            "did", "does", "do", "can", "could", "would", "should", "will", "was", "were", "are",
+        }
+        tokens = re.findall(r"\b[A-Z][a-z]{2,}\b", text)
+        return Counter(token.lower() for token in tokens if token.lower() not in blocked)
+
+    def _evaluate_rewrite_guardrails(
+        self,
+        *,
+        original_text: str | None,
+        fallback_original_text: str | None,
+        rewritten_text: str,
+        continuation,
+        chapter_memory,
+        quality_snapshot: dict[str, Any] | None,
+        mode: str,
+    ) -> dict[str, Any]:
+        source_text = original_text or fallback_original_text or ""
+        original_word_count = len(source_text.split())
+        rewritten_word_count = len(rewritten_text.split())
+        min_words, max_words = self._rewrite_length_bounds(max(1, original_word_count))
+        within_length_band = min_words <= rewritten_word_count <= max_words
+
+        original_anchor_terms = self._anchor_terms(source_text)
+        context_terms = self._anchor_terms(
+            " ".join(
+                [
+                    continuation.prior_summary or "",
+                    continuation.prior_excerpt or "",
+                    " ".join(chapter_memory.scene_titles or []),
+                    " ".join(chapter_memory.locked_facts or []),
+                ]
+            )
+        )
+        rewritten_anchor_terms = set(self._anchor_terms(rewritten_text, limit=18))
+        retained_anchors = [term for term in original_anchor_terms if term in rewritten_anchor_terms]
+        outline_anchor_hits = [term for term in context_terms if term in rewritten_anchor_terms]
+        required_overlap = 1 if original_anchor_terms else 0
+        scene_anchor_drift = bool(
+            required_overlap
+            and len(retained_anchors) < required_overlap
+            and not outline_anchor_hits
+        )
+
+        authoritative_names = self._capitalized_terms(continuation.prior_summary)
+        authoritative_names.update(self._capitalized_terms(continuation.prior_excerpt))
+        authoritative_names.update(self._capitalized_terms(" ".join(chapter_memory.scene_titles or [])))
+        authoritative_names.update(self._capitalized_terms(" ".join(chapter_memory.locked_facts or [])))
+        allowed_names = set(authoritative_names)
+        allowed_names.update(self._capitalized_terms(source_text))
+        authoritative_name_check = bool(authoritative_names)
+        rewritten_name_counts = self._capitalized_term_counts(rewritten_text)
+        introduced_names = sorted(
+            term
+            for term, count in rewritten_name_counts.items()
+            if count > 1 and term not in allowed_names
+        )
+        blocking_new_story_elements = introduced_names if authoritative_name_check else []
+        outline_fidelity_pass = not scene_anchor_drift and not blocking_new_story_elements
+
+        failure_reason = None
+        if not within_length_band:
+            failure_reason = "length_band_failed"
+        elif blocking_new_story_elements:
+            failure_reason = "outline_drift_detected"
+        elif scene_anchor_drift:
+            failure_reason = "scene_anchor_drift_detected"
+
+        return {
+            "evaluated": True,
+            "mode": mode,
+            "outline_titles": list(chapter_memory.scene_titles or []),
+            "beat_refs": list(chapter_memory.beat_refs or []),
+            "locked_facts_evaluated": bool(chapter_memory.locked_facts),
+            "length_band_evaluated": True,
+            "original_word_count": original_word_count,
+            "rewritten_word_count": rewritten_word_count,
+            "min_word_count": min_words,
+            "max_word_count": max_words,
+            "within_length_band": within_length_band,
+            "outline_fidelity_evaluated": True,
+            "outline_fidelity_pass": outline_fidelity_pass,
+            "original_anchor_terms": original_anchor_terms,
+            "retained_anchor_terms": retained_anchors,
+            "outline_anchor_hits": outline_anchor_hits,
+            "required_anchor_overlap": required_overlap,
+            "scene_anchor_drift_detected": scene_anchor_drift,
+            "new_story_elements": introduced_names,
+            "blocking_new_story_elements": blocking_new_story_elements,
+            "authoritative_name_check": authoritative_name_check,
+            "uncertainty_triggered": failure_reason is not None,
+            "failure_reason": failure_reason,
+            "accepted": failure_reason is None,
+            "quality_total_score": int((quality_snapshot or {}).get("total_score") or 0),
+        }
 
     def _generate_candidate(
         self,
@@ -1296,6 +1614,8 @@ class LongFormExecutionService:
         carryover_targets = critique_snapshot.get("carryover_targets") if critique_snapshot else None
         continuation_chunk = bool(continuation.prior_summary or continuation.prior_excerpt)
         carryover_terms = list((quality_snapshot or {}).get("carryover_terms") or [])
+        original_word_count = len(original_text.split())
+        min_words, max_words = self._rewrite_length_bounds(max(1, original_word_count))
         continuation_rules = (
             "CONTINUATION RULES:\n"
             "1. Replace every phrase named in GENERIC PHRASE TARGETS with concrete scene detail; do not reuse the same metaphor or atmosphere wording.\n"
@@ -1303,15 +1623,21 @@ class LongFormExecutionService:
             "3. Reuse the detected carryover terms in concrete action or sensory follow-through; do not repeat them decoratively.\n"
             "4. Increase specificity through concrete noun/action detail and observable bodily response, not summary.\n"
             "5. Keep dialogue attached to movement, gesture, or handled objects.\n"
+            "6. Preserve the original scene subject, place, and intended action; do not introduce off-outline events or characters.\n"
         )
         opening_rules = (
             "OPENING RULES:\n"
             "1. Replace named generic phrases with concrete setting detail.\n"
             "2. Ground important dialogue in gesture, movement, or surrounding objects.\n"
             "3. Show emotion through visible behavior or sensation.\n"
+            "4. Preserve the original scene premise and outline subject; do not invent a different scene.\n"
         )
         return (
             "Rewrite the scene to address critique while preserving story intent.\n"
+            f"CHAPTER: {continuation.chapter_memory.chapter_context or continuation.chapter_id}\n"
+            f"SCENE OUTLINE TITLES: {' | '.join(continuation.chapter_memory.scene_titles) if continuation.chapter_memory.scene_titles else 'Unknown'}\n"
+            f"SCENE BEAT REFS: {', '.join(continuation.chapter_memory.beat_refs) if continuation.chapter_memory.beat_refs else 'None'}\n"
+            f"LOCKED FACTS: {'; '.join(continuation.chapter_memory.locked_facts) if continuation.chapter_memory.locked_facts else 'None'}\n"
             f"PRIOR SUMMARY: {continuation.prior_summary or 'No prior summary.'}\n"
             f"PRIOR EXCERPT: {continuation.prior_excerpt or 'None'}\n"
             f"WEAKNESSES: {', '.join(weaknesses) if weaknesses else 'None'}\n"
@@ -1329,6 +1655,9 @@ class LongFormExecutionService:
             "GROUND: every important line of dialogue in physical action, gesture, object handling, or setting.\n"
             "SHOW: emotional state through observable sensation, movement, breath, or behavior instead of abstract labels.\n"
             "PRESERVE: continuity anchors from the prior summary and excerpt while increasing specificity.\n"
+            "OUTLINE FIDELITY: stay inside the supplied outline, locked facts, and current scene premise.\n"
+            "NO NEW STORY ELEMENTS: do not invent new roles, locations, twists, or causal events that are not grounded in the outline or existing scene text.\n"
+            f"LENGTH BAND: stay between {min_words} and {max_words} words unless the original text is malformed.\n"
             "DO NOT: lightly paraphrase generic atmosphere filler; remove it or convert it into concrete detail.\n"
             "REMOVE: generic filler, vague summary language, meta/planning lines.\n"
             f"{continuation_rules if continuation_chunk else opening_rules}"

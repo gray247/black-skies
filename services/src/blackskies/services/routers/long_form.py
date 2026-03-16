@@ -38,6 +38,7 @@ def _chunk_to_dict(chunk) -> dict[str, Any]:
         "acceptance_reason": chunk.acceptance_reason,
         "rewrite_used": chunk.rewrite_used,
         "retry_snapshot": chunk.retry_snapshot,
+        "guardrail_snapshot": chunk.guardrail_snapshot,
     }
 
 

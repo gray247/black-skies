@@ -314,6 +314,39 @@ def _opening_recovery_text() -> str:
     )
 
 
+def _write_outline_context(
+    project_root: Path,
+    *,
+    chapter_id: str = "ch_0001",
+    scene_id: str = "sc_0001",
+    scene_title: str = "Market Square Argument",
+    beat_refs: list[str] | None = None,
+    locked_facts: list[str] | None = None,
+) -> None:
+    (project_root / "outline.json").write_text(
+        json.dumps(
+            {
+                "acts": ["Act I: Gathered Storm"],
+                "chapters": [{"id": chapter_id, "title": "Chapter One"}],
+                "scenes": [
+                    {
+                        "id": scene_id,
+                        "chapter_id": chapter_id,
+                        "title": scene_title,
+                        "beat_refs": beat_refs or ["Lucas and Clara argue in the market square."],
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    if locked_facts:
+        (project_root / "locked_facts.json").write_text(
+            json.dumps({"facts": locked_facts}),
+            encoding="utf-8",
+        )
+
+
 def test_long_form_execution_persists_chunks(tmp_path: Path) -> None:
     project_root = tmp_path / "proj_exec"
     project_root.mkdir(parents=True, exist_ok=True)
@@ -896,7 +929,11 @@ def test_long_form_execution_recovers_borderline_quality_failure_with_single_ret
 ) -> None:
     project_root = tmp_path / "proj_borderline_retry"
     project_root.mkdir(parents=True, exist_ok=True)
-    settings = ServiceSettings(project_base_dir=tmp_path, long_form_provider_enabled=True)
+    settings = ServiceSettings(
+        project_base_dir=tmp_path,
+        long_form_provider_enabled=True,
+        local_llm_rewrite_retry_model="qwen3:14b",
+    )
     diagnostics = DiagnosticLogger()
     router = ModelRouter(
         config=ModelRouterConfig(
@@ -944,6 +981,11 @@ def test_long_form_execution_recovers_borderline_quality_failure_with_single_ret
     assert chunk.retry_snapshot["used"] is True
     assert chunk.retry_snapshot["succeeded"] is True
     assert chunk.retry_snapshot["reason"] == "borderline_quality_after_rewrite"
+    assert chunk.retry_snapshot["stronger_model_used"] is True
+    assert chunk.retry_snapshot["model_snapshot"]["escalated"] is True
+    assert chunk.retry_snapshot["model_snapshot"]["reason"] == "rewrite_retry_model_stub"
+    assert chunk.guardrail_snapshot is not None
+    assert chunk.guardrail_snapshot["evaluated"] is True
     diag_path = (
         project_root
         / ".blackskies"
@@ -954,7 +996,10 @@ def test_long_form_execution_recovers_borderline_quality_failure_with_single_ret
     payload = json.loads(diag_path.read_text(encoding="utf-8"))
     assert payload["retry_snapshot"]["used"] is True
     assert payload["retry_snapshot"]["succeeded"] is True
+    assert payload["retry_snapshot"]["stronger_model_used"] is True
+    assert payload["guardrail_snapshot"]["mode"] == "recovery_retry"
     assert payload["attempts"][2]["mode"] == "recovery_retry"
+    assert payload["attempts"][2]["model_snapshot"]["escalated"] is True
 
 
 def test_long_form_execution_rejects_cosmetic_rewrite_without_meaningful_delta(
@@ -1399,6 +1444,114 @@ def test_long_form_execution_recovers_clean_opening_rewrite_with_concrete_improv
     assert chunk.quality_snapshot is not None
     assert chunk.quality_snapshot["scores"]["clarity"] >= 4
     assert chunk.quality_snapshot["scores"]["specificity"] >= 3
+
+
+def test_long_form_execution_rejects_outline_drift_in_rewrite(tmp_path: Path) -> None:
+    project_root = tmp_path / "proj_outline_guardrail"
+    project_root.mkdir(parents=True, exist_ok=True)
+    _write_outline_context(
+        project_root,
+        locked_facts=[
+            "Lucas and Clara are in the market square.",
+            "Only Lucas and Clara appear in this scene.",
+        ],
+    )
+    settings = ServiceSettings(project_base_dir=tmp_path, long_form_provider_enabled=True)
+    diagnostics = DiagnosticLogger()
+    router = ModelRouter(
+        config=ModelRouterConfig(
+            policy=ModelRoutingPolicy.LOCAL_ONLY,
+            provider_calls_enabled=True,
+        )
+    )
+    critique = json.dumps(
+        {
+            "summary": "Ground the opening in concrete square detail.",
+            "weaknesses": ["clarity", "specificity"],
+            "continuity_issues": [],
+            "pacing_issues": [],
+            "meta_contamination": False,
+            "rewrite_goals": ["Sharpen the market-square blocking"],
+        }
+    )
+    adapter = _CritiqueRewriteAdapter(_opening_generic_text(), critique, _long_text())
+    router.register_provider(_FakeProvider(adapter))
+    service = LongFormExecutionService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=router,
+        enabled=True,
+    )
+
+    result = service.execute(
+        project_root=project_root,
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chunk_size=1,
+        target_words_per_chunk=400,
+    )
+
+    assert result.stopped_reason == "rewrite_guardrail_failed"
+    chunk = result.chunks[0]
+    assert chunk.guardrail_snapshot is not None
+    assert chunk.guardrail_snapshot["failure_reason"] == "outline_drift_detected"
+    assert "mara" in chunk.guardrail_snapshot["blocking_new_story_elements"]
+    diag_path = (
+        project_root
+        / ".blackskies"
+        / "long_form"
+        / "diagnostics"
+        / f"{chunk.chunk_id}.json"
+    )
+    payload = json.loads(diag_path.read_text(encoding="utf-8"))
+    assert payload["guardrail_snapshot"]["authoritative_name_check"] is True
+    assert "mara" in payload["guardrail_snapshot"]["blocking_new_story_elements"]
+
+
+def test_long_form_execution_rejects_length_band_violation_in_rewrite(tmp_path: Path) -> None:
+    project_root = tmp_path / "proj_length_guardrail"
+    project_root.mkdir(parents=True, exist_ok=True)
+    settings = ServiceSettings(project_base_dir=tmp_path, long_form_provider_enabled=True)
+    diagnostics = DiagnosticLogger()
+    router = ModelRouter(
+        config=ModelRouterConfig(
+            policy=ModelRoutingPolicy.LOCAL_ONLY,
+            provider_calls_enabled=True,
+        )
+    )
+    critique = json.dumps(
+        {
+            "summary": "Ground the opening in concrete square detail.",
+            "weaknesses": ["clarity", "specificity"],
+            "continuity_issues": [],
+            "pacing_issues": [],
+            "meta_contamination": False,
+            "rewrite_goals": ["Sharpen the market-square blocking"],
+        }
+    )
+    overlong_rewrite = _opening_recovery_text() + "\n\n" + _opening_recovery_text()
+    adapter = _CritiqueRewriteAdapter(_opening_generic_text(), critique, overlong_rewrite)
+    router.register_provider(_FakeProvider(adapter))
+    service = LongFormExecutionService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=router,
+        enabled=True,
+    )
+
+    result = service.execute(
+        project_root=project_root,
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chunk_size=1,
+        target_words_per_chunk=400,
+    )
+
+    assert result.stopped_reason == "rewrite_guardrail_failed"
+    chunk = result.chunks[0]
+    assert chunk.guardrail_snapshot is not None
+    assert chunk.guardrail_snapshot["failure_reason"] == "length_band_failed"
+    assert chunk.guardrail_snapshot["within_length_band"] is False
 
 
 def test_long_form_execution_stops_after_max_attempts(tmp_path: Path) -> None:
