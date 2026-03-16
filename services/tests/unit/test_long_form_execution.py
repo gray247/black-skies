@@ -178,6 +178,20 @@ def _low_quality_text() -> str:
     )
 
 
+def _borderline_specificity_text() -> str:
+    return (
+        (
+            "Mara crossed the porch while rain ticked off the railing and shadow pooled beneath the steps. "
+            * 24
+        ).strip()
+        + "\n\n"
+        + (
+            "The hall stayed narrow as rain pressed at the windows and shadow held in the corners behind her. "
+            * 20
+        ).strip()
+    )
+
+
 def test_long_form_execution_persists_chunks(tmp_path: Path) -> None:
     project_root = tmp_path / "proj_exec"
     project_root.mkdir(parents=True, exist_ok=True)
@@ -582,6 +596,53 @@ def test_long_form_execution_rewrites_after_quality_failure(tmp_path: Path) -> N
     assert payload["validation_decision"] is True
     assert payload.get("attempts")
     assert payload.get("critique_snapshot")
+
+
+def test_long_form_execution_rewrites_borderline_specificity_chunk(tmp_path: Path) -> None:
+    project_root = tmp_path / "proj_borderline_rewrite"
+    project_root.mkdir(parents=True, exist_ok=True)
+    settings = ServiceSettings(project_base_dir=tmp_path, long_form_provider_enabled=True)
+    diagnostics = DiagnosticLogger()
+    router = ModelRouter(
+        config=ModelRouterConfig(
+            policy=ModelRoutingPolicy.LOCAL_ONLY,
+            provider_calls_enabled=True,
+        )
+    )
+    critique = json.dumps(
+        {
+            "summary": "Needs more concrete detail.",
+            "weaknesses": ["specificity"],
+            "continuity_issues": [],
+            "pacing_issues": [],
+            "meta_contamination": False,
+            "rewrite_goals": ["Add vivid sensory detail"],
+        }
+    )
+    adapter = _CritiqueRewriteAdapter(_borderline_specificity_text(), critique, _long_text())
+    router.register_provider(_FakeProvider(adapter))
+    service = LongFormExecutionService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=router,
+        enabled=True,
+    )
+
+    result = service.execute(
+        project_root=project_root,
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chunk_size=1,
+        target_words_per_chunk=400,
+    )
+
+    assert result.stopped_reason is None
+    chunk = result.chunks[0]
+    assert chunk.rewrite_used is True
+    assert chunk.attempt_count == 2
+    assert chunk.acceptance_reason == "rewrite_pass"
+    assert chunk.quality_snapshot is not None
+    assert chunk.quality_snapshot["scores"]["specificity"] == 5
 
 
 def test_long_form_execution_stops_after_max_attempts(tmp_path: Path) -> None:

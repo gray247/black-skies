@@ -56,7 +56,7 @@ class LongFormExecutionService:
     _QUALITY_MIN_TOTAL = 28
     _QUALITY_MIN_COHERENCE = 3
     _QUALITY_MIN_CONTINUITY = 3
-    _QUALITY_MIN_SPECIFICITY = 3
+    _QUALITY_MIN_SPECIFICITY = 5
     _QUALITY_MIN_CLARITY = 3
 
     def __init__(
