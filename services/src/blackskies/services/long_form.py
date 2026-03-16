@@ -221,20 +221,31 @@ _CONTEXT_STOPWORDS = {
     "around",
     "before",
     "being",
+    "breath",
     "clara",
     "could",
+    "feeling",
+    "fingers",
     "first",
+    "faint",
     "found",
     "from",
+    "heavy",
     "heard",
+    "hesitated",
     "house",
     "jun",
     "maybe",
     "might",
+    "pressed",
+    "pressing",
+    "rough",
+    "surface",
     "their",
     "there",
     "through",
     "under",
+    "weight",
     "while",
     "would",
 }
@@ -264,6 +275,64 @@ def _count_phrase_hits(text: str, phrases: tuple[str, ...]) -> int:
     return sum(1 for phrase in phrases if phrase in lowered)
 
 
+def _material_carryover_hits(text: str, carryover_terms: list[str]) -> int:
+    if not text or not carryover_terms:
+        return 0
+    action_markers = (
+        "gripped",
+        "grasped",
+        "pressed",
+        "tested",
+        "turned",
+        "opened",
+        "lifted",
+        "held",
+        "pulled",
+        "pushed",
+        "tied",
+        "slipped",
+        "pocketed",
+        "locked",
+        "unlocked",
+        "braced",
+        "twisted",
+        "tugged",
+    )
+    concrete_markers = (
+        "door",
+        "chain",
+        "lantern",
+        "key",
+        "ribbon",
+        "pocket",
+        "coat",
+        "floor",
+        "frame",
+        "handle",
+        "lock",
+        "corridor",
+        "hall",
+        "room",
+        "stair",
+        "window",
+        "chair",
+        "clock",
+        "fox",
+        "nursery",
+    )
+    hits = 0
+    for sentence in re.split(r"[.!?]\s+", text.lower()):
+        if not sentence.strip():
+            continue
+        if not any(term in sentence for term in carryover_terms):
+            continue
+        if any(marker in sentence for marker in action_markers) and any(
+            marker in sentence for marker in concrete_markers
+        ):
+            hits += 1
+    return hits
+
+
 def evaluate_long_form_output(
     text: str | None,
     *,
@@ -283,6 +352,7 @@ def evaluate_long_form_output(
     lowered = stripped.lower()
     carryover_terms = _context_terms(prior_excerpt, prior_summary)
     carryover_hits = sum(1 for token in carryover_terms if token in lowered)
+    material_carryover_hits = _material_carryover_hits(stripped, carryover_terms)
     missing_carryover = bool(carryover_terms) and carryover_hits < min(2, len(carryover_terms))
     usable = word_count >= 120 and paragraph_count >= 2 and not meta
     return {
@@ -293,6 +363,7 @@ def evaluate_long_form_output(
         "missing_carryover": missing_carryover,
         "carryover_terms": carryover_terms,
         "carryover_hits": carryover_hits,
+        "material_carryover_hits": material_carryover_hits,
     }
 
 
@@ -601,6 +672,7 @@ def score_long_form_quality(
     missing_carryover = bool(report.get("missing_carryover"))
     carryover_terms = list(report.get("carryover_terms") or [])
     carryover_hits = int(report.get("carryover_hits") or 0)
+    material_carryover_hits = int(report.get("material_carryover_hits") or 0)
     dialogue_present = any(mark in stripped for mark in ('"', "“", "”"))
     meta_markers = (
         "word count",
@@ -699,10 +771,15 @@ def score_long_form_quality(
             continuity = 1
     else:
         continuity = 3
+    material_carryover = not carryover_terms or material_carryover_hits >= 1
+    if carryover_terms and not material_carryover:
+        continuity = max(2, continuity - 1)
     if stock_phrase_hits >= 4:
         continuity = max(1, continuity - 1)
     clarity = 4 if not (meta_summary or meta_contamination) else 2
     if generic_risk:
+        clarity = max(2, clarity - 1)
+    if carryover_terms and generic_risk and not material_carryover:
         clarity = max(2, clarity - 1)
     pacing = 5 if word_count >= 360 else (4 if word_count >= 240 else 2)
     if concrete_hits >= 4 and sensory_hits >= 2:
@@ -716,6 +793,8 @@ def score_long_form_quality(
     else:
         specificity = 1
     if generic_risk and specificity > 1:
+        specificity -= 1
+    if carryover_terms and generic_risk and not material_carryover and specificity > 1:
         specificity -= 1
     dialogue_grounding_words = (
         "said",
@@ -766,6 +845,8 @@ def score_long_form_quality(
         "stock_phrase_hits": stock_phrase_hits,
         "carryover_terms": carryover_terms,
         "carryover_hits": carryover_hits,
+        "material_carryover_hits": material_carryover_hits,
+        "material_carryover": material_carryover,
         "weak_carryover": missing_carryover,
         "generic_risk": generic_risk,
     }

@@ -272,6 +272,16 @@ def _cosmetic_rewrite_text() -> str:
     )
 
 
+def _adversarial_near_miss_text() -> str:
+    return (
+        "Clara kept mentioning the lantern and the key while the corridor felt heavy with dread and the shadows closed around them for a moment. "
+        * 12
+        + "\n\n"
+        + "\"Did you hear that?\" Jun asked. Clara glanced at the chained door, but the words hung in the air while the fox stayed in her pocket and a flicker of fear moved through her without changing what they did next. "
+        * 8
+    )
+
+
 def test_long_form_execution_persists_chunks(tmp_path: Path) -> None:
     project_root = tmp_path / "proj_exec"
     project_root.mkdir(parents=True, exist_ok=True)
@@ -907,6 +917,82 @@ def test_long_form_execution_rejects_cosmetic_rewrite_without_meaningful_delta(
     assert rewrite_attempt["quality_snapshot"]["total_score"] < 28
     assert rewrite_attempt["quality_snapshot"]["scores"]["specificity"] <= 2
     assert rewrite_attempt["quality_snapshot"]["scores"]["clarity"] <= 3
+
+
+def test_long_form_execution_rewrites_adversarial_near_miss_continuation(
+    tmp_path: Path,
+) -> None:
+    project_root = tmp_path / "proj_adversarial_nearmiss"
+    project_root.mkdir(parents=True, exist_ok=True)
+    settings = ServiceSettings(project_base_dir=tmp_path, long_form_provider_enabled=True)
+    diagnostics = DiagnosticLogger()
+    router = ModelRouter(
+        config=ModelRouterConfig(
+            policy=ModelRoutingPolicy.LOCAL_ONLY,
+            provider_calls_enabled=True,
+        )
+    )
+    critique = json.dumps(
+        {
+            "summary": "The continuation name-drops carryover objects but does not use them meaningfully.",
+            "weaknesses": [
+                "Generic stock atmosphere keeps replacing concrete action.",
+                "Dialogue feels low-information even though it is technically grounded.",
+                "Vague emotional language outweighs scene-specific detail.",
+            ],
+            "continuity_issues": [
+                "The lantern, chain, and fox are mentioned without changing blocking or decisions."
+            ],
+            "pacing_issues": [],
+            "meta_contamination": False,
+            "rewrite_goals": [
+                "Make the carryover objects affect action",
+                "Replace generic dread lines with concrete detail",
+            ],
+            "replacement_targets": ["Replace generic corridor dread with visible action at the chained door"],
+            "grounding_targets": ["Attach dialogue to handling the lantern, chain, or key"],
+            "carryover_targets": ["Use the lantern, chain, or fox in a meaningful action or choice"],
+        }
+    )
+    adapter = _SequencedCritiqueRewriteAdapter(
+        [_carryover_anchor_text(), _adversarial_near_miss_text()],
+        critique,
+        [_strong_continuation_rewrite_text()],
+    )
+    router.register_provider(_FakeProvider(adapter))
+    service = LongFormExecutionService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=router,
+        enabled=True,
+    )
+
+    result = service.execute(
+        project_root=project_root,
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001", "sc_0002"],
+        chunk_size=1,
+        target_words_per_chunk=400,
+    )
+
+    assert result.stopped_reason is None
+    chunk = result.chunks[1]
+    assert chunk.rewrite_used is True
+    assert chunk.acceptance_reason == "rewrite_pass"
+    diag_path = (
+        project_root
+        / ".blackskies"
+        / "long_form"
+        / "diagnostics"
+        / f"{chunk.chunk_id}.json"
+    )
+    payload = json.loads(diag_path.read_text(encoding="utf-8"))
+    first_attempt = payload["attempts"][0]
+    assert first_attempt["quality_pass"] is False
+    assert first_attempt["quality_snapshot"]["material_carryover"] is False
+    rewrite_attempt = payload["attempts"][1]
+    assert rewrite_attempt["quality_pass"] is True
+    assert rewrite_attempt["rewrite_delta"]["continuity_delta"] >= 1
 
 
 def test_long_form_execution_stops_after_max_attempts(tmp_path: Path) -> None:

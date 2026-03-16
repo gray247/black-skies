@@ -518,6 +518,7 @@ class LongFormExecutionService:
                     quality_snapshot,
                     rewrite_used=rewrite_used,
                     previous_quality_snapshot=previous_quality_snapshot,
+                    critique_snapshot=critique_snapshot,
                 )
                 attempt_record["quality_snapshot"] = quality_snapshot
                 attempt_record["quality_pass"] = quality_pass
@@ -710,6 +711,7 @@ class LongFormExecutionService:
         *,
         rewrite_used: bool = False,
         previous_quality_snapshot: dict[str, Any] | None = None,
+        critique_snapshot: dict[str, Any] | None = None,
     ) -> bool:
         if not quality_snapshot or not quality_snapshot.get("usable"):
             return False
@@ -754,6 +756,10 @@ class LongFormExecutionService:
             return self._rewrite_delta_passes(
                 previous_quality_snapshot=previous_quality_snapshot,
                 rewritten_quality_snapshot=quality_snapshot,
+            ) and self._rewrite_targets_aligned(
+                previous_quality_snapshot=previous_quality_snapshot,
+                rewritten_quality_snapshot=quality_snapshot,
+                critique_snapshot=critique_snapshot,
             )
         if base_pass:
             return True
@@ -761,6 +767,10 @@ class LongFormExecutionService:
             return self._rewrite_delta_passes(
                 previous_quality_snapshot=previous_quality_snapshot,
                 rewritten_quality_snapshot=quality_snapshot,
+            ) and self._rewrite_targets_aligned(
+                previous_quality_snapshot=previous_quality_snapshot,
+                rewritten_quality_snapshot=quality_snapshot,
+                critique_snapshot=critique_snapshot,
             )
         return False
 
@@ -796,6 +806,63 @@ class LongFormExecutionService:
         if previous_scores.get("continuity", 0) <= 3 and continuity_delta >= 1 and total_delta >= 1:
             return True
         return False
+
+    def _rewrite_targets_aligned(
+        self,
+        *,
+        previous_quality_snapshot: dict[str, Any] | None,
+        rewritten_quality_snapshot: dict[str, Any] | None,
+        critique_snapshot: dict[str, Any] | None,
+    ) -> bool:
+        if not previous_quality_snapshot or not rewritten_quality_snapshot or not critique_snapshot:
+            return False
+        previous_scores = previous_quality_snapshot.get("scores") or {}
+        rewritten_scores = rewritten_quality_snapshot.get("scores") or {}
+        weaknesses = " ".join(str(item).lower() for item in critique_snapshot.get("weaknesses") or [])
+        continuity_notes = " ".join(
+            str(item).lower() for item in critique_snapshot.get("continuity_issues") or []
+        )
+        replacement_targets = critique_snapshot.get("replacement_targets") or []
+        grounding_targets = critique_snapshot.get("grounding_targets") or []
+        carryover_targets = critique_snapshot.get("carryover_targets") or []
+
+        targeted_improvements: list[bool] = []
+        if "generic" in weaknesses or "stock" in weaknesses or replacement_targets:
+            targeted_improvements.append(
+                int(previous_quality_snapshot.get("stock_phrase_hits") or 0)
+                > int(rewritten_quality_snapshot.get("stock_phrase_hits") or 0)
+            )
+        if "dialogue" in weaknesses or grounding_targets:
+            targeted_improvements.append(
+                bool(rewritten_quality_snapshot.get("dialogue_grounded"))
+                and (
+                    not bool(previous_quality_snapshot.get("dialogue_grounded"))
+                    or int(rewritten_scores.get("dialogue") or 0)
+                    > int(previous_scores.get("dialogue") or 0)
+                )
+            )
+        if (
+            "vague" in weaknesses
+            or "specific" in weaknesses
+            or "emotion" in weaknesses
+            or replacement_targets
+        ):
+            targeted_improvements.append(
+                int(rewritten_scores.get("specificity") or 0)
+                > int(previous_scores.get("specificity") or 0)
+                or int(rewritten_scores.get("clarity") or 0)
+                > int(previous_scores.get("clarity") or 0)
+            )
+        if "continuity" in continuity_notes or "flow" in continuity_notes or carryover_targets:
+            targeted_improvements.append(
+                int(rewritten_scores.get("continuity") or 0)
+                > int(previous_scores.get("continuity") or 0)
+                or (
+                    not bool(previous_quality_snapshot.get("material_carryover"))
+                    and bool(rewritten_quality_snapshot.get("material_carryover"))
+                )
+            )
+        return any(targeted_improvements) if targeted_improvements else True
 
     def _run_chunk_critique(
         self,
@@ -833,6 +900,9 @@ class LongFormExecutionService:
                 "summary": "Critique unavailable; tighten clarity, continuity, and specificity.",
                 "weaknesses": ["clarity", "continuity", "specificity"],
                 "rewrite_goals": ["Increase scene specificity", "Strengthen continuity cues"],
+                "replacement_targets": ["Replace generic atmosphere lines with concrete scene detail"],
+                "grounding_targets": ["Anchor dialogue in object handling or physical movement"],
+                "carryover_targets": ["Reuse prior-scene objects in meaningful action"],
             }
 
     def _build_critique_prompt(
@@ -847,7 +917,7 @@ class LongFormExecutionService:
         return (
             "You are an editor. Critique the following scene prose. "
             "Return a JSON object with keys: summary, weaknesses, continuity_issues, "
-            "pacing_issues, meta_contamination, rewrite_goals.\n"
+            "pacing_issues, meta_contamination, rewrite_goals, replacement_targets, grounding_targets, carryover_targets.\n"
             "Focus on weak continuity carryover, generic stock phrasing, vague scene detail, "
             "and dialogue that is not grounded in physical action or setting.\n\n"
             f"PRIOR SUMMARY: {summary}\n"
@@ -864,12 +934,18 @@ class LongFormExecutionService:
                 "summary": raw_text.strip()[:200],
                 "weaknesses": ["clarity"],
                 "rewrite_goals": ["Clarify scene focus"],
+                "replacement_targets": [],
+                "grounding_targets": [],
+                "carryover_targets": [],
             }
         if not isinstance(payload, dict):
             return {
                 "summary": raw_text.strip()[:200],
                 "weaknesses": ["clarity"],
                 "rewrite_goals": ["Clarify scene focus"],
+                "replacement_targets": [],
+                "grounding_targets": [],
+                "carryover_targets": [],
             }
         return {
             "summary": str(payload.get("summary") or "").strip(),
@@ -878,6 +954,9 @@ class LongFormExecutionService:
             "pacing_issues": list(payload.get("pacing_issues") or []),
             "meta_contamination": bool(payload.get("meta_contamination")),
             "rewrite_goals": list(payload.get("rewrite_goals") or []),
+            "replacement_targets": list(payload.get("replacement_targets") or []),
+            "grounding_targets": list(payload.get("grounding_targets") or []),
+            "carryover_targets": list(payload.get("carryover_targets") or []),
         }
 
     def _build_rewrite_prompt(
@@ -889,12 +968,18 @@ class LongFormExecutionService:
     ) -> str:
         goals = critique_snapshot.get("rewrite_goals") if critique_snapshot else None
         weaknesses = critique_snapshot.get("weaknesses") if critique_snapshot else None
+        replacement_targets = critique_snapshot.get("replacement_targets") if critique_snapshot else None
+        grounding_targets = critique_snapshot.get("grounding_targets") if critique_snapshot else None
+        carryover_targets = critique_snapshot.get("carryover_targets") if critique_snapshot else None
         return (
             "Rewrite the scene to address critique while preserving story intent.\n"
             f"PRIOR SUMMARY: {continuation.prior_summary or 'No prior summary.'}\n"
             f"PRIOR EXCERPT: {continuation.prior_excerpt or 'None'}\n"
             f"WEAKNESSES: {', '.join(weaknesses) if weaknesses else 'None'}\n"
             f"REWRITE GOALS: {', '.join(goals) if goals else 'Improve clarity and specificity'}\n"
+            f"REPLACEMENT TARGETS: {', '.join(replacement_targets) if replacement_targets else 'Replace generic lines with concrete detail.'}\n"
+            f"GROUNDING TARGETS: {', '.join(grounding_targets) if grounding_targets else 'Anchor dialogue in action or setting.'}\n"
+            f"CARRYOVER TARGETS: {', '.join(carryover_targets) if carryover_targets else 'Use prior-scene objects in meaningful action.'}\n"
             "PRIMARY TARGETS: specificity, continuity carryover, scene momentum.\n"
             "REPLACE: generic stock phrases with concrete, scene-specific detail.\n"
             "GROUND: every important line of dialogue in physical action, gesture, object handling, or setting.\n"

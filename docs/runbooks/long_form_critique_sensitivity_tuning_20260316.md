@@ -24,6 +24,8 @@
 - After rewrite-recovery calibration adversarial 600: `sample_project/proj_esther_estate_eval_adversarial/.blackskies/long_form/eval/eval_rewrite_recovery_calibrated_adversarial_600.json`
 - After rewrite-effectiveness clean 600: `sample_project/proj_esther_estate_verify_longform/.blackskies/long_form/eval/eval_rewrite_effectiveness_clean_600.json`
 - After rewrite-effectiveness adversarial 600: `sample_project/proj_esther_estate_eval_adversarial/.blackskies/long_form/eval/eval_rewrite_effectiveness_adversarial_600.json`
+- After critique-targeted carryover calibration clean 600: `sample_project/proj_esther_estate_verify_longform/.blackskies/long_form/eval/eval_critique_targeted_clean_600.json`
+- After critique-targeted carryover calibration adversarial 600: `sample_project/proj_esther_estate_eval_adversarial/.blackskies/long_form/eval/eval_critique_targeted_adversarial_600.json`
 
 ## Before / after
 | Dataset | Run | Chunks | Accepted | Rewrites | Fallbacks | Avg Quality | Avg Attempts | Continuity Warnings | Est. Cost | Stopped |
@@ -32,19 +34,27 @@
 | Clean | After sensitivity tune | 4 | 3 | 1 | 1 | 31.0 | 1.25 | 0 | 0.04 | quality_failed |
 | Clean | After rewrite-recovery calibration | 1 | 0 | 1 | 1 | 29.0 | 2.0 | 0 | 0.01 | quality_failed |
 | Clean | After rewrite-effectiveness tuning | 2 | 1 | 1 | 1 | 28.5 | 1.5 | 0 | 0.02 | quality_failed |
+| Clean | After critique-targeted carryover calibration | 1 | 0 | 1 | 1 | 29.0 | 2.0 | 0 | 0.01 | quality_failed |
 | Adversarial | Before | 5 | 5 | 0 | 0 | 32.6 | 1.0 | 0 | 0.05 | null |
 | Adversarial | After sensitivity tune | 5 | 5 | 0 | 0 | 31.8 | 1.0 | 0 | 0.05 | null |
 | Adversarial | After rewrite-recovery calibration | 5 | 5 | 0 | 0 | 30.4 | 1.0 | 0 | 0.05 | null |
 | Adversarial | After rewrite-effectiveness tuning | 5 | 5 | 0 | 0 | 30.8 | 1.0 | 0 | 0.05 | null |
+| Adversarial | After critique-targeted carryover calibration | 5 | 5 | 1 | 0 | 30.4 | 1.2 | 0 | 0.05 | null |
 
 ## Result
 Natural rewrites occur in end-to-end evaluation, but rewrite recovery is still not naturally stable.
 
-- Yes: the clean `600` runs trigger `rewrite_count = 1`
-- No: the adversarial `600` run still produced `rewrite_count = 0`
-- No: rewrite recovery is not stable enough yet because the latest clean rerun still stopped with `quality_failed`
+- Yes: the clean `600` runs still trigger `rewrite_count = 1`
+- Yes: the adversarial `600` run now produces `rewrite_count = 1`
+- No: rewrite recovery is still not stable enough because the clean `600` rerun still stopped with `quality_failed`
 
-This means the loop is no longer flatlined, and rewrites are now held to a real improvement standard, but the remaining pressure is still uneven and generation-sensitive. The rewrite prompt is sharper and the delta gate blocks cosmetic saves, yet the clean dataset still does not recover reliably under normal generation, and the adversarial outline still does not trigger rewrites.
+This means the loop is no longer flatlined, and rewrites are now held to a real improvement standard. The new critique-target alignment and material-carryover signal are strong enough to push at least one realistic adversarial chunk into rewrite without destabilizing that run. The clean dataset, however, still does not recover reliably under normal generation.
+
+## This pass
+- critique payloads now include `replacement_targets`, `grounding_targets`, and `carryover_targets`
+- rewritten chunks must improve at least one critique-targeted dimension, not just an unrelated score
+- continuation carryover now distinguishes material reuse from token reuse
+- continuation chunks with generic atmosphere plus non-material carryover take an extra specificity hit before rewrite
 
 ## Failed continuation evidence
 Chunk that rewrote and failed during the sensitivity run:
@@ -117,10 +127,10 @@ Critique snapshot:
 ```
 
 ## Recommendation
-Single next tuning target: make critique outputs more rewrite-ready by converting detected generic phrases into explicit replacement targets.
+Single next tuning target: harden clean-run rewrite recovery by making replacement targets more concrete and excerpt-bound for opening and early continuation chunks.
 
 Reason:
 - weak carryover detection is now doing useful work
 - natural rewrite activation is no longer theoretical
-- the remaining problem is not missing detection, but unreliable rewrite recovery quality
-- the prompt now asks for concrete replacement, so the next leverage point is making critique payloads enumerate what to replace more directly
+- the adversarial run now confirms rewrite triggering under realistic pressure
+- the remaining problem is concentrated in clean-run rewrite recovery, not overall trigger sensitivity

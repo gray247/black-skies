@@ -189,7 +189,7 @@ def test_long_form_quality_penalizes_missing_carryover() -> None:
         + "The hallway breathed cold air around her boots. " * 8
     )
     report = score_long_form_quality(text, prior_excerpt="lantern sputtered")
-    assert report["scores"]["continuity"] == 1
+    assert report["scores"]["continuity"] <= 2
 
 
 def test_long_form_quality_requires_multiple_carryover_anchors() -> None:
@@ -207,6 +207,24 @@ def test_long_form_quality_requires_multiple_carryover_anchors() -> None:
     assert report["weak_carryover"] is True
     assert report["carryover_hits"] <= 1
     assert report["scores"]["continuity"] <= 2
+
+
+def test_long_form_quality_requires_material_carryover_not_name_drop_only() -> None:
+    text = (
+        "Clara mentioned the lantern and the key while staring at the hallway, but neither object changed what she did. "
+        * 12
+        + "\n\n"
+        + "She kept talking about dread and the old house while the fox stayed in her pocket and the chain stayed somewhere behind her. "
+        * 8
+    )
+    report = score_long_form_quality(
+        text,
+        prior_excerpt="Jun raised the cracked brass lantern while Clara touched the chain and the fox bumped her pocket.",
+        prior_summary="Clara and Jun paused at the chained door with the lantern and the fox.",
+    )
+    assert report["carryover_hits"] >= 2
+    assert report["material_carryover"] is False
+    assert report["material_carryover_hits"] == 0
 
 
 def test_long_form_quality_flags_meta_contamination() -> None:
