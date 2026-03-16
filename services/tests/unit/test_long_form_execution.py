@@ -1011,9 +1011,188 @@ def test_long_form_execution_rewrites_adversarial_near_miss_continuation(
     first_attempt = payload["attempts"][0]
     assert first_attempt["quality_pass"] is False
     assert first_attempt["quality_snapshot"]["material_carryover"] is False
+    assert adapter.last_rewrite_payload is not None
+    rewrite_prompt = str(adapter.last_rewrite_payload["prompt"])
+    assert "CONTINUATION RULES:" in rewrite_prompt
+    assert "Replace every phrase named in GENERIC PHRASE TARGETS" in rewrite_prompt
+    assert "Make at least one item from CARRYOVER TARGETS affect a physical action" in rewrite_prompt
+    assert "DETECTED CARRYOVER TERMS:" in rewrite_prompt
+    assert "lantern" in rewrite_prompt
     rewrite_attempt = payload["attempts"][1]
     assert rewrite_attempt["quality_pass"] is True
     assert rewrite_attempt["rewrite_delta"]["continuity_delta"] >= 1
+
+
+def test_long_form_execution_accepts_continuation_rewrite_with_material_carryover_hit_gain(
+    tmp_path: Path,
+) -> None:
+    project_root = tmp_path / "proj_material_carryover_recovery"
+    project_root.mkdir(parents=True, exist_ok=True)
+    settings = ServiceSettings(project_base_dir=tmp_path, long_form_provider_enabled=True)
+    diagnostics = DiagnosticLogger()
+    router = ModelRouter(
+        config=ModelRouterConfig(
+            policy=ModelRoutingPolicy.LOCAL_ONLY,
+            provider_calls_enabled=True,
+        )
+    )
+    critique = json.dumps(
+        {
+            "summary": "The continuation needs concrete carryover use instead of repeated atmospheric drift.",
+            "weaknesses": [
+                "Generic stock atmosphere keeps replacing concrete action.",
+                "Vague emotional language outweighs scene-specific detail.",
+            ],
+            "continuity_issues": [
+                "The lantern and chain are mentioned without changing what Clara does next."
+            ],
+            "pacing_issues": [],
+            "meta_contamination": False,
+            "rewrite_goals": [
+                "Use a carried object in a meaningful action",
+                "Replace generic dread lines with concrete sensory detail",
+            ],
+            "generic_phrase_targets": ["the words hung in the air", "heavy with dread"],
+            "detail_targets": ["the latch against Clara's wrist", "lantern glare on wet links"],
+            "grounding_targets": ["Attach dialogue to the chain, latch, or lantern"],
+            "carryover_targets": ["Use the lantern or chain in a meaningful action or choice"],
+        }
+    )
+    adapter = _SequencedCritiqueRewriteAdapter(
+        [_carryover_anchor_text(), _adversarial_near_miss_text()],
+        critique,
+        [_mild_generic_but_recovered_rewrite_text()],
+    )
+    router.register_provider(_FakeProvider(adapter))
+    service = LongFormExecutionService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=router,
+        enabled=True,
+    )
+
+    result = service.execute(
+        project_root=project_root,
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001", "sc_0002"],
+        chunk_size=1,
+        target_words_per_chunk=400,
+    )
+
+    assert result.stopped_reason is None
+    chunk = result.chunks[1]
+    assert chunk.rewrite_used is True
+    assert chunk.acceptance_reason == "rewrite_pass"
+    diag_path = (
+        project_root
+        / ".blackskies"
+        / "long_form"
+        / "diagnostics"
+        / f"{chunk.chunk_id}.json"
+    )
+    payload = json.loads(diag_path.read_text(encoding="utf-8"))
+    rewrite_attempt = payload["attempts"][1]
+    assert rewrite_attempt["quality_pass"] is True
+    assert rewrite_attempt["quality_snapshot"]["material_carryover_hits"] > payload["attempts"][0]["quality_snapshot"]["material_carryover_hits"]
+
+
+def test_quality_passes_allows_recovered_continuation_after_generic_risk_clears(
+    tmp_path: Path,
+) -> None:
+    service = _service(tmp_path, _long_text())
+    previous_quality_snapshot = {
+        "usable": True,
+        "scores": {
+            "coherence": 5,
+            "continuity": 3,
+            "clarity": 2,
+            "pacing": 5,
+            "specificity": 1,
+            "dialogue": 4,
+            "meta_free": 5,
+        },
+        "total_score": 25,
+        "generic_risk": True,
+        "stock_phrase_hits": 4,
+        "material_carryover_hits": 0,
+        "material_carryover": False,
+        "weak_carryover": False,
+        "meta_summary": False,
+        "meta_contamination": False,
+        "dialogue_present": True,
+        "dialogue_grounded": True,
+    }
+    rewritten_quality_snapshot = {
+        "usable": True,
+        "scores": {
+            "coherence": 5,
+            "continuity": 4,
+            "clarity": 4,
+            "pacing": 5,
+            "specificity": 3,
+            "dialogue": 4,
+            "meta_free": 5,
+        },
+        "total_score": 30,
+        "generic_risk": False,
+        "stock_phrase_hits": 1,
+        "material_carryover_hits": 0,
+        "material_carryover": False,
+        "weak_carryover": False,
+        "meta_summary": False,
+        "meta_contamination": False,
+        "dialogue_present": True,
+        "dialogue_grounded": True,
+    }
+    critique_snapshot = {
+        "weaknesses": [
+            "Overuse of generic phrases and imagery that lack specificity.",
+            "Dialogue lacks grounding in physical actions or setting.",
+            "Vague descriptions that do not evoke a strong sense of place.",
+        ],
+        "continuity_issues": [
+            "The transition from Nora's internal reflections to her interaction with the man feels abrupt."
+        ],
+        "replacement_targets": ["Replace generic phrases with more original and specific language."],
+        "grounding_targets": ["Ensure that characters' actions are tied to their surroundings to enhance realism."],
+        "carryover_targets": ["Eliminate repetitive imagery that does not add depth to the narrative."],
+    }
+
+    assert service._quality_passes(
+        rewritten_quality_snapshot,
+        rewrite_used=True,
+        previous_quality_snapshot=previous_quality_snapshot,
+        critique_snapshot=critique_snapshot,
+        continuation_chunk=True,
+    )
+
+
+def test_parse_critique_accepts_fenced_json(tmp_path: Path) -> None:
+    service = _service(tmp_path, _long_text())
+    critique = """```json
+{
+  "summary": "Scene summary",
+  "weaknesses": ["specificity"],
+  "continuity_issues": ["Needs stronger carryover"],
+  "pacing_issues": [],
+  "meta_contamination": false,
+  "rewrite_goals": ["Add concrete detail"],
+  "generic_phrase_targets": ["generic phrase"],
+  "detail_targets": ["door latch"],
+  "dialogue_grounding_targets": ["ground the line with action"],
+  "emotional_show_targets": ["show fear through breath"],
+  "replacement_targets": ["replace the generic line"],
+  "grounding_targets": ["attach dialogue to the latch"],
+  "carryover_targets": ["reuse the lantern in action"]
+}
+```"""
+
+    parsed = service._parse_critique(critique)
+
+    assert parsed["summary"] == "Scene summary"
+    assert parsed["weaknesses"] == ["specificity"]
+    assert parsed["generic_phrase_targets"] == ["generic phrase"]
+    assert parsed["carryover_targets"] == ["reuse the lantern in action"]
 
 
 def test_long_form_execution_recovers_clean_opening_rewrite_with_concrete_improvement(

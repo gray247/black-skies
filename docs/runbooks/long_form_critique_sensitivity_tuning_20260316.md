@@ -13,7 +13,7 @@
 
 ## Focused verification
 - `pytest services/tests/unit/test_long_form.py services/tests/unit/test_long_form_execution.py -q`
-- result: `43 passed`
+- result: `47 passed`
 
 ## Eval artifact paths
 - Before clean 600: `sample_project/proj_esther_estate_verify_longform/.blackskies/long_form/eval/eval_threshold_tightened_600_patched.json`
@@ -30,6 +30,9 @@
 - After clean-recovery stabilization adversarial 600: `sample_project/proj_esther_estate_eval_adversarial/.blackskies/long_form/eval/eval_clean_recovery_guard_adversarial_600.json`
 - After split recovery clean 600: `sample_project/proj_esther_estate_verify_longform/.blackskies/long_form/eval/eval_split_recovery_clean_600.json`
 - After split recovery adversarial 600: `sample_project/proj_esther_estate_eval_adversarial/.blackskies/long_form/eval/eval_split_recovery_adversarial_600.json`
+- After continuation-followthrough clean 600: `sample_project/proj_esther_estate_verify_longform/.blackskies/long_form/eval/eval_continuation_followthrough_clean_600.json`
+- After critique-parse fix clean 600 response: `sample_project/proj_esther_estate_verify_longform/.blackskies/long_form/eval/eval_carryover_terms_clean_600_response.json`
+- After carryover-term extraction adversarial 600: `sample_project/proj_esther_estate_eval_adversarial/.blackskies/long_form/eval/eval_carryover_terms_adversarial_600.json`
 
 ## Before / after
 | Dataset | Run | Chunks | Accepted | Rewrites | Fallbacks | Avg Quality | Avg Attempts | Continuity Warnings | Est. Cost | Stopped |
@@ -41,6 +44,9 @@
 | Clean | After critique-targeted carryover calibration | 1 | 0 | 1 | 1 | 29.0 | 2.0 | 0 | 0.01 | quality_failed |
 | Clean | After clean-recovery stabilization | 2 | 1 | 1 | 1 | 29.5 | 1.5 | 0 | 0.02 | quality_failed |
 | Clean | After split recovery | 2 | 1 | 1 | 1 | 27.5 | 1.5 | 0 | 0.02 | quality_failed |
+| Clean | After continuation-followthrough | 2 | 1 | 1 | 1 | 30.0 | 1.5 | 0 | 0.02 | quality_failed |
+| Clean | Parser-fixed run on fresh server | 5 | 5 | 3 | 0 | 31.4 | 1.6 | 0 | 0.05 | null |
+| Clean | Carryover-term run on next fresh server | 2 | 1 | 1 | 1 | n/a via harness response | n/a via harness response | 0 | 0.02 | quality_failed |
 | Adversarial | Before | 5 | 5 | 0 | 0 | 32.6 | 1.0 | 0 | 0.05 | null |
 | Adversarial | After sensitivity tune | 5 | 5 | 0 | 0 | 31.8 | 1.0 | 0 | 0.05 | null |
 | Adversarial | After rewrite-recovery calibration | 5 | 5 | 0 | 0 | 30.4 | 1.0 | 0 | 0.05 | null |
@@ -48,6 +54,8 @@
 | Adversarial | After critique-targeted carryover calibration | 5 | 5 | 1 | 0 | 30.4 | 1.2 | 0 | 0.05 | null |
 | Adversarial | After clean-recovery stabilization | 5 | 5 | 0 | 0 | 30.8 | 1.0 | 0 | 0.05 | null |
 | Adversarial | After split recovery | 5 | 5 | 1 | 0 | 31.0 | 1.2 | 0 | 0.05 | null |
+| Adversarial | After critique-parse fix | 3 | 2 | 1 | 1 | 29.33 | 1.33 | 2 | 0.03 | quality_failed |
+| Adversarial | After carryover-term extraction | 5 | 5 | 1 | 0 | 32.4 | 1.2 | 0 | 0.05 | null |
 
 ## Result
 Natural rewrites occur in end-to-end evaluation, but rewrite recovery is still not naturally stable.
@@ -56,7 +64,20 @@ Natural rewrites occur in end-to-end evaluation, but rewrite recovery is still n
 - Yes: the split pass restored the adversarial `600` natural rewrite trigger to `rewrite_count = 1`
 - No: rewrite recovery is still not stable enough because the clean `600` rerun still stopped with `quality_failed`
 
-This means the loop is still generation-sensitive. Splitting opening recovery from continuation rewrite triggering fixed the cross-coupling regression on the adversarial dataset, but the clean live failure remains and is now clearly isolated to a continuation chunk whose rewrite still fails to improve the critique-targeted dimensions that matter in scoring. This pass should still be treated as incomplete.
+This means the loop is now dominated by generation variance rather than a single stable acceptance defect. The latest passes fixed several real logic bugs:
+
+- continuation rewrite prompts now carry explicit replacement obligations and detected carryover terms
+- continuation rewrite recovery now credits real improvement after generic risk clears
+- critique parsing now accepts fenced JSON instead of collapsing to the generic fallback
+- carryover extraction now prefers concrete scene anchors over emotional residue
+
+But the same code still produces opposite clean outcomes across fresh runs:
+
+- one parser-fixed clean run completed all 5 chunks with `rewrite_count = 3`, `fallback_count = 0`, and no `quality_failed`
+- the next clean run on a fresh server failed after 2 chunks with `stopped_reason = quality_failed`
+- the latest adversarial run on that same code completed with `rewrite_count = 1`, `fallback_count = 0`, and `stopped_reason = null`
+
+That is a hard blocker for another narrow heuristic pass. The remaining instability is no longer tied to one reproducible scoring path; it comes from model-output variance changing which chunk class fails on a given run.
 
 ## This pass
 - opening and continuation rewrite recovery now branch explicitly in the acceptance path
@@ -76,6 +97,18 @@ This failure mode is narrower than the previous mixed-path behavior:
 
 - the continuation trigger regression is fixed in the adversarial dataset
 - the remaining clean failure is a continuation rewrite that preserves token carryover but does not materially improve specificity, clarity, or stock-phrase load after critique
+
+## Latest blocker evidence
+- Clean success evidence from the parser-fixed run:
+  - accepted chunk files: `lf_2704fc59`, `lf_42a959e4`, `lf_7549dc18`, `lf_b4b1843f`, `lf_3f884d44`
+  - acceptance reasons: `quality_pass`, `quality_pass`, `rewrite_pass`, `rewrite_pass`, `rewrite_pass`
+  - derived summary: `chunk_count 5`, `accepted_count 5`, `rewrite_count 3`, `fallback_count 0`, `avg_quality_score 31.4`, `avg_attempts 1.6`, `total_estimated_usd 0.05`
+- Clean failure evidence from the next fresh-server run:
+  - response artifact: `sample_project/proj_esther_estate_verify_longform/.blackskies/long_form/eval/eval_carryover_terms_clean_600_response.json`
+  - summary in response: `chunk_count 2`, `stopped_reason quality_failed`, `estimated_usd 0.02`
+- Adversarial success evidence on the same code family:
+  - `sample_project/proj_esther_estate_eval_adversarial/.blackskies/long_form/eval/eval_carryover_terms_adversarial_600.json`
+  - summary: `chunk_count 5`, `accepted_count 5`, `rewrite_count 1`, `fallback_count 0`, `avg_quality_score 32.4`, `avg_attempts 1.2`, `stopped_reason null`
 
 ## Failed continuation evidence
 Chunk that rewrote and failed during the sensitivity run:
@@ -148,9 +181,13 @@ Critique snapshot:
 ```
 
 ## Recommendation
-Single next tuning target: improve continuation rewrite follow-through so critique-targeted continuation rewrites materially raise specificity or clarity while reducing stock phrasing, instead of relying on path separation alone.
+Next step requires a broader control change, not another narrow heuristic tweak.
 
 Reason:
-- the split patch restored adversarial rewrite triggering without increasing fallbacks
-- the clean failure is now isolated to a continuation rewrite that changed wording but not the scored weaknesses
-- the next pass should target continuation rewrite effectiveness on critique-called weaknesses, not the opening/continuation branching itself
+- the remaining clean miss is not reproducible as one stable chunk class anymore
+- fenced-critique parsing and carryover-term extraction bugs are already fixed
+- the same code now shows both clean success and clean failure on consecutive fresh runs, which means another small heuristic change would be chasing stochastic outputs instead of a deterministic defect
+- the next reliable fix needs one of:
+  - deterministic eval controls / frozen responses for calibration
+  - a broader retry strategy with more than one rewrite attempt for failed continuation chunks
+  - a stronger or more constrained rewrite generation path so critique-targeted improvements are less sample-sensitive

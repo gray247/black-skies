@@ -194,9 +194,9 @@ def test_long_form_quality_penalizes_missing_carryover() -> None:
 
 def test_long_form_quality_requires_multiple_carryover_anchors() -> None:
     text = (
-        "Clara lifted the lantern and listened at the door while dust drifted through the corridor. " * 12
+        "Clara paused in the dark hall and listened while dust drifted through the corridor. " * 12
         + "\n\n"
-        + "She kept talking to Jun about the dark hall, but she never touched the chain or thought about the fox again. "
+        + "She kept talking to Jun about the old house, but she never returned to the nursery threshold or the objects they carried there. "
         * 8
     )
     report = score_long_form_quality(
@@ -225,6 +225,27 @@ def test_long_form_quality_requires_material_carryover_not_name_drop_only() -> N
     assert report["carryover_hits"] >= 2
     assert report["material_carryover"] is False
     assert report["material_carryover_hits"] == 0
+
+
+def test_long_form_quality_prefers_concrete_carryover_terms_over_generic_residue() -> None:
+    text = (
+        "Clara pressed the ceramic fox into her coat and looked at the nursery door while Jun touched the chain. "
+        * 12
+        + "\n\n"
+        + "The lantern glass rattled against the latch as rain tapped the window and Clara kept her hand on the door. "
+        * 8
+    )
+    report = score_long_form_quality(
+        text,
+        prior_excerpt="Clara's heart raced while she leaned further into the peeling coolness beside the nursery door, the ceramic fox knocking her coat as Jun steadied the lantern by the chain.",
+        prior_summary="Clara and Jun reached the nursery door with the lantern, chain, and fox.",
+    )
+    carryover_terms = report["carryover_terms"]
+    assert "nursery" in carryover_terms
+    assert "door" in carryover_terms
+    assert "ceramic" in carryover_terms or "fox" in carryover_terms
+    assert "heart" not in carryover_terms
+    assert "raced" not in carryover_terms
 
 
 def test_long_form_quality_flags_meta_contamination() -> None:

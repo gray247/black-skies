@@ -576,6 +576,7 @@ class LongFormExecutionService:
                         original_text=cleaned,
                         critique_snapshot=critique_snapshot,
                         continuation=continuation,
+                        quality_snapshot=quality_snapshot,
                     )
                     current_payload["system"] = (
                         "Rewrite the scene. Output only narrative prose. "
@@ -736,14 +737,18 @@ class LongFormExecutionService:
         if weak_carryover:
             return False
         if continuation_chunk:
+            previous_generic_risk = bool(previous_quality_snapshot.get("generic_risk")) if previous_quality_snapshot else False
             rewrite_recovery_pass = (
                 rewrite_used
-                and generic_risk
                 and continuity >= 4
                 and specificity >= max(3, required_specificity - 1)
                 and clarity >= self._QUALITY_MIN_CLARITY
                 and total >= max(self._QUALITY_MIN_TOTAL, 30)
                 and stock_phrase_hits <= 3
+                and (
+                    generic_risk
+                    or previous_generic_risk
+                )
             )
             if generic_risk and not rewrite_recovery_pass and (
                 specificity < required_specificity or clarity <= 2
@@ -852,11 +857,18 @@ class LongFormExecutionService:
         concrete_delta = int(rewritten_quality_snapshot.get("concrete_hits") or 0) - int(
             previous_quality_snapshot.get("concrete_hits") or 0
         )
+        material_carryover_delta = int(
+            rewritten_quality_snapshot.get("material_carryover_hits") or 0
+        ) - int(previous_quality_snapshot.get("material_carryover_hits") or 0)
         if total_delta >= 2:
             return True
         if stock_delta >= 1 and (specificity_delta >= 1 or clarity_delta >= 1 or continuity_delta >= 1):
             return True
         if not continuation_chunk and stock_delta >= 1 and concrete_delta >= 1:
+            return True
+        if continuation_chunk and material_carryover_delta >= 1 and (
+            stock_delta >= 1 or specificity_delta >= 1 or clarity_delta >= 1
+        ):
             return True
         if continuation_chunk and previous_scores.get("continuity", 0) <= 3 and continuity_delta >= 1 and total_delta >= 1:
             return True
@@ -938,6 +950,8 @@ class LongFormExecutionService:
                     not bool(previous_quality_snapshot.get("material_carryover"))
                     and bool(rewritten_quality_snapshot.get("material_carryover"))
                 )
+                or int(rewritten_quality_snapshot.get("material_carryover_hits") or 0)
+                > int(previous_quality_snapshot.get("material_carryover_hits") or 0)
             )
         return any(targeted_improvements) if targeted_improvements else True
 
@@ -1008,8 +1022,21 @@ class LongFormExecutionService:
         )
 
     def _parse_critique(self, raw_text: str) -> dict[str, Any]:
+        normalized_text = raw_text.strip()
+        if normalized_text.startswith("```"):
+            lines = normalized_text.splitlines()
+            if lines and lines[0].startswith("```"):
+                lines = lines[1:]
+            if lines and lines[-1].strip() == "```":
+                lines = lines[:-1]
+            normalized_text = "\n".join(lines).strip()
+        if normalized_text and not normalized_text.startswith("{"):
+            start = normalized_text.find("{")
+            end = normalized_text.rfind("}")
+            if start != -1 and end != -1 and end > start:
+                normalized_text = normalized_text[start : end + 1]
         try:
-            payload = json.loads(raw_text)
+            payload = json.loads(normalized_text)
         except json.JSONDecodeError:
             return {
                 "summary": raw_text.strip()[:200],
@@ -1058,6 +1085,7 @@ class LongFormExecutionService:
         original_text: str,
         critique_snapshot: dict[str, Any] | None,
         continuation,
+        quality_snapshot: dict[str, Any] | None = None,
     ) -> str:
         goals = critique_snapshot.get("rewrite_goals") if critique_snapshot else None
         weaknesses = critique_snapshot.get("weaknesses") if critique_snapshot else None
@@ -1068,6 +1096,22 @@ class LongFormExecutionService:
         replacement_targets = critique_snapshot.get("replacement_targets") if critique_snapshot else None
         grounding_targets = critique_snapshot.get("grounding_targets") if critique_snapshot else None
         carryover_targets = critique_snapshot.get("carryover_targets") if critique_snapshot else None
+        continuation_chunk = bool(continuation.prior_summary or continuation.prior_excerpt)
+        carryover_terms = list((quality_snapshot or {}).get("carryover_terms") or [])
+        continuation_rules = (
+            "CONTINUATION RULES:\n"
+            "1. Replace every phrase named in GENERIC PHRASE TARGETS with concrete scene detail; do not reuse the same metaphor or atmosphere wording.\n"
+            "2. Make at least one item from CARRYOVER TARGETS affect a physical action, blocking decision, or object interaction in the scene.\n"
+            "3. Reuse the detected carryover terms in concrete action or sensory follow-through; do not repeat them decoratively.\n"
+            "4. Increase specificity through concrete noun/action detail and observable bodily response, not summary.\n"
+            "5. Keep dialogue attached to movement, gesture, or handled objects.\n"
+        )
+        opening_rules = (
+            "OPENING RULES:\n"
+            "1. Replace named generic phrases with concrete setting detail.\n"
+            "2. Ground important dialogue in gesture, movement, or surrounding objects.\n"
+            "3. Show emotion through visible behavior or sensation.\n"
+        )
         return (
             "Rewrite the scene to address critique while preserving story intent.\n"
             f"PRIOR SUMMARY: {continuation.prior_summary or 'No prior summary.'}\n"
@@ -1081,6 +1125,7 @@ class LongFormExecutionService:
             f"REPLACEMENT TARGETS: {', '.join(replacement_targets) if replacement_targets else 'Replace generic lines with concrete detail.'}\n"
             f"GROUNDING TARGETS: {', '.join(grounding_targets) if grounding_targets else 'Anchor dialogue in action or setting.'}\n"
             f"CARRYOVER TARGETS: {', '.join(carryover_targets) if carryover_targets else 'Use prior-scene objects in meaningful action.'}\n"
+            f"DETECTED CARRYOVER TERMS: {', '.join(carryover_terms) if carryover_terms else 'None'}\n"
             "PRIMARY TARGETS: specificity, continuity carryover, scene momentum.\n"
             "REPLACE: generic stock phrases with concrete, scene-specific detail.\n"
             "GROUND: every important line of dialogue in physical action, gesture, object handling, or setting.\n"
@@ -1088,6 +1133,7 @@ class LongFormExecutionService:
             "PRESERVE: continuity anchors from the prior summary and excerpt while increasing specificity.\n"
             "DO NOT: lightly paraphrase generic atmosphere filler; remove it or convert it into concrete detail.\n"
             "REMOVE: generic filler, vague summary language, meta/planning lines.\n"
+            f"{continuation_rules if continuation_chunk else opening_rules}"
             "OUTPUT RULES: narrative prose only; no analysis, no headings, no notes, no labels.\n\n"
             "ORIGINAL SCENE:\n"
             f"{original_text}\n"

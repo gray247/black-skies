@@ -224,6 +224,8 @@ _CONTEXT_STOPWORDS = {
     "breath",
     "clara",
     "could",
+    "coolness",
+    "echoing",
     "feeling",
     "fingers",
     "first",
@@ -234,9 +236,11 @@ _CONTEXT_STOPWORDS = {
     "heard",
     "hesitated",
     "house",
+    "heart",
     "jun",
     "maybe",
     "might",
+    "raced",
     "pressed",
     "pressing",
     "rough",
@@ -244,10 +248,48 @@ _CONTEXT_STOPWORDS = {
     "their",
     "there",
     "through",
+    "traces",
     "under",
     "weight",
     "while",
     "would",
+    "further",
+    "leaned",
+    "warmth",
+}
+
+_CARRYOVER_PRIORITY_TERMS = {
+    "bench",
+    "cafe",
+    "chain",
+    "ceramic",
+    "chair",
+    "coat",
+    "coffee",
+    "corridor",
+    "counter",
+    "diner",
+    "door",
+    "fence",
+    "floor",
+    "fox",
+    "hall",
+    "hallway",
+    "jacket",
+    "key",
+    "lantern",
+    "latch",
+    "lock",
+    "mug",
+    "nursery",
+    "pavement",
+    "pocket",
+    "porcelain",
+    "rain",
+    "runner",
+    "street",
+    "table",
+    "window",
 }
 
 
@@ -259,6 +301,12 @@ def _tokenize_terms(text: str | None) -> list[str]:
 
 def _context_terms(*texts: str | None, limit: int = 8) -> list[str]:
     terms: list[str] = []
+    for text in texts:
+        for token in _tokenize_terms(text):
+            if token in _CARRYOVER_PRIORITY_TERMS and token not in terms:
+                terms.append(token)
+            if len(terms) >= limit:
+                return terms
     for text in texts:
         for token in _tokenize_terms(text):
             if len(token) < 5 or token in _CONTEXT_STOPWORDS:
