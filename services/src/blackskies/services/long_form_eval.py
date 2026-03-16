@@ -20,6 +20,11 @@ class LongFormEvalSummary:
     rewrite_count: int
     retry_used_count: int
     retried_success_count: int
+    rescue_mode_used_count: int
+    rescue_model_used_count: int
+    rescue_guardrail_fail_count: int
+    rescue_under_improved_count: int
+    rescue_fidelity_risk_count: int
     fallback_count: int
     borderline_failure_count: int
     avg_quality_score: float | None
@@ -41,6 +46,11 @@ class LongFormEvalSummary:
             "rewrite_count": self.rewrite_count,
             "retry_used_count": self.retry_used_count,
             "retried_success_count": self.retried_success_count,
+            "rescue_mode_used_count": self.rescue_mode_used_count,
+            "rescue_model_used_count": self.rescue_model_used_count,
+            "rescue_guardrail_fail_count": self.rescue_guardrail_fail_count,
+            "rescue_under_improved_count": self.rescue_under_improved_count,
+            "rescue_fidelity_risk_count": self.rescue_fidelity_risk_count,
             "fallback_count": self.fallback_count,
             "borderline_failure_count": self.borderline_failure_count,
             "avg_quality_score": self.avg_quality_score,
@@ -86,6 +96,11 @@ def summarize_long_form_run(
     rewrites = 0
     retry_used_count = 0
     retried_success_count = 0
+    rescue_mode_used_count = 0
+    rescue_model_used_count = 0
+    rescue_guardrail_fail_count = 0
+    rescue_under_improved_count = 0
+    rescue_fidelity_risk_count = 0
     fallbacks = 0
     borderline_failure_count = 0
     quality_scores: list[float] = []
@@ -104,6 +119,16 @@ def summarize_long_form_run(
         retry_snapshot = chunk.get("retry_snapshot") or {}
         if retry_snapshot.get("used"):
             retry_used_count += 1
+        if retry_snapshot.get("rescue_mode_used"):
+            rescue_mode_used_count += 1
+        if retry_snapshot.get("rescue_model_used"):
+            rescue_model_used_count += 1
+        if retry_snapshot.get("rescue_guardrail_fail"):
+            rescue_guardrail_fail_count += 1
+        if retry_snapshot.get("rescue_under_improved"):
+            rescue_under_improved_count += 1
+        if retry_snapshot.get("rescue_fidelity_risk"):
+            rescue_fidelity_risk_count += 1
         if retry_snapshot.get("succeeded"):
             retried_success_count += 1
         failure_classification = retry_snapshot.get("failure_classification") or {}
@@ -149,6 +174,11 @@ def summarize_long_form_run(
         rewrite_count=rewrites,
         retry_used_count=retry_used_count,
         retried_success_count=retried_success_count,
+        rescue_mode_used_count=rescue_mode_used_count,
+        rescue_model_used_count=rescue_model_used_count,
+        rescue_guardrail_fail_count=rescue_guardrail_fail_count,
+        rescue_under_improved_count=rescue_under_improved_count,
+        rescue_fidelity_risk_count=rescue_fidelity_risk_count,
         fallback_count=fallbacks,
         borderline_failure_count=borderline_failure_count,
         avg_quality_score=avg_quality,
@@ -183,6 +213,11 @@ def summarize_long_form_variance(
             "borderline_failure_rate": None,
             "retry_usage_rate": None,
             "retry_rescue_rate": None,
+            "rescue_mode_usage_rate": None,
+            "rescue_model_usage_rate": None,
+            "rescue_guardrail_fail_rate": None,
+            "rescue_under_improved_rate": None,
+            "rescue_fidelity_risk_rate": None,
             "succeeded_only_after_retry_count": 0,
             "quality_score_range": None,
         }
@@ -191,6 +226,11 @@ def summarize_long_form_variance(
     borderline_failures = 0
     retry_used = 0
     retry_rescues = 0
+    rescue_mode_used = 0
+    rescue_model_used = 0
+    rescue_guardrail_fails = 0
+    rescue_under_improved = 0
+    rescue_fidelity_risk = 0
     stopped_reasons: dict[str, int] = {}
     quality_scores: list[float] = []
     for summary in normalized:
@@ -203,6 +243,11 @@ def summarize_long_form_variance(
         borderline_failures += int(summary.get("borderline_failure_count") or 0)
         retry_used += int(summary.get("retry_used_count") or 0)
         retry_rescues += int(summary.get("retried_success_count") or 0)
+        rescue_mode_used += int(summary.get("rescue_mode_used_count") or 0)
+        rescue_model_used += int(summary.get("rescue_model_used_count") or 0)
+        rescue_guardrail_fails += int(summary.get("rescue_guardrail_fail_count") or 0)
+        rescue_under_improved += int(summary.get("rescue_under_improved_count") or 0)
+        rescue_fidelity_risk += int(summary.get("rescue_fidelity_risk_count") or 0)
         score = summary.get("avg_quality_score")
         if isinstance(score, (int, float)):
             quality_scores.append(float(score))
@@ -218,6 +263,11 @@ def summarize_long_form_variance(
         "borderline_failure_rate": round(borderline_failures / run_count, 2),
         "retry_usage_rate": round(retry_used / run_count, 2),
         "retry_rescue_rate": round(retry_rescues / run_count, 2),
+        "rescue_mode_usage_rate": round(rescue_mode_used / run_count, 2),
+        "rescue_model_usage_rate": round(rescue_model_used / run_count, 2),
+        "rescue_guardrail_fail_rate": round(rescue_guardrail_fails / run_count, 2),
+        "rescue_under_improved_rate": round(rescue_under_improved / run_count, 2),
+        "rescue_fidelity_risk_rate": round(rescue_fidelity_risk / run_count, 2),
         "succeeded_only_after_retry_count": retry_rescues,
         "quality_score_range": (
             round(max(quality_scores) - min(quality_scores), 2) if quality_scores else None

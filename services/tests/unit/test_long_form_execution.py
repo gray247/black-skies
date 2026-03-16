@@ -982,8 +982,11 @@ def test_long_form_execution_recovers_borderline_quality_failure_with_single_ret
     assert chunk.retry_snapshot["succeeded"] is True
     assert chunk.retry_snapshot["reason"] == "borderline_quality_after_rewrite"
     assert chunk.retry_snapshot["stronger_model_used"] is True
+    assert chunk.retry_snapshot["rescue_mode_used"] is True
+    assert chunk.retry_snapshot["rescue_model_used"] is True
     assert chunk.retry_snapshot["model_snapshot"]["escalated"] is True
     assert chunk.retry_snapshot["model_snapshot"]["reason"] == "rewrite_retry_model_stub"
+    assert chunk.retry_snapshot["rescue_delta_summary"]["dialogue_grounding_fixed"] is True
     assert chunk.guardrail_snapshot is not None
     assert chunk.guardrail_snapshot["evaluated"] is True
     diag_path = (
@@ -997,9 +1000,14 @@ def test_long_form_execution_recovers_borderline_quality_failure_with_single_ret
     assert payload["retry_snapshot"]["used"] is True
     assert payload["retry_snapshot"]["succeeded"] is True
     assert payload["retry_snapshot"]["stronger_model_used"] is True
+    assert payload["retry_snapshot"]["rescue_mode_used"] is True
+    assert payload["retry_snapshot"]["rescue_model_used"] is True
     assert payload["guardrail_snapshot"]["mode"] == "recovery_retry"
     assert payload["attempts"][2]["mode"] == "recovery_retry"
     assert payload["attempts"][2]["model_snapshot"]["escalated"] is True
+    assert "PRECISION RESCUE RULES:" in str(adapter.last_rewrite_payload["prompt"])
+    assert "SUBJECT ENTITIES:" in str(adapter.last_rewrite_payload["prompt"])
+    assert "SCENE ANCHORS:" in str(adapter.last_rewrite_payload["prompt"])
 
 
 def test_long_form_execution_rejects_cosmetic_rewrite_without_meaningful_delta(
@@ -1552,6 +1560,129 @@ def test_long_form_execution_rejects_length_band_violation_in_rewrite(tmp_path: 
     assert chunk.guardrail_snapshot is not None
     assert chunk.guardrail_snapshot["failure_reason"] == "length_band_failed"
     assert chunk.guardrail_snapshot["within_length_band"] is False
+
+
+def test_long_form_execution_rejects_outline_drift_in_rescue_retry(tmp_path: Path) -> None:
+    project_root = tmp_path / "proj_rescue_outline_guardrail"
+    project_root.mkdir(parents=True, exist_ok=True)
+    _write_outline_context(
+        project_root,
+        locked_facts=[
+            "Lucas and Clara are in the market square.",
+            "Only Lucas and Clara appear in this scene.",
+        ],
+    )
+    settings = ServiceSettings(
+        project_base_dir=tmp_path,
+        long_form_provider_enabled=True,
+        local_llm_rewrite_retry_model="qwen3:14b",
+    )
+    diagnostics = DiagnosticLogger()
+    router = ModelRouter(
+        config=ModelRouterConfig(
+            policy=ModelRoutingPolicy.LOCAL_ONLY,
+            provider_calls_enabled=True,
+        )
+    )
+    critique = json.dumps(
+        {
+            "summary": "Sharpen the opening with concrete market-square detail.",
+            "weaknesses": ["clarity", "specificity"],
+            "continuity_issues": [],
+            "pacing_issues": [],
+            "meta_contamination": False,
+            "rewrite_goals": ["Keep Lucas and Clara in the square while improving blocking."],
+            "dialogue_grounding_targets": ["Attach the spoken lines to the square and fountain."],
+        }
+    )
+    adapter = _CritiqueRewriteAdapter(
+        _opening_generic_text(),
+        critique,
+        _opening_generic_text(),
+        _long_text(),
+    )
+    router.register_provider(_FakeProvider(adapter))
+    service = LongFormExecutionService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=router,
+        enabled=True,
+    )
+
+    result = service.execute(
+        project_root=project_root,
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chunk_size=1,
+        target_words_per_chunk=400,
+    )
+
+    assert result.stopped_reason == "rewrite_guardrail_failed"
+    chunk = result.chunks[0]
+    assert chunk.retry_snapshot is not None
+    assert chunk.retry_snapshot["rescue_failure_class"] == "guardrail_failed"
+    assert chunk.retry_snapshot["rescue_guardrail_fail"] is True
+    assert chunk.guardrail_snapshot is not None
+    assert chunk.guardrail_snapshot["mode"] == "recovery_retry"
+    assert chunk.guardrail_snapshot["failure_reason"] == "outline_drift_detected"
+
+
+def test_long_form_execution_rejects_length_band_violation_in_rescue_retry(tmp_path: Path) -> None:
+    project_root = tmp_path / "proj_rescue_length_guardrail"
+    project_root.mkdir(parents=True, exist_ok=True)
+    settings = ServiceSettings(
+        project_base_dir=tmp_path,
+        long_form_provider_enabled=True,
+        local_llm_rewrite_retry_model="qwen3:14b",
+    )
+    diagnostics = DiagnosticLogger()
+    router = ModelRouter(
+        config=ModelRouterConfig(
+            policy=ModelRoutingPolicy.LOCAL_ONLY,
+            provider_calls_enabled=True,
+        )
+    )
+    critique = json.dumps(
+        {
+            "summary": "Sharpen the opening with concrete market-square detail.",
+            "weaknesses": ["clarity", "specificity"],
+            "continuity_issues": [],
+            "pacing_issues": [],
+            "meta_contamination": False,
+            "rewrite_goals": ["Keep the same opening but make it more concrete."],
+        }
+    )
+    overlong_recovery = _opening_recovery_text() + "\n\n" + _opening_recovery_text()
+    adapter = _CritiqueRewriteAdapter(
+        _opening_generic_text(),
+        critique,
+        _opening_generic_text(),
+        overlong_recovery,
+    )
+    router.register_provider(_FakeProvider(adapter))
+    service = LongFormExecutionService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=router,
+        enabled=True,
+    )
+
+    result = service.execute(
+        project_root=project_root,
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chunk_size=1,
+        target_words_per_chunk=400,
+    )
+
+    assert result.stopped_reason == "rewrite_guardrail_failed"
+    chunk = result.chunks[0]
+    assert chunk.retry_snapshot is not None
+    assert chunk.retry_snapshot["rescue_failure_class"] == "guardrail_failed"
+    assert chunk.retry_snapshot["rescue_guardrail_fail"] is True
+    assert chunk.guardrail_snapshot is not None
+    assert chunk.guardrail_snapshot["mode"] == "recovery_retry"
+    assert chunk.guardrail_snapshot["failure_reason"] == "length_band_failed"
 
 
 def test_long_form_execution_stops_after_max_attempts(tmp_path: Path) -> None:

@@ -34,6 +34,11 @@ def test_long_form_eval_summary_aggregates() -> None:
             "retry_snapshot": {
                 "used": True,
                 "succeeded": True,
+                "rescue_mode_used": True,
+                "rescue_model_used": True,
+                "rescue_guardrail_fail": False,
+                "rescue_under_improved": False,
+                "rescue_fidelity_risk": False,
                 "failure_classification": {"classification": "borderline"},
             },
             "quality_snapshot": {
@@ -54,6 +59,11 @@ def test_long_form_eval_summary_aggregates() -> None:
             "retry_snapshot": {
                 "used": False,
                 "succeeded": False,
+                "rescue_mode_used": False,
+                "rescue_model_used": False,
+                "rescue_guardrail_fail": False,
+                "rescue_under_improved": False,
+                "rescue_fidelity_risk": False,
                 "failure_classification": {"classification": "hard"},
             },
             "quality_snapshot": {
@@ -78,6 +88,11 @@ def test_long_form_eval_summary_aggregates() -> None:
     assert summary.rewrite_count == 2
     assert summary.retry_used_count == 1
     assert summary.retried_success_count == 1
+    assert summary.rescue_mode_used_count == 1
+    assert summary.rescue_model_used_count == 1
+    assert summary.rescue_guardrail_fail_count == 0
+    assert summary.rescue_under_improved_count == 0
+    assert summary.rescue_fidelity_risk_count == 0
     assert summary.fallback_count == 1
     assert summary.borderline_failure_count == 1
     assert summary.avg_attempts == 2.0
@@ -96,6 +111,11 @@ def test_long_form_eval_variance_distinguishes_stable_and_unstable_outcomes() ->
                 "stopped_reason": None,
                 "retry_used_count": 0,
                 "retried_success_count": 0,
+                "rescue_mode_used_count": 0,
+                "rescue_model_used_count": 0,
+                "rescue_guardrail_fail_count": 0,
+                "rescue_under_improved_count": 0,
+                "rescue_fidelity_risk_count": 0,
                 "borderline_failure_count": 0,
                 "avg_quality_score": 31.0,
             },
@@ -103,6 +123,11 @@ def test_long_form_eval_variance_distinguishes_stable_and_unstable_outcomes() ->
                 "stopped_reason": None,
                 "retry_used_count": 1,
                 "retried_success_count": 1,
+                "rescue_mode_used_count": 1,
+                "rescue_model_used_count": 1,
+                "rescue_guardrail_fail_count": 0,
+                "rescue_under_improved_count": 0,
+                "rescue_fidelity_risk_count": 0,
                 "borderline_failure_count": 1,
                 "avg_quality_score": 29.5,
             },
@@ -114,6 +139,11 @@ def test_long_form_eval_variance_distinguishes_stable_and_unstable_outcomes() ->
                 "stopped_reason": None,
                 "retry_used_count": 1,
                 "retried_success_count": 1,
+                "rescue_mode_used_count": 1,
+                "rescue_model_used_count": 1,
+                "rescue_guardrail_fail_count": 0,
+                "rescue_under_improved_count": 0,
+                "rescue_fidelity_risk_count": 0,
                 "borderline_failure_count": 1,
                 "avg_quality_score": 30.0,
             },
@@ -121,6 +151,11 @@ def test_long_form_eval_variance_distinguishes_stable_and_unstable_outcomes() ->
                 "stopped_reason": "quality_failed",
                 "retry_used_count": 0,
                 "retried_success_count": 0,
+                "rescue_mode_used_count": 1,
+                "rescue_model_used_count": 1,
+                "rescue_guardrail_fail_count": 0,
+                "rescue_under_improved_count": 1,
+                "rescue_fidelity_risk_count": 0,
                 "borderline_failure_count": 1,
                 "avg_quality_score": 27.0,
             },
@@ -131,8 +166,11 @@ def test_long_form_eval_variance_distinguishes_stable_and_unstable_outcomes() ->
     assert stable["pass_rate"] == 1.0
     assert stable["retry_usage_rate"] == 0.5
     assert stable["succeeded_only_after_retry_count"] == 1
+    assert stable["rescue_mode_usage_rate"] == 0.5
+    assert stable["rescue_model_usage_rate"] == 0.5
 
     assert unstable["consistency"] == "unstable"
     assert unstable["pass_rate"] == 0.5
     assert unstable["stopped_reasons"] == {"quality_failed": 1}
     assert unstable["borderline_failure_rate"] == 1.0
+    assert unstable["rescue_under_improved_rate"] == 0.5
