@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -213,10 +214,61 @@ def _meta_summary_detected(text: str) -> bool:
     return False
 
 
+_CONTEXT_STOPWORDS = {
+    "about",
+    "after",
+    "again",
+    "around",
+    "before",
+    "being",
+    "clara",
+    "could",
+    "first",
+    "found",
+    "from",
+    "heard",
+    "house",
+    "jun",
+    "maybe",
+    "might",
+    "their",
+    "there",
+    "through",
+    "under",
+    "while",
+    "would",
+}
+
+
+def _tokenize_terms(text: str | None) -> list[str]:
+    if not isinstance(text, str):
+        return []
+    return re.findall(r"[a-zA-Z']+", text.lower())
+
+
+def _context_terms(*texts: str | None, limit: int = 8) -> list[str]:
+    terms: list[str] = []
+    for text in texts:
+        for token in _tokenize_terms(text):
+            if len(token) < 5 or token in _CONTEXT_STOPWORDS:
+                continue
+            if token not in terms:
+                terms.append(token)
+            if len(terms) >= limit:
+                return terms
+    return terms
+
+
+def _count_phrase_hits(text: str, phrases: tuple[str, ...]) -> int:
+    lowered = text.lower()
+    return sum(1 for phrase in phrases if phrase in lowered)
+
+
 def evaluate_long_form_output(
     text: str | None,
     *,
     prior_excerpt: str | None = None,
+    prior_summary: str | None = None,
 ) -> dict[str, Any]:
     if not isinstance(text, str):
         return {"usable": False, "reason": "not_text"}
@@ -228,11 +280,10 @@ def evaluate_long_form_output(
     paragraphs = [para for para in stripped.split("\n\n") if para.strip()]
     paragraph_count = len(paragraphs)
     meta = _meta_summary_detected(stripped)
-    missing_carryover = False
-    if prior_excerpt:
-        tokens = [token for token in prior_excerpt.split() if len(token) > 4]
-        lowered = stripped.lower()
-        missing_carryover = not any(token.lower() in lowered for token in tokens)
+    lowered = stripped.lower()
+    carryover_terms = _context_terms(prior_excerpt, prior_summary)
+    carryover_hits = sum(1 for token in carryover_terms if token in lowered)
+    missing_carryover = bool(carryover_terms) and carryover_hits < min(2, len(carryover_terms))
     usable = word_count >= 120 and paragraph_count >= 2 and not meta
     return {
         "usable": usable,
@@ -240,6 +291,8 @@ def evaluate_long_form_output(
         "paragraph_count": paragraph_count,
         "meta_summary": meta,
         "missing_carryover": missing_carryover,
+        "carryover_terms": carryover_terms,
+        "carryover_hits": carryover_hits,
     }
 
 
@@ -388,8 +441,17 @@ def trim_initial_reasoning_block(text: str | None) -> tuple[str | None, bool]:
     return "\n\n".join(kept).strip(), trimmed_any
 
 
-def is_usable_long_form_output(text: str | None, *, prior_excerpt: str | None = None) -> bool:
-    report = evaluate_long_form_output(text, prior_excerpt=prior_excerpt)
+def is_usable_long_form_output(
+    text: str | None,
+    *,
+    prior_excerpt: str | None = None,
+    prior_summary: str | None = None,
+) -> bool:
+    report = evaluate_long_form_output(
+        text,
+        prior_excerpt=prior_excerpt,
+        prior_summary=prior_summary,
+    )
     return bool(report.get("usable"))
 
 
@@ -397,8 +459,13 @@ def score_long_form_quality(
     text: str | None,
     *,
     prior_excerpt: str | None = None,
+    prior_summary: str | None = None,
 ) -> dict[str, Any]:
-    report = evaluate_long_form_output(text, prior_excerpt=prior_excerpt)
+    report = evaluate_long_form_output(
+        text,
+        prior_excerpt=prior_excerpt,
+        prior_summary=prior_summary,
+    )
     if not report.get("usable"):
         return {
             "usable": False,
@@ -499,6 +566,208 @@ def score_long_form_quality(
         "dialogue_present": dialogue_present,
         "sensory_hits": sensory_hits,
         "generic_hits": generic_hits,
+    }
+
+
+def score_long_form_quality(
+    text: str | None,
+    *,
+    prior_excerpt: str | None = None,
+    prior_summary: str | None = None,
+) -> dict[str, Any]:
+    report = evaluate_long_form_output(
+        text,
+        prior_excerpt=prior_excerpt,
+        prior_summary=prior_summary,
+    )
+    if not report.get("usable"):
+        return {
+            "usable": False,
+            "reason": report.get("reason"),
+            "scores": {},
+            "total_score": 0,
+            "max_score": 0,
+            "meta_summary": report.get("meta_summary"),
+            "missing_carryover": report.get("missing_carryover"),
+            "word_count": report.get("word_count"),
+            "paragraph_count": report.get("paragraph_count"),
+        }
+
+    stripped = (text or "").strip()
+    lowered = stripped.lower()
+    word_count = report.get("word_count") or 0
+    paragraph_count = report.get("paragraph_count") or 0
+    meta_summary = bool(report.get("meta_summary"))
+    missing_carryover = bool(report.get("missing_carryover"))
+    carryover_terms = list(report.get("carryover_terms") or [])
+    carryover_hits = int(report.get("carryover_hits") or 0)
+    dialogue_present = any(mark in stripped for mark in ('"', "“", "”"))
+    meta_markers = (
+        "word count",
+        "no headings",
+        "no bullet",
+        "analysis:",
+        "outline:",
+        "scene title:",
+        "the user wants",
+    )
+    meta_contamination = any(marker in lowered for marker in meta_markers)
+    sensory_words = (
+        "scent",
+        "smell",
+        "taste",
+        "salt",
+        "wind",
+        "rain",
+        "heat",
+        "cold",
+        "dust",
+        "blood",
+        "footsteps",
+        "breath",
+        "heartbeat",
+        "light",
+        "shadow",
+        "grit",
+        "glass",
+        "metal",
+        "wood",
+        "whisper",
+    )
+    sensory_hits = sum(1 for token in sensory_words if token in lowered)
+    concrete_detail_words = (
+        "door",
+        "chain",
+        "hinge",
+        "latch",
+        "lantern",
+        "brass",
+        "ribbon",
+        "pocket",
+        "wrist",
+        "coat",
+        "window",
+        "stair",
+        "floor",
+        "clock",
+        "key",
+        "mud",
+        "mildew",
+        "glass",
+        "fox",
+        "cheek",
+        "palm",
+        "ridges",
+        "knots",
+        "corridor",
+    )
+    concrete_hits = sum(1 for token in concrete_detail_words if token in lowered)
+    generic_markers = ("something", "things", "stuff", "nice", "good", "bad", "various")
+    generic_hits = sum(1 for token in generic_markers if token in lowered)
+    stock_phrases = (
+        "hung in the air",
+        "flicker of",
+        "couldn't quite name",
+        "heavy with",
+        "mix of fear",
+        "pressed in",
+        "wrapped around her",
+        "truth in his voice",
+        "voice barely above a whisper",
+        "words trailed off",
+        "for a moment",
+        "something deep within",
+        "uncertainty pooling",
+        "the house creaked",
+        "heart raced",
+        "heart thudding",
+        "breath catching",
+        "shivers spiraling",
+    )
+    stock_phrase_hits = _count_phrase_hits(stripped, stock_phrases)
+    generic_risk = generic_hits >= 2 or stock_phrase_hits >= 3
+
+    coherence = 5 if paragraph_count >= 2 and word_count >= 160 else 2
+    if carryover_terms:
+        if carryover_hits >= 3:
+            continuity = 5
+        elif carryover_hits == 2:
+            continuity = 4
+        elif carryover_hits == 1:
+            continuity = 2
+        else:
+            continuity = 1
+    else:
+        continuity = 3
+    if stock_phrase_hits >= 4:
+        continuity = max(1, continuity - 1)
+    clarity = 4 if not (meta_summary or meta_contamination) else 2
+    if generic_risk:
+        clarity = max(2, clarity - 1)
+    pacing = 5 if word_count >= 360 else (4 if word_count >= 240 else 2)
+    if concrete_hits >= 4 and sensory_hits >= 2:
+        specificity = 5
+    elif concrete_hits >= 3 or (concrete_hits >= 2 and sensory_hits >= 2):
+        specificity = 4
+    elif concrete_hits >= 1 or sensory_hits >= 2:
+        specificity = 3
+    elif sensory_hits >= 1:
+        specificity = 2
+    else:
+        specificity = 1
+    if generic_risk and specificity > 1:
+        specificity -= 1
+    dialogue_grounding_words = (
+        "said",
+        "asked",
+        "whispered",
+        "glanced",
+        "turned",
+        "stepped",
+        "leaned",
+        "lantern",
+        "door",
+        "coat",
+        "pocket",
+        "wrist",
+        "chain",
+    )
+    dialogue_grounding_hits = sum(1 for token in dialogue_grounding_words if token in lowered)
+    dialogue_grounded = not dialogue_present or dialogue_grounding_hits >= 3
+    dialogue = 4 if dialogue_present and dialogue_grounded else 2
+    meta = 0 if (meta_summary or meta_contamination) else 5
+
+    scores = {
+        "coherence": coherence,
+        "continuity": continuity,
+        "clarity": clarity,
+        "pacing": pacing,
+        "specificity": specificity,
+        "dialogue": dialogue,
+        "meta_free": meta,
+    }
+    total_score = sum(scores.values())
+    max_score = 5 * len(scores)
+    return {
+        "usable": True,
+        "scores": scores,
+        "total_score": total_score,
+        "max_score": max_score,
+        "meta_summary": meta_summary,
+        "meta_contamination": meta_contamination,
+        "missing_carryover": missing_carryover,
+        "word_count": word_count,
+        "paragraph_count": paragraph_count,
+        "dialogue_present": dialogue_present,
+        "dialogue_grounded": dialogue_grounded,
+        "sensory_hits": sensory_hits,
+        "concrete_hits": concrete_hits,
+        "generic_hits": generic_hits,
+        "stock_phrase_hits": stock_phrase_hits,
+        "carryover_terms": carryover_terms,
+        "carryover_hits": carryover_hits,
+        "weak_carryover": missing_carryover,
+        "generic_risk": generic_risk,
     }
 
 

@@ -509,7 +509,9 @@ class LongFormExecutionService:
                     )
 
                 quality_snapshot = score_long_form_quality(
-                    cleaned, prior_excerpt=continuation.prior_excerpt
+                    cleaned,
+                    prior_excerpt=continuation.prior_excerpt,
+                    prior_summary=continuation.prior_summary,
                 )
                 quality_pass = self._quality_passes(quality_snapshot)
                 attempt_record["quality_snapshot"] = quality_snapshot
@@ -693,13 +695,22 @@ class LongFormExecutionService:
         specificity = scores.get("specificity", 0)
         clarity = scores.get("clarity", 0)
         meta_free = scores.get("meta_free", 0)
+        required_specificity = max(4, self._QUALITY_MIN_SPECIFICITY - 1)
+        weak_carryover = bool(quality_snapshot.get("weak_carryover"))
+        generic_risk = bool(quality_snapshot.get("generic_risk"))
+        dialogue_present = bool(quality_snapshot.get("dialogue_present"))
+        dialogue_grounded = bool(quality_snapshot.get("dialogue_grounded", True))
         if meta_free <= 0:
+            return False
+        if weak_carryover:
+            return False
+        if generic_risk and (specificity < required_specificity or clarity <= 2):
             return False
         return (
             total >= self._QUALITY_MIN_TOTAL
             and coherence >= self._QUALITY_MIN_COHERENCE
             and continuity >= self._QUALITY_MIN_CONTINUITY
-            and specificity >= self._QUALITY_MIN_SPECIFICITY
+            and specificity >= required_specificity
             and clarity >= self._QUALITY_MIN_CLARITY
         )
 
@@ -753,7 +764,9 @@ class LongFormExecutionService:
         return (
             "You are an editor. Critique the following scene prose. "
             "Return a JSON object with keys: summary, weaknesses, continuity_issues, "
-            "pacing_issues, meta_contamination, rewrite_goals.\n\n"
+            "pacing_issues, meta_contamination, rewrite_goals.\n"
+            "Focus on weak continuity carryover, generic stock phrasing, vague scene detail, "
+            "and dialogue that is not grounded in physical action or setting.\n\n"
             f"PRIOR SUMMARY: {summary}\n"
             f"RUBRIC SNAPSHOT: {rubric}\n"
             "SCENE TEXT:\n"

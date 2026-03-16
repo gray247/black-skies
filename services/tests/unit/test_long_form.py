@@ -192,6 +192,23 @@ def test_long_form_quality_penalizes_missing_carryover() -> None:
     assert report["scores"]["continuity"] == 1
 
 
+def test_long_form_quality_requires_multiple_carryover_anchors() -> None:
+    text = (
+        "Clara lifted the lantern and listened at the door while dust drifted through the corridor. " * 12
+        + "\n\n"
+        + "She kept talking to Jun about the dark hall, but she never touched the chain or thought about the fox again. "
+        * 8
+    )
+    report = score_long_form_quality(
+        text,
+        prior_excerpt="Jun steadied the cracked brass lantern beside the chained nursery door while Clara felt the ceramic fox in her pocket.",
+        prior_summary="Clara and Jun reached the chained nursery door with the lantern and the fox.",
+    )
+    assert report["weak_carryover"] is True
+    assert report["carryover_hits"] <= 1
+    assert report["scores"]["continuity"] <= 2
+
+
 def test_long_form_quality_flags_meta_contamination() -> None:
     text = (
         "Mara pushed the door, and the hinges groaned. " * 10
@@ -212,6 +229,21 @@ def test_long_form_quality_penalizes_generic_language() -> None:
     report = score_long_form_quality(text)
     assert report["generic_hits"] >= 3
     assert report["scores"]["specificity"] <= 1
+
+
+def test_long_form_quality_penalizes_stock_filler_even_when_coherent() -> None:
+    text = (
+        "Her breath caught as she looked into the room, and the words hung in the air between them. " * 10
+        + "\n\n"
+        + "A flicker of hope moved through her, but she could not quite name it, and for a moment everything felt heavy with dread. "
+        * 8
+    )
+    report = score_long_form_quality(text)
+    assert report["usable"] is True
+    assert report["generic_risk"] is True
+    assert report["stock_phrase_hits"] >= 3
+    assert report["scores"]["clarity"] <= 3
+    assert report["scores"]["specificity"] <= 2
 
 
 def test_normalize_long_form_output_strips_prompt_headers() -> None:

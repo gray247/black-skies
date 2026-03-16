@@ -117,6 +117,32 @@ class _CritiqueRewriteAdapter(_FakeAdapter):
         return {"text": self._rewrite}
 
 
+class _SequencedCritiqueRewriteAdapter(_FakeAdapter):
+    def __init__(self, draft_texts: list[str], critique_text: str, rewrite_texts: list[str]) -> None:
+        super().__init__(draft_texts[0])
+        self._draft_texts = list(draft_texts)
+        self._rewrite_texts = list(rewrite_texts)
+        self._critique = critique_text
+        self._draft_index = 0
+        self._rewrite_index = 0
+        self.last_rewrite_payload: dict[str, object] | None = None
+
+    def generate_draft(self, payload: dict[str, object]) -> dict[str, object]:
+        self.last_payload = payload
+        index = min(self._draft_index, len(self._draft_texts) - 1)
+        self._draft_index += 1
+        return {"text": self._draft_texts[index]}
+
+    def critique(self, payload: dict[str, object]) -> dict[str, object]:
+        return {"text": self._critique}
+
+    def rewrite(self, payload: dict[str, object]) -> dict[str, object]:
+        self.last_rewrite_payload = payload
+        index = min(self._rewrite_index, len(self._rewrite_texts) - 1)
+        self._rewrite_index += 1
+        return {"text": self._rewrite_texts[index]}
+
+
 class _ApiAdapter(_FakeAdapter):
     provider_name = "openai"
 
@@ -164,9 +190,11 @@ def _service(tmp_path: Path, adapter_text: str) -> LongFormExecutionService:
 
 def _long_text() -> str:
     return (
-        "Mara pushed the door, and the hinges groaned, the cold rain and metal scent filling the air. " * 20
+        "Mara pushed the door while a brass lantern knocked the frame, the chain rasped over the latch, and cold rain and mildew slicked the wood beneath her palm. "
+        * 20
         + "\n\n"
-        + "The hallway breathed cold air around her boots, the wood and dust and shadow pressing close. " * 12
+        + "Her coat brushed the corridor wall, the key tapped her wrist, and dust lifted from the floorboards with each step through the narrow hall. "
+        * 12
     )
 
 
@@ -189,6 +217,35 @@ def _borderline_specificity_text() -> str:
             "The hall stayed narrow as rain pressed at the windows and shadow held in the corners behind her. "
             * 20
         ).strip()
+    )
+
+
+def _carryover_anchor_text() -> str:
+    return (
+        "Clara steadied the cracked brass lantern with one hand and pressed the other against the chained nursery door, "
+        "feeling the cold links bite into her palm while the ceramic fox knocked against her pocket. " * 12
+        + "\n\n"
+        + "Jun's soaked coat dripped onto the runner as he watched the latch and counted each rattle from the other side. "
+        "The brass smell of the lantern oil mixed with mildew and wet plaster until the corridor tasted metallic. " * 8
+    )
+
+
+def _weak_continuation_text() -> str:
+    return (
+        "Her breath caught as she stared down the hallway, and the words hung in the air between them. " * 10
+        + "\n\n"
+        + "\"We should keep moving,\" Jun said. \"Maybe this is nothing.\" For a moment the house seemed heavy with dread, "
+        "and Clara felt a flicker of hope she could not quite name. " * 8
+    )
+
+
+def _strong_continuation_rewrite_text() -> str:
+    return (
+        "Clara kept the cracked brass lantern high as Jun tugged at the chain across the nursery door, the links rasping over his wet sleeve "
+        "while the ceramic fox jabbed her pocket each time she flinched. " * 12
+        + "\n\n"
+        + "\"Hold the lantern steady,\" Jun said, bracing one shoulder against the frame. Clara planted her palm on the damp wood, "
+        "smelling mildew, cold brass, and rainwater as the chained latch shivered under their hands. " * 8
     )
 
 
@@ -643,6 +700,75 @@ def test_long_form_execution_rewrites_borderline_specificity_chunk(tmp_path: Pat
     assert chunk.acceptance_reason == "rewrite_pass"
     assert chunk.quality_snapshot is not None
     assert chunk.quality_snapshot["scores"]["specificity"] == 5
+
+
+def test_long_form_execution_rewrites_weak_continuation_with_real_carryover_pressure(
+    tmp_path: Path,
+) -> None:
+    project_root = tmp_path / "proj_continuity_rewrite"
+    project_root.mkdir(parents=True, exist_ok=True)
+    settings = ServiceSettings(project_base_dir=tmp_path, long_form_provider_enabled=True)
+    diagnostics = DiagnosticLogger()
+    router = ModelRouter(
+        config=ModelRouterConfig(
+            policy=ModelRoutingPolicy.LOCAL_ONLY,
+            provider_calls_enabled=True,
+        )
+    )
+    critique = json.dumps(
+        {
+            "summary": "Continuation is too generic and drops important carryover objects.",
+            "weaknesses": ["continuity", "specificity"],
+            "continuity_issues": ["Lantern, chain, and fox are not carried forward clearly."],
+            "pacing_issues": [],
+            "meta_contamination": False,
+            "rewrite_goals": ["Re-anchor the scene in the lantern, chain, and fox", "Replace stock filler with concrete action"],
+        }
+    )
+    adapter = _SequencedCritiqueRewriteAdapter(
+        [_carryover_anchor_text(), _weak_continuation_text()],
+        critique,
+        [_strong_continuation_rewrite_text()],
+    )
+    router.register_provider(_FakeProvider(adapter))
+    service = LongFormExecutionService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=router,
+        enabled=True,
+    )
+
+    result = service.execute(
+        project_root=project_root,
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001", "sc_0002"],
+        chunk_size=1,
+        target_words_per_chunk=400,
+    )
+
+    assert result.stopped_reason is None
+    assert len(result.chunks) == 2
+    chunk = result.chunks[1]
+    assert chunk.rewrite_used is True
+    assert chunk.attempt_count == 2
+    assert chunk.acceptance_reason == "rewrite_pass"
+    assert chunk.quality_snapshot is not None
+    assert chunk.quality_snapshot["scores"]["continuity"] >= 4
+    assert chunk.quality_snapshot["scores"]["specificity"] == 5
+
+    diag_path = (
+        project_root
+        / ".blackskies"
+        / "long_form"
+        / "diagnostics"
+        / f"{chunk.chunk_id}.json"
+    )
+    payload = json.loads(diag_path.read_text(encoding="utf-8"))
+    first_attempt = payload["attempts"][0]
+    first_quality = first_attempt["quality_snapshot"]
+    assert first_quality["weak_carryover"] is True
+    assert first_quality["scores"]["continuity"] <= 2
+    assert first_quality["generic_risk"] is True
 
 
 def test_long_form_execution_stops_after_max_attempts(tmp_path: Path) -> None:
