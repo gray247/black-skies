@@ -68,6 +68,7 @@ class LongFormExecutionService:
     _QUALITY_MIN_SPECIFICITY = 5
     _QUALITY_MIN_CLARITY = 3
     _MAX_BORDERLINE_RECOVERY_RETRIES = 1
+    _MAX_INTERNAL_REPAIR_PASSES = 1
     _REWRITE_LENGTH_LOWER_RATIO = 0.60
     _REWRITE_LENGTH_UPPER_RATIO = 2.10
     _MAX_TRANSIENT_ADAPTER_RETRIES = 1
@@ -455,7 +456,9 @@ class LongFormExecutionService:
         rewrite_used = False
         retry_snapshot: dict[str, Any] | None = None
         retry_attempts_used = 0
+        internal_repair_attempts_used = 0
         guardrail_snapshot: dict[str, Any] | None = {"evaluated": False}
+        rescue_contract: dict[str, Any] | None = None
 
         try:
             current_payload = dict(payload)
@@ -463,6 +466,8 @@ class LongFormExecutionService:
             while True:
                 if attempt == 1:
                     attempt_kind = "draft"
+                elif retry_snapshot and internal_repair_attempts_used > 0 and attempt > self._MAX_ATTEMPTS + 1:
+                    attempt_kind = "repair_only"
                 elif retry_snapshot and retry_attempts_used > 0 and attempt > self._MAX_ATTEMPTS:
                     attempt_kind = "recovery_retry"
                 else:
@@ -477,7 +482,7 @@ class LongFormExecutionService:
                     escalated=False,
                     reason="draft_route" if attempt_kind == "draft" else "rewrite_default",
                 )
-                if attempt_kind == "recovery_retry":
+                if attempt_kind in {"recovery_retry", "repair_only"}:
                     attempt_adapter, model_snapshot = self._resolve_rewrite_retry_adapter(
                         route=route,
                         default_adapter=adapter,
@@ -581,7 +586,7 @@ class LongFormExecutionService:
                     prior_excerpt=continuation.prior_excerpt,
                     prior_summary=continuation.prior_summary,
                 )
-                if attempt_kind in {"rewrite", "recovery_retry"}:
+                if attempt_kind in {"rewrite", "recovery_retry", "repair_only"}:
                     guardrail_snapshot = self._evaluate_rewrite_guardrails(
                         original_text=previous_quality_snapshot.get("text") if isinstance(previous_quality_snapshot, dict) else None,
                         fallback_original_text=None,
@@ -659,7 +664,7 @@ class LongFormExecutionService:
                         "continuity_delta": int((quality_snapshot.get("scores") or {}).get("continuity") or 0)
                         - int((previous_quality_snapshot.get("scores") or {}).get("continuity") or 0),
                     }
-                if retry_snapshot and attempt_kind == "recovery_retry":
+                if retry_snapshot and attempt_kind in {"recovery_retry", "repair_only"}:
                     rescue_delta_summary = self._build_rescue_delta_summary(
                         previous_quality_snapshot=previous_quality_snapshot,
                         rewritten_quality_snapshot=quality_snapshot,
@@ -669,17 +674,19 @@ class LongFormExecutionService:
                     attempt_record["rescue_delta_summary"] = rescue_delta_summary
 
                 if quality_pass:
-                    if retry_snapshot and attempt_kind == "recovery_retry":
+                    if retry_snapshot and attempt_kind in {"recovery_retry", "repair_only"}:
                         retry_snapshot["succeeded"] = True
                         retry_snapshot["accepted_reason"] = "retry_pass"
                         retry_snapshot["rescue_failure_class"] = None
                         retry_snapshot["rescue_guardrail_fail"] = False
                         retry_snapshot["rescue_under_improved"] = False
                         retry_snapshot["rescue_fidelity_risk"] = False
+                    if retry_snapshot and attempt_kind == "repair_only":
+                        retry_snapshot["repair_only_pass_rescued"] = True
                     acceptance_reason = (
                         "quality_pass"
                         if attempt == 1
-                        else ("retry_pass" if attempt_kind == "recovery_retry" else "rewrite_pass")
+                        else ("retry_pass" if attempt_kind in {"recovery_retry", "repair_only"} else "rewrite_pass")
                     )
                     if rewrite_used:
                         persist_long_form_diagnostic(
@@ -759,6 +766,8 @@ class LongFormExecutionService:
                         "rescue_guardrail_fail": False,
                         "rescue_under_improved": False,
                         "rescue_fidelity_risk": False,
+                        "repair_only_pass_used": False,
+                        "repair_only_pass_rescued": False,
                     }
                     attempt_record["retry_decision"] = {
                         "eligible": True,
@@ -774,6 +783,12 @@ class LongFormExecutionService:
                         critique_snapshot=critique_snapshot,
                         quality_snapshot=quality_snapshot,
                     )
+                    retry_snapshot["rescue_targets_summary"] = {
+                        "dialogue_beats_requiring_grounding": list(rescue_contract.get("dialogue_beats_requiring_grounding") or []),
+                        "generic_phrases_to_replace": list(rescue_contract.get("generic_phrases_to_replace") or []),
+                        "lines_to_repair": list(rescue_contract.get("lines_to_repair") or []),
+                        "required_concrete_anchor_terms": list(rescue_contract.get("required_concrete_anchor_terms") or []),
+                    }
                     current_payload["prompt"] = self._build_recovery_retry_prompt(
                         original_text=cleaned,
                         critique_snapshot=critique_snapshot,
@@ -808,11 +823,55 @@ class LongFormExecutionService:
                     retry_snapshot["rescue_under_improved"] = rescue_failure_class in {
                         "under_improved",
                         "dialogue_grounding_unresolved",
+                        "specificity_unresolved",
+                        "clarity_unresolved",
+                        "generic_replacement_unresolved",
                         "critique_followthrough_weak",
                     }
                     retry_snapshot["rescue_fidelity_risk"] = bool(
                         (guardrail_snapshot or {}).get("failure_reason")
                     )
+                    if (
+                        attempt_kind == "recovery_retry"
+                        and internal_repair_attempts_used < self._MAX_INTERNAL_REPAIR_PASSES
+                        and rescue_failure_class in {
+                            "dialogue_grounding_unresolved",
+                            "specificity_unresolved",
+                            "clarity_unresolved",
+                            "generic_replacement_unresolved",
+                            "under_improved",
+                            "critique_followthrough_weak",
+                        }
+                        and not retry_snapshot["rescue_fidelity_risk"]
+                    ):
+                        internal_repair_attempts_used += 1
+                        retry_snapshot["repair_only_pass_used"] = True
+                        retry_snapshot["repair_only_pass_rescued"] = False
+                        retry_snapshot["rescue_targets_summary"] = {
+                            "dialogue_beats_requiring_grounding": list((rescue_contract or {}).get("dialogue_beats_requiring_grounding") or []),
+                            "generic_phrases_to_replace": list((rescue_contract or {}).get("generic_phrases_to_replace") or []),
+                            "lines_to_repair": list((rescue_contract or {}).get("lines_to_repair") or []),
+                            "required_concrete_anchor_terms": list((rescue_contract or {}).get("required_concrete_anchor_terms") or []),
+                        }
+                        attempt_record["repair_only_decision"] = {
+                            "used": True,
+                            "failure_class": rescue_failure_class,
+                        }
+                        previous_quality_snapshot = quality_snapshot
+                        previous_quality_snapshot["text"] = cleaned
+                        current_payload = dict(payload)
+                        current_payload["prompt"] = self._build_repair_only_prompt(
+                            latest_text=cleaned,
+                            continuation=continuation,
+                            rescue_contract=rescue_contract or {},
+                            rescue_failure_class=rescue_failure_class,
+                        )
+                        current_payload["system"] = (
+                            "Perform a repair-only edit. Output only narrative prose. "
+                            "No analysis, no planning, no headings."
+                        )
+                        attempt += 1
+                        continue
                 persist_long_form_diagnostic(
                     project_root,
                     continuation.chunk_id,
@@ -1115,6 +1174,16 @@ class LongFormExecutionService:
         dialogue_lines = "\n".join(
             f"- {line}" for line in (rescue_contract.get("dialogue_lines") or [])
         ) or "- Preserve the same dialogue beats and ground them in action."
+        dialogue_targets = "\n".join(
+            f"- {line}" for line in (rescue_contract.get("dialogue_beats_requiring_grounding") or [])
+        ) or "- No unresolved dialogue grounding targets."
+        generic_targets = "\n".join(
+            f"- {line}" for line in (rescue_contract.get("generic_phrases_to_replace") or [])
+        ) or "- No explicit generic phrase replacements required."
+        local_lines = "\n".join(
+            f"- {line}" for line in (rescue_contract.get("lines_to_repair") or [])
+        ) or "- Patch only the weakest local lines if repair is needed."
+        anchor_terms = ", ".join(rescue_contract.get("required_concrete_anchor_terms") or []) or "Use the existing scene anchors."
         return (
             "Precision rescue edit.\n"
             f"CHAPTER: {continuation.chapter_memory.chapter_context or continuation.chapter_id}\n"
@@ -1136,14 +1205,67 @@ class LongFormExecutionService:
             "Do not swap the scene subject or broaden the scope of the scene.\n"
             "Do not compress the scene into a summary or expand it into a larger sequence.\n"
             "Preserve the dialogue beats already present, but ground them in gesture, object handling, movement, or environment when relevant.\n"
-            "Use the critique targets directly. Fix the weak lines instead of reimagining the scene.\n"
+            "Patch the weak lines and beats directly. Do not rewrite broadly unless a local patch is impossible.\n"
             "If you cannot improve the scene while preserving those constraints, stay conservative and preserve fidelity.\n"
             "UNRESOLVED QUALITY TARGETS:\n"
             f"{unresolved_text}\n"
+            "LINES / BEATS TO REPAIR:\n"
+            f"{local_lines}\n"
             "DIALOGUE BEATS TO PRESERVE AND GROUND:\n"
             f"{dialogue_lines}\n\n"
+            "TARGETED DIALOGUE BEATS REQUIRING GROUNDING:\n"
+            f"{dialogue_targets}\n"
+            "GENERIC PHRASES TO REPLACE:\n"
+            f"{generic_targets}\n"
+            "REQUIRED CONCRETE ANCHOR TERMS:\n"
+            f"- {anchor_terms}\n"
+            "HARD RESCUE OBLIGATIONS:\n"
+            f"- Add at least {rescue_contract.get('minimum_action_cues_to_add')} visible action/gesture/object cues across the targeted beats.\n"
+            "- Every targeted dialogue beat must gain nearby action, gesture, handled object, or setting cue.\n"
+            "- Every targeted generic phrase must be replaced with concrete visible detail.\n"
+            f"- Raise specificity by at least {rescue_contract.get('minimum_specificity_delta')} if targeted, or add concrete scene detail.\n"
+            f"- Raise clarity by at least {rescue_contract.get('minimum_clarity_delta')} if targeted.\n\n"
             "ORIGINAL SCENE:\n"
             f"{original_text}\n"
+        )
+
+    def _build_repair_only_prompt(
+        self,
+        *,
+        latest_text: str,
+        continuation,
+        rescue_contract: dict[str, Any],
+        rescue_failure_class: str,
+    ) -> str:
+        local_lines = "\n".join(
+            f"- {line}" for line in (rescue_contract.get("lines_to_repair") or [])
+        ) or "- Patch only the unresolved weak lines."
+        dialogue_targets = "\n".join(
+            f"- {line}" for line in (rescue_contract.get("dialogue_beats_requiring_grounding") or [])
+        ) or "- No unresolved dialogue targets."
+        generic_targets = "\n".join(
+            f"- {line}" for line in (rescue_contract.get("generic_phrases_to_replace") or [])
+        ) or "- No unresolved generic targets."
+        return (
+            "Repair-only rescue pass.\n"
+            "The prior rescue stayed fidelity-safe but still missed one editorial target.\n"
+            f"Failure class: {rescue_failure_class}\n"
+            "Patch only the unresolved weaknesses. Keep the rest of the scene intact.\n"
+            "Do not add new entities, events, or scene directions.\n"
+            f"CHAPTER: {continuation.chapter_memory.chapter_context or continuation.chapter_id}\n"
+            f"LENGTH BAND: {rescue_contract.get('min_word_count')} to {rescue_contract.get('max_word_count')} words\n"
+            "UNRESOLVED LINES / BEATS:\n"
+            f"{local_lines}\n"
+            "UNRESOLVED DIALOGUE GROUNDING TARGETS:\n"
+            f"{dialogue_targets}\n"
+            "UNRESOLVED GENERIC TARGETS:\n"
+            f"{generic_targets}\n"
+            "PATCH RULES:\n"
+            "- Keep dialogue order and overall paragraph flow where possible.\n"
+            "- Add only the missing action/gesture/object cues or concrete details.\n"
+            "- Do not broadly rephrase already acceptable sections.\n\n"
+            "CURRENT SCENE:\n"
+            f"{latest_text}\n"
         )
 
     def _extract_dialogue_lines(self, text: str | None, *, limit: int = 4) -> list[str]:
@@ -1157,6 +1279,28 @@ class LongFormExecutionService:
             if len(lines) >= limit:
                 break
         return lines
+
+    def _extract_sentences_with_terms(
+        self,
+        text: str | None,
+        terms: list[str],
+        *,
+        limit: int = 4,
+    ) -> list[str]:
+        if not text or not terms:
+            return []
+        sentences = re.split(r"(?<=[.!?])\s+", text.strip())
+        matches: list[str] = []
+        lowered_terms = [term.lower() for term in terms if term]
+        for sentence in sentences:
+            lowered = sentence.lower()
+            if any(term in lowered for term in lowered_terms):
+                cleaned = sentence.strip()
+                if cleaned and cleaned not in matches:
+                    matches.append(cleaned)
+            if len(matches) >= limit:
+                break
+        return matches
 
     def _build_rescue_contract(
         self,
@@ -1190,14 +1334,44 @@ class LongFormExecutionService:
             if term not in scene_anchors:
                 scene_anchors.append(term)
         unresolved_targets = list((critique_snapshot or {}).get("rewrite_goals") or [])
+        generic_targets = [
+            str(item).strip()
+            for item in (
+                (critique_snapshot or {}).get("generic_phrase_targets")
+                or (critique_snapshot or {}).get("replacement_targets")
+                or []
+            )
+            if str(item).strip()
+        ]
+        generic_phrases_to_replace = [
+            target for target in generic_targets if target.lower() in original_text.lower()
+        ][:4]
+        dialogue_beats_requiring_grounding = []
         if bool(quality_snapshot.get("dialogue_present")) and not bool(
             quality_snapshot.get("dialogue_grounded", True)
         ):
             unresolved_targets.append("Ground dialogue in visible action or setting.")
+            dialogue_beats_requiring_grounding = self._extract_dialogue_lines(original_text)
+        lines_to_repair = []
+        lines_to_repair.extend(
+            self._extract_sentences_with_terms(original_text, generic_phrases_to_replace, limit=3)
+        )
+        lines_to_repair.extend(
+            line
+            for line in dialogue_beats_requiring_grounding
+            if line not in lines_to_repair
+        )
         return {
             "subject_entities": subject_entities[:8],
             "scene_anchors": scene_anchors[:10],
             "dialogue_lines": self._extract_dialogue_lines(original_text),
+            "dialogue_beats_requiring_grounding": dialogue_beats_requiring_grounding[:4],
+            "generic_phrases_to_replace": generic_phrases_to_replace,
+            "lines_to_repair": lines_to_repair[:6],
+            "required_concrete_anchor_terms": scene_anchors[:3],
+            "minimum_action_cues_to_add": 2 if dialogue_beats_requiring_grounding else 1,
+            "minimum_specificity_delta": 1,
+            "minimum_clarity_delta": 1,
             "min_word_count": min_words,
             "max_word_count": max_words,
             "original_word_count": original_word_count,
@@ -1237,6 +1411,14 @@ class LongFormExecutionService:
             )
             and not bool((previous_quality_snapshot or {}).get("dialogue_grounded", True)),
             "dialogue_grounding_targeted": dialogue_targets,
+            "specificity_target_met": int(rewritten_scores.get("specificity") or 0)
+            > int(previous_scores.get("specificity") or 0),
+            "clarity_target_met": int(rewritten_scores.get("clarity") or 0)
+            > int(previous_scores.get("clarity") or 0),
+            "generic_replacement_target_met": int((previous_quality_snapshot or {}).get("stock_phrase_hits") or 0)
+            > int((rewritten_quality_snapshot or {}).get("stock_phrase_hits") or 0),
+            "concrete_target_met": int((rewritten_quality_snapshot or {}).get("concrete_hits") or 0)
+            >= int((previous_quality_snapshot or {}).get("concrete_hits") or 0) + 2,
         }
 
     def _classify_rescue_failure(
@@ -1258,13 +1440,21 @@ class LongFormExecutionService:
             "dialogue_grounding_fixed"
         ) and not bool((rewritten_quality_snapshot or {}).get("dialogue_grounded", True)):
             return "dialogue_grounding_unresolved"
+        if not bool(rescue_delta_summary.get("generic_replacement_target_met")) and int(
+            (previous_quality_snapshot or {}).get("stock_phrase_hits") or 0
+        ) > 0:
+            return "generic_replacement_unresolved"
+        if not bool(rescue_delta_summary.get("clarity_target_met")) and int(
+            (((previous_quality_snapshot or {}).get("scores") or {}).get("clarity") or 0)
+        ) <= self._QUALITY_MIN_CLARITY:
+            return "clarity_unresolved"
         if (
             int((rewritten_quality_snapshot or {}).get("concrete_hits") or 0)
             <= int((previous_quality_snapshot or {}).get("concrete_hits") or 0)
             and int(((rewritten_quality_snapshot or {}).get("scores") or {}).get("specificity") or 0)
             <= int(((previous_quality_snapshot or {}).get("scores") or {}).get("specificity") or 0)
         ):
-            return "concrete_detail_unresolved"
+            return "specificity_unresolved"
         if (
             int(rescue_delta_summary.get("total_delta") or 0) <= 0
             and int(rescue_delta_summary.get("specificity_delta") or 0) <= 0
@@ -1531,7 +1721,7 @@ class LongFormExecutionService:
         adapter_retry_count = 0
         while True:
             try:
-                if call_mode in {"rewrite", "recovery_retry"}:
+                if call_mode in {"rewrite", "recovery_retry", "repair_only"}:
                     response = adapter.rewrite(payload)
                 else:
                     response = adapter.generate_draft(payload)
@@ -1713,13 +1903,25 @@ class LongFormExecutionService:
             if int(rewritten_scores.get("dialogue") or 0) < int(previous_scores.get("dialogue") or 0):
                 return False
         if specificity_targeted:
+            previous_specificity = int(previous_scores.get("specificity") or 0)
+            rewritten_specificity = int(rewritten_scores.get("specificity") or 0)
+            previous_concrete_hits = int(previous_quality_snapshot.get("concrete_hits") or 0)
+            rewritten_concrete_hits = int(rewritten_quality_snapshot.get("concrete_hits") or 0)
             specificity_delta = int(rewritten_scores.get("specificity") or 0) - int(
                 previous_scores.get("specificity") or 0
             )
-            concrete_delta = int(rewritten_quality_snapshot.get("concrete_hits") or 0) - int(
-                previous_quality_snapshot.get("concrete_hits") or 0
-            )
-            if specificity_delta <= 0 and concrete_delta <= 0:
+            concrete_delta = rewritten_concrete_hits - previous_concrete_hits
+            specificity_already_safe = previous_specificity >= self._QUALITY_MIN_SPECIFICITY
+            concrete_already_safe = previous_concrete_hits >= 3
+            if specificity_already_safe and concrete_already_safe:
+                if rewritten_specificity < previous_specificity or rewritten_concrete_hits < previous_concrete_hits:
+                    return False
+            elif specificity_delta < 1 and concrete_delta < 2:
+                return False
+        if int(previous_quality_snapshot.get("stock_phrase_hits") or 0) > 0:
+            if int(rewritten_quality_snapshot.get("stock_phrase_hits") or 0) >= int(
+                previous_quality_snapshot.get("stock_phrase_hits") or 0
+            ):
                 return False
         return True
 

@@ -327,6 +327,17 @@ def _opening_recovery_text() -> str:
     )
 
 
+def _opening_partial_rescue_text() -> str:
+    return (
+        "Copper light slid across the cobblestones while Lucas stood by the chipped fountain and watched the market awnings snap in the wind. "
+        * 10
+        + "\n\n"
+        + "\"You can't keep doing this,\" Clara said. Lucas looked at the wet stone and kept his mouth tight while the square buzzed around them and the last stalls rattled in the wind. "
+        "\"Not here,\" he said. The market kept moving while he stared at the fountain rim and tried not to answer her directly. "
+        * 8
+    )
+
+
 def _write_outline_context(
     project_root: Path,
     *,
@@ -1177,6 +1188,77 @@ def test_long_form_execution_rejects_rescue_that_still_misses_targeted_fix(
     assert chunk.retry_snapshot["reason"] == "targeted_editorial_miss_after_rewrite"
     assert chunk.retry_snapshot["rescue_failure_class"] == "dialogue_grounding_unresolved"
     assert chunk.retry_snapshot["rescue_under_improved"] is True
+
+
+def test_long_form_execution_repair_only_pass_can_rescue_fidelity_safe_retry(
+    tmp_path: Path,
+) -> None:
+    project_root = tmp_path / "proj_repair_only_rescue"
+    project_root.mkdir(parents=True, exist_ok=True)
+    settings = ServiceSettings(
+        project_base_dir=tmp_path,
+        long_form_provider_enabled=True,
+        local_llm_rewrite_retry_model="qwen3:14b",
+    )
+    diagnostics = DiagnosticLogger()
+    router = ModelRouter(
+        config=ModelRouterConfig(
+            policy=ModelRoutingPolicy.LOCAL_ONLY,
+            provider_calls_enabled=True,
+        )
+    )
+    critique = json.dumps(
+        {
+            "summary": "Ground the dialogue and add concrete square detail without changing the scene.",
+            "weaknesses": ["dialogue", "specificity", "clarity"],
+            "continuity_issues": [],
+            "pacing_issues": [],
+            "meta_contamination": False,
+            "rewrite_goals": ["Ground dialogue in action", "Replace vague square language with concrete blocking"],
+            "dialogue_grounding_targets": ["Attach each spoken line to movement, gesture, or an object."],
+            "detail_targets": ["Use the fountain rim, cobbles, and market stalls."],
+        }
+    )
+    adapter = _SequencedCritiqueRewriteAdapter(
+        [_opening_generic_text()],
+        critique,
+        [_opening_partial_rescue_text(), _opening_partial_rescue_text(), _opening_recovery_text()],
+    )
+    router.register_provider(_FakeProvider(adapter))
+    service = LongFormExecutionService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=router,
+        enabled=True,
+    )
+
+    result = service.execute(
+        project_root=project_root,
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chunk_size=1,
+        target_words_per_chunk=400,
+    )
+
+    assert result.stopped_reason is None
+    chunk = result.chunks[0]
+    assert chunk.attempt_count == 4
+    assert chunk.acceptance_reason == "retry_pass"
+    assert chunk.retry_snapshot is not None
+    assert chunk.retry_snapshot["repair_only_pass_used"] is True
+    assert chunk.retry_snapshot["repair_only_pass_rescued"] is True
+    assert chunk.retry_snapshot["rescue_targets_summary"]["dialogue_beats_requiring_grounding"]
+    diag_path = (
+        project_root
+        / ".blackskies"
+        / "long_form"
+        / "diagnostics"
+        / f"{chunk.chunk_id}.json"
+    )
+    payload = json.loads(diag_path.read_text(encoding="utf-8"))
+    assert payload["retry_snapshot"]["repair_only_pass_used"] is True
+    assert payload["retry_snapshot"]["repair_only_pass_rescued"] is True
+    assert payload["attempts"][3]["mode"] == "repair_only"
 
 
 def test_long_form_execution_rejects_cosmetic_rewrite_without_meaningful_delta(

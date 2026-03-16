@@ -25,6 +25,9 @@ class LongFormEvalSummary:
     rescue_guardrail_fail_count: int
     rescue_under_improved_count: int
     rescue_fidelity_risk_count: int
+    repair_only_pass_used_count: int
+    repair_only_pass_rescued_count: int
+    rescue_editorial_failure_classes: dict[str, int]
     fallback_count: int
     borderline_failure_count: int
     avg_quality_score: float | None
@@ -51,6 +54,9 @@ class LongFormEvalSummary:
             "rescue_guardrail_fail_count": self.rescue_guardrail_fail_count,
             "rescue_under_improved_count": self.rescue_under_improved_count,
             "rescue_fidelity_risk_count": self.rescue_fidelity_risk_count,
+            "repair_only_pass_used_count": self.repair_only_pass_used_count,
+            "repair_only_pass_rescued_count": self.repair_only_pass_rescued_count,
+            "rescue_editorial_failure_classes": dict(self.rescue_editorial_failure_classes),
             "fallback_count": self.fallback_count,
             "borderline_failure_count": self.borderline_failure_count,
             "avg_quality_score": self.avg_quality_score,
@@ -101,6 +107,9 @@ def summarize_long_form_run(
     rescue_guardrail_fail_count = 0
     rescue_under_improved_count = 0
     rescue_fidelity_risk_count = 0
+    repair_only_pass_used_count = 0
+    repair_only_pass_rescued_count = 0
+    rescue_editorial_failure_classes: dict[str, int] = {}
     fallbacks = 0
     borderline_failure_count = 0
     quality_scores: list[float] = []
@@ -129,6 +138,15 @@ def summarize_long_form_run(
             rescue_under_improved_count += 1
         if retry_snapshot.get("rescue_fidelity_risk"):
             rescue_fidelity_risk_count += 1
+        if retry_snapshot.get("repair_only_pass_used"):
+            repair_only_pass_used_count += 1
+        if retry_snapshot.get("repair_only_pass_rescued"):
+            repair_only_pass_rescued_count += 1
+        rescue_failure_class = retry_snapshot.get("rescue_failure_class")
+        if isinstance(rescue_failure_class, str) and rescue_failure_class:
+            rescue_editorial_failure_classes[rescue_failure_class] = (
+                rescue_editorial_failure_classes.get(rescue_failure_class, 0) + 1
+            )
         if retry_snapshot.get("succeeded"):
             retried_success_count += 1
         failure_classification = retry_snapshot.get("failure_classification") or {}
@@ -179,6 +197,9 @@ def summarize_long_form_run(
         rescue_guardrail_fail_count=rescue_guardrail_fail_count,
         rescue_under_improved_count=rescue_under_improved_count,
         rescue_fidelity_risk_count=rescue_fidelity_risk_count,
+        repair_only_pass_used_count=repair_only_pass_used_count,
+        repair_only_pass_rescued_count=repair_only_pass_rescued_count,
+        rescue_editorial_failure_classes=rescue_editorial_failure_classes,
         fallback_count=fallbacks,
         borderline_failure_count=borderline_failure_count,
         avg_quality_score=avg_quality,
@@ -218,6 +239,9 @@ def summarize_long_form_variance(
             "rescue_guardrail_fail_rate": None,
             "rescue_under_improved_rate": None,
             "rescue_fidelity_risk_rate": None,
+            "repair_only_pass_usage_rate": None,
+            "repair_only_pass_rescue_rate": None,
+            "rescue_editorial_failure_classes": {},
             "succeeded_only_after_retry_count": 0,
             "quality_score_range": None,
         }
@@ -231,6 +255,9 @@ def summarize_long_form_variance(
     rescue_guardrail_fails = 0
     rescue_under_improved = 0
     rescue_fidelity_risk = 0
+    repair_only_pass_used = 0
+    repair_only_pass_rescued = 0
+    rescue_editorial_failure_classes: dict[str, int] = {}
     stopped_reasons: dict[str, int] = {}
     quality_scores: list[float] = []
     for summary in normalized:
@@ -248,6 +275,10 @@ def summarize_long_form_variance(
         rescue_guardrail_fails += int(summary.get("rescue_guardrail_fail_count") or 0)
         rescue_under_improved += int(summary.get("rescue_under_improved_count") or 0)
         rescue_fidelity_risk += int(summary.get("rescue_fidelity_risk_count") or 0)
+        repair_only_pass_used += int(summary.get("repair_only_pass_used_count") or 0)
+        repair_only_pass_rescued += int(summary.get("repair_only_pass_rescued_count") or 0)
+        for key, value in (summary.get("rescue_editorial_failure_classes") or {}).items():
+            rescue_editorial_failure_classes[str(key)] = rescue_editorial_failure_classes.get(str(key), 0) + int(value or 0)
         score = summary.get("avg_quality_score")
         if isinstance(score, (int, float)):
             quality_scores.append(float(score))
@@ -268,6 +299,9 @@ def summarize_long_form_variance(
         "rescue_guardrail_fail_rate": round(rescue_guardrail_fails / run_count, 2),
         "rescue_under_improved_rate": round(rescue_under_improved / run_count, 2),
         "rescue_fidelity_risk_rate": round(rescue_fidelity_risk / run_count, 2),
+        "repair_only_pass_usage_rate": round(repair_only_pass_used / run_count, 2),
+        "repair_only_pass_rescue_rate": round(repair_only_pass_rescued / run_count, 2),
+        "rescue_editorial_failure_classes": rescue_editorial_failure_classes,
         "succeeded_only_after_retry_count": retry_rescues,
         "quality_score_range": (
             round(max(quality_scores) - min(quality_scores), 2) if quality_scores else None

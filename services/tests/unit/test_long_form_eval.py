@@ -39,6 +39,8 @@ def test_long_form_eval_summary_aggregates() -> None:
                 "rescue_guardrail_fail": False,
                 "rescue_under_improved": False,
                 "rescue_fidelity_risk": False,
+                "repair_only_pass_used": False,
+                "repair_only_pass_rescued": False,
                 "failure_classification": {"classification": "borderline"},
             },
             "quality_snapshot": {
@@ -64,6 +66,9 @@ def test_long_form_eval_summary_aggregates() -> None:
                 "rescue_guardrail_fail": False,
                 "rescue_under_improved": False,
                 "rescue_fidelity_risk": False,
+                "repair_only_pass_used": True,
+                "repair_only_pass_rescued": False,
+                "rescue_failure_class": "dialogue_grounding_unresolved",
                 "failure_classification": {"classification": "hard"},
             },
             "quality_snapshot": {
@@ -93,6 +98,9 @@ def test_long_form_eval_summary_aggregates() -> None:
     assert summary.rescue_guardrail_fail_count == 0
     assert summary.rescue_under_improved_count == 0
     assert summary.rescue_fidelity_risk_count == 0
+    assert summary.repair_only_pass_used_count == 1
+    assert summary.repair_only_pass_rescued_count == 0
+    assert summary.rescue_editorial_failure_classes == {"dialogue_grounding_unresolved": 1}
     assert summary.fallback_count == 1
     assert summary.borderline_failure_count == 1
     assert summary.avg_attempts == 2.0
@@ -116,6 +124,9 @@ def test_long_form_eval_variance_distinguishes_stable_and_unstable_outcomes() ->
                 "rescue_guardrail_fail_count": 0,
                 "rescue_under_improved_count": 0,
                 "rescue_fidelity_risk_count": 0,
+                "repair_only_pass_used_count": 0,
+                "repair_only_pass_rescued_count": 0,
+                "rescue_editorial_failure_classes": {},
                 "borderline_failure_count": 0,
                 "avg_quality_score": 31.0,
             },
@@ -128,6 +139,9 @@ def test_long_form_eval_variance_distinguishes_stable_and_unstable_outcomes() ->
                 "rescue_guardrail_fail_count": 0,
                 "rescue_under_improved_count": 0,
                 "rescue_fidelity_risk_count": 0,
+                "repair_only_pass_used_count": 0,
+                "repair_only_pass_rescued_count": 0,
+                "rescue_editorial_failure_classes": {},
                 "borderline_failure_count": 1,
                 "avg_quality_score": 29.5,
             },
@@ -144,6 +158,9 @@ def test_long_form_eval_variance_distinguishes_stable_and_unstable_outcomes() ->
                 "rescue_guardrail_fail_count": 0,
                 "rescue_under_improved_count": 0,
                 "rescue_fidelity_risk_count": 0,
+                "repair_only_pass_used_count": 1,
+                "repair_only_pass_rescued_count": 1,
+                "rescue_editorial_failure_classes": {"dialogue_grounding_unresolved": 1},
                 "borderline_failure_count": 1,
                 "avg_quality_score": 30.0,
             },
@@ -156,6 +173,9 @@ def test_long_form_eval_variance_distinguishes_stable_and_unstable_outcomes() ->
                 "rescue_guardrail_fail_count": 0,
                 "rescue_under_improved_count": 1,
                 "rescue_fidelity_risk_count": 0,
+                "repair_only_pass_used_count": 1,
+                "repair_only_pass_rescued_count": 0,
+                "rescue_editorial_failure_classes": {"specificity_unresolved": 1},
                 "borderline_failure_count": 1,
                 "avg_quality_score": 27.0,
             },
@@ -168,9 +188,14 @@ def test_long_form_eval_variance_distinguishes_stable_and_unstable_outcomes() ->
     assert stable["succeeded_only_after_retry_count"] == 1
     assert stable["rescue_mode_usage_rate"] == 0.5
     assert stable["rescue_model_usage_rate"] == 0.5
+    assert stable["repair_only_pass_usage_rate"] == 0.0
 
     assert unstable["consistency"] == "unstable"
     assert unstable["pass_rate"] == 0.5
     assert unstable["stopped_reasons"] == {"quality_failed": 1}
     assert unstable["borderline_failure_rate"] == 1.0
     assert unstable["rescue_under_improved_rate"] == 0.5
+    assert unstable["rescue_editorial_failure_classes"] == {
+        "dialogue_grounding_unresolved": 1,
+        "specificity_unresolved": 1,
+    }
