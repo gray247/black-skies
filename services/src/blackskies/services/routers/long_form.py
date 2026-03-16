@@ -32,6 +32,12 @@ def _chunk_to_dict(chunk) -> dict[str, Any]:
         "continuity_snapshot": chunk.continuity_snapshot,
         "budget_snapshot": chunk.budget_snapshot,
         "routing_snapshot": chunk.routing_snapshot,
+        "quality_snapshot": chunk.quality_snapshot,
+        "critique_snapshot": chunk.critique_snapshot,
+        "attempt_count": chunk.attempt_count,
+        "acceptance_reason": chunk.acceptance_reason,
+        "rewrite_used": chunk.rewrite_used,
+        "retry_snapshot": chunk.retry_snapshot,
     }
 
 

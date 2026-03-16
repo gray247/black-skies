@@ -103,10 +103,18 @@ class _RetryAdapter(_FakeAdapter):
 
 
 class _CritiqueRewriteAdapter(_FakeAdapter):
-    def __init__(self, draft_text: str, critique_text: str, rewrite_text: str) -> None:
+    def __init__(
+        self,
+        draft_text: str,
+        critique_text: str,
+        rewrite_text: str,
+        recovery_rewrite_text: str | None = None,
+    ) -> None:
         super().__init__(draft_text)
         self._critique = critique_text
         self._rewrite = rewrite_text
+        self._recovery_rewrite = recovery_rewrite_text or rewrite_text
+        self._rewrite_count = 0
         self.last_rewrite_payload: dict[str, object] | None = None
 
     def critique(self, payload: dict[str, object]) -> dict[str, object]:
@@ -114,7 +122,10 @@ class _CritiqueRewriteAdapter(_FakeAdapter):
 
     def rewrite(self, payload: dict[str, object]) -> dict[str, object]:
         self.last_rewrite_payload = payload
-        return {"text": self._rewrite}
+        self._rewrite_count += 1
+        if self._rewrite_count == 1:
+            return {"text": self._rewrite}
+        return {"text": self._recovery_rewrite}
 
 
 class _SequencedCritiqueRewriteAdapter(_FakeAdapter):
@@ -880,6 +891,72 @@ def test_long_form_execution_accepts_rewrite_with_mild_generic_phrasing_when_rec
     assert chunk.quality_snapshot["scores"]["clarity"] >= 3
 
 
+def test_long_form_execution_recovers_borderline_quality_failure_with_single_retry(
+    tmp_path: Path,
+) -> None:
+    project_root = tmp_path / "proj_borderline_retry"
+    project_root.mkdir(parents=True, exist_ok=True)
+    settings = ServiceSettings(project_base_dir=tmp_path, long_form_provider_enabled=True)
+    diagnostics = DiagnosticLogger()
+    router = ModelRouter(
+        config=ModelRouterConfig(
+            policy=ModelRoutingPolicy.LOCAL_ONLY,
+            provider_calls_enabled=True,
+        )
+    )
+    critique = json.dumps(
+        {
+            "summary": "The opening is close, but it still needs stronger scene specificity.",
+            "weaknesses": ["clarity", "specificity"],
+            "continuity_issues": [],
+            "pacing_issues": [],
+            "meta_contamination": False,
+            "rewrite_goals": ["Sharpen the blocking", "Replace the last generic lines with concrete scene action"],
+        }
+    )
+    adapter = _CritiqueRewriteAdapter(
+        _opening_generic_text(),
+        critique,
+        _opening_generic_text(),
+        _opening_recovery_text(),
+    )
+    router.register_provider(_FakeProvider(adapter))
+    service = LongFormExecutionService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=router,
+        enabled=True,
+    )
+
+    result = service.execute(
+        project_root=project_root,
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chunk_size=1,
+        target_words_per_chunk=400,
+    )
+
+    assert result.stopped_reason is None
+    chunk = result.chunks[0]
+    assert chunk.attempt_count == 3
+    assert chunk.acceptance_reason == "retry_pass"
+    assert chunk.retry_snapshot is not None
+    assert chunk.retry_snapshot["used"] is True
+    assert chunk.retry_snapshot["succeeded"] is True
+    assert chunk.retry_snapshot["reason"] == "borderline_quality_after_rewrite"
+    diag_path = (
+        project_root
+        / ".blackskies"
+        / "long_form"
+        / "diagnostics"
+        / f"{chunk.chunk_id}.json"
+    )
+    payload = json.loads(diag_path.read_text(encoding="utf-8"))
+    assert payload["retry_snapshot"]["used"] is True
+    assert payload["retry_snapshot"]["succeeded"] is True
+    assert payload["attempts"][2]["mode"] == "recovery_retry"
+
+
 def test_long_form_execution_rejects_cosmetic_rewrite_without_meaningful_delta(
     tmp_path: Path,
 ) -> None:
@@ -938,6 +1015,68 @@ def test_long_form_execution_rejects_cosmetic_rewrite_without_meaningful_delta(
     assert rewrite_attempt["quality_snapshot"]["total_score"] < 28
     assert rewrite_attempt["quality_snapshot"]["scores"]["specificity"] <= 2
     assert rewrite_attempt["quality_snapshot"]["scores"]["clarity"] <= 3
+
+
+def test_long_form_execution_does_not_retry_hard_carryover_failure(
+    tmp_path: Path,
+) -> None:
+    project_root = tmp_path / "proj_hard_failure_retry_guard"
+    project_root.mkdir(parents=True, exist_ok=True)
+    settings = ServiceSettings(project_base_dir=tmp_path, long_form_provider_enabled=True)
+    diagnostics = DiagnosticLogger()
+    router = ModelRouter(
+        config=ModelRouterConfig(
+            policy=ModelRoutingPolicy.LOCAL_ONLY,
+            provider_calls_enabled=True,
+        )
+    )
+    critique = json.dumps(
+        {
+            "summary": "The continuation name-drops prior objects without using them meaningfully.",
+            "weaknesses": ["continuity", "specificity"],
+            "continuity_issues": ["Carryover remains decorative instead of causal."],
+            "pacing_issues": [],
+            "meta_contamination": False,
+            "rewrite_goals": ["Use the carried objects in a real action"],
+        }
+    )
+    adapter = _SequencedCritiqueRewriteAdapter(
+        [_carryover_anchor_text(), _adversarial_near_miss_text()],
+        critique,
+        [_adversarial_near_miss_text()],
+    )
+    router.register_provider(_FakeProvider(adapter))
+    service = LongFormExecutionService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=router,
+        enabled=True,
+    )
+
+    result = service.execute(
+        project_root=project_root,
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001", "sc_0002"],
+        chunk_size=1,
+        target_words_per_chunk=400,
+    )
+
+    assert result.stopped_reason == "quality_failed"
+    chunk = result.chunks[1]
+    assert chunk.attempt_count == 2
+    assert chunk.retry_snapshot is not None
+    assert chunk.retry_snapshot["used"] is False
+    assert chunk.retry_snapshot["reason"] == "material_carryover_missing"
+    diag_path = (
+        project_root
+        / ".blackskies"
+        / "long_form"
+        / "diagnostics"
+        / f"{chunk.chunk_id}.json"
+    )
+    payload = json.loads(diag_path.read_text(encoding="utf-8"))
+    assert payload["retry_snapshot"]["used"] is False
+    assert payload["retry_snapshot"]["eligible"] is False
 
 
 def test_long_form_execution_rewrites_adversarial_near_miss_continuation(

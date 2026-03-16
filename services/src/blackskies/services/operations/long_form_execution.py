@@ -58,6 +58,7 @@ class LongFormExecutionService:
     _QUALITY_MIN_CONTINUITY = 3
     _QUALITY_MIN_SPECIFICITY = 5
     _QUALITY_MIN_CLARITY = 3
+    _MAX_BORDERLINE_RECOVERY_RETRIES = 1
 
     def __init__(
         self,
@@ -177,6 +178,7 @@ class LongFormExecutionService:
                 critique_snapshot,
                 acceptance_reason,
                 rewrite_used,
+                retry_snapshot,
             ) = self._run_chunk_attempts(
                 adapter=adapter,
                 prompt=prompt,
@@ -218,6 +220,7 @@ class LongFormExecutionService:
                 attempt_count=attempt_count,
                 acceptance_reason=acceptance_reason,
                 rewrite_used=rewrite_used,
+                retry_snapshot=retry_snapshot,
             )
             persist_long_form_chunk(project_root, chunk)
             persist_long_form_text(project_root, chunk_id, text)
@@ -379,6 +382,7 @@ class LongFormExecutionService:
         dict[str, Any] | None,
         str | None,
         bool,
+        dict[str, Any] | None,
     ]:
         if not self._model_router or not self._model_router.config.provider_calls_enabled:
             return (
@@ -390,6 +394,7 @@ class LongFormExecutionService:
                 None,
                 "provider_calls_disabled",
                 False,
+                None,
             )
         if adapter is None:
             return (
@@ -401,6 +406,7 @@ class LongFormExecutionService:
                 None,
                 "provider_unavailable",
                 False,
+                None,
             )
 
         payload: dict[str, Any] = {
@@ -423,11 +429,19 @@ class LongFormExecutionService:
         previous_quality_snapshot: dict[str, Any] | None = None
         acceptance_reason: str | None = None
         rewrite_used = False
+        retry_snapshot: dict[str, Any] | None = None
+        retry_attempts_used = 0
 
         try:
             current_payload = dict(payload)
-            for attempt in range(1, self._MAX_ATTEMPTS + 1):
-                attempt_kind = "draft" if attempt == 1 else "rewrite"
+            attempt = 1
+            while True:
+                if attempt == 1:
+                    attempt_kind = "draft"
+                elif retry_snapshot and retry_attempts_used > 0 and attempt > self._MAX_ATTEMPTS:
+                    attempt_kind = "recovery_retry"
+                else:
+                    attempt_kind = "rewrite"
                 if attempt > 1:
                     rewrite_used = True
                 candidate = self._generate_candidate(
@@ -466,6 +480,7 @@ class LongFormExecutionService:
                         critique_snapshot,
                         "adapter_error",
                         rewrite_used,
+                        retry_snapshot,
                     )
                 cleaned = candidate.get("text")
                 report = evaluate_long_form_output(
@@ -507,6 +522,7 @@ class LongFormExecutionService:
                         critique_snapshot,
                         "invalid_output",
                         rewrite_used,
+                        retry_snapshot,
                     )
 
                 quality_snapshot = score_long_form_quality(
@@ -538,7 +554,14 @@ class LongFormExecutionService:
                     }
 
                 if quality_pass:
-                    acceptance_reason = "quality_pass" if attempt == 1 else "rewrite_pass"
+                    if retry_snapshot and attempt_kind == "recovery_retry":
+                        retry_snapshot["succeeded"] = True
+                        retry_snapshot["accepted_reason"] = "retry_pass"
+                    acceptance_reason = (
+                        "quality_pass"
+                        if attempt == 1
+                        else ("retry_pass" if attempt_kind == "recovery_retry" else "rewrite_pass")
+                    )
                     if rewrite_used:
                         persist_long_form_diagnostic(
                             project_root,
@@ -549,6 +572,7 @@ class LongFormExecutionService:
                                 "attempts": attempt_diagnostics,
                                 "acceptance_reason": acceptance_reason,
                                 "critique_snapshot": critique_snapshot,
+                                "retry_snapshot": retry_snapshot,
                             },
                         )
                     return (
@@ -560,6 +584,7 @@ class LongFormExecutionService:
                         critique_snapshot,
                         acceptance_reason,
                         rewrite_used,
+                        retry_snapshot,
                     )
 
                 if attempt < self._MAX_ATTEMPTS:
@@ -582,6 +607,50 @@ class LongFormExecutionService:
                         "Rewrite the scene. Output only narrative prose. "
                         "No analysis, no planning, no headings."
                     )
+                    attempt += 1
+                    continue
+
+                failure_classification = self._classify_quality_failure(
+                    quality_snapshot,
+                    continuation_chunk=bool(continuation.prior_summary or continuation.prior_excerpt),
+                )
+                if (
+                    retry_attempts_used < self._MAX_BORDERLINE_RECOVERY_RETRIES
+                    and self._is_retry_eligible_quality_failure(
+                        failure_classification=failure_classification,
+                        rewrite_used=rewrite_used,
+                    )
+                ):
+                    retry_attempts_used += 1
+                    retry_snapshot = {
+                        "used": True,
+                        "succeeded": False,
+                        "attempts_used": retry_attempts_used,
+                        "max_attempts": self._MAX_BORDERLINE_RECOVERY_RETRIES,
+                        "eligible": True,
+                        "failure_classification": failure_classification,
+                        "reason": failure_classification.get("reason"),
+                        "triggered_after_attempt": attempt,
+                    }
+                    attempt_record["retry_decision"] = {
+                        "eligible": True,
+                        "reason": failure_classification.get("reason"),
+                        "classification": failure_classification.get("classification"),
+                    }
+                    previous_quality_snapshot = quality_snapshot
+                    current_payload = dict(payload)
+                    current_payload["prompt"] = self._build_recovery_retry_prompt(
+                        original_text=cleaned,
+                        critique_snapshot=critique_snapshot,
+                        continuation=continuation,
+                        quality_snapshot=quality_snapshot,
+                        failure_classification=failure_classification,
+                    )
+                    current_payload["system"] = (
+                        "Perform a single recovery rewrite. Output only narrative prose. "
+                        "No analysis, no planning, no headings."
+                    )
+                    attempt += 1
                     continue
 
                 persist_long_form_diagnostic(
@@ -594,6 +663,16 @@ class LongFormExecutionService:
                         "attempts": attempt_diagnostics,
                         "quality_snapshot": quality_snapshot,
                         "critique_snapshot": critique_snapshot,
+                        "retry_snapshot": retry_snapshot
+                        or {
+                            "used": False,
+                            "succeeded": False,
+                            "attempts_used": retry_attempts_used,
+                            "max_attempts": self._MAX_BORDERLINE_RECOVERY_RETRIES,
+                            "eligible": failure_classification.get("retry_eligible"),
+                            "failure_classification": failure_classification,
+                            "reason": failure_classification.get("reason"),
+                        },
                     },
                 )
                 self._diagnostics.log(
@@ -611,6 +690,16 @@ class LongFormExecutionService:
                     critique_snapshot,
                     "quality_failed",
                     rewrite_used,
+                    retry_snapshot
+                    or {
+                        "used": False,
+                        "succeeded": False,
+                        "attempts_used": retry_attempts_used,
+                        "max_attempts": self._MAX_BORDERLINE_RECOVERY_RETRIES,
+                        "eligible": failure_classification.get("retry_eligible"),
+                        "failure_classification": failure_classification,
+                        "reason": failure_classification.get("reason"),
+                    },
                 )
         except AdapterError as exc:
             self._diagnostics.log(
@@ -628,6 +717,7 @@ class LongFormExecutionService:
                 critique_snapshot,
                 "adapter_error",
                 rewrite_used,
+                retry_snapshot,
             )
         except Exception as exc:  # pragma: no cover - defensive
             self._diagnostics.log(
@@ -645,7 +735,115 @@ class LongFormExecutionService:
                 critique_snapshot,
                 "adapter_exception",
                 rewrite_used,
+                retry_snapshot,
             )
+
+    def _classify_quality_failure(
+        self,
+        quality_snapshot: dict[str, Any] | None,
+        *,
+        continuation_chunk: bool,
+    ) -> dict[str, Any]:
+        if not quality_snapshot:
+            return {
+                "classification": "hard",
+                "reason": "missing_quality_snapshot",
+                "retry_eligible": False,
+            }
+        scores = quality_snapshot.get("scores") or {}
+        meta_free = int(scores.get("meta_free") or 0)
+        missing_carryover = bool(quality_snapshot.get("missing_carryover"))
+        weak_carryover = bool(quality_snapshot.get("weak_carryover"))
+        meta_contamination = bool(quality_snapshot.get("meta_contamination")) or bool(
+            quality_snapshot.get("meta_summary")
+        )
+        material_carryover = bool(quality_snapshot.get("material_carryover", True))
+        total = int(quality_snapshot.get("total_score") or 0)
+        specificity = int(scores.get("specificity") or 0)
+        clarity = int(scores.get("clarity") or 0)
+        coherence = int(scores.get("coherence") or 0)
+        continuity = int(scores.get("continuity") or 0)
+
+        if meta_free <= 0 or meta_contamination:
+            return {
+                "classification": "hard",
+                "reason": "meta_contamination",
+                "retry_eligible": False,
+            }
+        if missing_carryover or weak_carryover:
+            return {
+                "classification": "hard",
+                "reason": "missing_carryover",
+                "retry_eligible": False,
+            }
+        if continuation_chunk and not material_carryover:
+            return {
+                "classification": "hard",
+                "reason": "material_carryover_missing",
+                "retry_eligible": False,
+            }
+        near_threshold = (
+            total >= self._QUALITY_MIN_TOTAL - 2
+            and coherence >= self._QUALITY_MIN_COHERENCE
+            and continuity >= max(2, self._QUALITY_MIN_CONTINUITY - 1)
+            and specificity >= max(3, self._QUALITY_MIN_SPECIFICITY - 2)
+            and clarity >= max(2, self._QUALITY_MIN_CLARITY - 1)
+        )
+        if near_threshold:
+            return {
+                "classification": "borderline",
+                "reason": "borderline_quality_after_rewrite",
+                "retry_eligible": True,
+            }
+        return {
+            "classification": "hard",
+            "reason": "quality_threshold_miss",
+            "retry_eligible": False,
+        }
+
+    def _is_retry_eligible_quality_failure(
+        self,
+        *,
+        failure_classification: dict[str, Any],
+        rewrite_used: bool,
+    ) -> bool:
+        return rewrite_used and bool(failure_classification.get("retry_eligible"))
+
+    def _build_recovery_retry_prompt(
+        self,
+        *,
+        original_text: str,
+        critique_snapshot: dict[str, Any] | None,
+        continuation,
+        quality_snapshot: dict[str, Any] | None,
+        failure_classification: dict[str, Any],
+    ) -> str:
+        base_prompt = self._build_rewrite_prompt(
+            original_text=original_text,
+            critique_snapshot=critique_snapshot,
+            continuation=continuation,
+            quality_snapshot=quality_snapshot,
+        )
+        scores = (quality_snapshot or {}).get("scores") or {}
+        unresolved: list[str] = []
+        if int((quality_snapshot or {}).get("total_score") or 0) < self._QUALITY_MIN_TOTAL:
+            unresolved.append(f"Raise total score to at least {self._QUALITY_MIN_TOTAL}.")
+        if int(scores.get("specificity") or 0) < self._QUALITY_MIN_SPECIFICITY:
+            unresolved.append("Increase scene-specific detail and avoid generic wording.")
+        if int(scores.get("clarity") or 0) < self._QUALITY_MIN_CLARITY:
+            unresolved.append("Make actions and spatial beats easier to follow.")
+        if int(scores.get("continuity") or 0) < self._QUALITY_MIN_CONTINUITY:
+            unresolved.append("Strengthen continuity without recapping.")
+        unresolved_text = "\n".join(f"- {item}" for item in unresolved) if unresolved else "- Tighten the weakest remaining quality dimensions."
+        return (
+            f"{base_prompt}\n\n"
+            "RECOVERY RETRY RULES:\n"
+            "This is the only allowed recovery retry after a borderline rewrite miss.\n"
+            f"Retry reason: {failure_classification.get('reason')}\n"
+            "Do not change the scene direction. Improve only the unresolved quality weaknesses.\n"
+            "UNRESOLVED QUALITY TARGETS:\n"
+            f"{unresolved_text}\n"
+        )
 
     def _generate_candidate(
         self,
@@ -657,7 +855,7 @@ class LongFormExecutionService:
         call_mode: str,
     ) -> dict[str, Any]:
         try:
-            if call_mode == "rewrite":
+            if call_mode in {"rewrite", "recovery_retry"}:
                 response = adapter.rewrite(payload)
             else:
                 response = adapter.generate_draft(payload)

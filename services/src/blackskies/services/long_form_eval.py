@@ -18,7 +18,10 @@ class LongFormEvalSummary:
     chunk_count: int
     accepted_count: int
     rewrite_count: int
+    retry_used_count: int
+    retried_success_count: int
     fallback_count: int
+    borderline_failure_count: int
     avg_quality_score: float | None
     avg_attempts: float | None
     continuity_warnings: int
@@ -36,7 +39,10 @@ class LongFormEvalSummary:
             "chunk_count": self.chunk_count,
             "accepted_count": self.accepted_count,
             "rewrite_count": self.rewrite_count,
+            "retry_used_count": self.retry_used_count,
+            "retried_success_count": self.retried_success_count,
             "fallback_count": self.fallback_count,
+            "borderline_failure_count": self.borderline_failure_count,
             "avg_quality_score": self.avg_quality_score,
             "avg_attempts": self.avg_attempts,
             "continuity_warnings": self.continuity_warnings,
@@ -78,7 +84,10 @@ def summarize_long_form_run(
     chunk_ids = [str(chunk.get("chunk_id") or "") for chunk in chunks if chunk.get("chunk_id")]
     accepted = 0
     rewrites = 0
+    retry_used_count = 0
+    retried_success_count = 0
     fallbacks = 0
+    borderline_failure_count = 0
     quality_scores: list[float] = []
     attempts: list[int] = []
     continuity_warnings = 0
@@ -88,10 +97,18 @@ def summarize_long_form_run(
 
     for chunk in chunks:
         acceptance = chunk.get("acceptance_reason")
-        if acceptance in ("quality_pass", "rewrite_pass"):
+        if acceptance in ("quality_pass", "rewrite_pass", "retry_pass"):
             accepted += 1
         if chunk.get("rewrite_used"):
             rewrites += 1
+        retry_snapshot = chunk.get("retry_snapshot") or {}
+        if retry_snapshot.get("used"):
+            retry_used_count += 1
+        if retry_snapshot.get("succeeded"):
+            retried_success_count += 1
+        failure_classification = retry_snapshot.get("failure_classification") or {}
+        if failure_classification.get("classification") == "borderline":
+            borderline_failure_count += 1
         continuity_snapshot = chunk.get("continuity_snapshot") or {}
         if continuity_snapshot.get("fallback_reason"):
             fallbacks += 1
@@ -130,7 +147,10 @@ def summarize_long_form_run(
         chunk_count=len(chunks),
         accepted_count=accepted,
         rewrite_count=rewrites,
+        retry_used_count=retry_used_count,
+        retried_success_count=retried_success_count,
         fallback_count=fallbacks,
+        borderline_failure_count=borderline_failure_count,
         avg_quality_score=avg_quality,
         avg_attempts=avg_attempts,
         continuity_warnings=continuity_warnings,
@@ -139,6 +159,70 @@ def summarize_long_form_run(
         models=sorted(models),
         stopped_reason=stopped_reason,
     )
+
+
+def summarize_long_form_variance(
+    summaries: list[dict[str, Any] | LongFormEvalSummary],
+) -> dict[str, Any]:
+    normalized: list[dict[str, Any]] = []
+    for summary in summaries:
+        if isinstance(summary, LongFormEvalSummary):
+            normalized.append(summary.to_dict())
+        elif isinstance(summary, dict):
+            normalized.append(summary)
+
+    run_count = len(normalized)
+    if run_count == 0:
+        return {
+            "run_count": 0,
+            "pass_count": 0,
+            "fail_count": 0,
+            "pass_rate": None,
+            "consistency": "no_runs",
+            "stopped_reasons": {},
+            "borderline_failure_rate": None,
+            "retry_usage_rate": None,
+            "retry_rescue_rate": None,
+            "succeeded_only_after_retry_count": 0,
+            "quality_score_range": None,
+        }
+
+    pass_count = 0
+    borderline_failures = 0
+    retry_used = 0
+    retry_rescues = 0
+    stopped_reasons: dict[str, int] = {}
+    quality_scores: list[float] = []
+    for summary in normalized:
+        stopped_reason = summary.get("stopped_reason")
+        if stopped_reason is None:
+            pass_count += 1
+        else:
+            key = str(stopped_reason)
+            stopped_reasons[key] = stopped_reasons.get(key, 0) + 1
+        borderline_failures += int(summary.get("borderline_failure_count") or 0)
+        retry_used += int(summary.get("retry_used_count") or 0)
+        retry_rescues += int(summary.get("retried_success_count") or 0)
+        score = summary.get("avg_quality_score")
+        if isinstance(score, (int, float)):
+            quality_scores.append(float(score))
+
+    fail_count = run_count - pass_count
+    return {
+        "run_count": run_count,
+        "pass_count": pass_count,
+        "fail_count": fail_count,
+        "pass_rate": round(pass_count / run_count, 2),
+        "consistency": "stable" if pass_count in (0, run_count) else "unstable",
+        "stopped_reasons": stopped_reasons,
+        "borderline_failure_rate": round(borderline_failures / run_count, 2),
+        "retry_usage_rate": round(retry_used / run_count, 2),
+        "retry_rescue_rate": round(retry_rescues / run_count, 2),
+        "succeeded_only_after_retry_count": retry_rescues,
+        "quality_score_range": (
+            round(max(quality_scores) - min(quality_scores), 2) if quality_scores else None
+        ),
+    }
 
 
 def write_eval_summary(

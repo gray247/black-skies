@@ -12,6 +12,7 @@ from urllib import request as url_request
 from blackskies.services.long_form_eval import (
     load_chunk_payloads,
     summarize_long_form_run,
+    summarize_long_form_variance,
     write_eval_summary,
 )
 
@@ -46,7 +47,27 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--target-words", type=int, default=600)
     parser.add_argument("--base-url", default="http://127.0.0.1:8000")
     parser.add_argument("--output", type=Path, default=None)
+    parser.add_argument(
+        "--compare",
+        nargs="*",
+        type=Path,
+        default=None,
+        help="Existing eval summary JSON files to aggregate for variance reporting.",
+    )
     return parser.parse_args()
+
+
+def _load_summary_payload(path: Path) -> dict[str, Any] | None:
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    if not isinstance(payload, dict):
+        return None
+    summary = payload.get("summary")
+    if isinstance(summary, dict):
+        return summary
+    return None
 
 
 def main() -> int:
@@ -108,6 +129,14 @@ def main() -> int:
             "chunk_count": len(chunks),
         },
     }
+    if args.compare:
+        summaries: list[dict[str, Any]] = []
+        for path in args.compare:
+            summary_payload = _load_summary_payload(path)
+            if summary_payload:
+                summaries.append(summary_payload)
+        summaries.append(summary.to_dict())
+        extra["variance"] = summarize_long_form_variance(summaries)
     write_eval_summary(output_path=output_path, summary=summary, extra=extra)
     print(json.dumps(summary.to_dict(), indent=2))
     print(f"Summary saved to: {output_path}")

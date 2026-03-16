@@ -42,6 +42,7 @@ class LongFormChunk:
     attempt_count: int | None = None
     acceptance_reason: str | None = None
     rewrite_used: bool = False
+    retry_snapshot: dict[str, Any] | None = None
 
 
 @dataclass(frozen=True)
@@ -936,6 +937,7 @@ def persist_long_form_chunk(project_root: Path, chunk: LongFormChunk) -> Path:
         "attempt_count": chunk.attempt_count,
         "acceptance_reason": chunk.acceptance_reason,
         "rewrite_used": chunk.rewrite_used,
+        "retry_snapshot": chunk.retry_snapshot,
     }
     target.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
     return target
@@ -987,6 +989,7 @@ def load_long_form_chunk(project_root: Path, chunk_id: str) -> LongFormChunk | N
         attempt_count=payload.get("attempt_count"),
         acceptance_reason=payload.get("acceptance_reason"),
         rewrite_used=bool(payload.get("rewrite_used")),
+        retry_snapshot=payload.get("retry_snapshot"),
     )
 
 
