@@ -249,6 +249,18 @@ def _strong_continuation_rewrite_text() -> str:
     )
 
 
+def _mild_generic_but_recovered_rewrite_text() -> str:
+    return (
+        "Clara kept the cracked brass lantern high while Jun tested the chain across the nursery door, the links scraping his wet cuff as the ceramic fox knocked against her pocket. "
+        * 10
+        + "\n\n"
+        + "\"Hold it there,\" Jun said, leaning into the frame while the corridor smelled of mildew and lamp oil. "
+        "The dim hall pressed close for a moment, the words hanging in the air as Clara kept her wrist against the latch and counted each rattle under her palm. "
+        "A flicker of resolve steadied her, but the corridor still felt heavy with dread around the nursery door. "
+        * 8
+    )
+
+
 def test_long_form_execution_persists_chunks(tmp_path: Path) -> None:
     project_root = tmp_path / "proj_exec"
     project_root.mkdir(parents=True, exist_ok=True)
@@ -769,6 +781,61 @@ def test_long_form_execution_rewrites_weak_continuation_with_real_carryover_pres
     assert first_quality["weak_carryover"] is True
     assert first_quality["scores"]["continuity"] <= 2
     assert first_quality["generic_risk"] is True
+
+
+def test_long_form_execution_accepts_rewrite_with_mild_generic_phrasing_when_recovery_is_strong(
+    tmp_path: Path,
+) -> None:
+    project_root = tmp_path / "proj_rewrite_recovery"
+    project_root.mkdir(parents=True, exist_ok=True)
+    settings = ServiceSettings(project_base_dir=tmp_path, long_form_provider_enabled=True)
+    diagnostics = DiagnosticLogger()
+    router = ModelRouter(
+        config=ModelRouterConfig(
+            policy=ModelRoutingPolicy.LOCAL_ONLY,
+            provider_calls_enabled=True,
+        )
+    )
+    critique = json.dumps(
+        {
+            "summary": "Recover the continuation anchors and replace vague filler.",
+            "weaknesses": ["continuity", "specificity", "clarity"],
+            "continuity_issues": ["The lantern, chain, and fox need to carry over."],
+            "pacing_issues": [],
+            "meta_contamination": False,
+            "rewrite_goals": ["Re-anchor the continuation in carried objects", "Keep the dialogue grounded in the hall and door"],
+        }
+    )
+    adapter = _SequencedCritiqueRewriteAdapter(
+        [_carryover_anchor_text(), _weak_continuation_text()],
+        critique,
+        [_mild_generic_but_recovered_rewrite_text()],
+    )
+    router.register_provider(_FakeProvider(adapter))
+    service = LongFormExecutionService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=router,
+        enabled=True,
+    )
+
+    result = service.execute(
+        project_root=project_root,
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001", "sc_0002"],
+        chunk_size=1,
+        target_words_per_chunk=400,
+    )
+
+    assert result.stopped_reason is None
+    chunk = result.chunks[1]
+    assert chunk.rewrite_used is True
+    assert chunk.acceptance_reason == "rewrite_pass"
+    assert chunk.quality_snapshot is not None
+    assert chunk.quality_snapshot["generic_risk"] is True
+    assert chunk.quality_snapshot["scores"]["continuity"] >= 4
+    assert chunk.quality_snapshot["scores"]["specificity"] >= 3
+    assert chunk.quality_snapshot["scores"]["clarity"] >= 3
 
 
 def test_long_form_execution_stops_after_max_attempts(tmp_path: Path) -> None:

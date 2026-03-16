@@ -513,7 +513,10 @@ class LongFormExecutionService:
                     prior_excerpt=continuation.prior_excerpt,
                     prior_summary=continuation.prior_summary,
                 )
-                quality_pass = self._quality_passes(quality_snapshot)
+                quality_pass = self._quality_passes(
+                    quality_snapshot,
+                    rewrite_used=rewrite_used,
+                )
                 attempt_record["quality_snapshot"] = quality_snapshot
                 attempt_record["quality_pass"] = quality_pass
 
@@ -685,7 +688,12 @@ class LongFormExecutionService:
         except AdapterError as exc:
             return {"adapter_error": str(exc)}
 
-    def _quality_passes(self, quality_snapshot: dict[str, Any] | None) -> bool:
+    def _quality_passes(
+        self,
+        quality_snapshot: dict[str, Any] | None,
+        *,
+        rewrite_used: bool = False,
+    ) -> bool:
         if not quality_snapshot or not quality_snapshot.get("usable"):
             return False
         scores = quality_snapshot.get("scores") or {}
@@ -698,21 +706,36 @@ class LongFormExecutionService:
         required_specificity = max(4, self._QUALITY_MIN_SPECIFICITY - 1)
         weak_carryover = bool(quality_snapshot.get("weak_carryover"))
         generic_risk = bool(quality_snapshot.get("generic_risk"))
+        stock_phrase_hits = int(quality_snapshot.get("stock_phrase_hits") or 0)
         dialogue_present = bool(quality_snapshot.get("dialogue_present"))
         dialogue_grounded = bool(quality_snapshot.get("dialogue_grounded", True))
         if meta_free <= 0:
             return False
         if weak_carryover:
             return False
-        if generic_risk and (specificity < required_specificity or clarity <= 2):
+        rewrite_recovery_pass = (
+            rewrite_used
+            and generic_risk
+            and continuity >= 4
+            and specificity >= max(3, required_specificity - 1)
+            and clarity >= self._QUALITY_MIN_CLARITY
+            and total >= max(self._QUALITY_MIN_TOTAL, 30)
+            and stock_phrase_hits <= 3
+        )
+        if generic_risk and not rewrite_recovery_pass and (
+            specificity < required_specificity or clarity <= 2
+        ):
             return False
-        return (
+        base_pass = (
             total >= self._QUALITY_MIN_TOTAL
             and coherence >= self._QUALITY_MIN_COHERENCE
             and continuity >= self._QUALITY_MIN_CONTINUITY
             and specificity >= required_specificity
             and clarity >= self._QUALITY_MIN_CLARITY
         )
+        if base_pass:
+            return True
+        return rewrite_recovery_pass
 
     def _run_chunk_critique(
         self,
