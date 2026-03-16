@@ -46,6 +46,17 @@ Recommended settings:
 - `BLACKSKIES_LONG_FORM_PREFER_API=true`
 - `BLACKSKIES_MODEL_ROUTING_POLICY=api_only`
 
+Long-form routing now distinguishes between draft and rewrite recovery:
+- Draft generation stays on the normal/default draft path.
+- First rewrite stays on the normal rewrite path.
+- A single retry-eligible borderline rewrite miss may escalate to a stronger rewrite model path.
+- Hard failures (missing/material carryover, meta contamination, invalid output) remain non-retryable.
+
+Rewrite acceptance also now includes lightweight outline-faithful guardrails:
+- preserve scene anchors from the current chunk and outline context
+- stay within a bounded rewrite length band
+- persist uncertainty/guardrail metadata for diagnostics instead of silently accepting drift
+
 ## Companion Mode Boundary (Locked)
 Companion is **not** an SDK. It is an integrated, dockable in-app browser pane/window that opens ChatGPT.  
 Companion Mode remains separate from API Mode: it does not call the service backend for model inference, does not participate in ModelRouter policy, and **must not** exfiltrate content or route prompts through service-based providers.
@@ -66,3 +77,4 @@ Renderer ⇄ FastAPI ⇄ Filesystem ⇄ Model Router ⇄ Analytics/Agent Sub-ser
 - **Voice Input Handler:** The dictation/voice-note workflow described in [Voice Notes plan](../deferred/voice_notes_transcription.md) remains scoped but not shipped; no recorder/transcription endpoints or UI exist in production.
 - **Backup Daemon UX:** Backup verification operates only through backend scripts; the described daemon UX is still planned and should not be treated as shipping today.
 - **GUI Layout experiments:** Floating Story insights, additional panes, docking, and other layout promises are experimental flags and have not shipped; they belong in future updates rather than the current default experience.
+- **Agent/editor workflows:** editor-facing partner controls and guarded agent hooks remain sequenced after the reliability/control closeout.

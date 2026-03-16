@@ -4,13 +4,28 @@
 
 - A chunk gets one recovery retry only after a rewrite attempt fails for a `borderline` quality miss.
 - Borderline means the rewrite stayed near the quality thresholds but did not clear them cleanly.
+- The recovery retry may escalate to a stronger rewrite model path while keeping the main draft path unchanged.
 - The retry is not available for invalid output, adapter failures, meta contamination, weak or missing carryover, or continuation chunks that still only name-drop carryover without material use.
+
+## Stronger rewrite path
+
+- Draft generation stays on the default draft model path.
+- First rewrite stays on the normal rewrite model path.
+- Only the single recovery retry is allowed to escalate to the stronger rewrite model.
+- Inspect `.blackskies/long_form/diagnostics/<chunk_id>.json` or chunk payloads for `retry_snapshot.stronger_model_used` and `retry_snapshot.model_snapshot`.
 
 ## Borderline vs hard failure
 
 - `borderline`: near-threshold rewrite miss, recorded as `borderline_quality_after_rewrite`.
 - `hard`: `meta_contamination`, `missing_carryover`, `material_carryover_missing`, or a wider `quality_threshold_miss`.
 - Inspect `.blackskies/long_form/diagnostics/<chunk_id>.json` and check `retry_snapshot.failure_classification`.
+
+## Rewrite guardrails
+
+- Rewrites are checked against a practical length band before acceptance.
+- Rewrites are also checked for outline/scene-anchor drift and unauthorized story-entity introduction when authoritative context is available.
+- If the rewrite cannot satisfy those constraints confidently, the engine records an internal uncertainty/guardrail failure instead of silently accepting drift.
+- Inspect `guardrail_snapshot` on chunk JSON or diagnostics for `failure_reason`, `within_length_band`, `scene_anchor_drift_detected`, and `blocking_new_story_elements`.
 
 ## Inspecting variance
 

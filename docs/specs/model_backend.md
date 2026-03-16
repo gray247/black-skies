@@ -29,6 +29,13 @@ The router evaluates:
 
 When configured `local_first`, the router runs `local_llm` immediately and gates the API fallback behind success/failure or budget headroom. In `api_only` mode, the router bypasses the local fallback but still enforces budgets and consent.
 
+Long-form rewrite recovery adds one bounded exception path:
+- draft generation uses the default draft route
+- first rewrite uses the default rewrite route
+- if that rewrite fails only as `borderline_quality_after_rewrite`, one retry may escalate to a stronger rewrite model
+- the stronger rewrite path is explicit and persisted in retry/model diagnostics
+- hard failures are not retried through the stronger path
+
 ## Policy Configuration
 Policy keys live in `settings.json` and reference `Model Router` behaviors (`AiMode`). Valid values:
 
@@ -60,4 +67,9 @@ Insights Overlay overrides these settings: when active, the router refuses to cr
 - Phase 9’s batch critique automation explicitly uses the Model Router to honor budget guards before spinning up remote evaluations.
 
 ## Current Engine Priority (Sequencing)
-With API-backed long-form execution validated, the next engine milestone focuses on the rewrite/critique loop (scoring, retry/acceptance logic, quality gates). UI docking/accessibility polish remains important but is tracked separately from this engine progression.
+API-backed long-form execution is validated, but the active closeout phase remains reliability/control for long-form rewrite recovery. Current focus:
+- stronger rewrite-model escalation only on retry-eligible borderline failures
+- outline-faithful rewrite guardrails and uncertainty persistence
+- repeated-run evidence until unexpected failures approach zero
+
+Only after that closeout does the next engine milestone open: an outline-faithful editorial-partner phase. UI docking/accessibility polish and agent hooks remain tracked separately.

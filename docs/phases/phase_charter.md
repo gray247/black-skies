@@ -1,6 +1,6 @@
 Status: Active (Canonical)
-Version: 1.0.0
-Last Reviewed: 2025-11-15
+Version: 1.0.1
+Last Reviewed: 2026-03-16
 
 # Black Skies – Phase Charter (v1.1)
 
@@ -66,6 +66,10 @@ Scope remains: finalize GUI + API parity, smoke tests, offline docs.
 **Goal:** Add AI-assisted creative utilities within existing panes.
 
 **Sequencing note:** UI polish (docking persistence, accessibility sign-off) remains important, but core writing-engine milestones may proceed in parallel. UI polish is not treated as a hard blocker for backend engine progress.
+
+**Current engine closeout (2026-03-16):** long-form reliability/control remains the active backend sub-phase. The system now uses bounded borderline retry recovery, stronger-model escalation on retry, and outline-faithful rewrite guardrails. This sub-phase stays open until repeated fresh-server runs show near-zero unexpected failures.
+
+**Next backend phase:** outline-faithful editorial partner behavior. The operating principle is constrained assistance: the model trails the outline, preserves scene intent, character facts, and rough length band, and does not act as an autonomous co-author during rewrite.
 
 ### Key deliverables
 - Inline **Insights overlay** for contextual guidance and feedback  
@@ -150,6 +154,8 @@ Scope remains: finalize GUI + API parity, smoke tests, offline docs.
 - Plugin registry, agent hooks, and safety layer integrate with contract tests.  
 - Backup verification and offline cache tooling ship with dashboard hooks.  
 - Role-based review of plugin submissions documented; multi-project dashboard operational.
+
+**Sequencing note:** agent hooks remain deferred until long-form reliability/control is closed and the outline-faithful editorial-partner phase is stable.
 
 ### Impacted docs
 [agents_and_services.md](../specs/agents_and_services.md), [architecture.md](../specs/architecture.md), [gui_layouts.md](../gui/gui_layouts.md), [policies.md](../policies.md), [phase_log.md](./phase_log.md), [backup_and_migration.md](../backup_and_migration.md)

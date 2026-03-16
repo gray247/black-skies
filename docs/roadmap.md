@@ -51,7 +51,8 @@ The following planning docs describe capabilities that remain on the roadmap bey
 - Milestone tracking: GitHub milestone "Phase 8 - Docking Verification".
 - Backend/engine progression completed on schedule and remains closed for sequencing purposes.
 - UI verification and scope exceptions are tracked in [docs/phases/phase8_ui_gate_closeout.md](./phases/phase8_ui_gate_closeout.md) and [docs/phases/phase8_verification_report.md](./phases/phase8_verification_report.md); this does not fully reopen P8.
-- Engine milestones continue in parallel (rewrite/critique loop, acceptance/retry logic, quality gates).
+- Engine milestones continue in parallel. Current engine status: reliability/control closeout remains in progress for long-form rewrite recovery, stronger-model retry escalation, and outline-faithful rewrite guardrails. Exit bar: near-zero unexpected failures on repeated fresh-server runs.
+- Next engine phase after closeout: outline-faithful editorial partner controls. Rewrites stay behind the curtain, trail the outline closely, and do not invent story deviations.
 
 ### P9 - Analytics & visualization (Planned)
 - Emotion arc timeline, adaptive pacing graph, conflict heatmap, scene length analyzer, revision streak tracker, project health dashboard, outline validation engine.

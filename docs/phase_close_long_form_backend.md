@@ -1,6 +1,6 @@
 # Long-Form Backend Phase Closeout
 
-Status: complete enough to close the backend-heavy phase for long-form execution.
+Status: not yet ready to close the reliability/control phase for long-form execution.
 
 ## What Was Proven
 - API-backed long-form chunk generation is working.
@@ -8,6 +8,7 @@ Status: complete enough to close the backend-heavy phase for long-form execution
 - Diagnostics are persisted per chunk and in history.
 - UTF-8 markdown persistence works for saved long-form text.
 - Local Qwen/Ollama is unsuitable for heavy long-form generation (reasoning output dominates).
+- Borderline rewrite recovery, stronger rewrite-model retry escalation, and outline-faithful rewrite guardrails are now implemented and test-covered.
 
 ### Evidence (latest successful chunks)
 - `sample_project/proj_esther_estate/.blackskies/long_form/chunks/lf_5d6da836.json`
@@ -94,12 +95,16 @@ Get-ChildItem .\sample_project\proj_esther_estate\.blackskies\long_form\texts |
   ForEach-Object { $_.FullName; Get-Content -Encoding UTF8 $_.FullName }
 ```
 
+## Why The Phase Is Still Open
+- Repeated fresh-server evaluation still does not show near-zero unexpected failures on clean `600`.
+- The failure shape has improved and is more inspectable, but clean runs still stop variably on `quality_failed` or `rewrite_guardrail_failed`.
+- Reliability/control therefore remains the active closeout gate.
+
 ## Explicitly Deferred (Next Phase)
+- Outline-faithful editorial-partner controls once reliability/control closes
 - Controlled agent hooks (read-only by default, human-applied diffs)
-- Deeper rewrite/critique workflows
 - Batch export / scene operations
-- Additional quality tuning beyond the current prompt and validation hardening
 - UI expansion or polish
 
 ## Sequencing Note
-UI docking/accessibility polish remains important, but it is treated as non-blocking for the next engine milestone. The immediate engine focus shifts to rewrite/critique loops, acceptance/retry logic, and quality gates.
+UI docking/accessibility polish remains important, but it is treated as non-blocking for engine progression. The immediate engine focus stays on reliability/control closeout for long-form rewrite recovery. The next engine milestone after that closeout is an outline-faithful editorial-partner phase.

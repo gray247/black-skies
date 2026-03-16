@@ -12,11 +12,14 @@ Last Reviewed: 2026-03-15
 **2026-03-15** - Backend milestone complete (P8 window): API-backed long-form execution loop verified. Routing policy `api_only` with `long_form.prefer_api` confirmed. Chunk persistence under `.blackskies/long_form/chunks`, per-chunk diagnostics under `.blackskies/long_form/diagnostics`, UTF-8 markdown persistence verified. Evidence chunks: `lf_5d6da836`, `lf_52501598`. Engine progression continues.
 **2026-03-15** - Engine sequencing note: UI docking/accessibility polish remains important but is treated as non-blocking for core writing-engine progression. Next engine milestone focus: rewrite/critique loop, acceptance/retry logic, and quality gates.
 **2026-03-15** - P8 remained closed for engine sequencing and roadmap progression, but the UI closeout is now treated as a tracked exception set rather than a fully repo-evidenced finish. See `docs/phases/phase8_ui_gate_closeout.md` and `docs/phases/phase8_verification_report.md`.
+**2026-03-16** - Long-form reliability/control remains active. The engine now includes bounded borderline recovery retry, stronger-model escalation on retry, and outline-faithful rewrite guardrails (outline/scene anchors, length band, uncertainty persistence). Evidence still does not meet the near-zero-unexpected-failure exit bar, so the current phase stays open.
+**2026-03-16** - Sequencing updated: the next engine milestone after reliability/control closeout is an outline-faithful editorial-partner phase. Rewrites must trail the outline, preserve scene intent and length band, and avoid autonomous story invention. Agent hooks and UI exceptions remain deferred.
 
 ## Upcoming milestones
 - ~~**P7 - RC1:** Smoke tests complete; publish quickstart.~~ *(closed 2025-10-10)*
 - ~~**P8 - Companion overlay + batch critique prototype.**~~ *(landed 2025-10-15; engine milestone stays closed)*
 - **P8 follow-up exceptions:** unresolved UI verification and scope gaps remain tracked without reopening the engine milestone. See `docs/phases/phase8_ui_gate_closeout.md`.
+- **Current engine closeout:** reliability/control for long-form rewrite recovery and outline-faithful guardrails must reach near-zero unexpected failures before progression.
 - **P9:** Analytics visualisations + dashboard integration.
 - **P10:** Accessibility & export suite.
 - **P11:** Agents & plugin framework.
