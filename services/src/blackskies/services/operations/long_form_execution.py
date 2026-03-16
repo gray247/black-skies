@@ -722,6 +722,7 @@ class LongFormExecutionService:
         specificity = scores.get("specificity", 0)
         clarity = scores.get("clarity", 0)
         meta_free = scores.get("meta_free", 0)
+        carryover_terms = quality_snapshot.get("carryover_terms") or []
         required_specificity = max(4, self._QUALITY_MIN_SPECIFICITY - 1)
         weak_carryover = bool(quality_snapshot.get("weak_carryover"))
         generic_risk = bool(quality_snapshot.get("generic_risk"))
@@ -740,6 +741,15 @@ class LongFormExecutionService:
             and clarity >= self._QUALITY_MIN_CLARITY
             and total >= max(self._QUALITY_MIN_TOTAL, 30)
             and stock_phrase_hits <= 3
+        )
+        opening_rewrite_recovery_pass = (
+            rewrite_used
+            and not carryover_terms
+            and coherence >= self._QUALITY_MIN_COHERENCE
+            and continuity >= self._QUALITY_MIN_CONTINUITY
+            and clarity >= 4
+            and specificity >= 3
+            and total >= self._QUALITY_MIN_TOTAL + 1
         )
         if generic_risk and not rewrite_recovery_pass and (
             specificity < required_specificity or clarity <= 2
@@ -764,6 +774,15 @@ class LongFormExecutionService:
         if base_pass:
             return True
         if rewrite_recovery_pass:
+            return self._rewrite_delta_passes(
+                previous_quality_snapshot=previous_quality_snapshot,
+                rewritten_quality_snapshot=quality_snapshot,
+            ) and self._rewrite_targets_aligned(
+                previous_quality_snapshot=previous_quality_snapshot,
+                rewritten_quality_snapshot=quality_snapshot,
+                critique_snapshot=critique_snapshot,
+            )
+        if opening_rewrite_recovery_pass:
             return self._rewrite_delta_passes(
                 previous_quality_snapshot=previous_quality_snapshot,
                 rewritten_quality_snapshot=quality_snapshot,
@@ -799,9 +818,14 @@ class LongFormExecutionService:
         continuity_delta = int(rewritten_scores.get("continuity") or 0) - int(
             previous_scores.get("continuity") or 0
         )
+        concrete_delta = int(rewritten_quality_snapshot.get("concrete_hits") or 0) - int(
+            previous_quality_snapshot.get("concrete_hits") or 0
+        )
         if total_delta >= 2:
             return True
         if stock_delta >= 1 and (specificity_delta >= 1 or clarity_delta >= 1 or continuity_delta >= 1):
+            return True
+        if stock_delta >= 1 and concrete_delta >= 1 and clarity_delta >= 0:
             return True
         if previous_scores.get("continuity", 0) <= 3 and continuity_delta >= 1 and total_delta >= 1:
             return True
@@ -852,6 +876,8 @@ class LongFormExecutionService:
                 > int(previous_scores.get("specificity") or 0)
                 or int(rewritten_scores.get("clarity") or 0)
                 > int(previous_scores.get("clarity") or 0)
+                or int(rewritten_quality_snapshot.get("concrete_hits") or 0)
+                > int(previous_quality_snapshot.get("concrete_hits") or 0)
             )
         if "continuity" in continuity_notes or "flow" in continuity_notes or carryover_targets:
             targeted_improvements.append(

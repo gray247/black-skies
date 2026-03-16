@@ -282,6 +282,27 @@ def _adversarial_near_miss_text() -> str:
     )
 
 
+def _opening_generic_text() -> str:
+    return (
+        "The sun dipped low on the horizon while the square buzzed with life and Lucas felt apart from all of it. "
+        * 12
+        + "\n\n"
+        + "\"You can't keep doing this,\" Clara said. Lucas looked away while the world around him buzzed with life and he tried not to say what he feared. "
+        * 8
+    )
+
+
+def _opening_recovery_text() -> str:
+    return (
+        "Copper light slid across the cobblestones and caught on the bread racks outside the baker's stall while Lucas gripped the chipped fountain rim to steady his hands. "
+        * 10
+        + "\n\n"
+        + "\"You can't keep doing this,\" Clara said as she stepped into the path of a cart while Lucas gripped the fountain rim, rubbed rain grit from his thumb, and looked at the last market awnings snapping in the wind. "
+        "He looked at the wet stone instead of her face, jaw tight, breath shallow. "
+        * 8
+    )
+
+
 def test_long_form_execution_persists_chunks(tmp_path: Path) -> None:
     project_root = tmp_path / "proj_exec"
     project_root.mkdir(parents=True, exist_ok=True)
@@ -993,6 +1014,73 @@ def test_long_form_execution_rewrites_adversarial_near_miss_continuation(
     rewrite_attempt = payload["attempts"][1]
     assert rewrite_attempt["quality_pass"] is True
     assert rewrite_attempt["rewrite_delta"]["continuity_delta"] >= 1
+
+
+def test_long_form_execution_recovers_clean_opening_rewrite_with_concrete_improvement(
+    tmp_path: Path,
+) -> None:
+    project_root = tmp_path / "proj_opening_recovery"
+    project_root.mkdir(parents=True, exist_ok=True)
+    settings = ServiceSettings(project_base_dir=tmp_path, long_form_provider_enabled=True)
+    diagnostics = DiagnosticLogger()
+    router = ModelRouter(
+        config=ModelRouterConfig(
+            policy=ModelRoutingPolicy.LOCAL_ONLY,
+            provider_calls_enabled=True,
+        )
+    )
+    critique = json.dumps(
+        {
+            "summary": "The opening scene stays too generic and does not attach the dialogue to action.",
+            "weaknesses": [
+                "Vague scene details that do not contribute to character development or plot.",
+                "Generic stock phrases that detract from the uniqueness of the writing.",
+                "Dialogue that lacks grounding in physical action or setting.",
+            ],
+            "continuity_issues": [
+                "The transition from the environment to the intimate conversation feels disjointed."
+            ],
+            "pacing_issues": [],
+            "meta_contamination": False,
+            "rewrite_goals": [
+                "Enhance specificity in descriptions to better ground the scene.",
+                "Replace generic phrases with more original language.",
+                "Ensure dialogue is more closely tied to physical actions and the setting.",
+            ],
+            "replacement_targets": [
+                "Replace generic sunset language with concrete square detail",
+                "Replace broad crowd language with specific market activity",
+            ],
+            "grounding_targets": [
+                "Attach Lucas and Clara's dialogue to movement, gesture, or objects in the square"
+            ],
+            "carryover_targets": [],
+        }
+    )
+    adapter = _CritiqueRewriteAdapter(_opening_generic_text(), critique, _opening_recovery_text())
+    router.register_provider(_FakeProvider(adapter))
+    service = LongFormExecutionService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=router,
+        enabled=True,
+    )
+
+    result = service.execute(
+        project_root=project_root,
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chunk_size=1,
+        target_words_per_chunk=400,
+    )
+
+    assert result.stopped_reason is None
+    chunk = result.chunks[0]
+    assert chunk.rewrite_used is True
+    assert chunk.acceptance_reason == "rewrite_pass"
+    assert chunk.quality_snapshot is not None
+    assert chunk.quality_snapshot["scores"]["clarity"] >= 4
+    assert chunk.quality_snapshot["scores"]["specificity"] >= 3
 
 
 def test_long_form_execution_stops_after_max_attempts(tmp_path: Path) -> None:
