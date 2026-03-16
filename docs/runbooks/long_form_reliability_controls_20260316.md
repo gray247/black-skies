@@ -14,6 +14,13 @@
 - Only the single recovery retry is allowed to escalate to the stronger rewrite model.
 - Inspect `.blackskies/long_form/diagnostics/<chunk_id>.json` or chunk payloads for `retry_snapshot.stronger_model_used` and `retry_snapshot.model_snapshot`.
 
+## Precision rescue mode
+
+- The stronger retry path now uses a precision rescue prompt rather than a generic rewrite prompt.
+- Rescue mode is meant to edit the existing scene, not re-imagine it.
+- Rescue mode explicitly preserves subject, scene premise, outline/scene anchors, and length band while targeting the unresolved weak dimensions from critique and scoring.
+- Inspect `retry_snapshot.rescue_mode_used`, `retry_snapshot.rescue_model_used`, `retry_snapshot.rescue_delta_summary`, and `retry_snapshot.rescue_failure_class`.
+
 ## Borderline vs hard failure
 
 - `borderline`: near-threshold rewrite miss, recorded as `borderline_quality_after_rewrite`.
@@ -48,3 +55,9 @@ python scripts/long_form_eval.py \
 
 - Standard single-run usage is unchanged.
 - Use `--compare` with prior eval JSON files when you want a quick variance view without building a larger reporting layer.
+- Run summaries now also expose rescue-specific aggregates:
+  - `rescue_mode_used_count`
+  - `rescue_model_used_count`
+  - `rescue_guardrail_fail_count`
+  - `rescue_under_improved_count`
+  - `rescue_fidelity_risk_count`

@@ -14,6 +14,7 @@ Last Reviewed: 2026-03-15
 **2026-03-15** - P8 remained closed for engine sequencing and roadmap progression, but the UI closeout is now treated as a tracked exception set rather than a fully repo-evidenced finish. See `docs/phases/phase8_ui_gate_closeout.md` and `docs/phases/phase8_verification_report.md`.
 **2026-03-16** - Long-form reliability/control remains active. The engine now includes bounded borderline recovery retry, stronger-model escalation on retry, and outline-faithful rewrite guardrails (outline/scene anchors, length band, uncertainty persistence). Evidence still does not meet the near-zero-unexpected-failure exit bar, so the current phase stays open.
 **2026-03-16** - Sequencing updated: the next engine milestone after reliability/control closeout is an outline-faithful editorial-partner phase. Rewrites must trail the outline, preserve scene intent and length band, and avoid autonomous story invention. Agent hooks and UI exceptions remain deferred.
+**2026-03-16** - Rescue-mode pass landed: the stronger retry path now uses a precision rescue-edit contract with rescue-specific diagnostics and evaluation aggregates. Adversarial fresh-server samples remained healthy; clean fresh-server samples still failed, so the phase remains open.
 
 ## Upcoming milestones
 - ~~**P7 - RC1:** Smoke tests complete; publish quickstart.~~ *(closed 2025-10-10)*

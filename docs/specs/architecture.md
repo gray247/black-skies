@@ -50,6 +50,7 @@ Long-form routing now distinguishes between draft and rewrite recovery:
 - Draft generation stays on the normal/default draft path.
 - First rewrite stays on the normal rewrite path.
 - A single retry-eligible borderline rewrite miss may escalate to a stronger rewrite model path.
+- That stronger retry now runs in a precision rescue-edit mode rather than a generic rewrite mode.
 - Hard failures (missing/material carryover, meta contamination, invalid output) remain non-retryable.
 
 Rewrite acceptance also now includes lightweight outline-faithful guardrails:

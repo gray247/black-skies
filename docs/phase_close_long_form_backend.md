@@ -9,6 +9,7 @@ Status: not yet ready to close the reliability/control phase for long-form execu
 - UTF-8 markdown persistence works for saved long-form text.
 - Local Qwen/Ollama is unsuitable for heavy long-form generation (reasoning output dominates).
 - Borderline rewrite recovery, stronger rewrite-model retry escalation, and outline-faithful rewrite guardrails are now implemented and test-covered.
+- Precision rescue mode is now implemented on the stronger retry path, with rescue-specific diagnostics and evaluation metrics.
 
 ### Evidence (latest successful chunks)
 - `sample_project/proj_esther_estate/.blackskies/long_form/chunks/lf_5d6da836.json`
@@ -98,6 +99,7 @@ Get-ChildItem .\sample_project\proj_esther_estate\.blackskies\long_form\texts |
 ## Why The Phase Is Still Open
 - Repeated fresh-server evaluation still does not show near-zero unexpected failures on clean `600`.
 - The failure shape has improved and is more inspectable, but clean runs still stop variably on `quality_failed` or `rewrite_guardrail_failed`.
+- The latest rescue-mode reruns kept adversarial healthy, but clean still failed (`adapter_error`, `quality_failed`) and the most recent failures did not consistently reach the rescue path.
 - Reliability/control therefore remains the active closeout gate.
 
 ## Explicitly Deferred (Next Phase)

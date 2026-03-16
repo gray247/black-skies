@@ -33,6 +33,7 @@ Long-form rewrite recovery adds one bounded exception path:
 - draft generation uses the default draft route
 - first rewrite uses the default rewrite route
 - if that rewrite fails only as `borderline_quality_after_rewrite`, one retry may escalate to a stronger rewrite model
+- that retry now uses a precision rescue-edit prompt with stricter fidelity constraints
 - the stronger rewrite path is explicit and persisted in retry/model diagnostics
 - hard failures are not retried through the stronger path
 

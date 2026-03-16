@@ -7,18 +7,33 @@ Date: 2026-03-16
 - Added Option C rewrite recovery: draft stays on the default path, first rewrite stays on the normal rewrite path, and a single retry-eligible borderline miss can escalate to a stronger rewrite model.
 - Added rewrite guardrails that check outline/scene-anchor fidelity, practical rewrite length band, and uncertainty persistence.
 - Extended chunk and diagnostic metadata with `guardrail_snapshot`, stronger-model retry metadata, and model snapshots per attempt.
+- Added precision rescue mode on the stronger retry path, with rescue-specific prompt constraints, rescue delta summaries, and rescue failure classification.
 
 ## Model routing and rewrite recovery
 
 - The stronger rewrite path is only available on the one bounded recovery retry after `borderline_quality_after_rewrite`.
 - Hard failures still do not retry.
-- Diagnostics now show whether the stronger rewrite path was used and why the retry did or did not rescue the chunk.
+- Diagnostics now show whether the stronger rewrite path was used, whether rescue mode was used, and why the retry did or did not rescue the chunk.
+
+## Grounded diagnosis from the latest clean rescue miss
+
+- Artifact inspected: `lf_df2bdeb3`
+- Dominant failure class: under-improvement / weak rewrite followthrough, not guardrail failure
+- Evidence:
+  - guardrails passed on both rewrite and stronger retry
+  - stronger retry used `openai / gpt-4o`
+  - rewrite improved the score from `25` to `27`, but retry stayed flat at `27`
+  - `dialogue_grounded` stayed `false`
+  - `concrete_hits` stayed `0`
+  - retry delta summary was effectively flat on the targeted weaknesses
+- Conclusion: the blocker was a weak rescue edit that did not convert critique targets into concrete line-level changes.
 
 ## Outline-faithful guardrails
 
 - Rewrites must preserve scene anchors from the current chunk and outline context.
 - Rewrites must stay within a practical length band rather than collapsing or ballooning.
 - When authoritative outline context exists, rewrites that introduce unsupported story entities are blocked and recorded as uncertainty instead of being accepted silently.
+- Rescue mode now treats those constraints as an explicit editing contract instead of an implicit prompt preference.
 
 ## Evaluation reruns
 
@@ -43,12 +58,22 @@ Final-code confirmation runs:
 - Clean `600`: `sample_project/proj_esther_estate_verify_longform/.blackskies/long_form/eval/eval_integrated_final_clean_600_run1.json`
 - Adversarial `600`: `sample_project/proj_esther_estate_eval_adversarial/.blackskies/long_form/eval/eval_integrated_final_adversarial_600_run1.json`
 
+Latest rescue-mode reruns:
+- Clean `600`: `sample_project/proj_esther_estate_verify_longform/.blackskies/long_form/eval/eval_rescue_clean_600_run1.json`
+- Clean `600`: `sample_project/proj_esther_estate_verify_longform/.blackskies/long_form/eval/eval_rescue_clean_600_run2.json`
+- Adversarial `600`: `sample_project/proj_esther_estate_eval_adversarial/.blackskies/long_form/eval/eval_rescue_adversarial_600_run1.json`
+- Adversarial `600`: `sample_project/proj_esther_estate_eval_adversarial/.blackskies/long_form/eval/eval_rescue_adversarial_600_run2.json`
+
 ## What the reruns showed
 
 - Clean reliability improved in reach: fresh runs now sometimes progress to 2-4 chunks instead of failing uniformly at the first rewrite gate.
 - Retry rescue is real but still not strong enough to make clean `600` stable.
 - Adversarial rewrite behavior still activates naturally, and the final-code confirmation run completed all 5 chunks without fallback.
 - The overall system still does not meet the phase exit bar because clean `600` remains unstable and still fails.
+- In the latest rescue-mode reruns, adversarial stayed stable (`2/2` passes), while clean remained `0/2`:
+  - one run stopped on `adapter_error`
+  - one run stopped on `quality_failed`
+  - neither latest clean failure used rescue mode, which means the active blocker has shifted away from the original borderline-retry path on those runs
 
 ## Reliability judgment
 
@@ -57,5 +82,5 @@ Current judgment: partially improved, but not stable enough to leave the reliabi
 ## Remaining unresolved issues
 
 - Clean `600` still falls variably on post-rewrite quality misses and rewrite guardrail failures.
-- The stronger rewrite path improves inspection and some rescues, but not enough for near-zero unexpected failures.
+- The stronger rewrite path and precision rescue mode improve inspection and rescue diagnosis, but not enough for near-zero unexpected failures.
 - The next narrow milestone is stronger rewrite-quality capability under the existing bounded control layer, not broader autonomy.
