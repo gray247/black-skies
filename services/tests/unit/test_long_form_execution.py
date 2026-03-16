@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
 from blackskies.services.config import ServiceSettings
 from blackskies.services.diagnostics import DiagnosticLogger
+from blackskies.services.long_form import ChapterMemoryPacket
 from blackskies.services.model_router import ModelRouter, ModelSpec, ModelTask
 from blackskies.services.model_routing import ModelRouterConfig, ModelRoutingPolicy
 from blackskies.services.model_adapters import AdapterConfig, AdapterError, BaseAdapter
@@ -1765,6 +1767,72 @@ def test_long_form_execution_rejects_outline_drift_in_rewrite(tmp_path: Path) ->
     payload = json.loads(diag_path.read_text(encoding="utf-8"))
     assert payload["guardrail_snapshot"]["authoritative_name_check"] is True
     assert "mara" in payload["guardrail_snapshot"]["blocking_new_story_elements"]
+
+
+def test_long_form_execution_ignores_sentence_opener_false_positive_in_guardrail(tmp_path: Path) -> None:
+    settings = ServiceSettings(project_base_dir=tmp_path, long_form_provider_enabled=True)
+    diagnostics = DiagnosticLogger()
+    router = ModelRouter(
+        config=ModelRouterConfig(
+            policy=ModelRoutingPolicy.LOCAL_ONLY,
+            provider_calls_enabled=True,
+        )
+    )
+    service = LongFormExecutionService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=router,
+        enabled=True,
+    )
+    chapter_memory = ChapterMemoryPacket(
+        chapter_id="ch_0001",
+        scene_ids=["sc_0002"],
+        chapter_context="Chapter One",
+        locked_facts=[
+            "Elara is alone in the alley.",
+            "Only Elara and the stranger appear in this scene.",
+        ],
+        accumulated_summaries=[],
+        unresolved_tensions=[],
+        emotional_carryover=None,
+        pacing_carryover=None,
+        scene_titles=["Night Alley"],
+        beat_refs=["Elara confronts a stranger in the alley."],
+    )
+    continuation = SimpleNamespace(
+        prior_summary="Elara enters the alley and confronts a stranger.",
+        prior_excerpt=None,
+        chapter_memory=chapter_memory,
+        chapter_id="ch_0001",
+    )
+    original_text = (
+        "Elara pulled her coat tighter as the alley wind shoved at her shoulder. "
+        "The stranger watched from the brick wall, saying nothing yet. Loose paper scraped across the stones "
+        "and caught at her boots while the sign above the alley mouth knocked against its rusted bracket. "
+        "She tasted damp metal in the air and kept her back clear of the wall.\n\n"
+        "\"Who are you?\" Elara asked, keeping one hand near the seam of her coat while the wind worried the hem."
+    )
+    rewritten_text = (
+        "Yet the alley wind shoved harder at Elara's coat, rattling the loose sign above her shoulder. "
+        "The stranger stayed against the brick wall, silent but intent, while paper scratched along the wet stones "
+        "and the alley mouth breathed out a damp metallic chill. She kept her boots planted and her back clear of the brick.\n\n"
+        "\"Who are you?\" Elara asked, pressing her thumb into the coat seam while the sign clacked overhead. "
+        "Yet she held her ground instead of backing away, eyes fixed on the stranger's hands."
+    )
+
+    guardrail = service._evaluate_rewrite_guardrails(
+        original_text=original_text,
+        fallback_original_text=None,
+        rewritten_text=rewritten_text,
+        continuation=continuation,
+        chapter_memory=chapter_memory,
+        quality_snapshot={"total_score": 31},
+        mode="rewrite",
+    )
+
+    assert guardrail["accepted"] is True
+    assert guardrail["failure_reason"] is None
+    assert "yet" not in guardrail["blocking_new_story_elements"]
 
 
 def test_long_form_execution_rejects_length_band_violation_in_rewrite(tmp_path: Path) -> None:

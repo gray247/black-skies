@@ -72,6 +72,11 @@ class LongFormExecutionService:
     _REWRITE_LENGTH_LOWER_RATIO = 0.60
     _REWRITE_LENGTH_UPPER_RATIO = 2.10
     _MAX_TRANSIENT_ADAPTER_RETRIES = 1
+    _BLOCKED_CAPITALIZED_TERMS = {
+        "the", "a", "an", "and", "but", "for", "her", "his", "their", "they", "he", "she",
+        "it", "this", "that", "again", "hold", "storm", "chapter", "scene", "yet",
+        "did", "does", "do", "can", "could", "would", "should", "will", "was", "were", "are",
+    }
 
     def __init__(
         self,
@@ -1497,24 +1502,16 @@ class LongFormExecutionService:
     def _capitalized_terms(self, text: str | None) -> set[str]:
         if not text:
             return set()
-        blocked = {
-            "the", "a", "an", "and", "but", "for", "her", "his", "their", "they", "he", "she",
-            "it", "this", "that", "again", "hold", "storm", "chapter", "scene",
-            "did", "does", "do", "can", "could", "would", "should", "will", "was", "were", "are",
-        }
         tokens = re.findall(r"\b[A-Z][a-z]{2,}\b", text)
-        return {token.lower() for token in tokens if token.lower() not in blocked}
+        return {token.lower() for token in tokens if token.lower() not in self._BLOCKED_CAPITALIZED_TERMS}
 
     def _capitalized_term_counts(self, text: str | None) -> Counter[str]:
         if not text:
             return Counter()
-        blocked = {
-            "the", "a", "an", "and", "but", "for", "her", "his", "their", "they", "he", "she",
-            "it", "this", "that", "again", "hold", "storm", "chapter", "scene",
-            "did", "does", "do", "can", "could", "would", "should", "will", "was", "were", "are",
-        }
         tokens = re.findall(r"\b[A-Z][a-z]{2,}\b", text)
-        return Counter(token.lower() for token in tokens if token.lower() not in blocked)
+        return Counter(
+            token.lower() for token in tokens if token.lower() not in self._BLOCKED_CAPITALIZED_TERMS
+        )
 
     def _evaluate_rewrite_guardrails(
         self,
