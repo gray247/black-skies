@@ -46,6 +46,19 @@ class _ErrorAdapter(_FakeAdapter):
         raise AdapterError("adapter failed")
 
 
+class _TransientThenSuccessAdapter(_FakeAdapter):
+    def __init__(self, text: str) -> None:
+        super().__init__(text)
+        self._count = 0
+
+    def generate_draft(self, payload: dict[str, object]) -> dict[str, object]:
+        self.last_payload = payload
+        self._count += 1
+        if self._count == 1:
+            raise AdapterError("Provider request failed: timed out")
+        return {"text": self._text}
+
+
 class _RawOnlyAdapter(_FakeAdapter):
     def generate_draft(self, payload: dict[str, object]) -> dict[str, object]:
         self.last_payload = payload
@@ -533,6 +546,44 @@ def test_long_form_execution_adapter_error_fallback(tmp_path: Path) -> None:
     assert result.chunks[0].continuity_snapshot["fallback_reason"] == "adapter_error"
 
 
+def test_long_form_execution_recovers_from_transient_adapter_error(tmp_path: Path) -> None:
+    project_root = tmp_path / "proj_transient_adapter"
+    project_root.mkdir(parents=True, exist_ok=True)
+    settings = ServiceSettings(project_base_dir=tmp_path, long_form_provider_enabled=True)
+    diagnostics = DiagnosticLogger()
+    router = ModelRouter(
+        config=ModelRouterConfig(
+            policy=ModelRoutingPolicy.LOCAL_ONLY,
+            provider_calls_enabled=True,
+        )
+    )
+    router.register_provider(_FakeProvider(_TransientThenSuccessAdapter(_long_text())))
+    service = LongFormExecutionService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=router,
+        enabled=True,
+    )
+
+    result = service.execute(
+        project_root=project_root,
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chunk_size=1,
+        target_words_per_chunk=300,
+    )
+
+    assert result.stopped_reason is None
+    diag_path = (
+        project_root
+        / ".blackskies"
+        / "long_form"
+        / "diagnostics"
+        / f"{result.chunks[0].chunk_id}.json"
+    )
+    assert not diag_path.exists()
+
+
 def test_long_form_execution_extracts_raw_response(tmp_path: Path) -> None:
     project_root = tmp_path / "proj_raw"
     project_root.mkdir(parents=True, exist_ok=True)
@@ -980,7 +1031,7 @@ def test_long_form_execution_recovers_borderline_quality_failure_with_single_ret
     assert chunk.retry_snapshot is not None
     assert chunk.retry_snapshot["used"] is True
     assert chunk.retry_snapshot["succeeded"] is True
-    assert chunk.retry_snapshot["reason"] == "borderline_quality_after_rewrite"
+    assert chunk.retry_snapshot["reason"] == "targeted_editorial_miss_after_rewrite"
     assert chunk.retry_snapshot["stronger_model_used"] is True
     assert chunk.retry_snapshot["rescue_mode_used"] is True
     assert chunk.retry_snapshot["rescue_model_used"] is True
@@ -1008,6 +1059,124 @@ def test_long_form_execution_recovers_borderline_quality_failure_with_single_ret
     assert "PRECISION RESCUE RULES:" in str(adapter.last_rewrite_payload["prompt"])
     assert "SUBJECT ENTITIES:" in str(adapter.last_rewrite_payload["prompt"])
     assert "SCENE ANCHORS:" in str(adapter.last_rewrite_payload["prompt"])
+
+
+def test_long_form_execution_recovers_targeted_editorial_miss_with_rescue_retry(
+    tmp_path: Path,
+) -> None:
+    project_root = tmp_path / "proj_targeted_editorial_retry"
+    project_root.mkdir(parents=True, exist_ok=True)
+    settings = ServiceSettings(
+        project_base_dir=tmp_path,
+        long_form_provider_enabled=True,
+        local_llm_rewrite_retry_model="qwen3:14b",
+    )
+    diagnostics = DiagnosticLogger()
+    router = ModelRouter(
+        config=ModelRouterConfig(
+            policy=ModelRoutingPolicy.LOCAL_ONLY,
+            provider_calls_enabled=True,
+        )
+    )
+    critique = json.dumps(
+        {
+            "summary": "Keep the opening scene, but ground the dialogue and replace vague square detail.",
+            "weaknesses": ["dialogue", "specificity", "clarity"],
+            "continuity_issues": [],
+            "pacing_issues": [],
+            "meta_contamination": False,
+            "rewrite_goals": ["Ground each spoken beat in action", "Add concrete market-square detail"],
+            "dialogue_grounding_targets": ["Attach each spoken line to movement, gesture, or a handled object."],
+            "detail_targets": ["Use the fountain rim, cobbles, and stalls as visible anchors."],
+        }
+    )
+    adapter = _CritiqueRewriteAdapter(
+        _opening_generic_text(),
+        critique,
+        _opening_generic_text(),
+        _opening_recovery_text(),
+    )
+    router.register_provider(_FakeProvider(adapter))
+    service = LongFormExecutionService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=router,
+        enabled=True,
+    )
+
+    result = service.execute(
+        project_root=project_root,
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chunk_size=1,
+        target_words_per_chunk=400,
+    )
+
+    assert result.stopped_reason is None
+    chunk = result.chunks[0]
+    assert chunk.acceptance_reason == "retry_pass"
+    assert chunk.retry_snapshot is not None
+    assert chunk.retry_snapshot["reason"] == "targeted_editorial_miss_after_rewrite"
+    assert chunk.retry_snapshot["rescue_mode_used"] is True
+    assert chunk.retry_snapshot["rescue_delta_summary"]["dialogue_grounding_fixed"] is True
+
+
+def test_long_form_execution_rejects_rescue_that_still_misses_targeted_fix(
+    tmp_path: Path,
+) -> None:
+    project_root = tmp_path / "proj_failed_targeted_rescue"
+    project_root.mkdir(parents=True, exist_ok=True)
+    settings = ServiceSettings(
+        project_base_dir=tmp_path,
+        long_form_provider_enabled=True,
+        local_llm_rewrite_retry_model="qwen3:14b",
+    )
+    diagnostics = DiagnosticLogger()
+    router = ModelRouter(
+        config=ModelRouterConfig(
+            policy=ModelRoutingPolicy.LOCAL_ONLY,
+            provider_calls_enabled=True,
+        )
+    )
+    critique = json.dumps(
+        {
+            "summary": "Ground the dialogue without changing the scene.",
+            "weaknesses": ["dialogue", "specificity"],
+            "continuity_issues": [],
+            "pacing_issues": [],
+            "meta_contamination": False,
+            "rewrite_goals": ["Ground the dialogue in action."],
+            "dialogue_grounding_targets": ["Attach each spoken line to action or the square."],
+        }
+    )
+    adapter = _CritiqueRewriteAdapter(
+        _opening_generic_text(),
+        critique,
+        _opening_generic_text(),
+        _opening_generic_text(),
+    )
+    router.register_provider(_FakeProvider(adapter))
+    service = LongFormExecutionService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=router,
+        enabled=True,
+    )
+
+    result = service.execute(
+        project_root=project_root,
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chunk_size=1,
+        target_words_per_chunk=400,
+    )
+
+    assert result.stopped_reason == "quality_failed"
+    chunk = result.chunks[0]
+    assert chunk.retry_snapshot is not None
+    assert chunk.retry_snapshot["reason"] == "targeted_editorial_miss_after_rewrite"
+    assert chunk.retry_snapshot["rescue_failure_class"] == "dialogue_grounding_unresolved"
+    assert chunk.retry_snapshot["rescue_under_improved"] is True
 
 
 def test_long_form_execution_rejects_cosmetic_rewrite_without_meaningful_delta(

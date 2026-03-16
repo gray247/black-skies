@@ -70,6 +70,7 @@ class LongFormExecutionService:
     _MAX_BORDERLINE_RECOVERY_RETRIES = 1
     _REWRITE_LENGTH_LOWER_RATIO = 0.60
     _REWRITE_LENGTH_UPPER_RATIO = 2.10
+    _MAX_TRANSIENT_ADAPTER_RETRIES = 1
 
     def __init__(
         self,
@@ -502,6 +503,10 @@ class LongFormExecutionService:
                 }
                 if candidate.get("adapter_error"):
                     attempt_record["error"] = candidate["adapter_error"]
+                    attempt_record["adapter_failure_class"] = candidate.get("adapter_failure_class")
+                    if candidate.get("adapter_retry_used"):
+                        attempt_record["adapter_retry_used"] = True
+                        attempt_record["adapter_retry_count"] = candidate.get("adapter_retry_count")
                     attempt_diagnostics.append(attempt_record)
                     persist_long_form_diagnostic(
                         project_root,
@@ -511,6 +516,8 @@ class LongFormExecutionService:
                             "validation_decision": False,
                             "fallback_reason": "adapter_error",
                             "attempts": attempt_diagnostics,
+                            "adapter_failure_class": candidate.get("adapter_failure_class"),
+                            "adapter_retry_count": candidate.get("adapter_retry_count"),
                         },
                     )
                     return (
@@ -1010,6 +1017,9 @@ class LongFormExecutionService:
         clarity = int(scores.get("clarity") or 0)
         coherence = int(scores.get("coherence") or 0)
         continuity = int(scores.get("continuity") or 0)
+        dialogue_present = bool(quality_snapshot.get("dialogue_present"))
+        dialogue_grounded = bool(quality_snapshot.get("dialogue_grounded", True))
+        concrete_hits = int(quality_snapshot.get("concrete_hits") or 0)
 
         if meta_free <= 0 or meta_contamination:
             return {
@@ -1036,6 +1046,23 @@ class LongFormExecutionService:
             and specificity >= max(3, self._QUALITY_MIN_SPECIFICITY - 2)
             and clarity >= max(2, self._QUALITY_MIN_CLARITY - 1)
         )
+        targeted_editorial_miss = (
+            coherence >= self._QUALITY_MIN_COHERENCE
+            and continuity >= max(3, self._QUALITY_MIN_CONTINUITY - 1)
+            and total >= max(24, self._QUALITY_MIN_TOTAL - 5)
+            and (
+                (dialogue_present and not dialogue_grounded)
+                or specificity <= 3
+                or clarity <= 3
+                or concrete_hits <= 1
+            )
+        )
+        if targeted_editorial_miss:
+            return {
+                "classification": "targeted_editorial",
+                "reason": "targeted_editorial_miss_after_rewrite",
+                "retry_eligible": True,
+            }
         if near_threshold:
             return {
                 "classification": "borderline",
@@ -1232,6 +1259,13 @@ class LongFormExecutionService:
         ) and not bool((rewritten_quality_snapshot or {}).get("dialogue_grounded", True)):
             return "dialogue_grounding_unresolved"
         if (
+            int((rewritten_quality_snapshot or {}).get("concrete_hits") or 0)
+            <= int((previous_quality_snapshot or {}).get("concrete_hits") or 0)
+            and int(((rewritten_quality_snapshot or {}).get("scores") or {}).get("specificity") or 0)
+            <= int(((previous_quality_snapshot or {}).get("scores") or {}).get("specificity") or 0)
+        ):
+            return "concrete_detail_unresolved"
+        if (
             int(rescue_delta_summary.get("total_delta") or 0) <= 0
             and int(rescue_delta_summary.get("specificity_delta") or 0) <= 0
             and int(rescue_delta_summary.get("clarity_delta") or 0) <= 0
@@ -1392,10 +1426,11 @@ class LongFormExecutionService:
         call_mode: str,
     ) -> dict[str, Any]:
         try:
-            if call_mode in {"rewrite", "recovery_retry"}:
-                response = adapter.rewrite(payload)
-            else:
-                response = adapter.generate_draft(payload)
+            response = self._call_with_transient_adapter_retry(
+                adapter=adapter,
+                payload=payload,
+                call_mode=call_mode,
+            )
             raw_payload = response.get("raw") if isinstance(response, dict) else None
             if not isinstance(raw_payload, dict) and isinstance(response, dict):
                 raw_payload = response
@@ -1438,9 +1473,80 @@ class LongFormExecutionService:
                 "thinking_fallback": thinking_fallback,
                 "raw_payload_keys": raw_payload_keys,
                 "raw_payload_preview": raw_payload_preview,
+                "adapter_retry_used": bool(
+                    isinstance(response, dict) and response.get("_adapter_retry_used")
+                ),
+                "adapter_retry_count": (
+                    int(response.get("_adapter_retry_count") or 0)
+                    if isinstance(response, dict)
+                    else 0
+                ),
             }
         except AdapterError as exc:
-            return {"adapter_error": str(exc)}
+            return {
+                "adapter_error": str(exc),
+                "adapter_failure_class": self._classify_adapter_error(str(exc)),
+                "adapter_retry_used": False,
+                "adapter_retry_count": 0,
+            }
+
+    def _classify_adapter_error(self, message: str) -> str:
+        lowered = message.lower()
+        transient_markers = (
+            "timed out",
+            "timeout",
+            "connection reset",
+            "temporarily unavailable",
+            "connection aborted",
+            "rate limit",
+            "overloaded",
+            "service unavailable",
+            "bad gateway",
+            "gateway timeout",
+            "remote end closed",
+            "provider request failed",
+        )
+        hard_markers = (
+            "api key is missing",
+            "missing prompt",
+            "invalid json",
+            "response missing",
+            "payload missing",
+            "unsupported",
+            "not an object",
+        )
+        if any(marker in lowered for marker in hard_markers):
+            return "hard_adapter_error"
+        if any(marker in lowered for marker in transient_markers):
+            return "transient_adapter_error"
+        return "hard_adapter_error"
+
+    def _call_with_transient_adapter_retry(
+        self,
+        *,
+        adapter: BaseAdapter,
+        payload: dict[str, Any],
+        call_mode: str,
+    ) -> dict[str, Any]:
+        adapter_retry_count = 0
+        while True:
+            try:
+                if call_mode in {"rewrite", "recovery_retry"}:
+                    response = adapter.rewrite(payload)
+                else:
+                    response = adapter.generate_draft(payload)
+                if adapter_retry_count and isinstance(response, dict):
+                    response = dict(response)
+                    response["_adapter_retry_used"] = True
+                    response["_adapter_retry_count"] = adapter_retry_count
+                return response
+            except AdapterError as exc:
+                if (
+                    self._classify_adapter_error(str(exc)) != "transient_adapter_error"
+                    or adapter_retry_count >= self._MAX_TRANSIENT_ADAPTER_RETRIES
+                ):
+                    raise
+                adapter_retry_count += 1
 
     def _quality_passes(
         self,
@@ -1506,6 +1612,10 @@ class LongFormExecutionService:
                     rewritten_quality_snapshot=quality_snapshot,
                     critique_snapshot=critique_snapshot,
                     continuation_chunk=True,
+                ) and self._rescue_targets_satisfied(
+                    previous_quality_snapshot=previous_quality_snapshot,
+                    rewritten_quality_snapshot=quality_snapshot,
+                    critique_snapshot=critique_snapshot,
                 )
             if base_pass:
                 return True
@@ -1519,6 +1629,10 @@ class LongFormExecutionService:
                     rewritten_quality_snapshot=quality_snapshot,
                     critique_snapshot=critique_snapshot,
                     continuation_chunk=True,
+                ) and self._rescue_targets_satisfied(
+                    previous_quality_snapshot=previous_quality_snapshot,
+                    rewritten_quality_snapshot=quality_snapshot,
+                    critique_snapshot=critique_snapshot,
                 )
             return False
 
@@ -1547,6 +1661,10 @@ class LongFormExecutionService:
                 rewritten_quality_snapshot=quality_snapshot,
                 critique_snapshot=critique_snapshot,
                 continuation_chunk=False,
+            ) and self._rescue_targets_satisfied(
+                previous_quality_snapshot=previous_quality_snapshot,
+                rewritten_quality_snapshot=quality_snapshot,
+                critique_snapshot=critique_snapshot,
             )
         if base_pass:
             return True
@@ -1560,8 +1678,50 @@ class LongFormExecutionService:
                 rewritten_quality_snapshot=quality_snapshot,
                 critique_snapshot=critique_snapshot,
                 continuation_chunk=False,
+            ) and self._rescue_targets_satisfied(
+                previous_quality_snapshot=previous_quality_snapshot,
+                rewritten_quality_snapshot=quality_snapshot,
+                critique_snapshot=critique_snapshot,
             )
         return False
+
+    def _rescue_targets_satisfied(
+        self,
+        *,
+        previous_quality_snapshot: dict[str, Any] | None,
+        rewritten_quality_snapshot: dict[str, Any] | None,
+        critique_snapshot: dict[str, Any] | None,
+    ) -> bool:
+        if not previous_quality_snapshot or not rewritten_quality_snapshot or not critique_snapshot:
+            return True
+        previous_scores = previous_quality_snapshot.get("scores") or {}
+        rewritten_scores = rewritten_quality_snapshot.get("scores") or {}
+        weaknesses = " ".join(
+            str(item).lower() for item in critique_snapshot.get("weaknesses") or []
+        )
+        dialogue_targeted = bool(critique_snapshot.get("dialogue_grounding_targets")) or "dialogue" in weaknesses
+        specificity_targeted = (
+            bool(critique_snapshot.get("detail_targets"))
+            or bool(critique_snapshot.get("replacement_targets"))
+            or bool(critique_snapshot.get("grounding_targets"))
+            or "specific" in weaknesses
+            or "vague" in weaknesses
+        )
+        if dialogue_targeted and bool(previous_quality_snapshot.get("dialogue_present")):
+            if not bool(rewritten_quality_snapshot.get("dialogue_grounded", True)):
+                return False
+            if int(rewritten_scores.get("dialogue") or 0) < int(previous_scores.get("dialogue") or 0):
+                return False
+        if specificity_targeted:
+            specificity_delta = int(rewritten_scores.get("specificity") or 0) - int(
+                previous_scores.get("specificity") or 0
+            )
+            concrete_delta = int(rewritten_quality_snapshot.get("concrete_hits") or 0) - int(
+                previous_quality_snapshot.get("concrete_hits") or 0
+            )
+            if specificity_delta <= 0 and concrete_delta <= 0:
+                return False
+        return True
 
     def _rewrite_delta_passes(
         self,
