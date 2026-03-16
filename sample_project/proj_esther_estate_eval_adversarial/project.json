@@ -1,0 +1,10 @@
+{
+  "project_id": "proj_esther_estate_eval_adversarial",
+  "name": "Esther Estate Adversarial Eval",
+  "created": "2026-03-16T00:00:00Z",
+  "budget": {
+    "soft": 5.0,
+    "hard": 10.0,
+    "spent_usd": 0.0
+  }
+}
