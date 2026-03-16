@@ -261,6 +261,17 @@ def _mild_generic_but_recovered_rewrite_text() -> str:
     )
 
 
+def _cosmetic_rewrite_text() -> str:
+    return (
+        "Her breath caught as Clara looked up, the room pressing close and the words hanging in the air between them. "
+        * 12
+        + "\n\n"
+        + "\"Are you all right?\" Jun asked. Clara gave a thin nod while the lantern sat between their hands for a moment. "
+        "A flicker of fear moved through her, and the room felt heavy with dread while she tried to steady her breathing without saying what she feared. "
+        * 8
+    )
+
+
 def test_long_form_execution_persists_chunks(tmp_path: Path) -> None:
     project_root = tmp_path / "proj_exec"
     project_root.mkdir(parents=True, exist_ok=True)
@@ -836,6 +847,66 @@ def test_long_form_execution_accepts_rewrite_with_mild_generic_phrasing_when_rec
     assert chunk.quality_snapshot["scores"]["continuity"] >= 4
     assert chunk.quality_snapshot["scores"]["specificity"] >= 3
     assert chunk.quality_snapshot["scores"]["clarity"] >= 3
+
+
+def test_long_form_execution_rejects_cosmetic_rewrite_without_meaningful_delta(
+    tmp_path: Path,
+) -> None:
+    project_root = tmp_path / "proj_cosmetic_rewrite"
+    project_root.mkdir(parents=True, exist_ok=True)
+    settings = ServiceSettings(project_base_dir=tmp_path, long_form_provider_enabled=True)
+    diagnostics = DiagnosticLogger()
+    router = ModelRouter(
+        config=ModelRouterConfig(
+            policy=ModelRoutingPolicy.LOCAL_ONLY,
+            provider_calls_enabled=True,
+        )
+    )
+    critique = json.dumps(
+        {
+            "summary": "The continuation still needs concrete replacement, not paraphrase.",
+            "weaknesses": ["clarity", "specificity"],
+            "continuity_issues": [],
+            "pacing_issues": [],
+            "meta_contamination": False,
+            "rewrite_goals": ["Replace stock atmosphere with concrete action", "Increase observable detail"],
+        }
+    )
+    adapter = _CritiqueRewriteAdapter(_weak_continuation_text(), critique, _cosmetic_rewrite_text())
+    router.register_provider(_FakeProvider(adapter))
+    service = LongFormExecutionService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=router,
+        enabled=True,
+    )
+
+    result = service.execute(
+        project_root=project_root,
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chunk_size=1,
+        target_words_per_chunk=400,
+    )
+
+    assert result.stopped_reason == "quality_failed"
+    chunk = result.chunks[0]
+    assert chunk.rewrite_used is True
+    assert chunk.acceptance_reason == "quality_failed"
+    diag_path = (
+        project_root
+        / ".blackskies"
+        / "long_form"
+        / "diagnostics"
+        / f"{chunk.chunk_id}.json"
+    )
+    payload = json.loads(diag_path.read_text(encoding="utf-8"))
+    rewrite_attempt = payload["attempts"][1]
+    assert rewrite_attempt["quality_pass"] is False
+    assert rewrite_attempt["rewrite_delta"]["total_delta"] >= 1
+    assert rewrite_attempt["quality_snapshot"]["total_score"] < 28
+    assert rewrite_attempt["quality_snapshot"]["scores"]["specificity"] <= 2
+    assert rewrite_attempt["quality_snapshot"]["scores"]["clarity"] <= 3
 
 
 def test_long_form_execution_stops_after_max_attempts(tmp_path: Path) -> None:

@@ -420,6 +420,7 @@ class LongFormExecutionService:
         attempt_diagnostics: list[dict[str, Any]] = []
         critique_snapshot: dict[str, Any] | None = None
         quality_snapshot: dict[str, Any] | None = None
+        previous_quality_snapshot: dict[str, Any] | None = None
         acceptance_reason: str | None = None
         rewrite_used = False
 
@@ -516,9 +517,23 @@ class LongFormExecutionService:
                 quality_pass = self._quality_passes(
                     quality_snapshot,
                     rewrite_used=rewrite_used,
+                    previous_quality_snapshot=previous_quality_snapshot,
                 )
                 attempt_record["quality_snapshot"] = quality_snapshot
                 attempt_record["quality_pass"] = quality_pass
+                if rewrite_used and previous_quality_snapshot is not None:
+                    attempt_record["rewrite_delta"] = {
+                        "total_delta": int(quality_snapshot.get("total_score") or 0)
+                        - int(previous_quality_snapshot.get("total_score") or 0),
+                        "stock_phrase_delta": int(previous_quality_snapshot.get("stock_phrase_hits") or 0)
+                        - int(quality_snapshot.get("stock_phrase_hits") or 0),
+                        "specificity_delta": int((quality_snapshot.get("scores") or {}).get("specificity") or 0)
+                        - int((previous_quality_snapshot.get("scores") or {}).get("specificity") or 0),
+                        "clarity_delta": int((quality_snapshot.get("scores") or {}).get("clarity") or 0)
+                        - int((previous_quality_snapshot.get("scores") or {}).get("clarity") or 0),
+                        "continuity_delta": int((quality_snapshot.get("scores") or {}).get("continuity") or 0)
+                        - int((previous_quality_snapshot.get("scores") or {}).get("continuity") or 0),
+                    }
 
                 if quality_pass:
                     acceptance_reason = "quality_pass" if attempt == 1 else "rewrite_pass"
@@ -546,6 +561,7 @@ class LongFormExecutionService:
                     )
 
                 if attempt < self._MAX_ATTEMPTS:
+                    previous_quality_snapshot = quality_snapshot
                     critique_snapshot = self._run_chunk_critique(
                         adapter=adapter,
                         text=cleaned,
@@ -693,6 +709,7 @@ class LongFormExecutionService:
         quality_snapshot: dict[str, Any] | None,
         *,
         rewrite_used: bool = False,
+        previous_quality_snapshot: dict[str, Any] | None = None,
     ) -> bool:
         if not quality_snapshot or not quality_snapshot.get("usable"):
             return False
@@ -733,9 +750,52 @@ class LongFormExecutionService:
             and specificity >= required_specificity
             and clarity >= self._QUALITY_MIN_CLARITY
         )
+        if base_pass and rewrite_used and previous_quality_snapshot is not None:
+            return self._rewrite_delta_passes(
+                previous_quality_snapshot=previous_quality_snapshot,
+                rewritten_quality_snapshot=quality_snapshot,
+            )
         if base_pass:
             return True
-        return rewrite_recovery_pass
+        if rewrite_recovery_pass:
+            return self._rewrite_delta_passes(
+                previous_quality_snapshot=previous_quality_snapshot,
+                rewritten_quality_snapshot=quality_snapshot,
+            )
+        return False
+
+    def _rewrite_delta_passes(
+        self,
+        *,
+        previous_quality_snapshot: dict[str, Any] | None,
+        rewritten_quality_snapshot: dict[str, Any] | None,
+    ) -> bool:
+        if not previous_quality_snapshot or not rewritten_quality_snapshot:
+            return False
+        previous_scores = previous_quality_snapshot.get("scores") or {}
+        rewritten_scores = rewritten_quality_snapshot.get("scores") or {}
+        total_delta = int(rewritten_quality_snapshot.get("total_score") or 0) - int(
+            previous_quality_snapshot.get("total_score") or 0
+        )
+        stock_delta = int(previous_quality_snapshot.get("stock_phrase_hits") or 0) - int(
+            rewritten_quality_snapshot.get("stock_phrase_hits") or 0
+        )
+        specificity_delta = int(rewritten_scores.get("specificity") or 0) - int(
+            previous_scores.get("specificity") or 0
+        )
+        clarity_delta = int(rewritten_scores.get("clarity") or 0) - int(
+            previous_scores.get("clarity") or 0
+        )
+        continuity_delta = int(rewritten_scores.get("continuity") or 0) - int(
+            previous_scores.get("continuity") or 0
+        )
+        if total_delta >= 2:
+            return True
+        if stock_delta >= 1 and (specificity_delta >= 1 or clarity_delta >= 1 or continuity_delta >= 1):
+            return True
+        if previous_scores.get("continuity", 0) <= 3 and continuity_delta >= 1 and total_delta >= 1:
+            return True
+        return False
 
     def _run_chunk_critique(
         self,
@@ -836,8 +896,13 @@ class LongFormExecutionService:
             f"WEAKNESSES: {', '.join(weaknesses) if weaknesses else 'None'}\n"
             f"REWRITE GOALS: {', '.join(goals) if goals else 'Improve clarity and specificity'}\n"
             "PRIMARY TARGETS: specificity, continuity carryover, scene momentum.\n"
+            "REPLACE: generic stock phrases with concrete, scene-specific detail.\n"
+            "GROUND: every important line of dialogue in physical action, gesture, object handling, or setting.\n"
+            "SHOW: emotional state through observable sensation, movement, breath, or behavior instead of abstract labels.\n"
+            "PRESERVE: continuity anchors from the prior summary and excerpt while increasing specificity.\n"
+            "DO NOT: lightly paraphrase generic atmosphere filler; remove it or convert it into concrete detail.\n"
             "REMOVE: generic filler, vague summary language, meta/planning lines.\n"
-            "OUTPUT RULES: narrative prose only; no analysis, no headings, no notes.\n\n"
+            "OUTPUT RULES: narrative prose only; no analysis, no headings, no notes, no labels.\n\n"
             "ORIGINAL SCENE:\n"
             f"{original_text}\n"
         )

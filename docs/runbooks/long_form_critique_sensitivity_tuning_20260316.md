@@ -8,6 +8,8 @@
 - acceptance still rejects weak carryover, but the specificity floor was calibrated to `4` instead of forcing `5` on every chunk
 - critique prompts now explicitly call out weak continuity carryover, generic phrasing, vague detail, and floating dialogue
 - rewrite-pass acceptance now allows continuation chunks with mild generic residue to recover when continuity, clarity, total score, and concrete detail materially improve after rewrite
+- rewrite prompts now explicitly require replacing generic filler with concrete detail instead of lightly paraphrasing it
+- rewritten chunks now need a small but meaningful quality delta before they can count as recovered
 
 ## Focused verification
 - `pytest services/tests/unit/test_long_form.py services/tests/unit/test_long_form_execution.py -q`
@@ -20,6 +22,8 @@
 - After sensitivity tune adversarial 600: `sample_project/proj_esther_estate_eval_adversarial/.blackskies/long_form/eval/eval_sensitivity_tuned_adversarial_600.json`
 - After rewrite-recovery calibration clean 600: `sample_project/proj_esther_estate_verify_longform/.blackskies/long_form/eval/eval_rewrite_recovery_calibrated_clean_600.json`
 - After rewrite-recovery calibration adversarial 600: `sample_project/proj_esther_estate_eval_adversarial/.blackskies/long_form/eval/eval_rewrite_recovery_calibrated_adversarial_600.json`
+- After rewrite-effectiveness clean 600: `sample_project/proj_esther_estate_verify_longform/.blackskies/long_form/eval/eval_rewrite_effectiveness_clean_600.json`
+- After rewrite-effectiveness adversarial 600: `sample_project/proj_esther_estate_eval_adversarial/.blackskies/long_form/eval/eval_rewrite_effectiveness_adversarial_600.json`
 
 ## Before / after
 | Dataset | Run | Chunks | Accepted | Rewrites | Fallbacks | Avg Quality | Avg Attempts | Continuity Warnings | Est. Cost | Stopped |
@@ -27,18 +31,20 @@
 | Clean | Before | 5 | 5 | 0 | 0 | 32.6 | 1.0 | 0 | 0.05 | null |
 | Clean | After sensitivity tune | 4 | 3 | 1 | 1 | 31.0 | 1.25 | 0 | 0.04 | quality_failed |
 | Clean | After rewrite-recovery calibration | 1 | 0 | 1 | 1 | 29.0 | 2.0 | 0 | 0.01 | quality_failed |
+| Clean | After rewrite-effectiveness tuning | 2 | 1 | 1 | 1 | 28.5 | 1.5 | 0 | 0.02 | quality_failed |
 | Adversarial | Before | 5 | 5 | 0 | 0 | 32.6 | 1.0 | 0 | 0.05 | null |
 | Adversarial | After sensitivity tune | 5 | 5 | 0 | 0 | 31.8 | 1.0 | 0 | 0.05 | null |
 | Adversarial | After rewrite-recovery calibration | 5 | 5 | 0 | 0 | 30.4 | 1.0 | 0 | 0.05 | null |
+| Adversarial | After rewrite-effectiveness tuning | 5 | 5 | 0 | 0 | 30.8 | 1.0 | 0 | 0.05 | null |
 
 ## Result
 Natural rewrites occur in end-to-end evaluation, but rewrite recovery is still not naturally stable.
 
 - Yes: the clean `600` runs trigger `rewrite_count = 1`
 - No: the adversarial `600` run still produced `rewrite_count = 0`
-- No: rewrite recovery is not stable enough yet because the calibrated clean rerun still stopped with `quality_failed`
+- No: rewrite recovery is not stable enough yet because the latest clean rerun still stopped with `quality_failed`
 
-This means the loop is no longer flatlined, but the remaining pressure is still uneven and generation-sensitive. The scorer can now catch a realistic borderline continuation, but the rewrite branch still does not recover that class reliably across normal runs, and the adversarial outline still does not trigger rewrites.
+This means the loop is no longer flatlined, and rewrites are now held to a real improvement standard, but the remaining pressure is still uneven and generation-sensitive. The rewrite prompt is sharper and the delta gate blocks cosmetic saves, yet the clean dataset still does not recover reliably under normal generation, and the adversarial outline still does not trigger rewrites.
 
 ## Failed continuation evidence
 Chunk that rewrote and failed during the sensitivity run:
@@ -111,10 +117,10 @@ Critique snapshot:
 ```
 
 ## Recommendation
-Single next tuning target: improve rewrite prompt steering for continuation chunks that already preserve carryover but still return stock atmospheric phrasing.
+Single next tuning target: make critique outputs more rewrite-ready by converting detected generic phrases into explicit replacement targets.
 
 Reason:
 - weak carryover detection is now doing useful work
 - natural rewrite activation is no longer theoretical
 - the remaining problem is not missing detection, but unreliable rewrite recovery quality
-- the adversarial run still suggests generic-language cleanup is not being forced strongly enough by the rewrite itself
+- the prompt now asks for concrete replacement, so the next leverage point is making critique payloads enumerate what to replace more directly
