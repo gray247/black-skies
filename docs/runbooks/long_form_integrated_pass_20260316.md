@@ -8,6 +8,7 @@ Date: 2026-03-16
 - Added rewrite guardrails that check outline/scene-anchor fidelity, practical rewrite length band, and uncertainty persistence.
 - Extended chunk and diagnostic metadata with `guardrail_snapshot`, stronger-model retry metadata, and model snapshots per attempt.
 - Added precision rescue mode on the stronger retry path, with rescue-specific prompt constraints, rescue delta summaries, and rescue failure classification.
+- Added one bounded transient adapter retry and broadened rescue eligibility to include `targeted_editorial_miss_after_rewrite`.
 
 ## Model routing and rewrite recovery
 
@@ -64,6 +65,12 @@ Latest rescue-mode reruns:
 - Adversarial `600`: `sample_project/proj_esther_estate_eval_adversarial/.blackskies/long_form/eval/eval_rescue_adversarial_600_run1.json`
 - Adversarial `600`: `sample_project/proj_esther_estate_eval_adversarial/.blackskies/long_form/eval/eval_rescue_adversarial_600_run2.json`
 
+Latest targeted-rescue reruns:
+- Clean `600`: `sample_project/proj_esther_estate_verify_longform/.blackskies/long_form/eval/eval_targeted_rescue_clean_600_run1.json`
+- Clean `600`: `sample_project/proj_esther_estate_verify_longform/.blackskies/long_form/eval/eval_targeted_rescue_clean_600_run2.json`
+- Adversarial `600`: `sample_project/proj_esther_estate_eval_adversarial/.blackskies/long_form/eval/eval_targeted_rescue_adversarial_600_run1.json`
+- Adversarial `600`: `sample_project/proj_esther_estate_eval_adversarial/.blackskies/long_form/eval/eval_targeted_rescue_adversarial_600_run2.json`
+
 ## What the reruns showed
 
 - Clean reliability improved in reach: fresh runs now sometimes progress to 2-4 chunks instead of failing uniformly at the first rewrite gate.
@@ -74,6 +81,11 @@ Latest rescue-mode reruns:
   - one run stopped on `adapter_error`
   - one run stopped on `quality_failed`
   - neither latest clean failure used rescue mode, which means the active blocker has shifted away from the original borderline-retry path on those runs
+- In the latest targeted-rescue reruns, clean still remained `0/2`, but the failure surface became more controlled:
+  - both runs stopped on `quality_failed`
+  - both runs used rewrite plus rescue (`retry_used_count=1`, `rescue_mode_used_count=1`, `rescue_model_used_count=1`)
+  - neither run hit guardrail/fidelity failure
+  - adversarial remained healthy at `2/2` passes
 
 ## Reliability judgment
 
@@ -83,4 +95,5 @@ Current judgment: partially improved, but not stable enough to leave the reliabi
 
 - Clean `600` still falls variably on post-rewrite quality misses and rewrite guardrail failures.
 - The stronger rewrite path and precision rescue mode improve inspection and rescue diagnosis, but not enough for near-zero unexpected failures.
+- The broadened targeted-rescue path improves control and isolates the remaining blocker more clearly, but the stronger rescue model still does not produce enough editorial lift to clear clean `600`.
 - The next narrow milestone is stronger rewrite-quality capability under the existing bounded control layer, not broader autonomy.

@@ -3,6 +3,7 @@
 ## Retry-control rule
 
 - A chunk gets one recovery retry only after a rewrite attempt fails for a `borderline` quality miss.
+- A chunk may also get one recovery retry after a `targeted_editorial_miss_after_rewrite` when the scene is still coherent/fidelity-safe but the rewrite missed concentrated editorial targets such as dialogue grounding or concrete specificity.
 - Borderline means the rewrite stayed near the quality thresholds but did not clear them cleanly.
 - The recovery retry may escalate to a stronger rewrite model path while keeping the main draft path unchanged.
 - The retry is not available for invalid output, adapter failures, meta contamination, weak or missing carryover, or continuation chunks that still only name-drop carryover without material use.
@@ -24,8 +25,15 @@
 ## Borderline vs hard failure
 
 - `borderline`: near-threshold rewrite miss, recorded as `borderline_quality_after_rewrite`.
+- `targeted_editorial`: concentrated rewrite miss recorded as `targeted_editorial_miss_after_rewrite`; this is retry-eligible only when coherence/continuity/fidelity remain intact.
 - `hard`: `meta_contamination`, `missing_carryover`, `material_carryover_missing`, or a wider `quality_threshold_miss`.
 - Inspect `.blackskies/long_form/diagnostics/<chunk_id>.json` and check `retry_snapshot.failure_classification`.
+
+## Provider resilience
+
+- Long-form calls now get one bounded retry for transient adapter/provider failures such as timeout or temporary upstream failure.
+- Hard adapter failures are still not retried.
+- Inspect attempt diagnostics for `adapter_failure_class`, `adapter_retry_used`, and `adapter_retry_count`.
 
 ## Rewrite guardrails
 
