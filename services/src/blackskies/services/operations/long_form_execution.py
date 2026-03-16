@@ -71,12 +71,35 @@ class LongFormExecutionService:
     _MAX_INTERNAL_REPAIR_PASSES = 1
     _REWRITE_LENGTH_LOWER_RATIO = 0.60
     _REWRITE_LENGTH_UPPER_RATIO = 2.10
+    _REPAIR_ONLY_LENGTH_LOWER_RATIO = 0.85
+    _REPAIR_ONLY_LENGTH_UPPER_RATIO = 1.50
+    _REPAIR_ONLY_PARAGRAPH_TOLERANCE = 2
     _MAX_TRANSIENT_ADAPTER_RETRIES = 1
     _BLOCKED_CAPITALIZED_TERMS = {
         "the", "a", "an", "and", "but", "for", "her", "his", "their", "they", "he", "she",
         "it", "this", "that", "again", "hold", "storm", "chapter", "scene", "yet",
         "did", "does", "do", "can", "could", "would", "should", "will", "was", "were", "are",
     }
+    _GENERIC_REPLACEMENT_PHRASES = (
+        "hung in the air",
+        "flicker of",
+        "couldn't quite name",
+        "heavy with",
+        "mix of fear",
+        "pressed in",
+        "wrapped around her",
+        "truth in his voice",
+        "voice barely above a whisper",
+        "words trailed off",
+        "for a moment",
+        "something deep within",
+        "uncertainty pooling",
+        "the house creaked",
+        "heart raced",
+        "heart thudding",
+        "breath catching",
+        "shivers spiraling",
+    )
 
     def __init__(
         self,
@@ -591,6 +614,52 @@ class LongFormExecutionService:
                     prior_excerpt=continuation.prior_excerpt,
                     prior_summary=continuation.prior_summary,
                 )
+                quality_snapshot["text"] = cleaned
+                if attempt_kind == "repair_only":
+                    repair_local_snapshot = self._evaluate_repair_only_local_constraints(
+                        previous_text=previous_quality_snapshot.get("text")
+                        if isinstance(previous_quality_snapshot, dict)
+                        else None,
+                        repaired_text=cleaned,
+                        rescue_contract=rescue_contract,
+                    )
+                    attempt_record["repair_local_snapshot"] = repair_local_snapshot
+                    if retry_snapshot is not None:
+                        retry_snapshot["repair_local_snapshot"] = repair_local_snapshot
+                    if not repair_local_snapshot.get("accepted"):
+                        if retry_snapshot is not None:
+                            retry_snapshot["rescue_failure_class"] = str(
+                                repair_local_snapshot.get("failure_reason") or "repair_length_collapse"
+                            )
+                            retry_snapshot["rescue_under_improved"] = True
+                            retry_snapshot["rescue_guardrail_fail"] = False
+                            retry_snapshot["rescue_fidelity_risk"] = False
+                        persist_long_form_diagnostic(
+                            project_root,
+                            continuation.chunk_id,
+                            {
+                                "chunk_id": continuation.chunk_id,
+                                "validation_decision": False,
+                                "fallback_reason": "quality_failed",
+                                "attempts": attempt_diagnostics,
+                                "quality_snapshot": quality_snapshot,
+                                "critique_snapshot": critique_snapshot,
+                                "retry_snapshot": retry_snapshot,
+                                "guardrail_snapshot": guardrail_snapshot,
+                            },
+                        )
+                        return (
+                            self._fallback_text(continuation),
+                            "quality_failed",
+                            True,
+                            attempt,
+                            quality_snapshot,
+                            critique_snapshot,
+                            "quality_failed",
+                            rewrite_used,
+                            retry_snapshot,
+                            guardrail_snapshot,
+                        )
                 if attempt_kind in {"rewrite", "recovery_retry", "repair_only"}:
                     guardrail_snapshot = self._evaluate_rewrite_guardrails(
                         original_text=previous_quality_snapshot.get("text") if isinstance(previous_quality_snapshot, dict) else None,
@@ -652,6 +721,7 @@ class LongFormExecutionService:
                     rewrite_used=rewrite_used,
                     previous_quality_snapshot=previous_quality_snapshot,
                     critique_snapshot=critique_snapshot,
+                    rescue_contract=rescue_contract,
                     continuation_chunk=bool(continuation.prior_summary or continuation.prior_excerpt),
                 )
                 attempt_record["quality_snapshot"] = quality_snapshot
@@ -793,6 +863,10 @@ class LongFormExecutionService:
                         "generic_phrases_to_replace": list(rescue_contract.get("generic_phrases_to_replace") or []),
                         "lines_to_repair": list(rescue_contract.get("lines_to_repair") or []),
                         "required_concrete_anchor_terms": list(rescue_contract.get("required_concrete_anchor_terms") or []),
+                        "repair_min_word_count": rescue_contract.get("repair_min_word_count"),
+                        "repair_max_word_count": rescue_contract.get("repair_max_word_count"),
+                        "min_paragraph_count": rescue_contract.get("min_paragraph_count"),
+                        "max_paragraph_count": rescue_contract.get("max_paragraph_count"),
                     }
                     current_payload["prompt"] = self._build_recovery_retry_prompt(
                         original_text=cleaned,
@@ -857,6 +931,10 @@ class LongFormExecutionService:
                             "generic_phrases_to_replace": list((rescue_contract or {}).get("generic_phrases_to_replace") or []),
                             "lines_to_repair": list((rescue_contract or {}).get("lines_to_repair") or []),
                             "required_concrete_anchor_terms": list((rescue_contract or {}).get("required_concrete_anchor_terms") or []),
+                            "repair_min_word_count": (rescue_contract or {}).get("repair_min_word_count"),
+                            "repair_max_word_count": (rescue_contract or {}).get("repair_max_word_count"),
+                            "min_paragraph_count": (rescue_contract or {}).get("min_paragraph_count"),
+                            "max_paragraph_count": (rescue_contract or {}).get("max_paragraph_count"),
                         }
                         attempt_record["repair_only_decision"] = {
                             "used": True,
@@ -1255,10 +1333,12 @@ class LongFormExecutionService:
             "Repair-only rescue pass.\n"
             "The prior rescue stayed fidelity-safe but still missed one editorial target.\n"
             f"Failure class: {rescue_failure_class}\n"
-            "Patch only the unresolved weaknesses. Keep the rest of the scene intact.\n"
+            "Patch only the unresolved weaknesses. Keep the rest of the scene intact and return the full revised scene.\n"
             "Do not add new entities, events, or scene directions.\n"
             f"CHAPTER: {continuation.chapter_memory.chapter_context or continuation.chapter_id}\n"
             f"LENGTH BAND: {rescue_contract.get('min_word_count')} to {rescue_contract.get('max_word_count')} words\n"
+            f"REPAIR-ONLY LOCAL LENGTH BAND: {rescue_contract.get('repair_min_word_count')} to {rescue_contract.get('repair_max_word_count')} words\n"
+            f"PARAGRAPH BAND: {rescue_contract.get('min_paragraph_count')} to {rescue_contract.get('max_paragraph_count')} paragraphs\n"
             "UNRESOLVED LINES / BEATS:\n"
             f"{local_lines}\n"
             "UNRESOLVED DIALOGUE GROUNDING TARGETS:\n"
@@ -1266,12 +1346,69 @@ class LongFormExecutionService:
             "UNRESOLVED GENERIC TARGETS:\n"
             f"{generic_targets}\n"
             "PATCH RULES:\n"
+            "- Return the complete scene from the first sentence to the last sentence, including untouched paragraphs.\n"
             "- Keep dialogue order and overall paragraph flow where possible.\n"
+            "- Preserve approximately the same paragraph count and scene beat count.\n"
             "- Add only the missing action/gesture/object cues or concrete details.\n"
+            "- Do not compress the scene into a short excerpt, summary, or tail fragment.\n"
             "- Do not broadly rephrase already acceptable sections.\n\n"
             "CURRENT SCENE:\n"
             f"{latest_text}\n"
         )
+
+    def _evaluate_repair_only_local_constraints(
+        self,
+        *,
+        previous_text: str | None,
+        repaired_text: str,
+        rescue_contract: dict[str, Any] | None,
+    ) -> dict[str, Any]:
+        previous_word_count = len((previous_text or "").split())
+        repaired_word_count = len(repaired_text.split())
+        previous_paragraph_count = max(
+            1, len([seg for seg in (previous_text or "").split("\n\n") if seg.strip()])
+        )
+        repaired_paragraph_count = max(
+            1, len([seg for seg in repaired_text.split("\n\n") if seg.strip()])
+        )
+        min_words = int(
+            (rescue_contract or {}).get("repair_min_word_count")
+            or max(80, int(previous_word_count * self._REPAIR_ONLY_LENGTH_LOWER_RATIO))
+        )
+        max_words = int(
+            (rescue_contract or {}).get("repair_max_word_count")
+            or max(min_words + 20, int(previous_word_count * self._REPAIR_ONLY_LENGTH_UPPER_RATIO))
+        )
+        min_paragraphs = int(
+            (rescue_contract or {}).get("min_paragraph_count")
+            or max(1, previous_paragraph_count - self._REPAIR_ONLY_PARAGRAPH_TOLERANCE)
+        )
+        max_paragraphs = int(
+            (rescue_contract or {}).get("max_paragraph_count")
+            or previous_paragraph_count + self._REPAIR_ONLY_PARAGRAPH_TOLERANCE
+        )
+        within_word_band = min_words <= repaired_word_count <= max_words
+        within_paragraph_band = min_paragraphs <= repaired_paragraph_count <= max_paragraphs
+        failure_reason = None
+        if not within_word_band:
+            failure_reason = "repair_length_collapse"
+        elif not within_paragraph_band:
+            failure_reason = "repair_paragraph_collapse"
+        return {
+            "evaluated": True,
+            "previous_word_count": previous_word_count,
+            "repaired_word_count": repaired_word_count,
+            "min_word_count": min_words,
+            "max_word_count": max_words,
+            "within_word_band": within_word_band,
+            "previous_paragraph_count": previous_paragraph_count,
+            "repaired_paragraph_count": repaired_paragraph_count,
+            "min_paragraph_count": min_paragraphs,
+            "max_paragraph_count": max_paragraphs,
+            "within_paragraph_band": within_paragraph_band,
+            "accepted": failure_reason is None,
+            "failure_reason": failure_reason,
+        }
 
     def _extract_dialogue_lines(self, text: str | None, *, limit: int = 4) -> list[str]:
         if not text:
@@ -1306,6 +1443,34 @@ class LongFormExecutionService:
             if len(matches) >= limit:
                 break
         return matches
+
+    def _extract_sentences_with_phrase_markers(
+        self,
+        text: str | None,
+        *,
+        limit: int = 4,
+    ) -> tuple[list[str], list[str]]:
+        if not text:
+            return [], []
+        sentences = re.split(r"(?<=[.!?])\s+", text.strip())
+        phrases: list[str] = []
+        matches: list[str] = []
+        for sentence in sentences:
+            lowered = sentence.lower()
+            hit_phrases = [
+                phrase for phrase in self._GENERIC_REPLACEMENT_PHRASES if phrase in lowered
+            ]
+            if not hit_phrases:
+                continue
+            for phrase in hit_phrases:
+                if phrase not in phrases:
+                    phrases.append(phrase)
+            cleaned = sentence.strip()
+            if cleaned and cleaned not in matches:
+                matches.append(cleaned)
+            if len(matches) >= limit:
+                break
+        return phrases[:limit], matches[:limit]
 
     def _build_rescue_contract(
         self,
@@ -1351,6 +1516,14 @@ class LongFormExecutionService:
         generic_phrases_to_replace = [
             target for target in generic_targets if target.lower() in original_text.lower()
         ][:4]
+        generic_marker_phrases, generic_target_lines = self._extract_sentences_with_phrase_markers(
+            original_text,
+            limit=4,
+        )
+        for phrase in generic_marker_phrases:
+            if phrase not in generic_phrases_to_replace:
+                generic_phrases_to_replace.append(phrase)
+        generic_phrases_to_replace = generic_phrases_to_replace[:4]
         dialogue_beats_requiring_grounding = []
         if bool(quality_snapshot.get("dialogue_present")) and not bool(
             quality_snapshot.get("dialogue_grounded", True)
@@ -1362,9 +1535,21 @@ class LongFormExecutionService:
             self._extract_sentences_with_terms(original_text, generic_phrases_to_replace, limit=3)
         )
         lines_to_repair.extend(
+            line for line in generic_target_lines if line not in lines_to_repair
+        )
+        lines_to_repair.extend(
             line
             for line in dialogue_beats_requiring_grounding
             if line not in lines_to_repair
+        )
+        filtered_anchor_terms = [
+            term
+            for term in scene_anchors
+            if len(term) >= 4 and term not in {"that", "with", "have", "from", "they"}
+        ]
+        original_paragraph_count = max(
+            1,
+            len([seg for seg in original_text.split("\n\n") if seg.strip()]),
         )
         return {
             "subject_entities": subject_entities[:8],
@@ -1373,12 +1558,17 @@ class LongFormExecutionService:
             "dialogue_beats_requiring_grounding": dialogue_beats_requiring_grounding[:4],
             "generic_phrases_to_replace": generic_phrases_to_replace,
             "lines_to_repair": lines_to_repair[:6],
-            "required_concrete_anchor_terms": scene_anchors[:3],
+            "required_concrete_anchor_terms": (filtered_anchor_terms or scene_anchors)[:3],
             "minimum_action_cues_to_add": 2 if dialogue_beats_requiring_grounding else 1,
             "minimum_specificity_delta": 1,
             "minimum_clarity_delta": 1,
             "min_word_count": min_words,
             "max_word_count": max_words,
+            "repair_min_word_count": max(80, int(original_word_count * self._REPAIR_ONLY_LENGTH_LOWER_RATIO)),
+            "repair_max_word_count": max(120, int(original_word_count * self._REPAIR_ONLY_LENGTH_UPPER_RATIO)),
+            "original_paragraph_count": original_paragraph_count,
+            "min_paragraph_count": max(1, original_paragraph_count - self._REPAIR_ONLY_PARAGRAPH_TOLERANCE),
+            "max_paragraph_count": original_paragraph_count + self._REPAIR_ONLY_PARAGRAPH_TOLERANCE,
             "original_word_count": original_word_count,
             "unresolved_targets": unresolved_targets[:8],
         }
@@ -1742,6 +1932,7 @@ class LongFormExecutionService:
         rewrite_used: bool = False,
         previous_quality_snapshot: dict[str, Any] | None = None,
         critique_snapshot: dict[str, Any] | None = None,
+        rescue_contract: dict[str, Any] | None = None,
         continuation_chunk: bool = False,
     ) -> bool:
         if not quality_snapshot or not quality_snapshot.get("usable"):
@@ -1803,6 +1994,7 @@ class LongFormExecutionService:
                     previous_quality_snapshot=previous_quality_snapshot,
                     rewritten_quality_snapshot=quality_snapshot,
                     critique_snapshot=critique_snapshot,
+                    rescue_contract=rescue_contract,
                 )
             if base_pass:
                 return True
@@ -1820,6 +2012,7 @@ class LongFormExecutionService:
                     previous_quality_snapshot=previous_quality_snapshot,
                     rewritten_quality_snapshot=quality_snapshot,
                     critique_snapshot=critique_snapshot,
+                    rescue_contract=rescue_contract,
                 )
             return False
 
@@ -1852,6 +2045,7 @@ class LongFormExecutionService:
                 previous_quality_snapshot=previous_quality_snapshot,
                 rewritten_quality_snapshot=quality_snapshot,
                 critique_snapshot=critique_snapshot,
+                rescue_contract=rescue_contract,
             )
         if base_pass:
             return True
@@ -1869,6 +2063,7 @@ class LongFormExecutionService:
                 previous_quality_snapshot=previous_quality_snapshot,
                 rewritten_quality_snapshot=quality_snapshot,
                 critique_snapshot=critique_snapshot,
+                rescue_contract=rescue_contract,
             )
         return False
 
@@ -1878,6 +2073,7 @@ class LongFormExecutionService:
         previous_quality_snapshot: dict[str, Any] | None,
         rewritten_quality_snapshot: dict[str, Any] | None,
         critique_snapshot: dict[str, Any] | None,
+        rescue_contract: dict[str, Any] | None = None,
     ) -> bool:
         if not previous_quality_snapshot or not rewritten_quality_snapshot or not critique_snapshot:
             return True
@@ -1914,6 +2110,15 @@ class LongFormExecutionService:
                 if rewritten_specificity < previous_specificity or rewritten_concrete_hits < previous_concrete_hits:
                     return False
             elif specificity_delta < 1 and concrete_delta < 2:
+                return False
+        targeted_generic_phrases = [
+            str(item).lower()
+            for item in ((rescue_contract or {}).get("generic_phrases_to_replace") or [])
+            if str(item).strip()
+        ]
+        rewritten_text = str(rewritten_quality_snapshot.get("text") or "").lower()
+        if targeted_generic_phrases:
+            if any(phrase in rewritten_text for phrase in targeted_generic_phrases):
                 return False
         if int(previous_quality_snapshot.get("stock_phrase_hits") or 0) > 0:
             if int(rewritten_quality_snapshot.get("stock_phrase_hits") or 0) >= int(

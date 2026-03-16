@@ -340,6 +340,41 @@ def _opening_partial_rescue_text() -> str:
     )
 
 
+def _repair_only_generic_scene_text() -> str:
+    return (
+        "Clara stood in the narrow kitchen while the silence hung in the air and the chipped Formica pressed cold against her palm. "
+        "Alex waited by the counter, careful not to crowd her, while the coffee pot ticked on the burner. "
+        * 6
+        + "\n\n"
+        + "\"You don't have to pretend with me,\" Alex said. Clara gave him a thin nod, but the words trailed off while she stared at the cracked mug instead of his face. "
+        "\"I'm trying,\" she said, and for a moment she watched the coffee drip instead of answering him fully. "
+        * 4
+    )
+
+
+def _repair_only_generic_replaced_text() -> str:
+    return (
+        "Clara stood in the narrow kitchen while steam from the coffee pot dampened her cheek and the chipped Formica chilled the heel of her hand. "
+        "Alex waited by the counter, one thumb hooked on the paper sack, giving her room while the cracked mug tapped the sink and the glass pot clicked on the burner. "
+        * 6
+        + "\n\n"
+        + "\"You don't have to pretend with me,\" Alex said, nudging the burrito bag onto the table while Clara rubbed her thumb across the mug handle and wiped a ring of coffee from the vinyl cloth. "
+        "\"I'm trying,\" she said, forcing the words past a tight throat as she watched a line of coffee slide down the glass pot, then she set the cracked mug beside the sack and finally looked up at him. "
+        * 4
+    )
+
+
+def _repair_only_collapsed_fragment() -> str:
+    return (
+        "Clara rubbed the cracked mug and looked at Alex while the coffee pot ticked behind her. "
+        "Steam dampened her cheek and the Formica edge pressed into her palm as she tried to answer him.\n\n"
+        "\"I'm trying,\" she said, watching the coffee drip into the glass pot while the paper sack sat unopened beside the sink. "
+        "Alex stayed by the table, waiting, and she kept her eyes on the mug instead of his face. "
+        "The room stayed still except for the burner clicking under the pot. "
+        * 2
+    )
+
+
 def _write_outline_context(
     project_root: Path,
     *,
@@ -1261,6 +1296,203 @@ def test_long_form_execution_repair_only_pass_can_rescue_fidelity_safe_retry(
     assert payload["retry_snapshot"]["repair_only_pass_used"] is True
     assert payload["retry_snapshot"]["repair_only_pass_rescued"] is True
     assert payload["attempts"][3]["mode"] == "repair_only"
+
+
+def test_long_form_execution_repair_only_rescues_generic_replacement_target(
+    tmp_path: Path,
+) -> None:
+    project_root = tmp_path / "proj_repair_generic_rescue"
+    project_root.mkdir(parents=True, exist_ok=True)
+    settings = ServiceSettings(
+        project_base_dir=tmp_path,
+        long_form_provider_enabled=True,
+        local_llm_rewrite_retry_model="qwen3:14b",
+    )
+    diagnostics = DiagnosticLogger()
+    router = ModelRouter(
+        config=ModelRouterConfig(
+            policy=ModelRoutingPolicy.LOCAL_ONLY,
+            provider_calls_enabled=True,
+        )
+    )
+    critique = json.dumps(
+        {
+            "summary": "Replace stock emotional phrasing with concrete kitchen action without changing the scene.",
+            "weaknesses": ["specificity", "clarity"],
+            "continuity_issues": [],
+            "pacing_issues": [],
+            "meta_contamination": False,
+            "rewrite_goals": ["Replace generic stock phrases", "Keep the same kitchen scene and dialogue order"],
+            "detail_targets": ["Use the chipped Formica, cracked mug, and coffee pot."],
+        }
+    )
+    adapter = _SequencedCritiqueRewriteAdapter(
+        [_repair_only_generic_scene_text()],
+        critique,
+        [
+            _repair_only_generic_scene_text(),
+            _repair_only_generic_scene_text(),
+            _repair_only_generic_replaced_text(),
+        ],
+    )
+    router.register_provider(_FakeProvider(adapter))
+    service = LongFormExecutionService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=router,
+        enabled=True,
+    )
+
+    result = service.execute(
+        project_root=project_root,
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chunk_size=1,
+        target_words_per_chunk=500,
+    )
+
+    assert result.stopped_reason is None
+    chunk = result.chunks[0]
+    assert chunk.retry_snapshot is not None
+    assert chunk.retry_snapshot["repair_only_pass_used"] is True
+    assert chunk.retry_snapshot["repair_only_pass_rescued"] is True
+    assert chunk.retry_snapshot["rescue_targets_summary"]["generic_phrases_to_replace"]
+    diag_path = (
+        project_root
+        / ".blackskies"
+        / "long_form"
+        / "diagnostics"
+        / f"{chunk.chunk_id}.json"
+    )
+    payload = json.loads(diag_path.read_text(encoding="utf-8"))
+    assert payload["attempts"][3]["repair_local_snapshot"]["accepted"] is True
+
+
+def test_long_form_execution_repair_only_rejects_length_collapse(
+    tmp_path: Path,
+) -> None:
+    project_root = tmp_path / "proj_repair_length_collapse"
+    project_root.mkdir(parents=True, exist_ok=True)
+    settings = ServiceSettings(
+        project_base_dir=tmp_path,
+        long_form_provider_enabled=True,
+        local_llm_rewrite_retry_model="qwen3:14b",
+    )
+    diagnostics = DiagnosticLogger()
+    router = ModelRouter(
+        config=ModelRouterConfig(
+            policy=ModelRoutingPolicy.LOCAL_ONLY,
+            provider_calls_enabled=True,
+        )
+    )
+    critique = json.dumps(
+        {
+            "summary": "Replace stock emotional phrasing with concrete kitchen action without changing the scene.",
+            "weaknesses": ["specificity", "clarity"],
+            "continuity_issues": [],
+            "pacing_issues": [],
+            "meta_contamination": False,
+            "rewrite_goals": ["Replace generic stock phrases", "Keep the same kitchen scene and dialogue order"],
+            "detail_targets": ["Use the chipped Formica, cracked mug, and coffee pot."],
+        }
+    )
+    adapter = _SequencedCritiqueRewriteAdapter(
+        [_repair_only_generic_scene_text()],
+        critique,
+        [
+            _repair_only_generic_scene_text(),
+            _repair_only_generic_scene_text(),
+            _repair_only_collapsed_fragment(),
+        ],
+    )
+    router.register_provider(_FakeProvider(adapter))
+    service = LongFormExecutionService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=router,
+        enabled=True,
+    )
+
+    result = service.execute(
+        project_root=project_root,
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chunk_size=1,
+        target_words_per_chunk=500,
+    )
+
+    assert result.stopped_reason == "quality_failed"
+    chunk = result.chunks[0]
+    assert chunk.retry_snapshot is not None
+    assert chunk.retry_snapshot["rescue_failure_class"] == "repair_length_collapse"
+    diag_path = (
+        project_root
+        / ".blackskies"
+        / "long_form"
+        / "diagnostics"
+        / f"{chunk.chunk_id}.json"
+    )
+    payload = json.loads(diag_path.read_text(encoding="utf-8"))
+    assert payload["attempts"][3]["repair_local_snapshot"]["failure_reason"] == "repair_length_collapse"
+
+
+def test_long_form_execution_repair_only_still_fails_when_generic_target_remains(
+    tmp_path: Path,
+) -> None:
+    project_root = tmp_path / "proj_repair_generic_still_fails"
+    project_root.mkdir(parents=True, exist_ok=True)
+    settings = ServiceSettings(
+        project_base_dir=tmp_path,
+        long_form_provider_enabled=True,
+        local_llm_rewrite_retry_model="qwen3:14b",
+    )
+    diagnostics = DiagnosticLogger()
+    router = ModelRouter(
+        config=ModelRouterConfig(
+            policy=ModelRoutingPolicy.LOCAL_ONLY,
+            provider_calls_enabled=True,
+        )
+    )
+    critique = json.dumps(
+        {
+            "summary": "Replace stock emotional phrasing with concrete kitchen action without changing the scene.",
+            "weaknesses": ["specificity", "clarity"],
+            "continuity_issues": [],
+            "pacing_issues": [],
+            "meta_contamination": False,
+            "rewrite_goals": ["Replace generic stock phrases", "Keep the same kitchen scene and dialogue order"],
+            "detail_targets": ["Use the chipped Formica, cracked mug, and coffee pot."],
+        }
+    )
+    adapter = _SequencedCritiqueRewriteAdapter(
+        [_repair_only_generic_scene_text()],
+        critique,
+        [
+            _repair_only_generic_scene_text(),
+            _repair_only_generic_scene_text(),
+            _repair_only_generic_scene_text(),
+        ],
+    )
+    router.register_provider(_FakeProvider(adapter))
+    service = LongFormExecutionService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=router,
+        enabled=True,
+    )
+
+    result = service.execute(
+        project_root=project_root,
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chunk_size=1,
+        target_words_per_chunk=500,
+    )
+
+    assert result.stopped_reason == "quality_failed"
+    chunk = result.chunks[0]
+    assert chunk.retry_snapshot is not None
+    assert chunk.retry_snapshot["rescue_failure_class"] == "generic_replacement_unresolved"
 
 
 def test_long_form_execution_rejects_cosmetic_rewrite_without_meaningful_delta(
