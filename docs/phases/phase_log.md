@@ -15,6 +15,7 @@ Last Reviewed: 2026-03-15
 **2026-03-16** - Long-form reliability/control remains active. The engine now includes bounded borderline recovery retry, stronger-model escalation on retry, and outline-faithful rewrite guardrails (outline/scene anchors, length band, uncertainty persistence). Evidence still does not meet the near-zero-unexpected-failure exit bar, so the current phase stays open.
 **2026-03-16** - Sequencing updated: the next engine milestone after reliability/control closeout is an outline-faithful editorial-partner phase. Rewrites must trail the outline, preserve scene intent and length band, and avoid autonomous story invention. Agent hooks and UI exceptions remain deferred.
 **2026-03-16** - Rescue-mode pass landed: the stronger retry path now uses a precision rescue-edit contract with rescue-specific diagnostics and evaluation aggregates. Adversarial fresh-server samples remained healthy; clean fresh-server samples still failed, so the phase remains open.
+**2026-03-16** - Rescue architecture upgraded again: the stronger retry path now uses span-level patch rescue instead of full-scene rescue rewriting. Local patch validation and splice-back are test-covered. Fresh-server evidence on the new code is currently blocked in this environment by provider `401 Unauthorized`, so the phase remains open.
 
 ## Upcoming milestones
 - ~~**P7 - RC1:** Smoke tests complete; publish quickstart.~~ *(closed 2025-10-10)*

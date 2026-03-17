@@ -17,10 +17,19 @@
 
 ## Precision rescue mode
 
-- The stronger retry path now uses a precision rescue prompt rather than a generic rewrite prompt.
+- The stronger retry path now uses span-level patch rescue rather than a full-scene rescue rewrite.
+- Rescue mode identifies local weak spans, asks for replacement text for those spans only, validates the patches locally, and splices them back into the existing scene.
 - Rescue mode is meant to edit the existing scene, not re-imagine it.
 - Rescue mode explicitly preserves subject, scene premise, outline/scene anchors, and length band while targeting the unresolved weak dimensions from critique and scoring.
-- Inspect `retry_snapshot.rescue_mode_used`, `retry_snapshot.rescue_model_used`, `retry_snapshot.rescue_delta_summary`, and `retry_snapshot.rescue_failure_class`.
+- Inspect `retry_snapshot.rescue_mode_used`, `retry_snapshot.rescue_model_used`, `retry_snapshot.patch_rescue_used`, `retry_snapshot.patch_rescue_success`, `retry_snapshot.rescue_delta_summary`, and `retry_snapshot.rescue_failure_class`.
+
+## Local patch checks
+
+- Patch rescue validates local replacements before full-scene rescoring.
+- Generic patch targets must remove the targeted stock phrase and add some concrete/actionable detail locally.
+- Dialogue patch targets must keep the spoken beat and add nearby action, gesture, object handling, or setting cue.
+- Patches fail fast on unsupported new named entities, missing targets, or local length distortion.
+- Inspect per-attempt diagnostics for `patch_targets`, `patch_response`, `patch_validation`, and `patch_snapshot`.
 
 ## Borderline vs hard failure
 
@@ -69,3 +78,5 @@ python scripts/long_form_eval.py \
   - `rescue_guardrail_fail_count`
   - `rescue_under_improved_count`
   - `rescue_fidelity_risk_count`
+  - `patch_rescue_used_count`
+  - `patch_rescue_success_count`

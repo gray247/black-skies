@@ -33,7 +33,7 @@ Long-form rewrite recovery adds one bounded exception path:
 - draft generation uses the default draft route
 - first rewrite uses the default rewrite route
 - if that rewrite fails only as `borderline_quality_after_rewrite`, one retry may escalate to a stronger rewrite model
-- that retry now uses a precision rescue-edit prompt with stricter fidelity constraints
+- that retry now uses span-level patch rescue with stricter fidelity constraints rather than a full-scene rescue rewrite
 - the stronger rewrite path is explicit and persisted in retry/model diagnostics
 - hard failures are not retried through the stronger path
 
@@ -70,7 +70,7 @@ Insights Overlay overrides these settings: when active, the router refuses to cr
 ## Current Engine Priority (Sequencing)
 API-backed long-form execution is validated, but the active closeout phase remains reliability/control for long-form rewrite recovery. Current focus:
 - stronger rewrite-model escalation only on retry-eligible borderline failures
-- outline-faithful rewrite guardrails and uncertainty persistence
+- span-level patch rescue plus outline-faithful rewrite guardrails and uncertainty persistence
 - repeated-run evidence until unexpected failures approach zero
 
 Only after that closeout does the next engine milestone open: an outline-faithful editorial-partner phase. UI docking/accessibility polish and agent hooks remain tracked separately.

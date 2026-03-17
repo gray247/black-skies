@@ -9,12 +9,20 @@ Date: 2026-03-16
 - Extended chunk and diagnostic metadata with `guardrail_snapshot`, stronger-model retry metadata, and model snapshots per attempt.
 - Added precision rescue mode on the stronger retry path, with rescue-specific prompt constraints, rescue delta summaries, and rescue failure classification.
 - Added one bounded transient adapter retry and broadened rescue eligibility to include `targeted_editorial_miss_after_rewrite`.
+- Replaced full-scene rescue/repair-only rewriting with span-level patch rescue: rescue now requests structured patch replacements, validates them locally, and splices them back into the scene before rescoring.
 
 ## Model routing and rewrite recovery
 
 - The stronger rewrite path is only available on the one bounded recovery retry after `borderline_quality_after_rewrite`.
 - Hard failures still do not retry.
 - Diagnostics now show whether the stronger rewrite path was used, whether rescue mode was used, and why the retry did or did not rescue the chunk.
+- Rescue-mode diagnostics now also record `patch_targets`, `patch_response`, `patch_validation`, `patch_rescue_used`, and `patch_rescue_success`.
+
+## Span-level patch rescue
+
+- Rescue no longer asks the stronger model to rewrite the whole scene.
+- The engine now extracts local spans from the weak scene, asks for replacement text for those spans only, validates each patch locally, then splices the accepted replacements back into the existing scene.
+- This preserves scene structure, dialogue order, and rough length by construction, which is the intended editing primitive for the clean-run rescue problem.
 
 ## Grounded diagnosis from the latest clean rescue miss
 
@@ -86,6 +94,7 @@ Latest targeted-rescue reruns:
   - both runs used rewrite plus rescue (`retry_used_count=1`, `rescue_mode_used_count=1`, `rescue_model_used_count=1`)
   - neither run hit guardrail/fidelity failure
   - adversarial remained healthy at `2/2` passes
+- The first fresh reruns after the span-level patch rescue implementation were blocked in the current environment by `HTTP 401: Unauthorized` from the OpenAI path, so new clean/adversarial reliability evidence could not be completed from this machine until provider auth is restored.
 
 ## Reliability judgment
 
@@ -96,4 +105,5 @@ Current judgment: partially improved, but not stable enough to leave the reliabi
 - Clean `600` still falls variably on post-rewrite quality misses and rewrite guardrail failures.
 - The stronger rewrite path and precision rescue mode improve inspection and rescue diagnosis, but not enough for near-zero unexpected failures.
 - The broadened targeted-rescue path improves control and isolates the remaining blocker more clearly, but the stronger rescue model still does not produce enough editorial lift to clear clean `600`.
+- Span-level patch rescue is now the active rescue architecture, but fresh-server pass-rate evidence on the new code is still incomplete because the current environment returned provider `401` failures during reruns.
 - The next narrow milestone is stronger rewrite-quality capability under the existing bounded control layer, not broader autonomy.

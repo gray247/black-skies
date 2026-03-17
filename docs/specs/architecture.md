@@ -50,13 +50,19 @@ Long-form routing now distinguishes between draft and rewrite recovery:
 - Draft generation stays on the normal/default draft path.
 - First rewrite stays on the normal rewrite path.
 - A single retry-eligible borderline rewrite miss may escalate to a stronger rewrite model path.
-- That stronger retry now runs in a precision rescue-edit mode rather than a generic rewrite mode.
+- That stronger retry now runs in a precision rescue-edit mode using span-level patch rescue rather than a generic full-scene rewrite.
 - Hard failures (missing/material carryover, meta contamination, invalid output) remain non-retryable.
 
 Rewrite acceptance also now includes lightweight outline-faithful guardrails:
 - preserve scene anchors from the current chunk and outline context
 - stay within a bounded rewrite length band
 - persist uncertainty/guardrail metadata for diagnostics instead of silently accepting drift
+
+Patch rescue preserves structure by construction:
+- extract local weak spans from the scene
+- request structured replacements for those spans only
+- validate each patch locally before splice-back
+- rescore the assembled scene with the existing global checks
 
 ## Companion Mode Boundary (Locked)
 Companion is **not** an SDK. It is an integrated, dockable in-app browser pane/window that opens ChatGPT.  
