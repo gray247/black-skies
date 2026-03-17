@@ -1632,6 +1632,47 @@ def test_patch_validation_allows_local_concrete_rewording_without_fidelity_drift
     assert result["accepted"] is True
 
 
+def test_repair_only_prompt_requires_literal_local_specificity_detail(tmp_path: Path) -> None:
+    service = _service(tmp_path, _long_text())
+    chapter_memory = ChapterMemoryPacket(
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chapter_context="Chapter One",
+        locked_facts=[],
+        accumulated_summaries=[],
+        unresolved_tensions=[],
+        emotional_carryover=None,
+        pacing_carryover=None,
+        scene_titles=["Rain Street"],
+        beat_refs=[],
+    )
+    continuation = SimpleNamespace(
+        prior_summary=None,
+        prior_excerpt=None,
+        chapter_memory=chapter_memory,
+        chapter_id="ch_0001",
+    )
+
+    prompt = service._build_repair_only_prompt(
+        latest_text="Shadows flickered at the edges of her vision.",
+        continuation=continuation,
+        rescue_contract={
+            "min_word_count": 180,
+            "max_word_count": 320,
+            "repair_min_word_count": 180,
+            "repair_max_word_count": 320,
+            "min_paragraph_count": 1,
+            "max_paragraph_count": 3,
+            "lines_to_repair": ["Shadows flickered at the edges of her vision."],
+            "patch_targets": [{"span_id": "p1", "target_text": "Shadows flickered at the edges of her vision."}],
+        },
+        rescue_failure_class="patch_specificity_unresolved",
+    )
+
+    assert "Metaphor by itself does not count." in prompt
+    assert "object, body, surface, movement, or setting cue" in prompt
+
+
 def test_patch_validation_rejects_specificity_patch_that_stays_vague(tmp_path: Path) -> None:
     service = _service(tmp_path, _long_text())
     chapter_memory = ChapterMemoryPacket(

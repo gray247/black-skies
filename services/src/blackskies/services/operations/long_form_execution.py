@@ -114,7 +114,7 @@ class LongFormExecutionService:
     _PATCH_SETTING_MARKERS = (
         "path", "counter", "window", "door", "table", "floor", "wall", "square",
         "annex", "burner", "pot", "sink", "saucer", "creek", "roots", "oak",
-        "gravel", "cobbles", "stall", "fountain",
+        "gravel", "cobbles", "stall", "fountain", "alley", "roof", "street", "gutter", "brick",
     )
     _VAGUE_SENTENCE_MARKERS = (
         "felt like",
@@ -1476,6 +1476,8 @@ class LongFormExecutionService:
             f"- Add at least {rescue_contract.get('minimum_action_cues_to_add')} visible action/gesture/object cues across the targeted beats.\n"
             "- Every targeted dialogue beat must gain nearby action, gesture, handled object, or setting cue.\n"
             "- Every targeted generic phrase must be replaced with one concrete physical, sensory, or object-level detail in the replacement span.\n"
+            "- For every specificity-targeted replacement span, name at least one local concrete cue: a handled object, body part, visible action, or setting surface. Abstract mood language alone does not count.\n"
+            "- Do not answer a vague sentence with another metaphor. Replace the weak wording with literal scene detail on the page.\n"
             "- Replace the exact weak line, not just its mood; keep the same meaning but make the line more observable on the page.\n"
             f"- Raise specificity by at least {rescue_contract.get('minimum_specificity_delta')} if targeted, or add concrete scene detail.\n"
             f"- Raise clarity by at least {rescue_contract.get('minimum_clarity_delta')} if targeted.\n\n"
@@ -1527,6 +1529,7 @@ class LongFormExecutionService:
             "- Keep dialogue order and overall paragraph flow where possible.\n"
             "- Preserve approximately the same paragraph count and scene beat count.\n"
             "- Add only the missing action/gesture/object cues or concrete physical or sensory details on the targeted lines.\n"
+            "- For each specificity-targeted patch, add literal local detail in the replacement span: object, body, surface, movement, or setting cue. Metaphor by itself does not count.\n"
             "- Replace the exact weak phrase in the targeted span; do not answer with another vague paraphrase.\n"
             "- Do not compress the scene into a short excerpt, summary, or tail fragment.\n"
             "- Do not broadly rephrase already acceptable sections.\n"
@@ -2003,6 +2006,16 @@ class LongFormExecutionService:
                     <= int(target_quality.get("sensory_hits") or 0)
                 ):
                     return {"accepted": False, "failure_class": "patch_specificity_unresolved"}
+                if replacement_specificity_signals <= target_specificity_signals + 1:
+                    literal_local_gain = (
+                        any(self._marker_present(replacement_text, marker) for marker in self._PATCH_ACTION_MARKERS)
+                        or any(self._marker_present(replacement_text, marker) for marker in self._PATCH_SETTING_MARKERS)
+                    ) and (
+                        any(self._marker_present(replacement_text, marker) for marker in self._PATCH_SENSORY_MARKERS)
+                        or int(replacement_quality.get("concrete_hits") or 0) > int(target_quality.get("concrete_hits") or 0)
+                    )
+                    if not literal_local_gain:
+                        return {"accepted": False, "failure_class": "patch_specificity_unresolved"}
             patched_text = patched_text.replace(target_text, replacement_text, 1)
             patch_snapshots.append(
                 {
