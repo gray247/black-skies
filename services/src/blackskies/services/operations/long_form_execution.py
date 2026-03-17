@@ -133,6 +133,11 @@ class LongFormExecutionService:
         "hard to pin down",
         "unspoken words",
     )
+    _CONDITIONAL_STRONGER_RESCUE_CLASSES = {
+        "dialogue_grounding_unresolved",
+        "patch_dialogue_grounding_unresolved",
+        "patch_specificity_unresolved",
+    }
 
     def __init__(
         self,
@@ -519,6 +524,7 @@ class LongFormExecutionService:
         retry_attempts_used = 0
         internal_repair_attempts_used = 0
         same_slot_specificity_retry_used = 0
+        conditional_rescue_escalation_pending = False
         guardrail_snapshot: dict[str, Any] | None = {"evaluated": False}
         rescue_contract: dict[str, Any] | None = None
 
@@ -544,7 +550,7 @@ class LongFormExecutionService:
                     escalated=False,
                     reason="draft_route" if attempt_kind == "draft" else "rewrite_default",
                 )
-                if attempt_kind in {"recovery_retry", "repair_only"}:
+                if attempt_kind == "repair_only" and conditional_rescue_escalation_pending:
                     attempt_adapter, model_snapshot = self._resolve_rewrite_retry_adapter(
                         route=route,
                         default_adapter=adapter,
@@ -553,6 +559,11 @@ class LongFormExecutionService:
                         retry_snapshot["model_snapshot"] = model_snapshot
                         retry_snapshot["stronger_model_used"] = bool(model_snapshot.get("escalated"))
                         retry_snapshot["rescue_model_used"] = bool(model_snapshot.get("escalated"))
+                        retry_snapshot["conditional_rescue_escalation_used"] = bool(
+                            model_snapshot.get("escalated")
+                        )
+                elif attempt_kind in {"recovery_retry", "repair_only"} and retry_snapshot is not None:
+                    retry_snapshot["model_snapshot"] = model_snapshot
                 candidate = self._generate_candidate(
                     adapter=attempt_adapter,
                     payload=current_payload,
@@ -717,8 +728,16 @@ class LongFormExecutionService:
                             }
                         ):
                             internal_repair_attempts_used += 1
+                            patch_failure_class = str(patch_result.get("failure_class") or "")
+                            conditional_rescue_escalation_pending = (
+                                patch_failure_class in self._CONDITIONAL_STRONGER_RESCUE_CLASSES
+                            )
                             retry_snapshot["repair_only_pass_used"] = True
                             retry_snapshot["repair_only_pass_rescued"] = False
+                            retry_snapshot["conditional_rescue_escalation_trigger"] = (
+                                patch_failure_class if conditional_rescue_escalation_pending else None
+                            )
+                            retry_snapshot["conditional_rescue_escalation_succeeded"] = False
                             rescue_contract = self._refresh_rescue_contract_for_current_text(
                                 current_text=source_text,
                                 rescue_contract=rescue_contract,
@@ -731,7 +750,7 @@ class LongFormExecutionService:
                                 latest_text=source_text,
                                 continuation=continuation,
                                 rescue_contract=rescue_contract or {},
-                                rescue_failure_class=str(patch_result.get("failure_class") or "patch_under_applied"),
+                                rescue_failure_class=patch_failure_class or "patch_under_applied",
                             )
                             current_payload["system"] = (
                                 "Perform a repair-only patch edit. Return JSON only."
@@ -961,6 +980,8 @@ class LongFormExecutionService:
                         retry_snapshot["rescue_under_improved"] = False
                         retry_snapshot["rescue_fidelity_risk"] = False
                         retry_snapshot["patch_rescue_success"] = True
+                        if attempt_kind == "repair_only" and bool(model_snapshot.get("escalated")):
+                            retry_snapshot["conditional_rescue_escalation_succeeded"] = True
                     if retry_snapshot and attempt_kind == "repair_only":
                         retry_snapshot["repair_only_pass_rescued"] = True
                     acceptance_reason = (
@@ -1071,6 +1092,9 @@ class LongFormExecutionService:
                         "repair_only_pass_used": False,
                         "repair_only_pass_rescued": False,
                         "same_slot_specificity_retry_used": False,
+                        "conditional_rescue_escalation_used": False,
+                        "conditional_rescue_escalation_trigger": None,
+                        "conditional_rescue_escalation_succeeded": False,
                     }
                     attempt_record["retry_decision"] = {
                         "eligible": True,
@@ -1153,8 +1177,15 @@ class LongFormExecutionService:
                         and not retry_snapshot["rescue_fidelity_risk"]
                     ):
                         internal_repair_attempts_used += 1
+                        conditional_rescue_escalation_pending = (
+                            rescue_failure_class in self._CONDITIONAL_STRONGER_RESCUE_CLASSES
+                        )
                         retry_snapshot["repair_only_pass_used"] = True
                         retry_snapshot["repair_only_pass_rescued"] = False
+                        retry_snapshot["conditional_rescue_escalation_trigger"] = (
+                            rescue_failure_class if conditional_rescue_escalation_pending else None
+                        )
+                        retry_snapshot["conditional_rescue_escalation_succeeded"] = False
                         retry_snapshot["rescue_targets_summary"] = {
                             "dialogue_beats_requiring_grounding": list((rescue_contract or {}).get("dialogue_beats_requiring_grounding") or []),
                             "generic_phrases_to_replace": list((rescue_contract or {}).get("generic_phrases_to_replace") or []),
