@@ -20,7 +20,12 @@ from blackskies.services.long_form_eval import (
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
 
-def _post_json(url: str, payload: dict[str, Any]) -> dict[str, Any]:
+def _post_json(
+    url: str,
+    payload: dict[str, Any],
+    *,
+    timeout_seconds: float,
+) -> dict[str, Any]:
     data = json.dumps(payload).encode("utf-8")
     req = url_request.Request(
         url,
@@ -28,7 +33,7 @@ def _post_json(url: str, payload: dict[str, Any]) -> dict[str, Any]:
         method="POST",
         headers={"Content-Type": "application/json"},
     )
-    with url_request.urlopen(req, timeout=120) as resp:
+    with url_request.urlopen(req, timeout=timeout_seconds) as resp:
         raw = resp.read()
     if not raw:
         raise RuntimeError("Empty response from long-form execute endpoint.")
@@ -46,6 +51,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--chunk-size", type=int, default=1)
     parser.add_argument("--target-words", type=int, default=600)
     parser.add_argument("--base-url", default="http://127.0.0.1:8000")
+    parser.add_argument(
+        "--request-timeout-seconds",
+        type=float,
+        default=120.0,
+        help="Client timeout for the long-form execute HTTP request.",
+    )
     parser.add_argument("--output", type=Path, default=None)
     parser.add_argument(
         "--compare",
@@ -85,7 +96,11 @@ def main() -> int:
         "enabled": True,
     }
 
-    response = _post_json(f"{args.base_url.rstrip('/')}/api/v1/long-form/execute", request_payload)
+    response = _post_json(
+        f"{args.base_url.rstrip('/')}/api/v1/long-form/execute",
+        request_payload,
+        timeout_seconds=args.request_timeout_seconds,
+    )
     chunks = response.get("chunks") if isinstance(response.get("chunks"), list) else []
     response_chunk_ids = [
         chunk.get("chunk_id")
