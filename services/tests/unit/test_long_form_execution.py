@@ -2198,6 +2198,172 @@ def test_frozen_replay_full_replay_separates_generation_from_binding_bug(tmp_pat
     assert report["binding_layer"] == "patch_specificity_unresolved"
 
 
+def test_frozen_replay_live_dialogue_grounding_terminal_class_matches_artifact(tmp_path: Path) -> None:
+    service = _service(tmp_path, _long_text())
+    continuation = _artifact_continuation("Live Dialogue Replay")
+    diagnostic = _artifact_json(
+        "sample_project/proj_esther_estate_verify_longform/.blackskies/long_form/diagnostics/lf_9d2a8bc4.json"
+    )
+    chunk_payload = _artifact_json(
+        "sample_project/proj_esther_estate_verify_longform/.blackskies/long_form/chunks/lf_9d2a8bc4.json"
+    )
+
+    recovery_attempt = diagnostic["attempts"][2]
+    repair_attempt = diagnostic["attempts"][3]
+    rescue_slots = recovery_attempt["rescue_slots"]
+    recovery_response = service._parse_patch_response(json.dumps({"patches": recovery_attempt["patch_response"]}))
+    repair_response = service._parse_patch_response(json.dumps({"patches": repair_attempt["patch_response"]}))
+
+    recovery_result = service._validate_and_apply_patch_response(
+        source_text=diagnostic["attempts"][1]["quality_snapshot"]["text"],
+        rescue_slots=rescue_slots,
+        patch_response=recovery_response,
+        continuation=continuation,
+        rescue_contract={"rescue_slots": rescue_slots},
+        mode="recovery_retry",
+    )
+    repair_result = service._validate_and_apply_patch_response(
+        source_text=diagnostic["attempts"][1]["quality_snapshot"]["text"],
+        rescue_slots=repair_attempt["rescue_slots"],
+        patch_response=repair_response,
+        continuation=continuation,
+        rescue_contract={"rescue_slots": repair_attempt["rescue_slots"]},
+        mode="repair_only",
+    )
+
+    assert chunk_payload["chunk_id"] == diagnostic["chunk_id"]
+    assert [slot["slot_id"] for slot in rescue_slots] == ["s1", "s2", "s3", "s4"]
+    assert all(str(slot.get("target_type") or "") == "dialogue" for slot in rescue_slots)
+    assert diagnostic["retry_snapshot"]["same_slot_specificity_retry_used"] is False
+    assert recovery_response == recovery_attempt["patch_response"]
+    assert repair_response == repair_attempt["patch_response"]
+    assert recovery_result["failure_class"] == "patch_dialogue_grounding_unresolved"
+    assert repair_result["failure_class"] == "patch_dialogue_grounding_unresolved"
+    assert diagnostic["retry_snapshot"]["rescue_failure_class"] == "patch_dialogue_grounding_unresolved"
+
+
+def test_frozen_replay_live_specificity_terminal_class_matches_artifact_without_rebinding_regression(
+    tmp_path: Path,
+) -> None:
+    service = _service(tmp_path, _long_text())
+    continuation = _artifact_continuation("Live Specificity Replay")
+    diagnostic = _artifact_json(
+        "sample_project/proj_esther_estate_verify_longform/.blackskies/long_form/diagnostics/lf_b923f724.json"
+    )
+    chunk_payload = _artifact_json(
+        "sample_project/proj_esther_estate_verify_longform/.blackskies/long_form/chunks/lf_b923f724.json"
+    )
+
+    recovery_attempt = diagnostic["attempts"][2]
+    repair_attempt = diagnostic["attempts"][3]
+    recovery_slots = recovery_attempt["rescue_slots"]
+    repair_slots = repair_attempt["rescue_slots"]
+    recovery_response = service._parse_patch_response(json.dumps({"patches": recovery_attempt["patch_response"]}))
+    repair_response = service._parse_patch_response(json.dumps({"patches": repair_attempt["patch_response"]}))
+
+    recovery_result = service._validate_and_apply_patch_response(
+        source_text=diagnostic["attempts"][1]["quality_snapshot"]["text"],
+        rescue_slots=recovery_slots,
+        patch_response=recovery_response,
+        continuation=continuation,
+        rescue_contract={"rescue_slots": recovery_slots},
+        mode="recovery_retry",
+    )
+    repair_result = service._validate_and_apply_patch_response(
+        source_text=diagnostic["attempts"][1]["quality_snapshot"]["text"],
+        rescue_slots=repair_slots,
+        patch_response=repair_response,
+        continuation=continuation,
+        rescue_contract={"rescue_slots": repair_slots},
+        mode="repair_only",
+    )
+
+    assert chunk_payload["chunk_id"] == diagnostic["chunk_id"]
+    assert [slot["slot_id"] for slot in recovery_slots] == ["s1", "s2", "s3", "s4", "s5", "s6"]
+    assert [slot["slot_id"] for slot in repair_slots] == ["s1", "s2", "s3", "s4", "s5", "s6"]
+    assert diagnostic["retry_snapshot"]["same_slot_specificity_retry_used"] is False
+    assert repair_response == repair_attempt["patch_response"]
+    assert recovery_result["failure_class"] == "patch_specificity_unresolved"
+    assert repair_result["accepted"] is True
+    assert repair_result["patch_snapshots"][0]["slot_id"] == "s1"
+    assert repair_result["failure_class"] if "failure_class" in repair_result else None is None
+    assert diagnostic["retry_snapshot"]["rescue_failure_class"] == "specificity_unresolved"
+    assert diagnostic["attempts"][3]["rescue_failure_class"] == "specificity_unresolved"
+    assert "patch_target_missing" not in json.dumps(diagnostic["retry_snapshot"])
+
+
+def test_frozen_replay_followthrough_credits_locally_accepted_specificity_patch(tmp_path: Path) -> None:
+    service = _service(tmp_path, _long_text())
+    diagnostic = _artifact_json(
+        "sample_project/proj_esther_estate_verify_longform/.blackskies/long_form/diagnostics/lf_b923f724.json"
+    )
+    repair_attempt = diagnostic["attempts"][3]
+    rescue_contract = {
+        "rescue_slots": repair_attempt["rescue_slots"],
+        "generic_phrases_to_replace": diagnostic["retry_snapshot"]["rescue_targets_summary"]["generic_phrases_to_replace"],
+        "accepted_patch_snapshots": repair_attempt["patch_snapshot"],
+        "accepted_local_specificity_credit": True,
+    }
+
+    targets_satisfied = service._rescue_targets_satisfied(
+        previous_quality_snapshot=diagnostic["attempts"][1]["quality_snapshot"],
+        rewritten_quality_snapshot=repair_attempt["quality_snapshot"],
+        critique_snapshot=diagnostic["critique_snapshot"],
+        rescue_contract=rescue_contract,
+    )
+    quality_pass = service._quality_passes(
+        repair_attempt["quality_snapshot"],
+        rewrite_used=True,
+        previous_quality_snapshot=diagnostic["attempts"][1]["quality_snapshot"],
+        critique_snapshot=diagnostic["critique_snapshot"],
+        rescue_contract=rescue_contract,
+        continuation_chunk=False,
+    )
+    failure_class = service._classify_rescue_failure(
+        previous_quality_snapshot=diagnostic["attempts"][1]["quality_snapshot"],
+        rewritten_quality_snapshot=repair_attempt["quality_snapshot"],
+        critique_snapshot=diagnostic["critique_snapshot"],
+        guardrail_snapshot=repair_attempt["guardrail_snapshot"],
+        rescue_contract=rescue_contract,
+    )
+
+    assert targets_satisfied is True
+    assert quality_pass is True
+    assert failure_class not in {"specificity_unresolved", "under_improved"}
+
+
+def test_frozen_replay_followthrough_specificity_still_fails_when_local_patch_never_clears_validator(
+    tmp_path: Path,
+) -> None:
+    service = _service(tmp_path, _long_text())
+    diagnostic = _artifact_json(
+        "sample_project/proj_esther_estate_verify_longform/.blackskies/long_form/diagnostics/lf_b923f724.json"
+    )
+    recovery_attempt = diagnostic["attempts"][2]
+    rescue_contract = {
+        "rescue_slots": recovery_attempt["rescue_slots"],
+        "generic_phrases_to_replace": diagnostic["retry_snapshot"]["rescue_targets_summary"]["generic_phrases_to_replace"],
+    }
+
+    targets_satisfied = service._rescue_targets_satisfied(
+        previous_quality_snapshot=diagnostic["attempts"][1]["quality_snapshot"],
+        rewritten_quality_snapshot=diagnostic["attempts"][1]["quality_snapshot"],
+        critique_snapshot=diagnostic["critique_snapshot"],
+        rescue_contract=rescue_contract,
+    )
+    failure_class = service._classify_rescue_failure(
+        previous_quality_snapshot=diagnostic["attempts"][1]["quality_snapshot"],
+        rewritten_quality_snapshot=diagnostic["attempts"][1]["quality_snapshot"],
+        critique_snapshot=diagnostic["critique_snapshot"],
+        guardrail_snapshot=diagnostic["guardrail_snapshot"],
+        rescue_contract=rescue_contract,
+    )
+
+    assert recovery_attempt["patch_validation"]["failure_class"] == "patch_specificity_unresolved"
+    assert targets_satisfied is False
+    assert failure_class == "generic_replacement_unresolved"
+
+
 def test_long_form_execution_repair_only_can_fix_dialogue_grounding_after_patch_miss(
     tmp_path: Path,
 ) -> None:

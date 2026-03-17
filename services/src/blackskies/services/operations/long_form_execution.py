@@ -765,6 +765,13 @@ class LongFormExecutionService:
                             guardrail_snapshot,
                         )
                     cleaned = str(patch_result.get("patched_text") or source_text)
+                    if rescue_contract is not None and patch_result.get("patch_snapshots"):
+                        rescue_contract = dict(rescue_contract)
+                        rescue_contract["accepted_patch_snapshots"] = list(patch_result.get("patch_snapshots") or [])
+                        rescue_contract["accepted_local_specificity_credit"] = any(
+                            str(snapshot.get("target_type") or "") == "generic"
+                            for snapshot in (patch_result.get("patch_snapshots") or [])
+                        )
                     attempt_record["patched_preview"] = cleaned[:200]
                     attempt_record["patch_snapshot"] = patch_result.get("patch_snapshots")
                 report = evaluate_long_form_output(
@@ -872,6 +879,7 @@ class LongFormExecutionService:
                                 previous_quality_snapshot=previous_quality_snapshot,
                                 rewritten_quality_snapshot=quality_snapshot,
                                 critique_snapshot=critique_snapshot,
+                                rescue_contract=rescue_contract,
                             )
                             retry_snapshot["rescue_delta_summary"] = rescue_delta_summary
                             retry_snapshot["rescue_failure_class"] = "guardrail_failed"
@@ -939,6 +947,7 @@ class LongFormExecutionService:
                         previous_quality_snapshot=previous_quality_snapshot,
                         rewritten_quality_snapshot=quality_snapshot,
                         critique_snapshot=critique_snapshot,
+                        rescue_contract=rescue_contract,
                     )
                     retry_snapshot["rescue_delta_summary"] = rescue_delta_summary
                     attempt_record["rescue_delta_summary"] = rescue_delta_summary
@@ -1016,6 +1025,7 @@ class LongFormExecutionService:
                         rewritten_quality_snapshot=quality_snapshot,
                         critique_snapshot=critique_snapshot,
                         guardrail_snapshot=guardrail_snapshot,
+                        rescue_contract=rescue_contract,
                     )
                     retry_snapshot["rescue_failure_class"] = rescue_failure_class
                     retry_snapshot["rescue_guardrail_fail"] = rescue_failure_class == "guardrail_failed"
@@ -1106,12 +1116,14 @@ class LongFormExecutionService:
                         previous_quality_snapshot=previous_quality_snapshot,
                         rewritten_quality_snapshot=quality_snapshot,
                         critique_snapshot=critique_snapshot,
+                        rescue_contract=rescue_contract,
                     )
                     rescue_failure_class = self._classify_rescue_failure(
                         previous_quality_snapshot=previous_quality_snapshot,
                         rewritten_quality_snapshot=quality_snapshot,
                         critique_snapshot=critique_snapshot,
                         guardrail_snapshot=guardrail_snapshot,
+                        rescue_contract=rescue_contract,
                     )
                     retry_snapshot["rescue_delta_summary"] = rescue_delta_summary
                     retry_snapshot["rescue_failure_class"] = rescue_failure_class
@@ -2422,6 +2434,7 @@ class LongFormExecutionService:
         previous_quality_snapshot: dict[str, Any] | None,
         rewritten_quality_snapshot: dict[str, Any] | None,
         critique_snapshot: dict[str, Any] | None,
+        rescue_contract: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         previous_scores = (previous_quality_snapshot or {}).get("scores") or {}
         rewritten_scores = (rewritten_quality_snapshot or {}).get("scores") or {}
@@ -2457,6 +2470,7 @@ class LongFormExecutionService:
             > int((rewritten_quality_snapshot or {}).get("stock_phrase_hits") or 0),
             "concrete_target_met": int((rewritten_quality_snapshot or {}).get("concrete_hits") or 0)
             >= int((previous_quality_snapshot or {}).get("concrete_hits") or 0) + 2,
+            "local_specificity_credit": self._rescue_contract_has_local_specificity_credit(rescue_contract),
         }
 
     def _classify_rescue_failure(
@@ -2466,6 +2480,7 @@ class LongFormExecutionService:
         rewritten_quality_snapshot: dict[str, Any] | None,
         critique_snapshot: dict[str, Any] | None,
         guardrail_snapshot: dict[str, Any] | None,
+        rescue_contract: dict[str, Any] | None = None,
     ) -> str:
         if (guardrail_snapshot or {}).get("failure_reason"):
             return "guardrail_failed"
@@ -2473,6 +2488,7 @@ class LongFormExecutionService:
             previous_quality_snapshot=previous_quality_snapshot,
             rewritten_quality_snapshot=rewritten_quality_snapshot,
             critique_snapshot=critique_snapshot,
+            rescue_contract=rescue_contract,
         )
         if rescue_delta_summary.get("dialogue_grounding_targeted") and not rescue_delta_summary.get(
             "dialogue_grounding_fixed"
@@ -2491,6 +2507,7 @@ class LongFormExecutionService:
             <= int((previous_quality_snapshot or {}).get("concrete_hits") or 0)
             and int(((rewritten_quality_snapshot or {}).get("scores") or {}).get("specificity") or 0)
             <= int(((previous_quality_snapshot or {}).get("scores") or {}).get("specificity") or 0)
+            and not bool(rescue_delta_summary.get("local_specificity_credit"))
         ):
             return "specificity_unresolved"
         if (
@@ -2498,6 +2515,7 @@ class LongFormExecutionService:
             and int(rescue_delta_summary.get("specificity_delta") or 0) <= 0
             and int(rescue_delta_summary.get("clarity_delta") or 0) <= 0
             and int(rescue_delta_summary.get("concrete_delta") or 0) <= 0
+            and not bool(rescue_delta_summary.get("local_specificity_credit"))
         ):
             return "under_improved"
         if not self._rewrite_targets_aligned(
@@ -2838,6 +2856,7 @@ class LongFormExecutionService:
                     previous_quality_snapshot=previous_quality_snapshot,
                     rewritten_quality_snapshot=quality_snapshot,
                     continuation_chunk=True,
+                    rescue_contract=rescue_contract,
                 ) and self._rewrite_targets_aligned(
                     previous_quality_snapshot=previous_quality_snapshot,
                     rewritten_quality_snapshot=quality_snapshot,
@@ -2856,6 +2875,7 @@ class LongFormExecutionService:
                     previous_quality_snapshot=previous_quality_snapshot,
                     rewritten_quality_snapshot=quality_snapshot,
                     continuation_chunk=True,
+                    rescue_contract=rescue_contract,
                 ) and self._rewrite_targets_aligned(
                     previous_quality_snapshot=previous_quality_snapshot,
                     rewritten_quality_snapshot=quality_snapshot,
@@ -2872,6 +2892,7 @@ class LongFormExecutionService:
                     previous_quality_snapshot=previous_quality_snapshot,
                     rewritten_quality_snapshot=quality_snapshot,
                     continuation_chunk=True,
+                    rescue_contract=rescue_contract,
                 ) and self._rewrite_targets_aligned(
                     previous_quality_snapshot=previous_quality_snapshot,
                     rewritten_quality_snapshot=quality_snapshot,
@@ -2905,6 +2926,7 @@ class LongFormExecutionService:
                 previous_quality_snapshot=previous_quality_snapshot,
                 rewritten_quality_snapshot=quality_snapshot,
                 continuation_chunk=False,
+                rescue_contract=rescue_contract,
             ) and self._rewrite_targets_aligned(
                 previous_quality_snapshot=previous_quality_snapshot,
                 rewritten_quality_snapshot=quality_snapshot,
@@ -2923,6 +2945,7 @@ class LongFormExecutionService:
                 previous_quality_snapshot=previous_quality_snapshot,
                 rewritten_quality_snapshot=quality_snapshot,
                 continuation_chunk=False,
+                rescue_contract=rescue_contract,
             ) and self._rewrite_targets_aligned(
                 previous_quality_snapshot=previous_quality_snapshot,
                 rewritten_quality_snapshot=quality_snapshot,
@@ -2939,6 +2962,7 @@ class LongFormExecutionService:
                 previous_quality_snapshot=previous_quality_snapshot,
                 rewritten_quality_snapshot=quality_snapshot,
                 continuation_chunk=False,
+                rescue_contract=rescue_contract,
             ) and self._rewrite_targets_aligned(
                 previous_quality_snapshot=previous_quality_snapshot,
                 rewritten_quality_snapshot=quality_snapshot,
@@ -2975,6 +2999,7 @@ class LongFormExecutionService:
             or "specific" in weaknesses
             or "vague" in weaknesses
         )
+        local_specificity_credit = self._rescue_contract_has_local_specificity_credit(rescue_contract)
         if dialogue_targeted and bool(previous_quality_snapshot.get("dialogue_present")):
             if not bool(rewritten_quality_snapshot.get("dialogue_grounded", True)):
                 return False
@@ -2991,7 +3016,10 @@ class LongFormExecutionService:
             concrete_delta = rewritten_concrete_hits - previous_concrete_hits
             specificity_already_safe = previous_specificity >= self._QUALITY_MIN_SPECIFICITY
             concrete_already_safe = previous_concrete_hits >= 3
-            if specificity_already_safe and concrete_already_safe:
+            if local_specificity_credit:
+                if rewritten_specificity < previous_specificity or rewritten_concrete_hits < previous_concrete_hits:
+                    return False
+            elif specificity_already_safe and concrete_already_safe:
                 if rewritten_specificity < previous_specificity or rewritten_concrete_hits < previous_concrete_hits:
                     return False
             elif specificity_delta < 1 and concrete_delta < 2:
@@ -3021,6 +3049,7 @@ class LongFormExecutionService:
         previous_quality_snapshot: dict[str, Any] | None,
         rewritten_quality_snapshot: dict[str, Any] | None,
         continuation_chunk: bool,
+        rescue_contract: dict[str, Any] | None = None,
     ) -> bool:
         if not previous_quality_snapshot or not rewritten_quality_snapshot:
             return False
@@ -3049,6 +3078,8 @@ class LongFormExecutionService:
         ) - int(previous_quality_snapshot.get("material_carryover_hits") or 0)
         if total_delta >= 2:
             return True
+        if stock_delta >= 1 and self._rescue_contract_has_local_specificity_credit(rescue_contract):
+            return True
         if stock_delta >= 1 and (specificity_delta >= 1 or clarity_delta >= 1 or continuity_delta >= 1):
             return True
         if not continuation_chunk and stock_delta >= 1 and concrete_delta >= 1:
@@ -3059,6 +3090,17 @@ class LongFormExecutionService:
             return True
         if continuation_chunk and previous_scores.get("continuity", 0) <= 3 and continuity_delta >= 1 and total_delta >= 1:
             return True
+        return False
+
+    def _rescue_contract_has_local_specificity_credit(
+        self,
+        rescue_contract: dict[str, Any] | None,
+    ) -> bool:
+        if bool((rescue_contract or {}).get("accepted_local_specificity_credit")):
+            return True
+        for snapshot in (rescue_contract or {}).get("accepted_patch_snapshots") or []:
+            if isinstance(snapshot, dict) and str(snapshot.get("target_type") or "") == "generic":
+                return True
         return False
 
     def _rewrite_targets_aligned(
