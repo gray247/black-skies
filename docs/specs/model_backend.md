@@ -68,9 +68,10 @@ Insights Overlay overrides these settings: when active, the router refuses to cr
 - Phase 9’s batch critique automation explicitly uses the Model Router to honor budget guards before spinning up remote evaluations.
 
 ## Current Engine Priority (Sequencing)
-API-backed long-form execution is validated, but the active closeout phase remains reliability/control for long-form rewrite recovery. Current focus:
-- stronger rewrite-model escalation only on retry-eligible borderline failures
-- span-level patch rescue plus outline-faithful rewrite guardrails and uncertainty persistence
-- repeated-run evidence until unexpected failures approach zero
+API-backed long-form execution is validated, and rescue-plumbing / reliability-control closeout is complete. The active engine phase is now **Outline-Faithful Editorial Reliability**. Current focus:
+- reduce generation-side variance inside rewrite and rescue generation
+- preserve outline-faithful rewrite guardrails: no subject drift, no invented story changes, and no wild length drift
+- improve rescue quality stability without reopening bounded-slot plumbing
+- use replay-backed evidence plus bounded live samples to measure progress
 
-Only after that closeout does the next engine milestone open: an outline-faithful editorial-partner phase. UI docking/accessibility polish and agent hooks remain tracked separately.
+The first milestone in this phase is a conditional stronger-model rescue trial for generation-side classes only, while keeping the current bounded-slot rescue plumbing and guardrails unchanged. UI docking/accessibility polish and agent hooks remain tracked separately.

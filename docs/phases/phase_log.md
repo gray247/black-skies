@@ -18,12 +18,13 @@ Last Reviewed: 2026-03-15
 **2026-03-16** - Rescue architecture upgraded again: the stronger retry path now uses span-level patch rescue instead of full-scene rescue rewriting. Local patch validation and splice-back are test-covered. Fresh-server evidence on the new code is currently blocked in this environment by provider `401 Unauthorized`, so the phase remains open.
 **2026-03-17** - Long-form reliability/control closeout now uses an explicit phase-exit runbook rather than ad hoc tiny rerun samples. See `docs/runbooks/long_form_rescue_phase_exit.md` for the replay regression pack, bounded live confirmation sample, and class-based close criteria.
 **2026-03-17** - Long-form rescue-plumbing / reliability-control closeout is complete. Deterministic rescue-path issues such as slot binding/aliasing, stale-target handling, followthrough credit, and repair-only sentence-slot collapse were fixed and remained covered by replay. The bounded live sample landed at clean `6/10` and adversarial `5/5`; the remaining clean misses were classified as generation-side (`dialogue_grounding_unresolved`, `patch_dialogue_grounding_unresolved`, `patch_specificity_unresolved`) rather than plumbing regressions, so remaining work moves into generation-variance mitigation / editorial reliability.
+**2026-03-17** - Next engine phase defined: **Outline-Faithful Editorial Reliability**. This phase focuses on generation-side rewrite/rescue variance, not bounded-slot plumbing. Priority workstreams are rescue model strategy by failure class, editorial prompt strategy for outline-faithful rescue, and generation-variance measurement on stable replay fixtures plus bounded live samples. The first milestone is a conditional stronger-model rescue trial for generation-side classes only.
 
 ## Upcoming milestones
 - ~~**P7 - RC1:** Smoke tests complete; publish quickstart.~~ *(closed 2025-10-10)*
 - ~~**P8 - Companion overlay + batch critique prototype.**~~ *(landed 2025-10-15; engine milestone stays closed)*
 - **P8 follow-up exceptions:** unresolved UI verification and scope gaps remain tracked without reopening the engine milestone. See `docs/phases/phase8_ui_gate_closeout.md`.
-- **Current engine phase:** generation-variance mitigation / editorial reliability for long-form rewrite recovery, after rescue-plumbing closeout.
+- **Current engine phase:** Outline-Faithful Editorial Reliability for long-form rewrite recovery, after rescue-plumbing closeout.
 - **P9:** Analytics visualisations + dashboard integration.
 - **P10:** Accessibility & export suite.
 - **P11:** Agents & plugin framework.

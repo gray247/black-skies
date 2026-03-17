@@ -69,9 +69,25 @@ Scope remains: finalize GUI + API parity, smoke tests, offline docs.
 
 **Engine closeout status (2026-03-17):** long-form rescue-plumbing / reliability-control is closed. The closeout fixed deterministic rescue-path failures including slot binding and alias handling, stale-target handling, specificity followthrough credit, and repair-only sentence-slot collapse. See [docs/runbooks/long_form_rescue_phase_exit.md](../runbooks/long_form_rescue_phase_exit.md).
 
-**Current backend phase:** generation-variance mitigation / editorial reliability. The remaining long-form misses are treated as model-quality variance inside rescue generation rather than bounded-slot plumbing bugs. The operating principle remains constrained assistance: the model trails the outline, preserves scene intent, character facts, and rough length band, and does not act as an autonomous co-author during rewrite.
+**Current backend phase:** Outline-Faithful Editorial Reliability. This phase addresses generation-side variance inside rewrite and rescue generation after rescue-plumbing closeout. The operating principle remains constrained assistance: the model trails the outline, preserves scene intent, character facts, and rough length band, and does not act as an autonomous co-author during rewrite.
 
 **Transition note:** rescue plumbing is closed because the replay regression pack stayed green, adversarial remained healthy, and the remaining clean misses were artifact-confirmed as generation-side classes (`dialogue_grounding_unresolved`, `patch_dialogue_grounding_unresolved`, `patch_specificity_unresolved`) rather than deterministic rescue-path regressions.
+
+**Phase definition:** this phase is about editorial quality stability, not rescue-path wiring. It covers prompt/model strategy, slot-level quality shaping, and outline-faithful rewrite behavior. It does not reopen slot binding, stale-target handling, followthrough-credit plumbing, or other bounded-slot transport bugs unless a new artifact proves a deterministic regression.
+
+**Phase success criteria:**
+- rescue/edit quality becomes stable enough that remaining clean misses are clearly rarer than the post-plumbing baseline
+- outline-faithful behavior remains intact: no subject drift, no invented story events, no wild local or scene-level length drift
+- adversarial healthy-path behavior remains intact
+- replay fixtures for prior plumbing bugs remain green while live misses trend toward generation-side quality only
+- acceptable remaining misses are rare generation-side classes such as dialogue grounding or specificity underreach; deterministic rescue-path regressions are not acceptable
+
+**Ranked workstreams:**
+1. **Rescue model strategy by failure class** - determine when rescue should stay on the current path versus use a stronger model for generation-side misses such as dialogue grounding and specificity. This matters because current evidence shows the remaining misses are patch-generation quality misses rather than binding/validator failures.
+2. **Editorial prompt strategy for outline-faithful rescue** - tighten how rescue and rewrite prompts request concrete, local, outline-faithful edits without broadening the rewrite scope. This matters because current failures are often under-grounded or under-specific rather than structurally broken.
+3. **Generation-variance measurement and slot-level quality shaping** - measure repeated rescue behavior on stable fixtures and live samples, then add quality-shaping passes that improve literal grounding/specificity without reopening plumbing. This matters because the remaining variance is stochastic and needs measurement, not more bug-hunting.
+
+**First milestone:** conditional stronger-model rescue trial for generation-side classes only. Run a bounded experiment where rescue generation escalates only for artifact-confirmed generation-side misses (`dialogue_grounding_unresolved`, `patch_dialogue_grounding_unresolved`, `patch_specificity_unresolved`) while keeping the current bounded-slot plumbing, validators, and outline-faithful guardrails unchanged.
 
 ### Key deliverables
 - Inline **Insights overlay** for contextual guidance and feedback  
