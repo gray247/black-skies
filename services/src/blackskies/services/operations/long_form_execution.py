@@ -1817,6 +1817,13 @@ class LongFormExecutionService:
             target_text = str(target.get("target_text") or "").strip()
             if target_text and target_text in patched_text:
                 return target, target_text
+            rebound_target_text = self._find_best_local_patch_unit(
+                current_text=patched_text,
+                target_text=target_text,
+                target_phrase=str(target.get("target_phrase") or "").strip() or None,
+            )
+            if rebound_target_text and rebound_target_text in patched_text:
+                return target, rebound_target_text
         normalized_requested = self._normalize_patch_target_text(requested_target_text)
         normalized_candidates: list[tuple[dict[str, Any], str, str]] = []
         for candidate in patch_targets:
@@ -1854,6 +1861,14 @@ class LongFormExecutionService:
                     best_score = overlap
             if best_match is not None:
                 return best_match
+        rebound_requested = self._find_best_local_patch_unit(
+            current_text=patched_text,
+            target_text=requested_target_text,
+        )
+        if rebound_requested and rebound_requested in patched_text:
+            fallback_target = target or (normalized_candidates[0][0] if normalized_candidates else None)
+            if fallback_target is not None:
+                return fallback_target, rebound_requested
         return None, None
 
     def _is_dialogue_span(self, text: str | None) -> bool:
@@ -1959,8 +1974,13 @@ class LongFormExecutionService:
             max_ratio = 1.8 if mode == "repair_only" else 2.4
             if replacement_word_count < int(target_word_count * min_ratio) or replacement_word_count > int(target_word_count * max_ratio) + 8:
                 return {"accepted": False, "failure_class": "patch_length_distortion"}
-            new_names = self._capitalized_terms(replacement_text) - allowed_names
-            if new_names:
+            if not self._local_patch_fidelity_ok(
+                source_text=source_text,
+                target_text=target_text,
+                replacement_text=replacement_text,
+                allowed_names=allowed_names,
+                rescue_contract=rescue_contract,
+            ):
                 return {"accepted": False, "failure_class": "patch_fidelity_risk"}
             if target_type == "generic":
                 target_quality = score_long_form_quality(target_text)
@@ -2039,6 +2059,33 @@ class LongFormExecutionService:
     def _generic_specificity_signal_count(self, text: str | None) -> int:
         markers = set(self._PATCH_ACTION_MARKERS) | set(self._PATCH_SENSORY_MARKERS) | set(self._PATCH_SETTING_MARKERS)
         return sum(1 for marker in markers if self._marker_present(text, marker))
+
+    def _local_patch_fidelity_ok(
+        self,
+        *,
+        source_text: str,
+        target_text: str,
+        replacement_text: str,
+        allowed_names: set[str],
+        rescue_contract: dict[str, Any] | None,
+    ) -> bool:
+        replacement_name_counts = self._capitalized_term_counts(replacement_text)
+        source_lower_tokens = set(re.findall(r"\b[a-z]{3,}\b", f"{source_text} {target_text}".lower()))
+        unexpected_names = [
+            term
+            for term, count in replacement_name_counts.items()
+            if term not in allowed_names and term not in source_lower_tokens and count > 0
+        ]
+        if unexpected_names:
+            return False
+
+        target_anchors = set(self._anchor_terms(target_text, limit=8))
+        replacement_anchors = set(self._anchor_terms(replacement_text, limit=8))
+        required_anchors = set(str(term).lower() for term in ((rescue_contract or {}).get("required_concrete_anchor_terms") or []))
+        if target_anchors and not (target_anchors & replacement_anchors):
+            if required_anchors and not (required_anchors & replacement_anchors):
+                return False
+        return True
 
     def _extract_sentences_with_terms(
         self,

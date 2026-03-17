@@ -1506,6 +1506,52 @@ def test_refresh_rescue_contract_keeps_patch_target_after_prior_patch_changes_te
     assert any("heart raced" in target["target_text"].lower() for target in refreshed["patch_targets"])
 
 
+def test_patch_validation_rebinds_stale_target_after_prior_patch_edit(tmp_path: Path) -> None:
+    service = _service(tmp_path, _long_text())
+    chapter_memory = ChapterMemoryPacket(
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chapter_context="Chapter One",
+        locked_facts=[],
+        accumulated_summaries=[],
+        unresolved_tensions=[],
+        emotional_carryover=None,
+        pacing_carryover=None,
+        scene_titles=["Tavern Alley"],
+        beat_refs=[],
+    )
+    continuation = SimpleNamespace(
+        prior_summary=None,
+        prior_excerpt=None,
+        chapter_memory=chapter_memory,
+        chapter_id="ch_0001",
+    )
+    source_text = (
+        "Come on! Thomas stepped closer, his grin wide and infectious, momentarily pushing the shadows back into the corners of her mind. "
+        "You can't stay out here all night. It's freezing! He stepped closer, his body radiating warmth that seeped through her cloak, a gentle balm against the chill that had settled deep in her bones."
+    )
+    stale_target = "Itâ€™s freezing!â€ The warmth of his presence wrapped around her, a flicker of comfort against the chill that had settled deep in her bones."
+    rebound_span = "It's freezing! He stepped closer, his body radiating warmth that seeped through her cloak, a gentle balm against the chill that had settled deep in her bones."
+
+    result = service._validate_and_apply_patch_response(
+        source_text=source_text,
+        patch_targets=[{"span_id": "p1", "target_type": "generic", "target_text": stale_target, "target_phrase": "flicker of"}],
+        patch_response=[
+            {
+                "span_id": "p1",
+                "target_text": stale_target,
+                "replacement_text": "It's freezing! He stepped closer until the tavern light caught the wet edge of her cloak and warmed the cold seam at her shoulder.",
+            }
+        ],
+        continuation=continuation,
+        rescue_contract={"required_concrete_anchor_terms": ["tavern", "cloak"]},
+        mode="repair_only",
+    )
+
+    assert result["accepted"] is True
+    assert rebound_span not in result["patched_text"]
+
+
 def test_patch_validation_accepts_specificity_lift_with_concrete_local_detail(tmp_path: Path) -> None:
     service = _service(tmp_path, _long_text())
     chapter_memory = ChapterMemoryPacket(
@@ -1540,6 +1586,46 @@ def test_patch_validation_accepts_specificity_lift_with_concrete_local_detail(tm
         ],
         continuation=continuation,
         rescue_contract={"patch_targets": []},
+        mode="recovery_retry",
+    )
+
+    assert result["accepted"] is True
+
+
+def test_patch_validation_allows_local_concrete_rewording_without_fidelity_drift(tmp_path: Path) -> None:
+    service = _service(tmp_path, _long_text())
+    chapter_memory = ChapterMemoryPacket(
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chapter_context="Chapter One",
+        locked_facts=[],
+        accumulated_summaries=[],
+        unresolved_tensions=[],
+        emotional_carryover=None,
+        pacing_carryover=None,
+        scene_titles=["Alley"],
+        beat_refs=[],
+    )
+    continuation = SimpleNamespace(
+        prior_summary=None,
+        prior_excerpt=None,
+        chapter_memory=chapter_memory,
+        chapter_id="ch_0001",
+    )
+    target_text = "The distant rumble of thunder rolled overhead, a low growl that mirrored her growing unease."
+
+    result = service._validate_and_apply_patch_response(
+        source_text=target_text + " Jamie pressed her back against the brick wall.",
+        patch_targets=[{"span_id": "p1", "target_type": "generic", "target_text": target_text}],
+        patch_response=[
+            {
+                "span_id": "p1",
+                "target_text": target_text,
+                "replacement_text": "Thunder rolled over the alley roof, and the sound rattled against the brick wall behind Jamie like the warning she had been trying not to hear.",
+            }
+        ],
+        continuation=continuation,
+        rescue_contract={"required_concrete_anchor_terms": ["brick", "alley", "jamie"]},
         mode="recovery_retry",
     )
 
@@ -1585,6 +1671,47 @@ def test_patch_validation_rejects_specificity_patch_that_stays_vague(tmp_path: P
 
     assert result["accepted"] is False
     assert result["failure_class"] == "patch_specificity_unresolved"
+
+
+def test_patch_validation_still_rejects_local_drift_with_new_story_element(tmp_path: Path) -> None:
+    service = _service(tmp_path, _long_text())
+    chapter_memory = ChapterMemoryPacket(
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chapter_context="Chapter One",
+        locked_facts=[],
+        accumulated_summaries=[],
+        unresolved_tensions=[],
+        emotional_carryover=None,
+        pacing_carryover=None,
+        scene_titles=["Kitchen Annex"],
+        beat_refs=[],
+    )
+    continuation = SimpleNamespace(
+        prior_summary=None,
+        prior_excerpt=None,
+        chapter_memory=chapter_memory,
+        chapter_id="ch_0001",
+    )
+    target_text = "Clara gave him a thin nod, but the words trailed off while she watched the coffee drip for a moment instead of answering him."
+
+    result = service._validate_and_apply_patch_response(
+        source_text=_patch_rescue_weak_source_text(),
+        patch_targets=[{"span_id": "p1", "target_type": "generic", "target_text": target_text}],
+        patch_response=[
+            {
+                "span_id": "p1",
+                "target_text": target_text,
+                "replacement_text": "Mara gave him a thin nod, sliding the sealed ledger under her coat while she watched the coffee drip for a moment instead of answering him.",
+            }
+        ],
+        continuation=continuation,
+        rescue_contract={"required_concrete_anchor_terms": ["coffee", "coat"]},
+        mode="recovery_retry",
+    )
+
+    assert result["accepted"] is False
+    assert result["failure_class"] == "patch_fidelity_risk"
 
 
 def test_long_form_execution_repair_only_can_fix_dialogue_grounding_after_patch_miss(
