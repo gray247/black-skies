@@ -105,6 +105,28 @@ class LongFormExecutionService:
         "looked", "watched", "leaned", "nudge", "nudged", "held", "lifted", "turned",
         "stepped", "kept", "wiped", "tapped", "clicked", "dragged", "slid",
     )
+    _PATCH_SENSORY_MARKERS = (
+        "cold", "warm", "hot", "wet", "damp", "bitter", "sweet", "sharp", "rough",
+        "slick", "steam", "rain", "glass", "ceramic", "mug", "puddle", "gravel",
+        "petal", "stem", "cheek", "skin", "breath", "mist", "coat", "lamp", "streetlamp",
+    )
+    _VAGUE_SENTENCE_MARKERS = (
+        "felt like",
+        "felt ",
+        "seemed to",
+        "seemed ",
+        "as if",
+        "uncertainty",
+        "unease",
+        "tension",
+        "serenity",
+        "reverie",
+        "swirling emotions",
+        "hung in the air",
+        "distant",
+        "hard to pin down",
+        "unspoken words",
+    )
 
     def __init__(
         self,
@@ -1423,7 +1445,8 @@ class LongFormExecutionService:
             "HARD RESCUE OBLIGATIONS:\n"
             f"- Add at least {rescue_contract.get('minimum_action_cues_to_add')} visible action/gesture/object cues across the targeted beats.\n"
             "- Every targeted dialogue beat must gain nearby action, gesture, handled object, or setting cue.\n"
-            "- Every targeted generic phrase must be replaced with concrete visible detail.\n"
+            "- Every targeted generic phrase must be replaced with one concrete physical, sensory, or object-level detail in the replacement span.\n"
+            "- Replace the exact weak line, not just its mood; keep the same meaning but make the line more observable on the page.\n"
             f"- Raise specificity by at least {rescue_contract.get('minimum_specificity_delta')} if targeted, or add concrete scene detail.\n"
             f"- Raise clarity by at least {rescue_contract.get('minimum_clarity_delta')} if targeted.\n\n"
             "PATCH TARGETS JSON:\n"
@@ -1473,7 +1496,8 @@ class LongFormExecutionService:
             "- Return JSON only.\n"
             "- Keep dialogue order and overall paragraph flow where possible.\n"
             "- Preserve approximately the same paragraph count and scene beat count.\n"
-            "- Add only the missing action/gesture/object cues or concrete details.\n"
+            "- Add only the missing action/gesture/object cues or concrete physical or sensory details on the targeted lines.\n"
+            "- Replace the exact weak phrase in the targeted span; do not answer with another vague paraphrase.\n"
             "- Do not compress the scene into a short excerpt, summary, or tail fragment.\n"
             "- Do not broadly rephrase already acceptable sections.\n"
             "PATCH TARGETS JSON:\n"
@@ -1590,7 +1614,89 @@ class LongFormExecutionService:
                     break
             add_target(line, "generic", phrase)
 
+        if not targets:
+            fallback_generic_lines = self._extract_vague_emotional_sentences(original_text, limit=3)
+            for line in fallback_generic_lines:
+                add_target(line, "generic")
+
         return targets[:6]
+
+    def _normalize_patch_target_text(self, text: str | None) -> str:
+        normalized = (text or "").strip().lower()
+        normalized = normalized.replace("“", '"').replace("”", '"').replace("’", "'").replace("—", "-")
+        normalized = re.sub(r"\s+", " ", normalized)
+        normalized = re.sub(r"[^\w\s\"'-]", "", normalized)
+        return normalized.strip()
+
+    def _extract_vague_emotional_sentences(self, text: str | None, *, limit: int = 3) -> list[str]:
+        if not text:
+            return []
+        sentences = re.split(r"(?<=[.!?])\s+", text.strip())
+        matches: list[str] = []
+        for sentence in sentences:
+            lowered = sentence.lower()
+            if not any(marker in lowered for marker in self._VAGUE_SENTENCE_MARKERS):
+                continue
+            cleaned = sentence.strip()
+            if cleaned and cleaned not in matches:
+                matches.append(cleaned)
+            if len(matches) >= limit:
+                break
+        return matches
+
+    def _find_patch_target(
+        self,
+        *,
+        patched_text: str,
+        patch_targets: list[dict[str, Any]],
+        span_id: str,
+        requested_target_text: str,
+    ) -> tuple[dict[str, Any] | None, str | None]:
+        target_by_id = {
+            str(target.get("span_id")): target
+            for target in patch_targets
+            if isinstance(target, dict) and target.get("span_id")
+        }
+        target = target_by_id.get(span_id)
+        if target:
+            target_text = str(target.get("target_text") or "").strip()
+            if target_text and target_text in patched_text:
+                return target, target_text
+        normalized_requested = self._normalize_patch_target_text(requested_target_text)
+        normalized_candidates: list[tuple[dict[str, Any], str, str]] = []
+        for candidate in patch_targets:
+            if not isinstance(candidate, dict):
+                continue
+            candidate_text = str(candidate.get("target_text") or "").strip()
+            if not candidate_text:
+                continue
+            normalized_candidates.append(
+                (candidate, candidate_text, self._normalize_patch_target_text(candidate_text))
+            )
+        if normalized_requested:
+            for candidate, candidate_text, normalized_candidate in normalized_candidates:
+                if normalized_candidate == normalized_requested and candidate_text in patched_text:
+                    return candidate, candidate_text
+            request_tokens = set(token for token in normalized_requested.split() if len(token) > 2)
+            best_match: tuple[dict[str, Any], str] | None = None
+            best_score = 0.0
+            for candidate, candidate_text, normalized_candidate in normalized_candidates:
+                if candidate_text not in patched_text:
+                    continue
+                candidate_tokens = set(token for token in normalized_candidate.split() if len(token) > 2)
+                if not candidate_tokens or not request_tokens:
+                    continue
+                overlap = len(candidate_tokens & request_tokens) / max(len(candidate_tokens), len(request_tokens))
+                if overlap >= 0.6 and overlap > best_score:
+                    best_match = (candidate, candidate_text)
+                    best_score = overlap
+            if best_match is not None:
+                return best_match
+        return None, None
+
+    def _is_dialogue_span(self, text: str | None) -> bool:
+        candidate = str(text or "")
+        return any(marker in candidate for marker in {'"', "“", "”"})
 
     def _parse_patch_response(self, raw_text: str | None) -> list[dict[str, Any]] | None:
         if not isinstance(raw_text, str) or not raw_text.strip():
@@ -1648,16 +1754,6 @@ class LongFormExecutionService:
     ) -> dict[str, Any]:
         if not patch_response:
             return {"accepted": False, "failure_class": "patch_parse_failed"}
-        target_by_id = {
-            str(target.get("span_id")): target
-            for target in patch_targets
-            if isinstance(target, dict) and target.get("span_id")
-        }
-        target_by_text = {
-            str(target.get("target_text") or "").strip(): target
-            for target in patch_targets
-            if isinstance(target, dict) and str(target.get("target_text") or "").strip()
-        }
         allowed_names = (
             self._capitalized_terms(source_text)
             | self._capitalized_terms(continuation.prior_summary)
@@ -1670,18 +1766,18 @@ class LongFormExecutionService:
         for patch in patch_response:
             span_id = str(patch.get("span_id"))
             requested_target_text = str(patch.get("target_text") or "").strip()
-            target = target_by_id.get(span_id)
-            if requested_target_text:
-                text_matched_target = target_by_text.get(requested_target_text)
-                if text_matched_target is not None:
-                    target = text_matched_target
-            if not target:
+            target, target_text = self._find_patch_target(
+                patched_text=patched_text,
+                patch_targets=patch_targets,
+                span_id=span_id,
+                requested_target_text=requested_target_text,
+            )
+            if not target or not target_text:
                 return {"accepted": False, "failure_class": "patch_target_missing"}
-            target_text = str(target.get("target_text") or patch.get("target_text") or "")
             replacement_text = str(patch.get("replacement_text") or "")
-            if target_text not in patched_text:
-                return {"accepted": False, "failure_class": "patch_target_missing"}
             target_type = str(target.get("target_type") or "generic")
+            if self._is_dialogue_span(target_text) or self._is_dialogue_span(requested_target_text):
+                target_type = "dialogue"
             target_phrase = str(target.get("target_phrase") or "").lower()
             lowered_replacement = replacement_text.lower()
             if target_type == "dialogue":
@@ -1705,6 +1801,7 @@ class LongFormExecutionService:
                 if (
                     int(replacement_quality.get("concrete_hits") or 0) < 1
                     and int(replacement_quality.get("sensory_hits") or 0) < 1
+                    and not any(marker in lowered_replacement for marker in self._PATCH_SENSORY_MARKERS)
                     and not any(marker in lowered_replacement for marker in self._PATCH_ACTION_MARKERS)
                 ):
                     return {"accepted": False, "failure_class": "patch_specificity_unresolved"}

@@ -7,6 +7,7 @@ from types import SimpleNamespace
 from blackskies.services.config import ServiceSettings
 from blackskies.services.diagnostics import DiagnosticLogger
 from blackskies.services.long_form import ChapterMemoryPacket
+from blackskies.services.long_form import score_long_form_quality
 from blackskies.services.model_router import ModelRouter, ModelSpec, ModelTask
 from blackskies.services.model_routing import ModelRouterConfig, ModelRoutingPolicy
 from blackskies.services.model_adapters import AdapterConfig, AdapterError, BaseAdapter
@@ -1591,6 +1592,229 @@ def test_long_form_execution_repair_only_still_fails_when_generic_target_remains
     chunk = result.chunks[0]
     assert chunk.retry_snapshot is not None
     assert chunk.retry_snapshot["rescue_failure_class"] in {"patch_generic_replacement_unresolved", "generic_replacement_unresolved"}
+
+
+def test_long_form_execution_patch_target_fallback_binds_vague_line(
+    tmp_path: Path,
+) -> None:
+    settings = ServiceSettings(
+        project_base_dir=tmp_path,
+        long_form_provider_enabled=True,
+        local_llm_rewrite_retry_model="qwen3:14b",
+    )
+    diagnostics = DiagnosticLogger()
+    router = ModelRouter(
+        config=ModelRouterConfig(
+            policy=ModelRoutingPolicy.LOCAL_ONLY,
+            provider_calls_enabled=True,
+        )
+    )
+    service = LongFormExecutionService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=router,
+        enabled=True,
+    )
+    rewritten_text = (
+        "Anna stood under the streetlamp while rain slid down her coat and pooled around her shoes. "
+        "Tom came through the rain with a grin that felt out of place against the empty street. "
+        "\"Maybe a bit of both,\" she replied, forcing a smile that felt like a mask over her unease. "
+        "The water kept ticking against the curb while she held herself still beside the stop sign.\n\n"
+        "Rainwater threaded off the bus shelter in thin ropes and snapped against the bench slats. "
+        "Anna kept one hand in her pocket and the other around her sleeve while traffic hissed past the corner. "
+        "Tom lingered near the pole with his soaked hair plastered flat, waiting for her to say more. "
+        "She watched the gutter carry wrappers toward the drain instead of meeting his eyes.\n\n"
+        "A truck rolled through the intersection and threw pale light over the puddles around their shoes. "
+        "Anna shifted her weight against the signpost and felt the metal buzz faintly under her palm. "
+        "Tom's grin softened when he saw her jaw tighten, but he stayed where she had left room for him. "
+        "The rain kept needling her collar and tracing a cold line along her neck.\n\n"
+        "\"Maybe a bit of both,\" she replied, forcing a smile that felt like a mask over her unease. "
+        "The bus schedule flapped once behind her shoulder while the stoplight clicked over to red. "
+        "Tom tipped his chin toward the curb, his sneakers half-submerged in the runoff. "
+        "Anna rubbed her thumb across the seam of her sleeve and listened to the water tick against the signpost. "
+    )
+    critique = json.dumps(
+        {
+            "summary": "Replace vague emotional phrasing with observable action.",
+            "weaknesses": ["specificity", "clarity"],
+            "continuity_issues": [],
+            "pacing_issues": [],
+            "meta_contamination": False,
+            "rewrite_goals": ["Replace vague emotional language with visible behavior."],
+            "emotional_show_targets": ["Show Anna's discomfort through action instead of abstract emotion."],
+        }
+    )
+    chapter_memory = ChapterMemoryPacket(
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chapter_context="Chapter One",
+        locked_facts=[],
+        accumulated_summaries=[],
+        unresolved_tensions=[],
+        emotional_carryover=None,
+        pacing_carryover=None,
+        scene_titles=["Rain Stop"],
+        beat_refs=["Anna stalls at the bus stop while Tom approaches."],
+    )
+    continuation = SimpleNamespace(
+        prior_summary=None,
+        prior_excerpt=None,
+        chapter_memory=chapter_memory,
+        chapter_id="ch_0001",
+    )
+    rescue_contract = service._build_rescue_contract(
+        original_text=rewritten_text,
+        continuation=continuation,
+        critique_snapshot=json.loads(critique),
+        quality_snapshot=score_long_form_quality(rewritten_text),
+    )
+    patch_response = service._parse_patch_response(
+        _structured_patch_payload(
+            {
+                "span_id": "p1",
+                "target_text": "Tom came through the rain with a grin that felt out of place against the empty street.",
+                "replacement_text": "Tom came through the rain with a grin that tightened when runoff splashed over his canvas shoes and the bus shelter light flashed across his soaked jaw.",
+            }
+        )
+    )
+    patch_result = service._validate_and_apply_patch_response(
+        source_text=rewritten_text,
+        patch_targets=list(rescue_contract["patch_targets"]),
+        patch_response=patch_response,
+        continuation=continuation,
+        rescue_contract=rescue_contract,
+        mode="recovery_retry",
+    )
+
+    assert rescue_contract["patch_targets"]
+    assert patch_result["accepted"] is True
+    patched_text = patch_result["patched_text"]
+    assert "runoff splashed over his canvas shoes" in patched_text
+    assert patch_result["patch_snapshots"][0]["target_type"] == "generic"
+    assert abs(len(patched_text.split()) - len(rewritten_text.split())) <= 12
+
+
+def test_long_form_execution_patch_specificity_accepts_concrete_local_detail(
+    tmp_path: Path,
+) -> None:
+    project_root = tmp_path / "proj_patch_specificity_concrete"
+    project_root.mkdir(parents=True, exist_ok=True)
+    settings = ServiceSettings(
+        project_base_dir=tmp_path,
+        long_form_provider_enabled=True,
+        local_llm_rewrite_retry_model="qwen3:14b",
+    )
+    diagnostics = DiagnosticLogger()
+    router = ModelRouter(
+        config=ModelRouterConfig(
+            policy=ModelRoutingPolicy.LOCAL_ONLY,
+            provider_calls_enabled=True,
+        )
+    )
+    critique = json.dumps(
+        {
+            "summary": "Replace stock emotional phrasing with concrete kitchen action without changing the scene.",
+            "weaknesses": ["specificity", "clarity"],
+            "continuity_issues": [],
+            "pacing_issues": [],
+            "meta_contamination": False,
+            "rewrite_goals": ["Replace generic stock phrases", "Keep the same kitchen scene and dialogue order"],
+            "detail_targets": ["Use the chipped Formica, cracked mug, and coffee pot."],
+        }
+    )
+    concrete_patch = _structured_patch_payload(
+        {
+            "span_id": "p1",
+            "target_text": "Clara gave him a thin nod, but the words trailed off while she watched the coffee drip for a moment instead of answering him.",
+            "replacement_text": "Clara gave him a thin nod, rubbed the chipped mug handle with her thumb, and watched a dark bead of coffee slide down the glass pot before she answered him.",
+        }
+    )
+    adapter = _CritiqueRewriteAdapter(
+        _patch_rescue_weak_source_text(),
+        critique,
+        _patch_rescue_weak_source_text(),
+        concrete_patch,
+    )
+    router.register_provider(_FakeProvider(adapter))
+    service = LongFormExecutionService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=router,
+        enabled=True,
+    )
+
+    result = service.execute(
+        project_root=project_root,
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chunk_size=1,
+        target_words_per_chunk=400,
+    )
+
+    assert result.stopped_reason is None
+    assert result.chunks[0].retry_snapshot["patch_rescue_success"] is True
+
+
+def test_long_form_execution_patch_specificity_still_fails_when_replacement_stays_vague(
+    tmp_path: Path,
+) -> None:
+    project_root = tmp_path / "proj_patch_specificity_vague"
+    project_root.mkdir(parents=True, exist_ok=True)
+    settings = ServiceSettings(
+        project_base_dir=tmp_path,
+        long_form_provider_enabled=True,
+        local_llm_rewrite_retry_model="qwen3:14b",
+    )
+    diagnostics = DiagnosticLogger()
+    router = ModelRouter(
+        config=ModelRouterConfig(
+            policy=ModelRoutingPolicy.LOCAL_ONLY,
+            provider_calls_enabled=True,
+        )
+    )
+    critique = json.dumps(
+        {
+            "summary": "Replace the generic line with concrete scene detail.",
+            "weaknesses": ["specificity", "clarity"],
+            "continuity_issues": [],
+            "pacing_issues": [],
+            "meta_contamination": False,
+            "rewrite_goals": ["Replace generic stock phrases", "Keep the same kitchen scene and dialogue order"],
+        }
+    )
+    vague_patch = _structured_patch_payload(
+        {
+            "span_id": "p1",
+            "target_text": "Clara gave him a thin nod, but the words trailed off while she watched the coffee drip for a moment instead of answering him.",
+            "replacement_text": "Clara gave him a thin nod, pausing there while the feeling lingered and the moment stayed difficult to name.",
+        }
+    )
+    adapter = _CritiqueRewriteAdapter(
+        _patch_rescue_weak_source_text(),
+        critique,
+        _patch_rescue_weak_source_text(),
+        vague_patch,
+    )
+    router.register_provider(_FakeProvider(adapter))
+    service = LongFormExecutionService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=router,
+        enabled=True,
+    )
+
+    result = service.execute(
+        project_root=project_root,
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chunk_size=1,
+        target_words_per_chunk=400,
+    )
+
+    assert result.stopped_reason == "quality_failed"
+    chunk = result.chunks[0]
+    assert chunk.retry_snapshot is not None
+    assert chunk.retry_snapshot["rescue_failure_class"] == "patch_specificity_unresolved"
 
 
 def test_long_form_execution_rejects_cosmetic_rewrite_without_meaningful_delta(
