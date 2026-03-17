@@ -34,6 +34,7 @@ def _runtime_summary(settings: ServiceSettings) -> dict[str, Any]:
         "resolved_base_url": settings.openai_base_url,
         "resolved_model": settings.openai_model,
         "rewrite_retry_model": settings.openai_rewrite_retry_model,
+        "rescue_model": settings.openai_rescue_model or settings.openai_rewrite_retry_model or settings.openai_model,
         "routing_policy": str(settings.model_routing_policy.value),
         "provider_calls_enabled": bool(settings.model_router_provider_calls_enabled),
         "long_form_provider_enabled": bool(settings.long_form_provider_enabled),

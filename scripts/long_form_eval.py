@@ -153,6 +153,7 @@ def validate_runtime_preflight(
         "resolved_base_url": runtime.get("resolved_base_url"),
         "resolved_model": runtime.get("resolved_model"),
         "rewrite_retry_model": runtime.get("rewrite_retry_model"),
+        "rescue_model": runtime.get("rescue_model"),
         "routing_policy": routing_policy,
         "provider_calls_enabled": provider_calls_enabled,
         "long_form_provider_enabled": long_form_provider_enabled,

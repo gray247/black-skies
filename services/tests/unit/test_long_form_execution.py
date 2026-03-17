@@ -1276,12 +1276,12 @@ def test_long_form_execution_recovers_borderline_quality_failure_with_single_ret
     assert chunk.retry_snapshot["used"] is True
     assert chunk.retry_snapshot["succeeded"] is True
     assert chunk.retry_snapshot["reason"] == "targeted_editorial_miss_after_rewrite"
-    assert chunk.retry_snapshot["stronger_model_used"] is False
+    assert chunk.retry_snapshot["stronger_model_used"] is True
     assert chunk.retry_snapshot["rescue_mode_used"] is True
-    assert chunk.retry_snapshot["rescue_model_used"] is False
-    assert chunk.retry_snapshot["model_snapshot"]["escalated"] is False
-    assert chunk.retry_snapshot["conditional_rescue_escalation_used"] is False
-    assert chunk.retry_snapshot["conditional_rescue_escalation_trigger"] is None
+    assert chunk.retry_snapshot["rescue_model_used"] is True
+    assert chunk.retry_snapshot["rescue_model_name"] == "qwen3:14b"
+    assert chunk.retry_snapshot["model_snapshot"]["escalated"] is True
+    assert chunk.retry_snapshot["model_snapshot"]["reason"] == "rescue_model_stub"
     assert chunk.retry_snapshot["patch_rescue_success"] is True
     assert chunk.guardrail_snapshot is not None
     assert chunk.guardrail_snapshot["evaluated"] is True
@@ -1295,12 +1295,13 @@ def test_long_form_execution_recovers_borderline_quality_failure_with_single_ret
     payload = json.loads(diag_path.read_text(encoding="utf-8"))
     assert payload["retry_snapshot"]["used"] is True
     assert payload["retry_snapshot"]["succeeded"] is True
-    assert payload["retry_snapshot"]["stronger_model_used"] is False
+    assert payload["retry_snapshot"]["stronger_model_used"] is True
     assert payload["retry_snapshot"]["rescue_mode_used"] is True
-    assert payload["retry_snapshot"]["rescue_model_used"] is False
+    assert payload["retry_snapshot"]["rescue_model_used"] is True
+    assert payload["retry_snapshot"]["rescue_model_name"] == "qwen3:14b"
     assert payload["guardrail_snapshot"]["mode"] == "recovery_retry"
     assert payload["attempts"][2]["mode"] == "recovery_retry"
-    assert payload["attempts"][2]["model_snapshot"]["escalated"] is False
+    assert payload["attempts"][2]["model_snapshot"]["escalated"] is True
     assert "RESCUE SLOTS JSON:" in str(adapter.last_rewrite_payload["prompt"])
     assert "\"patches\"" in str(adapter.last_rewrite_payload["prompt"])
 
@@ -2454,12 +2455,7 @@ def test_long_form_execution_repair_only_can_fix_dialogue_grounding_after_patch_
     assert chunk.retry_snapshot["repair_only_pass_rescued"] is True
     assert chunk.retry_snapshot["stronger_model_used"] is True
     assert chunk.retry_snapshot["rescue_model_used"] is True
-    assert chunk.retry_snapshot["conditional_rescue_escalation_used"] is True
-    assert chunk.retry_snapshot["conditional_rescue_escalation_trigger"] in {
-        "patch_dialogue_grounding_unresolved",
-        "patch_specificity_unresolved",
-    }
-    assert chunk.retry_snapshot["conditional_rescue_escalation_succeeded"] is True
+    assert chunk.retry_snapshot["rescue_model_name"] == "qwen3:14b"
     assert chunk.retry_snapshot["patch_rescue_success"] is True
     diag_path = (
         project_root
@@ -2469,11 +2465,7 @@ def test_long_form_execution_repair_only_can_fix_dialogue_grounding_after_patch_
         / f"{chunk.chunk_id}.json"
     )
     payload = json.loads(diag_path.read_text(encoding="utf-8"))
-    assert payload["retry_snapshot"]["conditional_rescue_escalation_used"] is True
-    assert payload["retry_snapshot"]["conditional_rescue_escalation_trigger"] in {
-        "patch_dialogue_grounding_unresolved",
-        "patch_specificity_unresolved",
-    }
+    assert payload["retry_snapshot"]["rescue_model_name"] == "qwen3:14b"
     assert payload["attempts"][3]["mode"] == "repair_only"
     assert payload["attempts"][3]["model_snapshot"]["escalated"] is True
 
@@ -2688,8 +2680,7 @@ def test_long_form_execution_repair_only_rejects_length_collapse(
     chunk = result.chunks[0]
     assert chunk.retry_snapshot is not None
     assert chunk.retry_snapshot["rescue_failure_class"] == "patch_length_distortion"
-    assert chunk.retry_snapshot["conditional_rescue_escalation_used"] is True
-    assert chunk.retry_snapshot["conditional_rescue_escalation_trigger"] == "patch_specificity_unresolved"
+    assert chunk.retry_snapshot["rescue_model_name"] == "qwen3:14b"
     diag_path = (
         project_root
         / ".blackskies"
@@ -2699,7 +2690,7 @@ def test_long_form_execution_repair_only_rejects_length_collapse(
     )
     payload = json.loads(diag_path.read_text(encoding="utf-8"))
     assert payload["attempts"][-1]["patch_validation"]["failure_class"] == "patch_length_distortion"
-    assert payload["retry_snapshot"]["conditional_rescue_escalation_used"] is True
+    assert payload["retry_snapshot"]["rescue_model_name"] == "qwen3:14b"
 
 
 def test_long_form_execution_repair_only_still_fails_when_generic_target_remains(
@@ -3830,8 +3821,7 @@ def test_long_form_execution_rejects_outline_drift_in_rescue_retry(tmp_path: Pat
     assert chunk.retry_snapshot is not None
     assert chunk.retry_snapshot["rescue_failure_class"] == "patch_fidelity_risk"
     assert chunk.retry_snapshot["rescue_fidelity_risk"] is True
-    assert chunk.retry_snapshot["conditional_rescue_escalation_used"] is False
-    assert chunk.retry_snapshot["conditional_rescue_escalation_trigger"] is None
+    assert chunk.retry_snapshot["rescue_model_name"] == "qwen3:14b"
 
 
 def test_long_form_execution_rejects_length_band_violation_in_rescue_retry(tmp_path: Path) -> None:
