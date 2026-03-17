@@ -416,13 +416,11 @@ def _patch_rescue_weak_source_text() -> str:
 def _patch_rescue_success_payload() -> str:
     return _structured_patch_payload(
         {
-            "span_id": "p1",
-            "target_text": "Clara gave him a thin nod, but the words trailed off while she watched the coffee drip for a moment instead of answering him.",
+            "slot_id": "s1",
             "replacement_text": "Clara gave him a thin nod, rubbed her thumb along the hot mug handle, and watched a brown line slide down the glass pot before she looked up to answer him.",
         },
         {
-            "span_id": "p2",
-            "target_text": "\"I'm trying,\" she said, and the silence hung in the air between them while her thumb stayed hooked around the mug handle.",
+            "slot_id": "s2",
             "replacement_text": "\"I'm trying,\" she said, gripping the mug handle until the ceramic tapped the counter while the burner clicked behind her and steam brushed her cheek.",
         },
     )
@@ -431,8 +429,7 @@ def _patch_rescue_success_payload() -> str:
 def _patch_rescue_generic_fail_payload() -> str:
     return _structured_patch_payload(
         {
-            "span_id": "p1",
-            "target_text": "Clara gave him a thin nod, but the words trailed off while she watched the coffee drip for a moment instead of answering him.",
+            "slot_id": "s1",
             "replacement_text": "Clara gave him a thin nod, but the words trailed off while she watched the coffee drip for a moment instead of answering him.",
         }
     )
@@ -441,9 +438,8 @@ def _patch_rescue_generic_fail_payload() -> str:
 def _patch_rescue_dialogue_fail_payload() -> str:
     return _structured_patch_payload(
         {
-            "span_id": "p2",
-            "target_text": "\"I'm trying,\" she said, and the silence hung in the air between them while her thumb stayed hooked around the mug handle.",
-            "replacement_text": "\"I'm trying,\" she said.",
+            "slot_id": "s2",
+            "replacement_text": "\"I'm trying,\" she said, her voice soft and fragile in the silence between them as the moment stayed difficult to name.",
         }
     )
 
@@ -451,8 +447,7 @@ def _patch_rescue_dialogue_fail_payload() -> str:
 def _patch_rescue_drift_payload() -> str:
     return _structured_patch_payload(
         {
-            "span_id": "p1",
-            "target_text": "Clara gave him a thin nod, but the words trailed off while she watched the coffee drip for a moment instead of answering him.",
+            "slot_id": "s1",
             "replacement_text": "Mara gave him a thin nod, sliding the sealed ledger under her coat while she watched the coffee drip for a moment instead of answering him.",
         }
     )
@@ -461,8 +456,7 @@ def _patch_rescue_drift_payload() -> str:
 def _patch_rescue_overlong_payload() -> str:
     return _structured_patch_payload(
         {
-            "span_id": "p1",
-            "target_text": "Clara gave him a thin nod, but the words trailed off while she watched the coffee drip for a moment instead of answering him.",
+            "slot_id": "s1",
             "replacement_text": (_opening_recovery_text() + " " + _opening_recovery_text()),
         }
     )
@@ -1197,7 +1191,7 @@ def test_long_form_execution_recovers_borderline_quality_failure_with_single_ret
     assert payload["guardrail_snapshot"]["mode"] == "recovery_retry"
     assert payload["attempts"][2]["mode"] == "recovery_retry"
     assert payload["attempts"][2]["model_snapshot"]["escalated"] is True
-    assert "PATCH TARGETS JSON:" in str(adapter.last_rewrite_payload["prompt"])
+    assert "RESCUE SLOTS JSON:" in str(adapter.last_rewrite_payload["prompt"])
     assert "\"patches\"" in str(adapter.last_rewrite_payload["prompt"])
 
 
@@ -1315,7 +1309,11 @@ def test_long_form_execution_rejects_rescue_that_still_misses_targeted_fix(
     chunk = result.chunks[0]
     assert chunk.retry_snapshot is not None
     assert chunk.retry_snapshot["reason"] == "targeted_editorial_miss_after_rewrite"
-    assert chunk.retry_snapshot["rescue_failure_class"] in {"patch_dialogue_grounding_unresolved", "dialogue_grounding_unresolved"}
+    assert chunk.retry_snapshot["rescue_failure_class"] in {
+        "patch_dialogue_grounding_unresolved",
+        "dialogue_grounding_unresolved",
+        "patch_specificity_unresolved",
+    }
     assert chunk.retry_snapshot["rescue_under_improved"] is True
 
 
@@ -1361,7 +1359,7 @@ def test_build_rescue_contract_preserves_dialogue_targets_for_curly_quoted_lines
 
     assert rescue_contract["dialogue_beats_requiring_grounding"]
     assert "appreciating the moment" in rescue_contract["dialogue_beats_requiring_grounding"][0].lower()
-    assert any(target["target_type"] == "dialogue" for target in rescue_contract["patch_targets"])
+    assert any(target["target_type"] == "dialogue" for target in rescue_contract["rescue_slots"])
 
 
 def test_patch_validation_accepts_dialogue_grounding_with_local_action_and_setting_cue(tmp_path: Path) -> None:
@@ -1389,16 +1387,15 @@ def test_patch_validation_accepts_dialogue_grounding_with_local_action_and_setti
 
     result = service._validate_and_apply_patch_response(
         source_text=source_text,
-        patch_targets=[{"span_id": "p1", "target_type": "dialogue", "target_text": target_text}],
+        rescue_slots=[{"slot_id": "s1", "target_type": "dialogue", "original_text": target_text}],
         patch_response=[
             {
-                "span_id": "p1",
-                "target_text": target_text,
+                "slot_id": "s1",
                 "replacement_text": "\"I'm trying,\" she said, gripping the mug handle until the ceramic tapped the counter while the burner clicked behind her.",
             }
         ],
         continuation=continuation,
-        rescue_contract={"patch_targets": []},
+        rescue_contract={"rescue_slots": []},
         mode="recovery_retry",
     )
 
@@ -1430,16 +1427,15 @@ def test_patch_validation_rejects_dialogue_paraphrase_without_local_grounding(tm
 
     result = service._validate_and_apply_patch_response(
         source_text=_patch_rescue_weak_source_text(),
-        patch_targets=[{"span_id": "p1", "target_type": "dialogue", "target_text": target_text}],
+        rescue_slots=[{"slot_id": "s1", "target_type": "dialogue", "original_text": target_text}],
         patch_response=[
             {
-                "span_id": "p1",
-                "target_text": target_text,
+                "slot_id": "s1",
                 "replacement_text": "\"I'm trying,\" she said, her voice soft and fragile in the silence between them.",
             }
         ],
         continuation=continuation,
-        rescue_contract={"patch_targets": []},
+        rescue_contract={"rescue_slots": []},
         mode="recovery_retry",
     )
 
@@ -1478,17 +1474,17 @@ def test_refresh_rescue_contract_keeps_patch_target_after_prior_patch_changes_te
         ],
         "generic_phrases_to_replace": ["heavy with", "heart raced"],
         "required_concrete_anchor_terms": ["forest", "above", "pushed"],
-        "patch_targets": [
+        "rescue_slots": [
             {
-                "span_id": "p1",
+                "slot_id": "s1",
                 "target_type": "generic",
-                "target_text": "She followed, the canopy above thickening, absorbing their footsteps, while the air wrapped around them, heavy with the scent of wet earth and decaying foliage.",
+                "original_text": "She followed, the canopy above thickening, absorbing their footsteps, while the air wrapped around them, heavy with the scent of wet earth and decaying foliage.",
                 "target_phrase": "heavy with",
             },
             {
-                "span_id": "p2",
+                "slot_id": "s2",
                 "target_type": "generic",
-                "target_text": "With each step, her heart raced, responding instinctively to the towering trees that loomed above, leaning in as though eager to eavesdrop on their conversation.",
+                "original_text": "With each step, her heart raced, responding instinctively to the towering trees that loomed above, leaning in as though eager to eavesdrop on their conversation.",
                 "target_phrase": "heart raced",
             },
         ],
@@ -1502,8 +1498,8 @@ def test_refresh_rescue_contract_keeps_patch_target_after_prior_patch_changes_te
         quality_snapshot={"dialogue_present": False, "dialogue_grounded": True},
     )
 
-    assert refreshed["patch_targets"]
-    assert any("heart raced" in target["target_text"].lower() for target in refreshed["patch_targets"])
+    assert refreshed["rescue_slots"]
+    assert any("heart raced" in target["original_text"].lower() for target in refreshed["rescue_slots"])
 
 
 def test_patch_validation_rebinds_stale_target_after_prior_patch_edit(tmp_path: Path) -> None:
@@ -1535,11 +1531,10 @@ def test_patch_validation_rebinds_stale_target_after_prior_patch_edit(tmp_path: 
 
     result = service._validate_and_apply_patch_response(
         source_text=source_text,
-        patch_targets=[{"span_id": "p1", "target_type": "generic", "target_text": stale_target, "target_phrase": "flicker of"}],
+        rescue_slots=[{"slot_id": "s1", "target_type": "generic", "original_text": stale_target, "target_phrase": "flicker of"}],
         patch_response=[
             {
-                "span_id": "p1",
-                "target_text": stale_target,
+                "slot_id": "s1",
                 "replacement_text": "It's freezing! He stepped closer until the tavern light caught the wet edge of her cloak and warmed the cold seam at her shoulder.",
             }
         ],
@@ -1576,20 +1571,64 @@ def test_patch_validation_accepts_specificity_lift_with_concrete_local_detail(tm
 
     result = service._validate_and_apply_patch_response(
         source_text="As the siren faded into the night, Clara's heart raced. The brick wall pressed cold through her jacket.",
-        patch_targets=[{"span_id": "p1", "target_type": "generic", "target_text": target_text, "target_phrase": "heart raced"}],
+        rescue_slots=[{"slot_id": "s1", "target_type": "generic", "original_text": target_text, "target_phrase": "heart raced"}],
         patch_response=[
             {
-                "span_id": "p1",
-                "target_text": target_text,
+                "slot_id": "s1",
                 "replacement_text": "As the siren faded into the night, Clara felt her pulse knock against her ribs while the cold brick wall pressed through her jacket.",
             }
         ],
         continuation=continuation,
-        rescue_contract={"patch_targets": []},
+        rescue_contract={"rescue_slots": []},
         mode="recovery_retry",
     )
 
     assert result["accepted"] is True
+
+
+def test_patch_validation_replaces_by_slot_id_only(tmp_path: Path) -> None:
+    service = _service(tmp_path, _long_text())
+    chapter_memory = ChapterMemoryPacket(
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chapter_context="Chapter One",
+        locked_facts=[],
+        accumulated_summaries=[],
+        unresolved_tensions=[],
+        emotional_carryover=None,
+        pacing_carryover=None,
+        scene_titles=["Kitchen Annex"],
+        beat_refs=[],
+    )
+    continuation = SimpleNamespace(
+        prior_summary=None,
+        prior_excerpt=None,
+        chapter_memory=chapter_memory,
+        chapter_id="ch_0001",
+    )
+    source_text = _patch_rescue_weak_source_text()
+    result = service._validate_and_apply_patch_response(
+        source_text=source_text,
+        rescue_slots=[
+            {
+                "slot_id": "s7",
+                "target_type": "generic",
+                "original_text": "Clara gave him a thin nod, but the words trailed off while she watched the coffee drip for a moment instead of answering him.",
+            }
+        ],
+        patch_response=[
+            {
+                "slot_id": "s7",
+                "replacement_text": "Clara gave him a thin nod, rubbed the chipped mug handle with her thumb, and watched a dark bead of coffee slide down the glass pot before she answered him.",
+            }
+        ],
+        continuation=continuation,
+        rescue_contract={"rescue_slots": []},
+        mode="recovery_retry",
+    )
+
+    assert result["accepted"] is True
+    assert result["patch_snapshots"][0]["slot_id"] == "s7"
 
 
 def test_patch_validation_allows_local_concrete_rewording_without_fidelity_drift(tmp_path: Path) -> None:
@@ -1616,11 +1655,10 @@ def test_patch_validation_allows_local_concrete_rewording_without_fidelity_drift
 
     result = service._validate_and_apply_patch_response(
         source_text=target_text + " Jamie pressed her back against the brick wall.",
-        patch_targets=[{"span_id": "p1", "target_type": "generic", "target_text": target_text}],
+        rescue_slots=[{"slot_id": "s1", "target_type": "generic", "original_text": target_text}],
         patch_response=[
             {
-                "span_id": "p1",
-                "target_text": target_text,
+                "slot_id": "s1",
                 "replacement_text": "Thunder rolled over the alley roof, and the sound rattled against the brick wall behind Jamie like the warning she had been trying not to hear.",
             }
         ],
@@ -1664,7 +1702,7 @@ def test_repair_only_prompt_requires_literal_local_specificity_detail(tmp_path: 
             "min_paragraph_count": 1,
             "max_paragraph_count": 3,
             "lines_to_repair": ["Shadows flickered at the edges of her vision."],
-            "patch_targets": [{"span_id": "p1", "target_text": "Shadows flickered at the edges of her vision."}],
+            "rescue_slots": [{"slot_id": "s1", "original_text": "Shadows flickered at the edges of her vision."}],
         },
         rescue_failure_class="patch_specificity_unresolved",
     )
@@ -1697,16 +1735,15 @@ def test_patch_validation_rejects_specificity_patch_that_stays_vague(tmp_path: P
 
     result = service._validate_and_apply_patch_response(
         source_text="As the siren faded into the night, Clara's heart raced.",
-        patch_targets=[{"span_id": "p1", "target_type": "generic", "target_text": target_text, "target_phrase": "heart raced"}],
+        rescue_slots=[{"slot_id": "s1", "target_type": "generic", "original_text": target_text, "target_phrase": "heart raced"}],
         patch_response=[
             {
-                "span_id": "p1",
-                "target_text": target_text,
+                "slot_id": "s1",
                 "replacement_text": "As the siren faded into the night, Clara felt a stronger sense of dread settle over her.",
             }
         ],
         continuation=continuation,
-        rescue_contract={"patch_targets": []},
+        rescue_contract={"rescue_slots": []},
         mode="recovery_retry",
     )
 
@@ -1738,11 +1775,10 @@ def test_patch_validation_still_rejects_local_drift_with_new_story_element(tmp_p
 
     result = service._validate_and_apply_patch_response(
         source_text=_patch_rescue_weak_source_text(),
-        patch_targets=[{"span_id": "p1", "target_type": "generic", "target_text": target_text}],
+        rescue_slots=[{"slot_id": "s1", "target_type": "generic", "original_text": target_text}],
         patch_response=[
             {
-                "span_id": "p1",
-                "target_text": target_text,
+                "slot_id": "s1",
                 "replacement_text": "Mara gave him a thin nod, sliding the sealed ledger under her coat while she watched the coffee drip for a moment instead of answering him.",
             }
         ],
@@ -1994,8 +2030,7 @@ def test_long_form_execution_repair_only_rejects_length_collapse(
             _patch_rescue_generic_fail_payload(),
             _structured_patch_payload(
                 {
-                    "span_id": "p1",
-                    "target_text": "Clara gave him a thin nod, but the words trailed off while she watched the coffee drip for a moment instead of answering him.",
+                    "slot_id": "s1",
                     "replacement_text": _repair_only_collapsed_fragment(),
                 }
             ),
@@ -2088,10 +2123,14 @@ def test_long_form_execution_repair_only_still_fails_when_generic_target_remains
     assert result.stopped_reason == "quality_failed"
     chunk = result.chunks[0]
     assert chunk.retry_snapshot is not None
-    assert chunk.retry_snapshot["rescue_failure_class"] in {"patch_generic_replacement_unresolved", "generic_replacement_unresolved"}
+    assert chunk.retry_snapshot["rescue_failure_class"] in {
+        "patch_generic_replacement_unresolved",
+        "generic_replacement_unresolved",
+        "patch_specificity_unresolved",
+    }
 
 
-def test_long_form_execution_patch_target_fallback_binds_vague_line(
+def test_long_form_execution_builds_bounded_rescue_slot_for_clean_vague_line(
     tmp_path: Path,
 ) -> None:
     settings = ServiceSettings(
@@ -2165,30 +2204,15 @@ def test_long_form_execution_patch_target_fallback_binds_vague_line(
         critique_snapshot=json.loads(critique),
         quality_snapshot=score_long_form_quality(rewritten_text),
     )
-    patch_response = service._parse_patch_response(
-        _structured_patch_payload(
-            {
-                "span_id": "p1",
-                "target_text": "Tom came through the rain with a grin that felt out of place against the empty street.",
-                "replacement_text": "Tom came through the rain with a grin that tightened when runoff splashed over his canvas shoes and the bus shelter light flashed across his soaked jaw.",
-            }
-        )
+    target_slot = next(
+        slot
+        for slot in rescue_contract["rescue_slots"]
+        if "Tom came through the rain with a grin that felt out of place against the empty street." in slot["original_text"]
     )
-    patch_result = service._validate_and_apply_patch_response(
-        source_text=rewritten_text,
-        patch_targets=list(rescue_contract["patch_targets"]),
-        patch_response=patch_response,
-        continuation=continuation,
-        rescue_contract=rescue_contract,
-        mode="recovery_retry",
-    )
-
-    assert rescue_contract["patch_targets"]
-    assert patch_result["accepted"] is True
-    patched_text = patch_result["patched_text"]
-    assert "runoff splashed over his canvas shoes" in patched_text
-    assert patch_result["patch_snapshots"][0]["target_type"] == "generic"
-    assert abs(len(patched_text.split()) - len(rewritten_text.split())) <= 12
+    assert rescue_contract["rescue_slots"]
+    assert target_slot["target_type"] == "generic"
+    assert target_slot["unit_type"] in {"sentence", "sentence_window"}
+    assert target_slot["context_before"]
 
 
 def test_long_form_execution_patch_specificity_accepts_concrete_local_detail(
@@ -2221,8 +2245,7 @@ def test_long_form_execution_patch_specificity_accepts_concrete_local_detail(
     )
     concrete_patch = _structured_patch_payload(
         {
-            "span_id": "p1",
-            "target_text": "Clara gave him a thin nod, but the words trailed off while she watched the coffee drip for a moment instead of answering him.",
+            "slot_id": "s1",
             "replacement_text": "Clara gave him a thin nod, rubbed the chipped mug handle with her thumb, and watched a dark bead of coffee slide down the glass pot before she answered him.",
         }
     )
@@ -2281,8 +2304,7 @@ def test_long_form_execution_patch_specificity_still_fails_when_replacement_stay
     )
     vague_patch = _structured_patch_payload(
         {
-            "span_id": "p1",
-            "target_text": "Clara gave him a thin nod, but the words trailed off while she watched the coffee drip for a moment instead of answering him.",
+            "slot_id": "s1",
             "replacement_text": "Clara gave him a thin nod, pausing there while the feeling lingered and the moment stayed difficult to name.",
         }
     )

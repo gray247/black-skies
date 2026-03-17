@@ -621,13 +621,13 @@ class LongFormExecutionService:
                             quality_snapshot=previous_quality_snapshot,
                         )
                         rescue_contract = active_rescue_contract
-                    patch_targets = list(active_rescue_contract.get("patch_targets") or [])
+                    rescue_slots = list(active_rescue_contract.get("rescue_slots") or [])
                     patch_response = self._parse_patch_response(cleaned)
-                    attempt_record["patch_targets"] = patch_targets
+                    attempt_record["rescue_slots"] = rescue_slots
                     attempt_record["patch_response"] = patch_response
                     patch_result = self._validate_and_apply_patch_response(
                         source_text=source_text,
-                        patch_targets=patch_targets,
+                        rescue_slots=rescue_slots,
                         patch_response=patch_response,
                         continuation=continuation,
                         rescue_contract=active_rescue_contract,
@@ -636,9 +636,9 @@ class LongFormExecutionService:
                     attempt_record["patch_validation"] = patch_result
                     if retry_snapshot is not None:
                         retry_snapshot["patch_rescue_used"] = True
-                        retry_snapshot["patch_targets_summary"] = {
-                            "target_count": len(patch_targets),
-                            "target_types": [str(target.get("target_type")) for target in patch_targets],
+                        retry_snapshot["rescue_slots_summary"] = {
+                            "slot_count": len(rescue_slots),
+                            "target_types": [str(target.get("target_type")) for target in rescue_slots],
                         }
                     if not patch_result.get("accepted"):
                         if retry_snapshot is not None:
@@ -1403,7 +1403,7 @@ class LongFormExecutionService:
         failure_classification: dict[str, Any],
         rescue_contract: dict[str, Any],
     ) -> str:
-        patch_targets = rescue_contract.get("patch_targets") or []
+        rescue_slots = rescue_contract.get("rescue_slots") or []
         scores = (quality_snapshot or {}).get("scores") or {}
         unresolved: list[str] = []
         if int((quality_snapshot or {}).get("total_score") or 0) < self._QUALITY_MIN_TOTAL:
@@ -1436,7 +1436,7 @@ class LongFormExecutionService:
             f"- {line}" for line in (rescue_contract.get("lines_to_repair") or [])
         ) or "- Patch only the weakest local lines if repair is needed."
         anchor_terms = ", ".join(rescue_contract.get("required_concrete_anchor_terms") or []) or "Use the existing scene anchors."
-        patch_targets_text = json.dumps(patch_targets, ensure_ascii=False, indent=2)
+        rescue_slots_text = json.dumps(rescue_slots, ensure_ascii=False, indent=2)
         return (
             "Precision patch rescue.\n"
             f"CHAPTER: {continuation.chapter_memory.chapter_context or continuation.chapter_id}\n"
@@ -1458,7 +1458,7 @@ class LongFormExecutionService:
             "Do not swap the scene subject or broaden the scope of the scene.\n"
             "Do not compress the scene into a summary or expand it into a larger sequence.\n"
             "Preserve the dialogue beats already present, but ground them in gesture, object handling, movement, or environment when relevant.\n"
-            "Edit only the specified spans. Do not rewrite untouched paragraphs.\n"
+            "Edit only the specified slots. Do not rewrite untouched paragraphs.\n"
             "Return JSON only.\n"
             "UNRESOLVED QUALITY TARGETS:\n"
             f"{unresolved_text}\n"
@@ -1481,10 +1481,10 @@ class LongFormExecutionService:
             "- Replace the exact weak line, not just its mood; keep the same meaning but make the line more observable on the page.\n"
             f"- Raise specificity by at least {rescue_contract.get('minimum_specificity_delta')} if targeted, or add concrete scene detail.\n"
             f"- Raise clarity by at least {rescue_contract.get('minimum_clarity_delta')} if targeted.\n\n"
-            "PATCH TARGETS JSON:\n"
-            f"{patch_targets_text}\n\n"
+            "RESCUE SLOTS JSON:\n"
+            f"{rescue_slots_text}\n\n"
             "Return exactly this schema:\n"
-            "{\"patches\":[{\"span_id\":\"p1\",\"target_text\":\"exact original span\",\"replacement_text\":\"replacement span only\"}]}\n\n"
+            "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"replacement span only\"}]}\n\n"
             "ORIGINAL SCENE:\n"
             f"{original_text}\n"
         )
@@ -1497,7 +1497,7 @@ class LongFormExecutionService:
         rescue_contract: dict[str, Any],
         rescue_failure_class: str,
     ) -> str:
-        patch_targets = rescue_contract.get("patch_targets") or []
+        rescue_slots = rescue_contract.get("rescue_slots") or []
         local_lines = "\n".join(
             f"- {line}" for line in (rescue_contract.get("lines_to_repair") or [])
         ) or "- Patch only the unresolved weak lines."
@@ -1507,7 +1507,7 @@ class LongFormExecutionService:
         generic_targets = "\n".join(
             f"- {line}" for line in (rescue_contract.get("generic_phrases_to_replace") or [])
         ) or "- No unresolved generic targets."
-        patch_targets_text = json.dumps(patch_targets, ensure_ascii=False, indent=2)
+        rescue_slots_text = json.dumps(rescue_slots, ensure_ascii=False, indent=2)
         return (
             "Repair-only patch rescue pass.\n"
             "The prior rescue stayed fidelity-safe but still missed one editorial target.\n"
@@ -1533,10 +1533,10 @@ class LongFormExecutionService:
             "- Replace the exact weak phrase in the targeted span; do not answer with another vague paraphrase.\n"
             "- Do not compress the scene into a short excerpt, summary, or tail fragment.\n"
             "- Do not broadly rephrase already acceptable sections.\n"
-            "PATCH TARGETS JSON:\n"
-            f"{patch_targets_text}\n"
+            "RESCUE SLOTS JSON:\n"
+            f"{rescue_slots_text}\n"
             "Return exactly this schema:\n"
-            "{\"patches\":[{\"span_id\":\"p1\",\"target_text\":\"exact original span\",\"replacement_text\":\"replacement span only\"}]}\n\n"
+            "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"replacement span only\"}]}\n\n"
             "CURRENT SCENE:\n"
             f"{latest_text}\n"
         )
@@ -1595,7 +1595,7 @@ class LongFormExecutionService:
             "failure_reason": failure_reason,
         }
 
-    def _extract_patch_targets(
+    def _build_rescue_slots(
         self,
         *,
         original_text: str,
@@ -1607,15 +1607,27 @@ class LongFormExecutionService:
         targets: list[dict[str, Any]] = []
         seen: set[str] = set()
 
-        def add_target(target_text: str, target_type: str, target_phrase: str | None = None) -> None:
+        def add_target(
+            target_text: str,
+            target_type: str,
+            target_phrase: str | None = None,
+            *,
+            unit_type: str = "sentence",
+            target_reason: str | None = None,
+        ) -> None:
             cleaned = target_text.strip()
-            if not cleaned or cleaned in seen:
+            if not cleaned or cleaned in seen or len(targets) >= 12:
                 return
             seen.add(cleaned)
+            context_before, context_after = self._slot_context(original_text, cleaned)
             target: dict[str, Any] = {
-                "span_id": f"p{len(targets) + 1}",
+                "slot_id": f"s{len(targets) + 1}",
+                "unit_type": unit_type,
                 "target_type": target_type,
-                "target_text": cleaned,
+                "original_text": cleaned,
+                "context_before": context_before,
+                "context_after": context_after,
+                "target_reason": target_reason or target_type,
             }
             if target_phrase:
                 target["target_phrase"] = target_phrase
@@ -1633,10 +1645,34 @@ class LongFormExecutionService:
                 target_type = "dialogue"
             elif continuation.prior_summary and any(term in lowered for term in (quality_snapshot or {}).get("carryover_terms") or []):
                 target_type = "carryover"
-            add_target(line, target_type, phrase)
+            unit_text = line
+            unit_type = "sentence"
+            if target_type == "dialogue":
+                rebound = self._find_best_local_patch_unit(
+                    current_text=original_text,
+                    target_text=line,
+                    target_phrase=phrase,
+                    required_anchor_terms=list(rescue_contract.get("required_concrete_anchor_terms") or []),
+                )
+                if rebound:
+                    unit_text = rebound
+                    if rebound != line:
+                        unit_type = "sentence_window"
+            add_target(unit_text, target_type, phrase, unit_type=unit_type)
 
         for line in rescue_contract.get("dialogue_beats_requiring_grounding") or []:
-            add_target(line, "dialogue")
+            rebound = self._find_best_local_patch_unit(
+                current_text=original_text,
+                target_text=line,
+                required_anchor_terms=list(rescue_contract.get("required_concrete_anchor_terms") or []),
+            )
+            unit_text = rebound or line
+            add_target(
+                unit_text,
+                "dialogue",
+                unit_type="sentence_window" if unit_text != line else "sentence",
+                target_reason="dialogue_grounding",
+            )
 
         for line in self._extract_sentences_with_phrase_markers(original_text, limit=4)[1]:
             phrase = None
@@ -1645,14 +1681,14 @@ class LongFormExecutionService:
                 if generic_phrase.lower() in lowered:
                     phrase = generic_phrase
                     break
-            add_target(line, "generic", phrase)
+            add_target(line, "generic", phrase, target_reason="specificity")
 
         if not targets:
             fallback_generic_lines = self._extract_vague_emotional_sentences(original_text, limit=3)
             for line in fallback_generic_lines:
-                add_target(line, "generic")
+                add_target(line, "generic", target_reason="specificity")
 
-        return targets[:6]
+        return targets[:12]
 
     def _normalize_patch_target_text(self, text: str | None) -> str:
         normalized = (text or "").strip().lower()
@@ -1690,6 +1726,23 @@ class LongFormExecutionService:
                 if combined not in windows:
                     windows.append(combined)
         return windows
+
+    def _slot_context(self, text: str | None, slot_text: str) -> tuple[str, str]:
+        sentences = [sentence.strip() for sentence in re.split(r"(?<=[.!?])\s+", (text or "").strip()) if sentence.strip()]
+        if not sentences or not slot_text:
+            return "", ""
+        for index, sentence in enumerate(sentences):
+            if sentence == slot_text:
+                before = sentences[index - 1] if index > 0 else ""
+                after = sentences[index + 1] if index + 1 < len(sentences) else ""
+                return before, after
+        for index in range(len(sentences) - 1):
+            combined = f"{sentences[index]} {sentences[index + 1]}".strip()
+            if combined == slot_text:
+                before = sentences[index - 1] if index > 0 else ""
+                after = sentences[index + 2] if index + 2 < len(sentences) else ""
+                return before, after
+        return "", ""
 
     def _find_best_local_patch_unit(
         self,
@@ -1755,12 +1808,12 @@ class LongFormExecutionService:
         refreshed_dialogue_lines: list[str] = []
         refreshed_generic_phrases: list[str] = []
         anchor_terms = list(refreshed.get("required_concrete_anchor_terms") or [])
-        source_targets = list((rescue_contract or {}).get("patch_targets") or [])
+        source_targets = list((rescue_contract or {}).get("rescue_slots") or [])
 
         for target in source_targets:
             if not isinstance(target, dict):
                 continue
-            target_text = str(target.get("target_text") or "").strip()
+            target_text = str(target.get("original_text") or "").strip()
             target_phrase = str(target.get("target_phrase") or "").strip() or None
             local_unit = self._find_best_local_patch_unit(
                 current_text=current_text,
@@ -1788,7 +1841,7 @@ class LongFormExecutionService:
         refreshed["dialogue_beats_requiring_grounding"] = refreshed_dialogue_lines[:4]
         if refreshed_generic_phrases:
             refreshed["generic_phrases_to_replace"] = refreshed_generic_phrases[:4]
-        refreshed["patch_targets"] = self._extract_patch_targets(
+        refreshed["rescue_slots"] = self._build_rescue_slots(
             original_text=current_text,
             continuation=continuation,
             critique_snapshot=critique_snapshot,
@@ -1802,76 +1855,31 @@ class LongFormExecutionService:
         )
         return refreshed
 
-    def _find_patch_target(
+    def _find_rescue_slot(
         self,
         *,
         patched_text: str,
-        patch_targets: list[dict[str, Any]],
-        span_id: str,
-        requested_target_text: str,
+        rescue_slots: list[dict[str, Any]],
+        slot_id: str,
     ) -> tuple[dict[str, Any] | None, str | None]:
         target_by_id = {
-            str(target.get("span_id")): target
-            for target in patch_targets
-            if isinstance(target, dict) and target.get("span_id")
+            str(target.get("slot_id")): target
+            for target in rescue_slots
+            if isinstance(target, dict) and target.get("slot_id")
         }
-        target = target_by_id.get(span_id)
+        target = target_by_id.get(slot_id)
         if target:
-            target_text = str(target.get("target_text") or "").strip()
+            target_text = str(target.get("original_text") or "").strip()
             if target_text and target_text in patched_text:
                 return target, target_text
             rebound_target_text = self._find_best_local_patch_unit(
                 current_text=patched_text,
                 target_text=target_text,
                 target_phrase=str(target.get("target_phrase") or "").strip() or None,
+                required_anchor_terms=list(target.get("anchor_terms") or []),
             )
             if rebound_target_text and rebound_target_text in patched_text:
                 return target, rebound_target_text
-        normalized_requested = self._normalize_patch_target_text(requested_target_text)
-        normalized_candidates: list[tuple[dict[str, Any], str, str]] = []
-        for candidate in patch_targets:
-            if not isinstance(candidate, dict):
-                continue
-            candidate_text = str(candidate.get("target_text") or "").strip()
-            if not candidate_text:
-                continue
-            normalized_candidates.append(
-                (candidate, candidate_text, self._normalize_patch_target_text(candidate_text))
-            )
-        if normalized_requested:
-            for candidate, candidate_text, normalized_candidate in normalized_candidates:
-                if normalized_candidate == normalized_requested and candidate_text in patched_text:
-                    return candidate, candidate_text
-            for candidate, candidate_text, normalized_candidate in normalized_candidates:
-                if candidate_text not in patched_text:
-                    continue
-                if normalized_requested and (
-                    normalized_requested in normalized_candidate or normalized_candidate in normalized_requested
-                ):
-                    return candidate, candidate_text
-            request_tokens = set(token for token in normalized_requested.split() if len(token) > 2)
-            best_match: tuple[dict[str, Any], str] | None = None
-            best_score = 0.0
-            for candidate, candidate_text, normalized_candidate in normalized_candidates:
-                if candidate_text not in patched_text:
-                    continue
-                candidate_tokens = set(token for token in normalized_candidate.split() if len(token) > 2)
-                if not candidate_tokens or not request_tokens:
-                    continue
-                overlap = len(candidate_tokens & request_tokens) / max(len(candidate_tokens), len(request_tokens))
-                if overlap >= 0.6 and overlap > best_score:
-                    best_match = (candidate, candidate_text)
-                    best_score = overlap
-            if best_match is not None:
-                return best_match
-        rebound_requested = self._find_best_local_patch_unit(
-            current_text=patched_text,
-            target_text=requested_target_text,
-        )
-        if rebound_requested and rebound_requested in patched_text:
-            fallback_target = target or (normalized_candidates[0][0] if normalized_candidates else None)
-            if fallback_target is not None:
-                return fallback_target, rebound_requested
         return None, None
 
     def _is_dialogue_span(self, text: str | None) -> bool:
@@ -1908,15 +1916,13 @@ class LongFormExecutionService:
         for patch in patches:
             if not isinstance(patch, dict):
                 continue
-            span_id = str(patch.get("span_id") or "").strip()
-            target_text = str(patch.get("target_text") or "").strip()
+            span_id = str(patch.get("slot_id") or patch.get("span_id") or "").strip()
             replacement_text = str(patch.get("replacement_text") or "").strip()
             if not span_id or not replacement_text:
                 continue
             normalized_patches.append(
                 {
-                    "span_id": span_id,
-                    "target_text": target_text,
+                    "slot_id": span_id,
                     "replacement_text": replacement_text,
                 }
             )
@@ -1926,7 +1932,7 @@ class LongFormExecutionService:
         self,
         *,
         source_text: str,
-        patch_targets: list[dict[str, Any]],
+        rescue_slots: list[dict[str, Any]],
         patch_response: list[dict[str, Any]] | None,
         continuation,
         rescue_contract: dict[str, Any],
@@ -1944,19 +1950,17 @@ class LongFormExecutionService:
         patched_text = source_text
         patch_snapshots: list[dict[str, Any]] = []
         for patch in patch_response:
-            span_id = str(patch.get("span_id"))
-            requested_target_text = str(patch.get("target_text") or "").strip()
-            target, target_text = self._find_patch_target(
+            slot_id = str(patch.get("slot_id"))
+            target, target_text = self._find_rescue_slot(
                 patched_text=patched_text,
-                patch_targets=patch_targets,
-                span_id=span_id,
-                requested_target_text=requested_target_text,
+                rescue_slots=rescue_slots,
+                slot_id=slot_id,
             )
             if not target or not target_text:
                 return {"accepted": False, "failure_class": "patch_target_missing"}
             replacement_text = str(patch.get("replacement_text") or "")
             target_type = str(target.get("target_type") or "generic")
-            if self._is_dialogue_span(target_text) or self._is_dialogue_span(requested_target_text):
+            if self._is_dialogue_span(target_text):
                 target_type = "dialogue"
             target_phrase = str(target.get("target_phrase") or "").lower()
             lowered_replacement = replacement_text.lower()
@@ -2019,7 +2023,8 @@ class LongFormExecutionService:
             patched_text = patched_text.replace(target_text, replacement_text, 1)
             patch_snapshots.append(
                 {
-                    "span_id": span_id,
+                    "slot_id": slot_id,
+                    "unit_type": str(target.get("unit_type") or "sentence"),
                     "target_type": target_type,
                     "target_text": target_text,
                     "replacement_text": replacement_text,
@@ -2251,7 +2256,7 @@ class LongFormExecutionService:
             1,
             len([seg for seg in original_text.split("\n\n") if seg.strip()]),
         )
-        patch_targets = self._extract_patch_targets(
+        rescue_slots = self._build_rescue_slots(
             original_text=original_text,
             continuation=continuation,
             critique_snapshot=critique_snapshot,
@@ -2283,7 +2288,7 @@ class LongFormExecutionService:
             "max_paragraph_count": original_paragraph_count + self._REPAIR_ONLY_PARAGRAPH_TOLERANCE,
             "original_word_count": original_word_count,
             "unresolved_targets": unresolved_targets[:8],
-            "patch_targets": patch_targets,
+            "rescue_slots": rescue_slots,
         }
 
     def _build_rescue_delta_summary(
@@ -2671,7 +2676,7 @@ class LongFormExecutionService:
         patch_rescue_recovery_pass = (
             rewrite_used
             and previous_quality_snapshot is not None
-            and bool((rescue_contract or {}).get("patch_targets"))
+            and bool((rescue_contract or {}).get("rescue_slots"))
             and total >= max(24, self._QUALITY_MIN_TOTAL - 6)
             and coherence >= max(2, self._QUALITY_MIN_COHERENCE - 1)
             and continuity >= max(3, self._QUALITY_MIN_CONTINUITY - 1)
@@ -2871,7 +2876,7 @@ class LongFormExecutionService:
             for item in ((rescue_contract or {}).get("generic_phrases_to_replace") or [])
             if str(item).strip()
         ]
-        using_patch_rescue = bool((rescue_contract or {}).get("patch_targets"))
+        using_patch_rescue = bool((rescue_contract or {}).get("rescue_slots"))
         rewritten_text = str(rewritten_quality_snapshot.get("text") or "").lower()
         if targeted_generic_phrases and not using_patch_rescue:
             if any(phrase in rewritten_text for phrase in targeted_generic_phrases):
