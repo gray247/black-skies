@@ -80,3 +80,11 @@ python scripts/long_form_eval.py \
   - `rescue_fidelity_risk_count`
   - `patch_rescue_used_count`
   - `patch_rescue_success_count`
+
+## Provider setup note
+
+- This service also supports OpenAI-compatible local endpoints exposed through legacy env names.
+- `ServiceSettings.from_environment()` now maps:
+  - `OPENAI_API_KEY` -> `openai_api_key`
+  - `OPENAI_API_BASE` or `OPENAI_BASE_URL` -> `openai_base_url`
+- Without the base-url alias, a dummy compatibility key such as `OPENAI_API_KEY=ollama` can be misrouted to the real OpenAI URL and fail with `401 Unauthorized`.

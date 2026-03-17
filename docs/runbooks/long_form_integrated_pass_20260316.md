@@ -95,6 +95,19 @@ Latest targeted-rescue reruns:
   - neither run hit guardrail/fidelity failure
   - adversarial remained healthy at `2/2` passes
 - The first fresh reruns after the span-level patch rescue implementation were blocked in the current environment by `HTTP 401: Unauthorized` from the OpenAI path, so new clean/adversarial reliability evidence could not be completed from this machine until provider auth is restored.
+- Root cause of the `401` was config aliasing: this environment exposes an OpenAI-compatible local endpoint via `OPENAI_API_BASE=http://127.0.0.1:11434/v1` and a dummy compatibility token via `OPENAI_API_KEY=ollama`. The service loader was honoring the key alias but ignoring the base-url alias, so it sent the dummy token to the real OpenAI URL and got `401 Unauthorized`.
+- After fixing alias loading for `OPENAI_API_BASE`, the auth/config bug was resolved. The service correctly targeted the local compatibility endpoint instead of `api.openai.com`.
+- Post-fix reruns on this machine are now operationally valid but still not phase-closeout evidence:
+  - the compatible path had to be pointed at local Ollama-backed models (`qwen3:4b` draft path, `qwen3:8b` stronger retry path)
+  - clean reruns stopped immediately on `invalid_output`
+  - adversarial reruns also stopped immediately on `invalid_output`
+  - because the only available provider in this environment is the local compatibility path, these reruns do not provide the intended OpenAI-backed reliability comparison that earlier evidence used
+
+Post-fix eval artifacts:
+- Clean `600`: `sample_project/proj_esther_estate_verify_longform/.blackskies/long_form/eval/eval_span_patch_clean_600_run1.json`
+- Clean `600`: `sample_project/proj_esther_estate_verify_longform/.blackskies/long_form/eval/eval_span_patch_clean_600_run2.json`
+- Adversarial `600`: `sample_project/proj_esther_estate_eval_adversarial/.blackskies/long_form/eval/eval_span_patch_adversarial_600_run1.json`
+- Adversarial `600`: `sample_project/proj_esther_estate_eval_adversarial/.blackskies/long_form/eval/eval_span_patch_adversarial_600_run2.json`
 
 ## Reliability judgment
 
