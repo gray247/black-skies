@@ -2755,6 +2755,8 @@ class LongFormExecutionService:
             "provider request failed",
         )
         hard_markers = (
+            "http error 400",
+            "bad request",
             "api key is missing",
             "missing prompt",
             "invalid json",

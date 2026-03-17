@@ -1,13 +1,16 @@
 from __future__ import annotations
 
 import json
+from io import BytesIO
 from pathlib import Path
 from types import SimpleNamespace
+from urllib.error import HTTPError
 
 from blackskies.services.config import ServiceSettings
 from blackskies.services.diagnostics import DiagnosticLogger
 from blackskies.services.long_form import ChapterMemoryPacket
 from blackskies.services.long_form import score_long_form_quality
+from blackskies.services.model_adapters import OpenAIAdapter
 from blackskies.services.model_router import ModelRouter, ModelSpec, ModelTask
 from blackskies.services.model_routing import ModelRouterConfig, ModelRoutingPolicy
 from blackskies.services.model_adapters import AdapterConfig, AdapterError, BaseAdapter
@@ -61,6 +64,22 @@ class _TransientThenSuccessAdapter(_FakeAdapter):
         self._count += 1
         if self._count == 1:
             raise AdapterError("Provider request failed: timed out")
+        return {"text": self._text}
+
+
+class _BadRequestThenSuccessAdapter(_FakeAdapter):
+    def __init__(self, text: str) -> None:
+        super().__init__(text)
+        self._count = 0
+
+    def generate_draft(self, payload: dict[str, object]) -> dict[str, object]:
+        self.last_payload = payload
+        self._count += 1
+        if self._count == 1:
+            raise AdapterError(
+                "Provider request failed: HTTP Error 400: Bad Request"
+                ' body={"error":{"message":"unsupported parameter"}}'
+            )
         return {"text": self._text}
 
 
@@ -826,6 +845,62 @@ def test_long_form_execution_recovers_from_transient_adapter_error(tmp_path: Pat
         / f"{result.chunks[0].chunk_id}.json"
     )
     assert not diag_path.exists()
+
+
+def test_http_400_adapter_error_is_classified_as_hard_and_not_retried(tmp_path: Path) -> None:
+    project_root = tmp_path / "proj_bad_request_adapter"
+    project_root.mkdir(parents=True, exist_ok=True)
+    settings = ServiceSettings(project_base_dir=tmp_path, long_form_provider_enabled=True)
+    diagnostics = DiagnosticLogger()
+    router = ModelRouter(
+        config=ModelRouterConfig(
+            policy=ModelRoutingPolicy.LOCAL_ONLY,
+            provider_calls_enabled=True,
+        )
+    )
+    bad_request_adapter = _BadRequestThenSuccessAdapter(_long_text())
+    router.register_provider(_FakeProvider(bad_request_adapter))
+    service = LongFormExecutionService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=router,
+        enabled=True,
+    )
+
+    result = service.execute(
+        project_root=project_root,
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chunk_size=1,
+        target_words_per_chunk=300,
+    )
+
+    assert result.stopped_reason == "adapter_error"
+    assert bad_request_adapter._count == 1
+    diag_path = (
+        project_root
+        / ".blackskies"
+        / "long_form"
+        / "diagnostics"
+        / f"{result.chunks[0].chunk_id}.json"
+    )
+    diag = json.loads(diag_path.read_text())
+    assert diag["adapter_failure_class"] == "hard_adapter_error"
+    assert "unsupported parameter" in diag["attempts"][0]["error"]
+
+
+def test_openai_http_error_includes_response_body() -> None:
+    error = HTTPError(
+        url="https://api.openai.com/v1/chat/completions",
+        code=400,
+        msg="Bad Request",
+        hdrs=None,
+        fp=BytesIO(b'{"error":{"message":"unsupported parameter: temperature"}}'),
+    )
+
+    detail = OpenAIAdapter._format_http_error_detail(error)
+
+    assert "unsupported parameter: temperature" in detail
 
 
 def test_long_form_execution_extracts_raw_response(tmp_path: Path) -> None:

@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import logging
 from dataclasses import dataclass
+from io import BytesIO
 from typing import Any
 from urllib import request as url_request
 from urllib.error import URLError, HTTPError
@@ -129,13 +130,44 @@ class BaseAdapter:
                 if not raw:
                     raise AdapterError("Provider returned empty response.")
                 decoded = json.loads(raw.decode("utf-8"))
-        except (URLError, HTTPError, OSError) as exc:
+        except HTTPError as exc:
+            detail = self._format_http_error_detail(exc)
+            raise AdapterError(f"Provider request failed: {exc}{detail}") from exc
+        except (URLError, OSError) as exc:
             raise AdapterError(f"Provider request failed: {exc}") from exc
         except json.JSONDecodeError as exc:
             raise AdapterError(f"Provider returned invalid JSON: {exc}") from exc
         if not isinstance(decoded, dict):
             raise AdapterError("Provider response was not an object.")
         return decoded
+
+    @staticmethod
+    def _format_http_error_detail(exc: HTTPError) -> str:
+        body = b""
+        try:
+            if exc.fp is not None:
+                body = exc.fp.read() or b""
+        except OSError:
+            body = b""
+        finally:
+            if exc.fp is not None:
+                try:
+                    exc.fp.close()
+                except OSError:
+                    pass
+                exc.fp = BytesIO(body) if body else None
+        if not body:
+            return ""
+        try:
+            decoded = body.decode("utf-8", errors="replace").strip()
+        except Exception:
+            return ""
+        if not decoded:
+            return ""
+        compact = " ".join(decoded.split())
+        if len(compact) > 240:
+            compact = compact[:237] + "..."
+        return f" body={compact}"
 
     def health_check(self) -> bool:
         raise NotImplementedError
