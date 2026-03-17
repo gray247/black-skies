@@ -13,6 +13,8 @@ from blackskies.services.model_routing import ModelRouterConfig, ModelRoutingPol
 from blackskies.services.model_adapters import AdapterConfig, AdapterError, BaseAdapter
 from blackskies.services.operations.long_form_execution import LongFormExecutionService
 
+_REPO_ROOT = Path(__file__).resolve().parents[3]
+
 
 class _RecordingDiagnostics:
     def __init__(self) -> None:
@@ -378,6 +380,95 @@ def _repair_only_collapsed_fragment() -> str:
 
 def _structured_patch_payload(*patches: dict[str, str]) -> str:
     return json.dumps({"patches": list(patches)})
+
+
+def _artifact_json(relative_path: str) -> dict[str, object]:
+    return json.loads((_REPO_ROOT / relative_path).read_text(encoding="utf-8"))
+
+
+def _artifact_continuation(title: str = "Replay Scene") -> SimpleNamespace:
+    chapter_memory = ChapterMemoryPacket(
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chapter_context="Chapter One",
+        locked_facts=[],
+        accumulated_summaries=[],
+        unresolved_tensions=[],
+        emotional_carryover=None,
+        pacing_carryover=None,
+        scene_titles=[title],
+        beat_refs=[],
+    )
+    return SimpleNamespace(
+        prior_summary=None,
+        prior_excerpt=None,
+        chapter_memory=chapter_memory,
+        chapter_id="ch_0001",
+    )
+
+
+def _legacy_targets_to_slots(patch_targets: list[dict[str, object]]) -> list[dict[str, object]]:
+    slots: list[dict[str, object]] = []
+    for index, target in enumerate(patch_targets, start=1):
+        slots.append(
+            {
+                "slot_id": f"s{index}",
+                "unit_type": "sentence",
+                "target_type": str(target.get("target_type") or "generic"),
+                "original_text": str(target.get("target_text") or ""),
+                "target_reason": str(target.get("target_type") or "generic"),
+                "target_phrase": str(target.get("target_phrase") or "") or None,
+                "context_before": "",
+                "context_after": "",
+            }
+        )
+    return slots
+
+
+def _classify_generation_patch(
+    service: LongFormExecutionService,
+    *,
+    source_text: str,
+    target_text: str,
+    replacement_text: str,
+    continuation,
+) -> dict[str, object]:
+    target_quality = score_long_form_quality(target_text)
+    replacement_quality = score_long_form_quality(replacement_text)
+    target_signals = service._generic_specificity_signal_count(target_text)
+    replacement_signals = service._generic_specificity_signal_count(replacement_text)
+    has_literal_detail = (
+        replacement_signals > target_signals
+        or int(replacement_quality.get("concrete_hits") or 0) > int(target_quality.get("concrete_hits") or 0)
+        or int(replacement_quality.get("sensory_hits") or 0) > int(target_quality.get("sensory_hits") or 0)
+    )
+    continuation_allowed_names = (
+        service._capitalized_terms(source_text)
+        | service._capitalized_terms(continuation.prior_summary)
+        | service._capitalized_terms(continuation.prior_excerpt)
+        | service._capitalized_terms(" ".join(continuation.chapter_memory.scene_titles or []))
+    )
+    drift = not service._local_patch_fidelity_ok(
+        source_text=source_text,
+        target_text=target_text,
+        replacement_text=replacement_text,
+        allowed_names=continuation_allowed_names,
+        rescue_contract={"rescue_slots": []},
+    )
+    result = service._validate_and_apply_patch_response(
+        source_text=source_text,
+        rescue_slots=[{"slot_id": "s1", "target_type": "generic", "original_text": target_text}],
+        patch_response=[{"slot_id": "s1", "replacement_text": replacement_text}],
+        continuation=continuation,
+        rescue_contract={"rescue_slots": []},
+        mode="recovery_retry",
+    )
+    return {
+        "has_literal_detail": has_literal_detail,
+        "remains_vague": result.get("failure_class") == "patch_specificity_unresolved",
+        "introduces_drift": drift,
+        "validator_result": result,
+    }
 
 
 def _patch_rescue_source_text() -> str:
@@ -1908,6 +1999,159 @@ def test_patch_validation_still_rejects_local_drift_with_new_story_element(tmp_p
 
     assert result["accepted"] is False
     assert result["failure_class"] == "patch_fidelity_risk"
+
+
+def test_frozen_replay_selection_only_detects_slot_selection_divergence_and_stale_target(tmp_path: Path) -> None:
+    service = _service(tmp_path, _long_text())
+    continuation = _artifact_continuation("Forest Replay")
+    diagnostic = _artifact_json(
+        "sample_project/proj_esther_estate_verify_longform/.blackskies/long_form/diagnostics/lf_27cb3073.json"
+    )
+    rewrite_attempt = diagnostic["attempts"][1]
+    recovery_attempt = diagnostic["attempts"][2]
+    original_text = rewrite_attempt["quality_snapshot"]["text"]
+    rescue_contract = service._build_rescue_contract(
+        original_text=original_text,
+        continuation=continuation,
+        critique_snapshot=diagnostic["critique_snapshot"],
+        quality_snapshot=rewrite_attempt["quality_snapshot"],
+    )
+
+    expected_targets = [
+        str(item.get("target_text") or "") for item in recovery_attempt["patch_targets"] if item.get("target_text")
+    ]
+    selected_texts = [str(slot.get("original_text") or "") for slot in rescue_contract["rescue_slots"]]
+    assert not any(target in selected_texts for target in expected_targets)
+
+    patched_text = recovery_attempt["patch_validation"]["patched_text"]
+    stale_target = str(recovery_attempt["patch_targets"][0]["target_text"])
+    assert stale_target not in patched_text
+
+    refreshed = service._refresh_rescue_contract_for_current_text(
+        current_text=patched_text,
+        rescue_contract={"rescue_slots": _legacy_targets_to_slots(recovery_attempt["patch_targets"])},
+        continuation=continuation,
+        critique_snapshot=diagnostic["critique_snapshot"],
+        quality_snapshot=score_long_form_quality(patched_text),
+    )
+    assert refreshed["rescue_slots"]
+    assert any(str(slot.get("original_text") or "").strip() != stale_target for slot in refreshed["rescue_slots"])
+
+
+def test_frozen_replay_generation_only_identifies_vague_specificity_patch(tmp_path: Path) -> None:
+    service = _service(tmp_path, _long_text())
+    continuation = _artifact_continuation("Alley Replay")
+    diagnostic = _artifact_json(
+        "sample_project/proj_esther_estate_verify_longform/.blackskies/long_form/diagnostics/lf_3fbe8439.json"
+    )
+    rewrite_attempt = diagnostic["attempts"][1]
+    recovery_attempt = diagnostic["attempts"][2]
+    patch = recovery_attempt["patch_response"][0]
+
+    report = _classify_generation_patch(
+        service,
+        source_text=rewrite_attempt["quality_snapshot"]["text"],
+        target_text=str(patch["target_text"]),
+        replacement_text=str(patch["replacement_text"]),
+        continuation=continuation,
+    )
+
+    assert report["has_literal_detail"] is False
+    assert report["remains_vague"] is True
+    assert report["introduces_drift"] is False
+
+
+def test_frozen_replay_validator_only_classifies_good_vague_and_drifted_patches(tmp_path: Path) -> None:
+    service = _service(tmp_path, _long_text())
+    continuation = _artifact_continuation("Validator Replay")
+    target_text = "Clara's lips tightened involuntarily as she approached, feeling like an uninvited shadow in their vibrant bubble of youth."
+    source_text = (
+        "Ahead, a group of teenagers loitered near the damp wall in bright jackets. "
+        + target_text
+        + " Their voices bounced off the alley bricks as she kept walking."
+    )
+
+    good = service._validate_and_apply_patch_response(
+        source_text=source_text,
+        rescue_slots=[{"slot_id": "s1", "target_type": "generic", "original_text": target_text}],
+        patch_response=[
+            {
+                "slot_id": "s1",
+                "replacement_text": "Clara's lips tightened as she passed the damp wall, catching the scrape of bright jacket sleeves and the slap of laughter off the alley bricks.",
+            }
+        ],
+        continuation=continuation,
+        rescue_contract={"rescue_slots": []},
+        mode="recovery_retry",
+    )
+    vague = service._validate_and_apply_patch_response(
+        source_text=source_text,
+        rescue_slots=[{"slot_id": "s1", "target_type": "generic", "original_text": target_text}],
+        patch_response=[
+            {
+                "slot_id": "s1",
+                "replacement_text": "Clara's lips tightened as she moved through the crowd, feeling like an unwelcome shadow in their carefree mood.",
+            }
+        ],
+        continuation=continuation,
+        rescue_contract={"rescue_slots": []},
+        mode="recovery_retry",
+    )
+    drift = service._validate_and_apply_patch_response(
+        source_text=source_text,
+        rescue_slots=[{"slot_id": "s1", "target_type": "generic", "original_text": target_text}],
+        patch_response=[
+            {
+                "slot_id": "s1",
+                "replacement_text": "Mara's lips tightened as she palmed the stolen ledger against her coat and slipped past the checkpoint wall.",
+            }
+        ],
+        continuation=continuation,
+        rescue_contract={"rescue_slots": []},
+        mode="recovery_retry",
+    )
+
+    assert good["accepted"] is True
+    assert vague["failure_class"] == "patch_specificity_unresolved"
+    assert drift["failure_class"] == "patch_fidelity_risk"
+
+
+def test_frozen_replay_full_replay_separates_generation_from_binding_bug(tmp_path: Path) -> None:
+    service = _service(tmp_path, _long_text())
+    continuation = _artifact_continuation("Full Replay")
+    specificity_diag = _artifact_json(
+        "sample_project/proj_esther_estate_verify_longform/.blackskies/long_form/diagnostics/lf_3fbe8439.json"
+    )
+    binding_diag = _artifact_json(
+        "sample_project/proj_esther_estate_verify_longform/.blackskies/long_form/diagnostics/lf_27cb3073.json"
+    )
+
+    specificity_attempt = specificity_diag["attempts"][2]
+    specificity_result = service._validate_and_apply_patch_response(
+        source_text=specificity_diag["attempts"][1]["quality_snapshot"]["text"],
+        rescue_slots=_legacy_targets_to_slots(specificity_attempt["patch_targets"]),
+        patch_response=service._parse_patch_response(json.dumps({"patches": specificity_attempt["patch_response"]})),
+        continuation=continuation,
+        rescue_contract={"rescue_slots": []},
+        mode="recovery_retry",
+    )
+    repair_attempt = binding_diag["attempts"][3]
+    binding_result = service._validate_and_apply_patch_response(
+        source_text=binding_diag["attempts"][2]["patch_validation"]["patched_text"],
+        rescue_slots=_legacy_targets_to_slots(repair_attempt["patch_targets"]),
+        patch_response=service._parse_patch_response(json.dumps({"patches": repair_attempt["patch_response"]})),
+        continuation=continuation,
+        rescue_contract={"rescue_slots": []},
+        mode="repair_only",
+    )
+
+    report = {
+        "specificity_layer": specificity_result.get("failure_class"),
+        "binding_layer": "accepted" if binding_result.get("accepted") else binding_result.get("failure_class"),
+    }
+
+    assert report["specificity_layer"] == "patch_specificity_unresolved"
+    assert report["binding_layer"] == "patch_specificity_unresolved"
 
 
 def test_long_form_execution_repair_only_can_fix_dialogue_grounding_after_patch_miss(
