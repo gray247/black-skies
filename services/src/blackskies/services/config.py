@@ -279,6 +279,7 @@ class ServiceSettings(BaseModel):
         overrides: dict[str, str] = {}
         alias_keys: dict[str, list[str]] = {
             "openai_api_key": ["OPENAI_API_KEY"],
+            "openai_base_url": ["OPENAI_API_BASE", "OPENAI_BASE_URL"],
             "local_llm_model": ["BLACKSKIES_LOCAL_MODEL"],
             "local_llm_timeout_seconds": ["BLACKSKIES_LOCAL_TIMEOUT_SECONDS"],
         }

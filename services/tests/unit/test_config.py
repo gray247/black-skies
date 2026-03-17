@@ -148,3 +148,22 @@ def test_openai_api_key_alias_supported(monkeypatch, tmp_path):
     settings = _load_service_settings().from_environment()
 
     assert settings.openai_api_key == "alias-key"
+
+
+def test_openai_base_url_alias_supported(monkeypatch, tmp_path):
+    """OPENAI_API_BASE should map to the ServiceSettings openai_base_url field."""
+
+    project_dir = tmp_path / "Projects" / "Alias Test"
+    project_dir.mkdir(parents=True)
+    (tmp_path / ".env").write_text(
+        f'BLACKSKIES_PROJECT_BASE_DIR="{project_dir}"\n',
+        encoding="utf-8",
+    )
+
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("OPENAI_API_BASE", "http://127.0.0.1:11434/v1")
+    monkeypatch.delenv("BLACKSKIES_OPENAI_BASE_URL", raising=False)
+
+    settings = _load_service_settings().from_environment()
+
+    assert settings.openai_base_url == "http://127.0.0.1:11434/v1"
