@@ -110,6 +110,11 @@ class LongFormExecutionService:
         "slick", "steam", "rain", "glass", "ceramic", "mug", "puddle", "gravel",
         "petal", "stem", "cheek", "skin", "breath", "mist", "coat", "lamp", "streetlamp",
     )
+    _PATCH_SETTING_MARKERS = (
+        "path", "counter", "window", "door", "table", "floor", "wall", "square",
+        "annex", "burner", "pot", "sink", "saucer", "creek", "roots", "oak",
+        "gravel", "cobbles", "stall", "fountain",
+    )
     _VAGUE_SENTENCE_MARKERS = (
         "felt like",
         "felt ",
@@ -1781,9 +1786,13 @@ class LongFormExecutionService:
             target_phrase = str(target.get("target_phrase") or "").lower()
             lowered_replacement = replacement_text.lower()
             if target_type == "dialogue":
-                if '"' in target_text and '"' not in replacement_text:
+                if self._is_dialogue_span(target_text) and not self._is_dialogue_span(replacement_text):
                     return {"accepted": False, "failure_class": "patch_dialogue_grounding_unresolved"}
-                if not any(marker in lowered_replacement for marker in self._PATCH_ACTION_MARKERS):
+                if not self._dialogue_span_has_grounding_cue(replacement_text):
+                    return {"accepted": False, "failure_class": "patch_dialogue_grounding_unresolved"}
+                original_grounding_signals = self._dialogue_grounding_signal_count(target_text)
+                replacement_grounding_signals = self._dialogue_grounding_signal_count(replacement_text)
+                if replacement_grounding_signals <= original_grounding_signals:
                     return {"accepted": False, "failure_class": "patch_dialogue_grounding_unresolved"}
             if target_type == "generic" and target_phrase and target_phrase in lowered_replacement:
                 return {"accepted": False, "failure_class": "patch_generic_replacement_unresolved"}
@@ -1827,14 +1836,28 @@ class LongFormExecutionService:
     def _extract_dialogue_lines(self, text: str | None, *, limit: int = 4) -> list[str]:
         if not text:
             return []
+        sentences = re.split(r"(?<=[.!?])\s+", text.strip())
         lines: list[str] = []
-        for match in re.finditer(r'"([^"\n]{3,160})"', text):
-            line = match.group(1).strip()
-            if line and line not in lines:
-                lines.append(line)
+        for sentence in sentences:
+            cleaned = sentence.strip()
+            if not cleaned:
+                continue
+            if any(marker in cleaned for marker in ('"', "“", "”", "â€œ", "â€")) and cleaned not in lines:
+                lines.append(cleaned)
             if len(lines) >= limit:
                 break
         return lines
+
+    def _dialogue_grounding_signal_count(self, text: str | None) -> int:
+        lowered = str(text or "").lower()
+        markers = set(self._PATCH_ACTION_MARKERS) | set(self._PATCH_SENSORY_MARKERS) | set(self._PATCH_SETTING_MARKERS)
+        return sum(1 for marker in markers if marker in lowered)
+
+    def _dialogue_span_has_grounding_cue(self, text: str | None) -> bool:
+        lowered = str(text or "").lower()
+        has_action = any(marker in lowered for marker in self._PATCH_ACTION_MARKERS)
+        has_anchor = any(marker in lowered for marker in self._PATCH_SENSORY_MARKERS + self._PATCH_SETTING_MARKERS)
+        return has_action and has_anchor
 
     def _extract_sentences_with_terms(
         self,
@@ -1939,8 +1962,11 @@ class LongFormExecutionService:
                 generic_phrases_to_replace.append(phrase)
         generic_phrases_to_replace = generic_phrases_to_replace[:4]
         dialogue_beats_requiring_grounding = []
-        if bool(quality_snapshot.get("dialogue_present")) and not bool(
-            quality_snapshot.get("dialogue_grounded", True)
+        dialogue_targeted = bool((critique_snapshot or {}).get("dialogue_grounding_targets")) or bool(
+            (critique_snapshot or {}).get("grounding_targets")
+        )
+        if bool(quality_snapshot.get("dialogue_present")) and (
+            not bool(quality_snapshot.get("dialogue_grounded", True)) or dialogue_targeted
         ):
             unresolved_targets.append("Ground dialogue in visible action or setting.")
             dialogue_beats_requiring_grounding = self._extract_dialogue_lines(original_text)

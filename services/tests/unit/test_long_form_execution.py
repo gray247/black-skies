@@ -1319,6 +1319,195 @@ def test_long_form_execution_rejects_rescue_that_still_misses_targeted_fix(
     assert chunk.retry_snapshot["rescue_under_improved"] is True
 
 
+def test_build_rescue_contract_preserves_dialogue_targets_for_curly_quoted_lines(tmp_path: Path) -> None:
+    service = _service(tmp_path, _long_text())
+    chapter_memory = ChapterMemoryPacket(
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chapter_context="Chapter One",
+        locked_facts=[],
+        accumulated_summaries=[],
+        unresolved_tensions=[],
+        emotional_carryover=None,
+        pacing_carryover=None,
+        scene_titles=["Kitchen Annex"],
+        beat_refs=["Clara and Alex argue in the annex."],
+    )
+    continuation = SimpleNamespace(
+        prior_summary=None,
+        prior_excerpt=None,
+        chapter_memory=chapter_memory,
+        chapter_id="ch_0001",
+    )
+    original_text = (
+        "Steam crawled along the window glass while the burner clicked under the pot.\n\n"
+        "“I’m just… appreciating the moment,” she replied, her voice barely above a whisper, as if too loud a sound might fracture the fragile beauty surrounding her. "
+        "She kept staring at the cracked mug instead of the burrito bag or Alex's face."
+    )
+
+    rescue_contract = service._build_rescue_contract(
+        original_text=original_text,
+        continuation=continuation,
+        critique_snapshot={
+            "rewrite_goals": ["Ground the line in the annex."],
+            "dialogue_grounding_targets": ["Attach the spoken line to movement, object handling, or the annex."],
+            "grounding_targets": ["Keep the line near the mug and burner."],
+        },
+        quality_snapshot={
+            "dialogue_present": True,
+            "dialogue_grounded": False,
+        },
+    )
+
+    assert rescue_contract["dialogue_beats_requiring_grounding"]
+    assert "appreciating the moment" in rescue_contract["dialogue_beats_requiring_grounding"][0].lower()
+    assert any(target["target_type"] == "dialogue" for target in rescue_contract["patch_targets"])
+
+
+def test_patch_validation_accepts_dialogue_grounding_with_local_action_and_setting_cue(tmp_path: Path) -> None:
+    service = _service(tmp_path, _long_text())
+    chapter_memory = ChapterMemoryPacket(
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chapter_context="Chapter One",
+        locked_facts=[],
+        accumulated_summaries=[],
+        unresolved_tensions=[],
+        emotional_carryover=None,
+        pacing_carryover=None,
+        scene_titles=["Kitchen Annex"],
+        beat_refs=[],
+    )
+    continuation = SimpleNamespace(
+        prior_summary=None,
+        prior_excerpt=None,
+        chapter_memory=chapter_memory,
+        chapter_id="ch_0001",
+    )
+    source_text = _patch_rescue_weak_source_text()
+    target_text = "\"I'm trying,\" she said, and the silence hung in the air between them while her thumb stayed hooked around the mug handle."
+
+    result = service._validate_and_apply_patch_response(
+        source_text=source_text,
+        patch_targets=[{"span_id": "p1", "target_type": "dialogue", "target_text": target_text}],
+        patch_response=[
+            {
+                "span_id": "p1",
+                "target_text": target_text,
+                "replacement_text": "\"I'm trying,\" she said, gripping the mug handle until the ceramic tapped the counter while the burner clicked behind her.",
+            }
+        ],
+        continuation=continuation,
+        rescue_contract={"patch_targets": []},
+        mode="recovery_retry",
+    )
+
+    assert result["accepted"] is True
+    assert "gripping the mug handle" in result["patched_text"]
+
+
+def test_patch_validation_rejects_dialogue_paraphrase_without_local_grounding(tmp_path: Path) -> None:
+    service = _service(tmp_path, _long_text())
+    chapter_memory = ChapterMemoryPacket(
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chapter_context="Chapter One",
+        locked_facts=[],
+        accumulated_summaries=[],
+        unresolved_tensions=[],
+        emotional_carryover=None,
+        pacing_carryover=None,
+        scene_titles=["Kitchen Annex"],
+        beat_refs=[],
+    )
+    continuation = SimpleNamespace(
+        prior_summary=None,
+        prior_excerpt=None,
+        chapter_memory=chapter_memory,
+        chapter_id="ch_0001",
+    )
+    target_text = "\"I'm trying,\" she said, and the silence hung in the air between them while her thumb stayed hooked around the mug handle."
+
+    result = service._validate_and_apply_patch_response(
+        source_text=_patch_rescue_weak_source_text(),
+        patch_targets=[{"span_id": "p1", "target_type": "dialogue", "target_text": target_text}],
+        patch_response=[
+            {
+                "span_id": "p1",
+                "target_text": target_text,
+                "replacement_text": "\"I'm trying,\" she said, her voice soft and fragile in the silence between them.",
+            }
+        ],
+        continuation=continuation,
+        rescue_contract={"patch_targets": []},
+        mode="recovery_retry",
+    )
+
+    assert result["accepted"] is False
+    assert result["failure_class"] == "patch_dialogue_grounding_unresolved"
+
+
+def test_long_form_execution_repair_only_can_fix_dialogue_grounding_after_patch_miss(
+    tmp_path: Path,
+) -> None:
+    project_root = tmp_path / "proj_repair_dialogue_rescue"
+    project_root.mkdir(parents=True, exist_ok=True)
+    settings = ServiceSettings(
+        project_base_dir=tmp_path,
+        long_form_provider_enabled=True,
+        local_llm_rewrite_retry_model="qwen3:14b",
+    )
+    diagnostics = DiagnosticLogger()
+    router = ModelRouter(
+        config=ModelRouterConfig(
+            policy=ModelRoutingPolicy.LOCAL_ONLY,
+            provider_calls_enabled=True,
+        )
+    )
+    critique = json.dumps(
+        {
+            "summary": "Ground the dialogue without broadening the annex scene.",
+            "weaknesses": ["dialogue", "specificity", "clarity"],
+            "continuity_issues": [],
+            "pacing_issues": [],
+            "meta_contamination": False,
+            "rewrite_goals": ["Ground each spoken beat in action or a nearby object."],
+            "dialogue_grounding_targets": ["Attach each spoken line to movement, gesture, or the mug and burner."],
+            "grounding_targets": ["Keep the dialogue tied to the annex objects."],
+        }
+    )
+    adapter = _SequencedCritiqueRewriteAdapter(
+        [_patch_rescue_weak_source_text()],
+        critique,
+        [
+            _patch_rescue_weak_source_text(),
+            _patch_rescue_dialogue_fail_payload(),
+            _patch_rescue_success_payload(),
+        ],
+    )
+    router.register_provider(_FakeProvider(adapter))
+    service = LongFormExecutionService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=router,
+        enabled=True,
+    )
+
+    result = service.execute(
+        project_root=project_root,
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chunk_size=1,
+        target_words_per_chunk=400,
+    )
+
+    assert result.stopped_reason is None
+    chunk = result.chunks[0]
+    assert chunk.retry_snapshot is not None
+    assert chunk.retry_snapshot["repair_only_pass_used"] is True
+    assert chunk.retry_snapshot["repair_only_pass_rescued"] is True
+    assert chunk.retry_snapshot["patch_rescue_success"] is True
+
 def test_long_form_execution_repair_only_pass_can_rescue_fidelity_safe_retry(
     tmp_path: Path,
 ) -> None:
