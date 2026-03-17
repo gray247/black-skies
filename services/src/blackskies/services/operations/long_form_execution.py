@@ -100,6 +100,11 @@ class LongFormExecutionService:
         "breath catching",
         "shivers spiraling",
     )
+    _PATCH_ACTION_MARKERS = (
+        "grip", "gripped", "rub", "rubbed", "press", "pressed", "set", "set down",
+        "looked", "watched", "leaned", "nudge", "nudged", "held", "lifted", "turned",
+        "stepped", "kept", "wiped", "tapped", "clicked", "dragged", "slid",
+    )
 
     def __init__(
         self,
@@ -566,16 +571,106 @@ class LongFormExecutionService:
                         guardrail_snapshot,
                     )
                 cleaned = candidate.get("text")
-                report = evaluate_long_form_output(
-                    cleaned, prior_excerpt=continuation.prior_excerpt
-                )
-                attempt_record["basic_validation"] = report
                 attempt_record["raw_preview"] = candidate.get("raw_preview")
                 attempt_record["normalized_preview"] = candidate.get("normalized_preview")
                 attempt_record["raw_length"] = candidate.get("raw_length")
                 attempt_record["normalized_length"] = candidate.get("normalized_length")
                 attempt_record["raw_payload_keys"] = candidate.get("raw_payload_keys")
                 attempt_record["raw_payload_preview"] = candidate.get("raw_payload_preview")
+                if attempt_kind in {"recovery_retry", "repair_only"} and rescue_contract is not None:
+                    source_text = (
+                        previous_quality_snapshot.get("text")
+                        if isinstance(previous_quality_snapshot, dict)
+                        else None
+                    ) or ""
+                    patch_targets = list(rescue_contract.get("patch_targets") or [])
+                    patch_response = self._parse_patch_response(cleaned)
+                    attempt_record["patch_targets"] = patch_targets
+                    attempt_record["patch_response"] = patch_response
+                    patch_result = self._validate_and_apply_patch_response(
+                        source_text=source_text,
+                        patch_targets=patch_targets,
+                        patch_response=patch_response,
+                        continuation=continuation,
+                        rescue_contract=rescue_contract,
+                        mode=attempt_kind,
+                    )
+                    attempt_record["patch_validation"] = patch_result
+                    if retry_snapshot is not None:
+                        retry_snapshot["patch_rescue_used"] = True
+                        retry_snapshot["patch_targets_summary"] = {
+                            "target_count": len(patch_targets),
+                            "target_types": [str(target.get("target_type")) for target in patch_targets],
+                        }
+                    if not patch_result.get("accepted"):
+                        if retry_snapshot is not None:
+                            retry_snapshot["rescue_failure_class"] = str(
+                                patch_result.get("failure_class") or "patch_under_applied"
+                            )
+                            retry_snapshot["rescue_under_improved"] = True
+                            retry_snapshot["rescue_guardrail_fail"] = False
+                            retry_snapshot["rescue_fidelity_risk"] = retry_snapshot["rescue_failure_class"] == "patch_fidelity_risk"
+                        attempt_diagnostics.append(attempt_record)
+                        if (
+                            attempt_kind == "recovery_retry"
+                            and internal_repair_attempts_used < self._MAX_INTERNAL_REPAIR_PASSES
+                            and str(patch_result.get("failure_class") or "") in {
+                                "patch_generic_replacement_unresolved",
+                                "patch_dialogue_grounding_unresolved",
+                                "patch_specificity_unresolved",
+                                "patch_clarity_unresolved",
+                                "patch_under_applied",
+                                "patch_parse_failed",
+                            }
+                        ):
+                            internal_repair_attempts_used += 1
+                            retry_snapshot["repair_only_pass_used"] = True
+                            retry_snapshot["repair_only_pass_rescued"] = False
+                            current_payload = dict(payload)
+                            current_payload["prompt"] = self._build_repair_only_prompt(
+                                latest_text=source_text,
+                                continuation=continuation,
+                                rescue_contract=rescue_contract or {},
+                                rescue_failure_class=str(patch_result.get("failure_class") or "patch_under_applied"),
+                            )
+                            current_payload["system"] = (
+                                "Perform a repair-only patch edit. Return JSON only."
+                            )
+                            attempt += 1
+                            continue
+                        persist_long_form_diagnostic(
+                            project_root,
+                            continuation.chunk_id,
+                            {
+                                "chunk_id": continuation.chunk_id,
+                                "validation_decision": False,
+                                "fallback_reason": "quality_failed",
+                                "attempts": attempt_diagnostics,
+                                "quality_snapshot": quality_snapshot,
+                                "critique_snapshot": critique_snapshot,
+                                "retry_snapshot": retry_snapshot,
+                                "guardrail_snapshot": guardrail_snapshot,
+                            },
+                        )
+                        return (
+                            self._fallback_text(continuation),
+                            "quality_failed",
+                            True,
+                            attempt,
+                            quality_snapshot,
+                            critique_snapshot,
+                            "quality_failed",
+                            rewrite_used,
+                            retry_snapshot,
+                            guardrail_snapshot,
+                        )
+                    cleaned = str(patch_result.get("patched_text") or source_text)
+                    attempt_record["patched_preview"] = cleaned[:200]
+                    attempt_record["patch_snapshot"] = patch_result.get("patch_snapshots")
+                report = evaluate_long_form_output(
+                    cleaned, prior_excerpt=continuation.prior_excerpt
+                )
+                attempt_record["basic_validation"] = report
                 attempt_diagnostics.append(attempt_record)
 
                 if not report.get("usable"):
@@ -756,6 +851,7 @@ class LongFormExecutionService:
                         retry_snapshot["rescue_guardrail_fail"] = False
                         retry_snapshot["rescue_under_improved"] = False
                         retry_snapshot["rescue_fidelity_risk"] = False
+                        retry_snapshot["patch_rescue_success"] = True
                     if retry_snapshot and attempt_kind == "repair_only":
                         retry_snapshot["repair_only_pass_rescued"] = True
                     acceptance_reason = (
@@ -814,6 +910,25 @@ class LongFormExecutionService:
                     attempt += 1
                     continue
 
+                if retry_snapshot and attempt_kind in {"recovery_retry", "repair_only"}:
+                    rescue_failure_class = self._classify_rescue_failure(
+                        previous_quality_snapshot=previous_quality_snapshot,
+                        rewritten_quality_snapshot=quality_snapshot,
+                        critique_snapshot=critique_snapshot,
+                        guardrail_snapshot=guardrail_snapshot,
+                    )
+                    retry_snapshot["rescue_failure_class"] = rescue_failure_class
+                    retry_snapshot["rescue_guardrail_fail"] = rescue_failure_class == "guardrail_failed"
+                    retry_snapshot["rescue_under_improved"] = rescue_failure_class not in {
+                        "guardrail_failed",
+                        "quality_threshold_miss",
+                    }
+                    retry_snapshot["rescue_fidelity_risk"] = rescue_failure_class in {
+                        "guardrail_failed",
+                        "patch_fidelity_risk",
+                    }
+                    attempt_record["rescue_failure_class"] = rescue_failure_class
+
                 failure_classification = self._classify_quality_failure(
                     quality_snapshot,
                     continuation_chunk=bool(continuation.prior_summary or continuation.prior_excerpt),
@@ -841,6 +956,8 @@ class LongFormExecutionService:
                         "rescue_guardrail_fail": False,
                         "rescue_under_improved": False,
                         "rescue_fidelity_risk": False,
+                        "patch_rescue_used": False,
+                        "patch_rescue_success": False,
                         "repair_only_pass_used": False,
                         "repair_only_pass_rescued": False,
                     }
@@ -877,8 +994,7 @@ class LongFormExecutionService:
                         rescue_contract=rescue_contract,
                     )
                     current_payload["system"] = (
-                        "Perform a single recovery rewrite. Output only narrative prose. "
-                        "No analysis, no planning, no headings."
+                        "Perform a single recovery patch edit. Return JSON only."
                     )
                     current_payload["rescue_contract"] = rescue_contract
                     attempt += 1
@@ -1191,7 +1307,7 @@ class LongFormExecutionService:
         targeted_editorial_miss = (
             coherence >= self._QUALITY_MIN_COHERENCE
             and continuity >= max(3, self._QUALITY_MIN_CONTINUITY - 1)
-            and total >= max(24, self._QUALITY_MIN_TOTAL - 5)
+            and total >= max(20, self._QUALITY_MIN_TOTAL - 9)
             and (
                 (dialogue_present and not dialogue_grounded)
                 or specificity <= 3
@@ -1235,6 +1351,7 @@ class LongFormExecutionService:
         failure_classification: dict[str, Any],
         rescue_contract: dict[str, Any],
     ) -> str:
+        patch_targets = rescue_contract.get("patch_targets") or []
         scores = (quality_snapshot or {}).get("scores") or {}
         unresolved: list[str] = []
         if int((quality_snapshot or {}).get("total_score") or 0) < self._QUALITY_MIN_TOTAL:
@@ -1267,8 +1384,9 @@ class LongFormExecutionService:
             f"- {line}" for line in (rescue_contract.get("lines_to_repair") or [])
         ) or "- Patch only the weakest local lines if repair is needed."
         anchor_terms = ", ".join(rescue_contract.get("required_concrete_anchor_terms") or []) or "Use the existing scene anchors."
+        patch_targets_text = json.dumps(patch_targets, ensure_ascii=False, indent=2)
         return (
-            "Precision rescue edit.\n"
+            "Precision patch rescue.\n"
             f"CHAPTER: {continuation.chapter_memory.chapter_context or continuation.chapter_id}\n"
             f"SCENE OUTLINE TITLES: {' | '.join(continuation.chapter_memory.scene_titles) if continuation.chapter_memory.scene_titles else 'Unknown'}\n"
             f"SCENE BEAT REFS: {', '.join(continuation.chapter_memory.beat_refs) if continuation.chapter_memory.beat_refs else 'None'}\n"
@@ -1288,8 +1406,8 @@ class LongFormExecutionService:
             "Do not swap the scene subject or broaden the scope of the scene.\n"
             "Do not compress the scene into a summary or expand it into a larger sequence.\n"
             "Preserve the dialogue beats already present, but ground them in gesture, object handling, movement, or environment when relevant.\n"
-            "Patch the weak lines and beats directly. Do not rewrite broadly unless a local patch is impossible.\n"
-            "If you cannot improve the scene while preserving those constraints, stay conservative and preserve fidelity.\n"
+            "Edit only the specified spans. Do not rewrite untouched paragraphs.\n"
+            "Return JSON only.\n"
             "UNRESOLVED QUALITY TARGETS:\n"
             f"{unresolved_text}\n"
             "LINES / BEATS TO REPAIR:\n"
@@ -1308,6 +1426,10 @@ class LongFormExecutionService:
             "- Every targeted generic phrase must be replaced with concrete visible detail.\n"
             f"- Raise specificity by at least {rescue_contract.get('minimum_specificity_delta')} if targeted, or add concrete scene detail.\n"
             f"- Raise clarity by at least {rescue_contract.get('minimum_clarity_delta')} if targeted.\n\n"
+            "PATCH TARGETS JSON:\n"
+            f"{patch_targets_text}\n\n"
+            "Return exactly this schema:\n"
+            "{\"patches\":[{\"span_id\":\"p1\",\"target_text\":\"exact original span\",\"replacement_text\":\"replacement span only\"}]}\n\n"
             "ORIGINAL SCENE:\n"
             f"{original_text}\n"
         )
@@ -1320,6 +1442,7 @@ class LongFormExecutionService:
         rescue_contract: dict[str, Any],
         rescue_failure_class: str,
     ) -> str:
+        patch_targets = rescue_contract.get("patch_targets") or []
         local_lines = "\n".join(
             f"- {line}" for line in (rescue_contract.get("lines_to_repair") or [])
         ) or "- Patch only the unresolved weak lines."
@@ -1329,11 +1452,12 @@ class LongFormExecutionService:
         generic_targets = "\n".join(
             f"- {line}" for line in (rescue_contract.get("generic_phrases_to_replace") or [])
         ) or "- No unresolved generic targets."
+        patch_targets_text = json.dumps(patch_targets, ensure_ascii=False, indent=2)
         return (
-            "Repair-only rescue pass.\n"
+            "Repair-only patch rescue pass.\n"
             "The prior rescue stayed fidelity-safe but still missed one editorial target.\n"
             f"Failure class: {rescue_failure_class}\n"
-            "Patch only the unresolved weaknesses. Keep the rest of the scene intact and return the full revised scene.\n"
+            "Patch only the unresolved weaknesses. Keep the rest of the scene intact.\n"
             "Do not add new entities, events, or scene directions.\n"
             f"CHAPTER: {continuation.chapter_memory.chapter_context or continuation.chapter_id}\n"
             f"LENGTH BAND: {rescue_contract.get('min_word_count')} to {rescue_contract.get('max_word_count')} words\n"
@@ -1346,12 +1470,16 @@ class LongFormExecutionService:
             "UNRESOLVED GENERIC TARGETS:\n"
             f"{generic_targets}\n"
             "PATCH RULES:\n"
-            "- Return the complete scene from the first sentence to the last sentence, including untouched paragraphs.\n"
+            "- Return JSON only.\n"
             "- Keep dialogue order and overall paragraph flow where possible.\n"
             "- Preserve approximately the same paragraph count and scene beat count.\n"
             "- Add only the missing action/gesture/object cues or concrete details.\n"
             "- Do not compress the scene into a short excerpt, summary, or tail fragment.\n"
-            "- Do not broadly rephrase already acceptable sections.\n\n"
+            "- Do not broadly rephrase already acceptable sections.\n"
+            "PATCH TARGETS JSON:\n"
+            f"{patch_targets_text}\n"
+            "Return exactly this schema:\n"
+            "{\"patches\":[{\"span_id\":\"p1\",\"target_text\":\"exact original span\",\"replacement_text\":\"replacement span only\"}]}\n\n"
             "CURRENT SCENE:\n"
             f"{latest_text}\n"
         )
@@ -1408,6 +1536,195 @@ class LongFormExecutionService:
             "within_paragraph_band": within_paragraph_band,
             "accepted": failure_reason is None,
             "failure_reason": failure_reason,
+        }
+
+    def _extract_patch_targets(
+        self,
+        *,
+        original_text: str,
+        continuation,
+        critique_snapshot: dict[str, Any] | None,
+        quality_snapshot: dict[str, Any] | None,
+        rescue_contract: dict[str, Any],
+    ) -> list[dict[str, Any]]:
+        targets: list[dict[str, Any]] = []
+        seen: set[str] = set()
+
+        def add_target(target_text: str, target_type: str, target_phrase: str | None = None) -> None:
+            cleaned = target_text.strip()
+            if not cleaned or cleaned in seen:
+                return
+            seen.add(cleaned)
+            target: dict[str, Any] = {
+                "span_id": f"p{len(targets) + 1}",
+                "target_type": target_type,
+                "target_text": cleaned,
+            }
+            if target_phrase:
+                target["target_phrase"] = target_phrase
+            targets.append(target)
+
+        for line in rescue_contract.get("lines_to_repair") or []:
+            lowered = line.lower()
+            target_type = "generic"
+            phrase = None
+            for generic_phrase in rescue_contract.get("generic_phrases_to_replace") or []:
+                if generic_phrase.lower() in lowered:
+                    phrase = generic_phrase
+                    break
+            if line in (rescue_contract.get("dialogue_beats_requiring_grounding") or []) or '"' in line:
+                target_type = "dialogue"
+            elif continuation.prior_summary and any(term in lowered for term in (quality_snapshot or {}).get("carryover_terms") or []):
+                target_type = "carryover"
+            add_target(line, target_type, phrase)
+
+        for line in rescue_contract.get("dialogue_beats_requiring_grounding") or []:
+            add_target(line, "dialogue")
+
+        for line in self._extract_sentences_with_phrase_markers(original_text, limit=4)[1]:
+            phrase = None
+            lowered = line.lower()
+            for generic_phrase in rescue_contract.get("generic_phrases_to_replace") or []:
+                if generic_phrase.lower() in lowered:
+                    phrase = generic_phrase
+                    break
+            add_target(line, "generic", phrase)
+
+        return targets[:6]
+
+    def _parse_patch_response(self, raw_text: str | None) -> list[dict[str, Any]] | None:
+        if not isinstance(raw_text, str) or not raw_text.strip():
+            return None
+        normalized = raw_text.strip()
+        if normalized.startswith("```"):
+            lines = normalized.splitlines()
+            if lines and lines[0].startswith("```"):
+                lines = lines[1:]
+            if lines and lines[-1].strip() == "```":
+                lines = lines[:-1]
+            normalized = "\n".join(lines).strip()
+        if normalized and not normalized.startswith("{") and not normalized.startswith("["):
+            start = normalized.find("{")
+            end = normalized.rfind("}")
+            if start != -1 and end != -1 and end > start:
+                normalized = normalized[start : end + 1]
+        try:
+            payload = json.loads(normalized)
+        except json.JSONDecodeError:
+            return None
+        if isinstance(payload, dict):
+            patches = payload.get("patches")
+        else:
+            patches = payload
+        if not isinstance(patches, list):
+            return None
+        normalized_patches: list[dict[str, Any]] = []
+        for patch in patches:
+            if not isinstance(patch, dict):
+                continue
+            span_id = str(patch.get("span_id") or "").strip()
+            target_text = str(patch.get("target_text") or "").strip()
+            replacement_text = str(patch.get("replacement_text") or "").strip()
+            if not span_id or not replacement_text:
+                continue
+            normalized_patches.append(
+                {
+                    "span_id": span_id,
+                    "target_text": target_text,
+                    "replacement_text": replacement_text,
+                }
+            )
+        return normalized_patches or None
+
+    def _validate_and_apply_patch_response(
+        self,
+        *,
+        source_text: str,
+        patch_targets: list[dict[str, Any]],
+        patch_response: list[dict[str, Any]] | None,
+        continuation,
+        rescue_contract: dict[str, Any],
+        mode: str,
+    ) -> dict[str, Any]:
+        if not patch_response:
+            return {"accepted": False, "failure_class": "patch_parse_failed"}
+        target_by_id = {
+            str(target.get("span_id")): target
+            for target in patch_targets
+            if isinstance(target, dict) and target.get("span_id")
+        }
+        target_by_text = {
+            str(target.get("target_text") or "").strip(): target
+            for target in patch_targets
+            if isinstance(target, dict) and str(target.get("target_text") or "").strip()
+        }
+        allowed_names = (
+            self._capitalized_terms(source_text)
+            | self._capitalized_terms(continuation.prior_summary)
+            | self._capitalized_terms(continuation.prior_excerpt)
+            | self._capitalized_terms(" ".join(continuation.chapter_memory.scene_titles or []))
+            | self._capitalized_terms(" ".join(continuation.chapter_memory.locked_facts or []))
+        )
+        patched_text = source_text
+        patch_snapshots: list[dict[str, Any]] = []
+        for patch in patch_response:
+            span_id = str(patch.get("span_id"))
+            requested_target_text = str(patch.get("target_text") or "").strip()
+            target = target_by_id.get(span_id)
+            if requested_target_text:
+                text_matched_target = target_by_text.get(requested_target_text)
+                if text_matched_target is not None:
+                    target = text_matched_target
+            if not target:
+                return {"accepted": False, "failure_class": "patch_target_missing"}
+            target_text = str(target.get("target_text") or patch.get("target_text") or "")
+            replacement_text = str(patch.get("replacement_text") or "")
+            if target_text not in patched_text:
+                return {"accepted": False, "failure_class": "patch_target_missing"}
+            target_type = str(target.get("target_type") or "generic")
+            target_phrase = str(target.get("target_phrase") or "").lower()
+            lowered_replacement = replacement_text.lower()
+            if target_type == "dialogue":
+                if '"' in target_text and '"' not in replacement_text:
+                    return {"accepted": False, "failure_class": "patch_dialogue_grounding_unresolved"}
+                if not any(marker in lowered_replacement for marker in self._PATCH_ACTION_MARKERS):
+                    return {"accepted": False, "failure_class": "patch_dialogue_grounding_unresolved"}
+            if target_type == "generic" and target_phrase and target_phrase in lowered_replacement:
+                return {"accepted": False, "failure_class": "patch_generic_replacement_unresolved"}
+            target_word_count = max(1, len(target_text.split()))
+            replacement_word_count = len(replacement_text.split())
+            min_ratio = 0.6 if mode == "repair_only" else 0.45
+            max_ratio = 1.8 if mode == "repair_only" else 2.4
+            if replacement_word_count < int(target_word_count * min_ratio) or replacement_word_count > int(target_word_count * max_ratio) + 8:
+                return {"accepted": False, "failure_class": "patch_length_distortion"}
+            new_names = self._capitalized_terms(replacement_text) - allowed_names
+            if new_names:
+                return {"accepted": False, "failure_class": "patch_fidelity_risk"}
+            if target_type == "generic":
+                replacement_quality = score_long_form_quality(replacement_text)
+                if (
+                    int(replacement_quality.get("concrete_hits") or 0) < 1
+                    and int(replacement_quality.get("sensory_hits") or 0) < 1
+                    and not any(marker in lowered_replacement for marker in self._PATCH_ACTION_MARKERS)
+                ):
+                    return {"accepted": False, "failure_class": "patch_specificity_unresolved"}
+            patched_text = patched_text.replace(target_text, replacement_text, 1)
+            patch_snapshots.append(
+                {
+                    "span_id": span_id,
+                    "target_type": target_type,
+                    "target_text": target_text,
+                    "replacement_text": replacement_text,
+                    "target_word_count": target_word_count,
+                    "replacement_word_count": replacement_word_count,
+                }
+            )
+        if not patch_snapshots:
+            return {"accepted": False, "failure_class": "patch_under_applied"}
+        return {
+            "accepted": True,
+            "patched_text": patched_text,
+            "patch_snapshots": patch_snapshots,
         }
 
     def _extract_dialogue_lines(self, text: str | None, *, limit: int = 4) -> list[str]:
@@ -1545,11 +1862,42 @@ class LongFormExecutionService:
         filtered_anchor_terms = [
             term
             for term in scene_anchors
-            if len(term) >= 4 and term not in {"that", "with", "have", "from", "they"}
+            if len(term) >= 4
+            and term
+            not in {
+                "that",
+                "with",
+                "have",
+                "from",
+                "they",
+                "room",
+                "felt",
+                "silence",
+                "moment",
+                "things",
+                "everything",
+                "nothing",
+                "their",
+                "there",
+                "looked",
+                "waited",
+            }
         ]
         original_paragraph_count = max(
             1,
             len([seg for seg in original_text.split("\n\n") if seg.strip()]),
+        )
+        patch_targets = self._extract_patch_targets(
+            original_text=original_text,
+            continuation=continuation,
+            critique_snapshot=critique_snapshot,
+            quality_snapshot=quality_snapshot,
+            rescue_contract={
+                "lines_to_repair": lines_to_repair[:6],
+                "dialogue_beats_requiring_grounding": dialogue_beats_requiring_grounding[:4],
+                "generic_phrases_to_replace": generic_phrases_to_replace,
+                "required_concrete_anchor_terms": (filtered_anchor_terms or scene_anchors)[:3],
+            },
         )
         return {
             "subject_entities": subject_entities[:8],
@@ -1571,6 +1919,7 @@ class LongFormExecutionService:
             "max_paragraph_count": original_paragraph_count + self._REPAIR_ONLY_PARAGRAPH_TOLERANCE,
             "original_word_count": original_word_count,
             "unresolved_targets": unresolved_targets[:8],
+            "patch_targets": patch_targets,
         }
 
     def _build_rescue_delta_summary(
@@ -1955,6 +2304,16 @@ class LongFormExecutionService:
             return False
         if weak_carryover:
             return False
+        patch_rescue_recovery_pass = (
+            rewrite_used
+            and previous_quality_snapshot is not None
+            and bool((rescue_contract or {}).get("patch_targets"))
+            and total >= max(24, self._QUALITY_MIN_TOTAL - 6)
+            and coherence >= max(2, self._QUALITY_MIN_COHERENCE - 1)
+            and continuity >= max(3, self._QUALITY_MIN_CONTINUITY - 1)
+            and specificity >= max(3, required_specificity - 1)
+            and clarity >= max(3, self._QUALITY_MIN_CLARITY - 1)
+        )
         if continuation_chunk:
             previous_generic_risk = bool(previous_quality_snapshot.get("generic_risk")) if previous_quality_snapshot else False
             rewrite_recovery_pass = (
@@ -1999,6 +2358,22 @@ class LongFormExecutionService:
             if base_pass:
                 return True
             if rewrite_recovery_pass:
+                return self._rewrite_delta_passes(
+                    previous_quality_snapshot=previous_quality_snapshot,
+                    rewritten_quality_snapshot=quality_snapshot,
+                    continuation_chunk=True,
+                ) and self._rewrite_targets_aligned(
+                    previous_quality_snapshot=previous_quality_snapshot,
+                    rewritten_quality_snapshot=quality_snapshot,
+                    critique_snapshot=critique_snapshot,
+                    continuation_chunk=True,
+                ) and self._rescue_targets_satisfied(
+                    previous_quality_snapshot=previous_quality_snapshot,
+                    rewritten_quality_snapshot=quality_snapshot,
+                    critique_snapshot=critique_snapshot,
+                    rescue_contract=rescue_contract,
+                )
+            if patch_rescue_recovery_pass:
                 return self._rewrite_delta_passes(
                     previous_quality_snapshot=previous_quality_snapshot,
                     rewritten_quality_snapshot=quality_snapshot,
@@ -2065,6 +2440,22 @@ class LongFormExecutionService:
                 critique_snapshot=critique_snapshot,
                 rescue_contract=rescue_contract,
             )
+        if patch_rescue_recovery_pass:
+            return self._rewrite_delta_passes(
+                previous_quality_snapshot=previous_quality_snapshot,
+                rewritten_quality_snapshot=quality_snapshot,
+                continuation_chunk=False,
+            ) and self._rewrite_targets_aligned(
+                previous_quality_snapshot=previous_quality_snapshot,
+                rewritten_quality_snapshot=quality_snapshot,
+                critique_snapshot=critique_snapshot,
+                continuation_chunk=False,
+            ) and self._rescue_targets_satisfied(
+                previous_quality_snapshot=previous_quality_snapshot,
+                rewritten_quality_snapshot=quality_snapshot,
+                critique_snapshot=critique_snapshot,
+                rescue_contract=rescue_contract,
+            )
         return False
 
     def _rescue_targets_satisfied(
@@ -2116,14 +2507,17 @@ class LongFormExecutionService:
             for item in ((rescue_contract or {}).get("generic_phrases_to_replace") or [])
             if str(item).strip()
         ]
+        using_patch_rescue = bool((rescue_contract or {}).get("patch_targets"))
         rewritten_text = str(rewritten_quality_snapshot.get("text") or "").lower()
-        if targeted_generic_phrases:
+        if targeted_generic_phrases and not using_patch_rescue:
             if any(phrase in rewritten_text for phrase in targeted_generic_phrases):
                 return False
         if int(previous_quality_snapshot.get("stock_phrase_hits") or 0) > 0:
-            if int(rewritten_quality_snapshot.get("stock_phrase_hits") or 0) >= int(
-                previous_quality_snapshot.get("stock_phrase_hits") or 0
-            ):
+            previous_stock_hits = int(previous_quality_snapshot.get("stock_phrase_hits") or 0)
+            rewritten_stock_hits = int(rewritten_quality_snapshot.get("stock_phrase_hits") or 0)
+            if rewritten_stock_hits >= previous_stock_hits:
+                return False
+            if using_patch_rescue and rewritten_stock_hits > max(0, previous_stock_hits - 1):
                 return False
         return True
 

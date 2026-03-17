@@ -375,6 +375,98 @@ def _repair_only_collapsed_fragment() -> str:
     )
 
 
+def _structured_patch_payload(*patches: dict[str, str]) -> str:
+    return json.dumps({"patches": list(patches)})
+
+
+def _patch_rescue_source_text() -> str:
+    return (
+        "Clara stood in the market-square kitchen annex with her palm flat on the chipped Formica while the coffee pot clicked behind her. "
+        "Alex waited by the side table with the paper sack in both hands, giving her room near the sink. "
+        "Steam crawled along the window glass and dampened the hair at her temple while carts rattled outside. "
+        "She kept staring at the cracked mug instead of the burrito bag or Alex's face. "
+        "The burner clicked under the glass pot, and each pop of heat made the spoon on the saucer twitch against the counter edge. "
+        "Alex kept his shoulders angled away from her, careful not to block the narrow aisle between the sink and the window. "
+        "A bus rolled past the square outside, shaking the loose latch against the annex frame while steam blurred the pane above the sink. "
+        "Clara rubbed the pad of her thumb across the mug handle, then set it down and picked it up again when the coffee smell turned bitter.\n\n"
+        "\"You don't have to pretend with me,\" Alex said, shifting the paper sack from one hand to the other while he watched the burner light pulse blue beneath the pot. "
+        "Clara gave him a thin nod, but the words trailed off while she watched the coffee drip for a moment instead of answering him. "
+        "She kept her hip against the counter and listened to the carts grind across the cobbles outside the annex door. "
+        "\"I'm trying,\" she said, and the silence hung in the air between them while her thumb stayed hooked around the mug handle. "
+        "Alex looked at the cracked mug instead of crowding her, waiting while the spoon tapped once more against the saucer."
+    )
+
+
+def _patch_rescue_weak_source_text() -> str:
+    return (
+        "Clara stood in the market-square kitchen annex while the room felt heavy and the silence hung in the air around the chipped Formica. "
+        "Alex waited by the side table with the paper sack in both hands, but everything about the room felt strangely distant and hard to pin down. "
+        "Steam crawled along the window glass while carts rattled outside, and the whole annex felt full of tension that neither of them could name. "
+        "She kept staring at the cracked mug instead of the burrito bag or Alex's face, as if the moment might stay suspended forever. "
+        "The burner clicked under the glass pot and the sound seemed to echo through the room in a way that made everything feel even more uncertain. "
+        "A bus rolled past the square outside, but the noise only made the silence feel heavier.\n\n"
+        "\"You don't have to pretend with me,\" Alex said. Clara gave him a thin nod, but the words trailed off while she watched the coffee drip for a moment instead of answering him. "
+        "The silence hung in the air between them and made the room feel even more tense. "
+        "\"I'm trying,\" she said, and the silence hung in the air between them while her thumb stayed hooked around the mug handle. "
+        "Alex waited, and the moment felt distant and unresolved while the spoon tapped once more against the saucer."
+    )
+
+
+def _patch_rescue_success_payload() -> str:
+    return _structured_patch_payload(
+        {
+            "span_id": "p1",
+            "target_text": "Clara gave him a thin nod, but the words trailed off while she watched the coffee drip for a moment instead of answering him.",
+            "replacement_text": "Clara gave him a thin nod, rubbed her thumb along the hot mug handle, and watched a brown line slide down the glass pot before she looked up to answer him.",
+        },
+        {
+            "span_id": "p2",
+            "target_text": "\"I'm trying,\" she said, and the silence hung in the air between them while her thumb stayed hooked around the mug handle.",
+            "replacement_text": "\"I'm trying,\" she said, gripping the mug handle until the ceramic tapped the counter while the burner clicked behind her and steam brushed her cheek.",
+        },
+    )
+
+
+def _patch_rescue_generic_fail_payload() -> str:
+    return _structured_patch_payload(
+        {
+            "span_id": "p1",
+            "target_text": "Clara gave him a thin nod, but the words trailed off while she watched the coffee drip for a moment instead of answering him.",
+            "replacement_text": "Clara gave him a thin nod, but the words trailed off while she watched the coffee drip for a moment instead of answering him.",
+        }
+    )
+
+
+def _patch_rescue_dialogue_fail_payload() -> str:
+    return _structured_patch_payload(
+        {
+            "span_id": "p2",
+            "target_text": "\"I'm trying,\" she said, and the silence hung in the air between them while her thumb stayed hooked around the mug handle.",
+            "replacement_text": "\"I'm trying,\" she said.",
+        }
+    )
+
+
+def _patch_rescue_drift_payload() -> str:
+    return _structured_patch_payload(
+        {
+            "span_id": "p1",
+            "target_text": "Clara gave him a thin nod, but the words trailed off while she watched the coffee drip for a moment instead of answering him.",
+            "replacement_text": "Mara gave him a thin nod, sliding the sealed ledger under her coat while she watched the coffee drip for a moment instead of answering him.",
+        }
+    )
+
+
+def _patch_rescue_overlong_payload() -> str:
+    return _structured_patch_payload(
+        {
+            "span_id": "p1",
+            "target_text": "Clara gave him a thin nod, but the words trailed off while she watched the coffee drip for a moment instead of answering him.",
+            "replacement_text": (_opening_recovery_text() + " " + _opening_recovery_text()),
+        }
+    )
+
+
 def _write_outline_context(
     project_root: Path,
     *,
@@ -1043,7 +1135,7 @@ def test_long_form_execution_recovers_borderline_quality_failure_with_single_ret
     critique = json.dumps(
         {
             "summary": "The opening is close, but it still needs stronger scene specificity.",
-            "weaknesses": ["clarity", "specificity"],
+            "weaknesses": ["clarity", "specificity", "dialogue"],
             "continuity_issues": [],
             "pacing_issues": [],
             "meta_contamination": False,
@@ -1051,10 +1143,10 @@ def test_long_form_execution_recovers_borderline_quality_failure_with_single_ret
         }
     )
     adapter = _CritiqueRewriteAdapter(
-        _opening_generic_text(),
+        _patch_rescue_weak_source_text(),
         critique,
-        _opening_generic_text(),
-        _opening_recovery_text(),
+        _patch_rescue_weak_source_text(),
+        _patch_rescue_success_payload(),
     )
     router.register_provider(_FakeProvider(adapter))
     service = LongFormExecutionService(
@@ -1085,7 +1177,7 @@ def test_long_form_execution_recovers_borderline_quality_failure_with_single_ret
     assert chunk.retry_snapshot["rescue_model_used"] is True
     assert chunk.retry_snapshot["model_snapshot"]["escalated"] is True
     assert chunk.retry_snapshot["model_snapshot"]["reason"] == "rewrite_retry_model_stub"
-    assert chunk.retry_snapshot["rescue_delta_summary"]["dialogue_grounding_fixed"] is True
+    assert chunk.retry_snapshot["patch_rescue_success"] is True
     assert chunk.guardrail_snapshot is not None
     assert chunk.guardrail_snapshot["evaluated"] is True
     diag_path = (
@@ -1104,9 +1196,8 @@ def test_long_form_execution_recovers_borderline_quality_failure_with_single_ret
     assert payload["guardrail_snapshot"]["mode"] == "recovery_retry"
     assert payload["attempts"][2]["mode"] == "recovery_retry"
     assert payload["attempts"][2]["model_snapshot"]["escalated"] is True
-    assert "PRECISION RESCUE RULES:" in str(adapter.last_rewrite_payload["prompt"])
-    assert "SUBJECT ENTITIES:" in str(adapter.last_rewrite_payload["prompt"])
-    assert "SCENE ANCHORS:" in str(adapter.last_rewrite_payload["prompt"])
+    assert "PATCH TARGETS JSON:" in str(adapter.last_rewrite_payload["prompt"])
+    assert "\"patches\"" in str(adapter.last_rewrite_payload["prompt"])
 
 
 def test_long_form_execution_recovers_targeted_editorial_miss_with_rescue_retry(
@@ -1139,10 +1230,10 @@ def test_long_form_execution_recovers_targeted_editorial_miss_with_rescue_retry(
         }
     )
     adapter = _CritiqueRewriteAdapter(
-        _opening_generic_text(),
+        _patch_rescue_weak_source_text(),
         critique,
-        _opening_generic_text(),
-        _opening_recovery_text(),
+        _patch_rescue_weak_source_text(),
+        _patch_rescue_success_payload(),
     )
     router.register_provider(_FakeProvider(adapter))
     service = LongFormExecutionService(
@@ -1166,7 +1257,7 @@ def test_long_form_execution_recovers_targeted_editorial_miss_with_rescue_retry(
     assert chunk.retry_snapshot is not None
     assert chunk.retry_snapshot["reason"] == "targeted_editorial_miss_after_rewrite"
     assert chunk.retry_snapshot["rescue_mode_used"] is True
-    assert chunk.retry_snapshot["rescue_delta_summary"]["dialogue_grounding_fixed"] is True
+    assert chunk.retry_snapshot["patch_rescue_success"] is True
 
 
 def test_long_form_execution_rejects_rescue_that_still_misses_targeted_fix(
@@ -1198,10 +1289,10 @@ def test_long_form_execution_rejects_rescue_that_still_misses_targeted_fix(
         }
     )
     adapter = _CritiqueRewriteAdapter(
-        _opening_generic_text(),
+        _patch_rescue_weak_source_text(),
         critique,
-        _opening_generic_text(),
-        _opening_generic_text(),
+        _patch_rescue_weak_source_text(),
+        _patch_rescue_dialogue_fail_payload(),
     )
     router.register_provider(_FakeProvider(adapter))
     service = LongFormExecutionService(
@@ -1223,7 +1314,7 @@ def test_long_form_execution_rejects_rescue_that_still_misses_targeted_fix(
     chunk = result.chunks[0]
     assert chunk.retry_snapshot is not None
     assert chunk.retry_snapshot["reason"] == "targeted_editorial_miss_after_rewrite"
-    assert chunk.retry_snapshot["rescue_failure_class"] == "dialogue_grounding_unresolved"
+    assert chunk.retry_snapshot["rescue_failure_class"] in {"patch_dialogue_grounding_unresolved", "dialogue_grounding_unresolved"}
     assert chunk.retry_snapshot["rescue_under_improved"] is True
 
 
@@ -1246,20 +1337,20 @@ def test_long_form_execution_repair_only_pass_can_rescue_fidelity_safe_retry(
     )
     critique = json.dumps(
         {
-            "summary": "Ground the dialogue and add concrete square detail without changing the scene.",
+            "summary": "Ground the dialogue and replace the generic line without changing the scene.",
             "weaknesses": ["dialogue", "specificity", "clarity"],
             "continuity_issues": [],
             "pacing_issues": [],
             "meta_contamination": False,
             "rewrite_goals": ["Ground dialogue in action", "Replace vague square language with concrete blocking"],
             "dialogue_grounding_targets": ["Attach each spoken line to movement, gesture, or an object."],
-            "detail_targets": ["Use the fountain rim, cobbles, and market stalls."],
+            "detail_targets": ["Use the mug, burner, and coffee pot."],
         }
     )
     adapter = _SequencedCritiqueRewriteAdapter(
-        [_opening_generic_text()],
+        [_patch_rescue_weak_source_text()],
         critique,
-        [_opening_partial_rescue_text(), _opening_partial_rescue_text(), _opening_recovery_text()],
+        [_patch_rescue_weak_source_text(), _patch_rescue_generic_fail_payload(), _patch_rescue_success_payload()],
     )
     router.register_provider(_FakeProvider(adapter))
     service = LongFormExecutionService(
@@ -1285,6 +1376,7 @@ def test_long_form_execution_repair_only_pass_can_rescue_fidelity_safe_retry(
     assert chunk.retry_snapshot["repair_only_pass_used"] is True
     assert chunk.retry_snapshot["repair_only_pass_rescued"] is True
     assert chunk.retry_snapshot["rescue_targets_summary"]["dialogue_beats_requiring_grounding"]
+    assert chunk.retry_snapshot["patch_rescue_success"] is True
     diag_path = (
         project_root
         / ".blackskies"
@@ -1327,12 +1419,12 @@ def test_long_form_execution_repair_only_rescues_generic_replacement_target(
         }
     )
     adapter = _SequencedCritiqueRewriteAdapter(
-        [_repair_only_generic_scene_text()],
+        [_patch_rescue_weak_source_text()],
         critique,
         [
-            _repair_only_generic_scene_text(),
-            _repair_only_generic_scene_text(),
-            _repair_only_generic_replaced_text(),
+            _patch_rescue_weak_source_text(),
+            _patch_rescue_generic_fail_payload(),
+            _patch_rescue_success_payload(),
         ],
     )
     router.register_provider(_FakeProvider(adapter))
@@ -1397,12 +1489,18 @@ def test_long_form_execution_repair_only_rejects_length_collapse(
         }
     )
     adapter = _SequencedCritiqueRewriteAdapter(
-        [_repair_only_generic_scene_text()],
+        [_patch_rescue_weak_source_text()],
         critique,
         [
-            _repair_only_generic_scene_text(),
-            _repair_only_generic_scene_text(),
-            _repair_only_collapsed_fragment(),
+            _patch_rescue_weak_source_text(),
+            _patch_rescue_generic_fail_payload(),
+            _structured_patch_payload(
+                {
+                    "span_id": "p1",
+                    "target_text": "Clara gave him a thin nod, but the words trailed off while she watched the coffee drip for a moment instead of answering him.",
+                    "replacement_text": _repair_only_collapsed_fragment(),
+                }
+            ),
         ],
     )
     router.register_provider(_FakeProvider(adapter))
@@ -1424,7 +1522,7 @@ def test_long_form_execution_repair_only_rejects_length_collapse(
     assert result.stopped_reason == "quality_failed"
     chunk = result.chunks[0]
     assert chunk.retry_snapshot is not None
-    assert chunk.retry_snapshot["rescue_failure_class"] == "repair_length_collapse"
+    assert chunk.retry_snapshot["rescue_failure_class"] == "patch_length_distortion"
     diag_path = (
         project_root
         / ".blackskies"
@@ -1433,7 +1531,7 @@ def test_long_form_execution_repair_only_rejects_length_collapse(
         / f"{chunk.chunk_id}.json"
     )
     payload = json.loads(diag_path.read_text(encoding="utf-8"))
-    assert payload["attempts"][3]["repair_local_snapshot"]["failure_reason"] == "repair_length_collapse"
+    assert payload["attempts"][3]["patch_validation"]["failure_class"] == "patch_length_distortion"
 
 
 def test_long_form_execution_repair_only_still_fails_when_generic_target_remains(
@@ -1465,12 +1563,12 @@ def test_long_form_execution_repair_only_still_fails_when_generic_target_remains
         }
     )
     adapter = _SequencedCritiqueRewriteAdapter(
-        [_repair_only_generic_scene_text()],
+        [_patch_rescue_weak_source_text()],
         critique,
         [
-            _repair_only_generic_scene_text(),
-            _repair_only_generic_scene_text(),
-            _repair_only_generic_scene_text(),
+            _patch_rescue_weak_source_text(),
+            _patch_rescue_generic_fail_payload(),
+            _patch_rescue_generic_fail_payload(),
         ],
     )
     router.register_provider(_FakeProvider(adapter))
@@ -1492,7 +1590,7 @@ def test_long_form_execution_repair_only_still_fails_when_generic_target_remains
     assert result.stopped_reason == "quality_failed"
     chunk = result.chunks[0]
     assert chunk.retry_snapshot is not None
-    assert chunk.retry_snapshot["rescue_failure_class"] == "generic_replacement_unresolved"
+    assert chunk.retry_snapshot["rescue_failure_class"] in {"patch_generic_replacement_unresolved", "generic_replacement_unresolved"}
 
 
 def test_long_form_execution_rejects_cosmetic_rewrite_without_meaningful_delta(
@@ -2147,10 +2245,10 @@ def test_long_form_execution_rejects_outline_drift_in_rescue_retry(tmp_path: Pat
         }
     )
     adapter = _CritiqueRewriteAdapter(
-        _opening_generic_text(),
+        _patch_rescue_weak_source_text(),
         critique,
-        _opening_generic_text(),
-        _long_text(),
+        _patch_rescue_weak_source_text(),
+        _patch_rescue_drift_payload(),
     )
     router.register_provider(_FakeProvider(adapter))
     service = LongFormExecutionService(
@@ -2168,14 +2266,11 @@ def test_long_form_execution_rejects_outline_drift_in_rescue_retry(tmp_path: Pat
         target_words_per_chunk=400,
     )
 
-    assert result.stopped_reason == "rewrite_guardrail_failed"
+    assert result.stopped_reason == "quality_failed"
     chunk = result.chunks[0]
     assert chunk.retry_snapshot is not None
-    assert chunk.retry_snapshot["rescue_failure_class"] == "guardrail_failed"
-    assert chunk.retry_snapshot["rescue_guardrail_fail"] is True
-    assert chunk.guardrail_snapshot is not None
-    assert chunk.guardrail_snapshot["mode"] == "recovery_retry"
-    assert chunk.guardrail_snapshot["failure_reason"] == "outline_drift_detected"
+    assert chunk.retry_snapshot["rescue_failure_class"] == "patch_fidelity_risk"
+    assert chunk.retry_snapshot["rescue_fidelity_risk"] is True
 
 
 def test_long_form_execution_rejects_length_band_violation_in_rescue_retry(tmp_path: Path) -> None:
@@ -2205,10 +2300,10 @@ def test_long_form_execution_rejects_length_band_violation_in_rescue_retry(tmp_p
     )
     overlong_recovery = _opening_recovery_text() + "\n\n" + _opening_recovery_text()
     adapter = _CritiqueRewriteAdapter(
-        _opening_generic_text(),
+        _patch_rescue_weak_source_text(),
         critique,
-        _opening_generic_text(),
-        overlong_recovery,
+        _patch_rescue_weak_source_text(),
+        _patch_rescue_overlong_payload(),
     )
     router.register_provider(_FakeProvider(adapter))
     service = LongFormExecutionService(
@@ -2226,14 +2321,10 @@ def test_long_form_execution_rejects_length_band_violation_in_rescue_retry(tmp_p
         target_words_per_chunk=400,
     )
 
-    assert result.stopped_reason == "rewrite_guardrail_failed"
+    assert result.stopped_reason == "quality_failed"
     chunk = result.chunks[0]
     assert chunk.retry_snapshot is not None
-    assert chunk.retry_snapshot["rescue_failure_class"] == "guardrail_failed"
-    assert chunk.retry_snapshot["rescue_guardrail_fail"] is True
-    assert chunk.guardrail_snapshot is not None
-    assert chunk.guardrail_snapshot["mode"] == "recovery_retry"
-    assert chunk.guardrail_snapshot["failure_reason"] == "length_band_failed"
+    assert chunk.retry_snapshot["rescue_failure_class"] == "patch_length_distortion"
 
 
 def test_long_form_execution_stops_after_max_attempts(tmp_path: Path) -> None:

@@ -25,6 +25,8 @@ class LongFormEvalSummary:
     rescue_guardrail_fail_count: int
     rescue_under_improved_count: int
     rescue_fidelity_risk_count: int
+    patch_rescue_used_count: int
+    patch_rescue_success_count: int
     repair_only_pass_used_count: int
     repair_only_pass_rescued_count: int
     rescue_editorial_failure_classes: dict[str, int]
@@ -54,6 +56,8 @@ class LongFormEvalSummary:
             "rescue_guardrail_fail_count": self.rescue_guardrail_fail_count,
             "rescue_under_improved_count": self.rescue_under_improved_count,
             "rescue_fidelity_risk_count": self.rescue_fidelity_risk_count,
+            "patch_rescue_used_count": self.patch_rescue_used_count,
+            "patch_rescue_success_count": self.patch_rescue_success_count,
             "repair_only_pass_used_count": self.repair_only_pass_used_count,
             "repair_only_pass_rescued_count": self.repair_only_pass_rescued_count,
             "rescue_editorial_failure_classes": dict(self.rescue_editorial_failure_classes),
@@ -107,6 +111,8 @@ def summarize_long_form_run(
     rescue_guardrail_fail_count = 0
     rescue_under_improved_count = 0
     rescue_fidelity_risk_count = 0
+    patch_rescue_used_count = 0
+    patch_rescue_success_count = 0
     repair_only_pass_used_count = 0
     repair_only_pass_rescued_count = 0
     rescue_editorial_failure_classes: dict[str, int] = {}
@@ -138,6 +144,10 @@ def summarize_long_form_run(
             rescue_under_improved_count += 1
         if retry_snapshot.get("rescue_fidelity_risk"):
             rescue_fidelity_risk_count += 1
+        if retry_snapshot.get("patch_rescue_used"):
+            patch_rescue_used_count += 1
+        if retry_snapshot.get("patch_rescue_success"):
+            patch_rescue_success_count += 1
         if retry_snapshot.get("repair_only_pass_used"):
             repair_only_pass_used_count += 1
         if retry_snapshot.get("repair_only_pass_rescued"):
@@ -197,6 +207,8 @@ def summarize_long_form_run(
         rescue_guardrail_fail_count=rescue_guardrail_fail_count,
         rescue_under_improved_count=rescue_under_improved_count,
         rescue_fidelity_risk_count=rescue_fidelity_risk_count,
+        patch_rescue_used_count=patch_rescue_used_count,
+        patch_rescue_success_count=patch_rescue_success_count,
         repair_only_pass_used_count=repair_only_pass_used_count,
         repair_only_pass_rescued_count=repair_only_pass_rescued_count,
         rescue_editorial_failure_classes=rescue_editorial_failure_classes,
@@ -239,6 +251,8 @@ def summarize_long_form_variance(
             "rescue_guardrail_fail_rate": None,
             "rescue_under_improved_rate": None,
             "rescue_fidelity_risk_rate": None,
+            "patch_rescue_usage_rate": None,
+            "patch_rescue_success_rate": None,
             "repair_only_pass_usage_rate": None,
             "repair_only_pass_rescue_rate": None,
             "rescue_editorial_failure_classes": {},
@@ -255,6 +269,8 @@ def summarize_long_form_variance(
     rescue_guardrail_fails = 0
     rescue_under_improved = 0
     rescue_fidelity_risk = 0
+    patch_rescue_used = 0
+    patch_rescue_success = 0
     repair_only_pass_used = 0
     repair_only_pass_rescued = 0
     rescue_editorial_failure_classes: dict[str, int] = {}
@@ -275,6 +291,8 @@ def summarize_long_form_variance(
         rescue_guardrail_fails += int(summary.get("rescue_guardrail_fail_count") or 0)
         rescue_under_improved += int(summary.get("rescue_under_improved_count") or 0)
         rescue_fidelity_risk += int(summary.get("rescue_fidelity_risk_count") or 0)
+        patch_rescue_used += int(summary.get("patch_rescue_used_count") or 0)
+        patch_rescue_success += int(summary.get("patch_rescue_success_count") or 0)
         repair_only_pass_used += int(summary.get("repair_only_pass_used_count") or 0)
         repair_only_pass_rescued += int(summary.get("repair_only_pass_rescued_count") or 0)
         for key, value in (summary.get("rescue_editorial_failure_classes") or {}).items():
@@ -299,6 +317,8 @@ def summarize_long_form_variance(
         "rescue_guardrail_fail_rate": round(rescue_guardrail_fails / run_count, 2),
         "rescue_under_improved_rate": round(rescue_under_improved / run_count, 2),
         "rescue_fidelity_risk_rate": round(rescue_fidelity_risk / run_count, 2),
+        "patch_rescue_usage_rate": round(patch_rescue_used / run_count, 2),
+        "patch_rescue_success_rate": round(patch_rescue_success / run_count, 2),
         "repair_only_pass_usage_rate": round(repair_only_pass_used / run_count, 2),
         "repair_only_pass_rescue_rate": round(repair_only_pass_rescued / run_count, 2),
         "rescue_editorial_failure_classes": rescue_editorial_failure_classes,
