@@ -1880,6 +1880,34 @@ def test_repair_only_prompt_requires_literal_local_specificity_detail(tmp_path: 
     assert "object, body, surface, movement, or setting cue" in prompt
     assert "context_before/context_after" in prompt
     assert "physically observable on the page" in prompt
+    assert "one full sentence, not a clause fragment" in prompt
+
+
+def test_patch_validation_accepts_sentence_slot_local_variation_with_full_sentence(tmp_path: Path) -> None:
+    service = _service(tmp_path, _long_text())
+    continuation = _artifact_continuation("Sentence Length Replay")
+    target_text = "Claire stepped inside, her breath catching as the cool air brushed against her skin, sending a shiver down her spine."
+    source_text = (
+        "The door creaked open, the sound slicing through the dense silence that enveloped the dimly lit room. "
+        + target_text
+        + " Dust motes floated lazily in the narrow beam of light that filtered through the grimy windows."
+    )
+
+    result = service._validate_and_apply_patch_response(
+        source_text=source_text,
+        rescue_slots=[{"slot_id": "s1", "unit_type": "sentence", "target_type": "generic", "original_text": target_text}],
+        patch_response=[
+            {
+                "slot_id": "s1",
+                "replacement_text": "Claire stepped inside, the cold brass knob biting her palm while the draft slid under her collar and the door thudded shut behind her.",
+            }
+        ],
+        continuation=continuation,
+        rescue_contract={"rescue_slots": []},
+        mode="repair_only",
+    )
+
+    assert result["accepted"] is True
 
 
 def test_rescue_prompt_requires_specificity_slot_to_use_nearby_context_detail(tmp_path: Path) -> None:

@@ -1603,6 +1603,7 @@ class LongFormExecutionService:
             "- For each specificity-targeted slot, preserve the same subject, local action intent, and scene role, and pull at least one literal nearby detail from the slot or its context_before/context_after fields.\n"
             "- Replace abstract crowd/mood language with something physically observable on the page: clothing, hands, eyes, pavement, wall, breath, sound, weather, or another local material cue.\n"
             "- Replace the exact weak phrase in the targeted span; do not answer with another vague paraphrase.\n"
+            "- If a targeted slot has unit_type=sentence, replacement_text must be one full sentence, not a clause fragment, and should stay close to the original slot's local scope and length.\n"
             "- Do not compress the scene into a short excerpt, summary, or tail fragment.\n"
             "- Do not broadly rephrase already acceptable sections.\n"
             "RESCUE SLOTS JSON:\n"
