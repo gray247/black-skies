@@ -1631,6 +1631,66 @@ def test_patch_validation_replaces_by_slot_id_only(tmp_path: Path) -> None:
     assert result["patch_snapshots"][0]["slot_id"] == "s7"
 
 
+def test_patch_validation_accepts_legacy_span_id_as_slot_alias(tmp_path: Path) -> None:
+    service = _service(tmp_path, _long_text())
+    chapter_memory = ChapterMemoryPacket(
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chapter_context="Chapter One",
+        locked_facts=[],
+        accumulated_summaries=[],
+        unresolved_tensions=[],
+        emotional_carryover=None,
+        pacing_carryover=None,
+        scene_titles=["Forest Path"],
+        beat_refs=[],
+    )
+    continuation = SimpleNamespace(
+        prior_summary=None,
+        prior_excerpt=None,
+        chapter_memory=chapter_memory,
+        chapter_id="ch_0001",
+    )
+    source_text = (
+        "The scent of damp earth and decaying leaves enveloped Clara as she pushed through the underbrush. "
+        "He stepped carefully, brushing aside the low-hanging branches as if unveiling a secret. "
+        "The bitterness of uncertainty mingled with the fresh, loamy scent of the forest floor, a reminder of her own insecurities."
+    )
+
+    result = service._validate_and_apply_patch_response(
+        source_text=source_text,
+        rescue_slots=[
+            {
+                "slot_id": "s1",
+                "target_type": "generic",
+                "original_text": "He stepped carefully, brushing aside the low-hanging branches as if unveiling a secret.",
+            },
+            {
+                "slot_id": "s2",
+                "target_type": "generic",
+                "original_text": "The bitterness of uncertainty mingled with the fresh, loamy scent of the forest floor, a reminder of her own insecurities.",
+            },
+        ],
+        patch_response=[
+            {
+                "slot_id": "p1",
+                "replacement_text": "He stepped carefully, sweeping aside the low-hanging branches with a gentle push and exposing the narrow path under the wet needles.",
+            },
+            {
+                "slot_id": "p2",
+                "replacement_text": "The bitterness of uncertainty mingled with the fresh, earthy aroma of the forest floor, grounding her in the damp loam under her boots.",
+            },
+        ],
+        continuation=continuation,
+        rescue_contract={"rescue_slots": []},
+        mode="repair_only",
+    )
+
+    assert result["accepted"] is True
+    assert result["patch_snapshots"][0]["slot_id"] == "p1"
+    assert result["patch_snapshots"][1]["slot_id"] == "p2"
+
+
 def test_patch_validation_allows_local_concrete_rewording_without_fidelity_drift(tmp_path: Path) -> None:
     service = _service(tmp_path, _long_text())
     chapter_memory = ChapterMemoryPacket(

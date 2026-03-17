@@ -1862,12 +1862,21 @@ class LongFormExecutionService:
         rescue_slots: list[dict[str, Any]],
         slot_id: str,
     ) -> tuple[dict[str, Any] | None, str | None]:
+        normalized_slot_id = str(slot_id or "").strip()
         target_by_id = {
             str(target.get("slot_id")): target
             for target in rescue_slots
             if isinstance(target, dict) and target.get("slot_id")
         }
-        target = target_by_id.get(slot_id)
+        target = target_by_id.get(normalized_slot_id)
+        if target is None:
+            legacy_match = re.fullmatch(r"p(\d+)", normalized_slot_id.lower())
+            if legacy_match:
+                legacy_index = int(legacy_match.group(1)) - 1
+                if 0 <= legacy_index < len(rescue_slots):
+                    candidate = rescue_slots[legacy_index]
+                    if isinstance(candidate, dict):
+                        target = candidate
         if target:
             target_text = str(target.get("original_text") or "").strip()
             if target_text and target_text in patched_text:
