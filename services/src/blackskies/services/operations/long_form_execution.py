@@ -518,6 +518,7 @@ class LongFormExecutionService:
         retry_snapshot: dict[str, Any] | None = None
         retry_attempts_used = 0
         internal_repair_attempts_used = 0
+        same_slot_specificity_retry_used = 0
         guardrail_snapshot: dict[str, Any] | None = {"evaluated": False}
         rescue_contract: dict[str, Any] | None = None
 
@@ -613,13 +614,17 @@ class LongFormExecutionService:
                     ) or ""
                     active_rescue_contract = rescue_contract
                     if attempt_kind == "repair_only":
-                        active_rescue_contract = self._refresh_rescue_contract_for_current_text(
-                            current_text=source_text,
-                            rescue_contract=rescue_contract,
-                            continuation=continuation,
-                            critique_snapshot=critique_snapshot,
-                            quality_snapshot=previous_quality_snapshot,
-                        )
+                        if bool(active_rescue_contract.get("skip_refresh_once")):
+                            active_rescue_contract = dict(active_rescue_contract)
+                            active_rescue_contract.pop("skip_refresh_once", None)
+                        else:
+                            active_rescue_contract = self._refresh_rescue_contract_for_current_text(
+                                current_text=source_text,
+                                rescue_contract=rescue_contract,
+                                continuation=continuation,
+                                critique_snapshot=critique_snapshot,
+                                quality_snapshot=previous_quality_snapshot,
+                            )
                         rescue_contract = active_rescue_contract
                     rescue_slots = list(active_rescue_contract.get("rescue_slots") or [])
                     patch_response = self._parse_patch_response(cleaned)
@@ -648,6 +653,56 @@ class LongFormExecutionService:
                             retry_snapshot["rescue_under_improved"] = True
                             retry_snapshot["rescue_guardrail_fail"] = False
                             retry_snapshot["rescue_fidelity_risk"] = retry_snapshot["rescue_failure_class"] == "patch_fidelity_risk"
+                        failed_slot_ids = [
+                            str(item.get("slot_id") or "").strip()
+                            for item in (patch_response or [])
+                            if isinstance(item, dict) and str(item.get("slot_id") or "").strip()
+                        ]
+                        failed_slots_by_id = {
+                            str(slot.get("slot_id") or "").strip(): slot
+                            for slot in (active_rescue_contract.get("rescue_slots") or [])
+                            if isinstance(slot, dict) and str(slot.get("slot_id") or "").strip()
+                        }
+                        targeted_dialogue_grounding = bool(
+                            (critique_snapshot or {}).get("dialogue_grounding_targets")
+                            or (critique_snapshot or {}).get("grounding_targets")
+                        )
+                        specificity_retry_slot_ids = [
+                            slot_id
+                            for slot_id in failed_slot_ids
+                            if str((failed_slots_by_id.get(slot_id) or {}).get("target_type") or "generic") != "dialogue"
+                        ]
+                        if (
+                            same_slot_specificity_retry_used < 1
+                            and str(patch_result.get("failure_class") or "") == "patch_specificity_unresolved"
+                            and patch_response
+                            and not targeted_dialogue_grounding
+                            and specificity_retry_slot_ids
+                            and len(specificity_retry_slot_ids) == len(failed_slot_ids)
+                        ):
+                            same_slot_specificity_retry_used += 1
+                            same_slot_contract = self._build_same_slot_retry_contract(
+                                rescue_contract=active_rescue_contract,
+                                slot_ids=specificity_retry_slot_ids,
+                            )
+                            rescue_contract = dict(same_slot_contract)
+                            if attempt_kind == "repair_only":
+                                rescue_contract["skip_refresh_once"] = True
+                            if retry_snapshot is not None:
+                                retry_snapshot["same_slot_specificity_retry_used"] = True
+                                retry_snapshot["same_slot_specificity_retry_slot_ids"] = specificity_retry_slot_ids
+                            current_payload = dict(payload)
+                            current_payload["prompt"] = self._build_same_slot_specificity_retry_prompt(
+                                latest_text=source_text,
+                                continuation=continuation,
+                                rescue_contract=rescue_contract,
+                                retry_mode=attempt_kind,
+                            )
+                            current_payload["system"] = (
+                                "Perform a bounded same-slot specificity retry. Return JSON only."
+                            )
+                            attempt += 1
+                            continue
                         attempt_diagnostics.append(attempt_record)
                         if (
                             attempt_kind == "recovery_retry"
@@ -1005,6 +1060,7 @@ class LongFormExecutionService:
                         "patch_rescue_success": False,
                         "repair_only_pass_used": False,
                         "repair_only_pass_rescued": False,
+                        "same_slot_specificity_retry_used": False,
                     }
                     attempt_record["retry_decision"] = {
                         "eligible": True,
@@ -1543,6 +1599,62 @@ class LongFormExecutionService:
             "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"replacement span only\"}]}\n\n"
             "CURRENT SCENE:\n"
             f"{latest_text}\n"
+        )
+
+    def _build_same_slot_retry_contract(
+        self,
+        *,
+        rescue_contract: dict[str, Any] | None,
+        slot_ids: list[str],
+    ) -> dict[str, Any]:
+        filtered = dict(rescue_contract or {})
+        wanted = {str(slot_id).strip() for slot_id in slot_ids if str(slot_id).strip()}
+        slots = [slot for slot in (filtered.get("rescue_slots") or []) if str(slot.get("slot_id") or "").strip() in wanted]
+        filtered["rescue_slots"] = slots
+        filtered["lines_to_repair"] = [str(slot.get("original_text") or "").strip() for slot in slots if str(slot.get("original_text") or "").strip()]
+        filtered["dialogue_beats_requiring_grounding"] = [
+            str(slot.get("original_text") or "").strip()
+            for slot in slots
+            if str(slot.get("target_type") or "") == "dialogue" and str(slot.get("original_text") or "").strip()
+        ]
+        filtered["generic_phrases_to_replace"] = [
+            str(slot.get("target_phrase") or "").strip()
+            for slot in slots
+            if str(slot.get("target_phrase") or "").strip()
+        ]
+        return filtered
+
+    def _build_same_slot_specificity_retry_prompt(
+        self,
+        *,
+        latest_text: str,
+        continuation,
+        rescue_contract: dict[str, Any],
+        retry_mode: str,
+    ) -> str:
+        rescue_slots = rescue_contract.get("rescue_slots") or []
+        rescue_slots_text = json.dumps(rescue_slots, ensure_ascii=False, indent=2)
+        return (
+            "Same-slot literal specificity retry.\n"
+            f"MODE: {retry_mode}\n"
+            "The prior bounded slot patch stayed vague or metaphorical.\n"
+            "Regenerate only the same slot ids shown below. Do not reselect, merge, or expand slots.\n"
+            "Keep the same subject, local action intent, and scene role.\n"
+            "Stay inside each bounded slot only.\n"
+            "Do not invent new named entities, story events, or scene directions.\n"
+            "Literal checklist:\n"
+            "- Add at least one literal local object, body cue, visible action, surface/material, or setting element inside the replacement slot.\n"
+            "- Pull the concrete cue from the slot itself or its context_before/context_after fields.\n"
+            "- Metaphor alone does not count.\n"
+            "- If the line is social or emotional, make it physically observable on the page.\n"
+            "- Keep the replacement fidelity-safe and locally bounded.\n"
+            "RESCUE SLOTS JSON:\n"
+            f"{rescue_slots_text}\n"
+            "Return exactly this schema:\n"
+            "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"replacement span only\"}]}\n\n"
+            "CURRENT SCENE:\n"
+            f"{latest_text}\n"
+            f"CHAPTER: {continuation.chapter_memory.chapter_context or continuation.chapter_id}\n"
         )
 
     def _evaluate_repair_only_local_constraints(

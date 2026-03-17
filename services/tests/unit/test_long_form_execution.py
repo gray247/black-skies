@@ -526,6 +526,24 @@ def _patch_rescue_generic_fail_payload() -> str:
     )
 
 
+def _patch_rescue_specificity_vague_payload() -> str:
+    return _structured_patch_payload(
+        {
+            "slot_id": "s1",
+            "replacement_text": "Clara's lips tightened as she moved through them, feeling like an unwelcome shadow in their carefree mood.",
+        }
+    )
+
+
+def _patch_rescue_specificity_literal_payload() -> str:
+    return _structured_patch_payload(
+        {
+            "slot_id": "s1",
+            "replacement_text": "Clara's lips tightened as she passed the damp wall, catching the scrape of bright jacket sleeves and the slap of laughter off the alley bricks.",
+        }
+    )
+
+
 def _patch_rescue_dialogue_fail_payload() -> str:
     return _structured_patch_payload(
         {
@@ -2001,6 +2019,32 @@ def test_patch_validation_still_rejects_local_drift_with_new_story_element(tmp_p
     assert result["failure_class"] == "patch_fidelity_risk"
 
 
+def test_same_slot_specificity_retry_prompt_requires_literal_retry_without_reselection(tmp_path: Path) -> None:
+    service = _service(tmp_path, _long_text())
+    continuation = _artifact_continuation("Retry Prompt")
+    prompt = service._build_same_slot_specificity_retry_prompt(
+        latest_text="Clara kept walking past the alley crowd.",
+        continuation=continuation,
+        rescue_contract={
+            "rescue_slots": [
+                {
+                    "slot_id": "s1",
+                    "unit_type": "sentence",
+                    "original_text": "Clara felt like an uninvited shadow in their vibrant bubble of youth.",
+                    "context_before": "Ahead, teenagers loitered near the damp wall in bright jackets.",
+                    "context_after": "Their voices bounced off the alley bricks behind her.",
+                    "target_reason": "specificity",
+                }
+            ]
+        },
+        retry_mode="recovery_retry",
+    )
+
+    assert "Regenerate only the same slot ids" in prompt
+    assert "Metaphor alone does not count." in prompt
+    assert "Do not reselect" in prompt
+
+
 def test_frozen_replay_selection_only_detects_slot_selection_divergence_and_stale_target(tmp_path: Path) -> None:
     service = _service(tmp_path, _long_text())
     continuation = _artifact_continuation("Forest Replay")
@@ -2247,7 +2291,11 @@ def test_long_form_execution_repair_only_pass_can_rescue_fidelity_safe_retry(
     adapter = _SequencedCritiqueRewriteAdapter(
         [_patch_rescue_weak_source_text()],
         critique,
-        [_patch_rescue_weak_source_text(), _patch_rescue_generic_fail_payload(), _patch_rescue_success_payload()],
+        [
+            _patch_rescue_weak_source_text(),
+            _patch_rescue_generic_fail_payload(),
+            _patch_rescue_success_payload(),
+        ],
     )
     router.register_provider(_FakeProvider(adapter))
     service = LongFormExecutionService(
@@ -2321,6 +2369,8 @@ def test_long_form_execution_repair_only_rescues_generic_replacement_target(
         [
             _patch_rescue_weak_source_text(),
             _patch_rescue_generic_fail_payload(),
+            _patch_rescue_specificity_literal_payload(),
+            _patch_rescue_success_payload(),
             _patch_rescue_success_payload(),
         ],
     )
@@ -2391,6 +2441,7 @@ def test_long_form_execution_repair_only_rejects_length_collapse(
         [
             _patch_rescue_weak_source_text(),
             _patch_rescue_generic_fail_payload(),
+            _patch_rescue_generic_fail_payload(),
             _structured_patch_payload(
                 {
                     "slot_id": "s1",
@@ -2427,7 +2478,7 @@ def test_long_form_execution_repair_only_rejects_length_collapse(
         / f"{chunk.chunk_id}.json"
     )
     payload = json.loads(diag_path.read_text(encoding="utf-8"))
-    assert payload["attempts"][3]["patch_validation"]["failure_class"] == "patch_length_distortion"
+    assert payload["attempts"][-1]["patch_validation"]["failure_class"] == "patch_length_distortion"
 
 
 def test_long_form_execution_repair_only_still_fails_when_generic_target_remains(
@@ -2463,6 +2514,7 @@ def test_long_form_execution_repair_only_still_fails_when_generic_target_remains
         critique,
         [
             _patch_rescue_weak_source_text(),
+            _patch_rescue_generic_fail_payload(),
             _patch_rescue_generic_fail_payload(),
             _patch_rescue_generic_fail_payload(),
         ],
@@ -2697,6 +2749,186 @@ def test_long_form_execution_patch_specificity_still_fails_when_replacement_stay
     chunk = result.chunks[0]
     assert chunk.retry_snapshot is not None
     assert chunk.retry_snapshot["rescue_failure_class"] == "patch_specificity_unresolved"
+
+
+def test_long_form_execution_same_slot_specificity_retry_can_rescue_vague_first_patch(
+    tmp_path: Path,
+) -> None:
+    project_root = tmp_path / "proj_same_slot_specificity_retry"
+    project_root.mkdir(parents=True, exist_ok=True)
+    settings = ServiceSettings(
+        project_base_dir=tmp_path,
+        long_form_provider_enabled=True,
+        local_llm_rewrite_retry_model="qwen3:14b",
+    )
+    diagnostics = DiagnosticLogger()
+    router = ModelRouter(
+        config=ModelRouterConfig(
+            policy=ModelRoutingPolicy.LOCAL_ONLY,
+            provider_calls_enabled=True,
+        )
+    )
+    critique = json.dumps(
+        {
+            "summary": "Replace the vague social line with concrete local detail.",
+            "weaknesses": ["specificity", "clarity"],
+            "continuity_issues": [],
+            "pacing_issues": [],
+            "meta_contamination": False,
+            "rewrite_goals": ["Replace vague social language with local physical detail."],
+            "replacement_targets": ["bubble of youth"],
+            "detail_targets": ["damp wall", "jackets", "alley bricks"],
+        }
+    )
+    adapter = _SequencedCritiqueRewriteAdapter(
+        [_patch_rescue_weak_source_text()],
+        critique,
+        [
+            _patch_rescue_weak_source_text(),
+            _patch_rescue_specificity_vague_payload(),
+            _patch_rescue_specificity_literal_payload(),
+            _patch_rescue_success_payload(),
+        ],
+    )
+    router.register_provider(_FakeProvider(adapter))
+    service = LongFormExecutionService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=router,
+        enabled=True,
+    )
+
+    result = service.execute(
+        project_root=project_root,
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chunk_size=1,
+        target_words_per_chunk=400,
+    )
+
+    assert result.stopped_reason is None
+    chunk = result.chunks[0]
+    assert chunk.retry_snapshot is not None
+    assert chunk.retry_snapshot["same_slot_specificity_retry_used"] is True
+    assert chunk.retry_snapshot["patch_rescue_success"] is True
+    assert chunk.retry_snapshot["repair_only_pass_used"] is True
+
+
+def test_long_form_execution_same_slot_specificity_retry_still_fails_when_second_attempt_stays_vague(
+    tmp_path: Path,
+) -> None:
+    project_root = tmp_path / "proj_same_slot_specificity_retry_fails"
+    project_root.mkdir(parents=True, exist_ok=True)
+    settings = ServiceSettings(
+        project_base_dir=tmp_path,
+        long_form_provider_enabled=True,
+        local_llm_rewrite_retry_model="qwen3:14b",
+    )
+    diagnostics = DiagnosticLogger()
+    router = ModelRouter(
+        config=ModelRouterConfig(
+            policy=ModelRoutingPolicy.LOCAL_ONLY,
+            provider_calls_enabled=True,
+        )
+    )
+    critique = json.dumps(
+        {
+            "summary": "Replace the vague social line with concrete local detail.",
+            "weaknesses": ["specificity", "clarity"],
+            "continuity_issues": [],
+            "pacing_issues": [],
+            "meta_contamination": False,
+            "rewrite_goals": ["Replace vague social language with local physical detail."],
+            "replacement_targets": ["bubble of youth"],
+        }
+    )
+    adapter = _SequencedCritiqueRewriteAdapter(
+        [_patch_rescue_weak_source_text()],
+        critique,
+        [
+            _patch_rescue_weak_source_text(),
+            _patch_rescue_specificity_vague_payload(),
+            _patch_rescue_specificity_vague_payload(),
+            _patch_rescue_specificity_vague_payload(),
+        ],
+    )
+    router.register_provider(_FakeProvider(adapter))
+    service = LongFormExecutionService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=router,
+        enabled=True,
+    )
+
+    result = service.execute(
+        project_root=project_root,
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chunk_size=1,
+        target_words_per_chunk=400,
+    )
+
+    assert result.stopped_reason == "quality_failed"
+    chunk = result.chunks[0]
+    assert chunk.retry_snapshot is not None
+    assert chunk.retry_snapshot["same_slot_specificity_retry_used"] is True
+    assert chunk.retry_snapshot["rescue_failure_class"] == "patch_specificity_unresolved"
+
+
+def test_long_form_execution_same_slot_specificity_retry_does_not_fire_for_fidelity_risk(
+    tmp_path: Path,
+) -> None:
+    project_root = tmp_path / "proj_same_slot_specificity_retry_no_fidelity"
+    project_root.mkdir(parents=True, exist_ok=True)
+    settings = ServiceSettings(
+        project_base_dir=tmp_path,
+        long_form_provider_enabled=True,
+        local_llm_rewrite_retry_model="qwen3:14b",
+    )
+    diagnostics = DiagnosticLogger()
+    router = ModelRouter(
+        config=ModelRouterConfig(
+            policy=ModelRoutingPolicy.LOCAL_ONLY,
+            provider_calls_enabled=True,
+        )
+    )
+    critique = json.dumps(
+        {
+            "summary": "Replace the generic line with concrete local detail.",
+            "weaknesses": ["specificity", "clarity"],
+            "continuity_issues": [],
+            "pacing_issues": [],
+            "meta_contamination": False,
+            "rewrite_goals": ["Replace generic stock phrases", "Keep the same kitchen scene and dialogue order"],
+        }
+    )
+    adapter = _CritiqueRewriteAdapter(
+        _patch_rescue_weak_source_text(),
+        critique,
+        _patch_rescue_weak_source_text(),
+        _patch_rescue_drift_payload(),
+    )
+    router.register_provider(_FakeProvider(adapter))
+    service = LongFormExecutionService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=router,
+        enabled=True,
+    )
+
+    result = service.execute(
+        project_root=project_root,
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chunk_size=1,
+        target_words_per_chunk=400,
+    )
+
+    assert result.stopped_reason == "quality_failed"
+    chunk = result.chunks[0]
+    assert chunk.retry_snapshot is not None
+    assert chunk.retry_snapshot.get("same_slot_specificity_retry_used") is not True
+    assert chunk.retry_snapshot["rescue_failure_class"] == "patch_fidelity_risk"
 
 
 def test_long_form_execution_rejects_cosmetic_rewrite_without_meaningful_delta(
