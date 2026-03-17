@@ -245,6 +245,11 @@ class OpenAIAdapter(BaseAdapter):
         if not self._api_key:
             raise AdapterError("OpenAI API key is missing.")
 
+    @staticmethod
+    def _uses_max_completion_tokens(model: str) -> bool:
+        normalized = model.strip().lower()
+        return normalized == "gpt-5.4" or normalized.startswith("gpt-5.4-")
+
     def _chat(self, payload: dict[str, Any]) -> dict[str, Any]:
         self._raise_missing_key()
         prompt = payload.get("prompt")
@@ -262,7 +267,12 @@ class OpenAIAdapter(BaseAdapter):
         }
         max_tokens = payload.get("max_tokens")
         if isinstance(max_tokens, int) and max_tokens > 0:
-            body["max_tokens"] = max_tokens
+            token_key = (
+                "max_completion_tokens"
+                if self._uses_max_completion_tokens(self.config.model)
+                else "max_tokens"
+            )
+            body[token_key] = max_tokens
         url = f"{self.config.base_url.rstrip('/')}/chat/completions"
         response = self._post_json(
             url,

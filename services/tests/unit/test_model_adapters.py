@@ -70,6 +70,66 @@ def test_openai_generate_draft_returns_text(monkeypatch):
     assert result["text"] == "response text"
 
 
+def test_openai_gpt54_mini_uses_max_completion_tokens(monkeypatch):
+    adapter = OpenAIAdapter(
+        AdapterConfig(base_url="https://api.openai.com/v1", model="gpt-5.4-mini"),
+        api_key="test-key",
+    )
+    captured: dict[str, object] = {}
+
+    def _fake_urlopen(request, timeout=0):  # noqa: ARG001
+        captured["body"] = json.loads(request.data.decode("utf-8"))
+        return _StubResponse({"choices": [{"message": {"content": "response text"}}]})
+
+    monkeypatch.setattr("blackskies.services.model_adapters.url_request.urlopen", _fake_urlopen)
+
+    adapter.generate_draft({"prompt": "Write a scene.", "max_tokens": 123})
+
+    body = captured["body"]
+    assert body["max_completion_tokens"] == 123
+    assert "max_tokens" not in body
+
+
+def test_openai_gpt54_uses_max_completion_tokens(monkeypatch):
+    adapter = OpenAIAdapter(
+        AdapterConfig(base_url="https://api.openai.com/v1", model="gpt-5.4"),
+        api_key="test-key",
+    )
+    captured: dict[str, object] = {}
+
+    def _fake_urlopen(request, timeout=0):  # noqa: ARG001
+        captured["body"] = json.loads(request.data.decode("utf-8"))
+        return _StubResponse({"choices": [{"message": {"content": "response text"}}]})
+
+    monkeypatch.setattr("blackskies.services.model_adapters.url_request.urlopen", _fake_urlopen)
+
+    adapter.generate_draft({"prompt": "Write a scene.", "max_tokens": 123})
+
+    body = captured["body"]
+    assert body["max_completion_tokens"] == 123
+    assert "max_tokens" not in body
+
+
+def test_openai_non_gpt54_keeps_max_tokens(monkeypatch):
+    adapter = OpenAIAdapter(
+        AdapterConfig(base_url="https://api.openai.com/v1", model="gpt-4o-mini"),
+        api_key="test-key",
+    )
+    captured: dict[str, object] = {}
+
+    def _fake_urlopen(request, timeout=0):  # noqa: ARG001
+        captured["body"] = json.loads(request.data.decode("utf-8"))
+        return _StubResponse({"choices": [{"message": {"content": "response text"}}]})
+
+    monkeypatch.setattr("blackskies.services.model_adapters.url_request.urlopen", _fake_urlopen)
+
+    adapter.generate_draft({"prompt": "Write a scene.", "max_tokens": 123})
+
+    body = captured["body"]
+    assert body["max_tokens"] == 123
+    assert "max_completion_tokens" not in body
+
+
 def test_openai_missing_key_raises():
     adapter = OpenAIAdapter(
         AdapterConfig(base_url="https://api.openai.com/v1", model="gpt-4o-mini"),
