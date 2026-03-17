@@ -67,7 +67,7 @@ Scope remains: finalize GUI + API parity, smoke tests, offline docs.
 
 **Sequencing note:** UI polish (docking persistence, accessibility sign-off) remains important, but core writing-engine milestones may proceed in parallel. UI polish is not treated as a hard blocker for backend engine progress.
 
-**Current engine closeout (2026-03-16):** long-form reliability/control remains the active backend sub-phase. The system now uses bounded borderline retry recovery, stronger-model escalation on retry, span-level patch rescue for rescue-mode edits, and outline-faithful rewrite guardrails. This sub-phase stays open until repeated fresh-server runs show near-zero unexpected failures.
+**Current engine closeout (2026-03-16):** long-form reliability/control remains the active backend sub-phase. The system now uses bounded borderline retry recovery, stronger-model escalation on retry, span-level patch rescue for rescue-mode edits, and outline-faithful rewrite guardrails. This sub-phase stays open until the replay-and-live exit gate in [docs/runbooks/long_form_rescue_phase_exit.md](../runbooks/long_form_rescue_phase_exit.md) is satisfied.
 
 **Next backend phase:** outline-faithful editorial partner behavior. The operating principle is constrained assistance: the model trails the outline, preserves scene intent, character facts, and rough length band, and does not act as an autonomous co-author during rewrite.
 
