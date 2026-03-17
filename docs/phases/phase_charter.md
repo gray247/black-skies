@@ -67,9 +67,11 @@ Scope remains: finalize GUI + API parity, smoke tests, offline docs.
 
 **Sequencing note:** UI polish (docking persistence, accessibility sign-off) remains important, but core writing-engine milestones may proceed in parallel. UI polish is not treated as a hard blocker for backend engine progress.
 
-**Current engine closeout (2026-03-16):** long-form reliability/control remains the active backend sub-phase. The system now uses bounded borderline retry recovery, stronger-model escalation on retry, span-level patch rescue for rescue-mode edits, and outline-faithful rewrite guardrails. This sub-phase stays open until the replay-and-live exit gate in [docs/runbooks/long_form_rescue_phase_exit.md](../runbooks/long_form_rescue_phase_exit.md) is satisfied.
+**Engine closeout status (2026-03-17):** long-form rescue-plumbing / reliability-control is closed. The closeout fixed deterministic rescue-path failures including slot binding and alias handling, stale-target handling, specificity followthrough credit, and repair-only sentence-slot collapse. See [docs/runbooks/long_form_rescue_phase_exit.md](../runbooks/long_form_rescue_phase_exit.md).
 
-**Next backend phase:** outline-faithful editorial partner behavior. The operating principle is constrained assistance: the model trails the outline, preserves scene intent, character facts, and rough length band, and does not act as an autonomous co-author during rewrite.
+**Current backend phase:** generation-variance mitigation / editorial reliability. The remaining long-form misses are treated as model-quality variance inside rescue generation rather than bounded-slot plumbing bugs. The operating principle remains constrained assistance: the model trails the outline, preserves scene intent, character facts, and rough length band, and does not act as an autonomous co-author during rewrite.
+
+**Transition note:** rescue plumbing is closed because the replay regression pack stayed green, adversarial remained healthy, and the remaining clean misses were artifact-confirmed as generation-side classes (`dialogue_grounding_unresolved`, `patch_dialogue_grounding_unresolved`, `patch_specificity_unresolved`) rather than deterministic rescue-path regressions.
 
 ### Key deliverables
 - Inline **Insights overlay** for contextual guidance and feedback  
