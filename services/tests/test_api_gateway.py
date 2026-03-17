@@ -21,6 +21,14 @@ def test_health_endpoint_reports_ok(tmp_path) -> None:
     assert response.status_code == 200
     payload = response.json()
     assert payload.get('status') == 'ok'
+    runtime = payload.get('runtime')
+    assert isinstance(runtime, dict)
+    assert runtime.get('provider_type') == 'real_openai_api'
+    assert runtime.get('resolved_base_url') == 'https://api.openai.com/v1'
+    assert runtime.get('resolved_model') == 'gpt-4o-mini'
+    assert runtime.get('routing_policy') == 'local_only'
+    assert runtime.get('provider_calls_enabled') is False
+    assert runtime.get('long_form_provider_enabled') is False
 
 
 def test_recovery_status_requires_existing_project(tmp_path) -> None:

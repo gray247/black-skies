@@ -71,6 +71,17 @@ python scripts/long_form_eval.py \
 ## Updated evaluator usage
 
 - Standard single-run usage is unchanged.
+- `scripts/long_form_eval.py` now runs a runtime preflight by default before it sends the expensive long-form execute request.
+- The preflight checks:
+  - the API server is reachable
+  - `/api/v1/healthz` reports `status=ok`
+  - the runtime provider summary is present
+  - `routing_policy=api_only`
+  - `provider_calls_enabled=true`
+  - `long_form_provider_enabled=true`
+  - `long_form_prefer_api=true`
+  - the resolved OpenAI base URL points to the real OpenAI API unless `--allow-local-compatible-provider` is explicitly supplied
+- If any of those checks fail, the harness exits immediately with `EVAL PREFLIGHT FAILED: ...` instead of starting a long-form run that will die on draft attempt 1.
 - Use `--compare` with prior eval JSON files when you want a quick variance view without building a larger reporting layer.
 - Run summaries now also expose rescue-specific aggregates:
   - `rescue_mode_used_count`
@@ -88,3 +99,58 @@ python scripts/long_form_eval.py \
   - `OPENAI_API_KEY` -> `openai_api_key`
   - `OPENAI_API_BASE` or `OPENAI_BASE_URL` -> `openai_base_url`
 - Without the base-url alias, a dummy compatibility key such as `OPENAI_API_KEY=ollama` can be misrouted to the real OpenAI URL and fail with `401 Unauthorized`.
+
+## Reliable eval sequence
+
+1. Activate the Python environment:
+
+```powershell
+.venv\Scripts\Activate.ps1
+$env:PYTHONPATH = "services/src"
+```
+
+2. Set the real OpenAI runtime for phase-close evaluation:
+
+```powershell
+$env:OPENAI_API_KEY = "<real_openai_key>"
+$env:OPENAI_API_BASE = "https://api.openai.com/v1"
+$env:BLACKSKIES_OPENAI_MODEL = "gpt-4o-mini"
+$env:BLACKSKIES_OPENAI_REWRITE_RETRY_MODEL = "gpt-4o"
+$env:BLACKSKIES_MODEL_ROUTING_POLICY = "api_only"
+$env:BLACKSKIES_MODEL_ROUTER_PROVIDER_CALLS_ENABLED = "true"
+$env:BLACKSKIES_LONG_FORM_PROVIDER_ENABLED = "true"
+$env:BLACKSKIES_LONG_FORM_PREFER_API = "true"
+```
+
+3. Start the API server in the same shell family:
+
+```powershell
+uvicorn blackskies.services.app:create_app --factory --host 127.0.0.1 --port 8000
+```
+
+4. In another shell with the same env vars, verify the provider path:
+
+```powershell
+python scripts/openai_smoke.py
+```
+
+Expected:
+- `PROVIDER TYPE: REAL OPENAI API`
+- `SMOKE RESULT: SUCCESS`
+
+5. Run the evaluator. It will preflight the server/runtime before executing the long-form request:
+
+```powershell
+python scripts/long_form_eval.py `
+  --project-id proj_esther_estate_verify_longform `
+  --chapter-id ch_0001 `
+  --scene-ids sc_0001 `
+  --chunk-size 1 `
+  --target-words 300 `
+  --request-timeout-seconds 300
+```
+
+6. Interpret preflight failures directly:
+- `API server unreachable` -> the FastAPI server is not running on the selected base URL
+- `Expected real OpenAI API` -> the server is still pointed at a local-compatible endpoint
+- `routing_policy=...` / `provider_calls_enabled=false` / `long_form_provider_enabled=false` / `long_form_prefer_api=false` -> the server was started with the wrong runtime settings

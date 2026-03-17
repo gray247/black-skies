@@ -8,6 +8,7 @@ from fastapi import APIRouter, Depends, Request, Response
 
 from ..metrics import render
 from ..feature_flags import voice_notes_enabled
+from ..config import ServiceSettings
 
 __all__ = ["router", "get_service_version", "health", "metrics_endpoint"]
 
@@ -18,6 +19,30 @@ router = APIRouter(prefix="/api/v1", tags=["health"])
 _METRICS_MEDIA_TYPE = "text/plain; version=0.0.4"
 
 
+def _classify_provider_type(base_url: str | None) -> str:
+    normalized = str(base_url or "").rstrip("/").lower()
+    if normalized.startswith("https://api.openai.com/v1"):
+        return "real_openai_api"
+    if normalized:
+        return "local_compatible_endpoint"
+    return "unknown"
+
+
+def _runtime_summary(settings: ServiceSettings) -> dict[str, Any]:
+    return {
+        "provider_type": _classify_provider_type(settings.openai_base_url),
+        "resolved_base_url": settings.openai_base_url,
+        "resolved_model": settings.openai_model,
+        "rewrite_retry_model": settings.openai_rewrite_retry_model,
+        "routing_policy": str(settings.model_routing_policy.value),
+        "provider_calls_enabled": bool(settings.model_router_provider_calls_enabled),
+        "long_form_provider_enabled": bool(settings.long_form_provider_enabled),
+        "long_form_prefer_api": bool(settings.long_form_prefer_api),
+        "local_provider": settings.local_provider,
+        "local_model": settings.local_llm_model,
+    }
+
+
 def get_service_version(request: Request) -> str:
     """Return the service version attached to the application state."""
 
@@ -26,6 +51,9 @@ def get_service_version(request: Request) -> str:
 
 def _health_payload(request: Request, version: str) -> dict[str, Any]:
     payload: dict[str, Any] = {"status": "ok", "version": version}
+    settings = getattr(request.app.state, "settings", None)
+    if isinstance(settings, ServiceSettings):
+        payload["runtime"] = _runtime_summary(settings)
 
     state = getattr(request.app.state, "backup_verifier_state", None)
     if state is None:
