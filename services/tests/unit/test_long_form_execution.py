@@ -1769,6 +1769,65 @@ def test_repair_only_prompt_requires_literal_local_specificity_detail(tmp_path: 
 
     assert "Metaphor by itself does not count." in prompt
     assert "object, body, surface, movement, or setting cue" in prompt
+    assert "context_before/context_after" in prompt
+    assert "physically observable on the page" in prompt
+
+
+def test_rescue_prompt_requires_specificity_slot_to_use_nearby_context_detail(tmp_path: Path) -> None:
+    service = _service(tmp_path, _long_text())
+    chapter_memory = ChapterMemoryPacket(
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chapter_context="Chapter One",
+        locked_facts=[],
+        accumulated_summaries=[],
+        unresolved_tensions=[],
+        emotional_carryover=None,
+        pacing_carryover=None,
+        scene_titles=["Rain Street"],
+        beat_refs=[],
+    )
+    continuation = SimpleNamespace(
+        prior_summary=None,
+        prior_excerpt=None,
+        chapter_memory=chapter_memory,
+        chapter_id="ch_0001",
+    )
+
+    prompt = service._build_recovery_retry_prompt(
+        original_text="Clara kept moving past the crowd.",
+        continuation=continuation,
+        critique_snapshot={"rewrite_goals": ["Replace vague line with concrete detail."]},
+        quality_snapshot={"scores": {"specificity": 3}, "total_score": 24, "dialogue_present": False, "dialogue_grounded": True},
+        failure_classification={"reason": "targeted_editorial_miss_after_rewrite"},
+        rescue_contract={
+            "min_word_count": 180,
+            "max_word_count": 320,
+            "minimum_specificity_delta": 1,
+            "minimum_clarity_delta": 1,
+            "minimum_action_cues_to_add": 1,
+            "subject_entities": ["Clara"],
+            "scene_anchors": ["alley", "wall"],
+            "dialogue_lines": [],
+            "dialogue_beats_requiring_grounding": [],
+            "generic_phrases_to_replace": ["bubble of youth"],
+            "lines_to_repair": ["Clara felt like an uninvited shadow in their vibrant bubble of youth."],
+            "required_concrete_anchor_terms": ["wall", "jacket", "voices"],
+            "rescue_slots": [
+                {
+                    "slot_id": "s1",
+                    "unit_type": "sentence",
+                    "original_text": "Clara felt like an uninvited shadow in their vibrant bubble of youth.",
+                    "context_before": "Ahead, a group of teenagers loitered near the damp wall in bright jackets.",
+                    "context_after": "Their voices bounced off the alley bricks as she kept walking.",
+                    "target_reason": "specificity",
+                }
+            ],
+        },
+    )
+
+    assert "context_before/context_after fields" in prompt
+    assert "physically observable on the page" in prompt
 
 
 def test_patch_validation_rejects_specificity_patch_that_stays_vague(tmp_path: Path) -> None:
