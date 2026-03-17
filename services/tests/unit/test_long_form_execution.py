@@ -1447,6 +1447,146 @@ def test_patch_validation_rejects_dialogue_paraphrase_without_local_grounding(tm
     assert result["failure_class"] == "patch_dialogue_grounding_unresolved"
 
 
+def test_refresh_rescue_contract_keeps_patch_target_after_prior_patch_changes_text(tmp_path: Path) -> None:
+    service = _service(tmp_path, _long_text())
+    chapter_memory = ChapterMemoryPacket(
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chapter_context="Chapter One",
+        locked_facts=[],
+        accumulated_summaries=[],
+        unresolved_tensions=[],
+        emotional_carryover=None,
+        pacing_carryover=None,
+        scene_titles=["Forest Path"],
+        beat_refs=[],
+    )
+    continuation = SimpleNamespace(
+        prior_summary=None,
+        prior_excerpt=None,
+        chapter_memory=chapter_memory,
+        chapter_id="ch_0001",
+    )
+    current_text = (
+        "She followed, the canopy above thickening, absorbing their footsteps, while the air wrapped around them, dense with the earthy aroma of rain-soaked soil and rotting leaves. "
+        "With each step, her heart raced, responding instinctively to the towering trees that loomed above, leaning in as though eager to eavesdrop on their conversation."
+    )
+    rescue_contract = {
+        "lines_to_repair": [
+            "She followed, the canopy above thickening, absorbing their footsteps, while the air wrapped around them, heavy with the scent of wet earth and decaying foliage.",
+            "With each step, her heart raced, responding instinctively to the towering trees that loomed above, leaning in as though eager to eavesdrop on their conversation.",
+        ],
+        "generic_phrases_to_replace": ["heavy with", "heart raced"],
+        "required_concrete_anchor_terms": ["forest", "above", "pushed"],
+        "patch_targets": [
+            {
+                "span_id": "p1",
+                "target_type": "generic",
+                "target_text": "She followed, the canopy above thickening, absorbing their footsteps, while the air wrapped around them, heavy with the scent of wet earth and decaying foliage.",
+                "target_phrase": "heavy with",
+            },
+            {
+                "span_id": "p2",
+                "target_type": "generic",
+                "target_text": "With each step, her heart raced, responding instinctively to the towering trees that loomed above, leaning in as though eager to eavesdrop on their conversation.",
+                "target_phrase": "heart raced",
+            },
+        ],
+    }
+
+    refreshed = service._refresh_rescue_contract_for_current_text(
+        current_text=current_text,
+        rescue_contract=rescue_contract,
+        continuation=continuation,
+        critique_snapshot={"rewrite_goals": ["Replace vague lines with concrete detail."]},
+        quality_snapshot={"dialogue_present": False, "dialogue_grounded": True},
+    )
+
+    assert refreshed["patch_targets"]
+    assert any("heart raced" in target["target_text"].lower() for target in refreshed["patch_targets"])
+
+
+def test_patch_validation_accepts_specificity_lift_with_concrete_local_detail(tmp_path: Path) -> None:
+    service = _service(tmp_path, _long_text())
+    chapter_memory = ChapterMemoryPacket(
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chapter_context="Chapter One",
+        locked_facts=[],
+        accumulated_summaries=[],
+        unresolved_tensions=[],
+        emotional_carryover=None,
+        pacing_carryover=None,
+        scene_titles=["Alley"],
+        beat_refs=[],
+    )
+    continuation = SimpleNamespace(
+        prior_summary=None,
+        prior_excerpt=None,
+        chapter_memory=chapter_memory,
+        chapter_id="ch_0001",
+    )
+    target_text = "As the siren faded into the night, Clara's heart raced."
+
+    result = service._validate_and_apply_patch_response(
+        source_text="As the siren faded into the night, Clara's heart raced. The brick wall pressed cold through her jacket.",
+        patch_targets=[{"span_id": "p1", "target_type": "generic", "target_text": target_text, "target_phrase": "heart raced"}],
+        patch_response=[
+            {
+                "span_id": "p1",
+                "target_text": target_text,
+                "replacement_text": "As the siren faded into the night, Clara felt her pulse knock against her ribs while the cold brick wall pressed through her jacket.",
+            }
+        ],
+        continuation=continuation,
+        rescue_contract={"patch_targets": []},
+        mode="recovery_retry",
+    )
+
+    assert result["accepted"] is True
+
+
+def test_patch_validation_rejects_specificity_patch_that_stays_vague(tmp_path: Path) -> None:
+    service = _service(tmp_path, _long_text())
+    chapter_memory = ChapterMemoryPacket(
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chapter_context="Chapter One",
+        locked_facts=[],
+        accumulated_summaries=[],
+        unresolved_tensions=[],
+        emotional_carryover=None,
+        pacing_carryover=None,
+        scene_titles=["Alley"],
+        beat_refs=[],
+    )
+    continuation = SimpleNamespace(
+        prior_summary=None,
+        prior_excerpt=None,
+        chapter_memory=chapter_memory,
+        chapter_id="ch_0001",
+    )
+    target_text = "As the siren faded into the night, Clara's heart raced."
+
+    result = service._validate_and_apply_patch_response(
+        source_text="As the siren faded into the night, Clara's heart raced.",
+        patch_targets=[{"span_id": "p1", "target_type": "generic", "target_text": target_text, "target_phrase": "heart raced"}],
+        patch_response=[
+            {
+                "span_id": "p1",
+                "target_text": target_text,
+                "replacement_text": "As the siren faded into the night, Clara felt a stronger sense of dread settle over her.",
+            }
+        ],
+        continuation=continuation,
+        rescue_contract={"patch_targets": []},
+        mode="recovery_retry",
+    )
+
+    assert result["accepted"] is False
+    assert result["failure_class"] == "patch_specificity_unresolved"
+
+
 def test_long_form_execution_repair_only_can_fix_dialogue_grounding_after_patch_miss(
     tmp_path: Path,
 ) -> None:

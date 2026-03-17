@@ -109,6 +109,7 @@ class LongFormExecutionService:
         "cold", "warm", "hot", "wet", "damp", "bitter", "sweet", "sharp", "rough",
         "slick", "steam", "rain", "glass", "ceramic", "mug", "puddle", "gravel",
         "petal", "stem", "cheek", "skin", "breath", "mist", "coat", "lamp", "streetlamp",
+        "pulse", "throat", "ribs", "lungs", "jaw", "stomach", "palms", "knuckles", "ears",
     )
     _PATCH_SETTING_MARKERS = (
         "path", "counter", "window", "door", "table", "floor", "wall", "square",
@@ -610,7 +611,17 @@ class LongFormExecutionService:
                         if isinstance(previous_quality_snapshot, dict)
                         else None
                     ) or ""
-                    patch_targets = list(rescue_contract.get("patch_targets") or [])
+                    active_rescue_contract = rescue_contract
+                    if attempt_kind == "repair_only":
+                        active_rescue_contract = self._refresh_rescue_contract_for_current_text(
+                            current_text=source_text,
+                            rescue_contract=rescue_contract,
+                            continuation=continuation,
+                            critique_snapshot=critique_snapshot,
+                            quality_snapshot=previous_quality_snapshot,
+                        )
+                        rescue_contract = active_rescue_contract
+                    patch_targets = list(active_rescue_contract.get("patch_targets") or [])
                     patch_response = self._parse_patch_response(cleaned)
                     attempt_record["patch_targets"] = patch_targets
                     attempt_record["patch_response"] = patch_response
@@ -619,7 +630,7 @@ class LongFormExecutionService:
                         patch_targets=patch_targets,
                         patch_response=patch_response,
                         continuation=continuation,
-                        rescue_contract=rescue_contract,
+                        rescue_contract=active_rescue_contract,
                         mode=attempt_kind,
                     )
                     attempt_record["patch_validation"] = patch_result
@@ -653,6 +664,13 @@ class LongFormExecutionService:
                             internal_repair_attempts_used += 1
                             retry_snapshot["repair_only_pass_used"] = True
                             retry_snapshot["repair_only_pass_rescued"] = False
+                            rescue_contract = self._refresh_rescue_contract_for_current_text(
+                                current_text=source_text,
+                                rescue_contract=rescue_contract,
+                                continuation=continuation,
+                                critique_snapshot=critique_snapshot,
+                                quality_snapshot=previous_quality_snapshot,
+                            )
                             current_payload = dict(payload)
                             current_payload["prompt"] = self._build_repair_only_prompt(
                                 latest_text=source_text,
@@ -1085,6 +1103,13 @@ class LongFormExecutionService:
                         }
                         previous_quality_snapshot = quality_snapshot
                         previous_quality_snapshot["text"] = cleaned
+                        rescue_contract = self._refresh_rescue_contract_for_current_text(
+                            current_text=cleaned,
+                            rescue_contract=rescue_contract,
+                            continuation=continuation,
+                            critique_snapshot=critique_snapshot,
+                            quality_snapshot=previous_quality_snapshot,
+                        )
                         current_payload = dict(payload)
                         current_payload["prompt"] = self._build_repair_only_prompt(
                             latest_text=cleaned,
@@ -1649,6 +1674,131 @@ class LongFormExecutionService:
                 break
         return matches
 
+    def _extract_sentence_windows(self, text: str | None) -> list[str]:
+        if not text:
+            return []
+        sentences = [sentence.strip() for sentence in re.split(r"(?<=[.!?])\s+", text.strip()) if sentence.strip()]
+        windows: list[str] = []
+        for index, sentence in enumerate(sentences):
+            if sentence not in windows:
+                windows.append(sentence)
+            if index + 1 < len(sentences):
+                combined = f"{sentence} {sentences[index + 1]}".strip()
+                if combined not in windows:
+                    windows.append(combined)
+        return windows
+
+    def _find_best_local_patch_unit(
+        self,
+        *,
+        current_text: str,
+        target_text: str,
+        target_phrase: str | None = None,
+        required_anchor_terms: list[str] | None = None,
+    ) -> str | None:
+        windows = self._extract_sentence_windows(current_text)
+        normalized_target = self._normalize_patch_target_text(target_text)
+        normalized_phrase = self._normalize_patch_target_text(target_phrase)
+        anchor_terms = [self._normalize_patch_target_text(term) for term in (required_anchor_terms or []) if term]
+
+        if target_text.strip() and target_text.strip() in current_text:
+            return target_text.strip()
+        for window in windows:
+            normalized_window = self._normalize_patch_target_text(window)
+            if normalized_target and normalized_window == normalized_target:
+                return window
+            if normalized_target and (
+                normalized_target in normalized_window or normalized_window in normalized_target
+            ):
+                return window
+            if normalized_phrase and normalized_phrase in normalized_window:
+                return window
+        if normalized_target:
+            request_tokens = set(token for token in normalized_target.split() if len(token) > 2)
+            best_window: str | None = None
+            best_score = 0.0
+            for window in windows:
+                normalized_window = self._normalize_patch_target_text(window)
+                window_tokens = set(token for token in normalized_window.split() if len(token) > 2)
+                if not request_tokens or not window_tokens:
+                    continue
+                overlap = len(request_tokens & window_tokens) / max(len(request_tokens), len(window_tokens))
+                if anchor_terms and not any(term in normalized_window for term in anchor_terms):
+                    overlap *= 0.85
+                if overlap >= 0.35 and overlap > best_score:
+                    best_window = window
+                    best_score = overlap
+            if best_window is not None:
+                return best_window
+        if anchor_terms:
+            paragraphs = [paragraph.strip() for paragraph in current_text.split("\n\n") if paragraph.strip()]
+            for paragraph in paragraphs:
+                normalized_paragraph = self._normalize_patch_target_text(paragraph)
+                if any(term in normalized_paragraph for term in anchor_terms):
+                    return paragraph
+        return windows[0] if windows else None
+
+    def _refresh_rescue_contract_for_current_text(
+        self,
+        *,
+        current_text: str,
+        rescue_contract: dict[str, Any] | None,
+        continuation,
+        critique_snapshot: dict[str, Any] | None,
+        quality_snapshot: dict[str, Any] | None,
+    ) -> dict[str, Any]:
+        refreshed = dict(rescue_contract or {})
+        refreshed_lines: list[str] = []
+        refreshed_dialogue_lines: list[str] = []
+        refreshed_generic_phrases: list[str] = []
+        anchor_terms = list(refreshed.get("required_concrete_anchor_terms") or [])
+        source_targets = list((rescue_contract or {}).get("patch_targets") or [])
+
+        for target in source_targets:
+            if not isinstance(target, dict):
+                continue
+            target_text = str(target.get("target_text") or "").strip()
+            target_phrase = str(target.get("target_phrase") or "").strip() or None
+            local_unit = self._find_best_local_patch_unit(
+                current_text=current_text,
+                target_text=target_text,
+                target_phrase=target_phrase,
+                required_anchor_terms=anchor_terms,
+            )
+            if not local_unit:
+                continue
+            if local_unit not in refreshed_lines:
+                refreshed_lines.append(local_unit)
+            if target_phrase and target_phrase.lower() in current_text.lower() and target_phrase not in refreshed_generic_phrases:
+                refreshed_generic_phrases.append(target_phrase)
+            if str(target.get("target_type") or "") == "dialogue" and local_unit not in refreshed_dialogue_lines:
+                refreshed_dialogue_lines.append(local_unit)
+
+        if not refreshed_lines:
+            refreshed_lines.extend(self._extract_vague_emotional_sentences(current_text, limit=3))
+        if not refreshed_dialogue_lines and (
+            bool((critique_snapshot or {}).get("dialogue_grounding_targets"))
+            or bool((critique_snapshot or {}).get("grounding_targets"))
+        ):
+            refreshed_dialogue_lines.extend(self._extract_dialogue_lines(current_text))
+        refreshed["lines_to_repair"] = refreshed_lines[:6]
+        refreshed["dialogue_beats_requiring_grounding"] = refreshed_dialogue_lines[:4]
+        if refreshed_generic_phrases:
+            refreshed["generic_phrases_to_replace"] = refreshed_generic_phrases[:4]
+        refreshed["patch_targets"] = self._extract_patch_targets(
+            original_text=current_text,
+            continuation=continuation,
+            critique_snapshot=critique_snapshot,
+            quality_snapshot=quality_snapshot,
+            rescue_contract={
+                "lines_to_repair": refreshed["lines_to_repair"],
+                "dialogue_beats_requiring_grounding": refreshed["dialogue_beats_requiring_grounding"],
+                "generic_phrases_to_replace": list(refreshed.get("generic_phrases_to_replace") or []),
+                "required_concrete_anchor_terms": anchor_terms,
+            },
+        )
+        return refreshed
+
     def _find_patch_target(
         self,
         *,
@@ -1681,6 +1831,13 @@ class LongFormExecutionService:
         if normalized_requested:
             for candidate, candidate_text, normalized_candidate in normalized_candidates:
                 if normalized_candidate == normalized_requested and candidate_text in patched_text:
+                    return candidate, candidate_text
+            for candidate, candidate_text, normalized_candidate in normalized_candidates:
+                if candidate_text not in patched_text:
+                    continue
+                if normalized_requested and (
+                    normalized_requested in normalized_candidate or normalized_candidate in normalized_requested
+                ):
                     return candidate, candidate_text
             request_tokens = set(token for token in normalized_requested.split() if len(token) > 2)
             best_match: tuple[dict[str, Any], str] | None = None
@@ -1806,12 +1963,24 @@ class LongFormExecutionService:
             if new_names:
                 return {"accepted": False, "failure_class": "patch_fidelity_risk"}
             if target_type == "generic":
+                target_quality = score_long_form_quality(target_text)
                 replacement_quality = score_long_form_quality(replacement_text)
+                target_specificity_signals = self._generic_specificity_signal_count(target_text)
+                replacement_specificity_signals = self._generic_specificity_signal_count(replacement_text)
                 if (
                     int(replacement_quality.get("concrete_hits") or 0) < 1
                     and int(replacement_quality.get("sensory_hits") or 0) < 1
-                    and not any(marker in lowered_replacement for marker in self._PATCH_SENSORY_MARKERS)
-                    and not any(marker in lowered_replacement for marker in self._PATCH_ACTION_MARKERS)
+                    and not any(self._marker_present(replacement_text, marker) for marker in self._PATCH_SETTING_MARKERS)
+                    and not any(self._marker_present(replacement_text, marker) for marker in self._PATCH_SENSORY_MARKERS)
+                    and not any(self._marker_present(replacement_text, marker) for marker in self._PATCH_ACTION_MARKERS)
+                ):
+                    return {"accepted": False, "failure_class": "patch_specificity_unresolved"}
+                if (
+                    replacement_specificity_signals <= target_specificity_signals
+                    and int(replacement_quality.get("concrete_hits") or 0)
+                    <= int(target_quality.get("concrete_hits") or 0)
+                    and int(replacement_quality.get("sensory_hits") or 0)
+                    <= int(target_quality.get("sensory_hits") or 0)
                 ):
                     return {"accepted": False, "failure_class": "patch_specificity_unresolved"}
             patched_text = patched_text.replace(target_text, replacement_text, 1)
@@ -1848,16 +2017,28 @@ class LongFormExecutionService:
                 break
         return lines
 
+    def _marker_present(self, text: str | None, marker: str) -> bool:
+        normalized_text = str(text or "").lower()
+        normalized_marker = marker.lower().strip()
+        if not normalized_text or not normalized_marker:
+            return False
+        pattern = r"\b" + re.escape(normalized_marker).replace(r"\ ", r"\s+") + r"\b"
+        return re.search(pattern, normalized_text) is not None
+
     def _dialogue_grounding_signal_count(self, text: str | None) -> int:
-        lowered = str(text or "").lower()
         markers = set(self._PATCH_ACTION_MARKERS) | set(self._PATCH_SENSORY_MARKERS) | set(self._PATCH_SETTING_MARKERS)
-        return sum(1 for marker in markers if marker in lowered)
+        return sum(1 for marker in markers if self._marker_present(text, marker))
 
     def _dialogue_span_has_grounding_cue(self, text: str | None) -> bool:
-        lowered = str(text or "").lower()
-        has_action = any(marker in lowered for marker in self._PATCH_ACTION_MARKERS)
-        has_anchor = any(marker in lowered for marker in self._PATCH_SENSORY_MARKERS + self._PATCH_SETTING_MARKERS)
+        has_action = any(self._marker_present(text, marker) for marker in self._PATCH_ACTION_MARKERS)
+        has_anchor = any(
+            self._marker_present(text, marker) for marker in self._PATCH_SENSORY_MARKERS + self._PATCH_SETTING_MARKERS
+        )
         return has_action and has_anchor
+
+    def _generic_specificity_signal_count(self, text: str | None) -> int:
+        markers = set(self._PATCH_ACTION_MARKERS) | set(self._PATCH_SENSORY_MARKERS) | set(self._PATCH_SETTING_MARKERS)
+        return sum(1 for marker in markers if self._marker_present(text, marker))
 
     def _extract_sentences_with_terms(
         self,
