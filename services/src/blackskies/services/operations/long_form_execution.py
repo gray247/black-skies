@@ -2226,13 +2226,6 @@ class LongFormExecutionService:
                 "context_after": context_after,
                 "target_reason": target_reason or target_type,
             }
-            if target_type == "dialogue":
-                local_anchor_terms = self._dialogue_local_anchor_terms(
-                    context_before=context_before,
-                    context_after=context_after,
-                )
-                if local_anchor_terms:
-                    target["local_anchor_terms"] = local_anchor_terms
             if target_phrase:
                 target["target_phrase"] = target_phrase
             targets.append(target)
@@ -2764,13 +2757,6 @@ class LongFormExecutionService:
         replacement = str(replacement_text or "")
         if not replacement:
             return False
-        explicit_local_terms = [
-            str(term).strip().lower()
-            for term in list((target or {}).get("local_anchor_terms") or [])
-            if str(term).strip()
-        ]
-        if explicit_local_terms:
-            return any(self._marker_present(replacement, term) for term in explicit_local_terms)
         context_terms = set(self._anchor_terms(str((target or {}).get("context_before") or ""), limit=10))
         context_terms.update(self._anchor_terms(str((target or {}).get("context_after") or ""), limit=10))
         context_terms.difference_update(
@@ -2798,39 +2784,6 @@ class LongFormExecutionService:
         if not context_markers:
             return True
         return any(self._marker_present(replacement, marker) for marker in context_markers)
-
-    def _dialogue_local_anchor_terms(
-        self,
-        *,
-        context_before: str,
-        context_after: str,
-    ) -> list[str]:
-        context_terms = []
-        for term in self._anchor_terms(f"{context_before} {context_after}", limit=12):
-            if term in {
-                "voice",
-                "words",
-                "word",
-                "line",
-                "look",
-                "gaze",
-                "eyes",
-                "face",
-                "hand",
-                "hands",
-                "body",
-                "shoulder",
-                "shoulders",
-            }:
-                continue
-            if (
-                term in self._PATCH_SETTING_MARKERS
-                or term in self._PATCH_SENSORY_MARKERS
-                or term in {"shadow", "dust", "stone", "wall", "sun", "hair", "wheel", "metal"}
-            ):
-                if term not in context_terms:
-                    context_terms.append(term)
-        return context_terms[:4]
 
     def _generic_specificity_signal_count(self, text: str | None) -> int:
         markers = set(self._PATCH_ACTION_MARKERS) | set(self._PATCH_SENSORY_MARKERS) | set(self._PATCH_SETTING_MARKERS)

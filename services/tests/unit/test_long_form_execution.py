@@ -2528,59 +2528,6 @@ def test_local_rewrite_block_dialogue_excerpt_passes_when_anchor_and_action_adde
     assert result["accepted"] is True
 
 
-def test_dialogue_slots_include_explicit_local_anchor_terms(tmp_path: Path) -> None:
-    service = _service(tmp_path, _long_text())
-    continuation = _artifact_continuation("Dialogue Anchor Terms")
-
-    slots = service._build_rescue_slots(
-        original_text=(
-            "The air smelled of old oil and sweat. "
-            '"Do you think anyone ever comes back here?" Finn asked, his voice low. '
-            "He stood just behind her, his shadow stretching over the shattered wheel."
-        ),
-        continuation=continuation,
-        critique_snapshot={"dialogue_grounding_targets": ["Ground Finn's line in local action or setting."]},
-        quality_snapshot={"dialogue_present": True, "dialogue_grounded": False},
-        rescue_contract={
-            "lines_to_repair": ['"Do you think anyone ever comes back here?" Finn asked, his voice low.'],
-            "dialogue_beats_requiring_grounding": ['"Do you think anyone ever comes back here?" Finn asked, his voice low.'],
-            "generic_phrases_to_replace": [],
-            "required_concrete_anchor_terms": ["shadow", "wheel"],
-        },
-    )
-
-    assert slots
-    assert "local_anchor_terms" in slots[0]
-    assert any(term in slots[0]["local_anchor_terms"] for term in ["shadow", "wheel"])
-
-
-def test_dialogue_validation_requires_explicit_local_anchor_term_when_available(tmp_path: Path) -> None:
-    service = _service(tmp_path, _long_text())
-
-    assert (
-        service._dialogue_replacement_uses_local_anchor(
-            '"Where?" she asked, pressing her palm to the stone wall while rain ticked through the branches.',
-            {
-                "local_anchor_terms": ["stone", "rain"],
-                "context_before": "Leaves rattled against the stone wall.",
-                "context_after": "Rain ticked through the branches.",
-            },
-        )
-        is True
-    )
-    assert (
-        service._dialogue_replacement_uses_local_anchor(
-            '"Where?" she asked, pressing her palm to the cracked earth as the wind moved past them.',
-            {
-                "local_anchor_terms": ["stone", "rain"],
-                "context_before": "Leaves rattled against the stone wall.",
-                "context_after": "Rain ticked through the branches.",
-            },
-        )
-        is False
-    )
-
-
 def test_patch_validation_accepts_sentence_slot_local_variation_with_full_sentence(tmp_path: Path) -> None:
     service = _service(tmp_path, _long_text())
     continuation = _artifact_continuation("Sentence Length Replay")
