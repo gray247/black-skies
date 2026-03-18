@@ -2018,6 +2018,40 @@ def test_repair_only_prompt_requires_literal_local_specificity_detail(tmp_path: 
     assert "one full sentence, not a clause fragment" in prompt
 
 
+def test_repair_only_prompt_requires_borrowed_dialogue_anchor_from_neighboring_context(tmp_path: Path) -> None:
+    service = _service(tmp_path, _long_text())
+    continuation = _artifact_continuation("Dialogue Anchor Replay")
+
+    prompt = service._build_repair_only_prompt(
+        latest_text="\"Where?\" she asked. Leaves rattled against the stone wall.",
+        continuation=continuation,
+        rescue_contract={
+            "min_word_count": 180,
+            "max_word_count": 320,
+            "repair_min_word_count": 180,
+            "repair_max_word_count": 320,
+            "min_paragraph_count": 1,
+            "max_paragraph_count": 3,
+            "lines_to_repair": ['"Where?" she asked, her voice thin in the dark.'],
+            "dialogue_beats_requiring_grounding": ['"Where?" she asked, her voice thin in the dark.'],
+            "rescue_slots": [
+                {
+                    "slot_id": "s1",
+                    "target_type": "dialogue",
+                    "original_text": '"Where?" she asked, her voice thin in the dark.',
+                    "context_before": "Leaves rattled against the stone wall.",
+                    "context_after": "Rain ticked through the branches above them.",
+                }
+            ],
+        },
+        rescue_failure_class="patch_dialogue_grounding_unresolved",
+    )
+
+    assert "borrow at least one concrete local anchor term" in prompt
+    assert "context_before or context_after" in prompt
+    assert "Pair that borrowed local anchor with one visible action" in prompt
+
+
 def test_patch_validation_accepts_sentence_slot_local_variation_with_full_sentence(tmp_path: Path) -> None:
     service = _service(tmp_path, _long_text())
     continuation = _artifact_continuation("Sentence Length Replay")
@@ -2043,6 +2077,69 @@ def test_patch_validation_accepts_sentence_slot_local_variation_with_full_senten
     )
 
     assert result["accepted"] is True
+
+
+def test_patch_validation_accepts_dialogue_grounding_with_borrowed_local_anchor_and_action(tmp_path: Path) -> None:
+    service = _service(tmp_path, _long_text())
+    continuation = _artifact_continuation("Dialogue Anchor Pass")
+    target_text = '"Where?" she asked, her voice thin in the dark.'
+
+    result = service._validate_and_apply_patch_response(
+        source_text='Leaves rattled against the stone wall. "Where?" she asked, her voice thin in the dark. Rain ticked through the branches above them.',
+        rescue_slots=[
+            {
+                "slot_id": "s1",
+                "target_type": "dialogue",
+                "original_text": target_text,
+                "context_before": "Leaves rattled against the stone wall.",
+                "context_after": "Rain ticked through the branches above them.",
+            }
+        ],
+        patch_response=[
+            {
+                "slot_id": "s1",
+                "replacement_text": '"Where?" she asked, pressed her palm to the damp stone wall while rain ticked against her sleeve.',
+            }
+        ],
+        continuation=continuation,
+        rescue_contract={"rescue_slots": []},
+        mode="repair_only",
+    )
+
+    assert result["accepted"] is True
+
+
+def test_patch_validation_rejects_dialogue_grounding_with_generic_action_but_no_borrowed_local_anchor(
+    tmp_path: Path,
+) -> None:
+    service = _service(tmp_path, _long_text())
+    continuation = _artifact_continuation("Dialogue Anchor Fail")
+    target_text = '"Where?" she asked, her voice thin in the dark.'
+
+    result = service._validate_and_apply_patch_response(
+        source_text='Leaves rattled against the stone wall. "Where?" she asked, her voice thin in the dark. Rain ticked through the branches above them.',
+        rescue_slots=[
+            {
+                "slot_id": "s1",
+                "target_type": "dialogue",
+                "original_text": target_text,
+                "context_before": "Leaves rattled against the stone wall.",
+                "context_after": "Rain ticked through the branches above them.",
+            }
+        ],
+        patch_response=[
+            {
+                "slot_id": "s1",
+                "replacement_text": '"Where?" she asked, lifted one hand as her voice shook in the damp air.',
+            }
+        ],
+        continuation=continuation,
+        rescue_contract={"rescue_slots": []},
+        mode="repair_only",
+    )
+
+    assert result["accepted"] is False
+    assert result["failure_class"] == "patch_dialogue_grounding_unresolved"
 
 
 def test_rescue_prompt_requires_specificity_slot_to_use_nearby_context_detail(tmp_path: Path) -> None:

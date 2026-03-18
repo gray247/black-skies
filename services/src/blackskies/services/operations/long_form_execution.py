@@ -1552,6 +1552,9 @@ class LongFormExecutionService:
             "HARD RESCUE OBLIGATIONS:\n"
             f"- Add at least {rescue_contract.get('minimum_action_cues_to_add')} visible action/gesture/object cues across the targeted beats.\n"
             "- Every targeted dialogue beat must gain nearby action, gesture, handled object, or setting cue.\n"
+            "- For every dialogue-targeted slot, borrow at least one concrete local anchor term from that slot's context_before or context_after fields and use it inside the replacement_text.\n"
+            "- The borrowed dialogue anchor must be a nearby object, surface, place element, weather cue, or other visible setting/body noun from the neighboring context, not just a generic voice or mood word.\n"
+            "- Every dialogue-targeted replacement must pair that borrowed local anchor with one visible action, body cue, or object interaction in the same slot.\n"
             "- Every targeted generic phrase must be replaced with one concrete physical, sensory, or object-level detail in the replacement span.\n"
             "- For every specificity-targeted replacement span, name at least one local concrete cue: a handled object, body part, visible action, or setting surface. Abstract mood language alone does not count.\n"
             "- For every specificity-targeted slot, keep the same subject, local action intent, and scene role, but replace the vague wording with at least one literal nearby detail taken from the slot or its context_before/context_after fields: object, body cue, visible action, surface/material, or setting element.\n"
@@ -1608,6 +1611,9 @@ class LongFormExecutionService:
             "- Keep dialogue order and overall paragraph flow where possible.\n"
             "- Preserve approximately the same paragraph count and scene beat count.\n"
             "- Add only the missing action/gesture/object cues or concrete physical or sensory details on the targeted lines.\n"
+            "- For each dialogue-targeted slot, borrow at least one concrete local anchor term from that slot's context_before or context_after fields and use it inside the replacement_text.\n"
+            "- The borrowed dialogue anchor must be a nearby object, surface, place element, weather cue, or other visible setting/body noun from neighboring context, not just a generic voice or mood word.\n"
+            "- Pair that borrowed local anchor with one visible action, body cue, or object interaction in the same dialogue replacement.\n"
             "- For each specificity-targeted patch, add literal local detail in the replacement span: object, body, surface, movement, or setting cue. Metaphor by itself does not count.\n"
             "- For each specificity-targeted slot, preserve the same subject, local action intent, and scene role, and pull at least one literal nearby detail from the slot or its context_before/context_after fields.\n"
             "- Replace abstract crowd/mood language with something physically observable on the page: clothing, hands, eyes, pavement, wall, breath, sound, weather, or another local material cue.\n"
@@ -2182,6 +2188,8 @@ class LongFormExecutionService:
                     return {"accepted": False, "failure_class": "patch_dialogue_grounding_unresolved"}
                 if not self._dialogue_span_has_grounding_cue(replacement_text):
                     return {"accepted": False, "failure_class": "patch_dialogue_grounding_unresolved"}
+                if not self._dialogue_replacement_uses_local_anchor(replacement_text, target):
+                    return {"accepted": False, "failure_class": "patch_dialogue_grounding_unresolved"}
                 original_grounding_signals = self._dialogue_grounding_signal_count(target_text)
                 replacement_grounding_signals = self._dialogue_grounding_signal_count(replacement_text)
                 if replacement_grounding_signals <= original_grounding_signals:
@@ -2286,6 +2294,42 @@ class LongFormExecutionService:
             self._marker_present(text, marker) for marker in self._PATCH_SENSORY_MARKERS + self._PATCH_SETTING_MARKERS
         )
         return has_action and has_anchor
+
+    def _dialogue_replacement_uses_local_anchor(
+        self,
+        replacement_text: str | None,
+        target: dict[str, Any] | None,
+    ) -> bool:
+        replacement = str(replacement_text or "")
+        if not replacement:
+            return False
+        context_terms = set(self._anchor_terms(str((target or {}).get("context_before") or ""), limit=10))
+        context_terms.update(self._anchor_terms(str((target or {}).get("context_after") or ""), limit=10))
+        context_terms.difference_update(
+            {
+                "voice",
+                "words",
+                "word",
+                "line",
+                "look",
+                "gaze",
+                "eyes",
+                "face",
+                "hand",
+                "hands",
+                "body",
+                "shoulder",
+                "shoulders",
+            }
+        )
+        context_markers = {
+            term
+            for term in context_terms
+            if term in self._PATCH_SETTING_MARKERS or term in self._PATCH_SENSORY_MARKERS
+        }
+        if not context_markers:
+            return True
+        return any(self._marker_present(replacement, marker) for marker in context_markers)
 
     def _generic_specificity_signal_count(self, text: str | None) -> int:
         markers = set(self._PATCH_ACTION_MARKERS) | set(self._PATCH_SENSORY_MARKERS) | set(self._PATCH_SETTING_MARKERS)
