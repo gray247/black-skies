@@ -37,6 +37,12 @@ Long-form rewrite recovery adds one bounded exception path:
 - the stronger rewrite path is explicit and persisted in retry/model diagnostics
 - hard failures are not retried through the stronger path
 
+Long-form rescue generation now has an explicit generation-strategy layer under the rescue path:
+- primary repair strategy: `slot_patch`
+- escalation repair strategy: `local_rewrite_block`
+
+The detailed staged rescue architecture is defined in [rescue_pipeline_architecture.md](./rescue_pipeline_architecture.md). This model-backend spec only defines routing/model responsibilities, not rescue-edit contracts.
+
 ## Policy Configuration
 Policy keys live in `settings.json` and reference `Model Router` behaviors (`AiMode`). Valid values:
 

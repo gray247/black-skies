@@ -14,6 +14,7 @@ Canonical Links:
 - `docs/specs/architecture.md`
 - `docs/specs/data_model.md`
 - `docs/specs/endpoints.md`
+- `docs/specs/rescue_pipeline_architecture.md`
 - `docs/gui/gui_layouts.md`
 - `docs/specs/analytics_service_spec.md`
 - `docs/specs/agents_and_services.md`
@@ -70,6 +71,8 @@ Scope remains: finalize GUI + API parity, smoke tests, offline docs.
 **Engine closeout status (2026-03-17):** long-form rescue-plumbing / reliability-control is closed. The closeout fixed deterministic rescue-path failures including slot binding and alias handling, stale-target handling, specificity followthrough credit, and repair-only sentence-slot collapse. See [docs/runbooks/long_form_rescue_phase_exit.md](../runbooks/long_form_rescue_phase_exit.md).
 
 **Current backend phase:** Outline-Faithful Editorial Reliability. This phase addresses generation-side variance inside rewrite and rescue generation after rescue-plumbing closeout. The operating principle remains constrained assistance: the model trails the outline, preserves scene intent, character facts, and rough length band, and does not act as an autonomous co-author during rewrite.
+
+**Current rescue architecture:** see [docs/specs/rescue_pipeline_architecture.md](../specs/rescue_pipeline_architecture.md). The active model is controlled escalation: `generation -> detection -> slot_patch -> validation -> local_rewrite_block -> validation`, with `slot_patch` as the primary local repair and `local_rewrite_block` as bounded escalation only after a classified validation miss.
 
 **Transition note:** rescue plumbing is closed because the replay regression pack stayed green, adversarial remained healthy, and the remaining clean misses were artifact-confirmed as generation-side classes (`dialogue_grounding_unresolved`, `patch_dialogue_grounding_unresolved`, `patch_specificity_unresolved`) rather than deterministic rescue-path regressions.
 
