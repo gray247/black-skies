@@ -521,6 +521,9 @@ class LongFormExecutionService:
         same_slot_specificity_retry_used = 0
         guardrail_snapshot: dict[str, Any] | None = {"evaluated": False}
         rescue_contract: dict[str, Any] | None = None
+        rescue_generation_strategy = (
+            str(self._settings.rescue_generation_strategy or "slot_patch").strip() or "slot_patch"
+        )
 
         try:
             current_payload = dict(payload)
@@ -627,9 +630,14 @@ class LongFormExecutionService:
                                 quality_snapshot=previous_quality_snapshot,
                             )
                         rescue_contract = active_rescue_contract
-                    rescue_slots = list(active_rescue_contract.get("rescue_slots") or [])
+                    rescue_slots = self._materialize_rescue_generation_slots(
+                        current_text=source_text,
+                        rescue_contract=active_rescue_contract,
+                        strategy=rescue_generation_strategy,
+                    )
                     patch_response = self._parse_patch_response(cleaned)
                     attempt_record["rescue_slots"] = rescue_slots
+                    attempt_record["rescue_generation_strategy"] = rescue_generation_strategy
                     attempt_record["patch_response"] = patch_response
                     patch_result = self._validate_and_apply_patch_response(
                         source_text=source_text,
@@ -642,6 +650,7 @@ class LongFormExecutionService:
                     attempt_record["patch_validation"] = patch_result
                     if retry_snapshot is not None:
                         retry_snapshot["patch_rescue_used"] = True
+                        retry_snapshot["rescue_generation_strategy"] = rescue_generation_strategy
                         retry_snapshot["rescue_slots_summary"] = {
                             "slot_count": len(rescue_slots),
                             "target_types": [str(target.get("target_type")) for target in rescue_slots],
@@ -729,9 +738,15 @@ class LongFormExecutionService:
                                 quality_snapshot=previous_quality_snapshot,
                             )
                             current_payload = dict(payload)
-                            current_payload["prompt"] = self._build_repair_only_prompt(
+                            current_payload["prompt"] = self._build_rescue_generation_prompt(
+                                strategy=rescue_generation_strategy,
+                                mode="repair_only",
+                                original_text=source_text,
                                 latest_text=source_text,
                                 continuation=continuation,
+                                critique_snapshot=critique_snapshot or {},
+                                quality_snapshot=previous_quality_snapshot or {},
+                                failure_classification={},
                                 rescue_contract=rescue_contract or {},
                                 rescue_failure_class=patch_failure_class or "patch_under_applied",
                             )
@@ -1099,13 +1114,17 @@ class LongFormExecutionService:
                         "min_paragraph_count": rescue_contract.get("min_paragraph_count"),
                         "max_paragraph_count": rescue_contract.get("max_paragraph_count"),
                     }
-                    current_payload["prompt"] = self._build_recovery_retry_prompt(
+                    current_payload["prompt"] = self._build_rescue_generation_prompt(
+                        strategy=rescue_generation_strategy,
+                        mode="recovery_retry",
                         original_text=cleaned,
+                        latest_text=cleaned,
                         critique_snapshot=critique_snapshot,
                         continuation=continuation,
                         quality_snapshot=quality_snapshot,
                         failure_classification=failure_classification,
                         rescue_contract=rescue_contract,
+                        rescue_failure_class=None,
                     )
                     current_payload["system"] = (
                         "Perform a single recovery patch edit. Return JSON only."
@@ -1182,9 +1201,15 @@ class LongFormExecutionService:
                             quality_snapshot=previous_quality_snapshot,
                         )
                         current_payload = dict(payload)
-                        current_payload["prompt"] = self._build_repair_only_prompt(
+                        current_payload["prompt"] = self._build_rescue_generation_prompt(
+                            strategy=rescue_generation_strategy,
+                            mode="repair_only",
+                            original_text=cleaned,
                             latest_text=cleaned,
+                            critique_snapshot=critique_snapshot or {},
                             continuation=continuation,
+                            quality_snapshot=previous_quality_snapshot or {},
+                            failure_classification={},
                             rescue_contract=rescue_contract or {},
                             rescue_failure_class=rescue_failure_class,
                         )
@@ -1628,6 +1653,147 @@ class LongFormExecutionService:
             "CURRENT SCENE:\n"
             f"{latest_text}\n"
         )
+
+    def _build_local_rewrite_block_prompt(
+        self,
+        *,
+        original_text: str,
+        latest_text: str,
+        continuation,
+        rescue_contract: dict[str, Any],
+        mode: str,
+        rescue_failure_class: str | None,
+        failure_classification: dict[str, Any] | None,
+    ) -> str:
+        rescue_slots = rescue_contract.get("rescue_slots") or []
+        rescue_slots_text = json.dumps(rescue_slots, ensure_ascii=False, indent=2)
+        shared_header = (
+            "Bounded local rewrite rescue.\n"
+            "Rewrite only the provided local excerpts. Do not rewrite the whole scene.\n"
+            "Preserve the same subject, local action intent, scene role, and outline-faithful meaning.\n"
+            "Do not invent new named entities, causal events, or story turns.\n"
+            "For dialogue-targeted excerpts, keep the same spoken beat but anchor it in one borrowed local noun from context_before/context_after plus one visible action, object interaction, or body cue.\n"
+            "For generic-targeted excerpts, replace vague wording with literal local concrete detail.\n"
+            "Return JSON only.\n"
+            "Schema:\n"
+            "{\"rewrites\":[{\"slot_id\":\"s1\",\"rewritten_excerpt\":\"rewritten bounded excerpt only\"}]}\n\n"
+            f"CHAPTER: {continuation.chapter_memory.chapter_context or continuation.chapter_id}\n"
+            f"LENGTH BAND: {rescue_contract.get('min_word_count')} to {rescue_contract.get('max_word_count')} words\n"
+            "LOCAL REWRITE EXCERPTS JSON:\n"
+            f"{rescue_slots_text}\n\n"
+        )
+        if mode == "repair_only":
+            return (
+                shared_header
+                + f"Failure class: {rescue_failure_class or 'under_improved'}\n"
+                + "Repair only the unresolved local excerpts.\n"
+                + "CURRENT SCENE:\n"
+                + latest_text
+                + "\n"
+            )
+        return (
+            shared_header
+            + f"Retry reason: {(failure_classification or {}).get('reason')}\n"
+            + "ORIGINAL SCENE:\n"
+            + original_text
+            + "\n"
+        )
+
+    def _build_rescue_generation_prompt(
+        self,
+        *,
+        strategy: str,
+        mode: str,
+        original_text: str,
+        latest_text: str,
+        continuation,
+        critique_snapshot: dict[str, Any] | None,
+        quality_snapshot: dict[str, Any] | None,
+        failure_classification: dict[str, Any] | None,
+        rescue_contract: dict[str, Any],
+        rescue_failure_class: str | None,
+    ) -> str:
+        if strategy == "local_rewrite_block":
+            active_text = latest_text or original_text
+            rewrite_contract = dict(rescue_contract or {})
+            rewrite_contract["rescue_slots"] = self._materialize_rescue_generation_slots(
+                current_text=active_text,
+                rescue_contract=rescue_contract,
+                strategy=strategy,
+            )
+            return self._build_local_rewrite_block_prompt(
+                original_text=original_text,
+                latest_text=latest_text,
+                continuation=continuation,
+                rescue_contract=rewrite_contract,
+                mode=mode,
+                rescue_failure_class=rescue_failure_class,
+                failure_classification=failure_classification,
+            )
+        if mode == "repair_only":
+            return self._build_repair_only_prompt(
+                latest_text=latest_text,
+                continuation=continuation,
+                rescue_contract=rescue_contract,
+                rescue_failure_class=rescue_failure_class or "under_improved",
+            )
+        return self._build_recovery_retry_prompt(
+            original_text=original_text,
+            critique_snapshot=critique_snapshot,
+            continuation=continuation,
+            quality_snapshot=quality_snapshot,
+            failure_classification=failure_classification or {},
+            rescue_contract=rescue_contract,
+        )
+
+    def _materialize_rescue_generation_slots(
+        self,
+        *,
+        current_text: str,
+        rescue_contract: dict[str, Any],
+        strategy: str,
+    ) -> list[dict[str, Any]]:
+        rescue_slots = list((rescue_contract or {}).get("rescue_slots") or [])
+        if strategy != "local_rewrite_block":
+            return rescue_slots
+        materialized: list[dict[str, Any]] = []
+        for slot in rescue_slots:
+            focus_text = str(slot.get("original_text") or "").strip()
+            if not focus_text:
+                continue
+            excerpt = self._build_local_rewrite_excerpt(
+                current_text=current_text,
+                focus_text=focus_text,
+                context_before=str(slot.get("context_before") or ""),
+                context_after=str(slot.get("context_after") or ""),
+            )
+            rewritten = dict(slot)
+            rewritten["focus_text"] = focus_text
+            rewritten["original_text"] = excerpt
+            rewritten["unit_type"] = "local_excerpt"
+            materialized.append(rewritten)
+        return materialized
+
+    def _build_local_rewrite_excerpt(
+        self,
+        *,
+        current_text: str,
+        focus_text: str,
+        context_before: str,
+        context_after: str,
+    ) -> str:
+        if focus_text and focus_text in current_text:
+            pieces = [segment.strip() for segment in (context_before, focus_text, context_after) if segment and segment.strip()]
+            excerpt = " ".join(pieces).strip()
+            if excerpt and excerpt in current_text:
+                return excerpt
+        rebound = self._find_best_local_patch_unit(
+            current_text=current_text,
+            target_text=focus_text,
+        )
+        if rebound:
+            return rebound
+        return focus_text
 
     def _build_same_slot_retry_contract(
         self,
@@ -2127,6 +2293,8 @@ class LongFormExecutionService:
             return None
         if isinstance(payload, dict):
             patches = payload.get("patches")
+            if not isinstance(patches, list):
+                patches = payload.get("rewrites")
         else:
             patches = payload
         if not isinstance(patches, list):
@@ -2136,7 +2304,9 @@ class LongFormExecutionService:
             if not isinstance(patch, dict):
                 continue
             span_id = str(patch.get("slot_id") or patch.get("span_id") or "").strip()
-            replacement_text = str(patch.get("replacement_text") or "").strip()
+            replacement_text = str(
+                patch.get("replacement_text") or patch.get("rewritten_excerpt") or ""
+            ).strip()
             if not span_id or not replacement_text:
                 continue
             normalized_patches.append(
@@ -2179,18 +2349,19 @@ class LongFormExecutionService:
                 return {"accepted": False, "failure_class": "patch_target_missing"}
             replacement_text = str(patch.get("replacement_text") or "")
             target_type = str(target.get("target_type") or "generic")
-            if self._is_dialogue_span(target_text):
+            focus_text = str(target.get("focus_text") or target_text)
+            if self._is_dialogue_span(focus_text):
                 target_type = "dialogue"
             target_phrase = str(target.get("target_phrase") or "").lower()
             lowered_replacement = replacement_text.lower()
             if target_type == "dialogue":
-                if self._is_dialogue_span(target_text) and not self._is_dialogue_span(replacement_text):
+                if self._is_dialogue_span(focus_text) and not self._is_dialogue_span(replacement_text):
                     return {"accepted": False, "failure_class": "patch_dialogue_grounding_unresolved"}
                 if not self._dialogue_span_has_grounding_cue(replacement_text):
                     return {"accepted": False, "failure_class": "patch_dialogue_grounding_unresolved"}
                 if not self._dialogue_replacement_uses_local_anchor(replacement_text, target):
                     return {"accepted": False, "failure_class": "patch_dialogue_grounding_unresolved"}
-                original_grounding_signals = self._dialogue_grounding_signal_count(target_text)
+                original_grounding_signals = self._dialogue_grounding_signal_count(focus_text)
                 replacement_grounding_signals = self._dialogue_grounding_signal_count(replacement_text)
                 if replacement_grounding_signals <= original_grounding_signals:
                     return {"accepted": False, "failure_class": "patch_dialogue_grounding_unresolved"}

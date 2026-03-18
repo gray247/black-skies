@@ -178,6 +178,10 @@ class ServiceSettings(BaseModel):
         default="gpt-5.4-mini",
         description="Default OpenAI model name reserved for bounded rescue/edit generation.",
     )
+    rescue_generation_strategy: str = Field(
+        default="slot_patch",
+        description="Rescue generation strategy: slot_patch or local_rewrite_block.",
+    )
     openai_base_url: str = Field(
         default="https://api.openai.com/v1",
         description="Base URL for OpenAI API requests.",

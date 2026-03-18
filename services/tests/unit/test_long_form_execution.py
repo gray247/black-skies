@@ -2052,6 +2052,91 @@ def test_repair_only_prompt_requires_borrowed_dialogue_anchor_from_neighboring_c
     assert "Pair that borrowed local anchor with one visible action" in prompt
 
 
+def test_parse_patch_response_accepts_local_rewrite_block_schema(tmp_path: Path) -> None:
+    service = _service(tmp_path, _long_text())
+
+    parsed = service._parse_patch_response(
+        json.dumps(
+            {
+                "rewrites": [
+                    {
+                        "slot_id": "s1",
+                        "rewritten_excerpt": "Leaves rattled against the wall while she pressed her palm to the stone.",
+                    }
+                ]
+            }
+        )
+    )
+
+    assert parsed == [
+        {
+            "slot_id": "s1",
+            "replacement_text": "Leaves rattled against the wall while she pressed her palm to the stone.",
+        }
+    ]
+
+
+def test_materialize_rescue_generation_slots_expands_to_local_rewrite_excerpt(tmp_path: Path) -> None:
+    service = _service(tmp_path, _long_text())
+    rescue_contract = {
+        "rescue_slots": [
+            {
+                "slot_id": "s1",
+                "target_type": "dialogue",
+                "original_text": '"Where?" she asked, her voice thin in the dark.',
+                "context_before": "Leaves rattled against the stone wall.",
+                "context_after": "Rain ticked through the branches above them.",
+            }
+        ]
+    }
+
+    slots = service._materialize_rescue_generation_slots(
+        current_text='Leaves rattled against the stone wall. "Where?" she asked, her voice thin in the dark. Rain ticked through the branches above them.',
+        rescue_contract=rescue_contract,
+        strategy="local_rewrite_block",
+    )
+
+    assert len(slots) == 1
+    assert slots[0]["unit_type"] == "local_excerpt"
+    assert slots[0]["focus_text"] == '"Where?" she asked, her voice thin in the dark.'
+    assert "Leaves rattled against the stone wall." in slots[0]["original_text"]
+    assert "Rain ticked through the branches above them." in slots[0]["original_text"]
+
+
+def test_recovery_prompt_uses_local_rewrite_block_schema_when_strategy_selected(tmp_path: Path) -> None:
+    service = _service(tmp_path, _long_text())
+    continuation = _artifact_continuation("Local Rewrite Replay")
+
+    prompt = service._build_rescue_generation_prompt(
+        strategy="local_rewrite_block",
+        mode="recovery_retry",
+        original_text='Leaves rattled against the stone wall. "Where?" she asked, her voice thin in the dark. Rain ticked through the branches above them.',
+        latest_text='Leaves rattled against the stone wall. "Where?" she asked, her voice thin in the dark. Rain ticked through the branches above them.',
+        continuation=continuation,
+        critique_snapshot={"dialogue_grounding_targets": ["Attach the line to the wall and rain."]},
+        quality_snapshot={"dialogue_present": True, "dialogue_grounded": False},
+        failure_classification={"reason": "targeted_editorial_miss_after_rewrite"},
+        rescue_contract={
+            "min_word_count": 180,
+            "max_word_count": 320,
+            "rescue_slots": [
+                {
+                    "slot_id": "s1",
+                    "target_type": "dialogue",
+                    "original_text": '"Where?" she asked, her voice thin in the dark.',
+                    "context_before": "Leaves rattled against the stone wall.",
+                    "context_after": "Rain ticked through the branches above them.",
+                }
+            ],
+        },
+        rescue_failure_class=None,
+    )
+
+    assert "LOCAL REWRITE EXCERPTS JSON" in prompt
+    assert "\"rewrites\"" in prompt
+    assert "rewritten bounded excerpt only" in prompt
+
+
 def test_patch_validation_accepts_sentence_slot_local_variation_with_full_sentence(tmp_path: Path) -> None:
     service = _service(tmp_path, _long_text())
     continuation = _artifact_continuation("Sentence Length Replay")
