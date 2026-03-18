@@ -175,8 +175,8 @@ class ServiceSettings(BaseModel):
         description="Optional stronger OpenAI model name reserved for borderline rewrite retries.",
     )
     openai_rescue_model: str | None = Field(
-        default=None,
-        description="Optional OpenAI model name reserved for bounded rescue/edit generation.",
+        default="gpt-5.4-mini",
+        description="Default OpenAI model name reserved for bounded rescue/edit generation.",
     )
     openai_base_url: str = Field(
         default="https://api.openai.com/v1",

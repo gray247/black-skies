@@ -83,11 +83,13 @@ Scope remains: finalize GUI + API parity, smoke tests, offline docs.
 - acceptable remaining misses are rare generation-side classes such as dialogue grounding or specificity underreach; deterministic rescue-path regressions are not acceptable
 
 **Ranked workstreams:**
-1. **Rescue model strategy by failure class** - determine when rescue should stay on the current path versus use a stronger model for generation-side misses such as dialogue grounding and specificity. This matters because current evidence shows the remaining misses are patch-generation quality misses rather than binding/validator failures.
-2. **Editorial prompt strategy for outline-faithful rescue** - tighten how rescue and rewrite prompts request concrete, local, outline-faithful edits without broadening the rewrite scope. This matters because current failures are often under-grounded or under-specific rather than structurally broken.
-3. **Generation-variance measurement and slot-level quality shaping** - measure repeated rescue behavior on stable fixtures and live samples, then add quality-shaping passes that improve literal grounding/specificity without reopening plumbing. This matters because the remaining variance is stochastic and needs measurement, not more bug-hunting.
+1. **Dialogue-grounding rescue quality** - improve local rescue edits for floating dialogue beats without broadening scope or drifting scene intent. This matters because `patch_dialogue_grounding_unresolved` remained the most persistent clean rescue class even after the rescue-model switch to `gpt-5.4-mini`.
+2. **Specificity rescue quality** - improve literal concrete lift inside bounded rescue slots for vague/metaphorical lines. This matters because `patch_specificity_unresolved` remains a secondary clean limiter, even though it dropped under `gpt-5.4-mini`.
+3. **Generation-variance measurement and slot-level quality shaping** - continue using replay fixtures plus bounded live samples to distinguish model-quality misses from regressions. This matters because the remaining variance is stochastic and needs repeated measurement rather than more rescue-plumbing work.
 
-**First milestone:** conditional stronger-model rescue trial for generation-side classes only. Run a bounded experiment where rescue generation escalates only for artifact-confirmed generation-side misses (`dialogue_grounding_unresolved`, `patch_dialogue_grounding_unresolved`, `patch_specificity_unresolved`) while keeping the current bounded-slot plumbing, validators, and outline-faithful guardrails unchanged.
+**Current rescue default:** `gpt-5.4-mini` is now the default bounded rescue model. The repaired bakeoff showed clean `4/10` versus `2/10` for `gpt-4o-mini`, with adversarial steady at `5/5`.
+
+**Next milestone:** targeted dialogue-grounding pass on top of the new rescue default. Attack `patch_dialogue_grounding_unresolved` first, keeping the bounded-slot rescue path, validators, and outline-faithful guardrails otherwise unchanged.
 
 ### Key deliverables
 - Inline **Insights overlay** for contextual guidance and feedback  

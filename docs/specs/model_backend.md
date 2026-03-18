@@ -74,4 +74,4 @@ API-backed long-form execution is validated, and rescue-plumbing / reliability-c
 - improve rescue quality stability without reopening bounded-slot plumbing
 - use replay-backed evidence plus bounded live samples to measure progress
 
-The first milestone in this phase is a conditional stronger-model rescue trial for generation-side classes only, while keeping the current bounded-slot rescue plumbing and guardrails unchanged. UI docking/accessibility polish and agent hooks remain tracked separately.
+The rescue-model comparison milestone is complete. `gpt-5.4-mini` is now the default bounded rescue model because it materially outperformed `gpt-4o-mini` on clean rescue reliability while preserving adversarial stability. The next milestone is a narrow dialogue-grounding editorial pass targeting `patch_dialogue_grounding_unresolved`, while keeping the current bounded-slot rescue plumbing and guardrails unchanged. UI docking/accessibility polish and agent hooks remain tracked separately.
