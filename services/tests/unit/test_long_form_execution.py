@@ -119,6 +119,25 @@ class _RawChoicesAdapter(_FakeAdapter):
         return {"raw": {"choices": [{"message": {"content": self._text}}]}}
 
 
+class _SequenceAdapter(_FakeAdapter):
+    def __init__(self, texts: list[str]) -> None:
+        super().__init__(texts[0] if texts else "")
+        self._texts = list(texts)
+        self.payloads: list[dict[str, object]] = []
+
+    def _next(self, payload: dict[str, object]) -> dict[str, object]:
+        self.payloads.append(payload)
+        if not self._texts:
+            return {"text": ""}
+        return {"text": self._texts.pop(0)}
+
+    def generate_draft(self, payload: dict[str, object]) -> dict[str, object]:
+        return self._next(payload)
+
+    def rewrite(self, payload: dict[str, object]) -> dict[str, object]:
+        return self._next(payload)
+
+
 class _RawThinkingAdapter(_FakeAdapter):
     def generate_draft(self, payload: dict[str, object]) -> dict[str, object]:
         self.last_payload = payload
@@ -2135,6 +2154,183 @@ def test_recovery_prompt_uses_local_rewrite_block_schema_when_strategy_selected(
     assert "LOCAL REWRITE EXCERPTS JSON" in prompt
     assert "\"rewrites\"" in prompt
     assert "rewritten bounded excerpt only" in prompt
+
+
+def test_structured_repair_plan_prompt_uses_plan_schema(tmp_path: Path) -> None:
+    service = _service(tmp_path, _long_text())
+    continuation = _artifact_continuation("Structured Replay")
+
+    prompt = service._build_structured_repair_plan_prompt(
+        latest_text='Leaves rattled against the stone wall. "Where?" she asked, her voice thin in the dark.',
+        continuation=continuation,
+        rescue_contract={
+            "subject_entities": ["Mara"],
+            "scene_anchors": ["wall", "leaves"],
+        },
+        rescue_slots=[
+            {
+                "slot_id": "s1",
+                "target_type": "dialogue",
+                "original_text": '"Where?" she asked, her voice thin in the dark.',
+                "context_before": "Leaves rattled against the stone wall.",
+                "context_after": "Rain ticked through the branches.",
+            }
+        ],
+        mode="recovery_retry",
+        rescue_failure_class="patch_dialogue_grounding_unresolved",
+    )
+
+    assert "\"plans\"" in prompt
+    assert "subject_or_speaker" in prompt
+    assert "physical_anchor" in prompt
+    assert "action_or_interaction" in prompt
+
+
+def test_parse_repair_plan_response_accepts_plan_schema(tmp_path: Path) -> None:
+    service = _service(tmp_path, _long_text())
+
+    parsed = service._parse_repair_plan_response(
+        json.dumps(
+            {
+                "plans": [
+                    {
+                        "slot_id": "s1",
+                        "subject_or_speaker": "Mara",
+                        "physical_anchor": "stone wall",
+                        "environmental_anchor": "rain",
+                        "action_or_interaction": "presses her palm to the wall",
+                        "preserve_meaning": "same question",
+                        "preserve_scene_role": "keep the beat cautious",
+                    }
+                ]
+            }
+        )
+    )
+
+    assert parsed is not None
+    assert parsed[0]["slot_id"] == "s1"
+    assert parsed[0]["physical_anchor"] == "stone wall"
+
+
+def test_structured_slot_patch_prompt_uses_plan_elements(tmp_path: Path) -> None:
+    service = _service(tmp_path, _long_text())
+    continuation = _artifact_continuation("Structured Dialogue Replay")
+
+    prompt = service._build_structured_slot_patch_prompt(
+        latest_text='Leaves rattled against the stone wall. "Where?" she asked, her voice thin in the dark.',
+        continuation=continuation,
+        rescue_contract={
+            "rescue_slots": [
+                {"slot_id": "s1", "original_text": '"Where?" she asked, her voice thin in the dark.'}
+            ],
+            "scene_anchors": ["wall", "leaves"],
+        },
+        repair_plan=[
+            {
+                "slot_id": "s1",
+                "subject_or_speaker": "Mara",
+                "physical_anchor": "stone wall",
+                "environmental_anchor": "rain",
+                "action_or_interaction": "presses her palm to the wall",
+                "preserve_meaning": "same question",
+                "preserve_scene_role": "keep the beat cautious",
+            }
+        ],
+        mode="repair_only",
+        rescue_failure_class="patch_dialogue_grounding_unresolved",
+    )
+
+    assert "REPAIR PLAN JSON" in prompt
+    assert "stone wall" in prompt
+    assert "presses her palm to the wall" in prompt
+
+
+def test_structured_rescue_candidate_uses_plan_then_patch_calls(tmp_path: Path) -> None:
+    settings = ServiceSettings(
+        project_base_dir=tmp_path,
+        long_form_provider_enabled=True,
+        rescue_generation_strategy="structured_slot_patch",
+    )
+    diagnostics = DiagnosticLogger()
+    router = ModelRouter(
+        config=ModelRouterConfig(
+            policy=ModelRoutingPolicy.LOCAL_ONLY,
+            provider_calls_enabled=True,
+        )
+    )
+    adapter = _SequenceAdapter(
+        [
+            json.dumps(
+                {
+                    "plans": [
+                        {
+                            "slot_id": "s1",
+                            "subject_or_speaker": "Mara",
+                            "physical_anchor": "stone wall",
+                            "environmental_anchor": "rain",
+                            "action_or_interaction": "presses her palm to the wall",
+                            "preserve_meaning": "same question",
+                            "preserve_scene_role": "keep the beat cautious",
+                        }
+                    ]
+                }
+            ),
+            json.dumps(
+                {
+                    "patches": [
+                        {
+                            "slot_id": "s1",
+                            "replacement_text": '"Where?" she asked, pressing her palm to the stone wall as rain ticked through the branches.',
+                        }
+                    ]
+                }
+            ),
+        ]
+    )
+    router.register_provider(_FakeProvider(adapter))
+    service = LongFormExecutionService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=router,
+        enabled=True,
+    )
+    continuation = _artifact_continuation("Structured Dialogue Replay")
+
+    result = service._generate_structured_rescue_candidate(
+        adapter=adapter,
+        payload={"prompt": "unused", "system": "unused"},
+        continuation=continuation,
+        project_root=tmp_path,
+        call_mode="repair_only",
+        latest_text='Leaves rattled against the stone wall. "Where?" she asked, her voice thin in the dark.',
+        rescue_contract={
+            "scene_anchors": ["wall", "leaves"],
+            "subject_entities": ["Mara"],
+            "rescue_slots": [
+                {
+                    "slot_id": "s1",
+                    "target_type": "dialogue",
+                    "original_text": '"Where?" she asked, her voice thin in the dark.',
+                    "context_before": "Leaves rattled against the stone wall.",
+                    "context_after": "Rain ticked through the branches.",
+                }
+            ],
+        },
+        rescue_slots=[
+            {
+                "slot_id": "s1",
+                "target_type": "dialogue",
+                "original_text": '"Where?" she asked, her voice thin in the dark.',
+                "context_before": "Leaves rattled against the stone wall.",
+                "context_after": "Rain ticked through the branches.",
+            }
+        ],
+    )
+
+    assert result["repair_plan"] is not None
+    assert len(adapter.payloads) == 2
+    assert "\"plans\"" in str(adapter.payloads[0]["prompt"])
+    assert "REPAIR PLAN JSON" in str(adapter.payloads[1]["prompt"])
 
 
 def test_recovery_prompt_includes_scene_state_when_enabled(tmp_path: Path) -> None:

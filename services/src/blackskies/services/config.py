@@ -180,7 +180,7 @@ class ServiceSettings(BaseModel):
     )
     rescue_generation_strategy: str = Field(
         default="slot_patch",
-        description="Rescue generation strategy: slot_patch, local_rewrite_block, or hybrid_escalation.",
+        description="Rescue generation strategy: slot_patch, structured_slot_patch, local_rewrite_block, or hybrid_escalation.",
     )
     rescue_scene_state_enabled: bool = Field(
         default=True,

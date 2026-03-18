@@ -557,13 +557,57 @@ class LongFormExecutionService:
                         retry_snapshot["rescue_model_name"] = str(model_snapshot.get("model") or "")
                         retry_snapshot["stronger_model_used"] = bool(model_snapshot.get("escalated"))
                         retry_snapshot["rescue_model_used"] = bool(model_snapshot.get("escalated"))
-                candidate = self._generate_candidate(
-                    adapter=attempt_adapter,
-                    payload=current_payload,
-                    continuation=continuation,
-                    project_root=project_root,
-                    call_mode=attempt_kind,
-                )
+                source_text = ""
+                active_generation_strategy = rescue_generation_strategy
+                active_rescue_contract = rescue_contract
+                rescue_slots: list[dict[str, Any]] = []
+                if attempt_kind in {"recovery_retry", "repair_only"} and rescue_contract is not None:
+                    source_text = (
+                        previous_quality_snapshot.get("text")
+                        if isinstance(previous_quality_snapshot, dict)
+                        else None
+                    ) or ""
+                    active_generation_strategy = self._resolve_rescue_generation_strategy(
+                        strategy=rescue_generation_strategy,
+                        mode=attempt_kind,
+                    )
+                    if attempt_kind == "repair_only":
+                        if bool(active_rescue_contract.get("skip_refresh_once")):
+                            active_rescue_contract = dict(active_rescue_contract)
+                            active_rescue_contract.pop("skip_refresh_once", None)
+                        else:
+                            active_rescue_contract = self._refresh_rescue_contract_for_current_text(
+                                current_text=source_text,
+                                rescue_contract=rescue_contract,
+                                continuation=continuation,
+                                critique_snapshot=critique_snapshot,
+                                quality_snapshot=previous_quality_snapshot,
+                            )
+                        rescue_contract = active_rescue_contract
+                    rescue_slots = self._materialize_rescue_generation_slots(
+                        current_text=source_text,
+                        rescue_contract=active_rescue_contract,
+                        strategy=active_generation_strategy,
+                    )
+                if attempt_kind in {"recovery_retry", "repair_only"} and active_generation_strategy == "structured_slot_patch":
+                    candidate = self._generate_structured_rescue_candidate(
+                        adapter=attempt_adapter,
+                        payload=current_payload,
+                        continuation=continuation,
+                        project_root=project_root,
+                        call_mode=attempt_kind,
+                        latest_text=source_text,
+                        rescue_contract=active_rescue_contract or {},
+                        rescue_slots=rescue_slots,
+                    )
+                else:
+                    candidate = self._generate_candidate(
+                        adapter=attempt_adapter,
+                        payload=current_payload,
+                        continuation=continuation,
+                        project_root=project_root,
+                        call_mode=attempt_kind,
+                    )
                 attempt_record = {
                     "attempt": attempt,
                     "mode": attempt_kind,
@@ -610,35 +654,10 @@ class LongFormExecutionService:
                 attempt_record["normalized_length"] = candidate.get("normalized_length")
                 attempt_record["raw_payload_keys"] = candidate.get("raw_payload_keys")
                 attempt_record["raw_payload_preview"] = candidate.get("raw_payload_preview")
+                if candidate.get("repair_plan") is not None:
+                    attempt_record["repair_plan"] = candidate.get("repair_plan")
+                    attempt_record["repair_plan_raw_preview"] = candidate.get("repair_plan_raw_preview")
                 if attempt_kind in {"recovery_retry", "repair_only"} and rescue_contract is not None:
-                    source_text = (
-                        previous_quality_snapshot.get("text")
-                        if isinstance(previous_quality_snapshot, dict)
-                        else None
-                    ) or ""
-                    active_generation_strategy = self._resolve_rescue_generation_strategy(
-                        strategy=rescue_generation_strategy,
-                        mode=attempt_kind,
-                    )
-                    active_rescue_contract = rescue_contract
-                    if attempt_kind == "repair_only":
-                        if bool(active_rescue_contract.get("skip_refresh_once")):
-                            active_rescue_contract = dict(active_rescue_contract)
-                            active_rescue_contract.pop("skip_refresh_once", None)
-                        else:
-                            active_rescue_contract = self._refresh_rescue_contract_for_current_text(
-                                current_text=source_text,
-                                rescue_contract=rescue_contract,
-                                continuation=continuation,
-                                critique_snapshot=critique_snapshot,
-                                quality_snapshot=previous_quality_snapshot,
-                            )
-                        rescue_contract = active_rescue_contract
-                    rescue_slots = self._materialize_rescue_generation_slots(
-                        current_text=source_text,
-                        rescue_contract=active_rescue_contract,
-                        strategy=active_generation_strategy,
-                    )
                     patch_response = self._parse_patch_response(cleaned)
                     attempt_record["rescue_slots"] = rescue_slots
                     attempt_record["rescue_generation_strategy"] = active_generation_strategy
@@ -1755,6 +1774,15 @@ class LongFormExecutionService:
                 rescue_failure_class=rescue_failure_class,
                 failure_classification=failure_classification,
             )
+        if active_strategy == "structured_slot_patch":
+            return self._build_structured_slot_patch_prompt(
+                latest_text=latest_text or original_text,
+                continuation=continuation,
+                rescue_contract=rescue_contract,
+                repair_plan=[],
+                mode=mode,
+                rescue_failure_class=rescue_failure_class,
+            )
         if mode == "repair_only":
             return self._build_repair_only_prompt(
                 latest_text=latest_text,
@@ -1778,6 +1806,168 @@ class LongFormExecutionService:
         if mode == "repair_only":
             return "local_rewrite_block"
         return "slot_patch"
+
+    def _build_structured_repair_plan_prompt(
+        self,
+        *,
+        latest_text: str,
+        continuation,
+        rescue_contract: dict[str, Any],
+        rescue_slots: list[dict[str, Any]],
+        mode: str,
+        rescue_failure_class: str | None,
+    ) -> str:
+        rescue_slots_text = json.dumps(rescue_slots, ensure_ascii=False, indent=2)
+        scene_state_text = self._format_rescue_scene_state(
+            continuation=continuation,
+            rescue_contract=rescue_contract,
+        )
+        return (
+            "Structured slot repair planning.\n"
+            "Create a tiny bounded repair plan for each targeted rescue slot.\n"
+            "Do not write final prose yet.\n"
+            "Keep the plan local to the slot and its immediate context.\n"
+            "Preserve the same subject or speaker, local meaning, and scene role.\n"
+            "Return JSON only.\n"
+            "Schema:\n"
+            "{\"plans\":[{\"slot_id\":\"s1\",\"subject_or_speaker\":\"...\",\"physical_anchor\":\"...\",\"environmental_anchor\":\"...\",\"action_or_interaction\":\"...\",\"preserve_meaning\":\"...\",\"preserve_scene_role\":\"...\"}]}\n\n"
+            f"CHAPTER: {continuation.chapter_memory.chapter_context or continuation.chapter_id}\n"
+            f"{scene_state_text}"
+            f"MODE: {mode}\n"
+            f"FAILURE CLASS: {rescue_failure_class or 'under_improved'}\n"
+            "RULES:\n"
+            "- Use only local slot context plus neighboring context_before/context_after.\n"
+            "- For dialogue slots, include at least one concrete grounding anchor and one visible action or interaction.\n"
+            "- For specificity slots, include at least one literal concrete detail.\n"
+            "- Metaphor alone does not count.\n"
+            "- Do not invent new named entities or story turns.\n"
+            "RESCUE SLOTS JSON:\n"
+            f"{rescue_slots_text}\n\n"
+            "CURRENT SCENE:\n"
+            f"{latest_text}\n"
+        )
+
+    def _build_structured_slot_patch_prompt(
+        self,
+        *,
+        latest_text: str,
+        continuation,
+        rescue_contract: dict[str, Any],
+        repair_plan: list[dict[str, Any]],
+        mode: str,
+        rescue_failure_class: str | None,
+    ) -> str:
+        rescue_slots_text = json.dumps(rescue_contract.get("rescue_slots") or [], ensure_ascii=False, indent=2)
+        plan_text = json.dumps(repair_plan, ensure_ascii=False, indent=2)
+        scene_state_text = self._format_rescue_scene_state(
+            continuation=continuation,
+            rescue_contract=rescue_contract,
+        )
+        return (
+            "Structured slot patch rescue.\n"
+            "Write replacement_text only for the targeted slots.\n"
+            "Use the repair plan as a hard local constraint.\n"
+            "Stay within each slot. Do not rewrite untouched text.\n"
+            "Preserve subject, local intent, and scene role.\n"
+            "Use at least one concrete grounding element from the repair plan in each replacement.\n"
+            "Avoid metaphor-only repairs.\n"
+            "Return JSON only.\n"
+            "Schema:\n"
+            "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"replacement span only\"}]}\n\n"
+            f"CHAPTER: {continuation.chapter_memory.chapter_context or continuation.chapter_id}\n"
+            f"{scene_state_text}"
+            f"MODE: {mode}\n"
+            f"FAILURE CLASS: {rescue_failure_class or 'under_improved'}\n"
+            "REPAIR PLAN JSON:\n"
+            f"{plan_text}\n\n"
+            "RESCUE SLOTS JSON:\n"
+            f"{rescue_slots_text}\n\n"
+            "CURRENT SCENE:\n"
+            f"{latest_text}\n"
+        )
+
+    def _parse_repair_plan_response(self, response_text: str | None) -> list[dict[str, Any]] | None:
+        if not response_text:
+            return None
+        try:
+            payload = json.loads(response_text)
+        except (TypeError, ValueError):
+            return None
+        plans = payload.get("plans") if isinstance(payload, dict) else None
+        if not isinstance(plans, list):
+            return None
+        normalized: list[dict[str, Any]] = []
+        for item in plans:
+            if not isinstance(item, dict):
+                continue
+            slot_id = str(item.get("slot_id") or "").strip()
+            if not slot_id:
+                continue
+            normalized.append(
+                {
+                    "slot_id": slot_id,
+                    "subject_or_speaker": str(item.get("subject_or_speaker") or "").strip(),
+                    "physical_anchor": str(item.get("physical_anchor") or "").strip(),
+                    "environmental_anchor": str(item.get("environmental_anchor") or "").strip(),
+                    "action_or_interaction": str(item.get("action_or_interaction") or "").strip(),
+                    "preserve_meaning": str(item.get("preserve_meaning") or "").strip(),
+                    "preserve_scene_role": str(item.get("preserve_scene_role") or "").strip(),
+                }
+            )
+        return normalized or None
+
+    def _generate_structured_rescue_candidate(
+        self,
+        *,
+        adapter,
+        payload: dict[str, Any],
+        continuation,
+        project_root: Path,
+        call_mode: str,
+        latest_text: str,
+        rescue_contract: dict[str, Any],
+        rescue_slots: list[dict[str, Any]],
+    ) -> dict[str, Any]:
+        plan_payload = dict(payload)
+        plan_payload["prompt"] = self._build_structured_repair_plan_prompt(
+            latest_text=latest_text,
+            continuation=continuation,
+            rescue_contract=rescue_contract,
+            rescue_slots=rescue_slots,
+            mode=call_mode,
+            rescue_failure_class=None,
+        )
+        plan_payload["system"] = "Create a bounded structured repair plan. Return JSON only."
+        plan_candidate = self._generate_candidate(
+            adapter=adapter,
+            payload=plan_payload,
+            continuation=continuation,
+            project_root=project_root,
+            call_mode=call_mode,
+        )
+        if plan_candidate.get("adapter_error"):
+            return plan_candidate
+        repair_plan = self._parse_repair_plan_response(plan_candidate.get("text"))
+        prose_payload = dict(payload)
+        prose_payload["prompt"] = self._build_structured_slot_patch_prompt(
+            latest_text=latest_text,
+            continuation=continuation,
+            rescue_contract=rescue_contract,
+            repair_plan=repair_plan or [],
+            mode=call_mode,
+            rescue_failure_class=None,
+        )
+        prose_payload["system"] = "Perform a structured slot patch edit. Return JSON only."
+        prose_candidate = self._generate_candidate(
+            adapter=adapter,
+            payload=prose_payload,
+            continuation=continuation,
+            project_root=project_root,
+            call_mode=call_mode,
+        )
+        prose_candidate["repair_plan"] = repair_plan
+        prose_candidate["repair_plan_raw_preview"] = plan_candidate.get("raw_preview")
+        return prose_candidate
 
     def _materialize_rescue_generation_slots(
         self,
