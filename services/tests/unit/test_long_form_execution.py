@@ -2137,6 +2137,102 @@ def test_recovery_prompt_uses_local_rewrite_block_schema_when_strategy_selected(
     assert "rewritten bounded excerpt only" in prompt
 
 
+def test_hybrid_strategy_uses_slot_patch_for_recovery_retry(tmp_path: Path) -> None:
+    service = _service(tmp_path, _long_text())
+
+    assert (
+        service._resolve_rescue_generation_strategy(
+            strategy="hybrid_escalation",
+            mode="recovery_retry",
+        )
+        == "slot_patch"
+    )
+
+
+def test_hybrid_strategy_uses_local_rewrite_block_for_repair_only(tmp_path: Path) -> None:
+    service = _service(tmp_path, _long_text())
+
+    assert (
+        service._resolve_rescue_generation_strategy(
+            strategy="hybrid_escalation",
+            mode="repair_only",
+        )
+        == "local_rewrite_block"
+    )
+
+
+def test_hybrid_repair_only_prompt_uses_local_rewrite_block_for_dialogue_grounding_failure(
+    tmp_path: Path,
+) -> None:
+    service = _service(tmp_path, _long_text())
+    continuation = _artifact_continuation("Hybrid Dialogue Replay")
+
+    prompt = service._build_rescue_generation_prompt(
+        strategy="hybrid_escalation",
+        mode="repair_only",
+        original_text='Leaves rattled against the stone wall. "Where?" she asked, her voice thin in the dark. Rain ticked through the branches above them.',
+        latest_text='Leaves rattled against the stone wall. "Where?" she asked, her voice thin in the dark. Rain ticked through the branches above them.',
+        continuation=continuation,
+        critique_snapshot={"dialogue_grounding_targets": ["Attach the line to the wall and rain."]},
+        quality_snapshot={"dialogue_present": True, "dialogue_grounded": False},
+        failure_classification={},
+        rescue_contract={
+            "min_word_count": 180,
+            "max_word_count": 320,
+            "rescue_slots": [
+                {
+                    "slot_id": "s1",
+                    "target_type": "dialogue",
+                    "original_text": '"Where?" she asked, her voice thin in the dark.',
+                    "context_before": "Leaves rattled against the stone wall.",
+                    "context_after": "Rain ticked through the branches above them.",
+                }
+            ],
+        },
+        rescue_failure_class="patch_dialogue_grounding_unresolved",
+    )
+
+    assert "LOCAL REWRITE EXCERPTS JSON" in prompt
+    assert "\"rewrites\"" in prompt
+    assert "borrowed local noun from context_before/context_after" in prompt
+
+
+def test_local_rewrite_block_dialogue_excerpt_passes_when_anchor_and_action_added(tmp_path: Path) -> None:
+    service = _service(tmp_path, _long_text())
+    continuation = _artifact_continuation("Hybrid Dialogue Validation")
+    source_text = (
+        'Leaves rattled against the stone wall. "Where?" she asked, her voice thin in the dark. '
+        "Rain ticked through the branches above them."
+    )
+    rescue_slots = [
+        {
+            "slot_id": "s1",
+            "target_type": "dialogue",
+            "unit_type": "local_excerpt",
+            "focus_text": '"Where?" she asked, her voice thin in the dark.',
+            "original_text": source_text,
+            "context_before": "Leaves rattled against the stone wall.",
+            "context_after": "Rain ticked through the branches above them.",
+        }
+    ]
+
+    result = service._validate_and_apply_patch_response(
+        source_text=source_text,
+        rescue_slots=rescue_slots,
+        patch_response=[
+            {
+                "slot_id": "s1",
+                "replacement_text": 'Leaves rattled against the stone wall as she pressed her palm to it. "Where?" she asked, her voice thin in the dark. Rain ticked through the branches above them.',
+            }
+        ],
+        continuation=continuation,
+        rescue_contract={"rescue_slots": rescue_slots},
+        mode="repair_only",
+    )
+
+    assert result["accepted"] is True
+
+
 def test_patch_validation_accepts_sentence_slot_local_variation_with_full_sentence(tmp_path: Path) -> None:
     service = _service(tmp_path, _long_text())
     continuation = _artifact_continuation("Sentence Length Replay")

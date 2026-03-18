@@ -180,7 +180,7 @@ class ServiceSettings(BaseModel):
     )
     rescue_generation_strategy: str = Field(
         default="slot_patch",
-        description="Rescue generation strategy: slot_patch or local_rewrite_block.",
+        description="Rescue generation strategy: slot_patch, local_rewrite_block, or hybrid_escalation.",
     )
     openai_base_url: str = Field(
         default="https://api.openai.com/v1",

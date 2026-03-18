@@ -616,6 +616,10 @@ class LongFormExecutionService:
                         if isinstance(previous_quality_snapshot, dict)
                         else None
                     ) or ""
+                    active_generation_strategy = self._resolve_rescue_generation_strategy(
+                        strategy=rescue_generation_strategy,
+                        mode=attempt_kind,
+                    )
                     active_rescue_contract = rescue_contract
                     if attempt_kind == "repair_only":
                         if bool(active_rescue_contract.get("skip_refresh_once")):
@@ -633,11 +637,12 @@ class LongFormExecutionService:
                     rescue_slots = self._materialize_rescue_generation_slots(
                         current_text=source_text,
                         rescue_contract=active_rescue_contract,
-                        strategy=rescue_generation_strategy,
+                        strategy=active_generation_strategy,
                     )
                     patch_response = self._parse_patch_response(cleaned)
                     attempt_record["rescue_slots"] = rescue_slots
-                    attempt_record["rescue_generation_strategy"] = rescue_generation_strategy
+                    attempt_record["rescue_generation_strategy"] = active_generation_strategy
+                    attempt_record["configured_rescue_generation_strategy"] = rescue_generation_strategy
                     attempt_record["patch_response"] = patch_response
                     patch_result = self._validate_and_apply_patch_response(
                         source_text=source_text,
@@ -650,7 +655,8 @@ class LongFormExecutionService:
                     attempt_record["patch_validation"] = patch_result
                     if retry_snapshot is not None:
                         retry_snapshot["patch_rescue_used"] = True
-                        retry_snapshot["rescue_generation_strategy"] = rescue_generation_strategy
+                        retry_snapshot["rescue_generation_strategy"] = active_generation_strategy
+                        retry_snapshot["configured_rescue_generation_strategy"] = rescue_generation_strategy
                         retry_snapshot["rescue_slots_summary"] = {
                             "slot_count": len(rescue_slots),
                             "target_types": [str(target.get("target_type")) for target in rescue_slots],
@@ -1713,13 +1719,14 @@ class LongFormExecutionService:
         rescue_contract: dict[str, Any],
         rescue_failure_class: str | None,
     ) -> str:
-        if strategy == "local_rewrite_block":
+        active_strategy = self._resolve_rescue_generation_strategy(strategy=strategy, mode=mode)
+        if active_strategy == "local_rewrite_block":
             active_text = latest_text or original_text
             rewrite_contract = dict(rescue_contract or {})
             rewrite_contract["rescue_slots"] = self._materialize_rescue_generation_slots(
                 current_text=active_text,
                 rescue_contract=rescue_contract,
-                strategy=strategy,
+                strategy=active_strategy,
             )
             return self._build_local_rewrite_block_prompt(
                 original_text=original_text,
@@ -1745,6 +1752,14 @@ class LongFormExecutionService:
             failure_classification=failure_classification or {},
             rescue_contract=rescue_contract,
         )
+
+    def _resolve_rescue_generation_strategy(self, *, strategy: str, mode: str) -> str:
+        normalized = str(strategy or "slot_patch").strip() or "slot_patch"
+        if normalized != "hybrid_escalation":
+            return normalized
+        if mode == "repair_only":
+            return "local_rewrite_block"
+        return "slot_patch"
 
     def _materialize_rescue_generation_slots(
         self,
