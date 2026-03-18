@@ -80,4 +80,12 @@ API-backed long-form execution is validated, and rescue-plumbing / reliability-c
 - improve rescue quality stability without reopening bounded-slot plumbing
 - use replay-backed evidence plus bounded live samples to measure progress
 
-The rescue-model comparison milestone is complete. `gpt-5.4-mini` is now the default bounded rescue model because it materially outperformed `gpt-4o-mini` on clean rescue reliability while preserving adversarial stability. The next milestone is a narrow dialogue-grounding editorial pass targeting `patch_dialogue_grounding_unresolved`, while keeping the current bounded-slot rescue plumbing and guardrails unchanged. UI docking/accessibility polish and agent hooks remain tracked separately.
+The rescue-model comparison milestone is complete. `gpt-5.4-mini` is now the default bounded rescue model because it materially outperformed `gpt-4o-mini` on clean rescue reliability while preserving adversarial stability.
+
+The current stable editorial baseline is:
+- rescue model: `gpt-5.4-mini`
+- rescue strategy: `slot_patch`
+- bounded clean sample: `6/10`
+- bounded adversarial sample: `5/5`
+
+Subsequent rescue-generation experiments did not produce a stronger adoptable path. The current decision point is therefore whether to hold this stable baseline and move remaining generation-side misses into writer/product-level handling, or run one final bounded higher-capability rescue comparison. See [../runbooks/editorial_reliability_decision_record_20260318.md](../runbooks/editorial_reliability_decision_record_20260318.md). UI docking/accessibility polish and agent hooks remain tracked separately.

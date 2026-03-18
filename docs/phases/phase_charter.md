@@ -92,7 +92,15 @@ Scope remains: finalize GUI + API parity, smoke tests, offline docs.
 
 **Current rescue default:** `gpt-5.4-mini` is now the default bounded rescue model. The repaired bakeoff showed clean `4/10` versus `2/10` for `gpt-4o-mini`, with adversarial steady at `5/5`.
 
-**Next milestone:** targeted dialogue-grounding pass on top of the new rescue default. Attack `patch_dialogue_grounding_unresolved` first, keeping the bounded-slot rescue path, validators, and outline-faithful guardrails otherwise unchanged.
+**Current stable editorial baseline:** rescue model `gpt-5.4-mini`, rescue strategy `slot_patch`, bounded clean sample `6/10`, adversarial `5/5`.
+
+**Recent rescue-generation branches not adopted:** dialogue anchor-term enforcement, specificity literal slot-patch tightening, hybrid escalation, scene-state-assisted rescue, and structured rescue generation. These branches either tied the stable baseline or made clean reliability worse.
+
+**Next decision point:** see [docs/runbooks/editorial_reliability_decision_record_20260318.md](../runbooks/editorial_reliability_decision_record_20260318.md). The project now has two explicit options:
+- hold the stable editorial baseline and move remaining misses to writer/product-level handling
+- or run one final higher-capability rescue comparison as a bounded last model-capability check
+
+**Recommended next step:** hold the stable baseline unless there is a strong product reason to spend one more bounded comparison on rescue model capability.
 
 ### Key deliverables
 - Inline **Insights overlay** for contextual guidance and feedback  
