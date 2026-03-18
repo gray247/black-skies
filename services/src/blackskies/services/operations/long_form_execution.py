@@ -302,6 +302,10 @@ class LongFormExecutionService:
                     acceptance_reason=acceptance_reason,
                     retry_snapshot=retry_snapshot,
                 ),
+                carryover_snapshot=self._build_carryover_snapshot(
+                    acceptance_reason=acceptance_reason,
+                    retry_snapshot=retry_snapshot,
+                ),
             )
             persist_long_form_chunk(project_root, chunk)
             persist_long_form_text(project_root, chunk_id, text)
@@ -373,6 +377,47 @@ class LongFormExecutionService:
             "rescue_model": retry_snapshot.get("rescue_model_name"),
             "rescue_strategy": retry_snapshot.get("rescue_generation_strategy"),
             "rescue_attempted": bool(retry_snapshot.get("used")),
+        }
+
+    def _build_carryover_snapshot(
+        self,
+        *,
+        acceptance_reason: str | None,
+        retry_snapshot: dict[str, Any] | None,
+    ) -> dict[str, Any]:
+        if acceptance_reason != "quality_failed" or not retry_snapshot:
+            return {
+                "carryover_risk": "safe",
+                "carryover_mode": "safe",
+                "carryover_allowed": True,
+            }
+        failure_class = str(retry_snapshot.get("rescue_failure_class") or "").strip()
+        restricted_classes = {
+            "patch_dialogue_grounding_unresolved",
+            "patch_specificity_unresolved",
+        }
+        blocked_classes = {
+            "dialogue_grounding_unresolved",
+            "specificity_unresolved",
+        }
+        if failure_class in blocked_classes:
+            return {
+                "carryover_risk": "high",
+                "carryover_mode": "blocked_pending_review",
+                "carryover_allowed": False,
+                "failure_class": failure_class,
+            }
+        if failure_class in restricted_classes:
+            return {
+                "carryover_risk": "medium",
+                "carryover_mode": "restricted",
+                "carryover_allowed": True,
+                "failure_class": failure_class,
+            }
+        return {
+            "carryover_risk": "safe",
+            "carryover_mode": "safe",
+            "carryover_allowed": True,
         }
 
     def _estimate_chunk_cost(self, target_words: int | None, scene_count: int) -> float:

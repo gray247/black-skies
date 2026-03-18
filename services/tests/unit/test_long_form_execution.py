@@ -9,6 +9,8 @@ from urllib.error import HTTPError
 from blackskies.services.config import ServiceSettings
 from blackskies.services.diagnostics import DiagnosticLogger
 from blackskies.services.long_form import ChapterMemoryPacket
+from blackskies.services.long_form import LongFormChunk
+from blackskies.services.long_form import assemble_continuation_packet
 from blackskies.services.long_form import score_long_form_quality
 from blackskies.services.model_adapters import OpenAIAdapter
 from blackskies.services.model_router import ModelRouter, ModelSpec, ModelTask
@@ -3798,6 +3800,97 @@ def test_long_form_execution_same_slot_specificity_retry_still_fails_when_second
     assert chunk.review_snapshot["failure_class"] == "patch_specificity_unresolved"
     assert "regenerate_local_repair" in chunk.review_snapshot["review_actions"]
     assert chunk.review_snapshot["targeted_lines"]
+    assert chunk.carryover_snapshot is not None
+    assert chunk.carryover_snapshot["carryover_mode"] == "restricted"
+    assert chunk.carryover_snapshot["carryover_allowed"] is True
+
+
+def test_assemble_continuation_packet_restricts_prior_excerpt_for_restricted_carryover() -> None:
+    previous_chunk = LongFormChunk(
+        chunk_id="lf_prev",
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        order=1,
+        continuation_of=None,
+        prompt_fingerprint="sha256:test",
+        provider="openai",
+        model="gpt-4o-mini",
+        continuity_snapshot={"summary": "Clara crossed the kitchen and set the mug beside the sink."},
+        budget_snapshot={},
+        carryover_snapshot={
+            "carryover_risk": "medium",
+            "carryover_mode": "restricted",
+            "carryover_allowed": True,
+            "failure_class": "patch_specificity_unresolved",
+        },
+    )
+    continuation = assemble_continuation_packet(
+        chunk_id="lf_next",
+        chapter_id="ch_0001",
+        order=2,
+        previous_chunk=previous_chunk,
+        previous_text="Clara crossed the kitchen and set the mug beside the sink. Steam fogged the window.",
+        chapter_memory=ChapterMemoryPacket(
+            chapter_id="ch_0001",
+            scene_ids=["sc_0001", "sc_0002"],
+            chapter_context="Chapter One",
+            locked_facts=["Clara owns the chipped mug."],
+            accumulated_summaries=[],
+            unresolved_tensions=[],
+            emotional_carryover=None,
+            pacing_carryover=None,
+        ),
+        target_words=300,
+    )
+
+    assert continuation.carryover_mode == "restricted"
+    assert continuation.carryover_allowed is True
+    assert continuation.prior_excerpt is None
+    assert continuation.prior_summary == "Clara crossed the kitchen and set the mug beside the sink."
+
+
+def test_assemble_continuation_packet_blocks_normal_carryover_when_pending_review() -> None:
+    previous_chunk = LongFormChunk(
+        chunk_id="lf_prev",
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        order=1,
+        continuation_of=None,
+        prompt_fingerprint="sha256:test",
+        provider="openai",
+        model="gpt-4o-mini",
+        continuity_snapshot={"summary": "Clara pressed her hand to the cellar door and listened."},
+        budget_snapshot={},
+        carryover_snapshot={
+            "carryover_risk": "high",
+            "carryover_mode": "blocked_pending_review",
+            "carryover_allowed": False,
+            "failure_class": "dialogue_grounding_unresolved",
+        },
+    )
+    continuation = assemble_continuation_packet(
+        chunk_id="lf_next",
+        chapter_id="ch_0001",
+        order=2,
+        previous_chunk=previous_chunk,
+        previous_text="Clara pressed her hand to the cellar door and listened. The latch rattled once.",
+        chapter_memory=ChapterMemoryPacket(
+            chapter_id="ch_0001",
+            scene_ids=["sc_0001", "sc_0002"],
+            chapter_context="Chapter One",
+            locked_facts=["There is a cellar door."],
+            accumulated_summaries=[],
+            unresolved_tensions=[],
+            emotional_carryover=None,
+            pacing_carryover=None,
+        ),
+        target_words=300,
+    )
+
+    assert continuation.carryover_mode == "blocked_pending_review"
+    assert continuation.carryover_allowed is False
+    assert continuation.prior_excerpt is None
+    assert continuation.prior_summary is None
 
 
 def test_long_form_execution_same_slot_specificity_retry_does_not_fire_for_fidelity_risk(

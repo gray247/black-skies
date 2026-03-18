@@ -38,6 +38,11 @@ def test_long_form_execute_success(monkeypatch, tmp_path: Path) -> None:
                 "failure_class": "patch_specificity_unresolved",
                 "review_actions": ["accept_current_text", "regenerate_local_repair"],
             },
+            carryover_snapshot={
+                "carryover_risk": "medium",
+                "carryover_mode": "restricted",
+                "carryover_allowed": True,
+            },
         )
         return LongFormExecutionResult(
             chunks=[chunk],
@@ -67,6 +72,7 @@ def test_long_form_execute_success(monkeypatch, tmp_path: Path) -> None:
     assert body["stopped_reason"] is None
     assert body["chunks"][0]["provider"] == "ollama"
     assert body["chunks"][0]["review_snapshot"]["failure_class"] == "patch_specificity_unresolved"
+    assert body["chunks"][0]["carryover_snapshot"]["carryover_mode"] == "restricted"
 
 
 def test_long_form_execute_validation_error(tmp_path: Path) -> None:

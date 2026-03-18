@@ -149,6 +149,21 @@ Interpretation:
 - `rejected_guardrail`: the repair introduced drift, distortion, or another blocked quality regression
 - `rejected_plumbing`: deterministic transport/binding/application failure; this should now be rare and treated as a regression class
 
+## Carryover Approval
+
+Editorial review flagging and carryover approval are separate decisions.
+
+A chunk may be:
+- acceptable enough to retain in the manuscript for now
+- but still unsafe to use as normal continuity input for later chunks
+
+The backend therefore tracks a carryover decision separately from rescue failure classification:
+- `safe`: normal carryover allowed
+- `restricted`: only reduced carryover is allowed
+- `blocked_pending_review`: normal carryover is withheld until review
+
+This protects downstream narrative continuity from unresolved generation-side rescue misses even when the rescue-plumbing path itself is behaving correctly.
+
 ## Guardrails
 
 - `max_repair_attempts = 2`

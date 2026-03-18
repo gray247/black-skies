@@ -104,6 +104,11 @@ Scope remains: finalize GUI + API parity, smoke tests, offline docs.
 
 **Writer-facing handling milestone:** expose unresolved generation-side rescue misses as reviewable editorial flags with a minimal human workflow. The first pass is backend-first: surface failure class, explanation, targeted lines, and scaffolded actions so the editor can accept current text, request a local repair retry, mark for manual rewrite, or inspect why the scene was flagged.
 
+**Carryover protection principle:** editorial review flagging and carryover approval are separate decisions. A chunk may be usable enough to keep in the manuscript while still being unsafe to feed future continuity in full. The backend therefore tracks carryover risk independently of review status using `carryover_mode`:
+- `safe`
+- `restricted`
+- `blocked_pending_review`
+
 ### Key deliverables
 - Inline **Insights overlay** for contextual guidance and feedback  
 - **Batch Feedback mode** across multiple scenes  

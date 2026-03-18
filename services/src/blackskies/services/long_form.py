@@ -47,6 +47,7 @@ class LongFormChunk:
     retry_snapshot: dict[str, Any] | None = None
     guardrail_snapshot: dict[str, Any] | None = None
     review_snapshot: dict[str, Any] | None = None
+    carryover_snapshot: dict[str, Any] | None = None
 
 
 @dataclass(frozen=True)
@@ -60,6 +61,8 @@ class ContinuationPacket:
     target_words: int | None
     constraints: list[str]
     continuity_snapshot: dict[str, Any]
+    carryover_mode: str = "safe"
+    carryover_allowed: bool = True
 
 
 def _read_locked_facts(project_root: Path | None) -> list[str]:
@@ -226,12 +229,34 @@ def assemble_continuation_packet(
 ) -> ContinuationPacket:
     prior_summary = None
     continuity_snapshot: dict[str, Any] = {}
+    carryover_snapshot: dict[str, Any] = {}
+    carryover_mode = "safe"
+    carryover_allowed = True
     if previous_chunk:
         continuity_snapshot = dict(previous_chunk.continuity_snapshot)
-        summary = continuity_snapshot.get("summary")
-        if isinstance(summary, str) and summary.strip():
-            prior_summary = summary.strip()
-    if prior_summary is None and previous_text:
+        carryover_snapshot = dict(previous_chunk.carryover_snapshot or {})
+        carryover_mode = str(carryover_snapshot.get("carryover_mode") or "safe")
+        carryover_allowed = bool(carryover_snapshot.get("carryover_allowed", True))
+        if carryover_mode == "safe":
+            summary = continuity_snapshot.get("summary")
+            if isinstance(summary, str) and summary.strip():
+                prior_summary = summary.strip()
+        elif carryover_mode == "restricted":
+            summary = continuity_snapshot.get("summary")
+            if isinstance(summary, str) and summary.strip():
+                prior_summary = summary.strip()
+            continuity_snapshot = {
+                "summary": prior_summary,
+                "carryover_mode": carryover_mode,
+                "carryover_allowed": carryover_allowed,
+            }
+        else:
+            prior_summary = None
+            continuity_snapshot = {
+                "carryover_mode": carryover_mode,
+                "carryover_allowed": carryover_allowed,
+            }
+    if prior_summary is None and previous_text and carryover_mode == "safe":
         sentences = [seg.strip() for seg in previous_text.replace("\n", " ").split(".") if seg.strip()]
         prior_summary = sentences[0] if sentences else None
 
@@ -239,12 +264,14 @@ def assemble_continuation_packet(
         chunk_id=chunk_id,
         chapter_id=chapter_id,
         order=order,
-        prior_excerpt=_extract_excerpt(previous_text),
+        prior_excerpt=_extract_excerpt(previous_text) if carryover_mode == "safe" else None,
         prior_summary=prior_summary,
         chapter_memory=chapter_memory,
         target_words=target_words,
         constraints=constraints or [],
         continuity_snapshot=continuity_snapshot,
+        carryover_mode=carryover_mode,
+        carryover_allowed=carryover_allowed,
     )
 
 
@@ -990,6 +1017,7 @@ def persist_long_form_chunk(project_root: Path, chunk: LongFormChunk) -> Path:
         "retry_snapshot": chunk.retry_snapshot,
         "guardrail_snapshot": chunk.guardrail_snapshot,
         "review_snapshot": chunk.review_snapshot,
+        "carryover_snapshot": chunk.carryover_snapshot,
     }
     target.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
     return target
@@ -1044,6 +1072,7 @@ def load_long_form_chunk(project_root: Path, chunk_id: str) -> LongFormChunk | N
         retry_snapshot=payload.get("retry_snapshot"),
         guardrail_snapshot=payload.get("guardrail_snapshot"),
         review_snapshot=payload.get("review_snapshot"),
+        carryover_snapshot=payload.get("carryover_snapshot"),
     )
 
 
