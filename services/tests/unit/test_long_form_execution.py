@@ -1545,7 +1545,11 @@ def test_build_rescue_contract_preserves_dialogue_targets_for_curly_quoted_lines
 
     assert rescue_contract["dialogue_beats_requiring_grounding"]
     assert "appreciating the moment" in rescue_contract["dialogue_beats_requiring_grounding"][0].lower()
-    assert any(target["target_type"] == "dialogue" for target in rescue_contract["rescue_slots"])
+    assert rescue_contract["rescue_slots"]
+    assert any(
+        "appreciating the moment" in str(target.get("original_text") or "").lower()
+        for target in rescue_contract["rescue_slots"]
+    )
 
 
 def test_patch_validation_accepts_dialogue_grounding_with_local_action_and_setting_cue(tmp_path: Path) -> None:
@@ -1627,6 +1631,60 @@ def test_patch_validation_rejects_dialogue_paraphrase_without_local_grounding(tm
 
     assert result["accepted"] is False
     assert result["failure_class"] == "patch_dialogue_grounding_unresolved"
+
+
+def test_dialogue_slot_builder_merges_fragmented_quote_from_live_artifact(tmp_path: Path) -> None:
+    service = _service(tmp_path, _long_text())
+    diagnostic = _artifact_json(
+        "sample_project/proj_esther_estate_verify_longform/.blackskies/long_form/diagnostics/lf_16dcd38f.json"
+    )
+    retry_snapshot = diagnostic["retry_snapshot"]
+    rescue_targets = retry_snapshot["rescue_targets_summary"]
+    rescue_contract = {
+        "lines_to_repair": list(rescue_targets["lines_to_repair"]),
+        "dialogue_beats_requiring_grounding": list(rescue_targets["dialogue_beats_requiring_grounding"]),
+        "generic_phrases_to_replace": list(rescue_targets["generic_phrases_to_replace"]),
+        "required_concrete_anchor_terms": list(rescue_targets["required_concrete_anchor_terms"]),
+    }
+
+    slots = service._build_rescue_slots(
+        original_text=diagnostic["attempts"][1]["quality_snapshot"]["text"],
+        continuation=_artifact_continuation("Alley Replay"),
+        critique_snapshot=diagnostic["critique_snapshot"],
+        quality_snapshot=diagnostic["attempts"][1]["quality_snapshot"],
+        rescue_contract=rescue_contract,
+    )
+
+    slot_texts = [str(slot["original_text"]) for slot in slots]
+    assert all("Just..." != text for text in slot_texts)
+    assert any("Just..." in text and "taking a moment" in text for text in slot_texts)
+
+
+def test_dialogue_slot_builder_skips_live_lines_already_grounded_by_neighboring_context(tmp_path: Path) -> None:
+    service = _service(tmp_path, _long_text())
+    diagnostic = _artifact_json(
+        "sample_project/proj_esther_estate_verify_longform/.blackskies/long_form/diagnostics/lf_7377d35a.json"
+    )
+    retry_snapshot = diagnostic["retry_snapshot"]
+    rescue_targets = retry_snapshot["rescue_targets_summary"]
+    rescue_contract = {
+        "lines_to_repair": list(rescue_targets["lines_to_repair"]),
+        "dialogue_beats_requiring_grounding": list(rescue_targets["dialogue_beats_requiring_grounding"]),
+        "generic_phrases_to_replace": list(rescue_targets["generic_phrases_to_replace"]),
+        "required_concrete_anchor_terms": list(rescue_targets["required_concrete_anchor_terms"]),
+    }
+
+    slots = service._build_rescue_slots(
+        original_text=diagnostic["attempts"][1]["quality_snapshot"]["text"],
+        continuation=_artifact_continuation("Clearing Replay"),
+        critique_snapshot=diagnostic["critique_snapshot"],
+        quality_snapshot=diagnostic["attempts"][1]["quality_snapshot"],
+        rescue_contract=rescue_contract,
+    )
+
+    slot_texts = [str(slot["original_text"]) for slot in slots]
+    assert len(slots) < len(rescue_targets["dialogue_beats_requiring_grounding"])
+    assert all("Just taking it all in" not in text for text in slot_texts)
 
 
 def test_refresh_rescue_contract_keeps_patch_target_after_prior_patch_changes_text(tmp_path: Path) -> None:

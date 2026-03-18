@@ -1756,6 +1756,10 @@ class LongFormExecutionService:
             cleaned = target_text.strip()
             if not cleaned or cleaned in seen or len(targets) >= 12:
                 return
+            if target_type == "dialogue" and any(
+                cleaned in existing or existing in cleaned for existing in seen
+            ):
+                return
             seen.add(cleaned)
             context_before, context_after = self._slot_context(original_text, cleaned)
             target: dict[str, Any] = {
@@ -1786,29 +1790,30 @@ class LongFormExecutionService:
             unit_text = line
             unit_type = "sentence"
             if target_type == "dialogue":
-                rebound = self._find_best_local_patch_unit(
+                refined_dialogue = self._select_dialogue_patch_unit(
                     current_text=original_text,
                     target_text=line,
                     target_phrase=phrase,
                     required_anchor_terms=list(rescue_contract.get("required_concrete_anchor_terms") or []),
                 )
-                if rebound:
-                    unit_text = rebound
-                    if rebound != line:
-                        unit_type = "sentence_window"
+                if refined_dialogue is None:
+                    continue
+                unit_text, unit_type = refined_dialogue
             add_target(unit_text, target_type, phrase, unit_type=unit_type)
 
         for line in rescue_contract.get("dialogue_beats_requiring_grounding") or []:
-            rebound = self._find_best_local_patch_unit(
+            refined_dialogue = self._select_dialogue_patch_unit(
                 current_text=original_text,
                 target_text=line,
                 required_anchor_terms=list(rescue_contract.get("required_concrete_anchor_terms") or []),
             )
-            unit_text = rebound or line
+            if refined_dialogue is None:
+                continue
+            unit_text, unit_type = refined_dialogue
             add_target(
                 unit_text,
                 "dialogue",
-                unit_type="sentence_window" if unit_text != line else "sentence",
+                unit_type=unit_type,
                 target_reason="dialogue_grounding",
             )
 
@@ -1864,6 +1869,67 @@ class LongFormExecutionService:
                 if combined not in windows:
                     windows.append(combined)
         return windows
+
+    def _looks_like_dialogue_fragment(self, text: str | None) -> bool:
+        candidate = str(text or "").strip()
+        if not candidate:
+            return False
+        if candidate.endswith(("...", "…", ",", "—", "-", ";", ":")):
+            return True
+        quote_markers = candidate.count('"') + candidate.count("â€œ") + candidate.count("â€")
+        if quote_markers == 1:
+            return True
+        normalized = re.sub(r'["â€œâ€]', "", candidate).strip()
+        return len(normalized.split()) <= 2
+
+    def _dialogue_slot_needs_grounding(self, text: str | None) -> bool:
+        candidate = str(text or "").strip()
+        if not candidate:
+            return False
+        quality = score_long_form_quality(candidate)
+        if bool(quality.get("dialogue_present")) and bool(quality.get("dialogue_grounded")):
+            return False
+        return not self._dialogue_span_has_grounding_cue(candidate)
+
+    def _select_dialogue_patch_unit(
+        self,
+        *,
+        current_text: str,
+        target_text: str,
+        target_phrase: str | None = None,
+        required_anchor_terms: list[str] | None = None,
+    ) -> tuple[str, str] | None:
+        rebound = self._find_best_local_patch_unit(
+            current_text=current_text,
+            target_text=target_text,
+            target_phrase=target_phrase,
+            required_anchor_terms=required_anchor_terms,
+        )
+        unit_text = (rebound or target_text or "").strip()
+        if not unit_text:
+            return None
+        unit_type = "sentence_window" if rebound and rebound != target_text else "sentence"
+        normalized_target = self._normalize_patch_target_text(target_text)
+        candidate_windows = [
+            window
+            for window in self._extract_sentence_windows(current_text)
+            if normalized_target
+            and normalized_target in self._normalize_patch_target_text(window)
+            and window.strip() != unit_text
+        ]
+        if self._looks_like_dialogue_fragment(unit_text):
+            forward_windows = [window for window in candidate_windows if window.strip().startswith(unit_text)]
+            for window in forward_windows + candidate_windows:
+                if len(window.split()) > len(unit_text.split()):
+                    unit_text = window.strip()
+                    unit_type = "sentence_window"
+                    break
+        if self._dialogue_slot_needs_grounding(unit_text):
+            for window in candidate_windows:
+                if self._dialogue_span_has_grounding_cue(window):
+                    return None
+            return unit_text, unit_type
+        return None
 
     def _slot_context(self, text: str | None, slot_text: str) -> tuple[str, str]:
         sentences = [sentence.strip() for sentence in re.split(r"(?<=[.!?])\s+", (text or "").strip()) if sentence.strip()]
