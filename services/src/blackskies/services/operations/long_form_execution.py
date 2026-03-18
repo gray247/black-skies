@@ -1544,6 +1544,10 @@ class LongFormExecutionService:
             f"- {line}" for line in (rescue_contract.get("lines_to_repair") or [])
         ) or "- Patch only the weakest local lines if repair is needed."
         anchor_terms = ", ".join(rescue_contract.get("required_concrete_anchor_terms") or []) or "Use the existing scene anchors."
+        scene_state_text = self._format_rescue_scene_state(
+            continuation=continuation,
+            rescue_contract=rescue_contract,
+        )
         rescue_slots_text = json.dumps(rescue_slots, ensure_ascii=False, indent=2)
         return (
             "Precision patch rescue.\n"
@@ -1555,6 +1559,7 @@ class LongFormExecutionService:
             f"SCENE ANCHORS: {scene_anchors}\n"
             f"LENGTH BAND: {rescue_contract.get('min_word_count')} to {rescue_contract.get('max_word_count')} words\n"
             f"PRIOR SUMMARY: {continuation.prior_summary or 'No prior summary.'}\n"
+            f"{scene_state_text}"
             f"PRIOR EXCERPT: {continuation.prior_excerpt or 'None'}\n"
             f"REWRITE GOALS: {', '.join(critique_snapshot.get('rewrite_goals') or []) if critique_snapshot else 'Improve the scene without changing its story function.'}\n"
             "PRECISION RESCUE RULES:\n"
@@ -1566,6 +1571,7 @@ class LongFormExecutionService:
             "Do not swap the scene subject or broaden the scope of the scene.\n"
             "Do not compress the scene into a summary or expand it into a larger sequence.\n"
             "Preserve the dialogue beats already present, but ground them in gesture, object handling, movement, or environment when relevant.\n"
+            "When SCENE STATE is present and relevant to the targeted slot, use at least one scene-state element to ground or concretize the replacement.\n"
             "Edit only the specified slots. Do not rewrite untouched paragraphs.\n"
             "Return JSON only.\n"
             "UNRESOLVED QUALITY TARGETS:\n"
@@ -1620,6 +1626,10 @@ class LongFormExecutionService:
         generic_targets = "\n".join(
             f"- {line}" for line in (rescue_contract.get("generic_phrases_to_replace") or [])
         ) or "- No unresolved generic targets."
+        scene_state_text = self._format_rescue_scene_state(
+            continuation=continuation,
+            rescue_contract=rescue_contract,
+        )
         rescue_slots_text = json.dumps(rescue_slots, ensure_ascii=False, indent=2)
         return (
             "Repair-only patch rescue pass.\n"
@@ -1631,6 +1641,7 @@ class LongFormExecutionService:
             f"LENGTH BAND: {rescue_contract.get('min_word_count')} to {rescue_contract.get('max_word_count')} words\n"
             f"REPAIR-ONLY LOCAL LENGTH BAND: {rescue_contract.get('repair_min_word_count')} to {rescue_contract.get('repair_max_word_count')} words\n"
             f"PARAGRAPH BAND: {rescue_contract.get('min_paragraph_count')} to {rescue_contract.get('max_paragraph_count')} paragraphs\n"
+            f"{scene_state_text}"
             "UNRESOLVED LINES / BEATS:\n"
             f"{local_lines}\n"
             "UNRESOLVED DIALOGUE GROUNDING TARGETS:\n"
@@ -1642,6 +1653,7 @@ class LongFormExecutionService:
             "- Keep dialogue order and overall paragraph flow where possible.\n"
             "- Preserve approximately the same paragraph count and scene beat count.\n"
             "- Add only the missing action/gesture/object cues or concrete physical or sensory details on the targeted lines.\n"
+            "- When SCENE STATE is present and relevant, use at least one scene-state element to ground or concretize the targeted replacement.\n"
             "- For each dialogue-targeted slot, borrow at least one concrete local anchor term from that slot's context_before or context_after fields and use it inside the replacement_text.\n"
             "- The borrowed dialogue anchor must be a nearby object, surface, place element, weather cue, or other visible setting/body noun from neighboring context, not just a generic voice or mood word.\n"
             "- Pair that borrowed local anchor with one visible action, body cue, or object interaction in the same dialogue replacement.\n"
@@ -1673,6 +1685,10 @@ class LongFormExecutionService:
     ) -> str:
         rescue_slots = rescue_contract.get("rescue_slots") or []
         rescue_slots_text = json.dumps(rescue_slots, ensure_ascii=False, indent=2)
+        scene_state_text = self._format_rescue_scene_state(
+            continuation=continuation,
+            rescue_contract=rescue_contract,
+        )
         shared_header = (
             "Bounded local rewrite rescue.\n"
             "Rewrite only the provided local excerpts. Do not rewrite the whole scene.\n"
@@ -1680,11 +1696,13 @@ class LongFormExecutionService:
             "Do not invent new named entities, causal events, or story turns.\n"
             "For dialogue-targeted excerpts, keep the same spoken beat but anchor it in one borrowed local noun from context_before/context_after plus one visible action, object interaction, or body cue.\n"
             "For generic-targeted excerpts, replace vague wording with literal local concrete detail.\n"
+            "When SCENE STATE is present and relevant, use at least one scene-state element inside the rewritten excerpt to ground or concretize the local beat.\n"
             "Return JSON only.\n"
             "Schema:\n"
             "{\"rewrites\":[{\"slot_id\":\"s1\",\"rewritten_excerpt\":\"rewritten bounded excerpt only\"}]}\n\n"
             f"CHAPTER: {continuation.chapter_memory.chapter_context or continuation.chapter_id}\n"
             f"LENGTH BAND: {rescue_contract.get('min_word_count')} to {rescue_contract.get('max_word_count')} words\n"
+            f"{scene_state_text}"
             "LOCAL REWRITE EXCERPTS JSON:\n"
             f"{rescue_slots_text}\n\n"
         )
@@ -1809,6 +1827,66 @@ class LongFormExecutionService:
         if rebound:
             return rebound
         return focus_text
+
+    def _format_rescue_scene_state(
+        self,
+        *,
+        continuation,
+        rescue_contract: dict[str, Any],
+    ) -> str:
+        if not bool(self._settings.rescue_scene_state_enabled):
+            return ""
+        scene_state = self._build_rescue_scene_state(
+            continuation=continuation,
+            rescue_contract=rescue_contract,
+        )
+        if not any(scene_state.values()):
+            return ""
+        return (
+            "SCENE STATE:\n"
+            f"- characters_present: {', '.join(scene_state['characters_present']) if scene_state['characters_present'] else 'None'}\n"
+            f"- location: {scene_state['location'] or 'Unknown'}\n"
+            f"- active_action_or_threat: {scene_state['active_action_or_threat'] or 'None'}\n"
+            f"- notable_objects_or_environmental_anchors: {', '.join(scene_state['notable_objects_or_environmental_anchors']) if scene_state['notable_objects_or_environmental_anchors'] else 'None'}\n"
+        )
+
+    def _build_rescue_scene_state(
+        self,
+        *,
+        continuation,
+        rescue_contract: dict[str, Any],
+    ) -> dict[str, Any]:
+        chapter_memory = continuation.chapter_memory
+        location = (
+            str(((getattr(continuation, "continuity_snapshot", None) or {}).get("location") or "")).strip()
+            or " | ".join(chapter_memory.scene_titles or [])
+            or ""
+        )
+        characters_present = [
+            item
+            for item in list(rescue_contract.get("subject_entities") or [])[:4]
+            if str(item).strip()
+        ]
+        anchor_candidates: list[str] = []
+        for term in list(rescue_contract.get("required_concrete_anchor_terms") or []) + list(
+            rescue_contract.get("scene_anchors") or []
+        ):
+            cleaned = str(term).strip()
+            if cleaned and cleaned not in anchor_candidates:
+                anchor_candidates.append(cleaned)
+        action_candidates: list[str] = []
+        for item in list(rescue_contract.get("unresolved_targets") or []) + list(
+            rescue_contract.get("lines_to_repair") or []
+        ):
+            cleaned = str(item).strip()
+            if cleaned and cleaned not in action_candidates:
+                action_candidates.append(cleaned)
+        return {
+            "characters_present": characters_present[:4],
+            "location": location,
+            "active_action_or_threat": action_candidates[0] if action_candidates else "",
+            "notable_objects_or_environmental_anchors": anchor_candidates[:4],
+        }
 
     def _build_same_slot_retry_contract(
         self,

@@ -182,6 +182,10 @@ class ServiceSettings(BaseModel):
         default="slot_patch",
         description="Rescue generation strategy: slot_patch, local_rewrite_block, or hybrid_escalation.",
     )
+    rescue_scene_state_enabled: bool = Field(
+        default=True,
+        description="Whether rescue prompts include compact structured scene-state guidance.",
+    )
     openai_base_url: str = Field(
         default="https://api.openai.com/v1",
         description="Base URL for OpenAI API requests.",

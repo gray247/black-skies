@@ -2137,6 +2137,105 @@ def test_recovery_prompt_uses_local_rewrite_block_schema_when_strategy_selected(
     assert "rewritten bounded excerpt only" in prompt
 
 
+def test_recovery_prompt_includes_scene_state_when_enabled(tmp_path: Path) -> None:
+    service = _service(tmp_path, _long_text())
+    continuation = _artifact_continuation("Forest Path")
+
+    prompt = service._build_recovery_retry_prompt(
+        original_text='Leaves rattled over the path while Mara touched the map in her coat pocket. "This way," she whispered.',
+        critique_snapshot={"dialogue_grounding_targets": ["Ground the spoken beat in the path and map."]},
+        continuation=continuation,
+        quality_snapshot={"dialogue_present": True, "dialogue_grounded": False, "scores": {"specificity": 2, "clarity": 3, "continuity": 3}},
+        failure_classification={"reason": "targeted_editorial_miss_after_rewrite"},
+        rescue_contract={
+            "subject_entities": ["Mara"],
+            "scene_anchors": ["path", "map", "leaves"],
+            "required_concrete_anchor_terms": ["path", "map"],
+            "unresolved_targets": ["Ground dialogue in visible action or setting."],
+            "lines_to_repair": ['"This way," she whispered.'],
+            "dialogue_beats_requiring_grounding": ['"This way," she whispered.'],
+            "dialogue_lines": ['"This way," she whispered.'],
+            "rescue_slots": [],
+            "min_word_count": 180,
+            "max_word_count": 320,
+            "minimum_action_cues_to_add": 1,
+            "minimum_specificity_delta": 1,
+            "minimum_clarity_delta": 1,
+        },
+    )
+
+    assert "SCENE STATE:" in prompt
+    assert "characters_present: Mara" in prompt
+    assert "notable_objects_or_environmental_anchors: path, map" in prompt
+
+
+def test_repair_only_prompt_includes_scene_state_for_dialogue_grounding(tmp_path: Path) -> None:
+    service = _service(tmp_path, _long_text())
+    continuation = _artifact_continuation("Forest Path")
+
+    prompt = service._build_repair_only_prompt(
+        latest_text='Leaves rattled over the path while Mara touched the map in her coat pocket. "This way," she whispered.',
+        continuation=continuation,
+        rescue_contract={
+            "subject_entities": ["Mara"],
+            "scene_anchors": ["path", "map", "leaves"],
+            "required_concrete_anchor_terms": ["path", "map"],
+            "unresolved_targets": ["Ground dialogue in visible action or setting."],
+            "lines_to_repair": ['"This way," she whispered.'],
+            "dialogue_beats_requiring_grounding": ['"This way," she whispered.'],
+            "rescue_slots": [],
+            "min_word_count": 180,
+            "max_word_count": 320,
+            "repair_min_word_count": 180,
+            "repair_max_word_count": 320,
+            "min_paragraph_count": 1,
+            "max_paragraph_count": 3,
+        },
+        rescue_failure_class="patch_dialogue_grounding_unresolved",
+    )
+
+    assert "SCENE STATE:" in prompt
+    assert "use at least one scene-state element" in prompt
+
+
+def test_local_rewrite_block_prompt_includes_scene_state_for_specificity(tmp_path: Path) -> None:
+    service = _service(tmp_path, _long_text())
+    continuation = _artifact_continuation("Alley Replay")
+
+    prompt = service._build_rescue_generation_prompt(
+        strategy="local_rewrite_block",
+        mode="repair_only",
+        original_text="The alley felt tense.",
+        latest_text="The alley felt tense.",
+        continuation=continuation,
+        critique_snapshot={"generic_phrase_targets": ["felt tense"]},
+        quality_snapshot={"dialogue_present": False},
+        failure_classification={},
+        rescue_contract={
+            "subject_entities": ["Elara"],
+            "scene_anchors": ["alley", "brick", "gutter"],
+            "required_concrete_anchor_terms": ["brick", "gutter"],
+            "unresolved_targets": ["Increase scene-specific detail and avoid generic wording."],
+            "lines_to_repair": ["The alley felt tense."],
+            "rescue_slots": [
+                {
+                    "slot_id": "s1",
+                    "target_type": "generic",
+                    "original_text": "The alley felt tense.",
+                    "context_before": "Brick walls held the cold.",
+                    "context_after": "Water ticked through the gutter.",
+                }
+            ],
+            "min_word_count": 180,
+            "max_word_count": 320,
+        },
+        rescue_failure_class="patch_specificity_unresolved",
+    )
+
+    assert "SCENE STATE:" in prompt
+    assert "notable_objects_or_environmental_anchors: brick, gutter" in prompt
+
+
 def test_hybrid_strategy_uses_slot_patch_for_recovery_retry(tmp_path: Path) -> None:
     service = _service(tmp_path, _long_text())
 
