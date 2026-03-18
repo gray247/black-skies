@@ -33,6 +33,11 @@ def test_long_form_execute_success(monkeypatch, tmp_path: Path) -> None:
             continuity_snapshot={"summary": "Mara moves."},
             budget_snapshot={"estimated_usd": 0.2},
             routing_snapshot={"provider": "ollama"},
+            review_snapshot={
+                "status": "flagged",
+                "failure_class": "patch_specificity_unresolved",
+                "review_actions": ["accept_current_text", "regenerate_local_repair"],
+            },
         )
         return LongFormExecutionResult(
             chunks=[chunk],
@@ -61,6 +66,7 @@ def test_long_form_execute_success(monkeypatch, tmp_path: Path) -> None:
     assert body["project_id"] == "proj_long_form"
     assert body["stopped_reason"] is None
     assert body["chunks"][0]["provider"] == "ollama"
+    assert body["chunks"][0]["review_snapshot"]["failure_class"] == "patch_specificity_unresolved"
 
 
 def test_long_form_execute_validation_error(tmp_path: Path) -> None:

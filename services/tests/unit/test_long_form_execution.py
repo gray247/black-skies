@@ -3730,6 +3730,7 @@ def test_long_form_execution_same_slot_specificity_retry_can_rescue_vague_first_
     assert chunk.retry_snapshot["same_slot_specificity_retry_used"] is True
     assert chunk.retry_snapshot["patch_rescue_success"] is True
     assert chunk.retry_snapshot["repair_only_pass_used"] is True
+    assert chunk.review_snapshot is None
 
 
 def test_long_form_execution_same_slot_specificity_retry_still_fails_when_second_attempt_stays_vague(
@@ -3791,6 +3792,12 @@ def test_long_form_execution_same_slot_specificity_retry_still_fails_when_second
     assert chunk.retry_snapshot is not None
     assert chunk.retry_snapshot["same_slot_specificity_retry_used"] is True
     assert chunk.retry_snapshot["rescue_failure_class"] == "patch_specificity_unresolved"
+    assert chunk.review_snapshot is not None
+    assert chunk.review_snapshot["status"] == "flagged"
+    assert chunk.review_snapshot["category"] == "specificity"
+    assert chunk.review_snapshot["failure_class"] == "patch_specificity_unresolved"
+    assert "regenerate_local_repair" in chunk.review_snapshot["review_actions"]
+    assert chunk.review_snapshot["targeted_lines"]
 
 
 def test_long_form_execution_same_slot_specificity_retry_does_not_fire_for_fidelity_risk(

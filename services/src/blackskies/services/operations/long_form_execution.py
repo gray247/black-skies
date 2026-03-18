@@ -298,6 +298,10 @@ class LongFormExecutionService:
                 rewrite_used=rewrite_used,
                 retry_snapshot=retry_snapshot,
                 guardrail_snapshot=guardrail_snapshot,
+                review_snapshot=self._build_review_snapshot(
+                    acceptance_reason=acceptance_reason,
+                    retry_snapshot=retry_snapshot,
+                ),
             )
             persist_long_form_chunk(project_root, chunk)
             persist_long_form_text(project_root, chunk_id, text)
@@ -320,6 +324,56 @@ class LongFormExecutionService:
             stopped_reason=stopped_reason,
             budget_summary=budget_summary,
         )
+
+    def _build_review_snapshot(
+        self,
+        *,
+        acceptance_reason: str | None,
+        retry_snapshot: dict[str, Any] | None,
+    ) -> dict[str, Any] | None:
+        reviewable_failure_classes = {
+            "patch_dialogue_grounding_unresolved": {
+                "summary": "Local dialogue still needs visible grounding in action, object handling, or setting.",
+                "category": "dialogue_grounding",
+            },
+            "dialogue_grounding_unresolved": {
+                "summary": "Dialogue remains under-grounded and needs a local physical or setting cue.",
+                "category": "dialogue_grounding",
+            },
+            "patch_specificity_unresolved": {
+                "summary": "Local line still reads too vague and needs one concrete observable detail.",
+                "category": "specificity",
+            },
+            "specificity_unresolved": {
+                "summary": "Scene-level specificity is still under-resolved after rescue and needs manual review.",
+                "category": "specificity",
+            },
+        }
+        if acceptance_reason != "quality_failed" or not retry_snapshot:
+            return None
+        failure_class = str(retry_snapshot.get("rescue_failure_class") or "").strip()
+        if failure_class not in reviewable_failure_classes:
+            return None
+        rescue_targets = dict(retry_snapshot.get("rescue_targets_summary") or {})
+        lines_to_repair = [str(line) for line in (rescue_targets.get("lines_to_repair") or []) if str(line).strip()]
+        unresolved_targets = [str(line) for line in (retry_snapshot.get("unresolved_targets") or []) if str(line).strip()]
+        return {
+            "status": "flagged",
+            "category": reviewable_failure_classes[failure_class]["category"],
+            "failure_class": failure_class,
+            "summary": reviewable_failure_classes[failure_class]["summary"],
+            "why_flagged": list(unresolved_targets or lines_to_repair)[:3],
+            "targeted_lines": lines_to_repair[:3],
+            "review_actions": [
+                "accept_current_text",
+                "regenerate_local_repair",
+                "mark_for_manual_rewrite",
+                "show_flag_reason",
+            ],
+            "rescue_model": retry_snapshot.get("rescue_model_name"),
+            "rescue_strategy": retry_snapshot.get("rescue_generation_strategy"),
+            "rescue_attempted": bool(retry_snapshot.get("used")),
+        }
 
     def _estimate_chunk_cost(self, target_words: int | None, scene_count: int) -> float:
         words = target_words if target_words is not None else max(600, scene_count * 800)

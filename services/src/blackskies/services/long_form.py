@@ -46,6 +46,7 @@ class LongFormChunk:
     rewrite_used: bool = False
     retry_snapshot: dict[str, Any] | None = None
     guardrail_snapshot: dict[str, Any] | None = None
+    review_snapshot: dict[str, Any] | None = None
 
 
 @dataclass(frozen=True)
@@ -988,6 +989,7 @@ def persist_long_form_chunk(project_root: Path, chunk: LongFormChunk) -> Path:
         "rewrite_used": chunk.rewrite_used,
         "retry_snapshot": chunk.retry_snapshot,
         "guardrail_snapshot": chunk.guardrail_snapshot,
+        "review_snapshot": chunk.review_snapshot,
     }
     target.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
     return target
@@ -1041,6 +1043,7 @@ def load_long_form_chunk(project_root: Path, chunk_id: str) -> LongFormChunk | N
         rewrite_used=bool(payload.get("rewrite_used")),
         retry_snapshot=payload.get("retry_snapshot"),
         guardrail_snapshot=payload.get("guardrail_snapshot"),
+        review_snapshot=payload.get("review_snapshot"),
     )
 
 

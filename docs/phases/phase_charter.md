@@ -102,6 +102,8 @@ Scope remains: finalize GUI + API parity, smoke tests, offline docs.
 
 **Recommended next step:** hold the stable baseline unless there is a strong product reason to spend one more bounded comparison on rescue model capability.
 
+**Writer-facing handling milestone:** expose unresolved generation-side rescue misses as reviewable editorial flags with a minimal human workflow. The first pass is backend-first: surface failure class, explanation, targeted lines, and scaffolded actions so the editor can accept current text, request a local repair retry, mark for manual rewrite, or inspect why the scene was flagged.
+
 ### Key deliverables
 - Inline **Insights overlay** for contextual guidance and feedback  
 - **Batch Feedback mode** across multiple scenes  
