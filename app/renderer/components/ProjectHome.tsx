@@ -51,6 +51,7 @@ export interface ProjectHomeProps {
   onProjectLoaded?: (event: ProjectLoadEvent) => void;
   reopenRequest?: { path: string; requestId: number } | null;
   onReopenConsumed?: (result: { requestId: number; status: 'success' | 'error' }) => void;
+  requestedSceneId?: string | null;
   draftOverrides?: Record<string, string>;
   onActiveSceneChange?: (payload: ActiveScenePayload | null) => void;
   onDraftChange?: (sceneId: string, draft: string) => void;
@@ -168,6 +169,7 @@ export default function ProjectHome({
   onProjectLoaded,
   reopenRequest,
   onReopenConsumed,
+  requestedSceneId = null,
   draftOverrides,
   onActiveSceneChange,
   onDraftChange,
@@ -241,6 +243,17 @@ export default function ProjectHome({
   const activeSceneHasFlagReason = useMemo(() => {
     return hasExpandedFlagReason(activeSceneEditorialReview);
   }, [activeSceneEditorialReview]);
+
+  useEffect(() => {
+    if (!activeProject || !requestedSceneId) {
+      return;
+    }
+    const targetScene = activeProject.scenes.find((scene) => scene.id === requestedSceneId);
+    if (!targetScene) {
+      return;
+    }
+    setActiveSceneId((previous) => (previous === targetScene.id ? previous : targetScene.id));
+  }, [activeProject, requestedSceneId]);
 
   useEffect(() => {
     setFlagReasonExpanded(false);

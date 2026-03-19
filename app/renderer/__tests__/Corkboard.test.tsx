@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { vi } from 'vitest';
 
 import Corkboard from '../components/Corkboard';
@@ -55,5 +55,24 @@ describe('Corkboard', () => {
     expect(screen.getByText('Scene One')).toBeInTheDocument();
     expect(screen.getByText('Scene Two')).toBeInTheDocument();
     expect(screen.getAllByText(/Dialogue/i).length).toBeGreaterThan(0);
+  });
+
+  it('invokes scene selection and exposes selected state', async () => {
+    const onSelectScene = vi.fn();
+    render(
+      <Corkboard
+        projectId="proj"
+        projectPath="/path/proj"
+        activeSceneId="sc_002"
+        onSelectScene={onSelectScene}
+      />,
+    );
+
+    const sceneTwoButton = await screen.findByRole('button', { name: /scene two/i });
+    expect(sceneTwoButton).toHaveAttribute('aria-pressed', 'true');
+
+    fireEvent.click(await screen.findByRole('button', { name: /scene one/i }));
+
+    expect(onSelectScene).toHaveBeenCalledWith('sc_001');
   });
 });

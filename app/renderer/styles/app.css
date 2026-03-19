@@ -3383,6 +3383,21 @@ button:disabled {
   color: #e2e8f0;
 }
 
+.corkboard-card__button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0;
+  text-align: left;
+  width: 100%;
+  cursor: pointer;
+}
+
 .corkboard-card header {
   display: flex;
   align-items: center;

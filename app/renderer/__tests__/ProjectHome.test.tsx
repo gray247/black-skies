@@ -318,6 +318,98 @@ describe('ProjectHome recent project recovery', () => {
     expect(screen.queryByRole('button', { name: /Accept Current Text/i })).not.toBeInTheDocument();
   });
 
+  it('switches the active scene when a different scene is requested and reveals that scene review panel', async () => {
+    const samplePath = 'C:\\Dev\\black-skies\\sample_project\\Esther_Estate';
+    const project = createSampleProject(samplePath, {
+      outline: {
+        schema_version: 'OutlineSchema v1',
+        outline_id: 'outline-001',
+        acts: ['Act I'],
+        chapters: [{ id: 'ch_0001', order: 1, title: 'Opening' }],
+        scenes: [
+          { id: 'sc_0001', order: 1, title: 'Scene One', chapter_id: 'ch_0001' },
+          { id: 'sc_0002', order: 2, title: 'Scene Two', chapter_id: 'ch_0001' },
+        ],
+      },
+      scenes: [
+        {
+          id: 'sc_0001',
+          title: 'Scene One',
+          order: 1,
+          chapter_id: 'ch_0001',
+        },
+        {
+          id: 'sc_0002',
+          title: 'Scene Two',
+          order: 2,
+          chapter_id: 'ch_0001',
+        },
+      ],
+      drafts: {
+        sc_0001: '# Scene One',
+        sc_0002: '# Scene Two',
+      },
+      editorialReviews: {
+        sc_0002: {
+          chunk_id: 'lf_flagged_second_scene',
+          review_snapshot: {
+            status: 'flagged',
+            failure_class: 'patch_dialogue_grounding_unresolved',
+            summary: 'Dialogue line still lacks grounding.',
+            why_flagged: ['The patch stayed floating in the parlor exchange.'],
+            targeted_lines: ['"I heard it again," she said.'],
+            review_actions: [
+              'accept_current_text',
+              'regenerate_local_repair',
+              'mark_for_manual_rewrite',
+              'show_flag_reason',
+            ],
+          },
+          carryover_snapshot: {
+            carryover_risk: 'medium',
+            carryover_mode: 'restricted',
+            carryover_allowed: true,
+            failure_class: 'patch_dialogue_grounding_unresolved',
+          },
+        },
+      },
+    });
+
+    const projectLoader: ProjectLoaderApi = {
+      openProjectDialog: vi.fn(),
+      getSampleProjectPath: vi.fn().mockResolvedValue(samplePath),
+      loadProject: vi.fn().mockResolvedValue({
+        ok: true,
+        project,
+        issues: [],
+      }),
+    };
+
+    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+
+    const { rerender } = render(
+      <ProjectHome onToast={vi.fn()} onProjectLoaded={vi.fn()} requestedSceneId={null} />,
+    );
+
+    await waitFor(() => {
+      expect(projectLoader.loadProject).toHaveBeenCalledWith({ path: samplePath });
+    });
+
+    expect(screen.queryByRole('heading', { name: /Editorial review/i })).not.toBeInTheDocument();
+
+    rerender(
+      <ProjectHome onToast={vi.fn()} onProjectLoaded={vi.fn()} requestedSceneId="sc_0002" />,
+    );
+
+    expect(screen.getByRole('heading', { name: /Editorial review/i })).toBeInTheDocument();
+    expect(screen.getByText(/patch_dialogue_grounding_unresolved/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Show Flag Reason/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Scene Two/i })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+  });
+
   it('marks a flagged scene for manual rewrite and shows the persisted state', async () => {
     const samplePath = 'C:\\Dev\\black-skies\\sample_project\\Esther_Estate';
     const project = createSampleProject(samplePath, {

@@ -1698,6 +1698,7 @@ export default function App(): JSX.Element {
       onProjectLoaded: handleProjectLoaded,
       reopenRequest,
       onReopenConsumed: handleReopenConsumed,
+      requestedSceneId: activeScene?.id ?? null,
       draftOverrides: draftEdits,
       onActiveSceneChange: handleActiveSceneChange,
       onDraftChange: handleDraftChange,
@@ -1709,6 +1710,7 @@ export default function App(): JSX.Element {
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
+      activeScene?.id,
       autoSnapEnabled,
       draftEdits,
       handleActiveSceneChange,
@@ -1769,6 +1771,10 @@ export default function App(): JSX.Element {
             <Corkboard
               projectId={projectSummary?.projectId ?? null}
               projectPath={projectSummary?.path ?? null}
+              activeSceneId={activeScene?.id ?? null}
+              onSelectScene={(sceneId) => {
+                applySceneSelection(sceneId);
+              }}
             />
           </div>
         </div>

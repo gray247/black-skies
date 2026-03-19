@@ -10,6 +10,8 @@ export const CORKBOARD_HEADING_ID = "corkboard-heading";
 interface CorkboardProps {
   projectId?: string | null;
   projectPath?: string | null;
+  activeSceneId?: string | null;
+  onSelectScene?: (sceneId: string) => void;
 }
 
 interface CorkboardState {
@@ -21,7 +23,12 @@ interface CorkboardState {
 const formatRatio = (value: number): string =>
   Number.isFinite(value) ? `${(value * 100).toFixed(0)}%` : "-";
 
-function Corkboard({ projectId, projectPath }: CorkboardProps): JSX.Element {
+function Corkboard({
+  projectId,
+  projectPath,
+  activeSceneId = null,
+  onSelectScene,
+}: CorkboardProps): JSX.Element {
   const { serviceUnavailable, onRetry } = useServiceHealthContext();
   const [state, setState] = useState<CorkboardState>({
     scenes: [],
@@ -115,13 +122,21 @@ function Corkboard({ projectId, projectPath }: CorkboardProps): JSX.Element {
         </p>
       )}
       <div className="corkboard__grid">
-        {sceneRows.map((scene) => (
+        {sceneRows.map((scene) => {
+          const isActive = scene.sceneId === activeSceneId;
+          return (
           <article
             key={scene.sceneId}
             className="corkboard-card"
             data-testid="corkboard-card"
             aria-label={`Scene card for ${scene.title ?? scene.sceneId}`}
           >
+            <button
+              type="button"
+              className="corkboard-card__button"
+              aria-pressed={isActive}
+              onClick={() => onSelectScene?.(scene.sceneId)}
+            >
             <header>
               <span className="corkboard-card__index">#{scene.index + 1}</span>
               <h3>{scene.title ?? scene.sceneId}</h3>
@@ -148,8 +163,9 @@ function Corkboard({ projectId, projectPath }: CorkboardProps): JSX.Element {
                 <span>{formatRatio(scene.density.narrationRatio)}</span>
               </div>
             </div>
+            </button>
           </article>
-        ))}
+        )})}
       </div>
       {!isLoading && sceneRows.length === 0 && !errorMessage && (
         <p>No scene cards yet. Load a project to view the corkboard.</p>

@@ -18,11 +18,13 @@ const outline = JSON.parse(
   fs.readFileSync(path.join(sourceProjectRoot, 'outline.json'), 'utf8'),
 ) as { scenes: Array<{ id: string }> };
 const primarySceneId = outline.scenes[0]?.id ?? 'sc_0001';
+const secondarySceneId = outline.scenes[1]?.id ?? 'sc_0002';
 
 function writeEditorialFixture(
   projectRoot: string,
   manualReviewMarked = false,
   acceptedCurrentText = false,
+  targetSceneId = primarySceneId,
 ): void {
   const longFormDir = path.join(projectRoot, '.blackskies', 'long_form');
   const chunksDir = path.join(longFormDir, 'chunks');
@@ -32,7 +34,7 @@ function writeEditorialFixture(
     JSON.stringify(
       {
         chunk_id: 'lf_editorial_review_playwright',
-        scene_ids: [primarySceneId],
+        scene_ids: [targetSceneId],
         order: 1000,
         review_snapshot: {
           status: 'flagged',
@@ -61,12 +63,12 @@ function writeEditorialFixture(
   );
   fs.writeFileSync(
     path.join(longFormDir, 'manual_review.json'),
-    JSON.stringify(manualReviewMarked ? { [primarySceneId]: true } : {}, null, 2),
+    JSON.stringify(manualReviewMarked ? { [targetSceneId]: true } : {}, null, 2),
     'utf8',
   );
   fs.writeFileSync(
     path.join(longFormDir, 'accepted_review.json'),
-    JSON.stringify(acceptedCurrentText ? { [primarySceneId]: true } : {}, null, 2),
+    JSON.stringify(acceptedCurrentText ? { [targetSceneId]: true } : {}, null, 2),
     'utf8',
   );
   fs.writeFileSync(
@@ -175,6 +177,23 @@ test.describe('editorial review workflow', () => {
 
     await page.getByRole('button', { name: /Hide Flag Reason/i }).click();
     await expect(page.getByText(/She felt the room soften around her\./i)).toHaveCount(0);
+  });
+
+  test('clicking a corkboard scene card makes the flagged scene review reachable', async ({ page }) => {
+    writeEditorialFixture(tempProjectRoot, false, false, secondarySceneId);
+    await bootstrapEditorialProject(page, tempProjectRoot);
+
+    await expect(page.getByRole('heading', { name: /Editorial review/i })).toHaveCount(0);
+
+    const corkboard = page.locator('.corkboard');
+    await corkboard.getByRole('button', { name: /Locked Parlor/i }).click();
+
+    await expect(page.getByRole('heading', { name: /Editorial review/i })).toBeVisible();
+    await expect(page.getByText(/patch_specificity_unresolved/i)).toBeVisible();
+    await expect(page.getByRole('button', { name: /Show Flag Reason/i })).toBeVisible();
+    await expect(
+      corkboard.getByRole('button', { name: /Locked Parlor/i }),
+    ).toHaveAttribute('aria-pressed', 'true');
   });
 
   test('persists manual rewrite marks across reload and allows clearing them', async ({ page }) => {
