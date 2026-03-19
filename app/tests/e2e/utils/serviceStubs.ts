@@ -359,6 +359,28 @@ async function ensureServer(): Promise<void> {
       case '/analytics/relationships':
         respond(res, analyticsRelationships);
         return;
+      case '/long-form/retry-local-repair':
+        respond(res, {
+          chunk_id: 'lf_editorial_review_playwright',
+          scene_ids: [loadedProject.scenes[0]?.id ?? 'sc_0001'],
+          status: 'succeeded',
+          attempt_count: 1,
+          source_failure_class: 'patch_specificity_unresolved',
+          retry_snapshot: {
+            used: true,
+            succeeded: true,
+            reason: 'writer_requested_local_retry',
+          },
+          retry_result_review_snapshot: null,
+          retry_result_carryover_snapshot: {
+            carryover_risk: 'safe',
+            carryover_mode: 'safe',
+            carryover_allowed: true,
+            failure_class: 'patch_specificity_unresolved',
+          },
+          carryover_changed: true,
+        });
+        return;
       default:
         respond(res, { message: 'Not found' }, 404);
     }

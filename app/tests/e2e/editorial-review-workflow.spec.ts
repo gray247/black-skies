@@ -66,6 +66,11 @@ function writeEditorialFixture(
     JSON.stringify(acceptedCurrentText ? { [primarySceneId]: true } : {}, null, 2),
     'utf8',
   );
+  fs.writeFileSync(
+    path.join(longFormDir, 'review_action_state.json'),
+    JSON.stringify({}, null, 2),
+    'utf8',
+  );
 }
 
 async function bootstrapEditorialProject(
@@ -103,13 +108,25 @@ async function bootstrapEditorialProject(
       }),
     );
   }, projectPath);
-  await page.reload();
-  await page.waitForFunction(
-    () => (window as typeof window & { __APP_READY__?: boolean }).__APP_READY__ === true,
-    null,
-    { timeout: 30_000 },
-  );
-  await page.getByTestId('app-root').waitFor({ timeout: 30_000 });
+
+  const openProject = page.getByTestId('open-project');
+  if (await openProject.isVisible({ timeout: 10_000 }).catch(() => false)) {
+    await page
+      .waitForFunction(
+        () => {
+          const button = document.querySelector('[data-testid="open-project"]') as
+            | HTMLButtonElement
+            | null;
+          return button !== null && !button.disabled;
+        },
+        null,
+        { timeout: 10_000 },
+      )
+      .catch(() => undefined);
+    if (await openProject.isEnabled().catch(() => false)) {
+      await openProject.click();
+    }
+  }
 
   await page.waitForFunction(
     () =>
@@ -195,9 +212,7 @@ test.describe('editorial review workflow', () => {
 
     await expect(page.getByRole('heading', { name: /Editorial review/i })).toBeVisible();
     await page.getByRole('button', { name: /Accept Current Text/i }).click();
-    await expect(
-      page.getByText(/Writer accepted the current text\./i),
-    ).toBeVisible();
+    await expect(page.getByText(/Writer accepted the current text\./i)).toBeVisible();
     await expect(page.locator('.project-home__scene-review-badge').first()).toContainText('Accepted');
     await expect(page.getByText(/safe · allowed/i)).toBeVisible();
     await expect(page.getByRole('button', { name: /Accept Current Text/i })).toHaveCount(0);
@@ -205,11 +220,42 @@ test.describe('editorial review workflow', () => {
     await page.reload();
     await bootstrapEditorialProject(page, tempProjectRoot);
 
-    await expect(
-      page.getByText(/Writer accepted the current text\./i),
-    ).toBeVisible();
+    await expect(page.getByText(/Writer accepted the current text\./i)).toBeVisible();
     await expect(page.locator('.project-home__scene-review-badge').first()).toContainText('Accepted');
     await expect(page.getByText(/patch_specificity_unresolved/i)).toBeVisible();
     await expect(page.getByText(/safe · allowed/i)).toBeVisible();
+  });
+
+  test('persists regenerate local repair state and shows updated carryover on reload', async ({ page }) => {
+    writeEditorialFixture(tempProjectRoot, false, false);
+    await bootstrapEditorialProject(page, tempProjectRoot);
+
+    await expect(page.getByRole('heading', { name: /Editorial review/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Retry Local Repair/i })).toBeVisible();
+
+    await page.getByRole('button', { name: /Retry Local Repair/i }).click();
+
+    await expect(page.getByText(/Retry Local Repair succeeded\./i)).toBeVisible();
+    await expect(page.getByText(/succeeded · carryover updated/i)).toBeVisible();
+    await expect(page.locator('.project-home__scene-review-badge').first()).toContainText('Retry succeeded');
+    await expect(page.getByText(/safe · allowed/i)).toBeVisible();
+    await expect(page.getByRole('button', { name: /Retry Local Repair/i })).toHaveCount(0);
+
+    await page.getByRole('button', { name: /Show Flag Reason/i }).click();
+    await expect(page.getByText(/patch_specificity_unresolved/i)).toBeVisible();
+    await expect(page.getByText(/The rescue stayed vague on the kitchen line\./i)).toBeVisible();
+
+    await page.reload();
+    await bootstrapEditorialProject(page, tempProjectRoot);
+
+    await expect(page.getByText(/Retry Local Repair succeeded\./i)).toBeVisible();
+    await expect(page.getByText(/succeeded · carryover updated/i)).toBeVisible();
+    await expect(page.locator('.project-home__scene-review-badge').first()).toContainText('Retry succeeded');
+    await expect(page.getByText(/safe · allowed/i)).toBeVisible();
+    await expect(page.getByRole('button', { name: /Retry Local Repair/i })).toHaveCount(0);
+
+    await page.getByRole('button', { name: /Show Flag Reason/i }).click();
+    await expect(page.getByText(/patch_specificity_unresolved/i)).toBeVisible();
+    await expect(page.getByText(/The rescue stayed vague on the kitchen line\./i)).toBeVisible();
   });
 });

@@ -306,7 +306,7 @@ async function updateAcceptedReviewState(
 }
 
 function currentServicePort(): number | null {
-  const raw = process.env.BLACKSKIES_SERVICES_PORT;
+  const raw = process.env.BLACKSKIES_SERVICES_PORT ?? process.env.BLACKSKIES_E2E_PORT;
   const parsed = raw ? Number.parseInt(raw, 10) : Number.NaN;
   return Number.isFinite(parsed) ? parsed : null;
 }
