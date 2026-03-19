@@ -385,6 +385,90 @@ describe('ProjectHome recent project recovery', () => {
     expect(screen.getAllByText(/Manual review/i).length).toBeGreaterThan(0);
   });
 
+  it('runs one local repair retry and shows retry status with updated carryover', async () => {
+    const samplePath = 'C:\\Dev\\black-skies\\sample_project\\Esther_Estate';
+    const project = createSampleProject(samplePath, {
+      editorialReviews: {
+        sc_0001: {
+          chunk_id: 'lf_flagged',
+          review_snapshot: {
+            status: 'flagged',
+            failure_class: 'patch_specificity_unresolved',
+            summary: 'Local line still needs a concrete observed detail.',
+            why_flagged: ['The rescue stayed vague on the kitchen line.'],
+            targeted_lines: ['She felt the room soften around her.'],
+            review_actions: [
+              'accept_current_text',
+              'regenerate_local_repair',
+              'mark_for_manual_rewrite',
+              'show_flag_reason',
+            ],
+          },
+          carryover_snapshot: {
+            carryover_risk: 'medium',
+            carryover_mode: 'restricted',
+            carryover_allowed: true,
+            failure_class: 'patch_specificity_unresolved',
+          },
+        },
+      },
+    });
+
+    const projectLoader: ProjectLoaderApi = {
+      openProjectDialog: vi.fn(),
+      getSampleProjectPath: vi.fn().mockResolvedValue(samplePath),
+      loadProject: vi.fn().mockResolvedValue({
+        ok: true,
+        project,
+        issues: [],
+      }),
+      regenerateLocalRepair: vi.fn().mockResolvedValue({
+        action: 'regenerate_local_repair',
+        status: 'succeeded',
+        scene_id: 'sc_0001',
+        chunk_id: 'lf_flagged',
+        flag_state_key: 'lf_flagged:patch_specificity_unresolved',
+        source_failure_class: 'patch_specificity_unresolved',
+        attempt_count: 1,
+        requested_at: '2026-03-19T00:00:00Z',
+        retry_result_review_snapshot: null,
+        retry_result_carryover_snapshot: {
+          carryover_risk: 'safe',
+          carryover_mode: 'safe',
+          carryover_allowed: true,
+          failure_class: 'patch_specificity_unresolved',
+        },
+        carryover_changed: true,
+      }),
+    };
+
+    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+    const toasts: ToastPayload[] = [];
+
+    render(<ProjectHome onToast={(toast) => toasts.push(toast)} onProjectLoaded={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(projectLoader.loadProject).toHaveBeenCalledWith({ path: samplePath });
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /Retry Local Repair/i }));
+
+    await waitFor(() => {
+      expect(projectLoader.regenerateLocalRepair).toHaveBeenCalledWith({
+        projectPath: samplePath,
+        sceneId: 'sc_0001',
+        chunkId: 'lf_flagged',
+      });
+    });
+
+    expect(toasts.at(-1)?.title).toContain('Local repair retry succeeded');
+    expect(screen.getByText(/Retry Local Repair succeeded\./i)).toBeInTheDocument();
+    expect(screen.getByText(/succeeded · carryover updated/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Retry succeeded/i).length).toBeGreaterThan(0);
+    expect(screen.queryByRole('button', { name: /Retry Local Repair/i })).not.toBeInTheDocument();
+    expect(screen.getByText(/safe\s*·\s*allowed/i)).toBeInTheDocument();
+  });
+
   it('keeps review UI hidden for unflagged scenes', async () => {
     const samplePath = 'C:\\Dev\\black-skies\\sample_project\\Esther_Estate';
     const projectLoader: ProjectLoaderApi = {

@@ -157,6 +157,9 @@ function toneFromIssue(issue: ProjectIssue): ToastPayload['tone'] {
 }
 
 function formatActionLabel(action: string): string {
+  if (action === 'regenerate_local_repair') {
+    return 'Retry Local Repair';
+  }
   return action
     .split('_')
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
@@ -167,10 +170,24 @@ function visibleReviewActions(
   review: SceneEditorialReview | null | undefined,
 ): string[] {
   const actions = review?.review_snapshot?.review_actions ?? [];
+  const retryConsumed =
+    review?.retry_action_state?.action === 'regenerate_local_repair' &&
+    review.retry_action_state.attempt_count >= 1;
   if (review?.accepted_review?.accepted) {
     return actions.filter(
       (action) => action === 'show_flag_reason' || action === 'mark_for_manual_rewrite',
     );
+  }
+  if (review?.manual_review?.marked) {
+    return actions.filter((action) => action !== 'regenerate_local_repair');
+  }
+  if (review?.retry_action_state?.status === 'succeeded') {
+    return actions.filter(
+      (action) => action === 'show_flag_reason' || action === 'mark_for_manual_rewrite',
+    );
+  }
+  if (retryConsumed) {
+    return actions.filter((action) => action !== 'regenerate_local_repair');
   }
   return actions;
 }
@@ -178,10 +195,30 @@ function visibleReviewActions(
 function isWiredReviewAction(action: string): boolean {
   return (
     action === 'accept_current_text' ||
+    action === 'regenerate_local_repair' ||
     action === 'mark_for_manual_rewrite' ||
     action === 'clear_manual_review_mark' ||
     action === 'show_flag_reason'
   );
+}
+
+function reviewStatusLabel(review: SceneEditorialReview | null | undefined): string {
+  if (review?.manual_review?.marked) {
+    return 'Manual review';
+  }
+  if (review?.accepted_review?.accepted) {
+    return 'Accepted';
+  }
+  if (review?.retry_action_state?.status === 'succeeded') {
+    return 'Retry succeeded';
+  }
+  if (review?.retry_action_state?.status === 'still_flagged') {
+    return 'Still flagged';
+  }
+  if (review?.retry_action_state?.status === 'failed') {
+    return 'Retry failed';
+  }
+  return 'Flagged';
 }
 
 export default function ProjectHome({
@@ -776,6 +813,7 @@ export default function ProjectHome({
                   status: 'accepted_current_text',
                 },
                 manual_review: current?.manual_review ?? null,
+                retry_action_state: current?.retry_action_state ?? null,
               },
             },
           };
@@ -785,6 +823,61 @@ export default function ProjectHome({
           title: 'Accepted current text',
           description:
             'This scene no longer needs immediate editorial intervention and can feed continuity normally.',
+        });
+        return;
+      }
+
+      if (
+        action === 'regenerate_local_repair' &&
+        projectLoader?.regenerateLocalRepair &&
+        activeProject &&
+        activeScene
+      ) {
+        const current = activeProject.editorialReviews?.[activeScene.id];
+        const retryState = await projectLoader.regenerateLocalRepair({
+          projectPath: activeProject.path,
+          sceneId: activeScene.id,
+          chunkId: current?.chunk_id ?? `flagged:${activeScene.id}`,
+        });
+        setActiveProject((previous) => {
+          if (!previous) {
+            return previous;
+          }
+          const sceneReview = previous.editorialReviews?.[activeScene.id];
+          return {
+            ...previous,
+            editorialReviews: {
+              ...(previous.editorialReviews ?? {}),
+              [activeScene.id]: {
+                chunk_id: sceneReview?.chunk_id ?? retryState.chunk_id,
+                review_snapshot: sceneReview?.review_snapshot ?? null,
+                carryover_snapshot:
+                  retryState.retry_result_carryover_snapshot ??
+                  sceneReview?.carryover_snapshot ??
+                  null,
+                accepted_review: sceneReview?.accepted_review ?? null,
+                manual_review: sceneReview?.manual_review ?? null,
+                retry_action_state: retryState,
+              },
+            },
+          };
+        });
+        const toastTitle =
+          retryState.status === 'succeeded'
+            ? 'Local repair retry succeeded'
+            : retryState.status === 'still_flagged'
+              ? 'Local repair retry still flagged'
+              : 'Local repair retry failed';
+        const toastDescription =
+          retryState.status === 'succeeded'
+            ? 'The retry cleared the unresolved rescue posture and refreshed carryover state.'
+            : retryState.status === 'still_flagged'
+              ? 'The retry completed, but the scene still needs editorial review.'
+              : retryState.error_message ?? 'The retry could not complete.';
+        onToast({
+          tone: retryState.status === 'failed' ? 'error' : 'info',
+          title: toastTitle,
+          description: toastDescription,
         });
         return;
       }
@@ -819,6 +912,8 @@ export default function ProjectHome({
                   marked: true,
                   status: 'manual_rewrite_requested',
                 },
+                retry_action_state:
+                  previous.editorialReviews?.[activeScene.id]?.retry_action_state ?? null,
               },
             },
           };
@@ -1227,14 +1322,7 @@ export default function ProjectHome({
                     </p>
                   </div>
                   <span className="project-home__editorial-flag">
-                    {activeSceneEditorialReview.manual_review?.marked
-                      ? 'Manual review'
-                      : activeSceneEditorialReview.accepted_review?.accepted
-                        ? 'Accepted'
-                      : ((activeSceneEditorialReview.review_snapshot?.status ?? 'flagged')
-                          .charAt(0)
-                          .toUpperCase() +
-                        (activeSceneEditorialReview.review_snapshot?.status ?? 'flagged').slice(1))}
+                    {reviewStatusLabel(activeSceneEditorialReview)}
                   </span>
                 </div>
                 {activeSceneEditorialReview.accepted_review?.accepted ? (
@@ -1245,6 +1333,21 @@ export default function ProjectHome({
                 {activeSceneEditorialReview.manual_review?.marked ? (
                   <p className="project-home__editorial-summary">
                     This scene has been explicitly marked for manual rewrite.
+                  </p>
+                ) : null}
+                {activeSceneEditorialReview.retry_action_state?.status === 'succeeded' ? (
+                  <p className="project-home__editorial-summary">
+                    Retry Local Repair succeeded. The original rescue flag remains visible below for audit.
+                  </p>
+                ) : null}
+                {activeSceneEditorialReview.retry_action_state?.status === 'still_flagged' ? (
+                  <p className="project-home__editorial-summary">
+                    Retry Local Repair completed, but the scene still needs editorial review.
+                  </p>
+                ) : null}
+                {activeSceneEditorialReview.retry_action_state?.status === 'failed' ? (
+                  <p className="project-home__editorial-summary">
+                    Retry Local Repair failed operationally.
                   </p>
                 ) : null}
                 <div className="project-home__editorial-review-grid">
@@ -1263,6 +1366,17 @@ export default function ProjectHome({
                     </p>
                   </div>
                 </div>
+                {activeSceneEditorialReview.retry_action_state ? (
+                  <div className="project-home__editorial-block">
+                    <span className="project-home__editorial-label">Retry status</span>
+                    <p>
+                      {activeSceneEditorialReview.retry_action_state.status}
+                      {activeSceneEditorialReview.retry_action_state.carryover_changed
+                        ? ' · carryover updated'
+                        : ''}
+                    </p>
+                  </div>
+                ) : null}
                 {flagReasonExpanded && activeSceneEditorialReview.review_snapshot?.summary ? (
                   <p className="project-home__editorial-summary">
                     {activeSceneEditorialReview.review_snapshot.summary}
@@ -1409,11 +1523,7 @@ export default function ProjectHome({
                       {activeProject.editorialReviews?.[scene.id] ? (
                         <div className="project-home__scene-review-badge">
                           <span>
-                            {activeProject.editorialReviews[scene.id]?.manual_review?.marked
-                              ? 'Manual review'
-                              : activeProject.editorialReviews[scene.id]?.accepted_review?.accepted
-                                ? 'Accepted'
-                              : 'Flagged'}
+                            {reviewStatusLabel(activeProject.editorialReviews[scene.id])}
                           </span>
                           <span>
                             {activeProject.editorialReviews[scene.id]?.carryover_snapshot?.carryover_mode ??

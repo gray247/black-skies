@@ -85,3 +85,46 @@ def test_long_form_execute_validation_error(tmp_path: Path) -> None:
     assert response.status_code == 400
     body = response.json()
     assert body["code"] == "VALIDATION"
+
+
+def test_long_form_retry_local_repair_success(monkeypatch, tmp_path: Path) -> None:
+    project_root = tmp_path / "proj_long_form"
+    project_root.mkdir(parents=True, exist_ok=True)
+
+    def _fake_retry(self, **_kwargs):
+        return {
+            "chunk_id": "lf_test",
+            "scene_ids": ["sc_0001"],
+            "status": "still_flagged",
+            "attempt_count": 1,
+            "source_failure_class": "patch_specificity_unresolved",
+            "retry_snapshot": {"used": True, "succeeded": False},
+            "retry_result_review_snapshot": {
+                "status": "flagged",
+                "failure_class": "patch_specificity_unresolved",
+            },
+            "retry_result_carryover_snapshot": {
+                "carryover_risk": "medium",
+                "carryover_mode": "restricted",
+                "carryover_allowed": True,
+                "failure_class": "patch_specificity_unresolved",
+            },
+            "carryover_changed": False,
+        }
+
+    monkeypatch.setattr(
+        "blackskies.services.routers.long_form.LongFormExecutionService.retry_local_repair",
+        _fake_retry,
+    )
+
+    client = _client(tmp_path)
+    response = client.post(
+        "/api/v1/long-form/retry-local-repair",
+        json={"project_path": str(project_root), "chunk_id": "lf_deadbeef"},
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["chunk_id"] == "lf_test"
+    assert body["status"] == "still_flagged"
+    assert body["retry_result_review_snapshot"]["failure_class"] == "patch_specificity_unresolved"

@@ -4,6 +4,7 @@ export const PROJECT_LOADER_CHANNELS = {
   getSamplePath: 'project-loader:get-sample-path',
   setDevProjectPath: 'project-loader:set-dev-project-path',
   acceptCurrentText: 'project-loader:accept-current-text',
+  regenerateLocalRepair: 'project-loader:regenerate-local-repair',
   markManualRewrite: 'project-loader:mark-manual-rewrite',
   clearManualRewrite: 'project-loader:clear-manual-rewrite',
 } as const;
@@ -85,6 +86,30 @@ export interface EditorialCarryoverSnapshot {
   failure_class?: string;
 }
 
+export type EditorialRetryStatus =
+  | 'requested'
+  | 'running'
+  | 'succeeded'
+  | 'still_flagged'
+  | 'failed';
+
+export interface EditorialRetryActionState {
+  action: 'regenerate_local_repair';
+  status: EditorialRetryStatus;
+  scene_id: string;
+  chunk_id: string;
+  flag_state_key: string;
+  source_failure_class?: string;
+  attempt_count: number;
+  requested_at: string;
+  completed_at?: string;
+  retry_snapshot?: Record<string, unknown> | null;
+  retry_result_review_snapshot?: EditorialReviewSnapshot | null;
+  retry_result_carryover_snapshot?: EditorialCarryoverSnapshot | null;
+  carryover_changed?: boolean;
+  error_message?: string;
+}
+
 export interface SceneEditorialReview {
   chunk_id: string;
   review_snapshot?: EditorialReviewSnapshot | null;
@@ -97,6 +122,7 @@ export interface SceneEditorialReview {
     marked: boolean;
     status: 'manual_rewrite_requested';
   } | null;
+  retry_action_state?: EditorialRetryActionState | null;
 }
 
 export interface LoadedProject {
@@ -145,6 +171,11 @@ export interface ProjectLoaderApi {
   loadProject: (request: ProjectLoadRequest) => Promise<ProjectLoadResponse>;
   getSampleProjectPath?: () => Promise<string | null>;
   acceptCurrentText?: (request: { projectPath: string; sceneId: string }) => Promise<{ ok: true }>;
+  regenerateLocalRepair?: (request: {
+    projectPath: string;
+    sceneId: string;
+    chunkId: string;
+  }) => Promise<EditorialRetryActionState>;
   markManualRewrite?: (request: { projectPath: string; sceneId: string }) => Promise<{ ok: true }>;
   clearManualRewrite?: (request: { projectPath: string; sceneId: string }) => Promise<{ ok: true }>;
 }

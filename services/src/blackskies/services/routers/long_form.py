@@ -12,7 +12,7 @@ from ..config import ServiceSettings
 from ..diagnostics import DiagnosticLogger
 from ..http import raise_validation_error
 from ..model_router import ModelRouter
-from ..models.long_form import LongFormExecuteRequest
+from ..models.long_form import LongFormExecuteRequest, LongFormRetryLocalRepairRequest
 from ..operations.long_form_execution import LongFormExecutionService
 from .dependencies import get_diagnostics, get_model_router, get_settings
 
@@ -99,4 +99,54 @@ async def execute_long_form(
     }
 
 
-__all__ = ["execute_long_form", "router"]
+@router.post("/retry-local-repair")
+async def retry_local_repair(
+    payload: dict[str, Any],
+    settings: ServiceSettings = Depends(get_settings),
+    diagnostics: DiagnosticLogger = Depends(get_diagnostics),
+    model_router: ModelRouter = Depends(get_model_router),
+) -> dict[str, Any]:
+    """Retry only the bounded local rescue path for an existing flagged chunk."""
+
+    project_root: Path | None = None
+    try:
+        request_model = LongFormRetryLocalRepairRequest.model_validate(payload)
+    except ValidationError as exc:
+        project_id = payload.get("project_id") if isinstance(payload, dict) else None
+        if isinstance(project_id, str):
+            project_root = settings.project_base_dir / project_id
+        raise_validation_error(
+            message="Invalid local repair retry request.",
+            details={"errors": exc.errors()},
+            diagnostics=diagnostics,
+            project_root=project_root,
+        )
+
+    if request_model.project_path:
+        project_root = Path(request_model.project_path)
+    else:
+        project_root = settings.project_base_dir / str(request_model.project_id)
+    if not project_root.exists():
+        raise_validation_error(
+            message="Project not found.",
+            details={
+                "project_id": request_model.project_id,
+                "project_path": request_model.project_path,
+            },
+            diagnostics=diagnostics,
+            project_root=project_root,
+        )
+
+    service = LongFormExecutionService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=model_router,
+        enabled=True,
+    )
+    return service.retry_local_repair(
+        project_root=project_root,
+        chunk_id=request_model.chunk_id,
+    )
+
+
+__all__ = ["execute_long_form", "retry_local_repair", "router"]

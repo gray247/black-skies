@@ -40,6 +40,8 @@ from ..long_form import (
     persist_long_form_text,
     persist_long_form_diagnostic,
     aggregate_long_form_budget,
+    load_long_form_chunk,
+    load_long_form_text,
 )
 from ..config import ServiceSettings
 
@@ -329,6 +331,106 @@ class LongFormExecutionService:
             budget_summary=budget_summary,
         )
 
+    def retry_local_repair(
+        self,
+        *,
+        project_root: Path,
+        chunk_id: str,
+    ) -> dict[str, Any]:
+        chunk = load_long_form_chunk(project_root, chunk_id)
+        if chunk is None:
+            raise ValueError(f"Chunk not found: {chunk_id}")
+        original_text = load_long_form_text(project_root, chunk_id)
+        if not original_text or not original_text.strip():
+            raise ValueError(f"Chunk text not found: {chunk_id}")
+        review_snapshot = dict(chunk.review_snapshot or {})
+        source_failure_class = str(review_snapshot.get("failure_class") or "").strip()
+        if not source_failure_class:
+            raise ValueError(f"Chunk is not flagged for editorial retry: {chunk_id}")
+
+        previous_chunk = (
+            load_long_form_chunk(project_root, str(chunk.continuation_of))
+            if chunk.continuation_of
+            else None
+        )
+        previous_text = (
+            load_long_form_text(project_root, previous_chunk.chunk_id)
+            if previous_chunk is not None
+            else None
+        )
+        chapter_memory = assemble_chapter_memory(
+            project_root=project_root,
+            chapter_id=chunk.chapter_id,
+            scene_ids=chunk.scene_ids,
+        )
+        continuation = assemble_continuation_packet(
+            chunk_id=chunk.chunk_id,
+            chapter_id=chunk.chapter_id,
+            order=chunk.order,
+            previous_chunk=previous_chunk,
+            previous_text=previous_text,
+            chapter_memory=chapter_memory,
+            target_words=max(100, int(len(original_text.split()) * 1.15)),
+        )
+        policy_decision = self._evaluate_run_policy("safe")
+        route, adapter = self._resolve_provider(policy_decision=policy_decision)
+        prompt = ""
+        (
+            retried_text,
+            fallback_reason,
+            provider_failed,
+            attempt_count,
+            quality_snapshot,
+            critique_snapshot,
+            acceptance_reason,
+            rewrite_used,
+            retry_snapshot,
+            guardrail_snapshot,
+        ) = self._run_chunk_attempts(
+            adapter=adapter,
+            route=route,
+            prompt=prompt,
+            continuation=continuation,
+            project_root=project_root,
+            retry_only_existing_text=original_text,
+            retry_only_quality_snapshot=chunk.quality_snapshot,
+            retry_only_critique_snapshot=chunk.critique_snapshot,
+        )
+        retry_result_review_snapshot = self._build_review_snapshot(
+            acceptance_reason=acceptance_reason,
+            retry_snapshot=retry_snapshot,
+        )
+        retry_result_carryover_snapshot = self._build_carryover_snapshot(
+            acceptance_reason=acceptance_reason,
+            retry_snapshot=retry_snapshot,
+        )
+        if acceptance_reason == "retry_pass":
+            status = "succeeded"
+        elif fallback_reason == "quality_failed":
+            status = "still_flagged"
+        else:
+            status = "failed"
+        return {
+            "chunk_id": chunk.chunk_id,
+            "scene_ids": list(chunk.scene_ids),
+            "status": status,
+            "attempt_count": attempt_count,
+            "source_failure_class": source_failure_class,
+            "retry_snapshot": retry_snapshot,
+            "retry_result_review_snapshot": retry_result_review_snapshot,
+            "retry_result_carryover_snapshot": retry_result_carryover_snapshot,
+            "retry_result_guardrail_snapshot": guardrail_snapshot,
+            "acceptance_reason": acceptance_reason,
+            "fallback_reason": fallback_reason,
+            "provider_failed": provider_failed,
+            "text_changed": retried_text.strip() != original_text.strip(),
+            "carryover_changed": retry_result_carryover_snapshot
+            != dict(chunk.carryover_snapshot or {}),
+            "rewrite_used": rewrite_used,
+            "quality_snapshot": quality_snapshot,
+            "critique_snapshot": critique_snapshot,
+        }
+
     def _build_review_snapshot(
         self,
         *,
@@ -555,6 +657,9 @@ class LongFormExecutionService:
         prompt: str,
         continuation,
         project_root: Path,
+        retry_only_existing_text: str | None = None,
+        retry_only_quality_snapshot: dict[str, Any] | None = None,
+        retry_only_critique_snapshot: dict[str, Any] | None = None,
     ) -> tuple[
         str,
         str | None,
@@ -627,6 +732,99 @@ class LongFormExecutionService:
         try:
             current_payload = dict(payload)
             attempt = 1
+            if retry_only_existing_text is not None:
+                rewrite_used = True
+                previous_quality_snapshot = dict(
+                    retry_only_quality_snapshot
+                    or score_long_form_quality(
+                        retry_only_existing_text,
+                        prior_excerpt=continuation.prior_excerpt,
+                        prior_summary=continuation.prior_summary,
+                    )
+                )
+                previous_quality_snapshot["text"] = retry_only_existing_text
+                critique_snapshot = dict(retry_only_critique_snapshot or {})
+                if not critique_snapshot:
+                    critique_snapshot = self._run_chunk_critique(
+                        adapter=adapter,
+                        text=retry_only_existing_text,
+                        continuation=continuation,
+                        project_root=project_root,
+                        quality_snapshot=previous_quality_snapshot,
+                    )
+                failure_classification = self._classify_quality_failure(
+                    previous_quality_snapshot,
+                    continuation_chunk=bool(
+                        continuation.prior_summary or continuation.prior_excerpt
+                    ),
+                )
+                retry_attempts_used = 1
+                retry_snapshot = {
+                    "used": True,
+                    "succeeded": False,
+                    "attempts_used": retry_attempts_used,
+                    "max_attempts": 1,
+                    "eligible": True,
+                    "failure_classification": failure_classification,
+                    "reason": failure_classification.get("reason")
+                    or "writer_requested_local_retry",
+                    "triggered_after_attempt": 0,
+                    "stronger_model_used": False,
+                    "rescue_mode_used": True,
+                    "rescue_model_used": False,
+                    "rescue_model_name": None,
+                    "rescue_guardrail_fail": False,
+                    "rescue_under_improved": False,
+                    "rescue_fidelity_risk": False,
+                    "patch_rescue_used": False,
+                    "patch_rescue_success": False,
+                    "repair_only_pass_used": False,
+                    "repair_only_pass_rescued": False,
+                    "same_slot_specificity_retry_used": False,
+                    "writer_requested_retry": True,
+                }
+                rescue_contract = self._build_rescue_contract(
+                    original_text=retry_only_existing_text,
+                    continuation=continuation,
+                    critique_snapshot=critique_snapshot,
+                    quality_snapshot=previous_quality_snapshot,
+                )
+                retry_snapshot["rescue_targets_summary"] = {
+                    "dialogue_beats_requiring_grounding": list(
+                        rescue_contract.get("dialogue_beats_requiring_grounding") or []
+                    ),
+                    "generic_phrases_to_replace": list(
+                        rescue_contract.get("generic_phrases_to_replace") or []
+                    ),
+                    "lines_to_repair": list(
+                        rescue_contract.get("lines_to_repair") or []
+                    ),
+                    "required_concrete_anchor_terms": list(
+                        rescue_contract.get("required_concrete_anchor_terms") or []
+                    ),
+                    "repair_min_word_count": rescue_contract.get("repair_min_word_count"),
+                    "repair_max_word_count": rescue_contract.get("repair_max_word_count"),
+                    "min_paragraph_count": rescue_contract.get("min_paragraph_count"),
+                    "max_paragraph_count": rescue_contract.get("max_paragraph_count"),
+                }
+                current_payload = dict(payload)
+                current_payload["prompt"] = self._build_rescue_generation_prompt(
+                    strategy=rescue_generation_strategy,
+                    mode="recovery_retry",
+                    original_text=retry_only_existing_text,
+                    latest_text=retry_only_existing_text,
+                    critique_snapshot=critique_snapshot,
+                    continuation=continuation,
+                    quality_snapshot=previous_quality_snapshot,
+                    failure_classification=failure_classification,
+                    rescue_contract=rescue_contract,
+                    rescue_failure_class=None,
+                )
+                current_payload["system"] = (
+                    "Perform a single recovery patch edit. Return JSON only."
+                )
+                current_payload["rescue_contract"] = rescue_contract
+                attempt = self._MAX_ATTEMPTS + 1
             while True:
                 if attempt == 1:
                     attempt_kind = "draft"

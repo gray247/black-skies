@@ -1030,6 +1030,16 @@ def persist_long_form_text(project_root: Path, chunk_id: str, text: str) -> Path
     return target
 
 
+def load_long_form_text(project_root: Path, chunk_id: str) -> str | None:
+    path = _chunk_text_dir(project_root) / f"{chunk_id}.md"
+    if not path.exists():
+        return None
+    try:
+        return path.read_text(encoding="utf-8-sig")
+    except OSError:
+        return None
+
+
 def persist_long_form_diagnostic(
     project_root: Path,
     chunk_id: str,
@@ -1104,6 +1114,7 @@ __all__ = [
     "score_long_form_quality",
     "persist_long_form_chunk",
     "persist_long_form_text",
+    "load_long_form_text",
     "persist_long_form_diagnostic",
     "load_long_form_chunk",
     "aggregate_long_form_budget",

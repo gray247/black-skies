@@ -21,6 +21,7 @@ import {
   extractFrontMatter,
   loadProjectFromDisk,
   parseFrontMatterValue,
+  runRegenerateLocalRepair,
   runWithConcurrency,
   MAX_SCENE_READ_CONCURRENCY,
 } from '../projectLoaderIpc';
@@ -190,5 +191,174 @@ chapter_id: ch_0001
       carryover_allowed: true,
       failure_class: 'patch_specificity_unresolved',
     });
+  });
+
+  it('loads persisted retry state and applies effective carryover from retry result', async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), 'bs-project-loader-'));
+    await fs.writeFile(
+      path.join(root, 'outline.json'),
+      JSON.stringify({
+        schema_version: 'OutlineSchema v1',
+        outline_id: 'outline-001',
+        acts: ['Act I'],
+        chapters: [{ id: 'ch_0001', order: 1, title: 'Opening' }],
+        scenes: [{ id: 'sc_0001', order: 1, title: 'Scene One', chapter_id: 'ch_0001' }],
+      }),
+      'utf8',
+    );
+    await fs.writeFile(path.join(root, 'project.json'), JSON.stringify({ name: 'Tmp Project' }), 'utf8');
+    await fs.mkdir(path.join(root, 'drafts'), { recursive: true });
+    await fs.writeFile(
+      path.join(root, 'drafts', 'sc_0001.md'),
+      `---
+id: sc_0001
+title: Scene One
+order: 1
+chapter_id: ch_0001
+---
+# Scene One`,
+      'utf8',
+    );
+    await fs.mkdir(path.join(root, '.blackskies', 'long_form', 'chunks'), { recursive: true });
+    await fs.writeFile(
+      path.join(root, '.blackskies', 'long_form', 'chunks', 'lf_flagged.json'),
+      JSON.stringify(
+        {
+          chunk_id: 'lf_flagged',
+          scene_ids: ['sc_0001'],
+          order: 10,
+          review_snapshot: {
+            status: 'flagged',
+            failure_class: 'patch_specificity_unresolved',
+            review_actions: ['regenerate_local_repair', 'show_flag_reason'],
+          },
+          carryover_snapshot: {
+            carryover_risk: 'medium',
+            carryover_mode: 'restricted',
+            carryover_allowed: true,
+            failure_class: 'patch_specificity_unresolved',
+          },
+        },
+        null,
+        2,
+      ),
+      'utf8',
+    );
+    await fs.writeFile(
+      path.join(root, '.blackskies', 'long_form', 'review_action_state.json'),
+      JSON.stringify(
+        {
+          sc_0001: {
+            action: 'regenerate_local_repair',
+            status: 'succeeded',
+            scene_id: 'sc_0001',
+            chunk_id: 'lf_flagged',
+            flag_state_key: 'lf_flagged:patch_specificity_unresolved',
+            source_failure_class: 'patch_specificity_unresolved',
+            attempt_count: 1,
+            requested_at: '2026-03-19T00:00:00Z',
+            retry_result_carryover_snapshot: {
+              carryover_risk: 'safe',
+              carryover_mode: 'safe',
+              carryover_allowed: true,
+              failure_class: 'patch_specificity_unresolved',
+            },
+          },
+        },
+        null,
+        2,
+      ),
+      'utf8',
+    );
+
+    const { project } = await loadProjectFromDisk(root);
+
+    expect(project.editorialReviews?.sc_0001?.retry_action_state?.status).toBe('succeeded');
+    expect(project.editorialReviews?.sc_0001?.carryover_snapshot).toEqual({
+      carryover_risk: 'safe',
+      carryover_mode: 'safe',
+      carryover_allowed: true,
+      failure_class: 'patch_specificity_unresolved',
+    });
+  });
+
+  it('persists one local repair retry per flagged state', async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), 'bs-project-loader-'));
+    await fs.writeFile(
+      path.join(root, 'outline.json'),
+      JSON.stringify({
+        schema_version: 'OutlineSchema v1',
+        outline_id: 'outline-001',
+        acts: ['Act I'],
+        chapters: [{ id: 'ch_0001', order: 1, title: 'Opening' }],
+        scenes: [{ id: 'sc_0001', order: 1, title: 'Scene One', chapter_id: 'ch_0001' }],
+      }),
+      'utf8',
+    );
+    await fs.writeFile(path.join(root, 'project.json'), JSON.stringify({ name: 'Tmp Project' }), 'utf8');
+    await fs.mkdir(path.join(root, 'drafts'), { recursive: true });
+    await fs.writeFile(
+      path.join(root, 'drafts', 'sc_0001.md'),
+      `---
+id: sc_0001
+title: Scene One
+order: 1
+chapter_id: ch_0001
+---
+# Scene One`,
+      'utf8',
+    );
+    await fs.mkdir(path.join(root, '.blackskies', 'long_form', 'chunks'), { recursive: true });
+    await fs.writeFile(
+      path.join(root, '.blackskies', 'long_form', 'chunks', 'lf_flagged.json'),
+      JSON.stringify(
+        {
+          chunk_id: 'lf_flagged',
+          scene_ids: ['sc_0001'],
+          order: 10,
+          review_snapshot: {
+            status: 'flagged',
+            failure_class: 'patch_specificity_unresolved',
+            review_actions: ['regenerate_local_repair', 'show_flag_reason'],
+          },
+          carryover_snapshot: {
+            carryover_risk: 'medium',
+            carryover_mode: 'restricted',
+            carryover_allowed: true,
+            failure_class: 'patch_specificity_unresolved',
+          },
+        },
+        null,
+        2,
+      ),
+      'utf8',
+    );
+    process.env.BLACKSKIES_SERVICES_PORT = '8765';
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        status: 'still_flagged',
+        retry_snapshot: { used: true, succeeded: false },
+        retry_result_review_snapshot: {
+          status: 'flagged',
+          failure_class: 'patch_specificity_unresolved',
+        },
+        retry_result_carryover_snapshot: {
+          carryover_risk: 'medium',
+          carryover_mode: 'restricted',
+          carryover_allowed: true,
+          failure_class: 'patch_specificity_unresolved',
+        },
+        carryover_changed: false,
+      }),
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    const first = await runRegenerateLocalRepair(root, 'sc_0001', 'lf_flagged');
+    const second = await runRegenerateLocalRepair(root, 'sc_0001', 'lf_flagged');
+
+    expect(first.status).toBe('still_flagged');
+    expect(second.status).toBe('still_flagged');
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });

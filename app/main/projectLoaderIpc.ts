@@ -4,6 +4,7 @@ import path from 'node:path';
 import {
   EditorialCarryoverSnapshot,
   EditorialReviewSnapshot,
+  EditorialRetryActionState,
   LoadedProject,
   OutlineFile,
   ProjectDialogResult,
@@ -39,6 +40,7 @@ export function registerProjectLoaderIpc(): void {
   ipcMain.removeHandler(PROJECT_LOADER_CHANNELS.getSamplePath);
   ipcMain.removeHandler(PROJECT_LOADER_CHANNELS.setDevProjectPath);
   ipcMain.removeHandler(PROJECT_LOADER_CHANNELS.acceptCurrentText);
+  ipcMain.removeHandler(PROJECT_LOADER_CHANNELS.regenerateLocalRepair);
   ipcMain.removeHandler(PROJECT_LOADER_CHANNELS.markManualRewrite);
   ipcMain.removeHandler(PROJECT_LOADER_CHANNELS.clearManualRewrite);
 
@@ -146,6 +148,16 @@ export function registerProjectLoaderIpc(): void {
   );
 
   ipcMain.handle(
+    PROJECT_LOADER_CHANNELS.regenerateLocalRepair,
+    async (
+      _event,
+      request: { projectPath: string; sceneId: string; chunkId: string },
+    ): Promise<EditorialRetryActionState> => {
+      return runRegenerateLocalRepair(request.projectPath, request.sceneId, request.chunkId);
+    },
+  );
+
+  ipcMain.handle(
     PROJECT_LOADER_CHANNELS.markManualRewrite,
     async (_event, request: { projectPath: string; sceneId: string }): Promise<{ ok: true }> => {
       await updateManualReviewState(request.projectPath, request.sceneId, true);
@@ -210,6 +222,10 @@ function acceptedReviewPath(projectPath: string): string {
   return path.join(projectPath, '.blackskies', 'long_form', 'accepted_review.json');
 }
 
+function reviewActionStatePath(projectPath: string): string {
+  return path.join(projectPath, '.blackskies', 'long_form', 'review_action_state.json');
+}
+
 async function readManualReviewState(projectPath: string): Promise<Record<string, boolean>> {
   const target = manualReviewPath(projectPath);
   try {
@@ -232,6 +248,29 @@ async function readAcceptedReviewState(projectPath: string): Promise<Record<stri
   } catch {
     return {};
   }
+}
+
+async function readRetryActionState(
+  projectPath: string,
+): Promise<Record<string, EditorialRetryActionState>> {
+  const target = reviewActionStatePath(projectPath);
+  try {
+    const parsed = JSON.parse(await fs.readFile(target, 'utf8')) as Record<string, EditorialRetryActionState>;
+    return Object.fromEntries(
+      Object.entries(parsed || {}).map(([sceneId, value]) => [sceneId, value]),
+    );
+  } catch {
+    return {};
+  }
+}
+
+async function writeRetryActionState(
+  projectPath: string,
+  payload: Record<string, EditorialRetryActionState>,
+): Promise<void> {
+  const target = reviewActionStatePath(projectPath);
+  await fs.mkdir(path.dirname(target), { recursive: true });
+  await fs.writeFile(target, JSON.stringify(payload, null, 2), 'utf8');
 }
 
 async function updateManualReviewState(
@@ -266,6 +305,118 @@ async function updateAcceptedReviewState(
   await fs.writeFile(target, JSON.stringify(current, null, 2), 'utf8');
 }
 
+function currentServicePort(): number | null {
+  const raw = process.env.BLACKSKIES_SERVICES_PORT;
+  const parsed = raw ? Number.parseInt(raw, 10) : Number.NaN;
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+async function performServiceJsonRequest(
+  pathSuffix: string,
+  body: Record<string, unknown>,
+): Promise<Record<string, unknown>> {
+  const port = currentServicePort();
+  if (!port) {
+    throw new Error('Service port is unavailable.');
+  }
+  const response = await fetch(`http://127.0.0.1:${port}/api/v1/${pathSuffix}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (!response.ok) {
+    let message = `Service responded with HTTP ${response.status}.`;
+    try {
+      const payload = (await response.json()) as { message?: unknown };
+      if (typeof payload.message === 'string' && payload.message.trim()) {
+        message = payload.message;
+      }
+    } catch {
+      // keep generic message
+    }
+    throw new Error(message);
+  }
+  return (await response.json()) as Record<string, unknown>;
+}
+
+export async function runRegenerateLocalRepair(
+  projectPath: string,
+  sceneId: string,
+  chunkId: string,
+): Promise<EditorialRetryActionState> {
+  const reviews = await readEditorialReviews(projectPath);
+  const currentReview = reviews[sceneId];
+  if (!currentReview?.review_snapshot?.failure_class) {
+    throw new Error('Scene is not currently eligible for local repair retry.');
+  }
+  if (currentReview.accepted_review?.accepted) {
+    throw new Error('Accepted scenes are not eligible for local repair retry.');
+  }
+  const failureClass = currentReview.review_snapshot.failure_class;
+  const flagStateKey = `${chunkId}:${failureClass}`;
+  const currentState = await readRetryActionState(projectPath);
+  const existing = currentState[sceneId];
+  if (existing && existing.flag_state_key === flagStateKey && existing.attempt_count >= 1) {
+    return existing;
+  }
+
+  const requestedAt = new Date().toISOString();
+  currentState[sceneId] = {
+    action: 'regenerate_local_repair',
+    status: 'running',
+    scene_id: sceneId,
+    chunk_id: chunkId,
+    flag_state_key: flagStateKey,
+    source_failure_class: failureClass,
+    attempt_count: 1,
+    requested_at: requestedAt,
+  };
+  await writeRetryActionState(projectPath, currentState);
+
+  try {
+    const result = await performServiceJsonRequest('long-form/retry-local-repair', {
+      project_path: projectPath,
+      chunk_id: chunkId,
+    });
+    const nextState: EditorialRetryActionState = {
+      action: 'regenerate_local_repair',
+      status: String(result.status || 'failed') as EditorialRetryActionState['status'],
+      scene_id: sceneId,
+      chunk_id: chunkId,
+      flag_state_key: flagStateKey,
+      source_failure_class: failureClass,
+      attempt_count: 1,
+      requested_at: requestedAt,
+      completed_at: new Date().toISOString(),
+      retry_snapshot: (result.retry_snapshot as Record<string, unknown> | null) ?? null,
+      retry_result_review_snapshot:
+        (result.retry_result_review_snapshot as EditorialReviewSnapshot | null) ?? null,
+      retry_result_carryover_snapshot:
+        (result.retry_result_carryover_snapshot as EditorialCarryoverSnapshot | null) ?? null,
+      carryover_changed: Boolean(result.carryover_changed),
+    };
+    currentState[sceneId] = nextState;
+    await writeRetryActionState(projectPath, currentState);
+    return nextState;
+  } catch (error) {
+    const failedState: EditorialRetryActionState = {
+      action: 'regenerate_local_repair',
+      status: 'failed',
+      scene_id: sceneId,
+      chunk_id: chunkId,
+      flag_state_key: flagStateKey,
+      source_failure_class: failureClass,
+      attempt_count: 1,
+      requested_at: requestedAt,
+      completed_at: new Date().toISOString(),
+      error_message: error instanceof Error ? error.message : String(error),
+    };
+    currentState[sceneId] = failedState;
+    await writeRetryActionState(projectPath, currentState);
+    return failedState;
+  }
+}
+
 export async function readEditorialReviews(
   projectPath: string,
 ): Promise<Record<string, SceneEditorialReview>> {
@@ -273,6 +424,7 @@ export async function readEditorialReviews(
   try {
     const manualReviewState = await readManualReviewState(projectPath);
     const acceptedReviewState = await readAcceptedReviewState(projectPath);
+    const retryActionState = await readRetryActionState(projectPath);
     const entries = await fs.readdir(chunksDir);
     const reviewByScene = new Map<
       string,
@@ -301,13 +453,14 @@ export async function readEditorialReviews(
       if (!reviewSnapshot && !carryoverSnapshot) {
         continue;
       }
-      const review: SceneEditorialReview = {
-        chunk_id: String(parsed.chunk_id ?? entry.replace(/\.json$/i, '')),
-        review_snapshot: reviewSnapshot ?? null,
-        carryover_snapshot: carryoverSnapshot ?? null,
-        accepted_review: null,
-        manual_review: null,
-      };
+        const review: SceneEditorialReview = {
+          chunk_id: String(parsed.chunk_id ?? entry.replace(/\.json$/i, '')),
+          review_snapshot: reviewSnapshot ?? null,
+          carryover_snapshot: carryoverSnapshot ?? null,
+          accepted_review: null,
+          manual_review: null,
+          retry_action_state: null,
+        };
       const order =
         typeof parsed.order === 'number' ? parsed.order : Number(parsed.order ?? 0);
       for (const sceneId of sceneIds) {
@@ -341,14 +494,32 @@ export async function readEditorialReviews(
             status: 'manual_rewrite_requested',
           };
         }
+        if (retryActionState[sceneId]) {
+          review.retry_action_state = retryActionState[sceneId];
+          if (
+            !review.accepted_review?.accepted &&
+            (review.retry_action_state.status === 'succeeded' ||
+              review.retry_action_state.status === 'still_flagged') &&
+            review.retry_action_state.retry_result_carryover_snapshot
+          ) {
+            review.carryover_snapshot = review.retry_action_state.retry_result_carryover_snapshot;
+          }
+        }
         return [sceneId, review];
       }),
     );
   } catch {
     const manualReviewState = await readManualReviewState(projectPath);
     const acceptedReviewState = await readAcceptedReviewState(projectPath);
+    const retryActionState = await readRetryActionState(projectPath);
     return Object.fromEntries(
-      Array.from(new Set([...Object.keys(manualReviewState), ...Object.keys(acceptedReviewState)])).map((sceneId) => [
+      Array.from(
+        new Set([
+          ...Object.keys(manualReviewState),
+          ...Object.keys(acceptedReviewState),
+          ...Object.keys(retryActionState),
+        ]),
+      ).map((sceneId) => [
         sceneId,
         {
           chunk_id: `manual:${sceneId}`,
@@ -372,6 +543,7 @@ export async function readEditorialReviews(
                 status: 'manual_rewrite_requested',
               }
             : null,
+          retry_action_state: retryActionState[sceneId] ?? null,
         },
       ]),
     );

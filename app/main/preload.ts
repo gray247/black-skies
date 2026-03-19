@@ -1291,6 +1291,17 @@ const projectLoaderApi: ProjectLoaderApi = {
     );
     return response as { ok: true };
   },
+  async regenerateLocalRepair(request: {
+    projectPath: string;
+    sceneId: string;
+    chunkId: string;
+  }) {
+    const response = await ipcRenderer.invoke(
+      PROJECT_LOADER_CHANNELS.regenerateLocalRepair,
+      request,
+    );
+    return response;
+  },
   async markManualRewrite(request: { projectPath: string; sceneId: string }): Promise<{ ok: true }> {
     const response = await ipcRenderer.invoke(
       PROJECT_LOADER_CHANNELS.markManualRewrite,
