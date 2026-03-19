@@ -15,6 +15,7 @@ import type {
 } from '../../shared/ipc/projectLoader';
 import type { ToastPayload } from '../types/toast';
 import DraftEditor from '../DraftEditor';
+import ProjectHomeSceneReviewBadge from './ProjectHomeSceneReviewBadge';
 import {
   formatReviewActionLabel,
   hasExpandedFlagReason,
@@ -1453,15 +1454,9 @@ export default function ProjectHome({
                         </div>
                       ) : null}
                       {activeProject.editorialReviews?.[scene.id] ? (
-                        <div className="project-home__scene-review-badge">
-                          <span>
-                            {reviewStatusLabel(activeProject.editorialReviews[scene.id])}
-                          </span>
-                          <span>
-                            {activeProject.editorialReviews[scene.id]?.carryover_snapshot?.carryover_mode ??
-                              'safe'}
-                          </span>
-                        </div>
+                        <ProjectHomeSceneReviewBadge
+                          review={activeProject.editorialReviews[scene.id]}
+                        />
                       ) : null}
                     </button>
                   </li>

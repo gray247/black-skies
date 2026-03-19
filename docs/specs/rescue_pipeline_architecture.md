@@ -8,6 +8,8 @@ Purpose: define the current long-form rescue pipeline as a staged editing system
 
 This document describes the active rescue architecture after rescue-plumbing / reliability-control closeout. It is the canonical description of how weak local narrative segments are detected, repaired, validated, and escalated.
 
+For final shipped Phase 8 writer-facing behavior, use [docs/phases/phase8_closeout.md](../phases/phase8_closeout.md) as the authority. This rescue architecture doc remains the authority for rescue staging and carryover principles, but not for the full final UI/workflow closeout state.
+
 ## Scope
 
 This architecture covers:
