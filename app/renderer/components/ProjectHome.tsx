@@ -186,6 +186,7 @@ export default function ProjectHome({
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [diagnosticsExpanded, setDiagnosticsExpanded] = useState<boolean>(false);
   const [activeSceneId, setActiveSceneId] = useState<string | null>(null);
+  const [flagReasonExpanded, setFlagReasonExpanded] = useState<boolean>(false);
   const [storedLastProjectPath, setStoredLastProjectPath] = useState<string | null>(() =>
     readStoredLastProjectPath(),
   );
@@ -235,6 +236,23 @@ export default function ProjectHome({
     }
     return activeProject.editorialReviews?.[activeSceneId] ?? null;
   }, [activeProject, activeSceneId]);
+
+  const activeSceneHasFlagReason = useMemo(() => {
+    if (!activeSceneEditorialReview) {
+      return false;
+    }
+    return Boolean(
+      activeSceneEditorialReview.review_snapshot?.failure_class ||
+        activeSceneEditorialReview.review_snapshot?.summary ||
+        activeSceneEditorialReview.review_snapshot?.why_flagged?.length ||
+        activeSceneEditorialReview.review_snapshot?.targeted_lines?.length ||
+        activeSceneEditorialReview.carryover_snapshot,
+    );
+  }, [activeSceneEditorialReview]);
+
+  useEffect(() => {
+    setFlagReasonExpanded(false);
+  }, [activeProject?.path, activeSceneId]);
 
   const notifyIssues = useCallback(
     (items: ProjectIssue[]) => {
@@ -778,6 +796,11 @@ export default function ProjectHome({
         return;
       }
 
+      if (action === 'show_flag_reason') {
+        setFlagReasonExpanded((current) => !current);
+        return;
+      }
+
       onToast({
         tone: 'info',
         title: `${formatActionLabel(action)} not wired yet`,
@@ -1158,12 +1181,12 @@ export default function ProjectHome({
                     </p>
                   </div>
                 </div>
-                {activeSceneEditorialReview.review_snapshot?.summary ? (
+                {flagReasonExpanded && activeSceneEditorialReview.review_snapshot?.summary ? (
                   <p className="project-home__editorial-summary">
                     {activeSceneEditorialReview.review_snapshot.summary}
                   </p>
                 ) : null}
-                {activeSceneEditorialReview.review_snapshot?.why_flagged?.length ? (
+                {flagReasonExpanded && activeSceneEditorialReview.review_snapshot?.why_flagged?.length ? (
                   <div className="project-home__editorial-block">
                     <span className="project-home__editorial-label">Why flagged</span>
                     <ul>
@@ -1173,7 +1196,8 @@ export default function ProjectHome({
                     </ul>
                   </div>
                 ) : null}
-                {activeSceneEditorialReview.review_snapshot?.targeted_lines?.length ? (
+                {flagReasonExpanded &&
+                activeSceneEditorialReview.review_snapshot?.targeted_lines?.length ? (
                   <div className="project-home__editorial-block">
                     <span className="project-home__editorial-label">Targeted lines</span>
                     <ul>
@@ -1183,6 +1207,7 @@ export default function ProjectHome({
                     </ul>
                   </div>
                 ) : null}
+                {flagReasonExpanded && activeSceneHasFlagReason ? (
                 <div className="project-home__editorial-carryover">
                   <span className="project-home__editorial-label">Carryover risk</span>
                   <p>
@@ -1191,6 +1216,7 @@ export default function ProjectHome({
                     {(activeSceneEditorialReview.carryover_snapshot?.carryover_mode ?? 'safe')}
                   </p>
                 </div>
+                ) : null}
                 {activeSceneEditorialReview.review_snapshot?.review_actions?.length ? (
                   <div className="project-home__editorial-actions">
                     {activeSceneEditorialReview.review_snapshot.review_actions.map((action) => (
@@ -1200,8 +1226,12 @@ export default function ProjectHome({
                         className="project-home__editorial-action"
                         onClick={() => handleReviewAction(action)}
                       >
-                        {formatActionLabel(action)}
-                        <span className="project-home__editorial-action-note">Scaffolded</span>
+                        {action === 'show_flag_reason' && flagReasonExpanded
+                          ? 'Hide Flag Reason'
+                          : formatActionLabel(action)}
+                        {action !== 'show_flag_reason' ? (
+                          <span className="project-home__editorial-action-note">Scaffolded</span>
+                        ) : null}
                       </button>
                     ))}
                     {activeSceneEditorialReview.manual_review?.marked ? (

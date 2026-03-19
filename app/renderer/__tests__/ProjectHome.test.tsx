@@ -290,8 +290,16 @@ describe('ProjectHome recent project recovery', () => {
     expect(screen.getByRole('heading', { name: /Editorial review/i })).toBeInTheDocument();
     expect(screen.getByText(/patch_specificity_unresolved/i)).toBeInTheDocument();
     expect(screen.getByText(/restricted · allowed/i)).toBeInTheDocument();
-    expect(screen.getByText(/She felt the room soften around her./i)).toBeInTheDocument();
+    expect(screen.queryByText(/She felt the room soften around her./i)).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Show Flag Reason/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Accept Current Text/i })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /Show Flag Reason/i }));
+
+    expect(screen.getByText(/Local line still needs a concrete observed detail./i)).toBeInTheDocument();
+    expect(screen.getByText(/The rescue stayed vague on the kitchen line./i)).toBeInTheDocument();
+    expect(screen.getByText(/She felt the room soften around her./i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Hide Flag Reason/i })).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: /Accept Current Text/i }));
 
@@ -386,6 +394,7 @@ describe('ProjectHome recent project recovery', () => {
     });
 
     expect(screen.queryByRole('heading', { name: /Editorial review/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Show Flag Reason/i })).not.toBeInTheDocument();
     expect(screen.queryByText(/restricted · allowed/i)).not.toBeInTheDocument();
   });
 });

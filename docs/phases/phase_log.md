@@ -30,6 +30,8 @@ Last Reviewed: 2026-03-15
 **2026-03-18** - First writer-facing editorial review workflow landed in the renderer. Project Home now surfaces flagged scene review state from `review_snapshot` and `carryover_snapshot`, including the failure class, summary, targeted lines, carryover mode, and scaffolded actions for human follow-up. This keeps the stable rescue baseline intact while making unresolved rescue misses visible to writers.
 **2026-03-18** - First fully wired writer-facing review action landed: `mark_for_manual_rewrite`. Writers can now persist a scene-level manual-review mark, reload it through the project loader, and see the marked state in both the active-scene editorial panel and the scene list. A small companion action clears the manual-review mark without changing the underlying rescue/carryover metadata.
 
+**2026-03-18** - Second writer-facing review action landed: `show_flag_reason`. Flagged scenes now keep detailed rationale hidden until the writer explicitly reveals it, using persisted `review_snapshot` and `carryover_snapshot` data to show failure class, flag summary, targeted lines, and continuity risk without changing rescue or carryover behavior.
+
 ## Upcoming milestones
 - ~~**P7 - RC1:** Smoke tests complete; publish quickstart.~~ *(closed 2025-10-10)*
 - ~~**P8 - Companion overlay + batch critique prototype.**~~ *(landed 2025-10-15; engine milestone stays closed)*
