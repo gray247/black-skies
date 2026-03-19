@@ -1462,6 +1462,8 @@ contextBridge.exposeInMainWorld('runtimeConfig', runtimeConfig);
 if (process.env.PLAYWRIGHT === '1') {
   const devTools = {
     async setProjectDir(dir: string | null): Promise<void> {
+      // Test-only bridge for deterministic e2e project loading. This is exposed only
+      // under PLAYWRIGHT and is not part of the user-facing project loading feature set.
       await ipcRenderer.invoke(PROJECT_LOADER_CHANNELS.setDevProjectPath, dir);
     },
     overrideServices(overrides: Partial<ServicesBridge>): void {

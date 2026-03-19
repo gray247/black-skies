@@ -29,6 +29,9 @@ export const test = base.extend<Fixtures>({
       ...(rendererUrl ? { ELECTRON_RENDERER_URL: rendererUrl } : {}),
       PLAYWRIGHT: '1',
       ...(disableAnimations ? { PLAYWRIGHT_DISABLE_ANIMATIONS: '1' } : {}),
+      // Test-only service routing for Electron e2e. The app should talk to the real
+      // child services process outside Playwright; these env vars exist only to keep
+      // packaged-test runs deterministic against the stub server.
       BLACKSKIES_SERVICES_PORT: String(SERVICE_PORT),
       BLACKSKIES_E2E_PORT: String(SERVICE_PORT),
     };

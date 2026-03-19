@@ -32,6 +32,12 @@ unit, contract, e2e, eval
 - **SLO validation**: python scripts/check_slo.py sample_project/history/runs/<run-id>/run.json
 - **Dependency manifest**: python scripts/dependency_report.py --output build/dependency-report.json
 
+## Playwright temp-project fixtures
+- The editorial-review Electron e2e uses a temporary project fixture on disk instead of mutating `sample_project/`.
+- The fixture writes the minimum `.blackskies/long_form/...` metadata needed for deterministic review-state coverage, then loads it through the real project loader path.
+- Test-only seams are explicitly gated by `PLAYWRIGHT=1` and the Electron e2e env wiring (`BLACKSKIES_E2E_PORT` / `BLACKSKIES_SERVICES_PORT`).
+- This temp-project loading path exists only for Playwright determinism. It is not a user-facing feature and must not be treated as a production project-loading mode.
+
 ### Token budgeting note
 Feedback telemetry derives spend from scene word count (fallback to word_target). A minimum **0.25 k tokens** block is charged per invocation to avoid zero-cost regressions; the evaluator enforces this during load tests.
 

@@ -405,6 +405,9 @@ async function startServices(): Promise<void> {
     }
     servicesProcess = null;
     servicesPort = null;
+    // Test-only: Playwright launches the packaged Electron shell without the normal
+    // FastAPI child process, so e2e runs explicitly point the app at the stub port.
+    // This must not be treated as a product feature or implicit production fallback.
     if (process.env.BLACKSKIES_E2E_MODE === '1' && process.env.BLACKSKIES_E2E_PORT) {
       process.env.BLACKSKIES_SERVICES_PORT = process.env.BLACKSKIES_E2E_PORT;
     } else {

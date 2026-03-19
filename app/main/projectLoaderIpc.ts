@@ -306,6 +306,9 @@ async function updateAcceptedReviewState(
 }
 
 function currentServicePort(): number | null {
+  // Test-only fallback: packaged Playwright runs may provide only BLACKSKIES_E2E_PORT
+  // so IPC can reach the stubbed services bridge. Production should rely on the
+  // normal services port/path and must not depend on this branch.
   const raw = process.env.BLACKSKIES_SERVICES_PORT ?? process.env.BLACKSKIES_E2E_PORT;
   const parsed = raw ? Number.parseInt(raw, 10) : Number.NaN;
   return Number.isFinite(parsed) ? parsed : null;

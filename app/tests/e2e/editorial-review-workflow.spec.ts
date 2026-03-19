@@ -8,6 +8,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const repoRoot = path.resolve(__dirname, '../../..');
 const sourceProjectRoot = path.join(repoRoot, 'sample_project', 'Esther_Estate');
+// Test-only temp fixture: this spec copies only the minimum on-disk project shape
+// needed for deterministic editorial-review coverage. It exercises the real loader
+// path, but temp-project loading itself is not a product feature.
 const fixtureRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'bs-editorial-review-e2e-'));
 const tempProjectRoot = path.join(fixtureRoot, 'Esther_Estate');
 
