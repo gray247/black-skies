@@ -38,6 +38,8 @@ export function registerProjectLoaderIpc(): void {
   ipcMain.removeHandler(PROJECT_LOADER_CHANNELS.loadProject);
   ipcMain.removeHandler(PROJECT_LOADER_CHANNELS.getSamplePath);
   ipcMain.removeHandler(PROJECT_LOADER_CHANNELS.setDevProjectPath);
+  ipcMain.removeHandler(PROJECT_LOADER_CHANNELS.markManualRewrite);
+  ipcMain.removeHandler(PROJECT_LOADER_CHANNELS.clearManualRewrite);
 
   ipcMain.handle(
     PROJECT_LOADER_CHANNELS.openDialog,
@@ -123,6 +125,22 @@ export function registerProjectLoaderIpc(): void {
       return samplePath;
     },
   );
+
+  ipcMain.handle(
+    PROJECT_LOADER_CHANNELS.markManualRewrite,
+    async (_event, request: { projectPath: string; sceneId: string }): Promise<{ ok: true }> => {
+      await updateManualReviewState(request.projectPath, request.sceneId, true);
+      return { ok: true };
+    },
+  );
+
+  ipcMain.handle(
+    PROJECT_LOADER_CHANNELS.clearManualRewrite,
+    async (_event, request: { projectPath: string; sceneId: string }): Promise<{ ok: true }> => {
+      await updateManualReviewState(request.projectPath, request.sceneId, false);
+      return { ok: true };
+    },
+  );
 }
 
 class ProjectLoaderAggregateError extends Error {
@@ -145,7 +163,7 @@ function mapSystemErrorCode(code?: string): ProjectLoadErrorCode {
   }
 }
 
-async function loadProjectFromDisk(projectPath: string): Promise<{
+export async function loadProjectFromDisk(projectPath: string): Promise<{
   project: LoadedProject;
   issues: ProjectIssue[];
 }> {
@@ -165,11 +183,44 @@ async function loadProjectFromDisk(projectPath: string): Promise<{
   return { project, issues };
 }
 
-async function readEditorialReviews(
+function manualReviewPath(projectPath: string): string {
+  return path.join(projectPath, '.blackskies', 'long_form', 'manual_review.json');
+}
+
+async function readManualReviewState(projectPath: string): Promise<Record<string, boolean>> {
+  const target = manualReviewPath(projectPath);
+  try {
+    const parsed = JSON.parse(await fs.readFile(target, 'utf8')) as Record<string, unknown>;
+    return Object.fromEntries(
+      Object.entries(parsed || {}).map(([sceneId, value]) => [sceneId, Boolean(value)]),
+    );
+  } catch {
+    return {};
+  }
+}
+
+async function updateManualReviewState(
+  projectPath: string,
+  sceneId: string,
+  marked: boolean,
+): Promise<void> {
+  const target = manualReviewPath(projectPath);
+  const current = await readManualReviewState(projectPath);
+  if (marked) {
+    current[sceneId] = true;
+  } else {
+    delete current[sceneId];
+  }
+  await fs.mkdir(path.dirname(target), { recursive: true });
+  await fs.writeFile(target, JSON.stringify(current, null, 2), 'utf8');
+}
+
+export async function readEditorialReviews(
   projectPath: string,
 ): Promise<Record<string, SceneEditorialReview>> {
   const chunksDir = path.join(projectPath, '.blackskies', 'long_form', 'chunks');
   try {
+    const manualReviewState = await readManualReviewState(projectPath);
     const entries = await fs.readdir(chunksDir);
     const reviewByScene = new Map<
       string,
@@ -202,6 +253,7 @@ async function readEditorialReviews(
         chunk_id: String(parsed.chunk_id ?? entry.replace(/\.json$/i, '')),
         review_snapshot: reviewSnapshot ?? null,
         carryover_snapshot: carryoverSnapshot ?? null,
+        manual_review: null,
       };
       const order =
         typeof parsed.order === 'number' ? parsed.order : Number(parsed.order ?? 0);
@@ -214,10 +266,35 @@ async function readEditorialReviews(
     }
 
     return Object.fromEntries(
-      Array.from(reviewByScene.entries()).map(([sceneId, value]) => [sceneId, value.review]),
+      Array.from(reviewByScene.entries()).map(([sceneId, value]) => {
+        const review = value.review;
+        if (manualReviewState[sceneId]) {
+          review.manual_review = {
+            marked: true,
+            status: 'manual_rewrite_requested',
+          };
+        }
+        return [sceneId, review];
+      }),
     );
   } catch {
-    return {};
+    const manualReviewState = await readManualReviewState(projectPath);
+    return Object.fromEntries(
+      Object.entries(manualReviewState).map(([sceneId, marked]) => [
+        sceneId,
+        {
+          chunk_id: `manual:${sceneId}`,
+          review_snapshot: null,
+          carryover_snapshot: null,
+          manual_review: marked
+            ? {
+                marked: true,
+                status: 'manual_rewrite_requested',
+              }
+            : null,
+        },
+      ]),
+    );
   }
 }
 

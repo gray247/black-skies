@@ -1281,6 +1281,20 @@ const projectLoaderApi: ProjectLoaderApi = {
       return null;
     }
   },
+  async markManualRewrite(request: { projectPath: string; sceneId: string }): Promise<{ ok: true }> {
+    const response = await ipcRenderer.invoke(
+      PROJECT_LOADER_CHANNELS.markManualRewrite,
+      request,
+    );
+    return response as { ok: true };
+  },
+  async clearManualRewrite(request: { projectPath: string; sceneId: string }): Promise<{ ok: true }> {
+    const response = await ipcRenderer.invoke(
+      PROJECT_LOADER_CHANNELS.clearManualRewrite,
+      request,
+    );
+    return response as { ok: true };
+  },
 };
 
 const diagnosticsBridge: DiagnosticsBridge = {

@@ -299,6 +299,72 @@ describe('ProjectHome recent project recovery', () => {
     expect(screen.getAllByText(/Flagged/i).length).toBeGreaterThan(0);
   });
 
+  it('marks a flagged scene for manual rewrite and shows the persisted state', async () => {
+    const samplePath = 'C:\\Dev\\black-skies\\sample_project\\Esther_Estate';
+    const project = createSampleProject(samplePath, {
+      editorialReviews: {
+        sc_0001: {
+          chunk_id: 'lf_flagged',
+          review_snapshot: {
+            status: 'flagged',
+            failure_class: 'patch_specificity_unresolved',
+            summary: 'Local line still needs a concrete observed detail.',
+            why_flagged: ['The rescue stayed vague on the kitchen line.'],
+            targeted_lines: ['She felt the room soften around her.'],
+            review_actions: [
+              'accept_current_text',
+              'regenerate_local_repair',
+              'mark_for_manual_rewrite',
+              'show_flag_reason',
+            ],
+          },
+          carryover_snapshot: {
+            carryover_risk: 'medium',
+            carryover_mode: 'restricted',
+            carryover_allowed: true,
+            failure_class: 'patch_specificity_unresolved',
+          },
+          manual_review: null,
+        },
+      },
+    });
+
+    const projectLoader: ProjectLoaderApi = {
+      openProjectDialog: vi.fn(),
+      getSampleProjectPath: vi.fn().mockResolvedValue(samplePath),
+      loadProject: vi.fn().mockResolvedValue({
+        ok: true,
+        project,
+        issues: [],
+      }),
+      markManualRewrite: vi.fn().mockResolvedValue({ ok: true }),
+      clearManualRewrite: vi.fn().mockResolvedValue({ ok: true }),
+    };
+
+    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+    const toasts: ToastPayload[] = [];
+
+    render(<ProjectHome onToast={(toast) => toasts.push(toast)} onProjectLoaded={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(projectLoader.loadProject).toHaveBeenCalledWith({ path: samplePath });
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /Mark For Manual Rewrite/i }));
+
+    await waitFor(() => {
+      expect(projectLoader.markManualRewrite).toHaveBeenCalledWith({
+        projectPath: samplePath,
+        sceneId: 'sc_0001',
+      });
+    });
+
+    expect(screen.getByText(/This scene has been explicitly marked for manual rewrite./i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Clear Manual Review Mark/i })).toBeInTheDocument();
+    expect(toasts.at(-1)?.title).toContain('Marked for manual rewrite');
+    expect(screen.getAllByText(/Manual review/i).length).toBeGreaterThan(0);
+  });
+
   it('keeps review UI hidden for unflagged scenes', async () => {
     const samplePath = 'C:\\Dev\\black-skies\\sample_project\\Esther_Estate';
     const projectLoader: ProjectLoaderApi = {

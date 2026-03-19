@@ -700,7 +700,84 @@ export default function ProjectHome({
   );
 
   const handleReviewAction = useCallback(
-    (action: string) => {
+    async (action: string) => {
+      if (
+        action === 'mark_for_manual_rewrite' &&
+        projectLoader?.markManualRewrite &&
+        activeProject &&
+        activeScene
+      ) {
+        await projectLoader.markManualRewrite({
+          projectPath: activeProject.path,
+          sceneId: activeScene.id,
+        });
+        setActiveProject((previous) => {
+          if (!previous) {
+            return previous;
+          }
+          return {
+            ...previous,
+            editorialReviews: {
+              ...(previous.editorialReviews ?? {}),
+              [activeScene.id]: {
+                chunk_id:
+                  previous.editorialReviews?.[activeScene.id]?.chunk_id ?? `manual:${activeScene.id}`,
+                review_snapshot: previous.editorialReviews?.[activeScene.id]?.review_snapshot ?? null,
+                carryover_snapshot:
+                  previous.editorialReviews?.[activeScene.id]?.carryover_snapshot ?? null,
+                manual_review: {
+                  marked: true,
+                  status: 'manual_rewrite_requested',
+                },
+              },
+            },
+          };
+        });
+        onToast({
+          tone: 'info',
+          title: 'Marked for manual rewrite',
+          description: 'This scene will stay visibly flagged for writer intervention after reload.',
+        });
+        return;
+      }
+
+      if (
+        action === 'clear_manual_review_mark' &&
+        projectLoader?.clearManualRewrite &&
+        activeProject &&
+        activeScene
+      ) {
+        await projectLoader.clearManualRewrite({
+          projectPath: activeProject.path,
+          sceneId: activeScene.id,
+        });
+        setActiveProject((previous) => {
+          if (!previous) {
+            return previous;
+          }
+          const current = previous.editorialReviews?.[activeScene.id];
+          if (!current) {
+            return previous;
+          }
+          return {
+            ...previous,
+            editorialReviews: {
+              ...(previous.editorialReviews ?? {}),
+              [activeScene.id]: {
+                ...current,
+                manual_review: null,
+              },
+            },
+          };
+        });
+        onToast({
+          tone: 'info',
+          title: 'Manual rewrite mark cleared',
+          description: 'The scene remains flagged if rescue concerns still apply, but the manual-review mark is removed.',
+        });
+        return;
+      }
+
       onToast({
         tone: 'info',
         title: `${formatActionLabel(action)} not wired yet`,
@@ -708,7 +785,7 @@ export default function ProjectHome({
           'This first pass exposes the review workflow state in the editor. Action wiring comes next.',
       });
     },
-    [onToast],
+    [activeProject, activeScene, onToast, projectLoader],
   );
 
   useEffect(() => {
@@ -1055,9 +1132,16 @@ export default function ProjectHome({
                     </p>
                   </div>
                   <span className="project-home__editorial-flag">
-                    {activeSceneEditorialReview.review_snapshot?.status ?? 'flagged'}
+                    {activeSceneEditorialReview.manual_review?.marked
+                      ? 'manual review'
+                      : (activeSceneEditorialReview.review_snapshot?.status ?? 'flagged')}
                   </span>
                 </div>
+                {activeSceneEditorialReview.manual_review?.marked ? (
+                  <p className="project-home__editorial-summary">
+                    This scene has been explicitly marked for manual rewrite.
+                  </p>
+                ) : null}
                 <div className="project-home__editorial-review-grid">
                   <div>
                     <span className="project-home__editorial-label">Failure class</span>
@@ -1120,6 +1204,15 @@ export default function ProjectHome({
                         <span className="project-home__editorial-action-note">Scaffolded</span>
                       </button>
                     ))}
+                    {activeSceneEditorialReview.manual_review?.marked ? (
+                      <button
+                        type="button"
+                        className="project-home__editorial-action"
+                        onClick={() => void handleReviewAction('clear_manual_review_mark')}
+                      >
+                        Clear Manual Review Mark
+                      </button>
+                    ) : null}
                   </div>
                 ) : null}
               </section>
@@ -1203,7 +1296,11 @@ export default function ProjectHome({
                       ) : null}
                       {activeProject.editorialReviews?.[scene.id] ? (
                         <div className="project-home__scene-review-badge">
-                          <span>Flagged</span>
+                          <span>
+                            {activeProject.editorialReviews[scene.id]?.manual_review?.marked
+                              ? 'Manual review'
+                              : 'Flagged'}
+                          </span>
                           <span>
                             {activeProject.editorialReviews[scene.id]?.carryover_snapshot?.carryover_mode ??
                               'safe'}
