@@ -2,6 +2,8 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import {
+  EditorialCarryoverSnapshot,
+  EditorialReviewSnapshot,
   LoadedProject,
   OutlineFile,
   ProjectDialogResult,
@@ -10,6 +12,7 @@ import {
   ProjectLoadResponse,
   ProjectLoadFailure,
   SceneDraftMetadata,
+  SceneEditorialReview,
   PROJECT_LOADER_CHANNELS,
 } from '../shared/ipc/projectLoader';
 import { authorizeProjectPath } from './layoutIpc.js';
@@ -150,14 +153,72 @@ async function loadProjectFromDisk(projectPath: string): Promise<{
   const outline = await readOutline(normalizedPath);
   const { scenes, issues, drafts } = await readScenes(normalizedPath);
   const metadata = await readProjectMetadata(normalizedPath);
+  const editorialReviews = await readEditorialReviews(normalizedPath);
   const project: LoadedProject = {
     path: normalizedPath,
     name: metadata.name ?? path.basename(normalizedPath),
     outline,
     scenes,
     drafts,
+    editorialReviews,
   };
   return { project, issues };
+}
+
+async function readEditorialReviews(
+  projectPath: string,
+): Promise<Record<string, SceneEditorialReview>> {
+  const chunksDir = path.join(projectPath, '.blackskies', 'long_form', 'chunks');
+  try {
+    const entries = await fs.readdir(chunksDir);
+    const reviewByScene = new Map<
+      string,
+      { order: number; review: SceneEditorialReview }
+    >();
+
+    for (const entry of entries) {
+      if (!entry.toLowerCase().endsWith('.json')) {
+        continue;
+      }
+      const filePath = path.join(chunksDir, entry);
+      let parsed: Record<string, unknown>;
+      try {
+        parsed = JSON.parse(await fs.readFile(filePath, 'utf8')) as Record<string, unknown>;
+      } catch {
+        continue;
+      }
+      const sceneIds = Array.isArray(parsed.scene_ids)
+        ? parsed.scene_ids.map((value) => String(value))
+        : [];
+      if (sceneIds.length === 0) {
+        continue;
+      }
+      const reviewSnapshot = parsed.review_snapshot as EditorialReviewSnapshot | undefined;
+      const carryoverSnapshot = parsed.carryover_snapshot as EditorialCarryoverSnapshot | undefined;
+      if (!reviewSnapshot && !carryoverSnapshot) {
+        continue;
+      }
+      const review: SceneEditorialReview = {
+        chunk_id: String(parsed.chunk_id ?? entry.replace(/\.json$/i, '')),
+        review_snapshot: reviewSnapshot ?? null,
+        carryover_snapshot: carryoverSnapshot ?? null,
+      };
+      const order =
+        typeof parsed.order === 'number' ? parsed.order : Number(parsed.order ?? 0);
+      for (const sceneId of sceneIds) {
+        const existing = reviewByScene.get(sceneId);
+        if (!existing || order >= existing.order) {
+          reviewByScene.set(sceneId, { order, review });
+        }
+      }
+    }
+
+    return Object.fromEntries(
+      Array.from(reviewByScene.entries()).map(([sceneId, value]) => [sceneId, value.review]),
+    );
+  } catch {
+    return {};
+  }
 }
 
 async function readProjectMetadata(projectPath: string): Promise<{ name?: string }> {

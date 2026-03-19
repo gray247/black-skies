@@ -10,7 +10,10 @@ import type {
 } from '../../shared/ipc/projectLoader';
 import type { ToastPayload } from '../types/toast';
 
-function createSampleProject(path: string): LoadedProject {
+function createSampleProject(
+  path: string,
+  overrides?: Partial<LoadedProject>,
+): LoadedProject {
   const outline: OutlineFile = {
     schema_version: 'OutlineSchema v1',
     outline_id: 'outline-001',
@@ -34,6 +37,7 @@ function createSampleProject(path: string): LoadedProject {
     drafts: {
       sc_0001: '# Scene One',
     },
+    ...overrides,
   };
 }
 
@@ -233,5 +237,89 @@ describe('ProjectHome recent project recovery', () => {
     expect(screen.getByRole('heading', { level: 4, name: /Sample Project/ })).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 4, name: /Scene One/ })).toBeInTheDocument();
     expect(screen.getByText(/Scenes/)).toBeInTheDocument();
+  });
+
+  it('shows editorial review and carryover status for flagged scenes', async () => {
+    const samplePath = 'C:\\Dev\\black-skies\\sample_project\\Esther_Estate';
+    const project = createSampleProject(samplePath, {
+      editorialReviews: {
+        sc_0001: {
+          chunk_id: 'lf_flagged',
+          review_snapshot: {
+            status: 'flagged',
+            failure_class: 'patch_specificity_unresolved',
+            summary: 'Local line still needs a concrete observed detail.',
+            why_flagged: ['The rescue stayed vague on the kitchen line.'],
+            targeted_lines: ['She felt the room soften around her.'],
+            review_actions: [
+              'accept_current_text',
+              'regenerate_local_repair',
+              'mark_for_manual_rewrite',
+              'show_flag_reason',
+            ],
+          },
+          carryover_snapshot: {
+            carryover_risk: 'medium',
+            carryover_mode: 'restricted',
+            carryover_allowed: true,
+            failure_class: 'patch_specificity_unresolved',
+          },
+        },
+      },
+    });
+
+    const projectLoader: ProjectLoaderApi = {
+      openProjectDialog: vi.fn(),
+      getSampleProjectPath: vi.fn().mockResolvedValue(samplePath),
+      loadProject: vi.fn().mockResolvedValue({
+        ok: true,
+        project,
+        issues: [],
+      }),
+    };
+
+    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+    const toasts: ToastPayload[] = [];
+
+    render(<ProjectHome onToast={(toast) => toasts.push(toast)} onProjectLoaded={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(projectLoader.loadProject).toHaveBeenCalledWith({ path: samplePath });
+    });
+
+    expect(screen.getByRole('heading', { name: /Editorial review/i })).toBeInTheDocument();
+    expect(screen.getByText(/patch_specificity_unresolved/i)).toBeInTheDocument();
+    expect(screen.getByText(/restricted · allowed/i)).toBeInTheDocument();
+    expect(screen.getByText(/She felt the room soften around her./i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Accept Current Text/i })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /Accept Current Text/i }));
+
+    expect(toasts.at(-1)?.title).toContain('Accept Current Text not wired yet');
+    expect(screen.getAllByText(/Flagged/i).length).toBeGreaterThan(0);
+  });
+
+  it('keeps review UI hidden for unflagged scenes', async () => {
+    const samplePath = 'C:\\Dev\\black-skies\\sample_project\\Esther_Estate';
+    const projectLoader: ProjectLoaderApi = {
+      openProjectDialog: vi.fn(),
+      getSampleProjectPath: vi.fn().mockResolvedValue(samplePath),
+      loadProject: vi.fn().mockResolvedValue({
+        ok: true,
+        project: createSampleProject(samplePath),
+        issues: [],
+      }),
+    };
+
+    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+
+    render(<ProjectHome onToast={vi.fn()} onProjectLoaded={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(projectLoader.loadProject).toHaveBeenCalledWith({ path: samplePath });
+    });
+
+    expect(screen.queryByRole('heading', { name: /Editorial review/i })).not.toBeInTheDocument();
+    expect(screen.queryByText(/restricted · allowed/i)).not.toBeInTheDocument();
   });
 });

@@ -62,12 +62,39 @@ export interface ProjectIssue {
   path?: string;
 }
 
+export interface EditorialReviewSnapshot {
+  status: string;
+  category?: string;
+  failure_class?: string;
+  summary?: string;
+  why_flagged?: string[];
+  targeted_lines?: string[];
+  review_actions?: string[];
+  rescue_model?: string | null;
+  rescue_strategy?: string | null;
+  rescue_attempted?: boolean;
+}
+
+export interface EditorialCarryoverSnapshot {
+  carryover_risk: string;
+  carryover_mode: string;
+  carryover_allowed: boolean;
+  failure_class?: string;
+}
+
+export interface SceneEditorialReview {
+  chunk_id: string;
+  review_snapshot?: EditorialReviewSnapshot | null;
+  carryover_snapshot?: EditorialCarryoverSnapshot | null;
+}
+
 export interface LoadedProject {
   path: string;
   name: string;
   outline: OutlineFile;
   scenes: SceneDraftMetadata[];
   drafts: Record<string, string>;
+  editorialReviews?: Record<string, SceneEditorialReview>;
 }
 
 export interface ProjectLoadRequest {

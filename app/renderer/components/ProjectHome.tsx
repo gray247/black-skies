@@ -155,6 +155,13 @@ function toneFromIssue(issue: ProjectIssue): ToastPayload['tone'] {
   }
 }
 
+function formatActionLabel(action: string): string {
+  return action
+    .split('_')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+}
+
 export default function ProjectHome({
   onToast,
   onProjectLoaded,
@@ -221,6 +228,13 @@ export default function ProjectHome({
     }
     return activeProject.drafts[activeSceneId] ?? '';
   }, [activeProject, activeSceneId, draftOverrides]);
+
+  const activeSceneEditorialReview = useMemo(() => {
+    if (!activeProject || !activeSceneId) {
+      return null;
+    }
+    return activeProject.editorialReviews?.[activeSceneId] ?? null;
+  }, [activeProject, activeSceneId]);
 
   const notifyIssues = useCallback(
     (items: ProjectIssue[]) => {
@@ -685,6 +699,18 @@ export default function ProjectHome({
     [loadProjectAtPath],
   );
 
+  const handleReviewAction = useCallback(
+    (action: string) => {
+      onToast({
+        tone: 'info',
+        title: `${formatActionLabel(action)} not wired yet`,
+        description:
+          'This first pass exposes the review workflow state in the editor. Action wiring comes next.',
+      });
+    },
+    [onToast],
+  );
+
   useEffect(() => {
     if (!projectLoader || activeProject || sampleAttemptedRef.current) {
       return;
@@ -1016,6 +1042,88 @@ export default function ProjectHome({
                 </div>
               )}
             </div>
+            {activeSceneEditorialReview ? (
+              <section
+                className="project-home__editorial-review"
+                aria-label="Editorial review status"
+              >
+                <div className="project-home__editorial-review-header">
+                  <div>
+                    <h4>Editorial review</h4>
+                    <p className="project-home__diagnostics-hint">
+                      This scene needs human review before you fully trust the rescue outcome.
+                    </p>
+                  </div>
+                  <span className="project-home__editorial-flag">
+                    {activeSceneEditorialReview.review_snapshot?.status ?? 'flagged'}
+                  </span>
+                </div>
+                <div className="project-home__editorial-review-grid">
+                  <div>
+                    <span className="project-home__editorial-label">Failure class</span>
+                    <p>{activeSceneEditorialReview.review_snapshot?.failure_class ?? 'Unknown'}</p>
+                  </div>
+                  <div>
+                    <span className="project-home__editorial-label">Carryover</span>
+                    <p>
+                      {activeSceneEditorialReview.carryover_snapshot?.carryover_mode ?? 'safe'}
+                      {' · '}
+                      {activeSceneEditorialReview.carryover_snapshot?.carryover_allowed
+                        ? 'allowed'
+                        : 'blocked'}
+                    </p>
+                  </div>
+                </div>
+                {activeSceneEditorialReview.review_snapshot?.summary ? (
+                  <p className="project-home__editorial-summary">
+                    {activeSceneEditorialReview.review_snapshot.summary}
+                  </p>
+                ) : null}
+                {activeSceneEditorialReview.review_snapshot?.why_flagged?.length ? (
+                  <div className="project-home__editorial-block">
+                    <span className="project-home__editorial-label">Why flagged</span>
+                    <ul>
+                      {activeSceneEditorialReview.review_snapshot.why_flagged.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
+                {activeSceneEditorialReview.review_snapshot?.targeted_lines?.length ? (
+                  <div className="project-home__editorial-block">
+                    <span className="project-home__editorial-label">Targeted lines</span>
+                    <ul>
+                      {activeSceneEditorialReview.review_snapshot.targeted_lines.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
+                <div className="project-home__editorial-carryover">
+                  <span className="project-home__editorial-label">Carryover risk</span>
+                  <p>
+                    {(activeSceneEditorialReview.carryover_snapshot?.carryover_risk ?? 'safe')}
+                    {' · '}
+                    {(activeSceneEditorialReview.carryover_snapshot?.carryover_mode ?? 'safe')}
+                  </p>
+                </div>
+                {activeSceneEditorialReview.review_snapshot?.review_actions?.length ? (
+                  <div className="project-home__editorial-actions">
+                    {activeSceneEditorialReview.review_snapshot.review_actions.map((action) => (
+                      <button
+                        key={action}
+                        type="button"
+                        className="project-home__editorial-action"
+                        onClick={() => handleReviewAction(action)}
+                      >
+                        {formatActionLabel(action)}
+                        <span className="project-home__editorial-action-note">Scaffolded</span>
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
+              </section>
+            ) : null}
             <div className="project-home__draft-editor">
               {activeScene ? (
                 <DraftEditor
@@ -1091,6 +1199,15 @@ export default function ProjectHome({
                           {scene.beats.map((beat) => (
                             <span key={beat}>{beat}</span>
                           ))}
+                        </div>
+                      ) : null}
+                      {activeProject.editorialReviews?.[scene.id] ? (
+                        <div className="project-home__scene-review-badge">
+                          <span>Flagged</span>
+                          <span>
+                            {activeProject.editorialReviews[scene.id]?.carryover_snapshot?.carryover_mode ??
+                              'safe'}
+                          </span>
                         </div>
                       ) : null}
                     </button>
