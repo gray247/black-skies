@@ -38,6 +38,7 @@ function Corkboard({
   const safeProjectPath = projectPath ?? "";
   const cachedState = useLocalAnalyticsCache(safeProjectPath, projectId ?? null, serviceUnavailable);
   const sceneRows = serviceUnavailable ? cachedState.scenes?.scenes ?? [] : state.scenes;
+  const activeScene = sceneRows.find((scene) => scene.sceneId === activeSceneId) ?? null;
   const isLoading = serviceUnavailable ? cachedState.loading : state.loading;
   const errorMessage = serviceUnavailable ? cachedState.error : state.error;
   const noProject = !safeProjectPath && !serviceUnavailable;
@@ -109,6 +110,21 @@ function Corkboard({
         <h2 id={CORKBOARD_HEADING_ID}>Corkboard</h2>
         <p>Scene cards ordered by the outline.</p>
       </header>
+      {activeScene ? (
+        <section className="corkboard__active-scene" aria-label="Active corkboard scene">
+          <div className="corkboard__active-scene-header">
+            <span className="corkboard__active-scene-label">Active scene</span>
+            <span className="corkboard__active-scene-id">{activeScene.sceneId}</span>
+          </div>
+          <h3 className="corkboard__active-scene-title">
+            {activeScene.title ?? activeScene.sceneId}
+          </h3>
+          <p className="corkboard__active-scene-summary">
+            {activeScene.wordCount} words · Dialogue {formatRatio(activeScene.density.dialogueRatio)} ·
+            Narration {formatRatio(activeScene.density.narrationRatio)}
+          </p>
+        </section>
+      ) : null}
       {serviceUnavailable && (
         <OfflineBanner
           message="Analytics service offline — using cached metrics."

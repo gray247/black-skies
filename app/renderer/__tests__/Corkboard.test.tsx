@@ -71,6 +71,8 @@ describe('Corkboard', () => {
     const sceneTwoButton = await screen.findByRole('button', { name: /scene two/i });
     expect(sceneTwoButton).toHaveAttribute('aria-pressed', 'true');
     expect(screen.getByText(/Selected/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Active corkboard scene/i)).toHaveTextContent(/Scene Two/i);
+    expect(screen.getByText(/120 words/i)).toBeInTheDocument();
 
     fireEvent.click(await screen.findByRole('button', { name: /scene one/i }));
 
