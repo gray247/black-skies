@@ -139,7 +139,10 @@ function Corkboard({
             >
             <header>
               <span className="corkboard-card__index">#{scene.index + 1}</span>
-              <h3>{scene.title ?? scene.sceneId}</h3>
+              <div className="corkboard-card__title-group">
+                <h3>{scene.title ?? scene.sceneId}</h3>
+                {isActive ? <span className="corkboard-card__selected-badge">Selected</span> : null}
+              </div>
             </header>
             <div className="corkboard-card__meta">
               <div>
