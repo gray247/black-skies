@@ -13,7 +13,7 @@
     "dev": "vite",
     "build": "vite build",
     "build:renderer": "vite build",
-    "build:main": "tsc --project tsconfig.main.json && node ./scripts/write-dist-commonjs.cjs",
+    "build:main": "vite build && tsc --project tsconfig.main.json && node ./scripts/write-dist-commonjs.cjs",
     "build:production": "vite build && tsc --project tsconfig.main.json && node ./scripts/write-dist-commonjs.cjs",
     "preview": "vite preview",
     "lint": "node ../scripts/run-app-eslint.mjs",

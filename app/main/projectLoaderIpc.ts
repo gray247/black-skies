@@ -121,6 +121,16 @@ export function registerProjectLoaderIpc(): void {
   ipcMain.handle(
     PROJECT_LOADER_CHANNELS.getSamplePath,
     async (): Promise<string | null> => {
+      if (devProjectPathOverride) {
+        try {
+          const stats = await fs.stat(devProjectPathOverride);
+          if (stats.isDirectory()) {
+            return devProjectPathOverride;
+          }
+        } catch {
+          // fall through to regular sample path resolution
+        }
+      }
       const samplePath = await resolveSampleProjectPath();
       return samplePath;
     },

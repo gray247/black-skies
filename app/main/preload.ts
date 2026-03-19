@@ -15,7 +15,7 @@ const safeExpose = (key: string, api: unknown) => {
   }
 };
 
-const applyVisualStableAttrs = (element: Element | null) => {
+const applyVisualStableAttrs = (element: HTMLElement | null) => {
   if (!element) {
     return;
   }
@@ -176,6 +176,7 @@ if (typeof window !== 'undefined') {
     __testEnvStableDock?: boolean;
     __testEnvStableHome?: boolean;
     __testEnvVisualStable?: boolean;
+    __testEnvActiveFlow?: boolean;
   };
   globalWindow.__testEnvFlatMode ??= false;
   globalWindow.__testEnvFullMode ??= true;
@@ -256,11 +257,13 @@ if (isPlaywright && typeof window !== 'undefined') {
 }
 
 const devApi: {
-  setProjectDir: (absPath: string | null) => boolean;
+  setProjectDir: (absPath: string | null) => Promise<void>;
   overrideServices?: (overrides: Partial<ServicesBridge>) => void;
 } = {
-  setProjectDir: (absPath: string | null) =>
-    window.dispatchEvent(new CustomEvent('test:set-project', { detail: absPath })),
+  async setProjectDir(absPath: string | null): Promise<void> {
+    await ipcRenderer.invoke(PROJECT_LOADER_CHANNELS.setDevProjectPath, absPath);
+    window.dispatchEvent(new CustomEvent('test:set-project', { detail: absPath }));
+  },
 };
 
 // --- test/insights bridges ---
