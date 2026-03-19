@@ -12,10 +12,16 @@ import type {
   LoadedProject,
   ProjectIssue,
   ProjectLoaderApi,
-  SceneEditorialReview,
 } from '../../shared/ipc/projectLoader';
 import type { ToastPayload } from '../types/toast';
 import DraftEditor from '../DraftEditor';
+import {
+  formatReviewActionLabel,
+  hasExpandedFlagReason,
+  isWiredReviewAction,
+  reviewStatusLabel,
+  visibleReviewActions,
+} from './projectHomeEditorial';
 import {
   clearDebugLog,
   getDebugLogSnapshot,
@@ -156,71 +162,6 @@ function toneFromIssue(issue: ProjectIssue): ToastPayload['tone'] {
   }
 }
 
-function formatActionLabel(action: string): string {
-  if (action === 'regenerate_local_repair') {
-    return 'Retry Local Repair';
-  }
-  return action
-    .split('_')
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(' ');
-}
-
-function visibleReviewActions(
-  review: SceneEditorialReview | null | undefined,
-): string[] {
-  const actions = review?.review_snapshot?.review_actions ?? [];
-  const retryConsumed =
-    review?.retry_action_state?.action === 'regenerate_local_repair' &&
-    review.retry_action_state.attempt_count >= 1;
-  if (review?.accepted_review?.accepted) {
-    return actions.filter(
-      (action) => action === 'show_flag_reason' || action === 'mark_for_manual_rewrite',
-    );
-  }
-  if (review?.manual_review?.marked) {
-    return actions.filter((action) => action !== 'regenerate_local_repair');
-  }
-  if (review?.retry_action_state?.status === 'succeeded') {
-    return actions.filter(
-      (action) => action === 'show_flag_reason' || action === 'mark_for_manual_rewrite',
-    );
-  }
-  if (retryConsumed) {
-    return actions.filter((action) => action !== 'regenerate_local_repair');
-  }
-  return actions;
-}
-
-function isWiredReviewAction(action: string): boolean {
-  return (
-    action === 'accept_current_text' ||
-    action === 'regenerate_local_repair' ||
-    action === 'mark_for_manual_rewrite' ||
-    action === 'clear_manual_review_mark' ||
-    action === 'show_flag_reason'
-  );
-}
-
-function reviewStatusLabel(review: SceneEditorialReview | null | undefined): string {
-  if (review?.manual_review?.marked) {
-    return 'Manual review';
-  }
-  if (review?.accepted_review?.accepted) {
-    return 'Accepted';
-  }
-  if (review?.retry_action_state?.status === 'succeeded') {
-    return 'Retry succeeded';
-  }
-  if (review?.retry_action_state?.status === 'still_flagged') {
-    return 'Still flagged';
-  }
-  if (review?.retry_action_state?.status === 'failed') {
-    return 'Retry failed';
-  }
-  return 'Flagged';
-}
-
 export default function ProjectHome({
   onToast,
   onProjectLoaded,
@@ -297,16 +238,7 @@ export default function ProjectHome({
   }, [activeProject, activeSceneId]);
 
   const activeSceneHasFlagReason = useMemo(() => {
-    if (!activeSceneEditorialReview) {
-      return false;
-    }
-    return Boolean(
-      activeSceneEditorialReview.review_snapshot?.failure_class ||
-        activeSceneEditorialReview.review_snapshot?.summary ||
-        activeSceneEditorialReview.review_snapshot?.why_flagged?.length ||
-        activeSceneEditorialReview.review_snapshot?.targeted_lines?.length ||
-        activeSceneEditorialReview.carryover_snapshot,
-    );
+    return hasExpandedFlagReason(activeSceneEditorialReview);
   }, [activeSceneEditorialReview]);
 
   useEffect(() => {
@@ -1424,7 +1356,7 @@ export default function ProjectHome({
                       >
                         {action === 'show_flag_reason' && flagReasonExpanded
                           ? 'Hide Flag Reason'
-                          : formatActionLabel(action)}
+                          : formatReviewActionLabel(action)}
                         {!isWiredReviewAction(action) ? (
                           <span className="project-home__editorial-action-note">Scaffolded</span>
                         ) : null}

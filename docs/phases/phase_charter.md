@@ -102,7 +102,7 @@ Scope remains: finalize GUI + API parity, smoke tests, offline docs.
 
 **Recommended next step:** hold the stable baseline unless there is a strong product reason to spend one more bounded comparison on rescue model capability.
 
-**Writer-facing handling milestone:** unresolved generation-side rescue misses are now exposed as reviewable editorial flags with a minimal human workflow. The completed first pass surfaces the failure class, explanation, targeted lines, carryover status, and persisted writer actions so the editor can inspect why the scene was flagged, accept the current text, or mark it for manual rewrite. `regenerate_local_repair` remains intentionally unwired.
+**Writer-facing handling milestone:** unresolved generation-side rescue misses are now exposed as reviewable editorial flags with a completed first-pass human workflow. The current shipped workflow surfaces the failure class, explanation, targeted lines, carryover status, and persisted writer actions so the editor can inspect why the scene was flagged, accept the current text, mark it for manual rewrite, clear that mark, or request one bounded `regenerate_local_repair` retry. See [docs/phases/phase8_closeout.md](./phase8_closeout.md) for the completion line, risk ledger, and manual verification checklist.
 
 **Carryover protection principle:** editorial review flagging and carryover approval are separate decisions. A chunk may be usable enough to keep in the manuscript while still being unsafe to feed future continuity in full. The backend therefore tracks carryover risk independently of review status using `carryover_mode`:
 - `safe`

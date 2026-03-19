@@ -201,6 +201,7 @@ Wired actions:
 - `accept_current_text`
 - `mark_for_manual_rewrite`
 - `clear_manual_review_mark`
+- `regenerate_local_repair`
 
 Persisted states:
 - `Flagged`
@@ -213,5 +214,5 @@ Carryover handling:
 - accepted scenes upgrade effective carryover to `safe` / `allowed`
 - unresolved flagged scenes continue to honor conservative `carryover_risk` and `carryover_mode`
 
-Deferred action:
-- `regenerate_local_repair` remains intentionally unwired pending a separate product decision
+Phase 8 closeout reference:
+- see [docs/phases/phase8_closeout.md](../phases/phase8_closeout.md) for the current completion line, known-issue ledger, and manual verification checklist before Phase 9 begins
