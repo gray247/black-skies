@@ -1284,6 +1284,13 @@ const projectLoaderApi: ProjectLoaderApi = {
       return null;
     }
   },
+  async acceptCurrentText(request: { projectPath: string; sceneId: string }): Promise<{ ok: true }> {
+    const response = await ipcRenderer.invoke(
+      PROJECT_LOADER_CHANNELS.acceptCurrentText,
+      request,
+    );
+    return response as { ok: true };
+  },
   async markManualRewrite(request: { projectPath: string; sceneId: string }): Promise<{ ok: true }> {
     const response = await ipcRenderer.invoke(
       PROJECT_LOADER_CHANNELS.markManualRewrite,

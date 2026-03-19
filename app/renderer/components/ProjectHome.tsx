@@ -12,6 +12,7 @@ import type {
   LoadedProject,
   ProjectIssue,
   ProjectLoaderApi,
+  SceneEditorialReview,
 } from '../../shared/ipc/projectLoader';
 import type { ToastPayload } from '../types/toast';
 import DraftEditor from '../DraftEditor';
@@ -160,6 +161,27 @@ function formatActionLabel(action: string): string {
     .split('_')
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(' ');
+}
+
+function visibleReviewActions(
+  review: SceneEditorialReview | null | undefined,
+): string[] {
+  const actions = review?.review_snapshot?.review_actions ?? [];
+  if (review?.accepted_review?.accepted) {
+    return actions.filter(
+      (action) => action === 'show_flag_reason' || action === 'mark_for_manual_rewrite',
+    );
+  }
+  return actions;
+}
+
+function isWiredReviewAction(action: string): boolean {
+  return (
+    action === 'accept_current_text' ||
+    action === 'mark_for_manual_rewrite' ||
+    action === 'clear_manual_review_mark' ||
+    action === 'show_flag_reason'
+  );
 }
 
 export default function ProjectHome({
@@ -720,6 +742,54 @@ export default function ProjectHome({
   const handleReviewAction = useCallback(
     async (action: string) => {
       if (
+        action === 'accept_current_text' &&
+        projectLoader?.acceptCurrentText &&
+        activeProject &&
+        activeScene
+      ) {
+        await projectLoader.acceptCurrentText({
+          projectPath: activeProject.path,
+          sceneId: activeScene.id,
+        });
+        setActiveProject((previous) => {
+          if (!previous) {
+            return previous;
+          }
+          const current = previous.editorialReviews?.[activeScene.id];
+          return {
+            ...previous,
+            editorialReviews: {
+              ...(previous.editorialReviews ?? {}),
+              [activeScene.id]: {
+                chunk_id: current?.chunk_id ?? `accepted:${activeScene.id}`,
+                review_snapshot: current?.review_snapshot ?? null,
+                carryover_snapshot: {
+                  carryover_risk: 'safe',
+                  carryover_mode: 'safe',
+                  carryover_allowed: true,
+                  failure_class:
+                    current?.carryover_snapshot?.failure_class ??
+                    current?.review_snapshot?.failure_class,
+                },
+                accepted_review: {
+                  accepted: true,
+                  status: 'accepted_current_text',
+                },
+                manual_review: current?.manual_review ?? null,
+              },
+            },
+          };
+        });
+        onToast({
+          tone: 'info',
+          title: 'Accepted current text',
+          description:
+            'This scene no longer needs immediate editorial intervention and can feed continuity normally.',
+        });
+        return;
+      }
+
+      if (
         action === 'mark_for_manual_rewrite' &&
         projectLoader?.markManualRewrite &&
         activeProject &&
@@ -743,6 +813,8 @@ export default function ProjectHome({
                 review_snapshot: previous.editorialReviews?.[activeScene.id]?.review_snapshot ?? null,
                 carryover_snapshot:
                   previous.editorialReviews?.[activeScene.id]?.carryover_snapshot ?? null,
+                accepted_review:
+                  previous.editorialReviews?.[activeScene.id]?.accepted_review ?? null,
                 manual_review: {
                   marked: true,
                   status: 'manual_rewrite_requested',
@@ -781,10 +853,10 @@ export default function ProjectHome({
             ...previous,
             editorialReviews: {
               ...(previous.editorialReviews ?? {}),
-              [activeScene.id]: {
-                ...current,
-                manual_review: null,
-              },
+                [activeScene.id]: {
+                  ...current,
+                  manual_review: null,
+                },
             },
           };
         });
@@ -1157,9 +1229,16 @@ export default function ProjectHome({
                   <span className="project-home__editorial-flag">
                     {activeSceneEditorialReview.manual_review?.marked
                       ? 'manual review'
+                      : activeSceneEditorialReview.accepted_review?.accepted
+                        ? 'accepted'
                       : (activeSceneEditorialReview.review_snapshot?.status ?? 'flagged')}
                   </span>
                 </div>
+                {activeSceneEditorialReview.accepted_review?.accepted ? (
+                  <p className="project-home__editorial-summary">
+                    Writer accepted the current text. The original rescue flag remains visible below for audit.
+                  </p>
+                ) : null}
                 {activeSceneEditorialReview.manual_review?.marked ? (
                   <p className="project-home__editorial-summary">
                     This scene has been explicitly marked for manual rewrite.
@@ -1217,9 +1296,9 @@ export default function ProjectHome({
                   </p>
                 </div>
                 ) : null}
-                {activeSceneEditorialReview.review_snapshot?.review_actions?.length ? (
+                {visibleReviewActions(activeSceneEditorialReview).length ? (
                   <div className="project-home__editorial-actions">
-                    {activeSceneEditorialReview.review_snapshot.review_actions.map((action) => (
+                    {visibleReviewActions(activeSceneEditorialReview).map((action) => (
                       <button
                         key={action}
                         type="button"
@@ -1229,7 +1308,7 @@ export default function ProjectHome({
                         {action === 'show_flag_reason' && flagReasonExpanded
                           ? 'Hide Flag Reason'
                           : formatActionLabel(action)}
-                        {action !== 'show_flag_reason' ? (
+                        {!isWiredReviewAction(action) ? (
                           <span className="project-home__editorial-action-note">Scaffolded</span>
                         ) : null}
                       </button>
@@ -1329,6 +1408,8 @@ export default function ProjectHome({
                           <span>
                             {activeProject.editorialReviews[scene.id]?.manual_review?.marked
                               ? 'Manual review'
+                              : activeProject.editorialReviews[scene.id]?.accepted_review?.accepted
+                                ? 'Accepted'
                               : 'Flagged'}
                           </span>
                           <span>

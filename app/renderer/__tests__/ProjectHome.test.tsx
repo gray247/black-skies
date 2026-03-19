@@ -276,6 +276,7 @@ describe('ProjectHome recent project recovery', () => {
         project,
         issues: [],
       }),
+      acceptCurrentText: vi.fn().mockResolvedValue({ ok: true }),
     };
 
     (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
@@ -303,8 +304,18 @@ describe('ProjectHome recent project recovery', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /Accept Current Text/i }));
 
-    expect(toasts.at(-1)?.title).toContain('Accept Current Text not wired yet');
-    expect(screen.getAllByText(/Flagged/i).length).toBeGreaterThan(0);
+    await waitFor(() => {
+      expect(projectLoader.acceptCurrentText).toHaveBeenCalledWith({
+        projectPath: samplePath,
+        sceneId: 'sc_0001',
+      });
+    });
+
+    expect(toasts.at(-1)?.title).toContain('Accepted current text');
+    expect(screen.getByText(/Writer accepted the current text\./i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Accepted/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/safe\s*·\s*allowed/i)).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Accept Current Text/i })).not.toBeInTheDocument();
   });
 
   it('marks a flagged scene for manual rewrite and shows the persisted state', async () => {
@@ -347,6 +358,7 @@ describe('ProjectHome recent project recovery', () => {
       }),
       markManualRewrite: vi.fn().mockResolvedValue({ ok: true }),
       clearManualRewrite: vi.fn().mockResolvedValue({ ok: true }),
+      acceptCurrentText: vi.fn().mockResolvedValue({ ok: true }),
     };
 
     (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;

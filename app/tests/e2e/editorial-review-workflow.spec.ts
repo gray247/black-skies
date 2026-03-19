@@ -16,7 +16,11 @@ const outline = JSON.parse(
 ) as { scenes: Array<{ id: string }> };
 const primarySceneId = outline.scenes[0]?.id ?? 'sc_0001';
 
-function writeEditorialFixture(projectRoot: string, manualReviewMarked = false): void {
+function writeEditorialFixture(
+  projectRoot: string,
+  manualReviewMarked = false,
+  acceptedCurrentText = false,
+): void {
   const longFormDir = path.join(projectRoot, '.blackskies', 'long_form');
   const chunksDir = path.join(longFormDir, 'chunks');
   fs.mkdirSync(chunksDir, { recursive: true });
@@ -55,6 +59,11 @@ function writeEditorialFixture(projectRoot: string, manualReviewMarked = false):
   fs.writeFileSync(
     path.join(longFormDir, 'manual_review.json'),
     JSON.stringify(manualReviewMarked ? { [primarySceneId]: true } : {}, null, 2),
+    'utf8',
+  );
+  fs.writeFileSync(
+    path.join(longFormDir, 'accepted_review.json'),
+    JSON.stringify(acceptedCurrentText ? { [primarySceneId]: true } : {}, null, 2),
     'utf8',
   );
 }
@@ -178,5 +187,29 @@ test.describe('editorial review workflow', () => {
       page.getByText(/This scene has been explicitly marked for manual rewrite\./i),
     ).toHaveCount(0);
     await expect(page.locator('.project-home__scene-review-badge').first()).toContainText('Flagged');
+  });
+
+  test('persists accepted current text and shows safe carryover on reload', async ({ page }) => {
+    writeEditorialFixture(tempProjectRoot, false, false);
+    await bootstrapEditorialProject(page, tempProjectRoot);
+
+    await expect(page.getByRole('heading', { name: /Editorial review/i })).toBeVisible();
+    await page.getByRole('button', { name: /Accept Current Text/i }).click();
+    await expect(
+      page.getByText(/Writer accepted the current text\./i),
+    ).toBeVisible();
+    await expect(page.locator('.project-home__scene-review-badge').first()).toContainText('Accepted');
+    await expect(page.getByText(/safe · allowed/i)).toBeVisible();
+    await expect(page.getByRole('button', { name: /Accept Current Text/i })).toHaveCount(0);
+
+    await page.reload();
+    await bootstrapEditorialProject(page, tempProjectRoot);
+
+    await expect(
+      page.getByText(/Writer accepted the current text\./i),
+    ).toBeVisible();
+    await expect(page.locator('.project-home__scene-review-badge').first()).toContainText('Accepted');
+    await expect(page.getByText(/patch_specificity_unresolved/i)).toBeVisible();
+    await expect(page.getByText(/safe · allowed/i)).toBeVisible();
   });
 });

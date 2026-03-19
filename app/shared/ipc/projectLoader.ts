@@ -3,6 +3,7 @@ export const PROJECT_LOADER_CHANNELS = {
   loadProject: 'project-loader:load-project',
   getSamplePath: 'project-loader:get-sample-path',
   setDevProjectPath: 'project-loader:set-dev-project-path',
+  acceptCurrentText: 'project-loader:accept-current-text',
   markManualRewrite: 'project-loader:mark-manual-rewrite',
   clearManualRewrite: 'project-loader:clear-manual-rewrite',
 } as const;
@@ -88,6 +89,10 @@ export interface SceneEditorialReview {
   chunk_id: string;
   review_snapshot?: EditorialReviewSnapshot | null;
   carryover_snapshot?: EditorialCarryoverSnapshot | null;
+  accepted_review?: {
+    accepted: boolean;
+    status: 'accepted_current_text';
+  } | null;
   manual_review?: {
     marked: boolean;
     status: 'manual_rewrite_requested';
@@ -139,6 +144,7 @@ export interface ProjectLoaderApi {
   openProjectDialog: () => Promise<ProjectDialogResult>;
   loadProject: (request: ProjectLoadRequest) => Promise<ProjectLoadResponse>;
   getSampleProjectPath?: () => Promise<string | null>;
+  acceptCurrentText?: (request: { projectPath: string; sceneId: string }) => Promise<{ ok: true }>;
   markManualRewrite?: (request: { projectPath: string; sceneId: string }) => Promise<{ ok: true }>;
   clearManualRewrite?: (request: { projectPath: string; sceneId: string }) => Promise<{ ok: true }>;
 }

@@ -113,4 +113,82 @@ chapter_id: ch_0001
       'manual_rewrite_requested',
     );
   });
+
+  it('loads persisted accepted text marks and upgrades carryover to safe', async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), 'bs-project-loader-'));
+    await fs.writeFile(
+      path.join(root, 'outline.json'),
+      JSON.stringify({
+        schema_version: 'OutlineSchema v1',
+        outline_id: 'outline-001',
+        acts: ['Act I'],
+        chapters: [{ id: 'ch_0001', order: 1, title: 'Opening' }],
+        scenes: [{ id: 'sc_0001', order: 1, title: 'Scene One', chapter_id: 'ch_0001' }],
+      }),
+      'utf8',
+    );
+    await fs.writeFile(
+      path.join(root, 'project.json'),
+      JSON.stringify({ name: 'Tmp Project' }),
+      'utf8',
+    );
+    await fs.mkdir(path.join(root, 'drafts'), { recursive: true });
+    await fs.writeFile(
+      path.join(root, 'drafts', 'sc_0001.md'),
+      `---
+id: sc_0001
+title: Scene One
+order: 1
+chapter_id: ch_0001
+---
+# Scene One`,
+      'utf8',
+    );
+    await fs.mkdir(path.join(root, '.blackskies', 'long_form', 'chunks'), { recursive: true });
+    await fs.writeFile(
+      path.join(root, '.blackskies', 'long_form', 'chunks', 'lf_flagged.json'),
+      JSON.stringify(
+        {
+          chunk_id: 'lf_flagged',
+          scene_ids: ['sc_0001'],
+          order: 10,
+          review_snapshot: {
+            status: 'flagged',
+            failure_class: 'patch_specificity_unresolved',
+            review_actions: ['accept_current_text', 'show_flag_reason'],
+          },
+          carryover_snapshot: {
+            carryover_risk: 'medium',
+            carryover_mode: 'restricted',
+            carryover_allowed: false,
+            failure_class: 'patch_specificity_unresolved',
+          },
+        },
+        null,
+        2,
+      ),
+      'utf8',
+    );
+    await fs.writeFile(
+      path.join(root, '.blackskies', 'long_form', 'accepted_review.json'),
+      JSON.stringify({ sc_0001: true }, null, 2),
+      'utf8',
+    );
+
+    const { project } = await loadProjectFromDisk(root);
+
+    expect(project.editorialReviews?.sc_0001?.accepted_review?.accepted).toBe(true);
+    expect(project.editorialReviews?.sc_0001?.accepted_review?.status).toBe(
+      'accepted_current_text',
+    );
+    expect(project.editorialReviews?.sc_0001?.review_snapshot?.failure_class).toBe(
+      'patch_specificity_unresolved',
+    );
+    expect(project.editorialReviews?.sc_0001?.carryover_snapshot).toEqual({
+      carryover_risk: 'safe',
+      carryover_mode: 'safe',
+      carryover_allowed: true,
+      failure_class: 'patch_specificity_unresolved',
+    });
+  });
 });
