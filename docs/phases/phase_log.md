@@ -32,6 +32,10 @@ Last Reviewed: 2026-03-15
 
 **2026-03-18** - Second writer-facing review action landed: `show_flag_reason`. Flagged scenes now keep detailed rationale hidden until the writer explicitly reveals it, using persisted `review_snapshot` and `carryover_snapshot` data to show failure class, flag summary, targeted lines, and continuity risk without changing rescue or carryover behavior.
 
+**2026-03-18** - Added narrow Playwright coverage for the editorial review workflow. The end-to-end pass now covers flagged scene badges, reason reveal/hide, manual-review marking, clearing the mark, and persistence across reload on top of the existing ProjectHome component coverage.
+**2026-03-19** - First-pass writer-facing editorial workflow is now complete enough to stabilize before any local-regeneration action is added. Writers can see flagged state, inspect flag reasons, mark a scene for manual rewrite, clear the manual-review mark, and explicitly accept the current text. Acceptance persists as a separate writer override, preserves the original `review_snapshot` / failure class for auditability, and upgrades effective carryover to `safe` / `allowed`.
+**2026-03-19** - Terminology was aligned across the first-pass editorial workflow. The intended user-facing states are now `Flagged`, `Accepted`, and `Manual review`, with continuity state expressed separately as `carryover risk`, `carryover mode`, and `allowed` / `blocked`.
+
 ## Upcoming milestones
 - ~~**P7 - RC1:** Smoke tests complete; publish quickstart.~~ *(closed 2025-10-10)*
 - ~~**P8 - Companion overlay + batch critique prototype.**~~ *(landed 2025-10-15; engine milestone stays closed)*

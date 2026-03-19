@@ -192,3 +192,26 @@ Reason:
 
 If Option B is chosen anyway, it should be explicitly treated as a final bounded model-capability check rather than an open-ended rescue-optimization loop.
 
+## Current Option A State
+
+The first writer-facing editorial workflow is now in place on top of the stable rescue baseline.
+
+Wired actions:
+- `show_flag_reason`
+- `accept_current_text`
+- `mark_for_manual_rewrite`
+- `clear_manual_review_mark`
+
+Persisted states:
+- `Flagged`
+- `Accepted`
+- `Manual review`
+
+Carryover handling:
+- review state and carryover approval remain separate
+- accepted scenes preserve the original failure class for audit/history
+- accepted scenes upgrade effective carryover to `safe` / `allowed`
+- unresolved flagged scenes continue to honor conservative `carryover_risk` and `carryover_mode`
+
+Deferred action:
+- `regenerate_local_repair` remains intentionally unwired pending a separate product decision

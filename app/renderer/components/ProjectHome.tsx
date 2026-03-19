@@ -1228,10 +1228,13 @@ export default function ProjectHome({
                   </div>
                   <span className="project-home__editorial-flag">
                     {activeSceneEditorialReview.manual_review?.marked
-                      ? 'manual review'
+                      ? 'Manual review'
                       : activeSceneEditorialReview.accepted_review?.accepted
-                        ? 'accepted'
-                      : (activeSceneEditorialReview.review_snapshot?.status ?? 'flagged')}
+                        ? 'Accepted'
+                      : ((activeSceneEditorialReview.review_snapshot?.status ?? 'flagged')
+                          .charAt(0)
+                          .toUpperCase() +
+                        (activeSceneEditorialReview.review_snapshot?.status ?? 'flagged').slice(1))}
                   </span>
                 </div>
                 {activeSceneEditorialReview.accepted_review?.accepted ? (
