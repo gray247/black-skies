@@ -1,4 +1,9 @@
-"""Resilience helpers for tool execution (timeouts, retries, circuit breakers)."""
+"""Resilience helpers for tool execution.
+
+This layer owns tool/plugin boundary controls only: per-tool retries, wall-clock
+timeouts, and per-tool circuit breaking. It is separate from service resilience
+and the shared execution-policy runner.
+"""
 
 from __future__ import annotations
 
@@ -90,7 +95,11 @@ _CALL_EXECUTOR = concurrent.futures.ThreadPoolExecutor(max_workers=8, thread_nam
 
 
 class ToolRunner:
-    """Execute tool callables with retry, timeout, and circuit breaker guards."""
+    """Execute tool callables with retry, timeout, and circuit breaker guards.
+
+    Tool execution is intentionally isolated from service resilience. Do not
+    use this class as a generic control-plane helper.
+    """
 
     def __init__(
         self,

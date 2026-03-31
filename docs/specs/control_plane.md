@@ -102,6 +102,11 @@ The tool-specific resilience layer is:
 
 These components own retry, timeout, and circuit-breaker policy for the operations they wrap.
 
+They are intentionally separate layers, not one generic orchestration surface:
+- `ExecutionPolicyRunner` is shared execution policy for bounded service work
+- `ServiceResilienceExecutor` is service-level resilience with circuit state
+- `ToolRunner` is tool/plugin boundary resilience
+
 `ExecutionPolicyRunner` is the shared execution-policy helper for service work that still needs local retries and wall-clock limits. Current users include draft generation and long-form adapter calls.
 
 ### Routers

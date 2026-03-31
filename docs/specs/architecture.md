@@ -65,6 +65,11 @@ Shared execution policy for service work lives in `services/src/blackskies/servi
 
 Draft generation now uses that shared policy for retries and timeouts. Long-form execution uses it for adapter transport calls, but still keeps its own editorial retry/fallback loop. That split is real and should be named, not hidden.
 
+These resilience layers are intentionally distinct:
+- execution policy does bounded retry/timeout/cancellation for service work
+- service resilience owns service-level circuit state and long-running workflow guards
+- tool resilience owns tool/plugin boundary retries, timeouts, and circuit breaking
+
 Support-only agent wrappers live under `blackskies.services.test_support`, not in the runtime control plane.
 
 ### Routers

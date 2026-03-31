@@ -49,6 +49,22 @@ def test_service_resilience_executor_retries_then_succeeds(
     assert executor._breaker.allow()  # type: ignore[attr-defined]
 
 
+def test_service_resilience_executor_uses_service_breaker() -> None:
+    policy = ResiliencePolicy(
+        name="service-breaker",
+        timeout_seconds=0.0,
+        max_attempts=1,
+        backoff_seconds=0.0,
+        circuit_failure_threshold=3,
+        circuit_reset_seconds=60.0,
+    )
+
+    executor = ServiceResilienceExecutor(policy)
+
+    assert executor._breaker.__class__.__module__ == "blackskies.services.resilience"  # type: ignore[attr-defined]
+    assert executor._breaker.__class__.__name__ == "_ServiceCircuitBreaker"  # type: ignore[attr-defined]
+
+
 def test_service_resilience_executor_opens_circuit_after_failures() -> None:
     policy = ResiliencePolicy(
         name="failing-service",

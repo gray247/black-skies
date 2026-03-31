@@ -1,4 +1,8 @@
-"""Shared execution-policy helpers for service work."""
+"""Shared execution-policy helpers for service work.
+
+This layer owns retry/timeout/cancellation for bounded service operations.
+It does not own circuit breakers, persistence, or tool/plugin boundaries.
+"""
 
 from __future__ import annotations
 
@@ -35,7 +39,12 @@ class ExecutionPolicy:
 
 
 class ExecutionPolicyRunner:
-    """Run synchronous service work under one retry/timeout policy."""
+    """Run synchronous service work under one retry/timeout policy.
+
+    The runner is intentionally narrow: it enforces wall-clock limits and
+    retries for a single operation, but it does not manage breaker state or
+    broader service lifecycle concerns.
+    """
 
     def __init__(self, policy: ExecutionPolicy, *, sleep: Callable[[float], None] | None = None) -> None:
         if policy.max_attempts <= 0:

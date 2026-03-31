@@ -1,4 +1,9 @@
-"""Resilience helpers for long-running service routines."""
+"""Resilience helpers for long-running service routines.
+
+This layer is intentionally separate from the shared execution-policy runner
+and from tool/plugin resilience. It owns service-level retry, timeout, and
+circuit-breaker behavior for long-running operations that need their own state.
+"""
 
 from __future__ import annotations
 
@@ -12,8 +17,6 @@ from pathlib import Path
 from typing import Any, Callable, Dict, Generic, TypeVar
 
 from .persistence.atomic import write_json_atomic
-from .tools.resilience import ToolCircuitBreaker
-
 LOGGER = logging.getLogger("blackskies.services.resilience")
 
 T = TypeVar("T")
@@ -25,7 +28,10 @@ class CircuitOpenError(RuntimeError):
 
 @dataclass(frozen=True)
 class ResiliencePolicy:
-    """Configuration for service retries, timeouts, and circuit breaking."""
+    """Configuration for service retries, timeouts, and circuit breaking.
+
+    This policy feeds service-level resilience, not generic execution policy.
+    """
 
     name: str
     timeout_seconds: float
@@ -124,8 +130,52 @@ class PersistentCircuitBreaker:
         )
 
 
+class _ServiceCircuitBreaker:
+    """In-memory breaker used only by service-level resilience."""
+
+    def __init__(self, *, failure_threshold: int, reset_seconds: float) -> None:
+        if failure_threshold <= 0:
+            raise ValueError("failure_threshold must be greater than zero.")
+        if reset_seconds < 0:
+            raise ValueError("reset_seconds may not be negative.")
+        self._failure_threshold = failure_threshold
+        self._reset_seconds = reset_seconds
+        self._failure_count = 0
+        self._state = "closed"
+        self._opened_at = 0.0
+        self._lock = threading.Lock()
+
+    def allow(self) -> bool:
+        with self._lock:
+            if self._state == "open":
+                if self._reset_seconds == 0 or (
+                    time.monotonic() - self._opened_at >= self._reset_seconds
+                ):
+                    self._state = "half-open"
+                    return True
+                return False
+            return True
+
+    def record_success(self) -> None:
+        with self._lock:
+            self._failure_count = 0
+            self._state = "closed"
+
+    def record_failure(self) -> None:
+        with self._lock:
+            self._failure_count += 1
+            if self._failure_count >= self._failure_threshold:
+                self._state = "open"
+                self._opened_at = time.monotonic()
+
+
 class ServiceResilienceExecutor(Generic[T]):
-    """Execute synchronous service operations with resilience controls."""
+    """Execute synchronous service operations with resilience controls.
+
+    Service resilience is separate from the shared execution-policy runner.
+    It owns breaker state for service-level workflows that need coordinated
+    retries, timeout handling, and open-circuit behavior.
+    """
 
     def __init__(self, policy: ResiliencePolicy, *, state_path: Path | None = None) -> None:
         if policy.max_attempts <= 0:
@@ -133,7 +183,7 @@ class ServiceResilienceExecutor(Generic[T]):
         if policy.timeout_seconds is not None and policy.timeout_seconds < 0:
             raise ValueError("policy.timeout_seconds may not be negative")
         self._policy = policy
-        breaker: ToolCircuitBreaker | PersistentCircuitBreaker
+        breaker: _ServiceCircuitBreaker | PersistentCircuitBreaker
         if state_path is not None:
             breaker = PersistentCircuitBreaker(
                 state_path=state_path,
@@ -141,7 +191,7 @@ class ServiceResilienceExecutor(Generic[T]):
                 reset_seconds=policy.circuit_reset_seconds,
             )
         else:
-            breaker = ToolCircuitBreaker(
+            breaker = _ServiceCircuitBreaker(
                 failure_threshold=policy.circuit_failure_threshold,
                 reset_seconds=policy.circuit_reset_seconds,
             )

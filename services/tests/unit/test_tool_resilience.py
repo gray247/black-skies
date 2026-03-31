@@ -36,6 +36,7 @@ def test_tool_runner_retries_until_success() -> None:
     result = runner.execute("flaky", flaky)
     assert result == "ok"
     assert len(attempts) == 3
+    assert runner._get_breaker("flaky").__class__.__name__ == "ToolCircuitBreaker"  # type: ignore[attr-defined]
 
 
 def test_tool_runner_times_out() -> None:

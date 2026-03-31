@@ -48,6 +48,7 @@ Examples:
 - `BudgetService` owns budget state, classification, and blocked/allowed decisions
 - `ServiceResilienceExecutor` owns service-level retry/timeout/circuit policy
 - `ExecutionPolicyRunner` owns the shared retry/timeout loop for draft generation and long-form adapter calls
+- `ToolRunner` owns tool/plugin boundary resilience
 - routers validate requests and map errors
 
 That is the current boundary. Do not move business logic into a fake orchestration layer just to match old naming.
