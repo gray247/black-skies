@@ -1,4 +1,8 @@
-"""Service orchestration utilities for Black Skies agents."""
+"""Test-support tool and worker facade.
+
+This module is intentionally outside the runtime control plane. It exists for
+unit tests and isolated experiments only.
+"""
 
 from __future__ import annotations
 
@@ -6,11 +10,11 @@ from concurrent.futures import ThreadPoolExecutor
 from functools import wraps
 from typing import Any, Callable, Dict, Mapping
 
-from .agents.base import BaseAgent, CritiqueAgent, DraftAgent, OutlineAgent, RewriteAgent
-from .settings import Settings, get_settings
-from .tools.base import ToolContext
-from .tools.registry import ToolRegistry
-from .tools.resilience import ToolResilienceConfig, ToolRunner
+from .agents import BaseAgent, CritiqueAgent, DraftAgent, OutlineAgent, RewriteAgent
+from ..tools.base import ToolContext
+from ..tools.registry import ToolRegistry
+from ..tools.resilience import ToolResilienceConfig, ToolRunner
+from ..settings import Settings, get_settings
 
 OperationPayload = Dict[str, Any]
 OperationResult = Dict[str, Any]
@@ -21,7 +25,12 @@ class ToolNotPermittedError(PermissionError):
 
 
 class AgentOrchestrator:
-    """Coordinate agents with shared settings and gated tool access."""
+    """Test-support facade for workers and gated tools.
+
+    This is not the production control plane. `create_app()` wires the real
+    runtime services directly. This class does not own policy, budget,
+    lifecycle, queueing, or job supervision.
+    """
 
     def __init__(
         self,
@@ -61,7 +70,7 @@ class AgentOrchestrator:
         self._tools[canonical] = tool
 
     def _register_agents(self, **agents: BaseAgent) -> None:
-        """Register the orchestrated agents by operation name."""
+        """Register the supported worker wrappers by operation name."""
 
         for name, agent in agents.items():
             self._agents[name] = agent.run
@@ -125,7 +134,7 @@ class AgentOrchestrator:
     def draft_and_critique(
         self, draft_payload: OperationPayload, critique_payload: OperationPayload
     ) -> tuple[OperationResult, OperationResult]:
-        """Run draft and critique sequentially, respecting settings."""
+        """Run draft and critique sequentially."""
 
         draft_result = self.generate_draft(draft_payload)
         critique_result = self.run_critique(critique_payload)
@@ -147,7 +156,6 @@ class AgentOrchestrator:
                 name: executor.submit(self._run_agent, agent_name, payload)
                 for name, (agent_name, payload) in operations.items()
             }
-            # Always return results in outline->draft order for stable callers.
             return futures["outline"].result(), futures["draft"].result()
 
     def _run_agent(self, name: str, payload: OperationPayload) -> OperationResult:

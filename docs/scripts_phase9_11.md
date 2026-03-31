@@ -1,22 +1,36 @@
 Status: Draft
-Version: 0.9.0
-Last Reviewed: 2025-11-15
+Version: 1.0
+Last Reviewed: 2026-03-31
 
-# docs/scripts_phase9_11.md — DRAFT
+# Phase 9-11 Scripts
 
-## CLI / Scripts
-Document utilities tied to Phases 9–11, including their flags and log destinations.
+This file documents the scripts that actually exist.
 
-### `scripts/export_diff.py`
-Compares exported Markdown against a golden baseline to catch inline critique markers or formatting regressions. Accepts `--dry-run` to skip writing artifacts, logs to `logs/export_diff.log`, and returns non-zero when diffs exceed thresholds.
+## `scripts/insights-rescue.ps1`
 
-### `scripts/insights-rescue.ps1`
-Clears stuck model queue flags and resets Overseer state when batches hang. Supports `--dry-run` and records actions to `logs/insights-rescue.log`.
+Purpose:
+- rebuild the packaged renderer and main bundles
+- run Playwright smoke and Insights specs
+- capture trace output when the run fails
 
-### `scripts/dev-runner.mjs`
-Launches services plus Electron with testing flags (e.g., `--critique-mode=mock`). The script respects `--dry-run` for smoke checks and emits JSON logs to `logs/dev-runner.log`.
+What it is not:
+- it does not reset an Overseer
+- it does not clear a model queue
+- it does not repair a batch job system
 
-### `tools/perf-summarize.py`
-Ingests `.perf/*.jsonl` telemetry and rolls it up into a human-readable table or CSV. Always honors `--dry-run` and writes summaries to `logs/perf-summarize.log`.
+Current behavior:
+- `-SkipSmokeTest` skips the smoke gate
+- it always runs the Insights spec after the build step
 
-All scripts log to `logs/` by default and support `--dry-run` to validate inputs without mutating state.
+## `scripts/dev-runner.mjs`
+
+Purpose:
+- launch the renderer dev server
+- launch the Electron shell
+- stop both processes together on exit or signal
+
+This is a local development launcher, not a job runner.
+
+## Notes
+
+If future Phase 9-11 utilities are added, they should be documented here only if they actually exist in the repo.

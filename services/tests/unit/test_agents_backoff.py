@@ -1,8 +1,10 @@
+"""Regression tests for support-only worker backoff behavior."""
+
 from __future__ import annotations
 
 import pytest
 
-from blackskies.services.agents.base import AgentError, BaseAgent, ExponentialBackoff
+from blackskies.services.test_support.agents import AgentError, BaseAgent, ExponentialBackoff
 
 
 class _FlakyAgent(BaseAgent):

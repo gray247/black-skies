@@ -402,15 +402,15 @@ Reference of every step with commands, acceptance notes, and Codex prompts. Gene
 ## Milestone 5 - Agents, Pipeline, Critique, Gates, Observability
 *Status:* Post-RC (optional)
 
-### Step 48: Agent stubs
+### Step 48: Support wrapper stubs
 - **Profiles:** API-only
-- **Primary artifacts:** `black_skies/agents/*.py`
-- **What:** `OutlineAgent`, `DraftAgent`, `RevisionAgent` (no LLM yet).
+- **Primary artifacts:** `black_skies/test_support/*.py`
+- **What:** `OutlineAgent`, `DraftAgent`, `RevisionAgent` support wrappers (no LLM yet).
 - **Command:** import in REPL
 - **Acceptance:** docstrings + signatures.
 - **Codex ask:** “Create agent class stubs with documented interfaces.”
 
-### Step 49: Pipeline orchestrator
+### Step 49: Pipeline support orchestrator
 - **Profiles:** API-only
 - **Primary artifacts:** `black_skies/core/pipeline.py`
 - **What:** `core/pipeline.py` orchestrates Outline→Draft→Revision with retries.

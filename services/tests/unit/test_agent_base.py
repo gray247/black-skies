@@ -1,8 +1,10 @@
+"""Unit tests for the support-only base worker wrapper."""
+
 from __future__ import annotations
 
 import pytest
 
-from blackskies.services.agents.base import AgentError, BaseAgent, ExponentialBackoff
+from blackskies.services.test_support.agents import AgentError, BaseAgent, ExponentialBackoff
 
 
 class RecordingAgent(BaseAgent):

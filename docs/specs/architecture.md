@@ -1,87 +1,107 @@
 Status: Active (Canonical)
-Version: 1.0.0
-Last Reviewed: 2025-11-15
+Version: 1.1.0
+Last Reviewed: 2026-03-31
 
-# docs/specs/architecture.md — System Architecture v1.1
+# Black Skies System Architecture
 
-Spec Index:
-- Architecture (`./architecture.md`)
-- Data Model (`./data_model.md`)
-- Endpoints (`./endpoints.md`)
-- GUI Layouts (`../gui/gui_layouts.md`)
-- Analytics Spec (`./analytics_service_spec.md`)
-- BUILD_PLAN (TBD)
-- Phase Charter (`../phases/phase_charter.md`)
+This document describes the runtime that actually exists.
 
-Phase 11 analytics pipelines and Companion agents are defined in detail in [Agents & Services](./agents_and_services.md); the sections below highlight where those modules slot into the runtime topology.
+Canonical control-plane details live in [`control_plane.md`](./control_plane.md).
 
----
+## Runtime Topology
 
-## New Components Added Post-RC1 (shipping in v1.1)
-- **Analytics Service Module:** aggregates emotion/pacing/conflict metrics (see [Agents & Services](./agents_and_services.md#agent-roles) for producer responsibilities).
-- **Agent Sandbox:** isolated execution for plugins/agents (see [Plugin sandbox plan](./plugin_sandbox.md)).  
+The current runtime is:
 
-## Deferred / Flagged Features
-- **Voice Input Handler (Deferred):** The dictation & voice-note workflow described in [Voice Notes plan](../deferred/voice_notes_transcription.md) remains on the roadmap but no recorder/transcription endpoints ship in v1.1.
-- **Backup Verifier Daemon (Flagged Off):** The daemon exists behind `backup_verifier_enabled`, but it is disabled in all builds and the UX mentioned in [Backup Verification Daemon plan](./backup_verification_daemon.md) is not surfaced. Health responses continue to report static `"warning"` status until the verifier ships.
-- **Plugin Runner (Deferred):** Plugin/agent execution sits behind the `BLACKSKIES_ENABLE_PLUGINS` guard and remains disabled for Phase 8; no plugin process is invoked in the production surface described here.
+`Electron renderer` -> `FastAPI services` -> `service layer` -> `filesystem / model router / persistence`
 
----
+The app factory in `services/src/blackskies/services/app.py` is the real composition root.
 
-## Updated Data Flow
-Project open → Outline planning (Wizard) → Draft generation → Critique → Snapshots & recovery → Exports  
-→ **Model Router** → **Analytics/Agents** → Exports.  
-This mirrors the running services: `/outline/build`, `/draft/generate`, `/draft/critique`, `/batch/critique`, `/history/*`, and `/export/*` form the current backend surface that the renderer consumes.
+It wires:
+- `ModelRouter`
+- `CritiqueService`
+- `ServiceResilienceRegistry`
+- `BuildTracker`
+- `RecoveryTracker`
+- `BackupVerificationDaemon` when enabled
+- `VerificationScheduler`
+- the HTTP routers under `services/src/blackskies/services/routers/`
 
----
+There is no runtime `Overseer` component.
+There is no runtime `AgentOrchestrator` component.
 
-## Model Router Boundary (Phase 2+)
-All AI calls (outline, draft, critique, and automation endpoints) traverse the Model Router before reaching `local_llm`, `openai`, or future providers such as `deepseek`. This layer enforces budgets, Insights Overlay privacy, and policy-aware routing so FastAPI services never directly invoke external APIs.
-Implementation priority: **ModelRouter seam and routing/policy/budget plumbing now precede splash/onboarding expansion**. Any new UI flows must not block the router-first rollout.
+## What The Runtime Actually Uses
 
-## Long-Form Routing Policy (Backend Milestone)
-Heavy long-form generation should use API-backed providers. Local models remain available for lightweight helper tasks.
+### Control Plane
 
-Recommended settings:
-- `BLACKSKIES_LONG_FORM_PREFER_API=true`
-- `BLACKSKIES_MODEL_ROUTING_POLICY=api_only`
+`create_app()` owns runtime composition.
 
-Long-form routing now distinguishes between draft and rewrite recovery:
-- Draft generation stays on the normal/default draft path.
-- First rewrite stays on the normal rewrite path.
-- A single retry-eligible borderline rewrite miss may escalate to a stronger rewrite model path.
-- That stronger retry now runs in a precision rescue-edit mode using span-level patch rescue rather than a generic full-scene rewrite.
-- Hard failures (missing/material carryover, meta contamination, invalid output) remain non-retryable.
+Routers call into services, and services own the work:
+- draft generation
+- rewrite and critique
+- long-form execution
+- recovery
+- export
+- backup verification
 
-Rewrite acceptance also now includes lightweight outline-faithful guardrails:
-- preserve scene anchors from the current chunk and outline context
-- stay within a bounded rewrite length band
-- persist uncertainty/guardrail metadata for diagnostics instead of silently accepting drift
+### Model Routing
 
-Patch rescue preserves structure by construction:
-- extract local weak spans from the scene
-- request structured replacements for those spans only
-- validate each patch locally before splice-back
-- rescore the assembled scene with the existing global checks
+`ModelRouter` is the model-selection boundary.
 
-## Companion Mode Boundary (Locked)
-Companion is **not** an SDK. It is an integrated, dockable in-app browser pane/window that opens ChatGPT.  
-Companion Mode remains separate from API Mode: it does not call the service backend for model inference, does not participate in ModelRouter policy, and **must not** exfiltrate content or route prompts through service-based providers.
+It chooses providers for model-backed tasks and evaluates run policy from budget status, but it does not own project budgets.
 
----
+### Budgets
 
-## Process Boundaries (Expanded)
-Renderer ⇄ FastAPI ⇄ Filesystem ⇄ Model Router ⇄ Analytics/Agent Sub-services (orchestrated per [Agents & Services](./agents_and_services.md#plugin-registry-spec)).
----
+`BudgetService` owns budget loading, classification, blocked/allowed decisions, summary construction, and persistence.
 
-## Desktop UI Layout Notes
-- The desktop shell ships with the locked preset described in [gui_layouts.md](./gui_layouts.md) (`Outline | Writing view | Feedback notes | Timeline`) plus the floating Story insights pane. Panes can be resized inside those bands but cannot yet be re-docked or detached.
-- Phase 8 "GUI Enhancements" + Phase 9 dashboards are captured in [Docking plan](./phase8_gui_enhancements.md), [Dashboard initiatives](./dashboard_initiatives.md), and phase_log.md.
+If a request is blocked for spend reasons, the decision comes from budget classification, not from a queue supervisor.
 
----
+### Resilience
 
-## Future Enhancements (Not yet implemented)
-- **Voice Input Handler:** The dictation/voice-note workflow described in [Voice Notes plan](../deferred/voice_notes_transcription.md) remains scoped but not shipped; no recorder/transcription endpoints or UI exist in production.
-- **Backup Daemon UX:** Backup verification operates only through backend scripts; the described daemon UX is still planned and should not be treated as shipping today.
-- **GUI Layout experiments:** Floating Story insights, additional panes, docking, and other layout promises are experimental flags and have not shipped; they belong in future updates rather than the current default experience.
-- **Agent/editor workflows:** editor-facing partner controls and guarded agent hooks remain sequenced after the reliability/control closeout.
+Shared service resilience lives in `ServiceResilienceExecutor` and `ServiceResilienceRegistry`.
+
+Tool-level resilience lives in `ToolRunner` and `ToolCircuitBreaker`.
+
+Shared execution policy for service work lives in `services/src/blackskies/services/execution_policy.py`.
+
+Draft generation now uses that shared policy for retries and timeouts. Long-form execution uses it for adapter transport calls, but still keeps its own editorial retry/fallback loop. That split is real and should be named, not hidden.
+
+Support-only agent wrappers live under `blackskies.services.test_support`, not in the runtime control plane.
+
+### Routers
+
+Routers are HTTP adapters.
+
+They validate payloads, map service exceptions to HTTP responses, and keep request-specific plumbing close to the API surface.
+
+### Plugins
+
+The current plugin system is not a hook platform.
+
+It is:
+- `PluginRegistry` for manifests and state
+- `launch_plugin()` for subprocess execution
+- `runner.py` for entrypoint-based execution
+
+There is no plugin router and no implemented hook dispatch.
+
+### Backup Verification
+
+`BackupVerificationDaemon` exists in the codebase and is wired by `create_app()` when `backup_verifier_enabled` is true.
+
+The scheduler is also started at app startup.
+
+The feature is default-off, not absent.
+
+## Deferred Or Absent Surfaces
+
+The following are not runtime facts today:
+- `Overseer`
+- queued batch critique jobs
+- `/api/v1/plugins` HTTP endpoints
+- `on_plan` / `on_analyze` / `on_rewrite` / `on_export` / `on_report`
+- wall-clock plugin timeout enforcement in the host
+- a durable job coordinator for critique/rewrite batches
+
+## Practical Rule
+
+If a feature needs a durable queue, cross-request cancellation, or job status persistence, that is the point where a true coordinator becomes necessary.

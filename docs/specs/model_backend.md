@@ -9,8 +9,8 @@ Introduce the **Model Router** abstraction so every AI-powered call flows throug
 
 ## Responsibilities
 - **Provider orchestration:** expose drivers for `local_llm`, `openai`, and other optional vendors (e.g., `deepseek`) via a pluggable registry.
-- **Per-task routing:** determine which provider(s) execute specific jobs (`outline`, `draft`, `critique`, future `analytics`) based on policy configuration and budget state.
-- **Token/cost accounting:** measure tokens in/out, map to dollar estimates, and update session/project budgets before and after every routed call.
+- **Per-task routing:** determine which provider(s) execute specific jobs (`outline`, `draft`, `critique`, future `analytics`) based on policy configuration and caller-supplied budget status.
+- **Token/cost accounting:** measure tokens in/out, map to dollar estimates, and leave budget persistence to `BudgetService`.
 - **Privacy enforcement:** honor Insights Overlay by blocking external API calls, require explicit user consent before enabling API Mode, and log decisions for audits.
 - **Telemetry hooks:** emit routing decisions, durations, and rejection reasons to `.perf/` (see `./performance_telemetry_policy.md`).
 
@@ -24,10 +24,10 @@ Each task has a dedicated helper and routing table. Example signatures:
 
 The router evaluates:
 1. **Policy mode** (`local_only`, `local_then_api_fallback`, `api_only`).
-2. **Budget state** (soft/hard caps from `project.json` + session tallies).
+2. **Budget status** (the caller passes `ok`, `soft-limit`, or `blocked` after consulting `BudgetService`).
 3. **Provider health** (model availability, rate limits, companion mode status).
 
-When configured `local_first`, the router runs `local_llm` immediately and gates the API fallback behind success/failure or budget headroom. In `api_only` mode, the router bypasses the local fallback but still enforces budgets and consent.
+When configured `local_first`, the router runs `local_llm` immediately and gates the API fallback behind success/failure or caller-supplied budget status. In `api_only` mode, the router bypasses the local fallback but still respects the budget status and consent inputs it is given.
 
 Long-form rewrite recovery adds one bounded exception path:
 - draft generation uses the default draft route
@@ -53,8 +53,8 @@ Policy keys live in `settings.json` and reference `Model Router` behaviors (`AiM
 Insights Overlay overrides these settings: when active, the router refuses to create outbound API calls regardless of policy.
 
 ## Token & Cost Accounting
-- Track `tokens_in`, `tokens_out`, `estimated_cost_usd`, and update `project.json::budget` atomically.
-- Expose budget state through `/api/v1/draft/preflight` and `critique` endpoints before running any provider call.
+- Track `tokens_in`, `tokens_out`, and `estimated_cost_usd`.
+- Expose budget state through `/api/v1/draft/preflight` and `critique` endpoints before running any provider call. Those endpoints derive their budget decision from `BudgetService`.
 - Write budget events to `.perf/model_router_budget.jsonl` for auditing.
 
 ## Privacy Rules
@@ -64,8 +64,8 @@ Insights Overlay overrides these settings: when active, the router refuses to cr
 
 ## Integration & References
 - Architecture (`./architecture.md`): the router sits between FastAPI services and external LLMs.
-- Endpoints (`./endpoints.md`): `/outline/build`, `/draft/generate`, `/draft/critique`, `/batch/critique` all invoke the router; responses stay unchanged but now include `router_trace`.
-- Agents (`./agents_and_services.md`): agents should never call models directly; they call internal services that go through the router.
+- Endpoints (`./endpoints.md`): `/outline/build`, `/draft/generate`, and `/draft/critique` route through services first and then use the router for provider selection; responses stay unchanged but now include `router_trace`.
+- Agents (`./agents_and_services.md`): test-support wrappers should never call models directly; production services go through the router.
 - Policies (`../policies.md`): reference this doc for cost/privacy expectations.
 - Settings (`../settings.md`): AI mode selection toggles router behavior.
 

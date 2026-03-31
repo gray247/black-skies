@@ -1,10 +1,13 @@
+"""Unit tests for the support-only worker and tool facade."""
+
 from __future__ import annotations
 
 from typing import Any, Callable, Dict, Mapping
 
+import blackskies.services as services_package
 import pytest
 
-from blackskies.services.services import AgentOrchestrator, ToolNotPermittedError
+from blackskies.services.test_support.orchestrator import AgentOrchestrator, ToolNotPermittedError
 
 
 class DummyRegistry:
@@ -128,7 +131,7 @@ def test_orchestrator_uses_tool_runner(monkeypatch: pytest.MonkeyPatch) -> None:
             captured.append((name, context))
             return operation()
 
-    monkeypatch.setattr("blackskies.services.services.ToolRunner", DummyRunner)
+    monkeypatch.setattr("blackskies.services.test_support.orchestrator.ToolRunner", DummyRunner)
 
     orchestrator = AgentOrchestrator(
         workers["outline"],
@@ -157,3 +160,7 @@ def test_unknown_operation_raises() -> None:
 
     with pytest.raises(ValueError, match="Unknown agent operation"):
         orchestrator._run_agent("unknown", {"id": 1})
+
+
+def test_package_root_does_not_reexport_agent_orchestrator() -> None:
+    assert not hasattr(services_package, "AgentOrchestrator")

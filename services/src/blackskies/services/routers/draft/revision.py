@@ -15,18 +15,13 @@ from fastapi.concurrency import run_in_threadpool
 from pydantic import ValidationError
 
 from ...analytics.runtime import log_runtime_event
-from ...budgeting import derive_critique_cost, persist_project_budget as _persist_project_budget
+from ...budgeting import derive_critique_cost
 from ...config import ServiceSettings
 from ...critique import BLOCKED_RUBRIC_CATEGORIES, CritiqueService
 from ...diagnostics import DiagnosticLogger
 from ...diff_engine import compute_diff
 from ...export import merge_front_matter, normalize_markdown
-from ...http import (
-    raise_budget_error,
-    raise_conflict_error,
-    raise_service_error,
-    raise_validation_error,
-)
+from ...http import raise_budget_error, raise_conflict_error, raise_service_error, raise_validation_error
 from ...models.critique import DraftCritiqueRequest
 from ...models.rewrite import DraftRewriteRequest
 from ...persistence import DraftPersistence, write_text_atomic
@@ -47,14 +42,6 @@ from . import router
 from ...e2e_mode import e2e_critique_response, is_e2e_mode
 from ...model_router import ModelRouter, ModelTask, format_route_metadata
 from ...model_adapters import AdapterError
-
-
-def persist_project_budget(state, new_spent_usd):
-    """Compatibility shim so tests can monkeypatch budget persistence."""
-
-    _persist_project_budget(state, new_spent_usd)
-
-
 def _apply_rewrite_instructions(original: str, instructions: str | None) -> str:
     baseline = normalize_markdown(original)
     prompt = (instructions or "Maintain current tone.").strip()
@@ -475,16 +462,17 @@ async def critique_draft(
                 with budget_service.edit_state(project_root) as budget_state:
                     _, front_matter, body = read_scene_document(project_root, request_model.unit_id)
                     critique_cost = derive_critique_cost(body, front_matter=front_matter)
-                    status_label, message, total_after = budget_service.classify(
+                    budget_assessment = budget_service.assess(
                         state=budget_state,
                         estimated_cost=critique_cost,
+                        spent_override=budget_state.spent_usd + critique_cost,
                     )
-                    if status_label == "blocked":
+                    if budget_assessment.blocked:
                         raise_budget_error(
-                            message=message,
+                            message=budget_assessment.message,
                             details={
                                 "estimated_usd": critique_cost,
-                                "total_after_usd": total_after,
+                                "total_after_usd": budget_assessment.total_after_usd,
                                 "hard_limit_usd": budget_state.hard_limit,
                                 "soft_limit_usd": budget_state.soft_limit,
                                 "spent_usd": budget_state.spent_usd,
@@ -492,15 +480,7 @@ async def critique_draft(
                             diagnostics=diagnostics,
                             project_root=project_root,
                         )
-                    summary = budget_service.build_summary(
-                        state=budget_state,
-                        estimated_cost=critique_cost,
-                        total_after=total_after,
-                        spent_override=total_after,
-                        status=status_label,
-                        message=message,
-                    )
-                    budget_payload = summary.as_dict()
+                    budget_payload = budget_assessment.as_dict()
                     if route_decision:
                         budget_payload["routing"] = format_route_metadata(route_decision)
                     record_runtime_event(
@@ -512,7 +492,7 @@ async def critique_draft(
                         soft_limit=budget_state.soft_limit,
                         diagnostics=diagnostics,
                     )
-                    persist_project_budget(budget_state, total_after)
+                    budget_service.persist_spend(budget_state, budget_assessment.total_after_usd)
                     return budget_payload
 
             budget_payload = await run_in_threadpool(_record_budget)

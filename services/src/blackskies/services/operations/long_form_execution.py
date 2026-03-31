@@ -10,8 +10,12 @@ from pathlib import Path
 from typing import Any, Iterable
 from uuid import uuid4
 
-from ..budgeting import classify_budget
 from ..diagnostics import DiagnosticLogger
+from ..execution_policy import (
+    ExecutionPolicy,
+    ExecutionPolicyRunner,
+    ExecutionPolicyTimeoutError,
+)
 from ..model_adapters import (
     AdapterConfig,
     AdapterError,
@@ -181,18 +185,22 @@ class LongFormExecutionService:
         previous_text: str | None = None
         stopped_reason: str | None = None
 
+        # Long-form still owns its editorial fallback loop.
+        # Shared execution policy only covers adapter transport retries/timeouts.
+        # BudgetService owns the classification and stop/go decision for each chunk.
         for order, chunk_scene_ids in enumerate(chunk_plan, start=1):
             chunk_id = f"lf_{uuid4().hex[:8]}"
             estimated_cost = self._estimate_chunk_cost(
                 target_words_per_chunk,
                 len(chunk_scene_ids),
             )
-            status_label, message, total_after = classify_budget(
-                estimated_cost,
-                soft_limit=budget_state.soft_limit,
-                hard_limit=budget_state.hard_limit,
-                current_spend=running_spend,
+            budget_assessment = self._budget_service.assess(
+                state=budget_state,
+                estimated_cost=estimated_cost,
+                spent_override=running_spend,
             )
+            status_label = budget_assessment.status
+            total_after = budget_assessment.total_after_usd
 
             policy_decision = self._evaluate_run_policy(status_label)
             if (
@@ -267,14 +275,7 @@ class LongFormExecutionService:
                 text,
                 fallback_reason=fallback_reason,
             )
-            budget_snapshot = self._budget_service.build_summary(
-                state=budget_state,
-                estimated_cost=estimated_cost,
-                total_after=total_after,
-                spent_override=running_spend,
-                status=status_label,
-                message=message,
-            ).as_dict()
+            budget_snapshot = budget_assessment.as_dict()
             routing_snapshot = self._build_routing_snapshot(
                 route=route,
                 policy_decision=policy_decision,
@@ -317,7 +318,7 @@ class LongFormExecutionService:
             previous_text = text
             running_spend = total_after
 
-            if status_label == "blocked":
+            if budget_assessment.blocked:
                 stopped_reason = "budget_blocked"
                 break
             if provider_failed:
@@ -3639,25 +3640,44 @@ class LongFormExecutionService:
         payload: dict[str, Any],
         call_mode: str,
     ) -> dict[str, Any]:
+        # This is transport policy around adapter calls, not the editorial
+        # retry loop for chunk acceptance/rewrite decisions below.
+        policy = ExecutionPolicy(
+            name=f"long_form.{call_mode}",
+            timeout_seconds=float(adapter.config.timeout_seconds),
+            max_attempts=self._MAX_TRANSIENT_ADAPTER_RETRIES + 1,
+            backoff_seconds=0.0,
+        )
+        runner = ExecutionPolicyRunner(policy)
         adapter_retry_count = 0
-        while True:
-            try:
-                if call_mode in {"rewrite", "recovery_retry", "repair_only"}:
-                    response = adapter.rewrite(payload)
-                else:
-                    response = adapter.generate_draft(payload)
-                if adapter_retry_count and isinstance(response, dict):
-                    response = dict(response)
-                    response["_adapter_retry_used"] = True
-                    response["_adapter_retry_count"] = adapter_retry_count
-                return response
-            except AdapterError as exc:
-                if (
-                    self._classify_adapter_error(str(exc)) != "transient_adapter_error"
-                    or adapter_retry_count >= self._MAX_TRANSIENT_ADAPTER_RETRIES
-                ):
-                    raise
-                adapter_retry_count += 1
+
+        def _retryable(error: BaseException) -> bool:
+            if isinstance(error, ExecutionPolicyTimeoutError):
+                return True
+            if isinstance(error, AdapterError):
+                return self._classify_adapter_error(str(error)) == "transient_adapter_error"
+            return False
+
+        def _mark_retry(attempt: int, _error: BaseException) -> None:
+            nonlocal adapter_retry_count
+            adapter_retry_count = attempt
+
+        try:
+            response = runner.run_sync(
+                lambda: adapter.rewrite(payload)
+                if call_mode in {"rewrite", "recovery_retry", "repair_only"}
+                else adapter.generate_draft(payload),
+                retryable=_retryable,
+                on_retry=_mark_retry,
+            )
+        except ExecutionPolicyTimeoutError as exc:
+            raise AdapterError(f"Provider request failed: timed out. {exc}") from exc
+
+        if adapter_retry_count and isinstance(response, dict):
+            response = dict(response)
+            response["_adapter_retry_used"] = True
+            response["_adapter_retry_count"] = adapter_retry_count
+        return response
 
     def _quality_passes(
         self,
@@ -4077,12 +4097,20 @@ class LongFormExecutionService:
             "system": "Return JSON only. Do not include any extra text.",
         }
         try:
-            response = adapter.critique(payload)
+            policy = ExecutionPolicy(
+                name="long_form.critique",
+                timeout_seconds=float(adapter.config.timeout_seconds),
+                max_attempts=1,
+                backoff_seconds=0.0,
+            )
+            response = ExecutionPolicyRunner(policy).run_sync(
+                lambda: adapter.critique(payload),
+            )
             raw_text, _, _ = normalize_ollama_payload(response)
             if not isinstance(raw_text, str):
                 raise AdapterError("Critique response missing text.")
             return self._parse_critique(raw_text)
-        except AdapterError as exc:
+        except (AdapterError, ExecutionPolicyTimeoutError) as exc:
             self._diagnostics.log(
                 project_root,
                 code="CRITIQUE",

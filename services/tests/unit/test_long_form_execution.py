@@ -1,13 +1,20 @@
 from __future__ import annotations
 
 import json
+import shutil
 from io import BytesIO
 from pathlib import Path
 from types import SimpleNamespace
 from urllib.error import HTTPError
 
+import pytest
+
 from blackskies.services.config import ServiceSettings
 from blackskies.services.diagnostics import DiagnosticLogger
+from blackskies.services.execution_policy import (
+    ExecutionPolicyRunner,
+    ExecutionPolicyTimeoutError,
+)
 from blackskies.services.long_form import ChapterMemoryPacket
 from blackskies.services.long_form import LongFormChunk
 from blackskies.services.long_form import assemble_continuation_packet
@@ -17,6 +24,7 @@ from blackskies.services.model_router import ModelRouter, ModelSpec, ModelTask
 from blackskies.services.model_routing import ModelRouterConfig, ModelRoutingPolicy
 from blackskies.services.model_adapters import AdapterConfig, AdapterError, BaseAdapter
 from blackskies.services.operations.long_form_execution import LongFormExecutionService
+from blackskies.services.operations.budget_service import BudgetSummary
 
 _REPO_ROOT = Path(__file__).resolve().parents[3]
 
@@ -257,6 +265,57 @@ def _service(tmp_path: Path, adapter_text: str) -> LongFormExecutionService:
     )
 
 
+def test_long_form_execution_uses_budget_service_assessment(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    project_root = Path.cwd() / ".tmp" / "long_form_budget_assessment"
+    project_root.mkdir(parents=True, exist_ok=True)
+    try:
+        _write_outline_context(project_root)
+        service = _service(Path.cwd(), _long_text())
+        fake_state = SimpleNamespace(
+            metadata={"budget": {}},
+            spent_usd=0.0,
+            hard_limit=10.0,
+            soft_limit=5.0,
+        )
+        monkeypatch.setattr(service._budget_service, "load_state", lambda _project_root: fake_state)
+        calls: list[float] = []
+
+        def _assess(*, state, estimated_cost, spent_override=None):
+            assert state is fake_state
+            assert spent_override == pytest.approx(fake_state.spent_usd)
+            calls.append(estimated_cost)
+            return BudgetSummary(
+                estimated_usd=round(estimated_cost, 2),
+                status="ok",
+                message="Estimate within budget.",
+                soft_limit_usd=fake_state.soft_limit,
+                hard_limit_usd=fake_state.hard_limit,
+                spent_usd=round(
+                    spent_override if spent_override is not None else fake_state.spent_usd, 2
+                ),
+                total_after_usd=round(fake_state.spent_usd + estimated_cost, 2),
+            )
+
+        monkeypatch.setattr(service._budget_service, "assess", _assess)
+        monkeypatch.setattr(service._budget_service, "persist_spend", lambda *args, **kwargs: None)
+        monkeypatch.setattr(service._diagnostics, "log", lambda *args, **kwargs: None)
+
+        result = service.execute(
+            project_root=project_root,
+            chapter_id="ch_0001",
+            scene_ids=["sc_0001"],
+            chunk_size=1,
+            target_words_per_chunk=300,
+        )
+
+        assert result.stopped_reason is None
+        assert calls
+    finally:
+        shutil.rmtree(project_root, ignore_errors=True)
+
+
 def _long_text() -> str:
     return (
         "Mara pushed the door while a brass lantern knocked the frame, the chain rasped over the latch, and cold rain and mildew slicked the wood beneath her palm. "
@@ -265,6 +324,53 @@ def _long_text() -> str:
         + "Her coat brushed the corridor wall, the key tapped her wrist, and dust lifted from the floorboards with each step through the narrow hall. "
         * 12
     )
+
+
+def test_long_form_transient_adapter_retry_uses_shared_execution_policy_runner(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    tmp_path = Path.cwd()
+    service = _service(tmp_path, "unused")
+    adapter = _TransientThenSuccessAdapter("Recovered scene text.")
+    calls: list[str] = []
+    original = ExecutionPolicyRunner.run_sync
+
+    def wrapped(self, operation, **kwargs):
+        calls.append(self.policy.name)
+        return original(self, operation, **kwargs)
+
+    monkeypatch.setattr(ExecutionPolicyRunner, "run_sync", wrapped)
+
+    response = service._call_with_transient_adapter_retry(
+        adapter=adapter,
+        payload={"prompt": "draft"},
+        call_mode="draft",
+    )
+
+    assert response["text"] == "Recovered scene text."
+    assert response["_adapter_retry_used"] is True
+    assert response["_adapter_retry_count"] == 1
+    assert calls == ["long_form.draft"]
+
+
+def test_long_form_transient_adapter_timeout_maps_to_adapter_error(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    tmp_path = Path.cwd()
+    service = _service(tmp_path, "unused")
+    adapter = _FakeAdapter("ignored")
+
+    def boom(self, operation, **kwargs):
+        raise ExecutionPolicyTimeoutError("Operation 'long_form.draft' timed out after 0.0 seconds.")
+
+    monkeypatch.setattr(ExecutionPolicyRunner, "run_sync", boom)
+
+    with pytest.raises(AdapterError, match="timed out"):
+        service._call_with_transient_adapter_retry(
+            adapter=adapter,
+            payload={"prompt": "draft"},
+            call_mode="draft",
+        )
 
 
 def _low_quality_text() -> str:

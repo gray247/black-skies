@@ -1,60 +1,22 @@
 Status: Draft
 Version: 1.0
-Last Reviewed: 2025-11-05
-Source of Truth: Phase 9 scope lives in `docs/phases/phase_charter.md`; align this companion loop plan with that charter.
+Last Reviewed: 2026-03-31
 
-# docs/phases/phase9_companion_loop.md — DRAFT
-> Implementation trace: `docs/BUILD_PLAN.md` → Phase 9 row.
+# Phase 9 Companion Loop
 
-## Scope
-Automate critique reviews at the scene or chapter level with Overseer-driven orchestration, strict privacy isolation, and Critique Pane toggles that show each batch’s progress and status.
+This is a deferred design note, not a description of the current runtime.
 
-## Done When
-- Insights Overlay analysis keeps content on disk while automation toggles and endpoints stay gated as per `docs/specs/model_backend.md`.
-- Overseer enforces budgets/telemetry described here and exposes Accept/Rollback flows that log to `docs/specs/data_model.md` revision history.
-- The Critique Pane renders automation states/telemetry while honoring offline banners defined in `docs/gui/gui_layouts.md`.
+Current runtime facts:
+- there is no Overseer component
+- there is no `/batch/critique` job API
+- critique and rewrite are handled through service endpoints, not a durable batch queue
+- the UI may present batch-like actions, but the backend does not implement queued job lifecycle semantics
 
-## Roles
-- **Overseer:** queues critique work, enforces token budgets, throttles retries, and watches telemetry/budget telemetry for health and policy violations.
-- **Critique Service:** executes `/draft/critique` jobs, honoring the local-first run mode before falling back to remote models, and writes per-unit summaries/edits.
-- **Rewrite Service:** applies accepted edits via `/draft/rewrite` or the batch-level `/batch/rewrite/apply`, tracks failures, and emits audit-safe logs.
-- **Renderer (Critique Pane):** surfaces automation controls, per-unit pills, diffs, telemetry badges, and accept/rollback actions while staying responsive.
+If a future batch system is added, it will need:
+- durable job IDs
+- job status persistence
+- explicit cancellation
+- queue ownership
+- budget enforcement at the job coordinator layer
 
-## States (Critique Pane)
-- Idle (awaits work)
-- Queued (batch acknowledged)
-- Running (local) → Queued (model) → Running (model) → Results → Applied → Idle for a successful run
-- Failed (local) / Failed (model) → Idle with toast + log
-- Automation controls always show soft and hard budget bars, per-unit status pills, and aggregate counters when the pane has focus.
-
-## Endpoints (extends `docs/specs/endpoints.md`)
-Batch critique exposes `/batch/critique` (start) and `/batch/critique/{job_id}` (status/results), while the rewrite acceptance path uses `/batch/rewrite/apply`. Each contract provides job identifiers, queue status, per-unit summaries/counts, and success/failure tallies so the Critique Pane can render progress without leaking writer content.
-
-## Budgets & Privacy
-Runs default to local-only. Model queues require an explicit toggle in the UI, surface a cost estimate tooltip, and are prevented if the session’s soft cap or the project-level hard daily cap would be exceeded (soft cap shows a toast; hard cap stops the request outright).
-
-Token budgets are tracked per session and per project; surpassing the hard cap logs the guardrail and surfaces a toast explaining why the batch was blocked.
-
-Insights Overlay keeps writer content on disk and never exports it to a remote model; if Insights Overlay is active, automation toggles and endpoints remain disabled and the Critique Pane only permits manual inspection.
-
-## Telemetry (see `docs/specs/performance_telemetry_policy.md`)
-- `critique.queue_time_ms`
-- `critique.local_duration_ms`
-- `critique.model_duration_ms`
-- `critique.notes_per_kword`
-- `critique.accept_rate`
-- `rewrite.apply_latency_ms`
-
-All metrics are anonymized, project-scoped, and written to the local `.perf/` stream; no telemetry leaves disk in Insights Overlay.
-
-## GUI Wiring (see `docs/gui/gui_layouts.md`)
-- Automation Toggle (Local / Local→Model)
-- Run All button plus Stop controls on the Critique Pane toolbar
-- Status pills per unit + aggregate counters for Queued / Running / Blocked
-- Budget bar with soft/hard indicators
-- Safety wiring honors Ctrl/Cmd+ Accept with an Undo toast and Rollback path when needed
-
-## Acceptance
-1. A batch run of 20 scenes (local-only) completes within N minutes without freezing the Critique Pane.
-2. Model queue is opt-in, respects the hard budget, and shows visible cost/budget counters.
-3. Accept/Rollback flows remain undoable, logged, and reload without sending content off-disk when Insights Overlay is on.
+Until then, this doc should be treated as an architecture sketch only.

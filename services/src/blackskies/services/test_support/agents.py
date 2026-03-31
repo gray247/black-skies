@@ -1,4 +1,4 @@
-"""Agent base classes for Black Skies orchestration."""
+"""Thin worker wrappers kept only for tests and isolated experiments."""
 
 from __future__ import annotations
 
@@ -8,11 +8,11 @@ import time
 from dataclasses import dataclass
 from typing import Any, Callable, Iterable
 
-logger = logging.getLogger("blackskies.services.agents")
+logger = logging.getLogger("blackskies.services.test_support.agents")
 
 
 class AgentError(RuntimeError):
-    """Raised when an agent fails after retries."""
+    """Raised when a support-only agent fails after retries."""
 
 
 @dataclass(frozen=True)
@@ -32,7 +32,10 @@ class ExponentialBackoff:
 
 
 class BaseAgent(abc.ABC):
-    """Abstract agent with retry/backoff support."""
+    """Abstract worker wrapper with local retry/backoff support.
+
+    This is test-support code, not production runtime architecture.
+    """
 
     def __init__(
         self,
@@ -71,8 +74,6 @@ class BaseAgent(abc.ABC):
             extra={"extra_payload": {"agent": self.__class__.__name__}},
         )
         return result
-
-    # Internal helpers --------------------------------------------------
 
     def _execute_with_retries(self, payload: dict[str, Any]) -> dict[str, Any]:
         last_exc: BaseException | None = None
@@ -160,4 +161,5 @@ __all__ = [
     "DraftAgent",
     "RewriteAgent",
     "CritiqueAgent",
+    "ExponentialBackoff",
 ]

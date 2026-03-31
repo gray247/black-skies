@@ -1071,7 +1071,7 @@ def test_draft_critique_budget_logging(
         raise OSError("disk failure secret-token")
 
     monkeypatch.setattr(
-        "blackskies.services.routers.draft.revision.persist_project_budget",
+        "blackskies.services.operations.budget_service.BudgetService.persist_spend",
         _fail_persist,
     )
 

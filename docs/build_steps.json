@@ -458,16 +458,16 @@
     "steps": [
       {
         "step": 48,
-        "summary": "Agent stubs",
-        "what": "`OutlineAgent`, `DraftAgent`, `RevisionAgent` (no LLM yet).",
-        "files": "`black_skies/agents/*.py`",
+        "summary": "Support wrapper stubs",
+        "what": "`OutlineAgent`, `DraftAgent`, `RevisionAgent` support wrappers (no LLM yet).",
+        "files": "`black_skies/test_support/*.py`",
         "command": "import in REPL",
         "acceptance": "docstrings + signatures.",
         "codex_ask": "\u201cCreate agent class stubs with documented interfaces.\u201d"
       },
       {
         "step": 49,
-        "summary": "Pipeline orchestrator",
+        "summary": "Pipeline support orchestrator",
         "what": "`core/pipeline.py` orchestrates Outline\u2192Draft\u2192Revision with retries.",
         "files": "`black_skies/core/pipeline.py`",
         "command": "pipeline tests",
@@ -722,9 +722,9 @@
       },
       {
         "step": 76,
-        "summary": "Agents call through adapter",
-        "what": "`OutlineAgent/DraftAgent/RevisionAgent` call `llm.generate()` when provider \u2260 Null.",
-        "files": "agent modules",
+        "summary": "Support wrappers call through adapter",
+        "what": "`OutlineAgent/DraftAgent/RevisionAgent` support wrappers call `llm.generate()` when provider \u2260 Null.",
+        "files": "support wrapper modules",
         "command": "unit tests with Null + mocked OpenAI",
         "acceptance": "interface consistent.",
         "codex_ask": "\u201cRoute agents through LLM adapter.\u201d"

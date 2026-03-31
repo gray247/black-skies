@@ -18,7 +18,7 @@ Local-only FastAPI services the Electron app calls. All bodies are JSON (UTF-8).
 ## Conventions
 - **Base path:** all canonical routes live under `/api/v1`. Legacy unversioned aliases (e.g., `/draft/generate`) were retired in
   release `1.0.0-rc1`; clients must call the versioned paths directly.
-- **Model Router:** AI-facing endpoints (`/outline/build`, `/draft/generate`, `/draft/critique`, `/batch/critique`) invoke the Model Router (`./model_backend.md`) before sourcing models, keeping budgets/privacy centralized.
+- **Model Router:** AI-facing endpoints (`/outline/build`, `/draft/generate`, `/draft/critique`) use service-layer budget checks from `BudgetService` and then invoke the Model Router (`./model_backend.md`) for provider selection, keeping budgets centralized outside the router itself.
 - **Project context:** `project_id` is held in the active project session and supplied automatically; clients should not prompt users to type it per request (see `../gui/gui_layouts.md` for the UX contract).
 - **Content-Type:** `application/json`
 - **Auth:** none (same-machine services)

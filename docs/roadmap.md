@@ -62,9 +62,9 @@ The following planning docs describe capabilities that remain on the roadmap bey
 - Voice notes, large-font/high-contrast modes, dynamic export templates, corkboard cards PDF, batch outline report, status badges.
 - Milestone tracking: GitHub milestone "Phase 10 - Accessibility & Exports".
 
-### P11 - Agents & plugins (Planned)
-- Read-only agent hooks, plugin registry sandbox, safety layer, auto-backup verification, multi-project dashboard, smart merge tool, offline indicator & cache manager.
-- Milestone tracking: GitHub milestone "Phase 11 - Agents & Plugins".
+### P11 - Extensions & plugins (Planned)
+- Optional test-support wrappers, plugin registry sandbox, safety layer, auto-backup verification, multi-project dashboard, smart merge tool, offline indicator & cache manager.
+- Milestone tracking: GitHub milestone "Phase 11 - Extensions & Plugins".
 
 ---
 

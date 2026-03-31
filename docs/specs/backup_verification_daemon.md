@@ -1,111 +1,44 @@
-Status: Active (Canonical – Phase 11 Deliverable)
-Version: 1.0.0
-Last Reviewed: 2025-11-15
+Status: Active (Feature-flagged runtime service)
+Version: 1.0.1
+Last Reviewed: 2026-03-31
 Owner: Services Team
-Related Work: `./architecture.md` (Runtime Services), docs/phases/phase_charter.md (Phase 11 scope)
 
-This document is classified as a Phase 11 canonical deliverable per `docs/BUILD_PLAN.md`.
+# Backup Verification Daemon
 
-# Backup Verification Daemon – Planning Notes (Phase 11)
+This document describes a real backend service that exists in the repo.
 
-Spec Index:
-- Architecture (`./architecture.md`)
-- Data Model (`./data_model.md`)
-- Endpoints (`./endpoints.md`)
-- GUI Layouts (`../gui/gui_layouts.md`)
-- Analytics Spec (`./analytics_service_spec.md`)
-- BUILD_PLAN (TBD)
-- Phase Charter (`../phases/phase_charter.md`)
+Related runtime code:
+- `services/src/blackskies/services/backup_verifier.py`
+- `services/src/blackskies/services/scheduler.py`
+- `services/src/blackskies/services/app.py`
 
-## Goal
-Guarantee that both the short-term snapshots and the long-term ZIP backup archives remain readable. The daemon should routinely verify snapshot integrity, sanity-check the ZIP bundles, surface corruption early, and expose status for dashboards/support tooling.
+## What Exists Today
 
-## Key Outcomes
-1. Detect corrupted or missing snapshots within 15 minutes of creation.
-2. Emit diagnostics + structured events consumable by the P11 dashboards.
-3. Provide a CLI hook (`scripts/verify_backups.py`) and service health endpoint for support automation.
+`BackupVerificationDaemon` is implemented and `create_app()` wires it when `backup_verifier_enabled` is true.
 
-## Functional Requirements
-- **Scope:** `.blackskies/history/snapshots/` archives plus the long-term ZIP backup bundles under `<project_base_dir>/backups/BS_*.zip`, along with voice note audio/transcripts.
-- **Snapshot coverage:** walk the snapshot directory (using `history/snapshots/index.json` when present) to capture each entry, validate its stored SHA-256, and flag missing files before rotation.
-- **Backup coverage:** iterate `backups/` bundles, read `checksums.json`, and open each ZIP to verify the manifest and a random entry so long-term archives stay readable.
-- **Verification cadence:** configurable (default every 30 minutes) with exponential back-off when idle.
-- **Checks:** checksum validation (sha256), manifest completeness, and the ability to extract a random sample file from the snapshot index or the ZIP backup bundle to ensure archives are readable.
-- **Reporting:** write structured diagnostics (`history/diagnostics/backup_verifier_*.json`) and update a shared state file summarising last run/last failure.
-- **Alerting hooks:** emit `/api/v1/healthz` extension flag (`"backup_status": "ok|warning|error"`) and send structured log events for support ingestion.
-- **Failure remediation:** attempt single automatic retry; if still failing, mark snapshot as suspect and notify dashboard/support.
+`VerificationScheduler` is also started from the app factory.
 
-## Current Implementation Snapshot (2025-10-28)
-> The daemon is implemented behind a feature flag (`backup_verifier_enabled`) but **disabled in all builds**. Health endpoints return static `warning` status until Phase 11 ships.
-- `services/src/blackskies/services/backup_verifier.py` contains the hashing/manifest logic described below, but the scheduler is not started unless the flag is flipped.
-- Voice note coverage and dashboard hooks remain aspirational; treat the sections below as a plan rather than shipping behavior.
-- Voice note validation only runs when `BLACKSKIES_ENABLE_VOICE_NOTES=1`; the default Phase 8 surface skips any audio/transcript inspection even if assets exist in `history/voice_notes/`.
+If the feature flag is off, the app exposes a warning state instead of starting the daemon.
 
-## Configuration & Runtime Notes
-- Settings live in `ServiceSettings`:
-  - `backup_verifier_enabled` (default: `false`) toggles the scheduler.
-  - `backup_verifier_interval_seconds` controls the base cadence (default: 30 minutes).
-  - `backup_verifier_backoff_max_seconds` caps the exponential back-off while idle.
-- State file location: `<project_base_dir>/service_state/backup_verifier/backup_verifier_state.json`. This aggregated service file is rehydrated on boot so the daemon can remember past checksum summaries without touching `_runtime`.
-- Operational hooks:
-  - `/api/v1/healthz` provides the quick status for dashboards.
-  - Structured diagnostics accumulate under `<project>/history/diagnostics/` with `BACKUP_VERIFIER_OK|ERROR` codes.
-  - Support tooling can tail the state file for per-snapshot checksum deltas without re-reading archives.
+## Current Behavior
 
-## Enablement Plan
-1. **Phase 11 staging (T-9142.1):** Flip `backup_verifier_enabled: true` in the staging configuration once dashboard consumers ingest the new health fields. Run the daemon for one full cycle to seed baseline checksums.
-2. **Production rollout (T-9142.2):** After two green staging cycles and dashboard validation, enable the flag in production runtime configs. Document the change in the release checklist.
-3. **Post-enable monitoring:** Watch for `BACKUP_VERIFIER_ERROR` diagnostics; support should acknowledge each new entry and, if necessary, quarantine affected snapshots manually until automated remediation lands.
+The daemon:
+- verifies snapshot and backup integrity
+- updates a persisted state file
+- emits diagnostics and health state
+- runs on a background task when enabled
 
-## Architecture Sketch
-```text
-┌─────────────────────────┐
-│ Backup Verification Task│
-├─────────────────────────┤
-│ Scheduler (async)       │
-│ Snapshot walker         │
-│ Checksum + manifest     │
-│ Voice note validator    │
-│ Metrics/diagnostics     │
-└─────────────────────────┘
-           │ emits
-           ▼
-┌─────────────────────────┐
-│ Diagnostics Logger      │
-│ (history/diagnostics)   │
-└─────────────────────────┘
-           │ updates
-           ▼
-┌─────────────────────────┐
-│ Service state cache     │
-│ (fast API dependency)   │
-└─────────────────────────┘
-```
+What it does not do:
+- it does not ship a separate UI
+- it does not require a future Phase 11 rewrite to exist
+- it does not imply a job queue or Overseer
 
-## Task Breakdown
-1. **Service skeleton**
-   - Implement `backup_verifier.py` with pluggable storage adapters.
-   - Add scheduler bootstrap in `services/src/blackskies/services/app.py` (Phase 11 feature flag).
-2. **Checksum + manifest audit**
-   - Generate and persist manifests at snapshot time (dependency on DraftAccept pipeline).
-   - Verify file counts, hashes, and expected metadata.
-3. **Voice note coverage**
-   - Extend verification to `history/voice_notes/*`.
-   - Validate JSON transcript schema.
-4. **Diagnostics + metrics**
-   - Emit structured diagnostics and update `ServiceDiagnostics` state for dashboards.
-   - Expose `/api/v1/backup/status` (Phase 11) or extend health payload.
-5. **CLI & integration tests**
-   - Add `scripts/verify_backups.py` for on-demand runs.
-   - Integration tests covering corrupted snapshot, missing file, and successful run.
-6. **Documentation**
-   - Update support playbook + release checklist once implementation lands.
+## Operational Notes
 
-## Open Questions
-- Do we quarantine suspect snapshots or delete them automatically?
-- Should the daemon pause verification while large exports run?
-- How do we handle encrypted backups (future scope)?
+- default state is off
+- the app still knows about the daemon state when it is disabled
+- health endpoints should report the disabled/warning state clearly
 
-## Dependencies
-- Snapshot manifests emitted during accept/export flows.
-- Phase 11 dashboards to consume new status metrics.
+## Future Work
+
+If support wants richer dashboard wiring or alerting, that should be documented as an incremental follow-up, not as a prerequisite for the daemon existing.

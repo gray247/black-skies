@@ -203,6 +203,12 @@ class ModelRouter:
         raise RuntimeError("No healthy model providers available.")
 
     def evaluate_run_policy(self, task: ModelTask, *, budget_status: str) -> RunPolicyDecision:
+        """Evaluate routing policy using caller-supplied budget status.
+
+        ``budget_status`` is derived by ``BudgetService`` or upstream service
+        logic; the router only consumes it and never classifies spend itself.
+        """
+
         local_available, api_available = self._availability(task)
         engine = RunPolicyEngine()
         return engine.evaluate(

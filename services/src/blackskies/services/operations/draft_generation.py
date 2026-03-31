@@ -14,6 +14,11 @@ from uuid import uuid4
 from ..config import ServiceSettings
 from ..diagnostics import DiagnosticLogger
 from ..draft_synthesizer import DraftSynthesizer
+from ..execution_policy import (
+    ExecutionPolicy,
+    ExecutionPolicyRunner,
+    ExecutionPolicyTimeoutError,
+)
 from ..heuristics import load_project_heuristics
 from ..analytics.runtime import log_runtime_event
 from ..http import raise_budget_error
@@ -137,6 +142,16 @@ class DraftGenerationService:
         self._persistence = DraftPersistence(settings=settings, durable_writes=False)
         self._timeout_seconds = getattr(settings, "draft_task_timeout_seconds", 120)
         self._retry_attempts = max(0, int(getattr(settings, "draft_task_retry_attempts", 1)))
+        self._execution_runner = ExecutionPolicyRunner(
+            ExecutionPolicy(
+                name="draft_generation",
+                timeout_seconds=float(self._timeout_seconds),
+                max_attempts=max(1, int(self._retry_attempts) + 1),
+                backoff_seconds=0.0,
+            )
+        )
+        # BudgetService owns spend classification and blocked/allowed decisions;
+        # this service only applies the result.
         self._budget_service = BudgetService(settings=settings, diagnostics=diagnostics)
         self._model_router = model_router
         self._last_route: ModelRouteDecision | None = None
@@ -178,26 +193,20 @@ class DraftGenerationService:
             total_words += estimate_word_target(scene, overrides)
 
         estimated_cost = round((total_words / 1000) * 0.02, 2)
-        status_label, message, total_after = self._budget_service.classify(
+        budget_assessment = self._budget_service.assess(
             state=budget_state,
             estimated_cost=estimated_cost,
-        )
-        summary = self._budget_service.build_summary(
-            state=budget_state,
-            estimated_cost=estimated_cost,
-            total_after=total_after,
             spent_override=budget_state.spent_usd,
-            status=status_label,
-            message=message,
         )
-        budget_payload = summary.as_dict()
+        budget_payload = budget_assessment.as_dict()
+        summary = budget_assessment
 
-        if status_label == "blocked":
+        if budget_assessment.blocked:
             raise_budget_error(
-                message=message,
+                message=budget_assessment.message,
                 details={
                     "estimated_usd": estimated_cost,
-                    "total_after_usd": total_after,
+                    "total_after_usd": budget_assessment.total_after_usd,
                     "hard_limit_usd": budget_state.hard_limit,
                     "soft_limit_usd": budget_state.soft_limit,
                     "spent_usd": budget_state.spent_usd,
@@ -208,7 +217,7 @@ class DraftGenerationService:
 
         policy_decision = self._evaluate_run_policy(
             task=ModelTask.DRAFT,
-            budget_status=status_label,
+            budget_status=budget_assessment.status,
         )
         synthesizer = self._create_synthesizer(project_root, policy_decision=policy_decision)
         if (
@@ -241,17 +250,20 @@ class DraftGenerationService:
                     "allow_api": self._last_policy.allow_api,
                 },
             )
-        response_payload, artifacts = await self._run_with_timeout(
-            self._execute_generation,
-            request,
-            list(scenes),
-            estimated_cost,
-            budget_payload,
-            summary,
-            synthesizer,
-            project_root,
-            project_root=project_root,
-        )
+        try:
+            response_payload, artifacts = await self._run_with_execution_policy(
+                self._execute_generation,
+                request,
+                list(scenes),
+                estimated_cost,
+                budget_payload,
+                summary,
+                synthesizer,
+                project_root,
+                project_root=project_root,
+            )
+        except ExecutionPolicyTimeoutError as exc:
+            raise DraftGenerationTimeoutError(str(exc)) from exc
 
         budget_meta["last_request_fingerprint"] = request_fingerprint
         budget_meta["last_generate_response"] = copy.deepcopy(response_payload)
@@ -319,24 +331,28 @@ class DraftGenerationService:
             overrides = request.overrides.get(scene.id)
             total_words += estimate_word_target(scene, overrides)
         estimated_cost = round((total_words / 1000) * 0.02, 2)
-        status_label, _, _ = self._budget_service.classify(
+        budget_assessment = self._budget_service.assess(
             state=budget_state,
             estimated_cost=estimated_cost,
+            spent_override=budget_state.spent_usd,
         )
 
         policy_decision = self._evaluate_run_policy(
             task=ModelTask.DRAFT,
-            budget_status=status_label,
+            budget_status=budget_assessment.status,
         )
         synthesizer = self._create_synthesizer(project_root, policy_decision=policy_decision)
-        payload = await self._run_with_timeout(
-            self._compute_preflight_payload,
-            request,
-            list(scenes),
-            budget_state,
-            synthesizer,
-            project_root=project_root,
-        )
+        try:
+            payload = await self._run_with_execution_policy(
+                self._compute_preflight_payload,
+                request,
+                list(scenes),
+                budget_state,
+                synthesizer,
+                project_root=project_root,
+            )
+        except ExecutionPolicyTimeoutError as exc:
+            raise DraftGenerationTimeoutError(str(exc)) from exc
         return DraftPreflightResult(payload=payload)
 
     def _create_synthesizer(
@@ -529,19 +545,12 @@ class DraftGenerationService:
             total_words += estimate_word_target(scene, overrides)
 
         estimated_cost = round((total_words / 1000) * 0.02, 2)
-        status_label, message, total_after = self._budget_service.classify(
+        budget_assessment = self._budget_service.assess(
             state=budget_state,
             estimated_cost=estimated_cost,
-        )
-        summary = self._budget_service.build_summary(
-            state=budget_state,
-            estimated_cost=estimated_cost,
-            total_after=total_after,
             spent_override=budget_state.spent_usd,
-            status=status_label,
-            message=message,
         )
-        budget_payload = summary.as_dict()
+        budget_payload = budget_assessment.as_dict()
         if (
             self._model_router
             and self._model_router.config.routing_metadata_enabled
@@ -604,38 +613,38 @@ class DraftGenerationService:
                 details={"error": str(exc)},
             )
 
-    async def _run_with_timeout(self, func, *args, project_root: Path | None = None) -> Any:
-        timeout = max(5, int(self._timeout_seconds))
-        attempts = max(1, int(self._retry_attempts) + 1)
-        last_error: Exception | None = None
+    async def _run_with_execution_policy(self, func, *args, project_root: Path | None = None) -> Any:
+        # Draft generation still owns diagnostics and budget plumbing.
+        # Shared execution policy owns retries, timeouts, and cancellation.
         diagnostics_root = project_root or Path(self._settings.project_base_dir)
 
-        for attempt in range(attempts):
-            try:
-                async with asyncio.timeout(timeout):
-                    return await asyncio.to_thread(func, *args)
-            except asyncio.TimeoutError as exc:
-                last_error = DraftGenerationTimeoutError(str(exc))
+        def _log_failure(attempt: int, error: BaseException) -> None:
+            if isinstance(error, ExecutionPolicyTimeoutError):
                 self._diagnostics.log(
                     diagnostics_root,
                     code="TIMEOUT",
                     message="Draft task exceeded timeout.",
-                    details={"attempt": attempt + 1, "timeout_seconds": timeout},
+                    details={
+                        "attempt": attempt,
+                        "timeout_seconds": int(self._execution_runner.policy.timeout_seconds),
+                    },
                 )
-            except asyncio.CancelledError:
-                raise
-            except Exception as exc:
-                last_error = exc
-                self._diagnostics.log(
-                    diagnostics_root,
-                    code="INTERNAL",
-                    message="Draft task failed.",
-                    details={"attempt": attempt + 1, "error": str(exc)},
-                )
-            await asyncio.sleep(0)
+                return
+            self._diagnostics.log(
+                diagnostics_root,
+                code="INTERNAL",
+                message="Draft task failed.",
+                details={"attempt": attempt, "error": str(error)},
+            )
 
-        assert last_error is not None
-        raise last_error
+        return await self._execution_runner.run_async(
+            lambda: func(*args),
+            # Preserve the current broad retry surface here: the shared layer
+            # handles the loop, and this service still decides which failures
+            # are worth another draft attempt.
+            retryable=lambda _error: True,
+            on_failure=_log_failure,
+        )
 
 
 __all__ = [

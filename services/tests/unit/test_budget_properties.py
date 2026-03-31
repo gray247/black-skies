@@ -1,15 +1,19 @@
 from __future__ import annotations
 
-import math
+from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 from hypothesis import given, strategies as st
 
+from blackskies.services.config import ServiceSettings
+from blackskies.services.diagnostics import DiagnosticLogger
 from blackskies.services.budgeting import (
     COST_PER_1000_WORDS_USD,
     classify_budget,
     derive_critique_cost,
 )
+from blackskies.services.operations.budget_service import BudgetService
 
 
 @given(
@@ -74,3 +78,16 @@ def test_classify_budget_returns_consistent_totals(
         assert status in {"soft-limit", "blocked"}
     else:
         assert status == "ok"
+
+
+def test_budget_service_assess_marks_blocked_runs() -> None:
+    settings = ServiceSettings(project_base_dir=Path.cwd())
+    diagnostics = DiagnosticLogger()
+    service = BudgetService(settings=settings, diagnostics=diagnostics)
+    state = SimpleNamespace(soft_limit=5.0, hard_limit=10.0, spent_usd=9.75)
+
+    summary = service.assess(state=state, estimated_cost=0.5, spent_override=state.spent_usd)
+
+    assert summary.status == "blocked"
+    assert summary.blocked is True
+    assert summary.total_after_usd == pytest.approx(10.25)

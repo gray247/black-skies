@@ -30,6 +30,12 @@ class BudgetSummary:
     spent_usd: float
     total_after_usd: float
 
+    @property
+    def blocked(self) -> bool:
+        """Return whether this assessment stops the run."""
+
+        return self.status == "blocked"
+
     def as_dict(self) -> dict[str, Any]:
         return {
             "estimated_usd": self.estimated_usd,
@@ -60,13 +66,32 @@ class BudgetService:
         state: ProjectBudgetState,
         estimated_cost: float,
     ) -> Tuple[str, str, float]:
-        """Return classification tuple for the proposed run."""
+        """Return the raw classification tuple for the proposed run."""
 
         return classify_budget(
             estimated_cost,
             soft_limit=state.soft_limit,
             hard_limit=state.hard_limit,
             current_spend=state.spent_usd,
+        )
+
+    def assess(
+        self,
+        *,
+        state: ProjectBudgetState,
+        estimated_cost: float,
+        spent_override: float | None = None,
+    ) -> BudgetSummary:
+        """Return the authoritative budget assessment for a proposed run."""
+
+        status, message, total_after = self.classify(state=state, estimated_cost=estimated_cost)
+        return self.build_summary(
+            state=state,
+            estimated_cost=estimated_cost,
+            total_after=total_after,
+            spent_override=spent_override,
+            status=status,
+            message=message,
         )
 
     def build_summary(

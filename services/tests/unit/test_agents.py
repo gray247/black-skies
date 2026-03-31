@@ -1,4 +1,4 @@
-"""Unit tests for agent retry behavior and backoff."""
+"""Unit tests for support-only worker retry behavior and backoff."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from blackskies.services.agents.base import (
+from blackskies.services.test_support.agents import (
     AgentError,
     DraftAgent,
     ExponentialBackoff,
@@ -36,7 +36,7 @@ def test_agent_run_failure_after_retries(monkeypatch: pytest.MonkeyPatch) -> Non
     payload: dict[str, Any] = {"topic": "testing"}
 
     sleep_mock = Mock(spec=Callable[[float], None])
-    monkeypatch.setattr("blackskies.services.agents.base.time.sleep", sleep_mock)
+    monkeypatch.setattr("blackskies.services.test_support.agents.time.sleep", sleep_mock)
 
     call_count = 0
 

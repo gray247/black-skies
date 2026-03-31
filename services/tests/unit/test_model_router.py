@@ -74,6 +74,21 @@ def test_unhealthy_providers_raise():
         router.route(ModelTask.DRAFT)
 
 
+def test_evaluate_run_policy_consumes_budget_status_input_only():
+    config = ModelRouterConfig(
+        policy=ModelRoutingPolicy.API_ONLY,
+        openai_api_key="test-key",
+        local_llm_available=False,
+    )
+    router = create_default_model_router(config)
+
+    decision = router.evaluate_run_policy(ModelTask.DRAFT, budget_status="blocked")
+
+    assert decision.budget_status == "blocked"
+    assert decision.blocked is True
+    assert decision.reason == "budget.hard_limit"
+
+
 @pytest.mark.parametrize("task", [ModelTask.DRAFT, ModelTask.CRITIQUE, ModelTask.REWRITE])
 def test_provider_model_mapping_for_local(task):
     config = ModelRouterConfig(policy=ModelRoutingPolicy.LOCAL_ONLY)

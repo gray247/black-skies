@@ -1,55 +1,55 @@
-Status: Deferred
-Version: 1.0
-Last Reviewed: 2025-11-05
-Phase: Phase 11 (Agents & Plugins)
+Status: Draft
+Version: 1.0.1
+Last Reviewed: 2026-03-31
 
-# Plugin Sandbox Design
+# Plugin Sandbox
 
-## Goals
-- Execute third-party plugins with least privilege.
-- Prevent plugins from exhausting system resources or exfiltrating data without approval.
-- Provide consistent auditing for install, execution, and teardown events.
+This document describes the plugin implementation that actually exists.
 
-## Execution Model
-1. **Package intake**: Plugins are unpacked into `plugins/{id}/` (read-only) with checksum verification.
-2. **Sandbox runtime**: Each invocation launches a dedicated subprocess using a minimal Python runtime (`python -I -m plugin_runner`) with:
-   - Dedicated virtual environment containing only approved dependencies.
-   - Restricted `PYTHONPATH`.
-   - Environment variables limited to `BLACKSKIES_PLUGIN_*` scope.
-3. **IPC**: Host communicates over stdio with JSON-RPC payloads (`invoke`, `report`, `heartbeat`).
-4. **Resource limits**:
-   - CPU: `resource.setrlimit(resource.RLIMIT_CPU, (cpu_seconds, cpu_seconds + 1))`.
-   - Memory: `RLIMIT_AS` capped (configurable per policy).
-   - File descriptors: limit to sandbox pipes.
-   - Wall clock timeout enforced by host (default 30s, override via manifest).
-5. **Filesystem**: Working directory is a temp folder; only whitelisted paths (project snapshots, read only) mounted via symlinks. No network by default.
+## Current Implementation
 
-## Permission Enforcement
-- Manifest declares permissions (`read:project`, `emit:report`, `network:https`).
-- Host validates requested permissions against tenant policy; rejects on mismatch.
-- Network access requires explicit allow-list and uses proxy shim to capture requests.
-- File access mediated through host-provided APIs; plugins cannot call `open()` outside temp dir.
+The current plugin path is:
+- `services/src/blackskies/services/plugins/registry.py`
+- `services/src/blackskies/services/plugins/host.py`
+- `services/src/blackskies/services/plugins/runner.py`
 
-## Auditing
-- Every lifecycle event yields a structured log entry:
-  - `install`, `enable`, `disable`, `execute`, `terminate`.
-- Execution log includes:
-  - Timestamp, plugin ID/version, permissions granted, duration, exit code.
-- On timeout or resource limit breach, host records termination reason and stack trace (if any).
-- Audit handlers write to `history/plugins/{id}/audit.log` and main diagnostics log.
+The runtime does the following:
+- stores plugin manifests under the plugin directory
+- validates plugin IDs and manifest structure
+- launches a subprocess with `python -m blackskies.services.plugins.runner`
+- executes a single callable entrypoint from the manifest
+- applies CPU, memory, and file-descriptor limits inside the runner where supported
 
-## Error Handling
-- Plugin stdout/stderr captured; stderr truncated to 4KB per frame.
-- Non-zero exit or invalid JSON → host emits `FAILED` status with reason.
-- Timeout → host sends `SIGKILL`, marks execution as `TIMEOUT`.
+The manifest format currently supports:
+- `entrypoint`
+- `module_path`
+- `metadata`
 
-## Future Enhancements
-- Optional WebAssembly backend for languages other than Python.
-- Quota system for total CPU/IO per plugin per day.
-- Signing requirements for production deployment.
+What does not exist:
+- a plugin HTTP router
+- hook dispatch like `on_plan` / `on_analyze` / `on_rewrite` / `on_export` / `on_report`
+- JSON-RPC transport
+- host-side wall-clock timeout enforcement
+- lifecycle audit logging for plugin install/execute/terminate
+- network proxying or quota accounting
 
-## Implementation Roadmap
-1. **Phase 1**: build sandbox runner module, manifest validator, and audit logger; integrate with registry install/enable workflow.
-2. **Phase 2**: wire hook execution (Planner/Drafter/etc.) through sandbox API with timeout/error propagation; add unit + contract tests.
-3. **Phase 3**: introduce network proxy and permission gating; implement resource quota tracking.
-4. **Phase 4**: add CLI tooling for admins (list, inspect, revoke) and CI tests verifying isolation guarantees.
+## Security Reality
+
+The sandbox is partial, not complete.
+
+It is isolated by subprocess boundary and runtime limits, but the host currently relies on subprocess invocation and manifest validation rather than a full orchestration layer.
+
+`plugins_enabled()` is the feature gate.
+
+If plugin execution is disabled, the registry refuses to run the plugin.
+
+## Future Work
+
+If the repo later adds hook dispatch, this file should be updated to define:
+- the hook names
+- the payload shape
+- the permission model
+- timeout and retry ownership
+- how failures are reported back to the caller
+
+Until that code exists, hook-language belongs in future-design notes only.

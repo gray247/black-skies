@@ -2,17 +2,23 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
 from blackskies.services.config import ServiceSettings
 from blackskies.services.diagnostics import DiagnosticLogger
+from blackskies.services.execution_policy import ExecutionPolicyTimeoutError
 from blackskies.services.model_adapters import AdapterError
 from blackskies.services.model_router import create_default_model_router
 from blackskies.services.model_routing import ModelRouterConfig, ModelRoutingPolicy
 from blackskies.services.models.draft import DraftGenerateRequest, DraftUnitScope
 from blackskies.services.models.outline import OutlineScene
-from blackskies.services.operations.draft_generation import DraftGenerationService
+from blackskies.services.operations.budget_service import BudgetSummary
+from blackskies.services.operations.draft_generation import (
+    DraftGenerationService,
+    DraftGenerationTimeoutError,
+)
 
 
 def _write_project_budget(project_root: Path) -> None:
@@ -178,3 +184,128 @@ async def test_provider_calls_disabled_skips_adapter(
 
     assert "enters Scene 1" in result.response["units"][0]["text"]
     assert adapter.calls == 0
+
+
+@pytest.mark.anyio("asyncio")
+async def test_draft_generation_uses_shared_execution_policy_runner(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    tmp_path = Path.cwd()
+    project_root = Path("C:/virtual-draft-policy/project")
+    adapter = _StubAdapter(text="Mara entered the room.")
+    service = _build_service(
+        tmp_path,
+        adapter,
+        monkeypatch,
+        provider_calls_enabled=True,
+    )
+    fake_state = SimpleNamespace(
+        metadata={"budget": {}},
+        spent_usd=0.0,
+        hard_limit=10.0,
+        soft_limit=5.0,
+    )
+    monkeypatch.setattr(service._budget_service, "load_state", lambda _project_root: fake_state)
+    def _assess(*, state, estimated_cost, spent_override=None):
+        assert state is fake_state
+        assert spent_override == pytest.approx(fake_state.spent_usd)
+        return BudgetSummary(
+            estimated_usd=round(estimated_cost, 2),
+            status="ok",
+            message="Estimate within budget.",
+            soft_limit_usd=round(fake_state.soft_limit, 2),
+            hard_limit_usd=round(fake_state.hard_limit, 2),
+            spent_usd=round(spent_override if spent_override is not None else fake_state.spent_usd, 2),
+            total_after_usd=round(fake_state.spent_usd + estimated_cost, 2),
+        )
+
+    monkeypatch.setattr(service._budget_service, "assess", _assess)
+    monkeypatch.setattr(service._budget_service, "persist_spend", lambda *args, **kwargs: None)
+    monkeypatch.setattr(service._diagnostics, "log", lambda *args, **kwargs: None)
+    monkeypatch.setattr(
+        "blackskies.services.operations.draft_generation.load_project_heuristics",
+        lambda _project_root: {},
+    )
+    monkeypatch.setattr(
+        "blackskies.services.operations.draft_generation.persist_carryover",
+        lambda *args, **kwargs: None,
+    )
+    monkeypatch.setattr(
+        "blackskies.services.operations.draft_generation.log_runtime_event",
+        lambda *args, **kwargs: None,
+    )
+    monkeypatch.setattr(service._persistence, "write_scene", lambda *args, **kwargs: None)
+
+    calls: list[str] = []
+    original = service._execution_runner.run_async
+
+    async def wrapped(operation, **kwargs):
+        calls.append(service._execution_runner.policy.name)
+        return await original(operation, **kwargs)
+
+    monkeypatch.setattr(service._execution_runner, "run_async", wrapped)
+
+    result = await service.generate(_request(project_root), _scenes(), project_root=project_root)
+
+    assert result.response["units"][0]["text"]
+    assert calls == ["draft_generation"]
+    assert adapter.calls == 1
+
+
+@pytest.mark.anyio("asyncio")
+async def test_draft_generation_wraps_shared_timeout(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    tmp_path = Path.cwd()
+    project_root = Path("C:/virtual-draft-timeout/project")
+    adapter = _StubAdapter(text="Mara entered the room.")
+    service = _build_service(
+        tmp_path,
+        adapter,
+        monkeypatch,
+        provider_calls_enabled=True,
+    )
+    fake_state = SimpleNamespace(
+        metadata={"budget": {}},
+        spent_usd=0.0,
+        hard_limit=10.0,
+        soft_limit=5.0,
+    )
+    monkeypatch.setattr(service._budget_service, "load_state", lambda _project_root: fake_state)
+    def _assess(*, state, estimated_cost, spent_override=None):
+        assert state is fake_state
+        assert spent_override == pytest.approx(fake_state.spent_usd)
+        return BudgetSummary(
+            estimated_usd=round(estimated_cost, 2),
+            status="ok",
+            message="Estimate within budget.",
+            soft_limit_usd=round(fake_state.soft_limit, 2),
+            hard_limit_usd=round(fake_state.hard_limit, 2),
+            spent_usd=round(spent_override if spent_override is not None else fake_state.spent_usd, 2),
+            total_after_usd=round(fake_state.spent_usd + estimated_cost, 2),
+        )
+
+    monkeypatch.setattr(service._budget_service, "assess", _assess)
+    monkeypatch.setattr(service._budget_service, "persist_spend", lambda *args, **kwargs: None)
+    monkeypatch.setattr(service._diagnostics, "log", lambda *args, **kwargs: None)
+    monkeypatch.setattr(
+        "blackskies.services.operations.draft_generation.load_project_heuristics",
+        lambda _project_root: {},
+    )
+    monkeypatch.setattr(
+        "blackskies.services.operations.draft_generation.persist_carryover",
+        lambda *args, **kwargs: None,
+    )
+    monkeypatch.setattr(
+        "blackskies.services.operations.draft_generation.log_runtime_event",
+        lambda *args, **kwargs: None,
+    )
+    monkeypatch.setattr(service._persistence, "write_scene", lambda *args, **kwargs: None)
+
+    async def boom(*_args, **_kwargs):
+        raise ExecutionPolicyTimeoutError("Operation 'draft_generation' timed out after 0.0 seconds.")
+
+    monkeypatch.setattr(service._execution_runner, "run_async", boom)
+
+    with pytest.raises(DraftGenerationTimeoutError, match="draft_generation"):
+        await service.generate(_request(project_root), _scenes(), project_root=project_root)
