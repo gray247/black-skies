@@ -1,22 +1,26 @@
 Status: Draft
-Version: 1.0
-Last Reviewed: 2025-11-05
-Source of Truth: `docs/phases/phase_charter.md` defines the Phase 9/11 scope; sync test coverage to that charter.
+Version: 1.1
+Last Reviewed: 2026-03-31
+Source of Truth: `docs/phases/phase_charter.md` defines the phase sequence. Phase 9 test coverage should follow the analytics charter, not the old companion-loop story.
 
-# docs/phases/phase9_11_testplan.md — DRAFT
-> Implementation trace: `docs/BUILD_PLAN.md` → phases 9/11 rows.
+# docs/phases/phase9_11_testplan.md - DRAFT
+> Implementation trace: `docs/roadmap.md` -> phases 9/11 rows.
 
 ## Strategy
-Blend Playwright, backend service mocks, and golden text diff comparisons to cover Critique automation, recovery, and export scenarios introduced in Phases 9–11.
+Cover the analytics and visualization surfaces with service-level tests, GUI render tests, and endpoint contracts. Keep the plan service-first and do not assume a queue or agent runtime.
 
-## Suites
-- **Critique Automation:** Batch 10 scenes (local-only) and assert status pills, counters, durations, and queue-to-run transitions. Include the Local→Model path with an explicit budget cap hit to confirm UI blocks and logs correctly.
-- **Recovery:** Dirty edit + forced crash → relaunch → verify the restore prompt, caret position, and pane layout are recovered. Simulate hash mismatches to show the warning and safe open path.
-- **Export:** Generate MD/JSON/PDF/EPUB artifacts, confirm their existence, validate SHA-256, and assert Markdown outputs contain zero inline critique notes. Run `scripts/export_diff.py` against a golden baseline for the Markdown artifact.
-- **Telemetry Assertions:** Ensure `critique.accept_rate` stays between 0–100, durations are captured, and no PII is emitted. Validate telemetry counters from `docs/specs/performance_telemetry_policy.md` appear in the JSONL stream.
-- **Visuals & Analytics:** `POST /api/v1/analytics/build` and `/api/v1/analytics/refresh` respond within budget and update cache files. Validate coverage heatmap, critique trendline, and Relationship Graph rendering (heatmap intensities match rubric coverage; clicking data points navigates to the correct scene and filters notes).
+## Phase 9 Suites
+- **Analytics payloads:** Validate emotion arc, pacing curve, conflict heatmap, intensity timeline, and project health payloads from the analytics service layer.
+- **Outline validation:** Verify outline validation errors, diagnostics, and success paths against representative project data.
+- **GUI rendering:** Assert the analytics drawer, dashboard cards, and insight surfaces render the expected data without requiring a new control plane.
+- **Telemetry assertions:** Check that analytics metrics emit the expected counters and do not leak PII.
+
+## Phase 11 Suites
+- **Plugin sandbox:** Test the entrypoint subprocess model only.
+- **Backup verification:** Validate the feature-flagged backup verifier state and health payloads.
+- **Optional wrappers:** Keep support-only wrapper tests isolated in `blackskies.services.test_support`.
 
 ## Done When
-- Critical regression suites cover analytics gating, export flows, and schema enforcement described in `docs/specs/endpoints.md` and `docs/specs/analytics_service_spec.md`.
-- Companion automation, recovery, and export tests exercise Insights Overlay budgets and offline states.
-- Telemetry counter validations align with `docs/specs/performance_telemetry_policy.md`.
+- Phase 9 tests cover the analytics contract and do not require batch/job semantics.
+- Phase 11 tests stay confined to plugin sandbox and support-only wrapper behavior.
+- The test plan never claims an Overseer, queue, or hook dispatcher that the code does not implement.

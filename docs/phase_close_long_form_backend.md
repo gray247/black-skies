@@ -105,7 +105,7 @@ Get-ChildItem .\sample_project\proj_esther_estate\.blackskies\long_form\texts |
 
 ## Explicitly Deferred (Next Phase)
 - Outline-faithful editorial-partner controls once reliability/control closes
-- Controlled agent hooks (read-only by default, human-applied diffs)
+- Controlled read-only extension hooks (human-applied diffs)
 - Batch export / scene operations
 - UI expansion or polish
 

@@ -94,10 +94,10 @@ See `docs/error_ux.md` for how to escalate inline warnings/toasts/modals consist
 
 ---
 
-## Critique Pane Automation (Phase 9)
-- Controls: Automation Mode (Local / Local→Model), Run All, Stop.
-- Status: per-unit pills (Queued / Running / Blocked / Done), totals, budget bar.
-- Safety: Undo toast on Accept/Apply.
+## Critique Pane Automation (future-only)
+- Controls: if this feature ever ships, it will need an explicit service-backed design before the UI exposes automation.
+- Status: the current runtime does not implement queued per-unit job pills or a batch queue.
+- Safety: keep the existing undo/accept flow for service-backed critique and rewrite actions.
 
 ## History Pane (Phase 10)
 - Actions: Preview Diff, Restore, Reveal Snapshot.

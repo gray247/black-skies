@@ -140,3 +140,12 @@ A true `Overseer` or job coordinator is only needed if Black Skies adds:
 - a single scheduler for shared job state
 
 Until then, `create_app()` plus the service layer is the control plane.
+
+## Architectural Guardrails
+
+- Do not add new control-plane abstractions without a concrete runtime need.
+- Do not reintroduce an agent runtime unless the design and implementation exist together.
+- Do not duplicate execution-policy, budget, or resilience ownership across layers.
+- Keep routers thin.
+- Keep services as the owners of execution behavior.
+- Keep budget authority centralized in `BudgetService`.

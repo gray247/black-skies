@@ -21,7 +21,7 @@ Last Reviewed: 2025-11-15
 
 ## Completed Plan Items
 1. **Insights offline gating + telemetry** – Local vs. model chips are classified, the offline banner/tooltip copy is wired to `bridge.status`, and the companion overlay emits `insights.local_ran`, `insights.model_queued_offline`, and `insights.model_ran_after_reconnect`.
-2. **Model queue handling** – Model insights queue offline in volatile memory, replay on reconnect, and log the offline/after-reconnect counts. “Run all” never sends network calls while offline.
+2. **Deferred model handling** – Model insights stay deferred in volatile memory, replay on reconnect, and log the offline/after-reconnect counts. “Run all” never sends network calls while offline.
 3. **Floating-pane clamp + relocation toast** – Off-screen restores run through `clampBoundsToDisplay`, the Diagnostics JSON logs `{pane, from, to, reason}`, and a Surfaced toast + highlight tell writers what changed.
 4. **Relocation preferences** – Project Home exposes the floating-window behavior card (notify + auto-snap toggles), the implementation honors “Don’t show again,” and the toast fires once per session.
 5. **Test coverage** – Vitest includes the layout suite; Playwright specs now rely on stable `data-testid`s instead of copy-text; the rescue kit rebuilds bundles and reruns `gui.insights` with trace output.
@@ -36,7 +36,7 @@ Last Reviewed: 2025-11-15
 - `open-project` – deterministic button used by `_bootstrap.ts` to open the sample project.
 - `dock-workspace` – DockWorkspace root; waiting on this ensures panels are ready.
 - `companion-overlay` – overlay that can cover the workspace; `_bootstrap.ts` hides it before interactions.
-- `insights-toolbar`, `insights-local-ran`, `insights-model-queued`, `insights-model-resumed` – provide stable hooks for insights telemetry assertions.
+- `insights-toolbar`, `insights-local-ran`, `insights-model-queued`, `insights-model-resumed` – provide stable selectors for insights telemetry assertions.
 
 ## Recommendations & Next Steps
 1. Continue collecting Playwright traces (see `app/test-results/.../trace.zip`) so each rerun documents the `[electron.url]`, `[dbg:boot]`, and `[boot.screenshot]` output before the spec finishes.

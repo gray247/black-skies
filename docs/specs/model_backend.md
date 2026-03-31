@@ -71,7 +71,7 @@ Insights Overlay overrides these settings: when active, the router refuses to cr
 
 ## Phase Alignment
 - Router ships early (Phase 2+) to serve outline/draft/critique flows.
-- Phase 9’s batch critique automation explicitly uses the Model Router to honor budget guards before spinning up remote evaluations.
+- Phase 9 analytics and visualization surfaces may call the Model Router if they need model-backed scoring, but they do not imply a queued batch system or a new control plane.
 
 ## Current Engine Priority (Sequencing)
 API-backed long-form execution is validated, and rescue-plumbing / reliability-control closeout is complete. The active engine phase is now **Outline-Faithful Editorial Reliability**. Current focus:
@@ -88,4 +88,4 @@ The current stable editorial baseline is:
 - bounded clean sample: `6/10`
 - bounded adversarial sample: `5/5`
 
-Subsequent rescue-generation experiments did not produce a stronger adoptable path. The current decision point is therefore whether to hold this stable baseline and move remaining generation-side misses into writer/product-level handling, or run one final bounded higher-capability rescue comparison. See [../runbooks/editorial_reliability_decision_record_20260318.md](../runbooks/editorial_reliability_decision_record_20260318.md). UI docking/accessibility polish and agent hooks remain tracked separately.
+Subsequent rescue-generation experiments did not produce a stronger adoptable path. The current decision point is therefore whether to hold this stable baseline and move remaining generation-side misses into writer/product-level handling, or run one final bounded higher-capability rescue comparison. See [../runbooks/editorial_reliability_decision_record_20260318.md](../runbooks/editorial_reliability_decision_record_20260318.md). UI docking/accessibility polish and plugin hook experiments remain tracked separately.

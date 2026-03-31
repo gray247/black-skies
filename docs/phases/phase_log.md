@@ -37,6 +37,7 @@ Last Reviewed: 2026-03-15
 **2026-03-19** - Terminology was aligned across the first-pass editorial workflow. The intended user-facing states are now `Flagged`, `Accepted`, and `Manual review`, with continuity state expressed separately as `carryover risk`, `carryover mode`, and `allowed` / `blocked`.
 **2026-03-19** - `regenerate_local_repair` is now fully wired as a narrow, auditable, single-use local retry action. It persists separate retry state, preserves the original `review_snapshot` / `carryover_snapshot`, updates effective carryover from the retry result where appropriate, and is covered through service-route, IPC, renderer, and Playwright workflow tests.
 **2026-03-19** - Phase 8 editorial-control closeout is now documented explicitly in `docs/phases/phase8_closeout.md`. That closeout record defines the completion line, stable baseline behavior, bug/risk ledger, and manual verification checklist to use before any Phase 9 work begins.
+**2026-03-31** - Phase 8.5 runtime hardening is complete. The runtime is now service-first with explicit control-plane ownership, execution policy centralized in `ExecutionPolicyRunner`, budget authority centralized in `BudgetService`, `AgentOrchestrator` removed from the runtime namespace, and resilience layers separated by responsibility. Phase 9 is now the first feature phase after stabilization.
 
 ## Upcoming milestones
 - ~~**P7 - RC1:** Smoke tests complete; publish quickstart.~~ *(closed 2025-10-10)*
@@ -70,9 +71,10 @@ Last Reviewed: 2026-03-15
 | Phase | Charter section | Owner | Status | Scope snapshot | Tests / gates |
 | :---- | :-------------- | :---- | :----- | :------------- | :------------ |
 | P7 | Charter §7 | Release engineering | Locked 2025-10-10 | RC packaging + docs | `pnpm --filter app test`, smoke scripts |
-| P8 | Charter §8 | Desktop UI | Closed with follow-up exceptions | Companion overlay, batch critique, rubric editor, docking resilience | Engine milestone closed; UI verification exceptions tracked in `docs/phases/phase8_ui_gate_closeout.md` |
-| P9 | Charter §9 | Analytics squad | Planned | Emotion arc, pacing, dashboard | Planned Playwright + analytics contracts |
+| P8 | Charter §8 | Desktop UI | Complete | Core writing/feedback flow, recovery, export stability | Engine milestone closed |
+| P8.5 | Charter §8.5 | Runtime hardening | Complete | Control-plane alignment, execution policy, budget authority, separated resilience | Docs/tests aligned with runtime |
+| P9 | Charter §9 | Analytics squad | Planned | Emotion arc, pacing, dashboard, outline validation | Planned Playwright + analytics contracts |
 | P10 | Charter §10 | Accessibility | Planned | Voice notes, contrast mode, exports | Axe automation + export diff suite (planned) |
-| P11 | Charter §11 | Extensions | Planned | Agent hooks, plugin registry, backup services | Plugin contract tests (planned) |
+| P11 | Charter §11 | Extensions | Planned | Test-support wrappers, plugin registry, backup services | Plugin contract tests (planned) |
 
 For scope details see `docs/phases/phase_charter.md`. For execution status see `docs/roadmap.md`.

@@ -465,7 +465,7 @@ Runs critique on a unit using the rubric (see `../critique_rubric.md`). Non-dest
 ## Analytics (Deferred to Phase 9)
 
 Phase 8 builds return 404 for `/api/v1/analytics/*` unless `BLACKSKIES_ENABLE_ANALYTICS=1` flips the flag; these routes ship in Phase 9.
-The analytics drawer defined in `docs/gui/gui_layouts.md` and dashboards described in `docs/phases/dashboard_initiatives.md` rely on the payloads below once enabled.
+The analytics drawer defined in `docs/gui/gui_layouts.md` and dashboards described in `docs/phases/dashboard_initiatives.md` rely on the payloads below once enabled. The contract stays service-first; it does not imply a queued job system.
 
 
 ## Export Builder
@@ -529,7 +529,7 @@ The analytics drawer defined in `docs/gui/gui_layouts.md` and dashboards describ
 
 ### Analytics endpoints
 
-Analytics routes are deferred to Phase 9 per the charter: they remain in the spec only for reference.
+Analytics routes are deferred to Phase 9 per the charter: they remain in the spec only for reference and are not a queued batch system.
 
 - `GET /api/v1/analytics/summary` (emotion arc, pacing statistics, conflict heatmap)
 - `POST /api/v1/analytics/build` and `/api/v1/analytics/refresh` (trigger rescore/cache refresh)

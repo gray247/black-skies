@@ -61,7 +61,7 @@ Covers: new export formats, metadata extensions, and critique summaries (analyti
 ## Tasks
 1. Implement exporter interface and register Markdown/JSONL, DOCX, EPUB, PDF handlers.
 2. Integrate Pandoc invocation with sandboxed temp directories.
-3. Extend UI to manage templates, preview badges, and queue exports.
+3. Extend UI to manage templates, preview badges, and track export requests.
 4. Add tests covering template manifest validation and export outputs.
 
 ---

@@ -4,8 +4,8 @@ Last Reviewed: 2025-11-05
 
 # Specs
 
-Architecture, data schemas, endpoints, analytics, agent hooks, and related runtime specs live here.  
-Each doc links back to `../phases/phase_charter.md` for phase context and must trace into `docs/BUILD_PLAN.md` (Future entry) for implementation tasks.
+Architecture, data schemas, endpoints, analytics, plugin boundaries, and related runtime specs live here.
+Each doc links back to `../phases/phase_charter.md` for phase context and to `../roadmap.md` for current sequencing.
 
 Canonical docs:
 - `architecture.md`

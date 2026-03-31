@@ -76,8 +76,8 @@ The Visuals Layer preset (left: Visuals, center: Draft Board, right: Critique + 
 - Exporters persist `analytics_report.json` and include SHA-256 checksums in `/exports/checksums.txt`.
 
 ## Analytics Endpoints
-- `POST /api/v1/analytics/build` — enqueues a full rebuild; response `{job_id, status:"queued"}` and emitted when new drafts/objective changes occur.
-- `POST /api/v1/analytics/refresh` — forces recomputation of cache files and returns `{status:"ok", refreshed:true}`; typically used after bulk imports or plugin actions.
+- `POST /api/v1/analytics/build` — triggers a full rebuild and returns a service response describing the refreshed analytics state. If a future coordinator is ever added, it must be documented separately.
+- `POST /api/v1/analytics/refresh` — forces recomputation of cache files and returns `{status:"ok", refreshed:true}`; typically used after bulk imports or manual refresh actions.
 - `GET /api/v1/analytics/scene/{scene_id}` — fetch scene-level metrics and rubric detail for the Visuals Layer hover cards.
 - `GET /api/v1/analytics/graph` — return relationship graph nodes/edges for Relationship Graph visualizations.
 - All analytics endpoints require the active project context and respect Model Router budgets when they indirectly trigger fresh metrics.
@@ -92,5 +92,5 @@ The Visuals Layer preset (left: Visuals, center: Draft Board, right: Critique + 
 - [`docs/ops/support_playbook.md`](../ops/support_playbook.md) – Operational runbook for dashboards, analytics health signals, and escalation flows.
 
 ## Phase Alignment
-- Analytics spec sits ready so Bookend 2 (Visuals Layer, heatmaps) can consume consistent data once Phase 11 exports and automation land.
+- Analytics spec sits ready so Bookend 2 (Visuals Layer, heatmaps) can consume consistent data once Phase 9 ships.
 - Phase 8 does not ship these endpoints; see `./endpoints.md` for the deferred checklist and gating details.

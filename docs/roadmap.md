@@ -1,10 +1,12 @@
 Status: Active
-Version: 1.1
+Version: 1.2
 Last Reviewed: 2026-03-15
 
 # Roadmap
 
 This roadmap mirrors the scope defined in [docs/phases/phase_charter.md](./phases/phase_charter.md) and stays in lock-step with the change history recorded in [docs/phases/phase_log.md](./phases/phase_log.md). Treat the charter as the source of truth for what we ship, the phase log for when events were locked, and this roadmap for a quick status snapshot.
+
+Phase 8 built the core system. Phase 8.5 hardened the runtime and removed stale control-plane claims. Phase 9 is now the first feature phase after stabilization.
 
 ## Status legend
 | Label | Meaning |
@@ -27,18 +29,19 @@ This roadmap mirrors the scope defined in [docs/phases/phase_charter.md](./phase
 | P5 | Tools, data, evaluation harness | Complete | 2025-09 | Charter v1.0 |
 | P6 | End-to-end integration & contracts | Complete | 2025-09 | Charter v1.0 |
 | P7 | Release candidate | Complete | 2025-09 | Charter v1.1 |
-| P8 | Insights & feedback expansion | Closed with exceptions | 2025-10 | Charter v1.1 |
-| P9 | Analytics & visualization | Planned | 2025-11 | Charter v1.1 |
-| P10 | Accessibility & professional exports | Planned | 2025-12 | Charter v1.1 |
-| P11 | Agents & plugins | Planned | 2026-01 | Charter v1.1 |
+| P8 | Core system & editor quality | Complete | 2025-10 | Charter v1.1 |
+| P8.5 | Runtime hardening / control-plane alignment | Complete | 2026-03 | Charter v1.1 |
+| P9 | Analytics, visualization, and insight layer | Planned | 2026-04 | Charter v1.1 |
+| P10 | Accessibility & professional exports | Planned | 2026-05 | Charter v1.1 |
+| P11 | Extensions & plugins | Planned | 2026-06 | Charter v1.1 |
 
 ## Deferred Features (Not in v1.1)
 
-The following planning docs describe capabilities that remain on the roadmap beyond the Phase 8 shipping surface. Update them when the corresponding phase gates open.
+The following planning docs describe capabilities that remain on the roadmap beyond the stabilized Phase 8/8.5 surface. Update them when the corresponding phase gates open.
 
 - [`docs/deferred/voice_notes_transcription.md`](./deferred/voice_notes_transcription.md) - Voice note recording, transcription, and playback flows that ship in later accessibility/insights phases.
-- [`docs/specs/plugin_sandbox.md`](./specs/plugin_sandbox.md) - Plugin/agent sandboxing, permission gating, and auditing planned for Phase 11.
-- [`docs/specs/backup_verification_daemon.md`](./specs/backup_verification_daemon.md) - Backup verifier daemon, diagnostics, and health payload extensions that stay disabled in v1.1.
+- [`docs/specs/plugin_sandbox.md`](./specs/plugin_sandbox.md) - Plugin sandboxing, permission gating, and auditing planned for Phase 11.
+- [`docs/specs/backup_verification_daemon.md`](./specs/backup_verification_daemon.md) - Backup verifier daemon, diagnostics, and health payload extensions that are feature-flagged in runtime and documented separately.
 - [`docs/deferred/smart_merge_tool.md`](./deferred/smart_merge_tool.md) - Smart merge workflow for combining scene variants and annotations (Phase 11 editorial tooling).
 - [`docs/gui/accessibility_toggles.md`](./gui/accessibility_toggles.md) - Large-font + high-contrast theming toggles (Phase 10 accessibility focus).
 - [`docs/phases/phase10_recovery_pipeline.md`](./phases/phase10_recovery_pipeline.md) - Snapshot/hot restore UX improvements scoped for Phase 10.
@@ -46,17 +49,22 @@ The following planning docs describe capabilities that remain on the roadmap bey
 
 ## Phase detail
 
-### P8 - Insights & feedback expansion (Closed with exceptions)
-- Docking-aware Insights overlay, batch feedback mode, rubric editor, budget meter, quick restore toast.
+### P8 - Core system & editor quality (Complete)
+- Core service-first writing flow, critique loop, recovery, and export stability.
 - Milestone tracking: GitHub milestone "Phase 8 - Docking Verification".
-- Backend/engine progression completed on schedule and remains closed for sequencing purposes.
-- UI verification and scope exceptions are tracked in [docs/phases/phase8_ui_gate_closeout.md](./phases/phase8_ui_gate_closeout.md) and [docs/phases/phase8_verification_report.md](./phases/phase8_verification_report.md); this does not fully reopen P8.
-- Engine milestones continue in parallel. Current engine status: reliability/control closeout remains in progress for long-form rewrite recovery, stronger-model retry escalation, span-level patch rescue, and outline-faithful rewrite guardrails. Exit bar: near-zero unexpected failures on repeated fresh-server runs.
-- Next engine phase after closeout: outline-faithful editorial partner controls. Rewrites stay behind the curtain, trail the outline closely, and do not invent story deviations.
+- Closed for sequencing purposes.
 
-### P9 - Analytics & visualization (Planned)
-- Emotion arc timeline, adaptive pacing graph, conflict heatmap, scene length analyzer, revision streak tracker, project health dashboard, outline validation engine.
+### P8.5 - Runtime hardening / control-plane alignment (Complete)
+- Documentation corrected to match the runtime.
+- Fake Overseer / queue / hook claims removed.
+- `AgentOrchestrator` removed from the runtime namespace.
+- `ExecutionPolicyRunner`, `BudgetService`, and the resilience layers now have explicit ownership.
+- This is the stabilization step before any new feature phase.
+
+### P9 - Analytics, visualization, and insight layer (Planned)
+- Emotion arc graph, pacing curve visualization, conflict heatmap, scene intensity timeline, narrative flow diagnostics, outline validation engine, project health dashboard.
 - Milestone tracking: GitHub milestone "Phase 9 - Analytics & Visualization".
+- Builds on the stabilized service-first runtime, not inside a new control plane.
 
 ### P10 - Accessibility & professional exports (Planned)
 - Voice notes, large-font/high-contrast modes, dynamic export templates, corkboard cards PDF, batch outline report, status badges.
