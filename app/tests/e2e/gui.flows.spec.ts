@@ -7,6 +7,7 @@ import { TID } from '../../renderer/utils/testIds';
 const { loadedProject } = loadSampleProject();
 const FULL_ANALYTICS_E2E = process.env.FULL_ANALYTICS_E2E === '1';
 const primaryScene = loadedProject.scenes[0];
+const emptyScene = loadedProject.scenes[1];
 
 type GuiFlowWindow = typeof window & {
   __testBudgetResponse?: unknown;
@@ -40,6 +41,47 @@ test.describe('GUI flow smoke tests', () => {
     await page.evaluate(() => window.__selectSceneForTest?.('sc_0001'));
     const critiqueButton = page.getByTestId('workspace-action-critique');
     await expect(critiqueButton).toBeVisible({ timeout: 30_000 });
+  });
+
+  test('corkboard click opens draft board immediately (UI)', async ({ page }) => {
+    await installServiceStubs(page, 'normal', 'full');
+    await page.evaluate(() => {
+      (window as typeof window & { __testEnvActiveFlow?: boolean }).__testEnvActiveFlow = true;
+    });
+    await bootstrapHarness(page);
+
+    const previousTitle =
+      (await page.locator('.project-home__draft-title').textContent({ timeout: 5_000 })) ?? '';
+
+    await page.evaluate(() => {
+      const buttons = Array.from(document.querySelectorAll('.corkboard-card__button'));
+      const target = buttons[1];
+      if (target instanceof HTMLButtonElement) {
+        target.click();
+      }
+    });
+
+    await expect(page.getByTestId(TID.dockWorkspace)).toBeVisible({ timeout: 800 });
+    await expect(page.locator('.project-home__draft-title')).toHaveText(
+      emptyScene.title ?? emptyScene.id,
+      { timeout: 800 },
+    );
+    await expect(page.getByTestId('draft-board-editor')).toBeVisible({ timeout: 800 });
+    await expect
+      .poll(
+        async () => {
+          const emptyVisible = await page.getByTestId('draft-board-empty').isVisible().catch(() => false);
+          const loadingVisible = await page.getByTestId('draft-board-loading').isVisible().catch(() => false);
+          const editorText =
+            ((await page.locator('.project-home__draft-editor .cm-content').textContent().catch(() => '')) ?? '')
+              .trim()
+              .length > 0;
+          return emptyVisible || loadingVisible || editorText;
+        },
+        { timeout: 800 },
+      )
+      .toBe(true);
+    await expect(page.locator('.project-home__draft-title')).not.toHaveText(previousTitle);
   });
 
   test('snapshot_restore_flow (UI)', async ({ page }) => {
@@ -281,7 +323,7 @@ test.describe('GUI flow smoke tests', () => {
       });
     });
 
-    await banner.getByRole('button', { name: /retry connection/i }).click();
+    await banner.getByRole('button', { name: /retry connection/i }).evaluate((button) => button.click());
     await page.evaluate(() => {
       window.dispatchEvent(
         new CustomEvent('test:service-health', {

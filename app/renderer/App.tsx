@@ -4,6 +4,7 @@ import { createPortal } from "react-dom";
 
 import ProjectHome, {
   type ActiveScenePayload,
+  type DraftSceneState,
   type ProjectHomeProps,
   type ProjectLoadEvent,
 } from "./components/ProjectHome";
@@ -641,7 +642,7 @@ export default function App(): JSX.Element {
   const activeSceneId = activeScene?.id ?? null;
   const applySceneSelection = useCallback(
     (requestedSceneId?: string | null) => {
-      const scenesList = currentProjectRef.current?.scenes ?? [];
+      const scenesList = currentProject?.scenes ?? [];
       if (scenesList.length === 0) {
         return false;
       }
@@ -655,7 +656,7 @@ export default function App(): JSX.Element {
       pendingSceneSelectionRef.current = null;
       return true;
     },
-    [setActiveScene],
+    [currentProject?.scenes, setActiveScene],
   );
 
   useEffect(() => {
@@ -714,6 +715,7 @@ export default function App(): JSX.Element {
   }
   const [projectDrafts, setProjectDrafts] = useState<Record<string, string>>({});
   const [draftEdits, setDraftEdits] = useState<Record<string, string>>({});
+  const [draftSceneStates, setDraftSceneStates] = useState<Record<string, DraftSceneState>>({});
   const [critiqueRubric, setCritiqueRubric] = useState<string[]>(() => [
     ...DEFAULT_CRITIQUE_RUBRIC,
   ]);
@@ -740,6 +742,105 @@ export default function App(): JSX.Element {
   useEffect(() => {
     projectDraftsRef.current = projectDrafts;
   }, [projectDrafts]);
+  const draftSceneStatesRef = useRef<Record<string, DraftSceneState>>({});
+  useEffect(() => {
+    draftSceneStatesRef.current = draftSceneStates;
+  }, [draftSceneStates]);
+  const draftReadRequestsRef = useRef<Map<string, Promise<void>>>(new Map());
+
+  const focusDraftBoard = useCallback(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    window.dispatchEvent(new CustomEvent("dock:focus-pane", { detail: "draftPreview" }));
+  }, []);
+
+  const ensureSceneDraftLoaded = useCallback(
+    (sceneId: string, sceneTitle: string | null, projectIdOverride?: string | null) => {
+      const projectId = projectIdOverride ?? projectSummary?.projectId;
+      if (!projectId || !services.readDraft) {
+        return Promise.resolve();
+      }
+      const cachedState = draftSceneStatesRef.current[sceneId];
+      if (cachedState?.loaded) {
+        return Promise.resolve();
+      }
+      const inFlight = draftReadRequestsRef.current.get(sceneId);
+      if (inFlight) {
+        return inFlight;
+      }
+
+      setDraftSceneStates((previous) => ({
+        ...previous,
+        [sceneId]: {
+          text: previous[sceneId]?.text ?? null,
+          loaded: false,
+          loading: true,
+          error: null,
+        },
+      }));
+
+      const request = (async () => {
+        const result = await services.readDraft!({ projectId, sceneId });
+        if (!isMountedRef.current) {
+          return;
+        }
+        if (result.ok) {
+          setProjectDrafts((previous) => {
+            const nextText = result.data.text ?? "";
+            if (previous[sceneId] === nextText) {
+              return previous;
+            }
+            return { ...previous, [sceneId]: nextText };
+          });
+          setDraftEdits((previous) => {
+            if (Object.prototype.hasOwnProperty.call(previous, sceneId)) {
+              return previous;
+            }
+            return { ...previous, [sceneId]: result.data.text ?? "" };
+          });
+          setDraftSceneStates((previous) => ({
+            ...previous,
+            [sceneId]: {
+              text: result.data.text,
+              loaded: true,
+              loading: false,
+              error: null,
+            },
+          }));
+          return;
+        }
+        setDraftSceneStates((previous) => ({
+          ...previous,
+          [sceneId]: {
+            text: previous[sceneId]?.text ?? null,
+            loaded: true,
+            loading: false,
+            error: result.error.message,
+          },
+        }));
+        pushToast({
+          tone: "warning",
+          title: `Couldn't load ${sceneTitle ?? sceneId}`,
+          description: result.error.message,
+        });
+      })().finally(() => {
+        draftReadRequestsRef.current.delete(sceneId);
+      });
+
+      draftReadRequestsRef.current.set(sceneId, request);
+      return request;
+    },
+    [isMountedRef, projectSummary?.projectId, pushToast, services],
+  );
+
+  useEffect(() => {
+    if (!activeScene?.id) {
+      return;
+    }
+    focusDraftBoard();
+    void ensureSceneDraftLoaded(activeScene.id, activeScene.title ?? null);
+  }, [activeScene?.id, activeScene?.title, ensureSceneDraftLoaded, focusDraftBoard]);
 
   useEffect(() => {
     if (
@@ -809,8 +910,11 @@ export default function App(): JSX.Element {
 
   const resetProjectState = useCallback(() => {
     setCurrentProject(null);
+    currentProjectRef.current = null;
     setProjectDrafts({});
     setDraftEdits({});
+    setDraftSceneStates({});
+    draftReadRequestsRef.current.clear();
     setActiveScene(null);
     setCritiqueRubric([...DEFAULT_CRITIQUE_RUBRIC]);
     setCompanionOpen(false);
@@ -823,6 +927,7 @@ export default function App(): JSX.Element {
     setActiveScene,
     setCurrentProject,
     setDraftEdits,
+    setDraftSceneStates,
     setProjectDrafts,
     setCritiqueRubric,
     setCompanionOpen,
@@ -1111,9 +1216,12 @@ export default function App(): JSX.Element {
 
       const projectWithId: TrackedLoadedProject = { ...project, projectId };
       setCurrentProject(projectWithId);
+      currentProjectRef.current = projectWithId;
       const canonicalDrafts = { ...project.drafts };
       setProjectDrafts(canonicalDrafts);
       setDraftEdits({ ...canonicalDrafts });
+      setDraftSceneStates({});
+      draftReadRequestsRef.current.clear();
       projectDraftsRef.current = canonicalDrafts;
 
       let nextScene: { id: string; title: string | null } | null = null;
@@ -1528,10 +1636,8 @@ export default function App(): JSX.Element {
 
   const handleActiveSceneChange = useCallback((payload: ActiveScenePayload | null) => {
     if (!payload) {
-      setActiveScene(null);
       return;
     }
-    setActiveScene({ id: payload.sceneId, title: payload.sceneTitle });
     setDraftEdits((previous) => {
       if (Object.prototype.hasOwnProperty.call(previous, payload.sceneId)) {
         return previous;
@@ -1700,8 +1806,10 @@ export default function App(): JSX.Element {
       onReopenConsumed: handleReopenConsumed,
       requestedSceneId: activeScene?.id ?? null,
       draftOverrides: draftEdits,
+      draftStates: draftSceneStates,
       onActiveSceneChange: handleActiveSceneChange,
       onDraftChange: handleDraftChange,
+      onSelectScene: applySceneSelection,
       relocationNotifyEnabled,
       autoSnapEnabled,
       onRelocationNotifyChange: setRelocationNotifyEnabled,
@@ -1712,6 +1820,8 @@ export default function App(): JSX.Element {
     [
       activeScene?.id,
       autoSnapEnabled,
+      applySceneSelection,
+      draftSceneStates,
       draftEdits,
       handleActiveSceneChange,
       handleDraftChange,
@@ -2111,7 +2221,10 @@ export default function App(): JSX.Element {
           activeScene={activeScene}
           activeDraft={
             activeScene
-              ? draftEdits[activeScene.id] ?? projectDrafts[activeScene.id] ?? ""
+              ? draftEdits[activeScene.id] ??
+                draftSceneStates[activeScene.id]?.text ??
+                projectDrafts[activeScene.id] ??
+                ""
               : ""
           }
           project={currentProject}

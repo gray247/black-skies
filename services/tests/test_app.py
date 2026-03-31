@@ -1615,6 +1615,44 @@ def test_draft_rewrite_validation_error(test_client: TestClient) -> None:
     assert detail["code"] == "VALIDATION"
 
 
+def test_draft_read_returns_text_and_empty_states(test_client: TestClient, tmp_path: Path) -> None:
+    """Draft reads return text when present and null when the scene has no draft yet."""
+
+    project_id = "proj_draft_read"
+    _bootstrap_outline(tmp_path, project_id, scene_count=2)
+    scene_body = _bootstrap_scene(tmp_path, project_id, scene_id="sc_0001", order=1)
+
+    existing_response = test_client.get(
+        f"{API_PREFIX}/draft/sc_0001",
+        params={"project_id": project_id},
+    )
+    assert existing_response.status_code == 200
+    assert existing_response.json() == {
+        "sceneId": "sc_0001",
+        "title": "Scene 1",
+        "text": f"---\nid: sc_0001\nslug: scene-0001\ntitle: Scene 1\npov: Mara\npurpose: setup\nemotion_tag: tension\norder: 1\nchapter_id: ch_0001\nbeats: [inciting]\n---\n{scene_body}\n",
+    }
+
+    empty_response = test_client.get(
+        f"{API_PREFIX}/draft/sc_0002",
+        params={"project_id": project_id},
+    )
+    assert empty_response.status_code == 200
+    assert empty_response.json() == {
+        "sceneId": "sc_0002",
+        "title": "Scene 2",
+        "text": None,
+    }
+
+    missing_response = test_client.get(
+        f"{API_PREFIX}/draft/sc_missing",
+        params={"project_id": project_id},
+    )
+    assert missing_response.status_code == 404
+    detail = _read_error(missing_response)
+    assert detail["code"] == "SCENE_NOT_FOUND"
+
+
 def test_draft_accept_success_creates_snapshot(test_client: TestClient, tmp_path: Path) -> None:
     """Accepting a critique updates the scene and writes a snapshot."""
 

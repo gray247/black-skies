@@ -46,6 +46,13 @@ export interface ActiveScenePayload {
   draft: string;
 }
 
+export interface DraftSceneState {
+  text: string | null;
+  loading: boolean;
+  loaded: boolean;
+  error?: string | null;
+}
+
 export interface ProjectHomeProps {
   onToast: (toast: ToastPayload) => void;
   onProjectLoaded?: (event: ProjectLoadEvent) => void;
@@ -53,8 +60,10 @@ export interface ProjectHomeProps {
   onReopenConsumed?: (result: { requestId: number; status: 'success' | 'error' }) => void;
   requestedSceneId?: string | null;
   draftOverrides?: Record<string, string>;
+  draftStates?: Record<string, DraftSceneState>;
   onActiveSceneChange?: (payload: ActiveScenePayload | null) => void;
   onDraftChange?: (sceneId: string, draft: string) => void;
+  onSelectScene?: (sceneId: string) => void;
   relocationNotifyEnabled?: boolean;
   autoSnapEnabled?: boolean;
   onRelocationNotifyChange?: (value: boolean) => void;
@@ -171,8 +180,10 @@ export default function ProjectHome({
   onReopenConsumed,
   requestedSceneId = null,
   draftOverrides,
+  draftStates,
   onActiveSceneChange,
   onDraftChange,
+  onSelectScene,
   relocationNotifyEnabled = true,
   autoSnapEnabled = false,
   onRelocationNotifyChange,
@@ -206,6 +217,7 @@ export default function ProjectHome({
   const diagnosticsSectionId = useId();
   const draftSceneTitleId = useId();
   const draftSceneMetaId = useId();
+  const activeDraftState = activeSceneId ? draftStates?.[activeSceneId] ?? null : null;
 
   const sortedRecents = useMemo(
     () =>
@@ -223,15 +235,22 @@ export default function ProjectHome({
   }, [activeProject, activeSceneId]);
 
   const activeSceneDraft = useMemo(() => {
-    if (!activeProject || !activeSceneId) {
+    if (!activeSceneId) {
       return '';
     }
     const override = draftOverrides?.[activeSceneId];
     if (typeof override === 'string') {
       return override;
     }
-    return activeProject.drafts[activeSceneId] ?? '';
-  }, [activeProject, activeSceneId, draftOverrides]);
+    if (typeof activeDraftState?.text === 'string') {
+      return activeDraftState.text;
+    }
+    return '';
+  }, [activeDraftState?.text, activeSceneId, draftOverrides]);
+
+  const activeSceneLoading = activeDraftState?.loading ?? false;
+  const activeSceneLoaded = activeDraftState?.loaded ?? false;
+  const activeSceneEmpty = activeSceneLoaded && !activeSceneLoading && activeSceneDraft.length === 0;
 
   const activeSceneEditorialReview = useMemo(() => {
     if (!activeProject || !activeSceneId) {
@@ -347,6 +366,22 @@ export default function ProjectHome({
     },
     [onAutoSnapChange],
   );
+
+  const handleGenerateDraft = useCallback(() => {
+    const target = document.querySelector('[data-testid="workspace-action-generate"]');
+    if (target instanceof HTMLButtonElement && !target.disabled) {
+      target.click();
+      return;
+    }
+    target instanceof HTMLElement ? target.focus() : undefined;
+  }, []);
+
+  const handleStartWriting = useCallback(() => {
+    const target = document.querySelector('.project-home__draft-editor .cm-content');
+    if (target instanceof HTMLElement) {
+      target.focus();
+    }
+  }, []);
 
   const upsertRecent = useCallback((project: LoadedProject) => {
     setRecentProjects((previous) => {
@@ -1389,25 +1424,49 @@ export default function ProjectHome({
                 ) : null}
               </section>
             ) : null}
-            <div className="project-home__draft-editor">
+            <div className="project-home__draft-editor" data-testid="draft-board-editor">
               {activeScene ? (
-                <DraftEditor
-                  value={activeSceneDraft}
-                  placeholder="Scene text will appear once loaded."
-                  className="project-home__draft-editor-host"
-                  ariaLabel={`Scene ${activeScene.id} draft editor${
-                    activeScene.title ? `: ${activeScene.title}` : ''
-                  }`}
-                  ariaLabelledBy={draftSceneTitleId}
-                  ariaDescribedBy={
-                    activeScene.emotion_tag || activeScene.purpose || activeScene.word_target
-                      ? draftSceneMetaId
-                      : null
-                  }
-                  onChange={(nextValue) => {
-                    onDraftChange?.(activeScene.id, nextValue);
-                  }}
-                />
+                <>
+                  {activeSceneLoading ? (
+                    <div
+                      className="project-home__draft-status"
+                      role="status"
+                      data-testid="draft-board-loading"
+                    >
+                      Loading scene
+                    </div>
+                  ) : null}
+                  {activeSceneEmpty ? (
+                    <div className="project-home__draft-empty-state" data-testid="draft-board-empty">
+                      <p>This scene hasn't been written yet.</p>
+                      <div className="project-home__draft-empty-actions">
+                        <button type="button" onClick={handleGenerateDraft}>
+                          Generate Draft
+                        </button>
+                        <button type="button" onClick={handleStartWriting}>
+                          Start Writing
+                        </button>
+                      </div>
+                    </div>
+                  ) : null}
+                  <DraftEditor
+                    value={activeSceneDraft}
+                    placeholder="Start writing this scene..."
+                    className="project-home__draft-editor-host"
+                    ariaLabel={`Scene ${activeScene.id} draft editor${
+                      activeScene.title ? `: ${activeScene.title}` : ''
+                    }`}
+                    ariaLabelledBy={draftSceneTitleId}
+                    ariaDescribedBy={
+                      activeScene.emotion_tag || activeScene.purpose || activeScene.word_target
+                        ? draftSceneMetaId
+                        : null
+                    }
+                    onChange={(nextValue) => {
+                      onDraftChange?.(activeScene.id, nextValue);
+                    }}
+                  />
+                </>
               ) : (
                 <p className="project-home__empty project-home__draft-empty">
                   Select a scene to preview its Markdown draft.
@@ -1436,7 +1495,10 @@ export default function ProjectHome({
                     <button
                       type="button"
                       className="project-home__scene-button"
-                      onClick={() => setActiveSceneId(scene.id)}
+                      onClick={() => {
+                        setActiveSceneId(scene.id);
+                        onSelectScene?.(scene.id);
+                      }}
                       aria-pressed={isActive}
                     >
                       <div className="project-home__scene-header">

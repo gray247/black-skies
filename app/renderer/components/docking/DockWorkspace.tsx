@@ -1077,6 +1077,27 @@ function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
     [applyLayout, focusPane, setHiddenPaneIds, stableDockMode],
   );
 
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    const handler = (event: Event) => {
+      const paneId = normalisePaneId((event as CustomEvent<string | null>).detail ?? null);
+      if (!paneId) {
+        return;
+      }
+      if (stableDockMode || activePaneIds.has(paneId)) {
+        focusPane(paneId);
+        return;
+      }
+      reopenPane(paneId);
+    };
+    window.addEventListener('dock:focus-pane', handler);
+    return () => {
+      window.removeEventListener('dock:focus-pane', handler);
+    };
+  }, [activePaneIds, focusPane, reopenPane, stableDockMode]);
+
   const renderTile = useCallback(
     (paneId: LayoutPaneId, path: MosaicPath) => {
       const resolvedPath = [...path];

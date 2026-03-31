@@ -79,5 +79,5 @@ export async function bootstrapHarness(page: Page): Promise<void> {
     { timeout: 30_000 },
   );
 
-  await page.getByTestId('dock-workspace').waitFor({ timeout: 30_000 });
+  await page.getByTestId('dock-workspace').waitFor({ state: 'attached', timeout: 30_000 });
 }

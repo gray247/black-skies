@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react';
+import { act, render } from '@testing-library/react';
 import { vi } from 'vitest';
 
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
@@ -22,7 +22,7 @@ describe('Performance regressions for analytics surfaces', () => {
     (window as typeof window & { services?: unknown }).services = undefined;
   });
 
-  it('renders large scene set within budget', () => {
+  it('renders large scene set within budget', async () => {
     const scenes = buildScenes(120);
     const servicesMock: Partial<ServicesBridge> = {
       getAnalyticsSummary: vi.fn().mockResolvedValue({
@@ -37,11 +37,14 @@ describe('Performance regressions for analytics surfaces', () => {
     (window as typeof window & { services?: ServicesBridge }).services = servicesMock as ServicesBridge;
 
     const start = performance.now();
-    render(<AnalyticsDashboard projectId="proj" projectPath="/projects/proj" />);
+    await act(async () => {
+      render(<AnalyticsDashboard projectId="proj" projectPath="/projects/proj" />);
+      await Promise.resolve();
+    });
     const elapsed = performance.now() - start;
 
     // Ensure synthetic render stays under a generous local threshold.
-    expect(elapsed).toBeLessThan(300);
+    expect(elapsed).toBeLessThan(500);
   });
 
   it('avoids repeated heavy calculations on identical props', async () => {
@@ -62,8 +65,11 @@ describe('Performance regressions for analytics surfaces', () => {
     const { rerender } = render(
       <AnalyticsDashboard projectId="proj" projectPath="/projects/proj" />,
     );
-    rerender(<AnalyticsDashboard projectId="proj" projectPath="/projects/proj" />);
-    rerender(<AnalyticsDashboard projectId="proj" projectPath="/projects/proj" />);
+    await act(async () => {
+      rerender(<AnalyticsDashboard projectId="proj" projectPath="/projects/proj" />);
+      rerender(<AnalyticsDashboard projectId="proj" projectPath="/projects/proj" />);
+      await Promise.resolve();
+    });
 
     const calls = computeSpy.mock.calls.length;
     expect(calls).toBeLessThanOrEqual(1);

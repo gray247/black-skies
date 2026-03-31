@@ -77,7 +77,7 @@ describe('DockWorkspace', () => {
     expect(loadLayout).toHaveBeenCalledWith({ projectPath: PROJECT_PATH });
 
     await act(async () => {
-      await Promise.resolve();
+      await vi.runAllTimersAsync();
     });
 
     screen.getByRole('group', { name: 'Outline' }).focus();
@@ -119,7 +119,7 @@ describe('DockWorkspace', () => {
     );
 
     await act(async () => {
-      await Promise.resolve();
+      await vi.runAllTimersAsync();
     });
 
     const firstPane = screen.getByRole('group', { name: 'Outline' });

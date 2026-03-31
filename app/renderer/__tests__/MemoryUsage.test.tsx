@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useEffect, useState } from 'react';
 
@@ -91,7 +91,7 @@ describe('Approximate memory leak safeguards', () => {
     expect(maxCount).toBeLessThanOrEqual(1);
   });
 
-  it('keeps docked panes stable across remounts', () => {
+  it('keeps docked panes stable across remounts', async () => {
     const bridge = {
       loadLayout: () =>
         Promise.resolve({ layout: null, floatingPanes: [], schemaVersion: 2 }),
@@ -113,6 +113,9 @@ describe('Approximate memory leak safeguards', () => {
         autoSnapEnabled={false}
       />,
     );
+    await act(async () => {
+      await Promise.resolve();
+    });
     unmount();
     render(
       <DockWorkspace
@@ -125,6 +128,9 @@ describe('Approximate memory leak safeguards', () => {
         autoSnapEnabled={false}
       />,
     );
+    await act(async () => {
+      await Promise.resolve();
+    });
     expect(mountCounts.outline ?? 1).toBeGreaterThan(0);
   });
 }

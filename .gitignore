@@ -50,6 +50,15 @@ longform.json
 # Optional: ignore old /archive snapshots to speed Codex scanning
 archive/**/.snapshots/**
 sample_project/**/.snapshots/
-a p p / t e s t - r e s u l t s / 
+app/test-results/
+app/playwright-report/
+app/temp-trace/
+app/dist-electron/
+dist-electron/
+.hypothesis/constants/
+sample_project/Esther_Estate/history/analytics/
+sample_project/proj_esther_estate/history/analytics/
+sample_project/proj_esther_estate_eval_adversarial/history/
+sample_project/proj_esther_estate_verify_longform/
  
  

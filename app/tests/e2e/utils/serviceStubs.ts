@@ -235,6 +235,22 @@ async function ensureServer(): Promise<void> {
     const target = new URL(req.url, `http://127.0.0.1:${SERVICE_PORT}`);
     const path = target.pathname.replace('/api/v1', '');
     const method = req.method ?? 'GET';
+    const draftReadMatch = path.match(/^\/draft\/([^/]+)$/);
+    if (method === 'GET' && draftReadMatch) {
+      const sceneId = decodeURIComponent(draftReadMatch[1] ?? '');
+      const scene = loadedProject.scenes.find((entry) => entry.id === sceneId);
+      if (!scene) {
+        respond(res, { code: 'SCENE_NOT_FOUND', message: 'Scene does not exist in this project.' }, 404);
+        return;
+      }
+      const isEmptyScene = sceneId === loadedProject.scenes[1]?.id;
+      respond(res, {
+        sceneId,
+        title: scene.title ?? null,
+        text: isEmptyScene ? null : draftTexts[sceneId] ?? null,
+      });
+      return;
+    }
     switch (path) {
       case '/healthz':
         respond(res, { status: 'ok' });
@@ -454,6 +470,7 @@ export async function installServiceStubs(
   const targetMode = scenario === 'snapshot' ? 'full' : modeOverride ?? defaultMode;
   const offlineReason = scenario === 'offline' ? 'service_port_unavailable' : undefined;
   await applyTestMode(page, targetMode, offlineReason);
+  await page.reload({ waitUntil: 'domcontentloaded' });
   await ensureServer();
   currentScenario = scenario;
   console.log('[backup-stub-installed]', `scenario=${scenario}, mode=${targetMode}`);

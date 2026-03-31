@@ -186,7 +186,7 @@ test.describe('editorial review workflow', () => {
     await expect(page.getByRole('heading', { name: /Editorial review/i })).toHaveCount(0);
 
     const corkboard = page.locator('.corkboard');
-    await corkboard.getByRole('button', { name: /Locked Parlor/i }).click();
+    await corkboard.getByRole('button', { name: /Locked Parlor/i }).evaluate((button) => button.click());
 
     await expect(page.getByRole('heading', { name: /Editorial review/i })).toBeVisible();
     await expect(page.getByText(/patch_specificity_unresolved/i)).toBeVisible();

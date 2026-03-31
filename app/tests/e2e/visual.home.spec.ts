@@ -18,6 +18,14 @@ test.describe('Visual snapshots', () => {
         overlay.style.display = 'none';
       }
     });
+    await page.evaluate(() => {
+      document.querySelectorAll('[aria-label="Dismiss notification"]').forEach((button) => {
+        if (button instanceof HTMLButtonElement) {
+          button.click();
+        }
+      });
+    });
+    await page.locator('.toast').waitFor({ state: 'detached', timeout: 30_000 }).catch(() => undefined);
     await page.getByTestId('dock-workspace').waitFor({ timeout: 30_000 });
     await page.waitForSelector('[data-testid="visual-home-ready"]', { state: 'attached' });
     const openProjectButton = page.getByTestId(TID.openProjectBtn);

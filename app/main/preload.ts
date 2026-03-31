@@ -344,6 +344,8 @@ import type {
   DraftCritiqueBridgeResponse,
   DraftGenerateBridgeRequest,
   DraftGenerateBridgeResponse,
+  DraftReadBridgeRequest,
+  DraftReadBridgeResponse,
   DraftPreflightBridgeRequest,
   DraftPreflightEstimate,
   DraftUnitOverrides,
@@ -1132,6 +1134,13 @@ export const serviceApi = {
       'POST',
       serializeOutlineRequest(request),
     ),
+  readDraft: (request: DraftReadBridgeRequest) => {
+    const params = new URLSearchParams({ project_id: request.projectId });
+    return makeServiceCall<DraftReadBridgeResponse>(
+      `draft/${encodeURIComponent(request.sceneId)}?${params.toString()}`,
+      'GET',
+    );
+  },
   generateDraft: (request: DraftGenerateBridgeRequest) =>
     makeServiceCall<DraftGenerateBridgeResponse>(
       'draft/generate',
@@ -1354,6 +1363,7 @@ const servicesBridge: ServicesBridge = {
     return probeHealth();
   },
   buildOutline: serviceApi.buildOutline,
+  readDraft: serviceApi.readDraft,
   generateDraft: serviceApi.generateDraft,
   critiqueDraft: serviceApi.critiqueDraft,
   phase4Critique: serviceApi.phase4Critique,

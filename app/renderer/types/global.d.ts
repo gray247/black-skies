@@ -33,6 +33,15 @@ type ElectronApi = {
   fs: ElectronFsApi;
 };
 
+type ProjectHomeDebug = {
+  getState?: () => {
+    activeProjectPath: string | null;
+    activeSceneId: string | null;
+    editorialReviewKeys: string[];
+    hasActiveSceneEditorialReview: boolean;
+  };
+};
+
 declare global {
   interface Window {
     projectLoader?: ProjectLoaderApi;
@@ -58,6 +67,7 @@ declare global {
     __testEnvStableHome?: boolean;
     __testEnvVisualStable?: boolean;
     __testModeFreezeServiceHealth?: boolean;
+    __projectHomeDebug?: ProjectHomeDebug;
   }
 }
 

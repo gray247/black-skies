@@ -12,6 +12,8 @@ import type {
   DraftCritiqueBridgeResponse,
   DraftGenerateBridgeRequest,
   DraftGenerateBridgeResponse,
+  DraftReadBridgeRequest,
+  DraftReadBridgeResponse,
   DraftPreflightBridgeRequest,
   DraftPreflightEstimate,
   OutlineBuildBridgeRequest,
@@ -309,6 +311,14 @@ const servicesBridge: ServicesBridge = {
       'outline/build',
       'POST',
       serializeOutlineRequest(request),
+    );
+  },
+  async readDraft(request: DraftReadBridgeRequest) {
+    const params = new URLSearchParams({ project_id: request.projectId });
+    return performRequest<DraftReadBridgeResponse>(
+      `draft/${encodeURIComponent(request.sceneId)}?${params.toString()}`,
+      'GET',
+      undefined,
     );
   },
   async generateDraft(request) {
