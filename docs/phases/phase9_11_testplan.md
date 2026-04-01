@@ -7,7 +7,7 @@ Source of Truth: `docs/phases/phase_charter.md` defines the phase sequence. Phas
 > Implementation trace: `docs/roadmap.md` -> phases 9/11 rows.
 
 ## Strategy
-Cover the analytics and visualization surfaces with service-level tests, GUI render tests, and endpoint contracts. Keep the plan service-first and do not assume a queue or agent runtime.
+Cover the analytics and visualization surfaces with service-level tests, GUI render tests, and endpoint contracts. Keep the plan service-first and do not assume a job coordinator or agent runtime.
 
 ## Phase 9 Suites
 - **Analytics payloads:** Validate emotion arc, pacing curve, conflict heatmap, intensity timeline, and project health payloads from the analytics service layer.
@@ -23,4 +23,4 @@ Cover the analytics and visualization surfaces with service-level tests, GUI ren
 ## Done When
 - Phase 9 tests cover the analytics contract and do not require batch/job semantics.
 - Phase 11 tests stay confined to plugin sandbox and support-only wrapper behavior.
-- The test plan never claims an Overseer, queue, or hook dispatcher that the code does not implement.
+- The test plan never claims a job coordinator, background worker, or hook dispatcher that the code does not implement.

@@ -18,8 +18,8 @@ This charter defines the first feature phase after the runtime has been stabiliz
 - **Project health dashboard:** summarize the analytics state, validation state, and recent writer feedback in one service-backed view.
 
 ## Out of Scope
-- **Control-plane changes:** no new control plane, no Overseer, and no agent runtime.
-- **Queue systems:** no job queue or background worker semantics unless a later design explicitly justifies them.
+- **Control-plane changes:** no new control plane, no job coordinator, and no agent runtime.
+- **Background workers:** no background-worker semantics or durable job coordination unless a later design explicitly justifies them.
 - **Plugin hooks:** no hook dispatch surface is implied by this phase.
 - **Phase 11 features:** plugin sandbox hardening, backup verification visibility, and optional wrappers remain later work.
 - **Voice notes/transcription:** still deferred.
@@ -32,19 +32,19 @@ This charter defines the first feature phase after the runtime has been stabiliz
 - **Internal**
   - Service-backed analytics endpoints or service methods that reuse the existing service-first runtime.
   - Schema validation for analytics payloads.
-  - Diagnostics and tests that prove the analytics layer does not become a hidden queue or control plane.
+  - Diagnostics and tests that prove the analytics layer does not become hidden job coordination or control plane.
 
 ## Acceptance Criteria
 - Analytics features use the existing service-first architecture.
 - Budget decisions continue to come from `BudgetService`, not the analytics layer.
 - Routers stay thin and only map requests to services.
-- No batch/job/Overseer language is required to explain the implementation.
+- No batch/job/coordinator language is required to explain the implementation.
 - Docs and tests agree on the same feature boundary.
 
 ## Done When
 - Emotion arc, pacing, conflict, intensity, and project-health views are implemented on top of the stabilized runtime.
 - Outline validation is wired to the existing service layer and produces deterministic diagnostics.
-- The docs for analytics, GUI layout, and endpoints all describe the same non-queued service-first model.
+- The docs for analytics, GUI layout, and endpoints all describe the same service-first model with no hidden background workers.
 - The roadmap clearly shows Phase 9 as the first feature phase after Phase 8.5.
 
 ## Testing Requirements

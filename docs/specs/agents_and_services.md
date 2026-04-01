@@ -22,7 +22,7 @@ The runtime uses services for real work:
 - analytics services
 - backup verification services
 
-There is no production `Overseer`.
+There is no production job coordinator.
 There is no production `AgentOrchestrator`.
 
 ## Test-Support Wrappers
@@ -71,7 +71,7 @@ It does the following:
 It does not do the following:
 - expose a plugin HTTP router
 - dispatch hook names like `on_plan`
-- orchestrate plugin lifecycles as a first-class job system
+- orchestrate plugin lifecycles as a first-class coordinated job system
 - implement the dashboard/plugin API surface described in older planning docs
 
 ## Deferred Hook Design
@@ -95,4 +95,4 @@ Use these terms consistently:
 - orchestrator = a support-only coordination facade in `blackskies.services.test_support`
 - plugin = an entrypoint-based sandboxed extension
 
-Do not use `agent` for routers, request models, queues, or model routing policy.
+Do not use `agent` for routers, request models, job coordinators, or model routing policy.

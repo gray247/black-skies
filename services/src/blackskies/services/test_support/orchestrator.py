@@ -29,7 +29,7 @@ class AgentOrchestrator:
 
     This is not the production control plane. `create_app()` wires the real
     runtime services directly. This class does not own policy, budget,
-    lifecycle, queueing, or job supervision.
+    lifecycle, coordination, or job supervision.
     """
 
     def __init__(

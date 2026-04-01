@@ -5,7 +5,7 @@ Last Reviewed: 2026-03-31
 # Phase Bridge
 
 ## Purpose
-Clarify the transition from Phase 8 through Phase 8.5 into Phase 9 without reintroducing Overseer, queue, or agent-runtime assumptions.
+Clarify the transition from Phase 8 through Phase 8.5 into Phase 9 without reintroducing job-coordinator, background-worker, or agent-runtime assumptions.
 
 ## Gates
 - **Phase 8** is complete once the core service-first writing flow, critique loop, recovery, and export stability are shipped.
@@ -15,7 +15,7 @@ Clarify the transition from Phase 8 through Phase 8.5 into Phase 9 without reint
 - **Phase 11** remains the extensions and optional-wrapper phase.
 
 ## Risks & Mitigations
-- **Budget overruns:** enforce hard caps in `BudgetService`; do not invent a queue layer to manage spend.
+- **Budget overruns:** enforce hard caps in `BudgetService`; do not invent a background-worker layer to manage spend.
 - **Analytics scope drift:** keep Phase 9 focused on insight surfaces and diagnostics, not orchestration.
 - **Export regressions:** verify MD/JSON/PDF/EPUB outputs against golden masters and include automated checksum comparisons in CI.
 - **Future coordinator creep:** if a durable batch/job system is ever needed, document that decision separately and do not smuggle it into Phase 9 language.

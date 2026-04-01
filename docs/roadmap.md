@@ -56,7 +56,7 @@ The following planning docs describe capabilities that remain on the roadmap bey
 
 ### P8.5 - Runtime hardening / control-plane alignment (Complete)
 - Documentation corrected to match the runtime.
-- Fake Overseer / queue / hook claims removed.
+- Fake job-coordinator / background-worker / hook claims removed.
 - `AgentOrchestrator` removed from the runtime namespace.
 - `ExecutionPolicyRunner`, `BudgetService`, and the resilience layers now have explicit ownership.
 - This is the stabilization step before any new feature phase.

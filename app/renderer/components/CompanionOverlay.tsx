@@ -388,7 +388,7 @@ export default function CompanionOverlay({
   const [rubricError, setRubricError] = useState<string | null>(null);
   const [selectedScenes, setSelectedScenes] = useState<string[]>([]);
   const [localRunCount, setLocalRunCount] = useState(0);
-  const [queuedModelRuns, setQueuedModelRuns] = useState(0);
+  const [deferredModelRuns, setDeferredModelRuns] = useState(0);
   const [modelResumedCount, setModelResumedCount] = useState(0);
   const prevServiceStatusRef = useRef<ServiceStatus>(serviceStatus);
 
@@ -591,11 +591,11 @@ export default function CompanionOverlay({
   const disableBatchRun = batchState.running || selectedScenes.length === 0;
   const runAllDisabled = !activeScene;
   const offlineRunHint = useMemo(() => {
-    if (serviceStatus !== 'online' && queuedModelRuns > 0) {
-      return `${localRunCount} Local Ran · ${queuedModelRuns} Will Resume When Online.`;
+    if (serviceStatus !== 'online' && deferredModelRuns > 0) {
+      return `${localRunCount} Local Ran · ${deferredModelRuns} Deferred Until Online.`;
     }
     return null;
-  }, [localRunCount, queuedModelRuns, serviceStatus]);
+  }, [deferredModelRuns, localRunCount, serviceStatus]);
 
   const handleRemoveCategory = useCallback(
     (category: string) => {
@@ -642,9 +642,9 @@ export default function CompanionOverlay({
     });
   }, [activeScene?.id]);
 
-  const queueModelInsightsForLater = useCallback(() => {
-    setQueuedModelRuns((previous) => previous + 1);
-    recordDebugEvent('insights.model_queued_offline', {
+  const deferModelInsightsForLater = useCallback(() => {
+    setDeferredModelRuns((previous) => previous + 1);
+    recordDebugEvent('insights.model_deferred_offline', {
       sceneId: activeScene?.id ?? null,
     });
   }, [activeScene?.id]);
@@ -657,8 +657,8 @@ export default function CompanionOverlay({
       });
       return;
     }
-    queueModelInsightsForLater();
-  }, [activeScene?.id, queueModelInsightsForLater, runLocalInsights, serviceStatus]);
+    deferModelInsightsForLater();
+  }, [activeScene?.id, deferModelInsightsForLater, runLocalInsights, serviceStatus]);
 
   const handleAddCategory = useCallback(() => {
     const trimmed = newCategory.trim();
@@ -704,16 +704,16 @@ export default function CompanionOverlay({
     if (serviceStatus !== 'online') {
       setModelResumedCount(0);
     }
-    if (previousStatus !== 'online' && serviceStatus === 'online' && queuedModelRuns > 0) {
-      setModelResumedCount(queuedModelRuns);
+    if (previousStatus !== 'online' && serviceStatus === 'online' && deferredModelRuns > 0) {
+      setModelResumedCount(deferredModelRuns);
       recordDebugEvent('insights.model_ran_after_reconnect', {
         sceneId: activeScene?.id ?? null,
-        count: queuedModelRuns,
+        count: deferredModelRuns,
       });
-      setQueuedModelRuns(0);
+      setDeferredModelRuns(0);
     }
     prevServiceStatusRef.current = serviceStatus;
-  }, [serviceStatus, queuedModelRuns, activeScene?.id]);
+  }, [serviceStatus, deferredModelRuns, activeScene?.id]);
 
   if (!open) {
     return null;
@@ -772,8 +772,8 @@ export default function CompanionOverlay({
                   <span data-testid="insights-local-ran">
                     {localRunCount} Local insights ran
                   </span>
-                  <span data-testid="insights-model-queued">
-                    {queuedModelRuns} model insights queued
+                  <span data-testid="insights-model-deferred">
+                    {deferredModelRuns} model insights deferred
                   </span>
                 </div>
               </>
@@ -784,8 +784,8 @@ export default function CompanionOverlay({
                 data-testid="insights-model-resumed"
               >
                 {modelResumedCount === 1
-                  ? 'Queued model insight resumed'
-                  : `Queued ${modelResumedCount} model insights resumed`}
+                  ? 'Deferred model insight resumed'
+                  : `Deferred ${modelResumedCount} model insights resumed`}
               </div>
             ) : null}
             {activeScene ? (

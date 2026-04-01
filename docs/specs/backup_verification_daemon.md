@@ -31,7 +31,7 @@ The daemon:
 What it does not do:
 - it does not ship a separate UI
 - it does not require a future Phase 11 rewrite to exist
-- it does not imply a job queue or Overseer
+- it does not imply a job coordinator
 
 ## Operational Notes
 

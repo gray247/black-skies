@@ -30,7 +30,7 @@ The real control plane is `services/src/blackskies/services/app.py`.
 - `VerificationScheduler`
 - the HTTP routers under `services/src/blackskies/services/routers/`
 
-There is no runtime `Overseer` component in the codebase.
+There is no runtime job coordinator component in the codebase.
 There is no runtime `AgentOrchestrator` component in the codebase.
 
 ## Component Roles
@@ -130,10 +130,10 @@ There is no implemented hook dispatcher.
 There is no plugin HTTP router.
 There is no `on_plan` / `on_analyze` / `on_rewrite` / `on_export` / `on_report` runtime.
 
-## When Overseer Becomes Necessary
+## When a Coordinator Becomes Necessary
 
-A true `Overseer` or job coordinator is only needed if Black Skies adds:
-- durable queued jobs
+A true job coordinator is only needed if Black Skies adds:
+- durable jobs
 - persisted job status and cancellation
 - cross-request orchestration
 - multi-step background workflows that outlive a single HTTP request

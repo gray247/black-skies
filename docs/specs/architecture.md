@@ -26,7 +26,7 @@ It wires:
 - `VerificationScheduler`
 - the HTTP routers under `services/src/blackskies/services/routers/`
 
-There is no runtime `Overseer` component.
+There is no runtime job coordinator component.
 There is no runtime `AgentOrchestrator` component.
 
 ## What The Runtime Actually Uses
@@ -53,7 +53,7 @@ It chooses providers for model-backed tasks and evaluates run policy from budget
 
 `BudgetService` owns budget loading, classification, blocked/allowed decisions, summary construction, and persistence.
 
-If a request is blocked for spend reasons, the decision comes from budget classification, not from a queue supervisor.
+If a request is blocked for spend reasons, the decision comes from budget classification, not from a job coordinator.
 
 ### Resilience
 
@@ -100,8 +100,7 @@ The feature is default-off, not absent.
 ## Deferred Or Absent Surfaces
 
 The following are not runtime facts today:
-- `Overseer`
-- queued batch critique jobs
+- batch critique jobs with persisted status
 - `/api/v1/plugins` HTTP endpoints
 - `on_plan` / `on_analyze` / `on_rewrite` / `on_export` / `on_report`
 - wall-clock plugin timeout enforcement in the host
@@ -109,4 +108,4 @@ The following are not runtime facts today:
 
 ## Practical Rule
 
-If a feature needs a durable queue, cross-request cancellation, or job status persistence, that is the point where a true coordinator becomes necessary.
+If a feature needs durable coordination, cross-request cancellation, or job status persistence, that is the point where a true job coordinator becomes necessary.

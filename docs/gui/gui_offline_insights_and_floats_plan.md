@@ -21,7 +21,7 @@ Last Reviewed: 2025-11-15
   - Banner copy "Local only - model insights paused." and offline badges must reflect the bridge health so no model action appears enabled during outages.
   - State source: the renderer must rely on the `bridge.status` observable from `renderer/hooks/useBridgeStatus.ts` as the single source of truth for bridge health.
   - Session persistence: deferred model work lives in volatile memory (per session) so reconnections start with fresh in-flight work.
-  - Telemetry counters: emit `insights.local_ran`, `insights.model_queued_offline`, and `insights.model_ran_after_reconnect`.
+  - Telemetry counters: emit `insights.local_ran`, `insights.model_deferred_offline`, and `insights.model_ran_after_reconnect`.
   - Guard rails: ensure "Run all" never issues a network call while offline and that deferred model runs auto-resume when the bridge recovers.
 
 - **Floating pane relocation toast**

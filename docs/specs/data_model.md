@@ -325,7 +325,7 @@ The synthesizer loads this file via `load_project_heuristics()` before generatin
 
 ## Revision History Policy
 - Snapshots under `/history/revisions/*.json` store `{ revision_id, draft_id, created_at, checksum, description }`.
-- Keep the latest 20 revisions uncompressed; older revisions compress to `.gz` and the system rotates the queue to limit disk usage.
+- Keep the latest 20 revisions uncompressed; older revisions compress to `.gz` and the system rotates a fixed window to limit disk usage.
 - Restoration flows require matching checksums before enabling the “Restore” button; mismatched hashes show warnings but still allow manual confirmation.
 
 ## Scene Ordering Rules

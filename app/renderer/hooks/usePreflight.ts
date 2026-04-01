@@ -190,7 +190,7 @@ export function usePreflight({
       pushToast({
         tone: 'success',
         title: 'New draft written.',
-        description: `Draft ${result.data.draft_id} queued with ${result.data.units.length} unit(s).`,
+        description: `Draft ${result.data.draft_id} prepared with ${result.data.units.length} unit(s).`,
         traceId: result.traceId,
       });
 

@@ -81,7 +81,7 @@ This phase closed the gap between the docs and the runtime.
 
 Completed:
 - docs aligned with runtime
-- removal of fake Overseer / queue / hook claims
+- removal of fake job-coordinator / background-worker / hook claims
 - `AgentOrchestrator` removed from the runtime namespace
 - execution policy centralized in `ExecutionPolicyRunner`
 - budget authority centralized in `BudgetService`
@@ -125,7 +125,7 @@ Scope:
 Constraints:
 - no new control plane
 - no agent runtime
-- no queue system unless explicitly justified
+- no background-worker system unless explicitly justified
 - all features use the existing service-first architecture
 
 Phase 9 begins only after Phase 8.5 is complete.
@@ -165,5 +165,5 @@ Sequencing note: hook dispatch remains deferred until long-form reliability/cont
 ## Future Work
 
 - Voice input / notes remain deferred.
-- A durable job coordinator only becomes necessary if the product adds queued jobs, cancellation, or cross-request orchestration.
+- A durable job coordinator only becomes necessary if the product adds durable jobs, cancellation, or cross-request orchestration.
 - Plugin hook dispatch remains future design only until code exists.

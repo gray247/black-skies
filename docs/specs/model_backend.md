@@ -71,7 +71,7 @@ Insights Overlay overrides these settings: when active, the router refuses to cr
 
 ## Phase Alignment
 - Router ships early (Phase 2+) to serve outline/draft/critique flows.
-- Phase 9 analytics and visualization surfaces may call the Model Router if they need model-backed scoring, but they do not imply a queued batch system or a new control plane.
+- Phase 9 analytics and visualization surfaces may call the Model Router if they need model-backed scoring, but they do not imply a persisted batch system or a new control plane.
 
 ## Current Engine Priority (Sequencing)
 API-backed long-form execution is validated, and rescue-plumbing / reliability-control closeout is complete. The active engine phase is now **Outline-Faithful Editorial Reliability**. Current focus:

@@ -96,7 +96,7 @@ See `docs/error_ux.md` for how to escalate inline warnings/toasts/modals consist
 
 ## Critique Pane Automation (future-only)
 - Controls: if this feature ever ships, it will need an explicit service-backed design before the UI exposes automation.
-- Status: the current runtime does not implement queued per-unit job pills or a batch queue.
+- Status: the current runtime does not implement per-unit job pills or a batch job list.
 - Safety: keep the existing undo/accept flow for service-backed critique and rewrite actions.
 
 ## History Pane (Phase 10)

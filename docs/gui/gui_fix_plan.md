@@ -20,7 +20,7 @@ Last Reviewed: 2025-11-15
 - The goals remain: keep the packaged renderer stable for Playwright, ensure offline/model gating behaves predictably, and document the verification/rescue steps for GUI automation; treat this as a historical snapshot of the Phase 8 rescue work rather than the active GUI charter.
 
 ## Completed Plan Items
-1. **Insights offline gating + telemetry** – Local vs. model chips are classified, the offline banner/tooltip copy is wired to `bridge.status`, and the companion overlay emits `insights.local_ran`, `insights.model_queued_offline`, and `insights.model_ran_after_reconnect`.
+1. **Insights offline gating + telemetry** – Local vs. model chips are classified, the offline banner/tooltip copy is wired to `bridge.status`, and the companion overlay emits `insights.local_ran`, `insights.model_deferred_offline`, and `insights.model_ran_after_reconnect`.
 2. **Deferred model handling** – Model insights stay deferred in volatile memory, replay on reconnect, and log the offline/after-reconnect counts. “Run all” never sends network calls while offline.
 3. **Floating-pane clamp + relocation toast** – Off-screen restores run through `clampBoundsToDisplay`, the Diagnostics JSON logs `{pane, from, to, reason}`, and a Surfaced toast + highlight tell writers what changed.
 4. **Relocation preferences** – Project Home exposes the floating-window behavior card (notify + auto-snap toggles), the implementation honors “Don’t show again,” and the toast fires once per session.
@@ -36,7 +36,7 @@ Last Reviewed: 2025-11-15
 - `open-project` – deterministic button used by `_bootstrap.ts` to open the sample project.
 - `dock-workspace` – DockWorkspace root; waiting on this ensures panels are ready.
 - `companion-overlay` – overlay that can cover the workspace; `_bootstrap.ts` hides it before interactions.
-- `insights-toolbar`, `insights-local-ran`, `insights-model-queued`, `insights-model-resumed` – provide stable selectors for insights telemetry assertions.
+- `insights-toolbar`, `insights-local-ran`, `insights-model-deferred`, `insights-model-resumed` – provide stable selectors for insights telemetry assertions.
 
 ## Recommendations & Next Steps
 1. Continue collecting Playwright traces (see `app/test-results/.../trace.zip`) so each rerun documents the `[electron.url]`, `[dbg:boot]`, and `[boot.screenshot]` output before the spec finishes.

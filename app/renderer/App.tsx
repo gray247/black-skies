@@ -1072,12 +1072,12 @@ export default function App(): JSX.Element {
 
       let successCount = 0;
       let failureCount = 0;
-      const queue = [...uniqueIds];
-      const concurrency = Math.max(1, Math.min(3, queue.length));
+      const pendingSceneIds = [...uniqueIds];
+      const concurrency = Math.max(1, Math.min(3, pendingSceneIds.length));
 
       const worker = async () => {
-        while (queue.length > 0 && !job.cancelled) {
-          const sceneId = queue.shift();
+        while (pendingSceneIds.length > 0 && !job.cancelled) {
+          const sceneId = pendingSceneIds.shift();
           if (!sceneId) {
             return;
           }

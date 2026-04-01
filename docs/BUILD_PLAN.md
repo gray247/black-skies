@@ -10,6 +10,6 @@ Canonical roadmap:
 Canonical control plane:
 - [`docs/specs/control_plane.md`](./specs/control_plane.md)
 
-The old phase map in this file reflected an earlier planning model that overclaimed on Overseer, agents, and plugin orchestration. That model no longer matches the runtime.
+The old phase map in this file reflected an earlier planning model that overclaimed on job coordinators, agents, and plugin orchestration. That model no longer matches the runtime.
 
 Keep this file only as a historical reference for old phase numbering and naming.

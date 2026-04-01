@@ -5,7 +5,7 @@ import { TID } from '../../renderer/utils/testIds';
 const { loadedProject } = loadSampleProject();
 const sampleProjectPath = loadedProject.path;
 
-test('queues model insights offline and resumes when online', async ({ page }) => {
+test('defers model insights offline and resumes when online', async ({ page }) => {
   await page.waitForLoadState('domcontentloaded');
 
   await page.evaluate((projectPath) => {
@@ -47,7 +47,7 @@ test('queues model insights offline and resumes when online', async ({ page }) =
   await runAllInsights.click();
 
   await expect(page.getByTestId('insights-local-ran')).toBeVisible({ timeout: 30_000 });
-  await expect(page.getByTestId('insights-model-queued')).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByTestId('insights-model-deferred')).toBeVisible({ timeout: 30_000 });
 
   await page.evaluate(() => {
     const win = window as typeof window & {

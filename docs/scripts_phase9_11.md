@@ -14,8 +14,8 @@ Purpose:
 - capture trace output when the run fails
 
 What it is not:
-- it does not reset an Overseer
-- it does not clear a model queue
+- it does not reset a job coordinator
+- it does not clear deferred model work
 - it does not repair a batch job system
 
 Current behavior:
