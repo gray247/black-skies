@@ -1,40 +1,43 @@
 Status: Draft
 Version: 1.0
 Last Reviewed: 2025-11-15
-Phase: Phase 11 (Export & packaging)
+Phase: Phase 11 (Style, persona, plugin, and multi-project support)
 Source of Truth: Align with `docs/phases/phase_charter.md` Phase 11 scope; do not diverge from that source.
+Legacy filename retained; this doc now covers Phase 11 customization and extension work.
 
-# docs/phases/phase11_export_pipeline.md — DRAFT
-> Implementation trace: `docs/BUILD_PLAN.md` → Phase 11 row.
+# docs/phases/phase11_export_pipeline.md - DRAFT
+> Implementation trace: `docs/BUILD_PLAN.md` -> Phase 11 row.
 
 ## Scope
-Deliver clean, writer-facing exports with packaging options for Markdown, JSON, PDF, EPUB, and ZIP bundles while protecting critique metadata and keeping the UI responsive.
+Deliver customization and extension surfaces for style configs, persona tuning, plugin support, and multi-project workflows.
+
+Export behavior remains available as a supporting capability, but it is not the definition of this phase.
 
 ## Done When
-- Export builder endpoints (`/export/build`, `/export/status/{job_id}`) align with the payloads described in `docs/specs/endpoints.md` and produce artifacts matching `docs/gui/exports.md`.
-- Analytics appendices remain opt-in and gated by Phase 9 feature flags while the Phase 11 export bundler wraps up the zip/metadata requirements.
-- Diagnostics and progress status integrate with `docs/specs/backup_verification_daemon.md` health signals for multi-format deliveries.
+- Style profiles can be loaded, edited, and persisted without changing execution policy.
+- Persona tuning can influence prompt assembly and renderer presentation in a controlled way.
+- Plugin support remains sandboxed and entrypoint-based, with no hook-dispatch fantasy.
+- Multi-project workflows can summarize and switch between projects safely.
 
-## Formats
-- **Markdown:** `draft_full.md` plus per-chapter `chapter_{n}.md`, all free of critique notes unless the appendix option is selected.
-- **JSON:** `outline.json` and `draft_manifest.json`, designed for machine consumption and including critique metadata in structured form.
-- **PDF / EPUB:** Rendered with the template engine (fonts, margins, front matter) and decorated with optional analytics/critique appendix.
-- **ZIP:** Bundles everything per the Packaging spec so projects can share or archive all artifacts.
+## Style and Persona
+- Style configs define voice, tone, and presentation defaults.
+- Persona tuning adjusts prompt assembly and downstream presentation while keeping service boundaries explicit.
+- The UI should surface the current style/persona state clearly when a project is open.
 
-## Export Builder Service
-- `POST /export/build` accepts `{ project_id, targets, options }`, registers a job, and returns `{ job_id }`.
-- `GET /export/status/{job_id}` reports `{ job_id, status, artifacts }` where each artifact includes `type`, `path`, `bytes`, and `sha256`.
-- The service runs asynchronously, cleans Markdown of critique markers unless `appendix` is true, and normalizes whitespace, scene separators, and title styles before handing artifacts back to the UI.
+## Plugin Support
+- Plugins remain separate from the runtime control plane.
+- Plugin registry, sandbox, and permission behavior stay entrypoint-based and test-covered.
+- Any future hook dispatch stays future-only until actual dispatch code exists.
 
-## Cleanup Rules
-- Strip inline critique comments from prose; keep end-notes only if `appendix` is enabled.
-- Normalize whitespace, apply consistent scene separators, and standardize title styles across formats.
+## Multi-Project Support
+- The launcher should summarize recent projects and make switching explicit.
+- Project summaries should surface health, backup, and support signals without introducing a job system.
 
-## GUI Export Panel
-- Checklist of targets (MD / JSON / PDF / EPUB / ZIP) plus a template selector (`default`, `print-compact`, `ebook-serif`).
-- Toggles for “Append critique end-notes” and “Split by chapter”.
-- Progress bars for each artifact with buttons for Open Folder and Reveal in Explorer.
+## Export Behavior
+- Existing export formats continue to work, but export polish is subordinate to customization and plugin work in this phase.
+- Any export metadata changes must remain compatible with the service-first runtime.
 
 ## Acceptance
-1. Clean Markdown output contains no critique markers while JSON still captures critique metadata.
-2. Exporting a 100k-word book completes within target time without freezing the renderer.
+1. Style and persona settings persist without affecting the control plane.
+2. Plugin support remains sandboxed and does not imply an agent runtime.
+3. Multi-project summaries work without queue or background-worker assumptions.

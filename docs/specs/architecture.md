@@ -100,7 +100,7 @@ The feature is default-off, not absent.
 ## Deferred Or Absent Surfaces
 
 The following are not runtime facts today:
-- batch critique jobs with persisted status
+- future persisted batch critique jobs
 - `/api/v1/plugins` HTTP endpoints
 - `on_plan` / `on_analyze` / `on_rewrite` / `on_export` / `on_report`
 - wall-clock plugin timeout enforcement in the host
@@ -108,4 +108,4 @@ The following are not runtime facts today:
 
 ## Practical Rule
 
-If a feature needs durable coordination, cross-request cancellation, or job status persistence, that is the point where a true job coordinator becomes necessary.
+If a future feature needs durable coordination, cross-request cancellation, or job status persistence, that is the point where a true job coordinator becomes necessary.

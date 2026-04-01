@@ -14,14 +14,14 @@ Spec Index:
 
 # docs/gui/gui_layouts.md - Black Skies v1.1
 
-The renderer still ships the fixed three-pane layout (Outline | Writing | Feedback) with a collapsible Timeline drawer. Docking, floating Story insights panes, and Phase 9 dashboards remain experimental and are not available in production builds even though runtime flags exist.
+The renderer still ships the fixed three-pane layout (Outline | Writing | Feedback) with a collapsible Timeline drawer. Docking, floating story insight panes, and Phase 9 control/visibility surfaces remain experimental and are not available in production builds even though runtime flags exist.
 
-See [Agents & Services](./agents_and_services.md) for the long-term analytics/agent contracts, but treat the sections below as the source of truth for what end users can access today.
+See [Control Plane](../specs/control_plane.md) and [Architecture](../specs/architecture.md) for the service-first runtime boundary, but treat the sections below as the source of truth for what end users can access today.
 
 ---
 
 ## Default Layout (shipping)
-Outline (left) | Writing view (center) | Feedback notes (right). The Timeline renders as a drawer below Feedback and can be toggled via the toolbar. Analytics uses the existing drawer/modal rather than a floating window.
+Outline (left) | Writing view (center) | Feedback notes (right). The Timeline renders as a drawer below Feedback and can be toggled via the toolbar. Insight surfaces use the existing drawer/modal rather than a floating window.
 
 Implementation priority note: **ModelRouter seam and routing/policy/budget plumbing come before any splash/onboarding expansion.** GUI work must not block the router-first rollout.
 
@@ -31,7 +31,7 @@ Implementation priority note: **ModelRouter seam and routing/policy/budget plumb
 - Layout state persists only per-pane width and Collapse/Expand toggles in `.blackskies/layout.json`. There is no multi-display awareness or floating window metadata yet.
 - Presets (`standard`, `analysis`, `critique`) are defined but hidden; the renderer always loads the standard arrangement until docking ships.
 - Keyboard navigation still focuses each pane (`Ctrl+Alt+]` / `Ctrl+Alt+[`) and panes keep `role="group"` for assistive tooling.
-- The Analytics/Story insights view button exists in the toolbar (`Ctrl+Shift+A`) but currently only opens a placeholder overlay; the analytics service is disabled until Phase 9, so no derived data is shown.
+- The Analytics/Story insights view button exists in the toolbar (`Ctrl+Shift+A`) but currently only opens a placeholder overlay; the insight service is disabled until Phase 9, so no derived data is shown.
 
 ---
 
@@ -39,13 +39,13 @@ Implementation priority note: **ModelRouter seam and routing/policy/budget plumb
 - **Outline:** Decision checklist, scene planning, and quick links to validation panels.
 - **Writing view:** Scene editor, diff toggle, Companion overlay, and budget meter.
 - **Feedback notes:** Feedback threads, accept/undo controls, rubric editor, plus the collapsible Timeline drawer.
-- **Analytics drawer (Collapsible):** Placeholder region reserved for emotion arc, adaptive pacing, conflict heatmap, and scene length distribution metrics; the actual data will be sourced from `/api/v1/analytics/summary` only once Phase 9 enables the analytics service. This future drawer replaces the previously documented floating “Story insights” window.
+- **Insight drawer (Collapsible):** Placeholder region reserved for the story build timeline, scene provenance, emotion arc, pacing, conflict heatmap, and scene length distribution metrics; the actual data will be sourced from `/api/v1/analytics/summary` only once Phase 9 enables the insight service. This future drawer replaces the previously documented floating "Story insights" window.
 - **Companion overlay (Writing view):** A dockable in-app browser pane/window that opens ChatGPT. Companion Mode is separate from API Mode and does not route prompts through service providers or ModelRouter.
 
 ---
 
 ## Story Insights & Project Health (future state)
-The floating Story insights / Project Health pane referenced in earlier drafts is still on the roadmap. Analytics data remains gated: the drawer pulls from `docs/specs/analytics_service_spec.md` payloads once `BLACKSKIES_ENABLE_ANALYTICS=1` flips in Phase 9. Until then, the placeholder overlay is shown even if internal flags exist.
+The floating story insights / Project Health pane referenced in earlier drafts is still on the roadmap. Insight data remains gated: the drawer pulls from `docs/specs/analytics_service_spec.md` payloads once `BLACKSKIES_ENABLE_ANALYTICS=1` flips in Phase 9. Until then, the placeholder overlay is shown even if internal flags exist.
 
 ---
 
@@ -57,19 +57,19 @@ The floating Story insights / Project Health pane referenced in earlier drafts i
 ---
 
 ## Preflight Panel
-The Preflight panel lives in the Draft Board sidebar below the Outline. It surfaces budgeting output (token + dollar projections) and links to the analytics drawer. It cannot be re-docked or floated at this time.
+The Preflight panel lives in the Draft Board sidebar below the Outline. It surfaces budgeting output (token + dollar projections) and links to the insight drawer. It cannot be re-docked or floated at this time.
 
 ---
 
 ## Read-Through Mode
-Read-Through remains the distraction-free preview overlay. Analytics badges stay hidden in Phase 8 because `/api/v1/analytics/summary` is not yet enabled; there is no docking integration until Phase 9.
+Read-Through remains the distraction-free preview overlay. Insight badges stay hidden in Phase 8 because `/api/v1/analytics/summary` is not yet enabled; there is no docking integration until Phase 9.
 
 ---
 
 ## Hotkeys (shipping)
-- Global: Ctrl/Cmd+Shift+A (toggle Analytics drawer) · Ctrl/Cmd+M (open Companion overlay)
+- Global: Ctrl/Cmd+Shift+A (toggle Insight drawer) · Ctrl/Cmd+M (open Companion overlay)
 - Focus cycling: Ctrl+Alt+] (next pane) · Ctrl+Alt+[ (previous pane)
-- Critique: Ctrl/Cmd+B (run Batch Critique) · Ctrl/Cmd+E (edit Custom Rubric)
+- Critique: Ctrl/Cmd+B (run Critique) · Ctrl/Cmd+E (edit Custom Rubric)
 - Export: Ctrl/Cmd+Shift+X (open Export Template Picker)
 > Preset hotkeys (Ctrl+Alt+1/2/3/0) remain hidden because presets are not yet exposed without docking.
 
@@ -82,13 +82,13 @@ See `docs/error_ux.md` for how to escalate inline warnings/toasts/modals consist
 ---
 
 ## Tooltips & Inline Help
-- Every icon-only button must expose a tooltip string (e.g., “Run All Critique (Ctrl+J)”) and matching `aria-label`/accessibility text that references the hotkey when defined.
+- Every icon-only button must expose a tooltip string (e.g., "Run Critique (Ctrl+J)") and matching `aria-label`/accessibility text that references the hotkey when defined.
 - Tooltips come from a centralized string source (shared constants) so the same phrasing feeds the tooltip, command bar entry, and hotkey map, preventing drift.
-- Complex overlays (Spark Pad, Visuals Layer) may add inline “?” help icons that open focused popovers explaining context-specific lamps or flange operations.
+- Complex overlays (Spark Pad, Visuals Layer) may add inline `?` help icons that open focused popovers explaining context-specific lamps or flange operations.
 - Tooltips and popover text must explicitly call out the associated hotkey when present so keyboard users get parity with mouse interactions.
 
 ## Project Info Panel (Advanced)
-- “Open Project Folder” returns `project_id`, `project_name`, and optional slug; the UI uses these values to seed service requests so users no longer type the ID directly once the folder is chosen.
+- "Open Project Folder" returns `project_id`, `project_name`, and optional slug; the UI uses these values to seed service requests so users no longer type the ID directly once the folder is chosen.
 - Surface `project_id`, folder path, schema version, and runtime flags in a read-only Info/Debug panel (Settings > Advanced) for support scenarios. This panel is informational only and does not appear in normal workflows.
 - The Critique Pane, Outline flow, and automation features consume the active `project_id` automatically; all user-entry points simulate context selection rather than manual typing.
 
@@ -106,19 +106,19 @@ See `docs/error_ux.md` for how to escalate inline warnings/toasts/modals consist
 ## Export Panel (Phase 11)
 - Checklist: MD / JSON / PDF / EPUB / ZIP.
 - Template Select: default, print-compact, ebook-serif.
-- Toggles: “Append critique end-notes,” “Split by chapter”.
+- Toggles: "Append critique end-notes," "Split by chapter."
 
 ---
 
 ## GUI/UX Index
 
-- [`docs/gui/gui_fix_plan.md`](./gui_fix_plan.md) – Canonical Insights/gating fix plan that keeps the renderer stable; use it when modifying overlays or telemetry warnings.
-- [`docs/gui/gui_offline_insights_and_floats_plan.md`](./gui_offline_insights_and_floats_plan.md) – Supporting deep dive on offline gating and float notifications.
-- [`docs/ops/gui_insights_rescue_kit.md`](./gui_insights_rescue_kit.md) – Troubleshooting kit for Playwright Insights failures and packaged renderer debugging.
-- [`docs/gui/gui_theming.md`](./gui_theming.md) – Theme tokens + constraints layered over this layout; they must not reposition panes.
-- [`docs/phases/phase8_gui_enhancements.md`](./phase8_gui_enhancements.md) – Docking and layout persistence initiatives that evolve from this document.
-- [`docs/gui/accessibility_toggles.md`](./accessibility_toggles.md) – High-contrast and large-font toggles scoped to the panes defined here.
+- [`docs/gui/gui_fix_plan.md`](./gui_fix_plan.md) - Canonical insight/gating fix plan that keeps the renderer stable; use it when modifying overlays or telemetry warnings.
+- [`docs/gui/gui_offline_insights_and_floats_plan.md`](./gui/gui_offline_insights_and_floats_plan.md) - Supporting deep dive on offline gating and float notifications.
+- [`docs/ops/gui_insights_rescue_kit.md`](./gui_insights_rescue_kit.md) - Troubleshooting kit for Playwright insight failures and packaged renderer debugging.
+- [`docs/gui/gui_theming.md`](./gui_theming.md) - Theme tokens + constraints layered over this layout; they must not reposition panes.
+- [`docs/phases/phase8_gui_enhancements.md`](./phase8_gui_enhancements.md) - Docking and layout persistence initiatives that evolve from this document.
+- [`docs/gui/accessibility_toggles.md`](./accessibility_toggles.md) - High-contrast and large-font toggles scoped to the panes defined here.
 
 ## Planned GUI Enhancements (Not yet implemented)
-- Docking/floating panes, Story insights as a floating window, and the Visuals Layer presets remain experimental; no production build exposes these layouts by default.
-- Voice-related controls, backup daemon UIs, and the new Visuals + Analytics overs are future additions and do not exist in today's renderer.
+- Docking/floating panes, story insights as a floating window, and the Phase 9 insight surfaces remain experimental; no production build exposes these layouts by default.
+- Voice-related controls, backup daemon UIs, and the new insight and customization surfaces are future additions and do not exist in today's renderer.

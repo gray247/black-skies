@@ -17,6 +17,6 @@ If a future batch system is ever added, it will need:
 - job status persistence
 - explicit cancellation
 - job ownership
-- budget enforcement at the job coordinator layer
+- budget enforcement owned by that future coordinator, if it ever exists
 
 Until then, this file is only an architecture sketch and should not be read as the Phase 9 plan.

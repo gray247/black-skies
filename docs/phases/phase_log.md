@@ -37,16 +37,16 @@ Last Reviewed: 2026-03-15
 **2026-03-19** - Terminology was aligned across the first-pass editorial workflow. The intended user-facing states are now `Flagged`, `Accepted`, and `Manual review`, with continuity state expressed separately as `carryover risk`, `carryover mode`, and `allowed` / `blocked`.
 **2026-03-19** - `regenerate_local_repair` is now fully wired as a narrow, auditable, single-use local retry action. It persists separate retry state, preserves the original `review_snapshot` / `carryover_snapshot`, updates effective carryover from the retry result where appropriate, and is covered through service-route, IPC, renderer, and Playwright workflow tests.
 **2026-03-19** - Phase 8 editorial-control closeout is now documented explicitly in `docs/phases/phase8_closeout.md`. That closeout record defines the completion line, stable baseline behavior, bug/risk ledger, and manual verification checklist to use before any Phase 9 work begins.
-**2026-03-31** - Phase 8.5 runtime hardening is complete. The runtime is now service-first with explicit control-plane ownership, execution policy centralized in `ExecutionPolicyRunner`, budget authority centralized in `BudgetService`, `AgentOrchestrator` removed from the runtime namespace, and resilience layers separated by responsibility. Phase 9 is now the first feature phase after stabilization.
+**2026-03-31** - Phase 8.5 runtime hardening is complete. The runtime is now service-first with explicit control-plane ownership, execution policy centralized in `ExecutionPolicyRunner`, budget authority centralized in `BudgetService`, `AgentOrchestrator` removed from the runtime namespace, and resilience layers separated by responsibility. Phase 9 is now the first feature phase after stabilization and now starts as the control, visibility, and insight layer.
 
 ## Upcoming milestones
 - ~~**P7 - RC1:** Smoke tests complete; publish quickstart.~~ *(closed 2025-10-10)*
 - ~~**P8 - Companion overlay + batch critique prototype.**~~ *(landed 2025-10-15; engine milestone stays closed)*
 - **P8 follow-up exceptions:** unresolved UI verification and scope gaps remain tracked without reopening the engine milestone. See `docs/phases/phase8_ui_gate_closeout.md`.
 - **Current engine phase:** Outline-Faithful Editorial Reliability for long-form rewrite recovery, after rescue-plumbing closeout.
-- **P9:** Analytics visualisations + dashboard integration.
-- **P10:** Accessibility & export suite.
-- **P11:** Agents & plugin framework.
+- **P9:** Control, visibility, and insight layer.
+- **P10:** File ownership, continuity, and validation.
+- **P11:** Style, plugins, and multi-project support.
 
 ## Open follow-up items
 - Track **budget constant reuse**: replace hard-coded `0.02` pricing in `DraftGenerationService` with `COST_PER_1000_WORDS_USD` and audit for other stragglers.
@@ -73,8 +73,8 @@ Last Reviewed: 2026-03-15
 | P7 | Charter §7 | Release engineering | Locked 2025-10-10 | RC packaging + docs | `pnpm --filter app test`, smoke scripts |
 | P8 | Charter §8 | Desktop UI | Complete | Core writing/feedback flow, recovery, export stability | Engine milestone closed |
 | P8.5 | Charter §8.5 | Runtime hardening | Complete | Control-plane alignment, execution policy, budget authority, separated resilience | Docs/tests aligned with runtime |
-| P9 | Charter §9 | Analytics squad | Planned | Emotion arc, pacing, dashboard, outline validation | Planned Playwright + analytics contracts |
-| P10 | Charter §10 | Accessibility | Planned | Voice notes, contrast mode, exports | Axe automation + export diff suite (planned) |
-| P11 | Charter §11 | Extensions | Planned | Test-support wrappers, plugin registry, backup services | Plugin contract tests (planned) |
+| P9 | Charter §9 | Insight layer | Planned | Pipeline mode, timeline, provenance, insight graphs, outline validation | Planned Playwright + service contracts |
+| P10 | Charter §10 | Continuity validation | Planned | File ownership, continuity warnings, lore graph, stronger validation | Validation and graph coverage (planned) |
+| P11 | Charter §11 | Customization | Planned | Style configs, persona tuning, plugins, multi-project support | Plugin and config contract tests (planned) |
 
 For scope details see `docs/phases/phase_charter.md`. For execution status see `docs/roadmap.md`.

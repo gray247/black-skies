@@ -9,7 +9,7 @@ Introduce the **Model Router** abstraction so every AI-powered call flows throug
 
 ## Responsibilities
 - **Provider orchestration:** expose drivers for `local_llm`, `openai`, and other optional vendors (e.g., `deepseek`) via a pluggable registry.
-- **Per-task routing:** determine which provider(s) execute specific jobs (`outline`, `draft`, `critique`, future `analytics`) based on policy configuration and caller-supplied budget status.
+- **Per-task routing:** determine which provider(s) execute specific jobs (`outline`, `draft`, `critique`, future insight scoring) based on policy configuration and caller-supplied budget status.
 - **Token/cost accounting:** measure tokens in/out, map to dollar estimates, and leave budget persistence to `BudgetService`.
 - **Privacy enforcement:** honor Insights Overlay by blocking external API calls, require explicit user consent before enabling API Mode, and log decisions for audits.
 - **Telemetry hooks:** emit routing decisions, durations, and rejection reasons to `.perf/` (see `./performance_telemetry_policy.md`).
@@ -71,7 +71,7 @@ Insights Overlay overrides these settings: when active, the router refuses to cr
 
 ## Phase Alignment
 - Router ships early (Phase 2+) to serve outline/draft/critique flows.
-- Phase 9 analytics and visualization surfaces may call the Model Router if they need model-backed scoring, but they do not imply a persisted batch system or a new control plane.
+- Phase 9 control, visibility, and insight surfaces may call the Model Router if they need model-backed scoring, but they do not imply a persisted batch system or a new control plane.
 
 ## Current Engine Priority (Sequencing)
 API-backed long-form execution is validated, and rescue-plumbing / reliability-control closeout is complete. The active engine phase is now **Outline-Faithful Editorial Reliability**. Current focus:

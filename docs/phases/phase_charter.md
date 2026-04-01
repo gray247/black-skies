@@ -58,6 +58,7 @@ There is no batch critique job endpoint in the current runtime.
 - Phase 9: ready to begin
 
 The runtime is stabilized and service-first. Phase 9 builds on top of that system, not inside it.
+Phase 9 builds understanding, Phase 10 enforces constraints, and Phase 11 enables customization.
 
 ---
 
@@ -105,15 +106,19 @@ Exit criteria:
 
 ---
 
-## Phase 9 - Analytics, visualization, and insight layer
+## Phase 9 - Control, visibility, and insight layer
 
 This is the first feature phase after stabilization.
 
-Phase 9 adds analytics and visualization surfaces on top of the stabilized service-first runtime.
+Phase 9 adds controlled execution, visibility, and interpretation surfaces on top of the stabilized service-first runtime.
 
-The analytics service is a separate service boundary. It is not a hidden agent system and it does not introduce a new control plane.
+The analytics service is one service boundary inside Phase 9. It is not a hidden agent system and it does not introduce a new control plane.
 
 Scope:
+- optional Pipeline Mode for outline -> draft -> critique -> optional rewrite
+- story build timeline derived from history and revision data
+- scene provenance panel showing inputs, outline nodes, prompt influences, and revisions
+- safe regeneration modes that preserve locked facts
 - emotion arc graph for character and story
 - pacing curve visualization
 - conflict heatmap
@@ -126,32 +131,43 @@ Constraints:
 - no new control plane
 - no agent runtime
 - no background-worker system unless explicitly justified
+- no queue or job system
+- no duplicate execution or budget policy
+- no UI-owned execution logic
 - all features use the existing service-first architecture
 
 Phase 9 begins only after Phase 8.5 is complete.
 
 ---
 
-## Phase 10 - Accessibility and exports
+## Phase 10 - File ownership, continuity, and validation
 
-This phase expands the current UI and export surfaces.
+This phase enforces story ownership and continuity constraints on top of the Phase 9 insight layer.
 
-It should not introduce new orchestration assumptions.
+Scope:
+- file ownership system
+- continuity pressure warnings
+- lore dependency graph
+- stronger validation
 
 ---
 
-## Phase 11 - Extensions and optional wrappers
+## Phase 11 - Style, plugins, and multi-project support
 
-Goal: define the future extension surface without pretending an agent runtime already exists.
+Goal: define the future customization and extension surface without pretending an agent runtime already exists.
 
 Key deliverables:
+- style configs
+- persona tuning
+- plugin system
+- multi-project support
 - optional test-support wrappers around explicit service workers, if they remain useful
 - plugin registry and sandbox behavior limited to the entrypoint-based implementation described in `docs/specs/plugin_sandbox.md`
 - plugin safety and permission handling
 - backup verification visibility and operational hardening
-- multi-project dashboard with recent list
 - smart merge tool for safe scene/chapter merges
 - offline mode indicator and cache manager
+- export surface polish, if still needed, stays subordinate to customization and plugin work
 
 Done when:
 - plugin registry and sandbox tests cover the implemented entrypoint path

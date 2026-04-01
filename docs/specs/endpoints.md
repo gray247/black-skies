@@ -462,10 +462,10 @@ Runs critique on a unit using the rubric (see `../critique_rubric.md`). Non-dest
 
 ---
 
-## Analytics (Deferred to Phase 9)
+## Phase 9 Control, Visibility, and Insight Surfaces
 
-Phase 8 builds return 404 for `/api/v1/analytics/*` unless `BLACKSKIES_ENABLE_ANALYTICS=1` flips the flag; these routes ship in Phase 9.
-The analytics drawer defined in `docs/gui/gui_layouts.md` and dashboards described in `docs/phases/dashboard_initiatives.md` rely on the payloads below once enabled. The contract stays service-first; it does not imply a persistent job system.
+Phase 8 builds return 404 for `/api/v1/analytics/*` unless `BLACKSKIES_ENABLE_ANALYTICS=1` flips the flag; these routes ship as part of Phase 9.
+The analytics drawer, story build timeline, provenance panel, and dashboards described in `docs/phases/dashboard_initiatives.md` rely on the payloads below once enabled. Phase 9 also includes synchronous control surfaces such as Pipeline Mode and safe regeneration, but those remain service-backed and do not imply a persistent job system.
 
 
 ## Export Builder
@@ -529,7 +529,7 @@ The analytics drawer defined in `docs/gui/gui_layouts.md` and dashboards describ
 
 ### Analytics endpoints
 
-Analytics routes are deferred to Phase 9 per the charter: they remain in the spec only for reference and are not a persisted batch system.
+Analytics routes are deferred to Phase 9 per the charter: they remain in the spec only for reference and are not a persisted batch system. Phase 9 uses them as one part of a broader control and interpretation layer.
 
 - `GET /api/v1/analytics/summary` (emotion arc, pacing statistics, conflict heatmap)
 - `POST /api/v1/analytics/build` and `/api/v1/analytics/refresh` (trigger rescore/cache refresh)

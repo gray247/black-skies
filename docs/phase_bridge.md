@@ -10,12 +10,12 @@ Clarify the transition from Phase 8 through Phase 8.5 into Phase 9 without reint
 ## Gates
 - **Phase 8** is complete once the core service-first writing flow, critique loop, recovery, and export stability are shipped.
 - **Phase 8.5** is complete once the runtime/control-plane story is honest: docs match runtime, `AgentOrchestrator` is out of the runtime namespace, execution policy is centralized, budget authority is centralized, and resilience layers are explicitly separated.
-- **Phase 9** begins after Phase 8.5 and focuses on analytics, visualization, and insight surfaces on top of the stabilized system.
-- **Phase 10** remains the accessibility and export phase.
-- **Phase 11** remains the extensions and optional-wrapper phase.
+- **Phase 9** begins after Phase 8.5 and focuses on control, visibility, and insight surfaces on top of the stabilized system.
+- **Phase 10** enforces file ownership, continuity pressure warnings, lore dependency validation, and stronger checks.
+- **Phase 11** enables style configs, persona tuning, plugin support, and multi-project work.
 
 ## Risks & Mitigations
 - **Budget overruns:** enforce hard caps in `BudgetService`; do not invent a background-worker layer to manage spend.
-- **Analytics scope drift:** keep Phase 9 focused on insight surfaces and diagnostics, not orchestration.
+- **Interpretation scope drift:** keep Phase 9 focused on visibility and interpretation surfaces, not orchestration.
 - **Export regressions:** verify MD/JSON/PDF/EPUB outputs against golden masters and include automated checksum comparisons in CI.
 - **Future coordinator creep:** if a durable batch/job system is ever needed, document that decision separately and do not smuggle it into Phase 9 language.

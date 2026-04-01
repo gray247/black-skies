@@ -15,12 +15,12 @@ Spec Index:
 
 ## Availability
 - Analytics endpoints are disabled for Phase 8 by default (`BLACKSKIES_ENABLE_ANALYTICS=0`); calls return 404 until the Phase 9 gate flips the flag on.
-- Phase 9 introduces the Project Health dashboard and the analytics drawer; enablement requires the analytics service and cache files to be present so the GUI drawer (see `docs/gui/gui_layouts.md`) can render emotion/pacing metrics.
+- Phase 9 uses the analytics service as one part of the broader control, visibility, and insight layer; enablement requires the analytics service and cache files to be present so the GUI drawer (see `docs/gui/gui_layouts.md`) can render emotion/pacing metrics.
 - Treat this doc as Draft until Phase 9 has a verified release.
 
 ## Goals
-- Quantify pacing, emotional flow, rubric coverage, and character relationships so every analytics surface (Story insights, Project Health, the Visuals Layer) reuses the same backend truth.
-- Provide a documented contract so renderer prefabs can render timelines, heatmaps, and graphs without reverse-engineering service internals.
+- Quantify pacing, emotional flow, rubric coverage, and character relationships so every insight surface (Story build timeline, provenance panel, Project Health, the Visuals Layer) reuses the same backend truth.
+- Provide a documented contract so renderer prefabs can render timelines, heatmaps, graphs, and provenance views without reverse-engineering service internals.
 
 > **Phase 8 status:** The analytics service is documented here for Phase 9 planning, but the service and its endpoints are disabled in Phase 8 builds.
 
@@ -84,13 +84,13 @@ The Visuals Layer preset (left: Visuals, center: Draft Board, right: Critique + 
 
 ## Analytics & Telemetry Index
 
-- [`docs/phases/phase9_charter.md`](./phase9_charter.md) – Phase 9 intent, acceptance criteria, and risks that the analytics service must satisfy.
-- [`docs/phases/phase9_11_testplan.md`](./phase9_11_testplan.md) – Regression suites, telemetry assertions, and test coverage requirements protecting analytics behaviors.
-- [`docs/phases/phase9_companion_loop.md`](./phase9_companion_loop.md) – Companion automation controls that surface analytics data through the Critique Pane.
-- [`docs/phases/dashboard_initiatives.md`](./dashboard_initiatives.md) – Dashboard deliverables (Project Health, Outline validation, multi-project launcher) that consume these metrics.
-- [`docs/specs/performance_telemetry_policy.md`](./performance_telemetry_policy.md) – Telemetry targets, collection rules, and red lines that keep analytics metrics compliant.
-- [`docs/ops/support_playbook.md`](../ops/support_playbook.md) – Operational runbook for dashboards, analytics health signals, and escalation flows.
+- [`docs/phases/phase9_charter.md`](./phase9_charter.md) - Phase 9 intent, acceptance criteria, and risks that the insight service must satisfy.
+- [`docs/phases/phase9_11_testplan.md`](./phase9_11_testplan.md) - Regression suites, telemetry assertions, and test coverage requirements protecting insight behaviors.
+- [`docs/phases/phase9_companion_loop.md`](./phase9_companion_loop.md) - Companion automation controls that remain future-only.
+- [`docs/phases/dashboard_initiatives.md`](./dashboard_initiatives.md) - Dashboard deliverables (Project Health, outline validation, multi-project launcher) that consume these metrics.
+- [`docs/specs/performance_telemetry_policy.md`](./performance_telemetry_policy.md) - Telemetry targets, collection rules, and red lines that keep analytics metrics compliant.
+- [`docs/ops/support_playbook.md`](../ops/support_playbook.md) - Operational runbook for dashboards, analytics health signals, and escalation flows.
 
 ## Phase Alignment
-- Analytics spec sits ready so Bookend 2 (Visuals Layer, heatmaps) can consume consistent data once Phase 9 ships.
+- Analytics spec sits ready so Phase 9's control, visibility, and insight layer can consume consistent data once it ships.
 - Phase 8 does not ship these endpoints; see `./endpoints.md` for the deferred checklist and gating details.

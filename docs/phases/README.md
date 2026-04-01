@@ -5,7 +5,7 @@ Last Reviewed: 2026-03-31
 # Phase Documentation
 
 This folder holds the canonical charter and per-phase planning docs for P8 through P11.
-Start with `phase_charter.md` as the Book of Record, then follow the stabilized sequence: Phase 8 core system, Phase 8.5 runtime hardening, Phase 9 analytics/visualization, Phase 10 recovery, Phase 11 export.
+Start with `phase_charter.md` as the Book of Record, then follow the stabilized sequence: Phase 8 core system, Phase 8.5 runtime hardening, Phase 9 control/visibility/insight, Phase 10 continuity/validation, Phase 11 customization/plugins.
 All phase decisions relate back to `docs/phases/phase_charter.md` as the canonical implementation map and to `docs/roadmap.md` for scheduling context.
 
 Canonical docs:

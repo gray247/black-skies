@@ -5,6 +5,16 @@ Chronological record of locked decisions and spec/version bumps. One-line summar
 
 ---
 
+## 2026-03-31 â€” Current phase alignment snapshot (LOCKED)
+- Phase 7 alignment (LOCKED)
+- Phase 8 alignment (LOCKED)
+- Phase 8.5 alignment (LOCKED)
+- Phase 9 alignment (PLANNED)
+- Phase 10 alignment (PLANNED)
+- Phase 11 alignment (PLANNED)
+
+---
+
 ## Open items snapshot
 | Item | Owner | Artifact | Blocking PRs | Milestone |
 | :--- | :----- | :-------- | :------------ | :--------- |
@@ -17,12 +27,12 @@ Chronological record of locked decisions and spec/version bumps. One-line summar
 - Companion Mode is separate from API Mode; no service-based model routing or content exfiltration occurs through Companion Mode.
 - Router-first implementation order is official: ModelRouter seam + routing/policy/budget plumbing come before splash/onboarding expansion.
 
-## 2025-11-14 Phase 7 tightening (IN PROGRESS)
+## 2025-11-14 Phase 7 tightening (LOCKED)
 - Service health UX (port offline) - done
 - Budget & analytics UX (indicator, near-cap hints, 402 guardrails in UI) - done
 - Error-code-to-toast mapping (budget, analytics, sandbox) - done
 
-## 2025-10-28 Phase 8 docking verification (IN PROGRESS)
+## 2025-10-28 Phase 8 docking verification (LOCKED)
 - Owner: QA Lead (Jess K.)
 - Artifact: `docs/phases/phase8_gui_enhancements.md` checklist, Playwright report `app/playwright-report/docking/index.html`, pytest report `reports/docking-verification.xml`
 - Blocking PRs: #482 (renderer docking), #483 (layout persistence service)
