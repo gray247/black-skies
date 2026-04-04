@@ -2,9 +2,11 @@ Status: Active
 Version: 1.0.0
 Last Reviewed: 2025-11-15
 
-# docs/phase_bridge.md — DRAFT
+# docs/phase_bridge.md â€” DRAFT
 
 ## Purpose
+Authority note: this is transitional guidance, not canonical scope or status authority.
+
 Clarify how to transition from locked Phase 8 into Phases 9–11 by calling out explicit gates, risks, and rollback paths for the automation, recovery, and export initiatives.
 
 ## Gates

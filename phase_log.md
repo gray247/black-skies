@@ -1,5 +1,7 @@
-﻿# phase_log.md â€” Phase Log (Source of truth)
+﻿# phase_log.md â€” Phase Log (status ledger)
 **Status:** ACTIVE Â· 2025-09-29
+
+Authority note: this file is the dated lock/history ledger only. Use `docs/phases/phase_charter.md` for scope and `docs/roadmap.md` for the current status snapshot. Do not treat this file as scope authority.
 
 Chronological record of locked decisions and spec/version bumps. One-line summary first, details after.
 

@@ -3,7 +3,8 @@ Version: 1.1
 Last Reviewed: 2025-11-15
 
 # Phase log — change history
-> Each entry corresponds to the scope tracked in `docs/BUILD_PLAN.md`.
+Authority note: this file records dated phase change history only. Use `phase_charter.md` for scope and `docs/roadmap.md` for current status.
+> Each entry corresponds to the scope tracked in `docs/BUILD_PLAN.md` as supporting context.
 
 **2025-09-15** — Locked Phase Charter v1.0 (original RC scope)
 **2025-10-09** — Added Phase 8–11 roadmap (~30 feature expansion) · unlocked v1.1 docs

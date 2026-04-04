@@ -4,9 +4,8 @@ Last Reviewed: 2025-11-05
 
 # Phase Documentation
 
-This folder holds the canonical charter and per-phase planning docs for P8–P11.  
-Start with `phase_charter.md` as the Book of Record, then dive into the linked Phase 8–11 overlays (Phase 8 GUI docking, Phase 9 analytics/testplans, Phase 10 recovery, Phase 11 export).  
-All phase decisions relate back to `docs/BUILD_PLAN.md` as the canonical implementation map and to `docs/roadmap.md` for scheduling context.
+Authority note: this folder is an active phase index for P8-P11, not the full authority hierarchy.
+Start with `phase_charter.md` for scope, use `docs/roadmap.md` for the current status snapshot, and use `phase_log.md` for dated history. `docs/BUILD_PLAN.md` is supporting implementation context, not the scope authority.
 
 Canonical docs:
 - `phase_charter.md`

@@ -5,9 +5,9 @@ Last Reviewed: 2025-11-15
 # Black Skies – Phase Charter (v1.1)
 
 Purpose: Extend the roadmap beyond P7 (RC1) into the P8–P11 expansion cycles.
-Source of Truth: This charter defines the phase sequence, scope, and gating for v1.1; reference it before aligning other phase materials.
+Authority note: this charter defines phase sequence, scope, and gating for v1.1. Use it for scope decisions, not for current status snapshots.
 
-Status tracking lives in [docs/roadmap.md](../roadmap.md); use this charter as the scope authority.
+Status tracking lives in [docs/roadmap.md](../roadmap.md) and the dated ledger in `phase_log.md`; `docs/BUILD_PLAN.md` is supporting implementation context, not scope authority.
 
 Canonical Links:
 - `docs/BUILD_PLAN.md`

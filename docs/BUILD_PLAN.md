@@ -1,8 +1,8 @@
 # Black Skies – Canonical Build Plan (Full Roadmap)
 
-> **Purpose**  
-> This document defines the *complete* development roadmap for Black Skies, including all phases, goals, dependencies, exit criteria, and the feature mapping for the entire system.  
-> This is the authoritative source of truth for what the project is, what remains, and how it reaches the final packaging phase.
+> **Purpose**
+> This document is a broad implementation map for Black Skies, including the full phase sequence, goals, dependencies, exit criteria, and feature mapping.
+> It is not the canonical scope or current-status authority; use `docs/phases/phase_charter.md` for phase scope and `docs/roadmap.md` / `phase_log.md` for current status and lock history.
 
 ---
 

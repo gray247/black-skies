@@ -4,7 +4,9 @@ Last Reviewed: 2025-11-15
 
 # Test Strategy & Commands
 
-This guide maps every automated surface (services, renderer, packaging) to the current product vocabulary: Outline -> Writing -> Feedback. It documents the commands, artifacts, and thresholds that gate each release phase.
+Authority note: this is a legacy gate map, not the canonical validation authority. For current lane meanings and truth-bearing command guidance, see `docs/reviews/canonical_authority_and_validation_lanes.md`.
+
+This guide maps automated surfaces (services, renderer, packaging) to the current product vocabulary: Outline -> Writing -> Feedback. It documents commands, artifacts, and thresholds that historically gated each release phase.
 
 ## Terminology
 - **Outline flow** replaces the legacy "Wizard" language.
@@ -35,7 +37,7 @@ unit, contract, e2e, eval
 ### Token budgeting note
 Feedback telemetry derives spend from scene word count (fallback to word_target). A minimum **0.25 k tokens** block is charged per invocation to avoid zero-cost regressions; the evaluator enforces this during load tests.
 
-## Phase gates
+## Legacy phase gates
 | Phase | Goal | Command(s) | Artifact(s) | Threshold |
 | :---- | :--- | :--------- | :----------- | :-------- |
 | **P5** | Services foundation + eval harness | pytest -m "unit or contract" --cov=blackskies.services --cov-report=xml:coverage/unit-contract.xml -q<br>python scripts/eval.py --html out/eval.html --json out/eval.json --fail-under-pass-rate 0.90 | coverage/unit-contract.xml<br>out/eval.html, out/eval.json | Statement coverage ≥ 90%<br>Eval pass rate ≥ 90% |
@@ -56,7 +58,7 @@ isual.home.spec.ts), and axe accessibility check (11y.smoke.spec.ts).
 - [x] Extend renderer Vitest coverage for recovery banner, dock workspace, analytics helpers, and runtime config caching.
 - [x] Enable eslint-plugin-jsx-a11y, disable animations when PLAYWRIGHT===1, and ensure CI uploads Playwright traces/screenshots on failure.
 
-## Phase coverage map
+## Legacy phase coverage map
 | Phase | Key deliverables | Primary tests / gates |
 | :---- | :--------------- | :-------------------- |
 | P5 | Service adapters, eval harness | pytest -m "unit or contract", scripts/eval.py |
