@@ -1,34 +1,32 @@
-# Playwright
+# Playwright reports and test output
 playwright-report/
 test-results/
+app/playwright-report/
+app/test-results/
 
-# Node
+# Node / Electron build output
 node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 app/dist/
 app/dist-electron/
 app/.vite/
 app/coverage/
+build/
+dist/
 
-# Python
+# Python caches and environments
 __pycache__/
 *.pyc
-.hypothesis/
 *.py[cod]
+.hypothesis/
+.pytest_cache/
 *.egg-info/
 .venv/
 services/.venv/
 vendor/wheels/
-.pytest_cache/
 
-# Logs / temp
+# Logs, traces, and temporary files
 *.log
 *.tmp
-.aider*
-.codex_step
-.codex_history
 *.trace
 *.har
 *.e2e-artifacts/
@@ -37,20 +35,19 @@ vendor/wheels/
 *.bak
 *.bak*
 
+# Local tooling state
+.aider*
+.codex_step
+.codex_history
+
 # OS junk
 .DS_Store
 Thumbs.db
 
-# Local env
+# Local environment files
 .env
 
-# Build artifacts
-build/
-dist/
-app/test-results/
-app/playwright-report/
-
-# Snapshot auto-generated diagnostics
+# Snapshot / fixture diagnostics
 sample_project/*/.snapshots/**/history/diagnostics/**
 sample_project/*/.snapshots/**/diagnostics/**
 sample_project/*/.snapshots/**/history/temp/**
