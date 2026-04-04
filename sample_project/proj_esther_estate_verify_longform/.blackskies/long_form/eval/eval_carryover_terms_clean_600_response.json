@@ -1,0 +1,104 @@
+﻿{
+    "project_id":  "proj_esther_estate_verify_longform",
+    "chapter_id":  "ch_0001",
+    "chunks":  [
+                   {
+                       "chunk_id":  "lf_5dcd3907",
+                       "chapter_id":  "ch_0001",
+                       "scene_ids":  [
+                                         "sc_0001"
+                                     ],
+                       "order":  1,
+                       "continuation_of":  null,
+                       "prompt_fingerprint":  "sha256:4bc8d6360fabfc323e6008fd1c7924f9700f447e5104a3203cb694af8f43afeb",
+                       "provider":  "openai",
+                       "model":  "gpt-4o-mini",
+                       "continuity_snapshot":  {
+                                                   "summary":  "The bell above the cafÃ© door chimed softly as Elara stepped inside, shaking off the cold that clung to her like a second skin",
+                                                   "word_count":  621,
+                                                   "fallback_reason":  null
+                                               },
+                       "budget_snapshot":  {
+                                               "estimated_usd":  0.01,
+                                               "status":  "ok",
+                                               "message":  "Estimate within budget.",
+                                               "soft_limit_usd":  5.0,
+                                               "hard_limit_usd":  10.0,
+                                               "spent_usd":  0.0,
+                                               "total_after_usd":  0.01
+                                           },
+                       "routing_snapshot":  {
+                                                "policy":  "api_only",
+                                                "provider":  "openai",
+                                                "model":  "gpt-4o-mini",
+                                                "reason":  "long_form.prefer_api",
+                                                "fallback_used":  false,
+                                                "run_policy":  {
+                                                                   "task":  "draft",
+                                                                   "policy":  "api_only",
+                                                                   "budget_status":  "ok",
+                                                                   "reason":  "long_form.prefer_api",
+                                                                   "prefer_local":  false,
+                                                                   "allow_local":  true,
+                                                                   "allow_api":  true,
+                                                                   "warnings":  [
+
+                                                                                ],
+                                                                   "blocked":  false
+                                                               }
+                                            }
+                   },
+                   {
+                       "chunk_id":  "lf_8673c785",
+                       "chapter_id":  "ch_0001",
+                       "scene_ids":  [
+                                         "sc_0002"
+                                     ],
+                       "order":  2,
+                       "continuation_of":  "lf_5dcd3907",
+                       "prompt_fingerprint":  "sha256:507c25e88a5560c45b945554f753fcab7e24b8f1d5544d62d65f5dec21cd99d2",
+                       "provider":  "openai",
+                       "model":  "gpt-4o-mini",
+                       "continuity_snapshot":  {
+                                                   "summary":  "Long-form draft placeholder",
+                                                   "word_count":  41,
+                                                   "fallback_reason":  "quality_failed"
+                                               },
+                       "budget_snapshot":  {
+                                               "estimated_usd":  0.01,
+                                               "status":  "ok",
+                                               "message":  "Estimate within budget.",
+                                               "soft_limit_usd":  5.0,
+                                               "hard_limit_usd":  10.0,
+                                               "spent_usd":  0.01,
+                                               "total_after_usd":  0.02
+                                           },
+                       "routing_snapshot":  {
+                                                "policy":  "api_only",
+                                                "provider":  "openai",
+                                                "model":  "gpt-4o-mini",
+                                                "reason":  "long_form.prefer_api",
+                                                "fallback_used":  false,
+                                                "run_policy":  {
+                                                                   "task":  "draft",
+                                                                   "policy":  "api_only",
+                                                                   "budget_status":  "ok",
+                                                                   "reason":  "long_form.prefer_api",
+                                                                   "prefer_local":  false,
+                                                                   "allow_local":  true,
+                                                                   "allow_api":  true,
+                                                                   "warnings":  [
+
+                                                                                ],
+                                                                   "blocked":  false
+                                                               },
+                                                "fallback_reason":  "quality_failed"
+                                            }
+                   }
+               ],
+    "stopped_reason":  "quality_failed",
+    "budget_summary":  {
+                           "chunk_count":  2,
+                           "estimated_usd":  0.02
+                       }
+}

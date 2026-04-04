@@ -1,0 +1,142 @@
+{
+  "chunk_id": "lf_b468c546",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:015701b9fe7fe7b8d2da0d793870c9ece8315c0cfc341eda8e6af4ff32f06602",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 21,
+    "fallback_reason": "quality_failed"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "quality_failed"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 3,
+      "pacing": 5,
+      "specificity": 4,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 29,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 604,
+    "paragraph_count": 11,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 6,
+    "concrete_hits": 4,
+    "generic_hits": 3,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": true
+  },
+  "critique_snapshot": {
+    "summary": "The scene takes place in a small café where Tessa is grappling with feelings of inadequacy and uncertainty about her life. She is joined by her friend Mia, who tries to offer support and encouragement. The dialogue reveals Tessa's internal struggle and Mia's attempts to help her navigate her feelings.",
+    "weaknesses": [
+      "Vague descriptions of Tessa's emotions and surroundings.",
+      "Generic phrases that detract from the uniqueness of the characters and their experiences.",
+      "Dialogue lacks grounding in physical actions or specific settings."
+    ],
+    "continuity_issues": [
+      "The transition between Tessa's internal thoughts and her dialogue with Mia feels abrupt.",
+      "The café's ambiance is described but not consistently integrated into the characters' interactions."
+    ],
+    "pacing_issues": [
+      "The scene drags in places, particularly during Tessa's internal monologue, which could be tightened to maintain engagement."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in Tessa's emotional state and her surroundings.",
+      "Replace generic phrases with more original expressions.",
+      "Ground dialogue in physical actions or the setting to create a more immersive experience."
+    ],
+    "generic_phrase_targets": [
+      "You look like you’ve just seen a ghost.",
+      "It’s nothing. Just… stuff.",
+      "I just feel... lost, I guess."
+    ],
+    "detail_targets": [
+      "Descriptions of the café and its ambiance could be more vivid and specific.",
+      "Tessa's feelings could be illustrated with more concrete imagery."
+    ],
+    "dialogue_grounding_targets": [
+      "Mia's entrance and interaction with Tessa could include more physical actions.",
+      "Tessa's responses could reflect her surroundings or actions more clearly."
+    ],
+    "emotional_show_targets": [
+      "Show Tessa's internal conflict through more dynamic physical reactions.",
+      "Illustrate Mia's concern with specific gestures or expressions."
+    ],
+    "replacement_targets": [
+      "Replace 'the weight of expectation pressing down on her shoulders' with a more unique metaphor.",
+      "Find alternatives for 'lost' that convey Tessa's feelings more vividly."
+    ],
+    "grounding_targets": [
+      "Incorporate more sensory details to ground the scene in the café environment.",
+      "Use Tessa's actions to reflect her emotional state more clearly."
+    ],
+    "carryover_targets": [
+      "Ensure that Tessa's internal thoughts connect smoothly with her dialogue and actions."
+    ]
+  },
+  "attempt_count": 3,
+  "acceptance_reason": "quality_failed",
+  "rewrite_used": true,
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "borderline",
+      "reason": "borderline_quality_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "borderline_quality_after_rewrite",
+    "triggered_after_attempt": 2
+  }
+}

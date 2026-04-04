@@ -1,0 +1,245 @@
+{
+  "chunk_id": "lf_6498b5cc",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:eacc116b04e179f894248a6e5fad2a2e2f507e811a5e79d90e1ed702dc44b8fb",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 21,
+    "fallback_reason": "quality_failed"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "quality_failed"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 2,
+      "meta_free": 5
+    },
+    "total_score": 26,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 313,
+    "paragraph_count": 6,
+    "dialogue_present": true,
+    "dialogue_grounded": false,
+    "sensory_hits": 3,
+    "concrete_hits": 1,
+    "generic_hits": 0,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The horizon blazed with hues of orange and deep purple as the last remnants of daylight surrendered to twilight. Sarah squinted against the brilliance, her bike skimming over the uneven gravel path, each bump and jolt sending a shiver through her arms. The stones crunched rhythmically beneath her tires, echoing the quiet stillness of the approaching evening. A gentle breeze swept through, carrying the rich scent of damp earth mingled with the vibrant perfume of blooming wildflowers. As she pedaled, she inhaled deeply, letting the warmth of the summer air wrap around her like a comforting blanket, momentarily pushing away the day's burdens.\n\nTurning sharply, she entered a familiar clearing, her heart quickening at the sight of the old oak tree. Its sturdy trunk and sprawling branches, long and twisted from years of standing watch, seemed to beckon her closer. She slowed her bike, the anticipation swelling within her as she approached the tree that had cradled her secrets and nurtured her dreams since childhood.\n\n“Hey, thought you’d never get here,” Jake's voice cut through her moment of nostalgia. He perched casually on a low branch, his legs swinging back and forth like a pendulum. The crooked grin on his face sliced through her annoyance, igniting a warmth that fluttered in her chest.\n\n“Had to dodge a family of ducks,” she shot back, rolling her eyes but unable to suppress a smile that crept onto her lips. “You know how it is.”\n\n“Ducks, huh? Sounds like an adventure,” he replied, hopping down with an ease that made her breath hitch. He brushed off his hands, the motion casual yet deliberate, making her acutely aware of the distance between them. She tucked a stray hair behind her ear, feeling the warmth creep across her cheeks, a blush that betrayed her composure.\n\nThey stood together for a moment, the air thick with unspoken words, the"
+  },
+  "critique_snapshot": {
+    "summary": "The scene follows Sarah as she rides her bicycle to a familiar oak tree, where she meets Jake. The setting is described vividly, and their interaction reveals a mix of emotions, including annoyance and attraction.",
+    "weaknesses": [
+      "Generic stock phrases such as 'the sun hung low in the sky' and 'the crunch of stones beneath her tires' detract from originality.",
+      "Dialogue lacks grounding in physical action or setting, making it feel disconnected from the scene."
+    ],
+    "continuity_issues": [
+      "The transition from Sarah's ride to her interaction with Jake feels abrupt, lacking a clear connection between her internal thoughts and the dialogue."
+    ],
+    "pacing_issues": [
+      "The pacing slows significantly during the dialogue, which could benefit from more action or description to maintain momentum."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Eliminate generic phrases and replace them with more specific, vivid descriptions.",
+      "Ensure dialogue is grounded in the physical actions or setting to enhance realism.",
+      "Create smoother transitions between Sarah's internal thoughts and her interactions with Jake."
+    ],
+    "generic_phrase_targets": [
+      "the sun hung low in the sky",
+      "the crunch of stones beneath her tires",
+      "a light breeze stirred the tall grass"
+    ],
+    "detail_targets": [
+      "the oak tree's description could include more sensory details or personal significance to Sarah",
+      "the setting could be enriched with more specific flora or fauna present in the scene"
+    ],
+    "dialogue_grounding_targets": [
+      "Jake's greeting could include a physical action that ties him to the setting more clearly.",
+      "Sarah's response about the ducks could be linked to her actions, such as adjusting her bike or looking around."
+    ],
+    "emotional_show_targets": [
+      "Show more of Sarah's internal conflict or feelings through her actions or physical reactions rather than just stating them.",
+      "Incorporate more body language or facial expressions to convey emotions during their interaction."
+    ],
+    "replacement_targets": [
+      "Replace 'the sun hung low in the sky' with a more unique description of the sunset.",
+      "Substitute 'the crunch of stones' with a more specific sound or feeling related to the gravel path."
+    ],
+    "grounding_targets": [
+      "Include more physical actions that relate to the dialogue, such as Sarah adjusting her bike or Jake leaning against the tree."
+    ],
+    "carryover_targets": [
+      "Ensure that Sarah's thoughts about the tree connect more clearly to her interaction with Jake, enhancing continuity."
+    ]
+  },
+  "attempt_count": 4,
+  "acceptance_reason": "quality_failed",
+  "rewrite_used": true,
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_model_name": "gpt-5.4-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Hey, thought you’d never get here,” Jake's voice cut through her moment of nostalgia.",
+        "“Had to dodge a family of ducks,” she shot back, rolling her eyes but unable to suppress a smile that crept onto her lips.",
+        "“You know how it is.”\n\n“Ducks, huh?",
+        "Sounds like an adventure,” he replied, hopping down with an ease that made her breath hitch."
+      ],
+      "generic_phrases_to_replace": [
+        "for a moment"
+      ],
+      "lines_to_repair": [
+        "They stood together for a moment, the air thick with unspoken words, the",
+        "“Hey, thought you’d never get here,” Jake's voice cut through her moment of nostalgia.",
+        "“Had to dodge a family of ducks,” she shot back, rolling her eyes but unable to suppress a smile that crept onto her lips.",
+        "“You know how it is.”\n\n“Ducks, huh?",
+        "Sounds like an adventure,” he replied, hopping down with an ease that made her breath hitch."
+      ],
+      "required_concrete_anchor_terms": [
+        "warmth",
+        "bike",
+        "tree"
+      ],
+      "repair_min_word_count": 266,
+      "repair_max_word_count": 469,
+      "min_paragraph_count": 4,
+      "max_paragraph_count": 8
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rescue_model"
+    },
+    "rescue_slots_summary": {
+      "slot_count": 5,
+      "target_types": [
+        "generic",
+        "dialogue",
+        "dialogue",
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_generic_replacement_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 317,
+    "rewritten_word_count": 313,
+    "min_word_count": 190,
+    "max_word_count": 665,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "and",
+      "that",
+      "where",
+      "sun",
+      "low",
+      "its",
+      "light",
+      "horizon",
+      "sarah"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "and",
+      "that",
+      "horizon"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 26
+  }
+}

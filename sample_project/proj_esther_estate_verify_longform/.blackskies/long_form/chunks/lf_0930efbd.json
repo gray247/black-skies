@@ -1,0 +1,70 @@
+{
+  "chunk_id": "lf_0930efbd",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0002"
+  ],
+  "order": 2,
+  "continuation_of": "lf_ca24a58d",
+  "prompt_fingerprint": "sha256:442bbf238e555c6044e572332f5ffb95fdef0c454b194d66b7e45005a54c4233",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "A spider spun its delicate web in a corner, the silken threads glistening like silver in the dappled light",
+    "word_count": 412,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.01,
+    "total_after_usd": 0.02
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 5,
+      "clarity": 4,
+      "pacing": 5,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 33,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 412,
+    "paragraph_count": 6,
+    "dialogue_present": true,
+    "sensory_hits": 7,
+    "generic_hits": 1
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false
+}

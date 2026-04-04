@@ -1,0 +1,637 @@
+{
+  "chunk_id": "lf_fe79a144",
+  "validation_decision": false,
+  "fallback_reason": "quality_failed",
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "raw_preview": "The air hung thick with the scent of damp earth and decaying leaves, each breath heavy with the promise of rain. A low rumble of thunder rolled across the sky, punctuating the dense, oppressive silenc",
+      "normalized_preview": "The air hung thick with the scent of damp earth and decaying leaves, each breath heavy with the promise of rain. A low rumble of thunder rolled across the sky, punctuating the dense, oppressive silenc",
+      "raw_length": 1715,
+      "normalized_length": 1710,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKm9H1oNtA1ePxveOmHSdmBSa4rfI\", \"object\": \"chat.completion\", \"created\": 1773844015, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The air hung thick with the scent of damp earth and decaying leaves, each breath heavy with the promise of rain. A low rumble of thunder rolled across the sky, punctuating the dense, oppressive silence that enveloped the woods. Clara stepped over a twisted root, her boots sinking slightly into",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 294,
+        "paragraph_count": 6,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 28,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 294,
+        "paragraph_count": 6,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 8,
+        "concrete_hits": 1,
+        "generic_hits": 1,
+        "stock_phrase_hits": 2,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The air hung thick with the scent of damp earth and decaying leaves, each breath heavy with the promise of rain. A low rumble of thunder rolled across the sky, punctuating the dense, oppressive silence that enveloped the woods. Clara stepped over a twisted root, her boots sinking slightly into the mud, splattering droplets of dark earth onto her jeans. She paused, wiping her brow with the back of her hand, her heart racing not just from the exertion but from the weight of the impending storm.\n\n“Shouldn’t we head back?” Ethan’s voice broke through the stillness, laced with concern. He stood a few paces behind her, his gaze darting from the ominous clouds overhead to the shadowy path that seemed to lead deeper into the forest. “I mean, it’s not like the trees are going to protect us from lightning.”\n\nClara turned, forcing a smile that felt more like a grimace. “What’s the fun in that? We’re already here. Besides, it’s just a little rain.” The bravado in her words felt thin, almost transparent, but she didn’t want to admit that she felt just as uneasy as he looked. The trees loomed tall and ancient, their branches twisting like skeletal fingers against the darkening sky.\n\n“Just a little rain,” Ethan echoed, his tone dry, but there was a flicker of amusement in his eyes. “That’s what they said before the last storm, remember?”\n\nShe laughed, but the sound was hollow, swallowed by the rustling leaves as wind picked up around them. “Okay, fair point. But look,” she gestured ahead, where the path narrowed and a flicker of something caught her eye—a glint of metal half-buried in the underbrush. “What if we find something interesting?”\n\nEthan stepped closer, his brow furrowing as he squinted"
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "rewrite",
+        "escalated": false,
+        "reason": "rewrite_default"
+      },
+      "raw_preview": "The scent of wet earth and rotting leaves permeated the air, each breath tinged with the heavy anticipation of rain. A distant rumble of thunder rolled overhead, shattering the thick stillness that bl",
+      "normalized_preview": "The scent of wet earth and rotting leaves permeated the air, each breath tinged with the heavy anticipation of rain. A distant rumble of thunder rolled overhead, shattering the thick stillness that bl",
+      "raw_length": 1751,
+      "normalized_length": 1750,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKm9bLqY9F3uh6ldSeMnwjKk0SE9p\", \"object\": \"chat.completion\", \"created\": 1773844035, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The scent of wet earth and rotting leaves permeated the air, each breath tinged with the heavy anticipation of rain. A distant rumble of thunder rolled overhead, shattering the thick stillness that blanketed the woods. Clara navigated around a gnarled root, her boots sinking into the soft, mud",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 290,
+        "paragraph_count": 5,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "guardrail_snapshot": {
+        "evaluated": true,
+        "mode": "rewrite",
+        "outline_titles": [],
+        "beat_refs": [],
+        "locked_facts_evaluated": false,
+        "length_band_evaluated": true,
+        "original_word_count": 294,
+        "rewritten_word_count": 290,
+        "min_word_count": 176,
+        "max_word_count": 617,
+        "within_length_band": true,
+        "outline_fidelity_evaluated": true,
+        "outline_fidelity_pass": true,
+        "original_anchor_terms": [
+          "the",
+          "her",
+          "that",
+          "she",
+          "but",
+          "his",
+          "and",
+          "rain",
+          "ethan",
+          "felt",
+          "what",
+          "earth"
+        ],
+        "retained_anchor_terms": [
+          "the",
+          "her",
+          "that",
+          "she",
+          "but",
+          "his",
+          "and",
+          "ethan",
+          "felt",
+          "what",
+          "earth"
+        ],
+        "outline_anchor_hits": [],
+        "required_anchor_overlap": 1,
+        "scene_anchor_drift_detected": false,
+        "new_story_elements": [],
+        "blocking_new_story_elements": [],
+        "authoritative_name_check": false,
+        "uncertainty_triggered": false,
+        "failure_reason": null,
+        "accepted": true,
+        "quality_total_score": 26
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 2,
+          "meta_free": 5
+        },
+        "total_score": 26,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 290,
+        "paragraph_count": 5,
+        "dialogue_present": true,
+        "dialogue_grounded": false,
+        "sensory_hits": 8,
+        "concrete_hits": 1,
+        "generic_hits": 1,
+        "stock_phrase_hits": 1,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The scent of wet earth and rotting leaves permeated the air, each breath tinged with the heavy anticipation of rain. A distant rumble of thunder rolled overhead, shattering the thick stillness that blanketed the woods. Clara navigated around a gnarled root, her boots sinking into the soft, muddy ground, sending splatters of dark earth onto her jeans. She paused to wipe the sweat from her brow, her heart pounding not only from the exertion but from the oppressive weight of the approaching storm.\n\n“Shouldn’t we head back?” Ethan called out, his voice cutting through the quiet, laced with an edge of worry. He lingered a few steps behind, his gaze flicking between the brooding clouds above and the shadowy trail that seemed to swallow them whole. “I mean, it’s not like these trees will shield us from lightning.”\n\nClara turned to face him, mustering a smile that felt more forced than genuine. “What’s the fun in that? We’re already out here. Besides, it’s just a sprinkle.” Her bravado felt fragile, an almost transparent facade, but she was determined not to reveal just how much his concern mirrored her own unease. The towering trees, ancient and imposing, stretched their twisted branches skyward like skeletal fingers, clawing at the darkening horizon.\n\n“Just a sprinkle,” Ethan echoed, a hint of sarcasm lacing his tone, though a flicker of amusement danced in his eyes. “That’s what they said before the last storm, remember?”\n\nClara's laughter emerged but felt hollow, swallowed by the rustling leaves as a gust of wind surged through the treetops. “Okay, fair point. But look,” she said, motioning ahead where the path narrowed. Something glinted amid the underbrush, a flash of metal half-buried in the damp foliage. “What if we find"
+      },
+      "quality_pass": false,
+      "rewrite_delta": {
+        "total_delta": -2,
+        "stock_phrase_delta": 1,
+        "specificity_delta": 0,
+        "clarity_delta": 0,
+        "continuity_delta": 0
+      },
+      "retry_decision": {
+        "eligible": true,
+        "reason": "targeted_editorial_miss_after_rewrite",
+        "classification": "targeted_editorial"
+      }
+    },
+    {
+      "attempt": 3,
+      "mode": "recovery_retry",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rescue_model"
+      },
+      "raw_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"“Just a sprinkle,” Ethan echoed, brushing rain from the brim of his jacket and glancing up at the wet leaves overhead, a crooked grin tugging at one cor",
+      "normalized_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"“Just a sprinkle,” Ethan echoed, brushing rain from the brim of his jacket and glancing up at the wet leaves overhead, a crooked grin tugging at one cor",
+      "raw_length": 1144,
+      "normalized_length": 1144,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKm9hXHg5IuEvxWGQLeK0gudaXSIi\", \"object\": \"chat.completion\", \"created\": 1773844041, \"model\": \"gpt-5.4-mini-2026-03-17\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"replacement_text\\\":\\\"“Just a sprinkle,” Ethan echoed, brushing rain from the brim of his jacket and glancing up at the wet leaves overhead, a crooked grin tugging at one corner of his mouth.\\\"},{\\\"slot_id\\\":\\\"s2\\\",\\\"replacement_text\\\":\\\"“Shouldn’t we head b",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "“Just a sprinkle,” Ethan echoed, a hint of sarcasm lacing his tone, though a flicker of amusement danced in his eyes.",
+          "context_before": "The towering trees, ancient and imposing, stretched their twisted branches skyward like skeletal fingers, clawing at the darkening horizon.",
+          "context_after": "“That’s what they said before the last storm, remember?”\n\nClara's laughter emerged but felt hollow, swallowed by the rustling leaves as a gust of wind surged through the treetops.",
+          "target_reason": "generic",
+          "target_phrase": "flicker of"
+        },
+        {
+          "slot_id": "s2",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Shouldn’t we head back?” Ethan called out, his voice cutting through the quiet, laced with an edge of worry.",
+          "context_before": "She paused to wipe the sweat from her brow, her heart pounding not only from the exertion but from the oppressive weight of the approaching storm.",
+          "context_after": "He lingered a few steps behind, his gaze flicking between the brooding clouds above and the shadowy trail that seemed to swallow them whole.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s3",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“I mean, it’s not like these trees will shield us from lightning.”\n\nClara turned to face him, mustering a smile that felt more forced than genuine.",
+          "context_before": "He lingered a few steps behind, his gaze flicking between the brooding clouds above and the shadowy trail that seemed to swallow them whole.",
+          "context_after": "“What’s the fun in that?",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s4",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“What’s the fun in that?",
+          "context_before": "“I mean, it’s not like these trees will shield us from lightning.”\n\nClara turned to face him, mustering a smile that felt more forced than genuine.",
+          "context_after": "We’re already out here.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s5",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "Besides, it’s just a sprinkle.” Her bravado felt fragile, an almost transparent facade, but she was determined not to reveal just how much his concern mirrored her own unease.",
+          "context_before": "We’re already out here.",
+          "context_after": "The towering trees, ancient and imposing, stretched their twisted branches skyward like skeletal fingers, clawing at the darkening horizon.",
+          "target_reason": "dialogue"
+        }
+      ],
+      "rescue_generation_strategy": "slot_patch",
+      "configured_rescue_generation_strategy": "hybrid_escalation",
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "“Just a sprinkle,” Ethan echoed, brushing rain from the brim of his jacket and glancing up at the wet leaves overhead, a crooked grin tugging at one corner of his mouth."
+        },
+        {
+          "slot_id": "s2",
+          "replacement_text": "“Shouldn’t we head back?” Ethan called out, cupping a hand around his mouth as he looked past Clara toward the narrowing trail, his voice cutting through the quiet with an edge of worry."
+        },
+        {
+          "slot_id": "s3",
+          "replacement_text": "“I mean, it’s not like these trees will shield us from lightning.” He tipped his chin toward the dark trunks and the open strip of sky between the branches.\n\nClara turned to face him, wiping muddy damp from her cheek and mustering a smile that felt more forced than genuine."
+        },
+        {
+          "slot_id": "s4",
+          "replacement_text": "“What’s the fun in that?\" Clara said, lifting one shoulder in a small shrug as she faced him."
+        },
+        {
+          "slot_id": "s5",
+          "replacement_text": "Besides, it’s just a sprinkle.” She pressed her lips into a thin line, then flicked a look toward the dripping branches above them, keeping her chin up even as her fingers tightened around the strap at her side."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_dialogue_grounding_unresolved"
+      }
+    },
+    {
+      "attempt": 4,
+      "mode": "repair_only",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rescue_model"
+      },
+      "raw_preview": "{\"rewrites\":[{\"slot_id\":\"s1\",\"rewritten_excerpt\":\"“Just a sprinkle,” Ethan echoed, a hint of sarcasm in his voice, though his eyes flicked toward the darkening horizon with a faint smile.\"},{\"slot_id\"",
+      "normalized_preview": "{\"rewrites\":[{\"slot_id\":\"s1\",\"rewritten_excerpt\":\"“Just a sprinkle,” Ethan echoed, a hint of sarcasm in his voice, though his eyes flicked toward the darkening horizon with a faint smile.\"},{\"slot_id\"",
+      "raw_length": 1071,
+      "normalized_length": 1071,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKm9ohEjhuMkRnSon1VrvvgS6pkAJ\", \"object\": \"chat.completion\", \"created\": 1773844048, \"model\": \"gpt-5.4-mini-2026-03-17\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"rewrites\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"rewritten_excerpt\\\":\\\"“Just a sprinkle,” Ethan echoed, a hint of sarcasm in his voice, though his eyes flicked toward the darkening horizon with a faint smile.\\\"},{\\\"slot_id\\\":\\\"s2\\\",\\\"rewritten_excerpt\\\":\\\"“Shouldn’t we head back?” Ethan called out, one h",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "local_excerpt",
+          "target_type": "generic",
+          "original_text": "“Just a sprinkle,” Ethan echoed, a hint of sarcasm lacing his tone, though a flicker of amusement danced in his eyes.",
+          "context_before": "The towering trees, ancient and imposing, stretched their twisted branches skyward like skeletal fingers, clawing at the darkening horizon.",
+          "context_after": "“That’s what they said before the last storm, remember?”\n\nClara's laughter emerged but felt hollow, swallowed by the rustling leaves as a gust of wind surged through the treetops.",
+          "target_reason": "generic",
+          "target_phrase": "flicker of",
+          "focus_text": "“Just a sprinkle,” Ethan echoed, a hint of sarcasm lacing his tone, though a flicker of amusement danced in his eyes."
+        },
+        {
+          "slot_id": "s2",
+          "unit_type": "local_excerpt",
+          "target_type": "dialogue",
+          "original_text": "“Shouldn’t we head back?” Ethan called out, his voice cutting through the quiet, laced with an edge of worry.",
+          "context_before": "She paused to wipe the sweat from her brow, her heart pounding not only from the exertion but from the oppressive weight of the approaching storm.",
+          "context_after": "He lingered a few steps behind, his gaze flicking between the brooding clouds above and the shadowy trail that seemed to swallow them whole.",
+          "target_reason": "dialogue",
+          "focus_text": "“Shouldn’t we head back?” Ethan called out, his voice cutting through the quiet, laced with an edge of worry."
+        },
+        {
+          "slot_id": "s3",
+          "unit_type": "local_excerpt",
+          "target_type": "dialogue",
+          "original_text": "He lingered a few steps behind, his gaze flicking between the brooding clouds above and the shadowy trail that seemed to swallow them whole. “I mean, it’s not like these trees will shield us from lightning.”\n\nClara turned to face him, mustering a smile that felt more forced than genuine. “What’s the fun in that?",
+          "context_before": "He lingered a few steps behind, his gaze flicking between the brooding clouds above and the shadowy trail that seemed to swallow them whole.",
+          "context_after": "“What’s the fun in that?",
+          "target_reason": "dialogue",
+          "focus_text": "“I mean, it’s not like these trees will shield us from lightning.”\n\nClara turned to face him, mustering a smile that felt more forced than genuine."
+        },
+        {
+          "slot_id": "s4",
+          "unit_type": "local_excerpt",
+          "target_type": "dialogue",
+          "original_text": "“I mean, it’s not like these trees will shield us from lightning.”\n\nClara turned to face him, mustering a smile that felt more forced than genuine. “What’s the fun in that? We’re already out here.",
+          "context_before": "“I mean, it’s not like these trees will shield us from lightning.”\n\nClara turned to face him, mustering a smile that felt more forced than genuine.",
+          "context_after": "We’re already out here.",
+          "target_reason": "dialogue",
+          "focus_text": "“What’s the fun in that?"
+        },
+        {
+          "slot_id": "s5",
+          "unit_type": "local_excerpt",
+          "target_type": "dialogue",
+          "original_text": "We’re already out here. Besides, it’s just a sprinkle.” Her bravado felt fragile, an almost transparent facade, but she was determined not to reveal just how much his concern mirrored her own unease. The towering trees, ancient and imposing, stretched their twisted branches skyward like skeletal fingers, clawing at the darkening horizon.",
+          "context_before": "We’re already out here.",
+          "context_after": "The towering trees, ancient and imposing, stretched their twisted branches skyward like skeletal fingers, clawing at the darkening horizon.",
+          "target_reason": "dialogue",
+          "focus_text": "Besides, it’s just a sprinkle.” Her bravado felt fragile, an almost transparent facade, but she was determined not to reveal just how much his concern mirrored her own unease."
+        }
+      ],
+      "rescue_generation_strategy": "local_rewrite_block",
+      "configured_rescue_generation_strategy": "hybrid_escalation",
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "“Just a sprinkle,” Ethan echoed, a hint of sarcasm in his voice, though his eyes flicked toward the darkening horizon with a faint smile."
+        },
+        {
+          "slot_id": "s2",
+          "replacement_text": "“Shouldn’t we head back?” Ethan called out, one hand lifting toward the muddy trail as his voice carried a worried edge."
+        },
+        {
+          "slot_id": "s3",
+          "replacement_text": "“I mean, it’s not like these trees will shield us from lightning.”\n\nClara turned to face him, gripping the wet sleeve of her jacket and forcing a smile. “What’s the fun in that?"
+        },
+        {
+          "slot_id": "s4",
+          "replacement_text": "Clara turned to face him, gripping the wet sleeve of her jacket and forcing a smile. “What’s the fun in that? We’re already out here."
+        },
+        {
+          "slot_id": "s5",
+          "replacement_text": "We’re already out here. Besides, it’s just a sprinkle.” Clara said, brushing muddy leaves from her jeans, though the words sounded thin even to her. The towering trees, ancient and imposing, stretched their twisted branches skyward like skeletal fingers, clawing at the darkening horizon."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_dialogue_grounding_unresolved"
+      }
+    }
+  ],
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 2,
+      "meta_free": 5
+    },
+    "total_score": 26,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 290,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": false,
+    "sensory_hits": 8,
+    "concrete_hits": 1,
+    "generic_hits": 1,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The scent of wet earth and rotting leaves permeated the air, each breath tinged with the heavy anticipation of rain. A distant rumble of thunder rolled overhead, shattering the thick stillness that blanketed the woods. Clara navigated around a gnarled root, her boots sinking into the soft, muddy ground, sending splatters of dark earth onto her jeans. She paused to wipe the sweat from her brow, her heart pounding not only from the exertion but from the oppressive weight of the approaching storm.\n\n“Shouldn’t we head back?” Ethan called out, his voice cutting through the quiet, laced with an edge of worry. He lingered a few steps behind, his gaze flicking between the brooding clouds above and the shadowy trail that seemed to swallow them whole. “I mean, it’s not like these trees will shield us from lightning.”\n\nClara turned to face him, mustering a smile that felt more forced than genuine. “What’s the fun in that? We’re already out here. Besides, it’s just a sprinkle.” Her bravado felt fragile, an almost transparent facade, but she was determined not to reveal just how much his concern mirrored her own unease. The towering trees, ancient and imposing, stretched their twisted branches skyward like skeletal fingers, clawing at the darkening horizon.\n\n“Just a sprinkle,” Ethan echoed, a hint of sarcasm lacing his tone, though a flicker of amusement danced in his eyes. “That’s what they said before the last storm, remember?”\n\nClara's laughter emerged but felt hollow, swallowed by the rustling leaves as a gust of wind surged through the treetops. “Okay, fair point. But look,” she said, motioning ahead where the path narrowed. Something glinted amid the underbrush, a flash of metal half-buried in the damp foliage. “What if we find"
+  },
+  "critique_snapshot": {
+    "summary": "The scene depicts Clara and Ethan navigating a forest as a storm approaches. Clara is determined to explore despite Ethan's concerns about the weather. Their dialogue reveals tension and unease, with Clara trying to maintain a brave facade while Ethan expresses worry.",
+    "weaknesses": [
+      "Generic phrases and descriptions that lack specificity.",
+      "Dialogue that feels disconnected from the physical actions and setting.",
+      "Vague scene details that do not enhance the atmosphere."
+    ],
+    "continuity_issues": [
+      "The transition between Clara's internal feelings and her dialogue lacks grounding in the physical setting."
+    ],
+    "pacing_issues": [
+      "The scene's tension builds but does not escalate effectively, leading to a flat emotional arc."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid atmosphere.",
+      "Ground dialogue in physical actions and the environment to improve realism.",
+      "Eliminate generic phrases and replace them with more original expressions."
+    ],
+    "generic_phrase_targets": [
+      "The air hung thick with the scent of damp earth and decaying leaves",
+      "each breath heavy with the promise of rain",
+      "a low rumble of thunder rolled across the sky",
+      "the dense, oppressive silence that enveloped the woods"
+    ],
+    "detail_targets": [
+      "Clara's heart racing not just from the exertion but from the weight of the impending storm",
+      "the trees loomed tall and ancient, their branches twisting like skeletal fingers"
+    ],
+    "dialogue_grounding_targets": [
+      "Ethan’s voice broke through the stillness, laced with concern",
+      "Clara turned, forcing a smile that felt more like a grimace"
+    ],
+    "emotional_show_targets": [
+      "the bravado in her words felt thin, almost transparent",
+      "the sound was hollow, swallowed by the rustling leaves"
+    ],
+    "replacement_targets": [
+      "Replace 'the air hung thick' with a more dynamic description of the atmosphere.",
+      "Replace 'just a little rain' with a more nuanced expression of Clara's bravado."
+    ],
+    "grounding_targets": [
+      "Ethan's gaze darting from the ominous clouds to the shadowy path",
+      "Clara gesturing ahead where the path narrowed"
+    ],
+    "carryover_targets": []
+  },
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_model_name": "gpt-5.4-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Shouldn’t we head back?” Ethan called out, his voice cutting through the quiet, laced with an edge of worry.",
+        "“I mean, it’s not like these trees will shield us from lightning.”\n\nClara turned to face him, mustering a smile that felt more forced than genuine.",
+        "“What’s the fun in that?",
+        "Besides, it’s just a sprinkle.” Her bravado felt fragile, an almost transparent facade, but she was determined not to reveal just how much his concern mirrored her own unease."
+      ],
+      "generic_phrases_to_replace": [
+        "flicker of"
+      ],
+      "lines_to_repair": [
+        "“Just a sprinkle,” Ethan echoed, a hint of sarcasm lacing his tone, though a flicker of amusement danced in his eyes.",
+        "“Shouldn’t we head back?” Ethan called out, his voice cutting through the quiet, laced with an edge of worry.",
+        "“I mean, it’s not like these trees will shield us from lightning.”\n\nClara turned to face him, mustering a smile that felt more forced than genuine.",
+        "“What’s the fun in that?",
+        "Besides, it’s just a sprinkle.” Her bravado felt fragile, an almost transparent facade, but she was determined not to reveal just how much his concern mirrored her own unease."
+      ],
+      "required_concrete_anchor_terms": [
+        "what"
+      ],
+      "repair_min_word_count": 246,
+      "repair_max_word_count": 435,
+      "min_paragraph_count": 3,
+      "max_paragraph_count": 7
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rescue_model"
+    },
+    "rescue_generation_strategy": "local_rewrite_block",
+    "configured_rescue_generation_strategy": "hybrid_escalation",
+    "rescue_slots_summary": {
+      "slot_count": 5,
+      "target_types": [
+        "generic",
+        "dialogue",
+        "dialogue",
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_dialogue_grounding_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 294,
+    "rewritten_word_count": 290,
+    "min_word_count": 176,
+    "max_word_count": 617,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "that",
+      "she",
+      "but",
+      "his",
+      "and",
+      "rain",
+      "ethan",
+      "felt",
+      "what",
+      "earth"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "that",
+      "she",
+      "but",
+      "his",
+      "and",
+      "ethan",
+      "felt",
+      "what",
+      "earth"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 26
+  }
+}

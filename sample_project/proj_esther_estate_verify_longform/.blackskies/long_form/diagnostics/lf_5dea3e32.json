@@ -1,0 +1,506 @@
+{
+  "chunk_id": "lf_5dea3e32",
+  "validation_decision": false,
+  "fallback_reason": "quality_failed",
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "raw_preview": "The sun hung low in the sky, casting long shadows that stretched across the cobblestone streets of Rivermere. A warm breeze carried the scent of blooming jasmine, wrapping around Elara like a familiar",
+      "normalized_preview": "The sun hung low in the sky, casting long shadows that stretched across the cobblestone streets of Rivermere. A warm breeze carried the scent of blooming jasmine, wrapping around Elara like a familiar",
+      "raw_length": 1813,
+      "normalized_length": 1812,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKXfMaYix5SFF1oWTziSktorUN98O\", \"object\": \"chat.completion\", \"created\": 1773788344, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The sun hung low in the sky, casting long shadows that stretched across the cobblestone streets of Rivermere. A warm breeze carried the scent of blooming jasmine, wrapping around Elara like a familiar embrace. She paused, running her fingers over the cool stone of the old fountain at the town ",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 314,
+        "paragraph_count": 7,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 4,
+          "dialogue": 2,
+          "meta_free": 5
+        },
+        "total_score": 27,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 314,
+        "paragraph_count": 7,
+        "dialogue_present": true,
+        "dialogue_grounded": false,
+        "sensory_hits": 4,
+        "concrete_hits": 3,
+        "generic_hits": 1,
+        "stock_phrase_hits": 0,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The sun hung low in the sky, casting long shadows that stretched across the cobblestone streets of Rivermere. A warm breeze carried the scent of blooming jasmine, wrapping around Elara like a familiar embrace. She paused, running her fingers over the cool stone of the old fountain at the town square’s center, the water dancing in the light, droplets shimmering like tiny stars before cascading back into the basin. It was here, amidst the laughter of children and the distant strum of a lute, that she felt the weight of the day's decisions pressing against her chest.\n\n“Are you going to stand there all day, or do you plan on joining us?” A teasing voice broke through her reverie. Kael leaned against the fountain’s edge, arms crossed, a crooked grin tugging at his lips. The sunlight caught the hint of mischief in his hazel eyes, igniting something warm inside her.\n\nElara forced a smile, though it felt stretched and thin. “I was just—”\n\n“Lost in thought, I know. You always are,” he interrupted, pushing off the fountain and stepping closer, his presence filling the space between them. “But the festival waits for no one. Come on, there’s a whole world out there to explore.”\n\nShe hesitated, torn between the comfort of the familiar and the pull of the unknown. The festival promised laughter and music, but it also whispered of choices that loomed like specters. The last time she had ventured into the thrumming heart of the town, she had felt the thrill of possibility, but today, the weight of her uncertainty made her heart race in a different way.\n\n“Maybe just for a little while,” she finally replied, her voice soft, almost lost in the laughter surrounding them. She felt a flutter of hope, a tiny rebellion against the doubts that clung to her like shadows.\n\n“Just for a little while, then,” Ka"
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "rewrite",
+        "escalated": false,
+        "reason": "rewrite_default"
+      },
+      "raw_preview": "The sun hung low in the sky, casting elongated shadows that stretched across the cobblestone streets of Rivermere. A warm breeze wafted through the square, carrying the sweet, heady scent of blooming ",
+      "normalized_preview": "The sun hung low in the sky, casting elongated shadows that stretched across the cobblestone streets of Rivermere. A warm breeze wafted through the square, carrying the sweet, heady scent of blooming ",
+      "raw_length": 1804,
+      "normalized_length": 1804,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKXfgCQI0xuGnB61jU0c6p9mwZYZT\", \"object\": \"chat.completion\", \"created\": 1773788364, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The sun hung low in the sky, casting elongated shadows that stretched across the cobblestone streets of Rivermere. A warm breeze wafted through the square, carrying the sweet, heady scent of blooming jasmine. Elara paused, her fingers brushing against the cool stone of the old fountain at the ",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 306,
+        "paragraph_count": 5,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "guardrail_snapshot": {
+        "evaluated": true,
+        "mode": "rewrite",
+        "outline_titles": [],
+        "beat_refs": [],
+        "locked_facts_evaluated": false,
+        "length_band_evaluated": true,
+        "original_word_count": 314,
+        "rewritten_word_count": 306,
+        "min_word_count": 188,
+        "max_word_count": 659,
+        "within_length_band": true,
+        "outline_fidelity_evaluated": true,
+        "outline_fidelity_pass": true,
+        "original_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "and",
+          "that",
+          "felt",
+          "fountain",
+          "laughter",
+          "against",
+          "you",
+          "his",
+          "but"
+        ],
+        "retained_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "and",
+          "that",
+          "felt",
+          "fountain",
+          "laughter",
+          "against",
+          "you",
+          "his"
+        ],
+        "outline_anchor_hits": [],
+        "required_anchor_overlap": 1,
+        "scene_anchor_drift_detected": false,
+        "new_story_elements": [],
+        "blocking_new_story_elements": [],
+        "authoritative_name_check": false,
+        "uncertainty_triggered": false,
+        "failure_reason": null,
+        "accepted": true,
+        "quality_total_score": 27
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 4,
+          "dialogue": 2,
+          "meta_free": 5
+        },
+        "total_score": 27,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 306,
+        "paragraph_count": 5,
+        "dialogue_present": true,
+        "dialogue_grounded": false,
+        "sensory_hits": 4,
+        "concrete_hits": 3,
+        "generic_hits": 1,
+        "stock_phrase_hits": 0,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The sun hung low in the sky, casting elongated shadows that stretched across the cobblestone streets of Rivermere. A warm breeze wafted through the square, carrying the sweet, heady scent of blooming jasmine. Elara paused, her fingers brushing against the cool stone of the old fountain at the center of the square. The water danced in the sunlight, droplets glittering like tiny stars before plunging back into the basin with a gentle splash. Around her, the laughter of children mingled with the distant strum of a lute, creating a vibrant tapestry of sound that enveloped her. Yet, despite the cheer, a heaviness settled in her chest, a tangible reminder of the choices that loomed ahead.\n\n“Are you going to stand there all day, or do you plan on joining us?” A teasing voice broke through her reverie, pulling her back to the moment. Kael leaned against the fountain’s edge, his arms crossed, a crooked grin dancing on his lips. The sunlight caught the spark of mischief in his hazel eyes, igniting a warmth deep within her.\n\nElara forced a smile, though it felt brittle. “I was just—”\n\n“Lost in thought, I know. You always are,” he interrupted, pushing off the fountain and stepping closer. He invaded her space with an easy confidence, the warmth of his presence stirring something within her. “But the festival waits for no one. Come on, there’s a whole world out there to explore.”\n\nShe hesitated, her heart caught between the comfort of the familiar and the allure of the unknown. The festival promised laughter and music, but it also echoed with the weight of her indecision. The last time she had ventured into the throbbing heart of the town, she had felt exhilaration coursing through her veins. Today, however, the uncertainty felt like a pressure against her ribcage, quickening her breath"
+      },
+      "quality_pass": false,
+      "rewrite_delta": {
+        "total_delta": 0,
+        "stock_phrase_delta": 0,
+        "specificity_delta": 0,
+        "clarity_delta": 0,
+        "continuity_delta": 0
+      },
+      "retry_decision": {
+        "eligible": true,
+        "reason": "targeted_editorial_miss_after_rewrite",
+        "classification": "targeted_editorial"
+      }
+    },
+    {
+      "attempt": 3,
+      "mode": "recovery_retry",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": false,
+        "reason": "rescue_model"
+      },
+      "raw_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"“Are you going to stand there all day, or do you plan on joining us?” A teasing voice broke through her reverie, pulling her back to the moment as Kael ",
+      "normalized_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"“Are you going to stand there all day, or do you plan on joining us?” A teasing voice broke through her reverie, pulling her back to the moment as Kael ",
+      "raw_length": 981,
+      "normalized_length": 981,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKXfmTTIjqzbYb4iZQ3iUfmaJE8sb\", \"object\": \"chat.completion\", \"created\": 1773788370, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"replacement_text\\\":\\\"“Are you going to stand there all day, or do you plan on joining us?” A teasing voice broke through her reverie, pulling her back to the moment as Kael leaned against the fountain’s edge, his arms crossed and a crooked grin dancing on hi",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Are you going to stand there all day, or do you plan on joining us?” A teasing voice broke through her reverie, pulling her back to the moment.",
+          "context_before": "Yet, despite the cheer, a heaviness settled in her chest, a tangible reminder of the choices that loomed ahead.",
+          "context_after": "Kael leaned against the fountain’s edge, his arms crossed, a crooked grin dancing on his lips.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s2",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“I was just—”\n\n“Lost in thought, I know.",
+          "context_before": "Elara forced a smile, though it felt brittle.",
+          "context_after": "You always are,” he interrupted, pushing off the fountain and stepping closer.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s3",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "You always are,” he interrupted, pushing off the fountain and stepping closer.",
+          "context_before": "“I was just—”\n\n“Lost in thought, I know.",
+          "context_after": "He invaded her space with an easy confidence, the warmth of his presence stirring something within her.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s4",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“But the festival waits for no one.",
+          "context_before": "He invaded her space with an easy confidence, the warmth of his presence stirring something within her.",
+          "context_after": "Come on, there’s a whole world out there to explore.”\n\nShe hesitated, her heart caught between the comfort of the familiar and the allure of the unknown.",
+          "target_reason": "dialogue"
+        }
+      ],
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "“Are you going to stand there all day, or do you plan on joining us?” A teasing voice broke through her reverie, pulling her back to the moment as Kael leaned against the fountain’s edge, his arms crossed and a crooked grin dancing on his lips."
+        },
+        {
+          "slot_id": "s2",
+          "replacement_text": "“I was just—”\n\n“Lost in thought, I know. You always are,” he interrupted, brushing his fingers along the cool stone of the fountain as he pushed off and stepped closer."
+        },
+        {
+          "slot_id": "s3",
+          "replacement_text": "You always are,” he interrupted, brushing his fingers along the cool stone of the fountain as he pushed off and stepped closer, invading her space with an easy confidence, the warmth of his presence stirring something within her."
+        },
+        {
+          "slot_id": "s4",
+          "replacement_text": "“But the festival waits for no one. Come on, there’s a whole world out there to explore.” He gestured towards the lively square, where laughter and music filled the air."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_length_distortion"
+      }
+    }
+  ],
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 4,
+      "dialogue": 2,
+      "meta_free": 5
+    },
+    "total_score": 27,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 306,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": false,
+    "sensory_hits": 4,
+    "concrete_hits": 3,
+    "generic_hits": 1,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The sun hung low in the sky, casting elongated shadows that stretched across the cobblestone streets of Rivermere. A warm breeze wafted through the square, carrying the sweet, heady scent of blooming jasmine. Elara paused, her fingers brushing against the cool stone of the old fountain at the center of the square. The water danced in the sunlight, droplets glittering like tiny stars before plunging back into the basin with a gentle splash. Around her, the laughter of children mingled with the distant strum of a lute, creating a vibrant tapestry of sound that enveloped her. Yet, despite the cheer, a heaviness settled in her chest, a tangible reminder of the choices that loomed ahead.\n\n“Are you going to stand there all day, or do you plan on joining us?” A teasing voice broke through her reverie, pulling her back to the moment. Kael leaned against the fountain’s edge, his arms crossed, a crooked grin dancing on his lips. The sunlight caught the spark of mischief in his hazel eyes, igniting a warmth deep within her.\n\nElara forced a smile, though it felt brittle. “I was just—”\n\n“Lost in thought, I know. You always are,” he interrupted, pushing off the fountain and stepping closer. He invaded her space with an easy confidence, the warmth of his presence stirring something within her. “But the festival waits for no one. Come on, there’s a whole world out there to explore.”\n\nShe hesitated, her heart caught between the comfort of the familiar and the allure of the unknown. The festival promised laughter and music, but it also echoed with the weight of her indecision. The last time she had ventured into the throbbing heart of the town, she had felt exhilaration coursing through her veins. Today, however, the uncertainty felt like a pressure against her ribcage, quickening her breath"
+  },
+  "critique_snapshot": {
+    "summary": "The scene depicts Elara standing by an old fountain in the town square of Rivermere, feeling the weight of her decisions as she is approached by Kael, who encourages her to join the festival. The interaction reveals Elara's internal struggle between comfort and uncertainty.",
+    "weaknesses": [
+      "Dialogue lacks grounding in physical action or setting.",
+      "Generic phrases detract from the uniqueness of the scene.",
+      "Vague descriptions fail to create a vivid picture of the environment."
+    ],
+    "continuity_issues": [
+      "Elara's internal conflict is introduced but not fully explored or resolved.",
+      "The transition from Elara's thoughts to dialogue feels abrupt."
+    ],
+    "pacing_issues": [
+      "The scene feels slow due to lengthy descriptions that could be more concise.",
+      "The dialogue interrupts the flow of Elara's internal monologue without a clear transition."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance dialogue by grounding it in physical actions or setting.",
+      "Replace generic phrases with more specific and unique descriptions.",
+      "Clarify Elara's internal conflict and its resolution."
+    ],
+    "generic_phrase_targets": [
+      "familiar embrace",
+      "weight of the day's decisions",
+      "flutter of hope"
+    ],
+    "detail_targets": [
+      "specific sensory details about the festival",
+      "more vivid imagery of the fountain and its surroundings"
+    ],
+    "dialogue_grounding_targets": [
+      "Kael's actions as he speaks",
+      "Elara's physical reactions to Kael's presence"
+    ],
+    "emotional_show_targets": [
+      "Show Elara's internal struggle through her body language and expressions.",
+      "Depict the contrast between her comfort and uncertainty more vividly."
+    ],
+    "replacement_targets": [
+      "Replace 'the weight of the day's decisions' with a more concrete expression of her feelings.",
+      "Substitute 'flutter of hope' with a more specific action or thought."
+    ],
+    "grounding_targets": [
+      "Include more physical interactions between characters.",
+      "Add environmental details that influence the characters' emotions."
+    ],
+    "carryover_targets": []
+  },
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": false,
+    "rescue_mode_used": true,
+    "rescue_model_used": false,
+    "rescue_model_name": "gpt-4o-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": false,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Are you going to stand there all day, or do you plan on joining us?” A teasing voice broke through her reverie, pulling her back to the moment.",
+        "“I was just—”\n\n“Lost in thought, I know.",
+        "You always are,” he interrupted, pushing off the fountain and stepping closer.",
+        "“But the festival waits for no one."
+      ],
+      "generic_phrases_to_replace": [],
+      "lines_to_repair": [
+        "“Are you going to stand there all day, or do you plan on joining us?” A teasing voice broke through her reverie, pulling her back to the moment.",
+        "“I was just—”\n\n“Lost in thought, I know.",
+        "You always are,” he interrupted, pushing off the fountain and stepping closer.",
+        "“But the festival waits for no one."
+      ],
+      "required_concrete_anchor_terms": [
+        "against",
+        "fountain"
+      ],
+      "repair_min_word_count": 260,
+      "repair_max_word_count": 459,
+      "min_paragraph_count": 3,
+      "max_paragraph_count": 7
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": false,
+      "reason": "rescue_model"
+    },
+    "rescue_slots_summary": {
+      "slot_count": 4,
+      "target_types": [
+        "dialogue",
+        "dialogue",
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_length_distortion"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 314,
+    "rewritten_word_count": 306,
+    "min_word_count": 188,
+    "max_word_count": 659,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "and",
+      "that",
+      "felt",
+      "fountain",
+      "laughter",
+      "against",
+      "you",
+      "his",
+      "but"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "and",
+      "that",
+      "felt",
+      "fountain",
+      "laughter",
+      "against",
+      "you",
+      "his"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 27
+  }
+}

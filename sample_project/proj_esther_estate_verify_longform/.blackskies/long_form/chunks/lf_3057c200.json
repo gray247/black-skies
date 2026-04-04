@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_3057c200",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:96ef9260d1d9fc45db24ba6363ac84962b31c7ed27e8d8557382503cd9076c34",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The wind whipped through the narrow alley, carrying with it the damp chill of approaching rain",
+    "word_count": 296,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 4,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 29,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 296,
+    "paragraph_count": 7,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 4,
+    "concrete_hits": 2,
+    "generic_hits": 1,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The wind whipped through the narrow alley, carrying with it the damp chill of approaching rain. Clara hunched her shoulders, pulling her coat tighter around her as she rounded the corner, the cobblestones slick beneath her boots. A distant rumble echoed in the sky, the kind that made her stomach churn with unspoken worries. She pressed on, her breath forming small, misty puffs in the crisp air, each exhale a fleeting reminder of warmth slipping away.\n\n“Clara!” A voice sliced through the murmur of the wind, causing her to pause mid-step. It was Jonah, his silhouette emerging from the shadows like a ghost. He stepped closer, his hair tousled and damp from the mist, eyes bright with urgency. “You’re late.”\n\n“I know,” she replied, forcing a smile that felt more like a grimace. “I was—” She hesitated, the weight of her excuses heavy on her tongue. “I got caught up.”\n\nHe studied her, the tension in his jaw tightening. “Caught up with what? You’re not still thinking about that old letter, are you?”\n\nThe mention of the letter sent a shiver through her, a reminder of the past she had tried to bury beneath layers of time and distraction. “No, it’s not that,” she said, perhaps too quickly. “I just... I had things to sort out.”\n\nJonah’s gaze softened, the hardness in his expression melting away. “Clara, you can’t keep running from it. You’re not alone anymore.” He stepped closer, the warmth of his presence almost palpable against the chill that surrounded them.\n\nThe flickering streetlamp cast an amber glow over his features, illuminating the concern etched in his brow. She felt the pull of the moment, the gravity of his words, but deep within, a flicker of resistance sparked. “I’m fine,” she asserted, though the"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

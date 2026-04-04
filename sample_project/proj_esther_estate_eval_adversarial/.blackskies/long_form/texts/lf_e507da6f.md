@@ -1,0 +1,17 @@
+﻿Clara’s fingers trembled as she pressed the cold metal of the key against the nursery door, its surface slick with moisture. The lantern in Jun’s hand sputtered again, casting a feeble glow that barely reached the edges of the room. Shadows loomed like specters, stretching across the peeling wallpaper that whispered of childhood laughter now long silenced. With the key still poised at the lock, she felt a tug of trepidation coil in her stomach, a tightness that seemed to resonate with the very walls around her, as if the house were holding its breath, too.
+
+“What if it’s not locked?” Jun suggested, his voice a mere echo of hope against the heavy stillness. His coat, still damp from their hasty exit into the greenhouse, clung uncomfortably to him, a physical reminder of the rain-soaked world outside. Clara shot him a glance, her heart thumping in her chest, an unspoken question hanging in the air: what if it is locked? The possibility gnawed at her, a flicker of unease igniting.
+
+She turned the key in the lock, the mechanism grating against her resolve. A click sounded, but the door remained immovable, the weight of it pressing back against her palms. Jun shifted beside her, the lantern flickering again, its light dimming further as if it, too, were losing faith. “Try again,” he urged, the urgency in his voice pulling her focus back to the task at hand.
+
+“Maybe it’s jammed,” she muttered, her breath quickening. She shoved her shoulder against the door, feeling the cool wood shift slightly, but it wouldn’t budge. Panic surged in her throat as she glanced at the lantern—only a weak flame remained, sputtering like her thoughts, and the air felt heavier, almost suffocating. “What if—”
+
+“Something’s on the other side,” Jun interrupted, his eyes narrowing. They both sensed it, the tremor in the air, the faintest hint of a cough, like a child clearing their throat. Clara’s heart sank, the sound striking a chord of dread within her. “Did you hear that?” Jun’s voice was barely above a whisper, but she could see the way his hands tightened around the lantern, knuckles whitening.
+
+The silence stretched, thick with unspoken fears, until Clara forced herself to breathe, steadying her thoughts against the rising tide of anxiety. “It’s just our minds playing tricks,” she said, though her own voice wavered. “Nora said no child has been here for years.” Still, the image of the ceramic fox tucked safely in her pocket felt like a weight, its chipped surface pressing against her thigh, an uninvited token of a past she had yet to unravel.
+
+“Or maybe we’re not the only ones here,” Jun murmured. His gaze flicked toward the door, the chain rattling softly, echoing a rhythm that felt oddly alive. Clara’s stomach dropped; the sound shouldn’t have come from above. The chain should have been two floors down, but the house had a way of distorting reality, bending it to its own will.
+
+She turned back to the door, locking her gaze on the key. The red ribbon felt tighter than ever, an insistent reminder of her connection to this place, to the past it held captive. “I have to try again,” she whispered, determination igniting within her. She pressed the key into the lock with renewed fervor, turning it once more, feeling the resistance shift ever so slightly beneath her touch.
+
+“Clara,” Jun said, his voice a thread of urgency, but she was already lost in the moment, the world narrowing until it was just her and the door. The lantern sputtered again,

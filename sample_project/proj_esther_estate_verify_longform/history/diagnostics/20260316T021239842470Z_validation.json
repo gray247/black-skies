@@ -1,0 +1,220 @@
+{
+  "timestamp": "2026-03-16T02:12:39.842580Z",
+  "code": "VALIDATION",
+  "message": "Long-form output rejected (quality threshold).",
+  "details": {
+    "quality_snapshot": {
+      "usable": true,
+      "scores": {
+        "coherence": 5,
+        "continuity": 4,
+        "clarity": 4,
+        "pacing": 5,
+        "specificity": 3,
+        "dialogue": 4,
+        "meta_free": 5
+      },
+      "total_score": 30,
+      "max_score": 35,
+      "meta_summary": false,
+      "meta_contamination": false,
+      "missing_carryover": false,
+      "word_count": 561,
+      "paragraph_count": 13,
+      "dialogue_present": true,
+      "dialogue_grounded": true,
+      "sensory_hits": 6,
+      "concrete_hits": 1,
+      "generic_hits": 0,
+      "stock_phrase_hits": 1,
+      "carryover_terms": [
+        "thick",
+        "sheets",
+        "relentless",
+        "curtain",
+        "blurred",
+        "world",
+        "outside",
+        "droplet"
+      ],
+      "carryover_hits": 6,
+      "material_carryover_hits": 0,
+      "material_carryover": false,
+      "weak_carryover": false,
+      "generic_risk": false
+    },
+    "attempts": [
+      {
+        "attempt": 1,
+        "mode": "draft",
+        "extracted_field": "choices.message.content",
+        "thinking_fallback": false,
+        "reasoning_trim_applied": false,
+        "basic_validation": {
+          "usable": true,
+          "word_count": 620,
+          "paragraph_count": 13,
+          "meta_summary": false,
+          "missing_carryover": false,
+          "carryover_terms": [
+            "thick",
+            "sheets",
+            "relentless",
+            "curtain",
+            "blurred",
+            "world",
+            "outside",
+            "droplet"
+          ],
+          "carryover_hits": 6,
+          "material_carryover_hits": 0
+        },
+        "raw_preview": "Emma stepped deeper into the alley, her boots splashing through the shallow puddles that had formed like small mirrors reflecting the chaos of the storm above. The air was thick with the scent of wet ",
+        "normalized_preview": "Emma stepped deeper into the alley, her boots splashing through the shallow puddles that had formed like small mirrors reflecting the chaos of the storm above. The air was thick with the scent of wet ",
+        "raw_length": 3589,
+        "normalized_length": 3586,
+        "raw_payload_keys": [
+          "choices",
+          "created",
+          "id",
+          "model",
+          "object",
+          "service_tier",
+          "system_fingerprint",
+          "usage"
+        ],
+        "raw_payload_preview": "{\"id\": \"chatcmpl-DJriuAfCJHRuwHb4J497WvvH4fQZL\", \"object\": \"chat.completion\", \"created\": 1773627116, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"Emma stepped deeper into the alley, her boots splashing through the shallow puddles that had formed like small mirrors reflecting the chaos of the storm above. The air was thick with the scent of wet asphalt and the faint tang of ozone, a reminder of the lightning that had illuminated the nigh",
+        "quality_snapshot": {
+          "usable": true,
+          "scores": {
+            "coherence": 5,
+            "continuity": 4,
+            "clarity": 4,
+            "pacing": 5,
+            "specificity": 3,
+            "dialogue": 4,
+            "meta_free": 5
+          },
+          "total_score": 30,
+          "max_score": 35,
+          "meta_summary": false,
+          "meta_contamination": false,
+          "missing_carryover": false,
+          "word_count": 620,
+          "paragraph_count": 13,
+          "dialogue_present": true,
+          "dialogue_grounded": true,
+          "sensory_hits": 7,
+          "concrete_hits": 1,
+          "generic_hits": 0,
+          "stock_phrase_hits": 2,
+          "carryover_terms": [
+            "thick",
+            "sheets",
+            "relentless",
+            "curtain",
+            "blurred",
+            "world",
+            "outside",
+            "droplet"
+          ],
+          "carryover_hits": 6,
+          "material_carryover_hits": 0,
+          "material_carryover": false,
+          "weak_carryover": false,
+          "generic_risk": false
+        },
+        "quality_pass": false
+      },
+      {
+        "attempt": 2,
+        "mode": "rewrite",
+        "extracted_field": "choices.message.content",
+        "thinking_fallback": false,
+        "reasoning_trim_applied": false,
+        "basic_validation": {
+          "usable": true,
+          "word_count": 561,
+          "paragraph_count": 13,
+          "meta_summary": false,
+          "missing_carryover": false,
+          "carryover_terms": [
+            "thick",
+            "sheets",
+            "relentless",
+            "curtain",
+            "blurred",
+            "world",
+            "outside",
+            "droplet"
+          ],
+          "carryover_hits": 6,
+          "material_carryover_hits": 0
+        },
+        "raw_preview": "Emma stepped further into the alley, her boots splashing through shallow puddles that mirrored the tumult above. The air was saturated with the scent of wet asphalt and the sharp tang of ozone, remnan",
+        "normalized_preview": "Emma stepped further into the alley, her boots splashing through shallow puddles that mirrored the tumult above. The air was saturated with the scent of wet asphalt and the sharp tang of ozone, remnan",
+        "raw_length": 3349,
+        "normalized_length": 3348,
+        "raw_payload_keys": [
+          "choices",
+          "created",
+          "id",
+          "model",
+          "object",
+          "service_tier",
+          "system_fingerprint",
+          "usage"
+        ],
+        "raw_payload_preview": "{\"id\": \"chatcmpl-DJrjJlbZ5vXqWFCNlXTUsJMSdneMW\", \"object\": \"chat.completion\", \"created\": 1773627141, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"Emma stepped further into the alley, her boots splashing through shallow puddles that mirrored the tumult above. The air was saturated with the scent of wet asphalt and the sharp tang of ozone, remnants of the lightning that had just fractured the sky. She shivered, not only from the chill see",
+        "quality_snapshot": {
+          "usable": true,
+          "scores": {
+            "coherence": 5,
+            "continuity": 4,
+            "clarity": 4,
+            "pacing": 5,
+            "specificity": 3,
+            "dialogue": 4,
+            "meta_free": 5
+          },
+          "total_score": 30,
+          "max_score": 35,
+          "meta_summary": false,
+          "meta_contamination": false,
+          "missing_carryover": false,
+          "word_count": 561,
+          "paragraph_count": 13,
+          "dialogue_present": true,
+          "dialogue_grounded": true,
+          "sensory_hits": 6,
+          "concrete_hits": 1,
+          "generic_hits": 0,
+          "stock_phrase_hits": 1,
+          "carryover_terms": [
+            "thick",
+            "sheets",
+            "relentless",
+            "curtain",
+            "blurred",
+            "world",
+            "outside",
+            "droplet"
+          ],
+          "carryover_hits": 6,
+          "material_carryover_hits": 0,
+          "material_carryover": false,
+          "weak_carryover": false,
+          "generic_risk": false
+        },
+        "quality_pass": false,
+        "rewrite_delta": {
+          "total_delta": 0,
+          "stock_phrase_delta": 1,
+          "specificity_delta": 0,
+          "clarity_delta": 0,
+          "continuity_delta": 0
+        }
+      }
+    ]
+  }
+}

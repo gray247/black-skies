@@ -1,0 +1,245 @@
+{
+  "chunk_id": "lf_a731cb5f",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:ce05156345e151dacd9ce2b3ca87b422ee15e7122370f9156b9b9ae90ad151a8",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 21,
+    "fallback_reason": "quality_failed"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "quality_failed"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 2,
+      "meta_free": 5
+    },
+    "total_score": 26,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 301,
+    "paragraph_count": 8,
+    "dialogue_present": true,
+    "dialogue_grounded": false,
+    "sensory_hits": 5,
+    "concrete_hits": 1,
+    "generic_hits": 1,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The sun dipped low on the horizon, casting long shadows that stretched across the cracked pavement of the neglected parking lot. Dust motes shimmered in the golden light, swirling lazily as Mia brushed a loose strand of hair behind her ear, the sticky heat of the late afternoon clinging to her skin like an unwelcome embrace. She squinted against the brilliance, her heart thumping erratically as she scanned the faces around her, a restless anticipation coursing through her veins.\n\n“Are you sure they’ll show?” Jake's voice cut through the stillness, tinged with skepticism. He leaned against the dented hood of his car, arms crossed tightly over his chest, his brow furrowed deeply. The tension radiating from him felt palpable, like the heat rising off the asphalt.\n\n“They’ll come,” she replied, her voice steadier than the fluttering in her stomach suggested. “They always do.”\n\nA distant rumble of thunder echoed ominously, the air thickening with an electric current, signaling the approach of a storm. Mia glanced skyward, the rising anxiety tightening her chest. What if they didn’t come? What if this was all a cruel waste of hope?\n\n“Right. Just like last time?” Jake’s tone sharpened, and the sting of his words cut deeper than she anticipated. “You remember how that ended?”\n\nMia's stomach twisted painfully. Of course she remembered. The laughter had faded that night, replaced by the sharp, haunting echoes of promises shattered like glass. But now, something felt different. There was a weight in the air, a sense of urgency urging her to cling to hope.\n\n“Stop it,” she snapped, the words tumbling out before she could hold them back. “This is different. They need us.”\n\nJake pushed himself off the car, his posture rigid, frustration simmering just beneath the surface of his calm demeanor. “Need us? Or need"
+  },
+  "critique_snapshot": {
+    "summary": "The scene depicts Mia and Jake waiting in an old parking lot, filled with tension as they discuss the arrival of others. The atmosphere is charged with an impending storm, mirroring their emotional state. Mia is anxious about the past and the potential failure of their current situation, while Jake expresses skepticism and frustration, leading to a confrontation between them.",
+    "weaknesses": [
+      "Vague descriptions of the setting and characters' emotions.",
+      "Dialogue lacks grounding in physical actions or specific details.",
+      "Generic phrases that do not enhance the emotional depth."
+    ],
+    "continuity_issues": [
+      "The transition between Mia's internal thoughts and dialogue is abrupt and lacks smoothness."
+    ],
+    "pacing_issues": [
+      "The pacing feels uneven, with moments of tension that could be expanded for greater impact."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions of the setting and characters' actions.",
+      "Ground dialogue in physical actions or environmental details.",
+      "Eliminate vague phrases and replace them with more evocative language."
+    ],
+    "generic_phrase_targets": [
+      "Searching, waiting",
+      "Trying to sound steadier",
+      "Escaping before she could temper them"
+    ],
+    "detail_targets": [
+      "Cracked pavement",
+      "Distant rumble of thunder",
+      "Heat clinging to her skin"
+    ],
+    "dialogue_grounding_targets": [
+      "Jake leaning against the car",
+      "Mia pushing her hair back"
+    ],
+    "emotional_show_targets": [
+      "Mia's fluttering stomach",
+      "Jake's frustration bubbling beneath his calm facade"
+    ],
+    "replacement_targets": [
+      "The way the laughter had died that night",
+      "Echoes of promises shattered like glass"
+    ],
+    "grounding_targets": [
+      "Mia scanning the faces around her",
+      "Jake's arms crossed and brow furrowed"
+    ],
+    "carryover_targets": []
+  },
+  "attempt_count": 4,
+  "acceptance_reason": "quality_failed",
+  "rewrite_used": true,
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Are you sure they’ll show?” Jake's voice cut through the stillness, tinged with skepticism.",
+        "“They’ll come,” she replied, her voice steadier than the fluttering in her stomach suggested.",
+        "“They always do.”\n\nA distant rumble of thunder echoed ominously, the air thickening with an electric current, signaling the approach of a storm.",
+        "“Right."
+      ],
+      "generic_phrases_to_replace": [],
+      "lines_to_repair": [
+        "“Are you sure they’ll show?” Jake's voice cut through the stillness, tinged with skepticism.",
+        "“They’ll come,” she replied, her voice steadier than the fluttering in her stomach suggested.",
+        "“They always do.”\n\nA distant rumble of thunder echoed ominously, the air thickening with an electric current, signaling the approach of a storm.",
+        "“Right."
+      ],
+      "required_concrete_anchor_terms": [
+        "need",
+        "heat",
+        "against"
+      ],
+      "repair_min_word_count": 255,
+      "repair_max_word_count": 451,
+      "min_paragraph_count": 6,
+      "max_paragraph_count": 10
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-4o",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rewrite_retry_model"
+    },
+    "rescue_slots_summary": {
+      "slot_count": 4,
+      "target_types": [
+        "dialogue",
+        "dialogue",
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_dialogue_grounding_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 301,
+    "rewritten_word_count": 301,
+    "min_word_count": 180,
+    "max_word_count": 632,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "they",
+      "his",
+      "felt",
+      "that",
+      "mia",
+      "heat",
+      "you",
+      "jake",
+      "and"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "they",
+      "his",
+      "felt",
+      "that",
+      "mia",
+      "heat",
+      "you"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 26
+  }
+}

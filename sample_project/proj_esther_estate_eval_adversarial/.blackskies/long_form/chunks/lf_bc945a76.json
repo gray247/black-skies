@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_bc945a76",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:a276ba2537cd4baf16d0446698fbd5e79ced9b048f10c84f76a5012ea94f8e24",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Clara pressed forward, the chill of the service corridor wrapping around her like a damp shroud",
+    "word_count": 302,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 30,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 302,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 8,
+    "concrete_hits": 11,
+    "generic_hits": 0,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "Clara pressed forward, the chill of the service corridor wrapping around her like a damp shroud. The weak beam from Jun's cracked brass lantern flickered, casting trembling shadows across the peeling wallpaper, where faded floral patterns seemed to sway in the dim light. Each step echoed, a hollow sound that ricocheted off the walls, amplifying the tension that thrummed between them. The lingering scent of wet earth and decaying wood filled her lungs, making her heart race faster, each thud an urgent reminder of the storm outside.\n\n“Did you see those prints?” Jun’s voice trembled, breaking the silence like a brittle twig. He stepped closer, his soaked coat clinging to his skin, droplets tracing a path down his neck. Clara could feel his fear, palpable and electric, wrapping around her own as they moved deeper into the corridor.\n\n“I don’t know what they are,” she snapped, the words escaping before she could temper them. “Maybe it’s just mud from the greenhouse.” But even as she spoke, doubt gnawed at her. The way the fresh tracks led ahead, not behind, felt like a taunt, a whispering invitation into the unknown.\n\nThe lantern sputtered again, its light waning, and Clara's fingers instinctively tightened around the parlor key, the red ribbon digging into her wrist. She hadn’t meant to tie it so tightly, but her mind was a blur—a frantic jumble of worry and urgency. Behind her, the door to the corridor rattled, a rhythmic clinking of the chain as if someone were testing it from the other side. Clara's breath caught, and she glanced at Jun, whose eyes were wide, reflecting a mix of hope and dread.\n\n“It’s just the wind,” she said, trying to sound convincing, but her voice wavered, betraying the tremor in her resolve. She stepped forward, the cold floor slick"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

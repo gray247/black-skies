@@ -1,0 +1,640 @@
+{
+  "chunk_id": "lf_19438ee0",
+  "validation_decision": false,
+  "fallback_reason": "quality_failed",
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "raw_preview": "The air was thick with the scent of damp earth and the faint, lingering sweetness of wildflowers as Elara pushed deeper into the emerald thicket. Each step sent a soft crunch of twigs and leaves under",
+      "normalized_preview": "The air was thick with the scent of damp earth and the faint, lingering sweetness of wildflowers as Elara pushed deeper into the emerald thicket. Each step sent a soft crunch of twigs and leaves under",
+      "raw_length": 1731,
+      "normalized_length": 1726,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKoC1el19g8EaORBprkVLvBO7ZstY\", \"object\": \"chat.completion\", \"created\": 1773851873, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The air was thick with the scent of damp earth and the faint, lingering sweetness of wildflowers as Elara pushed deeper into the emerald thicket. Each step sent a soft crunch of twigs and leaves underfoot, muffled by the heavy silence that enveloped the forest. Sunlight trickled through the ca",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 300,
+        "paragraph_count": 6,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 2,
+          "meta_free": 5
+        },
+        "total_score": 26,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 300,
+        "paragraph_count": 6,
+        "dialogue_present": true,
+        "dialogue_grounded": false,
+        "sensory_hits": 5,
+        "concrete_hits": 0,
+        "generic_hits": 0,
+        "stock_phrase_hits": 2,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The air was thick with the scent of damp earth and the faint, lingering sweetness of wildflowers as Elara pushed deeper into the emerald thicket. Each step sent a soft crunch of twigs and leaves underfoot, muffled by the heavy silence that enveloped the forest. Sunlight trickled through the canopy, dappling the ground in patches of gold, illuminating the tiny motes that danced lazily in the warm air. She paused, her breath coming in steady puffs, the coolness of the shade contrasting sharply with the heat of the day.\n\n“Are you sure this is the right path?” came a voice from behind her, laced with uncertainty. It was Rian, his brow furrowed, glancing around as if the trees themselves might offer him guidance.\n\nElara turned, meeting his gaze. “It has to be. The stream should be just beyond that rise.” She gestured toward the distant swell of earth, where the underbrush appeared thicker, almost impenetrable. Her heart raced—not from fear, but from a thrill that thrummed beneath her skin, a pulse that matched the rustle of leaves above.\n\nRian ran a hand through his tousled hair, the sunlight catching the strands like a halo, and she couldn’t help but smile at the earnestness in his demeanor. “And you’re sure the water is safe?”\n\n“Safe enough,” she replied, her voice steady, though the memory of the last time they had ventured here sent a flicker of doubt through her. “It’s just a stream. We’ll be fine.” She turned back to the path, the weight of her words lingering between them. The last time had been a different kind of adventure, one that still hung like a shadow over their shared laughter.\n\nAs they climbed the rise, the sounds of the forest enveloped them—a distant bird call, the gentle rustle of a"
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "rewrite",
+        "escalated": false,
+        "reason": "rewrite_default"
+      },
+      "raw_preview": "breeze weaving through the branches. Elara led the way, each step sinking into the soft, loamy soil that released the earthy aroma of dampness and life. The vibrant greens of the thicket brushed again",
+      "normalized_preview": "breeze weaving through the branches. Elara led the way, each step sinking into the soft, loamy soil that released the earthy aroma of dampness and life. The vibrant greens of the thicket brushed again",
+      "raw_length": 1787,
+      "normalized_length": 1787,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKoCN23HnKwRNsRQnRGch0AovLZQW\", \"object\": \"chat.completion\", \"created\": 1773851895, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"breeze weaving through the branches. Elara led the way, each step sinking into the soft, loamy soil that released the earthy aroma of dampness and life. The vibrant greens of the thicket brushed against her arms, the leaves whispering secrets as she moved deeper into the heart of the forest. A",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 306,
+        "paragraph_count": 5,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "guardrail_snapshot": {
+        "evaluated": true,
+        "mode": "rewrite",
+        "outline_titles": [],
+        "beat_refs": [],
+        "locked_facts_evaluated": false,
+        "length_band_evaluated": true,
+        "original_word_count": 300,
+        "rewritten_word_count": 306,
+        "min_word_count": 180,
+        "max_word_count": 630,
+        "within_length_band": true,
+        "outline_fidelity_evaluated": true,
+        "outline_fidelity_pass": true,
+        "original_anchor_terms": [
+          "the",
+          "her",
+          "that",
+          "she",
+          "and",
+          "his",
+          "air",
+          "was",
+          "earth",
+          "lingering",
+          "elara",
+          "sent"
+        ],
+        "retained_anchor_terms": [
+          "the",
+          "her",
+          "that",
+          "she",
+          "and",
+          "his",
+          "air",
+          "elara"
+        ],
+        "outline_anchor_hits": [],
+        "required_anchor_overlap": 1,
+        "scene_anchor_drift_detected": false,
+        "new_story_elements": [],
+        "blocking_new_story_elements": [],
+        "authoritative_name_check": false,
+        "uncertainty_triggered": false,
+        "failure_reason": null,
+        "accepted": true,
+        "quality_total_score": 26
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 2,
+          "meta_free": 5
+        },
+        "total_score": 26,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 306,
+        "paragraph_count": 5,
+        "dialogue_present": true,
+        "dialogue_grounded": false,
+        "sensory_hits": 3,
+        "concrete_hits": 0,
+        "generic_hits": 0,
+        "stock_phrase_hits": 1,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "breeze weaving through the branches. Elara led the way, each step sinking into the soft, loamy soil that released the earthy aroma of dampness and life. The vibrant greens of the thicket brushed against her arms, the leaves whispering secrets as she moved deeper into the heart of the forest. A shaft of sunlight burst through the canopy, illuminating the dust motes that floated lazily, dancing in the warm air like tiny stars.\n\n“Are you sure this is the right path?” Rian’s voice broke through the tranquil ambiance, tinged with uncertainty. He stood a few paces behind her, shifting his weight from one foot to the other, his eyes darting between the towering trees as if seeking an answer in their stillness.\n\nElara turned to face him, her expression resolute. “It has to be. The stream should be just beyond that rise.” She pointed toward a gentle slope ahead, where the underbrush thickened, vines twisting like serpents around the sturdy trunks. A thrill coursed through her, quickening her pulse and making her heart race—not from fear, but from the excitement of the adventure ahead.\n\nRian ran a hand through his tousled hair, the sunlight catching the golden strands and framing his face. Elara couldn’t suppress a smile at his earnestness, the way his brow creased with worry. “And you’re sure the water is safe?” he asked, his voice dropping slightly, as if the trees might overhear.\n\n“Safe enough,” she assured him, the steadiness of her tone masking the flicker of doubt that brushed against her thoughts. Memories of their last visit surged through her—a misstep, a tumble, and a moment of panic that still echoed in her mind. “It’s just a stream. We’ll be fine.” She turned back to the path, the weight of her words hanging in the air, a reminder of their shared laughter"
+      },
+      "quality_pass": false,
+      "rewrite_delta": {
+        "total_delta": 0,
+        "stock_phrase_delta": 1,
+        "specificity_delta": 0,
+        "clarity_delta": 0,
+        "continuity_delta": 0
+      },
+      "retry_decision": {
+        "eligible": true,
+        "reason": "targeted_editorial_miss_after_rewrite",
+        "classification": "targeted_editorial"
+      }
+    },
+    {
+      "attempt": 3,
+      "mode": "recovery_retry",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rescue_model"
+      },
+      "raw_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"“Safe enough,” she assured him, keeping her hand on the rough bark of a trunk as the doubt from their last visit—her misstep, the tumble, the sharp scra",
+      "normalized_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"“Safe enough,” she assured him, keeping her hand on the rough bark of a trunk as the doubt from their last visit—her misstep, the tumble, the sharp scra",
+      "raw_length": 1132,
+      "normalized_length": 1132,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKoCVV4aIbnqaGheDe4ZqMVkyURyx\", \"object\": \"chat.completion\", \"created\": 1773851903, \"model\": \"gpt-5.4-mini-2026-03-17\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"replacement_text\\\":\\\"“Safe enough,” she assured him, keeping her hand on the rough bark of a trunk as the doubt from their last visit—her misstep, the tumble, the sharp scrape of panic—pressed at the edge of her thoughts.\\\"},{\\\"slot_id\\\":\\\"s2\\\",\\\"replacemen",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "“Safe enough,” she assured him, the steadiness of her tone masking the flicker of doubt that brushed against her thoughts.",
+          "context_before": "“And you’re sure the water is safe?” he asked, his voice dropping slightly, as if the trees might overhear.",
+          "context_after": "Memories of their last visit surged through her—a misstep, a tumble, and a moment of panic that still echoed in her mind.",
+          "target_reason": "generic",
+          "target_phrase": "flicker of"
+        },
+        {
+          "slot_id": "s2",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Are you sure this is the right path?” Rian’s voice broke through the tranquil ambiance, tinged with uncertainty.",
+          "context_before": "A shaft of sunlight burst through the canopy, illuminating the dust motes that floated lazily, dancing in the warm air like tiny stars.",
+          "context_after": "He stood a few paces behind her, shifting his weight from one foot to the other, his eyes darting between the towering trees as if seeking an answer in their stillness.",
+          "target_reason": "dialogue",
+          "local_anchor_terms": [
+            "dust"
+          ]
+        },
+        {
+          "slot_id": "s3",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“It has to be.",
+          "context_before": "Elara turned to face him, her expression resolute.",
+          "context_after": "The stream should be just beyond that rise.” She pointed toward a gentle slope ahead, where the underbrush thickened, vines twisting like serpents around the sturdy trunks.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s4",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "The stream should be just beyond that rise.” She pointed toward a gentle slope ahead, where the underbrush thickened, vines twisting like serpents around the sturdy trunks.",
+          "context_before": "“It has to be.",
+          "context_after": "A thrill coursed through her, quickening her pulse and making her heart race—not from fear, but from the excitement of the adventure ahead.",
+          "target_reason": "dialogue",
+          "local_anchor_terms": [
+            "pulse"
+          ]
+        },
+        {
+          "slot_id": "s5",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“And you’re sure the water is safe?” he asked, his voice dropping slightly, as if the trees might overhear.",
+          "context_before": "Elara couldn’t suppress a smile at his earnestness, the way his brow creased with worry.",
+          "context_after": "“Safe enough,” she assured him, the steadiness of her tone masking the flicker of doubt that brushed against her thoughts.",
+          "target_reason": "dialogue"
+        }
+      ],
+      "rescue_generation_strategy": "slot_patch",
+      "configured_rescue_generation_strategy": "slot_patch",
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "“Safe enough,” she assured him, keeping her hand on the rough bark of a trunk as the doubt from their last visit—her misstep, the tumble, the sharp scrape of panic—pressed at the edge of her thoughts."
+        },
+        {
+          "slot_id": "s2",
+          "replacement_text": "“Are you sure this is the right path?” Rian’s voice broke through the hush, stirred by the dust motes drifting in the shaft of sunlight, while he stood a few paces behind her and shifted his weight from one boot to the other."
+        },
+        {
+          "slot_id": "s3",
+          "replacement_text": "“It has to be.” Elara turned fully to face him, shoulders squared, then glanced past him toward the rise ahead."
+        },
+        {
+          "slot_id": "s4",
+          "replacement_text": "The stream should be just beyond that rise.” She held out one hand and pointed to the gentle slope, where the underbrush thickened and vines twisted around the sturdy trunks, the pulse in her wrist jumping as she did."
+        },
+        {
+          "slot_id": "s5",
+          "replacement_text": "“And you’re sure the water is safe?” he asked, lowering his voice and glancing toward the trees as if they might overhear, one hand still combing through his tousled hair."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_dialogue_grounding_unresolved"
+      }
+    },
+    {
+      "attempt": 4,
+      "mode": "repair_only",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rescue_model"
+      },
+      "raw_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"“Safe enough,” she assured him, the steadiness of her tone masking a brief pinch of doubt as the dust motes drifted through the sunlight around them.\"},",
+      "normalized_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"“Safe enough,” she assured him, the steadiness of her tone masking a brief pinch of doubt as the dust motes drifted through the sunlight around them.\"},",
+      "raw_length": 912,
+      "normalized_length": 912,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKoCX3mLouCottusXzozehJg0RRz0\", \"object\": \"chat.completion\", \"created\": 1773851905, \"model\": \"gpt-5.4-mini-2026-03-17\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"replacement_text\\\":\\\"“Safe enough,” she assured him, the steadiness of her tone masking a brief pinch of doubt as the dust motes drifted through the sunlight around them.\\\"},{\\\"slot_id\\\":\\\"s2\\\",\\\"replacement_text\\\":\\\"“Are you sure this is the right path?” R",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "“Safe enough,” she assured him, the steadiness of her tone masking the flicker of doubt that brushed against her thoughts.",
+          "context_before": "“And you’re sure the water is safe?” he asked, his voice dropping slightly, as if the trees might overhear.",
+          "context_after": "Memories of their last visit surged through her—a misstep, a tumble, and a moment of panic that still echoed in her mind.",
+          "target_reason": "generic",
+          "target_phrase": "flicker of"
+        },
+        {
+          "slot_id": "s2",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Are you sure this is the right path?” Rian’s voice broke through the tranquil ambiance, tinged with uncertainty.",
+          "context_before": "A shaft of sunlight burst through the canopy, illuminating the dust motes that floated lazily, dancing in the warm air like tiny stars.",
+          "context_after": "He stood a few paces behind her, shifting his weight from one foot to the other, his eyes darting between the towering trees as if seeking an answer in their stillness.",
+          "target_reason": "dialogue",
+          "local_anchor_terms": [
+            "dust"
+          ]
+        },
+        {
+          "slot_id": "s3",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“It has to be.",
+          "context_before": "Elara turned to face him, her expression resolute.",
+          "context_after": "The stream should be just beyond that rise.” She pointed toward a gentle slope ahead, where the underbrush thickened, vines twisting like serpents around the sturdy trunks.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s4",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "The stream should be just beyond that rise.” She pointed toward a gentle slope ahead, where the underbrush thickened, vines twisting like serpents around the sturdy trunks.",
+          "context_before": "“It has to be.",
+          "context_after": "A thrill coursed through her, quickening her pulse and making her heart race—not from fear, but from the excitement of the adventure ahead.",
+          "target_reason": "dialogue",
+          "local_anchor_terms": [
+            "pulse"
+          ]
+        },
+        {
+          "slot_id": "s5",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“And you’re sure the water is safe?” he asked, his voice dropping slightly, as if the trees might overhear.",
+          "context_before": "Elara couldn’t suppress a smile at his earnestness, the way his brow creased with worry.",
+          "context_after": "“Safe enough,” she assured him, the steadiness of her tone masking the flicker of doubt that brushed against her thoughts.",
+          "target_reason": "dialogue"
+        }
+      ],
+      "rescue_generation_strategy": "slot_patch",
+      "configured_rescue_generation_strategy": "slot_patch",
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "“Safe enough,” she assured him, the steadiness of her tone masking a brief pinch of doubt as the dust motes drifted through the sunlight around them."
+        },
+        {
+          "slot_id": "s2",
+          "replacement_text": "“Are you sure this is the right path?” Rian asked, glancing from the dust motes in the sunlight to the trees ahead, his uncertainty plain in the way he shifted his weight behind her."
+        },
+        {
+          "slot_id": "s3",
+          "replacement_text": "“It has to be,” she said, keeping her face set as she faced him."
+        },
+        {
+          "slot_id": "s4",
+          "replacement_text": "The stream should be just beyond that rise.” She pointed toward the gentle slope ahead, her finger lifting toward the underbrush where vines twisted around the sturdy trunks."
+        },
+        {
+          "slot_id": "s5",
+          "replacement_text": "“And you’re sure the water is safe?” he asked, lowering his voice and looking past her toward the rise, as if the trees might overhear."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_dialogue_grounding_unresolved"
+      }
+    }
+  ],
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 2,
+      "meta_free": 5
+    },
+    "total_score": 26,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 306,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": false,
+    "sensory_hits": 3,
+    "concrete_hits": 0,
+    "generic_hits": 0,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "breeze weaving through the branches. Elara led the way, each step sinking into the soft, loamy soil that released the earthy aroma of dampness and life. The vibrant greens of the thicket brushed against her arms, the leaves whispering secrets as she moved deeper into the heart of the forest. A shaft of sunlight burst through the canopy, illuminating the dust motes that floated lazily, dancing in the warm air like tiny stars.\n\n“Are you sure this is the right path?” Rian’s voice broke through the tranquil ambiance, tinged with uncertainty. He stood a few paces behind her, shifting his weight from one foot to the other, his eyes darting between the towering trees as if seeking an answer in their stillness.\n\nElara turned to face him, her expression resolute. “It has to be. The stream should be just beyond that rise.” She pointed toward a gentle slope ahead, where the underbrush thickened, vines twisting like serpents around the sturdy trunks. A thrill coursed through her, quickening her pulse and making her heart race—not from fear, but from the excitement of the adventure ahead.\n\nRian ran a hand through his tousled hair, the sunlight catching the golden strands and framing his face. Elara couldn’t suppress a smile at his earnestness, the way his brow creased with worry. “And you’re sure the water is safe?” he asked, his voice dropping slightly, as if the trees might overhear.\n\n“Safe enough,” she assured him, the steadiness of her tone masking the flicker of doubt that brushed against her thoughts. Memories of their last visit surged through her—a misstep, a tumble, and a moment of panic that still echoed in her mind. “It’s just a stream. We’ll be fine.” She turned back to the path, the weight of her words hanging in the air, a reminder of their shared laughter"
+  },
+  "critique_snapshot": {
+    "summary": "Elara and Rian navigate through a forest, discussing their path and the safety of a stream ahead. The scene captures the sensory details of the environment and hints at a past adventure that casts a shadow over their current journey.",
+    "weaknesses": [
+      "Dialogue lacks grounding in physical action or setting.",
+      "Vague scene details that do not contribute to the narrative.",
+      "Generic phrases that detract from the uniqueness of the prose."
+    ],
+    "continuity_issues": [
+      "The mention of a past adventure is vague and lacks specific details that could enhance the emotional weight."
+    ],
+    "pacing_issues": [
+      "The scene drags slightly due to excessive description without advancing the plot or character development."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance dialogue by grounding it in physical actions or the environment.",
+      "Replace vague descriptions with more specific and evocative imagery.",
+      "Eliminate generic phrases to create a more unique voice."
+    ],
+    "generic_phrase_targets": [
+      "The air was thick with the scent of damp earth",
+      "the faint, lingering sweetness of wildflowers",
+      "the heavy silence that enveloped the forest"
+    ],
+    "detail_targets": [
+      "Sunlight trickled through the canopy",
+      "dappled the ground in patches of gold",
+      "tiny motes that danced lazily in the warm air"
+    ],
+    "dialogue_grounding_targets": [
+      "Rian's uncertainty about the path",
+      "Elara's reassurance about the stream"
+    ],
+    "emotional_show_targets": [
+      "Elara's heart racing from thrill",
+      "the weight of her words lingering between them"
+    ],
+    "replacement_targets": [
+      "Replace 'the air was thick' with a more specific sensory description.",
+      "Substitute 'muffled by the heavy silence' with a more dynamic action."
+    ],
+    "grounding_targets": [
+      "Rian's physical actions (running a hand through his hair) could be expanded.",
+      "Elara's gestures could be more descriptive to enhance the scene."
+    ],
+    "carryover_targets": []
+  },
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_model_name": "gpt-5.4-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Are you sure this is the right path?” Rian’s voice broke through the tranquil ambiance, tinged with uncertainty.",
+        "“It has to be.",
+        "The stream should be just beyond that rise.” She pointed toward a gentle slope ahead, where the underbrush thickened, vines twisting like serpents around the sturdy trunks.",
+        "“And you’re sure the water is safe?” he asked, his voice dropping slightly, as if the trees might overhear."
+      ],
+      "generic_phrases_to_replace": [
+        "flicker of"
+      ],
+      "lines_to_repair": [
+        "“Safe enough,” she assured him, the steadiness of her tone masking the flicker of doubt that brushed against her thoughts.",
+        "“Are you sure this is the right path?” Rian’s voice broke through the tranquil ambiance, tinged with uncertainty.",
+        "“It has to be.",
+        "The stream should be just beyond that rise.” She pointed toward a gentle slope ahead, where the underbrush thickened, vines twisting like serpents around the sturdy trunks.",
+        "“And you’re sure the water is safe?” he asked, his voice dropping slightly, as if the trees might overhear."
+      ],
+      "required_concrete_anchor_terms": [
+        "elara",
+        "brushed",
+        "against"
+      ],
+      "repair_min_word_count": 260,
+      "repair_max_word_count": 459,
+      "min_paragraph_count": 3,
+      "max_paragraph_count": 7
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rescue_model"
+    },
+    "rescue_generation_strategy": "slot_patch",
+    "configured_rescue_generation_strategy": "slot_patch",
+    "rescue_slots_summary": {
+      "slot_count": 5,
+      "target_types": [
+        "generic",
+        "dialogue",
+        "dialogue",
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_dialogue_grounding_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 300,
+    "rewritten_word_count": 306,
+    "min_word_count": 180,
+    "max_word_count": 630,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "that",
+      "she",
+      "and",
+      "his",
+      "air",
+      "was",
+      "earth",
+      "lingering",
+      "elara",
+      "sent"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "that",
+      "she",
+      "and",
+      "his",
+      "air",
+      "elara"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 26
+  }
+}

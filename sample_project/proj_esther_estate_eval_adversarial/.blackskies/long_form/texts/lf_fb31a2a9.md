@@ -1,0 +1,9 @@
+﻿The damp air clung to Clara Vale’s skin as she and Jun Park stepped deeper into the servants’ passage, the weight of the moisture wrapping around them like a heavy shawl. The dim light from the cracked brass lantern flickered, casting erratic shadows that danced along the peeling wallpaper and the worn floorboards beneath their feet. Each step felt like a heartbeat echoing in the silence, punctuated only by the distant sound of water dripping from the eaves.
+
+“Do you hear that?” Jun’s voice was barely above a whisper, his breath hitching slightly, the tremor betraying the bravado he tried to maintain. Clara felt a flicker of annoyance, but it was quickly swallowed by a deeper anxiety. She strained her ears, but the only sound that reached her was the pulse of her own heartbeat, quick and insistent.
+
+“Just the house settling,” she replied, too sharply, the edge in her tone cutting through the stillness. The words hung in the air, coated with a thin layer of denial. She glanced at Jun, his soaked coat clinging to him like a second skin, the fabric darkened by the rain that had poured down in the greenhouse. She knew he was scared, and that frightened her more than the shadows that loomed around them.
+
+In her pocket, the chipped ceramic fox shifted against her thigh, a remnant of the nursery, its painted surface cold and worn. She could almost hear the laughter of children playing, echoes of a life that felt distant, as if she were chasing a fading dream. She tightened her grip around the parlor key, the red ribbon digging into her wrist. Why hadn’t she tied it tighter? The thought buzzed in her mind, a nagging reminder of something slipping through her fingers.
+
+As they moved deeper into the corridor, the chain on the door rattled again, a faint but insistent sound that sent a chill spiraling

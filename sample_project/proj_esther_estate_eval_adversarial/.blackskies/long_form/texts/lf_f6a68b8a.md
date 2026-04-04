@@ -1,0 +1,9 @@
+﻿The air in the corridor was thick with the scent of damp earth, the kind that clung to the skin and made the hairs on the back of Clara’s neck prickle. Each step they took echoed like a heartbeat, a relentless reminder of how small they felt in the vast, decaying house. The lantern’s light flickered again, throwing a weak, trembling glow over the peeling wallpaper, revealing shadows that danced just out of reach. Jun's breath came in short bursts, his eyes darting to the corners as if expecting something to leap out from the darkness.
+
+“Are you sure we should be here?” he whispered, his voice barely more than a thread against the oppressive silence. Clara could hear the tremor beneath the surface, a fear that felt like a living thing, wrapping around her own heart. She tightened her grip on the lantern, the cool metal pressing against her palm, grounding her even as uncertainty gnawed at the edges of her thoughts.
+
+“Of course, we have to get to the parlor,” she replied too quickly, her words sharper than intended. The key tied to her wrist—a vivid splash of red against her pale skin—felt heavier with each passing moment. She had no memory of tying it tighter, the ribbon now almost a restraint, reminding her of the weight of the secrets they were carrying. The muddy footprints ahead were fresh, stark against the worn floorboards, leading deeper into the unknown.
+
+“Look,” she said, nodding toward the marks, “someone else is here.” The words hung between them, thickened by the dread that had settled like a shroud. Jun's gaze followed hers, his brow furrowed, and Clara caught the flicker of his unease. He shifted his weight, coat still damp from the greenhouse, the fabric clinging to him as if reluctant to let go.
+
+A sudden rattling sound came from the chained door at the end of

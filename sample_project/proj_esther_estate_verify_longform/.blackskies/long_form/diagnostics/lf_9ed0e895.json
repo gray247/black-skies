@@ -1,0 +1,622 @@
+{
+  "chunk_id": "lf_9ed0e895",
+  "validation_decision": false,
+  "fallback_reason": "quality_failed",
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "raw_preview": "The rain fell in thick sheets, each drop a tiny drumbeat against the pavement, a relentless symphony that filled the narrow alley. Lydia leaned against the cool brick wall, her heart racing as she wat",
+      "normalized_preview": "The rain fell in thick sheets, each drop a tiny drumbeat against the pavement, a relentless symphony that filled the narrow alley. Lydia leaned against the cool brick wall, her heart racing as she wat",
+      "raw_length": 1745,
+      "normalized_length": 1745,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKXgTGLaBegVDWfM8TGdTSNmTxMBZ\", \"object\": \"chat.completion\", \"created\": 1773788413, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The rain fell in thick sheets, each drop a tiny drumbeat against the pavement, a relentless symphony that filled the narrow alley. Lydia leaned against the cool brick wall, her heart racing as she watched the shadows flicker at the alley's mouth, where the streetlight hesitated in its glow. Sh",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 300,
+        "paragraph_count": 7,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 28,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 300,
+        "paragraph_count": 7,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 5,
+        "concrete_hits": 1,
+        "generic_hits": 0,
+        "stock_phrase_hits": 1,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The rain fell in thick sheets, each drop a tiny drumbeat against the pavement, a relentless symphony that filled the narrow alley. Lydia leaned against the cool brick wall, her heart racing as she watched the shadows flicker at the alley's mouth, where the streetlight hesitated in its glow. She tightened her grip on the small metal box in her hand, its surface slick with moisture, the weight of it grounding her amidst the chaotic thrum of her thoughts.\n\nA figure emerged, cloaked in a dark trench coat, water cascading off the brim of a wide hat. The man moved with purpose, each step echoing in the confined space. Lydia's breath caught, the familiar dread swirling in her stomach like a storm. She forced herself to breathe, to remember why she was here, but the memory felt distant, clouded by uncertainty.\n\n“Lydia,” he said, his voice smooth, almost soothing, yet layered with a tension that made her pulse quicken. “You’ve been waiting.”\n\n“Not for you,” she shot back, her voice sharper than she intended. The sound bounced off the walls, mingling with the rain, and she regretted the defiance that sprang from her mouth. The truth was, she had been waiting, and the anticipation gnawed at her, a hunger she couldn’t quite name.\n\n“Then who?” he asked, stepping closer, his silhouette framed by the dim light outside. The rain pooled at his feet, drenching the ground, and she could see the flicker of annoyance flash across his face as he shifted uncomfortably.\n\n“Just give me the information,” she said, desperation leaking into her tone, mingling with the rain-soaked air. “I don’t have time for games.”\n\nHe chuckled, low and deep, a sound that sent shivers down her spine. “You think you’re in control here? This isn’t a game for you"
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "rewrite",
+        "escalated": false,
+        "reason": "rewrite_default"
+      },
+      "raw_preview": "The rain poured down in relentless sheets, each drop splattering against the pavement like a thousand drumbeats in a frenzied rhythm. Lydia pressed her back against the cool, damp brick wall of the na",
+      "normalized_preview": "The rain poured down in relentless sheets, each drop splattering against the pavement like a thousand drumbeats in a frenzied rhythm. Lydia pressed her back against the cool, damp brick wall of the na",
+      "raw_length": 1787,
+      "normalized_length": 1787,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKXgnisBWKAhZZcexYdkuabup6n2T\", \"object\": \"chat.completion\", \"created\": 1773788433, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The rain poured down in relentless sheets, each drop splattering against the pavement like a thousand drumbeats in a frenzied rhythm. Lydia pressed her back against the cool, damp brick wall of the narrow alley, feeling the chill seep through her clothes. She clutched the small metal box tight",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 306,
+        "paragraph_count": 5,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "guardrail_snapshot": {
+        "evaluated": true,
+        "mode": "rewrite",
+        "outline_titles": [],
+        "beat_refs": [],
+        "locked_facts_evaluated": false,
+        "length_band_evaluated": true,
+        "original_word_count": 300,
+        "rewritten_word_count": 306,
+        "min_word_count": 180,
+        "max_word_count": 630,
+        "within_length_band": true,
+        "outline_fidelity_evaluated": true,
+        "outline_fidelity_pass": true,
+        "original_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "you",
+          "that",
+          "his",
+          "and",
+          "rain",
+          "for",
+          "each",
+          "against",
+          "lydia"
+        ],
+        "retained_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "that",
+          "his",
+          "rain",
+          "each",
+          "against",
+          "lydia"
+        ],
+        "outline_anchor_hits": [],
+        "required_anchor_overlap": 1,
+        "scene_anchor_drift_detected": false,
+        "new_story_elements": [],
+        "blocking_new_story_elements": [],
+        "authoritative_name_check": false,
+        "uncertainty_triggered": false,
+        "failure_reason": null,
+        "accepted": true,
+        "quality_total_score": 29
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 4,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 29,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 306,
+        "paragraph_count": 5,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 5,
+        "concrete_hits": 2,
+        "generic_hits": 0,
+        "stock_phrase_hits": 2,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The rain poured down in relentless sheets, each drop splattering against the pavement like a thousand drumbeats in a frenzied rhythm. Lydia pressed her back against the cool, damp brick wall of the narrow alley, feeling the chill seep through her clothes. She clutched the small metal box tightly in her palm, its slick surface glistening under the sporadic flicker of the streetlight at the alley's mouth, where shadows danced in the gloom. The weight of the box was a tangible anchor, grounding her amidst the rising tide of anxiety that swirled just beneath her skin.\n\nAs she stared into the dim light, a figure emerged from the rain, cloaked in a dark trench coat, water cascading off the brim of a wide hat. He strode forward with deliberate steps, each one echoing ominously against the brick walls. Lydia's breath hitched, a tight knot of dread forming in her stomach, twisting like a coiled spring. She forced herself to draw in a shaky breath, trying to wrestle the fear back into submission. Why had she come here? The answer felt just out of reach, obscured by the clouds of uncertainty hanging heavy in the air.\n\n“Lydia,” he said, his voice smooth yet edged with an unsettling tension that made her pulse race. “You’ve been waiting.”\n\n“Not for you,” she shot back, the words sharper than she intended, slicing through the air with a bite that echoed off the alley’s damp walls. Regret flickered within her as the defiance tumbled from her lips, but the truth loomed larger: she had been waiting, and that gnawing anticipation gnawed at her insides like a hunger she couldn't quite name.\n\n“Then who?” he asked, stepping closer, his silhouette framed by the dim light outside. The rain pooled around his feet, a small puddle forming as he shifted uncomfortably, annoyance flick"
+      },
+      "quality_pass": false,
+      "rewrite_delta": {
+        "total_delta": 1,
+        "stock_phrase_delta": -1,
+        "specificity_delta": 1,
+        "clarity_delta": 0,
+        "continuity_delta": 0
+      },
+      "retry_decision": {
+        "eligible": true,
+        "reason": "borderline_quality_after_rewrite",
+        "classification": "borderline"
+      }
+    },
+    {
+      "attempt": 3,
+      "mode": "recovery_retry",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": false,
+        "reason": "rescue_model"
+      },
+      "raw_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"She clutched the small metal box tightly in her palm, its slick surface glistening under the harsh glow of the streetlight at the alley's mouth, where s",
+      "normalized_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"She clutched the small metal box tightly in her palm, its slick surface glistening under the harsh glow of the streetlight at the alley's mouth, where s",
+      "raw_length": 1045,
+      "normalized_length": 1045,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKXgvdfDIgQhiBDF3mMJ6oery6anF\", \"object\": \"chat.completion\", \"created\": 1773788441, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"replacement_text\\\":\\\"She clutched the small metal box tightly in her palm, its slick surface glistening under the harsh glow of the streetlight at the alley's mouth, where shadows writhed against the damp pavement.\\\"},{\\\"slot_id\\\":\\\"s2\\\",\\\"replacement_text\\\"",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "She clutched the small metal box tightly in her palm, its slick surface glistening under the sporadic flicker of the streetlight at the alley's mouth, where shadows danced in the gloom.",
+          "context_before": "Lydia pressed her back against the cool, damp brick wall of the narrow alley, feeling the chill seep through her clothes.",
+          "context_after": "The weight of the box was a tangible anchor, grounding her amidst the rising tide of anxiety that swirled just beneath her skin.",
+          "target_reason": "generic",
+          "target_phrase": "flicker of"
+        },
+        {
+          "slot_id": "s2",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "Regret flickered within her as the defiance tumbled from her lips, but the truth loomed larger: she had been waiting, and that gnawing anticipation gnawed at her insides like a hunger she couldn't quite name.",
+          "context_before": "“You’ve been waiting.”\n\n“Not for you,” she shot back, the words sharper than she intended, slicing through the air with a bite that echoed off the alley’s damp walls.",
+          "context_after": "“Then who?” he asked, stepping closer, his silhouette framed by the dim light outside.",
+          "target_reason": "generic",
+          "target_phrase": "couldn't quite name"
+        },
+        {
+          "slot_id": "s3",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Lydia,” he said, his voice smooth yet edged with an unsettling tension that made her pulse race.",
+          "context_before": "The answer felt just out of reach, obscured by the clouds of uncertainty hanging heavy in the air.",
+          "context_after": "“You’ve been waiting.”\n\n“Not for you,” she shot back, the words sharper than she intended, slicing through the air with a bite that echoed off the alley’s damp walls.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s4",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“You’ve been waiting.”\n\n“Not for you,” she shot back, the words sharper than she intended, slicing through the air with a bite that echoed off the alley’s damp walls.",
+          "context_before": "“Lydia,” he said, his voice smooth yet edged with an unsettling tension that made her pulse race.",
+          "context_after": "Regret flickered within her as the defiance tumbled from her lips, but the truth loomed larger: she had been waiting, and that gnawing anticipation gnawed at her insides like a hunger she couldn't quite name.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s5",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Then who?” he asked, stepping closer, his silhouette framed by the dim light outside.",
+          "context_before": "Regret flickered within her as the defiance tumbled from her lips, but the truth loomed larger: she had been waiting, and that gnawing anticipation gnawed at her insides like a hunger she couldn't quite name.",
+          "context_after": "The rain pooled around his feet, a small puddle forming as he shifted uncomfortably, annoyance flick",
+          "target_reason": "dialogue"
+        }
+      ],
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "She clutched the small metal box tightly in her palm, its slick surface glistening under the harsh glow of the streetlight at the alley's mouth, where shadows writhed against the damp pavement."
+        },
+        {
+          "slot_id": "s2",
+          "replacement_text": "Regret washed over her as the defiance tumbled from her lips, but the truth loomed larger: she had been waiting, and that gnawing anticipation twisted in her stomach like a hunger she couldn't put a name to."
+        },
+        {
+          "slot_id": "s3",
+          "replacement_text": "“Lydia,” he said, his voice smooth yet edged with an unsettling tension that made her heart race."
+        },
+        {
+          "slot_id": "s4",
+          "replacement_text": "“You’ve been waiting.”\n\n“Not for you,” she shot back, the words sharper than she intended, slicing through the air with a bite that echoed off the alley’s damp walls."
+        },
+        {
+          "slot_id": "s5",
+          "replacement_text": "“Then who?” he asked, stepping closer, his silhouette framed by the dim light outside, the rain pooling around his feet, a small puddle forming as he shifted uncomfortably."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_specificity_unresolved"
+      }
+    },
+    {
+      "attempt": 4,
+      "mode": "repair_only",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": false,
+        "reason": "rescue_model"
+      },
+      "raw_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"its slick surface glistening under the sporadic glow of the streetlight at the alley's mouth, where shadows danced in the gloom.\"},{\"slot_id\":\"s2\",\"repl",
+      "normalized_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"its slick surface glistening under the sporadic glow of the streetlight at the alley's mouth, where shadows danced in the gloom.\"},{\"slot_id\":\"s2\",\"repl",
+      "raw_length": 862,
+      "normalized_length": 862,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKXh0HQFgDBmHWG6kHnwmzWmQYQxw\", \"object\": \"chat.completion\", \"created\": 1773788446, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"replacement_text\\\":\\\"its slick surface glistening under the sporadic glow of the streetlight at the alley's mouth, where shadows danced in the gloom.\\\"},{\\\"slot_id\\\":\\\"s2\\\",\\\"replacement_text\\\":\\\"but the truth loomed larger: she had been waiting, and that gn",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "She clutched the small metal box tightly in her palm, its slick surface glistening under the sporadic flicker of the streetlight at the alley's mouth, where shadows danced in the gloom.",
+          "context_before": "Lydia pressed her back against the cool, damp brick wall of the narrow alley, feeling the chill seep through her clothes.",
+          "context_after": "The weight of the box was a tangible anchor, grounding her amidst the rising tide of anxiety that swirled just beneath her skin.",
+          "target_reason": "generic",
+          "target_phrase": "flicker of"
+        },
+        {
+          "slot_id": "s2",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "Regret flickered within her as the defiance tumbled from her lips, but the truth loomed larger: she had been waiting, and that gnawing anticipation gnawed at her insides like a hunger she couldn't quite name.",
+          "context_before": "“You’ve been waiting.”\n\n“Not for you,” she shot back, the words sharper than she intended, slicing through the air with a bite that echoed off the alley’s damp walls.",
+          "context_after": "“Then who?” he asked, stepping closer, his silhouette framed by the dim light outside.",
+          "target_reason": "generic",
+          "target_phrase": "couldn't quite name"
+        },
+        {
+          "slot_id": "s3",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Lydia,” he said, his voice smooth yet edged with an unsettling tension that made her pulse race.",
+          "context_before": "The answer felt just out of reach, obscured by the clouds of uncertainty hanging heavy in the air.",
+          "context_after": "“You’ve been waiting.”\n\n“Not for you,” she shot back, the words sharper than she intended, slicing through the air with a bite that echoed off the alley’s damp walls.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s4",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“You’ve been waiting.”\n\n“Not for you,” she shot back, the words sharper than she intended, slicing through the air with a bite that echoed off the alley’s damp walls.",
+          "context_before": "“Lydia,” he said, his voice smooth yet edged with an unsettling tension that made her pulse race.",
+          "context_after": "Regret flickered within her as the defiance tumbled from her lips, but the truth loomed larger: she had been waiting, and that gnawing anticipation gnawed at her insides like a hunger she couldn't quite name.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s5",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Then who?” he asked, stepping closer, his silhouette framed by the dim light outside.",
+          "context_before": "Regret flickered within her as the defiance tumbled from her lips, but the truth loomed larger: she had been waiting, and that gnawing anticipation gnawed at her insides like a hunger she couldn't quite name.",
+          "context_after": "The rain pooled around his feet, a small puddle forming as he shifted uncomfortably, annoyance flick",
+          "target_reason": "dialogue"
+        }
+      ],
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "its slick surface glistening under the sporadic glow of the streetlight at the alley's mouth, where shadows danced in the gloom."
+        },
+        {
+          "slot_id": "s2",
+          "replacement_text": "but the truth loomed larger: she had been waiting, and that gnawing anticipation gnawed at her insides like a hunger she couldn't articulate."
+        },
+        {
+          "slot_id": "s3",
+          "replacement_text": "“Lydia,” he said, his voice smooth yet edged with an unsettling tension that quickened her heartbeat."
+        },
+        {
+          "slot_id": "s4",
+          "replacement_text": "“You’ve been waiting.”\n\n“Not for you,” she shot back, the words sharper than she intended, slicing through the air with a bite that echoed off the alley’s damp walls."
+        },
+        {
+          "slot_id": "s5",
+          "replacement_text": "“Then who?” he asked, stepping closer, his silhouette framed by the dim light outside, water dripping from his coat."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_specificity_unresolved"
+      }
+    }
+  ],
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 4,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 29,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 306,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 5,
+    "concrete_hits": 2,
+    "generic_hits": 0,
+    "stock_phrase_hits": 2,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The rain poured down in relentless sheets, each drop splattering against the pavement like a thousand drumbeats in a frenzied rhythm. Lydia pressed her back against the cool, damp brick wall of the narrow alley, feeling the chill seep through her clothes. She clutched the small metal box tightly in her palm, its slick surface glistening under the sporadic flicker of the streetlight at the alley's mouth, where shadows danced in the gloom. The weight of the box was a tangible anchor, grounding her amidst the rising tide of anxiety that swirled just beneath her skin.\n\nAs she stared into the dim light, a figure emerged from the rain, cloaked in a dark trench coat, water cascading off the brim of a wide hat. He strode forward with deliberate steps, each one echoing ominously against the brick walls. Lydia's breath hitched, a tight knot of dread forming in her stomach, twisting like a coiled spring. She forced herself to draw in a shaky breath, trying to wrestle the fear back into submission. Why had she come here? The answer felt just out of reach, obscured by the clouds of uncertainty hanging heavy in the air.\n\n“Lydia,” he said, his voice smooth yet edged with an unsettling tension that made her pulse race. “You’ve been waiting.”\n\n“Not for you,” she shot back, the words sharper than she intended, slicing through the air with a bite that echoed off the alley’s damp walls. Regret flickered within her as the defiance tumbled from her lips, but the truth loomed larger: she had been waiting, and that gnawing anticipation gnawed at her insides like a hunger she couldn't quite name.\n\n“Then who?” he asked, stepping closer, his silhouette framed by the dim light outside. The rain pooled around his feet, a small puddle forming as he shifted uncomfortably, annoyance flick"
+  },
+  "critique_snapshot": {
+    "summary": "The scene depicts Lydia waiting in a rain-soaked alley, feeling anxious as a mysterious man approaches her. Their dialogue reveals tension and a power struggle, with Lydia seeking information while masking her true feelings.",
+    "weaknesses": [
+      "Vague descriptions that do not provide a strong sense of place or character.",
+      "Dialogue lacks grounding in physical actions or specific setting details."
+    ],
+    "continuity_issues": [
+      "Lydia's emotional state shifts abruptly without clear cause, creating confusion about her motivations."
+    ],
+    "pacing_issues": [
+      "The pacing slows significantly during dialogue exchanges, which could benefit from more action or sensory details."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid scene.",
+      "Ground dialogue in physical actions or setting to increase realism.",
+      "Clarify Lydia's emotional journey to maintain continuity."
+    ],
+    "generic_phrase_targets": [
+      "‘heart racing’",
+      "‘shadows flicker’",
+      "‘familiar dread’"
+    ],
+    "detail_targets": [
+      "Descriptions of the alley and rain could be more vivid and specific.",
+      "The small metal box needs more context or significance."
+    ],
+    "dialogue_grounding_targets": [
+      "Incorporate physical actions or reactions during dialogue exchanges."
+    ],
+    "emotional_show_targets": [
+      "Show Lydia's internal conflict more clearly through her actions or physical sensations."
+    ],
+    "replacement_targets": [
+      "Replace generic phrases with more unique, descriptive language."
+    ],
+    "grounding_targets": [
+      "Ensure that dialogue reflects the characters' physical states and surroundings."
+    ],
+    "carryover_targets": [
+      "Address the abrupt emotional shifts in Lydia's character to create smoother transitions."
+    ]
+  },
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "borderline",
+      "reason": "borderline_quality_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "borderline_quality_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": false,
+    "rescue_mode_used": true,
+    "rescue_model_used": false,
+    "rescue_model_name": "gpt-4o-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Lydia,” he said, his voice smooth yet edged with an unsettling tension that made her pulse race.",
+        "“You’ve been waiting.”\n\n“Not for you,” she shot back, the words sharper than she intended, slicing through the air with a bite that echoed off the alley’s damp walls.",
+        "“Then who?” he asked, stepping closer, his silhouette framed by the dim light outside."
+      ],
+      "generic_phrases_to_replace": [
+        "flicker of",
+        "couldn't quite name"
+      ],
+      "lines_to_repair": [
+        "She clutched the small metal box tightly in her palm, its slick surface glistening under the sporadic flicker of the streetlight at the alley's mouth, where shadows danced in the gloom.",
+        "Regret flickered within her as the defiance tumbled from her lips, but the truth loomed larger: she had been waiting, and that gnawing anticipation gnawed at her insides like a hunger she couldn't quite name.",
+        "“Lydia,” he said, his voice smooth yet edged with an unsettling tension that made her pulse race.",
+        "“You’ve been waiting.”\n\n“Not for you,” she shot back, the words sharper than she intended, slicing through the air with a bite that echoed off the alley’s damp walls.",
+        "“Then who?” he asked, stepping closer, his silhouette framed by the dim light outside."
+      ],
+      "required_concrete_anchor_terms": [
+        "rain",
+        "against",
+        "back"
+      ],
+      "repair_min_word_count": 260,
+      "repair_max_word_count": 459,
+      "min_paragraph_count": 3,
+      "max_paragraph_count": 7
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": false,
+      "reason": "rescue_model"
+    },
+    "rescue_slots_summary": {
+      "slot_count": 5,
+      "target_types": [
+        "generic",
+        "generic",
+        "dialogue",
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_specificity_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 300,
+    "rewritten_word_count": 306,
+    "min_word_count": 180,
+    "max_word_count": 630,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "you",
+      "that",
+      "his",
+      "and",
+      "rain",
+      "for",
+      "each",
+      "against",
+      "lydia"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "that",
+      "his",
+      "rain",
+      "each",
+      "against",
+      "lydia"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 29
+  }
+}

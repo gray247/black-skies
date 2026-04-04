@@ -1,0 +1,93 @@
+{
+  "chunk_id": "lf_7cc41bfc",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0002"
+  ],
+  "order": 2,
+  "continuation_of": "lf_c8d80c45",
+  "prompt_fingerprint": "sha256:9873c423ba409c32f707da157be25165f18ab9cbebc6c245cacb446a02f81e3a",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Jun's breath came in quick, shallow bursts, the weight of the damp air pressing down on them as he stood beside Clara, the cracked brass lantern sputtering weakly in his grip",
+    "word_count": 307,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.01,
+    "total_after_usd": 0.02
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 4,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 31,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 307,
+    "paragraph_count": 4,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 5,
+    "concrete_hits": 11,
+    "generic_hits": 1,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [
+      "corridor",
+      "lantern",
+      "coat",
+      "floor",
+      "door",
+      "clung",
+      "second",
+      "layer"
+    ],
+    "carryover_hits": 5,
+    "material_carryover_hits": 0,
+    "material_carryover": false,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "Jun's breath came in quick, shallow bursts, the weight of the damp air pressing down on them as he stood beside Clara, the cracked brass lantern sputtering weakly in his grip. He shifted his weight, the soaked fabric of his coat clinging uncomfortably to his skin, and glanced toward the chained door that loomed ahead. The faint clinking of the chain echoed in the narrow corridor, a sound that sent a shiver along Clara’s spine. “Do you think someone’s on the other side?” he whispered, his voice barely a tremor above the silence.\n\nClara drew in a sharp breath, the tang of mold and something acrid filling her nostrils as she focused on the door. “It’s just the wind,” she replied too quickly, her tone assuring but her heart racing. She could feel the ribbon around her wrist, its soft texture grounding her, yet the way it tightened with every anxious pulse made her uneasy. She glanced at Jun, whose eyes were wide with fear, and her stomach twisted. “We should keep moving.”\n\nThey stepped deeper into the corridor, mud squelching beneath their feet, the prints ahead of them stark against the stone floor. An unsettling thought crept into her mind: the mud was fresh, but they had arrived without leaving any tracks. Jun knelt to touch a print, his fingers brushing the edge of the damp earth. “This doesn’t make sense,” he said, glancing up at her, the lantern’s flickering light casting shadows across his face. “Who else would be down here?”\n\n“I don’t know,” Clara murmured, forcing the words through her clenched throat. “But we need to find the parlor. The key…” She hesitated, her thoughts swirling back to the key tied to her wrist, the faint idea of its significance slipping away like smoke. Had she tied it tighter? The memory felt lost, drowned"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

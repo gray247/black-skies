@@ -1,0 +1,249 @@
+{
+  "chunk_id": "lf_e00cb22d",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:d0800ab3eb4093b491d38af2b4049fc061338595d6dacd7a0925d559e29401bb",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 21,
+    "fallback_reason": "quality_failed"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "quality_failed"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 4,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 29,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 313,
+    "paragraph_count": 6,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 8,
+    "concrete_hits": 2,
+    "generic_hits": 1,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The air inside the old barn was thick with the scent of freshly cut hay and the earthy aroma of aged wood, a combination that settled heavily in Clara's chest as she stepped further into the dim light. Dust motes floated lazily in the beams of sunlight that pierced through gaps in the weathered wooden slats, illuminating the remnants of rusted tools and splintered crates scattered across the uneven floor. She paused, feeling the old floorboards groan under her weight, a sound that quickened her heartbeat.\n\n“Are you sure this is the place?” Jake’s voice echoed from behind her, laced with skepticism and a flicker of excitement. Clara turned just enough to catch his reflection in the cracked glass of a crooked mirror hanging on the wall. His brow furrowed, eyes scanning the shadows, as if he anticipated something lurking just out of sight.\n\n“It has to be,” she said, forcing steadiness into her voice despite the flutter of uncertainty in her stomach. She trailed her fingers along the rough edge of a wooden beam, splinters biting into her skin, each prick a reminder of the risks that loomed ahead. “This is where they said they’d meet.”\n\nJake stepped closer, the warmth of his presence contrasting sharply with the cool air of the barn. “I don’t like this, Clara. We could be walking into a trap.” He shifted his weight, the sound of his boots striking the wooden floor resonating like distant thunder in the quiet.\n\nClara pressed her lips together, tasting the metallic tang of fear mixed with the dry scent of hay. She felt Jake’s concern enveloping her, a heavy blanket that threatened to smother her resolve. “We can’t back down now,” she said, the words tumbling out with a force that surprised even her. “Not after everything we’ve been through.”\n\nThe air between them thickened, tension crackling like static. Outside,"
+  },
+  "critique_snapshot": {
+    "summary": "Clara and Jake enter an old barn, filled with the smell of hay and summer. Clara feels a mix of apprehension and determination as they discuss the purpose of their visit, with Jake expressing skepticism about the situation. The atmosphere is tense, and Clara grapples with her fears while trying to reassure Jake.",
+    "weaknesses": [
+      "Vague descriptions that lack specificity.",
+      "Dialogue that does not connect strongly with physical actions or the setting.",
+      "Generic phrases that do not enhance the scene."
+    ],
+    "continuity_issues": [
+      "The emotional stakes are not clearly established, making it hard to understand the urgency of their situation."
+    ],
+    "pacing_issues": [
+      "The scene drags slightly in the middle, particularly during the dialogue exchange, which could be tightened."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid setting.",
+      "Ground dialogue in physical actions or reactions to the environment.",
+      "Eliminate generic phrases and replace them with more original language."
+    ],
+    "generic_phrase_targets": [
+      "The lingering sweetness of summer",
+      "A heady mix that clung to the back of her throat",
+      "The silence stretched between them, thick and suffocating"
+    ],
+    "detail_targets": [
+      "Remnants of forgotten tools and splintered crates",
+      "The cracked surface of an old mirror",
+      "The sound of his boots on the wooden floor echoing"
+    ],
+    "dialogue_grounding_targets": [
+      "Jake's skepticism and excitement could be shown through more physical reactions.",
+      "Clara's determination could be reflected in her body language."
+    ],
+    "emotional_show_targets": [
+      "Clara's internal conflict and fear could be more vividly expressed through her actions and thoughts.",
+      "Jake's concern could be shown through more than just dialogue."
+    ],
+    "replacement_targets": [
+      "Replace vague sensory descriptions with more concrete imagery.",
+      "Find alternatives for stock phrases that dilute the emotional impact."
+    ],
+    "grounding_targets": [
+      "Incorporate more physical interactions with the environment to ground the characters' emotions.",
+      "Use the barn's features to reflect the characters' emotional states."
+    ],
+    "carryover_targets": []
+  },
+  "attempt_count": 4,
+  "acceptance_reason": "quality_failed",
+  "rewrite_used": true,
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "borderline",
+      "reason": "borderline_quality_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "borderline_quality_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": false,
+    "rescue_mode_used": true,
+    "rescue_model_used": false,
+    "rescue_model_name": "gpt-4o-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Are you sure this is the place?” Jake’s voice echoed from behind her, laced with skepticism and a flicker of excitement.",
+        "“It has to be,” she said, forcing steadiness into her voice despite the flutter of uncertainty in her stomach.",
+        "“This is where they said they’d meet.”\n\nJake stepped closer, the warmth of his presence contrasting sharply with the cool air of the barn.",
+        "“I don’t like this, Clara."
+      ],
+      "generic_phrases_to_replace": [
+        "flicker of"
+      ],
+      "lines_to_repair": [
+        "“Are you sure this is the place?” Jake’s voice echoed from behind her, laced with skepticism and a flicker of excitement.",
+        "“It has to be,” she said, forcing steadiness into her voice despite the flutter of uncertainty in her stomach.",
+        "“This is where they said they’d meet.”\n\nJake stepped closer, the warmth of his presence contrasting sharply with the cool air of the barn.",
+        "“I don’t like this, Clara."
+      ],
+      "required_concrete_anchor_terms": [
+        "wooden",
+        "this",
+        "jake"
+      ],
+      "repair_min_word_count": 266,
+      "repair_max_word_count": 469,
+      "min_paragraph_count": 4,
+      "max_paragraph_count": 8
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": false,
+      "reason": "rescue_model"
+    },
+    "rescue_slots_summary": {
+      "slot_count": 4,
+      "target_types": [
+        "dialogue",
+        "dialogue",
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_dialogue_grounding_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 304,
+    "rewritten_word_count": 313,
+    "min_word_count": 182,
+    "max_word_count": 638,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "that",
+      "his",
+      "and",
+      "clara",
+      "wooden",
+      "weight",
+      "this",
+      "old",
+      "hay"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "that",
+      "his",
+      "and",
+      "clara",
+      "wooden",
+      "this",
+      "old",
+      "hay"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 29
+  }
+}

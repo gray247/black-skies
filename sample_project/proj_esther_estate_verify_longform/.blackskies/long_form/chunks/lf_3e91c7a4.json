@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_3e91c7a4",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:f4b4b4ec5497660064683a5b3c44dfcb5b0a5a610fc179faa361c8fa8a15006c",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The sun hung low in the sky, casting a golden hue across the cluttered workshop",
+    "word_count": 310,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 4,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 29,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 310,
+    "paragraph_count": 7,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 5,
+    "concrete_hits": 3,
+    "generic_hits": 1,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The sun hung low in the sky, casting a golden hue across the cluttered workshop. Dust motes danced in the warm light as Anna wiped her brow, her fingers smudged with grease and grime. The rhythmic clank of metal against metal echoed in the small space, mingling with the faint whir of an old fan that struggled to circulate the thick, humid air. She stepped back from the workbench, surveying her progress on the engine laid out before her. Its intricate components gleamed under her careful touch, each piece a testament to long hours spent in the sanctuary of her craft.\n\n“Hey, you got a minute?” Tom’s voice broke through the hum of concentration. He leaned against the doorframe, arms crossed, a half-smirk playing on his lips. The sunlight framed him like a portrait, and for a fleeting moment, she felt the weight of his gaze, an unspoken question hanging between them.\n\n“Depends,” she replied, forcing a casual tone, though her heart quickened slightly. “Is it about the project or something else?”\n\n“Maybe a little of both,” he said, stepping into the workshop, the scent of motor oil and freshly cut wood wrapping around him like a shroud. He moved closer, the floor creaking beneath his weight, and Anna caught a glimpse of the way his brow furrowed, revealing the tension beneath his playful demeanor.\n\n“Spill it,” she urged, wiping her hands on a rag, the fabric rough against her skin. She could feel the intensity of his gaze settle on her, and the air seemed to thicken, charged with an unspoken energy.\n\n“I’ve been thinking,” he began, hesitating as if weighing his words against the weight of her expectation. “About what you said last week. About leaving.”\n\nThe mention of leaving sent a ripple of uncertainty through her. She turned back to the engine, forcing herself to focus on"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_41901b4a",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:61683c55f9d6b51286a35d8af7872587d07107e36f3068df2772dac6427b5448",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Clara pressed forward, her heart thudding against her ribs, each step echoing in the dim corridor",
+    "word_count": 313,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 30,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 313,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 7,
+    "concrete_hits": 10,
+    "generic_hits": 1,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "Clara pressed forward, her heart thudding against her ribs, each step echoing in the dim corridor. The weak beam from Jun’s lantern flickered, casting long shadows that danced along the peeling wallpaper, and she could feel the dampness of the air seeping through her clothes, clinging to her skin like a second layer. The scent of wet earth mingled with something sharp, almost metallic, lingering around them, a reminder of the storm that had just passed.\n\n“Did you hear that?” Jun’s whisper cut through the silence, his voice trembling slightly. He paused, the lantern sputtering as if caught between life and death, and their eyes met, a shared pulse of fear sparking between them. Clara shook her head, forcing her thoughts away from the echo of that cough she had not heard, brushing it aside like a stray hair from her face.\n\n“It's probably just the wind.” She spoke too quickly, the words tumbling out sharper than she intended. The red ribbon around her wrist felt tight, an unyielding reminder of the key she still clutched in her pocket, the weight of it pressing against her thigh. She forced a smile that felt brittle, and Jun’s gaze dropped back to the ground, scanning the muddy prints that marred the floor ahead of them, leading deeper into the shadows.\n\n“Those footprints… they weren’t here before.” Jun pointed, his voice breaking slightly. Clara felt a chill curl around her spine. The tracks were fresh, the mud still glistening as if it had been laid just moments ago, yet they had crossed into this passage alone. She took a breath, the air thick with tension, and the distant sound of the chained door rattling behind them sent a shiver through her. Someone was testing it from the other side, the chain moving as if alive.\n\n“Maybe it’s just the wind,” she repeated, though her voice lacked"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

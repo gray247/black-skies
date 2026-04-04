@@ -1,0 +1,9 @@
+﻿The lantern flickered weakly in Jun's grasp, casting a trembling pool of light that barely illuminated the walls of the narrow servant's passage. Clara pressed forward, the air heavy with the dampness that clung to her skin, a reminder of the rain that still dripped from the greenhouse roof like forgotten secrets. She could feel the chill of the metal key against her wrist, the red ribbon tightening as she moved, though she couldn't recall having tied it so firmly.
+
+“Do you hear that?” Jun's voice quivered, his eyes darting toward the shadows pooling at the corridor’s end. The dim light wavered, and for a moment, the darkness seemed to breathe, an entity alive and waiting. Clara’s heart raced, a wild drumbeat echoing against her ribs. She had heard the whispers of the house before, the creaks and groans that settled into a familiar rhythm, yet tonight, they felt sharper, more insistent.
+
+“I don’t hear anything,” she replied too quickly, forcing a calmness she didn’t feel. The words hung between them, brittle and raw. She could see the way Jun’s brow furrowed, the way his coat, still soaking from the greenhouse, clung to him, a second skin that mirrored his unease. The scent of wet earth and decaying leaves filled her nostrils, an almost nostalgic reminder of childhood adventures turned sour in the chill of the night.
+
+As they moved deeper into the corridor, the sound of something—someone?—scraping at the far side of the chained door sent a shiver down Clara’s spine. She felt the tension coil within her, a spring ready to snap. “The door is locked,” she said, more to reassure herself than Jun. They both knew it, yet the chain rattled as if someone were testing it, a muffled echo of desperation that sent Clara’s stomach twisting.
+
+“

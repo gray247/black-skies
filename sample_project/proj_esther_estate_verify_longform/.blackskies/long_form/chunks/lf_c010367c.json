@@ -1,0 +1,214 @@
+{
+  "chunk_id": "lf_c010367c",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0003"
+  ],
+  "order": 3,
+  "continuation_of": "lf_8cc44886",
+  "prompt_fingerprint": "sha256:75c513895752ea5bc874421106a289daa8634a0b943b0c6ffcf3f432509c8e55",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 35,
+    "fallback_reason": "quality_failed"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.02,
+    "total_after_usd": 0.03
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "quality_failed"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 2,
+      "pacing": 5,
+      "specificity": 1,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 25,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 603,
+    "paragraph_count": 11,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 9,
+    "concrete_hits": 1,
+    "generic_hits": 1,
+    "stock_phrase_hits": 4,
+    "carryover_terms": [
+      "floor",
+      "jacket",
+      "silence",
+      "followed",
+      "lila's",
+      "thick",
+      "danced",
+      "light"
+    ],
+    "carryover_hits": 4,
+    "material_carryover_hits": 0,
+    "material_carryover": false,
+    "weak_carryover": false,
+    "generic_risk": true
+  },
+  "critique_snapshot": {
+    "summary": "The scene follows Lila as she navigates an eerie, abandoned warehouse, feeling a mix of fear and curiosity. She calls out into the darkness, encounters a familiar voice, and confronts a figure from her past, leading to a tense exchange filled with unspoken history.",
+    "weaknesses": [
+      "Overuse of generic phrases and imagery.",
+      "Vague descriptions that lack specificity.",
+      "Dialogue that lacks grounding in physical action or setting."
+    ],
+    "continuity_issues": [
+      "The transition from Lila's internal feelings to her external actions feels abrupt.",
+      "The emotional weight of the past relationship is not fully established before the dialogue."
+    ],
+    "pacing_issues": [
+      "The buildup of tension is effective, but the dialogue exchange feels rushed and lacks depth."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid scene.",
+      "Ground dialogue in physical actions or setting to improve realism.",
+      "Reduce reliance on generic phrases and stock imagery."
+    ],
+    "generic_phrase_targets": [
+      "wild drumbeat",
+      "echo in the empty expanse",
+      "thick and stale air",
+      "whispered secret",
+      "bones of long-dead giants",
+      "ocean of isolation",
+      "chasm of uncertainty"
+    ],
+    "detail_targets": [
+      "Describe the warehouse's features more specifically (e.g., types of machinery, condition of the space).",
+      "Provide more sensory details about the environment (e.g., sounds, smells)."
+    ],
+    "dialogue_grounding_targets": [
+      "Integrate physical actions or reactions with dialogue to enhance grounding (e.g., Lila's body language when speaking).",
+      "Make the dialogue more reflective of the characters' emotional states through their actions."
+    ],
+    "emotional_show_targets": [
+      "Show Lila's internal conflict more vividly through her physical reactions.",
+      "Illustrate the tension between Lila and the figure through their interactions."
+    ],
+    "replacement_targets": [
+      "Replace generic phrases with unique imagery that reflects the scene's mood.",
+      "Substitute vague dialogue with more specific, character-driven lines."
+    ],
+    "grounding_targets": [
+      "Add more details about Lila's surroundings to create a stronger sense of place.",
+      "Include more physical sensations to ground Lila's emotional state."
+    ],
+    "carryover_targets": [
+      "Address the use of repeated phrases that detract from originality.",
+      "Ensure that the emotional stakes are clear and build throughout the scene."
+    ]
+  },
+  "attempt_count": 2,
+  "acceptance_reason": "quality_failed",
+  "rewrite_used": true,
+  "retry_snapshot": {
+    "used": false,
+    "succeeded": false,
+    "attempts_used": 0,
+    "max_attempts": 1,
+    "eligible": false,
+    "failure_classification": {
+      "classification": "hard",
+      "reason": "material_carryover_missing",
+      "retry_eligible": false
+    },
+    "reason": "material_carryover_missing"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 604,
+    "rewritten_word_count": 603,
+    "min_word_count": 362,
+    "max_word_count": 1268,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "that",
+      "and",
+      "something",
+      "lila",
+      "for",
+      "air",
+      "breath",
+      "voice",
+      "his"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "that",
+      "and",
+      "something",
+      "lila",
+      "air",
+      "voice",
+      "his"
+    ],
+    "outline_anchor_hits": [
+      "the",
+      "her",
+      "she",
+      "that",
+      "and",
+      "shadows",
+      "silence"
+    ],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": true,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 25
+  }
+}

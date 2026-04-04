@@ -1,0 +1,249 @@
+{
+  "chunk_id": "lf_a1608f5a",
+  "validation_decision": false,
+  "fallback_reason": "quality_failed",
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "basic_validation": {
+        "usable": true,
+        "word_count": 614,
+        "paragraph_count": 12,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [
+          "drummed",
+          "steadily",
+          "against",
+          "pavement",
+          "rhythmic",
+          "patter",
+          "brushed",
+          "edges"
+        ],
+        "carryover_hits": 4,
+        "material_carryover_hits": 0
+      },
+      "raw_preview": "corner, her breath visible in the cool air, a faint mist that blended with the rain. The street ahead twisted into a narrow alley, its entrance shadowed and inviting, an unspoken promise of solitude a",
+      "normalized_preview": "corner, her breath visible in the cool air, a faint mist that blended with the rain. The street ahead twisted into a narrow alley, its entrance shadowed and inviting, an unspoken promise of solitude a",
+      "raw_length": 3552,
+      "normalized_length": 3543,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DJrAYC5YttDN3cI38Ts0JSSr1hqGT\", \"object\": \"chat.completion\", \"created\": 1773624986, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"corner, her breath visible in the cool air, a faint mist that blended with the rain. The street ahead twisted into a narrow alley, its entrance shadowed and inviting, an unspoken promise of solitude away from the relentless downpour. She hesitated, the urge to retreat battling with an inexplic",
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 4,
+          "clarity": 2,
+          "pacing": 5,
+          "specificity": 2,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 27,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 614,
+        "paragraph_count": 12,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 5,
+        "concrete_hits": 2,
+        "generic_hits": 1,
+        "stock_phrase_hits": 3,
+        "carryover_terms": [
+          "drummed",
+          "steadily",
+          "against",
+          "pavement",
+          "rhythmic",
+          "patter",
+          "brushed",
+          "edges"
+        ],
+        "carryover_hits": 4,
+        "material_carryover_hits": 0,
+        "material_carryover": false,
+        "weak_carryover": false,
+        "generic_risk": true
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "basic_validation": {
+        "usable": true,
+        "word_count": 622,
+        "paragraph_count": 10,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [
+          "drummed",
+          "steadily",
+          "against",
+          "pavement",
+          "rhythmic",
+          "patter",
+          "brushed",
+          "edges"
+        ],
+        "carryover_hits": 4,
+        "material_carryover_hits": 0
+      },
+      "raw_preview": "The rain fell in thick sheets, each drop splattering against the pavement with a persistent insistence, creating a symphony of sound that echoed through the empty streets. Shadows flickered beneath th",
+      "normalized_preview": "The rain fell in thick sheets, each drop splattering against the pavement with a persistent insistence, creating a symphony of sound that echoed through the empty streets. Shadows flickered beneath th",
+      "raw_length": 3671,
+      "normalized_length": 3668,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DJrAsD9wOIG2NN5bJItfNc2gDQycj\", \"object\": \"chat.completion\", \"created\": 1773625006, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The rain fell in thick sheets, each drop splattering against the pavement with a persistent insistence, creating a symphony of sound that echoed through the empty streets. Shadows flickered beneath the streetlights, their glow struggling to penetrate the curtain of water that cascaded down lik",
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 4,
+          "clarity": 2,
+          "pacing": 5,
+          "specificity": 3,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 28,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 622,
+        "paragraph_count": 10,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 9,
+        "concrete_hits": 5,
+        "generic_hits": 2,
+        "stock_phrase_hits": 3,
+        "carryover_terms": [
+          "drummed",
+          "steadily",
+          "against",
+          "pavement",
+          "rhythmic",
+          "patter",
+          "brushed",
+          "edges"
+        ],
+        "carryover_hits": 4,
+        "material_carryover_hits": 0,
+        "material_carryover": false,
+        "weak_carryover": false,
+        "generic_risk": true
+      },
+      "quality_pass": false,
+      "rewrite_delta": {
+        "total_delta": 1,
+        "stock_phrase_delta": 0,
+        "specificity_delta": 1,
+        "clarity_delta": 0,
+        "continuity_delta": 0
+      }
+    }
+  ],
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 4,
+      "clarity": 2,
+      "pacing": 5,
+      "specificity": 3,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 28,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 622,
+    "paragraph_count": 10,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 9,
+    "concrete_hits": 5,
+    "generic_hits": 2,
+    "stock_phrase_hits": 3,
+    "carryover_terms": [
+      "drummed",
+      "steadily",
+      "against",
+      "pavement",
+      "rhythmic",
+      "patter",
+      "brushed",
+      "edges"
+    ],
+    "carryover_hits": 4,
+    "material_carryover_hits": 0,
+    "material_carryover": false,
+    "weak_carryover": false,
+    "generic_risk": true
+  },
+  "critique_snapshot": {
+    "summary": "Lena finds herself in a rain-soaked alley that leads to a secluded courtyard where she encounters Marco. Their dialogue hints at deeper emotions and possibilities, but the scene lacks grounding in physical action and setting.",
+    "weaknesses": [
+      "Generic stock phrasing and descriptions that lack originality.",
+      "Vague details that do not create a vivid image.",
+      "Dialogue that feels disconnected from the physical environment."
+    ],
+    "continuity_issues": [
+      "The transition from the alley to the courtyard lacks a clear visual or sensory connection."
+    ],
+    "pacing_issues": [
+      "The pacing slows significantly during introspective moments, which may disrupt the flow of the scene."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid scene.",
+      "Ground dialogue in physical actions and the setting to increase realism.",
+      "Eliminate generic phrases and replace them with more original language."
+    ],
+    "replacement_targets": [
+      "Generic phrases like 'the rain drummed steadily' and 'a rhythmic patter'.",
+      "Vague sensory details that do not evoke a strong image."
+    ],
+    "grounding_targets": [
+      "Dialogue that connects more explicitly to the characters' physical actions or surroundings.",
+      "Descriptions that incorporate more sensory details to immerse the reader."
+    ],
+    "carryover_targets": [
+      "Weak carryover phrases that detract from the originality of the prose."
+    ]
+  }
+}

@@ -1,0 +1,284 @@
+{
+  "chunk_id": "lf_f172e25e",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0002"
+  ],
+  "order": 2,
+  "continuation_of": "lf_30412d0f",
+  "prompt_fingerprint": "sha256:6c5676f780488bae92841f683e11c8cef9a63c13037135c3b2fed4d5b56431ec",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 48,
+    "fallback_reason": "quality_failed"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.01,
+    "total_after_usd": 0.02
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "quality_failed"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 5,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 32,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 310,
+    "paragraph_count": 4,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 9,
+    "concrete_hits": 9,
+    "generic_hits": 1,
+    "stock_phrase_hits": 2,
+    "carryover_terms": [
+      "corridor",
+      "floor",
+      "key",
+      "coat",
+      "rain",
+      "lantern",
+      "door",
+      "chain"
+    ],
+    "carryover_hits": 6,
+    "material_carryover_hits": 1,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "Clara pressed forward through the corridor, her breath catching as the dim light from Jun's cracked brass lantern flickered hesitantly, casting ghostly shadows that stretched across the peeling wallpaper, revealing the faded floral patterns beneath years of neglect. The musty smell of damp wood mingled with the lingering scent of rain-soaked earth, wrapping around her like a suffocating shroud. Jun moved beside her, his footsteps barely audible against the worn floorboards, which creaked under their weight, the sound swallowed by the heavy silence that loomed in the air.\n\n“Are you sure we should be here?” Jun’s voice barely broke the stillness, laced with a tremor that hinted at his underlying fear. He shifted nervously, glancing back down the corridor, his brow furrowed as though expecting something ominous to materialize from the shadows. Clara caught sight of the water still beaded on his coat, glistening like tiny jewels, reminders of the tempest they had narrowly escaped.\n\n“We have to find out what’s going on,” Clara replied, her voice sharper than she had intended, the words spilling out in a rush. The red ribbon binding the key to her wrist felt tight, a tether to the safety of the parlor, yet it sent a chill through her as she realized she hadn’t thought to adjust it since they entered the corridor. The key’s cool weight was a grounding presence, but the unease settling in her stomach gnawed at her thoughts. Why did it feel as if unseen eyes were tracking their every move?\n\nAs they ventured deeper into the corridor, the lantern sputtered, its flickering light dimming to a feeble glow that barely illuminated the path ahead. Clara squinted into the darkness, where the shadows seemed to twist and writhe, and she caught a glimpse of muddy footprints leading away from them, fresh imprints pressed into the dust. They hadn’t come this"
+  },
+  "critique_snapshot": {
+    "summary": "The scene follows Clara and Jun as they navigate a dimly lit corridor filled with unsettling sensations and a sense of foreboding. Clara's internal conflict is highlighted by her physical sensations and the atmosphere around them, while Jun expresses his fear through dialogue. The discovery of muddy footprints adds to the tension.",
+    "weaknesses": [
+      "Generic descriptions detract from the uniqueness of the setting.",
+      "Dialogue lacks grounding in physical actions or the environment.",
+      "Vague references to feelings and sensations without clear connections to the scene."
+    ],
+    "continuity_issues": [
+      "The transition from the rain-soaked greenhouse to the corridor lacks a clear connection, making the shift feel abrupt."
+    ],
+    "pacing_issues": [
+      "The buildup of tension is good, but the pacing slows significantly with vague internal thoughts that could be more concise."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid setting.",
+      "Ground dialogue in physical actions or environmental interactions.",
+      "Clarify the connection between Clara's internal sensations and the external environment."
+    ],
+    "generic_phrase_targets": [
+      "thick with an unsettling stillness",
+      "the air was thick with the dampness",
+      "as if the darkness itself were alive",
+      "wrapped them in an unwelcome embrace"
+    ],
+    "detail_targets": [
+      "the cracked brass lantern",
+      "the peeling wallpaper",
+      "the musty odor",
+      "the sheen of water on Jun's coat"
+    ],
+    "dialogue_grounding_targets": [
+      "Jun's question about being there",
+      "Clara's response about finding out what's going on"
+    ],
+    "emotional_show_targets": [
+      "Clara's breath hitching",
+      "Jun's tremor in his voice",
+      "the chill from the ribbon against Clara's wrist"
+    ],
+    "replacement_targets": [
+      "Replace generic phrases with more unique and specific imagery."
+    ],
+    "grounding_targets": [
+      "Clarify the physical actions accompanying the dialogue.",
+      "Ensure emotional responses are tied to specific actions or surroundings."
+    ],
+    "carryover_targets": [
+      "corridor",
+      "floor",
+      "key",
+      "coat",
+      "rain",
+      "lantern",
+      "door",
+      "chain"
+    ]
+  },
+  "attempt_count": 4,
+  "acceptance_reason": "quality_failed",
+  "rewrite_used": true,
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "borderline",
+      "reason": "borderline_quality_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "borderline_quality_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_model_name": "gpt-5.4-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Are you sure we should be here?” Jun’s voice barely broke the stillness, laced with a tremor that hinted at his underlying fear.",
+        "“We have to find out what’s going on,” Clara replied, her voice sharper than she had intended, the words spilling out in a rush."
+      ],
+      "generic_phrases_to_replace": [
+        "breath catching",
+        "pressed in"
+      ],
+      "lines_to_repair": [
+        "Clara pressed forward through the corridor, her breath catching as the dim light from Jun's cracked brass lantern flickered hesitantly, casting ghostly shadows that stretched across the peeling wallpaper, revealing the faded floral patterns beneath years of neglect.",
+        "Clara squinted into the darkness, where the shadows seemed to twist and writhe, and she caught a glimpse of muddy footprints leading away from them, fresh imprints pressed into the dust.",
+        "“Are you sure we should be here?” Jun’s voice barely broke the stillness, laced with a tremor that hinted at his underlying fear.",
+        "“We have to find out what’s going on,” Clara replied, her voice sharper than she had intended, the words spilling out in a rush."
+      ],
+      "required_concrete_anchor_terms": [
+        "corridor",
+        "clara",
+        "lantern"
+      ],
+      "repair_min_word_count": 263,
+      "repair_max_word_count": 465,
+      "min_paragraph_count": 2,
+      "max_paragraph_count": 6
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rescue_model"
+    },
+    "rescue_generation_strategy": "structured_slot_patch",
+    "configured_rescue_generation_strategy": "structured_slot_patch",
+    "rescue_slots_summary": {
+      "slot_count": 4,
+      "target_types": [
+        "carryover",
+        "generic",
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_generic_replacement_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [
+      "Greenhouse Alarm",
+      "Servants' Passage"
+    ],
+    "beat_refs": [
+      "inciting",
+      "pressure"
+    ],
+    "locked_facts_evaluated": true,
+    "length_band_evaluated": true,
+    "original_word_count": 305,
+    "rewritten_word_count": 310,
+    "min_word_count": 183,
+    "max_word_count": 640,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "that",
+      "clara",
+      "them",
+      "his",
+      "corridor",
+      "shadows",
+      "was",
+      "they",
+      "had"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "that",
+      "clara",
+      "his",
+      "corridor",
+      "shadows",
+      "they",
+      "had"
+    ],
+    "outline_anchor_hits": [
+      "the",
+      "her",
+      "she",
+      "corridor",
+      "jun",
+      "had",
+      "his",
+      "lantern"
+    ],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": true,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 32
+  }
+}

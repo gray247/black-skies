@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_42c6d17d",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:2a924f57c2527ab0dff1d6e7a67bbc9ee7f71890946922474a5f05fe08af6507",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The wind howled through the narrow alleyway, a biting chill that wrapped itself around Clara like a shroud",
+    "word_count": 315,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 30,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 315,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 6,
+    "concrete_hits": 4,
+    "generic_hits": 1,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The wind howled through the narrow alleyway, a biting chill that wrapped itself around Clara like a shroud. She pulled her coat tighter, the fabric rustling against her skin, and glanced up at the high brick walls, grimy with the weight of forgotten years. Shadows clung to the corners, flickering like ghosts in the dim glow of a single flickering streetlight. Her breath escaped in soft puffs, mingling with the damp air, and she felt the weight of anticipation settling in her chest.\n\n“Are you sure this is the right place?” a voice called out behind her, laced with skepticism. It was Tom, his hands shoved deep into his pockets, shifting his weight from foot to foot as if he wished for warmth to seep through the soles of his shoes. Clara turned, meeting his uncertain gaze, and offered a tight smile that didn’t quite reach her eyes.\n\n“Look at the sign,” she replied, nodding toward the faded lettering above the door that had seen better days. “It’s here. We just have to wait.” Her voice was steadier than she felt, a thin veneer over the storm of doubt swirling within her. She glanced back at the entrance, a heavy wooden door that seemed to breathe secrets, its surface scratched and worn.\n\nTom huffed, his breath visible in the cold, and kicked an empty soda can that clattered against the cobblestones. “I still think we’re wasting our time. This place doesn’t even look open.” The words hung between them, thick with the weight of his growing frustration, and Clara felt a flicker of irritation rise in her throat.\n\n“Just give it a minute,” she insisted, her voice sharper than she intended. “We came all this way. It has to be worth it.” A part of her questioned if she was convincing him or herself. The truth was, she could feel something thrumming in the air"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

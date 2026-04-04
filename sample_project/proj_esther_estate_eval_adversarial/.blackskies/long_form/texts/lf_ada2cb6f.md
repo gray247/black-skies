@@ -1,0 +1,9 @@
+﻿Clara hesitated at the sound of Jun’s whisper, her breath hitching as she strained to listen. The silence enveloped them like a damp blanket, heavy and unyielding, yet it seemed to vibrate with something unspoken. She glanced back at him, his face pale in the lantern's flickering glow, the shadows deepening the hollows beneath his eyes. “What did you hear?” she asked, her voice sharper than intended, echoing off the corridor walls.
+
+“I thought—” he started, but the words dried in his throat as he turned to peer into the darkness ahead. The light from the cracked lantern sputtered again, casting long, jittery shadows that danced along the peeling wallpaper, whispering of past lives in the house long abandoned to neglect. Clara felt a shiver crawl up her spine, not from the cold, but from the uncertainty gnawing at her insides.
+
+She stepped forward, the damp wooden floor creaking underfoot, her own heart hammering a frantic rhythm that matched the drumming of rain outside. The air was thick with the scent of mildew, but beneath that, she caught a whiff of something sharper, something metallic that set her nerves on edge. She glanced down at the red ribbon tied around her wrist, the parlor key dangling like a talisman, its presence a tether to something solid amid the encroaching dread. She couldn’t remember tying it tighter, but it felt secure, as if it were holding her together.
+
+Suddenly, a rattling sound erupted from the chained door at the end of the corridor, pulling her attention like a taut string. Clara froze, her skin prickling. “Jun,” she said, barely above a whisper. “Do you hear that?”
+
+He nodded, eyes wide, the lantern trembling in his grip. The chain rattled again, a deliberate test from the other side, as if someone—or

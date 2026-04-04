@@ -1,0 +1,227 @@
+{
+  "chunk_id": "lf_588e266b",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:aa55e6683f687830f814e0c1f957703550e681baa8005e4b18bed4345fcfbe08",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 21,
+    "fallback_reason": "quality_failed"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "quality_failed"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 2,
+      "meta_free": 5
+    },
+    "total_score": 26,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 304,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": false,
+    "sensory_hits": 4,
+    "concrete_hits": 1,
+    "generic_hits": 1,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "wind whipped around them, rustling the leaves of a nearby tree, sending a shiver down her spine. She shifted her weight, leaning more heavily against the rough texture of the brick wall, feeling the coolness seep through her jacket. The graffiti around her—vibrant bursts of color splashed with messages both hopeful and angry—seemed to echo her turmoil. She could almost hear the laughter of children playing nearby, caught in the echoes of memory, vibrant yet distant, like a song she couldn't quite remember.\n\nAs the siren faded into the night, Clara's heart raced. This was supposed to be a safe spot, a refuge from the chaos outside, yet it felt charged with an unsettling energy. The shadows danced in the flickering streetlamp's glow, twisting and turning as if trying to pull her into their depths. She squeezed her eyes shut, trying to block it all out, but the sounds of the city crept back in, a reminder of the choices waiting for her.\n\n“Clara!” Marco's voice sliced through her reverie, startling her. She opened her eyes to find him stepping into the light, the sharp angles of his face softened by the glow. That familiar lopsided grin tugged at her insides, igniting a warmth that battled against the cold. “You’re not thinking of running off again, are you?”\n\n“Maybe,” she said, her voice light but her heart heavy. She forced a smirk, though it felt more like a mask. “Can’t a girl dream?”\n\nHe took a step closer, closing the distance between them. The warmth radiating from him was a stark contrast to the biting chill in the air. “Dreaming’s fine, but reality’s out there waiting for you.” He gestured toward the street beyond, where the moon hung low, its silver light spilling over the cobblestones like a river. “You know how things are"
+  },
+  "critique_snapshot": {
+    "summary": "Clara stands in a cold alley, reflecting on her surroundings and her feelings of unease. Marco appears, and their conversation hints at an unresolved tension between them, with Clara contemplating her choices.",
+    "weaknesses": [
+      "Overly poetic language detracts from clarity.",
+      "Vague descriptions that do not ground the scene in specific details."
+    ],
+    "continuity_issues": [
+      "The emotional shift in Clara's feelings about the city is not clearly established or explained."
+    ],
+    "pacing_issues": [
+      "The scene feels slow due to excessive description without advancing the plot."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions.",
+      "Ground dialogue in physical actions or setting.",
+      "Clarify emotional transitions for better continuity."
+    ],
+    "generic_phrase_targets": [
+      "restless spirit searching for something lost",
+      "thin barrier against the chill",
+      "holding its breath"
+    ],
+    "detail_targets": [
+      "Specifics about the graffiti and laughter to evoke a stronger sense of place.",
+      "More concrete details about Clara's feelings and thoughts."
+    ],
+    "dialogue_grounding_targets": [
+      "Include physical actions or reactions during dialogue to enhance grounding."
+    ],
+    "emotional_show_targets": [
+      "Show Clara's internal conflict through her actions or reactions, rather than telling."
+    ],
+    "replacement_targets": [
+      "Replace vague phrases with more vivid, concrete imagery."
+    ],
+    "grounding_targets": [
+      "Add sensory details that connect Clara's emotions to her environment."
+    ],
+    "carryover_targets": [
+      "Ensure emotional and narrative continuity between Clara's thoughts and her dialogue with Marco."
+    ]
+  },
+  "attempt_count": 4,
+  "acceptance_reason": "quality_failed",
+  "rewrite_used": true,
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [],
+      "generic_phrases_to_replace": [
+        "heart raced"
+      ],
+      "lines_to_repair": [
+        "As the siren faded into the night, Clara's heart raced."
+      ],
+      "required_concrete_anchor_terms": [
+        "light",
+        "them",
+        "nearby"
+      ],
+      "repair_min_word_count": 258,
+      "repair_max_word_count": 456,
+      "min_paragraph_count": 3,
+      "max_paragraph_count": 7
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-4o",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rewrite_retry_model"
+    },
+    "patch_targets_summary": {
+      "target_count": 1,
+      "target_types": [
+        "generic"
+      ]
+    },
+    "rescue_failure_class": "patch_specificity_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 303,
+    "rewritten_word_count": 304,
+    "min_word_count": 181,
+    "max_word_count": 636,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "that",
+      "she",
+      "and",
+      "against",
+      "you",
+      "for",
+      "clara",
+      "his",
+      "searching",
+      "something"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "and",
+      "against",
+      "you"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 26
+  }
+}

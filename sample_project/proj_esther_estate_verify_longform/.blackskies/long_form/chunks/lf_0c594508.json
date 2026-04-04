@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_0c594508",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:f162fd48f921cedadd572ddea66df954529c850280f606f18fe5ee413d90bd2c",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The air hung thick with the scent of earth and rain, a heady mix that clung to her skin as Emma trudged through the mud, her boots squelching with each hesitant step",
+    "word_count": 300,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 4,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 29,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 300,
+    "paragraph_count": 6,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 6,
+    "concrete_hits": 2,
+    "generic_hits": 0,
+    "stock_phrase_hits": 2,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The air hung thick with the scent of earth and rain, a heady mix that clung to her skin as Emma trudged through the mud, her boots squelching with each hesitant step. The forest loomed around her, a tapestry of greens and browns, the canopy overhead filtering the waning sunlight into dappled patterns on the ground. She paused to catch her breath, resting a hand against the rough bark of an ancient oak, its surface cool and damp beneath her palm. The rhythmic patter of distant raindrops echoed like a heartbeat, and for a moment, she closed her eyes, letting the sounds wash over her.\n\n“Emma!” The sharpness of her brother’s voice cut through the tranquil ambiance, pulling her back to the present. She opened her eyes, squinting against the fading light as she turned toward him. Nathan was a few paces behind, his face flushed with a mix of exertion and excitement. “We’ve got to hurry. It’s getting dark.”\n\n“Yeah, I know,” she replied, trying to mask the flutter of unease rising in her chest. “I just wanted to… take it all in.”\n\nHe stepped closer, his brow furrowed. “You and your moments. We should be focused on finding the ridge before it’s too late.”\n\nThe urgency in his tone tugged at her, but she couldn’t shake the pull of the forest, the way it seemed to breathe around her. “What if we don’t find it? What if we just… get lost?” The words slipped out before she could wrestle them down, the fear pooling in her stomach like a stone.\n\n“Then we’ll figure it out. We always do.” Nathan’s voice softened, a brief flicker of reassurance amidst the tension. He glanced over his shoulder, then back at her, the shadows deepening his features. “Come on, let’s keep moving"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

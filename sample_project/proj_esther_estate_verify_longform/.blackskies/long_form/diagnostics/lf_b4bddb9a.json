@@ -1,0 +1,23 @@
+{
+  "chunk_id": "lf_b4bddb9a",
+  "validation_decision": false,
+  "fallback_reason": "adapter_error",
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": null,
+      "thinking_fallback": null,
+      "reasoning_trim_applied": null,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "error": "Provider request failed: HTTP Error 400: Bad Request"
+    }
+  ]
+}

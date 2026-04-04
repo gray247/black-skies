@@ -1,0 +1,44 @@
+{
+  "chunk_id": "lf_5d6da836",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:3f5331f46a6fd7a635b55b2811818611edab29fd29132962056bad29c3639dc7",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The wind whipped through the narrow alley like a restless spirit, tugging at the hem of Clara’s cloak as she hurried past the crumbling stone walls",
+    "word_count": 604,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 12.5,
+    "hard_limit_usd": 25.0,
+    "spent_usd": 1.1,
+    "total_after_usd": 1.11
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "chunk_id": "lf_3484d236",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0004"
+  ],
+  "order": 4,
+  "continuation_of": "lf_8daf9ea7",
+  "prompt_fingerprint": "sha256:89f6404b1edaea660528e79f6794448867429839d5f062604ab512e7a9109826",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Clara pressed her ear against the door, the grainy texture of the wood splintering under the warmth of her skin",
+    "word_count": 600,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.03,
+    "total_after_usd": 0.04
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 4,
+      "clarity": 3,
+      "pacing": 5,
+      "specificity": 4,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 30,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 600,
+    "paragraph_count": 13,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 6,
+    "concrete_hits": 10,
+    "generic_hits": 1,
+    "stock_phrase_hits": 4,
+    "carryover_terms": [
+      "pressed",
+      "against",
+      "grainy",
+      "texture",
+      "splintering",
+      "warmth",
+      "breathed",
+      "unsettling"
+    ],
+    "carryover_hits": 6,
+    "weak_carryover": false,
+    "generic_risk": true
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false
+}

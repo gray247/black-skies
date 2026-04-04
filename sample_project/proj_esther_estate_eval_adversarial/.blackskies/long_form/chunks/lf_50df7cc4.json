@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_50df7cc4",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:497ab6d2eda73c700b6005aaa36f86be63de4fc50094e4e0ce151e1d6c74bbec",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Clara pressed her back against the damp, peeling wall of the corridor, the musty scent of mold seeping into her lungs as she listened",
+    "word_count": 311,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 30,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 311,
+    "paragraph_count": 4,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 6,
+    "concrete_hits": 11,
+    "generic_hits": 1,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "Clara pressed her back against the damp, peeling wall of the corridor, the musty scent of mold seeping into her lungs as she listened. The dim light from Jun’s lantern flickered, casting a weak glow that danced across the floor, illuminating the muddy footprints that twisted like a serpent ahead of them. Each step she took felt heavier, as if the very air thickened with dread and uncertainty. Jun stood beside her, his coat still dripping from the rain-soaked greenhouse, and she could see his fingers tremble slightly as they clutched the lantern, the brass tarnished and cracked like their resolve.\n\n“What if someone’s in there?” Jun whispered, his voice barely above a breath, but the tremor in it betrayed him. Clara could feel her heart hammering in her chest, a frantic rhythm that drowned out the distant echoes of the house. The chain on the door rattled again, taut and insistent, as if someone—or something—was testing it from the other side. Clara’s fingers instinctively brushed the red ribbon around her wrist, the parlor key dangling like a promise or a threat, she couldn’t quite tell which.\n\n“No one’s in there,” she snapped, her tone sharper than she intended. The echo of her words felt harsh against the silence, and Clara quickly swallowed the bitterness that threatened to rise. She turned her gaze to Jun, seeing the worry etched into his features, the way his brow furrowed in the lantern’s soft light. “It’s just the wind.”\n\nBut even as she said it, doubt crept in, gnawing at her resolve. The air felt charged, as if the walls themselves were holding their breath, waiting for something to break the stillness. Jun glanced back at the door, and Clara could see the uncertainty swirling in his eyes. He was not the sort to give in to panic easily, yet here they were, two"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

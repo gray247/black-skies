@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\draft_synthesizer.py
+# hypothesis_version: 6.138.2
+
+['-', 'DraftSynthesizer', 'SynthesisResult', '[^a-z0-9]+', 'beats', 'black-skies-local', 'chapter_id', 'conflict', 'conflict_type', 'custom', 'draft-synthesizer-v1', 'emotion', 'emotion_tag', 'fast', 'goal', 'id', 'meta', 'model', 'name', 'order', 'pacing_target', 'pov', 'project_id', 'prompt_fingerprint', 'provider', 'purpose', 'scene', 'scene_id', 'seed', 'slow', 'slug', 'steady', 'text', 'title', 'turn', 'utf-8', 'word_target']

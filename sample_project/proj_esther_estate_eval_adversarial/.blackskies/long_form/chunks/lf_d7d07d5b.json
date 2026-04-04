@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_d7d07d5b",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:a540a3d651eb3afcc04345378705801ec9788bc88c0579f7f3aab52268903d02",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The air in the servants' passage was thick with the dampness clinging to the walls, a chill that seeped through Jun Park's soaked coat and settled in his bones",
+    "word_count": 305,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 30,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 305,
+    "paragraph_count": 4,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 4,
+    "concrete_hits": 12,
+    "generic_hits": 1,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The air in the servants' passage was thick with the dampness clinging to the walls, a chill that seeped through Jun Park's soaked coat and settled in his bones. The weak beam of the cracked brass lantern flickered unsteadily, casting elongated shadows that danced along the splintered floorboards. Each step they took stirred the dust, a muted echo in the oppressive silence that hung like a shroud. Clara Vale walked ahead, her pace quick but uneven, the red ribbon around her wrist glinting faintly in the lantern’s glow. It was a strange contrast against the darkness, a beacon of color that only heightened the sense of urgency between them.\n\n“Do you hear that?” Jun’s voice was barely above a whisper, thick with tension. He squinted into the dimness, straining to catch any hint of the child’s cough he thought he’d heard earlier. It gnawed at him, a sound that seemed to reverberate in the hollows of his mind, though Clara had insisted nothing was amiss. She moved with a purpose, her shoulders squared, but he could see the way her fingers fidgeted with the edge of her pocket, where the chipped ceramic fox lay hidden, a relic of childhood that felt oddly out of place in their current predicament.\n\nClara shook her head, glancing back at him with an expression that was far too sharp, too quick. “Nothing,” she replied, but the tremor in her voice betrayed her confidence. “We need to keep moving.” The chain rattled against the door behind them, a sound that sent a shiver rippling through the corridor. It was as if something, or someone, was testing the barriers they had unwittingly erected between themselves and whatever lurked beyond.\n\nJun tightened his grip on the lantern, willing it to shine brighter, but the battery stuttered again, dimming with a sputter that"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

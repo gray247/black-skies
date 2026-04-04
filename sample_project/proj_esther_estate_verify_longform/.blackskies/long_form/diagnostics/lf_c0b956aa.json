@@ -1,0 +1,305 @@
+{
+  "chunk_id": "lf_c0b956aa",
+  "validation_decision": true,
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "raw_preview": "The air hung thick with the scent of rain-soaked earth as Clara pushed through the underbrush, her fingers brushing against damp leaves that glistened like polished jade. Each step she took was measur",
+      "normalized_preview": "The air hung thick with the scent of rain-soaked earth as Clara pushed through the underbrush, her fingers brushing against damp leaves that glistened like polished jade. Each step she took was measur",
+      "raw_length": 1841,
+      "normalized_length": 1841,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKRmB2POhueSYBFq28mAfmtmvbeBd\", \"object\": \"chat.completion\", \"created\": 1773765703, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The air hung thick with the scent of rain-soaked earth as Clara pushed through the underbrush, her fingers brushing against damp leaves that glistened like polished jade. Each step she took was measured, careful not to disturb the delicate balance of the world around her. The forest was alive ",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 306,
+        "paragraph_count": 7,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 2,
+          "meta_free": 5
+        },
+        "total_score": 26,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 306,
+        "paragraph_count": 7,
+        "dialogue_present": true,
+        "dialogue_grounded": false,
+        "sensory_hits": 8,
+        "concrete_hits": 1,
+        "generic_hits": 1,
+        "stock_phrase_hits": 0,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The air hung thick with the scent of rain-soaked earth as Clara pushed through the underbrush, her fingers brushing against damp leaves that glistened like polished jade. Each step she took was measured, careful not to disturb the delicate balance of the world around her. The forest was alive with whispers—the rustle of small creatures in the undergrowth, the distant call of a woodpecker hammering against the trunk of an ancient oak. She paused, letting the sounds wash over her, a momentary balm for the gnawing tension that coiled tightly in her stomach.\n\n“Clara!” The voice broke through her reverie, sharp and urgent. It was Ethan, his silhouette emerging from the shadows, limbs long and angular like the branches overhead. He was panting, a bead of sweat tracing a path down his temple. “You need to hurry.”\n\n“Why? What’s happened?” She straightened, her heart racing as the thrill of anticipation mixed with an undercurrent of dread.\n\n“They found something,” he said, stepping closer, eyes bright with a mixture of fear and excitement. “Down by the creek. You have to see it.”\n\nClara’s breath hitched. The creek was a sacred place, a silver ribbon winding through the heart of the woods, where they had carved their childhood secrets into the bark of trees and chased each other through the dappled sunlight. “What did they find?” she asked, her voice low, hesitant.\n\n“Just come on!” His urgency was infectious, and without another thought, she followed him, weaving through the thick trunks that towered above like ancient sentinels. The ground squelched beneath her boots, the moisture seeping through the fabric, a chilling reminder of the storm that had swept through the night before.\n\nAs they reached the clearing, the sound of the water bubbling over stones filled her ears, and the world narrowed until it was just the two"
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "rewrite",
+        "escalated": false,
+        "reason": "rewrite_default"
+      },
+      "raw_preview": "of them, suspended in the moment. Clara could see the sunlight filtering through the canopy, casting intricate patterns on the forest floor, a dance of light and shadow that felt almost ethereal. \n\n“E",
+      "normalized_preview": "of them, suspended in the moment. Clara could see the sunlight filtering through the canopy, casting intricate patterns on the forest floor, a dance of light and shadow that felt almost ethereal.\n\n“Et",
+      "raw_length": 1798,
+      "normalized_length": 1795,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKRmRugT5M8zadzPZI6op4LOfrNTc\", \"object\": \"chat.completion\", \"created\": 1773765719, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"of them, suspended in the moment. Clara could see the sunlight filtering through the canopy, casting intricate patterns on the forest floor, a dance of light and shadow that felt almost ethereal. \\n\\n“Ethan, wait!” she called out, her voice barely breaking the rhythm of the natural world aroun",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 300,
+        "paragraph_count": 7,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "guardrail_snapshot": {
+        "evaluated": true,
+        "mode": "rewrite",
+        "outline_titles": [],
+        "beat_refs": [],
+        "locked_facts_evaluated": false,
+        "length_band_evaluated": true,
+        "original_word_count": 306,
+        "rewritten_word_count": 300,
+        "min_word_count": 183,
+        "max_word_count": 642,
+        "within_length_band": true,
+        "outline_fidelity_evaluated": true,
+        "outline_fidelity_pass": true,
+        "original_anchor_terms": [
+          "the",
+          "her",
+          "was",
+          "and",
+          "she",
+          "that",
+          "they",
+          "clara",
+          "his",
+          "thick",
+          "against",
+          "each"
+        ],
+        "retained_anchor_terms": [
+          "the",
+          "her",
+          "and",
+          "she",
+          "that",
+          "clara",
+          "his"
+        ],
+        "outline_anchor_hits": [],
+        "required_anchor_overlap": 1,
+        "scene_anchor_drift_detected": false,
+        "new_story_elements": [],
+        "blocking_new_story_elements": [],
+        "authoritative_name_check": false,
+        "uncertainty_triggered": false,
+        "failure_reason": null,
+        "accepted": true,
+        "quality_total_score": 29
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 4,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 29,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 300,
+        "paragraph_count": 7,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 7,
+        "concrete_hits": 2,
+        "generic_hits": 1,
+        "stock_phrase_hits": 2,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "of them, suspended in the moment. Clara could see the sunlight filtering through the canopy, casting intricate patterns on the forest floor, a dance of light and shadow that felt almost ethereal.\n\n“Ethan, wait!” she called out, her voice barely breaking the rhythm of the natural world around them. She grasped a low-hanging branch to steady herself, her fingers trembling slightly as she felt the rough bark beneath her touch. “What did you see?”\n\nHe turned, the intensity in his eyes making her heart race even faster. “It’s just up ahead,” he said, gesturing animatedly with a long arm, his excitement spilling over into nervous energy. The flicker of movement in his restless posture spoke volumes—he was both eager and terrified.\n\nClara’s pulse quickened as she followed him, dodging gnarled roots and thick ferns that reached out like curious fingers. The smell of damp earth intensified, mingling with the sweet scent of wildflowers that fought for sunlight. Each step felt heavier as the weight of his words settled on her shoulders.\n\nThey emerged into the clearing, and the creek sparkled in front of them, its waters glistening like shards of glass. Clara’s breath caught as she took in the sight—a cluster of stones, unusually arranged, and among them, something dark and glimmering caught the light. She felt a pull deep in her gut, a mix of dread and exhilaration.\n\n“What is it?” she whispered, stepping closer, her heart thudding in her chest, the world around them fading to a dull roar. The creek babbled, its sound now sharp and demanding, drawing her in.\n\n“I don’t know,” Ethan replied, his voice low, almost reverent as he knelt beside the water’s edge. He reached out, fingers brushing the surface lightly, as if not to disturb whatever lay beneath. “But it feels important.”"
+      },
+      "quality_pass": true,
+      "rewrite_delta": {
+        "total_delta": 3,
+        "stock_phrase_delta": -2,
+        "specificity_delta": 1,
+        "clarity_delta": 0,
+        "continuity_delta": 0
+      }
+    }
+  ],
+  "acceptance_reason": "rewrite_pass",
+  "critique_snapshot": {
+    "summary": "Clara navigates through a forest, experiencing the sensory details of her surroundings, when she is interrupted by Ethan, who urgently calls her to see something found by the creek. Their conversation reveals a mix of excitement and dread as they rush to the location.",
+    "weaknesses": [
+      "Dialogue lacks grounding in physical action or setting.",
+      "Vague descriptions in certain areas reduce specificity.",
+      "Some phrases feel generic and lack originality."
+    ],
+    "continuity_issues": [
+      "The transition from Clara's introspection to Ethan's urgent call feels abrupt and lacks a smooth flow."
+    ],
+    "pacing_issues": [
+      "The scene builds tension but slows down significantly during dialogue, disrupting the urgency."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance grounding of dialogue in physical actions.",
+      "Replace generic phrases with more vivid, unique descriptions.",
+      "Clarify the urgency and emotional stakes in the dialogue."
+    ],
+    "generic_phrase_targets": [
+      "The air hung thick with the scent of rain-soaked earth",
+      "a momentary balm for the gnawing tension",
+      "ancient sentinels"
+    ],
+    "detail_targets": [
+      "Descriptions of the forest could be more specific and unique.",
+      "Clarify the significance of the creek beyond 'sacred place'."
+    ],
+    "dialogue_grounding_targets": [
+      "Ethan's dialogue should connect more to his physical state (e.g., how he moves, gestures).",
+      "Clara's responses could reflect her physical reactions more vividly."
+    ],
+    "emotional_show_targets": [
+      "Show Clara's internal conflict more through her actions or physical sensations.",
+      "Ethan's excitement and fear could be expressed through his body language."
+    ],
+    "replacement_targets": [
+      "Replace 'you need to hurry' with a more specific action or reason.",
+      "Find alternatives for 'Just come on!' that convey urgency with more context."
+    ],
+    "grounding_targets": [
+      "Include more sensory details that tie the characters' emotions to their environment.",
+      "Make the setting more integral to the characters' experiences."
+    ],
+    "carryover_targets": [
+      "Ensure that the emotional stakes established in the beginning carry through to the dialogue and actions."
+    ]
+  },
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 306,
+    "rewritten_word_count": 300,
+    "min_word_count": 183,
+    "max_word_count": 642,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "was",
+      "and",
+      "she",
+      "that",
+      "they",
+      "clara",
+      "his",
+      "thick",
+      "against",
+      "each"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "and",
+      "she",
+      "that",
+      "clara",
+      "his"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 29
+  }
+}

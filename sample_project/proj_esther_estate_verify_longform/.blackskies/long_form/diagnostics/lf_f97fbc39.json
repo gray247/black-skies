@@ -1,0 +1,622 @@
+{
+  "chunk_id": "lf_f97fbc39",
+  "validation_decision": false,
+  "fallback_reason": "quality_failed",
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "raw_preview": "The air was thick with the scent of rain-soaked earth as Elena stepped into the small clearing, her boots squelching against the mud. The sky loomed above, a tapestry of bruised purples and grays, hea",
+      "normalized_preview": "The air was thick with the scent of rain-soaked earth as Elena stepped into the small clearing, her boots squelching against the mud. The sky loomed above, a tapestry of bruised purples and grays, hea",
+      "raw_length": 1723,
+      "normalized_length": 1721,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKYXSMEpIEQDCadOFPNvvsR5gdRMD\", \"object\": \"chat.completion\", \"created\": 1773791698, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The air was thick with the scent of rain-soaked earth as Elena stepped into the small clearing, her boots squelching against the mud. The sky loomed above, a tapestry of bruised purples and grays, heavy with the promise of a storm. Each breath she took was infused with the rich, loamy smell of",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 306,
+        "paragraph_count": 6,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 3,
+          "pacing": 4,
+          "specificity": 2,
+          "dialogue": 2,
+          "meta_free": 5
+        },
+        "total_score": 24,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 306,
+        "paragraph_count": 6,
+        "dialogue_present": true,
+        "dialogue_grounded": false,
+        "sensory_hits": 7,
+        "concrete_hits": 1,
+        "generic_hits": 0,
+        "stock_phrase_hits": 3,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": true,
+        "text": "The air was thick with the scent of rain-soaked earth as Elena stepped into the small clearing, her boots squelching against the mud. The sky loomed above, a tapestry of bruised purples and grays, heavy with the promise of a storm. Each breath she took was infused with the rich, loamy smell of wet foliage, a reminder of the forest's quiet pulse. She paused, the distant rumble of thunder echoing like a warning through the trees, and wiped a bead of sweat from her brow, the humidity clinging to her skin like a second layer.\n\n“Are you sure this is the right way?” Sam’s voice broke through her momentary reverie, laced with a hint of doubt that she couldn’t quite shake off. He stood a few paces behind her, his brow furrowed, the light from his phone casting a faint glow across his face. She could see the flicker of unease in his eyes, a reflection of her own uncertainty.\n\n“Trust me,” she replied, her voice steady, though her mind raced with the implications of their choice. “We just need to get to the other side before it really hits.” The words felt heavy between them, laden with the weight of their shared history and unspoken fears.\n\nAs she turned back to the path, a rustling sound caught her attention. A rabbit, startled by their presence, darted across the clearing and into the underbrush. For a moment, the world felt alive, the tiny creature a reminder of the vibrancy around them, even in the midst of looming danger. But the thought was fleeting, swallowed by the oppressive atmosphere.\n\n“Did you hear that?” Sam’s voice was barely above a whisper now, as if the very trees might be listening.\n\nElena nodded, her heart racing. “It’s just the wind.” She tried to sound convincing, but the unease gn"
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "rewrite",
+        "escalated": false,
+        "reason": "rewrite_default"
+      },
+      "raw_preview": "The air was thick with the earthy scent of rain-soaked soil as Elena stepped into the small clearing, her boots sinking into the mud with a soft squelch. Above her, the sky was a chaotic blend of brui",
+      "normalized_preview": "The air was thick with the earthy scent of rain-soaked soil as Elena stepped into the small clearing, her boots sinking into the mud with a soft squelch. Above her, the sky was a chaotic blend of brui",
+      "raw_length": 1787,
+      "normalized_length": 1787,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKYXhShuUnDMlx2ZM4G0WhW7UQnip\", \"object\": \"chat.completion\", \"created\": 1773791713, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The air was thick with the earthy scent of rain-soaked soil as Elena stepped into the small clearing, her boots sinking into the mud with a soft squelch. Above her, the sky was a chaotic blend of bruised purples and heavy grays, the clouds roiling like an angry sea, promising an impending stor",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 316,
+        "paragraph_count": 5,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "guardrail_snapshot": {
+        "evaluated": true,
+        "mode": "rewrite",
+        "outline_titles": [],
+        "beat_refs": [],
+        "locked_facts_evaluated": false,
+        "length_band_evaluated": true,
+        "original_word_count": 306,
+        "rewritten_word_count": 316,
+        "min_word_count": 183,
+        "max_word_count": 642,
+        "within_length_band": true,
+        "outline_fidelity_evaluated": true,
+        "outline_fidelity_pass": true,
+        "original_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "was",
+          "and",
+          "his",
+          "voice",
+          "elena",
+          "clearing",
+          "above",
+          "heavy",
+          "reminder"
+        ],
+        "retained_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "was",
+          "and",
+          "his",
+          "voice",
+          "clearing",
+          "heavy",
+          "reminder"
+        ],
+        "outline_anchor_hits": [],
+        "required_anchor_overlap": 1,
+        "scene_anchor_drift_detected": false,
+        "new_story_elements": [],
+        "blocking_new_story_elements": [],
+        "authoritative_name_check": false,
+        "uncertainty_triggered": false,
+        "failure_reason": null,
+        "accepted": true,
+        "quality_total_score": 28
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 28,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 316,
+        "paragraph_count": 5,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 7,
+        "concrete_hits": 1,
+        "generic_hits": 0,
+        "stock_phrase_hits": 2,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The air was thick with the earthy scent of rain-soaked soil as Elena stepped into the small clearing, her boots sinking into the mud with a soft squelch. Above her, the sky was a chaotic blend of bruised purples and heavy grays, the clouds roiling like an angry sea, promising an impending storm. Each breath she drew was rich with the loamy aroma of damp foliage, a reminder of the forest's silent heartbeat. She paused, listening to the distant rumble of thunder, a low growl echoing through the trees, and wiped a bead of sweat from her brow, feeling the humidity cling to her skin like a damp shroud.\n\n“Are you sure this is the right way?” Sam’s voice pierced through her momentary reverie, tinged with uncertainty. He stood a few paces behind her, his brow knitted in concern, the light from his phone casting a ghostly glow on his face. She could see the flicker of doubt in his eyes, mirroring the unsettling flutter in her own chest.\n\n“Trust me,” she said, her voice steadier than she felt. She turned slightly, brushing a stray lock of hair from her face, trying to shake off the weight of their choice. “We just need to get to the other side before it really hits.” The words hung in the thick air, heavy with the burden of their shared past and the fears they both dared not voice.\n\nAs she pivoted back toward the path, a rustling caught her attention—a rabbit, startled by their presence, darted across the clearing, its small body a flash of movement as it disappeared into the underbrush. For a heartbeat, the world seemed vibrant, the creature a fleeting reminder of life thriving even in the shadow of impending danger. But that glimmer of hope was quickly swallowed by the oppressive atmosphere that surrounded them.\n\n“Did you hear that?” Sam whispered, his voice barely"
+      },
+      "quality_pass": false,
+      "rewrite_delta": {
+        "total_delta": 4,
+        "stock_phrase_delta": 1,
+        "specificity_delta": 1,
+        "clarity_delta": 1,
+        "continuity_delta": 0
+      },
+      "retry_decision": {
+        "eligible": true,
+        "reason": "targeted_editorial_miss_after_rewrite",
+        "classification": "targeted_editorial"
+      }
+    },
+    {
+      "attempt": 3,
+      "mode": "recovery_retry",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rescue_model"
+      },
+      "raw_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"She could see the hesitation in his eyes, caught in the blue-white glow from his phone, and she felt her own chest tighten with the same uneasy flutter.",
+      "normalized_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"She could see the hesitation in his eyes, caught in the blue-white glow from his phone, and she felt her own chest tighten with the same uneasy flutter.",
+      "raw_length": 1039,
+      "normalized_length": 1039,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKYXsFwGmOR4j71k2BOb9gSofAFon\", \"object\": \"chat.completion\", \"created\": 1773791724, \"model\": \"gpt-5.4-mini-2026-03-17\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"replacement_text\\\":\\\"She could see the hesitation in his eyes, caught in the blue-white glow from his phone, and she felt her own chest tighten with the same uneasy flutter.\\\"},{\\\"slot_id\\\":\\\"s2\\\",\\\"replacement_text\\\":\\\"“We just need to get to the other sid",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "She could see the flicker of doubt in his eyes, mirroring the unsettling flutter in her own chest.",
+          "context_before": "He stood a few paces behind her, his brow knitted in concern, the light from his phone casting a ghostly glow on his face.",
+          "context_after": "“Trust me,” she said, her voice steadier than she felt.",
+          "target_reason": "generic",
+          "target_phrase": "flicker of"
+        },
+        {
+          "slot_id": "s2",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“We just need to get to the other side before it really hits.” The words hung in the thick air, heavy with the burden of their shared past and the fears they both dared not voice.",
+          "context_before": "She turned slightly, brushing a stray lock of hair from her face, trying to shake off the weight of their choice.",
+          "context_after": "As she pivoted back toward the path, a rustling caught her attention—a rabbit, startled by their presence, darted across the clearing, its small body a flash of movement as it disappeared into the underbrush.",
+          "target_reason": "dialogue",
+          "target_phrase": "heavy with"
+        },
+        {
+          "slot_id": "s3",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Are you sure this is the right way?” Sam’s voice pierced through her momentary reverie, tinged with uncertainty.",
+          "context_before": "She paused, listening to the distant rumble of thunder, a low growl echoing through the trees, and wiped a bead of sweat from her brow, feeling the humidity cling to her skin like a damp shroud.",
+          "context_after": "He stood a few paces behind her, his brow knitted in concern, the light from his phone casting a ghostly glow on his face.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s4",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Trust me,” she said, her voice steadier than she felt.",
+          "context_before": "She could see the flicker of doubt in his eyes, mirroring the unsettling flutter in her own chest.",
+          "context_after": "She turned slightly, brushing a stray lock of hair from her face, trying to shake off the weight of their choice.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s5",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Did you hear that?” Sam whispered, his voice barely",
+          "context_before": "But that glimmer of hope was quickly swallowed by the oppressive atmosphere that surrounded them.",
+          "context_after": "",
+          "target_reason": "dialogue"
+        }
+      ],
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "She could see the hesitation in his eyes, caught in the blue-white glow from his phone, and she felt her own chest tighten with the same uneasy flutter."
+        },
+        {
+          "slot_id": "s2",
+          "replacement_text": "“We just need to get to the other side before it really hits.” She shifted her weight in the mud, one hand brushing wet leaves from her sleeve as the words settled in the thick air between them, carrying the history they both kept out of reach and the fears neither of them said aloud."
+        },
+        {
+          "slot_id": "s3",
+          "replacement_text": "“Are you sure this is the right way?” Sam’s voice cut through the rumble of thunder as he lifted his phone a little higher, the screen lighting the mud-dark path behind her."
+        },
+        {
+          "slot_id": "s4",
+          "replacement_text": "“Trust me,” she said, gripping the strap at her shoulder and forcing her voice to stay level."
+        },
+        {
+          "slot_id": "s5",
+          "replacement_text": "“Did you hear that?” Sam whispered, his voice barely above the rustle of the underbrush as he angled his phone toward the trees."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_specificity_unresolved"
+      }
+    },
+    {
+      "attempt": 4,
+      "mode": "repair_only",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rescue_model"
+      },
+      "raw_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"She could see the tight crease between his brows and the quick dart of his eyes toward the dark treeline, mirroring the unsettled flutter in her own che",
+      "normalized_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"She could see the tight crease between his brows and the quick dart of his eyes toward the dark treeline, mirroring the unsettled flutter in her own che",
+      "raw_length": 942,
+      "normalized_length": 942,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKYXus62btGYVkrPGWZeSbO8a6H65\", \"object\": \"chat.completion\", \"created\": 1773791726, \"model\": \"gpt-5.4-mini-2026-03-17\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"replacement_text\\\":\\\"She could see the tight crease between his brows and the quick dart of his eyes toward the dark treeline, mirroring the unsettled flutter in her own chest.\\\"},{\\\"slot_id\\\":\\\"s2\\\",\\\"replacement_text\\\":\\\"“We just need to get to the other ",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "She could see the flicker of doubt in his eyes, mirroring the unsettling flutter in her own chest.",
+          "context_before": "He stood a few paces behind her, his brow knitted in concern, the light from his phone casting a ghostly glow on his face.",
+          "context_after": "“Trust me,” she said, her voice steadier than she felt.",
+          "target_reason": "generic",
+          "target_phrase": "flicker of"
+        },
+        {
+          "slot_id": "s2",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“We just need to get to the other side before it really hits.” The words hung in the thick air, heavy with the burden of their shared past and the fears they both dared not voice.",
+          "context_before": "She turned slightly, brushing a stray lock of hair from her face, trying to shake off the weight of their choice.",
+          "context_after": "As she pivoted back toward the path, a rustling caught her attention—a rabbit, startled by their presence, darted across the clearing, its small body a flash of movement as it disappeared into the underbrush.",
+          "target_reason": "dialogue",
+          "target_phrase": "heavy with"
+        },
+        {
+          "slot_id": "s3",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Are you sure this is the right way?” Sam’s voice pierced through her momentary reverie, tinged with uncertainty.",
+          "context_before": "She paused, listening to the distant rumble of thunder, a low growl echoing through the trees, and wiped a bead of sweat from her brow, feeling the humidity cling to her skin like a damp shroud.",
+          "context_after": "He stood a few paces behind her, his brow knitted in concern, the light from his phone casting a ghostly glow on his face.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s4",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Trust me,” she said, her voice steadier than she felt.",
+          "context_before": "She could see the flicker of doubt in his eyes, mirroring the unsettling flutter in her own chest.",
+          "context_after": "She turned slightly, brushing a stray lock of hair from her face, trying to shake off the weight of their choice.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s5",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Did you hear that?” Sam whispered, his voice barely",
+          "context_before": "But that glimmer of hope was quickly swallowed by the oppressive atmosphere that surrounded them.",
+          "context_after": "",
+          "target_reason": "dialogue"
+        }
+      ],
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "She could see the tight crease between his brows and the quick dart of his eyes toward the dark treeline, mirroring the unsettled flutter in her own chest."
+        },
+        {
+          "slot_id": "s2",
+          "replacement_text": "“We just need to get to the other side before it really hits,” she said, glancing toward the muddy path ahead as the first cold drops tapped against the leaves overhead."
+        },
+        {
+          "slot_id": "s3",
+          "replacement_text": "“Are you sure this is the right way?” Sam’s voice pierced through her momentary reverie, and she heard him shift behind her, his phone light wavering across the wet ground."
+        },
+        {
+          "slot_id": "s4",
+          "replacement_text": "“Trust me,” she said, her voice steadier than she felt, though her fingers tightened once around the strap at her shoulder."
+        },
+        {
+          "slot_id": "s5",
+          "replacement_text": "“Did you hear that?” Sam whispered, his voice barely above the rustle of the leaves as he leaned closer behind her."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_specificity_unresolved"
+      }
+    }
+  ],
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 28,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 316,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 7,
+    "concrete_hits": 1,
+    "generic_hits": 0,
+    "stock_phrase_hits": 2,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The air was thick with the earthy scent of rain-soaked soil as Elena stepped into the small clearing, her boots sinking into the mud with a soft squelch. Above her, the sky was a chaotic blend of bruised purples and heavy grays, the clouds roiling like an angry sea, promising an impending storm. Each breath she drew was rich with the loamy aroma of damp foliage, a reminder of the forest's silent heartbeat. She paused, listening to the distant rumble of thunder, a low growl echoing through the trees, and wiped a bead of sweat from her brow, feeling the humidity cling to her skin like a damp shroud.\n\n“Are you sure this is the right way?” Sam’s voice pierced through her momentary reverie, tinged with uncertainty. He stood a few paces behind her, his brow knitted in concern, the light from his phone casting a ghostly glow on his face. She could see the flicker of doubt in his eyes, mirroring the unsettling flutter in her own chest.\n\n“Trust me,” she said, her voice steadier than she felt. She turned slightly, brushing a stray lock of hair from her face, trying to shake off the weight of their choice. “We just need to get to the other side before it really hits.” The words hung in the thick air, heavy with the burden of their shared past and the fears they both dared not voice.\n\nAs she pivoted back toward the path, a rustling caught her attention—a rabbit, startled by their presence, darted across the clearing, its small body a flash of movement as it disappeared into the underbrush. For a heartbeat, the world seemed vibrant, the creature a fleeting reminder of life thriving even in the shadow of impending danger. But that glimmer of hope was quickly swallowed by the oppressive atmosphere that surrounded them.\n\n“Did you hear that?” Sam whispered, his voice barely"
+  },
+  "critique_snapshot": {
+    "summary": "Elena and Sam navigate a stormy forest, filled with tension and uncertainty. As they move through a clearing, they express doubts and fears about their path, while nature around them serves as a backdrop to their emotional state.",
+    "weaknesses": [
+      "Vague descriptions that do not fully immerse the reader in the scene.",
+      "Dialogue lacks grounding in physical actions or the environment."
+    ],
+    "continuity_issues": [
+      "The transition between Elena's internal thoughts and dialogue is abrupt, causing confusion about her emotional state."
+    ],
+    "pacing_issues": [
+      "The scene feels slow due to excessive description without significant action or character development."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid scene.",
+      "Ground dialogue in physical actions or the setting to improve realism."
+    ],
+    "generic_phrase_targets": [
+      "heavy with the promise of a storm",
+      "laden with the weight of their shared history"
+    ],
+    "detail_targets": [
+      "Describe the clearing and its surroundings in more concrete terms.",
+      "Provide more sensory details to enhance the atmosphere."
+    ],
+    "dialogue_grounding_targets": [
+      "Integrate physical actions or reactions into Sam's and Elena's dialogue to create a stronger connection to the scene."
+    ],
+    "emotional_show_targets": [
+      "Show Elena's internal conflict more clearly through her actions or physical sensations."
+    ],
+    "replacement_targets": [
+      "Replace generic phrases with more original and specific imagery."
+    ],
+    "grounding_targets": [
+      "Include more details about the environment that interact with the characters' emotions."
+    ],
+    "carryover_targets": [
+      "Ensure that the emotional stakes are clearly carried through the dialogue and actions."
+    ]
+  },
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_model_name": "gpt-5.4-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Are you sure this is the right way?” Sam’s voice pierced through her momentary reverie, tinged with uncertainty.",
+        "“Trust me,” she said, her voice steadier than she felt.",
+        "“We just need to get to the other side before it really hits.” The words hung in the thick air, heavy with the burden of their shared past and the fears they both dared not voice.",
+        "“Did you hear that?” Sam whispered, his voice barely"
+      ],
+      "generic_phrases_to_replace": [
+        "flicker of",
+        "heavy with"
+      ],
+      "lines_to_repair": [
+        "She could see the flicker of doubt in his eyes, mirroring the unsettling flutter in her own chest.",
+        "“We just need to get to the other side before it really hits.” The words hung in the thick air, heavy with the burden of their shared past and the fears they both dared not voice.",
+        "“Are you sure this is the right way?” Sam’s voice pierced through her momentary reverie, tinged with uncertainty.",
+        "“Trust me,” she said, her voice steadier than she felt.",
+        "“Did you hear that?” Sam whispered, his voice barely"
+      ],
+      "required_concrete_anchor_terms": [
+        "voice",
+        "thick"
+      ],
+      "repair_min_word_count": 268,
+      "repair_max_word_count": 474,
+      "min_paragraph_count": 3,
+      "max_paragraph_count": 7
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rescue_model"
+    },
+    "rescue_slots_summary": {
+      "slot_count": 5,
+      "target_types": [
+        "generic",
+        "dialogue",
+        "dialogue",
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_specificity_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 306,
+    "rewritten_word_count": 316,
+    "min_word_count": 183,
+    "max_word_count": 642,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "was",
+      "and",
+      "his",
+      "voice",
+      "elena",
+      "clearing",
+      "above",
+      "heavy",
+      "reminder"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "was",
+      "and",
+      "his",
+      "voice",
+      "clearing",
+      "heavy",
+      "reminder"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 28
+  }
+}

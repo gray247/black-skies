@@ -1,0 +1,278 @@
+{
+  "chunk_id": "lf_f8a20039",
+  "validation_decision": false,
+  "fallback_reason": "quality_failed",
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "basic_validation": {
+        "usable": true,
+        "word_count": 619,
+        "paragraph_count": 13,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [
+          "whistled",
+          "narrow",
+          "alley",
+          "sharp",
+          "reminder",
+          "evening",
+          "chill",
+          "settled"
+        ],
+        "carryover_hits": 3,
+        "material_carryover_hits": 0
+      },
+      "raw_preview": "Nora pressed on, the cobblestones slick beneath her boots, each step a reminder of the rain that had come to wash away the day. The chill in the air seeped through the fibers of her coat, a cold breat",
+      "normalized_preview": "Nora pressed on, the cobblestones slick beneath her boots, each step a reminder of the rain that had come to wash away the day. The chill in the air seeped through the fibers of her coat, a cold breat",
+      "raw_length": 3474,
+      "normalized_length": 3473,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DJrSkydLmENUXdtfK5rZKRPrp66fJ\", \"object\": \"chat.completion\", \"created\": 1773626114, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"Nora pressed on, the cobblestones slick beneath her boots, each step a reminder of the rain that had come to wash away the day. The chill in the air seeped through the fibers of her coat, a cold breath that whispered secrets she was not yet ready to hear. She glanced over her shoulder, half-ex",
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 2,
+          "pacing": 5,
+          "specificity": 3,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 27,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 619,
+        "paragraph_count": 13,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 10,
+        "concrete_hits": 4,
+        "generic_hits": 1,
+        "stock_phrase_hits": 4,
+        "carryover_terms": [
+          "whistled",
+          "narrow",
+          "alley",
+          "sharp",
+          "reminder",
+          "evening",
+          "chill",
+          "settled"
+        ],
+        "carryover_hits": 3,
+        "material_carryover_hits": 0,
+        "material_carryover": false,
+        "weak_carryover": false,
+        "generic_risk": true
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "basic_validation": {
+        "usable": true,
+        "word_count": 608,
+        "paragraph_count": 13,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [
+          "whistled",
+          "narrow",
+          "alley",
+          "sharp",
+          "reminder",
+          "evening",
+          "chill",
+          "settled"
+        ],
+        "carryover_hits": 4,
+        "material_carryover_hits": 0
+      },
+      "raw_preview": "Nora pressed on, the cobblestones slick beneath her boots, each step a reminder of the rain that had washed over the city earlier. The evening chill seeped through the fibers of her coat, a cold breat",
+      "normalized_preview": "Nora pressed on, the cobblestones slick beneath her boots, each step a reminder of the rain that had washed over the city earlier. The evening chill seeped through the fibers of her coat, a cold breat",
+      "raw_length": 3479,
+      "normalized_length": 3479,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DJrT5I1iL80stTnuLgVGUUIveunOO\", \"object\": \"chat.completion\", \"created\": 1773626135, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"Nora pressed on, the cobblestones slick beneath her boots, each step a reminder of the rain that had washed over the city earlier. The evening chill seeped through the fibers of her coat, a cold breath that whispered secrets she was not ready to confront. She glanced over her shoulder, half-ex",
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 2,
+          "pacing": 5,
+          "specificity": 3,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 27,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 608,
+        "paragraph_count": 13,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 10,
+        "concrete_hits": 4,
+        "generic_hits": 1,
+        "stock_phrase_hits": 4,
+        "carryover_terms": [
+          "whistled",
+          "narrow",
+          "alley",
+          "sharp",
+          "reminder",
+          "evening",
+          "chill",
+          "settled"
+        ],
+        "carryover_hits": 4,
+        "material_carryover_hits": 0,
+        "material_carryover": false,
+        "weak_carryover": false,
+        "generic_risk": true
+      },
+      "quality_pass": false,
+      "rewrite_delta": {
+        "total_delta": 0,
+        "stock_phrase_delta": 0,
+        "specificity_delta": 0,
+        "clarity_delta": 0,
+        "continuity_delta": 0
+      }
+    }
+  ],
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 2,
+      "pacing": 5,
+      "specificity": 3,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 27,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 608,
+    "paragraph_count": 13,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 10,
+    "concrete_hits": 4,
+    "generic_hits": 1,
+    "stock_phrase_hits": 4,
+    "carryover_terms": [
+      "whistled",
+      "narrow",
+      "alley",
+      "sharp",
+      "reminder",
+      "evening",
+      "chill",
+      "settled"
+    ],
+    "carryover_hits": 4,
+    "material_carryover_hits": 0,
+    "material_carryover": false,
+    "weak_carryover": false,
+    "generic_risk": true
+  },
+  "critique_snapshot": {
+    "summary": "Nora navigates a chilly alley and contemplates entering a bakery, feeling both drawn to its warmth and hesitant due to her emotional state. Inside, she interacts with Leo, the barista, who offers her comfort and familiarity amidst her turmoil.",
+    "weaknesses": [
+      "Overuse of generic phrases and stock imagery.",
+      "Lack of specific sensory details that could enhance the scene.",
+      "Dialogue lacks grounding in physical actions or the setting."
+    ],
+    "continuity_issues": [
+      "The transition from the alley to the bakery feels abrupt and lacks a clear connection to Nora's emotional state."
+    ],
+    "pacing_issues": [
+      "The pacing slows significantly during the internal monologue, which could be tightened to maintain tension."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Replace generic phrases with more vivid, specific descriptions.",
+      "Enhance the grounding of dialogue in physical actions and setting.",
+      "Improve the flow between Nora's internal thoughts and her interactions with Leo."
+    ],
+    "generic_phrase_targets": [
+      "sharp reminder",
+      "warm embrace",
+      "the usual",
+      "just one of those days"
+    ],
+    "detail_targets": [
+      "cobblestones slick beneath her boots",
+      "the distant hum of city life",
+      "the sweet, yeasty aroma of the bakery"
+    ],
+    "dialogue_grounding_targets": [
+      "“Just a treat, huh?”",
+      "“Everything okay?”",
+      "“You know I’m here if you want to talk, right?”"
+    ],
+    "emotional_show_targets": [
+      "her heart thumping in her chest",
+      "the weight in her chest lightened",
+      "fragile smile"
+    ],
+    "replacement_targets": [
+      "whistled",
+      "narrow",
+      "sharp",
+      "reminder"
+    ],
+    "grounding_targets": [
+      "the bell above the door chimed softly",
+      "the heat radiating from the oven",
+      "the cinnamon rolls that drew her in"
+    ],
+    "carryover_targets": [
+      "whistled",
+      "narrow",
+      "sharp",
+      "reminder",
+      "chill",
+      "settled"
+    ]
+  }
+}

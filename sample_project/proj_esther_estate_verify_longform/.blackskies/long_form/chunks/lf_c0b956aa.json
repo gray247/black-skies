@@ -1,0 +1,176 @@
+{
+  "chunk_id": "lf_c0b956aa",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:86388e950f9367a347d41c82c9842b173aaccc218a34568b3c3ea66a94397cbb",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "of them, suspended in the moment",
+    "word_count": 300,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 4,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 29,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 300,
+    "paragraph_count": 7,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 7,
+    "concrete_hits": 2,
+    "generic_hits": 1,
+    "stock_phrase_hits": 2,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "of them, suspended in the moment. Clara could see the sunlight filtering through the canopy, casting intricate patterns on the forest floor, a dance of light and shadow that felt almost ethereal.\n\n“Ethan, wait!” she called out, her voice barely breaking the rhythm of the natural world around them. She grasped a low-hanging branch to steady herself, her fingers trembling slightly as she felt the rough bark beneath her touch. “What did you see?”\n\nHe turned, the intensity in his eyes making her heart race even faster. “It’s just up ahead,” he said, gesturing animatedly with a long arm, his excitement spilling over into nervous energy. The flicker of movement in his restless posture spoke volumes—he was both eager and terrified.\n\nClara’s pulse quickened as she followed him, dodging gnarled roots and thick ferns that reached out like curious fingers. The smell of damp earth intensified, mingling with the sweet scent of wildflowers that fought for sunlight. Each step felt heavier as the weight of his words settled on her shoulders.\n\nThey emerged into the clearing, and the creek sparkled in front of them, its waters glistening like shards of glass. Clara’s breath caught as she took in the sight—a cluster of stones, unusually arranged, and among them, something dark and glimmering caught the light. She felt a pull deep in her gut, a mix of dread and exhilaration.\n\n“What is it?” she whispered, stepping closer, her heart thudding in her chest, the world around them fading to a dull roar. The creek babbled, its sound now sharp and demanding, drawing her in.\n\n“I don’t know,” Ethan replied, his voice low, almost reverent as he knelt beside the water’s edge. He reached out, fingers brushing the surface lightly, as if not to disturb whatever lay beneath. “But it feels important.”"
+  },
+  "critique_snapshot": {
+    "summary": "Clara navigates through a forest, experiencing the sensory details of her surroundings, when she is interrupted by Ethan, who urgently calls her to see something found by the creek. Their conversation reveals a mix of excitement and dread as they rush to the location.",
+    "weaknesses": [
+      "Dialogue lacks grounding in physical action or setting.",
+      "Vague descriptions in certain areas reduce specificity.",
+      "Some phrases feel generic and lack originality."
+    ],
+    "continuity_issues": [
+      "The transition from Clara's introspection to Ethan's urgent call feels abrupt and lacks a smooth flow."
+    ],
+    "pacing_issues": [
+      "The scene builds tension but slows down significantly during dialogue, disrupting the urgency."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance grounding of dialogue in physical actions.",
+      "Replace generic phrases with more vivid, unique descriptions.",
+      "Clarify the urgency and emotional stakes in the dialogue."
+    ],
+    "generic_phrase_targets": [
+      "The air hung thick with the scent of rain-soaked earth",
+      "a momentary balm for the gnawing tension",
+      "ancient sentinels"
+    ],
+    "detail_targets": [
+      "Descriptions of the forest could be more specific and unique.",
+      "Clarify the significance of the creek beyond 'sacred place'."
+    ],
+    "dialogue_grounding_targets": [
+      "Ethan's dialogue should connect more to his physical state (e.g., how he moves, gestures).",
+      "Clara's responses could reflect her physical reactions more vividly."
+    ],
+    "emotional_show_targets": [
+      "Show Clara's internal conflict more through her actions or physical sensations.",
+      "Ethan's excitement and fear could be expressed through his body language."
+    ],
+    "replacement_targets": [
+      "Replace 'you need to hurry' with a more specific action or reason.",
+      "Find alternatives for 'Just come on!' that convey urgency with more context."
+    ],
+    "grounding_targets": [
+      "Include more sensory details that tie the characters' emotions to their environment.",
+      "Make the setting more integral to the characters' experiences."
+    ],
+    "carryover_targets": [
+      "Ensure that the emotional stakes established in the beginning carry through to the dialogue and actions."
+    ]
+  },
+  "attempt_count": 2,
+  "acceptance_reason": "rewrite_pass",
+  "rewrite_used": true,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 306,
+    "rewritten_word_count": 300,
+    "min_word_count": 183,
+    "max_word_count": 642,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "was",
+      "and",
+      "she",
+      "that",
+      "they",
+      "clara",
+      "his",
+      "thick",
+      "against",
+      "each"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "and",
+      "she",
+      "that",
+      "clara",
+      "his"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 29
+  }
+}

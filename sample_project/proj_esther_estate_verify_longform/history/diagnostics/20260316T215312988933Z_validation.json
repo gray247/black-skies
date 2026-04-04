@@ -1,0 +1,55 @@
+{
+  "timestamp": "2026-03-16T21:53:12.989053Z",
+  "code": "VALIDATION",
+  "message": "Rewrite rejected by outline/length guardrails.",
+  "details": {
+    "guardrail_snapshot": {
+      "evaluated": true,
+      "mode": "repair_only",
+      "outline_titles": [],
+      "beat_refs": [],
+      "locked_facts_evaluated": false,
+      "length_band_evaluated": true,
+      "original_word_count": 614,
+      "rewritten_word_count": 153,
+      "min_word_count": 368,
+      "max_word_count": 1289,
+      "within_length_band": false,
+      "outline_fidelity_evaluated": true,
+      "outline_fidelity_pass": true,
+      "original_anchor_terms": [
+        "the",
+        "her",
+        "his",
+        "she",
+        "you",
+        "clara",
+        "said",
+        "and",
+        "alex",
+        "voice",
+        "that",
+        "smile"
+      ],
+      "retained_anchor_terms": [
+        "the",
+        "her",
+        "his",
+        "she",
+        "clara",
+        "that"
+      ],
+      "outline_anchor_hits": [],
+      "required_anchor_overlap": 1,
+      "scene_anchor_drift_detected": false,
+      "new_story_elements": [],
+      "blocking_new_story_elements": [],
+      "authoritative_name_check": false,
+      "uncertainty_triggered": true,
+      "failure_reason": "length_band_failed",
+      "accepted": false,
+      "quality_total_score": 22
+    },
+    "attempt": 4
+  }
+}

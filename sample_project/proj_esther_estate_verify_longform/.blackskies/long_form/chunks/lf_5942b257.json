@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_5942b257",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:9ed7a56a50c734d03cddbc01c42c478aec868d662bf367bbea997368db50e922",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The door creaked open, its unsteady hinges protesting as Lily stepped inside the dimly lit room",
+    "word_count": 299,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 2,
+      "meta_free": 5
+    },
+    "total_score": 28,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 299,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": false,
+    "sensory_hits": 7,
+    "concrete_hits": 5,
+    "generic_hits": 1,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The door creaked open, its unsteady hinges protesting as Lily stepped inside the dimly lit room. Dust motes danced in the beams of light that penetrated through the grimy window, swirling like memories suspended in time. She hesitated, her hand lingering on the cool metal doorknob, the familiar chill sending a shiver up her spine. The air was thick with the scent of aged wood and something sweetly decayed, a reminder of the countless hours spent here, the laughter echoing in the corners now shadowed by silence.\n\n“Lily!” A voice called from the far side, bright and unexpected against the somber backdrop. It was Clara, her sister, perched on the edge of a rickety old chair, fingers drumming absently on its armrest. “You’re late. I thought you weren’t coming.”\n\nLily forced a smile, though it trembled at the edges, unsure if it could fully mask the weight of her hesitation. “Traffic was a nightmare,” she lied, the words tasting stale on her tongue. She moved deeper into the room, the floorboards creaking beneath her cautious steps, each groan a ghostly reminder of the past. The walls, once vibrant with color, now faded to a melancholic grey, seemed to absorb the warmth from her body, leaving her feeling hollow.\n\nClara’s eyes narrowed, her brow stitching together in a way that spoke of unspoken questions. “You sure that’s all it was?” There was an edge in her tone, a probing beneath the surface, and Lily could feel the tension coiling between them like a taut wire.\n\n“Yeah, just traffic,” she repeated, her voice steadier this time, though her heart raced. She could feel the pulse of her anxiety thrumming in her ears, a relentless reminder of the truth she wasn’t ready to face. The old clock on the wall ticked steadily"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

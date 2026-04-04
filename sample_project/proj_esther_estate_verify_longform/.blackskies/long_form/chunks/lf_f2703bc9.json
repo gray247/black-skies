@@ -1,0 +1,226 @@
+{
+  "chunk_id": "lf_f2703bc9",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:9ff08416a92f5f42b9b6a0bd91066233c798aad9fc22208724a1daa0f33c08ea",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 21,
+    "fallback_reason": "quality_failed"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "quality_failed"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 28,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 321,
+    "paragraph_count": 4,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 7,
+    "concrete_hits": 1,
+    "generic_hits": 0,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The sun hung low over the horizon, casting elongated shadows that slipped across the cracked pavement of the old parking lot, their shapes twisting in the fading light. A thin breeze rustled through the air, carrying the scent of damp earth from a distant rain mingled with the sharp, metallic tang of gasoline. Ava leaned against the cool metal of her car, its surface a stark contrast to the warmth of her skin, a brief anchor in the storm of thoughts swirling in her mind. The rhythmic thud of her heartbeat reverberated in her ears, harmonizing with the distant laughter of teenagers playing tag nearby, their carefree shouts a vivid reminder of the joy she felt so far removed from. She caught snippets of their playfulness, but the weight in her chest felt like a heavy stone, pressing down on her as she watched their freedom.\n\n“Hey,” a voice sliced through her reverie, drawing her back into the moment. It was Jake, his figure framed against the dimming light, the familiar lopsided grin breaking across his face like sunrise. He approached with an easy confidence, his hands tucked into the pockets of faded jeans that had seen better days. “You still want to talk?”\n\nAva nodded, her throat tight as she swallowed hard, the words lodged like stones. “Yeah, I guess so.” Each syllable felt heavy with the weight of everything left unspoken. She turned her gaze to the ground, focusing on a piece of litter tumbling across the asphalt, the movement a distraction from the intensity of his eyes. The last rays of sunlight bathed his features in warm hues, and for a fleeting moment, she longed to reach out and trace the line of his jaw, but the thought of vulnerability rooted her in place.\n\n“Let’s sit,” he suggested, gesturing toward an old wooden bench that sagged under its own weight, splintered and weathered from years of neglect. Rel"
+  },
+  "critique_snapshot": {
+    "summary": "Ava stands in an old parking lot, reflecting on her emotions while waiting for Jake. Their interaction reveals tension and unspoken feelings as they prepare to discuss their relationship.",
+    "weaknesses": [
+      "Vague descriptions that do not provide a clear picture of the setting.",
+      "Dialogue lacks grounding in physical action or the environment."
+    ],
+    "continuity_issues": [
+      "The transition from Ava's internal thoughts to Jake's entrance feels abrupt and lacks a smooth flow."
+    ],
+    "pacing_issues": [
+      "The pacing slows significantly during the dialogue, making the emotional weight feel stretched and less impactful."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid setting.",
+      "Ground dialogue in physical actions or the environment to increase realism."
+    ],
+    "generic_phrase_targets": [
+      "The phrase 'pulled her back into the moment' is clichéd and could be rephrased for originality."
+    ],
+    "detail_targets": [
+      "Descriptions of the parking lot and the bench could be more specific to evoke a stronger sense of place."
+    ],
+    "dialogue_grounding_targets": [
+      "Jake's dialogue should be more connected to the physical setting or actions to enhance realism."
+    ],
+    "emotional_show_targets": [
+      "Ava's internal struggle could be shown through more specific actions or reactions rather than vague feelings."
+    ],
+    "replacement_targets": [
+      "Replace 'the weight pressing down on her chest' with a more concrete description of her emotional state."
+    ],
+    "grounding_targets": [
+      "Include more sensory details related to the environment to ground the characters' emotions."
+    ],
+    "carryover_targets": [
+      "Ensure that Ava's thoughts and feelings carry over more fluidly into her interactions with Jake."
+    ]
+  },
+  "attempt_count": 4,
+  "acceptance_reason": "quality_failed",
+  "rewrite_used": true,
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [],
+      "generic_phrases_to_replace": [
+        "heavy with"
+      ],
+      "lines_to_repair": [
+        "“Yeah, I guess so.” Each syllable felt heavy with the weight of everything left unspoken."
+      ],
+      "required_concrete_anchor_terms": [
+        "across",
+        "weight"
+      ],
+      "repair_min_word_count": 272,
+      "repair_max_word_count": 481,
+      "min_paragraph_count": 2,
+      "max_paragraph_count": 6
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-4o",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rewrite_retry_model"
+    },
+    "patch_targets_summary": {
+      "target_count": 1,
+      "target_types": [
+        "generic"
+      ]
+    },
+    "rescue_failure_class": "patch_dialogue_grounding_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 321,
+    "rewritten_word_count": 321,
+    "min_word_count": 192,
+    "max_word_count": 674,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "his",
+      "that",
+      "distant",
+      "but",
+      "and",
+      "danced",
+      "across",
+      "old",
+      "breeze"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "his",
+      "that",
+      "distant",
+      "but",
+      "and",
+      "across",
+      "old"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 28
+  }
+}

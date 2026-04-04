@@ -1,0 +1,309 @@
+{
+  "chunk_id": "lf_b369c53f",
+  "validation_decision": true,
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "raw_preview": "The sun dipped low on the horizon, staining the sky in shades of amber and violet, as Mira leaned against the rough-hewn wooden railing of the porch, the cool evening breeze teasing her hair. The scen",
+      "normalized_preview": "The sun dipped low on the horizon, staining the sky in shades of amber and violet, as Mira leaned against the rough-hewn wooden railing of the porch, the cool evening breeze teasing her hair. The scen",
+      "raw_length": 1773,
+      "normalized_length": 1769,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKm9vtcovHlWs2e7jl78XbkTfwsxx\", \"object\": \"chat.completion\", \"created\": 1773844055, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The sun dipped low on the horizon, staining the sky in shades of amber and violet, as Mira leaned against the rough-hewn wooden railing of the porch, the cool evening breeze teasing her hair. The scent of damp earth and blooming jasmine wrapped around her like a familiar, comforting shawl. She",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 306,
+        "paragraph_count": 6,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 3,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 27,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 306,
+        "paragraph_count": 6,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 4,
+        "concrete_hits": 2,
+        "generic_hits": 1,
+        "stock_phrase_hits": 3,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": true,
+        "text": "The sun dipped low on the horizon, staining the sky in shades of amber and violet, as Mira leaned against the rough-hewn wooden railing of the porch, the cool evening breeze teasing her hair. The scent of damp earth and blooming jasmine wrapped around her like a familiar, comforting shawl. She let her gaze drift over the sprawling garden, each flower a burst of color against the encroaching twilight, their petals catching the last rays of sunlight. A soft rustle in the hedges snapped her attention back, and she turned to see Thomas, his hands shoved deep into the pockets of his worn jeans, his brow furrowed with thought.\n\n“Still out here?” he asked, his voice a low rumble, thick with the weight of the day.\n\n“Thought I’d catch the light before it disappeared,” she replied, her tone lighter than the heaviness settling in her chest. She didn’t want to talk about what loomed over them, the unspoken dread that had hung in the air since the news arrived. Instead, she focused on the way the shadows danced around him, the way his silhouette seemed to blur with the encroaching night.\n\nHe stepped closer, the floorboards creaking beneath his weight, and Mira felt the warmth radiating off him, a stark contrast to the chill creeping in from the night. “You should come in, you know. It’s getting late,” he said, his eyes searching hers, as if looking for something lost.\n\nMira shrugged, not trusting her voice to convey the swirl of emotions within. Instead, she turned her gaze back to the garden, where a flicker of movement caught her eye. A rabbit darted between the hedges, its white tail bobbing like a beacon in the dusk. “Look,” she said, pointing. “It’s still alive out there, despite everything.”\n\nHe followed her finger, a faint smile breaking through"
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "rewrite",
+        "escalated": false,
+        "reason": "rewrite_default"
+      },
+      "raw_preview": "The sun sank below the horizon, casting the sky in deep oranges and purples as Mira leaned against the rough-hewn wooden railing of the porch, her hair fluttering in the cool evening breeze. The air w",
+      "normalized_preview": "The sun sank below the horizon, casting the sky in deep oranges and purples as Mira leaned against the rough-hewn wooden railing of the porch, her hair fluttering in the cool evening breeze. The air w",
+      "raw_length": 1828,
+      "normalized_length": 1828,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKmACSw6hjSUqiR8ZgHX4zJmORzGD\", \"object\": \"chat.completion\", \"created\": 1773844072, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The sun sank below the horizon, casting the sky in deep oranges and purples as Mira leaned against the rough-hewn wooden railing of the porch, her hair fluttering in the cool evening breeze. The air was thick with the scent of damp earth and blooming jasmine, wrapping around her like a familia",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 310,
+        "paragraph_count": 5,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "guardrail_snapshot": {
+        "evaluated": true,
+        "mode": "rewrite",
+        "outline_titles": [],
+        "beat_refs": [],
+        "locked_facts_evaluated": false,
+        "length_band_evaluated": true,
+        "original_word_count": 306,
+        "rewritten_word_count": 310,
+        "min_word_count": 183,
+        "max_word_count": 642,
+        "within_length_band": true,
+        "outline_fidelity_evaluated": true,
+        "outline_fidelity_pass": true,
+        "original_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "his",
+          "and",
+          "mira",
+          "low",
+          "against",
+          "gaze",
+          "garden",
+          "encroaching",
+          "hedges"
+        ],
+        "retained_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "his",
+          "and",
+          "mira",
+          "against",
+          "gaze",
+          "garden",
+          "hedges"
+        ],
+        "outline_anchor_hits": [],
+        "required_anchor_overlap": 1,
+        "scene_anchor_drift_detected": false,
+        "new_story_elements": [],
+        "blocking_new_story_elements": [],
+        "authoritative_name_check": false,
+        "uncertainty_triggered": false,
+        "failure_reason": null,
+        "accepted": true,
+        "quality_total_score": 29
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 4,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 29,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 310,
+        "paragraph_count": 5,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 4,
+        "concrete_hits": 2,
+        "generic_hits": 0,
+        "stock_phrase_hits": 1,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The sun sank below the horizon, casting the sky in deep oranges and purples as Mira leaned against the rough-hewn wooden railing of the porch, her hair fluttering in the cool evening breeze. The air was thick with the scent of damp earth and blooming jasmine, wrapping around her like a familiar embrace. She let her gaze wander over the sprawling garden, where vibrant flowers clung to the fading light, their petals glowing softly against the growing shadows. A rustle in the hedges pulled her attention, and she turned to see Thomas emerging, hands shoved deep into the pockets of his faded jeans, a furrow of concern etched on his brow.\n\n“Still out here?” he asked, his voice a low rumble, resonating with the weight of the day that hung over them.\n\n“Thought I’d catch the light before it slipped away,” she replied, attempting to infuse her words with a lightness that belied the heaviness settling in her chest. The unspoken dread loomed between them, a silent specter since the news had shattered their fragile peace. She focused instead on the way the shadows flickered around him, how his silhouette softened against the encroaching night.\n\nHe stepped closer, the old floorboards creaking beneath his weight. Mira felt the warmth radiating from him, a stark contrast to the chill that seeped in with the darkness. “You should come inside. It’s getting late,” he said, his gaze searching hers as if seeking a lifeline in the depths of her uncertainty.\n\nMira shrugged, the movement small and tentative. She didn't trust her voice to carry the swirl of emotions churning within her. Instead, she turned her attention back to the garden, where a flicker of movement caught her eye. A rabbit darted between the hedges, its white tail bobbing like a beacon in the encroaching dusk. “Look,” she pointed, her voice breaking the"
+      },
+      "quality_pass": true,
+      "rewrite_delta": {
+        "total_delta": 2,
+        "stock_phrase_delta": 2,
+        "specificity_delta": 1,
+        "clarity_delta": 1,
+        "continuity_delta": 0
+      }
+    }
+  ],
+  "acceptance_reason": "rewrite_pass",
+  "critique_snapshot": {
+    "summary": "The scene depicts Mira leaning on a porch railing, observing the sunset and the garden while grappling with unspoken dread. Thomas joins her, prompting a conversation that hints at deeper issues between them, but they remain largely unaddressed. The atmosphere is rich with sensory details, but the dialogue lacks grounding in physical action.",
+    "weaknesses": [
+      "Generic phrasing detracts from the uniqueness of the scene.",
+      "Dialogue lacks physical grounding and connection to the setting.",
+      "Vague descriptions of emotions and actions lead to a lack of clarity."
+    ],
+    "continuity_issues": [
+      "The emotional tension between Mira and Thomas is not fully explored, leading to a disconnect in their interactions."
+    ],
+    "pacing_issues": [
+      "The scene feels slow due to lengthy descriptions that do not advance the emotional stakes or plot."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance the specificity of sensory details to create a more vivid scene.",
+      "Ground dialogue in physical actions or the environment to increase realism.",
+      "Clarify the emotional stakes between characters to improve engagement."
+    ],
+    "generic_phrase_targets": [
+      "staining the sky in shades of amber and violet",
+      "wrapped around her like a familiar, comforting shawl",
+      "burst of color against the encroaching twilight"
+    ],
+    "detail_targets": [
+      "the scent of damp earth and blooming jasmine",
+      "the way the shadows danced around him"
+    ],
+    "dialogue_grounding_targets": [
+      "“Still out here?” he asked",
+      "“Thought I’d catch the light before it disappeared,” she replied"
+    ],
+    "emotional_show_targets": [
+      "the heaviness settling in her chest",
+      "the swirl of emotions within"
+    ],
+    "replacement_targets": [
+      "the cool evening breeze teasing her hair",
+      "a faint smile breaking through"
+    ],
+    "grounding_targets": [
+      "leaned against the rough-hewn wooden railing",
+      "his hands shoved deep into the pockets of his worn jeans"
+    ],
+    "carryover_targets": []
+  },
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 306,
+    "rewritten_word_count": 310,
+    "min_word_count": 183,
+    "max_word_count": 642,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "his",
+      "and",
+      "mira",
+      "low",
+      "against",
+      "gaze",
+      "garden",
+      "encroaching",
+      "hedges"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "his",
+      "and",
+      "mira",
+      "against",
+      "gaze",
+      "garden",
+      "hedges"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 29
+  }
+}

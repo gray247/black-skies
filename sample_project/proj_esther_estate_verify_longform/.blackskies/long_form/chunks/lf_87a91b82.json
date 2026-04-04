@@ -1,0 +1,183 @@
+{
+  "chunk_id": "lf_87a91b82",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:49341c78fafa98b8f9aaee5318a8109060de52c6980d52920bed351ab58f58e8",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The sun dipped low in the sky, casting a golden light that glimmered off the surface of the river below",
+    "word_count": 616,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 5,
+      "specificity": 4,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 30,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 616,
+    "paragraph_count": 12,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 4,
+    "concrete_hits": 3,
+    "generic_hits": 1,
+    "stock_phrase_hits": 2,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The sun dipped low in the sky, casting a golden light that glimmered off the surface of the river below. Olivia stood at the edge of the old stone bridge, her fingers tracing the rough, cool surface of the railing. The stones felt ancient, their weathered texture a testament to time, while the river below roared, its waters churning and crashing against the rocks, a relentless force that echoed in her chest. She closed her eyes, letting the crisp scent of damp earth and wildflowers wash over her, trying to anchor herself in the moment.\n\n“Hey, you alright?” a voice called from behind, slicing through her thoughts. Startled, she turned to see Mark, his brow furrowed with concern. He stood a few feet away, his hands buried in the pockets of his worn jeans, shifting slightly as he waited for her response.\n\n“Just thinking,” she replied, forcing a smile that felt brittle, like glass ready to shatter. The words tumbled out, yet they fell short of conveying the storm swirling within her—a chaotic mix of hopes and fears that threatened to spill over.\n\nHe stepped closer, the wooden planks creaking softly under his weight as he leaned against the railing beside her. “Thinking too much can be dangerous, you know.” The teasing lilt in his voice was familiar, but the seriousness in his eyes cut through the levity. He often worried that she got lost in her own thoughts, a dreamer adrift in a sea of worries.\n\n“I know,” she said, her gaze shifting back to the river. The water sparkled in the fading light, but it felt like a mirror reflecting her anxiety back at her. Mark’s gaze felt heavy on her, a blend of empathy and concern that made her heart race. It was as if he could peel back the layers of her thoughts, revealing the tangled mess she wasn’t ready to share.\n\n“Want to talk about it?” He nudged her shoulder gently, a small gesture meant to bridge the distance that sometimes loomed large between them.\n\n“Not really,” she murmured, biting down on the inside of her cheek to steady herself. The truth was, she didn’t want to burden him with her uncertainties, the way her heart felt lodged in her throat whenever she dared to think about the future. It loomed over her like a precipice, sharp and daunting, and she felt like she was teetering at the edge.\n\nMark sighed, a warm sound that resonated with the weight of his concern. The frustration simmering beneath his calm exterior was palpable. “You know, bottling it up isn’t going to help. You can’t keep pretending everything’s fine.”\n\n“I’m not pretending,” she snapped, her voice sharper than she intended. The words hung in the air, raw and unfiltered, and for a moment, the silence stretched between them, filled only by the buzzing of cicadas.\n\n“Okay, maybe not pretending,” he replied slowly, his tone softening. “But you’re definitely not being honest either. What’s really going on?” He turned to face her fully, his expression earnest, making her stomach flutter with something that felt dangerously close to hope.\n\nShe inhaled deeply, the fresh scent of the river mingling with the sweetness of wildflowers, filling her lungs and igniting a fire of vulnerability in her chest. “I just… I don’t know what I want,” she confessed, the admission spilling out in a rush. “Everything feels so uncertain. I thought I had it all figured out, but now…” Her voice trailed off, fading into the rush of the water, leaving a silence that felt heavy, almost suffocating.\n\nMark’s gaze softened, understanding blooming in his eyes. “That’s okay. It’s okay not to know. You’re not alone in this,"
+  },
+  "critique_snapshot": {
+    "summary": "The scene depicts a moment between Olivia and Mark on an old stone bridge, where Olivia is lost in thought about her uncertainties. Mark tries to connect with her, encouraging her to open up about her feelings, but Olivia struggles with her emotions. The dialogue reveals their relationship dynamics and Olivia's internal conflict.",
+    "weaknesses": [
+      "Overly generic descriptions that lack specificity.",
+      "Dialogue lacks grounding in physical actions or setting.",
+      "Vague emotional expressions that don't fully convey the characters' feelings."
+    ],
+    "continuity_issues": [
+      "The transition from Olivia's introspection to Mark's entrance feels abrupt.",
+      "Mark's concern seems inconsistent with the earlier teasing tone."
+    ],
+    "pacing_issues": [
+      "The scene drags slightly in the middle with repetitive emotional reflections.",
+      "Some dialogue exchanges feel prolonged without advancing the plot."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid scene.",
+      "Ground dialogue in physical actions or setting to improve realism.",
+      "Clarify emotional expressions to better reflect the characters' internal states."
+    ],
+    "generic_phrase_targets": [
+      "The sun hung low in the sky",
+      "casting a warm golden hue",
+      "a constant companion",
+      "weight of his gaze"
+    ],
+    "detail_targets": [
+      "Old stone bridge",
+      "Weathered surface",
+      "Crisp scent of the river"
+    ],
+    "dialogue_grounding_targets": [
+      "Mark's entrance and physical positioning",
+      "Olivia's reactions to Mark's comments"
+    ],
+    "emotional_show_targets": [
+      "Olivia's internal conflict about the future",
+      "Mark's frustration and concern"
+    ],
+    "replacement_targets": [
+      "Replace generic phrases with more vivid imagery.",
+      "Substitute vague emotional expressions with specific actions or reactions."
+    ],
+    "grounding_targets": [
+      "Physical sensations of the bridge and the environment.",
+      "Concrete actions that reflect the characters' emotional states."
+    ],
+    "carryover_targets": []
+  },
+  "attempt_count": 2,
+  "acceptance_reason": "rewrite_pass",
+  "rewrite_used": true,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 618,
+    "rewritten_word_count": 616,
+    "min_word_count": 370,
+    "max_word_count": 1297,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "his",
+      "and",
+      "that",
+      "not",
+      "you",
+      "but",
+      "felt",
+      "was",
+      "voice"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "his",
+      "and",
+      "that",
+      "not",
+      "you",
+      "but",
+      "felt",
+      "was",
+      "voice"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 30
+  }
+}

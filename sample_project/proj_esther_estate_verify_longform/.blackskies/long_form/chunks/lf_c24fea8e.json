@@ -1,0 +1,257 @@
+{
+  "chunk_id": "lf_c24fea8e",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:09f9cff19caf512742b22d80c527784b865b4aed48d21cdff595853a338e4ead",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 21,
+    "fallback_reason": "quality_failed"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "quality_failed"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 2,
+      "meta_free": 5
+    },
+    "total_score": 26,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 308,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": false,
+    "sensory_hits": 4,
+    "concrete_hits": 1,
+    "generic_hits": 0,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The scent of freshly baked bread wafted through the narrow streets, intertwining with the salty tang of the sea that crashed rhythmically against the docks just beyond the uneven cobblestones. Isolde paused for a moment, allowing the warmth of the sun to envelop her, a stark contrast to the cool breeze that playfully tangled her hair. She closed her eyes, letting the vibrant sounds and rich aromas of the bustling market wash over her, a temporary reprieve from the oppressive weight of the council meeting that lingered in her mind like a persistent storm cloud.\n\n“Isolde!” A familiar voice cut through the market’s clamor, and she turned to see Marek weaving through the throng of vendors, his arms loaded with bulging cloth bags. He approached her with a wide grin, one that crinkled the corners of his brilliant blue eyes, illuminating his face. “You’ll never believe what I found!”\n\n“Let me guess. More of that dreadful fish stew?” she quipped, her attempt at humor a fragile shield against the heaviness that had settled in her chest since the last council meeting. The heated arguments replayed like an unwanted melody in her thoughts, but Marek’s infectious spirit had a way of soothing her unease.\n\n“Worse!” he declared, laughter bubbling up as he pulled a bag from the others. The contents rattled inside like a maraca. “Dried squid! Just what we need for a feast, right?”\n\nIsolde snorted, the tension in her shoulders easing slightly. “Only if you want to clear the market,” she shot back, the corners of her lips curling up in a reluctant smile. But her amusement faltered as her gaze drifted past Marek to the merchant behind him. The man had a weathered face, deeply etched lines telling stories of hardship, and his piercing gaze seemed to scan the crowd with intent, lingering uncomfortably on them."
+  },
+  "critique_snapshot": {
+    "summary": "The scene captures Isolde in a bustling market, where she is momentarily uplifted by the presence of her friend Marek, who brings humor and lightness. However, her mood shifts as she becomes aware of a suspicious merchant watching them, creating tension.",
+    "weaknesses": [
+      "Vague descriptions of the setting and characters.",
+      "Dialogue lacks grounding in physical actions or specific interactions.",
+      "Generic phrases diminish emotional impact."
+    ],
+    "continuity_issues": [
+      "The transition from light-hearted banter to tension feels abrupt and lacks buildup."
+    ],
+    "pacing_issues": [
+      "The scene shifts quickly from sensory detail to dialogue without a smooth transition."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions of the setting and characters.",
+      "Ground dialogue in physical actions or the environment.",
+      "Replace generic phrases with more vivid and unique expressions."
+    ],
+    "generic_phrase_targets": [
+      "The weight of the world",
+      "Like an unwanted shadow",
+      "Just what we need for a feast"
+    ],
+    "detail_targets": [
+      "Description of the merchant's appearance and demeanor.",
+      "More sensory details about the market atmosphere."
+    ],
+    "dialogue_grounding_targets": [
+      "Marek's entrance and actions should be more physically described.",
+      "Isolde's reactions should connect more with her surroundings."
+    ],
+    "emotional_show_targets": [
+      "Show Isolde's internal conflict more vividly rather than stating it.",
+      "Deepen Marek's concern through his physical reactions."
+    ],
+    "replacement_targets": [
+      "Replace 'nothing' with a more specific reaction from Isolde.",
+      "Substitute 'that man' with a more descriptive identifier."
+    ],
+    "grounding_targets": [
+      "Include more physical actions that reflect Isolde's emotional state.",
+      "Describe Marek's movements in relation to the crowd."
+    ],
+    "carryover_targets": [
+      "Ensure the tension from the council meeting is more clearly reflected in Isolde's behavior."
+    ]
+  },
+  "attempt_count": 4,
+  "acceptance_reason": "quality_failed",
+  "rewrite_used": true,
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_model_name": "gpt-5.4-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Isolde!” A familiar voice cut through the market’s clamor, and she turned to see Marek weaving through the throng of vendors, his arms loaded with bulging cloth bags.",
+        "“You’ll never believe what I found!”\n\n“Let me guess.",
+        "More of that dreadful fish stew?” she quipped, her attempt at humor a fragile shield against the heaviness that had settled in her chest since the last council meeting.",
+        "“Worse!” he declared, laughter bubbling up as he pulled a bag from the others."
+      ],
+      "generic_phrases_to_replace": [
+        "Just what we need for a feast",
+        "for a moment"
+      ],
+      "lines_to_repair": [
+        "Isolde paused for a moment, allowing the warmth of the sun to envelop her, a stark contrast to the cool breeze that playfully tangled her hair.",
+        "Just what we need for a feast, right?”\n\nIsolde snorted, the tension in her shoulders easing slightly.",
+        "“Isolde!” A familiar voice cut through the market’s clamor, and she turned to see Marek weaving through the throng of vendors, his arms loaded with bulging cloth bags.",
+        "“You’ll never believe what I found!”\n\n“Let me guess.",
+        "More of that dreadful fish stew?” she quipped, her attempt at humor a fragile shield against the heaviness that had settled in her chest since the last council meeting.",
+        "“Worse!” he declared, laughter bubbling up as he pulled a bag from the others."
+      ],
+      "required_concrete_anchor_terms": [
+        "isolde",
+        "market",
+        "marek"
+      ],
+      "repair_min_word_count": 261,
+      "repair_max_word_count": 462,
+      "min_paragraph_count": 3,
+      "max_paragraph_count": 7
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rescue_model"
+    },
+    "rescue_generation_strategy": "local_rewrite_block",
+    "configured_rescue_generation_strategy": "hybrid_escalation",
+    "rescue_slots_summary": {
+      "slot_count": 6,
+      "target_types": [
+        "generic",
+        "generic",
+        "dialogue",
+        "dialogue",
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_length_distortion"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 299,
+    "rewritten_word_count": 308,
+    "min_word_count": 179,
+    "max_word_count": 627,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "that",
+      "she",
+      "and",
+      "eyes",
+      "for",
+      "marek",
+      "his",
+      "what",
+      "isolde",
+      "market"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "that",
+      "she",
+      "and",
+      "eyes",
+      "for",
+      "marek",
+      "his",
+      "isolde",
+      "market"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 26
+  }
+}

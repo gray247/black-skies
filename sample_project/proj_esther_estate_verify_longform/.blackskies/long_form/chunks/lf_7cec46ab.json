@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_7cec46ab",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:a7758e70b57975402677a966f9c7fd2d24d1027e2affde3db4edc240e96d2fbe",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The sun dipped low in the sky, casting a molten orange glow that painted the rooftops in hues of fire",
+    "word_count": 307,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 30,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 307,
+    "paragraph_count": 6,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 4,
+    "concrete_hits": 4,
+    "generic_hits": 0,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The sun dipped low in the sky, casting a molten orange glow that painted the rooftops in hues of fire. Mia stood on the narrow balcony, the cool iron railing biting into her palms as she leaned over to peer into the bustling street below. Voices mingled with the distant laughter of children chasing each other, their squeals a reminder of the life pulsing just beyond her door. She could almost taste the warmth of the street vendors’ fried pastries, the fragrant spices lingering in the evening air.\n\n“Are you coming?” a voice called from behind her, laced with an impatience that felt familiar, yet somehow distant. It was Noah, his silhouette framed by the dim light spilling from the living room. She turned, catching a glimpse of his brow furrowed with concern, his hands shoved deep into the pockets of his worn jeans.\n\n“In a minute,” she replied, her voice barely above a whisper. The weight of the moment pressed against her chest, thick and suffocating. She knew they needed to leave, to face whatever awaited them outside, but the allure of the fading sun held her captive. The world beyond felt like a different realm, one she wasn’t sure she was ready to re-enter.\n\n“Just a minute?” he persisted, stepping closer, the scent of his cologne mingling with the jasmine from the flowerpots lining the balcony. “Mia, we’ve talked about this.”\n\nHis words were a thread tugging at her, unraveling a knot of fear and uncertainty that had tightened since the storm rolled in. She turned her gaze back to the street, where an elderly man shuffled past, his cane tapping rhythmically against the cobblestones. “I know,” she said finally, her voice steadier now, but still trailing off like a fading echo. “It’s just—”\n\n“Just what?” Noah pressed, his frustration palpable, but beneath it, she"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

@@ -1,0 +1,245 @@
+{
+  "chunk_id": "lf_779ee4a8",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:a8eb3ad3eec5a4badc2445cf3303d431aa89d4f442b8d04f1669f0cc29430481",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 21,
+    "fallback_reason": "quality_failed"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "quality_failed"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 28,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 303,
+    "paragraph_count": 8,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 5,
+    "concrete_hits": 1,
+    "generic_hits": 1,
+    "stock_phrase_hits": 2,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "of Mia’s gaze pressing against her. She took a deep breath, the aroma of coffee and damp earth from outside intertwining in her senses. The café felt alive around her, the chatter of patrons rising and falling like a gentle tide, yet she felt isolated, marooned in her own thoughts.\n\n“Just thinking,” Eliza murmured, her fingers continuing their idle tracing along the latte cup, the smooth ceramic cool against her skin. She glanced out the window again, watching as the rain splattered against the pavement, creating small rivers that twisted and turned. “About everything and nothing, I guess.”\n\nMia leaned forward, elbows resting on the table, her expression shifting from playful to concerned. “You’ve been staring out that window for ages. Come on, spill it. What’s really bothering you?”\n\nEliza’s heart raced, a flutter of anxiety rising in her chest. She could feel the warmth of the latte fading as she hesitated, the steam curling lazily into the air. The laughter of the couple outside echoed in her ears, a stark reminder of the joy she felt she was missing. “I just... I don’t know what to do next,” she admitted, her voice barely above a whisper. “Everything feels so... uncertain.”\n\nMia’s smile faded, replaced by an understanding nod. “I get that. But you can’t just sit here and wait for answers to fall from the sky. You have to try something, even if it’s scary.”\n\nEliza’s gaze dropped to the table, tracing the grooves of the wood as if searching for answers hidden in its grains. “What if I make the wrong choice?” she asked, her voice thick with unspoken fears.\n\n“Then you make another choice,” Mia replied, her tone firm yet encouraging. She reached across the table, her hand covering Eliza’s. “You’re not alone in this. You never have been.”\n\nThe"
+  },
+  "critique_snapshot": {
+    "summary": "The scene takes place in a café where Eliza is lost in thought, reflecting on her indecision while sipping her latte. Her friend Mia interrupts her contemplation, leading to a playful exchange that hints at deeper issues Eliza is grappling with.",
+    "weaknesses": [
+      "The prose relies heavily on generic phrases and metaphors that detract from the uniqueness of the scene.",
+      "Dialogue lacks grounding in physical actions or the setting, making it feel disconnected from the environment."
+    ],
+    "continuity_issues": [
+      "The transition from Eliza's introspection to Mia's entrance feels abrupt and lacks a clear connection.",
+      "Eliza's emotional state is introduced but not fully explored, leading to a disjointed understanding of her character."
+    ],
+    "pacing_issues": [
+      "The pacing slows significantly during Eliza's introspection, which could be balanced with more dynamic interactions with Mia."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance the specificity of Eliza's emotional state and her surroundings.",
+      "Ground dialogue in physical actions or reactions to the setting to create a more immersive experience."
+    ],
+    "generic_phrase_targets": [
+      "like a warm blanket",
+      "slipping away too quickly",
+      "the familiar weight of indecision",
+      "a heavy cloak"
+    ],
+    "detail_targets": [
+      "More vivid descriptions of the café environment and Eliza's internal conflict.",
+      "Clarify the emotional stakes for Eliza to enhance reader engagement."
+    ],
+    "dialogue_grounding_targets": [
+      "Incorporate physical actions or reactions that correspond with the dialogue to create a more cohesive interaction."
+    ],
+    "emotional_show_targets": [
+      "Show Eliza's internal struggle through her actions or further sensory details rather than relying solely on metaphor."
+    ],
+    "replacement_targets": [
+      "Replace generic phrases with more original and specific imagery that reflects Eliza's unique experience."
+    ],
+    "grounding_targets": [
+      "Add sensory details that connect Eliza's thoughts to her physical surroundings, enhancing the scene's atmosphere."
+    ],
+    "carryover_targets": [
+      "Ensure that Eliza's emotional journey is more clearly linked to her dialogue with Mia, creating a stronger narrative thread."
+    ]
+  },
+  "attempt_count": 4,
+  "acceptance_reason": "quality_failed",
+  "rewrite_used": true,
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": false,
+    "rescue_mode_used": true,
+    "rescue_model_used": false,
+    "rescue_model_name": "gpt-4o-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Just thinking,” Eliza murmured, her fingers continuing their idle tracing along the latte cup, the smooth ceramic cool against her skin.",
+        "“About everything and nothing, I guess.”\n\nMia leaned forward, elbows resting on the table, her expression shifting from playful to concerned.",
+        "“You’ve been staring out that window for ages.",
+        "What’s really bothering you?”\n\nEliza’s heart raced, a flutter of anxiety rising in her chest."
+      ],
+      "generic_phrases_to_replace": [
+        "heart raced",
+        "voice barely above a whisper"
+      ],
+      "lines_to_repair": [
+        "What’s really bothering you?”\n\nEliza’s heart raced, a flutter of anxiety rising in her chest.",
+        "I don’t know what to do next,” she admitted, her voice barely above a whisper.",
+        "“Just thinking,” Eliza murmured, her fingers continuing their idle tracing along the latte cup, the smooth ceramic cool against her skin.",
+        "“About everything and nothing, I guess.”\n\nMia leaned forward, elbows resting on the table, her expression shifting from playful to concerned.",
+        "“You’ve been staring out that window for ages."
+      ],
+      "required_concrete_anchor_terms": [
+        "eliza",
+        "against"
+      ],
+      "repair_min_word_count": 257,
+      "repair_max_word_count": 454,
+      "min_paragraph_count": 6,
+      "max_paragraph_count": 10
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": false,
+      "reason": "rescue_model"
+    },
+    "rescue_slots_summary": {
+      "slot_count": 5,
+      "target_types": [
+        "dialogue",
+        "generic",
+        "dialogue",
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_dialogue_grounding_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 306,
+    "rewritten_word_count": 303,
+    "min_word_count": 183,
+    "max_word_count": 642,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "that",
+      "you",
+      "and",
+      "eliza",
+      "rain",
+      "was",
+      "mia",
+      "window",
+      "fingers"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "that",
+      "you",
+      "and",
+      "eliza",
+      "mia"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 28
+  }
+}

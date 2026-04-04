@@ -1,0 +1,9 @@
+﻿The weak beam of the cracked brass lantern flickered, casting long shadows that danced along the damp walls of the corridor. Clara's heart raced, each thud resonating in her ears, drowning out the distant patter of rain that still clung to the greenhouse. Her fingers tightened around the red ribbon, the key now an uncomfortable weight on her wrist, as if it were alive and thrumming with a pulse of its own. “Jun, we need to keep moving,” she said, her voice sharper than intended, cutting through the thick air.
+
+Jun glanced back, his soaked coat clinging to him like a second skin, the fabric darkened and heavy. “Did you hear that?” he asked, his eyes wide, darting toward the chained door behind them. The chain rattled softly, a sympathetic echo of their own fraying nerves. “It sounded like someone—”
+
+“It's just the wind,” Clara interrupted, though her own voice trembled, betraying her. She stepped forward, the muddied prints on the floor drawing her gaze. They were fresh, stark against the stone, leading toward the end of the corridor, where the light faded into a deeper darkness. “We can’t stand here.”
+
+But Jun hesitated, his lantern sputtering again, the light dimming to a feeble glow. “What if—what if there’s someone in here?” The tremor in his voice was unmistakable, a crack in his usually steady facade. Clara could see the shadows pooling under his eyes, the way his hands fidgeted with the lantern’s handle, as if he were trying to hold onto something solid in a world that was quickly unraveling.
+
+“We have to check,” Clara said, the words tumbling out before she could think to soften them. She felt a coil of anxiety twist in her stomach. “We’re not going to find anything standing around.” The thought of the child’s cough

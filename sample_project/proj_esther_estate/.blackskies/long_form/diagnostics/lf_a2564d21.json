@@ -1,0 +1,21 @@
+{
+  "chunk_id": "lf_a2564d21",
+  "reason": {
+    "usable": false,
+    "word_count": 3,
+    "paragraph_count": 1,
+    "meta_summary": false,
+    "missing_carryover": false
+  },
+  "validation_decision": false,
+  "fallback_reason": "invalid_output",
+  "extracted_field": "thinking",
+  "thinking_fallback": true,
+  "reasoning_trim_applied": true,
+  "raw_length": 954,
+  "normalized_length": 13,
+  "raw_preview": "Hmm, the user wants me to write immersive scene prose as a novelist. They've given very specific instructions: I need to output only narrative prose without any analysis, planning, or meta commentary.",
+  "normalized_preview": "For the scene",
+  "word_count": 3,
+  "paragraph_count": 1
+}

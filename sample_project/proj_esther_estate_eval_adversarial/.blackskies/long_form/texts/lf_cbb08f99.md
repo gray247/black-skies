@@ -1,0 +1,9 @@
+﻿Clara tightened her grip around the lantern, the crackling brass warm against her clammy palm, and stepped forward, the wet hem of her coat dragging through the muck that had seeped into the corridor. Jun hesitated behind her, his breath shallow, the soft sound of his coat rustling like whispers in the dark. “We have to keep moving,” she urged, her voice sharper than she intended, echoing off the stone walls. She could feel the tremor in her words, a vibration that seemed to resonate with the rattling chain at the door, as if they were all too aware of the unseen presence testing its grip from the other side.
+
+Ahead, the lantern sputtered again, its light caught in a flickering dance with the shadows that clung to the corners, revealing the uneven stones slick with moisture. Muddy footprints traced a path ahead, starkly contrasting against the rough stone, leading deeper into the darkness. Clara’s heart thudded in her chest, each beat punctuated by the unsettling thought that they weren’t alone. “Someone else is here,” she whispered, her voice a fragile thread in the oppressive silence.
+
+Jun swallowed hard, the shadows under his eyes deepening, his gaze darting toward the door as if he expected it to burst open at any moment. “What if it’s not safe?” His voice quivered, a note of fear creeping in that made Clara’s stomach knot. She could see it in him—the way his shoulders hunched slightly, as if bracing for an unseen blow.
+
+“It has to be safe,” she insisted, forcing the words out with a conviction she didn’t feel. The parlor key, tied securely to her wrist, felt suddenly heavy, a reminder of the secrets that lay behind locked doors. She had never questioned its presence before, but now it felt like a burden, a weight of expectation.
+
+As they moved forward, the air

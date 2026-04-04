@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_aa53308b",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:a98dd10528cf35ed66c837ae4b6c5129a78d4bc50ed2fcf3cf735f010dcdc4f2",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The air hung thick with the damp scent of earth, a musty blend of mold and rain-soaked wood that clung to Clara’s skin as she stepped deeper into the dimly lit corridor",
+    "word_count": 310,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 30,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 310,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 8,
+    "concrete_hits": 9,
+    "generic_hits": 1,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The air hung thick with the damp scent of earth, a musty blend of mold and rain-soaked wood that clung to Clara’s skin as she stepped deeper into the dimly lit corridor. Shadows danced along the walls, flickering in the weak glow of Jun’s cracked brass lantern, which sputtered like a tired breath. The light barely managed to push back the encroaching darkness, leaving long stretches of corridor draped in inky blackness. Clara's heart quickened, each thud echoing in her ears as the lantern flickered again, sending a spasm of anxiety through her gut.\n\n“Do you think it’s safe?” Jun whispered, his voice barely audible, thick with fear. The fabric of his coat, still drenched from the rain that had poured down in torrents, clung to him, and Clara could almost see the chill racing down his spine, even in the half-light.\n\n“It has to be,” she replied too quickly, a sharpness in her tone she hadn’t intended. Her fingers brushed the red ribbon tied around her wrist, feeling the weight of the parlor key against her skin, a tether to something familiar amidst the chaos. She couldn't shake the feeling that it was somehow tied to the strange happenings in the house, to the whispers that seemed to curl around her like smoke.\n\nAs they moved forward, the sound of her shoes squelching in the mud—thick and dark, almost alive—filled the silence. She glanced down at the floor, noting the muddy prints that led away from them, deep impressions that spoke of a presence in the corridor, one that had walked this way only moments before. Clara’s stomach twisted; the thought of someone else lurking in the shadows sent a prickle of cold sweat down her back.\n\n“Did you hear that?” Jun’s voice cracked, his eyes wide, darting around them as if expecting someone to leap from the shadows"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

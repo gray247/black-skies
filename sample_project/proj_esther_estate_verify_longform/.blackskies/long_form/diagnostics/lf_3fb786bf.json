@@ -1,0 +1,378 @@
+{
+  "chunk_id": "lf_3fb786bf",
+  "validation_decision": false,
+  "fallback_reason": "rewrite_guardrail_failed",
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "basic_validation": {
+        "usable": true,
+        "word_count": 607,
+        "paragraph_count": 12,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [
+          "whipped",
+          "narrow",
+          "streets",
+          "carrying",
+          "scent",
+          "earth",
+          "metallic",
+          "river"
+        ],
+        "carryover_hits": 6,
+        "material_carryover_hits": 0
+      },
+      "raw_preview": "Clara quickened her pace, the cobblestones slick beneath her boots, each step a reminder of the urgency thrumming in her veins. The wind howled through the narrow streets, a relentless companion that ",
+      "normalized_preview": "Clara quickened her pace, the cobblestones slick beneath her boots, each step a reminder of the urgency thrumming in her veins. The wind howled through the narrow streets, a relentless companion that ",
+      "raw_length": 3581,
+      "normalized_length": 3580,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DK7p55Or63UUxI4mjB7xYbjVVOpfd\", \"object\": \"chat.completion\", \"created\": 1773689003, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"Clara quickened her pace, the cobblestones slick beneath her boots, each step a reminder of the urgency thrumming in her veins. The wind howled through the narrow streets, a relentless companion that tugged at her scarf and stung her cheeks with its icy breath. She could feel the bite of the c",
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 4,
+          "clarity": 2,
+          "pacing": 5,
+          "specificity": 3,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 28,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 607,
+        "paragraph_count": 12,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 10,
+        "concrete_hits": 4,
+        "generic_hits": 0,
+        "stock_phrase_hits": 3,
+        "carryover_terms": [
+          "whipped",
+          "narrow",
+          "streets",
+          "carrying",
+          "scent",
+          "earth",
+          "metallic",
+          "river"
+        ],
+        "carryover_hits": 6,
+        "material_carryover_hits": 0,
+        "material_carryover": false,
+        "weak_carryover": false,
+        "generic_risk": true,
+        "text": "Clara quickened her pace, the cobblestones slick beneath her boots, each step a reminder of the urgency thrumming in her veins. The wind howled through the narrow streets, a relentless companion that tugged at her scarf and stung her cheeks with its icy breath. She could feel the bite of the chill in her bones, a creeping discomfort that gnawed at her resolve. The streetlamp ahead flickered more violently now, casting shadows that danced along the walls of the buildings, their stone faces worn and weary, as if they too were burdened by secrets.\n\nHer breath came out in puffs of fog, mingling with the earthy scent of the damp ground. The river, hidden somewhere beyond the cobblestones, whispered its metallic promise, a reminder of the weight she carried. Clara’s fingers brushed against the rough fabric of her scarf, the scratchy fibers grounding her in the moment, but they also tugged at the edges of her anxiety, pulling her thoughts back to the conversation she had left unfinished.\n\n“Clara!” A voice sliced through the wind, familiar yet fraught with urgency. She turned sharply, her heart racing. It was Tomas, his silhouette emerging from the shadows, his coat flapping against the gusts. “There you are. I thought you would’ve—”\n\n“I’m not ready,” she interrupted, her voice sharper than intended. The words felt jagged, but the urgency of the moment demanded them. She wasn’t ready. Not for the meeting, not for the consequences that loomed overhead like dark clouds threatening rain.\n\nHis brow furrowed, a mix of concern and frustration etching lines into his face. “You can’t keep avoiding this, Clara. They need to know what we found.”\n\nShe glanced away, the flickering light playing tricks with her vision, casting her thoughts into shadow. “What we found,” she echoed, the weight of those words heavy on her tongue. The discovery had been like pulling a thread from a fraying tapestry; now everything felt on the verge of unraveling. “What if they don’t understand?”\n\n“They’ll understand more than you think,” he pressed, stepping closer, the warmth of his presence battling the cold that enveloped her. She could see the urgency in his eyes, the way they flickered with a mix of determination and worry. “But we have to tell them. We can’t hide this.”\n\nThe wind howled again, a fierce reminder of the world outside their bubble—a world that would not wait for her to gather her thoughts. “This isn’t just about the findings, Tomas. It’s about how they’ll react.” The words hung in the air, heavy with implications. She could almost taste the fear, acrid and bitter, rising in her throat.\n\nHis gaze softened, the tension easing slightly as he reached out, brushing his fingers against her arm. “Whatever happens, we’ll face it together. You don’t have to do this alone.” The sincerity in his voice wrapped around her like a fragile thread of hope, but it was a thread she was afraid to grasp.\n\nThe streetlamp flickered again, illuminating the path ahead, but the way forward felt obscured by shadows. She hesitated, her heart pounding in rhythm with the distant clatter of the cart on the cobblestones, a metronome counting down the moments. “What if they turn on us?” The question slipped out before she could stop it, a manifestation of her deepest dread.\n\n“They won’t. Not if we stand firm,” Tomas replied, his voice steady like the ground beneath her feet. “But we have to go now. Before it’s too late.”\n\nClara nodded slowly, the wind tugging at her scarf, whispering uncertainties in her ear. She took a deep breath, the chill biting into her lungs, and"
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "rewrite",
+        "escalated": false,
+        "reason": "rewrite_default"
+      },
+      "basic_validation": {
+        "usable": true,
+        "word_count": 599,
+        "paragraph_count": 12,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [
+          "whipped",
+          "narrow",
+          "streets",
+          "carrying",
+          "scent",
+          "earth",
+          "metallic",
+          "river"
+        ],
+        "carryover_hits": 7,
+        "material_carryover_hits": 0
+      },
+      "raw_preview": "Clara quickened her pace, the cobblestones slick beneath her boots, each step echoing the urgency thrumming in her veins. The wind whipped through the narrow streets, an insistent force that tugged at",
+      "normalized_preview": "Clara quickened her pace, the cobblestones slick beneath her boots, each step echoing the urgency thrumming in her veins. The wind whipped through the narrow streets, an insistent force that tugged at",
+      "raw_length": 3623,
+      "normalized_length": 3623,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DK7pWnTTYDNYtQb0nfl4HkRdBw0Q1\", \"object\": \"chat.completion\", \"created\": 1773689030, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"Clara quickened her pace, the cobblestones slick beneath her boots, each step echoing the urgency thrumming in her veins. The wind whipped through the narrow streets, an insistent force that tugged at her scarf and stung her cheeks with its icy breath. The chill seeped into her bones, an unwel",
+      "guardrail_snapshot": {
+        "evaluated": true,
+        "mode": "rewrite",
+        "outline_titles": [],
+        "beat_refs": [],
+        "locked_facts_evaluated": false,
+        "length_band_evaluated": true,
+        "original_word_count": 607,
+        "rewritten_word_count": 599,
+        "min_word_count": 364,
+        "max_word_count": 1274,
+        "within_length_band": true,
+        "outline_fidelity_evaluated": true,
+        "outline_fidelity_pass": false,
+        "original_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "his",
+          "they",
+          "that",
+          "and",
+          "but",
+          "clara",
+          "you",
+          "not",
+          "urgency"
+        ],
+        "retained_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "his",
+          "they",
+          "that",
+          "and",
+          "but",
+          "clara",
+          "you"
+        ],
+        "outline_anchor_hits": [
+          "the",
+          "her",
+          "she",
+          "and",
+          "against",
+          "that",
+          "wind",
+          "clara",
+          "his"
+        ],
+        "required_anchor_overlap": 1,
+        "scene_anchor_drift_detected": false,
+        "new_story_elements": [
+          "tomas",
+          "what"
+        ],
+        "blocking_new_story_elements": [
+          "tomas",
+          "what"
+        ],
+        "authoritative_name_check": true,
+        "uncertainty_triggered": true,
+        "failure_reason": "outline_drift_detected",
+        "accepted": false,
+        "quality_total_score": 32
+      },
+      "guardrail_blocked": true
+    }
+  ],
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 4,
+      "clarity": 4,
+      "pacing": 5,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 32,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 599,
+    "paragraph_count": 12,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 9,
+    "concrete_hits": 4,
+    "generic_hits": 0,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [
+      "whipped",
+      "narrow",
+      "streets",
+      "carrying",
+      "scent",
+      "earth",
+      "metallic",
+      "river"
+    ],
+    "carryover_hits": 7,
+    "material_carryover_hits": 0,
+    "material_carryover": false,
+    "weak_carryover": false,
+    "generic_risk": false
+  },
+  "critique_snapshot": {
+    "summary": "The scene follows Clara as she navigates a tense moment in a cold, windy street, grappling with her anxiety about an impending meeting. She encounters Tomas, who urges her to confront their discovery, leading to a dialogue filled with urgency and emotional weight.",
+    "weaknesses": [
+      "Overuse of generic phrases and imagery that detracts from the uniqueness of the scene.",
+      "Vague descriptions that fail to create a strong sense of place or atmosphere.",
+      "Dialogue that lacks grounding in physical actions or the immediate setting."
+    ],
+    "continuity_issues": [
+      "The transition from Clara's internal thoughts to dialogue feels abrupt and lacks a smooth flow."
+    ],
+    "pacing_issues": [
+      "The pacing is inconsistent, with some moments feeling rushed while others linger too long on descriptions."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid setting.",
+      "Ground dialogue in physical actions or reactions to the environment.",
+      "Reduce reliance on generic phrases and stock imagery."
+    ],
+    "generic_phrase_targets": [
+      "the wind howled",
+      "narrow streets",
+      "a reminder of the urgency",
+      "the weight she carried",
+      "the chill biting into her lungs"
+    ],
+    "detail_targets": [
+      "the cobblestones slick beneath her boots",
+      "the streetlamp ahead flickered more violently now",
+      "the earthy scent of the damp ground"
+    ],
+    "dialogue_grounding_targets": [
+      "Clara's interruption of Tomas",
+      "Tomas's concern and frustration",
+      "Clara's response about their findings"
+    ],
+    "emotional_show_targets": [
+      "Clara's anxiety about the meeting",
+      "Tomas's determination and worry",
+      "Clara's fear of their discovery's implications"
+    ],
+    "replacement_targets": [
+      "replace 'the wind howled' with a more specific action or sound",
+      "replace 'the chill biting into her lungs' with a more unique sensory description"
+    ],
+    "grounding_targets": [
+      "Clara's physical actions as she interacts with her environment",
+      "Tomas's movements and gestures during their conversation"
+    ],
+    "carryover_targets": [
+      "the urgency thrumming in her veins",
+      "the flickering light playing tricks with her vision",
+      "the shadows dancing along the walls"
+    ]
+  },
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 607,
+    "rewritten_word_count": 599,
+    "min_word_count": 364,
+    "max_word_count": 1274,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": false,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "his",
+      "they",
+      "that",
+      "and",
+      "but",
+      "clara",
+      "you",
+      "not",
+      "urgency"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "his",
+      "they",
+      "that",
+      "and",
+      "but",
+      "clara",
+      "you"
+    ],
+    "outline_anchor_hits": [
+      "the",
+      "her",
+      "she",
+      "and",
+      "against",
+      "that",
+      "wind",
+      "clara",
+      "his"
+    ],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [
+      "tomas",
+      "what"
+    ],
+    "blocking_new_story_elements": [
+      "tomas",
+      "what"
+    ],
+    "authoritative_name_check": true,
+    "uncertainty_triggered": true,
+    "failure_reason": "outline_drift_detected",
+    "accepted": false,
+    "quality_total_score": 32
+  }
+}

@@ -1,0 +1,295 @@
+{
+  "chunk_id": "lf_42247525",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0003"
+  ],
+  "order": 3,
+  "continuation_of": "lf_759f33cc",
+  "prompt_fingerprint": "sha256:4d233b4617d74ba1bcc6d8e999c64e6fdf51378e928d409e53198e9285b18d01",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 45,
+    "fallback_reason": "quality_failed"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.02,
+    "total_after_usd": 0.03
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "quality_failed"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 4,
+      "clarity": 2,
+      "pacing": 5,
+      "specificity": 2,
+      "dialogue": 2,
+      "meta_free": 5
+    },
+    "total_score": 25,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 593,
+    "paragraph_count": 7,
+    "dialogue_present": true,
+    "dialogue_grounded": false,
+    "sensory_hits": 12,
+    "concrete_hits": 3,
+    "generic_hits": 0,
+    "stock_phrase_hits": 3,
+    "carryover_terms": [
+      "rain",
+      "bench",
+      "floor",
+      "lashed",
+      "against",
+      "hurling",
+      "itself",
+      "force"
+    ],
+    "carryover_hits": 4,
+    "material_carryover_hits": 0,
+    "material_carryover": false,
+    "weak_carryover": false,
+    "generic_risk": true,
+    "text": "The rain drummed furiously against the tin roof of the old shed, each drop a percussion that reverberated throughout the confined space. Clara crouched beside a rusted tool bench, her fingers tracing the chipped paint of forgotten cans and the gnarled handles of tools long past their prime. Dust motes swirled lazily in the faint light, and the musty scent of damp wood mingled with the earthy aroma of the rain-soaked ground outside, enveloping her like a thick cloak.\n\nA sudden rustle from the corner of the shed jolted her, a fragile sound slicing through the heavy silence. Clara froze, her breath caught in her throat. Leaning forward, she clutched the edge of the workbench, the rough wood biting into her palm. “Hello?” she ventured, her voice a mere whisper against the relentless patter of rain, her words tinged with trepidation. The shadows thickened in response, swallowing her voice whole. Silence settled around her, and she exhaled slowly, her breath a warm mist in the chill air.\n\nGingerly, Clara straightened, her bare feet sinking into the cold, gritty floor with each step. She moved forward, her eyes scanning the dim recesses of the shed. The walls, cloaked in peeling paint, seemed to hold their breath, while cobwebs hung like tattered drapes in a forgotten theater. The old tools leaned wearily against the bench, relics of a bygone era. A wave of nostalgia washed over her, heavy and bittersweet, mingling with the sharp scent of rust and mildew that hung in the air like a ghost of the past.\n\nHer gaze fell upon a small, hunched figure nestled in the shadows, barely discernible against the backdrop of rusted metal and decaying wood. Clara’s heart quickened, a mix of fear and curiosity surging through her. “Are you—are you okay?” she inquired, her voice softening as she knelt, the chill of the ground pressing into her knees, unnoticed amidst the warmth that flooded her chest.\n\nThe figure shifted, and a beam of light pierced through the gaps in the roof, revealing a girl no older than eight. Her hair was a tangled mess, and her eyes darted with a mix of apprehension and interest. Though silent, her gaze met Clara's, and in that instant, an unspoken understanding passed between them. Reaching out, Clara let her fingers brush against the cool surface of the workbench, a tentative bridge to connection. “You’re safe here,” she assured, her voice a gentle balm against the storm outside. “What’s your name?”\n\nA flicker of movement caught her attention, and her breath hitched as she spotted the shape of a small animal darting between the shadows. The thud of her heart echoed in time with the rain above. “Just a mouse,” she murmured to herself, though her voice betrayed her nerves. She needed to remain calm, to remember the purpose that had brought her to this dilapidated refuge in the first place. Drawing a steadying breath, Clara edged closer to the source of the disturbance, the floorboards creaking beneath her, sending a shiver up her spine. The air was dense with the scent of rust and mildew, the metallic tang of forgotten years lingering on her tongue.\n\nHer eyes followed the path of a rat disappearing behind a stack of old tires. Relief flooded her, mingled with irritation. “Not what I need right now,” she muttered, frustration giving way to a deeper sense of urgency that lingered in her heart. She sank onto the edge of the workbench, determination mingling with the damp air as she prepared to face whatever lay ahead."
+  },
+  "critique_snapshot": {
+    "summary": "Clara finds herself in an old shed during a rainstorm, searching for something significant from her past. As she navigates through the clutter, she experiences a mix of fear and nostalgia, recalling her mother's words while confronting her own frustrations and hopes.",
+    "weaknesses": [
+      "Generic phrases detract from the emotional impact.",
+      "Dialogue lacks grounding in physical actions or the setting.",
+      "Vague descriptions fail to create a vivid picture of the scene."
+    ],
+    "continuity_issues": [
+      "The transition from fear of the animal to nostalgia feels abrupt and lacks smooth continuity."
+    ],
+    "pacing_issues": [
+      "The pacing slows significantly during the nostalgic recollection, disrupting the tension built earlier."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity and vividness in descriptions.",
+      "Ground dialogue in Clara's physical actions and the setting.",
+      "Eliminate generic phrases and replace them with unique expressions."
+    ],
+    "generic_phrase_targets": [
+      "the warmth of her own body contrasting sharply",
+      "the cold metal biting into her thighs",
+      "the shadows loomed heavier"
+    ],
+    "detail_targets": [
+      "the shape of a small animal darting between the shadows",
+      "the scent of rust and mildew",
+      "the clutter of forgotten relics"
+    ],
+    "dialogue_grounding_targets": [
+      "“Just a mouse,” she whispered to herself",
+      "“Not what I need right now,” she muttered",
+      "“Come on, come on,” she urged"
+    ],
+    "emotional_show_targets": [
+      "the tremor in her voice betrayed her",
+      "frustration bubbling to the surface",
+      "a flicker of hope ignited within"
+    ],
+    "replacement_targets": [
+      "the relentless patter of rain above",
+      "the weight of it grounding her"
+    ],
+    "grounding_targets": [
+      "the cold metal biting into her thighs",
+      "her fingers brushing against the cool surfaces"
+    ],
+    "carryover_targets": [
+      "rain",
+      "bench",
+      "floor",
+      "lashed",
+      "against",
+      "hurling",
+      "itself",
+      "force"
+    ]
+  },
+  "attempt_count": 4,
+  "acceptance_reason": "quality_failed",
+  "rewrite_used": true,
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [],
+      "generic_phrases_to_replace": [
+        "hung in the air",
+        "mix of fear",
+        "flicker of"
+      ],
+      "lines_to_repair": [
+        "A wave of nostalgia washed over her, heavy and bittersweet, mingling with the scent of rust and mildew that hung in the air like a ghost of the past.",
+        "Clara's heart quickened, a mix of fear and curiosity surging through her.",
+        "“What’s your name?”\n\nA flicker of movement caught her attention, and her breath hitched as she spotted the shape of a small animal darting between the shadows."
+      ],
+      "required_concrete_anchor_terms": [
+        "against",
+        "clara",
+        "voice"
+      ],
+      "repair_min_word_count": 515,
+      "repair_max_word_count": 910,
+      "min_paragraph_count": 6,
+      "max_paragraph_count": 10
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-4o",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rewrite_retry_model"
+    },
+    "rescue_delta_summary": {
+      "total_delta": -4,
+      "specificity_delta": -2,
+      "clarity_delta": -2,
+      "continuity_delta": 0,
+      "dialogue_delta": 0,
+      "concrete_delta": 0,
+      "stock_phrase_delta": -2,
+      "dialogue_grounding_fixed": false,
+      "dialogue_grounding_targeted": true,
+      "specificity_target_met": false,
+      "clarity_target_met": false,
+      "generic_replacement_target_met": false,
+      "concrete_target_met": false
+    },
+    "rescue_failure_class": "dialogue_grounding_unresolved",
+    "repair_local_snapshot": {
+      "evaluated": true,
+      "previous_word_count": 585,
+      "repaired_word_count": 593,
+      "min_word_count": 515,
+      "max_word_count": 910,
+      "within_word_band": true,
+      "previous_paragraph_count": 7,
+      "repaired_paragraph_count": 7,
+      "min_paragraph_count": 6,
+      "max_paragraph_count": 10,
+      "within_paragraph_band": true,
+      "accepted": true,
+      "failure_reason": null
+    }
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "repair_only",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 585,
+    "rewritten_word_count": 593,
+    "min_word_count": 351,
+    "max_word_count": 1228,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "and",
+      "she",
+      "against",
+      "that",
+      "clara",
+      "breath",
+      "voice",
+      "rain",
+      "old",
+      "shed"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "and",
+      "she",
+      "against",
+      "that",
+      "clara",
+      "breath",
+      "voice",
+      "rain",
+      "old",
+      "shed"
+    ],
+    "outline_anchor_hits": [
+      "the",
+      "her",
+      "and",
+      "she",
+      "against",
+      "shed",
+      "that",
+      "clara",
+      "voice",
+      "rain",
+      "old"
+    ],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": true,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 25
+  }
+}

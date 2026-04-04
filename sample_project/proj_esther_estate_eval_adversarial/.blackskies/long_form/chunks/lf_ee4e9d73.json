@@ -1,0 +1,197 @@
+{
+  "chunk_id": "lf_ee4e9d73",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0002"
+  ],
+  "order": 2,
+  "continuation_of": "lf_2c46751b",
+  "prompt_fingerprint": "sha256:b311411dd5b6c3a358649f7725777c09a5bbddd93205059ebb3af5de86431889",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Clara shivered as the chill crept through the air, the flickering glow from Jun's lantern casting unsteady beams that danced along the narrow confines of the passage",
+    "word_count": 294,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.01,
+    "total_after_usd": 0.02
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 4,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 31,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 294,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 10,
+    "concrete_hits": 8,
+    "generic_hits": 0,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [
+      "lantern",
+      "rain",
+      "key",
+      "corridor",
+      "door",
+      "light",
+      "cracked",
+      "brass"
+    ],
+    "carryover_hits": 5,
+    "material_carryover_hits": 0,
+    "material_carryover": false,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "Clara shivered as the chill crept through the air, the flickering glow from Jun's lantern casting unsteady beams that danced along the narrow confines of the passage. They pressed forward, each footfall swallowed by the dampness of the wooden floor, a soft squelching sound echoing in the stillness. The musty scent of mildew intertwined with an unsettling sharpness that made her stomach churn. Clara quickened her pace, the rhythmic pounding of her heart nearly drowning out the muted patter of rain still drumming against the roof above them. Each step felt burdened, as if the shadows themselves conspired to pull her back, whispering doubts into her mind.\n\n“I don’t like this, Clara,” Jun whispered, his voice barely audible, a tremor threading through his words. The lantern's light flickered, illuminating the deepening lines of worry etched across his face. “What if someone’s really… in here?”\n\n“Stop that,” Clara snapped, her voice sharper than intended, the words spilling out before she could rein them in. Heat surged to her cheeks, a blend of embarrassment and a deeper unease she couldn’t quite name. She forced herself to focus on the door ahead, the cold metal glinting ominously in the lantern’s flicker. “It’s just a passageway. We’re fine.”\n\nAs they moved deeper, a faint sound broke the oppressive silence—a metallic clink that resonated from beyond the door. Clara froze, her breath hitching in her throat, suddenly aware of the way her pulse raced. Jun's face drained of color, his wide eyes darting to the door, reflecting an unspoken dread. “Did you hear that?” he asked, his voice quaking.\n\n“I did,” she replied, though her heart raced faster, a cocktail of fear and urgency flooding her veins. She flexed her wrist, the red ribbon binding the parlor key digging"
+  },
+  "critique_snapshot": {
+    "summary": "The scene follows Clara and Jun as they navigate a dimly lit, narrow passage filled with unsettling sounds and smells. Clara feels a mix of fear and embarrassment as they confront the possibility of danger behind a chained door. The atmosphere is tense, with both characters expressing their anxiety through dialogue and physical reactions.",
+    "weaknesses": [
+      "Generic descriptions and stock phrases diminish the impact of the scene.",
+      "Dialogue lacks grounding in physical action or setting, making it feel detached.",
+      "Vague sensory details do not fully immerse the reader in the environment."
+    ],
+    "continuity_issues": [
+      "The transition from Clara's internal thoughts to dialogue is abrupt and lacks smoothness."
+    ],
+    "pacing_issues": [
+      "The pacing slows significantly during the dialogue, disrupting the tension built in the preceding narrative."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid atmosphere.",
+      "Ground dialogue in physical actions or reactions to increase realism.",
+      "Eliminate generic phrases and stock expressions to improve originality."
+    ],
+    "generic_phrase_targets": [
+      "the dim light",
+      "the sound of their footsteps",
+      "the scent of mildew",
+      "a mix of fear and adrenaline"
+    ],
+    "detail_targets": [
+      "the unsettling tang of something rotten",
+      "the cold metal glimmering ominously"
+    ],
+    "dialogue_grounding_targets": [
+      "Jun's whisper and Clara's response should be tied to their physical actions or surroundings."
+    ],
+    "emotional_show_targets": [
+      "Clara's embarrassment and fear should be depicted through more concrete actions or thoughts."
+    ],
+    "replacement_targets": [
+      "Replace 'the dim light' with a more specific description of the lantern's glow.",
+      "Substitute 'the sound of their footsteps' with a more unique auditory detail."
+    ],
+    "grounding_targets": [
+      "Integrate more physical actions that reflect the characters' emotions during dialogue."
+    ],
+    "carryover_targets": [
+      "Avoid repetitive use of terms like 'lantern' and 'passageway' to maintain freshness."
+    ]
+  },
+  "attempt_count": 2,
+  "acceptance_reason": "rewrite_pass",
+  "rewrite_used": true,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [
+      "Greenhouse Alarm",
+      "Servants' Passage"
+    ],
+    "beat_refs": [
+      "inciting",
+      "pressure"
+    ],
+    "locked_facts_evaluated": true,
+    "length_band_evaluated": true,
+    "original_word_count": 297,
+    "rewritten_word_count": 294,
+    "min_word_count": 178,
+    "max_word_count": 623,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "clara",
+      "that",
+      "and",
+      "his",
+      "voice",
+      "door",
+      "light",
+      "lantern",
+      "shadows"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "clara",
+      "that",
+      "his",
+      "voice",
+      "door",
+      "lantern"
+    ],
+    "outline_anchor_hits": [
+      "the",
+      "her",
+      "she",
+      "lantern",
+      "that"
+    ],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": true,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 31
+  }
+}

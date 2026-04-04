@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_c7501d27",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:83a0bb992324949b00e9771e5c5b3d1258a2a78b6cfa4c138cfedc80449608b0",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Clara tightened her grip on the lantern as they trudged into the murky corridor, the weak beam sputtering like a heartbeat on its last thrum",
+    "word_count": 312,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 30,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 312,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 6,
+    "concrete_hits": 9,
+    "generic_hits": 1,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "Clara tightened her grip on the lantern as they trudged into the murky corridor, the weak beam sputtering like a heartbeat on its last thrum. The dim light flickered against the peeling wallpaper, revealing shadows that danced with every shudder of the lantern. Jun moved beside her, his coat still glistening from the rain-soaked greenhouse, droplets clinging to the fabric like anxious memories. The air was thick with the scent of damp earth, mingling with something sharper, something almost metallic that clawed at the back of her throat.\n\n“Do you hear that?” Jun’s voice, low and trembling, broke through the oppressive silence. He paused, glancing back towards the chained door behind them, as if expecting it to creak open at any moment. Clara felt a chill creep up her spine, her heart racing, not just from the fear of what lay ahead but from the sound that hung in the air. A cough, faint and distant, echoed through the passage, a sound that should have belonged to no one but the forgotten rooms above.\n\n“No,” she replied, her tone sharper than intended, her gaze fixed ahead. The shadows loomed closer, teasing her with half-formed shapes that twisted and curled as the lantern flickered again, the light dimming further. “Let’s just keep moving.”\n\nWith each step, the muddy footprints ahead of them sank deeper into the floor, as if trying to claw their way back to whatever had made them. Clara’s fingers brushed against the chipped ceramic fox nestled in her coat pocket, a relic from the nursery, its painted eyes watching her with an unsettling familiarity. She had told herself it was just a trinket, a distraction in the chaos, yet it felt heavier now, almost alive in its silent observation.\n\nJun stumbled slightly, his foot catching on a loose floorboard, and Clara instinctively reached out to steady him, her hand brushing"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

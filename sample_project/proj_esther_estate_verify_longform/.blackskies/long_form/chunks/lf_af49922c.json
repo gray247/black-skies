@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_af49922c",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:0360872c0038d1e460fd3503a25ad67ed927a20758c35e5e5e11727fb953b929",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The rain drummed steadily against the tin roof, a relentless rhythm that filled the small room with a sense of urgency",
+    "word_count": 310,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 4,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 29,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 310,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 5,
+    "concrete_hits": 3,
+    "generic_hits": 1,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The rain drummed steadily against the tin roof, a relentless rhythm that filled the small room with a sense of urgency. Clara sat at the rickety wooden table, its surface marred by years of use, a patchwork of scars and stains telling stories she couldn’t quite remember. She wrapped her fingers around a chipped mug, the warmth seeping into her palms, a fleeting comfort against the chill that seeped through the walls. Outside, the wind howled like a wounded animal, rattling the windowpanes, each gust sending a shiver down her spine.\n\n“Do you think it’ll ever stop?” Ethan’s voice cut through the sound of the storm, a low murmur that held an edge of worry. He leaned against the doorframe, arms crossed tightly, as if trying to hold himself together against the tempest outside. His hair was damp, a few errant strands plastered to his forehead, and Clara couldn’t help but notice how the dim light played across the angles of his face, highlighting the weariness etched around his eyes.\n\n“Eventually,” she replied, though the word felt hollow. She glanced out the window, watching the sheets of rain blur the world beyond—a wild dance of water, obscuring the familiar into something chaotic and foreign. “It always does.”\n\nBut the truth was, she wasn’t so sure this time. It had been weeks since the sun had graced them, and the land lay heavy under the weight of grey clouds. She took a sip from her mug, the bitter taste of coffee mingling with the warmth, grounding her even as her mind wandered. What if it didn’t stop? What if the world outside became a drowned silence, the echoes of their lives swallowed whole by the deluge?\n\nEthan shifted, his gaze piercing through the gloom as if searching for answers in the rain. “We can’t just sit here, Clara. We need to—”"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

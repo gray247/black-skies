@@ -1,0 +1,9 @@
+﻿Clara pressed against the cold stone wall of the corridor, her breath quickening as the muted roar of the storm outside swirled through the narrow passage. The lantern in Jun’s hand flickered, casting ghostly shadows that danced along the walls, momentarily illuminating the dampness that seeped from the bricks. The air was thick with the scent of wet earth, mingled with something faintly sweet and decaying, a reminder of the greenhouse they had just escaped. She glanced at Jun, his coat still glistening from the rain, droplets pooling at his collar. His eyes were wide, reflecting the lantern’s feeble light, fear etched into every line of his face.
+
+“Did you hear that?” he whispered, his voice barely more than a breath, tense and urgent. Clara felt a tremor in the air, a pulse of unease that drummed against her chest. She had heard nothing, but the way Jun’s brows knitted together, the way he shifted his weight from foot to foot, made her heart race. She clenched her fingers around the smooth, chipped ceramic fox tucked in her pocket, grounding herself in its familiar weight.
+
+“It’s just the wind,” she replied, her tone sharper than intended, as if she could slice through the tension that hovered between them. The sound of the storm, the patter of rain against the window panes, seemed to mock her, an echo of the chaos brewing both outside and within. Jun’s gaze darted toward the chained door at the end of the corridor, the chain rattling softly as if someone was testing it from the other side.
+
+“Clara,” he said, dread saturating his words, “what if—”
+
+“Stop,” she interjected, the command sharper than she’d meant it to be. “We need to focus.” She forced herself to breathe steadily, to push the rising tide of panic away, but the sensation

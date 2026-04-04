@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_7baf660f",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:edaf8685f1660f8a7e3029ee12383310e51ecfdea160da7b4525b6939bad9183",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Clara's breath came in short bursts, mingling with the damp air of the corridor, thick with the scent of mildew and something faintly sweet, like decaying leaves",
+    "word_count": 300,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 30,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 300,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 9,
+    "concrete_hits": 11,
+    "generic_hits": 1,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "Clara's breath came in short bursts, mingling with the damp air of the corridor, thick with the scent of mildew and something faintly sweet, like decaying leaves. The cracked brass lantern flickered in Jun's grasp, casting erratic shadows that danced along the peeling wallpaper. Each flicker felt like a heartbeat, quickening in tandem with her own as they pressed deeper into the darkened passage. The lantern's sputtering light illuminated the dampness clinging to Jun's coat, the fabric heavy and glistening as if burdened by the weight of the rain they'd escaped.\n\n“Do you think anyone else is here?” Jun's voice trembled, barely above a whisper, his eyes darting toward the chained door at the end of the corridor, as if expecting it to burst open at any moment. Clara shifted her weight, feeling the cool ceramic fox nestled in her pocket, its chipped features a stark reminder of the nursery they had left behind.\n\n“I don’t know,” she replied, too quickly, the sharpness in her tone startling even herself. “But we can’t stand here.” The echo of her own voice felt alien, swallowed by the oppressive silence. As she stepped forward, her foot splashed into a shallow puddle, the water cold and biting against her skin, sending a shiver up her spine.\n\nJun followed, his brow furrowed, the lantern's light revealing muddy prints on the floor ahead. They were fresh, stark against the worn wood, leading deeper into the shadows. Clara squinted, straining to make sense of the pattern, her heart racing. “Someone’s been here,” she said, the words tasting bitter on her tongue. Was it a warning or an invitation?\n\nHe stopped suddenly, the lantern dimming again as he leaned closer to inspect the prints. “They look like... children’s shoes.” His voice was barely a whisper, laden with dread"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

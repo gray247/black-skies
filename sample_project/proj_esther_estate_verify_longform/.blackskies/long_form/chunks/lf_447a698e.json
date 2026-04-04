@@ -1,0 +1,249 @@
+{
+  "chunk_id": "lf_447a698e",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:fec9fb5b3999778d664a2620f4dfb4885118ac9a13cbfdf023ea600030d8e16d",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 21,
+    "fallback_reason": "quality_failed"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "quality_failed"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 4,
+      "dialogue": 2,
+      "meta_free": 5
+    },
+    "total_score": 27,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 309,
+    "paragraph_count": 6,
+    "dialogue_present": true,
+    "dialogue_grounded": false,
+    "sensory_hits": 6,
+    "concrete_hits": 2,
+    "generic_hits": 0,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The sun dipped low in the sky, its golden rays spilling over the cobblestone street and stretching long shadows that danced with the flickering light. The heat of the day clung to Lydia’s skin, a palpable weight that made her feel slightly breathless as she moved through the bustling market square. Her sandals slapped softly against the stones, a rhythmic sound that blended with the chatter of vendors and the sizzle of food cooking nearby. The air was thick with the rich aroma of spices, mingling with the warm scent of freshly baked bread, while the sharp tang of ripe produce teased her senses. Lydia paused, entranced by the vibrant reds of plump tomatoes and the glossy purple of dark eggplants, their surfaces glistening in the waning sunlight as they piled high in weathered wooden crates.\n\n“Lydia! Over here!” A voice pierced through the market’s lively chorus, sharp and insistent. It was Elara, her childhood friend, waving her arms animatedly from the edge of the crowd. A small knot of anxiety twisted in Lydia’s chest as she made her way toward her, the familiar warmth of their bond battling with the gnawing uncertainty that had haunted her for days.\n\n“Did you find it?” Elara’s eyes shone bright with anticipation, yet Lydia could sense the undercurrent of worry threading through her excitement. It was palpable, a tension that seemed to thicken the air between them, as if the world itself paused to listen.\n\n“Not yet,” Lydia replied, forcing her voice to remain steady even as her heart raced. She glanced around the bustling square, half-expecting to see the elusive piece of parchment she sought emerge from the throng of people. “I’ll keep looking. Maybe—”\n\n“Maybe we should just tell them the truth,” Elara interrupted, her tone rising with urgency. “What if it’s already too late?”\n\nThe weight of Elara’s words"
+  },
+  "critique_snapshot": {
+    "summary": "The scene depicts Lydia navigating a bustling market square, feeling a mix of anxiety and warmth as she encounters her childhood friend Elara. They discuss a search for an elusive piece of parchment, with underlying tension about the consequences of their quest. The sensory details of the market are rich, but the dialogue lacks grounding in physical action.",
+    "weaknesses": [
+      "Generic phrases and descriptions diminish the impact of the scene.",
+      "Dialogue lacks grounding in the physical setting and actions.",
+      "Vague scene details do not fully engage the reader's senses."
+    ],
+    "continuity_issues": [
+      "The transition from Lydia's internal thoughts to dialogue feels abrupt and lacks smoothness."
+    ],
+    "pacing_issues": [
+      "The pacing slows significantly during dialogue, which could be more dynamic."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid scene.",
+      "Ground dialogue in physical actions or reactions to the environment.",
+      "Eliminate generic phrases and replace them with more original language."
+    ],
+    "generic_phrase_targets": [
+      "clung to the air like a heavy blanket",
+      "walked with purpose",
+      "sparkled with anticipation",
+      "the world was holding its breath"
+    ],
+    "detail_targets": [
+      "bright colors of ripe tomatoes",
+      "glossy sheen of dark eggplants",
+      "aroma of cinnamon and nutmeg"
+    ],
+    "dialogue_grounding_targets": [
+      "Add physical actions or reactions to Lydia and Elara's dialogue.",
+      "Incorporate environmental interactions during their conversation."
+    ],
+    "emotional_show_targets": [
+      "Show Lydia's anxiety through more physical manifestations rather than just stating it.",
+      "Deepen the emotional connection between Lydia and Elara through shared actions or memories."
+    ],
+    "replacement_targets": [
+      "Replace generic phrases with more specific and vivid imagery.",
+      "Substitute vague emotional descriptors with concrete actions or reactions."
+    ],
+    "grounding_targets": [
+      "Include more sensory details that relate to the characters' actions.",
+      "Make the environment interact with the characters' emotions."
+    ],
+    "carryover_targets": []
+  },
+  "attempt_count": 4,
+  "acceptance_reason": "quality_failed",
+  "rewrite_used": true,
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_model_name": "gpt-5.4-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Lydia!",
+        "Over here!” A voice pierced through the market’s lively chorus, sharp and insistent.",
+        "“Did you find it?” Elara’s eyes shone bright with anticipation, yet Lydia could sense the undercurrent of worry threading through her excitement.",
+        "“Not yet,” Lydia replied, forcing her voice to remain steady even as her heart raced."
+      ],
+      "generic_phrases_to_replace": [
+        "heart raced"
+      ],
+      "lines_to_repair": [
+        "“Not yet,” Lydia replied, forcing her voice to remain steady even as her heart raced.",
+        "“Lydia!",
+        "Over here!” A voice pierced through the market’s lively chorus, sharp and insistent.",
+        "“Did you find it?” Elara’s eyes shone bright with anticipation, yet Lydia could sense the undercurrent of worry threading through her excitement."
+      ],
+      "required_concrete_anchor_terms": [
+        "lydia",
+        "elara",
+        "palpable"
+      ],
+      "repair_min_word_count": 262,
+      "repair_max_word_count": 463,
+      "min_paragraph_count": 4,
+      "max_paragraph_count": 8
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rescue_model"
+    },
+    "rescue_generation_strategy": "slot_patch",
+    "configured_rescue_generation_strategy": "slot_patch",
+    "rescue_slots_summary": {
+      "slot_count": 3,
+      "target_types": [
+        "dialogue",
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_dialogue_grounding_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 304,
+    "rewritten_word_count": 309,
+    "min_word_count": 182,
+    "max_word_count": 638,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "lydia",
+      "and",
+      "air",
+      "was",
+      "elara",
+      "hung",
+      "heavy",
+      "nearby",
+      "sharp"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "lydia",
+      "and",
+      "air",
+      "was",
+      "elara",
+      "sharp"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 27
+  }
+}

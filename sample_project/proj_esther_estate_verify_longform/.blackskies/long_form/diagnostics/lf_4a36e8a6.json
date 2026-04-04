@@ -1,0 +1,521 @@
+{
+  "chunk_id": "lf_4a36e8a6",
+  "validation_decision": false,
+  "fallback_reason": "quality_failed",
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "raw_preview": "The wind rattled through the broken window, sending a shiver across Clara’s skin as she crouched beside the faded armchair, its fabric worn thin and frayed at the seams. Dust motes danced in the slant",
+      "normalized_preview": "The wind rattled through the broken window, sending a shiver across Clara’s skin as she crouched beside the faded armchair, its fabric worn thin and frayed at the seams. Dust motes danced in the slant",
+      "raw_length": 1710,
+      "normalized_length": 1707,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKTSkopzw2pEiilrD0iC7S5njD4T8\", \"object\": \"chat.completion\", \"created\": 1773772186, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The wind rattled through the broken window, sending a shiver across Clara’s skin as she crouched beside the faded armchair, its fabric worn thin and frayed at the seams. Dust motes danced in the slanted light, swirling like tiny specters in the glow of the setting sun. She could smell the damp",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 299,
+        "paragraph_count": 5,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 2,
+          "meta_free": 5
+        },
+        "total_score": 26,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 299,
+        "paragraph_count": 5,
+        "dialogue_present": true,
+        "dialogue_grounded": false,
+        "sensory_hits": 7,
+        "concrete_hits": 1,
+        "generic_hits": 0,
+        "stock_phrase_hits": 1,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The wind rattled through the broken window, sending a shiver across Clara’s skin as she crouched beside the faded armchair, its fabric worn thin and frayed at the seams. Dust motes danced in the slanted light, swirling like tiny specters in the glow of the setting sun. She could smell the dampness in the air, mingling with the faint, acrid scent of mold that clung to the walls like a forgotten memory. Outside, the last echoes of laughter from children playing in the fading daylight drifted in, bittersweet and distant, a reminder of a world she was no longer part of.\n\n“Clara!” a voice called from the kitchen, sharp and impatient. It was Tom, his tone laced with urgency. She winced, her heart racing at the sound, the warmth of his concern a double-edged sword. Would he understand? Would he see what she saw? She hesitated, the weight of her thoughts pressing heavily on her chest, but the clatter of dishes pulled her back into the present.\n\n“Coming!” she shouted, forcing her voice to remain steady, though it trembled like the leaves outside. She stood, brushing her hands against her jeans, the fabric gritty with dust, and made her way through the shadowed room, each step echoing the doubts swirling in her mind.\n\nAs she entered the kitchen, she found Tom hunched over the sink, scrubbing at a pot with fervor. His brow was furrowed, and for a moment, she watched him, the way his strong hands worked the sponge, as if scrubbing away not just grime, but the heaviness that hung between them.\n\n“Did you find anything?” he asked, glancing up, his eyes searching hers. The flickering light above cast a soft glow on his face, but the shadow of worry lingered there, deepening the lines around his"
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "rewrite",
+        "escalated": false,
+        "reason": "rewrite_default"
+      },
+      "raw_preview": "eyes.\n\nClara took a breath, the damp air heavy in her lungs, and leaned against the doorframe, her fingers tracing the rough wood for support. The kitchen smelled of soap and something savory simmerin",
+      "normalized_preview": "eyes.\n\nClara took a breath, the damp air heavy in her lungs, and leaned against the doorframe, her fingers tracing the rough wood for support. The kitchen smelled of soap and something savory simmerin",
+      "raw_length": 1770,
+      "normalized_length": 1770,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKTSz3m4GbkWKorGpuqGibujb8kRA\", \"object\": \"chat.completion\", \"created\": 1773772201, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"eyes.\\n\\nClara took a breath, the damp air heavy in her lungs, and leaned against the doorframe, her fingers tracing the rough wood for support. The kitchen smelled of soap and something savory simmering on the stove, but it was the tension in the room that filled her senses. She could feel th",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 313,
+        "paragraph_count": 7,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "guardrail_snapshot": {
+        "evaluated": true,
+        "mode": "rewrite",
+        "outline_titles": [],
+        "beat_refs": [],
+        "locked_facts_evaluated": false,
+        "length_band_evaluated": true,
+        "original_word_count": 299,
+        "rewritten_word_count": 313,
+        "min_word_count": 179,
+        "max_word_count": 627,
+        "within_length_band": true,
+        "outline_fidelity_evaluated": true,
+        "outline_fidelity_pass": true,
+        "original_anchor_terms": [
+          "the",
+          "she",
+          "her",
+          "his",
+          "and",
+          "was",
+          "but",
+          "clara",
+          "fabric",
+          "dust",
+          "light",
+          "swirling"
+        ],
+        "retained_anchor_terms": [
+          "the",
+          "she",
+          "her",
+          "his",
+          "and",
+          "was",
+          "but",
+          "clara"
+        ],
+        "outline_anchor_hits": [],
+        "required_anchor_overlap": 1,
+        "scene_anchor_drift_detected": false,
+        "new_story_elements": [
+          "there",
+          "you"
+        ],
+        "blocking_new_story_elements": [],
+        "authoritative_name_check": false,
+        "uncertainty_triggered": false,
+        "failure_reason": null,
+        "accepted": true,
+        "quality_total_score": 29
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 4,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 29,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 313,
+        "paragraph_count": 7,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 6,
+        "concrete_hits": 2,
+        "generic_hits": 1,
+        "stock_phrase_hits": 2,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "eyes.\n\nClara took a breath, the damp air heavy in her lungs, and leaned against the doorframe, her fingers tracing the rough wood for support. The kitchen smelled of soap and something savory simmering on the stove, but it was the tension in the room that filled her senses. She could feel the weight of Tom’s gaze, and for a moment, she wanted to retreat back into the shadows of the living room, away from the brightness of his concern.\n\n“I—I was just looking,” she replied, her voice catching slightly as she shifted her weight from one foot to the other. She forced a smile, though it felt more like a grimace. “You know how it is.”\n\nTom straightened, placing the pot down with a gentle clatter that reverberated against the tiled countertop. “Clara, you don’t have to pretend with me.” His voice was low, firm yet soft, and it cut through the air like a knife. He stepped closer, the sponge still dripping in his hand, and Clara felt the familiar tightening in her chest, a mixture of longing and fear.\n\n“I’m not pretending,” she insisted, pushing off the doorframe and moving further into the kitchen. The light from the window caught the edges of her tangled hair, and she tucked it behind her ear, a nervous habit she couldn’t shake. “There’s just nothing left to find.”\n\nTom’s brow furrowed deeper, and he shook his head slightly, as if the very idea of nothingness was unbearable. “There’s always something,” he said, his voice steady as he wiped his hands on a dish towel, the fabric crumpling in his grip. “You just have to look harder. Let me help you.”\n\nThe last echoes of laughter from outside faded, leaving an uncomfortable silence that stretched between them. Clara’s heart raced as she met his gaze, searching for the warmth she longed for but fearing"
+      },
+      "quality_pass": false,
+      "rewrite_delta": {
+        "total_delta": 3,
+        "stock_phrase_delta": -1,
+        "specificity_delta": 1,
+        "clarity_delta": 0,
+        "continuity_delta": 0
+      },
+      "retry_decision": {
+        "eligible": true,
+        "reason": "borderline_quality_after_rewrite",
+        "classification": "borderline"
+      }
+    },
+    {
+      "attempt": 3,
+      "mode": "recovery_retry",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rewrite_retry_model"
+      },
+      "raw_preview": "{\"patches\":[{\"span_id\":\"p1\",\"target_text\":\"She could feel the weight of Tom’s gaze, and for a moment, she wanted to retreat back into the shadows of the living room, away from the brightness of his co",
+      "normalized_preview": "{\"patches\":[{\"span_id\":\"p1\",\"target_text\":\"She could feel the weight of Tom’s gaze, and for a moment, she wanted to retreat back into the shadows of the living room, away from the brightness of his co",
+      "raw_length": 647,
+      "normalized_length": 647,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKTT5Dq4uLEGaNmmRewma8oRrzm8U\", \"object\": \"chat.completion\", \"created\": 1773772207, \"model\": \"gpt-4o-2024-08-06\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"span_id\\\":\\\"p1\\\",\\\"target_text\\\":\\\"She could feel the weight of Tom’s gaze, and for a moment, she wanted to retreat back into the shadows of the living room, away from the brightness of his concern.\\\",\\\"replacement_text\\\":\\\"She could feel the weight of Tom’s gaze, and a fleeting im",
+      "patch_targets": [
+        {
+          "span_id": "p1",
+          "target_type": "generic",
+          "target_text": "She could feel the weight of Tom’s gaze, and for a moment, she wanted to retreat back into the shadows of the living room, away from the brightness of his concern.",
+          "target_phrase": "for a moment"
+        },
+        {
+          "span_id": "p2",
+          "target_type": "generic",
+          "target_text": "Clara’s heart raced as she met his gaze, searching for the warmth she longed for but fearing",
+          "target_phrase": "heart raced"
+        }
+      ],
+      "patch_response": [
+        {
+          "span_id": "p1",
+          "target_text": "She could feel the weight of Tom’s gaze, and for a moment, she wanted to retreat back into the shadows of the living room, away from the brightness of his concern.",
+          "replacement_text": "She could feel the weight of Tom’s gaze, and a fleeting impulse to retreat back into the shadows of the living room tugged at her, away from the brightness of his concern."
+        },
+        {
+          "span_id": "p2",
+          "target_text": "Clara’s heart raced as she met his gaze, searching for the warmth she longed for but fearing",
+          "replacement_text": "Clara's pulse quickened as she met his gaze, searching for the warmth she longed for but fearing"
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_specificity_unresolved"
+      }
+    },
+    {
+      "attempt": 4,
+      "mode": "repair_only",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rewrite_retry_model"
+      },
+      "raw_preview": "{\"patches\":[{\"span_id\":\"p1\",\"target_text\":\"She could feel the weight of Tom’s gaze, and for a moment, she wanted to retreat back into the shadows of the living room, away from the brightness of his co",
+      "normalized_preview": "{\"patches\":[{\"span_id\":\"p1\",\"target_text\":\"She could feel the weight of Tom’s gaze, and for a moment, she wanted to retreat back into the shadows of the living room, away from the brightness of his co",
+      "raw_length": 651,
+      "normalized_length": 651,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKTT8Q3kqJlfZtrmkzZCMLhiTw6QD\", \"object\": \"chat.completion\", \"created\": 1773772210, \"model\": \"gpt-4o-2024-08-06\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"span_id\\\":\\\"p1\\\",\\\"target_text\\\":\\\"She could feel the weight of Tom’s gaze, and for a moment, she wanted to retreat back into the shadows of the living room, away from the brightness of his concern.\\\",\\\"replacement_text\\\":\\\"She could feel the weight of Tom’s gaze, and, momentarily ",
+      "patch_targets": [
+        {
+          "span_id": "p1",
+          "target_type": "generic",
+          "target_text": "She could feel the weight of Tom’s gaze, and for a moment, she wanted to retreat back into the shadows of the living room, away from the brightness of his concern.",
+          "target_phrase": "for a moment"
+        },
+        {
+          "span_id": "p2",
+          "target_type": "generic",
+          "target_text": "Clara’s heart raced as she met his gaze, searching for the warmth she longed for but fearing",
+          "target_phrase": "heart raced"
+        }
+      ],
+      "patch_response": [
+        {
+          "span_id": "p1",
+          "target_text": "She could feel the weight of Tom’s gaze, and for a moment, she wanted to retreat back into the shadows of the living room, away from the brightness of his concern.",
+          "replacement_text": "She could feel the weight of Tom’s gaze, and, momentarily overwhelmed, she wanted to retreat back into the shadows of the living room, away from the brightness of his concern."
+        },
+        {
+          "span_id": "p2",
+          "target_text": "Clara’s heart raced as she met his gaze, searching for the warmth she longed for but fearing",
+          "replacement_text": "Clara’s pulse quickened as she met his gaze, searching for the warmth she longed for but fearing"
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_specificity_unresolved"
+      }
+    }
+  ],
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 4,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 29,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 313,
+    "paragraph_count": 7,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 6,
+    "concrete_hits": 2,
+    "generic_hits": 1,
+    "stock_phrase_hits": 2,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "eyes.\n\nClara took a breath, the damp air heavy in her lungs, and leaned against the doorframe, her fingers tracing the rough wood for support. The kitchen smelled of soap and something savory simmering on the stove, but it was the tension in the room that filled her senses. She could feel the weight of Tom’s gaze, and for a moment, she wanted to retreat back into the shadows of the living room, away from the brightness of his concern.\n\n“I—I was just looking,” she replied, her voice catching slightly as she shifted her weight from one foot to the other. She forced a smile, though it felt more like a grimace. “You know how it is.”\n\nTom straightened, placing the pot down with a gentle clatter that reverberated against the tiled countertop. “Clara, you don’t have to pretend with me.” His voice was low, firm yet soft, and it cut through the air like a knife. He stepped closer, the sponge still dripping in his hand, and Clara felt the familiar tightening in her chest, a mixture of longing and fear.\n\n“I’m not pretending,” she insisted, pushing off the doorframe and moving further into the kitchen. The light from the window caught the edges of her tangled hair, and she tucked it behind her ear, a nervous habit she couldn’t shake. “There’s just nothing left to find.”\n\nTom’s brow furrowed deeper, and he shook his head slightly, as if the very idea of nothingness was unbearable. “There’s always something,” he said, his voice steady as he wiped his hands on a dish towel, the fabric crumpling in his grip. “You just have to look harder. Let me help you.”\n\nThe last echoes of laughter from outside faded, leaving an uncomfortable silence that stretched between them. Clara’s heart raced as she met his gaze, searching for the warmth she longed for but fearing"
+  },
+  "critique_snapshot": {
+    "summary": "The scene depicts Clara in a dilapidated room, reflecting on her past while responding to Tom's call from the kitchen. The atmosphere is heavy with nostalgia and tension as she navigates her emotions and the physical space around her.",
+    "weaknesses": [
+      "The scene lacks a clear connection between Clara's internal thoughts and her actions.",
+      "Dialogue feels disconnected from the physical setting, reducing its impact."
+    ],
+    "continuity_issues": [
+      "The transition from Clara's introspection to her interaction with Tom feels abrupt and lacks a smooth flow."
+    ],
+    "pacing_issues": [
+      "The pacing slows significantly during Clara's internal monologue, which may detract from the urgency of her response to Tom."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance the grounding of dialogue in physical actions.",
+      "Create smoother transitions between Clara's thoughts and her interactions with Tom.",
+      "Reduce vague descriptions and replace them with more specific imagery."
+    ],
+    "generic_phrase_targets": [
+      "The warmth of his concern a double-edged sword",
+      "The weight of her thoughts pressing heavily on her chest"
+    ],
+    "detail_targets": [
+      "The description of the armchair could be more vivid to enhance the setting.",
+      "Clarify the emotional significance of the 'last echoes of laughter' to tie it more closely to Clara's experience."
+    ],
+    "dialogue_grounding_targets": [
+      "Tom's dialogue should be more connected to his physical actions, such as what he is doing at the sink."
+    ],
+    "emotional_show_targets": [
+      "Show Clara's emotional state through more physical cues or actions rather than internal monologue."
+    ],
+    "replacement_targets": [
+      "Replace vague phrases with more concrete imagery or actions that illustrate Clara's feelings."
+    ],
+    "grounding_targets": [
+      "Ensure that Clara's movements and surroundings are described in a way that reflects her emotional state."
+    ],
+    "carryover_targets": [
+      "Make sure the emotional weight of Clara's past is carried over into her interactions with Tom."
+    ]
+  },
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "borderline",
+      "reason": "borderline_quality_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "borderline_quality_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [],
+      "generic_phrases_to_replace": [
+        "for a moment",
+        "heart raced"
+      ],
+      "lines_to_repair": [
+        "She could feel the weight of Tom’s gaze, and for a moment, she wanted to retreat back into the shadows of the living room, away from the brightness of his concern.",
+        "Clara’s heart raced as she met his gaze, searching for the warmth she longed for but fearing"
+      ],
+      "required_concrete_anchor_terms": [
+        "clara"
+      ],
+      "repair_min_word_count": 266,
+      "repair_max_word_count": 469,
+      "min_paragraph_count": 5,
+      "max_paragraph_count": 9
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-4o",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rewrite_retry_model"
+    },
+    "patch_targets_summary": {
+      "target_count": 2,
+      "target_types": [
+        "generic",
+        "generic"
+      ]
+    },
+    "rescue_failure_class": "patch_specificity_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 299,
+    "rewritten_word_count": 313,
+    "min_word_count": 179,
+    "max_word_count": 627,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "she",
+      "her",
+      "his",
+      "and",
+      "was",
+      "but",
+      "clara",
+      "fabric",
+      "dust",
+      "light",
+      "swirling"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "she",
+      "her",
+      "his",
+      "and",
+      "was",
+      "but",
+      "clara"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [
+      "there",
+      "you"
+    ],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 29
+  }
+}

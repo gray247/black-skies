@@ -1,0 +1,467 @@
+{
+  "chunk_id": "lf_cdc36307",
+  "validation_decision": true,
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "basic_validation": {
+        "usable": true,
+        "word_count": 608,
+        "paragraph_count": 11,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "raw_preview": "The air crackled with the scent of rain-soaked earth and the distant hum of thunder, a low, rolling growl that punctuated the otherwise still afternoon. A single droplet, heavy with the weight of impe",
+      "normalized_preview": "The air crackled with the scent of rain-soaked earth and the distant hum of thunder, a low, rolling growl that punctuated the otherwise still afternoon. A single droplet, heavy with the weight of impe",
+      "raw_length": 3549,
+      "normalized_length": 3546,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DK7zf4oWbSjLC7o1FjhSOfB8RtlgX\", \"object\": \"chat.completion\", \"created\": 1773689659, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The air crackled with the scent of rain-soaked earth and the distant hum of thunder, a low, rolling growl that punctuated the otherwise still afternoon. A single droplet, heavy with the weight of impending storms, splashed against the windowpane, sending ripples through the dust that had settl",
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 2,
+          "clarity": 3,
+          "pacing": 5,
+          "specificity": 4,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 28,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 608,
+        "paragraph_count": 11,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 8,
+        "concrete_hits": 4,
+        "generic_hits": 1,
+        "stock_phrase_hits": 4,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": true,
+        "text": "The air crackled with the scent of rain-soaked earth and the distant hum of thunder, a low, rolling growl that punctuated the otherwise still afternoon. A single droplet, heavy with the weight of impending storms, splashed against the windowpane, sending ripples through the dust that had settled there like a protective shroud. Lena stood at the threshold of her small kitchen, the faded yellow curtains billowing gently as a gust swept through the open window, stirring the stale air. She closed her eyes for a moment, allowing the cool breeze to wrap around her like a long-forgotten embrace, a fleeting reminder of a world beyond the confines of her four walls.\n\n“Are you going to stand there all day, or are you going to help me?” Mark’s voice cut through her reverie, thick with irritation as he wrestled with the stubborn pot in the sink. The clatter of metal against porcelain echoed in the cramped space, mingling with the thrum of the storm gathering strength outside.\n\nLena opened her eyes, the weight of the unwashed dishes pressing down on her like a chorus of unsung grievances. “I was just—”\n\n“Just what? Daydreaming? This isn’t going to clean itself,” he snapped, his hands now coated in greasy suds, the remnants of last night’s hastily abandoned dinner. She glanced at him, the lines of his face drawn tight, shadows deepening under his eyes like storm clouds gathering overhead.\n\n“It’s not like I’m the only one who can wash dishes,” she replied, a hint of defiance flaring in her chest, though it felt more like a flicker of a match struggling against a heavy gust. The flickering light of the kitchen bulb above them cast a warm halo around her, but it did little to illuminate the growing chasm between them.\n\n“Maybe you could try being a little more present,” he retorted, the words tumbling out with a sharpness that caught her off guard. He turned away, scrubbing harder at the stubborn crusted food, each stroke a silent accusation that drummed in her ears.\n\nLena stepped closer, the linoleum cool against her bare feet, and reached for a dish towel hanging limply from the oven door. “What’s that supposed to mean? I’m here, aren’t I?” The towel felt rough against her fingers, a tangible reminder of the chores that had piled up, much like the unresolved tensions between them.\n\n“Being here isn’t the same as being engaged,” he muttered, his back still turned to her, the muscles taut in his shoulders. The storm outside finally broke, rain pelting the window with a ferocity that mirrored her rising frustration. She could almost feel the weight of the water pressing against the glass, as if it sought entrance, just as she longed to break through the barrier he had erected.\n\n“What do you want me to say, Mark? That I’m sorry I’m not the perfect partner?” Her voice wavered, the words spilling out before she could catch them. There was a tremor in her chest, a tightness that threatened to unravel everything they had built.\n\nHe turned to face her, the rain drumming a furious rhythm on the roof, drowning out the softer sounds of their unraveling conversation. “I don’t want perfection. I want to feel like we’re in this together,” he said, the frustration giving way to something softer, yet still edged with urgency. “It’s like you’re here, but you’re not really here.”\n\nLena’s heart raced, the truth of his words stirring something deep inside her. She dropped the towel onto the counter, the fabric crumpling under the weight of her emotions. “I’m trying, okay? It’s just... everything feels heavy right now.”"
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "rewrite",
+        "escalated": false,
+        "reason": "rewrite_default"
+      },
+      "basic_validation": {
+        "usable": true,
+        "word_count": 616,
+        "paragraph_count": 11,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "raw_preview": "The scent of rain-soaked earth mingled with the distant rumble of thunder, a low growl that echoed through the stillness of the afternoon. A single droplet, swollen with the promise of storms, splashe",
+      "normalized_preview": "The scent of rain-soaked earth mingled with the distant rumble of thunder, a low growl that echoed through the stillness of the afternoon. A single droplet, swollen with the promise of storms, splashe",
+      "raw_length": 3555,
+      "normalized_length": 3555,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DK802nkKFiyygyZnzbgWmaB0SWuvd\", \"object\": \"chat.completion\", \"created\": 1773689682, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The scent of rain-soaked earth mingled with the distant rumble of thunder, a low growl that echoed through the stillness of the afternoon. A single droplet, swollen with the promise of storms, splashed against the windowpane, sending a cascade of dust swirling in the air. Lena stood in the doo",
+      "guardrail_snapshot": {
+        "evaluated": true,
+        "mode": "rewrite",
+        "outline_titles": [],
+        "beat_refs": [],
+        "locked_facts_evaluated": false,
+        "length_band_evaluated": true,
+        "original_word_count": 608,
+        "rewritten_word_count": 616,
+        "min_word_count": 364,
+        "max_word_count": 1276,
+        "within_length_band": true,
+        "outline_fidelity_evaluated": true,
+        "outline_fidelity_pass": true,
+        "original_anchor_terms": [
+          "the",
+          "her",
+          "that",
+          "she",
+          "against",
+          "you",
+          "his",
+          "weight",
+          "had",
+          "lena",
+          "them",
+          "here"
+        ],
+        "retained_anchor_terms": [
+          "the",
+          "her",
+          "that",
+          "she",
+          "against",
+          "you",
+          "his",
+          "weight",
+          "lena",
+          "here"
+        ],
+        "outline_anchor_hits": [],
+        "required_anchor_overlap": 1,
+        "scene_anchor_drift_detected": false,
+        "new_story_elements": [],
+        "blocking_new_story_elements": [],
+        "authoritative_name_check": false,
+        "uncertainty_triggered": false,
+        "failure_reason": null,
+        "accepted": true,
+        "quality_total_score": 27
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 2,
+          "clarity": 3,
+          "pacing": 5,
+          "specificity": 3,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 27,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 616,
+        "paragraph_count": 11,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 8,
+        "concrete_hits": 3,
+        "generic_hits": 1,
+        "stock_phrase_hits": 4,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": true,
+        "text": "The scent of rain-soaked earth mingled with the distant rumble of thunder, a low growl that echoed through the stillness of the afternoon. A single droplet, swollen with the promise of storms, splashed against the windowpane, sending a cascade of dust swirling in the air. Lena stood in the doorway of her small kitchen, the faded yellow curtains fluttering as a gust swept through the open window, stirring the stale air. She closed her eyes briefly, allowing the cool breeze to envelop her like a long-forgotten embrace, a fleeting connection to the world outside the confines of her small home.\n\n“Are you going to stand there all day, or are you going to help me?” Mark’s voice sliced through her moment of peace, laced with irritation as he struggled with a stubborn pot in the sink. The clatter of metal against porcelain filled the cramped space, mingling with the growing intensity of the storm outside.\n\nLena opened her eyes, the pile of unwashed dishes looming over her like a growing mountain of grievances. “I was just—”\n\n“Just what? Daydreaming? This isn’t going to clean itself,” he snapped, his hands submerged in greasy suds, remnants of their hastily abandoned dinner the night before. She glanced at him, noticing the tension etched in his features, shadows deepening under his eyes as if the storm clouds were gathering within him too.\n\n“It’s not like I’m the only one who can wash dishes,” she shot back, a flicker of defiance igniting in her chest, though it felt feeble against the weight of the moment. The dim light of the kitchen bulb cast a warm halo around her, but it did little to dispel the growing chasm that stretched between them.\n\n“Maybe you could try being a little more present,” he retorted, the words tumbling out with a sharpness that caught her off guard. He turned his back to her, scrubbing harder at the stubborn food stuck to the pot, each stroke a silent accusation that echoed in her ears.\n\nLena stepped closer, the cool linoleum sending a shiver through her bare feet, and reached for a dish towel hanging loosely from the oven door. “What’s that supposed to mean? I’m here, aren’t I?” The rough texture of the towel felt like a tangible reminder of the chores that had piled up, much like the unresolved tensions between them.\n\n“Being here isn’t the same as being engaged,” he muttered, his back still turned, the muscles in his shoulders tense. As the storm finally broke, rain lashed against the window with a ferocity that mirrored her rising frustration. She could almost feel the weight of the water pressing against the glass, as if it sought entrance, just as she longed to breach the barrier he had erected.\n\n“What do you want me to say, Mark? That I’m sorry I’m not the perfect partner?” Her voice wavered, the words tumbling out before she could catch them. A tremor coursed through her, tightening her chest with the weight of unspoken fears.\n\nHe turned to face her, the rain drumming a furious rhythm on the roof, drowning out the softer sounds of their unraveling conversation. “I don’t want perfection. I want to feel like we’re in this together,” he said, his frustration giving way to a softness that still held urgency. “It’s like you’re here, but you’re not really here.”\n\nLena’s heart raced, the truth of his words stirring something deep within her. She let the towel slip from her fingers, the fabric crumpling on the counter as she grappled with her emotions. “I’m trying, okay? It’s just... everything feels heavy right now.” The admission hung in the air, a fragile bridge over the ch"
+      },
+      "quality_pass": false,
+      "rewrite_delta": {
+        "total_delta": -1,
+        "stock_phrase_delta": 0,
+        "specificity_delta": -1,
+        "clarity_delta": 0,
+        "continuity_delta": 0
+      },
+      "retry_decision": {
+        "eligible": true,
+        "reason": "borderline_quality_after_rewrite",
+        "classification": "borderline"
+      }
+    },
+    {
+      "attempt": 3,
+      "mode": "recovery_retry",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rewrite_retry_model"
+      },
+      "basic_validation": {
+        "usable": true,
+        "word_count": 549,
+        "paragraph_count": 11,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "raw_preview": "The sky overhead was a deep, bruised gray, the kind that promised a downpour at any moment. A few fat raindrops splattered against the kitchen window, their impact sending tiny rivulets down the glass",
+      "normalized_preview": "The sky overhead was a deep, bruised gray, the kind that promised a downpour at any moment. A few fat raindrops splattered against the kitchen window, their impact sending tiny rivulets down the glass",
+      "raw_length": 3150,
+      "normalized_length": 3150,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DK80D8tf0IHWm2YBfCKeWNGbyWu0K\", \"object\": \"chat.completion\", \"created\": 1773689693, \"model\": \"gpt-4o-2024-08-06\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The sky overhead was a deep, bruised gray, the kind that promised a downpour at any moment. A few fat raindrops splattered against the kitchen window, their impact sending tiny rivulets down the glass. Inside, the cramped space was cluttered with the remnants of last night’s dinner, an overturned s",
+      "guardrail_snapshot": {
+        "evaluated": true,
+        "mode": "recovery_retry",
+        "outline_titles": [],
+        "beat_refs": [],
+        "locked_facts_evaluated": false,
+        "length_band_evaluated": true,
+        "original_word_count": 616,
+        "rewritten_word_count": 549,
+        "min_word_count": 369,
+        "max_word_count": 1293,
+        "within_length_band": true,
+        "outline_fidelity_evaluated": true,
+        "outline_fidelity_pass": true,
+        "original_anchor_terms": [
+          "the",
+          "her",
+          "that",
+          "she",
+          "his",
+          "you",
+          "against",
+          "lena",
+          "here",
+          "air",
+          "eyes",
+          "going"
+        ],
+        "retained_anchor_terms": [
+          "the",
+          "her",
+          "that",
+          "she",
+          "his",
+          "you",
+          "against",
+          "lena",
+          "here"
+        ],
+        "outline_anchor_hits": [],
+        "required_anchor_overlap": 1,
+        "scene_anchor_drift_detected": false,
+        "new_story_elements": [],
+        "blocking_new_story_elements": [],
+        "authoritative_name_check": false,
+        "uncertainty_triggered": false,
+        "failure_reason": null,
+        "accepted": true,
+        "quality_total_score": 30
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 5,
+          "specificity": 4,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 30,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 549,
+        "paragraph_count": 11,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 8,
+        "concrete_hits": 3,
+        "generic_hits": 1,
+        "stock_phrase_hits": 0,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false
+      },
+      "quality_pass": true,
+      "rewrite_delta": {
+        "total_delta": 3,
+        "stock_phrase_delta": 4,
+        "specificity_delta": 1,
+        "clarity_delta": 1,
+        "continuity_delta": 1
+      }
+    }
+  ],
+  "acceptance_reason": "retry_pass",
+  "critique_snapshot": {
+    "summary": "The scene depicts a tense interaction between Lena and Mark in their kitchen during a storm. Lena is lost in thought, reflecting on her surroundings and their relationship, while Mark expresses frustration over her lack of engagement in household chores. Their dialogue reveals underlying tensions and emotional struggles, culminating in a moment of vulnerability for Lena.",
+    "weaknesses": [
+      "Overuse of generic phrases and stock imagery.",
+      "Vague descriptions that do not fully ground the scene.",
+      "Dialogue lacks physical action and setting integration."
+    ],
+    "continuity_issues": [
+      "The emotional buildup does not clearly connect with the physical actions in the kitchen, leading to a disjointed flow."
+    ],
+    "pacing_issues": [
+      "The scene starts with a slow, descriptive pace but shifts abruptly to dialogue without a smooth transition."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a stronger sense of place.",
+      "Ground dialogue in physical actions and the setting to increase realism.",
+      "Reduce reliance on generic phrases and stock imagery."
+    ],
+    "generic_phrase_targets": [
+      "The air crackled with the scent of rain-soaked earth",
+      "A fleeting reminder of a world beyond the confines of her four walls",
+      "Like storm clouds gathering overhead"
+    ],
+    "detail_targets": [
+      "The description of the kitchen and its clutter could be more vivid and specific.",
+      "The emotional states of the characters could be tied more closely to their physical actions."
+    ],
+    "dialogue_grounding_targets": [
+      "Mark's irritation could be shown through more physical action, like throwing a dish or slamming the pot.",
+      "Lena's responses could include more physical reactions to enhance emotional impact."
+    ],
+    "emotional_show_targets": [
+      "Lena's internal conflict could be shown through more concrete actions or physical sensations.",
+      "Mark's frustration could be depicted through body language rather than just dialogue."
+    ],
+    "replacement_targets": [
+      "Replace vague phrases with more specific imagery that evokes the setting and emotions.",
+      "Substitute generic dialogue with lines that reflect the characters' unique voices and circumstances."
+    ],
+    "grounding_targets": [
+      "Incorporate more sensory details that relate to the characters' actions and emotions.",
+      "Ensure that the physical environment reflects the emotional tension between Lena and Mark."
+    ],
+    "carryover_targets": [
+      "Ensure that emotional transitions are mirrored in physical actions to maintain continuity."
+    ]
+  },
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": true,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "borderline",
+      "reason": "borderline_quality_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "borderline_quality_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-4o",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rewrite_retry_model"
+    },
+    "accepted_reason": "retry_pass"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "recovery_retry",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 616,
+    "rewritten_word_count": 549,
+    "min_word_count": 369,
+    "max_word_count": 1293,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "that",
+      "she",
+      "his",
+      "you",
+      "against",
+      "lena",
+      "here",
+      "air",
+      "eyes",
+      "going"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "that",
+      "she",
+      "his",
+      "you",
+      "against",
+      "lena",
+      "here"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 30
+  }
+}

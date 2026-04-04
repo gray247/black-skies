@@ -1,0 +1,244 @@
+{
+  "chunk_id": "lf_bdef380b",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:9d4ca39cfecbed872411e3aa8be400023750f03d407aad069329e7a3d9c232d8",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 21,
+    "fallback_reason": "quality_failed"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "quality_failed"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 28,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 317,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 6,
+    "concrete_hits": 0,
+    "generic_hits": 1,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The scent of damp earth and decaying leaves enveloped Aria as she stepped deeper into the forest, remnants of the recent rain clinging to the air like a lingering memory. Sunlight filtered through the thick canopy above, casting dappled patterns across her skin, warming her even as a cool breeze whispered through the trees. Each step she took sent a soft crunching sound up from the leaf-strewn path, a rhythmic echo that mirrored the quickening pulse in her chest. The distant call of a woodpecker drilling into a nearby tree punctuated the stillness, a reminder of life thriving in the shadows.\n\nShe paused, brushing a loose strand of hair behind her ear, her fingers trembling as they traced the cool surface of the pendant hanging around her neck. The weight of it was both a comfort and a burden, a connection to something elusive. Was it fear that rooted her in place or the flicker of resolve propelling her forward? The question swirled in her mind, but she chose to ignore it for now, inhaling deeply to fill her lungs with the rich, earthy aroma that surrounded her, grounding herself in the moment.\n\n“Are you sure this is the right way?” a voice broke through her thoughts, tinged with skepticism. Ethan stood a few paces behind her, arms crossed tightly over his chest, his brow knitted in concern. He shifted his weight from foot to foot, the impatience radiating from him palpable in the way he bounced slightly on his heels.\n\n“Trust me, we’re close,” Aria replied, her voice steady despite the flutter of uncertainty in her stomach. She turned to face him, her stance firm as she met his hazel eyes, trying to project a confidence she didn’t quite feel. “The map said if we follow this trail, we’ll find the clearing.”\n\nEthan’s lips curled slightly, a mix of skepticism and amusement dancing in his expression"
+  },
+  "critique_snapshot": {
+    "summary": "The scene describes Aria navigating a forest path, reflecting on her emotions and the pendant around her neck, while interacting with Ethan, who expresses skepticism about their direction based on a map Aria drew.",
+    "weaknesses": [
+      "Generic descriptions of the setting and characters.",
+      "Dialogue lacks grounding in physical action or the environment."
+    ],
+    "continuity_issues": [
+      "The transition from Aria's introspection to Ethan's dialogue feels abrupt and lacks a clear connection."
+    ],
+    "pacing_issues": [
+      "The introspective moments slow the pacing without significant plot advancement."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions of the setting and characters.",
+      "Ground dialogue in physical actions or environmental details.",
+      "Improve continuity between introspection and dialogue."
+    ],
+    "generic_phrase_targets": [
+      "The air hung heavy",
+      "a reminder of the recent rain",
+      "echo of life in an otherwise still moment"
+    ],
+    "detail_targets": [
+      "The scent of damp earth and decaying leaves",
+      "the cool metal of the pendant",
+      "the distant call of a woodpecker"
+    ],
+    "dialogue_grounding_targets": [
+      "Ethan's skepticism should be tied to his physical actions or the environment."
+    ],
+    "emotional_show_targets": [
+      "Aria's internal conflict about fear or resolve.",
+      "Ethan's impatience and skepticism."
+    ],
+    "replacement_targets": [
+      "Replace generic phrases with more vivid, unique descriptions."
+    ],
+    "grounding_targets": [
+      "Ensure dialogue reflects the characters' physical states and surroundings."
+    ],
+    "carryover_targets": [
+      "Establish clearer connections between Aria's thoughts and Ethan's responses."
+    ]
+  },
+  "attempt_count": 4,
+  "acceptance_reason": "quality_failed",
+  "rewrite_used": true,
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_model_name": "gpt-5.4-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Are you sure this is the right way?” a voice broke through her thoughts, tinged with skepticism.",
+        "“Trust me, we’re close,” Aria replied, her voice steady despite the flutter of uncertainty in her stomach.",
+        "“The map said if we follow this trail, we’ll find the clearing.”\n\nEthan’s lips curled slightly, a mix of skepticism and amusement dancing in his expression"
+      ],
+      "generic_phrases_to_replace": [
+        "flicker of"
+      ],
+      "lines_to_repair": [
+        "Was it fear that rooted her in place or the flicker of resolve propelling her forward?",
+        "“Are you sure this is the right way?” a voice broke through her thoughts, tinged with skepticism.",
+        "“Trust me, we’re close,” Aria replied, her voice steady despite the flutter of uncertainty in her stomach.",
+        "“The map said if we follow this trail, we’ll find the clearing.”\n\nEthan’s lips curled slightly, a mix of skepticism and amusement dancing in his expression"
+      ],
+      "required_concrete_anchor_terms": [
+        "aria",
+        "cool",
+        "chest"
+      ],
+      "repair_min_word_count": 269,
+      "repair_max_word_count": 475,
+      "min_paragraph_count": 3,
+      "max_paragraph_count": 7
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rescue_model"
+    },
+    "rescue_generation_strategy": "slot_patch",
+    "configured_rescue_generation_strategy": "slot_patch",
+    "rescue_slots_summary": {
+      "slot_count": 3,
+      "target_types": [
+        "generic",
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_specificity_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 317,
+    "rewritten_word_count": 317,
+    "min_word_count": 190,
+    "max_word_count": 665,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "that",
+      "she",
+      "his",
+      "was",
+      "and",
+      "you",
+      "hung",
+      "scent",
+      "lingered",
+      "cool"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "that",
+      "she",
+      "his",
+      "was",
+      "and",
+      "cool"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 28
+  }
+}

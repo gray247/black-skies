@@ -1,0 +1,93 @@
+{
+  "chunk_id": "lf_1746b291",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0003"
+  ],
+  "order": 3,
+  "continuation_of": "lf_4a373110",
+  "prompt_fingerprint": "sha256:09a430f68a16f7679100a5e8b1ab96049589f1c2c5d2574dd236e1af30f320c8",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Clara’s fingers tightened around the red ribbon, the parlor key dangling like a promise she couldn’t quite decipher",
+    "word_count": 604,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.02,
+    "total_after_usd": 0.03
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 4,
+      "clarity": 4,
+      "pacing": 5,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 32,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 604,
+    "paragraph_count": 11,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 7,
+    "concrete_hits": 13,
+    "generic_hits": 1,
+    "stock_phrase_hits": 2,
+    "carryover_terms": [
+      "nursery",
+      "door",
+      "lantern",
+      "ceramic",
+      "fox",
+      "pocket",
+      "coat",
+      "rain"
+    ],
+    "carryover_hits": 7,
+    "material_carryover_hits": 0,
+    "material_carryover": false,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "Clara’s fingers tightened around the red ribbon, the parlor key dangling like a promise she couldn’t quite decipher. The door loomed before them, an unfinished story etched in its warped wood, and the air was thick with lingering humidity, almost cloying after their escape from the greenhouse. Jun shifted beside her, the lantern flickering weakly, illuminating the curling wallpaper that seemed to peel away from the walls in protest, as if the house itself wished to shed its past.\n\n“Do you think we should?” he asked again, glancing at her, his breath catching in the dampness that clung to the air. The tremor in his voice felt like a rope tightening around her chest. Clara could hear it then, the faint echo of a cough, almost like a whisper, threading through the silence. It was so soft, so fleeting, that she wondered if she had imagined it. Yet, it lingered like a ghost, teasing the edges of her memory and setting her heart racing.\n\nThe lantern sputtered, casting a fitful light that danced against the door, and for a moment, she almost saw the outlines of children’s drawings—smudged figures that played in her mind’s eye but were lost to the shadows. “What if there’s someone in there?” Jun continued, his gaze flickering toward the door as if it might spring open at any moment, revealing whatever secrets had been tucked away. Clara had no answer, her throat felt tight, a knot of grief and suspicion twisting painfully within her.\n\n“Maybe it’s just the house settling,” she ventured, though uncertainty dripped from her words. The clock overhead ticked steadily, a metronome for her racing thoughts, and she felt a shiver crawl up her spine. “Nora said no one’s been in here for years.”\n\nJun hesitated, his brow furrowing, and she caught a glimpse of the wet fabric clinging to his coat, a muted reminder of their hasty exit from the rain-soaked greenhouse. “What if she’s wrong?” His voice dropped lower, almost conspiratorial, and Clara felt the weight of the ceramic fox in her pocket, a relic of a childhood that felt more burden than comfort now.\n\n“Maybe we should just—”\n\nBut something rattled against the door behind them, a faint sound that made her heart jump. The chain. It was sliding, testing its bonds with a quiet insistence from beyond the corridor. Clara’s breath quickened, her senses sharpening. Was it a trick of the house, or had someone—something—been waiting for them?\n\n“Did you hear that?” she whispered, her voice barely above the creak of the floorboards. Jun nodded, eyes wide, the lantern dimming further as if sensing their collective dread. “We can’t stay here,” he said, urgency bleeding through the calm he tried to project.\n\nShe glanced at the door again, its grain twisting like the branches of the old oak outside, roots digging deep into the earth as if it could anchor the house against the tide of time. “What if we open it?” Clara felt the edges of her resolve fraying. “What if...”\n\nBefore she could finish, another cough echoed, sharper this time, more insistent. It was a sound that wove through her thoughts, wrapping around her heart like a vine, squeezing tighter. Jun’s eyes darted toward the noise, and Clara could feel the weight of his apprehension mirrored in her own.\n\n“Let’s just try the key,” she blurted out, her hand reaching for the doorknob, trembling with anticipation and fear, the cool metal grounding her for a moment. The key was still tied to her wrist; it felt heavier now, an anchor to a past she was desperate to escape yet terrified"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

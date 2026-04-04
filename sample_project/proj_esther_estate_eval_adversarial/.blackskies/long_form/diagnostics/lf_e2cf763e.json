@@ -1,0 +1,270 @@
+{
+  "chunk_id": "lf_e2cf763e",
+  "validation_decision": false,
+  "fallback_reason": "quality_failed",
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "basic_validation": {
+        "usable": true,
+        "word_count": 620,
+        "paragraph_count": 8,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [
+          "clara's",
+          "heart",
+          "raced",
+          "echoing",
+          "leaned",
+          "further",
+          "peeling",
+          "coolness"
+        ],
+        "carryover_hits": 2,
+        "material_carryover_hits": 0
+      },
+      "raw_preview": "Clara pressed the ceramic fox deeper into the folds of her coat, feeling its weight like a leaden promise against her chest. The nursery door loomed before them, its wood warped and splintered, tellin",
+      "normalized_preview": "Clara pressed the ceramic fox deeper into the folds of her coat, feeling its weight like a leaden promise against her chest. The nursery door loomed before them, its wood warped and splintered, tellin",
+      "raw_length": 3503,
+      "normalized_length": 3501,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DJscBvUO93m1c7oJQOLXzRTX37HYd\", \"object\": \"chat.completion\", \"created\": 1773630543, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"Clara pressed the ceramic fox deeper into the folds of her coat, feeling its weight like a leaden promise against her chest. The nursery door loomed before them, its wood warped and splintered, telling stories of years sealed away from light and laughter. The air was thick with the scent of mi",
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 2,
+          "pacing": 5,
+          "specificity": 3,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 27,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 620,
+        "paragraph_count": 8,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 10,
+        "concrete_hits": 15,
+        "generic_hits": 1,
+        "stock_phrase_hits": 3,
+        "carryover_terms": [
+          "clara's",
+          "heart",
+          "raced",
+          "echoing",
+          "leaned",
+          "further",
+          "peeling",
+          "coolness"
+        ],
+        "carryover_hits": 2,
+        "material_carryover_hits": 0,
+        "material_carryover": false,
+        "weak_carryover": false,
+        "generic_risk": true
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "basic_validation": {
+        "usable": true,
+        "word_count": 618,
+        "paragraph_count": 8,
+        "meta_summary": false,
+        "missing_carryover": true,
+        "carryover_terms": [
+          "clara's",
+          "heart",
+          "raced",
+          "echoing",
+          "leaned",
+          "further",
+          "peeling",
+          "coolness"
+        ],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "raw_preview": "Clara pressed the ceramic fox deeper into the folds of her coat, the weight of it settling against her chest like a tangible reminder of the past. Before her, the nursery door stood, its wood warped a",
+      "normalized_preview": "Clara pressed the ceramic fox deeper into the folds of her coat, the weight of it settling against her chest like a tangible reminder of the past. Before her, the nursery door stood, its wood warped a",
+      "raw_length": 3547,
+      "normalized_length": 3547,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DJscasA2B6XEl0DvxL7Ye0qJSxgOU\", \"object\": \"chat.completion\", \"created\": 1773630568, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"Clara pressed the ceramic fox deeper into the folds of her coat, the weight of it settling against her chest like a tangible reminder of the past. Before her, the nursery door stood, its wood warped and splintered, a testament to years spent shrouded in darkness and silence. The air hung heavy",
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 2,
+          "clarity": 2,
+          "pacing": 5,
+          "specificity": 3,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 26,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": true,
+        "word_count": 618,
+        "paragraph_count": 8,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 9,
+        "concrete_hits": 15,
+        "generic_hits": 0,
+        "stock_phrase_hits": 3,
+        "carryover_terms": [
+          "clara's",
+          "heart",
+          "raced",
+          "echoing",
+          "leaned",
+          "further",
+          "peeling",
+          "coolness"
+        ],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": false,
+        "weak_carryover": true,
+        "generic_risk": true
+      },
+      "quality_pass": false,
+      "rewrite_delta": {
+        "total_delta": -1,
+        "stock_phrase_delta": 0,
+        "specificity_delta": 0,
+        "clarity_delta": 0,
+        "continuity_delta": -1
+      }
+    }
+  ],
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 2,
+      "clarity": 2,
+      "pacing": 5,
+      "specificity": 3,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 26,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": true,
+    "word_count": 618,
+    "paragraph_count": 8,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 9,
+    "concrete_hits": 15,
+    "generic_hits": 0,
+    "stock_phrase_hits": 3,
+    "carryover_terms": [
+      "clara's",
+      "heart",
+      "raced",
+      "echoing",
+      "leaned",
+      "further",
+      "peeling",
+      "coolness"
+    ],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": false,
+    "weak_carryover": true,
+    "generic_risk": true
+  },
+  "critique_snapshot": {
+    "summary": "Clara and Jun approach a nursery door in a dilapidated house, feeling an eerie presence. Clara grapples with her fear and the weight of the past as they hear unsettling sounds, leading to a moment of tension as she prepares to unlock the door.",
+    "weaknesses": [
+      "Generic phrases detract from the uniqueness of the scene.",
+      "Vague descriptions fail to create a vivid picture of the setting.",
+      "Dialogue lacks grounding in physical actions or the environment."
+    ],
+    "continuity_issues": [
+      "The transition between Clara's internal thoughts and dialogue feels abrupt.",
+      "The emotional response to the sounds is inconsistent with the established tension."
+    ],
+    "pacing_issues": [
+      "The buildup of tension is occasionally interrupted by lengthy internal monologues.",
+      "The dialogue does not maintain a rhythm that matches the urgency of the situation."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more immersive atmosphere.",
+      "Ground dialogue in physical actions or the setting to improve realism.",
+      "Reduce reliance on generic phrases to strengthen the prose."
+    ],
+    "generic_phrase_targets": [
+      "heart raced",
+      "echoing",
+      "felt like a leaden promise",
+      "thick with the scent of mildew",
+      "each breath an exercise in restraint"
+    ],
+    "detail_targets": [
+      "Expand on the description of the nursery door and its significance.",
+      "Provide more sensory details about the environment to enhance immersion."
+    ],
+    "dialogue_grounding_targets": [
+      "Link Jun's dialogue more closely to his physical reactions or the setting.",
+      "Ensure Clara's responses reflect her physical state and surroundings."
+    ],
+    "emotional_show_targets": [
+      "Show Clara's internal conflict more vividly through her actions.",
+      "Illustrate Jun's fear through his body language and reactions."
+    ],
+    "replacement_targets": [
+      "Replace generic phrases with more original expressions.",
+      "Substitute vague descriptions with specific imagery."
+    ],
+    "grounding_targets": [
+      "Integrate more physical actions that correspond with the dialogue.",
+      "Use the setting to influence character reactions and interactions."
+    ],
+    "carryover_targets": [
+      "Minimize the use of clichéd phrases that detract from the scene's originality."
+    ]
+  }
+}

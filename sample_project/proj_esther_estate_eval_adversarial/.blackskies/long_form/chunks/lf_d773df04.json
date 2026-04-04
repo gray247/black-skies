@@ -1,0 +1,93 @@
+{
+  "chunk_id": "lf_d773df04",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0002"
+  ],
+  "order": 2,
+  "continuation_of": "lf_ec8664fe",
+  "prompt_fingerprint": "sha256:ba3c16cb12bc66e3bc4ad363249b0267e32d7359c9c5396fa41b838305543220",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "“Did you hear that?” Jun’s voice cut through the stillness, trembling like the flickering light of the lantern",
+    "word_count": 310,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.01,
+    "total_after_usd": 0.02
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 5,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 32,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 310,
+    "paragraph_count": 4,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 6,
+    "concrete_hits": 9,
+    "generic_hits": 1,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [
+      "coat",
+      "lantern",
+      "corridor",
+      "door",
+      "key",
+      "floor",
+      "forward",
+      "pounding"
+    ],
+    "carryover_hits": 7,
+    "material_carryover_hits": 1,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "“Did you hear that?” Jun’s voice cut through the stillness, trembling like the flickering light of the lantern. Clara paused, the sound of her pulse thrumming in her ears overshadowing the uneasy quiet that had settled around them. She squinted into the dimness, her breath hitching as shadows danced across the stone walls, twisting into eerie shapes that seemed to watch her with hungry eyes. “It’s just the wind,” she replied, the words rushing out too quickly, almost as if she were trying to convince herself rather than him. But a tightness coiled in her gut, whispering that the air felt wrong, weighted with something unspoken.\n\nThe scent of damp soil mingled with a faint, lingering sweetness, like old flowers left to rot in the corners of a forgotten room. Clara pressed forward, the grip on the parlor key—tied securely with a red ribbon around her wrist—felt foreign, a reminder of her purpose that now seemed to blur with the shadows creeping along the corridor. She could feel the weight of Jun’s gaze on her, searching for reassurance, but she was too caught in her own spooling thoughts, too aware of how the damp fabric of her coat clung to her skin, making every movement a reminder of the storm that had just passed.\n\n“Clara…” His voice trembled, almost lost in the oppressive silence. She stole a glance back at him, the lantern casting a weak glow over his features, revealing the deep lines of fear that had etched themselves into his brow. His soaked coat dripped with water, pooling on the stone floor beneath them. “We shouldn’t be here.”\n\n“Then where should we be?” she shot back, harsher than intended, feeling the sharpness of her tone cut through the thick air. The truth was, she didn’t know where they should be. The chain rattled behind the door, a soft,"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

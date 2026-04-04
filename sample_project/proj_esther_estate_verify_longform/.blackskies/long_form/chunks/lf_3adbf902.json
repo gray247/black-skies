@@ -1,0 +1,236 @@
+{
+  "chunk_id": "lf_3adbf902",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:5c593505c4e3d3866275c14360039dffc328ff9ba44e906f2f2b317f723aecc5",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 21,
+    "fallback_reason": "adapter_error"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "adapter_error"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 28,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 304,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 7,
+    "concrete_hits": 1,
+    "generic_hits": 1,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "Elena pushed through the underbrush, the brambles snagging at her sleeves like eager hands. The earthy scent of damp soil and decaying leaves clung to her as she ventured deeper into the forest, each step sending a crackle of sound through the stillness that seemed to amplify her own heartbeat. She paused, straining to hear beyond the rhythmic tapping of a woodpecker, its sharp beats echoing through the trees. But there was something else—a deeper thrum beneath the surface, as if the forest itself was alive and breathing, hiding secrets just out of sight.\n\n“Are you sure this is the right path?” Sam’s voice broke through the quiet, edged with uncertainty. His boots squelched in the mud behind her, the rustling of his jacket brushing against the branches creating a soft symphony of sounds. Turning to face him, she noticed the flicker of doubt shadowing his eyes, and a pang of guilt twisted in her stomach like a tightening knot.\n\n“It has to be. The map said—” she began, but her words faltered as her gaze fell upon a stone half-buried in the ground, its surface cloaked in vibrant green moss. The stone glistened with moisture, catching the dappled sunlight that danced through the canopy above. For a heartbeat, she was entranced, feeling an ancient energy radiating from it, calling her closer. It was as if the weight of history enveloped her, urging her to uncover its story. “Look at that,” she murmured, her fingers instinctively reaching down to brush the cool, textured surface.\n\n“Just a rock,” Sam replied, though the hesitation in his tone hinted at the curiosity bubbling beneath his skepticism. He stepped closer, squinting at the stone, shifting his weight from one foot to the other as he leaned in, drawn by its allure.\n\nElena's lips curved into a playful smile,"
+  },
+  "critique_snapshot": {
+    "summary": "Elena and Sam navigate through a forest, encountering a moss-covered stone that sparks curiosity and doubt. The scene explores their dynamic as they question their path and the significance of their discovery.",
+    "weaknesses": [
+      "Generic phrases detract from the uniqueness of the scene.",
+      "Dialogue lacks grounding in physical actions or the setting."
+    ],
+    "continuity_issues": [
+      "The transition from Elena's internal thoughts to dialogue is abrupt and lacks smooth carryover."
+    ],
+    "pacing_issues": [
+      "The scene slows significantly when Elena becomes entranced by the stone, which disrupts the flow of the narrative."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid scene.",
+      "Ground dialogue in physical actions and setting to improve realism."
+    ],
+    "generic_phrase_targets": [
+      "The air was thick with the smell of damp earth and moss",
+      "a sound that felt too loud in the quiet of the forest",
+      "a sense of history wrapped around her like a shroud"
+    ],
+    "detail_targets": [
+      "The description of the stone could be more unique and detailed.",
+      "Elena's emotional response to the stone needs more depth."
+    ],
+    "dialogue_grounding_targets": [
+      "Sam's dialogue should reflect more physical interaction with the environment.",
+      "Elena's responses could be tied more closely to her actions."
+    ],
+    "emotional_show_targets": [
+      "Elena's guilt could be shown through more physical manifestations or actions.",
+      "Sam's uncertainty could be expressed through body language rather than just dialogue."
+    ],
+    "replacement_targets": [
+      "Replace 'Just a rock' with a more engaging response that reflects Sam's curiosity.",
+      "Consider rephrasing 'Maybe it’s a treasure of its own' to convey more intrigue."
+    ],
+    "grounding_targets": [
+      "Include more sensory details that connect the characters to their environment.",
+      "Ensure that characters' actions are consistently linked to their dialogue."
+    ],
+    "carryover_targets": [
+      "Smooth transitions between Elena's thoughts and Sam's dialogue to maintain continuity."
+    ]
+  },
+  "attempt_count": 3,
+  "acceptance_reason": "adapter_error",
+  "rewrite_used": true,
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_model_name": "gpt-5.4-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": false,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": false,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": false,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Are you sure this is the right path?” Sam’s voice broke through the quiet, edged with uncertainty.",
+        "“It has to be.",
+        "The map said—” she began, but her words faltered as her gaze fell upon a stone half-buried in the ground, its surface cloaked in vibrant green moss.",
+        "“Look at that,” she murmured, her fingers instinctively reaching down to brush the cool, textured surface."
+      ],
+      "generic_phrases_to_replace": [
+        "flicker of"
+      ],
+      "lines_to_repair": [
+        "Turning to face him, she noticed the flicker of doubt shadowing his eyes, and a pang of guilt twisted in her stomach like a tightening knot.",
+        "“Are you sure this is the right path?” Sam’s voice broke through the quiet, edged with uncertainty.",
+        "“It has to be.",
+        "The map said—” she began, but her words faltered as her gaze fell upon a stone half-buried in the ground, its surface cloaked in vibrant green moss.",
+        "“Look at that,” she murmured, her fingers instinctively reaching down to brush the cool, textured surface."
+      ],
+      "required_concrete_anchor_terms": [
+        "surface",
+        "stone"
+      ],
+      "repair_min_word_count": 258,
+      "repair_max_word_count": 456,
+      "min_paragraph_count": 3,
+      "max_paragraph_count": 7
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rescue_model"
+    }
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 295,
+    "rewritten_word_count": 304,
+    "min_word_count": 177,
+    "max_word_count": 619,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "she",
+      "her",
+      "and",
+      "his",
+      "that",
+      "own",
+      "its",
+      "stone",
+      "was",
+      "elena",
+      "fingers"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "she",
+      "her",
+      "and",
+      "his",
+      "that",
+      "its",
+      "stone",
+      "was"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 28
+  }
+}

@@ -1,0 +1,597 @@
+{
+  "chunk_id": "lf_16dcd38f",
+  "validation_decision": false,
+  "fallback_reason": "quality_failed",
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "raw_preview": "The wind howled through the narrow alley, a sharp gust that curled around her like a living thing, tugging at her coat and whipping her hair into a frenzied dance. Clara shivered, the chill seeping in",
+      "normalized_preview": "The wind howled through the narrow alley, a sharp gust that curled around her like a living thing, tugging at her coat and whipping her hair into a frenzied dance. Clara shivered, the chill seeping in",
+      "raw_length": 1710,
+      "normalized_length": 1709,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKYyPxAjptlJ4Fx993ZzuYPRdG76y\", \"object\": \"chat.completion\", \"created\": 1773793369, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The wind howled through the narrow alley, a sharp gust that curled around her like a living thing, tugging at her coat and whipping her hair into a frenzied dance. Clara shivered, the chill seeping into her bones as she pressed her back against the damp brick wall, feeling the rough texture sc",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 298,
+        "paragraph_count": 6,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 2,
+          "meta_free": 5
+        },
+        "total_score": 26,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 298,
+        "paragraph_count": 6,
+        "dialogue_present": true,
+        "dialogue_grounded": false,
+        "sensory_hits": 7,
+        "concrete_hits": 1,
+        "generic_hits": 1,
+        "stock_phrase_hits": 1,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The wind howled through the narrow alley, a sharp gust that curled around her like a living thing, tugging at her coat and whipping her hair into a frenzied dance. Clara shivered, the chill seeping into her bones as she pressed her back against the damp brick wall, feeling the rough texture scrape against her skin. The scent of rain lingered in the air, heavy and metallic, mingling with the faint, lingering aroma of fried food from a nearby vendor. She squinted against the dim light of a flickering streetlamp, trying to pierce the shadows that gathered at the far end of the alley.\n\n“Clara?” The voice cut through the silence, low and hesitant. It was David, his silhouette emerging like a ghost from the darkness. He stepped closer, the soles of his shoes slapping against the wet pavement, echoing in the stillness. “You okay?”\n\nShe nodded, though her heart raced in her chest, a staccato rhythm that betrayed her calm facade. “Just... taking a moment.” The lie felt heavy on her tongue, yet the truth was tangled in a web of fear and uncertainty. She could feel the weight of his gaze, searching for cracks in her bravado.\n\n“Are you sure? You look—” he hesitated, searching for the right word, “...tense.”\n\nClara forced a laugh, a brittle sound that bounced off the walls. “It’s just the weather. You know how it gets this time of year.” She averted her eyes, focusing on a puddle that reflected the flickering light, distorting her image into something unrecognizable. The ripples spread, and she felt a pang of regret that echoed in her chest.\n\nDavid stepped closer, the warmth of his body radiating against the cold dampness. “You can talk to me, you know.” His voice was steady, a lifeline thrown"
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "rewrite",
+        "escalated": false,
+        "reason": "rewrite_default"
+      },
+      "raw_preview": "The wind howled through the narrow alley, a sharp gust curling around Clara like a living entity, tugging at her coat and whipping her hair into a chaotic dance. She shivered, feeling each icy breath ",
+      "normalized_preview": "The wind howled through the narrow alley, a sharp gust curling around Clara like a living entity, tugging at her coat and whipping her hair into a chaotic dance. She shivered, feeling each icy breath ",
+      "raw_length": 1771,
+      "normalized_length": 1771,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKYyfcPIzFxlgO5zEpuaMuBvZ8N2R\", \"object\": \"chat.completion\", \"created\": 1773793385, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The wind howled through the narrow alley, a sharp gust curling around Clara like a living entity, tugging at her coat and whipping her hair into a chaotic dance. She shivered, feeling each icy breath of air creep beneath her skin as she pressed her back against the damp brick wall, the rough t",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 302,
+        "paragraph_count": 6,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "guardrail_snapshot": {
+        "evaluated": true,
+        "mode": "rewrite",
+        "outline_titles": [],
+        "beat_refs": [],
+        "locked_facts_evaluated": false,
+        "length_band_evaluated": true,
+        "original_word_count": 298,
+        "rewritten_word_count": 302,
+        "min_word_count": 178,
+        "max_word_count": 625,
+        "within_length_band": true,
+        "outline_fidelity_evaluated": true,
+        "outline_fidelity_pass": true,
+        "original_anchor_terms": [
+          "the",
+          "her",
+          "that",
+          "she",
+          "you",
+          "and",
+          "against",
+          "his",
+          "clara",
+          "was",
+          "alley",
+          "heavy"
+        ],
+        "retained_anchor_terms": [
+          "the",
+          "her",
+          "that",
+          "she",
+          "you",
+          "and",
+          "against",
+          "his",
+          "clara",
+          "was",
+          "alley"
+        ],
+        "outline_anchor_hits": [],
+        "required_anchor_overlap": 1,
+        "scene_anchor_drift_detected": false,
+        "new_story_elements": [],
+        "blocking_new_story_elements": [],
+        "authoritative_name_check": false,
+        "uncertainty_triggered": false,
+        "failure_reason": null,
+        "accepted": true,
+        "quality_total_score": 28
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 28,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 302,
+        "paragraph_count": 6,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 7,
+        "concrete_hits": 1,
+        "generic_hits": 1,
+        "stock_phrase_hits": 1,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The wind howled through the narrow alley, a sharp gust curling around Clara like a living entity, tugging at her coat and whipping her hair into a chaotic dance. She shivered, feeling each icy breath of air creep beneath her skin as she pressed her back against the damp brick wall, the rough texture scratching against her shoulder blades. The air was thick with the scent of rain, sharp and metallic, mingling with the faint oily aroma of fried food wafting from a nearby vendor. She squinted against the dim, flickering light of a streetlamp, its glow barely penetrating the shadows that loomed at the far end of the alley.\n\n“Clara?” The voice sliced through the silence, low and cautious. It was David, his silhouette emerging from the gloom like a specter. He stepped closer, the soles of his shoes splashing against the puddles, the sound echoing in the stillness. “You okay?”\n\nShe nodded, but her heart raced, pounding against her ribs in a frantic rhythm that belied her attempt at calm. “Just... taking a moment,” she replied, the words tasting heavy and false on her tongue, the truth ensnared in a web of fear and uncertainty. She could feel the weight of his gaze, searching her expression for signs of her inner turmoil.\n\n“Are you sure? You look—” he hesitated, searching for the right word, “...tense.”\n\nClara forced a laugh, a brittle sound that bounced off the walls and crumbled into the night. “It’s just the weather. It’s... unpredictable this time of year.” She turned her gaze to a puddle at her feet, its surface reflecting the flickering light above, distorting her image into something unrecognizable. The ripples spread outward, and a pang of regret stirred in her chest, echoing the turbulence within.\n\nDavid moved closer, the warmth of his body"
+      },
+      "quality_pass": false,
+      "rewrite_delta": {
+        "total_delta": 2,
+        "stock_phrase_delta": 0,
+        "specificity_delta": 0,
+        "clarity_delta": 0,
+        "continuity_delta": 0
+      },
+      "retry_decision": {
+        "eligible": true,
+        "reason": "targeted_editorial_miss_after_rewrite",
+        "classification": "targeted_editorial"
+      }
+    },
+    {
+      "attempt": 3,
+      "mode": "recovery_retry",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rescue_model"
+      },
+      "raw_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"“You okay?”\\n\\nShe gave a small nod, one hand still braced against the damp brick wall, but her pulse hammered hard against her ribs, quick and uneven, ",
+      "normalized_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"“You okay?”\\n\\nShe gave a small nod, one hand still braced against the damp brick wall, but her pulse hammered hard against her ribs, quick and uneven, ",
+      "raw_length": 773,
+      "normalized_length": 773,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKYylhKnIaOOvUFbO3VIC1kECxWTh\", \"object\": \"chat.completion\", \"created\": 1773793391, \"model\": \"gpt-5.4-mini-2026-03-17\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"replacement_text\\\":\\\"“You okay?”\\\\n\\\\nShe gave a small nod, one hand still braced against the damp brick wall, but her pulse hammered hard against her ribs, quick and uneven, as if it were trying to outrun the wind in the alley.\\\"},{\\\"slot_id\\\":\\\"s2\\\",\\\"rep",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“You okay?”\n\nShe nodded, but her heart raced, pounding against her ribs in a frantic rhythm that belied her attempt at calm.",
+          "context_before": "He stepped closer, the soles of his shoes splashing against the puddles, the sound echoing in the stillness.",
+          "context_after": "“Just...",
+          "target_reason": "dialogue",
+          "target_phrase": "heart raced"
+        },
+        {
+          "slot_id": "s2",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Clara?” The voice sliced through the silence, low and cautious.",
+          "context_before": "She squinted against the dim, flickering light of a streetlamp, its glow barely penetrating the shadows that loomed at the far end of the alley.",
+          "context_after": "It was David, his silhouette emerging from the gloom like a specter.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s3",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Just...",
+          "context_before": "“You okay?”\n\nShe nodded, but her heart raced, pounding against her ribs in a frantic rhythm that belied her attempt at calm.",
+          "context_after": "taking a moment,” she replied, the words tasting heavy and false on her tongue, the truth ensnared in a web of fear and uncertainty.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s4",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "taking a moment,” she replied, the words tasting heavy and false on her tongue, the truth ensnared in a web of fear and uncertainty.",
+          "context_before": "“Just...",
+          "context_after": "She could feel the weight of his gaze, searching her expression for signs of her inner turmoil.",
+          "target_reason": "dialogue"
+        }
+      ],
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "“You okay?”\n\nShe gave a small nod, one hand still braced against the damp brick wall, but her pulse hammered hard against her ribs, quick and uneven, as if it were trying to outrun the wind in the alley."
+        },
+        {
+          "slot_id": "s2",
+          "replacement_text": "“Clara?” David said from the mouth of the alley, his voice low and cautious against the hiss of rain and the flicker of the streetlamp."
+        },
+        {
+          "slot_id": "s3",
+          "replacement_text": "“Just...” She drew a breath, shoulders tight under her coat, and kept her eyes on the puddled pavement."
+        },
+        {
+          "slot_id": "s4",
+          "replacement_text": "taking a moment,” she replied, fingers curling against the wet brick at her back as she kept her face angled away from David, the words coming out flat and thin."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_dialogue_grounding_unresolved"
+      }
+    },
+    {
+      "attempt": 4,
+      "mode": "repair_only",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rescue_model"
+      },
+      "raw_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"“You okay?”\\n\\nShe nodded, but her pulse hammered hard against the damp collar of her coat, and she pressed her fingers to the brick wall to steady hers",
+      "normalized_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"“You okay?”\\n\\nShe nodded, but her pulse hammered hard against the damp collar of her coat, and she pressed her fingers to the brick wall to steady hers",
+      "raw_length": 597,
+      "normalized_length": 597,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKYynVf0HZqL9QUXCdocp6EfQ9V6s\", \"object\": \"chat.completion\", \"created\": 1773793393, \"model\": \"gpt-5.4-mini-2026-03-17\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"replacement_text\\\":\\\"“You okay?”\\\\n\\\\nShe nodded, but her pulse hammered hard against the damp collar of her coat, and she pressed her fingers to the brick wall to steady herself.\\\"},{\\\"slot_id\\\":\\\"s2\\\",\\\"replacement_text\\\":\\\"“Clara?” The voice came from th",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“You okay?”\n\nShe nodded, but her heart raced, pounding against her ribs in a frantic rhythm that belied her attempt at calm.",
+          "context_before": "He stepped closer, the soles of his shoes splashing against the puddles, the sound echoing in the stillness.",
+          "context_after": "“Just...",
+          "target_reason": "dialogue",
+          "target_phrase": "heart raced"
+        },
+        {
+          "slot_id": "s2",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Clara?” The voice sliced through the silence, low and cautious.",
+          "context_before": "She squinted against the dim, flickering light of a streetlamp, its glow barely penetrating the shadows that loomed at the far end of the alley.",
+          "context_after": "It was David, his silhouette emerging from the gloom like a specter.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s3",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Just...",
+          "context_before": "“You okay?”\n\nShe nodded, but her heart raced, pounding against her ribs in a frantic rhythm that belied her attempt at calm.",
+          "context_after": "taking a moment,” she replied, the words tasting heavy and false on her tongue, the truth ensnared in a web of fear and uncertainty.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s4",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "taking a moment,” she replied, the words tasting heavy and false on her tongue, the truth ensnared in a web of fear and uncertainty.",
+          "context_before": "“Just...",
+          "context_after": "She could feel the weight of his gaze, searching her expression for signs of her inner turmoil.",
+          "target_reason": "dialogue"
+        }
+      ],
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "“You okay?”\n\nShe nodded, but her pulse hammered hard against the damp collar of her coat, and she pressed her fingers to the brick wall to steady herself."
+        },
+        {
+          "slot_id": "s2",
+          "replacement_text": "“Clara?” The voice came from the mouth of the alley, low and cautious, carrying over the drip of water from the fire escape."
+        },
+        {
+          "slot_id": "s3",
+          "replacement_text": "“Just..."
+        },
+        {
+          "slot_id": "s4",
+          "replacement_text": "taking a moment,” she replied, tightening her grip on her coat sleeve as the words came out thin and false, the truth caught in her throat."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_dialogue_grounding_unresolved"
+      }
+    }
+  ],
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 28,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 302,
+    "paragraph_count": 6,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 7,
+    "concrete_hits": 1,
+    "generic_hits": 1,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The wind howled through the narrow alley, a sharp gust curling around Clara like a living entity, tugging at her coat and whipping her hair into a chaotic dance. She shivered, feeling each icy breath of air creep beneath her skin as she pressed her back against the damp brick wall, the rough texture scratching against her shoulder blades. The air was thick with the scent of rain, sharp and metallic, mingling with the faint oily aroma of fried food wafting from a nearby vendor. She squinted against the dim, flickering light of a streetlamp, its glow barely penetrating the shadows that loomed at the far end of the alley.\n\n“Clara?” The voice sliced through the silence, low and cautious. It was David, his silhouette emerging from the gloom like a specter. He stepped closer, the soles of his shoes splashing against the puddles, the sound echoing in the stillness. “You okay?”\n\nShe nodded, but her heart raced, pounding against her ribs in a frantic rhythm that belied her attempt at calm. “Just... taking a moment,” she replied, the words tasting heavy and false on her tongue, the truth ensnared in a web of fear and uncertainty. She could feel the weight of his gaze, searching her expression for signs of her inner turmoil.\n\n“Are you sure? You look—” he hesitated, searching for the right word, “...tense.”\n\nClara forced a laugh, a brittle sound that bounced off the walls and crumbled into the night. “It’s just the weather. It’s... unpredictable this time of year.” She turned her gaze to a puddle at her feet, its surface reflecting the flickering light above, distorting her image into something unrecognizable. The ripples spread outward, and a pang of regret stirred in her chest, echoing the turbulence within.\n\nDavid moved closer, the warmth of his body"
+  },
+  "critique_snapshot": {
+    "summary": "The scene depicts Clara in a narrow alley, feeling the effects of the cold wind and her own anxiety as she interacts with David, who expresses concern for her well-being. The atmosphere is tense, with Clara hiding her true feelings behind a facade of calmness.",
+    "weaknesses": [
+      "Overly generic phrases that detract from the unique atmosphere.",
+      "Dialogue lacks grounding in physical action or setting.",
+      "Vague descriptions that do not enhance the emotional stakes."
+    ],
+    "continuity_issues": [
+      "The transition between Clara's internal feelings and her dialogue lacks fluidity, making her reactions feel disconnected."
+    ],
+    "pacing_issues": [
+      "The pacing slows significantly during dialogue, which could be more dynamic if paired with physical actions."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid scene.",
+      "Ground dialogue in physical actions or setting to improve realism.",
+      "Eliminate generic phrases to strengthen the uniqueness of the prose."
+    ],
+    "generic_phrase_targets": [
+      "Just... taking a moment.",
+      "You know how it gets this time of year."
+    ],
+    "detail_targets": [
+      "The scent of rain lingering in the air.",
+      "The flickering light of the streetlamp."
+    ],
+    "dialogue_grounding_targets": [
+      "David's concern should be linked to Clara's physical state or actions."
+    ],
+    "emotional_show_targets": [
+      "Clara's internal conflict should be more vividly expressed through her actions and reactions."
+    ],
+    "replacement_targets": [
+      "Replace 'the chill seeping into her bones' with a more specific sensory experience.",
+      "Replace 'a staccato rhythm that betrayed her calm facade' with a more concrete description of her physical state."
+    ],
+    "grounding_targets": [
+      "Include more physical interactions between Clara and her environment to ground her emotional state."
+    ],
+    "carryover_targets": [
+      "Ensure Clara's emotional state is consistently reflected in her actions throughout the scene."
+    ]
+  },
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_model_name": "gpt-5.4-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Clara?” The voice sliced through the silence, low and cautious.",
+        "“You okay?”\n\nShe nodded, but her heart raced, pounding against her ribs in a frantic rhythm that belied her attempt at calm.",
+        "“Just...",
+        "taking a moment,” she replied, the words tasting heavy and false on her tongue, the truth ensnared in a web of fear and uncertainty."
+      ],
+      "generic_phrases_to_replace": [
+        "heart raced"
+      ],
+      "lines_to_repair": [
+        "“You okay?”\n\nShe nodded, but her heart raced, pounding against her ribs in a frantic rhythm that belied her attempt at calm.",
+        "“Clara?” The voice sliced through the silence, low and cautious.",
+        "“Just...",
+        "taking a moment,” she replied, the words tasting heavy and false on her tongue, the truth ensnared in a web of fear and uncertainty."
+      ],
+      "required_concrete_anchor_terms": [
+        "against",
+        "clara",
+        "alley"
+      ],
+      "repair_min_word_count": 256,
+      "repair_max_word_count": 453,
+      "min_paragraph_count": 4,
+      "max_paragraph_count": 8
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rescue_model"
+    },
+    "rescue_slots_summary": {
+      "slot_count": 4,
+      "target_types": [
+        "dialogue",
+        "dialogue",
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_dialogue_grounding_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 298,
+    "rewritten_word_count": 302,
+    "min_word_count": 178,
+    "max_word_count": 625,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "that",
+      "she",
+      "you",
+      "and",
+      "against",
+      "his",
+      "clara",
+      "was",
+      "alley",
+      "heavy"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "that",
+      "she",
+      "you",
+      "and",
+      "against",
+      "his",
+      "clara",
+      "was",
+      "alley"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 28
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "chunk_id": "lf_fd84b704",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0002"
+  ],
+  "order": 2,
+  "continuation_of": "lf_3fd01355",
+  "prompt_fingerprint": "sha256:0d879e401bff687175e477a724ac41fe1dde3ec63e1ac4bde56cc6e4877a8738",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Clara's grip tightened around the lantern, its flickering light revealing the warped edges of the corridor like jagged teeth ready to snap shut",
+    "word_count": 302,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.01,
+    "total_after_usd": 0.02
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 5,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 32,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 302,
+    "paragraph_count": 4,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 7,
+    "concrete_hits": 8,
+    "generic_hits": 1,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [
+      "corridor",
+      "lantern",
+      "coat",
+      "rain",
+      "door",
+      "chain",
+      "key",
+      "ceramic"
+    ],
+    "carryover_hits": 6,
+    "material_carryover_hits": 1,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "Clara's grip tightened around the lantern, its flickering light revealing the warped edges of the corridor like jagged teeth ready to snap shut. The dampness clung to her skin, a second layer that mingled with the smell of mildew, making her breath feel shallow and constrained. She could feel the pulse of her own heartbeat in her ears as she took a step forward, the floorboards creaking underfoot like the whispered warnings of a long-forgotten voice.\n\n“Did you hear that?” Jun’s voice broke the oppressive silence, trembling as he pressed closer, his soaked coat leaving a slick trail against the wall. His eyes darted around, catching every flicker of shadow, every tremor of light. Clara shook her head, though she felt the weight of an unspoken answer hanging between them. She wanted to say it was nothing, wanted to believe it was nothing, but the echo of that child’s cough lingered, sharp and haunting, in the back of her mind.\n\n“Just the house settling,” she replied too quickly, her tone sharper than she intended, echoing off the walls like a challenge. The lantern sputtered again, and she felt a rush of panic as the light dimmed further, a feeble glow against the encroaching darkness. She glanced at the door they had just passed, the chain rattling softly as if something on the other side was testing its strength, a soft, persistent rhythm that matched the wild thumping in her chest.\n\n“Clara,” Jun whispered again, his voice lower, almost urgent. “We shouldn’t be here.” He peered down the corridor, where muddy prints marred the floor, leading away from them, as if someone—or something—had come before. The footprints seemed fresh, glistening faintly in the weak light, and Clara couldn’t help but feel a knot tighten in her stomach. It was as if they were"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

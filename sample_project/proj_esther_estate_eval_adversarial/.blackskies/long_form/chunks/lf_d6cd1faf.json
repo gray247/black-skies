@@ -1,0 +1,118 @@
+{
+  "chunk_id": "lf_d6cd1faf",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0002"
+  ],
+  "order": 2,
+  "continuation_of": "lf_99eebbfa",
+  "prompt_fingerprint": "sha256:3b9a0a631f26f9238591f37552803f4a1fe23c1fb7fb2710700b8994dd6ae840",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Clara pressed her palm against the nursery door, the rough wood warm under her fingers, a stark contrast to the icy air of the corridor",
+    "word_count": 583,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.01,
+    "total_after_usd": 0.02
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 5,
+      "clarity": 3,
+      "pacing": 5,
+      "specificity": 4,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 31,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 583,
+    "paragraph_count": 15,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 9,
+    "concrete_hits": 12,
+    "generic_hits": 2,
+    "stock_phrase_hits": 3,
+    "carryover_terms": [
+      "against",
+      "nursery",
+      "despite",
+      "chill",
+      "corridor",
+      "pulse",
+      "steady",
+      "rhythm"
+    ],
+    "carryover_hits": 5,
+    "material_carryover_hits": 1,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": true
+  },
+  "critique_snapshot": {
+    "summary": "Clara and Jun stand outside a nursery door, feeling a sense of dread and anticipation. They discuss whether the door is locked and share unsettling sensations about the house, including the feeling of being watched and hearing a child's cough. Tension builds as they confront their fears and the mysterious presence of the house.",
+    "weaknesses": [
+      "Generic stock phrasing such as 'steady rhythm' and 'mocking laugh' detracts from originality.",
+      "Vague scene details, particularly regarding the house's condition and the nature of the sounds they hear.",
+      "Dialogue lacks grounding in physical action or the setting, making it feel detached."
+    ],
+    "continuity_issues": [
+      "The transition from Clara's tactile experience with the door to the dialogue feels abrupt and lacks a smooth flow."
+    ],
+    "pacing_issues": [
+      "The scene's tension builds well, but the dialogue exchanges could be tightened to maintain momentum."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid setting.",
+      "Ground dialogue in physical actions or reactions to improve realism.",
+      "Eliminate generic phrases and replace them with more original imagery."
+    ],
+    "replacement_targets": [
+      "Replace 'steady rhythm' with a more unique description of the house's ambiance.",
+      "Substitute 'mocking laugh' with a more specific reaction to the flickering light."
+    ],
+    "grounding_targets": [
+      "Incorporate physical actions that reflect the characters' emotional states during dialogue.",
+      "Use sensory details to connect characters' feelings with their environment more effectively."
+    ],
+    "carryover_targets": [
+      "Reduce reliance on generic terms like 'pulse' and 'chill' to create a more distinct atmosphere."
+    ]
+  },
+  "attempt_count": 2,
+  "acceptance_reason": "rewrite_pass",
+  "rewrite_used": true
+}

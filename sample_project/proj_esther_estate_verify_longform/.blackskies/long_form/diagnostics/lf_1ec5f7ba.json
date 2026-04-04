@@ -1,0 +1,612 @@
+{
+  "chunk_id": "lf_1ec5f7ba",
+  "validation_decision": false,
+  "fallback_reason": "quality_failed",
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "raw_preview": "The wind twisted through the narrow alley, carrying with it the scent of rain-soaked cobblestones and the faint echo of laughter from the nearby tavern. Elara stood beneath the flickering glow of a ga",
+      "normalized_preview": "The wind twisted through the narrow alley, carrying with it the scent of rain-soaked cobblestones and the faint echo of laughter from the nearby tavern. Elara stood beneath the flickering glow of a ga",
+      "raw_length": 1780,
+      "normalized_length": 1778,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKmfynUI3O9kNnG76t8bujfG9dW5z\", \"object\": \"chat.completion\", \"created\": 1773846042, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The wind twisted through the narrow alley, carrying with it the scent of rain-soaked cobblestones and the faint echo of laughter from the nearby tavern. Elara stood beneath the flickering glow of a gaslight, her breath coming in soft puffs that mingled with the mist curling around her. She pul",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 307,
+        "paragraph_count": 5,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 28,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 307,
+        "paragraph_count": 5,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 8,
+        "concrete_hits": 1,
+        "generic_hits": 0,
+        "stock_phrase_hits": 1,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The wind twisted through the narrow alley, carrying with it the scent of rain-soaked cobblestones and the faint echo of laughter from the nearby tavern. Elara stood beneath the flickering glow of a gaslight, her breath coming in soft puffs that mingled with the mist curling around her. She pulled her cloak tighter, the fabric heavy against her shoulders, and listened, straining to catch the rhythm of footsteps on the stone. Each sound felt amplified, as if the world had narrowed down to this singular moment, the pulse of the city thrumming in her ears.\n\n“Are you sure this is the right place?” a voice called from behind her, cutting through the night like a knife. It was Marcus, his tone laced with skepticism as he leaned against the damp wall, arms crossed, shadows playing across his features. The flickering light momentarily illuminated the deep furrow in his brow, a stark contrast to the easy grin he usually wore.\n\n“Trust me.” Elara turned, her heart quickening as she met his gaze. “He’ll be here. He always is.” The confidence in her voice felt like a fragile thing, teetering on the edge of uncertainty. She glanced down the alley, where the cobblestones glistened like a mosaic of darkness and light, each stone a reminder of the countless secrets hidden within the city’s embrace.\n\nMarcus shifted, the leather of his boots creaking softly as he pushed off the wall. “And if he doesn’t show? We’ll be standing here like fools.” His skepticism hung in the air, mingling with the dampness, wrapping around her like a heavy fog.\n\n“Better to wait here than to chase shadows,” she replied, her voice steadier than she felt. She could almost hear the echo of her own doubts, whispering in the back of her mind, drowning out the vibrant life that pulsed just beyond"
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "rewrite",
+        "escalated": false,
+        "reason": "rewrite_default"
+      },
+      "raw_preview": "The wind twisted through the narrow alley, carrying the scent of rain-soaked cobblestones and a distant echo of laughter from the nearby tavern. Elara stood beneath the flickering glow of a gaslight, ",
+      "normalized_preview": "The wind twisted through the narrow alley, carrying the scent of rain-soaked cobblestones and a distant echo of laughter from the nearby tavern. Elara stood beneath the flickering glow of a gaslight, ",
+      "raw_length": 1815,
+      "normalized_length": 1815,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKmgJ7qQOJjfAk6Es22JA5LUvA64v\", \"object\": \"chat.completion\", \"created\": 1773846063, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The wind twisted through the narrow alley, carrying the scent of rain-soaked cobblestones and a distant echo of laughter from the nearby tavern. Elara stood beneath the flickering glow of a gaslight, her breath forming soft clouds that mingled with the mist curling around her. She pulled her c",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 309,
+        "paragraph_count": 5,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "guardrail_snapshot": {
+        "evaluated": true,
+        "mode": "rewrite",
+        "outline_titles": [],
+        "beat_refs": [],
+        "locked_facts_evaluated": false,
+        "length_band_evaluated": true,
+        "original_word_count": 307,
+        "rewritten_word_count": 309,
+        "min_word_count": 184,
+        "max_word_count": 644,
+        "within_length_band": true,
+        "outline_fidelity_evaluated": true,
+        "outline_fidelity_pass": true,
+        "original_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "his",
+          "and",
+          "felt",
+          "voice",
+          "here",
+          "alley",
+          "cobblestones",
+          "echo",
+          "elara"
+        ],
+        "retained_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "his",
+          "and",
+          "felt",
+          "voice",
+          "here",
+          "alley",
+          "cobblestones",
+          "echo",
+          "elara"
+        ],
+        "outline_anchor_hits": [],
+        "required_anchor_overlap": 1,
+        "scene_anchor_drift_detected": false,
+        "new_story_elements": [],
+        "blocking_new_story_elements": [],
+        "authoritative_name_check": false,
+        "uncertainty_triggered": false,
+        "failure_reason": null,
+        "accepted": true,
+        "quality_total_score": 28
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 28,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 309,
+        "paragraph_count": 5,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 8,
+        "concrete_hits": 1,
+        "generic_hits": 0,
+        "stock_phrase_hits": 1,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The wind twisted through the narrow alley, carrying the scent of rain-soaked cobblestones and a distant echo of laughter from the nearby tavern. Elara stood beneath the flickering glow of a gaslight, her breath forming soft clouds that mingled with the mist curling around her. She pulled her cloak tighter, the fabric heavy against her shoulders, and listened intently, straining to catch the rhythm of footsteps on the damp stone. Each sound felt amplified, as if the world had narrowed down to this singular moment, the pulse of the city thrumming in her ears.\n\n“Are you sure this is the right place?” Marcus’s voice sliced through the night, his skepticism palpable. He leaned against the damp wall, arms crossed tightly over his chest. The flickering light illuminated the deep furrow of concern etched into his brow, a stark contrast to the easy grin he usually wore.\n\nElara turned to face him, her heart quickening as their gazes locked. “Trust me,” she said, her voice trembling slightly despite her attempt at confidence. “He’ll be here. He always is.” The words felt fragile, teetering on the edge of uncertainty. She glanced down the alley, where the cobblestones glistened like a mosaic of darkness and light, each stone a reminder of the countless secrets hidden within the city’s embrace.\n\nMarcus pushed off the wall with a soft creak of leather, his posture shifting as he took a step closer, the tension in his shoulders evident. “And if he doesn’t show? We’ll be standing here like fools.” The weight of his skepticism hung in the air, mingling with the dampness, wrapping around her like a heavy fog.\n\n“Better to wait here than to chase shadows,” Elara replied, her voice steadier than she felt. She could almost hear the echo of her own doubts whispering in the back of her mind, drowning out the"
+      },
+      "quality_pass": false,
+      "rewrite_delta": {
+        "total_delta": 0,
+        "stock_phrase_delta": 0,
+        "specificity_delta": 0,
+        "clarity_delta": 0,
+        "continuity_delta": 0
+      },
+      "retry_decision": {
+        "eligible": true,
+        "reason": "targeted_editorial_miss_after_rewrite",
+        "classification": "targeted_editorial"
+      }
+    },
+    {
+      "attempt": 3,
+      "mode": "recovery_retry",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rescue_model"
+      },
+      "raw_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"He always is.” Her fingers tightened on the edge of her cloak as she kept her eyes on the alley mouth, the words coming out softer than she intended.\"},",
+      "normalized_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"He always is.” Her fingers tightened on the edge of her cloak as she kept her eyes on the alley mouth, the words coming out softer than she intended.\"},",
+      "raw_length": 721,
+      "normalized_length": 721,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKmgZe6zWFz7Xq20PX7WFPU3SOoaT\", \"object\": \"chat.completion\", \"created\": 1773846079, \"model\": \"gpt-5.4-mini-2026-03-17\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"replacement_text\\\":\\\"He always is.” Her fingers tightened on the edge of her cloak as she kept her eyes on the alley mouth, the words coming out softer than she intended.\\\"},{\\\"slot_id\\\":\\\"s2\\\",\\\"replacement_text\\\":\\\"We’ll be standing here like fools.” Marc",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "He always is.” The words felt fragile, teetering on the edge of uncertainty.",
+          "context_before": "“He’ll be here.",
+          "context_after": "She glanced down the alley, where the cobblestones glistened like a mosaic of darkness and light, each stone a reminder of the countless secrets hidden within the city’s embrace.",
+          "target_reason": "dialogue",
+          "target_phrase": "teetering on the edge of uncertainty"
+        },
+        {
+          "slot_id": "s2",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "We’ll be standing here like fools.” The weight of his skepticism hung in the air, mingling with the dampness, wrapping around her like a heavy fog.",
+          "context_before": "“And if he doesn’t show?",
+          "context_after": "“Better to wait here than to chase shadows,” Elara replied, her voice steadier than she felt.",
+          "target_reason": "generic",
+          "target_phrase": "hung in the air"
+        },
+        {
+          "slot_id": "s3",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Trust me,” she said, her voice trembling slightly despite her attempt at confidence.",
+          "context_before": "Elara turned to face him, her heart quickening as their gazes locked.",
+          "context_after": "“He’ll be here.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s4",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“He’ll be here.",
+          "context_before": "“Trust me,” she said, her voice trembling slightly despite her attempt at confidence.",
+          "context_after": "He always is.” The words felt fragile, teetering on the edge of uncertainty.",
+          "target_reason": "dialogue"
+        }
+      ],
+      "rescue_generation_strategy": "structured_slot_patch",
+      "configured_rescue_generation_strategy": "structured_slot_patch",
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "He always is.” Her fingers tightened on the edge of her cloak as she kept her eyes on the alley mouth, the words coming out softer than she intended."
+        },
+        {
+          "slot_id": "s2",
+          "replacement_text": "We’ll be standing here like fools.” Marcus shifted his weight and rubbed the back of his neck, the damp chill seeping through his crossed arms as he frowned."
+        },
+        {
+          "slot_id": "s3",
+          "replacement_text": "“Trust me,” she said, lifting her chin as she glanced down the alley, her voice trembling slightly despite her attempt at confidence."
+        },
+        {
+          "slot_id": "s4",
+          "replacement_text": "“He’ll be here. She kept her gaze fixed on the rain-dark cobblestones, listening for footsteps in the wet stone."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_dialogue_grounding_unresolved"
+      }
+    },
+    {
+      "attempt": 4,
+      "mode": "repair_only",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rescue_model"
+      },
+      "raw_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"He always is.” Elara flexed her fingers against the chill, and the words came out thin, her gaze fixed on the wet stones beside her.\"},{\"slot_id\":\"s2\",\"",
+      "normalized_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"He always is.” Elara flexed her fingers against the chill, and the words came out thin, her gaze fixed on the wet stones beside her.\"},{\"slot_id\":\"s2\",\"",
+      "raw_length": 548,
+      "normalized_length": 548,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKmgenkBzLdm7tRuZFy0ynQO70k0s\", \"object\": \"chat.completion\", \"created\": 1773846084, \"model\": \"gpt-5.4-mini-2026-03-17\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"replacement_text\\\":\\\"He always is.” Elara flexed her fingers against the chill, and the words came out thin, her gaze fixed on the wet stones beside her.\\\"},{\\\"slot_id\\\":\\\"s2\\\",\\\"replacement_text\\\":\\\"We’ll be standing here like fools.” Marcus shifted his we",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "He always is.” The words felt fragile, teetering on the edge of uncertainty.",
+          "context_before": "“He’ll be here.",
+          "context_after": "She glanced down the alley, where the cobblestones glistened like a mosaic of darkness and light, each stone a reminder of the countless secrets hidden within the city’s embrace.",
+          "target_reason": "dialogue",
+          "target_phrase": "teetering on the edge of uncertainty"
+        },
+        {
+          "slot_id": "s2",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "We’ll be standing here like fools.” The weight of his skepticism hung in the air, mingling with the dampness, wrapping around her like a heavy fog.",
+          "context_before": "“And if he doesn’t show?",
+          "context_after": "“Better to wait here than to chase shadows,” Elara replied, her voice steadier than she felt.",
+          "target_reason": "generic",
+          "target_phrase": "hung in the air"
+        },
+        {
+          "slot_id": "s3",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Trust me,” she said, her voice trembling slightly despite her attempt at confidence.",
+          "context_before": "Elara turned to face him, her heart quickening as their gazes locked.",
+          "context_after": "“He’ll be here.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s4",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“He’ll be here.",
+          "context_before": "“Trust me,” she said, her voice trembling slightly despite her attempt at confidence.",
+          "context_after": "He always is.” The words felt fragile, teetering on the edge of uncertainty.",
+          "target_reason": "dialogue"
+        }
+      ],
+      "rescue_generation_strategy": "structured_slot_patch",
+      "configured_rescue_generation_strategy": "structured_slot_patch",
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "He always is.” Elara flexed her fingers against the chill, and the words came out thin, her gaze fixed on the wet stones beside her."
+        },
+        {
+          "slot_id": "s2",
+          "replacement_text": "We’ll be standing here like fools.” Marcus shifted his weight and rubbed rain from his sleeve, his skepticism mingling with the damp air around them."
+        },
+        {
+          "slot_id": "s3",
+          "replacement_text": "“Trust me,” she said, drawing a slow breath as she tightened her grip on her cloak."
+        },
+        {
+          "slot_id": "s4",
+          "replacement_text": "“He’ll be here."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_dialogue_grounding_unresolved"
+      }
+    }
+  ],
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 28,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 309,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 8,
+    "concrete_hits": 1,
+    "generic_hits": 0,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The wind twisted through the narrow alley, carrying the scent of rain-soaked cobblestones and a distant echo of laughter from the nearby tavern. Elara stood beneath the flickering glow of a gaslight, her breath forming soft clouds that mingled with the mist curling around her. She pulled her cloak tighter, the fabric heavy against her shoulders, and listened intently, straining to catch the rhythm of footsteps on the damp stone. Each sound felt amplified, as if the world had narrowed down to this singular moment, the pulse of the city thrumming in her ears.\n\n“Are you sure this is the right place?” Marcus’s voice sliced through the night, his skepticism palpable. He leaned against the damp wall, arms crossed tightly over his chest. The flickering light illuminated the deep furrow of concern etched into his brow, a stark contrast to the easy grin he usually wore.\n\nElara turned to face him, her heart quickening as their gazes locked. “Trust me,” she said, her voice trembling slightly despite her attempt at confidence. “He’ll be here. He always is.” The words felt fragile, teetering on the edge of uncertainty. She glanced down the alley, where the cobblestones glistened like a mosaic of darkness and light, each stone a reminder of the countless secrets hidden within the city’s embrace.\n\nMarcus pushed off the wall with a soft creak of leather, his posture shifting as he took a step closer, the tension in his shoulders evident. “And if he doesn’t show? We’ll be standing here like fools.” The weight of his skepticism hung in the air, mingling with the dampness, wrapping around her like a heavy fog.\n\n“Better to wait here than to chase shadows,” Elara replied, her voice steadier than she felt. She could almost hear the echo of her own doubts whispering in the back of her mind, drowning out the"
+  },
+  "critique_snapshot": {
+    "summary": "The scene takes place in a narrow alley where Elara waits for someone, accompanied by Marcus, who expresses skepticism about their location. The atmosphere is tense, with sensory details highlighting the setting, but the dialogue lacks grounding in physical action or specific context.",
+    "weaknesses": [
+      "Dialogue lacks physical grounding and connection to the setting.",
+      "Some descriptions are vague and do not contribute to character development or plot.",
+      "The emotional stakes could be heightened through more specific details."
+    ],
+    "continuity_issues": [
+      "The transition between Elara's internal thoughts and dialogue could be smoother.",
+      "Marcus's skepticism feels repetitive without deeper exploration of his character."
+    ],
+    "pacing_issues": [
+      "The scene drags slightly in the middle, particularly during dialogue exchanges that do not advance the plot."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance dialogue by grounding it in physical actions or reactions.",
+      "Add specific details that deepen the emotional stakes and character motivations.",
+      "Improve the flow of thoughts and dialogue to maintain reader engagement."
+    ],
+    "generic_phrase_targets": [
+      "cutting through the night like a knife",
+      "teetering on the edge of uncertainty",
+      "wrapped around her like a heavy fog"
+    ],
+    "detail_targets": [
+      "Expand on the atmosphere to create a more immersive experience.",
+      "Provide more context about Elara's and Marcus's relationship and their current situation."
+    ],
+    "dialogue_grounding_targets": [
+      "Incorporate more physical actions or reactions during dialogue exchanges.",
+      "Make dialogue responses more reflective of the characters' emotional states."
+    ],
+    "emotional_show_targets": [
+      "Show Elara's internal conflict more vividly through her actions and expressions.",
+      "Explore Marcus's skepticism through more than just dialogue."
+    ],
+    "replacement_targets": [
+      "Replace generic phrases with more original and vivid imagery.",
+      "Substitute vague descriptors with specific sensory details."
+    ],
+    "grounding_targets": [
+      "Ensure that dialogue is consistently tied to the characters' physical actions and surroundings.",
+      "Use the setting to reflect the characters' emotional states."
+    ],
+    "carryover_targets": []
+  },
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_model_name": "gpt-5.4-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Are you sure this is the right place?” Marcus’s voice sliced through the night, his skepticism palpable.",
+        "“Trust me,” she said, her voice trembling slightly despite her attempt at confidence.",
+        "“He’ll be here.",
+        "He always is.” The words felt fragile, teetering on the edge of uncertainty."
+      ],
+      "generic_phrases_to_replace": [
+        "teetering on the edge of uncertainty",
+        "hung in the air"
+      ],
+      "lines_to_repair": [
+        "He always is.” The words felt fragile, teetering on the edge of uncertainty.",
+        "We’ll be standing here like fools.” The weight of his skepticism hung in the air, mingling with the dampness, wrapping around her like a heavy fog.",
+        "“Are you sure this is the right place?” Marcus’s voice sliced through the night, his skepticism palpable.",
+        "“Trust me,” she said, her voice trembling slightly despite her attempt at confidence.",
+        "“He’ll be here."
+      ],
+      "required_concrete_anchor_terms": [
+        "elara",
+        "voice",
+        "here"
+      ],
+      "repair_min_word_count": 262,
+      "repair_max_word_count": 463,
+      "min_paragraph_count": 3,
+      "max_paragraph_count": 7
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rescue_model"
+    },
+    "rescue_generation_strategy": "structured_slot_patch",
+    "configured_rescue_generation_strategy": "structured_slot_patch",
+    "rescue_slots_summary": {
+      "slot_count": 4,
+      "target_types": [
+        "dialogue",
+        "generic",
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_dialogue_grounding_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 307,
+    "rewritten_word_count": 309,
+    "min_word_count": 184,
+    "max_word_count": 644,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "his",
+      "and",
+      "felt",
+      "voice",
+      "here",
+      "alley",
+      "cobblestones",
+      "echo",
+      "elara"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "his",
+      "and",
+      "felt",
+      "voice",
+      "here",
+      "alley",
+      "cobblestones",
+      "echo",
+      "elara"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 28
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_0ae56bc3",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:32ba9680749aa142022f187e380fed12176bdbcbae2694dceeff93ab7a1d08e1",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The wind whipped through the narrow alley, a sharp, biting gust that sent shivers down Mara’s spine",
+    "word_count": 309,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 4,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 29,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 309,
+    "paragraph_count": 6,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 6,
+    "concrete_hits": 3,
+    "generic_hits": 0,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The wind whipped through the narrow alley, a sharp, biting gust that sent shivers down Mara’s spine. She pulled her coat tighter around her shoulders, the fabric damp from the evening rain, which had left the cobblestones slick and glistening under the flickering streetlights. Shadows danced along the walls, the faint echoes of laughter and distant music spilling from the nearby tavern, a world she felt both drawn to and repelled by.\n\nShe paused, her breath forming small clouds in the chilly air, and listened. The clink of glasses and raucous cheers punctuated the night, a reminder of warmth and camaraderie that felt just out of reach. A part of her longed to step inside, to shed the weight of the day and lose herself in the company of strangers, but that part was overshadowed by a gnawing uncertainty that kept her rooted to the spot.\n\n“Hey, you alright?” A voice cut through her thoughts, low and rough like gravel. She turned to see a man leaning against the wall, his face obscured by shadow. His breath misted before him, mingling with the smoke that coiled up from the end of a cigarette dangling from his fingers.\n\n“I’m fine,” she replied, perhaps a bit too sharply, the words escaping before she could temper them. Her heart raced, not from fear, but from the sudden realization that she was not alone. The alley, with its damp chill and muted sounds, felt suddenly too small, too intimate.\n\n“Looked lost for a second.” He took a drag, the ember glowing bright, illuminating a rugged face, a hint of mischief in his eyes. “You sure you don’t want to join the party?”\n\n“I’m not in the mood,” she said, her voice steadier now, but the warmth in his gaze lingered like the smoke curling into the night. She could feel the weight of"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

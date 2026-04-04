@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_2eb3f222",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:31896331c59cbde54de554b055a6cc8a2484637fd480e1d3470790ee1b981b74",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Clara’s heart thudded in her chest, a relentless drumbeat as she clutched the cracked brass lantern, its sputtering light flickering like a dying ember in the damp air of the corridor",
+    "word_count": 307,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 30,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 307,
+    "paragraph_count": 6,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 6,
+    "concrete_hits": 12,
+    "generic_hits": 1,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "Clara’s heart thudded in her chest, a relentless drumbeat as she clutched the cracked brass lantern, its sputtering light flickering like a dying ember in the damp air of the corridor. The lingering scent of wet earth and decaying leaves clung to her as she stepped carefully over the muddy prints that marred the floorboards ahead. Jun, just behind her, shifted his weight from one foot to the other, his soaked coat clinging to his skin, the chill of the evening creeping in around them.\n\n“Are you sure we should keep going?” His voice barely broke above the hollow sound of the lantern’s sputter, a thin veil of anxiety threading through the words.\n\nClara shot him a glance, her own fear tightly bound with determination. “We have to see what’s on the other side of that door.” She gestured toward the chained door at the end of the corridor, the heavy chain rattling softly as if alive beneath the weight of something unseen. The air grew thick, a suffocating blanket pressing against them, and a shiver skittered down her spine.\n\nAs she stepped forward, she felt the tug of the red ribbon binding the parlor key to her wrist, a reminder of the chaos they had left behind in the greenhouse. It had been a frenzied search, the rain drenching them both, but the key felt strangely secure, even as her memories of tying it grew hazy. “I think it moved,” she murmured, half to herself, half to Jun, her voice cracking slightly.\n\n“What?” he asked, squinting into the dim light.\n\n“The chain... it felt like it shifted.” Clara gripped the lantern tighter, the brass cool and slick against her palm. She tried to focus on the light, on the way it illuminated the dust motes swirling in the dark, but the shadows seemed to breathe, closing"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

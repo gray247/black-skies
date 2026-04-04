@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_5b0cad37",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:263101be451d2b187ab35fcc326216b577b8e8c8ab0f218d6831c337873da702",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The lantern sputtered again, its feeble glow flickering like a dying ember, casting long, restless shadows that danced along the damp stone walls of the corridor",
+    "word_count": 301,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 30,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 301,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 9,
+    "concrete_hits": 9,
+    "generic_hits": 1,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The lantern sputtered again, its feeble glow flickering like a dying ember, casting long, restless shadows that danced along the damp stone walls of the corridor. Clara could feel the cold seep through her soaked clothes, a shiver racing down her spine as she tightened her grip around the chipped ceramic fox nestled in her pocket. The weight of it, oddly comforting, reminded her of the nursery’s warmth, the scent of old books and varnished wood.\n\n“Did you hear that?” Jun’s voice cracked, a sharp edge betraying the calm he tried to project. His coat clung to him, heavy and dripping, the memory of the greenhouse rain still fresh on his skin. Clara could see his eyes darting, reflecting the lantern’s quivering light, searching for something—anything—beyond the gloom that enveloped them.\n\n“It’s probably just the wind,” she replied too quickly, her tone sharper than intended, an uninvited edge of defensiveness creeping in. The truth was, the wind outside had been still, almost suffocatingly quiet, as if the world was holding its breath, waiting. The air felt thick, electric, tinged with the faintest hint of something like smoke, or was it dust? She couldn’t tell.\n\nJun took a step forward, his boot squelching in the mud that coated the floor, leaving behind an imprint that seemed to pull at him as if the earth itself were trying to swallow him whole. “Clara,” he said, the tremor in his voice betraying his resolve. “We should go back.”\n\n“No.” The word came out sharper still, cutting through the oppressive air. She could sense the panic rising in him, a palpable thing that wrapped around her chest like a vice. Clara’s eyes flitted to the chained door at the far end of the corridor, where the chain rattled softly, echoing like distant laughter. She fought"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

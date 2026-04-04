@@ -1,0 +1,93 @@
+{
+  "chunk_id": "lf_7f80b3c2",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0002"
+  ],
+  "order": 2,
+  "continuation_of": "lf_e94f43eb",
+  "prompt_fingerprint": "sha256:5803624c153b212e0cf54fed2466887d086c02f963d7ec1d5307623aaa73be4d",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Clara's breath hitched as she pressed deeper into the passage, the walls closing in like the shrouded embrace of a secret",
+    "word_count": 299,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.01,
+    "total_after_usd": 0.02
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 4,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 31,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 299,
+    "paragraph_count": 4,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 6,
+    "concrete_hits": 6,
+    "generic_hits": 0,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [
+      "lantern",
+      "rain",
+      "key",
+      "corridor",
+      "coat",
+      "door",
+      "chain",
+      "flickered"
+    ],
+    "carryover_hits": 4,
+    "material_carryover_hits": 0,
+    "material_carryover": false,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "Clara's breath hitched as she pressed deeper into the passage, the walls closing in like the shrouded embrace of a secret. The lantern sputtered again, its feeble glow revealing damp, peeling wallpaper that hung like the remnants of a forgotten dream. She could feel the coolness of the air wrapping around her, but it was the unsettling weight of Jun’s fear that lingered, thickening the atmosphere between them. “What do you mean, do I hear that?” she snapped, her voice sharper than intended, echoing in the narrow confines. The words felt jagged against the lingering silence, as if daring the shadows to respond.\n\nJun’s face was pale, his brow furrowed. “It’s like…” He hesitated, the lantern flickering, casting fleeting shadows that danced like specters on the walls. “It’s like someone’s trying to get in.” He nodded toward the chained door at the far end, the metal links jangling softly as if stirred by unseen hands. Clara's heart quickened, a pulse of adrenaline threading through her veins. She could almost feel the weight of those unseen hands, testing the chain, probing for an entry point that remained stubbornly shut.\n\n“Maybe it’s just the wind,” she offered, though her voice lacked conviction. The wind had a way of whispering secrets, bending branches against stone, yet this felt too deliberate, too insistent. She glanced down at her wrist, the key nestled against her skin, a metal talisman that felt both comforting and ominous. The ribbon dug into her flesh, a reminder of the storm brewing beyond the walls of this forgotten passage.\n\n“Clara,” Jun urged, his voice low, almost pleading. “We shouldn’t be here.” There was a tremor in his tone, raw and exposed, a vulnerability she rarely saw in him. She met his gaze, the lantern’s light illuminating the worry etched"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

@@ -1,0 +1,233 @@
+{
+  "chunk_id": "lf_7549dc18",
+  "validation_decision": true,
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "basic_validation": {
+        "usable": true,
+        "word_count": 591,
+        "paragraph_count": 13,
+        "meta_summary": false,
+        "missing_carryover": true,
+        "carryover_terms": [
+          "traced",
+          "fingertip",
+          "porcelain",
+          "smooth",
+          "touch",
+          "stark",
+          "contrast",
+          "chill"
+        ],
+        "carryover_hits": 1,
+        "material_carryover_hits": 0
+      },
+      "raw_preview": "Clara’s fingers slipped from the rim of the mug, the warmth lingering for a moment before she set it down with a soft clink. The steam rose in lazy spirals, curling around her face and mingling with t",
+      "normalized_preview": "Clara’s fingers slipped from the rim of the mug, the warmth lingering for a moment before she set it down with a soft clink. The steam rose in lazy spirals, curling around her face and mingling with t",
+      "raw_length": 3439,
+      "normalized_length": 3433,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DJsZ0zX8dGRzoLb5xTQWoNl9U1y8d\", \"object\": \"chat.completion\", \"created\": 1773630346, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"Clara’s fingers slipped from the rim of the mug, the warmth lingering for a moment before she set it down with a soft clink. The steam rose in lazy spirals, curling around her face and mingling with the scent of roasted coffee beans. The rain outside had intensified, the droplets now creating ",
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 2,
+          "clarity": 2,
+          "pacing": 5,
+          "specificity": 1,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 24,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": true,
+        "word_count": 591,
+        "paragraph_count": 13,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 6,
+        "concrete_hits": 1,
+        "generic_hits": 0,
+        "stock_phrase_hits": 3,
+        "carryover_terms": [
+          "traced",
+          "fingertip",
+          "porcelain",
+          "smooth",
+          "touch",
+          "stark",
+          "contrast",
+          "chill"
+        ],
+        "carryover_hits": 1,
+        "material_carryover_hits": 0,
+        "material_carryover": false,
+        "weak_carryover": true,
+        "generic_risk": true
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "basic_validation": {
+        "usable": true,
+        "word_count": 581,
+        "paragraph_count": 13,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [
+          "traced",
+          "fingertip",
+          "porcelain",
+          "smooth",
+          "touch",
+          "stark",
+          "contrast",
+          "chill"
+        ],
+        "carryover_hits": 3,
+        "material_carryover_hits": 0
+      },
+      "raw_preview": "Clara’s fingers slipped from the rim of her mug, the warmth lingering just long enough to chase away the chill that seeped into her bones. She set the mug down with a gentle clink, the sound nearly sw",
+      "normalized_preview": "Clara’s fingers slipped from the rim of her mug, the warmth lingering just long enough to chase away the chill that seeped into her bones. She set the mug down with a gentle clink, the sound nearly sw",
+      "raw_length": 3468,
+      "normalized_length": 3468,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DJsZPVzOoxTwaNjyzrq4ynq26uNiN\", \"object\": \"chat.completion\", \"created\": 1773630371, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"Clara’s fingers slipped from the rim of her mug, the warmth lingering just long enough to chase away the chill that seeped into her bones. She set the mug down with a gentle clink, the sound nearly swallowed by the steady patter of rain against the café’s window. Outside, the droplets raced ea",
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 4,
+          "clarity": 4,
+          "pacing": 5,
+          "specificity": 4,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 31,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 581,
+        "paragraph_count": 13,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 7,
+        "concrete_hits": 3,
+        "generic_hits": 0,
+        "stock_phrase_hits": 1,
+        "carryover_terms": [
+          "traced",
+          "fingertip",
+          "porcelain",
+          "smooth",
+          "touch",
+          "stark",
+          "contrast",
+          "chill"
+        ],
+        "carryover_hits": 3,
+        "material_carryover_hits": 0,
+        "material_carryover": false,
+        "weak_carryover": false,
+        "generic_risk": false
+      },
+      "quality_pass": true,
+      "rewrite_delta": {
+        "total_delta": 7,
+        "stock_phrase_delta": 2,
+        "specificity_delta": 3,
+        "clarity_delta": 2,
+        "continuity_delta": 2
+      }
+    }
+  ],
+  "acceptance_reason": "rewrite_pass",
+  "critique_snapshot": {
+    "summary": "Clara sits in a café, grappling with her emotions as her friend Lila joins her. They engage in a conversation about Clara's feelings of heaviness and the struggles she faces, highlighting themes of friendship and personal turmoil.",
+    "weaknesses": [
+      "Generic phrases and descriptions that lack specificity.",
+      "Dialogue that feels disconnected from the physical actions and setting.",
+      "Vague emotional expressions that do not fully convey Clara's internal struggle."
+    ],
+    "continuity_issues": [
+      "The transition from Clara's internal thoughts to dialogue lacks a clear grounding in her physical actions or the environment."
+    ],
+    "pacing_issues": [
+      "The scene drags slightly due to repetitive descriptions and dialogue that could be more concise."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid scene.",
+      "Ground dialogue in physical actions and the café setting.",
+      "Eliminate generic phrases and replace them with more original expressions."
+    ],
+    "generic_phrase_targets": [
+      "warmth lingering",
+      "soft clink",
+      "lazy spirals",
+      "symphony of sound",
+      "wrapped around her like a well-worn blanket",
+      "like a beacon",
+      "cutting through the gray",
+      "weight of unspoken words",
+      "the kind that curled around Clara’s apprehensions",
+      "the flickering candle"
+    ],
+    "detail_targets": [
+      "Descriptions of the café environment and its impact on Clara's mood.",
+      "More specific details about Clara's internal conflict and emotions."
+    ],
+    "dialogue_grounding_targets": [
+      "Integrate Clara's physical reactions with her dialogue to enhance emotional impact.",
+      "Ensure Lila's responses are tied to Clara's actions and the setting."
+    ],
+    "emotional_show_targets": [
+      "Show Clara's internal struggle through more nuanced body language and facial expressions.",
+      "Use sensory details to reflect her emotional state."
+    ],
+    "replacement_targets": [
+      "Replace generic phrases with unique, vivid imagery.",
+      "Substitute vague emotional expressions with concrete feelings."
+    ],
+    "grounding_targets": [
+      "Ground Clara's thoughts in her physical sensations and the café environment.",
+      "Connect dialogue to specific actions or reactions within the scene."
+    ],
+    "carryover_targets": [
+      "Identify and replace weak carryover terms that detract from the originality of the prose."
+    ]
+  }
+}

@@ -1,0 +1,209 @@
+{
+  "chunk_id": "lf_02b91a5b",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0002"
+  ],
+  "order": 2,
+  "continuation_of": "lf_0c54346a",
+  "prompt_fingerprint": "sha256:cebaba2400fd338fc9237f441a0acb8d9aa4fbefaecad92cb991b57f0e322509",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 38,
+    "fallback_reason": "rewrite_guardrail_failed"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.01,
+    "total_after_usd": 0.02
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "rewrite_guardrail_failed"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 5,
+      "clarity": 4,
+      "pacing": 5,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 33,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 585,
+    "paragraph_count": 13,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 6,
+    "concrete_hits": 4,
+    "generic_hits": 1,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [
+      "coat",
+      "street",
+      "jacket",
+      "swept",
+      "narrow",
+      "alley",
+      "rustling",
+      "fallen"
+    ],
+    "carryover_hits": 5,
+    "material_carryover_hits": 1,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false
+  },
+  "critique_snapshot": {
+    "summary": "Elara navigates a dimly lit alley, feeling the chill of the night and a growing sense of dread. She encounters a mysterious man who seems to know more about her than she does about him, leading to a tense exchange filled with uncertainty and curiosity.",
+    "weaknesses": [
+      "Generic descriptions and phrases that lack specificity.",
+      "Dialogue that feels disconnected from the physical actions and setting.",
+      "Vague emotional responses that do not fully engage the reader."
+    ],
+    "continuity_issues": [
+      "The transition from Elara's internal thoughts to her dialogue lacks grounding in her physical actions.",
+      "The description of the alley's atmosphere does not consistently reflect Elara's emotional state."
+    ],
+    "pacing_issues": [
+      "The scene builds tension but could benefit from more varied pacing to enhance the suspense."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid setting.",
+      "Ground dialogue in physical actions or reactions to improve realism.",
+      "Eliminate generic phrases and replace them with more original language."
+    ],
+    "generic_phrase_targets": [
+      "filling her lungs like ice",
+      "heartbeat, pulsing just beyond her reach",
+      "whispering stories of a time long gone",
+      "weight that pressed down on her shoulders",
+      "creeping sense of dread"
+    ],
+    "detail_targets": [
+      "Descriptions of the alley and its surroundings could be more vivid and unique.",
+      "The man's appearance and demeanor need more specific details to enhance characterization."
+    ],
+    "dialogue_grounding_targets": [
+      "Elara's dialogue should reflect her physical state or actions more clearly.",
+      "The man's responses could be tied more closely to his body language or the environment."
+    ],
+    "emotional_show_targets": [
+      "Elara's internal conflict should be shown through more specific actions or reactions.",
+      "The sense of dread could be illustrated with more concrete sensory details."
+    ],
+    "replacement_targets": [
+      "Replace 'just a passerby' with a more contextually rich response.",
+      "Find alternatives for 'you could say that' that reveal more about Elara's character."
+    ],
+    "grounding_targets": [
+      "Ensure Elara's thoughts and feelings are consistently tied to her physical experiences in the alley.",
+      "The setting should reflect the emotional tone of the scene more effectively."
+    ],
+    "carryover_targets": [
+      "Reduce reliance on common phrases and descriptions that detract from the originality of the scene."
+    ]
+  },
+  "attempt_count": 2,
+  "acceptance_reason": "rewrite_guardrail_failed",
+  "rewrite_used": true,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 597,
+    "rewritten_word_count": 585,
+    "min_word_count": 358,
+    "max_word_count": 1253,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": false,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "and",
+      "that",
+      "you",
+      "elara",
+      "alley",
+      "voice",
+      "but",
+      "for",
+      "his"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "and",
+      "that",
+      "you",
+      "elara",
+      "alley",
+      "voice",
+      "but",
+      "for",
+      "his"
+    ],
+    "outline_anchor_hits": [
+      "the",
+      "her",
+      "she",
+      "that",
+      "and",
+      "alley",
+      "elara",
+      "but",
+      "was",
+      "his",
+      "you"
+    ],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [
+      "yet"
+    ],
+    "blocking_new_story_elements": [
+      "yet"
+    ],
+    "authoritative_name_check": true,
+    "uncertainty_triggered": true,
+    "failure_reason": "outline_drift_detected",
+    "accepted": false,
+    "quality_total_score": 33
+  }
+}

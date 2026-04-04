@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\models\long_form.py
+# hypothesis_version: 6.138.2
+
+[100, '^ch_\\d{4}$', '^lf_[a-z0-9]{8}$', '^sc_\\d{4}$', 'after', 'forbid', 'project_id']

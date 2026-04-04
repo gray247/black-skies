@@ -1,0 +1,252 @@
+{
+  "chunk_id": "lf_74768ace",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:31626a2cb7f2c5e21f2208020f22130707ffa369a6d5fc0ee58bff8fd63553ed",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 21,
+    "fallback_reason": "quality_failed"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "quality_failed"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 3,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 27,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 308,
+    "paragraph_count": 6,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 7,
+    "concrete_hits": 3,
+    "generic_hits": 2,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": true,
+    "text": "The air was thick with the scent of wet earth as Mara stepped outside, her boots sinking slightly into the muddy ground. The rain had dwindled to a gentle murmur, leaving behind a symphony of droplets that clung to the glossy leaves overhead, each one refracting the muted light of the overcast sky like a tiny prism. She inhaled deeply, the dampness filling her lungs, mingling with the faint perfume of wildflowers blooming defiantly along the edges of the path.\n\n“Still holding on?” a voice called from behind her, rich with a teasing lilt. Finn leaned against the weathered fence post, arms crossed, his dark hair tousled by a playful breeze. The corners of his mouth curved upward, a challenge in his eyes that sparkled with mischief.\n\nMara turned, brushing a bead of rainwater from her cheek with the back of her hand. “Just getting started,” she replied, the lightness in her tone a stark contrast to the weight pressing on her heart. “You know I can’t resist a good storm.”\n\n“Or a good excuse to avoid chores,” he shot back, pushing himself off the post and stepping closer, the squelch of mud beneath his feet mimicking her own. His presence felt like a warm ember against the chill in the air, a familiar comfort that wrapped around her like a worn blanket.\n\nWith a resigned sigh, she cast a glance back toward the house. Its wooden frame sagged slightly, as if weary from the downpour, and the windows appeared dark and lifeless, shadows lurking within. The silence inside felt heavy, an echo of all the things left unsaid. “Do you think they’ll come back?” she whispered, the question trembling on her lips, laden with unspoken hope and fear.\n\nFinn’s expression shifted, the teasing light in his eyes dimming as he met her gaze. “I don’t know, Mara,”"
+  },
+  "critique_snapshot": {
+    "summary": "Mara steps outside into the damp air after a rain, reflecting on her feelings as she interacts with Finn, who teases her about avoiding chores. Their conversation hints at deeper emotional issues regarding someone's absence, creating a moment of tension and connection.",
+    "weaknesses": [
+      "Generic descriptions of the setting and characters.",
+      "Dialogue lacks grounding in physical actions or specific context.",
+      "Vague emotional undertones that could be more vividly expressed."
+    ],
+    "continuity_issues": [
+      "The transition from the setting description to dialogue feels abrupt, lacking a clear connection between Mara's actions and Finn's entrance."
+    ],
+    "pacing_issues": [
+      "The scene drags slightly in the middle, particularly during the dialogue exchange, which could benefit from more dynamic interaction."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid scene.",
+      "Ground dialogue in physical actions or setting to improve realism.",
+      "Clarify emotional stakes to deepen reader engagement."
+    ],
+    "generic_phrase_targets": [
+      "rich with a teasing lilt",
+      "playful challenge in his eyes",
+      "warm contrast to the chill in the air",
+      "like a worn blanket"
+    ],
+    "detail_targets": [
+      "The scent of wet earth",
+      "The appearance of the house",
+      "The blooming wildflowers"
+    ],
+    "dialogue_grounding_targets": [
+      "Finn's teasing should relate more to their physical surroundings.",
+      "Mara's responses could reflect more of her physical state or actions."
+    ],
+    "emotional_show_targets": [
+      "Mara's internal conflict about waiting for someone should be more explicitly shown through her actions or expressions.",
+      "Finn's concern could be conveyed through more than just dialogue."
+    ],
+    "replacement_targets": [
+      "Replace generic phrases with more unique, specific imagery or expressions.",
+      "Find alternatives for vague emotional expressions."
+    ],
+    "grounding_targets": [
+      "Add more physical actions to accompany dialogue.",
+      "Incorporate sensory details that relate to the characters' emotions."
+    ],
+    "carryover_targets": []
+  },
+  "attempt_count": 4,
+  "acceptance_reason": "quality_failed",
+  "rewrite_used": true,
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": false,
+    "rescue_mode_used": true,
+    "rescue_model_used": false,
+    "rescue_model_name": "gpt-4o-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Still holding on?” a voice called from behind her, rich with a teasing lilt.",
+        "“Just getting started,” she replied, the lightness in her tone a stark contrast to the weight pressing on her heart.",
+        "“You know I can’t resist a good storm.”\n\n“Or a good excuse to avoid chores,” he shot back, pushing himself off the post and stepping closer, the squelch of mud beneath his feet mimicking her own.",
+        "“Do you think they’ll come back?” she whispered, the question trembling on her lips, laden with unspoken hope and fear."
+      ],
+      "generic_phrases_to_replace": [
+        "rich with a teasing lilt",
+        "like a worn blanket",
+        "wrapped around her"
+      ],
+      "lines_to_repair": [
+        "“Still holding on?” a voice called from behind her, rich with a teasing lilt.",
+        "His presence felt like a warm ember against the chill in the air, a familiar comfort that wrapped around her like a worn blanket.",
+        "“Just getting started,” she replied, the lightness in her tone a stark contrast to the weight pressing on her heart.",
+        "“You know I can’t resist a good storm.”\n\n“Or a good excuse to avoid chores,” he shot back, pushing himself off the post and stepping closer, the squelch of mud beneath his feet mimicking her own.",
+        "“Do you think they’ll come back?” she whispered, the question trembling on her lips, laden with unspoken hope and fear."
+      ],
+      "required_concrete_anchor_terms": [
+        "back",
+        "mara",
+        "slightly"
+      ],
+      "repair_min_word_count": 261,
+      "repair_max_word_count": 462,
+      "min_paragraph_count": 4,
+      "max_paragraph_count": 8
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": false,
+      "reason": "rescue_model"
+    },
+    "rescue_slots_summary": {
+      "slot_count": 5,
+      "target_types": [
+        "dialogue",
+        "generic",
+        "dialogue",
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_dialogue_grounding_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 311,
+    "rewritten_word_count": 308,
+    "min_word_count": 186,
+    "max_word_count": 653,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "his",
+      "she",
+      "back",
+      "was",
+      "mara",
+      "that",
+      "you",
+      "air",
+      "stepped",
+      "slightly"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "his",
+      "she",
+      "back",
+      "mara",
+      "that",
+      "air",
+      "slightly"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 27
+  }
+}

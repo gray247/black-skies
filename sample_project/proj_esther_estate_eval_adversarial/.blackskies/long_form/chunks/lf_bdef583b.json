@@ -1,0 +1,93 @@
+{
+  "chunk_id": "lf_bdef583b",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0002"
+  ],
+  "order": 2,
+  "continuation_of": "lf_e43c8c21",
+  "prompt_fingerprint": "sha256:0a69af803f55edaa293a40abb06ba08008f5d25bb73cf63a314edcfab8aaa6d8",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Clara stepped forward, her heartbeat thrumming in her ears as she reached for Jun's arm, the damp fabric of his coat slick under her fingers",
+    "word_count": 310,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.01,
+    "total_after_usd": 0.02
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 5,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 32,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 310,
+    "paragraph_count": 4,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 6,
+    "concrete_hits": 8,
+    "generic_hits": 1,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [
+      "corridor",
+      "lantern",
+      "coat",
+      "rain",
+      "key",
+      "door",
+      "against",
+      "stone"
+    ],
+    "carryover_hits": 6,
+    "material_carryover_hits": 1,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "Clara stepped forward, her heartbeat thrumming in her ears as she reached for Jun's arm, the damp fabric of his coat slick under her fingers. The flickering light of the cracked brass lantern cast elongated shadows against the rough stone walls, distorting their reflections like specters caught in an eternal dance. “We have to move,” she urged, her voice sharper than she intended, each word a fragile thing against the oppressive weight of silence. The muddy prints ahead pressed down on her mind, a tangible reminder that they weren’t alone in this hidden passage.\n\nJun’s eyes darted toward the door they had just come through, the chain rattling softly as if someone on the other side pondered whether to pull it taut or unfasten it entirely. “What if—what if it’s still locked?” he asked, his breath hitching. The lantern sputtered, casting a brief glow that highlighted the fear etched across his features, the way his hands trembled slightly as they gripped the lantern. “We can’t just stand here.”\n\n“Then let’s keep going.” Clara took a step further into the darkness, her stomach knotting at the thought of that heavy chain falling away, the door swinging open to reveal whatever waited beyond. She could feel the dampness of the air settling in her lungs, thick and cold, mingled with the faint scent of earth and something more acrid, the remnants of the storm that had drenched the greenhouse. “We need to find out what’s at the end of this.”\n\nThe footprints ahead, so fresh and unwelcome, seemed to beckon her deeper into the unknown. With each step, the weight of the parlor key at her wrist felt heavier, dragging her back with an invisible tether, a reminder of home, of safety. But safety had never been a guarantee here. “Jun,” she said, lowering her voice, “if we hear anything, anything at"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

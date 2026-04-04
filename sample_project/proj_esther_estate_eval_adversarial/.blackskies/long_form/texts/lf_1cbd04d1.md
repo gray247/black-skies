@@ -1,0 +1,9 @@
+﻿“Did you hear that?” Jun’s voice quivered, a thread of panic woven into the damp air. Clara nodded sharply, her heart pounding against her ribcage as they pressed deeper into the corridor. The sound, muffled and distant, echoed like a whisper from the shadows—too soft to decipher, but heavy with a sense of urgency. She tugged at the red ribbon around her wrist, feeling the grain of the fabric against her skin, a reminder of the key dangling from it, a key that had somehow tangled itself in her life in ways she couldn’t comprehend.
+
+The lantern flickered again, its light sputtering as if it were gasping for breath. Jun glanced down at it, his brow furrowing. “This damn thing,” he muttered, shaking it slightly, but it only dimmed further, casting long, distorted shadows that seemed to twist and coil, lurking just out of reach. “We should have left it behind.”
+
+“Where?” Clara shot back, her voice sharper than she intended. The weight of the moment pressed against her chest, each inhalation laced with stale air and the earthy scent of wet soil. She could feel the muddy prints leading away from them, an unsettling trail that whispered of something—or someone—moving with purpose. “We can’t go back.”
+
+Jun’s coat clung to him, soaked through from their hasty escape through the greenhouse, and she could see the shivers that ran through him, not just from the cold. He was scared, and the thought of it twisted something deep inside her, a churning knot of worry and guilt. “What if…” His voice faltered, and he glanced toward the chained door at the end of the corridor. The metal links rattled again, the sound sharp and unsettling, as if someone was testing their resolve from the other side.
+
+“Jun,” she said, her tone softer now, as if coax

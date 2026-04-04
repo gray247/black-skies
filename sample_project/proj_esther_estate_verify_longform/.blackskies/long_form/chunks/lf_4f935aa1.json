@@ -1,0 +1,140 @@
+{
+  "chunk_id": "lf_4f935aa1",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0002"
+  ],
+  "order": 2,
+  "continuation_of": "lf_ac5c138a",
+  "prompt_fingerprint": "sha256:5113712d2ee71d60a307619986e0f91a230ba8e88f0760e402c81e9e7626f550",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 31,
+    "fallback_reason": "quality_failed"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.01,
+    "total_after_usd": 0.02
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "quality_failed"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 4,
+      "clarity": 4,
+      "pacing": 5,
+      "specificity": 3,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 30,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 561,
+    "paragraph_count": 13,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 6,
+    "concrete_hits": 1,
+    "generic_hits": 0,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [
+      "thick",
+      "sheets",
+      "relentless",
+      "curtain",
+      "blurred",
+      "world",
+      "outside",
+      "droplet"
+    ],
+    "carryover_hits": 6,
+    "material_carryover_hits": 0,
+    "material_carryover": false,
+    "weak_carryover": false,
+    "generic_risk": false
+  },
+  "critique_snapshot": {
+    "summary": "Emma navigates a rain-soaked alley, searching for Jake amidst the chaos of a storm. Their reunion is fraught with urgency and uncertainty as they confront their fears and the dangers that lie ahead.",
+    "weaknesses": [
+      "Overuse of generic phrases and imagery.",
+      "Dialogue lacks grounding in physical action or setting.",
+      "Vague descriptions that do not enhance the scene's emotional impact."
+    ],
+    "continuity_issues": [
+      "Emma's urgency is established but not fully explored or resolved.",
+      "The transition from Emma's internal thoughts to dialogue feels abrupt."
+    ],
+    "pacing_issues": [
+      "The scene builds tension but could benefit from a more gradual escalation.",
+      "Some moments feel rushed, particularly the dialogue exchanges."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid scene.",
+      "Ground dialogue in physical actions or environmental details.",
+      "Reduce reliance on generic phrases and stock imagery."
+    ],
+    "generic_phrase_targets": [
+      "thick sheets",
+      "relentless tattoo",
+      "echoed her heartbeat",
+      "warm and intoxicating"
+    ],
+    "detail_targets": [
+      "More specific sensory details about the environment and emotions.",
+      "Clarify the stakes and urgency of Emma's search for Jake."
+    ],
+    "dialogue_grounding_targets": [
+      "Incorporate more physical actions during dialogue exchanges.",
+      "Use environmental elements to influence the tone and content of dialogue."
+    ],
+    "emotional_show_targets": [
+      "Show Emma's anxiety through more than just internal thoughts.",
+      "Illustrate Jake's concern with more physical manifestations."
+    ],
+    "replacement_targets": [
+      "Replace generic phrases with unique, vivid descriptions.",
+      "Substitute vague emotional expressions with concrete actions."
+    ],
+    "grounding_targets": [
+      "Integrate more grounding elements from the setting into character interactions.",
+      "Ensure that characters' physical states reflect their emotional states."
+    ],
+    "carryover_targets": [
+      "Address the repetitive use of 'rain' and 'storm' to add variety.",
+      "Eliminate or rephrase overused descriptors that detract from originality."
+    ]
+  },
+  "attempt_count": 2,
+  "acceptance_reason": "quality_failed",
+  "rewrite_used": true
+}

@@ -1,0 +1,623 @@
+{
+  "chunk_id": "lf_2330f7cd",
+  "validation_decision": false,
+  "fallback_reason": "quality_failed",
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "raw_preview": "The air inside the café was thick with the scent of roasted coffee beans and a hint of cinnamon, the warm, earthy aroma wrapping around Clara like a familiar shawl. She stirred her cup slowly, watchin",
+      "normalized_preview": "The air inside the café was thick with the scent of roasted coffee beans and a hint of cinnamon, the warm, earthy aroma wrapping around Clara like a familiar shawl. She stirred her cup slowly, watchin",
+      "raw_length": 1775,
+      "normalized_length": 1774,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKYmxWu0xvrin31fdJeMW6bmAK58O\", \"object\": \"chat.completion\", \"created\": 1773792659, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The air inside the café was thick with the scent of roasted coffee beans and a hint of cinnamon, the warm, earthy aroma wrapping around Clara like a familiar shawl. She stirred her cup slowly, watching as the steam spiraled upward, twisting into delicate shapes before dissipating into the soft",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 311,
+        "paragraph_count": 7,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 2,
+          "meta_free": 5
+        },
+        "total_score": 26,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 311,
+        "paragraph_count": 7,
+        "dialogue_present": true,
+        "dialogue_grounded": false,
+        "sensory_hits": 4,
+        "concrete_hits": 1,
+        "generic_hits": 1,
+        "stock_phrase_hits": 1,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The air inside the café was thick with the scent of roasted coffee beans and a hint of cinnamon, the warm, earthy aroma wrapping around Clara like a familiar shawl. She stirred her cup slowly, watching as the steam spiraled upward, twisting into delicate shapes before dissipating into the soft hum of chatter around her. Outside, the rain had begun to fall, a steady patter against the window that blurred the world beyond into a watercolor of grays and blues. Each drop seemed to echo her thoughts—fractured, fleeting, yet heavy with unspoken weight.\n\nHer gaze drifted to the corner table, where a couple sat close together, their fingers interlaced, laughter spilling between them like sunlight breaking through clouds. Clara felt a pang in her chest, an ache that mingled with the warmth of the coffee sliding down her throat. She was supposed to be happy for them, yet all she felt was the sharp edge of longing. The sound of their joy was a distant song, one she once knew the words to but had forgotten.\n\n“Hey, you okay?” The barista, a young man with tousled hair and a bright smile, leaned against the counter, his concern genuine. He wiped his hands on a dish towel, his easy posture contrasting sharply with the tightness in her chest.\n\n“Yeah, just… thinking,” she replied, forcing a smile that didn’t quite reach her eyes. She raised her cup in a half-hearted toast. “You know how it is.”\n\n“Sure,” he said, his brow furrowing slightly. “Let me know if you need anything. I can make you a special drink—something to lift your spirits?”\n\nClara chuckled softly, the sound almost foreign to her own ears. “I think I just need to sit with my thoughts for a bit. But I appreciate it.”\n\nHe nodded, his expression softening as he walked away, leaving her to her solitude"
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "rewrite",
+        "escalated": false,
+        "reason": "rewrite_default"
+      },
+      "raw_preview": "The café was a haven of warmth, the air rich with the scent of freshly roasted coffee mingling with a trace of cinnamon. It enveloped Clara like a beloved blanket, a comforting presence against the ch",
+      "normalized_preview": "The café was a haven of warmth, the air rich with the scent of freshly roasted coffee mingling with a trace of cinnamon. It enveloped Clara like a beloved blanket, a comforting presence against the ch",
+      "raw_length": 1841,
+      "normalized_length": 1841,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKYnDaCEJmJ2caj2Wgx2H2rvWQcT3\", \"object\": \"chat.completion\", \"created\": 1773792675, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The café was a haven of warmth, the air rich with the scent of freshly roasted coffee mingling with a trace of cinnamon. It enveloped Clara like a beloved blanket, a comforting presence against the chill that lingered outside. She stirred her coffee, the porcelain clinking softly against the w",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 308,
+        "paragraph_count": 6,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "guardrail_snapshot": {
+        "evaluated": true,
+        "mode": "rewrite",
+        "outline_titles": [],
+        "beat_refs": [],
+        "locked_facts_evaluated": false,
+        "length_band_evaluated": true,
+        "original_word_count": 311,
+        "rewritten_word_count": 308,
+        "min_word_count": 186,
+        "max_word_count": 653,
+        "within_length_band": true,
+        "outline_fidelity_evaluated": true,
+        "outline_fidelity_pass": true,
+        "original_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "his",
+          "was",
+          "you",
+          "and",
+          "clara",
+          "that",
+          "coffee",
+          "cup",
+          "had"
+        ],
+        "retained_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "his",
+          "you",
+          "and",
+          "clara",
+          "that",
+          "coffee"
+        ],
+        "outline_anchor_hits": [],
+        "required_anchor_overlap": 1,
+        "scene_anchor_drift_detected": false,
+        "new_story_elements": [],
+        "blocking_new_story_elements": [],
+        "authoritative_name_check": false,
+        "uncertainty_triggered": false,
+        "failure_reason": null,
+        "accepted": true,
+        "quality_total_score": 26
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 2,
+          "meta_free": 5
+        },
+        "total_score": 26,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 308,
+        "paragraph_count": 6,
+        "dialogue_present": true,
+        "dialogue_grounded": false,
+        "sensory_hits": 5,
+        "concrete_hits": 1,
+        "generic_hits": 1,
+        "stock_phrase_hits": 2,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The café was a haven of warmth, the air rich with the scent of freshly roasted coffee mingling with a trace of cinnamon. It enveloped Clara like a beloved blanket, a comforting presence against the chill that lingered outside. She stirred her coffee, the porcelain clinking softly against the wooden table, watching as steam curled upward in whimsical spirals, dissipating into the gentle buzz of conversations all around her. Outside, raindrops began to fall, tapping rhythmically against the window, transforming the view into a blurred canvas of muted grays and soft blues. Each drop felt like a reflection of her own thoughts—disjointed yet heavy with unexpressed feelings.\n\nClara's gaze wandered to a corner table where a couple leaned into each other, fingers intertwined, their laughter spilling forth like sunlight breaking through the clouds. A pang of longing twisted in her chest, sharp and unexpected, mingling with the warmth of her coffee as she took a sip. She wished she could share in their joy, but instead, she felt the weight of solitude, an ache for connection that seemed to echo in the laughter of others.\n\n“Hey, you okay?” The barista, a young man with tousled hair and an infectious smile, leaned against the counter, his eyes searching hers. He wiped his hands on a dish towel, his posture relaxed and easy, a stark contrast to the tightness that clung to her chest.\n\n“Yeah, just… thinking,” she said, attempting a smile that faltered before it reached her eyes. She lifted her cup in a half-hearted toast, the gesture lacking the enthusiasm she wished to convey. “You know how it is.”\n\n“Sure,” he replied, a flicker of concern crossing his face as he studied her. “If you need anything, let me know. I could whip up a special drink—something to brighten your day?”\n\nClara chuckled softly, the sound feeling distant"
+      },
+      "quality_pass": false,
+      "rewrite_delta": {
+        "total_delta": 0,
+        "stock_phrase_delta": -1,
+        "specificity_delta": 0,
+        "clarity_delta": 0,
+        "continuity_delta": 0
+      },
+      "retry_decision": {
+        "eligible": true,
+        "reason": "targeted_editorial_miss_after_rewrite",
+        "classification": "targeted_editorial"
+      }
+    },
+    {
+      "attempt": 3,
+      "mode": "recovery_retry",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": false,
+        "reason": "rescue_model"
+      },
+      "raw_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"Each drop felt like a reflection of her own thoughts—disjointed yet laden with unvoiced emotions.\"},{\"slot_id\":\"s2\",\"replacement_text\":\"“You know how it",
+      "normalized_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"Each drop felt like a reflection of her own thoughts—disjointed yet laden with unvoiced emotions.\"},{\"slot_id\":\"s2\",\"replacement_text\":\"“You know how it",
+      "raw_length": 825,
+      "normalized_length": 825,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKYnKbQYdqRw3iW9huj3yKEkVfsO5\", \"object\": \"chat.completion\", \"created\": 1773792682, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"replacement_text\\\":\\\"Each drop felt like a reflection of her own thoughts—disjointed yet laden with unvoiced emotions.\\\"},{\\\"slot_id\\\":\\\"s2\\\",\\\"replacement_text\\\":\\\"“You know how it is.”\\\\n\\\\n“Sure,” he replied, a brief shadow of concern crossing his face as",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "Each drop felt like a reflection of her own thoughts—disjointed yet heavy with unexpressed feelings.",
+          "context_before": "Outside, raindrops began to fall, tapping rhythmically against the window, transforming the view into a blurred canvas of muted grays and soft blues.",
+          "context_after": "Clara's gaze wandered to a corner table where a couple leaned into each other, fingers intertwined, their laughter spilling forth like sunlight breaking through the clouds.",
+          "target_reason": "generic",
+          "target_phrase": "heavy with"
+        },
+        {
+          "slot_id": "s2",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“You know how it is.”\n\n“Sure,” he replied, a flicker of concern crossing his face as he studied her.",
+          "context_before": "She lifted her cup in a half-hearted toast, the gesture lacking the enthusiasm she wished to convey.",
+          "context_after": "“If you need anything, let me know.",
+          "target_reason": "dialogue",
+          "target_phrase": "flicker of"
+        },
+        {
+          "slot_id": "s3",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Hey, you okay?” The barista, a young man with tousled hair and an infectious smile, leaned against the counter, his eyes searching hers.",
+          "context_before": "She wished she could share in their joy, but instead, she felt the weight of solitude, an ache for connection that seemed to echo in the laughter of others.",
+          "context_after": "He wiped his hands on a dish towel, his posture relaxed and easy, a stark contrast to the tightness that clung to her chest.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s4",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Yeah, just… thinking,” she said, attempting a smile that faltered before it reached her eyes.",
+          "context_before": "He wiped his hands on a dish towel, his posture relaxed and easy, a stark contrast to the tightness that clung to her chest.",
+          "context_after": "She lifted her cup in a half-hearted toast, the gesture lacking the enthusiasm she wished to convey.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s5",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“If you need anything, let me know.",
+          "context_before": "“You know how it is.”\n\n“Sure,” he replied, a flicker of concern crossing his face as he studied her.",
+          "context_after": "I could whip up a special drink—something to brighten your day?”\n\nClara chuckled softly, the sound feeling distant",
+          "target_reason": "dialogue"
+        }
+      ],
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "Each drop felt like a reflection of her own thoughts—disjointed yet laden with unvoiced emotions."
+        },
+        {
+          "slot_id": "s2",
+          "replacement_text": "“You know how it is.”\n\n“Sure,” he replied, a brief shadow of concern crossing his face as he studied her intently."
+        },
+        {
+          "slot_id": "s3",
+          "replacement_text": "“Hey, you okay?” The barista, a young man with tousled hair and an infectious smile, leaned against the counter, his eyes searching hers with genuine curiosity."
+        },
+        {
+          "slot_id": "s4",
+          "replacement_text": "“Yeah, just… thinking,” she said, attempting a smile that faltered before it reached her eyes, her fingers nervously tracing the rim of her cup."
+        },
+        {
+          "slot_id": "s5",
+          "replacement_text": "“If you need anything, let me know. I could whip up a special drink—something to brighten your day?”"
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_specificity_unresolved"
+      }
+    },
+    {
+      "attempt": 4,
+      "mode": "repair_only",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": false,
+        "reason": "rescue_model"
+      },
+      "raw_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"Each drop felt like a reflection of her own thoughts—disjointed yet burdened with unexpressed feelings.\"},{\"slot_id\":\"s2\",\"replacement_text\":\"“You know ",
+      "normalized_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"Each drop felt like a reflection of her own thoughts—disjointed yet burdened with unexpressed feelings.\"},{\"slot_id\":\"s2\",\"replacement_text\":\"“You know ",
+      "raw_length": 696,
+      "normalized_length": 696,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKYnP0e9taQ6d8h50UXUOmQ4Zny28\", \"object\": \"chat.completion\", \"created\": 1773792687, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"replacement_text\\\":\\\"Each drop felt like a reflection of her own thoughts—disjointed yet burdened with unexpressed feelings.\\\"},{\\\"slot_id\\\":\\\"s2\\\",\\\"replacement_text\\\":\\\"“You know how it is.”\\\\n\\\\n“Sure,” he replied, concern etching into his brow as he stud",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "Each drop felt like a reflection of her own thoughts—disjointed yet heavy with unexpressed feelings.",
+          "context_before": "Outside, raindrops began to fall, tapping rhythmically against the window, transforming the view into a blurred canvas of muted grays and soft blues.",
+          "context_after": "Clara's gaze wandered to a corner table where a couple leaned into each other, fingers intertwined, their laughter spilling forth like sunlight breaking through the clouds.",
+          "target_reason": "generic",
+          "target_phrase": "heavy with"
+        },
+        {
+          "slot_id": "s2",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“You know how it is.”\n\n“Sure,” he replied, a flicker of concern crossing his face as he studied her.",
+          "context_before": "She lifted her cup in a half-hearted toast, the gesture lacking the enthusiasm she wished to convey.",
+          "context_after": "“If you need anything, let me know.",
+          "target_reason": "dialogue",
+          "target_phrase": "flicker of"
+        },
+        {
+          "slot_id": "s3",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Hey, you okay?” The barista, a young man with tousled hair and an infectious smile, leaned against the counter, his eyes searching hers.",
+          "context_before": "She wished she could share in their joy, but instead, she felt the weight of solitude, an ache for connection that seemed to echo in the laughter of others.",
+          "context_after": "He wiped his hands on a dish towel, his posture relaxed and easy, a stark contrast to the tightness that clung to her chest.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s4",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Yeah, just… thinking,” she said, attempting a smile that faltered before it reached her eyes.",
+          "context_before": "He wiped his hands on a dish towel, his posture relaxed and easy, a stark contrast to the tightness that clung to her chest.",
+          "context_after": "She lifted her cup in a half-hearted toast, the gesture lacking the enthusiasm she wished to convey.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s5",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“If you need anything, let me know.",
+          "context_before": "“You know how it is.”\n\n“Sure,” he replied, a flicker of concern crossing his face as he studied her.",
+          "context_after": "I could whip up a special drink—something to brighten your day?”\n\nClara chuckled softly, the sound feeling distant",
+          "target_reason": "dialogue"
+        }
+      ],
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "Each drop felt like a reflection of her own thoughts—disjointed yet burdened with unexpressed feelings."
+        },
+        {
+          "slot_id": "s2",
+          "replacement_text": "“You know how it is.”\n\n“Sure,” he replied, concern etching into his brow as he studied her."
+        },
+        {
+          "slot_id": "s3",
+          "replacement_text": "“Hey, you okay?” The barista, a young man with tousled hair and an infectious smile, leaned against the counter, his eyes searching hers intently."
+        },
+        {
+          "slot_id": "s4",
+          "replacement_text": "“Yeah, just… thinking,” she said, attempting a smile that faltered like a dim light before it reached her eyes."
+        },
+        {
+          "slot_id": "s5",
+          "replacement_text": "“If you need anything, let me know."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_specificity_unresolved"
+      }
+    }
+  ],
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 2,
+      "meta_free": 5
+    },
+    "total_score": 26,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 308,
+    "paragraph_count": 6,
+    "dialogue_present": true,
+    "dialogue_grounded": false,
+    "sensory_hits": 5,
+    "concrete_hits": 1,
+    "generic_hits": 1,
+    "stock_phrase_hits": 2,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The café was a haven of warmth, the air rich with the scent of freshly roasted coffee mingling with a trace of cinnamon. It enveloped Clara like a beloved blanket, a comforting presence against the chill that lingered outside. She stirred her coffee, the porcelain clinking softly against the wooden table, watching as steam curled upward in whimsical spirals, dissipating into the gentle buzz of conversations all around her. Outside, raindrops began to fall, tapping rhythmically against the window, transforming the view into a blurred canvas of muted grays and soft blues. Each drop felt like a reflection of her own thoughts—disjointed yet heavy with unexpressed feelings.\n\nClara's gaze wandered to a corner table where a couple leaned into each other, fingers intertwined, their laughter spilling forth like sunlight breaking through the clouds. A pang of longing twisted in her chest, sharp and unexpected, mingling with the warmth of her coffee as she took a sip. She wished she could share in their joy, but instead, she felt the weight of solitude, an ache for connection that seemed to echo in the laughter of others.\n\n“Hey, you okay?” The barista, a young man with tousled hair and an infectious smile, leaned against the counter, his eyes searching hers. He wiped his hands on a dish towel, his posture relaxed and easy, a stark contrast to the tightness that clung to her chest.\n\n“Yeah, just… thinking,” she said, attempting a smile that faltered before it reached her eyes. She lifted her cup in a half-hearted toast, the gesture lacking the enthusiasm she wished to convey. “You know how it is.”\n\n“Sure,” he replied, a flicker of concern crossing his face as he studied her. “If you need anything, let me know. I could whip up a special drink—something to brighten your day?”\n\nClara chuckled softly, the sound feeling distant"
+  },
+  "critique_snapshot": {
+    "summary": "The scene takes place in a café where Clara reflects on her feelings of longing while observing a happy couple. The barista checks on her, offering to make her a special drink, but Clara prefers to be alone with her thoughts.",
+    "weaknesses": [
+      "Generic descriptions that lack specificity.",
+      "Dialogue lacks grounding in physical action or setting."
+    ],
+    "continuity_issues": [
+      "The emotional transition from observing the couple to interacting with the barista feels abrupt."
+    ],
+    "pacing_issues": [
+      "The scene moves slowly but lacks tension or conflict to justify the pacing."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions.",
+      "Ground dialogue in physical actions or the setting.",
+      "Create smoother transitions between Clara's observations and interactions."
+    ],
+    "generic_phrase_targets": [
+      "The air inside the café was thick with the scent of roasted coffee beans and a hint of cinnamon",
+      "the warm, earthy aroma wrapping around Clara like a familiar shawl",
+      "a steady patter against the window that blurred the world beyond into a watercolor of grays and blues"
+    ],
+    "detail_targets": [
+      "Descriptions of Clara's emotional state could be more vivid and specific.",
+      "Details about the café's ambiance could be expanded."
+    ],
+    "dialogue_grounding_targets": [
+      "Barista's dialogue should be more connected to Clara's actions or the café environment."
+    ],
+    "emotional_show_targets": [
+      "Clara's longing could be shown through more active engagement with her surroundings."
+    ],
+    "replacement_targets": [
+      "Replace generic phrases with more unique and specific imagery."
+    ],
+    "grounding_targets": [
+      "Ensure that characters' dialogue is tied to their physical actions or the setting."
+    ],
+    "carryover_targets": [
+      "Clarify the emotional connection between Clara's observations and her interactions with the barista."
+    ]
+  },
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": false,
+    "rescue_mode_used": true,
+    "rescue_model_used": false,
+    "rescue_model_name": "gpt-4o-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Hey, you okay?” The barista, a young man with tousled hair and an infectious smile, leaned against the counter, his eyes searching hers.",
+        "“Yeah, just… thinking,” she said, attempting a smile that faltered before it reached her eyes.",
+        "“You know how it is.”\n\n“Sure,” he replied, a flicker of concern crossing his face as he studied her.",
+        "“If you need anything, let me know."
+      ],
+      "generic_phrases_to_replace": [
+        "heavy with",
+        "flicker of"
+      ],
+      "lines_to_repair": [
+        "Each drop felt like a reflection of her own thoughts—disjointed yet heavy with unexpressed feelings.",
+        "“You know how it is.”\n\n“Sure,” he replied, a flicker of concern crossing his face as he studied her.",
+        "“Hey, you okay?” The barista, a young man with tousled hair and an infectious smile, leaned against the counter, his eyes searching hers.",
+        "“Yeah, just… thinking,” she said, attempting a smile that faltered before it reached her eyes.",
+        "“If you need anything, let me know."
+      ],
+      "required_concrete_anchor_terms": [
+        "against",
+        "coffee",
+        "warmth"
+      ],
+      "repair_min_word_count": 261,
+      "repair_max_word_count": 462,
+      "min_paragraph_count": 4,
+      "max_paragraph_count": 8
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": false,
+      "reason": "rescue_model"
+    },
+    "rescue_slots_summary": {
+      "slot_count": 5,
+      "target_types": [
+        "generic",
+        "dialogue",
+        "dialogue",
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_specificity_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 311,
+    "rewritten_word_count": 308,
+    "min_word_count": 186,
+    "max_word_count": 653,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "his",
+      "was",
+      "you",
+      "and",
+      "clara",
+      "that",
+      "coffee",
+      "cup",
+      "had"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "his",
+      "you",
+      "and",
+      "clara",
+      "that",
+      "coffee"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 26
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "chunk_id": "lf_56afd8c0",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0002"
+  ],
+  "order": 2,
+  "continuation_of": "lf_579ca92a",
+  "prompt_fingerprint": "sha256:e373bcb2e0fde83052e0e853a240e4b9eb503431ec261233c68235d321ed5a85",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Clara held her breath, the damp chill of the service corridor wrapping around her like an unwelcome shroud",
+    "word_count": 307,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.01,
+    "total_after_usd": 0.02
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 5,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 32,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 307,
+    "paragraph_count": 4,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 8,
+    "concrete_hits": 13,
+    "generic_hits": 1,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [
+      "corridor",
+      "coat",
+      "lantern",
+      "chain",
+      "door",
+      "ceramic",
+      "fox",
+      "pocket"
+    ],
+    "carryover_hits": 8,
+    "material_carryover_hits": 3,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "Clara held her breath, the damp chill of the service corridor wrapping around her like an unwelcome shroud. She could feel the weight of the parlor key, its ribbon tight against her wrist, a tether to something both familiar and distant. Jun's lantern sputtered again, the light flickering like a candle in the wind, and the shadows twisted into grotesque shapes against the cracked walls. “What do you think it is?” he asked, his voice a fragile thread in the enveloping dark, eyes wide and glistening with fear.\n\n“I don’t know,” Clara replied too quickly, the words spilling out sharper than she intended. She shifted her weight, her back pressing against the cold, clammy surface of the wall, wishing it could dissolve her unease. The muddy footprints ahead of them were stark against the worn floorboards, each step echoing with an ominous promise. The further they went, the more Clara felt a sense of urgency clawing at her. The air grew thick, heavy with the scent of mildew and something darker, as if the corridor itself was holding its breath.\n\nJun took a hesitant step forward, the lantern’s beam revealing the end of the corridor where it turned sharply, the shadows pooling thicker there, as if they were alive, eager to swallow them whole. “Clara,” he murmured, glancing back at her, “that sound… it’s like someone is trying to get out.” The chain on the door rattled again, a metallic clink that sent a shiver down her spine. She could feel her heart racing, drumming in her ears, drowning out the stillness that seemed to stretch infinitely around them.\n\nShe caught sight of the chipped ceramic fox peeking out from her coat pocket, its painted eyes glimmering with misplaced innocence. “We should go back,” Jun whispered, his voice tremulous, the bravado slipping from him like water through"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

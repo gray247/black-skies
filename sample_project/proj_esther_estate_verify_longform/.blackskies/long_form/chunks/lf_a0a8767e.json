@@ -1,0 +1,244 @@
+{
+  "chunk_id": "lf_a0a8767e",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:4de001c7ba4ef71f1cb819ce6ac3a24ad4b7715d32f582908a8619391c8238ee",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 21,
+    "fallback_reason": "quality_failed"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "quality_failed"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 28,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 297,
+    "paragraph_count": 9,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 7,
+    "concrete_hits": 0,
+    "generic_hits": 1,
+    "stock_phrase_hits": 2,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The wind howled through the narrow alley, a fierce current that whipped around the corners and carried the scent of rain-soaked pavement. Jamie pressed her back against the cool brick wall, the dampness seeping through her jacket and chilling her skin. The distant rumble of thunder rolled overhead, a low growl that mirrored her growing unease. She pulled her collar tighter around her neck and squinted at the flickering streetlamp ahead, its light sputtering like a dying ember amid the encroaching darkness.\n\n“Where are you?” she murmured, her voice barely cutting through the gusts. As her heart raced, each thud echoed her impatience. Shadows danced around her, twisting and elongating as the clouds thickened above. She strained to hear footsteps—any sign that he was finally on his way.\n\nThen she heard it: the soft scuff of shoes on gravel, gradually growing louder. Her pulse quickened, and she stepped away from the wall, her breath catching in her throat. A figure emerged from the gloom, the outline familiar yet obscured by the fading light.\n\n“Jamie?” The voice was low and cautious, sending a shiver down her spine—a mix of relief and the weight of all that remained unspoken.\n\n“Yeah, it’s me,” she replied, forcing steadiness into her tone as she stepped into the glow of the streetlamp. The warmth washed over her, a stark contrast to the chill of the evening air.\n\n“Sorry I’m late.” He raked a hand through his damp hair, strands clinging to his forehead. “Traffic was awful.”\n\n“Traffic?” Her eyebrow arched, skepticism threading through her voice. “You said you’d leave early.”\n\n“I know.” He looked down, his gaze fixed on the gravel as if searching for answers there. The weight of his apology hung heavy between them, thickening the air. “Things just... happened.”\n\nJamie"
+  },
+  "critique_snapshot": {
+    "summary": "The scene depicts Jamie waiting anxiously in a dark alley for someone, feeling the tension of the weather and her impatience. When the person arrives, their conversation reveals a sense of unresolved issues between them.",
+    "weaknesses": [
+      "Generic descriptions and phrases that lack specificity.",
+      "Dialogue that does not connect with physical actions or the setting.",
+      "Vague emotional context that does not fully engage the reader."
+    ],
+    "continuity_issues": [
+      "The transition from Jamie's internal thoughts to dialogue lacks a clear grounding in her physical actions."
+    ],
+    "pacing_issues": [
+      "The buildup of tension is effective, but the dialogue exchange feels rushed and lacks depth."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid scene.",
+      "Ground dialogue in physical actions or setting to improve realism.",
+      "Deepen emotional context to better convey the characters' relationship."
+    ],
+    "generic_phrase_targets": [
+      "The wind howled",
+      "A relentless gust",
+      "Distant rumble of thunder",
+      "A low growl"
+    ],
+    "detail_targets": [
+      "The flickering streetlamp",
+      "The shadows dancing"
+    ],
+    "dialogue_grounding_targets": [
+      "“Where are you?”",
+      "“Sorry I’m late.”",
+      "“Traffic was awful.”"
+    ],
+    "emotional_show_targets": [
+      "Her heart raced",
+      "A shiver down her spine"
+    ],
+    "replacement_targets": [
+      "“Traffic?”",
+      "“You said you’d leave early.”"
+    ],
+    "grounding_targets": [
+      "Jamie pressed her back against the cool brick wall",
+      "She stepped away from the wall"
+    ],
+    "carryover_targets": []
+  },
+  "attempt_count": 3,
+  "acceptance_reason": "quality_failed",
+  "rewrite_used": true,
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": true,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": false,
+    "repair_only_pass_rescued": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [],
+      "generic_phrases_to_replace": [
+        "The wind howled",
+        "Distant rumble of thunder",
+        "A low growl",
+        "heart raced"
+      ],
+      "lines_to_repair": [
+        "The wind howled through the narrow alley, a fierce current that whipped around the corners and carried the scent of rain-soaked pavement.",
+        "The distant rumble of thunder rolled overhead, a low growl that mirrored her growing unease.",
+        "As her heart raced, each thud echoed her impatience.",
+        "Her pulse quickened, and she stepped away from the wall, her breath catching in her throat."
+      ],
+      "required_concrete_anchor_terms": [
+        "jamie",
+        "voice"
+      ],
+      "repair_min_word_count": 252,
+      "repair_max_word_count": 445,
+      "min_paragraph_count": 7,
+      "max_paragraph_count": 11
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-4o",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rewrite_retry_model"
+    },
+    "patch_targets_summary": {
+      "target_count": 4,
+      "target_types": [
+        "generic",
+        "generic",
+        "generic",
+        "generic"
+      ]
+    },
+    "rescue_failure_class": "patch_fidelity_risk"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 295,
+    "rewritten_word_count": 297,
+    "min_word_count": 177,
+    "max_word_count": 619,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "and",
+      "that",
+      "jamie",
+      "light",
+      "you",
+      "was",
+      "his",
+      "wind",
+      "sent"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "and",
+      "that",
+      "jamie",
+      "light",
+      "you",
+      "was",
+      "his"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 28
+  }
+}

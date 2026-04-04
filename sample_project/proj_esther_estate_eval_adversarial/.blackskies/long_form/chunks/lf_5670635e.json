@@ -1,0 +1,89 @@
+{
+  "chunk_id": "lf_5670635e",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0004"
+  ],
+  "order": 4,
+  "continuation_of": "lf_556eeeaf",
+  "prompt_fingerprint": "sha256:e1189f290a25471420361f1c2dcac8f93c51c4b4e177a8e9cd2dd6df117252d4",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Clara pulled back from the door, her breath a quiet fog against the chill of the nursery’s wood",
+    "word_count": 601,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.03,
+    "total_after_usd": 0.04
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 4,
+      "clarity": 3,
+      "pacing": 5,
+      "specificity": 4,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 30,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 601,
+    "paragraph_count": 14,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 8,
+    "concrete_hits": 11,
+    "generic_hits": 1,
+    "stock_phrase_hits": 5,
+    "carryover_terms": [
+      "nursery",
+      "door",
+      "lantern",
+      "coat",
+      "rain",
+      "ceramic",
+      "fox",
+      "pocket"
+    ],
+    "carryover_hits": 8,
+    "material_carryover_hits": 3,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": true
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null
+}

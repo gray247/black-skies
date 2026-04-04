@@ -1,0 +1,56 @@
+{
+  "chunk_id": "lf_7cf70a20",
+  "reason": {
+    "usable": false,
+    "word_count": 122,
+    "paragraph_count": 1,
+    "meta_summary": false,
+    "missing_carryover": false,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0
+  },
+  "validation_decision": false,
+  "fallback_reason": "invalid_output",
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "qwen3:4b",
+        "baseline_model": "qwen3:4b",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "raw_preview": "Clara’s knuckle met the handle of the nursery door with a sound like a dry leaf splitting against stone. The cold bit through the thin shift of her cotton dress, a shock that made her throat tighten. ",
+      "normalized_preview": "Clara’s knuckle met the handle of the nursery door with a sound like a dry leaf splitting against stone. The cold bit through the thin shift of her cotton dress, a shock that made her throat tighten. ",
+      "raw_length": 689,
+      "normalized_length": 689,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-426\", \"object\": \"chat.completion\", \"created\": 1773709383, \"model\": \"qwen3:4b\", \"system_fingerprint\": \"fp_ollama\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"Clara’s knuckle met the handle of the nursery door with a sound like a dry leaf splitting against stone. The cold bit through the thin shift of her cotton dress, a shock that made her throat tighten. Jun’s breath hitched as he shifted the cracked brass lantern, the sputtering light catching the wet",
+      "basic_validation": {
+        "usable": false,
+        "word_count": 122,
+        "paragraph_count": 1,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      }
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_7a8ced84",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:15d9750aa1eb2c201b00f70dfa984b952b90f229ccda95470375b151d9edf2ea",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The rain fell in relentless sheets, a curtain of gray that blurred the edges of the world",
+    "word_count": 298,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 4,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 29,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 298,
+    "paragraph_count": 7,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 4,
+    "concrete_hits": 2,
+    "generic_hits": 1,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The rain fell in relentless sheets, a curtain of gray that blurred the edges of the world. Beneath the awning of the crumbling café, Clara hugged her jacket tighter around her, the damp fabric clinging to her skin. The air was thick with the scent of wet asphalt and the faint, comforting aroma of brewing coffee. She watched the droplets race down the glass, tracing paths that mirrored her own tangled thoughts.\n\nA man passed by, his umbrella turned inside out by a sudden gust, leaving him sputtering apologies to the rain. Clara stifled a laugh, the sound catching in her throat like a forgotten promise. She looked away, pretending interest in the menu board, though she had memorized every item. The chocolate croissant always beckoned, its flaky layers whispering indulgence, but today it felt too rich, too heavy—like the weight of her own decisions.\n\n“Clara!” The voice sliced through the gray like a knife, familiar yet edged with a caution she couldn’t place. She turned to see Mia, her silhouette framed by the storm, hair plastered to her forehead. The moment their eyes met, Clara felt a pang of something—relief, dread, a confusing mix of both. “I thought I might find you here.”\n\n“Just trying to stay dry,” Clara replied, forcing a smile that didn’t quite reach her eyes. The truth simmered beneath the surface: she was waiting, though for what, she wasn’t sure.\n\nMia stepped closer, shaking off the rain like a dog. “You didn’t answer my texts. I was worried.”\n\n“Sorry, my phone died.” A half-truth, but it felt safer than revealing the chaos that swirled inside her. She gestured to the empty chair across from her, inviting Mia in, a flicker of hope igniting in her chest.\n\nAs Mia settled, the café door swung"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "timestamp": "2026-03-16T19:24:06.483566Z",
+  "code": "VALIDATION",
+  "message": "Rewrite rejected by outline/length guardrails.",
+  "details": {
+    "guardrail_snapshot": {
+      "evaluated": true,
+      "mode": "rewrite",
+      "outline_titles": [],
+      "beat_refs": [],
+      "locked_facts_evaluated": false,
+      "length_band_evaluated": true,
+      "original_word_count": 607,
+      "rewritten_word_count": 599,
+      "min_word_count": 364,
+      "max_word_count": 1274,
+      "within_length_band": true,
+      "outline_fidelity_evaluated": true,
+      "outline_fidelity_pass": false,
+      "original_anchor_terms": [
+        "the",
+        "her",
+        "she",
+        "his",
+        "they",
+        "that",
+        "and",
+        "but",
+        "clara",
+        "you",
+        "not",
+        "urgency"
+      ],
+      "retained_anchor_terms": [
+        "the",
+        "her",
+        "she",
+        "his",
+        "they",
+        "that",
+        "and",
+        "but",
+        "clara",
+        "you"
+      ],
+      "outline_anchor_hits": [
+        "the",
+        "her",
+        "she",
+        "and",
+        "against",
+        "that",
+        "wind",
+        "clara",
+        "his"
+      ],
+      "required_anchor_overlap": 1,
+      "scene_anchor_drift_detected": false,
+      "new_story_elements": [
+        "tomas",
+        "what"
+      ],
+      "blocking_new_story_elements": [
+        "tomas",
+        "what"
+      ],
+      "authoritative_name_check": true,
+      "uncertainty_triggered": true,
+      "failure_reason": "outline_drift_detected",
+      "accepted": false,
+      "quality_total_score": 32
+    },
+    "attempt": 2
+  }
+}

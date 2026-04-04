@@ -1,0 +1,366 @@
+{
+  "chunk_id": "lf_9c860887",
+  "validation_decision": true,
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "raw_preview": "“Hey, you alright?” a voice called from behind, slicing through the rush of the river. The sound of it made Olivia jump slightly, her fingers slipping from the stone railing. She opened her eyes to fi",
+      "normalized_preview": "“Hey, you alright?” a voice called from behind, slicing through the rush of the river. The sound of it made Olivia jump slightly, her fingers slipping from the stone railing. She opened her eyes to fi",
+      "raw_length": 3425,
+      "normalized_length": 3416,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKEJPbyia8k6zLTcZegZbwiw1k5zB\", \"object\": \"chat.completion\", \"created\": 1773713947, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"“Hey, you alright?” a voice called from behind, slicing through the rush of the river. The sound of it made Olivia jump slightly, her fingers slipping from the stone railing. She opened her eyes to find Marcus, his tall frame silhouetted against the dying light, his brow furrowed with concern.",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 592,
+        "paragraph_count": 15,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [
+          "dipped",
+          "casting",
+          "golden",
+          "light",
+          "glimmered",
+          "river",
+          "below",
+          "olivia"
+        ],
+        "carryover_hits": 4,
+        "material_carryover_hits": 1
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 4,
+          "clarity": 3,
+          "pacing": 5,
+          "specificity": 2,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 28,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 592,
+        "paragraph_count": 15,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 6,
+        "concrete_hits": 1,
+        "generic_hits": 1,
+        "stock_phrase_hits": 4,
+        "carryover_terms": [
+          "dipped",
+          "casting",
+          "golden",
+          "light",
+          "glimmered",
+          "river",
+          "below",
+          "olivia"
+        ],
+        "carryover_hits": 4,
+        "material_carryover_hits": 1,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": true,
+        "text": "“Hey, you alright?” a voice called from behind, slicing through the rush of the river. The sound of it made Olivia jump slightly, her fingers slipping from the stone railing. She opened her eyes to find Marcus, his tall frame silhouetted against the dying light, his brow furrowed with concern.\n\n“Yeah, I’m fine,” she replied too quickly, forcing a smile that felt brittle on her lips. She turned slightly, pulling her gaze from the water’s tumultuous dance. It was easier to focus on him than the chaotic swirl of thoughts in her mind. “Just… thinking.”\n\n“Thinking or overthinking?” He stepped closer, the faint crunch of gravel under his boots punctuating the silence between them. The golden hues of dusk warmed the contours of his face, but there was a shadow in his expression, a flicker of something unspoken.\n\n“Probably overthinking,” she admitted, the laugh that followed sounding hollow even to her own ears. She couldn’t help but glance back at the river, its relentless flow a stark contrast to her own stagnant thoughts. “It’s just… everything. You know?”\n\nMarcus leaned against the railing, mirroring her earlier stance, the cool stone pressing into his palms. “Everything can be a lot sometimes,” he said, voice low, almost conspiratorial, as if sharing a secret that only they understood. “But you can’t let it pull you under.”\n\nAs he spoke, a gust of wind swept through the bridge, rustling the leaves above and sending a chill through her. She shivered, not entirely from the cold. “I don’t know how to stay afloat,” she murmured, her voice barely above a whisper. The river roared beneath, a reminder of the currents pulling at her, threatening to drag her down.\n\n“You’re stronger than you think.” His words were steady, imbued with a certainty that both comforted and unnerved her. She wanted to believe him, to cling to that assurance like a lifeline, but doubt gnawed at the edges of her resolve.\n\n“What if I’m not?” she shot back, her own voice sharper than intended. She turned to him, searching his gaze for a flicker of hesitation, something to confirm her fears. “What if I drown?”\n\n“Then I’ll jump in after you,” he said, a half-smile breaking through the heaviness. “But let’s not test that theory just yet.” The warmth of his words wrapped around her like a blanket, yet the tension in her chest remained.\n\n“Thanks, Marcus. I appreciate it.” She tried to convey sincerity in her tone, but a part of her felt like an imposter, like she was wearing a mask too tight to breathe. The light was fading, and soon the world would be cloaked in shadows—and she feared what lurked in the dark.\n\nHe shifted closer, the air between them thickening with unspoken words. “You know,” he began, his voice dropping to a near whisper, “you don’t have to carry this all alone. You can lean on me.”\n\nThe vulnerability in his offer struck a chord deep within her, and she hesitated, caught between the urge to confide and the instinct to protect herself. “It’s just… complicated,” she finally said, the truth spilling out like a hesitant tide. “I don’t want to burden you with my mess.”\n\n“Olivia, you’re not a burden. You’re my friend.” The sincerity in his eyes ignited a flicker of hope, but she quickly quelled it, fear creeping back in.\n\n“I don’t want to drag you down with me,” she said, her voice steadier now, yet heavy with the weight of her own reluctance.\n\n“Sometimes, it’s the mess that brings us"
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "rewrite",
+        "escalated": false,
+        "reason": "rewrite_default"
+      },
+      "raw_preview": "The sun hung low in the sky, casting a warm glow that danced across the rippling surface of the river below. Olivia leaned against the cold, weathered stone railing of the old bridge, her fingers brus",
+      "normalized_preview": "The sun hung low in the sky, casting a warm glow that danced across the rippling surface of the river below. Olivia leaned against the cold, weathered stone railing of the old bridge, her fingers brus",
+      "raw_length": 3592,
+      "normalized_length": 3591,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKEJvpK4sRZQWmActeItIfzH4B7Sd\", \"object\": \"chat.completion\", \"created\": 1773713979, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The sun hung low in the sky, casting a warm glow that danced across the rippling surface of the river below. Olivia leaned against the cold, weathered stone railing of the old bridge, her fingers brushing over the rough texture, each groove telling stories of time. The river surged beneath her",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 614,
+        "paragraph_count": 13,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [
+          "dipped",
+          "casting",
+          "golden",
+          "light",
+          "glimmered",
+          "river",
+          "below",
+          "olivia"
+        ],
+        "carryover_hits": 5,
+        "material_carryover_hits": 1
+      },
+      "guardrail_snapshot": {
+        "evaluated": true,
+        "mode": "rewrite",
+        "outline_titles": [],
+        "beat_refs": [],
+        "locked_facts_evaluated": false,
+        "length_band_evaluated": true,
+        "original_word_count": 592,
+        "rewritten_word_count": 614,
+        "min_word_count": 355,
+        "max_word_count": 1243,
+        "within_length_band": true,
+        "outline_fidelity_evaluated": true,
+        "outline_fidelity_pass": true,
+        "original_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "you",
+          "his",
+          "that",
+          "but",
+          "voice",
+          "and",
+          "was",
+          "own",
+          "said"
+        ],
+        "retained_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "you",
+          "his",
+          "that",
+          "but",
+          "voice",
+          "and"
+        ],
+        "outline_anchor_hits": [
+          "the",
+          "her",
+          "that",
+          "she",
+          "his",
+          "river",
+          "felt",
+          "and"
+        ],
+        "required_anchor_overlap": 1,
+        "scene_anchor_drift_detected": false,
+        "new_story_elements": [],
+        "blocking_new_story_elements": [],
+        "authoritative_name_check": true,
+        "uncertainty_triggered": false,
+        "failure_reason": null,
+        "accepted": true,
+        "quality_total_score": 32
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 5,
+          "clarity": 4,
+          "pacing": 5,
+          "specificity": 4,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 32,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 614,
+        "paragraph_count": 13,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 7,
+        "concrete_hits": 2,
+        "generic_hits": 0,
+        "stock_phrase_hits": 1,
+        "carryover_terms": [
+          "dipped",
+          "casting",
+          "golden",
+          "light",
+          "glimmered",
+          "river",
+          "below",
+          "olivia"
+        ],
+        "carryover_hits": 5,
+        "material_carryover_hits": 1,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The sun hung low in the sky, casting a warm glow that danced across the rippling surface of the river below. Olivia leaned against the cold, weathered stone railing of the old bridge, her fingers brushing over the rough texture, each groove telling stories of time. The river surged beneath her, a relentless cascade of water that crashed against the rocks, the sound filling her ears and amplifying the turmoil in her heart. She closed her eyes, inhaling deeply the mingled scents of damp earth and blooming wildflowers, trying to ground herself in the moment.\n\n“Hey, you alright?” A voice cut through the roar of the river, startling Olivia. She turned to see Marcus, his tall silhouette framed against the fading light, concern etched across his brow. He stood a few feet away, hands shoved deep into the pockets of his well-worn jeans, shifting slightly as he awaited her answer.\n\n“Yeah, I’m fine,” she replied too quickly, forcing a smile that felt fragile, like it might shatter at any moment. She turned her body slightly to face him, her gaze drifting reluctantly from the river's turbulent flow. “Just… thinking.”\n\n“Thinking or overthinking?” He stepped closer, the crunch of gravel underfoot breaking the silence that lingered between them. The soft glow of dusk highlighted the angles of his face, but the worry in his expression cast a shadow over the warmth.\n\n“Probably overthinking,” she admitted, a hollow laugh escaping her lips. She couldn’t resist glancing back at the river, its ceaseless motion a stark reminder of her own stagnant worries. “It’s just… everything. You know?”\n\nMarcus leaned against the railing, mirroring her earlier stance, the stone cool against his palms. “Everything can be a lot sometimes,” he said, his voice low and intimate, as if they were sharing a secret only they understood. “But you can’t let it pull you under.”\n\nAs he spoke, a sudden gust of wind swept through the bridge, rustling the leaves overhead and sending a shiver down her spine. She shivered again, not entirely from the chill. “I don’t know how to stay afloat,” she whispered, her voice barely rising above the roar of the river, which felt like the very currents of her thoughts threatening to drag her down.\n\n“You’re stronger than you realize.” His words were steady, filled with a certainty that both comforted and unsettled her. She wished she could embrace that belief, to see it as a lifeline rather than a fragile promise, but doubt gnawed at her from within.\n\n“What if I’m not?” she shot back, sharper than she intended. She turned to him, searching his eyes for any sign of uncertainty, any hint that might validate her fears. “What if I drown?”\n\n“Then I’ll jump in after you,” he said, a half-smile breaking through the weight of the moment. “But let’s not test that theory just yet.” The warmth of his words wrapped around her like a protective blanket, yet the tension in her chest remained.\n\n“Thanks, Marcus. I really appreciate it.” She tried to infuse her tone with sincerity, but deep down, a part of her felt like an imposter, wearing a mask that was too tight to breathe behind. The light continued to fade, shadows creeping in, and she couldn’t shake the fear of what might lurk in the dark.\n\nHe stepped closer, the air thickening with unspoken thoughts. “You know,” he began, his voice dropping to a near whisper, “you don’t have to carry this all alone. You can lean on me.”\n\nHis vulnerability struck a chord within her, and she hesitated, torn between the instinct to confide and the urge to shield herself. “It’s just… complicated,” she finally said, the"
+      },
+      "quality_pass": true,
+      "rewrite_delta": {
+        "total_delta": 4,
+        "stock_phrase_delta": 3,
+        "specificity_delta": 2,
+        "clarity_delta": 1,
+        "continuity_delta": 1
+      }
+    }
+  ],
+  "acceptance_reason": "rewrite_pass",
+  "critique_snapshot": {
+    "summary": "The scene depicts a conversation between Olivia and Marcus on a bridge overlooking a river at dusk. Olivia is struggling with her thoughts and feelings, while Marcus offers support and encouragement. The dialogue reveals their emotional connection, but Olivia grapples with feelings of inadequacy and fear of burdening Marcus.",
+    "weaknesses": [
+      "Overuse of generic phrases and descriptions.",
+      "Lack of specific sensory details to enhance the setting.",
+      "Dialogue lacks grounding in physical action or setting."
+    ],
+    "continuity_issues": [
+      "The transition between Olivia's internal thoughts and dialogue feels abrupt.",
+      "The emotional tone shifts without clear physical cues or actions."
+    ],
+    "pacing_issues": [
+      "The dialogue flows smoothly but lacks moments of tension or action that could enhance engagement.",
+      "Some exchanges feel drawn out without advancing the plot or emotional stakes."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Incorporate more specific sensory details to ground the scene.",
+      "Replace generic phrases with unique descriptions.",
+      "Ensure dialogue is more connected to physical actions or the environment."
+    ],
+    "generic_phrase_targets": [
+      "slicing through the rush of the river",
+      "casting a golden light",
+      "dipped low in the sky",
+      "the sound of it made Olivia jump slightly"
+    ],
+    "detail_targets": [
+      "The description of the river and its surroundings.",
+      "Olivia's internal emotional state and physical reactions."
+    ],
+    "dialogue_grounding_targets": [
+      "Marcus's physical actions as he speaks.",
+      "Olivia's movements and expressions during their conversation."
+    ],
+    "emotional_show_targets": [
+      "Olivia's internal conflict and feelings of inadequacy.",
+      "Marcus's concern and support for Olivia."
+    ],
+    "replacement_targets": [
+      "Replace 'I don’t know how to stay afloat' with a more vivid metaphor.",
+      "Change 'you’re stronger than you think' to a more personalized encouragement."
+    ],
+    "grounding_targets": [
+      "Add more environmental details that reflect the characters' emotions.",
+      "Include physical sensations that correspond with their emotional states."
+    ],
+    "carryover_targets": [
+      "Review and revise phrases that contribute to a sense of cliché or stock imagery."
+    ]
+  },
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 592,
+    "rewritten_word_count": 614,
+    "min_word_count": 355,
+    "max_word_count": 1243,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "you",
+      "his",
+      "that",
+      "but",
+      "voice",
+      "and",
+      "was",
+      "own",
+      "said"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "you",
+      "his",
+      "that",
+      "but",
+      "voice",
+      "and"
+    ],
+    "outline_anchor_hits": [
+      "the",
+      "her",
+      "that",
+      "she",
+      "his",
+      "river",
+      "felt",
+      "and"
+    ],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": true,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 32
+  }
+}

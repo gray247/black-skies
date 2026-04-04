@@ -1,0 +1,242 @@
+{
+  "chunk_id": "lf_ada0960f",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:54962ef35d79df4db8d6a5d5de5158f2559637eef62619d913e0fcadb028305e",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 21,
+    "fallback_reason": "quality_failed"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "quality_failed"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 4,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 29,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 305,
+    "paragraph_count": 4,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 6,
+    "concrete_hits": 2,
+    "generic_hits": 1,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The wind sliced through the narrow alley, a biting chill that carried the sharp scent of rain-soaked asphalt mixed with the sweet, smoky aroma of roasted chestnuts from a nearby vendor. Clara pulled her jacket tighter around her shoulders, the damp fabric clinging to her skin as she hurried past flickering streetlights. Shadows clung to the edges of the alley, stretching and shifting as the light struggled to penetrate the gloom, making her pulse quicken with an unshakeable sense of unease. She glanced back over her shoulder, half-convinced she would see someone lurking in the darkness, but the alley remained empty except for a scruffy orange cat that skittered across her path, its eyes wide and wary.\n\nAhead, a door creaked open, spilling warm light onto the cobblestones. Clara hesitated, the inviting glow contrasting sharply with the cold bite of the air. Laughter drifted out, bright and carefree, mingling with the distant patter of rain. A tightness coiled in her chest, a mix of longing and dread that made her hesitate. She had promised herself she wouldn’t return to this place, wouldn’t seek comfort in crowded spaces where memories pressed heavily against her, shadows of past friendships and unresolved conversations.\n\n“Clara!” A voice sliced through the chatter, sharp and familiar, sending a jolt through her. It was Mia, her old friend, leaning against the doorframe, her smile bright enough to cut through the darkness. “You made it! Come on, it’s a reunion!” There was an urgency in Mia’s eyes, a desperate hope that Clara would step inside and leave the chill of the alley behind.\n\n“Yeah, I—” Clara’s voice faltered, caught in her throat like a fish on a line. She knew that stepping inside would mean confronting the ghosts of their past, the weight of unsaid things hanging thick in the air. The thought"
+  },
+  "critique_snapshot": {
+    "summary": "The scene follows Clara as she navigates a narrow alley, feeling the chill and tension of returning to a place filled with memories. She encounters her friend Mia, who urges her to join a reunion, but Clara grapples with her reluctance and the weight of their past.",
+    "weaknesses": [
+      "Vague descriptions that lack specificity and fail to create a strong visual image.",
+      "Dialogue that feels disconnected from the physical actions and setting."
+    ],
+    "continuity_issues": [
+      "Clara's internal conflict about returning to the reunion lacks clear motivation or backstory.",
+      "The transition from the alley to the door lacks a sense of urgency or clear connection."
+    ],
+    "pacing_issues": [
+      "The pacing slows significantly during Clara's internal monologue, which could be streamlined for better flow.",
+      "The dialogue exchange feels abrupt and does not build tension effectively."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid scene.",
+      "Ground dialogue in physical actions and the setting to increase realism.",
+      "Clarify Clara's internal conflict to provide stronger motivation."
+    ],
+    "generic_phrase_targets": [
+      "‘the wind whipped’",
+      "‘the warmth beckoning her like a siren’s call’",
+      "‘memories lingered like ghosts’"
+    ],
+    "detail_targets": [
+      "Descriptions of the alley and its atmosphere could include more sensory details.",
+      "Clarify the nature of Clara's past with Mia to deepen emotional impact."
+    ],
+    "dialogue_grounding_targets": [
+      "Mia's dialogue should include more physical actions or reactions to ground it in the scene."
+    ],
+    "emotional_show_targets": [
+      "Show Clara's internal struggle through more physical manifestations rather than exposition."
+    ],
+    "replacement_targets": [
+      "Replace vague phrases with more concrete imagery and specific emotions."
+    ],
+    "grounding_targets": [
+      "Include more environmental interactions to ground Clara's feelings in the setting."
+    ],
+    "carryover_targets": [
+      "Ensure Clara's past with Mia is woven into the narrative more clearly to enhance continuity."
+    ]
+  },
+  "attempt_count": 3,
+  "acceptance_reason": "quality_failed",
+  "rewrite_used": true,
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "borderline",
+      "reason": "borderline_quality_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "borderline_quality_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": false,
+    "rescue_mode_used": true,
+    "rescue_model_used": false,
+    "rescue_model_name": "gpt-4o-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": false,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Clara!” A voice sliced through the chatter, sharp and familiar, sending a jolt through her.",
+        "“You made it!",
+        "Come on, it’s a reunion!” There was an urgency in Mia’s eyes, a desperate hope that Clara would step inside and leave the chill of the alley behind.",
+        "“Yeah, I—” Clara’s voice faltered, caught in her throat like a fish on a line."
+      ],
+      "generic_phrases_to_replace": [],
+      "lines_to_repair": [
+        "“Clara!” A voice sliced through the chatter, sharp and familiar, sending a jolt through her.",
+        "“You made it!",
+        "Come on, it’s a reunion!” There was an urgency in Mia’s eyes, a desperate hope that Clara would step inside and leave the chill of the alley behind.",
+        "“Yeah, I—” Clara’s voice faltered, caught in her throat like a fish on a line."
+      ],
+      "required_concrete_anchor_terms": [
+        "clara",
+        "alley",
+        "past"
+      ],
+      "repair_min_word_count": 259,
+      "repair_max_word_count": 457,
+      "min_paragraph_count": 2,
+      "max_paragraph_count": 6
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": false,
+      "reason": "rescue_model"
+    },
+    "rescue_slots_summary": {
+      "slot_count": 4,
+      "target_types": [
+        "dialogue",
+        "dialogue",
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_length_distortion"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 300,
+    "rewritten_word_count": 305,
+    "min_word_count": 180,
+    "max_word_count": 630,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "clara",
+      "and",
+      "that",
+      "alley",
+      "made",
+      "come",
+      "mia",
+      "fabric",
+      "against"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "clara",
+      "and",
+      "that",
+      "alley",
+      "made"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 29
+  }
+}

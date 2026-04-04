@@ -1,0 +1,9 @@
+﻿The lantern flickered, casting long, trembling shadows that danced across the damp stone walls of the servants' passage. Jun’s fingers tightened around the cracked brass handle, the cold metal biting into his palm. Each sputter of light seemed to echo his heartbeat, quickening with every step they took deeper into the corridor. Clara walked ahead, her coat still damp from the greenhouse rain, the fabric clinging uncomfortably to her skin, yet it was the key tied to her wrist that felt like a weight dragging her down.
+
+“Did you hear that?” Jun whispered, his voice barely above a breath. His eyes darted to the ceiling, as if the answer might come from the warped wood above them.
+
+Clara paused, her heart thundering in her chest, a sensation that felt both familiar and foreign. She shook her head, too quickly, too sharply, trying to dismiss the tension coiling in her stomach. “It’s just the wind,” she replied, though the vague unease that had settled in her bones told her otherwise.
+
+They moved forward, the sound of muddy prints squishing against the stone floor, marking their passage like a breadcrumb trail of anxiety. Clara’s mind raced; the footpath behind the greenhouse was impossibly filled with fresh mud even though no one else had been outside. She tugged at the red ribbon, wondering if it had grown tighter around her wrist. Was it her imagination, or did the chain on the door rattle faintly, as if being tested from the other side?
+
+Jun’s breath came in quick gasps, still haunted by the echo of the child’s cough he had heard from the sealed upper floor. Clara had heard nothing but the silence, a void that felt like it could swallow them whole. “We need to get out of here,” he murmured, glancing over his shoulder as if he expected something—or someone—to emerge from the shadows

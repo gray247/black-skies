@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_ef491ee2",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:e271ee49fbe9db07e0b44a761b23cf0ed9534fc22f87e16c120792f05cf8172e",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The rain drummed steadily against the tin roof, each drop a tiny percussionist in a symphony of gray",
+    "word_count": 310,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 4,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 29,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 310,
+    "paragraph_count": 6,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 7,
+    "concrete_hits": 3,
+    "generic_hits": 0,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The rain drummed steadily against the tin roof, each drop a tiny percussionist in a symphony of gray. Clara stood at the window, her fingers tracing the cold glass, watching the rivulets snake their way down the pane like fleeting thoughts. Outside, the world blurred into a watercolor wash of muted greens and browns, the colors bleeding together under the relentless downpour. The scent of damp earth wafted in through the slightly ajar window, mingling with the faint aroma of fresh coffee brewing in the kitchen behind her.\n\n“Are you just going to stand there all day?” Jake’s voice sliced through the silence, rich with an impatience that wrapped around Clara like a thick fog. She turned, meeting his gaze as he leaned against the kitchen counter, arms crossed, a half-finished mug cradled in one hand. There was a flicker of concern in his eyes, masked by a veneer of annoyance that she had become all too familiar with.\n\n“I—” she started, the words heavy in her throat. The weight of the moment felt tangible, almost like the humidity pressing against her skin. She took a deep breath, letting the air fill her lungs, as if it could clear the fog that had settled in her mind. “I was just thinking.”\n\n“About what?” He took a sip from his mug, the steam curling upward, dissipating into the air like her thoughts slipping away. “You’ve been doing a lot of that lately.”\n\nClara shifted her weight, the floorboards creaking beneath her feet. “Just... everything. The rain, the way it makes everything feel so small.” She gestured vaguely toward the window, her hand trembling slightly, betraying the calm she tried to project.\n\nJake set his mug down with a thud that echoed in the small kitchen, his frustration palpable. “You can’t keep waiting for the world to change, Clara. Sometimes you have"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

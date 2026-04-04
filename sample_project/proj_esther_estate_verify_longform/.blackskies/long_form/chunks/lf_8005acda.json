@@ -1,0 +1,232 @@
+{
+  "chunk_id": "lf_8005acda",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:08a5f5da17487155c998cf098a3b52b879ca87f6a1dd0f2af259cf5c46df73ed",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 21,
+    "fallback_reason": "adapter_error"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "adapter_error"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 3,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 2,
+      "meta_free": 5
+    },
+    "total_score": 25,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 319,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": false,
+    "sensory_hits": 6,
+    "concrete_hits": 3,
+    "generic_hits": 0,
+    "stock_phrase_hits": 3,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": true,
+    "text": "the moment shift. Instead, she focused on the world outside, where the city pulse thrummed like a heartbeat.\n\nThe morning light seeped through the cracked windowpanes, casting a warm glow that highlighted the faded floral patterns of the peeling wallpaper. Dust motes floated lazily in the air, catching the light and twinkling like distant stars. Anna stood by the battered wooden table, her fingers tracing the rim of a chipped coffee mug, remnants of yesterday's brew clinging to its interior like a memory of warmth that refused to fade. The echoes of laughter and conversations once vibrant in the room seemed to linger in the air, binding the past and present together in an unbreakable thread.\n\nOutside, the city stirred awake, the distant sound of a car horn blaring, the rumble of a bus, and the rhythmic clatter of someone setting up a market stall on the corner. Each sound pulled at her, a reminder of life marching on while she remained ensnared in this cocoon of quiet. She sighed, a soft exhalation that seemed to carry her reluctance, and stepped towards the window, her bare feet meeting the cool wooden floor with a slight shiver.\n\nWith a gentle push, she opened the window, inviting the crisp morning air to flow in, mingling with the stale scent of unwashed sheets. The breeze wafted the earthy aroma of the wet pavement and the delicate sweetness of blooming jasmine from the garden below into the room. Anna closed her eyes for a moment, allowing the sensations to wash over her—a fleeting comfort before the weight of reality tugged at her again.\n\n“Anna?” David's voice called from the hallway, heavy with concern. It was a voice she knew well, filled with unspoken words that hung in the air like a thick fog. She turned slightly, aware of his presence just beyond her line of sight, waiting for her to bridge the gap."
+  },
+  "critique_snapshot": {
+    "summary": "The scene depicts Anna in a quiet, nostalgic moment as she reflects on her surroundings and memories while preparing to interact with David, who is calling her from the hallway. The atmosphere is rich with sensory detail, but the dialogue lacks grounding in physical action.",
+    "weaknesses": [
+      "The scene relies heavily on vague descriptions and lacks specific details that would enhance the reader's understanding of the setting and characters.",
+      "Dialogue is not effectively integrated with the physical actions or emotions of the characters, making it feel disconnected."
+    ],
+    "continuity_issues": [
+      "The transition between Anna's introspection and her interaction with David feels abrupt and lacks a clear connection."
+    ],
+    "pacing_issues": [
+      "The scene's pacing slows significantly during the introspective moments, which may detract from the urgency of the dialogue that follows."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid setting.",
+      "Ground dialogue in physical actions or emotional states to improve connection with the characters.",
+      "Ensure smoother transitions between introspection and dialogue."
+    ],
+    "generic_phrase_targets": [
+      "soft gold",
+      "forgotten galaxy",
+      "cocoon of quiet",
+      "tugged at her"
+    ],
+    "detail_targets": [
+      "Describe the state of the room more concretely, including specific items or their conditions.",
+      "Provide more context about Anna's memories to deepen emotional impact."
+    ],
+    "dialogue_grounding_targets": [
+      "Integrate David's voice with Anna's actions or physical presence to create a more dynamic interaction."
+    ],
+    "emotional_show_targets": [
+      "Show Anna's reluctance and emotional state through her body language and actions rather than just her dialogue."
+    ],
+    "replacement_targets": [
+      "Replace vague phrases with more specific imagery or actions that convey the same meaning."
+    ],
+    "grounding_targets": [
+      "Include physical actions that relate to Anna's emotional state, such as her posture or movements in response to David's call."
+    ],
+    "carryover_targets": []
+  },
+  "attempt_count": 3,
+  "acceptance_reason": "adapter_error",
+  "rewrite_used": true,
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_model_name": "gpt-5.4",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": false,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": false,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": false,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Anna?” David's voice called from the hallway, heavy with concern."
+      ],
+      "generic_phrases_to_replace": [
+        "cocoon of quiet",
+        "tugged at her",
+        "for a moment",
+        "heavy with"
+      ],
+      "lines_to_repair": [
+        "Each sound pulled at her, a reminder of life marching on while she remained ensnared in this cocoon of quiet.",
+        "Anna closed her eyes for a moment, allowing the sensations to wash over her—a fleeting comfort before the weight of reality tugged at her again.",
+        "“Anna?” David's voice called from the hallway, heavy with concern.",
+        "It was a voice she knew well, filled with unspoken words that hung in the air like a thick fog."
+      ],
+      "required_concrete_anchor_terms": [
+        "anna",
+        "outside",
+        "city"
+      ],
+      "repair_min_word_count": 271,
+      "repair_max_word_count": 478,
+      "min_paragraph_count": 3,
+      "max_paragraph_count": 7
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-5.4",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rescue_model"
+    }
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 320,
+    "rewritten_word_count": 319,
+    "min_word_count": 192,
+    "max_word_count": 672,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "air",
+      "and",
+      "anna",
+      "room",
+      "soft",
+      "that",
+      "wooden",
+      "almost",
+      "this"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "air",
+      "and",
+      "anna",
+      "room",
+      "that",
+      "wooden"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 25
+  }
+}

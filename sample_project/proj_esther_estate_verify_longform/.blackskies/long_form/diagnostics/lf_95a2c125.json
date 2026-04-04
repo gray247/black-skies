@@ -1,0 +1,503 @@
+{
+  "chunk_id": "lf_95a2c125",
+  "validation_decision": false,
+  "fallback_reason": "quality_failed",
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "raw_preview": "The air was thick with the scent of damp earth and the faint, metallic tang of rain-soaked asphalt as Mara pushed through the wrought-iron gate, its hinges creaking like an old man waking from a long ",
+      "normalized_preview": "The air was thick with the scent of damp earth and the faint, metallic tang of rain-soaked asphalt as Mara pushed through the wrought-iron gate, its hinges creaking like an old man waking from a long ",
+      "raw_length": 1805,
+      "normalized_length": 1805,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKag00Yz8VK6QvGeoHyj2PGuLMXgS\", \"object\": \"chat.completion\", \"created\": 1773799916, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The air was thick with the scent of damp earth and the faint, metallic tang of rain-soaked asphalt as Mara pushed through the wrought-iron gate, its hinges creaking like an old man waking from a long slumber. Each step sent a shiver of anticipation coursing through her veins, the rhythm of her",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 302,
+        "paragraph_count": 5,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 28,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 302,
+        "paragraph_count": 5,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 8,
+        "concrete_hits": 1,
+        "generic_hits": 1,
+        "stock_phrase_hits": 0,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The air was thick with the scent of damp earth and the faint, metallic tang of rain-soaked asphalt as Mara pushed through the wrought-iron gate, its hinges creaking like an old man waking from a long slumber. Each step sent a shiver of anticipation coursing through her veins, the rhythm of her heart quickening as she crossed into the garden. Weeds tangled with wildflowers, vibrant splashes of color battling for dominance in the overgrown chaos. She brushed her fingers against the velvety petals of a red poppy, its delicate beauty striking a stark contrast to the wildness surrounding it.\n\n\"Why do you always come here?\" A voice cut through the stillness, both familiar and haunting. It was Ethan, leaning against the gnarled trunk of an ancient oak, the shadows draping him like a cloak. His eyes, sharp and searching, held a mixture of concern and something else—something that felt like unspoken words hanging heavily between them.\n\nMara felt her breath catch as she met his gaze, the weight of their shared history settling around her like a fog. \"I come here to remember,\" she replied, her voice steadier than she felt. She stepped closer, the grass squelching beneath her boots, the coolness of the earth rising through the soles. Memories flickered like candlelight in her mind—laughter, secrets whispered beneath the stars, promises made in the dark.\n\nEthan pushed himself off the tree, the movement fluid yet cautious, as if he were afraid of breaking the fragile moment between them. \"Remembering won’t change anything,\" he said, his tone edged with a mix of frustration and longing. \"You can’t just keep living in the past.\"\n\nMara's heart twisted, a familiar ache blooming in her chest. \"Maybe it’s all I have left,\" she shot back, the words sharper than she intended. The wind rustled the"
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "rewrite",
+        "escalated": false,
+        "reason": "rewrite_default"
+      },
+      "raw_preview": "Mara pushed through the wrought-iron gate, its hinges creaking like the groans of an old man stirred from deep slumber. The air was thick with the earthy scent of damp soil mixed with the faint metall",
+      "normalized_preview": "Mara pushed through the wrought-iron gate, its hinges creaking like the groans of an old man stirred from deep slumber. The air was thick with the earthy scent of damp soil mixed with the faint metall",
+      "raw_length": 1810,
+      "normalized_length": 1810,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKagHAXCb2yKzPFBUapfgW25V9hmT\", \"object\": \"chat.completion\", \"created\": 1773799933, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"Mara pushed through the wrought-iron gate, its hinges creaking like the groans of an old man stirred from deep slumber. The air was thick with the earthy scent of damp soil mixed with the faint metallic tang of rain-soaked asphalt. Each step deeper into the garden sent a shiver of anticipation",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 300,
+        "paragraph_count": 5,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "guardrail_snapshot": {
+        "evaluated": true,
+        "mode": "rewrite",
+        "outline_titles": [],
+        "beat_refs": [],
+        "locked_facts_evaluated": false,
+        "length_band_evaluated": true,
+        "original_word_count": 302,
+        "rewritten_word_count": 300,
+        "min_word_count": 181,
+        "max_word_count": 634,
+        "within_length_band": true,
+        "outline_fidelity_evaluated": true,
+        "outline_fidelity_pass": true,
+        "original_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "and",
+          "his",
+          "felt",
+          "was",
+          "earth",
+          "mara",
+          "pushed",
+          "its",
+          "heart"
+        ],
+        "retained_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "and",
+          "his",
+          "felt",
+          "mara",
+          "pushed",
+          "its",
+          "heart"
+        ],
+        "outline_anchor_hits": [],
+        "required_anchor_overlap": 1,
+        "scene_anchor_drift_detected": false,
+        "new_story_elements": [],
+        "blocking_new_story_elements": [],
+        "authoritative_name_check": false,
+        "uncertainty_triggered": false,
+        "failure_reason": null,
+        "accepted": true,
+        "quality_total_score": 26
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 2,
+          "meta_free": 5
+        },
+        "total_score": 26,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 300,
+        "paragraph_count": 5,
+        "dialogue_present": true,
+        "dialogue_grounded": false,
+        "sensory_hits": 7,
+        "concrete_hits": 1,
+        "generic_hits": 0,
+        "stock_phrase_hits": 0,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "Mara pushed through the wrought-iron gate, its hinges creaking like the groans of an old man stirred from deep slumber. The air was thick with the earthy scent of damp soil mixed with the faint metallic tang of rain-soaked asphalt. Each step deeper into the garden sent a shiver of anticipation coursing through her, quickening her heart. Weeds intertwined with wildflowers, vibrant splashes of color fighting for dominance in the unruly chaos. She paused, brushing her fingers against the velvety petals of a red poppy, its delicate beauty a striking contrast to the wildness that enveloped her.\n\n“Why do you always come here?” The voice sliced through the stillness, familiar yet haunting. Ethan leaned against the gnarled trunk of an ancient oak, shadows draping around him like a heavy cloak. His eyes, sharp and searching, held a mixture of concern and unspoken words that hung heavily between them.\n\nMara felt her breath hitch as she met his gaze, the weight of their shared history settling around her like a dense fog. “I come here to remember,” she replied, her voice steadier than she felt. She took a step closer, the grass squelching beneath her boots, the cool earth rising through the soles, grounding her in the moment. Flickering memories danced in her mind—laughter shared, secrets whispered beneath starlit skies, promises made in the dark.\n\nEthan pushed himself off the tree, his movements fluid yet measured, as if he feared disturbing the fragile balance of their encounter. “Remembering won’t change anything,” he countered, his tone carrying a blend of frustration and yearning. “You can’t just keep living in the past.”\n\nMara felt a twist in her heart, a familiar ache blooming in her chest. “Maybe it’s all I have left,” she shot back, her words sharper than intended. The wind rustled"
+      },
+      "quality_pass": false,
+      "rewrite_delta": {
+        "total_delta": -2,
+        "stock_phrase_delta": 0,
+        "specificity_delta": 0,
+        "clarity_delta": 0,
+        "continuity_delta": 0
+      },
+      "retry_decision": {
+        "eligible": true,
+        "reason": "targeted_editorial_miss_after_rewrite",
+        "classification": "targeted_editorial"
+      }
+    },
+    {
+      "attempt": 3,
+      "mode": "recovery_retry",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rescue_model"
+      },
+      "raw_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"Mara pushed through the wrought-iron gate, its hinges creaking like the groans of an old man stirred from deep slumber. Damp soil clung to the air, carr",
+      "normalized_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"Mara pushed through the wrought-iron gate, its hinges creaking like the groans of an old man stirred from deep slumber. Damp soil clung to the air, carr",
+      "raw_length": 1471,
+      "normalized_length": 1471,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKagPXIF4RZnUy7XYsgUY5M4olH9F\", \"object\": \"chat.completion\", \"created\": 1773799941, \"model\": \"gpt-5.4-mini-2026-03-17\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"replacement_text\\\":\\\"Mara pushed through the wrought-iron gate, its hinges creaking like the groans of an old man stirred from deep slumber. Damp soil clung to the air, carrying the sharp metallic smell of rain-slick asphalt from the path beyond the garden ",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "The air was thick with the earthy scent of damp soil mixed with the faint metallic tang of rain-soaked asphalt.",
+          "context_before": "Mara pushed through the wrought-iron gate, its hinges creaking like the groans of an old man stirred from deep slumber.",
+          "context_after": "Each step deeper into the garden sent a shiver of anticipation coursing through her, quickening her heart.",
+          "target_reason": "generic",
+          "target_phrase": "The air was thick"
+        },
+        {
+          "slot_id": "s2",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“You can’t just keep living in the past.”\n\nMara felt a twist in her heart, a familiar ache blooming in her chest.",
+          "context_before": "“Remembering won’t change anything,” he countered, his tone carrying a blend of frustration and yearning.",
+          "context_after": "“Maybe it’s all I have left,” she shot back, her words sharper than intended.",
+          "target_reason": "dialogue",
+          "target_phrase": "a familiar ache blooming in her chest"
+        },
+        {
+          "slot_id": "s3",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“I come here to remember,” she replied, her voice steadier than she felt.",
+          "context_before": "Mara felt her breath hitch as she met his gaze, the weight of their shared history settling around her like a dense fog.",
+          "context_after": "She took a step closer, the grass squelching beneath her boots, the cool earth rising through the soles, grounding her in the moment.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s4",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Remembering won’t change anything,” he countered, his tone carrying a blend of frustration and yearning.",
+          "context_before": "Ethan pushed himself off the tree, his movements fluid yet measured, as if he feared disturbing the fragile balance of their encounter.",
+          "context_after": "“You can’t just keep living in the past.”\n\nMara felt a twist in her heart, a familiar ache blooming in her chest.",
+          "target_reason": "dialogue"
+        }
+      ],
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "Mara pushed through the wrought-iron gate, its hinges creaking like the groans of an old man stirred from deep slumber. Damp soil clung to the air, carrying the sharp metallic smell of rain-slick asphalt from the path beyond the garden wall. Each step deeper into the garden sent a shiver of anticipation coursing through her, quickening her heart."
+        },
+        {
+          "slot_id": "s2",
+          "replacement_text": "“You can’t just keep living in the past.”\n\nMara pressed a hand to the damp front of her coat, the words landing hard enough to make her chest tighten against the cold air. A familiar ache pulled low and sharp through her ribs, and she drew in a careful breath through her nose."
+        },
+        {
+          "slot_id": "s3",
+          "replacement_text": "“I come here to remember,” she replied, her voice steadier than she felt, while her fingers brushed the red poppy’s velvety edge and then curled back at her side. She took a step closer, the grass squelching beneath her boots, the cool earth rising through the soles, grounding her in the moment."
+        },
+        {
+          "slot_id": "s4",
+          "replacement_text": "Ethan pushed himself off the tree, one shoulder sliding free of the rough bark, his movements fluid yet measured, as if he feared disturbing the fragile balance of their encounter. “Remembering won’t change anything,” he countered, his hand lifting once before dropping to his side, his tone carrying a blend of frustration and yearning. “You can’t just keep living in the past.”"
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_length_distortion"
+      }
+    }
+  ],
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 2,
+      "meta_free": 5
+    },
+    "total_score": 26,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 300,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": false,
+    "sensory_hits": 7,
+    "concrete_hits": 1,
+    "generic_hits": 0,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "Mara pushed through the wrought-iron gate, its hinges creaking like the groans of an old man stirred from deep slumber. The air was thick with the earthy scent of damp soil mixed with the faint metallic tang of rain-soaked asphalt. Each step deeper into the garden sent a shiver of anticipation coursing through her, quickening her heart. Weeds intertwined with wildflowers, vibrant splashes of color fighting for dominance in the unruly chaos. She paused, brushing her fingers against the velvety petals of a red poppy, its delicate beauty a striking contrast to the wildness that enveloped her.\n\n“Why do you always come here?” The voice sliced through the stillness, familiar yet haunting. Ethan leaned against the gnarled trunk of an ancient oak, shadows draping around him like a heavy cloak. His eyes, sharp and searching, held a mixture of concern and unspoken words that hung heavily between them.\n\nMara felt her breath hitch as she met his gaze, the weight of their shared history settling around her like a dense fog. “I come here to remember,” she replied, her voice steadier than she felt. She took a step closer, the grass squelching beneath her boots, the cool earth rising through the soles, grounding her in the moment. Flickering memories danced in her mind—laughter shared, secrets whispered beneath starlit skies, promises made in the dark.\n\nEthan pushed himself off the tree, his movements fluid yet measured, as if he feared disturbing the fragile balance of their encounter. “Remembering won’t change anything,” he countered, his tone carrying a blend of frustration and yearning. “You can’t just keep living in the past.”\n\nMara felt a twist in her heart, a familiar ache blooming in her chest. “Maybe it’s all I have left,” she shot back, her words sharper than intended. The wind rustled"
+  },
+  "critique_snapshot": {
+    "summary": "Mara enters a garden filled with wildflowers and memories, encountering Ethan, who questions her reasons for returning. Their dialogue reveals a shared history and emotional tension, with Mara expressing a longing for the past while Ethan urges her to move on.",
+    "weaknesses": [
+      "Vague descriptions of the garden and emotional states.",
+      "Dialogue lacks grounding in physical actions or specific setting interactions."
+    ],
+    "continuity_issues": [
+      "The transition from Mara's internal thoughts to dialogue feels abrupt and lacks a smooth flow."
+    ],
+    "pacing_issues": [
+      "The pacing slows significantly during dialogue exchanges, disrupting the narrative momentum."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions of the garden and characters' emotions.",
+      "Ground dialogue in physical actions or environmental interactions to create a more immersive experience."
+    ],
+    "generic_phrase_targets": [
+      "The air was thick",
+      "a familiar ache blooming in her chest"
+    ],
+    "detail_targets": [
+      "Descriptions of the garden and the emotional weight of memories."
+    ],
+    "dialogue_grounding_targets": [
+      "Ethan's dialogue should include more physical actions or reactions to the environment."
+    ],
+    "emotional_show_targets": [
+      "Show Mara's emotional state through her actions and reactions rather than telling through dialogue."
+    ],
+    "replacement_targets": [
+      "Replace vague phrases with more concrete imagery and specific emotional expressions."
+    ],
+    "grounding_targets": [
+      "Ensure that characters' dialogue is tied to their physical surroundings or actions."
+    ],
+    "carryover_targets": [
+      "Improve the continuity of emotional transitions between Mara's thoughts and her dialogue."
+    ]
+  },
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_model_name": "gpt-5.4-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": false,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Why do you always come here?” The voice sliced through the stillness, familiar yet haunting.",
+        "“I come here to remember,” she replied, her voice steadier than she felt.",
+        "“Remembering won’t change anything,” he countered, his tone carrying a blend of frustration and yearning.",
+        "“You can’t just keep living in the past.”\n\nMara felt a twist in her heart, a familiar ache blooming in her chest."
+      ],
+      "generic_phrases_to_replace": [
+        "The air was thick",
+        "a familiar ache blooming in her chest"
+      ],
+      "lines_to_repair": [
+        "The air was thick with the earthy scent of damp soil mixed with the faint metallic tang of rain-soaked asphalt.",
+        "“You can’t just keep living in the past.”\n\nMara felt a twist in her heart, a familiar ache blooming in her chest.",
+        "“Why do you always come here?” The voice sliced through the stillness, familiar yet haunting.",
+        "“I come here to remember,” she replied, her voice steadier than she felt.",
+        "“Remembering won’t change anything,” he countered, his tone carrying a blend of frustration and yearning."
+      ],
+      "required_concrete_anchor_terms": [
+        "mara",
+        "pushed",
+        "step"
+      ],
+      "repair_min_word_count": 255,
+      "repair_max_word_count": 450,
+      "min_paragraph_count": 3,
+      "max_paragraph_count": 7
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rescue_model"
+    },
+    "rescue_slots_summary": {
+      "slot_count": 4,
+      "target_types": [
+        "generic",
+        "dialogue",
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_length_distortion"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 302,
+    "rewritten_word_count": 300,
+    "min_word_count": 181,
+    "max_word_count": 634,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "and",
+      "his",
+      "felt",
+      "was",
+      "earth",
+      "mara",
+      "pushed",
+      "its",
+      "heart"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "and",
+      "his",
+      "felt",
+      "mara",
+      "pushed",
+      "its",
+      "heart"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 26
+  }
+}

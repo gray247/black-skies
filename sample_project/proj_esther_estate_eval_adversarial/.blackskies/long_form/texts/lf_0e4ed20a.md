@@ -1,0 +1,9 @@
+﻿Clara pressed forward, the weight of the lantern’s flickering light barely illuminating the corridor ahead. Shadows loomed with each step, grotesque and alive, as if the walls themselves whispered secrets she was not meant to hear. The musty carpet muffled her footfalls, but the echo of Jun’s breathing, quick and shallow, punctuated the silence. She glanced back at him, the lantern casting a dim glow on his pallid face, his soaked coat clinging to him like a second skin, the fabric wrinkled and stained.
+
+“Jun,” she said, her voice sharper than she intended, cutting through the oppressive air. “We can’t go back now.” There was a tremor in her words, a thread of doubt she tried to mask, but it snaked through her resolve, knotting her stomach tighter.
+
+“Then what… what if something’s waiting for us?” he stammered, his eyes wide, reflecting the lantern’s weak light. He shifted, the sound of water dripping from his coat pooling on the floor, merging with the musty scent of decay. The thought of whatever lurked just beyond their sight gnawed at her.
+
+“We’ll find the door. We have to,” she insisted, though the words felt brittle on her tongue. The sensation of the parlor key—its weight hanging from the red ribbon around her wrist—grounded her, even as she struggled to remember the moment she had tied it there. Had she tightened it? Why did it feel so loose now, slipping against her skin?
+
+Jun’s gaze drifted toward the far end of the corridor, where the shadows seemed to deepen. “Clara, look.” He pointed, and she followed his finger, eyes straining against the dark. Muddy prints marred the carpet ahead of them, stark against the faded floral pattern, leading deeper into the gloom. “Someone’s been here

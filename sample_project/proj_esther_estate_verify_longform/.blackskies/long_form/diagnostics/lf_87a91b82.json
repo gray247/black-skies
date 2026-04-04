@@ -1,0 +1,317 @@
+{
+  "chunk_id": "lf_87a91b82",
+  "validation_decision": true,
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "raw_preview": "The sun hung low in the sky, casting a warm golden hue over the landscape, illuminating the edges of the world with a tender glow. Olivia stood at the edge of the old stone bridge, its weathered surfa",
+      "normalized_preview": "The sun hung low in the sky, casting a warm golden hue over the landscape, illuminating the edges of the world with a tender glow. Olivia stood at the edge of the old stone bridge, its weathered surfa",
+      "raw_length": 3555,
+      "normalized_length": 3553,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKEIgffzeER6Fo5t6frhxKTNeINRY\", \"object\": \"chat.completion\", \"created\": 1773713902, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The sun hung low in the sky, casting a warm golden hue over the landscape, illuminating the edges of the world with a tender glow. Olivia stood at the edge of the old stone bridge, its weathered surface cool beneath her fingertips as she leaned against the railing. The rhythmic sound of the ri",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 618,
+        "paragraph_count": 12,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 3,
+          "pacing": 5,
+          "specificity": 3,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 28,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 618,
+        "paragraph_count": 12,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 3,
+        "concrete_hits": 2,
+        "generic_hits": 1,
+        "stock_phrase_hits": 3,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": true,
+        "text": "The sun hung low in the sky, casting a warm golden hue over the landscape, illuminating the edges of the world with a tender glow. Olivia stood at the edge of the old stone bridge, its weathered surface cool beneath her fingertips as she leaned against the railing. The rhythmic sound of the river below roared in her ears, a constant companion, the water churning and splashing against the rocks like a restless spirit trying to break free. She closed her eyes for a moment, allowing the scent of damp earth and wildflowers to envelop her, grounding her in the present.\n\n“Hey, you alright?” a voice called from behind her, breaking the spell. Startled, she turned to see Mark, his brow creased with concern, hands shoved deep into the pockets of his worn jeans.\n\n“Just thinking,” she replied, forcing a smile, but the words felt heavy on her tongue. It was a simple enough answer, but it didn’t capture the whirlpool of emotions swirling in her chest, the uncertainty that had settled like a fog over her thoughts.\n\nHe stepped closer, the wooden planks creaking beneath his weight as he leaned against the railing beside her. “Thinking too much can be dangerous, you know.” There was a teasing lilt to his voice, but his eyes held a glimmer of seriousness. He often wondered if she was too much of a dreamer, lost in her own world of thoughts and worries.\n\n“I know,” she said, her gaze drifting back to the river. “But sometimes, it’s hard not to.” She could feel the weight of his gaze on her, a mixture of empathy and frustration that made her heart race. It was as if he could read the tangled threads of her mind, unraveling thoughts she wasn’t ready to voice.\n\n“Want to talk about it?” He nudged her shoulder lightly, a gesture meant to bridge the distance that sometimes felt insurmountable between them.\n\n“Not really,” she murmured, biting the inside of her cheek. The truth was, she didn’t want to burden him with the weight of her uncertainties, the way her heart felt like it was lodged somewhere in her throat every time she considered the future. The future, with its endless possibilities and sharp edges, felt like a precipice she stood too close to, teetering on the brink.\n\nMark sighed, a sound that resonated with warmth, and she could sense the frustration simmering just beneath the surface of his calm demeanor. “You know, bottling it up isn’t going to help. You can’t keep pretending everything’s fine.”\n\n“I’m not pretending,” she snapped, surprising herself with the sharpness in her voice. The words hung in the air, raw and real, and for a moment, they both fell silent, the buzz of cicadas filling the void between them.\n\n“Okay, maybe not pretending,” he said slowly, his tone softening, “but you’re definitely not being honest either. What’s really going on?” He turned to face her fully, his expression earnest, the kind of look that made her stomach flutter with something that felt dangerously close to hope.\n\nShe inhaled deeply, the crisp scent of the river mingling with the sweetness of the wildflowers, filling her lungs and sparking a fire in her chest. “I just… I don’t know what I want,” she confessed, the admission spilling out in a rush. “Everything feels so uncertain. I thought I had it all figured out, but now…” She trailed off, her voice fading into the sound of rushing water, leaving a silence that felt heavy, almost tangible.\n\nMark’s gaze softened, understanding dawning in his eyes. “That’s okay. It’s okay not to know. You’re not alone in this, Olivia.” His words wrapped around her like a warm blanket"
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "rewrite",
+        "escalated": false,
+        "reason": "rewrite_default"
+      },
+      "raw_preview": "The sun dipped low in the sky, casting a golden light that glimmered off the surface of the river below. Olivia stood at the edge of the old stone bridge, her fingers tracing the rough, cool surface o",
+      "normalized_preview": "The sun dipped low in the sky, casting a golden light that glimmered off the surface of the river below. Olivia stood at the edge of the old stone bridge, her fingers tracing the rough, cool surface o",
+      "raw_length": 3559,
+      "normalized_length": 3559,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKEJ6lnXnUmBRRyrWLnYYj9sRhupt\", \"object\": \"chat.completion\", \"created\": 1773713928, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The sun dipped low in the sky, casting a golden light that glimmered off the surface of the river below. Olivia stood at the edge of the old stone bridge, her fingers tracing the rough, cool surface of the railing. The stones felt ancient, their weathered texture a testament to time, while the",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 616,
+        "paragraph_count": 12,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "guardrail_snapshot": {
+        "evaluated": true,
+        "mode": "rewrite",
+        "outline_titles": [],
+        "beat_refs": [],
+        "locked_facts_evaluated": false,
+        "length_band_evaluated": true,
+        "original_word_count": 618,
+        "rewritten_word_count": 616,
+        "min_word_count": 370,
+        "max_word_count": 1297,
+        "within_length_band": true,
+        "outline_fidelity_evaluated": true,
+        "outline_fidelity_pass": true,
+        "original_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "his",
+          "and",
+          "that",
+          "not",
+          "you",
+          "but",
+          "felt",
+          "was",
+          "voice"
+        ],
+        "retained_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "his",
+          "and",
+          "that",
+          "not",
+          "you",
+          "but",
+          "felt",
+          "was",
+          "voice"
+        ],
+        "outline_anchor_hits": [],
+        "required_anchor_overlap": 1,
+        "scene_anchor_drift_detected": false,
+        "new_story_elements": [],
+        "blocking_new_story_elements": [],
+        "authoritative_name_check": false,
+        "uncertainty_triggered": false,
+        "failure_reason": null,
+        "accepted": true,
+        "quality_total_score": 30
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 5,
+          "specificity": 4,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 30,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 616,
+        "paragraph_count": 12,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 4,
+        "concrete_hits": 3,
+        "generic_hits": 1,
+        "stock_phrase_hits": 2,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The sun dipped low in the sky, casting a golden light that glimmered off the surface of the river below. Olivia stood at the edge of the old stone bridge, her fingers tracing the rough, cool surface of the railing. The stones felt ancient, their weathered texture a testament to time, while the river below roared, its waters churning and crashing against the rocks, a relentless force that echoed in her chest. She closed her eyes, letting the crisp scent of damp earth and wildflowers wash over her, trying to anchor herself in the moment.\n\n“Hey, you alright?” a voice called from behind, slicing through her thoughts. Startled, she turned to see Mark, his brow furrowed with concern. He stood a few feet away, his hands buried in the pockets of his worn jeans, shifting slightly as he waited for her response.\n\n“Just thinking,” she replied, forcing a smile that felt brittle, like glass ready to shatter. The words tumbled out, yet they fell short of conveying the storm swirling within her—a chaotic mix of hopes and fears that threatened to spill over.\n\nHe stepped closer, the wooden planks creaking softly under his weight as he leaned against the railing beside her. “Thinking too much can be dangerous, you know.” The teasing lilt in his voice was familiar, but the seriousness in his eyes cut through the levity. He often worried that she got lost in her own thoughts, a dreamer adrift in a sea of worries.\n\n“I know,” she said, her gaze shifting back to the river. The water sparkled in the fading light, but it felt like a mirror reflecting her anxiety back at her. Mark’s gaze felt heavy on her, a blend of empathy and concern that made her heart race. It was as if he could peel back the layers of her thoughts, revealing the tangled mess she wasn’t ready to share.\n\n“Want to talk about it?” He nudged her shoulder gently, a small gesture meant to bridge the distance that sometimes loomed large between them.\n\n“Not really,” she murmured, biting down on the inside of her cheek to steady herself. The truth was, she didn’t want to burden him with her uncertainties, the way her heart felt lodged in her throat whenever she dared to think about the future. It loomed over her like a precipice, sharp and daunting, and she felt like she was teetering at the edge.\n\nMark sighed, a warm sound that resonated with the weight of his concern. The frustration simmering beneath his calm exterior was palpable. “You know, bottling it up isn’t going to help. You can’t keep pretending everything’s fine.”\n\n“I’m not pretending,” she snapped, her voice sharper than she intended. The words hung in the air, raw and unfiltered, and for a moment, the silence stretched between them, filled only by the buzzing of cicadas.\n\n“Okay, maybe not pretending,” he replied slowly, his tone softening. “But you’re definitely not being honest either. What’s really going on?” He turned to face her fully, his expression earnest, making her stomach flutter with something that felt dangerously close to hope.\n\nShe inhaled deeply, the fresh scent of the river mingling with the sweetness of wildflowers, filling her lungs and igniting a fire of vulnerability in her chest. “I just… I don’t know what I want,” she confessed, the admission spilling out in a rush. “Everything feels so uncertain. I thought I had it all figured out, but now…” Her voice trailed off, fading into the rush of the water, leaving a silence that felt heavy, almost suffocating.\n\nMark’s gaze softened, understanding blooming in his eyes. “That’s okay. It’s okay not to know. You’re not alone in this,"
+      },
+      "quality_pass": true,
+      "rewrite_delta": {
+        "total_delta": 2,
+        "stock_phrase_delta": 1,
+        "specificity_delta": 1,
+        "clarity_delta": 1,
+        "continuity_delta": 0
+      }
+    }
+  ],
+  "acceptance_reason": "rewrite_pass",
+  "critique_snapshot": {
+    "summary": "The scene depicts a moment between Olivia and Mark on an old stone bridge, where Olivia is lost in thought about her uncertainties. Mark tries to connect with her, encouraging her to open up about her feelings, but Olivia struggles with her emotions. The dialogue reveals their relationship dynamics and Olivia's internal conflict.",
+    "weaknesses": [
+      "Overly generic descriptions that lack specificity.",
+      "Dialogue lacks grounding in physical actions or setting.",
+      "Vague emotional expressions that don't fully convey the characters' feelings."
+    ],
+    "continuity_issues": [
+      "The transition from Olivia's introspection to Mark's entrance feels abrupt.",
+      "Mark's concern seems inconsistent with the earlier teasing tone."
+    ],
+    "pacing_issues": [
+      "The scene drags slightly in the middle with repetitive emotional reflections.",
+      "Some dialogue exchanges feel prolonged without advancing the plot."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid scene.",
+      "Ground dialogue in physical actions or setting to improve realism.",
+      "Clarify emotional expressions to better reflect the characters' internal states."
+    ],
+    "generic_phrase_targets": [
+      "The sun hung low in the sky",
+      "casting a warm golden hue",
+      "a constant companion",
+      "weight of his gaze"
+    ],
+    "detail_targets": [
+      "Old stone bridge",
+      "Weathered surface",
+      "Crisp scent of the river"
+    ],
+    "dialogue_grounding_targets": [
+      "Mark's entrance and physical positioning",
+      "Olivia's reactions to Mark's comments"
+    ],
+    "emotional_show_targets": [
+      "Olivia's internal conflict about the future",
+      "Mark's frustration and concern"
+    ],
+    "replacement_targets": [
+      "Replace generic phrases with more vivid imagery.",
+      "Substitute vague emotional expressions with specific actions or reactions."
+    ],
+    "grounding_targets": [
+      "Physical sensations of the bridge and the environment.",
+      "Concrete actions that reflect the characters' emotional states."
+    ],
+    "carryover_targets": []
+  },
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 618,
+    "rewritten_word_count": 616,
+    "min_word_count": 370,
+    "max_word_count": 1297,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "his",
+      "and",
+      "that",
+      "not",
+      "you",
+      "but",
+      "felt",
+      "was",
+      "voice"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "his",
+      "and",
+      "that",
+      "not",
+      "you",
+      "but",
+      "felt",
+      "was",
+      "voice"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 30
+  }
+}

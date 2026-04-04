@@ -1,0 +1,17 @@
+﻿Clara drew back from the door, her heart thrumming against her ribs as if trying to break free. Jun shifted behind her, the soft squelch of his wet coat a reminder of the rain-soaked greenhouse they had just escaped. The lantern in his hand flickered, casting erratic shadows that danced along the walls, and the musty scent of aged wood and damp air mingled, wrapping around them like a shroud. “We can’t just stand here,” he murmured, his voice barely rising above the sound of the clock ticking overhead, each chime a drumbeat of dread.
+
+She glanced at him, trying to gauge his resolve through the shifting light. His brow was furrowed, eyes darting toward the door as if expecting it to burst open with some long-buried secret. “What if there really is someone inside?” she replied, her voice a breathy whisper, thick with uncertainty. The thought of an intruder, or worse, something more sinister, sent a chill down her spine, but the notion of simply walking away danced dangerously close to cowardice.
+
+“Or something else,” he said, the weight of his implication hanging heavy between them. Clara couldn’t tell if he meant the house itself, with its dark corners and echoing sighs, or something more spectral, lurking in the shadows of memory. A cough, soft and childlike, echoed in her mind, but she couldn’t shake the feeling that it was a ghost of her own making. She pressed her ear against the door again, this time feeling the coolness of the wood seep into her skin, but all that met her was silence, a thick, suffocating silence that nearly choked her.
+
+Jun shifted beside her, the lantern light sputtering again, casting a brief glow on the chipped ceramic fox peeking from her pocket, a fragile relic of a nursery now sealed like a tomb. “What if it’s just the house?” he suggested, though his eyes betrayed a flicker of doubt. “It’s always creaking and groaning, isn’t it?”
+
+“But it didn’t creak like that before,” she countered, the words tumbling out before she could stop them. The memory of that cough, so vivid yet so elusive, tangled with the weight of her own grief, each thought a thread in a tapestry of unease. “Nora said the nursery hasn’t been used in years. Why would we hear a child?”
+
+Jun’s gaze fell to the floor, where the muddy prints had begun their inexplicable path. They told a story that Clara couldn’t quite grasp—where had they come from, and what had they meant? “Maybe we should just go back,” he suggested, though his voice lacked conviction. “We could find Nora, ask her again…”
+
+“Ask her what?” Clara interrupted, the frustration bubbling up before she could rein it in. “She can’t even keep her story straight about the prints. And she flinched when she saw the fox.” The thought of Nora’s tightened smile, the way her eyes darted away, gnawed at Clara. “There’s something we’re missing here, Jun.”
+
+He sighed, running a hand through his damp hair. “I know. But if we go in there…” His voice trailed off, leaving a space heavy with unspoken fears. It was a risk, one that felt like stepping off the edge of a cliff into an abyss, but the compulsion to understand what lay beyond that door was stronger than the urge to retreat.
+
+“Let’s just try it,” Clara decided, her voice firmer now, bolstered by the fear that clung to her like a second skin. She reached for the red ribbon around her wrist, the parlor key nestled against her palm like a

@@ -1,0 +1,93 @@
+{
+  "chunk_id": "lf_1c84ccd7",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0002"
+  ],
+  "order": 2,
+  "continuation_of": "lf_660ae71e",
+  "prompt_fingerprint": "sha256:67f12637e9bff51c43f92ac147902ffeb26cd1362e7254dc62fcf5394719657d",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Clara pressed onward, the lantern’s sputtering flame revealing more than it illuminated, the flickering shadows dancing like lost spirits on the cold stone walls",
+    "word_count": 306,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.01,
+    "total_after_usd": 0.02
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 5,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 32,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 306,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 6,
+    "concrete_hits": 9,
+    "generic_hits": 1,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [
+      "lantern",
+      "corridor",
+      "rain",
+      "coat",
+      "key",
+      "floor",
+      "forward",
+      "flickering"
+    ],
+    "carryover_hits": 7,
+    "material_carryover_hits": 2,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "Clara pressed onward, the lantern’s sputtering flame revealing more than it illuminated, the flickering shadows dancing like lost spirits on the cold stone walls. Her heart thudded against her ribcage, a frantic rhythm that matched the drumming rain still pounding outside, as if the sky itself were trying to drown them. She glanced back at Jun, his brow furrowed, eyes wide with a fear that felt almost palpable in the damp air. “We should keep moving,” she insisted, her voice sharper than she'd intended, the words slicing through the oppressive stillness of the corridor.\n\nJun nodded, though he lingered for a moment, his gaze drawn to the chain rattling against the door at the end of the passage. “What if someone’s on the other side?” He stepped closer, his breath quickening. The dim light flickered again, casting more shadows that seemed to stretch and twist, as if they were alive and hungry. Clara felt her stomach churn, the thought of whatever awaited them behind that door twisting like a knife in her gut.\n\n“Nothing’s there,” she said, too quickly, the lie tasting bitter on her tongue. She had to believe it. They had to believe it. She tightened her grip on the parlor key, the red ribbon digging into her wrist, a reminder that she was still tethered to something familiar, something that hadn’t yet slipped through her fingers. “We’re just being paranoid.”\n\nBut even as she spoke, the muddy prints on the floor ahead of them caught her attention, stark against the stone. They led deeper into the corridor, and her pulse quickened. “Look,” she pointed, her voice dropping to a whisper. “Someone’s been here.” The muddy marks didn’t trail behind them; they moved forward, as if beckoning them into the unknown.\n\nJun’s eyes darted to the floor before snapping back to her face, uncertainty"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

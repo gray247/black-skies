@@ -1,0 +1,93 @@
+{
+  "chunk_id": "lf_237e1c22",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0002"
+  ],
+  "order": 2,
+  "continuation_of": "lf_f6a68b8a",
+  "prompt_fingerprint": "sha256:c01ec06b77f5948aeaeb66a5684bcf0e149588cd9f4d61fa0a62389577f3e928",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Jun pressed forward, the weight of the cracked brass lantern pulling at his wrist as he followed Clara through the suffocating gloom of the corridor",
+    "word_count": 303,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.01,
+    "total_after_usd": 0.02
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 5,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 32,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 303,
+    "paragraph_count": 6,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 8,
+    "concrete_hits": 11,
+    "generic_hits": 1,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [
+      "corridor",
+      "lantern",
+      "key",
+      "coat",
+      "door",
+      "thick",
+      "scent",
+      "earth"
+    ],
+    "carryover_hits": 8,
+    "material_carryover_hits": 2,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "Jun pressed forward, the weight of the cracked brass lantern pulling at his wrist as he followed Clara through the suffocating gloom of the corridor. The flickering light illuminated only a few feet ahead, casting long, grotesque shadows that curled into the corners, whispering secrets he was too frightened to hear. The air felt alive, thick with the musty scent of earth and decay, as if the walls themselves were breathing, exhaling memories of a time long past. He could feel the dampness of his coat, the cold fabric clinging to his skin, a stark reminder of the greenhouse’s relentless rain.\n\n“Clara,” he murmured, his voice barely rising above the low hum of fear that thrummed in his chest. “We shouldn’t—”\n\n“We have to keep moving,” she snapped, too quickly, her words sharp like the edges of glass. Clara's brow was furrowed, her eyes darting to the door at the end of the corridor, the chain rattling softly, almost teasingly, as if someone on the other side were testing it. The sound sent a shiver up his spine, and he instinctively took a step closer to her, the warmth of her presence a flimsy shield against the encroaching darkness.\n\nShe tugged at the red ribbon around her wrist, the parlor key still dangling from it. The ribbon felt foreign against her skin, an unwelcome reminder of something she couldn’t quite grasp. She swore she had tied it tighter before leaving the greenhouse, yet it seemed to slip and slide, as insistent as the muddy footprints they now trailed behind them. They weren’t alone in the passage, and the thought twisted in her stomach like a serpent.\n\n“Did you hear that?” Jun’s voice quivered, his eyes wide, scanning the shifting shadows as if they might coalesce into something tangible. “I thought I heard—”\n\n“Nothing.”"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

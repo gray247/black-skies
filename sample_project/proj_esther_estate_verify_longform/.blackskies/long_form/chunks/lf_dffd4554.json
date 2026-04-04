@@ -1,0 +1,261 @@
+{
+  "chunk_id": "lf_dffd4554",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:6ccf982bd49ae52dde964aea860644b1df6fc5b662137d974db092426f392f11",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 21,
+    "fallback_reason": "quality_failed"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "quality_failed"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 5,
+      "specificity": 3,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 29,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 613,
+    "paragraph_count": 9,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 7,
+    "concrete_hits": 1,
+    "generic_hits": 1,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The forest enveloped Lila as she pushed through the underbrush, her fingers grazing the cool, damp leaves that clung to the branches. Each step demanded careful navigation around the gnarled roots that twisted beneath her feet, but she embraced the challenge. The surroundings were alive, a vibrant tapestry of deep greens and rich browns, with sunlight filtering through the canopy above, casting playful patches of light that danced across her skin. Here, every sound—the soft rustle of a squirrel skittering through the branches or the distant call of a wood thrush—felt like a whisper from the past, beckoning her to confront memories she had tried to bury.\n\nLila paused, her heart racing in sync with the rhythmic thrum of nature surrounding her. She closed her eyes and inhaled deeply, the cool, earthy air filling her lungs and mingling with the faint, metallic scent of wet moss. In this sacred space, she found a moment of respite from the burdens of the world. The silence settled over her like a comforting shroud, enfolding her in its embrace, but the wind shifted abruptly, carrying with it a vivid memory—the sound of laughter, bright and unrestrained, echoing from her childhood home.\n\n“Lila! Come help me with the firewood!” Her mother’s voice rang out, a sweet command that had once felt like the beginning of an adventure. The memory was both a balm and a sting, urging her to remember what she had lost. She opened her eyes, drawn to the rays of sun filtering through the leaves, and for a brief moment, the light felt like a gentle hand on her shoulder, coaxing her forward.\n\nWith a determined shake of her head, Lila pressed on, her boots squelching in the yielding earth. She hadn’t ventured into the woods to linger in nostalgia; she had a purpose. A glint of silver caught her eye, and she knelt, carefully pushing aside the ferns that obscured the ground, revealing a weathered old compass half-buried in the dirt. Its needle wavered uncertainly, as if caught between paths, and she felt an unexpected kinship with it. Cradling the compass in her palm, its cool metal sent a shiver through her. She turned it over, noticing the engraving—“To guide you home.” A wry smile tugged at her lips. Home. The word weighed heavily, filled with conflicting emotions, yet it remained a promise she was not ready to face.\n\n“Hey there,” a warm voice broke through her thoughts, sending a shiver of recognition through her. She looked up to see Eli leaning casually against a nearby tree, sunlight framing his silhouette. He looked just as she remembered, with sun-kissed hair and an easy smile that had once sent her heart racing. “I thought I might find you here,” he said, his eyes sparkling with mischief. “You always were the one to wander off.”\n\n“Guess some things never change,” she replied, her voice steadier than the fluttering in her chest. Rising to her feet, she brushed dirt from her knees and met his gaze, feeling the warmth of his presence wash over her, momentarily easing the weight of the compass in her hand.\n\nEli stepped closer, the air between them thrumming with unspoken words. “You okay? You seemed…lost,” he asked, his brow creased with concern, the playful lilt in his tone shifting to genuine sincerity.\n\n“I’m fine,” she said quickly, the words escaping her lips more as a reflex than a conviction. “Just—just reminiscing.” She held the compass aloft, letting it catch the light. “Found this. It belonged to my dad.” The admission slipped out before she could contain it, vulnerability settling around her like a thick fog.\n\nHe nodded, understanding etched across his"
+  },
+  "critique_snapshot": {
+    "summary": "Lila navigates through a forest, reflecting on her past and her relationship with her mother and father. She finds an old compass that evokes memories and emotions, which leads to a reunion with Eli, who expresses concern for her well-being.",
+    "weaknesses": [
+      "Vague scene details that fail to ground the reader in the physical environment.",
+      "Dialogue lacks grounding in physical action or setting, making it feel disconnected.",
+      "Generic phrases that detract from the emotional weight of the scene."
+    ],
+    "continuity_issues": [
+      "The transition from Lila's introspection to her interaction with Eli feels abrupt and lacks smooth continuity."
+    ],
+    "pacing_issues": [
+      "The pacing slows significantly during Lila's introspection, which could be balanced with more action or dialogue."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid setting.",
+      "Ground dialogue in physical actions or the environment to increase realism.",
+      "Replace generic phrases with more unique expressions that reflect Lila's character."
+    ],
+    "generic_phrase_targets": [
+      "The air was thick with the scent of damp earth",
+      "a living tapestry of deep greens and browns",
+      "the silence was a balm"
+    ],
+    "detail_targets": [
+      "The description of the forest could include more sensory details beyond sight and smell.",
+      "The compass could be described in more detail to enhance its significance."
+    ],
+    "dialogue_grounding_targets": [
+      "Eli's greeting could be tied to a specific action, such as him stepping into view or moving closer to Lila."
+    ],
+    "emotional_show_targets": [
+      "Lila's emotional response to finding the compass could be shown through her physical reactions or thoughts."
+    ],
+    "replacement_targets": [
+      "Replace 'the air was thick with the scent of damp earth' with a more vivid sensory description.",
+      "Substitute 'the silence was a balm' with a more original metaphor."
+    ],
+    "grounding_targets": [
+      "Add physical actions to Lila's introspection to create a stronger connection between her thoughts and her surroundings."
+    ],
+    "carryover_targets": []
+  },
+  "attempt_count": 4,
+  "acceptance_reason": "quality_failed",
+  "rewrite_used": true,
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [],
+      "generic_phrases_to_replace": [
+        "wrapped around her"
+      ],
+      "lines_to_repair": [
+        "The silence wrapped around her like a comforting shroud, but the wind shifted abruptly, carrying with it a vivid memory—the sound of laughter, bright and unrestrained, echoing from her childhood home."
+      ],
+      "required_concrete_anchor_terms": [
+        "lila"
+      ],
+      "repair_min_word_count": 516,
+      "repair_max_word_count": 912,
+      "min_paragraph_count": 7,
+      "max_paragraph_count": 11
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-4o",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rewrite_retry_model"
+    },
+    "patch_targets_summary": {
+      "target_count": 1,
+      "target_types": [
+        "generic"
+      ]
+    },
+    "rescue_failure_class": "specificity_unresolved",
+    "repair_local_snapshot": {
+      "evaluated": true,
+      "previous_word_count": 608,
+      "repaired_word_count": 613,
+      "min_word_count": 516,
+      "max_word_count": 912,
+      "within_word_band": true,
+      "previous_paragraph_count": 9,
+      "repaired_paragraph_count": 9,
+      "min_paragraph_count": 7,
+      "max_paragraph_count": 11,
+      "within_paragraph_band": true,
+      "accepted": true,
+      "failure_reason": null
+    },
+    "rescue_delta_summary": {
+      "total_delta": 0,
+      "specificity_delta": 0,
+      "clarity_delta": 0,
+      "continuity_delta": 0,
+      "dialogue_delta": 0,
+      "concrete_delta": 0,
+      "stock_phrase_delta": 1,
+      "dialogue_grounding_fixed": false,
+      "dialogue_grounding_targeted": true,
+      "specificity_target_met": false,
+      "clarity_target_met": false,
+      "generic_replacement_target_met": true,
+      "concrete_target_met": false
+    }
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "repair_only",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 608,
+    "rewritten_word_count": 613,
+    "min_word_count": 364,
+    "max_word_count": 1276,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "and",
+      "his",
+      "that",
+      "had",
+      "you",
+      "lila",
+      "felt",
+      "compass",
+      "cool"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "and",
+      "his",
+      "that",
+      "had",
+      "you",
+      "lila",
+      "felt",
+      "compass",
+      "cool"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 29
+  }
+}

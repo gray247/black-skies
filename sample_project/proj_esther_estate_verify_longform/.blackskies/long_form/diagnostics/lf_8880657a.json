@@ -1,0 +1,504 @@
+{
+  "chunk_id": "lf_8880657a",
+  "validation_decision": false,
+  "fallback_reason": "quality_failed",
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "raw_preview": "The air was thick with the scent of wet earth and blooming jasmine, the kind of fragrance that clung to the back of the throat, sweet yet cloying. Marissa stepped cautiously along the narrow path, the",
+      "normalized_preview": "The air was thick with the scent of wet earth and blooming jasmine, the kind of fragrance that clung to the back of the throat, sweet yet cloying. Marissa stepped cautiously along the narrow path, the",
+      "raw_length": 1801,
+      "normalized_length": 1800,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKYvrqf03UkBTLZRHzaEVRAxIMNlw\", \"object\": \"chat.completion\", \"created\": 1773793211, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The air was thick with the scent of wet earth and blooming jasmine, the kind of fragrance that clung to the back of the throat, sweet yet cloying. Marissa stepped cautiously along the narrow path, the soft crunch of gravel beneath her boots punctuating the stillness of the twilight. Shadows po",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 300,
+        "paragraph_count": 7,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 28,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 300,
+        "paragraph_count": 7,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 5,
+        "concrete_hits": 1,
+        "generic_hits": 0,
+        "stock_phrase_hits": 0,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The air was thick with the scent of wet earth and blooming jasmine, the kind of fragrance that clung to the back of the throat, sweet yet cloying. Marissa stepped cautiously along the narrow path, the soft crunch of gravel beneath her boots punctuating the stillness of the twilight. Shadows pooled in the hollows of the landscape, stretching long fingers across the ground as the last rays of sunlight surrendered to the encroaching night. She paused, momentarily entranced by the way the fading light danced on the leaves, their edges glimmering like shards of glass.\n\n“Marissa!” The voice broke through her reverie, sharp and demanding, slicing through the evening calm. She turned, her heart quickening, a mix of annoyance and anticipation fluttering in her chest.\n\n“Coming!” she called back, her voice echoing slightly in the cool air. As she resumed her walk, the weight of her thoughts pressed down on her. The argument from earlier loomed like a storm cloud on the horizon, dark and threatening. She could still hear his words, jagged and unforgiving, echoing in her mind. Why did everything have to be so complicated?\n\n“Where are you?” Daniel’s voice was closer now, laced with a hint of frustration. He emerged from the thicket, his silhouette sharp against the dimming light. The sight of him sent a rush of warmth through her, but that warmth was quickly doused by the tension that had settled between them like a thick fog.\n\n“Just down the path,” she said, forcing a smile despite the turmoil churning within her. “I thought I’d scout ahead.”\n\n“Scouting, huh? Or avoiding?” He stepped forward, his brow furrowed, eyes piercing. She could see the way his jaw tightened, a muscle twitching beneath the surface.\n\nHer breath hitched, and she felt the familiar sting of defensiveness creeping"
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "rewrite",
+        "escalated": false,
+        "reason": "rewrite_default"
+      },
+      "raw_preview": "into her chest. The air around them was heavy, filled with the mingling scents of damp earth and jasmine, the sweetness now a bitter reminder of their unresolved argument. Marissa continued down the n",
+      "normalized_preview": "into her chest. The air around them was heavy, filled with the mingling scents of damp earth and jasmine, the sweetness now a bitter reminder of their unresolved argument. Marissa continued down the n",
+      "raw_length": 1830,
+      "normalized_length": 1829,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKYwAUTq1JIrQoPOqdDEdgUnl9cl3\", \"object\": \"chat.completion\", \"created\": 1773793230, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"into her chest. The air around them was heavy, filled with the mingling scents of damp earth and jasmine, the sweetness now a bitter reminder of their unresolved argument. Marissa continued down the narrow path, gravel crunching softly beneath her boots, each step echoing the turmoil inside he",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 302,
+        "paragraph_count": 8,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "guardrail_snapshot": {
+        "evaluated": true,
+        "mode": "rewrite",
+        "outline_titles": [],
+        "beat_refs": [],
+        "locked_facts_evaluated": false,
+        "length_band_evaluated": true,
+        "original_word_count": 300,
+        "rewritten_word_count": 302,
+        "min_word_count": 180,
+        "max_word_count": 630,
+        "within_length_band": true,
+        "outline_fidelity_evaluated": true,
+        "outline_fidelity_pass": true,
+        "original_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "and",
+          "his",
+          "was",
+          "that",
+          "voice",
+          "air",
+          "thick",
+          "back",
+          "marissa"
+        ],
+        "retained_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "and",
+          "his",
+          "was",
+          "that",
+          "voice",
+          "air",
+          "marissa"
+        ],
+        "outline_anchor_hits": [],
+        "required_anchor_overlap": 1,
+        "scene_anchor_drift_detected": false,
+        "new_story_elements": [],
+        "blocking_new_story_elements": [],
+        "authoritative_name_check": false,
+        "uncertainty_triggered": false,
+        "failure_reason": null,
+        "accepted": true,
+        "quality_total_score": 26
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 2,
+          "meta_free": 5
+        },
+        "total_score": 26,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 302,
+        "paragraph_count": 8,
+        "dialogue_present": true,
+        "dialogue_grounded": false,
+        "sensory_hits": 5,
+        "concrete_hits": 1,
+        "generic_hits": 0,
+        "stock_phrase_hits": 0,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "into her chest. The air around them was heavy, filled with the mingling scents of damp earth and jasmine, the sweetness now a bitter reminder of their unresolved argument. Marissa continued down the narrow path, gravel crunching softly beneath her boots, each step echoing the turmoil inside her.\n\nThe fading light cast long shadows, stretching across the ground like ghostly fingers reaching for her. She paused, captivated by the way the last rays of sunlight flickered on the leaves, their edges shimmering like broken glass. It was beautiful, yet it felt like a fragile facade, much like the tension that hung between her and Daniel.\n\n“Marissa!” His voice cut through her momentary peace, urgent and demanding. She turned to find him emerging from the thicket, his figure stark against the dimming backdrop of the evening sky. Her heart quickened at the sight of him, a rush of warmth battling against the sharp edge of annoyance.\n\n“Coming!” she called back, her voice catching slightly in the crisp air. The weight of their earlier confrontation loomed over her, an unwelcome presence that darkened her thoughts. Why did everything have to be so complicated?\n\n“Where are you?” Daniel’s tone was closer now, tinged with frustration as he stepped onto the path, the crunch of gravel underfoot mirroring her own. His brow was furrowed, the lines on his face deepening as he approached.\n\n“Just down the path,” she replied, forcing a smile that felt more like a mask than a reflection of her true feelings. “I thought I’d scout ahead.”\n\n“Scouting, huh? Or avoiding?” His eyes bore into hers, sharp and unyielding. She could see the tension in his jaw, a muscle twitching with barely concealed frustration.\n\nMarissa’s breath caught in her throat. The defensiveness crept in, stinging like a fresh wound. “I’m not avoiding anything"
+      },
+      "quality_pass": false,
+      "rewrite_delta": {
+        "total_delta": -2,
+        "stock_phrase_delta": 0,
+        "specificity_delta": 0,
+        "clarity_delta": 0,
+        "continuity_delta": 0
+      },
+      "retry_decision": {
+        "eligible": true,
+        "reason": "targeted_editorial_miss_after_rewrite",
+        "classification": "targeted_editorial"
+      }
+    },
+    {
+      "attempt": 3,
+      "mode": "recovery_retry",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rescue_model"
+      },
+      "raw_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"“Marissa!” Daniel called from the thicket, his voice sharp enough to carry over the gravel path and the rustle of leaves. She turned, the last light cat",
+      "normalized_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"“Marissa!” Daniel called from the thicket, his voice sharp enough to carry over the gravel path and the rustle of leaves. She turned, the last light cat",
+      "raw_length": 861,
+      "normalized_length": 861,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKYwKQiujySOsbmDNLFNkSx9XPG5Q\", \"object\": \"chat.completion\", \"created\": 1773793240, \"model\": \"gpt-5.4-mini-2026-03-17\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"replacement_text\\\":\\\"“Marissa!” Daniel called from the thicket, his voice sharp enough to carry over the gravel path and the rustle of leaves. She turned, the last light catching on his shoulders as he pushed through the brush.\\\"},{\\\"slot_id\\\":\\\"s2\\\",\\\"repl",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Marissa!” His voice cut through her momentary peace, urgent and demanding.",
+          "context_before": "It was beautiful, yet it felt like a fragile facade, much like the tension that hung between her and Daniel.",
+          "context_after": "She turned to find him emerging from the thicket, his figure stark against the dimming backdrop of the evening sky.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s2",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Coming!” she called back, her voice catching slightly in the crisp air.",
+          "context_before": "Her heart quickened at the sight of him, a rush of warmth battling against the sharp edge of annoyance.",
+          "context_after": "The weight of their earlier confrontation loomed over her, an unwelcome presence that darkened her thoughts.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s3",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Where are you?” Daniel’s tone was closer now, tinged with frustration as he stepped onto the path, the crunch of gravel underfoot mirroring her own.",
+          "context_before": "Why did everything have to be so complicated?",
+          "context_after": "His brow was furrowed, the lines on his face deepening as he approached.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s4",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Just down the path,” she replied, forcing a smile that felt more like a mask than a reflection of her true feelings.",
+          "context_before": "His brow was furrowed, the lines on his face deepening as he approached.",
+          "context_after": "“I thought I’d scout ahead.”\n\n“Scouting, huh?",
+          "target_reason": "dialogue"
+        }
+      ],
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "“Marissa!” Daniel called from the thicket, his voice sharp enough to carry over the gravel path and the rustle of leaves. She turned, the last light catching on his shoulders as he pushed through the brush."
+        },
+        {
+          "slot_id": "s2",
+          "replacement_text": "“Coming!” she called back, lifting a hand from where it hung at her side and stepping out of the patch of shadow onto the path, her voice thin in the crisp air."
+        },
+        {
+          "slot_id": "s3",
+          "replacement_text": "“Where are you?” Daniel asked again, closer now, frustration in the set of his mouth as he stepped onto the path and gravel clicked under his boots beside hers."
+        },
+        {
+          "slot_id": "s4",
+          "replacement_text": "“Just down the path,” she replied, glancing toward the narrow track ahead and tightening her smile as if it could hold steady on its own. “I thought I’d scout ahead.”"
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_length_distortion"
+      }
+    }
+  ],
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 2,
+      "meta_free": 5
+    },
+    "total_score": 26,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 302,
+    "paragraph_count": 8,
+    "dialogue_present": true,
+    "dialogue_grounded": false,
+    "sensory_hits": 5,
+    "concrete_hits": 1,
+    "generic_hits": 0,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "into her chest. The air around them was heavy, filled with the mingling scents of damp earth and jasmine, the sweetness now a bitter reminder of their unresolved argument. Marissa continued down the narrow path, gravel crunching softly beneath her boots, each step echoing the turmoil inside her.\n\nThe fading light cast long shadows, stretching across the ground like ghostly fingers reaching for her. She paused, captivated by the way the last rays of sunlight flickered on the leaves, their edges shimmering like broken glass. It was beautiful, yet it felt like a fragile facade, much like the tension that hung between her and Daniel.\n\n“Marissa!” His voice cut through her momentary peace, urgent and demanding. She turned to find him emerging from the thicket, his figure stark against the dimming backdrop of the evening sky. Her heart quickened at the sight of him, a rush of warmth battling against the sharp edge of annoyance.\n\n“Coming!” she called back, her voice catching slightly in the crisp air. The weight of their earlier confrontation loomed over her, an unwelcome presence that darkened her thoughts. Why did everything have to be so complicated?\n\n“Where are you?” Daniel’s tone was closer now, tinged with frustration as he stepped onto the path, the crunch of gravel underfoot mirroring her own. His brow was furrowed, the lines on his face deepening as he approached.\n\n“Just down the path,” she replied, forcing a smile that felt more like a mask than a reflection of her true feelings. “I thought I’d scout ahead.”\n\n“Scouting, huh? Or avoiding?” His eyes bore into hers, sharp and unyielding. She could see the tension in his jaw, a muscle twitching with barely concealed frustration.\n\nMarissa’s breath caught in her throat. The defensiveness crept in, stinging like a fresh wound. “I’m not avoiding anything"
+  },
+  "critique_snapshot": {
+    "summary": "The scene depicts Marissa walking along a path, reflecting on a recent argument with Daniel. The atmosphere is rich with sensory detail, but the dialogue lacks grounding in physical action and setting, leading to a disconnect between the characters' emotions and their interactions.",
+    "weaknesses": [
+      "Dialogue lacks grounding in physical actions or the environment.",
+      "Some descriptions are vague and could be more specific.",
+      "The emotional tension is present but not fully explored in the dialogue."
+    ],
+    "continuity_issues": [
+      "The transition from Marissa's internal thoughts to dialogue feels abrupt and lacks smooth continuity."
+    ],
+    "pacing_issues": [
+      "The pacing slows significantly during the introspective moments, which may detract from the urgency of the dialogue."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance the grounding of dialogue in physical actions or the setting.",
+      "Introduce more specific details to replace vague descriptions.",
+      "Deepen the emotional connection in dialogue to reflect the tension more clearly."
+    ],
+    "generic_phrase_targets": [
+      "thick with the scent",
+      "the kind of fragrance that clung to the back of the throat",
+      "dark and threatening",
+      "like a thick fog"
+    ],
+    "detail_targets": [
+      "the soft crunch of gravel",
+      "the way the fading light danced on the leaves",
+      "the sight of him sent a rush of warmth"
+    ],
+    "dialogue_grounding_targets": [
+      "“Marissa!” The voice broke through her reverie",
+      "“Where are you?” Daniel’s voice was closer now"
+    ],
+    "emotional_show_targets": [
+      "her heart quickening, a mix of annoyance and anticipation",
+      "the tension that had settled between them"
+    ],
+    "replacement_targets": [
+      "the kind of fragrance that clung to the back of the throat",
+      "the weight of her thoughts pressed down on her"
+    ],
+    "grounding_targets": [
+      "She turned, her heart quickening",
+      "He stepped forward, his brow furrowed"
+    ],
+    "carryover_targets": []
+  },
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_model_name": "gpt-5.4-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": false,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Marissa!” His voice cut through her momentary peace, urgent and demanding.",
+        "“Coming!” she called back, her voice catching slightly in the crisp air.",
+        "“Where are you?” Daniel’s tone was closer now, tinged with frustration as he stepped onto the path, the crunch of gravel underfoot mirroring her own.",
+        "“Just down the path,” she replied, forcing a smile that felt more like a mask than a reflection of her true feelings."
+      ],
+      "generic_phrases_to_replace": [],
+      "lines_to_repair": [
+        "“Marissa!” His voice cut through her momentary peace, urgent and demanding.",
+        "“Coming!” she called back, her voice catching slightly in the crisp air.",
+        "“Where are you?” Daniel’s tone was closer now, tinged with frustration as he stepped onto the path, the crunch of gravel underfoot mirroring her own.",
+        "“Just down the path,” she replied, forcing a smile that felt more like a mask than a reflection of her true feelings."
+      ],
+      "required_concrete_anchor_terms": [
+        "marissa",
+        "path"
+      ],
+      "repair_min_word_count": 256,
+      "repair_max_word_count": 453,
+      "min_paragraph_count": 6,
+      "max_paragraph_count": 10
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rescue_model"
+    },
+    "rescue_slots_summary": {
+      "slot_count": 4,
+      "target_types": [
+        "dialogue",
+        "dialogue",
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_length_distortion"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 300,
+    "rewritten_word_count": 302,
+    "min_word_count": 180,
+    "max_word_count": 630,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "and",
+      "his",
+      "was",
+      "that",
+      "voice",
+      "air",
+      "thick",
+      "back",
+      "marissa"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "and",
+      "his",
+      "was",
+      "that",
+      "voice",
+      "air",
+      "marissa"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 26
+  }
+}

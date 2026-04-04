@@ -1,0 +1,44 @@
+{
+  "chunk_id": "lf_ec1a134e",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:e18acbd91183e9e69b829774f63a7f9a041452eaae215b6c84bf66334cd2b0c2",
+  "provider": "local_llm",
+  "model": "qwen3:4b",
+  "continuity_snapshot": {
+    "summary": "Okay, the user wants me to write an immersive scene prose chapter for a story called \"Act I: Gathered Storm - The Summons",
+    "word_count": 150,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 12.5,
+    "hard_limit_usd": 25.0,
+    "spent_usd": 1.1,
+    "total_after_usd": 1.11
+  },
+  "routing_snapshot": {
+    "policy": "local_only",
+    "provider": "local_llm",
+    "model": "qwen3:4b",
+    "reason": "policy.local_only",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "local_only",
+      "budget_status": "ok",
+      "reason": "policy.local_only",
+      "prefer_local": true,
+      "allow_local": true,
+      "allow_api": false,
+      "warnings": [],
+      "blocked": false
+    }
+  }
+}

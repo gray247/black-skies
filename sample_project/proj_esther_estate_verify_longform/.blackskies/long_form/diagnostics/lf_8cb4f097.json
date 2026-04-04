@@ -1,0 +1,309 @@
+{
+  "chunk_id": "lf_8cb4f097",
+  "validation_decision": true,
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "raw_preview": "The sun dipped low on the horizon, spilling molten gold across the sky, each ray seeming to stretch toward the earth as if reluctant to let go of the day. Tessa stood at the edge of the crumbling pier",
+      "normalized_preview": "The sun dipped low on the horizon, spilling molten gold across the sky, each ray seeming to stretch toward the earth as if reluctant to let go of the day. Tessa stood at the edge of the crumbling pier",
+      "raw_length": 1787,
+      "normalized_length": 1787,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKTRZEtercepsatitIP5jVgdCTbg6\", \"object\": \"chat.completion\", \"created\": 1773772113, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The sun dipped low on the horizon, spilling molten gold across the sky, each ray seeming to stretch toward the earth as if reluctant to let go of the day. Tessa stood at the edge of the crumbling pier, her fingers brushing the weathered wood, rough against her skin, each groove and splinter a ",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 316,
+        "paragraph_count": 5,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 3,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 27,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 316,
+        "paragraph_count": 5,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 7,
+        "concrete_hits": 2,
+        "generic_hits": 1,
+        "stock_phrase_hits": 3,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": true,
+        "text": "The sun dipped low on the horizon, spilling molten gold across the sky, each ray seeming to stretch toward the earth as if reluctant to let go of the day. Tessa stood at the edge of the crumbling pier, her fingers brushing the weathered wood, rough against her skin, each groove and splinter a story of its own. The salty breeze tousled her hair, lifting strands to dance against her cheeks, mingling with the distant cries of gulls that wheeled overhead, their shadows darting like whispers across the water's surface.\n\nShe could smell the brine of the sea, sharp and invigorating, a stark contrast to the faint scent of smoke lingering from the bonfire on the beach. It reminded her of childhood summers, of laughter and the crackle of flames, but tonight, the air felt heavy with something unspoken, a tension that wrapped around her like a shroud. She turned her gaze toward the horizon, where the sun surrendered its last light, casting a deep indigo over the water, and a familiar ache settled in her chest.\n\n“Are you coming or what?” Jake’s voice cut through the stillness, teasing yet laced with something more serious. He stood a few paces behind her, hands shoved deep into the pockets of his frayed jeans, his expression unreadable against the backdrop of twilight. The dying light caught the edges of his profile, framing him in hues of amber and shadow.\n\n“Just a minute.” Tessa’s voice was barely above a whisper, her gaze fixed on the distant line where the sea kissed the sky. She could feel the weight of his eyes on her, the way he always seemed to sense when she was drifting away, lost in thought. It was both a comfort and a burden.\n\n“Hey,” he stepped closer, the boards creaking beneath his weight, “you okay?” His concern hung in the air, palpable and warm, yet she"
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "rewrite",
+        "escalated": false,
+        "reason": "rewrite_default"
+      },
+      "raw_preview": "The sun sank low on the horizon, casting a warm glow across the sky that deepened into shades of orange and violet, its final rays stretching toward the earth as if reluctant to bid farewell to the da",
+      "normalized_preview": "The sun sank low on the horizon, casting a warm glow across the sky that deepened into shades of orange and violet, its final rays stretching toward the earth as if reluctant to bid farewell to the da",
+      "raw_length": 1809,
+      "normalized_length": 1809,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKTRr7iZbDABan6eXAYXF6rbrDrQK\", \"object\": \"chat.completion\", \"created\": 1773772131, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The sun sank low on the horizon, casting a warm glow across the sky that deepened into shades of orange and violet, its final rays stretching toward the earth as if reluctant to bid farewell to the day. Tessa stood at the edge of the crumbling pier, her fingers tracing the ridges of the weathe",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 310,
+        "paragraph_count": 5,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "guardrail_snapshot": {
+        "evaluated": true,
+        "mode": "rewrite",
+        "outline_titles": [],
+        "beat_refs": [],
+        "locked_facts_evaluated": false,
+        "length_band_evaluated": true,
+        "original_word_count": 316,
+        "rewritten_word_count": 310,
+        "min_word_count": 189,
+        "max_word_count": 663,
+        "within_length_band": true,
+        "outline_fidelity_evaluated": true,
+        "outline_fidelity_pass": true,
+        "original_anchor_terms": [
+          "the",
+          "her",
+          "and",
+          "his",
+          "she",
+          "against",
+          "was",
+          "sun",
+          "horizon",
+          "across",
+          "sky",
+          "each"
+        ],
+        "retained_anchor_terms": [
+          "the",
+          "her",
+          "and",
+          "his",
+          "she",
+          "against",
+          "sun",
+          "horizon",
+          "across",
+          "sky"
+        ],
+        "outline_anchor_hits": [],
+        "required_anchor_overlap": 1,
+        "scene_anchor_drift_detected": false,
+        "new_story_elements": [],
+        "blocking_new_story_elements": [],
+        "authoritative_name_check": false,
+        "uncertainty_triggered": false,
+        "failure_reason": null,
+        "accepted": true,
+        "quality_total_score": 29
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 4,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 29,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 310,
+        "paragraph_count": 5,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 7,
+        "concrete_hits": 3,
+        "generic_hits": 0,
+        "stock_phrase_hits": 0,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The sun sank low on the horizon, casting a warm glow across the sky that deepened into shades of orange and violet, its final rays stretching toward the earth as if reluctant to bid farewell to the day. Tessa stood at the edge of the crumbling pier, her fingers tracing the ridges of the weathered wood, rough and splintered beneath her touch, each imperfection telling a story of its own. The salty breeze tangled her hair, lifting stray strands to dance against her cheeks, while the distant cries of gulls wheeled overhead, their silhouettes darting like fleeting shadows over the shimmering water below.\n\nThe smell of brine hung thick in the air, sharp and invigorating, mingling with the faint scent of smoke wafting from a bonfire on the beach. It conjured memories of childhood summers, laughter blending with the crackle of flames, but tonight, a heavy tension enveloped her, pressing down like a shroud. She turned her gaze toward the horizon, where the sun surrendered its last light, deep indigo spreading across the water, and a familiar ache settled in her chest.\n\n“Are you coming or what?” Jake called out, his voice breaking the stillness. He stood a few paces behind her, hands jammed deep into the pockets of his frayed jeans, his expression unreadable against the backdrop of twilight. The fading light caught the angles of his face, highlighting the tension in his jaw.\n\n“Just a minute.” Tessa’s voice was soft, almost lost in the whisper of the waves lapping against the pier. She kept her eyes fixed on the distant line where the sea met the sky, feeling the intensity of his gaze on her. Jake had an uncanny ability to sense when she retreated into her thoughts; it was both reassuring and suffocating.\n\n“Hey,” he stepped closer, the old boards creaking under his weight, “you okay?” His"
+      },
+      "quality_pass": true,
+      "rewrite_delta": {
+        "total_delta": 2,
+        "stock_phrase_delta": 3,
+        "specificity_delta": 1,
+        "clarity_delta": 1,
+        "continuity_delta": 0
+      }
+    }
+  ],
+  "acceptance_reason": "rewrite_pass",
+  "critique_snapshot": {
+    "summary": "The scene depicts Tessa standing on a crumbling pier at sunset, reflecting on her childhood while feeling a tension in the air. Jake, her companion, calls out to her, expressing concern for her emotional state.",
+    "weaknesses": [
+      "Overuse of generic phrases and imagery.",
+      "Lack of specific grounding in the physical setting.",
+      "Dialogue lacks connection to immediate physical actions."
+    ],
+    "continuity_issues": [
+      "The transition from Tessa's introspection to Jake's dialogue feels abrupt and lacks a clear emotional or physical lead-in."
+    ],
+    "pacing_issues": [
+      "The scene's introspective nature slows the pacing, but the dialogue interrupts without a strong emotional build-up."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a stronger sense of place.",
+      "Ground dialogue in physical actions or setting to improve realism.",
+      "Reduce reliance on generic phrases to elevate the prose."
+    ],
+    "generic_phrase_targets": [
+      "spilling molten gold",
+      "each ray seeming to stretch",
+      "a familiar ache settled in her chest",
+      "the air felt heavy with something unspoken"
+    ],
+    "detail_targets": [
+      "weathered wood",
+      "salty breeze",
+      "distant cries of gulls"
+    ],
+    "dialogue_grounding_targets": [
+      "Jake's dialogue should connect more to Tessa's physical presence or actions."
+    ],
+    "emotional_show_targets": [
+      "Tessa's internal conflict could be shown through more active engagement with her surroundings."
+    ],
+    "replacement_targets": [
+      "Replace generic phrases with more vivid, unique descriptions."
+    ],
+    "grounding_targets": [
+      "Incorporate more sensory details that tie Tessa's emotions to her physical environment."
+    ],
+    "carryover_targets": [
+      "Ensure that Tessa's emotional state is consistently reflected in her actions and reactions."
+    ]
+  },
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 316,
+    "rewritten_word_count": 310,
+    "min_word_count": 189,
+    "max_word_count": 663,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "and",
+      "his",
+      "she",
+      "against",
+      "was",
+      "sun",
+      "horizon",
+      "across",
+      "sky",
+      "each"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "and",
+      "his",
+      "she",
+      "against",
+      "sun",
+      "horizon",
+      "across",
+      "sky"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 29
+  }
+}

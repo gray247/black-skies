@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_de9929ee",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:4e270482d2f672b05b76c8c5ff643088effd789be16ae999ed80df7ecdde7ec9",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The lantern flickered in Jun's grasp, casting erratic shadows that danced along the damp walls of the corridor",
+    "word_count": 307,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 30,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 307,
+    "paragraph_count": 4,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 7,
+    "concrete_hits": 10,
+    "generic_hits": 0,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The lantern flickered in Jun's grasp, casting erratic shadows that danced along the damp walls of the corridor. Clara could feel the chill of the air, thick and suffocating, wrapping around her like a shroud. The faint smell of mildew clung to the stone, mingling with the earthy scent of the mud that seemed to seep into the floorboards, a persistent reminder of the rain that had soaked them both to the bone in the greenhouse. She pressed the palm of her hand against the rough surface of the wall, grounding herself, feeling the coolness seep into her skin, as if it could siphon off the rising tide of anxiety gnawing at her insides.\n\n“Did you hear that?” Jun's voice trembled, breaking the oppressive silence that had settled like a weight upon them. His eyes, wide and glistening with unshed fear, darted to where the corridor twisted into darker shadows, where the faint sound of rattling chains echoed ominously. Clara swallowed hard, feeling the parlor key sway against her wrist, the soft tug of the red ribbon a strange comfort. She could not remember tying it tighter, yet there it was, a vivid splash of color against her pale skin, a tether to sanity amidst the chaos unfurling around them.\n\n“No,” she said sharply, too quickly, the tone biting the air between them. “It’s just the wind.” The words tasted bitter, even as she uttered them, knowing all too well that the wind had not been outside for hours. The rain had stopped, but the world outside still felt tumultuous, the storm raging somewhere just beyond the walls, unseen yet palpable.\n\nJun took a step forward, the lantern sputtering as if in agreement with his trepidation. “I don’t think we should—” He hesitated, glancing back at her, the flickering light illuminating the deepening shadows beneath his eyes"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

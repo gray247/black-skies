@@ -1,0 +1,194 @@
+{
+  "chunk_id": "lf_9414f2bb",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0004"
+  ],
+  "order": 4,
+  "continuation_of": "lf_dd5c467c",
+  "prompt_fingerprint": "sha256:6b2d5ba56341c65ee064d7e9ad97f41c8d1a8f24ea7d4bb7df3cb0679456fe76",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 35,
+    "fallback_reason": "rewrite_guardrail_failed"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.03,
+    "total_after_usd": 0.04
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "rewrite_guardrail_failed"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 2,
+      "pacing": 5,
+      "specificity": 3,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 27,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 627,
+    "paragraph_count": 11,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 8,
+    "concrete_hits": 4,
+    "generic_hits": 0,
+    "stock_phrase_hits": 4,
+    "carryover_terms": [
+      "floor",
+      "door",
+      "calla",
+      "tightened",
+      "wrench",
+      "metal",
+      "biting",
+      "grounding"
+    ],
+    "carryover_hits": 6,
+    "material_carryover_hits": 0,
+    "material_carryover": false,
+    "weak_carryover": false,
+    "generic_risk": true
+  },
+  "critique_snapshot": {
+    "summary": "Calla works on a stubborn engine bolt in a workshop, feeling a mix of frustration and nostalgia. Lucas enters, teasing her about her project, and their playful banter reveals an underlying tension and connection between them. Calla struggles with her feelings and the desire for help while maintaining a facade of independence.",
+    "weaknesses": [
+      "Generic phrases and stock expressions diminish the uniqueness of the scene.",
+      "Vague descriptions fail to create a vivid image of the setting and characters.",
+      "Dialogue lacks grounding in physical actions and specific details."
+    ],
+    "continuity_issues": [],
+    "pacing_issues": [],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid scene.",
+      "Replace generic phrases with more original language.",
+      "Ground dialogue in physical actions or setting to increase realism."
+    ],
+    "generic_phrase_targets": [
+      "old hunk of junk",
+      "master mechanic in the making",
+      "a real prodigy"
+    ],
+    "detail_targets": [
+      "the scent of motor oil",
+      "the rough texture of rusted metal",
+      "the golden light of the late afternoon sun"
+    ],
+    "dialogue_grounding_targets": [
+      "Lucas's entrance and actions",
+      "Calla's reactions to Lucas",
+      "The physical context of their conversation"
+    ],
+    "emotional_show_targets": [
+      "Calla's internal conflict about needing help",
+      "The tension in her interactions with Lucas"
+    ],
+    "replacement_targets": [
+      "the familiar perfume that wrapped around her like an old sweater",
+      "the weight of the wrench in her palm"
+    ],
+    "grounding_targets": [
+      "Calla's actions with the wrench",
+      "Lucas's movements and positioning in the workshop"
+    ],
+    "carryover_targets": []
+  },
+  "attempt_count": 2,
+  "acceptance_reason": "rewrite_guardrail_failed",
+  "rewrite_used": true,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 612,
+    "rewritten_word_count": 627,
+    "min_word_count": 367,
+    "max_word_count": 1285,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": false,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "that",
+      "felt",
+      "his",
+      "and",
+      "you",
+      "engine",
+      "how",
+      "calla",
+      "against"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "that",
+      "his",
+      "and",
+      "you",
+      "against"
+    ],
+    "outline_anchor_hits": [
+      "her",
+      "the",
+      "she",
+      "wrench",
+      "and",
+      "that",
+      "had"
+    ],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [
+      "lucas"
+    ],
+    "blocking_new_story_elements": [
+      "lucas"
+    ],
+    "authoritative_name_check": true,
+    "uncertainty_triggered": true,
+    "failure_reason": "outline_drift_detected",
+    "accepted": false,
+    "quality_total_score": 27
+  }
+}

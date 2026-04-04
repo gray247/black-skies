@@ -1,0 +1,378 @@
+{
+  "chunk_id": "lf_02b91a5b",
+  "validation_decision": false,
+  "fallback_reason": "rewrite_guardrail_failed",
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "basic_validation": {
+        "usable": true,
+        "word_count": 597,
+        "paragraph_count": 9,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [
+          "coat",
+          "street",
+          "jacket",
+          "swept",
+          "narrow",
+          "alley",
+          "rustling",
+          "fallen"
+        ],
+        "carryover_hits": 4,
+        "material_carryover_hits": 0
+      },
+      "raw_preview": "Elara took a deep breath, the chill air filling her lungs like ice. She stepped forward, the cobblestones uneven beneath her worn boots, each echoing footfall a reminder of her solitude. The distant h",
+      "normalized_preview": "Elara took a deep breath, the chill air filling her lungs like ice. She stepped forward, the cobblestones uneven beneath her worn boots, each echoing footfall a reminder of her solitude. The distant h",
+      "raw_length": 3477,
+      "normalized_length": 3476,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKA8adNeYpA8hTRdextPUVsJWCRom\", \"object\": \"chat.completion\", \"created\": 1773697900, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"Elara took a deep breath, the chill air filling her lungs like ice. She stepped forward, the cobblestones uneven beneath her worn boots, each echoing footfall a reminder of her solitude. The distant hum of the city felt like a heartbeat, pulsing just beyond her reach, as she moved deeper into ",
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 4,
+          "clarity": 2,
+          "pacing": 5,
+          "specificity": 2,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 27,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 597,
+        "paragraph_count": 9,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 9,
+        "concrete_hits": 2,
+        "generic_hits": 2,
+        "stock_phrase_hits": 2,
+        "carryover_terms": [
+          "coat",
+          "street",
+          "jacket",
+          "swept",
+          "narrow",
+          "alley",
+          "rustling",
+          "fallen"
+        ],
+        "carryover_hits": 4,
+        "material_carryover_hits": 0,
+        "material_carryover": false,
+        "weak_carryover": false,
+        "generic_risk": true,
+        "text": "Elara took a deep breath, the chill air filling her lungs like ice. She stepped forward, the cobblestones uneven beneath her worn boots, each echoing footfall a reminder of her solitude. The distant hum of the city felt like a heartbeat, pulsing just beyond her reach, as she moved deeper into the alley’s embrace. The streetlamp flickered again, its glow sputtering like a candle fighting against the dark. She squinted, the dim light barely illuminating the peeling posters plastered to the brick walls, their faded colors whispering stories of a time long gone.\n\n“Why am I here?” she whispered to the night, her voice barely rising above the rustle of leaves. The question hung in the air, unanswered, a weight that pressed down on her shoulders. She rubbed her arms, trying to ward off the cold as much as the creeping sense of dread that clawed at her thoughts. This wasn’t just the chill of the autumn night; it was the looming specter of something she couldn’t quite name.\n\nA noise broke the stillness—a faint scrape, like a foot dragging across the cobblestones. Elara’s heart quickened. She turned, her breath hitching. The alley stretched behind her, shadowy and still, but something felt different, as if the darkness had thickened, congealing around her. She strained her ears, the silence now a taut string ready to snap. “Hello?” The word slipped out, tentative, a plea for reassurance that only echoed back to her.\n\nThe alley seemed to swallow her voice, and a shiver chased down her spine. She took a step back, the soles of her boots catching on the uneven stones. “Get it together,” she chided herself, though the tremor in her hands betrayed her steadiness. Whatever was lurking in the shadows, she had to face it. She forced herself to look again, her eyes adjusting to the dark, searching for the source of the sound.\n\nThere—a movement near the end of the alley, just beyond the reach of the streetlamp’s glow. A figure, indistinct and shrouded in darkness, lingered at the farthest edge. Elara’s breath caught, her instincts screaming at her to run, but she stood frozen, curiosity battling fear. “Who’s there?” she called, her voice steadier this time, tinged with a defiance she didn’t fully feel.\n\n“Just a passerby,” came a voice, low and smooth, a hint of amusement threading through the words. The figure stepped closer, emerging into the dim light, revealing a man with tousled hair and a crooked smile, his hands stuffed deep into the pockets of a leather jacket that looked too big for him. “Hope I’m not disturbing your evening stroll.”\n\nElara narrowed her eyes, trying to gauge his intentions. The flickering light caught the glint of something metallic at his waist—perhaps a knife, perhaps nothing at all. But it was the way he leaned against the wall, casual yet poised, that unsettled her more than anything. “You could say that,” she replied, her tone clipped, unwilling to let him see how rattled she felt. “What do you want?”\n\nHe chuckled softly, the sound low and rich. “Just enjoying the night, like you. But it seems the alley has a way of bringing out the curious.” His gaze lingered on her, probing, as if he could strip away her defenses with mere sight. “You’re not from around here, are you?”\n\nElara straightened, defiance sparking a flicker of warmth in her chest. “And you’re an expert on alleys now?” she shot back, her voice sharper than she intended. The wind picked up, swirling scraps of paper around their feet, and for a"
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "rewrite",
+        "escalated": false,
+        "reason": "rewrite_default"
+      },
+      "basic_validation": {
+        "usable": true,
+        "word_count": 585,
+        "paragraph_count": 13,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [
+          "coat",
+          "street",
+          "jacket",
+          "swept",
+          "narrow",
+          "alley",
+          "rustling",
+          "fallen"
+        ],
+        "carryover_hits": 5,
+        "material_carryover_hits": 1
+      },
+      "raw_preview": "moment, the alley felt alive with their tension. \n\nThe wind gusted through the narrow passage, sending a flurry of dried leaves skittering across the cobblestones like errant thoughts. Elara pulled he",
+      "normalized_preview": "moment, the alley felt alive with their tension.\n\nThe wind gusted through the narrow passage, sending a flurry of dried leaves skittering across the cobblestones like errant thoughts. Elara pulled her",
+      "raw_length": 3523,
+      "normalized_length": 3519,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKA8yCVJyKhGEc3xr7jR8fhKi3n7Y\", \"object\": \"chat.completion\", \"created\": 1773697924, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"moment, the alley felt alive with their tension. \\n\\nThe wind gusted through the narrow passage, sending a flurry of dried leaves skittering across the cobblestones like errant thoughts. Elara pulled her coat tighter, the damp fabric clinging to her skin as she stepped forward, each uneven cob",
+      "guardrail_snapshot": {
+        "evaluated": true,
+        "mode": "rewrite",
+        "outline_titles": [],
+        "beat_refs": [],
+        "locked_facts_evaluated": false,
+        "length_band_evaluated": true,
+        "original_word_count": 597,
+        "rewritten_word_count": 585,
+        "min_word_count": 358,
+        "max_word_count": 1253,
+        "within_length_band": true,
+        "outline_fidelity_evaluated": true,
+        "outline_fidelity_pass": false,
+        "original_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "and",
+          "that",
+          "you",
+          "elara",
+          "alley",
+          "voice",
+          "but",
+          "for",
+          "his"
+        ],
+        "retained_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "and",
+          "that",
+          "you",
+          "elara",
+          "alley",
+          "voice",
+          "but",
+          "for",
+          "his"
+        ],
+        "outline_anchor_hits": [
+          "the",
+          "her",
+          "she",
+          "that",
+          "and",
+          "alley",
+          "elara",
+          "but",
+          "was",
+          "his",
+          "you"
+        ],
+        "required_anchor_overlap": 1,
+        "scene_anchor_drift_detected": false,
+        "new_story_elements": [
+          "yet"
+        ],
+        "blocking_new_story_elements": [
+          "yet"
+        ],
+        "authoritative_name_check": true,
+        "uncertainty_triggered": true,
+        "failure_reason": "outline_drift_detected",
+        "accepted": false,
+        "quality_total_score": 33
+      },
+      "guardrail_blocked": true
+    }
+  ],
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 5,
+      "clarity": 4,
+      "pacing": 5,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 33,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 585,
+    "paragraph_count": 13,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 6,
+    "concrete_hits": 4,
+    "generic_hits": 1,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [
+      "coat",
+      "street",
+      "jacket",
+      "swept",
+      "narrow",
+      "alley",
+      "rustling",
+      "fallen"
+    ],
+    "carryover_hits": 5,
+    "material_carryover_hits": 1,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false
+  },
+  "critique_snapshot": {
+    "summary": "Elara navigates a dimly lit alley, feeling the chill of the night and a growing sense of dread. She encounters a mysterious man who seems to know more about her than she does about him, leading to a tense exchange filled with uncertainty and curiosity.",
+    "weaknesses": [
+      "Generic descriptions and phrases that lack specificity.",
+      "Dialogue that feels disconnected from the physical actions and setting.",
+      "Vague emotional responses that do not fully engage the reader."
+    ],
+    "continuity_issues": [
+      "The transition from Elara's internal thoughts to her dialogue lacks grounding in her physical actions.",
+      "The description of the alley's atmosphere does not consistently reflect Elara's emotional state."
+    ],
+    "pacing_issues": [
+      "The scene builds tension but could benefit from more varied pacing to enhance the suspense."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid setting.",
+      "Ground dialogue in physical actions or reactions to improve realism.",
+      "Eliminate generic phrases and replace them with more original language."
+    ],
+    "generic_phrase_targets": [
+      "filling her lungs like ice",
+      "heartbeat, pulsing just beyond her reach",
+      "whispering stories of a time long gone",
+      "weight that pressed down on her shoulders",
+      "creeping sense of dread"
+    ],
+    "detail_targets": [
+      "Descriptions of the alley and its surroundings could be more vivid and unique.",
+      "The man's appearance and demeanor need more specific details to enhance characterization."
+    ],
+    "dialogue_grounding_targets": [
+      "Elara's dialogue should reflect her physical state or actions more clearly.",
+      "The man's responses could be tied more closely to his body language or the environment."
+    ],
+    "emotional_show_targets": [
+      "Elara's internal conflict should be shown through more specific actions or reactions.",
+      "The sense of dread could be illustrated with more concrete sensory details."
+    ],
+    "replacement_targets": [
+      "Replace 'just a passerby' with a more contextually rich response.",
+      "Find alternatives for 'you could say that' that reveal more about Elara's character."
+    ],
+    "grounding_targets": [
+      "Ensure Elara's thoughts and feelings are consistently tied to her physical experiences in the alley.",
+      "The setting should reflect the emotional tone of the scene more effectively."
+    ],
+    "carryover_targets": [
+      "Reduce reliance on common phrases and descriptions that detract from the originality of the scene."
+    ]
+  },
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 597,
+    "rewritten_word_count": 585,
+    "min_word_count": 358,
+    "max_word_count": 1253,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": false,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "and",
+      "that",
+      "you",
+      "elara",
+      "alley",
+      "voice",
+      "but",
+      "for",
+      "his"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "and",
+      "that",
+      "you",
+      "elara",
+      "alley",
+      "voice",
+      "but",
+      "for",
+      "his"
+    ],
+    "outline_anchor_hits": [
+      "the",
+      "her",
+      "she",
+      "that",
+      "and",
+      "alley",
+      "elara",
+      "but",
+      "was",
+      "his",
+      "you"
+    ],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [
+      "yet"
+    ],
+    "blocking_new_story_elements": [
+      "yet"
+    ],
+    "authoritative_name_check": true,
+    "uncertainty_triggered": true,
+    "failure_reason": "outline_drift_detected",
+    "accepted": false,
+    "quality_total_score": 33
+  }
+}

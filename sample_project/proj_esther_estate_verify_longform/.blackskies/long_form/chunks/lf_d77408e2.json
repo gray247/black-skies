@@ -1,0 +1,243 @@
+{
+  "chunk_id": "lf_d77408e2",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:ea2166ea45c0564a7d6e41c5a654f7878382cfee918c5618bf0c15db80484659",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 21,
+    "fallback_reason": "quality_failed"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "quality_failed"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 4,
+      "dialogue": 2,
+      "meta_free": 5
+    },
+    "total_score": 27,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 302,
+    "paragraph_count": 4,
+    "dialogue_present": true,
+    "dialogue_grounded": false,
+    "sensory_hits": 5,
+    "concrete_hits": 2,
+    "generic_hits": 1,
+    "stock_phrase_hits": 2,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The air was thick with the scent of rain-soaked earth as Lena pushed through the heavy, weathered door of the tavern, the soft murmur of conversation spilling out into the cool evening. Inside, the dim light flickered from oil lamps, casting restless shadows that danced across the timeworn wooden beams overhead. The lively sounds of laughter and the clinking of tankards filled the room, wrapping around her like a warm embrace, yet it felt more like a shroud than comfort. Shaking droplets from her hair, she stepped in, the chill of the night contrasting sharply with the tavern's inviting warmth, a tug-of-war between the outside world and the refuge within.\n\n“Lena!” boomed a voice from the far end of the bar, slicing through the ambient chatter. Thom stood there, his face flushed and gleaming with the merriment of the evening, a tankard raised high as if to herald her arrival. She offered a brief, hesitant smile, her stomach tightening with the knowledge of the secrets she harbored. The last thing she wanted was to draw attention to herself, yet the warmth of his greeting sparked a flicker of something deep within—a yearning for connection that felt both inviting and perilous.\n\nAs she made her way toward him, the floorboards creaked under her boots, each step swallowed by the boisterous laughter of nearby patrons. She caught fragments of their conversation—tales of grand escapades and embellished adventures, each story more outlandish than the last. They were living in a world of fantasy while she felt anchored to a reality that was becoming increasingly stifling. Thom’s eyes sparkled with mischief as she reached him, a lively energy that pulled her momentarily from her spiraling thoughts.\n\n“Join us!” he urged, gesturing enthusiastically to the empty chair beside him, his tankard still gleaming in the lamplight. “We"
+  },
+  "critique_snapshot": {
+    "summary": "Lena enters a tavern filled with the scent of rain-soaked earth and the warmth of spiced ale. She is greeted by Thom, who invites her to join him and others at the bar. Despite the jovial atmosphere, Lena feels a sense of unease and carries secrets that make her hesitant to engage.",
+    "weaknesses": [
+      "Generic descriptions that lack specificity.",
+      "Dialogue that does not connect with physical actions or the setting."
+    ],
+    "continuity_issues": [
+      "Lena's internal conflict is introduced but not fully explored or resolved in the scene."
+    ],
+    "pacing_issues": [
+      "The scene drags slightly due to overly detailed descriptions that could be more concise."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions.",
+      "Ground dialogue in physical actions and setting.",
+      "Develop Lena's internal conflict more clearly."
+    ],
+    "generic_phrase_targets": [
+      "thick with the scent",
+      "wrapped around her like a comforting shawl",
+      "cutting through the haze of chatter"
+    ],
+    "detail_targets": [
+      "Descriptions of the tavern's interior and atmosphere could be more vivid and unique."
+    ],
+    "dialogue_grounding_targets": [
+      "Thom's invitation should include more physical interaction or context to ground it."
+    ],
+    "emotional_show_targets": [
+      "Lena's internal struggle should be shown through more active engagement with her surroundings."
+    ],
+    "replacement_targets": [
+      "Replace generic phrases with more original and vivid imagery."
+    ],
+    "grounding_targets": [
+      "Include more physical actions that reflect Lena's emotional state."
+    ],
+    "carryover_targets": [
+      "Ensure that Lena's internal conflict is carried through the dialogue and interactions."
+    ]
+  },
+  "attempt_count": 4,
+  "acceptance_reason": "quality_failed",
+  "rewrite_used": true,
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_model_name": "gpt-5.4-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Lena!” boomed a voice from the far end of the bar, slicing through the ambient chatter.",
+        "“Join us!” he urged, gesturing enthusiastically to the empty chair beside him, his tankard still gleaming in the lamplight.",
+        "“We"
+      ],
+      "generic_phrases_to_replace": [
+        "thick with the scent",
+        "flicker of",
+        "something deep within"
+      ],
+      "lines_to_repair": [
+        "The air was thick with the scent of rain-soaked earth as Lena pushed through the heavy, weathered door of the tavern, the soft murmur of conversation spilling out into the cool evening.",
+        "The last thing she wanted was to draw attention to herself, yet the warmth of his greeting sparked a flicker of something deep within—a yearning for connection that felt both inviting and perilous.",
+        "“Lena!” boomed a voice from the far end of the bar, slicing through the ambient chatter.",
+        "“Join us!” he urged, gesturing enthusiastically to the empty chair beside him, his tankard still gleaming in the lamplight.",
+        "“We"
+      ],
+      "required_concrete_anchor_terms": [
+        "lena"
+      ],
+      "repair_min_word_count": 256,
+      "repair_max_word_count": 453,
+      "min_paragraph_count": 2,
+      "max_paragraph_count": 6
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rescue_model"
+    },
+    "rescue_slots_summary": {
+      "slot_count": 5,
+      "target_types": [
+        "generic",
+        "generic",
+        "dialogue",
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_specificity_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 309,
+    "rewritten_word_count": 302,
+    "min_word_count": 185,
+    "max_word_count": 648,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "was",
+      "and",
+      "that",
+      "lena",
+      "his",
+      "conversation",
+      "out",
+      "light",
+      "inside"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "was",
+      "and",
+      "that",
+      "lena",
+      "his",
+      "conversation"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 27
+  }
+}

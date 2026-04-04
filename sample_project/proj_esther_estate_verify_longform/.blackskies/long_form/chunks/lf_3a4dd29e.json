@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_3a4dd29e",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:e9b70afd35e7ff6bc74939d07616e483265c884ce68d6ddc56e58c78d5c2a47b",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The first drops of rain splattered against the cobblestones, a soft patter that quickly escalated into a steady drumroll, filling the air with the scent of damp earth and blooming lilacs",
+    "word_count": 297,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 4,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 29,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 297,
+    "paragraph_count": 6,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 6,
+    "concrete_hits": 2,
+    "generic_hits": 1,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The first drops of rain splattered against the cobblestones, a soft patter that quickly escalated into a steady drumroll, filling the air with the scent of damp earth and blooming lilacs. Marianne pulled her coat tighter around her shoulders, the fabric slick against her skin, as she navigated the narrow alley. Shadows clung to the edges of the brick buildings, their worn surfaces glistening with moisture, while the dim glow of a distant streetlamp flickered like a heartbeat in the gathering twilight.\n\nShe paused, letting the rain drape over her like a veil, a momentary cocoon that muffled the chaotic sounds of the city—the honking of cars, the chatter of people huddled beneath awnings, the distant wail of a siren. It was in this stillness that her thoughts surged, uninvited, as they often did in moments of quiet. Faces flashed through her mind: the warmth of Nora’s laughter, the way Ben’s eyes sparkled with mischief, and the heaviness of unspoken words that lingered like smoke in the air.\n\n“Hey!” A voice sliced through her reverie, sharp and sudden against the backdrop of rain. She turned to see a figure emerging from the shadows, a young man with tousled hair and a jacket that seemed two sizes too big. His breath came in quick bursts, misting in the cool air. “You lost?”\n\nMarianne took a step back, her heart racing, then forced herself to relax. “No, just—taking a moment.” She tried to sound casual, but the tremor in her voice betrayed her.\n\nHe stepped closer, the light catching the glint of something sharp at his side. “You shouldn’t be out here alone, you know. This part of the city isn’t safe after dark.”\n\nHer mind raced. Was he warning her or trying to intimidate her? The rain dr"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

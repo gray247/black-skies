@@ -1,0 +1,9 @@
+﻿Clara took a step forward, the dampness of the corridor soaking through her shoes. The cracked brass lantern sputtered again, casting flickering light that made the shadows seem alive, creeping along the walls like timid phantoms. She brushed her fingers against the peeling floral patterns, feeling the rough texture beneath her touch, as if the wallpaper were whispering secrets long buried. The air was thick with the scent of mildew and damp earth, the kind that clung to the throat like a warning.
+
+“Did you see that?” Jun’s voice trembled, a thin thread of fear that sliced through the stillness. She could hear the quaver in his breath, the way it struggled to keep steady, and it set her heart racing. “Back there, in the greenhouse… something moved.”
+
+Clara shot him a quick glance, the lantern light catching the sheen of water on his coat, which dripped steadily onto the floor. She swallowed hard, the taste of rust still lingering at the back of her throat. “It was probably just a rat or something,” she replied, too quickly, the sharpness in her tone an edge she hadn’t meant to reveal. She didn’t want to feel frightened, didn’t want to mirror his panic.
+
+But as they moved deeper into the corridor, the walls seemed to close in, every creak of the old wood echoing like a footstep behind them. The faint sound of water dripped somewhere above, a rhythmic reminder of the rain that had pelted the greenhouse just moments before. Clara felt the weight of the parlor key tied to her wrist, the red ribbon cool against her skin, inexplicably tighter than she remembered. She tugged at it, her fingers brushing against the chipped ceramic fox nestled in her coat pocket, a strange comfort against the growing unease.
+
+Jun stopped suddenly, his lantern beam trembling as it caught something ahead—a trail of muddy

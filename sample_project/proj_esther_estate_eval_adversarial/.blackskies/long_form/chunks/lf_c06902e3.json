@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_c06902e3",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:17610ee44ab09e04f0dc355f743c6caf8fb0c5a25fd2e6a74907496601e2b7cc",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The faint glow of the cracked brass lantern flickered against the damp walls of the corridor as Clara and Jun pressed forward, the air thick with the smell of mildew and something else—something sharp, metallic, like a storm brewing just out of reach",
+    "word_count": 301,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 30,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 301,
+    "paragraph_count": 4,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 8,
+    "concrete_hits": 11,
+    "generic_hits": 1,
+    "stock_phrase_hits": 2,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The faint glow of the cracked brass lantern flickered against the damp walls of the corridor as Clara and Jun pressed forward, the air thick with the smell of mildew and something else—something sharp, metallic, like a storm brewing just out of reach. Clara tightened her grip on the lantern, its sputtering light casting long shadows that danced erratically before them, revealing the contours of peeling wallpaper and dust-covered furniture. Each step echoed softly, a reminder of the silence that enveloped them, broken only by the distant drip of water from the still-wet greenhouse.\n\nJun’s coat clung to him, heavy with rainwater, and he shivered, the chill creeping into his bones despite the warmth of their shared urgency. “We should just go back,” he muttered, his voice barely above a whisper, laden with a tremor that betrayed his bravado. He flicked his gaze toward the chained door at the end of the passage, its metal glinting ominously in the lantern’s feeble light. “What if there’s someone out there?”\n\nClara, her heart racing, felt the weight of the parlor key tied to the red ribbon around her wrist, an unwelcome reminder of the secrets they were unearthing. “There’s no one. It’s just us,” she replied too quickly, the sharpness of her tone cutting through the damp air. A veil of annoyance flared within her, mingling with fear. She didn’t want to admit how his unease gnawed at her own resolve. The muddy footprints ahead seemed to taunt them, leading into the unknown, and she felt a pull toward whatever lay beyond.\n\nAs they moved deeper into the corridor, a soft cough echoed from somewhere above, a child’s cough, thin and desperate. Clara’s breath hitched, the sound ricocheting in her mind like a warning bell. “Did you hear that?” she asked, her voice"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

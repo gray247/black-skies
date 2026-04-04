@@ -1,0 +1,231 @@
+{
+  "chunk_id": "lf_d7860f10",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:24d26e2551614d6c5d18f931f8afc8007c87ba81e412c5d1af7ffd9c4827f6ab",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 21,
+    "fallback_reason": "adapter_error"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "adapter_error"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 28,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 303,
+    "paragraph_count": 7,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 4,
+    "concrete_hits": 1,
+    "generic_hits": 1,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "the depths of her eyes, trying to unearth whatever burden she carried. A gust of wind rustled the leaves overhead, sending a cascade of droplets from the branches above, and Clara instinctively brushed a few stray strands of hair from her face, her fingers trembling slightly.\n\n“I know that look,” he said softly, taking a step closer, his hands tucked into the pockets of his worn jeans. “You can talk to me, you know.”\n\nClara glanced away, her gaze drifting to the path that twisted into the shadows of the trees, the underbrush thick and inviting. The earth beneath her boots squelched with each shift of weight, a reminder of the storm that brewed overhead. “It’s just… everything feels so heavy right now,” she admitted, her voice barely above a whisper.\n\n“Like the sky is about to break?” Sam asked, tilting his head, his brow furrowing in concern. He stepped closer, the distance between them shrinking, and she could see the genuine worry etched on his face. “What’s really going on?”\n\nClara inhaled deeply, the damp air filling her lungs with a mix of petrichor and uncertainty. She could feel the tension in her shoulders, a tightness that threatened to spill over. “I don’t know if I’m ready for what’s coming, Sam. It’s like standing on the edge of something I can’t quite see.”\n\n“Then don’t look down,” he said, his voice steady, as though he were trying to anchor her. He reached out, brushing his fingers against her arm, a grounding touch that made her heart stutter. “Just take it one step at a time.”\n\nThe thunder rumbled in the distance, a low growl that underscored his words. Clara’s eyes met his, searching for reassurance in the warmth of his gaze. “You always know what to say,” she murmured, allowing a small"
+  },
+  "critique_snapshot": {
+    "summary": "Clara enters a rain-soaked clearing, feeling the weight of the moment as she contemplates her surroundings. Sam interrupts her thoughts, teasing her about getting lost. Their playful banter hints at deeper emotions, but Clara is reluctant to confront them.",
+    "weaknesses": [
+      "Generic descriptions and phrases that lack specificity.",
+      "Dialogue that feels disconnected from physical action and setting.",
+      "Vague emotional undertones without clear grounding in the scene."
+    ],
+    "continuity_issues": [
+      "The transition from Clara's introspection to Sam's arrival feels abrupt and lacks a smooth flow."
+    ],
+    "pacing_issues": [
+      "The pacing slows significantly during the dialogue, which detracts from the tension built in the earlier descriptions."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid scene.",
+      "Ground dialogue in physical actions or reactions to the environment.",
+      "Clarify emotional stakes to deepen character engagement."
+    ],
+    "generic_phrase_targets": [
+      "The air hung thick",
+      "The weight of the moment settling on her shoulders",
+      "A flash of lightning illuminated the sky"
+    ],
+    "detail_targets": [
+      "Descriptions of the environment could be more unique and detailed.",
+      "Clarify the emotional context behind Clara's contemplation."
+    ],
+    "dialogue_grounding_targets": [
+      "Sam's dialogue should relate more directly to Clara's actions or the environment."
+    ],
+    "emotional_show_targets": [
+      "Show Clara's internal conflict more clearly through her actions or physical reactions."
+    ],
+    "replacement_targets": [
+      "Replace generic phrases with more original and specific imagery."
+    ],
+    "grounding_targets": [
+      "Integrate more sensory details that connect the dialogue to the physical setting."
+    ],
+    "carryover_targets": [
+      "Ensure that emotional transitions between Clara and Sam are more fluid and grounded in the scene."
+    ]
+  },
+  "attempt_count": 3,
+  "acceptance_reason": "adapter_error",
+  "rewrite_used": true,
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_model_name": "gpt-5.4",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": false,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": false,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": false,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“I know that look,” he said softly, taking a step closer, his hands tucked into the pockets of his worn jeans.",
+        "“You can talk to me, you know.”\n\nClara glanced away, her gaze drifting to the path that twisted into the shadows of the trees, the underbrush thick and inviting.",
+        "“It’s just… everything feels so heavy right now,” she admitted, her voice barely above a whisper.",
+        "“Like the sky is about to break?” Sam asked, tilting his head, his brow furrowing in concern."
+      ],
+      "generic_phrases_to_replace": [
+        "voice barely above a whisper"
+      ],
+      "lines_to_repair": [
+        "“It’s just… everything feels so heavy right now,” she admitted, her voice barely above a whisper.",
+        "“I know that look,” he said softly, taking a step closer, his hands tucked into the pockets of his worn jeans.",
+        "“You can talk to me, you know.”\n\nClara glanced away, her gaze drifting to the path that twisted into the shadows of the trees, the underbrush thick and inviting.",
+        "“Like the sky is about to break?” Sam asked, tilting his head, his brow furrowing in concern."
+      ],
+      "required_concrete_anchor_terms": [
+        "clara",
+        "know",
+        "what"
+      ],
+      "repair_min_word_count": 257,
+      "repair_max_word_count": 454,
+      "min_paragraph_count": 5,
+      "max_paragraph_count": 9
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-5.4",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rescue_model"
+    }
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 302,
+    "rewritten_word_count": 303,
+    "min_word_count": 181,
+    "max_word_count": 634,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "and",
+      "his",
+      "clara",
+      "felt",
+      "not",
+      "air",
+      "stepped",
+      "world",
+      "storm"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "and",
+      "his",
+      "clara"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 28
+  }
+}

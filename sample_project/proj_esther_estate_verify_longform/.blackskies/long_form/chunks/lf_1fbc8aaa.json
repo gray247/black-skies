@@ -1,0 +1,249 @@
+{
+  "chunk_id": "lf_1fbc8aaa",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:4901da8e5b13746c9746406766d124056ad18ab724a2027d23b5ef0b22ce1ed1",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 21,
+    "fallback_reason": "quality_failed"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "quality_failed"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 2,
+      "meta_free": 5
+    },
+    "total_score": 28,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 310,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": false,
+    "sensory_hits": 5,
+    "concrete_hits": 4,
+    "generic_hits": 1,
+    "stock_phrase_hits": 2,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The rain pounded against the cobblestones in heavy sheets, each drop echoing like a hammer against stone, blending with the distant growl of thunder. Clara pulled her coat tight, the damp fabric sticking to her skin, the chill creeping in like an unwelcome guest. She ducked beneath the sprawling branches of an ancient oak, the leaves shimmering with moisture in the muted light, and paused for a moment, letting the world swirl around her—the cold droplets splattering against her cheeks, a reminder of the storm that mirrored the turmoil inside her. The sharp scent of wet earth and crushed grass filled her nostrils, stirring something deep within, a fleeting warmth that battled the cold.\n\n\"Clara!\" The voice sliced through the drumming rain, urgent and clear. Sam emerged from the shadows of a narrow alley, water streaming off the brim of his hat, his brow knit with concern. The sight of him sent a quickening pulse through her veins, a mix of relief and anxiety. “You shouldn’t be out here alone.”\n\n“I’m fine,” she shot back, her tone sharper than she intended, shifting her weight from one foot to the other as she avoided his gaze. The tremor in her fingers betrayed her bravado, fingers curling into her palms. The weight of unspoken words hung between them, the flickering light casting their shadows into a tangled mess on the cobblestones.\n\n“It’s not safe,” he pressed, taking a step closer, his body radiating warmth that fought the cold drizzle. “You don’t have to bear this alone.” His eyes locked onto hers, steady and searching, as if he could pull the truth from her soul with just a look.\n\nClara turned her head, focusing on the rain-slicked street where droplets raced in chaotic patterns, their paths wild yet resolute. “I can handle it,” she insisted, though the tremor in her voice betrayed her."
+  },
+  "critique_snapshot": {
+    "summary": "The scene depicts Clara in the rain, feeling the chill and anxiety as she encounters Sam, who expresses concern for her safety. Their dialogue reveals an underlying tension and emotional struggle between them.",
+    "weaknesses": [
+      "Generic phrases and stock imagery dilute the emotional impact.",
+      "Lack of specific actions or physical grounding in dialogue.",
+      "Vague sensory details that do not fully immerse the reader."
+    ],
+    "continuity_issues": [
+      "The transition between Clara's internal feelings and her dialogue lacks seamless integration, making her emotional state feel disconnected from her spoken words."
+    ],
+    "pacing_issues": [
+      "The scene's pacing slows significantly during the dialogue, which could benefit from more dynamic interaction or physical action."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in sensory details to create a more vivid atmosphere.",
+      "Ground dialogue in physical actions or setting to strengthen character interactions.",
+      "Eliminate generic phrases and stock imagery to enhance originality."
+    ],
+    "generic_phrase_targets": [
+      "soft symphony of sound",
+      "glistening like jewels",
+      "a reminder of the chill that seeped into her bones"
+    ],
+    "detail_targets": [
+      "The description of the rain and its impact on the environment could be more specific and unique.",
+      "Clarify the emotional stakes in Clara's internal conflict."
+    ],
+    "dialogue_grounding_targets": [
+      "Incorporate more physical actions or reactions during dialogue exchanges to ground the characters in the scene."
+    ],
+    "emotional_show_targets": [
+      "Show Clara's anxiety through more physical manifestations rather than just internal thoughts."
+    ],
+    "replacement_targets": [
+      "Replace generic phrases with more original and evocative language."
+    ],
+    "grounding_targets": [
+      "Add specific actions that Clara and Sam take during their conversation to create a more dynamic interaction."
+    ],
+    "carryover_targets": []
+  },
+  "attempt_count": 4,
+  "acceptance_reason": "quality_failed",
+  "rewrite_used": true,
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_model_name": "gpt-5.4-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "\"Clara!\" The voice sliced through the drumming rain, urgent and clear.",
+        "“You shouldn’t be out here alone.”\n\n“I’m fine,” she shot back, her tone sharper than she intended, shifting her weight from one foot to the other as she avoided his gaze.",
+        "“It’s not safe,” he pressed, taking a step closer, his body radiating warmth that fought the cold drizzle.",
+        "“You don’t have to bear this alone.” His eyes locked onto hers, steady and searching, as if he could pull the truth from her soul with just a look."
+      ],
+      "generic_phrases_to_replace": [
+        "for a moment",
+        "something deep within"
+      ],
+      "lines_to_repair": [
+        "She ducked beneath the sprawling branches of an ancient oak, the leaves shimmering with moisture in the muted light, and paused for a moment, letting the world swirl around her—the cold droplets splattering against her cheeks, a reminder of the storm that mirrored the turmoil inside her.",
+        "The sharp scent of wet earth and crushed grass filled her nostrils, stirring something deep within, a fleeting warmth that battled the cold.",
+        "\"Clara!\" The voice sliced through the drumming rain, urgent and clear.",
+        "“You shouldn’t be out here alone.”\n\n“I’m fine,” she shot back, her tone sharper than she intended, shifting her weight from one foot to the other as she avoided his gaze.",
+        "“It’s not safe,” he pressed, taking a step closer, his body radiating warmth that fought the cold drizzle.",
+        "“You don’t have to bear this alone.” His eyes locked onto hers, steady and searching, as if he could pull the truth from her soul with just a look."
+      ],
+      "required_concrete_anchor_terms": [
+        "against",
+        "clara",
+        "cold"
+      ],
+      "repair_min_word_count": 263,
+      "repair_max_word_count": 465,
+      "min_paragraph_count": 3,
+      "max_paragraph_count": 7
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rescue_model"
+    },
+    "rescue_generation_strategy": "slot_patch",
+    "configured_rescue_generation_strategy": "slot_patch",
+    "rescue_slots_summary": {
+      "slot_count": 4,
+      "target_types": [
+        "generic",
+        "generic",
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_specificity_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 309,
+    "rewritten_word_count": 310,
+    "min_word_count": 185,
+    "max_word_count": 648,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "his",
+      "she",
+      "that",
+      "and",
+      "clara",
+      "reminder",
+      "light",
+      "warmth",
+      "voice",
+      "shadows"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "his",
+      "she",
+      "that",
+      "and",
+      "clara",
+      "light",
+      "warmth",
+      "voice",
+      "shadows"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 28
+  }
+}

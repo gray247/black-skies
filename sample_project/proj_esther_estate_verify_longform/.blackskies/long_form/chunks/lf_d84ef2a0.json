@@ -1,0 +1,247 @@
+{
+  "chunk_id": "lf_d84ef2a0",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:5145bd1ec5fbc486fe989a0ff321829f794a238be461ac31dd543bbdfe2481c6",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 21,
+    "fallback_reason": "quality_failed"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "quality_failed"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 3,
+      "pacing": 4,
+      "specificity": 2,
+      "dialogue": 2,
+      "meta_free": 5
+    },
+    "total_score": 24,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 306,
+    "paragraph_count": 6,
+    "dialogue_present": true,
+    "dialogue_grounded": false,
+    "sensory_hits": 4,
+    "concrete_hits": 0,
+    "generic_hits": 0,
+    "stock_phrase_hits": 3,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": true,
+    "text": "fear. She brushed the dirt from her hands onto her faded jeans, a nervous habit that revealed her inner turmoil. The earth felt cool against her fingertips, grounding her in the moment, yet the proximity of Mark sent ripples of uncertainty through her.\n\n“Seriously, though,” he continued, leaning in just a fraction closer, his eyes scanning the flower bed. “Let me help. I can handle a few weeds.” He reached for a cluster of brambles, his fingers deftly untangling the mess, the sun casting a warm glow on the golden strands of his hair.\n\nEmma hesitated, her breath catching slightly as she watched him work, a wave of nostalgia crashing over her. They had spent so many afternoons like this, hands in the dirt, laughter mingling with the breeze. But those days felt distant now, overshadowed by the weight of unspoken words and unresolved feelings. “I appreciate it, but I really should do this on my own,” she replied, her tone firmer than she felt.\n\nMark paused, glancing up at her with that knowing look that always made her heart race. “You don’t have to do everything alone. Sometimes, it’s okay to let someone else in. Just like those weeds—you can’t make them go away by pretending they’re not there.”\n\nHis words hung in the air, heavy with meaning. Emma’s fingers trembled as she tugged at another stubborn root, her mind swirling with doubt. He was right, of course, but the thought of letting him in again, of risking that old warmth, made her stomach twist. “I just... need to finish this,” she murmured, the scent of lavender becoming almost intoxicating, wrapping around her like a familiar embrace.\n\nMark sighed, a gentle sound filled with understanding. “Okay, but promise me you’ll let me know if you change your mind.” He resumed his work, his movements fluid"
+  },
+  "critique_snapshot": {
+    "summary": "The scene depicts Emma tending to her garden when Mark approaches her, offering help. Their interaction is filled with tension and nostalgia, as Emma grapples with her feelings for Mark while maintaining a light-hearted banter.",
+    "weaknesses": [
+      "Generic descriptions of the setting and characters.",
+      "Dialogue lacks grounding in physical actions or specific context."
+    ],
+    "continuity_issues": [
+      "The emotional tension between Emma and Mark is not fully developed, leading to a lack of continuity in their relationship dynamics."
+    ],
+    "pacing_issues": [
+      "The scene moves quickly through emotional beats without sufficient buildup or resolution."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions of the setting and characters.",
+      "Ground dialogue in physical actions or specific context to create a more immersive experience.",
+      "Develop emotional tension more gradually to improve continuity."
+    ],
+    "generic_phrase_targets": [
+      "rich and familiar",
+      "lazy confidence",
+      "heady combination"
+    ],
+    "detail_targets": [
+      "tangled branches of the old oak tree",
+      "glistening dew on the lavender",
+      "the texture of the soil"
+    ],
+    "dialogue_grounding_targets": [
+      "Mark's offer for help should include a specific action, like stepping into the garden.",
+      "Emma's responses could reference her physical actions, such as brushing dirt off her hands."
+    ],
+    "emotional_show_targets": [
+      "Show more of Emma's internal conflict through her actions, such as hesitating before responding to Mark."
+    ],
+    "replacement_targets": [
+      "Replace vague phrases with more concrete imagery or actions.",
+      "Substitute generic dialogue with more unique character voices."
+    ],
+    "grounding_targets": [
+      "Include more sensory details in the dialogue to connect it to the setting.",
+      "Add physical reactions to dialogue exchanges to ground the emotional stakes."
+    ],
+    "carryover_targets": [
+      "Ensure that emotional stakes from previous interactions are referenced or built upon in this scene."
+    ]
+  },
+  "attempt_count": 4,
+  "acceptance_reason": "quality_failed",
+  "rewrite_used": true,
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Seriously, though,” he continued, leaning in just a fraction closer, his eyes scanning the flower bed.",
+        "“Let me help.",
+        "I can handle a few weeds.” He reached for a cluster of brambles, his fingers deftly untangling the mess, the sun casting a warm glow on the golden strands of his hair.",
+        "“I appreciate it, but I really should do this on my own,” she replied, her tone firmer than she felt."
+      ],
+      "generic_phrases_to_replace": [
+        "breath catching",
+        "hung in the air",
+        "heavy with"
+      ],
+      "lines_to_repair": [
+        "Emma hesitated, her breath catching slightly as she watched him work, a wave of nostalgia crashing over her.",
+        "Just like those weeds—you can’t make them go away by pretending they’re not there.”\n\nHis words hung in the air, heavy with meaning.",
+        "“Seriously, though,” he continued, leaning in just a fraction closer, his eyes scanning the flower bed.",
+        "“Let me help.",
+        "I can handle a few weeds.” He reached for a cluster of brambles, his fingers deftly untangling the mess, the sun casting a warm glow on the golden strands of his hair.",
+        "“I appreciate it, but I really should do this on my own,” she replied, her tone firmer than she felt."
+      ],
+      "required_concrete_anchor_terms": [
+        "mark"
+      ],
+      "repair_min_word_count": 260,
+      "repair_max_word_count": 459,
+      "min_paragraph_count": 4,
+      "max_paragraph_count": 8
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-4o",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rewrite_retry_model"
+    },
+    "rescue_slots_summary": {
+      "slot_count": 6,
+      "target_types": [
+        "generic",
+        "generic",
+        "dialogue",
+        "dialogue",
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_specificity_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 314,
+    "rewritten_word_count": 306,
+    "min_word_count": 188,
+    "max_word_count": 659,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "and",
+      "that",
+      "she",
+      "his",
+      "sun",
+      "long",
+      "secrets",
+      "emma",
+      "earth",
+      "stubborn"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "that",
+      "she",
+      "his",
+      "emma"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 24
+  }
+}

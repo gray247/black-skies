@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_fc3b6aec",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:9acdcde13c5aab21d45ea79b3d8f4c8c408871641a7ffc97c5293a45868abdbd",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The air hung thick with the scent of damp earth and rotting leaves, a cloying reminder of the relentless rain that had seeped into every crevice of the greenhouse",
+    "word_count": 307,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 30,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 307,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 7,
+    "concrete_hits": 12,
+    "generic_hits": 1,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The air hung thick with the scent of damp earth and rotting leaves, a cloying reminder of the relentless rain that had seeped into every crevice of the greenhouse. Clara pulled the collar of her coat tighter around her neck, the fabric still damp from their hurried escape. The cracked brass lantern flickered uncertainly in Jun’s grasp, its light struggling against the dark that pressed in from all sides. Shadows danced along the walls of the narrow corridor, twisting like whispers of something forgotten.\n\n“Do you hear that?” Jun’s voice trembled, his breath misting in the cool air. Clara paused, her heart thrumming in her chest, a frantic beat that drowned out the soft patter of the rain still falling beyond the confines of the house. She strained her ears, the silence pressing in on her, heavy and oppressive. A distant sound echoed, a soft cough muffled by walls that felt like they were closing in.\n\n“No,” she said too quickly, her words clipped, a defensive edge sharp as glass. She felt the ribbon on her wrist, the parlor key tied securely yet somehow distant, a promise she couldn’t quite grasp. They had found it tangled in the vines, a relic of the past that felt more like a noose now.\n\nJun shifted, his soaked coat clinging to his shoulders, droplets falling like unwanted tears onto the floor. “Clara, we can’t just—” He hesitated, glancing back towards the chained door, a dark line splitting the room where the light from the lantern faded. “What if someone’s in there?”\n\nShe stepped forward, the mud squelching beneath her boots, the sound unnaturally loud in the stillness. “We’ve come this far. We can’t turn back now.” The muddy footprints ahead of them, too fresh to be their own, sent a shiver down her spine. She wondered about the hidden foot"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

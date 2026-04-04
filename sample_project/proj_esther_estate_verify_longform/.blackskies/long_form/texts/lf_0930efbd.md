@@ -1,0 +1,11 @@
+﻿A spider spun its delicate web in a corner, the silken threads glistening like silver in the dappled light. Elena paused to watch it weave, her heart thrumming with an odd mix of fascination and unease. In the stillness, the house felt like a living thing, breathing softly around her, each creak of the floorboards a pulse beneath her feet. She reached out tentatively, her fingers brushing the fraying edge of a tapestry that hung limply from the wall, its colors faded but still whispering stories of a time long past.
+
+“Are you here, Elena?” a voice called, slicing through the quiet like a knife. It was her brother's voice, a blend of impatience and concern that tugged at her resolve. She turned, her breath hitching for a moment as she caught sight of him framed in the doorway, shadows pooling around his feet like spilled ink. His brow was furrowed, lips pressed together in a line that spoke of unspoken worries.
+
+“I’m coming,” she replied, though her feet seemed rooted to the spot. The air was thick with the scent of old wood and something sharper, an undercurrent of mold that tugged at her senses. She inhaled deeply, trying to ground herself in the familiar. “Just… give me a second.”
+
+As she moved closer to him, the floor creaked and protested, echoing the unease settling in her stomach. She could feel his gaze, probing and expectant, as if he could see the thoughts swirling in her mind like the dust motes that danced in the air. “You shouldn’t be in here alone,” he said, his voice low, almost a whisper, as if he feared the house would overhear. The way he said it made her feel like a child again, caught trespassing in a world far too complex for her understanding.
+
+“I know,” she murmured, glancing back at the room, at the way the light played across the surfaces, illuminating the fragments of a forgotten life. “But it feels… safe. Like it’s holding onto something important.” Her fingers traced the edge of the tapestry again, and her heart ached with the weight of memories that weren’t even hers.
+
+“Safe?” He stepped closer, eyes scanning the room as if expecting something to leap out at him. “It’s just a house, Elena. A haunted one at that.” There was a bitterness in his tone, a reminder of the stories they had shared as children, tales spun from shadows and echoes, and the long

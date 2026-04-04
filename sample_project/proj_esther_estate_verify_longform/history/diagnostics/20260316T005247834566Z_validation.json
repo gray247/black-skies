@@ -1,0 +1,160 @@
+{
+  "timestamp": "2026-03-16T00:52:47.834876Z",
+  "code": "VALIDATION",
+  "message": "Long-form output rejected (quality threshold).",
+  "details": {
+    "quality_snapshot": {
+      "usable": true,
+      "scores": {
+        "coherence": 5,
+        "continuity": 3,
+        "clarity": 4,
+        "pacing": 5,
+        "specificity": 4,
+        "dialogue": 2,
+        "meta_free": 5
+      },
+      "total_score": 28,
+      "max_score": 35,
+      "meta_summary": false,
+      "meta_contamination": false,
+      "missing_carryover": false,
+      "word_count": 599,
+      "paragraph_count": 9,
+      "dialogue_present": true,
+      "dialogue_grounded": false,
+      "sensory_hits": 9,
+      "concrete_hits": 2,
+      "generic_hits": 1,
+      "stock_phrase_hits": 2,
+      "carryover_terms": [],
+      "carryover_hits": 0,
+      "weak_carryover": false,
+      "generic_risk": false
+    },
+    "attempts": [
+      {
+        "attempt": 1,
+        "mode": "draft",
+        "extracted_field": "choices.message.content",
+        "thinking_fallback": false,
+        "reasoning_trim_applied": false,
+        "basic_validation": {
+          "usable": true,
+          "word_count": 621,
+          "paragraph_count": 9,
+          "meta_summary": false,
+          "missing_carryover": false,
+          "carryover_terms": [],
+          "carryover_hits": 0
+        },
+        "raw_preview": "The air hung thick with the scent of damp earth and moss as Elara wove her way through the dense underbrush, her heart drumming a steady rhythm against her chest. A soft drizzle fell, the tiny droplet",
+        "normalized_preview": "The air hung thick with the scent of damp earth and moss as Elara wove her way through the dense underbrush, her heart drumming a steady rhythm against her chest. A soft drizzle fell, the tiny droplet",
+        "raw_length": 3568,
+        "normalized_length": 3567,
+        "raw_payload_keys": [
+          "choices",
+          "created",
+          "id",
+          "model",
+          "object",
+          "service_tier",
+          "system_fingerprint",
+          "usage"
+        ],
+        "raw_payload_preview": "{\"id\": \"chatcmpl-DJqTnB4J6EyoRBEKHMo6tkP99RSyC\", \"object\": \"chat.completion\", \"created\": 1773622335, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The air hung thick with the scent of damp earth and moss as Elara wove her way through the dense underbrush, her heart drumming a steady rhythm against her chest. A soft drizzle fell, the tiny droplets clinging to her hair and trickling down her neck, sending shivers across her skin. Each step",
+        "quality_snapshot": {
+          "usable": true,
+          "scores": {
+            "coherence": 5,
+            "continuity": 3,
+            "clarity": 4,
+            "pacing": 5,
+            "specificity": 4,
+            "dialogue": 2,
+            "meta_free": 5
+          },
+          "total_score": 28,
+          "max_score": 35,
+          "meta_summary": false,
+          "meta_contamination": false,
+          "missing_carryover": false,
+          "word_count": 621,
+          "paragraph_count": 9,
+          "dialogue_present": true,
+          "dialogue_grounded": false,
+          "sensory_hits": 10,
+          "concrete_hits": 2,
+          "generic_hits": 1,
+          "stock_phrase_hits": 1,
+          "carryover_terms": [],
+          "carryover_hits": 0,
+          "weak_carryover": false,
+          "generic_risk": false
+        },
+        "quality_pass": false
+      },
+      {
+        "attempt": 2,
+        "mode": "rewrite",
+        "extracted_field": "choices.message.content",
+        "thinking_fallback": false,
+        "reasoning_trim_applied": false,
+        "basic_validation": {
+          "usable": true,
+          "word_count": 599,
+          "paragraph_count": 9,
+          "meta_summary": false,
+          "missing_carryover": false,
+          "carryover_terms": [],
+          "carryover_hits": 0
+        },
+        "raw_preview": "Elara moved cautiously through the tangled underbrush, the damp earth squelching beneath her boots. The scent of rich soil and moss enveloped her, a reminder of the forest’s deep, breathing life. A fi",
+        "normalized_preview": "Elara moved cautiously through the tangled underbrush, the damp earth squelching beneath her boots. The scent of rich soil and moss enveloped her, a reminder of the forest’s deep, breathing life. A fi",
+        "raw_length": 3553,
+        "normalized_length": 3553,
+        "raw_payload_keys": [
+          "choices",
+          "created",
+          "id",
+          "model",
+          "object",
+          "service_tier",
+          "system_fingerprint",
+          "usage"
+        ],
+        "raw_payload_preview": "{\"id\": \"chatcmpl-DJqU6Ho4Om6LykaEhV2kIHjtKKw9O\", \"object\": \"chat.completion\", \"created\": 1773622354, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"Elara moved cautiously through the tangled underbrush, the damp earth squelching beneath her boots. The scent of rich soil and moss enveloped her, a reminder of the forest’s deep, breathing life. A fine mist fell from the sky, each droplet weaving into her hair and slipping down her neck, igni",
+        "quality_snapshot": {
+          "usable": true,
+          "scores": {
+            "coherence": 5,
+            "continuity": 3,
+            "clarity": 4,
+            "pacing": 5,
+            "specificity": 4,
+            "dialogue": 2,
+            "meta_free": 5
+          },
+          "total_score": 28,
+          "max_score": 35,
+          "meta_summary": false,
+          "meta_contamination": false,
+          "missing_carryover": false,
+          "word_count": 599,
+          "paragraph_count": 9,
+          "dialogue_present": true,
+          "dialogue_grounded": false,
+          "sensory_hits": 9,
+          "concrete_hits": 2,
+          "generic_hits": 1,
+          "stock_phrase_hits": 2,
+          "carryover_terms": [],
+          "carryover_hits": 0,
+          "weak_carryover": false,
+          "generic_risk": false
+        },
+        "quality_pass": false
+      }
+    ]
+  }
+}

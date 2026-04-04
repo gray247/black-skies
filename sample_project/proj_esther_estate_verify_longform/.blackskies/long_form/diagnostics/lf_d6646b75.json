@@ -1,0 +1,685 @@
+{
+  "chunk_id": "lf_d6646b75",
+  "validation_decision": false,
+  "fallback_reason": "quality_failed",
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "raw_preview": "The wind whipped through the narrow alley, tugging at the frayed edges of Clara’s coat as she moved deeper into its shadows. Each step echoed against the damp cobblestones, a rhythmic reminder of her ",
+      "normalized_preview": "The wind whipped through the narrow alley, tugging at the frayed edges of Clara’s coat as she moved deeper into its shadows. Each step echoed against the damp cobblestones, a rhythmic reminder of her ",
+      "raw_length": 1805,
+      "normalized_length": 1804,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKYsDTboQxErwErL6ystsQwvntalY\", \"object\": \"chat.completion\", \"created\": 1773792985, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The wind whipped through the narrow alley, tugging at the frayed edges of Clara’s coat as she moved deeper into its shadows. Each step echoed against the damp cobblestones, a rhythmic reminder of her solitude. She pulled the collar tighter around her neck, its wool scratchy against her skin, b",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 307,
+        "paragraph_count": 5,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 4,
+          "dialogue": 2,
+          "meta_free": 5
+        },
+        "total_score": 27,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 307,
+        "paragraph_count": 5,
+        "dialogue_present": true,
+        "dialogue_grounded": false,
+        "sensory_hits": 6,
+        "concrete_hits": 2,
+        "generic_hits": 1,
+        "stock_phrase_hits": 2,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The wind whipped through the narrow alley, tugging at the frayed edges of Clara’s coat as she moved deeper into its shadows. Each step echoed against the damp cobblestones, a rhythmic reminder of her solitude. She pulled the collar tighter around her neck, its wool scratchy against her skin, but the chill seemed to seep through, biting at her bones. The smell of rain lingered, heavy and earthy, mingling with something sharper, something metallic that raised the hairs on her arms.\n\nSuddenly, a distant shout shattered the quiet, followed by the clatter of something heavy falling against the ground. Clara paused, her breath hitching in her throat, the pulse in her ears growing louder. Heart racing, she pressed herself against the cool, rough stone wall, her heart a frantic metronome. Just as she dared to peek around the corner, a figure burst into view—a man, his face obscured by the hood of a dark jacket, eyes wide and frantic, darting this way and that.\n\n“Get back!” he yelled, and Clara’s instincts kicked in. She stepped back, her back hitting the wall with a soft thud, though her curiosity pinned her in place. The urgency in his voice pulled at something deep within her, a primal instinct to flee or fight. She chose to listen, her breath shallow, waiting for the chaos to unfold.\n\nThe man stumbled past her, oblivious to her presence, his footfalls heavy and desperate. “They’re coming! They’re—” His words trailed off as he rounded the bend, leaving her in a palpable silence that felt too heavy to breathe in. Clara’s mind raced, the echoes of his warning bouncing around like trapped birds.\n\nIn that moment, she weighed her options: the unknown danger that lurked beyond, or the pressing curiosity that gnawed at her. The alley felt like a living thing, breathing around her, alive"
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "rewrite",
+        "escalated": false,
+        "reason": "rewrite_default"
+      },
+      "raw_preview": "The wind howled through the narrow alley, tugging at the frayed edges of Clara’s coat as she ventured deeper into the shadows. Each step echoed against the damp cobblestones, the sound rhythmic and lo",
+      "normalized_preview": "The wind howled through the narrow alley, tugging at the frayed edges of Clara’s coat as she ventured deeper into the shadows. Each step echoed against the damp cobblestones, the sound rhythmic and lo",
+      "raw_length": 1781,
+      "normalized_length": 1781,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKYsRG36tSyitHHJalLAgzNCZoDaE\", \"object\": \"chat.completion\", \"created\": 1773792999, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The wind howled through the narrow alley, tugging at the frayed edges of Clara’s coat as she ventured deeper into the shadows. Each step echoed against the damp cobblestones, the sound rhythmic and lonely, a constant reminder of her isolation. She pulled the collar tighter around her neck, the",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 310,
+        "paragraph_count": 4,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "guardrail_snapshot": {
+        "evaluated": true,
+        "mode": "rewrite",
+        "outline_titles": [],
+        "beat_refs": [],
+        "locked_facts_evaluated": false,
+        "length_band_evaluated": true,
+        "original_word_count": 307,
+        "rewritten_word_count": 310,
+        "min_word_count": 184,
+        "max_word_count": 644,
+        "within_length_band": true,
+        "outline_fidelity_evaluated": true,
+        "outline_fidelity_pass": true,
+        "original_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "that",
+          "and",
+          "his",
+          "clara",
+          "against",
+          "heavy",
+          "something",
+          "back",
+          "alley"
+        ],
+        "retained_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "that",
+          "and",
+          "his",
+          "clara",
+          "against",
+          "heavy",
+          "something",
+          "back"
+        ],
+        "outline_anchor_hits": [],
+        "required_anchor_overlap": 1,
+        "scene_anchor_drift_detected": false,
+        "new_story_elements": [],
+        "blocking_new_story_elements": [],
+        "authoritative_name_check": false,
+        "uncertainty_triggered": false,
+        "failure_reason": null,
+        "accepted": true,
+        "quality_total_score": 25
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 3,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 2,
+          "meta_free": 5
+        },
+        "total_score": 25,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 310,
+        "paragraph_count": 4,
+        "dialogue_present": true,
+        "dialogue_grounded": false,
+        "sensory_hits": 6,
+        "concrete_hits": 2,
+        "generic_hits": 1,
+        "stock_phrase_hits": 3,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": true,
+        "text": "The wind howled through the narrow alley, tugging at the frayed edges of Clara’s coat as she ventured deeper into the shadows. Each step echoed against the damp cobblestones, the sound rhythmic and lonely, a constant reminder of her isolation. She pulled the collar tighter around her neck, the coarse wool scratching her skin, yet the chill seemed to seep through, biting at her bones. The scent of rain hung in the air, heavy and earthy, mingling with a sharper, metallic tang that prickled at the back of her throat and raised goosebumps on her arms.\n\nA sudden shout broke the stillness, followed by the clatter of something heavy hitting the ground. Clara froze, her breath catching as her heart began to race, the pulse in her ears growing louder with each thump. She pressed herself against the cool, rough stone wall, the texture biting into her back, her heart a frantic metronome in her chest. Just as she dared to peek around the corner, a figure burst into view—a man, his face obscured by the shadow of a dark hood, eyes wide and darting like a hunted animal.\n\n“Get back! Hide!” he yelled, urgency lacing his voice. Clara’s instincts flared, and she stepped back, the wall meeting her with a soft thud, though her curiosity kept her rooted in place. The fear in his eyes tugged at something deep within her, a primal instinct that urged her to flee or confront the danger ahead. She chose to listen, her breath shallow, every instinct screaming for her to remain alert.\n\nThe man stumbled past her, his footfalls heavy and frantic, the sound echoing off the stone walls. “They’re coming! They’re—” His voice faded as he rounded the bend, leaving Clara enveloped in a silence that felt thick and suffocating. Her mind raced, the echoes of his warning bouncing around like"
+      },
+      "quality_pass": false,
+      "rewrite_delta": {
+        "total_delta": -2,
+        "stock_phrase_delta": -1,
+        "specificity_delta": -1,
+        "clarity_delta": -1,
+        "continuity_delta": 0
+      },
+      "retry_decision": {
+        "eligible": true,
+        "reason": "targeted_editorial_miss_after_rewrite",
+        "classification": "targeted_editorial"
+      }
+    },
+    {
+      "attempt": 3,
+      "mode": "recovery_retry",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": false,
+        "reason": "rescue_model"
+      },
+      "raw_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"The scent of rain permeated the damp alley, earthy and rich, mingling with a sharper, metallic tang that lingered on her tongue and raised goosebumps al",
+      "normalized_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"The scent of rain permeated the damp alley, earthy and rich, mingling with a sharper, metallic tang that lingered on her tongue and raised goosebumps al",
+      "raw_length": 1100,
+      "normalized_length": 1100,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKYscl5hsI9jsSJGMl7OdCN17Z1T7\", \"object\": \"chat.completion\", \"created\": 1773793010, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"replacement_text\\\":\\\"The scent of rain permeated the damp alley, earthy and rich, mingling with a sharper, metallic tang that lingered on her tongue and raised goosebumps along her arms.\\\"},{\\\"slot_id\\\":\\\"s2\\\",\\\"replacement_text\\\":\\\"Clara froze, her chest ti",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "The scent of rain hung in the air, heavy and earthy, mingling with a sharper, metallic tang that prickled at the back of her throat and raised goosebumps on her arms.",
+          "context_before": "She pulled the collar tighter around her neck, the coarse wool scratching her skin, yet the chill seemed to seep through, biting at her bones.",
+          "context_after": "A sudden shout broke the stillness, followed by the clatter of something heavy hitting the ground.",
+          "target_reason": "generic",
+          "target_phrase": "hung in the air"
+        },
+        {
+          "slot_id": "s2",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "Clara froze, her breath catching as her heart began to race, the pulse in her ears growing louder with each thump.",
+          "context_before": "A sudden shout broke the stillness, followed by the clatter of something heavy hitting the ground.",
+          "context_after": "She pressed herself against the cool, rough stone wall, the texture biting into her back, her heart a frantic metronome in her chest.",
+          "target_reason": "generic",
+          "target_phrase": "breath catching"
+        },
+        {
+          "slot_id": "s3",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "The fear in his eyes tugged at something deep within her, a primal instinct that urged her to flee or confront the danger ahead.",
+          "context_before": "Clara’s instincts flared, and she stepped back, the wall meeting her with a soft thud, though her curiosity kept her rooted in place.",
+          "context_after": "She chose to listen, her breath shallow, every instinct screaming for her to remain alert.",
+          "target_reason": "generic",
+          "target_phrase": "something deep within"
+        },
+        {
+          "slot_id": "s4",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Get back!",
+          "context_before": "Just as she dared to peek around the corner, a figure burst into view—a man, his face obscured by the shadow of a dark hood, eyes wide and darting like a hunted animal.",
+          "context_after": "Hide!” he yelled, urgency lacing his voice.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s5",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "Hide!” he yelled, urgency lacing his voice.",
+          "context_before": "“Get back!",
+          "context_after": "Clara’s instincts flared, and she stepped back, the wall meeting her with a soft thud, though her curiosity kept her rooted in place.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s6",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“They’re coming!",
+          "context_before": "The man stumbled past her, his footfalls heavy and frantic, the sound echoing off the stone walls.",
+          "context_after": "They’re—” His voice faded as he rounded the bend, leaving Clara enveloped in a silence that felt thick and suffocating.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s7",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "They’re—” His voice faded as he rounded the bend, leaving Clara enveloped in a silence that felt thick and suffocating.",
+          "context_before": "“They’re coming!",
+          "context_after": "Her mind raced, the echoes of his warning bouncing around like",
+          "target_reason": "dialogue_grounding"
+        }
+      ],
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "The scent of rain permeated the damp alley, earthy and rich, mingling with a sharper, metallic tang that lingered on her tongue and raised goosebumps along her arms."
+        },
+        {
+          "slot_id": "s2",
+          "replacement_text": "Clara froze, her chest tightening as her heart began to race, the pulse in her ears thundering with each frantic beat."
+        },
+        {
+          "slot_id": "s3",
+          "replacement_text": "The fear in his eyes anchored her in place, a primal instinct urging her to either flee or confront the looming danger."
+        },
+        {
+          "slot_id": "s4",
+          "replacement_text": "“Get back!” he yelled, his hands waving frantically, urgency lacing his voice."
+        },
+        {
+          "slot_id": "s5",
+          "replacement_text": "“Hide!” he yelled, urgency lacing his voice as he pointed towards the shadows behind her."
+        },
+        {
+          "slot_id": "s6",
+          "replacement_text": "“They’re coming! They’re—” His voice trailed off as he rounded the bend, leaving Clara enveloped in a thick, suffocating silence."
+        },
+        {
+          "slot_id": "s7",
+          "replacement_text": "“They’re—” His voice faded as he rounded the bend, leaving Clara wrapped in a silence that pressed against her ears."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_specificity_unresolved"
+      }
+    },
+    {
+      "attempt": 4,
+      "mode": "repair_only",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": false,
+        "reason": "rescue_model"
+      },
+      "raw_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"The scent of rain lingered in the air, heavy and earthy, mingling with a sharper, metallic tang that prickled at the back of her throat and raised goose",
+      "normalized_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"The scent of rain lingered in the air, heavy and earthy, mingling with a sharper, metallic tang that prickled at the back of her throat and raised goose",
+      "raw_length": 866,
+      "normalized_length": 866,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKYshZTosq1CsWmWyRw6pdvwOsIOw\", \"object\": \"chat.completion\", \"created\": 1773793015, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"replacement_text\\\":\\\"The scent of rain lingered in the air, heavy and earthy, mingling with a sharper, metallic tang that prickled at the back of her throat and raised goosebumps on her arms.\\\"},{\\\"slot_id\\\":\\\"s2\\\",\\\"replacement_text\\\":\\\"Clara froze, her bre",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "The scent of rain hung in the air, heavy and earthy, mingling with a sharper, metallic tang that prickled at the back of her throat and raised goosebumps on her arms.",
+          "context_before": "She pulled the collar tighter around her neck, the coarse wool scratching her skin, yet the chill seemed to seep through, biting at her bones.",
+          "context_after": "A sudden shout broke the stillness, followed by the clatter of something heavy hitting the ground.",
+          "target_reason": "generic",
+          "target_phrase": "hung in the air"
+        },
+        {
+          "slot_id": "s2",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "Clara froze, her breath catching as her heart began to race, the pulse in her ears growing louder with each thump.",
+          "context_before": "A sudden shout broke the stillness, followed by the clatter of something heavy hitting the ground.",
+          "context_after": "She pressed herself against the cool, rough stone wall, the texture biting into her back, her heart a frantic metronome in her chest.",
+          "target_reason": "generic",
+          "target_phrase": "breath catching"
+        },
+        {
+          "slot_id": "s3",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "The fear in his eyes tugged at something deep within her, a primal instinct that urged her to flee or confront the danger ahead.",
+          "context_before": "Clara’s instincts flared, and she stepped back, the wall meeting her with a soft thud, though her curiosity kept her rooted in place.",
+          "context_after": "She chose to listen, her breath shallow, every instinct screaming for her to remain alert.",
+          "target_reason": "generic",
+          "target_phrase": "something deep within"
+        },
+        {
+          "slot_id": "s4",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Get back!",
+          "context_before": "Just as she dared to peek around the corner, a figure burst into view—a man, his face obscured by the shadow of a dark hood, eyes wide and darting like a hunted animal.",
+          "context_after": "Hide!” he yelled, urgency lacing his voice.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s5",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "Hide!” he yelled, urgency lacing his voice.",
+          "context_before": "“Get back!",
+          "context_after": "Clara’s instincts flared, and she stepped back, the wall meeting her with a soft thud, though her curiosity kept her rooted in place.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s6",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“They’re coming!",
+          "context_before": "The man stumbled past her, his footfalls heavy and frantic, the sound echoing off the stone walls.",
+          "context_after": "They’re—” His voice faded as he rounded the bend, leaving Clara enveloped in a silence that felt thick and suffocating.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s7",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "They’re—” His voice faded as he rounded the bend, leaving Clara enveloped in a silence that felt thick and suffocating.",
+          "context_before": "“They’re coming!",
+          "context_after": "Her mind raced, the echoes of his warning bouncing around like",
+          "target_reason": "dialogue_grounding"
+        }
+      ],
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "The scent of rain lingered in the air, heavy and earthy, mingling with a sharper, metallic tang that prickled at the back of her throat and raised goosebumps on her arms."
+        },
+        {
+          "slot_id": "s2",
+          "replacement_text": "Clara froze, her breath halting as her heart began to race, the pulse in her ears growing louder with each thump."
+        },
+        {
+          "slot_id": "s3",
+          "replacement_text": "The fear in his eyes tugged at a primal instinct that urged her to flee or confront the danger ahead."
+        },
+        {
+          "slot_id": "s4",
+          "replacement_text": "“Get back!”"
+        },
+        {
+          "slot_id": "s5",
+          "replacement_text": "“Hide!” he yelled, his voice urgent and strained."
+        },
+        {
+          "slot_id": "s6",
+          "replacement_text": "“They’re coming!"
+        },
+        {
+          "slot_id": "s7",
+          "replacement_text": "“They’re—” His voice faded as he rounded the bend, leaving Clara enveloped in a silence that felt thick and suffocating."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_specificity_unresolved"
+      }
+    }
+  ],
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 3,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 2,
+      "meta_free": 5
+    },
+    "total_score": 25,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 310,
+    "paragraph_count": 4,
+    "dialogue_present": true,
+    "dialogue_grounded": false,
+    "sensory_hits": 6,
+    "concrete_hits": 2,
+    "generic_hits": 1,
+    "stock_phrase_hits": 3,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": true,
+    "text": "The wind howled through the narrow alley, tugging at the frayed edges of Clara’s coat as she ventured deeper into the shadows. Each step echoed against the damp cobblestones, the sound rhythmic and lonely, a constant reminder of her isolation. She pulled the collar tighter around her neck, the coarse wool scratching her skin, yet the chill seemed to seep through, biting at her bones. The scent of rain hung in the air, heavy and earthy, mingling with a sharper, metallic tang that prickled at the back of her throat and raised goosebumps on her arms.\n\nA sudden shout broke the stillness, followed by the clatter of something heavy hitting the ground. Clara froze, her breath catching as her heart began to race, the pulse in her ears growing louder with each thump. She pressed herself against the cool, rough stone wall, the texture biting into her back, her heart a frantic metronome in her chest. Just as she dared to peek around the corner, a figure burst into view—a man, his face obscured by the shadow of a dark hood, eyes wide and darting like a hunted animal.\n\n“Get back! Hide!” he yelled, urgency lacing his voice. Clara’s instincts flared, and she stepped back, the wall meeting her with a soft thud, though her curiosity kept her rooted in place. The fear in his eyes tugged at something deep within her, a primal instinct that urged her to flee or confront the danger ahead. She chose to listen, her breath shallow, every instinct screaming for her to remain alert.\n\nThe man stumbled past her, his footfalls heavy and frantic, the sound echoing off the stone walls. “They’re coming! They’re—” His voice faded as he rounded the bend, leaving Clara enveloped in a silence that felt thick and suffocating. Her mind raced, the echoes of his warning bouncing around like"
+  },
+  "critique_snapshot": {
+    "summary": "The scene follows Clara as she navigates a narrow alley, feeling the chill of the wind and the weight of solitude. A sudden shout disrupts her quiet, and she encounters a frantic man warning her of danger. Torn between fear and curiosity, Clara contemplates her next move as the tension builds.",
+    "weaknesses": [
+      "Dialogue lacks grounding in physical action or setting.",
+      "Generic phrases detract from the scene's uniqueness.",
+      "Vague descriptions fail to create a vivid image."
+    ],
+    "continuity_issues": [
+      "The transition from Clara's introspection to the man's entrance feels abrupt.",
+      "The urgency of the situation is not fully conveyed through Clara's reactions."
+    ],
+    "pacing_issues": [
+      "The buildup to the man's entrance is slow, potentially losing reader engagement.",
+      "The climax of the man's warning feels rushed and underdeveloped."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance dialogue to reflect physical actions and the setting.",
+      "Replace generic phrases with more specific, evocative language.",
+      "Add concrete details to enrich the scene's atmosphere."
+    ],
+    "generic_phrase_targets": [
+      "The alley felt like a living thing, breathing around her, alive."
+    ],
+    "detail_targets": [
+      "Descriptions of the alley's surroundings and the man's appearance."
+    ],
+    "dialogue_grounding_targets": [
+      "The man's warning should be tied to Clara's actions or reactions."
+    ],
+    "emotional_show_targets": [
+      "Clarify Clara's emotional state during the encounter with the man."
+    ],
+    "replacement_targets": [
+      "Replace 'Get back!' with a more descriptive warning that reflects the man's urgency."
+    ],
+    "grounding_targets": [
+      "Integrate more sensory details that connect Clara's feelings to her environment."
+    ],
+    "carryover_targets": [
+      "Ensure Clara's internal conflict is consistently reflected in her actions and thoughts."
+    ]
+  },
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": false,
+    "rescue_mode_used": true,
+    "rescue_model_used": false,
+    "rescue_model_name": "gpt-4o-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Get back!",
+        "Hide!” he yelled, urgency lacing his voice.",
+        "“They’re coming!",
+        "They’re—” His voice faded as he rounded the bend, leaving Clara enveloped in a silence that felt thick and suffocating."
+      ],
+      "generic_phrases_to_replace": [
+        "hung in the air",
+        "breath catching",
+        "something deep within"
+      ],
+      "lines_to_repair": [
+        "The scent of rain hung in the air, heavy and earthy, mingling with a sharper, metallic tang that prickled at the back of her throat and raised goosebumps on her arms.",
+        "Clara froze, her breath catching as her heart began to race, the pulse in her ears growing louder with each thump.",
+        "The fear in his eyes tugged at something deep within her, a primal instinct that urged her to flee or confront the danger ahead.",
+        "“Get back!",
+        "Hide!” he yelled, urgency lacing his voice.",
+        "“They’re coming!"
+      ],
+      "required_concrete_anchor_terms": [
+        "clara",
+        "back",
+        "heavy"
+      ],
+      "repair_min_word_count": 263,
+      "repair_max_word_count": 465,
+      "min_paragraph_count": 2,
+      "max_paragraph_count": 6
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": false,
+      "reason": "rescue_model"
+    },
+    "rescue_slots_summary": {
+      "slot_count": 7,
+      "target_types": [
+        "generic",
+        "generic",
+        "generic",
+        "dialogue",
+        "dialogue",
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_specificity_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 307,
+    "rewritten_word_count": 310,
+    "min_word_count": 184,
+    "max_word_count": 644,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "that",
+      "and",
+      "his",
+      "clara",
+      "against",
+      "heavy",
+      "something",
+      "back",
+      "alley"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "that",
+      "and",
+      "his",
+      "clara",
+      "against",
+      "heavy",
+      "something",
+      "back"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 25
+  }
+}

@@ -1,0 +1,227 @@
+{
+  "chunk_id": "lf_23da69dd",
+  "validation_decision": true,
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "basic_validation": {
+        "usable": true,
+        "word_count": 618,
+        "paragraph_count": 8,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [
+          "ceramic",
+          "fox",
+          "coat",
+          "pocket",
+          "rain",
+          "corridor",
+          "lantern",
+          "door"
+        ],
+        "carryover_hits": 7,
+        "material_carryover_hits": 0
+      },
+      "raw_preview": "Clara’s breath hitched as she nudged the nursery door with the heel of her palm, the wood cool and unyielding beneath her touch. The lantern sputtered again, the flame flickering like a heartbeat, and",
+      "normalized_preview": "Clara’s breath hitched as she nudged the nursery door with the heel of her palm, the wood cool and unyielding beneath her touch. The lantern sputtered again, the flame flickering like a heartbeat, and",
+      "raw_length": 3589,
+      "normalized_length": 3587,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DJshDwtse3MUAXuB9KMeJYr20Ahhu\", \"object\": \"chat.completion\", \"created\": 1773630855, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"Clara’s breath hitched as she nudged the nursery door with the heel of her palm, the wood cool and unyielding beneath her touch. The lantern sputtered again, the flame flickering like a heartbeat, and for a moment, the shadows seemed to stretch and writhe along the walls, eager to swallow them",
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 4,
+          "clarity": 2,
+          "pacing": 5,
+          "specificity": 3,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 28,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 618,
+        "paragraph_count": 8,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 9,
+        "concrete_hits": 13,
+        "generic_hits": 1,
+        "stock_phrase_hits": 3,
+        "carryover_terms": [
+          "ceramic",
+          "fox",
+          "coat",
+          "pocket",
+          "rain",
+          "corridor",
+          "lantern",
+          "door"
+        ],
+        "carryover_hits": 7,
+        "material_carryover_hits": 0,
+        "material_carryover": false,
+        "weak_carryover": false,
+        "generic_risk": true
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "basic_validation": {
+        "usable": true,
+        "word_count": 611,
+        "paragraph_count": 8,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [
+          "ceramic",
+          "fox",
+          "coat",
+          "pocket",
+          "rain",
+          "corridor",
+          "lantern",
+          "door"
+        ],
+        "carryover_hits": 8,
+        "material_carryover_hits": 1
+      },
+      "raw_preview": "Clara pressed her palm against the nursery door, feeling the cool, rough texture of the wood beneath her fingers. The lantern flickered, its flame sputtering like a timid heartbeat, casting an erratic",
+      "normalized_preview": "Clara pressed her palm against the nursery door, feeling the cool, rough texture of the wood beneath her fingers. The lantern flickered, its flame sputtering like a timid heartbeat, casting an erratic",
+      "raw_length": 3646,
+      "normalized_length": 3646,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DJshbPHBMaSkE0VqUPx8VeRa9FKJE\", \"object\": \"chat.completion\", \"created\": 1773630879, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"Clara pressed her palm against the nursery door, feeling the cool, rough texture of the wood beneath her fingers. The lantern flickered, its flame sputtering like a timid heartbeat, casting an erratic glow that danced nervously along the walls. Shadows leapt and twisted, as if eager to engulf ",
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 5,
+          "clarity": 4,
+          "pacing": 5,
+          "specificity": 5,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 33,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 611,
+        "paragraph_count": 8,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 10,
+        "concrete_hits": 13,
+        "generic_hits": 1,
+        "stock_phrase_hits": 1,
+        "carryover_terms": [
+          "ceramic",
+          "fox",
+          "coat",
+          "pocket",
+          "rain",
+          "corridor",
+          "lantern",
+          "door"
+        ],
+        "carryover_hits": 8,
+        "material_carryover_hits": 1,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false
+      },
+      "quality_pass": true,
+      "rewrite_delta": {
+        "total_delta": 5,
+        "stock_phrase_delta": 2,
+        "specificity_delta": 2,
+        "clarity_delta": 2,
+        "continuity_delta": 1
+      }
+    }
+  ],
+  "acceptance_reason": "rewrite_pass",
+  "critique_snapshot": {
+    "summary": "Clara and Jun approach a nursery door, filled with tension and memories. Clara clutches a ceramic fox in her pocket, symbolizing buried secrets. As they enter the nursery, they encounter unsettling signs of a child's presence, including a mysterious chest and a child's cough, heightening their fear and curiosity.",
+    "weaknesses": [
+      "Vague descriptions that lack specificity.",
+      "Generic phrases that do not add depth to the scene.",
+      "Dialogue that feels disconnected from the physical actions occurring."
+    ],
+    "continuity_issues": [
+      "The significance of the ceramic fox is not fully explored or connected to the immediate scene.",
+      "The reference to Nora's voice feels abrupt and lacks context."
+    ],
+    "pacing_issues": [
+      "The scene builds tension but could benefit from more varied pacing to enhance suspense."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions of the nursery and characters' actions.",
+      "Ground dialogue in physical actions or the environment to create a more immersive experience.",
+      "Clarify the significance of the ceramic fox and its connection to Clara's emotions."
+    ],
+    "generic_phrase_targets": [
+      "the air felt thick, almost electric",
+      "the shadows seemed to stretch and writhe",
+      "the house itself was breathing"
+    ],
+    "detail_targets": [
+      "Descriptions of the nursery furniture and its state.",
+      "The emotional weight of Clara's memories related to the ceramic fox."
+    ],
+    "dialogue_grounding_targets": [
+      "Jun's dialogue should reflect his physical state or actions more clearly.",
+      "Clara's responses should connect more to her surroundings and emotional state."
+    ],
+    "emotional_show_targets": [
+      "Show Clara's internal conflict regarding the child's cough more vividly.",
+      "Illustrate Jun's tension through his physical reactions."
+    ],
+    "replacement_targets": [
+      "Replace vague phrases with more concrete imagery.",
+      "Substitute generic expressions with unique descriptions."
+    ],
+    "grounding_targets": [
+      "Ensure characters' actions are tied to their dialogue for better grounding.",
+      "Use sensory details to enhance the atmosphere of the nursery."
+    ],
+    "carryover_targets": [
+      "Address the use of carryover terms that may feel repetitive or overused."
+    ]
+  }
+}

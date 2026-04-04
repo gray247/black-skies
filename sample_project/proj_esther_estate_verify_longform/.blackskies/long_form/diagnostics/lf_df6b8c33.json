@@ -1,0 +1,56 @@
+{
+  "chunk_id": "lf_df6b8c33",
+  "reason": {
+    "usable": false,
+    "word_count": 73,
+    "paragraph_count": 1,
+    "meta_summary": false,
+    "missing_carryover": false,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0
+  },
+  "validation_decision": false,
+  "fallback_reason": "invalid_output",
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "qwen3:4b",
+        "baseline_model": "qwen3:4b",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "raw_preview": "The rain had stopped, but the city didn’t sleep. It just held its breath, a wet, cold sigh against the cracked pavement where Elias stood, the damp wool of his coat clinging to his shoulders like a se",
+      "normalized_preview": "The rain had stopped, but the city didn’t sleep. It just held its breath, a wet, cold sigh against the cracked pavement where Elias stood, the damp wool of his coat clinging to his shoulders like a se",
+      "raw_length": 405,
+      "normalized_length": 405,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-148\", \"object\": \"chat.completion\", \"created\": 1773709255, \"model\": \"qwen3:4b\", \"system_fingerprint\": \"fp_ollama\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The rain had stopped, but the city didn’t sleep. It just held its breath, a wet, cold sigh against the cracked pavement where Elias stood, the damp wool of his coat clinging to his shoulders like a second skin. He’d watched the last of the downpour swallow the streetlights, turning the alley into a",
+      "basic_validation": {
+        "usable": false,
+        "word_count": 73,
+        "paragraph_count": 1,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      }
+    }
+  ]
+}

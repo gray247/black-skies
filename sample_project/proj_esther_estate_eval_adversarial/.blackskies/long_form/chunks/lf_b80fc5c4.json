@@ -1,0 +1,93 @@
+{
+  "chunk_id": "lf_b80fc5c4",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0002"
+  ],
+  "order": 2,
+  "continuation_of": "lf_44567f71",
+  "prompt_fingerprint": "sha256:a43bae51e11fdfcc283e7fb3880330f8c3a3636290a9eb1336830f8a90905ea4",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The dim glow of the lantern flickered again, revealing a smear of muddy footprints ahead, each print a question mark in the dampness of the corridor",
+    "word_count": 308,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.01,
+    "total_after_usd": 0.02
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 5,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 32,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 308,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 8,
+    "concrete_hits": 9,
+    "generic_hits": 1,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [
+      "lantern",
+      "corridor",
+      "coat",
+      "key",
+      "floor",
+      "rain",
+      "flickered",
+      "casting"
+    ],
+    "carryover_hits": 6,
+    "material_carryover_hits": 1,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The dim glow of the lantern flickered again, revealing a smear of muddy footprints ahead, each print a question mark in the dampness of the corridor. Clara's heart quickened, the rhythm echoing in her ears like the distant thunder that had rolled through the greenhouse. She could still feel the chill of raindrops clinging to her skin, a clammy reminder of the storm that had found its way into her thoughts. “We should go back,” she said, her voice sharper than intended, a brittle edge breaking the quiet.\n\nJun turned to her, his eyes wide and glistening, reflecting the meager light as he shifted unsteadily, the weight of the cracked brass lantern seeming to grow heavier in his hand. “And leave whoever—or whatever—that is behind?” His gaze drifted toward the door behind them, the chain rattling softly, almost teasingly, as if something on the other side was listening.\n\nThe air grew thicker, laden with damp earth and the faintest hint of something metallic, like blood. Clara swallowed hard, feeling the parlor key tug at her wrist, a reminder of the sanctuary they sought and an anchor to the uncertainty that wrapped around them. “What if it’s just the wind?” she ventured, though even she could hear the tremor in her voice, a desperate attempt to mask her own fear.\n\n“Wind doesn’t leave tracks,” Jun replied, his voice low, barely above a whisper. He shifted again, the waterlogged fabric of his coat clinging to him, and Clara could see the way his fingers curled tighter around the lantern’s handle, knuckles white against the brass.\n\nThe corridor felt like a living thing, breathing around them, the shadows stretching and curling as if eager to swallow them whole. Clara took a step forward, the soft squelch of her own boots mingling with the quiet drip of water from the ceiling, each"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

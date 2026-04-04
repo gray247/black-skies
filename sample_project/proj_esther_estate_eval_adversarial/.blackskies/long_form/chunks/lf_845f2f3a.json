@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_845f2f3a",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:93d3a6f4e550b546efdd5631b84dbcb529ceb8d80aeb41340bff8505f1bbfe04",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The air in the corridor felt thick and alive, pressing against Clara’s skin, each breath a reminder of the damp chill that clung to her coat",
+    "word_count": 311,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 30,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 311,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 6,
+    "concrete_hits": 11,
+    "generic_hits": 1,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The air in the corridor felt thick and alive, pressing against Clara’s skin, each breath a reminder of the damp chill that clung to her coat. She glanced at Jun, his brow furrowed beneath the flickering light of the cracked brass lantern, its weak battery sputtering like a dying breath. The shadows danced around them, pooling in corners where the light dared not reach, and she could almost hear the whispers of the house—the creaks and sighs of aged wood, the distant echo of something just out of sight.\n\n“Did you hear that?” Jun’s voice was a low tremor, his gaze darting toward the chained door. The chain rattled softly, as if someone were testing it from the other side, and Clara’s heart quickened, a quicksilver pulse in her throat. She felt the parlor key, tied to her wrist with a frayed red ribbon, digging into her skin, an insistent reminder of the choices made and paths taken.\n\n“No,” she said too quickly, the word escaping her lips sharper than she intended. The truth was, she didn’t want to hear anything else. The child’s cough she had ignored earlier echoed in her mind, a sound that seemed rooted in the walls of the upper floor, layered with desperation. But she didn’t want to think of that now. Instead, she focused on the muddy prints ahead of them, fresh tracks that led deeper into the gloom, a path that should have been empty.\n\n“Look,” she whispered, pointing at the dark smudge trailing away from the lantern’s pale glow. Jun stepped closer, his coat still damp from the greenhouse rain, droplets clinging to the fabric like the weight of their fears. “What do you think it is?” he asked, though the tremor in his voice was enough to answer for him.\n\n“I don’t know,” Clara replied, forcing her words to steady. The ceramic"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

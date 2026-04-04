@@ -1,0 +1,252 @@
+{
+  "chunk_id": "lf_d6646b75",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:b59e45cdc91200fd1760b7754531f646f94fc6e7df2c4d866cd4ad4c884b2890",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 21,
+    "fallback_reason": "quality_failed"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "quality_failed"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 3,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 2,
+      "meta_free": 5
+    },
+    "total_score": 25,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 310,
+    "paragraph_count": 4,
+    "dialogue_present": true,
+    "dialogue_grounded": false,
+    "sensory_hits": 6,
+    "concrete_hits": 2,
+    "generic_hits": 1,
+    "stock_phrase_hits": 3,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": true,
+    "text": "The wind howled through the narrow alley, tugging at the frayed edges of Clara’s coat as she ventured deeper into the shadows. Each step echoed against the damp cobblestones, the sound rhythmic and lonely, a constant reminder of her isolation. She pulled the collar tighter around her neck, the coarse wool scratching her skin, yet the chill seemed to seep through, biting at her bones. The scent of rain hung in the air, heavy and earthy, mingling with a sharper, metallic tang that prickled at the back of her throat and raised goosebumps on her arms.\n\nA sudden shout broke the stillness, followed by the clatter of something heavy hitting the ground. Clara froze, her breath catching as her heart began to race, the pulse in her ears growing louder with each thump. She pressed herself against the cool, rough stone wall, the texture biting into her back, her heart a frantic metronome in her chest. Just as she dared to peek around the corner, a figure burst into view—a man, his face obscured by the shadow of a dark hood, eyes wide and darting like a hunted animal.\n\n“Get back! Hide!” he yelled, urgency lacing his voice. Clara’s instincts flared, and she stepped back, the wall meeting her with a soft thud, though her curiosity kept her rooted in place. The fear in his eyes tugged at something deep within her, a primal instinct that urged her to flee or confront the danger ahead. She chose to listen, her breath shallow, every instinct screaming for her to remain alert.\n\nThe man stumbled past her, his footfalls heavy and frantic, the sound echoing off the stone walls. “They’re coming! They’re—” His voice faded as he rounded the bend, leaving Clara enveloped in a silence that felt thick and suffocating. Her mind raced, the echoes of his warning bouncing around like"
+  },
+  "critique_snapshot": {
+    "summary": "The scene follows Clara as she navigates a narrow alley, feeling the chill of the wind and the weight of solitude. A sudden shout disrupts her quiet, and she encounters a frantic man warning her of danger. Torn between fear and curiosity, Clara contemplates her next move as the tension builds.",
+    "weaknesses": [
+      "Dialogue lacks grounding in physical action or setting.",
+      "Generic phrases detract from the scene's uniqueness.",
+      "Vague descriptions fail to create a vivid image."
+    ],
+    "continuity_issues": [
+      "The transition from Clara's introspection to the man's entrance feels abrupt.",
+      "The urgency of the situation is not fully conveyed through Clara's reactions."
+    ],
+    "pacing_issues": [
+      "The buildup to the man's entrance is slow, potentially losing reader engagement.",
+      "The climax of the man's warning feels rushed and underdeveloped."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance dialogue to reflect physical actions and the setting.",
+      "Replace generic phrases with more specific, evocative language.",
+      "Add concrete details to enrich the scene's atmosphere."
+    ],
+    "generic_phrase_targets": [
+      "The alley felt like a living thing, breathing around her, alive."
+    ],
+    "detail_targets": [
+      "Descriptions of the alley's surroundings and the man's appearance."
+    ],
+    "dialogue_grounding_targets": [
+      "The man's warning should be tied to Clara's actions or reactions."
+    ],
+    "emotional_show_targets": [
+      "Clarify Clara's emotional state during the encounter with the man."
+    ],
+    "replacement_targets": [
+      "Replace 'Get back!' with a more descriptive warning that reflects the man's urgency."
+    ],
+    "grounding_targets": [
+      "Integrate more sensory details that connect Clara's feelings to her environment."
+    ],
+    "carryover_targets": [
+      "Ensure Clara's internal conflict is consistently reflected in her actions and thoughts."
+    ]
+  },
+  "attempt_count": 4,
+  "acceptance_reason": "quality_failed",
+  "rewrite_used": true,
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": false,
+    "rescue_mode_used": true,
+    "rescue_model_used": false,
+    "rescue_model_name": "gpt-4o-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Get back!",
+        "Hide!” he yelled, urgency lacing his voice.",
+        "“They’re coming!",
+        "They’re—” His voice faded as he rounded the bend, leaving Clara enveloped in a silence that felt thick and suffocating."
+      ],
+      "generic_phrases_to_replace": [
+        "hung in the air",
+        "breath catching",
+        "something deep within"
+      ],
+      "lines_to_repair": [
+        "The scent of rain hung in the air, heavy and earthy, mingling with a sharper, metallic tang that prickled at the back of her throat and raised goosebumps on her arms.",
+        "Clara froze, her breath catching as her heart began to race, the pulse in her ears growing louder with each thump.",
+        "The fear in his eyes tugged at something deep within her, a primal instinct that urged her to flee or confront the danger ahead.",
+        "“Get back!",
+        "Hide!” he yelled, urgency lacing his voice.",
+        "“They’re coming!"
+      ],
+      "required_concrete_anchor_terms": [
+        "clara",
+        "back",
+        "heavy"
+      ],
+      "repair_min_word_count": 263,
+      "repair_max_word_count": 465,
+      "min_paragraph_count": 2,
+      "max_paragraph_count": 6
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": false,
+      "reason": "rescue_model"
+    },
+    "rescue_slots_summary": {
+      "slot_count": 7,
+      "target_types": [
+        "generic",
+        "generic",
+        "generic",
+        "dialogue",
+        "dialogue",
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_specificity_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 307,
+    "rewritten_word_count": 310,
+    "min_word_count": 184,
+    "max_word_count": 644,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "that",
+      "and",
+      "his",
+      "clara",
+      "against",
+      "heavy",
+      "something",
+      "back",
+      "alley"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "that",
+      "and",
+      "his",
+      "clara",
+      "against",
+      "heavy",
+      "something",
+      "back"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 25
+  }
+}

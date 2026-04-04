@@ -1,0 +1,211 @@
+{
+  "chunk_id": "lf_6578c51a",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0003"
+  ],
+  "order": 3,
+  "continuation_of": "lf_9c860887",
+  "prompt_fingerprint": "sha256:32bd23ecd72c93045524aeb4e74a0e56e23a1af0bbffcf58efee9d4ccfaa5a5b",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 38,
+    "fallback_reason": "quality_failed"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.02,
+    "total_after_usd": 0.03
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "quality_failed"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 4,
+      "clarity": 2,
+      "pacing": 5,
+      "specificity": 1,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 26,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 616,
+    "paragraph_count": 11,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 3,
+    "concrete_hits": 1,
+    "generic_hits": 3,
+    "stock_phrase_hits": 2,
+    "carryover_terms": [
+      "casting",
+      "danced",
+      "across",
+      "rippling",
+      "river",
+      "below",
+      "olivia",
+      "against"
+    ],
+    "carryover_hits": 6,
+    "material_carryover_hits": 0,
+    "material_carryover": false,
+    "weak_carryover": false,
+    "generic_risk": true,
+    "text": "“Hey, you alright?” A voice broke through the tumult of the river, familiar yet unexpected. Olivia blinked against the fading light, the brightness stinging her eyes before she focused on Marcus, standing a few feet back. His tall frame was silhouetted against the orange and purple hues of the evening sky, his hands buried deep in the pockets of his faded jeans. The rough fabric of his navy hoodie contrasted with the sharp angles of his face, where concern flickered just beneath the surface.\n\n“Yeah, just...lost in thought, I guess,” she replied, her voice barely rising above the rushing water. A hollow ache settled in her chest, tangled and heavy, but she plastered on a smile, its fragility mirroring the brittle leaves crunching underfoot as he shifted closer.\n\n“Thought you might’ve taken a dive,” he joked lightly, his gaze drifting to the churning current below. Olivia followed his gaze, watching the water surge and crash, the frothy white edges swirling like her own chaotic thoughts, threatening to pull her under if she let them.\n\n“Not today,” she said, trying to keep the tremor from her voice. The words felt laden with unspoken tension, a weight she hoped he wouldn’t sense. She turned her attention back to the river, its relentless motion a constant reminder of time slipping away, of decisions made and the haunting specter of those yet to come. “Just thinking about how different everything feels now.”\n\nMarcus leaned against the weathered stone railing, the cool surface pressing against his back. Shadows stretched long as the sun dipped lower, enveloping them in a twilight embrace, and for a fleeting moment, it felt as if they were suspended in time, caught between the warmth of the day and the encroaching chill of night. “Yeah, I get that. It’s like...everything shifted, and we’re just trying to find our footing again.”\n\nHis words lingered between them, heavy with shared history. Olivia felt the urge to reach out, to confide in him how life felt like a carousel spinning out of control, leaving her gasping for breath. Instead, she swallowed hard, the tightness in her throat a reminder of the barriers she had erected around her heart. “Sometimes I wonder if we’ll ever really settle back into it. Can we go back to the way things were?”\n\n“Maybe not,” he replied softly, his tone contemplative, as if weighing the truth of her words. “But maybe that’s not such a bad thing. We’ve changed, Liv. We have to find a new way forward.” He turned to meet her gaze, those dark eyes searching for something—understanding, or perhaps a hint of hope.\n\nA warmth spread through her at his sincerity, battling against the cool air creeping in from the riverbank. “I know. It’s just...scary,” she admitted, her voice quavering as the truth slipped out. “What if we end up losing everything we used to be?”\n\nHe pushed off the railing, closing the distance between them, the space shrinking in the gathering dusk. “What if we find something new instead?” The intensity in his eyes sparked a flutter in her chest, a glimmer of possibility. “We can’t hold onto the past forever, Liv. It’ll just weigh us down.”\n\nHis words resonated deep within her, stirring something long dormant. The fragrances of damp earth and wildflowers filled her senses, wrapping around her like a soft blanket of hope. She inhaled deeply, the air rich with the promise of change, and for the first time in ages, a flicker of hope ignited within her.\n\n“Maybe you’re right,” she murmured, a tentative smile breaking through the clouds of uncertainty. As the sun sank lower, casting a golden glow across the river, the world felt vibr"
+  },
+  "critique_snapshot": {
+    "summary": "The scene features a conversation between Olivia and Jake by a river as they navigate their feelings of uncertainty and change. The setting is described with a warm sunset, and their dialogue reveals their emotional struggles and hopes for the future.",
+    "weaknesses": [
+      "Overuse of generic phrases and imagery.",
+      "Lack of specific sensory details.",
+      "Dialogue lacks grounding in physical actions or the setting."
+    ],
+    "continuity_issues": [
+      "Inconsistent emotional depth in Olivia's responses.",
+      "Jake's physical actions do not always match the emotional weight of the dialogue."
+    ],
+    "pacing_issues": [
+      "The scene drags in places due to repetitive reflections on uncertainty."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions.",
+      "Ground dialogue in physical actions or setting.",
+      "Reduce reliance on stock phrases."
+    ],
+    "generic_phrase_targets": [
+      "cut through the sounds",
+      "warm and familiar",
+      "lost in thought",
+      "thought you might’ve taken a dive",
+      "caught between the warmth of the day and the chill of impending night"
+    ],
+    "detail_targets": [
+      "Descriptions of the river and its effects on the characters.",
+      "More vivid imagery of Olivia's emotional state."
+    ],
+    "dialogue_grounding_targets": [
+      "Incorporate more physical actions that correspond with dialogue.",
+      "Ensure dialogue reflects the characters' surroundings."
+    ],
+    "emotional_show_targets": [
+      "Show Olivia's internal conflict through more specific actions or reactions.",
+      "Use body language to convey emotional states."
+    ],
+    "replacement_targets": [
+      "Replace generic phrases with more original expressions.",
+      "Substitute vague descriptions with concrete imagery."
+    ],
+    "grounding_targets": [
+      "Add more sensory details to the environment.",
+      "Include physical interactions between characters."
+    ],
+    "carryover_targets": [
+      "Minimize repeated phrases that detract from originality.",
+      "Address weak carryover in emotional expressions."
+    ]
+  },
+  "attempt_count": 2,
+  "acceptance_reason": "quality_failed",
+  "rewrite_used": true,
+  "retry_snapshot": {
+    "used": false,
+    "succeeded": false,
+    "attempts_used": 0,
+    "max_attempts": 1,
+    "eligible": false,
+    "failure_classification": {
+      "classification": "hard",
+      "reason": "material_carryover_missing",
+      "retry_eligible": false
+    },
+    "reason": "material_carryover_missing"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 609,
+    "rewritten_word_count": 616,
+    "min_word_count": 365,
+    "max_word_count": 1278,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "his",
+      "and",
+      "that",
+      "felt",
+      "voice",
+      "jake",
+      "back",
+      "something",
+      "you"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "his",
+      "and",
+      "felt",
+      "voice",
+      "back",
+      "you"
+    ],
+    "outline_anchor_hits": [
+      "the",
+      "her",
+      "she",
+      "river",
+      "his",
+      "against"
+    ],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": true,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 26
+  }
+}

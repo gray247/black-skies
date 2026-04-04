@@ -1,0 +1,18 @@
+{
+  "timestamp": "2026-03-17T01:03:03.803355Z",
+  "code": "VALIDATION",
+  "message": "Long-form output rejected (basic validation).",
+  "details": {
+    "reason": {
+      "usable": false,
+      "word_count": 122,
+      "paragraph_count": 1,
+      "meta_summary": false,
+      "missing_carryover": false,
+      "carryover_terms": [],
+      "carryover_hits": 0,
+      "material_carryover_hits": 0
+    },
+    "attempt": 1
+  }
+}

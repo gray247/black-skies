@@ -1,0 +1,249 @@
+{
+  "chunk_id": "lf_5adb5000",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:40424a563d17bedd5e7ee8d2907426f43fd1769bdcf2ce0e5ca1a3a6a5a2ea0c",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 21,
+    "fallback_reason": "quality_failed"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "quality_failed"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 2,
+      "meta_free": 5
+    },
+    "total_score": 26,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 320,
+    "paragraph_count": 6,
+    "dialogue_present": true,
+    "dialogue_grounded": false,
+    "sensory_hits": 7,
+    "concrete_hits": 1,
+    "generic_hits": 0,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "Rain drummed softly against the café window, each drop a rhythmic reminder of the world outside, where the streets shimmered under a slick sheen of water, the blurred glow of streetlights casting halos in the puddles. Inside, the small café wrapped Clara in warmth, a comforting embrace that felt like a well-worn blanket. The rich scent of freshly ground coffee mingled with the sweet fragrance of pastries, creating an inviting atmosphere that allowed her to breathe deeply for the first time that day. She curled her fingers around the warm ceramic mug, the heat radiating through her skin, anchoring her in the present moment.\n\nAcross the table, Tom stirred his espresso, the spoon clinking softly against the cup, a sound that punctuated the thick silence hanging between them. His brow was furrowed, a storm brewing behind those dark eyes that had once sparkled with laughter but now held shadows of unspoken words. Clara studied him, her heart racing as she tried to decipher the emotions swirling beneath his calm exterior. She opened her mouth, the words poised on her lips, but hesitated, uncertain if she wanted to provoke the tidal wave of feelings she sensed just below the surface.\n\n“Do you remember the last time we were here?” His voice was low, nearly lost in the soft chatter of other patrons and the gentle hiss of the espresso machine. He didn’t look up, his focus entirely on the swirling liquid in his cup.\n\n“Of course,” she replied, her heart tightening at the memory. A day much like this one, with rain falling gently outside, laughter spilling between them as freely as the coffee they had shared. “You spilled your drink all over that poor waitress.”\n\nFinally lifting his gaze, a flicker of a smile ghosted across his lips, a fleeting light in the shadow of his thoughts. “I was young and reckless.”\n\n“Reckless? You mean clumsy,” she teased, but the"
+  },
+  "critique_snapshot": {
+    "summary": "The scene takes place in a small café where Clara and Tom share a moment filled with nostalgia and unspoken emotions, highlighted by the ambiance of rain and coffee. Clara reflects on their past while Tom seems preoccupied, leading to a conversation about a shared memory that reveals the tension in their relationship.",
+    "weaknesses": [
+      "Generic descriptions that lack specificity.",
+      "Dialogue that feels disconnected from physical actions.",
+      "Vague emotional grounding in the characters' interactions."
+    ],
+    "continuity_issues": [
+      "The emotional shift in Tom's demeanor is not clearly established, making it hard to follow the progression of the scene."
+    ],
+    "pacing_issues": [
+      "The scene drags slightly due to lengthy descriptions that could be more concise."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid scene.",
+      "Ground dialogue in physical actions or setting to improve engagement.",
+      "Clarify emotional transitions between characters."
+    ],
+    "generic_phrase_targets": [
+      "intoxicating atmosphere",
+      "well-worn blanket",
+      "clouded with something unspoken",
+      "ghost of a smile"
+    ],
+    "detail_targets": [
+      "Descriptions of the café's ambiance and the characters' interactions.",
+      "Tom's emotional state and how it affects his actions."
+    ],
+    "dialogue_grounding_targets": [
+      "Link Tom's dialogue to his actions, such as stirring the espresso or looking up at Clara."
+    ],
+    "emotional_show_targets": [
+      "Show Clara's internal conflict more vividly rather than stating it.",
+      "Illustrate Tom's emotional turmoil through his body language."
+    ],
+    "replacement_targets": [
+      "Replace generic phrases with more original and specific language.",
+      "Substitute vague emotional descriptors with concrete actions or reactions."
+    ],
+    "grounding_targets": [
+      "Use the café setting to reflect the characters' emotional states more effectively."
+    ],
+    "carryover_targets": [
+      "Ensure that emotional carryover from past memories is more seamlessly integrated into the current scene."
+    ]
+  },
+  "attempt_count": 4,
+  "acceptance_reason": "quality_failed",
+  "rewrite_used": true,
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Do you remember the last time we were here?” His voice was low, nearly lost in the soft chatter of other patrons and the gentle hiss of the espresso machine.",
+        "“Of course,” she replied, her heart tightening at the memory.",
+        "“You spilled your drink all over that poor waitress.”\n\nFinally lifting his gaze, a flicker of a smile ghosted across his lips, a fleeting light in the shadow of his thoughts.",
+        "“I was young and reckless.”\n\n“Reckless?"
+      ],
+      "generic_phrases_to_replace": [
+        "well-worn blanket",
+        "flicker of"
+      ],
+      "lines_to_repair": [
+        "Inside, the small café wrapped Clara in warmth, a comforting embrace that felt like a well-worn blanket.",
+        "“You spilled your drink all over that poor waitress.”\n\nFinally lifting his gaze, a flicker of a smile ghosted across his lips, a fleeting light in the shadow of his thoughts.",
+        "“Do you remember the last time we were here?” His voice was low, nearly lost in the soft chatter of other patrons and the gentle hiss of the espresso machine.",
+        "“Of course,” she replied, her heart tightening at the memory.",
+        "“I was young and reckless.”\n\n“Reckless?"
+      ],
+      "required_concrete_anchor_terms": [
+        "rain",
+        "softly"
+      ],
+      "repair_min_word_count": 272,
+      "repair_max_word_count": 480,
+      "min_paragraph_count": 4,
+      "max_paragraph_count": 8
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-4o",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rewrite_retry_model"
+    },
+    "rescue_slots_summary": {
+      "slot_count": 5,
+      "target_types": [
+        "generic",
+        "dialogue",
+        "dialogue",
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_specificity_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 317,
+    "rewritten_word_count": 320,
+    "min_word_count": 190,
+    "max_word_count": 665,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "his",
+      "that",
+      "she",
+      "was",
+      "you",
+      "and",
+      "rain",
+      "against",
+      "warmth",
+      "clara"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "his",
+      "that",
+      "she",
+      "was",
+      "you",
+      "rain",
+      "against",
+      "clara"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 26
+  }
+}

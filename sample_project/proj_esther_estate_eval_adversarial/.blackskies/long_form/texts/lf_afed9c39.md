@@ -1,0 +1,9 @@
+﻿Clara stepped deeper into the passage, the air thick and stale, tinged with the scent of damp wood and something more acrid, like old soot. Each footfall echoed against the stone walls, a reminder that they were not alone, even if the corridor felt empty. The dim light from Jun’s lantern flickered, casting shadows that danced like specters, and she tightened her grip on the ribboned key at her wrist, feeling the rough fibers scratch against her skin. It was as if the weight of the key was pulling her back towards the greenhouse, where they had stumbled across the tangled vines and the secrets they held.
+
+“Do you think… something’s in here with us?” Jun’s voice quivered, the lantern’s light illuminating the fear etched across his face, his soaked coat clinging to him like a second skin. Clara glanced at him, noting the way his brow furrowed, the tremor in his hands as he steadied the lantern. The shadows seemed to stretch out, as if mocking his unease.
+
+“It's just the wind,” she replied too quickly, the words snapping from her lips, sharper than she intended. She could feel the pulse of her heart quicken, an instinctive reaction to quell the rising tension that threatened to suffocate her. But behind her bravado, the weight of uncertainty coiled tightly in her stomach. The chain on the door rattled again, a soft clank that sent a shiver down her spine, and she turned her attention to that sound, wishing to dismiss the unease coiling around them like a living thing.
+
+“Clara,” Jun said, his voice low, almost a whisper, as he edged closer, the lantern flickering in a desperate attempt to keep the encroaching darkness at bay. “What if it’s not just the wind? What if someone—”
+
+“Someone’s testing the door,” she cut him off, gl

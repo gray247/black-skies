@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_7fef0ad6",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:9bf38af6a3d883076f7baea676837402c8fb029374f1bd986cb8f03f0ac91f3f",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The air hung heavy with the scent of rain-soaked earth, a musty sweetness that mingled with the sharp tang of iron from the nearby fence",
+    "word_count": 317,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 4,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 29,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 317,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 5,
+    "concrete_hits": 3,
+    "generic_hits": 0,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The air hung heavy with the scent of rain-soaked earth, a musty sweetness that mingled with the sharp tang of iron from the nearby fence. Evelyn stood at the edge of the field, her boots sinking into the mud with each tentative step, the squelch beneath her a reminder of the storm that had rolled through just hours before. Her fingers brushed against the cool metal of the fence post, a rough texture grounding her in the moment as she gazed out at the expanse of grass that shimmered like emerald glass under the dim light of the overcast sky.\n\n“Are you sure about this?” Thomas’s voice cut through the stillness, hesitant and edged with concern. He lingered a few paces behind her, his silhouette framed against the darkening horizon. She could feel the weight of his gaze on her back, the unspoken questions hanging in the air like the low clouds above.\n\nEvelyn turned slightly, just enough for her to catch a glimpse of his furrowed brow and the way his hands fidgeted in his pockets. “What’s the worst that could happen?” she replied, forcing a lightness into her tone that she didn’t quite feel. The truth was, the thought of stepping deeper into the field made her pulse quicken, a mix of thrill and dread curling in her stomach. She didn’t want to voice the fear that gnawed at her—what if the ground gave way, what if she was swallowed by the very earth she stood upon?\n\nAs if sensing her internal struggle, Thomas took a step closer, the squelch of his own boots echoing in the silence. “I just don’t want you to get hurt,” he said, the softness in his voice contrasting sharply with the chill in the air. It was a kindness that both soothed and irritated her, a reminder that he cared, yet also a tether that felt increasingly stifling.\n\n“I"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

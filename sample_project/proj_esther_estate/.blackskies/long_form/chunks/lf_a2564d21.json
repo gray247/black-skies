@@ -1,0 +1,45 @@
+{
+  "chunk_id": "lf_a2564d21",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:e1aeb24b66e285eb88db7ef4dd39cf46d18ada1af7517f631f9c52d295cc3e42",
+  "provider": "local_llm",
+  "model": "qwen3:4b",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 27,
+    "fallback_reason": "invalid_output"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 12.5,
+    "hard_limit_usd": 25.0,
+    "spent_usd": 1.1,
+    "total_after_usd": 1.11
+  },
+  "routing_snapshot": {
+    "policy": "local_only",
+    "provider": "local_llm",
+    "model": "qwen3:4b",
+    "reason": "policy.local_only",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "local_only",
+      "budget_status": "ok",
+      "reason": "policy.local_only",
+      "prefer_local": true,
+      "allow_local": true,
+      "allow_api": false,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "invalid_output"
+  }
+}

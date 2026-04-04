@@ -1,0 +1,246 @@
+{
+  "chunk_id": "lf_0a05c109",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:bfea21fed472791f94f72d97eee3af1a751df1b133acd9c1eb3ddfa21554d6eb",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 21,
+    "fallback_reason": "quality_failed"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "quality_failed"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 28,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 323,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 4,
+    "concrete_hits": 1,
+    "generic_hits": 0,
+    "stock_phrase_hits": 2,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "leaves overhead, sending a cascade of golden and amber hues spiraling to the ground. Elise tightened her grip on the scarf, feeling the coarse fibers scratch against her skin. The grove enveloped her, a cathedral of towering pines and thick underbrush, their rough bark textured against her fingertips as she brushed against one of the trunks for support. Beneath her feet, the cobblestones were slick with moisture, and each step made a soft, muted crunch that felt alarmingly loud in the stillness.\n\nA birdcall echoed through the canopy, a lonely sound that seemed to weave between the branches, filling the air with an ache she couldn’t quite place. She closed her eyes briefly, letting the earthy scent of damp soil and pine needles wash over her, grounding her in the moment even as the weight of her decision pressed heavily on her chest. Memories of laughter and carefree days spent in this very grove flickered in her mind, but they felt distant now, like echoes from another life.\n\n“Are you sure this is the right place?” Ben's voice broke through her reverie, tinged with apprehension as he stepped into the clearing. He emerged from the shadows of the trees, his brow furrowed, sunlight catching the tousled strands of his hair. The sight of him brought a mix of comfort and frustration; he always wore that expression when he thought she was about to make a mistake.\n\n“I know it is,” she said, forcing a confident tone into her voice. She turned to face him, the corners of her mouth lifting in an attempt at reassurance, though it felt more like a brittle facade than genuine comfort. “Just trust me.”\n\nHis lips pressed into a thin line, that familiar gesture betraying the internal conflict he was grappling with. She felt the tension in the air, a mirror of her own uncertainty. “We could just go back,” he suggested, his voice barely above a whisper,"
+  },
+  "critique_snapshot": {
+    "summary": "The scene depicts Elise walking through a grove, grappling with a significant decision while interacting with Ben, who expresses doubt about their location. The atmosphere is tense, with nature reflecting Elise's internal struggle.",
+    "weaknesses": [
+      "Generic phrases and descriptions that lack specificity.",
+      "Dialogue that does not effectively ground the characters in their physical surroundings."
+    ],
+    "continuity_issues": [
+      "The emotional state of Elise shifts abruptly without clear cause, making it hard to follow her internal journey.",
+      "Ben's concern appears to be a recurring theme but lacks depth in its development."
+    ],
+    "pacing_issues": [
+      "The pacing slows significantly during the dialogue, which disrupts the tension built in the earlier descriptions."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid scene.",
+      "Ground dialogue in physical actions or the setting to increase realism.",
+      "Clarify the emotional transitions of characters to maintain continuity."
+    ],
+    "generic_phrase_targets": [
+      "frenzied dance",
+      "sweet, earthy scent",
+      "haunting about the note",
+      "strange anticipation"
+    ],
+    "detail_targets": [
+      "Describe the grove more vividly to enhance the setting.",
+      "Provide more sensory details about Ben's appearance and actions."
+    ],
+    "dialogue_grounding_targets": [
+      "Incorporate physical actions during dialogue exchanges to create a stronger connection to the scene."
+    ],
+    "emotional_show_targets": [
+      "Show Elise's internal conflict through more concrete actions or reactions rather than telling through vague phrases."
+    ],
+    "replacement_targets": [
+      "Replace generic phrases with more unique, specific imagery.",
+      "Substitute vague emotional descriptors with actions that illustrate those emotions."
+    ],
+    "grounding_targets": [
+      "Ensure that characters' dialogue is influenced by their surroundings and actions."
+    ],
+    "carryover_targets": [
+      "Maintain emotional continuity by linking Elise's thoughts more clearly to her dialogue with Ben."
+    ]
+  },
+  "attempt_count": 4,
+  "acceptance_reason": "quality_failed",
+  "rewrite_used": true,
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_model_name": "gpt-5.4-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Are you sure this is the right place?” Ben's voice broke through her reverie, tinged with apprehension as he stepped into the clearing.",
+        "“I know it is,” she said, forcing a confident tone into her voice.",
+        "“Just trust me.”\n\nHis lips pressed into a thin line, that familiar gesture betraying the internal conflict he was grappling with.",
+        "“We could just go back,” he suggested, his voice barely above a whisper,"
+      ],
+      "generic_phrases_to_replace": [
+        "pressed in",
+        "voice barely above a whisper"
+      ],
+      "lines_to_repair": [
+        "“Just trust me.”\n\nHis lips pressed into a thin line, that familiar gesture betraying the internal conflict he was grappling with.",
+        "“We could just go back,” he suggested, his voice barely above a whisper,",
+        "“Are you sure this is the right place?” Ben's voice broke through her reverie, tinged with apprehension as he stepped into the clearing.",
+        "“I know it is,” she said, forcing a confident tone into her voice."
+      ],
+      "required_concrete_anchor_terms": [
+        "against",
+        "voice",
+        "grove"
+      ],
+      "repair_min_word_count": 274,
+      "repair_max_word_count": 484,
+      "min_paragraph_count": 3,
+      "max_paragraph_count": 7
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rescue_model"
+    },
+    "rescue_slots_summary": {
+      "slot_count": 5,
+      "target_types": [
+        "dialogue",
+        "dialogue",
+        "dialogue",
+        "dialogue",
+        "generic"
+      ]
+    },
+    "rescue_failure_class": "patch_dialogue_grounding_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 310,
+    "rewritten_word_count": 323,
+    "min_word_count": 186,
+    "max_word_count": 651,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "was",
+      "his",
+      "and",
+      "felt",
+      "wind",
+      "echoing",
+      "stillness",
+      "something",
+      "secrets"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "was",
+      "his",
+      "and",
+      "felt"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 28
+  }
+}

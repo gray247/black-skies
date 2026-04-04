@@ -1,0 +1,492 @@
+{
+  "chunk_id": "lf_f2703bc9",
+  "validation_decision": false,
+  "fallback_reason": "quality_failed",
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "raw_preview": "The sun hung low over the horizon, casting long shadows that danced like restless spirits across the cracked pavement of the old parking lot. A thin breeze stirred the air, carrying the faint scent of",
+      "normalized_preview": "The sun hung low over the horizon, casting long shadows that danced like restless spirits across the cracked pavement of the old parking lot. A thin breeze stirred the air, carrying the faint scent of",
+      "raw_length": 1873,
+      "normalized_length": 1873,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKU46AydyunSILRATrzJhXcW0BSth\", \"object\": \"chat.completion\", \"created\": 1773774502, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The sun hung low over the horizon, casting long shadows that danced like restless spirits across the cracked pavement of the old parking lot. A thin breeze stirred the air, carrying the faint scent of distant rain mixed with the acrid tang of gasoline. Ava leaned against the chipped metal of h",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 321,
+        "paragraph_count": 5,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 3,
+          "pacing": 4,
+          "specificity": 2,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 26,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 321,
+        "paragraph_count": 5,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 8,
+        "concrete_hits": 1,
+        "generic_hits": 2,
+        "stock_phrase_hits": 0,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": true,
+        "text": "The sun hung low over the horizon, casting long shadows that danced like restless spirits across the cracked pavement of the old parking lot. A thin breeze stirred the air, carrying the faint scent of distant rain mixed with the acrid tang of gasoline. Ava leaned against the chipped metal of her car, the coolness of the surface seeping into her skin, grounding her amid the whirlwind of her thoughts. The rhythmic thrum of her heartbeat pulsed in her ears, matching the distant echoes of laughter from a group of teenagers playing tag nearby. She couldn't quite catch their words, but the lightness of their joy felt like a stark contrast to the weight pressing down on her chest.\n\n“Hey,” a voice broke through the haze, pulling her back into the moment. It was Jake, his silhouette sharp against the fading light, a lopsided grin spreading across his face. He approached with an easy confidence, hands stuffed into the pockets of his weathered jeans. “You still want to talk?”\n\nAva nodded, swallowing hard. “Yeah, I guess so.” The words felt heavy, as if each syllable carried the burden of all the unsaid things between them. She glanced away, focusing on the scattered litter that danced in the breeze, avoiding the intensity of his gaze. The last remnants of daylight painted his features in warm tones, and for a fleeting moment, she wished she could reach out, touch the contours of his face, but fear held her back.\n\n“Let’s sit,” he suggested, motioning toward an old bench that had seen better days. The wood was splintered and weathered, but she followed him anyway, each step feeling like a silent negotiation with herself. As they settled into the awkward silence, the familiar sounds of the world around them faded, leaving only the soft rustle of leaves and the distant hum of a car engine.\n\n“I can’t keep pretending everything’s fine,” she finally admitted,"
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "rewrite",
+        "escalated": false,
+        "reason": "rewrite_default"
+      },
+      "raw_preview": "The sun hung low over the horizon, casting elongated shadows that slipped across the cracked pavement of the old parking lot, their shapes twisting in the fading light. A thin breeze rustled through t",
+      "normalized_preview": "The sun hung low over the horizon, casting elongated shadows that slipped across the cracked pavement of the old parking lot, their shapes twisting in the fading light. A thin breeze rustled through t",
+      "raw_length": 1849,
+      "normalized_length": 1849,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKU4My29FtWcWCTS71WVnJ0VKrZt2\", \"object\": \"chat.completion\", \"created\": 1773774518, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The sun hung low over the horizon, casting elongated shadows that slipped across the cracked pavement of the old parking lot, their shapes twisting in the fading light. A thin breeze rustled through the air, carrying the scent of damp earth from a distant rain mingled with the sharp, metallic ",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 321,
+        "paragraph_count": 4,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "guardrail_snapshot": {
+        "evaluated": true,
+        "mode": "rewrite",
+        "outline_titles": [],
+        "beat_refs": [],
+        "locked_facts_evaluated": false,
+        "length_band_evaluated": true,
+        "original_word_count": 321,
+        "rewritten_word_count": 321,
+        "min_word_count": 192,
+        "max_word_count": 674,
+        "within_length_band": true,
+        "outline_fidelity_evaluated": true,
+        "outline_fidelity_pass": true,
+        "original_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "his",
+          "that",
+          "distant",
+          "but",
+          "and",
+          "danced",
+          "across",
+          "old",
+          "breeze"
+        ],
+        "retained_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "his",
+          "that",
+          "distant",
+          "but",
+          "and",
+          "across",
+          "old"
+        ],
+        "outline_anchor_hits": [],
+        "required_anchor_overlap": 1,
+        "scene_anchor_drift_detected": false,
+        "new_story_elements": [],
+        "blocking_new_story_elements": [],
+        "authoritative_name_check": false,
+        "uncertainty_triggered": false,
+        "failure_reason": null,
+        "accepted": true,
+        "quality_total_score": 28
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 28,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 321,
+        "paragraph_count": 4,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 7,
+        "concrete_hits": 1,
+        "generic_hits": 0,
+        "stock_phrase_hits": 1,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The sun hung low over the horizon, casting elongated shadows that slipped across the cracked pavement of the old parking lot, their shapes twisting in the fading light. A thin breeze rustled through the air, carrying the scent of damp earth from a distant rain mingled with the sharp, metallic tang of gasoline. Ava leaned against the cool metal of her car, its surface a stark contrast to the warmth of her skin, a brief anchor in the storm of thoughts swirling in her mind. The rhythmic thud of her heartbeat reverberated in her ears, harmonizing with the distant laughter of teenagers playing tag nearby, their carefree shouts a vivid reminder of the joy she felt so far removed from. She caught snippets of their playfulness, but the weight in her chest felt like a heavy stone, pressing down on her as she watched their freedom.\n\n“Hey,” a voice sliced through her reverie, drawing her back into the moment. It was Jake, his figure framed against the dimming light, the familiar lopsided grin breaking across his face like sunrise. He approached with an easy confidence, his hands tucked into the pockets of faded jeans that had seen better days. “You still want to talk?”\n\nAva nodded, her throat tight as she swallowed hard, the words lodged like stones. “Yeah, I guess so.” Each syllable felt heavy with the weight of everything left unspoken. She turned her gaze to the ground, focusing on a piece of litter tumbling across the asphalt, the movement a distraction from the intensity of his eyes. The last rays of sunlight bathed his features in warm hues, and for a fleeting moment, she longed to reach out and trace the line of his jaw, but the thought of vulnerability rooted her in place.\n\n“Let’s sit,” he suggested, gesturing toward an old wooden bench that sagged under its own weight, splintered and weathered from years of neglect. Rel"
+      },
+      "quality_pass": false,
+      "rewrite_delta": {
+        "total_delta": 2,
+        "stock_phrase_delta": -1,
+        "specificity_delta": 1,
+        "clarity_delta": 1,
+        "continuity_delta": 0
+      },
+      "retry_decision": {
+        "eligible": true,
+        "reason": "targeted_editorial_miss_after_rewrite",
+        "classification": "targeted_editorial"
+      }
+    },
+    {
+      "attempt": 3,
+      "mode": "recovery_retry",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rewrite_retry_model"
+      },
+      "raw_preview": "{\"patches\":[{\"span_id\":\"p1\",\"target_text\":\"“Yeah, I guess so.” Each syllable felt heavy with the weight of everything left unspoken.\",\"replacement_text\":\"“Yeah, I guess so.” Each syllable seemed to dr",
+      "normalized_preview": "{\"patches\":[{\"span_id\":\"p1\",\"target_text\":\"“Yeah, I guess so.” Each syllable felt heavy with the weight of everything left unspoken.\",\"replacement_text\":\"“Yeah, I guess so.” Each syllable seemed to dr",
+      "raw_length": 271,
+      "normalized_length": 271,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKU4TiXYFWhPbij1ihbxlpxMnkjR7\", \"object\": \"chat.completion\", \"created\": 1773774525, \"model\": \"gpt-4o-2024-08-06\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"span_id\\\":\\\"p1\\\",\\\"target_text\\\":\\\"“Yeah, I guess so.” Each syllable felt heavy with the weight of everything left unspoken.\\\",\\\"replacement_text\\\":\\\"“Yeah, I guess so.” Each syllable seemed to drag across her tongue, burdened by the unspoken truths between them.\\\"}]}\", \"refusal\": ",
+      "patch_targets": [
+        {
+          "span_id": "p1",
+          "target_type": "generic",
+          "target_text": "“Yeah, I guess so.” Each syllable felt heavy with the weight of everything left unspoken.",
+          "target_phrase": "heavy with"
+        }
+      ],
+      "patch_response": [
+        {
+          "span_id": "p1",
+          "target_text": "“Yeah, I guess so.” Each syllable felt heavy with the weight of everything left unspoken.",
+          "replacement_text": "“Yeah, I guess so.” Each syllable seemed to drag across her tongue, burdened by the unspoken truths between them."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_dialogue_grounding_unresolved"
+      }
+    },
+    {
+      "attempt": 4,
+      "mode": "repair_only",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rewrite_retry_model"
+      },
+      "raw_preview": "```json\n{\"patches\":[{\"span_id\":\"p1\",\"target_text\":\"“Yeah, I guess so.” Each syllable felt heavy with the weight of everything left unspoken.\",\"replacement_text\":\"“Yeah, I guess so.” Each syllable felt",
+      "normalized_preview": "```json\n{\"patches\":[{\"span_id\":\"p1\",\"target_text\":\"“Yeah, I guess so.” Each syllable felt heavy with the weight of everything left unspoken.\",\"replacement_text\":\"“Yeah, I guess so.” Each syllable felt",
+      "raw_length": 273,
+      "normalized_length": 273,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKU4Um9OKuGMgdv1NLz4l7BAmJvHc\", \"object\": \"chat.completion\", \"created\": 1773774526, \"model\": \"gpt-4o-2024-08-06\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"```json\\n{\\\"patches\\\":[{\\\"span_id\\\":\\\"p1\\\",\\\"target_text\\\":\\\"“Yeah, I guess so.” Each syllable felt heavy with the weight of everything left unspoken.\\\",\\\"replacement_text\\\":\\\"“Yeah, I guess so.” Each syllable felt like a leaden burden, weighted down by everything left unspoken.\\\"}]}\\n```\", \"refusa",
+      "patch_targets": [
+        {
+          "span_id": "p1",
+          "target_type": "generic",
+          "target_text": "“Yeah, I guess so.” Each syllable felt heavy with the weight of everything left unspoken.",
+          "target_phrase": "heavy with"
+        }
+      ],
+      "patch_response": [
+        {
+          "span_id": "p1",
+          "target_text": "“Yeah, I guess so.” Each syllable felt heavy with the weight of everything left unspoken.",
+          "replacement_text": "“Yeah, I guess so.” Each syllable felt like a leaden burden, weighted down by everything left unspoken."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_dialogue_grounding_unresolved"
+      }
+    }
+  ],
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 28,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 321,
+    "paragraph_count": 4,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 7,
+    "concrete_hits": 1,
+    "generic_hits": 0,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The sun hung low over the horizon, casting elongated shadows that slipped across the cracked pavement of the old parking lot, their shapes twisting in the fading light. A thin breeze rustled through the air, carrying the scent of damp earth from a distant rain mingled with the sharp, metallic tang of gasoline. Ava leaned against the cool metal of her car, its surface a stark contrast to the warmth of her skin, a brief anchor in the storm of thoughts swirling in her mind. The rhythmic thud of her heartbeat reverberated in her ears, harmonizing with the distant laughter of teenagers playing tag nearby, their carefree shouts a vivid reminder of the joy she felt so far removed from. She caught snippets of their playfulness, but the weight in her chest felt like a heavy stone, pressing down on her as she watched their freedom.\n\n“Hey,” a voice sliced through her reverie, drawing her back into the moment. It was Jake, his figure framed against the dimming light, the familiar lopsided grin breaking across his face like sunrise. He approached with an easy confidence, his hands tucked into the pockets of faded jeans that had seen better days. “You still want to talk?”\n\nAva nodded, her throat tight as she swallowed hard, the words lodged like stones. “Yeah, I guess so.” Each syllable felt heavy with the weight of everything left unspoken. She turned her gaze to the ground, focusing on a piece of litter tumbling across the asphalt, the movement a distraction from the intensity of his eyes. The last rays of sunlight bathed his features in warm hues, and for a fleeting moment, she longed to reach out and trace the line of his jaw, but the thought of vulnerability rooted her in place.\n\n“Let’s sit,” he suggested, gesturing toward an old wooden bench that sagged under its own weight, splintered and weathered from years of neglect. Rel"
+  },
+  "critique_snapshot": {
+    "summary": "Ava stands in an old parking lot, reflecting on her emotions while waiting for Jake. Their interaction reveals tension and unspoken feelings as they prepare to discuss their relationship.",
+    "weaknesses": [
+      "Vague descriptions that do not provide a clear picture of the setting.",
+      "Dialogue lacks grounding in physical action or the environment."
+    ],
+    "continuity_issues": [
+      "The transition from Ava's internal thoughts to Jake's entrance feels abrupt and lacks a smooth flow."
+    ],
+    "pacing_issues": [
+      "The pacing slows significantly during the dialogue, making the emotional weight feel stretched and less impactful."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid setting.",
+      "Ground dialogue in physical actions or the environment to increase realism."
+    ],
+    "generic_phrase_targets": [
+      "The phrase 'pulled her back into the moment' is clichéd and could be rephrased for originality."
+    ],
+    "detail_targets": [
+      "Descriptions of the parking lot and the bench could be more specific to evoke a stronger sense of place."
+    ],
+    "dialogue_grounding_targets": [
+      "Jake's dialogue should be more connected to the physical setting or actions to enhance realism."
+    ],
+    "emotional_show_targets": [
+      "Ava's internal struggle could be shown through more specific actions or reactions rather than vague feelings."
+    ],
+    "replacement_targets": [
+      "Replace 'the weight pressing down on her chest' with a more concrete description of her emotional state."
+    ],
+    "grounding_targets": [
+      "Include more sensory details related to the environment to ground the characters' emotions."
+    ],
+    "carryover_targets": [
+      "Ensure that Ava's thoughts and feelings carry over more fluidly into her interactions with Jake."
+    ]
+  },
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [],
+      "generic_phrases_to_replace": [
+        "heavy with"
+      ],
+      "lines_to_repair": [
+        "“Yeah, I guess so.” Each syllable felt heavy with the weight of everything left unspoken."
+      ],
+      "required_concrete_anchor_terms": [
+        "across",
+        "weight"
+      ],
+      "repair_min_word_count": 272,
+      "repair_max_word_count": 481,
+      "min_paragraph_count": 2,
+      "max_paragraph_count": 6
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-4o",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rewrite_retry_model"
+    },
+    "patch_targets_summary": {
+      "target_count": 1,
+      "target_types": [
+        "generic"
+      ]
+    },
+    "rescue_failure_class": "patch_dialogue_grounding_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 321,
+    "rewritten_word_count": 321,
+    "min_word_count": 192,
+    "max_word_count": 674,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "his",
+      "that",
+      "distant",
+      "but",
+      "and",
+      "danced",
+      "across",
+      "old",
+      "breeze"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "his",
+      "that",
+      "distant",
+      "but",
+      "and",
+      "across",
+      "old"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 28
+  }
+}

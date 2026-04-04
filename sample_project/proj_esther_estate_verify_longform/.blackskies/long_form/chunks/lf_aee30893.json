@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_aee30893",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:fdc6899a5c0894b4a94892a25928641972f1d335de91a9e3ebf25e243dbbfe77",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The rain drummed a relentless rhythm against the pavement, each drop a small percussionist in the symphony of the night",
+    "word_count": 309,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 4,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 29,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 309,
+    "paragraph_count": 6,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 8,
+    "concrete_hits": 2,
+    "generic_hits": 1,
+    "stock_phrase_hits": 2,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The rain drummed a relentless rhythm against the pavement, each drop a small percussionist in the symphony of the night. Shadows danced beneath the flickering streetlamp, where Clara stood, her breath curling like smoke in the damp air. She pulled her coat tighter around her, the fabric heavy with the scent of damp wool and the faint trace of lavender from her last wash. This was not how she had imagined her evening would unfold; the soft clink of wine glasses and the laughter of friends had been replaced by the solitary whisper of the storm.\n\nA car passed, its headlights slicing through the gloom, illuminating the raindrops that sparkled like tiny diamonds in the air before fading back into obscurity. Clara shifted her weight from one foot to the other, the cold seeping through her shoes, and felt a flicker of frustration. She had waited too long. He was late—again.\n\nShe checked her watch, the face illuminated by a quick swipe of her thumb. Ten minutes past the hour. A sigh escaped her lips, mingling with the cool mist as she scanned the street. The world felt muted, every sound dulled by the heavy clouds above. The scent of wet asphalt mixed with something more pungent, a hint of decay from the nearby alley, where refuse clung stubbornly to the corners.\n\n“Clara!” A voice broke through the murmur of the rain, startling her. She turned, heart racing, to see Ben jogging toward her, his silhouette blurred by the downpour. As he drew closer, she could make out the sheepish grin plastered on his face, water streaming from his hair and soaking through his shirt, creating dark patches against the fabric.\n\n“Sorry, sorry! Traffic was a nightmare,” he said, breathless, running a hand through his damp hair, sending droplets flying like tiny shrapnel.\n\n“Traffic?” Clara arched an eyebrow, her"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

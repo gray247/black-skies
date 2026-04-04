@@ -1,0 +1,100 @@
+{
+  "chunk_id": "lf_5b2bee36",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:4812a32ced8e8ad2527f6e0e4ac1e72008eeb73c8c85a3e0b938928bb44cc6d7",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 21,
+    "fallback_reason": "quality_failed"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "quality_failed"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 5,
+      "specificity": 3,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 29,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 613,
+    "paragraph_count": 12,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 4,
+    "concrete_hits": 1,
+    "generic_hits": 1,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "weak_carryover": false,
+    "generic_risk": false
+  },
+  "critique_snapshot": {
+    "summary": "Elara steps onto a boardwalk, contemplating her solitude while being approached by Finn, who invites her to join a celebration at a nearby tavern. Their playful banter reveals her internal conflict about seeking companionship versus solitude. Ultimately, she decides to join him, feeling a flicker of hope as they head towards their friends.",
+    "weaknesses": [
+      "Generic stock phrasing such as 'the air was thick with the scent of damp earth' and 'the sun dipped low on the horizon' detracts from originality.",
+      "Vague scene details, particularly regarding the tavern and the celebration, leave the setting feeling underdeveloped.",
+      "Dialogue lacks grounding in physical action or specific context, making it feel disconnected from the environment."
+    ],
+    "continuity_issues": [
+      "Elara's internal conflict is introduced but not fully explored or resolved, leading to a lack of continuity in her emotional journey.",
+      "The transition from her contemplation to joining Finn feels abrupt and lacks a clear motivation."
+    ],
+    "pacing_issues": [
+      "The pacing slows significantly during Elara's internal monologue, which could benefit from more concise expression to maintain engagement.",
+      "The dialogue exchange, while playful, does not advance the plot or character development effectively, causing a lull in momentum."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Replace generic phrases with more vivid, unique descriptions to enhance imagery and engagement.",
+      "Provide clearer details about the tavern and the celebration to create a more immersive setting.",
+      "Ground dialogue in physical actions or specific context to strengthen character interactions and emotional resonance.",
+      "Clarify Elara's internal conflict and motivations to ensure continuity and depth in her character arc."
+    ]
+  },
+  "attempt_count": 2,
+  "acceptance_reason": "quality_failed",
+  "rewrite_used": true
+}

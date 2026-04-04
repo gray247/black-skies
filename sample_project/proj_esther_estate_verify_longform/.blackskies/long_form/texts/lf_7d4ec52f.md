@@ -1,0 +1,9 @@
+﻿The wind howled through the narrow streets, a restless spirit that swept up discarded leaves and debris, swirling them in a chaotic dance around Nora’s ankles. She hugged her coat tighter, the fabric worn but familiar against her skin, as she stepped deeper into the heart of the city. The scent of rain lingered in the air, heavy and electric, the kind that promised a storm but teased with only a light drizzle, leaving the cobblestones slick and glistening under the dim streetlamps.
+
+She passed a café, the warmth spilling out in golden pools, where laughter mingled with the rich aroma of freshly brewed coffee. For a moment, she hesitated, the temptation to escape the chill pulling her closer to the door. But then she remembered the meeting, the weight of the envelope in her pocket pressing against her thigh, a reminder of the urgency that had driven her from the comfort of home. She quickened her pace, her boots tapping rhythmically against the stones, a heartbeat against the backdrop of the city’s hum.
+
+As she turned a corner, the streets widened, revealing a small square where a fountain gurgled softly, its water catching the light like shards of glass. A couple sat on a nearby bench, their heads bent together in quiet conversation, oblivious to the world around them. Nora’s chest tightened at the sight, a flicker of envy igniting her thoughts. They looked so at ease, so anchored in their shared moment, while she felt like a ship adrift in the tempest of her own mind.
+
+“Hey, you alright?” A voice broke through her reverie, and she turned to find Jamie leaning against a lamppost, his hands shoved deep into the pockets of his jacket. His brow was furrowed, concern etched into his features, and that simple expression tugged at something deep inside her.
+
+“Yeah, I’m fine,” she replied, forcing a smile that

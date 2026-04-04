@@ -1,0 +1,355 @@
+{
+  "chunk_id": "lf_9414f2bb",
+  "validation_decision": false,
+  "fallback_reason": "rewrite_guardrail_failed",
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "basic_validation": {
+        "usable": true,
+        "word_count": 612,
+        "paragraph_count": 12,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [
+          "floor",
+          "door",
+          "calla",
+          "tightened",
+          "wrench",
+          "metal",
+          "biting",
+          "grounding"
+        ],
+        "carryover_hits": 4,
+        "material_carryover_hits": 0
+      },
+      "raw_preview": "Calla’s fingers slid over the grimy engine block, the rough texture of rusted metal scraping against her skin as she searched for the stubborn bolt that had eluded her grasp. The air was thick with th",
+      "normalized_preview": "Calla’s fingers slid over the grimy engine block, the rough texture of rusted metal scraping against her skin as she searched for the stubborn bolt that had eluded her grasp. The air was thick with th",
+      "raw_length": 3480,
+      "normalized_length": 3474,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DK7r7wcTQ0ezYQRA50xihSm37bspz\", \"object\": \"chat.completion\", \"created\": 1773689129, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"Calla’s fingers slid over the grimy engine block, the rough texture of rusted metal scraping against her skin as she searched for the stubborn bolt that had eluded her grasp. The air was thick with the scent of motor oil, a familiar perfume that wrapped around her like an old sweater, warm yet",
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 4,
+          "clarity": 2,
+          "pacing": 5,
+          "specificity": 2,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 27,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 612,
+        "paragraph_count": 12,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 6,
+        "concrete_hits": 2,
+        "generic_hits": 1,
+        "stock_phrase_hits": 3,
+        "carryover_terms": [
+          "floor",
+          "door",
+          "calla",
+          "tightened",
+          "wrench",
+          "metal",
+          "biting",
+          "grounding"
+        ],
+        "carryover_hits": 4,
+        "material_carryover_hits": 0,
+        "material_carryover": false,
+        "weak_carryover": false,
+        "generic_risk": true,
+        "text": "Calla’s fingers slid over the grimy engine block, the rough texture of rusted metal scraping against her skin as she searched for the stubborn bolt that had eluded her grasp. The air was thick with the scent of motor oil, a familiar perfume that wrapped around her like an old sweater, warm yet heavy with memories. She bit her lip, willing the bolt to yield as if her sheer will could coax it free. The workshop hummed with silence save for the sporadic clinks of metal and the distant echo of her own breath, each inhale a steady reminder of the task at hand.\n\n“Come on, you old hunk of junk,” she muttered under her breath, her voice barely louder than a whisper. The words felt futile, yet they dripped with a mix of frustration and affection, a strange camaraderie forged through years of labor. She felt the weight of the wrench in her palm, its coolness a stark contrast to the warmth radiating from her skin where she had pressed it against the engine.\n\nJust then, the door creaked open, spilling in the golden light of the late afternoon sun. Calla squinted, her eyes adjusting to the brightness as she turned to see Lucas silhouetted in the entrance. He stepped inside, the light framing him like a halo, his grin infectious. “Still at it?” he asked, a teasing lilt to his voice that made her heart quicken for reasons she didn’t quite want to acknowledge.\n\n“Of course,” she replied, feigning annoyance as she wiped her hands on her grease-stained overalls. “You think it’s going to fix itself?”\n\nHe chuckled, crossing the threshold with an easy confidence. “I was hoping you’d magically turn it into a sports car while I was gone.” He leaned against the wall, arms crossed, eyes sparkling with mischief.\n\n“Right, because that’s how it works,” she said, rolling her eyes, but the corner of her mouth betrayed her, curving upward despite the tension coiling in her chest. She felt the familiar flutter of something unnameable—the way he looked at her, all warmth and unspoken words. It made her fumble with the wrench, her fingers slipping slightly as she turned back to the engine.\n\n“Need a hand?” Lucas stepped closer, the scent of his cologne mingling with the oil and dust, creating a heady concoction that made her heart race.\n\n“No,” she replied too quickly, the denial spilling from her lips before she could temper it. She didn’t want to admit how much she needed help, or how much she craved the connection that came with sharing this space. It felt safer to keep him at a distance, where the weight of her unfulfilled dreams wouldn’t suffocate them both.\n\n“Okay, okay,” he said, raising his hands in mock surrender. “I’ll just be over here, then.” He moved to the workbench, inspecting a cluster of old tools with a casual curiosity. “But if you need to vent about how this thing is the bane of your existence, I’m all ears.”\n\nCalla’s breath caught as she felt the urge to confide in him, to spill out the frustrations that piled up like the dust on the shelves. But instead, she just laughed, a sound that felt strangely foreign to her lips, and returned her focus to the engine. “It’s just a project,” she said lightly, though the words felt hollow. “Nothing I can’t handle.”\n\n“Right,” Lucas replied, his tone laced with skepticism. “You’re just a master mechanic in the making, a real prodigy.”\n\nHis playful banter hung in the air, a delicate thread weaving between them. She could feel it, the unspoken challenge in his gaze, the way he always believed"
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "rewrite",
+        "escalated": false,
+        "reason": "rewrite_default"
+      },
+      "basic_validation": {
+        "usable": true,
+        "word_count": 627,
+        "paragraph_count": 11,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [
+          "floor",
+          "door",
+          "calla",
+          "tightened",
+          "wrench",
+          "metal",
+          "biting",
+          "grounding"
+        ],
+        "carryover_hits": 6,
+        "material_carryover_hits": 0
+      },
+      "raw_preview": "Calla tightened her grip on the wrench, the cold metal pressing into her palm, anchoring her in the chaotic world of the workshop. She surveyed the space, tools scattered across the concrete floor lik",
+      "normalized_preview": "Calla tightened her grip on the wrench, the cold metal pressing into her palm, anchoring her in the chaotic world of the workshop. She surveyed the space, tools scattered across the concrete floor lik",
+      "raw_length": 3652,
+      "normalized_length": 3651,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DK7rSR72lINCkn5G2yM7A0MJiEtTa\", \"object\": \"chat.completion\", \"created\": 1773689150, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"Calla tightened her grip on the wrench, the cold metal pressing into her palm, anchoring her in the chaotic world of the workshop. She surveyed the space, tools scattered across the concrete floor like remnants of a forgotten battle, each one holding its own story of toil and triumph. The scen",
+      "guardrail_snapshot": {
+        "evaluated": true,
+        "mode": "rewrite",
+        "outline_titles": [],
+        "beat_refs": [],
+        "locked_facts_evaluated": false,
+        "length_band_evaluated": true,
+        "original_word_count": 612,
+        "rewritten_word_count": 627,
+        "min_word_count": 367,
+        "max_word_count": 1285,
+        "within_length_band": true,
+        "outline_fidelity_evaluated": true,
+        "outline_fidelity_pass": false,
+        "original_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "that",
+          "felt",
+          "his",
+          "and",
+          "you",
+          "engine",
+          "how",
+          "calla",
+          "against"
+        ],
+        "retained_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "that",
+          "his",
+          "and",
+          "you",
+          "against"
+        ],
+        "outline_anchor_hits": [
+          "her",
+          "the",
+          "she",
+          "wrench",
+          "and",
+          "that",
+          "had"
+        ],
+        "required_anchor_overlap": 1,
+        "scene_anchor_drift_detected": false,
+        "new_story_elements": [
+          "lucas"
+        ],
+        "blocking_new_story_elements": [
+          "lucas"
+        ],
+        "authoritative_name_check": true,
+        "uncertainty_triggered": true,
+        "failure_reason": "outline_drift_detected",
+        "accepted": false,
+        "quality_total_score": 27
+      },
+      "guardrail_blocked": true
+    }
+  ],
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 2,
+      "pacing": 5,
+      "specificity": 3,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 27,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 627,
+    "paragraph_count": 11,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 8,
+    "concrete_hits": 4,
+    "generic_hits": 0,
+    "stock_phrase_hits": 4,
+    "carryover_terms": [
+      "floor",
+      "door",
+      "calla",
+      "tightened",
+      "wrench",
+      "metal",
+      "biting",
+      "grounding"
+    ],
+    "carryover_hits": 6,
+    "material_carryover_hits": 0,
+    "material_carryover": false,
+    "weak_carryover": false,
+    "generic_risk": true
+  },
+  "critique_snapshot": {
+    "summary": "Calla works on a stubborn engine bolt in a workshop, feeling a mix of frustration and nostalgia. Lucas enters, teasing her about her project, and their playful banter reveals an underlying tension and connection between them. Calla struggles with her feelings and the desire for help while maintaining a facade of independence.",
+    "weaknesses": [
+      "Generic phrases and stock expressions diminish the uniqueness of the scene.",
+      "Vague descriptions fail to create a vivid image of the setting and characters.",
+      "Dialogue lacks grounding in physical actions and specific details."
+    ],
+    "continuity_issues": [],
+    "pacing_issues": [],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid scene.",
+      "Replace generic phrases with more original language.",
+      "Ground dialogue in physical actions or setting to increase realism."
+    ],
+    "generic_phrase_targets": [
+      "old hunk of junk",
+      "master mechanic in the making",
+      "a real prodigy"
+    ],
+    "detail_targets": [
+      "the scent of motor oil",
+      "the rough texture of rusted metal",
+      "the golden light of the late afternoon sun"
+    ],
+    "dialogue_grounding_targets": [
+      "Lucas's entrance and actions",
+      "Calla's reactions to Lucas",
+      "The physical context of their conversation"
+    ],
+    "emotional_show_targets": [
+      "Calla's internal conflict about needing help",
+      "The tension in her interactions with Lucas"
+    ],
+    "replacement_targets": [
+      "the familiar perfume that wrapped around her like an old sweater",
+      "the weight of the wrench in her palm"
+    ],
+    "grounding_targets": [
+      "Calla's actions with the wrench",
+      "Lucas's movements and positioning in the workshop"
+    ],
+    "carryover_targets": []
+  },
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 612,
+    "rewritten_word_count": 627,
+    "min_word_count": 367,
+    "max_word_count": 1285,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": false,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "that",
+      "felt",
+      "his",
+      "and",
+      "you",
+      "engine",
+      "how",
+      "calla",
+      "against"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "that",
+      "his",
+      "and",
+      "you",
+      "against"
+    ],
+    "outline_anchor_hits": [
+      "her",
+      "the",
+      "she",
+      "wrench",
+      "and",
+      "that",
+      "had"
+    ],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [
+      "lucas"
+    ],
+    "blocking_new_story_elements": [
+      "lucas"
+    ],
+    "authoritative_name_check": true,
+    "uncertainty_triggered": true,
+    "failure_reason": "outline_drift_detected",
+    "accepted": false,
+    "quality_total_score": 27
+  }
+}

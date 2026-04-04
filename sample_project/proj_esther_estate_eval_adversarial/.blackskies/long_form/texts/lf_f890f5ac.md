@@ -1,0 +1,9 @@
+﻿The dim glow of the cracked brass lantern flickered, casting elongated shadows that slithered across the peeling walls of the corridor. Clara Vale’s heart thudded in her chest, the sound almost drowned out by the soft patter of drops still falling from Jun Park’s soaked coat. The air was thick with the damp, earthy scent of the rain-soaked greenhouse, mingling with something sharp and metallic that Clara couldn’t quite place. She tightened her grip on the lantern, its weak light sputtering like a dying moth.
+
+“Did you hear that?” Jun’s voice trembled, eyes darting toward the chained door at the end of the passage. Clara could see the tension in his shoulders, the way he held himself like a coiled spring, ready to snap. She wanted to say something reassuring, to smooth the edges of his fear with her own certainty, but the words stuck in her throat.
+
+“Just the wind,” she said, too quickly, the sharpness of her tone echoing in the narrow space. She forced herself to breathe, focusing on the sensation of the red ribbon around her wrist, the parlor key still tied there, a reminder of their strange journey. The knot felt tight, as if it had grown into her skin, but she couldn’t recall how she’d tied it.
+
+They moved deeper into the corridor, the faint sound of something shifting behind the door sent chills racing down her spine. Jun hesitated, the lantern flickering again, its light waning as shadows danced around them. Clara stepped forward, the muddy prints on the floor catching her eye. They were fresh, leading away from the door, not behind them. She swallowed hard, the taste of fear like copper on her tongue.
+
+“What if someone’s in there?” Jun whispered, his voice barely above a breath. Clara could feel his gaze on her, the weight of his uncertainty pressing down like the heavy air

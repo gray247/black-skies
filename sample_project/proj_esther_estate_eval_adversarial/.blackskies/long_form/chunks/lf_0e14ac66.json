@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_0e14ac66",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:ac31563de272b1202a8e6f8ba47413b2e91424a2e58ae7560694edfa01f0c711",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The air in the corridor was thick, saturated with the scent of damp wood and the stale aftertaste of fear",
+    "word_count": 305,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 30,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 305,
+    "paragraph_count": 6,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 6,
+    "concrete_hits": 12,
+    "generic_hits": 1,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The air in the corridor was thick, saturated with the scent of damp wood and the stale aftertaste of fear. Clara pulled her coat tighter around her shoulders, its fabric clinging to her skin like a second layer, but the chill crept through regardless. Jun’s lantern flickered, casting erratic shadows that danced along the walls, revealing peeling wallpaper and remnants of a bygone elegance. She glanced at him, the worry etched on his face as he squinted into the dimness. The brass lantern, cracked and weary, sputtered again, its glow barely illuminating the muddy prints leading deeper into the passage.\n\n“Do you see that?” Jun whispered, his voice tight, as if the words themselves could shatter the silence. Clara nodded, though her heart thudded heavily against her ribs. The footprints were fresh, the mud glistening as it curled around the edges of the floorboards, but the uncertainty gnawed at her—who had walked here, and when?\n\n“Maybe it’s just someone from the staff,” she said, trying to inject strength into her tone, though it felt brittle, like the ceramic fox tucked away in her pocket, its chipped ear a reminder of childhood comforts. “They could have been up here working.”\n\nJun shook his head, his eyes darting to the chained door at the end of the corridor, the chain rattling slightly as if something on the other side was testing its strength. “No one else is supposed to be here, Clara. Not since—”\n\n“Since what?” she snapped, the sharpness of her voice echoing in the confined space. The words hung between them, thick with unsaid fears. She softened her tone, realizing too late how it had cut through the haze of tension. “I’m sorry. It’s just… we need to keep moving.”\n\nShe turned, the ribbon around her wrist brushing against her skin, reminding her that the"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

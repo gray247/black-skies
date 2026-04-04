@@ -1,0 +1,236 @@
+{
+  "chunk_id": "lf_43470f94",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:f7804084324d7d34ffe6243d90794555e1556aaa225a9c27d548c9f9736da8f8",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 21,
+    "fallback_reason": "adapter_error"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "adapter_error"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 30,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 307,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 8,
+    "concrete_hits": 5,
+    "generic_hits": 0,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The wind whipped through the narrow alley, a sharp gust that carried the fresh scent of rain-soaked pavement mingled with the warm, nutty aroma of roasting chestnuts from a nearby stall. Amelia shivered, pulling her jacket tighter around her shoulders, her eyes darting to the slate-gray sky, heavy with the promise of a downpour. Each drop that would soon splatter against the cobblestones felt like a heartbeat, echoing in the silence of the street, a reminder of the brewing storm both above and within her.\n\n“Don’t let it get to you,” she whispered to herself, her voice nearly swallowed by the rustling leaves. The words felt like a fragile shield against the unease coiling in her stomach. Taking a deep breath, she inhaled the crisp air, letting it fill her lungs as she tried to find the clarity that always seemed to slip through her fingers. Ahead, a flickering neon sign buzzed, casting an erratic glow that danced across the damp walls, illuminating shadows where secrets seemed to linger, poised to leap out at her.\n\n“Amelia!” The sharpness of her name sliced through the murmur of the city, pulling her attention. She turned to see Max striding toward her, his expression a blend of concern and intensity. His hair, dark and tousled by the wind, fell over his forehead as he approached, the purposeful way he moved sending a jolt through her. “You’re late. We agreed on six.”\n\n“I know,” she replied, forcing a smile that crumbled before it reached her eyes. “The bus was stuck behind an accident.” She shoved her hands into her pockets, feeling the cool metal of her keys digging into her palm, grounding her as she spoke.\n\n“Always the bus,” he cut in, frustration flashing across his features. “You can’t keep doing this. We’re on borrowed time.” His voice was taut, and"
+  },
+  "critique_snapshot": {
+    "summary": "The scene depicts Amelia waiting in a narrow alley, feeling the tension of an impending storm both in the weather and in her personal situation with Max, who confronts her about being late. The atmosphere is set with sensory details, but the dialogue lacks grounding in physical action.",
+    "weaknesses": [
+      "Dialogue is not grounded in physical action or setting.",
+      "Generic phrases detract from the uniqueness of the scene.",
+      "Vague details prevent a strong visual image."
+    ],
+    "continuity_issues": [
+      "The emotional tension between Amelia and Max is introduced but not fully explored or resolved."
+    ],
+    "pacing_issues": [
+      "The pacing slows significantly during the dialogue, which feels disjointed from the action."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance the grounding of dialogue in physical actions.",
+      "Replace generic phrases with more specific language.",
+      "Add more vivid details to create a stronger sense of place."
+    ],
+    "generic_phrase_targets": [
+      "flimsy shield",
+      "waiting to pounce"
+    ],
+    "detail_targets": [
+      "the way he moved, all purpose and intensity",
+      "the promise of a downpour"
+    ],
+    "dialogue_grounding_targets": [
+      "Amelia’s response to Max should include a physical action that reflects her emotional state."
+    ],
+    "emotional_show_targets": [
+      "Show Amelia's internal conflict more vividly through her actions or reactions."
+    ],
+    "replacement_targets": [
+      "Replace 'the bus was—' with a more specific reason for her lateness."
+    ],
+    "grounding_targets": [
+      "Add physical actions that accompany the dialogue to create a more dynamic interaction."
+    ],
+    "carryover_targets": [
+      "Ensure that the emotional stakes introduced in the beginning carry through to the dialogue."
+    ]
+  },
+  "attempt_count": 3,
+  "acceptance_reason": "adapter_error",
+  "rewrite_used": true,
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "borderline",
+      "reason": "borderline_quality_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "borderline_quality_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_model_name": "gpt-5.4-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": false,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": false,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": false,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Don’t let it get to you,” she whispered to herself, her voice nearly swallowed by the rustling leaves.",
+        "“Amelia!” The sharpness of her name sliced through the murmur of the city, pulling her attention.",
+        "“You’re late.",
+        "We agreed on six.”\n\n“I know,” she replied, forcing a smile that crumbled before it reached her eyes."
+      ],
+      "generic_phrases_to_replace": [
+        "heavy with"
+      ],
+      "lines_to_repair": [
+        "Amelia shivered, pulling her jacket tighter around her shoulders, her eyes darting to the slate-gray sky, heavy with the promise of a downpour.",
+        "“Don’t let it get to you,” she whispered to herself, her voice nearly swallowed by the rustling leaves.",
+        "“Amelia!” The sharpness of her name sliced through the murmur of the city, pulling her attention.",
+        "“You’re late.",
+        "We agreed on six.”\n\n“I know,” she replied, forcing a smile that crumbled before it reached her eyes."
+      ],
+      "required_concrete_anchor_terms": [
+        "wind",
+        "amelia",
+        "pulling"
+      ],
+      "repair_min_word_count": 260,
+      "repair_max_word_count": 460,
+      "min_paragraph_count": 3,
+      "max_paragraph_count": 7
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rescue_model"
+    }
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 298,
+    "rewritten_word_count": 307,
+    "min_word_count": 178,
+    "max_word_count": 625,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "and",
+      "she",
+      "that",
+      "his",
+      "wind",
+      "against",
+      "you",
+      "voice",
+      "amelia",
+      "reminder"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "and",
+      "she",
+      "that",
+      "his",
+      "wind",
+      "against",
+      "you",
+      "voice",
+      "amelia"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 30
+  }
+}

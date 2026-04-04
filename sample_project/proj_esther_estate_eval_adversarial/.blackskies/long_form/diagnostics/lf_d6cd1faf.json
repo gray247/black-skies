@@ -1,0 +1,209 @@
+{
+  "chunk_id": "lf_d6cd1faf",
+  "validation_decision": true,
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "basic_validation": {
+        "usable": true,
+        "word_count": 583,
+        "paragraph_count": 16,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [
+          "against",
+          "nursery",
+          "despite",
+          "chill",
+          "corridor",
+          "pulse",
+          "steady",
+          "rhythm"
+        ],
+        "carryover_hits": 6,
+        "material_carryover_hits": 0
+      },
+      "raw_preview": "Clara leaned into the door, her palm pressing against the warm, rough wood as if to draw strength from it. The pulse of the house thrummed beneath her fingers, a heartbeat that echoed her own—a steady",
+      "normalized_preview": "Clara leaned into the door, her palm pressing against the warm, rough wood as if to draw strength from it. The pulse of the house thrummed beneath her fingers, a heartbeat that echoed her own—a steady",
+      "raw_length": 3455,
+      "normalized_length": 3447,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DJr0UpLZVY5YamCG2k9xaqgzhltMg\", \"object\": \"chat.completion\", \"created\": 1773624362, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"Clara leaned into the door, her palm pressing against the warm, rough wood as if to draw strength from it. The pulse of the house thrummed beneath her fingers, a heartbeat that echoed her own—a steady rhythm that somehow calmed her even as dread coiled in her stomach. The lantern in Jun’s gras",
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 4,
+          "clarity": 2,
+          "pacing": 5,
+          "specificity": 3,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 28,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 583,
+        "paragraph_count": 16,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 10,
+        "concrete_hits": 12,
+        "generic_hits": 2,
+        "stock_phrase_hits": 0,
+        "carryover_terms": [
+          "against",
+          "nursery",
+          "despite",
+          "chill",
+          "corridor",
+          "pulse",
+          "steady",
+          "rhythm"
+        ],
+        "carryover_hits": 6,
+        "material_carryover_hits": 0,
+        "material_carryover": false,
+        "weak_carryover": false,
+        "generic_risk": true
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "basic_validation": {
+        "usable": true,
+        "word_count": 583,
+        "paragraph_count": 15,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [
+          "against",
+          "nursery",
+          "despite",
+          "chill",
+          "corridor",
+          "pulse",
+          "steady",
+          "rhythm"
+        ],
+        "carryover_hits": 5,
+        "material_carryover_hits": 1
+      },
+      "raw_preview": "Clara pressed her palm against the nursery door, the rough wood warm under her fingers, a stark contrast to the icy air of the corridor. It felt alive, resonating with the vibrations of the house, as ",
+      "normalized_preview": "Clara pressed her palm against the nursery door, the rough wood warm under her fingers, a stark contrast to the icy air of the corridor. It felt alive, resonating with the vibrations of the house, as ",
+      "raw_length": 3537,
+      "normalized_length": 3537,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DJr0ms4ILs4tnDHhIplvst9tMPM9J\", \"object\": \"chat.completion\", \"created\": 1773624380, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"Clara pressed her palm against the nursery door, the rough wood warm under her fingers, a stark contrast to the icy air of the corridor. It felt alive, resonating with the vibrations of the house, as if every creak and sigh was a whispered secret waiting to be uncovered. The lantern in Jun’s g",
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 5,
+          "clarity": 3,
+          "pacing": 5,
+          "specificity": 4,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 31,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 583,
+        "paragraph_count": 15,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 9,
+        "concrete_hits": 12,
+        "generic_hits": 2,
+        "stock_phrase_hits": 3,
+        "carryover_terms": [
+          "against",
+          "nursery",
+          "despite",
+          "chill",
+          "corridor",
+          "pulse",
+          "steady",
+          "rhythm"
+        ],
+        "carryover_hits": 5,
+        "material_carryover_hits": 1,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": true
+      },
+      "quality_pass": true,
+      "rewrite_delta": {
+        "total_delta": 3,
+        "stock_phrase_delta": -3,
+        "specificity_delta": 1,
+        "clarity_delta": 1,
+        "continuity_delta": 1
+      }
+    }
+  ],
+  "acceptance_reason": "rewrite_pass",
+  "critique_snapshot": {
+    "summary": "Clara and Jun stand outside a nursery door, feeling a sense of dread and anticipation. They discuss whether the door is locked and share unsettling sensations about the house, including the feeling of being watched and hearing a child's cough. Tension builds as they confront their fears and the mysterious presence of the house.",
+    "weaknesses": [
+      "Generic stock phrasing such as 'steady rhythm' and 'mocking laugh' detracts from originality.",
+      "Vague scene details, particularly regarding the house's condition and the nature of the sounds they hear.",
+      "Dialogue lacks grounding in physical action or the setting, making it feel detached."
+    ],
+    "continuity_issues": [
+      "The transition from Clara's tactile experience with the door to the dialogue feels abrupt and lacks a smooth flow."
+    ],
+    "pacing_issues": [
+      "The scene's tension builds well, but the dialogue exchanges could be tightened to maintain momentum."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid setting.",
+      "Ground dialogue in physical actions or reactions to improve realism.",
+      "Eliminate generic phrases and replace them with more original imagery."
+    ],
+    "replacement_targets": [
+      "Replace 'steady rhythm' with a more unique description of the house's ambiance.",
+      "Substitute 'mocking laugh' with a more specific reaction to the flickering light."
+    ],
+    "grounding_targets": [
+      "Incorporate physical actions that reflect the characters' emotional states during dialogue.",
+      "Use sensory details to connect characters' feelings with their environment more effectively."
+    ],
+    "carryover_targets": [
+      "Reduce reliance on generic terms like 'pulse' and 'chill' to create a more distinct atmosphere."
+    ]
+  }
+}

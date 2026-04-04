@@ -1,0 +1,189 @@
+{
+  "chunk_id": "lf_86fed3c4",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:9962122935a5d6edcd0508a01e262f44eda38471ef93978d1008959913571f8e",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 21,
+    "fallback_reason": "quality_failed"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "quality_failed"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 2,
+      "clarity": 3,
+      "pacing": 4,
+      "specificity": 2,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 25,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 305,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 7,
+    "concrete_hits": 0,
+    "generic_hits": 1,
+    "stock_phrase_hits": 4,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": true,
+    "text": "The sun hung low in the sky, casting a molten orange hue over the cracked pavement of the desolate street. Each of Rachel’s footsteps reverberated in the stillness, rhythmically punctuating the distant hum of cicadas, their incessant song a reminder that summer lingered, even as twilight began to creep in. She paused, wiping the sweat from her brow, feeling the oppressive air cling to her skin like an unwanted shroud. As the light waned, elongated shadows stretched across the ground, weaving around the rusting remains of an old bicycle, its paint now a faded memory, peeling and flaking like old skin.\n\nHer heart raced—not from the heat, but from the unsettling quiet that surrounded her. She glanced over her shoulder, half-expecting to see someone materialize from the deepening dusk. The world felt too silent, too expectant, as if it were holding its breath, waiting for something to shatter the calm. A faint whisper of wind stirred through the nearby trees, their leaves trembling like nervous fingers.\n\n“Hello?” she called out, stepping forward, her voice small and tentative against the encroaching shadows. The word hung in the air, swallowed by the stillness, and for a moment, she felt foolish, as though she were addressing the specters of her memories.\n\n“Rachel?” The voice came from behind her, familiar yet heavy with a weariness that sent a shiver down her spine. She turned, her pulse quickening as Marco emerged from the gloom, his figure coalescing from the shadows like a ghost brought to life. The lines etched on his face spoke of sleepless nights and burdens he had carried too long. “You shouldn’t be out here alone,” he said, his brow furrowed with concern.\n\n“I needed to think,” she replied, her tone sharper than she intended, tension coiling in her stomach like a taut wire, ready to snap"
+  },
+  "critique_snapshot": {
+    "summary": "The scene depicts Rachel walking alone on an empty street during dusk, feeling the weight of silence and anticipation. She wipes sweat from her brow and hears cicadas, creating a tense atmosphere. Rachel calls out, and Marco, a familiar figure, appears, expressing concern for her solitude and suggesting that thinking won't change her situation.",
+    "weaknesses": [
+      "Vague descriptions that lack specificity.",
+      "Generic phrases that detract from the scene's uniqueness.",
+      "Dialogue that feels disconnected from physical actions."
+    ],
+    "continuity_issues": [
+      "The transition from Rachel's internal tension to Marco's entrance lacks a clear buildup, making it feel abrupt."
+    ],
+    "pacing_issues": [
+      "The pacing slows significantly during Rachel's internal reflections, which could be tightened to maintain tension."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid setting.",
+      "Replace generic phrases with more original language.",
+      "Ground dialogue in physical actions or the environment to create a stronger connection."
+    ],
+    "generic_phrase_targets": [
+      "small and fragile",
+      "weight of the silence",
+      "unwelcome embrace"
+    ],
+    "detail_targets": [
+      "cracked pavement",
+      "rusting remains of an old bicycle",
+      "the air thick and heavy"
+    ],
+    "dialogue_grounding_targets": [
+      "Rachel's call of 'Hello?' could be tied to her physical actions, such as stepping forward or looking around."
+    ],
+    "emotional_show_targets": [
+      "Rachel's heart racing could be shown through her physical reactions, like fidgeting or breathing heavily."
+    ],
+    "replacement_targets": [
+      "Replace 'the weight of the silence' with a more concrete description of her feelings or surroundings.",
+      "Substitute 'you shouldn’t be out here alone' with a more specific concern related to the setting."
+    ],
+    "grounding_targets": [
+      "Include more sensory details to ground the reader in the scene, such as sounds, smells, or tactile sensations."
+    ],
+    "carryover_targets": []
+  },
+  "attempt_count": 2,
+  "acceptance_reason": "quality_failed",
+  "rewrite_used": true,
+  "retry_snapshot": {
+    "used": false,
+    "succeeded": false,
+    "attempts_used": 0,
+    "max_attempts": 1,
+    "eligible": false,
+    "failure_classification": {
+      "classification": "hard",
+      "reason": "quality_threshold_miss",
+      "retry_eligible": false
+    },
+    "reason": "quality_threshold_miss"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 309,
+    "rewritten_word_count": 305,
+    "min_word_count": 185,
+    "max_word_count": 648,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "and",
+      "too",
+      "his",
+      "hung",
+      "rachel",
+      "stillness",
+      "embrace",
+      "air",
+      "shadows"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "and",
+      "too",
+      "his",
+      "hung",
+      "rachel",
+      "stillness",
+      "air",
+      "shadows"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 25
+  }
+}

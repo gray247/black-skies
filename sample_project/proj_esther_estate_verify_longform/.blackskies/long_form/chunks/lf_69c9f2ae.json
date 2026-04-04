@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_69c9f2ae",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:78b74b694588b1481bbbadd910ad9630df51ebfa0c3ae7a3b30e1e33e7eee46e",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The autumn wind danced through the narrow alley, rustling the golden leaves that carpeted the cobblestones like a forgotten tapestry",
+    "word_count": 290,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 4,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 29,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 290,
+    "paragraph_count": 6,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 6,
+    "concrete_hits": 2,
+    "generic_hits": 0,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The autumn wind danced through the narrow alley, rustling the golden leaves that carpeted the cobblestones like a forgotten tapestry. Shadows flickered between the buildings, their crumbling facades whispering secrets of past lives as Sophie hurried along, her heart thumping in rhythm with her quickening steps. She could taste the chill in the air, sharp and invigorating, mingling with the distant scent of roasting chestnuts from a nearby cart. The warmth of the fire seemed to beckon her, a siren's call against the chill that threatened to seep into her bones.\n\n“Hey, wait up!” A voice jolted her from her reverie. She turned, half-expected, half-anxious, to see Leo emerging from the fog of the alley. His hair was tousled, and there was a glimmer of mischief in his eyes that made her pulse skip. “You can’t just disappear like that. I thought you were going to leave me to fend for myself.”\n\nSophie rolled her eyes, a smile betraying her annoyance. “I wasn’t disappearing. I was just…” She let the words drift as she glanced back at the street, half-wishing for the safety of the crowd. “You know how it is. Just needed a moment.”\n\n“Right, a moment.” He stepped closer, the warmth of his presence diffusing some of the chill around them. “You’re not getting cold feet, are you? We’ve come this far.”\n\nThe weight of his gaze lingered, pulling at her resolve. She could feel the tension in the air, a taut string ready to snap. “It’s not about that. It’s just… I didn’t expect it to feel so real. What if—”\n\n“Stop,” he interrupted, his voice firm yet soft. “We’re in this together. Remember that.” His hand brushed against hers, a fleeting connection that sent a flutter"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

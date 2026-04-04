@@ -1,0 +1,93 @@
+{
+  "chunk_id": "lf_220aa156",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0002"
+  ],
+  "order": 2,
+  "continuation_of": "lf_a7dad41b",
+  "prompt_fingerprint": "sha256:b0baac05ecbebdce478022d4824e556efa03e501578c1f88fc60fef2fe8d7bbb",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Clara strained to listen, the faint rattling of the chain at the door a hollow echo in her ears, amplifying the thud of her heart",
+    "word_count": 306,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.01,
+    "total_after_usd": 0.02
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 4,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 31,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 306,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 9,
+    "concrete_hits": 8,
+    "generic_hits": 1,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [
+      "corridor",
+      "lantern",
+      "coat",
+      "door",
+      "rain",
+      "key",
+      "chain",
+      "floor"
+    ],
+    "carryover_hits": 7,
+    "material_carryover_hits": 0,
+    "material_carryover": false,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "Clara strained to listen, the faint rattling of the chain at the door a hollow echo in her ears, amplifying the thud of her heart. She took a tentative step forward, the damp wood creaking beneath her weight, each sound a reminder of the darkness that loomed beyond the flickering glow of the lantern. Jun shifted again, his shoulders tight, the soaked fabric of his coat glistening in the lantern’s feeble light. “We shouldn’t be here,” he muttered, his voice trembling just enough that Clara caught the edge of his fear.\n\n“We have to find out what’s going on,” she retorted, sharper than intended, the words spilling out like a sudden rush of wind. The air felt heavy around them, thick with the mustiness of rotting leaves, and something else—a sweet, cloying scent that clung to her throat and made her stomach churn. She tightened her grip on the lantern, the metal cool and slick against her palm, and forced herself to look into the shadows ahead.\n\nMud squelched beneath her feet as they moved deeper into the corridor, each step stirring whispers of something unseen. The prints ahead were unmistakable, dark and fresh, trailing away from the chained door like breadcrumbs leading into the unknown. Clara glanced at Jun, who was staring at the floor, his brow knotting in confusion. “What do you think it is?” he asked, his voice barely above a whisper.\n\n“I don’t know,” she replied, her thoughts racing. The child’s cough she had dismissed earlier seemed to echo in the recesses of her mind, a ghostly reminder that they were not alone. “It could be anyone,” she added, trying to sound braver than she felt. “Maybe someone got trapped up here.” The words tasted bitter, a mix of hope and dread.\n\nThe chain rattled again, this time more insistent, as though"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

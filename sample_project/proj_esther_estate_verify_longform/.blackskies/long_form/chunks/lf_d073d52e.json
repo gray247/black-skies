@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_d073d52e",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:5bf62443bf5483a1c7d1c1ac73a8a3f87d56f3274b4a9d2d3f40b69804d56c76",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The wooden door creaked open, and a gust of wind swept in, carrying the scent of damp earth and fading autumn leaves",
+    "word_count": 311,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 4,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 29,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 311,
+    "paragraph_count": 6,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 8,
+    "concrete_hits": 2,
+    "generic_hits": 0,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The wooden door creaked open, and a gust of wind swept in, carrying the scent of damp earth and fading autumn leaves. Maris stepped inside, her fingers brushing against the cool, rough surface of the doorframe as she pushed it closed behind her. The interior of the barn was dim, save for slivers of light that pierced through the gaps in the weathered boards, illuminating the dust motes that danced lazily in the air. Each breath she took was tinged with the musty aroma of hay and aged wood, grounding her in the familiar yet unsettling space.\n\nShe moved cautiously across the uneven floor, each step stirring up a whisper of memories long buried. The shadows seemed to watch her, reminding her of the countless afternoons spent here, laughing with friends, the echoes of their voices blending with the rustle of the hay. But today, the silence felt heavy, oppressive. A chill settled in her bones as she recalled the last time she had entered this place, the way the laughter had turned to silence, the faces of her friends twisting into masks of confusion and fear.\n\n“Maris?” A voice broke through her thoughts, soft yet edged with uncertainty. It was Ethan, his figure emerging from the shadows, his brow furrowed. “I wasn’t sure if you’d come.”\n\nShe met his gaze, searching for the warmth she once found there, but all she saw was the weight of unspoken words hanging between them. “I had to,” she replied, her voice steadier than she felt. “We need to talk.”\n\nHe stepped closer, the crunch of straw underfoot punctuating the stillness. “About what happened? Or… about us?” There was a vulnerability in his tone, an invitation she wasn’t sure she was ready to accept.\n\nMaris hesitated, her heart racing. She could feel the tension coiling in the air, thick and electric. “Both, I guess"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

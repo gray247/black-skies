@@ -1,0 +1,93 @@
+{
+  "chunk_id": "lf_8797e473",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0002"
+  ],
+  "order": 2,
+  "continuation_of": "lf_91beba41",
+  "prompt_fingerprint": "sha256:df2044bf236dffe1adbb98aad342fa595fc4210c438390b3198c9e40ea8b1544",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Clara pressed her back against the damp wall, the chill seeping through the fabric of her blouse, while the flickering lantern in Jun’s grasp sputtered yet again, casting the corridor into momentary darkness",
+    "word_count": 303,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.01,
+    "total_after_usd": 0.02
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 5,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 32,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 303,
+    "paragraph_count": 4,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 6,
+    "concrete_hits": 9,
+    "generic_hits": 1,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [
+      "corridor",
+      "lantern",
+      "key",
+      "door",
+      "chain",
+      "floor",
+      "ceramic",
+      "fox"
+    ],
+    "carryover_hits": 7,
+    "material_carryover_hits": 1,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "Clara pressed her back against the damp wall, the chill seeping through the fabric of her blouse, while the flickering lantern in Jun’s grasp sputtered yet again, casting the corridor into momentary darkness. She could feel her heart racing, a staccato drumbeat against the silence that enveloped them. \"We should keep moving,\" she whispered, her voice sharper than intended, cutting through the thick air like a knife.\n\nJun nodded, but his eyes darted to the chained door at the far end of the corridor, its metal links clanking softly as though something was testing them from the other side. Clara followed his gaze, a knot tightening in her stomach. “It’s just the wind,” she said, more to convince herself than him, but the tremor in her voice betrayed her. The air felt heavy, charged with unspoken fears, and the lantern light flickered once more, illuminating the muddy footprints that appeared ahead of them, stark against the worn wooden floor—footprints that seemed to lead deeper into the shadows.\n\n“We shouldn’t be here,” Jun murmured, his voice low, filled with a mix of anxiety and disbelief. Clara wanted to reach out, to tell him it would be alright, that they would find a way out, but her hand instinctively brushed against the chipped ceramic fox tucked in her pocket instead. It was a silly token, a remnant of childhood long gone, but it gave her a strange sense of comfort.\n\n“Look,” she said, gesturing with her chin toward the footpath that wound deeper into the corridor, the dim light barely illuminating the edges. “We have to see what’s down there.” Her voice was firmer now, almost defiant, but inside, the uncertainty roiled like a storm. Jun hesitated, the lantern’s light catching the fear etched across his features, but he squared his shoulders, nodding once more."
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

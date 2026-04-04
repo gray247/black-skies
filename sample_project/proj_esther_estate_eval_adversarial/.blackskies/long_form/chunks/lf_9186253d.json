@@ -1,0 +1,93 @@
+{
+  "chunk_id": "lf_9186253d",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0002"
+  ],
+  "order": 2,
+  "continuation_of": "lf_918cd28f",
+  "prompt_fingerprint": "sha256:4b977c09308f12869e16f59a29f410769d111f1a6f01bcfeb7d5608283334672",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Clara's heart drummed a frantic rhythm as she pressed further into the service corridor, the damp air clinging to her skin like a shroud",
+    "word_count": 315,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.01,
+    "total_after_usd": 0.02
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 5,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 32,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 315,
+    "paragraph_count": 4,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 5,
+    "concrete_hits": 9,
+    "generic_hits": 1,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [
+      "corridor",
+      "rain",
+      "lantern",
+      "coat",
+      "door",
+      "chain",
+      "key",
+      "floor"
+    ],
+    "carryover_hits": 7,
+    "material_carryover_hits": 2,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "Clara's heart drummed a frantic rhythm as she pressed further into the service corridor, the damp air clinging to her skin like a shroud. Each step squelched against the worn floorboards, the sound echoing too loudly in the oppressive silence. She could feel Jun's anxious presence beside her, the way his shoulders tensed every time the lantern sputtered, casting fleeting shadows that seemed to mock their fears. “We need to keep moving,” she urged, her voice sharper than she intended, a brittle command that felt like a thin veneer over her own rising panic.\n\nJun nodded, his brow furrowed, eyes darting toward the door they had just passed, the heavy chain rattling as if something on the other side were testing its strength. “What if someone’s out there?” he whispered, the tremor in his voice betraying the bravado he tried to muster. Clara felt the weight of his fear like a stone in her gut. She didn’t want to acknowledge the thought that clawed at her mind, that something might be lurking close enough to hear them—something that had been waiting.\n\n“Just keep the lantern steady,” she said, forcing her eyes to focus on the dim glow at the end of the corridor, where the peeling wallpaper peeled away like old memories. The air thickened around them, and Clara could almost taste the mildew creeping into her mouth, mingling with the taste of rain still clinging to her clothes. It reminded her of the greenhouse, the sweet scent of earth and growth now twisted into something oppressive.\n\nShe could feel the parlor key against her wrist, the red ribbon like a pulse of warmth amidst the chill. What if she had tied it too loosely? The thought spiraled, tightening her chest. “Do you think…” she began, but the words slipped away as a sudden cough echoed from the upper floor, sharp and jarring. Clara froze,"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

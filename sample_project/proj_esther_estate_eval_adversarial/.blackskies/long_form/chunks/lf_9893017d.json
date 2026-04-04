@@ -1,0 +1,136 @@
+{
+  "chunk_id": "lf_9893017d",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0003"
+  ],
+  "order": 3,
+  "continuation_of": "lf_df867288",
+  "prompt_fingerprint": "sha256:e945a1eb0a02d6af43716d81d4da13f77b5c286dc748b0c91df5faa55cac4235",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Clara’s fingertips brushed against the nursery door, the rough texture of the chipped paint sending a shiver through her",
+    "word_count": 624,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.02,
+    "total_after_usd": 0.03
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 5,
+      "clarity": 3,
+      "pacing": 5,
+      "specificity": 4,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 31,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 624,
+    "paragraph_count": 9,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 7,
+    "concrete_hits": 7,
+    "generic_hits": 1,
+    "stock_phrase_hits": 3,
+    "carryover_terms": [
+      "clara's",
+      "painted",
+      "nursery",
+      "hitching",
+      "faintest",
+      "tremor",
+      "uncertainty",
+      "coursed"
+    ],
+    "carryover_hits": 6,
+    "material_carryover_hits": 1,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": true
+  },
+  "critique_snapshot": {
+    "summary": "Clara and Jun stand before a nursery door, filled with dread and uncertainty. Clara feels a physical connection to the door through the cold paint and the weight of a key on her wrist. They discuss the possibility of someone being inside, and Clara reflects on the eerie atmosphere and her own fears. As Clara prepares to unlock the door, she is haunted by sounds from within, creating a tense moment of anticipation.",
+    "weaknesses": [
+      "Generic phrases such as 'cold paint' and 'shallow and unsteady' detract from the uniqueness of the scene.",
+      "Vague descriptions of emotions and physical sensations make it hard to fully engage with Clara's internal struggle.",
+      "Dialogue lacks grounding in the physical actions and setting, making it feel disconnected."
+    ],
+    "continuity_issues": [
+      "The mention of muddy prints is introduced but not explored further, leaving their significance unclear.",
+      "The transition from Clara's internal thoughts to dialogue feels abrupt and lacks a smooth flow."
+    ],
+    "pacing_issues": [
+      "The scene builds tension but could benefit from a more varied rhythm to maintain reader engagement.",
+      "Some moments linger too long on internal thoughts without advancing the action."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid scene.",
+      "Ground dialogue in physical actions or the environment to strengthen character interactions.",
+      "Eliminate generic phrases and replace them with more original language."
+    ],
+    "generic_phrase_targets": [
+      "cold paint",
+      "shallow and unsteady",
+      "weight of expectation",
+      "flimsy reassurance"
+    ],
+    "detail_targets": [
+      "Describe the nursery door in a more unique way.",
+      "Provide clearer context for the muddy prints and their implications."
+    ],
+    "dialogue_grounding_targets": [
+      "Integrate Jun's dialogue with Clara's physical actions or reactions to enhance connection."
+    ],
+    "emotional_show_targets": [
+      "Show Clara's fear through more specific physical reactions rather than vague sensations.",
+      "Use sensory details to evoke the atmosphere and emotional weight of the moment."
+    ],
+    "replacement_targets": [
+      "Replace 'cold paint' with a more evocative description of the door's texture or temperature.",
+      "Substitute 'shallow and unsteady' with a more vivid depiction of Jun's breathing."
+    ],
+    "grounding_targets": [
+      "Add more physical actions or environmental interactions to ground the characters' emotions."
+    ],
+    "carryover_targets": [
+      "Address the weak continuity of the muddy prints and their relevance to the scene."
+    ]
+  },
+  "attempt_count": 2,
+  "acceptance_reason": "rewrite_pass",
+  "rewrite_used": true
+}

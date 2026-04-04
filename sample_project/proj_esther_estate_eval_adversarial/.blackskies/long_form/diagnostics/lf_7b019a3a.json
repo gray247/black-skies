@@ -1,0 +1,440 @@
+{
+  "chunk_id": "lf_7b019a3a",
+  "validation_decision": false,
+  "fallback_reason": "quality_failed",
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "basic_validation": {
+        "usable": true,
+        "word_count": 584,
+        "paragraph_count": 12,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [
+          "nursery",
+          "door",
+          "lantern",
+          "rain",
+          "ceramic",
+          "fox",
+          "coat",
+          "pocket"
+        ],
+        "carryover_hits": 4,
+        "material_carryover_hits": 0
+      },
+      "raw_preview": "Clara’s fingers brushed the warped surface of the nursery door, the paint dry and cracked like old skin. The lantern flickered again, its meager light bouncing off the door’s grimy surface as if it we",
+      "normalized_preview": "Clara’s fingers brushed the warped surface of the nursery door, the paint dry and cracked like old skin. The lantern flickered again, its meager light bouncing off the door’s grimy surface as if it we",
+      "raw_length": 3374,
+      "normalized_length": 3363,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKAWT2XFLYSAOyv2lFUzXPEJAVsGZ\", \"object\": \"chat.completion\", \"created\": 1773699381, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"Clara’s fingers brushed the warped surface of the nursery door, the paint dry and cracked like old skin. The lantern flickered again, its meager light bouncing off the door’s grimy surface as if it were alive with secrets. The air was thick with a damp chill, the scent of wet earth and mildew ",
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 4,
+          "clarity": 2,
+          "pacing": 5,
+          "specificity": 3,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 28,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 584,
+        "paragraph_count": 12,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 9,
+        "concrete_hits": 13,
+        "generic_hits": 1,
+        "stock_phrase_hits": 3,
+        "carryover_terms": [
+          "nursery",
+          "door",
+          "lantern",
+          "rain",
+          "ceramic",
+          "fox",
+          "coat",
+          "pocket"
+        ],
+        "carryover_hits": 4,
+        "material_carryover_hits": 0,
+        "material_carryover": false,
+        "weak_carryover": false,
+        "generic_risk": true,
+        "text": "Clara’s fingers brushed the warped surface of the nursery door, the paint dry and cracked like old skin. The lantern flickered again, its meager light bouncing off the door’s grimy surface as if it were alive with secrets. The air was thick with a damp chill, the scent of wet earth and mildew invading her senses, mingling with the lingering trace of lavender and dust. She could feel Jun’s presence beside her, the warm weight of his shoulder pressing against her arm, grounding her amidst the encroaching unease.\n\n“Clara,” he murmured, his voice a low whisper strained by the weight of the moment, “we should really go back.” There was a tremor in his tone that belied the calm façade he tried to maintain, a subtle crack in his bravado that she couldn’t ignore.\n\n“Back where?” she shot back, irritation flaring like a match struck against the dark. “To the dining room, where Nora is probably waiting to interrogate us about muddy footprints?” The thought of Nora’s forced cheeriness grated on her, a reminder of the weighty silence that had settled over the house like a shroud, pressing down on her chest.\n\nJun exhaled softly, the warmth of his breath ghosting against her cheek. “At least it’s safer there.” He hesitated, glancing back down the shadowed corridor, as if expecting something to emerge from the gloom. “This place feels wrong.”\n\nA chill skittered down Clara’s spine. She shook her head, her resolve hardening. “We can’t just leave. Not now.” The memory of the cough—soft, faint, but unmistakable—echoed in her mind, a haunting reminder that something, or someone, stirred in the sealed upper floors. “What if there is a child?”\n\nThe thought hung in the air, thick and unsaid, as the lantern dimmed further, its flickering flame a dying heart. Clara’s gaze drifted to the red ribbon tied around her wrist, the key dangling like an anchor to the past. She had tied it there to remind herself of her purpose, but now it felt heavy, a tether to memories she couldn’t fully grasp.\n\nJun shifted beside her, glancing at the door again, his brow furrowing. “You heard it too, didn’t you?” His voice was barely a whisper, but the urgency was clear. “The cough. It wasn’t just in your head.”\n\n“Stop,” Clara said, the word sharp, cutting through the tension like glass. “Don’t say anything more. If we talk about it, we’ll have to face it.” She could see the flicker of confusion in his eyes, the way he wrestled with the desire to share the weight of their fears. But she couldn’t risk it. Not yet.\n\nThe door loomed before them, a solid wall of uncertainty. Clara’s heart raced, each beat a reminder of the muddy footprints they had traced through the house, the way they spiraled into the unknown. The chain rattled faintly from the service corridor, a sound so distant yet intimate, as if someone on the other side were testing their resolve.\n\n“Do you think it’s locked?” Jun asked, his gaze flickering back to her, searching for a sign of courage.\n\n“Locked or sealed, it doesn’t matter,” Clara replied, her voice steadier than she felt. “We need to know what’s behind it.” She stepped forward, the soles of her shoes sinking slightly into the damp carpet, the fibers clinging to her like a warning.\n\nAs she reached for the doorknob, a gust of wind rattled the window, the sound echoing through the stillness like a warning bell. Clara hesitated, her"
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "rewrite",
+        "escalated": false,
+        "reason": "rewrite_default"
+      },
+      "basic_validation": {
+        "usable": true,
+        "word_count": 594,
+        "paragraph_count": 12,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [
+          "nursery",
+          "door",
+          "lantern",
+          "rain",
+          "ceramic",
+          "fox",
+          "coat",
+          "pocket"
+        ],
+        "carryover_hits": 3,
+        "material_carryover_hits": 0
+      },
+      "raw_preview": "fingers hovering just above the doorknob, the chill of the metal biting into her skin. The nursery door loomed before them, its warped surface glistening under the dim lantern light, the paint cracked",
+      "normalized_preview": "fingers hovering just above the doorknob, the chill of the metal biting into her skin. The nursery door loomed before them, its warped surface glistening under the dim lantern light, the paint cracked",
+      "raw_length": 3473,
+      "normalized_length": 3473,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKAWwe4er6Tvx4euVcFfQUtKUXnII\", \"object\": \"chat.completion\", \"created\": 1773699410, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"fingers hovering just above the doorknob, the chill of the metal biting into her skin. The nursery door loomed before them, its warped surface glistening under the dim lantern light, the paint cracked and peeling as if it had endured countless storms. The air was thick with the scent of damp e",
+      "guardrail_snapshot": {
+        "evaluated": true,
+        "mode": "rewrite",
+        "outline_titles": [
+          "Greenhouse Alarm",
+          "Servants' Passage",
+          "Dining Room Interruption",
+          "Clock Landing",
+          "Sealed Nursery"
+        ],
+        "beat_refs": [
+          "inciting",
+          "pressure",
+          "dialogue",
+          "reversal",
+          "payoff"
+        ],
+        "locked_facts_evaluated": true,
+        "length_band_evaluated": true,
+        "original_word_count": 584,
+        "rewritten_word_count": 594,
+        "min_word_count": 350,
+        "max_word_count": 1226,
+        "within_length_band": true,
+        "outline_fidelity_evaluated": true,
+        "outline_fidelity_pass": true,
+        "original_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "his",
+          "clara",
+          "back",
+          "door",
+          "and",
+          "was",
+          "jun",
+          "that",
+          "but"
+        ],
+        "retained_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "his",
+          "clara",
+          "back",
+          "door",
+          "and",
+          "jun",
+          "that"
+        ],
+        "outline_anchor_hits": [
+          "the",
+          "her",
+          "she",
+          "and",
+          "them",
+          "door",
+          "jun",
+          "his",
+          "clara",
+          "back"
+        ],
+        "required_anchor_overlap": 1,
+        "scene_anchor_drift_detected": false,
+        "new_story_elements": [],
+        "blocking_new_story_elements": [],
+        "authoritative_name_check": true,
+        "uncertainty_triggered": false,
+        "failure_reason": null,
+        "accepted": true,
+        "quality_total_score": 27
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 2,
+          "pacing": 5,
+          "specificity": 3,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 27,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 594,
+        "paragraph_count": 12,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 9,
+        "concrete_hits": 12,
+        "generic_hits": 1,
+        "stock_phrase_hits": 4,
+        "carryover_terms": [
+          "nursery",
+          "door",
+          "lantern",
+          "rain",
+          "ceramic",
+          "fox",
+          "coat",
+          "pocket"
+        ],
+        "carryover_hits": 3,
+        "material_carryover_hits": 0,
+        "material_carryover": false,
+        "weak_carryover": false,
+        "generic_risk": true
+      },
+      "quality_pass": false,
+      "rewrite_delta": {
+        "total_delta": -1,
+        "stock_phrase_delta": -1,
+        "specificity_delta": 0,
+        "clarity_delta": 0,
+        "continuity_delta": -1
+      }
+    }
+  ],
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 2,
+      "pacing": 5,
+      "specificity": 3,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 27,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 594,
+    "paragraph_count": 12,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 9,
+    "concrete_hits": 12,
+    "generic_hits": 1,
+    "stock_phrase_hits": 4,
+    "carryover_terms": [
+      "nursery",
+      "door",
+      "lantern",
+      "rain",
+      "ceramic",
+      "fox",
+      "coat",
+      "pocket"
+    ],
+    "carryover_hits": 3,
+    "material_carryover_hits": 0,
+    "material_carryover": false,
+    "weak_carryover": false,
+    "generic_risk": true
+  },
+  "critique_snapshot": {
+    "summary": "The scene follows Clara and Jun as they confront a sealed nursery door, filled with anxiety and tension. Clara feels a strong sense of purpose despite her fears, while Jun expresses concern about the unsettling atmosphere. Their dialogue reveals their emotional states and the weight of unspoken fears, particularly regarding a potential child in the upper floors. The scene builds suspense as they consider the implications of opening the door.",
+    "weaknesses": [
+      "Vague descriptions that do not fully immerse the reader in the setting.",
+      "Generic phrases that detract from the uniqueness of the characters' experiences.",
+      "Dialogue that lacks grounding in physical actions or the environment."
+    ],
+    "continuity_issues": [
+      "The mention of muddy footprints is not elaborated upon, leaving the reader unclear about their significance."
+    ],
+    "pacing_issues": [
+      "The scene's pacing slows significantly during dialogue, which could benefit from more physical action to maintain tension."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid setting.",
+      "Replace generic phrases with more original language.",
+      "Ground dialogue in physical actions and the surrounding environment."
+    ],
+    "generic_phrase_targets": [
+      "weighty silence",
+      "solid wall of uncertainty",
+      "cutting through the tension like glass"
+    ],
+    "detail_targets": [
+      "The description of the nursery door and its surroundings.",
+      "The emotional significance of the red ribbon tied around Clara's wrist."
+    ],
+    "dialogue_grounding_targets": [
+      "Jun's dialogue about safety should be tied to a physical action, such as him stepping back or looking around."
+    ],
+    "emotional_show_targets": [
+      "Clara's internal conflict regarding the cough and the potential child could be shown through more visceral reactions."
+    ],
+    "replacement_targets": [
+      "Replace 'the weight of the moment' with a more specific description of what Clara feels in that moment."
+    ],
+    "grounding_targets": [
+      "Integrate more sensory details that relate to the characters' actions and surroundings during dialogue."
+    ],
+    "carryover_targets": [
+      "Clarify the significance of the muddy footprints and how they relate to the characters' current predicament."
+    ]
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [
+      "Greenhouse Alarm",
+      "Servants' Passage",
+      "Dining Room Interruption",
+      "Clock Landing",
+      "Sealed Nursery"
+    ],
+    "beat_refs": [
+      "inciting",
+      "pressure",
+      "dialogue",
+      "reversal",
+      "payoff"
+    ],
+    "locked_facts_evaluated": true,
+    "length_band_evaluated": true,
+    "original_word_count": 584,
+    "rewritten_word_count": 594,
+    "min_word_count": 350,
+    "max_word_count": 1226,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "his",
+      "clara",
+      "back",
+      "door",
+      "and",
+      "was",
+      "jun",
+      "that",
+      "but"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "his",
+      "clara",
+      "back",
+      "door",
+      "and",
+      "jun",
+      "that"
+    ],
+    "outline_anchor_hits": [
+      "the",
+      "her",
+      "she",
+      "and",
+      "them",
+      "door",
+      "jun",
+      "his",
+      "clara",
+      "back"
+    ],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": true,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 27
+  },
+  "retry_snapshot": {
+    "used": false,
+    "succeeded": false,
+    "attempts_used": 0,
+    "max_attempts": 1,
+    "eligible": false,
+    "failure_classification": {
+      "classification": "hard",
+      "reason": "material_carryover_missing",
+      "retry_eligible": false
+    },
+    "reason": "material_carryover_missing"
+  }
+}

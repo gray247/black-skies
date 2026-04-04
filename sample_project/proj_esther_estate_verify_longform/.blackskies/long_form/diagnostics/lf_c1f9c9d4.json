@@ -1,0 +1,581 @@
+{
+  "chunk_id": "lf_c1f9c9d4",
+  "validation_decision": false,
+  "fallback_reason": "quality_failed",
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "raw_preview": "The sun hung low in the sky, a molten orb spilling golden hues across the cracked pavement of the old street. Dust danced in the light, swirling in the air like tiny fairies. A flickering neon sign bu",
+      "normalized_preview": "The sun hung low in the sky, a molten orb spilling golden hues across the cracked pavement of the old street. Dust danced in the light, swirling in the air like tiny fairies. A flickering neon sign bu",
+      "raw_length": 1833,
+      "normalized_length": 1828,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKrvxSOdKBkvZkrupfBlqTnnoHOL9\", \"object\": \"chat.completion\", \"created\": 1773866253, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The sun hung low in the sky, a molten orb spilling golden hues across the cracked pavement of the old street. Dust danced in the light, swirling in the air like tiny fairies. A flickering neon sign buzzed overhead, casting a sickly green glow over the entrance to the diner. The smell of frying",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 304,
+        "paragraph_count": 6,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 2,
+          "meta_free": 5
+        },
+        "total_score": 26,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 304,
+        "paragraph_count": 6,
+        "dialogue_present": true,
+        "dialogue_grounded": false,
+        "sensory_hits": 10,
+        "concrete_hits": 1,
+        "generic_hits": 1,
+        "stock_phrase_hits": 0,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The sun hung low in the sky, a molten orb spilling golden hues across the cracked pavement of the old street. Dust danced in the light, swirling in the air like tiny fairies. A flickering neon sign buzzed overhead, casting a sickly green glow over the entrance to the diner. The smell of frying bacon and burnt coffee wafted out into the heat, thick and familiar, pulling at memories with each waft.\n\nInside, the worn linoleum tiles gleamed dully under the fluorescent lights, and the long counter was lined with red vinyl stools, their surfaces cracked and peeling. Tara slid onto one, the coolness of the metal beneath her bare legs a stark contrast to the oppressive warmth outside. She tapped her fingers against the counter, the rhythm a quiet rebellion against the stillness that enveloped her.\n\n“Ya want the usual?” The waitress, a sturdy woman with a head of tightly coiled hair and an apron splattered with remnants of past meals, leaned in, her voice a gravelly whisper. Tara met her gaze, searching for something—understanding, perhaps—but found only the reflection of her own uncertainty.\n\n“Yeah, sure,” she murmured, her throat dry as sandpaper. The waitress nodded, turning away to fetch the order, her movements practiced, almost mechanical. Tara’s eyes wandered, tracing the outlines of faded photographs lining the walls, each image a window into a life that felt distant and foreign.\n\nThe diner was nearly empty, save for a couple in the corner booth, their hushed voices drifting like smoke. Tara strained to catch snippets, their laughter punctuated by the clinking of silverware—a stark reminder of what she had lost. She clenched her jaw, the taste of bitterness rising like bile.\n\n“Here ya go, hon.” The waitress dropped a plate in front of her, the eggs sliding slightly, the bacon glistening with grease"
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "rewrite",
+        "escalated": false,
+        "reason": "rewrite_default"
+      },
+      "raw_preview": "The sun hung low in the sky, a molten orb casting golden streaks across the cracked pavement of the old street. Dust particles danced in the light, swirling in the air like tiny fairies caught in a ge",
+      "normalized_preview": "The sun hung low in the sky, a molten orb casting golden streaks across the cracked pavement of the old street. Dust particles danced in the light, swirling in the air like tiny fairies caught in a ge",
+      "raw_length": 1876,
+      "normalized_length": 1876,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKrwB2j4g9JKxA7Hui1tBqziLR7uT\", \"object\": \"chat.completion\", \"created\": 1773866267, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The sun hung low in the sky, a molten orb casting golden streaks across the cracked pavement of the old street. Dust particles danced in the light, swirling in the air like tiny fairies caught in a gentle breeze. Above, a flickering neon sign buzzed erratically, its sickly green glow spilling ",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 317,
+        "paragraph_count": 5,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "guardrail_snapshot": {
+        "evaluated": true,
+        "mode": "rewrite",
+        "outline_titles": [],
+        "beat_refs": [],
+        "locked_facts_evaluated": false,
+        "length_band_evaluated": true,
+        "original_word_count": 304,
+        "rewritten_word_count": 317,
+        "min_word_count": 182,
+        "max_word_count": 638,
+        "within_length_band": true,
+        "outline_fidelity_evaluated": true,
+        "outline_fidelity_pass": true,
+        "original_anchor_terms": [
+          "the",
+          "her",
+          "and",
+          "tara",
+          "she",
+          "waitress",
+          "cracked",
+          "diner",
+          "bacon",
+          "each",
+          "counter",
+          "was"
+        ],
+        "retained_anchor_terms": [
+          "the",
+          "her",
+          "and",
+          "tara",
+          "she",
+          "waitress",
+          "cracked",
+          "diner",
+          "each",
+          "counter"
+        ],
+        "outline_anchor_hits": [],
+        "required_anchor_overlap": 1,
+        "scene_anchor_drift_detected": false,
+        "new_story_elements": [],
+        "blocking_new_story_elements": [],
+        "authoritative_name_check": false,
+        "uncertainty_triggered": false,
+        "failure_reason": null,
+        "accepted": true,
+        "quality_total_score": 26
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 2,
+          "meta_free": 5
+        },
+        "total_score": 26,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 317,
+        "paragraph_count": 5,
+        "dialogue_present": true,
+        "dialogue_grounded": false,
+        "sensory_hits": 9,
+        "concrete_hits": 1,
+        "generic_hits": 0,
+        "stock_phrase_hits": 2,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The sun hung low in the sky, a molten orb casting golden streaks across the cracked pavement of the old street. Dust particles danced in the light, swirling in the air like tiny fairies caught in a gentle breeze. Above, a flickering neon sign buzzed erratically, its sickly green glow spilling over the entrance of the diner. The rich aroma of frying bacon mingled with the sharp scent of burnt coffee, wafting out into the heat, each breath tugging at memories Tara would rather forget.\n\nInside, the worn linoleum tiles reflected the harsh fluorescent lights, their sheen dull and uninviting. A long counter stretched across the room, lined with red vinyl stools that had seen better days, their surfaces cracked and faded. Tara slid onto one, the cool metal of the stool a welcome relief against her bare legs as sweat clung to her skin. She tapped her fingers rhythmically against the counter, the sound breaking the stillness around her like a quiet act of defiance.\n\n“Ya want the usual?” The waitress approached, a sturdy woman with tightly coiled hair and an apron speckled with remnants of past meals. She leaned in slightly, her voice gravelly but warm, as if she had seen too many stories unfold in this very spot. Tara met her gaze, searching for a flicker of understanding in those eyes, but found only the familiar reflection of her own uncertainty.\n\n“Yeah, sure,” Tara replied, her voice barely above a whisper, her throat dry and scratchy. The waitress nodded, her movements smooth and practiced as she turned away, heading towards the kitchen. Tara's eyes drifted, tracing the outlines of faded photographs lining the walls—snapshots of patrons long gone, each image a window into lives that felt both vibrant and distant.\n\nThe diner was nearly empty, save for a couple in the corner booth, their laughter drifting like smoke. Tara strained to catch snippets of"
+      },
+      "quality_pass": false,
+      "rewrite_delta": {
+        "total_delta": 0,
+        "stock_phrase_delta": -2,
+        "specificity_delta": 0,
+        "clarity_delta": 0,
+        "continuity_delta": 0
+      },
+      "retry_decision": {
+        "eligible": true,
+        "reason": "targeted_editorial_miss_after_rewrite",
+        "classification": "targeted_editorial"
+      }
+    },
+    {
+      "attempt": 3,
+      "mode": "recovery_retry",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rescue_model"
+      },
+      "raw_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"Above, the neon diner sign buzzed against the dark, its green tubes stuttering over the cracked glass of the entrance and washing the doorway in a hard,",
+      "normalized_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"Above, the neon diner sign buzzed against the dark, its green tubes stuttering over the cracked glass of the entrance and washing the doorway in a hard,",
+      "raw_length": 646,
+      "normalized_length": 646,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKrwHxrWkG7vwesjHEO7yh6W1sa0o\", \"object\": \"chat.completion\", \"created\": 1773866273, \"model\": \"gpt-5.4-mini-2026-03-17\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"replacement_text\\\":\\\"Above, the neon diner sign buzzed against the dark, its green tubes stuttering over the cracked glass of the entrance and washing the doorway in a hard, electric cast.\\\"},{\\\"slot_id\\\":\\\"s2\\\",\\\"replacement_text\\\":\\\"Tara met her gaze acro",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "Above, a flickering neon sign buzzed erratically, its sickly green glow spilling over the entrance of the diner.",
+          "context_before": "Dust particles danced in the light, swirling in the air like tiny fairies caught in a gentle breeze.",
+          "context_after": "The rich aroma of frying bacon mingled with the sharp scent of burnt coffee, wafting out into the heat, each breath tugging at memories Tara would rather forget.",
+          "target_reason": "generic",
+          "target_phrase": "sickly green glow"
+        },
+        {
+          "slot_id": "s2",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "Tara met her gaze, searching for a flicker of understanding in those eyes, but found only the familiar reflection of her own uncertainty.",
+          "context_before": "She leaned in slightly, her voice gravelly but warm, as if she had seen too many stories unfold in this very spot.",
+          "context_after": "“Yeah, sure,” Tara replied, her voice barely above a whisper, her throat dry and scratchy.",
+          "target_reason": "generic",
+          "target_phrase": "flicker of"
+        },
+        {
+          "slot_id": "s3",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "“Yeah, sure,” Tara replied, her voice barely above a whisper, her throat dry and scratchy.",
+          "context_before": "Tara met her gaze, searching for a flicker of understanding in those eyes, but found only the familiar reflection of her own uncertainty.",
+          "context_after": "The waitress nodded, her movements smooth and practiced as she turned away, heading towards the kitchen.",
+          "target_reason": "specificity",
+          "target_phrase": "voice barely above a whisper"
+        }
+      ],
+      "rescue_generation_strategy": "slot_patch",
+      "configured_rescue_generation_strategy": "slot_patch",
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "Above, the neon diner sign buzzed against the dark, its green tubes stuttering over the cracked glass of the entrance and washing the doorway in a hard, electric cast."
+        },
+        {
+          "slot_id": "s2",
+          "replacement_text": "Tara met her gaze across the counter, eyes fixed on the waitress’s face, but the only answer she found was her own uncertainty reflected back in the diner’s dull fluorescent light."
+        },
+        {
+          "slot_id": "s3",
+          "replacement_text": "“Yeah, sure,” Tara replied, lifting one hand to the counter and brushing her thumb over a sticky ring in the cracked laminate, her voice rough and low from a dry throat."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_specificity_unresolved"
+      }
+    },
+    {
+      "attempt": 4,
+      "mode": "repair_only",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rescue_model"
+      },
+      "raw_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"Above the cracked diner entrance, a flickering neon sign buzzed erratically, its green glass tubes spilling a harsh green wash over the doorframe and th",
+      "normalized_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"Above the cracked diner entrance, a flickering neon sign buzzed erratically, its green glass tubes spilling a harsh green wash over the doorframe and th",
+      "raw_length": 626,
+      "normalized_length": 626,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKrwMw2EEMbICmF0tECb3WSIX5iHo\", \"object\": \"chat.completion\", \"created\": 1773866278, \"model\": \"gpt-5.4-mini-2026-03-17\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"replacement_text\\\":\\\"Above the cracked diner entrance, a flickering neon sign buzzed erratically, its green glass tubes spilling a harsh green wash over the doorframe and the dust hanging in the air.\\\"},{\\\"slot_id\\\":\\\"s2\\\",\\\"replacement_text\\\":\\\"Tara met he",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "Above, a flickering neon sign buzzed erratically, its sickly green glow spilling over the entrance of the diner.",
+          "context_before": "Dust particles danced in the light, swirling in the air like tiny fairies caught in a gentle breeze.",
+          "context_after": "The rich aroma of frying bacon mingled with the sharp scent of burnt coffee, wafting out into the heat, each breath tugging at memories Tara would rather forget.",
+          "target_reason": "generic",
+          "target_phrase": "sickly green glow"
+        },
+        {
+          "slot_id": "s2",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "Tara met her gaze, searching for a flicker of understanding in those eyes, but found only the familiar reflection of her own uncertainty.",
+          "context_before": "She leaned in slightly, her voice gravelly but warm, as if she had seen too many stories unfold in this very spot.",
+          "context_after": "“Yeah, sure,” Tara replied, her voice barely above a whisper, her throat dry and scratchy.",
+          "target_reason": "generic",
+          "target_phrase": "flicker of"
+        },
+        {
+          "slot_id": "s3",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "“Yeah, sure,” Tara replied, her voice barely above a whisper, her throat dry and scratchy.",
+          "context_before": "Tara met her gaze, searching for a flicker of understanding in those eyes, but found only the familiar reflection of her own uncertainty.",
+          "context_after": "The waitress nodded, her movements smooth and practiced as she turned away, heading towards the kitchen.",
+          "target_reason": "specificity",
+          "target_phrase": "voice barely above a whisper"
+        }
+      ],
+      "rescue_generation_strategy": "slot_patch",
+      "configured_rescue_generation_strategy": "slot_patch",
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "Above the cracked diner entrance, a flickering neon sign buzzed erratically, its green glass tubes spilling a harsh green wash over the doorframe and the dust hanging in the air."
+        },
+        {
+          "slot_id": "s2",
+          "replacement_text": "Tara met her gaze across the counter, searching those eyes for a sign of understanding, but found only the familiar reflection of her own uncertainty in the waitress’s steady stare."
+        },
+        {
+          "slot_id": "s3",
+          "replacement_text": "“Yeah, sure,” Tara replied, her voice coming out thin and rough over the counter, barely more than a breath, her throat dry and scratchy."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_specificity_unresolved"
+      }
+    }
+  ],
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 2,
+      "meta_free": 5
+    },
+    "total_score": 26,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 317,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": false,
+    "sensory_hits": 9,
+    "concrete_hits": 1,
+    "generic_hits": 0,
+    "stock_phrase_hits": 2,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The sun hung low in the sky, a molten orb casting golden streaks across the cracked pavement of the old street. Dust particles danced in the light, swirling in the air like tiny fairies caught in a gentle breeze. Above, a flickering neon sign buzzed erratically, its sickly green glow spilling over the entrance of the diner. The rich aroma of frying bacon mingled with the sharp scent of burnt coffee, wafting out into the heat, each breath tugging at memories Tara would rather forget.\n\nInside, the worn linoleum tiles reflected the harsh fluorescent lights, their sheen dull and uninviting. A long counter stretched across the room, lined with red vinyl stools that had seen better days, their surfaces cracked and faded. Tara slid onto one, the cool metal of the stool a welcome relief against her bare legs as sweat clung to her skin. She tapped her fingers rhythmically against the counter, the sound breaking the stillness around her like a quiet act of defiance.\n\n“Ya want the usual?” The waitress approached, a sturdy woman with tightly coiled hair and an apron speckled with remnants of past meals. She leaned in slightly, her voice gravelly but warm, as if she had seen too many stories unfold in this very spot. Tara met her gaze, searching for a flicker of understanding in those eyes, but found only the familiar reflection of her own uncertainty.\n\n“Yeah, sure,” Tara replied, her voice barely above a whisper, her throat dry and scratchy. The waitress nodded, her movements smooth and practiced as she turned away, heading towards the kitchen. Tara's eyes drifted, tracing the outlines of faded photographs lining the walls—snapshots of patrons long gone, each image a window into lives that felt both vibrant and distant.\n\nThe diner was nearly empty, save for a couple in the corner booth, their laughter drifting like smoke. Tara strained to catch snippets of"
+  },
+  "critique_snapshot": {
+    "summary": "The scene describes Tara's experience in a nearly empty diner, highlighting her feelings of loss and uncertainty as she interacts with the waitress and observes the surroundings.",
+    "weaknesses": [
+      "Generic descriptions that lack specificity.",
+      "Dialogue that feels disconnected from physical actions.",
+      "Vague emotional grounding."
+    ],
+    "continuity_issues": [
+      "The transition from outside to inside the diner lacks a clear connection to Tara's emotional state."
+    ],
+    "pacing_issues": [
+      "The scene drags in places due to excessive description without advancing the emotional arc."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a stronger sense of place.",
+      "Ground dialogue in physical actions or setting to improve realism.",
+      "Clarify Tara's emotional state through more direct actions or thoughts."
+    ],
+    "generic_phrase_targets": [
+      "sickly green glow",
+      "thick and familiar",
+      "quiet rebellion",
+      "dry as sandpaper",
+      "stark reminder"
+    ],
+    "detail_targets": [
+      "Descriptions of the diner and its patrons could be more vivid and unique.",
+      "Tara's emotional reactions need more concrete grounding."
+    ],
+    "dialogue_grounding_targets": [
+      "The waitress's dialogue should be tied to her actions or the environment.",
+      "Tara's responses should reflect her physical state or surroundings more clearly."
+    ],
+    "emotional_show_targets": [
+      "Show Tara's feelings of loss through her actions or interactions rather than vague descriptions."
+    ],
+    "replacement_targets": [
+      "Replace generic phrases with more original and specific imagery."
+    ],
+    "grounding_targets": [
+      "Ensure that Tara's internal thoughts are connected to her physical actions and the setting."
+    ],
+    "carryover_targets": [
+      "Strengthen the emotional connection between the setting and Tara's internal conflict."
+    ]
+  },
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_model_name": "gpt-5.4-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Ya want the usual?” The waitress approached, a sturdy woman with tightly coiled hair and an apron speckled with remnants of past meals.",
+        "“Yeah, sure,” Tara replied, her voice barely above a whisper, her throat dry and scratchy."
+      ],
+      "generic_phrases_to_replace": [
+        "sickly green glow",
+        "flicker of",
+        "voice barely above a whisper"
+      ],
+      "lines_to_repair": [
+        "Above, a flickering neon sign buzzed erratically, its sickly green glow spilling over the entrance of the diner.",
+        "Tara met her gaze, searching for a flicker of understanding in those eyes, but found only the familiar reflection of her own uncertainty.",
+        "“Yeah, sure,” Tara replied, her voice barely above a whisper, her throat dry and scratchy.",
+        "“Ya want the usual?” The waitress approached, a sturdy woman with tightly coiled hair and an apron speckled with remnants of past meals."
+      ],
+      "required_concrete_anchor_terms": [
+        "tara",
+        "across",
+        "cracked"
+      ],
+      "repair_min_word_count": 269,
+      "repair_max_word_count": 475,
+      "min_paragraph_count": 3,
+      "max_paragraph_count": 7
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rescue_model"
+    },
+    "rescue_generation_strategy": "slot_patch",
+    "configured_rescue_generation_strategy": "slot_patch",
+    "rescue_slots_summary": {
+      "slot_count": 3,
+      "target_types": [
+        "generic",
+        "generic",
+        "generic"
+      ]
+    },
+    "rescue_failure_class": "patch_specificity_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 304,
+    "rewritten_word_count": 317,
+    "min_word_count": 182,
+    "max_word_count": 638,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "and",
+      "tara",
+      "she",
+      "waitress",
+      "cracked",
+      "diner",
+      "bacon",
+      "each",
+      "counter",
+      "was"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "and",
+      "tara",
+      "she",
+      "waitress",
+      "cracked",
+      "diner",
+      "each",
+      "counter"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 26
+  }
+}

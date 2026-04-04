@@ -1,0 +1,93 @@
+{
+  "chunk_id": "lf_bb274184",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0002"
+  ],
+  "order": 2,
+  "continuation_of": "lf_4312f676",
+  "prompt_fingerprint": "sha256:741d426a9b21abdd37c1bd413ac2b379222f00a9b50202464791718320f215ec",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Clara stepped cautiously, her shoes squelching in the dampness of the corridor as the flickering light from Jun's lantern illuminated the peeling wallpaper, revealing patches of faded floral patterns that only hinted at a more vibrant past",
+    "word_count": 305,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.01,
+    "total_after_usd": 0.02
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 4,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 31,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 305,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 8,
+    "concrete_hits": 6,
+    "generic_hits": 0,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [
+      "corridor",
+      "key",
+      "lantern",
+      "coat",
+      "rain",
+      "floor",
+      "ceramic",
+      "fox"
+    ],
+    "carryover_hits": 4,
+    "material_carryover_hits": 0,
+    "material_carryover": false,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "Clara stepped cautiously, her shoes squelching in the dampness of the corridor as the flickering light from Jun's lantern illuminated the peeling wallpaper, revealing patches of faded floral patterns that only hinted at a more vibrant past. The air wrapped around her like a heavy shroud, thick with the smell of mildew and a metallic tang that clung to the back of her throat. Each breath felt laced with foreboding, a reminder that they were far from the safety of the greenhouse.\n\n“Did you hear that?” Jun’s voice, a strained whisper, sliced through the silence. He stood close, his coat still soaked from the rain, droplets dripping like a metronome marking the tension between them. Clara felt her heart race, the thumping echoing in her ears louder than the murmur of the world outside, where the storm still raged. She wanted to reach out, to reassure him, but the knot in her stomach tightened; she could not even tell him that she hadn’t heard anything, that the silence felt heavy and oppressive, as if holding secrets that were meant to stay buried.\n\n“Just the wind,” she said too quickly, the sharpness of her tone slicing through the damp air. “It’s nothing.” But even as she spoke, a chill ran down her spine, and she couldn’t shake the feeling that they were not alone. The lantern flickered again, casting erratic shadows that danced along the walls like specters toying with her mind.\n\nJun moved closer, the light illuminating the worry etched into the lines of his face. His eyes darted to the chained door at the end of the corridor, a rusted link that rattled softly, as if someone was testing it from the other side. “Clara, we shouldn’t be here,” he murmured, his voice barely above a breath. “What if—”\n\n“Don’t say it,” she interrupted"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

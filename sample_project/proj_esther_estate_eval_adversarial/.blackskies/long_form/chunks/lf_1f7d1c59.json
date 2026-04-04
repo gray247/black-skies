@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_1f7d1c59",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:9fa886e5a00962c45297c4b640441818b4c942abdc78213de92a38178195b215",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Clara pressed forward, the dim glow of the cracked brass lantern flickering like a heartbeat in the thickening gloom of the corridor",
+    "word_count": 302,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 30,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 302,
+    "paragraph_count": 6,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 8,
+    "concrete_hits": 8,
+    "generic_hits": 1,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "Clara pressed forward, the dim glow of the cracked brass lantern flickering like a heartbeat in the thickening gloom of the corridor. Jun was close behind, his coat still soaked from the relentless rain that had turned the greenhouse into a misty prison. Every echo of dripping water seemed amplified in the narrow passage, wrapping around them like a murmured warning. She could feel the damp chill seeping through her clothes, settling into her bones, a reminder that this was no ordinary night.\n\n\"Did you hear that?\" Jun's voice trembled, rising and falling like the lantern’s light. He glanced back, eyes wide, shadows dancing across his face. Clara stilled, straining to catch any sound beyond the steady drip, drip of water from the overhead beams. She shook her head, though her heart raced, an uninvited drumbeat in the silence.\n\n\"No,\" she lied, too quickly, her own voice sharp enough to cut through the tension. She clutched the parlor key, its red ribbon digging into her wrist, a small but tangible comfort amidst the unease. The ribbon felt like a pulse against her skin, reminding her of the world outside this suffocating corridor, of the night’s rain-washed colors and the sweet scent of wet earth.\n\nA shudder vibrated through the walls, as if the house itself was taking a breath, and Clara caught a glimpse of muddy footprints pressing forward into the darkness ahead. They didn’t belong to her or Jun. Panic flared in her chest, and she swallowed hard, the taste of fear acrid and metallic. \"We should keep moving,\" she urged, her voice steadier than she felt.\n\nJun hesitated, eyes darting between the fading light and the shadows that seemed to stretch and pulse. \"What if… what if something’s waiting for us?\"\n\n“I don’t know,” she admitted, forcing her voice to"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

@@ -1,0 +1,129 @@
+{
+  "chunk_id": "lf_c675ee79",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:3cf0fe5afc6692e6db896455c2124ace3f4349fd7728c3f3c3f22ddf6dd1575d",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The lantern wobbled in Jun's grip, its flickering light sputtering like a tired flame, casting elongated shadows that quivered along the nursery door",
+    "word_count": 617,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 5,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 31,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 617,
+    "paragraph_count": 11,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 9,
+    "concrete_hits": 10,
+    "generic_hits": 0,
+    "stock_phrase_hits": 2,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false
+  },
+  "critique_snapshot": {
+    "summary": "The scene follows Clara and Jun as they approach a locked nursery door, filled with tension and uncertainty. Clara holds a key and a ceramic fox while Jun expresses his unease. They hear a mysterious cough from inside, prompting Clara to confront her fears about the past and the secrets the nursery holds. Ultimately, Clara decides to open the door, revealing a room filled with forgotten memories.",
+    "weaknesses": [
+      "Generic phrasing detracts from the uniqueness of the scene.",
+      "Vague details about the setting and characters' emotions lead to a lack of immersion.",
+      "Dialogue lacks grounding in physical actions or specific setting elements."
+    ],
+    "continuity_issues": [
+      "Inconsistent description of the nursery's state; initially described as sealed and forgotten, yet Clara recalls memories associated with it."
+    ],
+    "pacing_issues": [
+      "The buildup of tension is effective, but the transition to Clara's decision to open the door feels rushed."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid setting.",
+      "Replace generic phrases with more original language.",
+      "Ground dialogue in physical actions and the environment."
+    ],
+    "generic_phrase_targets": [
+      "The lantern flickered",
+      "a strange comfort",
+      "the air was thick",
+      "the cool wood felt solid",
+      "the house seemed to exhale"
+    ],
+    "detail_targets": [
+      "Description of the nursery's contents and atmosphere needs more specificity.",
+      "Clarify the significance of the ceramic fox and the parlor key."
+    ],
+    "dialogue_grounding_targets": [
+      "Jun's question about the door's lock could be tied to his actions or feelings.",
+      "Clara's responses should reflect her physical state or actions more clearly."
+    ],
+    "emotional_show_targets": [
+      "Clarify Clara's internal conflict regarding the nursery and her memories.",
+      "Show Jun's fear and skepticism through more physical reactions."
+    ],
+    "replacement_targets": [
+      "Replace 'the lantern flickered' with a more unique description of the light.",
+      "Substitute 'the air was thick' with a more specific sensory detail."
+    ],
+    "grounding_targets": [
+      "Add more physical actions that correspond with the dialogue to enhance grounding.",
+      "Include sensory details that reflect the characters' emotional states."
+    ],
+    "carryover_targets": [
+      "Ensure Clara's memories of the nursery are consistent with the current state of the room."
+    ]
+  },
+  "attempt_count": 2,
+  "acceptance_reason": "rewrite_pass",
+  "rewrite_used": true,
+  "retry_snapshot": null
+}

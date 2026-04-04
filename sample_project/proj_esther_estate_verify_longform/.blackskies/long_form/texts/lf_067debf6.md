@@ -1,0 +1,9 @@
+﻿The rain drummed against the tin roof of the old shed, a relentless tattoo that mingled with the scent of wet earth and rust. Ella huddled in the corner, her knees drawn to her chest, a faded quilt wrapped tightly around her shoulders. The fabric, frayed at the edges, bore the faint scent of lavender and dust, a memory of warmer days long past. Outside, the world blurred into a watercolor wash of gray and green, the trees swaying slightly as the wind whispered secrets through their branches.
+
+With each gust, the door creaked in protest, and Ella's heart raced, a wild flutter against the backdrop of the storm. She peered through the cracked window, the glass smudged and streaked, and caught sight of the shadows dancing beyond the veil of rain. A flicker of movement—was it just the wind, or something more? She swallowed hard, the lump in her throat bitter with uncertainty.
+
+"Stay calm," she murmured to herself, the words barely rising above the sound of the storm. The last time she had let fear take root, it had twisted her gut and left her with scars she could still feel. She pressed her fingers against the quilt, grounding herself in its familiar texture, reminding herself that she was still here, that she could still fight.
+
+Suddenly, a loud thud echoed through the night, shattering her fragile cocoon of calm. Ella's breath caught, and her heart thundered in her ears. "Hello?" she called out, her voice a thin thread weaving into the chaos outside. Silence answered, but for the rain's relentless chorus.
+
+She glanced at the door, the wood splintered and warped, a barrier between her and whatever lurked beyond. The thud had been close—too close. The walls felt like they were closing in, and she could almost hear the pulse of her own anxiety thrumming in

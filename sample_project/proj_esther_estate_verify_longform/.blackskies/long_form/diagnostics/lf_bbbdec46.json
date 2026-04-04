@@ -1,0 +1,233 @@
+{
+  "chunk_id": "lf_bbbdec46",
+  "validation_decision": false,
+  "fallback_reason": "quality_failed",
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "basic_validation": {
+        "usable": true,
+        "word_count": 610,
+        "paragraph_count": 8,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [
+          "thick",
+          "scent",
+          "earth",
+          "decaying",
+          "leaves",
+          "perfume",
+          "clung",
+          "throat"
+        ],
+        "carryover_hits": 4
+      },
+      "raw_preview": "...damp earth sunk beneath her boots, each step melding into the soft, yielding ground. Lila pressed on, her heart drumming a quickened beat against her ribcage, as if urging her to turn back. The air",
+      "normalized_preview": "...damp earth sunk beneath her boots, each step melding into the soft, yielding ground. Lila pressed on, her heart drumming a quickened beat against her ribcage, as if urging her to turn back. The air",
+      "raw_length": 3548,
+      "normalized_length": 3548,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DJqoMJNUxTNp4uV4nrIpQojTvfeVY\", \"object\": \"chat.completion\", \"created\": 1773623610, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"...damp earth sunk beneath her boots, each step melding into the soft, yielding ground. Lila pressed on, her heart drumming a quickened beat against her ribcage, as if urging her to turn back. The air thickened, heavy with the scent of moss and the musty sweetness of decay, wrapping around her",
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 5,
+          "clarity": 4,
+          "pacing": 5,
+          "specificity": 3,
+          "dialogue": 2,
+          "meta_free": 5
+        },
+        "total_score": 29,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 610,
+        "paragraph_count": 8,
+        "dialogue_present": true,
+        "dialogue_grounded": false,
+        "sensory_hits": 11,
+        "concrete_hits": 0,
+        "generic_hits": 0,
+        "stock_phrase_hits": 2,
+        "carryover_terms": [
+          "thick",
+          "scent",
+          "earth",
+          "decaying",
+          "leaves",
+          "perfume",
+          "clung",
+          "throat"
+        ],
+        "carryover_hits": 4,
+        "weak_carryover": false,
+        "generic_risk": false
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "basic_validation": {
+        "usable": true,
+        "word_count": 600,
+        "paragraph_count": 8,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [
+          "thick",
+          "scent",
+          "earth",
+          "decaying",
+          "leaves",
+          "perfume",
+          "clung",
+          "throat"
+        ],
+        "carryover_hits": 6
+      },
+      "raw_preview": "The damp earth squelched beneath Lila’s boots, each step melding into the soft, yielding ground. She pressed on, her heart racing as an urgent rhythm echoed in her chest, whispering that she should tu",
+      "normalized_preview": "The damp earth squelched beneath Lila’s boots, each step melding into the soft, yielding ground. She pressed on, her heart racing as an urgent rhythm echoed in her chest, whispering that she should tu",
+      "raw_length": 3521,
+      "normalized_length": 3521,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DJqoeFVzamK8uxTQE9IwP3cuW0Ujj\", \"object\": \"chat.completion\", \"created\": 1773623628, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The damp earth squelched beneath Lila’s boots, each step melding into the soft, yielding ground. She pressed on, her heart racing as an urgent rhythm echoed in her chest, whispering that she should turn back. The air thickened around her, heavy with the rich, earthy scent of loam and decaying ",
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 5,
+          "clarity": 3,
+          "pacing": 5,
+          "specificity": 2,
+          "dialogue": 2,
+          "meta_free": 5
+        },
+        "total_score": 27,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 600,
+        "paragraph_count": 8,
+        "dialogue_present": true,
+        "dialogue_grounded": false,
+        "sensory_hits": 11,
+        "concrete_hits": 0,
+        "generic_hits": 1,
+        "stock_phrase_hits": 3,
+        "carryover_terms": [
+          "thick",
+          "scent",
+          "earth",
+          "decaying",
+          "leaves",
+          "perfume",
+          "clung",
+          "throat"
+        ],
+        "carryover_hits": 6,
+        "weak_carryover": false,
+        "generic_risk": true
+      },
+      "quality_pass": false,
+      "rewrite_delta": {
+        "total_delta": -2,
+        "stock_phrase_delta": -1,
+        "specificity_delta": -1,
+        "clarity_delta": -1,
+        "continuity_delta": 0
+      }
+    }
+  ],
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 5,
+      "clarity": 3,
+      "pacing": 5,
+      "specificity": 2,
+      "dialogue": 2,
+      "meta_free": 5
+    },
+    "total_score": 27,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 600,
+    "paragraph_count": 8,
+    "dialogue_present": true,
+    "dialogue_grounded": false,
+    "sensory_hits": 11,
+    "concrete_hits": 0,
+    "generic_hits": 1,
+    "stock_phrase_hits": 3,
+    "carryover_terms": [
+      "thick",
+      "scent",
+      "earth",
+      "decaying",
+      "leaves",
+      "perfume",
+      "clung",
+      "throat"
+    ],
+    "carryover_hits": 6,
+    "weak_carryover": false,
+    "generic_risk": true
+  },
+  "critique_snapshot": {
+    "summary": "Lila ventures deeper into the woods, feeling both fear and excitement as she navigates the darkening landscape. She senses a mysterious presence and is drawn towards a flickering light, battling her doubts and curiosity.",
+    "weaknesses": [
+      "Generic stock phrasing such as 'thick, dark cloak' and 'scent of moss and the musty sweetness of decay' detracts from originality.",
+      "Vague descriptions of the environment, lacking specific details that could enhance the scene's uniqueness.",
+      "Dialogue lacks grounding in physical action or setting, making it feel disconnected from the narrative."
+    ],
+    "continuity_issues": [
+      "The transition from Lila's initial fear to her growing excitement is abrupt and lacks a clear emotional arc.",
+      "The description of the woods shifts from foreboding to inviting without sufficient buildup."
+    ],
+    "pacing_issues": [
+      "The scene's pacing slows significantly during the introspective moments, which could be tightened to maintain tension.",
+      "Dialogue interspersed with internal monologue disrupts the flow and creates a disjointed reading experience."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Replace generic stock phrases with more vivid, original descriptions that evoke a stronger sense of place.",
+      "Enhance the grounding of dialogue in physical actions or environmental context to create a more immersive experience.",
+      "Clarify emotional transitions to ensure a smoother continuity in Lila's journey through the woods.",
+      "Tighten pacing by balancing introspection with action to maintain tension and engagement."
+    ]
+  }
+}

@@ -1,0 +1,374 @@
+{
+  "chunk_id": "lf_02813732",
+  "validation_decision": true,
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "basic_validation": {
+        "usable": true,
+        "word_count": 615,
+        "paragraph_count": 12,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [
+          "table",
+          "rain",
+          "window",
+          "stepped",
+          "doorway",
+          "chill",
+          "tiles",
+          "creeping"
+        ],
+        "carryover_hits": 5,
+        "material_carryover_hits": 0
+      },
+      "raw_preview": "Outside, the wind picked up, a low howl that seeped in through the cracks of the old window frames. Lena glanced toward the glass, the world beyond a blur of gray and brown, the trees swaying like dan",
+      "normalized_preview": "Outside, the wind picked up, a low howl that seeped in through the cracks of the old window frames. Lena glanced toward the glass, the world beyond a blur of gray and brown, the trees swaying like dan",
+      "raw_length": 3531,
+      "normalized_length": 3523,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DK80r4xMis0ht96hNrsqcWoTAGp1J\", \"object\": \"chat.completion\", \"created\": 1773689733, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"Outside, the wind picked up, a low howl that seeped in through the cracks of the old window frames. Lena glanced toward the glass, the world beyond a blur of gray and brown, the trees swaying like dancers caught in a tempest. She turned back to the kitchen, where the smell of stale bread linge",
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 4,
+          "clarity": 2,
+          "pacing": 5,
+          "specificity": 3,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 28,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 615,
+        "paragraph_count": 12,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 15,
+        "concrete_hits": 6,
+        "generic_hits": 1,
+        "stock_phrase_hits": 3,
+        "carryover_terms": [
+          "table",
+          "rain",
+          "window",
+          "stepped",
+          "doorway",
+          "chill",
+          "tiles",
+          "creeping"
+        ],
+        "carryover_hits": 5,
+        "material_carryover_hits": 0,
+        "material_carryover": false,
+        "weak_carryover": false,
+        "generic_risk": true,
+        "text": "Outside, the wind picked up, a low howl that seeped in through the cracks of the old window frames. Lena glanced toward the glass, the world beyond a blur of gray and brown, the trees swaying like dancers caught in a tempest. She turned back to the kitchen, where the smell of stale bread lingered like an unwelcome guest. With a deep breath, she pulled open the cupboard, the hinges protesting with a shriek, revealing an assortment of chipped mugs and plates, relics of a time when the kitchen had been a sanctuary rather than a mausoleum. She reached for a mug, its ceramic smooth and cool against her palm, and filled it with water from the faucet, the metal clanking as she turned the handle.\n\nThe water splashed into the mug, the sound echoing against the kitchen walls, a reminder of the life that once thrived here. She watched the ripples settle, her reflection wavering in the surface—eyes wide, hair tousled, a stranger staring back. She took a sip, the water cold and refreshing, but it did little to quench the dryness in her throat, a lingering ache that seemed to grow with every passing second.\n\n“Lena?” The voice came from the hallway, hesitant yet familiar, slicing through the stillness. It was Oliver, his tone heavy with an unspoken question. She set the mug down abruptly, the sound of ceramic against wood jarring in the quiet.\n\n“Yeah?” She turned, forcing a smile that felt brittle on her lips.\n\nHe appeared in the doorway, the dim light casting shadows across his features. His hair was tousled, eyes searching, as if they were trying to pierce through the haze of her thoughts. “I was thinking… maybe we could go for a walk? Clear our heads a bit?”\n\nThe suggestion hung in the air, a fragile thread connecting them, and Lena felt a flicker of hope—a brief respite from the weight of the kitchen that seemed to press down on her like the leaden sky outside. “A walk?” she repeated, her voice barely a whisper.\n\n“Yeah, you know, around the block. Just to breathe.” His gaze drifted to the window, where raindrops began to splatter against the glass, a soft patter that echoed the rhythm of her heartbeat.\n\nShe hesitated, a small voice in her mind reminding her of the chill that would seep through her coat, of the dampness that clung to the streets, but the longing for movement, for something beyond these four walls, overpowered the instinct to retreat. “Okay,” she said finally, her voice firming as she stepped back toward the door. “Let me just grab my jacket.”\n\nAs she slipped into the worn coat, the fabric enveloped her like an old friend, the familiar scent of cedar and dust mingling with the crisp air that flowed through the space. She felt Oliver’s presence at her back, grounding yet unnerving, and she took a moment to compose herself, smoothing her hair as if that could tame the chaos swirling inside her.\n\n“Ready?” he asked, his voice softening, a gentle nudge against the walls she had built around herself.\n\n“Yeah,” she replied, and together they stepped outside. The world was transformed, the rain a curtain that seemed to wash away the past, if only momentarily. The air was sharp and invigorating, filling her lungs with a coolness that contrasted sharply with the staleness of the kitchen.\n\nThey walked in silence, the steady rhythm of their footsteps mingling with the sound of the rain, a symphony of nature that felt both foreign and familiar. Lena glanced sideways at Oliver, his brows furrowed in thought, and she felt a wave of gratitude wash over her. Here, outside,"
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "rewrite",
+        "escalated": false,
+        "reason": "rewrite_default"
+      },
+      "basic_validation": {
+        "usable": true,
+        "word_count": 628,
+        "paragraph_count": 10,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [
+          "table",
+          "rain",
+          "window",
+          "stepped",
+          "doorway",
+          "chill",
+          "tiles",
+          "creeping"
+        ],
+        "carryover_hits": 7,
+        "material_carryover_hits": 2
+      },
+      "raw_preview": "Lena stepped through the doorway, the coldness of the ceramic tiles biting at her skin as she navigated the cluttered kitchen. A few mismatched chairs were huddled around a scarred table, remnants of ",
+      "normalized_preview": "Lena stepped through the doorway, the coldness of the ceramic tiles biting at her skin as she navigated the cluttered kitchen. A few mismatched chairs were huddled around a scarred table, remnants of ",
+      "raw_length": 3592,
+      "normalized_length": 3590,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DK81Dv1SgpEZysBQbQNcI6AK5i1SM\", \"object\": \"chat.completion\", \"created\": 1773689755, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"Lena stepped through the doorway, the coldness of the ceramic tiles biting at her skin as she navigated the cluttered kitchen. A few mismatched chairs were huddled around a scarred table, remnants of family dinners now replaced by an unsettling quiet. The wind picked up outside, howling throug",
+      "guardrail_snapshot": {
+        "evaluated": true,
+        "mode": "rewrite",
+        "outline_titles": [],
+        "beat_refs": [],
+        "locked_facts_evaluated": false,
+        "length_band_evaluated": true,
+        "original_word_count": 615,
+        "rewritten_word_count": 628,
+        "min_word_count": 369,
+        "max_word_count": 1291,
+        "within_length_band": true,
+        "outline_fidelity_evaluated": true,
+        "outline_fidelity_pass": true,
+        "original_anchor_terms": [
+          "the",
+          "she",
+          "her",
+          "that",
+          "and",
+          "his",
+          "kitchen",
+          "against",
+          "voice",
+          "was",
+          "felt",
+          "outside"
+        ],
+        "retained_anchor_terms": [
+          "the",
+          "she",
+          "her",
+          "that",
+          "and",
+          "his",
+          "kitchen",
+          "against",
+          "was",
+          "outside"
+        ],
+        "outline_anchor_hits": [
+          "the",
+          "her",
+          "she",
+          "that",
+          "and",
+          "back",
+          "his",
+          "lena",
+          "kitchen",
+          "window"
+        ],
+        "required_anchor_overlap": 1,
+        "scene_anchor_drift_detected": false,
+        "new_story_elements": [],
+        "blocking_new_story_elements": [],
+        "authoritative_name_check": true,
+        "uncertainty_triggered": false,
+        "failure_reason": null,
+        "accepted": true,
+        "quality_total_score": 33
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 5,
+          "clarity": 4,
+          "pacing": 5,
+          "specificity": 5,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 33,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 628,
+        "paragraph_count": 10,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 10,
+        "concrete_hits": 6,
+        "generic_hits": 0,
+        "stock_phrase_hits": 2,
+        "carryover_terms": [
+          "table",
+          "rain",
+          "window",
+          "stepped",
+          "doorway",
+          "chill",
+          "tiles",
+          "creeping"
+        ],
+        "carryover_hits": 7,
+        "material_carryover_hits": 2,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false
+      },
+      "quality_pass": true,
+      "rewrite_delta": {
+        "total_delta": 5,
+        "stock_phrase_delta": 1,
+        "specificity_delta": 2,
+        "clarity_delta": 2,
+        "continuity_delta": 1
+      }
+    }
+  ],
+  "acceptance_reason": "rewrite_pass",
+  "critique_snapshot": {
+    "summary": "Lena navigates her cluttered kitchen, feeling the chill of the tiles and the weight of her surroundings. She interacts with Oliver, who suggests they go for a walk to clear their heads. As they prepare to leave, Lena grapples with her emotions and the oppressive atmosphere of the kitchen, ultimately stepping outside into the rain, which feels refreshing and transformative.",
+    "weaknesses": [
+      "Vague descriptions that lack specificity.",
+      "Generic phrases that detract from the uniqueness of the scene.",
+      "Dialogue that feels disconnected from physical action."
+    ],
+    "continuity_issues": [
+      "The transition from the kitchen to the outside world could be more seamless.",
+      "The emotional shift from the kitchen to the outside is abrupt and lacks buildup."
+    ],
+    "pacing_issues": [
+      "The scene may linger too long on the kitchen details, slowing the narrative.",
+      "The dialogue exchange could be tightened to maintain momentum."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid scene.",
+      "Replace generic phrases with more original language.",
+      "Ground dialogue in physical actions or setting to increase realism."
+    ],
+    "generic_phrase_targets": [
+      "unwelcome guest",
+      "fragile thread",
+      "gentle nudge",
+      "wash away the past"
+    ],
+    "detail_targets": [
+      "the smell of stale bread",
+      "the assortment of chipped mugs and plates",
+      "the familiar scent of cedar and dust"
+    ],
+    "dialogue_grounding_targets": [
+      "Oliver's suggestion to go for a walk",
+      "Lena's response and emotional state during the conversation"
+    ],
+    "emotional_show_targets": [
+      "Lena's internal conflict about leaving the kitchen",
+      "Her feelings of gratitude towards Oliver"
+    ],
+    "replacement_targets": [
+      "Replace 'the chill of the tiles' with a more specific sensory detail.",
+      "Substitute 'the sound echoing against the kitchen walls' with a more unique auditory description."
+    ],
+    "grounding_targets": [
+      "Physical actions during dialogue exchanges.",
+      "Environmental details that reflect the characters' emotions."
+    ],
+    "carryover_targets": [
+      "the wind picked up",
+      "the world beyond a blur",
+      "the sound of ceramic against wood"
+    ]
+  },
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 615,
+    "rewritten_word_count": 628,
+    "min_word_count": 369,
+    "max_word_count": 1291,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "she",
+      "her",
+      "that",
+      "and",
+      "his",
+      "kitchen",
+      "against",
+      "voice",
+      "was",
+      "felt",
+      "outside"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "she",
+      "her",
+      "that",
+      "and",
+      "his",
+      "kitchen",
+      "against",
+      "was",
+      "outside"
+    ],
+    "outline_anchor_hits": [
+      "the",
+      "her",
+      "she",
+      "that",
+      "and",
+      "back",
+      "his",
+      "lena",
+      "kitchen",
+      "window"
+    ],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": true,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 33
+  }
+}

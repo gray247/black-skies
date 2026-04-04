@@ -1,0 +1,420 @@
+{
+  "chunk_id": "lf_800cfe4e",
+  "validation_decision": false,
+  "fallback_reason": "quality_failed",
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "basic_validation": {
+        "usable": true,
+        "word_count": 589,
+        "paragraph_count": 13,
+        "meta_summary": false,
+        "missing_carryover": true,
+        "carryover_terms": [
+          "pocket",
+          "casting",
+          "golden",
+          "rusted",
+          "rooftops",
+          "district",
+          "stepped",
+          "cracked"
+        ],
+        "carryover_hits": 1,
+        "material_carryover_hits": 0
+      },
+      "raw_preview": "Clara's stomach growled, a low, insistent reminder that she hadn’t eaten since breakfast. She paused, watching the vendor deftly toss dough into sizzling oil, the golden pieces bubbling and crisping l",
+      "normalized_preview": "Clara's stomach growled, a low, insistent reminder that she hadn’t eaten since breakfast. She paused, watching the vendor deftly toss dough into sizzling oil, the golden pieces bubbling and crisping l",
+      "raw_length": 3518,
+      "normalized_length": 3507,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKAtlAKzHR3XqXTgeuyqv4kxExv5M\", \"object\": \"chat.completion\", \"created\": 1773700825, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"Clara's stomach growled, a low, insistent reminder that she hadn’t eaten since breakfast. She paused, watching the vendor deftly toss dough into sizzling oil, the golden pieces bubbling and crisping like small suns. The vendor, a stout man with a beard flecked with flour, caught her eye and gr",
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 2,
+          "clarity": 4,
+          "pacing": 5,
+          "specificity": 4,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 29,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": true,
+        "word_count": 589,
+        "paragraph_count": 13,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 7,
+        "concrete_hits": 3,
+        "generic_hits": 1,
+        "stock_phrase_hits": 0,
+        "carryover_terms": [
+          "pocket",
+          "casting",
+          "golden",
+          "rusted",
+          "rooftops",
+          "district",
+          "stepped",
+          "cracked"
+        ],
+        "carryover_hits": 1,
+        "material_carryover_hits": 0,
+        "material_carryover": false,
+        "weak_carryover": true,
+        "generic_risk": false,
+        "text": "Clara's stomach growled, a low, insistent reminder that she hadn’t eaten since breakfast. She paused, watching the vendor deftly toss dough into sizzling oil, the golden pieces bubbling and crisping like small suns. The vendor, a stout man with a beard flecked with flour, caught her eye and grinned, revealing a gap-toothed smile. “One for you, love?” His voice was warm, inviting, as if the heat from the fryer was radiating from him.\n\n“Just one,” she said, though her hunger whispered for more. The sound of the frying dough filled the air, intermingling with the distant laughter of children playing hide-and-seek among the market stalls. She could almost taste the sweetness of sugar dusting the fried pieces, the way it would melt into her mouth.\n\nAs he handed her the warm treat, the heat seeped through the paper bag, sending a wave of comfort up her arm. She paid him with a crumpled bill, her fingers brushing against his calloused hand. For a fleeting moment, she felt a connection, a shared humanity amid the bustling chaos. “Thank you,” she muttered, the words feeling inadequate as she took a bite, the crunch giving way to soft, warm dough.\n\nShe moved away from the stall, savoring each bite, the sweetness momentarily drowning out the sour taste of anxiety that had been lingering in her throat. The evening shadows stretched long, intertwining with the last remnants of daylight, and Clara quickened her pace, the cobblestones uneven beneath her feet, a reminder of the world’s unpredictability.\n\nThe market thrummed with life, voices rising and falling like waves, but beneath the surface, Clara felt the current of unease swirling around her. She couldn’t shake the feeling that eyes were on her. It was in the way a group of men leaned against a nearby wall, their laughter too loud, their gazes too intense as they watched her pass. She adjusted her scarf, pulling it closer around her neck. It was a small shield, a barrier against their scrutiny, though she knew it wouldn’t hold.\n\n“Hey, wait!” a voice called, slicing through the ambient noise. Clara turned, heart racing, to see a girl her age bounding toward her, breathless. It was Lila, her wild curls bouncing like the springing branches of a tree. Clara’s chest tightened at the sight of her friend, both a relief and a reminder of everything she was trying to escape.\n\n“Did you hear?” Lila panted, her cheeks flushed from running. “They’re talking about the old warehouse by the docks. Everyone says it’s haunted.” Her eyes glimmered with the thrill of the rumor, an excitement Clara remembered from their childhood adventures.\n\n“Haunted?” Clara echoed, forcing a laugh, but the sound felt hollow. “You really believe that?”\n\nLila shrugged, her expression shifting to a mix of seriousness and mischief. “Who knows? But we should check it out. It could be fun!”\n\nClara hesitated, her heart thumping in time with the distant clang of a bell. The warehouse loomed in her mind, shadows clinging to its crumbling structure, memories of whispered stories and the thrill of darkness. Still, the thought of being out after dark, of the streets twisting and turning into something she couldn’t navigate, sent a shiver down her spine.\n\n“Maybe later,” she said, forcing a smile that didn’t quite reach her eyes. “I have to get home before it gets too late.”\n\nLila pouted, disappointment flickering across her face. “You’re no fun anymore, Clara. What happened to the girl who would chase ghosts with me?”\n\nThe question hung between them,"
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "rewrite",
+        "escalated": false,
+        "reason": "rewrite_default"
+      },
+      "basic_validation": {
+        "usable": true,
+        "word_count": 597,
+        "paragraph_count": 10,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [
+          "pocket",
+          "casting",
+          "golden",
+          "rusted",
+          "rooftops",
+          "district",
+          "stepped",
+          "cracked"
+        ],
+        "carryover_hits": 2,
+        "material_carryover_hits": 0
+      },
+      "raw_preview": "The sun hung low in the sky, painting the old district in hues of orange and amber, a fading warmth that lingered in the air. Clara navigated the uneven cobblestones, her shoe catching on the jagged e",
+      "normalized_preview": "The sun hung low in the sky, painting the old district in hues of orange and amber, a fading warmth that lingered in the air. Clara navigated the uneven cobblestones, her shoe catching on the jagged e",
+      "raw_length": 3555,
+      "normalized_length": 3555,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKAu2H98Fy3rHlorH3NJweHPW1taV\", \"object\": \"chat.completion\", \"created\": 1773700842, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The sun hung low in the sky, painting the old district in hues of orange and amber, a fading warmth that lingered in the air. Clara navigated the uneven cobblestones, her shoe catching on the jagged edges as she moved, each step a reminder of the day’s long wear. The heat radiated from the gro",
+      "guardrail_snapshot": {
+        "evaluated": true,
+        "mode": "rewrite",
+        "outline_titles": [],
+        "beat_refs": [],
+        "locked_facts_evaluated": false,
+        "length_band_evaluated": true,
+        "original_word_count": 589,
+        "rewritten_word_count": 597,
+        "min_word_count": 353,
+        "max_word_count": 1236,
+        "within_length_band": true,
+        "outline_fidelity_evaluated": true,
+        "outline_fidelity_pass": true,
+        "original_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "and",
+          "clara",
+          "was",
+          "that",
+          "you",
+          "lila",
+          "reminder",
+          "dough",
+          "for"
+        ],
+        "retained_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "and",
+          "clara",
+          "that",
+          "you",
+          "lila",
+          "reminder",
+          "dough",
+          "for"
+        ],
+        "outline_anchor_hits": [
+          "the",
+          "her",
+          "she",
+          "clara",
+          "and",
+          "that",
+          "felt",
+          "out"
+        ],
+        "required_anchor_overlap": 1,
+        "scene_anchor_drift_detected": false,
+        "new_story_elements": [],
+        "blocking_new_story_elements": [],
+        "authoritative_name_check": true,
+        "uncertainty_triggered": false,
+        "failure_reason": null,
+        "accepted": true,
+        "quality_total_score": 29
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 5,
+          "specificity": 5,
+          "dialogue": 2,
+          "meta_free": 5
+        },
+        "total_score": 29,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 597,
+        "paragraph_count": 10,
+        "dialogue_present": true,
+        "dialogue_grounded": false,
+        "sensory_hits": 8,
+        "concrete_hits": 4,
+        "generic_hits": 0,
+        "stock_phrase_hits": 2,
+        "carryover_terms": [
+          "pocket",
+          "casting",
+          "golden",
+          "rusted",
+          "rooftops",
+          "district",
+          "stepped",
+          "cracked"
+        ],
+        "carryover_hits": 2,
+        "material_carryover_hits": 0,
+        "material_carryover": false,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The sun hung low in the sky, painting the old district in hues of orange and amber, a fading warmth that lingered in the air. Clara navigated the uneven cobblestones, her shoe catching on the jagged edges as she moved, each step a reminder of the day’s long wear. The heat radiated from the ground, a stubborn remnant of summer resisting the encroaching evening chill. She paused for a moment, inhaling the rich amalgam of scents wafting from the market: the sweetness of fried dough mingled with the sharp bite of onions and the musty scent of overripe fruit.\n\nHer stomach growled audibly, a low and insistent reminder of her empty belly, and she found herself drawn to a vendor skillfully dropping pieces of dough into a bubbling cauldron of oil. The dough sizzled and popped, transforming into golden morsels that danced in the heat. The vendor, a stout man with a flour-dusted beard, caught her eye and grinned, his smile wide and gap-toothed. “One for you, love?” he called, his voice warm against the backdrop of the bustling market.\n\n“Just one,” she replied, though her hunger whispered for more. The sound of frying filled the air, punctuated by distant laughter from children darting between the stalls. Clara could almost taste the sugar dust that would cloak the fried pieces, sweet and melting on her tongue.\n\nAs he handed her the warm treat, the heat seeped through the paper bag, a comforting pulse against her palm. She fished out a crumpled bill and, as their fingers brushed, a flicker of connection sparked between them—a fleeting sense of camaraderie amid the chaotic hum of the market. “Thank you,” she murmured, though the words felt inadequate as she took her first bite. The crunch gave way to soft, pillowy dough, warmth spreading through her and momentarily quieting the anxiety that had lodged itself in her throat.\n\nClara moved away from the stall, savoring each bite, trying to drown out the persistent unease that crept in as shadows stretched longer around her. She quickened her pace, the cobblestones uneven beneath her feet, each step a reminder of the unpredictability of the world around her. The market thrummed with life, voices rising and falling in a chaotic symphony, but beneath that vibrant surface, Clara felt the undercurrent of unease swirling around her. She couldn’t shake the sensation of being watched, particularly from a group of men loitering against a wall, their laughter too loud, their gazes too intent as she passed. Adjusting her scarf, she pulled it tighter around her neck, a feeble attempt to shield herself from their scrutiny.\n\n“Hey, wait!” A voice sliced through the ambient noise, pulling Clara from her spiraling thoughts. Heart racing, she turned to see Lila, a whirlwind of wild curls and breathless energy, bounding toward her. Clara’s chest tightened, a blend of relief and anxiety washing over her at the sight of her friend.\n\n“Did you hear?” Lila panted, her cheeks flushed from the exertion. “They’re talking about the old warehouse by the docks. Everyone says it’s haunted.” The thrill of the rumor lit up Lila’s eyes, a spark of mischief that Clara remembered from their childhood escapades.\n\n“Haunted?” Clara echoed, forcing a laugh that felt brittle, a hollow sound against the vibrant backdrop of the market. “You really believe that?”\n\nLila shrugged, a mischievous grin spreading across her face. “Who knows? But we should check it out. It could be fun!”\n\nClara hesitated, her heart pounding in rhythm with the distant clang of a bell. The warehouse loomed in her mind, its cr"
+      },
+      "quality_pass": false,
+      "rewrite_delta": {
+        "total_delta": 0,
+        "stock_phrase_delta": -2,
+        "specificity_delta": 1,
+        "clarity_delta": 0,
+        "continuity_delta": 1
+      }
+    }
+  ],
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 5,
+      "specificity": 5,
+      "dialogue": 2,
+      "meta_free": 5
+    },
+    "total_score": 29,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 597,
+    "paragraph_count": 10,
+    "dialogue_present": true,
+    "dialogue_grounded": false,
+    "sensory_hits": 8,
+    "concrete_hits": 4,
+    "generic_hits": 0,
+    "stock_phrase_hits": 2,
+    "carryover_terms": [
+      "pocket",
+      "casting",
+      "golden",
+      "rusted",
+      "rooftops",
+      "district",
+      "stepped",
+      "cracked"
+    ],
+    "carryover_hits": 2,
+    "material_carryover_hits": 0,
+    "material_carryover": false,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The sun hung low in the sky, painting the old district in hues of orange and amber, a fading warmth that lingered in the air. Clara navigated the uneven cobblestones, her shoe catching on the jagged edges as she moved, each step a reminder of the day’s long wear. The heat radiated from the ground, a stubborn remnant of summer resisting the encroaching evening chill. She paused for a moment, inhaling the rich amalgam of scents wafting from the market: the sweetness of fried dough mingled with the sharp bite of onions and the musty scent of overripe fruit.\n\nHer stomach growled audibly, a low and insistent reminder of her empty belly, and she found herself drawn to a vendor skillfully dropping pieces of dough into a bubbling cauldron of oil. The dough sizzled and popped, transforming into golden morsels that danced in the heat. The vendor, a stout man with a flour-dusted beard, caught her eye and grinned, his smile wide and gap-toothed. “One for you, love?” he called, his voice warm against the backdrop of the bustling market.\n\n“Just one,” she replied, though her hunger whispered for more. The sound of frying filled the air, punctuated by distant laughter from children darting between the stalls. Clara could almost taste the sugar dust that would cloak the fried pieces, sweet and melting on her tongue.\n\nAs he handed her the warm treat, the heat seeped through the paper bag, a comforting pulse against her palm. She fished out a crumpled bill and, as their fingers brushed, a flicker of connection sparked between them—a fleeting sense of camaraderie amid the chaotic hum of the market. “Thank you,” she murmured, though the words felt inadequate as she took her first bite. The crunch gave way to soft, pillowy dough, warmth spreading through her and momentarily quieting the anxiety that had lodged itself in her throat.\n\nClara moved away from the stall, savoring each bite, trying to drown out the persistent unease that crept in as shadows stretched longer around her. She quickened her pace, the cobblestones uneven beneath her feet, each step a reminder of the unpredictability of the world around her. The market thrummed with life, voices rising and falling in a chaotic symphony, but beneath that vibrant surface, Clara felt the undercurrent of unease swirling around her. She couldn’t shake the sensation of being watched, particularly from a group of men loitering against a wall, their laughter too loud, their gazes too intent as she passed. Adjusting her scarf, she pulled it tighter around her neck, a feeble attempt to shield herself from their scrutiny.\n\n“Hey, wait!” A voice sliced through the ambient noise, pulling Clara from her spiraling thoughts. Heart racing, she turned to see Lila, a whirlwind of wild curls and breathless energy, bounding toward her. Clara’s chest tightened, a blend of relief and anxiety washing over her at the sight of her friend.\n\n“Did you hear?” Lila panted, her cheeks flushed from the exertion. “They’re talking about the old warehouse by the docks. Everyone says it’s haunted.” The thrill of the rumor lit up Lila’s eyes, a spark of mischief that Clara remembered from their childhood escapades.\n\n“Haunted?” Clara echoed, forcing a laugh that felt brittle, a hollow sound against the vibrant backdrop of the market. “You really believe that?”\n\nLila shrugged, a mischievous grin spreading across her face. “Who knows? But we should check it out. It could be fun!”\n\nClara hesitated, her heart pounding in rhythm with the distant clang of a bell. The warehouse loomed in her mind, its cr"
+  },
+  "critique_snapshot": {
+    "summary": "Clara, feeling hungry and anxious, interacts with a vendor at a market, buys a fried treat, and is approached by her friend Lila, who brings up a rumor about a haunted warehouse. Clara feels a mix of nostalgia and anxiety as she contemplates the idea of exploring the warehouse but ultimately declines, leading to a moment of tension between the friends.",
+    "weaknesses": [
+      "Weak continuity in Clara's emotional state and her relationship with Lila.",
+      "Generic descriptions and phrases that do not add depth to the scene."
+    ],
+    "continuity_issues": [
+      "Clara's anxiety is introduced but not fully explored or resolved throughout the scene.",
+      "The transition from her hunger to her interaction with Lila lacks a clear emotional progression."
+    ],
+    "pacing_issues": [
+      "The pacing slows significantly during the dialogue with Lila, which detracts from the tension built earlier."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance emotional depth and continuity in Clara's character.",
+      "Replace generic phrases with more vivid, specific imagery.",
+      "Ground dialogue in physical actions and the setting."
+    ],
+    "generic_phrase_targets": [
+      "warm, inviting",
+      "small suns",
+      "shared humanity",
+      "the world’s unpredictability"
+    ],
+    "detail_targets": [
+      "More specific sensory details about the market and Clara's feelings.",
+      "Descriptions of the warehouse that evoke a stronger sense of fear or nostalgia."
+    ],
+    "dialogue_grounding_targets": [
+      "Incorporate physical actions or reactions during dialogue to enhance grounding."
+    ],
+    "emotional_show_targets": [
+      "Show Clara's anxiety more vividly through her physical reactions and thoughts.",
+      "Explore the tension in Clara's relationship with Lila more deeply."
+    ],
+    "replacement_targets": [
+      "Replace 'small suns' with a more unique metaphor.",
+      "Find alternatives for 'shared humanity' that convey connection without being cliché."
+    ],
+    "grounding_targets": [
+      "Include more descriptions of the environment that reflect Clara's emotional state.",
+      "Use Clara's actions to reflect her internal struggle more clearly."
+    ],
+    "carryover_targets": [
+      "Avoid repetitive use of terms like 'golden' and 'rusted' that detract from originality."
+    ]
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 589,
+    "rewritten_word_count": 597,
+    "min_word_count": 353,
+    "max_word_count": 1236,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "and",
+      "clara",
+      "was",
+      "that",
+      "you",
+      "lila",
+      "reminder",
+      "dough",
+      "for"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "and",
+      "clara",
+      "that",
+      "you",
+      "lila",
+      "reminder",
+      "dough",
+      "for"
+    ],
+    "outline_anchor_hits": [
+      "the",
+      "her",
+      "she",
+      "clara",
+      "and",
+      "that",
+      "felt",
+      "out"
+    ],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": true,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 29
+  },
+  "retry_snapshot": {
+    "used": false,
+    "succeeded": false,
+    "attempts_used": 0,
+    "max_attempts": 1,
+    "eligible": false,
+    "failure_classification": {
+      "classification": "hard",
+      "reason": "material_carryover_missing",
+      "retry_eligible": false
+    },
+    "reason": "material_carryover_missing"
+  }
+}

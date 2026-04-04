@@ -1,0 +1,211 @@
+{
+  "chunk_id": "lf_a24bbcf2",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0003"
+  ],
+  "order": 3,
+  "continuation_of": "lf_6da713ec",
+  "prompt_fingerprint": "sha256:1821c05ad38bf912e91eb065a8f56d1b1d1d060bb3dbccc82e3c63c851a77b41",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 43,
+    "fallback_reason": "quality_failed"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.02,
+    "total_after_usd": 0.03
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "quality_failed"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 4,
+      "clarity": 2,
+      "pacing": 5,
+      "specificity": 1,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 26,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 622,
+    "paragraph_count": 10,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 5,
+    "concrete_hits": 1,
+    "generic_hits": 2,
+    "stock_phrase_hits": 2,
+    "carryover_terms": [
+      "window",
+      "table",
+      "chair",
+      "floor",
+      "coat",
+      "coffee",
+      "rowan",
+      "moved"
+    ],
+    "carryover_hits": 3,
+    "material_carryover_hits": 0,
+    "material_carryover": false,
+    "weak_carryover": false,
+    "generic_risk": true
+  },
+  "critique_snapshot": {
+    "summary": "Rowan sits in a café, adjusting her scarf and reflecting on her life while observing an elderly couple. The barista serves her a cappuccino, and she grapples with feelings of nostalgia and longing as she contemplates her own loneliness and obligations.",
+    "weaknesses": [
+      "Overuse of generic phrases and descriptions.",
+      "Lack of specific sensory details that could enhance the scene.",
+      "Dialogue that feels disconnected from the physical actions and setting."
+    ],
+    "continuity_issues": [
+      "The transition between Rowan's internal thoughts and her interactions with the barista feels abrupt.",
+      "The emotional weight of her reflections does not consistently align with her external actions."
+    ],
+    "pacing_issues": [
+      "The scene drags in places, particularly during introspective moments that could be tightened.",
+      "The dialogue exchanges could be more dynamic to maintain engagement."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in sensory details to create a more vivid atmosphere.",
+      "Ground dialogue in physical actions and the setting to improve realism.",
+      "Reduce reliance on generic phrases and stock descriptions."
+    ],
+    "generic_phrase_targets": [
+      "gentle melody",
+      "weight in her chest",
+      "warm bubble of café ambiance",
+      "double-edged sword"
+    ],
+    "detail_targets": [
+      "Descriptions of the café environment and patrons could be more vivid and unique.",
+      "Specifics about the coffee and pastries could be expanded to evoke stronger imagery."
+    ],
+    "dialogue_grounding_targets": [
+      "Ensure that the barista's dialogue connects more clearly with Rowan's actions and emotions.",
+      "Add physical actions or reactions from Rowan during dialogue exchanges."
+    ],
+    "emotional_show_targets": [
+      "Show Rowan's internal conflict more dynamically through her actions rather than just thoughts.",
+      "Use body language and facial expressions to convey her feelings of envy and nostalgia."
+    ],
+    "replacement_targets": [
+      "Consider replacing generic phrases with more original expressions.",
+      "Substitute vague descriptions with concrete imagery."
+    ],
+    "grounding_targets": [
+      "Incorporate more environmental details that directly influence Rowan's feelings and actions.",
+      "Link her internal thoughts to her physical surroundings more effectively."
+    ],
+    "carryover_targets": [
+      "Reduce the repetition of common terms like 'table', 'coffee', and 'moved' to enhance originality."
+    ]
+  },
+  "attempt_count": 2,
+  "acceptance_reason": "quality_failed",
+  "rewrite_used": true,
+  "retry_snapshot": {
+    "used": false,
+    "succeeded": false,
+    "attempts_used": 0,
+    "max_attempts": 1,
+    "eligible": false,
+    "failure_classification": {
+      "classification": "hard",
+      "reason": "material_carryover_missing",
+      "retry_eligible": false
+    },
+    "reason": "material_carryover_missing"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 622,
+    "rewritten_word_count": 622,
+    "min_word_count": 373,
+    "max_word_count": 1306,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "that",
+      "and",
+      "table",
+      "reminder",
+      "but",
+      "feeling",
+      "had",
+      "life",
+      "what"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "that",
+      "and",
+      "table",
+      "reminder",
+      "but",
+      "feeling",
+      "had",
+      "life",
+      "what"
+    ],
+    "outline_anchor_hits": [
+      "the",
+      "her",
+      "and",
+      "she",
+      "his"
+    ],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": true,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 26
+  }
+}

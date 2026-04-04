@@ -1,0 +1,93 @@
+{
+  "chunk_id": "lf_e7ce83c9",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0002"
+  ],
+  "order": 2,
+  "continuation_of": "lf_71f24bfc",
+  "prompt_fingerprint": "sha256:6a4e268124243428c2545e617bae4a3f999c76b5e9a5a13ee11926c13a2f1313",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Clara pressed forward, her heart pounding in rhythm with the heavy rain still drumming against the greenhouse roof, the memory of it pooling around her mind like the water pooling around her feet",
+    "word_count": 308,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.01,
+    "total_after_usd": 0.02
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 5,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 32,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 308,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 5,
+    "concrete_hits": 8,
+    "generic_hits": 1,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [
+      "rain",
+      "lantern",
+      "coat",
+      "key",
+      "floor",
+      "corridor",
+      "chain",
+      "narrow"
+    ],
+    "carryover_hits": 7,
+    "material_carryover_hits": 1,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "Clara pressed forward, her heart pounding in rhythm with the heavy rain still drumming against the greenhouse roof, the memory of it pooling around her mind like the water pooling around her feet. Jun’s breath quickened beside her, short and sharp, and she could sense his unease radiating through the damp air. The lantern flickered again, casting a jittery light that barely penetrated the thick shadows of the narrow passage. It was as if the darkness resented their presence, swirling around them, eager to swallow them whole.\n\n“Clara, did you—” Jun started, but the words caught in his throat, replaced by a low growl of uncertainty. She turned to look at him, his coat still slick from the rain, droplets tracing rivulets down the collar, pooling at the base of his neck. The sight struck her with a strange pang of guilt; she should have thought to grab a towel or something dry from the greenhouse. Instead, they stood here, lost in this suffocating gloom, while the world outside seemed to be drenched in violence.\n\n“Focus,” she snapped, the edge in her voice sharper than intended. “We can’t just stand here.” With a quick glance at the chained door ahead, she felt an almost magnetic pull toward it—a confusion of dread and determination. The chain rattled, a faint yet unnerving sound that echoed through the corridor, and she shivered involuntarily, her fingers brushing against the ceramic fox nestled in her pocket, its cool surface a stark reminder of a childhood that felt increasingly distant.\n\n“Do you hear that?” Jun’s voice broke through her thoughts again, urgent and hushed.\n\n“No,” she said too quickly, her words a tight wrap around her own fear. But in the silence that followed, a soft cough echoed from the upper floor, brittle and fragile, like the sound of old wood creaking underfoot. Clara"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

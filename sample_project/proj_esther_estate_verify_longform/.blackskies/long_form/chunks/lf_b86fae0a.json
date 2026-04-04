@@ -1,0 +1,246 @@
+{
+  "chunk_id": "lf_b86fae0a",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:5c9d34e3a99f64bf35226e441650b4e051a7f064cda845e6705babd7728651e3",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 21,
+    "fallback_reason": "quality_failed"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "quality_failed"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 3,
+      "pacing": 4,
+      "specificity": 4,
+      "dialogue": 2,
+      "meta_free": 5
+    },
+    "total_score": 26,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 316,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": false,
+    "sensory_hits": 7,
+    "concrete_hits": 4,
+    "generic_hits": 0,
+    "stock_phrase_hits": 3,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": true,
+    "text": "The rain tapped insistently against the windowpane, transforming the view outside into a blurred canvas of muted grays and deep blues. Claire pressed her forehead against the cool glass, feeling the chill seep into her skin, anchoring her in the dim room where shadows flickered and stretched in the corners, animated by the sputtering light of the old bulb overhead. She breathed in the musty aroma of worn books and damp paper, a scent that wrapped around her like an old memory from the library where she had often lost herself in the pages of other lives.\n\n“Another storm,” she murmured, her voice barely rising above the rhythmic patter of the rain, a quiet confession to the universe. The sound hung between her and the world outside, heavy with the weight of her resignation. Turning away from the window, she felt the expansive emptiness of the room press in on her, as if the walls had grown further apart, amplifying the solitude that now filled the space.\n\nA flicker of movement caught her attention; Horace, her fluffy tabby, slinked across the floor with a graceful ease. He paused at her ankle, nuzzling against her leg, the warmth of his fur contrasting with the coolness of the room. Claire bent down, her fingers running through his soft coat as she scratched behind his ears. The gentle rumble of his purr resonated through her fingertips, a fleeting comfort against the weight of her swirling thoughts.\n\n“Even you can’t chase away the gloom, can you?” she said softly, a bittersweet smile touching her lips as she watched him resume his patrol of the room, tail held high, oblivious to the storm raging outside.\n\nOutside, a sudden flash of lightning split the sky, momentarily illuminating the room in stark contrast. Claire's heart quickened, each beat reverberating like a drum, echoing the tempest beyond the walls. She could almost feel the"
+  },
+  "critique_snapshot": {
+    "summary": "The scene describes Claire's introspective moment as she observes a storm outside while reflecting on her life and feelings of emptiness. The atmosphere is set with vivid imagery of rain, shadows, and the presence of her cat, Horace. Claire's internal struggle is highlighted through her dialogue and physical actions.",
+    "weaknesses": [
+      "The scene relies heavily on generic descriptions and stock phrases that detract from its originality.",
+      "Dialogue lacks grounding in physical action or the setting, making it feel detached from the moment."
+    ],
+    "continuity_issues": [
+      "The emotional transition from observing the storm to interacting with the cat feels abrupt and lacks a smooth flow."
+    ],
+    "pacing_issues": [
+      "The pacing slows significantly during introspective moments, which could be balanced with more action or interaction."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid and unique atmosphere.",
+      "Ground dialogue in physical actions or the setting to improve engagement.",
+      "Smooth out emotional transitions for better continuity."
+    ],
+    "generic_phrase_targets": [
+      "relentless symphony",
+      "heavy drum in her chest",
+      "hollow echo of what it once was"
+    ],
+    "detail_targets": [
+      "The description of the room and its emptiness could be more specific to evoke a stronger emotional response.",
+      "The interaction with the cat could include more sensory details."
+    ],
+    "dialogue_grounding_targets": [
+      "“Another storm,” she muttered",
+      "“Even you can’t chase away the gloom, can you?”"
+    ],
+    "emotional_show_targets": [
+      "Claire's feelings of resignation and emptiness could be shown through more active engagement with her surroundings."
+    ],
+    "replacement_targets": [
+      "Replace generic phrases with more original and specific expressions.",
+      "Find alternatives for vague emotional expressions."
+    ],
+    "grounding_targets": [
+      "Integrate more physical actions that relate to Claire's emotional state.",
+      "Use the environment to reflect Claire's internal struggles."
+    ],
+    "carryover_targets": []
+  },
+  "attempt_count": 4,
+  "acceptance_reason": "quality_failed",
+  "rewrite_used": true,
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Another storm,” she murmured, her voice barely rising above the rhythmic patter of the rain, a quiet confession to the universe.",
+        "“Even you can’t chase away the gloom, can you?” she said softly, a bittersweet smile touching her lips as she watched him resume his patrol of the room, tail held high, oblivious to the storm raging outside."
+      ],
+      "generic_phrases_to_replace": [
+        "wrapped around her",
+        "heavy with",
+        "flicker of"
+      ],
+      "lines_to_repair": [
+        "She breathed in the musty aroma of worn books and damp paper, a scent that wrapped around her like an old memory from the library where she had often lost herself in the pages of other lives.",
+        "The sound hung between her and the world outside, heavy with the weight of her resignation.",
+        "A flicker of movement caught her attention; Horace, her fluffy tabby, slinked across the floor with a graceful ease.",
+        "“Another storm,” she murmured, her voice barely rising above the rhythmic patter of the rain, a quiet confession to the universe.",
+        "“Even you can’t chase away the gloom, can you?” she said softly, a bittersweet smile touching her lips as she watched him resume his patrol of the room, tail held high, oblivious to the storm raging outside."
+      ],
+      "required_concrete_anchor_terms": [
+        "against",
+        "outside",
+        "rain"
+      ],
+      "repair_min_word_count": 268,
+      "repair_max_word_count": 474,
+      "min_paragraph_count": 3,
+      "max_paragraph_count": 7
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-4o",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rewrite_retry_model"
+    },
+    "rescue_slots_summary": {
+      "slot_count": 5,
+      "target_types": [
+        "generic",
+        "generic",
+        "generic",
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_specificity_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 308,
+    "rewritten_word_count": 316,
+    "min_word_count": 184,
+    "max_word_count": 646,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "against",
+      "and",
+      "room",
+      "that",
+      "outside",
+      "claire",
+      "world",
+      "where",
+      "each"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "against",
+      "and",
+      "room",
+      "that",
+      "outside",
+      "claire",
+      "where"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 26
+  }
+}

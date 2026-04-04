@@ -1,0 +1,93 @@
+{
+  "chunk_id": "lf_dd8bc7dd",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0002"
+  ],
+  "order": 2,
+  "continuation_of": "lf_0e415721",
+  "prompt_fingerprint": "sha256:c3df4c863231a58d4dacb85f416fe2e0575e2076f0d0e0c625781cfd1b8c8e0a",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Clara tightened her grip on the lantern, its weak glow flickering as if it, too, felt the weight of the darkness surrounding them",
+    "word_count": 306,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.01,
+    "total_after_usd": 0.02
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 5,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 32,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 306,
+    "paragraph_count": 6,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 5,
+    "concrete_hits": 12,
+    "generic_hits": 1,
+    "stock_phrase_hits": 2,
+    "carryover_terms": [
+      "corridor",
+      "lantern",
+      "coat",
+      "door",
+      "key",
+      "chain",
+      "floor",
+      "narrow"
+    ],
+    "carryover_hits": 8,
+    "material_carryover_hits": 2,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "Clara tightened her grip on the lantern, its weak glow flickering as if it, too, felt the weight of the darkness surrounding them. The chain rattled again behind the door, a sharp clatter that echoed through the narrow corridor. “Did you hear that?” Jun’s voice quivered, and she could see the way his eyes darted, searching the dim recesses for something unseen.\n\n“Of course I did,” she replied, sharper than intended, her breath catching in her throat. The air felt thick, saturated with an unsettling stillness that clung to her skin like the dampness of Jun’s coat. She could almost hear the pulse of her heart, a frantic drum echoing in the silence.\n\nThey moved forward, each step disturbed the mud that clung to the floor, leaving behind their own prints, the evidence of their passage. Clara felt the coolness of the wall beneath her fingertips, the wood smooth yet warped with age. The scent of damp earth mixed with a lingering floral sweetness, an odd juxtaposition that made her stomach churn.\n\n“Clara, we should go back,” Jun murmured, his voice barely above a whisper as if saying the words too loudly would conjure whatever they were trying to escape. “There’s something wrong here.” He paused, his breath hitching. “I swear I heard a child cough.”\n\n“I didn’t hear anything,” Clara insisted, but even as the words left her lips, doubt crept in. She could feel the weight of the parlor key against her wrist, the red ribbon a stark reminder of the latch they had forced open, of the secrets that lingered just out of reach. Something was alive in this corridor, something that twisted her thoughts into knots.\n\nJun took a breath, steadying himself, but she could see the tremor in his hand as he lifted the lantern. The light sputtered again, casting wild"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

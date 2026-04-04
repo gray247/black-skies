@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_8e2178d7",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:eb43b64c8412d703f3089763898a59393d527915a220ebbd1ec5e5879c7fae1d",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The wooden door creaked as Claire pushed it open, the sharp scent of pine mingling with the damp earth that lingered outside",
+    "word_count": 297,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 4,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 29,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 297,
+    "paragraph_count": 8,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 6,
+    "concrete_hits": 2,
+    "generic_hits": 1,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The wooden door creaked as Claire pushed it open, the sharp scent of pine mingling with the damp earth that lingered outside. A gust of cool air swept through the narrow hallway, sending a shiver down her spine. She hesitated at the threshold, the weight of the world pressing against her chest, but the soft glow of candlelight flickering in the main room beckoned her forward.\n\n“Claire?” The voice was low, almost a whisper, yet it sliced through the stillness like a knife. She stepped inside, the floorboards groaning beneath her feet as she crossed the threshold into the small, dimly lit space. The room was alive with shadows, dancing along the walls, and she could barely make out the figure seated near the hearth.\n\n“Yeah, it’s me,” she replied, her voice steadier than she felt. The warmth of the fire washed over her like a wave, its crackling sound pulling her deeper into the room. She could see him now—Eli, his face half-illuminated by the flickering flames. Lines of worry etched into his forehead, making him look older than his years.\n\n“What took you so long?” He leaned forward, elbows resting on his knees, a frown tugging at the corners of his mouth.\n\n“Just… needed to think.” She brushed a hand through her hair, the damp strands sticking to her forehead. A bead of anxiety rolled in her stomach. “Things are getting complicated.”\n\nEli’s gaze hardened, the warmth in his eyes replaced by a glint of frustration. “Complicated how? You can’t just keep avoiding this.”\n\nShe took a deep breath, the weight of his words settling over her like a heavy cloak. “I don’t know what to say. Everything feels like it’s spiraling out of control.”\n\nHe stood up, the chair scraping against the floor, his"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

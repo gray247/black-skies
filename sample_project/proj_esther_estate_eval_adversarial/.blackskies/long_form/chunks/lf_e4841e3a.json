@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_e4841e3a",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:2591704621f0df48eb4ace50680b91d4b4b790f0aa587de7f1e8dd6d3451c75d",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Clara pressed forward, the dim light of the cracked brass lantern flickering like a heartbeat in the damp, musty air of the servants’ passage",
+    "word_count": 308,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 30,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 308,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 6,
+    "concrete_hits": 13,
+    "generic_hits": 0,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "Clara pressed forward, the dim light of the cracked brass lantern flickering like a heartbeat in the damp, musty air of the servants’ passage. The chains rattled softly against the door behind them, a rhythmic echo that seemed to taunt her as she tried to steady her breath. The lantern’s sputtering light cast erratic shadows on the stone walls, which were slick with moisture, and the scent of earth and decay clung to her senses, mingling with the lingering odor of wet leaves.\n\n“Did you hear that?” Jun’s voice broke through the silence, a tremor beneath his words. He shifted on his feet, the soaked fabric of his coat clinging uncomfortably to his skin, the chill seeping through to bite at his bones. “It sounded like—”\n\n“Like what?” Clara snapped, instinctively biting back the edge of fear that threatened to rise. Her gaze darted to the ground, where muddy prints marred the stone floor, leading deeper into the passage rather than away. They were fresh, the darkened footprints stretching into the unknown, and her heart raced as she followed their trail with a mixture of dread and curiosity.\n\n“I don’t know. A cough?” He sounded younger, smaller, the bravado of their earlier exploration evaporating like the mist that clung to the windows in the greenhouse. “From up there.” He gestured toward the darkness above, where the corridor turned into a steep staircase.\n\nClara’s fingers brushed the red ribbon tied around her wrist, the parlor key still attached, a weighty reminder of their quest. She could feel the fabric digging into her skin, a tether to the world above where echoes of laughter had once filled the air. But that laughter was gone now, replaced by an unsettling stillness that pressed down on her, heavy and oppressive. “It’s just the wind,” she said, her tone sharper than intended, the"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

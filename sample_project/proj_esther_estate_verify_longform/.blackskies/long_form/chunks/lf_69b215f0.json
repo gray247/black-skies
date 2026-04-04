@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_69b215f0",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:3a7d0f19ac04df0810ec10e0483005d94314e2f35bb8cccd28b0d8c01128a461",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The air was thick with the scent of wet earth and the sweet decay of fallen leaves, a heady perfume that clung to Elise as she pushed through the brush, branches snagging at her sleeves like fingers reaching out for help",
+    "word_count": 304,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 4,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 29,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 304,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 5,
+    "concrete_hits": 3,
+    "generic_hits": 0,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The air was thick with the scent of wet earth and the sweet decay of fallen leaves, a heady perfume that clung to Elise as she pushed through the brush, branches snagging at her sleeves like fingers reaching out for help. The forest loomed around her, a cathedral of shadows and whispers, each rustle of foliage a secret she was not meant to hear. She paused, catching her breath, the damp chill nipping at her skin, and leaned against a gnarled oak, its bark rough and cool beneath her palm.\n\n“Do you hear that?” she whispered, though there was no one nearby to answer. The silence hung heavy, punctuated only by the distant call of a crow, its voice sharp and jarring against the soft murmur of the wind. She shifted her weight, a nervous habit, and glanced back the way she had come, half-expecting to see someone trailing her, but the path remained empty, a twisting ribbon of dirt fading into the thickening fog.\n\nA twig snapped somewhere to her left, and her heart stuttered—immediate and wild. She squinted into the gloom, muscles tensing as she tried to pierce the veil of mist. “Hello?” The word felt weak, swallowed by the encroaching dusk. The trees seemed to lean in, their branches arching overhead, creating a confining tunnel that urged her to move forward, away from the creeping unease that clutched at her throat.\n\n“Just the wind,” she muttered, but even she heard the quaver in her voice. Resolute, she stepped deeper into the underbrush, the squelch of mud beneath her boots a reminder of the storm that had swept through just days before. Each step felt like a small rebellion against the doubt gnawing at her insides, the need to uncover what lay hidden within the forest's depths.\n\nAs she ventured further, the"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

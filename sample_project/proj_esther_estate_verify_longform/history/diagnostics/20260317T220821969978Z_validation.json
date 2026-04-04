@@ -1,0 +1,530 @@
+{
+  "timestamp": "2026-03-17T22:08:21.970273Z",
+  "code": "VALIDATION",
+  "message": "Long-form output rejected (quality threshold).",
+  "details": {
+    "quality_snapshot": {
+      "usable": true,
+      "scores": {
+        "coherence": 5,
+        "continuity": 3,
+        "clarity": 4,
+        "pacing": 4,
+        "specificity": 4,
+        "dialogue": 2,
+        "meta_free": 5
+      },
+      "total_score": 27,
+      "max_score": 35,
+      "meta_summary": false,
+      "meta_contamination": false,
+      "missing_carryover": false,
+      "word_count": 323,
+      "paragraph_count": 6,
+      "dialogue_present": true,
+      "dialogue_grounded": false,
+      "sensory_hits": 10,
+      "concrete_hits": 2,
+      "generic_hits": 0,
+      "stock_phrase_hits": 0,
+      "carryover_terms": [],
+      "carryover_hits": 0,
+      "material_carryover_hits": 0,
+      "material_carryover": true,
+      "weak_carryover": false,
+      "generic_risk": false,
+      "text": "the light disappeared, plunging her back into the murkiness of the alley. The rain intensified, each drop striking the pavement like a small hammer, the sound sharp and relentless. Clara pressed further against the brick wall, her fingers digging into the rough surface as she sought a moment of stability amidst the chaos.\n\n“Come on, Clara, think,” she whispered, her voice trembling as she hugged her arms tightly around her torso, feeling the rough fabric of her jacket press against her skin, as if shielding herself from the cold that seeped into her bones. She could feel her breath quickening, the damp air filling her lungs in shallow bursts, and the taste of iron—a reminder of her racing heart—lingered on her tongue.\n\nThe alley loomed ahead, a dark void that swallowed the weak light from the flickering streetlamp. Shadows flitted just beyond her peripheral vision, twisting and stretching with each gust of wind that rushed through the narrow passage. Clara’s pulse throbbed in her throat, a fierce drumbeat that drowned out all reason. She forced herself to focus on the ground, where the cobblestones glistened like black glass beneath the relentless rain.\n\nWith a deep, shuddering breath, she stepped into the downpour, the cold water splashing over her shoes and soaking through her jeans. The chill bit at her skin, a sharp reminder of her reality, yet it grounded her in that moment. She could feel the weight of Jake’s words pressing against her mind, echoing in time with her hurried footsteps. “You’re stronger than you think.”\n\nThe memory of his steady gaze and warm voice flickered in her mind, a fleeting light against the backdrop of her uncertainty. She had to keep moving; she had to prove him right. As she ventured further into the street, the rain pelted her like a thousand tiny stones, but she welcomed the sting, each drop a testament to her resolve.\n\nA crack of thunder rumbled"
+    },
+    "attempts": [
+      {
+        "attempt": 1,
+        "mode": "draft",
+        "extracted_field": "choices.message.content",
+        "thinking_fallback": false,
+        "reasoning_trim_applied": false,
+        "model_snapshot": {
+          "provider": "openai",
+          "model": "gpt-4o-mini",
+          "baseline_model": "gpt-4o-mini",
+          "mode": "draft",
+          "escalated": false,
+          "reason": "draft_route"
+        },
+        "raw_preview": "The wind howled through the narrow alley, a mournful sound that echoed off the damp cobblestones. Shadows danced at the edges of the flickering streetlamp, their movements erratic and ghostly as Clara",
+        "normalized_preview": "The wind howled through the narrow alley, a mournful sound that echoed off the damp cobblestones. Shadows danced at the edges of the flickering streetlamp, their movements erratic and ghostly as Clara",
+        "raw_length": 1808,
+        "normalized_length": 1808,
+        "raw_payload_keys": [
+          "choices",
+          "created",
+          "id",
+          "model",
+          "object",
+          "service_tier",
+          "system_fingerprint",
+          "usage"
+        ],
+        "raw_payload_preview": "{\"id\": \"chatcmpl-DKWrlBUioBDGYrnjKAs8FgHSayyqk\", \"object\": \"chat.completion\", \"created\": 1773785269, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The wind howled through the narrow alley, a mournful sound that echoed off the damp cobblestones. Shadows danced at the edges of the flickering streetlamp, their movements erratic and ghostly as Clara pressed her back against the cool brick wall, her heart pounding in time with the distant rum",
+        "basic_validation": {
+          "usable": true,
+          "word_count": 307,
+          "paragraph_count": 4,
+          "meta_summary": false,
+          "missing_carryover": false,
+          "carryover_terms": [],
+          "carryover_hits": 0,
+          "material_carryover_hits": 0
+        },
+        "quality_snapshot": {
+          "usable": true,
+          "scores": {
+            "coherence": 5,
+            "continuity": 3,
+            "clarity": 4,
+            "pacing": 4,
+            "specificity": 3,
+            "dialogue": 2,
+            "meta_free": 5
+          },
+          "total_score": 26,
+          "max_score": 35,
+          "meta_summary": false,
+          "meta_contamination": false,
+          "missing_carryover": false,
+          "word_count": 307,
+          "paragraph_count": 4,
+          "dialogue_present": true,
+          "dialogue_grounded": false,
+          "sensory_hits": 10,
+          "concrete_hits": 1,
+          "generic_hits": 0,
+          "stock_phrase_hits": 0,
+          "carryover_terms": [],
+          "carryover_hits": 0,
+          "material_carryover_hits": 0,
+          "material_carryover": true,
+          "weak_carryover": false,
+          "generic_risk": false,
+          "text": "The wind howled through the narrow alley, a mournful sound that echoed off the damp cobblestones. Shadows danced at the edges of the flickering streetlamp, their movements erratic and ghostly as Clara pressed her back against the cool brick wall, her heart pounding in time with the distant rumble of thunder. Rain began to patter down, a soft, insistent rhythm that grew louder, drowning out the last echoes of footsteps that had passed too close for comfort. She wiped a hand across her forehead, slick with perspiration, the chill of the impending storm tangling with the heat of her anxiety.\n\n“Come on, Clara, think,” she muttered under her breath, the words barely more than a whisper, swallowed by the night. She could feel her pulse thrumming in her ears, a relentless reminder of how precariously she teetered on the edge of panic. The alley stretched before her, dark and foreboding, but she had no choice. She inhaled deeply, the smell of wet earth and rust mingling with the sharp tang of adrenaline. With a swift glance over her shoulder, she stepped into the rain-soaked street.\n\nEach footfall splashed against the puddles, sending ripples through the murky water, and Clara quickened her pace, her mind racing as she replayed the conversation in her head. “You’re stronger than you think,” Jake had said, his eyes steady and warm, a beacon in her storm of doubt. But strength felt like a distant concept now, fading as the night enveloped her. She could almost hear his voice, urging her to keep moving, to fight against the shadows that chased her.\n\nA flash of lightning momentarily illuminated the world around her, the brightness stark against the encroaching gloom. For a fleeting heartbeat, she felt a surge of power, as if the storm itself had infused her with energy. But just as quickly"
+        },
+        "quality_pass": false
+      },
+      {
+        "attempt": 2,
+        "mode": "rewrite",
+        "extracted_field": "choices.message.content",
+        "thinking_fallback": false,
+        "reasoning_trim_applied": false,
+        "model_snapshot": {
+          "provider": "openai",
+          "model": "gpt-4o-mini",
+          "baseline_model": "gpt-4o-mini",
+          "mode": "rewrite",
+          "escalated": false,
+          "reason": "rewrite_default"
+        },
+        "raw_preview": "the light disappeared, plunging her back into the murkiness of the alley. The rain intensified, each drop striking the pavement like a small hammer, the sound sharp and relentless. Clara pressed furth",
+        "normalized_preview": "the light disappeared, plunging her back into the murkiness of the alley. The rain intensified, each drop striking the pavement like a small hammer, the sound sharp and relentless. Clara pressed furth",
+        "raw_length": 1851,
+        "normalized_length": 1849,
+        "raw_payload_keys": [
+          "choices",
+          "created",
+          "id",
+          "model",
+          "object",
+          "service_tier",
+          "system_fingerprint",
+          "usage"
+        ],
+        "raw_payload_preview": "{\"id\": \"chatcmpl-DKWs27rsO6xNuC38H3v5Mtyq5e00R\", \"object\": \"chat.completion\", \"created\": 1773785286, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"the light disappeared, plunging her back into the murkiness of the alley. The rain intensified, each drop striking the pavement like a small hammer, the sound sharp and relentless. Clara pressed further against the brick wall, her fingers digging into the rough surface as she sought a moment o",
+        "basic_validation": {
+          "usable": true,
+          "word_count": 312,
+          "paragraph_count": 6,
+          "meta_summary": false,
+          "missing_carryover": false,
+          "carryover_terms": [],
+          "carryover_hits": 0,
+          "material_carryover_hits": 0
+        },
+        "guardrail_snapshot": {
+          "evaluated": true,
+          "mode": "rewrite",
+          "outline_titles": [],
+          "beat_refs": [],
+          "locked_facts_evaluated": false,
+          "length_band_evaluated": true,
+          "original_word_count": 307,
+          "rewritten_word_count": 312,
+          "min_word_count": 184,
+          "max_word_count": 644,
+          "within_length_band": true,
+          "outline_fidelity_evaluated": true,
+          "outline_fidelity_pass": true,
+          "original_anchor_terms": [
+            "the",
+            "her",
+            "she",
+            "and",
+            "that",
+            "against",
+            "had",
+            "clara",
+            "storm",
+            "but",
+            "alley",
+            "shadows"
+          ],
+          "retained_anchor_terms": [
+            "the",
+            "her",
+            "she",
+            "and",
+            "that",
+            "against",
+            "clara",
+            "alley"
+          ],
+          "outline_anchor_hits": [],
+          "required_anchor_overlap": 1,
+          "scene_anchor_drift_detected": false,
+          "new_story_elements": [],
+          "blocking_new_story_elements": [],
+          "authoritative_name_check": false,
+          "uncertainty_triggered": false,
+          "failure_reason": null,
+          "accepted": true,
+          "quality_total_score": 27
+        },
+        "quality_snapshot": {
+          "usable": true,
+          "scores": {
+            "coherence": 5,
+            "continuity": 3,
+            "clarity": 4,
+            "pacing": 4,
+            "specificity": 4,
+            "dialogue": 2,
+            "meta_free": 5
+          },
+          "total_score": 27,
+          "max_score": 35,
+          "meta_summary": false,
+          "meta_contamination": false,
+          "missing_carryover": false,
+          "word_count": 312,
+          "paragraph_count": 6,
+          "dialogue_present": true,
+          "dialogue_grounded": false,
+          "sensory_hits": 10,
+          "concrete_hits": 2,
+          "generic_hits": 0,
+          "stock_phrase_hits": 0,
+          "carryover_terms": [],
+          "carryover_hits": 0,
+          "material_carryover_hits": 0,
+          "material_carryover": true,
+          "weak_carryover": false,
+          "generic_risk": false,
+          "text": "the light disappeared, plunging her back into the murkiness of the alley. The rain intensified, each drop striking the pavement like a small hammer, the sound sharp and relentless. Clara pressed further against the brick wall, her fingers digging into the rough surface as she sought a moment of stability amidst the chaos.\n\n“Come on, Clara, think,” she whispered, her voice trembling as she hugged her arms tightly around her torso, as if shielding herself from the cold that seeped into her bones. She could feel her breath quickening, the damp air filling her lungs in shallow bursts, and the taste of iron—a reminder of her racing heart—lingered on her tongue.\n\nThe alley loomed ahead, a dark void that swallowed the weak light from the flickering streetlamp. Shadows flitted just beyond her peripheral vision, twisting and stretching with each gust of wind that rushed through the narrow passage. Clara’s pulse throbbed in her throat, a fierce drumbeat that drowned out all reason. She forced herself to focus on the ground, where the cobblestones glistened like black glass beneath the relentless rain.\n\nWith a deep, shuddering breath, she stepped into the downpour, the cold water splashing over her shoes and soaking through her jeans. The chill bit at her skin, a sharp reminder of her reality, yet it grounded her in that moment. She could feel the weight of Jake’s words pressing against her mind, echoing in time with her hurried footsteps. “You’re stronger than you think.”\n\nThe memory of his steady gaze and warm voice flickered in her mind, a fleeting light against the backdrop of her uncertainty. She had to keep moving; she had to prove him right. As she ventured further into the street, the rain pelted her like a thousand tiny stones, but she welcomed the sting, each drop a testament to her resolve.\n\nA crack of thunder rumbled"
+        },
+        "quality_pass": false,
+        "rewrite_delta": {
+          "total_delta": 1,
+          "stock_phrase_delta": 0,
+          "specificity_delta": 1,
+          "clarity_delta": 0,
+          "continuity_delta": 0
+        },
+        "retry_decision": {
+          "eligible": true,
+          "reason": "targeted_editorial_miss_after_rewrite",
+          "classification": "targeted_editorial"
+        }
+      },
+      {
+        "attempt": 3,
+        "mode": "recovery_retry",
+        "extracted_field": "choices.message.content",
+        "thinking_fallback": false,
+        "reasoning_trim_applied": false,
+        "model_snapshot": {
+          "provider": "openai",
+          "model": "gpt-4o",
+          "baseline_model": "gpt-4o-mini",
+          "mode": "recovery_retry",
+          "escalated": true,
+          "reason": "rewrite_retry_model"
+        },
+        "raw_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"“Come on, Clara, think,” she whispered, her voice trembling as she hugged her arms tightly around her torso, the texture of her damp jacket pressing aga",
+        "normalized_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"“Come on, Clara, think,” she whispered, her voice trembling as she hugged her arms tightly around her torso, the texture of her damp jacket pressing aga",
+        "raw_length": 535,
+        "normalized_length": 535,
+        "raw_payload_keys": [
+          "choices",
+          "created",
+          "id",
+          "model",
+          "object",
+          "service_tier",
+          "system_fingerprint",
+          "usage"
+        ],
+        "raw_payload_preview": "{\"id\": \"chatcmpl-DKWsC0HEaKfXha3iVoNJFGqt7XFf8\", \"object\": \"chat.completion\", \"created\": 1773785296, \"model\": \"gpt-4o-2024-08-06\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"replacement_text\\\":\\\"“Come on, Clara, think,” she whispered, her voice trembling as she hugged her arms tightly around her torso, the texture of her damp jacket pressing against her skin, as if shielding herself from the cold that seeped into her bones.\\\"},{\\\"slo",
+        "rescue_slots": [
+          {
+            "slot_id": "s1",
+            "unit_type": "sentence",
+            "target_type": "dialogue",
+            "original_text": "“Come on, Clara, think,” she whispered, her voice trembling as she hugged her arms tightly around her torso, as if shielding herself from the cold that seeped into her bones.",
+            "context_before": "Clara pressed further against the brick wall, her fingers digging into the rough surface as she sought a moment of stability amidst the chaos.",
+            "context_after": "She could feel her breath quickening, the damp air filling her lungs in shallow bursts, and the taste of iron—a reminder of her racing heart—lingered on her tongue.",
+            "target_reason": "dialogue"
+          },
+          {
+            "slot_id": "s2",
+            "unit_type": "sentence",
+            "target_type": "dialogue",
+            "original_text": "“You’re stronger than you think.”\n\nThe memory of his steady gaze and warm voice flickered in her mind, a fleeting light against the backdrop of her uncertainty.",
+            "context_before": "She could feel the weight of Jake’s words pressing against her mind, echoing in time with her hurried footsteps.",
+            "context_after": "She had to keep moving; she had to prove him right.",
+            "target_reason": "dialogue"
+          }
+        ],
+        "patch_response": [
+          {
+            "slot_id": "s1",
+            "replacement_text": "“Come on, Clara, think,” she whispered, her voice trembling as she hugged her arms tightly around her torso, the texture of her damp jacket pressing against her skin, as if shielding herself from the cold that seeped into her bones."
+          },
+          {
+            "slot_id": "s2",
+            "replacement_text": "“You’re stronger than you think.”\n\nThe memory of his steady gaze and warm voice flickered in her mind, a fleeting light against the backdrop of her uncertainty, like a lighthouse beam slicing through the storm."
+          }
+        ],
+        "patch_validation": {
+          "accepted": false,
+          "failure_class": "patch_dialogue_grounding_unresolved"
+        }
+      },
+      {
+        "attempt": 4,
+        "mode": "repair_only",
+        "extracted_field": "choices.message.content",
+        "thinking_fallback": false,
+        "reasoning_trim_applied": false,
+        "model_snapshot": {
+          "provider": "openai",
+          "model": "gpt-4o",
+          "baseline_model": "gpt-4o-mini",
+          "mode": "recovery_retry",
+          "escalated": true,
+          "reason": "rewrite_retry_model"
+        },
+        "raw_preview": "```json\n{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"“Come on, Clara, think,” she whispered, her voice trembling as she hugged her arms tightly around her torso, feeling the rough fabric of her jac",
+        "normalized_preview": "```json\n{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"“Come on, Clara, think,” she whispered, her voice trembling as she hugged her arms tightly around her torso, feeling the rough fabric of her jac",
+        "raw_length": 301,
+        "normalized_length": 301,
+        "raw_payload_keys": [
+          "choices",
+          "created",
+          "id",
+          "model",
+          "object",
+          "service_tier",
+          "system_fingerprint",
+          "usage"
+        ],
+        "raw_payload_preview": "{\"id\": \"chatcmpl-DKWsF7VBDSgsn6tvgyPS4NlCURpsF\", \"object\": \"chat.completion\", \"created\": 1773785299, \"model\": \"gpt-4o-2024-08-06\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"```json\\n{\\\"patches\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"replacement_text\\\":\\\"“Come on, Clara, think,” she whispered, her voice trembling as she hugged her arms tightly around her torso, feeling the rough fabric of her jacket press against her skin, as if shielding herself from the cold that seeped into her bo",
+        "rescue_slots": [
+          {
+            "slot_id": "s1",
+            "unit_type": "sentence",
+            "target_type": "dialogue",
+            "original_text": "“Come on, Clara, think,” she whispered, her voice trembling as she hugged her arms tightly around her torso, as if shielding herself from the cold that seeped into her bones.",
+            "context_before": "Clara pressed further against the brick wall, her fingers digging into the rough surface as she sought a moment of stability amidst the chaos.",
+            "context_after": "She could feel her breath quickening, the damp air filling her lungs in shallow bursts, and the taste of iron—a reminder of her racing heart—lingered on her tongue.",
+            "target_reason": "dialogue"
+          },
+          {
+            "slot_id": "s2",
+            "unit_type": "sentence",
+            "target_type": "dialogue",
+            "original_text": "“You’re stronger than you think.”\n\nThe memory of his steady gaze and warm voice flickered in her mind, a fleeting light against the backdrop of her uncertainty.",
+            "context_before": "She could feel the weight of Jake’s words pressing against her mind, echoing in time with her hurried footsteps.",
+            "context_after": "She had to keep moving; she had to prove him right.",
+            "target_reason": "dialogue"
+          }
+        ],
+        "patch_response": [
+          {
+            "slot_id": "s1",
+            "replacement_text": "“Come on, Clara, think,” she whispered, her voice trembling as she hugged her arms tightly around her torso, feeling the rough fabric of her jacket press against her skin, as if shielding herself from the cold that seeped into her bones."
+          }
+        ],
+        "patch_validation": {
+          "accepted": true,
+          "patched_text": "the light disappeared, plunging her back into the murkiness of the alley. The rain intensified, each drop striking the pavement like a small hammer, the sound sharp and relentless. Clara pressed further against the brick wall, her fingers digging into the rough surface as she sought a moment of stability amidst the chaos.\n\n“Come on, Clara, think,” she whispered, her voice trembling as she hugged her arms tightly around her torso, feeling the rough fabric of her jacket press against her skin, as if shielding herself from the cold that seeped into her bones. She could feel her breath quickening, the damp air filling her lungs in shallow bursts, and the taste of iron—a reminder of her racing heart—lingered on her tongue.\n\nThe alley loomed ahead, a dark void that swallowed the weak light from the flickering streetlamp. Shadows flitted just beyond her peripheral vision, twisting and stretching with each gust of wind that rushed through the narrow passage. Clara’s pulse throbbed in her throat, a fierce drumbeat that drowned out all reason. She forced herself to focus on the ground, where the cobblestones glistened like black glass beneath the relentless rain.\n\nWith a deep, shuddering breath, she stepped into the downpour, the cold water splashing over her shoes and soaking through her jeans. The chill bit at her skin, a sharp reminder of her reality, yet it grounded her in that moment. She could feel the weight of Jake’s words pressing against her mind, echoing in time with her hurried footsteps. “You’re stronger than you think.”\n\nThe memory of his steady gaze and warm voice flickered in her mind, a fleeting light against the backdrop of her uncertainty. She had to keep moving; she had to prove him right. As she ventured further into the street, the rain pelted her like a thousand tiny stones, but she welcomed the sting, each drop a testament to her resolve.\n\nA crack of thunder rumbled",
+          "patch_snapshots": [
+            {
+              "slot_id": "s1",
+              "unit_type": "sentence",
+              "target_type": "dialogue",
+              "target_text": "“Come on, Clara, think,” she whispered, her voice trembling as she hugged her arms tightly around her torso, as if shielding herself from the cold that seeped into her bones.",
+              "replacement_text": "“Come on, Clara, think,” she whispered, her voice trembling as she hugged her arms tightly around her torso, feeling the rough fabric of her jacket press against her skin, as if shielding herself from the cold that seeped into her bones.",
+              "target_word_count": 30,
+              "replacement_word_count": 41
+            }
+          ]
+        },
+        "patched_preview": "the light disappeared, plunging her back into the murkiness of the alley. The rain intensified, each drop striking the pavement like a small hammer, the sound sharp and relentless. Clara pressed furth",
+        "patch_snapshot": [
+          {
+            "slot_id": "s1",
+            "unit_type": "sentence",
+            "target_type": "dialogue",
+            "target_text": "“Come on, Clara, think,” she whispered, her voice trembling as she hugged her arms tightly around her torso, as if shielding herself from the cold that seeped into her bones.",
+            "replacement_text": "“Come on, Clara, think,” she whispered, her voice trembling as she hugged her arms tightly around her torso, feeling the rough fabric of her jacket press against her skin, as if shielding herself from the cold that seeped into her bones.",
+            "target_word_count": 30,
+            "replacement_word_count": 41
+          }
+        ],
+        "basic_validation": {
+          "usable": true,
+          "word_count": 323,
+          "paragraph_count": 6,
+          "meta_summary": false,
+          "missing_carryover": false,
+          "carryover_terms": [],
+          "carryover_hits": 0,
+          "material_carryover_hits": 0
+        },
+        "repair_local_snapshot": {
+          "evaluated": true,
+          "previous_word_count": 312,
+          "repaired_word_count": 323,
+          "min_word_count": 265,
+          "max_word_count": 468,
+          "within_word_band": true,
+          "previous_paragraph_count": 6,
+          "repaired_paragraph_count": 6,
+          "min_paragraph_count": 4,
+          "max_paragraph_count": 8,
+          "within_paragraph_band": true,
+          "accepted": true,
+          "failure_reason": null
+        },
+        "guardrail_snapshot": {
+          "evaluated": true,
+          "mode": "repair_only",
+          "outline_titles": [],
+          "beat_refs": [],
+          "locked_facts_evaluated": false,
+          "length_band_evaluated": true,
+          "original_word_count": 312,
+          "rewritten_word_count": 323,
+          "min_word_count": 187,
+          "max_word_count": 655,
+          "within_length_band": true,
+          "outline_fidelity_evaluated": true,
+          "outline_fidelity_pass": true,
+          "original_anchor_terms": [
+            "the",
+            "her",
+            "she",
+            "and",
+            "that",
+            "light",
+            "rain",
+            "each",
+            "clara",
+            "against",
+            "alley",
+            "drop"
+          ],
+          "retained_anchor_terms": [
+            "the",
+            "her",
+            "she",
+            "and",
+            "that",
+            "light",
+            "rain",
+            "each",
+            "clara",
+            "against",
+            "alley",
+            "drop"
+          ],
+          "outline_anchor_hits": [],
+          "required_anchor_overlap": 1,
+          "scene_anchor_drift_detected": false,
+          "new_story_elements": [],
+          "blocking_new_story_elements": [],
+          "authoritative_name_check": false,
+          "uncertainty_triggered": false,
+          "failure_reason": null,
+          "accepted": true,
+          "quality_total_score": 27
+        },
+        "quality_snapshot": {
+          "usable": true,
+          "scores": {
+            "coherence": 5,
+            "continuity": 3,
+            "clarity": 4,
+            "pacing": 4,
+            "specificity": 4,
+            "dialogue": 2,
+            "meta_free": 5
+          },
+          "total_score": 27,
+          "max_score": 35,
+          "meta_summary": false,
+          "meta_contamination": false,
+          "missing_carryover": false,
+          "word_count": 323,
+          "paragraph_count": 6,
+          "dialogue_present": true,
+          "dialogue_grounded": false,
+          "sensory_hits": 10,
+          "concrete_hits": 2,
+          "generic_hits": 0,
+          "stock_phrase_hits": 0,
+          "carryover_terms": [],
+          "carryover_hits": 0,
+          "material_carryover_hits": 0,
+          "material_carryover": true,
+          "weak_carryover": false,
+          "generic_risk": false,
+          "text": "the light disappeared, plunging her back into the murkiness of the alley. The rain intensified, each drop striking the pavement like a small hammer, the sound sharp and relentless. Clara pressed further against the brick wall, her fingers digging into the rough surface as she sought a moment of stability amidst the chaos.\n\n“Come on, Clara, think,” she whispered, her voice trembling as she hugged her arms tightly around her torso, feeling the rough fabric of her jacket press against her skin, as if shielding herself from the cold that seeped into her bones. She could feel her breath quickening, the damp air filling her lungs in shallow bursts, and the taste of iron—a reminder of her racing heart—lingered on her tongue.\n\nThe alley loomed ahead, a dark void that swallowed the weak light from the flickering streetlamp. Shadows flitted just beyond her peripheral vision, twisting and stretching with each gust of wind that rushed through the narrow passage. Clara’s pulse throbbed in her throat, a fierce drumbeat that drowned out all reason. She forced herself to focus on the ground, where the cobblestones glistened like black glass beneath the relentless rain.\n\nWith a deep, shuddering breath, she stepped into the downpour, the cold water splashing over her shoes and soaking through her jeans. The chill bit at her skin, a sharp reminder of her reality, yet it grounded her in that moment. She could feel the weight of Jake’s words pressing against her mind, echoing in time with her hurried footsteps. “You’re stronger than you think.”\n\nThe memory of his steady gaze and warm voice flickered in her mind, a fleeting light against the backdrop of her uncertainty. She had to keep moving; she had to prove him right. As she ventured further into the street, the rain pelted her like a thousand tiny stones, but she welcomed the sting, each drop a testament to her resolve.\n\nA crack of thunder rumbled"
+        },
+        "quality_pass": false,
+        "rewrite_delta": {
+          "total_delta": 0,
+          "stock_phrase_delta": 0,
+          "specificity_delta": 0,
+          "clarity_delta": 0,
+          "continuity_delta": 0
+        },
+        "rescue_delta_summary": {
+          "total_delta": 0,
+          "specificity_delta": 0,
+          "clarity_delta": 0,
+          "continuity_delta": 0,
+          "dialogue_delta": 0,
+          "concrete_delta": 0,
+          "stock_phrase_delta": 0,
+          "dialogue_grounding_fixed": false,
+          "dialogue_grounding_targeted": true,
+          "specificity_target_met": false,
+          "clarity_target_met": false,
+          "generic_replacement_target_met": false,
+          "concrete_target_met": false,
+          "local_specificity_credit": false
+        },
+        "rescue_failure_class": "dialogue_grounding_unresolved"
+      }
+    ]
+  }
+}

@@ -1,0 +1,238 @@
+{
+  "chunk_id": "lf_4224f47b",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:36f3f2891a99c2e08b4bce124c40921743d102b203022f89d633ef0eff4d006e",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 21,
+    "fallback_reason": "adapter_error"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "adapter_error"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 2,
+      "meta_free": 5
+    },
+    "total_score": 26,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 306,
+    "paragraph_count": 6,
+    "dialogue_present": true,
+    "dialogue_grounded": false,
+    "sensory_hits": 7,
+    "concrete_hits": 1,
+    "generic_hits": 0,
+    "stock_phrase_hits": 2,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The wind whistled through the narrow alley, tugging at the edges of Elara’s cloak and carrying with it the earthy scent of rain-soaked cobblestones mingled with the sweet aroma of jasmine from a nearby garden. She pressed her back against the cool, rough stone wall, feeling the chill seep through the fabric of her clothing. Her heart raced in her chest, a frantic drumbeat that echoed her rising anxiety. Distant voices drifted through the air, low and conspiratorial, bouncing off the surrounding buildings and wrapping around her like a shroud.\n\n“Are you sure this is the right place?” Finn’s voice was barely above a whisper, his bright eyes darting nervously, scanning the dimly lit shadows that danced along the alley’s edges. Elara noticed how his fingers twitched, flexing against the hilt of his dagger, betraying his restless energy.\n\n“It has to be,” she replied, trying to inject steadiness into her voice, though her insides churned with uncertainty. She leaned slightly to peer around the edge of the wall, the flickering torchlight illuminating figures huddled together at the far end of the alley. The sight sent a pang of hesitation through her; the urge to retreat into the comforting darkness was strong, but she forced herself to remain where she was.\n\nFinn shifted beside her, his breath catching in his throat. “What if they find us first?” The tremor in his voice mirrored the unease twisting in her stomach.\n\n“Then we’ll be ready,” she asserted, the words spilling out with more conviction than she truly felt. Her mind raced, grappling with the weight of the unknown. The odds felt insurmountable, the potential for danger swirling around her like a thick fog. Yet the stakes were higher than her fears; they had come too far to turn back now.\n\nThe muffled voices grew louder, and Elara leaned in"
+  },
+  "critique_snapshot": {
+    "summary": "The scene depicts Elara and Finn hiding in a narrow alley, tense and anxious about an impending meeting. The atmosphere is charged with suspense as they listen to muffled voices, and Elara feels a mix of fear and determination, especially upon hearing the name 'Riven.'",
+    "weaknesses": [
+      "Lack of clear physical actions that ground the dialogue.",
+      "Generic descriptions that do not add depth to the scene.",
+      "Vague emotional expressions that could be more specific."
+    ],
+    "continuity_issues": [],
+    "pacing_issues": [
+      "The pacing slows significantly during dialogue exchanges, disrupting the tension built in the narrative."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance the specificity of descriptions to create a more vivid setting.",
+      "Ground dialogue in physical actions or environmental details.",
+      "Replace vague emotional expressions with more concrete feelings."
+    ],
+    "generic_phrase_targets": [
+      "heart thrumming like a trapped bird",
+      "cloak of shadows",
+      "thin veneer of confidence"
+    ],
+    "detail_targets": [
+      "Descriptions of the alley and the surrounding environment could be more vivid and specific.",
+      "Elara's internal conflict could be explored in more detail."
+    ],
+    "dialogue_grounding_targets": [
+      "Finn's dialogue should be accompanied by more physical reactions or actions.",
+      "Elara's responses could include more context or physicality to enhance realism."
+    ],
+    "emotional_show_targets": [
+      "Elara's fear and determination could be shown through more specific actions or thoughts.",
+      "Finn's anxiety could be expressed through more varied body language."
+    ],
+    "replacement_targets": [
+      "Replace generic phrases with more original and specific imagery.",
+      "Substitute vague emotional expressions with concrete actions or thoughts."
+    ],
+    "grounding_targets": [
+      "Incorporate more sensory details to ground the characters in their environment.",
+      "Use physical actions to anchor the dialogue and emotional exchanges."
+    ],
+    "carryover_targets": []
+  },
+  "attempt_count": 3,
+  "acceptance_reason": "adapter_error",
+  "rewrite_used": true,
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_model_name": "gpt-5.4",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": false,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": false,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": false,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Are you sure this is the right place?” Finn’s voice was barely above a whisper, his bright eyes darting nervously, scanning the dimly lit shadows that danced along the alley’s edges.",
+        "“It has to be,” she replied, trying to inject steadiness into her voice, though her insides churned with uncertainty.",
+        "“What if they find us first?” The tremor in his voice mirrored the unease twisting in her stomach.",
+        "“Then we’ll be ready,” she asserted, the words spilling out with more conviction than she truly felt."
+      ],
+      "generic_phrases_to_replace": [
+        "heart raced",
+        "breath catching"
+      ],
+      "lines_to_repair": [
+        "Her heart raced in her chest, a frantic drumbeat that echoed her rising anxiety.",
+        "Finn shifted beside her, his breath catching in his throat.",
+        "“Are you sure this is the right place?” Finn’s voice was barely above a whisper, his bright eyes darting nervously, scanning the dimly lit shadows that danced along the alley’s edges.",
+        "“It has to be,” she replied, trying to inject steadiness into her voice, though her insides churned with uncertainty.",
+        "“What if they find us first?” The tremor in his voice mirrored the unease twisting in her stomach.",
+        "“Then we’ll be ready,” she asserted, the words spilling out with more conviction than she truly felt."
+      ],
+      "required_concrete_anchor_terms": [
+        "alley",
+        "elara",
+        "voice"
+      ],
+      "repair_min_word_count": 260,
+      "repair_max_word_count": 459,
+      "min_paragraph_count": 4,
+      "max_paragraph_count": 8
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-5.4",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rescue_model"
+    }
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 305,
+    "rewritten_word_count": 306,
+    "min_word_count": 183,
+    "max_word_count": 640,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "his",
+      "and",
+      "elara",
+      "felt",
+      "than",
+      "alley",
+      "against",
+      "wall",
+      "voices"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "his",
+      "and",
+      "elara",
+      "alley",
+      "against",
+      "wall",
+      "voices"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 26
+  }
+}

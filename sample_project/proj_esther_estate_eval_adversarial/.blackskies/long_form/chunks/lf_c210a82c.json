@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_c210a82c",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:5adad0f1df2a93d6a5326c1f3451334b82ad8ea2e6bd5fa77e1cb24cfdbe7fc3",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The lantern flickered, its sputtering light casting erratic shadows that danced along the damp corridor walls",
+    "word_count": 306,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 30,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 306,
+    "paragraph_count": 6,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 8,
+    "concrete_hits": 13,
+    "generic_hits": 1,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The lantern flickered, its sputtering light casting erratic shadows that danced along the damp corridor walls. Jun Park clutched it like a lifeline, the brass handle slick against his palm, his fingers still trembling from the chill of the greenhouse rain. Clara Vale walked beside him, her breath quickening, matching the frantic rhythm of her heart. The air was stale here, heavy with the scent of mildew and the distant echo of something unseen, something that lurked just beyond the edges of their dim illumination.\n\n“Did you hear that?” Jun’s voice was barely above a whisper, breaking the thick silence that pressed around them.\n\nClara paused, her gaze darting down the corridor, where the shadows seemed to thicken, swirling like smoke. “What do you mean?” she snapped, too quickly, the sharpness of her tone surprising her. She could feel the weight of the parlor key on her wrist, the red ribbon a constant reminder of her responsibilities, but it felt more like a noose tightening with every heartbeat.\n\n“I thought—I thought I heard a cough,” Jun replied, his brow furrowed, eyes wide. The lantern flickered again, and the light momentarily illuminated the cracked tile beneath their feet, revealing muddy prints leading away from them, not behind. Clara's stomach twisted.\n\n“Maybe it’s just the wind,” she offered, but her voice lacked conviction. The wind had a different sound, a soft whispering that danced through the trees outside, not the raspy cough of a child. Her fingers brushed against the chipped ceramic fox nestled in her coat pocket, its painted eyes staring back at her, innocent and unaware of the unease pressing down like the damp air around them.\n\nJun turned to her, his coat still dripping from the downpour, droplets splattering against the floor like tiny echoes of their panic. “Clara, we should go back. This isn’t"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

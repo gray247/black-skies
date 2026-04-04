@@ -1,0 +1,242 @@
+{
+  "chunk_id": "lf_63749c4f",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:043b9cca29f7811c831159572b4c3819ab528c5887e16d93159019d23c84aec1",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 21,
+    "fallback_reason": "quality_failed"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "quality_failed"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 28,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 311,
+    "paragraph_count": 6,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 1,
+    "concrete_hits": 2,
+    "generic_hits": 0,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "the thoughts in her mind. The roots jutted out from the earth, gnarled and weathered, anchoring the tree as if it too were struggling against the pull of the past. Lydia pressed her fingers against the rough bark, feeling the uneven texture beneath her touch, grounding herself in the physicality of the moment as she fought against the tide of memories that threatened to drown her.\n\n“Lydia?” Ethan’s voice was softer now, the sharpness replaced by an undercurrent of concern. His steps were careful as he moved closer, the soft crunch of leaves underfoot echoing in the silence that enveloped them. She felt the weight of his presence, a tether that both comforted and unsettled her.\n\n“I can’t keep pretending everything is fine,” she admitted, her voice trembling slightly as she avoided his gaze. She knelt again, digging her fingers into the cool earth, relishing the way it clung to her skin like a reminder of all she was trying to escape. The squelch of mud beneath her palms felt like an echo of her turmoil, each press into the soil a desperate attempt to bury what she couldn’t face.\n\nEthan crouched beside her, his shoulder brushing against hers, creating a warmth that felt almost foreign. “You’re not alone in this,” he said, his tone steady yet gentle, like the breeze that rustled the leaves above them. “We can face it together.”\n\nShe glanced at him, taking in the sincerity in his eyes, the way he leaned slightly toward her, as if ready to pull her back from the edge of whatever dark abyss she felt herself teetering over. “I don’t want to drag you down with me,” she replied, a lump forming in her throat as the weight of her guilt crashed over her like a wave.\n\nEthan’s hand found hers, fingers intertwining, grounding her amidst the chaos swirling inside."
+  },
+  "critique_snapshot": {
+    "summary": "Lydia kneels by the forest's edge, reflecting on her chaotic life while sifting through the soil. Ethan interrupts her thoughts, expressing concern and offering support, but Lydia feels guilt and distance from him. Their dialogue reveals tension and unspoken issues between them.",
+    "weaknesses": [
+      "Vague descriptions that lack specificity.",
+      "Generic phrases that dilute emotional impact.",
+      "Dialogue that feels disconnected from physical actions."
+    ],
+    "continuity_issues": [
+      "The transition from Lydia's introspection to Ethan's entrance feels abrupt.",
+      "Lydia's emotional state is not clearly linked to her actions in the scene."
+    ],
+    "pacing_issues": [
+      "The scene drags slightly in the introspective parts, slowing down the narrative without clear purpose."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid scene.",
+      "Ground dialogue in physical actions and setting to improve realism.",
+      "Eliminate generic phrases to strengthen emotional resonance."
+    ],
+    "generic_phrase_targets": [
+      "Reassuring anchor",
+      "Cut through her reverie",
+      "Fragile peace"
+    ],
+    "detail_targets": [
+      "Thick with the scent of damp earth",
+      "Soft squelch of mud",
+      "Gnarled roots of a nearby tree"
+    ],
+    "dialogue_grounding_targets": [
+      "Ethan's dialogue should connect more with Lydia's physical actions or surroundings."
+    ],
+    "emotional_show_targets": [
+      "Show Lydia's guilt and emotional turmoil through more concrete actions or reactions."
+    ],
+    "replacement_targets": [
+      "Replace vague sensory details with more specific imagery.",
+      "Substitute generic phrases with unique expressions that reflect character voice."
+    ],
+    "grounding_targets": [
+      "Ensure Lydia's actions (kneeling, sifting soil) are consistently tied to her emotional state."
+    ],
+    "carryover_targets": [
+      "Clarify the emotional stakes that lead Lydia to this moment in the forest."
+    ]
+  },
+  "attempt_count": 4,
+  "acceptance_reason": "quality_failed",
+  "rewrite_used": true,
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_model_name": "gpt-5.4-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Lydia?” Ethan’s voice was softer now, the sharpness replaced by an undercurrent of concern.",
+        "“I can’t keep pretending everything is fine,” she admitted, her voice trembling slightly as she avoided his gaze.",
+        "“You’re not alone in this,” he said, his tone steady yet gentle, like the breeze that rustled the leaves above them.",
+        "“We can face it together.”\n\nShe glanced at him, taking in the sincerity in his eyes, the way he leaned slightly toward her, as if ready to pull her back from the edge of whatever dark abyss she felt herself teetering over."
+      ],
+      "generic_phrases_to_replace": [],
+      "lines_to_repair": [
+        "“Lydia?” Ethan’s voice was softer now, the sharpness replaced by an undercurrent of concern.",
+        "“I can’t keep pretending everything is fine,” she admitted, her voice trembling slightly as she avoided his gaze.",
+        "“You’re not alone in this,” he said, his tone steady yet gentle, like the breeze that rustled the leaves above them.",
+        "“We can face it together.”\n\nShe glanced at him, taking in the sincerity in his eyes, the way he leaned slightly toward her, as if ready to pull her back from the edge of whatever dark abyss she felt herself teetering over."
+      ],
+      "required_concrete_anchor_terms": [
+        "against",
+        "fingers",
+        "ethan"
+      ],
+      "repair_min_word_count": 264,
+      "repair_max_word_count": 466,
+      "min_paragraph_count": 4,
+      "max_paragraph_count": 8
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rescue_model"
+    },
+    "rescue_slots_summary": {
+      "slot_count": 2,
+      "target_types": [
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_dialogue_grounding_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 310,
+    "rewritten_word_count": 311,
+    "min_word_count": 186,
+    "max_word_count": 651,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "his",
+      "and",
+      "had",
+      "was",
+      "lydia",
+      "fingers",
+      "anchor",
+      "but",
+      "felt"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "his",
+      "and",
+      "lydia",
+      "fingers",
+      "felt"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 28
+  }
+}

@@ -1,0 +1,247 @@
+{
+  "chunk_id": "lf_a8b22834",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:1639ae572ca595ba2561a50d9a1d47b30fb0dc98d0b15b36993363f5e91bd4dc",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 21,
+    "fallback_reason": "quality_failed"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "quality_failed"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 4,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 29,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 291,
+    "paragraph_count": 6,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 6,
+    "concrete_hits": 2,
+    "generic_hits": 0,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The wind hissed through the narrow alley, a biting chill that seemed to scrape against Eva’s skin as she pulled her coat tighter around her. The coarse fabric brushed against her shoulders, a constant reminder of the cold that seeped into her bones. Shadows flickered along the graffiti-streaked brick walls, their shapes twisting and reforming as the sputtering streetlamp above struggled to pierce the encroaching darkness.\n\n“Did you hear that?” Marco’s voice cut through the stillness, startling her from her thoughts. He stepped closer, his breath forming small clouds in the frigid air, each exhale visible like wisps of smoke. His gaze darted toward the mouth of the alley, where the streetlights flickered like distant stars. “I think someone’s following us.”\n\nEva’s heart raced, a frantic rhythm pounding in her chest. She shot a glance over her shoulder, half-expecting a shadowy figure to emerge from the gloom. Just the wind, she told herself, but the knot of unease tightened in her stomach. “Are you sure?” she whispered, her voice barely breaking the quiet. “It could just be the wind.”\n\n“Yeah, right,” Marco scoffed, though the bravado in his tone wavered as he peered deeper into the darkened street. “Let’s just hurry up. I don’t want to stick around to find out.”\n\nAs they pressed further into the alley, the dim light receded, swallowed by the night. Each footfall echoed sharply against the cobblestones, a sound that felt too loud, too noticeable. The oppressive darkness felt alive, as if it were watching, pressing down on her with an invisible weight that urged her to run. She quickened her pace, her boots striking the ground with a staccato clatter, each step jarring against her heightened senses.\n\n“Wait,” Marco whispered suddenly, halting in his"
+  },
+  "critique_snapshot": {
+    "summary": "The scene depicts Eva and Marco navigating a dark alley, where they feel an ominous presence. The atmosphere is tense, with the wind and shadows contributing to their unease. Marco expresses concern about being followed, and their dialogue reflects their growing fear as they move deeper into the alley.",
+    "weaknesses": [
+      "Generic descriptions that lack specificity.",
+      "Dialogue lacks grounding in physical actions or the setting."
+    ],
+    "continuity_issues": [
+      "The transition between Eva's internal thoughts and dialogue feels abrupt and lacks smooth continuity."
+    ],
+    "pacing_issues": [
+      "The pacing slows significantly during dialogue exchanges, disrupting the tension built in the narrative."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid scene.",
+      "Ground dialogue in physical actions or the environment to increase realism.",
+      "Improve continuity between internal thoughts and spoken dialogue."
+    ],
+    "generic_phrase_targets": [
+      "The wind howled",
+      "a sharp bite",
+      "whispered secrets",
+      "a thread of unease coiled tight"
+    ],
+    "detail_targets": [
+      "Descriptions of the alley and shadows could be more vivid and specific.",
+      "More concrete sensory details to enhance immersion."
+    ],
+    "dialogue_grounding_targets": [
+      "Marco's dialogue about hearing something could include more physical reactions.",
+      "Eva's responses should reflect her physical state more clearly."
+    ],
+    "emotional_show_targets": [
+      "Eva's fear could be shown through more physical manifestations rather than just internal thoughts."
+    ],
+    "replacement_targets": [
+      "Replace vague phrases with more specific imagery and actions."
+    ],
+    "grounding_targets": [
+      "Include more physical actions that correspond with the dialogue to ground the characters in the scene."
+    ],
+    "carryover_targets": [
+      "Ensure that internal thoughts and dialogue flow more naturally to maintain continuity."
+    ]
+  },
+  "attempt_count": 3,
+  "acceptance_reason": "quality_failed",
+  "rewrite_used": true,
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "borderline",
+      "reason": "borderline_quality_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "borderline_quality_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_model_name": "gpt-5.4-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": false,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Did you hear that?” Marco’s voice cut through the stillness, startling her from her thoughts.",
+        "“I think someone’s following us.”\n\nEva’s heart raced, a frantic rhythm pounding in her chest.",
+        "“Are you sure?” she whispered, her voice barely breaking the quiet.",
+        "“It could just be the wind.”\n\n“Yeah, right,” Marco scoffed, though the bravado in his tone wavered as he peered deeper into the darkened street."
+      ],
+      "generic_phrases_to_replace": [
+        "heart raced"
+      ],
+      "lines_to_repair": [
+        "“I think someone’s following us.”\n\nEva’s heart raced, a frantic rhythm pounding in her chest.",
+        "“Did you hear that?” Marco’s voice cut through the stillness, startling her from her thoughts.",
+        "“Are you sure?” she whispered, her voice barely breaking the quiet.",
+        "“It could just be the wind.”\n\n“Yeah, right,” Marco scoffed, though the bravado in his tone wavered as he peered deeper into the darkened street."
+      ],
+      "required_concrete_anchor_terms": [
+        "against",
+        "wind",
+        "alley"
+      ],
+      "repair_min_word_count": 247,
+      "repair_max_word_count": 436,
+      "min_paragraph_count": 4,
+      "max_paragraph_count": 8
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rescue_model"
+    },
+    "rescue_generation_strategy": "slot_patch",
+    "configured_rescue_generation_strategy": "slot_patch",
+    "rescue_slots_summary": {
+      "slot_count": 3,
+      "target_types": [
+        "dialogue",
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_length_distortion"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 295,
+    "rewritten_word_count": 291,
+    "min_word_count": 177,
+    "max_word_count": 619,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "that",
+      "against",
+      "she",
+      "his",
+      "wind",
+      "alley",
+      "eva",
+      "shadows",
+      "and",
+      "you"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "that",
+      "against",
+      "she",
+      "his",
+      "wind",
+      "alley",
+      "eva",
+      "you"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 29
+  }
+}

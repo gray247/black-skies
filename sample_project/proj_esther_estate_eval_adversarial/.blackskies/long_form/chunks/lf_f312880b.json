@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_f312880b",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:cc8fd9c55f68ce431b0c85a6b0d0a6929aa5b3685d7e0298ff591040986d341b",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The lantern flickered, its feeble glow barely pushing back the shadows that pressed in from all sides",
+    "word_count": 311,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 30,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 311,
+    "paragraph_count": 4,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 5,
+    "concrete_hits": 10,
+    "generic_hits": 1,
+    "stock_phrase_hits": 2,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The lantern flickered, its feeble glow barely pushing back the shadows that pressed in from all sides. Jun Park’s fingers trembled against the cool brass, his soaked coat clinging to his skin as if the dampness were a living thing, hungry for warmth. Clara Vale stood beside him, the red ribbon around her wrist contrasting sharply with the pallor of her skin, a frantic thread of color in the gloom. She rubbed her palm over the ribbon, feeling the coarse texture against her skin, a tether to something familiar in the encroaching darkness.\n\n“Did you hear that?” Jun’s voice wavered, brittle as the lantern’s flame. He shifted his weight from one foot to the other, eyes darting down the corridor where the chain rattled softly, a ghostly echo of uncertainty. Clara was aware of the sound, too, but she pressed her lips together, willing the words to stay locked behind her teeth. She could feel the chill wrapping around her spine like a serpent, a tight squeeze of anxiety that made her heart race.\n\n“It’s nothing,” she replied, too quickly, the edge of her tone sharper than she intended. She stepped forward, the mud squelching beneath her shoes, the scent of wet earth mingling with something far less recognizable, something rotten. A low cough echoed from above, faint and hollow, and Clara’s breath caught. Jun didn’t seem to notice; he was fixated on the door, the chain rattling again as if something—or someone—on the other side was testing its strength.\n\n“Let’s just get out of here,” he urged, his voice barely above a whisper, but there was an urgency there, a plea. Clara felt her own resolve slipping, the sense that they were being watched pressing down on her like the weight of the storm outside. She glanced back at the door, its faded wood splintering at the edges, a reminder"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

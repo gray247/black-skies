@@ -1,0 +1,204 @@
+{
+  "chunk_id": "lf_02813732",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0004"
+  ],
+  "order": 4,
+  "continuation_of": "lf_7e2140df",
+  "prompt_fingerprint": "sha256:f8b1aa295a1a96f87e93c7dd15fd02f512201374b573ab58008f1fb53d68f76f",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Lena stepped through the doorway, the coldness of the ceramic tiles biting at her skin as she navigated the cluttered kitchen",
+    "word_count": 628,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.03,
+    "total_after_usd": 0.04
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 5,
+      "clarity": 4,
+      "pacing": 5,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 33,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 628,
+    "paragraph_count": 10,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 10,
+    "concrete_hits": 6,
+    "generic_hits": 0,
+    "stock_phrase_hits": 2,
+    "carryover_terms": [
+      "table",
+      "rain",
+      "window",
+      "stepped",
+      "doorway",
+      "chill",
+      "tiles",
+      "creeping"
+    ],
+    "carryover_hits": 7,
+    "material_carryover_hits": 2,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false
+  },
+  "critique_snapshot": {
+    "summary": "Lena navigates her cluttered kitchen, feeling the chill of the tiles and the weight of her surroundings. She interacts with Oliver, who suggests they go for a walk to clear their heads. As they prepare to leave, Lena grapples with her emotions and the oppressive atmosphere of the kitchen, ultimately stepping outside into the rain, which feels refreshing and transformative.",
+    "weaknesses": [
+      "Vague descriptions that lack specificity.",
+      "Generic phrases that detract from the uniqueness of the scene.",
+      "Dialogue that feels disconnected from physical action."
+    ],
+    "continuity_issues": [
+      "The transition from the kitchen to the outside world could be more seamless.",
+      "The emotional shift from the kitchen to the outside is abrupt and lacks buildup."
+    ],
+    "pacing_issues": [
+      "The scene may linger too long on the kitchen details, slowing the narrative.",
+      "The dialogue exchange could be tightened to maintain momentum."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid scene.",
+      "Replace generic phrases with more original language.",
+      "Ground dialogue in physical actions or setting to increase realism."
+    ],
+    "generic_phrase_targets": [
+      "unwelcome guest",
+      "fragile thread",
+      "gentle nudge",
+      "wash away the past"
+    ],
+    "detail_targets": [
+      "the smell of stale bread",
+      "the assortment of chipped mugs and plates",
+      "the familiar scent of cedar and dust"
+    ],
+    "dialogue_grounding_targets": [
+      "Oliver's suggestion to go for a walk",
+      "Lena's response and emotional state during the conversation"
+    ],
+    "emotional_show_targets": [
+      "Lena's internal conflict about leaving the kitchen",
+      "Her feelings of gratitude towards Oliver"
+    ],
+    "replacement_targets": [
+      "Replace 'the chill of the tiles' with a more specific sensory detail.",
+      "Substitute 'the sound echoing against the kitchen walls' with a more unique auditory description."
+    ],
+    "grounding_targets": [
+      "Physical actions during dialogue exchanges.",
+      "Environmental details that reflect the characters' emotions."
+    ],
+    "carryover_targets": [
+      "the wind picked up",
+      "the world beyond a blur",
+      "the sound of ceramic against wood"
+    ]
+  },
+  "attempt_count": 2,
+  "acceptance_reason": "rewrite_pass",
+  "rewrite_used": true,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 615,
+    "rewritten_word_count": 628,
+    "min_word_count": 369,
+    "max_word_count": 1291,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "she",
+      "her",
+      "that",
+      "and",
+      "his",
+      "kitchen",
+      "against",
+      "voice",
+      "was",
+      "felt",
+      "outside"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "she",
+      "her",
+      "that",
+      "and",
+      "his",
+      "kitchen",
+      "against",
+      "was",
+      "outside"
+    ],
+    "outline_anchor_hits": [
+      "the",
+      "her",
+      "she",
+      "that",
+      "and",
+      "back",
+      "his",
+      "lena",
+      "kitchen",
+      "window"
+    ],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": true,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 33
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_3fd01355",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:df20d7ef844e92bbcbc42fa8d10865e4bdc4a0d41181de58e3be29727646fb0e",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The air in the service corridor was thick with the damp, musty scent of aged wood and mildew, mingling with the faintest hint of something metallic—blood, perhaps, or rusted iron",
+    "word_count": 298,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 30,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 298,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 10,
+    "concrete_hits": 11,
+    "generic_hits": 1,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The air in the service corridor was thick with the damp, musty scent of aged wood and mildew, mingling with the faintest hint of something metallic—blood, perhaps, or rusted iron. Clara’s heart thudded against her ribs, frantic and insistent, as she gripped the lantern tighter, its weak beam flickering like a dying star. Shadows danced along the walls, warped and stretched, as if the very structure of the house was alive, breathing secrets into the dark.\n\n“Clara,” Jun whispered, his voice a tremor, barely rising above the silence that enveloped them. He shifted beside her, his coat still soaked from the rain that had poured down like a curtain moments before. Water dripped from the brim of his hat, pooling at their feet, forming small, dark puddles that reflected the pale light. “We shouldn’t be here.”\n\nShe glanced at him, noting the way his eyes darted, wide and apprehensive, searching every corner as if expecting something to leap out. “We need to find out what’s behind that door,” Clara replied, too quickly, her voice sharper than she intended. The chain rattled again, a clinking sound that echoed like a warning through the passage.\n\nJun’s gaze flicked toward the door, the chain still trembling as if something—or someone—was testing its strength from the other side. “What if it’s... something we don’t want to see?” he said, a shiver running through him that had nothing to do with the cold.\n\nThe image of a child's cough echoed in Clara's mind, haunting and distant. She caught herself tightening the red ribbon around her wrist, the parlor key dangling like a forbidden talisman. Her fingers brushed the chipped ceramic fox nestled in her coat pocket, a weighty reminder of their earlier escape from the greenhouse. “We can’t just leave it,” she murm"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

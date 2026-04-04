@@ -1,0 +1,247 @@
+{
+  "chunk_id": "lf_2c4fdd2d",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:1bfbf1fe4d17aba935d686d689736384e2abf30aec870b38a0c04f443c1cce2e",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 21,
+    "fallback_reason": "quality_failed"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "quality_failed"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 4,
+      "dialogue": 2,
+      "meta_free": 5
+    },
+    "total_score": 27,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 300,
+    "paragraph_count": 6,
+    "dialogue_present": true,
+    "dialogue_grounded": false,
+    "sensory_hits": 8,
+    "concrete_hits": 2,
+    "generic_hits": 0,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The wind howled through the narrow alleyway, carrying the sharp, fresh scent of rain-soaked asphalt mixed with a hint of brine from the nearby sea. A streetlamp flickered overhead, its dim light casting erratic shadows that danced along the slick cobblestones. Chilled to the bone, Elena pulled her coat tighter around her shoulders, seeking warmth against the biting air. Her breath puffed out in small clouds, evaporating almost as quickly as they formed as she ventured deeper into the shadows, her boots crunching softly on the scattered debris of the alley.\n\nShe paused, leaning against the cool, damp brick wall, her heart thumping loudly in her chest as she strained to catch the faintest sound of footsteps. The world around her felt suspended, the familiar hum of the city muted to a distant murmur. In the background, the rhythmic crashing of waves against the shore provided a stark contrast to the stillness enveloping her. Had she imagined the rustling sound? Just the wind, surely. Yet, a shiver raced up her spine, a nagging sensation that urged her to keep moving.\n\n“Elena?” The voice sliced through the quiet, low and cautious. Marco emerged from the shadows, his face partially illuminated by the flickering light. His eyes darted around, sharp and alert, as a fleeting expression of relief mingled with concern crossed his features. “You shouldn’t be here.”\n\nStraightening up, she pushed herself off the wall, her fingers brushing against the rough surface as she steadied herself. “I had to come. You know I can’t just—”\n\n“I know what you can’t do,” he interrupted, his voice laced with urgency. “But this isn’t a game. They’re watching.”\n\nElena swallowed hard, the bitter taste of fear rising in her throat. “And if I don’t show up? What then? You think they’ll just let it"
+  },
+  "critique_snapshot": {
+    "summary": "The scene depicts Elena in a tense, shadowy alleyway, feeling anxious and cold as she waits for Marco. Their dialogue reveals a sense of urgency and danger, hinting at a larger conflict involving unseen watchers.",
+    "weaknesses": [
+      "Vague descriptions that lack specificity.",
+      "Dialogue that does not connect with physical actions or setting.",
+      "Generic phrases that detract from the scene's uniqueness."
+    ],
+    "continuity_issues": [
+      "The transition from Elena's internal thoughts to dialogue lacks grounding in physical action."
+    ],
+    "pacing_issues": [
+      "The buildup of tension is good, but the dialogue interrupts the flow without a clear escalation."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions.",
+      "Ground dialogue in physical actions or the setting.",
+      "Eliminate generic phrases and stock expressions."
+    ],
+    "generic_phrase_targets": [
+      "the usual hum of the city",
+      "the taste of fear bitter on her tongue"
+    ],
+    "detail_targets": [
+      "the scent of rain-soaked asphalt",
+      "the flickering streetlamp"
+    ],
+    "dialogue_grounding_targets": [
+      "Marco stepping out from the shadows",
+      "Elena pushing away from the wall"
+    ],
+    "emotional_show_targets": [
+      "Elena's heart racing",
+      "the prickle of unease"
+    ],
+    "replacement_targets": [
+      "replace vague phrases with more concrete imagery",
+      "find alternatives for generic expressions"
+    ],
+    "grounding_targets": [
+      "connect dialogue to physical actions more clearly",
+      "use setting details to enhance emotional responses"
+    ],
+    "carryover_targets": []
+  },
+  "attempt_count": 4,
+  "acceptance_reason": "quality_failed",
+  "rewrite_used": true,
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_model_name": "gpt-5.4-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Elena?” The voice sliced through the quiet, low and cautious.",
+        "“You shouldn’t be here.”\n\nStraightening up, she pushed herself off the wall, her fingers brushing against the rough surface as she steadied herself.",
+        "“I had to come.",
+        "You know I can’t just—”\n\n“I know what you can’t do,” he interrupted, his voice laced with urgency."
+      ],
+      "generic_phrases_to_replace": [],
+      "lines_to_repair": [
+        "“Elena?” The voice sliced through the quiet, low and cautious.",
+        "“You shouldn’t be here.”\n\nStraightening up, she pushed herself off the wall, her fingers brushing against the rough surface as she steadied herself.",
+        "“I had to come.",
+        "You know I can’t just—”\n\n“I know what you can’t do,” he interrupted, his voice laced with urgency."
+      ],
+      "required_concrete_anchor_terms": [
+        "against",
+        "shadows",
+        "elena"
+      ],
+      "repair_min_word_count": 255,
+      "repair_max_word_count": 450,
+      "min_paragraph_count": 4,
+      "max_paragraph_count": 8
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rescue_model"
+    },
+    "rescue_generation_strategy": "slot_patch",
+    "configured_rescue_generation_strategy": "slot_patch",
+    "rescue_slots_summary": {
+      "slot_count": 4,
+      "target_types": [
+        "dialogue",
+        "dialogue",
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_dialogue_grounding_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 299,
+    "rewritten_word_count": 300,
+    "min_word_count": 179,
+    "max_word_count": 627,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "his",
+      "you",
+      "and",
+      "shadows",
+      "that",
+      "elena",
+      "wind",
+      "distant",
+      "light"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "his",
+      "you",
+      "and",
+      "shadows",
+      "that",
+      "elena",
+      "wind",
+      "light"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 27
+  }
+}

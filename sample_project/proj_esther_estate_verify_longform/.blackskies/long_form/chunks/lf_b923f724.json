@@ -1,0 +1,281 @@
+{
+  "chunk_id": "lf_b923f724",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:aab71cf76cbe1402b792909061daf31c2ceecfba3a0bd87f061405b9ad3716a2",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 21,
+    "fallback_reason": "quality_failed"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "quality_failed"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 28,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 304,
+    "paragraph_count": 6,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 7,
+    "concrete_hits": 1,
+    "generic_hits": 1,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The flickering streetlight cast a shaky glow over Mia, illuminating the damp concrete beneath her feet, which still glistened from the earlier rain. lingered in the air, weaving through the narrow alley and clinging to the damp brick walls like a stubborn shadow Shadows flickered in the alleyway beside her, stretching and contracting like the restless thoughts swirling in her mind.\n\n“Are you sure about this?” Ethan asked, his voice low and edged with unease. He shifted from foot to foot, the rubber soles of his worn sneakers squeaking against the slick pavement, echoing the tension that wrapped around them. She could see his breath materialize in the cool air, a fleeting wisp that dissolved into the darkness.\n\nMia turned to him, her pulse racing like a drumbeat in her ears. “We can’t back down now.” The words felt heavy, laden with a mix of resolve and anxiety. She bit her lip, the sharp taste of blood mingling with the sour tang of fear that coiled in her stomach. Each second stretched out, the ticking clock in her mind amplifying the urgency of their situation.\n\nEthan raked a hand through his tousled hair, his gestures betraying his anxiety and stirring a pang of nostalgia for the carefree boy she once knew. “What if they’re not alone?” His eyes flitted nervously across the street, scanning the shadows as if they might spring to life at any moment.\n\nMia stepped closer, the heat radiating from his body contrasting sharply with the chill that wrapped around her like a shroud. “We’ve come too far to turn back,” she insisted, trying to infuse her voice with confidence, even as doubt gnawed at her insides like a ravenous beast. What if they uncovered something far worse than they anticipated?\n\nJust then, a muffled laugh echoed from deeper within the"
+  },
+  "critique_snapshot": {
+    "summary": "The scene depicts Mia and Ethan standing under a flickering streetlight, filled with tension as they contemplate a risky situation. Mia feels a mix of determination and dread, while Ethan expresses concern about potential threats. The atmosphere is described vividly, but the dialogue lacks grounding in physical action or setting.",
+    "weaknesses": [
+      "Dialogue lacks grounding in physical action or setting.",
+      "Generic phrases detract from the emotional impact.",
+      "Vague scene details do not enhance the atmosphere."
+    ],
+    "continuity_issues": [
+      "The transition between Mia's internal thoughts and dialogue could be smoother.",
+      "Ethan's nervous habits are mentioned but not consistently shown in the dialogue."
+    ],
+    "pacing_issues": [
+      "The scene builds tension but could benefit from varied pacing to enhance urgency."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Ground dialogue in physical actions or specific setting details.",
+      "Replace generic phrases with more unique expressions.",
+      "Enhance specificity in scene details to create a stronger atmosphere."
+    ],
+    "generic_phrase_targets": [
+      "The air crackled with tension",
+      "a caged bird desperate to escape",
+      "a reminder of the night’s oppressive stillness",
+      "the warmth radiating from his body"
+    ],
+    "detail_targets": [
+      "faint, oily residue of gasoline mixed with something sweetly decayed",
+      "damp concrete glistening from the earlier rain"
+    ],
+    "dialogue_grounding_targets": [
+      "Ethan's shifting from foot to foot could be more integrated into his dialogue.",
+      "Mia's biting her lip could be tied to her spoken words."
+    ],
+    "emotional_show_targets": [
+      "Mia's internal conflict could be shown through more physical reactions.",
+      "Ethan's concern could be expressed through more specific actions."
+    ],
+    "replacement_targets": [
+      "Replace 'the air crackled with tension' with a more specific sensory detail.",
+      "Find alternatives for 'we can't back down now' that reflect Mia's unique voice."
+    ],
+    "grounding_targets": [
+      "Include more physical descriptions of the environment that influence the characters' emotions.",
+      "Use sensory details to ground the dialogue in the setting."
+    ],
+    "carryover_targets": []
+  },
+  "attempt_count": 4,
+  "acceptance_reason": "quality_failed",
+  "rewrite_used": true,
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Are you sure about this?” Ethan asked, his voice low and edged with unease.",
+        "“We can’t back down now.” The words felt heavy, laden with a mix of resolve and anxiety.",
+        "“What if they’re not alone?” His eyes flitted nervously across the street, scanning the shadows as if they might spring to life at any moment.",
+        "“We’ve come too far to turn back,” she insisted, trying to infuse her voice with confidence, even as doubt gnawed at her insides like a ravenous beast."
+      ],
+      "generic_phrases_to_replace": [
+        "hung in the air",
+        "wrapped around her"
+      ],
+      "lines_to_repair": [
+        "The smell of gasoline mixed with something sweetly decayed hung in the air, a pungent reminder of the night's unsettling quiet, as if the world held its breath.",
+        "Mia stepped closer, the heat radiating from his body contrasting sharply with the chill that wrapped around her like a shroud.",
+        "“Are you sure about this?” Ethan asked, his voice low and edged with unease.",
+        "“We can’t back down now.” The words felt heavy, laden with a mix of resolve and anxiety.",
+        "“What if they’re not alone?” His eyes flitted nervously across the street, scanning the shadows as if they might spring to life at any moment.",
+        "“We’ve come too far to turn back,” she insisted, trying to infuse her voice with confidence, even as doubt gnawed at her insides like a ravenous beast."
+      ],
+      "required_concrete_anchor_terms": [
+        "something"
+      ],
+      "repair_min_word_count": 265,
+      "repair_max_word_count": 468,
+      "min_paragraph_count": 4,
+      "max_paragraph_count": 8
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-4o",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rewrite_retry_model"
+    },
+    "rescue_slots_summary": {
+      "slot_count": 6,
+      "target_types": [
+        "generic",
+        "generic",
+        "dialogue",
+        "dialogue",
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "specificity_unresolved",
+    "repair_local_snapshot": {
+      "evaluated": true,
+      "previous_word_count": 312,
+      "repaired_word_count": 304,
+      "min_word_count": 265,
+      "max_word_count": 468,
+      "within_word_band": true,
+      "previous_paragraph_count": 6,
+      "repaired_paragraph_count": 6,
+      "min_paragraph_count": 4,
+      "max_paragraph_count": 8,
+      "within_paragraph_band": true,
+      "accepted": true,
+      "failure_reason": null
+    },
+    "rescue_delta_summary": {
+      "total_delta": 0,
+      "specificity_delta": 0,
+      "clarity_delta": 0,
+      "continuity_delta": 0,
+      "dialogue_delta": 0,
+      "concrete_delta": 0,
+      "stock_phrase_delta": 1,
+      "dialogue_grounding_fixed": false,
+      "dialogue_grounding_targeted": true,
+      "specificity_target_met": false,
+      "clarity_target_met": false,
+      "generic_replacement_target_met": true,
+      "concrete_target_met": false
+    }
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "repair_only",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 312,
+    "rewritten_word_count": 304,
+    "min_word_count": 187,
+    "max_word_count": 655,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "his",
+      "and",
+      "that",
+      "she",
+      "they",
+      "mia",
+      "something",
+      "air",
+      "breath",
+      "shadows"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "his",
+      "and",
+      "that",
+      "she",
+      "they",
+      "mia",
+      "air",
+      "shadows"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 28
+  }
+}

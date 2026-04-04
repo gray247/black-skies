@@ -1,0 +1,266 @@
+{
+  "chunk_id": "lf_4481cdf5",
+  "validation_decision": false,
+  "fallback_reason": "quality_failed",
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "basic_validation": {
+        "usable": true,
+        "word_count": 609,
+        "paragraph_count": 11,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [
+          "hammered",
+          "relentless",
+          "sheets",
+          "hitting",
+          "pavement",
+          "sharp",
+          "staccato",
+          "rhythm"
+        ],
+        "carryover_hits": 2,
+        "material_carryover_hits": 0
+      },
+      "raw_preview": "Iris ducked into the dim light spilling from the diner, the door clanging shut behind her with a weary sigh, muffling the relentless patter of rain. A gust of warmth enveloped her, wrapping around her",
+      "normalized_preview": "Iris ducked into the dim light spilling from the diner, the door clanging shut behind her with a weary sigh, muffling the relentless patter of rain. A gust of warmth enveloped her, wrapping around her",
+      "raw_length": 3519,
+      "normalized_length": 3517,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DJsUYZj762OejSUEiumBcnsXJoCqC\", \"object\": \"chat.completion\", \"created\": 1773630070, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"Iris ducked into the dim light spilling from the diner, the door clanging shut behind her with a weary sigh, muffling the relentless patter of rain. A gust of warmth enveloped her, wrapping around her like a forgotten embrace. She shook droplets from her hair, a few stubborn beads clinging to ",
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 2,
+          "clarity": 2,
+          "pacing": 5,
+          "specificity": 2,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 25,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 609,
+        "paragraph_count": 11,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 11,
+        "concrete_hits": 3,
+        "generic_hits": 2,
+        "stock_phrase_hits": 4,
+        "carryover_terms": [
+          "hammered",
+          "relentless",
+          "sheets",
+          "hitting",
+          "pavement",
+          "sharp",
+          "staccato",
+          "rhythm"
+        ],
+        "carryover_hits": 2,
+        "material_carryover_hits": 0,
+        "material_carryover": false,
+        "weak_carryover": false,
+        "generic_risk": true
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "basic_validation": {
+        "usable": true,
+        "word_count": 611,
+        "paragraph_count": 11,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [
+          "hammered",
+          "relentless",
+          "sheets",
+          "hitting",
+          "pavement",
+          "sharp",
+          "staccato",
+          "rhythm"
+        ],
+        "carryover_hits": 2,
+        "material_carryover_hits": 0
+      },
+      "raw_preview": "Iris ducked into the diner, the door slamming shut behind her with a heavy thud that muted the relentless hammering of rain. A wave of warmth enveloped her, momentarily dispelling the chill that clung",
+      "normalized_preview": "Iris ducked into the diner, the door slamming shut behind her with a heavy thud that muted the relentless hammering of rain. A wave of warmth enveloped her, momentarily dispelling the chill that clung",
+      "raw_length": 3617,
+      "normalized_length": 3617,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DJsUwRDYk1585GELyvOUeWSnHKwTj\", \"object\": \"chat.completion\", \"created\": 1773630094, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"Iris ducked into the diner, the door slamming shut behind her with a heavy thud that muted the relentless hammering of rain. A wave of warmth enveloped her, momentarily dispelling the chill that clung to her skin like a second layer. She shook her head, sending droplets flying, though a few st",
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 2,
+          "pacing": 5,
+          "specificity": 2,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 26,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 611,
+        "paragraph_count": 11,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 11,
+        "concrete_hits": 3,
+        "generic_hits": 2,
+        "stock_phrase_hits": 2,
+        "carryover_terms": [
+          "hammered",
+          "relentless",
+          "sheets",
+          "hitting",
+          "pavement",
+          "sharp",
+          "staccato",
+          "rhythm"
+        ],
+        "carryover_hits": 2,
+        "material_carryover_hits": 0,
+        "material_carryover": false,
+        "weak_carryover": false,
+        "generic_risk": true
+      },
+      "quality_pass": false,
+      "rewrite_delta": {
+        "total_delta": 1,
+        "stock_phrase_delta": 2,
+        "specificity_delta": 0,
+        "clarity_delta": 0,
+        "continuity_delta": 1
+      }
+    }
+  ],
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 2,
+      "pacing": 5,
+      "specificity": 2,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 26,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 611,
+    "paragraph_count": 11,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 11,
+    "concrete_hits": 3,
+    "generic_hits": 2,
+    "stock_phrase_hits": 2,
+    "carryover_terms": [
+      "hammered",
+      "relentless",
+      "sheets",
+      "hitting",
+      "pavement",
+      "sharp",
+      "staccato",
+      "rhythm"
+    ],
+    "carryover_hits": 2,
+    "material_carryover_hits": 0,
+    "material_carryover": false,
+    "weak_carryover": false,
+    "generic_risk": true
+  },
+  "critique_snapshot": {
+    "summary": "Iris enters a diner to escape the rain, reflecting on her life and the turmoil within her. She interacts with a friendly waitress, who offers her coffee and a moment of connection amidst the storm.",
+    "weaknesses": [
+      "Generic descriptions and phrases that lack specificity.",
+      "Dialogue that feels disconnected from the physical actions and setting.",
+      "Vague emotional grounding that does not fully engage the reader."
+    ],
+    "continuity_issues": [
+      "The transition from the rain to the diner lacks a clear connection to Iris's emotional state.",
+      "The waitress's understanding of Iris's turmoil feels unearned and abrupt."
+    ],
+    "pacing_issues": [
+      "The scene drags in places, particularly during introspective moments that could be tightened.",
+      "Dialogue exchanges could be more dynamic to maintain engagement."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid scene.",
+      "Ground dialogue in physical actions or reactions to the environment.",
+      "Clarify Iris's emotional state and its connection to her surroundings."
+    ],
+    "generic_phrase_targets": [
+      "relentless patter",
+      "cozy chaos",
+      "aching nostalgia",
+      "weight of the world",
+      "one of those days"
+    ],
+    "detail_targets": [
+      "Describe the diner’s atmosphere with more unique sensory details.",
+      "Expand on the waitress's appearance and demeanor to create a stronger impression."
+    ],
+    "dialogue_grounding_targets": [
+      "Link the waitress's dialogue to Iris's actions or the setting to create a more immersive interaction."
+    ],
+    "emotional_show_targets": [
+      "Show Iris's internal struggle through more concrete actions or reactions rather than vague reflections."
+    ],
+    "replacement_targets": [
+      "Replace generic phrases with more original and evocative language."
+    ],
+    "grounding_targets": [
+      "Incorporate more physical sensations and actions to ground Iris's emotional state."
+    ],
+    "carryover_targets": [
+      "Reduce reliance on clichéd expressions and phrases that detract from the originality of the prose."
+    ]
+  }
+}

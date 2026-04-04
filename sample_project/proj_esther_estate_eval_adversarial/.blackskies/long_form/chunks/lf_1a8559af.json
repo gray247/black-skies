@@ -1,0 +1,93 @@
+{
+  "chunk_id": "lf_1a8559af",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0002"
+  ],
+  "order": 2,
+  "continuation_of": "lf_24dd18d2",
+  "prompt_fingerprint": "sha256:aac92445ecaf4f52c85a2188930fc5133862110c36926e757c14e9705557f09a",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Clara’s breath quickened as the chain rattled again, the sound sharp and jarring in the stillness of the corridor",
+    "word_count": 308,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.01,
+    "total_after_usd": 0.02
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 5,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 32,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 308,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 4,
+    "concrete_hits": 9,
+    "generic_hits": 0,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [
+      "lantern",
+      "corridor",
+      "coat",
+      "door",
+      "chain",
+      "floor",
+      "key",
+      "flickered"
+    ],
+    "carryover_hits": 6,
+    "material_carryover_hits": 1,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "Clara’s breath quickened as the chain rattled again, the sound sharp and jarring in the stillness of the corridor. She could feel Jun’s eyes on her, flickering with a mix of fear and urgency, and she fought the instinct to glance back, to confirm that whatever was behind them remained safely behind. Instead, she pressed forward, her pulse thrumming in her ears like an ominous drumbeat. The lantern flickered, its light dimming just as her resolve began to wane, shadows pooling around their feet like dark water.\n\n“Clara, we should go back,” Jun whispered, his voice barely rising above the hushed tension that enveloped them. The cracked brass lantern sputtered again, sending a brief, ghostly glow across the uneven stones that formed their path. Clara could feel the weight of the world pressing down on her, each droplet of water that clung to her coat a reminder of the storm outside—and the storm brewing within.\n\n“No,” she snapped, sharper than intended, as if that simple word could ward off the encroaching dread. The echo of her voice seemed to bounce off the walls and linger, mocking her bravado. “We can’t. We have to find a way out.” She tightened her grip on the key that dangled from the ribbon around her wrist, the rough fabric rubbing against her skin, grounding her in this chaotic moment. Yet, the memory of tying it there felt hazy, as if the act belonged to someone else.\n\nJun turned his gaze down the corridor, where the faintest line of muddy prints trailed into the darkness ahead. “But what if—” he began, but Clara cut him off, the words spilling out before she could catch them.\n\n“Nothing is going to happen. We’re fine.” She tried to inject certainty into her voice, but her heart betrayed her, thudding against her ribs like a trapped bird"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

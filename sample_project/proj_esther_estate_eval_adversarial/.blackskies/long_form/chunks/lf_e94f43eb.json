@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_e94f43eb",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:b2613baab74efd2da82cdae762cd7cb016c72a6a07a1e142dabc775b4b658e55",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The lantern flickered weakly in Jun's grasp, casting a trembling pool of light that barely illuminated the walls of the narrow servant's passage",
+    "word_count": 301,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 3,
+      "pacing": 4,
+      "specificity": 4,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 28,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 301,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 7,
+    "concrete_hits": 8,
+    "generic_hits": 1,
+    "stock_phrase_hits": 3,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": true,
+    "text": "The lantern flickered weakly in Jun's grasp, casting a trembling pool of light that barely illuminated the walls of the narrow servant's passage. Clara pressed forward, the air heavy with the dampness that clung to her skin, a reminder of the rain that still dripped from the greenhouse roof like forgotten secrets. She could feel the chill of the metal key against her wrist, the red ribbon tightening as she moved, though she couldn't recall having tied it so firmly.\n\n“Do you hear that?” Jun's voice quivered, his eyes darting toward the shadows pooling at the corridor’s end. The dim light wavered, and for a moment, the darkness seemed to breathe, an entity alive and waiting. Clara’s heart raced, a wild drumbeat echoing against her ribs. She had heard the whispers of the house before, the creaks and groans that settled into a familiar rhythm, yet tonight, they felt sharper, more insistent.\n\n“I don’t hear anything,” she replied too quickly, forcing a calmness she didn’t feel. The words hung between them, brittle and raw. She could see the way Jun’s brow furrowed, the way his coat, still soaking from the greenhouse, clung to him, a second skin that mirrored his unease. The scent of wet earth and decaying leaves filled her nostrils, an almost nostalgic reminder of childhood adventures turned sour in the chill of the night.\n\nAs they moved deeper into the corridor, the sound of something—someone?—scraping at the far side of the chained door sent a shiver down Clara’s spine. She felt the tension coil within her, a spring ready to snap. “The door is locked,” she said, more to reassure herself than Jun. They both knew it, yet the chain rattled as if someone were testing it, a muffled echo of desperation that sent Clara’s stomach twisting.\n\n“"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

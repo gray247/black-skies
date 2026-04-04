@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_0321b004",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:4f921f4de38019b161bb60ca8a36e1afdc07971a196dc5d7175e97c9d8f09dbc",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The air was thick with the scent of damp earth, a lingering musk that clung to the back of Clara's throat as she stepped into the clearing",
+    "word_count": 306,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 4,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 29,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 306,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 6,
+    "concrete_hits": 2,
+    "generic_hits": 0,
+    "stock_phrase_hits": 2,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The air was thick with the scent of damp earth, a lingering musk that clung to the back of Clara's throat as she stepped into the clearing. Sunlight filtered through the canopy above, dappling the forest floor with patches of gold and shadow, where ferns unfurled like ancient green scrolls. She paused, her fingers brushing against the rough bark of a nearby tree, feeling the pulse of life beneath its surface. The soft rustle of leaves whispered secrets, and for a moment, she closed her eyes, letting the sounds envelop her—a distant woodpecker tapping a steady rhythm, the faint trickle of a stream weaving through the underbrush.\n\n“Are you coming or not?” Ethan’s voice sliced through the tranquility, tinged with impatience. His silhouette loomed at the edge of the clearing, arms crossed, brow furrowed under the weight of unspoken words. Clara opened her eyes, the moment dissipating like mist in the morning sun. She could sense the tension between them, a taut string pulled too tight, vibrating with the unsaid.\n\n“Just… give me a second,” she replied, her voice barely above a whisper. She could feel his gaze boring into her, sharp with frustration. Clara took a deep breath, the cool air swirling around her, mingling with the warmth of the sun on her skin. She wanted to gather her thoughts, to sift through the clutter of emotions that tangled in her chest, but the urgency in Ethan’s presence was a counterpoint she couldn’t ignore.\n\n“Clara, we can’t stay here forever,” he said, stepping closer, the leaves crackling beneath his boots. The sound felt intrusive, a reminder of the ticking clock in her mind. “We need to move before it gets dark.”\n\nShe brushed a stray hair behind her ear, the weight of his words settling heavily on her shoulders. “I know. It’s just… I can"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

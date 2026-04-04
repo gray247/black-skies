@@ -1,0 +1,252 @@
+{
+  "chunk_id": "lf_3a7ae6f2",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:ff6482ed07798c443b2572f9fb4ec76a2272290f72b77cd53ef94996750ae2c0",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 21,
+    "fallback_reason": "quality_failed"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "quality_failed"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 3,
+      "pacing": 4,
+      "specificity": 2,
+      "dialogue": 2,
+      "meta_free": 5
+    },
+    "total_score": 24,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 304,
+    "paragraph_count": 7,
+    "dialogue_present": true,
+    "dialogue_grounded": false,
+    "sensory_hits": 2,
+    "concrete_hits": 1,
+    "generic_hits": 2,
+    "stock_phrase_hits": 2,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": true,
+    "text": "body made the air feel lighter, yet the tension in his chest remained. He studied the flowers, their bright petals standing defiantly against the backdrop of browning leaves. “You always find the hidden things,” he said, his voice low, laced with admiration and a hint of vulnerability.\n\nMia glanced up at him, a playful smile dancing on her lips. “It’s not that hard when you know where to look.” She plucked a flower, the stem trembling slightly in her grasp, and held it out to him. “You just have to be willing to see what others overlook.”\n\nHe took the flower, the soft texture of its petals brushing against his fingers, but he felt her gaze linger on him, searching for something deeper. “Sometimes, I wish I could just… be like these flowers,” he admitted, his eyes dropping to the ground as he toyed with the stem. “Stable. Unfazed by the changes around me.”\n\nMia shifted closer, her knee brushing against his, and he felt a spark ignite between them. “You’re stronger than you think, Ethan,” she said softly, her voice imbued with sincerity. “You’ve weathered storms. You just need to trust yourself.”\n\nHe met her gaze, the intensity in her eyes making his heart race. “And what if I can’t?” The question hung in the air, raw and open, and for a moment, the world around them faded, leaving only the thick woods and the weight of their shared silence.\n\nMia reached out, her fingers grazing his arm, grounding him in the moment. “Then I’ll be right here,” she promised, her voice steady, unwavering. “You’re not alone in this. Remember that.”\n\nAs the sunlight filtered through the trees, casting warm patterns on the forest floor, Ethan felt the tightness in his chest ease slightly. With her beside him, the solitude that once felt"
+  },
+  "critique_snapshot": {
+    "summary": "The scene depicts Ethan's solitary exploration in a forest, where he is joined by Mia. The atmosphere is rich with sensory details, but the dialogue lacks grounding in physical action or setting. The characters share a moment of connection, but underlying tension regarding their feelings is present.",
+    "weaknesses": [
+      "Dialogue lacks grounding in physical actions or specific setting details.",
+      "Generic phrases and descriptions weaken the emotional impact.",
+      "Vague scene details do not fully immerse the reader in the environment."
+    ],
+    "continuity_issues": [
+      "Transition from Ethan's solitude to Mia's arrival feels abrupt without clear context.",
+      "The emotional tension between characters is introduced but not fully explored."
+    ],
+    "pacing_issues": [
+      "The scene shifts quickly from introspection to dialogue, disrupting the flow."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance grounding of dialogue in physical actions and setting.",
+      "Replace generic phrases with more specific, vivid descriptions.",
+      "Deepen emotional exploration of the characters' relationship."
+    ],
+    "generic_phrase_targets": [
+      "rich tapestry of nature's slow decline",
+      "weight of Ethan’s thoughts lifted",
+      "lightness of her presence"
+    ],
+    "detail_targets": [
+      "thick with the scent of damp earth and decaying leaves",
+      "sharp crunch of twigs underfoot",
+      "rough bark of a towering oak"
+    ],
+    "dialogue_grounding_targets": [
+      "Mia's dialogue lacks connection to her actions in the scene.",
+      "Ethan's responses do not reflect his physical state or surroundings."
+    ],
+    "emotional_show_targets": [
+      "The tension coiling in Ethan's chest is mentioned but not shown through actions or expressions.",
+      "Mia's awareness of Ethan's turmoil could be depicted through her reactions."
+    ],
+    "replacement_targets": [
+      "Replace 'Hey, wait up!' with a more specific action or context.",
+      "Change 'Exploring is more fun with company' to reflect a more personal connection."
+    ],
+    "grounding_targets": [
+      "Add more sensory details that connect dialogue to the setting.",
+      "Include physical actions that reflect the characters' emotions."
+    ],
+    "carryover_targets": []
+  },
+  "attempt_count": 4,
+  "acceptance_reason": "quality_failed",
+  "rewrite_used": true,
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_model_name": "gpt-5.4-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“You always find the hidden things,” he said, his voice low, laced with admiration and a hint of vulnerability.",
+        "“It’s not that hard when you know where to look.” She plucked a flower, the stem trembling slightly in her grasp, and held it out to him.",
+        "“You just have to be willing to see what others overlook.”\n\nHe took the flower, the soft texture of its petals brushing against his fingers, but he felt her gaze linger on him, searching for something deeper.",
+        "“Sometimes, I wish I could just… be like these flowers,” he admitted, his eyes dropping to the ground as he toyed with the stem."
+      ],
+      "generic_phrases_to_replace": [
+        "hung in the air",
+        "for a moment"
+      ],
+      "lines_to_repair": [
+        "“And what if I can’t?” The question hung in the air, raw and open, and for a moment, the world around them faded, leaving only the thick woods and the weight of their shared silence.",
+        "“You always find the hidden things,” he said, his voice low, laced with admiration and a hint of vulnerability.",
+        "“It’s not that hard when you know where to look.” She plucked a flower, the stem trembling slightly in her grasp, and held it out to him.",
+        "“You just have to be willing to see what others overlook.”\n\nHe took the flower, the soft texture of its petals brushing against his fingers, but he felt her gaze linger on him, searching for something deeper.",
+        "“Sometimes, I wish I could just… be like these flowers,” he admitted, his eyes dropping to the ground as he toyed with the stem."
+      ],
+      "required_concrete_anchor_terms": [
+        "against",
+        "voice"
+      ],
+      "repair_min_word_count": 258,
+      "repair_max_word_count": 456,
+      "min_paragraph_count": 5,
+      "max_paragraph_count": 9
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rescue_model"
+    },
+    "rescue_generation_strategy": "slot_patch",
+    "configured_rescue_generation_strategy": "slot_patch",
+    "rescue_slots_summary": {
+      "slot_count": 3,
+      "target_types": [
+        "generic",
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_dialogue_grounding_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 306,
+    "rewritten_word_count": 304,
+    "min_word_count": 183,
+    "max_word_count": 642,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "against",
+      "she",
+      "and",
+      "ethan",
+      "that",
+      "his",
+      "was",
+      "him",
+      "they",
+      "voice"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "against",
+      "she",
+      "and",
+      "that",
+      "his",
+      "him",
+      "voice"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [
+      "you"
+    ],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 24
+  }
+}

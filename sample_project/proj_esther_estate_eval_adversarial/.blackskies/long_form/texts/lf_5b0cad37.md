@@ -1,0 +1,9 @@
+﻿The lantern sputtered again, its feeble glow flickering like a dying ember, casting long, restless shadows that danced along the damp stone walls of the corridor. Clara could feel the cold seep through her soaked clothes, a shiver racing down her spine as she tightened her grip around the chipped ceramic fox nestled in her pocket. The weight of it, oddly comforting, reminded her of the nursery’s warmth, the scent of old books and varnished wood.
+
+“Did you hear that?” Jun’s voice cracked, a sharp edge betraying the calm he tried to project. His coat clung to him, heavy and dripping, the memory of the greenhouse rain still fresh on his skin. Clara could see his eyes darting, reflecting the lantern’s quivering light, searching for something—anything—beyond the gloom that enveloped them.
+
+“It’s probably just the wind,” she replied too quickly, her tone sharper than intended, an uninvited edge of defensiveness creeping in. The truth was, the wind outside had been still, almost suffocatingly quiet, as if the world was holding its breath, waiting. The air felt thick, electric, tinged with the faintest hint of something like smoke, or was it dust? She couldn’t tell.
+
+Jun took a step forward, his boot squelching in the mud that coated the floor, leaving behind an imprint that seemed to pull at him as if the earth itself were trying to swallow him whole. “Clara,” he said, the tremor in his voice betraying his resolve. “We should go back.”
+
+“No.” The word came out sharper still, cutting through the oppressive air. She could sense the panic rising in him, a palpable thing that wrapped around her chest like a vice. Clara’s eyes flitted to the chained door at the far end of the corridor, where the chain rattled softly, echoing like distant laughter. She fought

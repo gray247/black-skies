@@ -1,0 +1,617 @@
+{
+  "chunk_id": "lf_6498b5cc",
+  "validation_decision": false,
+  "fallback_reason": "quality_failed",
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "raw_preview": "The sun hung low in the sky, its light spilling over the horizon in a cascade of gold and crimson. Sarah squinted against the glare as she maneuvered her bicycle along the gravel path, the crunch of s",
+      "normalized_preview": "The sun hung low in the sky, its light spilling over the horizon in a cascade of gold and crimson. Sarah squinted against the glare as she maneuvered her bicycle along the gravel path, the crunch of s",
+      "raw_length": 1809,
+      "normalized_length": 1805,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKaiDz1R4rSoHQ59X53ZAv3OYQ8bw\", \"object\": \"chat.completion\", \"created\": 1773800053, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The sun hung low in the sky, its light spilling over the horizon in a cascade of gold and crimson. Sarah squinted against the glare as she maneuvered her bicycle along the gravel path, the crunch of stones beneath her tires punctuating the quiet evening. A light breeze stirred the tall grass t",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 317,
+        "paragraph_count": 6,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 2,
+          "meta_free": 5
+        },
+        "total_score": 26,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 317,
+        "paragraph_count": 6,
+        "dialogue_present": true,
+        "dialogue_grounded": false,
+        "sensory_hits": 6,
+        "concrete_hits": 1,
+        "generic_hits": 1,
+        "stock_phrase_hits": 2,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The sun hung low in the sky, its light spilling over the horizon in a cascade of gold and crimson. Sarah squinted against the glare as she maneuvered her bicycle along the gravel path, the crunch of stones beneath her tires punctuating the quiet evening. A light breeze stirred the tall grass that flanked the trail, carrying with it the earthy scent of damp soil mixed with the faint sweetness of wildflowers. Each inhale filled her lungs with a promise of summer, and for a moment, she let the rhythm of pedaling wash over her, an escape from the weight of the day.\n\nA sharp turn brought her into the clearing, where the old oak tree stood sentinel, its gnarled branches stretching wide like welcoming arms. She slowed, her heart racing not just from the exertion but from the anticipation of this familiar sanctuary. The tree had been her refuge since childhood, a place where secrets were whispered and dreams unfurled.\n\n“Hey, thought you’d never get here,” a voice called out, breaking her reverie. It was Jake, perched on the low branch, his legs swinging carelessly. He wore a crooked grin, the kind that made her chest tighten in a mix of annoyance and something warmer.\n\n“Had to dodge a family of ducks,” she replied, rolling her eyes but unable to suppress a smile. “You know how it is.”\n\n“Ducks, huh? Sounds like an adventure.” He slid down from the branch, dusting off his hands before joining her on the ground. The way he moved, with that effortless grace, sent a flicker of something through her. She brushed a loose strand of hair behind her ear, feeling the heat rise in her cheeks.\n\nThey stood in silence for a moment, the soft rustle of leaves punctuating the air between them. Sarah’s gaze drifted to the horizon, where the sun dipped lower, casting elongated shadows across the ground"
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "rewrite",
+        "escalated": false,
+        "reason": "rewrite_default"
+      },
+      "raw_preview": "The horizon blazed with hues of orange and deep purple as the last remnants of daylight surrendered to twilight. Sarah squinted against the brilliance, her bike skimming over the uneven gravel path, e",
+      "normalized_preview": "The horizon blazed with hues of orange and deep purple as the last remnants of daylight surrendered to twilight. Sarah squinted against the brilliance, her bike skimming over the uneven gravel path, e",
+      "raw_length": 1869,
+      "normalized_length": 1869,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKaiUzD42UrbakUptFdS4ISBqZHwc\", \"object\": \"chat.completion\", \"created\": 1773800070, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The horizon blazed with hues of orange and deep purple as the last remnants of daylight surrendered to twilight. Sarah squinted against the brilliance, her bike skimming over the uneven gravel path, each bump and jolt sending a shiver through her arms. The stones crunched rhythmically beneath ",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 313,
+        "paragraph_count": 6,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "guardrail_snapshot": {
+        "evaluated": true,
+        "mode": "rewrite",
+        "outline_titles": [],
+        "beat_refs": [],
+        "locked_facts_evaluated": false,
+        "length_band_evaluated": true,
+        "original_word_count": 317,
+        "rewritten_word_count": 313,
+        "min_word_count": 190,
+        "max_word_count": 665,
+        "within_length_band": true,
+        "outline_fidelity_evaluated": true,
+        "outline_fidelity_pass": true,
+        "original_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "and",
+          "that",
+          "where",
+          "sun",
+          "low",
+          "its",
+          "light",
+          "horizon",
+          "sarah"
+        ],
+        "retained_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "and",
+          "that",
+          "horizon"
+        ],
+        "outline_anchor_hits": [],
+        "required_anchor_overlap": 1,
+        "scene_anchor_drift_detected": false,
+        "new_story_elements": [],
+        "blocking_new_story_elements": [],
+        "authoritative_name_check": false,
+        "uncertainty_triggered": false,
+        "failure_reason": null,
+        "accepted": true,
+        "quality_total_score": 26
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 2,
+          "meta_free": 5
+        },
+        "total_score": 26,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 313,
+        "paragraph_count": 6,
+        "dialogue_present": true,
+        "dialogue_grounded": false,
+        "sensory_hits": 3,
+        "concrete_hits": 1,
+        "generic_hits": 0,
+        "stock_phrase_hits": 1,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The horizon blazed with hues of orange and deep purple as the last remnants of daylight surrendered to twilight. Sarah squinted against the brilliance, her bike skimming over the uneven gravel path, each bump and jolt sending a shiver through her arms. The stones crunched rhythmically beneath her tires, echoing the quiet stillness of the approaching evening. A gentle breeze swept through, carrying the rich scent of damp earth mingled with the vibrant perfume of blooming wildflowers. As she pedaled, she inhaled deeply, letting the warmth of the summer air wrap around her like a comforting blanket, momentarily pushing away the day's burdens.\n\nTurning sharply, she entered a familiar clearing, her heart quickening at the sight of the old oak tree. Its sturdy trunk and sprawling branches, long and twisted from years of standing watch, seemed to beckon her closer. She slowed her bike, the anticipation swelling within her as she approached the tree that had cradled her secrets and nurtured her dreams since childhood.\n\n“Hey, thought you’d never get here,” Jake's voice cut through her moment of nostalgia. He perched casually on a low branch, his legs swinging back and forth like a pendulum. The crooked grin on his face sliced through her annoyance, igniting a warmth that fluttered in her chest.\n\n“Had to dodge a family of ducks,” she shot back, rolling her eyes but unable to suppress a smile that crept onto her lips. “You know how it is.”\n\n“Ducks, huh? Sounds like an adventure,” he replied, hopping down with an ease that made her breath hitch. He brushed off his hands, the motion casual yet deliberate, making her acutely aware of the distance between them. She tucked a stray hair behind her ear, feeling the warmth creep across her cheeks, a blush that betrayed her composure.\n\nThey stood together for a moment, the air thick with unspoken words, the"
+      },
+      "quality_pass": false,
+      "rewrite_delta": {
+        "total_delta": 0,
+        "stock_phrase_delta": 1,
+        "specificity_delta": 0,
+        "clarity_delta": 0,
+        "continuity_delta": 0
+      },
+      "retry_decision": {
+        "eligible": true,
+        "reason": "targeted_editorial_miss_after_rewrite",
+        "classification": "targeted_editorial"
+      }
+    },
+    {
+      "attempt": 3,
+      "mode": "recovery_retry",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rescue_model"
+      },
+      "raw_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"They stood beside the oak trunk, Sarah gripping her bike’s handlebar while Jake kept one hand on the low branch, the warm evening air settling around th",
+      "normalized_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"They stood beside the oak trunk, Sarah gripping her bike’s handlebar while Jake kept one hand on the low branch, the warm evening air settling around th",
+      "raw_length": 1071,
+      "normalized_length": 1071,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKaibbqguV0ydt0yKYGuOwENyd5N3\", \"object\": \"chat.completion\", \"created\": 1773800077, \"model\": \"gpt-5.4-mini-2026-03-17\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"replacement_text\\\":\\\"They stood beside the oak trunk, Sarah gripping her bike’s handlebar while Jake kept one hand on the low branch, the warm evening air settling around them, the\\\"},{\\\"slot_id\\\":\\\"s2\\\",\\\"replacement_text\\\":\\\"“Hey, thought you’d never get ",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "They stood together for a moment, the air thick with unspoken words, the",
+          "context_before": "She tucked a stray hair behind her ear, feeling the warmth creep across her cheeks, a blush that betrayed her composure.",
+          "context_after": "",
+          "target_reason": "generic",
+          "target_phrase": "for a moment"
+        },
+        {
+          "slot_id": "s2",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Hey, thought you’d never get here,” Jake's voice cut through her moment of nostalgia.",
+          "context_before": "She slowed her bike, the anticipation swelling within her as she approached the tree that had cradled her secrets and nurtured her dreams since childhood.",
+          "context_after": "He perched casually on a low branch, his legs swinging back and forth like a pendulum.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s3",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Had to dodge a family of ducks,” she shot back, rolling her eyes but unable to suppress a smile that crept onto her lips.",
+          "context_before": "The crooked grin on his face sliced through her annoyance, igniting a warmth that fluttered in her chest.",
+          "context_after": "“You know how it is.”\n\n“Ducks, huh?",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s4",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“You know how it is.”\n\n“Ducks, huh?",
+          "context_before": "“Had to dodge a family of ducks,” she shot back, rolling her eyes but unable to suppress a smile that crept onto her lips.",
+          "context_after": "Sounds like an adventure,” he replied, hopping down with an ease that made her breath hitch.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s5",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "Sounds like an adventure,” he replied, hopping down with an ease that made her breath hitch.",
+          "context_before": "“You know how it is.”\n\n“Ducks, huh?",
+          "context_after": "He brushed off his hands, the motion casual yet deliberate, making her acutely aware of the distance between them.",
+          "target_reason": "dialogue"
+        }
+      ],
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "They stood beside the oak trunk, Sarah gripping her bike’s handlebar while Jake kept one hand on the low branch, the warm evening air settling around them, the"
+        },
+        {
+          "slot_id": "s2",
+          "replacement_text": "“Hey, thought you’d never get here,” Jake called from the low branch of the tree, one boot hooked against the bark as he looked down at her and her bike. His voice cut through her moment of nostalgia."
+        },
+        {
+          "slot_id": "s3",
+          "replacement_text": "“Had to dodge a family of ducks,” she shot back, one hand still on her bike’s handlebar as she rolled her eyes and let a smile tug at her mouth. “You know how it is.”"
+        },
+        {
+          "slot_id": "s4",
+          "replacement_text": "“You know how it is.”\n\n“Ducks, huh?” he said from the branch, glancing toward the path as if he could still see them. “Sounds like an adventure,”"
+        },
+        {
+          "slot_id": "s5",
+          "replacement_text": "Sounds like an adventure,” he replied, dropping from the low branch and landing lightly on the gravel beside the tree, his hands brushing bark dust from his palms and making her breath hitch."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_dialogue_grounding_unresolved"
+      }
+    },
+    {
+      "attempt": 4,
+      "mode": "repair_only",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rescue_model"
+      },
+      "raw_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"They stood together beside the old oak tree for a moment, the evening breeze stirring the grass at their feet and leaving the space between them full of",
+      "normalized_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"They stood together beside the old oak tree for a moment, the evening breeze stirring the grass at their feet and leaving the space between them full of",
+      "raw_length": 926,
+      "normalized_length": 926,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKaie65Mk0TORFG0lo1dAi84s9cnO\", \"object\": \"chat.completion\", \"created\": 1773800080, \"model\": \"gpt-5.4-mini-2026-03-17\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"replacement_text\\\":\\\"They stood together beside the old oak tree for a moment, the evening breeze stirring the grass at their feet and leaving the space between them full of unspoken words, the\\\"},{\\\"slot_id\\\":\\\"s2\\\",\\\"replacement_text\\\":\\\"“Hey, thought you",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "They stood together for a moment, the air thick with unspoken words, the",
+          "context_before": "She tucked a stray hair behind her ear, feeling the warmth creep across her cheeks, a blush that betrayed her composure.",
+          "context_after": "",
+          "target_reason": "generic",
+          "target_phrase": "for a moment"
+        },
+        {
+          "slot_id": "s2",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Hey, thought you’d never get here,” Jake's voice cut through her moment of nostalgia.",
+          "context_before": "She slowed her bike, the anticipation swelling within her as she approached the tree that had cradled her secrets and nurtured her dreams since childhood.",
+          "context_after": "He perched casually on a low branch, his legs swinging back and forth like a pendulum.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s3",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Had to dodge a family of ducks,” she shot back, rolling her eyes but unable to suppress a smile that crept onto her lips.",
+          "context_before": "The crooked grin on his face sliced through her annoyance, igniting a warmth that fluttered in her chest.",
+          "context_after": "“You know how it is.”\n\n“Ducks, huh?",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s4",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“You know how it is.”\n\n“Ducks, huh?",
+          "context_before": "“Had to dodge a family of ducks,” she shot back, rolling her eyes but unable to suppress a smile that crept onto her lips.",
+          "context_after": "Sounds like an adventure,” he replied, hopping down with an ease that made her breath hitch.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s5",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "Sounds like an adventure,” he replied, hopping down with an ease that made her breath hitch.",
+          "context_before": "“You know how it is.”\n\n“Ducks, huh?",
+          "context_after": "He brushed off his hands, the motion casual yet deliberate, making her acutely aware of the distance between them.",
+          "target_reason": "dialogue"
+        }
+      ],
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "They stood together beside the old oak tree for a moment, the evening breeze stirring the grass at their feet and leaving the space between them full of unspoken words, the"
+        },
+        {
+          "slot_id": "s2",
+          "replacement_text": "“Hey, thought you’d never get here,” Jake called from the low branch of the old oak tree, his legs swinging above the gravel path as his voice cut through her nostalgia."
+        },
+        {
+          "slot_id": "s3",
+          "replacement_text": "“Had to dodge a family of ducks by the gravel path,” she shot back, rolling her eyes toward the old oak tree but unable to suppress a smile that crept onto her lips."
+        },
+        {
+          "slot_id": "s4",
+          "replacement_text": "“You know how it is,” she said, glancing toward the gravel path.\n\n“Ducks, huh?"
+        },
+        {
+          "slot_id": "s5",
+          "replacement_text": "Sounds like an adventure,” he replied, hopping down from the low branch of the old oak tree with an ease that made her breath hitch."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_generic_replacement_unresolved"
+      }
+    }
+  ],
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 2,
+      "meta_free": 5
+    },
+    "total_score": 26,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 313,
+    "paragraph_count": 6,
+    "dialogue_present": true,
+    "dialogue_grounded": false,
+    "sensory_hits": 3,
+    "concrete_hits": 1,
+    "generic_hits": 0,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The horizon blazed with hues of orange and deep purple as the last remnants of daylight surrendered to twilight. Sarah squinted against the brilliance, her bike skimming over the uneven gravel path, each bump and jolt sending a shiver through her arms. The stones crunched rhythmically beneath her tires, echoing the quiet stillness of the approaching evening. A gentle breeze swept through, carrying the rich scent of damp earth mingled with the vibrant perfume of blooming wildflowers. As she pedaled, she inhaled deeply, letting the warmth of the summer air wrap around her like a comforting blanket, momentarily pushing away the day's burdens.\n\nTurning sharply, she entered a familiar clearing, her heart quickening at the sight of the old oak tree. Its sturdy trunk and sprawling branches, long and twisted from years of standing watch, seemed to beckon her closer. She slowed her bike, the anticipation swelling within her as she approached the tree that had cradled her secrets and nurtured her dreams since childhood.\n\n“Hey, thought you’d never get here,” Jake's voice cut through her moment of nostalgia. He perched casually on a low branch, his legs swinging back and forth like a pendulum. The crooked grin on his face sliced through her annoyance, igniting a warmth that fluttered in her chest.\n\n“Had to dodge a family of ducks,” she shot back, rolling her eyes but unable to suppress a smile that crept onto her lips. “You know how it is.”\n\n“Ducks, huh? Sounds like an adventure,” he replied, hopping down with an ease that made her breath hitch. He brushed off his hands, the motion casual yet deliberate, making her acutely aware of the distance between them. She tucked a stray hair behind her ear, feeling the warmth creep across her cheeks, a blush that betrayed her composure.\n\nThey stood together for a moment, the air thick with unspoken words, the"
+  },
+  "critique_snapshot": {
+    "summary": "The scene follows Sarah as she rides her bicycle to a familiar oak tree, where she meets Jake. The setting is described vividly, and their interaction reveals a mix of emotions, including annoyance and attraction.",
+    "weaknesses": [
+      "Generic stock phrases such as 'the sun hung low in the sky' and 'the crunch of stones beneath her tires' detract from originality.",
+      "Dialogue lacks grounding in physical action or setting, making it feel disconnected from the scene."
+    ],
+    "continuity_issues": [
+      "The transition from Sarah's ride to her interaction with Jake feels abrupt, lacking a clear connection between her internal thoughts and the dialogue."
+    ],
+    "pacing_issues": [
+      "The pacing slows significantly during the dialogue, which could benefit from more action or description to maintain momentum."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Eliminate generic phrases and replace them with more specific, vivid descriptions.",
+      "Ensure dialogue is grounded in the physical actions or setting to enhance realism.",
+      "Create smoother transitions between Sarah's internal thoughts and her interactions with Jake."
+    ],
+    "generic_phrase_targets": [
+      "the sun hung low in the sky",
+      "the crunch of stones beneath her tires",
+      "a light breeze stirred the tall grass"
+    ],
+    "detail_targets": [
+      "the oak tree's description could include more sensory details or personal significance to Sarah",
+      "the setting could be enriched with more specific flora or fauna present in the scene"
+    ],
+    "dialogue_grounding_targets": [
+      "Jake's greeting could include a physical action that ties him to the setting more clearly.",
+      "Sarah's response about the ducks could be linked to her actions, such as adjusting her bike or looking around."
+    ],
+    "emotional_show_targets": [
+      "Show more of Sarah's internal conflict or feelings through her actions or physical reactions rather than just stating them.",
+      "Incorporate more body language or facial expressions to convey emotions during their interaction."
+    ],
+    "replacement_targets": [
+      "Replace 'the sun hung low in the sky' with a more unique description of the sunset.",
+      "Substitute 'the crunch of stones' with a more specific sound or feeling related to the gravel path."
+    ],
+    "grounding_targets": [
+      "Include more physical actions that relate to the dialogue, such as Sarah adjusting her bike or Jake leaning against the tree."
+    ],
+    "carryover_targets": [
+      "Ensure that Sarah's thoughts about the tree connect more clearly to her interaction with Jake, enhancing continuity."
+    ]
+  },
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_model_name": "gpt-5.4-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Hey, thought you’d never get here,” Jake's voice cut through her moment of nostalgia.",
+        "“Had to dodge a family of ducks,” she shot back, rolling her eyes but unable to suppress a smile that crept onto her lips.",
+        "“You know how it is.”\n\n“Ducks, huh?",
+        "Sounds like an adventure,” he replied, hopping down with an ease that made her breath hitch."
+      ],
+      "generic_phrases_to_replace": [
+        "for a moment"
+      ],
+      "lines_to_repair": [
+        "They stood together for a moment, the air thick with unspoken words, the",
+        "“Hey, thought you’d never get here,” Jake's voice cut through her moment of nostalgia.",
+        "“Had to dodge a family of ducks,” she shot back, rolling her eyes but unable to suppress a smile that crept onto her lips.",
+        "“You know how it is.”\n\n“Ducks, huh?",
+        "Sounds like an adventure,” he replied, hopping down with an ease that made her breath hitch."
+      ],
+      "required_concrete_anchor_terms": [
+        "warmth",
+        "bike",
+        "tree"
+      ],
+      "repair_min_word_count": 266,
+      "repair_max_word_count": 469,
+      "min_paragraph_count": 4,
+      "max_paragraph_count": 8
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rescue_model"
+    },
+    "rescue_slots_summary": {
+      "slot_count": 5,
+      "target_types": [
+        "generic",
+        "dialogue",
+        "dialogue",
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_generic_replacement_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 317,
+    "rewritten_word_count": 313,
+    "min_word_count": 190,
+    "max_word_count": 665,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "and",
+      "that",
+      "where",
+      "sun",
+      "low",
+      "its",
+      "light",
+      "horizon",
+      "sarah"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "and",
+      "that",
+      "horizon"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 26
+  }
+}

@@ -1,0 +1,9 @@
+﻿The air in the corridor was thick with a damp chill that seeped into Clara’s bones, wrapping around her like a shroud. The lantern flickered in Jun's grasp, casting long, wavering shadows that danced along the peeling wallpaper, revealing faded blooms that seemed to wilt further with every pulse of light. She could feel the weight of the parlor key, the red ribbon taut against her wrist, a silent reminder of the unsettling discovery they had made in the greenhouse. The key was a lifeline, yet it felt like a shackle, binding her to the mysteries that lurked deeper within the estate.
+
+“Did you hear that?” Jun’s voice trembled, cutting through the oppressive silence. His eyes, wide and glistening, darted towards the door that loomed ahead, the chain rattling softly as if someone were fidgeting on the other side. Clara swallowed hard, the sound echoing in the hollow space of her throat.
+
+“No,” she snapped, perhaps too sharply, the edge of her fear slicing through her words. She forced a breath, trying to steady her racing heart. The mud-streaked floor beneath them squelched softly, the prints leading further into the darkness, as if whatever had left them was still ahead, beckoning them to follow. Clara’s fingers brushed against the chipped ceramic fox in her pocket, a strange comfort in its cold, hard shape. It was absurd to cling to such triviality, yet it grounded her amidst the chaos.
+
+“Clara…” Jun hesitated, his voice dropping to a whisper, “what if it’s still in here?” His gaze flickered back toward the door, the weak lantern's light barely illuminating the tarnished handle, which seemed to gleam with an ominous invitation. She felt the fear radiating from him, a palpable thing that only intensified her own.
+
+“I don’t know,” she said, though the words felt

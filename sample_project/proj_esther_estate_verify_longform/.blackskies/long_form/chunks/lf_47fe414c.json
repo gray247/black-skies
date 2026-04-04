@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_47fe414c",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:768fc0bc3cd350cb06beeb0853b87a4c48766bc70952b0ab6c94eb70ec302f76",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The sun hung low in the sky, casting a golden hue over the rusted rooftops of the old district",
+    "word_count": 589,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 5,
+      "specificity": 4,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 30,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 589,
+    "paragraph_count": 13,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 7,
+    "concrete_hits": 3,
+    "generic_hits": 0,
+    "stock_phrase_hits": 2,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The sun hung low in the sky, casting a golden hue over the rusted rooftops of the old district. Clara stepped over a cracked cobblestone, the sharp edge biting into her worn shoe. She felt the heat radiating from the ground, a lingering warmth of the day seeping into the evening air. It tugged at her, urging her to linger, but the shadows were creeping in, and she had no intentions of being caught out here after dark.\n\nThe scent of fried dough wafted from a nearby stall, mingling with the more pungent odors of the market—the sharpness of onions, the sweet decay of overripe fruit. Clara’s stomach growled, a low rumble that reminded her of the last time she had eaten. She hesitated, fingers brushing the cool metal of her pocket knife, a habit she had developed over the years, a talisman against the world’s unpredictability.\n\n“Hey, Clara!” a voice called out, breaking her reverie. It was Tamsin, her neighbor's daughter, perched on a half-rotten crate, a grin splitting her freckled face. “Got a minute?”\n\nClara’s heart sank slightly. Tamsin was always brimming with energy, and while that was usually welcome, today it felt like an intrusion. “Sure,” she replied, forcing a smile that felt more brittle than genuine. She walked over, the cobbles shifting beneath her weight, and sat down beside the girl.\n\nTamsin swung her legs, kicking up dust that glittered in the fading light. “You’ll never guess what I found!” she exclaimed, her eyes sparkling with mischief. She pulled out a small, intricately carved wooden box from her pocket, its surface smoothed by time and wear. “Found it in the old ruins! I think it’s from before the Great Flood.”\n\nClara took the box, turning it over in her hands, tracing the delicate patterns with her fingertips. The wood was warm, almost alive, and for a moment, she felt a twinge of curiosity about its history. “It’s beautiful,” she said, though part of her felt a tightening in her chest, as if the box were a piece of a past she was meant to forget.\n\n“Do you think it’s worth anything?” Tamsin asked, leaning closer, her excitement infectious.\n\n“I don’t know,” Clara replied, her voice softer now. “But it’s certainly special.” She could feel the weight of the box in her lap, its significance pressing against the surface of her thoughts. She thought of her father, how he would have marveled at such a find, how he would have spun stories about its origins that made the mundane feel magical. The memory settled heavily in her chest, a blend of warmth and ache that she had learned to carry like a stone.\n\n“Do you think we could sell it?” Tamsin’s voice snapped Clara back to the present, and she shook her head slowly.\n\n“Not everything needs to be sold, Tamsin,” she said, her tone firm, but she felt the flicker of doubt. The world was a harsh place; sometimes selling was the only way to survive. The thought twisted like a knife in her gut.\n\nThe girl shrugged, undeterred. “You’re no fun.” She stood, dusting off her skirt, and Clara watched her, a tinge of envy rising within her. Tamsin was unburdened, moving through life with a kind of reckless abandon that Clara had long since traded for caution.\n\n“Just be careful with it,” Clara said as Tamsin turned to leave, her voice barely rising above the hum of the market.\n\n“I will!” Tamsin called back, already fading into the shadows, the box held tightly"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

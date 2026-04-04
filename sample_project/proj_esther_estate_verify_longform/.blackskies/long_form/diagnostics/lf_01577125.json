@@ -1,0 +1,555 @@
+{
+  "chunk_id": "lf_01577125",
+  "validation_decision": false,
+  "fallback_reason": "quality_failed",
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "raw_preview": "The air was thick with the scent of damp earth as Lena pushed through the underbrush, each step a careful negotiation between the gnarled roots and the shifting leaves beneath her feet. She could tast",
+      "normalized_preview": "The air was thick with the scent of damp earth as Lena pushed through the underbrush, each step a careful negotiation between the gnarled roots and the shifting leaves beneath her feet. She could tast",
+      "raw_length": 1727,
+      "normalized_length": 1725,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKaIEIatDOVhGavb9d0o2PEl0PpgP\", \"object\": \"chat.completion\", \"created\": 1773798442, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The air was thick with the scent of damp earth as Lena pushed through the underbrush, each step a careful negotiation between the gnarled roots and the shifting leaves beneath her feet. She could taste the sharpness of pine on her tongue, the tang of moisture clinging to the air, heavy and coo",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 303,
+        "paragraph_count": 5,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 2,
+          "meta_free": 5
+        },
+        "total_score": 26,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 303,
+        "paragraph_count": 5,
+        "dialogue_present": true,
+        "dialogue_grounded": false,
+        "sensory_hits": 8,
+        "concrete_hits": 0,
+        "generic_hits": 1,
+        "stock_phrase_hits": 0,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The air was thick with the scent of damp earth as Lena pushed through the underbrush, each step a careful negotiation between the gnarled roots and the shifting leaves beneath her feet. She could taste the sharpness of pine on her tongue, the tang of moisture clinging to the air, heavy and cool against her skin. The forest loomed around her, shadows flickering like whispers in the fading light, and she felt the pulse of the world beneath her, alive and breathing, a stark contrast to the silence that had settled in her mind.\n\n“Are you sure this is the right way?” Marcus’s voice cut through the stillness, a thread of uncertainty laced within his words. He was a few paces behind her, his breath heavy, a stark reminder of the weight they both carried.\n\nLena paused, glancing back at him, the fading sun casting long shadows across his face. “It has to be,” she replied, though even as she said it, doubt gnawed at her. The map had been a riddle, the markings fading like memories, and now the trees felt like ancient sentinels, watching, waiting.\n\nThe wind picked up, rustling the leaves above, and she felt a chill run down her spine, not from the temperature but from the sense of being watched. She turned her attention back to the path, her heart drumming in her chest, each beat a reminder of the urgency that drove them forward. “We can’t turn back now,” she murmured, half to herself.\n\n“Lena!” Marcus called, his voice strained. She turned sharply, ready to dismiss his hesitation, but the look on his face stilled her. His brow was furrowed, eyes darting past her, and she followed his gaze, scanning the undergrowth. A flash of movement—a deer, perhaps, or something darker—made her breath catch in her throat."
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "rewrite",
+        "escalated": false,
+        "reason": "rewrite_default"
+      },
+      "raw_preview": "The rich, loamy scent of damp earth enveloped Lena as she pushed through the thick underbrush, carefully maneuvering around gnarled roots that twisted like ancient fingers in the fading light. Each st",
+      "normalized_preview": "The rich, loamy scent of damp earth enveloped Lena as she pushed through the thick underbrush, carefully maneuvering around gnarled roots that twisted like ancient fingers in the fading light. Each st",
+      "raw_length": 1774,
+      "normalized_length": 1774,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKaIapYzFJNi7UHG9EoCwykttyVbl\", \"object\": \"chat.completion\", \"created\": 1773798464, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The rich, loamy scent of damp earth enveloped Lena as she pushed through the thick underbrush, carefully maneuvering around gnarled roots that twisted like ancient fingers in the fading light. Each step felt deliberate, her boots sinking slightly into the soft ground, releasing the fresh aroma",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 303,
+        "paragraph_count": 5,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "guardrail_snapshot": {
+        "evaluated": true,
+        "mode": "rewrite",
+        "outline_titles": [],
+        "beat_refs": [],
+        "locked_facts_evaluated": false,
+        "length_band_evaluated": true,
+        "original_word_count": 303,
+        "rewritten_word_count": 303,
+        "min_word_count": 181,
+        "max_word_count": 636,
+        "within_length_band": true,
+        "outline_fidelity_evaluated": true,
+        "outline_fidelity_pass": true,
+        "original_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "his",
+          "and",
+          "was",
+          "lena",
+          "fading",
+          "felt",
+          "back",
+          "air",
+          "each"
+        ],
+        "retained_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "his",
+          "and",
+          "lena",
+          "felt",
+          "back",
+          "each"
+        ],
+        "outline_anchor_hits": [],
+        "required_anchor_overlap": 1,
+        "scene_anchor_drift_detected": false,
+        "new_story_elements": [],
+        "blocking_new_story_elements": [],
+        "authoritative_name_check": false,
+        "uncertainty_triggered": false,
+        "failure_reason": null,
+        "accepted": true,
+        "quality_total_score": 26
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 2,
+          "meta_free": 5
+        },
+        "total_score": 26,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 303,
+        "paragraph_count": 5,
+        "dialogue_present": true,
+        "dialogue_grounded": false,
+        "sensory_hits": 6,
+        "concrete_hits": 0,
+        "generic_hits": 1,
+        "stock_phrase_hits": 1,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The rich, loamy scent of damp earth enveloped Lena as she pushed through the thick underbrush, carefully maneuvering around gnarled roots that twisted like ancient fingers in the fading light. Each step felt deliberate, her boots sinking slightly into the soft ground, releasing the fresh aroma of wet soil mixed with the sharp tang of pine that lingered on her tongue. The towering trees loomed above, their trunks cloaked in shadows that danced around her, creating a tapestry of dark and light that pulsed with life. As she navigated deeper into the forest, a sense of urgency thrummed beneath her skin, a heartbeat that resonated with the world around her.\n\n“Are you sure this is the right way?” Marcus’s voice broke the serene stillness, laced with an undercurrent of doubt. A few paces behind, he trudged through the underbrush, his breaths labored, a reminder of the heavy pack slung across his shoulders.\n\nLena paused, glancing back at him, her heart quickening as the last rays of sunlight cast long shadows across his furrowed brow. “It has to be,” she replied, her voice steady, though a flicker of uncertainty tightened her chest. The map had been a puzzle, its faded lines blurring in her mind like half-remembered dreams, and now the trees stood like ancient sentinels, their silent watch unnerving.\n\nA sudden gust of wind rattled the leaves overhead, sending a shiver down her spine that wasn’t just from the chill in the air. It felt as if the forest itself was holding its breath, waiting for something to unfold. She turned her focus back to the path ahead, her heart pounding a rapid tattoo in her chest, each thump a reminder that they needed to keep moving. “We can’t turn back now,” she murmured, half to herself as she pressed forward.\n\n“Lena!” Marcus"
+      },
+      "quality_pass": false,
+      "rewrite_delta": {
+        "total_delta": 0,
+        "stock_phrase_delta": -1,
+        "specificity_delta": 0,
+        "clarity_delta": 0,
+        "continuity_delta": 0
+      },
+      "retry_decision": {
+        "eligible": true,
+        "reason": "targeted_editorial_miss_after_rewrite",
+        "classification": "targeted_editorial"
+      }
+    },
+    {
+      "attempt": 3,
+      "mode": "recovery_retry",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rescue_model"
+      },
+      "raw_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"“It has to be,” she replied, keeping one hand on the damp bark of a leaning tree as she spoke, her voice steady even as her fingers tightened against th",
+      "normalized_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"“It has to be,” she replied, keeping one hand on the damp bark of a leaning tree as she spoke, her voice steady even as her fingers tightened against th",
+      "raw_length": 662,
+      "normalized_length": 662,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKaIimt4xrGWx1rEKxlMkVNlkiGmm\", \"object\": \"chat.completion\", \"created\": 1773798472, \"model\": \"gpt-5.4-mini-2026-03-17\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"replacement_text\\\":\\\"“It has to be,” she replied, keeping one hand on the damp bark of a leaning tree as she spoke, her voice steady even as her fingers tightened against the rough wood.\\\"},{\\\"slot_id\\\":\\\"s2\\\",\\\"replacement_text\\\":\\\"“Are you sure this is th",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“It has to be,” she replied, her voice steady, though a flicker of uncertainty tightened her chest.",
+          "context_before": "Lena paused, glancing back at him, her heart quickening as the last rays of sunlight cast long shadows across his furrowed brow.",
+          "context_after": "The map had been a puzzle, its faded lines blurring in her mind like half-remembered dreams, and now the trees stood like ancient sentinels, their silent watch unnerving.",
+          "target_reason": "dialogue",
+          "target_phrase": "flicker of"
+        },
+        {
+          "slot_id": "s2",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Are you sure this is the right way?” Marcus’s voice broke the serene stillness, laced with an undercurrent of doubt.",
+          "context_before": "As she navigated deeper into the forest, a sense of urgency thrummed beneath her skin, a heartbeat that resonated with the world around her.",
+          "context_after": "A few paces behind, he trudged through the underbrush, his breaths labored, a reminder of the heavy pack slung across his shoulders.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s3",
+          "unit_type": "sentence_window",
+          "target_type": "dialogue",
+          "original_text": "“We can’t turn back now,” she murmured, half to herself as she pressed forward. “Lena!” Marcus",
+          "context_before": "She turned her focus back to the path ahead, her heart pounding a rapid tattoo in her chest, each thump a reminder that they needed to keep moving.",
+          "context_after": "",
+          "target_reason": "dialogue"
+        }
+      ],
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "“It has to be,” she replied, keeping one hand on the damp bark of a leaning tree as she spoke, her voice steady even as her fingers tightened against the rough wood."
+        },
+        {
+          "slot_id": "s2",
+          "replacement_text": "“Are you sure this is the right way?” Marcus asked from a few paces back, one hand hooked under the strap of his heavy pack as he pushed through the underbrush, his voice breaking the serene stillness with doubt."
+        },
+        {
+          "slot_id": "s3",
+          "replacement_text": "“We can’t turn back now,” she murmured, half to herself, and Lena stepped over a gnarled root, shoulders squared toward the dark path ahead. “Lena!” Marcus"
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_dialogue_grounding_unresolved"
+      }
+    },
+    {
+      "attempt": 4,
+      "mode": "repair_only",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rescue_model"
+      },
+      "raw_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"“It has to be,” she replied, her voice steady as she tightened her grip on the folded map in her hand, though the paper trembled against her palm.\"},{\"s",
+      "normalized_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"“It has to be,” she replied, her voice steady as she tightened her grip on the folded map in her hand, though the paper trembled against her palm.\"},{\"s",
+      "raw_length": 413,
+      "normalized_length": 413,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKaIku2VBSl7GEMAMFvHETDxlKAHT\", \"object\": \"chat.completion\", \"created\": 1773798474, \"model\": \"gpt-5.4-mini-2026-03-17\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"replacement_text\\\":\\\"“It has to be,” she replied, her voice steady as she tightened her grip on the folded map in her hand, though the paper trembled against her palm.\\\"},{\\\"slot_id\\\":\\\"s2\\\",\\\"replacement_text\\\":\\\"“Are you sure this is the right way?” Marcu",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“It has to be,” she replied, her voice steady, though a flicker of uncertainty tightened her chest.",
+          "context_before": "Lena paused, glancing back at him, her heart quickening as the last rays of sunlight cast long shadows across his furrowed brow.",
+          "context_after": "The map had been a puzzle, its faded lines blurring in her mind like half-remembered dreams, and now the trees stood like ancient sentinels, their silent watch unnerving.",
+          "target_reason": "dialogue",
+          "target_phrase": "flicker of"
+        },
+        {
+          "slot_id": "s2",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Are you sure this is the right way?” Marcus’s voice broke the serene stillness, laced with an undercurrent of doubt.",
+          "context_before": "As she navigated deeper into the forest, a sense of urgency thrummed beneath her skin, a heartbeat that resonated with the world around her.",
+          "context_after": "A few paces behind, he trudged through the underbrush, his breaths labored, a reminder of the heavy pack slung across his shoulders.",
+          "target_reason": "dialogue"
+        }
+      ],
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "“It has to be,” she replied, her voice steady as she tightened her grip on the folded map in her hand, though the paper trembled against her palm."
+        },
+        {
+          "slot_id": "s2",
+          "replacement_text": "“Are you sure this is the right way?” Marcus’s voice broke the serene stillness, laced with an undercurrent of doubt, and he adjusted the heavy pack digging into his shoulders."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_dialogue_grounding_unresolved"
+      }
+    }
+  ],
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 2,
+      "meta_free": 5
+    },
+    "total_score": 26,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 303,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": false,
+    "sensory_hits": 6,
+    "concrete_hits": 0,
+    "generic_hits": 1,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The rich, loamy scent of damp earth enveloped Lena as she pushed through the thick underbrush, carefully maneuvering around gnarled roots that twisted like ancient fingers in the fading light. Each step felt deliberate, her boots sinking slightly into the soft ground, releasing the fresh aroma of wet soil mixed with the sharp tang of pine that lingered on her tongue. The towering trees loomed above, their trunks cloaked in shadows that danced around her, creating a tapestry of dark and light that pulsed with life. As she navigated deeper into the forest, a sense of urgency thrummed beneath her skin, a heartbeat that resonated with the world around her.\n\n“Are you sure this is the right way?” Marcus’s voice broke the serene stillness, laced with an undercurrent of doubt. A few paces behind, he trudged through the underbrush, his breaths labored, a reminder of the heavy pack slung across his shoulders.\n\nLena paused, glancing back at him, her heart quickening as the last rays of sunlight cast long shadows across his furrowed brow. “It has to be,” she replied, her voice steady, though a flicker of uncertainty tightened her chest. The map had been a puzzle, its faded lines blurring in her mind like half-remembered dreams, and now the trees stood like ancient sentinels, their silent watch unnerving.\n\nA sudden gust of wind rattled the leaves overhead, sending a shiver down her spine that wasn’t just from the chill in the air. It felt as if the forest itself was holding its breath, waiting for something to unfold. She turned her focus back to the path ahead, her heart pounding a rapid tattoo in her chest, each thump a reminder that they needed to keep moving. “We can’t turn back now,” she murmured, half to herself as she pressed forward.\n\n“Lena!” Marcus"
+  },
+  "critique_snapshot": {
+    "summary": "Lena navigates through a dense forest, feeling the weight of uncertainty as her companion Marcus questions their direction. The atmosphere is thick with tension and sensory details, but doubts about their path linger. A sudden movement in the underbrush heightens their anxiety.",
+    "weaknesses": [
+      "Dialogue lacks grounding in physical action or setting.",
+      "Vague descriptions and generic phrases diminish the scene's impact.",
+      "Continuity issues arise from unclear motivations and character dynamics."
+    ],
+    "continuity_issues": [
+      "Marcus's presence is noted, but his physical actions and emotional state are not consistently portrayed.",
+      "The transition between Lena's internal thoughts and dialogue feels abrupt and unclear."
+    ],
+    "pacing_issues": [
+      "The scene builds tension but does not escalate effectively, leading to a flat emotional arc."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance dialogue grounding by linking it to specific actions or environmental elements.",
+      "Replace vague descriptions with more concrete imagery.",
+      "Clarify character motivations and emotional states to improve continuity."
+    ],
+    "generic_phrase_targets": [
+      "The air was thick with the scent of damp earth",
+      "shadows flickering like whispers",
+      "the pulse of the world beneath her"
+    ],
+    "detail_targets": [
+      "The description of the forest and its atmosphere could be more specific and vivid.",
+      "Marcus's physical state and emotional cues need more detail."
+    ],
+    "dialogue_grounding_targets": [
+      "Marcus's question should be tied to a specific action or observation.",
+      "Lena's responses could reflect her physical state or surroundings more directly."
+    ],
+    "emotional_show_targets": [
+      "Lena's doubt and urgency need to be shown through her physical actions or reactions.",
+      "Marcus's strain should be depicted through more than just dialogue."
+    ],
+    "replacement_targets": [
+      "Replace generic phrases with unique, vivid descriptions that enhance the scene's atmosphere.",
+      "Revise dialogue to include more context and grounding in the setting."
+    ],
+    "grounding_targets": [
+      "Incorporate more sensory details that connect characters to their environment.",
+      "Ensure dialogue reflects the characters' physical states and actions."
+    ],
+    "carryover_targets": []
+  },
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_model_name": "gpt-5.4-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Are you sure this is the right way?” Marcus’s voice broke the serene stillness, laced with an undercurrent of doubt.",
+        "“It has to be,” she replied, her voice steady, though a flicker of uncertainty tightened her chest.",
+        "“We can’t turn back now,” she murmured, half to herself as she pressed forward.",
+        "“Lena!” Marcus"
+      ],
+      "generic_phrases_to_replace": [
+        "flicker of"
+      ],
+      "lines_to_repair": [
+        "“It has to be,” she replied, her voice steady, though a flicker of uncertainty tightened her chest.",
+        "“Are you sure this is the right way?” Marcus’s voice broke the serene stillness, laced with an undercurrent of doubt.",
+        "“We can’t turn back now,” she murmured, half to herself as she pressed forward.",
+        "“Lena!” Marcus"
+      ],
+      "required_concrete_anchor_terms": [
+        "lena",
+        "back",
+        "underbrush"
+      ],
+      "repair_min_word_count": 257,
+      "repair_max_word_count": 454,
+      "min_paragraph_count": 3,
+      "max_paragraph_count": 7
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rescue_model"
+    },
+    "rescue_slots_summary": {
+      "slot_count": 2,
+      "target_types": [
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_dialogue_grounding_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 303,
+    "rewritten_word_count": 303,
+    "min_word_count": 181,
+    "max_word_count": 636,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "his",
+      "and",
+      "was",
+      "lena",
+      "fading",
+      "felt",
+      "back",
+      "air",
+      "each"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "his",
+      "and",
+      "lena",
+      "felt",
+      "back",
+      "each"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 26
+  }
+}

@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\routers\api_v1.py
+# hypothesis_version: 6.138.2
+
+['/api/v1', 'router']

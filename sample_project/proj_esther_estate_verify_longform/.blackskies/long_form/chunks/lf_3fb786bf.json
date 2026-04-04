@@ -1,0 +1,211 @@
+{
+  "chunk_id": "lf_3fb786bf",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0002"
+  ],
+  "order": 2,
+  "continuation_of": "lf_ea89c715",
+  "prompt_fingerprint": "sha256:865e1ed25da25867296a6332e62fda63b658344b42e3bfc426c45b00de0e9321",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 41,
+    "fallback_reason": "rewrite_guardrail_failed"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.01,
+    "total_after_usd": 0.02
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "rewrite_guardrail_failed"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 4,
+      "clarity": 4,
+      "pacing": 5,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 32,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 599,
+    "paragraph_count": 12,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 9,
+    "concrete_hits": 4,
+    "generic_hits": 0,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [
+      "whipped",
+      "narrow",
+      "streets",
+      "carrying",
+      "scent",
+      "earth",
+      "metallic",
+      "river"
+    ],
+    "carryover_hits": 7,
+    "material_carryover_hits": 0,
+    "material_carryover": false,
+    "weak_carryover": false,
+    "generic_risk": false
+  },
+  "critique_snapshot": {
+    "summary": "The scene follows Clara as she navigates a tense moment in a cold, windy street, grappling with her anxiety about an impending meeting. She encounters Tomas, who urges her to confront their discovery, leading to a dialogue filled with urgency and emotional weight.",
+    "weaknesses": [
+      "Overuse of generic phrases and imagery that detracts from the uniqueness of the scene.",
+      "Vague descriptions that fail to create a strong sense of place or atmosphere.",
+      "Dialogue that lacks grounding in physical actions or the immediate setting."
+    ],
+    "continuity_issues": [
+      "The transition from Clara's internal thoughts to dialogue feels abrupt and lacks a smooth flow."
+    ],
+    "pacing_issues": [
+      "The pacing is inconsistent, with some moments feeling rushed while others linger too long on descriptions."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid setting.",
+      "Ground dialogue in physical actions or reactions to the environment.",
+      "Reduce reliance on generic phrases and stock imagery."
+    ],
+    "generic_phrase_targets": [
+      "the wind howled",
+      "narrow streets",
+      "a reminder of the urgency",
+      "the weight she carried",
+      "the chill biting into her lungs"
+    ],
+    "detail_targets": [
+      "the cobblestones slick beneath her boots",
+      "the streetlamp ahead flickered more violently now",
+      "the earthy scent of the damp ground"
+    ],
+    "dialogue_grounding_targets": [
+      "Clara's interruption of Tomas",
+      "Tomas's concern and frustration",
+      "Clara's response about their findings"
+    ],
+    "emotional_show_targets": [
+      "Clara's anxiety about the meeting",
+      "Tomas's determination and worry",
+      "Clara's fear of their discovery's implications"
+    ],
+    "replacement_targets": [
+      "replace 'the wind howled' with a more specific action or sound",
+      "replace 'the chill biting into her lungs' with a more unique sensory description"
+    ],
+    "grounding_targets": [
+      "Clara's physical actions as she interacts with her environment",
+      "Tomas's movements and gestures during their conversation"
+    ],
+    "carryover_targets": [
+      "the urgency thrumming in her veins",
+      "the flickering light playing tricks with her vision",
+      "the shadows dancing along the walls"
+    ]
+  },
+  "attempt_count": 2,
+  "acceptance_reason": "rewrite_guardrail_failed",
+  "rewrite_used": true,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 607,
+    "rewritten_word_count": 599,
+    "min_word_count": 364,
+    "max_word_count": 1274,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": false,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "his",
+      "they",
+      "that",
+      "and",
+      "but",
+      "clara",
+      "you",
+      "not",
+      "urgency"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "his",
+      "they",
+      "that",
+      "and",
+      "but",
+      "clara",
+      "you"
+    ],
+    "outline_anchor_hits": [
+      "the",
+      "her",
+      "she",
+      "and",
+      "against",
+      "that",
+      "wind",
+      "clara",
+      "his"
+    ],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [
+      "tomas",
+      "what"
+    ],
+    "blocking_new_story_elements": [
+      "tomas",
+      "what"
+    ],
+    "authoritative_name_check": true,
+    "uncertainty_triggered": true,
+    "failure_reason": "outline_drift_detected",
+    "accepted": false,
+    "quality_total_score": 32
+  }
+}

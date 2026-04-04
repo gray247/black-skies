@@ -1,0 +1,9 @@
+﻿Clara pressed forward, her heart pounding in rhythm with the heavy rain still drumming against the greenhouse roof, the memory of it pooling around her mind like the water pooling around her feet. Jun’s breath quickened beside her, short and sharp, and she could sense his unease radiating through the damp air. The lantern flickered again, casting a jittery light that barely penetrated the thick shadows of the narrow passage. It was as if the darkness resented their presence, swirling around them, eager to swallow them whole.
+
+“Clara, did you—” Jun started, but the words caught in his throat, replaced by a low growl of uncertainty. She turned to look at him, his coat still slick from the rain, droplets tracing rivulets down the collar, pooling at the base of his neck. The sight struck her with a strange pang of guilt; she should have thought to grab a towel or something dry from the greenhouse. Instead, they stood here, lost in this suffocating gloom, while the world outside seemed to be drenched in violence.
+
+“Focus,” she snapped, the edge in her voice sharper than intended. “We can’t just stand here.” With a quick glance at the chained door ahead, she felt an almost magnetic pull toward it—a confusion of dread and determination. The chain rattled, a faint yet unnerving sound that echoed through the corridor, and she shivered involuntarily, her fingers brushing against the ceramic fox nestled in her pocket, its cool surface a stark reminder of a childhood that felt increasingly distant.
+
+“Do you hear that?” Jun’s voice broke through her thoughts again, urgent and hushed.
+
+“No,” she said too quickly, her words a tight wrap around her own fear. But in the silence that followed, a soft cough echoed from the upper floor, brittle and fragile, like the sound of old wood creaking underfoot. Clara

@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_846ffd56",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:eacc88514a067f1a3f90176dfc29f04692098c511a6e4e3054dbd120f2d94dc6",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The lantern flickered again, a sputtering pulse of light that barely pushed back the shadows clinging to the corners of the narrow corridor",
+    "word_count": 302,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 3,
+      "pacing": 4,
+      "specificity": 4,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 28,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 302,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 10,
+    "concrete_hits": 12,
+    "generic_hits": 1,
+    "stock_phrase_hits": 3,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": true,
+    "text": "The lantern flickered again, a sputtering pulse of light that barely pushed back the shadows clinging to the corners of the narrow corridor. Jun’s fingers tightened around the cracked brass handle, the metal cool and slick from the damp of his coat, which clung to him like a second skin, heavy with the weight of the greenhouse rain. Clara walked beside him, her breath coming in sharp bursts, each inhale laced with the musty scent of old wood and mildew. The air felt thick, almost electric, as if charged with secrets waiting to spill.\n\nHe paused, aware of the mud smeared across the floor, fresh tracks leading deeper into the passage, but no sign of where they had come from. “Clara,” he whispered, his voice barely a breath, “look.” He pointed, but she was already moving, the heels of her shoes echoing against the stone. The sound ricocheted off the walls, amplifying the oppressive silence that followed, a silence that felt too heavy, too watchful.\n\n“Keep quiet,” she shot back, her tone sharp, though he caught the tremor beneath it. He could see her knuckles whitening around the red ribbon tied to her wrist, the parlor key dangling like an unspoken promise of safety. “We shouldn’t be here.”\n\n“What if someone’s—” He choked the words down, swallowing a mix of fear and curiosity. The chain on the service corridor door rattled again, a soft clank that sent a cold shiver racing up his spine. It felt like a heartbeat, distant yet insistent, coming from the other side, testing.\n\nClara’s eyes darted to the door, and he could see the pulse of uncertainty flickering behind them. “We have to go,” she said, but there was a flicker of defiance in her stance, as if she were weighing the risk against something deeper, something"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

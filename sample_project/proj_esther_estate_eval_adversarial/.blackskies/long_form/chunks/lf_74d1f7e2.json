@@ -1,0 +1,88 @@
+{
+  "chunk_id": "lf_74d1f7e2",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0004"
+  ],
+  "order": 4,
+  "continuation_of": "lf_79bff0a9",
+  "prompt_fingerprint": "sha256:3a202042114710a37e81a4d7b06ba316074b433df2a8b6286ea78b6e83d1db5a",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Clara's fingers curled around the smooth, chipped ceramic fox nestled in her coat pocket, a weighty presence that felt both comforting and eerie",
+    "word_count": 613,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.03,
+    "total_after_usd": 0.04
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 4,
+      "clarity": 4,
+      "pacing": 5,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 32,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 613,
+    "paragraph_count": 10,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 11,
+    "concrete_hits": 11,
+    "generic_hits": 1,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [
+      "lantern",
+      "corridor",
+      "key",
+      "chain",
+      "door",
+      "jun's",
+      "fogged",
+      "frigid"
+    ],
+    "carryover_hits": 6,
+    "material_carryover_hits": 0,
+    "material_carryover": false,
+    "weak_carryover": false,
+    "generic_risk": false
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false
+}

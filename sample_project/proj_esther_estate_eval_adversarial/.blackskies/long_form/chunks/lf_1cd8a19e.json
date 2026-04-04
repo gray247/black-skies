@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_1cd8a19e",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:d419aaa8e7449229290baeb80e38ed55a4bd5a8cca1c912c18f125f3506cfb13",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The weak beam of Jun’s cracked brass lantern flickered in the oppressive darkness of the service corridor, casting long shadows that danced along the damp, peeling walls",
+    "word_count": 301,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 30,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 301,
+    "paragraph_count": 6,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 5,
+    "concrete_hits": 12,
+    "generic_hits": 0,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The weak beam of Jun’s cracked brass lantern flickered in the oppressive darkness of the service corridor, casting long shadows that danced along the damp, peeling walls. Clara felt the weight of the air pressing down on her—thick, almost suffocating, as if the very walls were closing in. She tightened her grip around the parlor key that hung from the red ribbon around her wrist, the cool metal pressing against her palm, a small comfort in the mounting tension.\n\n“Did you hear that?” Jun’s voice was barely a whisper, quivering as he shifted his weight, the soaked fabric of his coat clinging to him like a second skin. He peered into the gloom ahead, the lantern’s light sputtering again, flickering dangerously low. Clara could feel the fear radiating off him, a palpable thing that fluttered in the air between them.\n\n“No.” She answered too quickly, her voice sharper than intended. She wished she could pull the words back, see them dissolve into the shadows instead of hanging heavy between them. She didn’t want to acknowledge the unease creeping into her own chest, the echo of that child’s cough still lingering in her mind, haunting her like a specter. “It’s just the wind.”\n\n“Doesn’t sound like wind,” he replied, his gaze still fixed down the corridor, where the dim light revealed muddy prints tracking across the floor, heading further into the darkness. Clara’s heart raced, each beat a reminder of their isolation, of this moment suspended in fear and uncertainty.\n\n“Let’s just…” she began, but the words faltered as the chain rattled against the door behind them, a jarring sound that sent a shiver crawling up her spine. Clara turned, instinctively, her pulse quickening. “Did you—?”\n\nJun shook his head, eyes wide, and she could see the shadows under them deepening, the"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

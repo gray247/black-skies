@@ -1,0 +1,89 @@
+{
+  "chunk_id": "lf_a93116e3",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0002"
+  ],
+  "order": 2,
+  "continuation_of": "lf_66284669",
+  "prompt_fingerprint": "sha256:170c647d0e3b12c17b9bf89f2d539eaaba20ec4fac41f3465d917cf831bdb829",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Clara’s heart drummed in her chest, an erratic metronome urging her forward, but the heavy silence around the nursery door held her back",
+    "word_count": 627,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.01,
+    "total_after_usd": 0.02
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 5,
+      "clarity": 3,
+      "pacing": 5,
+      "specificity": 4,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 31,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 627,
+    "paragraph_count": 9,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 8,
+    "concrete_hits": 10,
+    "generic_hits": 2,
+    "stock_phrase_hits": 2,
+    "carryover_terms": [
+      "nursery",
+      "door",
+      "lantern",
+      "rain",
+      "coat",
+      "key",
+      "corridor",
+      "stood"
+    ],
+    "carryover_hits": 6,
+    "material_carryover_hits": 5,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": true
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null
+}

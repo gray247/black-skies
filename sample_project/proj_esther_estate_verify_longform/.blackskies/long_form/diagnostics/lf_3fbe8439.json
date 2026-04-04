@@ -1,0 +1,498 @@
+{
+  "chunk_id": "lf_3fbe8439",
+  "validation_decision": false,
+  "fallback_reason": "quality_failed",
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "raw_preview": "The wind swept through the narrow alley, curling around the corners like an unwelcome visitor. A discarded newspaper skittered across the cobblestones, its crisp edges fluttering before settling again",
+      "normalized_preview": "The wind swept through the narrow alley, curling around the corners like an unwelcome visitor. A discarded newspaper skittered across the cobblestones, its crisp edges fluttering before settling again",
+      "raw_length": 1776,
+      "normalized_length": 1773,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKTs3kqplllovR3pHlRt17sv61TWC\", \"object\": \"chat.completion\", \"created\": 1773773755, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The wind swept through the narrow alley, curling around the corners like an unwelcome visitor. A discarded newspaper skittered across the cobblestones, its crisp edges fluttering before settling against the damp wall, where the faint smell of mildew mingled with the remnants of last night's ra",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 300,
+        "paragraph_count": 5,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 4,
+          "dialogue": 2,
+          "meta_free": 5
+        },
+        "total_score": 27,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 300,
+        "paragraph_count": 5,
+        "dialogue_present": true,
+        "dialogue_grounded": false,
+        "sensory_hits": 6,
+        "concrete_hits": 2,
+        "generic_hits": 0,
+        "stock_phrase_hits": 0,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The wind swept through the narrow alley, curling around the corners like an unwelcome visitor. A discarded newspaper skittered across the cobblestones, its crisp edges fluttering before settling against the damp wall, where the faint smell of mildew mingled with the remnants of last night's rain. Clara pulled her scarf closer, the wool scratching against her chin as she stepped over a puddle, the water reflecting the gray sky in disjointed shards.\n\nHer breath puffed out in soft clouds, each exhale a reminder of the chill that seeped into her bones. She could hear the distant hum of the city—traffic thrumming like a heartbeat, punctuated by the occasional shout from street vendors hawking their wares. The scent of roasted chestnuts wafted toward her, warm and inviting, but there was no time to linger. There was a rhythm to the day she had to keep, a dance she couldn’t afford to miss.\n\nJust ahead, a group of teenagers loitered, their laughter ringing out like wind chimes, carefree and loud. Clara’s lips tightened involuntarily as she passed them, an uninvited specter in their bubble of youth. She felt the weight of their eyes, curiosity and judgment mixing in a cocktail of youthful exuberance. It was a sensation she knew all too well, that sharp pang of being on the outside, looking in.\n\n“Hey, watch where you’re going!” one of them called, a boy with a messy mop of hair and a smirk that could slice through the tension. Clara’s stomach twisted, but she forced her gaze forward, refusing to show the crack in her facade.\n\n“Sorry,” she muttered, barely audible, her voice swallowed by the city’s cacophony. She quickened her pace, the echo of their laughter fading behind her, replaced by the rhythm of her own heartbeat, thrumming louder with each step."
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "rewrite",
+        "escalated": false,
+        "reason": "rewrite_default"
+      },
+      "raw_preview": "The wind swept through the narrow alley, curling around the corners like a shiver running down Clara’s spine. A discarded newspaper skittered across the cobblestones, its crisp edges fluttering before",
+      "normalized_preview": "The wind swept through the narrow alley, curling around the corners like a shiver running down Clara’s spine. A discarded newspaper skittered across the cobblestones, its crisp edges fluttering before",
+      "raw_length": 1850,
+      "normalized_length": 1850,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKTsLYOrJ2UiNRQTw7CSCdMJt6RnY\", \"object\": \"chat.completion\", \"created\": 1773773773, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The wind swept through the narrow alley, curling around the corners like a shiver running down Clara’s spine. A discarded newspaper skittered across the cobblestones, its crisp edges fluttering before settling against the damp wall, where the faint smell of mildew mingled with the lingering sc",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 304,
+        "paragraph_count": 5,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "guardrail_snapshot": {
+        "evaluated": true,
+        "mode": "rewrite",
+        "outline_titles": [],
+        "beat_refs": [],
+        "locked_facts_evaluated": false,
+        "length_band_evaluated": true,
+        "original_word_count": 300,
+        "rewritten_word_count": 304,
+        "min_word_count": 180,
+        "max_word_count": 630,
+        "within_length_band": true,
+        "outline_fidelity_evaluated": true,
+        "outline_fidelity_pass": true,
+        "original_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "and",
+          "clara",
+          "that",
+          "was",
+          "wind",
+          "against",
+          "where",
+          "out",
+          "each"
+        ],
+        "retained_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "and",
+          "clara",
+          "wind",
+          "against",
+          "where",
+          "each"
+        ],
+        "outline_anchor_hits": [],
+        "required_anchor_overlap": 1,
+        "scene_anchor_drift_detected": false,
+        "new_story_elements": [],
+        "blocking_new_story_elements": [],
+        "authoritative_name_check": false,
+        "uncertainty_triggered": false,
+        "failure_reason": null,
+        "accepted": true,
+        "quality_total_score": 27
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 4,
+          "dialogue": 2,
+          "meta_free": 5
+        },
+        "total_score": 27,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 304,
+        "paragraph_count": 5,
+        "dialogue_present": true,
+        "dialogue_grounded": false,
+        "sensory_hits": 7,
+        "concrete_hits": 2,
+        "generic_hits": 1,
+        "stock_phrase_hits": 0,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The wind swept through the narrow alley, curling around the corners like a shiver running down Clara’s spine. A discarded newspaper skittered across the cobblestones, its crisp edges fluttering before settling against the damp wall, where the faint smell of mildew mingled with the lingering scent of last night's rain. Clara pulled her scarf tighter, the wool scratching against her chin, and stepped carefully over a puddle. The water mirrored the gray sky, broken into disjointed shards by the scattered raindrops.\n\nHer breath emerged in soft clouds, each exhale reminding her of the chill seeping into her bones. The distant hum of the city enveloped her—a heartbeat of traffic punctuated by the shouts of street vendors hawking their goods. The enticing aroma of roasted chestnuts wafted toward her, warm and inviting, yet she had no time to linger. A rhythm pulsed through the day, a dance she couldn’t afford to miss.\n\nAhead, a group of teenagers loitered, their laughter spilling into the air like bright notes in a silent symphony. Clara’s lips tightened involuntarily as she approached, feeling like an uninvited shadow in their vibrant bubble of youth. She sensed the weight of their eyes, a mixture of curiosity and judgment that twisted in her stomach, the familiar pang of being an outsider pressing against her chest.\n\n“Hey, watch where you’re going!” called out a boy with a messy mop of hair, his smirk sharp enough to cut through the tension. Clara’s pulse quickened, but she forced herself to look straight ahead, refusing to acknowledge the crack in her facade.\n\n“Sorry,” she muttered, her voice barely rising above the city’s cacophony, swallowed by the noise around her. She quickened her pace, the echo of their laughter fading behind her, replaced by the steady thrum of her own heartbeat, each step resonating with the weight"
+      },
+      "quality_pass": false,
+      "rewrite_delta": {
+        "total_delta": 0,
+        "stock_phrase_delta": 0,
+        "specificity_delta": 0,
+        "clarity_delta": 0,
+        "continuity_delta": 0
+      },
+      "retry_decision": {
+        "eligible": true,
+        "reason": "targeted_editorial_miss_after_rewrite",
+        "classification": "targeted_editorial"
+      }
+    },
+    {
+      "attempt": 3,
+      "mode": "recovery_retry",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rewrite_retry_model"
+      },
+      "raw_preview": "{\"patches\":[{\"span_id\":\"p1\",\"target_text\":\"Clara’s lips tightened involuntarily as she approached, feeling like an uninvited shadow in their vibrant bubble of youth.\",\"replacement_text\":\"Clara’s lips ",
+      "normalized_preview": "{\"patches\":[{\"span_id\":\"p1\",\"target_text\":\"Clara’s lips tightened involuntarily as she approached, feeling like an uninvited shadow in their vibrant bubble of youth.\",\"replacement_text\":\"Clara’s lips ",
+      "raw_length": 329,
+      "normalized_length": 329,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKTsXj6BgqWnpYXbpi43uycxchK19\", \"object\": \"chat.completion\", \"created\": 1773773785, \"model\": \"gpt-4o-2024-08-06\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"span_id\\\":\\\"p1\\\",\\\"target_text\\\":\\\"Clara’s lips tightened involuntarily as she approached, feeling like an uninvited shadow in their vibrant bubble of youth.\\\",\\\"replacement_text\\\":\\\"Clara’s lips tightened involuntarily as she approached, feeling like an uninvited shadow amidst the",
+      "patch_targets": [
+        {
+          "span_id": "p1",
+          "target_type": "generic",
+          "target_text": "Clara’s lips tightened involuntarily as she approached, feeling like an uninvited shadow in their vibrant bubble of youth.",
+          "target_phrase": "bubble of youth"
+        }
+      ],
+      "patch_response": [
+        {
+          "span_id": "p1",
+          "target_text": "Clara’s lips tightened involuntarily as she approached, feeling like an uninvited shadow in their vibrant bubble of youth.",
+          "replacement_text": "Clara’s lips tightened involuntarily as she approached, feeling like an uninvited shadow amidst their lively chatter and colorful jackets."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_specificity_unresolved"
+      }
+    },
+    {
+      "attempt": 4,
+      "mode": "repair_only",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rewrite_retry_model"
+      },
+      "raw_preview": "```json\n{\"patches\":[{\"span_id\":\"p1\",\"target_text\":\"Clara’s lips tightened involuntarily as she approached, feeling like an uninvited shadow in their vibrant bubble of youth.\",\"replacement_text\":\"Clara",
+      "normalized_preview": "```json\n{\"patches\":[{\"span_id\":\"p1\",\"target_text\":\"Clara’s lips tightened involuntarily as she approached, feeling like an uninvited shadow in their vibrant bubble of youth.\",\"replacement_text\":\"Clara",
+      "raw_length": 337,
+      "normalized_length": 337,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKTsZnoR52AH00KZDrw8Mr7PKdFj8\", \"object\": \"chat.completion\", \"created\": 1773773787, \"model\": \"gpt-4o-2024-08-06\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"```json\\n{\\\"patches\\\":[{\\\"span_id\\\":\\\"p1\\\",\\\"target_text\\\":\\\"Clara’s lips tightened involuntarily as she approached, feeling like an uninvited shadow in their vibrant bubble of youth.\\\",\\\"replacement_text\\\":\\\"Clara’s lips tightened involuntarily as she approached, feeling like an uninvited shadow i",
+      "patch_targets": [
+        {
+          "span_id": "p1",
+          "target_type": "generic",
+          "target_text": "Clara’s lips tightened involuntarily as she approached, feeling like an uninvited shadow in their vibrant bubble of youth.",
+          "target_phrase": "bubble of youth"
+        }
+      ],
+      "patch_response": [
+        {
+          "span_id": "p1",
+          "target_text": "Clara’s lips tightened involuntarily as she approached, feeling like an uninvited shadow in their vibrant bubble of youth.",
+          "replacement_text": "Clara’s lips tightened involuntarily as she approached, feeling like an uninvited shadow in their vibrant circle of carefree laughter."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_specificity_unresolved"
+      }
+    }
+  ],
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 4,
+      "dialogue": 2,
+      "meta_free": 5
+    },
+    "total_score": 27,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 304,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": false,
+    "sensory_hits": 7,
+    "concrete_hits": 2,
+    "generic_hits": 1,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The wind swept through the narrow alley, curling around the corners like a shiver running down Clara’s spine. A discarded newspaper skittered across the cobblestones, its crisp edges fluttering before settling against the damp wall, where the faint smell of mildew mingled with the lingering scent of last night's rain. Clara pulled her scarf tighter, the wool scratching against her chin, and stepped carefully over a puddle. The water mirrored the gray sky, broken into disjointed shards by the scattered raindrops.\n\nHer breath emerged in soft clouds, each exhale reminding her of the chill seeping into her bones. The distant hum of the city enveloped her—a heartbeat of traffic punctuated by the shouts of street vendors hawking their goods. The enticing aroma of roasted chestnuts wafted toward her, warm and inviting, yet she had no time to linger. A rhythm pulsed through the day, a dance she couldn’t afford to miss.\n\nAhead, a group of teenagers loitered, their laughter spilling into the air like bright notes in a silent symphony. Clara’s lips tightened involuntarily as she approached, feeling like an uninvited shadow in their vibrant bubble of youth. She sensed the weight of their eyes, a mixture of curiosity and judgment that twisted in her stomach, the familiar pang of being an outsider pressing against her chest.\n\n“Hey, watch where you’re going!” called out a boy with a messy mop of hair, his smirk sharp enough to cut through the tension. Clara’s pulse quickened, but she forced herself to look straight ahead, refusing to acknowledge the crack in her facade.\n\n“Sorry,” she muttered, her voice barely rising above the city’s cacophony, swallowed by the noise around her. She quickened her pace, the echo of their laughter fading behind her, replaced by the steady thrum of her own heartbeat, each step resonating with the weight"
+  },
+  "critique_snapshot": {
+    "summary": "The scene follows Clara as she navigates a narrow alley, feeling the chill of the wind and the weight of judgment from a group of teenagers. The setting is described with sensory details, but the dialogue lacks grounding in physical action or the environment.",
+    "weaknesses": [
+      "Dialogue is not grounded in physical actions or the setting.",
+      "Some descriptions feel vague and lack specificity.",
+      "The emotional depth could be enhanced through more concrete actions."
+    ],
+    "continuity_issues": [],
+    "pacing_issues": [
+      "The pacing slows down significantly during the introspective moments, which may disrupt the flow."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Ground the dialogue in Clara's physical actions or the setting.",
+      "Replace vague descriptions with more specific imagery.",
+      "Enhance emotional resonance through Clara's interactions with her environment."
+    ],
+    "generic_phrase_targets": [
+      "unwelcome visitor",
+      "like wind chimes",
+      "bubble of youth",
+      "cocktail of youthful exuberance"
+    ],
+    "detail_targets": [
+      "the damp wall",
+      "the remnants of last night's rain",
+      "the echo of their laughter"
+    ],
+    "dialogue_grounding_targets": [
+      "“Hey, watch where you’re going!”",
+      "“Sorry,” she muttered"
+    ],
+    "emotional_show_targets": [
+      "Clara’s lips tightened involuntarily",
+      "her stomach twisted"
+    ],
+    "replacement_targets": [
+      "unwelcome visitor",
+      "bubble of youth"
+    ],
+    "grounding_targets": [
+      "the wool scratching against her chin",
+      "the water reflecting the gray sky"
+    ],
+    "carryover_targets": []
+  },
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [],
+      "generic_phrases_to_replace": [
+        "bubble of youth"
+      ],
+      "lines_to_repair": [
+        "Clara’s lips tightened involuntarily as she approached, feeling like an uninvited shadow in their vibrant bubble of youth."
+      ],
+      "required_concrete_anchor_terms": [
+        "clara",
+        "against",
+        "where"
+      ],
+      "repair_min_word_count": 258,
+      "repair_max_word_count": 456,
+      "min_paragraph_count": 3,
+      "max_paragraph_count": 7
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-4o",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rewrite_retry_model"
+    },
+    "patch_targets_summary": {
+      "target_count": 1,
+      "target_types": [
+        "generic"
+      ]
+    },
+    "rescue_failure_class": "patch_specificity_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 300,
+    "rewritten_word_count": 304,
+    "min_word_count": 180,
+    "max_word_count": 630,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "and",
+      "clara",
+      "that",
+      "was",
+      "wind",
+      "against",
+      "where",
+      "out",
+      "each"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "and",
+      "clara",
+      "wind",
+      "against",
+      "where",
+      "each"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 27
+  }
+}

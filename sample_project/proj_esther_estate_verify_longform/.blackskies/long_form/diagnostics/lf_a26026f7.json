@@ -1,0 +1,434 @@
+{
+  "chunk_id": "lf_a26026f7",
+  "validation_decision": false,
+  "fallback_reason": "quality_failed",
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "raw_preview": "The rain drummed steadily against the pavement, a rhythmic patter that echoed through the empty streets like a heartbeat—steady, insistent. Anna pulled her collar tighter around her neck, feeling the ",
+      "normalized_preview": "The rain drummed steadily against the pavement, a rhythmic patter that echoed through the empty streets like a heartbeat—steady, insistent. Anna pulled her collar tighter around her neck, feeling the ",
+      "raw_length": 1810,
+      "normalized_length": 1810,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKETpTRARvg9eaCIhlT48A9xGbS6b\", \"object\": \"chat.completion\", \"created\": 1773714593, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The rain drummed steadily against the pavement, a rhythmic patter that echoed through the empty streets like a heartbeat—steady, insistent. Anna pulled her collar tighter around her neck, feeling the damp chill seep through her thin coat. Each drop that splattered against the ground sent up ti",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 303,
+        "paragraph_count": 4,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 28,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 303,
+        "paragraph_count": 4,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 3,
+        "concrete_hits": 1,
+        "generic_hits": 0,
+        "stock_phrase_hits": 1,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The rain drummed steadily against the pavement, a rhythmic patter that echoed through the empty streets like a heartbeat—steady, insistent. Anna pulled her collar tighter around her neck, feeling the damp chill seep through her thin coat. Each drop that splattered against the ground sent up tiny bursts of mist, clinging to her skin, reminding her of the heaviness that hung in the air, thick with unspoken words and half-formed thoughts. She stood at the corner, the crackle of the streetlamp casting an orange glow that illuminated the small puddles forming at her feet.\n\nThe world around her felt muted, the colors washed out beneath the relentless downpour. She watched as the water pooled, swirling in little eddies, carrying bits of debris—discarded leaves, a crumpled piece of paper—toward the drain like forgotten dreams. A shiver traced her spine as she thought of the conversation that had unraveled earlier, leaving her heart feeling heavy, a stone lodged in her chest. “You can’t keep hiding,” Mark had said, his voice low but firm, piercing through the fog of her reluctance. But the truth of it stung, and she had turned away, her resolve slipping like the rainwater that danced down the street.\n\n“Anna!” The sharp call sliced through her reverie, and she turned, blinking as the familiar figure approached, his silhouette framed by the flickering light. It was Tom, his hair plastered to his forehead, a wild grin breaking through the rain-soaked gloom. “You waiting for a bus or just contemplating life’s mysteries?” He held his arms out, as if to embrace the downpour, a stark contrast to her stiff posture.\n\n“Maybe a bit of both,” she replied, forcing a smile that felt foreign on her lips. The warmth of his presence was a comfort, though it also deepened the ache of uncertainty gnawing at"
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "rewrite",
+        "escalated": false,
+        "reason": "rewrite_default"
+      },
+      "raw_preview": "her insides. The rain drummed steadily against the pavement, each drop resonating like a heartbeat in the empty streets. Anna pulled her collar tighter around her neck, the damp chill creeping beneath",
+      "normalized_preview": "her insides. The rain drummed steadily against the pavement, each drop resonating like a heartbeat in the empty streets. Anna pulled her collar tighter around her neck, the damp chill creeping beneath",
+      "raw_length": 1806,
+      "normalized_length": 1806,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKEU0uRxeUQDwg9Ru7cKqIOPxWclv\", \"object\": \"chat.completion\", \"created\": 1773714604, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"her insides. The rain drummed steadily against the pavement, each drop resonating like a heartbeat in the empty streets. Anna pulled her collar tighter around her neck, the damp chill creeping beneath her thin coat, amplifying the weight of her thoughts. As the droplets splashed on the ground,",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 306,
+        "paragraph_count": 4,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "guardrail_snapshot": {
+        "evaluated": true,
+        "mode": "rewrite",
+        "outline_titles": [],
+        "beat_refs": [],
+        "locked_facts_evaluated": false,
+        "length_band_evaluated": true,
+        "original_word_count": 303,
+        "rewritten_word_count": 306,
+        "min_word_count": 181,
+        "max_word_count": 636,
+        "within_length_band": true,
+        "outline_fidelity_evaluated": true,
+        "outline_fidelity_pass": true,
+        "original_anchor_terms": [
+          "the",
+          "her",
+          "that",
+          "she",
+          "his",
+          "and",
+          "had",
+          "against",
+          "anna",
+          "feeling",
+          "felt",
+          "out"
+        ],
+        "retained_anchor_terms": [
+          "the",
+          "her",
+          "that",
+          "she",
+          "his",
+          "and",
+          "had",
+          "anna",
+          "felt"
+        ],
+        "outline_anchor_hits": [],
+        "required_anchor_overlap": 1,
+        "scene_anchor_drift_detected": false,
+        "new_story_elements": [],
+        "blocking_new_story_elements": [],
+        "authoritative_name_check": false,
+        "uncertainty_triggered": false,
+        "failure_reason": null,
+        "accepted": true,
+        "quality_total_score": 28
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 28,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 306,
+        "paragraph_count": 4,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 3,
+        "concrete_hits": 1,
+        "generic_hits": 0,
+        "stock_phrase_hits": 0,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "her insides. The rain drummed steadily against the pavement, each drop resonating like a heartbeat in the empty streets. Anna pulled her collar tighter around her neck, the damp chill creeping beneath her thin coat, amplifying the weight of her thoughts. As the droplets splashed on the ground, they sent up tiny bursts of mist that clung to her skin, mingling with the heaviness in the air thick with unspoken words. She stood at the corner, the flickering streetlamp casting an orange glow that illuminated the small puddles forming at her feet, each one a reflection of her swirling emotions.\n\nThe world felt washed out, colors muted beneath the relentless downpour. She watched the water pool and swirl, bits of debris carried along—discarded leaves, a crumpled piece of paper—remnants of forgotten moments. A shiver traced her spine as memories of the earlier conversation with Mark crept in, each recollection a sharp reminder of her unresolved feelings. “You can’t keep hiding,” he had said, his voice steady yet insistent, cutting through the fog that enveloped her. The truth of those words stung, and she had turned away, her resolve slipping like the rainwater that danced down the street.\n\n“Anna!” The sharp call sliced through her reverie, and she turned, blinking as Tom emerged through the curtain of rain, his silhouette framed by the flickering light. Water dripped from his hair, which clung to his forehead, but a wild grin broke through the gloom. “You waiting for a bus or just lost in thought?” He spread his arms wide, inviting the rain, embodying a carefree spirit that felt so foreign to her.\n\n“Maybe a bit of both,” she replied, forcing a smile that felt like a mask over her unease. The warmth of his presence was a comfort, yet it deepened the ache of uncertainty gnawing at her"
+      },
+      "quality_pass": false,
+      "rewrite_delta": {
+        "total_delta": 0,
+        "stock_phrase_delta": 1,
+        "specificity_delta": 0,
+        "clarity_delta": 0,
+        "continuity_delta": 0
+      },
+      "retry_decision": {
+        "eligible": true,
+        "reason": "targeted_editorial_miss_after_rewrite",
+        "classification": "targeted_editorial"
+      }
+    },
+    {
+      "attempt": 3,
+      "mode": "recovery_retry",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rewrite_retry_model"
+      },
+      "raw_preview": "{\"patches\":[{\"span_id\":\"p1\",\"target_text\":\"“Maybe a bit of both,” she replied, forcing a smile that felt like a mask over her unease.\",\"replacement_text\":\"“Maybe a bit of both,” she replied, attemptin",
+      "normalized_preview": "{\"patches\":[{\"span_id\":\"p1\",\"target_text\":\"“Maybe a bit of both,” she replied, forcing a smile that felt like a mask over her unease.\",\"replacement_text\":\"“Maybe a bit of both,” she replied, attemptin",
+      "raw_length": 316,
+      "normalized_length": 316,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKEU5iHwmAuI0Vn6yJq7srWnuFkBx\", \"object\": \"chat.completion\", \"created\": 1773714609, \"model\": \"gpt-4o-2024-08-06\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"span_id\\\":\\\"p1\\\",\\\"target_text\\\":\\\"“Maybe a bit of both,” she replied, forcing a smile that felt like a mask over her unease.\\\",\\\"replacement_text\\\":\\\"“Maybe a bit of both,” she replied, attempting a smile while tucking a loose strand of wet hair behind her ear, her fingers trembli",
+      "patch_targets": [],
+      "patch_response": [
+        {
+          "span_id": "p1",
+          "target_text": "“Maybe a bit of both,” she replied, forcing a smile that felt like a mask over her unease.",
+          "replacement_text": "“Maybe a bit of both,” she replied, attempting a smile while tucking a loose strand of wet hair behind her ear, her fingers trembling slightly from the cold."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_target_missing"
+      }
+    }
+  ],
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 28,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 306,
+    "paragraph_count": 4,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 3,
+    "concrete_hits": 1,
+    "generic_hits": 0,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "her insides. The rain drummed steadily against the pavement, each drop resonating like a heartbeat in the empty streets. Anna pulled her collar tighter around her neck, the damp chill creeping beneath her thin coat, amplifying the weight of her thoughts. As the droplets splashed on the ground, they sent up tiny bursts of mist that clung to her skin, mingling with the heaviness in the air thick with unspoken words. She stood at the corner, the flickering streetlamp casting an orange glow that illuminated the small puddles forming at her feet, each one a reflection of her swirling emotions.\n\nThe world felt washed out, colors muted beneath the relentless downpour. She watched the water pool and swirl, bits of debris carried along—discarded leaves, a crumpled piece of paper—remnants of forgotten moments. A shiver traced her spine as memories of the earlier conversation with Mark crept in, each recollection a sharp reminder of her unresolved feelings. “You can’t keep hiding,” he had said, his voice steady yet insistent, cutting through the fog that enveloped her. The truth of those words stung, and she had turned away, her resolve slipping like the rainwater that danced down the street.\n\n“Anna!” The sharp call sliced through her reverie, and she turned, blinking as Tom emerged through the curtain of rain, his silhouette framed by the flickering light. Water dripped from his hair, which clung to his forehead, but a wild grin broke through the gloom. “You waiting for a bus or just lost in thought?” He spread his arms wide, inviting the rain, embodying a carefree spirit that felt so foreign to her.\n\n“Maybe a bit of both,” she replied, forcing a smile that felt like a mask over her unease. The warmth of his presence was a comfort, yet it deepened the ache of uncertainty gnawing at her"
+  },
+  "critique_snapshot": {
+    "summary": "The scene depicts Anna standing in the rain, reflecting on a heavy conversation with Mark while waiting for someone. Tom arrives, lightening the mood but also highlighting Anna's internal conflict.",
+    "weaknesses": [
+      "Lack of strong continuity in Anna's emotional state and her interactions with Tom.",
+      "Generic descriptions that do not provide a unique sense of place or character.",
+      "Dialogue that feels disconnected from the physical setting and actions."
+    ],
+    "continuity_issues": [
+      "Anna's emotional shift from heavy contemplation to light interaction with Tom lacks a smooth transition.",
+      "Tom's entrance feels abrupt and does not build on the tension established by Anna's earlier thoughts."
+    ],
+    "pacing_issues": [
+      "The pacing slows significantly during Anna's introspection, which may detract from the urgency of the scene."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance the emotional continuity between Anna's thoughts and her dialogue with Tom.",
+      "Ground the dialogue in more physical actions or reactions to the setting."
+    ],
+    "generic_phrase_targets": [
+      "The world around her felt muted",
+      "a stone lodged in her chest",
+      "contemplating life’s mysteries"
+    ],
+    "detail_targets": [
+      "Descriptions of the rain and its effects could be more vivid and specific.",
+      "Tom's entrance and demeanor could be more closely tied to the atmosphere."
+    ],
+    "dialogue_grounding_targets": [
+      "Make Tom's dialogue more relevant to Anna's emotional state or the setting."
+    ],
+    "emotional_show_targets": [
+      "Show Anna's internal conflict more through her actions and reactions rather than just thoughts."
+    ],
+    "replacement_targets": [
+      "Replace generic phrases with more original expressions that convey Anna's feelings."
+    ],
+    "grounding_targets": [
+      "Incorporate more sensory details that connect Anna's emotional state to her physical surroundings."
+    ],
+    "carryover_targets": [
+      "Ensure that Anna's emotional journey is reflected in her interactions with Tom, creating a cohesive narrative thread."
+    ]
+  },
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": false,
+    "repair_only_pass_rescued": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [],
+      "generic_phrases_to_replace": [],
+      "lines_to_repair": [],
+      "required_concrete_anchor_terms": [
+        "rain",
+        "each",
+        "anna"
+      ],
+      "repair_min_word_count": 260,
+      "repair_max_word_count": 459,
+      "min_paragraph_count": 2,
+      "max_paragraph_count": 6
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-4o",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rewrite_retry_model"
+    },
+    "patch_targets_summary": {
+      "target_count": 0,
+      "target_types": []
+    },
+    "rescue_failure_class": "patch_target_missing"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 303,
+    "rewritten_word_count": 306,
+    "min_word_count": 181,
+    "max_word_count": 636,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "that",
+      "she",
+      "his",
+      "and",
+      "had",
+      "against",
+      "anna",
+      "feeling",
+      "felt",
+      "out"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "that",
+      "she",
+      "his",
+      "and",
+      "had",
+      "anna",
+      "felt"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 28
+  }
+}

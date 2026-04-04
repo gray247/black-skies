@@ -1,0 +1,580 @@
+{
+  "chunk_id": "lf_98978d0b",
+  "validation_decision": false,
+  "fallback_reason": "quality_failed",
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "raw_preview": "The chill of the early morning air slipped through the cracks of the old wooden door, sending a shiver down Lena’s spine as she stepped outside. The world was a canvas of muted grays and soft blues, t",
+      "normalized_preview": "The chill of the early morning air slipped through the cracks of the old wooden door, sending a shiver down Lena’s spine as she stepped outside. The world was a canvas of muted grays and soft blues, t",
+      "raw_length": 1826,
+      "normalized_length": 1824,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKmehrjICIXKixtwnlA5Nhn1xvvIQ\", \"object\": \"chat.completion\", \"created\": 1773845963, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The chill of the early morning air slipped through the cracks of the old wooden door, sending a shiver down Lena’s spine as she stepped outside. The world was a canvas of muted grays and soft blues, the dawn light filtering through the mist that hung like a ghost in the trees. She wrapped her ",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 314,
+        "paragraph_count": 5,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 2,
+          "meta_free": 5
+        },
+        "total_score": 26,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 314,
+        "paragraph_count": 5,
+        "dialogue_present": true,
+        "dialogue_grounded": false,
+        "sensory_hits": 7,
+        "concrete_hits": 1,
+        "generic_hits": 1,
+        "stock_phrase_hits": 1,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The chill of the early morning air slipped through the cracks of the old wooden door, sending a shiver down Lena’s spine as she stepped outside. The world was a canvas of muted grays and soft blues, the dawn light filtering through the mist that hung like a ghost in the trees. She wrapped her arms around herself, feeling the coarse fabric of her sweater scratch against her skin, a familiar discomfort that somehow felt grounding. The scent of damp earth mingled with the faint sweetness of wildflowers, stirring memories of summers spent wandering these woods as a child.\n\nWith each step on the leaf-strewn path, the crunch beneath her boots echoed in the stillness, a reminder of her presence in the vastness of the forest. Birds started their morning chorus, their melodies weaving through the branches overhead, a symphony she hadn’t realized she’d missed until now. She paused, tilting her head to catch the notes, a fleeting smile gracing her lips. It was a small, sacred moment, one that reminded her of the simplicity of being alive, of the beauty that thrived in the quiet corners of the world.\n\nBut then, a rustle in the underbrush pulled her back to the present, her heart quickening as she scanned the shadows. “Hello?” she called, her voice hesitant, the echo betraying her uncertainty. The woods held their breath, and for a heartbeat, she thought she might be alone, just her and the whispering trees. Then, from behind a sturdy oak, a figure emerged, his silhouette sharp against the gentle haze.\n\n“Lena?” His voice was low, laced with surprise and something else she couldn’t quite place. She squinted against the pale light, her breath catching as the familiar face came into focus. It was Oliver, his hair tousled and damp from the morning dew, as if he’d just emerged from a dream.\n\n“What are you doing"
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "rewrite",
+        "escalated": false,
+        "reason": "rewrite_default"
+      },
+      "raw_preview": "The chill of the early morning air slipped through the cracks of the old wooden door, sending a shiver down Lena’s spine as she stepped outside. The world around her unfolded in shades of slate gray a",
+      "normalized_preview": "The chill of the early morning air slipped through the cracks of the old wooden door, sending a shiver down Lena’s spine as she stepped outside. The world around her unfolded in shades of slate gray a",
+      "raw_length": 1869,
+      "normalized_length": 1868,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKmezYcd3RA2m6YrL7uFBm0FI7ViG\", \"object\": \"chat.completion\", \"created\": 1773845981, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The chill of the early morning air slipped through the cracks of the old wooden door, sending a shiver down Lena’s spine as she stepped outside. The world around her unfolded in shades of slate gray and powdery blue, the dawn light filtering through the thick mist that clung to the trees like ",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 322,
+        "paragraph_count": 4,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "guardrail_snapshot": {
+        "evaluated": true,
+        "mode": "rewrite",
+        "outline_titles": [],
+        "beat_refs": [],
+        "locked_facts_evaluated": false,
+        "length_band_evaluated": true,
+        "original_word_count": 314,
+        "rewritten_word_count": 322,
+        "min_word_count": 188,
+        "max_word_count": 659,
+        "within_length_band": true,
+        "outline_fidelity_evaluated": true,
+        "outline_fidelity_pass": true,
+        "original_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "and",
+          "was",
+          "that",
+          "morning",
+          "against",
+          "his",
+          "lena",
+          "world",
+          "light"
+        ],
+        "retained_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "and",
+          "that",
+          "morning",
+          "against",
+          "his",
+          "lena",
+          "world"
+        ],
+        "outline_anchor_hits": [],
+        "required_anchor_overlap": 1,
+        "scene_anchor_drift_detected": false,
+        "new_story_elements": [],
+        "blocking_new_story_elements": [],
+        "authoritative_name_check": false,
+        "uncertainty_triggered": false,
+        "failure_reason": null,
+        "accepted": true,
+        "quality_total_score": 26
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 2,
+          "meta_free": 5
+        },
+        "total_score": 26,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 322,
+        "paragraph_count": 4,
+        "dialogue_present": true,
+        "dialogue_grounded": false,
+        "sensory_hits": 7,
+        "concrete_hits": 1,
+        "generic_hits": 1,
+        "stock_phrase_hits": 0,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The chill of the early morning air slipped through the cracks of the old wooden door, sending a shiver down Lena’s spine as she stepped outside. The world around her unfolded in shades of slate gray and powdery blue, the dawn light filtering through the thick mist that clung to the trees like a delicate veil. She wrapped her arms around herself, the coarse fabric of her sweater scratching against her skin, a discomfort that felt oddly reassuring. The scent of damp earth mixed with the sweet hint of wildflowers, awakening memories of summers spent exploring these woods as a child.\n\nAs she walked, each crunch of leaves beneath her boots broke the stillness, a reminder of her presence in the vastness of the forest. The birds began their morning chorus, their melodies weaving through the branches overhead, a sound she hadn’t realized she’d missed until now. She paused, tilting her head to catch the notes, a soft smile creeping across her lips. This fleeting moment, cradled in the arms of nature, reminded her of the raw thrill of being alive, of the beauty nestled in the quiet corners of the world.\n\nBut then, a rustle in the underbrush jolted her back to reality, her heart quickening as she scanned the shadows. She took a cautious step forward, the damp ground yielding slightly beneath her boots. “Hello?” she called, her voice trembling slightly, the echo of her uncertainty hanging in the air. The woods felt alive, holding their breath, and for a heartbeat, it seemed as though she might be alone, just her and the whispering trees.\n\nThen, from behind a sturdy oak, a figure emerged, his silhouette stark against the soft haze. Lena’s breath caught in her throat as she squinted to make out the familiar features. “Lena?” His voice was low, carrying a hint of surprise and something deeper that stirred a flutter in her chest. He stepped closer, his"
+      },
+      "quality_pass": false,
+      "rewrite_delta": {
+        "total_delta": 0,
+        "stock_phrase_delta": 1,
+        "specificity_delta": 0,
+        "clarity_delta": 0,
+        "continuity_delta": 0
+      },
+      "retry_decision": {
+        "eligible": true,
+        "reason": "targeted_editorial_miss_after_rewrite",
+        "classification": "targeted_editorial"
+      }
+    },
+    {
+      "attempt": 3,
+      "mode": "recovery_retry",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rescue_model"
+      },
+      "raw_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"“Hello?” she called, taking a cautious step forward on the damp ground, her boots pressing into the yielding earth as her trembling voice carried throug",
+      "normalized_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"“Hello?” she called, taking a cautious step forward on the damp ground, her boots pressing into the yielding earth as her trembling voice carried throug",
+      "raw_length": 462,
+      "normalized_length": 462,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKmfCzQgm53y7tpDuCLVbBJYrxdIZ\", \"object\": \"chat.completion\", \"created\": 1773845994, \"model\": \"gpt-5.4-mini-2026-03-17\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"replacement_text\\\":\\\"“Hello?” she called, taking a cautious step forward on the damp ground, her boots pressing into the yielding earth as her trembling voice carried through the still air of the woods and the whispering trees.\\\"},{\\\"slot_id\\\":\\\"s2\\\",\\\"repl",
+      "repair_plan": [
+        {
+          "slot_id": "s1",
+          "subject_or_speaker": "she",
+          "physical_anchor": "a cautious step forward on the damp ground, boots pressing into the yielding earth",
+          "environmental_anchor": "the woods, the whispering trees, the morning mist",
+          "action_or_interaction": "have her call out once into the trees, with her trembling voice carrying through the still air",
+          "preserve_meaning": "keep her uncertain greeting and the sense of nervous searching in the forest",
+          "preserve_scene_role": "continue the moment of tentative dialogue before the figure fully responds"
+        },
+        {
+          "slot_id": "s2",
+          "subject_or_speaker": "he",
+          "physical_anchor": "standing just beyond the oak and then stepping closer into the mist",
+          "environmental_anchor": "the soft haze between the trees, early morning forest light",
+          "action_or_interaction": "have him speak Lena’s name while moving nearer, with his voice low and surprised",
+          "preserve_meaning": "keep the recognition, surprise, and deeper feeling in his tone",
+          "preserve_scene_role": "advance the reveal and tighten the connection between the two characters"
+        }
+      ],
+      "repair_plan_raw_preview": "{\"plans\":[{\"slot_id\":\"s1\",\"subject_or_speaker\":\"she\",\"physical_anchor\":\"a cautious step forward on the damp ground, boots pressing into the yielding earth\",\"environmental_anchor\":\"the woods, the whisp",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Hello?” she called, her voice trembling slightly, the echo of her uncertainty hanging in the air.",
+          "context_before": "She took a cautious step forward, the damp ground yielding slightly beneath her boots.",
+          "context_after": "The woods felt alive, holding their breath, and for a heartbeat, it seemed as though she might be alone, just her and the whispering trees.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s2",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Lena?” His voice was low, carrying a hint of surprise and something deeper that stirred a flutter in her chest.",
+          "context_before": "Lena’s breath caught in her throat as she squinted to make out the familiar features.",
+          "context_after": "He stepped closer, his",
+          "target_reason": "dialogue"
+        }
+      ],
+      "rescue_generation_strategy": "structured_slot_patch",
+      "configured_rescue_generation_strategy": "structured_slot_patch",
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "“Hello?” she called, taking a cautious step forward on the damp ground, her boots pressing into the yielding earth as her trembling voice carried through the still air of the woods and the whispering trees."
+        },
+        {
+          "slot_id": "s2",
+          "replacement_text": "“Lena?” he said, standing just beyond the oak and then stepping closer into the mist, his voice low and surprised in the soft haze of the early morning forest light."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_dialogue_grounding_unresolved"
+      }
+    },
+    {
+      "attempt": 4,
+      "mode": "repair_only",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rescue_model"
+      },
+      "raw_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"“Hello?” she called from where she stood, her voice trembling slightly as her boots pressed into the damp ground, the echo of her uncertainty carrying t",
+      "normalized_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"“Hello?” she called from where she stood, her voice trembling slightly as her boots pressed into the damp ground, the echo of her uncertainty carrying t",
+      "raw_length": 452,
+      "normalized_length": 452,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKmfF8sncIrYH4uRTdxEClLO6Q5PF\", \"object\": \"chat.completion\", \"created\": 1773845997, \"model\": \"gpt-5.4-mini-2026-03-17\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"replacement_text\\\":\\\"“Hello?” she called from where she stood, her voice trembling slightly as her boots pressed into the damp ground, the echo of her uncertainty carrying through the woods and rustling underbrush.\\\"},{\\\"slot_id\\\":\\\"s2\\\",\\\"replacement_text\\",
+      "repair_plan": [
+        {
+          "slot_id": "s1",
+          "subject_or_speaker": "she / Lena",
+          "physical_anchor": "her boots on the damp ground",
+          "environmental_anchor": "the woods, the rustling underbrush, the echo through the trees",
+          "action_or_interaction": "have her call out while standing still after a cautious step forward, with the damp ground giving under her boots",
+          "preserve_meaning": "keep the uncertain greeting and trembling voice as she searches the woods for a response",
+          "preserve_scene_role": "maintain the moment of tentative contact before the figure answers"
+        },
+        {
+          "slot_id": "s2",
+          "subject_or_speaker": "he",
+          "physical_anchor": "his voice as he steps closer from behind the oak",
+          "environmental_anchor": "the sturdy oak and the soft haze in the woods",
+          "action_or_interaction": "have him say her name while moving one step nearer, keeping the encounter face-to-face",
+          "preserve_meaning": "keep the surprised recognition and the deeper undertone that affects Lena",
+          "preserve_scene_role": "maintain the reveal of a familiar figure and the immediate emotional shift in the exchange"
+        }
+      ],
+      "repair_plan_raw_preview": "{\"plans\":[{\"slot_id\":\"s1\",\"subject_or_speaker\":\"she / Lena\",\"physical_anchor\":\"her boots on the damp ground\",\"environmental_anchor\":\"the woods, the rustling underbrush, the echo through the trees\",\"ac",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Hello?” she called, her voice trembling slightly, the echo of her uncertainty hanging in the air.",
+          "context_before": "She took a cautious step forward, the damp ground yielding slightly beneath her boots.",
+          "context_after": "The woods felt alive, holding their breath, and for a heartbeat, it seemed as though she might be alone, just her and the whispering trees.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s2",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Lena?” His voice was low, carrying a hint of surprise and something deeper that stirred a flutter in her chest.",
+          "context_before": "Lena’s breath caught in her throat as she squinted to make out the familiar features.",
+          "context_after": "He stepped closer, his",
+          "target_reason": "dialogue"
+        }
+      ],
+      "rescue_generation_strategy": "structured_slot_patch",
+      "configured_rescue_generation_strategy": "structured_slot_patch",
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "“Hello?” she called from where she stood, her voice trembling slightly as her boots pressed into the damp ground, the echo of her uncertainty carrying through the woods and rustling underbrush."
+        },
+        {
+          "slot_id": "s2",
+          "replacement_text": "“Lena?” he said, stepping one pace closer from behind the sturdy oak, his low voice carrying a hint of surprise and something deeper through the soft haze in the woods."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_dialogue_grounding_unresolved"
+      }
+    }
+  ],
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 2,
+      "meta_free": 5
+    },
+    "total_score": 26,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 322,
+    "paragraph_count": 4,
+    "dialogue_present": true,
+    "dialogue_grounded": false,
+    "sensory_hits": 7,
+    "concrete_hits": 1,
+    "generic_hits": 1,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The chill of the early morning air slipped through the cracks of the old wooden door, sending a shiver down Lena’s spine as she stepped outside. The world around her unfolded in shades of slate gray and powdery blue, the dawn light filtering through the thick mist that clung to the trees like a delicate veil. She wrapped her arms around herself, the coarse fabric of her sweater scratching against her skin, a discomfort that felt oddly reassuring. The scent of damp earth mixed with the sweet hint of wildflowers, awakening memories of summers spent exploring these woods as a child.\n\nAs she walked, each crunch of leaves beneath her boots broke the stillness, a reminder of her presence in the vastness of the forest. The birds began their morning chorus, their melodies weaving through the branches overhead, a sound she hadn’t realized she’d missed until now. She paused, tilting her head to catch the notes, a soft smile creeping across her lips. This fleeting moment, cradled in the arms of nature, reminded her of the raw thrill of being alive, of the beauty nestled in the quiet corners of the world.\n\nBut then, a rustle in the underbrush jolted her back to reality, her heart quickening as she scanned the shadows. She took a cautious step forward, the damp ground yielding slightly beneath her boots. “Hello?” she called, her voice trembling slightly, the echo of her uncertainty hanging in the air. The woods felt alive, holding their breath, and for a heartbeat, it seemed as though she might be alone, just her and the whispering trees.\n\nThen, from behind a sturdy oak, a figure emerged, his silhouette stark against the soft haze. Lena’s breath caught in her throat as she squinted to make out the familiar features. “Lena?” His voice was low, carrying a hint of surprise and something deeper that stirred a flutter in her chest. He stepped closer, his"
+  },
+  "critique_snapshot": {
+    "summary": "The scene follows Lena as she steps outside into the early morning, experiencing the chill air and the beauty of the forest. She reflects on her childhood memories while enjoying the sounds of nature. However, her tranquility is interrupted by a rustle in the underbrush, leading to the unexpected appearance of Oliver.",
+    "weaknesses": [
+      "The dialogue lacks grounding in physical action or setting, making it feel disconnected.",
+      "There are vague descriptions that do not fully immerse the reader in the scene.",
+      "The emotional resonance is somewhat diluted by generic phrasing."
+    ],
+    "continuity_issues": [
+      "The transition from Lena's introspection to the sudden appearance of Oliver feels abrupt and lacks buildup."
+    ],
+    "pacing_issues": [
+      "The pacing slows significantly during Lena's reflective moments, which could be balanced with more action or dialogue."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance the grounding of dialogue in physical actions or environmental details.",
+      "Replace vague descriptions with more specific imagery to create a stronger sense of place.",
+      "Eliminate generic phrases and stock expressions to improve emotional impact."
+    ],
+    "generic_phrase_targets": [
+      "a familiar discomfort that somehow felt grounding",
+      "the simplicity of being alive",
+      "the beauty that thrived in the quiet corners of the world"
+    ],
+    "detail_targets": [
+      "The description of the mist and its effect on the trees could be more vivid.",
+      "The sensory details of the forest could include more specific flora and fauna."
+    ],
+    "dialogue_grounding_targets": [
+      "The dialogue 'Hello?' should be connected to a physical action, such as Lena moving closer to the sound."
+    ],
+    "emotional_show_targets": [
+      "Show Lena's emotions through her actions or reactions rather than telling the reader how she feels."
+    ],
+    "replacement_targets": [
+      "Replace 'a canvas of muted grays and soft blues' with a more specific description of the colors and their effects on Lena's mood.",
+      "Change 'a symphony she hadn’t realized she’d missed' to something more unique that reflects her personal experience."
+    ],
+    "grounding_targets": [
+      "Incorporate more physical interactions with the environment, such as Lena brushing her fingers against the leaves or feeling the ground beneath her feet."
+    ],
+    "carryover_targets": []
+  },
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_model_name": "gpt-5.4-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Hello?” she called, her voice trembling slightly, the echo of her uncertainty hanging in the air.",
+        "“Lena?” His voice was low, carrying a hint of surprise and something deeper that stirred a flutter in her chest."
+      ],
+      "generic_phrases_to_replace": [],
+      "lines_to_repair": [
+        "“Hello?” she called, her voice trembling slightly, the echo of her uncertainty hanging in the air.",
+        "“Lena?” His voice was low, carrying a hint of surprise and something deeper that stirred a flutter in her chest."
+      ],
+      "required_concrete_anchor_terms": [
+        "lena",
+        "morning",
+        "stepped"
+      ],
+      "repair_min_word_count": 273,
+      "repair_max_word_count": 483,
+      "min_paragraph_count": 2,
+      "max_paragraph_count": 6
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rescue_model"
+    },
+    "rescue_generation_strategy": "structured_slot_patch",
+    "configured_rescue_generation_strategy": "structured_slot_patch",
+    "rescue_slots_summary": {
+      "slot_count": 2,
+      "target_types": [
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_dialogue_grounding_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 314,
+    "rewritten_word_count": 322,
+    "min_word_count": 188,
+    "max_word_count": 659,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "and",
+      "was",
+      "that",
+      "morning",
+      "against",
+      "his",
+      "lena",
+      "world",
+      "light"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "and",
+      "that",
+      "morning",
+      "against",
+      "his",
+      "lena",
+      "world"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 26
+  }
+}

@@ -1,0 +1,593 @@
+{
+  "chunk_id": "lf_81186721",
+  "validation_decision": false,
+  "fallback_reason": "quality_failed",
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "raw_preview": "The air shimmered with the scent of rain-soaked earth as Clara stood at the edge of the clearing, her breath caught in her throat. The forest loomed around her, dark and whispering, the leaves trembli",
+      "normalized_preview": "The air shimmered with the scent of rain-soaked earth as Clara stood at the edge of the clearing, her breath caught in her throat. The forest loomed around her, dark and whispering, the leaves trembli",
+      "raw_length": 1703,
+      "normalized_length": 1699,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKaH30sRPeiZUMGWtIdyeXDdwIEze\", \"object\": \"chat.completion\", \"created\": 1773798369, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The air shimmered with the scent of rain-soaked earth as Clara stood at the edge of the clearing, her breath caught in her throat. The forest loomed around her, dark and whispering, the leaves trembling as if sharing secrets. She could hear the distant rumble of thunder, a low growl that sent ",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 284,
+        "paragraph_count": 8,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 2,
+          "meta_free": 5
+        },
+        "total_score": 26,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 284,
+        "paragraph_count": 8,
+        "dialogue_present": true,
+        "dialogue_grounded": false,
+        "sensory_hits": 6,
+        "concrete_hits": 0,
+        "generic_hits": 1,
+        "stock_phrase_hits": 2,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The air shimmered with the scent of rain-soaked earth as Clara stood at the edge of the clearing, her breath caught in her throat. The forest loomed around her, dark and whispering, the leaves trembling as if sharing secrets. She could hear the distant rumble of thunder, a low growl that sent prickles racing along her skin. The last vestiges of sunlight slipped away, leaving the world draped in twilight's embrace.\n\n“Clara!” A voice sliced through the stillness, sharp and urgent. It was Ethan, his figure emerging from the shadows like a wraith, his eyes wide and glistening. “We need to move—now.”\n\nShe turned, her heart quickening, pulse thrumming in her ears. “What’s going on?” The words felt heavy, like stones lodged in her throat, and she struggled to swallow the knot of fear.\n\n“Not here.” He gestured, urgency etched into every line of his face, and for a moment, she could see the boy he used to be, all mischief and laughter, before the world had darkened around them. “We can’t wait.”\n\nClara hesitated, the weight of the forest pulling at her, a familiar comfort tainted with something darker. She could almost feel the trees breathing, their ancient roots weaving stories of loss and resilience. “What did you find?”\n\n“It’s not what I found; it’s what I felt.” His voice dropped to a whisper, the sound barely cutting through the rustling leaves. “Something’s out there. Something... wrong.”\n\nA chill crept up her spine, and she instinctively stepped closer, seeking warmth in his presence. Hadn’t they always faced the unknown together, hand in hand? Yet, this time, the forest felt alive, an entity watching, waiting.\n\nEthan’s eyes searched hers, a flicker of desperation igniting"
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "rewrite",
+        "escalated": false,
+        "reason": "rewrite_default"
+      },
+      "raw_preview": "The scent of rain-soaked earth hung thick in the air as Clara stood at the edge of the clearing, her breath hitching in her throat. The towering trees loomed around her, their dark trunks stretching s",
+      "normalized_preview": "The scent of rain-soaked earth hung thick in the air as Clara stood at the edge of the clearing, her breath hitching in her throat. The towering trees loomed around her, their dark trunks stretching s",
+      "raw_length": 1761,
+      "normalized_length": 1761,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKaHSwr0YoS7Kcll8JgSgmp0yU3oD\", \"object\": \"chat.completion\", \"created\": 1773798394, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The scent of rain-soaked earth hung thick in the air as Clara stood at the edge of the clearing, her breath hitching in her throat. The towering trees loomed around her, their dark trunks stretching skyward, leaves rustling as if they were sharing secrets in hushed tones. Off in the distance, ",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 296,
+        "paragraph_count": 7,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "guardrail_snapshot": {
+        "evaluated": true,
+        "mode": "rewrite",
+        "outline_titles": [],
+        "beat_refs": [],
+        "locked_facts_evaluated": false,
+        "length_band_evaluated": true,
+        "original_word_count": 284,
+        "rewritten_word_count": 296,
+        "min_word_count": 170,
+        "max_word_count": 596,
+        "within_length_band": true,
+        "outline_fidelity_evaluated": true,
+        "outline_fidelity_pass": true,
+        "original_anchor_terms": [
+          "the",
+          "her",
+          "and",
+          "she",
+          "his",
+          "what",
+          "clara",
+          "forest",
+          "felt",
+          "something",
+          "throat",
+          "leaves"
+        ],
+        "retained_anchor_terms": [
+          "the",
+          "her",
+          "and",
+          "she",
+          "his",
+          "what",
+          "clara",
+          "forest",
+          "throat",
+          "leaves"
+        ],
+        "outline_anchor_hits": [],
+        "required_anchor_overlap": 1,
+        "scene_anchor_drift_detected": false,
+        "new_story_elements": [],
+        "blocking_new_story_elements": [],
+        "authoritative_name_check": false,
+        "uncertainty_triggered": false,
+        "failure_reason": null,
+        "accepted": true,
+        "quality_total_score": 26
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 2,
+          "meta_free": 5
+        },
+        "total_score": 26,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 296,
+        "paragraph_count": 7,
+        "dialogue_present": true,
+        "dialogue_grounded": false,
+        "sensory_hits": 6,
+        "concrete_hits": 0,
+        "generic_hits": 1,
+        "stock_phrase_hits": 0,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The scent of rain-soaked earth hung thick in the air as Clara stood at the edge of the clearing, her breath hitching in her throat. The towering trees loomed around her, their dark trunks stretching skyward, leaves rustling as if they were sharing secrets in hushed tones. Off in the distance, a low rumble of thunder rolled through the sky, sending a shiver racing along her arms. The last golden rays of sunlight dipped below the horizon, leaving the forest cloaked in deepening twilight.\n\n“Clara!” The sharpness of Ethan’s voice sliced through the stillness, urgent and demanding. He burst from the shadows, his figure stark against the dimming light, eyes wide and glistening like polished stones. “We have to go—right now.”\n\nShe pivoted toward him, her heart racing, pulse pounding in her ears like a war drum. “What’s happening?” The words struggled to escape her lips, heavy and thick, as fear constricted her throat.\n\n“Not here.” He pointed into the dense underbrush, urgency carved into the lines of his face. For a fleeting moment, she caught a glimpse of the boy he used to be, full of mischief and laughter, before the world had shifted beneath their feet. “We can’t wait any longer.”\n\nClara hesitated, the weight of the forest pressing down on her like an old friend turned sinister. The trees felt alive, their gnarled roots entwined in stories of loss and resilience, but now those stories seemed to whisper warnings. “What did you find?” she asked, her voice trembling slightly.\n\n“It’s not what I found; it’s what I felt.” His voice dropped to a low whisper, barely cutting through the rustling leaves that danced in the fading light. “There’s something out there. Something… wrong.”\n\nA chill slithered up her spine, and she instinctively inched"
+      },
+      "quality_pass": false,
+      "rewrite_delta": {
+        "total_delta": 0,
+        "stock_phrase_delta": 2,
+        "specificity_delta": 0,
+        "clarity_delta": 0,
+        "continuity_delta": 0
+      },
+      "retry_decision": {
+        "eligible": true,
+        "reason": "targeted_editorial_miss_after_rewrite",
+        "classification": "targeted_editorial"
+      }
+    },
+    {
+      "attempt": 3,
+      "mode": "recovery_retry",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rescue_model"
+      },
+      "raw_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"“Clara!” Ethan cupped one hand around his mouth and called across the clearing, his voice snapping through the rain-damp hush.\"},{\"slot_id\":\"s2\",\"replac",
+      "normalized_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"“Clara!” Ethan cupped one hand around his mouth and called across the clearing, his voice snapping through the rain-damp hush.\"},{\"slot_id\":\"s2\",\"replac",
+      "raw_length": 721,
+      "normalized_length": 721,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKaHaoPnGIfH2rXmNreUaWvjVBoD1\", \"object\": \"chat.completion\", \"created\": 1773798402, \"model\": \"gpt-5.4-mini-2026-03-17\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"replacement_text\\\":\\\"“Clara!” Ethan cupped one hand around his mouth and called across the clearing, his voice snapping through the rain-damp hush.\\\"},{\\\"slot_id\\\":\\\"s2\\\",\\\"replacement_text\\\":\\\"“We have to go—right now.” He grabbed for her wrist, and Clara ",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Clara!” The sharpness of Ethan’s voice sliced through the stillness, urgent and demanding.",
+          "context_before": "The last golden rays of sunlight dipped below the horizon, leaving the forest cloaked in deepening twilight.",
+          "context_after": "He burst from the shadows, his figure stark against the dimming light, eyes wide and glistening like polished stones.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s2",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“We have to go—right now.”\n\nShe pivoted toward him, her heart racing, pulse pounding in her ears like a war drum.",
+          "context_before": "He burst from the shadows, his figure stark against the dimming light, eyes wide and glistening like polished stones.",
+          "context_after": "“What’s happening?” The words struggled to escape her lips, heavy and thick, as fear constricted her throat.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s3",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“What’s happening?” The words struggled to escape her lips, heavy and thick, as fear constricted her throat.",
+          "context_before": "“We have to go—right now.”\n\nShe pivoted toward him, her heart racing, pulse pounding in her ears like a war drum.",
+          "context_after": "“Not here.” He pointed into the dense underbrush, urgency carved into the lines of his face.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s4",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Not here.” He pointed into the dense underbrush, urgency carved into the lines of his face.",
+          "context_before": "“What’s happening?” The words struggled to escape her lips, heavy and thick, as fear constricted her throat.",
+          "context_after": "For a fleeting moment, she caught a glimpse of the boy he used to be, full of mischief and laughter, before the world had shifted beneath their feet.",
+          "target_reason": "dialogue"
+        }
+      ],
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "“Clara!” Ethan cupped one hand around his mouth and called across the clearing, his voice snapping through the rain-damp hush."
+        },
+        {
+          "slot_id": "s2",
+          "replacement_text": "“We have to go—right now.” He grabbed for her wrist, and Clara pivoted toward him, one boot skidding in the wet leaves as her breath caught hard in her chest."
+        },
+        {
+          "slot_id": "s3",
+          "replacement_text": "“What’s happening?” Clara asked, lifting a hand to her throat as the words scraped out around a tight swallow."
+        },
+        {
+          "slot_id": "s4",
+          "replacement_text": "“Not here.” Ethan pointed past her shoulder into the dense underbrush, his finger fixed on the dark tangle of branches while the muscles in his jaw tightened."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_dialogue_grounding_unresolved"
+      }
+    },
+    {
+      "attempt": 4,
+      "mode": "repair_only",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rescue_model"
+      },
+      "raw_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"“Clara!” Ethan called from the tree line, his voice sharp over the rustling leaves. He burst from the shadows, his figure stark against the dimming ligh",
+      "normalized_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"“Clara!” Ethan called from the tree line, his voice sharp over the rustling leaves. He burst from the shadows, his figure stark against the dimming ligh",
+      "raw_length": 817,
+      "normalized_length": 817,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKaHdbfppfVr4BO1JTitrXEO1LrGu\", \"object\": \"chat.completion\", \"created\": 1773798405, \"model\": \"gpt-5.4-mini-2026-03-17\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"replacement_text\\\":\\\"“Clara!” Ethan called from the tree line, his voice sharp over the rustling leaves. He burst from the shadows, his figure stark against the dimming light, eyes wide and glistening like polished stones.\\\"},{\\\"slot_id\\\":\\\"s2\\\",\\\"replaceme",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Clara!” The sharpness of Ethan’s voice sliced through the stillness, urgent and demanding.",
+          "context_before": "The last golden rays of sunlight dipped below the horizon, leaving the forest cloaked in deepening twilight.",
+          "context_after": "He burst from the shadows, his figure stark against the dimming light, eyes wide and glistening like polished stones.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s2",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“We have to go—right now.”\n\nShe pivoted toward him, her heart racing, pulse pounding in her ears like a war drum.",
+          "context_before": "He burst from the shadows, his figure stark against the dimming light, eyes wide and glistening like polished stones.",
+          "context_after": "“What’s happening?” The words struggled to escape her lips, heavy and thick, as fear constricted her throat.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s3",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“What’s happening?” The words struggled to escape her lips, heavy and thick, as fear constricted her throat.",
+          "context_before": "“We have to go—right now.”\n\nShe pivoted toward him, her heart racing, pulse pounding in her ears like a war drum.",
+          "context_after": "“Not here.” He pointed into the dense underbrush, urgency carved into the lines of his face.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s4",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Not here.” He pointed into the dense underbrush, urgency carved into the lines of his face.",
+          "context_before": "“What’s happening?” The words struggled to escape her lips, heavy and thick, as fear constricted her throat.",
+          "context_after": "For a fleeting moment, she caught a glimpse of the boy he used to be, full of mischief and laughter, before the world had shifted beneath their feet.",
+          "target_reason": "dialogue"
+        }
+      ],
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "“Clara!” Ethan called from the tree line, his voice sharp over the rustling leaves. He burst from the shadows, his figure stark against the dimming light, eyes wide and glistening like polished stones."
+        },
+        {
+          "slot_id": "s2",
+          "replacement_text": "“We have to go—right now.” He reached for her sleeve, and she pivoted toward him, her heart racing, pulse pounding in her ears like a war drum."
+        },
+        {
+          "slot_id": "s3",
+          "replacement_text": "“What’s happening?” The words struggled to escape her lips, heavy and thick, as fear constricted her throat, and she kept her eyes on his outstretched hand."
+        },
+        {
+          "slot_id": "s4",
+          "replacement_text": "“Not here.” He pointed into the dense underbrush, his finger cutting toward the brambles and damp leaves, urgency carved into the lines of his face."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_dialogue_grounding_unresolved"
+      }
+    }
+  ],
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 2,
+      "meta_free": 5
+    },
+    "total_score": 26,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 296,
+    "paragraph_count": 7,
+    "dialogue_present": true,
+    "dialogue_grounded": false,
+    "sensory_hits": 6,
+    "concrete_hits": 0,
+    "generic_hits": 1,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The scent of rain-soaked earth hung thick in the air as Clara stood at the edge of the clearing, her breath hitching in her throat. The towering trees loomed around her, their dark trunks stretching skyward, leaves rustling as if they were sharing secrets in hushed tones. Off in the distance, a low rumble of thunder rolled through the sky, sending a shiver racing along her arms. The last golden rays of sunlight dipped below the horizon, leaving the forest cloaked in deepening twilight.\n\n“Clara!” The sharpness of Ethan’s voice sliced through the stillness, urgent and demanding. He burst from the shadows, his figure stark against the dimming light, eyes wide and glistening like polished stones. “We have to go—right now.”\n\nShe pivoted toward him, her heart racing, pulse pounding in her ears like a war drum. “What’s happening?” The words struggled to escape her lips, heavy and thick, as fear constricted her throat.\n\n“Not here.” He pointed into the dense underbrush, urgency carved into the lines of his face. For a fleeting moment, she caught a glimpse of the boy he used to be, full of mischief and laughter, before the world had shifted beneath their feet. “We can’t wait any longer.”\n\nClara hesitated, the weight of the forest pressing down on her like an old friend turned sinister. The trees felt alive, their gnarled roots entwined in stories of loss and resilience, but now those stories seemed to whisper warnings. “What did you find?” she asked, her voice trembling slightly.\n\n“It’s not what I found; it’s what I felt.” His voice dropped to a low whisper, barely cutting through the rustling leaves that danced in the fading light. “There’s something out there. Something… wrong.”\n\nA chill slithered up her spine, and she instinctively inched"
+  },
+  "critique_snapshot": {
+    "summary": "The scene depicts Clara standing at the edge of a clearing, enveloped by a dark forest as she encounters Ethan, who urges her to leave quickly due to a vague sense of danger. The atmosphere is tense, filled with sensory details and emotional undertones, but the dialogue lacks grounding in physical action.",
+    "weaknesses": [
+      "Dialogue is not grounded in physical action or setting.",
+      "Generic phrases and stock imagery detract from the scene's uniqueness.",
+      "Vague descriptions create a lack of clarity regarding the characters' motivations and the immediate threat."
+    ],
+    "continuity_issues": [
+      "The transition from Clara's introspection to Ethan's urgent call lacks a clear cause-and-effect relationship."
+    ],
+    "pacing_issues": [
+      "The scene builds tension but slows down during dialogue exchanges, which could be more dynamic."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance dialogue by grounding it in specific actions or reactions.",
+      "Replace generic phrases with more unique, vivid descriptions.",
+      "Clarify the characters' motivations and the nature of the threat."
+    ],
+    "generic_phrase_targets": [
+      "The air shimmered",
+      "dark and whispering",
+      "the last vestiges of sunlight slipped away"
+    ],
+    "detail_targets": [
+      "The description of the forest and its atmosphere could be made more specific to enhance the setting.",
+      "Clarify what 'something... wrong' refers to for better reader engagement."
+    ],
+    "dialogue_grounding_targets": [
+      "Ethan's urgent call should include a physical action that illustrates his urgency.",
+      "Clara's response could reflect her physical state or surroundings more vividly."
+    ],
+    "emotional_show_targets": [
+      "Show Clara's fear through her physical reactions rather than telling it.",
+      "Ethan's desperation could be illustrated through more than just his eyes searching hers."
+    ],
+    "replacement_targets": [
+      "Replace 'we need to move—now' with a more action-oriented phrase that shows urgency.",
+      "Change 'something... wrong' to a more descriptive phrase that hints at the nature of the threat."
+    ],
+    "grounding_targets": [
+      "Add physical actions that Clara and Ethan take during their dialogue.",
+      "Incorporate sensory details that relate to their immediate environment."
+    ],
+    "carryover_targets": []
+  },
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_model_name": "gpt-5.4-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Clara!” The sharpness of Ethan’s voice sliced through the stillness, urgent and demanding.",
+        "“We have to go—right now.”\n\nShe pivoted toward him, her heart racing, pulse pounding in her ears like a war drum.",
+        "“What’s happening?” The words struggled to escape her lips, heavy and thick, as fear constricted her throat.",
+        "“Not here.” He pointed into the dense underbrush, urgency carved into the lines of his face."
+      ],
+      "generic_phrases_to_replace": [],
+      "lines_to_repair": [
+        "“Clara!” The sharpness of Ethan’s voice sliced through the stillness, urgent and demanding.",
+        "“We have to go—right now.”\n\nShe pivoted toward him, her heart racing, pulse pounding in her ears like a war drum.",
+        "“What’s happening?” The words struggled to escape her lips, heavy and thick, as fear constricted her throat.",
+        "“Not here.” He pointed into the dense underbrush, urgency carved into the lines of his face."
+      ],
+      "required_concrete_anchor_terms": [
+        "what",
+        "clara",
+        "voice"
+      ],
+      "repair_min_word_count": 251,
+      "repair_max_word_count": 444,
+      "min_paragraph_count": 5,
+      "max_paragraph_count": 9
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rescue_model"
+    },
+    "rescue_slots_summary": {
+      "slot_count": 4,
+      "target_types": [
+        "dialogue",
+        "dialogue",
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_dialogue_grounding_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 284,
+    "rewritten_word_count": 296,
+    "min_word_count": 170,
+    "max_word_count": 596,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "and",
+      "she",
+      "his",
+      "what",
+      "clara",
+      "forest",
+      "felt",
+      "something",
+      "throat",
+      "leaves"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "and",
+      "she",
+      "his",
+      "what",
+      "clara",
+      "forest",
+      "throat",
+      "leaves"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 26
+  }
+}

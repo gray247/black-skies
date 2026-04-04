@@ -1,0 +1,126 @@
+{
+  "chunk_id": "lf_8b02ee04",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:977a080482404c48020cd09568e304b68782f838ffdf6bd4824d4535bad8c906",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The rain hammered down in relentless sheets, each drop hitting the pavement with a sharp, staccato rhythm",
+    "word_count": 615,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 5,
+      "specificity": 4,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 30,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 615,
+    "paragraph_count": 11,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 7,
+    "concrete_hits": 3,
+    "generic_hits": 1,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false
+  },
+  "critique_snapshot": {
+    "summary": "Iris navigates a rainy street to a diner, seeking warmth and comfort but grappling with internal turmoil and envy as she observes a couple's intimacy.",
+    "weaknesses": [
+      "Generic descriptions and phrases weaken the emotional impact.",
+      "Dialogue lacks grounding in physical action or setting.",
+      "Vague scene details diminish the reader's immersion."
+    ],
+    "continuity_issues": [
+      "The transition from the street to the diner lacks a clear emotional or physical connection."
+    ],
+    "pacing_issues": [
+      "Some sections feel drawn out without advancing the emotional stakes."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a stronger sense of place.",
+      "Ground dialogue in physical actions or setting to increase realism.",
+      "Eliminate generic phrases and stock imagery."
+    ],
+    "generic_phrase_targets": [
+      "the sound a constant, drumming heartbeat",
+      "like stars struggling through clouds",
+      "a comforting embrace",
+      "like a beacon in the storm"
+    ],
+    "detail_targets": [
+      "The description of the diner atmosphere could be more vivid.",
+      "Iris's internal conflict needs clearer articulation."
+    ],
+    "dialogue_grounding_targets": [
+      "Sam's greeting could include a physical action that connects him to Iris.",
+      "Dialogue about food could be tied to Iris's emotional state."
+    ],
+    "emotional_show_targets": [
+      "Iris's envy could be shown through more visceral reactions.",
+      "Her internal struggle needs more physical manifestations."
+    ],
+    "replacement_targets": [
+      "Replace generic phrases with unique imagery that reflects Iris's emotional state."
+    ],
+    "grounding_targets": [
+      "Incorporate more sensory details to ground the reader in the scene.",
+      "Use specific actions to connect dialogue with the environment."
+    ],
+    "carryover_targets": [
+      "Ensure that emotional carryover from the street to the diner is clear and impactful."
+    ]
+  },
+  "attempt_count": 2,
+  "acceptance_reason": "rewrite_pass",
+  "rewrite_used": true
+}

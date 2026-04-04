@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\model_router.py
+# hypothesis_version: 6.138.2
+
+['LocalLLMProvider', 'ModelProvider', 'ModelRouteDecision', 'ModelRouter', 'ModelSpec', 'ModelTask', 'OpenAIProvider', 'critique', 'draft', 'fallback.api', 'fallback.local', 'fallback_used', 'local_llm', 'model', 'ollama', 'openai', 'openai.outline', 'outline', 'outline-builder-v1', 'policy', 'policy.api_only', 'policy.local_only', 'provider', 'reason', 'rewrite']

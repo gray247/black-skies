@@ -1,0 +1,610 @@
+{
+  "chunk_id": "lf_bfd88f91",
+  "validation_decision": false,
+  "fallback_reason": "quality_failed",
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "raw_preview": "The clatter of the metal gate echoed through the empty courtyard as Lena pushed it open, the rusty hinges protesting like a creature awakened from a long slumber. An acrid scent of damp earth and deca",
+      "normalized_preview": "The clatter of the metal gate echoed through the empty courtyard as Lena pushed it open, the rusty hinges protesting like a creature awakened from a long slumber. An acrid scent of damp earth and deca",
+      "raw_length": 1857,
+      "normalized_length": 1855,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKoFNcoj3jf8jrNzuDPFKl0CYB8DB\", \"object\": \"chat.completion\", \"created\": 1773852081, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The clatter of the metal gate echoed through the empty courtyard as Lena pushed it open, the rusty hinges protesting like a creature awakened from a long slumber. An acrid scent of damp earth and decay hung in the air, mingling with the distant, sweet notes of blooming lilacs somewhere beyond ",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 318,
+        "paragraph_count": 5,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 2,
+          "meta_free": 5
+        },
+        "total_score": 26,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 318,
+        "paragraph_count": 5,
+        "dialogue_present": true,
+        "dialogue_grounded": false,
+        "sensory_hits": 6,
+        "concrete_hits": 1,
+        "generic_hits": 1,
+        "stock_phrase_hits": 1,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The clatter of the metal gate echoed through the empty courtyard as Lena pushed it open, the rusty hinges protesting like a creature awakened from a long slumber. An acrid scent of damp earth and decay hung in the air, mingling with the distant, sweet notes of blooming lilacs somewhere beyond the stone walls. She stepped inside, her boots crunching on the gravel, each step resonating in the stillness, a reminder of her solitude.\n\nSunlight slanted through the gaps in the trees, casting a mosaic of light and shadow on the ground, flickering like memories she couldn’t quite grasp. The air was thick with anticipation, as if the very stones were holding their breath, waiting for something—someone—to break the silence. She paused, drawing in a breath that filled her lungs with the coolness of the morning, tinged with the musty scent of the ancient stones.\n\n“Hello?” she called, her voice slicing through the quiet, a tentative plea that felt foolish as it echoed back to her. It bounced off the walls, mocking her for the hope she couldn’t quite shake off. A part of her was drawn to the overgrown path leading deeper into the shadows of the trees, where the world outside seemed to fade away, leaving only the whisper of leaves and the faint rustle of unseen creatures.\n\n“Is anyone here?” she tried again, softer this time, the vulnerability in her tone revealing more than she intended. The stillness remained unbroken, and her heart thrummed in her chest, a wild rhythm that spoke of both dread and exhilaration. She took a cautious step forward, the ground uneven beneath her feet, and the sound of her breath seemed to amplify in the quiet, a stark reminder of her isolation.\n\nAs she moved deeper, the branches intertwined above her like fingers, blocking the sun and drawing shadows around her. The chill seeped into her skin, a stark contrast"
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "rewrite",
+        "escalated": false,
+        "reason": "rewrite_default"
+      },
+      "raw_preview": "The clang of the metal gate reverberated in the empty courtyard as Lena pushed it open, the rusty hinges protesting with a creak that echoed like a waking groan. An acrid scent of damp earth and decay",
+      "normalized_preview": "The clang of the metal gate reverberated in the empty courtyard as Lena pushed it open, the rusty hinges protesting with a creak that echoed like a waking groan. An acrid scent of damp earth and decay",
+      "raw_length": 1833,
+      "normalized_length": 1833,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKoFdHSJBamo8wA0y7zRIOjnLEXR4\", \"object\": \"chat.completion\", \"created\": 1773852097, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The clang of the metal gate reverberated in the empty courtyard as Lena pushed it open, the rusty hinges protesting with a creak that echoed like a waking groan. An acrid scent of damp earth and decay clung to the air, intermingling with the faint sweetness of lilacs blooming just beyond the s",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 316,
+        "paragraph_count": 5,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "guardrail_snapshot": {
+        "evaluated": true,
+        "mode": "rewrite",
+        "outline_titles": [],
+        "beat_refs": [],
+        "locked_facts_evaluated": false,
+        "length_band_evaluated": true,
+        "original_word_count": 318,
+        "rewritten_word_count": 316,
+        "min_word_count": 190,
+        "max_word_count": 667,
+        "within_length_band": true,
+        "outline_fidelity_evaluated": true,
+        "outline_fidelity_pass": true,
+        "original_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "and",
+          "breath",
+          "that",
+          "echoed",
+          "scent",
+          "air",
+          "walls",
+          "step",
+          "stillness"
+        ],
+        "retained_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "and",
+          "breath",
+          "that",
+          "air",
+          "walls",
+          "stillness"
+        ],
+        "outline_anchor_hits": [],
+        "required_anchor_overlap": 1,
+        "scene_anchor_drift_detected": false,
+        "new_story_elements": [],
+        "blocking_new_story_elements": [],
+        "authoritative_name_check": false,
+        "uncertainty_triggered": false,
+        "failure_reason": null,
+        "accepted": true,
+        "quality_total_score": 26
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 2,
+          "meta_free": 5
+        },
+        "total_score": 26,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 316,
+        "paragraph_count": 5,
+        "dialogue_present": true,
+        "dialogue_grounded": false,
+        "sensory_hits": 6,
+        "concrete_hits": 1,
+        "generic_hits": 0,
+        "stock_phrase_hits": 1,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The clang of the metal gate reverberated in the empty courtyard as Lena pushed it open, the rusty hinges protesting with a creak that echoed like a waking groan. An acrid scent of damp earth and decay clung to the air, intermingling with the faint sweetness of lilacs blooming just beyond the stone walls. She stepped inside, each boot crunching on the gravel, the sound piercing the stillness and amplifying her sense of solitude.\n\nSunlight filtered through the gaps in the trees, casting a patchwork of light and shadow on the ground that danced like fleeting memories just out of reach. The atmosphere felt taut, as if the stones themselves were poised in anticipation, waiting for a breath to shatter the silence. She paused, inhaling deeply, the cool morning air filling her lungs with a mixture of musty stone and fresh earth.\n\n“Hello?” she called, her voice breaking the quiet with a tremor of uncertainty. The sound ricocheted off the walls, ringing back to her, a mocking echo of her own tentative hope. A pull tugged at her heart towards the overgrown path that led deeper into the shadowy embrace of the trees, where the world outside seemed to blur, leaving only the gentle whisper of leaves and the rustle of unseen creatures.\n\n“Is anyone here?” she tried again, her voice softer now, revealing a thread of vulnerability she hadn’t meant to expose. The stillness clung to her, wrapping around her like a shroud, and her heart raced with a mix of dread and exhilaration. She stepped forward cautiously, the uneven ground shifting beneath her feet, her breath loud in the quiet, a stark reminder of her isolation.\n\nAs she ventured deeper, the branches above twisted together like gnarled fingers, blocking out the sun and casting her in a web of shadows. A chill crept into her skin, a stark contrast to the warmth she had"
+      },
+      "quality_pass": false,
+      "rewrite_delta": {
+        "total_delta": 0,
+        "stock_phrase_delta": 0,
+        "specificity_delta": 0,
+        "clarity_delta": 0,
+        "continuity_delta": 0
+      },
+      "retry_decision": {
+        "eligible": true,
+        "reason": "targeted_editorial_miss_after_rewrite",
+        "classification": "targeted_editorial"
+      }
+    },
+    {
+      "attempt": 3,
+      "mode": "recovery_retry",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rescue_model"
+      },
+      "raw_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"The stillness clung to her shoulders as she stood by the stone walls, and Lena pressed a hand to her ribs, feeling her pulse jump fast against her palm.",
+      "normalized_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"The stillness clung to her shoulders as she stood by the stone walls, and Lena pressed a hand to her ribs, feeling her pulse jump fast against her palm.",
+      "raw_length": 744,
+      "normalized_length": 744,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKoFjYKJczB1aV0KN710D53zkvpaq\", \"object\": \"chat.completion\", \"created\": 1773852103, \"model\": \"gpt-5.4-mini-2026-03-17\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"replacement_text\\\":\\\"The stillness clung to her shoulders as she stood by the stone walls, and Lena pressed a hand to her ribs, feeling her pulse jump fast against her palm.\\\"},{\\\"slot_id\\\":\\\"s2\\\",\\\"replacement_text\\\":\\\"She stepped forward cautiously, the u",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "The stillness clung to her, wrapping around her like a shroud, and her heart raced with a mix of dread and exhilaration.",
+          "context_before": "“Is anyone here?” she tried again, her voice softer now, revealing a thread of vulnerability she hadn’t meant to expose.",
+          "context_after": "She stepped forward cautiously, the uneven ground shifting beneath her feet, her breath loud in the quiet, a stark reminder of her isolation.",
+          "target_reason": "generic",
+          "target_phrase": "heart raced"
+        },
+        {
+          "slot_id": "s2",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "She stepped forward cautiously, the uneven ground shifting beneath her feet, her breath loud in the quiet, a stark reminder of her isolation.",
+          "context_before": "The stillness clung to her, wrapping around her like a shroud, and her heart raced with a mix of dread and exhilaration.",
+          "context_after": "As she ventured deeper, the branches above twisted together like gnarled fingers, blocking out the sun and casting her in a web of shadows.",
+          "target_reason": "generic",
+          "target_phrase": "A stark reminder of her isolation"
+        },
+        {
+          "slot_id": "s3",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Hello?” she called, her voice breaking the quiet with a tremor of uncertainty.",
+          "context_before": "She paused, inhaling deeply, the cool morning air filling her lungs with a mixture of musty stone and fresh earth.",
+          "context_after": "The sound ricocheted off the walls, ringing back to her, a mocking echo of her own tentative hope.",
+          "target_reason": "dialogue",
+          "local_anchor_terms": [
+            "lungs"
+          ]
+        },
+        {
+          "slot_id": "s4",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Is anyone here?” she tried again, her voice softer now, revealing a thread of vulnerability she hadn’t meant to expose.",
+          "context_before": "A pull tugged at her heart towards the overgrown path that led deeper into the shadowy embrace of the trees, where the world outside seemed to blur, leaving only the gentle whisper of leaves and the rustle of unseen creatures.",
+          "context_after": "The stillness clung to her, wrapping around her like a shroud, and her heart raced with a mix of dread and exhilaration.",
+          "target_reason": "dialogue",
+          "local_anchor_terms": [
+            "path"
+          ]
+        }
+      ],
+      "rescue_generation_strategy": "slot_patch",
+      "configured_rescue_generation_strategy": "slot_patch",
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "The stillness clung to her shoulders as she stood by the stone walls, and Lena pressed a hand to her ribs, feeling her pulse jump fast against her palm."
+        },
+        {
+          "slot_id": "s2",
+          "replacement_text": "She stepped forward cautiously, the uneven earth shifting beneath her boots, her breath loud in the quiet courtyard, with the stone walls close on either side."
+        },
+        {
+          "slot_id": "s3",
+          "replacement_text": "Lena drew a breath through lungs full of musty stone and fresh earth, then lifted her chin toward the walls and called, “Hello?”"
+        },
+        {
+          "slot_id": "s4",
+          "replacement_text": "Lena followed the overgrown path with one hand brushing the leaves aside, then glanced into the trees and tried again, “Is anyone here?”"
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_specificity_unresolved"
+      }
+    },
+    {
+      "attempt": 4,
+      "mode": "repair_only",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rescue_model"
+      },
+      "raw_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"The stillness clung to her, wrapping around her like a shroud, and her pulse quickened against her ribs as dread and exhilaration tightened in her chest",
+      "normalized_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"The stillness clung to her, wrapping around her like a shroud, and her pulse quickened against her ribs as dread and exhilaration tightened in her chest",
+      "raw_length": 829,
+      "normalized_length": 829,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKoFl4YlFEM3jwRmmevjyVyfktxMg\", \"object\": \"chat.completion\", \"created\": 1773852105, \"model\": \"gpt-5.4-mini-2026-03-17\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"replacement_text\\\":\\\"The stillness clung to her, wrapping around her like a shroud, and her pulse quickened against her ribs as dread and exhilaration tightened in her chest.\\\"},{\\\"slot_id\\\":\\\"s2\\\",\\\"replacement_text\\\":\\\"She stepped forward cautiously, the ",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "The stillness clung to her, wrapping around her like a shroud, and her heart raced with a mix of dread and exhilaration.",
+          "context_before": "“Is anyone here?” she tried again, her voice softer now, revealing a thread of vulnerability she hadn’t meant to expose.",
+          "context_after": "She stepped forward cautiously, the uneven ground shifting beneath her feet, her breath loud in the quiet, a stark reminder of her isolation.",
+          "target_reason": "generic",
+          "target_phrase": "heart raced"
+        },
+        {
+          "slot_id": "s2",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "She stepped forward cautiously, the uneven ground shifting beneath her feet, her breath loud in the quiet, a stark reminder of her isolation.",
+          "context_before": "The stillness clung to her, wrapping around her like a shroud, and her heart raced with a mix of dread and exhilaration.",
+          "context_after": "As she ventured deeper, the branches above twisted together like gnarled fingers, blocking out the sun and casting her in a web of shadows.",
+          "target_reason": "generic",
+          "target_phrase": "A stark reminder of her isolation"
+        },
+        {
+          "slot_id": "s3",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Hello?” she called, her voice breaking the quiet with a tremor of uncertainty.",
+          "context_before": "She paused, inhaling deeply, the cool morning air filling her lungs with a mixture of musty stone and fresh earth.",
+          "context_after": "The sound ricocheted off the walls, ringing back to her, a mocking echo of her own tentative hope.",
+          "target_reason": "dialogue",
+          "local_anchor_terms": [
+            "lungs"
+          ]
+        },
+        {
+          "slot_id": "s4",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Is anyone here?” she tried again, her voice softer now, revealing a thread of vulnerability she hadn’t meant to expose.",
+          "context_before": "A pull tugged at her heart towards the overgrown path that led deeper into the shadowy embrace of the trees, where the world outside seemed to blur, leaving only the gentle whisper of leaves and the rustle of unseen creatures.",
+          "context_after": "The stillness clung to her, wrapping around her like a shroud, and her heart raced with a mix of dread and exhilaration.",
+          "target_reason": "dialogue",
+          "local_anchor_terms": [
+            "path"
+          ]
+        }
+      ],
+      "rescue_generation_strategy": "slot_patch",
+      "configured_rescue_generation_strategy": "slot_patch",
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "The stillness clung to her, wrapping around her like a shroud, and her pulse quickened against her ribs as dread and exhilaration tightened in her chest."
+        },
+        {
+          "slot_id": "s2",
+          "replacement_text": "She stepped forward cautiously, the uneven ground shifting beneath her boots, her breath loud in the quiet, and the stone walls around her offered no sign of another living soul."
+        },
+        {
+          "slot_id": "s3",
+          "replacement_text": "“Hello?” she called, her voice breaking the quiet as it brushed the cool air in her lungs and carried toward the musty stone walls."
+        },
+        {
+          "slot_id": "s4",
+          "replacement_text": "“Is anyone here?” she tried again, her voice softer now as she stood on the overgrown path, one hand hovering near the tangled leaves, revealing a thread of vulnerability she hadn’t meant to expose."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_specificity_unresolved"
+      }
+    }
+  ],
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 2,
+      "meta_free": 5
+    },
+    "total_score": 26,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 316,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": false,
+    "sensory_hits": 6,
+    "concrete_hits": 1,
+    "generic_hits": 0,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The clang of the metal gate reverberated in the empty courtyard as Lena pushed it open, the rusty hinges protesting with a creak that echoed like a waking groan. An acrid scent of damp earth and decay clung to the air, intermingling with the faint sweetness of lilacs blooming just beyond the stone walls. She stepped inside, each boot crunching on the gravel, the sound piercing the stillness and amplifying her sense of solitude.\n\nSunlight filtered through the gaps in the trees, casting a patchwork of light and shadow on the ground that danced like fleeting memories just out of reach. The atmosphere felt taut, as if the stones themselves were poised in anticipation, waiting for a breath to shatter the silence. She paused, inhaling deeply, the cool morning air filling her lungs with a mixture of musty stone and fresh earth.\n\n“Hello?” she called, her voice breaking the quiet with a tremor of uncertainty. The sound ricocheted off the walls, ringing back to her, a mocking echo of her own tentative hope. A pull tugged at her heart towards the overgrown path that led deeper into the shadowy embrace of the trees, where the world outside seemed to blur, leaving only the gentle whisper of leaves and the rustle of unseen creatures.\n\n“Is anyone here?” she tried again, her voice softer now, revealing a thread of vulnerability she hadn’t meant to expose. The stillness clung to her, wrapping around her like a shroud, and her heart raced with a mix of dread and exhilaration. She stepped forward cautiously, the uneven ground shifting beneath her feet, her breath loud in the quiet, a stark reminder of her isolation.\n\nAs she ventured deeper, the branches above twisted together like gnarled fingers, blocking out the sun and casting her in a web of shadows. A chill crept into her skin, a stark contrast to the warmth she had"
+  },
+  "critique_snapshot": {
+    "summary": "Lena enters an empty courtyard through a clattering metal gate, experiencing a mix of anticipation and solitude. She calls out into the silence, feeling both dread and exhilaration as she explores the overgrown path and the shadows of the trees.",
+    "weaknesses": [
+      "Vague descriptions that lack specificity.",
+      "Dialogue not grounded in physical action or setting.",
+      "Overuse of generic phrases and metaphors."
+    ],
+    "continuity_issues": [
+      "The transition between Lena's calls and her internal feelings lacks a clear connection to her actions."
+    ],
+    "pacing_issues": [
+      "The scene drags in places due to excessive introspection and vague imagery."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions.",
+      "Ground dialogue in physical actions or reactions.",
+      "Eliminate generic phrases and metaphors."
+    ],
+    "generic_phrase_targets": [
+      "The air was thick with anticipation",
+      "A stark reminder of her isolation"
+    ],
+    "detail_targets": [
+      "The scent description could be more vivid and specific.",
+      "The imagery of sunlight and shadows needs more concrete elements."
+    ],
+    "dialogue_grounding_targets": [
+      "Connect Lena's dialogue to her physical actions or emotional state more explicitly."
+    ],
+    "emotional_show_targets": [
+      "Show Lena's internal conflict through her actions rather than vague descriptions."
+    ],
+    "replacement_targets": [
+      "Replace 'like a creature awakened from a long slumber' with a more original metaphor.",
+      "Find alternatives for 'mocking her for the hope she couldn’t quite shake off.'"
+    ],
+    "grounding_targets": [
+      "Incorporate more sensory details that connect Lena to her environment."
+    ],
+    "carryover_targets": []
+  },
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_model_name": "gpt-5.4-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Hello?” she called, her voice breaking the quiet with a tremor of uncertainty.",
+        "“Is anyone here?” she tried again, her voice softer now, revealing a thread of vulnerability she hadn’t meant to expose."
+      ],
+      "generic_phrases_to_replace": [
+        "A stark reminder of her isolation",
+        "heart raced"
+      ],
+      "lines_to_repair": [
+        "The stillness clung to her, wrapping around her like a shroud, and her heart raced with a mix of dread and exhilaration.",
+        "She stepped forward cautiously, the uneven ground shifting beneath her feet, her breath loud in the quiet, a stark reminder of her isolation.",
+        "“Hello?” she called, her voice breaking the quiet with a tremor of uncertainty.",
+        "“Is anyone here?” she tried again, her voice softer now, revealing a thread of vulnerability she hadn’t meant to expose."
+      ],
+      "required_concrete_anchor_terms": [
+        "earth",
+        "clung",
+        "stone"
+      ],
+      "repair_min_word_count": 268,
+      "repair_max_word_count": 474,
+      "min_paragraph_count": 3,
+      "max_paragraph_count": 7
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rescue_model"
+    },
+    "rescue_generation_strategy": "slot_patch",
+    "configured_rescue_generation_strategy": "slot_patch",
+    "rescue_slots_summary": {
+      "slot_count": 4,
+      "target_types": [
+        "generic",
+        "generic",
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_specificity_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 318,
+    "rewritten_word_count": 316,
+    "min_word_count": 190,
+    "max_word_count": 667,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "and",
+      "breath",
+      "that",
+      "echoed",
+      "scent",
+      "air",
+      "walls",
+      "step",
+      "stillness"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "and",
+      "breath",
+      "that",
+      "air",
+      "walls",
+      "stillness"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 26
+  }
+}

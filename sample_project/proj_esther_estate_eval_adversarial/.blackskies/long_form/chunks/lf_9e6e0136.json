@@ -1,0 +1,93 @@
+{
+  "chunk_id": "lf_9e6e0136",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0002"
+  ],
+  "order": 2,
+  "continuation_of": "lf_40670e88",
+  "prompt_fingerprint": "sha256:e93bcdf6a8cd451ceb20b5d7b88359570683314c63ccacdce4084702bc6f137a",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Clara shifted her weight, pressing deeper into the damp wall, the peeling paint scraping against her shoulder",
+    "word_count": 312,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.01,
+    "total_after_usd": 0.02
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 5,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 32,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 312,
+    "paragraph_count": 4,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 7,
+    "concrete_hits": 10,
+    "generic_hits": 1,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [
+      "corridor",
+      "lantern",
+      "coat",
+      "rain",
+      "door",
+      "chain",
+      "ceramic",
+      "fox"
+    ],
+    "carryover_hits": 6,
+    "material_carryover_hits": 1,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "Clara shifted her weight, pressing deeper into the damp wall, the peeling paint scraping against her shoulder. The air felt thicker here, as if it were woven with whispers, the kind that curled around the edges of her mind, teasing her with thoughts she didn't want to entertain. “We should keep moving,” she said, her voice sharper than intended, the words slicing through the silence like a knife. Jun turned, his face pale in the dim light of the sputtering lantern, the cracks in the brass catching the feeble glow and fracturing it into jagged shards of shadow.\n\n“Do you hear that?” he asked, and there was a tremor in his voice, a thread of panic that made her heart race faster. She strained to listen, straining against the silence that clung to the corridor, but all she could hear was the distant sound of water dripping, each drop echoing like a ticking clock. “I thought I heard—”\n\n“Nothing,” Clara interrupted, the word escaping before she could stop it. She felt the ribbon of the parlor key against her skin, a tether that was both comforting and suffocating. She hadn’t tied it tighter, yet it seemed to constrict with every anxious breath, a reminder of the secrets held within the house’s walls. The chain rattled again behind the door, a sound that sent a chill racing down her spine, and she glanced at Jun, whose eyes were wide, reflecting the flickering light.\n\n“Clara, we shouldn’t be here.” He took a step back, mud squelching beneath his feet, the sound mingling with the whispers of the corridor. She could see the dark, wet fabric of his coat, still soaked from the greenhouse, clinging to him like a second skin. The air smelled of earth and decay, mingling with the faint scent of something floral, something that made her think of the nursery, of"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

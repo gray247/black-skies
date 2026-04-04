@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_40dafa97",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:a366f77eca339cedc0e9368e9ad491faa60798a4a0afd5e1099d7fbc52fb3995",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The weak beam of the cracked brass lantern flickered, casting long shadows that danced along the damp walls of the corridor",
+    "word_count": 302,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 30,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 302,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 4,
+    "concrete_hits": 11,
+    "generic_hits": 1,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The weak beam of the cracked brass lantern flickered, casting long shadows that danced along the damp walls of the corridor. Clara's heart raced, each thud resonating in her ears, drowning out the distant patter of rain that still clung to the greenhouse. Her fingers tightened around the red ribbon, the key now an uncomfortable weight on her wrist, as if it were alive and thrumming with a pulse of its own. “Jun, we need to keep moving,” she said, her voice sharper than intended, cutting through the thick air.\n\nJun glanced back, his soaked coat clinging to him like a second skin, the fabric darkened and heavy. “Did you hear that?” he asked, his eyes wide, darting toward the chained door behind them. The chain rattled softly, a sympathetic echo of their own fraying nerves. “It sounded like someone—”\n\n“It's just the wind,” Clara interrupted, though her own voice trembled, betraying her. She stepped forward, the muddied prints on the floor drawing her gaze. They were fresh, stark against the stone, leading toward the end of the corridor, where the light faded into a deeper darkness. “We can’t stand here.”\n\nBut Jun hesitated, his lantern sputtering again, the light dimming to a feeble glow. “What if—what if there’s someone in here?” The tremor in his voice was unmistakable, a crack in his usually steady facade. Clara could see the shadows pooling under his eyes, the way his hands fidgeted with the lantern’s handle, as if he were trying to hold onto something solid in a world that was quickly unraveling.\n\n“We have to check,” Clara said, the words tumbling out before she could think to soften them. She felt a coil of anxiety twist in her stomach. “We’re not going to find anything standing around.” The thought of the child’s cough"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

@@ -1,0 +1,250 @@
+{
+  "chunk_id": "lf_b33eb3df",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:6844d78a2476b81657ac03ae8162585201460619965cc788e955c712db1172f7",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 21,
+    "fallback_reason": "quality_failed"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "quality_failed"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 28,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 309,
+    "paragraph_count": 6,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 7,
+    "concrete_hits": 0,
+    "generic_hits": 0,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "Clara stepped onto the worn wooden porch, the boards creaking underfoot like old bones. She paused, feeling her heart race, the flutter of nerves coursing through her as the scent of wet pine and damp earth filled her lungs. The air was thick with the promise of rain, a tangible weight pressing against her skin, and she could almost taste the storm on her tongue, sharp and electric.\n\n\"Are you ready?\" Jake's voice broke the stillness, low and steady. He leaned against the porch railing, arms crossed, his gaze locked on the horizon where dark clouds loomed like a gathering storm. There was a flicker in his eyes—was it hope or dread?—that twisted Clara's stomach in a knot.\n\n“Ready as I’ll ever be,” she replied, striving for steadiness. The words came out firm, though butterflies danced in her chest. She forced a smile, but it felt fragile, like a thin sheet of ice ready to crack. Turning her gaze back to the distant hills, their shapes softened by the haze of impending rain, she wondered if they would still stand after this moment.\n\nJake pushed himself off the railing, the wood protesting with a low groan, and stepped closer. The warmth of his body brushed against her, a stark contrast to the chill creeping in from the shadows. “We can still turn back, you know,” he said, his tone casual, but she sensed the ripple of concern beneath it.\n\nClara shook her head, resolve igniting within her. “No. We’ve come too far.” Each step they had taken together had led to this moment, a tapestry woven with whispered secrets and shared dreams. The weight of their unspoken promises hung in the air, heavy and palpable.\n\n“Alright, then,” Jake replied, a half-smile tugging at his lips, though it didn’t quite reach his eyes. He shifted slightly, the tension in his"
+  },
+  "critique_snapshot": {
+    "summary": "The scene captures a moment of anticipation between Clara and Jake as they prepare to face an impending storm. Clara experiences a mix of nerves and excitement, while Jake expresses concern about their decision to move forward. The atmosphere is charged with emotion and tension, reflecting their shared history and the weight of their choices.",
+    "weaknesses": [
+      "Generic phrases that detract from the uniqueness of the scene.",
+      "Vague descriptions that fail to create a strong visual or emotional impact.",
+      "Dialogue that lacks grounding in physical action or setting."
+    ],
+    "continuity_issues": [
+      "The emotional stakes are established but not consistently reflected in the characters' actions."
+    ],
+    "pacing_issues": [
+      "The scene builds tension but could benefit from more dynamic interactions to enhance pacing."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Eliminate generic phrases and replace them with more specific, vivid descriptions.",
+      "Ground dialogue in physical actions or the setting to enhance realism.",
+      "Clarify emotional stakes through character actions and reactions."
+    ],
+    "generic_phrase_targets": [
+      "The air crackled with anticipation",
+      "A melody of nerves and excitement",
+      "Wrapped around her like a lover’s embrace"
+    ],
+    "detail_targets": [
+      "The scent of pine mingled with the damp earth",
+      "The warmth of his body radiated towards her"
+    ],
+    "dialogue_grounding_targets": [
+      "Jake leaning against the porch railing",
+      "Clara turning her attention back to the distant hills"
+    ],
+    "emotional_show_targets": [
+      "Clara’s heart racing",
+      "The flicker of something in Jake’s gaze"
+    ],
+    "replacement_targets": [
+      "Replace 'the air crackled with anticipation' with a more specific sensory detail.",
+      "Replace 'wrapped around her like a lover’s embrace' with a more unique metaphor."
+    ],
+    "grounding_targets": [
+      "Describe Clara's physical sensations more vividly as she stands on the porch.",
+      "Include more details about the setting to enhance the atmosphere."
+    ],
+    "carryover_targets": [
+      "Ensure that emotional stakes are consistently reflected in character actions throughout the scene."
+    ]
+  },
+  "attempt_count": 4,
+  "acceptance_reason": "quality_failed",
+  "rewrite_used": true,
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": false,
+    "rescue_mode_used": true,
+    "rescue_model_used": false,
+    "rescue_model_name": "gpt-4o-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "\"Are you ready?\" Jake's voice broke the stillness, low and steady.",
+        "“Ready as I’ll ever be,” she replied, striving for steadiness.",
+        "“We can still turn back, you know,” he said, his tone casual, but she sensed the ripple of concern beneath it.",
+        "“No."
+      ],
+      "generic_phrases_to_replace": [
+        "hung in the air"
+      ],
+      "lines_to_repair": [
+        "The weight of their unspoken promises hung in the air, heavy and palpable.",
+        "\"Are you ready?\" Jake's voice broke the stillness, low and steady.",
+        "“Ready as I’ll ever be,” she replied, striving for steadiness.",
+        "“We can still turn back, you know,” he said, his tone casual, but she sensed the ripple of concern beneath it.",
+        "“No."
+      ],
+      "required_concrete_anchor_terms": [
+        "against",
+        "ready",
+        "clara"
+      ],
+      "repair_min_word_count": 262,
+      "repair_max_word_count": 463,
+      "min_paragraph_count": 4,
+      "max_paragraph_count": 8
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": false,
+      "reason": "rescue_model"
+    },
+    "rescue_slots_summary": {
+      "slot_count": 5,
+      "target_types": [
+        "generic",
+        "dialogue",
+        "dialogue",
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_specificity_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 307,
+    "rewritten_word_count": 309,
+    "min_word_count": 184,
+    "max_word_count": 644,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "and",
+      "his",
+      "air",
+      "clara",
+      "jake",
+      "that",
+      "stepped",
+      "porch",
+      "beneath"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "and",
+      "his",
+      "air",
+      "clara",
+      "stepped",
+      "porch"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 28
+  }
+}

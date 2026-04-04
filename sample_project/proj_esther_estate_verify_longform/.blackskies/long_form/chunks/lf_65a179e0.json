@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_65a179e0",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:c556543ad9a675a213d237234e9f8757375ead1358c9d7cf938f8d216852f4bc",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The rain drummed insistently against the roof, a restless rhythm that seeped into the corners of the small living room, where the faint scent of damp wood mingled with the lingering aroma of burnt toast",
+    "word_count": 311,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 30,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 311,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 7,
+    "concrete_hits": 4,
+    "generic_hits": 0,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The rain drummed insistently against the roof, a restless rhythm that seeped into the corners of the small living room, where the faint scent of damp wood mingled with the lingering aroma of burnt toast. Claire stood at the window, her fingers tracing the condensation that formed intricate patterns on the glass. Each droplet seemed to carry a story, a fragment of the world outside, blurred and distorted by the storm. She watched the streetlights flicker like distant stars, their glow swallowed by the shroud of gray that enveloped everything.\n\n“Are you going to stand there all day?” Jake’s voice broke through the murmur of the rain, its rough edges softened by the exhaustion that hung about him like a heavy cloak. He leaned against the doorframe, arms crossed, his brow furrowed in that familiar way that always made Claire’s heart twist. “We can’t just wait for it to stop.”\n\n“It feels like everything is waiting,” she murmured, more to herself than to him. Her gaze drifted to the puddles forming in the gutter, tiny whirlpools swirling and merging, like thoughts she couldn’t quite grasp. “Like the world is holding its breath.”\n\nHe pushed himself off the frame, stepping closer, the floorboards creaking under his weight. “And what if it never does?” His tone was sharper now, the frustration palpable, as if each drop of rain were a reminder of the chaos outside, the uncertainty that loomed like a storm cloud over their lives. “We can’t just stay here and hope for better weather.”\n\nClaire turned, meeting his gaze, the warmth in her chest battling against the chill of the room. “What do you want me to say, Jake? That we can fix this?” She gestured vaguely towards the window, where raindrops raced down the glass, each one a tiny race against its neighbors. “I don’t know how to fix anything"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "chunk_id": "lf_010d09bb",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0002"
+  ],
+  "order": 2,
+  "continuation_of": "lf_55df6704",
+  "prompt_fingerprint": "sha256:67c07d7d5789e902a87ff8d514208516934e9564c39e4e3734050d294da7df0b",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Clara tightened her grip on the lantern, its flickering glow barely illuminating the corridor’s corners, where shadows clung like thick fog",
+    "word_count": 300,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.01,
+    "total_after_usd": 0.02
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 4,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 31,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 300,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 5,
+    "concrete_hits": 6,
+    "generic_hits": 1,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [
+      "corridor",
+      "lantern",
+      "coat",
+      "rain",
+      "key",
+      "narrow",
+      "thick",
+      "sides"
+    ],
+    "carryover_hits": 3,
+    "material_carryover_hits": 0,
+    "material_carryover": false,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "Clara tightened her grip on the lantern, its flickering glow barely illuminating the corridor’s corners, where shadows clung like thick fog. The air was heavy, laden with the scent of dampness and decay, making it hard to breathe. Each step she took felt like she was sinking deeper into an unseen weight, the creaking floorboards a constant reminder of their precarious situation. She could feel Jun’s anxiety ricocheting off the walls, his presence both a comfort and a burden, and she couldn’t help but wonder if she was as afraid as he was, or if she was simply putting on a brave face.\n\n“Let’s just keep moving,” she said, her voice sharper than she intended. The words echoed back to her, amplifying the tension. Jun nodded, his expression pinched, eyes darting again to the door they had come through, the chain rattling softly as if something—someone—was on the other side, testing their resolve.\n\nThe dim light caught a glimpse of something on the floor, and Clara’s heart lurched. Muddy prints trailed ahead of them, stark against the floor’s faded patina, but there hadn’t been anyone else with them when they crossed into the passage. She glanced at Jun, whose brow was slick with worry. “Do you see that?” she asked, her voice dropping to a conspiratorial whisper, as if speaking too loudly might awaken whatever lay ahead.\n\n“Yeah,” he replied, his voice trembling slightly. “I don’t like this, Clara. It feels wrong.” He shifted the lantern, its weak beam casting new shapes against the peeling wallpaper, and for a moment, Clara thought she saw a face flicker in the shadows—a child, perhaps, she thought, but the image faded too quickly, leaving only the gnawing unease in her stomach.\n\n“We should turn back,” he suggested, his eyes wide with fear. “What"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

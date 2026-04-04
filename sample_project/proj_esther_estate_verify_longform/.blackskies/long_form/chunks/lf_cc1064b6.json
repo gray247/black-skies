@@ -1,0 +1,249 @@
+{
+  "chunk_id": "lf_cc1064b6",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:fec7f8c65c6942b26fbc539300b4c8aae1d083b7b96e63f4a0c4ee5051ec8425",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 21,
+    "fallback_reason": "quality_failed"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "quality_failed"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 28,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 323,
+    "paragraph_count": 7,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 3,
+    "concrete_hits": 1,
+    "generic_hits": 1,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The rain fell in an unyielding torrent, each drop creating a rhythmic percussion against the uneven cobblestones. Beneath the awning of a weathered café, Clara huddled, her fingers curled tightly around a chipped porcelain cup, warmth radiating from the steaming coffee within. The rich scent of roasted beans mingled with the earthy aroma of damp asphalt, wrapping around her like a comforting blanket against the chill. She gazed out at the blurred world, the faces rushing by, umbrellas bobbing like vibrant mushrooms in a forest of gray.\n\n“Do you think it’ll ever stop?” The voice cut through her reverie, startling her. She turned to see a man standing nearby, his dark hair slicked against his forehead, droplets cascading off the brim of his hat. He leaned casually against the café wall, an easy smile tugging at the corners of his lips, as if the rain were a shared secret.\n\n“Not today, I think,” she replied, her voice barely cutting through the sound of the rain. She attempted a smile, trying to brush aside the heaviness that had settled in her chest like an unwelcome visitor.\n\nHe chuckled softly, shaking his head as if to shake off the gloom. “It’s like the sky is trying to wash away the last remnants of summer. Just when you think it’s done, it makes its grand exit.” His eyes twinkled with a hint of mischief, and Clara felt a spark of lightness tug at her.\n\nShe nodded, letting his light-heartedness seep into her own mood. “Maybe it’s a good thing. a new beginning, like turning the page of a well-loved novel.”\n\n“Or a reason to stay inside with a book,” he countered, shifting his weight as he leaned closer, his expression playful, his fingers drumming lightly against the damp brick wall beside him. “What’s your poison? Romance or mystery?”\n\n“Definitely mystery,” Clara said, surprised at how easily the words flowed from her lips. “Life’s too complicated for"
+  },
+  "critique_snapshot": {
+    "summary": "The scene depicts Clara huddled under an awning at a café during a heavy rain, where she engages in a light conversation with a man who approaches her. The atmosphere is cozy despite the dreary weather, and their dialogue reveals Clara's introspective nature and preference for mystery over romance.",
+    "weaknesses": [
+      "Vague descriptions of the setting and characters.",
+      "Dialogue lacks grounding in physical actions or specific context.",
+      "Generic phrases that do not add depth to the scene."
+    ],
+    "continuity_issues": [
+      "The transition from Clara's internal thoughts to dialogue feels abrupt.",
+      "The emotional shift in Clara from worry to light-heartedness is not fully developed."
+    ],
+    "pacing_issues": [
+      "The pacing slows down significantly during the dialogue, which could be tightened to maintain engagement."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions of the setting and characters.",
+      "Ground dialogue in physical actions or the environment.",
+      "Eliminate generic phrases and replace them with more original expressions."
+    ],
+    "generic_phrase_targets": [
+      "A fresh start",
+      "Life’s too complicated for romance"
+    ],
+    "detail_targets": [
+      "Descriptions of the café and its surroundings.",
+      "Clara's emotional state and physical sensations."
+    ],
+    "dialogue_grounding_targets": [
+      "Incorporate actions that accompany the dialogue, such as Clara adjusting her cup or the man shifting his stance."
+    ],
+    "emotional_show_targets": [
+      "Show Clara's internal conflict more vividly instead of stating it.",
+      "Illustrate the man's demeanor and how it affects Clara's mood."
+    ],
+    "replacement_targets": [
+      "Replace vague phrases with more evocative imagery.",
+      "Substitute generic dialogue with more character-specific lines."
+    ],
+    "grounding_targets": [
+      "Add sensory details that connect the dialogue to the environment, like the sound of rain or the warmth of the coffee."
+    ],
+    "carryover_targets": []
+  },
+  "attempt_count": 4,
+  "acceptance_reason": "quality_failed",
+  "rewrite_used": true,
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [],
+      "generic_phrases_to_replace": [
+        "A fresh start"
+      ],
+      "lines_to_repair": [
+        "A fresh start.”\n\n“Or a reason to stay inside with a book,” he countered, shifting his weight as he leaned closer, his expression playful."
+      ],
+      "required_concrete_anchor_terms": [
+        "against",
+        "rain",
+        "clara"
+      ],
+      "repair_min_word_count": 258,
+      "repair_max_word_count": 456,
+      "min_paragraph_count": 5,
+      "max_paragraph_count": 9
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-4o",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rewrite_retry_model"
+    },
+    "patch_targets_summary": {
+      "target_count": 1,
+      "target_types": [
+        "generic"
+      ]
+    },
+    "rescue_delta_summary": {
+      "total_delta": 0,
+      "specificity_delta": 0,
+      "clarity_delta": 0,
+      "continuity_delta": 0,
+      "dialogue_delta": 0,
+      "concrete_delta": 0,
+      "stock_phrase_delta": 0,
+      "dialogue_grounding_fixed": false,
+      "dialogue_grounding_targeted": true,
+      "specificity_target_met": false,
+      "clarity_target_met": false,
+      "generic_replacement_target_met": false,
+      "concrete_target_met": false
+    },
+    "rescue_failure_class": "patch_target_missing"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "recovery_retry",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 304,
+    "rewritten_word_count": 323,
+    "min_word_count": 182,
+    "max_word_count": 638,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "his",
+      "she",
+      "against",
+      "rain",
+      "clara",
+      "think",
+      "caf",
+      "you",
+      "voice",
+      "off"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "his",
+      "she",
+      "against",
+      "rain",
+      "clara",
+      "think",
+      "caf",
+      "you",
+      "voice",
+      "off"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 28
+  }
+}

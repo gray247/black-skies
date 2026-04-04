@@ -1,0 +1,576 @@
+{
+  "chunk_id": "lf_f942cc43",
+  "validation_decision": false,
+  "fallback_reason": "quality_failed",
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "raw_preview": "The streets shimmered under the weight of the late afternoon sun, a golden haze draping over the cobblestones as Elara threaded her way through the market, her fingers brushing against the rough burla",
+      "normalized_preview": "The streets shimmered under the weight of the late afternoon sun, a golden haze draping over the cobblestones as Elara threaded her way through the market, her fingers brushing against the rough burla",
+      "raw_length": 1765,
+      "normalized_length": 1765,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKrxhfgXp5BNpZkOwbdxF6QI3ZxN6\", \"object\": \"chat.completion\", \"created\": 1773866361, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The streets shimmered under the weight of the late afternoon sun, a golden haze draping over the cobblestones as Elara threaded her way through the market, her fingers brushing against the rough burlap of sacks piled high with spices and grains. The air was thick with the mingling scents of fr",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 305,
+        "paragraph_count": 5,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 2,
+          "meta_free": 5
+        },
+        "total_score": 26,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 305,
+        "paragraph_count": 5,
+        "dialogue_present": true,
+        "dialogue_grounded": false,
+        "sensory_hits": 4,
+        "concrete_hits": 1,
+        "generic_hits": 1,
+        "stock_phrase_hits": 2,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The streets shimmered under the weight of the late afternoon sun, a golden haze draping over the cobblestones as Elara threaded her way through the market, her fingers brushing against the rough burlap of sacks piled high with spices and grains. The air was thick with the mingling scents of fresh basil, ripe tomatoes, and something sweetly pungent that she couldn’t quite place. She paused, inhaling deeply, letting the aromas swirl around her like a comforting embrace. A nearby vendor, a stout woman with a sun-worn face, caught her eye, her hands deftly arranging plump figs in neat rows.\n\n“Try one, dear,” the woman called, her voice a melodic lilt that seemed to dance above the clamor of bargaining voices. “You won’t find sweeter anywhere else.”\n\nElara hesitated, instinctively drawing her hand back, the weight of her coin purse a heavy reminder of the choices she had to make. But the woman’s warm smile was infectious, and before she knew it, she was stepping closer, the figs glistening like polished stones in the sun. “Just one,” she murmured, feeling the thrill of indulgence sparking in her chest.\n\nAs she took the fig, the skin cool and slightly yielding beneath her fingers, Elara caught sight of a group of children playing nearby, their laughter ringing like bells through the market. One boy, with a shock of unruly hair, darted past her, a wooden sword clutched in his small fist, his face alight with the fierce joy of battle. She watched him for a moment, the innocence of their games tugging at something deep within her—a longing for a time when her own heart had been so unburdened.\n\n“Are you going to eat it or stare at it all day?” The vendor’s teasing tone pulled her back, and she laughed softly, the sound blending with the bustling"
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "rewrite",
+        "escalated": false,
+        "reason": "rewrite_default"
+      },
+      "raw_preview": "The streets shimmered under the weight of the late afternoon sun, a golden haze draping over the cobblestones as Elara threaded her way through the market. Her fingers brushed against the rough burlap",
+      "normalized_preview": "The streets shimmered under the weight of the late afternoon sun, a golden haze draping over the cobblestones as Elara threaded her way through the market. Her fingers brushed against the rough burlap",
+      "raw_length": 1803,
+      "normalized_length": 1803,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKrxtWu97n4Y0P6nNayDcq4DUOxKB\", \"object\": \"chat.completion\", \"created\": 1773866373, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The streets shimmered under the weight of the late afternoon sun, a golden haze draping over the cobblestones as Elara threaded her way through the market. Her fingers brushed against the rough burlap of sacks piled high with spices and grains, the texture grounding her in the moment. The air ",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 302,
+        "paragraph_count": 5,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "guardrail_snapshot": {
+        "evaluated": true,
+        "mode": "rewrite",
+        "outline_titles": [],
+        "beat_refs": [],
+        "locked_facts_evaluated": false,
+        "length_band_evaluated": true,
+        "original_word_count": 305,
+        "rewritten_word_count": 302,
+        "min_word_count": 183,
+        "max_word_count": 640,
+        "within_length_band": true,
+        "outline_fidelity_evaluated": true,
+        "outline_fidelity_pass": true,
+        "original_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "and",
+          "elara",
+          "was",
+          "woman",
+          "one",
+          "weight",
+          "sun",
+          "market",
+          "fingers"
+        ],
+        "retained_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "and",
+          "elara",
+          "was",
+          "woman",
+          "one",
+          "weight",
+          "market",
+          "fingers"
+        ],
+        "outline_anchor_hits": [],
+        "required_anchor_overlap": 1,
+        "scene_anchor_drift_detected": false,
+        "new_story_elements": [],
+        "blocking_new_story_elements": [],
+        "authoritative_name_check": false,
+        "uncertainty_triggered": false,
+        "failure_reason": null,
+        "accepted": true,
+        "quality_total_score": 26
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 2,
+          "meta_free": 5
+        },
+        "total_score": 26,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 302,
+        "paragraph_count": 5,
+        "dialogue_present": true,
+        "dialogue_grounded": false,
+        "sensory_hits": 4,
+        "concrete_hits": 1,
+        "generic_hits": 1,
+        "stock_phrase_hits": 1,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The streets shimmered under the weight of the late afternoon sun, a golden haze draping over the cobblestones as Elara threaded her way through the market. Her fingers brushed against the rough burlap of sacks piled high with spices and grains, the texture grounding her in the moment. The air was thick with the mingling scents of fresh basil, ripe tomatoes, and something sweetly pungent that danced at the edges of her awareness. Pausing, she inhaled deeply, the aromas swirling around her, filling her with a bittersweet nostalgia that tugged at her heart.\n\nA nearby vendor caught her eye—a stout woman with a sun-worn face, her hands deftly arranging plump figs in neat rows. The figs glistened in the sunlight, each one a jewel of summer. “Try one, dear,” the woman called, her voice a melodic lilt that cut through the market’s clamor. “You won’t find sweeter anywhere else.”\n\nElara hesitated, her hand instinctively retreating as the weight of her coin purse pressed against her side, a constant reminder of her limited choices. But the woman’s warm smile was magnetic, pulling her closer despite her reservations. She stepped forward, captivated by the figs’ glossy sheen. “Just one,” she murmured, a spark of excitement igniting within her at the thought of treating herself.\n\nAs she reached out, the skin of the fig cool and slightly yielding beneath her fingers, Elara’s gaze drifted to a group of children playing nearby. Their laughter rang out like bells, bright and carefree. One boy, his hair a tousled mess, dashed past her, brandishing a wooden sword with fierce determination, his face alight with the joy of imagination. Watching him for a moment, she felt an ache in her chest—a longing for a time when her own heart had been unburdened by the weight of responsibilities.\n\n“Are you"
+      },
+      "quality_pass": false,
+      "rewrite_delta": {
+        "total_delta": 0,
+        "stock_phrase_delta": 1,
+        "specificity_delta": 0,
+        "clarity_delta": 0,
+        "continuity_delta": 0
+      },
+      "retry_decision": {
+        "eligible": true,
+        "reason": "targeted_editorial_miss_after_rewrite",
+        "classification": "targeted_editorial"
+      }
+    },
+    {
+      "attempt": 3,
+      "mode": "recovery_retry",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rescue_model"
+      },
+      "raw_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"Watching the boy’s wooden sword flash past the fig stall, she pressed a hand to her chest, where the weight of her coin purse tugged at her side and mad",
+      "normalized_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"Watching the boy’s wooden sword flash past the fig stall, she pressed a hand to her chest, where the weight of her coin purse tugged at her side and mad",
+      "raw_length": 626,
+      "normalized_length": 626,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKrxzMLdZIhqTShg1AIKmp3dASuPQ\", \"object\": \"chat.completion\", \"created\": 1773866379, \"model\": \"gpt-5.4-mini-2026-03-17\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"replacement_text\\\":\\\"Watching the boy’s wooden sword flash past the fig stall, she pressed a hand to her chest, where the weight of her coin purse tugged at her side and made the ache there sharper—a longing for a time when her own heart had been unburdened",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "Watching him for a moment, she felt an ache in her chest—a longing for a time when her own heart had been unburdened by the weight of responsibilities.",
+          "context_before": "One boy, his hair a tousled mess, dashed past her, brandishing a wooden sword with fierce determination, his face alight with the joy of imagination.",
+          "context_after": "“Are you",
+          "target_reason": "generic",
+          "target_phrase": "for a moment"
+        },
+        {
+          "slot_id": "s2",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Try one, dear,” the woman called, her voice a melodic lilt that cut through the market’s clamor.",
+          "context_before": "The figs glistened in the sunlight, each one a jewel of summer.",
+          "context_after": "“You won’t find sweeter anywhere else.”\n\nElara hesitated, her hand instinctively retreating as the weight of her coin purse pressed against her side, a constant reminder of her limited choices.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s3",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Just one,” she murmured, a spark of excitement igniting within her at the thought of treating herself.",
+          "context_before": "She stepped forward, captivated by the figs’ glossy sheen.",
+          "context_after": "As she reached out, the skin of the fig cool and slightly yielding beneath her fingers, Elara’s gaze drifted to a group of children playing nearby.",
+          "target_reason": "dialogue"
+        }
+      ],
+      "rescue_generation_strategy": "slot_patch",
+      "configured_rescue_generation_strategy": "slot_patch",
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "Watching the boy’s wooden sword flash past the fig stall, she pressed a hand to her chest, where the weight of her coin purse tugged at her side and made the ache there sharper—a longing for a time when her own heart had been unburdened by responsibilities."
+        },
+        {
+          "slot_id": "s2",
+          "replacement_text": "The stout woman, her sun-worn hands still arranging the figs in neat rows, called over the market’s clamor, “Try one, dear,”"
+        },
+        {
+          "slot_id": "s3",
+          "replacement_text": "She stepped closer to the fig stall, then let her fingers hover over the glossy fruit before murmuring, “Just one,”"
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_dialogue_grounding_unresolved"
+      }
+    },
+    {
+      "attempt": 4,
+      "mode": "repair_only",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rescue_model"
+      },
+      "raw_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"Watching the boy with the wooden sword dash past the figs and burlap sacks, she felt an ache in her chest—a longing for a time when her own heart had be",
+      "normalized_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"Watching the boy with the wooden sword dash past the figs and burlap sacks, she felt an ache in her chest—a longing for a time when her own heart had be",
+      "raw_length": 658,
+      "normalized_length": 658,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKry1yhtemAfn2dnIUNoqfUZujdXs\", \"object\": \"chat.completion\", \"created\": 1773866381, \"model\": \"gpt-5.4-mini-2026-03-17\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"replacement_text\\\":\\\"Watching the boy with the wooden sword dash past the figs and burlap sacks, she felt an ache in her chest—a longing for a time when her own heart had been unburdened by the weight of responsibilities.\\\"},{\\\"slot_id\\\":\\\"s2\\\",\\\"replacemen",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "Watching him for a moment, she felt an ache in her chest—a longing for a time when her own heart had been unburdened by the weight of responsibilities.",
+          "context_before": "One boy, his hair a tousled mess, dashed past her, brandishing a wooden sword with fierce determination, his face alight with the joy of imagination.",
+          "context_after": "“Are you",
+          "target_reason": "generic",
+          "target_phrase": "for a moment"
+        },
+        {
+          "slot_id": "s2",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Try one, dear,” the woman called, her voice a melodic lilt that cut through the market’s clamor.",
+          "context_before": "The figs glistened in the sunlight, each one a jewel of summer.",
+          "context_after": "“You won’t find sweeter anywhere else.”\n\nElara hesitated, her hand instinctively retreating as the weight of her coin purse pressed against her side, a constant reminder of her limited choices.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s3",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Just one,” she murmured, a spark of excitement igniting within her at the thought of treating herself.",
+          "context_before": "She stepped forward, captivated by the figs’ glossy sheen.",
+          "context_after": "As she reached out, the skin of the fig cool and slightly yielding beneath her fingers, Elara’s gaze drifted to a group of children playing nearby.",
+          "target_reason": "dialogue"
+        }
+      ],
+      "rescue_generation_strategy": "slot_patch",
+      "configured_rescue_generation_strategy": "slot_patch",
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "Watching the boy with the wooden sword dash past the figs and burlap sacks, she felt an ache in her chest—a longing for a time when her own heart had been unburdened by the weight of responsibilities."
+        },
+        {
+          "slot_id": "s2",
+          "replacement_text": "The woman, one hand hovering over the neat rows of figs, called, “Try one, dear,” her voice a melodic lilt that cut through the market’s clamor."
+        },
+        {
+          "slot_id": "s3",
+          "replacement_text": "Elara stepped closer to the figs and murmured, “Just one,” as her fingers hovered over their glossy skins, a spark of excitement igniting within her at the thought of treating herself."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_specificity_unresolved"
+      }
+    }
+  ],
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 2,
+      "meta_free": 5
+    },
+    "total_score": 26,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 302,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": false,
+    "sensory_hits": 4,
+    "concrete_hits": 1,
+    "generic_hits": 1,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The streets shimmered under the weight of the late afternoon sun, a golden haze draping over the cobblestones as Elara threaded her way through the market. Her fingers brushed against the rough burlap of sacks piled high with spices and grains, the texture grounding her in the moment. The air was thick with the mingling scents of fresh basil, ripe tomatoes, and something sweetly pungent that danced at the edges of her awareness. Pausing, she inhaled deeply, the aromas swirling around her, filling her with a bittersweet nostalgia that tugged at her heart.\n\nA nearby vendor caught her eye—a stout woman with a sun-worn face, her hands deftly arranging plump figs in neat rows. The figs glistened in the sunlight, each one a jewel of summer. “Try one, dear,” the woman called, her voice a melodic lilt that cut through the market’s clamor. “You won’t find sweeter anywhere else.”\n\nElara hesitated, her hand instinctively retreating as the weight of her coin purse pressed against her side, a constant reminder of her limited choices. But the woman’s warm smile was magnetic, pulling her closer despite her reservations. She stepped forward, captivated by the figs’ glossy sheen. “Just one,” she murmured, a spark of excitement igniting within her at the thought of treating herself.\n\nAs she reached out, the skin of the fig cool and slightly yielding beneath her fingers, Elara’s gaze drifted to a group of children playing nearby. Their laughter rang out like bells, bright and carefree. One boy, his hair a tousled mess, dashed past her, brandishing a wooden sword with fierce determination, his face alight with the joy of imagination. Watching him for a moment, she felt an ache in her chest—a longing for a time when her own heart had been unburdened by the weight of responsibilities.\n\n“Are you"
+  },
+  "critique_snapshot": {
+    "summary": "Elara navigates a bustling market, captivated by the aromas and sights around her. She interacts with a vendor who offers her figs, leading to a moment of indulgence and reflection on her past as she observes children playing nearby.",
+    "weaknesses": [
+      "The scene lacks strong continuity in Elara's emotional journey and the significance of her interactions.",
+      "Dialogue is not effectively grounded in physical actions or the setting."
+    ],
+    "continuity_issues": [
+      "Elara's hesitation about the fig purchase is not convincingly tied to her emotional state or past experiences."
+    ],
+    "pacing_issues": [
+      "The pacing slows significantly during the introspection, which may disrupt the flow of the market scene."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance the grounding of dialogue in physical actions.",
+      "Clarify Elara's emotional state and its connection to her surroundings.",
+      "Reduce generic phrases and enhance specificity in descriptions."
+    ],
+    "generic_phrase_targets": [
+      "a comforting embrace",
+      "the weight of her coin purse",
+      "the thrill of indulgence"
+    ],
+    "detail_targets": [
+      "Descriptions of the market and its sensory details could be more vivid and specific."
+    ],
+    "dialogue_grounding_targets": [
+      "Vendor's dialogue should be more connected to Elara's actions and the setting."
+    ],
+    "emotional_show_targets": [
+      "Elara's longing and emotional reflections need to be more explicitly tied to her actions and surroundings."
+    ],
+    "replacement_targets": [
+      "Replace generic phrases with more unique and specific imagery."
+    ],
+    "grounding_targets": [
+      "Ensure that Elara's interactions with the vendor and her surroundings are more physically grounded."
+    ],
+    "carryover_targets": [
+      "Strengthen the emotional carryover from Elara's past to her current experiences in the market."
+    ]
+  },
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_model_name": "gpt-5.4-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Try one, dear,” the woman called, her voice a melodic lilt that cut through the market’s clamor.",
+        "“You won’t find sweeter anywhere else.”\n\nElara hesitated, her hand instinctively retreating as the weight of her coin purse pressed against her side, a constant reminder of her limited choices.",
+        "“Just one,” she murmured, a spark of excitement igniting within her at the thought of treating herself.",
+        "“Are you"
+      ],
+      "generic_phrases_to_replace": [
+        "the weight of her coin purse",
+        "for a moment"
+      ],
+      "lines_to_repair": [
+        "“You won’t find sweeter anywhere else.”\n\nElara hesitated, her hand instinctively retreating as the weight of her coin purse pressed against her side, a constant reminder of her limited choices.",
+        "Watching him for a moment, she felt an ache in her chest—a longing for a time when her own heart had been unburdened by the weight of responsibilities.",
+        "“Try one, dear,” the woman called, her voice a melodic lilt that cut through the market’s clamor.",
+        "“Just one,” she murmured, a spark of excitement igniting within her at the thought of treating herself.",
+        "“Are you"
+      ],
+      "required_concrete_anchor_terms": [
+        "weight",
+        "elara",
+        "woman"
+      ],
+      "repair_min_word_count": 256,
+      "repair_max_word_count": 453,
+      "min_paragraph_count": 3,
+      "max_paragraph_count": 7
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rescue_model"
+    },
+    "rescue_generation_strategy": "slot_patch",
+    "configured_rescue_generation_strategy": "slot_patch",
+    "rescue_slots_summary": {
+      "slot_count": 3,
+      "target_types": [
+        "generic",
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_specificity_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 305,
+    "rewritten_word_count": 302,
+    "min_word_count": 183,
+    "max_word_count": 640,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "and",
+      "elara",
+      "was",
+      "woman",
+      "one",
+      "weight",
+      "sun",
+      "market",
+      "fingers"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "and",
+      "elara",
+      "was",
+      "woman",
+      "one",
+      "weight",
+      "market",
+      "fingers"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 26
+  }
+}

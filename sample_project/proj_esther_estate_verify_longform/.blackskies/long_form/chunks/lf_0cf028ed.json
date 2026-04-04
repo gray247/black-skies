@@ -1,0 +1,239 @@
+{
+  "chunk_id": "lf_0cf028ed",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:443716addff9b3e377406b65f37c397bd7a89cf2cb3997c1d33d50692b384518",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 21,
+    "fallback_reason": "quality_failed"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "quality_failed"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 2,
+      "meta_free": 5
+    },
+    "total_score": 26,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 308,
+    "paragraph_count": 4,
+    "dialogue_present": true,
+    "dialogue_grounded": false,
+    "sensory_hits": 5,
+    "concrete_hits": 1,
+    "generic_hits": 1,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The air was rich with the scent of damp earth, punctuated by the sharp tang of ozone as the storm approached, dark clouds swirling overhead like a turbulent ocean. Eva stood beneath the sprawling oak, its gnarled branches twisting into the sky, resembling ancient hands grasping for something just out of reach. She pulled her jacket tighter around her shoulders, the fabric clinging to her skin, dampening under the weight of the increasing humidity. Each inhale filled her lungs with the raw, electric anticipation of the coming rain.\n\nA rustle in the underbrush drew her attention, and she pivoted, her heart racing, half-hoping to spot a deer or a curious fox. Instead, it was merely a cluster of leaves dancing in the wind, and she let out a shaky laugh, the sound mingling with the soft whisper of the breeze. “Come on, pull yourself together, Eva,” she muttered, her voice barely breaking the stillness. The solitude felt heavy around her, each rustling leaf a reminder of her isolation, amplifying the echo of her own thoughts.\n\nThen the first drops of rain fell, plopping against the ground, each one a gentle reminder of the storm's arrival. She tilted her head back, allowing the cool droplets to cascade over her face, feeling the contrast of the moisture against her warm skin, a brief reprieve from the tension coiling within her. “It’s just rain,” she reassured herself, though her thoughts raced ahead, spiraling into the storm of emotions that awaited her—confrontations looming, unspoken words lingering like the gathering clouds.\n\nSuddenly, a voice sliced through her reverie, startling her from her thoughts. She turned to see Alex, soaked to the skin, breathless, his hair plastered to his forehead. The corners of his mouth curled into a crooked smile, a spark of warmth igniting in her chest despite the chill in the air"
+  },
+  "critique_snapshot": {
+    "summary": "The scene depicts Eva standing under an oak tree as a storm approaches, reflecting on her isolation and vulnerability. She experiences a moment of anxiety and self-reassurance before being interrupted by Alex, who arrives drenched from the rain.",
+    "weaknesses": [
+      "Generic phrasing detracts from the uniqueness of the scene.",
+      "Lack of grounding in physical action or setting during dialogue.",
+      "Vague descriptions that do not fully immerse the reader in the scene."
+    ],
+    "continuity_issues": [
+      "The transition from Eva's internal thoughts to Alex's entrance feels abrupt and lacks a clear connection."
+    ],
+    "pacing_issues": [
+      "The pacing slows significantly during introspective moments, which may disrupt the flow leading up to Alex's arrival."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid scene.",
+      "Ground dialogue in physical actions or the setting to improve realism.",
+      "Eliminate generic phrases and replace them with more original expressions."
+    ],
+    "generic_phrase_targets": [
+      "thick with the scent of wet earth",
+      "dark clouds churning overhead like a restless sea",
+      "a fleeting moment of comfort"
+    ],
+    "detail_targets": [
+      "The description of the oak tree and its branches could be more unique and specific.",
+      "The sensory details of the rain could be expanded to enhance immersion."
+    ],
+    "dialogue_grounding_targets": [
+      "Eva's dialogue to herself could be more connected to her physical actions or the environment."
+    ],
+    "emotional_show_targets": [
+      "Show more of Eva's emotional state through her actions rather than just internal thoughts."
+    ],
+    "replacement_targets": [
+      "Replace 'Get it together, Eva' with a more unique expression reflecting her personality."
+    ],
+    "grounding_targets": [
+      "Incorporate more physical actions that relate to Eva's emotional state during her introspection."
+    ],
+    "carryover_targets": [
+      "Ensure that the transition from Eva's thoughts to Alex's entrance feels more fluid and connected."
+    ]
+  },
+  "attempt_count": 4,
+  "acceptance_reason": "quality_failed",
+  "rewrite_used": true,
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_model_name": "gpt-5.4-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Come on, pull yourself together, Eva,” she muttered, her voice barely breaking the stillness.",
+        "“It’s just rain,” she reassured herself, though her thoughts raced ahead, spiraling into the storm of emotions that awaited her—confrontations looming, unspoken words lingering like the gathering clouds."
+      ],
+      "generic_phrases_to_replace": [],
+      "lines_to_repair": [
+        "“Come on, pull yourself together, Eva,” she muttered, her voice barely breaking the stillness.",
+        "“It’s just rain,” she reassured herself, though her thoughts raced ahead, spiraling into the storm of emotions that awaited her—confrontations looming, unspoken words lingering like the gathering clouds."
+      ],
+      "required_concrete_anchor_terms": [
+        "skin",
+        "each",
+        "rain"
+      ],
+      "repair_min_word_count": 261,
+      "repair_max_word_count": 462,
+      "min_paragraph_count": 2,
+      "max_paragraph_count": 6
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rescue_model"
+    },
+    "rescue_generation_strategy": "local_rewrite_block",
+    "rescue_slots_summary": {
+      "slot_count": 2,
+      "target_types": [
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_dialogue_grounding_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 309,
+    "rewritten_word_count": 308,
+    "min_word_count": 185,
+    "max_word_count": 648,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "was",
+      "and",
+      "that",
+      "rain",
+      "his",
+      "air",
+      "storm",
+      "clouds",
+      "eva"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "was",
+      "and",
+      "rain",
+      "his",
+      "air",
+      "storm",
+      "clouds",
+      "eva"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 26
+  }
+}

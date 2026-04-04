@@ -1,0 +1,605 @@
+{
+  "chunk_id": "lf_14c6b962",
+  "validation_decision": false,
+  "fallback_reason": "quality_failed",
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "raw_preview": "The air was thick with the scent of damp earth as Clara pushed through the underbrush, her fingers brushing against the rough bark of twisted branches. Each step crunched softly underfoot, the sound s",
+      "normalized_preview": "The air was thick with the scent of damp earth as Clara pushed through the underbrush, her fingers brushing against the rough bark of twisted branches. Each step crunched softly underfoot, the sound s",
+      "raw_length": 1807,
+      "normalized_length": 1807,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKbgRIuBDLXc0xNQzqRjqiSmcjlL7\", \"object\": \"chat.completion\", \"created\": 1773803787, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The air was thick with the scent of damp earth as Clara pushed through the underbrush, her fingers brushing against the rough bark of twisted branches. Each step crunched softly underfoot, the sound swallowed by the dense foliage around her. Sunlight filtered through the canopy above, dappling",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 312,
+        "paragraph_count": 5,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 28,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 312,
+        "paragraph_count": 5,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 6,
+        "concrete_hits": 0,
+        "generic_hits": 1,
+        "stock_phrase_hits": 1,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The air was thick with the scent of damp earth as Clara pushed through the underbrush, her fingers brushing against the rough bark of twisted branches. Each step crunched softly underfoot, the sound swallowed by the dense foliage around her. Sunlight filtered through the canopy above, dappling the ground in patches of gold, yet the shadows felt alive, swirling with the whispers of unseen creatures. She paused, wiping a bead of sweat from her brow, her heart racing not from exertion but from a deeper, primal instinct that prickled at the back of her neck.\n\n“Clara, wait up!” A voice broke through the silence, laced with urgency. It was Leo, his breath heavy as he stumbled to catch up, his boots scraping against the pebbled path. Clara turned to see him, his shirt clinging to his skin and his eyes wide with a mix of excitement and anxiety.\n\n“Did you hear that?” she asked, her voice barely above a whisper, the thrill of adventure coursing through her veins. She could feel the weight of the forest pressing in, as if it were holding its breath in anticipation. Leo nodded, his gaze darting around them, searching for the source of the rustling that had sent a shiver down her spine.\n\n“Probably just a deer,” he said, but the tremor in his voice betrayed him. Clara knew he didn’t believe it. She stepped closer, the ground yielding slightly beneath her feet, and leaned in, listening intently. The world around her felt suspended, the rustle of leaves now a heartbeat that pulsed in tandem with her own.\n\n“Or something else,” she murmured, half to herself. The thought was thrilling, intoxicating even. Clara had always been drawn to the unknown, the thrill of discovery igniting a fire within her that she could not quench. But with each passing moment, the forest seemed to shift, shadows length"
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "rewrite",
+        "escalated": false,
+        "reason": "rewrite_default"
+      },
+      "raw_preview": "Clara pushed through the underbrush, her fingertips grazing the rough bark of twisted branches, their surfaces mottled with moss and damp earth. Each step crunched softly beneath her worn boots, the s",
+      "normalized_preview": "Clara pushed through the underbrush, her fingertips grazing the rough bark of twisted branches, their surfaces mottled with moss and damp earth. Each step crunched softly beneath her worn boots, the s",
+      "raw_length": 1779,
+      "normalized_length": 1779,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKbggKZy6ylhTCsoroiknw4WF5NWf\", \"object\": \"chat.completion\", \"created\": 1773803802, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"Clara pushed through the underbrush, her fingertips grazing the rough bark of twisted branches, their surfaces mottled with moss and damp earth. Each step crunched softly beneath her worn boots, the sounds muffled by the thick foliage enveloping her. Sunlight filtered through the dense canopy ",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 301,
+        "paragraph_count": 5,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "guardrail_snapshot": {
+        "evaluated": true,
+        "mode": "rewrite",
+        "outline_titles": [],
+        "beat_refs": [],
+        "locked_facts_evaluated": false,
+        "length_band_evaluated": true,
+        "original_word_count": 312,
+        "rewritten_word_count": 301,
+        "min_word_count": 187,
+        "max_word_count": 655,
+        "within_length_band": true,
+        "outline_fidelity_evaluated": true,
+        "outline_fidelity_pass": true,
+        "original_anchor_terms": [
+          "the",
+          "her",
+          "his",
+          "she",
+          "clara",
+          "that",
+          "was",
+          "but",
+          "voice",
+          "and",
+          "against",
+          "each"
+        ],
+        "retained_anchor_terms": [
+          "the",
+          "her",
+          "his",
+          "she",
+          "clara",
+          "voice",
+          "and",
+          "each"
+        ],
+        "outline_anchor_hits": [],
+        "required_anchor_overlap": 1,
+        "scene_anchor_drift_detected": false,
+        "new_story_elements": [],
+        "blocking_new_story_elements": [],
+        "authoritative_name_check": false,
+        "uncertainty_triggered": false,
+        "failure_reason": null,
+        "accepted": true,
+        "quality_total_score": 28
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 28,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 301,
+        "paragraph_count": 5,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 6,
+        "concrete_hits": 0,
+        "generic_hits": 1,
+        "stock_phrase_hits": 0,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "Clara pushed through the underbrush, her fingertips grazing the rough bark of twisted branches, their surfaces mottled with moss and damp earth. Each step crunched softly beneath her worn boots, the sounds muffled by the thick foliage enveloping her. Sunlight filtered through the dense canopy above, casting dappled patches of gold on the leaf-strewn ground, while shadows twisted and twirled, as if animated by whispers of unseen creatures. She paused to wipe a bead of sweat from her brow, her pulse quickening, not from the exertion of her trek, but from a primal instinct prickling at the nape of her neck.\n\n“Clara, wait up!” The voice sliced through the stillness, laced with urgency. Leo stumbled into view, his shirt clinging to his damp skin, breathless from his hurried pace. Clara turned, noting the way his eyes flickered with a blend of excitement and unease.\n\n“Did you hear that?” she asked, lowering her voice to a murmur, the thrill of adventure buzzing in her veins. The forest wrapped around them like a living entity, its presence so palpable it felt as if it were collectively holding its breath. Leo nodded, his gaze darting to the shadows, scanning the underbrush for the source of the rustling that had sent a shiver racing down her spine.\n\n“Probably just a deer,” he replied, though the tremor in his voice gave him away. Clara could see it in the way his fingers fidgeted with the strap of his pack, betraying the bravado he tried to project. She stepped closer, the ground soft and yielding beneath her weight, and leaned in, straining to listen. The world around them felt suspended, each rustle of leaves resonating like a heartbeat, matching the rhythm of her own quickening pulse.\n\n“Or something else,” she whispered, the thought igniting a spark of"
+      },
+      "quality_pass": false,
+      "rewrite_delta": {
+        "total_delta": 0,
+        "stock_phrase_delta": 1,
+        "specificity_delta": 0,
+        "clarity_delta": 0,
+        "continuity_delta": 0
+      },
+      "retry_decision": {
+        "eligible": true,
+        "reason": "targeted_editorial_miss_after_rewrite",
+        "classification": "targeted_editorial"
+      }
+    },
+    {
+      "attempt": 3,
+      "mode": "recovery_retry",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rescue_model"
+      },
+      "raw_preview": "{\"rewrites\":[{\"slot_id\":\"s1\",\"rewritten_excerpt\":\"“Clara, wait up!” Leo called from the underbrush, breathless as he stumbled into view, his shirt clinging to his damp skin.\"},{\"slot_id\":\"s2\",\"rewritt",
+      "normalized_preview": "{\"rewrites\":[{\"slot_id\":\"s1\",\"rewritten_excerpt\":\"“Clara, wait up!” Leo called from the underbrush, breathless as he stumbled into view, his shirt clinging to his damp skin.\"},{\"slot_id\":\"s2\",\"rewritt",
+      "raw_length": 555,
+      "normalized_length": 555,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKbgliiHTy8yT4oQcRB9oAvJHFjR1\", \"object\": \"chat.completion\", \"created\": 1773803807, \"model\": \"gpt-5.4-mini-2026-03-17\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"rewrites\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"rewritten_excerpt\\\":\\\"“Clara, wait up!” Leo called from the underbrush, breathless as he stumbled into view, his shirt clinging to his damp skin.\\\"},{\\\"slot_id\\\":\\\"s2\\\",\\\"rewritten_excerpt\\\":\\\"“Did you hear that?” she asked in a low murmur, glancing toward",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "local_excerpt",
+          "target_type": "dialogue",
+          "original_text": "“Clara, wait up!” The voice sliced through the stillness, laced with urgency.",
+          "context_before": "She paused to wipe a bead of sweat from her brow, her pulse quickening, not from the exertion of her trek, but from a primal instinct prickling at the nape of her neck.",
+          "context_after": "Leo stumbled into view, his shirt clinging to his damp skin, breathless from his hurried pace.",
+          "target_reason": "dialogue",
+          "focus_text": "“Clara, wait up!” The voice sliced through the stillness, laced with urgency."
+        },
+        {
+          "slot_id": "s2",
+          "unit_type": "local_excerpt",
+          "target_type": "dialogue",
+          "original_text": "“Did you hear that?” she asked, lowering her voice to a murmur, the thrill of adventure buzzing in her veins.",
+          "context_before": "Clara turned, noting the way his eyes flickered with a blend of excitement and unease.",
+          "context_after": "The forest wrapped around them like a living entity, its presence so palpable it felt as if it were collectively holding its breath.",
+          "target_reason": "dialogue",
+          "focus_text": "“Did you hear that?” she asked, lowering her voice to a murmur, the thrill of adventure buzzing in her veins."
+        },
+        {
+          "slot_id": "s3",
+          "unit_type": "local_excerpt",
+          "target_type": "dialogue",
+          "original_text": "“Probably just a deer,” he replied, though the tremor in his voice gave him away.",
+          "context_before": "Leo nodded, his gaze darting to the shadows, scanning the underbrush for the source of the rustling that had sent a shiver racing down her spine.",
+          "context_after": "Clara could see it in the way his fingers fidgeted with the strap of his pack, betraying the bravado he tried to project.",
+          "target_reason": "dialogue",
+          "focus_text": "“Probably just a deer,” he replied, though the tremor in his voice gave him away."
+        },
+        {
+          "slot_id": "s4",
+          "unit_type": "local_excerpt",
+          "target_type": "dialogue",
+          "original_text": "“Or something else,” she whispered, the thought igniting a spark of",
+          "context_before": "The world around them felt suspended, each rustle of leaves resonating like a heartbeat, matching the rhythm of her own quickening pulse.",
+          "context_after": "",
+          "target_reason": "dialogue",
+          "focus_text": "“Or something else,” she whispered, the thought igniting a spark of"
+        }
+      ],
+      "rescue_generation_strategy": "local_rewrite_block",
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "“Clara, wait up!” Leo called from the underbrush, breathless as he stumbled into view, his shirt clinging to his damp skin."
+        },
+        {
+          "slot_id": "s2",
+          "replacement_text": "“Did you hear that?” she asked in a low murmur, glancing toward the rustling underbrush."
+        },
+        {
+          "slot_id": "s3",
+          "replacement_text": "“Probably just a deer,” he replied, his fingers still fidgeting with the strap of his pack."
+        },
+        {
+          "slot_id": "s4",
+          "replacement_text": "“Or something else,” she whispered, her eyes fixed on the shadows in the trees."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_dialogue_grounding_unresolved"
+      }
+    },
+    {
+      "attempt": 4,
+      "mode": "repair_only",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rescue_model"
+      },
+      "raw_preview": "{\"rewrites\":[{\"slot_id\":\"s1\",\"rewritten_excerpt\":\"“Clara, wait up!” Leo called, stumbling into view with his shirt clinging to his damp skin.\"},{\"slot_id\":\"s2\",\"rewritten_excerpt\":\"“Did you hear that?",
+      "normalized_preview": "{\"rewrites\":[{\"slot_id\":\"s1\",\"rewritten_excerpt\":\"“Clara, wait up!” Leo called, stumbling into view with his shirt clinging to his damp skin.\"},{\"slot_id\":\"s2\",\"rewritten_excerpt\":\"“Did you hear that?",
+      "raw_length": 479,
+      "normalized_length": 479,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKbgmXGruMiBRsRx9whuSY6nuG1kx\", \"object\": \"chat.completion\", \"created\": 1773803808, \"model\": \"gpt-5.4-mini-2026-03-17\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"rewrites\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"rewritten_excerpt\\\":\\\"“Clara, wait up!” Leo called, stumbling into view with his shirt clinging to his damp skin.\\\"},{\\\"slot_id\\\":\\\"s2\\\",\\\"rewritten_excerpt\\\":\\\"“Did you hear that?” she asked in a murmur, eyes on the underbrush.\\\"},{\\\"slot_id\\\":\\\"s3\\\",\\\"re",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "local_excerpt",
+          "target_type": "dialogue",
+          "original_text": "“Clara, wait up!” The voice sliced through the stillness, laced with urgency.",
+          "context_before": "She paused to wipe a bead of sweat from her brow, her pulse quickening, not from the exertion of her trek, but from a primal instinct prickling at the nape of her neck.",
+          "context_after": "Leo stumbled into view, his shirt clinging to his damp skin, breathless from his hurried pace.",
+          "target_reason": "dialogue",
+          "focus_text": "“Clara, wait up!” The voice sliced through the stillness, laced with urgency."
+        },
+        {
+          "slot_id": "s2",
+          "unit_type": "local_excerpt",
+          "target_type": "dialogue",
+          "original_text": "“Did you hear that?” she asked, lowering her voice to a murmur, the thrill of adventure buzzing in her veins.",
+          "context_before": "Clara turned, noting the way his eyes flickered with a blend of excitement and unease.",
+          "context_after": "The forest wrapped around them like a living entity, its presence so palpable it felt as if it were collectively holding its breath.",
+          "target_reason": "dialogue",
+          "focus_text": "“Did you hear that?” she asked, lowering her voice to a murmur, the thrill of adventure buzzing in her veins."
+        },
+        {
+          "slot_id": "s3",
+          "unit_type": "local_excerpt",
+          "target_type": "dialogue",
+          "original_text": "“Probably just a deer,” he replied, though the tremor in his voice gave him away.",
+          "context_before": "Leo nodded, his gaze darting to the shadows, scanning the underbrush for the source of the rustling that had sent a shiver racing down her spine.",
+          "context_after": "Clara could see it in the way his fingers fidgeted with the strap of his pack, betraying the bravado he tried to project.",
+          "target_reason": "dialogue",
+          "focus_text": "“Probably just a deer,” he replied, though the tremor in his voice gave him away."
+        },
+        {
+          "slot_id": "s4",
+          "unit_type": "local_excerpt",
+          "target_type": "dialogue",
+          "original_text": "“Or something else,” she whispered, the thought igniting a spark of",
+          "context_before": "The world around them felt suspended, each rustle of leaves resonating like a heartbeat, matching the rhythm of her own quickening pulse.",
+          "context_after": "",
+          "target_reason": "dialogue",
+          "focus_text": "“Or something else,” she whispered, the thought igniting a spark of"
+        }
+      ],
+      "rescue_generation_strategy": "local_rewrite_block",
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "“Clara, wait up!” Leo called, stumbling into view with his shirt clinging to his damp skin."
+        },
+        {
+          "slot_id": "s2",
+          "replacement_text": "“Did you hear that?” she asked in a murmur, eyes on the underbrush."
+        },
+        {
+          "slot_id": "s3",
+          "replacement_text": "“Probably just a deer,” he replied, fingers fidgeting with the strap of his pack."
+        },
+        {
+          "slot_id": "s4",
+          "replacement_text": "“Or something else,” she whispered, leaning toward the underbrush."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_dialogue_grounding_unresolved"
+      }
+    }
+  ],
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 28,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 301,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 6,
+    "concrete_hits": 0,
+    "generic_hits": 1,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "Clara pushed through the underbrush, her fingertips grazing the rough bark of twisted branches, their surfaces mottled with moss and damp earth. Each step crunched softly beneath her worn boots, the sounds muffled by the thick foliage enveloping her. Sunlight filtered through the dense canopy above, casting dappled patches of gold on the leaf-strewn ground, while shadows twisted and twirled, as if animated by whispers of unseen creatures. She paused to wipe a bead of sweat from her brow, her pulse quickening, not from the exertion of her trek, but from a primal instinct prickling at the nape of her neck.\n\n“Clara, wait up!” The voice sliced through the stillness, laced with urgency. Leo stumbled into view, his shirt clinging to his damp skin, breathless from his hurried pace. Clara turned, noting the way his eyes flickered with a blend of excitement and unease.\n\n“Did you hear that?” she asked, lowering her voice to a murmur, the thrill of adventure buzzing in her veins. The forest wrapped around them like a living entity, its presence so palpable it felt as if it were collectively holding its breath. Leo nodded, his gaze darting to the shadows, scanning the underbrush for the source of the rustling that had sent a shiver racing down her spine.\n\n“Probably just a deer,” he replied, though the tremor in his voice gave him away. Clara could see it in the way his fingers fidgeted with the strap of his pack, betraying the bravado he tried to project. She stepped closer, the ground soft and yielding beneath her weight, and leaned in, straining to listen. The world around them felt suspended, each rustle of leaves resonating like a heartbeat, matching the rhythm of her own quickening pulse.\n\n“Or something else,” she whispered, the thought igniting a spark of"
+  },
+  "critique_snapshot": {
+    "summary": "The scene follows Clara as she navigates through a dense forest, feeling a mix of excitement and primal instinct. Leo catches up to her, expressing urgency and concern about a mysterious sound. The atmosphere is charged with tension and anticipation, as Clara and Leo speculate about the source of the noise, hinting at a deeper adventure.",
+    "weaknesses": [
+      "Vague descriptions that lack specificity.",
+      "Dialogue that feels disconnected from physical actions.",
+      "Generic phrases that detract from the uniqueness of the scene."
+    ],
+    "continuity_issues": [
+      "The transition from Clara's internal feelings to Leo's arrival feels abrupt.",
+      "The description of the forest's atmosphere does not consistently align with the characters' actions."
+    ],
+    "pacing_issues": [
+      "The buildup of tension is slow, potentially losing reader engagement.",
+      "Dialogue interrupts the flow of Clara's internal monologue without a clear transition."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid setting.",
+      "Ground dialogue in physical actions or environmental details.",
+      "Eliminate generic phrases and replace them with more original expressions."
+    ],
+    "generic_phrase_targets": [
+      "The air was thick with the scent of damp earth",
+      "the thrill of adventure coursing through her veins",
+      "the shadows felt alive"
+    ],
+    "detail_targets": [
+      "Descriptions of the forest and its sounds could be more concrete and unique.",
+      "Clara's internal feelings need more grounding in her physical experience."
+    ],
+    "dialogue_grounding_targets": [
+      "Leo's dialogue should be more connected to his physical state and surroundings.",
+      "Clara's questions could reflect her actions more clearly."
+    ],
+    "emotional_show_targets": [
+      "Clara's excitement and anxiety should be shown through actions rather than just internal thoughts.",
+      "Leo's urgency should be demonstrated through his movements and expressions."
+    ],
+    "replacement_targets": [
+      "Replace generic phrases with more specific imagery.",
+      "Revise dialogue to reflect the characters' physical context."
+    ],
+    "grounding_targets": [
+      "Ensure characters' emotions are tied to their physical actions.",
+      "Use sensory details to ground the scene in the environment."
+    ],
+    "carryover_targets": [
+      "Clarify the transition between Clara's internal thoughts and Leo's entrance.",
+      "Ensure continuity in the atmosphere as characters interact."
+    ]
+  },
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_model_name": "gpt-5.4-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Clara, wait up!” The voice sliced through the stillness, laced with urgency.",
+        "“Did you hear that?” she asked, lowering her voice to a murmur, the thrill of adventure buzzing in her veins.",
+        "“Probably just a deer,” he replied, though the tremor in his voice gave him away.",
+        "“Or something else,” she whispered, the thought igniting a spark of"
+      ],
+      "generic_phrases_to_replace": [],
+      "lines_to_repair": [
+        "“Clara, wait up!” The voice sliced through the stillness, laced with urgency.",
+        "“Did you hear that?” she asked, lowering her voice to a murmur, the thrill of adventure buzzing in her veins.",
+        "“Probably just a deer,” he replied, though the tremor in his voice gave him away.",
+        "“Or something else,” she whispered, the thought igniting a spark of"
+      ],
+      "required_concrete_anchor_terms": [
+        "clara",
+        "voice",
+        "underbrush"
+      ],
+      "repair_min_word_count": 255,
+      "repair_max_word_count": 451,
+      "min_paragraph_count": 3,
+      "max_paragraph_count": 7
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rescue_model"
+    },
+    "rescue_generation_strategy": "local_rewrite_block",
+    "rescue_slots_summary": {
+      "slot_count": 4,
+      "target_types": [
+        "dialogue",
+        "dialogue",
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_dialogue_grounding_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 312,
+    "rewritten_word_count": 301,
+    "min_word_count": 187,
+    "max_word_count": 655,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "his",
+      "she",
+      "clara",
+      "that",
+      "was",
+      "but",
+      "voice",
+      "and",
+      "against",
+      "each"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "his",
+      "she",
+      "clara",
+      "voice",
+      "and",
+      "each"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 28
+  }
+}

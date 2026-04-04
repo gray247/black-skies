@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_21d13348",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:08c32c7046a54c9a0421ad2593821295d2831541af9a9d6e12f2014c5081b135",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The air in the narrow service corridor was thick with unease, a stale mix of dust and something sharper, almost metallic",
+    "word_count": 303,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 30,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 303,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 7,
+    "concrete_hits": 10,
+    "generic_hits": 1,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The air in the narrow service corridor was thick with unease, a stale mix of dust and something sharper, almost metallic. Clara tightened her grip on the damp lantern, its flickering light casting jittery shadows that danced along the peeling walls. Each heartbeat echoed in her ears, a reminder of the silence that draped over them like a heavy shroud. The chain rattled again, a low, persistent jangle that sent a chill crawling down her spine. “Did you hear that?” Jun’s voice trembled, barely rising above the lantern’s sputter.\n\n“Of course I did,” she snapped, too quickly, as if raising her voice could silence the noise. She pressed her lips together, willing her heart to slow. She could feel the parlor key, tied to her wrist with a red ribbon, digging into her skin, a tether to something solid in this storm of unease.\n\nMud squelched beneath their feet as they stepped deeper into the corridor, the faded floral wallpaper peeling away like dry skin. Clara’s gaze darted to the ground, where fresh prints marred the floor, leading away from the chained door that barred their path. “Someone’s been here,” she murmured, half to herself, half to Jun, though she could feel the weight of his fear, a palpable thing that thrummed in the air between them.\n\n“Clara,” he said, his voice low, almost a whisper. “What if it’s still here?” He glanced back, his dark eyes wide and glistening in the lantern’s weak glow. The rain from the greenhouse had soaked through his coat, and it clung to him like a second skin, accentuating the tension in his shoulders.\n\n“I don’t know,” she admitted, though the truth felt like a stone lodged in her throat. The memory of that cough, sharp and childlike, echoed in her mind. She could still feel the"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

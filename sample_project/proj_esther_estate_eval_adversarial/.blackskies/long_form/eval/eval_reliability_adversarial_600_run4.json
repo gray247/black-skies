@@ -1,0 +1,52 @@
+{
+  "summary": {
+    "project_id": "proj_esther_estate_eval_adversarial",
+    "chapter_id": "ch_0001",
+    "run_id": "20260316T183636Z",
+    "chunk_ids": [
+      "lf_147316b9",
+      "lf_3da37511",
+      "lf_5f22fee7",
+      "lf_62afaff2",
+      "lf_959db067"
+    ],
+    "chunk_count": 5,
+    "accepted_count": 5,
+    "rewrite_count": 0,
+    "retry_used_count": 0,
+    "retried_success_count": 0,
+    "fallback_count": 0,
+    "borderline_failure_count": 0,
+    "avg_quality_score": 32.2,
+    "avg_attempts": 1.0,
+    "continuity_warnings": 0,
+    "total_estimated_usd": 0.05,
+    "providers": [
+      "openai"
+    ],
+    "models": [
+      "gpt-4o-mini"
+    ],
+    "stopped_reason": null
+  },
+  "details": {
+    "request": {
+      "project_id": "proj_esther_estate_eval_adversarial",
+      "chapter_id": "ch_0001",
+      "scene_ids": [
+        "sc_0001",
+        "sc_0002",
+        "sc_0003",
+        "sc_0004",
+        "sc_0005"
+      ],
+      "chunk_size": 1,
+      "target_words_per_chunk": 600,
+      "enabled": true
+    },
+    "response": {
+      "stopped_reason": null,
+      "chunk_count": 5
+    }
+  }
+}

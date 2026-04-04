@@ -1,0 +1,604 @@
+{
+  "chunk_id": "lf_839e2a77",
+  "validation_decision": false,
+  "fallback_reason": "quality_failed",
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "raw_preview": "The air hung heavy with the scent of damp earth and fading lilacs as Mira stepped into the garden, her fingers brushing the cool, dew-kissed petals of a nearby flower. She paused, letting the early mo",
+      "normalized_preview": "The air hung heavy with the scent of damp earth and fading lilacs as Mira stepped into the garden, her fingers brushing the cool, dew-kissed petals of a nearby flower. She paused, letting the early mo",
+      "raw_length": 1753,
+      "normalized_length": 1753,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKYp5NGSrD4dxVrMpOliMev8lzxrs\", \"object\": \"chat.completion\", \"created\": 1773792791, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The air hung heavy with the scent of damp earth and fading lilacs as Mira stepped into the garden, her fingers brushing the cool, dew-kissed petals of a nearby flower. She paused, letting the early morning light paint the world in shades of gold and green, each beam a reminder of the warmth sh",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 296,
+        "paragraph_count": 6,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 28,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 296,
+        "paragraph_count": 6,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 4,
+        "concrete_hits": 0,
+        "generic_hits": 1,
+        "stock_phrase_hits": 2,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The air hung heavy with the scent of damp earth and fading lilacs as Mira stepped into the garden, her fingers brushing the cool, dew-kissed petals of a nearby flower. She paused, letting the early morning light paint the world in shades of gold and green, each beam a reminder of the warmth she had almost forgotten. The rustle of leaves whispered secrets to her as a gentle breeze stirred, and she closed her eyes, inhaling deeply. It was a fleeting moment of peace, one that felt out of reach yet achingly familiar.\n\n“Where have you been, Mira?” a voice called from the far end of the garden, tinged with a mixture of concern and irritation. It was Elara, her sister, standing by the wrought-iron gate, arms crossed tightly over her chest. The sunlight caught her auburn hair, making it shimmer like fire, but the coolness of her tone doused any warmth the day offered.\n\nMira opened her eyes, the spell of tranquility broken. “I needed some air,” she replied, keeping her voice steady, though inside, a storm raged. Elara’s scrutiny felt like a spotlight, bright and unforgiving. “It’s just the garden.”\n\n“Just the garden?” Elara echoed, stepping closer, her expression shifting from irritation to something softer, a flicker of concern hidden beneath the surface. “You’ve been ‘just the garden’ for days now. We can’t keep pretending everything's fine.”\n\nMira turned away, her gaze drawn to a cluster of daisies, their cheerful faces a stark contrast to the turmoil brewing in her heart. “I’m fine,” she insisted, though the words tasted bitter on her tongue. She could feel Elara’s eyes boring into her, searching for cracks in the façade.\n\n“Fine doesn’t mean isolating yourself. You can’t shut everyone out,” Elara pressed, her voice a low murmur,"
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "rewrite",
+        "escalated": false,
+        "reason": "rewrite_default"
+      },
+      "raw_preview": "The air was thick with the earthy scent of damp soil and fading lilacs as Mira stepped into the garden, her fingers gliding over the cool, dew-laden petals of a nearby flower. She paused, allowing the",
+      "normalized_preview": "The air was thick with the earthy scent of damp soil and fading lilacs as Mira stepped into the garden, her fingers gliding over the cool, dew-laden petals of a nearby flower. She paused, allowing the",
+      "raw_length": 1814,
+      "normalized_length": 1814,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKYpLozOd3q2ygNH2uo8Kpv8VkuRP\", \"object\": \"chat.completion\", \"created\": 1773792807, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The air was thick with the earthy scent of damp soil and fading lilacs as Mira stepped into the garden, her fingers gliding over the cool, dew-laden petals of a nearby flower. She paused, allowing the soft morning light to wash over her, painting the world in vibrant hues of gold and green. Ea",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 298,
+        "paragraph_count": 6,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "guardrail_snapshot": {
+        "evaluated": true,
+        "mode": "rewrite",
+        "outline_titles": [],
+        "beat_refs": [],
+        "locked_facts_evaluated": false,
+        "length_band_evaluated": true,
+        "original_word_count": 296,
+        "rewritten_word_count": 298,
+        "min_word_count": 177,
+        "max_word_count": 621,
+        "within_length_band": true,
+        "outline_fidelity_evaluated": true,
+        "outline_fidelity_pass": true,
+        "original_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "and",
+          "garden",
+          "elara",
+          "mira",
+          "eyes",
+          "you",
+          "voice",
+          "fine",
+          "air"
+        ],
+        "retained_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "and",
+          "garden",
+          "elara",
+          "mira",
+          "eyes",
+          "you",
+          "voice",
+          "fine",
+          "air"
+        ],
+        "outline_anchor_hits": [],
+        "required_anchor_overlap": 1,
+        "scene_anchor_drift_detected": false,
+        "new_story_elements": [],
+        "blocking_new_story_elements": [],
+        "authoritative_name_check": false,
+        "uncertainty_triggered": false,
+        "failure_reason": null,
+        "accepted": true,
+        "quality_total_score": 26
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 2,
+          "meta_free": 5
+        },
+        "total_score": 26,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 298,
+        "paragraph_count": 6,
+        "dialogue_present": true,
+        "dialogue_grounded": false,
+        "sensory_hits": 3,
+        "concrete_hits": 0,
+        "generic_hits": 1,
+        "stock_phrase_hits": 1,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The air was thick with the earthy scent of damp soil and fading lilacs as Mira stepped into the garden, her fingers gliding over the cool, dew-laden petals of a nearby flower. She paused, allowing the soft morning light to wash over her, painting the world in vibrant hues of gold and green. Each ray felt like a gentle embrace, igniting a warmth she had nearly forgotten. The leaves rustled softly, whispering secrets as a tender breeze danced through the air. With her eyes closed, she inhaled deeply, savoring this moment of serenity that seemed both elusive and hauntingly familiar.\n\n“Where have you been, Mira?” a voice called from the far end of the garden, tinged with concern and irritation. Elara stood by the wrought-iron gate, her arms crossed tightly over her chest, a defensive posture that mirrored the tension in her voice. The sunlight caught in her auburn hair, making it shimmer like polished copper, but the chill in her tone extinguished any warmth the day could offer.\n\nMira opened her eyes, the fragile tranquility shattered. “I needed some air,” she replied, striving for steadiness, though inside, chaos churned like a tempest. Elara’s gaze felt like a spotlight, unyielding and harsh. “It’s just the garden.”\n\n“Just the garden?” Elara echoed, stepping closer, her initial irritation giving way to something softer—the flicker of concern that lay beneath the surface. “You’ve been ‘just the garden’ for days now. We can’t keep pretending everything's fine.”\n\nMira turned her head, her eyes drawn to a cluster of daisies, their bright faces a stark contrast to the turmoil swirling within her. “I’m fine,” she insisted, the words bitter like ash on her tongue. She could sense Elara’s penetrating gaze, searching for cracks in the carefully constructed walls around her heart.\n\n“Fine doesn’t"
+      },
+      "quality_pass": false,
+      "rewrite_delta": {
+        "total_delta": -2,
+        "stock_phrase_delta": 1,
+        "specificity_delta": 0,
+        "clarity_delta": 0,
+        "continuity_delta": 0
+      },
+      "retry_decision": {
+        "eligible": true,
+        "reason": "targeted_editorial_miss_after_rewrite",
+        "classification": "targeted_editorial"
+      }
+    },
+    {
+      "attempt": 3,
+      "mode": "recovery_retry",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": false,
+        "reason": "rescue_model"
+      },
+      "raw_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"“It’s just the garden.”\\n\\n“Just the garden?” Elara echoed, stepping closer, her initial irritation giving way to something softer—an undercurrent of wo",
+      "normalized_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"“It’s just the garden.”\\n\\n“Just the garden?” Elara echoed, stepping closer, her initial irritation giving way to something softer—an undercurrent of wo",
+      "raw_length": 746,
+      "normalized_length": 746,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKYpVTEKdtgdXoCO7I9oIbDPwgMkM\", \"object\": \"chat.completion\", \"created\": 1773792817, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"replacement_text\\\":\\\"“It’s just the garden.”\\\\n\\\\n“Just the garden?” Elara echoed, stepping closer, her initial irritation giving way to something softer—an undercurrent of worry reflected in her furrowed brow.\\\"},{\\\"slot_id\\\":\\\"s2\\\",\\\"replacement_text\\\":\\\"“",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“It’s just the garden.”\n\n“Just the garden?” Elara echoed, stepping closer, her initial irritation giving way to something softer—the flicker of concern that lay beneath the surface.",
+          "context_before": "Elara’s gaze felt like a spotlight, unyielding and harsh.",
+          "context_after": "“You’ve been ‘just the garden’ for days now.",
+          "target_reason": "dialogue",
+          "target_phrase": "flicker of"
+        },
+        {
+          "slot_id": "s2",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“You’ve been ‘just the garden’ for days now.",
+          "context_before": "“It’s just the garden.”\n\n“Just the garden?” Elara echoed, stepping closer, her initial irritation giving way to something softer—the flicker of concern that lay beneath the surface.",
+          "context_after": "We can’t keep pretending everything's fine.”\n\nMira turned her head, her eyes drawn to a cluster of daisies, their bright faces a stark contrast to the turmoil swirling within her.",
+          "target_reason": "dialogue",
+          "target_phrase": "‘just the garden’"
+        },
+        {
+          "slot_id": "s3",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Where have you been, Mira?” a voice called from the far end of the garden, tinged with concern and irritation.",
+          "context_before": "With her eyes closed, she inhaled deeply, savoring this moment of serenity that seemed both elusive and hauntingly familiar.",
+          "context_after": "Elara stood by the wrought-iron gate, her arms crossed tightly over her chest, a defensive posture that mirrored the tension in her voice.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s4",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“I needed some air,” she replied, striving for steadiness, though inside, chaos churned like a tempest.",
+          "context_before": "Mira opened her eyes, the fragile tranquility shattered.",
+          "context_after": "Elara’s gaze felt like a spotlight, unyielding and harsh.",
+          "target_reason": "dialogue"
+        }
+      ],
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "“It’s just the garden.”\n\n“Just the garden?” Elara echoed, stepping closer, her initial irritation giving way to something softer—an undercurrent of worry reflected in her furrowed brow."
+        },
+        {
+          "slot_id": "s2",
+          "replacement_text": "“You’ve been ‘just the garden’ for days now."
+        },
+        {
+          "slot_id": "s3",
+          "replacement_text": "“Where have you been, Mira?” a voice called from the far end of the garden, the words laced with concern and frustration as Elara stood by the wrought-iron gate, her arms crossed tightly over her chest."
+        },
+        {
+          "slot_id": "s4",
+          "replacement_text": "“I needed some air,” she replied, her voice trembling slightly as she fought to maintain composure, though inside, chaos churned like a tempest."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_dialogue_grounding_unresolved"
+      }
+    },
+    {
+      "attempt": 4,
+      "mode": "repair_only",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": false,
+        "reason": "rescue_model"
+      },
+      "raw_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"“It’s just the garden,” Mira said, her voice barely above a whisper, as she gestured to the vibrant blooms surrounding her.\"},{\"slot_id\":\"s2\",\"replaceme",
+      "normalized_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"“It’s just the garden,” Mira said, her voice barely above a whisper, as she gestured to the vibrant blooms surrounding her.\"},{\"slot_id\":\"s2\",\"replaceme",
+      "raw_length": 636,
+      "normalized_length": 636,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKYpaYilxHAs3pUZ51a27AUx8aWjs\", \"object\": \"chat.completion\", \"created\": 1773792822, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"replacement_text\\\":\\\"“It’s just the garden,” Mira said, her voice barely above a whisper, as she gestured to the vibrant blooms surrounding her.\\\"},{\\\"slot_id\\\":\\\"s2\\\",\\\"replacement_text\\\":\\\"“You’ve been hiding in this garden for days now.\\\"},{\\\"slot_id\\\":\\\"",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“It’s just the garden.”\n\n“Just the garden?” Elara echoed, stepping closer, her initial irritation giving way to something softer—the flicker of concern that lay beneath the surface.",
+          "context_before": "Elara’s gaze felt like a spotlight, unyielding and harsh.",
+          "context_after": "“You’ve been ‘just the garden’ for days now.",
+          "target_reason": "dialogue",
+          "target_phrase": "flicker of"
+        },
+        {
+          "slot_id": "s2",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“You’ve been ‘just the garden’ for days now.",
+          "context_before": "“It’s just the garden.”\n\n“Just the garden?” Elara echoed, stepping closer, her initial irritation giving way to something softer—the flicker of concern that lay beneath the surface.",
+          "context_after": "We can’t keep pretending everything's fine.”\n\nMira turned her head, her eyes drawn to a cluster of daisies, their bright faces a stark contrast to the turmoil swirling within her.",
+          "target_reason": "dialogue",
+          "target_phrase": "‘just the garden’"
+        },
+        {
+          "slot_id": "s3",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Where have you been, Mira?” a voice called from the far end of the garden, tinged with concern and irritation.",
+          "context_before": "With her eyes closed, she inhaled deeply, savoring this moment of serenity that seemed both elusive and hauntingly familiar.",
+          "context_after": "Elara stood by the wrought-iron gate, her arms crossed tightly over her chest, a defensive posture that mirrored the tension in her voice.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s4",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“I needed some air,” she replied, striving for steadiness, though inside, chaos churned like a tempest.",
+          "context_before": "Mira opened her eyes, the fragile tranquility shattered.",
+          "context_after": "Elara’s gaze felt like a spotlight, unyielding and harsh.",
+          "target_reason": "dialogue"
+        }
+      ],
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "“It’s just the garden,” Mira said, her voice barely above a whisper, as she gestured to the vibrant blooms surrounding her."
+        },
+        {
+          "slot_id": "s2",
+          "replacement_text": "“You’ve been hiding in this garden for days now."
+        },
+        {
+          "slot_id": "s3",
+          "replacement_text": "“Where have you been, Mira?” a voice called from the far end of the garden, her tone edged with both concern and irritation."
+        },
+        {
+          "slot_id": "s4",
+          "replacement_text": "“I needed some air,” she replied, her voice trembling slightly as she clenched her hands at her sides, striving for steadiness, though inside, chaos churned like a tempest."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_dialogue_grounding_unresolved"
+      }
+    }
+  ],
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 2,
+      "meta_free": 5
+    },
+    "total_score": 26,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 298,
+    "paragraph_count": 6,
+    "dialogue_present": true,
+    "dialogue_grounded": false,
+    "sensory_hits": 3,
+    "concrete_hits": 0,
+    "generic_hits": 1,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The air was thick with the earthy scent of damp soil and fading lilacs as Mira stepped into the garden, her fingers gliding over the cool, dew-laden petals of a nearby flower. She paused, allowing the soft morning light to wash over her, painting the world in vibrant hues of gold and green. Each ray felt like a gentle embrace, igniting a warmth she had nearly forgotten. The leaves rustled softly, whispering secrets as a tender breeze danced through the air. With her eyes closed, she inhaled deeply, savoring this moment of serenity that seemed both elusive and hauntingly familiar.\n\n“Where have you been, Mira?” a voice called from the far end of the garden, tinged with concern and irritation. Elara stood by the wrought-iron gate, her arms crossed tightly over her chest, a defensive posture that mirrored the tension in her voice. The sunlight caught in her auburn hair, making it shimmer like polished copper, but the chill in her tone extinguished any warmth the day could offer.\n\nMira opened her eyes, the fragile tranquility shattered. “I needed some air,” she replied, striving for steadiness, though inside, chaos churned like a tempest. Elara’s gaze felt like a spotlight, unyielding and harsh. “It’s just the garden.”\n\n“Just the garden?” Elara echoed, stepping closer, her initial irritation giving way to something softer—the flicker of concern that lay beneath the surface. “You’ve been ‘just the garden’ for days now. We can’t keep pretending everything's fine.”\n\nMira turned her head, her eyes drawn to a cluster of daisies, their bright faces a stark contrast to the turmoil swirling within her. “I’m fine,” she insisted, the words bitter like ash on her tongue. She could sense Elara’s penetrating gaze, searching for cracks in the carefully constructed walls around her heart.\n\n“Fine doesn’t"
+  },
+  "critique_snapshot": {
+    "summary": "Mira steps into a garden filled with the scent of damp earth and lilacs, seeking a moment of peace. Her sister Elara confronts her about her isolation, expressing concern and irritation. The dialogue reveals tension between the sisters as Mira struggles with her emotions and the facade she maintains.",
+    "weaknesses": [
+      "Vague descriptions that lack specificity.",
+      "Dialogue that does not effectively ground characters in physical action or setting.",
+      "Use of generic phrases that weaken emotional impact."
+    ],
+    "continuity_issues": [
+      "The transition from Mira's peaceful moment to Elara's confrontation feels abrupt and lacks a clear connection."
+    ],
+    "pacing_issues": [
+      "The scene slows down significantly during the introspective moments, which may disrupt the flow of dialogue."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid scene.",
+      "Ground dialogue in physical actions and the setting to improve realism.",
+      "Replace generic phrases with more original language to strengthen emotional resonance."
+    ],
+    "generic_phrase_targets": [
+      "‘just the garden’",
+      "‘a fleeting moment of peace’",
+      "‘felt out of reach yet achingly familiar’"
+    ],
+    "detail_targets": [
+      "Descriptions of the garden and its elements could be more vivid and unique.",
+      "Elara's emotional state could be shown through more specific actions or expressions."
+    ],
+    "dialogue_grounding_targets": [
+      "Elara's dialogue could include more physical actions that reflect her emotional state.",
+      "Mira's responses could be tied to her surroundings to enhance the scene's grounding."
+    ],
+    "emotional_show_targets": [
+      "Mira's internal conflict could be shown through more physical manifestations of her feelings.",
+      "Elara's concern could be illustrated through her body language or actions."
+    ],
+    "replacement_targets": [
+      "Replace ‘the spell of tranquility broken’ with a more original phrase.",
+      "Substitute ‘a storm raged inside’ with a more specific metaphor or description."
+    ],
+    "grounding_targets": [
+      "Incorporate more sensory details that connect the characters to their environment.",
+      "Use physical actions to reflect the emotional states of Mira and Elara."
+    ],
+    "carryover_targets": []
+  },
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": false,
+    "rescue_mode_used": true,
+    "rescue_model_used": false,
+    "rescue_model_name": "gpt-4o-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Where have you been, Mira?” a voice called from the far end of the garden, tinged with concern and irritation.",
+        "“I needed some air,” she replied, striving for steadiness, though inside, chaos churned like a tempest.",
+        "“It’s just the garden.”\n\n“Just the garden?” Elara echoed, stepping closer, her initial irritation giving way to something softer—the flicker of concern that lay beneath the surface.",
+        "“You’ve been ‘just the garden’ for days now."
+      ],
+      "generic_phrases_to_replace": [
+        "‘just the garden’",
+        "flicker of"
+      ],
+      "lines_to_repair": [
+        "“It’s just the garden.”\n\n“Just the garden?” Elara echoed, stepping closer, her initial irritation giving way to something softer—the flicker of concern that lay beneath the surface.",
+        "“You’ve been ‘just the garden’ for days now.",
+        "“Where have you been, Mira?” a voice called from the far end of the garden, tinged with concern and irritation.",
+        "“I needed some air,” she replied, striving for steadiness, though inside, chaos churned like a tempest."
+      ],
+      "required_concrete_anchor_terms": [
+        "garden",
+        "mira",
+        "elara"
+      ],
+      "repair_min_word_count": 253,
+      "repair_max_word_count": 447,
+      "min_paragraph_count": 4,
+      "max_paragraph_count": 8
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": false,
+      "reason": "rescue_model"
+    },
+    "rescue_slots_summary": {
+      "slot_count": 4,
+      "target_types": [
+        "dialogue",
+        "dialogue",
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_dialogue_grounding_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 296,
+    "rewritten_word_count": 298,
+    "min_word_count": 177,
+    "max_word_count": 621,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "and",
+      "garden",
+      "elara",
+      "mira",
+      "eyes",
+      "you",
+      "voice",
+      "fine",
+      "air"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "and",
+      "garden",
+      "elara",
+      "mira",
+      "eyes",
+      "you",
+      "voice",
+      "fine",
+      "air"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 26
+  }
+}

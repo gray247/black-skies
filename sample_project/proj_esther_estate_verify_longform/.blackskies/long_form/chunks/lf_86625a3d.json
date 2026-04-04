@@ -1,0 +1,244 @@
+{
+  "chunk_id": "lf_86625a3d",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:3d8cc77110e5b25ac659aaa882f5ef254a00982bce08ba99d000a5bcec7eb881",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 21,
+    "fallback_reason": "quality_failed"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "quality_failed"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 2,
+      "meta_free": 5
+    },
+    "total_score": 26,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 306,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": false,
+    "sensory_hits": 7,
+    "concrete_hits": 1,
+    "generic_hits": 1,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The sun hung low, a fiery orb dipping behind the jagged hills, casting elongated shadows that stretched across the cracked earth like the fingers of forgotten giants. Dust motes danced in the fading light, settling on the rusted hulks of abandoned machinery, their twisted metal shapes standing as elegies to a bygone era. Elara knelt beside a shattered wheel, her fingertips brushing against the jagged rim, the coolness of the metal a stark contrast to the heat radiating up from the sun-baked ground. The air was thick with the faint, acrid scent of old oil and sweat, echoes of a time when this place thrummed with life—the grinding of gears, the clanking of chains, and the lively chatter of workers.\n\n“Do you think anyone ever comes back here?” Finn’s voice sliced through the stillness, sharp with curiosity. He stood just behind her, his shadow stretching over her as the late afternoon sun caught in his tousled hair, giving it a golden halo. Leaning against a crumbling wall, he crossed his arms, a posture that was both relaxed and defensive, a reminder of the world they had fled.\n\n“Maybe. But it won’t be the same,” Elara replied, her voice scarcely above a whisper, as if the very act of speaking would disturb the fragile silence that held them. She rose slowly, brushing the dust from her fingers, and met his gaze—his eyes were a storm of emotions, flickering between hope and resignation. “Places change, just like people do.”\n\nFinn kicked at a loose stone, sending it skittering across the ground, the sound echoing in the hollow space around them. “Yeah, but some things shouldn’t change.” His eyes darkened with a mix of defiance and sadness, and for a fleeting moment, Elara saw the boy he once was, before life had etched its weight upon him.\n\n“Like what?”"
+  },
+  "critique_snapshot": {
+    "summary": "The scene depicts Elara and Finn exploring an abandoned industrial site, reflecting on the past and discussing the nature of change. The setting is described vividly, but the dialogue lacks grounding in physical action or the environment.",
+    "weaknesses": [
+      "Generic phrases and stock imagery detract from the uniqueness of the scene.",
+      "Dialogue lacks physical grounding, making it feel disconnected from the setting.",
+      "Some descriptions are vague and could be more specific to enhance imagery."
+    ],
+    "continuity_issues": [
+      "The transition between Elara's internal thoughts and Finn's dialogue feels abrupt and lacks a clear connection."
+    ],
+    "pacing_issues": [
+      "The pacing slows significantly during dialogue, which could be more dynamic with physical actions."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid scene.",
+      "Ground dialogue in physical actions and the surrounding environment.",
+      "Eliminate generic phrases to improve originality."
+    ],
+    "generic_phrase_targets": [
+      "forgotten sentinels of a past life",
+      "the coolness of the metal contrasting with the heat radiating from the ground"
+    ],
+    "detail_targets": [
+      "the rusted remains of abandoned machinery",
+      "the sounds of industry—grinding gears, clanking chains, and the fervent voices of workers"
+    ],
+    "dialogue_grounding_targets": [
+      "Finn's shadow looming over Elara",
+      "Elara brushing dust from her fingers"
+    ],
+    "emotional_show_targets": [
+      "Finn's mix of defiance and sadness",
+      "Elara seeing the boy Finn once was"
+    ],
+    "replacement_targets": [
+      "the late afternoon sun glinting off his tousled hair",
+      "her voice barely above a whisper"
+    ],
+    "grounding_targets": [
+      "Elara knelt beside a shattered wheel",
+      "Finn kicked at a loose stone"
+    ],
+    "carryover_targets": []
+  },
+  "attempt_count": 4,
+  "acceptance_reason": "quality_failed",
+  "rewrite_used": true,
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_model_name": "gpt-5.4-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Do you think anyone ever comes back here?” Finn’s voice sliced through the stillness, sharp with curiosity.",
+        "“Maybe.",
+        "But it won’t be the same,” Elara replied, her voice scarcely above a whisper, as if the very act of speaking would disturb the fragile silence that held them.",
+        "“Places change, just like people do.”\n\nFinn kicked at a loose stone, sending it skittering across the ground, the sound echoing in the hollow space around them."
+      ],
+      "generic_phrases_to_replace": [],
+      "lines_to_repair": [
+        "“Do you think anyone ever comes back here?” Finn’s voice sliced through the stillness, sharp with curiosity.",
+        "“Maybe.",
+        "But it won’t be the same,” Elara replied, her voice scarcely above a whisper, as if the very act of speaking would disturb the fragile silence that held them.",
+        "“Places change, just like people do.”\n\nFinn kicked at a loose stone, sending it skittering across the ground, the sound echoing in the hollow space around them."
+      ],
+      "required_concrete_anchor_terms": [
+        "elara",
+        "behind",
+        "jagged"
+      ],
+      "repair_min_word_count": 260,
+      "repair_max_word_count": 459,
+      "min_paragraph_count": 3,
+      "max_paragraph_count": 7
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rescue_model"
+    },
+    "rescue_generation_strategy": "slot_patch",
+    "rescue_slots_summary": {
+      "slot_count": 3,
+      "target_types": [
+        "dialogue",
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_dialogue_grounding_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 296,
+    "rewritten_word_count": 306,
+    "min_word_count": 177,
+    "max_word_count": 621,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "and",
+      "her",
+      "his",
+      "she",
+      "that",
+      "had",
+      "sun",
+      "behind",
+      "jagged",
+      "across",
+      "dust"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "and",
+      "her",
+      "his",
+      "that",
+      "sun",
+      "behind",
+      "jagged",
+      "across",
+      "dust"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 26
+  }
+}

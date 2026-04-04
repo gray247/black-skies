@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_e7c269e7",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:401b0ae52a6635e00f4be8e91c4ff07c0cca9a2d670acc2dce8fc1386b3bf634",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The sharp clang of metal against metal echoed through the dimly lit workshop, where a single bulb swung lazily from the ceiling, casting a flickering glow over the cluttered workbench",
+    "word_count": 309,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 4,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 29,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 309,
+    "paragraph_count": 6,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 6,
+    "concrete_hits": 3,
+    "generic_hits": 0,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The sharp clang of metal against metal echoed through the dimly lit workshop, where a single bulb swung lazily from the ceiling, casting a flickering glow over the cluttered workbench. Dust motes danced in the air, illuminated in the pale light, settling on tools and half-finished projects. Nathan wiped his brow with the back of his hand, the grease smudging his skin a testament to the hours he’d spent in this sanctuary of creation. Each breath was thick with the scent of oil and sawdust, a familiar embrace that grounded him amidst the chaos of the outside world.\n\nHe leaned closer to the vice, his hands steady as he filed down the sharp edge of a metal bracket, the rasping sound a soothing rhythm that drowned out the distant hum of traffic. With every stroke, he felt a flicker of satisfaction; this was more than just work—it was a means of escape. The world outside felt heavy sometimes, pressing down on him with expectations and noise, but here, in this cocoon of metal and wood, he found clarity.\n\n“Hey, you still alive in there?” A voice broke through the solitude, and Nathan looked up to see Ella leaning against the doorframe, arms crossed, a playful smirk dancing on her lips. Her hair was pulled back in a messy bun, strands escaping to frame her face, and the light caught her eyes, sparkling with mischief.\n\n“Barely,” he replied, a grin tugging at the corners of his mouth. “Just trying to keep the chaos at bay.” He motioned to the scattered tools, the unyielding clutter that mirrored the chaos inside his mind.\n\n“Chaos? This looks like a disaster zone.” She stepped inside, her boots crunching on the shavings scattered across the floor. “You know, there’s a whole world out there waiting for you, right?”\n\nHe paused, the file resting against the"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

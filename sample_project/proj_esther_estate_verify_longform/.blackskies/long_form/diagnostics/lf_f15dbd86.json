@@ -1,0 +1,632 @@
+{
+  "chunk_id": "lf_f15dbd86",
+  "validation_decision": false,
+  "fallback_reason": "quality_failed",
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "raw_preview": "The air hung thick with the scent of damp earth and the lingering sweetness of early spring blooms, a heady mix that clung to Sam’s clothes as he ducked beneath the low-hanging branches of an ancient ",
+      "normalized_preview": "The air hung thick with the scent of damp earth and the lingering sweetness of early spring blooms, a heady mix that clung to Sam’s clothes as he ducked beneath the low-hanging branches of an ancient ",
+      "raw_length": 1793,
+      "normalized_length": 1789,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKmAKteG5gRyVz8cYckmOuzBTD22h\", \"object\": \"chat.completion\", \"created\": 1773844080, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The air hung thick with the scent of damp earth and the lingering sweetness of early spring blooms, a heady mix that clung to Sam’s clothes as he ducked beneath the low-hanging branches of an ancient oak. Each step crunched softly against the litter of fallen leaves, the sound muffled by the b",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 311,
+        "paragraph_count": 6,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 28,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 311,
+        "paragraph_count": 6,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 2,
+        "concrete_hits": 1,
+        "generic_hits": 0,
+        "stock_phrase_hits": 1,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The air hung thick with the scent of damp earth and the lingering sweetness of early spring blooms, a heady mix that clung to Sam’s clothes as he ducked beneath the low-hanging branches of an ancient oak. Each step crunched softly against the litter of fallen leaves, the sound muffled by the blanket of moss that had claimed the forest floor. He paused for a moment, inhaling deeply, feeling the coolness wrap around him like a shroud, while the sunlight filtered through the canopy above, dappling the ground in a mosaic of gold and green.\n\n“Do you think they’ll come back?” Mia’s voice broke through the stillness, laced with an undercurrent of anxiety. She stood a few paces behind him, her fingers fidgeting with the hem of her jacket, a nervous habit he had come to recognize in the months they’d spent together.\n\n“I don’t know,” he replied, forcing his voice to remain steady, even as the uncertainty knotted in his stomach. “But we can’t just wait here forever.” The thought of being discovered sent a prickling sensation along his spine, an instinctive response that had grown sharper with every day they spent hiding.\n\nMia stepped closer, the warmth of her presence a stark contrast to the chill in the air. “What if they do? What if they find us?”\n\nHe turned to face her, allowing a fleeting moment of vulnerability to flicker across his features. “Then we’ll figure it out. Together.” The resolve in his voice felt like a fragile shield against the encroaching darkness of their circumstances, but he hoped it was enough.\n\nThe forest enveloped them in its hushed embrace, a sanctuary and a prison all at once. The distant call of a bird echoed through the trees, a reminder of life beyond their hidden corner. Sam glanced up, watching the branches sway gently in the breeze, as"
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "rewrite",
+        "escalated": false,
+        "reason": "rewrite_default"
+      },
+      "raw_preview": "the air swirled with tension, thick and palpable. The scent of damp earth mingled with the sweetness of spring blooms, clinging to Sam’s clothes as he ducked beneath the sprawling branches of an ancie",
+      "normalized_preview": "the air swirled with tension, thick and palpable. The scent of damp earth mingled with the sweetness of spring blooms, clinging to Sam’s clothes as he ducked beneath the sprawling branches of an ancie",
+      "raw_length": 1809,
+      "normalized_length": 1808,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKmAYacag9i4e0QD2oDBCVDs9Sh9o\", \"object\": \"chat.completion\", \"created\": 1773844094, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"the air swirled with tension, thick and palpable. The scent of damp earth mingled with the sweetness of spring blooms, clinging to Sam’s clothes as he ducked beneath the sprawling branches of an ancient oak. Each careful step crunched softly on the carpet of fallen leaves, their sound muted by",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 305,
+        "paragraph_count": 6,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "guardrail_snapshot": {
+        "evaluated": true,
+        "mode": "rewrite",
+        "outline_titles": [],
+        "beat_refs": [],
+        "locked_facts_evaluated": false,
+        "length_band_evaluated": true,
+        "original_word_count": 311,
+        "rewritten_word_count": 305,
+        "min_word_count": 186,
+        "max_word_count": 653,
+        "within_length_band": true,
+        "outline_fidelity_evaluated": true,
+        "outline_fidelity_pass": true,
+        "original_anchor_terms": [
+          "the",
+          "they",
+          "his",
+          "her",
+          "and",
+          "that",
+          "had",
+          "voice",
+          "air",
+          "sam",
+          "branches",
+          "against"
+        ],
+        "retained_anchor_terms": [
+          "the",
+          "they",
+          "his",
+          "her",
+          "and",
+          "that",
+          "had",
+          "voice",
+          "air",
+          "sam"
+        ],
+        "outline_anchor_hits": [],
+        "required_anchor_overlap": 1,
+        "scene_anchor_drift_detected": false,
+        "new_story_elements": [],
+        "blocking_new_story_elements": [],
+        "authoritative_name_check": false,
+        "uncertainty_triggered": false,
+        "failure_reason": null,
+        "accepted": true,
+        "quality_total_score": 28
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 28,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 305,
+        "paragraph_count": 6,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 3,
+        "concrete_hits": 1,
+        "generic_hits": 0,
+        "stock_phrase_hits": 1,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "the air swirled with tension, thick and palpable. The scent of damp earth mingled with the sweetness of spring blooms, clinging to Sam’s clothes as he ducked beneath the sprawling branches of an ancient oak. Each careful step crunched softly on the carpet of fallen leaves, their sound muted by the moss that swathes the forest floor. He paused momentarily, inhaling deeply, the coolness wrapping around him like a shroud, while sunlight filtered through the dense canopy above, casting dappled patches of gold and green onto the ground.\n\n“Do you think they’ll come back?” Mia’s voice cut through the stillness, a tremor of anxiety threading through her words. She stood a few paces behind him, her fingers twisting the hem of her jacket, a fidgety habit he had grown to recognize in their months of hiding.\n\nSam turned slightly, his brow furrowing as he considered her question. “I don’t know,” he replied, forcing steadiness into his voice despite the tight knot of uncertainty in his stomach. The thought of being discovered sent a prickling sensation along his spine, an instinct that had sharpened with each day spent in this hidden refuge. “But we can’t just wait here forever.” He glanced around, the shadows stretching ominously between the trees.\n\nMia stepped closer, her warmth a stark contrast to the chill that hung in the air. “What if they do? What if they find us?” Her eyes darted to the shadows, scanning the underbrush as if expecting danger to leap from the thicket.\n\nHe turned fully to face her, letting a moment of vulnerability flicker across his features. “Then we’ll figure it out. Together.” The resolve in his voice felt like a fragile shield against the encroaching darkness of their circumstances, yet it was all he could offer.\n\nThe forest enveloped them in its hushed embrace, a"
+      },
+      "quality_pass": false,
+      "rewrite_delta": {
+        "total_delta": 0,
+        "stock_phrase_delta": 0,
+        "specificity_delta": 0,
+        "clarity_delta": 0,
+        "continuity_delta": 0
+      },
+      "retry_decision": {
+        "eligible": true,
+        "reason": "targeted_editorial_miss_after_rewrite",
+        "classification": "targeted_editorial"
+      }
+    },
+    {
+      "attempt": 3,
+      "mode": "recovery_retry",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rescue_model"
+      },
+      "raw_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"Mia stepped closer, her hand brushing the damp sleeve of his jacket as a cold breath of air slipped through the oak branches.\"},{\"slot_id\":\"s2\",\"replace",
+      "normalized_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"Mia stepped closer, her hand brushing the damp sleeve of his jacket as a cold breath of air slipped through the oak branches.\"},{\"slot_id\":\"s2\",\"replace",
+      "raw_length": 1024,
+      "normalized_length": 1024,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKmAee30tmBIyXdscDA6KV258QSRc\", \"object\": \"chat.completion\", \"created\": 1773844100, \"model\": \"gpt-5.4-mini-2026-03-17\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"replacement_text\\\":\\\"Mia stepped closer, her hand brushing the damp sleeve of his jacket as a cold breath of air slipped through the oak branches.\\\"},{\\\"slot_id\\\":\\\"s2\\\",\\\"replacement_text\\\":\\\"Together.” He set his jaw and touched two fingers to the bark at",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "Mia stepped closer, her warmth a stark contrast to the chill that hung in the air.",
+          "context_before": "“But we can’t just wait here forever.” He glanced around, the shadows stretching ominously between the trees.",
+          "context_after": "“What if they do?",
+          "target_reason": "generic",
+          "target_phrase": "hung in the air"
+        },
+        {
+          "slot_id": "s2",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "Together.” The resolve in his voice felt like a fragile shield against the encroaching darkness of their circumstances, yet it was all he could offer.",
+          "context_before": "“Then we’ll figure it out.",
+          "context_after": "The forest enveloped them in its hushed embrace, a",
+          "target_reason": "generic",
+          "target_phrase": "The resolve in his voice felt like a fragile shield"
+        },
+        {
+          "slot_id": "s3",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Do you think they’ll come back?” Mia’s voice cut through the stillness, a tremor of anxiety threading through her words.",
+          "context_before": "He paused momentarily, inhaling deeply, the coolness wrapping around him like a shroud, while sunlight filtered through the dense canopy above, casting dappled patches of gold and green onto the ground.",
+          "context_after": "She stood a few paces behind him, her fingers twisting the hem of her jacket, a fidgety habit he had grown to recognize in their months of hiding.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s4",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“But we can’t just wait here forever.” He glanced around, the shadows stretching ominously between the trees.",
+          "context_before": "The thought of being discovered sent a prickling sensation along his spine, an instinct that had sharpened with each day spent in this hidden refuge.",
+          "context_after": "Mia stepped closer, her warmth a stark contrast to the chill that hung in the air.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s5",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“What if they do?",
+          "context_before": "Mia stepped closer, her warmth a stark contrast to the chill that hung in the air.",
+          "context_after": "What if they find us?” Her eyes darted to the shadows, scanning the underbrush as if expecting danger to leap from the thicket.",
+          "target_reason": "dialogue"
+        }
+      ],
+      "rescue_generation_strategy": "slot_patch",
+      "configured_rescue_generation_strategy": "hybrid_escalation",
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "Mia stepped closer, her hand brushing the damp sleeve of his jacket as a cold breath of air slipped through the oak branches."
+        },
+        {
+          "slot_id": "s2",
+          "replacement_text": "Together.” He set his jaw and touched two fingers to the bark at his side, as if bracing himself against it; the words came out steady, but the grip in his voice was thin against the dark pressing between the trees, and it was all he could offer."
+        },
+        {
+          "slot_id": "s3",
+          "replacement_text": "“Do you think they’ll come back?” Mia asked, her fingers still worrying the hem of her jacket in the hush beneath the canopy, her voice tight with anxiety."
+        },
+        {
+          "slot_id": "s4",
+          "replacement_text": "“But we can’t just wait here forever.” He glanced from the moss underfoot to the shadows stretching between the trees, then back to Mia as he took a half-step toward her."
+        },
+        {
+          "slot_id": "s5",
+          "replacement_text": "“What if they do?\" Mia said, her hand lifting toward the underbrush as her eyes flicked to the dark between the trunks."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_dialogue_grounding_unresolved"
+      }
+    },
+    {
+      "attempt": 4,
+      "mode": "repair_only",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rescue_model"
+      },
+      "raw_preview": "{\"rewrites\":[{\"slot_id\":\"s1\",\"rewritten_excerpt\":\"Mia stepped closer, her jacket brushing his sleeve as the cool shade under the oak replaced the sun-warmed air.\"},{\"slot_id\":\"s2\",\"rewritten_excerpt\":",
+      "normalized_preview": "{\"rewrites\":[{\"slot_id\":\"s1\",\"rewritten_excerpt\":\"Mia stepped closer, her jacket brushing his sleeve as the cool shade under the oak replaced the sun-warmed air.\"},{\"slot_id\":\"s2\",\"rewritten_excerpt\":",
+      "raw_length": 742,
+      "normalized_length": 742,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKmAghf1kFDCQbpMGWjzZ16Dpttjf\", \"object\": \"chat.completion\", \"created\": 1773844102, \"model\": \"gpt-5.4-mini-2026-03-17\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"rewrites\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"rewritten_excerpt\\\":\\\"Mia stepped closer, her jacket brushing his sleeve as the cool shade under the oak replaced the sun-warmed air.\\\"},{\\\"slot_id\\\":\\\"s2\\\",\\\"rewritten_excerpt\\\":\\\"Together.” The words in his voice felt like a thin shield against the dark ",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "local_excerpt",
+          "target_type": "generic",
+          "original_text": "Mia stepped closer, her warmth a stark contrast to the chill that hung in the air.",
+          "context_before": "“But we can’t just wait here forever.” He glanced around, the shadows stretching ominously between the trees.",
+          "context_after": "“What if they do?",
+          "target_reason": "generic",
+          "target_phrase": "hung in the air",
+          "focus_text": "Mia stepped closer, her warmth a stark contrast to the chill that hung in the air."
+        },
+        {
+          "slot_id": "s2",
+          "unit_type": "local_excerpt",
+          "target_type": "generic",
+          "original_text": "Together.” The resolve in his voice felt like a fragile shield against the encroaching darkness of their circumstances, yet it was all he could offer.",
+          "context_before": "“Then we’ll figure it out.",
+          "context_after": "The forest enveloped them in its hushed embrace, a",
+          "target_reason": "generic",
+          "target_phrase": "The resolve in his voice felt like a fragile shield",
+          "focus_text": "Together.” The resolve in his voice felt like a fragile shield against the encroaching darkness of their circumstances, yet it was all he could offer."
+        },
+        {
+          "slot_id": "s3",
+          "unit_type": "local_excerpt",
+          "target_type": "dialogue",
+          "original_text": "“Do you think they’ll come back?” Mia’s voice cut through the stillness, a tremor of anxiety threading through her words.",
+          "context_before": "He paused momentarily, inhaling deeply, the coolness wrapping around him like a shroud, while sunlight filtered through the dense canopy above, casting dappled patches of gold and green onto the ground.",
+          "context_after": "She stood a few paces behind him, her fingers twisting the hem of her jacket, a fidgety habit he had grown to recognize in their months of hiding.",
+          "target_reason": "dialogue",
+          "focus_text": "“Do you think they’ll come back?” Mia’s voice cut through the stillness, a tremor of anxiety threading through her words."
+        },
+        {
+          "slot_id": "s4",
+          "unit_type": "local_excerpt",
+          "target_type": "dialogue",
+          "original_text": "“But we can’t just wait here forever.” He glanced around, the shadows stretching ominously between the trees.",
+          "context_before": "The thought of being discovered sent a prickling sensation along his spine, an instinct that had sharpened with each day spent in this hidden refuge.",
+          "context_after": "Mia stepped closer, her warmth a stark contrast to the chill that hung in the air.",
+          "target_reason": "dialogue",
+          "focus_text": "“But we can’t just wait here forever.” He glanced around, the shadows stretching ominously between the trees."
+        },
+        {
+          "slot_id": "s5",
+          "unit_type": "local_excerpt",
+          "target_type": "dialogue",
+          "original_text": "Mia stepped closer, her warmth a stark contrast to the chill that hung in the air. “What if they do? What if they find us?” Her eyes darted to the shadows, scanning the underbrush as if expecting danger to leap from the thicket.",
+          "context_before": "Mia stepped closer, her warmth a stark contrast to the chill that hung in the air.",
+          "context_after": "What if they find us?” Her eyes darted to the shadows, scanning the underbrush as if expecting danger to leap from the thicket.",
+          "target_reason": "dialogue",
+          "focus_text": "“What if they do?"
+        }
+      ],
+      "rescue_generation_strategy": "local_rewrite_block",
+      "configured_rescue_generation_strategy": "hybrid_escalation",
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "Mia stepped closer, her jacket brushing his sleeve as the cool shade under the oak replaced the sun-warmed air."
+        },
+        {
+          "slot_id": "s2",
+          "replacement_text": "Together.” The words in his voice felt like a thin shield against the dark trees around them, yet it was all he could offer."
+        },
+        {
+          "slot_id": "s3",
+          "replacement_text": "“Do you think they’ll come back?” Mia asked, twisting the hem of her jacket as she stood a few paces behind him."
+        },
+        {
+          "slot_id": "s4",
+          "replacement_text": "“But we can’t just wait here forever.” He glanced past the oak trunk and the shadows between the trees."
+        },
+        {
+          "slot_id": "s5",
+          "replacement_text": "“What if they do?” Mia asked, stepping closer and staring into the underbrush."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_specificity_unresolved"
+      }
+    }
+  ],
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 28,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 305,
+    "paragraph_count": 6,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 3,
+    "concrete_hits": 1,
+    "generic_hits": 0,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "the air swirled with tension, thick and palpable. The scent of damp earth mingled with the sweetness of spring blooms, clinging to Sam’s clothes as he ducked beneath the sprawling branches of an ancient oak. Each careful step crunched softly on the carpet of fallen leaves, their sound muted by the moss that swathes the forest floor. He paused momentarily, inhaling deeply, the coolness wrapping around him like a shroud, while sunlight filtered through the dense canopy above, casting dappled patches of gold and green onto the ground.\n\n“Do you think they’ll come back?” Mia’s voice cut through the stillness, a tremor of anxiety threading through her words. She stood a few paces behind him, her fingers twisting the hem of her jacket, a fidgety habit he had grown to recognize in their months of hiding.\n\nSam turned slightly, his brow furrowing as he considered her question. “I don’t know,” he replied, forcing steadiness into his voice despite the tight knot of uncertainty in his stomach. The thought of being discovered sent a prickling sensation along his spine, an instinct that had sharpened with each day spent in this hidden refuge. “But we can’t just wait here forever.” He glanced around, the shadows stretching ominously between the trees.\n\nMia stepped closer, her warmth a stark contrast to the chill that hung in the air. “What if they do? What if they find us?” Her eyes darted to the shadows, scanning the underbrush as if expecting danger to leap from the thicket.\n\nHe turned fully to face her, letting a moment of vulnerability flicker across his features. “Then we’ll figure it out. Together.” The resolve in his voice felt like a fragile shield against the encroaching darkness of their circumstances, yet it was all he could offer.\n\nThe forest enveloped them in its hushed embrace, a"
+  },
+  "critique_snapshot": {
+    "summary": "The scene captures a tense moment between Sam and Mia as they hide in a forest, contemplating the possibility of being discovered. The rich sensory details of the environment contrast with their anxiety about their situation.",
+    "weaknesses": [
+      "The scene lacks a clear sense of urgency or immediate threat despite the characters' anxiety.",
+      "Dialogue does not effectively ground the characters in their physical surroundings or actions."
+    ],
+    "continuity_issues": [
+      "The transition between Sam's internal thoughts and dialogue could be smoother to maintain continuity in emotional tension."
+    ],
+    "pacing_issues": [
+      "The pacing slows significantly during the dialogue, which could be more dynamic to reflect the characters' anxiety."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance the grounding of dialogue in physical action or setting.",
+      "Increase the sense of urgency in the characters' interactions."
+    ],
+    "generic_phrase_targets": [
+      "The resolve in his voice felt like a fragile shield"
+    ],
+    "detail_targets": [
+      "Expand on the forest's atmosphere to reflect the characters' emotional state more vividly."
+    ],
+    "dialogue_grounding_targets": [
+      "Incorporate more physical actions or reactions during dialogue exchanges."
+    ],
+    "emotional_show_targets": [
+      "Show more of Sam's and Mia's emotional responses through their actions rather than just internal thoughts."
+    ],
+    "replacement_targets": [
+      "Consider replacing generic phrases with more specific imagery or metaphors."
+    ],
+    "grounding_targets": [
+      "Ensure that dialogue is consistently tied to the characters' physical movements or the environment."
+    ],
+    "carryover_targets": [
+      "Address the weak continuity in emotional transitions between thoughts and dialogue."
+    ]
+  },
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_model_name": "gpt-5.4-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Do you think they’ll come back?” Mia’s voice cut through the stillness, a tremor of anxiety threading through her words.",
+        "“I don’t know,” he replied, forcing steadiness into his voice despite the tight knot of uncertainty in his stomach.",
+        "“But we can’t just wait here forever.” He glanced around, the shadows stretching ominously between the trees.",
+        "“What if they do?"
+      ],
+      "generic_phrases_to_replace": [
+        "The resolve in his voice felt like a fragile shield",
+        "hung in the air"
+      ],
+      "lines_to_repair": [
+        "Mia stepped closer, her warmth a stark contrast to the chill that hung in the air.",
+        "Together.” The resolve in his voice felt like a fragile shield against the encroaching darkness of their circumstances, yet it was all he could offer.",
+        "“Do you think they’ll come back?” Mia’s voice cut through the stillness, a tremor of anxiety threading through her words.",
+        "“I don’t know,” he replied, forcing steadiness into his voice despite the tight knot of uncertainty in his stomach.",
+        "“But we can’t just wait here forever.” He glanced around, the shadows stretching ominously between the trees.",
+        "“What if they do?"
+      ],
+      "required_concrete_anchor_terms": [
+        "voice",
+        "each"
+      ],
+      "repair_min_word_count": 259,
+      "repair_max_word_count": 457,
+      "min_paragraph_count": 4,
+      "max_paragraph_count": 8
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rescue_model"
+    },
+    "rescue_generation_strategy": "local_rewrite_block",
+    "configured_rescue_generation_strategy": "hybrid_escalation",
+    "rescue_slots_summary": {
+      "slot_count": 5,
+      "target_types": [
+        "generic",
+        "generic",
+        "dialogue",
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_specificity_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 311,
+    "rewritten_word_count": 305,
+    "min_word_count": 186,
+    "max_word_count": 653,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "they",
+      "his",
+      "her",
+      "and",
+      "that",
+      "had",
+      "voice",
+      "air",
+      "sam",
+      "branches",
+      "against"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "they",
+      "his",
+      "her",
+      "and",
+      "that",
+      "had",
+      "voice",
+      "air",
+      "sam"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 28
+  }
+}

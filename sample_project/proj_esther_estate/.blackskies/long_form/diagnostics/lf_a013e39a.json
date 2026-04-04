@@ -1,0 +1,21 @@
+{
+  "chunk_id": "lf_a013e39a",
+  "reason": {
+    "usable": false,
+    "word_count": 42,
+    "paragraph_count": 1,
+    "meta_summary": false,
+    "missing_carryover": false
+  },
+  "validation_decision": false,
+  "fallback_reason": "invalid_output",
+  "extracted_field": "thinking",
+  "thinking_fallback": true,
+  "reasoning_trim_applied": true,
+  "raw_length": 899,
+  "normalized_length": 253,
+  "raw_preview": "Hmm, the user wants me to write immersive scene prose for a novel chapter. They've given very specific instructions: I need to start with concrete action, avoid any analysis or planning, and write exa",
+  "normalized_preview": "For the setting, since it's unspecified, I'll create a stormy coastal environment to match the \"Gathered Storm\" theme. I'll start with the character feeling the rain on their skin - that's a concrete ",
+  "word_count": 42,
+  "paragraph_count": 1
+}

@@ -1,0 +1,220 @@
+{
+  "timestamp": "2026-03-16T18:23:45.727185Z",
+  "code": "VALIDATION",
+  "message": "Long-form output rejected (quality threshold).",
+  "details": {
+    "quality_snapshot": {
+      "usable": true,
+      "scores": {
+        "coherence": 5,
+        "continuity": 4,
+        "clarity": 2,
+        "pacing": 5,
+        "specificity": 1,
+        "dialogue": 4,
+        "meta_free": 5
+      },
+      "total_score": 26,
+      "max_score": 35,
+      "meta_summary": false,
+      "meta_contamination": false,
+      "missing_carryover": false,
+      "word_count": 618,
+      "paragraph_count": 10,
+      "dialogue_present": true,
+      "dialogue_grounded": true,
+      "sensory_hits": 7,
+      "concrete_hits": 1,
+      "generic_hits": 2,
+      "stock_phrase_hits": 2,
+      "carryover_terms": [
+        "jacket",
+        "brittle",
+        "leaves",
+        "crunched",
+        "underfoot",
+        "elara",
+        "narrow",
+        "autumn"
+      ],
+      "carryover_hits": 6,
+      "material_carryover_hits": 0,
+      "material_carryover": false,
+      "weak_carryover": false,
+      "generic_risk": true
+    },
+    "attempts": [
+      {
+        "attempt": 1,
+        "mode": "draft",
+        "extracted_field": "choices.message.content",
+        "thinking_fallback": false,
+        "reasoning_trim_applied": false,
+        "basic_validation": {
+          "usable": true,
+          "word_count": 612,
+          "paragraph_count": 10,
+          "meta_summary": false,
+          "missing_carryover": false,
+          "carryover_terms": [
+            "jacket",
+            "brittle",
+            "leaves",
+            "crunched",
+            "underfoot",
+            "elara",
+            "narrow",
+            "autumn"
+          ],
+          "carryover_hits": 6,
+          "material_carryover_hits": 0
+        },
+        "raw_preview": "Elara paused, her breath forming small clouds in the chilly air as she considered the path ahead, half-obscured by a tangle of brambles that whispered secrets in the wind. The leaves underfoot crunche",
+        "normalized_preview": "Elara paused, her breath forming small clouds in the chilly air as she considered the path ahead, half-obscured by a tangle of brambles that whispered secrets in the wind. The leaves underfoot crunche",
+        "raw_length": 3524,
+        "normalized_length": 3515,
+        "raw_payload_keys": [
+          "choices",
+          "created",
+          "id",
+          "model",
+          "object",
+          "service_tier",
+          "system_fingerprint",
+          "usage"
+        ],
+        "raw_payload_preview": "{\"id\": \"chatcmpl-DK6shSVj2LhU6Z8VrnCxYW2g4Ev7J\", \"object\": \"chat.completion\", \"created\": 1773685383, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"Elara paused, her breath forming small clouds in the chilly air as she considered the path ahead, half-obscured by a tangle of brambles that whispered secrets in the wind. The leaves underfoot crunched again, a soft protest as she shifted her weight. Each step felt weighted, as if the earth wa",
+        "quality_snapshot": {
+          "usable": true,
+          "scores": {
+            "coherence": 5,
+            "continuity": 4,
+            "clarity": 4,
+            "pacing": 5,
+            "specificity": 3,
+            "dialogue": 4,
+            "meta_free": 5
+          },
+          "total_score": 30,
+          "max_score": 35,
+          "meta_summary": false,
+          "meta_contamination": false,
+          "missing_carryover": false,
+          "word_count": 612,
+          "paragraph_count": 10,
+          "dialogue_present": true,
+          "dialogue_grounded": true,
+          "sensory_hits": 8,
+          "concrete_hits": 1,
+          "generic_hits": 1,
+          "stock_phrase_hits": 1,
+          "carryover_terms": [
+            "jacket",
+            "brittle",
+            "leaves",
+            "crunched",
+            "underfoot",
+            "elara",
+            "narrow",
+            "autumn"
+          ],
+          "carryover_hits": 6,
+          "material_carryover_hits": 0,
+          "material_carryover": false,
+          "weak_carryover": false,
+          "generic_risk": false
+        },
+        "quality_pass": false
+      },
+      {
+        "attempt": 2,
+        "mode": "rewrite",
+        "extracted_field": "choices.message.content",
+        "thinking_fallback": false,
+        "reasoning_trim_applied": false,
+        "basic_validation": {
+          "usable": true,
+          "word_count": 618,
+          "paragraph_count": 10,
+          "meta_summary": false,
+          "missing_carryover": false,
+          "carryover_terms": [
+            "jacket",
+            "brittle",
+            "leaves",
+            "crunched",
+            "underfoot",
+            "elara",
+            "narrow",
+            "autumn"
+          ],
+          "carryover_hits": 6,
+          "material_carryover_hits": 0
+        },
+        "raw_preview": "Elara paused, her breath visible in the crisp air as she surveyed the path ahead, partially concealed by a tangle of brambles snagging at her jacket. The brittle leaves crackled beneath her boots, eac",
+        "normalized_preview": "Elara paused, her breath visible in the crisp air as she surveyed the path ahead, partially concealed by a tangle of brambles snagging at her jacket. The brittle leaves crackled beneath her boots, eac",
+        "raw_length": 3581,
+        "normalized_length": 3581,
+        "raw_payload_keys": [
+          "choices",
+          "created",
+          "id",
+          "model",
+          "object",
+          "service_tier",
+          "system_fingerprint",
+          "usage"
+        ],
+        "raw_payload_preview": "{\"id\": \"chatcmpl-DK6t9BYQFz7Tlx4haYgWV2RKARChZ\", \"object\": \"chat.completion\", \"created\": 1773685411, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"Elara paused, her breath visible in the crisp air as she surveyed the path ahead, partially concealed by a tangle of brambles snagging at her jacket. The brittle leaves crackled beneath her boots, each step releasing a chorus of sounds that echoed the hesitance in her heart. The earth felt uny",
+        "quality_snapshot": {
+          "usable": true,
+          "scores": {
+            "coherence": 5,
+            "continuity": 4,
+            "clarity": 2,
+            "pacing": 5,
+            "specificity": 1,
+            "dialogue": 4,
+            "meta_free": 5
+          },
+          "total_score": 26,
+          "max_score": 35,
+          "meta_summary": false,
+          "meta_contamination": false,
+          "missing_carryover": false,
+          "word_count": 618,
+          "paragraph_count": 10,
+          "dialogue_present": true,
+          "dialogue_grounded": true,
+          "sensory_hits": 7,
+          "concrete_hits": 1,
+          "generic_hits": 2,
+          "stock_phrase_hits": 2,
+          "carryover_terms": [
+            "jacket",
+            "brittle",
+            "leaves",
+            "crunched",
+            "underfoot",
+            "elara",
+            "narrow",
+            "autumn"
+          ],
+          "carryover_hits": 6,
+          "material_carryover_hits": 0,
+          "material_carryover": false,
+          "weak_carryover": false,
+          "generic_risk": true
+        },
+        "quality_pass": false,
+        "rewrite_delta": {
+          "total_delta": -4,
+          "stock_phrase_delta": -1,
+          "specificity_delta": -2,
+          "clarity_delta": -2,
+          "continuity_delta": 0
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,314 @@
+{
+  "chunk_id": "lf_ef03937f",
+  "validation_decision": true,
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "raw_preview": "The wind whipped through the cracked windows of the old diner, carrying with it the scent of rain-drenched asphalt and the faint, sweet aroma of burnt coffee. A bell chimed as the door swung open, its",
+      "normalized_preview": "The wind whipped through the cracked windows of the old diner, carrying with it the scent of rain-drenched asphalt and the faint, sweet aroma of burnt coffee. A bell chimed as the door swung open, its",
+      "raw_length": 1764,
+      "normalized_length": 1759,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKbawzT7iFJz4FIrsQv5V07h5LAD8\", \"object\": \"chat.completion\", \"created\": 1773803446, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The wind whipped through the cracked windows of the old diner, carrying with it the scent of rain-drenched asphalt and the faint, sweet aroma of burnt coffee. A bell chimed as the door swung open, its rusty hinge protesting against the intrusion. Clara glanced up from her booth, the plastic se",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 310,
+        "paragraph_count": 6,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 3,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 27,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 310,
+        "paragraph_count": 6,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 7,
+        "concrete_hits": 3,
+        "generic_hits": 2,
+        "stock_phrase_hits": 1,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": true,
+        "text": "The wind whipped through the cracked windows of the old diner, carrying with it the scent of rain-drenched asphalt and the faint, sweet aroma of burnt coffee. A bell chimed as the door swung open, its rusty hinge protesting against the intrusion. Clara glanced up from her booth, the plastic seat sticking to her skin as she shifted, a familiar discomfort that nagged at her. A figure stepped inside, shaking off droplets like a dog coming in from the storm, and for a moment, she held her breath, her heart quickening.\n\nHe looked different, more worn, the shadows beneath his eyes etching deeper lines into his face. “Hey, Clara,” he said, his voice a low rumble, like thunder rolling in the distance. She offered a small, hesitant smile, trying to mask the chaos blooming in her chest.\n\n“Thought you’d gone for good,” she replied, her tone light, though it trembled at the edges. The jukebox in the corner crackled to life, filling the air with a melancholic tune that made her stomach twist. He slid into the booth across from her, the vinyl squeaking under his weight.\n\n“Life has a way of pulling you back,” he said, his gaze locking onto hers with an intensity that made her pulse race. She wanted to believe him, wanted to see the boy she once knew beneath the weight of his years, but the man before her was a stranger, and it unsettled her.\n\nAs he reached for the salt shaker, his fingers brushed against hers, and a shock of familiarity surged through her, igniting memories long buried. The way they used to laugh over stupid jokes, sharing fries and secrets in this very booth. But now, the air crackled with something unspoken, a tension that curled around them like smoke.\n\n“How’s your mom?” he asked, his voice softer now, probing. She hesitated"
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "rewrite",
+        "escalated": false,
+        "reason": "rewrite_default"
+      },
+      "raw_preview": "The wind howled through the cracked windows of the old diner, a wild symphony that carried the scent of rain-soaked asphalt mingling with the bitter tang of burnt coffee. A bell jingled as the door sw",
+      "normalized_preview": "The wind howled through the cracked windows of the old diner, a wild symphony that carried the scent of rain-soaked asphalt mingling with the bitter tang of burnt coffee. A bell jingled as the door sw",
+      "raw_length": 1823,
+      "normalized_length": 1823,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKbbA8dluL2HhszHmb6TWYXYASrBc\", \"object\": \"chat.completion\", \"created\": 1773803460, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The wind howled through the cracked windows of the old diner, a wild symphony that carried the scent of rain-soaked asphalt mingling with the bitter tang of burnt coffee. A bell jingled as the door swung open, its rusty hinge protesting against the intrusion. Clara glanced up from her booth, t",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 317,
+        "paragraph_count": 5,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "guardrail_snapshot": {
+        "evaluated": true,
+        "mode": "rewrite",
+        "outline_titles": [],
+        "beat_refs": [],
+        "locked_facts_evaluated": false,
+        "length_band_evaluated": true,
+        "original_word_count": 310,
+        "rewritten_word_count": 317,
+        "min_word_count": 186,
+        "max_word_count": 651,
+        "within_length_band": true,
+        "outline_fidelity_evaluated": true,
+        "outline_fidelity_pass": true,
+        "original_anchor_terms": [
+          "the",
+          "her",
+          "his",
+          "she",
+          "and",
+          "that",
+          "booth",
+          "for",
+          "against",
+          "clara",
+          "beneath",
+          "said"
+        ],
+        "retained_anchor_terms": [
+          "the",
+          "her",
+          "his",
+          "she",
+          "and",
+          "that",
+          "booth",
+          "for",
+          "against",
+          "clara",
+          "beneath",
+          "said"
+        ],
+        "outline_anchor_hits": [],
+        "required_anchor_overlap": 1,
+        "scene_anchor_drift_detected": false,
+        "new_story_elements": [],
+        "blocking_new_story_elements": [],
+        "authoritative_name_check": false,
+        "uncertainty_triggered": false,
+        "failure_reason": null,
+        "accepted": true,
+        "quality_total_score": 30
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 5,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 30,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 317,
+        "paragraph_count": 5,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 8,
+        "concrete_hits": 5,
+        "generic_hits": 1,
+        "stock_phrase_hits": 0,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The wind howled through the cracked windows of the old diner, a wild symphony that carried the scent of rain-soaked asphalt mingling with the bitter tang of burnt coffee. A bell jingled as the door swung open, its rusty hinge protesting against the intrusion. Clara glanced up from her booth, the plastic seat clinging uncomfortably to her skin as she shifted, a familiar discomfort that tugged at her nerves. A figure stepped inside, shaking off droplets that splattered onto the linoleum floor, and for a heartbeat, she held her breath, her heart racing in her chest.\n\nHe looked different now, more worn, the shadows beneath his eyes carving deeper lines into his face. “Hey, Clara,” he said, his voice a gravelly rumble that resonated through the small space. She managed a small, cautious smile, attempting to mask the chaotic fluttering in her chest.\n\n“Thought you’d gone for good,” she replied, her tone light but with a tremor that betrayed her. The jukebox in the corner crackled to life, the melancholic notes of an old ballad spilling into the air and twisting in her stomach like a knot.\n\nHe slid into the booth across from her, the vinyl squeaking beneath his weight, a reminder of how many times they had shared laughter and fries in this very spot. “Life has a way of pulling you back,” he said, his gaze locking onto hers, an intensity that sent a warm flush through her cheeks. She yearned to see the boy she once knew beneath the weight of his years, but the man before her felt like a stranger, and that realization unsettled her.\n\nAs he reached for the salt shaker, his fingers brushed against hers, sending a jolt of familiarity coursing through her veins, awakening memories she thought were long buried. They used to laugh over stupid jokes, sharing secrets in this very booth, but now the air between"
+      },
+      "quality_pass": true,
+      "rewrite_delta": {
+        "total_delta": 3,
+        "stock_phrase_delta": 1,
+        "specificity_delta": 2,
+        "clarity_delta": 1,
+        "continuity_delta": 0
+      }
+    }
+  ],
+  "acceptance_reason": "rewrite_pass",
+  "critique_snapshot": {
+    "summary": "The scene unfolds in an old diner where Clara encounters a familiar figure from her past. The atmosphere is charged with nostalgia and tension as they exchange greetings and reminisce about their shared history, while Clara grapples with the changes in him and the emotions that arise.",
+    "weaknesses": [
+      "Generic descriptions and phrases diminish the impact of the scene.",
+      "Dialogue lacks grounding in physical actions and setting.",
+      "Vague emotional responses and memories make it hard to connect with the characters."
+    ],
+    "continuity_issues": [],
+    "pacing_issues": [
+      "The pacing slows down significantly during the dialogue, which could benefit from more physical action to maintain engagement."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid setting.",
+      "Ground dialogue in physical actions and the environment to improve realism.",
+      "Replace generic phrases with more original language to elevate the prose."
+    ],
+    "generic_phrase_targets": [
+      "the faint, sweet aroma of burnt coffee",
+      "his voice a low rumble, like thunder rolling in the distance",
+      "the air crackled with something unspoken"
+    ],
+    "detail_targets": [
+      "the cracked windows of the old diner",
+      "the plastic seat sticking to her skin",
+      "the shadows beneath his eyes etching deeper lines into his face"
+    ],
+    "dialogue_grounding_targets": [
+      "“Hey, Clara,” he said",
+      "“Thought you’d gone for good,” she replied",
+      "“How’s your mom?” he asked"
+    ],
+    "emotional_show_targets": [
+      "her tone light, though it trembled at the edges",
+      "trying to mask the chaos blooming in her chest",
+      "a shock of familiarity surged through her"
+    ],
+    "replacement_targets": [
+      "the faint, sweet aroma of burnt coffee",
+      "his voice a low rumble, like thunder rolling in the distance"
+    ],
+    "grounding_targets": [
+      "the vinyl squeaking under his weight",
+      "shaking off droplets like a dog coming in from the storm"
+    ],
+    "carryover_targets": []
+  },
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 310,
+    "rewritten_word_count": 317,
+    "min_word_count": 186,
+    "max_word_count": 651,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "his",
+      "she",
+      "and",
+      "that",
+      "booth",
+      "for",
+      "against",
+      "clara",
+      "beneath",
+      "said"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "his",
+      "she",
+      "and",
+      "that",
+      "booth",
+      "for",
+      "against",
+      "clara",
+      "beneath",
+      "said"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 30
+  }
+}

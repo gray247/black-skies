@@ -1,0 +1,65 @@
+{
+  "summary": {
+    "project_id": "proj_esther_estate_eval_adversarial",
+    "chapter_id": "ch_0001",
+    "run_id": "20260316T183817Z",
+    "chunk_ids": [
+      "lf_101cde42",
+      "lf_178bfe78",
+      "lf_b5186d7f",
+      "lf_e7f25426",
+      "lf_e8ca4a3a"
+    ],
+    "chunk_count": 5,
+    "accepted_count": 5,
+    "rewrite_count": 1,
+    "retry_used_count": 0,
+    "retried_success_count": 0,
+    "fallback_count": 0,
+    "borderline_failure_count": 0,
+    "avg_quality_score": 31.8,
+    "avg_attempts": 1.2,
+    "continuity_warnings": 0,
+    "total_estimated_usd": 0.05,
+    "providers": [
+      "openai"
+    ],
+    "models": [
+      "gpt-4o-mini"
+    ],
+    "stopped_reason": null
+  },
+  "details": {
+    "request": {
+      "project_id": "proj_esther_estate_eval_adversarial",
+      "chapter_id": "ch_0001",
+      "scene_ids": [
+        "sc_0001",
+        "sc_0002",
+        "sc_0003",
+        "sc_0004",
+        "sc_0005"
+      ],
+      "chunk_size": 1,
+      "target_words_per_chunk": 600,
+      "enabled": true
+    },
+    "response": {
+      "stopped_reason": null,
+      "chunk_count": 5
+    },
+    "variance": {
+      "run_count": 5,
+      "pass_count": 5,
+      "fail_count": 0,
+      "pass_rate": 1.0,
+      "consistency": "stable",
+      "stopped_reasons": {},
+      "borderline_failure_rate": 0.0,
+      "retry_usage_rate": 0.0,
+      "retry_rescue_rate": 0.0,
+      "succeeded_only_after_retry_count": 0,
+      "quality_score_range": 1.6
+    }
+  }
+}

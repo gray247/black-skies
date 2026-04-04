@@ -1,0 +1,140 @@
+{
+  "chunk_id": "lf_0206636a",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:020362c92b08519a64a4e8a45cb44445d2fc09c23765c7ea5510222065bcfce4",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 21,
+    "fallback_reason": "quality_failed"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "quality_failed"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 3,
+      "pacing": 5,
+      "specificity": 4,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 29,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 598,
+    "paragraph_count": 11,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 8,
+    "concrete_hits": 4,
+    "generic_hits": 2,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": true
+  },
+  "critique_snapshot": {
+    "summary": "Elena navigates a narrow alley, feeling the chill of the wind and the weight of her thoughts as she encounters a mysterious figure who warns her about the dangers of the city. Their dialogue reveals her determination to find someone, despite the tension and uncertainty in the air.",
+    "weaknesses": [
+      "Generic descriptions and phrases that lack specificity.",
+      "Dialogue that feels detached from the physical actions and setting.",
+      "Vague emotional responses that do not fully engage the reader."
+    ],
+    "continuity_issues": [
+      "The transition from the alley to the wider street lacks a clear connection to the preceding tension."
+    ],
+    "pacing_issues": [
+      "The scene builds tension well but could benefit from a more gradual release after the encounter."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid setting.",
+      "Ground dialogue in physical actions or reactions to increase engagement.",
+      "Clarify emotional stakes to deepen reader connection."
+    ],
+    "generic_phrase_targets": [
+      "The wind whispered",
+      "Icy fingers",
+      "Lonely sentinel",
+      "Quick tempo drumming",
+      "A hint of defiance"
+    ],
+    "detail_targets": [
+      "Descriptions of the alley and surroundings could include more unique sensory details.",
+      "Elena's physical sensations and reactions need more depth."
+    ],
+    "dialogue_grounding_targets": [
+      "Ensure characters' dialogue reflects their physical state or actions more directly."
+    ],
+    "emotional_show_targets": [
+      "Show more of Elena's internal conflict and emotional state through her actions and reactions."
+    ],
+    "replacement_targets": [
+      "Replace generic phrases with more original imagery.",
+      "Revise dialogue to better reflect character motivations and emotional stakes."
+    ],
+    "grounding_targets": [
+      "Integrate more physical actions that correspond with the dialogue to enhance realism."
+    ],
+    "carryover_targets": [
+      "Ensure that the transition to the wider street maintains the emotional tension built in the alley."
+    ]
+  },
+  "attempt_count": 3,
+  "acceptance_reason": "quality_failed",
+  "rewrite_used": true,
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "borderline",
+      "reason": "borderline_quality_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "borderline_quality_after_rewrite",
+    "triggered_after_attempt": 2
+  }
+}

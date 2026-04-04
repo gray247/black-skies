@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_9440454b",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:df52a65c28c05056ee1a8074563cd756e93536340c68268633a5cb08256e352c",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Clara's breath came in quick bursts, the air thick with the scent of damp earth and decay, as she squinted into the flickering glow of the cracked brass lantern",
+    "word_count": 309,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 30,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 309,
+    "paragraph_count": 4,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 8,
+    "concrete_hits": 11,
+    "generic_hits": 0,
+    "stock_phrase_hits": 2,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "Clara's breath came in quick bursts, the air thick with the scent of damp earth and decay, as she squinted into the flickering glow of the cracked brass lantern. The weak light sputtered, casting long shadows that danced along the narrow corridor, where the walls seemed to close in around her. With every step, the sound of muddy soles squelching on the wooden floor echoed back, mocking her. She glanced at Jun, his coat still clinging to him, heavy with the rainwater from the greenhouse. The chill from the wet fabric seeped into the air between them, thickening the tension that buzzed like static.\n\n“What if someone’s down here with us?” Jun whispered, his voice trembling as he strained to listen for any sign, the dim light reflecting a flicker of fear in his eyes. Clara felt the same pulse of dread thrum in her chest, but she shook her head, forcing a steadying breath. “It’s just us, Jun. The storm, remember? It’s messing with your head.” The words felt hollow even as she spoke them; the echo of a child's cough, distinct and unsettling, lingered in her mind, a sound she'd heard only moments before, yet Jun had missed it entirely.\n\nShe touched the ribbon tied around her wrist, the parlor key hanging heavily from it. How had it become so important, this flimsy piece of metal? Almost instinctively, her fingers curled tighter around it, as if it might anchor her to reality. “Look—” she began, but the chain rattled behind the service corridor door, a harsh metallic noise that sent a jolt through her spine. Clara's heart quickened, the rhythm of her pulse competing with the rain drumming against the roof above.\n\n“Did you hear that?” Jun's eyes widened, and Clara could see the way his mind raced, a mixture of fear and determination flickering across his"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

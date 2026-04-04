@@ -1,0 +1,9 @@
+﻿The lantern flickered again, its sputtering light revealing more of the corridor, yet each time it dimmed, the darkness felt as if it were reaching for Clara. She could see the muddy footprints ahead, stark against the cold, pale stone floor, and her heart quickened, a wild drumbeat echoing the panic that stirred in her chest. “Jun,” she whispered, her voice barely rising above the muted sounds of the storm still raging outside, “we should go back.”
+
+Jun’s face was pale, the rain-soaked strands of his hair plastered to his forehead, and his eyes darted to the door behind them, the chain rattling ever so slightly as if someone were testing it from the other side. “No,” he said, barely containing the tremor in his voice. “We need to see where this leads. There’s something wrong here.” He stepped forward, the lantern casting ghostly shadows that flickered against the walls, elongating his figure, making him appear both heroic and terrified.
+
+“Something’s wrong?” she echoed, unable to suppress the sharpness that crept into her tone. “You heard the cough, right? From the upper floor? What if—” She didn't finish her thought, the implications too heavy, too real. The weight of the parlor key felt like a leaden anchor on her wrist, the red ribbon digging into her skin, a tangible reminder of their frantic escape from the greenhouse.
+
+“I don’t want to go up there,” Jun admitted, voice low, his breath misting in the cool air. He hesitated, glancing behind him as if expecting someone—or something—to emerge from the shadows. “But we can’t just stand here. Look!” He pointed, and the lantern’s light caught the edges of a door at the far end of the passage, slightly ajar. “It’s open.”
+
+Clara’s stomach knotted.

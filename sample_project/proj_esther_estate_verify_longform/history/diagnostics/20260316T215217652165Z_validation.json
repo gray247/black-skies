@@ -1,0 +1,77 @@
+{
+  "timestamp": "2026-03-16T21:52:17.652370Z",
+  "code": "VALIDATION",
+  "message": "Rewrite rejected by outline/length guardrails.",
+  "details": {
+    "guardrail_snapshot": {
+      "evaluated": true,
+      "mode": "rewrite",
+      "outline_titles": [],
+      "beat_refs": [],
+      "locked_facts_evaluated": false,
+      "length_band_evaluated": true,
+      "original_word_count": 597,
+      "rewritten_word_count": 585,
+      "min_word_count": 358,
+      "max_word_count": 1253,
+      "within_length_band": true,
+      "outline_fidelity_evaluated": true,
+      "outline_fidelity_pass": false,
+      "original_anchor_terms": [
+        "the",
+        "her",
+        "she",
+        "and",
+        "that",
+        "you",
+        "elara",
+        "alley",
+        "voice",
+        "but",
+        "for",
+        "his"
+      ],
+      "retained_anchor_terms": [
+        "the",
+        "her",
+        "she",
+        "and",
+        "that",
+        "you",
+        "elara",
+        "alley",
+        "voice",
+        "but",
+        "for",
+        "his"
+      ],
+      "outline_anchor_hits": [
+        "the",
+        "her",
+        "she",
+        "that",
+        "and",
+        "alley",
+        "elara",
+        "but",
+        "was",
+        "his",
+        "you"
+      ],
+      "required_anchor_overlap": 1,
+      "scene_anchor_drift_detected": false,
+      "new_story_elements": [
+        "yet"
+      ],
+      "blocking_new_story_elements": [
+        "yet"
+      ],
+      "authoritative_name_check": true,
+      "uncertainty_triggered": true,
+      "failure_reason": "outline_drift_detected",
+      "accepted": false,
+      "quality_total_score": 33
+    },
+    "attempt": 2
+  }
+}

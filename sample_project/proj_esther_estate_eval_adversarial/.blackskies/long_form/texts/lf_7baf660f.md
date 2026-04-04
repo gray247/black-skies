@@ -1,0 +1,9 @@
+﻿Clara's breath came in short bursts, mingling with the damp air of the corridor, thick with the scent of mildew and something faintly sweet, like decaying leaves. The cracked brass lantern flickered in Jun's grasp, casting erratic shadows that danced along the peeling wallpaper. Each flicker felt like a heartbeat, quickening in tandem with her own as they pressed deeper into the darkened passage. The lantern's sputtering light illuminated the dampness clinging to Jun's coat, the fabric heavy and glistening as if burdened by the weight of the rain they'd escaped.
+
+“Do you think anyone else is here?” Jun's voice trembled, barely above a whisper, his eyes darting toward the chained door at the end of the corridor, as if expecting it to burst open at any moment. Clara shifted her weight, feeling the cool ceramic fox nestled in her pocket, its chipped features a stark reminder of the nursery they had left behind.
+
+“I don’t know,” she replied, too quickly, the sharpness in her tone startling even herself. “But we can’t stand here.” The echo of her own voice felt alien, swallowed by the oppressive silence. As she stepped forward, her foot splashed into a shallow puddle, the water cold and biting against her skin, sending a shiver up her spine.
+
+Jun followed, his brow furrowed, the lantern's light revealing muddy prints on the floor ahead. They were fresh, stark against the worn wood, leading deeper into the shadows. Clara squinted, straining to make sense of the pattern, her heart racing. “Someone’s been here,” she said, the words tasting bitter on her tongue. Was it a warning or an invitation?
+
+He stopped suddenly, the lantern dimming again as he leaned closer to inspect the prints. “They look like... children’s shoes.” His voice was barely a whisper, laden with dread

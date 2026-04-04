@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_4143a4ef",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:9a21c3066f3061bfd117758f827b47196b6c84643aee4137c2fdfa12edbff15c",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The air was thick with the scent of damp earth and crushed leaves, the last remnants of a summer storm still lingering in the shadows of the towering trees",
+    "word_count": 325,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 4,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 29,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 325,
+    "paragraph_count": 4,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 7,
+    "concrete_hits": 3,
+    "generic_hits": 1,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The air was thick with the scent of damp earth and crushed leaves, the last remnants of a summer storm still lingering in the shadows of the towering trees. Maya stepped carefully over a tangle of roots, her boots sinking slightly into the muddy undergrowth. Each footfall sent a small splash of cool water seeping into her soles, a reminder of the rain that had fallen just hours before. She paused, her breath hitching as she caught sight of a flash of movement—a deer, its sleek form darting through the underbrush, startled by her presence.\n\n“Easy there, friend,” she murmured, though it was more to herself than to the animal, which had already vanished into the foliage. The woods were alive with sounds; the chirping of crickets began to crescendo as the sun dipped lower, casting long shadows that danced across the forest floor. A rustling in the trees above drew her gaze upward, a flock of birds erupting into the sky, wings fluttering like confetti in the fading light.\n\nShe adjusted the strap of her backpack, feeling the weight of her supplies pressing against her back, a familiar comfort that came with adventure. “Just a little further,” she whispered, the words escaping her lips like a promise. The deeper she ventured, the more the world behind her faded, replaced by a symphony of rustling leaves and the distant gurgle of the stream she had been following. There was something almost sacred about this solitude, a quiet that whispered secrets only the forest knew.\n\nMaya glanced down at her hands, dirt smudged into her palms from where she had steadied herself against a tree trunk. They told a story of her exploration—a story she was eager to write. She could almost hear the faint echoes of laughter from her childhood, the carefree days spent with friends when the woods felt like an endless playground. Now, it felt like a sanctuary, a place to escape the"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

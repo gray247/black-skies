@@ -1,0 +1,573 @@
+{
+  "chunk_id": "lf_ae01b196",
+  "validation_decision": false,
+  "fallback_reason": "quality_failed",
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "raw_preview": "The air hung thick with the scent of wet earth and decaying leaves, a rich, loamy perfume that clung to Elena’s skin as she trudged down the narrow trail. Each footfall sank into the muddy ground, the",
+      "normalized_preview": "The air hung thick with the scent of wet earth and decaying leaves, a rich, loamy perfume that clung to Elena’s skin as she trudged down the narrow trail. Each footfall sank into the muddy ground, the",
+      "raw_length": 1766,
+      "normalized_length": 1766,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKXLwXcLfYwDvRL9kCo5nNExyJHs7\", \"object\": \"chat.completion\", \"created\": 1773787140, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The air hung thick with the scent of wet earth and decaying leaves, a rich, loamy perfume that clung to Elena’s skin as she trudged down the narrow trail. Each footfall sank into the muddy ground, the squelching sound almost a companion to her thoughts, which raced like the water coursing thro",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 301,
+        "paragraph_count": 5,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 28,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 301,
+        "paragraph_count": 5,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 5,
+        "concrete_hits": 1,
+        "generic_hits": 1,
+        "stock_phrase_hits": 1,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The air hung thick with the scent of wet earth and decaying leaves, a rich, loamy perfume that clung to Elena’s skin as she trudged down the narrow trail. Each footfall sank into the muddy ground, the squelching sound almost a companion to her thoughts, which raced like the water coursing through the nearby stream. A low mist curled around the trees, obscuring their gnarled roots and making the world feel more dreamlike, as if reality were slipping away with the last vestiges of daylight. She paused for a moment, glancing up at the canopy above, where flickers of light danced between the branches—fireflies, she thought, or perhaps something more elusive.\n\n“Elena!” The voice cut through the tranquil symphony of the forest, sharp and urgent. It was Sam, his breathless tone carrying an edge of panic that made her stomach twist. She turned, her heart racing, the weight of the moment pressing down on her. “You need to see this!”\n\nWith a nod, she quickened her pace, her pulse thrumming in her ears. The underbrush snagged at her jeans, and she pushed through it, determination fueling her movements. What could be so important? The thought gnawed at her, a mix of dread and curiosity spiraling within. Sam emerged from behind a cluster of ferns, his face pale, eyes wide, and for a brief moment, she wondered if he had seen a ghost.\n\n“Over here,” he urged, leading her deeper into the thicket. As they approached a small clearing, the golden light of the setting sun broke through the haze, illuminating a weathered stone altar, half-buried in moss and vines. It looked ancient, the carvings on its surface intricate yet worn, as if centuries of rain had whispered their secrets to the stone.\n\n“What is this?” Elena breathed, stepping closer, entranced. She"
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "rewrite",
+        "escalated": false,
+        "reason": "rewrite_default"
+      },
+      "raw_preview": "The air was heavy with the damp aroma of rich earth and decaying leaves, a musky scent that clung to Elena’s skin as she navigated the narrow, winding trail. Each step sank deep into the muddy ground,",
+      "normalized_preview": "The air was heavy with the damp aroma of rich earth and decaying leaves, a musky scent that clung to Elena’s skin as she navigated the narrow, winding trail. Each step sank deep into the muddy ground,",
+      "raw_length": 1806,
+      "normalized_length": 1806,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKXM9xSX8yq2mjieJQQOuHWCLeeEO\", \"object\": \"chat.completion\", \"created\": 1773787153, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The air was heavy with the damp aroma of rich earth and decaying leaves, a musky scent that clung to Elena’s skin as she navigated the narrow, winding trail. Each step sank deep into the muddy ground, the squelching noise echoing her racing thoughts, mirroring the rush of water in the nearby s",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 309,
+        "paragraph_count": 4,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "guardrail_snapshot": {
+        "evaluated": true,
+        "mode": "rewrite",
+        "outline_titles": [],
+        "beat_refs": [],
+        "locked_facts_evaluated": false,
+        "length_band_evaluated": true,
+        "original_word_count": 301,
+        "rewritten_word_count": 309,
+        "min_word_count": 180,
+        "max_word_count": 632,
+        "within_length_band": true,
+        "outline_fidelity_evaluated": true,
+        "outline_fidelity_pass": true,
+        "original_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "and",
+          "elena",
+          "moment",
+          "that",
+          "down",
+          "more",
+          "for",
+          "light",
+          "thought"
+        ],
+        "retained_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "and",
+          "elena",
+          "that",
+          "light"
+        ],
+        "outline_anchor_hits": [],
+        "required_anchor_overlap": 1,
+        "scene_anchor_drift_detected": false,
+        "new_story_elements": [],
+        "blocking_new_story_elements": [],
+        "authoritative_name_check": false,
+        "uncertainty_triggered": false,
+        "failure_reason": null,
+        "accepted": true,
+        "quality_total_score": 26
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 2,
+          "meta_free": 5
+        },
+        "total_score": 26,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 309,
+        "paragraph_count": 4,
+        "dialogue_present": true,
+        "dialogue_grounded": false,
+        "sensory_hits": 6,
+        "concrete_hits": 1,
+        "generic_hits": 1,
+        "stock_phrase_hits": 1,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The air was heavy with the damp aroma of rich earth and decaying leaves, a musky scent that clung to Elena’s skin as she navigated the narrow, winding trail. Each step sank deep into the muddy ground, the squelching noise echoing her racing thoughts, mirroring the rush of water in the nearby stream. A low mist coiled around the trunks of the trees, obscuring their gnarled roots and blurring the edges of the world, giving it a surreal quality as the last light of day faded. She paused, tilting her head to peer through the dense canopy above, where flickers of light danced—fireflies, perhaps, or something more ethereal.\n\n“Elena!” The sharp urgency of Sam’s voice sliced through the tranquil sounds of the forest, laced with a breathless panic that twisted her stomach. Her heart quickened as she turned toward him, the weight of anxiety settling heavily on her chest. “You need to see this!”\n\nWith a quick nod, she picked up her pace, her pulse thrumming loudly in her ears. The underbrush snagged at her jeans, but she pushed through, her determination propelling her forward. What could be so urgent? A blend of dread and curiosity churned within her. Sam emerged from behind a thick cluster of ferns, his face pale and eyes wide, and for a fleeting moment, Elena wondered if he had encountered something otherworldly.\n\n“Over here,” he urged, his voice low as he beckoned her deeper into the thicket. As they approached a small clearing, the golden light of the setting sun broke through the haze, casting a warm glow over a weathered stone altar, partially consumed by moss and creeping vines. It stood in stark contrast to the vibrant greenery, ancient and imposing. The intricate carvings that adorned its surface were worn and faded, as if centuries of rain had whispered secrets into its stone"
+      },
+      "quality_pass": false,
+      "rewrite_delta": {
+        "total_delta": -2,
+        "stock_phrase_delta": 0,
+        "specificity_delta": 0,
+        "clarity_delta": 0,
+        "continuity_delta": 0
+      },
+      "retry_decision": {
+        "eligible": true,
+        "reason": "targeted_editorial_miss_after_rewrite",
+        "classification": "targeted_editorial"
+      }
+    },
+    {
+      "attempt": 3,
+      "mode": "recovery_retry",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rewrite_retry_model"
+      },
+      "raw_preview": "```json\n{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"saturated with the earthy aroma of damp soil and decomposing leaves, a musky scent that clung to Elena’s skin as she navigated the narrow, windi",
+      "normalized_preview": "```json\n{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"saturated with the earthy aroma of damp soil and decomposing leaves, a musky scent that clung to Elena’s skin as she navigated the narrow, windi",
+      "raw_length": 791,
+      "normalized_length": 791,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKXMFjNAq1q79mFxOR4AnFEayYjQh\", \"object\": \"chat.completion\", \"created\": 1773787159, \"model\": \"gpt-4o-2024-08-06\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"```json\\n{\\\"patches\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"replacement_text\\\":\\\"saturated with the earthy aroma of damp soil and decomposing leaves, a musky scent that clung to Elena’s skin as she navigated the narrow, winding trail.\\\"},{\\\"slot_id\\\":\\\"s2\\\",\\\"replacement_text\\\":\\\"\\\\\\\"Elena!\\\\\\\" Sam's voice cut sh",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "The air was heavy with the damp aroma of rich earth and decaying leaves, a musky scent that clung to Elena’s skin as she navigated the narrow, winding trail.",
+          "context_before": "",
+          "context_after": "Each step sank deep into the muddy ground, the squelching noise echoing her racing thoughts, mirroring the rush of water in the nearby stream.",
+          "target_reason": "generic",
+          "target_phrase": "heavy with"
+        },
+        {
+          "slot_id": "s2",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Elena!” The sharp urgency of Sam’s voice sliced through the tranquil sounds of the forest, laced with a breathless panic that twisted her stomach.",
+          "context_before": "She paused, tilting her head to peer through the dense canopy above, where flickers of light danced—fireflies, perhaps, or something more ethereal.",
+          "context_after": "Her heart quickened as she turned toward him, the weight of anxiety settling heavily on her chest.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s3",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“You need to see this!”\n\nWith a quick nod, she picked up her pace, her pulse thrumming loudly in her ears.",
+          "context_before": "Her heart quickened as she turned toward him, the weight of anxiety settling heavily on her chest.",
+          "context_after": "The underbrush snagged at her jeans, but she pushed through, her determination propelling her forward.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s4",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Over here,” he urged, his voice low as he beckoned her deeper into the thicket.",
+          "context_before": "Sam emerged from behind a thick cluster of ferns, his face pale and eyes wide, and for a fleeting moment, Elena wondered if he had encountered something otherworldly.",
+          "context_after": "As they approached a small clearing, the golden light of the setting sun broke through the haze, casting a warm glow over a weathered stone altar, partially consumed by moss and creeping vines.",
+          "target_reason": "dialogue"
+        }
+      ],
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "saturated with the earthy aroma of damp soil and decomposing leaves, a musky scent that clung to Elena’s skin as she navigated the narrow, winding trail."
+        },
+        {
+          "slot_id": "s2",
+          "replacement_text": "\"Elena!\" Sam's voice cut sharply through the tranquil sounds of the forest, the urgency in his tone sending a jolt of panic through her stomach as she clutched a low-hanging branch for balance."
+        },
+        {
+          "slot_id": "s3",
+          "replacement_text": "\"You need to see this!\" His words were punctuated by the rustle of leaves underfoot as he stepped backward, creating a path for her to follow."
+        },
+        {
+          "slot_id": "s4",
+          "replacement_text": "\"Over here,\" he urged, waving her forward with a quick flick of his wrist as he disappeared deeper into the thicket."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_specificity_unresolved"
+      }
+    },
+    {
+      "attempt": 4,
+      "mode": "repair_only",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rewrite_retry_model"
+      },
+      "raw_preview": "```json\n{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"saturated with the damp aroma of rich earth and decaying leaves, a musky scent that clung to Elena’s skin as she navigated the narrow, winding t",
+      "normalized_preview": "```json\n{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"saturated with the damp aroma of rich earth and decaying leaves, a musky scent that clung to Elena’s skin as she navigated the narrow, winding t",
+      "raw_length": 213,
+      "normalized_length": 213,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKXMHaTXHJaZ7fZHB7NS2JDkbLPxt\", \"object\": \"chat.completion\", \"created\": 1773787161, \"model\": \"gpt-4o-2024-08-06\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"```json\\n{\\\"patches\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"replacement_text\\\":\\\"saturated with the damp aroma of rich earth and decaying leaves, a musky scent that clung to Elena’s skin as she navigated the narrow, winding trail.\\\"}]}\\n```\", \"refusal\": null, \"annotations\": []}, \"logprobs\": null, \"finish_reason\":",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "The air was heavy with the damp aroma of rich earth and decaying leaves, a musky scent that clung to Elena’s skin as she navigated the narrow, winding trail.",
+          "context_before": "",
+          "context_after": "Each step sank deep into the muddy ground, the squelching noise echoing her racing thoughts, mirroring the rush of water in the nearby stream.",
+          "target_reason": "generic",
+          "target_phrase": "heavy with"
+        },
+        {
+          "slot_id": "s2",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Elena!” The sharp urgency of Sam’s voice sliced through the tranquil sounds of the forest, laced with a breathless panic that twisted her stomach.",
+          "context_before": "She paused, tilting her head to peer through the dense canopy above, where flickers of light danced—fireflies, perhaps, or something more ethereal.",
+          "context_after": "Her heart quickened as she turned toward him, the weight of anxiety settling heavily on her chest.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s3",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“You need to see this!”\n\nWith a quick nod, she picked up her pace, her pulse thrumming loudly in her ears.",
+          "context_before": "Her heart quickened as she turned toward him, the weight of anxiety settling heavily on her chest.",
+          "context_after": "The underbrush snagged at her jeans, but she pushed through, her determination propelling her forward.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s4",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Over here,” he urged, his voice low as he beckoned her deeper into the thicket.",
+          "context_before": "Sam emerged from behind a thick cluster of ferns, his face pale and eyes wide, and for a fleeting moment, Elena wondered if he had encountered something otherworldly.",
+          "context_after": "As they approached a small clearing, the golden light of the setting sun broke through the haze, casting a warm glow over a weathered stone altar, partially consumed by moss and creeping vines.",
+          "target_reason": "dialogue"
+        }
+      ],
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "saturated with the damp aroma of rich earth and decaying leaves, a musky scent that clung to Elena’s skin as she navigated the narrow, winding trail."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_specificity_unresolved"
+      }
+    }
+  ],
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 2,
+      "meta_free": 5
+    },
+    "total_score": 26,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 309,
+    "paragraph_count": 4,
+    "dialogue_present": true,
+    "dialogue_grounded": false,
+    "sensory_hits": 6,
+    "concrete_hits": 1,
+    "generic_hits": 1,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The air was heavy with the damp aroma of rich earth and decaying leaves, a musky scent that clung to Elena’s skin as she navigated the narrow, winding trail. Each step sank deep into the muddy ground, the squelching noise echoing her racing thoughts, mirroring the rush of water in the nearby stream. A low mist coiled around the trunks of the trees, obscuring their gnarled roots and blurring the edges of the world, giving it a surreal quality as the last light of day faded. She paused, tilting her head to peer through the dense canopy above, where flickers of light danced—fireflies, perhaps, or something more ethereal.\n\n“Elena!” The sharp urgency of Sam’s voice sliced through the tranquil sounds of the forest, laced with a breathless panic that twisted her stomach. Her heart quickened as she turned toward him, the weight of anxiety settling heavily on her chest. “You need to see this!”\n\nWith a quick nod, she picked up her pace, her pulse thrumming loudly in her ears. The underbrush snagged at her jeans, but she pushed through, her determination propelling her forward. What could be so urgent? A blend of dread and curiosity churned within her. Sam emerged from behind a thick cluster of ferns, his face pale and eyes wide, and for a fleeting moment, Elena wondered if he had encountered something otherworldly.\n\n“Over here,” he urged, his voice low as he beckoned her deeper into the thicket. As they approached a small clearing, the golden light of the setting sun broke through the haze, casting a warm glow over a weathered stone altar, partially consumed by moss and creeping vines. It stood in stark contrast to the vibrant greenery, ancient and imposing. The intricate carvings that adorned its surface were worn and faded, as if centuries of rain had whispered secrets into its stone"
+  },
+  "critique_snapshot": {
+    "summary": "Elena walks through a misty forest, reflecting on her surroundings when she is called by Sam, who appears panicked. He leads her to a clearing where they discover an ancient stone altar covered in moss.",
+    "weaknesses": [
+      "The scene relies heavily on generic descriptions and lacks specificity in certain areas.",
+      "Dialogue lacks grounding in physical action or setting, making it feel detached."
+    ],
+    "continuity_issues": [
+      "The transition from Elena's introspection to Sam's urgent call feels abrupt and lacks a smooth flow."
+    ],
+    "pacing_issues": [
+      "The pacing slows significantly during the introspective moments, which may detract from the urgency introduced by Sam's call."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid and immersive scene.",
+      "Ground dialogue in physical actions or the environment to improve realism."
+    ],
+    "generic_phrase_targets": [
+      "thick with the scent of wet earth",
+      "rich, loamy perfume",
+      "a companion to her thoughts",
+      "dreamlike",
+      "cut through the tranquil symphony",
+      "breathless tone carrying an edge of panic"
+    ],
+    "detail_targets": [
+      "Descriptions of the altar and its carvings could be more detailed to enhance the sense of mystery."
+    ],
+    "dialogue_grounding_targets": [
+      "Elena's response to Sam's call could include a physical reaction, such as looking around or adjusting her stance."
+    ],
+    "emotional_show_targets": [
+      "Elena's feelings of dread and curiosity could be shown through more physical manifestations, like fidgeting or hesitating."
+    ],
+    "replacement_targets": [
+      "Replace vague phrases with more concrete imagery that evokes a stronger sense of place and emotion."
+    ],
+    "grounding_targets": [
+      "Incorporate more sensory details that relate to the characters' actions and surroundings during dialogue."
+    ],
+    "carryover_targets": []
+  },
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Elena!” The sharp urgency of Sam’s voice sliced through the tranquil sounds of the forest, laced with a breathless panic that twisted her stomach.",
+        "“You need to see this!”\n\nWith a quick nod, she picked up her pace, her pulse thrumming loudly in her ears.",
+        "“Over here,” he urged, his voice low as he beckoned her deeper into the thicket."
+      ],
+      "generic_phrases_to_replace": [
+        "heavy with"
+      ],
+      "lines_to_repair": [
+        "The air was heavy with the damp aroma of rich earth and decaying leaves, a musky scent that clung to Elena’s skin as she navigated the narrow, winding trail.",
+        "“Elena!” The sharp urgency of Sam’s voice sliced through the tranquil sounds of the forest, laced with a breathless panic that twisted her stomach.",
+        "“You need to see this!”\n\nWith a quick nod, she picked up her pace, her pulse thrumming loudly in her ears.",
+        "“Over here,” he urged, his voice low as he beckoned her deeper into the thicket."
+      ],
+      "required_concrete_anchor_terms": [
+        "elena",
+        "light",
+        "faded"
+      ],
+      "repair_min_word_count": 262,
+      "repair_max_word_count": 463,
+      "min_paragraph_count": 2,
+      "max_paragraph_count": 6
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-4o",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rewrite_retry_model"
+    },
+    "rescue_slots_summary": {
+      "slot_count": 4,
+      "target_types": [
+        "generic",
+        "dialogue",
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_specificity_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 301,
+    "rewritten_word_count": 309,
+    "min_word_count": 180,
+    "max_word_count": 632,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "and",
+      "elena",
+      "moment",
+      "that",
+      "down",
+      "more",
+      "for",
+      "light",
+      "thought"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "and",
+      "elena",
+      "that",
+      "light"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 26
+  }
+}

@@ -1,0 +1,220 @@
+{
+  "timestamp": "2026-03-16T02:15:12.358136Z",
+  "code": "VALIDATION",
+  "message": "Long-form output rejected (quality threshold).",
+  "details": {
+    "quality_snapshot": {
+      "usable": true,
+      "scores": {
+        "coherence": 5,
+        "continuity": 3,
+        "clarity": 2,
+        "pacing": 5,
+        "specificity": 2,
+        "dialogue": 4,
+        "meta_free": 5
+      },
+      "total_score": 26,
+      "max_score": 35,
+      "meta_summary": false,
+      "meta_contamination": false,
+      "missing_carryover": false,
+      "word_count": 608,
+      "paragraph_count": 11,
+      "dialogue_present": true,
+      "dialogue_grounded": true,
+      "sensory_hits": 7,
+      "concrete_hits": 2,
+      "generic_hits": 2,
+      "stock_phrase_hits": 5,
+      "carryover_terms": [
+        "whistled",
+        "narrow",
+        "alley",
+        "carrying",
+        "scent",
+        "soaked",
+        "cobblestones",
+        "something"
+      ],
+      "carryover_hits": 6,
+      "material_carryover_hits": 0,
+      "material_carryover": false,
+      "weak_carryover": false,
+      "generic_risk": true
+    },
+    "attempts": [
+      {
+        "attempt": 1,
+        "mode": "draft",
+        "extracted_field": "choices.message.content",
+        "thinking_fallback": false,
+        "reasoning_trim_applied": false,
+        "basic_validation": {
+          "usable": true,
+          "word_count": 623,
+          "paragraph_count": 11,
+          "meta_summary": false,
+          "missing_carryover": false,
+          "carryover_terms": [
+            "whistled",
+            "narrow",
+            "alley",
+            "carrying",
+            "scent",
+            "soaked",
+            "cobblestones",
+            "something"
+          ],
+          "carryover_hits": 5,
+          "material_carryover_hits": 0
+        },
+        "raw_preview": "Elara shook her foot, trying to dislodge the cold water that clung to her sock like a small, unwelcome creature. The alley felt alive, whispering secrets in the rustle of the wind and the distant laug",
+        "normalized_preview": "Elara shook her foot, trying to dislodge the cold water that clung to her sock like a small, unwelcome creature. The alley felt alive, whispering secrets in the rustle of the wind and the distant laug",
+        "raw_length": 3513,
+        "normalized_length": 3509,
+        "raw_payload_keys": [
+          "choices",
+          "created",
+          "id",
+          "model",
+          "object",
+          "service_tier",
+          "system_fingerprint",
+          "usage"
+        ],
+        "raw_payload_preview": "{\"id\": \"chatcmpl-DJrlNFbqZAJtTdo0ev98vb5UV9bfR\", \"object\": \"chat.completion\", \"created\": 1773627269, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"Elara shook her foot, trying to dislodge the cold water that clung to her sock like a small, unwelcome creature. The alley felt alive, whispering secrets in the rustle of the wind and the distant laughter from a nearby tavern, where the warmth of the hearth beckoned like an old friend. She hes",
+        "quality_snapshot": {
+          "usable": true,
+          "scores": {
+            "coherence": 5,
+            "continuity": 3,
+            "clarity": 2,
+            "pacing": 5,
+            "specificity": 2,
+            "dialogue": 4,
+            "meta_free": 5
+          },
+          "total_score": 26,
+          "max_score": 35,
+          "meta_summary": false,
+          "meta_contamination": false,
+          "missing_carryover": false,
+          "word_count": 623,
+          "paragraph_count": 11,
+          "dialogue_present": true,
+          "dialogue_grounded": true,
+          "sensory_hits": 8,
+          "concrete_hits": 3,
+          "generic_hits": 2,
+          "stock_phrase_hits": 4,
+          "carryover_terms": [
+            "whistled",
+            "narrow",
+            "alley",
+            "carrying",
+            "scent",
+            "soaked",
+            "cobblestones",
+            "something"
+          ],
+          "carryover_hits": 5,
+          "material_carryover_hits": 0,
+          "material_carryover": false,
+          "weak_carryover": false,
+          "generic_risk": true
+        },
+        "quality_pass": false
+      },
+      {
+        "attempt": 2,
+        "mode": "rewrite",
+        "extracted_field": "choices.message.content",
+        "thinking_fallback": false,
+        "reasoning_trim_applied": false,
+        "basic_validation": {
+          "usable": true,
+          "word_count": 608,
+          "paragraph_count": 11,
+          "meta_summary": false,
+          "missing_carryover": false,
+          "carryover_terms": [
+            "whistled",
+            "narrow",
+            "alley",
+            "carrying",
+            "scent",
+            "soaked",
+            "cobblestones",
+            "something"
+          ],
+          "carryover_hits": 6,
+          "material_carryover_hits": 0
+        },
+        "raw_preview": "Elara shook her foot, trying to dislodge the cold water that clung to her sock, a constant reminder of the dampness seeping through her worn leather boot. The alley pulsed with life, the wind rustling",
+        "normalized_preview": "Elara shook her foot, trying to dislodge the cold water that clung to her sock, a constant reminder of the dampness seeping through her worn leather boot. The alley pulsed with life, the wind rustling",
+        "raw_length": 3524,
+        "normalized_length": 3523,
+        "raw_payload_keys": [
+          "choices",
+          "created",
+          "id",
+          "model",
+          "object",
+          "service_tier",
+          "system_fingerprint",
+          "usage"
+        ],
+        "raw_payload_preview": "{\"id\": \"chatcmpl-DJrlky70xVVGX6aV4153Jeuqg2Zzv\", \"object\": \"chat.completion\", \"created\": 1773627292, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"Elara shook her foot, trying to dislodge the cold water that clung to her sock, a constant reminder of the dampness seeping through her worn leather boot. The alley pulsed with life, the wind rustling through litter and leaves, carrying the distant sounds of laughter from a nearby tavern, wher",
+        "quality_snapshot": {
+          "usable": true,
+          "scores": {
+            "coherence": 5,
+            "continuity": 3,
+            "clarity": 2,
+            "pacing": 5,
+            "specificity": 2,
+            "dialogue": 4,
+            "meta_free": 5
+          },
+          "total_score": 26,
+          "max_score": 35,
+          "meta_summary": false,
+          "meta_contamination": false,
+          "missing_carryover": false,
+          "word_count": 608,
+          "paragraph_count": 11,
+          "dialogue_present": true,
+          "dialogue_grounded": true,
+          "sensory_hits": 7,
+          "concrete_hits": 2,
+          "generic_hits": 2,
+          "stock_phrase_hits": 5,
+          "carryover_terms": [
+            "whistled",
+            "narrow",
+            "alley",
+            "carrying",
+            "scent",
+            "soaked",
+            "cobblestones",
+            "something"
+          ],
+          "carryover_hits": 6,
+          "material_carryover_hits": 0,
+          "material_carryover": false,
+          "weak_carryover": false,
+          "generic_risk": true
+        },
+        "quality_pass": false,
+        "rewrite_delta": {
+          "total_delta": 0,
+          "stock_phrase_delta": -1,
+          "specificity_delta": 0,
+          "clarity_delta": 0,
+          "continuity_delta": 0
+        }
+      }
+    ]
+  }
+}

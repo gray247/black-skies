@@ -1,0 +1,339 @@
+{
+  "chunk_id": "lf_69c554e7",
+  "validation_decision": true,
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "basic_validation": {
+        "usable": true,
+        "word_count": 616,
+        "paragraph_count": 12,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "raw_preview": "Clara pressed her back against the nursery door, the chipped ceramic fox in her pocket digging into her thigh like a warning. She could feel the weight of the house pressing in, its walls shuddering u",
+      "normalized_preview": "Clara pressed her back against the nursery door, the chipped ceramic fox in her pocket digging into her thigh like a warning. She could feel the weight of the house pressing in, its walls shuddering u",
+      "raw_length": 3518,
+      "normalized_length": 3518,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DK8utSBHLeqQUkHSybyIXgUP7HQJx\", \"object\": \"chat.completion\", \"created\": 1773693207, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"Clara pressed her back against the nursery door, the chipped ceramic fox in her pocket digging into her thigh like a warning. She could feel the weight of the house pressing in, its walls shuddering under the weight of their secrets. Jun stood beside her, the cracked brass lantern flickering f",
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 2,
+          "clarity": 3,
+          "pacing": 5,
+          "specificity": 4,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 28,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 616,
+        "paragraph_count": 12,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 8,
+        "concrete_hits": 14,
+        "generic_hits": 1,
+        "stock_phrase_hits": 5,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": true,
+        "text": "Clara pressed her back against the nursery door, the chipped ceramic fox in her pocket digging into her thigh like a warning. She could feel the weight of the house pressing in, its walls shuddering under the weight of their secrets. Jun stood beside her, the cracked brass lantern flickering fitfully, casting long shadows that danced across the faded wallpaper, revealing the ghosts of laughter and tears that had long since faded from memory. The air was thick with the scent of damp earth and something sharper, a hint of mildew that clung to the corners like a forgotten thought.\n\n“What if she’s right?” Clara whispered, her voice barely rising above the low hum of the wind that rattled the windowpanes. “What if no child has been here?”\n\nJun’s gaze flicked to her, his brow furrowed beneath the weight of his damp hair. “But we heard something, Clara. A cough. It was real.” His voice dropped as if afraid the walls would listen. He shifted, the sodden fabric of his coat brushing against her, a reminder of the storm that had chased them from the greenhouse, of the muddy prints that led them here yet had no clear origin.\n\n“Maybe it was just…” She hesitated, feeling the truth coil like a serpent in her throat. “Maybe it was just the house settling.”\n\n“Or someone else,” he countered, the lantern sputtering once more, the flame struggling to hold its ground. Silence engulfed them, thick and oppressive, and Clara could almost hear the heartbeat of the house, a slow, rhythmic pulse that matched the thudding of her own heart. She glanced at the door, the chains rattling softly as if someone on the other side was testing their hold, a constant reminder that they were not alone.\n\n“Do you think it’s locked?” Jun’s voice was barely audible, but the question hung in the air, heavy with implications. Clara felt a shiver run down her spine. She tightened her grip on the key tied to her wrist, the red ribbon feeling like a lifeline, an anchor to a reality that felt increasingly tenuous. “What if we can’t get out?”\n\n“We have to try.” Clara took a step closer, her fingers brushing the cool brass of the doorknob, but the moment she touched it, a chill swept through the air, and she recoiled. The house seemed to exhale, the floor beneath them creaking as if in protest. “It’s just a door,” she said, forcing bravado into her tone, but the tremor in her voice betrayed her.\n\n“This isn’t just any door.” Jun’s eyes flared with urgency, the lantern casting flickers across his face, revealing the worry etched into his features. “It’s the nursery. Whoever or whatever is in there... it’s been waiting.”\n\nThe thought hung between them, palpable and suffocating. Clara could feel the weight of it settling into her chest, pushing against her lungs until they felt like iron weights. She turned her gaze to the hallway beyond, a dark void that seemed to breathe shadows. “What if we’re not supposed to be here?”\n\n“Then we’ll find out.” Jun’s determination was a flicker of warmth in the cold, damp air. “You’re not afraid of the dark, are you?”\n\nShe looked at him, the defiance in his eyes pulling her from the edge of her spiraling thoughts. “I’m afraid of what the dark hides,” she admitted, her voice trembling with a mix of fear and resolve. “But we can’t leave this place without knowing.”\n\nWith a nod, she took a deep breath, steeling herself against the chill that wrapped around her like a shroud. The lantern’s glow dimmed further, its flickering light offering a fragile assurance. She turned the key"
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "rewrite",
+        "escalated": false,
+        "reason": "rewrite_default"
+      },
+      "basic_validation": {
+        "usable": true,
+        "word_count": 617,
+        "paragraph_count": 12,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "raw_preview": "Clara pressed her back against the nursery door, feeling the jagged edges of the chipped ceramic fox in her pocket digging into her thigh, a constant reminder of the weight of their predicament. The w",
+      "normalized_preview": "Clara pressed her back against the nursery door, feeling the jagged edges of the chipped ceramic fox in her pocket digging into her thigh, a constant reminder of the weight of their predicament. The w",
+      "raw_length": 3583,
+      "normalized_length": 3583,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DK8vIUae07AmCDJqAiHAz71JYrskb\", \"object\": \"chat.completion\", \"created\": 1773693232, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"Clara pressed her back against the nursery door, feeling the jagged edges of the chipped ceramic fox in her pocket digging into her thigh, a constant reminder of the weight of their predicament. The walls seemed to lean in closer, as if the house itself were eavesdropping on their whispered fe",
+      "guardrail_snapshot": {
+        "evaluated": true,
+        "mode": "rewrite",
+        "outline_titles": [
+          "Greenhouse Alarm",
+          "Servants' Passage",
+          "Dining Room Interruption",
+          "Clock Landing",
+          "Sealed Nursery"
+        ],
+        "beat_refs": [
+          "inciting",
+          "pressure",
+          "dialogue",
+          "reversal",
+          "payoff"
+        ],
+        "locked_facts_evaluated": true,
+        "length_band_evaluated": true,
+        "original_word_count": 616,
+        "rewritten_word_count": 617,
+        "min_word_count": 369,
+        "max_word_count": 1293,
+        "within_length_band": true,
+        "outline_fidelity_evaluated": true,
+        "outline_fidelity_pass": true,
+        "original_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "that",
+          "clara",
+          "and",
+          "was",
+          "his",
+          "jun",
+          "what",
+          "voice",
+          "but"
+        ],
+        "retained_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "that",
+          "clara",
+          "and",
+          "his",
+          "jun",
+          "what",
+          "voice"
+        ],
+        "outline_anchor_hits": [
+          "the",
+          "jun"
+        ],
+        "required_anchor_overlap": 1,
+        "scene_anchor_drift_detected": false,
+        "new_story_elements": [],
+        "blocking_new_story_elements": [],
+        "authoritative_name_check": true,
+        "uncertainty_triggered": false,
+        "failure_reason": null,
+        "accepted": true,
+        "quality_total_score": 31
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 5,
+          "specificity": 5,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 31,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 617,
+        "paragraph_count": 12,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 9,
+        "concrete_hits": 14,
+        "generic_hits": 1,
+        "stock_phrase_hits": 2,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false
+      },
+      "quality_pass": true,
+      "rewrite_delta": {
+        "total_delta": 3,
+        "stock_phrase_delta": 3,
+        "specificity_delta": 1,
+        "clarity_delta": 1,
+        "continuity_delta": 1
+      }
+    }
+  ],
+  "acceptance_reason": "rewrite_pass",
+  "critique_snapshot": {
+    "summary": "Clara and Jun stand at the nursery door, grappling with fear and uncertainty about what lies beyond. The atmosphere is thick with tension as they discuss the possibility of something sinister waiting for them inside. Clara clutches a key tied to her wrist, symbolizing her connection to reality as they contemplate their next move.",
+    "weaknesses": [
+      "Overuse of vague descriptors like 'the weight of the house' and 'the ghosts of laughter and tears'.",
+      "Generic phrases such as 'the air was thick with the scent of damp earth' detract from specificity.",
+      "Dialogue lacks grounding in physical action or setting, making it feel detached."
+    ],
+    "continuity_issues": [
+      "The mention of muddy prints leading them to the nursery is vague and lacks clarity on how they relate to the current situation."
+    ],
+    "pacing_issues": [
+      "The scene builds tension well but could benefit from a more dynamic exchange to break up the introspection."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity by replacing vague descriptions with concrete imagery.",
+      "Ground dialogue in physical actions or setting to create a stronger connection to the scene.",
+      "Eliminate generic phrases and stock expressions to improve originality."
+    ],
+    "generic_phrase_targets": [
+      "The air was thick with the scent of damp earth",
+      "It was just the house settling",
+      "What if we can’t get out?"
+    ],
+    "detail_targets": [
+      "Chipped ceramic fox",
+      "Cracked brass lantern",
+      "Chains rattling softly"
+    ],
+    "dialogue_grounding_targets": [
+      "Jun’s gaze flicked to her",
+      "Clara tightened her grip on the key"
+    ],
+    "emotional_show_targets": [
+      "Clara felt a shiver run down her spine",
+      "The weight of it settling into her chest"
+    ],
+    "replacement_targets": [
+      "Replace 'the weight of the house' with a more specific description of the house's atmosphere.",
+      "Substitute 'the ghosts of laughter and tears' with a more vivid image of the nursery's past."
+    ],
+    "grounding_targets": [
+      "Clara pressed her back against the nursery door",
+      "Jun stood beside her"
+    ],
+    "carryover_targets": []
+  },
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [
+      "Greenhouse Alarm",
+      "Servants' Passage",
+      "Dining Room Interruption",
+      "Clock Landing",
+      "Sealed Nursery"
+    ],
+    "beat_refs": [
+      "inciting",
+      "pressure",
+      "dialogue",
+      "reversal",
+      "payoff"
+    ],
+    "locked_facts_evaluated": true,
+    "length_band_evaluated": true,
+    "original_word_count": 616,
+    "rewritten_word_count": 617,
+    "min_word_count": 369,
+    "max_word_count": 1293,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "that",
+      "clara",
+      "and",
+      "was",
+      "his",
+      "jun",
+      "what",
+      "voice",
+      "but"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "that",
+      "clara",
+      "and",
+      "his",
+      "jun",
+      "what",
+      "voice"
+    ],
+    "outline_anchor_hits": [
+      "the",
+      "jun"
+    ],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": true,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 31
+  }
+}

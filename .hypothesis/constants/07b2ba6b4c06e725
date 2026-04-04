@@ -1,0 +1,4 @@
+# file: C:\Dev\black-skies\services\src\blackskies\services\routers\draft\generation.py
+# hypothesis_version: 6.138.2
+
+['/generate', '/preflight', 'INTERNAL', 'TIMEOUT', 'error', 'errors', 'generate_draft', 'preflight_draft', 'project_id']

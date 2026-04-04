@@ -1,0 +1,515 @@
+{
+  "chunk_id": "lf_403cd958",
+  "validation_decision": false,
+  "fallback_reason": "quality_failed",
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "raw_preview": "Harper leaned against the cool stone wall of the alley, the rough texture digging into her back as she waited. The faint hum of traffic buzzed in the distance, a comforting reminder of life just beyon",
+      "normalized_preview": "Harper leaned against the cool stone wall of the alley, the rough texture digging into her back as she waited. The faint hum of traffic buzzed in the distance, a comforting reminder of life just beyon",
+      "raw_length": 1792,
+      "normalized_length": 1791,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKrvWeohdN6QNAeEWm8NF17GaJ3uV\", \"object\": \"chat.completion\", \"created\": 1773866226, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"Harper leaned against the cool stone wall of the alley, the rough texture digging into her back as she waited. The faint hum of traffic buzzed in the distance, a comforting reminder of life just beyond the shadows. She inhaled deeply, the mingled scents of damp earth and distant fried food fil",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 307,
+        "paragraph_count": 6,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 28,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 307,
+        "paragraph_count": 6,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 6,
+        "concrete_hits": 0,
+        "generic_hits": 1,
+        "stock_phrase_hits": 2,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "Harper leaned against the cool stone wall of the alley, the rough texture digging into her back as she waited. The faint hum of traffic buzzed in the distance, a comforting reminder of life just beyond the shadows. She inhaled deeply, the mingled scents of damp earth and distant fried food filling her lungs, a hint of nostalgia twisting in her chest. This was a place she had known well, a sanctuary and a prison all at once.\n\nShe glanced down at her phone, the screen illuminated in the dim light, fingers tapping anxiously against the cracked surface. Time slipped by like water through her fingers, and each second felt heavier than the last. “Come on, Leo,” she murmured under her breath, the name tasting bitter and sweet on her tongue. A moth flitted nearby, drawn to the flickering light of a nearby streetlamp, and Harper watched it dance, her heart tightening at the thought of flight, of escape.\n\nA sharp crack echoed from the far end of the alley, freezing her in place. Harper’s breath hitched. The clatter of footsteps approached, quick and uneven. She pressed herself further into the shadows, her pulse quickening. Shadows stretched and twisted, a living tapestry that masked her presence. “Leo?” she whispered, barely daring to breathe, her voice betraying the tremor of hope and fear entwined within her.\n\n“Harper!” His voice broke through the stillness, ragged and urgent. He emerged, eyes wide and glistening with a sheen of sweat, his shirt clinging to him as if he had waged war against the night. “We don’t have much time.”\n\nThe gravity of his tone sent a shiver racing down her spine. “What happened?” she asked, stepping forward into the narrow beam of light, the warmth of his presence igniting something deep within her.\n\nHis gaze darted around, and for a moment,"
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "rewrite",
+        "escalated": false,
+        "reason": "rewrite_default"
+      },
+      "raw_preview": "Harper leaned against the cool stone wall of the alley, the rough surface pressing into her back as she waited. She could feel the chill of the dampness in the air, mingling with the faint hum of traf",
+      "normalized_preview": "Harper leaned against the cool stone wall of the alley, the rough surface pressing into her back as she waited. She could feel the chill of the dampness in the air, mingling with the faint hum of traf",
+      "raw_length": 1795,
+      "normalized_length": 1795,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKrvim1g63cSqSobJHz0oOAq3XRqU\", \"object\": \"chat.completion\", \"created\": 1773866238, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"Harper leaned against the cool stone wall of the alley, the rough surface pressing into her back as she waited. She could feel the chill of the dampness in the air, mingling with the faint hum of traffic just beyond the shadows, a comforting reminder of life continuing outside her secluded spo",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 302,
+        "paragraph_count": 4,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "guardrail_snapshot": {
+        "evaluated": true,
+        "mode": "rewrite",
+        "outline_titles": [],
+        "beat_refs": [],
+        "locked_facts_evaluated": false,
+        "length_band_evaluated": true,
+        "original_word_count": 307,
+        "rewritten_word_count": 302,
+        "min_word_count": 184,
+        "max_word_count": 644,
+        "within_length_band": true,
+        "outline_fidelity_evaluated": true,
+        "outline_fidelity_pass": true,
+        "original_anchor_terms": [
+          "the",
+          "her",
+          "and",
+          "she",
+          "his",
+          "harper",
+          "against",
+          "shadows",
+          "light",
+          "alley",
+          "place",
+          "had"
+        ],
+        "retained_anchor_terms": [
+          "the",
+          "her",
+          "and",
+          "she",
+          "his",
+          "harper",
+          "against",
+          "shadows",
+          "light",
+          "alley",
+          "had"
+        ],
+        "outline_anchor_hits": [],
+        "required_anchor_overlap": 1,
+        "scene_anchor_drift_detected": false,
+        "new_story_elements": [],
+        "blocking_new_story_elements": [],
+        "authoritative_name_check": false,
+        "uncertainty_triggered": false,
+        "failure_reason": null,
+        "accepted": true,
+        "quality_total_score": 28
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 28,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 302,
+        "paragraph_count": 4,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 6,
+        "concrete_hits": 0,
+        "generic_hits": 1,
+        "stock_phrase_hits": 0,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "Harper leaned against the cool stone wall of the alley, the rough surface pressing into her back as she waited. She could feel the chill of the dampness in the air, mingling with the faint hum of traffic just beyond the shadows, a comforting reminder of life continuing outside her secluded spot. Taking a deep breath, she inhaled the earthy scent of wet pavement, laced with the tantalizing aroma of fried food wafting from a nearby vendor. It stirred memories she had thought buried, a bittersweet nostalgia twisting in her chest. This alley had been both her refuge and her cage, a place filled with layers of her past.\n\nShe glanced down at her phone, its screen a beacon of light in the dimness, and her fingers tapped nervously against the cracked surface, each tap echoing her anxiety. Seconds felt thicker than molasses, clinging to her like a heavy fog. “Come on, Leo,” she murmured, the name hanging in the air like an uninvited ghost. A moth fluttered near the flickering streetlamp, drawn to its light, and she watched it flit about, a pang of longing threading through her. To escape, to fly free—what would that feel like?\n\nA sharp crack of something snapping echoed from the far end of the alley, jolting her into heightened awareness. Harper’s breath caught in her throat as quick, uneven footsteps approached. She pressed herself deeper into the shadows, her heart racing as the darkness enveloped her. The shifting shadows seemed alive, wrapping around her, concealing her presence. “Leo?” she whispered, her voice barely a breath, a mixture of hope and fear threading through the syllables.\n\n“Harper!” His voice sliced through the stillness—ragged, urgent. He stepped into view, eyes wide and glistening, sweat beading on his brow, his shirt clinging to him like a second skin."
+      },
+      "quality_pass": false,
+      "rewrite_delta": {
+        "total_delta": 0,
+        "stock_phrase_delta": 2,
+        "specificity_delta": 0,
+        "clarity_delta": 0,
+        "continuity_delta": 0
+      },
+      "retry_decision": {
+        "eligible": true,
+        "reason": "targeted_editorial_miss_after_rewrite",
+        "classification": "targeted_editorial"
+      }
+    },
+    {
+      "attempt": 3,
+      "mode": "recovery_retry",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rescue_model"
+      },
+      "raw_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"“Leo?” she whispered, lifting her phone a fraction so its pale screen lit the wet pavement at her feet, while her fingers tightened against the cracked ",
+      "normalized_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"“Leo?” she whispered, lifting her phone a fraction so its pale screen lit the wet pavement at her feet, while her fingers tightened against the cracked ",
+      "raw_length": 280,
+      "normalized_length": 280,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKrvqvAsxJUB6FAPJvqRf5QIFxuGj\", \"object\": \"chat.completion\", \"created\": 1773866246, \"model\": \"gpt-5.4-mini-2026-03-17\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"replacement_text\\\":\\\"“Leo?” she whispered, lifting her phone a fraction so its pale screen lit the wet pavement at her feet, while her fingers tightened against the cracked edge; hope and fear tightened her throat into the single breath of his name.\\\"}]}\", ",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Leo?” she whispered, her voice barely a breath, a mixture of hope and fear threading through the syllables.",
+          "context_before": "The shifting shadows seemed alive, wrapping around her, concealing her presence.",
+          "context_after": "“Harper!” His voice sliced through the stillness—ragged, urgent.",
+          "target_reason": "dialogue"
+        }
+      ],
+      "rescue_generation_strategy": "slot_patch",
+      "configured_rescue_generation_strategy": "slot_patch",
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "“Leo?” she whispered, lifting her phone a fraction so its pale screen lit the wet pavement at her feet, while her fingers tightened against the cracked edge; hope and fear tightened her throat into the single breath of his name."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_dialogue_grounding_unresolved"
+      }
+    },
+    {
+      "attempt": 4,
+      "mode": "repair_only",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rescue_model"
+      },
+      "raw_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"“Leo?” she whispered toward the far end of the alley, one hand braced against the damp stone wall as her eyes searched the shadows, her voice barely a b",
+      "normalized_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"“Leo?” she whispered toward the far end of the alley, one hand braced against the damp stone wall as her eyes searched the shadows, her voice barely a b",
+      "raw_length": 210,
+      "normalized_length": 210,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKrvskdPeoEKEP541TOGcRAU1kaAx\", \"object\": \"chat.completion\", \"created\": 1773866248, \"model\": \"gpt-5.4-mini-2026-03-17\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"replacement_text\\\":\\\"“Leo?” she whispered toward the far end of the alley, one hand braced against the damp stone wall as her eyes searched the shadows, her voice barely a breath.\\\"}]}\", \"refusal\": null, \"annotations\": []}, \"finish_reason\": \"stop\"}], \"usage",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Leo?” she whispered, her voice barely a breath, a mixture of hope and fear threading through the syllables.",
+          "context_before": "The shifting shadows seemed alive, wrapping around her, concealing her presence.",
+          "context_after": "“Harper!” His voice sliced through the stillness—ragged, urgent.",
+          "target_reason": "dialogue"
+        }
+      ],
+      "rescue_generation_strategy": "slot_patch",
+      "configured_rescue_generation_strategy": "slot_patch",
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "“Leo?” she whispered toward the far end of the alley, one hand braced against the damp stone wall as her eyes searched the shadows, her voice barely a breath."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_dialogue_grounding_unresolved"
+      }
+    }
+  ],
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 28,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 302,
+    "paragraph_count": 4,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 6,
+    "concrete_hits": 0,
+    "generic_hits": 1,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "Harper leaned against the cool stone wall of the alley, the rough surface pressing into her back as she waited. She could feel the chill of the dampness in the air, mingling with the faint hum of traffic just beyond the shadows, a comforting reminder of life continuing outside her secluded spot. Taking a deep breath, she inhaled the earthy scent of wet pavement, laced with the tantalizing aroma of fried food wafting from a nearby vendor. It stirred memories she had thought buried, a bittersweet nostalgia twisting in her chest. This alley had been both her refuge and her cage, a place filled with layers of her past.\n\nShe glanced down at her phone, its screen a beacon of light in the dimness, and her fingers tapped nervously against the cracked surface, each tap echoing her anxiety. Seconds felt thicker than molasses, clinging to her like a heavy fog. “Come on, Leo,” she murmured, the name hanging in the air like an uninvited ghost. A moth fluttered near the flickering streetlamp, drawn to its light, and she watched it flit about, a pang of longing threading through her. To escape, to fly free—what would that feel like?\n\nA sharp crack of something snapping echoed from the far end of the alley, jolting her into heightened awareness. Harper’s breath caught in her throat as quick, uneven footsteps approached. She pressed herself deeper into the shadows, her heart racing as the darkness enveloped her. The shifting shadows seemed alive, wrapping around her, concealing her presence. “Leo?” she whispered, her voice barely a breath, a mixture of hope and fear threading through the syllables.\n\n“Harper!” His voice sliced through the stillness—ragged, urgent. He stepped into view, eyes wide and glistening, sweat beading on his brow, his shirt clinging to him like a second skin."
+  },
+  "critique_snapshot": {
+    "summary": "Harper waits in an alley, feeling a mix of nostalgia and anxiety as she anticipates Leo's arrival. The atmosphere is tense, heightened by sounds and scents around her. When Leo finally appears, he is urgent and distressed, indicating that something significant has occurred.",
+    "weaknesses": [
+      "Generic descriptions that lack specificity.",
+      "Dialogue that feels disconnected from physical actions.",
+      "Vague emotional responses without clear grounding in the scene."
+    ],
+    "continuity_issues": [
+      "The transition from Harper's internal thoughts to Leo's entrance lacks a clear buildup, making the shift feel abrupt."
+    ],
+    "pacing_issues": [
+      "The pacing slows significantly during the dialogue, which may disrupt the tension built in the earlier paragraphs."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid scene.",
+      "Ground dialogue in physical actions or environmental details.",
+      "Clarify emotional responses to make them more relatable and impactful."
+    ],
+    "generic_phrase_targets": [
+      "A sanctuary and a prison all at once",
+      "Time slipped by like water through her fingers"
+    ],
+    "detail_targets": [
+      "The scents of damp earth and distant fried food could be described with more sensory detail.",
+      "The description of the alley could include more unique features to set the scene."
+    ],
+    "dialogue_grounding_targets": [
+      "Leo's urgent dialogue should be accompanied by more physical action or context to enhance its impact."
+    ],
+    "emotional_show_targets": [
+      "Harper's nostalgia and anxiety could be shown through more specific memories or physical reactions."
+    ],
+    "replacement_targets": [
+      "Replace generic phrases with more original expressions that convey the same meaning."
+    ],
+    "grounding_targets": [
+      "Include more physical interactions with the environment to ground the characters in the scene."
+    ],
+    "carryover_targets": [
+      "Ensure that the emotional stakes established in the beginning carry through to the dialogue and actions."
+    ]
+  },
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_model_name": "gpt-5.4-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Come on, Leo,” she murmured, the name hanging in the air like an uninvited ghost.",
+        "“Leo?” she whispered, her voice barely a breath, a mixture of hope and fear threading through the syllables.",
+        "“Harper!” His voice sliced through the stillness—ragged, urgent."
+      ],
+      "generic_phrases_to_replace": [],
+      "lines_to_repair": [
+        "“Come on, Leo,” she murmured, the name hanging in the air like an uninvited ghost.",
+        "“Leo?” she whispered, her voice barely a breath, a mixture of hope and fear threading through the syllables.",
+        "“Harper!” His voice sliced through the stillness—ragged, urgent."
+      ],
+      "required_concrete_anchor_terms": [
+        "harper",
+        "alley",
+        "shadows"
+      ],
+      "repair_min_word_count": 256,
+      "repair_max_word_count": 453,
+      "min_paragraph_count": 2,
+      "max_paragraph_count": 6
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rescue_model"
+    },
+    "rescue_generation_strategy": "slot_patch",
+    "configured_rescue_generation_strategy": "slot_patch",
+    "rescue_slots_summary": {
+      "slot_count": 1,
+      "target_types": [
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_dialogue_grounding_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 307,
+    "rewritten_word_count": 302,
+    "min_word_count": 184,
+    "max_word_count": 644,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "and",
+      "she",
+      "his",
+      "harper",
+      "against",
+      "shadows",
+      "light",
+      "alley",
+      "place",
+      "had"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "and",
+      "she",
+      "his",
+      "harper",
+      "against",
+      "shadows",
+      "light",
+      "alley",
+      "had"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 28
+  }
+}

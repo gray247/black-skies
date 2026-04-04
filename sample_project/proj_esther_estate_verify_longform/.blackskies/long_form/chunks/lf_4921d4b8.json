@@ -1,0 +1,232 @@
+{
+  "chunk_id": "lf_4921d4b8",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:d72b0d6787dcf81e26a7ac6efead8f7ad05e23c73776fae5d2ef20b466016b7b",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 21,
+    "fallback_reason": "adapter_error"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "adapter_error"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 28,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 314,
+    "paragraph_count": 6,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 4,
+    "concrete_hits": 1,
+    "generic_hits": 0,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "the rain continued its relentless assault, each drop a reminder of her uncertainty. Clara leaned against the cool metal of the café’s awning, her arms wrapping tighter around her waist as if trying to shield herself from the storm both outside and within. She watched puddles form on the cobblestones, the water rippling with each new droplet, mirroring the chaotic thoughts swirling in her mind.\n\n“I can’t stay here forever,” she muttered, more to herself than to Lucas, her eyes darting to the blurred shapes moving through the rain. Each figure seemed to drift away, swallowed by the storm, just as she felt herself being pulled in two directions.\n\n“Clara!” Lucas’s voice broke through her reverie, sharp and clear against the backdrop of the downpour. He emerged from the rain like a figure from a dream, his shirt clinging to his skin and water streaming from his hair. He reached her just as a gust of wind sent a wave of cold air rushing under the awning. “You’re going to catch a cold out here!” His brow furrowed, and concern etched deep lines into his face.\n\n“I’ll be fine,” she replied, but even to her own ears, the words sounded hollow. A shiver ran through her as she caught sight of his worried expression, the way he stepped closer, instinctively blocking her from the rain. His presence was a warmth she craved, yet it only intensified the storm inside her. What if he could see through her bravado? What if he knew she was on the brink of a decision that could change everything?\n\n“Clara,” he said softly, his gaze steady and searching, “you shouldn’t be alone right now.” He reached out to tuck a loose strand of hair behind her ear, the gesture both tender and grounding.\n\nThe warmth of his fingers lingered on her skin, sending her heart racing. She inhaled sharply"
+  },
+  "critique_snapshot": {
+    "summary": "The scene depicts Clara huddled under a café awning during a heavy rainstorm, grappling with an internal conflict while waiting for Lucas, who expresses concern for her well-being. Their interaction reveals Clara's anxiety and desire for connection amidst her turmoil.",
+    "weaknesses": [
+      "Generic phrases and descriptions that lack specificity.",
+      "Dialogue that feels disconnected from the physical setting and actions.",
+      "Vague emotional states without clear grounding in the scene."
+    ],
+    "continuity_issues": [
+      "The transition from Clara's internal thoughts to Lucas's arrival feels abrupt, lacking a smooth narrative flow."
+    ],
+    "pacing_issues": [
+      "The pacing slows significantly during Clara's introspection, which may detract from the urgency of the moment."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid scene.",
+      "Ground dialogue in physical actions or setting to increase realism.",
+      "Clarify Clara's emotional state with more concrete details."
+    ],
+    "generic_phrase_targets": [
+      "A thousand tiny drums marking the beat of the evening",
+      "The weight of the decision pressing down on her",
+      "A bittersweet mix"
+    ],
+    "detail_targets": [
+      "Descriptions of the rain and its effects on the environment",
+      "Clara's internal conflict and its manifestation in her body language"
+    ],
+    "dialogue_grounding_targets": [
+      "Lucas's dialogue should reflect his physical presence and actions more clearly.",
+      "Clara's responses should connect more to her surroundings or current actions."
+    ],
+    "emotional_show_targets": [
+      "Show Clara's anxiety through her physical reactions, not just internal thoughts.",
+      "Illustrate Lucas's concern with more than just dialogue."
+    ],
+    "replacement_targets": [
+      "Replace vague phrases with more specific imagery or actions.",
+      "Substitute generic emotional expressions with more nuanced reactions."
+    ],
+    "grounding_targets": [
+      "Incorporate more sensory details to ground the scene in the setting.",
+      "Use physical actions to enhance character interactions."
+    ],
+    "carryover_targets": []
+  },
+  "attempt_count": 3,
+  "acceptance_reason": "adapter_error",
+  "rewrite_used": true,
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_model_name": "gpt-5.4-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": false,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": false,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": false,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“I can’t stay here forever,” she muttered, more to herself than to Lucas, her eyes darting to the blurred shapes moving through the rain.",
+        "“Clara!” Lucas’s voice broke through her reverie, sharp and clear against the backdrop of the downpour.",
+        "“You’re going to catch a cold out here!” His brow furrowed, and concern etched deep lines into his face.",
+        "“I’ll be fine,” she replied, but even to her own ears, the words sounded hollow."
+      ],
+      "generic_phrases_to_replace": [],
+      "lines_to_repair": [
+        "“I can’t stay here forever,” she muttered, more to herself than to Lucas, her eyes darting to the blurred shapes moving through the rain.",
+        "“Clara!” Lucas’s voice broke through her reverie, sharp and clear against the backdrop of the downpour.",
+        "“You’re going to catch a cold out here!” His brow furrowed, and concern etched deep lines into his face.",
+        "“I’ll be fine,” she replied, but even to her own ears, the words sounded hollow."
+      ],
+      "required_concrete_anchor_terms": [
+        "rain",
+        "each",
+        "clara"
+      ],
+      "repair_min_word_count": 266,
+      "repair_max_word_count": 471,
+      "min_paragraph_count": 4,
+      "max_paragraph_count": 8
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rescue_model"
+    }
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 309,
+    "rewritten_word_count": 314,
+    "min_word_count": 185,
+    "max_word_count": 648,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "his",
+      "she",
+      "was",
+      "but",
+      "and",
+      "rain",
+      "that",
+      "what",
+      "clara",
+      "beneath"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "his",
+      "she",
+      "and",
+      "rain",
+      "clara"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 28
+  }
+}

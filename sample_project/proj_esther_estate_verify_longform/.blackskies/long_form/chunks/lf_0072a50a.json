@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_0072a50a",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:23612bf8e051b2e3e0ea03343dd32c8d29ed9c2929997c5aebeb4a7f74076c77",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The sun dipped low on the horizon, casting long shadows across the cobblestone streets, where an amber glow danced on the surface of the lingering puddles from last night’s rain",
+    "word_count": 309,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 2,
+      "meta_free": 5
+    },
+    "total_score": 28,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 309,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": false,
+    "sensory_hits": 5,
+    "concrete_hits": 4,
+    "generic_hits": 0,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The sun dipped low on the horizon, casting long shadows across the cobblestone streets, where an amber glow danced on the surface of the lingering puddles from last night’s rain. Elara pulled her collar tighter against the chill that crept in with the fading light. Her breath formed small clouds as she walked, each exhalation a momentary ghost in the crisp air. The scent of damp earth mixed with the faint aroma of roasting chestnuts from a nearby vendor, drawing her closer despite the gnawing urgency that had pushed her out of her warm apartment.\n\n“Hey, Elara! You’re going to miss it!” A voice broke through the murmur of the street, drawing her attention. It was Marek, standing by the fountain, his hands shoved deep in the pockets of his threadbare jacket. He flashed a grin, the kind that could be infectious, even against the backdrop of their shared worries. “You can’t just sit at home while the world keeps turning.”\n\nElara paused, the weight of her decision pressing down like the gathering clouds. “What’s worth seeing?” she replied, attempting to keep her voice light, but the tremor betrayed her. The world felt like a fragile thing, ready to shatter at any moment, and she wasn’t sure if she could bear to watch it break.\n\nHe stepped closer, the warmth of his presence almost a tangible thing. “It’s the festival, remember? People are actually smiling out here.” He gestured to the square, where laughter bubbled up like the spring water of the fountain behind them, children chasing each other, their shrieks mingling with the distant sound of music.\n\n“I don’t think I’m in the mood,” she murmured, her gaze flickering away, afraid of the hope that flickered in his eyes. In that moment, she felt the tug of the crowd, their joy a stark contrast to the tempest brewing"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

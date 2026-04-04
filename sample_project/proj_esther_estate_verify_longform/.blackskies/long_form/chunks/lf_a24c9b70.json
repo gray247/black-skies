@@ -1,0 +1,242 @@
+{
+  "chunk_id": "lf_a24c9b70",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:d1c3f7fd5f361bd964d1b6833371d621ebb1192468f41ab4fd28799287180988",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 21,
+    "fallback_reason": "quality_failed"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "quality_failed"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 2,
+      "meta_free": 5
+    },
+    "total_score": 26,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 305,
+    "paragraph_count": 6,
+    "dialogue_present": true,
+    "dialogue_grounded": false,
+    "sensory_hits": 6,
+    "concrete_hits": 0,
+    "generic_hits": 1,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "Elara crouched low behind the gnarled trunk of an ancient oak, its bark rough and splintered beneath her fingertips. The scent of rain-soaked earth mingled with the faint, acrid smell of smoke wafting through the air, a reminder of something unsettling. Around her, the forest thrummed with life—rustling leaves and distant calls of unseen creatures—but all she could focus on was the rapid thud of her heart, urging her to move.\n\nPeering through the tangled underbrush, her breath caught in her throat as she spotted a figure crossing the clearing—a silhouette shifting like a shadow against the deeper darkness of the trees. It was Damon.\n\n“Damon,” she whispered, the name escaping her lips like a fragile wisp of air, laced with a mix of longing and trepidation. Her heart raced as he moved with a fluid grace, every step deliberate, yet there was a tightness in his shoulders, an uncharacteristic uncertainty that sent a chill down her spine. He looked like a man weighed down by unseen burdens, and the sight of him stirred a mix of memories and fears within her.\n\nHer thoughts drifted to his smile, the easy grin that had once made her feel invincible. But now, as she watched him, the lines etched into his brow betrayed the turmoil he was trying to conceal. What shadows haunted him? What horrors had he faced? Questions spiraled in her mind, sharp and biting, each one demanding answers she wasn’t sure she could handle.\n\nSuddenly, a sharp snap of twigs shattered the stillness, and Damon froze, his head whipping toward the sound. Elara held her breath, every instinct screaming that he might turn and discover her, hidden yet painfully exposed by her own desperate longing. But he didn’t. Instead, he scanned the perimeter, alert and tense, the air thick with unspoken tension.\n\n“Elara,” he"
+  },
+  "critique_snapshot": {
+    "summary": "Elara hides behind a tree in a forest, sensing the tension in the air as she watches Damon, a figure from her past. Their emotional connection is palpable, but the atmosphere is charged with uncertainty and danger. As Damon calls out for her, Elara grapples with her feelings and the fear of being discovered.",
+    "weaknesses": [
+      "Vague descriptions of the setting and characters.",
+      "Dialogue lacks grounding in physical actions or the environment.",
+      "Generic emotional expressions that do not deepen character development."
+    ],
+    "continuity_issues": [
+      "The transition from Elara's internal thoughts to her external observations lacks fluidity."
+    ],
+    "pacing_issues": [
+      "The scene builds tension but could benefit from more varied pacing to enhance emotional impact."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions of the setting and characters.",
+      "Ground dialogue in physical actions or environmental context.",
+      "Eliminate generic phrases and deepen emotional expressions."
+    ],
+    "generic_phrase_targets": [
+      "heavy with longing and fear",
+      "the weight of the world pressed down upon him",
+      "the moment stretching painfully between them"
+    ],
+    "detail_targets": [
+      "Expand on the forest's atmosphere and Elara's physical sensations.",
+      "Provide more concrete details about Damon's appearance and demeanor."
+    ],
+    "dialogue_grounding_targets": [
+      "Integrate Elara's physical actions or reactions when she whispers Damon's name.",
+      "Describe Damon's actions as he calls out to Elara."
+    ],
+    "emotional_show_targets": [
+      "Show Elara's internal conflict through more specific thoughts or memories.",
+      "Illustrate Damon's emotional state through his body language."
+    ],
+    "replacement_targets": [
+      "Replace vague emotional descriptions with specific, sensory details.",
+      "Substitute generic phrases with unique expressions that reflect character voice."
+    ],
+    "grounding_targets": [
+      "Include more sensory details that connect Elara's emotions to her surroundings.",
+      "Anchor dialogue in the physical context of the scene."
+    ],
+    "carryover_targets": []
+  },
+  "attempt_count": 4,
+  "acceptance_reason": "quality_failed",
+  "rewrite_used": true,
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": false,
+    "rescue_mode_used": true,
+    "rescue_model_used": false,
+    "rescue_model_name": "gpt-4o-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Damon,” she whispered, the name escaping her lips like a fragile wisp of air, laced with a mix of longing and trepidation.",
+        "“Elara,” he"
+      ],
+      "generic_phrases_to_replace": [
+        "heart raced"
+      ],
+      "lines_to_repair": [
+        "Her heart raced as he moved with a fluid grace, every step deliberate, yet there was a tightness in his shoulders, an uncharacteristic uncertainty that sent a chill down her spine.",
+        "“Damon,” she whispered, the name escaping her lips like a fragile wisp of air, laced with a mix of longing and trepidation.",
+        "“Elara,” he"
+      ],
+      "required_concrete_anchor_terms": [
+        "elara",
+        "damon"
+      ],
+      "repair_min_word_count": 259,
+      "repair_max_word_count": 457,
+      "min_paragraph_count": 4,
+      "max_paragraph_count": 8
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": false,
+      "reason": "rescue_model"
+    },
+    "rescue_slots_summary": {
+      "slot_count": 3,
+      "target_types": [
+        "generic",
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_specificity_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 299,
+    "rewritten_word_count": 305,
+    "min_word_count": 179,
+    "max_word_count": 627,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "that",
+      "his",
+      "and",
+      "but",
+      "elara",
+      "him",
+      "had",
+      "air",
+      "crouched"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "that",
+      "his",
+      "and",
+      "but",
+      "elara",
+      "him",
+      "air"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 26
+  }
+}

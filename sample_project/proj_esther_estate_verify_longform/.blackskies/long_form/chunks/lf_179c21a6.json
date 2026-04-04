@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_179c21a6",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:4113aa4315498e401bb7fc93aeb0b99c1c009b6f163b3bca26abd9ace1ff5fb3",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The rain drummed a steady rhythm against the window, each drop a tiny percussionist in the hushed theater of the dimly lit room",
+    "word_count": 311,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 30,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 311,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 7,
+    "concrete_hits": 4,
+    "generic_hits": 1,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The rain drummed a steady rhythm against the window, each drop a tiny percussionist in the hushed theater of the dimly lit room. Clara sat curled up in the corner of the worn sofa, its fabric frayed in places like old memories. A single lamp illuminated her face, casting flickering shadows that danced on the walls, where the peeling paint whispered secrets of a time long past. She cradled a chipped mug of herbal tea, the steam curling upward, carrying with it the faint scent of chamomile and honey, a comfort against the chill that seeped through the cracks.\n\nOutside, the world was awash in shades of gray, the trees swaying gently as if sharing an intimate conversation with the wind. Clara’s gaze drifted to the window, where raindrops raced each other down the glass, each one a fleeting moment of existence. She wondered if they ever felt the weight of their journey, the urgency to reach the ground before they vanished. A soft sigh escaped her lips, the sound barely audible over the patter of rain, and she leaned back against the cushions, letting her thoughts wander.\n\n“Hey,” a voice broke the spell, warm and familiar, pulling her back. It was Mia, standing in the doorway, her hair damp and wild, a playful grin tugging at her lips. “What’s got you looking like a lost cloud?”\n\nClara couldn’t help but smile, the corners of her mouth lifting despite the heaviness that had settled in her chest. “Just thinking,” she replied, the words tasting bittersweet. “About the rain, I guess.”\n\nMia stepped further into the room, shaking droplets from her coat like a dog after a bath. “You always think too much. Come on, let’s do something.” She tossed her coat onto the back of a chair and plopped down next to Clara, the cushions sinking under their combined weight. “"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

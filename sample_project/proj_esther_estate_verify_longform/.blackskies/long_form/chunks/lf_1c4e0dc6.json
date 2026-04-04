@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_1c4e0dc6",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:529de3f92a520340b809efb4ab5e257d8f7e421f296990f2dc92687155d1b9af",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The air in the dimly lit room hung thick with the scent of burnt wood and years of neglect",
+    "word_count": 318,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 4,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 29,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 318,
+    "paragraph_count": 6,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 6,
+    "concrete_hits": 3,
+    "generic_hits": 1,
+    "stock_phrase_hits": 2,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The air in the dimly lit room hung thick with the scent of burnt wood and years of neglect. Amelia’s fingers brushed against the peeling wallpaper, the floral pattern fading into a muddy confusion of colors, as though the walls had forgotten their own beauty. She took a tentative step forward, the floorboards creaking beneath her weight, a soft protest echoing in the silence that enveloped her like a shroud. Shadows danced around her, flickering in rhythm with the lone candle’s flame, casting elongated forms that seemed to whisper secrets she wasn’t yet ready to hear.\n\n“Are you sure you want to do this?” Jake’s voice cut through the stillness, laced with a mix of concern and impatience. He leaned against the doorframe, arms crossed, the dim light highlighting the tension in his jaw. His breath hung in the air, a ghostly reminder of the chill that settled in her bones.\n\nShe paused, her heart thrumming a steady beat of hesitation as she turned to him. “I have to,” she replied, the words tasting bitter on her tongue. There was something about the way he looked at her, a mixture of admiration and worry, that made her want to retreat, to hide from the truth she was about to unearth. But the pull of the past was stronger, an invisible thread guiding her deeper into the shadows.\n\nThe candle flickered again, and she caught a glimpse of their reflections in the cracked mirror hanging crookedly on the wall. The woman staring back was a stranger, her eyes wide with a mix of fear and determination. Amelia clenched her fists, grounding herself in the moment. “I need to know what happened here.”\n\nJake pushed himself off the frame and stepped closer, the floor creaking underfoot as he bridged the distance between them. “We don’t have to do this tonight. We can come back—”\n\n“No,” she interrupted, her voice sharper"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

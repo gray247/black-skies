@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_033598b4",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:c8ad487e70e130a57b603b826e44566f3827b9a213d1cd43b16ce2b534d70171",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Clara pressed her back against the cold stone wall of the servants' passage, the damp air wrapping around her like a shroud",
+    "word_count": 318,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 30,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 318,
+    "paragraph_count": 4,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 8,
+    "concrete_hits": 11,
+    "generic_hits": 1,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "Clara pressed her back against the cold stone wall of the servants' passage, the damp air wrapping around her like a shroud. The flickering light from Jun's cracked brass lantern cast wavering shadows that danced along the narrow corridor, twisting the edges of her vision into shapes that seemed almost alive. Each sputter of the weak battery sent a ripple of anxiety through her, as if the very light would soon abandon them to whatever darkness lurked beyond. She tightened her grip on the lantern, the rough metal cool and clammy against her palm, and stole a glance at Jun. His coat, still soaked from the relentless rain, clung to his frame, accentuating the way his shoulders were hunched, as if he were trying to make himself smaller, less noticeable.\n\n“Did you hear that?” he whispered, his voice barely breaking the silence, yet it felt loud in the stillness of the passage. Clara held her breath, straining to listen, but all she could hear was the steady drip of water somewhere in the shadows, pooling on the floor like the remnants of their earlier panic. No cough, no sound of life. Just the echoes of their own unease.\n\nShe flexed her fingers, feeling the coarse red ribbon against her wrist, the parlor key dangling from it like an anchor. Clara couldn’t remember when she had last tightened it. Had she? The memory felt hazy, like a dream slipping from her grasp. “Probably just the wind,” she said, her voice sharper than intended, cutting through the tension that hung between them like a taut wire. She wanted to believe it, wanted to convince both herself and Jun that the world wasn’t closing in.\n\nBut the way the chain on the door rattled, a soft clinking from the far side, filled her with dread. Something was testing it—someone. She could sense it, a presence lurking just beyond the threshold. Clara"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

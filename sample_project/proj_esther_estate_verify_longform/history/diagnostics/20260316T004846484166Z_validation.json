@@ -1,0 +1,160 @@
+{
+  "timestamp": "2026-03-16T00:48:46.484301Z",
+  "code": "VALIDATION",
+  "message": "Long-form output rejected (quality threshold).",
+  "details": {
+    "quality_snapshot": {
+      "usable": true,
+      "scores": {
+        "coherence": 5,
+        "continuity": 3,
+        "clarity": 3,
+        "pacing": 5,
+        "specificity": 2,
+        "dialogue": 4,
+        "meta_free": 5
+      },
+      "total_score": 27,
+      "max_score": 35,
+      "meta_summary": false,
+      "meta_contamination": false,
+      "missing_carryover": false,
+      "word_count": 614,
+      "paragraph_count": 9,
+      "dialogue_present": true,
+      "dialogue_grounded": true,
+      "sensory_hits": 9,
+      "concrete_hits": 1,
+      "generic_hits": 1,
+      "stock_phrase_hits": 3,
+      "carryover_terms": [],
+      "carryover_hits": 0,
+      "weak_carryover": false,
+      "generic_risk": true
+    },
+    "attempts": [
+      {
+        "attempt": 1,
+        "mode": "draft",
+        "extracted_field": "choices.message.content",
+        "thinking_fallback": false,
+        "reasoning_trim_applied": false,
+        "basic_validation": {
+          "usable": true,
+          "word_count": 625,
+          "paragraph_count": 10,
+          "meta_summary": false,
+          "missing_carryover": false,
+          "carryover_terms": [],
+          "carryover_hits": 0
+        },
+        "raw_preview": "The wind whipped through the narrow alley, carrying with it the scent of damp earth and the faint tang of copper. Ivy clung to the brick walls, its leaves glistening with a sheen of rain, creating a m",
+        "normalized_preview": "The wind whipped through the narrow alley, carrying with it the scent of damp earth and the faint tang of copper. Ivy clung to the brick walls, its leaves glistening with a sheen of rain, creating a m",
+        "raw_length": 3572,
+        "normalized_length": 3570,
+        "raw_payload_keys": [
+          "choices",
+          "created",
+          "id",
+          "model",
+          "object",
+          "service_tier",
+          "system_fingerprint",
+          "usage"
+        ],
+        "raw_payload_preview": "{\"id\": \"chatcmpl-DJqPwEKl5l91aXPgGyFfRj2SY1rUe\", \"object\": \"chat.completion\", \"created\": 1773622096, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The wind whipped through the narrow alley, carrying with it the scent of damp earth and the faint tang of copper. Ivy clung to the brick walls, its leaves glistening with a sheen of rain, creating a makeshift tapestry that whispered secrets in the twilight. Elsie shivered, pulling her cardigan",
+        "quality_snapshot": {
+          "usable": true,
+          "scores": {
+            "coherence": 5,
+            "continuity": 3,
+            "clarity": 4,
+            "pacing": 5,
+            "specificity": 3,
+            "dialogue": 4,
+            "meta_free": 5
+          },
+          "total_score": 29,
+          "max_score": 35,
+          "meta_summary": false,
+          "meta_contamination": false,
+          "missing_carryover": false,
+          "word_count": 625,
+          "paragraph_count": 10,
+          "dialogue_present": true,
+          "dialogue_grounded": true,
+          "sensory_hits": 8,
+          "concrete_hits": 1,
+          "generic_hits": 1,
+          "stock_phrase_hits": 2,
+          "carryover_terms": [],
+          "carryover_hits": 0,
+          "weak_carryover": false,
+          "generic_risk": false
+        },
+        "quality_pass": false
+      },
+      {
+        "attempt": 2,
+        "mode": "rewrite",
+        "extracted_field": "choices.message.content",
+        "thinking_fallback": false,
+        "reasoning_trim_applied": false,
+        "basic_validation": {
+          "usable": true,
+          "word_count": 614,
+          "paragraph_count": 9,
+          "meta_summary": false,
+          "missing_carryover": false,
+          "carryover_terms": [],
+          "carryover_hits": 0
+        },
+        "raw_preview": "The wind howled through the narrow alley, carrying the earthy aroma of rain-soaked soil mingled with the sharp tang of something metallic. Ivy clung tenaciously to the weathered brick walls, each leaf",
+        "normalized_preview": "The wind howled through the narrow alley, carrying the earthy aroma of rain-soaked soil mingled with the sharp tang of something metallic. Ivy clung tenaciously to the weathered brick walls, each leaf",
+        "raw_length": 3700,
+        "normalized_length": 3700,
+        "raw_payload_keys": [
+          "choices",
+          "created",
+          "id",
+          "model",
+          "object",
+          "service_tier",
+          "system_fingerprint",
+          "usage"
+        ],
+        "raw_payload_preview": "{\"id\": \"chatcmpl-DJqQDKt2tfj7H2LdNNWYztFCmuqHT\", \"object\": \"chat.completion\", \"created\": 1773622113, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The wind howled through the narrow alley, carrying the earthy aroma of rain-soaked soil mingled with the sharp tang of something metallic. Ivy clung tenaciously to the weathered brick walls, each leaf glistening with droplets that caught the dim light, weaving a tapestry of shadows that shifte",
+        "quality_snapshot": {
+          "usable": true,
+          "scores": {
+            "coherence": 5,
+            "continuity": 3,
+            "clarity": 3,
+            "pacing": 5,
+            "specificity": 2,
+            "dialogue": 4,
+            "meta_free": 5
+          },
+          "total_score": 27,
+          "max_score": 35,
+          "meta_summary": false,
+          "meta_contamination": false,
+          "missing_carryover": false,
+          "word_count": 614,
+          "paragraph_count": 9,
+          "dialogue_present": true,
+          "dialogue_grounded": true,
+          "sensory_hits": 9,
+          "concrete_hits": 1,
+          "generic_hits": 1,
+          "stock_phrase_hits": 3,
+          "carryover_terms": [],
+          "carryover_hits": 0,
+          "weak_carryover": false,
+          "generic_risk": true
+        },
+        "quality_pass": false
+      }
+    ]
+  }
+}

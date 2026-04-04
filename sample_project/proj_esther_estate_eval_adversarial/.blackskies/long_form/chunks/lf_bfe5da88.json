@@ -1,0 +1,93 @@
+{
+  "chunk_id": "lf_bfe5da88",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0002"
+  ],
+  "order": 2,
+  "continuation_of": "lf_b40472e8",
+  "prompt_fingerprint": "sha256:e89cb15e850b0fdf2c587fe41bcd9b3220a70a0f0eb5017aeed1fdbbbe484a1d",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Clara pressed her back against the cool stone wall, feeling the dampness seep through her coat, a clammy reminder of the storm still raging outside",
+    "word_count": 309,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.01,
+    "total_after_usd": 0.02
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 5,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 32,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 309,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 6,
+    "concrete_hits": 7,
+    "generic_hits": 1,
+    "stock_phrase_hits": 2,
+    "carryover_terms": [
+      "lantern",
+      "coat",
+      "corridor",
+      "rain",
+      "key",
+      "latch",
+      "chain",
+      "floor"
+    ],
+    "carryover_hits": 4,
+    "material_carryover_hits": 2,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "Clara pressed her back against the cool stone wall, feeling the dampness seep through her coat, a clammy reminder of the storm still raging outside. The faint glow of the lantern flickered, its sputtering light casting an erratic dance of shadows that stretched and shrank against the walls of the narrow corridor. Jun’s breath came quick, his eyes wide, searching the darkness as if it might swallow them whole. The air was thick, heavy with the scent of mold and decay, like the very bones of the house were groaning under the weight of years.\n\n“Why did we even come down here?” Jun’s voice trembled, barely above a whisper, and Clara felt the sharp edge of her own fear gnawing at her insides. She had to say something, anything, to cut through the thick fog of uncertainty that hung over them. “We need to find out what’s happening. We can’t just hide.”\n\nBut even as she spoke, doubt prickled at the corners of her mind. She could feel the weight of the parlor key, tied securely to the red ribbon around her wrist, a tether to something familiar, something she could cling to. Yet it felt more like a noose, tightening with each passing moment as the shadows whispered secrets she wasn’t ready to hear.\n\nA soft rustling echoed ahead, and Clara’s heart raced. “Did you hear that?” she breathed, her voice barely escaping her lips. Jun nodded, his gaze fixed ahead, wide-eyed. The lantern flickered again, casting a brief illumination over muddy footprints that seemed to lead deeper into the corridor rather than retreating back into the safety of the house.\n\n“I—I think we should go back,” he stammered, his hand tightening around the lantern, the metal warm and slick with his perspiration. The way he fidgeted, shifting his weight from one foot to the other, mirrored her"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

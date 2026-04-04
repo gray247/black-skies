@@ -1,0 +1,623 @@
+{
+  "chunk_id": "lf_0a05c109",
+  "validation_decision": false,
+  "fallback_reason": "quality_failed",
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "raw_preview": "The wind picked up, swirling the leaves into a frenzied dance across the cobblestone path. Elise clutched her scarf tighter around her neck, the rough fabric scratching her skin as she moved deeper in",
+      "normalized_preview": "The wind picked up, swirling the leaves into a frenzied dance across the cobblestone path. Elise clutched her scarf tighter around her neck, the rough fabric scratching her skin as she moved deeper in",
+      "raw_length": 1767,
+      "normalized_length": 1767,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKagcm8Zr0BAvzNsAe4LG6QtqCZVe\", \"object\": \"chat.completion\", \"created\": 1773799954, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The wind picked up, swirling the leaves into a frenzied dance across the cobblestone path. Elise clutched her scarf tighter around her neck, the rough fabric scratching her skin as she moved deeper into the grove. The sweet, earthy scent of damp soil mingled with the sharpness of pine, groundi",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 310,
+        "paragraph_count": 6,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 28,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 310,
+        "paragraph_count": 6,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 4,
+        "concrete_hits": 1,
+        "generic_hits": 1,
+        "stock_phrase_hits": 2,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The wind picked up, swirling the leaves into a frenzied dance across the cobblestone path. Elise clutched her scarf tighter around her neck, the rough fabric scratching her skin as she moved deeper into the grove. The sweet, earthy scent of damp soil mingled with the sharpness of pine, grounding her even as her thoughts spiraled. Each step crunched underfoot, the sound echoing in the quiet, thickening air, reminding her of the weight of her decision.\n\nA distant bird call broke the stillness, its plaintive cry reverberating through the trees, and she paused, listening. There was something haunting about the note, as if it held the secrets of the forest, secrets she had once felt attuned to but now felt estranged from. Her heart raced, not with fear, but with a strange anticipation, like the moment before a storm breaks.\n\n“Are you sure this is the right place?” a voice called from behind her, laced with doubt. It was Ben, his brow wrinkled with concern as he stepped into view, the sunlight catching the edges of his tousled hair. He always wore that expression when he thought she was about to make a mistake, and it grated on her nerves.\n\n“I know it is,” she replied, trying to infuse her voice with confidence. She glanced back at him, offering a smile that felt more like a mask than a comfort. “Just trust me.”\n\nHis lips pressed together, the way they did when he was wrestling with something, and she could see the flicker of uncertainty in his eyes. It was familiar, a reflection of her own internal battle. “We could just go back,” he suggested softly, the words slipping out like a hesitant breath.\n\n“No.” The word came out sharper than intended, echoing in the stillness. She turned away, her pulse quickening again as a gust of wind rustled the"
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "rewrite",
+        "escalated": false,
+        "reason": "rewrite_default"
+      },
+      "raw_preview": "leaves overhead, sending a cascade of golden and amber hues spiraling to the ground. Elise tightened her grip on the scarf, feeling the coarse fibers scratch against her skin. The grove enveloped her,",
+      "normalized_preview": "leaves overhead, sending a cascade of golden and amber hues spiraling to the ground. Elise tightened her grip on the scarf, feeling the coarse fibers scratch against her skin. The grove enveloped her,",
+      "raw_length": 1866,
+      "normalized_length": 1866,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKah1GkS3OgB8WDOihWNv1OZiLoOo\", \"object\": \"chat.completion\", \"created\": 1773799979, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"leaves overhead, sending a cascade of golden and amber hues spiraling to the ground. Elise tightened her grip on the scarf, feeling the coarse fibers scratch against her skin. The grove enveloped her, a cathedral of towering pines and thick underbrush, their rough bark textured against her fin",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 323,
+        "paragraph_count": 5,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "guardrail_snapshot": {
+        "evaluated": true,
+        "mode": "rewrite",
+        "outline_titles": [],
+        "beat_refs": [],
+        "locked_facts_evaluated": false,
+        "length_band_evaluated": true,
+        "original_word_count": 310,
+        "rewritten_word_count": 323,
+        "min_word_count": 186,
+        "max_word_count": 651,
+        "within_length_band": true,
+        "outline_fidelity_evaluated": true,
+        "outline_fidelity_pass": true,
+        "original_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "was",
+          "his",
+          "and",
+          "felt",
+          "wind",
+          "echoing",
+          "stillness",
+          "something",
+          "secrets"
+        ],
+        "retained_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "was",
+          "his",
+          "and",
+          "felt"
+        ],
+        "outline_anchor_hits": [],
+        "required_anchor_overlap": 1,
+        "scene_anchor_drift_detected": false,
+        "new_story_elements": [],
+        "blocking_new_story_elements": [],
+        "authoritative_name_check": false,
+        "uncertainty_triggered": false,
+        "failure_reason": null,
+        "accepted": true,
+        "quality_total_score": 28
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 28,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 323,
+        "paragraph_count": 5,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 4,
+        "concrete_hits": 1,
+        "generic_hits": 0,
+        "stock_phrase_hits": 2,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "leaves overhead, sending a cascade of golden and amber hues spiraling to the ground. Elise tightened her grip on the scarf, feeling the coarse fibers scratch against her skin. The grove enveloped her, a cathedral of towering pines and thick underbrush, their rough bark textured against her fingertips as she brushed against one of the trunks for support. Beneath her feet, the cobblestones were slick with moisture, and each step made a soft, muted crunch that felt alarmingly loud in the stillness.\n\nA birdcall echoed through the canopy, a lonely sound that seemed to weave between the branches, filling the air with an ache she couldn’t quite place. She closed her eyes briefly, letting the earthy scent of damp soil and pine needles wash over her, grounding her in the moment even as the weight of her decision pressed heavily on her chest. Memories of laughter and carefree days spent in this very grove flickered in her mind, but they felt distant now, like echoes from another life.\n\n“Are you sure this is the right place?” Ben's voice broke through her reverie, tinged with apprehension as he stepped into the clearing. He emerged from the shadows of the trees, his brow furrowed, sunlight catching the tousled strands of his hair. The sight of him brought a mix of comfort and frustration; he always wore that expression when he thought she was about to make a mistake.\n\n“I know it is,” she said, forcing a confident tone into her voice. She turned to face him, the corners of her mouth lifting in an attempt at reassurance, though it felt more like a brittle facade than genuine comfort. “Just trust me.”\n\nHis lips pressed into a thin line, that familiar gesture betraying the internal conflict he was grappling with. She felt the tension in the air, a mirror of her own uncertainty. “We could just go back,” he suggested, his voice barely above a whisper,"
+      },
+      "quality_pass": false,
+      "rewrite_delta": {
+        "total_delta": 0,
+        "stock_phrase_delta": 0,
+        "specificity_delta": 0,
+        "clarity_delta": 0,
+        "continuity_delta": 0
+      },
+      "retry_decision": {
+        "eligible": true,
+        "reason": "targeted_editorial_miss_after_rewrite",
+        "classification": "targeted_editorial"
+      }
+    },
+    {
+      "attempt": 3,
+      "mode": "recovery_retry",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rescue_model"
+      },
+      "raw_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"“Just trust me.” She kept one hand on the scarf bunched at her throat as she said it, the words steady against the hush of the grove. His mouth tightene",
+      "normalized_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"“Just trust me.” She kept one hand on the scarf bunched at her throat as she said it, the words steady against the hush of the grove. His mouth tightene",
+      "raw_length": 1217,
+      "normalized_length": 1217,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKahA0tLfhrp2LqlMHAlg9JZi0nFu\", \"object\": \"chat.completion\", \"created\": 1773799988, \"model\": \"gpt-5.4-mini-2026-03-17\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"replacement_text\\\":\\\"“Just trust me.” She kept one hand on the scarf bunched at her throat as she said it, the words steady against the hush of the grove. His mouth tightened at the corner, his jaw set as he looked down at the cobblestones.\\\"},{\\\"slot_id\\\":",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Just trust me.”\n\nHis lips pressed into a thin line, that familiar gesture betraying the internal conflict he was grappling with.",
+          "context_before": "She turned to face him, the corners of her mouth lifting in an attempt at reassurance, though it felt more like a brittle facade than genuine comfort.",
+          "context_after": "She felt the tension in the air, a mirror of her own uncertainty.",
+          "target_reason": "dialogue",
+          "target_phrase": "pressed in"
+        },
+        {
+          "slot_id": "s2",
+          "unit_type": "sentence_window",
+          "target_type": "dialogue",
+          "original_text": "She felt the tension in the air, a mirror of her own uncertainty. “We could just go back,” he suggested, his voice barely above a whisper,",
+          "context_before": "“Just trust me.”\n\nHis lips pressed into a thin line, that familiar gesture betraying the internal conflict he was grappling with.",
+          "context_after": "",
+          "target_reason": "dialogue",
+          "target_phrase": "voice barely above a whisper"
+        },
+        {
+          "slot_id": "s3",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Are you sure this is the right place?” Ben's voice broke through her reverie, tinged with apprehension as he stepped into the clearing.",
+          "context_before": "Memories of laughter and carefree days spent in this very grove flickered in her mind, but they felt distant now, like echoes from another life.",
+          "context_after": "He emerged from the shadows of the trees, his brow furrowed, sunlight catching the tousled strands of his hair.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s4",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“I know it is,” she said, forcing a confident tone into her voice.",
+          "context_before": "The sight of him brought a mix of comfort and frustration; he always wore that expression when he thought she was about to make a mistake.",
+          "context_after": "She turned to face him, the corners of her mouth lifting in an attempt at reassurance, though it felt more like a brittle facade than genuine comfort.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s5",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "“We could just go back,” he suggested, his voice barely above a whisper,",
+          "context_before": "She felt the tension in the air, a mirror of her own uncertainty.",
+          "context_after": "",
+          "target_reason": "specificity",
+          "target_phrase": "voice barely above a whisper"
+        }
+      ],
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "“Just trust me.” She kept one hand on the scarf bunched at her throat as she said it, the words steady against the hush of the grove. His mouth tightened at the corner, his jaw set as he looked down at the cobblestones."
+        },
+        {
+          "slot_id": "s2",
+          "replacement_text": "She felt the tension in the air, a mirror of her own uncertainty. “We could just go back,” he suggested, his voice dropping to a rough murmur beneath the pine branches, one hand lifting as if already reaching for the path behind him,"
+        },
+        {
+          "slot_id": "s3",
+          "replacement_text": "“Are you sure this is the right place?” Ben's voice broke through her reverie as he stepped into the clearing, his boots brushing damp leaves at the grove’s edge, apprehension in every careful movement."
+        },
+        {
+          "slot_id": "s4",
+          "replacement_text": "“I know it is,” she said, forcing the words out while she faced him squarely, fingers tightening around the scarf and her chin lifting in a small, deliberate nod."
+        },
+        {
+          "slot_id": "s5",
+          "replacement_text": "“We could just go back,” he suggested, his voice low enough to vanish under the rustle of pine needles, one shoulder angling toward the trees as if the trail home were already calling him back."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_dialogue_grounding_unresolved"
+      }
+    },
+    {
+      "attempt": 4,
+      "mode": "repair_only",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rescue_model"
+      },
+      "raw_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"“Just trust me.”\\n\\nHis lips pressed into a thin line as he stood by the cobblestones, that familiar gesture betraying the internal conflict he was grap",
+      "normalized_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"“Just trust me.”\\n\\nHis lips pressed into a thin line as he stood by the cobblestones, that familiar gesture betraying the internal conflict he was grap",
+      "raw_length": 1035,
+      "normalized_length": 1035,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKahCQleOkRjngPrS4vPXzeQgIKhU\", \"object\": \"chat.completion\", \"created\": 1773799990, \"model\": \"gpt-5.4-mini-2026-03-17\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"replacement_text\\\":\\\"“Just trust me.”\\\\n\\\\nHis lips pressed into a thin line as he stood by the cobblestones, that familiar gesture betraying the internal conflict he was grappling with.\\\"},{\\\"slot_id\\\":\\\"s2\\\",\\\"replacement_text\\\":\\\"She felt the tension in ",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Just trust me.”\n\nHis lips pressed into a thin line, that familiar gesture betraying the internal conflict he was grappling with.",
+          "context_before": "She turned to face him, the corners of her mouth lifting in an attempt at reassurance, though it felt more like a brittle facade than genuine comfort.",
+          "context_after": "She felt the tension in the air, a mirror of her own uncertainty.",
+          "target_reason": "dialogue",
+          "target_phrase": "pressed in"
+        },
+        {
+          "slot_id": "s2",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "She felt the tension in the air, a mirror of her own uncertainty. “We could just go back,” he suggested, his voice barely above a whisper,",
+          "context_before": "“Just trust me.”\n\nHis lips pressed into a thin line, that familiar gesture betraying the internal conflict he was grappling with.",
+          "context_after": "",
+          "target_reason": "dialogue",
+          "target_phrase": "voice barely above a whisper"
+        },
+        {
+          "slot_id": "s3",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Are you sure this is the right place?” Ben's voice broke through her reverie, tinged with apprehension as he stepped into the clearing.",
+          "context_before": "Memories of laughter and carefree days spent in this very grove flickered in her mind, but they felt distant now, like echoes from another life.",
+          "context_after": "He emerged from the shadows of the trees, his brow furrowed, sunlight catching the tousled strands of his hair.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s4",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“I know it is,” she said, forcing a confident tone into her voice.",
+          "context_before": "The sight of him brought a mix of comfort and frustration; he always wore that expression when he thought she was about to make a mistake.",
+          "context_after": "She turned to face him, the corners of her mouth lifting in an attempt at reassurance, though it felt more like a brittle facade than genuine comfort.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s5",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "“We could just go back,” he suggested, his voice barely above a whisper,",
+          "context_before": "She felt the tension in the air, a mirror of her own uncertainty.",
+          "context_after": "",
+          "target_reason": "generic",
+          "target_phrase": "voice barely above a whisper"
+        }
+      ],
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "“Just trust me.”\n\nHis lips pressed into a thin line as he stood by the cobblestones, that familiar gesture betraying the internal conflict he was grappling with."
+        },
+        {
+          "slot_id": "s2",
+          "replacement_text": "She felt the tension in the air, a mirror of her own uncertainty. “We could just go back,” he suggested, his voice barely above a whisper, the words nearly lost under the birdcall in the canopy."
+        },
+        {
+          "slot_id": "s3",
+          "replacement_text": "“Are you sure this is the right place?” Ben's voice broke through her reverie, tinged with apprehension as he stepped into the clearing, sunlight catching the tousled strands of his hair."
+        },
+        {
+          "slot_id": "s4",
+          "replacement_text": "“I know it is,” she said, forcing a confident tone into her voice as she turned to face him, the corners of her mouth lifting in an attempt at reassurance."
+        },
+        {
+          "slot_id": "s5",
+          "replacement_text": "“We could just go back,” he suggested, his voice barely above a whisper, the words nearly lost under the birdcall in the canopy."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_dialogue_grounding_unresolved"
+      }
+    }
+  ],
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 28,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 323,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 4,
+    "concrete_hits": 1,
+    "generic_hits": 0,
+    "stock_phrase_hits": 2,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "leaves overhead, sending a cascade of golden and amber hues spiraling to the ground. Elise tightened her grip on the scarf, feeling the coarse fibers scratch against her skin. The grove enveloped her, a cathedral of towering pines and thick underbrush, their rough bark textured against her fingertips as she brushed against one of the trunks for support. Beneath her feet, the cobblestones were slick with moisture, and each step made a soft, muted crunch that felt alarmingly loud in the stillness.\n\nA birdcall echoed through the canopy, a lonely sound that seemed to weave between the branches, filling the air with an ache she couldn’t quite place. She closed her eyes briefly, letting the earthy scent of damp soil and pine needles wash over her, grounding her in the moment even as the weight of her decision pressed heavily on her chest. Memories of laughter and carefree days spent in this very grove flickered in her mind, but they felt distant now, like echoes from another life.\n\n“Are you sure this is the right place?” Ben's voice broke through her reverie, tinged with apprehension as he stepped into the clearing. He emerged from the shadows of the trees, his brow furrowed, sunlight catching the tousled strands of his hair. The sight of him brought a mix of comfort and frustration; he always wore that expression when he thought she was about to make a mistake.\n\n“I know it is,” she said, forcing a confident tone into her voice. She turned to face him, the corners of her mouth lifting in an attempt at reassurance, though it felt more like a brittle facade than genuine comfort. “Just trust me.”\n\nHis lips pressed into a thin line, that familiar gesture betraying the internal conflict he was grappling with. She felt the tension in the air, a mirror of her own uncertainty. “We could just go back,” he suggested, his voice barely above a whisper,"
+  },
+  "critique_snapshot": {
+    "summary": "The scene depicts Elise walking through a grove, grappling with a significant decision while interacting with Ben, who expresses doubt about their location. The atmosphere is tense, with nature reflecting Elise's internal struggle.",
+    "weaknesses": [
+      "Generic phrases and descriptions that lack specificity.",
+      "Dialogue that does not effectively ground the characters in their physical surroundings."
+    ],
+    "continuity_issues": [
+      "The emotional state of Elise shifts abruptly without clear cause, making it hard to follow her internal journey.",
+      "Ben's concern appears to be a recurring theme but lacks depth in its development."
+    ],
+    "pacing_issues": [
+      "The pacing slows significantly during the dialogue, which disrupts the tension built in the earlier descriptions."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid scene.",
+      "Ground dialogue in physical actions or the setting to increase realism.",
+      "Clarify the emotional transitions of characters to maintain continuity."
+    ],
+    "generic_phrase_targets": [
+      "frenzied dance",
+      "sweet, earthy scent",
+      "haunting about the note",
+      "strange anticipation"
+    ],
+    "detail_targets": [
+      "Describe the grove more vividly to enhance the setting.",
+      "Provide more sensory details about Ben's appearance and actions."
+    ],
+    "dialogue_grounding_targets": [
+      "Incorporate physical actions during dialogue exchanges to create a stronger connection to the scene."
+    ],
+    "emotional_show_targets": [
+      "Show Elise's internal conflict through more concrete actions or reactions rather than telling through vague phrases."
+    ],
+    "replacement_targets": [
+      "Replace generic phrases with more unique, specific imagery.",
+      "Substitute vague emotional descriptors with actions that illustrate those emotions."
+    ],
+    "grounding_targets": [
+      "Ensure that characters' dialogue is influenced by their surroundings and actions."
+    ],
+    "carryover_targets": [
+      "Maintain emotional continuity by linking Elise's thoughts more clearly to her dialogue with Ben."
+    ]
+  },
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_model_name": "gpt-5.4-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Are you sure this is the right place?” Ben's voice broke through her reverie, tinged with apprehension as he stepped into the clearing.",
+        "“I know it is,” she said, forcing a confident tone into her voice.",
+        "“Just trust me.”\n\nHis lips pressed into a thin line, that familiar gesture betraying the internal conflict he was grappling with.",
+        "“We could just go back,” he suggested, his voice barely above a whisper,"
+      ],
+      "generic_phrases_to_replace": [
+        "pressed in",
+        "voice barely above a whisper"
+      ],
+      "lines_to_repair": [
+        "“Just trust me.”\n\nHis lips pressed into a thin line, that familiar gesture betraying the internal conflict he was grappling with.",
+        "“We could just go back,” he suggested, his voice barely above a whisper,",
+        "“Are you sure this is the right place?” Ben's voice broke through her reverie, tinged with apprehension as he stepped into the clearing.",
+        "“I know it is,” she said, forcing a confident tone into her voice."
+      ],
+      "required_concrete_anchor_terms": [
+        "against",
+        "voice",
+        "grove"
+      ],
+      "repair_min_word_count": 274,
+      "repair_max_word_count": 484,
+      "min_paragraph_count": 3,
+      "max_paragraph_count": 7
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rescue_model"
+    },
+    "rescue_slots_summary": {
+      "slot_count": 5,
+      "target_types": [
+        "dialogue",
+        "dialogue",
+        "dialogue",
+        "dialogue",
+        "generic"
+      ]
+    },
+    "rescue_failure_class": "patch_dialogue_grounding_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 310,
+    "rewritten_word_count": 323,
+    "min_word_count": 186,
+    "max_word_count": 651,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "was",
+      "his",
+      "and",
+      "felt",
+      "wind",
+      "echoing",
+      "stillness",
+      "something",
+      "secrets"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "was",
+      "his",
+      "and",
+      "felt"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 28
+  }
+}

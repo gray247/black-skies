@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_cf08668e",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:5a8c83fd734c6c3bbdeed1767d3813afee45166cdebb62526b74f29ffcc4f035",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The rain fell in heavy sheets, each drop splattering against the cobblestones like a chorus of tiny drums, drowning out the distant hum of the city",
+    "word_count": 312,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 30,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 312,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 4,
+    "concrete_hits": 4,
+    "generic_hits": 1,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The rain fell in heavy sheets, each drop splattering against the cobblestones like a chorus of tiny drums, drowning out the distant hum of the city. Beneath the awning of a crumbling café, Lena clutched her coffee cup, its warmth a fragile refuge against the chill that seeped through her jacket. She could smell the rich bitterness of the espresso mingling with the damp earth, a scent that reminded her of childhood mornings spent in her grandmother's kitchen, where the world felt simpler and less burdened by the weight of expectation.\n\nAcross the street, a man in a frayed coat dashed past, his face obscured by the hood pulled tight around his features. Lena’s gaze lingered on him, the way he moved with the urgency of someone who had forgotten something important, like a piece of himself left behind in the rush of life. She wondered if he felt the rain as she did, or if it merely soaked through him, a reminder of the chaos outside his mind.\n\n“Hey, Lena! You going to drink that, or just hold it?” The voice cut through her reverie, drawing her attention back to the café. It was Marco, his thick glasses slipping down his nose, a playful smirk illuminating his face despite the weather. He was drenched, droplets clinging to the tips of his hair, but he radiated a warmth that felt almost magnetic.\n\n“Just savoring the moment,” she replied, forcing a smile that didn’t quite reach her eyes. The truth was, she was surrounded by people, yet felt achingly alone. The weight of her thoughts pressed down, and she took a sip, letting the bitter liquid slide down her throat, grounding her in the now.\n\n“Come on, let’s get out of this downpour,” he said, tilting his head toward the door, inviting her into the warmth inside. She hesitated, watching the rain dance"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

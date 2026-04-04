@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_37cd9686",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:63fdaa3b1c60679804d381c6789957f0c0a14d54d7003bc5c9ea4e0092b828fa",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The wind whipped through the narrow street, carrying the sharp scent of rain-soaked earth and the faintest hint of woodsmoke that lingered in the air",
+    "word_count": 302,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 30,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 302,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 8,
+    "concrete_hits": 4,
+    "generic_hits": 1,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The wind whipped through the narrow street, carrying the sharp scent of rain-soaked earth and the faintest hint of woodsmoke that lingered in the air. Eleanor hunched deeper into her threadbare coat, the fabric already damp against her skin, and cast a wary glance down the alley where shadows pooled like spilled ink. The cobblestones glistened under the low-hanging clouds, reflecting a fragmented world that seemed to shift with every flicker of lightning in the distance.\n\n“Do you think he’ll show?” Marcus’s voice cut through the silence, edged with a mixture of hope and anxiety. He stood a few paces behind her, his hands shoved deep in his pockets, shoulders squared against the chill. The way he shifted his weight from one foot to the other betrayed his impatience, the subtle tension coiling between them like a taut string ready to snap.\n\nEleanor turned slightly, her gaze lingering on the space where the alley met the street, waiting for movement. “He will,” she said, though her own heart fluttered with uncertainty. She could almost hear the thrum of her pulse beneath her ribs, a reminder of the stakes that had brought them here. They had woven their fate into the fabric of this night, and now, with the air thickening around them, it felt as if the world held its breath, waiting.\n\nThe distant rumble of thunder resonated through the air, punctuating the heaviness. “You know he’s not the only one who can change things, right?” Marcus added, his voice softer now, as if he feared the shadows would overhear. “We could just—”\n\n“Leave?” The word slipped from her lips sharper than she intended, laced with an urgency that startled her. “And run where, Marcus? Hide forever?” She stepped closer, the cobblestones cold beneath her feet, her resolve hardening. “We have to"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

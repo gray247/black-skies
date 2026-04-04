@@ -1,0 +1,9 @@
+﻿Clara pressed deeper into the corridor, the dampness of the air wrapping around her like a shroud. Shadows danced along the stone walls, flickering in rhythm with the sputtering light of the brass lantern in Jun’s hand. Each step felt heavier than the last, as if the very ground beneath her was conspiring to keep her anchored in this suffocating darkness. The scent of mildew and rich earth twisted in her nostrils, mingling with the faint metallic tang of fear that clung to her throat.
+
+“Maybe we should turn back,” Jun said, his voice a hoarse whisper, almost swallowed by the oppressive silence. Clara could see the way his eyes darted, searching the corners of the corridor as if the shadows themselves might spring to life. The lantern flickered again, its glow dwindling, and she felt a strange, bitter pang at the thought of retreat.
+
+“No,” she replied, perhaps too sharply, her words slicing through the air. “We can’t. We need to find out what’s going on.” The red ribbon around her wrist felt tight, a reminder of the parlor key that had tangled in the wet vines of the greenhouse. She didn’t remember tying it tighter, but its presence was a weight against her skin, grounding her even as her heart raced.
+
+As they continued forward, the sound of their squelching footsteps echoed ominously against the stone, each squish reverberating like a warning bell. Clara’s gaze flicked to the floor, where muddy prints snaked ahead of them, stark against the cold stone. They were fresh, too fresh, and for a moment, she imagined a hidden figure lurking just out of sight, watching their every move.
+
+Jun’s breath hitched beside her. “Did you hear that?” he murmured, his voice trembling as he peered into the dark. Clara paused, straining to listen, but

@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_e67b0d54",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:608545fc65aa6e0446988416bdd9859f24300c0b661962d8855521fcea338b7c",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The air in the servants' passage was thick with dampness, the smell of mildew clinging to the walls like an uninvited guest",
+    "word_count": 294,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 30,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 294,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 7,
+    "concrete_hits": 12,
+    "generic_hits": 1,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The air in the servants' passage was thick with dampness, the smell of mildew clinging to the walls like an uninvited guest. Clara pressed forward, the cracked brass lantern in Jun's hand sputtering fitfully, its glow barely parting the shadows. Each flicker cast wild shapes on the peeling wallpaper, a dance of light and darkness that made her heart race. She could feel the weight of the parlor key against her wrist, the rough ribbon digging into her skin, a reminder of everything they had unearthed in the greenhouse.\n\n\"Clara, did you hear that?\" Jun’s voice trembled, breaking the heavy silence that enveloped them. His coat was still soaked from their hasty escape, the fabric clinging to his shoulders like a damp shroud. He squinted into the dark, his breath shallow, as if the air itself had thickened with fear.\n\nShe shook her head, too quickly, the motion almost frantic. \"It’s just the wind,\" she said, trying to sound nonchalant, though her pulse thudded in her ears. The truth was, she didn’t want to admit that she, too, felt the prickling anticipation that something was very wrong. The chain rattled against the door behind them, a metallic whisper that made her stomach clench.\n\n\"Maybe we should go back,\" he suggested, his voice dropping to almost a whisper. The lantern dimmed again, and for a moment, the darkness felt alive, pressing in on them. Clara stepped forward instinctively, her shoes squelching against the damp floor, the muddy prints leading deeper into the passage, as if beckoning her to follow.\n\n\"No,\" she snapped, sharper than she intended, the echo of her voice bouncing back at her. \"We can’t go back now. Not after—\" She stopped, biting her lip, the weight of the chipped ceramic fox in"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

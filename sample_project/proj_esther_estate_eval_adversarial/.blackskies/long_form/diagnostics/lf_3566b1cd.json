@@ -1,0 +1,383 @@
+{
+  "chunk_id": "lf_3566b1cd",
+  "validation_decision": true,
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "raw_preview": "Clara pressed onward, her breath shallow as the weight of the shadows wrapped around her like a shroud. The lantern sputtered weakly in Jun's grasp, its flickering light revealing the narrow confines ",
+      "normalized_preview": "Clara pressed onward, her breath shallow as the weight of the shadows wrapped around her like a shroud. The lantern sputtered weakly in Jun's grasp, its flickering light revealing the narrow confines ",
+      "raw_length": 1739,
+      "normalized_length": 1738,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKmE6jYq236LG0pD72ZoWCXUIMdb0\", \"object\": \"chat.completion\", \"created\": 1773844314, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"Clara pressed onward, her breath shallow as the weight of the shadows wrapped around her like a shroud. The lantern sputtered weakly in Jun's grasp, its flickering light revealing the narrow confines of the service corridor, walls draped in peeling wallpaper that whispered of better days. She ",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 297,
+        "paragraph_count": 6,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [
+          "lantern",
+          "corridor",
+          "floor",
+          "coat",
+          "rain",
+          "key",
+          "flickered",
+          "casting"
+        ],
+        "carryover_hits": 3,
+        "material_carryover_hits": 0
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 2,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 26,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 297,
+        "paragraph_count": 6,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 6,
+        "concrete_hits": 4,
+        "generic_hits": 1,
+        "stock_phrase_hits": 4,
+        "carryover_terms": [
+          "lantern",
+          "corridor",
+          "floor",
+          "coat",
+          "rain",
+          "key",
+          "flickered",
+          "casting"
+        ],
+        "carryover_hits": 3,
+        "material_carryover_hits": 0,
+        "material_carryover": false,
+        "weak_carryover": false,
+        "generic_risk": true,
+        "text": "Clara pressed onward, her breath shallow as the weight of the shadows wrapped around her like a shroud. The lantern sputtered weakly in Jun's grasp, its flickering light revealing the narrow confines of the service corridor, walls draped in peeling wallpaper that whispered of better days. She could feel the dampness seeping through her shoes, a clammy reminder of the rain-soaked greenhouse they had fled. Each step felt like a trespass, the air thick with the scent of stagnant water and something sharper, a sickly-sweet decay that twisted her stomach.\n\n\"Clara,\" Jun said, his voice barely above a whisper, a tremor threading through his words. The sound echoed strangely against the walls, swallowed by the oppressive silence. \"Do you think… do you think something's down here with us?\"\n\nShe shot him a glance, her heart racing at the thought. “Don’t be ridiculous. It’s just us.” The words came out harsher than intended, a brittle edge to her tone that she quickly regretted. She could see the doubt flicker in his eyes, the way he shifted his weight back, as if the corridor itself were conspiring against them.\n\nAhead, the chain on the door rattled softly, a muted clank that sent a shiver down Clara’s spine. She paused, her breath catching in her throat, as the sound reverberated in the dark. “Did you hear that?” she asked, trying to keep her voice steady.\n\n“Yeah, I heard it,” Jun replied, his voice tighter now, his grip on the lantern tightening as if summoning its feeble light into something more substantial. “What if—”\n\n“Stop it,” she snapped, cutting him off. “We need to focus.” The harshness of her words hung in the air, a sharp contrast to the soft patter of water dripping somewhere in the distance. She felt the"
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "rewrite",
+        "escalated": false,
+        "reason": "rewrite_default"
+      },
+      "raw_preview": "Clara pressed onward, her breath shallow as the shadows pooled around her, thick and suffocating. The lantern flickered in Jun's grasp, its light barely illuminating the narrow confines of the service",
+      "normalized_preview": "Clara pressed onward, her breath shallow as the shadows pooled around her, thick and suffocating. The lantern flickered in Jun's grasp, its light barely illuminating the narrow confines of the service",
+      "raw_length": 1776,
+      "normalized_length": 1776,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKmERuFrDznpQtXYe9haW1qU9ZqZA\", \"object\": \"chat.completion\", \"created\": 1773844335, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"Clara pressed onward, her breath shallow as the shadows pooled around her, thick and suffocating. The lantern flickered in Jun's grasp, its light barely illuminating the narrow confines of the service corridor, where the walls were adorned with peeling wallpaper that sagged like forgotten memo",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 298,
+        "paragraph_count": 6,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [
+          "lantern",
+          "corridor",
+          "floor",
+          "coat",
+          "rain",
+          "key",
+          "flickered",
+          "casting"
+        ],
+        "carryover_hits": 4,
+        "material_carryover_hits": 0
+      },
+      "guardrail_snapshot": {
+        "evaluated": true,
+        "mode": "rewrite",
+        "outline_titles": [
+          "Greenhouse Alarm",
+          "Servants' Passage"
+        ],
+        "beat_refs": [
+          "inciting",
+          "pressure"
+        ],
+        "locked_facts_evaluated": true,
+        "length_band_evaluated": true,
+        "original_word_count": 297,
+        "rewritten_word_count": 298,
+        "min_word_count": 178,
+        "max_word_count": 623,
+        "within_length_band": true,
+        "outline_fidelity_evaluated": true,
+        "outline_fidelity_pass": true,
+        "original_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "his",
+          "that",
+          "clara",
+          "voice",
+          "words",
+          "you",
+          "breath",
+          "weight",
+          "lantern"
+        ],
+        "retained_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "his",
+          "that",
+          "clara",
+          "voice",
+          "words",
+          "you",
+          "breath",
+          "lantern"
+        ],
+        "outline_anchor_hits": [
+          "the",
+          "her",
+          "she",
+          "that",
+          "corridor",
+          "clara",
+          "his",
+          "lantern"
+        ],
+        "required_anchor_overlap": 1,
+        "scene_anchor_drift_detected": false,
+        "new_story_elements": [],
+        "blocking_new_story_elements": [],
+        "authoritative_name_check": true,
+        "uncertainty_triggered": false,
+        "failure_reason": null,
+        "accepted": true,
+        "quality_total_score": 31
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 4,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 5,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 31,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 298,
+        "paragraph_count": 6,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 6,
+        "concrete_hits": 4,
+        "generic_hits": 1,
+        "stock_phrase_hits": 2,
+        "carryover_terms": [
+          "lantern",
+          "corridor",
+          "floor",
+          "coat",
+          "rain",
+          "key",
+          "flickered",
+          "casting"
+        ],
+        "carryover_hits": 4,
+        "material_carryover_hits": 0,
+        "material_carryover": false,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "Clara pressed onward, her breath shallow as the shadows pooled around her, thick and suffocating. The lantern flickered in Jun's grasp, its light barely illuminating the narrow confines of the service corridor, where the walls were adorned with peeling wallpaper that sagged like forgotten memories. The dampness seeped through her shoes, chill clinging to her feet, a cold reminder of their hasty escape from the rain-soaked greenhouse. Each step felt like a violation of the stillness, the air heavy with the musty scent of stagnant water and an acrid tang that twisted her stomach.\n\n“Clara,” Jun murmured, his voice barely breaking the silence, a tremor threading through his words as if the corridor itself was listening. “Do you think… do you think something's down here with us?”\n\nShe darted a glance back at him, her heart racing at the thought. “Don’t be ridiculous. It’s just us.” The words slipped out sharper than she intended, a brittle edge that made her regret the tone immediately. She noticed the flicker of doubt in his eyes, the way he shifted his weight, pressing against the damp wall as if seeking refuge from the corridor’s oppressive grasp.\n\nAhead, a soft rattle echoed—the chain on the door quivered with a muted clank that sent a jolt through Clara’s spine. She halted, breath hitching as the sound reverberated through the corridor, amplifying the tension in the air. “Did you hear that?” she asked, forcing her voice to remain steady despite the unease tightening in her chest.\n\n“Yeah, I heard it,” Jun replied, his voice now taut, his fingers gripping the lantern more firmly, as if willing its frail light to grow stronger. “What if—”\n\n“Stop it,” she snapped, cutting him off. “We need to focus.” The harshness of her words echoed in the corridor,"
+      },
+      "quality_pass": true,
+      "rewrite_delta": {
+        "total_delta": 5,
+        "stock_phrase_delta": 2,
+        "specificity_delta": 2,
+        "clarity_delta": 2,
+        "continuity_delta": 1
+      }
+    }
+  ],
+  "acceptance_reason": "rewrite_pass",
+  "critique_snapshot": {
+    "summary": "The scene follows Clara and Jun as they navigate a dimly lit service corridor, filled with shadows and a sense of foreboding. Clara's anxiety grows as they hear unsettling noises, leading to tension in their dialogue.",
+    "weaknesses": [
+      "Generic phrases detract from the vividness of the scene.",
+      "Vague descriptions fail to create a strong sense of place.",
+      "Dialogue lacks grounding in physical actions or the setting."
+    ],
+    "continuity_issues": [
+      "The transition from Clara's internal thoughts to dialogue feels abrupt and lacks fluidity."
+    ],
+    "pacing_issues": [
+      "The pacing slows significantly during dialogue, which could benefit from more action or description to maintain tension."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more immersive atmosphere.",
+      "Ground dialogue in physical actions or reactions to the environment.",
+      "Eliminate generic phrases and stock imagery."
+    ],
+    "generic_phrase_targets": [
+      "wrapped around her like a shroud",
+      "whispered of better days",
+      "sickly-sweet decay"
+    ],
+    "detail_targets": [
+      "peeling wallpaper",
+      "dampness seeping through her shoes",
+      "the scent of stagnant water"
+    ],
+    "dialogue_grounding_targets": [
+      "Jun's grip on the lantern",
+      "Clara's shifting weight in response to the noise"
+    ],
+    "emotional_show_targets": [
+      "Clara's heart racing",
+      "the doubt flickering in Jun's eyes"
+    ],
+    "replacement_targets": [
+      "replace generic phrases with more original imagery",
+      "substitute vague sensory details with specific, evocative descriptions"
+    ],
+    "grounding_targets": [
+      "physical reactions to the environment",
+      "interactions with the lantern and corridor"
+    ],
+    "carryover_targets": [
+      "lantern",
+      "corridor",
+      "shadows",
+      "dark"
+    ]
+  },
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [
+      "Greenhouse Alarm",
+      "Servants' Passage"
+    ],
+    "beat_refs": [
+      "inciting",
+      "pressure"
+    ],
+    "locked_facts_evaluated": true,
+    "length_band_evaluated": true,
+    "original_word_count": 297,
+    "rewritten_word_count": 298,
+    "min_word_count": 178,
+    "max_word_count": 623,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "his",
+      "that",
+      "clara",
+      "voice",
+      "words",
+      "you",
+      "breath",
+      "weight",
+      "lantern"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "his",
+      "that",
+      "clara",
+      "voice",
+      "words",
+      "you",
+      "breath",
+      "lantern"
+    ],
+    "outline_anchor_hits": [
+      "the",
+      "her",
+      "she",
+      "that",
+      "corridor",
+      "clara",
+      "his",
+      "lantern"
+    ],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": true,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 31
+  }
+}

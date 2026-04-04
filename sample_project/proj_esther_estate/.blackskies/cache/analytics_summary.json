@@ -1,0 +1,883 @@
+{
+  "fingerprint": "6698c01c21d8594d13fe503f7d2f4dcc159e1624ed9a1f6dfea1ed0f655e94d7",
+  "payload": {
+    "generated_at": "2026-04-02T01:12:21.071484Z",
+    "computed_at": "2026-04-02T01:12:21.071484Z",
+    "schema_version": "AnalyticsSummary v1",
+    "runtime_hints": {
+      "budget": {
+        "soft_limit_usd": 5.0,
+        "hard_limit_usd": 10.0
+      },
+      "analytics_overrides": {
+        "emotion_intensity": {
+          "dread": 1.0,
+          "tension": 0.85,
+          "revelation": 0.65,
+          "aftermath": 0.45,
+          "respite": 0.25
+        },
+        "default_emotion_intensity": 0.5,
+        "pace": {
+          "slow_threshold": 1.2,
+          "fast_threshold": 0.8
+        }
+      }
+    },
+    "cost_overlays": {
+      "budget": {
+        "soft_limit_usd": 12.5,
+        "hard_limit_usd": 25.0,
+        "spent_usd": 1.1,
+        "remaining_usd": 23.9
+      },
+      "last_generate": {
+        "draft_id": "dr_7a8b4571",
+        "estimated_usd": 0.04,
+        "status": "ok",
+        "total_after_usd": 0.9
+      }
+    },
+    "runtime_event_summary": {
+      "total_events": 6,
+      "service_summary": {
+        "critique": {
+          "count": 6,
+          "avg_cost": 0.02
+        }
+      },
+      "hint_counts": {
+        "cheap": 6
+      },
+      "latest_hint": "cheap"
+    },
+    "analytics_version": "1.0",
+    "emotion_arc": [
+      {
+        "scene_id": "sc_0001",
+        "order": 1,
+        "title": "Basement Pulse",
+        "emotion_tag": "respite",
+        "intensity": 0.25
+      },
+      {
+        "scene_id": "sc_0002",
+        "order": 2,
+        "title": "Locked Parlor",
+        "emotion_tag": "revelation",
+        "intensity": 0.65
+      }
+    ],
+    "pacing": {
+      "average_word_count": 43.0,
+      "median_word_count": 43.0,
+      "standard_deviation_word_count": 1.0,
+      "scene_metrics": [
+        {
+          "scene_id": "sc_0001",
+          "order": 1,
+          "title": "Basement Pulse",
+          "word_count": 42,
+          "beat_count": 1,
+          "words_per_beat": 42.0,
+          "pace_label": "steady"
+        },
+        {
+          "scene_id": "sc_0002",
+          "order": 2,
+          "title": "Locked Parlor",
+          "word_count": 44,
+          "beat_count": 1,
+          "words_per_beat": 44.0,
+          "pace_label": "steady"
+        }
+      ]
+    },
+    "conflict_heatmap": {
+      "chapters": [
+        {
+          "chapter_id": "ch_0001",
+          "title": "The Summons",
+          "intensity": 0.45,
+          "scenes": [
+            {
+              "scene_id": "sc_0001",
+              "order": 1,
+              "title": "Basement Pulse",
+              "conflict_present": true,
+              "intensity": 0.4,
+              "conflict_summary": "footsteps echo from nowhere"
+            },
+            {
+              "scene_id": "sc_0002",
+              "order": 2,
+              "title": "Locked Parlor",
+              "conflict_present": true,
+              "intensity": 0.5,
+              "conflict_summary": "humidity chews through every circuit"
+            }
+          ]
+        }
+      ]
+    },
+    "scene_length_distribution": {
+      "buckets": [
+        {
+          "label": "0-500",
+          "lower_bound": 0,
+          "upper_bound": 500,
+          "scene_ids": [
+            "sc_0001",
+            "sc_0002"
+          ]
+        },
+        {
+          "label": "500-1000",
+          "lower_bound": 500,
+          "upper_bound": 1000,
+          "scene_ids": []
+        },
+        {
+          "label": "1000-1500",
+          "lower_bound": 1000,
+          "upper_bound": 1500,
+          "scene_ids": []
+        },
+        {
+          "label": "1500-2000",
+          "lower_bound": 1500,
+          "upper_bound": 2000,
+          "scene_ids": []
+        },
+        {
+          "label": "2000+",
+          "lower_bound": 2000,
+          "upper_bound": null,
+          "scene_ids": []
+        }
+      ],
+      "outliers": {
+        "above": [],
+        "below": []
+      }
+    },
+    "revision_streaks": {
+      "current_streak": 69,
+      "longest_streak": 69,
+      "current_start": "2025-10-14T18:59:49.103095Z",
+      "last_reset": null,
+      "events": [
+        {
+          "snapshot_id": "20251014T185948428622Z",
+          "type": "snapshot",
+          "timestamp": "2025-10-14T18:59:48.665306Z"
+        },
+        {
+          "snapshot_id": "20251014T185948869957Z",
+          "type": "accept",
+          "timestamp": "2025-10-14T18:59:49.103095Z"
+        },
+        {
+          "snapshot_id": "20251014T185949253578Z",
+          "type": "snapshot",
+          "timestamp": "2025-10-14T18:59:49.486947Z"
+        },
+        {
+          "snapshot_id": "20251014T185949667707Z",
+          "type": "accept",
+          "timestamp": "2025-10-14T18:59:49.903622Z"
+        },
+        {
+          "snapshot_id": "20251014T185950048269Z",
+          "type": "snapshot",
+          "timestamp": "2025-10-14T18:59:50.283961Z"
+        },
+        {
+          "snapshot_id": "20251014T185950466715Z",
+          "type": "accept",
+          "timestamp": "2025-10-14T18:59:50.700760Z"
+        },
+        {
+          "snapshot_id": "20251014T195659090144Z",
+          "type": "snapshot",
+          "timestamp": "2025-10-14T19:56:59.332831Z"
+        },
+        {
+          "snapshot_id": "20251014T195659577629Z",
+          "type": "accept",
+          "timestamp": "2025-10-14T19:56:59.824492Z"
+        },
+        {
+          "snapshot_id": "20251014T195659988613Z",
+          "type": "snapshot",
+          "timestamp": "2025-10-14T19:57:00.246071Z"
+        },
+        {
+          "snapshot_id": "20251014T195700440651Z",
+          "type": "accept",
+          "timestamp": "2025-10-14T19:57:00.693880Z"
+        },
+        {
+          "snapshot_id": "20251014T195700843232Z",
+          "type": "snapshot",
+          "timestamp": "2025-10-14T19:57:01.100989Z"
+        },
+        {
+          "snapshot_id": "20251014T195701300387Z",
+          "type": "accept",
+          "timestamp": "2025-10-14T19:57:01.574187Z"
+        },
+        {
+          "snapshot_id": "20251016T010934464132Z",
+          "type": "snapshot",
+          "timestamp": "2025-10-16T01:09:34.472803Z"
+        },
+        {
+          "snapshot_id": "20251016T011101065832Z",
+          "type": "snapshot",
+          "timestamp": "2025-10-16T01:11:01.073971Z"
+        },
+        {
+          "snapshot_id": "20251016T011101116659Z",
+          "type": "accept",
+          "timestamp": "2025-10-16T01:11:01.124490Z"
+        },
+        {
+          "snapshot_id": "20251016T011101156074Z",
+          "type": "snapshot",
+          "timestamp": "2025-10-16T01:11:01.163172Z"
+        },
+        {
+          "snapshot_id": "20251016T011101208099Z",
+          "type": "accept",
+          "timestamp": "2025-10-16T01:11:01.215981Z"
+        },
+        {
+          "snapshot_id": "20251016T011104918714Z",
+          "type": "snapshot",
+          "timestamp": "2025-10-16T01:11:04.932081Z"
+        },
+        {
+          "snapshot_id": "20251016T011104920341Z",
+          "type": "snapshot",
+          "timestamp": "2025-10-16T01:11:04.932533Z"
+        },
+        {
+          "snapshot_id": "20251016T011104921001Z",
+          "type": "snapshot",
+          "timestamp": "2025-10-16T01:11:04.932653Z"
+        },
+        {
+          "snapshot_id": "20251016T011104920862Z",
+          "type": "snapshot",
+          "timestamp": "2025-10-16T01:11:04.932944Z"
+        },
+        {
+          "snapshot_id": "20251016T011105032983Z",
+          "type": "accept",
+          "timestamp": "2025-10-16T01:11:05.042590Z"
+        },
+        {
+          "snapshot_id": "20251016T011105036579Z",
+          "type": "accept",
+          "timestamp": "2025-10-16T01:11:05.048934Z"
+        },
+        {
+          "snapshot_id": "20251016T011105039917Z",
+          "type": "accept",
+          "timestamp": "2025-10-16T01:11:05.051140Z"
+        },
+        {
+          "snapshot_id": "20251016T011105043313Z",
+          "type": "accept",
+          "timestamp": "2025-10-16T01:11:05.053673Z"
+        },
+        {
+          "snapshot_id": "20251016T011105111681Z",
+          "type": "snapshot",
+          "timestamp": "2025-10-16T01:11:05.123973Z"
+        },
+        {
+          "snapshot_id": "20251016T011105112700Z",
+          "type": "snapshot",
+          "timestamp": "2025-10-16T01:11:05.124449Z"
+        },
+        {
+          "snapshot_id": "20251016T011105112238Z",
+          "type": "snapshot",
+          "timestamp": "2025-10-16T01:11:05.127585Z"
+        },
+        {
+          "snapshot_id": "20251016T011105111924Z",
+          "type": "snapshot",
+          "timestamp": "2025-10-16T01:11:05.127657Z"
+        },
+        {
+          "snapshot_id": "20251016T011105214401Z",
+          "type": "accept",
+          "timestamp": "2025-10-16T01:11:05.222339Z"
+        },
+        {
+          "snapshot_id": "20251016T011105227200Z",
+          "type": "accept",
+          "timestamp": "2025-10-16T01:11:05.238157Z"
+        },
+        {
+          "snapshot_id": "20251016T011105227006Z",
+          "type": "accept",
+          "timestamp": "2025-10-16T01:11:05.238547Z"
+        },
+        {
+          "snapshot_id": "20251016T011105230838Z",
+          "type": "accept",
+          "timestamp": "2025-10-16T01:11:05.238609Z"
+        },
+        {
+          "snapshot_id": "20251016T011105291809Z",
+          "type": "snapshot",
+          "timestamp": "2025-10-16T01:11:05.305311Z"
+        },
+        {
+          "snapshot_id": "20251016T011105292005Z",
+          "type": "snapshot",
+          "timestamp": "2025-10-16T01:11:05.305441Z"
+        },
+        {
+          "snapshot_id": "20251016T011105292608Z",
+          "type": "snapshot",
+          "timestamp": "2025-10-16T01:11:05.305690Z"
+        },
+        {
+          "snapshot_id": "20251016T011105292499Z",
+          "type": "snapshot",
+          "timestamp": "2025-10-16T01:11:05.305774Z"
+        },
+        {
+          "snapshot_id": "20251016T011105396345Z",
+          "type": "accept",
+          "timestamp": "2025-10-16T01:11:05.405814Z"
+        },
+        {
+          "snapshot_id": "20251016T011105407859Z",
+          "type": "accept",
+          "timestamp": "2025-10-16T01:11:05.415197Z"
+        },
+        {
+          "snapshot_id": "20251016T011105459680Z",
+          "type": "accept",
+          "timestamp": "2025-10-16T01:11:05.472700Z"
+        },
+        {
+          "snapshot_id": "20251016T011105460058Z",
+          "type": "accept",
+          "timestamp": "2025-10-16T01:11:05.472799Z"
+        },
+        {
+          "snapshot_id": "20251016T011105461007Z",
+          "type": "snapshot",
+          "timestamp": "2025-10-16T01:11:05.472855Z"
+        },
+        {
+          "snapshot_id": "20251016T011105461550Z",
+          "type": "snapshot",
+          "timestamp": "2025-10-16T01:11:05.473239Z"
+        },
+        {
+          "snapshot_id": "20251016T011105537454Z",
+          "type": "snapshot",
+          "timestamp": "2025-10-16T01:11:05.549111Z"
+        },
+        {
+          "snapshot_id": "20251016T011105537295Z",
+          "type": "snapshot",
+          "timestamp": "2025-10-16T01:11:05.549206Z"
+        },
+        {
+          "snapshot_id": "20251016T011105567764Z",
+          "type": "accept",
+          "timestamp": "2025-10-16T01:11:05.583034Z"
+        },
+        {
+          "snapshot_id": "20251016T011105573663Z",
+          "type": "accept",
+          "timestamp": "2025-10-16T01:11:05.585680Z"
+        },
+        {
+          "snapshot_id": "20251016T011105618567Z",
+          "type": "snapshot",
+          "timestamp": "2025-10-16T01:11:05.627037Z"
+        },
+        {
+          "snapshot_id": "20251016T011105618965Z",
+          "type": "snapshot",
+          "timestamp": "2025-10-16T01:11:05.627735Z"
+        },
+        {
+          "snapshot_id": "20251016T011105635556Z",
+          "type": "accept",
+          "timestamp": "2025-10-16T01:11:05.647946Z"
+        },
+        {
+          "snapshot_id": "20251016T011105659421Z",
+          "type": "accept",
+          "timestamp": "2025-10-16T01:11:05.668918Z"
+        },
+        {
+          "snapshot_id": "20251016T011105693583Z",
+          "type": "snapshot",
+          "timestamp": "2025-10-16T01:11:05.702234Z"
+        },
+        {
+          "snapshot_id": "20251016T011105713239Z",
+          "type": "snapshot",
+          "timestamp": "2025-10-16T01:11:05.725341Z"
+        },
+        {
+          "snapshot_id": "20251016T011105720242Z",
+          "type": "accept",
+          "timestamp": "2025-10-16T01:11:05.730536Z"
+        },
+        {
+          "snapshot_id": "20251016T011105768319Z",
+          "type": "accept",
+          "timestamp": "2025-10-16T01:11:05.777820Z"
+        },
+        {
+          "snapshot_id": "20251016T011105789609Z",
+          "type": "accept",
+          "timestamp": "2025-10-16T01:11:05.797831Z"
+        },
+        {
+          "snapshot_id": "20251016T011105860344Z",
+          "type": "accept",
+          "timestamp": "2025-10-16T01:11:05.867871Z"
+        },
+        {
+          "snapshot_id": "20251022T031425994466Z",
+          "type": "snapshot",
+          "timestamp": "2025-10-22T03:14:26.001990Z"
+        },
+        {
+          "snapshot_id": "20251022T031426066697Z",
+          "type": "accept",
+          "timestamp": "2025-10-22T03:14:26.072897Z"
+        },
+        {
+          "snapshot_id": "20251022T031426111332Z",
+          "type": "snapshot",
+          "timestamp": "2025-10-22T03:14:26.117317Z"
+        },
+        {
+          "snapshot_id": "20251022T031426164706Z",
+          "type": "accept",
+          "timestamp": "2025-10-22T03:14:26.171225Z"
+        },
+        {
+          "snapshot_id": "20251022T031426771955Z",
+          "type": "snapshot",
+          "timestamp": "2025-10-22T03:14:26.778182Z"
+        },
+        {
+          "snapshot_id": "20251022T031426817749Z",
+          "type": "accept",
+          "timestamp": "2025-10-22T03:14:26.824114Z"
+        },
+        {
+          "snapshot_id": "20251022T035053562891Z",
+          "type": "snapshot",
+          "timestamp": "2025-10-22T03:50:53.569859Z"
+        },
+        {
+          "snapshot_id": "20251022T035053645240Z",
+          "type": "accept",
+          "timestamp": "2025-10-22T03:50:53.651393Z"
+        },
+        {
+          "snapshot_id": "20251022T035053680470Z",
+          "type": "snapshot",
+          "timestamp": "2025-10-22T03:50:53.686311Z"
+        },
+        {
+          "snapshot_id": "20251022T035053726254Z",
+          "type": "accept",
+          "timestamp": "2025-10-22T03:50:53.732360Z"
+        },
+        {
+          "snapshot_id": "20251022T035054276823Z",
+          "type": "snapshot",
+          "timestamp": "2025-10-22T03:50:54.283093Z"
+        },
+        {
+          "snapshot_id": "20251022T035054322441Z",
+          "type": "accept",
+          "timestamp": "2025-10-22T03:50:54.328203Z"
+        },
+        {
+          "snapshot_id": "20251022T124546511547Z",
+          "type": "snapshot",
+          "timestamp": "2025-10-22T12:45:46.518671Z"
+        },
+        {
+          "snapshot_id": "20251022T124546577993Z",
+          "type": "accept",
+          "timestamp": "2025-10-22T12:45:46.584417Z"
+        },
+        {
+          "snapshot_id": "20251022T124546613171Z",
+          "type": "snapshot",
+          "timestamp": "2025-10-22T12:45:46.619520Z"
+        },
+        {
+          "snapshot_id": "20251022T124546662564Z",
+          "type": "accept",
+          "timestamp": "2025-10-22T12:45:46.669096Z"
+        },
+        {
+          "snapshot_id": "20251022T124547741430Z",
+          "type": "snapshot",
+          "timestamp": "2025-10-22T12:45:47.748622Z"
+        },
+        {
+          "snapshot_id": "20251022T124547741505Z",
+          "type": "snapshot",
+          "timestamp": "2025-10-22T12:45:47.748779Z"
+        },
+        {
+          "snapshot_id": "20251022T124547810856Z",
+          "type": "accept",
+          "timestamp": "2025-10-22T12:45:47.818731Z"
+        },
+        {
+          "snapshot_id": "20251022T124547814155Z",
+          "type": "accept",
+          "timestamp": "2025-10-22T12:45:47.820537Z"
+        },
+        {
+          "snapshot_id": "20251022T124547863728Z",
+          "type": "snapshot",
+          "timestamp": "2025-10-22T12:45:47.870995Z"
+        },
+        {
+          "snapshot_id": "20251022T124547864315Z",
+          "type": "snapshot",
+          "timestamp": "2025-10-22T12:45:47.871121Z"
+        },
+        {
+          "snapshot_id": "20251022T124547925436Z",
+          "type": "accept",
+          "timestamp": "2025-10-22T12:45:47.933603Z"
+        },
+        {
+          "snapshot_id": "20251022T124547928352Z",
+          "type": "accept",
+          "timestamp": "2025-10-22T12:45:47.935688Z"
+        },
+        {
+          "snapshot_id": "20251022T162334522630Z",
+          "type": "accept",
+          "timestamp": "2025-10-22T16:23:34.529992Z"
+        },
+        {
+          "snapshot_id": "20251022T162430559622Z",
+          "type": "accept",
+          "timestamp": "2025-10-22T16:24:30.566893Z"
+        },
+        {
+          "snapshot_id": "20251022T162442162004Z",
+          "type": "accept",
+          "timestamp": "2025-10-22T16:24:42.168012Z"
+        },
+        {
+          "snapshot_id": "20251022T162858536756Z",
+          "type": "accept",
+          "timestamp": "2025-10-22T16:28:58.543182Z"
+        },
+        {
+          "snapshot_id": "20251022T170824737249Z",
+          "type": "wizard",
+          "timestamp": "2025-10-22T17:08:24.744358Z"
+        },
+        {
+          "snapshot_id": "20251022T170834716710Z",
+          "type": "wizard",
+          "timestamp": "2025-10-22T17:08:34.724879Z"
+        },
+        {
+          "snapshot_id": "20251022T170842966032Z",
+          "type": "wizard",
+          "timestamp": "2025-10-22T17:08:42.973726Z"
+        },
+        {
+          "snapshot_id": "20251022T170844805557Z",
+          "type": "wizard",
+          "timestamp": "2025-10-22T17:08:44.812456Z"
+        },
+        {
+          "snapshot_id": "20251022T170847956583Z",
+          "type": "wizard",
+          "timestamp": "2025-10-22T17:08:47.971383Z"
+        },
+        {
+          "snapshot_id": "20251022T170851548899Z",
+          "type": "wizard",
+          "timestamp": "2025-10-22T17:08:51.556191Z"
+        },
+        {
+          "snapshot_id": "20251022T170854605829Z",
+          "type": "wizard",
+          "timestamp": "2025-10-22T17:08:54.613233Z"
+        },
+        {
+          "snapshot_id": "20251022T170858565642Z",
+          "type": "wizard",
+          "timestamp": "2025-10-22T17:08:58.573397Z"
+        },
+        {
+          "snapshot_id": "20251022T170902213659Z",
+          "type": "wizard",
+          "timestamp": "2025-10-22T17:09:02.221080Z"
+        },
+        {
+          "snapshot_id": "20251022T170906022382Z",
+          "type": "wizard",
+          "timestamp": "2025-10-22T17:09:06.030033Z"
+        },
+        {
+          "snapshot_id": "20251022T170909198243Z",
+          "type": "wizard",
+          "timestamp": "2025-10-22T17:09:09.205072Z"
+        },
+        {
+          "snapshot_id": "20251022T170946053924Z",
+          "type": "accept",
+          "timestamp": "2025-10-22T17:09:46.060337Z"
+        },
+        {
+          "snapshot_id": "20251030T235056323051Z",
+          "type": "accept",
+          "timestamp": "2025-10-30T23:50:56.330422Z"
+        },
+        {
+          "snapshot_id": "20251102T202154470408Z",
+          "type": "snapshot",
+          "timestamp": "2025-11-02T20:21:54.478772Z"
+        },
+        {
+          "snapshot_id": "20251102T202154524101Z",
+          "type": "accept",
+          "timestamp": "2025-11-02T20:21:54.530709Z"
+        },
+        {
+          "snapshot_id": "20251102T202154570976Z",
+          "type": "snapshot",
+          "timestamp": "2025-11-02T20:21:54.577170Z"
+        },
+        {
+          "snapshot_id": "20251102T202154618998Z",
+          "type": "accept",
+          "timestamp": "2025-11-02T20:21:54.625000Z"
+        },
+        {
+          "snapshot_id": "20251102T202154663344Z",
+          "type": "snapshot",
+          "timestamp": "2025-11-02T20:21:54.669631Z"
+        },
+        {
+          "snapshot_id": "20251102T202154709070Z",
+          "type": "accept",
+          "timestamp": "2025-11-02T20:21:54.715408Z"
+        },
+        {
+          "snapshot_id": "20251102T202206037286Z",
+          "type": "snapshot",
+          "timestamp": "2025-11-02T20:22:06.044969Z"
+        },
+        {
+          "snapshot_id": "20251102T202206101578Z",
+          "type": "accept",
+          "timestamp": "2025-11-02T20:22:06.108528Z"
+        },
+        {
+          "snapshot_id": "20251102T202206148737Z",
+          "type": "snapshot",
+          "timestamp": "2025-11-02T20:22:06.154634Z"
+        },
+        {
+          "snapshot_id": "20251102T202206195629Z",
+          "type": "accept",
+          "timestamp": "2025-11-02T20:22:06.201519Z"
+        },
+        {
+          "snapshot_id": "20251102T202206241684Z",
+          "type": "snapshot",
+          "timestamp": "2025-11-02T20:22:06.248286Z"
+        },
+        {
+          "snapshot_id": "20251102T202206289503Z",
+          "type": "accept",
+          "timestamp": "2025-11-02T20:22:06.295640Z"
+        },
+        {
+          "snapshot_id": "20251102T202307519770Z",
+          "type": "snapshot",
+          "timestamp": "2025-11-02T20:23:07.526539Z"
+        },
+        {
+          "snapshot_id": "20251102T202307582956Z",
+          "type": "accept",
+          "timestamp": "2025-11-02T20:23:07.589080Z"
+        },
+        {
+          "snapshot_id": "20251102T202307629645Z",
+          "type": "snapshot",
+          "timestamp": "2025-11-02T20:23:07.636863Z"
+        },
+        {
+          "snapshot_id": "20251102T202307680192Z",
+          "type": "accept",
+          "timestamp": "2025-11-02T20:23:07.685851Z"
+        },
+        {
+          "snapshot_id": "20251102T202307724826Z",
+          "type": "snapshot",
+          "timestamp": "2025-11-02T20:23:07.731726Z"
+        },
+        {
+          "snapshot_id": "20251102T202307774368Z",
+          "type": "accept",
+          "timestamp": "2025-11-02T20:23:07.780499Z"
+        },
+        {
+          "snapshot_id": "20251102T202414706929Z",
+          "type": "snapshot",
+          "timestamp": "2025-11-02T20:24:14.713371Z"
+        },
+        {
+          "snapshot_id": "20251102T202414768638Z",
+          "type": "accept",
+          "timestamp": "2025-11-02T20:24:14.774414Z"
+        },
+        {
+          "snapshot_id": "20251102T202414812372Z",
+          "type": "snapshot",
+          "timestamp": "2025-11-02T20:24:14.818588Z"
+        },
+        {
+          "snapshot_id": "20251102T202414859636Z",
+          "type": "accept",
+          "timestamp": "2025-11-02T20:24:14.865285Z"
+        },
+        {
+          "snapshot_id": "20251102T202415982941Z",
+          "type": "snapshot",
+          "timestamp": "2025-11-02T20:24:15.989949Z"
+        },
+        {
+          "snapshot_id": "20251102T202415983013Z",
+          "type": "snapshot",
+          "timestamp": "2025-11-02T20:24:15.990049Z"
+        },
+        {
+          "snapshot_id": "20251102T202416054034Z",
+          "type": "accept",
+          "timestamp": "2025-11-02T20:24:16.062688Z"
+        },
+        {
+          "snapshot_id": "20251102T202416057260Z",
+          "type": "accept",
+          "timestamp": "2025-11-02T20:24:16.063750Z"
+        },
+        {
+          "snapshot_id": "20251102T202416108000Z",
+          "type": "snapshot",
+          "timestamp": "2025-11-02T20:24:16.115672Z"
+        },
+        {
+          "snapshot_id": "20251102T202416109046Z",
+          "type": "snapshot",
+          "timestamp": "2025-11-02T20:24:16.116718Z"
+        },
+        {
+          "snapshot_id": "20251102T202416171516Z",
+          "type": "accept",
+          "timestamp": "2025-11-02T20:24:16.178216Z"
+        },
+        {
+          "snapshot_id": "20251102T202416174330Z",
+          "type": "accept",
+          "timestamp": "2025-11-02T20:24:16.181237Z"
+        },
+        {
+          "snapshot_id": "20251102T203533735990Z",
+          "type": "snapshot",
+          "timestamp": "2025-11-02T20:35:33.750452Z"
+        },
+        {
+          "snapshot_id": "20251102T203533799742Z",
+          "type": "accept",
+          "timestamp": "2025-11-02T20:35:33.806616Z"
+        },
+        {
+          "snapshot_id": "20251102T203533845300Z",
+          "type": "snapshot",
+          "timestamp": "2025-11-02T20:35:33.851708Z"
+        },
+        {
+          "snapshot_id": "20251102T203533897843Z",
+          "type": "accept",
+          "timestamp": "2025-11-02T20:35:33.904572Z"
+        },
+        {
+          "snapshot_id": "20251102T203535078025Z",
+          "type": "snapshot",
+          "timestamp": "2025-11-02T20:35:35.086006Z"
+        },
+        {
+          "snapshot_id": "20251102T203535077954Z",
+          "type": "snapshot",
+          "timestamp": "2025-11-02T20:35:35.086060Z"
+        },
+        {
+          "snapshot_id": "20251102T203535151261Z",
+          "type": "accept",
+          "timestamp": "2025-11-02T20:35:35.158626Z"
+        },
+        {
+          "snapshot_id": "20251102T203535154990Z",
+          "type": "accept",
+          "timestamp": "2025-11-02T20:35:35.161332Z"
+        },
+        {
+          "snapshot_id": "20251102T203535203025Z",
+          "type": "snapshot",
+          "timestamp": "2025-11-02T20:35:35.210238Z"
+        },
+        {
+          "snapshot_id": "20251102T203535203898Z",
+          "type": "snapshot",
+          "timestamp": "2025-11-02T20:35:35.210640Z"
+        },
+        {
+          "snapshot_id": "20251102T203535267537Z",
+          "type": "accept",
+          "timestamp": "2025-11-02T20:35:35.274740Z"
+        },
+        {
+          "snapshot_id": "20251102T203535271260Z",
+          "type": "accept",
+          "timestamp": "2025-11-02T20:35:35.277940Z"
+        },
+        {
+          "snapshot_id": "20251104T005644936598Z",
+          "type": "accept",
+          "timestamp": "2025-11-04T00:56:44.943762Z"
+        },
+        {
+          "snapshot_id": "20251107T232441936581Z",
+          "type": "accept",
+          "timestamp": "2025-11-07T23:24:41.945320Z"
+        }
+      ]
+    }
+  }
+}

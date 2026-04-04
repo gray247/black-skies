@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_9ea75f37",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:010dc89795f42cc115cbc8d9840cbb7cea4d34fb88e98173fcbb0a9125e98cfa",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Clara clutched the lantern tighter, its feeble light flickering as if it shared her uncertainty",
+    "word_count": 308,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 30,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 308,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 9,
+    "concrete_hits": 8,
+    "generic_hits": 1,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "Clara clutched the lantern tighter, its feeble light flickering as if it shared her uncertainty. The air in the narrow corridor was thick with the smell of damp earth and old wood, each breath drawing in the weight of the house’s secrets. Jun’s coat, still soaked from the greenhouse rain, clung to him like a second skin, making the chill creep deeper into his bones. He shivered, his gaze darting nervously toward the chained door that quivered slightly, as if something—or someone—was testing its strength from the other side.\n\n“Did you hear that?” he whispered, his voice barely rising above the whisper of the wind snaking through the cracks in the walls. Clara shook her head, though the tension in her throat tightened as she remembered the distant cough she had chosen to ignore. A child’s cough, echoing through her mind like a ghost, lingered uneasily in the corners of her consciousness.\n\n“No, it’s just the wind,” she replied too quickly, her tone sharper than she intended. The words slipped out, brittle and defensive, like the cracked porcelain of the fox she had tucked into her pocket. The weight of it shifted against her thigh, a reminder of the nursery where shadows seemed to pulse with life, and she felt the urge to touch it, to ground herself in something tangible.\n\nJun’s brow furrowed, his dark eyes wide with fear, and Clara caught the way he bit his lip, a habit she had never seen before. The lantern sputtered again, casting long, flickering shadows that danced along the walls, and for a moment, Clara felt as if they were not alone. “We can’t stay here,” he said, his voice trembling slightly, and the chain rattled again, a sharp, metallic sound that echoed ominously in the silence.\n\n“Then let’s keep moving.” She took a step forward, the worn floor"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

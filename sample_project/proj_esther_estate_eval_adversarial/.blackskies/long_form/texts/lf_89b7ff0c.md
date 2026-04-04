@@ -1,0 +1,9 @@
+﻿The lantern flickered again, its weak glow barely pushing back the shadows that seemed to swell and breathe along the damp corridor walls. Clara felt the cool metal of the parlor key against her wrist, the red ribbon tightening with each quickened pulse as she clenched her fist. “I swear, I heard something,” she said, her voice sharper than she intended, slicing through the oppressive quiet. The air was thick with the scent of wet earth and something else—something stale and sour that made her stomach churn.
+
+Jun paused, his eyes wide, scanning the darkness ahead. “It came from up there,” he whispered, pointing toward the end of the corridor where the faded paint peeled like dry skin. The sound of his voice seemed to tremble, caught somewhere between fear and resolve. Clara followed his gaze, but all she could see were the faint outlines of doorways leading to forgotten corners of the house, where secrets lay buried beneath layers of dust and neglect.
+
+“Maybe it’s just the wind,” she suggested, though the words felt hollow in her mouth. She took a step forward, the floorboards creaking beneath her weight, as if warning her to turn back. The dim light of the lantern flickered again, casting an anxious dance of shadows that twisted around her—she could almost hear them whispering, urging her to flee.
+
+“Clara,” Jun’s voice was urgent now, pulling her from her thoughts. “I can’t shake this feeling. What if someone’s… what if someone’s in here with us?” He shifted his weight from one foot to the other, still clutching the lantern like a talisman, its light sputtering in time with his rising panic.
+
+“We’ll just check the door,” she said, forcing her tone to remain steady, though doubt gnawed at her insides. The chained door loomed ahead, the metal glinting ominously in the lantern’s glow. It

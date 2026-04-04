@@ -1,0 +1,686 @@
+{
+  "chunk_id": "lf_bfbe30f9",
+  "validation_decision": false,
+  "fallback_reason": "quality_failed",
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "raw_preview": "The air was thick with the scent of rain-soaked earth, a bittersweet perfume that clung to the skin. Clara stood at the edge of the forest, her fingers brushing the rough bark of a nearby tree, feelin",
+      "normalized_preview": "The air was thick with the scent of rain-soaked earth, a bittersweet perfume that clung to the skin. Clara stood at the edge of the forest, her fingers brushing the rough bark of a nearby tree, feelin",
+      "raw_length": 1784,
+      "normalized_length": 1784,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKmfIP1ZqcLkOhAIdxEwdZfzXEOnI\", \"object\": \"chat.completion\", \"created\": 1773846000, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The air was thick with the scent of rain-soaked earth, a bittersweet perfume that clung to the skin. Clara stood at the edge of the forest, her fingers brushing the rough bark of a nearby tree, feeling the pulsing life beneath its surface. Each heartbeat echoed her own—a steady reminder of the",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 306,
+        "paragraph_count": 6,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 2,
+          "meta_free": 5
+        },
+        "total_score": 26,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 306,
+        "paragraph_count": 6,
+        "dialogue_present": true,
+        "dialogue_grounded": false,
+        "sensory_hits": 8,
+        "concrete_hits": 0,
+        "generic_hits": 0,
+        "stock_phrase_hits": 0,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The air was thick with the scent of rain-soaked earth, a bittersweet perfume that clung to the skin. Clara stood at the edge of the forest, her fingers brushing the rough bark of a nearby tree, feeling the pulsing life beneath its surface. Each heartbeat echoed her own—a steady reminder of the world’s relentless march, yet here, time seemed suspended, caught in a soft haze that blurred the edges of reality.\n\nA raven cawed overhead, its voice cutting through the stillness, pulling her from the depths of her thoughts. She squinted against the low-hanging clouds, their dark shadows promising a storm yet to roll in. The wind rustled through the leaves, whispering secrets she was not meant to hear, and a shiver ran down her spine, not from the chill, but from the thrill of uncertainty. She had come here seeking solace, a reprieve from the chaos that had spiraled around her life like a tempest, but instead, she found herself drawn deeper into the wild embrace of the forest.\n\n“Clara!” A voice called from behind her, sharp and urgent, breaking the spell. It was Sam, his breathless approach echoing through the thicket. She turned to face him, the tension in her chest tightening as he emerged, eyes wide with concern. “You can’t just wander off like that. You know how it is out here.”\n\nShe studied his face, the worry etched into his brow. “I needed a moment,” she replied, her voice steadier than she felt. “Just to think.” The words tasted bitter; her thoughts were anything but clear.\n\nSam ran a hand through his tousled hair, frustration flickering across his features. “Thinking doesn’t change anything, Clara. We have to stick together. It’s dangerous alone.” His gaze darted to the shadows, as if he could sense the unseen threats lurking just beyond the treeline.\n\n“"
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "rewrite",
+        "escalated": false,
+        "reason": "rewrite_default"
+      },
+      "raw_preview": "The air hung heavy with the rich, loamy scent of rain-soaked earth, a bittersweet aroma that clung to Clara's skin as she stood at the edge of the forest. Her fingertips grazed the rough bark of a tow",
+      "normalized_preview": "The air hung heavy with the rich, loamy scent of rain-soaked earth, a bittersweet aroma that clung to Clara's skin as she stood at the edge of the forest. Her fingertips grazed the rough bark of a tow",
+      "raw_length": 1776,
+      "normalized_length": 1776,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKmfhUqvpflzAnlMYf3kO1mZa81bQ\", \"object\": \"chat.completion\", \"created\": 1773846025, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The air hung heavy with the rich, loamy scent of rain-soaked earth, a bittersweet aroma that clung to Clara's skin as she stood at the edge of the forest. Her fingertips grazed the rough bark of a towering oak, feeling the pulse of life thrumming beneath its surface, each beat mirroring the rh",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 308,
+        "paragraph_count": 5,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "guardrail_snapshot": {
+        "evaluated": true,
+        "mode": "rewrite",
+        "outline_titles": [],
+        "beat_refs": [],
+        "locked_facts_evaluated": false,
+        "length_band_evaluated": true,
+        "original_word_count": 306,
+        "rewritten_word_count": 308,
+        "min_word_count": 183,
+        "max_word_count": 642,
+        "within_length_band": true,
+        "outline_fidelity_evaluated": true,
+        "outline_fidelity_pass": true,
+        "original_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "his",
+          "that",
+          "was",
+          "clara",
+          "here",
+          "voice",
+          "but",
+          "forest",
+          "life"
+        ],
+        "retained_anchor_terms": [
+          "the",
+          "her",
+          "she",
+          "his",
+          "that",
+          "clara",
+          "here",
+          "forest",
+          "life"
+        ],
+        "outline_anchor_hits": [],
+        "required_anchor_overlap": 1,
+        "scene_anchor_drift_detected": false,
+        "new_story_elements": [],
+        "blocking_new_story_elements": [],
+        "authoritative_name_check": false,
+        "uncertainty_triggered": false,
+        "failure_reason": null,
+        "accepted": true,
+        "quality_total_score": 28
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 28,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 308,
+        "paragraph_count": 5,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 5,
+        "concrete_hits": 0,
+        "generic_hits": 0,
+        "stock_phrase_hits": 1,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The air hung heavy with the rich, loamy scent of rain-soaked earth, a bittersweet aroma that clung to Clara's skin as she stood at the edge of the forest. Her fingertips grazed the rough bark of a towering oak, feeling the pulse of life thrumming beneath its surface, each beat mirroring the rhythm of her own heart. Here, amid the towering trees and thick foliage, time felt suspended, as if the world beyond the trees had faded away.\n\nA raven cawed sharply overhead, its cry slicing through the stillness, jolting Clara from her reverie. She squinted against the gathering clouds, their dark, swirling forms heavy with the promise of an impending storm. The wind whispered through the leaves, a soft rustle that felt intimate yet unsettling, sending a shiver down her spine—not from the chill, but from the thrill of uncertainty that filled the air. She had sought refuge here, a moment of solitude to escape the chaos that churned within her life, yet she felt herself being pulled deeper into the wild embrace of the forest, as if it were calling her to stay.\n\n“Clara!” A voice broke through the tranquility, sharp and urgent, shattering the spell. It was Sam, his hurried footsteps crunching on twigs and leaves as he pushed through the underbrush. Clara turned, her chest tightening as she took in the sight of him—his brow furrowed, eyes wide with worry as he stepped into the clearing. “You can’t just wander off like that. You know how it is out here.”\n\nClara studied him, tracing the lines of concern etched across his face. “I needed a moment,” she said, her voice steadier than the turmoil roiling inside her. “Just to think.” The words felt heavy on her tongue, bitter and uncertain.\n\nSam ran a hand through his tousled hair, frustration flickering in his eyes. “"
+      },
+      "quality_pass": false,
+      "rewrite_delta": {
+        "total_delta": 2,
+        "stock_phrase_delta": -1,
+        "specificity_delta": 0,
+        "clarity_delta": 0,
+        "continuity_delta": 0
+      },
+      "retry_decision": {
+        "eligible": true,
+        "reason": "targeted_editorial_miss_after_rewrite",
+        "classification": "targeted_editorial"
+      }
+    },
+    {
+      "attempt": 3,
+      "mode": "recovery_retry",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rescue_model"
+      },
+      "raw_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"The air hung heavy with the rich, loamy scent of rain-soaked earth, a bittersweet aroma that clung to Clara's skin as she stood at the edge of the fores",
+      "normalized_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"The air hung heavy with the rich, loamy scent of rain-soaked earth, a bittersweet aroma that clung to Clara's skin as she stood at the edge of the fores",
+      "raw_length": 1056,
+      "normalized_length": 1056,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKmfr9ccNHmHFJtf1QgjSmJTEQs6b\", \"object\": \"chat.completion\", \"created\": 1773846035, \"model\": \"gpt-5.4-mini-2026-03-17\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"replacement_text\\\":\\\"The air hung heavy with the rich, loamy scent of rain-soaked earth, a bittersweet aroma that clung to Clara's skin as she stood at the edge of the forest.\\\"},{\\\"slot_id\\\":\\\"s2\\\",\\\"replacement_text\\\":\\\"She squinted against the gathering ",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "The air hung heavy with the rich, loamy scent of rain-soaked earth, a bittersweet aroma that clung to Clara's skin as she stood at the edge of the forest.",
+          "context_before": "",
+          "context_after": "Her fingertips grazed the rough bark of a towering oak, feeling the pulse of life thrumming beneath its surface, each beat mirroring the rhythm of her own heart.",
+          "target_reason": "generic",
+          "target_phrase": "heavy with"
+        },
+        {
+          "slot_id": "s2",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "She squinted against the gathering clouds, their dark, swirling forms heavy with the promise of an impending storm.",
+          "context_before": "A raven cawed sharply overhead, its cry slicing through the stillness, jolting Clara from her reverie.",
+          "context_after": "The wind whispered through the leaves, a soft rustle that felt intimate yet unsettling, sending a shiver down her spine—not from the chill, but from the thrill of uncertainty that filled the air.",
+          "target_reason": "generic",
+          "target_phrase": "heavy with"
+        },
+        {
+          "slot_id": "s3",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "She had sought refuge here, a moment of solitude to escape the chaos that churned within her life, yet she felt herself being pulled deeper into the wild embrace of the forest, as if it were calling her to stay.",
+          "context_before": "The wind whispered through the leaves, a soft rustle that felt intimate yet unsettling, sending a shiver down her spine—not from the chill, but from the thrill of uncertainty that filled the air.",
+          "context_after": "“Clara!” A voice broke through the tranquility, sharp and urgent, shattering the spell.",
+          "target_reason": "generic",
+          "target_phrase": "the wild embrace of the forest"
+        },
+        {
+          "slot_id": "s4",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Clara!” A voice broke through the tranquility, sharp and urgent, shattering the spell.",
+          "context_before": "She had sought refuge here, a moment of solitude to escape the chaos that churned within her life, yet she felt herself being pulled deeper into the wild embrace of the forest, as if it were calling her to stay.",
+          "context_after": "It was Sam, his hurried footsteps crunching on twigs and leaves as he pushed through the underbrush.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s5",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“You can’t just wander off like that.",
+          "context_before": "Clara turned, her chest tightening as she took in the sight of him—his brow furrowed, eyes wide with worry as he stepped into the clearing.",
+          "context_after": "You know how it is out here.”\n\nClara studied him, tracing the lines of concern etched across his face.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s6",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "You know how it is out here.”\n\nClara studied him, tracing the lines of concern etched across his face.",
+          "context_before": "“You can’t just wander off like that.",
+          "context_after": "“I needed a moment,” she said, her voice steadier than the turmoil roiling inside her.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s7",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“I needed a moment,” she said, her voice steadier than the turmoil roiling inside her.",
+          "context_before": "You know how it is out here.”\n\nClara studied him, tracing the lines of concern etched across his face.",
+          "context_after": "“Just to think.” The words felt heavy on her tongue, bitter and uncertain.",
+          "target_reason": "dialogue_grounding"
+        }
+      ],
+      "rescue_generation_strategy": "structured_slot_patch",
+      "configured_rescue_generation_strategy": "structured_slot_patch",
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "The air hung heavy with the rich, loamy scent of rain-soaked earth, a bittersweet aroma that clung to Clara's skin as she stood at the edge of the forest."
+        },
+        {
+          "slot_id": "s2",
+          "replacement_text": "She squinted against the gathering clouds, their dark, swirling forms heavy with the promise of an impending storm."
+        },
+        {
+          "slot_id": "s3",
+          "replacement_text": "She had sought refuge here, a moment of solitude beneath the towering trees and thick foliage, yet she felt herself being pulled deeper into the forest, as if it were calling her to stay."
+        },
+        {
+          "slot_id": "s4",
+          "replacement_text": "“Clara!” A voice broke through the tranquility, sharp and urgent, shattering the spell."
+        },
+        {
+          "slot_id": "s5",
+          "replacement_text": "“You can’t just wander off like that. You know how it is out here.”"
+        },
+        {
+          "slot_id": "s6",
+          "replacement_text": "“I needed a moment,” she said, her voice steadier than the turmoil roiling inside her."
+        },
+        {
+          "slot_id": "s7",
+          "replacement_text": "“Just to think.” The words felt heavy on her tongue, bitter and uncertain."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_generic_replacement_unresolved"
+      }
+    },
+    {
+      "attempt": 4,
+      "mode": "repair_only",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rescue_model"
+      },
+      "raw_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"The air hung heavy with the rich, loamy scent of rain-soaked earth, a bittersweet aroma that clung to Clara's skin as she stood at the edge of the fores",
+      "normalized_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"The air hung heavy with the rich, loamy scent of rain-soaked earth, a bittersweet aroma that clung to Clara's skin as she stood at the edge of the fores",
+      "raw_length": 1005,
+      "normalized_length": 1005,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKmfv0OswYjQOaTn9LSL6ALShwNsw\", \"object\": \"chat.completion\", \"created\": 1773846039, \"model\": \"gpt-5.4-mini-2026-03-17\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"replacement_text\\\":\\\"The air hung heavy with the rich, loamy scent of rain-soaked earth, a bittersweet aroma that clung to Clara's skin as she stood at the edge of the forest.\\\"},{\\\"slot_id\\\":\\\"s2\\\",\\\"replacement_text\\\":\\\"She squinted against the gathering ",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "The air hung heavy with the rich, loamy scent of rain-soaked earth, a bittersweet aroma that clung to Clara's skin as she stood at the edge of the forest.",
+          "context_before": "",
+          "context_after": "Her fingertips grazed the rough bark of a towering oak, feeling the pulse of life thrumming beneath its surface, each beat mirroring the rhythm of her own heart.",
+          "target_reason": "generic",
+          "target_phrase": "heavy with"
+        },
+        {
+          "slot_id": "s2",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "She squinted against the gathering clouds, their dark, swirling forms heavy with the promise of an impending storm.",
+          "context_before": "A raven cawed sharply overhead, its cry slicing through the stillness, jolting Clara from her reverie.",
+          "context_after": "The wind whispered through the leaves, a soft rustle that felt intimate yet unsettling, sending a shiver down her spine—not from the chill, but from the thrill of uncertainty that filled the air.",
+          "target_reason": "generic",
+          "target_phrase": "heavy with"
+        },
+        {
+          "slot_id": "s3",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "She had sought refuge here, a moment of solitude to escape the chaos that churned within her life, yet she felt herself being pulled deeper into the wild embrace of the forest, as if it were calling her to stay.",
+          "context_before": "The wind whispered through the leaves, a soft rustle that felt intimate yet unsettling, sending a shiver down her spine—not from the chill, but from the thrill of uncertainty that filled the air.",
+          "context_after": "“Clara!” A voice broke through the tranquility, sharp and urgent, shattering the spell.",
+          "target_reason": "generic",
+          "target_phrase": "the wild embrace of the forest"
+        },
+        {
+          "slot_id": "s4",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Clara!” A voice broke through the tranquility, sharp and urgent, shattering the spell.",
+          "context_before": "She had sought refuge here, a moment of solitude to escape the chaos that churned within her life, yet she felt herself being pulled deeper into the wild embrace of the forest, as if it were calling her to stay.",
+          "context_after": "It was Sam, his hurried footsteps crunching on twigs and leaves as he pushed through the underbrush.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s5",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“You can’t just wander off like that.",
+          "context_before": "Clara turned, her chest tightening as she took in the sight of him—his brow furrowed, eyes wide with worry as he stepped into the clearing.",
+          "context_after": "You know how it is out here.”\n\nClara studied him, tracing the lines of concern etched across his face.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s6",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "You know how it is out here.”\n\nClara studied him, tracing the lines of concern etched across his face.",
+          "context_before": "“You can’t just wander off like that.",
+          "context_after": "“I needed a moment,” she said, her voice steadier than the turmoil roiling inside her.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s7",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“I needed a moment,” she said, her voice steadier than the turmoil roiling inside her.",
+          "context_before": "You know how it is out here.”\n\nClara studied him, tracing the lines of concern etched across his face.",
+          "context_after": "“Just to think.” The words felt heavy on her tongue, bitter and uncertain.",
+          "target_reason": "dialogue_grounding"
+        }
+      ],
+      "rescue_generation_strategy": "structured_slot_patch",
+      "configured_rescue_generation_strategy": "structured_slot_patch",
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "The air hung heavy with the rich, loamy scent of rain-soaked earth, a bittersweet aroma that clung to Clara's skin as she stood at the edge of the forest."
+        },
+        {
+          "slot_id": "s2",
+          "replacement_text": "She squinted against the gathering clouds, their dark, swirling forms heavy with the promise of an impending storm."
+        },
+        {
+          "slot_id": "s3",
+          "replacement_text": "She had sought refuge here, a moment of solitude to escape the chaos that churned within her life, yet she felt herself being pulled deeper into the wild embrace of the forest, as if it were calling her to stay."
+        },
+        {
+          "slot_id": "s4",
+          "replacement_text": "“Clara!” A voice broke through the tranquility, sharp and urgent, shattering the spell."
+        },
+        {
+          "slot_id": "s5",
+          "replacement_text": "“You can’t just wander off like that."
+        },
+        {
+          "slot_id": "s6",
+          "replacement_text": "You know how it is out here.”"
+        },
+        {
+          "slot_id": "s7",
+          "replacement_text": "“I needed a moment,” she said, her voice steadier than the turmoil roiling inside her."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_generic_replacement_unresolved"
+      }
+    }
+  ],
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 28,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 308,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 5,
+    "concrete_hits": 0,
+    "generic_hits": 0,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The air hung heavy with the rich, loamy scent of rain-soaked earth, a bittersweet aroma that clung to Clara's skin as she stood at the edge of the forest. Her fingertips grazed the rough bark of a towering oak, feeling the pulse of life thrumming beneath its surface, each beat mirroring the rhythm of her own heart. Here, amid the towering trees and thick foliage, time felt suspended, as if the world beyond the trees had faded away.\n\nA raven cawed sharply overhead, its cry slicing through the stillness, jolting Clara from her reverie. She squinted against the gathering clouds, their dark, swirling forms heavy with the promise of an impending storm. The wind whispered through the leaves, a soft rustle that felt intimate yet unsettling, sending a shiver down her spine—not from the chill, but from the thrill of uncertainty that filled the air. She had sought refuge here, a moment of solitude to escape the chaos that churned within her life, yet she felt herself being pulled deeper into the wild embrace of the forest, as if it were calling her to stay.\n\n“Clara!” A voice broke through the tranquility, sharp and urgent, shattering the spell. It was Sam, his hurried footsteps crunching on twigs and leaves as he pushed through the underbrush. Clara turned, her chest tightening as she took in the sight of him—his brow furrowed, eyes wide with worry as he stepped into the clearing. “You can’t just wander off like that. You know how it is out here.”\n\nClara studied him, tracing the lines of concern etched across his face. “I needed a moment,” she said, her voice steadier than the turmoil roiling inside her. “Just to think.” The words felt heavy on her tongue, bitter and uncertain.\n\nSam ran a hand through his tousled hair, frustration flickering in his eyes. “"
+  },
+  "critique_snapshot": {
+    "summary": "The scene depicts Clara at the edge of a forest, reflecting on her life amidst the natural setting. She is interrupted by Sam, who expresses concern for her wandering alone. Their dialogue reveals tension and differing perspectives on safety and solitude.",
+    "weaknesses": [
+      "Vague descriptions that lack specificity.",
+      "Dialogue that feels disconnected from the physical actions and setting."
+    ],
+    "continuity_issues": [
+      "The transition from Clara's introspection to Sam's arrival lacks a clear connection to the surrounding environment."
+    ],
+    "pacing_issues": [
+      "The pacing slows significantly during Clara's internal monologue, which may detract from the urgency of Sam's arrival."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid scene.",
+      "Ground dialogue in physical actions or reactions to the environment.",
+      "Establish clearer continuity between Clara's thoughts and Sam's entrance."
+    ],
+    "generic_phrase_targets": [
+      "The air was thick with the scent of rain-soaked earth",
+      "caught in a soft haze that blurred the edges of reality",
+      "the wild embrace of the forest"
+    ],
+    "detail_targets": [
+      "Provide more concrete imagery of the forest and its sounds.",
+      "Clarify the emotional stakes behind Clara's need for solitude."
+    ],
+    "dialogue_grounding_targets": [
+      "Integrate physical actions during dialogue exchanges to enhance realism."
+    ],
+    "emotional_show_targets": [
+      "Show Clara's internal conflict more vividly through her actions and reactions."
+    ],
+    "replacement_targets": [
+      "Replace vague phrases with more specific imagery and sensory details."
+    ],
+    "grounding_targets": [
+      "Incorporate Clara's physical sensations and surroundings into her dialogue."
+    ],
+    "carryover_targets": [
+      "Ensure that Clara's emotional state is reflected in her interactions with Sam."
+    ]
+  },
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_model_name": "gpt-5.4-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Clara!” A voice broke through the tranquility, sharp and urgent, shattering the spell.",
+        "“You can’t just wander off like that.",
+        "You know how it is out here.”\n\nClara studied him, tracing the lines of concern etched across his face.",
+        "“I needed a moment,” she said, her voice steadier than the turmoil roiling inside her."
+      ],
+      "generic_phrases_to_replace": [
+        "the wild embrace of the forest",
+        "heavy with"
+      ],
+      "lines_to_repair": [
+        "The air hung heavy with the rich, loamy scent of rain-soaked earth, a bittersweet aroma that clung to Clara's skin as she stood at the edge of the forest.",
+        "She squinted against the gathering clouds, their dark, swirling forms heavy with the promise of an impending storm.",
+        "She had sought refuge here, a moment of solitude to escape the chaos that churned within her life, yet she felt herself being pulled deeper into the wild embrace of the forest, as if it were calling her to stay.",
+        "“Clara!” A voice broke through the tranquility, sharp and urgent, shattering the spell.",
+        "“You can’t just wander off like that.",
+        "You know how it is out here.”\n\nClara studied him, tracing the lines of concern etched across his face."
+      ],
+      "required_concrete_anchor_terms": [
+        "clara",
+        "heavy",
+        "here"
+      ],
+      "repair_min_word_count": 261,
+      "repair_max_word_count": 462,
+      "min_paragraph_count": 3,
+      "max_paragraph_count": 7
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rescue_model"
+    },
+    "rescue_generation_strategy": "structured_slot_patch",
+    "configured_rescue_generation_strategy": "structured_slot_patch",
+    "rescue_slots_summary": {
+      "slot_count": 7,
+      "target_types": [
+        "generic",
+        "generic",
+        "generic",
+        "dialogue",
+        "dialogue",
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_generic_replacement_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 306,
+    "rewritten_word_count": 308,
+    "min_word_count": 183,
+    "max_word_count": 642,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "his",
+      "that",
+      "was",
+      "clara",
+      "here",
+      "voice",
+      "but",
+      "forest",
+      "life"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "his",
+      "that",
+      "clara",
+      "here",
+      "forest",
+      "life"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 28
+  }
+}

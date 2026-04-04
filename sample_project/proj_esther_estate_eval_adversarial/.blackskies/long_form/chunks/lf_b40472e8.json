@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_b40472e8",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:4c4c4ebb083c1f2322025aa00019eb88b77fa3a1ff5a87d59dc34beeabb2e3ff",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The dim glow of the cracked brass lantern flickered in Jun's trembling hands, casting shadows that danced along the narrow walls of the servants’ passage",
+    "word_count": 319,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 30,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 319,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 5,
+    "concrete_hits": 11,
+    "generic_hits": 1,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The dim glow of the cracked brass lantern flickered in Jun's trembling hands, casting shadows that danced along the narrow walls of the servants’ passage. Clara could feel the dampness of her coat clinging to her skin, a chill creeping in from the edges of the corridor as the air thickened with the scent of wet earth and something else—something stale, as if the walls themselves had given up hope of ever being dry. She glanced at Jun, whose eyes darted around, searching for threats lurking in the darkness, the edges of his coat still dripping rain that pooled in small puddles at their feet.\n\n“What if it’s still there?” Jun whispered, his voice barely a tremor against the silence. His breath misted in the cool air, a fleeting cloud of fear that hung between them.\n\nClara tightened her grip on the parlor key tied to her wrist, the red ribbon biting into her flesh, the rough fabric a grounding reminder of her reality. “It’s just mud,” she replied too sharply, the sound of her own voice startling her, echoing off the walls and amplifying the tension in her chest. “We need to keep moving.” She stepped forward, the squelch of her boots melding with the muffled thump of Jun’s heart, which she could almost hear in the close confines of the passage.\n\nAs they moved deeper, Clara’s mind flickered back to the greenhouse, the way the latch had resisted their attempts to pry it open, the sharp tang of rain-soaked vines that had tangled around her wrist. She had felt the key’s reassuring weight, yet now it felt more like a chain than a lifeline. The muddy prints ahead of them were fresh, their edges sharp against the grime of the floor, leading further into the unknown. No one else had been there, yet the prints suggested otherwise, as if something had been waiting for them.\n\n“Clara,” Jun"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

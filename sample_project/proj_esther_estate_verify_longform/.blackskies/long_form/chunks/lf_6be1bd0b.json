@@ -1,0 +1,252 @@
+{
+  "chunk_id": "lf_6be1bd0b",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:365f71c5061219d8f3ec540340ffaf119688e0740cc450f531c7643a421b5700",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Long-form draft placeholder",
+    "word_count": 21,
+    "fallback_reason": "quality_failed"
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    },
+    "fallback_reason": "quality_failed"
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 28,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 310,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 6,
+    "concrete_hits": 0,
+    "generic_hits": 1,
+    "stock_phrase_hits": 2,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The sun dipped low, its golden light spilling across the clearing and stretching shadows that danced among the trees. A gentle breeze stirred the leaves overhead, their crisp edges whispering secrets to one another. Clara stood at the edge, her heart thudding in her chest as she traced the familiar path with her gaze. She had walked this route countless times, but today, it felt different, a charged energy prickling at the back of her neck.\n\n“Are you coming or what?” Sam’s voice sliced through the quiet, playful yet tinged with impatience. He leaned against a gnarled tree, the rough bark pressing into his back, a bright grin illuminating his face against the deepening twilight. Clara forced a smile, her stomach twisting with a mix of anticipation and something more unsettling.\n\n“Just taking it all in,” she murmured, her voice barely rising above the rustling leaves, as if speaking would shatter the fragile moment. She inhaled deeply, the cool air rich with the scent of damp earth and a faint hint of wildflowers, which contrasted sharply with the tightness in her chest. She felt his gaze on her, heavy with concern and curiosity, but kept her eyes trained on the horizon, where the sun’s last rays mingled in a watercolor wash of lavender and gold.\n\n“Clara,” he said, stepping closer, the soft crunch of leaves underfoot breaking the spell of silence. “You don’t have to pretend everything’s fine. I know you. Just... talk to me.” His words lingered between them, thick with the weight of shared history, the kind forged through laughter and quiet moments of vulnerability.\n\nFinally, she turned to face him, her breath hitching as she met the earnestness in his eyes. “It’s just… everything feels like it’s shifting,” she admitted, her fingers absently tracing the edge of a nearby stone, cool and solid beneath her touch. The"
+  },
+  "critique_snapshot": {
+    "summary": "The scene depicts Clara standing at the edge of a clearing, feeling an unspoken tension as she reflects on a familiar path. Sam, her friend, urges her to open up about her feelings, sensing her unease. The setting is described with sensory details, but the dialogue lacks grounding in physical action.",
+    "weaknesses": [
+      "Vague scene details that do not enhance the emotional stakes.",
+      "Generic phrases that detract from the uniqueness of the characters' experiences.",
+      "Dialogue that feels disconnected from the physical actions and setting."
+    ],
+    "continuity_issues": [],
+    "pacing_issues": [
+      "The pacing slows significantly during introspective moments, which may disrupt the flow of dialogue."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid scene.",
+      "Ground dialogue in physical actions or reactions to improve engagement.",
+      "Eliminate generic phrases and stock expressions to add originality."
+    ],
+    "generic_phrase_targets": [
+      "charged with an unspoken tension",
+      "a blend of curiosity and concern",
+      "heavy with unspoken history"
+    ],
+    "detail_targets": [
+      "the familiar path",
+      "the soft crunch of leaves",
+      "the sun’s last rays painted the sky"
+    ],
+    "dialogue_grounding_targets": [
+      "Sam's playful yet impatient tone",
+      "Clara's forced smile and internal conflict"
+    ],
+    "emotional_show_targets": [
+      "Clara's stomach knotting",
+      "the tightness in her chest",
+      "her breath hitching"
+    ],
+    "replacement_targets": [
+      "the remnants of late afternoon warmth",
+      "the faintest hint of wildflowers"
+    ],
+    "grounding_targets": [
+      "Clara tracing the path with her eyes",
+      "Sam leaning against a gnarled tree"
+    ],
+    "carryover_targets": []
+  },
+  "attempt_count": 3,
+  "acceptance_reason": "quality_failed",
+  "rewrite_used": true,
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_model_name": "gpt-5.4-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": false,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Are you coming or what?” Sam’s voice sliced through the quiet, playful yet tinged with impatience.",
+        "“Just taking it all in,” she murmured, her voice barely rising above the rustling leaves, as if speaking would shatter the fragile moment.",
+        "“Clara,” he said, stepping closer, the soft crunch of leaves underfoot breaking the spell of silence.",
+        "“You don’t have to pretend everything’s fine."
+      ],
+      "generic_phrases_to_replace": [
+        "heart thudding",
+        "heavy with"
+      ],
+      "lines_to_repair": [
+        "Clara stood at the edge, her heart thudding in her chest as she traced the familiar path with her gaze.",
+        "She felt his gaze on her, heavy with concern and curiosity, but kept her eyes trained on the horizon, where the sun’s last rays mingled in a watercolor wash of lavender and gold.",
+        "“Are you coming or what?” Sam’s voice sliced through the quiet, playful yet tinged with impatience.",
+        "“Just taking it all in,” she murmured, her voice barely rising above the rustling leaves, as if speaking would shatter the fragile moment.",
+        "“Clara,” he said, stepping closer, the soft crunch of leaves underfoot breaking the spell of silence.",
+        "“You don’t have to pretend everything’s fine."
+      ],
+      "required_concrete_anchor_terms": [
+        "leaves",
+        "clara",
+        "edge"
+      ],
+      "repair_min_word_count": 263,
+      "repair_max_word_count": 465,
+      "min_paragraph_count": 3,
+      "max_paragraph_count": 7
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rescue_model"
+    },
+    "rescue_generation_strategy": "local_rewrite_block",
+    "rescue_slots_summary": {
+      "slot_count": 5,
+      "target_types": [
+        "generic",
+        "generic",
+        "dialogue",
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_length_distortion"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 311,
+    "rewritten_word_count": 310,
+    "min_word_count": 186,
+    "max_word_count": 653,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "that",
+      "and",
+      "against",
+      "his",
+      "clara",
+      "eyes",
+      "you",
+      "sun",
+      "leaves"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "she",
+      "and",
+      "against",
+      "his",
+      "clara",
+      "you",
+      "sun",
+      "leaves"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 28
+  }
+}

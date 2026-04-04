@@ -1,0 +1,294 @@
+{
+  "chunk_id": "lf_5bb3195e",
+  "validation_decision": true,
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "basic_validation": {
+        "usable": true,
+        "word_count": 605,
+        "paragraph_count": 12,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "raw_preview": "The rain had turned the streets into a glistening maze, each puddle reflecting the muted glow of the streetlamps like liquid silver. A chill lingered in the air, biting at the edges of Maris's coat as",
+      "normalized_preview": "The rain had turned the streets into a glistening maze, each puddle reflecting the muted glow of the streetlamps like liquid silver. A chill lingered in the air, biting at the edges of Maris's coat as",
+      "raw_length": 3439,
+      "normalized_length": 3437,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DK6vla55Boke4Kp9ScrD5746Ix2CZ\", \"object\": \"chat.completion\", \"created\": 1773685573, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The rain had turned the streets into a glistening maze, each puddle reflecting the muted glow of the streetlamps like liquid silver. A chill lingered in the air, biting at the edges of Maris's coat as she hurried down the cobbled path, her boots splashing through shallow pools. The scent of we",
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 3,
+          "pacing": 5,
+          "specificity": 3,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 28,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 605,
+        "paragraph_count": 12,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 10,
+        "concrete_hits": 3,
+        "generic_hits": 1,
+        "stock_phrase_hits": 3,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": true
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "basic_validation": {
+        "usable": true,
+        "word_count": 598,
+        "paragraph_count": 11,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "raw_preview": "Rain drummed steadily against the cobblestones, transforming the streets into a shimmering labyrinth, each puddle mirroring the dim glow of the streetlamps in a dance of fractured light. A sharp wind ",
+      "normalized_preview": "Rain drummed steadily against the cobblestones, transforming the streets into a shimmering labyrinth, each puddle mirroring the dim glow of the streetlamps in a dance of fractured light. A sharp wind ",
+      "raw_length": 3517,
+      "normalized_length": 3517,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DK6wAkc4VMSrEtYDOQb6IWVwsGCEm\", \"object\": \"chat.completion\", \"created\": 1773685598, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"Rain drummed steadily against the cobblestones, transforming the streets into a shimmering labyrinth, each puddle mirroring the dim glow of the streetlamps in a dance of fractured light. A sharp wind sliced through the air, biting at Maris’s exposed skin as she hurried down the uneven path, he",
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 3,
+          "pacing": 5,
+          "specificity": 3,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 28,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 598,
+        "paragraph_count": 11,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 11,
+        "concrete_hits": 3,
+        "generic_hits": 1,
+        "stock_phrase_hits": 3,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": true
+      },
+      "quality_pass": false,
+      "rewrite_delta": {
+        "total_delta": 0,
+        "stock_phrase_delta": 0,
+        "specificity_delta": 0,
+        "clarity_delta": 0,
+        "continuity_delta": 0
+      },
+      "retry_decision": {
+        "eligible": true,
+        "reason": "borderline_quality_after_rewrite",
+        "classification": "borderline"
+      }
+    },
+    {
+      "attempt": 3,
+      "mode": "recovery_retry",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "basic_validation": {
+        "usable": true,
+        "word_count": 598,
+        "paragraph_count": 11,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "raw_preview": "Rain drummed steadily against the cobblestones, each drop creating a chorus of sound that transformed the streets into a glistening puzzle of reflections. The puddles pooled like forgotten relics, cap",
+      "normalized_preview": "Rain drummed steadily against the cobblestones, each drop creating a chorus of sound that transformed the streets into a glistening puzzle of reflections. The puddles pooled like forgotten relics, cap",
+      "raw_length": 3532,
+      "normalized_length": 3532,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DK6wNyAiksZt8DZTGRcbH1bamF4Gb\", \"object\": \"chat.completion\", \"created\": 1773685611, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"Rain drummed steadily against the cobblestones, each drop creating a chorus of sound that transformed the streets into a glistening puzzle of reflections. The puddles pooled like forgotten relics, capturing the dim glow of streetlamps that flickered like tired fireflies. A sharp wind sliced th",
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 5,
+          "specificity": 4,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 30,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 598,
+        "paragraph_count": 11,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 10,
+        "concrete_hits": 3,
+        "generic_hits": 1,
+        "stock_phrase_hits": 2,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false
+      },
+      "quality_pass": true,
+      "rewrite_delta": {
+        "total_delta": 2,
+        "stock_phrase_delta": 1,
+        "specificity_delta": 1,
+        "clarity_delta": 1,
+        "continuity_delta": 0
+      }
+    }
+  ],
+  "acceptance_reason": "retry_pass",
+  "critique_snapshot": {
+    "summary": "The scene depicts Maris navigating a rain-soaked street when she encounters Elias, who warns her about a gathering at the old docks. Their dialogue reveals a shared urgency and tension as they prepare to face an impending threat from the Syndicate, reflecting their past experiences and emotional connection.",
+    "weaknesses": [
+      "Generic phrases and descriptions that lack specificity.",
+      "Dialogue that does not effectively ground characters in their physical surroundings.",
+      "Vague scene details that do not enhance the atmosphere or character development."
+    ],
+    "continuity_issues": [
+      "The transition from the rain-soaked streets to the docks lacks a clear connection, making the shift feel abrupt."
+    ],
+    "pacing_issues": [
+      "The pacing slows significantly during the dialogue, which could benefit from more dynamic action or sensory details."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid atmosphere.",
+      "Ground dialogue in physical actions or reactions to the environment.",
+      "Eliminate generic phrases and replace them with unique, character-driven language."
+    ],
+    "generic_phrase_targets": [
+      "glistening maze",
+      "liquid silver",
+      "a chill lingered in the air",
+      "the weight of the storm",
+      "the fabric rough against her skin",
+      "dark and brooding",
+      "a nightmare",
+      "a lopsided grin",
+      "the warmth of his presence",
+      "the cold",
+      "the docks loomed in her mind"
+    ],
+    "detail_targets": [
+      "The scent of wet earth and distant smoke",
+      "The flickering neon sign",
+      "The chaos that had unfurled around them",
+      "The echoes of their last encounter with the Syndicate",
+      "The distant sound of water lapping against the hulls of derelict ships"
+    ],
+    "dialogue_grounding_targets": [
+      "Elias emerging from the shadows",
+      "Maris quickening her pace",
+      "Elias stepping closer"
+    ],
+    "emotional_show_targets": [
+      "Maris's heart racing",
+      "The flush creeping up her cheeks",
+      "The shiver down her spine",
+      "The intensity of his gaze"
+    ],
+    "replacement_targets": [
+      "Replace 'glistening maze' with a more specific description of the streets.",
+      "Replace 'liquid silver' with a unique metaphor that reflects the scene's mood.",
+      "Replace 'a nightmare' with a more descriptive phrase that conveys the urgency."
+    ],
+    "grounding_targets": [
+      "Maris pulling her collar tighter",
+      "Elias reaching out to touch her arm"
+    ],
+    "carryover_targets": []
+  },
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": true,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "borderline",
+      "reason": "borderline_quality_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "borderline_quality_after_rewrite",
+    "triggered_after_attempt": 2,
+    "accepted_reason": "retry_pass"
+  }
+}

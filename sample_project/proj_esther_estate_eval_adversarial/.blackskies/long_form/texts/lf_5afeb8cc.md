@@ -1,0 +1,9 @@
+﻿Clara's heart raced as she strained to hear, her breath forming small clouds that mingled with the damp chill in the corridor. The flickering light from Jun’s cracked brass lantern cast an uneven glow, illuminating the patches of dampness on the peeling wallpaper, where moisture seeped through like specters of forgotten memories. The shadows loomed larger, twisting and curling around them, giving the room a pulse that felt all too alive. Jun stood close, his soaked coat clinging to him like a second skin, the cold from the rain infiltrating the fabric. She noticed him shiver, his jaw set tight, eyes darting with a mix of fear and determination.
+
+“Clara,” he said, his voice low and urgent, “we should—”
+
+The sudden sound of a soft thud against the door made Clara's stomach drop. A chain rattled, its metallic clinking echoing ominously in the stillness, sending a shiver through her spine. She instinctively tightened her grip on the parlor key, still tied to her wrist with a red ribbon, a fragile connection to safety in the encroaching darkness. “It’s just the wind,” she replied too quickly, her voice sharper than she intended, betraying the unease gnawing at her. Deep down, she knew it wasn’t true, but she clung to the lie like a lifeline as shadows danced more aggressively around them.
+
+Jun's gaze remained fixed on the door, his fear palpable. “That doesn’t sound like the wind, Clara,” he said, his voice trembling, as if the words themselves might shatter. The lantern flickered once more, dimming to a whisper of light that wrapped around them in a suffocating embrace.
+
+“Let’s keep moving,” Clara urged, stepping forward, her boots squelching in the mud that had made its way into the corridor. The prints ahead of them were

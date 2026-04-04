@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_7fd3ae16",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:31c45ea04b1495ea1ae92b79416a9bb4687c1ec5adae070fe1968249f4f78fb3",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The rain drummed steadily against the cobblestones, each drop a tiny percussionist in the symphony of the night",
+    "word_count": 298,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 4,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 29,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 298,
+    "paragraph_count": 7,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 5,
+    "concrete_hits": 3,
+    "generic_hits": 0,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The rain drummed steadily against the cobblestones, each drop a tiny percussionist in the symphony of the night. Mara pulled her coat tighter around her shoulders, the fabric heavy with moisture, as she rounded the corner of the alley. The air was thick with the scent of wet earth and distant smoke, mingling with the sweet rot of fallen fruit from the market stalls that lined the narrow street. Shadows danced under the flickering street lamps, their light struggling to penetrate the curtain of rain that veiled the world in a silvery haze.\n\n“Wait!” a voice called out, sharp and breathless, echoing against the stone walls. Mara paused, her heart quickening as she turned to see a figure emerging from the gloom. It was Eli, his hair plastered to his forehead, eyes wide and glistening like the raindrops that clung to his lashes. “You can’t just leave like that.”\n\n“I have to,” Mara replied, her voice steady despite the turmoil churning within her. “You know I can’t stay here.” She felt the weight of his gaze, the way it pressed against her, trying to anchor her to this moment, to this place. But she couldn’t let him. Not now.\n\n“Just hear me out,” he pleaded, stepping closer, the water pooling around his feet. “What if we—”\n\n“No!” The word burst from her lips, harsher than she intended. She felt the tension in the air shift, the unyielding silence amplifying the sound of the rain. “You don’t understand. I can’t keep pretending everything is fine. It’s not.”\n\n“Then let me help you,” Eli said, his voice softer now, a thread of desperation weaving through the rain-soaked night. “You don’t have to do this alone.”\n\nMara’s breath caught in her throat. She wanted to reach out, to grasp the warmth"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_f890f5ac",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:b6dbaa6a5ba2d96a9ab315ec5d74bb1e2db08b7ae2b2e4080cae31129e8d3529",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "The dim glow of the cracked brass lantern flickered, casting elongated shadows that slithered across the peeling walls of the corridor",
+    "word_count": 314,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 30,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 314,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 9,
+    "concrete_hits": 11,
+    "generic_hits": 1,
+    "stock_phrase_hits": 0,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "The dim glow of the cracked brass lantern flickered, casting elongated shadows that slithered across the peeling walls of the corridor. Clara Vale’s heart thudded in her chest, the sound almost drowned out by the soft patter of drops still falling from Jun Park’s soaked coat. The air was thick with the damp, earthy scent of the rain-soaked greenhouse, mingling with something sharp and metallic that Clara couldn’t quite place. She tightened her grip on the lantern, its weak light sputtering like a dying moth.\n\n“Did you hear that?” Jun’s voice trembled, eyes darting toward the chained door at the end of the passage. Clara could see the tension in his shoulders, the way he held himself like a coiled spring, ready to snap. She wanted to say something reassuring, to smooth the edges of his fear with her own certainty, but the words stuck in her throat.\n\n“Just the wind,” she said, too quickly, the sharpness of her tone echoing in the narrow space. She forced herself to breathe, focusing on the sensation of the red ribbon around her wrist, the parlor key still tied there, a reminder of their strange journey. The knot felt tight, as if it had grown into her skin, but she couldn’t recall how she’d tied it.\n\nThey moved deeper into the corridor, the faint sound of something shifting behind the door sent chills racing down her spine. Jun hesitated, the lantern flickering again, its light waning as shadows danced around them. Clara stepped forward, the muddy prints on the floor catching her eye. They were fresh, leading away from the door, not behind them. She swallowed hard, the taste of fear like copper on her tongue.\n\n“What if someone’s in there?” Jun whispered, his voice barely above a breath. Clara could feel his gaze on her, the weight of his uncertainty pressing down like the heavy air"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}

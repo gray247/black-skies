@@ -1,0 +1,56 @@
+{
+  "chunk_id": "lf_98aba75a",
+  "reason": {
+    "usable": false,
+    "word_count": 99,
+    "paragraph_count": 1,
+    "meta_summary": false,
+    "missing_carryover": false,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0
+  },
+  "validation_decision": false,
+  "fallback_reason": "invalid_output",
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "qwen3:4b",
+        "baseline_model": "qwen3:4b",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "raw_preview": "The nursery door hung open a breath, a sliver of impossible light spilling onto the wet flagstones where they’d stood. Clara’s fingers closed around the chipped ceramic fox, its cold weight a counterp",
+      "normalized_preview": "The nursery door hung open a breath, a sliver of impossible light spilling onto the wet flagstones where they’d stood. Clara’s fingers closed around the chipped ceramic fox, its cold weight a counterp",
+      "raw_length": 631,
+      "normalized_length": 631,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-982\", \"object\": \"chat.completion\", \"created\": 1773709150, \"model\": \"qwen3:4b\", \"system_fingerprint\": \"fp_ollama\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The nursery door hung open a breath, a sliver of impossible light spilling onto the wet flagstones where they’d stood. Clara’s fingers closed around the chipped ceramic fox, its cold weight a counterpoint to the frantic pulse hammering in her throat. The red ribbon, tight as a noose around her wris",
+      "basic_validation": {
+        "usable": false,
+        "word_count": 99,
+        "paragraph_count": 1,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      }
+    }
+  ]
+}

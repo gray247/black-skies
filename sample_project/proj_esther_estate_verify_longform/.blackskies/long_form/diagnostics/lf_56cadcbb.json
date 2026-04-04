@@ -1,0 +1,686 @@
+{
+  "chunk_id": "lf_56cadcbb",
+  "validation_decision": false,
+  "fallback_reason": "quality_failed",
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "draft",
+        "escalated": false,
+        "reason": "draft_route"
+      },
+      "raw_preview": "The air crackled with tension as Elara stepped into the dimly lit room, her heart thrumming like a drum against her ribs. Shadows danced along the walls, flickering in the wavering glow of a single ov",
+      "normalized_preview": "The air crackled with tension as Elara stepped into the dimly lit room, her heart thrumming like a drum against her ribs. Shadows danced along the walls, flickering in the wavering glow of a single ov",
+      "raw_length": 1815,
+      "normalized_length": 1814,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKaHgrzhkL4xVPRHHiN0Q8EsGfTMz\", \"object\": \"chat.completion\", \"created\": 1773798408, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"The air crackled with tension as Elara stepped into the dimly lit room, her heart thrumming like a drum against her ribs. Shadows danced along the walls, flickering in the wavering glow of a single overhead bulb, casting a pallid light that barely reached the corners. She could taste the metal",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 305,
+        "paragraph_count": 7,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 4,
+          "pacing": 4,
+          "specificity": 4,
+          "dialogue": 2,
+          "meta_free": 5
+        },
+        "total_score": 27,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 305,
+        "paragraph_count": 7,
+        "dialogue_present": true,
+        "dialogue_grounded": false,
+        "sensory_hits": 8,
+        "concrete_hits": 2,
+        "generic_hits": 1,
+        "stock_phrase_hits": 0,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": false,
+        "text": "The air crackled with tension as Elara stepped into the dimly lit room, her heart thrumming like a drum against her ribs. Shadows danced along the walls, flickering in the wavering glow of a single overhead bulb, casting a pallid light that barely reached the corners. She could taste the metallic tang of fear on her tongue, sharp and unsettling, mingling with the musty scent of damp wood and something sweeter, more sinister—like burnt sugar.\n\n“Is anyone here?” Her voice felt small, swallowed by the heavy silence that enveloped her. She took a cautious step forward, the floorboards creaking underfoot, protesting her intrusion. The sound echoed, a reminder of her solitude, and she fought the urge to call out again, knowing it would only amplify the unease coiling in her stomach.\n\nA sudden movement caught her eye—a flash of movement in the far corner, where the light barely penetrated. Her breath caught, and she froze, straining to see. The darkness shifted, and then a figure emerged, stepping into the light with a tentative grace. It was him, the man she had only glimpsed in crowded corridors and hurried glances, now standing before her, his expression unreadable.\n\n“Why did you come?” he asked, his voice low and gravelly, as if he were pulling it from the depths of a long-held secret.\n\n“I had to know,” she replied, each word laced with a determination that wavered under the weight of uncertainty. “You’re the only one who can help.”\n\nHe studied her, his dark eyes narrowing slightly as if searching for something hidden beneath her resolve. The tension between them thickened, a palpable force that made the air feel electric. Elara could hear her own pulse thundering in her ears, drowning out the faint sound of dripping water somewhere in the shadows.\n\n“Help?” he repeated, the word hanging"
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "rewrite",
+        "escalated": false,
+        "reason": "rewrite_default"
+      },
+      "raw_preview": "Elara stepped into the dimly lit room, the stale air heavy with the musty scent of damp wood, mingling with an unsettling sweetness that reminded her of burnt sugar. Shadows flickered like restless sp",
+      "normalized_preview": "Elara stepped into the dimly lit room, the stale air heavy with the musty scent of damp wood, mingling with an unsettling sweetness that reminded her of burnt sugar. Shadows flickered like restless sp",
+      "raw_length": 1856,
+      "normalized_length": 1856,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKaHz58lBtGlPx6RCOTrwuXBpugoP\", \"object\": \"chat.completion\", \"created\": 1773798427, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"Elara stepped into the dimly lit room, the stale air heavy with the musty scent of damp wood, mingling with an unsettling sweetness that reminded her of burnt sugar. Shadows flickered like restless spirits along the walls, cast by the single overhead bulb that fought to illuminate the corners,",
+      "basic_validation": {
+        "usable": true,
+        "word_count": 316,
+        "paragraph_count": 6,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0
+      },
+      "guardrail_snapshot": {
+        "evaluated": true,
+        "mode": "rewrite",
+        "outline_titles": [],
+        "beat_refs": [],
+        "locked_facts_evaluated": false,
+        "length_band_evaluated": true,
+        "original_word_count": 305,
+        "rewritten_word_count": 316,
+        "min_word_count": 183,
+        "max_word_count": 640,
+        "within_length_band": true,
+        "outline_fidelity_evaluated": true,
+        "outline_fidelity_pass": true,
+        "original_anchor_terms": [
+          "the",
+          "her",
+          "and",
+          "she",
+          "that",
+          "light",
+          "only",
+          "his",
+          "air",
+          "tension",
+          "elara",
+          "shadows"
+        ],
+        "retained_anchor_terms": [
+          "the",
+          "her",
+          "and",
+          "she",
+          "that",
+          "light",
+          "only",
+          "his",
+          "air",
+          "elara",
+          "shadows"
+        ],
+        "outline_anchor_hits": [],
+        "required_anchor_overlap": 1,
+        "scene_anchor_drift_detected": false,
+        "new_story_elements": [],
+        "blocking_new_story_elements": [],
+        "authoritative_name_check": false,
+        "uncertainty_triggered": false,
+        "failure_reason": null,
+        "accepted": true,
+        "quality_total_score": 25
+      },
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 3,
+          "pacing": 4,
+          "specificity": 3,
+          "dialogue": 2,
+          "meta_free": 5
+        },
+        "total_score": 25,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 316,
+        "paragraph_count": 6,
+        "dialogue_present": true,
+        "dialogue_grounded": false,
+        "sensory_hits": 9,
+        "concrete_hits": 2,
+        "generic_hits": 0,
+        "stock_phrase_hits": 3,
+        "carryover_terms": [],
+        "carryover_hits": 0,
+        "material_carryover_hits": 0,
+        "material_carryover": true,
+        "weak_carryover": false,
+        "generic_risk": true,
+        "text": "Elara stepped into the dimly lit room, the stale air heavy with the musty scent of damp wood, mingling with an unsettling sweetness that reminded her of burnt sugar. Shadows flickered like restless spirits along the walls, cast by the single overhead bulb that fought to illuminate the corners, leaving them shrouded in darkness. As she crossed the threshold, her heart raced, a relentless drumbeat thudding against her ribs, and she could almost taste the metallic tang of her own fear on her tongue.\n\n“Is anyone here?” Her voice emerged as a fragile whisper, swallowed by the oppressive silence that enveloped her. She hesitated, taking a cautious step forward; the floorboards creaked beneath her weight, protesting her intrusion and echoing her solitude. The sound seemed to mock her resolve, and she bit her lip to stifle the urge to call out again, acutely aware of the anxious knot tightening in her stomach.\n\nA flicker of movement in the far corner seized her attention, drawing her gaze to where the light barely reached. She froze, her breath hitching in her throat as she strained to see through the shadows. Then a figure stepped into the dim glow, moving with a tentative grace. It was him—the man she had only glimpsed in crowded corridors, now materializing before her with an unreadable expression.\n\n“Why did you come?” he asked, his voice low and gravelly, as if each syllable were a secret dragged from the depths of his being.\n\n“I had to know,” she replied, her voice steadier than she felt, each word tinged with a fierce determination that battled against her uncertainty. “You’re the only one who can help.”\n\nHe studied her, his dark eyes narrowing slightly as if he were searching for cracks in her façade. The air between them thickened, a tangible tension that made the dim light feel electric. Elara could hear her own pulse thund"
+      },
+      "quality_pass": false,
+      "rewrite_delta": {
+        "total_delta": -2,
+        "stock_phrase_delta": -3,
+        "specificity_delta": -1,
+        "clarity_delta": -1,
+        "continuity_delta": 0
+      },
+      "retry_decision": {
+        "eligible": true,
+        "reason": "targeted_editorial_miss_after_rewrite",
+        "classification": "targeted_editorial"
+      }
+    },
+    {
+      "attempt": 3,
+      "mode": "recovery_retry",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rescue_model"
+      },
+      "raw_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"Elara stepped into the dimly lit room, the stale air carrying damp wood, mildew, and a sour sweetness like scorched sugar from somewhere in the walls.\"}",
+      "normalized_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"Elara stepped into the dimly lit room, the stale air carrying damp wood, mildew, and a sour sweetness like scorched sugar from somewhere in the walls.\"}",
+      "raw_length": 1278,
+      "normalized_length": 1278,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKaI8IpkrisHL9ZUha0foCfDSBT5R\", \"object\": \"chat.completion\", \"created\": 1773798436, \"model\": \"gpt-5.4-mini-2026-03-17\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"replacement_text\\\":\\\"Elara stepped into the dimly lit room, the stale air carrying damp wood, mildew, and a sour sweetness like scorched sugar from somewhere in the walls.\\\"},{\\\"slot_id\\\":\\\"s2\\\",\\\"replacement_text\\\":\\\"As she crossed the threshold, Elara fel",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "Elara stepped into the dimly lit room, the stale air heavy with the musty scent of damp wood, mingling with an unsettling sweetness that reminded her of burnt sugar.",
+          "context_before": "",
+          "context_after": "Shadows flickered like restless spirits along the walls, cast by the single overhead bulb that fought to illuminate the corners, leaving them shrouded in darkness.",
+          "target_reason": "generic",
+          "target_phrase": "heavy with"
+        },
+        {
+          "slot_id": "s2",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "As she crossed the threshold, her heart raced, a relentless drumbeat thudding against her ribs, and she could almost taste the metallic tang of her own fear on her tongue.",
+          "context_before": "Shadows flickered like restless spirits along the walls, cast by the single overhead bulb that fought to illuminate the corners, leaving them shrouded in darkness.",
+          "context_after": "“Is anyone here?” Her voice emerged as a fragile whisper, swallowed by the oppressive silence that enveloped her.",
+          "target_reason": "generic",
+          "target_phrase": "heart raced"
+        },
+        {
+          "slot_id": "s3",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "A flicker of movement in the far corner seized her attention, drawing her gaze to where the light barely reached.",
+          "context_before": "The sound seemed to mock her resolve, and she bit her lip to stifle the urge to call out again, acutely aware of the anxious knot tightening in her stomach.",
+          "context_after": "She froze, her breath hitching in her throat as she strained to see through the shadows.",
+          "target_reason": "generic",
+          "target_phrase": "flicker of"
+        },
+        {
+          "slot_id": "s4",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Is anyone here?” Her voice emerged as a fragile whisper, swallowed by the oppressive silence that enveloped her.",
+          "context_before": "As she crossed the threshold, her heart raced, a relentless drumbeat thudding against her ribs, and she could almost taste the metallic tang of her own fear on her tongue.",
+          "context_after": "She hesitated, taking a cautious step forward; the floorboards creaked beneath her weight, protesting her intrusion and echoing her solitude.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s5",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Why did you come?” he asked, his voice low and gravelly, as if each syllable were a secret dragged from the depths of his being.",
+          "context_before": "It was him—the man she had only glimpsed in crowded corridors, now materializing before her with an unreadable expression.",
+          "context_after": "“I had to know,” she replied, her voice steadier than she felt, each word tinged with a fierce determination that battled against her uncertainty.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s6",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“I had to know,” she replied, her voice steadier than she felt, each word tinged with a fierce determination that battled against her uncertainty.",
+          "context_before": "“Why did you come?” he asked, his voice low and gravelly, as if each syllable were a secret dragged from the depths of his being.",
+          "context_after": "“You’re the only one who can help.”\n\nHe studied her, his dark eyes narrowing slightly as if he were searching for cracks in her façade.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s7",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“You’re the only one who can help.”\n\nHe studied her, his dark eyes narrowing slightly as if he were searching for cracks in her façade.",
+          "context_before": "“I had to know,” she replied, her voice steadier than she felt, each word tinged with a fierce determination that battled against her uncertainty.",
+          "context_after": "The air between them thickened, a tangible tension that made the dim light feel electric.",
+          "target_reason": "dialogue_grounding"
+        }
+      ],
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "Elara stepped into the dimly lit room, the stale air carrying damp wood, mildew, and a sour sweetness like scorched sugar from somewhere in the walls."
+        },
+        {
+          "slot_id": "s2",
+          "replacement_text": "As she crossed the threshold, Elara felt her pulse hammer at the base of her throat, and she swallowed against the metallic taste rising on her tongue."
+        },
+        {
+          "slot_id": "s3",
+          "replacement_text": "A twitch of movement in the far corner—just enough to shift the darkness against the wall—pulled her gaze to the strip of floor where the bulb’s light faded."
+        },
+        {
+          "slot_id": "s4",
+          "replacement_text": "“Is anyone here?” Elara whispered, keeping her shoulders still as her voice slipped into the room and vanished in the hush."
+        },
+        {
+          "slot_id": "s5",
+          "replacement_text": "“Why did you come?” he asked from the edge of the light, his voice low and rough, one hand braced against the doorframe as he watched her."
+        },
+        {
+          "slot_id": "s6",
+          "replacement_text": "“I had to know,” she replied, lifting her chin and folding her hands tight at her waist, though her fingers trembled against each other."
+        },
+        {
+          "slot_id": "s7",
+          "replacement_text": "“You’re the only one who can help.” Elara held his gaze, standing rigid in the thin wash of light while he searched her face for a crack."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_specificity_unresolved"
+      }
+    },
+    {
+      "attempt": 4,
+      "mode": "repair_only",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "model_snapshot": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "baseline_model": "gpt-4o-mini",
+        "mode": "recovery_retry",
+        "escalated": true,
+        "reason": "rescue_model"
+      },
+      "raw_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"Elara stepped into the dimly lit room, the stale air smelling of damp wood and an unsettling sweetness that clung to the back of her throat like burnt s",
+      "normalized_preview": "{\"patches\":[{\"slot_id\":\"s1\",\"replacement_text\":\"Elara stepped into the dimly lit room, the stale air smelling of damp wood and an unsettling sweetness that clung to the back of her throat like burnt s",
+      "raw_length": 1222,
+      "normalized_length": 1222,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DKaIBUubRkp4PHYN1ZgZ0PvuIsvEj\", \"object\": \"chat.completion\", \"created\": 1773798439, \"model\": \"gpt-5.4-mini-2026-03-17\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"{\\\"patches\\\":[{\\\"slot_id\\\":\\\"s1\\\",\\\"replacement_text\\\":\\\"Elara stepped into the dimly lit room, the stale air smelling of damp wood and an unsettling sweetness that clung to the back of her throat like burnt sugar.\\\"},{\\\"slot_id\\\":\\\"s2\\\",\\\"replacement_text\\\":\\\"As she crossed the threshold, he",
+      "rescue_slots": [
+        {
+          "slot_id": "s1",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "Elara stepped into the dimly lit room, the stale air heavy with the musty scent of damp wood, mingling with an unsettling sweetness that reminded her of burnt sugar.",
+          "context_before": "",
+          "context_after": "Shadows flickered like restless spirits along the walls, cast by the single overhead bulb that fought to illuminate the corners, leaving them shrouded in darkness.",
+          "target_reason": "generic",
+          "target_phrase": "heavy with"
+        },
+        {
+          "slot_id": "s2",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "As she crossed the threshold, her heart raced, a relentless drumbeat thudding against her ribs, and she could almost taste the metallic tang of her own fear on her tongue.",
+          "context_before": "Shadows flickered like restless spirits along the walls, cast by the single overhead bulb that fought to illuminate the corners, leaving them shrouded in darkness.",
+          "context_after": "“Is anyone here?” Her voice emerged as a fragile whisper, swallowed by the oppressive silence that enveloped her.",
+          "target_reason": "generic",
+          "target_phrase": "heart raced"
+        },
+        {
+          "slot_id": "s3",
+          "unit_type": "sentence",
+          "target_type": "generic",
+          "original_text": "A flicker of movement in the far corner seized her attention, drawing her gaze to where the light barely reached.",
+          "context_before": "The sound seemed to mock her resolve, and she bit her lip to stifle the urge to call out again, acutely aware of the anxious knot tightening in her stomach.",
+          "context_after": "She froze, her breath hitching in her throat as she strained to see through the shadows.",
+          "target_reason": "generic",
+          "target_phrase": "flicker of"
+        },
+        {
+          "slot_id": "s4",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Is anyone here?” Her voice emerged as a fragile whisper, swallowed by the oppressive silence that enveloped her.",
+          "context_before": "As she crossed the threshold, her heart raced, a relentless drumbeat thudding against her ribs, and she could almost taste the metallic tang of her own fear on her tongue.",
+          "context_after": "She hesitated, taking a cautious step forward; the floorboards creaked beneath her weight, protesting her intrusion and echoing her solitude.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s5",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“Why did you come?” he asked, his voice low and gravelly, as if each syllable were a secret dragged from the depths of his being.",
+          "context_before": "It was him—the man she had only glimpsed in crowded corridors, now materializing before her with an unreadable expression.",
+          "context_after": "“I had to know,” she replied, her voice steadier than she felt, each word tinged with a fierce determination that battled against her uncertainty.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s6",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“I had to know,” she replied, her voice steadier than she felt, each word tinged with a fierce determination that battled against her uncertainty.",
+          "context_before": "“Why did you come?” he asked, his voice low and gravelly, as if each syllable were a secret dragged from the depths of his being.",
+          "context_after": "“You’re the only one who can help.”\n\nHe studied her, his dark eyes narrowing slightly as if he were searching for cracks in her façade.",
+          "target_reason": "dialogue"
+        },
+        {
+          "slot_id": "s7",
+          "unit_type": "sentence",
+          "target_type": "dialogue",
+          "original_text": "“You’re the only one who can help.”\n\nHe studied her, his dark eyes narrowing slightly as if he were searching for cracks in her façade.",
+          "context_before": "“I had to know,” she replied, her voice steadier than she felt, each word tinged with a fierce determination that battled against her uncertainty.",
+          "context_after": "The air between them thickened, a tangible tension that made the dim light feel electric.",
+          "target_reason": "dialogue_grounding"
+        }
+      ],
+      "patch_response": [
+        {
+          "slot_id": "s1",
+          "replacement_text": "Elara stepped into the dimly lit room, the stale air smelling of damp wood and an unsettling sweetness that clung to the back of her throat like burnt sugar."
+        },
+        {
+          "slot_id": "s2",
+          "replacement_text": "As she crossed the threshold, her pulse hammered against her ribs, quick and hard, and she could almost taste the metallic tang of her own fear on her tongue."
+        },
+        {
+          "slot_id": "s3",
+          "replacement_text": "A slight shift of movement in the far corner seized her attention, drawing her gaze to where the light barely reached."
+        },
+        {
+          "slot_id": "s4",
+          "replacement_text": "“Is anyone here?” Her voice came out as a fragile whisper, swallowed by the oppressive silence that enveloped her."
+        },
+        {
+          "slot_id": "s5",
+          "replacement_text": "“Why did you come?” he asked, his voice low and gravelly, as if each syllable were scraped up from his throat."
+        },
+        {
+          "slot_id": "s6",
+          "replacement_text": "“I had to know,” she replied, her voice steadier than she felt, each word edged with a fierce determination that battled against her uncertainty."
+        },
+        {
+          "slot_id": "s7",
+          "replacement_text": "“You’re the only one who can help.” He studied her, his dark eyes narrowing slightly as if he were searching for cracks in her façade."
+        }
+      ],
+      "patch_validation": {
+        "accepted": false,
+        "failure_class": "patch_specificity_unresolved"
+      }
+    }
+  ],
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 3,
+      "pacing": 4,
+      "specificity": 3,
+      "dialogue": 2,
+      "meta_free": 5
+    },
+    "total_score": 25,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 316,
+    "paragraph_count": 6,
+    "dialogue_present": true,
+    "dialogue_grounded": false,
+    "sensory_hits": 9,
+    "concrete_hits": 2,
+    "generic_hits": 0,
+    "stock_phrase_hits": 3,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": true,
+    "text": "Elara stepped into the dimly lit room, the stale air heavy with the musty scent of damp wood, mingling with an unsettling sweetness that reminded her of burnt sugar. Shadows flickered like restless spirits along the walls, cast by the single overhead bulb that fought to illuminate the corners, leaving them shrouded in darkness. As she crossed the threshold, her heart raced, a relentless drumbeat thudding against her ribs, and she could almost taste the metallic tang of her own fear on her tongue.\n\n“Is anyone here?” Her voice emerged as a fragile whisper, swallowed by the oppressive silence that enveloped her. She hesitated, taking a cautious step forward; the floorboards creaked beneath her weight, protesting her intrusion and echoing her solitude. The sound seemed to mock her resolve, and she bit her lip to stifle the urge to call out again, acutely aware of the anxious knot tightening in her stomach.\n\nA flicker of movement in the far corner seized her attention, drawing her gaze to where the light barely reached. She froze, her breath hitching in her throat as she strained to see through the shadows. Then a figure stepped into the dim glow, moving with a tentative grace. It was him—the man she had only glimpsed in crowded corridors, now materializing before her with an unreadable expression.\n\n“Why did you come?” he asked, his voice low and gravelly, as if each syllable were a secret dragged from the depths of his being.\n\n“I had to know,” she replied, her voice steadier than she felt, each word tinged with a fierce determination that battled against her uncertainty. “You’re the only one who can help.”\n\nHe studied her, his dark eyes narrowing slightly as if he were searching for cracks in her façade. The air between them thickened, a tangible tension that made the dim light feel electric. Elara could hear her own pulse thund"
+  },
+  "critique_snapshot": {
+    "summary": "Elara enters a dimly lit room filled with tension and fear, seeking a man she has only seen in passing. Their dialogue reveals her need for help, but the atmosphere is thick with uncertainty and unspoken emotions.",
+    "weaknesses": [
+      "Vague descriptions that lack specificity and depth.",
+      "Dialogue that feels disconnected from the physical actions and setting."
+    ],
+    "continuity_issues": [
+      "The transition from Elara's internal sensations to the appearance of the man lacks a clear connection."
+    ],
+    "pacing_issues": [
+      "The scene builds tension but could benefit from a more varied pacing to enhance the emotional impact."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more vivid scene.",
+      "Ground dialogue in physical actions and the environment to increase immersion.",
+      "Clarify the relationship and history between Elara and the man to deepen emotional stakes."
+    ],
+    "generic_phrase_targets": [
+      "The air crackled with tension",
+      "Her heart thrumming like a drum",
+      "Voice felt small, swallowed by silence"
+    ],
+    "detail_targets": [
+      "The description of the room's atmosphere and the scents present.",
+      "The man's appearance and demeanor when he steps into the light."
+    ],
+    "dialogue_grounding_targets": [
+      "Link the dialogue to Elara's actions, such as her body language or facial expressions."
+    ],
+    "emotional_show_targets": [
+      "Show Elara's determination through her physicality rather than just stating it.",
+      "Illustrate the tension between Elara and the man through more than just dialogue."
+    ],
+    "replacement_targets": [
+      "Replace vague phrases with more concrete imagery and actions."
+    ],
+    "grounding_targets": [
+      "Include more sensory details that relate to the characters' physical presence in the room."
+    ],
+    "carryover_targets": [
+      "Ensure that the emotional stakes established in the scene carry through to the dialogue and actions."
+    ]
+  },
+  "retry_snapshot": {
+    "used": true,
+    "succeeded": false,
+    "attempts_used": 1,
+    "max_attempts": 1,
+    "eligible": true,
+    "failure_classification": {
+      "classification": "targeted_editorial",
+      "reason": "targeted_editorial_miss_after_rewrite",
+      "retry_eligible": true
+    },
+    "reason": "targeted_editorial_miss_after_rewrite",
+    "triggered_after_attempt": 2,
+    "stronger_model_used": true,
+    "rescue_mode_used": true,
+    "rescue_model_used": true,
+    "rescue_model_name": "gpt-5.4-mini",
+    "rescue_guardrail_fail": false,
+    "rescue_under_improved": true,
+    "rescue_fidelity_risk": false,
+    "patch_rescue_used": true,
+    "patch_rescue_success": false,
+    "repair_only_pass_used": true,
+    "repair_only_pass_rescued": false,
+    "same_slot_specificity_retry_used": false,
+    "rescue_targets_summary": {
+      "dialogue_beats_requiring_grounding": [
+        "“Is anyone here?” Her voice emerged as a fragile whisper, swallowed by the oppressive silence that enveloped her.",
+        "“Why did you come?” he asked, his voice low and gravelly, as if each syllable were a secret dragged from the depths of his being.",
+        "“I had to know,” she replied, her voice steadier than she felt, each word tinged with a fierce determination that battled against her uncertainty.",
+        "“You’re the only one who can help.”\n\nHe studied her, his dark eyes narrowing slightly as if he were searching for cracks in her façade."
+      ],
+      "generic_phrases_to_replace": [
+        "heavy with",
+        "heart raced",
+        "flicker of"
+      ],
+      "lines_to_repair": [
+        "Elara stepped into the dimly lit room, the stale air heavy with the musty scent of damp wood, mingling with an unsettling sweetness that reminded her of burnt sugar.",
+        "As she crossed the threshold, her heart raced, a relentless drumbeat thudding against her ribs, and she could almost taste the metallic tang of her own fear on her tongue.",
+        "A flicker of movement in the far corner seized her attention, drawing her gaze to where the light barely reached.",
+        "“Is anyone here?” Her voice emerged as a fragile whisper, swallowed by the oppressive silence that enveloped her.",
+        "“Why did you come?” he asked, his voice low and gravelly, as if each syllable were a secret dragged from the depths of his being.",
+        "“I had to know,” she replied, her voice steadier than she felt, each word tinged with a fierce determination that battled against her uncertainty."
+      ],
+      "required_concrete_anchor_terms": [
+        "voice",
+        "elara",
+        "stepped"
+      ],
+      "repair_min_word_count": 268,
+      "repair_max_word_count": 474,
+      "min_paragraph_count": 4,
+      "max_paragraph_count": 8
+    },
+    "model_snapshot": {
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "baseline_model": "gpt-4o-mini",
+      "mode": "recovery_retry",
+      "escalated": true,
+      "reason": "rescue_model"
+    },
+    "rescue_slots_summary": {
+      "slot_count": 7,
+      "target_types": [
+        "generic",
+        "generic",
+        "generic",
+        "dialogue",
+        "dialogue",
+        "dialogue",
+        "dialogue"
+      ]
+    },
+    "rescue_failure_class": "patch_specificity_unresolved"
+  },
+  "guardrail_snapshot": {
+    "evaluated": true,
+    "mode": "rewrite",
+    "outline_titles": [],
+    "beat_refs": [],
+    "locked_facts_evaluated": false,
+    "length_band_evaluated": true,
+    "original_word_count": 305,
+    "rewritten_word_count": 316,
+    "min_word_count": 183,
+    "max_word_count": 640,
+    "within_length_band": true,
+    "outline_fidelity_evaluated": true,
+    "outline_fidelity_pass": true,
+    "original_anchor_terms": [
+      "the",
+      "her",
+      "and",
+      "she",
+      "that",
+      "light",
+      "only",
+      "his",
+      "air",
+      "tension",
+      "elara",
+      "shadows"
+    ],
+    "retained_anchor_terms": [
+      "the",
+      "her",
+      "and",
+      "she",
+      "that",
+      "light",
+      "only",
+      "his",
+      "air",
+      "elara",
+      "shadows"
+    ],
+    "outline_anchor_hits": [],
+    "required_anchor_overlap": 1,
+    "scene_anchor_drift_detected": false,
+    "new_story_elements": [],
+    "blocking_new_story_elements": [],
+    "authoritative_name_check": false,
+    "uncertainty_triggered": false,
+    "failure_reason": null,
+    "accepted": true,
+    "quality_total_score": 25
+  }
+}

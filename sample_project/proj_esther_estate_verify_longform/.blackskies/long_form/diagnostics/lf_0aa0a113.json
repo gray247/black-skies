@@ -1,0 +1,286 @@
+{
+  "chunk_id": "lf_0aa0a113",
+  "validation_decision": false,
+  "fallback_reason": "quality_failed",
+  "attempts": [
+    {
+      "attempt": 1,
+      "mode": "draft",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "basic_validation": {
+        "usable": true,
+        "word_count": 606,
+        "paragraph_count": 14,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [
+          "floor",
+          "thick",
+          "scent",
+          "earth",
+          "lilacs",
+          "heady",
+          "fragrance",
+          "mingling"
+        ],
+        "carryover_hits": 3,
+        "material_carryover_hits": 0
+      },
+      "raw_preview": "Elena pressed on, her boots sinking slightly into the soft earth, each step a gentle protest against the silence that enveloped her. She could feel the coolness of the air wrapping around her shoulder",
+      "normalized_preview": "Elena pressed on, her boots sinking slightly into the soft earth, each step a gentle protest against the silence that enveloped her. She could feel the coolness of the air wrapping around her shoulder",
+      "raw_length": 3551,
+      "normalized_length": 3550,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DK6ztaQ344rlWq47q7NEZAGF5PO7H\", \"object\": \"chat.completion\", \"created\": 1773685829, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"Elena pressed on, her boots sinking slightly into the soft earth, each step a gentle protest against the silence that enveloped her. She could feel the coolness of the air wrapping around her shoulders like a cloak, a stark contrast to the warmth of her breath as it formed small clouds that di",
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 2,
+          "pacing": 5,
+          "specificity": 1,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 25,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 606,
+        "paragraph_count": 14,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 5,
+        "concrete_hits": 1,
+        "generic_hits": 2,
+        "stock_phrase_hits": 5,
+        "carryover_terms": [
+          "floor",
+          "thick",
+          "scent",
+          "earth",
+          "lilacs",
+          "heady",
+          "fragrance",
+          "mingling"
+        ],
+        "carryover_hits": 3,
+        "material_carryover_hits": 0,
+        "material_carryover": false,
+        "weak_carryover": false,
+        "generic_risk": true
+      },
+      "quality_pass": false
+    },
+    {
+      "attempt": 2,
+      "mode": "rewrite",
+      "extracted_field": "choices.message.content",
+      "thinking_fallback": false,
+      "reasoning_trim_applied": false,
+      "basic_validation": {
+        "usable": true,
+        "word_count": 601,
+        "paragraph_count": 14,
+        "meta_summary": false,
+        "missing_carryover": false,
+        "carryover_terms": [
+          "floor",
+          "thick",
+          "scent",
+          "earth",
+          "lilacs",
+          "heady",
+          "fragrance",
+          "mingling"
+        ],
+        "carryover_hits": 4,
+        "material_carryover_hits": 0
+      },
+      "raw_preview": "Elena pressed forward, her boots sinking slightly into the rich, loamy earth, each step a soft protest against the enveloping quiet. The cool air wrapped around her shoulders, a refreshing contrast to",
+      "normalized_preview": "Elena pressed forward, her boots sinking slightly into the rich, loamy earth, each step a soft protest against the enveloping quiet. The cool air wrapped around her shoulders, a refreshing contrast to",
+      "raw_length": 3625,
+      "normalized_length": 3623,
+      "raw_payload_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "object",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "raw_payload_preview": "{\"id\": \"chatcmpl-DK70FitdPGDY9gk0oDjvdMxWtZbqU\", \"object\": \"chat.completion\", \"created\": 1773685851, \"model\": \"gpt-4o-mini-2024-07-18\", \"choices\": [{\"index\": 0, \"message\": {\"role\": \"assistant\", \"content\": \"Elena pressed forward, her boots sinking slightly into the rich, loamy earth, each step a soft protest against the enveloping quiet. The cool air wrapped around her shoulders, a refreshing contrast to the warmth of her breath, which formed small clouds that vanished into the stillness. The cic",
+      "quality_snapshot": {
+        "usable": true,
+        "scores": {
+          "coherence": 5,
+          "continuity": 3,
+          "clarity": 2,
+          "pacing": 5,
+          "specificity": 1,
+          "dialogue": 4,
+          "meta_free": 5
+        },
+        "total_score": 25,
+        "max_score": 35,
+        "meta_summary": false,
+        "meta_contamination": false,
+        "missing_carryover": false,
+        "word_count": 601,
+        "paragraph_count": 14,
+        "dialogue_present": true,
+        "dialogue_grounded": true,
+        "sensory_hits": 6,
+        "concrete_hits": 1,
+        "generic_hits": 2,
+        "stock_phrase_hits": 5,
+        "carryover_terms": [
+          "floor",
+          "thick",
+          "scent",
+          "earth",
+          "lilacs",
+          "heady",
+          "fragrance",
+          "mingling"
+        ],
+        "carryover_hits": 4,
+        "material_carryover_hits": 0,
+        "material_carryover": false,
+        "weak_carryover": false,
+        "generic_risk": true
+      },
+      "quality_pass": false,
+      "rewrite_delta": {
+        "total_delta": 0,
+        "stock_phrase_delta": 0,
+        "specificity_delta": 0,
+        "clarity_delta": 0,
+        "continuity_delta": 0
+      }
+    }
+  ],
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 2,
+      "pacing": 5,
+      "specificity": 1,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 25,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 601,
+    "paragraph_count": 14,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 6,
+    "concrete_hits": 1,
+    "generic_hits": 2,
+    "stock_phrase_hits": 5,
+    "carryover_terms": [
+      "floor",
+      "thick",
+      "scent",
+      "earth",
+      "lilacs",
+      "heady",
+      "fragrance",
+      "mingling"
+    ],
+    "carryover_hits": 4,
+    "material_carryover_hits": 0,
+    "material_carryover": false,
+    "weak_carryover": false,
+    "generic_risk": true
+  },
+  "critique_snapshot": {
+    "summary": "Elena walks through a forest, reflecting on her solitude until she encounters a boy who shares her appreciation for the peacefulness of the place. Their conversation reveals a connection and a longing for companionship, contrasting her previous feelings of isolation.",
+    "weaknesses": [
+      "Generic stock phrases diminish the uniqueness of the scene.",
+      "Vague descriptions fail to create a vivid picture of the setting.",
+      "Dialogue lacks grounding in physical action or specific context."
+    ],
+    "continuity_issues": [
+      "The transition from Elena's solitude to the boy's appearance feels abrupt and lacks buildup."
+    ],
+    "pacing_issues": [
+      "The scene's pacing slows significantly during the dialogue, which could benefit from more dynamic exchanges."
+    ],
+    "meta_contamination": false,
+    "rewrite_goals": [
+      "Enhance specificity in descriptions to create a more immersive setting.",
+      "Replace generic phrases with more original language.",
+      "Ground dialogue in physical actions or environmental interactions."
+    ],
+    "generic_phrase_targets": [
+      "the air hung thick",
+      "a bittersweet embrace",
+      "the weight of her solitude",
+      "the world around them falling away"
+    ],
+    "detail_targets": [
+      "the scent of damp earth and lilacs",
+      "the soft pulse of her heart",
+      "the sunlight filtering through the leaves"
+    ],
+    "dialogue_grounding_targets": [
+      "“Are you...lost?”",
+      "“Just exploring.”",
+      "“What do you think about?”"
+    ],
+    "emotional_show_targets": [
+      "her initial apprehension",
+      "the flutter of anxiety",
+      "the warmth flooding through her"
+    ],
+    "replacement_targets": [
+      "“It’s nice, isn’t it? To just be here.”",
+      "“It’s...peaceful.”"
+    ],
+    "grounding_targets": [
+      "the cicadas resumed their hum",
+      "the sunlight casting playful patterns"
+    ],
+    "carryover_targets": [
+      "the scent",
+      "the weight",
+      "the silence",
+      "the forest floor"
+    ]
+  },
+  "retry_snapshot": {
+    "used": false,
+    "succeeded": false,
+    "attempts_used": 0,
+    "max_attempts": 1,
+    "eligible": false,
+    "failure_classification": {
+      "classification": "hard",
+      "reason": "material_carryover_missing",
+      "retry_eligible": false
+    },
+    "reason": "material_carryover_missing"
+  }
+}

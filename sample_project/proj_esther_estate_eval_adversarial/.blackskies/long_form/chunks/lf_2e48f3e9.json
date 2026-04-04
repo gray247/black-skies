@@ -1,0 +1,84 @@
+{
+  "chunk_id": "lf_2e48f3e9",
+  "chapter_id": "ch_0001",
+  "scene_ids": [
+    "sc_0001"
+  ],
+  "order": 1,
+  "continuation_of": null,
+  "prompt_fingerprint": "sha256:0a60071f5a14f5333484e405f7f800ecd5fc321dc4f6f71b69f9e991baec683b",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "continuity_snapshot": {
+    "summary": "Clara's breath came out in quick, misty puffs, each exhale mingling with the damp chill of the corridor",
+    "word_count": 296,
+    "fallback_reason": null
+  },
+  "budget_snapshot": {
+    "estimated_usd": 0.01,
+    "status": "ok",
+    "message": "Estimate within budget.",
+    "soft_limit_usd": 5.0,
+    "hard_limit_usd": 10.0,
+    "spent_usd": 0.0,
+    "total_after_usd": 0.01
+  },
+  "routing_snapshot": {
+    "policy": "api_only",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "reason": "long_form.prefer_api",
+    "fallback_used": false,
+    "run_policy": {
+      "task": "draft",
+      "policy": "api_only",
+      "budget_status": "ok",
+      "reason": "long_form.prefer_api",
+      "prefer_local": false,
+      "allow_local": true,
+      "allow_api": true,
+      "warnings": [],
+      "blocked": false
+    }
+  },
+  "quality_snapshot": {
+    "usable": true,
+    "scores": {
+      "coherence": 5,
+      "continuity": 3,
+      "clarity": 4,
+      "pacing": 4,
+      "specificity": 5,
+      "dialogue": 4,
+      "meta_free": 5
+    },
+    "total_score": 30,
+    "max_score": 35,
+    "meta_summary": false,
+    "meta_contamination": false,
+    "missing_carryover": false,
+    "word_count": 296,
+    "paragraph_count": 5,
+    "dialogue_present": true,
+    "dialogue_grounded": true,
+    "sensory_hits": 8,
+    "concrete_hits": 8,
+    "generic_hits": 0,
+    "stock_phrase_hits": 1,
+    "carryover_terms": [],
+    "carryover_hits": 0,
+    "material_carryover_hits": 0,
+    "material_carryover": true,
+    "weak_carryover": false,
+    "generic_risk": false,
+    "text": "Clara's breath came out in quick, misty puffs, each exhale mingling with the damp chill of the corridor. The dim light from Jun’s cracked brass lantern flickered, casting long shadows along the peeling wallpaper, where the faded floral pattern seemed to shift like restless spirits. She tightened her grip on the lantern, its warmth a fragile comfort against the encroaching chill. The air felt thick, laden with an unspoken tension that wrapped around her like the damp fabric of her coat.\n\n“Did you hear that?” Jun’s voice, a taut whisper, broke the silence, his eyes darting toward the chained door that loomed ahead. The chain rattled again, a soft but insistent clinking that echoed unnervingly in the stillness. Clara felt her heart quicken, not just from the sound but from the weight of his fear, as palpable as the cold mist that clung to her skin.\n\n“No,” she replied too quickly, her tone sharper than intended. She didn’t want to dwell on the sound; she didn’t want to acknowledge the creeping dread that came with it. Instead, she focused on the floor beneath them, the muddy prints that marred the dust—leading away from them, not back. “It’s just the wind,” she added, though her mind raced. The wind wouldn’t rattle a door.\n\nJun shifted nervously, his coat still soaking from the greenhouse rain, the fabric clinging to his shoulders. “We should go back,” he urged, his gaze flickering to the door again, as if it might spring open at any moment. “This whole place—it’s not right.”\n\nClara glanced at him, the lantern’s weak light highlighting the worry etched across his features. She wanted to reach out, to reassure him that they were safe, but the words caught in her throat, tangled with uncertainty. Instead, she tugged"
+  },
+  "critique_snapshot": null,
+  "attempt_count": 1,
+  "acceptance_reason": "quality_pass",
+  "rewrite_used": false,
+  "retry_snapshot": null,
+  "guardrail_snapshot": {
+    "evaluated": false
+  }
+}
