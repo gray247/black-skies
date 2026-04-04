@@ -1,4 +1,0 @@
-# file: C:\Dev\black-skies\services\src\blackskies\services\prompt_pipeline.py
-# hypothesis_version: 6.138.2
-
-[' | ', '"', '*', ', ', '-', '---', '.,;:!?', '.blackskies', '; ', 'None', 'ProviderProfile', 'SceneContext', 'acts', 'beats:', 'bitter', 'chapters', 'cold', 'compile_draft_prompt', 'conflict', 'conflict:', 'damp', 'dark', 'dialogue', 'drafts', 'echo', 'emotion:', 'emotion_tag', 'empty', 'facts', 'glow', 'goal', 'goal:', 'heat', 'hiss', 'id', 'is_usable_draft', 'light', 'locked_facts.json', 'meta_summary', 'metal', 'metallic', 'not_text', 'notes:', 'ollama', 'openai', 'outline.json', 'pacing_target', 'pov', 'pov:', 'prose_density', 'purpose', 'reason', 'scene title:', 'scent', 'select_profile', 'sensory', 'shadow', 'smell', 'sour', 'summary:', 'sweet', 'thud', 'title', 'turn', 'turn:', 'usable', 'utf-8', 'warm', 'whisper', 'word_count', 'word_target']

@@ -1,4 +1,0 @@
-# file: C:\Dev\black-skies\services\src\blackskies\services\config.py
-# hypothesis_version: 6.138.2
-
-[0.0, 0.5, 1.0, 12.0, 30.0, 45.0, 60.0, 120, 512, 1024, 3600, '"', '#', "'", '.env', '=', 'BLACKSKIES_', 'OPENAI_API_BASE', 'OPENAI_API_KEY', 'OPENAI_BASE_URL', 'ServiceSettings', 'backups', 'env_prefix', 'export ', 'extra', 'gpt-4o', 'gpt-4o-mini', 'gpt-5.4-mini', 'ignore', 'local_llm_model', 'ollama', 'openai_api_key', 'openai_base_url', 'project_base_dir', 'qwen3:4b', 'sample_project', 'slot_patch', 'utf-8']

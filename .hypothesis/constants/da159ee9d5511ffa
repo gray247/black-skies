@@ -1,4 +1,0 @@
-# file: C:\Dev\black-skies\services\src\blackskies\services\model_adapters.py
-# hypothesis_version: 6.138.2
-
-[0.6, 2.0, 180, 200, 237, 240, '...', 'Accept', 'AdapterConfig', 'AdapterError', 'Authorization', 'BaseAdapter', 'Content-Type', 'GET', 'OllamaAdapter', 'OpenAIAdapter', 'POST', 'analysis:', 'application/json', 'choices', 'content', 'data', 'data.message.content', 'data.output_text', 'data.response', 'first,', 'gpt-5.4', 'gpt-5.4-', 'i need', 'i will', "i'll", "let's", 'max_tokens', 'message', 'message.content', 'messages', 'model', 'okay', 'ollama', 'openai', 'options', 'output_text', 'plan:', 'prompt', 'raw', 'replace', 'response', 'role', 'stream', 'sure', 'system', 'temperature', 'text', 'the user', 'thinking', 'thinking:', 'thoughts:', 'unknown', 'user', 'utf-8', 'we need']

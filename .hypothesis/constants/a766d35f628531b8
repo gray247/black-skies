@@ -1,4 +1,0 @@
-# file: C:\Dev\black-skies\services\src\blackskies\services\model_routing.py
-# hypothesis_version: 6.138.2
-
-[12.0, 30.0, 'ModelRouterConfig', 'ModelRoutingPolicy', 'api_only', 'gpt-4o-mini', 'local_only', 'ollama', 'qwen3:4b']
