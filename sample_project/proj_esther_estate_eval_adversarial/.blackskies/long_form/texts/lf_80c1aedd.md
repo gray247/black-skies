@@ -1,9 +1,0 @@
-﻿Clara’s heart raced as she edged deeper into the service corridor, her back pressed against the damp wood, feeling the chill seep through her clothes. The lantern’s flickering light barely cut through the oppressive darkness, illuminating the splintered walls that seemed to close in around her. Jun stepped beside her, his breath shallow, a shudder running through him as he shifted his weight from one foot to the other. “Do you hear that?” he whispered, voice hoarse.
-
-She felt the pulse of silence around them, thick and suffocating. “It’s just the wind,” Clara replied too quickly, too sharply, the words escaping before she could reign them in. A thin veil of doubt draped over her conviction. The walls held their secrets tight, and her mind raced, conjuring images of what might be lurking just beyond the reach of the lantern’s glow.
-
-“Can we just go?” Jun’s eyes darted to the chained door at the far end of the corridor, the chain rattling slightly as if someone were testing their strength against it from the other side. “I don’t like this, Clara.”
-
-“Neither do I,” she admitted, biting her lip, her fingers brushing the red ribbon tied around her wrist. The parlor key felt both reassuring and ominous, a lifeline tethering her to something she could barely remember. She didn’t recall tying it tighter, but the pressure against her skin felt like a warning. The air was thickening, an unseen weight pressing down, and she could almost taste the fear hanging there, metallic and sharp.
-
-Jun’s eyes widened as another sound broke the stillness, a soft cough echoing from above, muffled and distant, yet eerily distinct. Clara held her breath, the sound pricking at some buried instinct. She glanced at him, searching for clarity in his expression, but all she found was panic. “Did you

@@ -1,9 +1,0 @@
-﻿Jun took a breath, his chest rising and falling sharply, and Clara caught the faint scent of damp earth and fear mingling with the mustiness of the corridor. The lantern flickered again, its feeble glow dancing off the damp stone walls, illuminating patches of mold that seemed to whisper secrets of the long-abandoned passage. Shadows stretched and recoiled as if they had a life of their own, and Clara felt the growing weight of the silence pressing down on her, thick like fog.
-
-“Did you hear that?” Jun’s voice was barely above a whisper, but the tightness in his throat betrayed the urgency beneath. Clara could feel the pulse of her heart quickening, a frantic drumbeat that matched the rising panic in his eyes. She shook her head, though a vague unease gnawed at her. The sound had been there, a soft rustle, like leaves shifting in the wind—but they were inside, and the storm outside was a distant memory.
-
-“Maybe it’s just the wind,” she replied too quickly, the sharpness of her tone surprising even herself. She didn’t want him to see how rattled she felt, but the truth was that each creak of the old wood above them sent a shiver down her spine. She tightened her grip on the lantern, its metallic handle cold and slick against her palm. If only it would burn brighter, if only it would banish the shadows that seemed to creep closer with every breath.
-
-“Clara, we need to keep moving,” Jun insisted, and she noticed how his voice trembled, a raw edge to his command. He stepped forward, the lantern casting a long shadow that danced in front of them, and Clara followed, her feet hesitant on the uneven floor. As they moved deeper into the corridor, the air grew colder, and she could almost taste the metallic tang of anxiety on her tongue.
-
-A sudden clatter echoed behind them, a

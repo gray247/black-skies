@@ -1,9 +1,0 @@
-﻿The lantern flickered in Jun’s grasp, its dim light struggling against the shadows that swelled in the narrow corridor. Clara could feel the damp chill seep into her bones, a coldness that clung to her skin more deeply than the wet fabric of her coat. She tightened her grip on the parlor key, the red ribbon cutting into her wrist, a constant reminder of their urgency. The echoes of their hurried breaths filled the silence, punctuated only by the distant sound of dripping water, a reminder of the greenhouse storm that still raged outside.
-
-“Did you hear that?” Jun’s voice trembled as he glanced back toward the chained door, eyes wide, searching the dark for something unseen. She could see the way his shoulders hunched, the way he shifted his weight from one foot to the other, the moisture in the air making his coat cling to him like a second skin.
-
-Clara swallowed hard, the taste of fear thick in her throat. “It’s nothing,” she replied, her voice sharper than she intended. She stepped closer to him, the warm, earthy scent of wet soil still lingering on her clothes, mingling with the faint metallic tang of the lantern’s aging brass. “We need to keep moving.”
-
-As they inched deeper into the service passage, she caught sight of the muddy footprints ahead, stark against the worn wooden floorboards, leading away from the door. For a moment, her heart raced, the rhythm of it echoing in her ears. Someone had been here. Her mind flickered back to the child’s cough she had dismissed, a shiver chasing down her spine as she fought against the gnawing dread. Jun glanced at her, his brow furrowed, and she saw the question in his eyes.
-
-“Maybe we should go back,” he murmured, but even to Clara, it felt like a futile suggestion, one that was already slipping away into

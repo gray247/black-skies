@@ -1,9 +1,0 @@
-﻿The air hung heavy with the scent of rain-soaked earth, a musty sweetness that mingled with the sharp tang of iron from the nearby fence. Evelyn stood at the edge of the field, her boots sinking into the mud with each tentative step, the squelch beneath her a reminder of the storm that had rolled through just hours before. Her fingers brushed against the cool metal of the fence post, a rough texture grounding her in the moment as she gazed out at the expanse of grass that shimmered like emerald glass under the dim light of the overcast sky.
-
-“Are you sure about this?” Thomas’s voice cut through the stillness, hesitant and edged with concern. He lingered a few paces behind her, his silhouette framed against the darkening horizon. She could feel the weight of his gaze on her back, the unspoken questions hanging in the air like the low clouds above.
-
-Evelyn turned slightly, just enough for her to catch a glimpse of his furrowed brow and the way his hands fidgeted in his pockets. “What’s the worst that could happen?” she replied, forcing a lightness into her tone that she didn’t quite feel. The truth was, the thought of stepping deeper into the field made her pulse quicken, a mix of thrill and dread curling in her stomach. She didn’t want to voice the fear that gnawed at her—what if the ground gave way, what if she was swallowed by the very earth she stood upon?
-
-As if sensing her internal struggle, Thomas took a step closer, the squelch of his own boots echoing in the silence. “I just don’t want you to get hurt,” he said, the softness in his voice contrasting sharply with the chill in the air. It was a kindness that both soothed and irritated her, a reminder that he cared, yet also a tether that felt increasingly stifling.
-
-“I

@@ -1,9 +1,0 @@
-﻿The wind howled through the gnarled branches of the old oak tree, its skeletal fingers scraping against the darkening sky. Clara pulled her coat tighter around her, the wool scratching against her skin, a reminder of the chill that had settled in with the dusk. The scent of damp earth rose from the ground, mingling with the faint, sweet smell of decay that lingered in the air. She glanced up, her breath misting in front of her, and took a hesitant step forward, the gravel crunching beneath her worn boots, each sound magnified in the stillness that enveloped her.
-
-“Are you coming or not?” Jake's voice broke through the thick silence, tinged with impatience. His silhouette was a dark shape against the fading light, hands shoved deep into his pockets, leaning slightly forward as if urging her to follow. She hesitated, the weight of his gaze pressing down on her, making her feel small, exposed.
-
-“Just… give me a moment,” she replied, forcing her voice to be steady. Inside, a storm raged—fear, uncertainty, longing. She didn’t want to admit how much she dreaded what lay ahead, but the thrill of adventure tugged at her, a siren’s call she couldn’t ignore.
-
-As she moved closer, she caught a glimpse of the old stone archway half-buried in the underbrush, its weathered surface slick with moss. It loomed like a gateway to another world, and she felt a shiver of excitement dance along her spine. “What do you think is on the other side?” she asked, trying to sound casual, even as her heart raced.
-
-Jake shrugged, his expression unreadable in the dim light. “Probably just more trees and shadows. But who knows? It could be something amazing.” He laughed, a sound that echoed through the stillness, but Clara caught the edge of appreh

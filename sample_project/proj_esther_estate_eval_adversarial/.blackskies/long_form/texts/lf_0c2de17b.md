@@ -1,9 +1,0 @@
-﻿Clara pressed forward, her heart pounding in sync with the rhythmic creaking of the old wooden beams overhead. The dim light from Jun’s cracked brass lantern flickered uncertainly, casting elongated shadows that danced across the walls of the narrow corridor. Each flicker seemed to beckon her to stay focused, to resist the rising urge to turn back. She clenched her fist around the parlor key, the red ribbon snug against her wrist, a vivid reminder of the strange events that had unfolded in the greenhouse.
-
-Jun moved beside her, his coat still damp from the rain, fabric clinging to his skin. “Do you hear that?” His voice was a low whisper, edged with fear. Clara glanced at him, her eyes searching his, but she couldn’t discern the source of his dread. She shook her head, forcing a sharp breath through her lips, as if the act of denying it could somehow dispel the tension curling in her stomach.
-
-The air was thick with the musty scent of old wood and something else—something sour that made her gag slightly. As they continued deeper into the passage, the sound of distant water dripped somewhere unseen, echoing against the walls like a child’s soft cough. Clara's pulse quickened. She thought of the sealed upper floor, her mind racing with images of what might await them.
-
-“Maybe we should turn back,” Jun suggested, his voice shaky as he halted mid-step, the lantern sputtering ominously. Clara felt the weight of his gaze on her, a plea laced with urgency. She didn’t want to admit how the darkness made her feel, how the very walls seemed to pulse with an unseen life. “No,” she replied too quickly, snapping the word like a twig underfoot. “We can’t. We need to find out what’s happening.”
-
-The chain rattled again from behind the service corridor door, a sound that sent

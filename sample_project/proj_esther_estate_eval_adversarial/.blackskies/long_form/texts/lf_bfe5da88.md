@@ -1,9 +1,0 @@
-﻿Clara pressed her back against the cool stone wall, feeling the dampness seep through her coat, a clammy reminder of the storm still raging outside. The faint glow of the lantern flickered, its sputtering light casting an erratic dance of shadows that stretched and shrank against the walls of the narrow corridor. Jun’s breath came quick, his eyes wide, searching the darkness as if it might swallow them whole. The air was thick, heavy with the scent of mold and decay, like the very bones of the house were groaning under the weight of years.
-
-“Why did we even come down here?” Jun’s voice trembled, barely above a whisper, and Clara felt the sharp edge of her own fear gnawing at her insides. She had to say something, anything, to cut through the thick fog of uncertainty that hung over them. “We need to find out what’s happening. We can’t just hide.”
-
-But even as she spoke, doubt prickled at the corners of her mind. She could feel the weight of the parlor key, tied securely to the red ribbon around her wrist, a tether to something familiar, something she could cling to. Yet it felt more like a noose, tightening with each passing moment as the shadows whispered secrets she wasn’t ready to hear.
-
-A soft rustling echoed ahead, and Clara’s heart raced. “Did you hear that?” she breathed, her voice barely escaping her lips. Jun nodded, his gaze fixed ahead, wide-eyed. The lantern flickered again, casting a brief illumination over muddy footprints that seemed to lead deeper into the corridor rather than retreating back into the safety of the house.
-
-“I—I think we should go back,” he stammered, his hand tightening around the lantern, the metal warm and slick with his perspiration. The way he fidgeted, shifting his weight from one foot to the other, mirrored her

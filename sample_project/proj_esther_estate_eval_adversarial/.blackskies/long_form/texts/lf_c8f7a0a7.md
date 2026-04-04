@@ -1,9 +1,0 @@
-﻿Clara's breath curled like smoke in the damp corridor air, the musty scent of aged wood mingling with the faint, lingering trace of wet earth. Jun's fingers tightened around the handle of the cracked brass lantern, its sputtering light casting flickering shadows that danced against the walls, creating the illusion of movement where there was none. She could feel the weight of the parlor key—its cold metal pressed against her wrist through the damp fabric of her sleeve. The red ribbon, so innocuous, felt like a tether, binding her to something she couldn’t quite grasp.
-
-“Did you hear that?” Jun whispered, his voice barely a breath above the rustle of Clara’s coat as she shifted, the chipped ceramic fox jostling in her pocket. She didn’t answer him right away, her mind racing as she thought of the child’s cough echoing in her memory, a sound that seemed to drift through the walls like smoke. Was it real? Or just an echo of her own fear?
-
-With a quick glance down the corridor, Clara noted the muddy prints that seemed to lead away from them, not behind as she had expected. They were fresh, the dark stains stark against the pale stone floor. Her heart raced, a drumbeat of urgency, drowning out Jun's rising panic. “It’s just the wind,” she said, her tone sharper than she intended. “Or the house settling.”
-
-Jun's eyes darted around them, the lantern flickering ominously as if it shared in his anxiety. “I don’t like this, Clara. The door is chained from the inside, and those prints—” His voice quavered, the bravado of their earlier escape dwindling in the face of uncertainty.
-
-Clara forced herself to breathe steadily, to push the gripping fear down deep where it wouldn’t show. “We need to keep moving,” she said, her voice steadier now

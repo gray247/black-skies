@@ -1,9 +1,0 @@
-﻿Clara pressed forward, the lantern’s feeble glow illuminating the corridor ahead in shallow waves of light. Every flicker cast long shadows that seemed to stretch out, beckoning her deeper into the gloom. “Do you hear that?” Jun’s voice quaked beside her, and his eyes darted, wide and fearful, as if expecting something to leap from the darkness. Clara felt a coil of tension tighten in her chest, the faint echoes of their footsteps swallowed by the oppressive silence.
-
-She didn’t respond, focusing instead on the damp wood beneath her feet, each creak echoing like a whispered warning. The air was thick, heavy with the scent of mildew and something else—a bitter tang that clung to the back of her throat. The chain rattled again against the door, a sharp clink that sent a jolt through her. Clara glanced at Jun, whose face was pale in the lantern’s light, droplets from his soaked coat tracing paths down his neck and pooling in the collar of his shirt. “What if someone’s on the other side?” he whispered, panic threading through his words.
-
-“Then we’ll just—” she started, but her voice came out sharper than intended, the bravado hanging in the air like the stale scent of old memories. She swallowed hard, forcing her breath to steady. “We’ll find a way to get out.”
-
-But the truth was, the corridor felt alive, as if it were breathing, and Clara sensed them being watched, the sensation prickling at the nape of her neck. She tightened her grip on the lantern, the cold metal digging into her palm, grounding her amidst the growing unease. The key tied to the red ribbon around her wrist felt heavier, a reminder of the parlor they had fled, and the secrets it held within its shadowy confines.
-
-“Look,” Jun said suddenly, pointing ahead. Clara followed his gaze, a chill unf

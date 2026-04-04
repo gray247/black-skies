@@ -1,9 +1,0 @@
-﻿Clara’s heart raced, the echo of the rattling chain at the far end of the corridor reverberating like a drumbeat in her ears. She clutched the cracked brass lantern, its light flickering weakly, casting quivering shadows that danced along the damp stone walls. The air was thick with the musty scent of mildew, mingling with the lingering dampness from the greenhouse rain that still seeped through her clothes, chilling her to the bone. Jun stood beside her, his coat clinging to him like a second skin, soaked and heavy, the shadows under his eyes deepening with each dim flicker of light.
-
-“What if someone’s really there?” he whispered, his voice barely more than a breath, as if saying it too loudly would summon whatever lay beyond that chained door. His gaze darted toward the heavy iron chain, its metallic clink hauntingly familiar, as if the door itself were breathing, testing the weight of its confinement.
-
-Clara felt the red ribbon around her wrist, the key to the parlor dangling from it, a small, fragile promise of escape. She flexed her fingers, feeling the cool, smooth metal against her skin, and the pulse of fear twisted in her stomach. “It’s probably just the wind,” she replied, her voice sharper than intended. She forced a smile, but it felt brittle, like the ceramic fox tucked away in her pocket, a relic of childhood comfort now turned to a weighty anchor.
-
-“Right. Just the wind,” Jun echoed, though his eyes betrayed him, flitting back down the corridor, where muddy prints marred the stone floor ahead of them, leading into the dimness. A chill crept up her spine as she followed his gaze. The prints were fresh, too fresh, as if someone had just passed through, their presence lingering like a ghost.
-
-“Let’s keep moving,” Clara urged, trying to

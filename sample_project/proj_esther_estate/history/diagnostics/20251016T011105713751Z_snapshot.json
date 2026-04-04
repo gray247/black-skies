@@ -1,9 +1,0 @@
-{
-  "timestamp": "2025-10-16T01:11:05.713859Z",
-  "code": "SNAPSHOT",
-  "message": "Wizard step characters locked.",
-  "details": {
-    "step": "characters",
-    "snapshot_id": "20251016T011105693583Z"
-  }
-}

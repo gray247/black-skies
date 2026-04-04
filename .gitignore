@@ -19,10 +19,19 @@ __pycache__/
 *.py[cod]
 .hypothesis/
 .pytest_cache/
+.pytest-tmp/
 *.egg-info/
 .venv/
 services/.venv/
+services/.pytest-tmp/
 vendor/wheels/
+
+# Pytest / temp work directories
+tmp/pytest/
+tmp/pytest-of-*/
+pytest-cache-files-*/
+services/testtmp-*/
+services/services/pytest-cache-files-*/
 
 # Logs, traces, and temporary files
 *.log

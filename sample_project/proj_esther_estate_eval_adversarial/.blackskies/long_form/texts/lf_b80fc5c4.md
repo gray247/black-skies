@@ -1,9 +1,0 @@
-﻿The dim glow of the lantern flickered again, revealing a smear of muddy footprints ahead, each print a question mark in the dampness of the corridor. Clara's heart quickened, the rhythm echoing in her ears like the distant thunder that had rolled through the greenhouse. She could still feel the chill of raindrops clinging to her skin, a clammy reminder of the storm that had found its way into her thoughts. “We should go back,” she said, her voice sharper than intended, a brittle edge breaking the quiet.
-
-Jun turned to her, his eyes wide and glistening, reflecting the meager light as he shifted unsteadily, the weight of the cracked brass lantern seeming to grow heavier in his hand. “And leave whoever—or whatever—that is behind?” His gaze drifted toward the door behind them, the chain rattling softly, almost teasingly, as if something on the other side was listening.
-
-The air grew thicker, laden with damp earth and the faintest hint of something metallic, like blood. Clara swallowed hard, feeling the parlor key tug at her wrist, a reminder of the sanctuary they sought and an anchor to the uncertainty that wrapped around them. “What if it’s just the wind?” she ventured, though even she could hear the tremor in her voice, a desperate attempt to mask her own fear.
-
-“Wind doesn’t leave tracks,” Jun replied, his voice low, barely above a whisper. He shifted again, the waterlogged fabric of his coat clinging to him, and Clara could see the way his fingers curled tighter around the lantern’s handle, knuckles white against the brass.
-
-The corridor felt like a living thing, breathing around them, the shadows stretching and curling as if eager to swallow them whole. Clara took a step forward, the soft squelch of her own boots mingling with the quiet drip of water from the ceiling, each

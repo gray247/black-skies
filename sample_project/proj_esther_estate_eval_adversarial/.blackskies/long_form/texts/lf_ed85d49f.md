@@ -1,9 +1,0 @@
-﻿Clara pressed her back against the damp stone wall of the corridor as Jun fumbled with the lantern, its light flickering like a heartbeat. The dim glow painted their faces in anxious shadows, but she could still see the worry etched in his brow, the way his hands trembled slightly as he adjusted the cracked brass casing. “We shouldn’t have come this way,” he muttered, his voice barely a whisper against the distant rumble of thunder that rolled through the air, punctuating the tension that hung thick like the humidity from the greenhouse.
-
-“I know,” Clara replied too quickly, her voice sharper than she intended. She felt the tug of the red ribbon around her wrist, the parlor key dangling in defiance of the chaos around them. It was a reassurance, yet its weight felt heavier with each passing moment. The thought of it slipping from her grasp, lost in the shadows, sent a shiver down her spine. She tugged it tighter, though she couldn’t remember how it had loosened in the first place.
-
-Ahead, the service corridor stretched out like a dark maw, the air thick with the musty scent of old wood and damp earth. Clara inhaled deeply, trying to steady herself, but the acrid tang of fear curled in her throat. A sudden scuttle of something unseen made her heart race, and she glanced at Jun, whose eyes widened, reflecting the lantern’s weak glow. “Did you hear that?” he asked, his voice a mix of dread and curiosity.
-
-“Probably just a rat,” she said, forcing a laugh that felt brittle and unconvincing. Yet, as she stepped forward, the faint sound of a child’s cough echoed through the hall, chilling her more than the damp air or the specter of rain still clinging to Jun’s coat. It came from above, but Clara shook her head, dismissing it. “We should keep moving.”
-
-As

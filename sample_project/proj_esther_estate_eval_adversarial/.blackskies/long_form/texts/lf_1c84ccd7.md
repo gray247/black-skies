@@ -1,9 +1,0 @@
-﻿Clara pressed onward, the lantern’s sputtering flame revealing more than it illuminated, the flickering shadows dancing like lost spirits on the cold stone walls. Her heart thudded against her ribcage, a frantic rhythm that matched the drumming rain still pounding outside, as if the sky itself were trying to drown them. She glanced back at Jun, his brow furrowed, eyes wide with a fear that felt almost palpable in the damp air. “We should keep moving,” she insisted, her voice sharper than she'd intended, the words slicing through the oppressive stillness of the corridor.
-
-Jun nodded, though he lingered for a moment, his gaze drawn to the chain rattling against the door at the end of the passage. “What if someone’s on the other side?” He stepped closer, his breath quickening. The dim light flickered again, casting more shadows that seemed to stretch and twist, as if they were alive and hungry. Clara felt her stomach churn, the thought of whatever awaited them behind that door twisting like a knife in her gut.
-
-“Nothing’s there,” she said, too quickly, the lie tasting bitter on her tongue. She had to believe it. They had to believe it. She tightened her grip on the parlor key, the red ribbon digging into her wrist, a reminder that she was still tethered to something familiar, something that hadn’t yet slipped through her fingers. “We’re just being paranoid.”
-
-But even as she spoke, the muddy prints on the floor ahead of them caught her attention, stark against the stone. They led deeper into the corridor, and her pulse quickened. “Look,” she pointed, her voice dropping to a whisper. “Someone’s been here.” The muddy marks didn’t trail behind them; they moved forward, as if beckoning them into the unknown.
-
-Jun’s eyes darted to the floor before snapping back to her face, uncertainty

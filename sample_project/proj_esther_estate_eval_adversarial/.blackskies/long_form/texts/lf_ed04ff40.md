@@ -1,9 +1,0 @@
-﻿The air in the corridor was thick with the damp musk of mildew, the walls seeming to breathe with the weight of whispered secrets. Clara pressed forward, the cracked brass lantern flickering erratically, a sputtering rebellion against the encroaching darkness. The weak light danced over the uneven floorboards, casting ghostly shadows that flitted along the walls like memories half-remembered. Her heart raced, each thud echoing in her ears as she caught sight of the muddy prints ahead, creeping along the corridor as if they had emerged from the very walls themselves.
-
-"Do you see that?" Jun’s voice cracked, the tremor in it unmistakable, as he squinted into the gloom. The lantern's glow caught droplets of rainwater still clinging to his coat, a reminder of the greenhouse storm, and Clara felt a pang of guilt twist in her stomach. She didn’t have the luxury of time to dwell on it now.
-
-“Just footprints,” she replied too quickly, her voice sharper than intended. The words felt brittle between them, and she forced herself to breathe, to anchor herself in the moment. “They could be ours. We just came through here.”
-
-But even as she said it, the prints felt foreign, wrong, leading deeper into the shadows rather than back to the safety of the greenhouse. Clara tightened her grip on the lantern, her fingers brushing against the coarse red ribbon tied around her wrist. The parlor key dangled there, a talisman of both hope and apprehension. She had to believe it would lead them somewhere safe, but a creeping doubt gnawed at her, a whisper that perhaps they were being led to something far worse.
-
-“Clara, we should go back.” Jun’s voice trembled, and she caught the flicker of fear in his eyes, the way they darted to the door they had just come through, chained from the inside. The metal

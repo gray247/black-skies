@@ -1,9 +1,0 @@
-﻿The chill of the early morning air cut through the thin fabric of Naomi’s jacket as she stepped onto the cracked pavement of the parking lot, her breath rising in small clouds that mingled with the haze of the rising sun. The faint scent of wet asphalt and distant pine needles lingered in the crispness, grounding her in the moment. She could feel the grit of the pavement beneath her worn sneakers, the crunch of gravel underfoot reminding her that she was here, now, in this place where everything had changed.
-
-The old café stood at the far end of the lot, its faded blue paint peeling like the memories she tried to keep at bay. She glanced at the flickering neon sign—“OPEN”—that buzzed like an electric insect, a distorted promise of warmth and conversation. As she approached, the door swung open, releasing a waft of freshly brewed coffee mingled with the buttery scent of croissants, a siren call that tugged at her stomach.
-
-“Hey, Naomi!” A voice broke through her reverie, familiar and tinged with the day’s first light. It was Marco, leaning against the counter, his apron slightly dusted with flour. His smile was wide, a crescent moon in the dim light. “You’re just in time for the muffins. They’re still warm.”
-
-“Can’t resist that,” she replied, her voice soft, almost tentative, as she stepped inside. The warmth enveloped her like a thick blanket, and she closed her eyes for a brief moment, savoring the contrast against the chill outside. The café was small, its walls adorned with mismatched frames and photographs of smiling faces, remnants of a time when laughter rang louder than the ticking clock on the wall.
-
-“Coffee?” Marco asked, already reaching for the carafe, his movements confident and fluid. The way he poured, a gentle arc, felt intimate, as if they were sharing a secret

@@ -1,9 +1,0 @@
-﻿Clara shivered as the chill crept through the air, the flickering glow from Jun's lantern casting unsteady beams that danced along the narrow confines of the passage. They pressed forward, each footfall swallowed by the dampness of the wooden floor, a soft squelching sound echoing in the stillness. The musty scent of mildew intertwined with an unsettling sharpness that made her stomach churn. Clara quickened her pace, the rhythmic pounding of her heart nearly drowning out the muted patter of rain still drumming against the roof above them. Each step felt burdened, as if the shadows themselves conspired to pull her back, whispering doubts into her mind.
-
-“I don’t like this, Clara,” Jun whispered, his voice barely audible, a tremor threading through his words. The lantern's light flickered, illuminating the deepening lines of worry etched across his face. “What if someone’s really… in here?”
-
-“Stop that,” Clara snapped, her voice sharper than intended, the words spilling out before she could rein them in. Heat surged to her cheeks, a blend of embarrassment and a deeper unease she couldn’t quite name. She forced herself to focus on the door ahead, the cold metal glinting ominously in the lantern’s flicker. “It’s just a passageway. We’re fine.”
-
-As they moved deeper, a faint sound broke the oppressive silence—a metallic clink that resonated from beyond the door. Clara froze, her breath hitching in her throat, suddenly aware of the way her pulse raced. Jun's face drained of color, his wide eyes darting to the door, reflecting an unspoken dread. “Did you hear that?” he asked, his voice quaking.
-
-“I did,” she replied, though her heart raced faster, a cocktail of fear and urgency flooding her veins. She flexed her wrist, the red ribbon binding the parlor key digging

@@ -1,9 +1,0 @@
-﻿Clara pressed onward, the damp air of the corridor heavy with the scent of old wood and the faint tang of mildew. The cracked brass lantern in Jun's grip flickered again, its light waning as they trailed a path through the murky darkness. Shadows danced along the peeling wallpaper, the moisture curling the edges like the pages of a forgotten book. She glanced back at Jun, his coat clinging to him, soaked from their hasty escape through the rain-soaked greenhouse, his brow furrowed in worry.
-
-“Do you hear that?” he whispered, his voice barely rising above the soft patter of water dripping from the ceiling. Clara strained her ears, but the silence wrapped around them like a shroud, oppressive and thick. She shook her head, the red ribbon binding the parlor key to her wrist taut against her skin, a reminder of their frantic search.
-
-“It’s just the wind,” she replied, her tone sharper than she intended. The last thing she wanted was for him to see how unsettled she felt. The thought of the chained door rattling behind them, as if someone were testing it from the other side, twisted her stomach into knots. Her fingers brushed against the chipped ceramic fox nestled in her coat pocket, its cool surface grounding her, a small comfort amidst the growing unease.
-
-Jun took a step closer, the light from the lantern illuminating his face, revealing the fear etched in his features. “We shouldn’t be here. What if someone’s—”
-
-“Someone’s what?” Clara snapped, cutting him off. The words spilled out before she could catch them, the tension stretching taut between them. She didn’t want to think about what lurked in the shadows or what that cough from the sealed upper floor might mean. She swallowed hard, pushing her worries down, forcing a smile that felt brittle on her lips. “It’s just an old house.

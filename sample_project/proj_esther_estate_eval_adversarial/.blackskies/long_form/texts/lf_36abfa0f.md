@@ -1,9 +1,0 @@
-﻿The dim light from Jun’s cracked brass lantern flickered weakly as Clara pressed forward through the service corridor, the chilly air clinging to her damp skin. Each step seemed to echo against the peeling walls, as if the corridor itself were whispering secrets. The scent of mildew and wet earth clung to her clothes, remnants of the greenhouse’s sudden storm, and the rhythmic drip of water from her hair splattered against the floor, a dissonant percussion to the silence around them.
-
-“Did you hear that?” Jun’s voice was barely above a whisper, tense and quaking. He shifted his weight, glancing back down the darkened corridor, his coat still soaked and heavy with the rain that had drenched them. Clara tightened her grip on the lantern, its sputtering glow casting uneven shadows that danced along the walls, and shook her head, though her heart raced.
-
-“No,” she said, a touch too sharp, betraying the unease that curled in her stomach. She could feel the cool metal of the parlor key against her wrist, the red ribbon a stark contrast to the damp fabric of her sleeve. She hadn’t meant to fasten it so loosely, yet it remained perilously close to slipping away, as if it held secrets of its own that wanted to escape.
-
-Ahead, the faint outline of a door loomed, its surface marred by scuff marks and peeling paint. The chain rattled again, a slow, deliberate jangle that sent a shiver crawling up her spine. “It’s just the wind,” she offered, though her voice lacked conviction, and she could see the way Jun’s eyes widened, reflecting the dim lantern light like twin moons caught in fear.
-
-“It sounds like someone is trying to get out,” he murmured, his breath hitching slightly. Clara noticed the way his hands trembled around the lantern, the cracks in its brass surface glimmering

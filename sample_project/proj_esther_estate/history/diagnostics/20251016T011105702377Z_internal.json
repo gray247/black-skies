@@ -1,9 +1,0 @@
-{
-  "timestamp": "2025-10-16T01:11:05.702487Z",
-  "code": "INTERNAL",
-  "message": "Accept request draft_id mismatch; recomputing cost.",
-  "details": {
-    "expected_draft_id": "dr_dcc70981",
-    "received_draft_id": "dr_004"
-  }
-}

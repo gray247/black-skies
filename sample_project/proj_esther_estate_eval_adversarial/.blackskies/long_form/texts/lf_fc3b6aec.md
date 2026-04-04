@@ -1,9 +1,0 @@
-﻿The air hung thick with the scent of damp earth and rotting leaves, a cloying reminder of the relentless rain that had seeped into every crevice of the greenhouse. Clara pulled the collar of her coat tighter around her neck, the fabric still damp from their hurried escape. The cracked brass lantern flickered uncertainly in Jun’s grasp, its light struggling against the dark that pressed in from all sides. Shadows danced along the walls of the narrow corridor, twisting like whispers of something forgotten.
-
-“Do you hear that?” Jun’s voice trembled, his breath misting in the cool air. Clara paused, her heart thrumming in her chest, a frantic beat that drowned out the soft patter of the rain still falling beyond the confines of the house. She strained her ears, the silence pressing in on her, heavy and oppressive. A distant sound echoed, a soft cough muffled by walls that felt like they were closing in.
-
-“No,” she said too quickly, her words clipped, a defensive edge sharp as glass. She felt the ribbon on her wrist, the parlor key tied securely yet somehow distant, a promise she couldn’t quite grasp. They had found it tangled in the vines, a relic of the past that felt more like a noose now.
-
-Jun shifted, his soaked coat clinging to his shoulders, droplets falling like unwanted tears onto the floor. “Clara, we can’t just—” He hesitated, glancing back towards the chained door, a dark line splitting the room where the light from the lantern faded. “What if someone’s in there?”
-
-She stepped forward, the mud squelching beneath her boots, the sound unnaturally loud in the stillness. “We’ve come this far. We can’t turn back now.” The muddy footprints ahead of them, too fresh to be their own, sent a shiver down her spine. She wondered about the hidden foot

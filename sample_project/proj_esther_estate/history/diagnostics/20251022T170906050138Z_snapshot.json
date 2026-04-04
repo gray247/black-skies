@@ -1,9 +1,0 @@
-{
-  "timestamp": "2025-10-22T17:09:06.050245Z",
-  "code": "SNAPSHOT",
-  "message": "Wizard step beats locked.",
-  "details": {
-    "step": "beats",
-    "snapshot_id": "20251022T170906022382Z"
-  }
-}

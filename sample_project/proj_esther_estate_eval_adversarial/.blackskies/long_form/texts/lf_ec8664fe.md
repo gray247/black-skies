@@ -1,9 +1,0 @@
-﻿Clara pressed forward, her heart pounding against her ribcage, the damp fabric of her coat clinging to her skin like a second layer of anxiety. The weak glow from Jun’s lantern flickered, casting trembling shadows along the stone walls of the servants’ corridor. Each step sent ripples of sound through the stillness, the soft patter of their muddy shoes echoing like whispered secrets. The air was thick with the scent of wet earth and an unsettling chill seeped in from the corners, curling around her like a forgotten memory.
-
-“Did you hear that?” Jun’s voice broke the silence, sharp and tight, as he strained to listen beyond the unsettling creaks of the old building. His eyes, wide and glistening with fear, darted to the chained door at the far end of the passage. Clara felt the tether of his gaze, the unspoken weight of his worry pressing down on her.
-
-“Probably just the wind,” she replied, her voice too bright, a brittle facade against the rising tide of dread. She glanced down at the parlor key, the red ribbon wrapped securely around her wrist, a small comfort amidst the chaos. She couldn't remember tying it tighter, but it felt as if it were binding her to something more than just the key itself—an unshakable sense of obligation, perhaps, or a lingering ghost of her childhood fears.
-
-They moved cautiously, the dim light reflecting off the chipped edges of the corridor’s walls, revealing glimpses of peeling paint that told stories of neglect. Muddy footprints marred the floor ahead of them, stark against the stone, trailing deeper into the shadows. Clara’s stomach twisted.
-
-“Those weren’t here before,” Jun muttered, his voice barely above a whisper, as if saying it louder would summon whatever had left the prints. Clara swallowed hard, her throat dry and scratchy. The footprints seemed to beckon them

@@ -1,9 +1,0 @@
-﻿The air in the corridor felt thick, unnatural, as if it were holding its breath. Clara pressed forward, the cracked brass lantern flickering in Jun's hand, casting erratic shadows on the peeling wallpaper. Each flicker seemed to echo the pounding of her heart, racing with the weight of uncertainty. She could feel the damp from Jun’s coat seeping into her own skin, a chill that seeped deeper than mere water, pulling at her resolve.
-
-“We shouldn’t be here,” Jun whispered, his voice tightly coiled, a threadbare calm. The lantern sputtered again, dimming to a ghostly glow that barely illuminated the muddy footprints ahead. They were fresh, the soil still glistening with moisture, and Clara’s breath caught in her throat. The prints led deeper into the shadowed corridor, swallowing the light like a hungry beast.
-
-“Look at them,” she said, her tone sharper than intended, a brittle edge to her words. “Someone's been through here recently.” She clenched the parlor key tied to her wrist, the red ribbon biting into her skin, grounding her. Had she tied it tighter? The thought slipped away as quickly as it arrived, lost to the unease curdling in her stomach.
-
-Jun’s gaze darted toward the chained door at the far end. “That door… it’s moving.” He stepped closer, the lantern casting a halo around his anxious features. Clara could see the way his fingers trembled against the brass, the cracks spiderwebbing across its surface catching the light like tiny fractures in his composure.
-
-“Maybe it’s just the wind,” she offered, though her voice lacked conviction. The air was still, too still, and the faintest sound of a distant cough echoed down the corridor—a child's cough, sharp and desperate. Clara’s heart sank. She shot a glance at Jun, who was already shaking his head, eyes

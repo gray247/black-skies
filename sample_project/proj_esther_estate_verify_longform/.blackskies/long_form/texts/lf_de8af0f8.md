@@ -1,9 +1,0 @@
-﻿The door creaked as Elara pushed it open, the scent of damp earth and aged wood greeting her like an old friend. She stepped into the dimly lit room, the air thick with the musk of forgotten memories. Dust motes danced in the narrow beams of light cutting through the grime-streaked window, and her fingers brushed against the cool, splintered surface of the table, where years of neglect had left the varnish cracked and peeling.
-
-“Can you believe this place?” she murmured, half to herself, half to the cat that had followed her in, its golden eyes wide and unblinking. The feline blinked slowly, as if acknowledging the weight of her words, but remained perched on the threshold, wary of the shadows that clung to the corners like old ghosts.
-
-Elara took a hesitant step further inside, the wooden floorboards groaning beneath her weight. She felt a chill seep into her bones, not from the coolness of the air, but from the pervasive sense of abandonment that clung to the walls. Her heart raced, each beat echoing in her ears, a reminder that she was still alive in a space that felt so thoroughly dead.
-
-“Let’s find something,” she said, trying to infuse her voice with bravado. “Maybe there’s treasure hidden in this old hovel.” The word “treasure” felt hollow as it left her lips, like a cruel joke. She turned to the shelves lined with dusty jars and tarnished trinkets, each item a silent testament to the lives once lived here.
-
-She picked up a small music box, its surface marred with scratches but still holding an air of delicate beauty. As she cranked the handle, a soft, haunting melody spilled into the room, wrapping around her like an embrace. The sound sent a shiver down her spine, and for a moment, she was transported to a
