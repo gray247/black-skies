@@ -3,15 +3,23 @@ param()
 $ErrorActionPreference = 'Stop'
 
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
-$hookPath = Join-Path $repoRoot 'scripts/hooks'
-$hookFile = Join-Path $hookPath 'pre-commit'
+$templatePath = Join-Path $repoRoot 'scripts/hooks/pre-commit'
+$hookDir = Join-Path $repoRoot '.git/hooks'
+$hookFile = Join-Path $hookDir 'pre-commit'
 
-if (-not (Test-Path -LiteralPath $hookFile)) {
-    throw "Expected hook file not found: $hookFile"
+if (-not (Test-Path -LiteralPath $templatePath)) {
+    throw "Expected hook template not found: $templatePath"
 }
 
-git config --local core.hooksPath 'scripts/hooks'
+New-Item -ItemType Directory -Force -Path $hookDir | Out-Null
 
-$installedPath = git config --local --get core.hooksPath
-Write-Host "Configured local git hooks path: $installedPath"
-Write-Host "Pre-commit hygiene hook: $hookFile"
+$pythonPath = (Get-Command python).Source
+$template = Get-Content -Raw -LiteralPath $templatePath
+$hookBody = $template -replace '^\#\![^\r\n]+', "#!$pythonPath"
+[System.IO.File]::WriteAllText($hookFile, $hookBody, [System.Text.UTF8Encoding]::new($false))
+
+git config --local core.hooksPath '.git/hooks'
+
+Write-Host "Installed pre-commit hook at: $hookFile"
+Write-Host "Git hooks path: .git/hooks"
+Write-Host "Python launcher: $pythonPath"

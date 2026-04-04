@@ -7,7 +7,7 @@ on:
 
 jobs:
   hygiene:
-    name: Repo hygiene
+    name: Repo hygiene enforcement
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

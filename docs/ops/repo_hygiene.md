@@ -24,10 +24,11 @@ powershell -ExecutionPolicy Bypass -File .\scripts\install_git_hooks.ps1
 Unix-like shells, Git Bash, or WSL:
 
 ```bash
-git config --local core.hooksPath scripts/hooks
+bash ./scripts/install_git_hooks.sh
 ```
 
-The installer sets `core.hooksPath` to `scripts/hooks`, so Git uses the tracked hook entrypoint in this repository.
+The installers write a local `pre-commit` hook into `.git/hooks/pre-commit` from the tracked template in `scripts/hooks/pre-commit`.
+The Windows installer rewrites the shebang to the installed Python launcher path so Git for Windows can execute it without shell handoff.
 
 ## Run the hygiene check manually
 
@@ -39,6 +40,7 @@ git diff --check
 Use `--staged` if you want to inspect only the current staged set before committing.
 If you prefer the package script, run `pnpm repo:hygiene` in a shell that can execute the pnpm shim.
 On Windows PowerShell, `cmd /c pnpm repo:hygiene` avoids the execution-policy block.
+For a quick hook wiring check, run `git hook run pre-commit` after installation.
 
 ## If a generated file truly must be committed
 

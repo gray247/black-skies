@@ -1,7 +1,19 @@
-#!/bin/bash
-set -euo pipefail
+#!/usr/bin/env python3
+"""Repo-managed pre-commit hook template for hygiene enforcement."""
 
-REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-PYTHON_BIN="${PYTHON_BIN:-python}"
+from __future__ import annotations
 
-exec "$PYTHON_BIN" "$REPO_ROOT/scripts/check_repo_hygiene.py" --staged
+import subprocess
+import sys
+from pathlib import Path
+
+
+def main() -> int:
+    repo_root = Path(__file__).resolve().parents[2]
+    script = repo_root / "scripts" / "check_repo_hygiene.py"
+    result = subprocess.run([sys.executable, str(script), "--staged"])
+    return result.returncode
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
