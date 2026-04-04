@@ -4,7 +4,7 @@ $ErrorActionPreference = 'Stop'
 
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
 $hookPath = Join-Path $repoRoot 'scripts/hooks'
-$hookFile = Join-Path $hookPath 'pre-commit.cmd'
+$hookFile = Join-Path $hookPath 'pre-commit'
 
 if (-not (Test-Path -LiteralPath $hookFile)) {
     throw "Expected hook file not found: $hookFile"

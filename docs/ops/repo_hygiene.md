@@ -15,13 +15,19 @@ The goal is to keep generated artifacts, local tool state, and fixture snapshots
 
 ## Install the local pre-commit hook
 
-From the repository root:
+Windows:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\install_git_hooks.ps1
 ```
 
-The installer sets `core.hooksPath` to `scripts/hooks`, so Git uses the tracked hook wrapper in this repository.
+Unix-like shells, Git Bash, or WSL:
+
+```bash
+git config --local core.hooksPath scripts/hooks
+```
+
+The installer sets `core.hooksPath` to `scripts/hooks`, so Git uses the tracked hook entrypoint in this repository.
 
 ## Run the hygiene check manually
 
