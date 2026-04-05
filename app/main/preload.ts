@@ -116,46 +116,32 @@ const applyForceStateAttributes = (): void => {
     return;
   }
   const body = document.body ?? html;
-  const globalWindow = window as typeof window & {
-    __testEnvForceOffline?: boolean;
-    __testEnvForceOnline?: boolean;
-  };
-  const hasFlag = (flag: 'testForceOffline' | 'testForceOnline'): boolean => {
+  const hasFlag = (flag: 'testForceOffline'): boolean => {
     const htmlValue = html.dataset?.[flag];
     if (htmlValue === '1') {
       return true;
     }
     return body.dataset?.[flag] === '1';
   };
-  const forceOffline =
-    hasFlag('testForceOffline') || globalWindow.__testEnvForceOffline === true;
-  const forceOnline =
-    !forceOffline && (hasFlag('testForceOnline') || globalWindow.__testEnvForceOnline === true);
-  const applyFlag = (flag: 'testForceOffline' | 'testForceOnline', enabled: boolean): void => {
+  const forceOffline = hasFlag('testForceOffline');
+  const applyFlag = (enabled: boolean): void => {
     if (enabled) {
-      html.dataset[flag] = '1';
+      html.dataset.testForceOffline = '1';
       if (body) {
-        body.dataset[flag] = '1';
+        body.dataset.testForceOffline = '1';
       }
       return;
     }
-    delete html.dataset[flag];
+    delete html.dataset.testForceOffline;
     if (body) {
-      delete body.dataset[flag];
+      delete body.dataset.testForceOffline;
     }
   };
   if (forceOffline) {
-    applyFlag('testForceOnline', false);
-    applyFlag('testForceOffline', true);
+    applyFlag(true);
     return;
   }
-  if (forceOnline) {
-    applyFlag('testForceOffline', false);
-    applyFlag('testForceOnline', true);
-    return;
-  }
-  applyFlag('testForceOnline', false);
-  applyFlag('testForceOffline', false);
+  applyFlag(false);
 };
 const ensureForceStateAttrsWithRetry = (): void => {
   if (!harnessHooksEnabled) {
@@ -247,10 +233,6 @@ if (typeof window !== 'undefined' && harnessHooksEnabled) {
 }
 
 if (isPlaywright && typeof window !== 'undefined') {
-  console.log(
-    '[preload-offline-debug]',
-    (window as typeof window & { __testEnvForceOffline?: boolean }).__testEnvForceOffline ?? null,
-  );
   const markDockReady = () => {
     const w = window as typeof window & { __dockReady?: boolean; __stableDockHandleReady?: boolean };
     w.__dockReady = true;
@@ -1322,10 +1304,9 @@ const diagnosticsBridge: DiagnosticsBridge = {
 
 const servicesBridge: ServicesBridge = {
   async checkHealth(): Promise<ServiceHealthResponse> {
-    if (isPlaywright && typeof window !== 'undefined') {
-      const globalWindow = window as typeof window & { __testEnvForceOffline?: boolean };
+  if (isPlaywright && typeof window !== 'undefined') {
       console.log('[preload-services-debug]', {
-        forceOffline: globalWindow.__testEnvForceOffline ?? null,
+        forceOffline: document.body?.dataset?.testForceOffline ?? null,
       });
     }
     return probeHealth();

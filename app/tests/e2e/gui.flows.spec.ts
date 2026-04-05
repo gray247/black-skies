@@ -24,7 +24,9 @@ test.describe('GUI flow smoke tests', () => {
     await bootstrapHarness(page);
 
     await expect(page.getByTestId(TID.wizardRoot)).toBeVisible({ timeout: 30_000 });
-    await page.evaluate(() => window.__selectSceneForTest?.('sc_0001'));
+    await page.evaluate(() => {
+      window.dispatchEvent(new CustomEvent('test:select-scene', { detail: 'sc_0001' }));
+    });
 
     await expect(page.getByTestId('workspace-action-generate')).toBeVisible({ timeout: 30_000 });
     await expect(page.getByTestId('workspace-action-critique')).toBeVisible({ timeout: 30_000 });
@@ -37,7 +39,9 @@ test.describe('GUI flow smoke tests', () => {
     });
     await bootstrapHarness(page);
 
-    await page.evaluate(() => window.__selectSceneForTest?.('sc_0001'));
+    await page.evaluate(() => {
+      window.dispatchEvent(new CustomEvent('test:select-scene', { detail: 'sc_0001' }));
+    });
     const critiqueButton = page.getByTestId('workspace-action-critique');
     await expect(critiqueButton).toBeVisible({ timeout: 30_000 });
   });
@@ -79,7 +83,9 @@ test.describe('GUI flow smoke tests', () => {
     await installServiceStubs(page, 'budget');
     await bootstrapHarness(page);
 
-    await page.evaluate(() => window.__selectSceneForTest?.('sc_0001'));
+    await page.evaluate(() => {
+      window.dispatchEvent(new CustomEvent('test:select-scene', { detail: 'sc_0001' }));
+    });
     await page.getByTestId('workspace-action-generate').click();
 
     const preflightDialog = page.getByRole('dialog', { name: /draft preflight/i });

@@ -48,7 +48,7 @@ This document records observed validation failures and classifies how they affec
 - Title: Remaining preload hook surface still provides harness escape hatches
 - Lane Affected: Harness / validation trust
 - Command: No single command. Observed through the preload inventory and containment review of `app/main/preload.ts`, `docs/reviews/preload_hook_inventory_and_containment.md`, and harness consumers.
-- Observed Result: The broad preload surface is now fenced behind `BLACKSKIES_ENABLE_HARNESS_HOOKS=1` in preload and launcher code. The remaining concern is a narrower harness-only cluster around `__testEnvForceOffline*`, `__testBudgetOverride`, `__testApplyBudgetOverride`, `__testModeFreezeServiceHealth`, `__selectSceneForTest`, `__testEnvNeedsRecovery`, and the truth-safe marker `__testEnv`.
+- Observed Result: The broad preload surface is now fenced behind `BLACKSKIES_ENABLE_HARNESS_HOOKS=1` in preload and launcher code. WP-10 removed the redundant `__selectSceneForTest` helper and collapsed the offline forcing path to dataset/event controls, but a narrower harness-only cluster still remains around `__testEnvNeedsRecovery`, `__testBudgetOverride`, `__testApplyBudgetOverride`, `testModeFreezeServiceHealth` dataset handling, `__testEnvActiveFlow`, `__testEnvStableDock`, `__testEnvVisualStable`, and the truth-safe marker `__testEnv`.
 - Environment Notes: The authoritative truth lane no longer depends on these hooks, but harness runs still can. The remaining hooks are now fenced rather than free-floating, which reduces false confidence but does not remove the debt.
 - Suspected Class:
   - repo-design
@@ -58,7 +58,7 @@ This document records observed validation failures and classifies how they affec
 - Current Evidence: The preload inventory and containment document now show source fencing plus a smaller set of remaining harness-only overrides in renderer/test code.
 - Needed Confirmation: Decide which of the remaining harness overrides are still required, then remove or further fence the ones that are not.
 - Proposed Next Action: Follow up with a narrower containment/removal pass on the remaining runtime-override, budget, and freeze globals.
-- Status: mitigated
+- Status: reduced
 
 ## Blocker Ranking
 
@@ -74,7 +74,7 @@ This document records observed validation failures and classifies how they affec
 
 ### Deferred but tracked
 - The exact root causes for VF-001 and VF-002 are now more specific: both appear to hit pipe-based child-process restrictions in this workspace, but the broader environment cause still needs confirmation before any runner redesign is considered durable.
-- The remaining preload overrides are fenced but still need a later removal or formal exception pass.
+- The remaining harness controls are fenced or dataset-only but still need a later removal or formal exception pass.
 - Sample-project loading is now project-local and deterministic, but `sample_project/Esther_Estate` and `sample_project/proj_esther_estate` still expose historical snapshot layouts that can confuse reviewers if the contract is not checked first.
 
 ## Recommended Next Work Package

@@ -671,22 +671,6 @@ export default function App(): JSX.Element {
   );
 
   useEffect(() => {
-    if (!harnessHooksEnabled || typeof window === 'undefined') {
-      return;
-    }
-    const apiWindow = window as typeof window & {
-      __selectSceneForTest?: (sceneId?: string | null) => boolean;
-    };
-    apiWindow.__selectSceneForTest = (sceneId?: string | null) => {
-      pendingSceneSelectionRef.current = sceneId ?? null;
-      return applySceneSelection(pendingSceneSelectionRef.current);
-    };
-    return () => {
-      delete apiWindow.__selectSceneForTest;
-    };
-  }, [applySceneSelection, harnessHooksEnabled]);
-
-  useEffect(() => {
     if (typeof window === 'undefined') {
       return;
     }
@@ -694,6 +678,7 @@ export default function App(): JSX.Element {
       const customEvent = event as CustomEvent<string | undefined>;
       const sceneId = customEvent.detail;
       if (typeof sceneId === 'string' && sceneId.length > 0) {
+        pendingSceneSelectionRef.current = sceneId;
         applySceneSelection(sceneId);
       }
     };

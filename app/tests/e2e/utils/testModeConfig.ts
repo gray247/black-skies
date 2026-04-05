@@ -1,8 +1,7 @@
-﻿type WindowWithFlags = typeof window & {
+type WindowWithFlags = typeof window & {
   __testEnvFlatMode?: boolean;
   __testEnvRecoveryMode?: boolean;
   __testEnvFullMode?: boolean;
-  __testEnvForceOfflineReason?: string;
 };
 
 export function setFlatMode(reason?: string) {
@@ -10,11 +9,6 @@ export function setFlatMode(reason?: string) {
   win.__testEnvFlatMode = true;
   win.__testEnvRecoveryMode = false;
   win.__testEnvFullMode = false;
-  if (reason) {
-    win.__testEnvForceOfflineReason = reason;
-  } else {
-    delete win.__testEnvForceOfflineReason;
-  }
   if (typeof document !== 'undefined' && document.body) {
     if (reason) {
       document.body.dataset.testEnvForceOfflineReason = reason;
@@ -31,11 +25,6 @@ export function setRecoveryMode(reason?: string) {
   win.__testEnvFlatMode = false;
   win.__testEnvRecoveryMode = true;
   win.__testEnvFullMode = false;
-  if (reason) {
-    win.__testEnvForceOfflineReason = reason;
-  } else {
-    delete win.__testEnvForceOfflineReason;
-  }
   if (typeof document !== 'undefined' && document.body) {
     if (reason) {
       document.body.dataset.testEnvForceOfflineReason = reason;
@@ -52,11 +41,6 @@ export function setFullMode(reason?: string) {
   win.__testEnvFlatMode = false;
   win.__testEnvRecoveryMode = false;
   win.__testEnvFullMode = true;
-  if (reason) {
-    win.__testEnvForceOfflineReason = reason;
-  } else {
-    delete win.__testEnvForceOfflineReason;
-  }
   if (typeof document !== 'undefined' && document.body) {
     if (reason) {
       document.body.dataset.testEnvForceOfflineReason = reason;
