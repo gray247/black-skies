@@ -63,8 +63,7 @@ This document records observed validation failures and classifies how they affec
 ## Blocker Ranking
 
 ### Critical blockers
-- VF-001 - Playwright worker spawn fails on Windows
-- VF-002 - Vitest / Vite transform hits `spawn EPERM`
+- None currently observed for proceeding with constraints.
 
 ### High-priority blockers
 - VF-003 - Remaining preload hook surface still provides harness escape hatches
@@ -73,7 +72,8 @@ This document records observed validation failures and classifies how they affec
 - None currently observed.
 
 ### Deferred but tracked
-- The exact root causes for VF-001 and VF-002 are now more specific: both appear to hit pipe-based child-process restrictions in this workspace, but the broader environment cause still needs confirmation before any runner redesign is considered durable.
+- VF-001 - Playwright worker spawn fails on Windows. The exact failure boundary is now explicit and it is treated as a workspace-specific pipe/IPC ceiling, not a truth-lane problem.
+- VF-002 - Vitest / Vite transform hits `spawn EPERM`. The exact failure boundary is now explicit and it is treated as the same workspace-specific pipe/IPC ceiling, not a truth-lane problem.
 - The remaining harness controls are fenced or dataset-only but still need a later removal or formal exception pass.
 - Sample-project loading is now project-local and deterministic, but `sample_project/Esther_Estate` and `sample_project/proj_esther_estate` still expose historical snapshot layouts that can confuse reviewers if the contract is not checked first.
 
