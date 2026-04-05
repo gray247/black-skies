@@ -5,12 +5,8 @@ type WindowWithTestFlags = typeof window & {
   __testEnvFlatMode?: boolean;
   __testEnvRecoveryMode?: boolean;
   __testEnvFullMode?: boolean;
-  __testEnvForceOffline?: boolean;
-  __testEnvForceOfflineReason?: string;
-  __testEnvForceOnline?: boolean;
   __testEnvStableDock?: boolean;
   __testEnvVisualStable?: boolean;
-  __testModeFreezeServiceHealth?: boolean;
 };
 
 function getWindow(): WindowWithTestFlags | undefined {
@@ -120,7 +116,6 @@ export function getOfflineReason(): string | null {
   if (!isHarnessHooksEnabled()) {
     return null;
   }
-  const win = getWindow();
   const datasetReason =
     typeof document !== 'undefined' ? document.body?.dataset?.testEnvForceOfflineReason ?? null : null;
   if (datasetReason) {
@@ -129,12 +124,6 @@ export function getOfflineReason(): string | null {
   if (datasetFlagEnabled('testForceOffline')) {
     return 'test-offline';
   }
-  if (win?.__testEnvForceOffline) {
-    return 'test-offline';
-  }
-  if (win?.__testEnvForceOfflineReason) {
-    return win.__testEnvForceOfflineReason;
-  }
   return null;
 }
 
@@ -142,24 +131,14 @@ export function isForcedOffline(): boolean {
   if (!isHarnessHooksEnabled()) {
     return false;
   }
-  const win = getWindow();
   const datasetReason =
     typeof document !== 'undefined' ? document.body?.dataset?.testEnvForceOfflineReason : null;
-  return Boolean(datasetReason || datasetFlagEnabled('testForceOffline') || win?.__testEnvForceOffline === true);
-}
-
-export function isForcedOnline(): boolean {
-  if (!isHarnessHooksEnabled()) {
-    return false;
-  }
-  const win = getWindow();
-  return Boolean(datasetFlagEnabled('testForceOnline') || win?.__testEnvForceOnline === true);
+  return Boolean(datasetReason || datasetFlagEnabled('testForceOffline'));
 }
 
 export function testModeFreezeServiceHealth(): boolean {
   if (!isHarnessHooksEnabled()) {
     return false;
   }
-  const win = getWindow();
-  return Boolean(datasetFlagEnabled('testModeFreezeServiceHealth') || win?.__testModeFreezeServiceHealth === true);
+  return Boolean(datasetFlagEnabled('testModeFreezeServiceHealth'));
 }

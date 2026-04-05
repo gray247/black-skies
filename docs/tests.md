@@ -42,6 +42,7 @@ Use these for renderer appearance and accessibility checks only. They do not pro
 
 Use these for launcher, fixture, and interaction sanity. Do not claim backend truth from a harness pass.
 Harness runs may use the explicit preload hooks listed in [Preload Hook Inventory and Containment](./reviews/preload_hook_inventory_and_containment.md), but those hooks are not truth evidence.
+Scene selection and forced-offline control now use the existing `test:select-scene` and `test:force-offline` event paths plus dataset flags, not the removed `__selectSceneForTest` helper or any preload-global force-offline toggle.
 Playwright harness output now writes to temp-sibling report and result folders, and the sample-project loader stays inside the requested project root. It prefers that root’s own verified snapshot metadata and only uses the root’s own legacy `.snapshots.bak` tree when the historical `proj_esther_estate` layout has not been materialized. The harness command now also runs a pipe-spawn preflight before Playwright workers start; if that preflight or the worker spawn fails on Windows, treat it as the tracked blocker in [Validation Failures and Blockers](./reviews/validation_failures_and_blockers.md).
 
 ### Backend contract/state lane

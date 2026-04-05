@@ -187,22 +187,24 @@ let currentScenario: ServiceScenario = 'normal';
 
 async function syncForceOfflineFlag(page: Page, shouldForce: boolean): Promise<void> {
   const normalized = Boolean(shouldForce);
-  await page.addInitScript((force: boolean) => {
-    const target = window as typeof window & { __testEnvForceOffline?: boolean };
-    target.__testEnvForceOffline = Boolean(force);
-    window.dispatchEvent(new CustomEvent('test:force-offline', { detail: Boolean(force) }));
+  const applyForceState = (force: boolean): void => {
+    const root = document.documentElement;
+    const body = document.body ?? root;
     if (force) {
-      console.log('[service-stub-installed]', 'force-offline');
+      root.dataset.testForceOffline = '1';
+      body.dataset.testForceOffline = '1';
+      root.dataset.testEnvForceOfflineReason = 'test-offline';
+      body.dataset.testEnvForceOfflineReason = 'test-offline';
+    } else {
+      delete root.dataset.testForceOffline;
+      delete body.dataset.testForceOffline;
+      delete root.dataset.testEnvForceOfflineReason;
+      delete body.dataset.testEnvForceOfflineReason;
     }
-  }, normalized);
-  await page.evaluate((force) => {
-    const target = window as typeof window & { __testEnvForceOffline?: boolean };
-    target.__testEnvForceOffline = Boolean(force);
     window.dispatchEvent(new CustomEvent('test:force-offline', { detail: Boolean(force) }));
-    if (force) {
-      console.log('[service-stub-installed]', 'force-offline');
-    }
-  }, normalized);
+  };
+  await page.addInitScript(applyForceState, normalized);
+  await page.evaluate(applyForceState, normalized);
 }
 
 async function applyTestMode(page: Page, mode: TestMode, reason?: string): Promise<void> {
@@ -409,18 +411,14 @@ export async function installServiceStubs(
   }
   await page.evaluate((shouldSetReason) => {
     const reason = shouldSetReason ? 'service_port_unavailable' : undefined;
-    const targetWindow = window as typeof window & { __testEnvForceOfflineReason?: string };
+    const root = document.documentElement;
+    const body = document.body ?? root;
     if (reason) {
-      targetWindow.__testEnvForceOfflineReason = reason;
+      root.dataset.testEnvForceOfflineReason = reason;
+      body.dataset.testEnvForceOfflineReason = reason;
     } else {
-      delete targetWindow.__testEnvForceOfflineReason;
-    }
-    if (document.body) {
-      if (reason) {
-        document.body.dataset.testEnvForceOfflineReason = reason;
-      } else {
-        delete document.body.dataset.testEnvForceOfflineReason;
-      }
+      delete root.dataset.testEnvForceOfflineReason;
+      delete body.dataset.testEnvForceOfflineReason;
     }
   }, forceOffline);
   const defaultMode: TestMode =

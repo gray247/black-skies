@@ -45,13 +45,13 @@ The named `app/tests/e2e/editorial-review-workflow.spec.ts` path from the weakne
 | --- | --- | --- | --- | --- | --- |
 | `app/tests/e2e/smoke.project.spec.ts` | Harness-driven | Minimal project-open and wizard/dock smoke via the launcher | Backend truth or architecture readiness | High | Uses `bootstrapHarness` and injected service overrides. |
 | `app/tests/e2e/gui.smoke.spec.ts` | Harness-driven | Smoke workflows over the stubbed GUI path | Real-service truth | High | Explicitly installs service stubs and flips `__testEnvActiveFlow`. |
-| `app/tests/e2e/gui.flows.spec.ts` | Harness-driven | Mixed smoke flows, budget guards, restore behavior, and service-port handling under test stubs | Real-service truth | High | This is a classic false-confidence risk file because it mixes presentation and harness behavior. |
+| `app/tests/e2e/gui.flows.spec.ts` | Harness-driven | Mixed smoke flows, budget guards, restore behavior, and service-port handling under test stubs | Real-service truth | High | This is a classic false-confidence risk file because it mixes presentation and harness behavior. Scene selection now uses the `test:select-scene` event bridge rather than a preload helper. |
 | `app/tests/e2e/dock-workspace.spec.ts` | Harness-driven | Dock/layout behavior in the harnessed Electron shell | Backend truth or production routing | High | Uses bootstrap plus stubbed services and runtime config overrides. |
 | `app/tests/e2e/layout-no-floating-panes.spec.ts` | Harness-driven | Layout regression behavior in a bootstrapped renderer | Backend truth | High | Validates window/layout shape, not service correctness. |
 | `app/tests/e2e/gui.insights.spec.ts` | Harness-driven | Insights interactions with stubbed service-status toggles | Backend truth | High | Uses `__testInsights` and harnessed state changes. |
 | `app/tests/e2e/gui.analytics_offline_cache_flow.spec.ts` | Harness-driven | Analytics/offline-cache behavior in a stubbed renderer | Backend truth | High | Uses `__dev.overrideServices` and service-health events. |
 | `app/tests/e2e/budget-meter.spec.ts` | Harness-driven | Budget-meter UI behavior under stubbed service responses | Backend truth | High | Uses injected budget responses and harness overrides. |
-| `app/tests/e2e/hotkeys-status.spec.ts` | Harness-driven | Hotkey/recovery/status behavior under injected state | Backend truth | High | Heavy use of test-only globals and service overrides. |
+| `app/tests/e2e/hotkeys-status.spec.ts` | Harness-driven | Hotkey/recovery/status behavior under injected state | Backend truth | High | Heavy use of test-only globals and service overrides. The offline toggle now flows through dataset/event controls rather than a preload global. |
 | `app/tests/e2e/gui.snapshot_verification_flow.spec.ts` | Harness-driven | Snapshot-verification UI flow in a stubbed environment | Backend truth | High | Presentation and verification modal coverage only. |
 | `app/tests/e2e/phase5-export-integrity-flow.spec.ts` | Harness-driven, backend-shaped | Snapshot/backup/export interactions through the harnessed service bridge | Real-service truth | High | Backend-shaped assertions, but still driven through injected services. |
 | `app/tests/e2e/gui-contract.spec.ts` | Harness-driven, backend-shaped | GUI contract checks against stubbed services and layout bridges | Real-service truth | High | Contract-shaped, but not a truth-lane test. |
@@ -121,6 +121,7 @@ Support files that are part of the harness lane, not standalone tests:
 
 - A test that uses service stubs is not truth-lane.
 - A test that uses preload-only overrides, `__dev`, or `__testEnv*` globals is not truth-lane.
+- A test that dispatches `test:select-scene` or `test:force-offline` is still not truth-lane.
 - A renderer interaction test is not backend proof.
 - A smoke test is not broad architectural proof.
 - A backend contract test does not prove renderer behavior.

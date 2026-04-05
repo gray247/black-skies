@@ -213,12 +213,22 @@ test.describe('Hotkeys status', () => {
       Object.defineProperty(window, '__setOffline', {
         value: (value: boolean) => {
           offline = value;
-          const globalWindow = window as typeof window & {
-            __testEnvForceOffline?: boolean;
+          const root = document.documentElement;
+          const body = document.body ?? root;
+          const syncOfflineState = (): void => {
+            if (value) {
+              root.dataset.testForceOffline = '1';
+              body.dataset.testForceOffline = '1';
+              root.dataset.testEnvForceOfflineReason = 'test-offline';
+              body.dataset.testEnvForceOfflineReason = 'test-offline';
+              return;
+            }
+            delete root.dataset.testForceOffline;
+            delete body.dataset.testForceOffline;
+            delete root.dataset.testEnvForceOfflineReason;
+            delete body.dataset.testEnvForceOfflineReason;
           };
-          globalWindow.__testEnvForceOffline = value;
-          console.log('[hotkeys-status] setOffline called', value);
-          console.log('[hotkeys-offline-debug]', globalWindow.__testEnvForceOffline);
+          syncOfflineState();
           window.dispatchEvent(
             new CustomEvent('test:service-status', { detail: value ? 'offline' : 'online' }),
           );
@@ -295,9 +305,6 @@ test.describe('Hotkeys status', () => {
     await expect(critiqueButton).toBeEnabled();
 
     await page.evaluate(() => window.__setOffline?.(true));
-    await page.evaluate(() => {
-      console.log("[hotkeys-offline-debug]", window.__testEnvForceOffline);
-    });
     const serviceStatusPill = page.getByTestId('service-status-pill');
     await serviceStatusPill.click();
 
@@ -310,9 +317,6 @@ test.describe('Hotkeys status', () => {
     await expect(critiqueButton).toBeDisabled();
 
     await page.evaluate(() => window.__setOffline?.(false));
-    await page.evaluate(() => {
-      console.log("[hotkeys-offline-debug]", window.__testEnvForceOffline);
-    });
     await serviceStatusPill.click();
 
     await expect(serviceStatusPill).toHaveAttribute('data-status', 'online');
