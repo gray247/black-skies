@@ -20,9 +20,15 @@ Use the canonical lane meanings from [Canonical Authority and Validation Lanes](
 
 | Path | Current category | What it proves | What it does not prove | Confidence | Notes |
 | --- | --- | --- | --- | --- | --- |
-| `cmd /c pnpm phase10:review` | Truth-lane launcher reference | Intended real-service review gate | It does not prove current truth-lane availability because `package.json` does not expose `phase10:review` | Low | The underlying spec path is not confirmed in the current inventory; treat this as a planning reference until repo-state confirmation lands. |
+| `pnpm test:truth` | Truth-lane launcher | Real-service backend + Electron + CDP validation without service stubs or preload-only overrides | Smoke fallback, harness-only behavior, UI polish, or backend-only proof | Medium | Runs `scripts/truth-with-backend.mjs`, which starts the backend and then asks `scripts/launch_truth_electron.py` to launch Electron on a fixed debugger port. This workspace still hits a Node `spawn EPERM` before completion, so the lane is explicit but not fully verified here. |
+| `app/tests/e2e/truth.real-service.spec.ts` | Supporting truth scenario | A human-readable Playwright scenario that mirrors the truth-lane assertions | It does not define the authoritative command path | Low | Reference scenario only. It currently uses the Playwright Electron launcher shape and should not be treated as the lane authority. |
 
-No file-based truth-lane suite is confirmed in the current visible inventory.
+Truth-lane support files:
+
+| Path | Current category | What it proves | What it does not prove | Confidence | Notes |
+| --- | --- | --- | --- | --- | --- |
+| `scripts/truth-with-backend.mjs` | Truth-lane launcher | Backend startup, explicit CDP attach, and lane orchestration | Product correctness by itself | Medium | Repo-managed truth-lane orchestrator. |
+| `scripts/launch_truth_electron.py` | Truth-lane launcher support | Electron startup on a real debug port | Product correctness by itself | Medium | Called by the launcher to avoid the Node spawn path that fails in this workspace. |
 
 ### UI-only tests
 
@@ -104,6 +110,7 @@ Support files that are part of the harness lane, not standalone tests:
 - WK-008, WK-010, WK-015: `gui.flows.spec.ts`, `gui.smoke.spec.ts`, `dock-workspace.spec.ts`, `smoke.project.spec.ts`, `gui.insights.spec.ts`, `gui.analytics_offline_cache_flow.spec.ts`, `budget-meter.spec.ts`, `hotkeys-status.spec.ts`, `gui.snapshot_verification_flow.spec.ts`, `phase5-export-integrity-flow.spec.ts`, and `gui-contract.spec.ts` are harness-driven, not truth-lane.
 - WK-011: `smoke.project.spec.ts` and any sample-project-driven flow can pass because the filesystem happens to contain the expected fixture layout.
 - WK-014: `app/tests/e2e/editorial-review-workflow.spec.ts` is not present in the current inventory, so it must not be cited as a current truth or UI-only suite until the repo-state path is confirmed.
+- The truth-lane launcher is explicit, but this workspace still reports a Node spawn restriction before it can complete. That failure should not be read as a truth-lane fallback; it is a local execution gap.
 
 ## Proposed Taxonomy Rules
 
@@ -119,7 +126,7 @@ Support files that are part of the harness lane, not standalone tests:
 
 | Command | Lane | Intent | Allowed claims | Forbidden claims |
 | --- | --- | --- | --- | --- |
-| `cmd /c pnpm phase10:review` | Truth lane reference | Intended real-service review gate | Only that it is the intended truth-lane launcher once repo-state confirmation lands | Current availability, or any claim that smoke/harness/UI-only runs are equivalent |
+| `pnpm test:truth` | Truth lane | Real-service backend + Electron validation via the repo-managed launcher | Real-service claims only, and only if the launcher path completes successfully | Any smoke fallback, UI-only, or harness-only claim |
 | `pnpm test:e2e` | Harness-driven | Smoke-fallback E2E launcher | Smoke path / harness wiring only | Truth-lane or broad architecture proof |
 | `pnpm --dir app exec playwright test tests/e2e/visual.home.spec.ts --project=electron --workers=1` | UI-only | Screenshot regression | Visual/layout stability | Backend truth or service correctness |
 | `pnpm --dir app exec playwright test tests/e2e/a11y.smoke.spec.ts --project=electron --workers=1` | UI-only | Accessibility smoke | Renderer accessibility of the current shell | Backend truth |

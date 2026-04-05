@@ -10,7 +10,7 @@ This document reduces false confidence by naming which docs are authoritative, w
 | Phased scope | `docs/phases/phase_charter.md` | `docs/specs/architecture.md`, `docs/BUILD_PLAN.md` | `docs/phase_bridge.md`, `docs/phases/README.md`, review docs, archive docs | `docs/BUILD_PLAN.md` has historically over-claimed authority; treat it as supporting implementation context, not scope authority. |
 | Current status / phase progress | `docs/roadmap.md` for the snapshot, with `phase_log.md` as the dated ledger | `docs/phases/phase_log.md` | `docs/BUILD_PLAN.md`, `docs/phase_bridge.md`, review docs | `phase_log.md`, `docs/roadmap.md`, and `docs/phases/phase_charter.md` overlap on status language; the roadmap is the current snapshot, while the phase logs record locked history. |
 | Architecture boundaries | `docs/specs/architecture.md` | `docs/specs/data_model.md`, `docs/specs/endpoints.md`, `docs/specs/agents_and_services.md`, `docs/gui/gui_layouts.md` | `docs/BUILD_PLAN.md`, `docs/phase_bridge.md`, review docs | `docs/BUILD_PLAN.md` references architecture work but does not override the spec. |
-| Testing / validation guidance | `docs/reviews/canonical_authority_and_validation_lanes.md` for lane meanings; `docs/reviews/test_taxonomy_and_truth_matrix.md` for current classification; `docs/tests.md` as a practical guide | `docs/ops/repo_hygiene.md`, `docs/phases/phase_charter.md`, `docs/roadmap.md` | `docs/tests.md` when read as an older gate map, smoke-only launchers, UI-only harness docs, review artifacts | `docs/tests.md` should not be treated as the source of lane truth; the taxonomy matrix is the classification reference. |
+| Testing / validation guidance | `docs/reviews/canonical_authority_and_validation_lanes.md` for lane meanings; `docs/reviews/test_taxonomy_and_truth_matrix.md` for current classification; `docs/reviews/truth_lane_definition_and_gap_report.md` for the current truth-lane path; `docs/tests.md` as a practical guide | `docs/ops/repo_hygiene.md`, `docs/phases/phase_charter.md`, `docs/roadmap.md` | `docs/tests.md` when read as an older gate map, smoke-only launchers, UI-only harness docs, review artifacts | `docs/tests.md` should not be treated as the source of lane truth; the taxonomy matrix and truth gap report are the classification reference. |
 | Operational hygiene guidance | `docs/ops/repo_hygiene.md` | `.gitignore`, repo hygiene scripts, local hook installer docs | generated reports, backup files, cache directories, review artifacts | Hygiene policy is stable; generated artifacts should not be treated as active documentation. |
 
 ## Current Authority Conflicts
@@ -77,10 +77,10 @@ Commands are grouped by lane. The truth lane section is the one that should be u
 
 ### Truth lane
 
-- `cmd /c pnpm phase10:review`
-- `pnpm --dir app exec playwright test tests/e2e/project-home.real-service.spec.ts tests/e2e/phase10.review.spec.ts --project=electron --workers=1`
+- `pnpm test:truth`
+- Launcher path: `scripts/truth-with-backend.mjs` -> `scripts/launch_truth_electron.py`
 
-Use these only for real-service truth claims. Do not treat smoke-only, UI-only, or harness-only runs as equivalent.
+Use these only for real-service truth claims. Do not treat smoke-only, UI-only, or harness-only runs as equivalent. The launcher path is explicit and does not use the smoke fallback from `scripts/e2e-with-backend.mjs`.
 
 ### UI-only lane
 
