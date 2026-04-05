@@ -84,6 +84,7 @@ const electronFsApi = {
 safeExpose('__electronApi', { fs: electronFsApi });
 
 const isPlaywright = process.env.PLAYWRIGHT === '1';
+const harnessHooksEnabled = process.env.BLACKSKIES_ENABLE_HARNESS_HOOKS === '1';
 const setPlaywrightTestAttribute = (): void => {
   if (typeof document === 'undefined') {
     return;
@@ -263,38 +264,42 @@ const devApi: {
     window.dispatchEvent(new CustomEvent('test:set-project', { detail: absPath })),
 };
 
-// --- test/insights bridges ---
-safeExpose('__test', {
-  markBoot: () => console.log('[boot] renderer mounted'),
-});
+// --- harness-only bridges ---
+// These are explicit test hooks and must stay out of the truth lane unless a harness runner
+// opts in with BLACKSKIES_ENABLE_HARNESS_HOOKS=1.
+if (harnessHooksEnabled) {
+  safeExpose('__test', {
+    markBoot: () => console.log('[boot] renderer mounted'),
+  });
 
-safeExpose('__dev', devApi);
+  safeExpose('__dev', devApi);
 
-safeExpose('__testInsights', {
-  setServiceStatus: (status: 'offline' | 'online') =>
-    window.dispatchEvent(new CustomEvent('test:service-status', { detail: status })),
-  selectScene: (id: string) =>
-    window.dispatchEvent(new CustomEvent('test:select-scene', { detail: id })),
-});
+  safeExpose('__testInsights', {
+    setServiceStatus: (status: 'offline' | 'online') =>
+      window.dispatchEvent(new CustomEvent('test:service-status', { detail: status })),
+    selectScene: (id: string) =>
+      window.dispatchEvent(new CustomEvent('test:select-scene', { detail: id })),
+  });
+
+  safeExpose('testMode', {
+    getMode: testMode.getMode,
+    isFlat: testMode.isFlat,
+    isRecovery: testMode.isRecovery,
+    isFull: testMode.isFull,
+    getOfflineReason: testMode.getOfflineReason,
+    testModeFreezeServiceHealth: testMode.testModeFreezeServiceHealth,
+    debug(): void {
+      console.log('[test-mode-debug]', {
+        mode: testMode.getMode(),
+        isFlat: testMode.isFlat(),
+        isRecovery: testMode.isRecovery(),
+        isFull: testMode.isFull(),
+        offlineReason: testMode.getOfflineReason(),
+      });
+    },
+  });
+}
 // --- end bridges ---
-
-safeExpose('testMode', {
-  getMode: testMode.getMode,
-  isFlat: testMode.isFlat,
-  isRecovery: testMode.isRecovery,
-  isFull: testMode.isFull,
-  getOfflineReason: testMode.getOfflineReason,
-  testModeFreezeServiceHealth: testMode.testModeFreezeServiceHealth,
-  debug(): void {
-    console.log('[test-mode-debug]', {
-      mode: testMode.getMode(),
-      isFlat: testMode.isFlat(),
-      isRecovery: testMode.isRecovery(),
-      isFull: testMode.isFull(),
-      offlineReason: testMode.getOfflineReason(),
-    });
-  },
-});
 
 import {
   LOGGING_CHANNELS,

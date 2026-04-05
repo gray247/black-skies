@@ -38,6 +38,7 @@ export const test = base.extend<AppFixtures>({
     const launchEnv: NodeJS.ProcessEnv = {
       ...process.env,
       PLAYWRIGHT: '1',
+      BLACKSKIES_ENABLE_HARNESS_HOOKS: '1',
       ...(disableAnimations ? { PLAYWRIGHT_DISABLE_ANIMATIONS: '1' } : {}),
     };
 
