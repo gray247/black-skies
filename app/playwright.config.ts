@@ -1,6 +1,14 @@
 import { defineConfig } from '@playwright/test';
+import { randomUUID } from 'node:crypto';
+import os from 'node:os';
+import path from 'node:path';
 
 const disableAnimations = process.env.PLAYWRIGHT_DISABLE_ANIMATIONS === '1' || !!process.env.CI;
+const reportRoot =
+  process.env.PLAYWRIGHT_OUTPUT_DIR ??
+  path.join(os.tmpdir(), 'black-skies-playwright', randomUUID());
+const resultsRoot = path.join(reportRoot, 'test-results');
+const htmlReportFolder = path.join(reportRoot, 'html-report');
 
 if (disableAnimations) {
   process.env.PLAYWRIGHT_DISABLE_ANIMATIONS = '1';
@@ -8,13 +16,14 @@ if (disableAnimations) {
 
 export default defineConfig({
   testDir: './tests/e2e',
+  outputDir: resultsRoot,
   timeout: 90_000,
   expect: {
     timeout: 5_000,
   },
   fullyParallel: false,
   retries: process.env.CI ? 2 : 0,
-  reporter: [['list'], ['html', { open: 'never' }]],
+  reporter: [['list'], ['html', { open: 'never', outputFolder: htmlReportFolder }]],
   use: {
     trace: 'retain-on-failure',
     screenshot: 'off',
