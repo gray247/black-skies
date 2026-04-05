@@ -3,6 +3,7 @@ import { createRequire } from 'node:module';
 import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { assertPipeChildProcessSupport } from './pipe_spawn_preflight.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -11,6 +12,8 @@ const appDir = path.join(repoRoot, 'app');
 const require = createRequire(import.meta.url);
 
 async function runVitest() {
+  assertPipeChildProcessSupport('Vitest renderer/unit validation');
+
   let parseCLI;
   let startVitest;
   let vitestConfig;
