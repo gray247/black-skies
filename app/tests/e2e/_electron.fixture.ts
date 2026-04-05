@@ -28,6 +28,7 @@ export const test = base.extend<Fixtures>({
       NODE_ENV: 'test',
       ...(rendererUrl ? { ELECTRON_RENDERER_URL: rendererUrl } : {}),
       PLAYWRIGHT: '1',
+      BLACKSKIES_ENABLE_HARNESS_HOOKS: '1',
       ...(disableAnimations ? { PLAYWRIGHT_DISABLE_ANIMATIONS: '1' } : {}),
       BLACKSKIES_SERVICES_PORT: String(SERVICE_PORT),
       BLACKSKIES_E2E_PORT: String(SERVICE_PORT),

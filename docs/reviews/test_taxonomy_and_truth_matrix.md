@@ -60,9 +60,9 @@ Support files that are part of the harness lane, not standalone tests:
 
 | Path | Current category | What it proves | What it does not prove | Confidence | Notes |
 | --- | --- | --- | --- | --- | --- |
-| `app/tests/e2e/_electron.fixture.ts` | Harness support | Electron launch and fixture wiring | Product correctness | High | Core launcher fixture. |
+| `app/tests/e2e/_electron.fixture.ts` | Harness support | Electron launch and fixture wiring | Product correctness | High | Core launcher fixture. It now sets `BLACKSKIES_ENABLE_HARNESS_HOOKS=1` so harness-only preload APIs are available only in this lane. |
 | `app/tests/e2e/_bootstrap.ts` | Harness support | Harness startup sequence | Product correctness | High | Shared bootstrap glue. |
-| `app/tests/e2e/electron.launch.ts` | Harness support | Electron launch path for non-stub UI smoke | Backend truth | High | Useful for UI-only checks, not proof of service behavior. |
+| `app/tests/e2e/electron.launch.ts` | Harness support | Electron launch path for non-stub UI smoke | Backend truth | High | Useful for UI-only checks, not proof of service behavior. Both Playwright launchers now set `BLACKSKIES_ENABLE_HARNESS_HOOKS=1`, so `__dev`, `__test`, `__testInsights`, and `testMode` are present only in harness runs. |
 | `app/tests/e2e/servicePort.ts` | Harness support | Port coordination for local E2E runs | Product correctness | High | Launcher glue only. |
 | `app/tests/e2e/utils/serviceStubs.ts` | Harness support | Stubbed service behavior used by harness-driven tests | Real-service truth | High | Explicitly injects fake service behavior. |
 | `app/tests/e2e/utils/sampleProject.ts` | Harness support | Sample-project fixture loading | Truth-lane readiness | Medium | Depends on local filesystem layout. |
@@ -105,12 +105,13 @@ Support files that are part of the harness lane, not standalone tests:
 
 ## Misclassification Risks
 
-- WK-001, WK-009, WK-013: any test that uses `__dev`, `__testEnv*`, `__testInsights`, or `installServiceStubs` is not truth-lane.
+- WK-001, WK-009, WK-013: any test that uses `__dev`, `__testEnv*`, `__testInsights`, `testMode`, or `installServiceStubs` is not truth-lane.
 - WK-002, WK-016: `pnpm test:e2e` goes through `scripts/e2e-with-backend.mjs`, which defaults to smoke files and `--grep smoke_` unless explicitly overridden.
 - WK-008, WK-010, WK-015: `gui.flows.spec.ts`, `gui.smoke.spec.ts`, `dock-workspace.spec.ts`, `smoke.project.spec.ts`, `gui.insights.spec.ts`, `gui.analytics_offline_cache_flow.spec.ts`, `budget-meter.spec.ts`, `hotkeys-status.spec.ts`, `gui.snapshot_verification_flow.spec.ts`, `phase5-export-integrity-flow.spec.ts`, and `gui-contract.spec.ts` are harness-driven, not truth-lane.
 - WK-011: `smoke.project.spec.ts` and any sample-project-driven flow can pass because the filesystem happens to contain the expected fixture layout.
 - WK-014: `app/tests/e2e/editorial-review-workflow.spec.ts` is not present in the current inventory, so it must not be cited as a current truth or UI-only suite until the repo-state path is confirmed.
 - The truth-lane launcher is explicit and now executes successfully in this workspace. Keep the lane claims narrow even when the launcher is healthy.
+- The explicit harness preload APIs are now fenced behind `BLACKSKIES_ENABLE_HARNESS_HOOKS=1`; if a review finds them in a truth claim, that claim is overstated.
 
 ## Proposed Taxonomy Rules
 

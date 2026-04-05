@@ -22,6 +22,7 @@ Authority note: this is a practical validation guide, not the canonical lane cla
 - What it does: starts the real backend, materializes a temp `Esther_Estate` project root from the bundled sample snapshot, launches Electron against the real service port, then attaches over CDP and calls the real renderer preflight bridge without service stubs or preload-only overrides.
 - What it does not prove: the Generate button click path itself. It proves the live renderer bridge and the preflight service call from the loaded real project.
 - Current status: runnable in this workspace. The lane now reaches the live Electron renderer, verifies the real bridge, and exercises the preflight service against the loaded project.
+- Harness-only preload APIs (`__dev`, `__test`, `__testInsights`, `testMode`) are fenced behind `BLACKSKIES_ENABLE_HARNESS_HOOKS=1` and are not part of the truth-lane command.
 - Gap report: [Truth Lane Definition and Gap Report](./reviews/truth_lane_definition_and_gap_report.md)
 - Do not overclaim: `pnpm test:e2e` is not a truth substitute; it is the smoke-fallback launcher defined in `scripts/e2e-with-backend.mjs`.
 
@@ -40,6 +41,7 @@ Use these for renderer appearance and accessibility checks only. They do not pro
 - `pnpm --dir app exec playwright test tests/e2e/gui.analytics_offline_cache_flow.spec.ts --project=electron --workers=1`
 
 Use these for launcher, fixture, and interaction sanity. Do not claim backend truth from a harness pass.
+Harness runs may use the explicit preload hooks listed in [Preload Hook Inventory and Containment](./reviews/preload_hook_inventory_and_containment.md), but those hooks are not truth evidence.
 
 ### Backend contract/state lane
 - `python -m pytest services/tests/test_analytics_endpoints.py -q`
@@ -71,6 +73,7 @@ Use these to verify tracked-file cleanliness and hook wiring. They do not prove 
 - Backend contract tests do not prove the renderer is using the real service path.
 - UI-only tests do not prove service correctness.
 - The truth lane is the explicit launcher path above, not any smoke or harness fallback.
+- A passing harness run that depends on `BLACKSKIES_ENABLE_HARNESS_HOOKS=1` is still harness evidence, not production truth.
 - If a command only proves a lane-specific subset, say so explicitly in review notes.
 
 ## Where to look next
