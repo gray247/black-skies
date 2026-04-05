@@ -78,7 +78,7 @@ Commands are grouped by lane. The truth lane section is the one that should be u
 ### Truth lane
 
 - `pnpm test:truth`
-- Launcher path: `scripts/truth-with-backend.mjs` -> `scripts/launch_truth_electron.py`
+- Launcher path: `scripts/truth-with-backend.mjs`
 
 Use these only for real-service truth claims. Do not treat smoke-only, UI-only, or harness-only runs as equivalent. The launcher path is explicit and does not use the smoke fallback from `scripts/e2e-with-backend.mjs`.
 

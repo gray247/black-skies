@@ -2,12 +2,19 @@
 import net from 'node:net';
 import path from 'node:path';
 import assert from 'node:assert/strict';
-import { existsSync } from 'node:fs';
+import {
+  cpSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+} from 'node:fs';
+import os from 'node:os';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { setTimeout as delay } from 'node:timers/promises';
-import playwright from '../app/node_modules/playwright/index.js';
-const { chromium } = playwright;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -17,6 +24,7 @@ const ELECTRON_DEBUG_PORT = 9222;
 const HEALTH_PATH = `/api/v1/healthz`;
 const HEALTH_TIMEOUT_MS = 30_000;
 const REPO_ROOT = path.resolve(__dirname, '..');
+const LAUNCH_PREFIX = 'blackskies-truth-';
 
 function splitCommand(command) {
   const tokens = [];
@@ -68,6 +76,45 @@ async function ensurePortAvailable(host, port) {
   });
 }
 
+function quotePowerShell(value) {
+  return `'${String(value).replace(/'/g, "''")}'`;
+}
+
+function toPowerShellArray(values) {
+  return `@(${values.map((value) => quotePowerShell(value)).join(', ')})`;
+}
+
+function resolveTruthProjectSourcePath(sampleRoot) {
+  const outlinePath = path.join(sampleRoot, 'outline.json');
+  if (existsSync(outlinePath)) {
+    return sampleRoot;
+  }
+
+  const snapshotsRoot = path.join(sampleRoot, '.snapshots');
+  if (existsSync(snapshotsRoot)) {
+    const snapshotCandidates = readdirSync(snapshotsRoot, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory() && entry.name.startsWith('ss_'))
+      .map((entry) => path.join(snapshotsRoot, entry.name))
+      .sort()
+      .reverse();
+    for (const candidate of snapshotCandidates) {
+      if (existsSync(path.join(candidate, 'outline.json'))) {
+        return candidate;
+      }
+    }
+  }
+
+  return sampleRoot;
+}
+
+function materializeTruthProjectRoot(sourcePath, launchRoot) {
+  const projectBaseDir = path.join(launchRoot, 'project-base');
+  const projectPath = path.join(projectBaseDir, 'Esther_Estate');
+  mkdirSync(projectBaseDir, { recursive: true });
+  cpSync(sourcePath, projectPath, { recursive: true, force: true });
+  return { projectBaseDir, projectPath };
+}
+
 async function waitForDebuggerVersion(port, timeoutMs) {
   const url = `http://127.0.0.1:${port}/json/version`;
   const deadline = Date.now() + timeoutMs;
@@ -88,6 +135,126 @@ async function waitForDebuggerVersion(port, timeoutMs) {
   throw new Error(`[truth] Electron did not expose a debugger endpoint on port ${port}`);
 }
 
+async function waitForDebuggerPage(port, timeoutMs) {
+  const url = `http://127.0.0.1:${port}/json/list`;
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    try {
+      const response = await fetch(url, { method: 'GET' });
+      if (response.ok) {
+        const payload = await response.json();
+        if (Array.isArray(payload)) {
+          const pageTarget = payload.find((target) => target?.type === 'page');
+          if (pageTarget?.webSocketDebuggerUrl) {
+            return pageTarget;
+          }
+        }
+      }
+    } catch {
+      // Ignore and retry until the page target appears.
+    }
+    await delay(250);
+  }
+  throw new Error(`[truth] Electron did not expose a page target on port ${port}`);
+}
+
+class CdpClient {
+  constructor(wsUrl) {
+    this.ws = new WebSocket(wsUrl);
+    this.nextId = 1;
+    this.pending = new Map();
+    this.ready = new Promise((resolve, reject) => {
+      this.ws.addEventListener('open', () => resolve(), { once: true });
+      this.ws.addEventListener('error', reject, { once: true });
+    });
+    this.ws.addEventListener('message', (event) => {
+      const message = JSON.parse(event.data);
+      if (typeof message.id === 'number') {
+        const pending = this.pending.get(message.id);
+        if (!pending) {
+          return;
+        }
+        this.pending.delete(message.id);
+        if (message.error) {
+          pending.reject(new Error(message.error.message ?? 'CDP command failed'));
+          return;
+        }
+        pending.resolve(message.result);
+      }
+    });
+    this.ws.addEventListener('close', () => {
+      for (const pending of this.pending.values()) {
+        pending.reject(new Error('CDP websocket closed unexpectedly'));
+      }
+      this.pending.clear();
+    });
+  }
+
+  async send(method, params = {}) {
+    await this.ready;
+    return new Promise((resolve, reject) => {
+      const id = this.nextId;
+      this.nextId += 1;
+      this.pending.set(id, { resolve, reject });
+      try {
+        this.ws.send(JSON.stringify({ id, method, params }));
+      } catch (error) {
+        this.pending.delete(id);
+        reject(error);
+      }
+    });
+  }
+
+  close() {
+    this.ws.close();
+  }
+}
+
+async function evaluate(client, expression) {
+  const result = await client.send('Runtime.evaluate', {
+    expression,
+    awaitPromise: true,
+    returnByValue: true,
+    includeCommandLineAPI: true,
+  });
+  if (result.exceptionDetails) {
+    throw new Error(`[truth] CDP evaluation failed: ${JSON.stringify(result.exceptionDetails)}`);
+  }
+  return result.result?.value;
+}
+
+async function waitForCondition(check, timeoutMs, label = 'condition') {
+  const deadline = Date.now() + timeoutMs;
+  let lastError = null;
+  while (Date.now() < deadline) {
+    try {
+      if (await check()) {
+        return;
+      }
+    } catch (error) {
+      lastError = error;
+    }
+    await delay(250);
+  }
+  if (lastError) {
+    throw new Error(`[truth] Timed out waiting for ${label}: ${lastError.message}`);
+  }
+  throw new Error(`[truth] Timed out after ${timeoutMs}ms waiting for ${label}`);
+}
+
+async function waitForProcessExit(pid, timeoutMs) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    try {
+      process.kill(pid, 0);
+    } catch {
+      return;
+    }
+    await delay(250);
+  }
+  throw new Error(`[truth] Electron process ${pid} did not exit before cleanup`);
+}
+
 async function run() {
   const serviceCommandEnv = process.env.E2E_SERVICE_COMMAND;
   const defaultCommand = [
@@ -105,6 +272,11 @@ async function run() {
   const backendTokens = overrideTokens.length ? overrideTokens : defaultCommand;
   const backendCommand = backendTokens[0];
   const backendArgs = backendTokens.slice(1);
+  const launchRoot = mkdtempSync(path.join(os.tmpdir(), LAUNCH_PREFIX));
+  const truthProjectSourcePath = resolveTruthProjectSourcePath(
+    path.resolve(REPO_ROOT, 'sample_project', 'Esther_Estate'),
+  );
+  const truthProject = materializeTruthProjectRoot(truthProjectSourcePath, launchRoot);
 
   await ensurePortAvailable('127.0.0.1', SERVICE_PORT);
   console.log(`[truth] launching backend: ${backendCommand} ${backendArgs.join(' ')}`);
@@ -113,10 +285,14 @@ async function run() {
     BLACKSKIES_SERVICES_PORT: String(SERVICE_PORT),
     BLACKSKIES_E2E_PORT: String(SERVICE_PORT),
     BLACKSKIES_E2E_MODE: '1',
+    BLACKSKIES_PROJECT_BASE_DIR: truthProject.projectBaseDir,
+    PROJECT_BASE_DIR: truthProject.projectBaseDir,
   };
   process.env.BLACKSKIES_SERVICES_PORT = String(SERVICE_PORT);
   process.env.BLACKSKIES_E2E_PORT = String(SERVICE_PORT);
   process.env.BLACKSKIES_E2E_MODE = '1';
+  process.env.BLACKSKIES_PROJECT_BASE_DIR = truthProject.projectBaseDir;
+  process.env.PROJECT_BASE_DIR = truthProject.projectBaseDir;
   process.env.PATH = `C:/Dev/black-skies/.venv/Scripts;` + process.env.PATH;
   const backend = spawn(backendCommand, backendArgs, {
     env: backendEnv,
@@ -154,8 +330,6 @@ async function run() {
     const entryPoint = existsSync(packagedEntry) ? packagedEntry : devFallback;
     const rendererIndex = path.resolve(appDir, 'dist', 'index.html');
     const rendererUrl = pathToFileURL(rendererIndex).toString();
-    const truthLauncherModule = 'scripts.launch_truth_electron';
-
     console.log('[truth] launching Electron app', {
       entryPoint: entryPoint === packagedEntry ? 'app/dist-electron/main/main.js' : 'app/main/main.ts',
       rendererUrl,
@@ -175,117 +349,255 @@ async function run() {
     process.env.BLACKSKIES_SERVICES_PORT = String(SERVICE_PORT);
     process.env.BLACKSKIES_E2E_PORT = String(SERVICE_PORT);
     process.env.BLACKSKIES_E2E_MODE = '1';
-    process.env.BLACKSKIES_TRUTH_DEBUG_PORT = String(ELECTRON_DEBUG_PORT);
     process.env.PLAYWRIGHT = '1';
 
     await ensurePortAvailable('127.0.0.1', ELECTRON_DEBUG_PORT);
 
     let browser = null;
     let electronPid = null;
-    const helperPython = process.env.PYTHON ?? 'C:/Dev/black-skies/.venv/Scripts/python.exe';
-    let launcher;
-    try {
-      launcher = spawn(helperPython, ['-m', truthLauncherModule], {
-        env: launchEnv,
-        stdio: ['ignore', 'pipe', 'pipe'],
-        cwd: REPO_ROOT,
-      });
-    } catch (error) {
+    const userDataDir = path.join(launchRoot, 'electron-user-data');
+    const pidFile = path.join(launchRoot, 'electron.pid');
+    mkdirSync(userDataDir, { recursive: true });
+
+    const electronBinary = path.resolve(
+      REPO_ROOT,
+      'app',
+      'node_modules',
+      'electron',
+      'dist',
+      process.platform === 'win32' ? 'electron.exe' : 'electron',
+    );
+    const electronArgs = [
+      `--user-data-dir=${userDataDir}`,
+      `--remote-debugging-port=${ELECTRON_DEBUG_PORT}`,
+      '--remote-debugging-address=127.0.0.1',
+      entryPoint,
+    ];
+    const launchScript = [
+      '$ErrorActionPreference = "Stop";',
+      `$pidFile = ${quotePowerShell(pidFile)};`,
+      `$userDataDir = ${quotePowerShell(userDataDir)};`,
+      'New-Item -ItemType Directory -Force -Path $userDataDir | Out-Null;',
+      `$proc = Start-Process -FilePath ${quotePowerShell(electronBinary)} -ArgumentList ${toPowerShellArray(electronArgs)} -WorkingDirectory ${quotePowerShell(REPO_ROOT)} -WindowStyle Hidden -PassThru;`,
+      'Set-Content -Path $pidFile -Value $proc.Id -NoNewline;',
+    ].join(' ');
+
+    const launcher = spawnSync('powershell.exe', ['-NoProfile', '-Command', launchScript], {
+      env: launchEnv,
+      stdio: 'inherit',
+      cwd: REPO_ROOT,
+    });
+    if (launcher.status !== 0) {
       throw new Error(
-        `[truth] Unable to start the Python Electron helper via Node spawn. See docs/reviews/truth_lane_definition_and_gap_report.md. ${
-          error instanceof Error ? error.message : String(error)
+        `[truth] Electron launcher failed before CDP attach with exit code ${
+          launcher.status ?? 'unknown'
         }`,
       );
     }
-
-    const helperPidPromise = new Promise((resolve, reject) => {
-      let stdout = '';
-      let stderr = '';
-      launcher.stdout?.setEncoding('utf8');
-      launcher.stderr?.setEncoding('utf8');
-      launcher.stdout?.on('data', (chunk) => {
-        stdout += chunk;
-      });
-      launcher.stderr?.on('data', (chunk) => {
-        stderr += chunk;
-      });
-      launcher.once('error', reject);
-      launcher.once('exit', (code) => {
-        if (code !== 0) {
-          reject(new Error(`[truth] Electron helper failed: ${stderr || stdout || code}`));
-          return;
-        }
-        const pid = Number.parseInt(stdout.trim(), 10);
-        if (!Number.isFinite(pid) || pid <= 0) {
-          reject(new Error(`[truth] Electron helper did not return a valid PID: ${stdout || stderr}`));
-          return;
-        }
-        resolve(pid);
-      });
-    });
-
-    electronPid = await helperPidPromise;
+    if (!existsSync(pidFile)) {
+      throw new Error('[truth] Electron launcher did not write a PID file');
+    }
+    electronPid = Number.parseInt(readFileSync(pidFile, 'utf8').trim(), 10);
+    if (!Number.isFinite(electronPid) || electronPid <= 0) {
+      throw new Error('[truth] Electron launcher wrote an invalid PID');
+    }
     console.log('[truth] launched Electron PID', electronPid);
 
     const devtoolsEndpoint = await waitForDebuggerVersion(ELECTRON_DEBUG_PORT, 30_000);
-    console.log('[truth] connecting over CDP', devtoolsEndpoint);
-    browser = await chromium.connectOverCDP(devtoolsEndpoint);
+    const pageTarget = await waitForDebuggerPage(ELECTRON_DEBUG_PORT, 30_000);
+    console.log('[truth] debugger targets', {
+      browser: devtoolsEndpoint,
+      page: pageTarget?.webSocketDebuggerUrl ?? null,
+      url: pageTarget?.url ?? null,
+    });
+    console.log('[truth] connecting over CDP', pageTarget.webSocketDebuggerUrl);
+    const cdp = new CdpClient(pageTarget.webSocketDebuggerUrl);
+    await cdp.ready;
+    await cdp.send('Page.enable');
+    await cdp.send('Runtime.enable');
 
     try {
-      const context = browser.contexts()[0];
-      if (!context) {
-        throw new Error('[truth] Electron did not expose a browser context for validation');
-      }
-      let page = context.pages()[0] ?? null;
-      for (let attempt = 0; attempt < 120 && !page; attempt += 1) {
-        await delay(250);
-        page = context.pages()[0] ?? null;
-      }
-      if (!page) {
-        throw new Error('[truth] Electron did not open a window for validation');
-      }
-      await page.waitForLoadState('domcontentloaded');
+      const launcherContext = await evaluate(
+        cdp,
+        `(() => (async () => ({
+          hasProjectLoader: Boolean(window.projectLoader),
+          samplePath: await window.projectLoader?.getSampleProjectPath?.(),
+        }))())()`,
+      );
+      console.log('[truth] launcher context', launcherContext);
+      console.log('[truth] resolved truth project path', truthProject.projectPath);
+      const sampleLoadProbe = await evaluate(
+        cdp,
+        `(() => (async () => {
+          const samplePath = ${JSON.stringify(truthProject.projectPath)};
+          const response = await window.projectLoader?.loadProject?.({ path: samplePath });
+          if (!response || typeof response !== 'object') {
+            return { ok: false, error: 'Project loader returned an unexpected payload.' };
+          }
+          return {
+            ok: Boolean(response.ok),
+            error: response.ok ? null : response.error?.message ?? null,
+            issueCount: response.ok ? response.issues?.length ?? 0 : response.error?.issues?.length ?? 0,
+            projectId: response.ok ? response.project.path.split(/[\\\\/]/).at(-1) ?? null : null,
+            sceneIds: response.ok ? response.project.scenes.map((scene) => scene.id) : [],
+          };
+        })())()`,
+      );
+      console.log('[truth] sample load probe', sampleLoadProbe);
 
-      const statusPill = page.getByTestId('service-status-pill');
-      await statusPill.waitFor({ state: 'visible', timeout: 30_000 });
-      assert.equal(await statusPill.getAttribute('data-status'), 'online');
+      const samplePathLiteral = JSON.stringify(truthProject.projectPath);
+      const sampleNameLiteral = JSON.stringify(path.basename(truthProject.projectPath));
+      await evaluate(
+        cdp,
+        `(() => {
+          localStorage.setItem(
+            'blackskies.recent-projects',
+            JSON.stringify([
+              {
+                path: ${samplePathLiteral},
+                name: ${sampleNameLiteral},
+                lastOpened: Date.now(),
+              },
+            ]),
+          );
+          localStorage.setItem('blackskies.last-project', ${samplePathLiteral});
+          return true;
+        })()`,
+      );
+      await cdp.send('Page.reload', { ignoreCache: true });
+      console.log('[truth] seeded recent project and reloaded page');
 
-      const bridgeHealth = await page.evaluate(async () => {
-        const result = await window.services?.checkHealth();
-        return {
-          ok: Boolean(result?.ok),
-          status: result?.data?.status ?? null,
-        };
-      });
+      console.log('[truth] waiting for document.readyState');
+      await waitForCondition(async () => {
+        const readyState = await evaluate(cdp, 'document.readyState');
+        return readyState === 'interactive' || readyState === 'complete';
+      }, 30_000, 'document.readyState');
+
+      console.log('[truth] waiting for recent project entry');
+      await waitForCondition(async () => {
+        const recentButtonPresent = await evaluate(
+          cdp,
+          `Boolean(document.querySelector('[data-testid="recent-projects-list"] button'))`,
+        );
+        return recentButtonPresent === true;
+      }, 30_000, 'recent project entry');
+
+      console.log('[truth] opening recent project');
+      await evaluate(
+        cdp,
+        `(() => {
+          const button = document.querySelector('[data-testid="recent-projects-list"] button');
+          if (!button) {
+            throw new Error('Recent project button not found');
+          }
+          button.click();
+          return true;
+        })()`,
+      );
+
+      console.log('[truth] waiting for service status pill');
+      await waitForCondition(async () => {
+        const status = await evaluate(
+          cdp,
+          `document.querySelector('[data-testid="service-status-pill"]')?.getAttribute('data-status') ?? null`,
+        );
+        return status === 'online';
+      }, 30_000, 'service status pill');
+
+      console.log('[truth] checking bridge health');
+      const bridgeHealth = await evaluate(
+        cdp,
+        `(() => (async () => {
+          const result = await window.services?.checkHealth();
+          return {
+            ok: Boolean(result?.ok),
+            status: result?.data?.status ?? null,
+          };
+        })())()`,
+      );
       assert.equal(bridgeHealth.ok, true);
-      assert.equal(bridgeHealth.status, 'online');
+      assert.equal(bridgeHealth.status, 'ok');
 
-      await page.getByTestId('dock-workspace').waitFor({ state: 'visible', timeout: 30_000 });
+      console.log('[truth] waiting for dock workspace');
+      await waitForCondition(async () => {
+        const dockVisible = await evaluate(
+          cdp,
+          `Boolean(document.querySelector('[data-testid="dock-workspace"]'))`,
+        );
+        return dockVisible === true;
+      }, 30_000, 'dock workspace');
 
-      const generateButton = page.getByTestId('workspace-action-generate');
-      await generateButton.waitFor({ state: 'visible', timeout: 30_000 });
-      await generateButton.click();
+      const debugSnapshot = await evaluate(
+        cdp,
+        `Array.isArray(window.__blackskiesDebugLog) ? window.__blackskiesDebugLog.slice(-20) : null`,
+      );
+      console.log('[truth] renderer debug snapshot', debugSnapshot);
 
-      await page.getByRole('dialog', { name: /Draft preflight/i }).waitFor({
-        state: 'visible',
-        timeout: 30_000,
-      });
+      console.log('[truth] waiting for generate button to enable');
+      await waitForCondition(async () => {
+        const enabled = await evaluate(
+          cdp,
+          `(() => {
+            const button = document.querySelector('[data-testid="workspace-action-generate"]');
+            return Boolean(button) && !(button instanceof HTMLButtonElement ? button.disabled : false);
+          })()`,
+        );
+        return enabled === true;
+      }, 30_000, 'generate button enabled');
+
+      console.log('[truth] invoking preflight bridge');
+      const preflightResult = await evaluate(
+        cdp,
+        `(() => (async () => {
+          const response = await window.services?.preflightDraft({
+            projectId: ${JSON.stringify(sampleLoadProbe.projectId)},
+            unitScope: 'scene',
+            unitIds: ${JSON.stringify(sampleLoadProbe.sceneIds)},
+          });
+          if (!response || typeof response !== 'object') {
+            return { ok: false, error: 'Preflight bridge returned an unexpected payload.' };
+          }
+          return {
+            ok: Boolean(response.ok),
+            status: response.ok ? response.data?.budget?.status ?? null : null,
+            sceneCount: response.ok ? response.data?.scenes?.length ?? 0 : 0,
+          };
+        })())()`,
+      );
+      console.log('[truth] preflight bridge result', preflightResult);
+      assert.equal(preflightResult.ok, true);
+      assert.equal(preflightResult.status, 'ok');
+      assert.equal(preflightResult.sceneCount, sampleLoadProbe.sceneIds.length);
     } finally {
-      if (browser) {
-        try {
-          await browser.close();
-        } catch {
-          // The app may already be shutting down; cleanup still continues.
-        }
-      }
-      if (electronPid !== null) {
+      cdp.close();
+      try {
+        spawnSync('taskkill', ['/PID', String(electronPid), '/T', '/F'], { stdio: 'ignore' });
+      } catch {
         try {
           process.kill(electronPid);
         } catch {
           // Ignore cleanup races on teardown.
         }
       }
-      await delay(5_000);
+      if (electronPid) {
+        await waitForProcessExit(electronPid, 10_000).catch((error) => {
+          console.warn('[truth] cleanup warning:', error.message);
+        });
+      }
+      if (launchRoot) {
+        for (let attempt = 0; attempt < 10; attempt += 1) {
+          try {
+            rmSync(launchRoot, { recursive: true, force: true });
+            break;
+          } catch (error) {
+            if (attempt === 9) {
+              console.warn('[truth] cleanup warning: failed to remove launch root', error.message);
+              break;
+            }
+            await delay(250);
+          }
+        }
+      }
     }
   } finally {
     cleanup();

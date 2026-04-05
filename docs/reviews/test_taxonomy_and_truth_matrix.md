@@ -20,7 +20,7 @@ Use the canonical lane meanings from [Canonical Authority and Validation Lanes](
 
 | Path | Current category | What it proves | What it does not prove | Confidence | Notes |
 | --- | --- | --- | --- | --- | --- |
-| `pnpm test:truth` | Truth-lane launcher | Real-service backend + Electron + CDP validation without service stubs or preload-only overrides | Smoke fallback, harness-only behavior, UI polish, or backend-only proof | Medium | Runs `scripts/truth-with-backend.mjs`, which starts the backend and then asks `scripts/launch_truth_electron.py` to launch Electron on a fixed debugger port. This workspace still hits a Node `spawn EPERM` before completion, so the lane is explicit but not fully verified here. |
+| `pnpm test:truth` | Truth-lane launcher | Real-service backend + Electron + renderer-bridge validation without service stubs or preload-only overrides | Smoke fallback, harness-only behavior, UI polish, button-click routing, or backend-only proof | High | Runs `scripts/truth-with-backend.mjs`, which starts the backend, materializes a real `Esther_Estate` project root in a temp base dir, launches Electron on a fixed debugger port, and invokes the live preflight bridge from the renderer context. |
 | `app/tests/e2e/truth.real-service.spec.ts` | Supporting truth scenario | A human-readable Playwright scenario that mirrors the truth-lane assertions | It does not define the authoritative command path | Low | Reference scenario only. It currently uses the Playwright Electron launcher shape and should not be treated as the lane authority. |
 
 Truth-lane support files:
@@ -28,7 +28,7 @@ Truth-lane support files:
 | Path | Current category | What it proves | What it does not prove | Confidence | Notes |
 | --- | --- | --- | --- | --- | --- |
 | `scripts/truth-with-backend.mjs` | Truth-lane launcher | Backend startup, explicit CDP attach, and lane orchestration | Product correctness by itself | Medium | Repo-managed truth-lane orchestrator. |
-| `scripts/launch_truth_electron.py` | Truth-lane launcher support | Electron startup on a real debug port | Product correctness by itself | Medium | Called by the launcher to avoid the Node spawn path that fails in this workspace. |
+| `scripts/launch_truth_electron.py` | Legacy helper | Historical Electron launch support | Product correctness or the current truth path | Low | No longer part of the authoritative truth-lane command path. |
 
 ### UI-only tests
 
@@ -110,7 +110,7 @@ Support files that are part of the harness lane, not standalone tests:
 - WK-008, WK-010, WK-015: `gui.flows.spec.ts`, `gui.smoke.spec.ts`, `dock-workspace.spec.ts`, `smoke.project.spec.ts`, `gui.insights.spec.ts`, `gui.analytics_offline_cache_flow.spec.ts`, `budget-meter.spec.ts`, `hotkeys-status.spec.ts`, `gui.snapshot_verification_flow.spec.ts`, `phase5-export-integrity-flow.spec.ts`, and `gui-contract.spec.ts` are harness-driven, not truth-lane.
 - WK-011: `smoke.project.spec.ts` and any sample-project-driven flow can pass because the filesystem happens to contain the expected fixture layout.
 - WK-014: `app/tests/e2e/editorial-review-workflow.spec.ts` is not present in the current inventory, so it must not be cited as a current truth or UI-only suite until the repo-state path is confirmed.
-- The truth-lane launcher is explicit, but this workspace still reports a Node spawn restriction before it can complete. That failure should not be read as a truth-lane fallback; it is a local execution gap.
+- The truth-lane launcher is explicit and now executes successfully in this workspace. Keep the lane claims narrow even when the launcher is healthy.
 
 ## Proposed Taxonomy Rules
 
