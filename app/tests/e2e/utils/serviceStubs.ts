@@ -398,12 +398,19 @@ export async function installServiceStubs(
   scenario: ServiceScenario,
   modeOverride?: TestMode,
 ): Promise<void> {
+  const applyActiveFlowFlag = (): void => {
+    document.documentElement.dataset.testActiveFlow = '1';
+    if (document.body) {
+      document.body.dataset.testActiveFlow = '1';
+    }
+  };
   await page.addInitScript(() => {
-    (window as typeof window & { __testEnvActiveFlow?: boolean }).__testEnvActiveFlow = true;
+    document.documentElement.dataset.testActiveFlow = '1';
+    if (document.body) {
+      document.body.dataset.testActiveFlow = '1';
+    }
   });
-  await page.evaluate(() => {
-    (window as typeof window & { __testEnvActiveFlow?: boolean }).__testEnvActiveFlow = true;
-  });
+  await page.evaluate(applyActiveFlowFlag);
   const forceOffline = scenario === 'offline';
   await syncForceOfflineFlag(page, forceOffline);
   if (forceOffline) {
@@ -430,6 +437,12 @@ export async function installServiceStubs(
   const targetMode = scenario === 'snapshot' ? 'full' : modeOverride ?? defaultMode;
   const offlineReason = scenario === 'offline' ? 'service_port_unavailable' : undefined;
   await applyTestMode(page, targetMode, offlineReason);
+  await page.evaluate(() => {
+    document.documentElement.dataset.testActiveFlow = '1';
+    if (document.body) {
+      document.body.dataset.testActiveFlow = '1';
+    }
+  });
   await ensureServer();
   currentScenario = scenario;
   console.log('[backup-stub-installed]', `scenario=${scenario}, mode=${targetMode}`);

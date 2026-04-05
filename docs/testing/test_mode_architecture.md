@@ -16,10 +16,10 @@ This document captures how the renderer enters and flows through the four automa
 | Dock workspace / hotkeys / analytics / visual snapshots / contract checks | `dock-workspace.spec.ts`, `hotkeys-status.spec.ts`, `gui.analytics_offline_cache_flow.spec.ts`, `visual.home.spec.ts`, `gui-contract.spec.ts`, `phase5-export-integrity-flow.spec.ts` | `full` | Real dock and mosaic remain enabled so layout smoke tests exercise the production UI. |
 
 ## Flag flow (stub ? hook)
-1. Playwright stubs (`app/tests/e2e/utils/testModeConfig.ts`) call `setFlatMode`, `setRecoveryMode`, or `setFullMode` to toggle the globals + `body.dataset.testMode` the renderer knows about.
+1. Playwright stubs (`app/tests/e2e/utils/testModeConfig.ts`) call `setFlatMode`, `setRecoveryMode`, or `setFullMode` to toggle the renderer mode globals plus `body.dataset.testMode`; other harness-only markers such as active-flow, stable-dock, and recovery requests now live on dataset/event paths instead of preload globals.
 2. The preload exposes `window.testMode` only when `BLACKSKIES_ENABLE_HARNESS_HOOKS=1` is set, so harness runs can read the current mode and offline reason via `getMode` / `getOfflineReason` without implying that the same surface is valid production evidence.
 3. `App.tsx` routes to `TestModeFlatHome`, `TestModeRecoveryHome`, or the full `DockWorkspace` depending on `testModeManager`'s state, and it stamps `document.body.dataset.testMode` so the new `test-mode.css` can scope Dock/Mosaic hiding (`body[data-test-mode='flat'] .dock-workspace` etc).
-4. Hooks like `useServiceHealth` (and downstream components such as `ServiceHealthBanner`) read the offline reason from the same manager, which ensures forced-offline stubs show the banner text the tests expect without re-checking ad-hoc globals.
+4. Hooks like `useServiceHealth` (and downstream components such as `ServiceHealthBanner`) read the offline reason from the same manager, which ensures forced-offline stubs show the banner text the tests expect without re-checking ad-hoc globals. The remaining harness-only scene, recovery, and stability markers are dataset/event controls, not production-valid signals.
 5. `_bootstrap.ts` asks `window.testMode.getMode()` instead of sniffing raw globals, so it can skip the online pill wait in `recovery` / forced-offline runs while still waiting for the Dock in `full`.
 
 ## Dock / CSS caveats

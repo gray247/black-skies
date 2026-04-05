@@ -162,32 +162,21 @@ ensureForceStateAttrsWithRetry();
 safeExpose('__testEnv', { isPlaywright });
 
 if (typeof window !== 'undefined' && harnessHooksEnabled) {
-  const globalWindow = window as typeof window & {
-    __testEnvFlatMode?: boolean;
-    __testEnvFullMode?: boolean;
-    __testEnvRecoveryMode?: boolean;
-    __testEnvStableDock?: boolean;
-    __testEnvStableHome?: boolean;
-    __testEnvVisualStable?: boolean;
-    __testEnvActiveFlow?: boolean;
+  const root = document.documentElement;
+  const body = document.body ?? root;
+  const setHarnessFlag = (flag: 'testActiveFlow' | 'testStableDock' | 'testStableHome' | 'testVisualStable', enabled: boolean): void => {
+    if (enabled) {
+      root.dataset[flag] = '1';
+      body.dataset[flag] = '1';
+      return;
+    }
+    delete root.dataset[flag];
+    delete body.dataset[flag];
   };
-  globalWindow.__testEnvFlatMode ??= false;
-  globalWindow.__testEnvFullMode ??= true;
-  globalWindow.__testEnvRecoveryMode ??= false;
-  globalWindow.__testEnvStableDock ??= process.env.BLACKSKIES_STABLE_DOCK === '1';
-  globalWindow.__testEnvStableHome ??= process.env.BLACKSKIES_STABLE_HOME === '1';
-  globalWindow.__testEnvVisualStable ??= process.env.BLACKSKIES_VISUAL_STABLE === '1';
-  globalWindow.__testEnvActiveFlow ??= process.env.PLAYWRIGHT === '1';
-  const stableDockRequested = process.env.BLACKSKIES_STABLE_DOCK === '1';
-  if (!stableDockRequested && globalWindow.__testEnvStableDock) {
-    console.warn('[MODE-LEAK] stableDock active during live flow');
-    globalWindow.__testEnvStableDock = false;
-  }
-  const visualStableRequested = process.env.BLACKSKIES_VISUAL_STABLE === '1';
-  if (!visualStableRequested && globalWindow.__testEnvVisualStable) {
-    console.warn('[MODE-LEAK] visualHome active during live flow');
-    globalWindow.__testEnvVisualStable = false;
-  }
+  setHarnessFlag('testActiveFlow', process.env.PLAYWRIGHT === '1');
+  setHarnessFlag('testStableDock', process.env.BLACKSKIES_STABLE_DOCK === '1');
+  setHarnessFlag('testStableHome', process.env.BLACKSKIES_STABLE_HOME === '1');
+  setHarnessFlag('testVisualStable', process.env.BLACKSKIES_VISUAL_STABLE === '1');
   if (process.env.BLACKSKIES_STABLE_HOME === '1') {
     const applyStableHomeAttr = () => {
       if (typeof document === 'undefined') {
@@ -276,7 +265,6 @@ if (harnessHooksEnabled) {
     isRecovery: testMode.isRecovery,
     isFull: testMode.isFull,
     getOfflineReason: testMode.getOfflineReason,
-    testModeFreezeServiceHealth: testMode.testModeFreezeServiceHealth,
     debug(): void {
       console.log('[test-mode-debug]', {
         mode: testMode.getMode(),
@@ -1427,8 +1415,11 @@ if (process.env.PLAYWRIGHT === '1') {
     },
   };
 
-  if (harnessHooksEnabled && typeof window !== 'undefined') {
-    (window as typeof window & { __testEnvNeedsRecovery?: boolean }).__testEnvNeedsRecovery = true;
+  if (harnessHooksEnabled && typeof document !== 'undefined') {
+    const root = document.documentElement;
+    const body = document.body ?? root;
+    root.dataset.testNeedsRecovery = '1';
+    body.dataset.testNeedsRecovery = '1';
   }
 
   if (process.env.PLAYWRIGHT_DISABLE_ANIMATIONS === '1') {

@@ -32,7 +32,6 @@ import { usePaneBoundsLogger } from './usePaneBoundsLogger';
 import { TID } from '../../utils/testIds';
 import type { ToastPayload } from '../../types/toast';
 import { boundsDiffer } from '../../utils/layout';
-import * as testMode from '../../testMode/testModeManager';
 
 const RELOCATION_HIGHLIGHT_DURATION = 2000;
 
@@ -202,9 +201,7 @@ function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
     (typeof document === 'undefined'
       ? true
       : document.body?.dataset?.testStableDock === '1' ||
-        (testMode.isHarnessHooksEnabled() &&
-          typeof window !== 'undefined' &&
-          (window as typeof window & { __testEnvStableDock?: boolean }).__testEnvStableDock === true));
+        document.documentElement?.dataset?.testStableDock === '1');
   if (stableDockModeProp && !stableDockRequested) {
     console.warn('[MODE-LEAK] stableDock active during live flow');
   }

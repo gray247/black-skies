@@ -18,9 +18,6 @@ type GuiFlowWindow = typeof window & {
 test.describe('GUI flow smoke tests', () => {
   test('smoke_wizard_to_draft_flow (UI)', async ({ page }) => {
     await installServiceStubs(page, 'normal', 'flat');
-    await page.evaluate(() => {
-      (window as typeof window & { __testEnvActiveFlow?: boolean }).__testEnvActiveFlow = true;
-    });
     await bootstrapHarness(page);
 
     await expect(page.getByTestId(TID.wizardRoot)).toBeVisible({ timeout: 30_000 });
@@ -34,9 +31,6 @@ test.describe('GUI flow smoke tests', () => {
 
   test('smoke_draft_to_critique_flow (UI)', async ({ page }) => {
     await installServiceStubs(page, 'normal', 'flat');
-    await page.evaluate(() => {
-      (window as typeof window & { __testEnvActiveFlow?: boolean }).__testEnvActiveFlow = true;
-    });
     await bootstrapHarness(page);
 
     await page.evaluate(() => {
@@ -48,9 +42,6 @@ test.describe('GUI flow smoke tests', () => {
 
   test('snapshot_restore_flow (UI)', async ({ page }) => {
     await installServiceStubs(page, 'snapshot', 'flat');
-    await page.evaluate(() => {
-      (window as typeof window & { __testEnvActiveFlow?: boolean }).__testEnvActiveFlow = true;
-    });
     await bootstrapHarness(page);
 
     const lockButton = page.getByRole('button', { name: /Lock$/i }).first();

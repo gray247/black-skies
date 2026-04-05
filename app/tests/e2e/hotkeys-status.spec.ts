@@ -15,7 +15,8 @@ test.describe('Hotkeys status', () => {
         return;
       }
       flaggedWindow.__hotkeysStatusInit = true;
-      (window as typeof window & { __testEnvNeedsRecovery?: boolean }).__testEnvNeedsRecovery = true;
+      document.documentElement.dataset.testNeedsRecovery = '1';
+      document.body?.dataset && (document.body.dataset.testNeedsRecovery = '1');
       let offline = false;
       const recoveryLog = { restore: 0 };
       const recoveryState = {
