@@ -12,12 +12,16 @@ Authority note: this is a practical validation guide, not the canonical lane cla
 - Backend contract/state checks prove service behavior, not renderer behavior.
 - Renderer/unit checks prove local UI logic, not service routing.
 - Repo hygiene checks prove the tree is clean, not that the product is correct.
+- Truth-lane results must not be inferred from smoke fallback, stubbed fixtures, or UI-only coverage.
 
 ## Current commands by lane
 
 ### Truth lane
-- Current status: no repo-scripted truth launcher is confirmed in `package.json`.
-- Planning reference only: `cmd /c pnpm phase10:review`
+- Authoritative command: `pnpm test:truth`
+- Launcher path: `scripts/truth-with-backend.mjs` -> `scripts/launch_truth_electron.py`
+- What it does: starts the real backend, launches Electron against the real service port, then attaches over CDP to validate the renderer and service bridge without service stubs or preload-only overrides.
+- Current status: this workspace still hits a local `spawn EPERM` when the Node launcher tries to start the Python Electron helper, so the lane is defined and partially verified but not fully executed here.
+- Gap report: [Truth Lane Definition and Gap Report](./reviews/truth_lane_definition_and_gap_report.md)
 - Do not overclaim: `pnpm test:e2e` is not a truth substitute; it is the smoke-fallback launcher defined in `scripts/e2e-with-backend.mjs`.
 
 ### UI-only lane
@@ -65,6 +69,7 @@ Use these to verify tracked-file cleanliness and hook wiring. They do not prove 
 - Harness-heavy tests are not truth-lane evidence.
 - Backend contract tests do not prove the renderer is using the real service path.
 - UI-only tests do not prove service correctness.
+- The truth lane is the explicit launcher path above, not any smoke or harness fallback.
 - If a command only proves a lane-specific subset, say so explicitly in review notes.
 
 ## Where to look next
