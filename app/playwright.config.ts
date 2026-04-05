@@ -2,6 +2,7 @@ import { defineConfig } from '@playwright/test';
 import { randomUUID } from 'node:crypto';
 import os from 'node:os';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const disableAnimations = process.env.PLAYWRIGHT_DISABLE_ANIMATIONS === '1' || !!process.env.CI;
 const reportRoot =
@@ -16,6 +17,7 @@ if (disableAnimations) {
 
 export default defineConfig({
   testDir: './tests/e2e',
+  globalSetup: fileURLToPath(new URL('../scripts/playwright_pipe_preflight.mjs', import.meta.url)),
   outputDir: resultsRoot,
   timeout: 90_000,
   expect: {

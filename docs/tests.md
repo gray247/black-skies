@@ -42,7 +42,7 @@ Use these for renderer appearance and accessibility checks only. They do not pro
 
 Use these for launcher, fixture, and interaction sanity. Do not claim backend truth from a harness pass.
 Harness runs may use the explicit preload hooks listed in [Preload Hook Inventory and Containment](./reviews/preload_hook_inventory_and_containment.md), but those hooks are not truth evidence.
-Playwright harness output now writes to temp-sibling report and result folders, and the sample-project loader falls back to the current snapshot layout when a legacy root is missing. If a Windows run still stops at worker spawn, treat that as the tracked blocker in [Validation Failures and Blockers](./reviews/validation_failures_and_blockers.md).
+Playwright harness output now writes to temp-sibling report and result folders, and the sample-project loader falls back to the current snapshot layout when a legacy root is missing. The harness command now also runs a pipe-spawn preflight before Playwright workers start; if that preflight or the worker spawn fails on Windows, treat it as the tracked blocker in [Validation Failures and Blockers](./reviews/validation_failures_and_blockers.md).
 
 ### Backend contract/state lane
 - `python -m pytest services/tests/test_analytics_endpoints.py -q`
@@ -59,7 +59,8 @@ Use these for HTTP and service-contract checks. Do not claim renderer or UI proo
 - `pnpm --filter app test`
 
 Use this for renderer/component logic. It does not prove real-service behavior.
-The app test launcher now uses `scripts/run-vitest-offline.mjs` with `app/vitest.config.mjs` instead of loading `app/vite.config.ts` directly. The dedicated config preserves symlink paths to reduce Windows realpath spawn failures. If the suite still stops in esbuild or Vite transform with `spawn EPERM`, treat that as the tracked Windows blocker rather than a product regression.
+The app test launcher now uses `scripts/run-vitest-offline.mjs` with `app/vitest.config.mjs` instead of loading `app/vite.config.ts` directly. The dedicated config preserves symlink paths to reduce Windows realpath spawn failures. The dedicated runner now also performs a pipe-spawn preflight before Vitest starts. If that preflight or the later esbuild/Vite transform still stops with `spawn EPERM`, treat it as the tracked Windows blocker rather than a product regression.
+On this Windows workspace, the preflight fails fast if pipe-based child processes are blocked, which is the tracked reason the esbuild service cannot start.
 
 ### Repo hygiene lane
 - `python scripts/check_repo_hygiene.py --tracked`
