@@ -79,3 +79,4 @@ Use these to verify tracked-file cleanliness and hook wiring. They do not prove 
 ## Where to look next
 - [Test Taxonomy and Truth Matrix](./reviews/test_taxonomy_and_truth_matrix.md)
 - [Canonical Authority and Validation Lanes](./reviews/canonical_authority_and_validation_lanes.md)
+- [Validation Failures and Blockers](./reviews/validation_failures_and_blockers.md)

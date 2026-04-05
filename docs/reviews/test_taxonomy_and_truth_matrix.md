@@ -148,3 +148,4 @@ Support files that are part of the harness lane, not standalone tests:
 - Fixture dependency cleanup.
 - Launcher/default-path truth hardening.
 - A later pass can turn the unconfirmed truth launcher into a confirmed truth-lane gate if the repo-state path is restored.
+- Windows validation blockers are tracked in [Validation Failures and Blockers](./validation_failures_and_blockers.md).

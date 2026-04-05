@@ -46,6 +46,7 @@ Status ambiguity that still matters:
 - `phase_log.md`, `docs/roadmap.md`, `docs/phases/phase_charter.md`, and `docs/BUILD_PLAN.md` overlap on scope and status language.
 - The repo still needs one clearly documented hierarchy for "status ledger", "scope authority", and "implementation map".
 - This plan assumes no single doc should be used alone when a truth-lane decision depends on current status or current scope.
+- Observed validation failures and blocker clusters are tracked in `docs/reviews/validation_failures_and_blockers.md`; consult that register before treating any lane as stable.
 
 ## Weakness Triage Summary
 
@@ -234,7 +235,8 @@ Warning: smoke-only e2e, harness-only GUI flows, and UI review workflows are not
 3. Reduce the preload and fixture escape hatches that let tests bypass production behavior.
 4. Stabilize the real-service Playwright path and clean-checkout fixture assumptions.
 5. Clean up the remaining doc drift and legacy naming after the truth lane is trustworthy.
-6. Re-evaluate memory/intelligence experiment kickoff only after the above is green and documented.
+6. Use the blocker register to decide which validation-stability pass comes next.
+7. Re-evaluate memory/intelligence experiment kickoff only after the above is green and documented.
 
 ## Exit Criteria for Stable Enough to Proceed
 - Truth-lane tests are clearly separated from UI-only and harness-only tests in both docs and command names.
