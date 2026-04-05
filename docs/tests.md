@@ -18,9 +18,10 @@ Authority note: this is a practical validation guide, not the canonical lane cla
 
 ### Truth lane
 - Authoritative command: `pnpm test:truth`
-- Launcher path: `scripts/truth-with-backend.mjs` -> `scripts/launch_truth_electron.py`
-- What it does: starts the real backend, launches Electron against the real service port, then attaches over CDP to validate the renderer and service bridge without service stubs or preload-only overrides.
-- Current status: this workspace still hits a local `spawn EPERM` when the Node launcher tries to start the Python Electron helper, so the lane is defined and partially verified but not fully executed here.
+- Launcher path: `scripts/truth-with-backend.mjs`
+- What it does: starts the real backend, materializes a temp `Esther_Estate` project root from the bundled sample snapshot, launches Electron against the real service port, then attaches over CDP and calls the real renderer preflight bridge without service stubs or preload-only overrides.
+- What it does not prove: the Generate button click path itself. It proves the live renderer bridge and the preflight service call from the loaded real project.
+- Current status: runnable in this workspace. The lane now reaches the live Electron renderer, verifies the real bridge, and exercises the preflight service against the loaded project.
 - Gap report: [Truth Lane Definition and Gap Report](./reviews/truth_lane_definition_and_gap_report.md)
 - Do not overclaim: `pnpm test:e2e` is not a truth substitute; it is the smoke-fallback launcher defined in `scripts/e2e-with-backend.mjs`.
 
