@@ -23,7 +23,6 @@ This document records observed validation failures and classifies how they affec
 - Why It Matters: Harness validation is only trustworthy if the worker process itself can start. If Playwright cannot spawn its worker on Windows, the suite never reaches the test body and the result cannot be trusted.
 - Blocks Truth Lane? no
 - Blocks Memory Experiment? maybe
-- Current Evidence: Direct command output from the attempted Playwright run; the error now comes from `WorkerHost.startRunner` with `spawn EPERM`, not from reporter cleanup.
 - Current Evidence: Direct command output from the attempted Playwright run; the error now comes from `WorkerHost.startRunner` with `spawn EPERM`, not from reporter cleanup. Direct `fork()` probes with IPC fail even for a trivial temp child, which sharply points to pipe-based child-process creation being blocked in this workspace.
 - Needed Confirmation: Determine whether this pipe/IPC restriction is a local workspace ceiling, a sandbox policy, or a broader Windows environment restriction before any later hardening attempt is treated as durable.
 - Proposed Next Action: Keep the worker-path failure explicit in docs and investigate whether the Windows validation environment can be changed to permit pipe-based child processes.
@@ -74,9 +73,9 @@ This document records observed validation failures and classifies how they affec
 - None currently observed.
 
 ### Deferred but tracked
-- The exact root causes for VF-001 and VF-002 are still uncertain and must be confirmed before any broad fix is treated as durable.
 - The exact root causes for VF-001 and VF-002 are now more specific: both appear to hit pipe-based child-process restrictions in this workspace, but the broader environment cause still needs confirmation before any runner redesign is considered durable.
 - The remaining preload overrides are fenced but still need a later removal or formal exception pass.
+- Sample-project loading is now project-local and deterministic, but `sample_project/Esther_Estate` and `sample_project/proj_esther_estate` still expose historical snapshot layouts that can confuse reviewers if the contract is not checked first.
 
 ## Recommended Next Work Package
 

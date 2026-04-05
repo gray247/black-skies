@@ -65,7 +65,7 @@ Support files that are part of the harness lane, not standalone tests:
 | `app/tests/e2e/electron.launch.ts` | Harness support | Electron launch path for non-stub UI smoke | Backend truth | High | Useful for UI-only checks, not proof of service behavior. Both Playwright launchers now set `BLACKSKIES_ENABLE_HARNESS_HOOKS=1`, so `__dev`, `__test`, `__testInsights`, and `testMode` are present only in harness runs. |
 | `app/tests/e2e/servicePort.ts` | Harness support | Port coordination for local E2E runs | Product correctness | High | Launcher glue only. |
 | `app/tests/e2e/utils/serviceStubs.ts` | Harness support | Stubbed service behavior used by harness-driven tests | Real-service truth | High | Explicitly injects fake service behavior. |
-| `app/tests/e2e/utils/sampleProject.ts` | Harness support | Sample-project fixture loading | Truth-lane readiness | Medium | Depends on local filesystem layout. |
+| `app/tests/e2e/utils/sampleProject.ts` | Harness support | Sample-project fixture loading | Truth-lane readiness | Medium | Depends on the requested project root’s own verified snapshots or that root’s own legacy `.snapshots.bak` materialization, not on cross-project root discovery. |
 | `app/tests/e2e/utils/loadRenderer.ts` | Harness support | Packaged renderer loading | Product correctness | High | Launcher helper only. |
 | `app/tests/e2e/utils/guiContract.ts` | Harness support | GUI contract lookup data | Product correctness | High | Assertion data helper only. |
 | `app/tests/e2e/utils/testModeConfig.ts` | Harness support | Test-mode toggles | Product correctness | High | Test-mode helper only. |
