@@ -31,8 +31,32 @@ export interface SampleProjectFixture {
   };
 }
 
+function resolveSampleProjectRoot(projectId: string): string {
+  const directRoot = path.join(repoRoot, 'sample_project', projectId);
+  const directOutline = path.join(directRoot, 'outline.json');
+  const directProject = path.join(directRoot, 'project.json');
+  if (fs.existsSync(directOutline) && fs.existsSync(directProject)) {
+    return directRoot;
+  }
+
+  const legacyRoot = path.join(repoRoot, 'sample_project', 'Esther_Estate', '.snapshots');
+  if (fs.existsSync(legacyRoot)) {
+    const snapshotDirs = fs
+      .readdirSync(legacyRoot, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => entry.name)
+      .sort();
+    const latestSnapshot = snapshotDirs.at(-1);
+    if (latestSnapshot) {
+      return path.join(legacyRoot, latestSnapshot);
+    }
+  }
+
+  return directRoot;
+}
+
 export function loadSampleProject(projectId = 'proj_esther_estate'): SampleProjectFixture {
-  const projectRoot = path.join(repoRoot, 'sample_project', projectId);
+  const projectRoot = resolveSampleProjectRoot(projectId);
   const outline = JSON.parse(fs.readFileSync(path.join(projectRoot, 'outline.json'), 'utf-8'));
   const projectMeta = JSON.parse(fs.readFileSync(path.join(projectRoot, 'project.json'), 'utf-8'));
   const draftsDir = path.join(projectRoot, 'drafts');

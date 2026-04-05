@@ -105,6 +105,9 @@ if (isPlaywright) {
   }
 }
 const applyForceStateAttributes = (): void => {
+  if (!harnessHooksEnabled) {
+    return;
+  }
   if (typeof document === 'undefined') {
     return;
   }
@@ -155,6 +158,9 @@ const applyForceStateAttributes = (): void => {
   applyFlag('testForceOffline', false);
 };
 const ensureForceStateAttrsWithRetry = (): void => {
+  if (!harnessHooksEnabled) {
+    return;
+  }
   if (typeof document === 'undefined') {
     return;
   }
@@ -169,7 +175,7 @@ const ensureForceStateAttrsWithRetry = (): void => {
 ensureForceStateAttrsWithRetry();
 safeExpose('__testEnv', { isPlaywright });
 
-if (typeof window !== 'undefined') {
+if (typeof window !== 'undefined' && harnessHooksEnabled) {
   const globalWindow = window as typeof window & {
     __testEnvFlatMode?: boolean;
     __testEnvFullMode?: boolean;
@@ -177,6 +183,7 @@ if (typeof window !== 'undefined') {
     __testEnvStableDock?: boolean;
     __testEnvStableHome?: boolean;
     __testEnvVisualStable?: boolean;
+    __testEnvActiveFlow?: boolean;
   };
   globalWindow.__testEnvFlatMode ??= false;
   globalWindow.__testEnvFullMode ??= true;
@@ -1439,7 +1446,7 @@ if (process.env.PLAYWRIGHT === '1') {
     },
   };
 
-  if (typeof window !== 'undefined') {
+  if (harnessHooksEnabled && typeof window !== 'undefined') {
     (window as typeof window & { __testEnvNeedsRecovery?: boolean }).__testEnvNeedsRecovery = true;
   }
 

@@ -32,7 +32,14 @@ function datasetFlagEnabled(flag: string): boolean {
   return bodyValue === '1';
 }
 
+export function isHarnessHooksEnabled(): boolean {
+  return typeof process !== 'undefined' && process.env?.BLACKSKIES_ENABLE_HARNESS_HOOKS === '1';
+}
+
 export function getMode(): TestModeName {
+  if (!isHarnessHooksEnabled()) {
+    return 'none';
+  }
   const win = getWindow();
   if (!win) {
     return 'none';
@@ -84,6 +91,9 @@ export function isTestEnv(): boolean {
 }
 
 export function isStableDock(): boolean {
+  if (!isHarnessHooksEnabled()) {
+    return false;
+  }
   const win = getWindow();
   const datasetFlag = typeof document !== 'undefined' && document.body?.dataset?.testStableDock === '1';
   const requested = datasetFlag || Boolean(win?.__testEnvStableDock === true);
@@ -94,6 +104,9 @@ export function isStableDock(): boolean {
 }
 
 export function isVisualHome(): boolean {
+  if (!isHarnessHooksEnabled()) {
+    return false;
+  }
   const win = getWindow();
   const datasetFlag = typeof document !== 'undefined' && document.body?.dataset?.testVisualStable === '1';
   const requested = datasetFlag || Boolean(win?.__testEnvVisualStable === true);
@@ -104,6 +117,9 @@ export function isVisualHome(): boolean {
 }
 
 export function getOfflineReason(): string | null {
+  if (!isHarnessHooksEnabled()) {
+    return null;
+  }
   const win = getWindow();
   const datasetReason =
     typeof document !== 'undefined' ? document.body?.dataset?.testEnvForceOfflineReason ?? null : null;
@@ -123,6 +139,9 @@ export function getOfflineReason(): string | null {
 }
 
 export function isForcedOffline(): boolean {
+  if (!isHarnessHooksEnabled()) {
+    return false;
+  }
   const win = getWindow();
   const datasetReason =
     typeof document !== 'undefined' ? document.body?.dataset?.testEnvForceOfflineReason : null;
@@ -130,11 +149,17 @@ export function isForcedOffline(): boolean {
 }
 
 export function isForcedOnline(): boolean {
+  if (!isHarnessHooksEnabled()) {
+    return false;
+  }
   const win = getWindow();
   return Boolean(datasetFlagEnabled('testForceOnline') || win?.__testEnvForceOnline === true);
 }
 
 export function testModeFreezeServiceHealth(): boolean {
+  if (!isHarnessHooksEnabled()) {
+    return false;
+  }
   const win = getWindow();
   return Boolean(datasetFlagEnabled('testModeFreezeServiceHealth') || win?.__testModeFreezeServiceHealth === true);
 }

@@ -58,6 +58,7 @@ export function useRecovery({
   const lastRecoveryProjectIdRef = useRef<string | null>(null);
   const recoveryFetchInFlightRef = useRef(false);
   const windowNeedsRecovery =
+    testMode.isHarnessHooksEnabled() &&
     typeof window !== 'undefined' &&
     (window as typeof window & { __testEnvNeedsRecovery?: boolean }).__testEnvNeedsRecovery === true;
   const forcedRecoveryFlag = testMode.isRecovery() || (isTestEnvironment() && windowNeedsRecovery);
@@ -150,7 +151,9 @@ export function useRecovery({
         };
         globalWindow.__recoveryLog ??= { restore: 0 };
         globalWindow.__recoveryLog.restore = (globalWindow.__recoveryLog.restore ?? 0) + 1;
-        globalWindow.__testEnvNeedsRecovery = false;
+        if (testMode.isHarnessHooksEnabled()) {
+          globalWindow.__testEnvNeedsRecovery = false;
+        }
         window.dispatchEvent(new Event('test:restoreSnapshot'));
         setRecoveryStatus((previous) => {
           const projectId =

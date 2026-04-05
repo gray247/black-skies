@@ -69,6 +69,7 @@ Support files that are part of the harness lane, not standalone tests:
 | `app/tests/e2e/utils/loadRenderer.ts` | Harness support | Packaged renderer loading | Product correctness | High | Launcher helper only. |
 | `app/tests/e2e/utils/guiContract.ts` | Harness support | GUI contract lookup data | Product correctness | High | Assertion data helper only. |
 | `app/tests/e2e/utils/testModeConfig.ts` | Harness support | Test-mode toggles | Product correctness | High | Test-mode helper only. |
+| `app/playwright.config.ts` | Harness support | Playwright worker/output wiring | Product correctness | High | Uses temp-sibling output/report folders so Playwright artifacts do not collide with the HTML report directory on Windows. |
 
 ### Backend contract/state tests
 
@@ -92,6 +93,8 @@ Support files that are part of the harness lane, not standalone tests:
 | --- | --- | --- | --- | --- | --- |
 | `app/renderer/__tests__/*.test.ts`, `app/renderer/__tests__/*.test.tsx` | Renderer/unit | Component, adapter, and local renderer behavior | Service routing or truth-lane readiness | High | This includes `IPCContracts.test.tsx`, snapshot-backed component tests, and behavior tests. |
 | `app/renderer/__tests__/__snapshots__/IPCContracts.test.tsx.snap` | Renderer/unit support | Snapshot expectations for the renderer test suite | Anything by itself | High | Snapshot artifact, not a standalone test. |
+| `scripts/run-vitest-offline.mjs` | Renderer/unit support | Dedicated Vitest launcher that bypasses config-file bundling | Product correctness by itself | High | Uses inline Vitest options instead of loading `app/vite.config.ts` directly. |
+| `app/vitest.config.mjs` | Renderer/unit support | Shared Vitest options for the dedicated launcher | Anything by itself | High | Keeps the runner config separate from the build config and preserves symlinks to reduce Windows realpath spawning. |
 
 ### Repo hygiene / ops enforcement checks
 

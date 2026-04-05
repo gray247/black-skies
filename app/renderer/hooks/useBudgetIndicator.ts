@@ -7,6 +7,7 @@ import { buildBudgetIndicatorState, type BudgetSnapshotSource } from "../utils/b
 import useMountedRef from "./useMountedRef";
 import type { BudgetIndicatorState } from "../components/BudgetIndicator";
 import type { ServiceStatus } from "../components/ServiceStatusPill";
+import * as testMode from "../testMode/testModeManager";
 
 declare global {
   interface Window {
@@ -55,7 +56,11 @@ export function useBudgetIndicator({
   const fetchResponse = useCallback(
     async (options: { force?: boolean } = {}): Promise<AnalyticsBudgetBridgeResponse | null> => {
       const { force = false } = options;
-      if (typeof window !== "undefined" && window.__testBudgetResponse !== undefined) {
+      if (
+        typeof window !== "undefined" &&
+        testMode.isHarnessHooksEnabled() &&
+        window.__testBudgetResponse !== undefined
+      ) {
         return window.__testBudgetResponse;
       }
       if (!projectId) {
@@ -131,9 +136,11 @@ export function useBudgetIndicator({
     void refreshBudget();
   }, [refreshBudget]);
   useEffect(() => {
-    if (typeof window !== "undefined") {
+    if (typeof window !== "undefined" && testMode.isHarnessHooksEnabled()) {
       (window as typeof window & { __budgetRefresh?: () => Promise<void> }).__budgetRefresh = () =>
         refreshBudget({ force: true });
+    } else if (typeof window !== "undefined") {
+      delete (window as typeof window & { __budgetRefresh?: () => Promise<void> }).__budgetRefresh;
     }
 
     if (!projectId) {

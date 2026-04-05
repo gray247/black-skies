@@ -172,6 +172,7 @@ interface BatchCritiqueResult {
 
 export default function App(): JSX.Element {
   const hasWindow = typeof window !== 'undefined';
+  const harnessHooksEnabled = testMode.isHarnessHooksEnabled();
   const services: ServicesBridge | undefined = window.services;
   const diagnostics: DiagnosticsBridge | undefined = window.diagnostics;
   const runtimeConfigOverride =
@@ -249,15 +250,20 @@ export default function App(): JSX.Element {
     return () => document.removeEventListener('DOMContentLoaded', checkAttribute);
   }, [visualStableAttrFlag]);
   const isSnapshotRestoreFlowActive =
-    hasWindow && window.__testEnvSnapshotRestoreFlow === true;
+    harnessHooksEnabled &&
+    hasWindow &&
+    window.__testEnvSnapshotRestoreFlow === true;
   const activeFlow =
+    harnessHooksEnabled &&
     typeof window !== 'undefined' &&
     ((window as typeof window & { __testEnvActiveFlow?: boolean }).__testEnvActiveFlow === true);
   const { visualMode, stableDockMode: helperStableDock } = getTestModes();
   const stableDockEnvRequested =
-    (!activeFlow && helperStableDock) || (hasWindow && window.__testEnvStableDock === true);
+    (!activeFlow && helperStableDock) ||
+    (harnessHooksEnabled && hasWindow && window.__testEnvStableDock === true);
   const visualEnvRequested =
-    (!activeFlow && visualMode) || (hasWindow && window.__testEnvVisualStable === true);
+    (!activeFlow && visualMode) ||
+    (harnessHooksEnabled && hasWindow && window.__testEnvVisualStable === true);
   const liveFlowGuard =
     isPlaywrightEnv &&
     !stableDockEnvRequested &&
@@ -320,7 +326,8 @@ export default function App(): JSX.Element {
     console.warn('[MODE-LEAK] visualHome active during live flow');
   }
   const isStableDockMode = isTestEnvActive && stableDockExplicitFlag;
-  const isStableHomeMode = hasWindow && Boolean(window.__testEnvStableHome === true || stableHomeAttrFlag);
+  const isStableHomeMode =
+    harnessHooksEnabled && hasWindow && Boolean(window.__testEnvStableHome === true || stableHomeAttrFlag);
   const isVisualMode = isTestEnvActive && visualModeGuarded;
   const rawFlatMode = testMode.isFlatMode();
   const rawRecoveryMode = testMode.isRecoveryMode();
@@ -540,6 +547,7 @@ export default function App(): JSX.Element {
         return;
       }
       const overrideBudget =
+        harnessHooksEnabled &&
         isPlaywrightEnv &&
         typeof window !== 'undefined' &&
         (window as typeof window & { __testBudgetOverride?: BudgetSnapshotSource }).__testBudgetOverride;
@@ -613,7 +621,11 @@ export default function App(): JSX.Element {
     [setBudgetSnapshot],
   );
   useEffect(() => {
-    if (!isPlaywrightEnv || typeof window === 'undefined') {
+    if (!harnessHooksEnabled || !isPlaywrightEnv || typeof window === 'undefined') {
+      if (typeof window !== 'undefined') {
+        const host = window as typeof window & { __testApplyBudgetOverride?: (payload: BudgetSnapshotSource) => void };
+        delete host.__testApplyBudgetOverride;
+      }
       return;
     }
     (window as typeof window & { __testApplyBudgetOverride?: (payload: BudgetSnapshotSource) => void }).__testApplyBudgetOverride =
@@ -659,7 +671,7 @@ export default function App(): JSX.Element {
   );
 
   useEffect(() => {
-    if (typeof window === 'undefined') {
+    if (!harnessHooksEnabled || typeof window === 'undefined') {
       return;
     }
     const apiWindow = window as typeof window & {
@@ -672,7 +684,7 @@ export default function App(): JSX.Element {
     return () => {
       delete apiWindow.__selectSceneForTest;
     };
-  }, [applySceneSelection]);
+  }, [applySceneSelection, harnessHooksEnabled]);
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -1630,6 +1642,7 @@ export default function App(): JSX.Element {
     return createTestRecoveryStatus(projectSummary?.projectId ?? undefined);
   }, [isSnapshotRestoreFlowActive, projectSummary?.projectId, recoveryStatus]);
   const forcedRecoveryFlag =
+    harnessHooksEnabled &&
     isTestEnvActive &&
     typeof window !== 'undefined' &&
     (window as typeof window & { __testEnvNeedsRecovery?: boolean }).__testEnvNeedsRecovery === true;
