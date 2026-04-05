@@ -48,16 +48,16 @@ This document records observed validation failures and classifies how they affec
 - Title: Remaining preload hook surface still provides harness escape hatches
 - Lane Affected: Harness / validation trust
 - Command: No single command. Observed through the preload inventory and containment review of `app/main/preload.ts`, `docs/reviews/preload_hook_inventory_and_containment.md`, and harness consumers.
-- Observed Result: The broad preload surface is now fenced behind `BLACKSKIES_ENABLE_HARNESS_HOOKS=1` in preload and launcher code. WP-10 removed the redundant `__selectSceneForTest` helper and collapsed the offline forcing path to dataset/event controls, but a narrower harness-only cluster still remains around `__testEnvNeedsRecovery`, `__testBudgetOverride`, `__testApplyBudgetOverride`, `testModeFreezeServiceHealth` dataset handling, `__testEnvActiveFlow`, `__testEnvStableDock`, `__testEnvVisualStable`, and the truth-safe marker `__testEnv`.
+- Observed Result: The broad preload surface is now fenced behind `BLACKSKIES_ENABLE_HARNESS_HOOKS=1` in preload and launcher code. WP-10 removed the redundant `__selectSceneForTest` helper and collapsed the offline forcing path to dataset/event controls; WP-11 removed `__testApplyBudgetOverride` and moved the remaining active-flow, stable-dock, visual-stable, and recovery markers onto dataset/event controls. WP-11 also removed the broad `__testBudgetOverride` path and kept budget handling on the direct service-response path. The remaining harness-only cluster is now smaller and mainly consists of `data-test-needs-recovery`, `data-test-active-flow`, `data-test-stable-dock`, `data-test-stable-home`, `data-test-visual-stable`, `testModeFreezeServiceHealth` dataset handling, and the truth-safe marker `__testEnv`.
 - Environment Notes: The authoritative truth lane no longer depends on these hooks, but harness runs still can. The remaining hooks are now fenced rather than free-floating, which reduces false confidence but does not remove the debt.
 - Suspected Class:
   - repo-design
 - Why It Matters: The remaining hooks can still make a harnessed run look more production-like than it is. That keeps false confidence alive even after the truth lane is fenced off.
 - Blocks Truth Lane? no
 - Blocks Memory Experiment? maybe
-- Current Evidence: The preload inventory and containment document now show source fencing plus a smaller set of remaining harness-only overrides in renderer/test code.
-- Needed Confirmation: Decide which of the remaining harness overrides are still required, then remove or further fence the ones that are not.
-- Proposed Next Action: Follow up with a narrower containment/removal pass on the remaining runtime-override, budget, and freeze globals.
+- Current Evidence: The preload inventory and containment document now show source fencing plus a smaller set of remaining harness-only dataset and event controls in renderer/test code.
+- Needed Confirmation: Decide which of the remaining harness controls are still required, then remove or further fence the ones that are not.
+- Proposed Next Action: Follow up with a narrower containment/removal pass on the remaining freeze, recovery, and mode-marker controls.
 - Status: reduced
 
 ## Blocker Ranking

@@ -113,7 +113,6 @@ test.beforeEach(async ({ page }) => {
         checkHealth: async () => ({ ok: true, data: { status: 'online' }, traceId: 'trace-health' }),
         buildOutline: async () => ({ ok: true, data: project.outline, traceId: 'trace-outline' }),
         preflightDraft: async () => {
-          (window as typeof window & { __testBudgetOverride?: unknown }).__testBudgetOverride = preflight.budget;
           return { ok: true, data: preflight, traceId: 'trace-preflight' };
         },
         generateDraft: async () => ({
@@ -127,15 +126,12 @@ test.beforeEach(async ({ page }) => {
           traceId: 'trace-generate',
         }),
         critiqueDraft: async () => {
-          (window as typeof window & { __testBudgetOverride?: unknown }).__testBudgetOverride = critique.budget;
           return { ok: true, data: critique, traceId: 'trace-critique' };
         },
         phase4Critique: async () => {
-          (window as typeof window & { __testBudgetOverride?: unknown }).__testBudgetOverride = critique.budget;
           return { ok: true, data: critique, traceId: 'trace-critique' };
         },
         acceptDraft: async () => {
-          (window as typeof window & { __testBudgetOverride?: unknown }).__testBudgetOverride = accept.budget;
           return { ok: true, data: accept, traceId: 'trace-accept' };
         },
         createSnapshot: async () => ({ ok: true, data: accept.snapshot, traceId: 'trace-snapshot' }),
@@ -187,13 +183,12 @@ test.describe('Budget meter (packaged)', () => {
     await expect(page.getByRole('heading', { name: projectMeta.name })).toBeVisible();
     await page.evaluate(
       ({ preflight, critique, accept }) => {
-        const services = {
-          checkHealth: async () => ({ ok: true, data: { status: 'online' }, traceId: 'trace-health' }),
-          buildOutline: async () => ({ ok: true, data: preflight.outline ?? null, traceId: 'trace-outline' }),
-          preflightDraft: async () => {
-            (window as typeof window & { __testBudgetOverride?: unknown }).__testBudgetOverride = preflight.budget;
-            return { ok: true, data: preflight, traceId: 'trace-preflight' };
-          },
+          const services = {
+            checkHealth: async () => ({ ok: true, data: { status: 'online' }, traceId: 'trace-health' }),
+            buildOutline: async () => ({ ok: true, data: preflight.outline ?? null, traceId: 'trace-outline' }),
+            preflightDraft: async () => {
+              return { ok: true, data: preflight, traceId: 'trace-preflight' };
+            },
           generateDraft: async () => ({
             ok: true,
             data: {
@@ -205,15 +200,12 @@ test.describe('Budget meter (packaged)', () => {
             traceId: 'trace-generate',
           }),
           critiqueDraft: async () => {
-            (window as typeof window & { __testBudgetOverride?: unknown }).__testBudgetOverride = critique.budget;
             return { ok: true, data: critique, traceId: 'trace-critique' };
           },
           phase4Critique: async () => {
-            (window as typeof window & { __testBudgetOverride?: unknown }).__testBudgetOverride = critique.budget;
             return { ok: true, data: critique, traceId: 'trace-critique' };
           },
           acceptDraft: async () => {
-            (window as typeof window & { __testBudgetOverride?: unknown }).__testBudgetOverride = accept.budget;
             return { ok: true, data: accept, traceId: 'trace-accept' };
           },
           createSnapshot: async () => ({ ok: true, data: accept.snapshot, traceId: 'trace-snapshot' }),
@@ -244,10 +236,6 @@ test.describe('Budget meter (packaged)', () => {
       },
       { preflight: preflightEstimate, critique: critiqueResponse, accept: acceptResponse },
     );
-    await page.evaluate((budget) => {
-      (window as typeof window & { __testBudgetOverride?: unknown }).__testBudgetOverride = budget;
-    }, preflightBudget);
-
     const generateButton = page.getByRole('button', { name: 'Generate' });
     await generateButton.click();
 
@@ -256,14 +244,11 @@ test.describe('Budget meter (packaged)', () => {
 
     const critiqueButton = page.getByTestId('workspace-action-critique');
     await expect(critiqueButton).toBeEnabled();
-    await page.evaluate((budget) => {
-      (window as typeof window & { __testBudgetOverride?: unknown }).__testBudgetOverride = budget;
-    }, critiqueBudget);
     await critiqueButton.click();
 
-    await page.evaluate((budget) => {
-      (window as typeof window & { __testApplyBudgetOverride?: (payload: unknown) => void }).__testApplyBudgetOverride?.(budget);
-    }, critiqueBudget);
+    await page.evaluate(() => {
+      window.__budgetRefresh?.();
+    });
     await expect(page.getByText('$1.90 / $10.00', { exact: true })).toBeVisible();
   });
 });

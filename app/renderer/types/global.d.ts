@@ -44,16 +44,12 @@ declare global {
     __serviceHealthRetry?: () => Promise<void>;
     __electronApi?: ElectronApi;
     __testEnv?: boolean | { isPlaywright?: boolean };
-    __testEnvNeedsRecovery?: boolean;
     __testEnvFlatMode?: boolean;
     __testEnvFullMode?: boolean;
     __testEnvRecoveryMode?: boolean;
     __testEnvDefaultProjectId?: string;
     __testEnvDefaultProjectPath?: string;
     __testEnvAutoSeedProjectSummary?: boolean;
-    __testEnvStableDock?: boolean;
-    __testEnvStableHome?: boolean;
-    __testEnvVisualStable?: boolean;
   }
 }
 

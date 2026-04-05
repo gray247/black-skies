@@ -5,9 +5,10 @@ import { loadPackagedRenderer } from './utils/loadRenderer';
 
 const { loadedProject } = loadSampleProject();
 
-test.beforeEach(async ({ page }) => {
-  await page.addInitScript(({ project }) => {
-    (window as typeof window & { __testEnvActiveFlow?: boolean }).__testEnvActiveFlow = true;
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript(({ project }) => {
+    document.documentElement.dataset.testActiveFlow = '1';
+    document.body?.dataset && (document.body.dataset.testActiveFlow = '1');
     const layoutCalls = {
       openFloating: [] as Array<{ projectPath: string; paneId: string }>,
       saveLayout: [] as Array<{ projectPath: string; layout: unknown }>,

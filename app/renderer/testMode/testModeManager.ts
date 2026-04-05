@@ -5,8 +5,6 @@ type WindowWithTestFlags = typeof window & {
   __testEnvFlatMode?: boolean;
   __testEnvRecoveryMode?: boolean;
   __testEnvFullMode?: boolean;
-  __testEnvStableDock?: boolean;
-  __testEnvVisualStable?: boolean;
 };
 
 function getWindow(): WindowWithTestFlags | undefined {
@@ -90,26 +88,22 @@ export function isStableDock(): boolean {
   if (!isHarnessHooksEnabled()) {
     return false;
   }
-  const win = getWindow();
-  const datasetFlag = typeof document !== 'undefined' && document.body?.dataset?.testStableDock === '1';
-  const requested = datasetFlag || Boolean(win?.__testEnvStableDock === true);
-  if (win && !requested && win.__testEnvStableDock) {
-    console.warn('[MODE-LEAK] stableDock active during live flow');
-  }
-  return requested;
+  const datasetFlag =
+    typeof document !== 'undefined' &&
+    (document.body?.dataset?.testStableDock === '1' ||
+      document.documentElement?.dataset?.testStableDock === '1');
+  return datasetFlag;
 }
 
 export function isVisualHome(): boolean {
   if (!isHarnessHooksEnabled()) {
     return false;
   }
-  const win = getWindow();
-  const datasetFlag = typeof document !== 'undefined' && document.body?.dataset?.testVisualStable === '1';
-  const requested = datasetFlag || Boolean(win?.__testEnvVisualStable === true);
-  if (win && !requested && win.__testEnvVisualStable) {
-    console.warn('[MODE-LEAK] visualHome active during live flow');
-  }
-  return requested;
+  const datasetFlag =
+    typeof document !== 'undefined' &&
+    (document.body?.dataset?.testVisualStable === '1' ||
+      document.documentElement?.dataset?.testVisualStable === '1');
+  return datasetFlag;
 }
 
 export function getOfflineReason(): string | null {

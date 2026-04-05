@@ -82,8 +82,6 @@ declare global {
     __blackskiesDebugLog?: Array<DebugLogEntry>;
     __testEnv?: boolean;
     __testEnvSnapshotRestoreFlow?: boolean;
-    __testEnvStableDock?: boolean;
-    __testEnvVisualStable?: boolean;
     __testEnvFullMode?: boolean;
   }
 }
@@ -209,7 +207,10 @@ export default function App(): JSX.Element {
     if (typeof document === 'undefined') {
       return false;
     }
-    return document.body?.dataset?.testStablehome === '1';
+    return (
+      document.body?.dataset?.testStablehome === '1' ||
+      document.documentElement?.dataset?.testStablehome === '1'
+    );
   });
   useEffect(() => {
     if (stableHomeAttrFlag) {
@@ -219,7 +220,10 @@ export default function App(): JSX.Element {
       if (typeof document === 'undefined') {
         return;
       }
-      if (document.body?.dataset?.testStablehome === '1') {
+      if (
+        document.body?.dataset?.testStablehome === '1' ||
+        document.documentElement?.dataset?.testStablehome === '1'
+      ) {
         setStableHomeAttrFlag(true);
       }
     };
@@ -231,7 +235,10 @@ export default function App(): JSX.Element {
     if (typeof document === 'undefined') {
       return false;
     }
-    return document.body?.dataset?.testVisualStable === '1';
+    return (
+      document.body?.dataset?.testVisualStable === '1' ||
+      document.documentElement?.dataset?.testVisualStable === '1'
+    );
   });
   useEffect(() => {
     if (visualStableAttrFlag) {
@@ -241,7 +248,10 @@ export default function App(): JSX.Element {
       if (typeof document === 'undefined') {
         return;
       }
-      if (document.body?.dataset?.testVisualStable === '1') {
+      if (
+        document.body?.dataset?.testVisualStable === '1' ||
+        document.documentElement?.dataset?.testVisualStable === '1'
+      ) {
         setVisualStableAttrFlag(true);
       }
     };
@@ -255,15 +265,12 @@ export default function App(): JSX.Element {
     window.__testEnvSnapshotRestoreFlow === true;
   const activeFlow =
     harnessHooksEnabled &&
-    typeof window !== 'undefined' &&
-    ((window as typeof window & { __testEnvActiveFlow?: boolean }).__testEnvActiveFlow === true);
+    typeof document !== 'undefined' &&
+    (document.body?.dataset?.testActiveFlow === '1' ||
+      document.documentElement?.dataset?.testActiveFlow === '1');
   const { visualMode, stableDockMode: helperStableDock } = getTestModes();
-  const stableDockEnvRequested =
-    (!activeFlow && helperStableDock) ||
-    (harnessHooksEnabled && hasWindow && window.__testEnvStableDock === true);
-  const visualEnvRequested =
-    (!activeFlow && visualMode) ||
-    (harnessHooksEnabled && hasWindow && window.__testEnvVisualStable === true);
+  const stableDockEnvRequested = !activeFlow && helperStableDock;
+  const visualEnvRequested = !activeFlow && visualMode;
   const liveFlowGuard =
     isPlaywrightEnv &&
     !stableDockEnvRequested &&
@@ -327,7 +334,13 @@ export default function App(): JSX.Element {
   }
   const isStableDockMode = isTestEnvActive && stableDockExplicitFlag;
   const isStableHomeMode =
-    harnessHooksEnabled && hasWindow && Boolean(window.__testEnvStableHome === true || stableHomeAttrFlag);
+    harnessHooksEnabled &&
+    hasWindow &&
+    Boolean(
+      document.body?.dataset?.testStableHome === '1' ||
+        document.documentElement?.dataset?.testStableHome === '1' ||
+        stableHomeAttrFlag,
+    );
   const isVisualMode = isTestEnvActive && visualModeGuarded;
   const rawFlatMode = testMode.isFlatMode();
   const rawRecoveryMode = testMode.isRecoveryMode();
@@ -546,12 +559,7 @@ export default function App(): JSX.Element {
         setBudgetSnapshot(null);
         return;
       }
-      const overrideBudget =
-        harnessHooksEnabled &&
-        isPlaywrightEnv &&
-        typeof window !== 'undefined' &&
-        (window as typeof window & { __testBudgetOverride?: BudgetSnapshotSource }).__testBudgetOverride;
-      const payload = overrideBudget ?? source;
+      const payload = source;
       if (isPlaywrightEnv) {
         console.info('[budget:update]', payload);
       }
@@ -620,22 +628,6 @@ export default function App(): JSX.Element {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [setBudgetSnapshot],
   );
-  useEffect(() => {
-    if (!harnessHooksEnabled || !isPlaywrightEnv || typeof window === 'undefined') {
-      if (typeof window !== 'undefined') {
-        const host = window as typeof window & { __testApplyBudgetOverride?: (payload: BudgetSnapshotSource) => void };
-        delete host.__testApplyBudgetOverride;
-      }
-      return;
-    }
-    (window as typeof window & { __testApplyBudgetOverride?: (payload: BudgetSnapshotSource) => void }).__testApplyBudgetOverride =
-      (payload: BudgetSnapshotSource) => applyBudgetUpdate(payload);
-    return () => {
-      const host = window as typeof window & { __testApplyBudgetOverride?: (payload: BudgetSnapshotSource) => void };
-      delete host.__testApplyBudgetOverride;
-    };
-  }, [applyBudgetUpdate, isPlaywrightEnv]);
-
   const serviceHealthy = serviceStatus === "online" && !isPortUnavailable;
   const {
     indicator: budgetIndicator,
@@ -1630,7 +1622,7 @@ export default function App(): JSX.Element {
     harnessHooksEnabled &&
     isTestEnvActive &&
     typeof window !== 'undefined' &&
-    (window as typeof window & { __testEnvNeedsRecovery?: boolean }).__testEnvNeedsRecovery === true;
+    typeof document !== 'undefined' && document.body?.dataset?.testNeedsRecovery === '1';
   const forcedRecoveryStatus = useMemo(() => {
     if (!forcedRecoveryFlag) {
       return null;
