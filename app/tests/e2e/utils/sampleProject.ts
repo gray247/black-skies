@@ -39,20 +39,51 @@ function resolveSampleProjectRoot(projectId: string): string {
     return directRoot;
   }
 
-  const legacyRoot = path.join(repoRoot, 'sample_project', 'Esther_Estate', '.snapshots');
-  if (fs.existsSync(legacyRoot)) {
+  for (const snapshotDirName of ['.snapshots', '.snapshots.bak']) {
+    const snapshotsRoot = path.join(directRoot, snapshotDirName);
+    if (!fs.existsSync(snapshotsRoot)) {
+      continue;
+    }
+
+    if (snapshotDirName === '.snapshots') {
+      const verificationPath = path.join(snapshotsRoot, 'last_verification.json');
+      if (fs.existsSync(verificationPath)) {
+        try {
+          const verification = JSON.parse(fs.readFileSync(verificationPath, 'utf-8'));
+          if (verification?.status === 'ok' && Array.isArray(verification.snapshots)) {
+            for (const snapshot of verification.snapshots) {
+              if (typeof snapshot?.path !== 'string') {
+                continue;
+              }
+              const candidate = path.join(directRoot, snapshot.path);
+              if (
+                fs.existsSync(path.join(candidate, 'outline.json')) &&
+                fs.existsSync(path.join(candidate, 'project.json'))
+              ) {
+                return candidate;
+              }
+            }
+          }
+        } catch {
+          // Fall through to the directory scan below if the verification file is malformed.
+        }
+      }
+    }
+
     const snapshotDirs = fs
-      .readdirSync(legacyRoot, { withFileTypes: true })
-      .filter((entry) => entry.isDirectory())
+      .readdirSync(snapshotsRoot, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory() && entry.name.startsWith('ss_'))
       .map((entry) => entry.name)
       .sort();
     const latestSnapshot = snapshotDirs.at(-1);
     if (latestSnapshot) {
-      return path.join(legacyRoot, latestSnapshot);
+      return path.join(snapshotsRoot, latestSnapshot);
     }
   }
 
-  return directRoot;
+  throw new Error(
+    `Sample project fixture for ${projectId} is missing the expected outline/project files and project-local snapshots under ${directRoot}.`,
+  );
 }
 
 export function loadSampleProject(projectId = 'proj_esther_estate'): SampleProjectFixture {

@@ -92,6 +92,26 @@ function resolveTruthProjectSourcePath(sampleRoot) {
 
   const snapshotsRoot = path.join(sampleRoot, '.snapshots');
   if (existsSync(snapshotsRoot)) {
+    const verificationPath = path.join(snapshotsRoot, 'last_verification.json');
+    if (existsSync(verificationPath)) {
+      try {
+        const verification = JSON.parse(readFileSync(verificationPath, 'utf-8'));
+        if (verification?.status === 'ok' && Array.isArray(verification.snapshots)) {
+          for (const snapshot of verification.snapshots) {
+            if (typeof snapshot?.path !== 'string') {
+              continue;
+            }
+            const candidate = path.join(sampleRoot, snapshot.path);
+            if (existsSync(path.join(candidate, 'outline.json'))) {
+              return candidate;
+            }
+          }
+        }
+      } catch {
+        // Fall back to scanning the project-local snapshot directory below.
+      }
+    }
+
     const snapshotCandidates = readdirSync(snapshotsRoot, { withFileTypes: true })
       .filter((entry) => entry.isDirectory() && entry.name.startsWith('ss_'))
       .map((entry) => path.join(snapshotsRoot, entry.name))
@@ -104,7 +124,9 @@ function resolveTruthProjectSourcePath(sampleRoot) {
     }
   }
 
-  return sampleRoot;
+  throw new Error(
+    `[truth] Expected a project-local outline.json or verified snapshots under ${sampleRoot}, but none were found.`,
+  );
 }
 
 function materializeTruthProjectRoot(sourcePath, launchRoot) {
