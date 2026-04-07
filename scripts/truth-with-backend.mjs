@@ -15,6 +15,7 @@ import os from 'node:os';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { spawn, spawnSync } from 'node:child_process';
 import { setTimeout as delay } from 'node:timers/promises';
+import { WebSocket } from 'ws';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -25,6 +26,9 @@ const HEALTH_PATH = `/api/v1/healthz`;
 const HEALTH_TIMEOUT_MS = 30_000;
 const REPO_ROOT = path.resolve(__dirname, '..');
 const LAUNCH_PREFIX = 'blackskies-truth-';
+const IS_WSL =
+  process.platform === 'linux' &&
+  (Boolean(process.env.WSL_INTEROP) || Boolean(process.env.WSL_DISTRO_NAME));
 
 function splitCommand(command) {
   const tokens = [];
@@ -395,35 +399,54 @@ async function run() {
       '--remote-debugging-address=127.0.0.1',
       entryPoint,
     ];
-    const launchScript = [
-      '$ErrorActionPreference = "Stop";',
-      `$pidFile = ${quotePowerShell(pidFile)};`,
-      `$userDataDir = ${quotePowerShell(userDataDir)};`,
-      'New-Item -ItemType Directory -Force -Path $userDataDir | Out-Null;',
-      `$proc = Start-Process -FilePath ${quotePowerShell(electronBinary)} -ArgumentList ${toPowerShellArray(electronArgs)} -WorkingDirectory ${quotePowerShell(REPO_ROOT)} -WindowStyle Hidden -PassThru;`,
-      'Set-Content -Path $pidFile -Value $proc.Id -NoNewline;',
-    ].join(' ');
 
-    const launcher = spawnSync('powershell.exe', ['-NoProfile', '-Command', launchScript], {
-      env: launchEnv,
-      stdio: 'inherit',
-      cwd: REPO_ROOT,
-    });
-    if (launcher.status !== 0) {
-      throw new Error(
-        `[truth] Electron launcher failed before CDP attach with exit code ${
-          launcher.status ?? 'unknown'
-        }`,
-      );
+    if (process.platform === 'win32') {
+      const launchScript = [
+        '$ErrorActionPreference = "Stop";',
+        `$pidFile = ${quotePowerShell(pidFile)};`,
+        `$userDataDir = ${quotePowerShell(userDataDir)};`,
+        'New-Item -ItemType Directory -Force -Path $userDataDir | Out-Null;',
+        `$proc = Start-Process -FilePath ${quotePowerShell(electronBinary)} -ArgumentList ${toPowerShellArray(electronArgs)} -WorkingDirectory ${quotePowerShell(REPO_ROOT)} -WindowStyle Hidden -PassThru;`,
+        'Set-Content -Path $pidFile -Value $proc.Id -NoNewline;',
+      ].join(' ');
+
+      const launcher = spawnSync('powershell.exe', ['-NoProfile', '-Command', launchScript], {
+        env: launchEnv,
+        stdio: 'inherit',
+        cwd: REPO_ROOT,
+      });
+      if (launcher.status !== 0) {
+        throw new Error(
+          `[truth] Electron launcher failed before CDP attach with exit code ${
+            launcher.status ?? 'unknown'
+          }`,
+        );
+      }
+      if (!existsSync(pidFile)) {
+        throw new Error('[truth] Electron launcher did not write a PID file');
+      }
+      electronPid = Number.parseInt(readFileSync(pidFile, 'utf8').trim(), 10);
+      if (!Number.isFinite(electronPid) || electronPid <= 0) {
+        throw new Error('[truth] Electron launcher wrote an invalid PID');
+      }
+      console.log('[truth] launched Electron PID', electronPid);
+    } else {
+      if (IS_WSL) {
+        console.log('[truth] WSL detected; launching Electron directly (no PowerShell)');
+      }
+      const electron = spawn(electronBinary, electronArgs, {
+        env: launchEnv,
+        stdio: 'inherit',
+        cwd: REPO_ROOT,
+        detached: true,
+      });
+      electron.unref();
+      electronPid = electron.pid ?? null;
+      if (!electronPid) {
+        throw new Error('[truth] Electron spawn did not return a PID');
+      }
+      console.log('[truth] launched Electron PID', electronPid);
     }
-    if (!existsSync(pidFile)) {
-      throw new Error('[truth] Electron launcher did not write a PID file');
-    }
-    electronPid = Number.parseInt(readFileSync(pidFile, 'utf8').trim(), 10);
-    if (!Number.isFinite(electronPid) || electronPid <= 0) {
-      throw new Error('[truth] Electron launcher wrote an invalid PID');
-    }
-    console.log('[truth] launched Electron PID', electronPid);
 
     const devtoolsEndpoint = await waitForDebuggerVersion(ELECTRON_DEBUG_PORT, 30_000);
     const pageTarget = await waitForDebuggerPage(ELECTRON_DEBUG_PORT, 30_000);
@@ -593,13 +616,16 @@ async function run() {
     } finally {
       cdp.close();
       try {
-        spawnSync('taskkill', ['/PID', String(electronPid), '/T', '/F'], { stdio: 'ignore' });
-      } catch {
-        try {
+        if (process.platform === 'win32') {
+          spawnSync('taskkill', ['/PID', String(electronPid), '/T', '/F'], { stdio: 'ignore' });
+        } else {
+          // When launched detached, Electron becomes its own process group leader.
+          // Try to kill the whole group to avoid leaving helper processes behind.
+          process.kill(-electronPid);
           process.kill(electronPid);
-        } catch {
-          // Ignore cleanup races on teardown.
         }
+      } catch {
+        // Ignore cleanup races on teardown.
       }
       if (electronPid) {
         await waitForProcessExit(electronPid, 10_000).catch((error) => {
