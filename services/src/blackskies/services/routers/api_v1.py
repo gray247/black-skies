@@ -18,8 +18,8 @@ from .snapshots import router as snapshots_router
 
 router = APIRouter(prefix="/api/v1")
 router.include_router(outline_router)
-router.include_router(draft_router)
 router.include_router(recovery_router)
+router.include_router(draft_router)
 router.include_router(analytics_router)
 router.include_router(snapshots_router)
 router.include_router(backup_verifier_router)

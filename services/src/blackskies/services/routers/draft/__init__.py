@@ -12,7 +12,7 @@ from .common import _compute_sha256
 
 router = APIRouter(prefix="/draft", tags=["draft"], responses=default_error_responses())
 
-for module_name in ("acceptance", "export", "generation", "revision", "wizard"):
+for module_name in ("acceptance", "export", "generation", "read", "revision", "wizard"):
     importlib.import_module(f"{__name__}.{module_name}")
 
 __all__ = [
