@@ -15,7 +15,7 @@ const safeExpose = (key: string, api: unknown) => {
   }
 };
 
-const applyVisualStableAttrs = (element: Element | null) => {
+const applyVisualStableAttrs = (element: HTMLElement | null) => {
   if (!element) {
     return;
   }
@@ -162,21 +162,41 @@ ensureForceStateAttrsWithRetry();
 safeExpose('__testEnv', { isPlaywright });
 
 if (typeof window !== 'undefined' && harnessHooksEnabled) {
-  const root = document.documentElement;
-  const body = document.body ?? root;
-  const setHarnessFlag = (flag: 'testActiveFlow' | 'testStableDock' | 'testStableHome' | 'testVisualStable', enabled: boolean): void => {
-    if (enabled) {
-      root.dataset[flag] = '1';
-      body.dataset[flag] = '1';
+  const applyHarnessFlags = (): void => {
+    if (typeof document === 'undefined') {
       return;
     }
-    delete root.dataset[flag];
-    delete body.dataset[flag];
+    const root = document.documentElement;
+    if (!root) {
+      return;
+    }
+    const body = document.body ?? root;
+
+    const setHarnessFlag = (
+      flag: 'testActiveFlow' | 'testStableDock' | 'testStableHome' | 'testVisualStable',
+      enabled: boolean,
+    ): void => {
+      if (enabled) {
+        root.dataset[flag] = '1';
+        body.dataset[flag] = '1';
+        return;
+      }
+      delete root.dataset[flag];
+      delete body.dataset[flag];
+    };
+
+    setHarnessFlag('testActiveFlow', process.env.PLAYWRIGHT === '1');
+    setHarnessFlag('testStableDock', process.env.BLACKSKIES_STABLE_DOCK === '1');
+    setHarnessFlag('testStableHome', process.env.BLACKSKIES_STABLE_HOME === '1');
+    setHarnessFlag('testVisualStable', process.env.BLACKSKIES_VISUAL_STABLE === '1');
   };
-  setHarnessFlag('testActiveFlow', process.env.PLAYWRIGHT === '1');
-  setHarnessFlag('testStableDock', process.env.BLACKSKIES_STABLE_DOCK === '1');
-  setHarnessFlag('testStableHome', process.env.BLACKSKIES_STABLE_HOME === '1');
-  setHarnessFlag('testVisualStable', process.env.BLACKSKIES_VISUAL_STABLE === '1');
+
+  applyHarnessFlags();
+  if (typeof document !== 'undefined' && document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', applyHarnessFlags, { once: true });
+  }
+  window.addEventListener('load', applyHarnessFlags, { once: true });
+
   if (process.env.BLACKSKIES_STABLE_HOME === '1') {
     const applyStableHomeAttr = () => {
       if (typeof document === 'undefined') {
@@ -1416,10 +1436,23 @@ if (process.env.PLAYWRIGHT === '1') {
   };
 
   if (harnessHooksEnabled && typeof document !== 'undefined') {
-    const root = document.documentElement;
-    const body = document.body ?? root;
-    root.dataset.testNeedsRecovery = '1';
-    body.dataset.testNeedsRecovery = '1';
+    const markNeedsRecovery = (): void => {
+      const root = document.documentElement;
+      if (!root) {
+        return;
+      }
+      const body = document.body ?? root;
+      root.dataset.testNeedsRecovery = '1';
+      body.dataset.testNeedsRecovery = '1';
+    };
+
+    markNeedsRecovery();
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', markNeedsRecovery, { once: true });
+    }
+    if (typeof window !== 'undefined') {
+      window.addEventListener('load', markNeedsRecovery, { once: true });
+    }
   }
 
   if (process.env.PLAYWRIGHT_DISABLE_ANIMATIONS === '1') {
