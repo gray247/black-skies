@@ -23,6 +23,7 @@ import {
   subscribeDebugLog,
 } from '../utils/debugLog';
 import { TID } from '../utils/testIds';
+import type { DraftReadBridgeResponse, ServiceError } from '../../shared/ipc/services';
 
 export type ProjectLoadStatus = 'init' | 'loaded' | 'failed' | 'cleared';
 
@@ -59,6 +60,12 @@ interface RecentProjectEntry {
   name: string;
   lastOpened: number;
 }
+
+type DraftReadState =
+  | { status: 'idle' }
+  | { status: 'loading'; sceneId: string }
+  | { status: 'success'; sceneId: string; data: DraftReadBridgeResponse; traceId?: string }
+  | { status: 'error'; sceneId: string; error: ServiceError; traceId?: string };
 
 const RECENTS_STORAGE_KEY = 'blackskies.recent-projects';
 const LAST_PROJECT_STORAGE_KEY = 'blackskies.last-project';
@@ -181,6 +188,7 @@ export default function ProjectHome({
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [diagnosticsExpanded, setDiagnosticsExpanded] = useState<boolean>(false);
   const [activeSceneId, setActiveSceneId] = useState<string | null>(null);
+  const [draftReadState, setDraftReadState] = useState<DraftReadState>({ status: 'idle' });
   const [storedLastProjectPath, setStoredLastProjectPath] = useState<string | null>(() =>
     readStoredLastProjectPath(),
   );
@@ -223,6 +231,128 @@ export default function ProjectHome({
     }
     return activeProject.drafts[activeSceneId] ?? '';
   }, [activeProject, activeSceneId, draftOverrides]);
+
+  const activeProjectId = activeProject?.projectId ?? null;
+
+  useEffect(() => {
+    // Avoid "mystery stale draft" state when switching scenes/projects.
+    setDraftReadState({ status: 'idle' });
+  }, [activeProjectId, activeSceneId]);
+
+  const loadDraftFromService = useCallback(() => {
+    if (!activeProject || !activeSceneId) {
+      setDraftReadState({ status: 'idle' });
+      return;
+    }
+
+    if (typeof activeProjectId !== 'string' || activeProjectId.trim().length === 0) {
+      setDraftReadState({
+        status: 'error',
+        sceneId: activeSceneId,
+        error: {
+          code: 'PROJECT_ID_MISSING',
+          message: 'Project id unavailable; cannot load draft from service.',
+        },
+      });
+      return;
+    }
+
+    const readDraft = window.services?.readDraft;
+    if (!readDraft) {
+      setDraftReadState({
+        status: 'error',
+        sceneId: activeSceneId,
+        error: {
+          code: 'BRIDGE_UNAVAILABLE',
+          message: 'Draft read bridge is unavailable (services.readDraft missing).',
+        },
+      });
+      return;
+    }
+
+    const sceneId = activeSceneId;
+    setDraftReadState({ status: 'loading', sceneId });
+
+    readDraft({ projectId: activeProjectId, sceneId })
+      .then((result) => {
+        if (result.ok) {
+          setDraftReadState({
+            status: 'success',
+            sceneId,
+            data: result.data,
+            traceId: result.traceId,
+          });
+        } else {
+          setDraftReadState({
+            status: 'error',
+            sceneId,
+            error: result.error,
+            traceId: result.traceId,
+          });
+        }
+      })
+      .catch((error) => {
+        setDraftReadState({
+          status: 'error',
+          sceneId,
+          error: {
+            code: 'UNKNOWN',
+            message: error instanceof Error ? error.message : String(error),
+          },
+        });
+      });
+  }, [activeProject, activeProjectId, activeSceneId]);
+
+  const serviceDraftForActiveScene =
+    activeSceneId &&
+    draftReadState.status === 'success' &&
+    draftReadState.sceneId === activeSceneId
+      ? draftReadState.data
+      : null;
+
+  const hasDraftOverride = Boolean(
+    activeSceneId && typeof draftOverrides?.[activeSceneId] === 'string',
+  );
+
+  const effectiveSceneDraft = hasDraftOverride
+    ? activeSceneDraft
+    : serviceDraftForActiveScene?.text ?? activeSceneDraft;
+
+  const effectiveSceneTitle = serviceDraftForActiveScene?.title ?? activeScene?.title ?? null;
+  const isDraftReadLoading =
+    Boolean(
+      activeSceneId &&
+        draftReadState.status === 'loading' &&
+        draftReadState.sceneId === activeSceneId,
+    );
+
+  const draftReadStatusText = useMemo(() => {
+    if (!activeSceneId || draftReadState.status === 'idle') {
+      return null;
+    }
+    if (
+      (draftReadState.status === 'loading' ||
+        draftReadState.status === 'success' ||
+        draftReadState.status === 'error') &&
+      draftReadState.sceneId !== activeSceneId
+    ) {
+      return null;
+    }
+    switch (draftReadState.status) {
+      case 'loading':
+        return 'Loading draft from service…';
+      case 'success':
+        return hasDraftOverride
+          ? 'Service draft loaded (showing local edits).'
+          : 'Loaded draft from service.';
+      case 'error': {
+        const code = draftReadState.error.code ? ` (${draftReadState.error.code})` : '';
+        return `Draft read failed${code}: ${draftReadState.error.message}`;
+      }
+      default:
+        return null;
+    }
+  }, [activeSceneId, draftReadState, hasDraftOverride]);
 
   const notifyIssues = useCallback(
     (items: ProjectIssue[]) => {
@@ -743,9 +873,9 @@ export default function ProjectHome({
     onActiveSceneChange({
       sceneId: activeScene.id,
       sceneTitle: activeScene.title,
-      draft: activeSceneDraft,
+      draft: effectiveSceneDraft,
     });
-  }, [activeProject, activeScene, activeSceneDraft, onActiveSceneChange]);
+  }, [activeProject, activeScene, effectiveSceneDraft, onActiveSceneChange]);
 
   useEffect(() => {
     if (!reopenRequest) {
@@ -990,8 +1120,16 @@ export default function ProjectHome({
                 <>
                   <div className="project-home__draft-header-left">
                     <span className="project-home__draft-scene-id">{activeScene.id}</span>
+                    <button
+                      type="button"
+                      className="project-home__draft-load"
+                      onClick={loadDraftFromService}
+                      disabled={isDraftReadLoading}
+                    >
+                      {isDraftReadLoading ? 'Loading…' : 'Load from service'}
+                    </button>
                     <h3 id={draftSceneTitleId} className="project-home__draft-title">
-                      {activeScene.title}
+                      {effectiveSceneTitle ?? activeScene.title}
                     </h3>
                   </div>
                   <div id={draftSceneMetaId} className="project-home__draft-header-meta">
@@ -1010,6 +1148,11 @@ export default function ProjectHome({
                         {activeScene.word_target} words
                       </span>
                     ) : null}
+                    {draftReadStatusText ? (
+                      <span className="project-home__draft-source" role="status">
+                        {draftReadStatusText}
+                      </span>
+                    ) : null}
                   </div>
                 </>
               ) : (
@@ -1024,11 +1167,11 @@ export default function ProjectHome({
             <div className="project-home__draft-editor">
               {activeScene ? (
                 <DraftEditor
-                  value={activeSceneDraft}
+                  value={effectiveSceneDraft}
                   placeholder="Scene text will appear once loaded."
                   className="project-home__draft-editor-host"
                   ariaLabel={`Scene ${activeScene.id} draft editor${
-                    activeScene.title ? `: ${activeScene.title}` : ''
+                    effectiveSceneTitle ? `: ${effectiveSceneTitle}` : ''
                   }`}
                   ariaLabelledBy={draftSceneTitleId}
                   ariaDescribedBy={
