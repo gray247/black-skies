@@ -329,10 +329,15 @@ def test_analytics_summary_handles_internal_error(
     project_id = "proj_analytics_error"
     (tmp_path / project_id).mkdir(parents=True, exist_ok=True)
 
-    def _raise_summary(self: AnalyticsSummaryService, project_id: str) -> dict[str, Any]:
+    from blackskies.services.routers import analytics as analytics_router
+
+    def _raise_summary(settings: Any, project_id: str, *, force_refresh: bool = False) -> dict[str, Any]:
         raise RuntimeError("analytics subsystem offline")
 
-    monkeypatch.setattr(AnalyticsSummaryService, "build_summary", _raise_summary)
+    # The analytics router currently delegates to the analytics stub module. Patch the router's
+    # imported entry point directly so the test exercises internal error shaping rather than
+    # accidentally passing via unrelated validation failures.
+    monkeypatch.setattr(analytics_router, "get_project_summary", _raise_summary)
 
     response = test_client.get(
         f"{API_PREFIX}/analytics/summary",

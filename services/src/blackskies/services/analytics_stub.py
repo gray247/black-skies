@@ -33,6 +33,8 @@ from .analytics.text_utils import (
     compute_readability_metrics,
     score_scene_pacing,
 )
+from .models._project_id import validate_project_id
+from .service_errors import ServiceError
 
 
 SENTENCE_SPLIT = re.compile(r"[.!?]+")
@@ -47,7 +49,17 @@ def get_project_summary(
     """Return a lightweight analytics summary for the requested project."""
 
     project_root = _resolve_project_root(settings, project_id)
-    outline = load_outline_artifact(project_root)
+    try:
+        outline = load_outline_artifact(project_root)
+    except DraftRequestError as exc:
+        # Surface invalid/missing outline artifacts as a clean 4xx rather than a generic 500.
+        raise ServiceError(
+            code="VALIDATION",
+            status_code=400,
+            message=str(exc),
+            details=exc.details or {},
+            project_root=project_root,
+        ) from exc
     scenes = list(
         _generate_scene_stats(project_root, outline, force_refresh=force_refresh)
     )
@@ -171,7 +183,16 @@ def get_scene_metrics(
     """Return per-scene metrics for the requested project."""
 
     project_root = _resolve_project_root(settings, project_id)
-    outline = load_outline_artifact(project_root)
+    try:
+        outline = load_outline_artifact(project_root)
+    except DraftRequestError as exc:
+        raise ServiceError(
+            code="VALIDATION",
+            status_code=400,
+            message=str(exc),
+            details=exc.details or {},
+            project_root=project_root,
+        ) from exc
     scenes = [
         scene.to_dict()
         for scene in _generate_scene_stats(project_root, outline, force_refresh=force_refresh)
@@ -188,7 +209,16 @@ def get_relationship_graph(settings: ServiceSettings, project_id: str) -> dict[s
     """Return a simple relationship graph for the requested project."""
 
     project_root = _resolve_project_root(settings, project_id)
-    outline = load_outline_artifact(project_root)
+    try:
+        outline = load_outline_artifact(project_root)
+    except DraftRequestError as exc:
+        raise ServiceError(
+            code="VALIDATION",
+            status_code=400,
+            message=str(exc),
+            details=exc.details or {},
+            project_root=project_root,
+        ) from exc
     nodes: list[dict[str, object]] = []
     char_nodes: dict[str, dict[str, object]] = {}
     edges: list[dict[str, object]] = []
@@ -252,9 +282,29 @@ class SceneMetrics:
 
 
 def _resolve_project_root(settings: ServiceSettings, project_id: str) -> Path:
-    project_root = settings.project_base_dir / project_id
+    try:
+        validated_id = validate_project_id(project_id)
+    except ValueError as exc:
+        raise ServiceError(
+            code="VALIDATION",
+            status_code=400,
+            message="Invalid project_id.",
+            details={"project_id": project_id, "error": str(exc)},
+            project_root=None,
+        ) from exc
+
+    project_root = settings.project_base_dir / validated_id
     if not project_root.exists():
-        raise DraftRequestError("Project root does not exist.", {"project_id": project_id})
+        raise ServiceError(
+            code="FILESYSTEM_NOT_FOUND",
+            status_code=404,
+            message="Project root does not exist.",
+            details={
+                "project_id": validated_id,
+                "project_base_dir": str(settings.project_base_dir),
+            },
+            project_root=None,
+        )
     return project_root
 
 

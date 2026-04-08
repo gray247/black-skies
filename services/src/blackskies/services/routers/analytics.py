@@ -9,7 +9,8 @@ from ..analytics_stub import get_project_summary, get_relationship_graph, get_sc
 from ..config import ServiceSettings
 from ..diagnostics import DiagnosticLogger
 from ..feature_flags import analytics_enabled
-from ..http import raise_service_error
+from ..http import raise_service_error, raise_validation_error
+from ..models._project_id import validate_project_id
 from ..operations.budget_service import BudgetService
 from .dependencies import get_diagnostics, get_settings
 
@@ -22,11 +23,21 @@ def get_analytics_summary(
     project_id: str = Query(..., min_length=1),
     force_refresh: bool = Query(False),
     settings: ServiceSettings = Depends(get_settings),
+    diagnostics: DiagnosticLogger = Depends(get_diagnostics),
 ) -> dict[str, object]:
     """Return a lightweight summary for the requested project."""
 
     _assert_analytics_enabled()
-    return get_project_summary(settings, project_id, force_refresh=force_refresh)
+    try:
+        validated_id = validate_project_id(project_id)
+    except ValueError as exc:
+        raise_validation_error(
+            message="Invalid project_id.",
+            details={"project_id": project_id, "error": str(exc)},
+            diagnostics=diagnostics,
+            project_root=None,
+        )
+    return get_project_summary(settings, validated_id, force_refresh=force_refresh)
 
 
 @router.get("/scenes")
@@ -35,11 +46,21 @@ def get_analytics_scenes(
     project_id: str = Query(..., min_length=1),
     force_refresh: bool = Query(False),
     settings: ServiceSettings = Depends(get_settings),
+    diagnostics: DiagnosticLogger = Depends(get_diagnostics),
 ) -> dict[str, object]:
     """Return stubbed scene metrics for the requested project."""
 
     _assert_analytics_enabled()
-    return get_scene_metrics(settings, project_id, force_refresh=force_refresh)
+    try:
+        validated_id = validate_project_id(project_id)
+    except ValueError as exc:
+        raise_validation_error(
+            message="Invalid project_id.",
+            details={"project_id": project_id, "error": str(exc)},
+            diagnostics=diagnostics,
+            project_root=None,
+        )
+    return get_scene_metrics(settings, validated_id, force_refresh=force_refresh)
 
 
 class AnalyticsRelationshipNode(BaseModel):
@@ -66,11 +87,21 @@ def get_analytics_relationships(
     *,
     project_id: str = Query(..., min_length=1),
     settings: ServiceSettings = Depends(get_settings),
+    diagnostics: DiagnosticLogger = Depends(get_diagnostics),
 ) -> AnalyticsRelationshipGraph:
     """Return relationship graph data for the requested project."""
 
     _assert_analytics_enabled()
-    graph = get_relationship_graph(settings, project_id)
+    try:
+        validated_id = validate_project_id(project_id)
+    except ValueError as exc:
+        raise_validation_error(
+            message="Invalid project_id.",
+            details={"project_id": project_id, "error": str(exc)},
+            diagnostics=diagnostics,
+            project_root=None,
+        )
+    graph = get_relationship_graph(settings, validated_id)
     return AnalyticsRelationshipGraph.model_validate(graph)
 
 
@@ -84,7 +115,26 @@ def get_analytics_budget(
     """Return the current budget summary for the requested project."""
 
     _assert_analytics_enabled()
-    project_root = settings.project_base_dir / project_id
+    try:
+        validated_id = validate_project_id(project_id)
+    except ValueError as exc:
+        raise_validation_error(
+            message="Invalid project_id.",
+            details={"project_id": project_id, "error": str(exc)},
+            diagnostics=diagnostics,
+            project_root=None,
+        )
+
+    project_root = settings.project_base_dir / validated_id
+    if not project_root.exists():
+        raise_service_error(
+            status_code=status.HTTP_404_NOT_FOUND,
+            code="FILESYSTEM_NOT_FOUND",
+            message="Project root does not exist.",
+            details={"project_id": validated_id, "project_base_dir": str(settings.project_base_dir)},
+            diagnostics=diagnostics,
+            project_root=None,
+        )
     try:
         budget_service = BudgetService(settings=settings, diagnostics=diagnostics)
         state = budget_service.load_state(project_root)
@@ -107,7 +157,7 @@ def get_analytics_budget(
         hint = "ample"
 
     return {
-        "project_id": project_id,
+        "project_id": validated_id,
         "budget": {
             "soft_limit_usd": round(state.soft_limit, 2),
             "hard_limit_usd": round(state.hard_limit, 2),
