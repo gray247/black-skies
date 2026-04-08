@@ -44,7 +44,7 @@ const sceneMetrics = loadedProject.scenes.map((scene, index) => {
 });
 
 const analyticsSummary = {
-  projectId: loadedProject.project_id,
+  projectId: loadedProject.projectId,
   projectPath,
   scenes: sceneMetrics.length,
   wordCount: sceneMetrics.reduce((sum, scene) => sum + scene.wordCount, 0),
@@ -60,13 +60,13 @@ const analyticsSummary = {
 };
 
 const analyticsScenes = {
-  projectId: loadedProject.project_id,
+  projectId: loadedProject.projectId,
   projectPath,
   scenes: sceneMetrics,
 };
 
 const analyticsRelationships = {
-  projectId: loadedProject.project_id,
+  projectId: loadedProject.projectId,
   nodes: sceneMetrics.map((scene) => ({
     id: `scene:${scene.sceneId}`,
     label: scene.title,
@@ -148,7 +148,7 @@ const snapshotManifest = {
 };
 
 const verificationReport = {
-  project_id: loadedProject.project_id,
+  project_id: loadedProject.projectId,
   status: 'ok' as const,
   message: 'Snapshot verified successfully.',
   snapshots: [
@@ -162,21 +162,21 @@ const verificationReport = {
 };
 
 const recoveryStatus = {
-  project_id: loadedProject.project_id,
+  project_id: loadedProject.projectId,
   status: 'idle',
   needs_recovery: false,
   last_snapshot: null,
 };
 
 const recoveryStatusSnapshot = {
-  project_id: loadedProject.project_id,
+  project_id: loadedProject.projectId,
   status: 'needs-recovery',
   needs_recovery: true,
   last_snapshot: snapshotResponse,
 };
 
 const restoreResponse = {
-  project_id: loadedProject.project_id,
+  project_id: loadedProject.projectId,
   status: 'idle',
   needs_recovery: false,
   last_snapshot: snapshotResponse,
@@ -311,7 +311,7 @@ async function ensureServer(): Promise<void> {
         } else {
           respond(res, [
             {
-              project_id: loadedProject.project_id,
+              project_id: loadedProject.projectId,
               filename: 'pw-backup.zip',
               path: '/mock/path',
               created_at: new Date().toISOString(),
@@ -329,7 +329,7 @@ async function ensureServer(): Promise<void> {
         return;
       case '/export':
         respond(res, {
-          project_id: loadedProject.project_id,
+          project_id: loadedProject.projectId,
           path: '/mock/export.md',
           format: 'md',
           chapters: loadedProject.scenes.length,

@@ -7,10 +7,8 @@ const sampleProjectPath = loadedProject.path;
 test('analytics offline cache flow keeps cached metrics visible', async ({ page }) => {
   await page.waitForLoadState('domcontentloaded');
 
-  await page.evaluate((projectPath) => {
-    (window as typeof window & { __dev?: { setProjectDir?: (dir: string) => void } }).__dev?.setProjectDir?.(
-      projectPath ?? null,
-    );
+  await page.evaluate(async (projectPath) => {
+    await window.__dev?.setProjectDir?.(projectPath ?? null);
   }, sampleProjectPath);
 
   const openProjectButton = page.getByTestId('open-project');

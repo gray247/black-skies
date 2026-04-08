@@ -86,8 +86,6 @@ declare global {
   }
 }
 
-type TrackedLoadedProject = LoadedProject & { projectId?: string };
-
 const BUDGET_EPSILON = 1e-6;
 
 const DOCKABLE_PANES: LayoutPaneId[] = [
@@ -147,16 +145,6 @@ function createTestRecoveryStatus(projectId?: string): RecoveryStatusBridgeRespo
     needs_recovery: true,
     last_snapshot: TEST_SNAPSHOT_SUMMARY,
   };
-}
-
-
-function deriveProjectIdFromPath(path: string): string {
-  const segments = path.split(/[\\/]+/).filter(Boolean);
-  const base = segments.at(-1);
-  if (base && base.length > 0) {
-    return base;
-  }
-  return path;
 }
 
 type BatchCritiqueStatus = "idle" | "running" | "success" | "error";
@@ -478,7 +466,9 @@ export default function App(): JSX.Element {
       window.removeEventListener('unhandledrejection', handleRejection);
     };
   }, []);
-  const [currentProject, setCurrentProject] = useState<TrackedLoadedProject | null>(null);
+  const [currentProject, setCurrentProject] = useState<LoadedProject | null>(null);
+  const [projectLoadState, setProjectLoadState] = useState<"idle" | "loaded" | "error">("idle");
+  const [projectLoadError, setProjectLoadError] = useState<{ code: string; message: string } | null>(null);
   const currentProjectRef = useRef<LoadedProject | null>(null);
   const pendingSceneSelectionRef = useRef<string | null>(null);
   const isVisualHomeMode = isVisualMode && currentProject === null;
@@ -686,6 +676,19 @@ export default function App(): JSX.Element {
     }
   }, [applySceneSelection, currentProject]);
   const [projectSummary, setProjectSummary] = useState<ProjectSummary | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    (window as typeof window & { __appState?: unknown }).__appState = {
+      projectReady: projectLoadState === "loaded" && Boolean(projectSummary?.projectId),
+      projectId: projectSummary?.projectId ?? null,
+      projectLoadState,
+      projectError: projectLoadError,
+    };
+  }, [projectLoadError, projectLoadState, projectSummary?.projectId]);
+
   const globalWindowForDefaults = window as typeof window & {
     __testEnvDefaultProjectId?: string;
     __testEnvSnapshotRestoreFlow?: boolean;
@@ -798,6 +801,8 @@ export default function App(): JSX.Element {
 
   const resetProjectState = useCallback(() => {
     setCurrentProject(null);
+    setProjectLoadState("idle");
+    setProjectLoadError(null);
     setProjectDrafts({});
     setDraftEdits({});
     setActiveScene(null);
@@ -811,6 +816,8 @@ export default function App(): JSX.Element {
     resetRecovery,
     setActiveScene,
     setCurrentProject,
+    setProjectLoadError,
+    setProjectLoadState,
     setDraftEdits,
     setProjectDrafts,
     setCritiqueRubric,
@@ -1095,11 +1102,12 @@ export default function App(): JSX.Element {
         drafts: Object.keys(project.drafts).length,
         preserveSceneId: options?.preserveSceneId ?? null,
       });
-      const projectId = deriveProjectIdFromPath(project.path);
+      const projectId = project.projectId;
       const unitIds = project.scenes.map((scene) => scene.id);
 
-      const projectWithId: TrackedLoadedProject = { ...project, projectId };
-      setCurrentProject(projectWithId);
+      setCurrentProject(project);
+      setProjectLoadState("loaded");
+      setProjectLoadError(null);
       const canonicalDrafts = { ...project.drafts };
       setProjectDrafts(canonicalDrafts);
       setDraftEdits({ ...canonicalDrafts });
@@ -1488,6 +1496,16 @@ export default function App(): JSX.Element {
           recordDebugEvent("app.handleProjectLoaded.reset", { status });
           setProjectSummary(null);
           resetProjectState();
+          if (status === "failed") {
+            const errorPayload =
+              (payload as ProjectLoadEvent & { error?: { code?: string; message?: string } | null })
+                .error ?? null;
+            setProjectLoadState("error");
+            setProjectLoadError({
+              code: errorPayload?.code ?? "UNKNOWN",
+              message: errorPayload?.message ?? "Project load failed.",
+            });
+          }
           return;
         }
 

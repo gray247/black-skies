@@ -255,11 +255,17 @@ if (isPlaywright && typeof window !== 'undefined') {
 }
 
 const devApi: {
-  setProjectDir: (absPath: string | null) => boolean;
+  setProjectDir: (absPath: string | null) => Promise<void>;
   overrideServices?: (overrides: Partial<ServicesBridge>) => void;
 } = {
-  setProjectDir: (absPath: string | null) =>
-    window.dispatchEvent(new CustomEvent('test:set-project', { detail: absPath })),
+  setProjectDir: async (absPath: string | null) => {
+    // Always emit the renderer-side marker event so tests can correlate activity in the debug log.
+    window.dispatchEvent(new CustomEvent('test:set-project', { detail: absPath }));
+    // In Playwright mode, also set the main-process override used by the project open dialog.
+    if (process.env.PLAYWRIGHT === '1') {
+      await ipcRenderer.invoke(PROJECT_LOADER_CHANNELS.setDevProjectPath, absPath);
+    }
+  },
 };
 
 // --- harness-only bridges ---

@@ -1,4 +1,5 @@
 import type { Page } from '@playwright/test';
+import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -19,10 +20,16 @@ export async function bootstrapHarness(page: Page): Promise<void> {
   });
 
   const sampleProjectPath = path.resolve(__dirname, '../../../sample_project/Esther_Estate');
-  await page.evaluate((projectPath) => {
-    (window as any).__dev?.setProjectDir?.(projectPath ?? null);
+  await page.evaluate(async (projectPath) => {
+    await (window as any).__dev?.setProjectDir?.(projectPath ?? null);
   }, sampleProjectPath);
-  const sampleProjectId = path.basename(sampleProjectPath);
+  const projectMeta = JSON.parse(
+    fs.readFileSync(path.join(sampleProjectPath, 'project.json'), 'utf-8'),
+  ) as { project_id?: unknown };
+  const sampleProjectId =
+    typeof projectMeta.project_id === 'string' && projectMeta.project_id.trim().length > 0
+      ? projectMeta.project_id.trim()
+      : 'proj_esther_estate';
   await page.evaluate(
     ({ projectId, projectPath }: { projectId: string; projectPath: string }) => {
       const win = window as typeof window & {

@@ -47,7 +47,7 @@ test.describe('Hotkeys status', () => {
         preflightDraft: async () => ({
           ok: true,
           data: {
-            projectId: project.project_id,
+            projectId: project.projectId,
             unitScope: 'scene',
             unitIds: [project.scenes[0]?.id ?? 'sc_0001'],
             model: { name: 'draft-synthesizer-v1', provider: 'stub' },
@@ -138,7 +138,7 @@ test.describe('Hotkeys status', () => {
         return {
           ok: true,
           data: {
-            project_id: project.project_id,
+            project_id: project.projectId,
             status: recoveryState.needs_recovery ? 'needs_recovery' : 'idle',
             needs_recovery: recoveryState.needs_recovery,
             last_snapshot: recoveryState.needs_recovery ? recoveryState.snapshot : null,
@@ -153,7 +153,7 @@ test.describe('Hotkeys status', () => {
           return {
             ok: true,
             data: {
-              project_id: project.project_id,
+              project_id: project.projectId,
               status: 'idle',
               needs_recovery: false,
             },

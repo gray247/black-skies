@@ -50,6 +50,12 @@ declare global {
     __testEnvDefaultProjectId?: string;
     __testEnvDefaultProjectPath?: string;
     __testEnvAutoSeedProjectSummary?: boolean;
+    __appState?: {
+      projectReady: boolean;
+      projectId: string | null;
+      projectLoadState: 'idle' | 'loaded' | 'error';
+      projectError: { code: string; message: string } | null;
+    };
   }
 }
 

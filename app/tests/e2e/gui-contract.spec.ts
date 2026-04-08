@@ -35,7 +35,7 @@ test.beforeEach(async ({ page }) => {
       preflightDraft: async () => ({
         ok: true,
         data: {
-          projectId: project.project_id,
+          projectId: project.projectId,
           unitScope: 'scene',
           unitIds: [project.scenes[0]?.id ?? 'sc_0001'],
           model: { name: 'draft-synthesizer-v1', provider: 'stub' },
@@ -124,7 +124,7 @@ test.beforeEach(async ({ page }) => {
       getRecoveryStatus: async () => ({
         ok: true,
         data: {
-          project_id: project.project_id,
+          project_id: project.projectId,
           status: 'idle',
           needs_recovery: false,
           last_snapshot: null,
@@ -134,7 +134,7 @@ test.beforeEach(async ({ page }) => {
       restoreSnapshot: async () => ({
         ok: true,
         data: {
-          project_id: project.project_id,
+          project_id: project.projectId,
           status: 'idle',
           needs_recovery: false,
         },
