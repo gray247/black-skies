@@ -1,4 +1,0 @@
-# file: C:\Dev\black-skies\services\src\blackskies\services\run_policy.py
-# hypothesis_version: 6.138.2
-
-['RunPolicyDecision', 'RunPolicyEngine', 'allow_api', 'allow_local', 'blocked', 'budget.hard_limit', 'budget.soft_limit', 'budget_status', 'hard_limit_exceeded', 'policy', 'prefer_local', 'reason', 'soft-limit', 'soft_limit_exceeded', 'task', 'warnings']

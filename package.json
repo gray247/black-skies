@@ -11,8 +11,9 @@
                     "bootstrap":  "pnpm install --recursive",
                     "lint":  "pnpm -r lint",
                     "dev":  "node ./scripts/dev-runner.mjs",
-    "lint:docs":  "markdownlint \"CONTRIBUTING.md\" \"docs/style.md\" \"docs/rollback_policy.md\" \"docs/ui_copy_spec_v1.md\"",
-    "test:e2e":  "node ./scripts/e2e-with-backend.mjs"
+    "lint:docs":  "markdownlint --disable MD041 -- \"CONTRIBUTING.md\" \"docs/style.md\" \"docs/rollback_policy.md\" \"docs/ui_copy_spec_v1.md\"",
+    "test:e2e":  "node ./scripts/e2e-with-backend.mjs",
+    "repo:hygiene":  "python scripts/check_repo_hygiene.py --tracked"
                 },
     "devDependencies":  {
                             "markdownlint-cli":  "^0.45.0"

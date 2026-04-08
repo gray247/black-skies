@@ -1,4 +1,0 @@
-# file: C:\Dev\black-skies\services\src\blackskies\services\integrity.py
-# hypothesis_version: 6.138.2
-
-[', ', 'ValidationIssue', 'drafts', 'error', 'ignore', 'info', 'outline', 'outline.json', 'outline_json_invalid', 'outline_json_missing', 'project.json', 'project_json_missing', 'project_root_missing', 'validate_project', 'warning']

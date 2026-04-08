@@ -1,4 +1,0 @@
-# file: C:\Dev\black-skies\services\src\blackskies\services\routers\long_form.py
-# hypothesis_version: 6.138.2
-
-['/execute', '/long-form', '/retry-local-repair', 'Project not found.', 'acceptance_reason', 'attempt_count', 'budget_snapshot', 'budget_summary', 'carryover_snapshot', 'chapter_id', 'chunk_id', 'chunks', 'continuation_of', 'continuity_snapshot', 'critique_snapshot', 'errors', 'execute_long_form', 'guardrail_snapshot', 'long-form', 'model', 'order', 'project_id', 'project_path', 'prompt_fingerprint', 'provider', 'quality_snapshot', 'retry_local_repair', 'retry_snapshot', 'review_snapshot', 'rewrite_used', 'router', 'routing_snapshot', 'scene_ids', 'stopped_reason']

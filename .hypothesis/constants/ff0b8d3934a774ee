@@ -1,4 +1,0 @@
-# file: C:\Dev\black-skies\services\src\blackskies\services\routers\draft\read.py
-# hypothesis_version: 6.138.2
-
-['/{scene_id}', 'Invalid project id.', 'SCENE_NOT_FOUND', 'drafts', 'project_id', 'read_draft', 'sceneId', 'scene_id', 'text', 'title', 'utf-8']

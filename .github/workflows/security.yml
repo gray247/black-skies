@@ -6,6 +6,39 @@ on:
     - cron: '0 6 * * *'
 
 jobs:
+  hygiene:
+    name: Repo hygiene enforcement
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Check tracked paths for banned artifacts
+        run: python scripts/check_repo_hygiene.py --tracked
+
+      - name: Check diff hygiene
+        run: git diff --check
+
+      - name: Verify checkout stays clean
+        run: |
+          dirty_tree="$(git status --short --untracked-files=all)"
+          ignored_tree="$(git ls-files --others --ignored --exclude-standard --directory)"
+          if [ -n "$dirty_tree" ] || [ -n "$ignored_tree" ]; then
+            echo "Repository became dirty during hygiene checks:"
+            if [ -n "$dirty_tree" ]; then
+              printf '%s\n' "$dirty_tree"
+            fi
+            if [ -n "$ignored_tree" ]; then
+              printf '%s\n' "$ignored_tree"
+            fi
+            exit 1
+          fi
+
   pip-audit:
     name: Security sweep
     runs-on: ${{ matrix.os }}
