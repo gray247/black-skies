@@ -1,6 +1,6 @@
 Status: Active (Canonical)
 Version: 1.0.0
-Last Reviewed: 2025-11-15
+Last Reviewed: 2026-04-08
 
 # docs/specs/endpoints.md — API Contracts (Source of truth)
 
@@ -19,7 +19,7 @@ Local-only FastAPI services the Electron app calls. All bodies are JSON (UTF-8).
 - **Base path:** all canonical routes live under `/api/v1`. Legacy unversioned aliases (e.g., `/draft/generate`) were retired in
   release `1.0.0-rc1`; clients must call the versioned paths directly.
 - **Model Router:** AI-facing endpoints (`/outline/build`, `/draft/generate`, `/draft/critique`, `/batch/critique`) invoke the Model Router (`./model_backend.md`) before sourcing models, keeping budgets/privacy centralized.
-- **Project context:** `project_id` is held in the active project session and supplied automatically; clients should not prompt users to type it per request (see `../gui/gui_layouts.md` for the UX contract).
+- **Project context:** `project_id` is read from the opened project's `project.json.project_id` (required for a valid Electron project load). Clients must never derive service identity from a folder basename, and should not prompt users to type `project_id` per request (see `../gui/gui_layouts.md` for the UX contract).
 - **Content-Type:** `application/json`
 - **Auth:** none (same-machine services)
 - **Idempotency:** non-mutating calls safe to retry; write calls return versioned artifacts
@@ -156,8 +156,8 @@ Returns a budget estimate for a potential generate request without writing files
   "unit_scope": "scene",
   "unit_ids": ["sc_0001"],
   "model": {
-    "name": "draft-synthesizer-v1",
-    "provider": "black-skies-local"
+    "name": "qwen3:4b",
+    "provider": "ollama"
   },
   "scenes": [
     { "id": "sc_0001", "title": "Storm Cellar", "order": 1, "chapter_id": "ch_0001" }
@@ -181,8 +181,8 @@ Returns a budget estimate for a potential generate request without writing files
   "unit_scope": "scene",
   "unit_ids": ["sc_0001","sc_0002"],
   "model": {
-    "name": "draft-synthesizer-v1",
-    "provider": "black-skies-local"
+    "name": "qwen3:4b",
+    "provider": "ollama"
   },
   "scenes": [
     { "id": "sc_0001", "title": "Storm Cellar", "order": 1, "chapter_id": "ch_0001" },
@@ -207,8 +207,8 @@ Returns a budget estimate for a potential generate request without writing files
   "unit_scope": "scene",
   "unit_ids": ["sc_0003"],
   "model": {
-    "name": "draft-synthesizer-v1",
-    "provider": "black-skies-local"
+    "name": "qwen3:4b",
+    "provider": "ollama"
   },
   "scenes": [
     { "id": "sc_0003", "title": "Surface Impact", "order": 3, "chapter_id": "ch_0001" }
@@ -226,7 +226,7 @@ Returns a budget estimate for a potential generate request without writing files
 ```
 
 **Fields**
-- `model` — resolver-selected draft synthesizer + provider string.
+- `model` — router-selected model name + provider key (defaults are configured; example shown uses `qwen3:4b` via `ollama`).
 - `scenes` — ordered list of impacted scene IDs/titles (chapter and beat refs when available).
 - `budget.status`
   - `ok` — projected total remains under the soft limit (modal shows “Within budget” and keep **Proceed** enabled)
@@ -291,6 +291,35 @@ Generates prose for scenes/chapters. Applies request limits above. Stores prompt
 - `RATE_LIMIT` (burst control)
 - `INTERNAL`
 - Legacy `/draft/generate` was removed in `1.0.0-rc1`; use `/api/v1/draft/generate`.
+
+---
+
+## Draft read
+
+### GET /api/v1/draft/{scene_id}
+Returns the on-disk Markdown draft for a single scene. This endpoint is non-mutating.
+
+**Query**
+- `project_id` (required) — canonical project id from `project.json.project_id`
+
+**Response 200**
+```json
+{
+  "sceneId": "sc_0001",
+  "title": "Storm Cellar",
+  "text": "---\\ntitle: Storm Cellar\\n---\\n\\nThe cellar stairs were slick..."
+}
+```
+
+**Notes**
+- `title` may be null if the service cannot resolve it from the outline metadata.
+- `text` is returned as raw Markdown (including any YAML frontmatter).
+- Desktop app bridge: exposed to the renderer as `window.services.readDraft({ projectId, sceneId })` (see `docs/specs/architecture.md`).
+
+**Errors**
+- 400 `VALIDATION` (invalid `project_id` / malformed request)
+- 404 (project root not found, scene not in outline, or draft file missing)
+- 500 `INTERNAL` (unexpected service fault)
 
 ---
 
@@ -462,10 +491,36 @@ Runs critique on a unit using the rubric (see `../critique_rubric.md`). Non-dest
 
 ---
 
-## Analytics (Deferred to Phase 9)
+## Analytics
 
-Phase 8 builds return 404 for `/api/v1/analytics/*` unless `BLACKSKIES_ENABLE_ANALYTICS=1` flips the flag; these routes ship in Phase 9.
-The analytics drawer defined in `docs/gui/gui_layouts.md` and dashboards described in `docs/phases/dashboard_initiatives.md` rely on the payloads below once enabled.
+Analytics endpoints back the Story Insights UI. They accept canonical `project_id` (from `project.json.project_id`) and are expected
+to fail cleanly for invalid or missing project identity.
+
+**Feature flag**
+- If analytics is disabled, the service returns 404 for `/api/v1/analytics/*` (feature-flag gated).
+
+**Project identity rules**
+- `project_id` must be a canonical project id (example: `proj_esther_estate`).
+- Snapshot ids (`ss_*`) are not valid `project_id` values for analytics endpoints.
+
+**Error behavior (contract)**
+- invalid-format `project_id` → 400 `VALIDATION`
+- well-formed but missing project root → 404
+- ordinary contract failures must not surface as generic 500s
+
+### GET /api/v1/analytics/summary
+**Query**: `project_id` (required), `force_refresh` (optional)
+
+### GET /api/v1/analytics/scenes
+**Query**: `project_id` (required), `force_refresh` (optional)
+
+### GET /api/v1/analytics/relationships
+**Query**: `project_id` (required)
+
+### GET /api/v1/analytics/budget
+**Query**: `project_id` (required)
+
+Refer to `./analytics_service_spec.md` for payload definitions.
 
 
 ## Export Builder
@@ -525,14 +580,4 @@ The analytics drawer defined in `docs/gui/gui_layouts.md` and dashboards describ
 
 ---
 
-## Deferred (Phase 9)
-
-### Analytics endpoints
-
-Analytics routes are deferred to Phase 9 per the charter: they remain in the spec only for reference.
-
-- `GET /api/v1/analytics/summary` (emotion arc, pacing statistics, conflict heatmap)
-- `POST /api/v1/analytics/build` and `/api/v1/analytics/refresh` (trigger rescore/cache refresh)
-- `GET /api/v1/analytics/scene/{scene_id}` and `/api/v1/analytics/graph` (Visuals Layer hover cards and graph data)
-
-Refer to `./analytics_service_spec.md` for full payload definitions.
+Refer to `./analytics_service_spec.md` for additional payload definitions and planned expansion.

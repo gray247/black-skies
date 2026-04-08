@@ -34,6 +34,7 @@ Prereqs: **Node 20 LTS**, **PNPM**, **Python 3.11**
    source .venv/bin/activate
    pip install -c ../constraints.txt -e .[dev]
    ```
+   Equivalent (from repo root): `pip install -e services[dev]` (still respects `constraints.txt`/lockfiles when used with the same pip config).
    `start-codex.ps1 -OnlySetup` performs the same bootstrap automatically; use the manual commands above only when scripting custom environments.
    The editable install resolves to **FastAPI 0.118.x**, **Starlette 0.48.x**, and **HTTPX 0.27.x** while the shared constraints
    file keeps patch releases identical to CI and the lockfiles.
@@ -198,8 +199,8 @@ scene metadata, and a `budget` block so the UI can enforce soft ($12.50) and har
   "unit_scope": "scene",
   "unit_ids": ["sc_0001", "sc_0002"],
   "model": {
-    "name": "draft-synthesizer-v1",
-    "provider": "black-skies-local"
+    "name": "qwen3:4b",
+    "provider": "ollama"
   },
   "scenes": [
     { "id": "sc_0001", "title": "Storm Cellar", "order": 1, "chapter_id": "ch_0001" },
@@ -224,8 +225,8 @@ scene metadata, and a `budget` block so the UI can enforce soft ($12.50) and har
   "unit_scope": "scene",
   "unit_ids": ["sc_0003"],
   "model": {
-    "name": "draft-synthesizer-v1",
-    "provider": "black-skies-local"
+    "name": "qwen3:4b",
+    "provider": "ollama"
   },
   "scenes": [
     { "id": "sc_0003", "title": "Surface Impact", "order": 3, "chapter_id": "ch_0001" }
@@ -243,6 +244,14 @@ scene metadata, and a `budget` block so the UI can enforce soft ($12.50) and har
 ```
 
 See `docs/specs/endpoints.md` for full contract notes and error responses.
+
+## Verification lanes (quick commands)
+See `docs/tests.md` for lane definitions and strictness notes.
+
+- Renderer/unit: `pnpm --filter app test`
+- Truth lane (real service + Electron): `pnpm test:truth` (fails on unexpected backend 4xx/5xx)
+- Playwright (stubbed/harnessed UI): `pnpm --dir app exec playwright test --project=electron --workers=1`
+- Playwright (real backend smoke, opt-in): `pnpm --dir app exec playwright test --project=electron-real-backend --workers=1`
 
 ## Repo Map
 ```

@@ -65,7 +65,7 @@ Status ambiguity that still matters:
 | WK-011 | Fixture management depends on filesystem assumptions | fixture-risk | proposed | maybe | high | implement now |
 | WK-012 | Placeholder branding leaks into runtime-facing modules | legacy-debt | proposed | no | low | cleanup later |
 | WK-013 | `app/main/preload.ts` exposes fake control globals | fixture-risk | proposed | yes | critical | implement now |
-| WK-014 | `editorial-review-workflow.spec.ts` is UI-only, not backend truth | ui-only | proposed | no | low | confirm first |
+| WK-014 | Stale UI-only spec reference (`editorial-review-workflow.spec.ts`) | ui-only | proposed | no | low | confirm first |
 | WK-015 | `gui.flows.spec.ts` and similar are harness tests, not truth tests | harness-fragility | proposed | maybe | critical | implement now |
 | WK-016 | `scripts/e2e-with-backend.mjs` still falls back to smoke behavior | harness-fragility | proposed | maybe | critical | implement now |
 | WK-017 | `docs/ops/start_codex_gui_notes.md` describes placeholder launcher behavior | doc-governance | proposed | no | low | confirm first |
@@ -78,7 +78,7 @@ Status ambiguity that still matters:
 | --- | --- | --- | --- | --- | --- |
 | WK-003 | Status is split across multiple docs | The repo has overlapping status claims, and the team needs a single human-approved hierarchy before any status-driven implementation queue is trusted. | Confirm which document is the status ledger, which is the scope authority, and which are only pointers. | docs | Before |
 | WK-004 | Test harness is fragile to overlay layering | The issue is real, but the named failing spec path and selector trail need current repo confirmation before implementation work starts. | Prove the current file path and reproduce the pointer-intercept failure on the live spec. | tests / harness | Before |
-| WK-014 | `editorial-review-workflow.spec.ts` is UI-only, not backend truth | The named file is not fully confirmed in the current file inventory, so the path and role need a repo-state check before any planning assumptions harden. | Confirm the current path and confirm that it is presentation-only. | docs / tests | Before |
+| WK-014 | Stale UI-only spec reference (`editorial-review-workflow.spec.ts`) | The named file is not present in the current repo inventory and must not be used as a lane command or proof surface. If an editorial review workflow is needed later, it should be rebuilt as a clean, explicitly UI-only spec. | Remove/replace stale references; use confirmed UI-only specs instead. | docs / tests | Before |
 | WK-017 | `docs/ops/start_codex_gui_notes.md` describes placeholder launcher behavior | The note may already be stale, and the repo needs confirmation of whether it still matches the live launch path. | Confirm whether the placeholder launcher is still current or already superseded. | docs | Before |
 | WK-018 | Deferred and archive material can be mistaken for active scope | The active-vs-archived boundary is not clearly enforced in the doc set, so the team needs a human decision on what counts as active authority. | Prove which docs are active scope and which are archive-only commentary. | docs | Before |
 
@@ -210,7 +210,7 @@ Commands that name specific Playwright specs assume WP-01 has already confirmed 
 | --- | --- | --- |
 | Truth lane | Real-service review behavior under the canonical review gate | `cmd /c pnpm phase10:review` |
 | Truth lane | Real-service Playwright on the confirmed truth path | `pnpm --dir app exec playwright test tests/e2e/project-home.real-service.spec.ts tests/e2e/phase10.review.spec.ts --project=electron --workers=1` |
-| UI-only lane | Presentation-only review workflow and harness behavior | `pnpm --dir app exec playwright test tests/e2e/editorial-review-workflow.spec.ts --project=electron --workers=1` |
+| UI-only lane | Presentation-only UI checks (no backend truth) | `pnpm --dir app exec playwright test tests/e2e/visual.home.spec.ts tests/e2e/a11y.smoke.spec.ts --project=electron --workers=1` |
 | Backend contract/state | API contract and service state behavior | `python -m pytest services/tests/test_analytics_endpoints.py -q` |
 | Backend contract/state | Wider backend contract and regression coverage | `python -m pytest services/tests -q` |
 | Renderer/unit | Renderer component and adapter behavior | `pnpm --filter app test` |
@@ -223,7 +223,7 @@ Warning: smoke-only e2e, harness-only GUI flows, and UI review workflows are not
 1. Which document is the canonical status ledger: `phase_log.md`, `docs/roadmap.md`, `docs/phases/phase_charter.md`, or `docs/BUILD_PLAN.md`?
 2. Which doc is the canonical implementation map when `docs/BUILD_PLAN.md` and the phase docs disagree?
 3. Are `tests/e2e/project-home.real-service.spec.ts` and `tests/e2e/phase10.review.spec.ts` still the current real-service truth path, or have they been renamed?
-4. Is `tests/e2e/editorial-review-workflow.spec.ts` still present, and if so should it stay strictly UI-only?
+4. If an editorial review workflow spec is reintroduced later, it must remain strictly UI-only and must not be cited as truth evidence.
 5. Which preload globals in `app/main/preload.ts` are still required for packaging, and which are only for Playwright or harness use?
 6. Is `scripts/e2e-with-backend.mjs` still the canonical review launcher, or is the smoke fallback already obsolete?
 7. Are `analytics_stub.py` and any remaining stub-named runtime files intentional active code, historical remnants, or archive candidates?

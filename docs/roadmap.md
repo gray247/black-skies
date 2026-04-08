@@ -31,6 +31,39 @@ This roadmap mirrors the scope defined in [docs/phases/phase_charter.md](./phase
 | P10 | Accessibility & professional exports | Planned | 2025-12 | Charter v1.1 |
 | P11 | Agents & plugins | Planned | 2026-01 | Charter v1.1 |
 
+## Verification-hardening sidestep (April 2026)
+
+Definitions:
+- **Parked**: intentionally not being executed now.
+- **Deferred**: future roadmap feature (phase-scoped).
+- **Superseded**: replaced by clean slices; must not merge in its original stacked form.
+
+### Landed
+- Baseline A (repo hygiene)
+- Baseline B (lane honesty / truth-lane runner stabilization)
+- Batch 1 (canonical project identity at load time: `project.json.project_id` required; no basename-derived service identity)
+- Batch 2 (analytics `project_id` hardening + Truth lane strictness + Playwright real-backend smoke lane)
+- Preload/serviceApi split (`app/main/preload.ts` wiring; `app/main/serviceApi.ts` pure module)
+- Draft-read endpoint (backend)
+- Draft-read bridge (`services.readDraft`) + preload wiring
+- Renderer draft-read integration (minimal ProjectHome UI path)
+- Docs alignment (contracts + lanes + architecture)
+
+### Parked (intentional)
+- Editorial review system / remaining PR #174 scope (rebuild as clean slices if/when needed)
+- Broader harness honesty cleanup (reduce/retire harness-only hooks beyond current containment)
+- Broader real-backend Playwright expansion (beyond the opt-in smoke lane)
+- Draft-read UX polish (formatting/navigation/preview improvements)
+- Truth-lane allowlist governance (only if needed later; keep allowlist tiny, explicit, and expiring)
+
+### Superseded / Do Not Merge
+- PRs #174–#177 are stacked/contaminated and must not be merged as-is (clean slices replace the salvageable parts).
+
+### Notes
+- **Truth lane** is strict: unexpected backend 4xx/5xx fail the lane.
+- Allowlist file exists: `scripts/truth-allowlist.json` (currently empty).
+- Playwright (real backend smoke, opt-in) exists via `--project=electron-real-backend`; broad expansion is parked.
+
 ## Deferred Features (Not in v1.1)
 
 The following planning docs describe capabilities that remain on the roadmap beyond the Phase 8 shipping surface. Update them when the corresponding phase gates open.

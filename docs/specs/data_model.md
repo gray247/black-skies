@@ -1,6 +1,6 @@
 Status: Active (Canonical)
 Version: 1.0.0
-Last Reviewed: 2025-11-15
+Last Reviewed: 2026-04-08
 
 # docs/specs/data_model.md — Data Model (Source of truth)
 
@@ -250,6 +250,7 @@ Stores the canonical `project_id` and budget ledger on disk so UI/API ↔ files 
 - `project_id` is required and immutable once created. It serves as the stable identifier for outlines, drafts, history, analytics, and exports.
 - Budget fields reflect current settings and running total; services update `spent_usd` after successful runs.
 - Endpoints that accept `project_id` must match this file; the UI reads it from the active project context so users do not manually re-enter it for each action.
+- The Electron project loader treats missing/invalid `project.json` or `project_id` as a hard project-load error (no fallback to directory basename IDs for service-backed flows).
 
 ---
 

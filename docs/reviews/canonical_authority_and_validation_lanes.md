@@ -82,11 +82,13 @@ Commands are grouped by lane. The truth lane section is the one that should be u
 
 Use these only for real-service truth claims. Do not treat smoke-only, UI-only, or harness-only runs as equivalent. The launcher path is explicit and does not use the smoke fallback from `scripts/e2e-with-backend.mjs`.
 
-### UI-only lane
+### Playwright (UI-only)
 
-- `pnpm --dir app exec playwright test tests/e2e/editorial-review-workflow.spec.ts --project=electron --workers=1`
+- `pnpm --dir app exec playwright test tests/e2e/visual.home.spec.ts --project=electron --workers=1`
+- `pnpm --dir app exec playwright test tests/e2e/a11y.smoke.spec.ts --project=electron --workers=1`
 
-Use this for presentation and interaction checks only. It is not truth-bearing.
+Use this for presentation and interaction checks only. It is not truth-bearing. Note: a previously cited
+`editorial-review-workflow.spec.ts` is not present in the current repo inventory and must not be treated as an authoritative lane command.
 
 ### Harness lane
 

@@ -1,7 +1,7 @@
 Status: Active
 Version: 1.1
 Last Reviewed: 2025-11-05
-Covers: new export formats, metadata extensions, and critique summaries (analytics bundles deferred to Phase 9).
+Covers: new export formats, metadata extensions, and critique summaries (analytics export bundles deferred to Phase 9).
 
 # docs/gui/exports.md — Writer-Facing Outputs v1.1
 
@@ -19,7 +19,7 @@ Covers: new export formats, metadata extensions, and critique summaries (analyti
 ---
 
 ## Metadata Policy (Updated)
-- JSON exports now include Outline/draft/critique metadata; detailed analytics (arc, pacing, conflict, revision stats) are deferred to Phase 9.  
+- JSON exports now include Outline/draft/critique metadata; detailed analytics export bundles (arc, pacing, conflict, revision stats) are deferred to Phase 9.
 - Markdown/PDF exports may append critique summaries now; future releases will optionally attach analytics appendices.
 - All exports carry phase version tags (`meta.version: v1.1+`).
 - Exporters preserve every front-matter key emitted by `DraftPersistence._render`, including unknown extensions (e.g., `scene_mood`) so custom metadata survives a rewrite cycle.

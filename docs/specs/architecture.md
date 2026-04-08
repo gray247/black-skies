@@ -1,6 +1,6 @@
 Status: Active (Canonical)
 Version: 1.0.0
-Last Reviewed: 2025-11-15
+Last Reviewed: 2026-04-08
 
 # docs/specs/architecture.md — System Architecture v1.1
 
@@ -48,6 +48,22 @@ Companion Mode remains separate from API Mode: it does not call the service back
 ## Process Boundaries (Expanded)
 Renderer ⇄ FastAPI ⇄ Filesystem ⇄ Model Router ⇄ Analytics/Agent Sub-services (orchestrated per [Agents & Services](./agents_and_services.md#plugin-registry-spec)).
 ---
+
+## Electron service bridge boundary (Locked)
+The desktop app's service calls flow through an explicit bridge:
+
+- **Renderer** calls `window.services.*` methods (exposed by preload).
+- **Preload wiring** (`app/main/preload.ts`) is wiring only: it exposes a typed bridge via `contextBridge` and forwards calls to the main-process service client.
+- **serviceApi module (pure)** (`app/main/serviceApi.ts`) contains pure request/response logic (Node-testable; no `window`/DOM assumptions).
+
+Identity and readiness rules:
+- Service-backed calls must use the canonical `project.json.project_id` from the loaded project context (folder basename is not a service identifier).
+- If canonical identity is missing/invalid at load time, the loader fails loudly and the renderer surfaces an explicit project-load error state (no silent disabled-only UX).
+
+Draft read (minimal end-to-end path):
+- Backend: `GET /api/v1/draft/{scene_id}?project_id=...`
+- Bridge: `window.services.readDraft({ projectId, sceneId })`
+- Renderer: minimal integration lives in `app/renderer/components/ProjectHome.tsx` and displays loading/success/error states.
 
 ## Desktop UI Layout Notes
 - The desktop shell ships with the locked preset described in [gui_layouts.md](./gui_layouts.md) (`Outline | Writing view | Feedback notes | Timeline`) plus the floating Story insights pane. Panes can be resized inside those bands but cannot yet be re-docked or detached.
