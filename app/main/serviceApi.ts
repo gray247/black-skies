@@ -17,6 +17,8 @@ import type {
   DraftCritiqueBridgeResponse,
   DraftGenerateBridgeRequest,
   DraftGenerateBridgeResponse,
+  DraftReadBridgeRequest,
+  DraftReadBridgeResponse,
   DraftPreflightBridgeRequest,
   DraftPreflightEstimate,
   DraftUnitOverrides,
@@ -721,6 +723,14 @@ function serializeRecoveryRestoreRequest({
 }
 
 export const serviceApi = {
+  readDraft: ({ projectId, sceneId }: DraftReadBridgeRequest) => {
+    const params = new URLSearchParams({ project_id: projectId });
+    const encodedSceneId = encodeURIComponent(sceneId);
+    return makeServiceCall<DraftReadBridgeResponse>(
+      `draft/${encodedSceneId}?${params.toString()}`,
+      'GET',
+    );
+  },
   buildOutline: (request: OutlineBuildBridgeRequest) =>
     makeServiceCall<OutlineBuildBridgeResponse>(
       'outline/build',

@@ -70,6 +70,17 @@ describe('serviceApi', () => {
     );
   });
 
+  it('performs GET requests with query parameters for draft reads', async () => {
+    const serviceApi = await loadServiceApi();
+
+    await serviceApi.readDraft({ projectId: 'proj_test', sceneId: 'sc 0001' });
+
+    expect(fetch).toHaveBeenCalledWith(
+      'http://127.0.0.1:5000/api/v1/draft/sc%200001?project_id=proj_test',
+      expect.objectContaining({ method: 'GET' }),
+    );
+  });
+
   it('retries GET calls after transient failures', async () => {
     process.env.BLACKSKIES_BRIDGE_MAX_ATTEMPTS = '3';
     const networkError = new Error('temporarily unavailable');
