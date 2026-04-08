@@ -475,6 +475,7 @@ const servicesBridge: ServicesBridge = {
     }
     return probeHealth();
   },
+  readDraft: (request) => serviceApi.readDraft(request),
   buildOutline: serviceApi.buildOutline,
   generateDraft: serviceApi.generateDraft,
   critiqueDraft: serviceApi.critiqueDraft,

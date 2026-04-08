@@ -128,6 +128,17 @@ export interface DraftGenerateBridgeResponse {
   };
 }
 
+export interface DraftReadBridgeRequest {
+  projectId: string;
+  sceneId: string;
+}
+
+export interface DraftReadBridgeResponse {
+  sceneId: string;
+  title: string | null;
+  text: string;
+}
+
 export interface DraftCritiqueBridgeRequest {
   projectId: string;
   draftId: string;
@@ -427,6 +438,9 @@ export interface ServicesBridge {
   buildOutline: (
     request: OutlineBuildBridgeRequest,
   ) => Promise<ServiceResult<OutlineBuildBridgeResponse>>;
+  readDraft?: (
+    request: DraftReadBridgeRequest,
+  ) => Promise<ServiceResult<DraftReadBridgeResponse>>;
   generateDraft: (
     request: DraftGenerateBridgeRequest,
   ) => Promise<ServiceResult<DraftGenerateBridgeResponse>>;
