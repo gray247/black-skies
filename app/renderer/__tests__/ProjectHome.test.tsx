@@ -22,6 +22,7 @@ function createSampleProject(path: string): LoadedProject {
   return {
     path,
     name: 'Sample Project',
+    projectId: 'proj_test',
     outline,
     scenes: [
       {
@@ -44,6 +45,7 @@ describe('ProjectHome recent project recovery', () => {
     vi.restoreAllMocks();
     window.localStorage.clear();
     delete (window as Partial<Record<string, unknown>>).projectLoader;
+    delete (window as Partial<Record<string, unknown>>).services;
   });
 
   it('removes stale recent entries and falls back to the sample project', async () => {
@@ -233,5 +235,59 @@ describe('ProjectHome recent project recovery', () => {
     expect(screen.getByRole('heading', { level: 4, name: /Sample Project/ })).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 4, name: /Scene One/ })).toBeInTheDocument();
     expect(screen.getByText(/Scenes/)).toBeInTheDocument();
+  });
+
+  it('loads a draft from services.readDraft on demand', async () => {
+    const samplePath = 'C:\\Dev\\black-skies\\sample_project\\Esther_Estate';
+    const project = createSampleProject(samplePath);
+
+    const loadProjectMock = vi.fn().mockResolvedValue({
+      ok: true,
+      project,
+      issues: [],
+    });
+
+    const projectLoader: ProjectLoaderApi = {
+      openProjectDialog: vi.fn(),
+      getSampleProjectPath: vi.fn().mockResolvedValue(samplePath),
+      loadProject: loadProjectMock,
+    };
+
+    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+
+    const readDraft = vi.fn().mockResolvedValue({
+      ok: true,
+      data: {
+        sceneId: 'sc_0001',
+        title: 'Service Scene One',
+        text: '# Service draft',
+      },
+    });
+    (window as Partial<Record<string, unknown>>).services = { readDraft };
+
+    const onActiveSceneChange = vi.fn();
+
+    render(
+      <ProjectHome onToast={vi.fn()} onProjectLoaded={vi.fn()} onActiveSceneChange={onActiveSceneChange} />,
+    );
+
+    await waitFor(() => {
+      expect(projectLoader.loadProject).toHaveBeenCalledWith({ path: samplePath });
+    });
+
+    const loadButton = await screen.findByRole('button', { name: /Load from service/i });
+    fireEvent.click(loadButton);
+
+    await waitFor(() => {
+      expect(readDraft).toHaveBeenCalledWith({ projectId: 'proj_test', sceneId: 'sc_0001' });
+    });
+
+    expect(screen.getByRole('heading', { level: 3, name: /Service Scene One/i })).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(onActiveSceneChange).toHaveBeenLastCalledWith(
+        expect.objectContaining({ sceneId: 'sc_0001', draft: '# Service draft' }),
+      );
+    });
   });
 });
