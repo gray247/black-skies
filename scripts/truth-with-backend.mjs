@@ -26,6 +26,7 @@ const HEALTH_PATH = `/api/v1/healthz`;
 const HEALTH_TIMEOUT_MS = 30_000;
 const REPO_ROOT = path.resolve(__dirname, '..');
 const LAUNCH_PREFIX = 'blackskies-truth-';
+const TRUTH_ALLOWLIST_PATH = path.resolve(REPO_ROOT, 'scripts', 'truth-allowlist.json');
 const IS_WSL =
   process.platform === 'linux' &&
   (Boolean(process.env.WSL_INTEROP) || Boolean(process.env.WSL_DISTRO_NAME));
@@ -77,6 +78,132 @@ async function ensurePortAvailable(host, port) {
       server.close(() => resolve());
     });
     server.listen(port, host);
+  });
+}
+
+function loadTruthAllowlist() {
+  if (!existsSync(TRUTH_ALLOWLIST_PATH)) {
+    return [];
+  }
+  try {
+    const payload = JSON.parse(readFileSync(TRUTH_ALLOWLIST_PATH, 'utf-8'));
+    return Array.isArray(payload) ? payload : [];
+  } catch {
+    return [];
+  }
+}
+
+function parseUvicornAccessLine(line) {
+  // Uvicorn may emit either classic access logs or JSON-encoded logs with `message`.
+  // Example message:
+  // 127.0.0.1:12345 - "GET /api/v1/analytics/summary?project_id=proj HTTP/1.1" 200 OK
+  let source = line;
+  try {
+    const parsed = JSON.parse(line);
+    if (parsed && typeof parsed === 'object' && typeof parsed.message === 'string') {
+      source = parsed.message;
+    }
+  } catch {
+    // fall back to the raw line
+  }
+
+  const match = source.match(/"([A-Z]+)\s+([^\s]+)\s+HTTP\/[0-9.]+"\s+(\d{3})\b/);
+  if (!match) {
+    return null;
+  }
+  const method = match[1];
+  const target = match[2];
+  const status = Number.parseInt(match[3], 10);
+  const pathOnly = target.split('?', 1)[0];
+  return { method, path: pathOnly, status, target };
+}
+
+function createBackendMonitor({ allowlist }) {
+  const allowRules = Array.isArray(allowlist) ? allowlist : [];
+  const unexpected = [];
+  let enabled = false;
+
+  const isAllowlisted = (entry) =>
+    allowRules.some((rule) => {
+      if (!rule || typeof rule !== 'object') {
+        return false;
+      }
+      if (rule.method && rule.method !== entry.method) {
+        return false;
+      }
+      if (typeof rule.status === 'number' && rule.status !== entry.status) {
+        return false;
+      }
+      if (typeof rule.path === 'string' && rule.path !== entry.path) {
+        return false;
+      }
+      if (typeof rule.pathPrefix === 'string' && !entry.path.startsWith(rule.pathPrefix)) {
+        return false;
+      }
+      // Refuse to accept rules that do not specify a path/pathPrefix.
+      if (!rule.path && !rule.pathPrefix) {
+        return false;
+      }
+      return true;
+    });
+
+  return {
+    enable() {
+      enabled = true;
+    },
+    disable() {
+      enabled = false;
+    },
+    recordLine(line) {
+      if (!enabled) {
+        return;
+      }
+      const parsed = parseUvicornAccessLine(line);
+      if (!parsed) {
+        return;
+      }
+      if (!parsed.path.startsWith('/api/v1')) {
+        return;
+      }
+      if (parsed.status < 400) {
+        return;
+      }
+      if (isAllowlisted(parsed)) {
+        return;
+      }
+      unexpected.push(parsed);
+    },
+    getUnexpected() {
+      return unexpected.slice();
+    },
+  };
+}
+
+function attachStreamLineParser(stream, onLine) {
+  if (!stream) {
+    return;
+  }
+  let buffer = '';
+  stream.setEncoding('utf-8');
+  stream.on('data', (chunk) => {
+    buffer += chunk;
+    while (true) {
+      const idx = buffer.indexOf('\n');
+      if (idx === -1) {
+        break;
+      }
+      const line = buffer.slice(0, idx).trimEnd();
+      buffer = buffer.slice(idx + 1);
+      if (line) {
+        onLine(line);
+      }
+    }
+  });
+  stream.on('end', () => {
+    const line = buffer.trimEnd();
+    if (line) {
+      onLine(line);
+    }
   });
 }
 
@@ -353,10 +480,15 @@ async function run() {
   process.env.BLACKSKIES_PROJECT_BASE_DIR = truthProject.projectBaseDir;
   process.env.PROJECT_BASE_DIR = truthProject.projectBaseDir;
   process.env.PATH = `C:/Dev/black-skies/.venv/Scripts;` + process.env.PATH;
+  const backendMonitor = createBackendMonitor({ allowlist: loadTruthAllowlist() });
   const backend = spawn(backendCommand, backendArgs, {
     env: backendEnv,
-    stdio: 'inherit',
+    stdio: ['ignore', 'pipe', 'pipe'],
   });
+  backend.stdout?.pipe(process.stdout);
+  backend.stderr?.pipe(process.stderr);
+  attachStreamLineParser(backend.stdout, (line) => backendMonitor.recordLine(line));
+  attachStreamLineParser(backend.stderr, (line) => backendMonitor.recordLine(line));
 
   const stopBackend = () => {
     if (!backend.killed) {
@@ -374,6 +506,7 @@ async function run() {
 
   try {
     await waitForHealth(`http://127.0.0.1:${SERVICE_PORT}${HEALTH_PATH}`, HEALTH_TIMEOUT_MS);
+    backendMonitor.enable();
     const tests = process.argv.slice(2);
     if (tests.length > 0) {
       throw new Error(
@@ -646,7 +779,16 @@ async function run() {
       assert.equal(preflightResult.ok, true);
       assert.equal(preflightResult.status, 'ok');
       assert.equal(preflightResult.sceneCount, sampleLoadProbe.sceneIds.length);
+
+      const unexpectedResponses = backendMonitor.getUnexpected();
+      if (unexpectedResponses.length > 0) {
+        const formatted = unexpectedResponses
+          .map((entry) => `${entry.method} ${entry.target} -> ${entry.status}`)
+          .join('\n');
+        throw new Error(`[truth] Backend returned unexpected 4xx/5xx responses:\n${formatted}`);
+      }
     } finally {
+      backendMonitor.disable();
       cdp.close();
       try {
         if (process.platform === 'win32') {
