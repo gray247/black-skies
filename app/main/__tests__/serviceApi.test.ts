@@ -1,41 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('electron', () => ({
-  contextBridge: {
-    exposeInMainWorld: vi.fn(),
-  },
-  ipcRenderer: {
-    invoke: vi.fn(),
-    send: vi.fn(),
-  },
-}));
-
-const defaultRuntimeConfig = {
-  service: {
-    portRange: { min: 43750, max: 43850 },
-    healthProbe: { maxAttempts: 40, baseDelayMs: 250, maxDelayMs: 2000 },
-    allowedPythonExecutables: ['python'],
-    bundledPythonPath: '',
-  },
-  budget: {
-    softLimitUsd: 5,
-    hardLimitUsd: 10,
-    costPer1000WordsUsd: 0.02,
-  },
-  analytics: {
-    emotionIntensity: {},
-    defaultEmotionIntensity: 0.5,
-    pace: { slowThreshold: 1.2, fastThreshold: 0.8 },
-  },
-} as const;
-
-vi.mock('../shared/config/runtime.js', () => ({
-  DEFAULT_HEALTH_PROBE: defaultRuntimeConfig.service.healthProbe,
-  DEFAULT_SERVICE_PORT_RANGE: defaultRuntimeConfig.service.portRange,
-  DEFAULT_RUNTIME_CONFIG: defaultRuntimeConfig,
-  loadRuntimeConfig: vi.fn(() => defaultRuntimeConfig),
-}));
-
 function configureDefaultEnv(): void {
   process.env.BLACKSKIES_SERVICES_PORT = '5000';
   process.env.BLACKSKIES_BRIDGE_MAX_ATTEMPTS = '2';
@@ -46,7 +10,7 @@ function configureDefaultEnv(): void {
 }
 
 async function loadServiceApi() {
-  const module = await import('../preload');
+  const module = await import('../serviceApi');
   return module.serviceApi;
 }
 
