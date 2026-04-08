@@ -35,4 +35,3 @@ test('loads Story Insights analytics from the real backend', async ({ page, back
     )
     .toEqual(expect.arrayContaining(['/api/v1/analytics/summary', '/api/v1/analytics/scenes']));
 });
-
