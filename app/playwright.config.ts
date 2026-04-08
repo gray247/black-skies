@@ -42,6 +42,12 @@ export default defineConfig({
     {
       name: 'electron',
       testMatch: /.*\.spec\.ts/,
+      testIgnore: /real-backend\//,
+      workers: 1,
+    },
+    {
+      name: 'electron-real-backend',
+      testMatch: /real-backend\/.*\.spec\.ts/,
       workers: 1,
     },
   ],
