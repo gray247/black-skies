@@ -16,6 +16,7 @@ Spec Index:
 ## Availability
 - Analytics endpoints are disabled for Phase 8 by default (`BLACKSKIES_ENABLE_ANALYTICS=0`); calls return 404 until the Phase 9 gate flips the flag on.
 - Phase 9 introduces the Project Health dashboard and the analytics drawer; enablement requires the analytics service and cache files to be present so the GUI drawer (see `docs/gui/gui_layouts.md`) can render emotion/pacing metrics.
+- Minimal, feature-flag gated analytics endpoints exist today for verification and smoke lanes; the full Phase 9 scope (dashboards, cache rebuild flows, and export bundles) remains planned.
 - Treat this doc as Draft until Phase 9 has a verified release.
 
 ## Goals

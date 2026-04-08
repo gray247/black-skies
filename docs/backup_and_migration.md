@@ -8,10 +8,11 @@ Last Reviewed: 2025-11-15
 
 - **Snapshots** are short-term, automatic safety copies stored inside the project tree (for example under `.snapshots/` or `history/snapshots/`). They use a rolling retention window (for example, the last N snapshots or roughly the last 7 days). Snapshots exist to recover from crashes, accidental edits, or “I want yesterday’s state back” while you are actively working on the project. They are NOT meant as long-term archives or a portable format for moving projects between machines.
   - Snapshots are stored at `.snapshots/{snapshot_id}/` and include `project.json`, `outline.json`, `/drafts/`, and a generated `manifest.json` with checksums. The default retention keeps the most recent 7 snapshots; older directories are pruned immediately after each creation.
-  - Implemented endpoints:
-    - `POST /api/v1/snapshots` with `{ "projectId": "<id>" }` creates a new snapshot.
-    - `GET /api/v1/snapshots?projectId=<id>` lists existing snapshots.
-  - Verification can be invoked via `POST /api/v1/backup_verifier/run?projectId=<id>` (add `&latest_only=true` to limit to the newest snapshot); this routine inspects each manifest and reports missing/corrupt files.
+  - Implemented endpoints (canonical request casing uses `project_id`):
+    - `GET /api/v1/history/list` with `{ "project_id": "<id>" }` lists snapshots (IDs are `ss_*`).
+    - `POST /api/v1/history/restore` with `{ "project_id": "<id>", "id": "ss_*" }` restores a snapshot.
+    - See `docs/specs/endpoints.md` for the authoritative snapshot/history contracts.
+  - Verification endpoints are planned/flagged (see `docs/specs/backup_verification_daemon.md`) and may not be present in all builds.
 - **Scheduled verification:** A background runner (controlled by `VERIFIER_SCHEDULE_SECONDS`, default 3600) iterates project roots every interval, calls `run_verification`, and persists the latest report under `.snapshots/last_verification.json`.
 - The Workspace header exposes “Snapshot” and “Verify” buttons that call these endpoints directly and show a toast with a “Reveal” action afterward.
 - The Snapshots panel now shows per-snapshot verification statuses, issue summaries, and quick actions to view the latest report or re-run verification.

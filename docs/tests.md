@@ -27,20 +27,20 @@ Authority note: this is a practical validation guide, not the canonical lane cla
 - Gap report: [Truth Lane Definition and Gap Report](./reviews/truth_lane_definition_and_gap_report.md)
 - Do not overclaim: `pnpm test:e2e` is not a truth substitute; it is the smoke-fallback launcher defined in `scripts/e2e-with-backend.mjs`.
 
-### Real-backend Playwright smoke (opt-in)
+### Playwright (real backend smoke, opt-in)
 This is the smallest real-service UI lane. It is not CI-required yet.
 
 - Run: `pnpm --dir app exec playwright test --project=electron-real-backend --workers=1`
 - Specs live under: `app/tests/e2e/real-backend/`
 - What it proves: Electron renderer can open a real project and render Story Insights analytics backed by the real FastAPI service (no stub HTTP server). It asserts on Uvicorn access logs to prove the backend was actually called.
 
-### UI-only lane
+### Playwright (UI-only)
 - `pnpm --dir app exec playwright test tests/e2e/visual.home.spec.ts --project=electron --workers=1`
 - `pnpm --dir app exec playwright test tests/e2e/a11y.smoke.spec.ts --project=electron --workers=1`
 
 Use these for renderer appearance and accessibility checks only. They do not prove backend truth.
 
-### Harness-driven lane
+### Playwright (harnessed / stubbed services)
 - `pnpm test:e2e`
 - `pnpm --dir app exec playwright test tests/e2e/gui.smoke.spec.ts --project=electron --workers=1`
 - `pnpm --dir app exec playwright test tests/e2e/gui.flows.spec.ts --project=electron --workers=1`

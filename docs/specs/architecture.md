@@ -53,8 +53,8 @@ Renderer ⇄ FastAPI ⇄ Filesystem ⇄ Model Router ⇄ Analytics/Agent Sub-ser
 The desktop app's service calls flow through an explicit bridge:
 
 - **Renderer** calls `window.services.*` methods (exposed by preload).
-- **Preload** (`app/main/preload.ts`) is wiring only: it exposes a typed bridge via `contextBridge` and forwards calls to the main-process service client.
-- **Service client** (`app/main/serviceApi.ts`) contains pure request/response logic (Node-testable; no `window`/DOM assumptions).
+- **Preload wiring** (`app/main/preload.ts`) is wiring only: it exposes a typed bridge via `contextBridge` and forwards calls to the main-process service client.
+- **serviceApi module (pure)** (`app/main/serviceApi.ts`) contains pure request/response logic (Node-testable; no `window`/DOM assumptions).
 
 Identity and readiness rules:
 - Service-backed calls must use the canonical `project.json.project_id` from the loaded project context (folder basename is not a service identifier).
