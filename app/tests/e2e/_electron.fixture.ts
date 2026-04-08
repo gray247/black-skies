@@ -18,16 +18,26 @@ export const test = base.extend<Fixtures>({
   electronApp: async ({}, use) => {
     const appDir = path.resolve(__dirname, '..', '..');
     const packagedEntry = path.resolve(appDir, 'dist-electron', 'main', 'main.js');
-    const devFallback = path.resolve(appDir, 'main', 'main.ts');
-    const entryPoint = fs.existsSync(packagedEntry) ? packagedEntry : devFallback;
     const rendererIndex = path.resolve(appDir, 'dist', 'index.html');
-    const rendererUrl = fs.existsSync(rendererIndex) ? pathToFileURL(rendererIndex).toString() : undefined;
+    if (!fs.existsSync(packagedEntry)) {
+      throw new Error(
+        `[e2e] Missing Electron main build artifact at ${packagedEntry}. Run: pnpm --filter app build:main`,
+      );
+    }
+    if (!fs.existsSync(rendererIndex)) {
+      throw new Error(
+        `[e2e] Missing renderer build artifact at ${rendererIndex}. Run: pnpm --filter app build`,
+      );
+    }
+    const entryPoint = packagedEntry;
+    const rendererUrl = pathToFileURL(rendererIndex).toString();
     const disableAnimations = process.env.PLAYWRIGHT_DISABLE_ANIMATIONS === '1' || !!process.env.CI;
     const launchEnv: NodeJS.ProcessEnv = {
       ...process.env,
       NODE_ENV: 'test',
       ...(rendererUrl ? { ELECTRON_RENDERER_URL: rendererUrl } : {}),
       PLAYWRIGHT: '1',
+      BLACKSKIES_ENABLE_HARNESS_HOOKS: '1',
       ...(disableAnimations ? { PLAYWRIGHT_DISABLE_ANIMATIONS: '1' } : {}),
       BLACKSKIES_SERVICES_PORT: String(SERVICE_PORT),
       BLACKSKIES_E2E_PORT: String(SERVICE_PORT),

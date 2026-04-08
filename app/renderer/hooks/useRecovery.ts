@@ -58,8 +58,10 @@ export function useRecovery({
   const lastRecoveryProjectIdRef = useRef<string | null>(null);
   const recoveryFetchInFlightRef = useRef(false);
   const windowNeedsRecovery =
-    typeof window !== 'undefined' &&
-    (window as typeof window & { __testEnvNeedsRecovery?: boolean }).__testEnvNeedsRecovery === true;
+    testMode.isHarnessHooksEnabled() &&
+    typeof document !== 'undefined' &&
+    (document.body?.dataset?.testNeedsRecovery === '1' ||
+      document.documentElement?.dataset?.testNeedsRecovery === '1');
   const forcedRecoveryFlag = testMode.isRecovery() || (isTestEnvironment() && windowNeedsRecovery);
   const testRecoveryOverrideActive = windowNeedsRecovery;
 
@@ -145,12 +147,16 @@ export function useRecovery({
         console.log('[test-recovery-restore-fired]');
         const globalWindow = window as typeof window & {
           __recoveryLog?: { restore?: number };
-          __testEnvNeedsRecovery?: boolean;
           __snapshotRestoreDone?: boolean;
         };
         globalWindow.__recoveryLog ??= { restore: 0 };
         globalWindow.__recoveryLog.restore = (globalWindow.__recoveryLog.restore ?? 0) + 1;
-        globalWindow.__testEnvNeedsRecovery = false;
+        if (testMode.isHarnessHooksEnabled()) {
+          if (typeof document !== 'undefined' && document.body) {
+            delete document.body.dataset.testNeedsRecovery;
+            delete document.documentElement.dataset.testNeedsRecovery;
+          }
+        }
         window.dispatchEvent(new Event('test:restoreSnapshot'));
         setRecoveryStatus((previous) => {
           const projectId =

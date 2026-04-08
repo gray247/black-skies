@@ -18,13 +18,12 @@ type GuiFlowWindow = typeof window & {
 test.describe('GUI flow smoke tests', () => {
   test('smoke_wizard_to_draft_flow (UI)', async ({ page }) => {
     await installServiceStubs(page, 'normal', 'flat');
-    await page.evaluate(() => {
-      (window as typeof window & { __testEnvActiveFlow?: boolean }).__testEnvActiveFlow = true;
-    });
     await bootstrapHarness(page);
 
     await expect(page.getByTestId(TID.wizardRoot)).toBeVisible({ timeout: 30_000 });
-    await page.evaluate(() => window.__selectSceneForTest?.('sc_0001'));
+    await page.evaluate(() => {
+      window.dispatchEvent(new CustomEvent('test:select-scene', { detail: 'sc_0001' }));
+    });
 
     await expect(page.getByTestId('workspace-action-generate')).toBeVisible({ timeout: 30_000 });
     await expect(page.getByTestId('workspace-action-critique')).toBeVisible({ timeout: 30_000 });
@@ -32,21 +31,17 @@ test.describe('GUI flow smoke tests', () => {
 
   test('smoke_draft_to_critique_flow (UI)', async ({ page }) => {
     await installServiceStubs(page, 'normal', 'flat');
-    await page.evaluate(() => {
-      (window as typeof window & { __testEnvActiveFlow?: boolean }).__testEnvActiveFlow = true;
-    });
     await bootstrapHarness(page);
 
-    await page.evaluate(() => window.__selectSceneForTest?.('sc_0001'));
+    await page.evaluate(() => {
+      window.dispatchEvent(new CustomEvent('test:select-scene', { detail: 'sc_0001' }));
+    });
     const critiqueButton = page.getByTestId('workspace-action-critique');
     await expect(critiqueButton).toBeVisible({ timeout: 30_000 });
   });
 
   test('snapshot_restore_flow (UI)', async ({ page }) => {
     await installServiceStubs(page, 'snapshot', 'flat');
-    await page.evaluate(() => {
-      (window as typeof window & { __testEnvActiveFlow?: boolean }).__testEnvActiveFlow = true;
-    });
     await bootstrapHarness(page);
 
     const lockButton = page.getByRole('button', { name: /Lock$/i }).first();
@@ -79,7 +74,9 @@ test.describe('GUI flow smoke tests', () => {
     await installServiceStubs(page, 'budget');
     await bootstrapHarness(page);
 
-    await page.evaluate(() => window.__selectSceneForTest?.('sc_0001'));
+    await page.evaluate(() => {
+      window.dispatchEvent(new CustomEvent('test:select-scene', { detail: 'sc_0001' }));
+    });
     await page.getByTestId('workspace-action-generate').click();
 
     const preflightDialog = page.getByRole('dialog', { name: /draft preflight/i });

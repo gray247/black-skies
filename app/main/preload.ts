@@ -15,7 +15,7 @@ const safeExpose = (key: string, api: unknown) => {
   }
 };
 
-const applyVisualStableAttrs = (element: Element | null) => {
+const applyVisualStableAttrs = (element: HTMLElement | null) => {
   if (!element) {
     return;
   }
@@ -84,6 +84,7 @@ const electronFsApi = {
 safeExpose('__electronApi', { fs: electronFsApi });
 
 const isPlaywright = process.env.PLAYWRIGHT === '1';
+const harnessHooksEnabled = process.env.BLACKSKIES_ENABLE_HARNESS_HOOKS === '1';
 const setPlaywrightTestAttribute = (): void => {
   if (typeof document === 'undefined') {
     return;
@@ -104,6 +105,9 @@ if (isPlaywright) {
   }
 }
 const applyForceStateAttributes = (): void => {
+  if (!harnessHooksEnabled) {
+    return;
+  }
   if (typeof document === 'undefined') {
     return;
   }
@@ -112,48 +116,37 @@ const applyForceStateAttributes = (): void => {
     return;
   }
   const body = document.body ?? html;
-  const globalWindow = window as typeof window & {
-    __testEnvForceOffline?: boolean;
-    __testEnvForceOnline?: boolean;
-  };
-  const hasFlag = (flag: 'testForceOffline' | 'testForceOnline'): boolean => {
+  const hasFlag = (flag: 'testForceOffline'): boolean => {
     const htmlValue = html.dataset?.[flag];
     if (htmlValue === '1') {
       return true;
     }
     return body.dataset?.[flag] === '1';
   };
-  const forceOffline =
-    hasFlag('testForceOffline') || globalWindow.__testEnvForceOffline === true;
-  const forceOnline =
-    !forceOffline && (hasFlag('testForceOnline') || globalWindow.__testEnvForceOnline === true);
-  const applyFlag = (flag: 'testForceOffline' | 'testForceOnline', enabled: boolean): void => {
+  const forceOffline = hasFlag('testForceOffline');
+  const applyFlag = (enabled: boolean): void => {
     if (enabled) {
-      html.dataset[flag] = '1';
+      html.dataset.testForceOffline = '1';
       if (body) {
-        body.dataset[flag] = '1';
+        body.dataset.testForceOffline = '1';
       }
       return;
     }
-    delete html.dataset[flag];
+    delete html.dataset.testForceOffline;
     if (body) {
-      delete body.dataset[flag];
+      delete body.dataset.testForceOffline;
     }
   };
   if (forceOffline) {
-    applyFlag('testForceOnline', false);
-    applyFlag('testForceOffline', true);
+    applyFlag(true);
     return;
   }
-  if (forceOnline) {
-    applyFlag('testForceOffline', false);
-    applyFlag('testForceOnline', true);
-    return;
-  }
-  applyFlag('testForceOnline', false);
-  applyFlag('testForceOffline', false);
+  applyFlag(false);
 };
 const ensureForceStateAttrsWithRetry = (): void => {
+  if (!harnessHooksEnabled) {
+    return;
+  }
   if (typeof document === 'undefined') {
     return;
   }
@@ -168,32 +161,42 @@ const ensureForceStateAttrsWithRetry = (): void => {
 ensureForceStateAttrsWithRetry();
 safeExpose('__testEnv', { isPlaywright });
 
-if (typeof window !== 'undefined') {
-  const globalWindow = window as typeof window & {
-    __testEnvFlatMode?: boolean;
-    __testEnvFullMode?: boolean;
-    __testEnvRecoveryMode?: boolean;
-    __testEnvStableDock?: boolean;
-    __testEnvStableHome?: boolean;
-    __testEnvVisualStable?: boolean;
+if (typeof window !== 'undefined' && harnessHooksEnabled) {
+  const applyHarnessFlags = (): void => {
+    if (typeof document === 'undefined') {
+      return;
+    }
+    const root = document.documentElement;
+    if (!root) {
+      return;
+    }
+    const body = document.body ?? root;
+
+    const setHarnessFlag = (
+      flag: 'testActiveFlow' | 'testStableDock' | 'testStableHome' | 'testVisualStable',
+      enabled: boolean,
+    ): void => {
+      if (enabled) {
+        root.dataset[flag] = '1';
+        body.dataset[flag] = '1';
+        return;
+      }
+      delete root.dataset[flag];
+      delete body.dataset[flag];
+    };
+
+    setHarnessFlag('testActiveFlow', process.env.PLAYWRIGHT === '1');
+    setHarnessFlag('testStableDock', process.env.BLACKSKIES_STABLE_DOCK === '1');
+    setHarnessFlag('testStableHome', process.env.BLACKSKIES_STABLE_HOME === '1');
+    setHarnessFlag('testVisualStable', process.env.BLACKSKIES_VISUAL_STABLE === '1');
   };
-  globalWindow.__testEnvFlatMode ??= false;
-  globalWindow.__testEnvFullMode ??= true;
-  globalWindow.__testEnvRecoveryMode ??= false;
-  globalWindow.__testEnvStableDock ??= process.env.BLACKSKIES_STABLE_DOCK === '1';
-  globalWindow.__testEnvStableHome ??= process.env.BLACKSKIES_STABLE_HOME === '1';
-  globalWindow.__testEnvVisualStable ??= process.env.BLACKSKIES_VISUAL_STABLE === '1';
-  globalWindow.__testEnvActiveFlow ??= process.env.PLAYWRIGHT === '1';
-  const stableDockRequested = process.env.BLACKSKIES_STABLE_DOCK === '1';
-  if (!stableDockRequested && globalWindow.__testEnvStableDock) {
-    console.warn('[MODE-LEAK] stableDock active during live flow');
-    globalWindow.__testEnvStableDock = false;
+
+  applyHarnessFlags();
+  if (typeof document !== 'undefined' && document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', applyHarnessFlags, { once: true });
   }
-  const visualStableRequested = process.env.BLACKSKIES_VISUAL_STABLE === '1';
-  if (!visualStableRequested && globalWindow.__testEnvVisualStable) {
-    console.warn('[MODE-LEAK] visualHome active during live flow');
-    globalWindow.__testEnvVisualStable = false;
-  }
+  window.addEventListener('load', applyHarnessFlags, { once: true });
+
   if (process.env.BLACKSKIES_STABLE_HOME === '1') {
     const applyStableHomeAttr = () => {
       if (typeof document === 'undefined') {
@@ -239,10 +242,6 @@ if (typeof window !== 'undefined') {
 }
 
 if (isPlaywright && typeof window !== 'undefined') {
-  console.log(
-    '[preload-offline-debug]',
-    (window as typeof window & { __testEnvForceOffline?: boolean }).__testEnvForceOffline ?? null,
-  );
   const markDockReady = () => {
     const w = window as typeof window & { __dockReady?: boolean; __stableDockHandleReady?: boolean };
     w.__dockReady = true;
@@ -263,38 +262,41 @@ const devApi: {
     window.dispatchEvent(new CustomEvent('test:set-project', { detail: absPath })),
 };
 
-// --- test/insights bridges ---
-safeExpose('__test', {
-  markBoot: () => console.log('[boot] renderer mounted'),
-});
+// --- harness-only bridges ---
+// These are explicit test hooks and must stay out of the truth lane unless a harness runner
+// opts in with BLACKSKIES_ENABLE_HARNESS_HOOKS=1.
+if (harnessHooksEnabled) {
+  safeExpose('__test', {
+    markBoot: () => console.log('[boot] renderer mounted'),
+  });
 
-safeExpose('__dev', devApi);
+  safeExpose('__dev', devApi);
 
-safeExpose('__testInsights', {
-  setServiceStatus: (status: 'offline' | 'online') =>
-    window.dispatchEvent(new CustomEvent('test:service-status', { detail: status })),
-  selectScene: (id: string) =>
-    window.dispatchEvent(new CustomEvent('test:select-scene', { detail: id })),
-});
+  safeExpose('__testInsights', {
+    setServiceStatus: (status: 'offline' | 'online') =>
+      window.dispatchEvent(new CustomEvent('test:service-status', { detail: status })),
+    selectScene: (id: string) =>
+      window.dispatchEvent(new CustomEvent('test:select-scene', { detail: id })),
+  });
+
+  safeExpose('testMode', {
+    getMode: testMode.getMode,
+    isFlat: testMode.isFlat,
+    isRecovery: testMode.isRecovery,
+    isFull: testMode.isFull,
+    getOfflineReason: testMode.getOfflineReason,
+    debug(): void {
+      console.log('[test-mode-debug]', {
+        mode: testMode.getMode(),
+        isFlat: testMode.isFlat(),
+        isRecovery: testMode.isRecovery(),
+        isFull: testMode.isFull(),
+        offlineReason: testMode.getOfflineReason(),
+      });
+    },
+  });
+}
 // --- end bridges ---
-
-safeExpose('testMode', {
-  getMode: testMode.getMode,
-  isFlat: testMode.isFlat,
-  isRecovery: testMode.isRecovery,
-  isFull: testMode.isFull,
-  getOfflineReason: testMode.getOfflineReason,
-  testModeFreezeServiceHealth: testMode.testModeFreezeServiceHealth,
-  debug(): void {
-    console.log('[test-mode-debug]', {
-      mode: testMode.getMode(),
-      isFlat: testMode.isFlat(),
-      isRecovery: testMode.isRecovery(),
-      isFull: testMode.isFull(),
-      offlineReason: testMode.getOfflineReason(),
-    });
-  },
-});
 
 import {
   LOGGING_CHANNELS,
@@ -1310,10 +1312,9 @@ const diagnosticsBridge: DiagnosticsBridge = {
 
 const servicesBridge: ServicesBridge = {
   async checkHealth(): Promise<ServiceHealthResponse> {
-    if (isPlaywright && typeof window !== 'undefined') {
-      const globalWindow = window as typeof window & { __testEnvForceOffline?: boolean };
+  if (isPlaywright && typeof window !== 'undefined') {
       console.log('[preload-services-debug]', {
-        forceOffline: globalWindow.__testEnvForceOffline ?? null,
+        forceOffline: document.body?.dataset?.testForceOffline ?? null,
       });
     }
     return probeHealth();
@@ -1434,8 +1435,24 @@ if (process.env.PLAYWRIGHT === '1') {
     },
   };
 
-  if (typeof window !== 'undefined') {
-    (window as typeof window & { __testEnvNeedsRecovery?: boolean }).__testEnvNeedsRecovery = true;
+  if (harnessHooksEnabled && typeof document !== 'undefined') {
+    const markNeedsRecovery = (): void => {
+      const root = document.documentElement;
+      if (!root) {
+        return;
+      }
+      const body = document.body ?? root;
+      root.dataset.testNeedsRecovery = '1';
+      body.dataset.testNeedsRecovery = '1';
+    };
+
+    markNeedsRecovery();
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', markNeedsRecovery, { once: true });
+    }
+    if (typeof window !== 'undefined') {
+      window.addEventListener('load', markNeedsRecovery, { once: true });
+    }
   }
 
   if (process.env.PLAYWRIGHT_DISABLE_ANIMATIONS === '1') {

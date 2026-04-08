@@ -42,22 +42,14 @@ declare global {
     layout?: LayoutBridge;
     __dev?: DevHarness;
     __serviceHealthRetry?: () => Promise<void>;
-    __selectSceneForTest?: (sceneId?: string | null) => boolean;
     __electronApi?: ElectronApi;
     __testEnv?: boolean | { isPlaywright?: boolean };
-    __testEnvForceOffline?: boolean;
-    __testEnvForceOnline?: boolean;
-    __testEnvNeedsRecovery?: boolean;
     __testEnvFlatMode?: boolean;
     __testEnvFullMode?: boolean;
     __testEnvRecoveryMode?: boolean;
     __testEnvDefaultProjectId?: string;
     __testEnvDefaultProjectPath?: string;
     __testEnvAutoSeedProjectSummary?: boolean;
-    __testEnvStableDock?: boolean;
-    __testEnvStableHome?: boolean;
-    __testEnvVisualStable?: boolean;
-    __testModeFreezeServiceHealth?: boolean;
   }
 }
 

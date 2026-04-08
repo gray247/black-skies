@@ -82,8 +82,6 @@ declare global {
     __blackskiesDebugLog?: Array<DebugLogEntry>;
     __testEnv?: boolean;
     __testEnvSnapshotRestoreFlow?: boolean;
-    __testEnvStableDock?: boolean;
-    __testEnvVisualStable?: boolean;
     __testEnvFullMode?: boolean;
   }
 }
@@ -172,6 +170,7 @@ interface BatchCritiqueResult {
 
 export default function App(): JSX.Element {
   const hasWindow = typeof window !== 'undefined';
+  const harnessHooksEnabled = testMode.isHarnessHooksEnabled();
   const services: ServicesBridge | undefined = window.services;
   const diagnostics: DiagnosticsBridge | undefined = window.diagnostics;
   const runtimeConfigOverride =
@@ -208,7 +207,10 @@ export default function App(): JSX.Element {
     if (typeof document === 'undefined') {
       return false;
     }
-    return document.body?.dataset?.testStablehome === '1';
+    return (
+      document.body?.dataset?.testStablehome === '1' ||
+      document.documentElement?.dataset?.testStablehome === '1'
+    );
   });
   useEffect(() => {
     if (stableHomeAttrFlag) {
@@ -218,7 +220,10 @@ export default function App(): JSX.Element {
       if (typeof document === 'undefined') {
         return;
       }
-      if (document.body?.dataset?.testStablehome === '1') {
+      if (
+        document.body?.dataset?.testStablehome === '1' ||
+        document.documentElement?.dataset?.testStablehome === '1'
+      ) {
         setStableHomeAttrFlag(true);
       }
     };
@@ -230,7 +235,10 @@ export default function App(): JSX.Element {
     if (typeof document === 'undefined') {
       return false;
     }
-    return document.body?.dataset?.testVisualStable === '1';
+    return (
+      document.body?.dataset?.testVisualStable === '1' ||
+      document.documentElement?.dataset?.testVisualStable === '1'
+    );
   });
   useEffect(() => {
     if (visualStableAttrFlag) {
@@ -240,7 +248,10 @@ export default function App(): JSX.Element {
       if (typeof document === 'undefined') {
         return;
       }
-      if (document.body?.dataset?.testVisualStable === '1') {
+      if (
+        document.body?.dataset?.testVisualStable === '1' ||
+        document.documentElement?.dataset?.testVisualStable === '1'
+      ) {
         setVisualStableAttrFlag(true);
       }
     };
@@ -249,15 +260,17 @@ export default function App(): JSX.Element {
     return () => document.removeEventListener('DOMContentLoaded', checkAttribute);
   }, [visualStableAttrFlag]);
   const isSnapshotRestoreFlowActive =
-    hasWindow && window.__testEnvSnapshotRestoreFlow === true;
+    harnessHooksEnabled &&
+    hasWindow &&
+    window.__testEnvSnapshotRestoreFlow === true;
   const activeFlow =
-    typeof window !== 'undefined' &&
-    ((window as typeof window & { __testEnvActiveFlow?: boolean }).__testEnvActiveFlow === true);
+    harnessHooksEnabled &&
+    typeof document !== 'undefined' &&
+    (document.body?.dataset?.testActiveFlow === '1' ||
+      document.documentElement?.dataset?.testActiveFlow === '1');
   const { visualMode, stableDockMode: helperStableDock } = getTestModes();
-  const stableDockEnvRequested =
-    (!activeFlow && helperStableDock) || (hasWindow && window.__testEnvStableDock === true);
-  const visualEnvRequested =
-    (!activeFlow && visualMode) || (hasWindow && window.__testEnvVisualStable === true);
+  const stableDockEnvRequested = !activeFlow && helperStableDock;
+  const visualEnvRequested = !activeFlow && visualMode;
   const liveFlowGuard =
     isPlaywrightEnv &&
     !stableDockEnvRequested &&
@@ -320,7 +333,14 @@ export default function App(): JSX.Element {
     console.warn('[MODE-LEAK] visualHome active during live flow');
   }
   const isStableDockMode = isTestEnvActive && stableDockExplicitFlag;
-  const isStableHomeMode = hasWindow && Boolean(window.__testEnvStableHome === true || stableHomeAttrFlag);
+  const isStableHomeMode =
+    harnessHooksEnabled &&
+    hasWindow &&
+    Boolean(
+      document.body?.dataset?.testStableHome === '1' ||
+        document.documentElement?.dataset?.testStableHome === '1' ||
+        stableHomeAttrFlag,
+    );
   const isVisualMode = isTestEnvActive && visualModeGuarded;
   const rawFlatMode = testMode.isFlatMode();
   const rawRecoveryMode = testMode.isRecoveryMode();
@@ -539,11 +559,7 @@ export default function App(): JSX.Element {
         setBudgetSnapshot(null);
         return;
       }
-      const overrideBudget =
-        isPlaywrightEnv &&
-        typeof window !== 'undefined' &&
-        (window as typeof window & { __testBudgetOverride?: BudgetSnapshotSource }).__testBudgetOverride;
-      const payload = overrideBudget ?? source;
+      const payload = source;
       if (isPlaywrightEnv) {
         console.info('[budget:update]', payload);
       }
@@ -612,18 +628,6 @@ export default function App(): JSX.Element {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [setBudgetSnapshot],
   );
-  useEffect(() => {
-    if (!isPlaywrightEnv || typeof window === 'undefined') {
-      return;
-    }
-    (window as typeof window & { __testApplyBudgetOverride?: (payload: BudgetSnapshotSource) => void }).__testApplyBudgetOverride =
-      (payload: BudgetSnapshotSource) => applyBudgetUpdate(payload);
-    return () => {
-      const host = window as typeof window & { __testApplyBudgetOverride?: (payload: BudgetSnapshotSource) => void };
-      delete host.__testApplyBudgetOverride;
-    };
-  }, [applyBudgetUpdate, isPlaywrightEnv]);
-
   const serviceHealthy = serviceStatus === "online" && !isPortUnavailable;
   const {
     indicator: budgetIndicator,
@@ -662,26 +666,11 @@ export default function App(): JSX.Element {
     if (typeof window === 'undefined') {
       return;
     }
-    const apiWindow = window as typeof window & {
-      __selectSceneForTest?: (sceneId?: string | null) => boolean;
-    };
-    apiWindow.__selectSceneForTest = (sceneId?: string | null) => {
-      pendingSceneSelectionRef.current = sceneId ?? null;
-      return applySceneSelection(pendingSceneSelectionRef.current);
-    };
-    return () => {
-      delete apiWindow.__selectSceneForTest;
-    };
-  }, [applySceneSelection]);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') {
-      return;
-    }
     const handler = (event: Event) => {
       const customEvent = event as CustomEvent<string | undefined>;
       const sceneId = customEvent.detail;
       if (typeof sceneId === 'string' && sceneId.length > 0) {
+        pendingSceneSelectionRef.current = sceneId;
         applySceneSelection(sceneId);
       }
     };
@@ -1630,9 +1619,10 @@ export default function App(): JSX.Element {
     return createTestRecoveryStatus(projectSummary?.projectId ?? undefined);
   }, [isSnapshotRestoreFlowActive, projectSummary?.projectId, recoveryStatus]);
   const forcedRecoveryFlag =
+    harnessHooksEnabled &&
     isTestEnvActive &&
     typeof window !== 'undefined' &&
-    (window as typeof window & { __testEnvNeedsRecovery?: boolean }).__testEnvNeedsRecovery === true;
+    typeof document !== 'undefined' && document.body?.dataset?.testNeedsRecovery === '1';
   const forcedRecoveryStatus = useMemo(() => {
     if (!forcedRecoveryFlag) {
       return null;
