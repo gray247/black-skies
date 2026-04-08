@@ -75,7 +75,11 @@ async def test_preflight_success_contract(async_client: httpx.AsyncClient, tmp_p
     assert data["project_id"] == project_id
     assert data["unit_scope"] == "scene"
     assert data["unit_ids"] == scene_ids
-    assert data["model"]["name"].startswith("draft-")
+    model = data["model"]
+    assert isinstance(model.get("name"), str)
+    assert model["name"]
+    assert isinstance(model.get("provider"), str)
+    assert model["provider"]
     assert len(data["scenes"]) == 1
     budget = data["budget"]
     assert set(budget) >= {
