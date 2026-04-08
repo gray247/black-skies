@@ -12,6 +12,7 @@ import type {
   LoadedProject,
   ProjectIssue,
   ProjectLoaderApi,
+  ProjectLoadFailure,
 } from '../../shared/ipc/projectLoader';
 import type { ToastPayload } from '../types/toast';
 import DraftEditor from '../DraftEditor';
@@ -30,6 +31,7 @@ export interface ProjectLoadEvent {
   project: LoadedProject | null;
   targetPath: string | null;
   lastOpenedPath: string | null;
+  error?: ProjectLoadFailure['error'] | null;
 }
 
 export interface ActiveScenePayload {
@@ -396,6 +398,7 @@ export default function ProjectHome({
           project: null,
           targetPath,
           lastOpenedPath: storedLastProjectPath,
+          error: { code: 'UNKNOWN', message: 'Project loader unavailable.' },
         });
         return null;
       }
@@ -436,6 +439,7 @@ export default function ProjectHome({
             project: null,
             targetPath,
             lastOpenedPath: storedLastProjectPath,
+            error: response.error,
           });
           if (
             options?.allowFallback !== false &&
@@ -576,6 +580,7 @@ export default function ProjectHome({
           project: null,
           targetPath,
           lastOpenedPath: storedLastProjectPath,
+          error: { code: 'UNKNOWN', message },
         });
         if (
           options?.allowFallback !== false &&

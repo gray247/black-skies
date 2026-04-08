@@ -65,6 +65,7 @@ export interface ProjectIssue {
 export interface LoadedProject {
   path: string;
   name: string;
+  projectId: string;
   outline: OutlineFile;
   scenes: SceneDraftMetadata[];
   drafts: Record<string, string>;
@@ -85,6 +86,7 @@ export interface ProjectLoadFailure {
   error: {
     code:
       | 'PROJECT_NOT_FOUND'
+      | 'PROJECT_METADATA_INVALID'
       | 'OUTLINE_NOT_FOUND'
       | 'OUTLINE_INVALID'
       | 'DRAFTS_NOT_FOUND'

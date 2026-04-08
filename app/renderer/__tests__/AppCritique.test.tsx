@@ -19,6 +19,7 @@ declare global {
 const loadedProject: LoadedProject = {
   path: '/projects/demo',
   name: 'Demo Project',
+  projectId: 'demo',
   outline: {
     schema_version: 'OutlineSchema v1',
     outline_id: 'out_demo',

@@ -138,7 +138,7 @@ test.beforeEach(async ({ page }) => {
         getRecoveryStatus: async () => ({
           ok: true,
           data: {
-            project_id: project.project_id,
+            project_id: project.projectId,
             status: 'idle',
             needs_recovery: false,
             last_snapshot: null,
@@ -148,7 +148,7 @@ test.beforeEach(async ({ page }) => {
         restoreSnapshot: async () => ({
           ok: true,
           data: {
-            project_id: project.project_id,
+            project_id: project.projectId,
             status: 'idle',
             needs_recovery: false,
           },

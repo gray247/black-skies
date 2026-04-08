@@ -74,6 +74,7 @@ function ProjectHomeMock({
       onProjectLoaded?.({
         path: '/projects/demo',
         name: 'Demo Project',
+        projectId: 'demo_project',
         outline: {
           schema_version: 'OutlineSchema v1',
           outline_id: 'out_demo',
@@ -582,7 +583,7 @@ describe('App preflight integration', () => {
       expect(services.runBackupVerification).toBeDefined();
       services.runBackupVerification &&
         expect(services.runBackupVerification).toHaveBeenCalledWith({
-          projectId: 'demo',
+          projectId: 'demo_project',
           latestOnly: true,
         });
     });

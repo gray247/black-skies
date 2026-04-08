@@ -24,10 +24,10 @@ export interface SampleProjectFixture {
   loadedProject: {
     path: string;
     name: string;
+    projectId: string;
     outline: any;
     scenes: SampleProjectFixture['scenes'];
     drafts: Record<string, string>;
-    project_id: string;
   };
 }
 
@@ -90,6 +90,10 @@ export function loadSampleProject(projectId = 'proj_esther_estate'): SampleProje
   const projectRoot = resolveSampleProjectRoot(projectId);
   const outline = JSON.parse(fs.readFileSync(path.join(projectRoot, 'outline.json'), 'utf-8'));
   const projectMeta = JSON.parse(fs.readFileSync(path.join(projectRoot, 'project.json'), 'utf-8'));
+  const canonicalProjectId =
+    typeof projectMeta?.project_id === 'string' && projectMeta.project_id.trim().length > 0
+      ? projectMeta.project_id.trim()
+      : projectId;
   const draftsDir = path.join(projectRoot, 'drafts');
   const drafts = Object.fromEntries(
     fs
@@ -109,7 +113,7 @@ export function loadSampleProject(projectId = 'proj_esther_estate'): SampleProje
   }));
 
   return {
-    projectId,
+    projectId: canonicalProjectId,
     projectRoot,
     outline,
     projectMeta,
@@ -118,10 +122,10 @@ export function loadSampleProject(projectId = 'proj_esther_estate'): SampleProje
     loadedProject: {
       path: projectRoot.replace(/\\/g, '/'),
       name: projectMeta.name,
+      projectId: canonicalProjectId,
       outline,
       scenes,
       drafts,
-      project_id: projectId,
     },
   };
 }

@@ -135,7 +135,40 @@ function resolveTruthProjectSourcePath(sampleRoot) {
 
 function materializeTruthProjectRoot(sourcePath, launchRoot) {
   const projectBaseDir = path.join(launchRoot, 'project-base');
-  const projectPath = path.join(projectBaseDir, 'Esther_Estate');
+  const metadataPath = path.join(sourcePath, 'project.json');
+  let metadataRaw = null;
+  try {
+    metadataRaw = readFileSync(metadataPath, 'utf-8');
+  } catch (error) {
+    throw new Error(
+      `[truth] Expected project.json to exist for canonical identity at ${metadataPath}: ${
+        error instanceof Error ? error.message : String(error)
+      }`,
+    );
+  }
+  let metadata = null;
+  try {
+    metadata = JSON.parse(metadataRaw);
+  } catch (error) {
+    throw new Error(
+      `[truth] project.json failed to parse at ${metadataPath}: ${
+        error instanceof Error ? error.message : String(error)
+      }`,
+    );
+  }
+  const candidateId = metadata?.project_id;
+  if (typeof candidateId !== 'string' || candidateId.trim().length === 0) {
+    throw new Error(`[truth] project.json is missing a non-empty project_id at ${metadataPath}`);
+  }
+  const projectId = candidateId.trim();
+  if (projectId !== candidateId) {
+    throw new Error(`[truth] project.json project_id must not have leading/trailing whitespace: ${metadataPath}`);
+  }
+  if (projectId === '.' || projectId === '..' || /[\\/]/.test(projectId)) {
+    throw new Error(`[truth] project.json project_id must be a single path segment: ${metadataPath}`);
+  }
+
+  const projectPath = path.join(projectBaseDir, projectId);
   mkdirSync(projectBaseDir, { recursive: true });
   cpSync(sourcePath, projectPath, { recursive: true, force: true });
   return { projectBaseDir, projectPath };
@@ -483,7 +516,7 @@ async function run() {
             ok: Boolean(response.ok),
             error: response.ok ? null : response.error?.message ?? null,
             issueCount: response.ok ? response.issues?.length ?? 0 : response.error?.issues?.length ?? 0,
-            projectId: response.ok ? response.project.path.split(/[\\\\/]/).at(-1) ?? null : null,
+            projectId: response.ok ? response.project.projectId ?? null : null,
             sceneIds: response.ok ? response.project.scenes.map((scene) => scene.id) : [],
           };
         })())()`,

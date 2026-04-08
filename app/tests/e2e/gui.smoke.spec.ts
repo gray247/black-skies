@@ -9,8 +9,8 @@ const sampleProjectPath = path.resolve(__dirname, '../../sample_project/Esther_E
 
 test('boots packaged renderer', async ({ page }) => {
   await page.waitForLoadState('domcontentloaded');
-  await page.evaluate((projectPath) => {
-    window.__dev?.setProjectDir?.(projectPath ?? null);
+  await page.evaluate(async (projectPath) => {
+    await window.__dev?.setProjectDir?.(projectPath ?? null);
   }, sampleProjectPath);
 
   await expect(page.locator('body')).toBeVisible();

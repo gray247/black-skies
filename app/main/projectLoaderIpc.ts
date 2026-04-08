@@ -147,12 +147,13 @@ async function loadProjectFromDisk(projectPath: string): Promise<{
   issues: ProjectIssue[];
 }> {
   const normalizedPath = path.resolve(projectPath);
+  const metadata = await readProjectMetadata(normalizedPath);
   const outline = await readOutline(normalizedPath);
   const { scenes, issues, drafts } = await readScenes(normalizedPath);
-  const metadata = await readProjectMetadata(normalizedPath);
   const project: LoadedProject = {
     path: normalizedPath,
     name: metadata.name ?? path.basename(normalizedPath),
+    projectId: metadata.projectId,
     outline,
     scenes,
     drafts,
@@ -160,18 +161,110 @@ async function loadProjectFromDisk(projectPath: string): Promise<{
   return { project, issues };
 }
 
-async function readProjectMetadata(projectPath: string): Promise<{ name?: string }> {
-  const metadataPath = path.join(projectPath, 'project.json');
-  try {
-    const raw = await fs.readFile(metadataPath, 'utf8');
-    const parsed = JSON.parse(raw) as { name?: string };
-    if (typeof parsed.name === 'string' && parsed.name.trim().length > 0) {
-      return { name: parsed.name };
-    }
-  } catch {
-    // best effort: ignore missing or invalid metadata
+function validateCanonicalProjectId(candidate: unknown, metadataPath: string): string {
+  if (typeof candidate !== 'string') {
+    throw new ProjectLoaderAggregateError(
+      'project.json is missing a required project_id field.',
+      [
+        {
+          level: 'error',
+          message: 'project.json must include a string project_id.',
+          path: metadataPath,
+        },
+      ],
+      'PROJECT_METADATA_INVALID',
+    );
   }
-  return {};
+  const trimmed = candidate.trim();
+  if (trimmed.length === 0 || trimmed !== candidate) {
+    throw new ProjectLoaderAggregateError(
+      'project.json includes an invalid project_id.',
+      [
+        {
+          level: 'error',
+          message: 'project_id must be a non-empty string with no leading/trailing whitespace.',
+          path: metadataPath,
+        },
+      ],
+      'PROJECT_METADATA_INVALID',
+    );
+  }
+  if (trimmed === '.' || trimmed === '..') {
+    throw new ProjectLoaderAggregateError(
+      'project.json includes an invalid project_id.',
+      [
+        {
+          level: 'error',
+          message: 'project_id must not be "." or "..".',
+          path: metadataPath,
+        },
+      ],
+      'PROJECT_METADATA_INVALID',
+    );
+  }
+  if (/[\\/]/.test(trimmed)) {
+    throw new ProjectLoaderAggregateError(
+      'project.json includes an invalid project_id.',
+      [
+        {
+          level: 'error',
+          message: 'project_id must be a single path segment (no "/" or "\\\\").',
+          path: metadataPath,
+        },
+      ],
+      'PROJECT_METADATA_INVALID',
+    );
+  }
+  return trimmed;
+}
+
+async function readProjectMetadata(projectPath: string): Promise<{ name?: string; projectId: string }> {
+  const metadataPath = path.join(projectPath, 'project.json');
+  let raw: string;
+  try {
+    raw = await fs.readFile(metadataPath, 'utf8');
+  } catch (error) {
+    const err = new ProjectLoaderAggregateError(
+      'Unable to read project.json for the selected project.',
+      [
+        {
+          level: 'error',
+          message: 'project.json could not be read.',
+          detail: error instanceof Error ? error.message : String(error),
+          path: metadataPath,
+        },
+      ],
+      'PROJECT_METADATA_INVALID',
+    );
+    if (error instanceof Error && 'code' in error) {
+      (err as { originalCode?: string }).originalCode = (error as { code?: string }).code;
+    }
+    throw err;
+  }
+
+  let parsed: { name?: unknown; project_id?: unknown };
+  try {
+    parsed = JSON.parse(raw) as { name?: unknown; project_id?: unknown };
+  } catch (error) {
+    throw new ProjectLoaderAggregateError(
+      'project.json is not valid JSON.',
+      [
+        {
+          level: 'error',
+          message: 'project.json failed to parse.',
+          detail: error instanceof Error ? error.message : String(error),
+          path: metadataPath,
+        },
+      ],
+      'PROJECT_METADATA_INVALID',
+    );
+  }
+
+  const projectId = validateCanonicalProjectId(parsed.project_id, metadataPath);
+  const nameCandidate = parsed.name;
+  const name =
+    typeof nameCandidate === 'string' && nameCandidate.trim().length > 0 ? nameCandidate.trim() : undefined;
+  return { name, projectId };
 }
 
 async function readOutline(projectPath: string): Promise<OutlineFile> {
@@ -526,15 +619,169 @@ async function resolveSampleProjectPath(): Promise<string | null> {
   ];
 
   for (const candidate of candidates) {
-    try {
-      const stats = await fs.stat(candidate);
-      if (stats.isDirectory()) {
-        return candidate;
-      }
-    } catch {
-      // ignore and continue
+    const resolved = await resolveConcreteSamplePath(candidate);
+    if (resolved) {
+      return resolved;
     }
   }
 
   return null;
+}
+
+async function resolveConcreteSamplePath(sampleRoot: string): Promise<string | null> {
+  if (!(await isDirectory(sampleRoot))) {
+    return null;
+  }
+
+  if (await validateProjectRoot(sampleRoot)) {
+    return sampleRoot;
+  }
+
+  const snapshotFromVerification = await resolveSnapshotFromVerification(sampleRoot, '.snapshots');
+  if (snapshotFromVerification && (await validateProjectRoot(snapshotFromVerification))) {
+    return snapshotFromVerification;
+  }
+
+  const snapshotFromVerificationBak = await resolveSnapshotFromVerification(
+    sampleRoot,
+    '.snapshots.bak',
+  );
+  if (snapshotFromVerificationBak && (await validateProjectRoot(snapshotFromVerificationBak))) {
+    return snapshotFromVerificationBak;
+  }
+
+  const recentSnapshot = await pickLatestSnapshot(sampleRoot, '.snapshots');
+  if (recentSnapshot && (await validateProjectRoot(recentSnapshot))) {
+    return recentSnapshot;
+  }
+
+  const fallbackSnapshot = await pickLatestSnapshot(sampleRoot, '.snapshots.bak');
+  if (fallbackSnapshot && (await validateProjectRoot(fallbackSnapshot))) {
+    return fallbackSnapshot;
+  }
+
+  return null;
+}
+
+async function resolveSnapshotFromVerification(
+  sampleRoot: string,
+  directoryName: string,
+): Promise<string | null> {
+  const snapshotsRoot = path.join(sampleRoot, directoryName);
+  const verificationPath = path.join(snapshotsRoot, 'last_verification.json');
+  let payload: unknown;
+  try {
+    const raw = await fs.readFile(verificationPath, 'utf-8');
+    payload = JSON.parse(raw);
+  } catch {
+    return null;
+  }
+  const verification = payload as { status?: string; snapshots?: Array<{ path?: string }> };
+  if (verification?.status !== 'ok' || !Array.isArray(verification.snapshots)) {
+    return null;
+  }
+  for (const snapshot of verification.snapshots) {
+    if (typeof snapshot?.path !== 'string') {
+      continue;
+    }
+    const candidate = path.join(sampleRoot, snapshot.path);
+    if (await validateProjectRoot(candidate)) {
+      return candidate;
+    }
+  }
+  return null;
+}
+
+async function pickLatestSnapshot(sampleRoot: string, directoryName: string): Promise<string | null> {
+  const snapshotsRoot = path.join(sampleRoot, directoryName);
+  if (!(await isDirectory(snapshotsRoot))) {
+    return null;
+  }
+  let entries: string[];
+  try {
+    entries = await fs.readdir(snapshotsRoot);
+  } catch {
+    return null;
+  }
+  const candidates = entries
+    .filter((entry) => entry.startsWith('ss_'))
+    .sort()
+    .reverse()
+    .map((entry) => path.join(snapshotsRoot, entry));
+  for (const candidate of candidates) {
+    if (await validateProjectRoot(candidate)) {
+      return candidate;
+    }
+  }
+  return null;
+}
+
+async function validateProjectRoot(candidatePath: string): Promise<boolean> {
+  try {
+    const stats = await fs.stat(candidatePath);
+    if (!stats.isDirectory()) {
+      return false;
+    }
+
+    const outline = await readOutline(candidatePath);
+    if (!Array.isArray(outline.scenes) || outline.scenes.length === 0) {
+      throw new ProjectLoaderAggregateError(
+        'outline.json does not contain any scenes.',
+        [
+          {
+            level: 'error',
+            message: 'outline.json does not include scenes.',
+            path: path.join(candidatePath, 'outline.json'),
+          },
+        ],
+        'OUTLINE_INVALID',
+      );
+    }
+
+    await ensureDraftsReadable(candidatePath);
+    await ensureProjectMetadataValid(candidatePath);
+    return true;
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
+    console.warn('[projectLoader] sample project candidate rejected', {
+      candidatePath,
+      detail,
+    });
+    return false;
+  }
+}
+
+async function ensureProjectMetadataValid(projectPath: string): Promise<void> {
+  // Delegate to the canonical metadata reader so sample-path resolution matches the
+  // same validity contract enforced by project loading.
+  await readProjectMetadata(projectPath);
+}
+
+async function ensureDraftsReadable(projectPath: string): Promise<void> {
+  const draftsPath = path.join(projectPath, 'drafts');
+  try {
+    await fs.readdir(draftsPath);
+  } catch (error) {
+    throw new ProjectLoaderAggregateError(
+      'drafts directory is missing or unreadable.',
+      [
+        {
+          level: 'error',
+          message: 'drafts directory could not be read.',
+          detail: error instanceof Error ? error.message : String(error),
+          path: draftsPath,
+        },
+      ],
+      'DRAFTS_NOT_FOUND',
+    );
+  }
+}
+
+async function isDirectory(targetPath: string): Promise<boolean> {
+  try {
+    const stats = await fs.stat(targetPath);
+    return stats.isDirectory();
+  } catch {
+    return false;
+  }
 }

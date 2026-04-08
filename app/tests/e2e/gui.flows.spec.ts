@@ -113,7 +113,7 @@ test.describe('GUI flow smoke tests', () => {
       remaining: number,
       message: string,
     ) => ({
-      project_id: loadedProject.project_id,
+      project_id: loadedProject.projectId,
       budget: {
         soft_limit_usd: 100,
         hard_limit_usd: 200,
@@ -165,7 +165,7 @@ test.describe('GUI flow smoke tests', () => {
       },
     ];
     const verificationReport = {
-      project_id: loadedProject.project_id,
+      project_id: loadedProject.projectId,
       snapshots: panelSnapshots.map((entry) => ({
         snapshot_id: entry.snapshot_id,
         status: 'ok' as const,

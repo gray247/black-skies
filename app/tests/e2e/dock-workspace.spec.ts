@@ -25,7 +25,7 @@ const { loadedProject } = loadSampleProject();
       preflightDraft: async () => ({
         ok: true,
         data: {
-          projectId: project.project_id,
+          projectId: project.projectId,
           unitScope: 'scene',
           unitIds: [project.scenes[0]?.id ?? 'sc_0001'],
           model: { name: 'draft-synthesizer-v1', provider: 'stub' },
@@ -114,7 +114,7 @@ const { loadedProject } = loadSampleProject();
       getRecoveryStatus: async () => ({
         ok: true,
         data: {
-          project_id: project.project_id,
+          project_id: project.projectId,
           status: 'idle',
           needs_recovery: false,
           last_snapshot: null,
@@ -124,7 +124,7 @@ const { loadedProject } = loadSampleProject();
       restoreSnapshot: async () => ({
         ok: true,
         data: {
-          project_id: project.project_id,
+          project_id: project.projectId,
           status: 'idle',
           needs_recovery: false,
         },
