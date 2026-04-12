@@ -74,6 +74,7 @@ The prototype reads canonical narrative inputs only from these artifacts.
 - Accepted lineage evidence (v1 rule):
   - Primary: successful accept response context (`project_id`, `unit_id`, `snapshot_id`) at processing time.
   - Replay/backfill: `project-root/history/snapshots/*/metadata.json` plus accepted-source hash checks.
+  - Legacy replay/eval compatibility: if older snapshot metadata does not include `accepted_source_hash`, replay/eval may derive it from snapshot draft content plus matching outline scene front-matter; fail closed when that evidence is incomplete.
   - `project-root/history/recovery/state.json` (`last_snapshot`) is supplemental context only and must not be treated as authoritative per-unit lineage by itself.
 - Label text must not be used as the sole accept-lineage signal.
 - Accepted draft content is immutable for a lineage key; the prototype must not re-read modified draft files outside that accepted lineage context.
