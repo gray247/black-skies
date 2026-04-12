@@ -67,6 +67,9 @@ Backend-only memory experimentation, including:
 
 This checkpoint marks the transition from stabilization to controlled experimentation.
 
+Implementation specification for prototype execution:
+- `docs/specs/memory_prototype_v1.md`
+
 Future work must preserve:
 - truth integrity
 - test honesty
