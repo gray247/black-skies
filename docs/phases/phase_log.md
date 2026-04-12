@@ -3,7 +3,7 @@ Version: 1.1
 Last Reviewed: 2025-11-15
 
 # Phase log — change history
-Authority note: this file records dated phase change history only. Use `phase_charter.md` for scope and `docs/roadmap.md` for current status.
+Authority note: this file records dated phase change history only. Use `phase_charter.md` for scope and `docs/roadmap.md` for current status. The repository-root `phase_log.md` is a non-canonical redirect file.
 > Each entry corresponds to the scope tracked in `docs/BUILD_PLAN.md` as supporting context.
 
 **2025-09-15** — Locked Phase Charter v1.0 (original RC scope)

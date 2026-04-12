@@ -30,13 +30,14 @@ This phase ensures:
 
 ### Governance / Documentation
 - Canonical phase status source defined:
-  - docs/phases/phase_log.md
+  - docs/roadmap.md (current-status snapshot)
+  - docs/phases/phase_log.md (dated ledger)
 - Conflict resolution rule established across roadmap, bridge, and charter
 - Status drift resolved and verified via checker script
 
 ## Verification
 
-- `pnpm phase10:review` → pass
+- `pnpm test:truth` → pass
 - `python scripts/check_roadmap_vs_phase_log.py` → pass
 - Playwright real-service tests → pass
 - Backend contract tests → pass

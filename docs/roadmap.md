@@ -4,7 +4,7 @@ Last Reviewed: 2025-11-15
 
 # Roadmap
 
-Authority note: this roadmap is the canonical current-status snapshot. Use [docs/phases/phase_charter.md](./phases/phase_charter.md) for **what** we ship and [docs/phases/phase_log.md](./phases/phase_log.md) for dated lock history.
+Authority note: this roadmap is the canonical current-status snapshot. Use [docs/phases/phase_charter.md](./phases/phase_charter.md) for **what** we ship and [docs/phases/phase_log.md](./phases/phase_log.md) for dated lock history. The repository-root `phase_log.md` is a non-canonical redirect file.
 
 ## Status legend
 | Label | Meaning |
@@ -65,7 +65,7 @@ The following planning docs describe capabilities that remain on the roadmap bey
 ---
 
 ## Consistency checks
-- Run `python scripts/check_roadmap_vs_phase_log.py` (see script below) to verify that roadmap statuses and dates match the latest entries in `phase_log.md`. CI will fail if discrepancies are detected.
+- Run `python scripts/check_roadmap_vs_phase_log.py` (see script below) to verify that roadmap statuses and dates match the latest entries in `docs/phases/phase_log.md`. CI will fail if discrepancies are detected.
 
 ```bash
 python scripts/check_roadmap_vs_phase_log.py
