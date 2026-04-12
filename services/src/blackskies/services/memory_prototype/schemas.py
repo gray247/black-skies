@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from hashlib import sha256
 from pathlib import Path
+from typing import Literal
 from typing import Any
 
 SCHEMA_VERSION = "memory-prototype-v1"
@@ -152,3 +153,96 @@ class AdvisoryArtifactEnvelope:
 
 def sha256_text(text: str) -> str:
     return sha256(text.encode("utf-8")).hexdigest()
+
+
+@dataclass(frozen=True)
+class SignalAnchor:
+    """Attribution anchor for advisory delta/signal records."""
+
+    source_path: str
+    unit_id: str
+    excerpt: str
+    line_start: int
+    line_end: int
+
+    def as_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+DeltaCategory = Literal[
+    "entity_participation",
+    "location_change",
+    "relationship_change",
+    "injury_status_change",
+    "introduced_fact",
+    "thread_advancement",
+]
+
+
+@dataclass(frozen=True)
+class SceneDeltaCandidate:
+    """Advisory scene delta candidate derived from accepted lineage input."""
+
+    category: DeltaCategory
+    value: str
+    entities: tuple[str, ...]
+    confidence: float
+    anchor: SignalAnchor
+
+    def as_dict(self) -> dict[str, Any]:
+        payload = asdict(self)
+        payload["entities"] = list(self.entities)
+        return payload
+
+
+@dataclass(frozen=True)
+class SceneDeltaArtifact:
+    """Structured advisory delta artifact for one accepted lineage scene."""
+
+    unit_id: str
+    candidates: tuple[SceneDeltaCandidate, ...]
+
+    def as_dict(self) -> dict[str, Any]:
+        return {
+            "schema": "SceneDeltaArtifact v1",
+            "unit_id": self.unit_id,
+            "candidate_count": len(self.candidates),
+            "candidates": [candidate.as_dict() for candidate in self.candidates],
+        }
+
+
+SignalSeverity = Literal["info", "warning", "conflict"]
+
+
+@dataclass(frozen=True)
+class ContinuitySignal:
+    """Normalized continuity signal with required machine fields."""
+
+    type: str
+    entities: tuple[str, ...]
+    scope: str
+    severity: SignalSeverity
+    confidence: float
+    anchor: SignalAnchor
+    metadata: dict[str, Any]
+
+    def as_dict(self) -> dict[str, Any]:
+        payload = asdict(self)
+        payload["entities"] = list(self.entities)
+        return payload
+
+
+@dataclass(frozen=True)
+class ContinuitySignalArtifact:
+    """Structured advisory continuity signal artifact for one scene lineage."""
+
+    unit_id: str
+    signals: tuple[ContinuitySignal, ...]
+
+    def as_dict(self) -> dict[str, Any]:
+        return {
+            "schema": "ContinuitySignalArtifact v1",
+            "unit_id": self.unit_id,
+            "signal_count": len(self.signals),
+            "signals": [signal.as_dict() for signal in self.signals],
+        }

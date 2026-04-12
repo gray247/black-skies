@@ -93,6 +93,34 @@ class MemoryPrototypeStorage:
         atomic_write_json(target, blob)
         return target
 
+    def write_delta_artifact(
+        self,
+        *,
+        lineage: CanonicalLineageKey,
+        payload: dict[str, Any],
+        source_hashes: dict[str, str],
+    ) -> Path:
+        return self.write_advisory_artifact(
+            category="deltas",
+            lineage=lineage,
+            payload=payload,
+            source_hashes=source_hashes,
+        )
+
+    def write_continuity_artifact(
+        self,
+        *,
+        lineage: CanonicalLineageKey,
+        payload: dict[str, Any],
+        source_hashes: dict[str, str],
+    ) -> Path:
+        return self.write_advisory_artifact(
+            category="drift",
+            lineage=lineage,
+            payload=payload,
+            source_hashes=source_hashes,
+        )
+
     def write_diagnostic(
         self,
         *,

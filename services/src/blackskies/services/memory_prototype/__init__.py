@@ -5,15 +5,20 @@ until prototype validation is complete.
 """
 
 from .canonical_state_reader import CanonicalStateReader
+from .continuity_signal_normalizer import ContinuitySignalNormalizer
 from .provider import NarrativeStateProvider
-from .schemas import CanonicalLineageKey, CanonicalNarrativeSnapshot
+from .scene_delta_extractor import SceneDeltaExtractor
+from .schemas import CanonicalLineageKey, CanonicalNarrativeSnapshot, ContinuitySignalArtifact, SceneDeltaArtifact
 from .storage import MemoryPrototypeStorage
 
 __all__ = [
     "CanonicalLineageKey",
     "CanonicalNarrativeSnapshot",
+    "SceneDeltaArtifact",
+    "ContinuitySignalArtifact",
     "CanonicalStateReader",
+    "SceneDeltaExtractor",
+    "ContinuitySignalNormalizer",
     "MemoryPrototypeStorage",
     "NarrativeStateProvider",
 ]
-
