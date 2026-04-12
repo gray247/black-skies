@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""M3 entrypoint for Memory Prototype v1 reader/delta/signal validation."""
+"""M4 entrypoint for Memory Prototype v1 packet assembly validation."""
 
 from __future__ import annotations
 
@@ -12,6 +12,7 @@ from blackskies.services.memory_prototype.continuity_signal_normalizer import Co
 from blackskies.services.memory_prototype.scene_delta_extractor import SceneDeltaExtractor
 from blackskies.services.memory_prototype.schemas import CanonicalLineageKey
 from blackskies.services.memory_prototype.storage import MemoryPrototypeStorage
+from blackskies.services.memory_prototype.task_packet_assembler import TaskPacketAssembler
 
 
 def parse_args() -> argparse.Namespace:
@@ -55,13 +56,13 @@ def main() -> int:
     if not (args.project_id and args.unit_id):
         payload = {
             "status": "scaffold_only",
-            "phase": "m3",
+            "phase": "m4",
             "project_root": str(project_root),
             "created_paths": {
                 "memory_root": str(storage.memory_root),
                 "history_root": str(storage.history_root),
             },
-            "note": "M3 validation requires --project-id and --unit-id.",
+            "note": "M4 validation requires --project-id and --unit-id.",
         }
         print(json.dumps(payload, indent=2))
         return 0
@@ -83,7 +84,7 @@ def main() -> int:
     else:
         payload = {
             "status": "scaffold_only",
-            "phase": "m3",
+            "phase": "m4",
             "project_root": str(project_root),
             "note": "Lineage validation requires --snapshot-id or --accepted-source-hash.",
         }
@@ -105,26 +106,56 @@ def main() -> int:
             payload=signal_artifact.as_dict(),
             source_hashes=snapshot.source_hashes,
         )
+        assembler = TaskPacketAssembler()
+        packet_paths: dict[str, str] = {}
+        packet_counts: dict[str, int] = {}
+        for packet_type in ("draft", "rewrite", "critique"):
+            packet = assembler.assemble(
+                packet_type=packet_type,
+                snapshot=snapshot,
+                deltas=delta_artifact,
+                signals=signal_artifact,
+            )
+            packet_path = storage.write_packet_artifact(
+                packet_type=packet_type,
+                lineage=lineage,
+                payload=packet.as_dict(),
+                source_hashes=snapshot.source_hashes,
+            )
+            packet_paths[packet_type] = str(packet_path)
+            packet_counts[packet_type] = len(packet.advisory.get("delta_highlights", []))
         status_path = storage.write_status(
             status="ok",
-            affected_components=["reader", "delta_extractor", "signal_normalizer", "storage"],
+            affected_components=[
+                "reader",
+                "delta_extractor",
+                "signal_normalizer",
+                "packet_assembler",
+                "storage",
+            ],
         )
     except Exception as exc:  # noqa: BLE001 - eval output must surface eligibility errors.
         diagnostic_path = storage.write_diagnostic(
             lineage=lineage,
-            code="M3_DELTA_SIGNAL_FAILURE",
+            code="M4_PACKET_ASSEMBLY_FAILURE",
             message=str(exc),
         )
         status_path = storage.write_status(
             status="degraded",
-            last_error_code="M3_DELTA_SIGNAL_FAILURE",
+            last_error_code="M4_PACKET_ASSEMBLY_FAILURE",
             last_error_message=str(exc),
-            affected_components=["reader", "delta_extractor", "signal_normalizer", "storage"],
+            affected_components=[
+                "reader",
+                "delta_extractor",
+                "signal_normalizer",
+                "packet_assembler",
+                "storage",
+            ],
             retry_after_seconds=0,
         )
         payload = {
-            "status": "m3_delta_signal_error",
-            "phase": "m3",
+            "status": "m4_packet_assembly_error",
+            "phase": "m4",
             "project_root": str(project_root),
             "lineage_key": lineage.key,
             "diagnostic_path": str(diagnostic_path),
@@ -135,16 +166,18 @@ def main() -> int:
         return 1
 
     payload = {
-        "status": "m3_delta_signal",
-        "phase": "m3",
+        "status": "m4_packet_assembly",
+        "phase": "m4",
         "project_root": str(project_root),
         "lineage_key": lineage.key,
         "delta_path": str(delta_path),
         "signal_path": str(signal_path),
+        "packet_paths": packet_paths,
+        "packet_counts": packet_counts,
         "delta_count": len(delta_artifact.candidates),
         "signal_count": len(signal_artifact.signals),
         "status_path": str(status_path),
-        "note": "M3 validated lineage-scoped advisory delta extraction and continuity signal normalization.",
+        "note": "M4 validated lineage-safe advisory task packet assembly from canonical plus advisory inputs.",
     }
     print(json.dumps(payload, indent=2))
     return 0

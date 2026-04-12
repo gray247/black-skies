@@ -11,7 +11,7 @@ from typing import Any
 
 from blackskies.services.io import atomic_write_json
 
-from .schemas import AdvisoryArtifactEnvelope, CanonicalLineageKey, PROTOTYPE_VERSION, SCHEMA_VERSION
+from .schemas import AdvisoryArtifactEnvelope, CanonicalLineageKey, PROTOTYPE_VERSION, PacketType, SCHEMA_VERSION
 
 
 class AdvisoryStorageError(ValueError):
@@ -36,7 +36,9 @@ class MemoryPrototypeStorage:
         for path in (
             self.memory_root / "ledger",
             self.memory_root / "deltas",
-            self.memory_root / "packets",
+            self.memory_root / "packets" / "draft",
+            self.memory_root / "packets" / "rewrite",
+            self.memory_root / "packets" / "critique",
             self.memory_root / "drift",
             self.history_root / "runs",
             self.history_root / "diagnostics",
@@ -120,6 +122,30 @@ class MemoryPrototypeStorage:
             payload=payload,
             source_hashes=source_hashes,
         )
+
+    def write_packet_artifact(
+        self,
+        *,
+        packet_type: PacketType,
+        lineage: CanonicalLineageKey,
+        payload: dict[str, Any],
+        source_hashes: dict[str, str],
+    ) -> Path:
+        self.ensure_scaffold()
+        if packet_type not in {"draft", "rewrite", "critique"}:
+            raise AdvisoryStorageError(f"unsupported packet type: {packet_type}")
+        target_dir = self.memory_root / "packets" / packet_type
+        lineage_token = self._lineage_token(lineage)
+        target = target_dir / f"{lineage_token}.json"
+        self._assert_allowed_write(target)
+        self._assert_no_fallback_overwrite(lineage=lineage, target=target)
+        envelope = AdvisoryArtifactEnvelope.for_lineage(
+            lineage=lineage,
+            source_hashes=source_hashes,
+        ).as_dict()
+        blob = {"envelope": envelope, "payload": payload, "advisory": True}
+        atomic_write_json(target, blob)
+        return target
 
     def write_diagnostic(
         self,

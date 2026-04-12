@@ -11,7 +11,7 @@ from typing import Literal
 from typing import Any
 
 SCHEMA_VERSION = "memory-prototype-v1"
-PROTOTYPE_VERSION = "m2-reader-storage"
+PROTOTYPE_VERSION = "m4-packet-assembly"
 
 
 @dataclass(frozen=True)
@@ -245,4 +245,53 @@ class ContinuitySignalArtifact:
             "unit_id": self.unit_id,
             "signal_count": len(self.signals),
             "signals": [signal.as_dict() for signal in self.signals],
+        }
+
+
+PacketType = Literal["draft", "rewrite", "critique"]
+
+
+@dataclass(frozen=True)
+class CanonicalConflict:
+    """Advisory metadata for canonical source disagreements."""
+
+    field: str
+    chosen_source: str
+    chosen_value: str
+    conflicting_source: str
+    conflicting_value: str
+
+    def as_dict(self) -> dict[str, str]:
+        return asdict(self)
+
+
+@dataclass(frozen=True)
+class TaskPacket:
+    """Compact lineage-scoped advisory task packet."""
+
+    schema_version: str
+    prototype_version: str
+    project_id: str
+    unit_id: str
+    lineage_key: str
+    packet_type: PacketType
+    generated_at: str
+    source_hashes: dict[str, str]
+    canonical: dict[str, Any]
+    advisory: dict[str, Any]
+    canonical_conflicts: tuple[CanonicalConflict, ...]
+
+    def as_dict(self) -> dict[str, Any]:
+        return {
+            "schema_version": self.schema_version,
+            "prototype_version": self.prototype_version,
+            "project_id": self.project_id,
+            "unit_id": self.unit_id,
+            "lineage_key": self.lineage_key,
+            "packet_type": self.packet_type,
+            "generated_at": self.generated_at,
+            "source_hashes": self.source_hashes,
+            "canonical": self.canonical,
+            "advisory": self.advisory,
+            "canonical_conflicts": [entry.as_dict() for entry in self.canonical_conflicts],
         }
