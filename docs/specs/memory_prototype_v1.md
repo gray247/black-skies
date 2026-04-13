@@ -9,6 +9,7 @@ Build a read-only, advisory-only narrative memory prototype that derives structu
 - Not user-facing
 - No public API contract changes
 - Fully removable without affecting production runtime
+- Implemented on `prototype/memory-v1` through M1-M5 + Revision Pass A + Revision Pass B
 
 ## Core Principles
 - One authoritative narrative truth
@@ -39,6 +40,7 @@ Build a read-only, advisory-only narrative memory prototype that derives structu
 
 ### Rule
 Derived state may inform but never override canonical state.
+Legacy replay/eval lineage remains non-authoritative and must never supersede snapshot-based lineage artifacts.
 
 ## Scope
 ### In Scope
@@ -74,7 +76,11 @@ The prototype reads canonical narrative inputs only from these artifacts.
 - Accepted lineage evidence (v1 rule):
   - Primary: successful accept response context (`project_id`, `unit_id`, `snapshot_id`) at processing time.
   - Replay/backfill: `project-root/history/snapshots/*/metadata.json` plus accepted-source hash checks.
-  - Legacy replay/eval compatibility: if older snapshot metadata does not include `accepted_source_hash`, replay/eval may derive it from snapshot draft content plus matching outline scene front-matter; fail closed when that evidence is incomplete.
+  - Legacy replay/eval compatibility (bounded): if older snapshot metadata does not include `accepted_source_hash`, replay/eval may derive it only when snapshot metadata satisfies all of:
+    - `label == "accept"`
+    - `includes` contains both `drafts` and `outline.json`
+    - matching outline scene front-matter exists for `unit_id`
+  - Legacy replay derivation fails closed when required evidence is missing.
   - `project-root/history/recovery/state.json` (`last_snapshot`) is supplemental context only and must not be treated as authoritative per-unit lineage by itself.
 - Label text must not be used as the sole accept-lineage signal.
 - Accepted draft content is immutable for a lineage key; the prototype must not re-read modified draft files outside that accepted lineage context.
@@ -239,16 +245,14 @@ python scripts/check_roadmap_vs_phase_log.py
 python -m pytest services/tests -q
 ```
 
-### Planned Prototype Lane Additions (not yet implemented)
+### Prototype Lane (implemented on this branch)
 ```bash
-# planned target: services/tests/prototype/
 python -m pytest services/tests/prototype/ -q
 
-# planned target: scripts/run_memory_prototype_v1_eval.py
-python scripts/run_memory_prototype_v1_eval.py
+python scripts/run_memory_prototype_v1_eval.py --project-root <fixture-root> --fixture-manifest services/tests/prototype/fixtures/m5_eval_cases.json
 ```
 
-## Prototype Test Specifications (to be added)
+## Prototype Test Coverage (implemented)
 1. `services/tests/prototype/test_memory_non_mutation.py`
 - Proves: advisory-only behavior.
 - Must assert: no canonical files are mutated by prototype processing.
@@ -269,6 +273,14 @@ python scripts/run_memory_prototype_v1_eval.py
 - Proves: degraded-mode behavior does not block accept.
 - Must assert: canonical accept still succeeds; degraded status and diagnostics are written.
 
+6. `services/tests/prototype/test_memory_continuity_conflicts.py`
+- Proves: high-value dead/alive contradiction emits a structured advisory conflict signal.
+- Must assert: conflict severity/entities/anchor are present and canonical files remain unchanged.
+
+7. `services/tests/prototype/test_memory_legacy_replay.py`
+- Proves: legacy replay fallback is bounded in replay/eval only.
+- Must assert: bounded legacy marker is present and metadata contract violations fail closed.
+
 ## Fixtures
 - 2 projects
 - 6–10 scenes
@@ -277,7 +289,7 @@ python scripts/run_memory_prototype_v1_eval.py
 ## Deliverables
 - This spec
 - Prototype modules
-- Tests (planned)
+- Tests
 - Evaluation report
 
 ## Exit Criteria
@@ -285,7 +297,11 @@ python scripts/run_memory_prototype_v1_eval.py
 - Stable IDs
 - Valid packet assembly
 - Existing gates pass
-- Planned prototype lane passes once added
+- Prototype lane passes
+
+## Known Limitation
+- The M5 eval runner does not execute the full truth-lane regression suite internally.
+- Truth-lane regression checks remain separate and are reported as not evaluated inside the M5 runner.
 
 ## Kill Criteria
 - Hidden mutation required
