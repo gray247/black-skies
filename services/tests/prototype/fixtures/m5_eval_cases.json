@@ -1,0 +1,209 @@
+{
+  "version": "m5-fixtures-v1",
+  "projects": [
+    {
+      "project_id": "proj_m5_alpha",
+      "cases": [
+        {
+          "case_id": "alpha_dead_alive_mismatch",
+          "unit_id": "sc_0001",
+          "snapshot_id": "20260412T210001Z",
+          "draft_text": "# sc_0001\nMara finds Jonah alive in the cellar.\nBy dawn, Mara records Jonah as dead and buried.\n",
+          "outline_scene": {
+            "id": "sc_0001",
+            "purpose": "contradiction setup",
+            "location": "cellar"
+          },
+          "locked_facts": [
+            "Location: cellar"
+          ],
+          "lore_records": [
+            {
+              "id": "char_mara",
+              "name": "Mara"
+            },
+            {
+              "id": "char_jonah",
+              "name": "Jonah"
+            }
+          ],
+          "legacy_missing_hash": false,
+          "repeat_same_lineage": true,
+          "simulate_race": false,
+          "expect_conflict_signal": true
+        },
+        {
+          "case_id": "alpha_location_mismatch",
+          "unit_id": "sc_0002",
+          "snapshot_id": "20260412T210002Z",
+          "draft_text": "# sc_0002\nMara reaches the roof, then falls back to the cellar before sunrise.\n",
+          "outline_scene": {
+            "id": "sc_0002",
+            "purpose": "location stress",
+            "location": "roof"
+          },
+          "locked_facts": [
+            "Location: cellar"
+          ],
+          "lore_records": [
+            {
+              "id": "char_mara",
+              "name": "Mara",
+              "home_base": "dock"
+            }
+          ],
+          "legacy_missing_hash": false,
+          "repeat_same_lineage": false,
+          "simulate_race": false,
+          "expect_conflict_signal": false
+        },
+        {
+          "case_id": "alpha_locked_vs_accepted",
+          "unit_id": "sc_0003",
+          "snapshot_id": "20260412T210003Z",
+          "draft_text": "# sc_0003\nThe team plans to leave the city by nightfall.\n",
+          "outline_scene": {
+            "id": "sc_0003",
+            "purpose": "goal mismatch",
+            "goal": "escape city"
+          },
+          "locked_facts": [
+            "Goal: protect relic"
+          ],
+          "lore_records": [
+            {
+              "id": "char_mara",
+              "name": "Mara",
+              "goal": "stay hidden"
+            }
+          ],
+          "legacy_missing_hash": false,
+          "repeat_same_lineage": false,
+          "simulate_race": false,
+          "expect_conflict_signal": false
+        },
+        {
+          "case_id": "alpha_reorder_no_id_change",
+          "unit_id": "sc_0004",
+          "snapshot_id": "20260412T210004Z",
+          "draft_text": "# sc_0004\nJonah and Mara swap decision order but keep scene identity stable.\n",
+          "outline_scene": {
+            "id": "sc_0004",
+            "purpose": "order-shift"
+          },
+          "locked_facts": [],
+          "lore_records": [
+            {
+              "id": "char_jonah",
+              "name": "Jonah"
+            }
+          ],
+          "legacy_missing_hash": false,
+          "repeat_same_lineage": false,
+          "simulate_race": false,
+          "expect_conflict_signal": false
+        }
+      ]
+    },
+    {
+      "project_id": "proj_m5_beta",
+      "cases": [
+        {
+          "case_id": "beta_legacy_replay_without_hash",
+          "unit_id": "sc_0001",
+          "snapshot_id": "20260412T220001Z",
+          "draft_text": "# sc_0001\nMara marks the relic as secure and keeps watch at the dock.\n",
+          "outline_scene": {
+            "id": "sc_0001",
+            "purpose": "legacy replay"
+          },
+          "locked_facts": [],
+          "lore_records": [
+            {
+              "id": "char_mara",
+              "name": "Mara"
+            }
+          ],
+          "legacy_missing_hash": true,
+          "repeat_same_lineage": false,
+          "simulate_race": false,
+          "expect_conflict_signal": false
+        },
+        {
+          "case_id": "beta_lore_disagreement_advisory",
+          "unit_id": "sc_0002",
+          "snapshot_id": "20260412T220002Z",
+          "draft_text": "# sc_0002\nMara takes command at the roof while lore still claims Jonah leads.\n",
+          "outline_scene": {
+            "id": "sc_0002",
+            "purpose": "lore disagreement"
+          },
+          "locked_facts": [],
+          "lore_records": [
+            {
+              "id": "char_mara",
+              "name": "Mara",
+              "goal": "observe"
+            },
+            {
+              "id": "char_jonah",
+              "name": "Jonah",
+              "goal": "lead operation"
+            }
+          ],
+          "legacy_missing_hash": false,
+          "repeat_same_lineage": false,
+          "simulate_race": false,
+          "expect_conflict_signal": false
+        },
+        {
+          "case_id": "beta_same_scene_parallel_accept",
+          "unit_id": "sc_0003",
+          "snapshot_id": "20260412T220003Z",
+          "draft_text": "# sc_0003\nMara and Jonah execute the same scene plan concurrently.\n",
+          "outline_scene": {
+            "id": "sc_0003",
+            "purpose": "parallel accept race"
+          },
+          "locked_facts": [],
+          "lore_records": [
+            {
+              "id": "char_mara",
+              "name": "Mara"
+            },
+            {
+              "id": "char_jonah",
+              "name": "Jonah"
+            }
+          ],
+          "legacy_missing_hash": false,
+          "repeat_same_lineage": false,
+          "simulate_race": true,
+          "expect_conflict_signal": false
+        },
+        {
+          "case_id": "beta_repeat_same_lineage",
+          "unit_id": "sc_0004",
+          "snapshot_id": "20260412T220004Z",
+          "draft_text": "# sc_0004\nThe team repeats the same accepted passage without changes.\n",
+          "outline_scene": {
+            "id": "sc_0004",
+            "purpose": "idempotency repeat"
+          },
+          "locked_facts": [],
+          "lore_records": [
+            {
+              "id": "char_mara",
+              "name": "Mara"
+            }
+          ],
+          "legacy_missing_hash": false,
+          "repeat_same_lineage": true,
+          "simulate_race": false,
+          "expect_conflict_signal": false
+        }
+      ]
+    }
+  ]
+}
+
