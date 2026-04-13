@@ -7,6 +7,10 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from .memory_lab.constants import MEMORY_LAB_SCHEMA_VERSION
+from .memory_lab.extractor import build_memory_artifacts
+from .memory_lab.schemas import MemoryLedgerEntry
+from .memory_lab.storage import write_ledger_entry
 from .models.outline import OutlineScene
 
 
@@ -68,6 +72,37 @@ def persist_carryover(project_root: Path, scene_id: str, payload: dict[str, Any]
     target.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
 
 
+def persist_memory_lab_entry(
+    *,
+    project_root: Path,
+    scene_id: str,
+    chapter_id: str | None,
+    text: str,
+    carryover_payload: dict[str, Any],
+    recency_order: int,
+    interpretations_enabled: bool = False,
+) -> None:
+    artifacts = build_memory_artifacts(
+        scene_id=scene_id,
+        chapter_id=chapter_id,
+        text=text,
+        carryover_payload=carryover_payload,
+        recency_order=recency_order,
+        interpretations_enabled=interpretations_enabled,
+    )
+    entry = MemoryLedgerEntry(
+        scene_id=scene_id,
+        chapter_id=chapter_id,
+        schema_version=MEMORY_LAB_SCHEMA_VERSION,
+        artifacts=artifacts,
+        source_summary=_as_optional_str(carryover_payload.get("summary")),
+        source_unresolved=_as_string_list(carryover_payload.get("unresolved")),
+        source_emotional_carryover=_as_optional_str(carryover_payload.get("emotional_carryover")),
+        source_location_state=_as_optional_str(carryover_payload.get("location_state")),
+    )
+    write_ledger_entry(project_root, entry)
+
+
 def extract_carryover(text: str) -> dict[str, Any]:
     sentences = [seg.strip() for seg in text.replace("\n", " ").split(".") if seg.strip()]
     summary = sentences[0] if sentences else ""
@@ -83,6 +118,26 @@ def extract_carryover(text: str) -> dict[str, Any]:
         "emotional_carryover": emotional,
         "location_state": location,
     }
+
+
+def _as_optional_str(value: Any) -> str | None:
+    if value is None:
+        return None
+    cleaned = str(value).strip()
+    if not cleaned:
+        return None
+    return cleaned
+
+
+def _as_string_list(value: Any) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    output: list[str] = []
+    for item in value:
+        cleaned = _as_optional_str(item)
+        if cleaned:
+            output.append(cleaned)
+    return output
 
 
 def assemble_scene_memory_packet(
@@ -178,6 +233,7 @@ __all__ = [
     "assemble_scene_memory_packet",
     "extract_carryover",
     "persist_carryover",
+    "persist_memory_lab_entry",
     "evaluate_continuity",
     "detect_pov_mismatch",
     "detect_locked_fact_contradiction",

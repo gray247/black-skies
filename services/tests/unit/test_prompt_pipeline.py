@@ -1,8 +1,12 @@
 from __future__ import annotations
 
 import json
+from dataclasses import replace
 from pathlib import Path
 
+from blackskies.services.memory_lab.constants import MEMORY_LAB_SCHEMA_VERSION
+from blackskies.services.memory_lab.schemas import MemoryArtifact, MemoryLedgerEntry, ResolvedMemoryPacket
+from blackskies.services.memory_lab.storage import write_ledger_entry
 from blackskies.services.models.draft import DraftUnitOverrides
 from blackskies.services.models.outline import OutlineScene
 from blackskies.services.prompt_pipeline import (
@@ -168,6 +172,160 @@ def test_compile_prompt_includes_memory_packet(tmp_path: Path) -> None:
     assert "Unresolved tensions: The whisper still lingered." in prompt
     assert "Emotional carryover: Mara is rattled but determined." in prompt
     assert "Location state: Basement hallway remains dim." in prompt
+
+
+def test_compile_prompt_prefers_resolved_memory_packet_when_available(tmp_path: Path) -> None:
+    project_root = tmp_path / "proj_resolved_memory"
+    drafts_dir = project_root / "drafts"
+    drafts_dir.mkdir(parents=True, exist_ok=True)
+    (drafts_dir / "sc_0001.md").write_text(
+        "Legacy prior context line one.\nLegacy prior context line two.\n",
+        encoding="utf-8",
+    )
+    continuity_dir = project_root / ".blackskies" / "continuity"
+    continuity_dir.mkdir(parents=True, exist_ok=True)
+    (continuity_dir / "sc_0001.json").write_text(
+        json.dumps(
+            {
+                "schema_version": "SceneMemoryPacket v1",
+                "summary": "LEGACY summary should not win.",
+                "unresolved": ["LEGACY unresolved should not win."],
+                "emotional_carryover": "LEGACY emotional should not win.",
+                "location_state": "LEGACY location should not win.",
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+
+    write_ledger_entry(
+        project_root,
+        MemoryLedgerEntry(
+            scene_id="sc_0001",
+            chapter_id="ch_0001",
+            schema_version=MEMORY_LAB_SCHEMA_VERSION,
+            artifacts=[
+                MemoryArtifact(
+                    artifact_id="a_summary",
+                    schema_version="memory_artifact_v1",
+                    artifact_type="summary",
+                    scene_id="sc_0001",
+                    chapter_id="ch_0001",
+                    source_excerpt=None,
+                    content="RESOLVED summary wins.",
+                    weight=1.0,
+                    confidence=1.0,
+                    recency_order=10,
+                    tags=[],
+                    derived_from="unit-test",
+                    created_at="2026-04-12T00:00:00Z",
+                ),
+                MemoryArtifact(
+                    artifact_id="a_unresolved",
+                    schema_version="memory_artifact_v1",
+                    artifact_type="unresolved_tension",
+                    scene_id="sc_0001",
+                    chapter_id="ch_0001",
+                    source_excerpt=None,
+                    content="RESOLVED unresolved wins.",
+                    weight=1.0,
+                    confidence=1.0,
+                    recency_order=10,
+                    tags=[],
+                    derived_from="unit-test",
+                    created_at="2026-04-12T00:00:00Z",
+                ),
+                MemoryArtifact(
+                    artifact_id="a_emotion",
+                    schema_version="memory_artifact_v1",
+                    artifact_type="emotional_state",
+                    scene_id="sc_0001",
+                    chapter_id="ch_0001",
+                    source_excerpt=None,
+                    content="RESOLVED emotional wins.",
+                    weight=1.0,
+                    confidence=1.0,
+                    recency_order=10,
+                    tags=[],
+                    derived_from="unit-test",
+                    created_at="2026-04-12T00:00:00Z",
+                ),
+                MemoryArtifact(
+                    artifact_id="a_location",
+                    schema_version="memory_artifact_v1",
+                    artifact_type="location_state",
+                    scene_id="sc_0001",
+                    chapter_id="ch_0001",
+                    source_excerpt=None,
+                    content="RESOLVED location wins.",
+                    weight=1.0,
+                    confidence=1.0,
+                    recency_order=10,
+                    tags=[],
+                    derived_from="unit-test",
+                    created_at="2026-04-12T00:00:00Z",
+                ),
+            ],
+            source_summary=None,
+            source_unresolved=[],
+            source_emotional_carryover=None,
+            source_location_state=None,
+        ),
+    )
+
+    lookup = {
+        "sc_0001": OutlineScene(
+            id="sc_0001",
+            order=1,
+            title="Basement Pulse",
+            chapter_id="ch_0001",
+            beat_refs=["inciting"],
+        ),
+        "sc_0002": _scene(),
+    }
+    context = assemble_scene_context(
+        scene=_scene(),
+        front_matter={"pov": "Mara"},
+        overrides=None,
+        project_root=project_root,
+        scene_lookup=lookup,
+    )
+    prompt = compile_draft_prompt(context, profile=select_profile("ollama"))
+
+    assert "Prior outcome: RESOLVED summary wins." in prompt
+    assert "Unresolved tensions: RESOLVED unresolved wins." in prompt
+    assert "Emotional carryover: RESOLVED emotional wins." in prompt
+    assert "Location state: RESOLVED location wins." in prompt
+    assert "LEGACY summary should not win." not in prompt
+
+
+def test_compile_prompt_includes_compact_interpretation_lines() -> None:
+    context = assemble_scene_context(
+        scene=_scene(),
+        front_matter={"pov": "Mara", "word_target": 900},
+        overrides=DraftUnitOverrides(word_target=800),
+        project_root=None,
+        scene_lookup={"sc_0002": _scene()},
+    )
+    context_with_resolved = replace(
+        context,
+        resolved_memory=ResolvedMemoryPacket(
+            selected_summary="Summary",
+            selected_unresolved_tensions=[],
+            selected_emotional_carryover=None,
+            selected_location_state=None,
+            alternate_interpretation="threatening",
+            selected_artifact_ids=["a1"],
+            resolver_notes=[],
+            selected_interpretations=["friendly", "protective"],
+        ),
+    )
+
+    prompt = compile_draft_prompt(context_with_resolved, profile=select_profile("ollama"))
+
+    assert "Narrative interpretation pressure: friendly" in prompt
+    assert "Alternate reading: threatening" in prompt
+    assert "Narrative interpretation pressure: protective" not in prompt
 
 
 def test_is_usable_draft_filters_scaffold() -> None:

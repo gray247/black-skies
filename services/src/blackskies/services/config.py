@@ -190,6 +190,60 @@ class ServiceSettings(BaseModel):
         ge=60,
         description="Interval in seconds for the scheduled snapshot verifier.",
     )
+    memory_lab_enabled: bool = Field(
+        default=False,
+        description="Enable advisory Memory Lab behavior.",
+    )
+    memory_lab_max_candidates: int = Field(
+        default=8,
+        ge=1,
+        description="Maximum number of Memory Lab candidate artifacts considered during resolution.",
+    )
+    memory_lab_max_unresolved: int = Field(
+        default=5,
+        ge=1,
+        description="Maximum unresolved tension artifacts selected into an advisory memory packet.",
+    )
+    memory_lab_write_legacy_continuity: bool = Field(
+        default=True,
+        description="When true, continue writing legacy continuity payloads alongside Memory Lab entries.",
+    )
+    memory_lab_debug_logging: bool = Field(
+        default=False,
+        description="Enable debug logging for Memory Lab advisory selection behavior.",
+    )
+    memory_lab_anchor_enabled: bool = Field(
+        default=False,
+        description="Enable Memory Lab anchor scoring and tracking behaviors.",
+    )
+    memory_lab_anchor_auto_threshold: int = Field(
+        default=3,
+        ge=1,
+        description="Auto-promotion threshold for anchors based on reinforcement/selection counts.",
+    )
+    memory_lab_reinforcement_enabled: bool = Field(
+        default=False,
+        description="Enable post-selection reinforcement updates and event persistence for Memory Lab artifacts.",
+    )
+    memory_lab_interpretations_enabled: bool = Field(
+        default=False,
+        description="Enable deterministic interpretation variants for ambiguous summary artifacts.",
+    )
+    memory_lab_max_interpretations_per_group: int = Field(
+        default=2,
+        ge=1,
+        description="Maximum number of interpretation variants retained for a single interpretation group.",
+    )
+    memory_lab_alternate_interpretation_threshold: float = Field(
+        default=0.08,
+        ge=0.0,
+        description="Maximum score delta to expose a same-group second-place interpretation as an alternate reading.",
+    )
+    memory_lab_weight_max: float = Field(
+        default=2.0,
+        ge=1.0,
+        description="Upper bound for reinforced Memory Lab artifact weights.",
+    )
 
     @field_validator("project_base_dir")
     @classmethod

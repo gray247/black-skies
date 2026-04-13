@@ -123,6 +123,9 @@ class EvalStats:
     failure_count: int
     weaknesses: list[str]
     deterministic_checks: int
+    legacy_replay_cases: int
+    legacy_replay_bounded_cases: int
+    legacy_replay_unbounded_cases: int
 
 
 def _empty_stats() -> EvalStats:
@@ -135,6 +138,9 @@ def _empty_stats() -> EvalStats:
         failure_count=0,
         weaknesses=[],
         deterministic_checks=0,
+        legacy_replay_cases=0,
+        legacy_replay_bounded_cases=0,
+        legacy_replay_unbounded_cases=0,
     )
 
 
@@ -200,7 +206,12 @@ def _evaluate_case(project_root: Path, project_id: str, case: dict[str, Any], st
         mode = snapshot.source_hashes.get("accepted_source_hash_mode", "unknown")
         _record_mode(stats, mode)
         if mode == "legacy_replay_derived":
-            _append_weakness(stats, f"{case['case_id']}: legacy replay hash derivation path used")
+            stats.legacy_replay_cases += 1
+            if snapshot.source_hashes.get("legacy_replay_bounded") == "true":
+                stats.legacy_replay_bounded_cases += 1
+            else:
+                stats.legacy_replay_unbounded_cases += 1
+                _append_weakness(stats, f"{case['case_id']}: legacy replay derivation was not bounded")
         stats.artifact_counts["deltas"] += 1 if delta_path.exists() else 0
         stats.artifact_counts["signals"] += 1 if signal_path.exists() else 0
         stats.artifact_counts["packets_draft"] += 1 if packet_paths["draft"].exists() else 0
@@ -293,7 +304,7 @@ def _recommendation(stats: EvalStats) -> str:
     # M5 runner does not execute truth lane directly; caller should ensure it separately.
     if stats.failure_count > 0 or not all(criteria.values()):
         return "revise before v2"
-    if any("legacy replay hash derivation path used" in item for item in stats.weaknesses):
+    if stats.legacy_replay_unbounded_cases > 0:
         return "revise before v2"
     return "continue to v2"
 
@@ -331,6 +342,27 @@ def main() -> int:
         "failure_count": stats.failure_count,
         "deterministic_checks": stats.deterministic_checks,
         "weakness_flags": stats.weaknesses,
+        "legacy_replay": {
+            "used": stats.legacy_replay_cases > 0,
+            "cases": stats.legacy_replay_cases,
+            "bounded_cases": stats.legacy_replay_bounded_cases,
+            "unbounded_cases": stats.legacy_replay_unbounded_cases,
+            "classification": (
+                "reducible risk, now contained"
+                if stats.legacy_replay_cases > 0 and stats.legacy_replay_unbounded_cases == 0
+                else "acceptable prototype debt"
+                if stats.legacy_replay_cases == 0
+                else "true blocker"
+            ),
+            "notes": [
+                "Legacy replay is replay/eval only and never live accept lineage."
+            ],
+        },
+        "informational_flags": (
+            ["legacy replay hash derivation path used (bounded replay/eval mode)"]
+            if stats.legacy_replay_cases > 0 and stats.legacy_replay_unbounded_cases == 0
+            else []
+        ),
         "decision_criteria": {
             "canonical_mutation_zero": not any("canonical mutation detected" in item for item in stats.weaknesses),
             "lineage_stability_deterministic": not any("non-deterministic" in item for item in stats.weaknesses),
@@ -370,4 +402,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

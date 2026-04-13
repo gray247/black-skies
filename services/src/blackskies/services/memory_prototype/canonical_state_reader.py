@@ -78,6 +78,7 @@ class CanonicalStateReader:
                 accepted_hash_mode = "metadata_hash"
             else:
                 # Legacy compatibility: old snapshots may not persist accepted_source_hash.
+                self._validate_legacy_replay_metadata(snapshot_metadata)
                 accepted_hash = self._compute_accepted_source_hash(
                     unit_id=lineage.unit_id,
                     draft_text=draft_text,
@@ -101,6 +102,8 @@ class CanonicalStateReader:
         )
         source_hashes["accepted_source_hash"] = accepted_hash
         source_hashes["accepted_source_hash_mode"] = accepted_hash_mode
+        if accepted_hash_mode == "legacy_replay_derived":
+            source_hashes["legacy_replay_bounded"] = "true"
 
         return CanonicalNarrativeSnapshot(
             lineage=lineage,
@@ -283,3 +286,23 @@ class CanonicalStateReader:
             lore_blob = json.dumps(list(lore_payloads), sort_keys=True, ensure_ascii=False)
             hashes["lore"] = sha256_text(lore_blob)
         return hashes
+
+    @staticmethod
+    def _validate_legacy_replay_metadata(snapshot_metadata: dict[str, Any]) -> None:
+        label = str(snapshot_metadata.get("label", "")).strip().lower()
+        if label != "accept":
+            raise CanonicalInputEligibilityError(
+                "legacy replay hash derivation requires metadata label='accept'"
+            )
+
+        includes = snapshot_metadata.get("includes")
+        if not isinstance(includes, list):
+            raise CanonicalInputEligibilityError(
+                "legacy replay hash derivation requires metadata includes list"
+            )
+        include_set = {str(item).strip() for item in includes if str(item).strip()}
+        required = {"drafts", "outline.json"}
+        if not required.issubset(include_set):
+            raise CanonicalInputEligibilityError(
+                "legacy replay hash derivation requires metadata includes drafts and outline.json"
+            )

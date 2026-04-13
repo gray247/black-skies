@@ -167,3 +167,4 @@ def test_reader_replay_legacy_snapshot_without_hash_uses_bounded_fallback(tmp_pa
     snapshot = reader.read_snapshot(lineage)
     assert snapshot.source_hashes["accepted_source_hash"]
     assert snapshot.source_hashes["accepted_source_hash_mode"] == "legacy_replay_derived"
+    assert snapshot.source_hashes["legacy_replay_bounded"] == "true"

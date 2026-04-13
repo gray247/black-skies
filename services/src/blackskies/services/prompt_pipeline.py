@@ -7,6 +7,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable
 
+from .memory_lab.resolver import resolve_memory_packet
+from .memory_lab.schemas import ResolvedMemoryPacket
+from .memory_lab.storage import list_ledger_entries
 from .models.draft import DraftUnitOverrides
 from .models.outline import OutlineScene
 from .scene_memory import SceneMemoryPacket, assemble_scene_memory_packet
@@ -35,6 +38,7 @@ class SceneContext:
     locked_facts: list[str]
     notes: list[str]
     memory: SceneMemoryPacket | None
+    resolved_memory: ResolvedMemoryPacket | None
 
 
 def _read_locked_facts(project_root: Path | None) -> list[str]:
@@ -125,6 +129,27 @@ def _resolve_prior_context(
     return (excerpt or None), prior_scene.id
 
 
+def _resolve_memory_lab_packet(
+    *,
+    project_root: Path | None,
+    current_scene_id: str,
+    current_chapter_id: str | None,
+) -> ResolvedMemoryPacket | None:
+    if project_root is None:
+        return None
+    entries = list_ledger_entries(project_root)
+    if not entries:
+        return None
+    packet, _reasons = resolve_memory_packet(
+        entries=entries,
+        current_scene_id=current_scene_id,
+        current_chapter_id=current_chapter_id,
+    )
+    if not packet.selected_artifact_ids:
+        return None
+    return packet
+
+
 def assemble_scene_context(
     *,
     scene: OutlineScene,
@@ -159,6 +184,11 @@ def assemble_scene_context(
         chapter_context=chapter_context,
         locked_facts=locked_facts,
     )
+    resolved_memory = _resolve_memory_lab_packet(
+        project_root=project_root,
+        current_scene_id=scene.id,
+        current_chapter_id=scene.chapter_id,
+    )
 
     return SceneContext(
         scene_id=scene.id,
@@ -180,6 +210,7 @@ def assemble_scene_context(
         locked_facts=locked_facts,
         notes=notes,
         memory=memory_packet,
+        resolved_memory=resolved_memory,
     )
 
 
@@ -240,6 +271,7 @@ def compile_draft_prompt(context: SceneContext, profile: ProviderProfile | None 
     notes_line = " | ".join(context.notes) if context.notes else "None"
     locked_line = "; ".join(context.locked_facts) if context.locked_facts else "None"
     memory = context.memory
+    resolved = context.resolved_memory
 
     lines: list[str] = []
     lines.extend(profile.draft_style)
@@ -260,15 +292,39 @@ def compile_draft_prompt(context: SceneContext, profile: ProviderProfile | None 
             f"Notes: {notes_line}",
         ]
     )
-    if memory:
-        if memory.prior_summary:
-            lines.append(f"Prior outcome: {memory.prior_summary}")
-        if memory.unresolved_tensions:
-            lines.append(f"Unresolved tensions: {', '.join(memory.unresolved_tensions)}")
-        if memory.emotional_carryover:
-            lines.append(f"Emotional carryover: {memory.emotional_carryover}")
-        if memory.location_state:
-            lines.append(f"Location state: {memory.location_state}")
+    if resolved and resolved.selected_summary:
+        lines.append(f"Prior outcome: {resolved.selected_summary}")
+    elif memory and memory.prior_summary:
+        lines.append(f"Prior outcome: {memory.prior_summary}")
+
+    if resolved and resolved.selected_unresolved_tensions:
+        lines.append(f"Unresolved tensions: {', '.join(resolved.selected_unresolved_tensions)}")
+    elif memory and memory.unresolved_tensions:
+        lines.append(f"Unresolved tensions: {', '.join(memory.unresolved_tensions)}")
+
+    if resolved and resolved.selected_emotional_carryover:
+        lines.append(f"Emotional carryover: {resolved.selected_emotional_carryover}")
+    elif memory and memory.emotional_carryover:
+        lines.append(f"Emotional carryover: {memory.emotional_carryover}")
+
+    if resolved and resolved.selected_location_state:
+        lines.append(f"Location state: {resolved.selected_location_state}")
+    elif memory and memory.location_state:
+        lines.append(f"Location state: {memory.location_state}")
+
+    if resolved and resolved.selected_interpretations:
+        winner_label = next(
+            (label.strip() for label in resolved.selected_interpretations if isinstance(label, str) and label.strip()),
+            None,
+        )
+        if winner_label:
+            lines.append(f"Narrative interpretation pressure: {winner_label}")
+
+    if resolved and isinstance(resolved.alternate_interpretation, str):
+        alternate_label = resolved.alternate_interpretation.strip()
+        if alternate_label:
+            lines.append(f"Alternate reading: {alternate_label}")
+
     if context.prior_context:
         lines.append(f"Prior context: {context.prior_context}")
     lines.append("Return plain text only, no markdown fences.")

@@ -45,10 +45,12 @@ def _build_service(
     monkeypatch: pytest.MonkeyPatch,
     *,
     routing_metadata_enabled: bool = False,
+    memory_lab_enabled: bool = False,
 ) -> DraftGenerationService:
     settings = ServiceSettings(
         project_base_dir=tmp_path,
         model_router_metadata_enabled=routing_metadata_enabled,
+        memory_lab_enabled=memory_lab_enabled,
     )
     router = create_default_model_router(
         ModelRouterConfig(
@@ -180,3 +182,137 @@ async def test_draft_generation_budget_includes_routing_metadata(
     assert routing["model"]
     assert routing["reason"]
     assert routing["fallback_used"] is False
+
+
+@pytest.mark.anyio("asyncio")
+async def test_draft_generation_legacy_continuity_still_writes(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    project_root = tmp_path / "proj_legacy_continuity"
+    _write_project_budget(project_root)
+    service = _build_service(
+        tmp_path,
+        _StubAdapter(
+            text=(
+                "Mara forced the door open. "
+                "She discovered a broken lock. "
+                "But the whisper still lingered in the hall."
+            )
+        ),
+        monkeypatch,
+    )
+    scenes = [
+        OutlineScene(
+            id="sc_0001",
+            order=1,
+            title="Scene 1",
+            chapter_id="ch_0001",
+            beat_refs=[],
+        )
+    ]
+    request = DraftGenerateRequest(
+        project_id=project_root.name,
+        unit_scope=DraftUnitScope.SCENE,
+        unit_ids=["sc_0001"],
+    )
+
+    await service.generate(request, scenes, project_root=project_root)
+
+    continuity_path = project_root / ".blackskies" / "continuity" / "sc_0001.json"
+    assert continuity_path.exists()
+
+
+@pytest.mark.anyio("asyncio")
+async def test_draft_generation_attempts_memory_lab_write_when_enabled(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    project_root = tmp_path / "proj_memory_lab_enabled"
+    _write_project_budget(project_root)
+    service = _build_service(
+        tmp_path,
+        _StubAdapter(
+            text=(
+                "Mara forced the door open. "
+                "She discovered a broken lock. "
+                "But the whisper still lingered in the hall."
+            )
+        ),
+        monkeypatch,
+        memory_lab_enabled=True,
+    )
+    scenes = [
+        OutlineScene(
+            id="sc_0001",
+            order=4,
+            title="Scene 1",
+            chapter_id="ch_0001",
+            beat_refs=[],
+        )
+    ]
+    request = DraftGenerateRequest(
+        project_id=project_root.name,
+        unit_scope=DraftUnitScope.SCENE,
+        unit_ids=["sc_0001"],
+    )
+
+    calls: list[dict[str, object]] = []
+
+    def _capture_memory_lab_entry(**kwargs):  # type: ignore[no-untyped-def]
+        calls.append(kwargs)
+
+    import blackskies.services.operations.draft_generation as dg_module
+
+    monkeypatch.setattr(dg_module, "persist_memory_lab_entry", _capture_memory_lab_entry)
+
+    await service.generate(request, scenes, project_root=project_root)
+
+    assert len(calls) == 1
+    assert calls[0]["scene_id"] == "sc_0001"
+    assert calls[0]["chapter_id"] == "ch_0001"
+    assert calls[0]["recency_order"] == 4
+
+
+@pytest.mark.anyio("asyncio")
+async def test_draft_generation_memory_lab_failure_does_not_break_generation(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    project_root = tmp_path / "proj_memory_lab_failure"
+    _write_project_budget(project_root)
+    service = _build_service(
+        tmp_path,
+        _StubAdapter(
+            text=(
+                "Mara forced the door open. "
+                "She discovered a broken lock. "
+                "But the whisper still lingered in the hall."
+            )
+        ),
+        monkeypatch,
+        memory_lab_enabled=True,
+    )
+    scenes = [
+        OutlineScene(
+            id="sc_0001",
+            order=2,
+            title="Scene 1",
+            chapter_id="ch_0001",
+            beat_refs=[],
+        )
+    ]
+    request = DraftGenerateRequest(
+        project_id=project_root.name,
+        unit_scope=DraftUnitScope.SCENE,
+        unit_ids=["sc_0001"],
+    )
+
+    def _raise_memory_lab_entry(**_kwargs):  # type: ignore[no-untyped-def]
+        raise RuntimeError("memory lab write failed")
+
+    import blackskies.services.operations.draft_generation as dg_module
+
+    monkeypatch.setattr(dg_module, "persist_memory_lab_entry", _raise_memory_lab_entry)
+
+    result = await service.generate(request, scenes, project_root=project_root)
+
+    assert result.response["units"]
+    assert result.response["units"][0]["id"] == "sc_0001"

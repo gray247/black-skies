@@ -19,7 +19,7 @@ _LOCATION_TERMS = (
     "dock",
 )
 _RELATION_TERMS = ("trust", "ally", "betray", "partner", "enemy", "friend")
-_INJURY_TERMS = ("injured", "wounded", "bleeding", "dead", "unconscious", "exhausted")
+_INJURY_TERMS = ("injured", "wounded", "bleeding", "dead", "alive", "unconscious", "exhausted")
 _THREAD_TERMS = ("plan", "goal", "decides", "vows", "promise", "mission", "objective", "pursue")
 _FACT_TERMS = ("reveals", "discovers", "learns", "confirms", "is", "was")
 
@@ -156,4 +156,3 @@ class SceneDeltaExtractor:
             seen.add(key)
             output.append(candidate)
         return output
-

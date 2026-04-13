@@ -38,7 +38,12 @@ from ..prompt_pipeline import (
     is_usable_draft,
     select_profile,
 )
-from ..scene_memory import evaluate_continuity, extract_carryover, persist_carryover
+from ..scene_memory import (
+    evaluate_continuity,
+    extract_carryover,
+    persist_carryover,
+    persist_memory_lab_entry,
+)
 
 
 @dataclass(slots=True)
@@ -477,6 +482,25 @@ class DraftGenerationService:
             try:
                 carryover = extract_carryover(synthesis.body)
                 persist_carryover(project_root, scene.id, carryover)
+                if self._settings.memory_lab_enabled:
+                    recency_order = scene.order if isinstance(getattr(scene, "order", None), int) else 0
+                    try:
+                        persist_memory_lab_entry(
+                            project_root=project_root,
+                            scene_id=scene.id,
+                            chapter_id=scene.chapter_id,
+                            text=synthesis.body,
+                            carryover_payload=carryover,
+                            recency_order=recency_order,
+                            interpretations_enabled=self._settings.memory_lab_interpretations_enabled,
+                        )
+                    except Exception as exc:  # noqa: BLE001
+                        self._diagnostics.log(
+                            project_root,
+                            code="MEMORY_LAB",
+                            message="Failed to persist Memory Lab ledger entry.",
+                            details={"scene_id": scene.id, "error": str(exc)},
+                        )
             except OSError as exc:
                 self._diagnostics.log(
                     project_root,
