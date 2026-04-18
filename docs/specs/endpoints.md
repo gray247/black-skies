@@ -1,8 +1,10 @@
-Status: Active (Canonical)
+Status: Supporting reference, not full current runtime canon
 Version: 1.0.0
 Last Reviewed: 2025-11-15
 
 # docs/specs/endpoints.md — API Contracts (Source of truth)
+
+Authority: this document records intended API contracts. It should not be read as proof that every referenced route, subsystem, or adjacent feature is currently enabled in the runtime baseline. For runtime truth, start with `docs/specs/current_state.md`.
 
 Spec Index:
 - Architecture (`./architecture.md`)

@@ -190,6 +190,8 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
         state_dir=resilience_state_dir,
     )
 
+    # Backup verification is implemented as an optional service. The standard
+    # runtime baseline keeps it disabled unless configuration explicitly opts in.
     if service_settings.backup_verifier_enabled:
         backup_verifier = BackupVerificationDaemon(
             settings=application.state.settings,
@@ -207,6 +209,8 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
         application.add_event_handler("startup", _start_backup_verifier)
         application.add_event_handler("shutdown", _stop_backup_verifier)
     else:
+        # Preserve explicit health state for the shipped baseline: verifier code
+        # exists, but the daemon is not started unless configuration enables it.
         application.state.backup_verifier = None
         application.state.backup_verifier_state = BackupVerifierState(
             enabled=False,
@@ -286,24 +290,15 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
     return application
 
 
-# --- dev wrapper to add near the module-level app creation (paste where app = create_app() currently occurs) ---
-# Dev: clearer create_app startup errors (safe, reversible)
-import traceback, sys, logging
-logger = logging.getLogger(__name__)
-
+# Materialize the module-level ASGI app for Uvicorn and tests. This preserves
+# existing runtime behavior while keeping startup failures explicit.
 try:
-    # prefer create_app() if present, otherwise use existing app object if defined earlier
-    if "create_app" in globals():
-        app = create_app()
-    else:
-        app = globals().get("app", None)
+    app = create_app()
 except Exception:
-    # Print to console and re-raise so uvicorn shows the traceback
-    logger.exception("CREATE_APP FAILED: Backend failed to initialize. Run services/tools/check_startup.py for details.")
-    print("CREATE_APP FAILED — check services/tools/check_startup.py for details")
-    traceback.print_exc()
+    LOGGER.exception(
+        "CREATE_APP FAILED: Backend failed to initialize. Run services/tools/check_startup.py for details."
+    )
     raise
-# --- end patch ---
 
 
 __all__ = [

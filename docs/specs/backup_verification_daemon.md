@@ -1,10 +1,10 @@
-Status: Active (Canonical – Phase 11 Deliverable)
+Status: Canonical spec for an implemented-but-disabled subsystem (not current runtime authority)
 Version: 1.0.0
 Last Reviewed: 2025-11-15
 Owner: Services Team
 Related Work: `./architecture.md` (Runtime Services), docs/phases/phase_charter.md (Phase 11 scope)
 
-This document is classified as a Phase 11 canonical deliverable per `docs/BUILD_PLAN.md`.
+This document is the canonical spec for backup verification work. The code exists in the repository today, but the daemon remains disabled in the standard runtime baseline unless `backup_verifier_enabled` is turned on.
 
 # Backup Verification Daemon – Planning Notes (Phase 11)
 

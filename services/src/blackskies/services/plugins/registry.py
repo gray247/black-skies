@@ -1,4 +1,8 @@
-"""Plugin registry handling manifest storage and sandbox execution."""
+"""Plugin registry handling manifest storage and sandbox execution.
+
+Plugin execution is implemented, but it is not part of the standard product
+surface unless the plugin feature flag is explicitly enabled.
+"""
 
 from __future__ import annotations
 
@@ -41,7 +45,7 @@ _ALLOWED_MANIFEST_KEYS = {"entrypoint", "module_path", "metadata"}
 
 
 class PluginRegistry:
-    """Manage plugin manifests, state, and sandboxed execution."""
+    """Manage plugin manifests, state, and sandboxed execution for the optional plugin surface."""
 
     def __init__(self, *, base_dir: Path, python_executable: str | None = None) -> None:
         self._base_dir = base_dir
@@ -115,6 +119,8 @@ class PluginRegistry:
     def execute(self, plugin_id: str, request: Dict[str, Any]) -> Dict[str, Any]:
         """Execute a plugin inside the sandbox runner and return its response."""
 
+        # Visibility in code does not imply baseline availability. Execution
+        # remains non-standard unless the plugin feature flag explicitly enables it.
         if not plugins_enabled():
             raise PluginExecutionError("Plugin execution is disabled in Phase 8.")
 

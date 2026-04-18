@@ -46,11 +46,15 @@ def _build_service(
     *,
     routing_metadata_enabled: bool = False,
     memory_lab_enabled: bool = False,
+    memory_lab_write_legacy_continuity: bool = True,
+    memory_lab_max_interpretations_per_group: int = 2,
 ) -> DraftGenerationService:
     settings = ServiceSettings(
         project_base_dir=tmp_path,
         model_router_metadata_enabled=routing_metadata_enabled,
         memory_lab_enabled=memory_lab_enabled,
+        memory_lab_write_legacy_continuity=memory_lab_write_legacy_continuity,
+        memory_lab_max_interpretations_per_group=memory_lab_max_interpretations_per_group,
     )
     router = create_default_model_router(
         ModelRouterConfig(
@@ -262,7 +266,7 @@ async def test_draft_generation_attempts_memory_lab_write_when_enabled(
 
     import blackskies.services.operations.draft_generation as dg_module
 
-    monkeypatch.setattr(dg_module, "persist_memory_lab_entry", _capture_memory_lab_entry)
+    monkeypatch.setattr(dg_module, "persist_scene_advisory_entry", _capture_memory_lab_entry)
 
     await service.generate(request, scenes, project_root=project_root)
 
@@ -270,6 +274,47 @@ async def test_draft_generation_attempts_memory_lab_write_when_enabled(
     assert calls[0]["scene_id"] == "sc_0001"
     assert calls[0]["chapter_id"] == "ch_0001"
     assert calls[0]["recency_order"] == 4
+    assert calls[0]["max_interpretations_per_group"] == 2
+
+
+@pytest.mark.anyio("asyncio")
+async def test_draft_generation_respects_legacy_continuity_write_flag(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    project_root = tmp_path / "proj_legacy_flag_off"
+    _write_project_budget(project_root)
+    service = _build_service(
+        tmp_path,
+        _StubAdapter(
+            text=(
+                "Mara forced the door open. "
+                "She discovered a broken lock. "
+                "But the whisper still lingered in the hall."
+            )
+        ),
+        monkeypatch,
+        memory_lab_enabled=True,
+        memory_lab_write_legacy_continuity=False,
+    )
+    scenes = [
+        OutlineScene(
+            id="sc_0001",
+            order=1,
+            title="Scene 1",
+            chapter_id="ch_0001",
+            beat_refs=[],
+        )
+    ]
+    request = DraftGenerateRequest(
+        project_id=project_root.name,
+        unit_scope=DraftUnitScope.SCENE,
+        unit_ids=["sc_0001"],
+    )
+
+    await service.generate(request, scenes, project_root=project_root)
+
+    continuity_path = project_root / ".blackskies" / "continuity" / "sc_0001.json"
+    assert not continuity_path.exists()
 
 
 @pytest.mark.anyio("asyncio")
@@ -310,7 +355,7 @@ async def test_draft_generation_memory_lab_failure_does_not_break_generation(
 
     import blackskies.services.operations.draft_generation as dg_module
 
-    monkeypatch.setattr(dg_module, "persist_memory_lab_entry", _raise_memory_lab_entry)
+    monkeypatch.setattr(dg_module, "persist_scene_advisory_entry", _raise_memory_lab_entry)
 
     result = await service.generate(request, scenes, project_root=project_root)
 

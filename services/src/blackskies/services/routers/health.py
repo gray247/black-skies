@@ -35,6 +35,9 @@ def _health_payload(request: Request, version: str) -> dict[str, Any]:
         return payload
 
     summary = state.summary()
+    # Health exposes verifier state even when the subsystem is disabled so
+    # operators can tell the difference between "implemented but off" and
+    # "missing". Presence in this payload does not imply baseline activation.
     payload["backup_status"] = summary["status"]
     payload["backup_enabled"] = summary["enabled"]
     if summary.get("message"):
@@ -47,6 +50,8 @@ def _health_payload(request: Request, version: str) -> dict[str, Any]:
         payload["backup_last_error"] = summary["last_error"]
     payload["backup_checked_snapshots"] = summary.get("checked_snapshots", 0)
     payload["backup_failed_snapshots"] = summary.get("failed_snapshots", 0)
+    # Voice-note counters are only surfaced when the deferred voice workflow
+    # has been explicitly enabled elsewhere.
     if voice_notes_enabled():
         payload["backup_voice_notes_checked"] = summary.get("voice_notes_checked", 0)
         payload["backup_voice_note_issues"] = summary.get("voice_note_issues", 0)

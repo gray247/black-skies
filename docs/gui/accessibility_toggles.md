@@ -1,9 +1,9 @@
-Status: Active
+Status: Planned / not part of current runtime baseline
 Version: 1.0.0
 Last Reviewed: 2025-11-15
 
 # Accessibility Toggles – Implementation Plan (Phase 10)
-> **Status:** In progress (T-9146) · 2025-10-07
+> **Status:** Planned future work (T-9146). This is not part of the current runtime or shipped desktop baseline.
 > **Version:** v1
 > **Last Reviewed:** 2025-11-05
 > **Owner:** Desktop UX Team

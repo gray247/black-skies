@@ -1,8 +1,10 @@
-Status: Active (Canonical)
+Status: Supporting reference, not full current runtime canon
 Version: 1.0.0
 Last Reviewed: 2025-11-15
 
 # docs/specs/data_model.md — Data Model (Source of truth)
+
+Authority: this document is the storage/schema reference for project artifacts. It is not a complete statement of current runtime behavior, feature exposure, or feature enablement. For runtime truth, start with `docs/specs/current_state.md`.
 
 Spec Index:
 - Architecture (`./architecture.md`)

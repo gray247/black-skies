@@ -6,7 +6,12 @@ import json
 
 import pytest
 
-from blackskies.services.model_adapters import AdapterConfig, AdapterError, OllamaAdapter, OpenAIAdapter
+from blackskies.services.model_adapters import (
+    AdapterConfig,
+    AdapterError,
+    OllamaAdapter,
+    OpenAIAdapter,
+)
 
 
 class _StubResponse:
@@ -72,3 +77,31 @@ def test_openai_missing_key_raises():
 
     with pytest.raises(AdapterError, match="OpenAI API key is missing"):
         adapter.generate_draft({"prompt": "Write a scene."})
+
+
+@pytest.mark.parametrize(
+    ("response", "expected"),
+    [
+        ({"text": "plain text"}, "plain text"),
+        ({"raw": {"response": "raw response"}}, "raw response"),
+        ({"raw": {"message": {"content": "message content"}}}, "message content"),
+        ({"raw": {"data": {"output": "nested output"}}}, "nested output"),
+        ({"raw": {"choices": [{"message": {"content": "choice content"}}]}}, "choice content"),
+    ],
+)
+def test_adapter_extract_text_handles_common_provider_shapes(response, expected):
+    adapter = OllamaAdapter(AdapterConfig(base_url="http://localhost:11434", model="qwen3:4b"))
+
+    assert adapter.extract_text(response) == expected
+
+
+def test_adapter_capabilities_expose_prompt_profile():
+    adapter = OpenAIAdapter(
+        AdapterConfig(base_url="https://api.openai.com/v1", model="gpt-4o-mini"),
+        api_key="test-key",
+    )
+
+    capabilities = adapter.capabilities()
+
+    assert capabilities.provider_name == "openai"
+    assert capabilities.prompt_profile == "remote_openai_heavy_draft"

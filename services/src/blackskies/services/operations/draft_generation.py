@@ -38,11 +38,12 @@ from ..prompt_pipeline import (
     is_usable_draft,
     select_profile,
 )
+from ..memory_lab.ingest import persist_scene_advisory_entry
+from ..memory_lab.options import MemoryLabRuntimeOptions
 from ..scene_memory import (
     evaluate_continuity,
     extract_carryover,
     persist_carryover,
-    persist_memory_lab_entry,
 )
 
 
@@ -394,8 +395,9 @@ class DraftGenerationService:
         overrides: DraftUnitOverrides | None,
         project_root: Path,
         scene_lookup: dict[str, OutlineScene],
-        provider_name: str | None,
+        prompt_profile: str | None,
         context: SceneContext | None = None,
+        memory_lab_options: MemoryLabRuntimeOptions | None = None,
     ) -> str:
         if context is None:
             context = assemble_scene_context(
@@ -404,8 +406,9 @@ class DraftGenerationService:
                 overrides=overrides,
                 project_root=project_root,
                 scene_lookup=scene_lookup,
+                memory_lab_options=memory_lab_options,
             )
-        profile = select_profile(provider_name)
+        profile = select_profile(prompt_profile)
         return compile_draft_prompt(context, profile=profile)
 
     def _execute_generation(
@@ -423,6 +426,7 @@ class DraftGenerationService:
         total_scenes = len(scenes)
         adapter = self._last_adapter
         scene_lookup = {scene.id: scene for scene in scenes}
+        memory_lab_options = self._settings.memory_lab_runtime_options()
 
         for index, scene in enumerate(scenes):
             overrides = request.overrides.get(scene.id)
@@ -438,6 +442,7 @@ class DraftGenerationService:
                 overrides=overrides,
                 project_root=project_root,
                 scene_lookup=scene_lookup,
+                memory_lab_options=memory_lab_options,
             )
             if adapter is not None:
                 prompt = self._build_adapter_prompt(
@@ -446,8 +451,9 @@ class DraftGenerationService:
                     overrides=overrides,
                     project_root=project_root,
                     scene_lookup=scene_lookup,
-                    provider_name=self._last_route.model.provider if self._last_route else None,
+                    prompt_profile=self._last_route.prompt_profile if self._last_route else None,
                     context=context,
+                    memory_lab_options=memory_lab_options,
                 )
                 payload = {
                     "prompt": prompt,
@@ -456,7 +462,13 @@ class DraftGenerationService:
                 }
                 try:
                     adapter_response = adapter.generate_draft(payload)
-                    adapter_text = adapter_response.get("text")
+                    extract_text = getattr(adapter, "extract_text", None)
+                    if callable(extract_text):
+                        adapter_text = extract_text(adapter_response)
+                    elif isinstance(adapter_response, dict):
+                        adapter_text = adapter_response.get("text")
+                    else:
+                        adapter_text = None
                     if is_usable_draft(adapter_text):
                         synthesis.body = adapter_text.strip()
                         synthesis.unit["text"] = synthesis.body
@@ -481,11 +493,15 @@ class DraftGenerationService:
                 )
             try:
                 carryover = extract_carryover(synthesis.body)
-                persist_carryover(project_root, scene.id, carryover)
+                if self._settings.memory_lab_write_legacy_continuity:
+                    persist_carryover(project_root, scene.id, carryover)
                 if self._settings.memory_lab_enabled:
                     recency_order = scene.order if isinstance(getattr(scene, "order", None), int) else 0
                     try:
-                        persist_memory_lab_entry(
+                        # Continuity persistence and advisory ingestion remain
+                        # separate systems. Draft generation is the explicit
+                        # bridge between them.
+                        persist_scene_advisory_entry(
                             project_root=project_root,
                             scene_id=scene.id,
                             chapter_id=scene.chapter_id,
@@ -493,6 +509,7 @@ class DraftGenerationService:
                             carryover_payload=carryover,
                             recency_order=recency_order,
                             interpretations_enabled=self._settings.memory_lab_interpretations_enabled,
+                            max_interpretations_per_group=self._settings.memory_lab_max_interpretations_per_group,
                         )
                     except Exception as exc:  # noqa: BLE001
                         self._diagnostics.log(

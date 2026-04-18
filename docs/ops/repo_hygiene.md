@@ -1,4 +1,8 @@
-# Repo Hygiene
+Status: Active operational policy
+Version: 1.0.0
+Last Reviewed: 2026-04-18
+
+# Repo Hygiene (Operational Policy)
 
 This repository treats hygiene as a reviewable policy, not an implicit cleanup step.
 The goal is to keep generated artifacts, local tool state, and fixture snapshots out of normal commits unless a human explicitly approves an exception.

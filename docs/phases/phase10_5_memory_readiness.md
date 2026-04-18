@@ -1,4 +1,8 @@
-# Phase 10.5 — Memory Readiness Checkpoint
+Status: Historical checkpoint
+Version: 1.0.0
+Last Reviewed: 2026-04-18
+
+# Phase 10.5 — Historical Memory Readiness Checkpoint
 
 ## Status
 Completed and consumed by Memory Prototype v1 execution on `prototype/memory-v1`.
@@ -8,6 +12,8 @@ This is the readiness/gate checkpoint, not the implementation contract.
 
 Implementation spec:
 - `docs/specs/memory_prototype_v1.md`
+
+Authority: historical readiness checkpoint for prototype work. Not current runtime authority.
 
 Findings and decision record:
 - `docs/reviews/memory_prototype_v1_findings.md`

@@ -27,9 +27,21 @@ class MemoryArtifact:
     reinforcement_count: int = 0
     selection_count: int = 0
     last_selected_at: str | None = None
+    last_reinforced_scene_order: int | None = None
+    last_touch_scene_order: int | None = None
+    last_decay_scene_order: int | None = None
+    last_decay_at: str | None = None
+    decay_count: int = 0
+    suppressed_at: str | None = None
+    archived_at: str | None = None
     interpretation_group_id: str | None = None
     interpretation_label: str | None = None
     parent_artifact_id: str | None = None
+    source_kind: str | None = None
+    source_ref: str | None = None
+    artifact_scene_order: int | None = None
+    last_revived_scene_order: int | None = None
+    revival_grace_until_scene_order: int | None = None
     status: str = "active"
 
 
@@ -55,8 +67,10 @@ class ResolvedMemoryPacket:
     selected_artifact_ids: list[str]
     resolver_notes: list[str]
     selected_interpretations: list[str] = field(default_factory=list)
+    alternate_interpretations_by_slot: dict[str, str] = field(default_factory=dict)
     anchor_artifact_ids: list[str] = field(default_factory=list)
     suppressed_artifact_ids: list[str] = field(default_factory=list)
+    selection_slot_diagnostics: list[dict[str, object]] = field(default_factory=list)
 
 
 @dataclass(frozen=True)
@@ -91,3 +105,39 @@ class ReinforcementEvent:
     delta_weight: float
     created_at: str
     notes: str | None = None
+
+
+@dataclass(frozen=True)
+class DecayEvent:
+    event_id: str
+    schema_version: str
+    artifact_id: str
+    event_type: str
+    old_weight: float
+    new_weight: float
+    old_status: str
+    new_status: str
+    scene_order: int
+    created_at: str
+    notes: str | None = None
+
+
+@dataclass(frozen=True)
+class ContestedOutcomeEvent:
+    event_id: str
+    schema_version: str
+    created_at: str
+    scene_order: int
+    chapter_id: str | None
+    slot_type: str
+    contested_key: str
+    winner_artifact_id: str
+    winner_score: float
+    runner_up_artifact_id: str | None
+    runner_up_score: float | None
+    score_delta: float | None
+    alternate_included: bool
+    alternate_threshold: float
+    fallback_used: bool
+    tie_break_applied: bool
+    tie_break_basis: str | None

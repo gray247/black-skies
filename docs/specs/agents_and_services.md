@@ -1,7 +1,7 @@
-Status: Active (Canonical)
+Status: Planning / future scope, not current runtime authority
 Version: 1.0.0
 Last Reviewed: 2025-11-15
-Note: Defines Phase 11 service and plugin interfaces.
+Note: This document describes planned service and plugin interfaces. For current runtime truth, start with `docs/specs/current_state.md`.
 
 # docs/specs/agents_and_services.md – Service Hooks v1.1
 
@@ -15,15 +15,16 @@ Spec Index:
 - Phase Charter (`../phases/phase_charter.md`)
 
 ## Core services
-- **Overseer** – conductor for higher-level flows (the companion loop, onboarding automation, automation toggles). Overseer queues work with services, enforces budgets, watches telemetry, and exposes health/status to dashboards and tooling.
+- **Overseer** – planned higher-level orchestration role for companion-loop, onboarding, and automation work. This is not a statement that a full Overseer runtime is implemented today.
 - **Critique Service** – runs critiques on drafts/scenes, batches rubric evaluations, and reports structured findings to the UI via the Critique Pane. Overseer routes work to this service and honours local-first versus remote-model toggles.
 - **Rewrite Service** – applies edits and stylistic revisions based on critique outputs or direct user prompts; it tracks failures, keeps audit-safe logs, and reports status back to Overseer for acceptance/rollback.
 - **Export Service** – handles export pipelines and artifact creation (Markdown/PDF/EPUB bundles). It coordinates with Recovery Service manifests and the backup daemon when packaging long-term archives.
 - **Recovery Service** – manages snapshots, short-term recovery flows, and interactions with the backup_and_migration pipeline plus the backup verification daemon. It provides the History pane endpoints, enforces retention, and surfaces integrity diagnostics.
 - **Analytics Service** – collects telemetry/metrics for dashboards, feeding health insights to Overseer and the Analytics dashboards (Phase 9/6 deliverables).
 
+
 ## Plugin Registry Spec
-The Registry service exposes plugin operations that tie into the core services above. Overseer owns the orchestration, but plugins can register hooks that participate in critique, rewrite, export, or recovery workflows.
+The Registry service section below describes the intended plugin surface. Current runtime code contains a gated plugin execution path, but the full agent/plugin product surface described here is not part of the standard runtime baseline.
 - `GET /api/v1/plugins` – list installed plugins with metadata and last-run status.
 - `POST /api/v1/plugins/install` – register a plugin by manifest URL/path and validate its checksum/signature.
 - `POST /api/v1/plugins/{id}/enable` / `disable` – toggle availability while updating Overseer’s routing decisions.
@@ -53,7 +54,7 @@ Installer validation ensures requested permissions align with the policy store (
 - All lifecycle events (install, enable, execute, terminate) are logged under `history/plugins/<id>/audit.log` so services can surface health, metrics, or issues.
 
 ## Plugin Hook Interfaces
-Plugins register hooks with the Registry; Overseer binds them into service flows:
+Plugins are intended to register hooks with the Registry; a fuller Overseer-driven binding model remains planned rather than fully productized:
 - `on_plan` – integrates with Overseer to inspect outlines before critique batches.
 - `on_analyze` – augments Critique Service runs with custom checks or telemetry.
 - `on_rewrite` – participates alongside the Rewrite Service when applying edits.

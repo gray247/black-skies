@@ -12,11 +12,16 @@ from .config import ServiceSettings
 from .history import project_history_subdir
 from .io import atomic_write_json, read_json
 
+RUNS_ROOT: Path | None = None
+
+
 def _timestamp() -> str:
     return datetime.now(tz=timezone.utc).isoformat().replace("+00:00", "Z")
 
 
 def _default_runs_root() -> Path:
+    if RUNS_ROOT is not None:
+        return RUNS_ROOT
     settings = ServiceSettings.from_environment()
     runtime_root = settings.project_base_dir / "_runtime"
     return runtime_root.resolve(strict=False) / "runs"

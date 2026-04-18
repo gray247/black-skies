@@ -1,4 +1,8 @@
-"""Background daemon that verifies project backups and snapshots."""
+"""Optional background daemon that verifies project backups and snapshots.
+
+The verifier is implemented in the runtime, but it is not part of the default
+service baseline unless ``backup_verifier_enabled`` is set.
+"""
 
 from __future__ import annotations
 
@@ -108,7 +112,7 @@ def _normalise_include_entries(values: Any) -> tuple[set[str], list[str]]:
 
 @dataclass(slots=True)
 class BackupIssue:
-    """Represents a single verification failure for a snapshot or voice note."""
+    """Represents a single verification failure for a snapshot or optional voice-note archive check."""
 
     project_id: str
     snapshot_id: str | None
@@ -272,7 +276,11 @@ class BackupVerifierState:
 
 
 class BackupVerificationDaemon:
-    """Periodic verifier that audits snapshot archives and emits diagnostics."""
+    """Periodic verifier for the optional backup-audit subsystem.
+
+    This daemon is available in code, but the application does not start it in
+    the shipped baseline unless configuration explicitly opts in.
+    """
 
     def __init__(
         self,
@@ -818,7 +826,11 @@ class BackupVerificationDaemon:
         project_id: str,
         project_root: Path,
     ) -> tuple[int, list[BackupIssue]]:
-        """Validate voice note audio and transcript pairs."""
+        """Validate voice note audio and transcript pairs.
+
+        This only audits archived assets when the deferred voice-note workflow
+        has been explicitly enabled elsewhere.
+        """
 
         if not voice_notes_enabled():
             return 0, []

@@ -148,3 +148,19 @@ def test_openai_api_key_alias_supported(monkeypatch, tmp_path):
     settings = _load_service_settings().from_environment()
 
     assert settings.openai_api_key == "alias-key"
+
+
+def test_memory_decay_thresholds_validation_fails_fast(tmp_path):
+    """Misordered memory decay thresholds should fail with a clear validation message."""
+
+    project_dir = tmp_path / "Projects" / "Threshold Validation"
+    project_dir.mkdir(parents=True)
+
+    ServiceSettings = _load_service_settings()
+    with pytest.raises(ValueError, match="archived_threshold < suppressed_threshold < fading_threshold"):
+        ServiceSettings(
+            project_base_dir=project_dir,
+            memory_lab_decay_fading_threshold=0.20,
+            memory_lab_decay_suppressed_threshold=0.40,
+            memory_lab_decay_archived_threshold=0.10,
+        )

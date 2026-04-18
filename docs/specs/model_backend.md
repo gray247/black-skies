@@ -1,8 +1,8 @@
-Status: Draft
+Status: Draft / planning reference
 Version: 1.0
 Last Reviewed: 2025-11-05
 
-# docs/specs/model_backend.md — DRAFT
+# Model Backend — Draft
 
 ## Purpose
 Introduce the **Model Router** abstraction so every AI-powered call flows through a single, policy-aware layer instead of services invoking external providers directly.
@@ -13,6 +13,8 @@ Introduce the **Model Router** abstraction so every AI-powered call flows throug
 - **Token/cost accounting:** measure tokens in/out, map to dollar estimates, and update session/project budgets before and after every routed call.
 - **Privacy enforcement:** honor Insights Overlay by blocking external API calls, require explicit user consent before enabling API Mode, and log decisions for audits.
 - **Telemetry hooks:** emit routing decisions, durations, and rejection reasons to `.perf/` (see `./performance_telemetry_policy.md`).
+
+Authority: draft planning document. Current runtime truth lives in `docs/specs/model_runtime.md` and runtime code.
 
 ## Routing Rules
 Each task has a dedicated helper and routing table. Example signatures:

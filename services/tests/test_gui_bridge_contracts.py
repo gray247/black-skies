@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from test_app import (
+from services.tests.test_app import (
     API_PREFIX,
     SERVICE_VERSION,
     _assert_trace_header,

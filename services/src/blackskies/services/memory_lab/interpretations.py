@@ -24,10 +24,11 @@ def create_interpretation_variants(
     base_artifact: MemoryArtifact,
     labels: list[str],
     created_at: str,
+    max_variants: int = _DEFAULT_LABEL_CAP,
 ) -> tuple[InterpretationGroup, list[MemoryArtifact]]:
     """Create interpretation variants from supplied labels without generating new labels."""
     group_id = build_interpretation_group_id(scene_id=scene_id, base_content=base_artifact.content)
-    normalized_labels = _normalized_labels(labels)
+    normalized_labels = _normalized_labels(labels, max_variants=max_variants)
 
     if not normalized_labels or base_artifact.artifact_type not in _INTERPRETATION_ELIGIBLE_TYPES:
         group = InterpretationGroup(
@@ -63,6 +64,11 @@ def create_interpretation_variants(
                 interpretation_group_id=group_id,
                 interpretation_label=label,
                 parent_artifact_id=base_artifact.artifact_id,
+                source_kind=base_artifact.source_kind or "scene",
+                source_ref=base_artifact.source_ref or scene_id,
+                artifact_scene_order=base_artifact.artifact_scene_order
+                if base_artifact.artifact_scene_order is not None
+                else base_artifact.recency_order,
             )
         )
 
@@ -79,16 +85,17 @@ def create_interpretation_variants(
     return group, variants
 
 
-def _normalized_labels(labels: list[str]) -> list[str]:
+def _normalized_labels(labels: list[str], *, max_variants: int) -> list[str]:
     normalized: list[str] = []
     seen: set[str] = set()
+    cap = max(1, int(max_variants))
     for label in labels:
         cleaned = label.strip()
         if not cleaned or cleaned in seen:
             continue
         seen.add(cleaned)
         normalized.append(cleaned)
-        if len(normalized) >= _DEFAULT_LABEL_CAP:
+        if len(normalized) >= cap:
             break
     return normalized
 

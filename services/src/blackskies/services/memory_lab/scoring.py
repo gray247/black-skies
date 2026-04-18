@@ -38,6 +38,19 @@ def compute_reinforcement_score(artifact: MemoryArtifact) -> float:
     return min(reinforced_count, 3) / 3.0
 
 
+def compute_status_multiplier(artifact: MemoryArtifact) -> float:
+    status = artifact.status
+    if status == "active":
+        return 1.0
+    if status == "fading":
+        return 0.75
+    if status == "suppressed":
+        return 0.25
+    if status == "archived":
+        return 0.0
+    return 1.0
+
+
 def compute_total_score(
     artifact: MemoryArtifact,
     *,
@@ -50,7 +63,7 @@ def compute_total_score(
     confidence = compute_confidence_score(artifact)
     anchor = compute_anchor_score(artifact)
     reinforcement = compute_reinforcement_score(artifact)
-    total = (
+    base_total = (
         (relevance * 0.32)
         + (recency * 0.18)
         + (weight * 0.20)
@@ -58,6 +71,7 @@ def compute_total_score(
         + (anchor * 0.10)
         + (reinforcement * 0.08)
     )
+    total = base_total * compute_status_multiplier(artifact)
     return total, relevance, recency, weight, confidence, anchor, reinforcement
 
 

@@ -1,4 +1,8 @@
-# Memory Prototype v1 — Specification
+Status: Prototype / historical reference
+Version: 1.0.0
+Last Reviewed: 2026-04-18
+
+# Memory Prototype v1 — Prototype Specification
 
 ## Purpose
 Build a read-only, advisory-only narrative memory prototype that derives structured state from accepted project data for future packet assembly and drift detection, without mutating canonical narrative truth.
@@ -18,6 +22,8 @@ Build a read-only, advisory-only narrative memory prototype that derives structu
 - All prototype outputs are advisory-only
 - Stable IDs across services (no drift)
 - Derived state never becomes canonical
+
+Authority: prototype/historical reference. This document does not describe the current runtime memory path. For current runtime truth, use `docs/specs/memory_runtime.md`.
 
 ## Critical Clarification
 ### Rewrite vs Accept Authority

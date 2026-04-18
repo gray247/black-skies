@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from blackskies.services.memory_lab.schemas import (
+    DecayEvent,
     InterpretationGroup,
     MemoryArtifact,
     ReinforcementEvent,
@@ -30,6 +31,13 @@ def test_memory_artifact_new_defaults() -> None:
     assert artifact.reinforcement_count == 0
     assert artifact.selection_count == 0
     assert artifact.last_selected_at is None
+    assert artifact.last_reinforced_scene_order is None
+    assert artifact.last_touch_scene_order is None
+    assert artifact.last_decay_scene_order is None
+    assert artifact.last_decay_at is None
+    assert artifact.decay_count == 0
+    assert artifact.suppressed_at is None
+    assert artifact.archived_at is None
     assert artifact.interpretation_group_id is None
     assert artifact.interpretation_label is None
     assert artifact.parent_artifact_id is None
@@ -74,3 +82,22 @@ def test_interpretation_group_and_reinforcement_event_models() -> None:
     assert group.group_id == "grp_001"
     assert event.notes is None
 
+
+def test_decay_event_model_shape() -> None:
+    event = DecayEvent(
+        event_id="de_001",
+        schema_version="memory_decay_event_v1",
+        artifact_id="art_001",
+        event_type="decayed",
+        old_weight=1.0,
+        new_weight=0.9,
+        old_status="active",
+        new_status="fading",
+        scene_order=12,
+        created_at="2026-04-13T00:02:00Z",
+        notes="unused for 3 scenes",
+    )
+
+    assert event.event_id == "de_001"
+    assert event.scene_order == 12
+    assert event.notes == "unused for 3 scenes"

@@ -19,6 +19,7 @@ def build_memory_artifacts(
     carryover_payload: dict[str, Any],
     recency_order: int,
     interpretations_enabled: bool = False,
+    max_interpretations_per_group: int = 2,
 ) -> list[MemoryArtifact]:
     created_at = datetime.now(UTC).isoformat()
     seen: set[tuple[str, str]] = set()
@@ -46,6 +47,9 @@ def build_memory_artifacts(
             tags=[],
             derived_from="scene_memory_v1",
             created_at=created_at,
+            source_kind="scene",
+            source_ref=scene_id,
+            artifact_scene_order=recency_order,
         )
         artifacts.append(artifact)
         return artifact
@@ -59,6 +63,7 @@ def build_memory_artifacts(
             base_artifact=summary_artifact,
             labels=labels,
             created_at=created_at,
+            max_variants=max_interpretations_per_group,
         )
         artifacts.extend(variants)
     for item in _as_list(carryover_payload.get("unresolved")):

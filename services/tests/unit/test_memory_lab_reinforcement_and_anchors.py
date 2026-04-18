@@ -84,8 +84,13 @@ def test_unsupported_artifact_types_do_not_become_anchors() -> None:
     assert is_anchor_candidate(supported) is True
 
 
+def test_anchor_candidate_respects_custom_threshold() -> None:
+    candidate = _artifact(artifact_type="summary", reinforcement_count=2, selection_count=1)
+    assert is_anchor_candidate(candidate, min_threshold=3) is False
+    assert is_anchor_candidate(candidate, min_threshold=2) is True
+
+
 def test_delta_helpers_values() -> None:
     assert selection_delta() == 0.03
     assert survival_delta() == 0.05
     assert author_confirm_delta() == 0.10
-

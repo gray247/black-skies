@@ -1,5 +1,9 @@
 # Black Skies – Canonical Build Plan (Full Roadmap)
 
+Status: Planning / future scope reference
+
+Authority: this document is a broad implementation map and dependency/planning reference. It is not current runtime canon and it does not guarantee that described features are active, integrated, or enabled by default. For runtime truth, start with `docs/specs/current_state.md`.
+
 > **Purpose**
 > This document is a broad implementation map for Black Skies, including the full phase sequence, goals, dependencies, exit criteria, and feature mapping.
 > It is not the canonical scope or current-status authority; use `docs/phases/phase_charter.md` for phase scope and `docs/roadmap.md` / `phase_log.md` for current status and lock history.

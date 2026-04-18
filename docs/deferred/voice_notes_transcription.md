@@ -1,10 +1,11 @@
-Status: Deferred
+Status: Deferred / not part of current runtime baseline
 Version: 0.5.0
 Last Reviewed: 2025-11-15
 
 # Voice Notes & Transcription Plan (Deferred)
 
 > **Status:** This feature is scoped but **not** shipping in v1.1. The plan remains for future phases; renderer and services do not expose voice note recording/transcription today.
+> **Current runtime truth:** Backend references to voice notes are limited to optional archival verification paths and feature flags. They do not mean a shipped recording or transcription workflow exists.
 
 ## Objectives
 - Enable creators to record voice notes, transcribe them into scene annotations, and manage audio assets within budget constraints.

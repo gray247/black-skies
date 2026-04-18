@@ -1,10 +1,10 @@
-Status: Active
+Status: Active roadmap / planning authority, not runtime authority
 Version: 1.0.0
 Last Reviewed: 2025-11-15
 
 # Roadmap
 
-Authority note: this roadmap is the canonical current-status snapshot. Use [docs/phases/phase_charter.md](./phases/phase_charter.md) for **what** we ship and [docs/phases/phase_log.md](./phases/phase_log.md) for dated lock history. The repository-root `phase_log.md` is a non-canonical redirect file.
+Authority note: this roadmap is the canonical planning/status snapshot. It is not a current runtime reference. For current runtime truth, start with `docs/specs/current_state.md`. Use [docs/phases/phase_charter.md](./phases/phase_charter.md) for scoped future work and [docs/phases/phase_log.md](./phases/phase_log.md) for dated lock history.
 
 ## Status legend
 | Label | Meaning |

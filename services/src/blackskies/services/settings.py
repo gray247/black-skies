@@ -9,7 +9,77 @@ from pathlib import Path
 from typing import Any, ClassVar, Literal, Optional
 
 from pydantic import AliasChoices, Field, field_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+
+try:  # pragma: no cover - exercised via fallback tests
+    from pydantic_settings import BaseSettings, SettingsConfigDict
+except ModuleNotFoundError:  # pragma: no cover - exercised when optional dep is absent
+    from pydantic import BaseModel, ConfigDict as SettingsConfigDict
+
+    def _parse_env_file(path: Path, encoding: str) -> dict[str, str]:
+        parsed: dict[str, str] = {}
+        for raw_line in path.read_text(encoding=encoding).splitlines():
+            line = raw_line.strip()
+            if not line or line.startswith("#"):
+                continue
+            if line.startswith("export "):
+                line = line[len("export ") :].strip()
+            if "=" not in line:
+                continue
+            key, raw_value = line.split("=", 1)
+            key = key.strip()
+            value = raw_value.strip()
+            if value and value[0] == value[-1] and value[0] in {'"', "'"}:
+                value = value[1:-1]
+            parsed[key] = value
+        return parsed
+
+    def _validation_aliases(field: Any) -> list[str]:
+        alias = getattr(field, "validation_alias", None)
+        if alias is None:
+            return []
+        choices = getattr(alias, "choices", None)
+        if choices is not None:
+            return [str(choice) for choice in choices]
+        return [str(alias)]
+
+    class BaseSettings(BaseModel):
+        model_config: ClassVar[SettingsConfigDict] = SettingsConfigDict(
+            extra="ignore",
+            populate_by_name=True,
+        )
+
+        def __init__(self, **data: Any) -> None:
+            values = self._resolve_settings_values(data)
+            super().__init__(**values)
+
+        @classmethod
+        def _resolve_settings_values(cls, data: dict[str, Any]) -> dict[str, Any]:
+            values = dict(data)
+            config = cls.model_config
+            env_file_name = config.get("env_file")
+            env_encoding = config.get("env_file_encoding", "utf-8")
+            file_values: dict[str, str] = {}
+
+            if env_file_name:
+                env_file_path = Path(env_file_name)
+                if not env_file_path.is_absolute():
+                    env_file_path = Path.cwd() / env_file_path
+                if env_file_path.exists():
+                    file_values = _parse_env_file(env_file_path, env_encoding)
+
+            for field_name, field in cls.model_fields.items():
+                if field_name in values:
+                    continue
+                candidates = _validation_aliases(field) or [field_name.upper()]
+                for candidate in candidates:
+                    if candidate in os.environ:
+                        values[field_name] = os.environ[candidate].strip()
+                        break
+                    if candidate in file_values:
+                        values[field_name] = file_values[candidate].strip()
+                        break
+
+            return values
 
 logger = logging.getLogger(__name__)
 
@@ -93,7 +163,7 @@ class Settings(BaseSettings):
         legacy_key = "BLACK_SKIES_BLACK_SKIES_MODE"
 
         if os.getenv(legacy_key) and not os.getenv(new_key):
-            logger.warning(
+            logging.warning(
                 "Environment variable '%s' is deprecated. Rename it to '%s'.",
                 legacy_key,
                 new_key,

@@ -237,10 +237,10 @@ class LongFormExecutionService:
         return route, adapter
 
     def _select_profile(self, route: Any | None) -> ProviderProfile:
-        provider_name = None
+        prompt_profile = None
         if route is not None:
-            provider_name = route.model.provider
-        return select_profile(provider_name)
+            prompt_profile = route.prompt_profile
+        return select_profile(prompt_profile)
 
     def _build_chunk_prompt(
         self,
@@ -308,41 +308,7 @@ class LongFormExecutionService:
             payload["options"]["num_predict"] = min(300, int(continuation.target_words))
         try:
             response = adapter.generate_draft(payload)
-            raw_text = response.get("text")
-            if not isinstance(raw_text, str) or not raw_text.strip():
-                raw_payload = response.get("raw") if isinstance(response, dict) else None
-                if not isinstance(raw_payload, dict) and isinstance(response, dict):
-                    raw_payload = response
-                if isinstance(raw_payload, dict):
-                    for key in ("response", "text", "content", "output"):
-                        candidate = raw_payload.get(key)
-                        if isinstance(candidate, str) and candidate.strip():
-                            raw_text = candidate
-                            break
-                    if not isinstance(raw_text, str) or not raw_text.strip():
-                        message = raw_payload.get("message")
-                        if isinstance(message, dict):
-                            content = message.get("content")
-                            if isinstance(content, str) and content.strip():
-                                raw_text = content
-                    if not isinstance(raw_text, str) or not raw_text.strip():
-                        data = raw_payload.get("data")
-                        if isinstance(data, dict):
-                            for key in ("response", "text", "content", "output"):
-                                candidate = data.get(key)
-                                if isinstance(candidate, str) and candidate.strip():
-                                    raw_text = candidate
-                                    break
-                    if not isinstance(raw_text, str) or not raw_text.strip():
-                        choices = raw_payload.get("choices")
-                        if isinstance(choices, list) and choices:
-                            first = choices[0]
-                            if isinstance(first, dict):
-                                message = first.get("message")
-                                if isinstance(message, dict):
-                                    content = message.get("content")
-                                    if isinstance(content, str) and content.strip():
-                                        raw_text = content
+            raw_text = adapter.extract_text(response)
             cleaned = normalize_long_form_output(raw_text)
             if is_usable_long_form_output(cleaned, prior_excerpt=continuation.prior_excerpt):
                 return cleaned.strip(), None, False

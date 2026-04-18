@@ -1,4 +1,10 @@
-# Memory Prototype v1 — Findings and Decision
+Status: Historical review record
+Version: 1.0.0
+Last Reviewed: 2026-04-18
+
+# Memory Prototype v1 — Historical Findings and Decision
+
+Authority: historical findings record for the prototype lane. Not current runtime authority.
 
 ## 1. Purpose
 This document records what Memory Prototype v1 proved, what it did not prove, residual caveats, and the recommendation for next-phase planning.
@@ -20,6 +26,8 @@ This document records what Memory Prototype v1 proved, what it did not prove, re
 - Replay/eval fallback for legacy snapshots works under constrained, fail-closed conditions.
 - Packet assembly is viable from accepted-lineage canonical inputs plus advisory outputs.
 - High-value dead/alive mismatch now emits structured advisory conflict signals.
+
+Authority: historical findings record for the prototype lane. Not current runtime authority.
 
 ## 4. What the Prototype Did Not Prove
 - This is not a public/runtime feature.

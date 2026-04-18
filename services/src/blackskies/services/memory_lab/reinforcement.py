@@ -17,8 +17,9 @@ def reinforce_artifact(
     delta: float,
     event_type: str,
     now_iso: str,
+    weight_max: float = _MAX_WEIGHT,
 ) -> tuple[MemoryArtifact, ReinforcementEvent]:
-    new_weight = _clamp_weight(artifact.weight + float(delta))
+    new_weight = _clamp_weight(artifact.weight + float(delta), weight_max=weight_max)
     updated = replace(
         artifact,
         weight=new_weight,
@@ -47,6 +48,10 @@ def author_confirm_delta() -> float:
     return 0.10
 
 
-def _clamp_weight(value: float) -> float:
-    return max(_MIN_WEIGHT, min(_MAX_WEIGHT, value))
+def is_revival_candidate(artifact: MemoryArtifact) -> bool:
+    return artifact.status in {"fading", "suppressed"}
 
+
+def _clamp_weight(value: float, *, weight_max: float) -> float:
+    effective_max = max(_MIN_WEIGHT, float(weight_max))
+    return max(_MIN_WEIGHT, min(effective_max, value))
