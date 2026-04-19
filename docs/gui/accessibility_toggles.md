@@ -9,6 +9,13 @@ Last Reviewed: 2025-11-15
 > **Owner:** Desktop UX Team
 > **Charter Reference:** docs/phases/phase_charter.md §52, docs/gui/gui_layouts.md (Hotkeys section)
 
+## Runtime dependency declaration
+- Live runtime dependency: **no** (this is a planned future surface, not a current runtime dependency).
+- Seam owner: **none currently** (future seam owner: Desktop UX Team when implementation starts).
+- Seam state: **none**.
+- Seam type: **none**.
+- Runtime claim source: `docs/specs/current_state.md`.
+
 ## Objective
 Deliver large-font and high-contrast modes with keyboard toggles and persistent settings, fulfilling Phase 10 accessibility commitments.
 

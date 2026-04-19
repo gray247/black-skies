@@ -7,6 +7,10 @@ Owner: Services Team
 
 Purpose: document the current memory runtime as observed in code. This is not a future-memory vision document.
 
+Runtime claim sources:
+- `build/runtime_truth.json`
+- `docs/specs/current_state.md`
+
 ## Current ownership
 
 ### `scene_memory.py` — live continuity/carryover layer

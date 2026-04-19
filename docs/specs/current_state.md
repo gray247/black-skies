@@ -24,6 +24,10 @@ Primary runtime authority lives in code, especially:
 Related runtime references:
 - `./memory_runtime.md`
 - `./model_runtime.md`
+- `./feature_maturity_migration.md`
+- `build/runtime_truth.json` (generated ledger; schema-validated/freshness-checked by `services/tests/unit/test_runtime_truth.py`)
+- `docs/policies/runtime_truth_policy.md`
+- `docs/policies/deferred_feature_policy.md`
 
 ## Shipped runtime
 
@@ -36,6 +40,7 @@ These are part of the standard backend surface today.
 - Continuity/carryover persistence: `services/src/blackskies/services/scene_memory.py`
 - Draft and long-form operations: `services/src/blackskies/services/operations/draft_generation.py`, `services/src/blackskies/services/operations/long_form_execution.py`
 - Analytics baseline flagging: `services/src/blackskies/services/feature_flags.py`
+- Analytics maturity defaults to `production` unless explicitly reduced via `BLACKSKIES_ANALYTICS_MATURITY` or `BLACKSKIES_ENABLE_ANALYTICS=0`
 - Legacy continuity compatibility writes when Memory Lab is off: `services/src/blackskies/services/config.py`
 
 ## Implemented but off by default
@@ -69,6 +74,18 @@ These are not part of the current product surface.
 - Accessibility toggle UI: `docs/gui/accessibility_toggles.md`
 
 Some deferred ideas have runtime seams or feature flags. That does not make them baseline features.
+
+Deferred seam containment snapshot:
+- `voice_notes`: live seam exists (`disabled`) for archival verification + health maturity reporting; seam owners are `backup_verifier.py`, `routers/health.py`, and `feature_flags.py`.
+- `smart_merge`: no live runtime seam.
+- `accessibility_toggles`: no live runtime seam.
+
+Runtime Truth Ledger note:
+- `canonical_docs` and `deferred_docs` entries are curated policy metadata maintained by the generator, not runtime-import discovery.
+- `providers.health_check_targets` is intentionally named to avoid live-health ambiguity: it records config-selected health-check targets, not observed provider health.
+- `health_observed` is intentionally not part of the ledger schema.
+- `deferred_docs` now includes explicit seam containment metadata (`live_runtime_dependency`, `seam_owners`, `seam_state`, `seam_type`).
+- Runtime-truth freshness/schema checks are enforced in normal validation paths: `services/tests/unit/test_runtime_truth.py` is run in CI (`.github/workflows/eval.yml`) and in local default/mixed test lanes (`run_tests.ps1`).
 
 ## Prototype / archive / historical
 

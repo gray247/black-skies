@@ -6,6 +6,7 @@ Last Reviewed: 2025-11-15
 
 Purpose: Extend the roadmap beyond P7 (RC1) into the P8–P11 expansion cycles.
 Authority note: this charter defines phase sequence, scope, and gating for v1.1. Use it for future scope decisions, not for current runtime truth.
+For current runtime truth, use `docs/specs/current_state.md` (and `build/runtime_truth.json` via that canon path).
 
 Status tracking lives in [docs/roadmap.md](../roadmap.md) and the dated ledger in [docs/phases/phase_log.md](./phase_log.md); `docs/BUILD_PLAN.md` is supporting implementation context, not scope authority.
 

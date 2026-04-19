@@ -192,7 +192,7 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
 
     # Backup verification is implemented as an optional service. The standard
     # runtime baseline keeps it disabled unless configuration explicitly opts in.
-    if service_settings.backup_verifier_enabled:
+    if service_settings.backup_verifier_feature_maturity.is_active:
         backup_verifier = BackupVerificationDaemon(
             settings=application.state.settings,
             diagnostics=application.state.diagnostics,

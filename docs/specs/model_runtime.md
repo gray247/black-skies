@@ -7,6 +7,10 @@ Owner: Services Team
 
 Purpose: describe the current model/provider runtime as observed in code.
 
+Runtime claim sources:
+- `build/runtime_truth.json`
+- `docs/specs/current_state.md`
+
 ## Runtime assembly
 
 - `services/src/blackskies/services/app.py` creates the application-wide model router

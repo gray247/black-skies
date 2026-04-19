@@ -361,3 +361,109 @@ async def test_draft_generation_memory_lab_failure_does_not_break_generation(
 
     assert result.response["units"]
     assert result.response["units"][0]["id"] == "sc_0001"
+
+
+@pytest.mark.anyio("asyncio")
+async def test_draft_generation_fracture_diagnostics_are_non_blocking(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    project_root = tmp_path / "proj_fracture_diag"
+    _write_project_budget(project_root)
+    service = _build_service(
+        tmp_path,
+        _StubAdapter(exc=AdapterError("boom")),
+        monkeypatch,
+    )
+    scenes = [
+        OutlineScene(
+            id="sc_0001",
+            order=1,
+            title="Scene 1",
+            chapter_id="ch_0001",
+            beat_refs=[],
+        )
+    ]
+    request = DraftGenerateRequest(
+        project_id=project_root.name,
+        unit_scope=DraftUnitScope.SCENE,
+        unit_ids=["sc_0001"],
+    )
+
+    result = await service.generate(request, scenes, project_root=project_root)
+
+    assert result.response["units"]
+    diagnostics_payload = result.response["diagnostics"]["fractures"]
+    assert diagnostics_payload["exposure"] == "advisory_unstable_v1"
+    assert diagnostics_payload["diagnostics_only"] is True
+    assert diagnostics_payload["advisory"] is True
+    assert diagnostics_payload["non_blocking"] is True
+    assert diagnostics_payload["reports"]
+    diagnostics_dir = project_root / "history" / "diagnostics"
+    fracture_logs = sorted(diagnostics_dir.glob("*_fracture*.json"))
+    assert fracture_logs, "expected advisory fracture diagnostics log to be emitted"
+    payload = json.loads(fracture_logs[-1].read_text(encoding="utf-8"))
+    report = payload["details"]["report"]
+    assert report["diagnostics_only"] is True
+    assert report["advisory"] is True
+    assert report["non_blocking"] is True
+
+
+@pytest.mark.anyio("asyncio")
+async def test_draft_generation_canon_court_is_advisory_and_non_blocking(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    project_root = tmp_path / "proj_canon_court"
+    _write_project_budget(project_root)
+    (project_root / "locked_facts.json").write_text(
+        json.dumps({"facts": ["Mara carries the rusted key"]}, indent=2),
+        encoding="utf-8",
+    )
+    locked_before = (project_root / "locked_facts.json").read_text(encoding="utf-8")
+    service = _build_service(
+        tmp_path,
+        _StubAdapter(
+            text=(
+                "Mara carries the rusted key as she enters the hall. "
+                "She trembles and says she is not Mara carries the rusted key while the walls pulse in warning. "
+                "The bulb flickers and dust stings her throat as footsteps echo behind her, and the stairwell "
+                "shudders as a cold draft curls around her wrists and the iron door rattles again."
+            )
+        ),
+        monkeypatch,
+    )
+    scenes = [
+        OutlineScene(
+            id="sc_0001",
+            order=1,
+            title="Scene 1",
+            chapter_id="ch_0001",
+            beat_refs=[],
+        )
+    ]
+    request = DraftGenerateRequest(
+        project_id=project_root.name,
+        unit_scope=DraftUnitScope.SCENE,
+        unit_ids=["sc_0001"],
+    )
+
+    result = await service.generate(request, scenes, project_root=project_root)
+
+    assert result.response["units"]
+    rulings_dir = project_root / ".blackskies" / "canon_court" / "candidate_rulings"
+    ruling_files = sorted(rulings_dir.glob("*.json"))
+    assert ruling_files, "expected Canon Court candidate ruling to be persisted"
+    ruling_payload = json.loads(ruling_files[-1].read_text(encoding="utf-8"))
+    assert ruling_payload["diagnostics_only"] is True
+    assert ruling_payload["advisory"] is True
+    assert ruling_payload["non_blocking"] is True
+    assert ruling_payload["contradiction_type"] == "locked_fact_contradiction"
+    assert ruling_payload["severity"] in {"low", "medium", "high"}
+    assert ruling_payload["evidence"]["summary"]
+    assert ruling_payload["evidence"]["source_origins"]
+
+    diagnostics_dir = project_root / "history" / "diagnostics"
+    canon_court_logs = sorted(diagnostics_dir.glob("*_canon_court*.json"))
+    assert canon_court_logs, "expected CANON_COURT diagnostics log entry"
+
+    # Canon Court must not mutate canonical locked facts in v1.
+    assert (project_root / "locked_facts.json").read_text(encoding="utf-8") == locked_before

@@ -303,6 +303,14 @@ def test_health(test_client: TestClient, monkeypatch: pytest.MonkeyPatch) -> Non
     assert "backup_message" in payload
     assert payload["backup_checked_snapshots"] == 0
     assert payload["backup_failed_snapshots"] == 0
+    assert payload["feature_maturity_contract"] == "diagnostics_only_v1"
+    assert payload["feature_maturity"] == {
+        "analytics": "production",
+        "backup_verifier": "off",
+        "memory_lab": "off",
+        "plugins": "off",
+        "voice_notes": "internal",
+    }
     assert payload["backup_voice_notes_checked"] == 0
     assert payload["backup_voice_note_issues"] == 0
     _assert_trace_header(response)

@@ -1,0 +1,634 @@
+{
+  "analytics": {
+    "enabled_by_default": true,
+    "env_var": "BLACKSKIES_ENABLE_ANALYTICS",
+    "notes": "Analytics routes are exposed by default and can be hidden by the analytics feature flag; default maturity is production unless explicitly overridden.",
+    "routes": [
+      "/api/v1/analytics/summary",
+      "/api/v1/analytics/scenes",
+      "/api/v1/analytics/relationships",
+      "/api/v1/analytics/budget"
+    ]
+  },
+  "canonical_docs": [
+    {
+      "notes": "Curated policy pointer; not inferred from runtime import tracing.",
+      "path": "docs/specs/current_state.md",
+      "role": "current_runtime_canon"
+    },
+    {
+      "notes": "Curated policy pointer; not inferred from runtime import tracing.",
+      "path": "docs/specs/memory_runtime.md",
+      "role": "memory_runtime_canon"
+    },
+    {
+      "notes": "Curated policy pointer; not inferred from runtime import tracing.",
+      "path": "docs/specs/model_runtime.md",
+      "role": "model_runtime_canon"
+    }
+  ],
+  "deferred_docs": [
+    {
+      "live_runtime_dependency": true,
+      "name": "voice_notes",
+      "notes": "Curated policy pointer. Deferred voice workflow remains non-baseline; only archival verification seams are live behind explicit feature gating.",
+      "path": "docs/deferred/voice_notes_transcription.md",
+      "seam_owners": [
+        "services/src/blackskies/services/backup_verifier.py",
+        "services/src/blackskies/services/routers/health.py",
+        "services/src/blackskies/services/feature_flags.py"
+      ],
+      "seam_state": "disabled",
+      "seam_type": "explicit_disabled_integration_seam"
+    },
+    {
+      "live_runtime_dependency": false,
+      "name": "smart_merge",
+      "notes": "Curated policy pointer. Deferred merge workflow; no active runtime seam.",
+      "path": "docs/deferred/smart_merge_tool.md",
+      "seam_owners": [],
+      "seam_state": "none",
+      "seam_type": "none"
+    },
+    {
+      "live_runtime_dependency": false,
+      "name": "accessibility_toggles",
+      "notes": "Curated policy pointer. Planned future work; no active runtime seam.",
+      "path": "docs/gui/accessibility_toggles.md",
+      "seam_owners": [],
+      "seam_state": "none",
+      "seam_type": "none"
+    }
+  ],
+  "features": [
+    {
+      "baseline_default": "on",
+      "config_keys": [],
+      "env_vars": [
+        "BLACKSKIES_ENABLE_ANALYTICS"
+      ],
+      "kind": "runtime",
+      "name": "analytics",
+      "notes": "Analytics routes are part of the backend surface by default.",
+      "runtime_entrypoints": [
+        "services/src/blackskies/services/routers/analytics.py"
+      ],
+      "source_of_truth": "services/src/blackskies/services/feature_flags.py",
+      "state": "production",
+      "user_visible": true
+    },
+    {
+      "baseline_default": "off",
+      "config_keys": [
+        "model_router_provider_calls_enabled"
+      ],
+      "env_vars": [
+        "BLACKSKIES_MODEL_ROUTER_PROVIDER_CALLS_ENABLED"
+      ],
+      "kind": "runtime",
+      "name": "provider_calls",
+      "notes": "Routing is active, but live provider adapter execution is an explicit opt-in.",
+      "runtime_entrypoints": [
+        "services/src/blackskies/services/app.py",
+        "services/src/blackskies/services/model_router.py"
+      ],
+      "source_of_truth": "services/src/blackskies/services/config.py",
+      "state": "off",
+      "user_visible": false
+    },
+    {
+      "baseline_default": "off",
+      "config_keys": [
+        "model_router_metadata_enabled"
+      ],
+      "env_vars": [
+        "BLACKSKIES_MODEL_ROUTER_METADATA_ENABLED"
+      ],
+      "kind": "operational",
+      "name": "routing_metadata",
+      "notes": "Optional routing metadata in responses is disabled by default.",
+      "runtime_entrypoints": [
+        "services/src/blackskies/services/app.py"
+      ],
+      "source_of_truth": "services/src/blackskies/services/config.py",
+      "state": "off",
+      "user_visible": false
+    },
+    {
+      "baseline_default": "off",
+      "config_keys": [
+        "long_form_provider_enabled"
+      ],
+      "env_vars": [
+        "BLACKSKIES_LONG_FORM_PROVIDER_ENABLED"
+      ],
+      "kind": "runtime",
+      "name": "long_form_provider_execution",
+      "notes": "Long-form provider-backed execution is implemented but not baseline-enabled.",
+      "runtime_entrypoints": [
+        "services/src/blackskies/services/routers/long_form.py",
+        "services/src/blackskies/services/operations/long_form_execution.py"
+      ],
+      "source_of_truth": "services/src/blackskies/services/config.py",
+      "state": "off",
+      "user_visible": false
+    },
+    {
+      "baseline_default": "off",
+      "config_keys": [
+        "backup_verifier_enabled"
+      ],
+      "env_vars": [
+        "BLACKSKIES_BACKUP_VERIFIER_ENABLED"
+      ],
+      "kind": "operational",
+      "name": "backup_verifier",
+      "notes": "Verifier state is visible in health payloads even when the daemon is disabled by default.",
+      "runtime_entrypoints": [
+        "services/src/blackskies/services/app.py",
+        "services/src/blackskies/services/backup_verifier.py",
+        "services/src/blackskies/services/routers/health.py"
+      ],
+      "source_of_truth": "services/src/blackskies/services/config.py",
+      "state": "off",
+      "user_visible": true
+    },
+    {
+      "baseline_default": "off",
+      "config_keys": [
+        "memory_lab_enabled"
+      ],
+      "env_vars": [
+        "BLACKSKIES_MEMORY_LAB_ENABLED"
+      ],
+      "kind": "runtime",
+      "name": "memory_lab",
+      "notes": "Advisory memory subsystem behind flags.",
+      "runtime_entrypoints": [
+        "services/src/blackskies/services/prompt_pipeline.py",
+        "services/src/blackskies/services/memory_lab/orchestrator.py",
+        "services/src/blackskies/services/operations/draft_generation.py"
+      ],
+      "source_of_truth": "services/src/blackskies/services/config.py",
+      "state": "off",
+      "user_visible": false
+    },
+    {
+      "baseline_default": "off",
+      "config_keys": [
+        "memory_lab_anchor_enabled"
+      ],
+      "env_vars": [
+        "BLACKSKIES_MEMORY_LAB_ANCHOR_ENABLED"
+      ],
+      "kind": "runtime",
+      "name": "memory_lab_anchor",
+      "notes": "Anchor scoring exists but remains disabled with the advisory subsystem.",
+      "runtime_entrypoints": [
+        "services/src/blackskies/services/memory_lab/orchestrator.py"
+      ],
+      "source_of_truth": "services/src/blackskies/services/config.py",
+      "state": "off",
+      "user_visible": false
+    },
+    {
+      "baseline_default": "off",
+      "config_keys": [
+        "memory_lab_reinforcement_enabled"
+      ],
+      "env_vars": [
+        "BLACKSKIES_MEMORY_LAB_REINFORCEMENT_ENABLED"
+      ],
+      "kind": "experimental",
+      "name": "memory_lab_reinforcement",
+      "notes": "Experimental reinforcement behavior, disabled in the baseline runtime.",
+      "runtime_entrypoints": [
+        "services/src/blackskies/services/memory_lab/reinforcement.py"
+      ],
+      "source_of_truth": "services/src/blackskies/services/config.py",
+      "state": "experimental",
+      "user_visible": false
+    },
+    {
+      "baseline_default": "off",
+      "config_keys": [
+        "memory_lab_interpretations_enabled"
+      ],
+      "env_vars": [
+        "BLACKSKIES_MEMORY_LAB_INTERPRETATIONS_ENABLED"
+      ],
+      "kind": "experimental",
+      "name": "memory_lab_interpretations",
+      "notes": "Experimental interpretation variants, disabled in the baseline runtime.",
+      "runtime_entrypoints": [
+        "services/src/blackskies/services/memory_lab/interpretations.py"
+      ],
+      "source_of_truth": "services/src/blackskies/services/config.py",
+      "state": "experimental",
+      "user_visible": false
+    },
+    {
+      "baseline_default": "off",
+      "config_keys": [
+        "memory_lab_decay_enabled"
+      ],
+      "env_vars": [
+        "BLACKSKIES_MEMORY_LAB_DECAY_ENABLED"
+      ],
+      "kind": "experimental",
+      "name": "memory_lab_decay",
+      "notes": "Experimental decay behavior, disabled in the baseline runtime.",
+      "runtime_entrypoints": [
+        "services/src/blackskies/services/memory_lab/decay.py"
+      ],
+      "source_of_truth": "services/src/blackskies/services/config.py",
+      "state": "experimental",
+      "user_visible": false
+    },
+    {
+      "baseline_default": "off",
+      "config_keys": [
+        "memory_lab_experimental_enabled"
+      ],
+      "env_vars": [
+        "BLACKSKIES_MEMORY_LAB_EXPERIMENTAL_ENABLED"
+      ],
+      "kind": "experimental",
+      "name": "memory_lab_experimental_framework",
+      "notes": "Phase 7 experimental framework remains off by default.",
+      "runtime_entrypoints": [
+        "services/src/blackskies/services/memory_lab/experimental.py",
+        "services/src/blackskies/services/memory_lab/wave1.py"
+      ],
+      "source_of_truth": "services/src/blackskies/services/config.py",
+      "state": "experimental",
+      "user_visible": false
+    },
+    {
+      "baseline_default": "off",
+      "config_keys": [],
+      "env_vars": [
+        "BLACKSKIES_ENABLE_PLUGINS"
+      ],
+      "kind": "operational",
+      "name": "plugins",
+      "notes": "Plugin execution exists in code but is not part of the standard runtime baseline.",
+      "runtime_entrypoints": [
+        "services/src/blackskies/services/plugins/registry.py",
+        "services/src/blackskies/services/plugins/host.py"
+      ],
+      "source_of_truth": "services/src/blackskies/services/feature_flags.py",
+      "state": "off",
+      "user_visible": false
+    },
+    {
+      "baseline_default": "off",
+      "config_keys": [],
+      "env_vars": [
+        "BLACKSKIES_ENABLE_VOICE_NOTES"
+      ],
+      "kind": "deferred",
+      "name": "voice_notes",
+      "notes": "Deferred voice workflow with only limited archival verification seams in runtime code.",
+      "runtime_entrypoints": [
+        "services/src/blackskies/services/backup_verifier.py",
+        "services/src/blackskies/services/routers/health.py"
+      ],
+      "source_of_truth": "services/src/blackskies/services/feature_flags.py",
+      "state": "off",
+      "user_visible": false
+    }
+  ],
+  "generated_at": null,
+  "generated_from": {
+    "config_defaults_hash": "98dcd966cc470b0ee3efb8e85a46a1f715c40184bab71660777060a59187ae28",
+    "generator_version": "1",
+    "git_commit": "af8bdbd37b6a83767ff689bf2f0d10e20d0fec4d"
+  },
+  "health_surfaces": [
+    {
+      "diagnostics_only": true,
+      "enabled_by_default": true,
+      "notes": "Health payload reports backup verifier visibility even when the verifier is disabled by default.",
+      "path": "/api/v1/healthz",
+      "visible": true
+    },
+    {
+      "diagnostics_only": true,
+      "enabled_by_default": false,
+      "notes": "Report route is present, but the backing verifier subsystem is implemented-but-disabled by default.",
+      "path": "/api/v1/backup_verifier/report",
+      "visible": true
+    },
+    {
+      "diagnostics_only": true,
+      "enabled_by_default": false,
+      "notes": "Manual verification route exists, but it belongs to a subsystem that is not baseline-enabled.",
+      "path": "/api/v1/backup_verifier/run",
+      "visible": true
+    }
+  ],
+  "memory": {
+    "memory_lab_live": true,
+    "memory_prototype_runtime": false,
+    "notes": "memory_prototype has no observed production import path",
+    "scene_memory_live": true
+  },
+  "plugins": {
+    "env_var": "BLACKSKIES_ENABLE_PLUGINS",
+    "execution_state": "off",
+    "notes": "Plugin runtime namespace exists, but execution is non-baseline and feature-gated.",
+    "registry_path": "services/src/blackskies/services/plugins/registry.py",
+    "runtime_namespace_present": true
+  },
+  "providers": {
+    "callable": [],
+    "configured": [
+      "ollama"
+    ],
+    "health_check_targets": [],
+    "routable": [
+      "ollama"
+    ],
+    "supported": [
+      "ollama",
+      "openai"
+    ]
+  },
+  "routes": [
+    {
+      "baseline_enabled": true,
+      "guarded_by": [],
+      "method": "GET",
+      "notes": "",
+      "path": "/",
+      "present": true
+    },
+    {
+      "baseline_enabled": true,
+      "guarded_by": [
+        "BLACKSKIES_ENABLE_ANALYTICS"
+      ],
+      "method": "GET",
+      "notes": "Route is present; analytics exposure follows the analytics feature flag.",
+      "path": "/api/v1/analytics/budget",
+      "present": true
+    },
+    {
+      "baseline_enabled": true,
+      "guarded_by": [
+        "BLACKSKIES_ENABLE_ANALYTICS"
+      ],
+      "method": "GET",
+      "notes": "Route is present; analytics exposure follows the analytics feature flag.",
+      "path": "/api/v1/analytics/relationships",
+      "present": true
+    },
+    {
+      "baseline_enabled": true,
+      "guarded_by": [
+        "BLACKSKIES_ENABLE_ANALYTICS"
+      ],
+      "method": "GET",
+      "notes": "Route is present; analytics exposure follows the analytics feature flag.",
+      "path": "/api/v1/analytics/scenes",
+      "present": true
+    },
+    {
+      "baseline_enabled": true,
+      "guarded_by": [
+        "BLACKSKIES_ENABLE_ANALYTICS"
+      ],
+      "method": "GET",
+      "notes": "Route is present; analytics exposure follows the analytics feature flag.",
+      "path": "/api/v1/analytics/summary",
+      "present": true
+    },
+    {
+      "baseline_enabled": false,
+      "guarded_by": [
+        "BLACKSKIES_BACKUP_VERIFIER_ENABLED"
+      ],
+      "method": "GET",
+      "notes": "Route is present, but the backing daemon is implemented-but-disabled by default.",
+      "path": "/api/v1/backup_verifier/report",
+      "present": true
+    },
+    {
+      "baseline_enabled": false,
+      "guarded_by": [
+        "BLACKSKIES_BACKUP_VERIFIER_ENABLED"
+      ],
+      "method": "POST",
+      "notes": "Route is present, but the backing daemon is implemented-but-disabled by default.",
+      "path": "/api/v1/backup_verifier/run",
+      "present": true
+    },
+    {
+      "baseline_enabled": true,
+      "guarded_by": [],
+      "method": "GET",
+      "notes": "",
+      "path": "/api/v1/backups",
+      "present": true
+    },
+    {
+      "baseline_enabled": true,
+      "guarded_by": [],
+      "method": "POST",
+      "notes": "",
+      "path": "/api/v1/backups",
+      "present": true
+    },
+    {
+      "baseline_enabled": true,
+      "guarded_by": [],
+      "method": "POST",
+      "notes": "",
+      "path": "/api/v1/backups/restore",
+      "present": true
+    },
+    {
+      "baseline_enabled": true,
+      "guarded_by": [],
+      "method": "POST",
+      "notes": "",
+      "path": "/api/v1/draft/accept",
+      "present": true
+    },
+    {
+      "baseline_enabled": true,
+      "guarded_by": [],
+      "method": "POST",
+      "notes": "",
+      "path": "/api/v1/draft/critique",
+      "present": true
+    },
+    {
+      "baseline_enabled": true,
+      "guarded_by": [],
+      "method": "POST",
+      "notes": "",
+      "path": "/api/v1/draft/export",
+      "present": true
+    },
+    {
+      "baseline_enabled": true,
+      "guarded_by": [],
+      "method": "POST",
+      "notes": "",
+      "path": "/api/v1/draft/generate",
+      "present": true
+    },
+    {
+      "baseline_enabled": true,
+      "guarded_by": [],
+      "method": "POST",
+      "notes": "",
+      "path": "/api/v1/draft/preflight",
+      "present": true
+    },
+    {
+      "baseline_enabled": true,
+      "guarded_by": [],
+      "method": "GET",
+      "notes": "",
+      "path": "/api/v1/draft/recovery",
+      "present": true
+    },
+    {
+      "baseline_enabled": true,
+      "guarded_by": [],
+      "method": "POST",
+      "notes": "",
+      "path": "/api/v1/draft/recovery/restore",
+      "present": true
+    },
+    {
+      "baseline_enabled": true,
+      "guarded_by": [],
+      "method": "POST",
+      "notes": "",
+      "path": "/api/v1/draft/rewrite",
+      "present": true
+    },
+    {
+      "baseline_enabled": true,
+      "guarded_by": [],
+      "method": "POST",
+      "notes": "",
+      "path": "/api/v1/draft/wizard/lock",
+      "present": true
+    },
+    {
+      "baseline_enabled": true,
+      "guarded_by": [],
+      "method": "GET",
+      "notes": "",
+      "path": "/api/v1/draft/{scene_id}",
+      "present": true
+    },
+    {
+      "baseline_enabled": true,
+      "guarded_by": [],
+      "method": "POST",
+      "notes": "",
+      "path": "/api/v1/export",
+      "present": true
+    },
+    {
+      "baseline_enabled": true,
+      "guarded_by": [],
+      "method": "GET",
+      "notes": "Reports disabled subsystem visibility without implying activation.",
+      "path": "/api/v1/healthz",
+      "present": true
+    },
+    {
+      "baseline_enabled": false,
+      "guarded_by": [
+        "BLACKSKIES_LONG_FORM_PROVIDER_ENABLED"
+      ],
+      "method": "POST",
+      "notes": "Long-form execution route is present, but provider-backed long-form is not baseline-enabled.",
+      "path": "/api/v1/long-form/execute",
+      "present": true
+    },
+    {
+      "baseline_enabled": true,
+      "guarded_by": [],
+      "method": "GET",
+      "notes": "",
+      "path": "/api/v1/metrics",
+      "present": true
+    },
+    {
+      "baseline_enabled": true,
+      "guarded_by": [],
+      "method": "POST",
+      "notes": "",
+      "path": "/api/v1/outline/build",
+      "present": true
+    },
+    {
+      "baseline_enabled": true,
+      "guarded_by": [],
+      "method": "POST",
+      "notes": "",
+      "path": "/api/v1/phase4/critique",
+      "present": true
+    },
+    {
+      "baseline_enabled": true,
+      "guarded_by": [],
+      "method": "POST",
+      "notes": "",
+      "path": "/api/v1/phase4/rewrite",
+      "present": true
+    },
+    {
+      "baseline_enabled": true,
+      "guarded_by": [],
+      "method": "POST",
+      "notes": "",
+      "path": "/api/v1/restore",
+      "present": true
+    },
+    {
+      "baseline_enabled": true,
+      "guarded_by": [],
+      "method": "GET",
+      "notes": "",
+      "path": "/api/v1/snapshots",
+      "present": true
+    },
+    {
+      "baseline_enabled": true,
+      "guarded_by": [],
+      "method": "POST",
+      "notes": "",
+      "path": "/api/v1/snapshots",
+      "present": true
+    },
+    {
+      "baseline_enabled": true,
+      "guarded_by": [],
+      "method": "GET",
+      "notes": "",
+      "path": "/favicon.ico",
+      "present": true
+    }
+  ],
+  "routing": {
+    "local_provider": "ollama",
+    "policy": "local_only",
+    "provider_calls_enabled": false,
+    "routing_metadata_enabled": false
+  },
+  "service_baseline": {
+    "api_base": "/api/v1",
+    "app_factory": "services/src/blackskies/services/app.py:create_app",
+    "service_version": "1.0.0-rc1",
+    "settings_class": "services/src/blackskies/services/config.py:ServiceSettings"
+  }
+}

@@ -12,8 +12,10 @@ from typing import Any, Sequence
 from uuid import uuid4
 
 from ..config import ServiceSettings
+from ..canon_court import detect_candidate_ruling, persist_candidate_ruling
 from ..diagnostics import DiagnosticLogger
 from ..draft_synthesizer import DraftSynthesizer
+from ..fracture_analysis import FractureInputs, analyze_fractures
 from ..heuristics import load_project_heuristics
 from ..analytics.runtime import log_runtime_event
 from ..http import raise_budget_error
@@ -423,6 +425,7 @@ class DraftGenerationService:
     ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
         units: list[dict[str, Any]] = []
         artifacts: list[dict[str, Any]] = []
+        fracture_reports: list[dict[str, Any]] = []
         total_scenes = len(scenes)
         adapter = self._last_adapter
         scene_lookup = {scene.id: scene for scene in scenes}
@@ -491,6 +494,73 @@ class DraftGenerationService:
                     message="Draft continuity issues detected.",
                     details={"scene_id": scene.id, "issues": continuity["issues"]},
                 )
+            candidate_ruling = detect_candidate_ruling(
+                project_id=request.project_id,
+                scene_id=scene.id,
+                text=synthesis.body,
+                continuity_issues=continuity["issues"],
+                locked_facts=context.locked_facts,
+            )
+            if candidate_ruling is not None:
+                try:
+                    ruling_path = persist_candidate_ruling(project_root, candidate_ruling)
+                    self._diagnostics.log(
+                        project_root,
+                        code="CANON_COURT",
+                        message="Canon Court advisory candidate ruling persisted.",
+                        details={
+                            "scene_id": scene.id,
+                            "contradiction_id": candidate_ruling.contradiction_id,
+                            "contradiction_type": candidate_ruling.contradiction_type.value,
+                            "severity": candidate_ruling.severity.value,
+                            "storage_path": str(ruling_path),
+                            "diagnostics_only": True,
+                            "advisory": True,
+                            "non_blocking": True,
+                        },
+                    )
+                except OSError as exc:
+                    self._diagnostics.log(
+                        project_root,
+                        code="CANON_COURT",
+                        message="Failed to persist Canon Court advisory candidate ruling.",
+                        details={
+                            "scene_id": scene.id,
+                            "error": str(exc),
+                        },
+                    )
+            fracture_report = analyze_fractures(
+                FractureInputs(
+                    source="draft_generation",
+                    text=synthesis.body,
+                    prior_context_present=bool(context.prior_context),
+                    locked_facts=context.locked_facts,
+                    unresolved_tensions=(
+                        context.memory.unresolved_tensions if context.memory is not None else []
+                    ),
+                    continuity_issues=continuity["issues"],
+                    context_notes=context.notes,
+                    goal=context.goal,
+                    conflict=context.conflict,
+                    turn=context.turn,
+                )
+            )
+            if fracture_report.fractures:
+                fracture_reports.append(
+                    {
+                        "unit_id": scene.id,
+                        "report": fracture_report.model_dump(mode="json"),
+                    }
+                )
+                self._diagnostics.log(
+                    project_root,
+                    code="FRACTURE",
+                    message="Advisory fracture diagnostics detected during draft generation.",
+                    details={
+                        "scene_id": scene.id,
+                        "report": fracture_report.model_dump(mode="json"),
+                    },
+                )
             try:
                 carryover = extract_carryover(synthesis.body)
                 if self._settings.memory_lab_write_legacy_continuity:
@@ -554,6 +624,17 @@ class DraftGenerationService:
             "model": dict(synthesizer._model),
             "budget": budget_payload,
         }
+        if fracture_reports:
+            # Fracture exposure is additive diagnostics metadata only.
+            response_payload["diagnostics"] = {
+                "fractures": {
+                    "exposure": "advisory_unstable_v1",
+                    "diagnostics_only": True,
+                    "advisory": True,
+                    "non_blocking": True,
+                    "reports": fracture_reports,
+                }
+            }
 
         return response_payload, artifacts
 

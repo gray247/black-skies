@@ -3,6 +3,10 @@ Version: 1.0.0
 Last Reviewed: 2025-11-15
 Note: This document describes planned service and plugin interfaces. For current runtime truth, start with `docs/specs/current_state.md`.
 
+Runtime claim sources:
+- `build/runtime_truth.json`
+- `docs/specs/current_state.md`
+
 # docs/specs/agents_and_services.md – Service Hooks v1.1
 
 Spec Index:

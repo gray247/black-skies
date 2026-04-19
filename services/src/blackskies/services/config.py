@@ -12,6 +12,7 @@ from .memory_lab.options import MemoryLabRuntimeOptions
 from .memory_lab.runtime_profiles import load_runtime_profile, list_runtime_profile_names
 from .model_routing import ModelRoutingPolicy
 from .memory_lab.validation import validate_memory_thresholds
+from .feature_flags import FeatureMaturity, normalize_feature_maturity
 
 def _default_project_dir() -> Path:
     """Determine a sensible default project directory."""
@@ -89,7 +90,7 @@ class ServiceSettings(BaseModel):
     analytics_task_timeout_seconds: int = Field(
         default=60,
         ge=10,
-        description="Maximum duration allowed for analytics exports in seconds.",
+        description="Maximum duration allowed for analytics exports in seconds. This controls analytics task execution only; analytics feature exposure/default state is handled in feature_flags.py.",
     )
     analytics_task_retry_attempts: int = Field(
         default=1,
@@ -178,6 +179,10 @@ class ServiceSettings(BaseModel):
         default=False,
         description="Enable the background backup verification daemon. The daemon is implemented in code but disabled in the shipping baseline unless this flag is set.",
     )
+    backup_verifier_maturity: FeatureMaturity | None = Field(
+        default=None,
+        description="Optional maturity override for backup verifier exposure during the migration from boolean feature flags. Supported values: off, experimental, internal, partial, production.",
+    )
     backup_verifier_interval_seconds: int = Field(
         default=30 * 60,
         ge=60,
@@ -196,6 +201,10 @@ class ServiceSettings(BaseModel):
     memory_lab_enabled: bool = Field(
         default=False,
         description="Enable advisory Memory Lab behavior. Memory Lab is implemented as an optional advisory subsystem and is disabled in the baseline runtime by default.",
+    )
+    memory_lab_maturity: FeatureMaturity | None = Field(
+        default=None,
+        description="Optional maturity override for Memory Lab exposure during the migration from boolean feature flags. Supported values: off, experimental, internal, partial, production.",
     )
     memory_lab_runtime_profile: str = Field(
         default="stable_default",
@@ -371,6 +380,10 @@ class ServiceSettings(BaseModel):
             archived_threshold=self.memory_lab_decay_archived_threshold,
             min_weight=self.memory_lab_decay_min_weight,
         )
+        # Migration window: explicit maturity overrides win, but legacy booleans
+        # remain accepted and are normalized into subsystem exposure state.
+        self.backup_verifier_enabled = self.backup_verifier_feature_maturity.is_active
+        self.memory_lab_enabled = self.memory_lab_feature_maturity.is_active
         return self
 
     @field_validator("memory_lab_runtime_profile")
@@ -422,7 +435,7 @@ class ServiceSettings(BaseModel):
             return profile_value
 
         return MemoryLabRuntimeOptions(
-            enabled=self.memory_lab_enabled,
+            enabled=self.memory_lab_feature_maturity.is_active,
             max_candidates=int(_profile_or_explicit("memory_lab_max_candidates", profile.max_candidates)),
             max_unresolved=int(_profile_or_explicit("memory_lab_max_unresolved", profile.max_unresolved)),
             alternate_interpretation_threshold=float(
@@ -531,6 +544,26 @@ class ServiceSettings(BaseModel):
         """Root directory where long-term backup bundles live."""
 
         return self.project_base_dir / "backups"
+
+    @property
+    def backup_verifier_feature_maturity(self) -> FeatureMaturity:
+        """Return normalized maturity for backup verifier exposure."""
+
+        return normalize_feature_maturity(
+            self.backup_verifier_maturity,
+            legacy_enabled=self.backup_verifier_enabled,
+            enabled_state=FeatureMaturity.INTERNAL,
+        )
+
+    @property
+    def memory_lab_feature_maturity(self) -> FeatureMaturity:
+        """Return normalized maturity for Memory Lab subsystem exposure."""
+
+        return normalize_feature_maturity(
+            self.memory_lab_maturity,
+            legacy_enabled=self.memory_lab_enabled,
+            enabled_state=FeatureMaturity.EXPERIMENTAL,
+        )
 
 
 __all__: list[str] = ["ServiceSettings"]

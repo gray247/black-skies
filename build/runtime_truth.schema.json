@@ -1,0 +1,563 @@
+{
+  "$defs": {
+    "AnalyticsState": {
+      "properties": {
+        "enabled_by_default": {
+          "title": "Enabled By Default",
+          "type": "boolean"
+        },
+        "env_var": {
+          "title": "Env Var",
+          "type": "string"
+        },
+        "notes": {
+          "title": "Notes",
+          "type": "string"
+        },
+        "routes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Routes",
+          "type": "array"
+        }
+      },
+      "required": [
+        "enabled_by_default",
+        "env_var",
+        "routes",
+        "notes"
+      ],
+      "title": "AnalyticsState",
+      "type": "object"
+    },
+    "CanonicalDoc": {
+      "properties": {
+        "notes": {
+          "default": "",
+          "description": "Curated policy metadata. Not runtime import/discovery output.",
+          "title": "Notes",
+          "type": "string"
+        },
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "role": {
+          "enum": [
+            "current_runtime_canon",
+            "memory_runtime_canon",
+            "model_runtime_canon"
+          ],
+          "title": "Role",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "role"
+      ],
+      "title": "CanonicalDoc",
+      "type": "object"
+    },
+    "DeferredDoc": {
+      "properties": {
+        "live_runtime_dependency": {
+          "description": "Whether this deferred feature has a live runtime seam in current code.",
+          "title": "Live Runtime Dependency",
+          "type": "boolean"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "notes": {
+          "default": "",
+          "description": "Curated policy metadata. Not runtime import/discovery output.",
+          "title": "Notes",
+          "type": "string"
+        },
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "seam_owners": {
+          "description": "Owning runtime files/modules for the deferred seam when present.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Seam Owners",
+          "type": "array"
+        },
+        "seam_state": {
+          "default": "none",
+          "enum": [
+            "none",
+            "disabled",
+            "off",
+            "internal",
+            "partial",
+            "experimental"
+          ],
+          "title": "Seam State",
+          "type": "string"
+        },
+        "seam_type": {
+          "default": "none",
+          "enum": [
+            "none",
+            "stable_runtime_adapter",
+            "typed_interface_stub",
+            "explicit_disabled_integration_seam",
+            "tested_intentional_seam"
+          ],
+          "title": "Seam Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "path",
+        "live_runtime_dependency"
+      ],
+      "title": "DeferredDoc",
+      "type": "object"
+    },
+    "FeatureEntry": {
+      "properties": {
+        "baseline_default": {
+          "title": "Baseline Default",
+          "type": "string"
+        },
+        "config_keys": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Config Keys",
+          "type": "array"
+        },
+        "env_vars": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Env Vars",
+          "type": "array"
+        },
+        "kind": {
+          "enum": [
+            "runtime",
+            "experimental",
+            "deferred",
+            "operational"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "notes": {
+          "default": "",
+          "title": "Notes",
+          "type": "string"
+        },
+        "runtime_entrypoints": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Runtime Entrypoints",
+          "type": "array"
+        },
+        "source_of_truth": {
+          "title": "Source Of Truth",
+          "type": "string"
+        },
+        "state": {
+          "enum": [
+            "off",
+            "experimental",
+            "internal",
+            "partial",
+            "production"
+          ],
+          "title": "State",
+          "type": "string"
+        },
+        "user_visible": {
+          "title": "User Visible",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "kind",
+        "state",
+        "source_of_truth",
+        "baseline_default",
+        "user_visible"
+      ],
+      "title": "FeatureEntry",
+      "type": "object"
+    },
+    "GeneratedFrom": {
+      "properties": {
+        "config_defaults_hash": {
+          "title": "Config Defaults Hash",
+          "type": "string"
+        },
+        "generator_version": {
+          "default": "1",
+          "title": "Generator Version",
+          "type": "string"
+        },
+        "git_commit": {
+          "title": "Git Commit",
+          "type": "string"
+        }
+      },
+      "required": [
+        "git_commit",
+        "config_defaults_hash"
+      ],
+      "title": "GeneratedFrom",
+      "type": "object"
+    },
+    "HealthSurface": {
+      "properties": {
+        "diagnostics_only": {
+          "title": "Diagnostics Only",
+          "type": "boolean"
+        },
+        "enabled_by_default": {
+          "title": "Enabled By Default",
+          "type": "boolean"
+        },
+        "notes": {
+          "title": "Notes",
+          "type": "string"
+        },
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "visible": {
+          "title": "Visible",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "path",
+        "visible",
+        "enabled_by_default",
+        "diagnostics_only",
+        "notes"
+      ],
+      "title": "HealthSurface",
+      "type": "object"
+    },
+    "MemoryState": {
+      "properties": {
+        "memory_lab_live": {
+          "title": "Memory Lab Live",
+          "type": "boolean"
+        },
+        "memory_prototype_runtime": {
+          "title": "Memory Prototype Runtime",
+          "type": "boolean"
+        },
+        "notes": {
+          "title": "Notes",
+          "type": "string"
+        },
+        "scene_memory_live": {
+          "title": "Scene Memory Live",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "scene_memory_live",
+        "memory_lab_live",
+        "memory_prototype_runtime",
+        "notes"
+      ],
+      "title": "MemoryState",
+      "type": "object"
+    },
+    "PluginsState": {
+      "properties": {
+        "env_var": {
+          "title": "Env Var",
+          "type": "string"
+        },
+        "execution_state": {
+          "enum": [
+            "off",
+            "experimental",
+            "internal",
+            "partial",
+            "production"
+          ],
+          "title": "Execution State",
+          "type": "string"
+        },
+        "notes": {
+          "title": "Notes",
+          "type": "string"
+        },
+        "registry_path": {
+          "title": "Registry Path",
+          "type": "string"
+        },
+        "runtime_namespace_present": {
+          "title": "Runtime Namespace Present",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "runtime_namespace_present",
+        "execution_state",
+        "env_var",
+        "registry_path",
+        "notes"
+      ],
+      "title": "PluginsState",
+      "type": "object"
+    },
+    "ProviderState": {
+      "properties": {
+        "callable": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Callable",
+          "type": "array"
+        },
+        "configured": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Configured",
+          "type": "array"
+        },
+        "health_check_targets": {
+          "description": "Providers configured for health checks via settings flags. This is config-derived metadata, not live health telemetry.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Health Check Targets",
+          "type": "array"
+        },
+        "routable": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Routable",
+          "type": "array"
+        },
+        "supported": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Supported",
+          "type": "array"
+        }
+      },
+      "required": [
+        "supported",
+        "configured",
+        "routable",
+        "callable",
+        "health_check_targets"
+      ],
+      "title": "ProviderState",
+      "type": "object"
+    },
+    "RouteEntry": {
+      "properties": {
+        "baseline_enabled": {
+          "description": "Policy-assigned baseline exposure state for the discovered route.",
+          "title": "Baseline Enabled",
+          "type": "boolean"
+        },
+        "guarded_by": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Guarded By",
+          "type": "array"
+        },
+        "method": {
+          "title": "Method",
+          "type": "string"
+        },
+        "notes": {
+          "default": "",
+          "title": "Notes",
+          "type": "string"
+        },
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "present": {
+          "default": true,
+          "title": "Present",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "path",
+        "method",
+        "baseline_enabled"
+      ],
+      "title": "RouteEntry",
+      "type": "object"
+    },
+    "RoutingState": {
+      "properties": {
+        "local_provider": {
+          "title": "Local Provider",
+          "type": "string"
+        },
+        "policy": {
+          "title": "Policy",
+          "type": "string"
+        },
+        "provider_calls_enabled": {
+          "title": "Provider Calls Enabled",
+          "type": "boolean"
+        },
+        "routing_metadata_enabled": {
+          "title": "Routing Metadata Enabled",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "policy",
+        "routing_metadata_enabled",
+        "provider_calls_enabled",
+        "local_provider"
+      ],
+      "title": "RoutingState",
+      "type": "object"
+    },
+    "ServiceBaseline": {
+      "properties": {
+        "api_base": {
+          "title": "Api Base",
+          "type": "string"
+        },
+        "app_factory": {
+          "title": "App Factory",
+          "type": "string"
+        },
+        "service_version": {
+          "title": "Service Version",
+          "type": "string"
+        },
+        "settings_class": {
+          "title": "Settings Class",
+          "type": "string"
+        }
+      },
+      "required": [
+        "service_version",
+        "app_factory",
+        "settings_class",
+        "api_base"
+      ],
+      "title": "ServiceBaseline",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "analytics": {
+      "$ref": "#/$defs/AnalyticsState"
+    },
+    "canonical_docs": {
+      "description": "Curated policy-backed canonical-document pointers. Not runtime-discovered.",
+      "items": {
+        "$ref": "#/$defs/CanonicalDoc"
+      },
+      "title": "Canonical Docs",
+      "type": "array"
+    },
+    "deferred_docs": {
+      "description": "Curated policy-backed deferred-document pointers. Not runtime-discovered.",
+      "items": {
+        "$ref": "#/$defs/DeferredDoc"
+      },
+      "title": "Deferred Docs",
+      "type": "array"
+    },
+    "features": {
+      "items": {
+        "$ref": "#/$defs/FeatureEntry"
+      },
+      "title": "Features",
+      "type": "array"
+    },
+    "generated_at": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Generated At"
+    },
+    "generated_from": {
+      "$ref": "#/$defs/GeneratedFrom"
+    },
+    "health_surfaces": {
+      "items": {
+        "$ref": "#/$defs/HealthSurface"
+      },
+      "title": "Health Surfaces",
+      "type": "array"
+    },
+    "memory": {
+      "$ref": "#/$defs/MemoryState"
+    },
+    "plugins": {
+      "$ref": "#/$defs/PluginsState"
+    },
+    "providers": {
+      "$ref": "#/$defs/ProviderState"
+    },
+    "routes": {
+      "items": {
+        "$ref": "#/$defs/RouteEntry"
+      },
+      "title": "Routes",
+      "type": "array"
+    },
+    "routing": {
+      "$ref": "#/$defs/RoutingState"
+    },
+    "service_baseline": {
+      "$ref": "#/$defs/ServiceBaseline"
+    }
+  },
+  "required": [
+    "service_baseline",
+    "routes",
+    "providers",
+    "routing",
+    "features",
+    "memory",
+    "plugins",
+    "analytics",
+    "health_surfaces",
+    "deferred_docs",
+    "canonical_docs",
+    "generated_from"
+  ],
+  "title": "RuntimeTruth",
+  "type": "object"
+}

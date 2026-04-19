@@ -21,6 +21,7 @@ from ...critique import BLOCKED_RUBRIC_CATEGORIES, CritiqueService
 from ...diagnostics import DiagnosticLogger
 from ...diff_engine import compute_diff
 from ...export import merge_front_matter, normalize_markdown
+from ...fracture_analysis import FractureInputs, analyze_fractures
 from ...http import (
     raise_budget_error,
     raise_conflict_error,
@@ -562,6 +563,20 @@ async def critique_draft(
             rubric_id=request_model.rubric_id,
         )
 
+    fracture_payload = _log_critique_fractures(
+        diagnostics=diagnostics,
+        project_root=project_root,
+        request_model=request_model,
+        result=result,
+    )
+    if fracture_payload is not None:
+        # Additive advisory diagnostics surface; not a stable contract guarantee.
+        diagnostics_payload = result.get("diagnostics")
+        if not isinstance(diagnostics_payload, dict):
+            diagnostics_payload = {}
+        diagnostics_payload["fractures"] = fracture_payload
+        result["diagnostics"] = diagnostics_payload
+
     return result
 
 
@@ -602,6 +617,56 @@ def record_runtime_event(
             message="Failed to record analytics runtime event.",
             details={"unit_id": unit_id, "error": str(exc)},
         )
+
+
+def _log_critique_fractures(
+    *,
+    diagnostics: DiagnosticLogger,
+    project_root: Path | None,
+    request_model: DraftCritiqueRequest,
+    result: dict[str, Any],
+) -> dict[str, Any] | None:
+    """Emit advisory fracture diagnostics for critique and return exposure payload."""
+
+    if project_root is None:
+        return None
+    try:
+        _, front_matter, body = read_scene_document(project_root, request_model.unit_id)
+    except DraftRequestError:
+        return None
+
+    report = analyze_fractures(
+        FractureInputs(
+            source="critique",
+            text=body,
+            locked_facts=[],
+            unresolved_tensions=front_matter.get("unresolved") or [],
+            continuity_issues=[],
+            context_notes=[],
+            goal=front_matter.get("goal"),
+            conflict=front_matter.get("conflict"),
+            turn=front_matter.get("turn"),
+            critique_priorities=result.get("priorities") or [],
+        )
+    )
+    if not report.fractures:
+        return None
+    diagnostics.log(
+        project_root,
+        code="FRACTURE",
+        message="Advisory fracture diagnostics detected during critique.",
+        details={
+            "unit_id": request_model.unit_id,
+            "report": report.model_dump(mode="json"),
+        },
+    )
+    return {
+        "exposure": "advisory_unstable_v1",
+        "diagnostics_only": True,
+        "advisory": True,
+        "non_blocking": True,
+        "report": report.model_dump(mode="json"),
+    }
 
 
 __all__ = ["rewrite_draft", "critique_draft"]
