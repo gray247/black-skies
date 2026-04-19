@@ -60,9 +60,15 @@ temp_*
 # -------------------------
 # Runtime Artifacts / Generated Data
 # -------------------------
-.hypothesis/
+.pytest_cache/
 .pytest-cache-local/
 .pytest-tmp/
+pytest-cache-files-*/
+**/pytest-cache-files-*/
+tmp/pytest/
+tmp/pytest-of-*/
+**/tmp/pytest/
+**/tmp/pytest-of-*/
 tmp_budget/
 tmp_contract/
 tmp_flow/
@@ -100,6 +106,20 @@ desktop.ini
 .idea/
 *.swp
 *.swo
+
+# -------------------------
+# Runtime Artifacts / Generated Data
+# -------------------------
+# pytest caches / temp dirs created by test runs
+.pytest_cache/
+pytest-cache-files-*/
+**/pytest-cache-files-*/
+
+# pytest temp trees
+tmp/pytest/
+tmp/pytest-of-*/
+**/tmp/pytest/
+**/tmp/pytest-of-*/
 
 # -------------------------
 # Archives / Backups
