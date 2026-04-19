@@ -56,6 +56,8 @@ sample_project/**/.snapshots/
 tmp_*
 temp_*
 *.tmp
+tmp/
+temp/
 
 # -------------------------
 # Runtime Artifacts / Generated Data
