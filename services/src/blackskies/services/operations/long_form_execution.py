@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable
@@ -308,37 +307,26 @@ class LongFormExecutionService:
             payload["options"]["num_predict"] = min(300, int(continuation.target_words))
         try:
             response = adapter.generate_draft(payload)
-            raw_text = adapter.extract_text(response)
+            normalized_response = adapter.normalize_text_response(response)
+            raw_text = normalized_response.text
             cleaned = normalize_long_form_output(raw_text)
             if is_usable_long_form_output(cleaned, prior_excerpt=continuation.prior_excerpt):
                 return cleaned.strip(), None, False
             report = evaluate_long_form_output(cleaned, prior_excerpt=continuation.prior_excerpt)
-            raw_payload = response.get("raw") if isinstance(response, dict) else None
-            if not isinstance(raw_payload, dict) and isinstance(response, dict):
-                raw_payload = response
-            raw_payload_keys: list[str] | None = None
-            raw_payload_preview: str | None = None
-            if isinstance(raw_payload, dict):
-                raw_payload_keys = sorted(
-                    [str(key) for key in raw_payload.keys() if key is not None]
-                )
-                try:
-                    raw_payload_preview = json.dumps(
-                        raw_payload, ensure_ascii=False, default=str
-                    )[:500]
-                except Exception:  # pragma: no cover - defensive
-                    raw_payload_preview = None
             self._diagnostics.log(
                 Path(self._settings.project_base_dir),
                 code="VALIDATION",
                 message="Long-form output rejected.",
                 details={
                     "reason": report,
+                    "validation_classifications": report.get("classifications"),
+                    "validation_primary_classification": report.get("primary_classification"),
                     "raw_length": len(raw_text) if isinstance(raw_text, str) else 0,
                     "raw_excerpt": (raw_text[:400] if isinstance(raw_text, str) else None),
                     "cleaned_excerpt": (cleaned[:400] if isinstance(cleaned, str) else None),
-                    "raw_payload_keys": raw_payload_keys,
-                    "raw_payload_preview": raw_payload_preview,
+                    "raw_payload_keys": normalized_response.raw_payload_keys(),
+                    "raw_payload_preview": normalized_response.raw_payload_preview(),
+                    "normalization_source": normalized_response.extraction_source,
                 },
             )
             return self._fallback_text(continuation), "invalid_output", True

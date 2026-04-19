@@ -29,7 +29,18 @@ function Get-GroupSpecs {
         # Keep runtime-truth validation explicit in normal local runs so
         # freshness/schema drift is not a memory-based ritual.
         "unit" { return @("services\tests\unit\test_*.py", "services\tests\unit\test_runtime_truth.py") }
-        "mixed" { return @("tests\test_*.py", "services\tests\test_*.py", "services\tests\unit\test_runtime_truth.py") }
+        # Mixed is the default local validation lane. Keep critical long-form
+        # hardening coverage explicit for fast hotfix verification.
+        "mixed" {
+            return @(
+                "tests\test_*.py",
+                "services\tests\test_*.py",
+                "services\tests\unit\test_runtime_truth.py",
+                "services\tests\unit\test_long_form.py",
+                "services\tests\unit\test_long_form_execution.py",
+                "services\tests\unit\test_model_adapters.py"
+            )
+        }
         "all" { return @("tests\test_*.py", "services\tests\test_*.py", "services\tests\unit\test_*.py", "services\tests\prototype\test_*.py") }
         default { throw "Unknown test group: $Name" }
     }

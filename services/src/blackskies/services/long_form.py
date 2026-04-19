@@ -208,30 +208,99 @@ def _meta_summary_detected(text: str) -> bool:
     return False
 
 
+def _scaffold_leakage_detected(text: str) -> bool:
+    prefixes = (
+        "chapter:",
+        "scene ids:",
+        "prior summary:",
+        "prior excerpt:",
+        "locked facts:",
+        "constraints:",
+        "target word range:",
+    )
+    for line in text.splitlines():
+        lowered = line.strip().lower()
+        if lowered.startswith(prefixes):
+            return True
+    return False
+
+
+def _summary_style_detected(text: str) -> bool:
+    lowered = text.lower()
+    markers = (
+        "summary:",
+        "outline:",
+        "beats:",
+        "in summary",
+        "this scene will",
+    )
+    return any(marker in lowered for marker in markers)
+
+
+def _repetition_heavy_detected(text: str) -> bool:
+    sentences = [segment.strip().lower() for segment in text.replace("\n", " ").split(".") if segment.strip()]
+    if len(sentences) < 4:
+        return False
+    unique = len(set(sentences))
+    repeated_ratio = 1.0 - (unique / len(sentences))
+    return repeated_ratio >= 0.35
+
+
 def evaluate_long_form_output(
     text: str | None,
     *,
     prior_excerpt: str | None = None,
 ) -> dict[str, Any]:
     if not isinstance(text, str):
-        return {"usable": False, "reason": "not_text"}
+        return {
+            "usable": False,
+            "reason": "not_text",
+            "classifications": ["structurally_thin"],
+            "primary_classification": "structurally_thin",
+        }
     stripped = text.strip()
     if not stripped:
-        return {"usable": False, "reason": "empty"}
+        return {
+            "usable": False,
+            "reason": "empty",
+            "classifications": ["structurally_thin"],
+            "primary_classification": "structurally_thin",
+        }
     words = [token for token in stripped.split() if token]
     word_count = len(words)
     meta = _meta_summary_detected(stripped)
+    scaffold_leakage = _scaffold_leakage_detected(stripped)
+    summary_style = _summary_style_detected(stripped)
+    repetition_heavy = _repetition_heavy_detected(stripped)
     missing_carryover = False
     if prior_excerpt:
         tokens = [token for token in prior_excerpt.split() if len(token) > 4]
         lowered = stripped.lower()
         missing_carryover = not any(token.lower() in lowered for token in tokens)
+    structurally_thin = word_count < 60
     usable = word_count >= 60 and not meta
+    classifications: list[str] = []
+    if usable:
+        classifications.append("prose")
+    if scaffold_leakage:
+        classifications.append("scaffold_leakage")
+    if summary_style:
+        classifications.append("summary_style")
+    if repetition_heavy:
+        classifications.append("repetition_heavy")
+    if missing_carryover:
+        classifications.append("carryover_missing")
+    if structurally_thin:
+        classifications.append("structurally_thin")
+    if not classifications:
+        classifications.append("prose")
     return {
         "usable": usable,
         "word_count": word_count,
         "meta_summary": meta,
         "missing_carryover": missing_carryover,
+        "classifications": classifications,
+        "primary_classification": classifications[0],
     }
 
 

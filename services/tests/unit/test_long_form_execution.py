@@ -7,7 +7,12 @@ from blackskies.services.config import ServiceSettings
 from blackskies.services.diagnostics import DiagnosticLogger
 from blackskies.services.model_router import ModelRouter, ModelSpec, ModelTask
 from blackskies.services.model_routing import ModelRouterConfig, ModelRoutingPolicy
-from blackskies.services.model_adapters import AdapterConfig, AdapterError, BaseAdapter
+from blackskies.services.model_adapters import (
+    AdapterConfig,
+    AdapterError,
+    BaseAdapter,
+    NormalizedAdapterResponse,
+)
 from blackskies.services.operations.long_form_execution import LongFormExecutionService
 
 
@@ -70,10 +75,30 @@ class _RawNestedDataAdapter(_FakeAdapter):
         return {"raw": {"data": {"response": self._text}}}
 
 
+class _RawChoicesAdapter(_FakeAdapter):
+    def generate_draft(self, payload: dict[str, object]) -> dict[str, object]:
+        self.last_payload = payload
+        return {"choices": [{"message": {"content": self._text}}]}
+
+
 class _RawUnknownShapeAdapter(_FakeAdapter):
     def generate_draft(self, payload: dict[str, object]) -> dict[str, object]:
         self.last_payload = payload
         return {"raw": {"data": {"note": "missing text"}}}
+
+
+class _NormalizeBoundaryAdapter(_FakeAdapter):
+    def extract_text(self, response):  # type: ignore[no-untyped-def]
+        raise AssertionError("long_form_execution should not call extract_text directly")
+
+    def normalize_text_response(
+        self, response: dict[str, object] | None
+    ) -> NormalizedAdapterResponse:
+        return NormalizedAdapterResponse(
+            text=self._text,
+            raw_payload={"boundary": "normalized"},
+            extraction_source="text",
+        )
 
 
 class _FakeProvider:
@@ -204,6 +229,8 @@ def test_long_form_invalid_output_logs_excerpt(tmp_path: Path) -> None:
     entry = next(entry for entry in diagnostics.entries if entry[0] == "VALIDATION")
     assert entry[2] is not None
     assert entry[2].get("raw_excerpt")
+    assert entry[2].get("validation_classifications")
+    assert entry[2].get("validation_primary_classification")
 
 
 def test_long_form_execution_disabled_toggle(tmp_path: Path) -> None:
@@ -389,6 +416,70 @@ def test_long_form_execution_extracts_nested_data_response(tmp_path: Path) -> No
     assert result.chunks[0].continuity_snapshot["fallback_reason"] is None
 
 
+def test_long_form_execution_extracts_choice_message_content(tmp_path: Path) -> None:
+    project_root = tmp_path / "proj_raw_choices"
+    project_root.mkdir(parents=True, exist_ok=True)
+    settings = ServiceSettings(project_base_dir=tmp_path, long_form_provider_enabled=True)
+    diagnostics = DiagnosticLogger()
+    router = ModelRouter(
+        config=ModelRouterConfig(
+            policy=ModelRoutingPolicy.LOCAL_ONLY,
+            provider_calls_enabled=True,
+        )
+    )
+    router.register_provider(_FakeProvider(_RawChoicesAdapter("Mara moved through the hall. " * 14)))
+    service = LongFormExecutionService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=router,
+        enabled=True,
+    )
+
+    result = service.execute(
+        project_root=project_root,
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chunk_size=1,
+        target_words_per_chunk=300,
+    )
+
+    assert result.stopped_reason is None
+    assert result.chunks[0].continuity_snapshot["fallback_reason"] is None
+
+
+def test_long_form_execution_uses_adapter_normalization_boundary(tmp_path: Path) -> None:
+    project_root = tmp_path / "proj_norm_boundary"
+    project_root.mkdir(parents=True, exist_ok=True)
+    settings = ServiceSettings(project_base_dir=tmp_path, long_form_provider_enabled=True)
+    diagnostics = DiagnosticLogger()
+    router = ModelRouter(
+        config=ModelRouterConfig(
+            policy=ModelRoutingPolicy.LOCAL_ONLY,
+            provider_calls_enabled=True,
+        )
+    )
+    router.register_provider(
+        _FakeProvider(_NormalizeBoundaryAdapter("Mara moved through the hall. " * 14))
+    )
+    service = LongFormExecutionService(
+        settings=settings,
+        diagnostics=diagnostics,
+        model_router=router,
+        enabled=True,
+    )
+
+    result = service.execute(
+        project_root=project_root,
+        chapter_id="ch_0001",
+        scene_ids=["sc_0001"],
+        chunk_size=1,
+        target_words_per_chunk=300,
+    )
+
+    assert result.stopped_reason is None
+    assert result.chunks
+
+
 def test_long_form_invalid_output_logs_raw_payload(tmp_path: Path) -> None:
     project_root = tmp_path / "proj_raw_diag"
     project_root.mkdir(parents=True, exist_ok=True)
@@ -421,3 +512,6 @@ def test_long_form_invalid_output_logs_raw_payload(tmp_path: Path) -> None:
     assert entry[2] is not None
     assert "raw_payload_keys" in entry[2]
     assert entry[2].get("raw_payload_preview")
+    assert "normalization_source" in entry[2]
+    assert entry[2].get("validation_classifications")
+    assert entry[2].get("validation_primary_classification")

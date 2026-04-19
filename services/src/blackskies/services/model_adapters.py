@@ -32,6 +32,32 @@ class ProviderCapabilities:
     supported_tasks: FrozenSet[str]
 
 
+@dataclass(frozen=True)
+class NormalizedAdapterResponse:
+    """Normalized adapter response consumed by execution services.
+
+    Execution layers should use this structure instead of inspecting provider-
+    specific response dialects directly.
+    """
+
+    text: str | None
+    raw_payload: dict[str, Any] | None
+    extraction_source: str | None
+
+    def raw_payload_keys(self) -> list[str] | None:
+        if not isinstance(self.raw_payload, dict):
+            return None
+        return sorted([str(key) for key in self.raw_payload.keys() if key is not None])
+
+    def raw_payload_preview(self, *, limit: int = 500) -> str | None:
+        if not isinstance(self.raw_payload, dict):
+            return None
+        try:
+            return json.dumps(self.raw_payload, ensure_ascii=False, default=str)[:limit]
+        except Exception:  # pragma: no cover - defensive
+            return None
+
+
 class BaseAdapter:
     provider_name: str = "unknown"
     prompt_profile_name: str = "default"
@@ -97,6 +123,37 @@ class BaseAdapter:
         if not isinstance(raw_payload, dict):
             raw_payload = response
         return self._extract_text_from_payload(raw_payload)
+
+    def normalize_text_response(
+        self, response: dict[str, Any] | None
+    ) -> NormalizedAdapterResponse:
+        """Return a normalized text payload for execution workflows."""
+
+        if not isinstance(response, dict):
+            return NormalizedAdapterResponse(
+                text=None,
+                raw_payload=None,
+                extraction_source=None,
+            )
+        candidate = response.get("text")
+        if isinstance(candidate, str) and candidate.strip():
+            raw_payload = response.get("raw")
+            if not isinstance(raw_payload, dict):
+                raw_payload = response
+            return NormalizedAdapterResponse(
+                text=candidate,
+                raw_payload=raw_payload if isinstance(raw_payload, dict) else None,
+                extraction_source="text",
+            )
+        raw_payload = response.get("raw")
+        if not isinstance(raw_payload, dict):
+            raw_payload = response
+        extracted = self._extract_text_from_payload(raw_payload if isinstance(raw_payload, dict) else {})
+        return NormalizedAdapterResponse(
+            text=extracted,
+            raw_payload=raw_payload if isinstance(raw_payload, dict) else None,
+            extraction_source="payload" if isinstance(extracted, str) and extracted.strip() else None,
+        )
 
     def _extract_text_from_payload(self, payload: dict[str, Any]) -> str | None:
         for key in ("response", "text", "content", "output"):
@@ -261,6 +318,7 @@ __all__ = [
     "AdapterConfig",
     "AdapterError",
     "BaseAdapter",
+    "NormalizedAdapterResponse",
     "OllamaAdapter",
     "OpenAIAdapter",
     "ProviderCapabilities",
