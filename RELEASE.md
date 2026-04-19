@@ -1,48 +1,46 @@
-# RELEASE.md  Black Skies
+# RELEASE.md - Black Skies
 
-## Prerequisites
-- Target version: `v1.0.0-p9`
-- Python 3.11+
-- Node 20.x + pnpm 8.x
-- Local wheel cache populated under `vendor/wheels/`
+Minimal release process aligned to current runtime and CI.
+
+## Authority note
+Release checklists must align with:
+- `build/runtime_truth.json`
+- `docs/specs/current_state.md`
+- `docs/roadmap.md`
+
+## Preconditions
 - Clean `git status`
-- Regenerate documentation (`docs/specs/endpoints.md`, `docs/gui/gui_layouts.md`, `docs/deferred/voice_notes_transcription.md`) as features land
+- Passing validation workflow targets locally where feasible
+- Runtime truth artifact regenerated and fresh
 
-## Release Checklist
-1. Update versions:
-   - `pyproject.toml`
-   - `services/src/blackskies/services/app.py::SERVICE_VERSION`
-   - `app/package.json` + `app/main/main.ts` banner
-2. Refresh API contract assets:
-   - Verify `docs/specs/endpoints.md` + `/openapi.json`
-   - Confirm analytics + voice note samples match current responses
-3. Regenerate desktop bundles:
+## Release checklist
+1. Regenerate runtime truth artifacts:
    ```bash
-   pnpm install --frozen-lockfile
+   python tools/runtime_truth/build_runtime_truth.py
+   ```
+2. Verify runtime truth freshness/schema:
+   ```bash
+   pytest -q services/tests/unit/test_runtime_truth.py
+   ```
+3. Run core validation lanes:
+   ```bash
+   pytest -q services/tests/unit
+   pytest -q services/tests/unit/test_long_form.py services/tests/unit/test_long_form_execution.py services/tests/unit/test_model_adapters.py
+   ```
+4. Run app checks:
+   ```bash
    pnpm --filter app lint
    pnpm --filter app test
-   python -m pytest -q
    ```
-4. Build release artifacts:
+5. Run route smoke and eval/load harness as required by release scope:
    ```bash
-   pnpm --filter app build:production
-   python -m build --wheel --no-isolation
+   bash scripts/smoke.sh
+   python scripts/eval.py --html out/eval.html --json out/eval.json
    ```
-5. Smoke the feature matrix:
-   - Docking enabled (`ui.enable_docking=true`) → drag, float, preset hotkeys
-   - `/api/v1/analytics/summary` response cached + rendered
-   - Voice note record → transcribe → attach to scene
-   - Plugin sandbox registry toggle + audit log
-6. Verify export flows (`scripts/load.py --profile burst --slo-report reports/p9/slo.json`, `scripts/eval.py`)
-7. Update `CHANGELOG.md`, `phase_log.md`, and support playbook with release highlights
-8. Tag & publish:
-   ```bash
-   git tag v1.0.0-p9
-   git push origin main --tags
-   ```
-9. Create GitHub release entry (attach Electron bundle + wheels)
-10. Announce release, close milestone, and archive reports (`reports/p9/`)
+6. Update docs where needed:
+   - `docs/roadmap.md` (status)
+   - `docs/phases/phase_log.md` (dated history)
+7. Tag and publish release artifacts.
 
-## Rollback
-- Revert to previous tag `git checkout v1.0.0-rc1` (or prior release).
-- Restore prior config, rebuild artifacts, republish, and notify support channel.
+## Explicit non-goals
+- Do not assume deferred product flows (for example voice-note recording/transcription UI) are release blockers unless they are in current runtime truth.

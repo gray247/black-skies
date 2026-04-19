@@ -1,72 +1,93 @@
-Status: Active roadmap / planning authority, not runtime authority
-Version: 1.0.0
-Last Reviewed: 2025-11-15
+Status: Active roadmap / status authority, not runtime authority
+Version: 1.1.0
+Last Reviewed: 2026-04-19
 
 # Roadmap
 
-Authority note: this roadmap is the canonical planning/status snapshot. It is not a current runtime reference. For current runtime truth, start with `docs/specs/current_state.md`. Use [docs/phases/phase_charter.md](./phases/phase_charter.md) for scoped future work and [docs/phases/phase_log.md](./phases/phase_log.md) for dated lock history.
+Authority note: this file is the single planning and status authority for phase progress.
+It is not runtime authority. For runtime truth, use `build/runtime_truth.json` and `docs/specs/current_state.md`.
+
+Related planning docs:
+- Scope authority: `docs/phases/phase_charter.md`
+- History-only ledger: `docs/phases/phase_log.md`
 
 ## Status legend
 | Label | Meaning |
 | :---- | :------ |
-| Planned | Not yet in execution; tracked via charter + GitHub milestone. |
-| In progress | Active development; entries in phase log marked `IN PROGRESS`. |
-| Complete | Work landed and verified; matching `LOCKED` entry in phase log. |
-| Locked | Scope frozen; no further changes without charter update. |
+| Planned | Scoped but not yet code-backed. |
+| In progress | Active implementation with meaningful open work. |
+| Partial | Code-backed implementation exists, but phase goals are incomplete or behind flags/advisory paths. |
+| Complete | Landed and verified against runtime/code/tests. |
+| Stale claim | Prior doc claim does not match current code/runtime truth. |
+
+## Runtime-aware planning note
+Later phases can be partially implemented in parallel. A phase marked `Partial` may include shipped seams, feature-flagged paths, advisory systems, or incomplete UI.
 
 ## Phase summary
-| Phase | Name | Status | Target window | Scope reference |
-| :---- | :---- | :----- | :------------- | :--------------- |
-| P0 | Foundation | Complete | 2025-09 | Charter v1.0 |
-| P1 | Core backend API | Complete | 2025-09 | Charter v1.0 |
-| P2 | GUI skeleton & panes | Complete | 2025-09 | Charter v1.0 |
-| P3 | Writing & feedback loop | Complete | 2025-09 | Charter v1.0 |
-| P4.0 | Observability baseline | Complete | 2025-09 | Charter v1.0 |
-| P4.1 | Documentation & tagging sweep | Complete | 2025-09 | Charter v1.0 |
-| P5 | Tools, data, evaluation harness | Complete | 2025-09 | Charter v1.0 |
-| P6 | End-to-end integration & contracts | Complete | 2025-09 | Charter v1.0 |
-| P7 | Release candidate | Complete | 2025-09 | Charter v1.1 |
-| P8 | Insights & feedback expansion | In progress | 2025-10 | Charter v1.1 |
-| P9 | Analytics & visualization | Planned | 2025-11 | Charter v1.1 |
-| P10 | Accessibility & professional exports | Planned | 2025-12 | Charter v1.1 |
-| P11 | Agents & plugins | Planned | 2026-01 | Charter v1.1 |
-
-## Deferred Features (Not in v1.1)
-
-The following planning docs describe capabilities that remain on the roadmap beyond the Phase 8 shipping surface. Update them when the corresponding phase gates open.
-
-- [`docs/deferred/voice_notes_transcription.md`](./deferred/voice_notes_transcription.md) – Voice note recording, transcription, and playback flows that ship in later accessibility/insights phases.
-- [`docs/specs/plugin_sandbox.md`](./specs/plugin_sandbox.md) – Plugin/agent sandboxing, permission gating, and auditing planned for Phase 11.
-- [`docs/specs/backup_verification_daemon.md`](./specs/backup_verification_daemon.md) – Backup verifier daemon, diagnostics, and health payload extensions that stay disabled in v1.1.
-- [`docs/deferred/smart_merge_tool.md`](./deferred/smart_merge_tool.md) – Smart merge workflow for combining scene variants and annotations (Phase 11 editorial tooling).
-- [`docs/gui/accessibility_toggles.md`](./gui/accessibility_toggles.md) – Large-font + high-contrast theming toggles (Phase 10 accessibility focus).
-- [`docs/phases/phase10_recovery_pipeline.md`](./phases/phase10_recovery_pipeline.md) – Snapshot/hot restore UX improvements scoped for Phase 10.
-- [`docs/phases/phase11_export_pipeline.md`](./phases/phase11_export_pipeline.md) – Export builder advances (Markdown/JSON/PDF/EPUB/ZIP) slated for Phase 11.
+| Phase | Name | Verified status | Runtime-aware summary |
+| :---- | :---- | :-------------- | :-------------------- |
+| P7 | Release candidate baseline | Complete | Core service and desktop baseline are landed and operational. |
+| P8 | Insights and feedback expansion | Partial | Docking workspace, layout persistence, budget meter, batch critique, and rubric tooling are landed; floating-pane restore-on-load behavior remains intentionally non-restored. |
+| P9 | Analytics and visualization | Partial | Analytics routes and backend metrics/budget surfaces are code-backed and baseline-enabled by maturity default; full dashboard productization remains open. |
+| P10 | Accessibility and professional exports | Partial | Export surfaces are code-backed; accessibility toggle product surface and voice-note productization remain deferred/non-baseline. |
+| P11 | Agents and plugins | Partial | Plugin and backup seams exist behind flags; advisory systems (fracture diagnostics and Canon Court) are landed as non-blocking diagnostics. |
 
 ## Phase detail
 
-### P8 – Insights & feedback expansion (In progress)
-- Docking-aware Insights overlay, batch feedback mode, rubric editor, budget meter, quick restore toast.
-- Milestone tracking: GitHub milestone “Phase 8 – Docking Verification”.
-- Latest details: see phase log entry `2025-10-28 Phase 8 docking verification (IN PROGRESS)`.
+### P7 - Release candidate baseline (Complete)
+Landed:
+- Core API/runtime path in `services/src/blackskies/services/app.py`
+- Runtime config and router seams in `services/src/blackskies/services/config.py`, `model_router.py`, and `model_routing.py`
 
-### P9 – Analytics & visualization (Planned)
-- Emotion arc timeline, adaptive pacing graph, conflict heatmap, scene length analyzer, revision streak tracker, project health dashboard, outline validation engine.
-- Milestone tracking: GitHub milestone “Phase 9 – Analytics & Visualization”.
+Open:
+- No major P7 runtime scope items remain.
 
-### P10 – Accessibility & professional exports (Planned)
-- Voice notes, large-font/high-contrast modes, dynamic export templates, corkboard cards PDF, batch outline report, status badges.
-- Milestone tracking: GitHub milestone “Phase 10 – Accessibility & Exports”.
+### P8 - Insights and feedback expansion (Partial)
+Landed:
+- Docking workspace (`app/renderer/components/docking/DockWorkspace.tsx`)
+- Layout persistence (`app/main/layoutIpc.ts`)
+- Budget meter in workspace header (`app/renderer/components/WorkspaceHeader.tsx`)
+- Batch critique and rubric editor (`app/renderer/components/CompanionOverlay.tsx`)
 
-### P11 – Agents & plugins (Planned)
-- Read-only agent hooks, plugin registry sandbox, safety layer, auto-backup verification, multi-project dashboard, smart merge tool, offline indicator & cache manager.
-- Milestone tracking: GitHub milestone “Phase 11 – Agents & Plugins”.
+Open:
+- Floating panes are currently not restored from persisted state on load; renderer intentionally clears persisted floating entries.
+- Remaining accessibility/manual sign-off should be tracked as work items, not assumed complete.
 
----
+### P9 - Analytics and visualization (Partial)
+Landed:
+- Analytics routes and runtime guards in `services/src/blackskies/services/routers/analytics.py`
+- Default analytics maturity is production in `services/src/blackskies/services/feature_flags.py`
+- Runtime truth lists analytics as baseline default on.
 
-## Consistency checks
-- Run `python scripts/check_roadmap_vs_phase_log.py` (see script below) to verify that roadmap statuses and dates match the latest entries in `docs/phases/phase_log.md`. CI will fail if discrepancies are detected.
+Open:
+- Full dashboard/visualization product polish remains scope work.
 
-```bash
-python scripts/check_roadmap_vs_phase_log.py
-```
+### P10 - Accessibility and professional exports (Partial)
+Landed:
+- Export path and analytics export integration are code-backed.
+- Keyboard/focus accessibility work exists in docking flows.
+
+Open:
+- Accessibility toggle UI productization remains deferred.
+- Voice notes/transcription remain deferred (non-baseline with disabled seam metadata only).
+
+### P11 - Agents and plugins (Partial)
+Landed:
+- Plugin seams and maturity flags exist (non-baseline by default).
+- Backup verifier seam exists (off by default).
+- Advisory diagnostics and contradiction review systems are landed (fracture diagnostics and Canon Court v1).
+
+Open:
+- Full plugin/agent operator product surface remains scoped future work.
+- Smart merge remains deferred.
+
+## Deferred feature references
+- `docs/deferred/voice_notes_transcription.md`
+- `docs/deferred/smart_merge_tool.md`
+- `docs/gui/accessibility_toggles.md`
+
+## Status discipline
+If roadmap status and runtime truth diverge, update this file after validating:
+1. `build/runtime_truth.json`
+2. `docs/specs/current_state.md`
+3. code/tests
