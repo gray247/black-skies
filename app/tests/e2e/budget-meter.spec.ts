@@ -16,7 +16,10 @@ const drafts = Object.fromEntries(
   fs
     .readdirSync(draftsDir)
     .filter((file) => file.endsWith('.md'))
-    .map((file) => [path.basename(file, '.md'), fs.readFileSync(path.join(draftsDir, file), 'utf-8')]),
+    .map((file) => [
+      path.basename(file, '.md'),
+      fs.readFileSync(path.join(draftsDir, file), 'utf-8'),
+    ]),
 );
 
 const scenes = outline.scenes.map((scene: any) => ({
@@ -70,6 +73,18 @@ const preflightEstimate = {
 };
 console.log('[budget-mock:preflight]', preflightBudget);
 
+const HARNESS_ONLY_METADATA = {
+  reason: 'Validates packaged UI budget rendering with deterministic stubbed services.',
+  owner: 'app/tests/e2e/budget-meter.spec.ts',
+  retireWhen:
+    'truth-lane coverage provides equivalent budget assertions without synthetic service stubs',
+} as const;
+// HARNESS_ONLY:
+// Reason: validates packaged UI budget rendering with deterministic stubbed services.
+// Owner: app/tests/e2e/budget-meter.spec.ts
+// Retire when: truth-lane coverage provides equivalent budget assertions without synthetic service stubs.
+console.log('[HARNESS_ONLY]', HARNESS_ONLY_METADATA);
+
 const critiqueBudget = {
   estimated_usd: 0.15,
   status: 'ok',
@@ -110,7 +125,11 @@ test.beforeEach(async ({ page }) => {
   await page.addInitScript(
     ({ project, preflight, critique, accept }) => {
       const services = {
-        checkHealth: async () => ({ ok: true, data: { status: 'online' }, traceId: 'trace-health' }),
+        checkHealth: async () => ({
+          ok: true,
+          data: { status: 'online' },
+          traceId: 'trace-health',
+        }),
         buildOutline: async () => ({ ok: true, data: project.outline, traceId: 'trace-outline' }),
         preflightDraft: async () => {
           return { ok: true, data: preflight, traceId: 'trace-preflight' };
@@ -128,13 +147,14 @@ test.beforeEach(async ({ page }) => {
         critiqueDraft: async () => {
           return { ok: true, data: critique, traceId: 'trace-critique' };
         },
-        phase4Critique: async () => {
-          return { ok: true, data: critique, traceId: 'trace-critique' };
-        },
         acceptDraft: async () => {
           return { ok: true, data: accept, traceId: 'trace-accept' };
         },
-        createSnapshot: async () => ({ ok: true, data: accept.snapshot, traceId: 'trace-snapshot' }),
+        createSnapshot: async () => ({
+          ok: true,
+          data: accept.snapshot,
+          traceId: 'trace-snapshot',
+        }),
         getRecoveryStatus: async () => ({
           ok: true,
           data: {
@@ -163,9 +183,11 @@ test.beforeEach(async ({ page }) => {
       };
 
       Object.defineProperty(window, 'services', { value: services, configurable: true });
-      (window as typeof window & { __dev?: { overrideServices?: (overrides: Partial<typeof services>) => void } }).__dev?.overrideServices?.(
-        services,
-      );
+      (
+        window as typeof window & {
+          __dev?: { overrideServices?: (overrides: Partial<typeof services>) => void };
+        }
+      ).__dev?.overrideServices?.(services);
       Object.defineProperty(window, 'projectLoader', { value: projectLoader, configurable: true });
     },
     {
@@ -178,17 +200,25 @@ test.beforeEach(async ({ page }) => {
   await bootstrapHarness(page);
 });
 
-test.describe('Budget meter (packaged)', () => {
+test.describe('HARNESS_ONLY: Budget meter (packaged)', () => {
   test('updates immediately after critique', async ({ page }) => {
     await expect(page.getByRole('heading', { name: projectMeta.name })).toBeVisible();
     await page.evaluate(
       ({ preflight, critique, accept }) => {
-          const services = {
-            checkHealth: async () => ({ ok: true, data: { status: 'online' }, traceId: 'trace-health' }),
-            buildOutline: async () => ({ ok: true, data: preflight.outline ?? null, traceId: 'trace-outline' }),
-            preflightDraft: async () => {
-              return { ok: true, data: preflight, traceId: 'trace-preflight' };
-            },
+        const services = {
+          checkHealth: async () => ({
+            ok: true,
+            data: { status: 'online' },
+            traceId: 'trace-health',
+          }),
+          buildOutline: async () => ({
+            ok: true,
+            data: preflight.outline ?? null,
+            traceId: 'trace-outline',
+          }),
+          preflightDraft: async () => {
+            return { ok: true, data: preflight, traceId: 'trace-preflight' };
+          },
           generateDraft: async () => ({
             ok: true,
             data: {
@@ -202,13 +232,14 @@ test.describe('Budget meter (packaged)', () => {
           critiqueDraft: async () => {
             return { ok: true, data: critique, traceId: 'trace-critique' };
           },
-          phase4Critique: async () => {
-            return { ok: true, data: critique, traceId: 'trace-critique' };
-          },
           acceptDraft: async () => {
             return { ok: true, data: accept, traceId: 'trace-accept' };
           },
-          createSnapshot: async () => ({ ok: true, data: accept.snapshot, traceId: 'trace-snapshot' }),
+          createSnapshot: async () => ({
+            ok: true,
+            data: accept.snapshot,
+            traceId: 'trace-snapshot',
+          }),
           getRecoveryStatus: async () => ({
             ok: true,
             data: {
@@ -230,9 +261,11 @@ test.describe('Budget meter (packaged)', () => {
           }),
         };
         (window as typeof window & { services?: unknown }).services = services;
-        (window as typeof window & { __dev?: { overrideServices?: (overrides: Partial<typeof services>) => void } }).__dev?.overrideServices?.(
-          services,
-        );
+        (
+          window as typeof window & {
+            __dev?: { overrideServices?: (overrides: Partial<typeof services>) => void };
+          }
+        ).__dev?.overrideServices?.(services);
       },
       { preflight: preflightEstimate, critique: critiqueResponse, accept: acceptResponse },
     );
@@ -240,7 +273,10 @@ test.describe('Budget meter (packaged)', () => {
     await generateButton.click();
 
     await expect(page.getByText('$1.75 / $10.00', { exact: true })).toBeVisible();
-    await page.getByRole('dialog', { name: 'Draft preflight' }).getByRole('button', { name: 'Close' }).click();
+    await page
+      .getByRole('dialog', { name: 'Draft preflight' })
+      .getByRole('button', { name: 'Close' })
+      .click();
 
     const critiqueButton = page.getByTestId('workspace-action-critique');
     await expect(critiqueButton).toBeEnabled();

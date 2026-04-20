@@ -596,6 +596,15 @@ export default function CompanionOverlay({
     }
     return null;
   }, [localRunCount, queuedModelRuns, serviceStatus]);
+  const companionActionMetadata = useMemo(
+    () => ({
+      route_name: 'companion/local_insights',
+      provider_called: false,
+      result_origin: 'local' as const,
+      budget_delta: null,
+    }),
+    [],
+  );
 
   const handleRemoveCategory = useCallback(
     (category: string) => {
@@ -639,26 +648,29 @@ export default function CompanionOverlay({
     setLocalRunCount((previous) => previous + 1);
     recordDebugEvent('insights.local_ran', {
       sceneId: activeScene?.id ?? null,
+      ...companionActionMetadata,
     });
-  }, [activeScene?.id]);
+  }, [activeScene?.id, companionActionMetadata]);
 
   const queueModelInsightsForLater = useCallback(() => {
     setQueuedModelRuns((previous) => previous + 1);
     recordDebugEvent('insights.model_queued_offline', {
       sceneId: activeScene?.id ?? null,
+      ...companionActionMetadata,
     });
-  }, [activeScene?.id]);
+  }, [activeScene?.id, companionActionMetadata]);
 
   const handleRunAllInsights = useCallback(() => {
     runLocalInsights();
     if (serviceStatus === 'online') {
-      recordDebugEvent('insights.model_run_online', {
+      recordDebugEvent('insights.provider_not_called', {
         sceneId: activeScene?.id ?? null,
+        ...companionActionMetadata,
       });
       return;
     }
     queueModelInsightsForLater();
-  }, [activeScene?.id, queueModelInsightsForLater, runLocalInsights, serviceStatus]);
+  }, [activeScene?.id, companionActionMetadata, queueModelInsightsForLater, runLocalInsights, serviceStatus]);
 
   const handleAddCategory = useCallback(() => {
     const trimmed = newCategory.trim();
@@ -893,13 +905,17 @@ export default function CompanionOverlay({
                 </ul>
                 <div className="companion-overlay__model-insights">
                   <div className="companion-overlay__model-insights-header">
-                    <h4>Model Insights</h4>
+                    <h4>Advisory Insights</h4>
                     <p className="companion-overlay__model-insights-subhead">
                       {serviceStatus === 'online'
-                        ? 'Model-Backed Guidance Is Ready.'
-                        : 'Model Insights Require Writing Tools.'}
+                        ? 'Local advisory guidance is ready.'
+                        : 'Local advisory guidance is available while services are offline.'}
                     </p>
                   </div>
+                  <p className="companion-overlay__run-hint companion-overlay__run-hint--status">
+                    route={companionActionMetadata.route_name} | origin={companionActionMetadata.result_origin} | provider_called=false | budget_delta=none
+                  </p>
+                  <p className="companion-overlay__run-hint">Budget source: no budgeted action.</p>
                   <ul className="companion-overlay__model-insights-list">
                     {modelInsights.map((entry) => (
                       <li
@@ -909,8 +925,8 @@ export default function CompanionOverlay({
                         }`}
                         title={
                           serviceStatus === 'online'
-                            ? 'Model Insights Are Ready.'
-                            : 'Needs The Model. Reconnect To Run.'
+                            ? 'Local advisory insight.'
+                            : 'Local advisory insight while services are offline.'
                         }
                       >
                         <div>
@@ -918,7 +934,7 @@ export default function CompanionOverlay({
                           <p>{entry.detail}</p>
                         </div>
                         <span className="companion-overlay__model-insight-state">
-                          {serviceStatus === 'online' ? 'Model Ready' : 'Model Offline'}
+                          {serviceStatus === 'online' ? 'Local advisory' : 'Local advisory (offline)'}
                         </span>
                       </li>
                     ))}

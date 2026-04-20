@@ -1,0 +1,28 @@
+Black Skies Truth Lane Receipt
+started_at: 2026-04-20T18:40:17.396Z
+finished_at: 2026-04-20T18:40:55.109Z
+ui_chain_passed: true
+service_extension_passed: true
+
+routes_hit:
+- /api/v1/draft/preflight
+- /api/v1/draft/critique
+- /api/v1/draft/rewrite
+- /api/v1/draft/accept
+- /api/v1/snapshots
+- /api/v1/draft/recovery
+- /api/v1/export
+
+provenance:
+- critique: route_name=draft/critique, provider_called=true, result_origin=provider, budget_delta=0.02
+- rewrite: route_name=draft/rewrite, provider_called=true, result_origin=provider, budget_delta=none
+
+artifacts:
+- electron_launch_command: build\truth_receipts\run_1776710417586\electron.launch.txt
+- electron_stdout_log: build\truth_receipts\run_1776710417586\electron.stdout.log
+- electron_stderr_log: build\truth_receipts\run_1776710417586\electron.stderr.log
+- accept_snapshot: history/snapshots/20260420T184054984823Z_truth-lane-accept
+- export: exports/Esther_Estate_export_20260420T184055Z.md
+
+failures:
+- (none)

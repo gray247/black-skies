@@ -1619,6 +1619,12 @@ button:disabled {
   color: rgba(226, 232, 240, 0.92);
 }
 
+.critique-modal__meta {
+  margin: 0;
+  font-size: 0.78rem;
+  color: rgba(148, 163, 184, 0.95);
+}
+
 .critique-modal__list {
   margin: 0;
   padding-left: 1.25rem;

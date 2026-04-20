@@ -1,6 +1,11 @@
 import { test, expect } from './_electron.fixture';
 import { loadSampleProject } from './utils/sampleProject';
 
+// HARNESS_ONLY:
+// Reason: validates cached analytics UX in local/offline harness conditions.
+// Owner: app/tests/e2e/gui.analytics_offline_cache_flow.spec.ts
+// Retire when: offline-cache assertions are covered by a real-service diagnostics lane.
+
 const { loadedProject } = loadSampleProject();
 const sampleProjectPath = loadedProject.path;
 
@@ -8,9 +13,9 @@ test('analytics offline cache flow keeps cached metrics visible', async ({ page 
   await page.waitForLoadState('domcontentloaded');
 
   await page.evaluate((projectPath) => {
-    (window as typeof window & { __dev?: { setProjectDir?: (dir: string) => void } }).__dev?.setProjectDir?.(
-      projectPath ?? null,
-    );
+    (
+      window as typeof window & { __dev?: { setProjectDir?: (dir: string) => void } }
+    ).__dev?.setProjectDir?.(projectPath ?? null);
   }, sampleProjectPath);
 
   const openProjectButton = page.getByTestId('open-project');
@@ -23,9 +28,15 @@ test('analytics offline cache flow keeps cached metrics visible', async ({ page 
   await companionToggle.click();
   await expect(page.getByTestId('insights-toolbar')).toBeVisible({ timeout: 30_000 });
 
-  await page.locator('.analytics-dashboard__readability-badge').first().waitFor({ state: 'visible', timeout: 30_000 });
+  await page
+    .locator('.analytics-dashboard__readability-badge')
+    .first()
+    .waitFor({ state: 'visible', timeout: 30_000 });
   await page.getByText(/Dialogue ratio/).waitFor({ timeout: 30_000 });
-  await page.locator('.analytics-dashboard__pacing-strip span').first().waitFor({ state: 'visible', timeout: 30_000 });
+  await page
+    .locator('.analytics-dashboard__pacing-strip span')
+    .first()
+    .waitFor({ state: 'visible', timeout: 30_000 });
   await expect(page.getByTestId('analytics-emotion-graph')).toBeVisible();
 
   await page.evaluate(() => {
@@ -43,8 +54,9 @@ test('analytics offline cache flow keeps cached metrics visible', async ({ page 
 
   await page.waitForFunction(
     () =>
-      (document.querySelector('[data-testid="service-status-pill"]') as HTMLElement | null)
-        ?.getAttribute('data-status') === 'offline',
+      (
+        document.querySelector('[data-testid="service-status-pill"]') as HTMLElement | null
+      )?.getAttribute('data-status') === 'offline',
     null,
     { timeout: 30_000 },
   );

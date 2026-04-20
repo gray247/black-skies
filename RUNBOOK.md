@@ -36,6 +36,7 @@ uvicorn blackskies.services.app:create_app --factory --reload --port 8080
 - Unit lane: `pytest -q services/tests/unit`
 - Full suite: `pytest -q`
 - Runtime truth check: `pytest -q services/tests/unit/test_runtime_truth.py`
+- Service truth lane (PASS 2 authority): `python scripts/run_service_truth.py`
 
 ## Troubleshooting
 - Missing deps: reinstall lockfile-constrained dependencies.

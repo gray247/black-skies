@@ -27,7 +27,7 @@ from ..dependencies import (
     get_snapshot_persistence,
 )
 from . import router
-from .common import _compute_sha256
+from .common import _compute_sha256, normalize_submitted_scene_body
 from ...operations.draft_accept import (
     DraftAcceptService,
     DraftAcceptancePersistenceError,
@@ -96,7 +96,7 @@ async def accept_draft(
 
     updated_front_matter = merge_front_matter(front_matter, request_model.unit.meta)
     updated_front_matter["id"] = request_model.unit_id
-    normalized_text = normalize_markdown(request_model.unit.text)
+    normalized_text = normalize_submitted_scene_body(request_model.unit.text)
 
     accept_service = DraftAcceptService(
         settings=settings,

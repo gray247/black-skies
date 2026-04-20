@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any, Sequence
 
 E2E_FLAG = "BLACKSKIES_E2E_MODE"
-IS_E2E_MODE = os.environ.get(E2E_FLAG) == "1"
+SYNTHETIC_FLAG = "BLACKSKIES_E2E_SYNTHETIC_MODE"
 
 SNAPSHOT_ID = "pw-e2e-lock"
 SNAPSHOT_PATH = f"history/snapshots/{SNAPSHOT_ID}"
@@ -85,7 +85,17 @@ def e2e_analytics_budget(project_id: str) -> dict[str, Any]:
     }
 
 def is_e2e_mode() -> bool:
-    return IS_E2E_MODE
+    return os.environ.get(E2E_FLAG) == "1"
+
+
+def allow_e2e_synthetic_mode() -> bool:
+    """Whether e2e routes should bypass runtime logic with synthetic fixtures.
+
+    Truth-lane verification runs in e2e mode but with synthetic bypasses disabled,
+    while harness-only smoke flows can opt in explicitly.
+    """
+
+    return is_e2e_mode() and os.environ.get(SYNTHETIC_FLAG) == "1"
 
 def e2e_preflight_response(
     project_id: str,

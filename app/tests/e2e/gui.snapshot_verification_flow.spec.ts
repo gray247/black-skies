@@ -3,6 +3,11 @@ import { bootstrapHarness } from './_bootstrap';
 import { installServiceStubs } from './utils/serviceStubs';
 import { TID } from '../../renderer/utils/testIds';
 
+// HARNESS_ONLY:
+// Reason: validates snapshot-verification UI plumbing with stubbed service responses.
+// Owner: app/tests/e2e/gui.snapshot_verification_flow.spec.ts
+// Retire when: snapshot verification is asserted in real-service truth lanes.
+
 test('snapshot verification flow (UI)', async ({ page }) => {
   await installServiceStubs(page, 'snapshot', 'flat');
   await bootstrapHarness(page);
@@ -12,7 +17,9 @@ test('snapshot verification flow (UI)', async ({ page }) => {
   await expect(snapshotButton).toBeEnabled();
   await snapshotButton.click();
 
-  await page.waitForFunction(() => (window as typeof window & { __paneReady?: number }).__paneReady ?? 0 >= 4);
+  await page.waitForFunction(
+    () => (window as typeof window & { __paneReady?: number }).__paneReady ?? 0 >= 4,
+  );
   const toastTitle = page.locator('.toast__title', { hasText: /snapshot created/i });
   await expect(toastTitle).toBeVisible({ timeout: 30_000 });
   const viewReportAction = page.locator('.toast__action-button', { hasText: /view report/i });

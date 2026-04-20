@@ -25,6 +25,15 @@ def _split_lines(text: str) -> list[str]:
     return [line.strip() for line in text.splitlines() if line.strip()]
 
 
+def _mock_provenance(route_name: str) -> dict[str, object]:
+    return {
+        "route_name": route_name,
+        "provider_called": False,
+        "result_origin": "mock",
+        "budget_delta": None,
+    }
+
+
 def _build_summary(text: str, mode: CritiqueMode) -> str:
     word_count = len(text.split())
     lines = len(_split_lines(text))
@@ -113,7 +122,12 @@ async def critique_phase4(payload: Phase4CritiqueRequest) -> Phase4CritiqueRespo
     lines = _split_lines(normalized_text)
     issues = _build_issues(lines)
     suggestions = _build_suggestions(payload.mode)
-    return Phase4CritiqueResponse(summary=summary, issues=issues, suggestions=suggestions)
+    return Phase4CritiqueResponse(
+        summary=summary,
+        issues=issues,
+        suggestions=suggestions,
+        provenance=_mock_provenance("phase4/critique"),
+    )
 
 
 @router.post("/rewrite", response_model=Phase4RewriteResponse)
@@ -124,4 +138,7 @@ async def rewrite_phase4(payload: Phase4RewriteRequest) -> Phase4RewriteResponse
         return e2e_phase4_rewrite_response(payload.scene_id, payload.instructions)
 
     revised_text = _mock_rewrite(payload.original_text, payload.instructions)
-    return Phase4RewriteResponse(revised_text=revised_text)
+    return Phase4RewriteResponse(
+        revised_text=revised_text,
+        provenance=_mock_provenance("phase4/rewrite"),
+    )

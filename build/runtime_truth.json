@@ -301,9 +301,9 @@
   ],
   "generated_at": null,
   "generated_from": {
-    "config_defaults_hash": "98dcd966cc470b0ee3efb8e85a46a1f715c40184bab71660777060a59187ae28",
+    "config_defaults_hash": "b53815b53ea6ee820d098f3df951d41f13044d47725506bc39537b511ff36eed",
     "generator_version": "1",
-    "git_commit": "de144f0ad31f833e4cf34ca6862821e46342f813"
+    "git_commit": "1947f94c8d1797c3ebc660ebe0cac13729a3f5f1"
   },
   "health_surfaces": [
     {
@@ -568,22 +568,6 @@
       "method": "POST",
       "notes": "",
       "path": "/api/v1/outline/build",
-      "present": true
-    },
-    {
-      "baseline_enabled": true,
-      "guarded_by": [],
-      "method": "POST",
-      "notes": "",
-      "path": "/api/v1/phase4/critique",
-      "present": true
-    },
-    {
-      "baseline_enabled": true,
-      "guarded_by": [],
-      "method": "POST",
-      "notes": "",
-      "path": "/api/v1/phase4/rewrite",
       "present": true
     },
     {

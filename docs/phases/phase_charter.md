@@ -8,6 +8,7 @@ Purpose: define intended phase scope for future planning.
 
 Authority note:
 - This document is scope authority only.
+- This document is not runtime authority.
 - It does not define current runtime truth or current shipped status.
 - Runtime truth: `build/runtime_truth.json` and `docs/specs/current_state.md`.
 - Current phase status: `docs/roadmap.md`.

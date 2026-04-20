@@ -9,7 +9,7 @@ from pydantic import BaseModel, ValidationError, field_validator
 
 from ..config import ServiceSettings
 from ..diagnostics import DiagnosticLogger
-from ..e2e_mode import e2e_snapshot_list, is_e2e_mode
+from ..e2e_mode import allow_e2e_synthetic_mode, e2e_snapshot_list
 from ..http import raise_filesystem_error, raise_validation_error
 from ..models._project_id import validate_project_id
 from ..snapshots import create_snapshot, list_snapshots
@@ -95,6 +95,6 @@ async def list_snapshots_endpoint(
             project_root=None,
         )
 
-    if is_e2e_mode():
+    if allow_e2e_synthetic_mode():
         return e2e_snapshot_list(validated_id)
     return list_snapshots(project_root)

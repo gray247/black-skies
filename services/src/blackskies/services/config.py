@@ -129,6 +129,10 @@ class ServiceSettings(BaseModel):
         default=False,
         description="Enable the provider-backed long-form execution loop. Implemented, but not part of the default runtime surface.",
     )
+    phase4_mock_routes_enabled: bool = Field(
+        default=False,
+        description="Expose legacy phase4 mock critique/rewrite routes. Disabled by default; enable only for explicit harness/dev seam testing.",
+    )
     local_provider: str = Field(
         default="ollama",
         description="Local model provider identifier (currently supports ollama).",

@@ -1,0 +1,7 @@
+{
+  "schema_version": "GauntletPassProof v1",
+  "pass_id": "PASS 3",
+  "status": "success",
+  "commit_sha": "1947f94c8d1797c3ebc660ebe0cac13729a3f5f1",
+  "command": "ci pass3"
+}

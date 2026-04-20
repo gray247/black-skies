@@ -703,6 +703,10 @@ export default function App(): JSX.Element {
   }
   const [projectDrafts, setProjectDrafts] = useState<Record<string, string>>({});
   const [draftEdits, setDraftEdits] = useState<Record<string, string>>({});
+  const companionDrafts = useMemo(
+    () => ({ ...projectDrafts, ...draftEdits }),
+    [projectDrafts, draftEdits],
+  );
   const [critiqueRubric, setCritiqueRubric] = useState<string[]>(() => [
     ...DEFAULT_CRITIQUE_RUBRIC,
   ]);
@@ -2099,7 +2103,7 @@ export default function App(): JSX.Element {
               : ""
           }
           project={currentProject}
-          drafts={draftEdits}
+          drafts={companionDrafts}
           rubric={critiqueRubric}
           onRubricChange={updateCritiqueRubric}
           builtInRubric={DEFAULT_CRITIQUE_RUBRIC}
@@ -2140,6 +2144,9 @@ export default function App(): JSX.Element {
           rewrite={critiqueState.rewrite}
           rewriteLoading={critiqueState.rewriteLoading}
           rewriteError={critiqueState.rewriteError}
+          critiqueProvenance={critiqueState.critiqueProvenance}
+          rewriteProvenance={critiqueState.rewriteProvenance}
+          budgetStatusLine={critiqueState.budgetStatusLine}
           onChangeInstructions={setInstructions}
           onRunRewrite={() => void runRewrite()}
           onApplyRewrite={() => void applyRewrite()}

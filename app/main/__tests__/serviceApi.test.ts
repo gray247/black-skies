@@ -50,6 +50,21 @@ async function loadServiceApi() {
   return module.serviceApi;
 }
 
+function mockErrorResponse(
+  status: number,
+  payload: unknown,
+  traceId = 'trace-error',
+): Response {
+  return {
+    ok: false,
+    status,
+    json: vi.fn().mockResolvedValue(payload),
+    headers: {
+      get: (name: string) => (name.toLowerCase() === 'x-trace-id' ? traceId : null),
+    },
+  } as unknown as Response;
+}
+
 describe('serviceApi', () => {
   beforeEach(() => {
     vi.resetModules();
@@ -159,5 +174,90 @@ describe('serviceApi', () => {
     expect(result.error.code).toBe('TIMEOUT');
     expect(result.error.details).toEqual({ timeout_ms: 50 });
     expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('surfaces 404 backend errors with route-aware payload details', async () => {
+    const fetchMock = global.fetch as unknown as vi.Mock;
+    fetchMock.mockReset();
+    fetchMock.mockResolvedValue(
+      mockErrorResponse(404, {
+        code: 'NOT_FOUND',
+        message: 'Route not found.',
+        details: { route: '/api/v1/draft/recovery' },
+      }),
+    );
+
+    const serviceApi = await loadServiceApi();
+    const result = await serviceApi.getRecoveryStatus({ projectId: 'proj_test' });
+
+    expect(result.ok).toBe(false);
+    expect(result.error.code).toBe('NOT_FOUND');
+    expect(result.error.httpStatus).toBe(404);
+    expect(result.error.message).toBe('Route not found.');
+    expect(result.error.details).toEqual({ route: '/api/v1/draft/recovery' });
+    expect(result.traceId).toBe('trace-error');
+  });
+
+  it('surfaces 409 backend conflicts without collapsing to network errors', async () => {
+    const fetchMock = global.fetch as unknown as vi.Mock;
+    fetchMock.mockReset();
+    fetchMock.mockResolvedValue(
+      mockErrorResponse(409, {
+        code: 'CONFLICT',
+        message: 'Submitted unit is out of date.',
+        details: { unit_id: 'sc_0001' },
+      }),
+    );
+
+    const serviceApi = await loadServiceApi();
+    const result = await serviceApi.getRecoveryStatus({ projectId: 'proj_test' });
+
+    expect(result.ok).toBe(false);
+    expect(result.error.code).toBe('CONFLICT');
+    expect(result.error.httpStatus).toBe(409);
+    expect(result.error.message).toBe('Submitted unit is out of date.');
+    expect(result.error.details).toEqual({ unit_id: 'sc_0001' });
+    expect(result.error.code).not.toBe('NETWORK_ERROR');
+  });
+
+  it('surfaces 500 backend failures with status and payload context', async () => {
+    const fetchMock = global.fetch as unknown as vi.Mock;
+    fetchMock.mockReset();
+    fetchMock.mockResolvedValue(
+      mockErrorResponse(500, {
+        message: 'Internal service failure.',
+        details: { operation: 'draft/rewrite' },
+      }),
+    );
+
+    const serviceApi = await loadServiceApi();
+    const result = await serviceApi.getRecoveryStatus({ projectId: 'proj_test' });
+
+    expect(result.ok).toBe(false);
+    expect(result.error.httpStatus).toBe(500);
+    expect(result.error.message).toBe('Service responded with HTTP 500.');
+    expect(result.error.details).toEqual({
+      message: 'Internal service failure.',
+      details: { operation: 'draft/rewrite' },
+    });
+  });
+
+  it('treats network failures as NETWORK_ERROR only when no backend response exists', async () => {
+    process.env.BLACKSKIES_BRIDGE_MAX_ATTEMPTS = '1';
+    process.env.BLACKSKIES_BRIDGE_FAILURE_THRESHOLD = '999';
+    const networkError = new Error('connection refused');
+    (networkError as Error).name = 'FetchError';
+
+    const fetchMock = global.fetch as unknown as vi.Mock;
+    fetchMock.mockReset();
+    fetchMock.mockRejectedValue(networkError);
+
+    const serviceApi = await loadServiceApi();
+    const result = await serviceApi.getRecoveryStatus({ projectId: 'proj_test' });
+
+    expect(result.ok).toBe(false);
+    expect(result.error.code).toBe('NETWORK_ERROR');
+    expect(result.error.message).toContain('Service request to');
+    expect(result.error.message).toContain('connection refused');
   });
 });

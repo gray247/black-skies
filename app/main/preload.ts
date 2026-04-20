@@ -15,7 +15,7 @@ const safeExpose = (key: string, api: unknown) => {
   }
 };
 
-const applyVisualStableAttrs = (element: Element | null) => {
+const applyVisualStableAttrs = (element: HTMLElement | null) => {
   if (!element) {
     return;
   }
@@ -85,6 +85,8 @@ safeExpose('__electronApi', { fs: electronFsApi });
 
 const isPlaywright = process.env.PLAYWRIGHT === '1';
 const harnessHooksEnabled = process.env.BLACKSKIES_ENABLE_HARNESS_HOOKS === '1';
+const phase4MockFlowEnabled = process.env.BLACKSKIES_ENABLE_PHASE4_MOCK_FLOW === '1';
+safeExpose('__phase4MockFlowEnabled', phase4MockFlowEnabled);
 const setPlaywrightTestAttribute = (): void => {
   if (typeof document === 'undefined') {
     return;
@@ -323,6 +325,8 @@ import type {
   DraftCritiqueBridgeResponse,
   DraftGenerateBridgeRequest,
   DraftGenerateBridgeResponse,
+  DraftRewriteBridgeRequest,
+  DraftRewriteBridgeResponse,
   DraftPreflightBridgeRequest,
   DraftPreflightEstimate,
   DraftUnitOverrides,
@@ -1084,6 +1088,24 @@ function serializePhase4RewriteRequest({
   return payload;
 }
 
+function serializeDraftRewriteRequest({
+  projectId,
+  draftId,
+  unitId,
+  unit,
+  instructions,
+  newText,
+}: DraftRewriteBridgeRequest): Record<string, unknown> {
+  const payload = buildProjectPayload(projectId, {
+    draft_id: draftId,
+    unit_id: unitId,
+    unit,
+  });
+  setOptionalString(payload, 'instructions', instructions);
+  setOptionalString(payload, 'new_text', newText);
+  return payload;
+}
+
 function serializePreflightRequest({
   projectId,
   unitScope,
@@ -1122,6 +1144,12 @@ export const serviceApi = {
       'draft/critique',
       'POST',
       serializeCritiqueRequest(request),
+    ),
+  rewriteDraft: (request: DraftRewriteBridgeRequest) =>
+    makeServiceCall<DraftRewriteBridgeResponse>(
+      'draft/rewrite',
+      'POST',
+      serializeDraftRewriteRequest(request),
     ),
   phase4Critique: (request: Phase4CritiqueBridgeRequest) =>
     makeServiceCall<Phase4CritiqueBridgeResponse>(
@@ -1302,6 +1330,7 @@ const servicesBridge: ServicesBridge = {
   buildOutline: serviceApi.buildOutline,
   generateDraft: serviceApi.generateDraft,
   critiqueDraft: serviceApi.critiqueDraft,
+  rewriteDraft: serviceApi.rewriteDraft,
   phase4Critique: serviceApi.phase4Critique,
   phase4Rewrite: serviceApi.phase4Rewrite,
   preflightDraft: serviceApi.preflightDraft,

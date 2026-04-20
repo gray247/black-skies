@@ -1,5 +1,8 @@
 // Reference scenario only. The authoritative truth lane is `pnpm test:truth`
 // via `scripts/truth-with-backend.mjs` and `scripts/launch_truth_electron.py`.
+// TRUTH_LANE_REFERENCE:
+// Reason: quick real-service sanity probe; not the authoritative receipt-producing lane.
+// Owner: scripts/truth-with-backend.mjs
 import { test, expect } from './electron.launch';
 
 test.describe('Truth lane: real service path', () => {

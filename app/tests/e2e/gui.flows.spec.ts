@@ -4,6 +4,12 @@ import { loadSampleProject } from './utils/sampleProject';
 import { installServiceStubs } from './utils/serviceStubs';
 import { TID } from '../../renderer/utils/testIds';
 
+// HARNESS_ONLY:
+// Reason: UI behavior validation under stubbed services and test-mode hooks.
+// These checks are appearance/stability lanes, not truth-path/persistence authority.
+// Owner: app/tests/e2e/gui.flows.spec.ts
+// Retire when: equivalent flows are asserted by real-service truth-lane coverage.
+
 const { loadedProject } = loadSampleProject();
 const FULL_ANALYTICS_E2E = process.env.FULL_ANALYTICS_E2E === '1';
 const primaryScene = loadedProject.scenes[0];
@@ -53,7 +59,9 @@ test.describe('GUI flow smoke tests', () => {
     const editor = page.locator('.project-home__draft-editor .cm-content');
     const originalText = (await editor.textContent()) ?? '';
     await page.evaluate(() => {
-      const el = document.querySelector('.project-home__draft-editor .cm-content') as HTMLElement | null;
+      const el = document.querySelector(
+        '.project-home__draft-editor .cm-content',
+      ) as HTMLElement | null;
       if (el) {
         el.textContent = 'Corrupted by test.';
       }
@@ -62,12 +70,15 @@ test.describe('GUI flow smoke tests', () => {
 
     await page.getByRole('button', { name: 'Restore snapshot' }).click();
     await page.waitForFunction(
-      () => (window as typeof window & { __snapshotRestoreDone?: boolean }).__snapshotRestoreDone === true,
+      () =>
+        (window as typeof window & { __snapshotRestoreDone?: boolean }).__snapshotRestoreDone ===
+        true,
     );
-    await expect(page.locator('.toast__title', { hasText: 'Restored earlier version.' })).toBeVisible({
+    await expect(
+      page.locator('.toast__title', { hasText: 'Restored earlier version.' }),
+    ).toBeVisible({
       timeout: 30_000,
     });
-
   });
 
   test('budget_guardrail_smoke (UI)', async ({ page }) => {
@@ -126,9 +137,9 @@ test.describe('GUI flow smoke tests', () => {
 
     const applyTestBudgetState = async (response: ReturnType<typeof makeBudgetResponse>) => {
       await page.evaluate((payload) => {
-      const win = window as GuiFlowWindow;
-      win.__testBudgetResponse = payload;
-      win.__budgetRefresh?.();
+        const win = window as GuiFlowWindow;
+        win.__testBudgetResponse = payload;
+        win.__budgetRefresh?.();
       }, response);
       await expect(indicator).toBeVisible({ timeout: 5_000 });
     };
@@ -137,9 +148,7 @@ test.describe('GUI flow smoke tests', () => {
     await expect(indicator).toHaveText(/Budget OK/i);
     await expect(indicatorMessage).toHaveText(/Budget healthy\./i);
 
-    await applyTestBudgetState(
-      makeBudgetResponse('near_cap', 90, 10, 'Approaching soft cap.'),
-    );
+    await applyTestBudgetState(makeBudgetResponse('near_cap', 90, 10, 'Approaching soft cap.'));
     await expect(indicator).toHaveText(/Budget warning/i);
     await expect(indicatorMessage).toHaveText(/Approaching soft cap\./i);
 
@@ -174,8 +183,8 @@ test.describe('GUI flow smoke tests', () => {
 
     await page.evaluate(
       ({ snapshots, verification }) => {
-          const win = window as GuiFlowWindow;
-          win.__revealCalls = [];
+        const win = window as GuiFlowWindow;
+        win.__revealCalls = [];
         window.__dev?.overrideServices?.({
           listProjectSnapshots: async () => ({
             ok: true,

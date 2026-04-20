@@ -1,5 +1,7 @@
 import type { ChangeEvent } from 'react';
 import type {
+  ActionProvenance,
+  DraftCritiqueBridgeResponse,
   Phase4CritiqueBridgeResponse,
   Phase4Issue,
 } from '../../shared/ipc/services';
@@ -9,7 +11,10 @@ interface CritiqueModalProps {
   isOpen: boolean;
   loading: boolean;
   error: string | null;
-  critique: Phase4CritiqueBridgeResponse | null;
+  critique: Phase4CritiqueBridgeResponse | DraftCritiqueBridgeResponse | null;
+  critiqueProvenance?: ActionProvenance | null;
+  rewriteProvenance?: ActionProvenance | null;
+  budgetStatusLine?: string | null;
   traceId?: string;
   sceneId?: string | null;
   sceneTitle?: string | null;
@@ -61,11 +66,66 @@ function renderSuggestions(suggestions?: string[]): JSX.Element | null {
   );
 }
 
+function renderPriorities(priorities?: string[]): JSX.Element | null {
+  if (!priorities || priorities.length === 0) {
+    return null;
+  }
+  return (
+    <section className="critique-modal__section">
+      <h4>Priorities</h4>
+      <ul className="critique-modal__list">
+        {priorities.map((priority) => (
+          <li key={priority}>{priority}</li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+function renderDraftLineComments(
+  comments?: DraftCritiqueBridgeResponse['line_comments'],
+): JSX.Element | null {
+  if (!comments || comments.length === 0) {
+    return null;
+  }
+  return (
+    <section className="critique-modal__section">
+      <h4>Line comments</h4>
+      <ul className="critique-modal__list critique-modal__list--issues">
+        {comments.map((comment) => (
+          <li key={`${comment.line}-${comment.note}`}>
+            <span className="critique-modal__line-number">Line {comment.line}</span>
+            <p>{comment.note}</p>
+            {comment.excerpt ? <p>{comment.excerpt}</p> : null}
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+function renderProvenance(label: string, provenance: ActionProvenance | null | undefined): JSX.Element | null {
+  if (!provenance) {
+    return null;
+  }
+  return (
+    <p className="critique-modal__meta">
+      <strong>{label}:</strong>{' '}
+      route={provenance.route_name} | origin={provenance.result_origin} | provider_called=
+      {String(provenance.provider_called)} | budget_delta=
+      {provenance.budget_delta === null ? 'none' : provenance.budget_delta.toFixed(2)}
+    </p>
+  );
+}
+
 export function CritiqueModal({
   isOpen,
   loading,
   error,
   critique,
+  critiqueProvenance,
+  rewriteProvenance,
+  budgetStatusLine,
   traceId,
   sceneId,
   sceneTitle,
@@ -117,8 +177,14 @@ export function CritiqueModal({
                   <p>{critique.summary}</p>
                 </div>
               </section>
-              {renderIssues(critique.issues)}
-              {renderSuggestions(critique.suggestions)}
+              {'issues' in critique ? renderIssues(critique.issues as Phase4Issue[]) : null}
+              {'suggestions' in critique ? renderSuggestions(critique.suggestions as string[]) : null}
+              {'priorities' in critique ? renderPriorities(critique.priorities as string[] | undefined) : null}
+              {'line_comments' in critique
+                ? renderDraftLineComments(critique.line_comments as DraftCritiqueBridgeResponse['line_comments'])
+                : null}
+              {renderProvenance('Critique provenance', critiqueProvenance)}
+              {budgetStatusLine ? <p className="critique-modal__meta">{budgetStatusLine}</p> : null}
             </>
           ) : null}
           {rewriteError ? (
@@ -166,6 +232,7 @@ export function CritiqueModal({
                   Discard rewrite
                 </button>
               </div>
+              {renderProvenance('Rewrite provenance', rewriteProvenance)}
             </section>
           ) : null}
         </section>

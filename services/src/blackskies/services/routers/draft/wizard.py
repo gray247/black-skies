@@ -15,7 +15,7 @@ from ...persistence import SnapshotPersistence
 from ...snapshots import SnapshotIncludesError, SnapshotPersistenceError
 from ..dependencies import get_diagnostics, get_settings, get_snapshot_persistence
 from . import router
-from ...e2e_mode import e2e_snapshot_manifest, is_e2e_mode
+from ...e2e_mode import allow_e2e_synthetic_mode, e2e_snapshot_manifest
 from ...operations.wizard_snapshot import WizardSnapshotService
 
 
@@ -54,7 +54,7 @@ async def lock_wizard_step(
     label = request_model.label or f"wizard-{request_model.step}"
     include_entries = request_model.includes or None
 
-    if is_e2e_mode():
+    if allow_e2e_synthetic_mode():
         return e2e_snapshot_manifest(request_model.project_id)
 
     snapshot_service = WizardSnapshotService(

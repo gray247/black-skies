@@ -45,9 +45,10 @@ from ..dependencies import (
 )
 from ..shared import utc_timestamp
 from . import router
-from ...e2e_mode import e2e_critique_response, is_e2e_mode
+from ...e2e_mode import allow_e2e_synthetic_mode, e2e_critique_response
 from ...model_router import ModelRouter, ModelTask, format_route_metadata
 from ...model_adapters import AdapterError
+from .common import normalize_submitted_scene_body
 
 
 def persist_project_budget(state, new_spent_usd):
@@ -70,6 +71,23 @@ def _apply_rewrite_instructions(original: str, instructions: str | None) -> str:
     ]
     closing = templates[int(digest[:8], 16) % len(templates)]
     return f"{baseline}\n\n{closing} ({prompt})"
+
+
+def _build_provenance(
+    *,
+    route_name: str,
+    provider_called: bool,
+    result_origin: str,
+    budget_delta: float | None = None,
+) -> dict[str, Any]:
+    """Emit lightweight truth-chain metadata for human verification."""
+
+    return {
+        "route_name": route_name,
+        "provider_called": provider_called,
+        "result_origin": result_origin,
+        "budget_delta": budget_delta,
+    }
 
 
 def _persist_batch_critique_summary(
@@ -164,6 +182,12 @@ async def rewrite_draft(
         )
 
     project_root = settings.project_base_dir / request_model.project_id
+    route_provenance = _build_provenance(
+        route_name="draft/rewrite",
+        provider_called=False,
+        result_origin="fallback",
+        budget_delta=None,
+    )
     try:
         target_path, front_matter, current_body = read_scene_document(
             project_root, request_model.unit_id
@@ -171,17 +195,25 @@ async def rewrite_draft(
     except DraftRequestError as exc:
         raise_conflict_error(
             message=str(exc),
-            details=exc.details,
+            details={
+                **exc.details,
+                "provenance": route_provenance,
+                "error_code": "CONFLICT",
+            },
             diagnostics=diagnostics,
             project_root=project_root,
         )
 
     current_normalized = normalize_markdown(current_body)
-    submitted_normalized = normalize_markdown(request_model.unit.text)
+    submitted_normalized = normalize_submitted_scene_body(request_model.unit.text)
     if current_normalized.strip() != submitted_normalized.strip():
         raise_conflict_error(
             message="The scene on disk no longer matches the submitted draft unit.",
-            details={"unit_id": request_model.unit_id},
+            details={
+                "unit_id": request_model.unit_id,
+                "provenance": route_provenance,
+                "error_code": "CONFLICT",
+            },
             diagnostics=diagnostics,
             project_root=project_root,
         )
@@ -189,6 +221,7 @@ async def rewrite_draft(
     revised_text = request_model.new_text
     decision = model_router.route(ModelTask.REWRITE)
     adapter = None
+    adapter_attempted = False
     if model_router.config.provider_calls_enabled:
         provider = model_router.providers.get(decision.provider)
         if provider and provider.supports(ModelTask.REWRITE):
@@ -196,6 +229,7 @@ async def rewrite_draft(
     if revised_text is None:
         adapter_used = False
         if adapter is not None:
+            adapter_attempted = True
             system = (
                 "You are a rewrite engine. Return only the revised draft text, "
                 "preserving paragraph breaks."
@@ -308,6 +342,12 @@ async def rewrite_draft(
         },
         "schema_version": "DraftUnitSchema v1",
         "model": {"name": decision.model.name, "provider": decision.model.provider},
+        "provenance": _build_provenance(
+            route_name="draft/rewrite",
+            provider_called=adapter_attempted,
+            result_origin="provider" if adapter_used else "fallback",
+            budget_delta=None,
+        ),
     }
     if model_router.config.routing_metadata_enabled:
         response_payload["routing"] = format_route_metadata(decision)
@@ -422,9 +462,10 @@ async def critique_draft(
             project_root=project_root,
         )
 
-    if is_e2e_mode():
-        response_root = project_root or settings.project_base_dir / (project_id or "")
-        return e2e_critique_response(response_root, request_model.project_id, request_model.unit_id)
+    if allow_e2e_synthetic_mode():
+        resolved_project_id = project_id or payload_for_model.get("project_id") or ""
+        response_root = project_root or settings.project_base_dir / resolved_project_id
+        return e2e_critique_response(response_root, resolved_project_id, request_model.unit_id)
 
     timeout = getattr(settings, "critique_task_timeout_seconds", 90)
     try:
@@ -547,6 +588,27 @@ async def critique_draft(
 
     if budget_payload is not None:
         result["budget"] = budget_payload
+    budget_delta = None
+    if isinstance(budget_payload, dict):
+        budget_delta_value = budget_payload.get("estimated_usd")
+        if isinstance(budget_delta_value, (int, float)):
+            budget_delta = float(budget_delta_value)
+    model_provider = None
+    model_payload = result.get("model")
+    if isinstance(model_payload, dict):
+        provider_value = model_payload.get("provider")
+        if isinstance(provider_value, str):
+            model_provider = provider_value
+    provider_called = bool(
+        settings.model_router_provider_calls_enabled and model_provider and model_provider != "offline"
+    )
+    result_origin = "provider" if provider_called else "fallback"
+    result["provenance"] = _build_provenance(
+        route_name="draft/critique",
+        provider_called=provider_called,
+        result_origin=result_origin,
+        budget_delta=budget_delta,
+    )
     result.setdefault("rubric", request_model.rubric)
     if request_model.rubric_id:
         result["rubric_id"] = request_model.rubric_id

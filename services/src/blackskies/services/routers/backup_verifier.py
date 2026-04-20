@@ -11,7 +11,7 @@ from ..backup_verifier import run_verification
 from ..config import ServiceSettings
 from ..diagnostics import DiagnosticLogger
 from ..io import read_json
-from ..e2e_mode import e2e_backup_verification, is_e2e_mode
+from ..e2e_mode import allow_e2e_synthetic_mode, e2e_backup_verification
 from ..http import raise_validation_error
 from ..models._project_id import validate_project_id
 from ..snapshots import SNAPSHOT_DIR_NAME
@@ -72,7 +72,7 @@ async def run_backup_verifier(
             project_root=None,
         )
 
-    if is_e2e_mode():
+    if allow_e2e_synthetic_mode():
         return e2e_backup_verification(validated_id)
     return run_verification(
         project_root,

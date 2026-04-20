@@ -48,7 +48,7 @@ yarn-error.log*
 app/dist-electron/
 app/playwright-report/
 vendor/wheels/
-sample_project/**/.snapshots/
+sample_project/
 
 # -------------------------
 # Temp / Scratch Files

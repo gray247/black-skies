@@ -40,6 +40,7 @@ class Phase4CritiqueResponse(BaseModel):
     summary: str
     issues: List[Phase4Issue]
     suggestions: List[str]
+    provenance: dict[str, object] | None = None
 
 
 class Phase4RewriteRequest(BaseModel):
@@ -55,6 +56,7 @@ class Phase4RewriteResponse(BaseModel):
     """Response payload for the rewrite endpoint."""
 
     revised_text: str
+    provenance: dict[str, object] | None = None
 
 
 __all__ = [

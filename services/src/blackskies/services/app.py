@@ -33,7 +33,7 @@ from .http import (
 from .middleware import BodySizeLimitMiddleware
 from .metrics import record_request
 from .persistence import SnapshotPersistence
-from .routers import api_router
+from .routers import build_api_router
 from .routers.health import router as health_router
 from .routers.outline import BuildInProgressError, BuildTracker
 from .routers.recovery import RecoveryTracker
@@ -253,8 +253,13 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
     )
 
     application.add_middleware(
+        TraceMiddleware,
+        trace_context=trace_context,
+    )
+    application.add_middleware(
         CORSMiddleware,
-        # `allow_origin_regex` keeps local dev hosts while remaining compatible with Trio tests
+        # Keep CORS as the outermost middleware so it also decorates
+        # JSON error responses emitted by TraceMiddleware.
         allow_origins=[],
         allow_origin_regex=r"^https?://(?:127\.0\.0\.1|localhost)(?::\d+)?$",
         allow_credentials=True,
@@ -262,13 +267,12 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
         allow_headers=["*"],
     )
 
-    application.add_middleware(
-        TraceMiddleware,
-        trace_context=trace_context,
-    )
-
     application.include_router(health_router)
-    application.include_router(api_router)
+    application.include_router(
+        build_api_router(
+            include_phase4_mock_routes=service_settings.phase4_mock_routes_enabled
+        )
+    )
 
     @application.get("/", include_in_schema=False)
     async def service_index(request: Request) -> dict[str, str]:

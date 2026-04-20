@@ -33,3 +33,88 @@
 - Maintain a Python 3.11 virtualenv for backend tasks and install dependencies from `requirements.dev.lock` when developing locally.
 - Keep credentials out of version control; rely on local `.env` files or OS keychains for secrets used by the Electron bridge.
 - When experimenting with tooling, stage work in `tools/` or feature branches until ready for review.
+
+---
+
+## AI AGENT EXECUTION RULES (CRITICAL)
+
+These rules apply specifically to Codex and any AI agents interacting with this repository.
+
+### 1. MODIFY > CREATE
+
+- Always prefer modifying existing files over creating new ones
+- Do not introduce new patterns if an existing one already solves the problem
+- Avoid duplicate logic across modules
+
+---
+
+### 2. DO NOT REFACTOR WITHOUT EXPLICIT INSTRUCTION
+
+- Do NOT restructure directories
+- Do NOT rename core files
+- Do NOT rewrite working systems for "cleanliness"
+- Do NOT introduce new frameworks or abstractions
+
+---
+
+### 3. RESPECT CORE SYSTEM DESIGN
+
+This project is built around:
+
+- Loop-based generation systems
+- Persona-driven architecture
+- Memory-aware workflows
+
+All changes must preserve these patterns.
+
+---
+
+### 4. SAFE CHANGE STRATEGY
+
+When making changes:
+
+1. Identify existing system
+2. Extend or patch it
+3. Avoid breaking interfaces
+4. Keep changes minimal and localized
+
+---
+
+### 5. WHEN UNSURE
+
+- Ask for clarification instead of guessing
+- Do not invent missing architecture
+- Do not assume intent
+
+---
+
+### 6. PERFORMANCE + STABILITY PRIORITY
+
+Order of importance:
+
+1. Stability (no crashes, no broken flows)
+2. Consistency (existing behavior preserved)
+3. Structure (clean but not disruptive)
+4. Features (only after above are safe)
+
+---
+
+### 7. LOOP SAFETY
+
+- All loops must have exit conditions
+- Avoid unbounded recursion
+- Respect token/resource limits
+
+---
+
+### 8. MEMORY SAFETY
+
+- Do not overwrite stored memory without cause
+- Preserve continuity between operations
+- Check for existing data before generating new data
+
+---
+
+### FINAL RULE
+
+If a change risks breaking the system, do not proceed without confirmation.

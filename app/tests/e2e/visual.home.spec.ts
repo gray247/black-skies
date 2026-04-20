@@ -1,6 +1,11 @@
 import { test, expect } from './_electron.fixture';
 import { TID } from '../../renderer/utils/testIds';
 
+// HARNESS_ONLY:
+// Reason: visual baseline snapshot in packaged harness mode.
+// Owner: app/tests/e2e/visual.home.spec.ts
+// Retire when: visual baseline strategy is replaced or consolidated.
+
 test.describe('Visual snapshots', () => {
   test('home screen', async ({ page }) => {
     await page.waitForLoadState('domcontentloaded');
@@ -11,9 +16,9 @@ test.describe('Visual snapshots', () => {
     );
     await page.getByTestId('app-root').waitFor({ timeout: 30_000 });
     await page.evaluate(() => {
-      const overlay = document.querySelector('[data-testid="companion-overlay"]') as
-        | HTMLElement
-        | null;
+      const overlay = document.querySelector(
+        '[data-testid="companion-overlay"]',
+      ) as HTMLElement | null;
       if (overlay) {
         overlay.style.display = 'none';
       }

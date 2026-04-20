@@ -1,6 +1,11 @@
 import { test, expect } from './_electron.fixture';
 import { bootstrapHarness } from './_bootstrap';
 
+// HARNESS_ONLY:
+// Reason: protects layout regression behavior in harness environment.
+// Owner: app/tests/e2e/layout-no-floating-panes.spec.ts
+// Retire when: layout restore policy is fully asserted in truth-lane tests.
+
 test.describe('Layout regression: no floating panes', () => {
   test('does not auto-spawn floating panes on project load', async ({ page, electronApp }) => {
     await bootstrapHarness(page);
@@ -22,7 +27,8 @@ test.describe('Layout regression: no floating panes', () => {
     }
 
     // Default preset panes should be visible; analytics surfaces should not auto-open.
-    const paneTitle = (text: string) => page.locator('.dock-pane__titlebar', { hasText: text }).first();
+    const paneTitle = (text: string) =>
+      page.locator('.dock-pane__titlebar', { hasText: text }).first();
     await expect(paneTitle('Outline')).toBeVisible();
     await expect(paneTitle('Draft preview')).toBeVisible();
     await expect(paneTitle('Story Insights')).toBeVisible();

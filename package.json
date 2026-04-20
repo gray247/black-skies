@@ -14,6 +14,8 @@
     "lint:docs":  "markdownlint --disable MD041 -- \"CONTRIBUTING.md\" \"docs/style.md\" \"docs/rollback_policy.md\" \"docs/ui_copy_spec_v1.md\"",
     "test:e2e":  "node ./scripts/e2e-with-backend.mjs",
     "test:truth":  "node ./scripts/truth-with-backend.mjs",
+    "test:service-truth": "python ./scripts/run_service_truth.py",
+    "verify:gauntlet": "python ./scripts/verify_gauntlet.py",
     "repo:hygiene":  "python scripts/check_repo_hygiene.py --tracked"
                 },
     "devDependencies":  {
