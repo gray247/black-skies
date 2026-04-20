@@ -36,6 +36,7 @@ build/*
 .venv/
 venv/
 env/
+codex_temp/
 
 # -------------------------
 # Node / JS (if used anywhere)

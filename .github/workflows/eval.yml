@@ -169,24 +169,13 @@ jobs:
         if: success()
         run: |
           mkdir -p build/ci_proof/pass4
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          summary = {
-              "schema_version": "GauntletPassProof v1",
-              "pass_id": "PASS 4",
-              "status": "success",
-              "commit_sha": "${{ github.sha }}",
-              "command": "pnpm test:truth",
-              "artifacts": [
-                  "build/truth_receipts/latest.json",
-                  "build/truth_receipts/latest.txt",
-              ],
-          }
-          path = Path("build/ci_proof/pass4/summary.json")
-          path.parent.mkdir(parents=True, exist_ok=True)
-          path.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
-          PY
+          python scripts/write_gauntlet_pass_summary.py \
+            --pass-id "PASS 4" \
+            --command "pnpm test:truth" \
+            --commit-sha "${{ github.sha }}" \
+            --output "build/ci_proof/pass4/summary.json" \
+            --artifact "build/truth_receipts/latest.json" \
+            --artifact "build/truth_receipts/latest.txt"
       - name: Upload PASS 4 proof artifacts
         if: always()
         uses: actions/upload-artifact@v4
@@ -222,20 +211,11 @@ jobs:
         if: success()
         run: |
           mkdir -p build/ci_proof/pass3
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          summary = {
-              "schema_version": "GauntletPassProof v1",
-              "pass_id": "PASS 3",
-              "status": "success",
-              "commit_sha": "${{ github.sha }}",
-              "command": "pnpm --filter app test -- --run app/main/__tests__/serviceApi.test.ts app/renderer/__tests__/AppCritique.test.tsx app/renderer/__tests__/useCritique.test.ts",
-          }
-          path = Path("build/ci_proof/pass3/summary.json")
-          path.parent.mkdir(parents=True, exist_ok=True)
-          path.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
-          PY
+          python scripts/write_gauntlet_pass_summary.py \
+            --pass-id "PASS 3" \
+            --command "pnpm --filter app test -- --run app/main/__tests__/serviceApi.test.ts app/renderer/__tests__/AppCritique.test.tsx app/renderer/__tests__/useCritique.test.ts" \
+            --commit-sha "${{ github.sha }}" \
+            --output "build/ci_proof/pass3/summary.json"
       - name: Upload PASS 3 proof artifact
         if: always()
         uses: actions/upload-artifact@v4
@@ -286,20 +266,11 @@ jobs:
         if: success()
         run: |
           mkdir -p build/ci_proof/pass5
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          summary = {
-              "schema_version": "GauntletPassProof v1",
-              "pass_id": "PASS 5",
-              "status": "success",
-              "commit_sha": "${{ github.sha }}",
-              "command": "pytest -q services/tests/unit/test_e2e_seam_metadata.py && pnpm test:e2e",
-          }
-          path = Path("build/ci_proof/pass5/summary.json")
-          path.parent.mkdir(parents=True, exist_ok=True)
-          path.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
-          PY
+          python scripts/write_gauntlet_pass_summary.py \
+            --pass-id "PASS 5" \
+            --command "pytest -q services/tests/unit/test_e2e_seam_metadata.py && pnpm test:e2e" \
+            --commit-sha "${{ github.sha }}" \
+            --output "build/ci_proof/pass5/summary.json"
       - name: Upload PASS 5 proof artifact
         if: always()
         uses: actions/upload-artifact@v4
@@ -340,20 +311,11 @@ jobs:
         if: success()
         run: |
           mkdir -p build/ci_proof/pass6
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          summary = {
-              "schema_version": "GauntletPassProof v1",
-              "pass_id": "PASS 6",
-              "status": "success",
-              "commit_sha": "${{ github.sha }}",
-              "command": "python scripts/gauntlet_capability_probe.py && pnpm --filter app build:renderer && pnpm --filter app build:main",
-          }
-          path = Path("build/ci_proof/pass6/summary.json")
-          path.parent.mkdir(parents=True, exist_ok=True)
-          path.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
-          PY
+          python scripts/write_gauntlet_pass_summary.py \
+            --pass-id "PASS 6" \
+            --command "python scripts/gauntlet_capability_probe.py && pnpm --filter app build:renderer && pnpm --filter app build:main" \
+            --commit-sha "${{ github.sha }}" \
+            --output "build/ci_proof/pass6/summary.json"
       - name: Upload PASS 6 proof artifact
         if: always()
         uses: actions/upload-artifact@v4
@@ -405,56 +367,14 @@ jobs:
           PASS6_RESULT: ${{ needs.gauntlet-pass6-proof.result }}
         run: |
           mkdir -p build/ci_proof
-          python - <<'PY'
-          import json
-          import os
-          from pathlib import Path
-          commit_sha = "${{ github.sha }}"
-          manifest = {
-              "schema_version": "GauntletCIProof v1",
-              "commit_sha": commit_sha,
-              "artifact_root": str(Path("ci_artifacts").resolve()),
-              "jobs": {
-                  "PASS 3": {
-                      "conclusion": "success" if os.environ.get("PASS3_RESULT") == "success" else os.environ.get("PASS3_RESULT", "failure"),
-                      "status": "success" if os.environ.get("PASS3_RESULT") == "success" else "failure",
-                      "commit_sha": commit_sha,
-                      "artifacts": [
-                          {"role": "summary", "path": "pass3/build/ci_proof/pass3/summary.json"},
-                      ],
-                  },
-                  "PASS 4": {
-                      "conclusion": "success" if os.environ.get("PASS4_RESULT") == "success" else os.environ.get("PASS4_RESULT", "failure"),
-                      "status": "success" if os.environ.get("PASS4_RESULT") == "success" else "failure",
-                      "commit_sha": commit_sha,
-                      "artifacts": [
-                          {"role": "summary", "path": "pass4/build/ci_proof/pass4/summary.json"},
-                          {"role": "truth_receipt_json", "path": "pass4/build/truth_receipts/latest.json"},
-                          {"role": "truth_receipt_txt", "path": "pass4/build/truth_receipts/latest.txt"},
-                      ],
-                  },
-                  "PASS 5": {
-                      "conclusion": "success" if os.environ.get("PASS5_RESULT") == "success" else os.environ.get("PASS5_RESULT", "failure"),
-                      "status": "success" if os.environ.get("PASS5_RESULT") == "success" else "failure",
-                      "commit_sha": commit_sha,
-                      "artifacts": [
-                          {"role": "summary", "path": "pass5/build/ci_proof/pass5/summary.json"},
-                      ],
-                  },
-                  "PASS 6": {
-                      "conclusion": "success" if os.environ.get("PASS6_RESULT") == "success" else os.environ.get("PASS6_RESULT", "failure"),
-                      "status": "success" if os.environ.get("PASS6_RESULT") == "success" else "failure",
-                      "commit_sha": commit_sha,
-                      "artifacts": [
-                          {"role": "summary", "path": "pass6/build/ci_proof/pass6/summary.json"},
-                      ],
-                  },
-              },
-          }
-          out_path = Path("build/ci_proof/gauntlet_ci_proof.json")
-          out_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
-          print(out_path)
-          PY
+          python scripts/write_gauntlet_ci_manifest.py \
+            --commit-sha "${{ github.sha }}" \
+            --artifact-root "ci_artifacts" \
+            --output "build/ci_proof/gauntlet_ci_proof.json" \
+            --pass3-result "$PASS3_RESULT" \
+            --pass4-result "$PASS4_RESULT" \
+            --pass5-result "$PASS5_RESULT" \
+            --pass6-result "$PASS6_RESULT"
       - name: Upload gauntlet CI proof manifest
         uses: actions/upload-artifact@v4
         with:
@@ -514,20 +434,7 @@ jobs:
         run: python scripts/eval.py --html out/eval.html --json out/eval.json
       - name: Check eval SLO
         run: |
-          LEDGER_PATH=$(python - <<'PY'
-          from pathlib import Path
-          runs_root = Path("sample_project/_runtime/runs")
-          if not runs_root.exists():
-              raise SystemExit("No evaluation ledgers found.")
-          evaluation_ledgers = sorted(
-              (path for path in runs_root.glob("evaluation-*/run.json") if path.is_file()),
-              key=lambda path: path.stat().st_mtime,
-          )
-          if not evaluation_ledgers:
-              raise SystemExit("No evaluation ledgers found.")
-          print(evaluation_ledgers[-1])
-          PY
-          )
+          LEDGER_PATH=$(python scripts/find_latest_run.py --kind evaluation --root sample_project/_runtime/runs)
           python scripts/check_slo.py "$LEDGER_PATH"
       - name: Run route smoke tests
         run: bash scripts/smoke.sh
@@ -542,15 +449,7 @@ jobs:
         run: python scripts/load.py --host 127.0.0.1 --port 43750 --log-level WARNING
       - name: Check load SLO
         run: |
-          LEDGER_PATH=$(python - <<'PY'
-          from pathlib import Path
-          runs_root = Path("sample_project/_runtime/runs")
-          if not runs_root.exists():
-              raise SystemExit("No load-test ledgers found.")
-          latest = max(runs_root.iterdir(), key=lambda p: p.stat().st_mtime)
-          print(latest / "run.json")
-          PY
-          )
+          LEDGER_PATH=$(python scripts/find_latest_run.py --kind load-test --root sample_project/_runtime/runs)
           python scripts/check_slo.py "$LEDGER_PATH"
       - name: Upload load test ledger
         if: always()
