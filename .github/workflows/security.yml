@@ -152,15 +152,7 @@ jobs:
       - name: Discover load ledger
         id: load_ledger
         run: |
-          RUN_JSON=$(python - <<'PY'
-from pathlib import Path
-root = Path("sample_project/_runtime/runs")
-candidates = sorted(root.glob("load-test-*"))
-if not candidates:
-    raise SystemExit("No load-test runs found.")
-print((candidates[-1] / "run.json").resolve().as_posix())
-PY
-)
+          RUN_JSON=$(python scripts/find_latest_run.py)
           echo "run_json=$RUN_JSON" >> "$GITHUB_OUTPUT"
       - name: Enforce load SLO
         run: python scripts/check_slo.py "${{ steps.load_ledger.outputs.run_json }}"
