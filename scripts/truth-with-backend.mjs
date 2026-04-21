@@ -1360,31 +1360,62 @@ async function run() {
       const previousSha = computeBodySha256(sceneBody);
       const truthMarker = `TRUTH-LANE-MARKER-${Date.now()}`;
       const acceptedSceneEvidence = `TRUTH-LANE-SCENE-ID:${primarySceneId}`;
-      const acceptedBody = `${sceneBody}\n\n${truthMarker}\n${acceptedSceneEvidence}`;
-      const acceptedBodyExcerpt = acceptedBody
-        .replace(/\s+/g, ' ')
-        .trim()
-        .slice(0, 80);
+      let acceptedBody = `${sceneBody}\n\n${truthMarker}\n${acceptedSceneEvidence}`;
 
-      const acceptResponse = await fetch(`http://127.0.0.1:${SERVICE_PORT}/api/v1/draft/accept`, {
+      const acceptRequestBase = {
+        project_id: sampleLoadProbe.projectId,
+        draft_id: `dr_truth_${primarySceneId}`,
+        unit_id: primarySceneId,
+        message: 'Truth lane acceptance validation.',
+        snapshot_label: 'truth-lane-accept',
+      };
+      let acceptResponse = await fetch(`http://127.0.0.1:${SERVICE_PORT}/api/v1/draft/accept`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          project_id: sampleLoadProbe.projectId,
-          draft_id: `dr_truth_${primarySceneId}`,
-          unit_id: primarySceneId,
+          ...acceptRequestBase,
           unit: {
             id: primarySceneId,
             previous_sha256: previousSha,
             text: acceptedBody,
             meta: {},
           },
-          message: 'Truth lane acceptance validation.',
-          snapshot_label: 'truth-lane-accept',
         }),
       });
+      if (!acceptResponse.ok && acceptResponse.status === 409) {
+        const conflictBodyText = await acceptResponse.text();
+        let conflictPayload = null;
+        try {
+          conflictPayload = JSON.parse(conflictBodyText);
+        } catch {
+          throw new Error(`Accept route failed: ${conflictBodyText}`);
+        }
+        if (conflictPayload?.code !== 'CONFLICT') {
+          throw new Error(`Accept route failed: ${conflictBodyText}`);
+        }
+        const refreshedSceneBody = extractSceneBody(readFileSync(sceneFilePath, 'utf8'));
+        const refreshedPreviousSha = computeBodySha256(refreshedSceneBody);
+        acceptedBody = `${refreshedSceneBody}\n\n${truthMarker}\n${acceptedSceneEvidence}`;
+        acceptResponse = await fetch(`http://127.0.0.1:${SERVICE_PORT}/api/v1/draft/accept`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            ...acceptRequestBase,
+            unit: {
+              id: primarySceneId,
+              previous_sha256: refreshedPreviousSha,
+              text: acceptedBody,
+              meta: {},
+            },
+          }),
+        });
+      }
       await assertOkResponse(acceptResponse, 'Accept route');
       const acceptPayload = await acceptResponse.json();
+      const acceptedBodyExcerpt = acceptedBody
+        .replace(/\s+/g, ' ')
+        .trim()
+        .slice(0, 80);
       const snapshotPath = acceptPayload?.snapshot?.path;
       const snapshotId = acceptPayload?.snapshot?.snapshot_id;
       assert.equal(typeof snapshotPath, 'string', 'Accept payload missing snapshot.path');
