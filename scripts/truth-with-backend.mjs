@@ -965,13 +965,6 @@ async function run() {
         console.warn('[truth] CDP reload command warning', normalizeErrorMessage(error));
       }
       await delay(750);
-      try {
-        cdp.close();
-      } catch {
-        // Ignore close races; a fresh connection is established below.
-      }
-      const refreshedPageTarget = await waitForDebuggerPage(ELECTRON_DEBUG_PORT, 30_000);
-      cdp = await attachCdpClient(refreshedPageTarget.webSocketDebuggerUrl);
       console.log('[truth] seeded recent project and reloaded page');
 
       console.log('[truth] waiting for document.readyState');
