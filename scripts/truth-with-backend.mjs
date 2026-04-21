@@ -122,8 +122,8 @@ function splitCommand(command) {
 }
 
 function extractSceneBody(markdown) {
-  const normalized = String(markdown ?? '').replace(/\r\n/g, '\n');
-  const lines = normalized.split('\n');
+  const content = String(markdown ?? '');
+  const lines = content.split(/\r?\n/);
   if (lines.length >= 3 && lines[0].trim() === '---') {
     for (let index = 1; index < lines.length; index += 1) {
       if (lines[index].trim() === '---') {
@@ -131,12 +131,11 @@ function extractSceneBody(markdown) {
       }
     }
   }
-  return normalized;
+  return lines.join('\n');
 }
 
 function computeBodySha256(text) {
-  const normalized = String(text ?? '').replace(/\r\n/g, '\n').trim();
-  return createHash('sha256').update(normalized, 'utf8').digest('hex');
+  return createHash('sha256').update(String(text ?? ''), 'utf8').digest('hex');
 }
 
 function parseProvenanceMetaLine(line, label) {
