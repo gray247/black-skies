@@ -1159,6 +1159,35 @@ async function run() {
       assert.equal(preflightResult.sceneCount, sampleLoadProbe.sceneIds.length);
       receipt.routes_hit.push('/api/v1/draft/preflight');
 
+      console.log(`[truth] selecting primary scene ${sampleLoadProbe.sceneIds[0]} before critique`);
+      await evaluate(
+        cdp,
+        `(() => {
+          const targetSceneId = ${JSON.stringify(sampleLoadProbe.sceneIds[0])};
+          const buttons = Array.from(document.querySelectorAll('.project-home__scene-button'));
+          const targetButton = buttons.find((button) =>
+            (button.textContent ?? '').includes(targetSceneId),
+          );
+          if (!(targetButton instanceof HTMLButtonElement)) {
+            throw new Error(\`Scene button not found for scene \${targetSceneId}\`);
+          }
+          targetButton.click();
+          return true;
+        })()`,
+      );
+
+      await waitForCondition(async () => {
+        const isSceneSelected = await evaluate(
+          cdp,
+          `(() => {
+            const targetSceneId = ${JSON.stringify(sampleLoadProbe.sceneIds[0])};
+            const activeButton = document.querySelector('.project-home__scene-button[aria-pressed="true"]');
+            return Boolean(activeButton) && (activeButton.textContent ?? '').includes(targetSceneId);
+          })()`,
+        );
+        return isSceneSelected === true;
+      }, 30_000, 'primary scene selected');
+
       console.log('[truth] waiting for critique button to enable');
       await waitForCondition(async () => {
         const enabled = await evaluate(
