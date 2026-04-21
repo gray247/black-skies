@@ -483,11 +483,28 @@ async function launchElectronProcess({
 function createSyntheticTruthProjectSource(launchRoot) {
   const sourceRoot = path.join(launchRoot, 'truth-source', 'Esther_Estate');
   const draftsDir = path.join(sourceRoot, 'drafts');
+  const projectId = 'Esther_Estate';
+  const chapterId = 'ch_0001';
   const sceneId = 'sc_0001';
   mkdirSync(draftsDir, { recursive: true });
   writeFileSync(
     path.join(sourceRoot, 'project.json'),
-    `${JSON.stringify({ name: 'Esther Estate' }, null, 2)}\n`,
+    `${JSON.stringify(
+      {
+        name: 'Esther Estate',
+        project_id: projectId,
+        scenes: [
+          {
+            id: sceneId,
+            title: 'Opening Scene',
+            order: 1,
+            chapter_id: chapterId,
+          },
+        ],
+      },
+      null,
+      2,
+    )}\n`,
     'utf8',
   );
   writeFileSync(
@@ -495,12 +512,22 @@ function createSyntheticTruthProjectSource(launchRoot) {
     `${JSON.stringify(
       {
         schema_version: 'OutlineSchema v1',
+        outline_id: 'out_truth_lane',
+        acts: ['Act I: Verified Baseline'],
+        chapters: [
+          {
+            id: chapterId,
+            order: 1,
+            title: 'Chapter 1',
+          },
+        ],
         scenes: [
           {
             id: sceneId,
             title: 'Opening Scene',
-            chapter: 'Chapter 1',
-            summary: 'Baseline truth-lane scene used for verification.',
+            order: 1,
+            chapter_id: chapterId,
+            beat_refs: ['inciting'],
           },
         ],
       },
