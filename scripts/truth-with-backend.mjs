@@ -933,12 +933,44 @@ async function run() {
             ok: Boolean(response.ok),
             error: response.ok ? null : response.error?.message ?? null,
             issueCount: response.ok ? response.issues?.length ?? 0 : response.error?.issues?.length ?? 0,
-            projectId: response.ok ? response.project.path.split(/[\\\\/]/).at(-1) ?? null : null,
-            sceneIds: response.ok ? response.project.scenes.map((scene) => scene.id) : [],
+            projectId: response.ok
+              ? response.project?.project_id ?? response.project?.path?.split(/[\\\\/]/).at(-1) ?? null
+              : null,
+            sceneIds: response.ok
+              ? (() => {
+                  const projectScenes = Array.isArray(response.project?.scenes)
+                    ? response.project.scenes
+                        .map((scene) => (scene && typeof scene.id === 'string' ? scene.id : null))
+                        .filter((sceneId) => typeof sceneId === 'string')
+                    : [];
+                  if (projectScenes.length > 0) {
+                    return projectScenes;
+                  }
+                  const outlineScenes = Array.isArray(response.project?.outline?.scenes)
+                    ? response.project.outline.scenes
+                        .map((scene) => (scene && typeof scene.id === 'string' ? scene.id : null))
+                        .filter((sceneId) => typeof sceneId === 'string')
+                    : [];
+                  return outlineScenes;
+                })()
+              : [],
           };
         })())()`,
       );
       console.log('[truth] sample load probe', sampleLoadProbe);
+      if (!sampleLoadProbe.ok || !sampleLoadProbe.projectId || sampleLoadProbe.sceneIds.length === 0) {
+        throw makeFailureError(
+          FAILURE_CATEGORY.RECEIPT_CONTRACT_FAIL,
+          '[truth] Failed to resolve project + scene identities from loaded project',
+          {
+            sample_load_ok: sampleLoadProbe.ok,
+            sample_load_error: sampleLoadProbe.error,
+            sample_load_issue_count: sampleLoadProbe.issueCount,
+            sample_load_project_id: sampleLoadProbe.projectId,
+            sample_load_scene_count: sampleLoadProbe.sceneIds.length,
+          },
+        );
+      }
 
       const samplePathLiteral = JSON.stringify(truthProject.projectPath);
       const sampleNameLiteral = JSON.stringify(path.basename(truthProject.projectPath));
@@ -1085,7 +1117,17 @@ async function run() {
         })())()`,
       );
       console.log('[truth] preflight bridge result', preflightResult);
-      assert.equal(preflightResult.ok, true);
+      if (preflightResult.ok !== true) {
+        throw makeFailureError(
+          FAILURE_CATEGORY.RECEIPT_CONTRACT_FAIL,
+          '[truth] Preflight bridge returned a non-success payload',
+          {
+            preflight_ok: preflightResult.ok,
+            preflight_status: preflightResult.status,
+            preflight_scene_count: preflightResult.sceneCount,
+          },
+        );
+      }
       assert.equal(preflightResult.status, 'ok');
       assert.equal(preflightResult.sceneCount, sampleLoadProbe.sceneIds.length);
       receipt.routes_hit.push('/api/v1/draft/preflight');

@@ -259,6 +259,10 @@ jobs:
           pnpm install --recursive --no-frozen-lockfile
       - name: Install Playwright browsers
         run: pnpm --filter app exec playwright install --with-deps
+      - name: Build renderer and main bundles
+        run: |
+          pnpm --filter app build:renderer
+          pnpm --filter app build:main
       - name: Run PASS 5 metadata guard + harness smoke
         env:
           PLAYWRIGHT_DISABLE_ANIMATIONS: '1'
