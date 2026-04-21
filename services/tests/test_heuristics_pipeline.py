@@ -49,7 +49,8 @@ def _write_draft(project_root: Path, heuristics_payload: dict[str, object]) -> t
         f"word_target: {front_matter['word_target']}",
         f"beats: [{', '.join(front_matter['beats'])}]",
     ]
-    content = f"---\n{''.join(line + '\\n' for line in front_lines)}---\n{body}\n"
+    front_block = "".join(f"{line}\n" for line in front_lines)
+    content = f"---\n{front_block}---\n{body}\n"
     (drafts_dir / "sc_0001.md").write_text(content, encoding="utf-8")
     return front_matter, body
 
