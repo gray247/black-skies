@@ -138,6 +138,48 @@ function computeBodySha256(text) {
   return createHash('sha256').update(String(text ?? ''), 'utf8').digest('hex');
 }
 
+function readServiceSceneState(projectRootPath, unitId) {
+  const pythonCommand = resolvePythonCommand();
+  const helperScript = [
+    'import json',
+    'from pathlib import Path',
+    'from blackskies.services.scene_docs import read_scene_document',
+    'from blackskies.services.routers.draft.common import _compute_sha256',
+    `project_root = Path(${JSON.stringify(projectRootPath)})`,
+    `unit_id = ${JSON.stringify(unitId)}`,
+    '_, _, body = read_scene_document(project_root, unit_id)',
+    'print(json.dumps({"body": body, "digest": _compute_sha256(body)}))',
+  ].join('\n');
+  const result = spawnSync(pythonCommand, ['-c', helperScript], {
+    cwd: REPO_ROOT,
+    env: {
+      ...process.env,
+      PATH: prependVenvPath(process.env.PATH),
+    },
+    encoding: 'utf8',
+  });
+  if (result.error) {
+    throw new Error(`[truth] failed to inspect scene state: ${result.error.message}`);
+  }
+  if (result.status !== 0) {
+    throw new Error(
+      `[truth] failed to inspect scene state: ${String(result.stderr ?? result.stdout ?? '').trim()}`,
+    );
+  }
+  let parsed = null;
+  try {
+    parsed = JSON.parse(String(result.stdout ?? ''));
+  } catch (error) {
+    throw new Error(`[truth] failed to parse scene state helper output: ${normalizeErrorMessage(error)}`);
+  }
+  const body = typeof parsed?.body === 'string' ? parsed.body : null;
+  const digest = typeof parsed?.digest === 'string' ? parsed.digest : null;
+  if (!body || !/^[a-f0-9]{64}$/i.test(digest ?? '')) {
+    throw new Error('[truth] scene state helper returned invalid payload.');
+  }
+  return { body, digest };
+}
+
 function parseProvenanceMetaLine(line, label) {
   const normalized = String(line ?? '').trim();
   const prefix = `${label}:`;
@@ -1354,12 +1396,10 @@ async function run() {
       console.log('[truth] validating accept persistence');
       const sceneFilePath = path.join(truthProject.projectPath, 'drafts', `${primarySceneId}.md`);
       assert.ok(existsSync(sceneFilePath), `Scene file missing for truth lane: ${sceneFilePath}`);
-      const sceneDocument = readFileSync(sceneFilePath, 'utf8');
-      const sceneBody = extractSceneBody(sceneDocument);
-      const previousSha = computeBodySha256(sceneBody);
+      const sceneState = readServiceSceneState(truthProject.projectPath, primarySceneId);
       const truthMarker = `TRUTH-LANE-MARKER-${Date.now()}`;
       const acceptedSceneEvidence = `TRUTH-LANE-SCENE-ID:${primarySceneId}`;
-      let acceptedBody = `${sceneBody}\n\n${truthMarker}\n${acceptedSceneEvidence}`;
+      let acceptedBody = `${sceneState.body}\n\n${truthMarker}\n${acceptedSceneEvidence}`;
 
       const acceptRequestBase = {
         project_id: sampleLoadProbe.projectId,
@@ -1375,7 +1415,7 @@ async function run() {
           ...acceptRequestBase,
           unit: {
             id: primarySceneId,
-            previous_sha256: previousSha,
+            previous_sha256: sceneState.digest,
             text: acceptedBody,
             meta: {},
           },
@@ -1392,9 +1432,8 @@ async function run() {
         if (conflictPayload?.code !== 'CONFLICT') {
           throw new Error(`Accept route failed: ${conflictBodyText}`);
         }
-        const refreshedSceneBody = extractSceneBody(readFileSync(sceneFilePath, 'utf8'));
-        const refreshedPreviousSha = computeBodySha256(refreshedSceneBody);
-        acceptedBody = `${refreshedSceneBody}\n\n${truthMarker}\n${acceptedSceneEvidence}`;
+        const refreshedSceneState = readServiceSceneState(truthProject.projectPath, primarySceneId);
+        acceptedBody = `${refreshedSceneState.body}\n\n${truthMarker}\n${acceptedSceneEvidence}`;
         acceptResponse = await fetch(`http://127.0.0.1:${SERVICE_PORT}/api/v1/draft/accept`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -1402,7 +1441,7 @@ async function run() {
             ...acceptRequestBase,
             unit: {
               id: primarySceneId,
-              previous_sha256: refreshedPreviousSha,
+              previous_sha256: refreshedSceneState.digest,
               text: acceptedBody,
               meta: {},
             },
