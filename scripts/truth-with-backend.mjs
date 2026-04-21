@@ -512,7 +512,7 @@ function createSyntheticTruthProjectSource(launchRoot) {
     `${JSON.stringify(
       {
         schema_version: 'OutlineSchema v1',
-        outline_id: 'out_truth_lane',
+        outline_id: 'out_001',
         acts: ['Act I: Verified Baseline'],
         chapters: [
           {
