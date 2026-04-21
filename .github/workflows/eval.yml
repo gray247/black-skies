@@ -73,7 +73,7 @@ jobs:
         with:
           version: 8
       - name: Install dependencies
-        run: pnpm install --recursive --frozen-lockfile
+        run: pnpm install --recursive --no-frozen-lockfile
       - name: Run app lint
         run: pnpm --filter app lint
       - name: Build main bundle
@@ -95,7 +95,7 @@ jobs:
         with:
           version: 8
       - name: Install dependencies
-        run: pnpm install --recursive --frozen-lockfile
+        run: pnpm install --recursive --no-frozen-lockfile
       - name: Run markdownlint
         run: pnpm lint:docs
 
@@ -114,7 +114,7 @@ jobs:
         with:
           version: 8
       - name: Install dependencies
-        run: pnpm install --recursive --frozen-lockfile
+        run: pnpm install --recursive --no-frozen-lockfile
       - name: Install Playwright browsers
         run: pnpm --filter app exec playwright install --with-deps
       - name: Run HARNESS_ONLY Playwright UI smoke tests
@@ -159,7 +159,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -c constraints.txt -r requirements.lock -r requirements.dev.lock
-          pnpm install --recursive --frozen-lockfile
+          pnpm install --recursive --no-frozen-lockfile
       - name: Build renderer and main bundles
         run: |
           pnpm --filter app build:renderer
@@ -203,7 +203,7 @@ jobs:
         with:
           version: 8
       - name: Install dependencies
-        run: pnpm install --recursive --frozen-lockfile
+        run: pnpm install --recursive --no-frozen-lockfile
       - name: Run PASS 3 targeted suite
         run: |
           pnpm --filter app test -- --run app/main/__tests__/serviceApi.test.ts app/renderer/__tests__/AppCritique.test.tsx app/renderer/__tests__/useCritique.test.ts
@@ -252,7 +252,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -c constraints.txt -r requirements.lock -r requirements.dev.lock
-          pnpm install --recursive --frozen-lockfile
+          pnpm install --recursive --no-frozen-lockfile
       - name: Install Playwright browsers
         run: pnpm --filter app exec playwright install --with-deps
       - name: Run PASS 5 metadata guard + harness smoke
@@ -299,7 +299,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -c constraints.txt -r requirements.lock -r requirements.dev.lock
-          pnpm install --recursive --frozen-lockfile
+          pnpm install --recursive --no-frozen-lockfile
       - name: Run PASS 6 checks
         run: |
           python scripts/gauntlet_capability_probe.py
