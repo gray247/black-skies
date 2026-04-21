@@ -242,6 +242,7 @@ export function useCritique({
   const [state, setState] = useState<CritiqueDialogState>(createInitialCritiqueState());
   const activeRubric = useMemo(() => normalizeRubric(rubric), [rubric]);
   const critiqueMode = useMemo(() => deriveCritiqueMode(activeRubric), [activeRubric]);
+  const phase4MockFlow = usePhase4MockFlow();
 
   const setInstructions = useCallback((next: string) => {
     setState((previous) => ({ ...previous, instructions: next }));
@@ -316,7 +317,6 @@ export function useCritique({
       budgetStatusLine: null,
     }));
 
-    const phase4MockFlow = usePhase4MockFlow();
     const critiqueRouteName = phase4MockFlow ? 'phase4/critique' : 'draft/critique';
     if (!services.critiqueDraft && !services.phase4Critique) {
       setState((previous) => ({ ...previous, loading: false, phase: 'critique_error', error: 'Critique unavailable.' }));
@@ -405,6 +405,7 @@ export function useCritique({
     draftEdits,
     activeRubric,
     critiqueMode,
+    phase4MockFlow,
     isMountedRef,
     pushToast,
     onBudgetUpdate,
@@ -476,7 +477,6 @@ export function useCritique({
       instructions: previousInstructions(state.instructions),
     };
 
-    const phase4MockFlow = usePhase4MockFlow();
     const rewriteRouteName = phase4MockFlow ? 'phase4/rewrite' : 'draft/rewrite';
     if (!services.rewriteDraft && !services.phase4Rewrite) {
       setState((previous) => ({
@@ -573,6 +573,7 @@ export function useCritique({
     state.instructions,
     draftEdits,
     projectDrafts,
+    phase4MockFlow,
     isMountedRef,
     pushToast,
   ]);
