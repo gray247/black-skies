@@ -434,6 +434,9 @@ async function launchElectronProcess({
       launchCommand = 'xvfb-run';
       launchArgs = ['-a', electronBinary, ...electronArgs];
     }
+    if (launchCommand !== electronBinary) {
+      console.log(`[truth] launching Electron via ${launchCommand} wrapper`);
+    }
     stdoutFd = openSync(electronStdoutPath, 'a');
     stderrFd = openSync(electronStderrPath, 'a');
     const electron = spawn(launchCommand, launchArgs, {

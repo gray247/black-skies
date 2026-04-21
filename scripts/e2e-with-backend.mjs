@@ -143,12 +143,14 @@ async function run() {
     BLACKSKIES_E2E_PORT: String(SERVICE_PORT),
     BLACKSKIES_E2E_MODE: "1",
     BLACKSKIES_E2E_SYNTHETIC_MODE: "1",
+    BLACKSKIES_E2E_EXTERNAL_SERVICE: "1",
     BLACKSKIES_ENABLE_PHASE4_MOCK_FLOW: "1",
   };
   process.env.BLACKSKIES_SERVICES_PORT = String(SERVICE_PORT);
   process.env.BLACKSKIES_E2E_PORT = String(SERVICE_PORT);
   process.env.BLACKSKIES_E2E_MODE = "1";
   process.env.BLACKSKIES_E2E_SYNTHETIC_MODE = "1";
+  process.env.BLACKSKIES_E2E_EXTERNAL_SERVICE = "1";
   process.env.BLACKSKIES_ENABLE_PHASE4_MOCK_FLOW = "1";
   process.env.PATH = prependVenvPath(process.env.PATH);
   backendEnv.PATH = prependVenvPath(backendEnv.PATH);
