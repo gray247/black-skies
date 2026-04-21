@@ -810,6 +810,9 @@ async function run() {
       BLACKSKIES_TRUTH_DEBUG_PORT: String(ELECTRON_DEBUG_PORT),
       PLAYWRIGHT: '1',
     };
+    if (process.platform === 'linux') {
+      launchEnv.ELECTRON_DISABLE_SANDBOX = '1';
+    }
 
     process.env.ELECTRON_RENDERER_URL = rendererUrl;
     process.env.BLACKSKIES_SERVICES_PORT = String(SERVICE_PORT);
@@ -841,6 +844,9 @@ async function run() {
       '--remote-debugging-address=127.0.0.1',
       entryPoint,
     ];
+    if (process.platform === 'linux') {
+      electronArgs.unshift('--no-sandbox');
+    }
     const electronCommand = `${electronBinary} ${electronArgs.join(' ')}`;
     writeFileSync(electronLauncherPath, `${electronCommand}\n`, 'utf8');
     receipt.artifacts.push({ kind: 'electron_launch_command', path: path.relative(REPO_ROOT, electronLauncherPath) });

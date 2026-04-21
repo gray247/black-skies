@@ -34,6 +34,9 @@ export const test = base.extend<Fixtures>({
       BLACKSKIES_SERVICES_PORT: String(SERVICE_PORT),
       BLACKSKIES_E2E_PORT: String(SERVICE_PORT),
     };
+    if (process.platform === 'linux') {
+      launchEnv.ELECTRON_DISABLE_SANDBOX = '1';
+    }
 
     const prevServicePort = process.env.BLACKSKIES_SERVICES_PORT;
     const prevE2ePort = process.env.BLACKSKIES_E2E_PORT;
@@ -44,7 +47,7 @@ export const test = base.extend<Fixtures>({
       await startServiceStubs();
     }
     const application = await electron.launch({
-      args: [entryPoint],
+      args: [...(process.platform === 'linux' ? ['--no-sandbox'] : []), entryPoint],
       env: launchEnv,
     });
 
