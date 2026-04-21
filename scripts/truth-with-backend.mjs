@@ -1558,12 +1558,13 @@ async function run() {
       const absoluteExportPath = path.join(truthProject.projectPath, exportPath);
       assert.ok(existsSync(absoluteExportPath), `Export artifact missing on disk: ${absoluteExportPath}`);
       const exportContents = readFileSync(absoluteExportPath, 'utf8');
+      const normalizedExportContents = exportContents.replace(/\s+/g, ' ').trim();
       assert.ok(
         exportContents.includes(truthMarker),
         'Export artifact missing truth marker content from accepted scene',
       );
       assert.ok(
-        acceptedBodyExcerpt.length > 0 && exportContents.includes(acceptedBodyExcerpt),
+        acceptedBodyExcerpt.length > 0 && normalizedExportContents.includes(acceptedBodyExcerpt),
         'Export artifact missing expected accepted-scene body excerpt',
       );
       assert.ok(
