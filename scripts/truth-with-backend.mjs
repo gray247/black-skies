@@ -18,6 +18,7 @@ import os from 'node:os';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { spawn, spawnSync } from 'node:child_process';
 import { setTimeout as delay } from 'node:timers/promises';
+import { WebSocket as NodeWebSocket } from 'ws';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -37,6 +38,7 @@ const FAILURE_CATEGORY = Object.freeze({
   ARTIFACT_VALIDATION_FAIL: 'ARTIFACT_VALIDATION_FAIL',
 });
 let latestReceipt = buildTruthReceipt();
+const WebSocketImpl = globalThis.WebSocket ?? NodeWebSocket;
 
 function resolvePythonCommand() {
   const envPython = process.env.PYTHON?.trim();
@@ -598,7 +600,7 @@ async function attachCdpClient(wsUrl) {
 
 class CdpClient {
   constructor(wsUrl) {
-    this.ws = new WebSocket(wsUrl);
+    this.ws = new WebSocketImpl(wsUrl);
     this.nextId = 1;
     this.pending = new Map();
     this.ready = new Promise((resolve, reject) => {
