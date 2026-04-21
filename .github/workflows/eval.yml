@@ -206,14 +206,14 @@ jobs:
         run: pnpm install --recursive --no-frozen-lockfile
       - name: Run PASS 3 targeted suite
         run: |
-          pnpm --filter app test -- --run app/main/__tests__/serviceApi.test.ts app/renderer/__tests__/AppCritique.test.tsx app/renderer/__tests__/useCritique.test.ts
+          pnpm --filter app test -- --run main/__tests__/serviceApi.test.ts renderer/__tests__/AppCritique.test.tsx renderer/__tests__/useCritique.test.ts
       - name: Write PASS 3 proof summary
         if: success()
         run: |
           mkdir -p build/ci_proof/pass3
           python scripts/write_gauntlet_pass_summary.py \
             --pass-id "PASS 3" \
-            --command "pnpm --filter app test -- --run app/main/__tests__/serviceApi.test.ts app/renderer/__tests__/AppCritique.test.tsx app/renderer/__tests__/useCritique.test.ts" \
+            --command "pnpm --filter app test -- --run main/__tests__/serviceApi.test.ts renderer/__tests__/AppCritique.test.tsx renderer/__tests__/useCritique.test.ts" \
             --commit-sha "${{ github.sha }}" \
             --output "build/ci_proof/pass3/summary.json"
       - name: Upload PASS 3 proof artifact

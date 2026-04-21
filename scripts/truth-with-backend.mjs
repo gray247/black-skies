@@ -36,6 +36,35 @@ const FAILURE_CATEGORY = Object.freeze({
 });
 let latestReceipt = buildTruthReceipt();
 
+function resolvePythonCommand() {
+  const envPython = process.env.PYTHON?.trim();
+  if (envPython) {
+    return envPython;
+  }
+  const venvPython = path.resolve(
+    REPO_ROOT,
+    '.venv',
+    process.platform === 'win32' ? 'Scripts' : 'bin',
+    process.platform === 'win32' ? 'python.exe' : 'python',
+  );
+  if (existsSync(venvPython)) {
+    return venvPython;
+  }
+  return process.platform === 'win32' ? 'python' : 'python3';
+}
+
+function prependVenvPath(currentPath) {
+  const venvBin = path.resolve(
+    REPO_ROOT,
+    '.venv',
+    process.platform === 'win32' ? 'Scripts' : 'bin',
+  );
+  if (!existsSync(venvBin)) {
+    return currentPath;
+  }
+  return `${venvBin}${path.delimiter}${currentPath ?? ''}`;
+}
+
 function normalizeErrorMessage(error) {
   if (error instanceof Error && error.message) {
     return error.message;
@@ -507,7 +536,7 @@ async function run() {
   const receipt = latestReceipt;
   const serviceCommandEnv = process.env.E2E_SERVICE_COMMAND;
   const defaultCommand = [
-    process.env.PYTHON ?? 'C:/Dev/black-skies/.venv/Scripts/python.exe',
+    resolvePythonCommand(),
     '-m',
     'uvicorn',
     'blackskies.services.app:create_app',
@@ -553,7 +582,8 @@ async function run() {
   process.env.BLACKSKIES_ENABLE_PHASE4_MOCK_FLOW = '0';
   process.env.BLACKSKIES_PROJECT_BASE_DIR = truthProject.projectBaseDir;
   process.env.PROJECT_BASE_DIR = truthProject.projectBaseDir;
-  process.env.PATH = `C:/Dev/black-skies/.venv/Scripts;` + process.env.PATH;
+  process.env.PATH = prependVenvPath(process.env.PATH);
+  backendEnv.PATH = prependVenvPath(backendEnv.PATH);
   const backend = spawn(backendCommand, backendArgs, {
     env: backendEnv,
     stdio: 'inherit',

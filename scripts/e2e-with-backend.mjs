@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
 import { setTimeout as delay } from 'node:timers/promises';
+import { existsSync } from 'node:fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -18,6 +19,35 @@ const PLAYWRIGHT_ARGS = [
   '--trace=on',
 ];
 const REPO_ROOT = path.resolve(__dirname, '..');
+
+function resolvePythonCommand() {
+  const envPython = process.env.PYTHON?.trim();
+  if (envPython) {
+    return envPython;
+  }
+  const venvPython = path.resolve(
+    REPO_ROOT,
+    '.venv',
+    process.platform === 'win32' ? 'Scripts' : 'bin',
+    process.platform === 'win32' ? 'python.exe' : 'python',
+  );
+  if (existsSync(venvPython)) {
+    return venvPython;
+  }
+  return process.platform === 'win32' ? 'python' : 'python3';
+}
+
+function prependVenvPath(currentPath) {
+  const venvBin = path.resolve(
+    REPO_ROOT,
+    '.venv',
+    process.platform === 'win32' ? 'Scripts' : 'bin',
+  );
+  if (!existsSync(venvBin)) {
+    return currentPath;
+  }
+  return `${venvBin}${path.delimiter}${currentPath ?? ''}`;
+}
 
 function splitCommand(command) {
   const tokens = [];
@@ -90,7 +120,7 @@ async function ensurePortAvailable(host, port) {
 async function run() {
   const serviceCommandEnv = process.env.E2E_SERVICE_COMMAND;
   const defaultCommand = [
-    process.env.PYTHON ?? 'C:/Dev/black-skies/.venv/Scripts/python.exe',
+    resolvePythonCommand(),
     '-m',
     'uvicorn',
     'blackskies.services.app:create_app',
@@ -120,7 +150,8 @@ async function run() {
   process.env.BLACKSKIES_E2E_MODE = "1";
   process.env.BLACKSKIES_E2E_SYNTHETIC_MODE = "1";
   process.env.BLACKSKIES_ENABLE_PHASE4_MOCK_FLOW = "1";
-  process.env.PATH = `C:/Dev/black-skies/.venv/Scripts;` + process.env.PATH;
+  process.env.PATH = prependVenvPath(process.env.PATH);
+  backendEnv.PATH = prependVenvPath(backendEnv.PATH);
   const backend = spawn(backendCommand, backendArgs, {
     env: backendEnv,
     stdio: 'inherit',
