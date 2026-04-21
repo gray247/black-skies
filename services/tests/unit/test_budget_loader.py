@@ -108,9 +108,7 @@ def test_load_project_budget_state_handles_non_mapping_payload(
     diagnostics_dir = project_root / "history" / "diagnostics"
     logs = sorted(diagnostics_dir.glob("*.json"))
     assert logs, "Expected diagnostics entry for non-mapping payload"
-    logged_messages = {
-        json.loads(path.read_text(encoding="utf-8"))["message"] for path in logs
-    }
+    logged_messages = {json.loads(path.read_text(encoding="utf-8"))["message"] for path in logs}
     assert any("not a JSON object" in message for message in logged_messages)
 
 

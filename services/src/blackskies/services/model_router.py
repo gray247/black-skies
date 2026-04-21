@@ -62,20 +62,15 @@ class ModelProvider(Protocol):
 
     name: str
 
-    def is_available(self, config: ModelRouterConfig) -> bool:
-        ...
+    def is_available(self, config: ModelRouterConfig) -> bool: ...
 
-    def select_model(self, task: ModelTask, config: ModelRouterConfig) -> ModelSpec:
-        ...
+    def select_model(self, task: ModelTask, config: ModelRouterConfig) -> ModelSpec: ...
 
-    def supports(self, task: ModelTask) -> bool:
-        ...
+    def supports(self, task: ModelTask) -> bool: ...
 
-    def prompt_profile(self, task: ModelTask, config: ModelRouterConfig) -> str:
-        ...
+    def prompt_profile(self, task: ModelTask, config: ModelRouterConfig) -> str: ...
 
-    def adapter(self) -> BaseAdapter | None:
-        ...
+    def adapter(self) -> BaseAdapter | None: ...
 
 
 class LocalLLMProvider:
@@ -154,12 +149,8 @@ class ModelRouter:
     def _availability(self, task: ModelTask) -> tuple[bool, bool]:
         local = self.providers.get("local_llm")
         api = self.providers.get("openai")
-        local_available = bool(
-            local and local.supports(task) and local.is_available(self.config)
-        )
-        api_available = bool(
-            api and api.supports(task) and api.is_available(self.config)
-        )
+        local_available = bool(local and local.supports(task) and local.is_available(self.config))
+        api_available = bool(api and api.supports(task) and api.is_available(self.config))
         return local_available, api_available
 
     def route(self, task: ModelTask) -> ModelRouteDecision:

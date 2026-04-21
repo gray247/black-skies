@@ -18,8 +18,28 @@ from .schemas import (
     TaskPacket,
 )
 
-_LOCATION_TERMS = ("cellar", "hall", "street", "roof", "kitchen", "library", "attic", "garden", "dock")
-_THREAD_TERMS = ("plan", "goal", "decides", "vows", "promise", "mission", "objective", "pursue", "protect")
+_LOCATION_TERMS = (
+    "cellar",
+    "hall",
+    "street",
+    "roof",
+    "kitchen",
+    "library",
+    "attic",
+    "garden",
+    "dock",
+)
+_THREAD_TERMS = (
+    "plan",
+    "goal",
+    "decides",
+    "vows",
+    "promise",
+    "mission",
+    "objective",
+    "pursue",
+    "protect",
+)
 
 
 @dataclass(frozen=True)
@@ -216,10 +236,13 @@ class TaskPacketAssembler:
         for lore in snapshot.lore_payloads:
             for key in ("name", "id", "display_name"):
                 value = lore.get(key)
-                if isinstance(value, str) and value.strip() and value.lower() in snapshot.draft_text.lower():
+                if (
+                    isinstance(value, str)
+                    and value.strip()
+                    and value.lower() in snapshot.draft_text.lower()
+                ):
                     names.add(value.strip())
         if names:
             return sorted(names)
         inferred = re.findall(r"\b[A-Z][a-z]{2,}\b", snapshot.draft_text)
         return sorted(set(inferred[:8]))
-

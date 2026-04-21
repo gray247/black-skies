@@ -73,4 +73,6 @@ def load_runtime_profile(profile_name: str) -> MemoryLabRuntimeProfile:
         return _RUNTIME_PROFILES[profile_name]
     except KeyError as exc:
         names = ", ".join(list_runtime_profile_names())
-        raise ValueError(f"Unknown Memory Lab runtime profile '{profile_name}'. Expected one of: {names}") from exc
+        raise ValueError(
+            f"Unknown Memory Lab runtime profile '{profile_name}'. Expected one of: {names}"
+        ) from exc

@@ -7,7 +7,9 @@ import json
 from pathlib import Path
 
 from blackskies.services.memory_prototype.canonical_state_reader import CanonicalStateReader
-from blackskies.services.memory_prototype.continuity_signal_normalizer import ContinuitySignalNormalizer
+from blackskies.services.memory_prototype.continuity_signal_normalizer import (
+    ContinuitySignalNormalizer,
+)
 from blackskies.services.memory_prototype.scene_delta_extractor import SceneDeltaExtractor
 from blackskies.services.memory_prototype.schemas import CanonicalLineageKey
 from blackskies.services.memory_prototype.storage import MemoryPrototypeStorage
@@ -56,9 +58,13 @@ def test_task_packet_assembly_is_advisory_and_non_mutating(tmp_path: Path) -> No
     (snapshot_dir / "drafts").mkdir(parents=True, exist_ok=True)
     (snapshot_dir / "lore").mkdir(parents=True, exist_ok=True)
     (snapshot_dir / "drafts" / f"{scene_id}.md").write_text(draft_text, encoding="utf-8")
-    (snapshot_dir / "lore" / "char_mara.yaml").write_text("id: char_mara\nname: Mara\n", encoding="utf-8")
+    (snapshot_dir / "lore" / "char_mara.yaml").write_text(
+        "id: char_mara\nname: Mara\n", encoding="utf-8"
+    )
     _write_json(snapshot_dir / "outline.json", {"scenes": [scene_payload]})
-    _write_json(snapshot_dir / "locked_facts.json", {"facts": ["Location: cellar", "The house is sealed."]})
+    _write_json(
+        snapshot_dir / "locked_facts.json", {"facts": ["Location: cellar", "The house is sealed."]}
+    )
     _write_json(
         snapshot_dir / "metadata.json",
         {
@@ -131,4 +137,3 @@ def test_task_packet_assembly_is_advisory_and_non_mutating(tmp_path: Path) -> No
         "locked": _sha(canonical_locked),
     }
     assert before == after
-

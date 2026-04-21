@@ -5,7 +5,12 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-from .schemas import CanonicalNarrativeSnapshot, SceneDeltaArtifact, SceneDeltaCandidate, SignalAnchor
+from .schemas import (
+    CanonicalNarrativeSnapshot,
+    SceneDeltaArtifact,
+    SceneDeltaCandidate,
+    SignalAnchor,
+)
 
 _LOCATION_TERMS = (
     "cellar",

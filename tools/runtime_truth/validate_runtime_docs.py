@@ -73,7 +73,9 @@ def validate_runtime_docs(repo_root: Path | None = None) -> list[str]:
         path = root / rel_path
         text = _read(path).lower()
         if "not runtime authority" not in text:
-            errors.append(f"{rel_path}: planning docs must explicitly state they are not runtime authority.")
+            errors.append(
+                f"{rel_path}: planning docs must explicitly state they are not runtime authority."
+            )
         if "docs/specs/current_state.md" not in text:
             errors.append(f"{rel_path}: planning docs must reference docs/specs/current_state.md.")
 
@@ -81,7 +83,9 @@ def validate_runtime_docs(repo_root: Path | None = None) -> list[str]:
         path = root / rel_path
         text = _read(path).lower()
         if "runtime dependency" not in text:
-            errors.append(f"{rel_path}: deferred/planned doc must include a runtime dependency declaration.")
+            errors.append(
+                f"{rel_path}: deferred/planned doc must include a runtime dependency declaration."
+            )
         if "seam owner" not in text:
             errors.append(f"{rel_path}: deferred/planned doc must include seam owner declaration.")
 

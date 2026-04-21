@@ -449,10 +449,7 @@ async def critique_draft(
                 "errors": [
                     {
                         "loc": ["rubric"],
-                        "msg": (
-                            "Unknown rubric categories: "
-                            f"{', '.join(blocked_matches)}"
-                        ),
+                        "msg": ("Unknown rubric categories: " f"{', '.join(blocked_matches)}"),
                         "type": "value_error.rubric.unknown_category",
                         "ctx": {"blocked_categories": sorted(BLOCKED_RUBRIC_CATEGORIES)},
                     }
@@ -600,7 +597,9 @@ async def critique_draft(
         if isinstance(provider_value, str):
             model_provider = provider_value
     provider_called = bool(
-        settings.model_router_provider_calls_enabled and model_provider and model_provider != "offline"
+        settings.model_router_provider_calls_enabled
+        and model_provider
+        and model_provider != "offline"
     )
     result_origin = "provider" if provider_called else "fallback"
     result["provenance"] = _build_provenance(

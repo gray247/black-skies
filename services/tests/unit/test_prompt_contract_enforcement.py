@@ -4,7 +4,11 @@ from dataclasses import replace
 
 from blackskies.services.memory_lab.schemas import ResolvedMemoryPacket
 from blackskies.services.models.outline import OutlineScene
-from blackskies.services.prompt_pipeline import assemble_scene_context, compile_draft_prompt, select_profile
+from blackskies.services.prompt_pipeline import (
+    assemble_scene_context,
+    compile_draft_prompt,
+    select_profile,
+)
 
 
 def _scene() -> OutlineScene:
@@ -34,7 +38,9 @@ def test_prompt_contract_winner_always_surfaced() -> None:
         selected_artifact_ids=["winner"],
         resolver_notes=[],
     )
-    prompt = compile_draft_prompt(replace(context, resolved_memory=resolved), profile=select_profile("ollama"))
+    prompt = compile_draft_prompt(
+        replace(context, resolved_memory=resolved), profile=select_profile("ollama")
+    )
     assert "Prior outcome: winner summary" in prompt
 
 
@@ -55,7 +61,9 @@ def test_prompt_contract_alternate_surfaced_when_qualified_and_within_budget() -
         selected_artifact_ids=["winner"],
         resolver_notes=[],
     )
-    prompt = compile_draft_prompt(replace(context, resolved_memory=resolved), profile=select_profile("ollama"))
+    prompt = compile_draft_prompt(
+        replace(context, resolved_memory=resolved), profile=select_profile("ollama")
+    )
     assert "Prior outcome: winner summary" in prompt
     assert "Alternate reading: close alternate" in prompt
 
@@ -78,6 +86,8 @@ def test_prompt_contract_drops_alternate_first_under_budget_pressure() -> None:
         selected_artifact_ids=["winner"],
         resolver_notes=[],
     )
-    prompt = compile_draft_prompt(replace(context, resolved_memory=resolved), profile=select_profile("ollama"))
+    prompt = compile_draft_prompt(
+        replace(context, resolved_memory=resolved), profile=select_profile("ollama")
+    )
     assert "Prior outcome: winner summary" in prompt
     assert "Alternate reading:" not in prompt

@@ -55,7 +55,9 @@ def test_delta_extraction_is_advisory_and_non_mutating(tmp_path: Path) -> None:
     (snapshot_dir / "drafts").mkdir(parents=True, exist_ok=True)
     (snapshot_dir / "lore").mkdir(parents=True, exist_ok=True)
     (snapshot_dir / "drafts" / f"{scene_id}.md").write_text(draft_text, encoding="utf-8")
-    (snapshot_dir / "lore" / "char_mara.yaml").write_text("id: char_mara\nname: Mara\n", encoding="utf-8")
+    (snapshot_dir / "lore" / "char_mara.yaml").write_text(
+        "id: char_mara\nname: Mara\n", encoding="utf-8"
+    )
     _write_json(snapshot_dir / "outline.json", {"scenes": [scene_payload]})
     _write_json(snapshot_dir / "locked_facts.json", {"facts": ["The house is sealed."]})
     _write_json(
@@ -101,7 +103,9 @@ def test_delta_extraction_is_advisory_and_non_mutating(tmp_path: Path) -> None:
         payload=artifact.as_dict(),
         source_hashes=snapshot.source_hashes,
     )
-    assert delta_path.resolve().is_relative_to((project_root / ".blackskies" / "memory" / "deltas").resolve())
+    assert delta_path.resolve().is_relative_to(
+        (project_root / ".blackskies" / "memory" / "deltas").resolve()
+    )
     blob = json.loads(delta_path.read_text(encoding="utf-8"))
     assert blob["advisory"] is True
     assert blob["envelope"]["lineage_key"] == lineage.key
@@ -115,4 +119,3 @@ def test_delta_extraction_is_advisory_and_non_mutating(tmp_path: Path) -> None:
         "locked": _sha(canonical_locked),
     }
     assert before == after
-

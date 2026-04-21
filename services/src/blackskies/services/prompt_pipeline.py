@@ -38,7 +38,7 @@ def _meta_summary_detected(text: str) -> bool:
 
 
 def _dialogue_presence(text: str) -> bool:
-    return "\"" in text
+    return '"' in text
 
 
 def _sensory_presence(text: str) -> bool:

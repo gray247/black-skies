@@ -248,9 +248,7 @@ def classify_pacing_bucket(score: float, mean_score: float) -> str:
     return "Neutral"
 
 
-def score_scene_pacing(
-    entries: Iterable[tuple[str, int, float]]
-) -> list[dict[str, object]]:
+def score_scene_pacing(entries: Iterable[tuple[str, int, float]]) -> list[dict[str, object]]:
     """Return pacing scores and buckets for a sequence of scenes."""
 
     scored = []

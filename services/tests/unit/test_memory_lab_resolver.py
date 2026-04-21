@@ -59,7 +59,9 @@ def _artifact(
     )
 
 
-def _entry(scene_id: str, chapter_id: str | None, artifacts: list[MemoryArtifact]) -> MemoryLedgerEntry:
+def _entry(
+    scene_id: str, chapter_id: str | None, artifacts: list[MemoryArtifact]
+) -> MemoryLedgerEntry:
     return MemoryLedgerEntry(
         scene_id=scene_id,
         chapter_id=chapter_id,
@@ -77,12 +79,30 @@ def test_resolver_prefers_same_chapter_over_other_chapter() -> None:
         _entry(
             "sc_old_same",
             "ch_0010",
-            [_artifact(artifact_id="a1", artifact_type="summary", scene_id="sc_old_same", chapter_id="ch_0010", content="same-chapter summary", recency_order=3)],
+            [
+                _artifact(
+                    artifact_id="a1",
+                    artifact_type="summary",
+                    scene_id="sc_old_same",
+                    chapter_id="ch_0010",
+                    content="same-chapter summary",
+                    recency_order=3,
+                )
+            ],
         ),
         _entry(
             "sc_new_other",
             "ch_0009",
-            [_artifact(artifact_id="a2", artifact_type="summary", scene_id="sc_new_other", chapter_id="ch_0009", content="other-chapter summary", recency_order=10)],
+            [
+                _artifact(
+                    artifact_id="a2",
+                    artifact_type="summary",
+                    scene_id="sc_new_other",
+                    chapter_id="ch_0009",
+                    content="other-chapter summary",
+                    recency_order=10,
+                )
+            ],
         ),
     ]
 
@@ -101,12 +121,30 @@ def test_resolver_prefers_newer_recency_order_when_chapter_equal() -> None:
         _entry(
             "sc_old",
             "ch_0010",
-            [_artifact(artifact_id="s_old", artifact_type="emotional_state", scene_id="sc_old", chapter_id="ch_0010", content="older emotion", recency_order=1)],
+            [
+                _artifact(
+                    artifact_id="s_old",
+                    artifact_type="emotional_state",
+                    scene_id="sc_old",
+                    chapter_id="ch_0010",
+                    content="older emotion",
+                    recency_order=1,
+                )
+            ],
         ),
         _entry(
             "sc_new",
             "ch_0010",
-            [_artifact(artifact_id="s_new", artifact_type="emotional_state", scene_id="sc_new", chapter_id="ch_0010", content="newer emotion", recency_order=9)],
+            [
+                _artifact(
+                    artifact_id="s_new",
+                    artifact_type="emotional_state",
+                    scene_id="sc_new",
+                    chapter_id="ch_0010",
+                    content="newer emotion",
+                    recency_order=9,
+                )
+            ],
         ),
     ]
 
@@ -141,10 +179,38 @@ def test_resolver_caps_unresolved_and_ignores_current_scene_artifacts() -> None:
             "sc_0001",
             "ch_0010",
             [
-                _artifact(artifact_id="u1", artifact_type="unresolved_tension", scene_id="sc_0001", chapter_id="ch_0010", content="u1", recency_order=1),
-                _artifact(artifact_id="u2", artifact_type="unresolved_tension", scene_id="sc_0001", chapter_id="ch_0010", content="u2", recency_order=2),
-                _artifact(artifact_id="u3", artifact_type="unresolved_tension", scene_id="sc_0001", chapter_id="ch_0010", content="u3", recency_order=3),
-                _artifact(artifact_id="u4", artifact_type="unresolved_tension", scene_id="sc_0001", chapter_id="ch_0010", content="u4", recency_order=4),
+                _artifact(
+                    artifact_id="u1",
+                    artifact_type="unresolved_tension",
+                    scene_id="sc_0001",
+                    chapter_id="ch_0010",
+                    content="u1",
+                    recency_order=1,
+                ),
+                _artifact(
+                    artifact_id="u2",
+                    artifact_type="unresolved_tension",
+                    scene_id="sc_0001",
+                    chapter_id="ch_0010",
+                    content="u2",
+                    recency_order=2,
+                ),
+                _artifact(
+                    artifact_id="u3",
+                    artifact_type="unresolved_tension",
+                    scene_id="sc_0001",
+                    chapter_id="ch_0010",
+                    content="u3",
+                    recency_order=3,
+                ),
+                _artifact(
+                    artifact_id="u4",
+                    artifact_type="unresolved_tension",
+                    scene_id="sc_0001",
+                    chapter_id="ch_0010",
+                    content="u4",
+                    recency_order=4,
+                ),
             ],
         ),
     ]
@@ -159,10 +225,14 @@ def test_resolver_caps_unresolved_and_ignores_current_scene_artifacts() -> None:
     assert len(packet.selected_unresolved_tensions) == 3
     assert "current scene unresolved" not in packet.selected_unresolved_tensions
     assert all(artifact_id != "cur_u1" for artifact_id in packet.selected_artifact_ids)
-    unresolved_reasons = [reason for reason in reasons if reason.artifact_type == "unresolved_tension"]
+    unresolved_reasons = [
+        reason for reason in reasons if reason.artifact_type == "unresolved_tension"
+    ]
     assert len(unresolved_reasons) == 3
     unresolved_slot_rows = [
-        item for item in packet.selection_slot_diagnostics if str(item["slot"]).startswith("unresolved_tension:")
+        item
+        for item in packet.selection_slot_diagnostics
+        if str(item["slot"]).startswith("unresolved_tension:")
     ]
     assert len(unresolved_slot_rows) == 3
     assert all(isinstance(item["winner"], str) for item in unresolved_slot_rows)
@@ -471,11 +541,14 @@ def test_suppressed_fallback_lane_can_select_suppressed_candidate() -> None:
     )
 
     assert packet.selected_summary == "suppressed summary revives"
-    summary_diag = next(item for item in packet.selection_slot_diagnostics if item["slot"] == "summary")
+    summary_diag = next(
+        item for item in packet.selection_slot_diagnostics if item["slot"] == "summary"
+    )
     assert summary_diag["winner"] == "sum_suppressed"
     assert summary_diag["used_fallback"] is True
     assert isinstance(summary_diag["score_delta"], float)
     assert isinstance(summary_diag["tie_break_rationale"], str)
+
 
 def test_fading_artifact_is_selectable_when_it_scores_best() -> None:
     fading = _artifact(
@@ -537,7 +610,9 @@ def test_summary_slot_diagnostics_include_winner_loser_and_delta() -> None:
         current_chapter_id="ch_0010",
     )
 
-    summary_diag = next(item for item in packet.selection_slot_diagnostics if item["slot"] == "summary")
+    summary_diag = next(
+        item for item in packet.selection_slot_diagnostics if item["slot"] == "summary"
+    )
     assert summary_diag["winner"] == "sum_a"
     assert summary_diag["top_loser"] == "sum_b"
     assert isinstance(summary_diag["score_delta"], float)
@@ -608,7 +683,10 @@ def test_invalid_contested_metadata_falls_back_to_non_contested_path() -> None:
         source_ref=None,
     )
     packet, _reasons = resolve_memory_packet(
-        entries=[_entry("sc_valid", "ch_0010", [valid]), _entry("sc_invalid", "ch_0010", [invalid])],
+        entries=[
+            _entry("sc_valid", "ch_0010", [valid]),
+            _entry("sc_invalid", "ch_0010", [invalid]),
+        ],
         current_scene_id="sc_current",
         current_chapter_id="ch_0010",
     )

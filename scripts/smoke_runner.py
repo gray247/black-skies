@@ -51,11 +51,9 @@ DEFAULT_WIZARD_STEPS: tuple[str, ...] = _SMOKE_WIZARD_STEPS
 class SmokeMetricsSink(Protocol):
     """Metrics callbacks invoked during smoke or load runs."""
 
-    def record_request(self, *, method: str, path: str, status: int, elapsed_ms: float) -> None:
-        ...
+    def record_request(self, *, method: str, path: str, status: int, elapsed_ms: float) -> None: ...
 
-    def record_budget(self, *, estimated_cost_usd: float) -> None:
-        ...
+    def record_budget(self, *, estimated_cost_usd: float) -> None: ...
 
 
 @dataclass(frozen=True)
@@ -298,9 +296,7 @@ async def run_cycles(config: SmokeTestConfig, *, metrics: SmokeMetricsSink | Non
                 "unit_id": scene_id,
                 "rubric": ["Logic", "Continuity", "Character"],
             }
-            await _post_json(
-                client, "/api/v1/draft/critique", critique_payload, metrics=metrics
-            )
+            await _post_json(client, "/api/v1/draft/critique", critique_payload, metrics=metrics)
 
             previous_sha = compute_scene_sha(project_root, scene_id)
             accept_payload = build_accept_payload(

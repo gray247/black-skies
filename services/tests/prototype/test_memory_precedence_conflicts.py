@@ -8,4 +8,3 @@ import pytest
 @pytest.mark.skip(reason="M1 scaffold only; precedence conflict fixtures pending.")
 def test_memory_precedence_conflicts() -> None:
     assert True
-

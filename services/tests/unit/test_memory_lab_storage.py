@@ -469,7 +469,9 @@ def test_detect_event_file_corruption_reports_unreadable_and_malformed(tmp_path:
     notes = detect_event_file_corruption(root)
 
     assert any("decay_events:art_unreadable.json:unreadable_json" in note for note in notes)
-    assert any("reinforcement_events:art_malformed.json:malformed_items=1" in note for note in notes)
+    assert any(
+        "reinforcement_events:art_malformed.json:malformed_items=1" in note for note in notes
+    )
 
 
 def test_rebuild_anchor_index_includes_anchor_artifacts_only(tmp_path: Path) -> None:

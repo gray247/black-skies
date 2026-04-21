@@ -50,7 +50,9 @@ def test_explicit_threshold_override_wins_over_profile_default(tmp_path: Path) -
     assert options.alternate_interpretation_threshold == pytest.approx(0.11)
 
 
-def test_equal_to_default_value_is_treated_as_implicit_and_profile_still_applies(tmp_path: Path) -> None:
+def test_equal_to_default_value_is_treated_as_implicit_and_profile_still_applies(
+    tmp_path: Path,
+) -> None:
     settings = ServiceSettings(
         project_base_dir=tmp_path,
         memory_lab_runtime_profile="stable_conservative_fallback",

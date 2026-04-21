@@ -13,6 +13,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from .advisory import AdvisoryEvidence, AdvisorySeverity
 
+
 class FractureType(str, Enum):
     """Supported v1 fracture categories."""
 

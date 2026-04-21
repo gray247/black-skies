@@ -22,9 +22,7 @@ def test_e2e_specs_declare_harness_or_truth_metadata() -> None:
 
         if has_harness:
             missing = [
-                token
-                for token in ("Reason:", "Owner:", "Retire when:")
-                if token not in content
+                token for token in ("Reason:", "Owner:", "Retire when:") if token not in content
             ]
             if missing:
                 violations.append(

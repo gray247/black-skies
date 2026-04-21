@@ -85,7 +85,7 @@ async def test_draft_generation_uses_adapter_text(
             text=(
                 "Mara steadied her breath as the chandelier swayed. "
                 "The dust smelled of old rain and iron. "
-                "She whispered, \"Who's there?\" and the hallway answered with a hush. "
+                'She whispered, "Who\'s there?" and the hallway answered with a hush. '
                 "A cold draft curled around her wrists, and the floorboards groaned beneath her step. "
                 "She held her lamp higher, watching the shadows thin and thicken."
             )
@@ -155,7 +155,7 @@ async def test_draft_generation_budget_includes_routing_metadata(
             text=(
                 "Mara steadied her breath as the chandelier swayed. "
                 "The dust smelled of old rain and iron. "
-                "She whispered, \"Who's there?\" and the hallway answered with a hush. "
+                'She whispered, "Who\'s there?" and the hallway answered with a hush. '
                 "A cold draft curled around her wrists, and the floorboards groaned beneath her step. "
                 "She held her lamp higher, watching the shadows thin and thicken."
             )

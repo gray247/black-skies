@@ -53,7 +53,9 @@ def test_build_memory_artifacts_dedupes_duplicates() -> None:
         "Same text",
         "Different text",
     ]
-    assert [item.content for item in artifacts if item.artifact_type == "reveal"] == ["Different text"]
+    assert [item.content for item in artifacts if item.artifact_type == "reveal"] == [
+        "Different text"
+    ]
 
 
 def test_build_memory_artifacts_skips_empty_values() -> None:
@@ -78,7 +80,9 @@ def test_build_memory_artifacts_skips_empty_values() -> None:
     assert artifacts[0].content == "Reveal"
 
 
-def test_build_memory_artifacts_adds_deterministic_interpretations_for_would_not_let_pattern() -> None:
+def test_build_memory_artifacts_adds_deterministic_interpretations_for_would_not_let_pattern() -> (
+    None
+):
     payload = {
         "summary": "He would not let her leave, but he said it was for her safety.",
         "unresolved": [],
@@ -99,7 +103,11 @@ def test_build_memory_artifacts_adds_deterministic_interpretations_for_would_not
     summary_artifacts = [item for item in artifacts if item.artifact_type == "summary"]
     assert len(summary_artifacts) == 3
     base = next(item for item in summary_artifacts if item.interpretation_label is None)
-    variant_labels = [item.interpretation_label for item in summary_artifacts if item.interpretation_label is not None]
+    variant_labels = [
+        item.interpretation_label
+        for item in summary_artifacts
+        if item.interpretation_label is not None
+    ]
     assert variant_labels == ["protective", "controlling"]
     for variant in summary_artifacts:
         if variant.interpretation_label is None:
@@ -107,7 +115,9 @@ def test_build_memory_artifacts_adds_deterministic_interpretations_for_would_not
         assert variant.parent_artifact_id == base.artifact_id
 
 
-def test_build_memory_artifacts_adds_deterministic_interpretations_for_smiled_wrong_pattern() -> None:
+def test_build_memory_artifacts_adds_deterministic_interpretations_for_smiled_wrong_pattern() -> (
+    None
+):
     payload = {
         "summary": "She smiled while everything felt wrong.",
         "unresolved": [],
@@ -127,7 +137,11 @@ def test_build_memory_artifacts_adds_deterministic_interpretations_for_smiled_wr
 
     summary_artifacts = [item for item in artifacts if item.artifact_type == "summary"]
     assert len(summary_artifacts) == 3
-    variant_labels = [item.interpretation_label for item in summary_artifacts if item.interpretation_label is not None]
+    variant_labels = [
+        item.interpretation_label
+        for item in summary_artifacts
+        if item.interpretation_label is not None
+    ]
     assert variant_labels == ["friendly", "threatening"]
 
 
@@ -149,5 +163,7 @@ def test_build_memory_artifacts_caps_interpretations_at_two() -> None:
         interpretations_enabled=True,
     )
 
-    variant_labels = [item.interpretation_label for item in artifacts if item.interpretation_label is not None]
+    variant_labels = [
+        item.interpretation_label for item in artifacts if item.interpretation_label is not None
+    ]
     assert variant_labels == ["protective", "controlling"]

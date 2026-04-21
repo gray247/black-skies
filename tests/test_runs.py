@@ -45,10 +45,10 @@ def test_finalize_run_marks_completed(tmp_path: Path, monkeypatch: pytest.Monkey
     project_root = tmp_path / "proj"
     project_root.mkdir()
     metadata = runs.start_run("critique", {"unit_id": "sc_0002"}, project_root=project_root)
-    runs.append_event(
-        metadata["run_id"], "step", {"detail": "critique"}, project_root=project_root
+    runs.append_event(metadata["run_id"], "step", {"detail": "critique"}, project_root=project_root)
+    final = runs.finalize_run(
+        metadata["run_id"], result={"summary": "ok"}, project_root=project_root
     )
-    final = runs.finalize_run(metadata["run_id"], result={"summary": "ok"}, project_root=project_root)
 
     ledger_path = project_root / "history" / "runs" / metadata["run_id"] / "run.json"
     stored = json.loads(ledger_path.read_text("utf-8"))

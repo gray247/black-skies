@@ -80,11 +80,17 @@ def test_run_phase6a_threshold_sweep_executes_minimal_matrix(tmp_path: Path) -> 
 def test_phase6a_detects_determinism_regression_vs_baseline(monkeypatch, tmp_path: Path) -> None:
     import blackskies.services.memory_lab.tuning as tuning
 
-    monkeypatch.setattr(tuning, "supported_deterministic_environment", lambda _root: (True, "fcntl", True))
+    monkeypatch.setattr(
+        tuning, "supported_deterministic_environment", lambda _root: (True, "fcntl", True)
+    )
 
-    def fake_run_threshold_for_scenario(*, scenario: ReplayScenario, threshold: float, runs: int) -> ScenarioSweepMetrics:
+    def fake_run_threshold_for_scenario(
+        *, scenario: ReplayScenario, threshold: float, runs: int
+    ) -> ScenarioSweepMetrics:
         # Baseline is deterministic; candidate regresses on winner drift.
-        return _metrics(scenario_id=scenario.scenario_id, winner_drift=(1 if threshold == 0.12 else 0))
+        return _metrics(
+            scenario_id=scenario.scenario_id, winner_drift=(1 if threshold == 0.12 else 0)
+        )
 
     monkeypatch.setattr(tuning, "_run_threshold_for_scenario", fake_run_threshold_for_scenario)
 
@@ -95,7 +101,9 @@ def test_phase6a_detects_determinism_regression_vs_baseline(monkeypatch, tmp_pat
         runs_best_effort=1,
     )
     scenarios = (ReplayScenario("short", "low", 3, 1),)
-    report = tuning.run_phase6a_threshold_sweep(project_root=tmp_path, config=config, scenarios=scenarios)
+    report = tuning.run_phase6a_threshold_sweep(
+        project_root=tmp_path, config=config, scenarios=scenarios
+    )
 
     regressed = next(result for result in report.results if result.threshold == 0.12)
     assert regressed.blocker is True
@@ -105,9 +113,15 @@ def test_phase6a_detects_determinism_regression_vs_baseline(monkeypatch, tmp_pat
 def test_phase6a_marks_prompt_budget_regression(monkeypatch, tmp_path: Path) -> None:
     import blackskies.services.memory_lab.tuning as tuning
 
-    monkeypatch.setattr(tuning, "supported_deterministic_environment", lambda _root: (False, "no_op_fallback", False))
+    monkeypatch.setattr(
+        tuning,
+        "supported_deterministic_environment",
+        lambda _root: (False, "no_op_fallback", False),
+    )
 
-    def fake_run_threshold_for_scenario(*, scenario: ReplayScenario, threshold: float, runs: int) -> ScenarioSweepMetrics:
+    def fake_run_threshold_for_scenario(
+        *, scenario: ReplayScenario, threshold: float, runs: int
+    ) -> ScenarioSweepMetrics:
         return _metrics(
             scenario_id=scenario.scenario_id,
             p95_prompt_growth=0.30,
@@ -133,9 +147,15 @@ def test_phase6a_marks_prompt_budget_regression(monkeypatch, tmp_path: Path) -> 
 def test_phase6a_marks_diagnostics_completeness_gap(monkeypatch, tmp_path: Path) -> None:
     import blackskies.services.memory_lab.tuning as tuning
 
-    monkeypatch.setattr(tuning, "supported_deterministic_environment", lambda _root: (False, "no_op_fallback", False))
+    monkeypatch.setattr(
+        tuning,
+        "supported_deterministic_environment",
+        lambda _root: (False, "no_op_fallback", False),
+    )
 
-    def fake_run_threshold_for_scenario(*, scenario: ReplayScenario, threshold: float, runs: int) -> ScenarioSweepMetrics:
+    def fake_run_threshold_for_scenario(
+        *, scenario: ReplayScenario, threshold: float, runs: int
+    ) -> ScenarioSweepMetrics:
         return _metrics(scenario_id=scenario.scenario_id, completeness=0.5)
 
     monkeypatch.setattr(tuning, "_run_threshold_for_scenario", fake_run_threshold_for_scenario)
@@ -197,7 +217,9 @@ def test_write_phase6a_artifacts_round_trip(tmp_path: Path) -> None:
         ),
     )
 
-    results_path, decision_log_path, profile_path = write_phase6a_artifacts(output_dir=tmp_path, report=report)
+    results_path, decision_log_path, profile_path = write_phase6a_artifacts(
+        output_dir=tmp_path, report=report
+    )
 
     assert results_path.exists()
     assert decision_log_path.exists()

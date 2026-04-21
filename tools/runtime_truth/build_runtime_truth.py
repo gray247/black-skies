@@ -163,18 +163,30 @@ class DeferredDoc(BaseModel):
     def _validate_seam_metadata(self) -> "DeferredDoc":
         if self.live_runtime_dependency:
             if not self.seam_owners:
-                raise ValueError("Deferred docs with live runtime dependency must declare seam_owners.")
+                raise ValueError(
+                    "Deferred docs with live runtime dependency must declare seam_owners."
+                )
             if self.seam_state == "none":
-                raise ValueError("Deferred docs with live runtime dependency must declare a non-baseline seam_state.")
+                raise ValueError(
+                    "Deferred docs with live runtime dependency must declare a non-baseline seam_state."
+                )
             if self.seam_type == "none":
-                raise ValueError("Deferred docs with live runtime dependency must declare a seam_type.")
+                raise ValueError(
+                    "Deferred docs with live runtime dependency must declare a seam_type."
+                )
         else:
             if self.seam_owners:
-                raise ValueError("Deferred docs without live runtime dependency must not declare seam_owners.")
+                raise ValueError(
+                    "Deferred docs without live runtime dependency must not declare seam_owners."
+                )
             if self.seam_state != "none":
-                raise ValueError("Deferred docs without live runtime dependency must use seam_state='none'.")
+                raise ValueError(
+                    "Deferred docs without live runtime dependency must use seam_state='none'."
+                )
             if self.seam_type != "none":
-                raise ValueError("Deferred docs without live runtime dependency must use seam_type='none'.")
+                raise ValueError(
+                    "Deferred docs without live runtime dependency must use seam_type='none'."
+                )
         return self
 
 
@@ -287,7 +299,9 @@ def _config_defaults_snapshot() -> dict[str, Any]:
 
 
 def _config_defaults_hash() -> str:
-    payload = json.dumps(_config_defaults_snapshot(), ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    payload = json.dumps(
+        _config_defaults_snapshot(), ensure_ascii=False, sort_keys=True, separators=(",", ":")
+    )
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
@@ -332,7 +346,13 @@ def _default_router_config(settings: ServiceSettings) -> ModelRouterConfig:
 def _provider_state(settings: ServiceSettings) -> ProviderState:
     router = create_default_model_router(_default_router_config(settings))
     providers = list(router.providers.values())
-    supported = sorted({provider.adapter().provider_name for provider in providers if provider.adapter() is not None})
+    supported = sorted(
+        {
+            provider.adapter().provider_name
+            for provider in providers
+            if provider.adapter() is not None
+        }
+    )
 
     configured: set[str] = set()
     if settings.local_provider:
@@ -368,7 +388,9 @@ def _provider_state(settings: ServiceSettings) -> ProviderState:
     )
 
 
-def _route_metadata(path: str, method: str, settings: ServiceSettings) -> tuple[bool, list[str], str]:
+def _route_metadata(
+    path: str, method: str, settings: ServiceSettings
+) -> tuple[bool, list[str], str]:
     del method, settings
     for rule in ROUTE_BASELINE_RULES:
         if rule.match == "exact" and path == rule.pattern:
@@ -604,7 +626,9 @@ def _module_imported(module_name: str) -> bool:
                 imported_module = node.module or ""
                 if imported_module == module_name or imported_module.startswith(f"{module_name}."):
                     return True
-                if node.level and any(alias.name == module_name.split(".")[-1] for alias in node.names):
+                if node.level and any(
+                    alias.name == module_name.split(".")[-1] for alias in node.names
+                ):
                     return True
         source = path.read_text(encoding="utf-8")
         if f".{module_name.split('.')[-1]}" in source:

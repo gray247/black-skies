@@ -12,6 +12,7 @@ from .persistence import dump_diagnostic
 
 _SENSITIVE_DETAIL_KEYWORDS = ("path", "project", "snapshot", "note", "file")
 
+
 @dataclass
 class DiagnosticLogger:
     """Write structured diagnostics to the project history folder."""

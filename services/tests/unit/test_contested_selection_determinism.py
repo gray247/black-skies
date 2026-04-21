@@ -9,7 +9,11 @@ import pytest
 from blackskies.services.memory_lab.constants import MEMORY_LAB_SCHEMA_VERSION
 from blackskies.services.memory_lab.locking import acquire_project_lock
 from blackskies.services.memory_lab.resolver import resolve_memory_packet
-from blackskies.services.memory_lab.schemas import MemoryArtifact, MemoryLedgerEntry, ResolvedMemoryPacket
+from blackskies.services.memory_lab.schemas import (
+    MemoryArtifact,
+    MemoryLedgerEntry,
+    ResolvedMemoryPacket,
+)
 
 
 @dataclass(frozen=True)
@@ -86,7 +90,9 @@ def _entry(scene_id: str, chapter_id: str, artifacts: list[MemoryArtifact]) -> M
 def _build_entries(scenario: ReplayScenario) -> list[MemoryLedgerEntry]:
     chapter_id = "ch_det"
     entries: list[MemoryLedgerEntry] = []
-    contested_scene_indices = set(range(1, min(scenario.scene_count, scenario.contested_groups) + 1))
+    contested_scene_indices = set(
+        range(1, min(scenario.scene_count, scenario.contested_groups) + 1)
+    )
     for idx in range(1, scenario.scene_count + 1):
         scene_id = f"sc_{idx:04d}"
         artifacts: list[MemoryArtifact] = [
@@ -128,7 +134,9 @@ def _build_entries(scenario: ReplayScenario) -> list[MemoryLedgerEntry]:
     return entries
 
 
-def _deterministic_signature(packet: ResolvedMemoryPacket, advisory_reason_code: str) -> tuple[object, ...]:
+def _deterministic_signature(
+    packet: ResolvedMemoryPacket, advisory_reason_code: str
+) -> tuple[object, ...]:
     slot_rows = []
     for item in packet.selection_slot_diagnostics:
         slot_rows.append(
@@ -164,12 +172,18 @@ def _replay_signatures(scenario: ReplayScenario, runs: int) -> Iterable[tuple[ob
             suppressed_fallback_enabled=True,
             low_confidence_fallback_threshold=0.35,
         )
-        advisory_reason_code = "advisory_available" if packet.selected_artifact_ids else "advisory_unavailable"
+        advisory_reason_code = (
+            "advisory_available" if packet.selected_artifact_ids else "advisory_unavailable"
+        )
         yield _deterministic_signature(packet, advisory_reason_code)
 
 
-@pytest.mark.parametrize("scenario", SCENARIOS, ids=lambda s: f"{s.chapter_size}-{s.contested_density}")
-def test_contested_selection_determinism_supported_env(tmp_path: Path, scenario: ReplayScenario) -> None:
+@pytest.mark.parametrize(
+    "scenario", SCENARIOS, ids=lambda s: f"{s.chapter_size}-{s.contested_density}"
+)
+def test_contested_selection_determinism_supported_env(
+    tmp_path: Path, scenario: ReplayScenario
+) -> None:
     if not _supported_deterministic_environment(tmp_path):
         pytest.skip("best-effort environment: deterministic gate is report-only")
     signatures = list(_replay_signatures(scenario, runs=100))
@@ -182,7 +196,9 @@ def test_contested_selection_determinism_supported_env(tmp_path: Path, scenario:
     assert diagnostics_drift == 0
 
 
-@pytest.mark.parametrize("scenario", SCENARIOS, ids=lambda s: f"{s.chapter_size}-{s.contested_density}")
+@pytest.mark.parametrize(
+    "scenario", SCENARIOS, ids=lambda s: f"{s.chapter_size}-{s.contested_density}"
+)
 def test_contested_selection_determinism_best_effort_report_only(
     tmp_path: Path,
     scenario: ReplayScenario,

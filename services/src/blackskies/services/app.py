@@ -127,6 +127,7 @@ class TraceMiddleware:
             status_code = status_holder["status"] or status.HTTP_500_INTERNAL_SERVER_ERROR
             record_request(request.method, status_code)
 
+
 def create_app(settings: ServiceSettings | None = None) -> FastAPI:
     """Construct the FastAPI application."""
 
@@ -269,9 +270,7 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
 
     application.include_router(health_router)
     application.include_router(
-        build_api_router(
-            include_phase4_mock_routes=service_settings.phase4_mock_routes_enabled
-        )
+        build_api_router(include_phase4_mock_routes=service_settings.phase4_mock_routes_enabled)
     )
 
     @application.get("/", include_in_schema=False)

@@ -7,7 +7,12 @@ from typing import Any
 from fastapi import APIRouter, Depends, Request, Response
 
 from ..metrics import render
-from ..feature_flags import analytics_maturity, plugins_maturity, voice_notes_enabled, voice_notes_maturity
+from ..feature_flags import (
+    analytics_maturity,
+    plugins_maturity,
+    voice_notes_enabled,
+    voice_notes_maturity,
+)
 
 __all__ = ["router", "get_service_version", "health", "metrics_endpoint"]
 
@@ -56,14 +61,10 @@ def _health_payload(request: Request, version: str) -> dict[str, Any]:
     payload["feature_maturity"] = {
         "analytics": analytics_maturity().value,
         "backup_verifier": (
-            settings.backup_verifier_feature_maturity.value
-            if settings is not None
-            else "off"
+            settings.backup_verifier_feature_maturity.value if settings is not None else "off"
         ),
         "memory_lab": (
-            settings.memory_lab_feature_maturity.value
-            if settings is not None
-            else "off"
+            settings.memory_lab_feature_maturity.value if settings is not None else "off"
         ),
         "plugins": plugins_maturity().value,
         "voice_notes": voice_notes_maturity().value,

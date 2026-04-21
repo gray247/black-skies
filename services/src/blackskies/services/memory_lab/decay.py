@@ -98,12 +98,16 @@ def apply_decay_to_artifact(
         decay_count=artifact.decay_count + 1,
         suppressed_at=(
             now_iso
-            if artifact.suppressed_at is None and artifact.status != "suppressed" and next_status == "suppressed"
+            if artifact.suppressed_at is None
+            and artifact.status != "suppressed"
+            and next_status == "suppressed"
             else artifact.suppressed_at
         ),
         archived_at=(
             now_iso
-            if artifact.archived_at is None and artifact.status != "archived" and next_status == "archived"
+            if artifact.archived_at is None
+            and artifact.status != "archived"
+            and next_status == "archived"
             else artifact.archived_at
         ),
         revival_grace_until_scene_order=(
@@ -173,7 +177,9 @@ def _build_decay_event(
     notes: str | None,
 ) -> DecayEvent:
     digest = sha256(
-        f"{artifact_id}:{event_type}:{scene_order}:{created_at}:{old_status}:{new_status}".encode("utf-8")
+        f"{artifact_id}:{event_type}:{scene_order}:{created_at}:{old_status}:{new_status}".encode(
+            "utf-8"
+        )
     ).hexdigest()[:12]
     return DecayEvent(
         event_id=f"de_{digest}",

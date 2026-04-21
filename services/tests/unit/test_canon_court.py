@@ -67,9 +67,7 @@ def test_candidate_rulings_persist_separately_from_canon_state(tmp_path: Path) -
 
     stored_path = persist_candidate_ruling(project_root, ruling)
     assert stored_path.exists()
-    assert ".blackskies/canon_court/candidate_rulings".replace("/", os.sep) in str(
-        stored_path
-    )
+    assert ".blackskies/canon_court/candidate_rulings".replace("/", os.sep) in str(stored_path)
 
     # Canon Court writes must not mutate canon/memory sources in v1.
     assert locked_facts_path.read_text(encoding="utf-8") == locked_before
@@ -77,6 +75,4 @@ def test_candidate_rulings_persist_separately_from_canon_state(tmp_path: Path) -
 
 
 def test_canon_court_v1_contradiction_scope_remains_locked_fact_only() -> None:
-    assert [entry.value for entry in CanonCourtContradictionType] == [
-        "locked_fact_contradiction"
-    ]
+    assert [entry.value for entry in CanonCourtContradictionType] == ["locked_fact_contradiction"]

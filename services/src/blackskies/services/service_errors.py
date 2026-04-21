@@ -17,22 +17,50 @@ class ErrorDefinition:
 
 
 ERROR_DEFINITIONS: Dict[str, ErrorDefinition] = {
-    "INTERNAL": ErrorDefinition("INTERNAL", "Internal server error.", status.HTTP_500_INTERNAL_SERVER_ERROR),
+    "INTERNAL": ErrorDefinition(
+        "INTERNAL", "Internal server error.", status.HTTP_500_INTERNAL_SERVER_ERROR
+    ),
     "VALIDATION": ErrorDefinition("VALIDATION", "Validation failed.", status.HTTP_400_BAD_REQUEST),
     "CONFLICT": ErrorDefinition("CONFLICT", "Conflict occurred.", status.HTTP_409_CONFLICT),
-    "RATE_LIMIT": ErrorDefinition("RATE_LIMIT", "Rate limit exceeded.", status.HTTP_429_TOO_MANY_REQUESTS),
-    "IO_READ_FAILED": ErrorDefinition("IO_READ_FAILED", "Failed to read required data.", status.HTTP_500_INTERNAL_SERVER_ERROR),
-    "MODEL_ERROR": ErrorDefinition("MODEL_ERROR", "Model execution failed.", status.HTTP_502_BAD_GATEWAY),
-    "ROUTING_FAILURE": ErrorDefinition("ROUTING_FAILURE", "Operation could not be routed.", status.HTTP_503_SERVICE_UNAVAILABLE),
-    "CRITIQUE_FAILURE": ErrorDefinition("CRITIQUE_FAILURE", "Critique evaluation failed.", status.HTTP_500_INTERNAL_SERVER_ERROR),
-    "DRAFT_FALLBACK_FAILED": ErrorDefinition("DRAFT_FALLBACK_FAILED", "Draft fallback could not retrieve cached data.", status.HTTP_500_INTERNAL_SERVER_ERROR),
+    "RATE_LIMIT": ErrorDefinition(
+        "RATE_LIMIT", "Rate limit exceeded.", status.HTTP_429_TOO_MANY_REQUESTS
+    ),
+    "IO_READ_FAILED": ErrorDefinition(
+        "IO_READ_FAILED", "Failed to read required data.", status.HTTP_500_INTERNAL_SERVER_ERROR
+    ),
+    "MODEL_ERROR": ErrorDefinition(
+        "MODEL_ERROR", "Model execution failed.", status.HTTP_502_BAD_GATEWAY
+    ),
+    "ROUTING_FAILURE": ErrorDefinition(
+        "ROUTING_FAILURE", "Operation could not be routed.", status.HTTP_503_SERVICE_UNAVAILABLE
+    ),
+    "CRITIQUE_FAILURE": ErrorDefinition(
+        "CRITIQUE_FAILURE", "Critique evaluation failed.", status.HTTP_500_INTERNAL_SERVER_ERROR
+    ),
+    "DRAFT_FALLBACK_FAILED": ErrorDefinition(
+        "DRAFT_FALLBACK_FAILED",
+        "Draft fallback could not retrieve cached data.",
+        status.HTTP_500_INTERNAL_SERVER_ERROR,
+    ),
     "TIMEOUT": ErrorDefinition("TIMEOUT", "Operation timed out.", status.HTTP_504_GATEWAY_TIMEOUT),
-    "BUDGET_EXCEEDED": ErrorDefinition("BUDGET_EXCEEDED", "Budget limit exceeded.", status.HTTP_402_PAYMENT_REQUIRED),
-    "FILESYSTEM_DENIED": ErrorDefinition("FILESYSTEM_DENIED", "Filesystem permission denied.", status.HTTP_403_FORBIDDEN),
-    "FILESYSTEM_NOT_FOUND": ErrorDefinition("FILESYSTEM_NOT_FOUND", "Filesystem resource not found.", status.HTTP_404_NOT_FOUND),
-    "FILESYSTEM_CONFLICT": ErrorDefinition("FILESYSTEM_CONFLICT", "Filesystem conflict (already exists).", status.HTTP_409_CONFLICT),
-    "FILESYSTEM_FULL": ErrorDefinition("FILESYSTEM_FULL", "Filesystem full.", status.HTTP_507_INSUFFICIENT_STORAGE),
-    "FILESYSTEM_READONLY": ErrorDefinition("FILESYSTEM_READONLY", "Filesystem read-only.", status.HTTP_403_FORBIDDEN),
+    "BUDGET_EXCEEDED": ErrorDefinition(
+        "BUDGET_EXCEEDED", "Budget limit exceeded.", status.HTTP_402_PAYMENT_REQUIRED
+    ),
+    "FILESYSTEM_DENIED": ErrorDefinition(
+        "FILESYSTEM_DENIED", "Filesystem permission denied.", status.HTTP_403_FORBIDDEN
+    ),
+    "FILESYSTEM_NOT_FOUND": ErrorDefinition(
+        "FILESYSTEM_NOT_FOUND", "Filesystem resource not found.", status.HTTP_404_NOT_FOUND
+    ),
+    "FILESYSTEM_CONFLICT": ErrorDefinition(
+        "FILESYSTEM_CONFLICT", "Filesystem conflict (already exists).", status.HTTP_409_CONFLICT
+    ),
+    "FILESYSTEM_FULL": ErrorDefinition(
+        "FILESYSTEM_FULL", "Filesystem full.", status.HTTP_507_INSUFFICIENT_STORAGE
+    ),
+    "FILESYSTEM_READONLY": ErrorDefinition(
+        "FILESYSTEM_READONLY", "Filesystem read-only.", status.HTTP_403_FORBIDDEN
+    ),
 }
 
 DEFAULT_ERROR_DEFINITION = ErrorDefinition(

@@ -11,7 +11,9 @@ def test_body_size_limit_middleware_rejects_large_payload() -> None:
     app.add_middleware(BodySizeLimitMiddleware, limit=128)
 
     @app.post("/echo")
-    async def echo(payload: dict[str, str]) -> dict[str, str]:  # pragma: no cover - request should fail
+    async def echo(
+        payload: dict[str, str],
+    ) -> dict[str, str]:  # pragma: no cover - request should fail
         return payload
 
     client = TestClient(app)

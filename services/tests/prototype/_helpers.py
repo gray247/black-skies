@@ -66,4 +66,3 @@ def materialize_case(project_root: Path, project_id: str, case: dict[str, Any]) 
     if not case.get("legacy_missing_hash", False):
         metadata["accepted_source_hash"] = accepted_source_hash(unit_id, draft_text, outline_scene)
     write_json(snapshot_dir / "metadata.json", metadata)
-

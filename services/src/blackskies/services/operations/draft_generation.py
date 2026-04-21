@@ -166,9 +166,8 @@ class DraftGenerationService:
         request_fingerprint = fingerprint_generate_request(request, scenes)
         cached_response = budget_meta.get("last_generate_response")
 
-        if (
-            budget_meta.get("last_request_fingerprint") == request_fingerprint
-            and isinstance(cached_response, dict)
+        if budget_meta.get("last_request_fingerprint") == request_fingerprint and isinstance(
+            cached_response, dict
         ):
             rehydrated = await self._rehydrate_cached_artifacts(
                 request.project_id,
@@ -290,8 +289,8 @@ class DraftGenerationService:
                 body = item.get("body")
                 if not isinstance(front_matter, dict) or not isinstance(body, str):
                     raise ValueError("Cached artifact entry is malformed.")
-                durable_flag = bool(item.get("durable")) if "durable" in item else index == (
-                    total - 1
+                durable_flag = (
+                    bool(item.get("durable")) if "durable" in item else index == (total - 1)
                 )
                 self._persistence.write_scene(
                     project_id,
@@ -461,7 +460,11 @@ class DraftGenerationService:
                 payload = {
                     "prompt": prompt,
                     "temperature": request.temperature,
-                    "options": {"temperature": request.temperature} if request.temperature is not None else None,
+                    "options": (
+                        {"temperature": request.temperature}
+                        if request.temperature is not None
+                        else None
+                    ),
                 }
                 try:
                     adapter_response = adapter.generate_draft(payload)
@@ -566,7 +569,9 @@ class DraftGenerationService:
                 if self._settings.memory_lab_write_legacy_continuity:
                     persist_carryover(project_root, scene.id, carryover)
                 if self._settings.memory_lab_enabled:
-                    recency_order = scene.order if isinstance(getattr(scene, "order", None), int) else 0
+                    recency_order = (
+                        scene.order if isinstance(getattr(scene, "order", None), int) else 0
+                    )
                     try:
                         # Continuity persistence and advisory ingestion remain
                         # separate systems. Draft generation is the explicit
@@ -696,7 +701,13 @@ class DraftGenerationService:
             "budget": budget_payload,
         }
 
-    def _log_runtime_event(self, project_root: Path, request: DraftGenerateRequest, units: list[dict[str, Any]], estimated_cost: float) -> None:
+    def _log_runtime_event(
+        self,
+        project_root: Path,
+        request: DraftGenerateRequest,
+        units: list[dict[str, Any]],
+        estimated_cost: float,
+    ) -> None:
         total_tokens = sum(len(unit.get("text", "").split()) for unit in units)
         hint = "cheap"
         if estimated_cost >= DEFAULT_SOFT_BUDGET_LIMIT_USD * 0.5:

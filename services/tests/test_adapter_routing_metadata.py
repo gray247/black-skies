@@ -123,9 +123,7 @@ def test_rewrite_adapter_exception_falls_back(
         assert data["revised_text"].endswith("(Hold tone.)")
 
 
-def test_rewrite_adapter_success_uses_text(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_rewrite_adapter_success_uses_text(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     project_id = "proj_rewrite_adapter_success"
     body = _bootstrap_scene(tmp_path, project_id)
     settings = ServiceSettings(

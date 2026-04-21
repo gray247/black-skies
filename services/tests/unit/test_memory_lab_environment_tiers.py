@@ -78,7 +78,9 @@ def test_detect_environment_tier_supported(monkeypatch, tmp_path: Path) -> None:
     monkeypatch.setattr(
         environment_module,
         "acquire_project_lock",
-        lambda _root: _lock_ctx(LockState(lock_acquired=True, lock_is_effective=True, lock_mode="fcntl")),
+        lambda _root: _lock_ctx(
+            LockState(lock_acquired=True, lock_is_effective=True, lock_mode="fcntl")
+        ),
     )
 
     tier = detect_environment_tier(tmp_path)
@@ -91,7 +93,9 @@ def test_detect_environment_tier_best_effort(monkeypatch, tmp_path: Path) -> Non
     monkeypatch.setattr(
         environment_module,
         "acquire_project_lock",
-        lambda _root: _lock_ctx(LockState(lock_acquired=True, lock_is_effective=False, lock_mode="no_op_fallback")),
+        lambda _root: _lock_ctx(
+            LockState(lock_acquired=True, lock_is_effective=False, lock_mode="no_op_fallback")
+        ),
     )
 
     tier = detect_environment_tier(tmp_path)
@@ -107,7 +111,9 @@ def test_orchestrator_reports_environment_tier(tmp_path: Path, monkeypatch) -> N
     monkeypatch.setattr(
         orchestrator_module,
         "acquire_project_lock",
-        lambda _root: _lock_ctx(LockState(lock_acquired=True, lock_is_effective=True, lock_mode="fcntl")),
+        lambda _root: _lock_ctx(
+            LockState(lock_acquired=True, lock_is_effective=True, lock_mode="fcntl")
+        ),
     )
 
     packet, diagnostics = orchestrate_memory_resolution(

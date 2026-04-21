@@ -357,7 +357,9 @@ class LongFormExecutionService:
             "This placeholder text preserves continuity until provider output is available."
         )
 
-    def _build_continuity_snapshot(self, text: str, *, fallback_reason: str | None) -> dict[str, Any]:
+    def _build_continuity_snapshot(
+        self, text: str, *, fallback_reason: str | None
+    ) -> dict[str, Any]:
         sentence = text.replace("\n", " ").split(".")[0].strip()
         return {
             "summary": sentence,

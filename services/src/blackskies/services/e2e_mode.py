@@ -12,8 +12,10 @@ SNAPSHOT_ID = "pw-e2e-lock"
 SNAPSHOT_PATH = f"history/snapshots/{SNAPSHOT_ID}"
 SNAPSHOT_LABEL = "wizard-e2e-lock"
 
+
 def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="milliseconds") + "Z"
+
 
 def _scene_metadata(scene_id: str, index: int) -> dict[str, Any]:
     return {
@@ -23,6 +25,7 @@ def _scene_metadata(scene_id: str, index: int) -> dict[str, Any]:
         "chapter_id": "ch_e2e",
         "beat_refs": [],
     }
+
 
 def _build_budget() -> dict[str, Any]:
     return {
@@ -34,6 +37,7 @@ def _build_budget() -> dict[str, Any]:
         "spent_usd": 0.02,
         "total_after_usd": 0.02,
     }
+
 
 def _load_scene_text(project_root: Path, unit_id: str) -> str:
     draft_file = project_root / "drafts" / f"{unit_id}.md"
@@ -84,6 +88,7 @@ def e2e_analytics_budget(project_id: str) -> dict[str, Any]:
         "message": "Budget healthy.",
     }
 
+
 def is_e2e_mode() -> bool:
     return os.environ.get(E2E_FLAG) == "1"
 
@@ -96,6 +101,7 @@ def allow_e2e_synthetic_mode() -> bool:
     """
 
     return is_e2e_mode() and os.environ.get(SYNTHETIC_FLAG) == "1"
+
 
 def e2e_preflight_response(
     project_id: str,
@@ -110,6 +116,7 @@ def e2e_preflight_response(
         "scenes": [_scene_metadata(scene_id, index) for index, scene_id in enumerate(unit_ids)],
         "budget": _build_budget(),
     }
+
 
 def e2e_generate_response(
     project_root: Path,
@@ -147,6 +154,7 @@ def e2e_generate_response(
         "budget": _build_budget(),
     }
 
+
 def e2e_critique_response(project_root: Path, project_id: str, unit_id: str) -> dict[str, Any]:
     return {
         "unit_id": unit_id,
@@ -173,6 +181,7 @@ def e2e_critique_response(project_root: Path, project_id: str, unit_id: str) -> 
         "line_count": 1,
     }
 
+
 def e2e_snapshot_manifest(project_id: str) -> dict[str, Any]:
     return {
         "snapshot_id": SNAPSHOT_ID,
@@ -186,8 +195,10 @@ def e2e_snapshot_manifest(project_id: str) -> dict[str, Any]:
         ],
     }
 
+
 def e2e_snapshot_list(project_id: str) -> list[dict[str, Any]]:
     return [e2e_snapshot_manifest(project_id)]
+
 
 def e2e_backup_verification(project_id: str) -> dict[str, Any]:
     return {
@@ -198,6 +209,7 @@ def e2e_backup_verification(project_id: str) -> dict[str, Any]:
         ],
     }
 
+
 def e2e_recovery_status(project_id: str) -> dict[str, Any]:
     return {
         "project_id": project_id,
@@ -205,6 +217,7 @@ def e2e_recovery_status(project_id: str) -> dict[str, Any]:
         "needs_recovery": False,
         "last_snapshot": e2e_snapshot_manifest(project_id),
     }
+
 
 def e2e_recovery_restore(project_id: str) -> dict[str, Any]:
     manifest = e2e_snapshot_manifest(project_id)

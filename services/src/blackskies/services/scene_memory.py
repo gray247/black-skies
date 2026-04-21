@@ -111,10 +111,38 @@ def persist_memory_lab_entry(
 def extract_carryover(text: str) -> dict[str, Any]:
     sentences = [seg.strip() for seg in text.replace("\n", " ").split(".") if seg.strip()]
     summary = sentences[0] if sentences else ""
-    reveals = [s for s in sentences if any(token in s.lower() for token in ("revealed", "learned", "discovered", "realized"))]
-    unresolved = [s for s in sentences if any(token in s.lower() for token in ("but", "still", "unresolved", "lingered"))]
-    emotional = next((s for s in sentences if any(token in s.lower() for token in ("afraid", "relieved", "angry", "hope", "dread", "fear"))), None)
-    location = next((s for s in sentences if any(token in s.lower() for token in ("room", "hall", "basement", "door", "street", "house"))), None)
+    reveals = [
+        s
+        for s in sentences
+        if any(token in s.lower() for token in ("revealed", "learned", "discovered", "realized"))
+    ]
+    unresolved = [
+        s
+        for s in sentences
+        if any(token in s.lower() for token in ("but", "still", "unresolved", "lingered"))
+    ]
+    emotional = next(
+        (
+            s
+            for s in sentences
+            if any(
+                token in s.lower()
+                for token in ("afraid", "relieved", "angry", "hope", "dread", "fear")
+            )
+        ),
+        None,
+    )
+    location = next(
+        (
+            s
+            for s in sentences
+            if any(
+                token in s.lower()
+                for token in ("room", "hall", "basement", "door", "street", "house")
+            )
+        ),
+        None,
+    )
     return {
         "schema_version": "SceneMemoryPacket v1",
         "summary": summary,

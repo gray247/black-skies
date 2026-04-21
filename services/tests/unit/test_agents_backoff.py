@@ -18,7 +18,7 @@ class _FlakyAgent(BaseAgent):
     def run_once(self, payload: dict[str, str]) -> dict[str, str]:
         if self._remaining_failures > 0:
             self._remaining_failures -= 1
-            raise ValueError('intentional failure')
+            raise ValueError("intentional failure")
         return {"status": "ok"}
 
 

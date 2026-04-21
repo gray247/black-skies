@@ -69,7 +69,9 @@ def _entry(scene_id: str, artifacts: list[MemoryArtifact]) -> MemoryLedgerEntry:
     )
 
 
-def _options(*, experimental_enabled: bool = False, active: tuple[str, ...] = ()) -> MemoryLabRuntimeOptions:
+def _options(
+    *, experimental_enabled: bool = False, active: tuple[str, ...] = ()
+) -> MemoryLabRuntimeOptions:
     return MemoryLabRuntimeOptions(
         enabled=True,
         max_candidates=20,
@@ -175,7 +177,9 @@ def _seed_wave1_candidates(project_root: Path) -> None:
     write_ledger_entry(project_root, _entry("sc_0002", unresolved))
 
 
-def test_a1_exposure_only_increases_alternates_without_winner_or_comparator_mutation(tmp_path: Path) -> None:
+def test_a1_exposure_only_increases_alternates_without_winner_or_comparator_mutation(
+    tmp_path: Path,
+) -> None:
     baseline_root = tmp_path / "baseline_project"
     a1_root = tmp_path / "a1_project"
     _seed_wave1_candidates(baseline_root)
@@ -221,7 +225,9 @@ def test_a1_exposure_only_increases_alternates_without_winner_or_comparator_muta
     assert a1_diag.experimental_guardrail_passed is True
 
 
-def test_b1_reinforcement_saturation_changes_delta_curve_and_respects_bounds(tmp_path: Path) -> None:
+def test_b1_reinforcement_saturation_changes_delta_curve_and_respects_bounds(
+    tmp_path: Path,
+) -> None:
     project_root = tmp_path / "project"
     write_ledger_entry(
         project_root,
@@ -358,7 +364,9 @@ def test_wave1_single_flag_disable_restores_baseline_in_one_run(tmp_path: Path) 
     assert asdict(disabled_packet) == asdict(baseline_packet)
 
 
-def test_wave1_guardrail_violation_is_logged_and_marks_failure(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_wave1_guardrail_violation_is_logged_and_marks_failure(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     project_root = tmp_path / "project"
     _seed_wave1_candidates(project_root)
 

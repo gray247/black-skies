@@ -104,10 +104,14 @@ class PluginRegistry:
             enabled = True
             if state_path.exists():
                 try:
-                    enabled = bool(json.loads(state_path.read_text(encoding="utf-8")).get("enabled", True))
+                    enabled = bool(
+                        json.loads(state_path.read_text(encoding="utf-8")).get("enabled", True)
+                    )
                 except json.JSONDecodeError:
                     enabled = True
-            records.append(PluginRecord(plugin_id=entry.name, manifest_path=manifest_path, enabled=enabled))
+            records.append(
+                PluginRecord(plugin_id=entry.name, manifest_path=manifest_path, enabled=enabled)
+            )
         return records
 
     def set_enabled(self, plugin_id: str, enabled: bool) -> None:
@@ -146,7 +150,9 @@ class PluginRegistry:
 
     def _validate_plugin_id(self, plugin_id: str) -> None:
         if not _PLUGIN_ID_RE.match(plugin_id):
-            raise ValueError("Plugin ID must be alphanumeric with dashes/underscores (max 64 chars).")
+            raise ValueError(
+                "Plugin ID must be alphanumeric with dashes/underscores (max 64 chars)."
+            )
 
     def _sanitise_manifest(self, manifest: Dict[str, Any], plugin_dir: Path) -> Dict[str, Any]:
         unknown_keys = set(manifest.keys()) - _ALLOWED_MANIFEST_KEYS
@@ -191,7 +197,9 @@ class PluginRegistry:
             raise ValueError("Plugin module_path must exist within the plugin directory.")
         return str(candidate)
 
-    def _build_runner_env(self, *, plugin_dir: Path, plugin_id: str, manifest: Dict[str, Any]) -> Dict[str, str]:
+    def _build_runner_env(
+        self, *, plugin_dir: Path, plugin_id: str, manifest: Dict[str, Any]
+    ) -> Dict[str, str]:
         env: Dict[str, str] = {}
         for key in _SAFE_ENV_VARS:
             value = os.environ.get(key)

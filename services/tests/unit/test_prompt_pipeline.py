@@ -7,7 +7,11 @@ from unittest.mock import Mock
 
 from blackskies.services.config import ServiceSettings
 from blackskies.services.memory_lab.constants import MEMORY_LAB_SCHEMA_VERSION
-from blackskies.services.memory_lab.schemas import MemoryArtifact, MemoryLedgerEntry, ResolvedMemoryPacket
+from blackskies.services.memory_lab.schemas import (
+    MemoryArtifact,
+    MemoryLedgerEntry,
+    ResolvedMemoryPacket,
+)
 from blackskies.services.memory_lab.storage import write_ledger_entry
 from blackskies.services.memory_lab import resolver as resolver_module
 from blackskies.services.models.draft import DraftUnitOverrides
@@ -39,11 +43,7 @@ def test_scene_context_includes_prior_and_locked(tmp_path: Path) -> None:
     drafts_dir = project_root / "drafts"
     drafts_dir.mkdir(parents=True, exist_ok=True)
     (drafts_dir / "sc_0001.md").write_text(
-        "---\n"
-        "id: sc_0001\n"
-        "---\n"
-        "The floorboards creak.\n"
-        "Dust hangs in the air.\n",
+        "---\n" "id: sc_0001\n" "---\n" "The floorboards creak.\n" "Dust hangs in the air.\n",
         encoding="utf-8",
     )
     locked_path = project_root / ".blackskies"
@@ -197,7 +197,9 @@ def test_prompt_contract_surfaces_alternate_when_within_budget() -> None:
         selected_artifact_ids=["a"],
         resolver_notes=[],
     )
-    prompt = compile_draft_prompt(replace(context, resolved_memory=resolved), profile=select_profile("ollama"))
+    prompt = compile_draft_prompt(
+        replace(context, resolved_memory=resolved), profile=select_profile("ollama")
+    )
     assert "Prior outcome: winner summary" in prompt
     assert "Alternate reading: close alternate" in prompt
 
@@ -220,7 +222,9 @@ def test_prompt_contract_drops_alternate_first_when_budget_exceeded() -> None:
         selected_artifact_ids=["a"],
         resolver_notes=[],
     )
-    prompt = compile_draft_prompt(replace(context, resolved_memory=resolved), profile=select_profile("ollama"))
+    prompt = compile_draft_prompt(
+        replace(context, resolved_memory=resolved), profile=select_profile("ollama")
+    )
     assert "Prior outcome: winner summary" in prompt
     assert "Alternate reading:" not in prompt
 
@@ -455,7 +459,7 @@ def test_evaluate_draft_quality_accepts_prose() -> None:
     prose = (
         "Mara stepped into the parlor, the air thick with dust and old varnish. "
         "Her breath caught as the chandelier swayed. "
-        "She whispered, \"Who's there?\" The reply was only the soft shiver of curtains. "
+        'She whispered, "Who\'s there?" The reply was only the soft shiver of curtains. '
         "A cold draft curled around her wrists, carrying the smell of old rain."
     )
     metrics = evaluate_draft_quality(prose)
@@ -473,7 +477,9 @@ def test_select_profile_uses_prompt_profile_key() -> None:
     assert profile.name == "local_ollama_fast_draft"
 
 
-def test_current_scene_order_is_threaded_into_memory_resolution(monkeypatch, tmp_path: Path) -> None:
+def test_current_scene_order_is_threaded_into_memory_resolution(
+    monkeypatch, tmp_path: Path
+) -> None:
     captured: dict[str, int | float | str | bool | None] = {}
 
     def _stub_orchestrate_memory_resolution(
@@ -493,7 +499,9 @@ def test_current_scene_order_is_threaded_into_memory_resolution(monkeypatch, tmp
         captured["alternate_interpretation_threshold"] = options.alternate_interpretation_threshold
         captured["reinforcement_enabled"] = options.reinforcement_enabled
         captured["decay_enabled"] = options.decay_enabled
-        captured["low_confidence_fallback_threshold"] = options.decay_low_confidence_fallback_threshold
+        captured["low_confidence_fallback_threshold"] = (
+            options.decay_low_confidence_fallback_threshold
+        )
         return (
             ResolvedMemoryPacket(
                 selected_summary=None,
@@ -631,8 +639,12 @@ def test_resolve_memory_lab_packet_returns_none_when_disabled_even_if_ledger_exi
         memory_lab_enabled=False,
     ).memory_lab_runtime_options()
 
-    orchestrator_spy = Mock(side_effect=AssertionError("orchestrator should not be called when disabled"))
-    monkeypatch.setattr(advisory_memory_resolver_module, "orchestrate_memory_resolution", orchestrator_spy)
+    orchestrator_spy = Mock(
+        side_effect=AssertionError("orchestrator should not be called when disabled")
+    )
+    monkeypatch.setattr(
+        advisory_memory_resolver_module, "orchestrate_memory_resolution", orchestrator_spy
+    )
 
     packet = prompt_pipeline_module._resolve_memory_lab_packet(
         project_root=project_root,
@@ -722,8 +734,12 @@ def test_enabled_false_uses_legacy_continuity_only_even_when_ledger_exists(
         project_base_dir=tmp_path,
         memory_lab_enabled=False,
     ).memory_lab_runtime_options()
-    orchestrator_spy = Mock(side_effect=AssertionError("orchestrator should not be called when disabled"))
-    monkeypatch.setattr(advisory_memory_resolver_module, "orchestrate_memory_resolution", orchestrator_spy)
+    orchestrator_spy = Mock(
+        side_effect=AssertionError("orchestrator should not be called when disabled")
+    )
+    monkeypatch.setattr(
+        advisory_memory_resolver_module, "orchestrate_memory_resolution", orchestrator_spy
+    )
 
     context = assemble_scene_context(
         scene=scene,
@@ -792,7 +808,9 @@ def test_resolve_memory_lab_packet_preserves_enabled_behavior(monkeypatch, tmp_p
             Mock(),
         )
     )
-    monkeypatch.setattr(advisory_memory_resolver_module, "orchestrate_memory_resolution", orchestrator_spy)
+    monkeypatch.setattr(
+        advisory_memory_resolver_module, "orchestrate_memory_resolution", orchestrator_spy
+    )
 
     packet = prompt_pipeline_module._resolve_memory_lab_packet(
         project_root=project_root,
@@ -807,10 +825,16 @@ def test_resolve_memory_lab_packet_preserves_enabled_behavior(monkeypatch, tmp_p
     orchestrator_spy.assert_called_once()
 
 
-def test_resolve_memory_lab_packet_none_options_disables_advisory_path(monkeypatch, tmp_path: Path) -> None:
+def test_resolve_memory_lab_packet_none_options_disables_advisory_path(
+    monkeypatch, tmp_path: Path
+) -> None:
     project_root = tmp_path / "proj_none_options"
-    orchestrator_spy = Mock(side_effect=AssertionError("orchestrator should not be called without options"))
-    monkeypatch.setattr(advisory_memory_resolver_module, "orchestrate_memory_resolution", orchestrator_spy)
+    orchestrator_spy = Mock(
+        side_effect=AssertionError("orchestrator should not be called without options")
+    )
+    monkeypatch.setattr(
+        advisory_memory_resolver_module, "orchestrate_memory_resolution", orchestrator_spy
+    )
 
     packet = prompt_pipeline_module._resolve_memory_lab_packet(
         project_root=project_root,
@@ -824,9 +848,15 @@ def test_resolve_memory_lab_packet_none_options_disables_advisory_path(monkeypat
     orchestrator_spy.assert_not_called()
 
 
-def test_options_omitted_adds_visibility_note_and_skips_advisory(monkeypatch, tmp_path: Path) -> None:
-    orchestrator_spy = Mock(side_effect=AssertionError("orchestrator should not be called without options"))
-    monkeypatch.setattr(advisory_memory_resolver_module, "orchestrate_memory_resolution", orchestrator_spy)
+def test_options_omitted_adds_visibility_note_and_skips_advisory(
+    monkeypatch, tmp_path: Path
+) -> None:
+    orchestrator_spy = Mock(
+        side_effect=AssertionError("orchestrator should not be called without options")
+    )
+    monkeypatch.setattr(
+        advisory_memory_resolver_module, "orchestrate_memory_resolution", orchestrator_spy
+    )
     scene = _scene()
 
     context = assemble_scene_context(
@@ -865,8 +895,12 @@ def test_enabled_path_calls_orchestrator_not_direct_resolver(monkeypatch, tmp_pa
         )
     )
 
-    resolver_spy = Mock(side_effect=AssertionError("prompt pipeline must not call resolver directly"))
-    monkeypatch.setattr(advisory_memory_resolver_module, "orchestrate_memory_resolution", orchestrator_spy)
+    resolver_spy = Mock(
+        side_effect=AssertionError("prompt pipeline must not call resolver directly")
+    )
+    monkeypatch.setattr(
+        advisory_memory_resolver_module, "orchestrate_memory_resolution", orchestrator_spy
+    )
     monkeypatch.setattr(resolver_module, "resolve_memory_packet", resolver_spy)
 
     packet = prompt_pipeline_module._resolve_memory_lab_packet(

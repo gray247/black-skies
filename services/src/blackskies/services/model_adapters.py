@@ -124,9 +124,7 @@ class BaseAdapter:
             raw_payload = response
         return self._extract_text_from_payload(raw_payload)
 
-    def normalize_text_response(
-        self, response: dict[str, Any] | None
-    ) -> NormalizedAdapterResponse:
+    def normalize_text_response(self, response: dict[str, Any] | None) -> NormalizedAdapterResponse:
         """Return a normalized text payload for execution workflows."""
 
         if not isinstance(response, dict):
@@ -148,11 +146,15 @@ class BaseAdapter:
         raw_payload = response.get("raw")
         if not isinstance(raw_payload, dict):
             raw_payload = response
-        extracted = self._extract_text_from_payload(raw_payload if isinstance(raw_payload, dict) else {})
+        extracted = self._extract_text_from_payload(
+            raw_payload if isinstance(raw_payload, dict) else {}
+        )
         return NormalizedAdapterResponse(
             text=extracted,
             raw_payload=raw_payload if isinstance(raw_payload, dict) else None,
-            extraction_source="payload" if isinstance(extracted, str) and extracted.strip() else None,
+            extraction_source=(
+                "payload" if isinstance(extracted, str) and extracted.strip() else None
+            ),
         )
 
     def _extract_text_from_payload(self, payload: dict[str, Any]) -> str | None:

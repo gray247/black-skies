@@ -49,7 +49,9 @@ def validate_deferred_feature_containment(repo_root: Path | None = None) -> list
 
     ledger = _load_ledger(root)
     deferred_entries = {
-        entry["name"]: entry for entry in ledger.get("deferred_docs", []) if isinstance(entry, dict) and "name" in entry
+        entry["name"]: entry
+        for entry in ledger.get("deferred_docs", [])
+        if isinstance(entry, dict) and "name" in entry
     }
 
     for feature_name, rel_path in DEFERRED_DOCS.items():
@@ -109,7 +111,9 @@ def validate_deferred_feature_containment(repo_root: Path | None = None) -> list
             if "none" not in owner_line_lower:
                 errors.append(f"{rel_path}: no-seam deferred doc must declare seam owner as none.")
             if ledger_owners:
-                errors.append(f"{rel_path}: no-seam deferred ledger entry must not declare seam owners.")
+                errors.append(
+                    f"{rel_path}: no-seam deferred ledger entry must not declare seam owners."
+                )
 
     return errors
 

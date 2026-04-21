@@ -5,14 +5,7 @@ from pathlib import Path
 
 
 def _contract_path() -> Path:
-    return (
-        Path(__file__)
-        .resolve()
-        .parents[3]
-        / "docs"
-        / "specs"
-        / "audited_chain_contract.json"
-    )
+    return Path(__file__).resolve().parents[3] / "docs" / "specs" / "audited_chain_contract.json"
 
 
 def test_audited_chain_contract_has_required_steps() -> None:

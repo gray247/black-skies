@@ -108,9 +108,13 @@ def orchestrate_memory_resolution(
     experimental_guardrail_violations: list[str] = []
 
     with acquire_project_lock(project_root) as lock_state:
-        environment_tier = _environment_tier_from_lock(lock_state.lock_mode, lock_state.lock_is_effective)
+        environment_tier = _environment_tier_from_lock(
+            lock_state.lock_mode, lock_state.lock_is_effective
+        )
         if not lock_state.lock_is_effective:
-            lock_note = f"lock_not_effective mode={lock_state.lock_mode} scene_order={current_scene_order}"
+            lock_note = (
+                f"lock_not_effective mode={lock_state.lock_mode} scene_order={current_scene_order}"
+            )
             write_failure_notes.append(lock_note)
             failure_entries.append(lock_note)
         try:
@@ -170,13 +174,15 @@ def orchestrate_memory_resolution(
         working_entries = entries
         mutations_enabled = lock_state.lock_is_effective
         if options.decay_enabled and mutations_enabled:
-            working_entries, decay_events_written, decay_diagnostics, decay_failure_notes = _apply_decay_prepass(
-                entries=entries,
-                current_scene_id=current_scene_id,
-                current_scene_order=current_scene_order,
-                now_iso=effective_now_iso,
-                options=options,
-                project_root=project_root,
+            working_entries, decay_events_written, decay_diagnostics, decay_failure_notes = (
+                _apply_decay_prepass(
+                    entries=entries,
+                    current_scene_id=current_scene_id,
+                    current_scene_order=current_scene_order,
+                    now_iso=effective_now_iso,
+                    options=options,
+                    project_root=project_root,
+                )
             )
             write_failure_notes.extend(decay_failure_notes)
             failure_entries.extend(decay_failure_notes)
@@ -273,7 +279,9 @@ def orchestrate_memory_resolution(
                 anchor_promotion_diagnostics=[],
                 failure_entries=failure_entries,
                 corruption_entries=corruption_entries,
-                notes=notes + write_failure_notes + ["Resolver returned no selected advisory artifacts."],
+                notes=notes
+                + write_failure_notes
+                + ["Resolver returned no selected advisory artifacts."],
             )
 
         determinism_entries = working_entries
@@ -368,7 +376,11 @@ def orchestrate_memory_resolution(
                 experimental_ran = experimental_result.ran_any_experiment
                 experimental_blocked_experiments = list(experimental_result.blocked_experiments)
                 experimental_outcomes = [
-                    {"experiment_name": item.experiment_name, "decision": item.decision, "rationale": item.rationale}
+                    {
+                        "experiment_name": item.experiment_name,
+                        "decision": item.decision,
+                        "rationale": item.rationale,
+                    }
                     for item in experimental_result.outcomes
                 ]
                 if experimental_result.violation_notes:
@@ -396,25 +408,36 @@ def orchestrate_memory_resolution(
                     low_confidence_fallback_threshold=options.decay_low_confidence_fallback_threshold,
                 )
                 if wave1_a1_enabled:
-                    replay_packet, _replay_a1_metrics, _replay_a1_ms = apply_a1_exploration_pressure(
-                        packet=replay_packet,
-                        entries=working_entries,
-                        alternate_interpretation_threshold=options.alternate_interpretation_threshold,
+                    replay_packet, _replay_a1_metrics, _replay_a1_ms = (
+                        apply_a1_exploration_pressure(
+                            packet=replay_packet,
+                            entries=working_entries,
+                            alternate_interpretation_threshold=options.alternate_interpretation_threshold,
+                        )
                     )
                 if replay_packet.selected_artifact_ids != packet.selected_artifact_ids:
                     deterministic_winner_drift = 1
-                if replay_packet.alternate_interpretations_by_slot != packet.alternate_interpretations_by_slot:
+                if (
+                    replay_packet.alternate_interpretations_by_slot
+                    != packet.alternate_interpretations_by_slot
+                ):
                     deterministic_alternate_drift = 1
 
             experimental_prompt_tokens = estimate_packet_prompt_tokens(packet)
             prompt_growth = _relative_growth(experimental_prompt_tokens, baseline_prompt_tokens)
-            event_growth = _relative_growth(reinforcement_events_written, baseline_reinforcement_events)
+            event_growth = _relative_growth(
+                reinforcement_events_written, baseline_reinforcement_events
+            )
             latency_baseline_ms = max(resolve_duration_ms, 1.0)
             b1_latency_growth = _relative_growth(b1_latency_ms, latency_baseline_ms)
-            combined_latency_growth = _relative_growth(a1_duration_ms + b1_latency_ms, latency_baseline_ms)
+            combined_latency_growth = _relative_growth(
+                a1_duration_ms + b1_latency_ms, latency_baseline_ms
+            )
 
             wave1_metric_values: dict[str, float] = {
-                "a1.alternate_surfacing_delta": float(a1_metrics.get("alternate_surfacing_delta", 0.0)),
+                "a1.alternate_surfacing_delta": float(
+                    a1_metrics.get("alternate_surfacing_delta", 0.0)
+                ),
                 "a1.prompt_token_growth": float(prompt_growth if wave1_a1_enabled else 0.0),
                 "b1.event_growth": float(event_growth if wave1_b1_enabled else 0.0),
                 "b1.latency_growth": float(b1_latency_growth if wave1_b1_enabled else 0.0),
@@ -425,10 +448,12 @@ def orchestrate_memory_resolution(
                 "determinism.winner_drift_count": float(deterministic_winner_drift),
                 "determinism.alternate_drift_count": float(deterministic_alternate_drift),
             }
-            experimental_guardrail_passed, experimental_guardrail_violations = evaluate_wave1_guardrails(
-                wave1_metric_values,
-                a1_enabled=wave1_a1_enabled,
-                b1_enabled=wave1_b1_enabled,
+            experimental_guardrail_passed, experimental_guardrail_violations = (
+                evaluate_wave1_guardrails(
+                    wave1_metric_values,
+                    a1_enabled=wave1_a1_enabled,
+                    b1_enabled=wave1_b1_enabled,
+                )
             )
             if experimental_guardrail_violations:
                 for violation in experimental_guardrail_violations:
@@ -582,7 +607,9 @@ def _apply_decay_prepass(
                 DecayDiagnostic(
                     artifact_id=artifact.artifact_id,
                     decay_skipped=(updated_artifact == artifact),
-                    decay_skip_reason=_derive_decay_skip_reason(artifact, updated_artifact, current_scene_order),
+                    decay_skip_reason=_derive_decay_skip_reason(
+                        artifact, updated_artifact, current_scene_order
+                    ),
                     old_status=artifact.status,
                     new_status=updated_artifact.status,
                     old_weight=artifact.weight,
@@ -747,11 +774,17 @@ def _apply_post_selection_updates(
                         revival_grace_until_scene_order=current_scene_order + 1,
                     )
 
-            if options.anchor_enabled and not reinforced.is_anchor and is_anchor_candidate(
-                reinforced,
-                min_threshold=options.anchor_auto_threshold,
+            if (
+                options.anchor_enabled
+                and not reinforced.is_anchor
+                and is_anchor_candidate(
+                    reinforced,
+                    min_threshold=options.anchor_auto_threshold,
+                )
             ):
-                reason = f"auto-promoted after reinforcement threshold ({options.anchor_auto_threshold})"
+                reason = (
+                    f"auto-promoted after reinforcement threshold ({options.anchor_auto_threshold})"
+                )
                 reinforced = promote_anchor_candidate(reinforced, reason)
                 anchor_promotion_diagnostics.append(
                     AnchorPromotionDiagnostic(
@@ -764,7 +797,9 @@ def _apply_post_selection_updates(
                 )
 
             artifacts[artifact_index] = reinforced
-            updated_entries[entry_index] = replace(updated_entries[entry_index], artifacts=artifacts)
+            updated_entries[entry_index] = replace(
+                updated_entries[entry_index], artifacts=artifacts
+            )
         except Exception as exc:  # noqa: BLE001
             failure_notes.append(
                 f"post_selection_update_failed artifact_id={artifact_id} error={exc}"
@@ -873,17 +908,21 @@ def _build_resolver_decision_diagnostics(
     selected_set = set(selected_artifact_ids)
     diagnostics: list[ResolverDecisionDiagnostic] = []
     for artifact in artifacts:
-        total, relevance, recency, _weight, _confidence, _anchor, _reinforcement = compute_total_score(
-            artifact,
-            current_chapter_id=current_chapter_id,
-            max_recency_order=max_recency_order,
+        total, relevance, recency, _weight, _confidence, _anchor, _reinforcement = (
+            compute_total_score(
+                artifact,
+                current_chapter_id=current_chapter_id,
+                max_recency_order=max_recency_order,
+            )
         )
         diagnostics.append(
             ResolverDecisionDiagnostic(
                 artifact_id=artifact.artifact_id,
                 selected=artifact.artifact_id in selected_set,
                 status_multiplier_used=compute_status_multiplier(artifact),
-                suppressed_fallback_used=(artifact.status == "suppressed" and artifact.artifact_id in selected_set),
+                suppressed_fallback_used=(
+                    artifact.status == "suppressed" and artifact.artifact_id in selected_set
+                ),
                 tie_break_tuple=(
                     -total,
                     -float(1 if artifact.is_anchor else 0),

@@ -57,7 +57,9 @@ def test_no_canon_mutation_during_contested_runtime_flow(tmp_path: Path) -> None
     locked_facts = project_root / "locked_facts.json"
     locked_facts.write_text('["canon_fact"]', encoding="utf-8")
     outline = project_root / "outline.json"
-    outline.write_text('{"chapters":[{"id":"ch_0001"}],"scenes":[{"id":"sc_0001"}]}', encoding="utf-8")
+    outline.write_text(
+        '{"chapters":[{"id":"ch_0001"}],"scenes":[{"id":"sc_0001"}]}', encoding="utf-8"
+    )
 
     a = MemoryArtifact(
         artifact_id="sum_a",

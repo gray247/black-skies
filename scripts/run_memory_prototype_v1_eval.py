@@ -15,7 +15,9 @@ from blackskies.services.memory_prototype.canonical_state_reader import (
     CanonicalInputEligibilityError,
     CanonicalStateReader,
 )
-from blackskies.services.memory_prototype.continuity_signal_normalizer import ContinuitySignalNormalizer
+from blackskies.services.memory_prototype.continuity_signal_normalizer import (
+    ContinuitySignalNormalizer,
+)
 from blackskies.services.memory_prototype.scene_delta_extractor import SceneDeltaExtractor
 from blackskies.services.memory_prototype.schemas import CanonicalLineageKey
 from blackskies.services.memory_prototype.storage import MemoryPrototypeStorage
@@ -45,7 +47,9 @@ def _write_json(path: Path, payload: dict[str, Any]) -> None:
 
 
 def _accepted_source_hash(unit_id: str, draft_text: str, outline_scene: dict[str, Any]) -> str:
-    blob = f"{unit_id}\n{json.dumps(outline_scene, sort_keys=True, ensure_ascii=False)}\n{draft_text}"
+    blob = (
+        f"{unit_id}\n{json.dumps(outline_scene, sort_keys=True, ensure_ascii=False)}\n{draft_text}"
+    )
     import hashlib
 
     return hashlib.sha256(blob.encode("utf-8")).hexdigest()
@@ -58,8 +62,12 @@ def _fingerprints(project_root: Path) -> dict[str, str]:
         project_root / "project.json",
         project_root / "outline.json",
     ]
-    tracked.extend((project_root / "drafts").glob("*.md") if (project_root / "drafts").exists() else [])
-    tracked.extend((project_root / "lore").glob("*.y*ml") if (project_root / "lore").exists() else [])
+    tracked.extend(
+        (project_root / "drafts").glob("*.md") if (project_root / "drafts").exists() else []
+    )
+    tracked.extend(
+        (project_root / "lore").glob("*.y*ml") if (project_root / "lore").exists() else []
+    )
     tracked.extend(
         [project_root / "locked_facts.json", project_root / ".blackskies" / "locked_facts.json"]
     )
@@ -89,7 +97,9 @@ def _materialize_case(project_root: Path, project_id: str, case: dict[str, Any])
     lore_dir.mkdir(parents=True, exist_ok=True)
     for idx, record in enumerate(lore_records, start=1):
         lore_path = lore_dir / f"record_{idx:02d}.yaml"
-        lore_path.write_text("\n".join([f"{k}: {v}" for k, v in record.items()]) + "\n", encoding="utf-8")
+        lore_path.write_text(
+            "\n".join([f"{k}: {v}" for k, v in record.items()]) + "\n", encoding="utf-8"
+        )
 
     snap = project_root / "history" / "snapshots" / f"{snapshot_id}_accept"
     (snap / "drafts").mkdir(parents=True, exist_ok=True)
@@ -99,7 +109,9 @@ def _materialize_case(project_root: Path, project_id: str, case: dict[str, Any])
     _write_json(snap / "locked_facts.json", {"facts": locked_facts})
     for idx, record in enumerate(lore_records, start=1):
         lore_path = snap / "lore" / f"record_{idx:02d}.yaml"
-        lore_path.write_text("\n".join([f"{k}: {v}" for k, v in record.items()]) + "\n", encoding="utf-8")
+        lore_path.write_text(
+            "\n".join([f"{k}: {v}" for k, v in record.items()]) + "\n", encoding="utf-8"
+        )
 
     metadata = {
         "snapshot_id": snapshot_id,
@@ -133,7 +145,13 @@ def _empty_stats() -> EvalStats:
         evaluated_projects=set(),
         evaluated_units=0,
         lineage_modes={},
-        artifact_counts={"deltas": 0, "signals": 0, "packets_draft": 0, "packets_rewrite": 0, "packets_critique": 0},
+        artifact_counts={
+            "deltas": 0,
+            "signals": 0,
+            "packets_draft": 0,
+            "packets_rewrite": 0,
+            "packets_critique": 0,
+        },
         degraded_count=0,
         failure_count=0,
         weaknesses=[],
@@ -153,7 +171,9 @@ def _append_weakness(stats: EvalStats, text: str) -> None:
         stats.weaknesses.append(text)
 
 
-def _evaluate_case(project_root: Path, project_id: str, case: dict[str, Any], stats: EvalStats) -> None:
+def _evaluate_case(
+    project_root: Path, project_id: str, case: dict[str, Any], stats: EvalStats
+) -> None:
     lineage = CanonicalLineageKey.from_snapshot(
         project_id=project_id,
         unit_id=str(case["unit_id"]),
@@ -211,7 +231,9 @@ def _evaluate_case(project_root: Path, project_id: str, case: dict[str, Any], st
                 stats.legacy_replay_bounded_cases += 1
             else:
                 stats.legacy_replay_unbounded_cases += 1
-                _append_weakness(stats, f"{case['case_id']}: legacy replay derivation was not bounded")
+                _append_weakness(
+                    stats, f"{case['case_id']}: legacy replay derivation was not bounded"
+                )
         stats.artifact_counts["deltas"] += 1 if delta_path.exists() else 0
         stats.artifact_counts["signals"] += 1 if signal_path.exists() else 0
         stats.artifact_counts["packets_draft"] += 1 if packet_paths["draft"].exists() else 0
@@ -226,7 +248,9 @@ def _evaluate_case(project_root: Path, project_id: str, case: dict[str, Any], st
                 source_hashes=snapshot.source_hashes,
             )
             if repeat_delta != delta_path:
-                _append_weakness(stats, f"{case['case_id']}: repeat same-lineage output not deterministic")
+                _append_weakness(
+                    stats, f"{case['case_id']}: repeat same-lineage output not deterministic"
+                )
                 stats.failure_count += 1
 
         if bool(case.get("simulate_race", False)):
@@ -287,7 +311,12 @@ def _evaluate_case(project_root: Path, project_id: str, case: dict[str, Any], st
             status="degraded",
             last_error_code="M5_CASE_FAILURE",
             last_error_message=str(exc),
-            affected_components=["reader", "delta_extractor", "signal_normalizer", "packet_assembler"],
+            affected_components=[
+                "reader",
+                "delta_extractor",
+                "signal_normalizer",
+                "packet_assembler",
+            ],
             retry_after_seconds=0,
         )
         _append_weakness(stats, f"{case['case_id']}: runtime failure: {exc}")
@@ -295,9 +324,12 @@ def _evaluate_case(project_root: Path, project_id: str, case: dict[str, Any], st
 
 def _recommendation(stats: EvalStats) -> str:
     criteria = {
-        "canonical_mutation_zero": not any("canonical mutation detected" in item for item in stats.weaknesses),
+        "canonical_mutation_zero": not any(
+            "canonical mutation detected" in item for item in stats.weaknesses
+        ),
         "lineage_deterministic": not any("non-deterministic" in item for item in stats.weaknesses),
-        "advisory_only_outputs": stats.artifact_counts["deltas"] > 0 and stats.artifact_counts["signals"] > 0,
+        "advisory_only_outputs": stats.artifact_counts["deltas"] > 0
+        and stats.artifact_counts["signals"] > 0,
         "failure_isolation_visible": stats.degraded_count >= 0,
         "truth_lane_regressions": True,
     }
@@ -350,13 +382,13 @@ def main() -> int:
             "classification": (
                 "reducible risk, now contained"
                 if stats.legacy_replay_cases > 0 and stats.legacy_replay_unbounded_cases == 0
-                else "acceptable prototype debt"
-                if stats.legacy_replay_cases == 0
-                else "true blocker"
+                else (
+                    "acceptable prototype debt"
+                    if stats.legacy_replay_cases == 0
+                    else "true blocker"
+                )
             ),
-            "notes": [
-                "Legacy replay is replay/eval only and never live accept lineage."
-            ],
+            "notes": ["Legacy replay is replay/eval only and never live accept lineage."],
         },
         "informational_flags": (
             ["legacy replay hash derivation path used (bounded replay/eval mode)"]
@@ -364,15 +396,20 @@ def main() -> int:
             else []
         ),
         "decision_criteria": {
-            "canonical_mutation_zero": not any("canonical mutation detected" in item for item in stats.weaknesses),
-            "lineage_stability_deterministic": not any("non-deterministic" in item for item in stats.weaknesses),
+            "canonical_mutation_zero": not any(
+                "canonical mutation detected" in item for item in stats.weaknesses
+            ),
+            "lineage_stability_deterministic": not any(
+                "non-deterministic" in item for item in stats.weaknesses
+            ),
             "replay_behavior_bounded": "legacy_replay_derived" in stats.lineage_modes
             or "metadata_hash" in stats.lineage_modes,
             "packet_usefulness_structural": all(
                 stats.artifact_counts[key] >= stats.evaluated_units
                 for key in ("packets_draft", "packets_rewrite", "packets_critique")
             ),
-            "advisory_outputs_attributable_non_canonical": stats.artifact_counts["deltas"] >= stats.evaluated_units
+            "advisory_outputs_attributable_non_canonical": stats.artifact_counts["deltas"]
+            >= stats.evaluated_units
             and stats.artifact_counts["signals"] >= stats.evaluated_units,
             "truth_lane_regressions": "not evaluated in M5 runner",
             "failure_handling_visible_non_blocking": stats.degraded_count >= 0,

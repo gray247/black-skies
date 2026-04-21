@@ -105,7 +105,9 @@ def persist_candidate_ruling(
     """
 
     rulings_dir = project_root / ".blackskies" / "canon_court" / "candidate_rulings"
-    filename = f"{ruling.created_at.replace(':', '').replace('-', '')}_{ruling.contradiction_id}.json"
+    filename = (
+        f"{ruling.created_at.replace(':', '').replace('-', '')}_{ruling.contradiction_id}.json"
+    )
     path = rulings_dir / filename
     write_json_atomic(path, ruling.model_dump(mode="json"))
     return path

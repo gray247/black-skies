@@ -32,7 +32,12 @@ def ensure_wave1_descriptors_registered() -> None:
         ExperimentDescriptor(
             name=EXPERIMENT_A1,
             hypothesis="bounded exposure pressure increases near-threshold alternate surfacing without winner inversion",
-            metrics=("alternate_surfacing_delta", "prompt_token_growth", "winner_drift", "alternate_drift"),
+            metrics=(
+                "alternate_surfacing_delta",
+                "prompt_token_growth",
+                "winner_drift",
+                "alternate_drift",
+            ),
             guardrails=(
                 "alternate_surfacing_delta<=0.15",
                 "prompt_token_growth<=0.20",
@@ -47,14 +52,22 @@ def ensure_wave1_descriptors_registered() -> None:
         ExperimentDescriptor(
             name=EXPERIMENT_B1,
             hypothesis="saturation curve caps reinforcement accumulation while preserving deterministic winner selection",
-            metrics=("event_growth", "latency_growth", "prompt_token_growth_from_saturation_logic", "winner_drift"),
+            metrics=(
+                "event_growth",
+                "latency_growth",
+                "prompt_token_growth_from_saturation_logic",
+                "winner_drift",
+            ),
             guardrails=(
                 "event_growth<=0.10",
                 "latency_growth<=0.10",
                 "prompt_token_growth_from_saturation_logic=0.0",
                 "winner_drift=0",
             ),
-            regression_budget={"event_growth": B1_MAX_EVENT_GROWTH, "latency_growth": B1_MAX_LATENCY_GROWTH},
+            regression_budget={
+                "event_growth": B1_MAX_EVENT_GROWTH,
+                "latency_growth": B1_MAX_LATENCY_GROWTH,
+            },
             success_criteria=("bounded_reinforcement_curve",),
         )
     )
@@ -163,7 +176,9 @@ def apply_a1_exploration_pressure(
     )
 
 
-def b1_saturated_selection_delta(artifact: MemoryArtifact, *, baseline_delta: float) -> tuple[float, str]:
+def b1_saturated_selection_delta(
+    artifact: MemoryArtifact, *, baseline_delta: float
+) -> tuple[float, str]:
     reinforced_count = max(int(artifact.reinforcement_count), int(artifact.selection_count))
     if reinforced_count < 3:
         return float(baseline_delta), "normal"
@@ -187,7 +202,9 @@ def estimate_packet_prompt_tokens(packet: ResolvedMemoryPacket) -> int:
     return len(text.split())
 
 
-def evaluate_wave1_guardrails(metrics: dict[str, float], *, a1_enabled: bool, b1_enabled: bool) -> tuple[bool, list[str]]:
+def evaluate_wave1_guardrails(
+    metrics: dict[str, float], *, a1_enabled: bool, b1_enabled: bool
+) -> tuple[bool, list[str]]:
     violations: list[str] = []
     if a1_enabled:
         if metrics.get("a1.alternate_surfacing_delta", 0.0) > A1_MAX_ALTERNATE_SURFACING_DELTA:
@@ -234,11 +251,7 @@ def _normalized_active(active_experiments: tuple[str, ...]) -> set[str]:
 
 
 def _artifact_lookup(entries: list[MemoryLedgerEntry]) -> dict[str, MemoryArtifact]:
-    return {
-        artifact.artifact_id: artifact
-        for entry in entries
-        for artifact in entry.artifacts
-    }
+    return {artifact.artifact_id: artifact for entry in entries for artifact in entry.artifacts}
 
 
 def _ratio(numerator: float, denominator: float) -> float:

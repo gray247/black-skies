@@ -76,12 +76,16 @@ def _body_word_count(project_root: Path) -> int:
 
 
 def _export_body_word_count(content: str) -> int:
-    lines = [line for line in content.splitlines() if line.strip() and not line.lstrip().startswith("#")]
+    lines = [
+        line for line in content.splitlines() if line.strip() and not line.lstrip().startswith("#")
+    ]
     return len(" ".join(lines).split())
 
 
 @pytest.mark.parametrize("fmt", [ExportFormat.MD, ExportFormat.DOCX, ExportFormat.PDF])
-def test_all_formats_preserve_scene_order(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, fmt: ExportFormat) -> None:
+def test_all_formats_preserve_scene_order(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, fmt: ExportFormat
+) -> None:
     project_id = f"{fmt.value}-order"
     project_root = _prepare_project(tmp_path, project_id)
     monkeypatch.setattr(

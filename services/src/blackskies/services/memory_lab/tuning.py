@@ -182,7 +182,9 @@ def run_phase6a_threshold_sweep(
 
     return Phase6ATuningReport(
         environment_tier="supported_deterministic" if supported else "best_effort",
-        environment_metadata=_environment_metadata(lock_mode=lock_mode, lock_is_effective=lock_is_effective),
+        environment_metadata=_environment_metadata(
+            lock_mode=lock_mode, lock_is_effective=lock_is_effective
+        ),
         lock_mode=lock_mode,
         lock_is_effective=lock_is_effective,
         runs_per_scenario=runs,
@@ -297,7 +299,9 @@ def _run_threshold_for_scenario(
         signatures.append(_deterministic_signature(packet))
         for slot_row in packet.selection_slot_diagnostics:
             score_delta = slot_row.get("score_delta")
-            band = classify_trust_band(float(score_delta) if isinstance(score_delta, (float, int)) else None)
+            band = classify_trust_band(
+                float(score_delta) if isinstance(score_delta, (float, int)) else None
+            )
             trust_band_counts[band] += 1
 
     first = signatures[0]
@@ -351,7 +355,9 @@ def _aggregate_threshold_result(
     )
     p95_resolution_worst = max((item.p95_resolution_ms for item in scenario_metrics), default=0.0)
     p95_slot_worst = max((item.p95_slot_selection_ms for item in scenario_metrics), default=0.0)
-    p95_prompt_growth_worst = max((item.p95_prompt_growth for item in scenario_metrics), default=0.0)
+    p95_prompt_growth_worst = max(
+        (item.p95_prompt_growth for item in scenario_metrics), default=0.0
+    )
 
     reasons: list[str] = []
     if enforce_determinism and winner_drift_total > 0:
@@ -368,7 +374,11 @@ def _aggregate_threshold_result(
         reasons.append("prompt_growth_budget_exceeded")
     if avg_completeness < 0.99:
         reasons.append("diagnostics_completeness_below_target")
-    if enforce_determinism and baseline_metrics is not None and float(threshold) != float(baseline_threshold):
+    if (
+        enforce_determinism
+        and baseline_metrics is not None
+        and float(threshold) != float(baseline_threshold)
+    ):
         baseline_winner = sum(item.winner_drift_count for item in baseline_metrics)
         baseline_alternate = sum(item.alternate_drift_count for item in baseline_metrics)
         baseline_diag = sum(item.deterministic_diagnostics_drift_count for item in baseline_metrics)
@@ -426,7 +436,9 @@ def _select_conservative_threshold(results: list[ThresholdSweepResult]) -> float
     return float(viable_sorted[0].threshold)
 
 
-def _result_by_threshold(results: list[ThresholdSweepResult], threshold: float | None) -> ThresholdSweepResult | None:
+def _result_by_threshold(
+    results: list[ThresholdSweepResult], threshold: float | None
+) -> ThresholdSweepResult | None:
     if threshold is None:
         return None
     for item in results:
@@ -438,7 +450,10 @@ def _result_by_threshold(results: list[ThresholdSweepResult], threshold: float |
 def _trust_band_documented(results: list[ThresholdSweepResult]) -> bool:
     for item in results:
         counts = item.aggregate_trust_band_counts
-        if all(key in counts for key in (TRUST_BAND_STABLE, TRUST_BAND_CONTESTED_USEFUL, TRUST_BAND_UNSTABLE)):
+        if all(
+            key in counts
+            for key in (TRUST_BAND_STABLE, TRUST_BAND_CONTESTED_USEFUL, TRUST_BAND_UNSTABLE)
+        ):
             return True
     return False
 
@@ -457,7 +472,9 @@ def _deterministic_signature(packet: ResolvedMemoryPacket) -> tuple[object, ...]
                 item.get("tie_break_rationale"),
             )
         )
-    advisory_reason = "advisory_available" if packet.selected_artifact_ids else "advisory_unavailable"
+    advisory_reason = (
+        "advisory_available" if packet.selected_artifact_ids else "advisory_unavailable"
+    )
     return (
         tuple(packet.selected_artifact_ids),
         tuple(sorted(packet.alternate_interpretations_by_slot.items())),
@@ -469,7 +486,14 @@ def _deterministic_signature(packet: ResolvedMemoryPacket) -> tuple[object, ...]
 def _diagnostics_completeness(packet: ResolvedMemoryPacket) -> float:
     if not packet.selection_slot_diagnostics:
         return 1.0
-    required_fields = ("winner", "top_loser", "score_delta", "used_fallback", "tie_break_tuple", "tie_break_rationale")
+    required_fields = (
+        "winner",
+        "top_loser",
+        "score_delta",
+        "used_fallback",
+        "tie_break_tuple",
+        "tie_break_rationale",
+    )
     valid = 0
     for item in packet.selection_slot_diagnostics:
         if all(field in item for field in required_fields):
@@ -524,7 +548,9 @@ def _prompt_growth_for_packet(packet: ResolvedMemoryPacket) -> float:
 def _build_replay_entries(scenario: ReplayScenario) -> list[MemoryLedgerEntry]:
     chapter_id = "ch_tune"
     entries: list[MemoryLedgerEntry] = []
-    contested_scene_indices = set(range(1, min(scenario.scene_count, scenario.contested_groups) + 1))
+    contested_scene_indices = set(
+        range(1, min(scenario.scene_count, scenario.contested_groups) + 1)
+    )
     for idx in range(1, scenario.scene_count + 1):
         scene_id = f"sc_{idx:04d}"
         artifacts: list[MemoryArtifact] = [

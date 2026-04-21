@@ -34,7 +34,9 @@ def build_memory_artifacts(
             return None
         seen.add(key)
         artifact = MemoryArtifact(
-            artifact_id=_artifact_id(scene_id=scene_id, artifact_type=artifact_type, content=content),
+            artifact_id=_artifact_id(
+                scene_id=scene_id, artifact_type=artifact_type, content=content
+            ),
             schema_version=MEMORY_ARTIFACT_SCHEMA_VERSION,
             artifact_type=artifact_type,
             scene_id=scene_id,
@@ -55,7 +57,11 @@ def build_memory_artifacts(
         return artifact
 
     summary_artifact = add("summary", carryover_payload.get("summary"))
-    if summary_artifact and interpretations_enabled and _contains_ambiguity_cue(summary_artifact.content):
+    if (
+        summary_artifact
+        and interpretations_enabled
+        and _contains_ambiguity_cue(summary_artifact.content)
+    ):
         labels = _deterministic_labels_for_summary(summary_artifact.content)
         _group, variants = create_interpretation_variants(
             scene_id=scene_id,

@@ -20,4 +20,3 @@ def test_project_budget_rejects_spent_above_hard() -> None:
         ProjectBudget(soft=10.0, hard=12.0, spent_usd=15.0)
 
     assert "Spent total exceeds hard limit." in str(exc.value)
-

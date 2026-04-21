@@ -13,6 +13,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from .advisory import AdvisoryEvidence, AdvisorySeverity
 
+
 class CanonCourtContradictionType(str, Enum):
     """Conservative contradiction categories supported in v1."""
 

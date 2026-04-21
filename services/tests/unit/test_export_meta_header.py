@@ -129,7 +129,6 @@ def test_compile_manuscript_orders_units_and_includes_meta(monkeypatch: pytest.M
     assert scene_count == 3
 
 
-
 def test_compile_manuscript_collects_units(monkeypatch: pytest.MonkeyPatch) -> None:
     project_root = Path("/projects/demo")
     outline = OutlineArtifact(
@@ -164,6 +163,8 @@ def test_compile_manuscript_collects_units(monkeypatch: pytest.MonkeyPatch) -> N
     assert [entry[0] for entry in collected] == ["sc_0001", "sc_0002"]
     assert collected[0][1]["title"] == "Scene 1"
     assert collected[0][2] == "Body for sc_0001"
+
+
 def test_compile_manuscript_propagates_scene_errors(monkeypatch: pytest.MonkeyPatch) -> None:
     outline = OutlineArtifact(
         outline_id="out_002",

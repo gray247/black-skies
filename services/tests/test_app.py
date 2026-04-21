@@ -351,7 +351,9 @@ def test_analytics_summary_handles_internal_error(
     assert detail["code"] == "INTERNAL"
 
 
-def test_analytics_routes_are_hidden_when_disabled(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_analytics_routes_are_hidden_when_disabled(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     """Analytics endpoints respond 404 when the feature is not enabled."""
 
     monkeypatch.delenv("BLACKSKIES_ENABLE_ANALYTICS", raising=False)
@@ -423,9 +425,7 @@ def test_analytics_budget_tracks_spend_and_hints(
     assert budget_payload["soft_limit_usd"] == pytest.approx(5.0)
     assert budget_payload["hard_limit_usd"] == pytest.approx(10.0)
     assert budget_payload["spent_usd"] == pytest.approx(critique_budget["spent_usd"])
-    assert budget_payload["remaining_usd"] == pytest.approx(
-        10.0 - budget_payload["spent_usd"]
-    )
+    assert budget_payload["remaining_usd"] == pytest.approx(10.0 - budget_payload["spent_usd"])
     assert analytics_payload["hint"] == "ample"
 
 
@@ -556,9 +556,7 @@ def test_analytics_runtime_event_failure_logs_and_continues(
     analytics_response = _fetch_analytics_budget(test_client, project_id)
     assert analytics_response.status_code == status.HTTP_200_OK
 
-    analytics_failures = [
-        entry for entry in captured if entry["code"] == "ANALYTICS"
-    ]
+    analytics_failures = [entry for entry in captured if entry["code"] == "ANALYTICS"]
     assert len(analytics_failures) >= 2
     assert all(
         "Failed to record analytics runtime event." in entry["message"]
@@ -742,9 +740,7 @@ def test_draft_generate_rehydrates_cached_units(test_client: TestClient, tmp_pat
     project_config = tmp_path / project_id / "project.json"
     with project_config.open("r", encoding="utf-8") as handle:
         project_meta = json.load(handle)
-    assert project_meta["budget"]["spent_usd"] == pytest.approx(
-        first_data["budget"]["spent_usd"]
-    )
+    assert project_meta["budget"]["spent_usd"] == pytest.approx(first_data["budget"]["spent_usd"])
 
 
 def test_draft_generate_handles_request_error(
@@ -1093,13 +1089,11 @@ def test_draft_critique_budget_logging(
     error_logs = [
         entry
         for entry in captured_logs
-        if entry["code"] == "INTERNAL"
-        and "critique budget telemetry" in (entry["message"] or "")
+        if entry["code"] == "INTERNAL" and "critique budget telemetry" in (entry["message"] or "")
     ]
     assert error_logs, "Expected telemetry log when budget persistence fails."
     assert any(
-        entry.get("details", {}).get("error") == "disk failure secret-token"
-        for entry in error_logs
+        entry.get("details", {}).get("error") == "disk failure secret-token" for entry in error_logs
     )
 
 
@@ -1193,9 +1187,7 @@ def test_budget_guardrail_smoke(test_client: TestClient, tmp_path: Path) -> None
     assert analytics_response.status_code == status.HTTP_200_OK
     analytics_payload = analytics_response.json()
     assert analytics_payload["hint"] == "near_cap"
-    assert analytics_payload["budget"]["spent_usd"] == pytest.approx(
-        critique_budget["spent_usd"]
-    )
+    assert analytics_payload["budget"]["spent_usd"] == pytest.approx(critique_budget["spent_usd"])
 
 
 @pytest.mark.anyio("asyncio")
@@ -1252,10 +1244,7 @@ async def test_draft_critique_handles_concurrent_requests(
         payloads.append(payload)
 
     responses = await asyncio.gather(
-        *(
-            async_client.post(f"{API_PREFIX}/draft/critique", json=payload)
-            for payload in payloads
-        )
+        *(async_client.post(f"{API_PREFIX}/draft/critique", json=payload) for payload in payloads)
     )
 
     estimated_costs: list[float] = []
@@ -1270,11 +1259,7 @@ async def test_draft_critique_handles_concurrent_requests(
         estimated_costs.append(budget["estimated_usd"])
 
         summary_path = (
-            tmp_path
-            / project_id
-            / "history"
-            / "critiques"
-            / f"{payload['unit_id']}.json"
+            tmp_path / project_id / "history" / "critiques" / f"{payload['unit_id']}.json"
         )
         assert summary_path.exists()
         stored = json.loads(summary_path.read_text(encoding="utf-8"))
@@ -1323,6 +1308,8 @@ def test_draft_critique_repeated_updates_budget(test_client: TestClient, tmp_pat
     stored = json.loads(summary_path.read_text(encoding="utf-8"))
     assert stored["budget"]["spent_usd"] == pytest.approx(second_budget["spent_usd"])
     assert isinstance(stored.get("captured_at"), str)
+
+
 def test_draft_preflight_success(test_client: TestClient, tmp_path: Path) -> None:
     """Preflight returns an estimate within budget for valid scenes."""
 
@@ -1464,6 +1451,7 @@ def test_draft_to_critique_flow(test_client: TestClient, tmp_path: Path) -> None
     assert critique_data["budget"]["estimated_usd"] > 0
     assert critique_data["model"]["name"] == "qwen3:4b"
     assert critique_data["model"]["provider"] == "ollama"
+
 
 def test_draft_preflight_blocked(test_client: TestClient, tmp_path: Path) -> None:
     """Preflight reports blocked status when hard limit would be exceeded."""
@@ -2131,9 +2119,7 @@ def test_recovery_restore_overwrites_scene(test_client: TestClient, tmp_path: Pa
     assert state["last_snapshot"]["path"] == snapshot_rel_path
 
 
-def test_recovery_restore_normalises_legacy_flag(
-    test_client: TestClient, tmp_path: Path
-) -> None:
+def test_recovery_restore_normalises_legacy_flag(test_client: TestClient, tmp_path: Path) -> None:
     """Restoring snapshots clears stale recovery flags that predate status fields."""
 
     project_id = "proj_recovery_normalise"
@@ -2351,6 +2337,8 @@ def test_draft_export_manuscript_success(test_client: TestClient, tmp_path: Path
     assert "> purpose: setup" in manuscript_with_meta
     assert "emotion: tension" in manuscript_with_meta
     assert "pov: Mara" in manuscript_with_meta
+
+
 def test_draft_export_missing_front_matter_fields(test_client: TestClient, tmp_path: Path) -> None:
     """Export raises a validation error when required front-matter is missing."""
 

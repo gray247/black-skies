@@ -11,7 +11,13 @@ from typing import Any
 
 from blackskies.services.io import atomic_write_json
 
-from .schemas import AdvisoryArtifactEnvelope, CanonicalLineageKey, PROTOTYPE_VERSION, PacketType, SCHEMA_VERSION
+from .schemas import (
+    AdvisoryArtifactEnvelope,
+    CanonicalLineageKey,
+    PROTOTYPE_VERSION,
+    PacketType,
+    SCHEMA_VERSION,
+)
 
 
 class AdvisoryStorageError(ValueError):
@@ -194,7 +200,9 @@ class MemoryPrototypeStorage:
         target = self.history_root / "status.json"
         self._assert_allowed_write(target)
         previous = read_json_if_exists(target)
-        consecutive_failures = int(previous.get("consecutive_failures", 0)) if isinstance(previous, dict) else 0
+        consecutive_failures = (
+            int(previous.get("consecutive_failures", 0)) if isinstance(previous, dict) else 0
+        )
         if status == "degraded":
             consecutive_failures += 1
         else:

@@ -15,4 +15,3 @@ class NarrativeStateProvider(Protocol):
 
     def read_snapshot(self, lineage: CanonicalLineageKey) -> CanonicalNarrativeSnapshot:
         """Return canonical data for a single accepted lineage snapshot."""
-

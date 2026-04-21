@@ -34,11 +34,11 @@ def _seed_project(base_dir: Path, project_id: str) -> Path:
     drafts_dir = project_root / "drafts"
     drafts_dir.mkdir(exist_ok=True)
     drafts_dir.joinpath("sc_0001.md").write_text(
-        "---\nid: sc_0001\ntitle: First Scene\norder: 1\n---\n\"Hello world.\"\nNarration line.\n",
+        '---\nid: sc_0001\ntitle: First Scene\norder: 1\n---\n"Hello world."\nNarration line.\n',
         encoding="utf-8",
     )
     drafts_dir.joinpath("sc_0002.md").write_text(
-        "---\nid: sc_0002\ntitle: Second Scene\norder: 2\n---\nNarration again.\n\"Echo.\"",
+        '---\nid: sc_0002\ntitle: Second Scene\norder: 2\n---\nNarration again.\n"Echo."',
         encoding="utf-8",
     )
     return project_root
@@ -94,9 +94,7 @@ def test_scene_metrics_structure(settings: ServiceSettings) -> None:
     density = first_scene["density"]
     assert 0.0 <= density["dialogueRatio"] <= 1.0
     assert 0.0 <= density["narrationRatio"] <= 1.0
-    assert pytest.approx(
-        1.0, rel=1e-2
-    ) == density["dialogueRatio"] + density["narrationRatio"]
+    assert pytest.approx(1.0, rel=1e-2) == density["dialogueRatio"] + density["narrationRatio"]
 
 
 def test_empty_scene_body_yields_safe_metrics(settings: ServiceSettings) -> None:

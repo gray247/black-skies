@@ -6,7 +6,9 @@ import json
 from pathlib import Path
 
 from blackskies.services.memory_prototype.canonical_state_reader import CanonicalStateReader
-from blackskies.services.memory_prototype.continuity_signal_normalizer import ContinuitySignalNormalizer
+from blackskies.services.memory_prototype.continuity_signal_normalizer import (
+    ContinuitySignalNormalizer,
+)
 from blackskies.services.memory_prototype.scene_delta_extractor import SceneDeltaExtractor
 from blackskies.services.memory_prototype.schemas import CanonicalLineageKey
 from blackskies.services.memory_prototype.storage import MemoryPrototypeStorage
@@ -70,8 +72,9 @@ def test_continuity_signal_shape_and_advisory_storage(tmp_path: Path) -> None:
         payload=signals.as_dict(),
         source_hashes=snapshot.source_hashes,
     )
-    assert drift_path.resolve().is_relative_to((project_root / ".blackskies" / "memory" / "drift").resolve())
+    assert drift_path.resolve().is_relative_to(
+        (project_root / ".blackskies" / "memory" / "drift").resolve()
+    )
     payload = json.loads(drift_path.read_text(encoding="utf-8"))
     assert payload["advisory"] is True
     assert payload["payload"]["signal_count"] == len(signals.signals)
-

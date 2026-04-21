@@ -147,7 +147,9 @@ def validate_truth_receipt(
     provenance = payload.get("provenance", [])
     if not isinstance(provenance, list):
         errors.append("Receipt JSON provenance must be an array.")
-    elif (ui_chain_passed is True or service_extension_passed is True or require_success) and not provenance:
+    elif (
+        ui_chain_passed is True or service_extension_passed is True or require_success
+    ) and not provenance:
         errors.append("Receipt JSON provenance missing or empty when chain execution is expected.")
     else:
         for index, item in enumerate(provenance):
@@ -159,7 +161,9 @@ def validate_truth_receipt(
                     errors.append(f"Provenance[{index}] missing {field_name}.")
 
     routes = payload.get("routes_hit", [])
-    if isinstance(routes, list) and any(str(route).startswith("/api/v1/phase4/") for route in routes):
+    if isinstance(routes, list) and any(
+        str(route).startswith("/api/v1/phase4/") for route in routes
+    ):
         errors.append("Forbidden /api/v1/phase4/* route present in receipt routes_hit.")
 
     if isinstance(provenance, list):
@@ -177,7 +181,9 @@ def validate_truth_receipt(
         if ui_chain_passed is not True:
             errors.append("Receipt JSON ui_chain_passed must be true for delegated PASS 4 proof.")
         if service_extension_passed is not True:
-            errors.append("Receipt JSON service_extension_passed must be true for delegated PASS 4 proof.")
+            errors.append(
+                "Receipt JSON service_extension_passed must be true for delegated PASS 4 proof."
+            )
         failures = payload.get("failures", [])
         if not isinstance(failures, list):
             errors.append("Receipt JSON failures must be an array.")
@@ -232,7 +238,9 @@ def validate_ci_delegation(
     if proof.get("schema_version") != CI_PROOF_SCHEMA:
         errors.append(f"CI proof schema_version must be {CI_PROOF_SCHEMA!r}.")
     jobs = normalize_ci_jobs(proof)
-    job = jobs.get(pass_id) or jobs.get(pass_id.lower().replace(" ", "")) or jobs.get(pass_id.lower())
+    job = (
+        jobs.get(pass_id) or jobs.get(pass_id.lower().replace(" ", "")) or jobs.get(pass_id.lower())
+    )
     if not job:
         return False, [f"CI proof missing job entry for {pass_id}."], []
 
@@ -327,7 +335,9 @@ def get_head_sha() -> str:
     return completed.stdout.strip()
 
 
-def execute_local_commands(pass_id: str, commands: list[list[str]]) -> tuple[bool, list[str], list[str], str]:
+def execute_local_commands(
+    pass_id: str, commands: list[list[str]]
+) -> tuple[bool, list[str], list[str], str]:
     command_texts: list[str] = []
     logs: list[str] = []
     combined_output: list[str] = []
@@ -464,7 +474,9 @@ def main() -> int:
                 if receipt_errors:
                     pass_result.status = "fail"
                     pass_result.failures.extend(receipt_errors)
-                    pass_result.decision_reason = "Local truth receipt failed schema/contract checks."
+                    pass_result.decision_reason = (
+                        "Local truth receipt failed schema/contract checks."
+                    )
                 else:
                     pass_result.artifacts.extend(
                         [
@@ -473,7 +485,9 @@ def main() -> int:
                         ]
                     )
                     pass_result.proof_location = str(RECEIPT_JSON.relative_to(REPO_ROOT))
-                    pass_result.decision_reason = "Local PASS 4 succeeded with valid truth receipts."
+                    pass_result.decision_reason = (
+                        "Local PASS 4 succeeded with valid truth receipts."
+                    )
 
         if not local_ok:
             pass_result.failures.append(f"{pass_id} local execution failed.")
@@ -492,9 +506,7 @@ def main() -> int:
                     pass_result.failures.clear()
                     pass_result.artifacts.extend(delegated_artifacts)
                     pass_result.proof_location = str(ci_proof_path) if ci_proof_path else None
-                    pass_result.decision_reason = (
-                        f"Local {pass_id} failed; strict SHA-locked CI proof satisfied delegation rules."
-                    )
+                    pass_result.decision_reason = f"Local {pass_id} failed; strict SHA-locked CI proof satisfied delegation rules."
                     if ci_proof_path:
                         pass_result.notes.append(f"Delegated via {ci_proof_path}")
                 else:

@@ -12,7 +12,9 @@ def _status(result: str) -> str:
     return "success" if result == "success" else "failure"
 
 
-def _job(pass_id: str, result: str, commit_sha: str, artifacts: list[dict[str, str]]) -> dict[str, object]:
+def _job(
+    pass_id: str, result: str, commit_sha: str, artifacts: list[dict[str, str]]
+) -> dict[str, object]:
     status = _status(result)
     return {
         "conclusion": status,
@@ -52,7 +54,10 @@ def main() -> int:
                 args.commit_sha,
                 [
                     {"role": "summary", "path": "pass4/build/ci_proof/pass4/summary.json"},
-                    {"role": "truth_receipt_json", "path": "pass4/build/truth_receipts/latest.json"},
+                    {
+                        "role": "truth_receipt_json",
+                        "path": "pass4/build/truth_receipts/latest.json",
+                    },
                     {"role": "truth_receipt_txt", "path": "pass4/build/truth_receipts/latest.txt"},
                 ],
             ),

@@ -297,7 +297,9 @@ def _artifact_from_payload(payload: Any) -> MemoryArtifact | None:
             source_ref=_optional_str(payload.get("source_ref")),
             artifact_scene_order=_optional_int(payload.get("artifact_scene_order")),
             last_revived_scene_order=_optional_int(payload.get("last_revived_scene_order")),
-            revival_grace_until_scene_order=_optional_int(payload.get("revival_grace_until_scene_order")),
+            revival_grace_until_scene_order=_optional_int(
+                payload.get("revival_grace_until_scene_order")
+            ),
             status=str(payload.get("status", "active")),
         )
     except (KeyError, TypeError, ValueError):
@@ -309,7 +311,9 @@ def _interpretation_group_from_payload(payload: Any) -> InterpretationGroup | No
         return None
     try:
         artifact_ids = payload["artifact_ids"]
-        if not isinstance(artifact_ids, list) or not all(isinstance(item, str) for item in artifact_ids):
+        if not isinstance(artifact_ids, list) or not all(
+            isinstance(item, str) for item in artifact_ids
+        ):
             return None
         return InterpretationGroup(
             group_id=str(payload["group_id"]),

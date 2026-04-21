@@ -74,7 +74,13 @@ def test_contested_event_append_one_per_slot_per_decision(tmp_path: Path) -> Non
         source_kind="scene",
         source_ref="sc_0001",
     )
-    b = replace(a, artifact_id="sum_b", scene_id="sc_0002", interpretation_label="controlling", recency_order=1)
+    b = replace(
+        a,
+        artifact_id="sum_b",
+        scene_id="sc_0002",
+        interpretation_label="controlling",
+        recency_order=1,
+    )
     write_ledger_entry(project_root, _entry("sc_0001", a))
     write_ledger_entry(project_root, _entry("sc_0002", b))
 
@@ -92,7 +98,9 @@ def test_contested_event_append_one_per_slot_per_decision(tmp_path: Path) -> Non
     assert len(events) == len(packet.selection_slot_diagnostics)
 
 
-def test_corrupt_contested_event_file_is_not_overwritten_and_request_continues(tmp_path: Path) -> None:
+def test_corrupt_contested_event_file_is_not_overwritten_and_request_continues(
+    tmp_path: Path,
+) -> None:
     project_root = tmp_path / "project"
     corrupt = contested_events_path(project_root, "sc_0003")
     corrupt.parent.mkdir(parents=True, exist_ok=True)

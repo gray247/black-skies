@@ -20,10 +20,8 @@ class GateWaiverRecord:
     expires_at: str | None = None
 
 
-
 def waiver_records_path(project_root: Path) -> Path:
     return project_root / ".blackskies" / "memory_lab" / "governance" / "waivers.json"
-
 
 
 def validate_gate_waiver_record(record: GateWaiverRecord) -> None:
@@ -37,7 +35,6 @@ def validate_gate_waiver_record(record: GateWaiverRecord) -> None:
         raise ValueError("rationale is required")
     if not record.mitigation_plan.strip():
         raise ValueError("mitigation_plan is required")
-
 
 
 def load_gate_waiver_records(project_root: Path) -> list[GateWaiverRecord]:
@@ -60,7 +57,6 @@ def load_gate_waiver_records(project_root: Path) -> list[GateWaiverRecord]:
     return records
 
 
-
 def append_gate_waiver_record(project_root: Path, record: GateWaiverRecord) -> None:
     validate_gate_waiver_record(record)
     records = [asdict(item) for item in load_gate_waiver_records(project_root)]
@@ -68,10 +64,8 @@ def append_gate_waiver_record(project_root: Path, record: GateWaiverRecord) -> N
     atomic_write_json(waiver_records_path(project_root), records)
 
 
-
 def has_gate_waiver(project_root: Path, gate_id: str) -> bool:
     return any(item.gate_id == gate_id for item in load_gate_waiver_records(project_root))
-
 
 
 def _waiver_record_from_payload(payload: Any) -> GateWaiverRecord | None:
@@ -84,7 +78,9 @@ def _waiver_record_from_payload(payload: Any) -> GateWaiverRecord | None:
             revisit_condition=str(payload["revisit_condition"]),
             rationale=str(payload["rationale"]),
             mitigation_plan=str(payload["mitigation_plan"]),
-            expires_at=(str(payload["expires_at"]) if payload.get("expires_at") is not None else None),
+            expires_at=(
+                str(payload["expires_at"]) if payload.get("expires_at") is not None else None
+            ),
         )
         validate_gate_waiver_record(record)
         return record

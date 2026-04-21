@@ -175,7 +175,9 @@ def assemble_continuation_packet(
         if isinstance(summary, str) and summary.strip():
             prior_summary = summary.strip()
     if prior_summary is None and previous_text:
-        sentences = [seg.strip() for seg in previous_text.replace("\n", " ").split(".") if seg.strip()]
+        sentences = [
+            seg.strip() for seg in previous_text.replace("\n", " ").split(".") if seg.strip()
+        ]
         prior_summary = sentences[0] if sentences else None
 
     return ContinuationPacket(
@@ -238,7 +240,9 @@ def _summary_style_detected(text: str) -> bool:
 
 
 def _repetition_heavy_detected(text: str) -> bool:
-    sentences = [segment.strip().lower() for segment in text.replace("\n", " ").split(".") if segment.strip()]
+    sentences = [
+        segment.strip().lower() for segment in text.replace("\n", " ").split(".") if segment.strip()
+    ]
     if len(sentences) < 4:
         return False
     unique = len(set(sentences))
@@ -341,6 +345,7 @@ def is_usable_long_form_output(text: str | None, *, prior_excerpt: str | None = 
 def _chunk_dir(project_root: Path) -> Path:
     return project_root / ".blackskies" / "long_form" / "chunks"
 
+
 def _chunk_text_dir(project_root: Path) -> Path:
     return project_root / ".blackskies" / "long_form" / "texts"
 
@@ -364,6 +369,7 @@ def persist_long_form_chunk(project_root: Path, chunk: LongFormChunk) -> Path:
     }
     target.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
     return target
+
 
 def persist_long_form_text(project_root: Path, chunk_id: str, text: str) -> Path:
     path = _chunk_text_dir(project_root)

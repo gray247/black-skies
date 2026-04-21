@@ -157,7 +157,9 @@ def test_memory_decay_thresholds_validation_fails_fast(tmp_path):
     project_dir.mkdir(parents=True)
 
     ServiceSettings = _load_service_settings()
-    with pytest.raises(ValueError, match="archived_threshold < suppressed_threshold < fading_threshold"):
+    with pytest.raises(
+        ValueError, match="archived_threshold < suppressed_threshold < fading_threshold"
+    ):
         ServiceSettings(
             project_base_dir=project_dir,
             memory_lab_decay_fading_threshold=0.20,

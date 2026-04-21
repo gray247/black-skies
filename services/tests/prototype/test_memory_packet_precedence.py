@@ -7,7 +7,9 @@ import json
 from pathlib import Path
 
 from blackskies.services.memory_prototype.canonical_state_reader import CanonicalStateReader
-from blackskies.services.memory_prototype.continuity_signal_normalizer import ContinuitySignalNormalizer
+from blackskies.services.memory_prototype.continuity_signal_normalizer import (
+    ContinuitySignalNormalizer,
+)
 from blackskies.services.memory_prototype.scene_delta_extractor import SceneDeltaExtractor
 from blackskies.services.memory_prototype.schemas import CanonicalLineageKey
 from blackskies.services.memory_prototype.task_packet_assembler import TaskPacketAssembler
@@ -92,4 +94,3 @@ def test_packet_precedence_and_advisory_non_override(tmp_path: Path) -> None:
     advisory_signal_types = [entry["type"] for entry in packet.advisory["continuity_signals"]]
     assert advisory_signal_types
     assert packet.canonical["location"] != "roof"
-

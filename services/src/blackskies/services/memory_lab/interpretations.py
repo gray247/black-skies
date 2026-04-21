@@ -66,9 +66,11 @@ def create_interpretation_variants(
                 parent_artifact_id=base_artifact.artifact_id,
                 source_kind=base_artifact.source_kind or "scene",
                 source_ref=base_artifact.source_ref or scene_id,
-                artifact_scene_order=base_artifact.artifact_scene_order
-                if base_artifact.artifact_scene_order is not None
-                else base_artifact.recency_order,
+                artifact_scene_order=(
+                    base_artifact.artifact_scene_order
+                    if base_artifact.artifact_scene_order is not None
+                    else base_artifact.recency_order
+                ),
             )
         )
 

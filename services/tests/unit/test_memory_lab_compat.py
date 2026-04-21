@@ -56,5 +56,7 @@ def test_compat_append_reinforcement_event_applies_retention_limit(tmp_path: Pat
             retention_limit=2,
         )
 
-    payload = json.loads(reinforcement_events_path(project_root, "art_keep_two").read_text(encoding="utf-8"))
+    payload = json.loads(
+        reinforcement_events_path(project_root, "art_keep_two").read_text(encoding="utf-8")
+    )
     assert [item["event_id"] for item in payload] == ["re_1", "re_2"]

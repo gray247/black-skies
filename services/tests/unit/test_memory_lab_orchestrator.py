@@ -56,7 +56,9 @@ def _entry(scene_id: str, artifact: MemoryArtifact) -> MemoryLedgerEntry:
     )
 
 
-def test_orchestrator_acquires_project_lock_around_mutation_flow(tmp_path: Path, monkeypatch) -> None:
+def test_orchestrator_acquires_project_lock_around_mutation_flow(
+    tmp_path: Path, monkeypatch
+) -> None:
     project_root = tmp_path / "project"
     artifact = MemoryArtifact(
         artifact_id="art_lock",
@@ -496,7 +498,9 @@ def test_reinforcement_is_idempotent_per_scene(tmp_path: Path) -> None:
     assert len(events) == 1
 
 
-def test_orchestrator_write_failures_are_fail_soft_and_observable(tmp_path: Path, monkeypatch) -> None:
+def test_orchestrator_write_failures_are_fail_soft_and_observable(
+    tmp_path: Path, monkeypatch
+) -> None:
     project_root = tmp_path / "project"
     artifact = MemoryArtifact(
         artifact_id="art_fail_soft",
@@ -535,7 +539,10 @@ def test_orchestrator_write_failures_are_fail_soft_and_observable(tmp_path: Path
     assert packet.selected_summary == "fail soft writes"
     assert diagnostics.notes
     assert any("write_entry_failed" in note for note in diagnostics.notes)
-    assert any("append_decay_event_failed" in note or "append_reinforcement_event_failed" in note for note in diagnostics.notes)
+    assert any(
+        "append_decay_event_failed" in note or "append_reinforcement_event_failed" in note
+        for note in diagnostics.notes
+    )
 
 
 def test_decay_prepass_skips_current_scene_artifacts(tmp_path: Path) -> None:
@@ -589,13 +596,17 @@ def test_decay_prepass_skips_current_scene_artifacts(tmp_path: Path) -> None:
     assert updated_prior is not None
     assert updated_current.artifacts[0].last_decay_scene_order is None
     assert updated_prior.artifacts[0].last_decay_scene_order == 9
-    current_diag = next(item for item in diagnostics.decay_diagnostics if item.artifact_id == "art_current")
+    current_diag = next(
+        item for item in diagnostics.decay_diagnostics if item.artifact_id == "art_current"
+    )
     assert current_diag.decay_skip_reason == "current_scene_excluded"
 
 
 def test_orchestrator_surfaces_event_file_corruption_note(tmp_path: Path) -> None:
     project_root = tmp_path / "project"
-    corrupt_target = project_root / ".blackskies" / "memory_lab" / "decay_events" / "art_corrupt.json"
+    corrupt_target = (
+        project_root / ".blackskies" / "memory_lab" / "decay_events" / "art_corrupt.json"
+    )
     corrupt_target.parent.mkdir(parents=True, exist_ok=True)
     corrupt_target.write_text("{bad json", encoding="utf-8")
 

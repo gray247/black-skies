@@ -65,7 +65,12 @@ def resolve_memory_packet(
         return packet, []
 
     max_recency_order = max((artifact.recency_order for artifact in artifacts), default=0)
-    scored = [_score_artifact(a, current_chapter_id=current_chapter_id, max_recency_order=max_recency_order) for a in artifacts]
+    scored = [
+        _score_artifact(
+            a, current_chapter_id=current_chapter_id, max_recency_order=max_recency_order
+        )
+        for a in artifacts
+    ]
     if max_candidates > 0:
         scored = _ranked_scored(scored)[: max(1, int(max_candidates))]
     if not scored:
@@ -94,7 +99,10 @@ def resolve_memory_packet(
     invalid_group_artifacts: set[str] = set()
 
     for artifact, _reason in scored:
-        if artifact.interpretation_group_id and _build_contested_key(artifact, current_chapter_id=current_chapter_id) is None:
+        if (
+            artifact.interpretation_group_id
+            and _build_contested_key(artifact, current_chapter_id=current_chapter_id) is None
+        ):
             if artifact.artifact_id not in invalid_group_artifacts:
                 invalid_group_artifacts.add(artifact.artifact_id)
                 notes.append(f"invalid_contested_group_metadata artifact_id={artifact.artifact_id}")
@@ -115,7 +123,11 @@ def resolve_memory_packet(
             artifact,
             current_chapter_id=current_chapter_id,
         )
-        if artifact.interpretation_group_id and contested_key is None and artifact.artifact_id not in invalid_group_artifacts:
+        if (
+            artifact.interpretation_group_id
+            and contested_key is None
+            and artifact.artifact_id not in invalid_group_artifacts
+        ):
             invalid_group_artifacts.add(artifact.artifact_id)
             notes.append(f"invalid_contested_group_metadata artifact_id={artifact.artifact_id}")
         if contested_key is None:
@@ -149,7 +161,9 @@ def resolve_memory_packet(
         fallback_lane_open = False
         if suppressed_fallback_enabled and suppressed_ranked:
             top_normal = normal_ranked[0] if normal_ranked else None
-            if top_normal is None or top_normal[1].total_score < float(low_confidence_fallback_threshold):
+            if top_normal is None or top_normal[1].total_score < float(
+                low_confidence_fallback_threshold
+            ):
                 candidate_pool.append(suppressed_ranked[0])
                 fallback_lane_open = True
 
@@ -159,9 +173,15 @@ def resolve_memory_packet(
                 candidate[0],
                 current_chapter_id=current_chapter_id,
             )
-            if candidate[0].interpretation_group_id and contested_key is None and candidate[0].artifact_id not in invalid_group_artifacts:
+            if (
+                candidate[0].interpretation_group_id
+                and contested_key is None
+                and candidate[0].artifact_id not in invalid_group_artifacts
+            ):
                 invalid_group_artifacts.add(candidate[0].artifact_id)
-                notes.append(f"invalid_contested_group_metadata artifact_id={candidate[0].artifact_id}")
+                notes.append(
+                    f"invalid_contested_group_metadata artifact_id={candidate[0].artifact_id}"
+                )
             if contested_key is not None and contested_key in chosen_group_ids:
                 if candidate[0].artifact_id not in suppressed_artifact_ids:
                     suppressed_artifact_ids.append(candidate[0].artifact_id)
@@ -169,7 +189,11 @@ def resolve_memory_packet(
             select_one(candidate, slot=slot)
             winner_artifact, winner_reason = candidate
             top_loser = next(
-                (item for item in ranked_pool if item[0].artifact_id != winner_artifact.artifact_id),
+                (
+                    item
+                    for item in ranked_pool
+                    if item[0].artifact_id != winner_artifact.artifact_id
+                ),
                 None,
             )
             slot_diagnostics.append(
@@ -178,9 +202,13 @@ def resolve_memory_packet(
                     "winner": winner_artifact.artifact_id,
                     "top_loser": top_loser[0].artifact_id if top_loser else None,
                     "score_delta": (
-                        float(winner_reason.total_score - top_loser[1].total_score) if top_loser else None
+                        float(winner_reason.total_score - top_loser[1].total_score)
+                        if top_loser
+                        else None
                     ),
-                    "used_fallback": bool(fallback_lane_open and winner_artifact.status == "suppressed"),
+                    "used_fallback": bool(
+                        fallback_lane_open and winner_artifact.status == "suppressed"
+                    ),
                     "tie_break_tuple": _ranking_tuple(candidate),
                     "tie_break_rationale": _tie_break_rationale(candidate, top_loser),
                 }
@@ -203,13 +231,19 @@ def resolve_memory_packet(
     if "summary" in selected:
         notes.append(f"Selected summary from {selected['summary'].scene_id}.")
 
-    unresolved_normal_ranked = _ranked_by_type(scored, "unresolved_tension", statuses={"active", "fading"})
-    unresolved_suppressed_ranked = _ranked_by_type(scored, "unresolved_tension", statuses={"suppressed"})
+    unresolved_normal_ranked = _ranked_by_type(
+        scored, "unresolved_tension", statuses={"active", "fading"}
+    )
+    unresolved_suppressed_ranked = _ranked_by_type(
+        scored, "unresolved_tension", statuses={"suppressed"}
+    )
     unresolved_selected: list[tuple[MemoryArtifact, MemorySelectionReason]] = []
     unresolved_pool = list(unresolved_normal_ranked)
     if suppressed_fallback_enabled and unresolved_suppressed_ranked:
         top_normal = unresolved_normal_ranked[0] if unresolved_normal_ranked else None
-        if top_normal is None or top_normal[1].total_score < float(low_confidence_fallback_threshold):
+        if top_normal is None or top_normal[1].total_score < float(
+            low_confidence_fallback_threshold
+        ):
             unresolved_pool.append(unresolved_suppressed_ranked[0])
     unresolved_ranked_pool = _ranked_scored(unresolved_pool)
 
@@ -217,7 +251,11 @@ def resolve_memory_packet(
         if len(unresolved_selected) >= max(0, max_unresolved):
             break
         contested_key = _build_contested_key(artifact, current_chapter_id=current_chapter_id)
-        if artifact.interpretation_group_id and contested_key is None and artifact.artifact_id not in invalid_group_artifacts:
+        if (
+            artifact.interpretation_group_id
+            and contested_key is None
+            and artifact.artifact_id not in invalid_group_artifacts
+        ):
             invalid_group_artifacts.add(artifact.artifact_id)
             notes.append(f"invalid_contested_group_metadata artifact_id={artifact.artifact_id}")
         if contested_key is not None and contested_key in chosen_group_ids:
@@ -241,7 +279,8 @@ def resolve_memory_packet(
             (
                 item
                 for item in unresolved_ranked_pool
-                if item[0].artifact_id != winner[0].artifact_id and item[0].artifact_id not in selected_unresolved_ids
+                if item[0].artifact_id != winner[0].artifact_id
+                and item[0].artifact_id not in selected_unresolved_ids
             ),
             None,
         )
@@ -256,8 +295,7 @@ def resolve_memory_packet(
                     else None
                 ),
                 "used_fallback": bool(
-                    suppressed_fallback_enabled
-                    and winner[0].status == "suppressed"
+                    suppressed_fallback_enabled and winner[0].status == "suppressed"
                 ),
                 "tie_break_tuple": _ranking_tuple(winner),
                 "tie_break_rationale": _tie_break_rationale(winner, top_loser_for_winner),
@@ -266,7 +304,11 @@ def resolve_memory_packet(
     if unresolved_ranked_pool:
         winner = unresolved_selected[0] if unresolved_selected else None
         top_loser = next(
-            (item for item in unresolved_ranked_pool if winner is None or item[0].artifact_id != winner[0].artifact_id),
+            (
+                item
+                for item in unresolved_ranked_pool
+                if winner is None or item[0].artifact_id != winner[0].artifact_id
+            ),
             None,
         )
         slot_diagnostics.append(
@@ -300,8 +342,12 @@ def resolve_memory_packet(
     packet = ResolvedMemoryPacket(
         selected_summary=selected["summary"].content if "summary" in selected else None,
         selected_unresolved_tensions=[artifact.content for artifact, _ in unresolved_selected],
-        selected_emotional_carryover=selected["emotional_state"].content if "emotional_state" in selected else None,
-        selected_location_state=selected["location_state"].content if "location_state" in selected else None,
+        selected_emotional_carryover=(
+            selected["emotional_state"].content if "emotional_state" in selected else None
+        ),
+        selected_location_state=(
+            selected["location_state"].content if "location_state" in selected else None
+        ),
         alternate_interpretation=alternate_interpretation,
         selected_artifact_ids=selected_ids,
         resolver_notes=notes,

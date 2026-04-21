@@ -56,13 +56,17 @@ def test_runtime_truth_semantic_defaults() -> None:
     assert memory["memory_prototype_runtime"] is False
 
     long_form_execute = next(
-        route for route in routes if route["path"] == "/api/v1/long-form/execute" and route["method"] == "POST"
+        route
+        for route in routes
+        if route["path"] == "/api/v1/long-form/execute" and route["method"] == "POST"
     )
     assert long_form_execute["baseline_enabled"] is False
     assert "BLACKSKIES_LONG_FORM_PROVIDER_ENABLED" in long_form_execute["guarded_by"]
 
     backup_report = next(
-        route for route in routes if route["path"] == "/api/v1/backup_verifier/report" and route["method"] == "GET"
+        route
+        for route in routes
+        if route["path"] == "/api/v1/backup_verifier/report" and route["method"] == "GET"
     )
     assert backup_report["baseline_enabled"] is False
     assert "BLACKSKIES_BACKUP_VERIFIER_ENABLED" in backup_report["guarded_by"]
@@ -75,7 +79,9 @@ def test_runtime_truth_semantic_defaults() -> None:
 
     analytics_routes = [route for route in routes if route["path"].startswith("/api/v1/analytics/")]
     assert analytics_routes
-    assert all(route["baseline_enabled"] is analytics["enabled_by_default"] for route in analytics_routes)
+    assert all(
+        route["baseline_enabled"] is analytics["enabled_by_default"] for route in analytics_routes
+    )
 
     assert any(doc["path"] == "docs/specs/current_state.md" for doc in canonical_docs)
     assert all("Curated policy pointer" in doc["notes"] for doc in canonical_docs)
@@ -86,7 +92,9 @@ def test_runtime_truth_semantic_defaults() -> None:
     assert voice_notes_doc["seam_type"] == "explicit_disabled_integration_seam"
     assert "services/src/blackskies/services/backup_verifier.py" in voice_notes_doc["seam_owners"]
 
-    no_seam_docs = [doc for doc in deferred_docs if doc["name"] in {"smart_merge", "accessibility_toggles"}]
+    no_seam_docs = [
+        doc for doc in deferred_docs if doc["name"] in {"smart_merge", "accessibility_toggles"}
+    ]
     assert all(doc["live_runtime_dependency"] is False for doc in no_seam_docs)
     assert all(doc["seam_state"] == "none" for doc in no_seam_docs)
     assert all(doc["seam_type"] == "none" for doc in no_seam_docs)

@@ -10,7 +10,9 @@ from blackskies.services.config import ServiceSettings
 API_PREFIX = "/api/v1"
 
 
-def _write_scene(project_root: Path, *, unit_id: str = "sc_0001", body: str = "Original body line.") -> None:
+def _write_scene(
+    project_root: Path, *, unit_id: str = "sc_0001", body: str = "Original body line."
+) -> None:
     drafts_dir = project_root / "drafts"
     drafts_dir.mkdir(parents=True, exist_ok=True)
     scene_path = drafts_dir / f"{unit_id}.md"
@@ -29,7 +31,9 @@ def _write_scene(project_root: Path, *, unit_id: str = "sc_0001", body: str = "O
     )
 
 
-def _rewrite_payload(project_id: str, *, scene_text: str, unit_id: str = "sc_0001") -> dict[str, object]:
+def _rewrite_payload(
+    project_id: str, *, scene_text: str, unit_id: str = "sc_0001"
+) -> dict[str, object]:
     return {
         "project_id": project_id,
         "draft_id": "dr_0001",

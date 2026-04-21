@@ -161,7 +161,6 @@ class MarkdownSearchTool:
         return snippet
 
 
-
 __all__ = [
     "DEFAULT_MAX_QUERY_LENGTH",
     "DEFAULT_MAX_RESULTS",
@@ -169,4 +168,3 @@ __all__ = [
     "DEFAULT_FALLBACK_EXCERPT",
     "MarkdownSearchTool",
 ]
-

@@ -332,7 +332,9 @@ def test_long_form_execution_extracts_top_level_response(tmp_path: Path) -> None
             provider_calls_enabled=True,
         )
     )
-    router.register_provider(_FakeProvider(_RawTopLevelAdapter("Mara moved through the hall. " * 14)))
+    router.register_provider(
+        _FakeProvider(_RawTopLevelAdapter("Mara moved through the hall. " * 14))
+    )
     service = LongFormExecutionService(
         settings=settings,
         diagnostics=diagnostics,
@@ -363,7 +365,9 @@ def test_long_form_execution_extracts_message_content(tmp_path: Path) -> None:
             provider_calls_enabled=True,
         )
     )
-    router.register_provider(_FakeProvider(_RawMessageAdapter("Mara moved through the hall. " * 14)))
+    router.register_provider(
+        _FakeProvider(_RawMessageAdapter("Mara moved through the hall. " * 14))
+    )
     service = LongFormExecutionService(
         settings=settings,
         diagnostics=diagnostics,
@@ -427,7 +431,9 @@ def test_long_form_execution_extracts_choice_message_content(tmp_path: Path) -> 
             provider_calls_enabled=True,
         )
     )
-    router.register_provider(_FakeProvider(_RawChoicesAdapter("Mara moved through the hall. " * 14)))
+    router.register_provider(
+        _FakeProvider(_RawChoicesAdapter("Mara moved through the hall. " * 14))
+    )
     service = LongFormExecutionService(
         settings=settings,
         diagnostics=diagnostics,

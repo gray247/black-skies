@@ -1,4 +1,5 @@
 """Verify roadmap statuses stay in sync with phase_log entries."""
+
 from __future__ import annotations
 
 import re

@@ -35,7 +35,6 @@ _REQUIRED_SLOT_FIELDS = (
 )
 
 
-
 def evaluate_diagnostics_slo(
     diagnostics_rows: list[MemoryLabRuntimeDiagnostics],
     *,
@@ -58,7 +57,11 @@ def evaluate_diagnostics_slo(
             if _slot_has_explainability(slot):
                 explainability_ok += 1
 
-        if not row.used_legacy_continuity_only and row.memory_lab_enabled and not row.advisory_available:
+        if (
+            not row.used_legacy_continuity_only
+            and row.memory_lab_enabled
+            and not row.advisory_available
+        ):
             unavailable_total += 1
             if row.advisory_unavailable_reason_code:
                 unavailable_with_reason += 1
@@ -96,7 +99,6 @@ def evaluate_diagnostics_slo(
     )
 
 
-
 def _slot_has_explainability(slot: dict[str, object]) -> bool:
     if not all(field in slot for field in _REQUIRED_SLOT_FIELDS):
         return False
@@ -111,9 +113,12 @@ def _slot_has_explainability(slot: dict[str, object]) -> bool:
     loser = slot.get("top_loser")
     delta = slot.get("score_delta")
     if loser is None or delta is None:
-        return "no loser" in rationale.lower() or "single candidate" in rationale.lower() or "no winner selected" in rationale.lower()
+        return (
+            "no loser" in rationale.lower()
+            or "single candidate" in rationale.lower()
+            or "no winner selected" in rationale.lower()
+        )
     return True
-
 
 
 def _ratio(numerator: int, denominator: int) -> float:

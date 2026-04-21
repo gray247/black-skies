@@ -53,7 +53,9 @@ def _ledger_path(run_id: str, project_root: Path | None) -> Path:
     return _run_dir(run_id, project_root) / "run.json"
 
 
-def start_run(kind: str, params: Dict[str, Any], *, project_root: Path | None = None) -> Dict[str, Any]:
+def start_run(
+    kind: str, params: Dict[str, Any], *, project_root: Path | None = None
+) -> Dict[str, Any]:
     """Create a new run ledger entry and return the metadata."""
 
     run_id = f"{kind}-{uuid4().hex[:8]}"

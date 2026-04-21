@@ -48,7 +48,9 @@ def _prepare_project(project_base_dir: Path, project_id: str) -> Path:
         "name": "Phase 5 Export Sample",
         "description": "Used by export endpoint tests.",
     }
-    (project_root / "project.json").write_text(json.dumps(project_manifest, indent=2), encoding="utf-8")
+    (project_root / "project.json").write_text(
+        json.dumps(project_manifest, indent=2), encoding="utf-8"
+    )
     return project_root
 
 
@@ -57,7 +59,9 @@ def _project_base_dir(client: TestClient) -> Path:
 
 
 def _run_export(client: TestClient, project_id: str, export_format: str) -> dict[str, object]:
-    response = client.post("/api/v1/export", json={"project_id": project_id, "format": export_format})
+    response = client.post(
+        "/api/v1/export", json={"project_id": project_id, "format": export_format}
+    )
     assert response.status_code == 200
     payload = response.json()
     assert payload["project_id"] == project_id
@@ -128,7 +132,9 @@ def test_export_endpoint_fails_when_scene_draft_missing(test_client: TestClient)
 
 
 def test_export_endpoint_returns_validation_for_missing_project(test_client: TestClient) -> None:
-    response = test_client.post("/api/v1/export", json={"project_id": "missing-export", "format": "md"})
+    response = test_client.post(
+        "/api/v1/export", json={"project_id": "missing-export", "format": "md"}
+    )
     assert response.status_code == 400
     payload = response.json()
     assert payload["code"] == "VALIDATION"

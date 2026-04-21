@@ -123,7 +123,9 @@ def _detect_canon_collision(inputs: FractureInputs) -> FractureDiagnostic | None
             ),
         )
 
-    if inputs.locked_facts and detect_locked_fact_contradiction(inputs.text, list(inputs.locked_facts)):
+    if inputs.locked_facts and detect_locked_fact_contradiction(
+        inputs.text, list(inputs.locked_facts)
+    ):
         return FractureDiagnostic(
             fracture_type=FractureType.CANON_COLLISION_RISK,
             severity=FractureSeverity.HIGH,
@@ -153,7 +155,11 @@ def _detect_style_drift(inputs: FractureInputs) -> FractureDiagnostic | None:
             ),
         )
 
-    if quality.get("word_count", 0) >= 40 and not quality.get("dialogue") and not quality.get("sensory"):
+    if (
+        quality.get("word_count", 0) >= 40
+        and not quality.get("dialogue")
+        and not quality.get("sensory")
+    ):
         return FractureDiagnostic(
             fracture_type=FractureType.STYLE_DRIFT_RISK,
             severity=FractureSeverity.MEDIUM,
@@ -170,7 +176,9 @@ def _detect_style_drift(inputs: FractureInputs) -> FractureDiagnostic | None:
 
 def _detect_unresolved_thread_pressure(inputs: FractureInputs) -> FractureDiagnostic | None:
     unresolved_count = len([item for item in inputs.unresolved_tensions if str(item).strip()])
-    has_resolution_signals = bool((inputs.conflict or "").strip()) and bool((inputs.turn or "").strip())
+    has_resolution_signals = bool((inputs.conflict or "").strip()) and bool(
+        (inputs.turn or "").strip()
+    )
     if unresolved_count >= 5 and not has_resolution_signals:
         return FractureDiagnostic(
             fracture_type=FractureType.UNRESOLVED_THREAD_PRESSURE,

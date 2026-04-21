@@ -5,7 +5,9 @@ from pathlib import Path
 from blackskies.services.config import ServiceSettings
 
 
-def test_experimental_namespace_does_not_override_stable_runtime_profile_values(tmp_path: Path) -> None:
+def test_experimental_namespace_does_not_override_stable_runtime_profile_values(
+    tmp_path: Path,
+) -> None:
     settings = ServiceSettings(
         project_base_dir=tmp_path,
         memory_lab_runtime_profile="stable_conservative_fallback",

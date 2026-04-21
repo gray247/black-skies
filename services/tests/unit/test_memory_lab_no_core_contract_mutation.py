@@ -4,7 +4,11 @@ from dataclasses import replace
 from pathlib import Path
 
 from blackskies.services.memory_lab.constants import MEMORY_LAB_SCHEMA_VERSION
-from blackskies.services.memory_lab.experimental import ExperimentDescriptor, clear_experiment_registry, register_experiment
+from blackskies.services.memory_lab.experimental import (
+    ExperimentDescriptor,
+    clear_experiment_registry,
+    register_experiment,
+)
 from blackskies.services.memory_lab.options import MemoryLabRuntimeOptions
 from blackskies.services.memory_lab.orchestrator import orchestrate_memory_resolution
 from blackskies.services.memory_lab.schemas import MemoryArtifact, MemoryLedgerEntry
@@ -65,7 +69,9 @@ def _options() -> MemoryLabRuntimeOptions:
     )
 
 
-def test_experimental_descriptor_requiring_core_contract_mutation_is_blocked(tmp_path: Path) -> None:
+def test_experimental_descriptor_requiring_core_contract_mutation_is_blocked(
+    tmp_path: Path,
+) -> None:
     project_root = tmp_path / "project"
     write_ledger_entry(project_root, _entry("sc_0001"))
 

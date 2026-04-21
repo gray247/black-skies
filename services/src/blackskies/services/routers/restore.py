@@ -41,7 +41,8 @@ async def restore_project(
 ) -> dict[str, Any]:
     try:
         project_root = resolve_project_root(
-            payload.projectId, str(settings.project_base_dir),
+            payload.projectId,
+            str(settings.project_base_dir),
         )
     except ValueError as exc:
         logger.error("Could not resolve project root: %s", exc)

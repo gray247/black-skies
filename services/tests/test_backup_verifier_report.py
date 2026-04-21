@@ -6,7 +6,9 @@ def _prepare_project(test_client, project_id: str) -> Path:
     base_dir = Path(test_client.app.state.settings.project_base_dir)
     project_root = base_dir / project_id
     project_root.mkdir(parents=True, exist_ok=True)
-    (project_root / "project.json").write_text('{"project_id": "%s"}' % project_id, encoding="utf-8")
+    (project_root / "project.json").write_text(
+        '{"project_id": "%s"}' % project_id, encoding="utf-8"
+    )
     (project_root / "outline.json").write_text(
         '{"schema_version": "OutlineSchema v1"}',
         encoding="utf-8",

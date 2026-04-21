@@ -132,8 +132,12 @@ def test_generate_analytics_payload_composes_metrics(
     outline_payload: dict, draft_units: list[dict]
 ) -> None:
     events = [
-        RevisionEvent(snapshot_id="20230101T000000Z", type="accept", timestamp="2023-01-01T00:00:00Z"),
-        RevisionEvent(snapshot_id="20230102T000000Z", type="feedback", timestamp="2023-01-02T00:00:00Z"),
+        RevisionEvent(
+            snapshot_id="20230101T000000Z", type="accept", timestamp="2023-01-01T00:00:00Z"
+        ),
+        RevisionEvent(
+            snapshot_id="20230102T000000Z", type="feedback", timestamp="2023-01-02T00:00:00Z"
+        ),
     ]
     payload = generate_analytics_payload(
         outline=outline_payload,
@@ -161,7 +165,9 @@ def test_empty_outline_returns_empty_metrics() -> None:
     assert payload.revision_streaks.current_streak == 0
 
 
-def test_scene_length_distribution_detects_outliers(outline_payload: dict, draft_units: list[dict]) -> None:
+def test_scene_length_distribution_detects_outliers(
+    outline_payload: dict, draft_units: list[dict]
+) -> None:
     summary = compute_pacing_metrics(outline_payload, draft_units)
     distribution = compute_scene_length_distribution(summary.scene_metrics)
 

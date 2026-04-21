@@ -25,7 +25,9 @@ def _write_json(path: Path, payload: dict[str, object]) -> None:
     path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
 
-def _accepted_source_hash(*, unit_id: str, draft_text: str, scene_payload: dict[str, object]) -> str:
+def _accepted_source_hash(
+    *, unit_id: str, draft_text: str, scene_payload: dict[str, object]
+) -> str:
     front_matter = json.dumps(scene_payload, sort_keys=True, ensure_ascii=False)
     return hashlib.sha256(f"{unit_id}\n{front_matter}\n{draft_text}".encode("utf-8")).hexdigest()
 
@@ -56,7 +58,9 @@ def test_memory_non_mutation_invariant(tmp_path: Path) -> None:
     )
     scene_payload = {"id": "sc_0001", "purpose": "setup"}
     _write_json(snapshot_dir / "outline.json", {"scenes": [scene_payload]})
-    (snapshot_dir / "lore" / "char_mara.yaml").write_text("id: char_mara\nname: Mara\n", encoding="utf-8")
+    (snapshot_dir / "lore" / "char_mara.yaml").write_text(
+        "id: char_mara\nname: Mara\n", encoding="utf-8"
+    )
     _write_json(snapshot_dir / "locked_facts.json", {"facts": ["The house is sealed."]})
     accepted_source_hash = _accepted_source_hash(
         unit_id="sc_0001",
@@ -117,9 +121,9 @@ def test_memory_non_mutation_invariant(tmp_path: Path) -> None:
 
     for created in (artifact_path, diagnostic_path, status_path):
         resolved = created.resolve()
-        assert resolved.is_relative_to((project_root / ".blackskies" / "memory").resolve()) or resolved.is_relative_to(
-            (project_root / "history" / "memory_prototype").resolve()
-        )
+        assert resolved.is_relative_to(
+            (project_root / ".blackskies" / "memory").resolve()
+        ) or resolved.is_relative_to((project_root / "history" / "memory_prototype").resolve())
 
 
 def test_reader_requires_lineage_evidence_for_replay(tmp_path: Path) -> None:
@@ -143,7 +147,9 @@ def test_reader_replay_legacy_snapshot_without_hash_uses_bounded_fallback(tmp_pa
     snapshot_id = "20260412T030303Z"
     snapshot_dir = project_root / "history" / "snapshots" / f"{snapshot_id}_accept"
     (snapshot_dir / "drafts").mkdir(parents=True, exist_ok=True)
-    (snapshot_dir / "drafts" / "sc_0001.md").write_text("# sc_0001\nlegacy accepted text\n", encoding="utf-8")
+    (snapshot_dir / "drafts" / "sc_0001.md").write_text(
+        "# sc_0001\nlegacy accepted text\n", encoding="utf-8"
+    )
     _write_json(snapshot_dir / "outline.json", {"scenes": [{"id": "sc_0001", "purpose": "legacy"}]})
     # Intentionally no accepted_source_hash to simulate legacy metadata shape.
     _write_json(

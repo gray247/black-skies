@@ -30,7 +30,9 @@ def write_entry_current(project_root: Path, entry: MemoryLedgerEntry) -> None:
     write_ledger_entry(project_root, entry)
 
 
-def load_reinforcement_events_compat(project_root: Path, artifact_id: str) -> list[ReinforcementEvent]:
+def load_reinforcement_events_compat(
+    project_root: Path, artifact_id: str
+) -> list[ReinforcementEvent]:
     # storage.load_reinforcement_events already handles legacy fallback:
     # reinforcement_events/<id>.json first, then events/<id>.json
     return load_reinforcement_events(project_root, artifact_id)

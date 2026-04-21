@@ -111,9 +111,7 @@ def copy_include_entries(include_specs: Sequence[SnapshotIncludeSpec]) -> list[s
             )
         else:
             if spec.source_path.is_symlink():
-                raise ValueError(
-                    f"Include path {spec.token!r} must not contain symbolic links."
-                )
+                raise ValueError(f"Include path {spec.token!r} must not contain symbolic links.")
             spec.target_path.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(spec.source_path, spec.target_path)
         recorded.append(spec.token)
@@ -176,9 +174,7 @@ def restore_include_entries(
             _restore_directory(source_path, target_path)
         else:
             if source_path.is_symlink():
-                raise ValueError(
-                    f"Snapshot entry {include_token!r} contains a symbolic link."
-                )
+                raise ValueError(f"Snapshot entry {include_token!r} contains a symbolic link.")
             _restore_file(source_path, target_path)
         restored.append(include_token)
 
@@ -208,12 +204,8 @@ def _assert_no_symlinks(root: Path, token: str) -> None:
         for name in dirnames:
             candidate = current_path / name
             if candidate.is_symlink():
-                raise ValueError(
-                    f"Include path {token!r} must not contain symbolic links."
-                )
+                raise ValueError(f"Include path {token!r} must not contain symbolic links.")
         for name in filenames:
             candidate = current_path / name
             if candidate.is_symlink():
-                raise ValueError(
-                    f"Include path {token!r} must not contain symbolic links."
-                )
+                raise ValueError(f"Include path {token!r} must not contain symbolic links.")

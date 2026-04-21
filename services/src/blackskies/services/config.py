@@ -14,6 +14,7 @@ from .model_routing import ModelRoutingPolicy
 from .memory_lab.validation import validate_memory_thresholds
 from .feature_flags import FeatureMaturity, normalize_feature_maturity
 
+
 def _default_project_dir() -> Path:
     """Determine a sensible default project directory."""
 
@@ -373,7 +374,9 @@ class ServiceSettings(BaseModel):
 
         base_interval = info.data.get("backup_verifier_interval_seconds")
         if base_interval is not None and value < int(base_interval):
-            raise ValueError("backup_verifier_backoff_max_seconds must be >= backup_verifier_interval_seconds")
+            raise ValueError(
+                "backup_verifier_backoff_max_seconds must be >= backup_verifier_interval_seconds"
+            )
         return value
 
     @model_validator(mode="after")
@@ -440,18 +443,28 @@ class ServiceSettings(BaseModel):
 
         return MemoryLabRuntimeOptions(
             enabled=self.memory_lab_feature_maturity.is_active,
-            max_candidates=int(_profile_or_explicit("memory_lab_max_candidates", profile.max_candidates)),
-            max_unresolved=int(_profile_or_explicit("memory_lab_max_unresolved", profile.max_unresolved)),
+            max_candidates=int(
+                _profile_or_explicit("memory_lab_max_candidates", profile.max_candidates)
+            ),
+            max_unresolved=int(
+                _profile_or_explicit("memory_lab_max_unresolved", profile.max_unresolved)
+            ),
             alternate_interpretation_threshold=float(
-                _profile_or_explicit("memory_lab_alternate_interpretation_threshold", profile.alternate_threshold)
+                _profile_or_explicit(
+                    "memory_lab_alternate_interpretation_threshold", profile.alternate_threshold
+                )
             ),
             weight_max=self.memory_lab_weight_max,
             reinforcement_enabled=bool(
-                _profile_or_explicit("memory_lab_reinforcement_enabled", profile.reinforcement_enabled)
+                _profile_or_explicit(
+                    "memory_lab_reinforcement_enabled", profile.reinforcement_enabled
+                )
             ),
             anchor_enabled=self.memory_lab_anchor_enabled,
             anchor_auto_threshold=self.memory_lab_anchor_auto_threshold,
-            decay_enabled=bool(_profile_or_explicit("memory_lab_decay_enabled", profile.decay_enabled)),
+            decay_enabled=bool(
+                _profile_or_explicit("memory_lab_decay_enabled", profile.decay_enabled)
+            ),
             decay_base_rate=self.memory_lab_decay_base_rate,
             decay_min_weight=self.memory_lab_decay_min_weight,
             decay_fading_threshold=self.memory_lab_decay_fading_threshold,
@@ -489,7 +502,9 @@ class ServiceSettings(BaseModel):
                     profile.retention_limits_by_event_type["contested"],
                 )
             ),
-            diagnostics_level=str(_profile_or_explicit("memory_lab_diagnostics_level", profile.diagnostics_level)),
+            diagnostics_level=str(
+                _profile_or_explicit("memory_lab_diagnostics_level", profile.diagnostics_level)
+            ),
             profile_name=profile.profile_name,
             profile_version=profile.version,
             experimental_enabled=self.memory_lab_experimental_enabled,

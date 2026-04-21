@@ -5,7 +5,9 @@ from __future__ import annotations
 from pathlib import Path
 
 from blackskies.services.memory_prototype.canonical_state_reader import CanonicalStateReader
-from blackskies.services.memory_prototype.continuity_signal_normalizer import ContinuitySignalNormalizer
+from blackskies.services.memory_prototype.continuity_signal_normalizer import (
+    ContinuitySignalNormalizer,
+)
 from blackskies.services.memory_prototype.scene_delta_extractor import SceneDeltaExtractor
 from blackskies.services.memory_prototype.schemas import CanonicalLineageKey
 from blackskies.services.memory_prototype.storage import MemoryPrototypeStorage
@@ -70,6 +72,15 @@ def test_memory_idempotency_dedup(tmp_path: Path) -> None:
 
     assert len(list((project_root / ".blackskies" / "memory" / "deltas").glob("*.json"))) == 1
     assert len(list((project_root / ".blackskies" / "memory" / "drift").glob("*.json"))) == 1
-    assert len(list((project_root / ".blackskies" / "memory" / "packets" / "draft").glob("*.json"))) == 1
-    assert len(list((project_root / ".blackskies" / "memory" / "packets" / "rewrite").glob("*.json"))) == 1
-    assert len(list((project_root / ".blackskies" / "memory" / "packets" / "critique").glob("*.json"))) == 1
+    assert (
+        len(list((project_root / ".blackskies" / "memory" / "packets" / "draft").glob("*.json")))
+        == 1
+    )
+    assert (
+        len(list((project_root / ".blackskies" / "memory" / "packets" / "rewrite").glob("*.json")))
+        == 1
+    )
+    assert (
+        len(list((project_root / ".blackskies" / "memory" / "packets" / "critique").glob("*.json")))
+        == 1
+    )

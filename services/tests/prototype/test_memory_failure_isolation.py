@@ -73,11 +73,11 @@ def test_memory_failure_isolation(monkeypatch: pytest.MonkeyPatch, tmp_path: Pat
         "draft_id": "dr_iso_001",
         "unit_id": scene_id,
         "unit": {
-                "id": scene_id,
-                "previous_sha256": _scene_checksum(scene_text),
-                "text": scene_text + "\nAccepted change.",
-                "meta": {"purpose": "setup"},
-            },
+            "id": scene_id,
+            "previous_sha256": _scene_checksum(scene_text),
+            "text": scene_text + "\nAccepted change.",
+            "meta": {"purpose": "setup"},
+        },
         "message": "accept for isolation test",
         "snapshot_label": "accept",
     }
@@ -115,7 +115,9 @@ def test_memory_failure_isolation(monkeypatch: pytest.MonkeyPatch, tmp_path: Pat
     # Canonical accept result and files remain committed.
     restored_scene = (project_root / "drafts" / f"{scene_id}.md").read_text(encoding="utf-8")
     assert "Accepted change." in restored_scene
-    state_payload = json.loads((project_root / "history" / "recovery" / "state.json").read_text(encoding="utf-8"))
+    state_payload = json.loads(
+        (project_root / "history" / "recovery" / "state.json").read_text(encoding="utf-8")
+    )
     assert state_payload["last_snapshot"]["snapshot_id"] == snapshot_id
 
     # Prototype degraded visibility contract.

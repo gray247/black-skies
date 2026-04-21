@@ -14,7 +14,9 @@ def test_scheduler_writes_last_report(tmp_path: Path, monkeypatch) -> None:
     project_root = tmp_path / "scheduled"
     project_root.mkdir()
     (project_root / "project.json").write_text('{"project_id":"scheduled"}', encoding="utf-8")
-    (project_root / "outline.json").write_text('{"schema_version":"OutlineSchema v1"}', encoding="utf-8")
+    (project_root / "outline.json").write_text(
+        '{"schema_version":"OutlineSchema v1"}', encoding="utf-8"
+    )
 
     report = {"project_id": "scheduled", "snapshots": []}
 

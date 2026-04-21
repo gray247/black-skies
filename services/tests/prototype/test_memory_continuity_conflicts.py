@@ -7,7 +7,9 @@ import json
 from pathlib import Path
 
 from blackskies.services.memory_prototype.canonical_state_reader import CanonicalStateReader
-from blackskies.services.memory_prototype.continuity_signal_normalizer import ContinuitySignalNormalizer
+from blackskies.services.memory_prototype.continuity_signal_normalizer import (
+    ContinuitySignalNormalizer,
+)
 from blackskies.services.memory_prototype.scene_delta_extractor import SceneDeltaExtractor
 from blackskies.services.memory_prototype.schemas import CanonicalLineageKey
 from blackskies.services.memory_prototype.storage import MemoryPrototypeStorage
@@ -47,7 +49,9 @@ def test_dead_alive_conflict_signal_and_non_mutation(tmp_path: Path) -> None:
     deltas = SceneDeltaExtractor().extract(snapshot)
     signals = ContinuitySignalNormalizer().normalize(deltas)
 
-    conflict_signals = [signal for signal in signals.signals if signal.type == "status_contradiction"]
+    conflict_signals = [
+        signal for signal in signals.signals if signal.type == "status_contradiction"
+    ]
     assert conflict_signals, "expected a status_contradiction signal for dead/alive mismatch"
     first = conflict_signals[0]
     assert first.severity == "conflict"
@@ -61,7 +65,9 @@ def test_dead_alive_conflict_signal_and_non_mutation(tmp_path: Path) -> None:
         payload=signals.as_dict(),
         source_hashes=snapshot.source_hashes,
     )
-    assert output_path.resolve().is_relative_to((project_root / ".blackskies" / "memory" / "drift").resolve())
+    assert output_path.resolve().is_relative_to(
+        (project_root / ".blackskies" / "memory" / "drift").resolve()
+    )
     payload = json.loads(output_path.read_text(encoding="utf-8"))
     assert payload["advisory"] is True
     assert payload["envelope"]["lineage_key"] == lineage.key

@@ -197,7 +197,9 @@ class CanonicalStateReader:
             return path, payload
         return path, None
 
-    def _read_lore(self, canonical_root: Path) -> tuple[tuple[Path, ...], tuple[dict[str, object], ...]]:
+    def _read_lore(
+        self, canonical_root: Path
+    ) -> tuple[tuple[Path, ...], tuple[dict[str, object], ...]]:
         lore_root = canonical_root / "lore"
         if not lore_root.exists() or not lore_root.is_dir():
             return (), ()
@@ -281,7 +283,9 @@ class CanonicalStateReader:
                 json.dumps(locked_payload, sort_keys=True, ensure_ascii=False)
             )
         if outline_payload is not None:
-            hashes["outline"] = sha256_text(json.dumps(outline_payload, sort_keys=True, ensure_ascii=False))
+            hashes["outline"] = sha256_text(
+                json.dumps(outline_payload, sort_keys=True, ensure_ascii=False)
+            )
         if lore_payloads:
             lore_blob = json.dumps(list(lore_payloads), sort_keys=True, ensure_ascii=False)
             hashes["lore"] = sha256_text(lore_blob)

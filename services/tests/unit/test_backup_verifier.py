@@ -18,7 +18,9 @@ def _build_project(tmp_path: Path) -> Path:
     project_root = tmp_path / "verify-project"
     project_root.mkdir(parents=True, exist_ok=True)
     (project_root / "project.json").write_text('{"project_id": "verify-project"}', encoding="utf-8")
-    (project_root / "outline.json").write_text('{"schema_version": "OutlineSchema v1"}', encoding="utf-8")
+    (project_root / "outline.json").write_text(
+        '{"schema_version": "OutlineSchema v1"}', encoding="utf-8"
+    )
     (project_root / "drafts").mkdir(parents=True, exist_ok=True)
     (project_root / "drafts" / "sc_0001.md").write_text("Scene text", encoding="utf-8")
     return project_root
@@ -78,7 +80,9 @@ def test_verification_detects_corrupt_backup(tmp_path: Path) -> None:
 
     bad_zip = backup_dir / "BS_corrupt.zip"
     with zipfile.ZipFile(bad_zip, "w") as archive:
-        archive.writestr("checksums.json", json.dumps({"project_id": "verify-project", "files": []}))
+        archive.writestr(
+            "checksums.json", json.dumps({"project_id": "verify-project", "files": []})
+        )
 
     report = run_verification(project_root, settings=settings, latest_only=True)
     assert report["backups"]

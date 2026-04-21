@@ -442,7 +442,9 @@ def compute_scene_length_distribution(
         )
 
     if not word_counts:
-        return SceneLengthDistribution(buckets=distribution_buckets, outliers={"above": [], "below": []})
+        return SceneLengthDistribution(
+            buckets=distribution_buckets, outliers={"above": [], "below": []}
+        )
 
     mean_value = float(mean(word_counts))
     std_dev = float(pstdev(word_counts)) if len(word_counts) >= 2 else 0.0

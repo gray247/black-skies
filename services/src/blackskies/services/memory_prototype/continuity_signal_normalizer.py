@@ -4,7 +4,12 @@ from __future__ import annotations
 
 import re
 
-from .schemas import ContinuitySignal, ContinuitySignalArtifact, SceneDeltaArtifact, SceneDeltaCandidate
+from .schemas import (
+    ContinuitySignal,
+    ContinuitySignalArtifact,
+    SceneDeltaArtifact,
+    SceneDeltaCandidate,
+)
 
 _SEVERITIES = {"info", "warning", "conflict"}
 _STATUS_ALIVE = "alive"
@@ -53,14 +58,18 @@ class ContinuitySignalNormalizer:
     @staticmethod
     def _severity_for_candidate(category: str, value: str) -> str:
         lower = value.lower()
-        if category == "injury_status_change" and (_STATUS_DEAD in lower and _STATUS_ALIVE in lower):
+        if category == "injury_status_change" and (
+            _STATUS_DEAD in lower and _STATUS_ALIVE in lower
+        ):
             return "conflict"
         if category in {"injury_status_change", "relationship_change", "location_change"}:
             return "warning"
         return "info"
 
     @staticmethod
-    def _status_conflicts(*, unit_id: str, candidates: list[SceneDeltaCandidate]) -> list[ContinuitySignal]:
+    def _status_conflicts(
+        *, unit_id: str, candidates: list[SceneDeltaCandidate]
+    ) -> list[ContinuitySignal]:
         grouped: dict[str, dict[str, object]] = {}
         for candidate in candidates:
             statuses = ContinuitySignalNormalizer._extract_statuses(candidate.value)
@@ -68,7 +77,9 @@ class ContinuitySignalNormalizer:
                 continue
             entities = candidate.entities if candidate.entities else ("__scene__",)
             for entity in entities:
-                bucket = grouped.setdefault(entity, {"statuses": set(), "anchor": None, "confidence": 0.0})
+                bucket = grouped.setdefault(
+                    entity, {"statuses": set(), "anchor": None, "confidence": 0.0}
+                )
                 bucket["statuses"].update(statuses)
                 bucket["confidence"] = max(float(bucket["confidence"]), float(candidate.confidence))
                 if bucket["anchor"] is None:

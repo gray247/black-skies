@@ -36,7 +36,9 @@ def _write_outline(project_root: Path, scenes: list[dict[str, object]]) -> None:
         "scenes": scenes,
     }
     project_root.mkdir(parents=True, exist_ok=True)
-    (project_root / "outline.json").write_text(json.dumps(outline_payload, indent=2), encoding="utf-8")
+    (project_root / "outline.json").write_text(
+        json.dumps(outline_payload, indent=2), encoding="utf-8"
+    )
     (project_root / "project.json").write_text(
         json.dumps({"project_id": project_root.name, "name": "Scene Project"}, indent=2),
         encoding="utf-8",

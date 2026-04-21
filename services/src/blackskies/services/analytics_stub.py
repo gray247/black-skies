@@ -48,9 +48,7 @@ def get_project_summary(
 
     project_root = _resolve_project_root(settings, project_id)
     outline = load_outline_artifact(project_root)
-    scenes = list(
-        _generate_scene_stats(project_root, outline, force_refresh=force_refresh)
-    )
+    scenes = list(_generate_scene_stats(project_root, outline, force_refresh=force_refresh))
     pacing_results = score_scene_pacing(
         [(scene.scene_id, scene.word_count, scene.dialogue_ratio) for scene in scenes]
     )
@@ -62,10 +60,9 @@ def get_project_summary(
             scene.pacing_bucket = pacing_entry["pacing_bucket"]
     word_count = sum(scene.word_count for scene in scenes)
     readability_details = [
-        scene.readability_metrics
-        for scene in scenes
-        if isinstance(scene.readability_metrics, dict)
+        scene.readability_metrics for scene in scenes if isinstance(scene.readability_metrics, dict)
     ]
+
     def _agg_float(key: str) -> float | None:
         items = [
             scene.get(key)
@@ -84,7 +81,9 @@ def get_project_summary(
         bucket = scene.get("bucket")
         if isinstance(bucket, str):
             bucket_counts[bucket] = bucket_counts.get(bucket, 0) + 1
-    readability_bucket = max(bucket_counts.items(), key=lambda item: item[1])[0] if bucket_counts else "Moderate"
+    readability_bucket = (
+        max(bucket_counts.items(), key=lambda item: item[1])[0] if bucket_counts else "Moderate"
+    )
     word_counts = [scene.word_count for scene in scenes]
     pacing_scene_metrics = [
         {
@@ -99,19 +98,23 @@ def get_project_summary(
     ]
     average_word_count = round(mean(word_counts), 2) if word_counts else 0.0
     median_word_count = round(median(word_counts), 2) if word_counts else 0.0
-    standard_deviation_word_count = (
-        round(pstdev(word_counts), 2) if len(word_counts) >= 2 else 0.0
-    )
+    standard_deviation_word_count = round(pstdev(word_counts), 2) if len(word_counts) >= 2 else 0.0
     metadata = _load_project_metadata(project_root)
     diagnostics = DiagnosticLogger()
     cost_overlays: dict[str, object] = {}
     try:
-        budget_state = BudgetService(settings=settings, diagnostics=diagnostics).load_state(project_root)
+        budget_state = BudgetService(settings=settings, diagnostics=diagnostics).load_state(
+            project_root
+        )
         cost_overlays["budget"] = {"spent_usd": round(budget_state.spent_usd, 2)}
     except Exception:
         cost_overlays["budget"] = {"spent_usd": 0.0}
-    dialogue_ratios = [scene.dialogue_ratio for scene in scenes if isinstance(scene.dialogue_ratio, (int, float))]
-    narration_ratios = [scene.narration_ratio for scene in scenes if isinstance(scene.narration_ratio, (int, float))]
+    dialogue_ratios = [
+        scene.dialogue_ratio for scene in scenes if isinstance(scene.dialogue_ratio, (int, float))
+    ]
+    narration_ratios = [
+        scene.narration_ratio for scene in scenes if isinstance(scene.narration_ratio, (int, float))
+    ]
     dialogue_avg = round(mean(dialogue_ratios), 3) if dialogue_ratios else 0.0
     narration_avg = round(mean(narration_ratios), 3) if narration_ratios else 0.0
     return {
@@ -315,9 +318,11 @@ def _generate_scene_stats(
             index=index,
             title=title,
             word_count=word_count,
-            readability=round(avg_sentence_len, 2)
-            if isinstance(avg_sentence_len, (int, float)) and avg_sentence_len > 0
-            else None,
+            readability=(
+                round(avg_sentence_len, 2)
+                if isinstance(avg_sentence_len, (int, float)) and avg_sentence_len > 0
+                else None
+            ),
             dialogue_ratio=dialogue_ratio,
             narration_ratio=narration_ratio,
             structural_score=0.0,

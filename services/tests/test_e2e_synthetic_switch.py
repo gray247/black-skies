@@ -93,7 +93,9 @@ def test_e2e_mode_uses_real_critique_path_when_synthetic_disabled(
 
     app = create_app(ServiceSettings(project_base_dir=tmp_path))
     client = TestClient(app)
-    response = client.post(f"{API_PREFIX}/draft/critique", json=_critique_payload(project_id, unit_id))
+    response = client.post(
+        f"{API_PREFIX}/draft/critique", json=_critique_payload(project_id, unit_id)
+    )
     assert response.status_code == 200
     payload = response.json()
     assert payload["unit_id"] == unit_id
@@ -113,7 +115,9 @@ def test_e2e_mode_can_opt_into_synthetic_critique(
 
     app = create_app(ServiceSettings(project_base_dir=tmp_path))
     client = TestClient(app)
-    response = client.post(f"{API_PREFIX}/draft/critique", json=_critique_payload(project_id, unit_id))
+    response = client.post(
+        f"{API_PREFIX}/draft/critique", json=_critique_payload(project_id, unit_id)
+    )
     assert response.status_code == 200
     payload = response.json()
     assert payload["summary"].startswith("Critique summary for")

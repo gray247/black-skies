@@ -21,7 +21,6 @@ class MemoryLabEnvironmentTier:
         return self.tier == "supported_deterministic"
 
 
-
 def detect_environment_tier(project_root: Path) -> MemoryLabEnvironmentTier:
     with acquire_project_lock(project_root) as state:
         supported = bool(state.lock_is_effective and state.lock_mode in _SUPPORTED_LOCK_MODES)

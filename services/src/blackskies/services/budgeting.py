@@ -227,9 +227,7 @@ def classify_budget(
 ) -> tuple[str, str, float]:
     """Classify an estimated run cost against budget thresholds."""
 
-    effective_hard_limit = (
-        hard_limit if hard_limit > 0 else DEFAULT_HARD_BUDGET_LIMIT_USD
-    )
+    effective_hard_limit = hard_limit if hard_limit > 0 else DEFAULT_HARD_BUDGET_LIMIT_USD
     effective_soft_limit = (
         soft_limit if 0 <= soft_limit <= effective_hard_limit else effective_hard_limit
     )

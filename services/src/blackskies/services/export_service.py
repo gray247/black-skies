@@ -71,7 +71,10 @@ class ProjectExportService:
         if format not in ExportFormat.supported():
             raise DraftRequestError(
                 "Requested export format is not yet implemented.",
-                {"format": format.value, "supported": [fmt.value for fmt in ExportFormat.supported()]},
+                {
+                    "format": format.value,
+                    "supported": [fmt.value for fmt in ExportFormat.supported()],
+                },
             )
 
         integrity = validate_project(self._settings, project_root=project_root)
