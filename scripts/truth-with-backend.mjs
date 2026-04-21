@@ -367,6 +367,15 @@ function toPowerShellArray(values) {
   return `@(${values.map((value) => quotePowerShell(value)).join(', ')})`;
 }
 
+function commandExists(command) {
+  if (process.platform === 'win32') {
+    const probe = spawnSync('where', [command], { stdio: 'ignore' });
+    return probe.status === 0;
+  }
+  const probe = spawnSync('which', [command], { stdio: 'ignore' });
+  return probe.status === 0;
+}
+
 async function launchElectronProcess({
   electronBinary,
   electronArgs,
@@ -419,9 +428,15 @@ async function launchElectronProcess({
   let stdoutFd;
   let stderrFd;
   try {
+    let launchCommand = electronBinary;
+    let launchArgs = electronArgs;
+    if (process.platform === 'linux' && !process.env.DISPLAY && commandExists('xvfb-run')) {
+      launchCommand = 'xvfb-run';
+      launchArgs = ['-a', electronBinary, ...electronArgs];
+    }
     stdoutFd = openSync(electronStdoutPath, 'a');
     stderrFd = openSync(electronStderrPath, 'a');
-    const electron = spawn(electronBinary, electronArgs, {
+    const electron = spawn(launchCommand, launchArgs, {
       cwd: REPO_ROOT,
       env: launchEnv,
       detached: true,
