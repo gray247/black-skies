@@ -5,9 +5,11 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import {
   cpSync,
+  closeSync,
   existsSync,
   mkdirSync,
   mkdtempSync,
+  openSync,
   readFileSync,
   rmSync,
   writeFileSync,
@@ -363,6 +365,99 @@ function quotePowerShell(value) {
 
 function toPowerShellArray(values) {
   return `@(${values.map((value) => quotePowerShell(value)).join(', ')})`;
+}
+
+async function launchElectronProcess({
+  electronBinary,
+  electronArgs,
+  launchEnv,
+  electronStdoutPath,
+  electronStderrPath,
+  pidFile,
+}) {
+  if (process.platform === 'win32') {
+    const launchScript = [
+      '$ErrorActionPreference = "Stop";',
+      `$pidFile = ${quotePowerShell(pidFile)};`,
+      `$stdoutPath = ${quotePowerShell(electronStdoutPath)};`,
+      `$stderrPath = ${quotePowerShell(electronStderrPath)};`,
+      `$proc = Start-Process -FilePath ${quotePowerShell(electronBinary)} -ArgumentList ${toPowerShellArray(
+        electronArgs,
+      )} -WorkingDirectory ${quotePowerShell(REPO_ROOT)} -WindowStyle Hidden -RedirectStandardOutput $stdoutPath -RedirectStandardError $stderrPath -PassThru;`,
+      'Set-Content -Path $pidFile -Value $proc.Id -NoNewline;',
+    ].join(' ');
+    const launcher = spawnSync('powershell.exe', ['-NoProfile', '-Command', launchScript], {
+      env: launchEnv,
+      stdio: 'inherit',
+      cwd: REPO_ROOT,
+    });
+    if (launcher.error) {
+      throw makeFailureError(
+        FAILURE_CATEGORY.BOOT_FAIL,
+        `[truth] Electron launcher failed before CDP attach: ${normalizeErrorMessage(launcher.error)}`,
+      );
+    }
+    if (launcher.status !== 0) {
+      throw makeFailureError(
+        FAILURE_CATEGORY.BOOT_FAIL,
+        `[truth] Electron launcher failed before CDP attach with exit code ${launcher.status ?? 'unknown'}`,
+      );
+    }
+    if (!existsSync(pidFile)) {
+      throw makeFailureError(
+        FAILURE_CATEGORY.BOOT_FAIL,
+        '[truth] Electron launcher did not write a PID file',
+      );
+    }
+    const pid = Number.parseInt(readFileSync(pidFile, 'utf8').trim(), 10);
+    if (!Number.isFinite(pid) || pid <= 0) {
+      throw makeFailureError(FAILURE_CATEGORY.BOOT_FAIL, '[truth] Electron launcher wrote an invalid PID');
+    }
+    return pid;
+  }
+
+  let stdoutFd;
+  let stderrFd;
+  try {
+    stdoutFd = openSync(electronStdoutPath, 'a');
+    stderrFd = openSync(electronStderrPath, 'a');
+    const electron = spawn(electronBinary, electronArgs, {
+      cwd: REPO_ROOT,
+      env: launchEnv,
+      detached: true,
+      stdio: ['ignore', stdoutFd, stderrFd],
+    });
+    const launchOutcome = await new Promise((resolve, reject) => {
+      let settled = false;
+      const settle = (fn) => (value) => {
+        if (!settled) {
+          settled = true;
+          fn(value);
+        }
+      };
+      electron.once('error', settle(reject));
+      electron.once('spawn', settle(resolve));
+    });
+    void launchOutcome;
+    electron.unref();
+    writeFileSync(pidFile, String(electron.pid), 'utf8');
+    if (!Number.isFinite(electron.pid) || electron.pid <= 0) {
+      throw makeFailureError(FAILURE_CATEGORY.BOOT_FAIL, '[truth] Electron launcher wrote an invalid PID');
+    }
+    return electron.pid;
+  } catch (error) {
+    throw makeFailureError(
+      FAILURE_CATEGORY.BOOT_FAIL,
+      `[truth] Electron launcher failed before CDP attach: ${normalizeErrorMessage(error)}`,
+    );
+  } finally {
+    if (stdoutFd !== undefined) {
+      closeSync(stdoutFd);
+    }
+    if (stderrFd !== undefined) {
+      closeSync(stderrFd);
+    }
+  }
 }
 
 function createSyntheticTruthProjectSource(launchRoot) {
@@ -733,39 +828,14 @@ async function run() {
     receipt.artifacts.push({ kind: 'electron_launch_command', path: path.relative(REPO_ROOT, electronLauncherPath) });
     receipt.artifacts.push({ kind: 'electron_stdout_log', path: path.relative(REPO_ROOT, electronStdoutPath) });
     receipt.artifacts.push({ kind: 'electron_stderr_log', path: path.relative(REPO_ROOT, electronStderrPath) });
-    const launchScript = [
-      '$ErrorActionPreference = "Stop";',
-      `$pidFile = ${quotePowerShell(pidFile)};`,
-      `$userDataDir = ${quotePowerShell(userDataDir)};`,
-      `$stdoutPath = ${quotePowerShell(electronStdoutPath)};`,
-      `$stderrPath = ${quotePowerShell(electronStderrPath)};`,
-      "$env:BLACKSKIES_E2E_MODE = '1';",
-      "$env:BLACKSKIES_E2E_SYNTHETIC_MODE = '0';",
-      "$env:BLACKSKIES_ENABLE_PHASE4_MOCK_FLOW = '0';",
-      "$env:PLAYWRIGHT = '1';",
-      'New-Item -ItemType Directory -Force -Path $userDataDir | Out-Null;',
-      `$proc = Start-Process -FilePath ${quotePowerShell(electronBinary)} -ArgumentList ${toPowerShellArray(electronArgs)} -WorkingDirectory ${quotePowerShell(REPO_ROOT)} -WindowStyle Hidden -RedirectStandardOutput $stdoutPath -RedirectStandardError $stderrPath -PassThru;`,
-      'Set-Content -Path $pidFile -Value $proc.Id -NoNewline;',
-    ].join(' ');
-
-    const launcher = spawnSync('powershell.exe', ['-NoProfile', '-Command', launchScript], {
-      env: launchEnv,
-      stdio: 'inherit',
-      cwd: REPO_ROOT,
+    electronPid = await launchElectronProcess({
+      electronBinary,
+      electronArgs,
+      launchEnv,
+      electronStdoutPath,
+      electronStderrPath,
+      pidFile,
     });
-    if (launcher.status !== 0) {
-      throw makeFailureError(
-        FAILURE_CATEGORY.BOOT_FAIL,
-        `[truth] Electron launcher failed before CDP attach with exit code ${launcher.status ?? 'unknown'}`,
-      );
-    }
-    if (!existsSync(pidFile)) {
-      throw makeFailureError(FAILURE_CATEGORY.BOOT_FAIL, '[truth] Electron launcher did not write a PID file');
-    }
-    electronPid = Number.parseInt(readFileSync(pidFile, 'utf8').trim(), 10);
-    if (!Number.isFinite(electronPid) || electronPid <= 0) {
-      throw makeFailureError(FAILURE_CATEGORY.BOOT_FAIL, '[truth] Electron launcher wrote an invalid PID');
-    }
     console.log('[truth] launched Electron PID', electronPid);
 
     const connectDebugger = async () => {
@@ -1326,13 +1396,22 @@ async function run() {
       if (cdp) {
         cdp.close();
       }
-      try {
-        spawnSync('taskkill', ['/PID', String(electronPid), '/T', '/F'], { stdio: 'ignore' });
-      } catch {
-        try {
-          process.kill(electronPid);
-        } catch {
-          // Ignore cleanup races on teardown.
+      if (electronPid) {
+        if (process.platform === 'win32') {
+          const taskkill = spawnSync('taskkill', ['/PID', String(electronPid), '/T', '/F'], { stdio: 'ignore' });
+          if (taskkill.error || taskkill.status !== 0) {
+            try {
+              process.kill(electronPid);
+            } catch {
+              // Ignore cleanup races on teardown.
+            }
+          }
+        } else {
+          try {
+            process.kill(electronPid, 'SIGTERM');
+          } catch {
+            // Ignore cleanup races on teardown.
+          }
         }
       }
       if (electronPid) {
