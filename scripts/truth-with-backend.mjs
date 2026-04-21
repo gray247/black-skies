@@ -1513,7 +1513,13 @@ async function run() {
       await assertOkResponse(snapshotsResponse, 'Snapshots list route');
       const snapshotsPayload = await snapshotsResponse.json();
       assert.ok(Array.isArray(snapshotsPayload), 'Snapshots response must be an array');
-      assert.ok(snapshotsPayload.length > 0, 'Snapshots response must include at least one entry');
+      for (const entry of snapshotsPayload) {
+        assert.equal(typeof entry?.path, 'string', 'Snapshots list entry missing path');
+        assert.ok(
+          entry.path.startsWith('.snapshots/'),
+          `Snapshot list entry must remain manual snapshot family (.snapshots/*), received ${entry.path}`,
+        );
+      }
 
       const recoveryResponse = await fetch(
         `http://127.0.0.1:${SERVICE_PORT}/api/v1/draft/recovery?project_id=${encodeURIComponent(
