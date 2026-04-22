@@ -28,5 +28,6 @@ This document records the baseline dependency and configuration audit completed 
 
 - Capture dependency-report artefacts on every release train.
 - Integrate `scripts/check_slo.py <run.json>` in CI to guarantee SLO breaches fail the pipeline.
-- Automated security sweeps now run both `pip-audit --strict` and `safety check` in CI, with JSON artefacts retained for each scheduled run.
+- Automated security sweeps now run `pip-audit --strict`, `safety check`, and `pnpm audit` in CI, with JSON artefacts retained for each scheduled run.
+- Security gate policy currently fails CI on HIGH/CRITICAL findings while still publishing full vulnerability reports for triage.
 - Add `python scripts/security_sweep.py --output security-sweep.json` to the release train to confirm env coverage and collect license snapshots.

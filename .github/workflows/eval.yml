@@ -8,6 +8,9 @@ on:
   pull_request:
   workflow_dispatch:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -22,7 +25,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.lock', 'requirements.dev.lock', 'constraints.txt') }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements*.lock', 'constraints.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
       - name: Install dependencies
@@ -52,7 +55,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.lock', 'requirements.dev.lock', 'constraints.txt') }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements*.lock', 'constraints.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
       - name: Install dependencies
@@ -221,7 +224,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.lock', 'requirements.dev.lock', 'constraints.txt') }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements*.lock', 'constraints.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
       - name: Install dependencies
@@ -340,7 +343,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.lock', 'requirements.dev.lock', 'constraints.txt') }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements*.lock', 'constraints.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
       - name: Install dependencies
@@ -420,7 +423,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.lock', 'requirements.dev.lock', 'constraints.txt') }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements*.lock', 'constraints.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
       - name: Install dependencies
@@ -537,7 +540,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.lock', 'requirements.dev.lock', 'constraints.txt') }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements*.lock', 'constraints.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
       - name: Install dependencies
@@ -562,6 +565,50 @@ jobs:
         run: |
           LEDGER_PATH=$(python scripts/find_latest_run.py --kind evaluation --root sample_project/_runtime/runs)
           python scripts/check_slo.py "$LEDGER_PATH"
+      - name: Prepare sample project fixture
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path("sample_project/proj_esther_estate")
+          drafts = root / "drafts"
+          drafts.mkdir(parents=True, exist_ok=True)
+
+          (root / "project.json").write_text(
+              json.dumps(
+                  {
+                      "project_id": "proj_esther_estate",
+                      "name": "Esther Estate",
+                  },
+                  indent=2,
+              )
+          )
+
+          outline = {
+              "schema_version": "OutlineSchema v1",
+              "outline_id": "out_001",
+              "project_id": "proj_esther_estate",
+              "acts": ["Act I"],
+              "chapters": [{"id": "ch_0001", "order": 1, "title": "Chapter 1"}],
+              "scenes": [
+                  {
+                      "id": f"sc_{i:04d}",
+                      "order": i,
+                      "title": f"Scene {i}",
+                      "chapter_id": "ch_0001",
+                  }
+                  for i in range(1, 5)
+              ],
+          }
+
+          (root / "outline.json").write_text(json.dumps(outline, indent=2))
+
+          for i in range(1, 5):
+              (drafts / f"sc_{i:04d}.md").write_text(
+                  f"---\nid: sc_{i:04d}\ntitle: Scene {i}\norder: {i}\nchapter_id: ch_0001\n---\nScene {i} body.\n"
+              )
+          PY
       - name: Run route smoke tests
         run: bash scripts/smoke.sh
       - name: Start FastAPI service for load test

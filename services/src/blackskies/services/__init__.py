@@ -26,16 +26,14 @@ else:
     app = _app
     create_app = _create_app
 
-try:  # pragma: no cover - optional CLI dependency not installed
-    from .__main__ import main as _main
-except ModuleNotFoundError:  # pragma: no cover - executed when uvicorn is absent
+def main(*args: Any, **kwargs: Any) -> Any:
+    """Lazy CLI entrypoint import to avoid preloading ``__main__`` during package import."""
 
-    def _raise_uvicorn_missing(*_: Any, **__: Any) -> NoReturn:
-        raise ModuleNotFoundError("uvicorn is required to launch the CLI entrypoint")
-
-    main = cast(Callable[..., Any], _raise_uvicorn_missing)
-else:
-    main = _main
+    try:  # pragma: no cover - optional CLI dependency not installed
+        from .__main__ import main as _main
+    except ModuleNotFoundError as exc:  # pragma: no cover - executed when uvicorn is absent
+        raise ModuleNotFoundError("uvicorn is required to launch the CLI entrypoint") from exc
+    return _main(*args, **kwargs)
 
 if TYPE_CHECKING:  # pragma: no cover - handled via static imports above
     from .services import AgentOrchestrator, ToolNotPermittedError

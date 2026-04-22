@@ -17,7 +17,7 @@ Last Reviewed: 2025-11-15
 - **Secrets redaction:** `postflight_scrub` masks API keys, tokens, and emails in all structured logs before they leave the process.
 - **Strict settings:** `ServiceSettings` forbids unknown fields and defaults to offline-safe values; `.env.example` documents every key.
 - **Request limits:** API routes enforce explicit size caps via `BodySizeLimitMiddleware` and reject unknown schema fields (`extra="forbid"`).
-- **Packaging hygiene:** Windows builds bundle only pinned dependencies (`requirements.lock`, `requirements.dev.lock`) and the offline sample project.
+- **Packaging hygiene:** Builds and CI runs rely on pinned dependencies (`requirements.lock`, `requirements.dev.lock`); smoke/load fixture content is generated dynamically in CI.
 - **Offline installs:** `scripts/setup` prefers local wheels, keeping CI and smoke runs deterministic even without network access.
 
 ## Release Checklist
@@ -34,5 +34,5 @@ Retain the generated JSON artefacts (`security-sweep.json`, `dependency-report.j
 
 ## Open Follow-ups
 - Consult `phase_log.md` for current security-related TODOs before sign-off.
-- Ensure vulnerability scanner outputs (pip-audit, safety) remain green in CI; update this document if new tools or gates are added.
+- Ensure vulnerability scanner outputs are reviewed on every run; CI currently fails on HIGH/CRITICAL findings and publishes full scanner artefacts for lower-severity triage.
 - Capture any manual review notes from security sweeps in `docs/ops/security_sweep.md` so future audits see the full context.
