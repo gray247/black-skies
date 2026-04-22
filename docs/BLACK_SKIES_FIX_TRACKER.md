@@ -89,32 +89,31 @@ If an issue is not tracked here, it is not part of the active fix scope.
 - Status: PARTIAL
 - Priority: Critical
 - Owner: Codex / Human
-- Last Updated: 2026-04-23
+- Last Updated: 2026-04-22
 
 #### Description
 Security workflow had setup/artifact reliability issues.
 
 #### Known Facts
 - `security.yml` now sets up Node and pnpm without `setup-node` pnpm-cache coupling that required a pre-existing `pnpm` binary.
-- Dynamic artifact path handling for load-ledger is hardened:
+- Runtime load sanity root lookup now succeeds in CI after fixture preparation for `sample_project/proj_esther_estate`.
+- Load sanity fixture now writes schema-valid outline fields required by `/api/v1/draft/generate` validation (`schema_version`, `outline_id`, `chapters`, and scene `order`/`chapter_id`).
+- Load-ledger artifact flow now uses a deterministic file (`load-ledger.json`) instead of direct dynamic upload-path binding:
   - `find_latest_run.py` is called with required `--kind load-test`
-  - fallback artifact file `load-ledger-missing.json` is created when discovery fails
-  - upload step always receives a non-empty path output
+  - fallback JSON is written when discovery fails
+  - upload uses static path `load-ledger.json`
 - Dependency report generation now guarantees `dependency-report.json` exists before upload (fallback JSON when generation aborts).
 - Matrix artifact names remain OS-unique (`-${{ matrix.os }}` suffix) for pip-audit, safety, pnpm-audit, load-ledger, and dependency-report.
-- Runtime load sanity failure remained after trigger/setup fixes:
-  - `scripts/load.py` expects an existing project root at `sample_project/proj_esther_estate`
-  - that project fixture is not present in CI checkout by default.
-- Load-ledger upload still failed in that scenario because `Discover load ledger` did not run after a failed load step, leaving `steps.load_ledger.outputs.run_json` unset.
 
 #### Root Cause
-Security workflow still assumed local sample-project fixture state that does not exist in clean CI checkouts, and artifact fallback logic depended on a step that was skipped after earlier failure.
+Initial setup/runtime assumptions were corrected (pnpm availability and project-root existence). Remaining failures were caused by an under-specified synthetic outline fixture and fragile runtime path propagation for load-ledger upload.
 
 #### Actions
 - Re-run `security.yml` matrix (ubuntu + macOS) to confirm:
   - no `pnpm` executable-resolution failures
-  - light-load sanity succeeds with the CI-created project fixture
-  - no upload-artifact missing-path failures
+  - no project-root missing failures for load sanity
+  - light-load sanity passes outline schema validation with the updated fixture
+  - load-ledger upload succeeds using deterministic `load-ledger.json`
   - artifacts upload on both matrix OS jobs.
 
 #### Progress Log
@@ -124,11 +123,16 @@ Security workflow still assumed local sample-project fixture state that does not
 - 2026-04-22 - Codex - Removed `cache: 'pnpm'` from `setup-node` in `security.yml` to avoid pre-install pnpm resolution failure on ubuntu/macos.
 - 2026-04-22 - Codex - Fixed load-ledger discovery/upload path contract (`--kind load-test`, fallback file, non-empty output path) to prevent upload-artifact missing `path`.
 - 2026-04-22 - Codex - Added dependency-report fallback file creation before upload so artifact path is always valid.
-- 2026-04-23 - Codex - Added a minimal CI fixture-prep step to materialize `sample_project/proj_esther_estate` (project.json, outline.json, drafts) before light-load sanity.
-- 2026-04-23 - Codex - Set `Discover load ledger` to `if: always()` so it still emits a fallback artifact path after a failing load step.
+- 2026-04-22 - Codex - Added a minimal CI fixture-prep step to materialize `sample_project/proj_esther_estate` (project.json, outline.json, drafts) before light-load sanity.
+- 2026-04-22 - Codex - Set `Discover load ledger` to `if: always()` so it still emits a fallback artifact path after a failing load step.
+- 2026-04-22 - Codex - CI matrix evidence (ubuntu + macOS): pnpm setup issue no longer reproduces.
+- 2026-04-22 - Codex - CI matrix evidence (ubuntu + macOS): project-root missing failure no longer reproduces; load sanity now fails on outline schema validation.
+- 2026-04-22 - Codex - CI matrix evidence (ubuntu + macOS): upload load ledger still fails with missing/invalid `path` at runtime.
+- 2026-04-22 - Codex - Updated security workflow fixture writer to emit schema-valid outline payload for load sanity (`outline_id`, chapter metadata, scene order/chapter_id).
+- 2026-04-22 - Codex - Switched load-ledger upload to deterministic artifact file `load-ledger.json`, written on both success and fallback paths.
 
 #### Verification
-- Pending CI run after load fixture and always-run ledger discovery fixes.
+- Pending CI run after schema-valid fixture and deterministic load-ledger artifact-path fixes.
 
 #### Exit Criteria
 - Security workflow green on all matrix OS jobs with no artifact upload errors.
@@ -279,14 +283,13 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 
 ## [8] Artifact upload logic issues
 - Status: PARTIAL
-- Last Updated: 2026-04-23
+- Last Updated: 2026-04-22
 
 #### Known Facts
 - File-existence guards are now present.
 - Matrix artifact naming collision risk was addressed in a prior pass and remains fixed.
-- Dynamic load-ledger upload path in `security.yml` could be empty when `find_latest_run.py` failed, which maps to upload-artifact missing required `path`.
-- `security.yml` now guarantees path-safe uploads for dynamic and generated artifacts (load-ledger and dependency report fallbacks).
-- Additional failure mode identified: when light-load sanity step fails, downstream ledger-discovery step is skipped by default step conditions unless explicitly marked `if: always()`.
+- Prior dynamic load-ledger output path was unstable under failure conditions.
+- Workflow now normalizes ledger artifacts to a deterministic file (`load-ledger.json`) before upload, removing runtime dependence on output interpolation for `path`.
 
 #### Actions
 - Confirm CI uploads all security artifacts successfully on ubuntu and macOS.
@@ -296,7 +299,9 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 - 2026-04-21 - Codex - Implemented matrix-unique artifact names in `security.yml`; awaiting CI confirmation.
 - 2026-04-22 - Codex - Fixed dynamic load-ledger artifact path contract so upload-artifact always receives a valid `path`.
 - 2026-04-22 - Codex - Added dependency report fallback file generation to keep upload path valid when command exits early.
-- 2026-04-23 - Codex - Marked `Discover load ledger` as `if: always()` so upload path fallback executes even after load sanity failure.
+- 2026-04-22 - Codex - Marked `Discover load ledger` as `if: always()` so upload path fallback executes even after load sanity failure.
+- 2026-04-22 - Codex - CI matrix evidence (ubuntu + macOS) still reports load-ledger upload failure due missing/invalid runtime `path`.
+- 2026-04-22 - Codex - Reworked load-ledger artifact publication to always upload `load-ledger.json` written by discovery step (real ledger copy or fallback JSON).
 
 ---
 
@@ -441,15 +446,16 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 
 ## [22] Security workflow + vulnerability reporting
 - Status: PARTIAL
-- Last Updated: 2026-04-23
+- Last Updated: 2026-04-22
 
 #### Known Facts
 - Reporting steps exist and fail-closed behavior is present.
 - Matrix artifact naming remains OS-unique.
 - Workflow stability fixes were applied for known runner failures:
   - pnpm availability issue in Node setup path
-  - upload-artifact missing `path` from failed dynamic ledger discovery
+  - runtime artifact path instability in load-ledger upload path handling
 - Load sanity now has an explicit CI fixture-preparation step so the expected project root exists before `scripts/load.py` runs.
+- Load sanity fixture now includes schema-valid outline contract fields required by draft generation validation.
 - CI confirmation is still required before status can advance.
 
 ---
