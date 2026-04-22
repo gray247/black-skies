@@ -1,4 +1,8 @@
-"""Isolated plugin runner executable."""
+"""Isolated plugin runner executable.
+
+This is a support executable for the optional plugin surface. It is not, by
+itself, evidence that plugins are part of the standard runtime baseline.
+"""
 
 from __future__ import annotations
 
@@ -49,6 +53,12 @@ def _write_message(target: TextIO, payload: Dict[str, Any]) -> None:
 
 
 def execute_plugin(descriptor: Dict[str, Any], request: Dict[str, Any]) -> Dict[str, Any]:
+    """Execute one plugin request inside the isolated runner.
+
+    The caller is responsible for deciding whether plugin execution is allowed
+    in the current runtime configuration.
+    """
+
     entrypoint = descriptor.get("entrypoint")
     if not isinstance(entrypoint, str) or not entrypoint.strip():
         raise RuntimeError("Plugin manifest missing entrypoint.")

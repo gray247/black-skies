@@ -11,6 +11,7 @@ import pytest
 def _enable_plugins(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("BLACKSKIES_ENABLE_PLUGINS", "1")
 
+
 from blackskies.services.plugins import PluginExecutionError, PluginRegistry
 
 
@@ -32,10 +33,12 @@ def run(request: dict[str, object]) -> dict[str, object]:
     )
     manifest_path = tmp_path / "manifest.json"
     manifest_path.write_text(
-        json.dumps({
-            "entrypoint": "example:run",
-            "module_path": str(plugin_dir),
-        }),
+        json.dumps(
+            {
+                "entrypoint": "example:run",
+                "module_path": str(plugin_dir),
+            }
+        ),
         encoding="utf-8",
     )
     return plugin_id, manifest_path, plugin_dir
@@ -79,7 +82,9 @@ def test_plugin_registry_rejects_outside_module_path(tmp_path: Path) -> None:
         registry.install(plugin_id="sample", manifest=manifest)
 
 
-def test_plugin_registry_sanitises_environment(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_plugin_registry_sanitises_environment(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     plugin_dir = tmp_path / "plugin_src"
     plugin_dir.mkdir()
     module_path = plugin_dir / "example.py"

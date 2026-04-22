@@ -21,7 +21,9 @@ def _write_outline(project_root: Path) -> None:
         "outline_id": "out_001",
         "acts": ["Act I"],
         "chapters": [{"id": "ch_0001", "order": 1, "title": "Act One"}],
-        "scenes": [{"id": "sc_0001", "order": 1, "title": "Opening Scene", "chapter_id": "ch_0001"}],
+        "scenes": [
+            {"id": "sc_0001", "order": 1, "title": "Opening Scene", "chapter_id": "ch_0001"}
+        ],
     }
     project_root.mkdir(parents=True, exist_ok=True)
     (project_root / "outline.json").write_text(json.dumps(payload, indent=2), encoding="utf-8")
@@ -65,7 +67,9 @@ def test_snapshot_roundtrip_preserves_content(tmp_path: Path) -> None:
 
     # Mutate draft then restore from snapshot archive
     mutated_body = project_root / "drafts" / "sc_0001.md"
-    mutated_body.write_text(mutated_body.read_text(encoding="utf-8") + "\nExtra line.", encoding="utf-8")
+    mutated_body.write_text(
+        mutated_body.read_text(encoding="utf-8") + "\nExtra line.", encoding="utf-8"
+    )
 
     # Restore manually by copying archived file back
     archived_draft = project_root / snapshot_meta["path"] / "drafts" / "sc_0001.md"
@@ -102,7 +106,9 @@ def test_snapshot_ids_increase_monotonically(tmp_path: Path, monkeypatch) -> Non
 
     ids: list[str] = []
     for index in range(SNAPSHOT_RETENTION):
-        monkeypatch.setattr("blackskies.services.snapshots._timestamp", lambda i=index: f"snap_{i:02d}")
+        monkeypatch.setattr(
+            "blackskies.services.snapshots._timestamp", lambda i=index: f"snap_{i:02d}"
+        )
         ids.append(create_snapshot(project_root)["snapshot_id"])
 
     assert ids == sorted(ids)

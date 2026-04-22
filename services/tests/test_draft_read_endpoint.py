@@ -29,7 +29,9 @@ def _seed_project(client: TestClient, project_id: str) -> Path:
             {"id": "sc_0002", "order": 2, "title": "Scene Two", "chapter_id": "ch_0001"},
         ],
     }
-    project_root.joinpath("outline.json").write_text(json.dumps(outline, indent=2), encoding="utf-8")
+    project_root.joinpath("outline.json").write_text(
+        json.dumps(outline, indent=2), encoding="utf-8"
+    )
     drafts_dir = project_root / "drafts"
     drafts_dir.mkdir()
     drafts_dir.joinpath("sc_0001.md").write_text(

@@ -12,8 +12,10 @@ from typing import Any, Sequence
 from uuid import uuid4
 
 from ..config import ServiceSettings
+from ..canon_court import detect_candidate_ruling, persist_candidate_ruling
 from ..diagnostics import DiagnosticLogger
 from ..draft_synthesizer import DraftSynthesizer
+from ..fracture_analysis import FractureInputs, analyze_fractures
 from ..heuristics import load_project_heuristics
 from ..analytics.runtime import log_runtime_event
 from ..http import raise_budget_error
@@ -38,7 +40,13 @@ from ..prompt_pipeline import (
     is_usable_draft,
     select_profile,
 )
-from ..scene_memory import evaluate_continuity, extract_carryover, persist_carryover
+from ..memory_lab.ingest import persist_scene_advisory_entry
+from ..memory_lab.options import MemoryLabRuntimeOptions
+from ..scene_memory import (
+    evaluate_continuity,
+    extract_carryover,
+    persist_carryover,
+)
 
 
 @dataclass(slots=True)
@@ -158,9 +166,8 @@ class DraftGenerationService:
         request_fingerprint = fingerprint_generate_request(request, scenes)
         cached_response = budget_meta.get("last_generate_response")
 
-        if (
-            budget_meta.get("last_request_fingerprint") == request_fingerprint
-            and isinstance(cached_response, dict)
+        if budget_meta.get("last_request_fingerprint") == request_fingerprint and isinstance(
+            cached_response, dict
         ):
             rehydrated = await self._rehydrate_cached_artifacts(
                 request.project_id,
@@ -282,8 +289,8 @@ class DraftGenerationService:
                 body = item.get("body")
                 if not isinstance(front_matter, dict) or not isinstance(body, str):
                     raise ValueError("Cached artifact entry is malformed.")
-                durable_flag = bool(item.get("durable")) if "durable" in item else index == (
-                    total - 1
+                durable_flag = (
+                    bool(item.get("durable")) if "durable" in item else index == (total - 1)
                 )
                 self._persistence.write_scene(
                     project_id,
@@ -389,8 +396,9 @@ class DraftGenerationService:
         overrides: DraftUnitOverrides | None,
         project_root: Path,
         scene_lookup: dict[str, OutlineScene],
-        provider_name: str | None,
+        prompt_profile: str | None,
         context: SceneContext | None = None,
+        memory_lab_options: MemoryLabRuntimeOptions | None = None,
     ) -> str:
         if context is None:
             context = assemble_scene_context(
@@ -399,8 +407,9 @@ class DraftGenerationService:
                 overrides=overrides,
                 project_root=project_root,
                 scene_lookup=scene_lookup,
+                memory_lab_options=memory_lab_options,
             )
-        profile = select_profile(provider_name)
+        profile = select_profile(prompt_profile)
         return compile_draft_prompt(context, profile=profile)
 
     def _execute_generation(
@@ -415,9 +424,11 @@ class DraftGenerationService:
     ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
         units: list[dict[str, Any]] = []
         artifacts: list[dict[str, Any]] = []
+        fracture_reports: list[dict[str, Any]] = []
         total_scenes = len(scenes)
         adapter = self._last_adapter
         scene_lookup = {scene.id: scene for scene in scenes}
+        memory_lab_options = self._settings.memory_lab_runtime_options()
 
         for index, scene in enumerate(scenes):
             overrides = request.overrides.get(scene.id)
@@ -433,6 +444,7 @@ class DraftGenerationService:
                 overrides=overrides,
                 project_root=project_root,
                 scene_lookup=scene_lookup,
+                memory_lab_options=memory_lab_options,
             )
             if adapter is not None:
                 prompt = self._build_adapter_prompt(
@@ -441,17 +453,28 @@ class DraftGenerationService:
                     overrides=overrides,
                     project_root=project_root,
                     scene_lookup=scene_lookup,
-                    provider_name=self._last_route.model.provider if self._last_route else None,
+                    prompt_profile=self._last_route.prompt_profile if self._last_route else None,
                     context=context,
+                    memory_lab_options=memory_lab_options,
                 )
                 payload = {
                     "prompt": prompt,
                     "temperature": request.temperature,
-                    "options": {"temperature": request.temperature} if request.temperature is not None else None,
+                    "options": (
+                        {"temperature": request.temperature}
+                        if request.temperature is not None
+                        else None
+                    ),
                 }
                 try:
                     adapter_response = adapter.generate_draft(payload)
-                    adapter_text = adapter_response.get("text")
+                    extract_text = getattr(adapter, "extract_text", None)
+                    if callable(extract_text):
+                        adapter_text = extract_text(adapter_response)
+                    elif isinstance(adapter_response, dict):
+                        adapter_text = adapter_response.get("text")
+                    else:
+                        adapter_text = None
                     if is_usable_draft(adapter_text):
                         synthesis.body = adapter_text.strip()
                         synthesis.unit["text"] = synthesis.body
@@ -474,9 +497,102 @@ class DraftGenerationService:
                     message="Draft continuity issues detected.",
                     details={"scene_id": scene.id, "issues": continuity["issues"]},
                 )
+            candidate_ruling = detect_candidate_ruling(
+                project_id=request.project_id,
+                scene_id=scene.id,
+                text=synthesis.body,
+                continuity_issues=continuity["issues"],
+                locked_facts=context.locked_facts,
+            )
+            if candidate_ruling is not None:
+                try:
+                    ruling_path = persist_candidate_ruling(project_root, candidate_ruling)
+                    self._diagnostics.log(
+                        project_root,
+                        code="CANON_COURT",
+                        message="Canon Court advisory candidate ruling persisted.",
+                        details={
+                            "scene_id": scene.id,
+                            "contradiction_id": candidate_ruling.contradiction_id,
+                            "contradiction_type": candidate_ruling.contradiction_type.value,
+                            "severity": candidate_ruling.severity.value,
+                            "storage_path": str(ruling_path),
+                            "diagnostics_only": True,
+                            "advisory": True,
+                            "non_blocking": True,
+                        },
+                    )
+                except OSError as exc:
+                    self._diagnostics.log(
+                        project_root,
+                        code="CANON_COURT",
+                        message="Failed to persist Canon Court advisory candidate ruling.",
+                        details={
+                            "scene_id": scene.id,
+                            "error": str(exc),
+                        },
+                    )
+            fracture_report = analyze_fractures(
+                FractureInputs(
+                    source="draft_generation",
+                    text=synthesis.body,
+                    prior_context_present=bool(context.prior_context),
+                    locked_facts=context.locked_facts,
+                    unresolved_tensions=(
+                        context.memory.unresolved_tensions if context.memory is not None else []
+                    ),
+                    continuity_issues=continuity["issues"],
+                    context_notes=context.notes,
+                    goal=context.goal,
+                    conflict=context.conflict,
+                    turn=context.turn,
+                )
+            )
+            if fracture_report.fractures:
+                fracture_reports.append(
+                    {
+                        "unit_id": scene.id,
+                        "report": fracture_report.model_dump(mode="json"),
+                    }
+                )
+                self._diagnostics.log(
+                    project_root,
+                    code="FRACTURE",
+                    message="Advisory fracture diagnostics detected during draft generation.",
+                    details={
+                        "scene_id": scene.id,
+                        "report": fracture_report.model_dump(mode="json"),
+                    },
+                )
             try:
                 carryover = extract_carryover(synthesis.body)
-                persist_carryover(project_root, scene.id, carryover)
+                if self._settings.memory_lab_write_legacy_continuity:
+                    persist_carryover(project_root, scene.id, carryover)
+                if self._settings.memory_lab_enabled:
+                    recency_order = (
+                        scene.order if isinstance(getattr(scene, "order", None), int) else 0
+                    )
+                    try:
+                        # Continuity persistence and advisory ingestion remain
+                        # separate systems. Draft generation is the explicit
+                        # bridge between them.
+                        persist_scene_advisory_entry(
+                            project_root=project_root,
+                            scene_id=scene.id,
+                            chapter_id=scene.chapter_id,
+                            text=synthesis.body,
+                            carryover_payload=carryover,
+                            recency_order=recency_order,
+                            interpretations_enabled=self._settings.memory_lab_interpretations_enabled,
+                            max_interpretations_per_group=self._settings.memory_lab_max_interpretations_per_group,
+                        )
+                    except Exception as exc:  # noqa: BLE001
+                        self._diagnostics.log(
+                            project_root,
+                            code="MEMORY_LAB",
+                            message="Failed to persist Memory Lab ledger entry.",
+                            details={"scene_id": scene.id, "error": str(exc)},
+                        )
             except OSError as exc:
                 self._diagnostics.log(
                     project_root,
@@ -513,6 +629,17 @@ class DraftGenerationService:
             "model": dict(synthesizer._model),
             "budget": budget_payload,
         }
+        if fracture_reports:
+            # Fracture exposure is additive diagnostics metadata only.
+            response_payload["diagnostics"] = {
+                "fractures": {
+                    "exposure": "advisory_unstable_v1",
+                    "diagnostics_only": True,
+                    "advisory": True,
+                    "non_blocking": True,
+                    "reports": fracture_reports,
+                }
+            }
 
         return response_payload, artifacts
 
@@ -574,7 +701,13 @@ class DraftGenerationService:
             "budget": budget_payload,
         }
 
-    def _log_runtime_event(self, project_root: Path, request: DraftGenerateRequest, units: list[dict[str, Any]], estimated_cost: float) -> None:
+    def _log_runtime_event(
+        self,
+        project_root: Path,
+        request: DraftGenerateRequest,
+        units: list[dict[str, Any]],
+        estimated_cost: float,
+    ) -> None:
         total_tokens = sum(len(unit.get("text", "").split()) for unit in units)
         hint = "cheap"
         if estimated_cost >= DEFAULT_SOFT_BUDGET_LIMIT_USD * 0.5:

@@ -12,11 +12,16 @@ from .config import ServiceSettings
 from .history import project_history_subdir
 from .io import atomic_write_json, read_json
 
+RUNS_ROOT: Path | None = None
+
+
 def _timestamp() -> str:
     return datetime.now(tz=timezone.utc).isoformat().replace("+00:00", "Z")
 
 
 def _default_runs_root() -> Path:
+    if RUNS_ROOT is not None:
+        return RUNS_ROOT
     settings = ServiceSettings.from_environment()
     runtime_root = settings.project_base_dir / "_runtime"
     return runtime_root.resolve(strict=False) / "runs"
@@ -48,7 +53,9 @@ def _ledger_path(run_id: str, project_root: Path | None) -> Path:
     return _run_dir(run_id, project_root) / "run.json"
 
 
-def start_run(kind: str, params: Dict[str, Any], *, project_root: Path | None = None) -> Dict[str, Any]:
+def start_run(
+    kind: str, params: Dict[str, Any], *, project_root: Path | None = None
+) -> Dict[str, Any]:
     """Create a new run ledger entry and return the metadata."""
 
     run_id = f"{kind}-{uuid4().hex[:8]}"

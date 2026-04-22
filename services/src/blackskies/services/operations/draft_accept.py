@@ -95,7 +95,6 @@ class DraftAcceptService:
             recovery_tracker=self._recovery_tracker,
         )
 
-
         def _update_budget() -> tuple[ProjectBudgetState, float, float]:
             with edit_project_budget_state(project_root, self._diagnostics) as budget_state:
                 accept_cost = derive_accept_unit_cost(

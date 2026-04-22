@@ -185,6 +185,10 @@ const restoreResponse = {
 let server: http.Server | null = null;
 let currentScenario: ServiceScenario = 'normal';
 
+function shouldUseExternalService(): boolean {
+  return process.env.BLACKSKIES_E2E_EXTERNAL_SERVICE === '1';
+}
+
 async function syncForceOfflineFlag(page: Page, shouldForce: boolean): Promise<void> {
   const normalized = Boolean(shouldForce);
   const applyForceState = (force: boolean): void => {
@@ -225,6 +229,9 @@ function respond(res: http.ServerResponse, data: unknown, status = 200): void {
 }
 
 async function ensureServer(): Promise<void> {
+  if (shouldUseExternalService()) {
+    return;
+  }
   if (server) {
     return;
   }
@@ -378,6 +385,9 @@ async function ensureServer(): Promise<void> {
 }
 
 async function shutdownServer(): Promise<void> {
+  if (shouldUseExternalService()) {
+    return;
+  }
   if (!server) {
     return;
   }

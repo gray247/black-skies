@@ -1,11 +1,18 @@
-Status: Deferred
+Status: Deferred / not part of current runtime baseline
 Version: 0.5.0
 Last Reviewed: 2025-11-15
 
 # Smart Merge Tool – Design Outline (Phase 11)
-**Status:** In progress (T-9144) · 2025-10-07  
+**Status:** Deferred from the current product surface. Planning remains active under T-9144, but no shipped runtime or UI workflow is part of the baseline today.  
 **Owner:** Desktop Editor Team  
 **Charter Reference:** docs/phases/phase_charter.md §72
+
+## Runtime dependency declaration
+- Live runtime dependency: **no**.
+- Seam owner: **none currently** (future seam owner: Desktop Editor Team when implementation begins).
+- Seam state: **none**.
+- Seam type: **none**.
+- Runtime claim source: `docs/specs/current_state.md`.
 
 ## Objective
 Provide an assisted merge workflow to safely combine scene/chapter branches, preserving conflicts and annotations without manual copy/paste.

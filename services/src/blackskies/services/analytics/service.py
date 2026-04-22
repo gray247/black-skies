@@ -48,7 +48,9 @@ class AnalyticsSummaryService:
         draft_units = self._load_draft_units(project_root, outline.scenes)
         revision_events = self._load_revision_events(project_root)
 
-        fingerprint = self._compute_fingerprint(outline.model_dump(mode="json"), draft_units, revision_events)
+        fingerprint = self._compute_fingerprint(
+            outline.model_dump(mode="json"), draft_units, revision_events
+        )
         cached = self._read_cache(project_root)
         if cached and cached.get("fingerprint") == fingerprint:
             payload = cached.get("payload")
@@ -166,11 +168,11 @@ class AnalyticsSummaryService:
         revision_events: list[RevisionEvent],
     ) -> str:
         hasher = hashlib.sha256()
-        hasher.update(json.dumps(outline_payload, sort_keys=True, ensure_ascii=False).encode("utf-8"))
+        hasher.update(
+            json.dumps(outline_payload, sort_keys=True, ensure_ascii=False).encode("utf-8")
+        )
         for draft in sorted(draft_units, key=lambda unit: unit.get("id", "")):
-            hasher.update(
-                json.dumps(draft, sort_keys=True, ensure_ascii=False).encode("utf-8")
-            )
+            hasher.update(json.dumps(draft, sort_keys=True, ensure_ascii=False).encode("utf-8"))
         for event in sorted(revision_events, key=lambda item: (item.timestamp, item.snapshot_id)):
             hasher.update(f"{event.snapshot_id}:{event.type}:{event.timestamp}".encode("utf-8"))
         return hasher.hexdigest()
@@ -252,5 +254,6 @@ class AnalyticsSummaryService:
             "hint_counts": hints,
             "latest_hint": latest_hint,
         }
+
 
 __all__ = ["AnalyticsSummaryService"]

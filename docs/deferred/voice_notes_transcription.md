@@ -1,10 +1,18 @@
-Status: Deferred
+Status: Deferred / not part of current runtime baseline
 Version: 0.5.0
 Last Reviewed: 2025-11-15
 
 # Voice Notes & Transcription Plan (Deferred)
 
 > **Status:** This feature is scoped but **not** shipping in v1.1. The plan remains for future phases; renderer and services do not expose voice note recording/transcription today.
+> **Current runtime truth:** Backend references to voice notes are limited to optional archival verification paths and feature flags. They do not mean a shipped recording or transcription workflow exists.
+
+## Runtime dependency declaration
+- Live runtime dependency: **yes** (explicit disabled integration seam only; no shipped recorder/transcription runtime).
+- Seam owner: `services/src/blackskies/services/backup_verifier.py`, `services/src/blackskies/services/routers/health.py`, `services/src/blackskies/services/feature_flags.py`.
+- Seam state: **disabled** (non-baseline/deferred).
+- Seam type: **explicit_disabled_integration_seam**.
+- Runtime claim source: `build/runtime_truth.json` and `docs/specs/current_state.md`.
 
 ## Objectives
 - Enable creators to record voice notes, transcribe them into scene annotations, and manage audio assets within budget constraints.

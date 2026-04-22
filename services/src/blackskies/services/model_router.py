@@ -39,6 +39,7 @@ class ModelRouteDecision:
     policy: ModelRoutingPolicy
     provider: str
     model: ModelSpec
+    prompt_profile: str
     reason: str
     fallback_used: bool = False
 
@@ -50,6 +51,7 @@ def format_route_metadata(decision: ModelRouteDecision) -> dict[str, object]:
         "policy": decision.policy.value,
         "provider": decision.provider,
         "model": decision.model.name,
+        "prompt_profile": decision.prompt_profile,
         "reason": decision.reason,
         "fallback_used": decision.fallback_used,
     }
@@ -60,17 +62,15 @@ class ModelProvider(Protocol):
 
     name: str
 
-    def is_available(self, config: ModelRouterConfig) -> bool:
-        ...
+    def is_available(self, config: ModelRouterConfig) -> bool: ...
 
-    def select_model(self, task: ModelTask, config: ModelRouterConfig) -> ModelSpec:
-        ...
+    def select_model(self, task: ModelTask, config: ModelRouterConfig) -> ModelSpec: ...
 
-    def supports(self, task: ModelTask) -> bool:
-        ...
+    def supports(self, task: ModelTask) -> bool: ...
 
-    def adapter(self) -> BaseAdapter | None:
-        ...
+    def prompt_profile(self, task: ModelTask, config: ModelRouterConfig) -> str: ...
+
+    def adapter(self) -> BaseAdapter | None: ...
 
 
 class LocalLLMProvider:
@@ -89,12 +89,16 @@ class LocalLLMProvider:
         return True
 
     def select_model(self, task: ModelTask, config: ModelRouterConfig) -> ModelSpec:  # noqa: ARG002
-        if task is ModelTask.OUTLINE:
-            return ModelSpec(name="outline-builder-v1", provider=self._adapter.provider_name)
-        return ModelSpec(name=config.local_llm_model, provider=self._adapter.provider_name)
+        return ModelSpec(
+            name=self._adapter.model_name_for_task(task.value),
+            provider=self._adapter.provider_name,
+        )
 
     def supports(self, task: ModelTask) -> bool:
-        return task in {ModelTask.DRAFT, ModelTask.CRITIQUE, ModelTask.REWRITE}
+        return self._adapter.supports_task(task.value)
+
+    def prompt_profile(self, task: ModelTask, config: ModelRouterConfig) -> str:  # noqa: ARG002
+        return self._adapter.prompt_profile_for_task(task.value)
 
     def adapter(self) -> BaseAdapter | None:
         return self._adapter
@@ -116,12 +120,16 @@ class OpenAIProvider:
         return True
 
     def select_model(self, task: ModelTask, config: ModelRouterConfig) -> ModelSpec:  # noqa: ARG002
-        if task is ModelTask.OUTLINE:
-            return ModelSpec(name="openai.outline", provider="openai")
-        return ModelSpec(name=config.openai_model, provider="openai")
+        return ModelSpec(
+            name=self._adapter.model_name_for_task(task.value),
+            provider=self._adapter.provider_name,
+        )
 
     def supports(self, task: ModelTask) -> bool:
-        return task in {ModelTask.DRAFT, ModelTask.CRITIQUE, ModelTask.REWRITE}
+        return self._adapter.supports_task(task.value)
+
+    def prompt_profile(self, task: ModelTask, config: ModelRouterConfig) -> str:  # noqa: ARG002
+        return self._adapter.prompt_profile_for_task(task.value)
 
     def adapter(self) -> BaseAdapter | None:
         return self._adapter
@@ -141,12 +149,8 @@ class ModelRouter:
     def _availability(self, task: ModelTask) -> tuple[bool, bool]:
         local = self.providers.get("local_llm")
         api = self.providers.get("openai")
-        local_available = bool(
-            local and local.supports(task) and local.is_available(self.config)
-        )
-        api_available = bool(
-            api and api.supports(task) and api.is_available(self.config)
-        )
+        local_available = bool(local and local.supports(task) and local.is_available(self.config))
+        api_available = bool(api and api.supports(task) and api.is_available(self.config))
         return local_available, api_available
 
     def route(self, task: ModelTask) -> ModelRouteDecision:
@@ -268,11 +272,16 @@ class ModelRouter:
         reason: str,
     ) -> ModelRouteDecision:
         model = provider.select_model(task, self.config)
+        prompt_profile_method = getattr(provider, "prompt_profile", None)
+        prompt_profile = "default"
+        if callable(prompt_profile_method):
+            prompt_profile = prompt_profile_method(task, self.config)
         return ModelRouteDecision(
             task=task,
             policy=self.config.policy,
             provider=provider.name,
             model=model,
+            prompt_profile=prompt_profile,
             reason=reason,
         )
 

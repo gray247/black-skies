@@ -142,18 +142,60 @@ def test_long_form_validation_rejects_meta_summary() -> None:
     report = evaluate_long_form_output(text)
     assert report["usable"] is False
     assert report["meta_summary"] is True
+    assert "summary_style" in report["classifications"]
 
 
 def test_long_form_validation_accepts_prose() -> None:
     text = "Mara pushed the door, and the hinges groaned. " * 10
     report = evaluate_long_form_output(text, prior_excerpt="door hinges groaned")
     assert report["usable"] is True
+    assert report["primary_classification"] == "prose"
+    assert "prose" in report["classifications"]
 
 
 def test_long_form_validation_allows_shorter_prose() -> None:
     text = "Mara listened to the rain on the window and kept her hand on the latch. " * 6
     report = evaluate_long_form_output(text)
     assert report["usable"] is True
+    assert "prose" in report["classifications"]
+
+
+def test_long_form_validation_classifies_scaffold_leakage() -> None:
+    text = (
+        "Chapter: Act I - The Summons\n"
+        "Scene ids: sc_0001\n"
+        "Mara pressed her hand against the damp wall while the cellar groaned around her."
+    )
+    report = evaluate_long_form_output(text)
+    assert "scaffold_leakage" in report["classifications"]
+
+
+def test_long_form_validation_classifies_repetition_heavy() -> None:
+    text = "Mara felt the cold. " * 14
+    report = evaluate_long_form_output(text)
+    assert "repetition_heavy" in report["classifications"]
+
+
+def test_long_form_validation_classifies_carryover_missing() -> None:
+    text = "Mara crossed the cellar and listened for movement in the dark. " * 8
+    report = evaluate_long_form_output(text, prior_excerpt="radio beacon cracked twice")
+    assert "carryover_missing" in report["classifications"]
+
+
+def test_long_form_validation_classifies_structurally_thin() -> None:
+    text = "Mara listened. The lamp shook. The hallway answered with a hiss."
+    report = evaluate_long_form_output(text)
+    assert report["usable"] is False
+    assert "structurally_thin" in report["classifications"]
+
+
+def test_long_form_classification_does_not_change_acceptance_gate() -> None:
+    text = "Mara felt the cold. " * 16
+    report = evaluate_long_form_output(text)
+    # Gate remains unchanged: usable is still determined by length + meta-summary rejection.
+    assert report["usable"] is True
+    assert report["meta_summary"] is False
+    assert report["word_count"] >= 60
 
 
 def test_normalize_long_form_output_strips_prompt_headers() -> None:

@@ -4,6 +4,12 @@ import { installServiceStubs } from './utils/serviceStubs';
 import { loadSampleProject } from './utils/sampleProject';
 import { TID } from '../../renderer/utils/testIds';
 
+// HARNESS_ONLY:
+// Reason: validate UI plumbing with service stubs in a non-authoritative harness lane.
+// This lane must not be treated as workflow-truth authority for backend persistence or provider provenance.
+// Owner: app/tests/e2e/phase5-export-integrity-flow.spec.ts
+// Retire when: export/integrity workflow is fully covered in real-service truth lane.
+
 test.describe('Phase 5 Export & Integrity flow', () => {
   test('creates snapshot, backup, verification, restore, and export', async ({ page }) => {
     await installServiceStubs(page, 'normal', 'full');
@@ -30,8 +36,9 @@ test.describe('Phase 5 Export & Integrity flow', () => {
       projectId,
     );
     expect(snapshotList?.ok).toBe(true);
-    const snapshotEntries =
-      (Array.isArray(snapshotList?.data) ? snapshotList.data : []) as Array<{ snapshot_id?: string }>;
+    const snapshotEntries = (Array.isArray(snapshotList?.data) ? snapshotList.data : []) as Array<{
+      snapshot_id?: string;
+    }>;
     const snapshotIds = snapshotEntries.map((entry) => entry.snapshot_id).filter(Boolean);
     expect(snapshotEntries.length).toBeGreaterThan(0);
     expect(typeof snapshotEntries[0]?.snapshot_id).toBe('string');
@@ -47,7 +54,7 @@ test.describe('Phase 5 Export & Integrity flow', () => {
         window.services?.listBackups?.({ projectId: targetProjectId }) ?? { ok: false },
       projectId,
     );
-    const availableBackups = backupsList.ok ? backupsList.data ?? [] : [];
+    const availableBackups = backupsList.ok ? (backupsList.data ?? []) : [];
     expect(Array.isArray(availableBackups)).toBe(true);
     expect(availableBackups.length).toBeGreaterThan(0);
     const backupName = availableBackups[0]?.filename;
@@ -62,7 +69,9 @@ test.describe('Phase 5 Export & Integrity flow', () => {
 
     const restoreResult = await page.evaluate(
       async (targetBackupName) =>
-        targetBackupName ? window.services?.restoreBackup?.({ backupName: targetBackupName }) : null,
+        targetBackupName
+          ? window.services?.restoreBackup?.({ backupName: targetBackupName })
+          : null,
       backupName,
     );
     expect(restoreResult?.ok).toBe(true);

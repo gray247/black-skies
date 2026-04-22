@@ -113,7 +113,11 @@ def restore_from_zip(project_root: str, zip_filename: str) -> Dict[str, Any]:
         return {"status": "error", "message": "zip archive is corrupt"}
     except OSError as exc:
         logger.exception("Failed to restore zip: %s", zip_path)
-        return {"status": "error", "message": "could not materialize restored project", "details": str(exc)}
+        return {
+            "status": "error",
+            "message": "could not materialize restored project",
+            "details": str(exc),
+        }
     finally:
         if os.path.isdir(temp_dir):
             shutil.rmtree(temp_dir, ignore_errors=True)

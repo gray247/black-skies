@@ -17,8 +17,12 @@ from pathlib import Path
 def main() -> int:
     repo_root = Path(__file__).resolve().parent.parent
     app_dir = repo_root / "app"
-    electron_bin = app_dir / "node_modules" / "electron" / "dist" / (
-        "electron.exe" if os.name == "nt" else "electron"
+    electron_bin = (
+        app_dir
+        / "node_modules"
+        / "electron"
+        / "dist"
+        / ("electron.exe" if os.name == "nt" else "electron")
     )
     entry_point = app_dir / "dist-electron" / "main" / "main.js"
     if not entry_point.exists():

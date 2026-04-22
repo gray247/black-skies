@@ -1,8 +1,10 @@
-Status: Active (Canonical)
+Status: Supporting reference, not current runtime canon
 Version: 1.0.0
 Last Reviewed: 2025-11-15
 
 # docs/specs/architecture.md — System Architecture v1.1
+
+Authority: this document describes intended system structure and cross-component layout. It is not a guarantee that every described component is active in the current runtime baseline. For current runtime truth, start with `docs/specs/current_state.md`.
 
 Spec Index:
 - Architecture (`./architecture.md`)

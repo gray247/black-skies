@@ -9,7 +9,9 @@ from blackskies.services.scene_memory import (
     assemble_scene_memory_packet,
     evaluate_continuity,
     extract_carryover,
+    persist_memory_lab_entry,
 )
+from blackskies.services.memory_lab.storage import load_ledger_entry
 
 
 def _scene() -> OutlineScene:
@@ -85,3 +87,35 @@ def test_evaluate_continuity_flags_issues() -> None:
     assert "pov_mismatch" in report["issues"]
     assert "locked_fact_contradiction" in report["issues"]
     assert "reset_scaffold" in report["issues"]
+
+
+def test_persist_memory_lab_entry_writes_ledger_entry(tmp_path: Path) -> None:
+    project_root = tmp_path / "proj_memory_lab"
+    payload = {
+        "summary": "Mara forced the door open.",
+        "unresolved": ["The whisper still lingered."],
+        "emotional_carryover": "Mara is rattled but determined.",
+        "location_state": "Basement hallway remains dim.",
+        "reveals": ["The lock was broken."],
+    }
+
+    persist_memory_lab_entry(
+        project_root=project_root,
+        scene_id="sc_0002",
+        chapter_id="ch_0001",
+        text="Mara forced the door open. The lock was broken.",
+        carryover_payload=payload,
+        recency_order=2,
+    )
+
+    entry = load_ledger_entry(project_root, "sc_0002")
+    assert entry is not None
+    assert entry.scene_id == "sc_0002"
+    assert entry.source_summary == "Mara forced the door open."
+    assert {artifact.artifact_type for artifact in entry.artifacts} >= {
+        "summary",
+        "unresolved_tension",
+        "emotional_state",
+        "location_state",
+        "reveal",
+    }

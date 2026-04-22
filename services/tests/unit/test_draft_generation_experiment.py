@@ -96,7 +96,7 @@ async def test_provider_backed_draft_success(
         text=(
             "Mara steadied her breath as the chandelier swayed. "
             "The dust smelled of old rain and iron. "
-            "She whispered, \"Who's there?\" and the hallway answered with a hush. "
+            'She whispered, "Who\'s there?" and the hallway answered with a hush. '
             "A cold draft curled around her wrists, and the floorboards groaned beneath her step. "
             "She held her lamp higher, watching the shadows thin and thicken."
         )
@@ -164,7 +164,7 @@ async def test_provider_calls_disabled_skips_adapter(
         text=(
             "Mara steadied her breath as the chandelier swayed. "
             "The dust smelled of old rain and iron. "
-            "She whispered, \"Who's there?\" and the hallway answered with a hush."
+            'She whispered, "Who\'s there?" and the hallway answered with a hush.'
         )
     )
     service = _build_service(

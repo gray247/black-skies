@@ -70,9 +70,7 @@ class BackupService:
                 checksums_payload = {
                     "schema_version": "BackupChecksums v1",
                     "project_id": project_id,
-                    "created_at": datetime.now(timezone.utc)
-                    .isoformat()
-                    .replace("+00:00", "Z"),
+                    "created_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
                     "files": files_list,
                 }
                 archive.writestr(BACKUP_CHECKSUMS, json.dumps(checksums_payload, indent=2))
@@ -118,16 +116,16 @@ class BackupService:
                 continue
             created_at = payload.get("created_at")
             if not isinstance(created_at, str):
-                created_at = datetime.fromtimestamp(
-                    archive_path.stat().st_mtime, timezone.utc
-                ).isoformat().replace("+00:00", "Z")
+                created_at = (
+                    datetime.fromtimestamp(archive_path.stat().st_mtime, timezone.utc)
+                    .isoformat()
+                    .replace("+00:00", "Z")
+                )
             entries.append(
                 {
                     "project_id": payload.get("project_id") or project_id,
                     "filename": archive_path.name,
-                    "path": to_posix(
-                        archive_path.relative_to(self._settings.project_base_dir)
-                    ),
+                    "path": to_posix(archive_path.relative_to(self._settings.project_base_dir)),
                     "created_at": created_at,
                     "checksum": _hashfile(archive_path),
                 }

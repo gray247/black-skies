@@ -22,7 +22,9 @@ def _build_project(tmp_path: Path) -> Path:
     drafts_dir = project_root / "drafts"
     drafts_dir.mkdir(parents=True, exist_ok=True)
     for scene_id in ("sc_0001", "sc_0002"):
-        (drafts_dir / f"{scene_id}.md").write_text(f"---\nid: {scene_id}\n---\nScene body", encoding="utf-8")
+        (drafts_dir / f"{scene_id}.md").write_text(
+            f"---\nid: {scene_id}\n---\nScene body", encoding="utf-8"
+        )
     return project_root
 
 

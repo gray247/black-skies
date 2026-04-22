@@ -54,7 +54,9 @@ def _write_manifest(project_root: Path, project_id: str) -> None:
     (project_root / "project.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
 
 
-def _create_project(project_root: Path, project_id: str, scenes: list[tuple[str, int, str]]) -> None:
+def _create_project(
+    project_root: Path, project_id: str, scenes: list[tuple[str, int, str]]
+) -> None:
     _write_outline(project_root, scenes)
     _write_manifest(project_root, project_id)
     for scene_id, order, title in scenes:

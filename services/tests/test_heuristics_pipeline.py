@@ -8,7 +8,9 @@ from blackskies.services.critique import CritiqueService
 from blackskies.services.models.critique import DraftCritiqueRequest
 
 
-def _write_draft(project_root: Path, heuristics_payload: dict[str, object]) -> tuple[dict[str, object], str]:
+def _write_draft(
+    project_root: Path, heuristics_payload: dict[str, object]
+) -> tuple[dict[str, object], str]:
     drafts_dir = project_root / "drafts"
     heuristics_dir = project_root / ".blackskies"
     drafts_dir.mkdir(parents=True, exist_ok=True)
@@ -49,7 +51,8 @@ def _write_draft(project_root: Path, heuristics_payload: dict[str, object]) -> t
         f"word_target: {front_matter['word_target']}",
         f"beats: [{', '.join(front_matter['beats'])}]",
     ]
-    content = f"---\n{''.join(line + '\\n' for line in front_lines)}---\n{body}\n"
+    front_block = "".join(f"{line}\n" for line in front_lines)
+    content = f"---\n{front_block}---\n{body}\n"
     (drafts_dir / "sc_0001.md").write_text(content, encoding="utf-8")
     return front_matter, body
 
@@ -71,7 +74,9 @@ def test_heuristics_config_affects_scores(tmp_path):
     initial_heuristics = {
         "povs": ["Mara Ibarra"],
         "goals": ["stabilize the perimeter sensors"],
-        "conflicts": [{"description": "humidity chews through every circuit", "type": "environmental"}],
+        "conflicts": [
+            {"description": "humidity chews through every circuit", "type": "environmental"}
+        ],
         "word_target": {"base": 900, "per_order": 0},
     }
     updated_heuristics = {
@@ -95,5 +100,15 @@ def test_heuristics_config_affects_scores(tmp_path):
     pacing1 = payload1["heuristics"].get("pacing_fit")
     pacing2 = payload2["heuristics"].get("pacing_fit")
 
-    assert set(payload1["heuristics"]) == {"pov_consistency", "goal_clarity", "conflict_clarity", "pacing_fit"}
-    assert set(payload2["heuristics"]) == {"pov_consistency", "goal_clarity", "conflict_clarity", "pacing_fit"}
+    assert set(payload1["heuristics"]) == {
+        "pov_consistency",
+        "goal_clarity",
+        "conflict_clarity",
+        "pacing_fit",
+    }
+    assert set(payload2["heuristics"]) == {
+        "pov_consistency",
+        "goal_clarity",
+        "conflict_clarity",
+        "pacing_fit",
+    }

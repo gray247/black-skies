@@ -32,6 +32,10 @@ def test_policy_selection(policy, expected_provider, expected_reason):
 
     assert decision.provider == expected_provider
     assert decision.reason == expected_reason
+    assert decision.prompt_profile in {
+        "local_ollama_fast_draft",
+        "remote_openai_heavy_draft",
+    }
 
 
 def test_local_then_api_fallback_when_local_unhealthy():
@@ -179,6 +183,7 @@ def test_openai_model_from_config():
     router = create_default_model_router(config)
     decision = router.route(ModelTask.DRAFT)
     assert decision.model.name == "gpt-test-mini"
+    assert decision.prompt_profile == "remote_openai_heavy_draft"
 
 
 def test_router_deterministic_when_api_missing_and_local_unhealthy():
@@ -226,3 +231,12 @@ def test_adapter_for_task_falls_back_to_openai():
 
     assert adapter is not None
     assert adapter.provider_name == "openai"
+
+
+def test_local_route_exposes_prompt_profile():
+    config = ModelRouterConfig(policy=ModelRoutingPolicy.LOCAL_ONLY)
+    router = create_default_model_router(config)
+
+    decision = router.route(ModelTask.DRAFT)
+
+    assert decision.prompt_profile == "local_ollama_fast_draft"

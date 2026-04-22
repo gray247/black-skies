@@ -1,65 +1,148 @@
-# Playwright reports and test output
-playwright-report/
-test-results/
-app/playwright-report/
-app/test-results/
+# =========================
+# BLACK SKIES - .gitignore
+# =========================
 
-# Node / Electron build output
-node_modules/
-app/dist/
-app/dist-electron/
-app/.vite/
-app/coverage/
-build/
-dist/
+# -------------------------
+# Codex / Local Operator State
+# -------------------------
+.codex
+.codex*
+.codex_history
+.codex_step
 
-# Python caches and environments
+# -------------------------
+# Environment / Secrets
+# -------------------------
+.env
+.env.*
+!.env.example
+
+# -------------------------
+# Python
+# -------------------------
 __pycache__/
-*.pyc
 *.py[cod]
-.hypothesis/
-.pytest_cache/
-.pytest-tmp/
+*.pyo
+*.pyd
+*.so
+*.egg
 *.egg-info/
+dist/
+build/
+!build/
+build/*
+!build/runtime_truth.json
+!build/runtime_truth.schema.json
 .venv/
-services/.venv/
-services/.pytest-tmp/
-vendor/wheels/
+venv/
+env/
+codex_temp/
 
-# Pytest / temp work directories
+# -------------------------
+# Node / JS (if used anywhere)
+# -------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.hypothesis/
+app/dist-electron/
+app/playwright-report/
+vendor/wheels/
+sample_project/
+
+# -------------------------
+# Temp / Scratch Files
+# -------------------------
+tmp_*
+temp_*
+*.tmp
+tmp/
+temp/
+
+# -------------------------
+# Runtime Artifacts / Generated Data
+# -------------------------
+.pytest_cache/
+.pytest-cache-local/
+.pytest-tmp/
+pytest-cache-files-*/
+**/pytest-cache-files-*/
 tmp/pytest/
 tmp/pytest-of-*/
-pytest-cache-files-*/
+**/tmp/pytest/
+**/tmp/pytest-of-*/
+tmp_budget/
+tmp_contract/
+tmp_flow/
+.tmp/
 services/testtmp-*/
-services/services/pytest-cache-files-*/
 
-# Logs, traces, and temporary files
+# -------------------------
+# Policy / Runtime Execution Folders
+# -------------------------
+draft-policy-*/
+long-form-policy-*/
+long-form-timeout-*/
+
+# -------------------------
+# Logs / Runtime Output
+# -------------------------
 *.log
-*.tmp
-*.trace
-*.har
-*.e2e-artifacts/
+*.pid
+*.jsonl
 
-# Backup files
-*.bak
-*.bak*
+# Black Skies runtime analytics
+**/.blackskies/analytics/runtime.jsonl
 
-# Local tooling state
-.aider*
-.codex_step
-.codex_history
-
-# OS junk
+# -------------------------
+# OS Junk
+# -------------------------
 .DS_Store
 Thumbs.db
+desktop.ini
 
-# Local environment files
-.env
+# -------------------------
+# IDE / Editor
+# -------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
 
-# Snapshot / fixture diagnostics
-sample_project/*/.snapshots/**/history/diagnostics/**
-sample_project/*/.snapshots/**/diagnostics/**
-sample_project/*/.snapshots/**/history/temp/**
-sample_project/*/.snapshots/**/history/debug/**
-sample_project/**/.snapshots/
-archive/**/.snapshots/
+# -------------------------
+# Runtime Artifacts / Generated Data
+# -------------------------
+# pytest caches / temp dirs created by test runs
+.pytest_cache/
+pytest-cache-files-*/
+**/pytest-cache-files-*/
+
+# pytest temp trees
+tmp/pytest/
+tmp/pytest-of-*/
+**/tmp/pytest/
+**/tmp/pytest-of-*/
+
+# -------------------------
+# Archives / Backups
+# -------------------------
+*.bak
+*.bak2
+*.bak3
+*.backup
+*.old
+
+# -------------------------
+# Binary / Generated Media
+# -------------------------
+*.png
+*.jpg
+*.jpeg
+*.gif
+
+# -------------------------
+# KEEP THESE (DO NOT IGNORE)
+# -------------------------
+!services/src/blackskies/services/py.typed
+!docs/

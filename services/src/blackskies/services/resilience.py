@@ -97,7 +97,9 @@ class PersistentCircuitBreaker:
             with self._state_path.open("r", encoding="utf-8") as handle:
                 data = json.load(handle)
         except (OSError, json.JSONDecodeError) as exc:
-            LOGGER.debug("resilience.state_load_failed", extra={"extra_payload": {"error": str(exc)}})
+            LOGGER.debug(
+                "resilience.state_load_failed", extra={"extra_payload": {"error": str(exc)}}
+            )
             return default
 
         state = {

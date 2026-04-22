@@ -89,7 +89,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: pip-audit-report
+          name: pip-audit-report-${{ matrix.os }}
           path: pip-audit-report.json
 
       - name: Install Safety
@@ -115,7 +115,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: safety-report
+          name: safety-report-${{ matrix.os }}
           path: safety-report.json
       - name: Set up Node 20
         uses: actions/setup-node@v4
@@ -144,7 +144,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: pnpm-audit-report
+          name: pnpm-audit-report-${{ matrix.os }}
           path: pnpm-audit-report.json
       - name: Run light-load sanity check
         run: |
@@ -152,15 +152,7 @@ jobs:
       - name: Discover load ledger
         id: load_ledger
         run: |
-          RUN_JSON=$(python - <<'PY'
-from pathlib import Path
-root = Path("sample_project/_runtime/runs")
-candidates = sorted(root.glob("load-test-*"))
-if not candidates:
-    raise SystemExit("No load-test runs found.")
-print((candidates[-1] / "run.json").resolve().as_posix())
-PY
-)
+          RUN_JSON=$(python scripts/find_latest_run.py)
           echo "run_json=$RUN_JSON" >> "$GITHUB_OUTPUT"
       - name: Enforce load SLO
         run: python scripts/check_slo.py "${{ steps.load_ledger.outputs.run_json }}"
@@ -176,7 +168,7 @@ PY
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: dependency-report
+          name: dependency-report-${{ matrix.os }}
           path: dependency-report.json
       - name: Fail if vulnerabilities detected
         if: ${{ steps.pip_audit.outputs.status != '0' || steps.safety.outputs.status != '0' || steps.pnpm_audit.outputs.status != '0' }}

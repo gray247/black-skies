@@ -31,12 +31,58 @@ export interface SampleProjectFixture {
   };
 }
 
+function materializeSyntheticProjectFixture(projectId: string, projectRoot: string): string {
+  const draftsDir = path.join(projectRoot, 'drafts');
+  fs.mkdirSync(draftsDir, { recursive: true });
+  fs.writeFileSync(
+    path.join(projectRoot, 'project.json'),
+    JSON.stringify({ name: 'Esther Estate', project_id: projectId }, null, 2),
+    'utf-8',
+  );
+  fs.writeFileSync(
+    path.join(projectRoot, 'outline.json'),
+    JSON.stringify(
+      {
+        schema_version: 'OutlineSchema v1',
+        scenes: [
+          {
+            id: 'sc_0001',
+            title: 'Opening Scene',
+            order: 1,
+            chapter_id: 'ch_01',
+          },
+        ],
+      },
+      null,
+      2,
+    ),
+    'utf-8',
+  );
+  fs.writeFileSync(
+    path.join(draftsDir, 'sc_0001.md'),
+    ['---', 'id: sc_0001', 'title: Opening Scene', 'order: 1', '---', '', 'Synthetic e2e fixture draft.'].join(
+      '\n',
+    ),
+    'utf-8',
+  );
+  return projectRoot;
+}
+
 function resolveSampleProjectRoot(projectId: string): string {
   const directRoot = path.join(repoRoot, 'sample_project', projectId);
   const directOutline = path.join(directRoot, 'outline.json');
   const directProject = path.join(directRoot, 'project.json');
   if (fs.existsSync(directOutline) && fs.existsSync(directProject)) {
     return directRoot;
+  }
+
+  if (projectId === 'proj_esther_estate') {
+    const canonicalRoot = path.join(repoRoot, 'sample_project', 'Esther_Estate');
+    const canonicalOutline = path.join(canonicalRoot, 'outline.json');
+    const canonicalProject = path.join(canonicalRoot, 'project.json');
+    if (fs.existsSync(canonicalOutline) && fs.existsSync(canonicalProject)) {
+      return canonicalRoot;
+    }
   }
 
   for (const snapshotDirName of ['.snapshots', '.snapshots.bak']) {
@@ -79,6 +125,10 @@ function resolveSampleProjectRoot(projectId: string): string {
     if (latestSnapshot) {
       return path.join(snapshotsRoot, latestSnapshot);
     }
+  }
+
+  if (projectId === 'proj_esther_estate') {
+    return materializeSyntheticProjectFixture(projectId, directRoot);
   }
 
   throw new Error(

@@ -5,6 +5,11 @@ import type { Page } from '@playwright/test';
 import { test, expect } from './electron.launch';
 import { TID } from '../../renderer/utils/testIds';
 
+// HARNESS_ONLY:
+// Reason: packaged project smoke bootstrapped with overridden local services.
+// Owner: app/tests/e2e/smoke.project.spec.ts
+// Retire when: project-open smoke is superseded by real-service truth lane coverage.
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const sampleProjectPath = path.resolve(__dirname, '../../sample_project/Esther_Estate');

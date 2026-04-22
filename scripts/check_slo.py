@@ -13,7 +13,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Check a run ledger (load/eval) for SLO violations."
     )
-    parser.add_argument("ledger", type=Path, help="Path to a run.json file emitted by scripts/load.py or scripts/eval.py")
+    parser.add_argument(
+        "ledger",
+        type=Path,
+        help="Path to a run.json file emitted by scripts/load.py or scripts/eval.py",
+    )
     parser.add_argument(
         "--require",
         choices=["ok", "completed"],

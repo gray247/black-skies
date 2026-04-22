@@ -1,4 +1,14 @@
-"""Continuity and memory helpers for scene drafts."""
+"""Scene continuity helpers for draft generation.
+
+This module owns continuity-side concerns only:
+- carryover extraction from scene text
+- continuity persistence under ``.blackskies/continuity``
+- continuity packet assembly and continuity validation heuristics
+
+It must not make advisory selection decisions. When continuity data is mirrored
+into Memory Lab, that happens through an explicit ingestion bridge rather than
+through advisory resolution logic living here.
+"""
 
 from __future__ import annotations
 
@@ -7,6 +17,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from .memory_lab.ingest import persist_scene_advisory_entry
 from .models.outline import OutlineScene
 
 
@@ -68,13 +79,70 @@ def persist_carryover(project_root: Path, scene_id: str, payload: dict[str, Any]
     target.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
 
 
+def persist_memory_lab_entry(
+    *,
+    project_root: Path,
+    scene_id: str,
+    chapter_id: str | None,
+    text: str,
+    carryover_payload: dict[str, Any],
+    recency_order: int,
+    interpretations_enabled: bool = False,
+    max_interpretations_per_group: int = 2,
+) -> None:
+    """Compatibility bridge into Memory Lab advisory ingestion.
+
+    Continuity code may export carryover into Memory Lab, but it must not own
+    advisory artifact construction or resolver behavior directly.
+    """
+
+    persist_scene_advisory_entry(
+        project_root=project_root,
+        scene_id=scene_id,
+        chapter_id=chapter_id,
+        text=text,
+        carryover_payload=carryover_payload,
+        recency_order=recency_order,
+        interpretations_enabled=interpretations_enabled,
+        max_interpretations_per_group=max_interpretations_per_group,
+    )
+
+
 def extract_carryover(text: str) -> dict[str, Any]:
     sentences = [seg.strip() for seg in text.replace("\n", " ").split(".") if seg.strip()]
     summary = sentences[0] if sentences else ""
-    reveals = [s for s in sentences if any(token in s.lower() for token in ("revealed", "learned", "discovered", "realized"))]
-    unresolved = [s for s in sentences if any(token in s.lower() for token in ("but", "still", "unresolved", "lingered"))]
-    emotional = next((s for s in sentences if any(token in s.lower() for token in ("afraid", "relieved", "angry", "hope", "dread", "fear"))), None)
-    location = next((s for s in sentences if any(token in s.lower() for token in ("room", "hall", "basement", "door", "street", "house"))), None)
+    reveals = [
+        s
+        for s in sentences
+        if any(token in s.lower() for token in ("revealed", "learned", "discovered", "realized"))
+    ]
+    unresolved = [
+        s
+        for s in sentences
+        if any(token in s.lower() for token in ("but", "still", "unresolved", "lingered"))
+    ]
+    emotional = next(
+        (
+            s
+            for s in sentences
+            if any(
+                token in s.lower()
+                for token in ("afraid", "relieved", "angry", "hope", "dread", "fear")
+            )
+        ),
+        None,
+    )
+    location = next(
+        (
+            s
+            for s in sentences
+            if any(
+                token in s.lower()
+                for token in ("room", "hall", "basement", "door", "street", "house")
+            )
+        ),
+        None,
+    )
     return {
         "schema_version": "SceneMemoryPacket v1",
         "summary": summary,
@@ -178,6 +246,7 @@ __all__ = [
     "assemble_scene_memory_packet",
     "extract_carryover",
     "persist_carryover",
+    "persist_memory_lab_entry",
     "evaluate_continuity",
     "detect_pov_mismatch",
     "detect_locked_fact_contradiction",

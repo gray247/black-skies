@@ -1,48 +1,44 @@
-# RUNBOOK.md — Black Skies Service
+# RUNBOOK.md - Black Skies Service
+
+## Authority note
+This runbook is operational guidance, not runtime or phase authority.
+- Runtime authority: `build/runtime_truth.json`, `docs/specs/current_state.md`
+- Status authority: `docs/roadmap.md`
 
 ## Overview
-This runbook describes how to bootstrap, configure, and operate the Black Skies FastAPI service locally.
+Bootstrap, configure, and operate the FastAPI service locally.
 
 ## Setup
 1. Ensure Python 3.11+ is installed.
-2. Create a virtual environment:
+2. Create and activate a virtual environment:
    ```bash
    python -m venv .venv
-   . .venv/Scripts/activate  # PowerShell: . .venv\Scripts\Activate.ps1
+   # PowerShell
+   . .venv\Scripts\Activate.ps1
+   # bash
+   source .venv/bin/activate
    ```
 3. Install dependencies:
    ```bash
-   pip install -r constraints.txt
+   pip install -c constraints.txt -r requirements.lock -r requirements.dev.lock
    ```
-4. If running with live agents, populate `.env`:
-   ```bash
-   echo "BLACK_SKIES_OPENAI_API_KEY=sk-..." >> .env
-   echo "BLACK_SKIES_MODE=live" >> .env
-   ```
+4. Optional `.env` overrides can be added from `.env.example`.
 
-## Running the API
+## Run API
 ```bash
 uvicorn blackskies.services.app:create_app --factory --reload --port 8080
 ```
-- Health check: `GET http://localhost:8080/api/v1/healthz`
-- Outline endpoint (v1): `POST http://localhost:8080/api/v1/outline/build`
 
-## Logs and Data
-- Runs: `data/runs/`
-- Cache: `data/cache/`
-- Exports: `data/exports/`
+- Health: `GET http://localhost:8080/api/v1/healthz`
+- Metrics: `GET http://localhost:8080/api/v1/metrics`
 
 ## Maintenance
-- Tests: `python -m pytest -q`
-- Lint: `flake8`
+- Unit lane: `pytest -q services/tests/unit`
+- Full suite: `pytest -q`
+- Runtime truth check: `pytest -q services/tests/unit/test_runtime_truth.py`
+- Service truth lane (PASS 2 authority): `python scripts/run_service_truth.py`
 
 ## Troubleshooting
-- Missing dependencies: reinstall via `pip install -r constraints.txt`.
-- Permission errors on data directory: ensure `data/` is writable.
-- API key errors: verify `.env` entries and `BLACK_SKIES_MODE` (legacy `BLACK_SKIES_BLACK_SKIES_MODE` is still accepted but logs a rename warning).
-
-## Observability
-- Logs are emitted in JSON via stdout; each record includes `trace_id`, logger, and message metadata.
-- Every request receives an `X-Trace-Id` header; include it when reporting issues.
-- Metrics are exposed at `/api/v1/metrics` with counters such as `blackskies_requests_total` and `outline_requests_total`.
-- Validation errors return `{code, detail, trace_id}` payloads to simplify client handling and troubleshooting.
+- Missing deps: reinstall lockfile-constrained dependencies.
+- Data path errors: verify configured project base path exists and is writable.
+- Flag confusion: verify feature flags/maturity vars in `.env` and `feature_flags.py`.

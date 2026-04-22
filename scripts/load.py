@@ -217,12 +217,8 @@ def build_profile(name: str, raw: Mapping[str, Any], args: argparse.Namespace) -
     def _override(value: Any, override: Any | None) -> Any:
         return override if override is not None else value
 
-    total_cycles = int(
-        _override(raw.get("total_cycles", 12), getattr(args, "total_cycles", None))
-    )
-    concurrency = int(
-        _override(raw.get("concurrency", 3), getattr(args, "concurrency", None))
-    )
+    total_cycles = int(_override(raw.get("total_cycles", 12), getattr(args, "total_cycles", None)))
+    concurrency = int(_override(raw.get("concurrency", 3), getattr(args, "concurrency", None)))
     timeout = float(
         _override(raw.get("timeout", smoke_runner.DEFAULT_TIMEOUT), getattr(args, "timeout", None))
     )
@@ -238,10 +234,14 @@ def build_profile(name: str, raw: Mapping[str, Any], args: argparse.Namespace) -
             _override(thresholds_cfg.get("p99_ms", 2500.0), getattr(args, "p99_ms", None))
         ),
         max_error_rate=float(
-            _override(thresholds_cfg.get("max_error_rate", 0.05), getattr(args, "max_error_rate", None))
+            _override(
+                thresholds_cfg.get("max_error_rate", 0.05), getattr(args, "max_error_rate", None)
+            )
         ),
         max_budget_usd=float(
-            _override(thresholds_cfg.get("max_budget_usd", 5.0), getattr(args, "max_budget_usd", None))
+            _override(
+                thresholds_cfg.get("max_budget_usd", 5.0), getattr(args, "max_budget_usd", None)
+            )
         ),
     )
 
@@ -256,7 +256,9 @@ def build_profile(name: str, raw: Mapping[str, Any], args: argparse.Namespace) -
     wizard_steps: tuple[str, ...] | None = None
     wizard_steps_override = getattr(args, "wizard_steps", None)
     if wizard_steps_override:
-        wizard_steps = tuple(str(step).strip() for step in wizard_steps_override if str(step).strip())
+        wizard_steps = tuple(
+            str(step).strip() for step in wizard_steps_override if str(step).strip()
+        )
     elif raw.get("wizard_steps") is not None:
         raw_steps = raw["wizard_steps"]
         if not isinstance(raw_steps, Sequence):
@@ -400,9 +402,7 @@ async def run_profile(profile: LoadProfile, args: argparse.Namespace, metrics: L
     wizard_steps = (
         tuple(args.wizard_steps)
         if getattr(args, "wizard_steps", None)
-        else profile.wizard_steps
-        if profile.wizard_steps
-        else smoke_runner.DEFAULT_WIZARD_STEPS
+        else profile.wizard_steps if profile.wizard_steps else smoke_runner.DEFAULT_WIZARD_STEPS
     )
     warmup_cycles = profile.warmup_cycles or 0
 
@@ -416,24 +416,16 @@ async def run_profile(profile: LoadProfile, args: argparse.Namespace, metrics: L
     if scene_ids_arg:
         base_ids = list(scene_ids_arg)
         if base_ids:
-            scene_plan = [
-                base_ids[index % len(base_ids)]
-                for index in range(planned_length)
-            ]
+            scene_plan = [base_ids[index % len(base_ids)] for index in range(planned_length)]
     else:
         requested_scene_count = scene_count_arg or profile.scene_count
         if requested_scene_count:
             base_ids = smoke_runner.load_scene_ids(project_root, requested_scene_count)
-            scene_plan = [
-                base_ids[index % len(base_ids)]
-                for index in range(planned_length)
-            ]
+            scene_plan = [base_ids[index % len(base_ids)] for index in range(planned_length)]
 
     if profile.warmup_cycles:
         LOGGER.info("Running %s warmup cycle(s) without metrics.", profile.warmup_cycles)
-        warmup_scene_ids = (
-            tuple(scene_plan[:warmup_cycles]) if scene_plan is not None else None
-        )
+        warmup_scene_ids = tuple(scene_plan[:warmup_cycles]) if scene_plan is not None else None
         warmup_config = smoke_runner.SmokeTestConfig(
             host=args.host,
             port=args.port,
@@ -452,7 +444,9 @@ async def run_profile(profile: LoadProfile, args: argparse.Namespace, metrics: L
     tasks: list[asyncio.Task[None]] = []
     metrics.mark_start()
     offset = 0
-    for worker_index, cycles in enumerate(distribute_cycles(profile.total_cycles, profile.concurrency)):
+    for worker_index, cycles in enumerate(
+        distribute_cycles(profile.total_cycles, profile.concurrency)
+    ):
         if cycles <= 0:
             continue
         assigned_scene_ids = None
@@ -509,9 +503,9 @@ def evaluate_thresholds(metrics: LoadMetrics, thresholds: Thresholds) -> list[st
         )
     if metrics.total_budget > thresholds.max_budget_usd:
         reasons.append(
-            (
-                "Estimated budget spend ${spent:.2f} exceeds threshold ${threshold:.2f}."
-            ).format(spent=metrics.total_budget, threshold=thresholds.max_budget_usd)
+            ("Estimated budget spend ${spent:.2f} exceeds threshold ${threshold:.2f}.").format(
+                spent=metrics.total_budget, threshold=thresholds.max_budget_usd
+            )
         )
     return reasons
 
@@ -584,7 +578,6 @@ def main(argv: Sequence[str] | None = None) -> int:
             "total_cycles": profile.total_cycles,
             "concurrency": profile.concurrency,
         },
-        project_root=project_root,
     )
     run_id = run_metadata["run_id"]
 
@@ -599,19 +592,17 @@ def main(argv: Sequence[str] | None = None) -> int:
                 run_id,
                 status="failed",
                 result={"error": str(exc)},
-                project_root=project_root,
             )
             return 1
 
     breaches = evaluate_thresholds(metrics, profile.thresholds)
-        result_payload = build_result_payload(metrics, profile.thresholds, breaches)
+    result_payload = build_result_payload(metrics, profile.thresholds, breaches)
     runs.finalize_run(
         run_id,
         status="failed" if breaches else "completed",
         result=result_payload,
-        project_root=project_root,
     )
-    ledger_path = runs.get_runs_root(project_root) / run_id / "run.json"
+    ledger_path = runs.get_runs_root() / run_id / "run.json"
 
     if args.slo_report:
         slo_path = args.slo_report.resolve()

@@ -109,6 +109,7 @@ def load_runtime_config() -> Mapping[str, Any]:
 
 _RUNTIME_CONFIG = load_runtime_config()
 
+
 def _safe_float(value: Any, default: float) -> float:
     try:
         return float(value)
@@ -127,15 +128,9 @@ def _safe_int(value: Any, default: int) -> int:
 _budget = _DEFAULT_CONFIG["budget"].copy()
 _budget.update(_RUNTIME_CONFIG.get("budget", {}))
 
-DEFAULT_SOFT_BUDGET_LIMIT_USD: Final[float] = _safe_float(
-    _budget.get("soft_limit_usd"), 5.0
-)
-DEFAULT_HARD_BUDGET_LIMIT_USD: Final[float] = _safe_float(
-    _budget.get("hard_limit_usd"), 10.0
-)
-COST_PER_1000_WORDS_USD: Final[float] = _safe_float(
-    _budget.get("cost_per_1000_words_usd"), 0.02
-)
+DEFAULT_SOFT_BUDGET_LIMIT_USD: Final[float] = _safe_float(_budget.get("soft_limit_usd"), 5.0)
+DEFAULT_HARD_BUDGET_LIMIT_USD: Final[float] = _safe_float(_budget.get("hard_limit_usd"), 10.0)
+COST_PER_1000_WORDS_USD: Final[float] = _safe_float(_budget.get("cost_per_1000_words_usd"), 0.02)
 
 _service = _DEFAULT_CONFIG["service"].copy()
 _service.update(_RUNTIME_CONFIG.get("service", {}))

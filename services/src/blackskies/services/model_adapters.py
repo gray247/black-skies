@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import logging
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, FrozenSet
 from urllib import request as url_request
 from urllib.error import URLError, HTTPError
 
@@ -23,8 +23,45 @@ class AdapterConfig:
     timeout_seconds: float = 2.0
 
 
+@dataclass(frozen=True)
+class ProviderCapabilities:
+    """Provider-facing capabilities used by routing and prompt selection."""
+
+    provider_name: str
+    prompt_profile: str
+    supported_tasks: FrozenSet[str]
+
+
+@dataclass(frozen=True)
+class NormalizedAdapterResponse:
+    """Normalized adapter response consumed by execution services.
+
+    Execution layers should use this structure instead of inspecting provider-
+    specific response dialects directly.
+    """
+
+    text: str | None
+    raw_payload: dict[str, Any] | None
+    extraction_source: str | None
+
+    def raw_payload_keys(self) -> list[str] | None:
+        if not isinstance(self.raw_payload, dict):
+            return None
+        return sorted([str(key) for key in self.raw_payload.keys() if key is not None])
+
+    def raw_payload_preview(self, *, limit: int = 500) -> str | None:
+        if not isinstance(self.raw_payload, dict):
+            return None
+        try:
+            return json.dumps(self.raw_payload, ensure_ascii=False, default=str)[:limit]
+        except Exception:  # pragma: no cover - defensive
+            return None
+
+
 class BaseAdapter:
     provider_name: str = "unknown"
+    prompt_profile_name: str = "default"
+    supported_tasks: FrozenSet[str] = frozenset({"draft", "critique", "rewrite"})
 
     def __init__(self, config: AdapterConfig) -> None:
         self.config = config
@@ -60,6 +97,92 @@ class BaseAdapter:
     def health_check(self) -> bool:
         raise NotImplementedError
 
+    def capabilities(self) -> ProviderCapabilities:
+        return ProviderCapabilities(
+            provider_name=self.provider_name,
+            prompt_profile=self.prompt_profile_name,
+            supported_tasks=self.supported_tasks,
+        )
+
+    def supports_task(self, task_name: str) -> bool:
+        return task_name in self.supported_tasks
+
+    def model_name_for_task(self, task_name: str) -> str:  # noqa: ARG002
+        return self.config.model
+
+    def prompt_profile_for_task(self, task_name: str) -> str:  # noqa: ARG002
+        return self.prompt_profile_name
+
+    def extract_text(self, response: dict[str, Any] | None) -> str | None:
+        if not isinstance(response, dict):
+            return None
+        candidate = response.get("text")
+        if isinstance(candidate, str) and candidate.strip():
+            return candidate
+        raw_payload = response.get("raw")
+        if not isinstance(raw_payload, dict):
+            raw_payload = response
+        return self._extract_text_from_payload(raw_payload)
+
+    def normalize_text_response(self, response: dict[str, Any] | None) -> NormalizedAdapterResponse:
+        """Return a normalized text payload for execution workflows."""
+
+        if not isinstance(response, dict):
+            return NormalizedAdapterResponse(
+                text=None,
+                raw_payload=None,
+                extraction_source=None,
+            )
+        candidate = response.get("text")
+        if isinstance(candidate, str) and candidate.strip():
+            raw_payload = response.get("raw")
+            if not isinstance(raw_payload, dict):
+                raw_payload = response
+            return NormalizedAdapterResponse(
+                text=candidate,
+                raw_payload=raw_payload if isinstance(raw_payload, dict) else None,
+                extraction_source="text",
+            )
+        raw_payload = response.get("raw")
+        if not isinstance(raw_payload, dict):
+            raw_payload = response
+        extracted = self._extract_text_from_payload(
+            raw_payload if isinstance(raw_payload, dict) else {}
+        )
+        return NormalizedAdapterResponse(
+            text=extracted,
+            raw_payload=raw_payload if isinstance(raw_payload, dict) else None,
+            extraction_source=(
+                "payload" if isinstance(extracted, str) and extracted.strip() else None
+            ),
+        )
+
+    def _extract_text_from_payload(self, payload: dict[str, Any]) -> str | None:
+        for key in ("response", "text", "content", "output"):
+            candidate = payload.get(key)
+            if isinstance(candidate, str) and candidate.strip():
+                return candidate
+        message = payload.get("message")
+        if isinstance(message, dict):
+            content = message.get("content")
+            if isinstance(content, str) and content.strip():
+                return content
+        data = payload.get("data")
+        if isinstance(data, dict):
+            nested = self._extract_text_from_payload(data)
+            if isinstance(nested, str) and nested.strip():
+                return nested
+        choices = payload.get("choices")
+        if isinstance(choices, list) and choices:
+            first = choices[0]
+            if isinstance(first, dict):
+                message = first.get("message")
+                if isinstance(message, dict):
+                    content = message.get("content")
+                    if isinstance(content, str) and content.strip():
+                        return content
+        return None
+
     def generate_draft(self, payload: dict[str, Any]) -> dict[str, Any]:
         raise NotImplementedError
 
@@ -74,6 +197,7 @@ class OllamaAdapter(BaseAdapter):
     """Minimal Ollama adapter placeholder."""
 
     provider_name = "ollama"
+    prompt_profile_name = "local_ollama_fast_draft"
 
     def health_check(self) -> bool:
         url = f"{self.config.base_url.rstrip('/')}/api/tags"
@@ -84,6 +208,11 @@ class OllamaAdapter(BaseAdapter):
         except (URLError, HTTPError, OSError) as exc:
             LOGGER.debug("Ollama health check failed: %s", exc)
             return False
+
+    def model_name_for_task(self, task_name: str) -> str:
+        if task_name == "outline":
+            return "outline-builder-v1"
+        return self.config.model
 
     def _generate(self, payload: dict[str, Any]) -> dict[str, Any]:
         prompt = payload.get("prompt")
@@ -121,6 +250,7 @@ class OpenAIAdapter(BaseAdapter):
     """Minimal OpenAI adapter placeholder."""
 
     provider_name = "openai"
+    prompt_profile_name = "remote_openai_heavy_draft"
 
     def __init__(self, config: AdapterConfig, *, api_key: str | None) -> None:
         super().__init__(config)
@@ -128,6 +258,11 @@ class OpenAIAdapter(BaseAdapter):
 
     def health_check(self) -> bool:
         return bool(self._api_key)
+
+    def model_name_for_task(self, task_name: str) -> str:
+        if task_name == "outline":
+            return "openai.outline"
+        return self.config.model
 
     def _raise_missing_key(self) -> None:
         if not self._api_key:
@@ -185,6 +320,8 @@ __all__ = [
     "AdapterConfig",
     "AdapterError",
     "BaseAdapter",
+    "NormalizedAdapterResponse",
     "OllamaAdapter",
     "OpenAIAdapter",
+    "ProviderCapabilities",
 ]

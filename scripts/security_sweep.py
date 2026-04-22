@@ -110,7 +110,9 @@ def detect_tooling() -> dict[str, bool]:
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Run security sweep helpers and emit JSON summary.")
+    parser = argparse.ArgumentParser(
+        description="Run security sweep helpers and emit JSON summary."
+    )
     parser.add_argument(
         "--output",
         "-o",

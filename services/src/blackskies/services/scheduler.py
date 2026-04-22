@@ -24,7 +24,9 @@ class VerificationScheduler:
 
     def __init__(self, settings: ServiceSettings, *, interval_seconds: int | None = None) -> None:
         self._settings = settings
-        self._interval = interval_seconds or getattr(settings, "verifier_schedule_seconds", DEFAULT_INTERVAL_SECONDS)
+        self._interval = interval_seconds or getattr(
+            settings, "verifier_schedule_seconds", DEFAULT_INTERVAL_SECONDS
+        )
         self._scheduler = BackgroundScheduler()
         self._job = None
 

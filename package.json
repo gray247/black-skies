@@ -14,6 +14,8 @@
     "lint:docs":  "markdownlint --disable MD041 -- \"CONTRIBUTING.md\" \"docs/style.md\" \"docs/rollback_policy.md\" \"docs/ui_copy_spec_v1.md\"",
     "test:e2e":  "node ./scripts/e2e-with-backend.mjs",
     "test:truth":  "node ./scripts/truth-with-backend.mjs",
+    "test:service-truth": "python ./scripts/run_service_truth.py",
+    "verify:gauntlet": "python ./scripts/verify_gauntlet.py",
     "repo:hygiene":  "python scripts/check_repo_hygiene.py --tracked"
                 },
     "devDependencies":  {
@@ -21,6 +23,7 @@
                         },
     "packageManager":  "pnpm@8.15.9+sha512.499434c9d8fdd1a2794ebf4552b3b25c0a633abcee5bb15e7b5de90f32f47b513aca98cd5cfd001c31f0db454bc3804edccd578501e4ca293a6816166bbd9f81",
     "dependencies":  {
+                         "ws": "^8.18.3",
                          "yaml":  "^2.8.1"
                      }
 }

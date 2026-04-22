@@ -50,7 +50,9 @@ def _create_sample_project(base_dir: Path, project_id: str) -> Path:
     return project_root
 
 
-def _call_create_snapshot(client: TestClient, project_id: str, path: str = "/api/v1/snapshots") -> dict[str, object]:
+def _call_create_snapshot(
+    client: TestClient, project_id: str, path: str = "/api/v1/snapshots"
+) -> dict[str, object]:
     response = client.post(path, json={"project_id": project_id})
     assert response.status_code == 200
     payload = response.json()
@@ -92,7 +94,9 @@ def test_snapshot_restore_endpoint_reapplies_verified_state(test_client: TestCli
     # Build a fake snapshot inside history/snapshots/20250101T000000Z_accept
     snapshot_dir = project_root / "history" / "snapshots" / "20250101T000000Z_accept"
     snapshot_dir.mkdir(parents=True, exist_ok=True)
-    (snapshot_dir / "project.json").write_text(json.dumps(original_project, indent=2), encoding="utf-8")
+    (snapshot_dir / "project.json").write_text(
+        json.dumps(original_project, indent=2), encoding="utf-8"
+    )
     (snapshot_dir / "outline.json").write_text(
         json.dumps({"schema_version": "OutlineSchema v1", "outline_id": "out_snapshot"}, indent=2),
         encoding="utf-8",

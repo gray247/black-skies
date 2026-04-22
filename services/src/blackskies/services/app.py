@@ -33,7 +33,7 @@ from .http import (
 from .middleware import BodySizeLimitMiddleware
 from .metrics import record_request
 from .persistence import SnapshotPersistence
-from .routers import api_router
+from .routers import build_api_router
 from .routers.health import router as health_router
 from .routers.outline import BuildInProgressError, BuildTracker
 from .routers.recovery import RecoveryTracker
@@ -127,6 +127,7 @@ class TraceMiddleware:
             status_code = status_holder["status"] or status.HTTP_500_INTERNAL_SERVER_ERROR
             record_request(request.method, status_code)
 
+
 def create_app(settings: ServiceSettings | None = None) -> FastAPI:
     """Construct the FastAPI application."""
 
@@ -190,7 +191,9 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
         state_dir=resilience_state_dir,
     )
 
-    if service_settings.backup_verifier_enabled:
+    # Backup verification is implemented as an optional service. The standard
+    # runtime baseline keeps it disabled unless configuration explicitly opts in.
+    if service_settings.backup_verifier_feature_maturity.is_active:
         backup_verifier = BackupVerificationDaemon(
             settings=application.state.settings,
             diagnostics=application.state.diagnostics,
@@ -207,6 +210,8 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
         application.add_event_handler("startup", _start_backup_verifier)
         application.add_event_handler("shutdown", _stop_backup_verifier)
     else:
+        # Preserve explicit health state for the shipped baseline: verifier code
+        # exists, but the daemon is not started unless configuration enables it.
         application.state.backup_verifier = None
         application.state.backup_verifier_state = BackupVerifierState(
             enabled=False,
@@ -249,8 +254,13 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
     )
 
     application.add_middleware(
+        TraceMiddleware,
+        trace_context=trace_context,
+    )
+    application.add_middleware(
         CORSMiddleware,
-        # `allow_origin_regex` keeps local dev hosts while remaining compatible with Trio tests
+        # Keep CORS as the outermost middleware so it also decorates
+        # JSON error responses emitted by TraceMiddleware.
         allow_origins=[],
         allow_origin_regex=r"^https?://(?:127\.0\.0\.1|localhost)(?::\d+)?$",
         allow_credentials=True,
@@ -258,13 +268,10 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
         allow_headers=["*"],
     )
 
-    application.add_middleware(
-        TraceMiddleware,
-        trace_context=trace_context,
-    )
-
     application.include_router(health_router)
-    application.include_router(api_router)
+    application.include_router(
+        build_api_router(include_phase4_mock_routes=service_settings.phase4_mock_routes_enabled)
+    )
 
     @application.get("/", include_in_schema=False)
     async def service_index(request: Request) -> dict[str, str]:
@@ -286,24 +293,15 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
     return application
 
 
-# --- dev wrapper to add near the module-level app creation (paste where app = create_app() currently occurs) ---
-# Dev: clearer create_app startup errors (safe, reversible)
-import traceback, sys, logging
-logger = logging.getLogger(__name__)
-
+# Materialize the module-level ASGI app for Uvicorn and tests. This preserves
+# existing runtime behavior while keeping startup failures explicit.
 try:
-    # prefer create_app() if present, otherwise use existing app object if defined earlier
-    if "create_app" in globals():
-        app = create_app()
-    else:
-        app = globals().get("app", None)
+    app = create_app()
 except Exception:
-    # Print to console and re-raise so uvicorn shows the traceback
-    logger.exception("CREATE_APP FAILED: Backend failed to initialize. Run services/tools/check_startup.py for details.")
-    print("CREATE_APP FAILED — check services/tools/check_startup.py for details")
-    traceback.print_exc()
+    LOGGER.exception(
+        "CREATE_APP FAILED: Backend failed to initialize. Run services/tools/check_startup.py for details."
+    )
     raise
-# --- end patch ---
 
 
 __all__ = [

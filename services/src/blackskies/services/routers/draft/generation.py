@@ -24,9 +24,9 @@ from ...operations.draft_generation import (
 from ...model_router import ModelRouter
 from . import router
 from ...e2e_mode import (
+    allow_e2e_synthetic_mode,
     e2e_generate_response,
     e2e_preflight_response,
-    is_e2e_mode,
 )
 
 
@@ -64,7 +64,7 @@ async def generate_draft(
             project_root=project_root,
         )
 
-    if is_e2e_mode():
+    if allow_e2e_synthetic_mode():
         return e2e_generate_response(
             project_root=project_root,
             project_id=request_model.project_id,
@@ -172,7 +172,7 @@ async def preflight_draft(
             project_root=project_root,
         )
 
-    if is_e2e_mode():
+    if allow_e2e_synthetic_mode():
         return e2e_preflight_response(
             project_id=request_model.project_id,
             unit_scope=request_model.unit_scope,

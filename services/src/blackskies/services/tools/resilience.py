@@ -160,9 +160,7 @@ class ToolRunner:
             return future.result(timeout=self._config.timeout_seconds)
         except concurrent.futures.TimeoutError as exc:
             future.cancel()
-            raise ToolTimeoutError(
-                "Tool execution exceeded timeout.", cause=exc
-            ) from exc
+            raise ToolTimeoutError("Tool execution exceeded timeout.", cause=exc) from exc
 
     def _backoff(self, attempt: int) -> None:
         delay = max(0.0, self._config.backoff_seconds * attempt)

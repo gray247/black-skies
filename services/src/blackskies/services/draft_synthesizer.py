@@ -63,7 +63,15 @@ class DraftSynthesizer:
 
         response_meta = {
             key: meta[key]
-            for key in ("pov", "purpose", "emotion_tag", "word_target", "conflict", "conflict_type", "pacing_target")
+            for key in (
+                "pov",
+                "purpose",
+                "emotion_tag",
+                "word_target",
+                "conflict",
+                "conflict_type",
+                "pacing_target",
+            )
             if meta.get(key) is not None
         }
         response_meta["order"] = meta["order"]
@@ -133,7 +141,8 @@ class DraftSynthesizer:
         word_target = (
             overrides.word_target
             if overrides and overrides.word_target is not None
-            else self._heuristics.word_target_base + (order_value * self._heuristics.word_target_step)
+            else self._heuristics.word_target_base
+            + (order_value * self._heuristics.word_target_step)
         )
         beats = list(scene.beat_refs)
         if overrides and overrides.beats is not None:
@@ -228,9 +237,8 @@ class DraftSynthesizer:
         return options[index]
 
     def _pacing_label(self, word_target: int, order_value: int) -> str:
-        expected = (
-            self._heuristics.word_target_base
-            + (order_value * self._heuristics.word_target_step)
+        expected = self._heuristics.word_target_base + (
+            order_value * self._heuristics.word_target_step
         )
         if expected <= 0:
             return "steady"

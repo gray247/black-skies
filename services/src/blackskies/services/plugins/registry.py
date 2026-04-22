@@ -1,4 +1,8 @@
-"""Plugin registry handling manifest storage and sandbox execution."""
+"""Plugin registry handling manifest storage and sandbox execution.
+
+Plugin execution is implemented, but it is not part of the standard product
+surface unless the plugin feature flag is explicitly enabled.
+"""
 
 from __future__ import annotations
 
@@ -41,7 +45,7 @@ _ALLOWED_MANIFEST_KEYS = {"entrypoint", "module_path", "metadata"}
 
 
 class PluginRegistry:
-    """Manage plugin manifests, state, and sandboxed execution."""
+    """Manage plugin manifests, state, and sandboxed execution for the optional plugin surface."""
 
     def __init__(self, *, base_dir: Path, python_executable: str | None = None) -> None:
         self._base_dir = base_dir
@@ -100,10 +104,14 @@ class PluginRegistry:
             enabled = True
             if state_path.exists():
                 try:
-                    enabled = bool(json.loads(state_path.read_text(encoding="utf-8")).get("enabled", True))
+                    enabled = bool(
+                        json.loads(state_path.read_text(encoding="utf-8")).get("enabled", True)
+                    )
                 except json.JSONDecodeError:
                     enabled = True
-            records.append(PluginRecord(plugin_id=entry.name, manifest_path=manifest_path, enabled=enabled))
+            records.append(
+                PluginRecord(plugin_id=entry.name, manifest_path=manifest_path, enabled=enabled)
+            )
         return records
 
     def set_enabled(self, plugin_id: str, enabled: bool) -> None:
@@ -115,6 +123,8 @@ class PluginRegistry:
     def execute(self, plugin_id: str, request: Dict[str, Any]) -> Dict[str, Any]:
         """Execute a plugin inside the sandbox runner and return its response."""
 
+        # Visibility in code does not imply baseline availability. Execution
+        # remains non-standard unless the plugin feature flag explicitly enables it.
         if not plugins_enabled():
             raise PluginExecutionError("Plugin execution is disabled in Phase 8.")
 
@@ -140,7 +150,9 @@ class PluginRegistry:
 
     def _validate_plugin_id(self, plugin_id: str) -> None:
         if not _PLUGIN_ID_RE.match(plugin_id):
-            raise ValueError("Plugin ID must be alphanumeric with dashes/underscores (max 64 chars).")
+            raise ValueError(
+                "Plugin ID must be alphanumeric with dashes/underscores (max 64 chars)."
+            )
 
     def _sanitise_manifest(self, manifest: Dict[str, Any], plugin_dir: Path) -> Dict[str, Any]:
         unknown_keys = set(manifest.keys()) - _ALLOWED_MANIFEST_KEYS
@@ -185,7 +197,9 @@ class PluginRegistry:
             raise ValueError("Plugin module_path must exist within the plugin directory.")
         return str(candidate)
 
-    def _build_runner_env(self, *, plugin_dir: Path, plugin_id: str, manifest: Dict[str, Any]) -> Dict[str, str]:
+    def _build_runner_env(
+        self, *, plugin_dir: Path, plugin_id: str, manifest: Dict[str, Any]
+    ) -> Dict[str, str]:
         env: Dict[str, str] = {}
         for key in _SAFE_ENV_VARS:
             value = os.environ.get(key)

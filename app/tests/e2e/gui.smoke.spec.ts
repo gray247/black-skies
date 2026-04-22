@@ -3,6 +3,11 @@ import { fileURLToPath } from 'node:url';
 
 import { test, expect } from './_electron.fixture';
 
+// HARNESS_ONLY:
+// Reason: basic packaged-renderer boot smoke for UI presence.
+// Owner: app/tests/e2e/gui.smoke.spec.ts
+// Retire when: no separate harness smoke lane is needed.
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const sampleProjectPath = path.resolve(__dirname, '../../sample_project/Esther_Estate');

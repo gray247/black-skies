@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from test_app import (
+from services.tests.test_app import (
     API_PREFIX,
     SERVICE_VERSION,
     _assert_trace_header,
@@ -29,6 +29,14 @@ EXPECTED_HEALTH_PAYLOAD = {
     "backup_message": "Backup verifier disabled by configuration.",
     "backup_checked_snapshots": 0,
     "backup_failed_snapshots": 0,
+    "feature_maturity_contract": "diagnostics_only_v1",
+    "feature_maturity": {
+        "analytics": "production",
+        "backup_verifier": "off",
+        "memory_lab": "off",
+        "plugins": "off",
+        "voice_notes": "internal",
+    },
     "backup_voice_notes_checked": 0,
     "backup_voice_note_issues": 0,
 }

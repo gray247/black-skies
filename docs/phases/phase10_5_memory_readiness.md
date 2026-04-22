@@ -1,76 +1,45 @@
-# Phase 10.5 — Memory Readiness Checkpoint
+Status: Historical checkpoint
+Version: 1.0.0
+Last Reviewed: 2026-04-18
+
+# Phase 10.5 — Historical Memory Readiness Checkpoint
 
 ## Status
-Complete
+Completed and consumed by Memory Prototype v1 execution on `prototype/memory-v1`.
 
 ## Purpose
-Establish a stable, trustworthy foundation for backend memory experimentation.
+This is the readiness/gate checkpoint, not the implementation contract.
 
-This phase ensures:
-- canonical truth boundaries are enforced
-- test lanes reflect real system behavior
-- repository state is synchronized and verifiable
-- documentation authority is clearly defined
-
-## Completed Work
-
-### Truth Integrity
-- Advisory vs canonical state separation enforced
-- No mutation of canonical state without explicit accept
-
-### Test Integrity
-- Real-service truth lane stabilized
-- UI-only control paths clearly separated
-- Ghost/non-public routes blocked
-
-### Repository State
-- Local and remote branches synchronized
-- Clean commit history for governance changes
-- .gitignore conflicts resolved and hardened
-
-### Governance / Documentation
-- Canonical phase status source defined:
-  - docs/roadmap.md (current-status snapshot)
-  - docs/phases/phase_log.md (dated ledger)
-- Conflict resolution rule established across roadmap, bridge, and charter
-- Status drift resolved and verified via checker script
-
-## Verification
-
-- `pnpm test:truth` → pass
-- `python scripts/check_roadmap_vs_phase_log.py` → pass
-- Playwright real-service tests → pass
-- Backend contract tests → pass
-
-## Constraints Going Forward
-
-- No memory system may mutate canonical state without explicit promotion
-- No UI-only test path may be treated as truth validation
-- No new phase work may bypass canonical status governance
-
-## What This Enables
-
-Backend-only memory experimentation, including:
-- state ledger
-- scene delta extraction
-- drift detection (non-blocking)
-- task packet construction
-
-## What Is Explicitly Out of Scope
-
-- GUI redesign
-- full RAG implementation
-- multi-provider routing
-- long-form multi-book memory systems
-
-## Notes
-
-This checkpoint marks the transition from stabilization to controlled experimentation.
-
-Implementation specification for prototype execution:
+Implementation spec:
 - `docs/specs/memory_prototype_v1.md`
 
-Future work must preserve:
-- truth integrity
-- test honesty
-- governance clarity
+Authority: historical readiness checkpoint for prototype work. Not current runtime authority.
+
+Findings and decision record:
+- `docs/reviews/memory_prototype_v1_findings.md`
+
+## What This Gate Established
+- Canonical/advisory boundaries were enforced before prototype work.
+- Canonical narrative state requires explicit accept for promotion.
+- Truth/governance checks were stabilized for controlled backend experimentation.
+
+## Prototype Execution Coverage
+Memory Prototype v1 has now been exercised through:
+- M1
+- M2
+- M3
+- M4
+- M5
+- Revision Pass A
+- Revision Pass B
+
+## Outcome Summary
+- Safety boundaries held.
+- No canonical mutation observed.
+- Advisory-only behavior held.
+- Deterministic lineage behavior held.
+- Legacy replay remains replay/eval-only and is now classified as reducible risk, now contained.
+- Current recommendation: continue toward next phase.
+
+## Known Caveat
+- The M5 eval runner does not execute the full truth-lane regression suite internally; this remains explicitly reported as not evaluated in the M5 runner.

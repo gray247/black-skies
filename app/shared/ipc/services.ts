@@ -148,6 +148,7 @@ export interface DraftCritiqueBridgeResponse {
   priorities?: string[];
   line_comments?: DraftCritiqueNote[];
   model?: { name: string; provider: string };
+  provenance?: ActionProvenance;
   budget?: {
     estimated_usd?: number;
     status?: DraftPreflightStatus;
@@ -178,8 +179,40 @@ export interface Phase4CritiqueBridgeResponse {
   summary: string;
   issues: Phase4Issue[];
   suggestions: string[];
+  provenance?: ActionProvenance;
   budget?: DraftCritiqueBridgeResponse['budget'];
   heuristics?: Record<string, unknown>;
+}
+
+export interface ActionProvenance {
+  route_name: string;
+  provider_called: boolean;
+  result_origin: 'provider' | 'fallback' | 'mock' | 'local';
+  budget_delta: number | null;
+}
+
+export interface DraftRewriteBridgeRequest {
+  projectId: string;
+  draftId: string;
+  unitId: string;
+  unit: {
+    id: string;
+    text: string;
+    meta?: Record<string, unknown>;
+    prompt_fingerprint?: string;
+    model?: Record<string, unknown>;
+    seed?: number;
+  };
+  instructions?: string;
+  newText?: string;
+}
+
+export interface DraftRewriteBridgeResponse {
+  unit_id: string;
+  revised_text: string;
+  schema_version: 'DraftUnitSchema v1';
+  model?: { name: string; provider: string };
+  provenance?: ActionProvenance;
 }
 
 export interface Phase4RewriteBridgeRequest {
@@ -191,6 +224,7 @@ export interface Phase4RewriteBridgeRequest {
 
 export interface Phase4RewriteBridgeResponse {
   revisedText: string;
+  provenance?: ActionProvenance;
 }
 
 export interface SnapshotSummary {
@@ -433,6 +467,9 @@ export interface ServicesBridge {
   critiqueDraft: (
     request: DraftCritiqueBridgeRequest,
   ) => Promise<ServiceResult<DraftCritiqueBridgeResponse>>;
+  rewriteDraft?: (
+    request: DraftRewriteBridgeRequest,
+  ) => Promise<ServiceResult<DraftRewriteBridgeResponse>>;
   phase4Critique: (
     request: Phase4CritiqueBridgeRequest,
   ) => Promise<ServiceResult<Phase4CritiqueBridgeResponse>>;

@@ -1,15 +1,17 @@
-Status: Active
+Status: Historical cleanup record / supporting reference
 Version: 1.0.0
-Last Reviewed: 2025-11-15
+Last Reviewed: 2026-04-18
 
-# Black Skies Planning Docs Cleanup Checklist
+# Black Skies Planning Docs Cleanup Checklist (Historical Record)
 
-> Goal: tame the “rat’s nest” of planning/docs **before** we touch new planning or run Agent Mode again.
+This document records a documentation cleanup effort. It is not a current authority document.
 
-Use this as a working checklist in the repo (e.g. `docs/docs_cleanup_checklist.md`).  
-You can annotate with dates, initials, or links to PRs as you go.
-
----
+Use these instead for live truth:
+- `docs/specs/current_state.md`
+- `docs/specs/memory_runtime.md`
+- `docs/specs/model_runtime.md`
+- `docs/roadmap.md` for planning status
+- `docs/phases/phase_charter.md` for future scope
 
 ## Legend
 

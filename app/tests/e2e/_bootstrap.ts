@@ -79,5 +79,13 @@ export async function bootstrapHarness(page: Page): Promise<void> {
     { timeout: 30_000 },
   );
 
-  await page.getByTestId('dock-workspace').waitFor({ timeout: 30_000 });
+  await page.waitForFunction(
+    () =>
+      Boolean(
+        document.querySelector('[data-testid="dock-workspace"]') ??
+          document.querySelector('[data-testid="workspace-action-generate"]'),
+      ),
+    null,
+    { timeout: 30_000 },
+  );
 }

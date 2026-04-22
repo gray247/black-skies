@@ -6,13 +6,14 @@ import App from '../App';
 
 import type { LoadedProject } from '../../shared/ipc/projectLoader';
 import type {
-  Phase4CritiqueBridgeResponse,
+  DraftCritiqueBridgeResponse,
   ServicesBridge,
 } from '../../shared/ipc/services';
 
 declare global {
   interface Window {
     services?: ServicesBridge;
+    __TEST_PROJECT_HOME_EDITED_DRAFT?: string;
   }
 }
 
@@ -92,9 +93,13 @@ function ProjectHomeMock({
     });
 
     const draftText = draftOverrides?.sc_0001 ?? loadedProject.drafts.sc_0001;
+    const editedDraft =
+      typeof window.__TEST_PROJECT_HOME_EDITED_DRAFT === 'string'
+        ? window.__TEST_PROJECT_HOME_EDITED_DRAFT
+        : draftText;
     lastDraftRef.current = draftText;
     onActiveSceneChange?.({ sceneId: 'sc_0001', sceneTitle: 'Arrival', draft: draftText });
-    onDraftChange?.('sc_0001', draftText);
+    onDraftChange?.('sc_0001', editedDraft);
   }, [draftOverrides, onActiveSceneChange, onDraftChange, onProjectLoaded]);
 
   useEffect(() => {
@@ -149,6 +154,10 @@ function createServices(): ServicesBridge {
         },
       }),
     critiqueDraft: vi.fn().mockResolvedValue({ ok: true, data: { summary: 'ok' } }),
+    rewriteDraft: vi.fn().mockResolvedValue({
+      ok: true,
+      data: { unit_id: 'sc_0001', revised_text: '' },
+    }),
     phase4Critique: vi.fn().mockResolvedValue({
       ok: true,
       data: { summary: '', issues: [], suggestions: [] },
@@ -219,25 +228,27 @@ describe('App critique + rewrite loop', () => {
 
   afterEach(() => {
     delete window.services;
+    delete window.__TEST_PROJECT_HOME_EDITED_DRAFT;
+    delete (window as typeof window & { __BLACKSKIES_PHASE4_MOCK?: boolean }).__BLACKSKIES_PHASE4_MOCK;
     vi.resetAllMocks();
   });
 
-  it('runs critique, rewrites, and applies the mock revision', async () => {
-    const critiqueResponse: Phase4CritiqueBridgeResponse = {
-      summary: 'Mock summary for testing.',
-      issues: [
-        { type: 'pacing', message: 'Sample issue.', line: 1 },
-      ],
-      suggestions: ['Add tension in the middle beat.'],
+  it('runs critique, rewrites, and applies the revision', async () => {
+    const critiqueResponse: DraftCritiqueBridgeResponse = {
+      unit_id: 'sc_0001',
+      schema_version: 'CritiqueOutputSchema v1',
+      summary: 'Summary for testing.',
+      priorities: ['Add tension in the middle beat.'],
+      line_comments: [{ line: 1, note: 'Sample issue.' }],
     };
-    (services.phase4Critique as vi.Mock).mockResolvedValue({
+    (services.critiqueDraft as vi.Mock).mockResolvedValue({
       ok: true,
       data: critiqueResponse,
       traceId: 'trace-critique',
     });
-    (services.phase4Rewrite as vi.Mock).mockResolvedValue({
+    (services.rewriteDraft as vi.Mock).mockResolvedValue({
       ok: true,
-      data: { revisedText: '[REWRITE MOCK] Revised scene text' },
+      data: { unit_id: 'sc_0001', revised_text: 'Revised scene text' },
       traceId: 'trace-rewrite',
     });
 
@@ -247,14 +258,15 @@ describe('App critique + rewrite loop', () => {
     fireEvent.click(critiqueButton);
 
     await screen.findByText(critiqueResponse.summary);
-    expect(services.phase4Critique).toHaveBeenCalledWith(
+    await screen.findByText(/route=draft\/critique/i);
+    await screen.findByText(/Budget source: no budgeted action\./i);
+    expect(services.critiqueDraft).toHaveBeenCalledWith(
       expect.objectContaining({
         projectId: 'demo',
-        sceneId: 'sc_0001',
-        text: loadedProject.drafts.sc_0001,
-        mode: 'pacing',
+        unitId: 'sc_0001',
       }),
     );
+    expect(services.phase4Critique).not.toHaveBeenCalled();
 
     const instructions = screen.getByPlaceholderText(
       'Summarize what you want to improve, or describe the feeling to amplify.',
@@ -265,16 +277,18 @@ describe('App critique + rewrite loop', () => {
     fireEvent.click(rewriteButton);
 
     await waitFor(() =>
-      expect(services.phase4Rewrite).toHaveBeenCalledWith(
+      expect(services.rewriteDraft).toHaveBeenCalledWith(
         expect.objectContaining({
           projectId: 'demo',
-          sceneId: 'sc_0001',
+          unitId: 'sc_0001',
           instructions: 'Add more tension',
         }),
       ),
     );
+    expect(services.phase4Rewrite).not.toHaveBeenCalled();
 
     await screen.findByText('Rewrite preview');
+    await screen.findByText(/route=draft\/rewrite/i);
 
     const applyButton = screen.getByRole('button', { name: 'Apply rewrite' });
     fireEvent.click(applyButton);
@@ -282,5 +296,143 @@ describe('App critique + rewrite loop', () => {
     await waitFor(() => {
       expect(screen.queryByRole('dialog')).toBeNull();
     });
+  });
+
+  it('surfaces backend rewrite conflicts without collapsing to generic fetch failure', async () => {
+    const critiqueResponse: DraftCritiqueBridgeResponse = {
+      unit_id: 'sc_0001',
+      schema_version: 'CritiqueOutputSchema v1',
+      summary: 'Summary for rewrite conflict testing.',
+      priorities: ['Preserve continuity.'],
+      line_comments: [{ line: 1, note: 'Keep stakes clear.' }],
+    };
+    (services.critiqueDraft as vi.Mock).mockResolvedValue({
+      ok: true,
+      data: critiqueResponse,
+      traceId: 'trace-critique',
+    });
+    (services.rewriteDraft as vi.Mock).mockResolvedValue({
+      ok: false,
+      error: {
+        code: 'CONFLICT',
+        message: 'The scene on disk no longer matches the submitted draft unit.',
+        details: {
+          provenance: {
+            route_name: 'draft/rewrite',
+            provider_called: false,
+            result_origin: 'fallback',
+            budget_delta: null,
+          },
+        },
+      },
+      traceId: 'trace-rewrite-conflict',
+    });
+
+    render(<App />);
+
+    const critiqueButton = await screen.findByTestId('workspace-action-critique');
+    fireEvent.click(critiqueButton);
+    await screen.findByText(critiqueResponse.summary);
+
+    const rewriteButton = screen.getByRole('button', { name: /Generate rewrite/i });
+    fireEvent.click(rewriteButton);
+
+    await waitFor(() => {
+      expect(
+        screen.getAllByText('The scene on disk no longer matches the submitted draft unit.').length,
+      ).toBeGreaterThanOrEqual(1);
+    });
+    expect(screen.getAllByText('Rewrite failed.').length).toBeGreaterThanOrEqual(1);
+    expect(screen.queryByText('Failed to fetch')).toBeNull();
+  });
+
+  it('guards default path integrity by preferring draft routes over phase4 routes', async () => {
+    const phase4Window = window as typeof window & { __BLACKSKIES_PHASE4_MOCK?: boolean };
+    phase4Window.__BLACKSKIES_PHASE4_MOCK = false;
+
+    (services.critiqueDraft as vi.Mock).mockResolvedValue({
+      ok: true,
+      data: {
+        unit_id: 'sc_0001',
+        schema_version: 'CritiqueOutputSchema v1',
+        summary: 'Default route guard critique.',
+        priorities: [],
+        line_comments: [],
+      } satisfies DraftCritiqueBridgeResponse,
+    });
+    (services.rewriteDraft as vi.Mock).mockResolvedValue({
+      ok: true,
+      data: { unit_id: 'sc_0001', revised_text: 'Default route guard rewrite.' },
+    });
+
+    render(<App />);
+
+    fireEvent.click(await screen.findByTestId('workspace-action-critique'));
+    await screen.findByText(/route=draft\/critique/i);
+    expect(services.critiqueDraft).toHaveBeenCalledTimes(1);
+    expect(services.phase4Critique).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole('button', { name: /Generate rewrite/i }));
+    await screen.findByText(/route=draft\/rewrite/i);
+    expect(services.rewriteDraft).toHaveBeenCalledTimes(1);
+    expect(services.phase4Rewrite).not.toHaveBeenCalled();
+  });
+
+  it('sends rewrite payload text from active draft edits (draftEdits over projectDrafts)', async () => {
+    const editedDraft = 'Edited draft text wins over project draft.';
+    window.__TEST_PROJECT_HOME_EDITED_DRAFT = editedDraft;
+
+    (services.critiqueDraft as vi.Mock).mockResolvedValue({
+      ok: true,
+      data: {
+        unit_id: 'sc_0001',
+        schema_version: 'CritiqueOutputSchema v1',
+        summary: 'Payload-source verification critique.',
+        priorities: [],
+        line_comments: [],
+      } satisfies DraftCritiqueBridgeResponse,
+    });
+    (services.rewriteDraft as vi.Mock).mockResolvedValue({
+      ok: true,
+      data: { unit_id: 'sc_0001', revised_text: 'Rewritten payload-source text.' },
+    });
+
+    render(<App />);
+
+    fireEvent.click(await screen.findByTestId('workspace-action-critique'));
+    await screen.findByText(/route=draft\/critique/i);
+    expect(services.critiqueDraft).toHaveBeenCalledWith(
+      expect.objectContaining({
+        projectId: 'demo',
+        unitId: 'sc_0001',
+      }),
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /Generate rewrite/i }));
+    await waitFor(() =>
+      expect(services.rewriteDraft).toHaveBeenCalledWith(
+        expect.objectContaining({
+          unitId: 'sc_0001',
+          unit: expect.objectContaining({
+            id: 'sc_0001',
+            text: editedDraft,
+          }),
+        }),
+      ),
+    );
+  });
+
+  it('companion scene insights word count tracks active edited draft text', async () => {
+    const editedDraft = 'one two three four five six seven';
+    window.__TEST_PROJECT_HOME_EDITED_DRAFT = editedDraft;
+    render(<App />);
+
+    fireEvent.click(await screen.findByTestId('workspace-action-companion'));
+    await screen.findByTestId('companion-overlay');
+
+    const wordCountTerm = await screen.findByText('Word count');
+    const statsEntry = wordCountTerm.closest('div');
+    const wordCountValue = statsEntry?.querySelector('dd')?.textContent?.trim() ?? null;
+    expect(wordCountValue).toBe('7');
   });
 });

@@ -1,4 +1,8 @@
-"""Background daemon that verifies project backups and snapshots."""
+"""Optional background daemon that verifies project backups and snapshots.
+
+The verifier is implemented in the runtime, but it is not part of the default
+service baseline unless ``backup_verifier_enabled`` is set.
+"""
 
 from __future__ import annotations
 
@@ -106,9 +110,10 @@ def _normalise_include_entries(values: Any) -> tuple[set[str], list[str]]:
 
     return normalised, invalid
 
+
 @dataclass(slots=True)
 class BackupIssue:
-    """Represents a single verification failure for a snapshot or voice note."""
+    """Represents a single verification failure for a snapshot or optional voice-note archive check."""
 
     project_id: str
     snapshot_id: str | None
@@ -272,7 +277,11 @@ class BackupVerifierState:
 
 
 class BackupVerificationDaemon:
-    """Periodic verifier that audits snapshot archives and emits diagnostics."""
+    """Periodic verifier for the optional backup-audit subsystem.
+
+    This daemon is available in code, but the application does not start it in
+    the shipped baseline unless configuration explicitly opts in.
+    """
 
     def __init__(
         self,
@@ -283,7 +292,9 @@ class BackupVerificationDaemon:
     ) -> None:
         self._settings = settings
         self._diagnostics = diagnostics
-        self._state_dir = state_dir or (settings.project_base_dir / "service_state" / "backup_verifier")
+        self._state_dir = state_dir or (
+            settings.project_base_dir / "service_state" / "backup_verifier"
+        )
         self._state_dir.mkdir(parents=True, exist_ok=True)
         self._state_path = self._state_dir / "backup_verifier_state.json"
         self._state = BackupVerifierState(
@@ -364,9 +375,7 @@ class BackupVerificationDaemon:
             message = "No snapshots or voice notes discovered for verification."
         else:
             status = "ok"
-            message = (
-                f"Verified {checked_total} snapshot(s) and {voice_notes_checked} voice note(s) with no issues."
-            )
+            message = f"Verified {checked_total} snapshot(s) and {voice_notes_checked} voice note(s) with no issues."
 
         report = BackupVerificationReport(
             started_at=started_at,
@@ -467,7 +476,9 @@ class BackupVerificationDaemon:
         for project in report.projects:
             for snapshot in project.snapshots:
                 if snapshot.checksum:
-                    self._previous_checksums[(project.project_id, snapshot.snapshot_id)] = snapshot.checksum
+                    self._previous_checksums[(project.project_id, snapshot.snapshot_id)] = (
+                        snapshot.checksum
+                    )
 
     def _emit_project_diagnostics(
         self,
@@ -528,7 +539,9 @@ class BackupVerificationDaemon:
         report = ProjectVerificationReport(project_id=project_id)
         snapshots_dir = project_root / "history" / "snapshots"
         if snapshots_dir.exists():
-            for snapshot_dir in sorted(snapshots_dir.iterdir(), key=lambda candidate: candidate.name):
+            for snapshot_dir in sorted(
+                snapshots_dir.iterdir(), key=lambda candidate: candidate.name
+            ):
                 if not snapshot_dir.is_dir():
                     continue
                 snapshot_report = self._verify_snapshot(project_id, project_root, snapshot_dir)
@@ -643,12 +656,16 @@ class BackupVerificationDaemon:
         metadata_includes: set[str] = set()
         metadata_invalid: list[str] = []
         if metadata:
-            metadata_includes, metadata_invalid = _normalise_include_entries(metadata.get("includes"))
+            metadata_includes, metadata_invalid = _normalise_include_entries(
+                metadata.get("includes")
+            )
 
         manifest_includes: set[str] = set()
         manifest_invalid: list[str] = []
         if manifest:
-            manifest_includes, manifest_invalid = _normalise_include_entries(manifest.get("includes"))
+            manifest_includes, manifest_invalid = _normalise_include_entries(
+                manifest.get("includes")
+            )
 
         if metadata_invalid:
             issues.append(
@@ -745,11 +762,7 @@ class BackupVerificationDaemon:
 
         files: list[Path] = []
         if snapshot_dir.exists():
-            files = [
-                path
-                for path in sorted(snapshot_dir.rglob("*"))
-                if path.is_file()
-            ]
+            files = [path for path in sorted(snapshot_dir.rglob("*")) if path.is_file()]
             checked_files = len(files)
 
         if files:
@@ -763,7 +776,10 @@ class BackupVerificationDaemon:
                             project_id=project_id,
                             snapshot_id=snapshot_id,
                             reason="failed to read file for checksum",
-                            details={"path": str(file_path.relative_to(snapshot_dir)), "error": str(exc)},
+                            details={
+                                "path": str(file_path.relative_to(snapshot_dir)),
+                                "error": str(exc),
+                            },
                         )
                     )
                     continue
@@ -818,7 +834,11 @@ class BackupVerificationDaemon:
         project_id: str,
         project_root: Path,
     ) -> tuple[int, list[BackupIssue]]:
-        """Validate voice note audio and transcript pairs."""
+        """Validate voice note audio and transcript pairs.
+
+        This only audits archived assets when the deferred voice-note workflow
+        has been explicitly enabled elsewhere.
+        """
 
         if not voice_notes_enabled():
             return 0, []
@@ -924,7 +944,9 @@ def _hash_file(path: Path) -> str:
     return digest.hexdigest()
 
 
-def _verify_snapshot_entries(project_root: Path, snapshots: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], int, int]:
+def _verify_snapshot_entries(
+    project_root: Path, snapshots: list[dict[str, Any]]
+) -> tuple[list[dict[str, Any]], int, int]:
     entries: list[dict[str, Any]] = []
     checked_snapshots = 0
     failed_snapshots = 0
@@ -969,7 +991,9 @@ def _verify_snapshot_entries(project_root: Path, snapshots: list[dict[str, Any]]
     return entries, checked_snapshots, failed_snapshots
 
 
-def _verify_backup_entries(project_root: Path, backups_dir: Path) -> tuple[list[dict[str, Any]], int, int]:
+def _verify_backup_entries(
+    project_root: Path, backups_dir: Path
+) -> tuple[list[dict[str, Any]], int, int]:
     entries: list[dict[str, Any]] = []
     checked_backups = 0
     failed_backups = 0

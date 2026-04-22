@@ -16,6 +16,7 @@ const __dirname = path.dirname(__filename);
 
 export const test = base.extend<Fixtures>({
   electronApp: async ({}, use) => {
+    const useExternalService = process.env.BLACKSKIES_E2E_EXTERNAL_SERVICE === '1';
     const appDir = path.resolve(__dirname, '..', '..');
     const packagedEntry = path.resolve(appDir, 'dist-electron', 'main', 'main.js');
     const devFallback = path.resolve(appDir, 'main', 'main.ts');
@@ -33,15 +34,20 @@ export const test = base.extend<Fixtures>({
       BLACKSKIES_SERVICES_PORT: String(SERVICE_PORT),
       BLACKSKIES_E2E_PORT: String(SERVICE_PORT),
     };
+    if (process.platform === 'linux') {
+      launchEnv.ELECTRON_DISABLE_SANDBOX = '1';
+    }
 
     const prevServicePort = process.env.BLACKSKIES_SERVICES_PORT;
     const prevE2ePort = process.env.BLACKSKIES_E2E_PORT;
     process.env.BLACKSKIES_SERVICES_PORT = launchEnv.BLACKSKIES_SERVICES_PORT;
     process.env.BLACKSKIES_E2E_PORT = launchEnv[ 'BLACKSKIES_E2E_PORT' ] ?? launchEnv.BLACKSKIES_SERVICES_PORT;
 
-    await startServiceStubs();
+    if (!useExternalService) {
+      await startServiceStubs();
+    }
     const application = await electron.launch({
-      args: [entryPoint],
+      args: [...(process.platform === 'linux' ? ['--no-sandbox'] : []), entryPoint],
       env: launchEnv,
     });
 
@@ -49,7 +55,9 @@ export const test = base.extend<Fixtures>({
       await use(application);
     } finally {
       await application.close();
-      await stopServiceStubs();
+      if (!useExternalService) {
+        await stopServiceStubs();
+      }
       process.env.BLACKSKIES_SERVICES_PORT = prevServicePort;
       process.env.BLACKSKIES_E2E_PORT = prevE2ePort;
     }

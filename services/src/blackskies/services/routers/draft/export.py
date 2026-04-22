@@ -41,7 +41,9 @@ async def export_manuscript(
     payload: dict[str, Any],
     settings: ServiceSettings = Depends(get_settings),
     diagnostics: DiagnosticLogger = Depends(get_diagnostics),
-    analytics_resilience: ServiceResilienceExecutor | None = Depends(get_optional_analytics_resilience),
+    analytics_resilience: ServiceResilienceExecutor | None = Depends(
+        get_optional_analytics_resilience
+    ),
 ) -> dict[str, Any]:
     """Compile the manuscript to disk with optional metadata headers."""
 

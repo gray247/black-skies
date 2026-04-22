@@ -62,11 +62,7 @@ def test_classify_budget_returns_consistent_totals(
     assert total_after == pytest.approx(expected_total)
     assert status in {"ok", "soft-limit", "blocked"}
 
-    effective_soft = (
-        soft_limit
-        if 0 <= soft_limit <= effective_hard
-        else effective_hard
-    )
+    effective_soft = soft_limit if 0 <= soft_limit <= effective_hard else effective_hard
 
     if expected_total >= effective_hard:
         assert status == "blocked"

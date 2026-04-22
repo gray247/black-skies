@@ -2,6 +2,11 @@ import { test, expect } from './_electron.fixture';
 import { loadSampleProject } from './utils/sampleProject';
 import { TID } from '../../renderer/utils/testIds';
 
+// HARNESS_ONLY:
+// Reason: verifies insights UX behavior under harness-controlled connectivity toggles.
+// Owner: app/tests/e2e/gui.insights.spec.ts
+// Retire when: equivalent insights truth-path assertions exist in real-service lane.
+
 const { loadedProject } = loadSampleProject();
 const sampleProjectPath = loadedProject.path;
 
@@ -22,13 +27,14 @@ test('queues model insights offline and resumes when online', async ({ page }) =
   await companionToggle.click();
   await expect(page.getByTestId('insights-toolbar')).toBeVisible({ timeout: 30_000 });
 
-  await page.waitForFunction(
-    () =>
-      Boolean(
-        (window as typeof window & {
+  await page.waitForFunction(() =>
+    Boolean(
+      (
+        window as typeof window & {
           __testInsights?: { setServiceStatus?: unknown };
-        }).__testInsights?.setServiceStatus,
-      ),
+        }
+      ).__testInsights?.setServiceStatus,
+    ),
   );
 
   await page.evaluate(() => {

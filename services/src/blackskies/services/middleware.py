@@ -28,7 +28,9 @@ class BodySizeLimitMiddleware:
             await self.app(scope, receive, send)
             return
 
-        headers = {key.decode("latin-1"): value.decode("latin-1") for key, value in scope["headers"]}
+        headers = {
+            key.decode("latin-1"): value.decode("latin-1") for key, value in scope["headers"]
+        }
         content_length_header = headers.get("content-length")
         if content_length_header:
             content_length = self._parse_content_length(content_length_header)

@@ -2,16 +2,20 @@ import { useCallback, useMemo, useState } from 'react';
 import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
 import type { LoadedProject } from '../../shared/ipc/projectLoader';
 import type {
+  DraftCritiqueBridgeResponse,
+  DraftRewriteBridgeRequest,
   Phase4CritiqueBridgeRequest,
   Phase4CritiqueBridgeResponse,
   Phase4CritiqueMode,
   Phase4RewriteBridgeRequest,
+  ActionProvenance,
   ServicesBridge,
 } from '../../shared/ipc/services';
 import type ProjectSummary from '../types/project';
 import type { ToastPayload } from '../types/toast';
 import { generateDraftId } from '../utils/draft';
 import type { BudgetSnapshotSource } from '../utils/budgetIndicator';
+import { recordDebugEvent } from '../utils/debugLog';
 
 export type CritiqueLoopPhase =
   | 'idle'
@@ -32,7 +36,7 @@ export interface CritiqueDialogState {
   phase: CritiqueLoopPhase;
   loading: boolean;
   error: string | null;
-  critique: Phase4CritiqueBridgeResponse | null;
+  critique: Phase4CritiqueBridgeResponse | DraftCritiqueBridgeResponse | null;
   traceId?: string;
   draftId: string | null;
   unitId: string | null;
@@ -40,6 +44,9 @@ export interface CritiqueDialogState {
   rewrite: RewritePreview | null;
   rewriteLoading: boolean;
   rewriteError: string | null;
+  critiqueProvenance: ActionProvenance | null;
+  rewriteProvenance: ActionProvenance | null;
+  budgetStatusLine: string | null;
 }
 
 export const DEFAULT_CRITIQUE_RUBRIC = ['Continuity', 'Pacing', 'Voice'] as const;
@@ -58,6 +65,9 @@ export function createInitialCritiqueState(): CritiqueDialogState {
     rewrite: null,
     rewriteLoading: false,
     rewriteError: null,
+    critiqueProvenance: null,
+    rewriteProvenance: null,
+    budgetStatusLine: null,
   };
 }
 
@@ -102,12 +112,102 @@ function deriveCritiqueMode(categories: string[]): Phase4CritiqueMode {
   return 'big_picture';
 }
 
-function buildSceneText(
+export function resolveSceneDraftText(
   unitId: string,
   edits: Record<string, string>,
   drafts: Record<string, string>,
 ): string {
   return (edits[unitId] ?? drafts[unitId] ?? '').trim();
+}
+
+function usePhase4MockFlow(): boolean {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+  const win = window as typeof window & {
+    __phase4MockFlowEnabled?: boolean;
+    __BLACKSKIES_PHASE4_MOCK?: boolean;
+  };
+  return win.__phase4MockFlowEnabled === true || win.__BLACKSKIES_PHASE4_MOCK === true;
+}
+
+function deriveBudgetDelta(payload: DraftCritiqueBridgeResponse['budget'] | undefined): number | null {
+  if (!payload) {
+    return null;
+  }
+  const estimated = payload.estimated_usd;
+  return typeof estimated === 'number' && Number.isFinite(estimated) ? estimated : null;
+}
+
+function budgetSourceLine(provenance: ActionProvenance): string {
+  if (provenance.budget_delta === null || provenance.budget_delta <= 0) {
+    return 'Budget source: no budgeted action.';
+  }
+  if (provenance.result_origin === 'provider') {
+    return `Budget source: budgeted provider call (+$${provenance.budget_delta.toFixed(2)} est).`;
+  }
+  return `Budget source: estimate only (+$${provenance.budget_delta.toFixed(2)} est).`;
+}
+
+function buildCritiqueProvenance(
+  routeName: string,
+  payload: Phase4CritiqueBridgeResponse | DraftCritiqueBridgeResponse,
+): ActionProvenance {
+  const incoming = payload.provenance;
+  if (incoming) {
+    return incoming;
+  }
+  if (routeName === 'phase4/critique') {
+    return {
+      route_name: routeName,
+      provider_called: false,
+      result_origin: 'mock',
+      budget_delta: deriveBudgetDelta(payload.budget),
+    };
+  }
+  const provider = (payload as DraftCritiqueBridgeResponse).model?.provider ?? 'offline';
+  const resultOrigin = provider === 'offline' ? 'fallback' : 'provider';
+  return {
+    route_name: routeName,
+    provider_called: resultOrigin === 'provider',
+    result_origin: resultOrigin,
+    budget_delta: deriveBudgetDelta(payload.budget),
+  };
+}
+
+function deriveInstructionHint(payload: Phase4CritiqueBridgeResponse | DraftCritiqueBridgeResponse): string {
+  if ('suggestions' in payload && Array.isArray(payload.suggestions)) {
+    return payload.suggestions.join(' ').trim();
+  }
+  if ('priorities' in payload && Array.isArray(payload.priorities)) {
+    return payload.priorities.join(' ').trim();
+  }
+  return '';
+}
+
+function buildRewriteProvenance(
+  routeName: string,
+  payloadProvenance: ActionProvenance | undefined,
+  provider: string | undefined,
+): ActionProvenance {
+  if (payloadProvenance) {
+    return payloadProvenance;
+  }
+  if (routeName === 'phase4/rewrite') {
+    return {
+      route_name: routeName,
+      provider_called: false,
+      result_origin: 'mock',
+      budget_delta: null,
+    };
+  }
+  const resultOrigin = provider && provider !== 'offline' ? 'provider' : 'fallback';
+  return {
+    route_name: routeName,
+    provider_called: resultOrigin === 'provider',
+    result_origin: resultOrigin,
+    budget_delta: null,
+  };
 }
 
 interface UseCritiqueOptions {
@@ -142,6 +242,7 @@ export function useCritique({
   const [state, setState] = useState<CritiqueDialogState>(createInitialCritiqueState());
   const activeRubric = useMemo(() => normalizeRubric(rubric), [rubric]);
   const critiqueMode = useMemo(() => deriveCritiqueMode(activeRubric), [activeRubric]);
+  const phase4MockFlow = usePhase4MockFlow();
 
   const setInstructions = useCallback((next: string) => {
     setState((previous) => ({ ...previous, instructions: next }));
@@ -173,7 +274,7 @@ export function useCritique({
       return;
     }
 
-    const sceneText = buildSceneText(activeScene.id, draftEdits, projectDrafts);
+    const sceneText = resolveSceneDraftText(activeScene.id, draftEdits, projectDrafts);
     if (!sceneText) {
       pushToast({
         tone: 'warning',
@@ -183,7 +284,14 @@ export function useCritique({
       return;
     }
 
-    const request: Phase4CritiqueBridgeRequest = {
+    const draftId = generateDraftId(activeScene.id);
+    const canonicalRequest = {
+      projectId: projectSummary.projectId,
+      draftId,
+      unitId: activeScene.id,
+      rubric: activeRubric,
+    };
+    const mockRequest: Phase4CritiqueBridgeRequest = {
       projectId: projectSummary.projectId,
       sceneId: activeScene.id,
       text: sceneText,
@@ -197,17 +305,20 @@ export function useCritique({
       phase: 'critique_running',
       error: null,
       traceId: undefined,
-      draftId: generateDraftId(activeScene.id),
+      draftId,
       unitId: activeScene.id,
       critique: null,
       instructions: '',
       rewrite: null,
       rewriteError: null,
       rewriteLoading: false,
+      critiqueProvenance: null,
+      rewriteProvenance: null,
+      budgetStatusLine: null,
     }));
 
-    const critiqueHandler = services.phase4Critique ?? services.critiqueDraft;
-    if (!critiqueHandler) {
+    const critiqueRouteName = phase4MockFlow ? 'phase4/critique' : 'draft/critique';
+    if (!services.critiqueDraft && !services.phase4Critique) {
       setState((previous) => ({ ...previous, loading: false, phase: 'critique_error', error: 'Critique unavailable.' }));
       pushToast({
         tone: 'error',
@@ -218,12 +329,25 @@ export function useCritique({
     }
 
     try {
-      const result = await critiqueHandler(request as Phase4CritiqueBridgeRequest);
+      let result;
+      let effectiveRouteName = critiqueRouteName;
+      if (phase4MockFlow && services.phase4Critique) {
+        result = await services.phase4Critique(mockRequest);
+      } else if (services.critiqueDraft) {
+        result = await services.critiqueDraft(canonicalRequest);
+        effectiveRouteName = 'draft/critique';
+      } else {
+        result = await services.phase4Critique!(mockRequest);
+        effectiveRouteName = 'phase4/critique';
+      }
       if (!isMountedRef.current) {
         return;
       }
       if (result.ok) {
-        const instructionHint = result.data.suggestions.join(' ').trim();
+        const provenance = buildCritiqueProvenance(effectiveRouteName, result.data);
+        const budgetLine = budgetSourceLine(provenance);
+        const instructionHint = deriveInstructionHint(result.data);
+        recordDebugEvent('truth.critique', provenance);
         setState((previous) => ({
           ...previous,
           loading: false,
@@ -231,10 +355,16 @@ export function useCritique({
           critique: result.data,
           traceId: result.traceId,
           instructions: instructionHint,
+          critiqueProvenance: provenance,
+          budgetStatusLine: budgetLine,
         }));
         if (result.data.budget) {
-          console.info('[budget:critique]', result.data.budget);
-          onBudgetUpdate?.(result.data.budget);
+          const budgetPayload = {
+            ...result.data.budget,
+            message: result.data.budget.message ?? budgetLine,
+          };
+          console.info('[budget:critique]', budgetPayload);
+          onBudgetUpdate?.(budgetPayload);
         }
       } else {
         setState((previous) => ({
@@ -273,7 +403,9 @@ export function useCritique({
     activeScene,
     projectDrafts,
     draftEdits,
+    activeRubric,
     critiqueMode,
+    phase4MockFlow,
     isMountedRef,
     pushToast,
     onBudgetUpdate,
@@ -321,7 +453,7 @@ export function useCritique({
       return;
     }
 
-    const sceneText = buildSceneText(state.unitId, draftEdits, projectDrafts);
+    const sceneText = resolveSceneDraftText(state.unitId, draftEdits, projectDrafts);
     if (!sceneText) {
       pushToast({
         tone: 'warning',
@@ -345,20 +477,64 @@ export function useCritique({
       instructions: previousInstructions(state.instructions),
     };
 
+    const rewriteRouteName = phase4MockFlow ? 'phase4/rewrite' : 'draft/rewrite';
+    if (!services.rewriteDraft && !services.phase4Rewrite) {
+      setState((previous) => ({
+        ...previous,
+        rewriteLoading: false,
+        rewriteError: 'Rewrite unavailable.',
+        phase: 'rewrite_error',
+      }));
+      return;
+    }
+
     try {
-      const result = await services.phase4Rewrite(rewriteRequest);
+      const canonicalRewriteRequest = {
+        projectId: projectSummary.projectId,
+        draftId: state.draftId ?? generateDraftId(state.unitId),
+        unitId: state.unitId,
+        instructions: previousInstructions(state.instructions),
+        unit: {
+          id: state.unitId,
+          text: sceneText,
+          meta: {},
+        },
+      } satisfies DraftRewriteBridgeRequest;
+      let result;
+      let effectiveRouteName = rewriteRouteName;
+      if (phase4MockFlow && services.phase4Rewrite) {
+        result = await services.phase4Rewrite(rewriteRequest);
+      } else if (services.rewriteDraft) {
+        result = await services.rewriteDraft(canonicalRewriteRequest);
+        effectiveRouteName = 'draft/rewrite';
+      } else {
+        result = await services.phase4Rewrite!(rewriteRequest);
+        effectiveRouteName = 'phase4/rewrite';
+      }
       if (!isMountedRef.current) {
         return;
       }
       if (result.ok) {
+        const revisedText =
+          'revisedText' in result.data ? result.data.revisedText : result.data.revised_text;
+        const provider =
+          'model' in result.data && result.data.model ? result.data.model.provider : undefined;
+        const provenance = buildRewriteProvenance(
+          effectiveRouteName,
+          result.data.provenance,
+          provider,
+        );
+        recordDebugEvent('truth.rewrite', provenance);
         setState((previous) => ({
           ...previous,
           rewriteLoading: false,
           rewrite: {
             originalText: sceneText,
-            revisedText: result.data.revisedText,
+            revisedText,
           },
           phase: 'rewrite_ready',
+          rewriteProvenance: provenance,
+          budgetStatusLine: 'Budget source: no budgeted action.',
         }));
       } else {
         setState((previous) => ({
@@ -397,6 +573,7 @@ export function useCritique({
     state.instructions,
     draftEdits,
     projectDrafts,
+    phase4MockFlow,
     isMountedRef,
     pushToast,
   ]);
@@ -428,7 +605,7 @@ export function useCritique({
     pushToast({
       tone: 'success',
       title: 'Rewrite applied',
-      description: 'Scene text updated with the mock revision.',
+      description: 'Scene text updated with the latest revision.',
       traceId: state.traceId,
     });
   }, [state.rewrite, state.unitId, state.traceId, setProjectDrafts, setDraftEdits, setCurrentProject, pushToast]);

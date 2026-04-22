@@ -1,0 +1,99 @@
+{
+  "schema_version": "AuditedChainContract v1",
+  "description": "Executable contract for workflow-truth validation lanes. UI chain assertions must never rely on phase4 mock routes.",
+  "ui_chain": [
+    {
+      "step": "project_load",
+      "ui_entry": "ProjectHome.handleOpenProject / recent project button",
+      "renderer_path": "app/renderer/components/ProjectHome.tsx",
+      "preload_bridge": "projectLoader.loadProject (IPC)",
+      "backend_route": null,
+      "persistence_authority": "renderer state: activeProject + drafts map",
+      "provenance_expectation": "local"
+    },
+    {
+      "step": "scene_select",
+      "ui_entry": "ProjectHome scene list button -> setActiveSceneId",
+      "renderer_path": "app/renderer/components/ProjectHome.tsx",
+      "preload_bridge": null,
+      "backend_route": null,
+      "persistence_authority": "renderer state: activeScene + draftEdits seed",
+      "provenance_expectation": "local"
+    },
+    {
+      "step": "critique",
+      "ui_entry": "WorkspaceHeader[data-testid=workspace-action-critique] -> useCritique.runCritique",
+      "renderer_path": "app/renderer/hooks/useCritique.ts",
+      "preload_bridge": "services.critiqueDraft -> serviceApi.critiqueDraft",
+      "backend_route": "/api/v1/draft/critique",
+      "persistence_authority": "critique modal state + budget indicator state",
+      "provenance_expectation": "route_name=draft/critique, result_origin in {provider,fallback}"
+    },
+    {
+      "step": "rewrite",
+      "ui_entry": "CritiqueModal Generate rewrite button -> useCritique.runRewrite",
+      "renderer_path": "app/renderer/hooks/useCritique.ts",
+      "preload_bridge": "services.rewriteDraft -> serviceApi.rewriteDraft",
+      "backend_route": "/api/v1/draft/rewrite",
+      "persistence_authority": "rewrite preview state",
+      "provenance_expectation": "route_name=draft/rewrite, result_origin in {provider,fallback}"
+    },
+    {
+      "step": "export",
+      "ui_entry": "WorkspaceHeader[data-testid=workspace-action-export] -> App.handleExportProject",
+      "renderer_path": "app/renderer/App.tsx",
+      "preload_bridge": "services.exportProject -> serviceApi.exportProject",
+      "backend_route": "/api/v1/export",
+      "persistence_authority": "exports/<project>_export_<timestamp>.<format>",
+      "provenance_expectation": "route correctness; export content assertions enforced in truth lane"
+    }
+  ],
+  "service_extension_chain": [
+    {
+      "step": "accept",
+      "ui_entry": "no default production UI action (service-path extension test)",
+      "renderer_path": "app/renderer/hooks/useCritique.ts (bridge exists via services.acceptDraft)",
+      "preload_bridge": "services.acceptDraft -> serviceApi.acceptDraft",
+      "backend_route": "/api/v1/draft/accept",
+      "persistence_authority": "drafts/<scene>.md updated + response snapshot metadata",
+      "provenance_expectation": "service response integrity; no UI provenance surface yet"
+    },
+    {
+      "step": "snapshot",
+      "ui_entry": "accept side effect",
+      "renderer_path": "services persistence layer",
+      "preload_bridge": null,
+      "backend_route": "/api/v1/draft/accept side effect",
+      "persistence_authority": "history/snapshots/<snapshot_id>_<label>/{metadata.json,snapshot.yaml,drafts/*}",
+      "provenance_expectation": "snapshot metadata matches accept response snapshot_id"
+    },
+    {
+      "step": "recovery",
+      "ui_entry": "RecoveryBanner/useRecovery status poll and restore actions",
+      "renderer_path": "app/renderer/hooks/useRecovery.ts",
+      "preload_bridge": "services.getRecoveryStatus / services.restoreSnapshot",
+      "backend_route": "/api/v1/draft/recovery , /api/v1/draft/recovery/restore",
+      "persistence_authority": "history/recovery/state.json + latest snapshot linkage",
+      "provenance_expectation": "status tracks latest history/snapshots entry"
+    }
+  ],
+  "snapshot_authority": {
+    "accept_recovery_flow": "history/snapshots/*",
+    "manual_snapshot_feature": ".snapshots/*",
+    "rule": "Truth-lane accept/recovery assertions must not use .snapshots/*"
+  },
+  "default_route_guards": {
+    "ui_truth_lane_allowed_result_origins": [
+      "provider",
+      "fallback",
+      "local"
+    ],
+    "ui_truth_lane_forbidden_routes": [
+      "/api/v1/phase4/critique",
+      "/api/v1/phase4/rewrite"
+    ],
+    "ui_truth_lane_forbidden_result_origins": [
+      "mock"
+    ]
+  }
+}

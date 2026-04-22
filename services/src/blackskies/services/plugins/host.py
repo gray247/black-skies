@@ -1,4 +1,9 @@
-"""Host helpers for launching plugin runner subprocesses."""
+"""Host helpers for launching plugin runner subprocesses.
+
+This module exists to support the optional plugin execution surface. Its
+presence in the runtime does not mean plugin execution is part of the default
+product baseline.
+"""
 
 from __future__ import annotations
 
@@ -32,7 +37,11 @@ def launch_plugin(
     fd_limit: int | None = None,
     env: Mapping[str, str] | None = None,
 ) -> Dict[str, Any]:
-    """Execute a plugin inside the sandbox runner and return the response."""
+    """Execute a plugin inside the sandbox runner and return the response.
+
+    Callers are expected to gate this through the plugin feature flag before
+    treating plugin execution as available.
+    """
 
     request_path = _write_temp_json(request_payload)
     cmd: list[str] = [

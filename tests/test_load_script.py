@@ -244,11 +244,7 @@ def test_main_success_path(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> N
 def test_main_handles_execution_failure(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     profile_path = tmp_path / "profiles.yaml"
     profile_path.write_text(
-        (
-            "profiles:\n"
-            "  demo:\n"
-            "    thresholds: {}\n"
-        ),
+        ("profiles:\n" "  demo:\n" "    thresholds: {}\n"),
         encoding="utf-8",
     )
 

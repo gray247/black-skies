@@ -1,0 +1,1436 @@
+{
+  "run_id": "evaluation-69e783c1",
+  "kind": "evaluation",
+  "params": {
+    "dataset": "C:\\Dev\\black-skies\\services\\src\\blackskies\\data\\eval_tasks"
+  },
+  "status": "completed",
+  "created_at": "2026-04-15T16:46:11.223938Z",
+  "updated_at": "2026-04-15T16:46:12.547221Z",
+  "events": [
+    {
+      "id": 1,
+      "timestamp": "2026-04-15T16:46:11.233892Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "critique_scene_001",
+        "flow": "critique",
+        "project_id": "proj_critique_001"
+      }
+    },
+    {
+      "id": 2,
+      "timestamp": "2026-04-15T16:46:11.241718Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "critique_scene_001",
+        "flow": "critique",
+        "passed": true,
+        "latency_ms": 0.0063,
+        "error": null
+      }
+    },
+    {
+      "id": 3,
+      "timestamp": "2026-04-15T16:46:11.250402Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "critique_scene_002",
+        "flow": "critique",
+        "project_id": "proj_critique_002"
+      }
+    },
+    {
+      "id": 4,
+      "timestamp": "2026-04-15T16:46:11.259040Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "critique_scene_002",
+        "flow": "critique",
+        "passed": true,
+        "latency_ms": 0.0114,
+        "error": null
+      }
+    },
+    {
+      "id": 5,
+      "timestamp": "2026-04-15T16:46:11.267557Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "critique_scene_003",
+        "flow": "critique",
+        "project_id": "proj_critique_003"
+      }
+    },
+    {
+      "id": 6,
+      "timestamp": "2026-04-15T16:46:11.275998Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "critique_scene_003",
+        "flow": "critique",
+        "passed": true,
+        "latency_ms": 0.0089,
+        "error": null
+      }
+    },
+    {
+      "id": 7,
+      "timestamp": "2026-04-15T16:46:11.284346Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "critique_scene_004",
+        "flow": "critique",
+        "project_id": "proj_critique_004"
+      }
+    },
+    {
+      "id": 8,
+      "timestamp": "2026-04-15T16:46:11.293277Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "critique_scene_004",
+        "flow": "critique",
+        "passed": true,
+        "latency_ms": 0.0036,
+        "error": null
+      }
+    },
+    {
+      "id": 9,
+      "timestamp": "2026-04-15T16:46:11.301578Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "critique_scene_005",
+        "flow": "critique",
+        "project_id": "proj_critique_005"
+      }
+    },
+    {
+      "id": 10,
+      "timestamp": "2026-04-15T16:46:11.309973Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "critique_scene_005",
+        "flow": "critique",
+        "passed": true,
+        "latency_ms": 0.0098,
+        "error": null
+      }
+    },
+    {
+      "id": 11,
+      "timestamp": "2026-04-15T16:46:11.318773Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "critique_scene_006",
+        "flow": "critique",
+        "project_id": "proj_critique_006"
+      }
+    },
+    {
+      "id": 12,
+      "timestamp": "2026-04-15T16:46:11.327261Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "critique_scene_006",
+        "flow": "critique",
+        "passed": true,
+        "latency_ms": 0.0046,
+        "error": null
+      }
+    },
+    {
+      "id": 13,
+      "timestamp": "2026-04-15T16:46:11.335536Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "critique_scene_007",
+        "flow": "critique",
+        "project_id": "proj_critique_007"
+      }
+    },
+    {
+      "id": 14,
+      "timestamp": "2026-04-15T16:46:11.345698Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "critique_scene_007",
+        "flow": "critique",
+        "passed": true,
+        "latency_ms": 0.0034,
+        "error": null
+      }
+    },
+    {
+      "id": 15,
+      "timestamp": "2026-04-15T16:46:11.355268Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "critique_scene_008",
+        "flow": "critique",
+        "project_id": "proj_critique_008"
+      }
+    },
+    {
+      "id": 16,
+      "timestamp": "2026-04-15T16:46:11.364594Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "critique_scene_008",
+        "flow": "critique",
+        "passed": true,
+        "latency_ms": 0.0033,
+        "error": null
+      }
+    },
+    {
+      "id": 17,
+      "timestamp": "2026-04-15T16:46:11.374290Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "critique_scene_009",
+        "flow": "critique",
+        "project_id": "proj_critique_009"
+      }
+    },
+    {
+      "id": 18,
+      "timestamp": "2026-04-15T16:46:11.382860Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "critique_scene_009",
+        "flow": "critique",
+        "passed": true,
+        "latency_ms": 0.0036,
+        "error": null
+      }
+    },
+    {
+      "id": 19,
+      "timestamp": "2026-04-15T16:46:11.392558Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "critique_scene_010",
+        "flow": "critique",
+        "project_id": "proj_critique_010"
+      }
+    },
+    {
+      "id": 20,
+      "timestamp": "2026-04-15T16:46:11.401852Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "critique_scene_010",
+        "flow": "critique",
+        "passed": true,
+        "latency_ms": 0.0032,
+        "error": null
+      }
+    },
+    {
+      "id": 21,
+      "timestamp": "2026-04-15T16:46:11.411195Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "critique_scene_011",
+        "flow": "critique",
+        "project_id": "proj_critique_011"
+      }
+    },
+    {
+      "id": 22,
+      "timestamp": "2026-04-15T16:46:11.419812Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "critique_scene_011",
+        "flow": "critique",
+        "passed": true,
+        "latency_ms": 0.0034,
+        "error": null
+      }
+    },
+    {
+      "id": 23,
+      "timestamp": "2026-04-15T16:46:11.428151Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "critique_scene_012",
+        "flow": "critique",
+        "project_id": "proj_critique_012"
+      }
+    },
+    {
+      "id": 24,
+      "timestamp": "2026-04-15T16:46:11.436842Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "critique_scene_012",
+        "flow": "critique",
+        "passed": true,
+        "latency_ms": 0.003,
+        "error": null
+      }
+    },
+    {
+      "id": 25,
+      "timestamp": "2026-04-15T16:46:11.445866Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "critique_scene_013",
+        "flow": "critique",
+        "project_id": "proj_critique_013"
+      }
+    },
+    {
+      "id": 26,
+      "timestamp": "2026-04-15T16:46:11.455575Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "critique_scene_013",
+        "flow": "critique",
+        "passed": true,
+        "latency_ms": 0.0033,
+        "error": null
+      }
+    },
+    {
+      "id": 27,
+      "timestamp": "2026-04-15T16:46:11.472473Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "critique_scene_014",
+        "flow": "critique",
+        "project_id": "proj_critique_014"
+      }
+    },
+    {
+      "id": 28,
+      "timestamp": "2026-04-15T16:46:11.481956Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "critique_scene_014",
+        "flow": "critique",
+        "passed": true,
+        "latency_ms": 0.0052,
+        "error": null
+      }
+    },
+    {
+      "id": 29,
+      "timestamp": "2026-04-15T16:46:11.491737Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "critique_scene_015",
+        "flow": "critique",
+        "project_id": "proj_critique_015"
+      }
+    },
+    {
+      "id": 30,
+      "timestamp": "2026-04-15T16:46:11.500978Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "critique_scene_015",
+        "flow": "critique",
+        "passed": true,
+        "latency_ms": 0.0068,
+        "error": null
+      }
+    },
+    {
+      "id": 31,
+      "timestamp": "2026-04-15T16:46:11.511252Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "critique_scene_016",
+        "flow": "critique",
+        "project_id": "proj_critique_016"
+      }
+    },
+    {
+      "id": 32,
+      "timestamp": "2026-04-15T16:46:11.520269Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "critique_scene_016",
+        "flow": "critique",
+        "passed": true,
+        "latency_ms": 0.003,
+        "error": null
+      }
+    },
+    {
+      "id": 33,
+      "timestamp": "2026-04-15T16:46:11.529972Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "critique_scene_017",
+        "flow": "critique",
+        "project_id": "proj_critique_017"
+      }
+    },
+    {
+      "id": 34,
+      "timestamp": "2026-04-15T16:46:11.540394Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "critique_scene_017",
+        "flow": "critique",
+        "passed": true,
+        "latency_ms": 0.0052,
+        "error": null
+      }
+    },
+    {
+      "id": 35,
+      "timestamp": "2026-04-15T16:46:11.550426Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "critique_scene_018",
+        "flow": "critique",
+        "project_id": "proj_critique_018"
+      }
+    },
+    {
+      "id": 36,
+      "timestamp": "2026-04-15T16:46:11.560269Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "critique_scene_018",
+        "flow": "critique",
+        "passed": true,
+        "latency_ms": 0.0038,
+        "error": null
+      }
+    },
+    {
+      "id": 37,
+      "timestamp": "2026-04-15T16:46:11.570164Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "critique_scene_019",
+        "flow": "critique",
+        "project_id": "proj_critique_019"
+      }
+    },
+    {
+      "id": 38,
+      "timestamp": "2026-04-15T16:46:11.580490Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "critique_scene_019",
+        "flow": "critique",
+        "passed": true,
+        "latency_ms": 0.0031,
+        "error": null
+      }
+    },
+    {
+      "id": 39,
+      "timestamp": "2026-04-15T16:46:11.589665Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "critique_scene_020",
+        "flow": "critique",
+        "project_id": "proj_critique_020"
+      }
+    },
+    {
+      "id": 40,
+      "timestamp": "2026-04-15T16:46:11.599885Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "critique_scene_020",
+        "flow": "critique",
+        "passed": true,
+        "latency_ms": 0.004,
+        "error": null
+      }
+    },
+    {
+      "id": 41,
+      "timestamp": "2026-04-15T16:46:11.610218Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "critique_scene_review",
+        "flow": "critique",
+        "project_id": "proj_eval_critique"
+      }
+    },
+    {
+      "id": 42,
+      "timestamp": "2026-04-15T16:46:11.619893Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "critique_scene_review",
+        "flow": "critique",
+        "passed": true,
+        "latency_ms": 0.0085,
+        "error": null
+      }
+    },
+    {
+      "id": 43,
+      "timestamp": "2026-04-15T16:46:11.629566Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "draft_scene_001",
+        "flow": "draft",
+        "project_id": "proj_draft_001"
+      }
+    },
+    {
+      "id": 44,
+      "timestamp": "2026-04-15T16:46:11.640082Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "draft_scene_001",
+        "flow": "draft",
+        "passed": true,
+        "latency_ms": 0.0038,
+        "error": null
+      }
+    },
+    {
+      "id": 45,
+      "timestamp": "2026-04-15T16:46:11.649821Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "draft_scene_002",
+        "flow": "draft",
+        "project_id": "proj_draft_002"
+      }
+    },
+    {
+      "id": 46,
+      "timestamp": "2026-04-15T16:46:11.659813Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "draft_scene_002",
+        "flow": "draft",
+        "passed": true,
+        "latency_ms": 0.0036,
+        "error": null
+      }
+    },
+    {
+      "id": 47,
+      "timestamp": "2026-04-15T16:46:11.670280Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "draft_scene_003",
+        "flow": "draft",
+        "project_id": "proj_draft_003"
+      }
+    },
+    {
+      "id": 48,
+      "timestamp": "2026-04-15T16:46:11.680135Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "draft_scene_003",
+        "flow": "draft",
+        "passed": true,
+        "latency_ms": 0.0038,
+        "error": null
+      }
+    },
+    {
+      "id": 49,
+      "timestamp": "2026-04-15T16:46:11.690197Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "draft_scene_004",
+        "flow": "draft",
+        "project_id": "proj_draft_004"
+      }
+    },
+    {
+      "id": 50,
+      "timestamp": "2026-04-15T16:46:11.700526Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "draft_scene_004",
+        "flow": "draft",
+        "passed": true,
+        "latency_ms": 0.0042,
+        "error": null
+      }
+    },
+    {
+      "id": 51,
+      "timestamp": "2026-04-15T16:46:11.709906Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "draft_scene_005",
+        "flow": "draft",
+        "project_id": "proj_draft_005"
+      }
+    },
+    {
+      "id": 52,
+      "timestamp": "2026-04-15T16:46:11.720211Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "draft_scene_005",
+        "flow": "draft",
+        "passed": true,
+        "latency_ms": 0.012,
+        "error": null
+      }
+    },
+    {
+      "id": 53,
+      "timestamp": "2026-04-15T16:46:11.731010Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "draft_scene_006",
+        "flow": "draft",
+        "project_id": "proj_draft_006"
+      }
+    },
+    {
+      "id": 54,
+      "timestamp": "2026-04-15T16:46:11.741550Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "draft_scene_006",
+        "flow": "draft",
+        "passed": true,
+        "latency_ms": 0.0036,
+        "error": null
+      }
+    },
+    {
+      "id": 55,
+      "timestamp": "2026-04-15T16:46:11.752565Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "draft_scene_007",
+        "flow": "draft",
+        "project_id": "proj_draft_007"
+      }
+    },
+    {
+      "id": 56,
+      "timestamp": "2026-04-15T16:46:11.762587Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "draft_scene_007",
+        "flow": "draft",
+        "passed": true,
+        "latency_ms": 0.0079,
+        "error": null
+      }
+    },
+    {
+      "id": 57,
+      "timestamp": "2026-04-15T16:46:11.772790Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "draft_scene_008",
+        "flow": "draft",
+        "project_id": "proj_draft_008"
+      }
+    },
+    {
+      "id": 58,
+      "timestamp": "2026-04-15T16:46:11.783353Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "draft_scene_008",
+        "flow": "draft",
+        "passed": true,
+        "latency_ms": 0.0049,
+        "error": null
+      }
+    },
+    {
+      "id": 59,
+      "timestamp": "2026-04-15T16:46:11.794414Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "draft_scene_009",
+        "flow": "draft",
+        "project_id": "proj_draft_009"
+      }
+    },
+    {
+      "id": 60,
+      "timestamp": "2026-04-15T16:46:11.804412Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "draft_scene_009",
+        "flow": "draft",
+        "passed": true,
+        "latency_ms": 0.0044,
+        "error": null
+      }
+    },
+    {
+      "id": 61,
+      "timestamp": "2026-04-15T16:46:11.814789Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "draft_scene_010",
+        "flow": "draft",
+        "project_id": "proj_draft_010"
+      }
+    },
+    {
+      "id": 62,
+      "timestamp": "2026-04-15T16:46:11.826162Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "draft_scene_010",
+        "flow": "draft",
+        "passed": true,
+        "latency_ms": 0.0034,
+        "error": null
+      }
+    },
+    {
+      "id": 63,
+      "timestamp": "2026-04-15T16:46:11.837140Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "draft_scene_011",
+        "flow": "draft",
+        "project_id": "proj_draft_011"
+      }
+    },
+    {
+      "id": 64,
+      "timestamp": "2026-04-15T16:46:11.847594Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "draft_scene_011",
+        "flow": "draft",
+        "passed": true,
+        "latency_ms": 0.0039,
+        "error": null
+      }
+    },
+    {
+      "id": 65,
+      "timestamp": "2026-04-15T16:46:11.858263Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "draft_scene_012",
+        "flow": "draft",
+        "project_id": "proj_draft_012"
+      }
+    },
+    {
+      "id": 66,
+      "timestamp": "2026-04-15T16:46:11.868409Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "draft_scene_012",
+        "flow": "draft",
+        "passed": true,
+        "latency_ms": 0.0044,
+        "error": null
+      }
+    },
+    {
+      "id": 67,
+      "timestamp": "2026-04-15T16:46:11.878705Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "draft_scene_013",
+        "flow": "draft",
+        "project_id": "proj_draft_013"
+      }
+    },
+    {
+      "id": 68,
+      "timestamp": "2026-04-15T16:46:11.888729Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "draft_scene_013",
+        "flow": "draft",
+        "passed": true,
+        "latency_ms": 0.0043,
+        "error": null
+      }
+    },
+    {
+      "id": 69,
+      "timestamp": "2026-04-15T16:46:11.898308Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "draft_scene_014",
+        "flow": "draft",
+        "project_id": "proj_draft_014"
+      }
+    },
+    {
+      "id": 70,
+      "timestamp": "2026-04-15T16:46:11.908095Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "draft_scene_014",
+        "flow": "draft",
+        "passed": true,
+        "latency_ms": 0.0048,
+        "error": null
+      }
+    },
+    {
+      "id": 71,
+      "timestamp": "2026-04-15T16:46:11.926078Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "draft_scene_015",
+        "flow": "draft",
+        "project_id": "proj_draft_015"
+      }
+    },
+    {
+      "id": 72,
+      "timestamp": "2026-04-15T16:46:11.935675Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "draft_scene_015",
+        "flow": "draft",
+        "passed": true,
+        "latency_ms": 0.0043,
+        "error": null
+      }
+    },
+    {
+      "id": 73,
+      "timestamp": "2026-04-15T16:46:11.946184Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "draft_scene_016",
+        "flow": "draft",
+        "project_id": "proj_draft_016"
+      }
+    },
+    {
+      "id": 74,
+      "timestamp": "2026-04-15T16:46:11.956717Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "draft_scene_016",
+        "flow": "draft",
+        "passed": true,
+        "latency_ms": 0.0036,
+        "error": null
+      }
+    },
+    {
+      "id": 75,
+      "timestamp": "2026-04-15T16:46:11.966926Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "draft_scene_017",
+        "flow": "draft",
+        "project_id": "proj_draft_017"
+      }
+    },
+    {
+      "id": 76,
+      "timestamp": "2026-04-15T16:46:11.977517Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "draft_scene_017",
+        "flow": "draft",
+        "passed": true,
+        "latency_ms": 0.004,
+        "error": null
+      }
+    },
+    {
+      "id": 77,
+      "timestamp": "2026-04-15T16:46:11.987369Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "draft_scene_018",
+        "flow": "draft",
+        "project_id": "proj_draft_018"
+      }
+    },
+    {
+      "id": 78,
+      "timestamp": "2026-04-15T16:46:11.997728Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "draft_scene_018",
+        "flow": "draft",
+        "passed": true,
+        "latency_ms": 0.0037,
+        "error": null
+      }
+    },
+    {
+      "id": 79,
+      "timestamp": "2026-04-15T16:46:12.008149Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "draft_scene_019",
+        "flow": "draft",
+        "project_id": "proj_draft_019"
+      }
+    },
+    {
+      "id": 80,
+      "timestamp": "2026-04-15T16:46:12.018145Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "draft_scene_019",
+        "flow": "draft",
+        "passed": true,
+        "latency_ms": 0.0038,
+        "error": null
+      }
+    },
+    {
+      "id": 81,
+      "timestamp": "2026-04-15T16:46:12.028482Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "draft_scene_020",
+        "flow": "draft",
+        "project_id": "proj_draft_020"
+      }
+    },
+    {
+      "id": 82,
+      "timestamp": "2026-04-15T16:46:12.038483Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "draft_scene_020",
+        "flow": "draft",
+        "passed": true,
+        "latency_ms": 0.004,
+        "error": null
+      }
+    },
+    {
+      "id": 83,
+      "timestamp": "2026-04-15T16:46:12.049520Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "draft_scene_generation",
+        "flow": "draft",
+        "project_id": "proj_eval_draft"
+      }
+    },
+    {
+      "id": 84,
+      "timestamp": "2026-04-15T16:46:12.061395Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "draft_scene_generation",
+        "flow": "draft",
+        "passed": true,
+        "latency_ms": 0.0037,
+        "error": null
+      }
+    },
+    {
+      "id": 85,
+      "timestamp": "2026-04-15T16:46:12.072153Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "wizard_outline_001",
+        "flow": "wizard",
+        "project_id": "proj_wizard_001"
+      }
+    },
+    {
+      "id": 86,
+      "timestamp": "2026-04-15T16:46:12.082248Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "wizard_outline_001",
+        "flow": "wizard",
+        "passed": true,
+        "latency_ms": 0.0066,
+        "error": null
+      }
+    },
+    {
+      "id": 87,
+      "timestamp": "2026-04-15T16:46:12.092589Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "wizard_outline_002",
+        "flow": "wizard",
+        "project_id": "proj_wizard_002"
+      }
+    },
+    {
+      "id": 88,
+      "timestamp": "2026-04-15T16:46:12.103210Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "wizard_outline_002",
+        "flow": "wizard",
+        "passed": true,
+        "latency_ms": 0.0061,
+        "error": null
+      }
+    },
+    {
+      "id": 89,
+      "timestamp": "2026-04-15T16:46:12.114570Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "wizard_outline_003",
+        "flow": "wizard",
+        "project_id": "proj_wizard_003"
+      }
+    },
+    {
+      "id": 90,
+      "timestamp": "2026-04-15T16:46:12.125054Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "wizard_outline_003",
+        "flow": "wizard",
+        "passed": true,
+        "latency_ms": 0.0055,
+        "error": null
+      }
+    },
+    {
+      "id": 91,
+      "timestamp": "2026-04-15T16:46:12.135808Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "wizard_outline_004",
+        "flow": "wizard",
+        "project_id": "proj_wizard_004"
+      }
+    },
+    {
+      "id": 92,
+      "timestamp": "2026-04-15T16:46:12.145689Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "wizard_outline_004",
+        "flow": "wizard",
+        "passed": true,
+        "latency_ms": 0.0056,
+        "error": null
+      }
+    },
+    {
+      "id": 93,
+      "timestamp": "2026-04-15T16:46:12.155648Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "wizard_outline_005",
+        "flow": "wizard",
+        "project_id": "proj_wizard_005"
+      }
+    },
+    {
+      "id": 94,
+      "timestamp": "2026-04-15T16:46:12.165420Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "wizard_outline_005",
+        "flow": "wizard",
+        "passed": true,
+        "latency_ms": 0.0046,
+        "error": null
+      }
+    },
+    {
+      "id": 95,
+      "timestamp": "2026-04-15T16:46:12.176177Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "wizard_outline_006",
+        "flow": "wizard",
+        "project_id": "proj_wizard_006"
+      }
+    },
+    {
+      "id": 96,
+      "timestamp": "2026-04-15T16:46:12.188858Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "wizard_outline_006",
+        "flow": "wizard",
+        "passed": true,
+        "latency_ms": 0.0054,
+        "error": null
+      }
+    },
+    {
+      "id": 97,
+      "timestamp": "2026-04-15T16:46:12.199274Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "wizard_outline_007",
+        "flow": "wizard",
+        "project_id": "proj_wizard_007"
+      }
+    },
+    {
+      "id": 98,
+      "timestamp": "2026-04-15T16:46:12.210244Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "wizard_outline_007",
+        "flow": "wizard",
+        "passed": true,
+        "latency_ms": 0.0059,
+        "error": null
+      }
+    },
+    {
+      "id": 99,
+      "timestamp": "2026-04-15T16:46:12.221328Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "wizard_outline_008",
+        "flow": "wizard",
+        "project_id": "proj_wizard_008"
+      }
+    },
+    {
+      "id": 100,
+      "timestamp": "2026-04-15T16:46:12.232225Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "wizard_outline_008",
+        "flow": "wizard",
+        "passed": true,
+        "latency_ms": 0.0063,
+        "error": null
+      }
+    },
+    {
+      "id": 101,
+      "timestamp": "2026-04-15T16:46:12.242864Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "wizard_outline_009",
+        "flow": "wizard",
+        "project_id": "proj_wizard_009"
+      }
+    },
+    {
+      "id": 102,
+      "timestamp": "2026-04-15T16:46:12.253626Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "wizard_outline_009",
+        "flow": "wizard",
+        "passed": true,
+        "latency_ms": 0.0059,
+        "error": null
+      }
+    },
+    {
+      "id": 103,
+      "timestamp": "2026-04-15T16:46:12.265457Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "wizard_outline_010",
+        "flow": "wizard",
+        "project_id": "proj_wizard_010"
+      }
+    },
+    {
+      "id": 104,
+      "timestamp": "2026-04-15T16:46:12.277115Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "wizard_outline_010",
+        "flow": "wizard",
+        "passed": true,
+        "latency_ms": 0.0065,
+        "error": null
+      }
+    },
+    {
+      "id": 105,
+      "timestamp": "2026-04-15T16:46:12.287430Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "wizard_outline_011",
+        "flow": "wizard",
+        "project_id": "proj_wizard_011"
+      }
+    },
+    {
+      "id": 106,
+      "timestamp": "2026-04-15T16:46:12.298362Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "wizard_outline_011",
+        "flow": "wizard",
+        "passed": true,
+        "latency_ms": 0.0078,
+        "error": null
+      }
+    },
+    {
+      "id": 107,
+      "timestamp": "2026-04-15T16:46:12.309663Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "wizard_outline_012",
+        "flow": "wizard",
+        "project_id": "proj_wizard_012"
+      }
+    },
+    {
+      "id": 108,
+      "timestamp": "2026-04-15T16:46:12.320855Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "wizard_outline_012",
+        "flow": "wizard",
+        "passed": true,
+        "latency_ms": 0.0058,
+        "error": null
+      }
+    },
+    {
+      "id": 109,
+      "timestamp": "2026-04-15T16:46:12.331220Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "wizard_outline_013",
+        "flow": "wizard",
+        "project_id": "proj_wizard_013"
+      }
+    },
+    {
+      "id": 110,
+      "timestamp": "2026-04-15T16:46:12.343520Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "wizard_outline_013",
+        "flow": "wizard",
+        "passed": true,
+        "latency_ms": 0.0057,
+        "error": null
+      }
+    },
+    {
+      "id": 111,
+      "timestamp": "2026-04-15T16:46:12.355052Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "wizard_outline_014",
+        "flow": "wizard",
+        "project_id": "proj_wizard_014"
+      }
+    },
+    {
+      "id": 112,
+      "timestamp": "2026-04-15T16:46:12.365655Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "wizard_outline_014",
+        "flow": "wizard",
+        "passed": true,
+        "latency_ms": 0.006,
+        "error": null
+      }
+    },
+    {
+      "id": 113,
+      "timestamp": "2026-04-15T16:46:12.376582Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "wizard_outline_015",
+        "flow": "wizard",
+        "project_id": "proj_wizard_015"
+      }
+    },
+    {
+      "id": 114,
+      "timestamp": "2026-04-15T16:46:12.387352Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "wizard_outline_015",
+        "flow": "wizard",
+        "passed": true,
+        "latency_ms": 0.006,
+        "error": null
+      }
+    },
+    {
+      "id": 115,
+      "timestamp": "2026-04-15T16:46:12.397501Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "wizard_outline_016",
+        "flow": "wizard",
+        "project_id": "proj_wizard_016"
+      }
+    },
+    {
+      "id": 116,
+      "timestamp": "2026-04-15T16:46:12.408530Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "wizard_outline_016",
+        "flow": "wizard",
+        "passed": true,
+        "latency_ms": 0.0061,
+        "error": null
+      }
+    },
+    {
+      "id": 117,
+      "timestamp": "2026-04-15T16:46:12.418541Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "wizard_outline_017",
+        "flow": "wizard",
+        "project_id": "proj_wizard_017"
+      }
+    },
+    {
+      "id": 118,
+      "timestamp": "2026-04-15T16:46:12.428465Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "wizard_outline_017",
+        "flow": "wizard",
+        "passed": true,
+        "latency_ms": 0.0054,
+        "error": null
+      }
+    },
+    {
+      "id": 119,
+      "timestamp": "2026-04-15T16:46:12.445590Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "wizard_outline_018",
+        "flow": "wizard",
+        "project_id": "proj_wizard_018"
+      }
+    },
+    {
+      "id": 120,
+      "timestamp": "2026-04-15T16:46:12.456668Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "wizard_outline_018",
+        "flow": "wizard",
+        "passed": true,
+        "latency_ms": 0.0057,
+        "error": null
+      }
+    },
+    {
+      "id": 121,
+      "timestamp": "2026-04-15T16:46:12.468259Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "wizard_outline_019",
+        "flow": "wizard",
+        "project_id": "proj_wizard_019"
+      }
+    },
+    {
+      "id": 122,
+      "timestamp": "2026-04-15T16:46:12.479656Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "wizard_outline_019",
+        "flow": "wizard",
+        "passed": true,
+        "latency_ms": 0.0061,
+        "error": null
+      }
+    },
+    {
+      "id": 123,
+      "timestamp": "2026-04-15T16:46:12.490217Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "wizard_outline_020",
+        "flow": "wizard",
+        "project_id": "proj_wizard_020"
+      }
+    },
+    {
+      "id": 124,
+      "timestamp": "2026-04-15T16:46:12.501034Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "wizard_outline_020",
+        "flow": "wizard",
+        "passed": true,
+        "latency_ms": 0.0055,
+        "error": null
+      }
+    },
+    {
+      "id": 125,
+      "timestamp": "2026-04-15T16:46:12.511909Z",
+      "type": "eval.task_start",
+      "payload": {
+        "task_id": "wizard_outline_baseline",
+        "flow": "wizard",
+        "project_id": "proj_eval_wizard"
+      }
+    },
+    {
+      "id": 126,
+      "timestamp": "2026-04-15T16:46:12.522780Z",
+      "type": "eval.task_complete",
+      "payload": {
+        "task_id": "wizard_outline_baseline",
+        "flow": "wizard",
+        "passed": true,
+        "latency_ms": 0.0059,
+        "error": null
+      }
+    },
+    {
+      "id": 127,
+      "timestamp": "2026-04-15T16:46:12.535498Z",
+      "type": "eval.metrics",
+      "payload": {
+        "pass_rate": 1.0,
+        "avg_latency_ms": 0.0052,
+        "p95_latency_ms": 0.0089,
+        "p99_latency_ms": 0.0114,
+        "error_budget_remaining": 0.0,
+        "error_budget_consumed": 0.0
+      }
+    }
+  ],
+  "run_root": "C:\\Dev\\black-skies\\sample_project\\_runtime\\runs\\evaluation-69e783c1",
+  "result": {
+    "metrics": {
+      "pass_rate": 1.0,
+      "avg_latency_ms": 0.0052,
+      "p95_latency_ms": 0.0089,
+      "p99_latency_ms": 0.0114,
+      "cases": 63,
+      "error_budget_remaining": 0.0,
+      "error_budget_consumed": 0.0
+    },
+    "thresholds": {
+      "fail_under_pass_rate": 1.0,
+      "max_error_rate": 0.0,
+      "max_avg_latency_ms": null,
+      "max_p95_latency_ms": null
+    },
+    "breaches": [],
+    "slo": {
+      "status": "ok",
+      "violations": [],
+      "error_budget_remaining": 0.0,
+      "error_budget_consumed": 0.0
+    }
+  }
+}

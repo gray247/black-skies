@@ -7,7 +7,12 @@ from typing import Any
 from fastapi import APIRouter, Depends, Request, Response
 
 from ..metrics import render
-from ..feature_flags import voice_notes_enabled
+from ..feature_flags import (
+    analytics_maturity,
+    plugins_maturity,
+    voice_notes_enabled,
+    voice_notes_maturity,
+)
 
 __all__ = ["router", "get_service_version", "health", "metrics_endpoint"]
 
@@ -26,15 +31,20 @@ def get_service_version(request: Request) -> str:
 
 def _health_payload(request: Request, version: str) -> dict[str, Any]:
     payload: dict[str, Any] = {"status": "ok", "version": version}
+    settings = getattr(request.app.state, "settings", None)
 
     state = getattr(request.app.state, "backup_verifier_state", None)
     if state is None:
         payload["backup_status"] = "warning"
         payload["backup_enabled"] = False
         payload["backup_message"] = "Backup verifier state unavailable."
+        payload["feature_maturity_contract"] = "diagnostics_only_v1"
         return payload
 
     summary = state.summary()
+    # Health exposes verifier state even when the subsystem is disabled so
+    # operators can tell the difference between "implemented but off" and
+    # "missing". Presence in this payload does not imply baseline activation.
     payload["backup_status"] = summary["status"]
     payload["backup_enabled"] = summary["enabled"]
     if summary.get("message"):
@@ -47,6 +57,20 @@ def _health_payload(request: Request, version: str) -> dict[str, Any]:
         payload["backup_last_error"] = summary["last_error"]
     payload["backup_checked_snapshots"] = summary.get("checked_snapshots", 0)
     payload["backup_failed_snapshots"] = summary.get("failed_snapshots", 0)
+    payload["feature_maturity_contract"] = "diagnostics_only_v1"
+    payload["feature_maturity"] = {
+        "analytics": analytics_maturity().value,
+        "backup_verifier": (
+            settings.backup_verifier_feature_maturity.value if settings is not None else "off"
+        ),
+        "memory_lab": (
+            settings.memory_lab_feature_maturity.value if settings is not None else "off"
+        ),
+        "plugins": plugins_maturity().value,
+        "voice_notes": voice_notes_maturity().value,
+    }
+    # Voice-note counters are only surfaced when the deferred voice workflow
+    # has been explicitly enabled elsewhere.
     if voice_notes_enabled():
         payload["backup_voice_notes_checked"] = summary.get("voice_notes_checked", 0)
         payload["backup_voice_note_issues"] = summary.get("voice_note_issues", 0)

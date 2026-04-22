@@ -38,7 +38,9 @@ def validate_project(
     supplied, ``project_root`` takes precedence.
     """
 
-    resolved_root = _resolve_project_root(settings, project_id=project_id, project_root=project_root)
+    resolved_root = _resolve_project_root(
+        settings, project_id=project_id, project_root=project_root
+    )
     resolved_id: str | None = project_id
     errors: list[str] = []
     warnings: list[str] = []
