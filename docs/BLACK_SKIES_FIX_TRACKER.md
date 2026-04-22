@@ -89,30 +89,39 @@ If an issue is not tracked here, it is not part of the active fix scope.
 - Status: PARTIAL
 - Priority: Critical
 - Owner: Codex / Human
-- Last Updated: 2026-04-21
+- Last Updated: 2026-04-22
 
 #### Description
 Security workflow had setup/artifact reliability issues.
 
 #### Known Facts
-- Node and pnpm setup now exists in `security.yml`.
-- Artifact uploads now ensure report files are created before upload.
-- Remaining risk: matrix jobs upload artifacts with identical names (`pip-audit-report`, `safety-report`, `pnpm-audit-report`, `dependency-report`) which can collide.
+- `security.yml` now sets up Node and pnpm without `setup-node` pnpm-cache coupling that required a pre-existing `pnpm` binary.
+- Dynamic artifact path handling for load-ledger is hardened:
+  - `find_latest_run.py` is called with required `--kind load-test`
+  - fallback artifact file `load-ledger-missing.json` is created when discovery fails
+  - upload step always receives a non-empty path output
+- Dependency report generation now guarantees `dependency-report.json` exists before upload (fallback JSON when generation aborts).
+- Matrix artifact names remain OS-unique (`-${{ matrix.os }}` suffix) for pip-audit, safety, pnpm-audit, load-ledger, and dependency-report.
 
 #### Root Cause
-Workflow hardening happened incrementally, but artifact naming did not account for matrix fan-out.
+Workflow setup and artifact-hardening were incomplete: Node setup used pnpm cache before pnpm availability, and a dynamic upload path could be empty when ledger discovery failed.
 
 #### Actions
-- Make artifact names matrix-unique (append `${{ matrix.os }}`).
-- Re-run workflow to confirm no artifact upload conflicts.
+- Re-run `security.yml` matrix (ubuntu + macOS) to confirm:
+  - no `pnpm` executable-resolution failures
+  - no upload-artifact missing-path failures
+  - artifacts upload on both matrix OS jobs.
 
 #### Progress Log
 - 2026-04-21 - Codex - Verified setup improvements and identified matrix artifact-name collision risk.
 - 2026-04-21 - Codex - Began implementation pass to harden matrix artifact naming.
 - 2026-04-21 - Codex - Updated matrix artifact upload names to include `${{ matrix.os }}` for pip-audit, safety, pnpm-audit, and dependency reports.
+- 2026-04-22 - Codex - Removed `cache: 'pnpm'` from `setup-node` in `security.yml` to avoid pre-install pnpm resolution failure on ubuntu/macos.
+- 2026-04-22 - Codex - Fixed load-ledger discovery/upload path contract (`--kind load-test`, fallback file, non-empty output path) to prevent upload-artifact missing `path`.
+- 2026-04-22 - Codex - Added dependency-report fallback file creation before upload so artifact path is always valid.
 
 #### Verification
-- Pending CI run after artifact-name fix.
+- Pending CI run after pnpm-ordering and upload-path fixes.
 
 #### Exit Criteria
 - Security workflow green on all matrix OS jobs with no artifact upload errors.
@@ -121,13 +130,13 @@ Workflow hardening happened incrementally, but artifact naming did not account f
 
 ## [2] Black failing in CI
 - Tier: 1
-- Status: PARTIAL
+- Status: VERIFIED
 - Priority: Critical
 - Owner: Codex / Human
-- Last Updated: 2026-04-21
+- Last Updated: 2026-04-22
 
 #### Description
-Black failures were historically reported and CI currently uses narrowed scope.
+Black failures were historically reported and are now resolved in both local and CI repo-wide checks.
 
 #### Known Facts
 - `eval.yml` Black lane now runs repo-wide (`black --check .`); temporary Black scope narrowing comments were removed in this pass.
@@ -151,7 +160,6 @@ Black failures were historically reported and CI currently uses narrowed scope.
 Residual formatting debt plus temporary CI scope narrowing.
 
 #### Actions
-- Confirm CI run result for updated repo-wide Black step before marking VERIFIED.
 - Preserve focused debt retirement on mypy separately (not part of this issue pass).
 
 #### Progress Log
@@ -164,9 +172,10 @@ Residual formatting debt plus temporary CI scope narrowing.
   - `./.venv/bin/python -m black --check services/src services/tests scripts tests tools/runtime_truth` -> PASS (346 files unchanged)
 - 2026-04-21 - Codex - Updated `eval.yml` Black lane to repo-wide (`black --check .`) without changing flake8/mypy scope.
 - 2026-04-21 - Codex - Validated Black version/runtime alignment risk as low: CI and local both use Black 25.9.0; local `--target-version py311` check passes.
+- 2026-04-22 - Codex - Verified GitHub Actions `eval.yml` lint job passed with repo-wide Black step (`black --check .`) on Python 3.11.
 
 #### Verification
-- Partial: local repo-wide Black is clean and CI config is now repo-wide; awaiting CI run evidence before VERIFIED.
+- Verified: local repo-wide Black is clean and GitHub Actions passed with repo-wide Black in CI.
 
 #### Exit Criteria
 - `black --check .` passes in CI and local dev baseline.
@@ -263,18 +272,22 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 
 ## [8] Artifact upload logic issues
 - Status: PARTIAL
-- Last Updated: 2026-04-21
+- Last Updated: 2026-04-22
 
 #### Known Facts
 - File-existence guards are now present.
-- New major risk: matrix artifact name collisions in `security.yml`.
+- Matrix artifact naming collision risk was addressed in a prior pass and remains fixed.
+- Dynamic load-ledger upload path in `security.yml` could be empty when `find_latest_run.py` failed, which maps to upload-artifact missing required `path`.
+- `security.yml` now guarantees path-safe uploads for dynamic and generated artifacts (load-ledger and dependency report fallbacks).
 
 #### Actions
-- Use matrix-specific artifact names.
+- Confirm CI uploads all security artifacts successfully on ubuntu and macOS.
 
 #### Progress Log
 - 2026-04-21 - Codex - Issue execution batched with [1] due same file and same root cause.
 - 2026-04-21 - Codex - Implemented matrix-unique artifact names in `security.yml`; awaiting CI confirmation.
+- 2026-04-22 - Codex - Fixed dynamic load-ledger artifact path contract so upload-artifact always receives a valid `path`.
+- 2026-04-22 - Codex - Added dependency report fallback file generation to keep upload path valid when command exits early.
 
 ---
 
@@ -292,17 +305,17 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 
 ## [10] Temporary CI scope narrowing
 - Status: ACTIVE
-- Last Updated: 2026-04-21
+- Last Updated: 2026-04-22
 
 #### Known Facts
-- Temporary Black scope narrowing in `eval.yml` was removed in this pass.
+- Black scope narrowing is retired and validated:
+  - `eval.yml` now runs repo-wide Black (`black --check .`).
+  - GitHub Actions passed the repo-wide Black step.
 - Temporary scope narrowing remains for flake8 and mypy only.
-- Local evidence now shows mixed state by tool:
-  - Repo-wide Black now passes locally and is configured repo-wide in CI.
-  - Scoped mypy command passes while expanded mypy fails with 173 errors in 49 files.
+- Scoped mypy command still passes while expanded mypy fails with 173 errors in 49 files.
 
 #### Actions
-- Confirm CI green on repo-wide Black, then close Black portion of this issue.
+- Keep Black narrowing retired; do not reintroduce scoped Black paths.
 - Keep temporary mypy/flake8 scope decisions isolated until their debt retirement passes complete.
 
 ---
@@ -414,11 +427,15 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 
 ## [22] Security workflow + vulnerability reporting
 - Status: PARTIAL
-- Last Updated: 2026-04-21
+- Last Updated: 2026-04-22
 
 #### Known Facts
 - Reporting steps exist and fail-closed behavior is present.
-- Matrix artifact collision risk can still break reporting lanes.
+- Matrix artifact naming remains OS-unique.
+- Workflow stability fixes were applied for known runner failures:
+  - pnpm availability issue in Node setup path
+  - upload-artifact missing `path` from failed dynamic ledger discovery
+- CI confirmation is still required before status can advance.
 
 ---
 
