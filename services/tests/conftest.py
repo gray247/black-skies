@@ -24,12 +24,14 @@ except ModuleNotFoundError:  # pragma: no cover - optional dependency for API te
 
 
 def _ensure_src_on_path() -> None:
-    """Add the services src directory to ``sys.path`` for imports."""
+    """Add required repo paths to ``sys.path`` for imports."""
 
+    repo_root = Path(__file__).resolve().parents[2]
     src_dir = Path(__file__).resolve().parent.parent / "src"
-    src_path = str(src_dir)
-    if src_dir.is_dir() and src_path not in sys.path:
-        sys.path.insert(0, src_path)
+    for path in (repo_root, src_dir):
+        candidate = str(path)
+        if path.is_dir() and candidate not in sys.path:
+            sys.path.insert(0, candidate)
 
 
 _ensure_src_on_path()

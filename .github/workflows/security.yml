@@ -106,8 +106,8 @@ jobs:
         run: |
           set +e
           safety check \
-            --json \
-            --output safety-report.json \
+            --output json \
+            --save-json safety-report.json \
             --file requirements.lock \
             --file requirements.dev.lock
           status=$?
@@ -137,7 +137,7 @@ jobs:
         id: pnpm_audit
         run: |
           set +e
-          pnpm audit --recursive --json > pnpm-audit-report.json
+          pnpm audit --json > pnpm-audit-report.json
           status=$?
           if [ ! -f pnpm-audit-report.json ]; then
             echo '{"error":"pnpm audit terminated before producing a report"}' > pnpm-audit-report.json

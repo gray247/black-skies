@@ -106,6 +106,10 @@ Security workflow had setup/artifact reliability issues.
   - upload uses static path `load-ledger.json`
 - Dependency report generation now guarantees `dependency-report.json` exists before upload (fallback JSON when generation aborts).
 - Matrix artifact names remain OS-unique (`-${{ matrix.os }}` suffix) for pip-audit, safety, pnpm-audit, load-ledger, and dependency-report.
+- CI evidence now separates command bugs from advisory gates:
+  - Broken behavior: `pnpm audit --recursive --json` fails with `Unknown option: 'recursive'`.
+  - Broken behavior: Safety command flags were inconsistent with current CLI output contract and could exit without writing `safety-report.json`.
+  - Intended gate: workflow reaches `Fail if vulnerabilities detected` and reports real dependency advisories.
 
 #### Root Cause
 Initial setup/runtime assumptions were corrected (pnpm availability and project-root existence). Remaining failures were caused by an under-specified synthetic outline fixture and fragile runtime path propagation for load-ledger upload.
@@ -113,10 +117,13 @@ Initial setup/runtime assumptions were corrected (pnpm availability and project-
 #### Actions
 - Re-run `security.yml` matrix (ubuntu + macOS) to confirm:
   - no `pnpm` executable-resolution failures
+  - no invalid command failures (`Unknown option: 'recursive'`)
+  - Safety report is always produced as JSON artifact
   - no project-root missing failures for load sanity
   - light-load sanity passes outline schema validation with regex-valid `outline_id`
   - load-ledger upload succeeds using deterministic `load-ledger.json`
-  - artifacts upload on both matrix OS jobs.
+  - artifacts upload on both matrix OS jobs
+  - failures (if any) are only vulnerability-policy gates.
 
 #### Progress Log
 - 2026-04-21 - Codex - Verified setup improvements and identified matrix artifact-name collision risk.
@@ -134,9 +141,12 @@ Initial setup/runtime assumptions were corrected (pnpm availability and project-
 - 2026-04-22 - Codex - Switched load-ledger upload to deterministic artifact file `load-ledger.json`, written on both success and fallback paths.
 - 2026-04-22 - Codex - CI runtime evidence identified specific outline schema mismatch: `outline_id` pattern expected `^out_\\d{3}$`, actual `out_ci_security_load`.
 - 2026-04-22 - Codex - Updated security workflow fixture `outline_id` to regex-valid value `out_001`.
+- 2026-04-22 - Codex - Identified invalid pnpm audit argument in CI: `--recursive` is not accepted by current pnpm audit command.
+- 2026-04-22 - Codex - Updated pnpm audit invocation to `pnpm audit --json`.
+- 2026-04-22 - Codex - Updated Safety invocation to `--output json --save-json safety-report.json` so report emission is deterministic.
 
 #### Verification
-- Pending CI run after schema-valid fixture and deterministic load-ledger artifact-path fixes.
+- Pending CI run after pnpm/safety command fixes to confirm only real advisories remain as failing gate conditions.
 
 #### Exit Criteria
 - Security workflow green on all matrix OS jobs with no artifact upload errors.
@@ -294,6 +304,7 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 - Matrix artifact naming collision risk was addressed in a prior pass and remains fixed.
 - Prior dynamic load-ledger output path was unstable under failure conditions.
 - Workflow now normalizes ledger artifacts to a deterministic file (`load-ledger.json`) before upload, removing runtime dependence on output interpolation for `path`.
+- Safety report upload reliability depended on command-level report emission; Safety flags are now aligned to explicit JSON file output (`--save-json safety-report.json`).
 
 #### Actions
 - Confirm CI uploads all security artifacts successfully on ubuntu and macOS.
@@ -306,6 +317,7 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 - 2026-04-22 - Codex - Marked `Discover load ledger` as `if: always()` so upload path fallback executes even after load sanity failure.
 - 2026-04-22 - Codex - CI matrix evidence (ubuntu + macOS) still reports load-ledger upload failure due missing/invalid runtime `path`.
 - 2026-04-22 - Codex - Reworked load-ledger artifact publication to always upload `load-ledger.json` written by discovery step (real ledger copy or fallback JSON).
+- 2026-04-22 - Codex - Hardened Safety artifact production path by switching to explicit JSON file save flags before upload.
 
 ---
 
@@ -472,14 +484,25 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 - Workflow stability fixes were applied for known runner failures:
   - pnpm availability issue in Node setup path
   - runtime artifact path instability in load-ledger upload path handling
+  - invalid pnpm audit argument (`--recursive`)
+  - Safety report command/flag mismatch with current CLI behavior
 - Load sanity now has an explicit CI fixture-preparation step so the expected project root exists before `scripts/load.py` runs.
 - Load sanity fixture includes required outline contract fields, but CI evidence identified an `outline_id` regex mismatch; workflow now sets `outline_id` to `out_001`.
+- Real dependency advisories are still expected to fail the lane by design at `Fail if vulnerabilities detected`.
 - CI confirmation is still required before status can advance.
 
 ---
 
 ## [23] Dependency update plan missing
 - Status: ACTIVE
+- Last Updated: 2026-04-22
+
+#### Known Facts
+- Security workflow now reaches advisory gating and reports real package vulnerabilities after command-level fixes.
+- Upgrade/remediation planning needs to be tracked separately from workflow command/runtime reliability work.
+
+#### Actions
+- Maintain explicit dependency remediation plan tied to advisory reports (pip-audit, Safety, pnpm audit), separate from workflow bug fixes.
 
 ---
 
