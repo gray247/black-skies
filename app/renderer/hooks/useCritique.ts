@@ -569,6 +569,7 @@ export function useCritique({
   }, [
     services,
     projectSummary,
+    state.draftId,
     state.unitId,
     state.instructions,
     draftEdits,

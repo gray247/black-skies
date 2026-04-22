@@ -54,7 +54,6 @@ describe('Story Insights regressions', () => {
     expect(await screen.findByTestId('analytics-pacing-strip')).toBeInTheDocument();
     expect(screen.getByText(/Project ID/i)).toBeInTheDocument();
     expect(screen.getByText('Scene 1')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /refresh analytics/i })).toBeInTheDocument();
   });
 
   it('only shows the error banner when Story Insights calls fail', async () => {

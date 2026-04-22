@@ -544,7 +544,31 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 # Tier 8 - Product and UX Debt
 
 ## [24] GUI navigation instability
-- Status: ACTIVE
+- Status: PARTIAL
+- Last Updated: 2026-04-22
+
+#### Known Facts
+- App Lint + Unit Tests had a renderer contract drift cluster:
+  - stale Story Insights test expected a `refresh analytics` button that is not rendered in the current dashboard UI.
+  - stale preflight test expected toast action label `show snapshots`; current UI action label is `View report`.
+  - stale analytics test expected readability bucket text (`Easy`) while current dashboard renders numeric readability values.
+  - DraftEditor test depended on external sample-project fixture content/path assumptions, causing CI fragility.
+  - `useCritique` rewrite callback dependency list omitted `state.draftId`.
+- This pass aligned tests to current UI contracts and removed file-system fixture coupling in DraftEditor test.
+
+#### Progress Log
+- 2026-04-22 - Codex - Updated renderer test expectations to current contracts:
+  - removed `refresh analytics` button assertion in `StoryInsightsRegression.test.tsx`.
+  - changed snapshot toast action assertion to `View report` in `AppPreflight.test.tsx`.
+  - changed readability assertion to numeric value and removed stale pacing-label text assertion in `AnalyticsDashboard.test.tsx`.
+- 2026-04-22 - Codex - Refactored `DraftEditor.test.tsx` to use inline markdown fixture instead of reading `sample_project` files.
+- 2026-04-22 - Codex - Fixed hook lint warning by adding `state.draftId` to `runRewrite` callback dependencies in `useCritique.ts`.
+- 2026-04-22 - Codex - Local verification:
+  - `pnpm --filter app test -- --run renderer/__tests__/StoryInsightsRegression.test.tsx renderer/__tests__/AppPreflight.test.tsx renderer/__tests__/AnalyticsDashboard.test.tsx renderer/__tests__/DraftEditor.test.tsx` -> PASS (22/22).
+  - `pnpm --filter app lint` -> PASS.
+
+#### Verification
+- Partial: local targeted app tests and lint are green; CI App Lint + Unit Tests run is still required.
 
 ## [25] Layout persistence issues
 - Status: ACTIVE

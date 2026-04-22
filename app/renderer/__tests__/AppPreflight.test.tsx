@@ -631,8 +631,8 @@ describe('App preflight integration', () => {
     snapshotButton.removeAttribute('disabled');
     await userEvent.click(snapshotButton);
 
-    const showSnapshotsToastAction = await screen.findByRole('button', { name: /show snapshots/i });
-    await userEvent.click(showSnapshotsToastAction);
+    const viewReportToastAction = await screen.findByRole('button', { name: /view report/i });
+    await userEvent.click(viewReportToastAction);
 
     const reopenedSnapshotsPanel = await screen.findByTestId('snapshots-panel');
     expect(reopenedSnapshotsPanel).toBeInTheDocument();
