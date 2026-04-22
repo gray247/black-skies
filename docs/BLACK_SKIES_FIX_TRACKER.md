@@ -482,10 +482,29 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 - Repo-root mypy discovery is now guarded from known generated temp roots via `[tool.mypy].exclude` in `pyproject.toml`; command now reaches type analysis instead of permission crash.
 - PASS 2 service-truth runner had cross-platform interpreter drift: script hard-coded Windows `.venv/Scripts/python.exe`, which fails on Linux/macOS runners.
 - PASS 2 script now resolves interpreter from `.venv/Scripts/python.exe`, `.venv/bin/python`, or `sys.executable` (in that order).
+- Services Validation + Eval + Route Smoke CI failure (run `24796239325`, job `72567191040`) showed:
+  - command: `python scripts/eval.py --html out/eval.html --json out/eval.json`
+  - error: `ModuleNotFoundError: No module named 'blackskies'`
+- Root cause for eval import failure: `scripts/eval.py` imported `blackskies` modules before ensuring repo-root bootstrap (`sys.path` + `sitecustomize`) used by other harness scripts (`load.py`, `smoke_runner.py`), so source-tree imports were not guaranteed when package install context differed.
+- `scripts/eval.py` now uses the same bootstrap pattern as other harness scripts before importing `blackskies`.
+- Route smoke (`bash scripts/smoke.sh`) exposed a source-vs-installed package precedence issue:
+  - `blackskies.services` resolved from `.venv/.../site-packages` instead of `services/src`
+  - critique rubric fixture lookup then failed at runtime with:
+    `No such file or directory: .../site-packages/blackskies/services/fixtures/rubrics/baseline.json`
+- Root cause for route smoke fixture failure: namespace shim ordering in `blackskies/__init__.py` left `site-packages` ahead of `services/src` for `blackskies.services` resolution in this mixed environment.
+- `blackskies/__init__.py` now enforces deterministic path ordering with `services/src/blackskies` first, so repo scripts prefer source-of-truth modules/fixtures over stale installed copies.
 - Repro evidence for guardrail:
   `./.venv/bin/python -m pytest -q tests/test_cache.py --basetemp codex_temp/permcheck -p scripts.pytest_repo_temp_compat`
   created traversable `codex_temp/permcheck` tree (no permission-denied entries).
 - 2026-04-22 - Codex - Fixed PASS 2 script interpreter selection to be OS-agnostic and CI-safe for Linux/macOS + Windows.
+- Local repro evidence after eval bootstrap fix:
+  - `./.venv/bin/python scripts/eval.py --html out/eval.html --json out/eval.json` now passes.
+  - Host-level `python scripts/eval.py ...` on this workstation still fails if dependencies are absent (`ModuleNotFoundError: No module named 'pydantic'`), which is environment-specific and distinct from the CI `blackskies` import-path failure.
+- 2026-04-22 - Codex - Reproduced route smoke failure at `/api/v1/draft/critique` with rubric fixture lookup into site-packages path (`fixtures/rubrics/baseline.json` missing).
+- 2026-04-22 - Codex - Updated `blackskies/__init__.py` namespace shim ordering to prioritize `services/src/blackskies` before site-packages entries.
+- 2026-04-22 - Codex - Re-ran quick eval lane subset:
+  - `./.venv/bin/python scripts/eval.py --html out/eval.html --json out/eval.json` -> PASS
+  - `bash scripts/smoke.sh` -> PASS (no rubric fixture validation failure)
 
 ---
 

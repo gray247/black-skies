@@ -5,9 +5,19 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import sys
 import time
 from pathlib import Path
 from typing import Any, Protocol, Sequence
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:  # pragma: no cover - path hygiene for script execution
+    sys.path.insert(0, str(REPO_ROOT))
+
+try:  # pragma: no cover - ensure repo-specific import tweaks apply
+    import sitecustomize  # noqa: F401
+except Exception:  # pragma: no cover - best-effort import
+    pass
 
 from blackskies.services import runs
 from blackskies.services.eval import EvalTask, EvalTaskFlow, load_dataset
@@ -20,8 +30,6 @@ from blackskies.services.eval.report import (
 )
 from blackskies.services.tools.registry import ToolRegistry
 
-
-REPO_ROOT = Path(__file__).resolve().parents[1]
 
 logger = logging.getLogger("blackskies.services.scripts.eval")
 
