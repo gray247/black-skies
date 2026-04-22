@@ -273,16 +273,20 @@ export default function App(): JSX.Element {
   const visualEnvRequested = !activeFlow && visualMode;
   const liveFlowGuard =
     isPlaywrightEnv &&
+    !harnessHooksEnabled &&
     !stableDockEnvRequested &&
     !visualEnvRequested &&
     !isSnapshotRestoreFlowActive &&
     !activeFlow;
   useEffect(() => {
-    if ((!liveFlowGuard && !activeFlow) || !hasWindow || typeof document === 'undefined') {
+    if (!liveFlowGuard || !hasWindow || typeof document === 'undefined') {
       return;
     }
     const win = window as typeof window & { __testEnvFlatMode?: boolean; __testEnvRecoveryMode?: boolean };
     const body = document.body;
+    if (!body) {
+      return;
+    }
     if (win.__testEnvFlatMode) {
       console.warn('[MODE-LEAK] flat/recovery mode active during live flow');
       win.__testEnvFlatMode = false;
@@ -303,7 +307,7 @@ export default function App(): JSX.Element {
     });
     observer.observe(body, { attributes: true, attributeFilter: ['data-test-mode'] });
     return () => observer.disconnect();
-  }, [activeFlow, hasWindow, liveFlowGuard]);
+  }, [hasWindow, liveFlowGuard]);
 
   useEffect(() => {
     if (!activeFlow || typeof document === 'undefined') {

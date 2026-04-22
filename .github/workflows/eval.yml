@@ -182,6 +182,7 @@ jobs:
         env:
           PLAYWRIGHT_DISABLE_ANIMATIONS: '1'
           PLAYWRIGHT_RETRIES: '0'
+          PLAYWRIGHT_OUTPUT_DIR: app
         run: pnpm --filter app test:e2e
       - name: Upload Playwright artifacts
         if: failure()
@@ -372,6 +373,8 @@ jobs:
       - name: Run PASS 5 metadata guard + harness smoke
         env:
           PLAYWRIGHT_DISABLE_ANIMATIONS: '1'
+          PLAYWRIGHT_RETRIES: '0'
+          PLAYWRIGHT_OUTPUT_DIR: app
         run: |
           pytest -q services/tests/unit/test_e2e_seam_metadata.py
           xvfb-run -a pnpm test:e2e
@@ -505,6 +508,46 @@ jobs:
             --pass4-result "$PASS4_RESULT" \
             --pass5-result "$PASS5_RESULT" \
             --pass6-result "$PASS6_RESULT"
+      - name: Materialize missing pass proof placeholders
+        if: always()
+        env:
+          PASS3_RESULT: ${{ needs.gauntlet-pass3-proof.result }}
+          PASS4_RESULT: ${{ needs.app-truth-lane.result }}
+          PASS5_RESULT: ${{ needs.gauntlet-pass5-proof.result }}
+          PASS6_RESULT: ${{ needs.gauntlet-pass6-proof.result }}
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          entries = [
+              ("pass3", "PASS 3", "gauntlet-pass3-proof", "PASS3_RESULT"),
+              ("pass4", "PASS 4", "gauntlet-pass4-proof", "PASS4_RESULT"),
+              ("pass5", "PASS 5", "gauntlet-pass5-proof", "PASS5_RESULT"),
+              ("pass6", "PASS 6", "gauntlet-pass6-proof", "PASS6_RESULT"),
+          ]
+
+          import os
+          for slug, pass_id, artifact_name, env_key in entries:
+              summary = Path(f"ci_artifacts/{slug}/build/ci_proof/{slug}/summary.json")
+              if summary.exists():
+                  continue
+              summary.parent.mkdir(parents=True, exist_ok=True)
+              summary.write_text(
+                  json.dumps(
+                      {
+                          "pass_id": pass_id,
+                          "status": "missing_artifact",
+                          "artifact": artifact_name,
+                          "upstream_result": os.environ.get(env_key, "unknown"),
+                          "reason": "Upstream pass did not publish proof summary.",
+                      },
+                      indent=2,
+                  )
+                  + "\n",
+                  encoding="utf-8",
+              )
+          PY
       - name: Upload gauntlet CI proof manifest
         uses: actions/upload-artifact@v4
         with:

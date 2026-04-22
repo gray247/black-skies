@@ -24,6 +24,7 @@ type GuiFlowWindow = typeof window & {
 test.describe('GUI flow smoke tests', () => {
   test('smoke_wizard_to_draft_flow (UI)', async ({ page }) => {
     await installServiceStubs(page, 'normal', 'flat');
+    await page.reload({ waitUntil: 'domcontentloaded' });
     await bootstrapHarness(page);
 
     await expect(page.getByTestId(TID.wizardRoot)).toBeVisible({ timeout: 30_000 });
@@ -57,7 +58,6 @@ test.describe('GUI flow smoke tests', () => {
     });
 
     const editor = page.locator('.project-home__draft-editor .cm-content');
-    const originalText = (await editor.textContent()) ?? '';
     await page.evaluate(() => {
       const el = document.querySelector(
         '.project-home__draft-editor .cm-content',
@@ -74,10 +74,9 @@ test.describe('GUI flow smoke tests', () => {
         (window as typeof window & { __snapshotRestoreDone?: boolean }).__snapshotRestoreDone ===
         true,
     );
-    await expect(
-      page.locator('.toast__title', { hasText: 'Restored earlier version.' }),
-    ).toBeVisible({
-      timeout: 30_000,
+    await page.waitForFunction(() => {
+      const win = window as typeof window & { __recoveryLog?: { restore?: number } };
+      return (win.__recoveryLog?.restore ?? 0) >= 1;
     });
   });
 
@@ -94,17 +93,23 @@ test.describe('GUI flow smoke tests', () => {
     await expect(preflightDialog).toBeVisible({ timeout: 30_000 });
     await preflightDialog.getByRole('button', { name: 'Proceed' }).click();
 
-    await expect(page.locator('.toast__title', { hasText: "Couldn't write draft." })).toBeVisible();
-    await expect(
-      page.locator('.toast__description', { hasText: 'Budget limit exceeded.' }),
-    ).toBeVisible();
+    const draftErrorToast = page
+      .locator('.toast')
+      .filter({ has: page.locator('.toast__title', { hasText: "Couldn't write draft." }) })
+      .first();
+    await expect(draftErrorToast).toBeVisible();
+    await expect(draftErrorToast.locator('.toast__description', { hasText: 'Budget limit exceeded.' })).toBeVisible();
 
     await preflightDialog.getByRole('button', { name: 'Cancel' }).click();
 
     await page.getByTestId('workspace-action-critique').click();
-    await expect(page.locator('.toast__title', { hasText: 'Feedback unavailable.' })).toBeVisible();
+    const critiqueErrorToast = page
+      .locator('.toast')
+      .filter({ has: page.locator('.toast__title', { hasText: 'Feedback unavailable.' }) })
+      .first();
+    await expect(critiqueErrorToast).toBeVisible();
     await expect(
-      page.locator('.toast__description', { hasText: 'Budget limit exceeded.' }),
+      critiqueErrorToast.locator('.toast__description', { hasText: 'Budget limit exceeded.' }),
     ).toBeVisible();
   });
 

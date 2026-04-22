@@ -309,6 +309,14 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 - Safety report upload reliability depended on command-level report emission; Safety flags are now aligned to explicit JSON file output (`--save-json safety-report.json`).
 - Latest CI evidence indicates load-ledger artifact upload is functioning with the deterministic path.
 - Eval workflow emitted warnings when `out/eval.html` / `out/eval.json` were absent; upload step now ignores missing files instead of warning.
+- Playwright artifact path mismatch was a workflow-noise source:
+  - Playwright config previously defaulted to random temp output roots with HTML report folder `html-report`.
+  - Eval workflow upload expected stable `app/playwright-report` and `app/test-results` paths.
+- Playwright config/output and CI env are now aligned:
+  - default Playwright output root resolves to current working directory (`app` in CI harness jobs),
+  - HTML report folder is `playwright-report`,
+  - HARNESS_ONLY/PASS 5 jobs explicitly set `PLAYWRIGHT_OUTPUT_DIR=app`.
+- Gauntlet proof-manifest flow now materializes explicit placeholder summaries when upstream pass artifacts are missing (for example PASS 5 job failure), so manifest upload remains readable without masking upstream failures.
 
 #### Actions
 - Continue monitoring artifact upload stability across ubuntu and macOS while dependency gates are remediated separately.
@@ -318,6 +326,8 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 - 2026-04-21 - Codex - Implemented matrix-unique artifact names in `security.yml`; awaiting CI confirmation.
 - 2026-04-22 - Codex - Fixed dynamic load-ledger artifact path contract so upload-artifact always receives a valid `path`.
 - 2026-04-22 - Codex - Added dependency report fallback file generation to keep upload path valid when command exits early.
+- 2026-04-22 - Codex - Aligned Playwright output paths with CI upload expectations (`app/playwright-report`, `app/test-results`) by updating `app/playwright.config.ts` defaults and setting `PLAYWRIGHT_OUTPUT_DIR=app` in eval harness jobs.
+- 2026-04-22 - Codex - Added `Materialize missing pass proof placeholders` in gauntlet-proof-manifest job so missing upstream proof artifacts no longer derail downstream manifest artifact packaging.
 - 2026-04-22 - Codex - Marked `Discover load ledger` as `if: always()` so upload path fallback executes even after load sanity failure.
 - 2026-04-22 - Codex - CI matrix evidence (ubuntu + macOS) still reports load-ledger upload failure due missing/invalid runtime `path`.
 - 2026-04-22 - Codex - Reworked load-ledger artifact publication to always upload `load-ledger.json` written by discovery step (real ledger copy or fallback JSON).
@@ -611,6 +621,13 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
   - strict heading locator ambiguity was removed by asserting `data-testid="dock-workspace"` instead of project-name heading text.
   - budget assertion mismatch root cause was stale expectation drift: spec expected legacy `$1.75 / $10.00` while HARNESS_ONLY e2e service stubs currently return preflight `$0.02 / $10.00` and critique `$0.02 / $10.00`.
   - spec budget fixtures/assertions are now aligned to the deterministic HARNESS_ONLY service-stub contract.
+- Batch 3 readiness stabilization removed brittle pane-readiness counters from targeted specs:
+  - `gui-contract.spec.ts` and `gui.snapshot_verification_flow.spec.ts` no longer gate on `window.__paneReady` counters.
+  - waits now anchor on stable rendered UI surfaces (`data-testid="dock-workspace"`, visible pane/action elements, and toast/modal anchors).
+- PASS 5 `gui.flows.spec.ts` `wizard-root` failure triage:
+  - failing state was not missing DOM node; `wizard-root` existed but was hidden at assertion time.
+  - root cause was harness mode timing in this spec path: flat-mode flags/stubs were applied after initial renderer mount, so first render could remain in full workspace layout before harness mode took effect.
+  - additional harness hardening landed for renderer test-mode detection and init-script null safety to reduce startup timing noise during reload-based setup.
 
 #### Progress Log
 - 2026-04-22 - Codex - Updated renderer test expectations to current contracts:
@@ -652,6 +669,29 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
   - `PLAYWRIGHT_RETRIES=0 pnpm --filter app exec playwright test tests/e2e/budget-meter.spec.ts --reporter=line` -> PASS.
   - `PLAYWRIGHT_RETRIES=0 pnpm --filter app exec playwright test tests/e2e/gui.smoke.spec.ts --reporter=line` -> PASS.
   - Batch 2 scope is closed locally; CI confirmation still required before upgrading broader issue status.
+- 2026-04-22 - Codex - Batch 3 stabilization pass:
+  - removed `__paneReady` counter waits in `gui-contract.spec.ts` and `gui.snapshot_verification_flow.spec.ts`; readiness now uses stable UI anchors.
+  - kept HARNESS_ONLY retry policy at `PLAYWRIGHT_RETRIES=0` and extended it to PASS 5 harness smoke job in eval workflow for first-failure clarity.
+  - local focused verification:
+    - `PLAYWRIGHT_RETRIES=0 pnpm --filter app exec playwright test tests/e2e/budget-meter.spec.ts tests/e2e/gui-contract.spec.ts tests/e2e/gui.snapshot_verification_flow.spec.ts --reporter=line` -> PASS (4/4).
+    - `PLAYWRIGHT_RETRIES=0 pnpm --filter app exec playwright test tests/e2e/gui.smoke.spec.ts --reporter=line` -> PASS.
+- 2026-04-22 - Codex - PASS 5 wizard-root triage/fix pass:
+  - reproduced `gui.flows.spec.ts` wizard failure mode as hidden (not absent) wizard root under harness startup timing.
+  - updated `smoke_wizard_to_draft_flow` setup to reload after service-stub installation so flat-mode flags are present before renderer boot.
+  - hardened test-mode/harness detection in renderer (`testModeManager.isHarnessHooksEnabled`) to use preload-exposed harness bridges in addition to env.
+  - hardened `serviceStubs` init-script DOM writes with null guards to prevent preload-phase pageerrors during reload setup.
+  - validation:
+    - `PLAYWRIGHT_RETRIES=0 pnpm --filter app exec playwright test tests/e2e/gui.flows.spec.ts -g "smoke_wizard_to_draft_flow" --reporter=line` -> PASS.
+  - `PLAYWRIGHT_RETRIES=0 pnpm --filter app exec playwright test tests/e2e/gui.flows.spec.ts --reporter=line` -> still FAIL (2 tests): `snapshot_restore_flow` toast assertion mismatch, `budget_guardrail_smoke` strict-mode duplicate toast locator.
+  - scope note: this pass resolves the wizard-root startup failure path but does not yet close the entire `gui.flows` failure set.
+- 2026-04-22 - Codex - PASS 5 follow-up assertion-alignment pass:
+  - `snapshot_restore_flow` expectation updated to match harness override contract (`__snapshotRestoreDone` + recovery event log) instead of assuming a restore-success toast/content rewrite in the override path.
+  - `budget_guardrail_smoke` toast assertions hardened to assert title/description within the same toast card, avoiding strict-mode duplicate-locator failures while preserving error-contract coverage.
+  - validation:
+    - `PLAYWRIGHT_RETRIES=0 pnpm --filter app exec playwright test tests/e2e/gui.flows.spec.ts -g "smoke_wizard_to_draft_flow|snapshot_restore_flow|budget_guardrail_smoke" --reporter=line` -> PASS (3/3).
+- 2026-04-22 - Codex - PASS 5 local sweep confirmation:
+  - `PLAYWRIGHT_RETRIES=0 pnpm --filter app exec playwright test tests/e2e/gui.flows.spec.ts --reporter=line` -> PASS (5 passed, 2 skipped).
+  - remaining confidence gap is CI replay on ubuntu runner with full PASS 5 job context.
 
 #### Verification
 - Partial: local targeted app tests and lint are green; CI App Lint + Unit Tests run is still required.

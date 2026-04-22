@@ -5,6 +5,7 @@ type WindowWithTestFlags = typeof window & {
   __testEnvFlatMode?: boolean;
   __testEnvRecoveryMode?: boolean;
   __testEnvFullMode?: boolean;
+  __dev?: unknown;
 };
 
 function getWindow(): WindowWithTestFlags | undefined {
@@ -27,7 +28,18 @@ function datasetFlagEnabled(flag: string): boolean {
 }
 
 export function isHarnessHooksEnabled(): boolean {
-  return typeof process !== 'undefined' && process.env?.BLACKSKIES_ENABLE_HARNESS_HOOKS === '1';
+  if (typeof process !== 'undefined' && process.env?.BLACKSKIES_ENABLE_HARNESS_HOOKS === '1') {
+    return true;
+  }
+  const win = getWindow();
+  if (!win) {
+    return false;
+  }
+  const envFlag = win.__testEnv;
+  const isPlaywrightFlag =
+    envFlag === true ||
+    (envFlag !== false && typeof envFlag === 'object' && envFlag.isPlaywright === true);
+  return Boolean(isPlaywrightFlag && win.__dev);
 }
 
 export function getMode(): TestModeName {
