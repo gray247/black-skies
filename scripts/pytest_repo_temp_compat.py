@@ -10,6 +10,8 @@ Retire when: host allows cleanup_dead_symlinks() on repo-local basetemp paths.
 
 from __future__ import annotations
 
+import os
+
 import _pytest.pathlib as pytest_pathlib
 import _pytest.tmpdir as pytest_tmpdir
 
@@ -33,7 +35,12 @@ def pytest_configure(config) -> None:  # pragma: no cover - exercised via pytest
     pytest_tmpdir.cleanup_dead_symlinks = _safe_cleanup_dead_symlinks
 
     def _safe_make_numbered_dir(*, root, prefix, mode=0o700):  # pragma: no cover
-        return _original_make_numbered_dir(root=root, prefix=prefix, mode=0o777)
+        numbered_dir = _original_make_numbered_dir(root=root, prefix=prefix, mode=0o777)
+        try:
+            os.chmod(numbered_dir, 0o777)
+        except PermissionError:
+            pass
+        return numbered_dir
 
     pytest_pathlib.make_numbered_dir = _safe_make_numbered_dir
     pytest_tmpdir.make_numbered_dir = _safe_make_numbered_dir
@@ -46,6 +53,10 @@ def pytest_configure(config) -> None:  # pragma: no cover - exercised via pytest
             if basetemp.exists():
                 pytest_tmpdir.rm_rf(basetemp)
             basetemp.mkdir(parents=True, exist_ok=True)
+            try:
+                os.chmod(basetemp, 0o777)
+            except PermissionError:
+                pass
             basetemp = basetemp.resolve()
             self._basetemp = basetemp
             return basetemp

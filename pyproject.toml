@@ -67,3 +67,4 @@ packages = ["blackskies.services"]
 namespace_packages = true
 warn_unused_configs = true
 ignore_missing_imports = true
+exclude = "((^|.*/)codex_temp/|(^|.*/)testtmp-[^/]+/|(^|.*/)draft-policy-[^/]+/|(^|.*/)long-form-policy-[^/]+/|(^|.*/)long-form-timeout-[^/]+/|(^|.*/)pytest-cache-files-[^/]+/|(^|.*/)tmp/pytest(|-of-[^/]+)/)"

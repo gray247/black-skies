@@ -115,6 +115,19 @@ Order of importance:
 
 ---
 
+## TRACKER / DOC / TEST DISCIPLINE
+
+These rules apply to every repair pass.
+
+- Update `docs/BLACK_SKIES_FIX_TRACKER.md` whenever issue status, evidence, root cause, blockers, or scope changes
+- Update affected documentation whenever commands, workflows, startup behavior, authority, or operational guidance changes
+- If a bug reveals a missing test, weak test, or weak guardrail, add or strengthen coverage in the same pass when reasonably scoped
+- Do not mark an issue VERIFIED without reproducible evidence
+- Prefer extending existing tracker issues before creating new ones
+- Record partial fixes explicitly
+
+---
+
 ### FINAL RULE
 
 If a change risks breaking the system, do not proceed without confirmation.

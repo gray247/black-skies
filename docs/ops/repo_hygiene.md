@@ -1,6 +1,6 @@
 Status: Active operational policy
-Version: 1.0.0
-Last Reviewed: 2026-04-18
+Version: 1.0.1
+Last Reviewed: 2026-04-21
 
 # Repo Hygiene (Operational Policy)
 
@@ -16,6 +16,16 @@ The goal is to keep generated artifacts, local tool state, and fixture snapshots
 - Backup files: `*.bak`, `*.bak*`
 - Local tool state: `.aider*`, `.codex*`
 - Generated snapshot trees: `sample_project/**/.snapshots/`, `archive/**/.snapshots/`
+
+## Tracked diagnostic scripts
+
+Tracked diagnostic helpers are source files and must meet normal quality gates (including format checks).
+For one-off trace/diff probes, prefer containment under `app/temp-trace/` or `tools/` instead of adding new repo-root helper scripts.
+If such scripts are intentionally tracked, keep them formatted and periodically prune stale copies.
+
+Current classification:
+- `app/temp-trace/` is a tracked diagnostic workspace for trace inspection helpers and fixture-adjacent probes.
+- Repo-root `diff*.py` / `*trace*.py` helpers are tracked ad-hoc diagnostics and should be treated as hygiene debt candidates for later consolidation under a contained diagnostics location.
 
 ## Install the local pre-commit hook
 

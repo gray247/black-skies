@@ -17,7 +17,7 @@ Collects future ideas and deferred enhancements so the canonical planning surfac
 
 ## Exploratory notes
 - Floating-pane relocation toast details (see `docs/gui/gui_offline_insights_and_floats_plan.md`) need future automation.
-- `docs/phases/phase_log.md` sections flagged TODOs (budget const reuse, fingerprint sorting, threadpool standardization) should move into tracked issues before Phase 11.
+- Keep backlog references aligned with `docs/phases/phase_log.md` and `docs/BLACK_SKIES_FIX_TRACKER.md` so stale TODO claims do not accumulate.
 
 ## Misc thoughts
 - Capture `docs/idea_fairies` text? (Consider migrating to `docs/idea_backlog.md` before that doc drifts.)

@@ -1,13 +1,13 @@
-Status: Active
-Version: 1.0.0
-Last Reviewed: 2025-11-15
+﻿Status: Active
+Version: 1.0.1
+Last Reviewed: 2026-04-21
 
-# docs/phase_bridge.md â€” DRAFT
+# docs/phase_bridge.md - DRAFT
 
 ## Purpose
 Authority note: this is transitional guidance, not canonical scope or status authority.
 
-Clarify how to transition from locked Phase 8 into Phases 9–11 by calling out explicit gates, risks, and rollback paths for the automation, recovery, and export initiatives.
+Clarify how to transition from locked Phase 8 into Phases 9-11 by calling out explicit gates, risks, and rollback paths for the automation, recovery, and export initiatives.
 
 ## Gates
 - **Phase 9** begins once the Critique automation endpoints and GUI toggles are merged behind a feature flag so testers can exercise local/model flows without touching production defaults.
