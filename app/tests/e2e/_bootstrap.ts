@@ -1,9 +1,5 @@
 import type { Page } from '@playwright/test';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { loadSampleProject } from './utils/sampleProject';
 
 export async function bootstrapHarness(page: Page): Promise<void> {
   await page.waitForFunction(() => (window as typeof window & { __APP_READY__?: boolean }).__APP_READY__ === true, null, {
@@ -18,11 +14,10 @@ export async function bootstrapHarness(page: Page): Promise<void> {
     }
   });
 
-  const sampleProjectPath = path.resolve(__dirname, '../../../sample_project/Esther_Estate');
+  const { projectRoot: sampleProjectPath, projectId: sampleProjectId } = loadSampleProject();
   await page.evaluate((projectPath) => {
     (window as any).__dev?.setProjectDir?.(projectPath ?? null);
   }, sampleProjectPath);
-  const sampleProjectId = path.basename(sampleProjectPath);
   await page.evaluate(
     ({ projectId, projectPath }: { projectId: string; projectPath: string }) => {
       const win = window as typeof window & {

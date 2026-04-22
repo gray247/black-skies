@@ -600,6 +600,17 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
   - DraftEditor test depended on external sample-project fixture content/path assumptions, causing CI fragility.
   - `useCritique` rewrite callback dependency list omitted `state.draftId`.
 - This pass aligned tests to current UI contracts and removed file-system fixture coupling in DraftEditor test.
+- HARNESS_ONLY Playwright failures now cluster around Electron preload/bootstrap instability rather than lint/unit drift:
+  - renderer console reports `Unable to load preload script` with `TypeError: Cannot read properties of null (reading 'dataset')` in `dist-electron/main/preload.js` (`setHarnessFlag` path).
+  - affected e2e specs then time out on harness readiness waits (for example `__paneReady` in `gui-contract.spec.ts`).
+- E2E fixture identity is now standardized on `proj_esther_estate` across Playwright harness helpers/specs:
+  - `_bootstrap.ts`, `gui.smoke.spec.ts`, `smoke.project.spec.ts`, and `phase5-export-integrity-flow.spec.ts` now resolve project paths via `loadSampleProject()`.
+  - `utils/sampleProject.ts` no longer falls back to legacy `sample_project/Esther_Estate` for `proj_esther_estate`.
+  - `budget-meter.spec.ts` now loads outline/project/drafts through the shared fixture loader instead of direct filesystem reads.
+- `budget-meter.spec.ts` Batch 2 residual is resolved locally:
+  - strict heading locator ambiguity was removed by asserting `data-testid="dock-workspace"` instead of project-name heading text.
+  - budget assertion mismatch root cause was stale expectation drift: spec expected legacy `$1.75 / $10.00` while HARNESS_ONLY e2e service stubs currently return preflight `$0.02 / $10.00` and critique `$0.02 / $10.00`.
+  - spec budget fixtures/assertions are now aligned to the deterministic HARNESS_ONLY service-stub contract.
 
 #### Progress Log
 - 2026-04-22 - Codex - Updated renderer test expectations to current contracts:
@@ -611,6 +622,36 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 - 2026-04-22 - Codex - Local verification:
   - `pnpm --filter app test -- --run renderer/__tests__/StoryInsightsRegression.test.tsx renderer/__tests__/AppPreflight.test.tsx renderer/__tests__/AnalyticsDashboard.test.tsx renderer/__tests__/DraftEditor.test.tsx` -> PASS (22/22).
   - `pnpm --filter app lint` -> PASS.
+- 2026-04-22 - Codex - Local Playwright triage:
+  - `pnpm exec playwright test tests/e2e/a11y.smoke.spec.ts --project=electron --workers=1` -> PASS.
+  - `pnpm exec playwright test tests/e2e/gui-contract.spec.ts -g \"matches pane labels defined in documentation\" --project=electron --workers=1` -> FAIL (timeout waiting for `__paneReady`), with preload runtime error showing null `dataset` access in `setHarnessFlag`.
+- 2026-04-22 - Codex - Batch 1 startup hardening applied in `app/main/preload.ts`:
+  - harness flag initialization is now null-safe for `document.documentElement` / `document.body`;
+  - deferred application now runs on `DOMContentLoaded`/`load` when DOM targets are not yet available;
+  - writes are idempotent so repeated startup application does not throw or corrupt flags;
+  - `testNeedsRecovery` flag path now uses the same guarded/deferred behavior.
+- 2026-04-22 - Codex - Temporary triage override added for HARNESS_ONLY Playwright lane: `PLAYWRIGHT_RETRIES=0` (wired through `app/playwright.config.ts` + eval workflow job env) for first-failure clarity.
+- 2026-04-22 - Codex - Post-fix focused local validation:
+  - `pnpm --filter app build:main` -> PASS.
+  - `PLAYWRIGHT_RETRIES=0 pnpm exec playwright test tests/e2e/gui-contract.spec.ts -g \"matches pane labels defined in documentation\" --project=electron --workers=1` -> PASS.
+  - `PLAYWRIGHT_RETRIES=0 pnpm exec playwright test tests/e2e/a11y.smoke.spec.ts --project=electron --workers=1` -> PASS.
+- 2026-04-22 - Codex - Batch 2 fixture identity unification applied for Playwright harness:
+  - removed `sample_project/Esther_Estate` hardcodes from e2e bootstrap/smoke specs; all now use `loadSampleProject()` canonical fixture resolution.
+  - removed legacy `Esther_Estate` fallback branch in `app/tests/e2e/utils/sampleProject.ts`.
+  - refactored `budget-meter.spec.ts` to consume shared fixture loader data instead of direct `fs` reads.
+- 2026-04-22 - Codex - Batch 2 focused local validation:
+  - `PLAYWRIGHT_RETRIES=0 pnpm --filter app exec playwright test tests/e2e/gui.smoke.spec.ts tests/e2e/smoke.project.spec.ts --reporter=line` -> PASS (2 passed).
+  - `PLAYWRIGHT_RETRIES=0 pnpm --filter app exec playwright test tests/e2e/phase5-export-integrity-flow.spec.ts --reporter=line` -> PASS (1 passed).
+  - `PLAYWRIGHT_RETRIES=0 pnpm --filter app exec playwright test tests/e2e/budget-meter.spec.ts --reporter=line` -> FAIL (strict-mode heading locator ambiguity in `budget-meter.spec.ts` line 171; multiple headings matched).
+- 2026-04-22 - Codex - Batch 2 residual fix pass:
+  - updated `budget-meter.spec.ts` readiness assertion from `getByRole('heading', { name: projectMeta.name })` to `getByTestId('dock-workspace')` to avoid ambiguous heading matching when project metadata lacks top-level `name`.
+  - `PLAYWRIGHT_RETRIES=0 pnpm --filter app exec playwright test tests/e2e/gui.smoke.spec.ts --reporter=line` -> PASS.
+  - `PLAYWRIGHT_RETRIES=0 pnpm --filter app exec playwright test tests/e2e/budget-meter.spec.ts --reporter=line` -> FAIL (`$1.75 / $10.00` not found; rendered preflight budget logs show `$0.02 / $10.00`).
+- 2026-04-22 - Codex - Batch 2 budget alignment fix:
+  - aligned `budget-meter.spec.ts` preflight/critique expected budget fixtures and text assertions to deterministic HARNESS_ONLY stub values (`$0.02 / $10.00` preflight and critique).
+  - `PLAYWRIGHT_RETRIES=0 pnpm --filter app exec playwright test tests/e2e/budget-meter.spec.ts --reporter=line` -> PASS.
+  - `PLAYWRIGHT_RETRIES=0 pnpm --filter app exec playwright test tests/e2e/gui.smoke.spec.ts --reporter=line` -> PASS.
+  - Batch 2 scope is closed locally; CI confirmation still required before upgrading broader issue status.
 
 #### Verification
 - Partial: local targeted app tests and lint are green; CI App Lint + Unit Tests run is still required.

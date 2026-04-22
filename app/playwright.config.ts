@@ -5,6 +5,12 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const disableAnimations = process.env.PLAYWRIGHT_DISABLE_ANIMATIONS === '1' || !!process.env.CI;
+const retriesFromEnv = Number.parseInt(process.env.PLAYWRIGHT_RETRIES ?? '', 10);
+const resolvedRetries = Number.isFinite(retriesFromEnv)
+  ? Math.max(0, retriesFromEnv)
+  : process.env.CI
+    ? 2
+    : 0;
 const reportRoot =
   process.env.PLAYWRIGHT_OUTPUT_DIR ??
   path.join(os.tmpdir(), 'black-skies-playwright', randomUUID());
@@ -24,7 +30,7 @@ export default defineConfig({
     timeout: 5_000,
   },
   fullyParallel: false,
-  retries: process.env.CI ? 2 : 0,
+  retries: resolvedRetries,
   reporter: [['list'], ['html', { open: 'never', outputFolder: htmlReportFolder }]],
   use: {
     trace: 'retain-on-failure',

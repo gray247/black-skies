@@ -1,18 +1,14 @@
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import type { Page } from '@playwright/test';
 import { test, expect } from './electron.launch';
 import { TID } from '../../renderer/utils/testIds';
+import { loadSampleProject } from './utils/sampleProject';
 
 // HARNESS_ONLY:
 // Reason: packaged project smoke bootstrapped with overridden local services.
 // Owner: app/tests/e2e/smoke.project.spec.ts
 // Retire when: project-open smoke is superseded by real-service truth lane coverage.
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const sampleProjectPath = path.resolve(__dirname, '../../sample_project/Esther_Estate');
+const { projectRoot: sampleProjectPath } = loadSampleProject();
 
 async function bootstrapHarness(page: Page): Promise<void> {
   await page.evaluate(() => {

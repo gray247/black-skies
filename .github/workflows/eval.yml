@@ -181,6 +181,7 @@ jobs:
       - name: Run HARNESS_ONLY Playwright UI smoke tests
         env:
           PLAYWRIGHT_DISABLE_ANIMATIONS: '1'
+          PLAYWRIGHT_RETRIES: '0'
         run: pnpm --filter app test:e2e
       - name: Upload Playwright artifacts
         if: failure()

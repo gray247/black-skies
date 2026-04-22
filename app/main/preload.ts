@@ -164,21 +164,67 @@ ensureForceStateAttrsWithRetry();
 safeExpose('__testEnv', { isPlaywright });
 
 if (typeof window !== 'undefined' && harnessHooksEnabled) {
-  const root = document.documentElement;
-  const body = document.body ?? root;
-  const setHarnessFlag = (flag: 'testActiveFlow' | 'testStableDock' | 'testStableHome' | 'testVisualStable', enabled: boolean): void => {
+  const setHarnessFlag = (
+    flag: 'testActiveFlow' | 'testStableDock' | 'testStableHome' | 'testVisualStable',
+    enabled: boolean,
+  ): boolean => {
+    if (typeof document === 'undefined') {
+      return false;
+    }
+    const root = document.documentElement;
+    const body = document.body;
+    const target = body ?? root;
+    if (!target) {
+      return false;
+    }
     if (enabled) {
-      root.dataset[flag] = '1';
-      body.dataset[flag] = '1';
+      if (root && root.dataset[flag] !== '1') {
+        root.dataset[flag] = '1';
+      }
+      if (body && body.dataset[flag] !== '1') {
+        body.dataset[flag] = '1';
+      }
+      return true;
+    }
+    if (root && flag in root.dataset) {
+      delete root.dataset[flag];
+    }
+    if (body && flag in body.dataset) {
+      delete body.dataset[flag];
+    }
+    return true;
+  };
+  const applyHarnessFlags = (): boolean => {
+    const activeFlowApplied = setHarnessFlag('testActiveFlow', process.env.PLAYWRIGHT === '1');
+    const stableDockApplied = setHarnessFlag(
+      'testStableDock',
+      process.env.BLACKSKIES_STABLE_DOCK === '1',
+    );
+    const stableHomeApplied = setHarnessFlag(
+      'testStableHome',
+      process.env.BLACKSKIES_STABLE_HOME === '1',
+    );
+    const visualStableApplied = setHarnessFlag(
+      'testVisualStable',
+      process.env.BLACKSKIES_VISUAL_STABLE === '1',
+    );
+    return activeFlowApplied || stableDockApplied || stableHomeApplied || visualStableApplied;
+  };
+  const ensureHarnessFlags = (): void => {
+    if (applyHarnessFlags()) {
       return;
     }
-    delete root.dataset[flag];
-    delete body.dataset[flag];
+    if (typeof document === 'undefined') {
+      return;
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', applyHarnessFlags, { once: true });
+    }
+    if (typeof window !== 'undefined') {
+      window.addEventListener('load', applyHarnessFlags, { once: true });
+    }
   };
-  setHarnessFlag('testActiveFlow', process.env.PLAYWRIGHT === '1');
-  setHarnessFlag('testStableDock', process.env.BLACKSKIES_STABLE_DOCK === '1');
-  setHarnessFlag('testStableHome', process.env.BLACKSKIES_STABLE_HOME === '1');
-  setHarnessFlag('testVisualStable', process.env.BLACKSKIES_VISUAL_STABLE === '1');
+  ensureHarnessFlags();
   if (process.env.BLACKSKIES_STABLE_HOME === '1') {
     const applyStableHomeAttr = () => {
       if (typeof document === 'undefined') {
@@ -1445,10 +1491,24 @@ if (process.env.PLAYWRIGHT === '1') {
   };
 
   if (harnessHooksEnabled && typeof document !== 'undefined') {
-    const root = document.documentElement;
-    const body = document.body ?? root;
-    root.dataset.testNeedsRecovery = '1';
-    body.dataset.testNeedsRecovery = '1';
+    const applyRecoveryFlag = (): boolean => {
+      const root = document.documentElement;
+      const body = document.body;
+      const target = body ?? root;
+      if (!target) {
+        return false;
+      }
+      if (root && root.dataset.testNeedsRecovery !== '1') {
+        root.dataset.testNeedsRecovery = '1';
+      }
+      if (body && body.dataset.testNeedsRecovery !== '1') {
+        body.dataset.testNeedsRecovery = '1';
+      }
+      return true;
+    };
+    if (!applyRecoveryFlag() && document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', applyRecoveryFlag, { once: true });
+    }
   }
 
   if (process.env.PLAYWRIGHT_DISABLE_ANIMATIONS === '1') {

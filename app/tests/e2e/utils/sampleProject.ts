@@ -76,15 +76,6 @@ function resolveSampleProjectRoot(projectId: string): string {
     return directRoot;
   }
 
-  if (projectId === 'proj_esther_estate') {
-    const canonicalRoot = path.join(repoRoot, 'sample_project', 'Esther_Estate');
-    const canonicalOutline = path.join(canonicalRoot, 'outline.json');
-    const canonicalProject = path.join(canonicalRoot, 'project.json');
-    if (fs.existsSync(canonicalOutline) && fs.existsSync(canonicalProject)) {
-      return canonicalRoot;
-    }
-  }
-
   for (const snapshotDirName of ['.snapshots', '.snapshots.bak']) {
     const snapshotsRoot = path.join(directRoot, snapshotDirName);
     if (!fs.existsSync(snapshotsRoot)) {
