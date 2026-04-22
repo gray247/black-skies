@@ -38,7 +38,7 @@
     "react-mosaic-component": "^6.1.1",
     "react-resizable": "^3.0.5",
     "react-rnd": "^10.4.1",
-    "yaml": "^2.5.1"
+    "yaml": "^2.8.3"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.10.0",

@@ -328,13 +328,19 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 #### Known Facts
 - `eval.yml` and `security.yml` still duplicate setup and policy logic.
 - Trigger gap was present: workflow runs were not configured on push for active development branches (`main`, `phase-b2-memory-lab`), so branch pushes did not automatically execute these lanes.
+- Dependency/tool download churn remains a CI cost driver on reruns.
+- GitHub-hosted runners are ephemeral; `apt-get` system package downloads (`xvfb` and Playwright Linux deps via `--with-deps`) are not practically cacheable inside workflow jobs.
 
 #### Actions
 - Consolidate shared workflow patterns.
 - Keep push/pull_request/workflow_dispatch trigger coverage explicit for active verification workflows.
+- Keep cache improvements limited to dependency stores and browser bundles; treat OS package reuse as future runner-architecture optimization.
 
 #### Progress Log
 - 2026-04-22 - Codex - Added `push` triggers for `main` and `phase-b2-memory-lab` in `eval.yml` and `security.yml`; retained existing `pull_request` and manual dispatch triggers.
+- 2026-04-22 - Codex - Added pnpm store caching to Node jobs in `eval.yml` and `security.yml` via `actions/cache` keyed by `pnpm-lock.yaml`.
+- 2026-04-22 - Codex - Added Playwright browser cache (`~/.cache/ms-playwright`) in eval jobs that install browsers.
+- 2026-04-22 - Codex - Documented hosted-runner limit: `apt-get` and Playwright `--with-deps` OS-level dependency downloads still recur by design; self-hosted/prebaked runners are the real optimization path.
 
 ---
 
@@ -424,15 +430,18 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 - `services/tests/unit/test_runtime_truth.py` imports `tools.runtime_truth.build_runtime_truth`.
 - CI failure showed `ModuleNotFoundError: No module named 'tools'` under services test invocation context.
 - Root cause was test path setup only adding `services/src` to `sys.path`; repo root (which contains `tools/`) was not guaranteed on path.
-- Local repro after path fix confirms import path issue is resolved; test module executes and now fails on runtime-truth freshness assertion.
-- Current blocker is `AssertionError` in `services/tests/unit/test_runtime_truth.py::test_runtime_truth_artifact_is_fresh`.
+- Freshness assertion failure root cause was metadata drift in comparison logic:
+  `normalized_payload()` removed `generated_at` but still compared `generated_from.git_commit`, which changes every commit.
+- Freshness compare now excludes volatile `git_commit` provenance so semantic payload equivalence remains enforceable.
 
 #### Progress Log
 - 2026-04-22 - Codex - Updated `services/tests/conftest.py` to add both repo root and `services/src` to `sys.path` for services test runs.
 - 2026-04-22 - Codex - Re-ran `./.venv/bin/python -m pytest -q services/tests/unit/test_runtime_truth.py`; import error no longer reproduces.
+- 2026-04-22 - Codex - Updated `tools/runtime_truth/build_runtime_truth.py::normalized_payload` to drop `generated_from.git_commit` from freshness comparisons.
+- 2026-04-22 - Codex - Re-ran `./.venv/bin/python -m pytest -q services/tests/unit/test_runtime_truth.py`; result: `3 passed`.
 
 #### Verification
-- Partial: import-path blocker is resolved; remaining failure is runtime-truth freshness assertion and still needs CI confirmation after remediation.
+- Partial: import-path and freshness assertion blockers are resolved locally; CI confirmation is still required.
 
 ---
 
@@ -490,7 +499,21 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 - Load sanity now has an explicit CI fixture-preparation step so the expected project root exists before `scripts/load.py` runs.
 - Load sanity fixture includes required outline contract fields and now sets regex-valid `outline_id` (`out_001`).
 - Current security failure mode is primarily real dependency advisories at `Fail if vulnerabilities detected` (intentional gate behavior).
+- Local vulnerability triage/repro (2026-04-22) now confirms command plumbing is stable and findings are dependency debt:
+  - `pip-audit`: 5 -> 4 CVEs after first safe remediation batch.
+  - `pnpm audit`: 58 -> 57 advisories after first safe remediation batch.
+- Security lane now includes explicit pnpm store caching keyed by `pnpm-lock.yaml` to reduce rerun install churn without weakening failure gates.
 - CI confirmation is still required before status can advance beyond partial while advisories remain open.
+- Current local repo-state review found no additional workflow-command or artifact-path defects to patch in this pass; remaining failures are expected advisory gates until dependency debt is reduced.
+
+#### Progress Log
+- 2026-04-22 - Codex - Ran local CI-equivalent scanner commands and captured JSON reports for triage (`pip-audit`, `safety`, `pnpm audit`).
+- 2026-04-22 - Codex - Applied first low-risk remediation batch:
+  - Python transitive: `python-dotenv` `1.1.1` -> `1.2.2` (CVE-2026-28684 fix).
+  - Node direct: `yaml` `2.8.1` -> `2.8.3` (pnpm advisory id `1115556` fix).
+- 2026-04-22 - Codex - Local post-change scans confirm both remediations removed their targeted advisories; remaining failures are still vulnerability gates.
+- 2026-04-22 - Codex - Added security workflow pnpm-store cache and expanded pip cache key inputs to include `constraints.txt` for more reliable invalidation.
+- 2026-04-22 - Codex - Re-checked security workflow for prior defect patterns (`pnpm audit` args, Safety report emission, artifact `path` wiring); no new workflow bug behavior found in repo state.
 
 ---
 
@@ -501,9 +524,20 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 #### Known Facts
 - Security workflow now reaches advisory gating and reports real package vulnerabilities after command-level fixes.
 - Upgrade/remediation planning needs to be tracked separately from workflow command/runtime reliability work.
+- Triage split now established:
+  - Python/backend: 5 CVEs identified from lockfiles (3 direct, 2 transitive) before first batch; 4 remain after first batch.
+  - Node/app: 58 advisories identified (20 direct, 38 transitive) before first batch; 57 remain after first batch.
+- Remaining high-impact direct debt is concentrated in Electron major-version advisories; these require compatibility review rather than patch-only bumps.
+- Batch A changes are now applied in repo manifests/locks:
+  - `python-dotenv` pinned to `1.2.2` (`constraints.txt`, `requirements.lock`, `requirements.dev.lock`)
+  - `yaml` bumped to `^2.8.3` (`package.json`, `app/package.json`, `pnpm-lock.yaml`)
 
 #### Actions
 - Maintain explicit dependency remediation plan tied to advisory reports (pip-audit, Safety, pnpm audit), separate from workflow bug fixes.
+- Execute phased remediation:
+  - Batch A (completed): low-risk patch/minor updates with clear fixes and minimal blast radius.
+  - Batch B (pending): medium-risk direct updates (`vite`, related build chain) with focused compatibility checks.
+  - Batch C (pending): high-risk direct upgrades (`electron` major line, pytest/black/starlette security fixes) after explicit compatibility sign-off and CI soak.
 
 ---
 

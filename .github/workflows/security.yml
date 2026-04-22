@@ -61,6 +61,7 @@ jobs:
           python-version: '3.11'
           cache: 'pip'
           cache-dependency-path: |
+            constraints.txt
             requirements.lock
             requirements.dev.lock
             pyproject.toml
@@ -131,6 +132,17 @@ jobs:
         with:
           version: 8
           run_install: false
+      - name: Resolve pnpm store path
+        id: pnpm_store
+        shell: bash
+        run: echo "path=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm_store.outputs.path }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
       - name: Install JS dependencies
         run: pnpm install --recursive --frozen-lockfile
       - name: Run pnpm audit

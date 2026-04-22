@@ -828,6 +828,13 @@ def render_runtime_truth_schema() -> dict[str, Any]:
 def normalized_payload(payload: dict[str, Any]) -> dict[str, Any]:
     normalized = dict(payload)
     normalized.pop("generated_at", None)
+    generated_from = normalized.get("generated_from")
+    if isinstance(generated_from, dict):
+        # git_commit is provenance metadata for the current checkout and changes
+        # on every commit, so it is excluded from semantic freshness comparisons.
+        generated_from = dict(generated_from)
+        generated_from.pop("git_commit", None)
+        normalized["generated_from"] = generated_from
     return normalized
 
 

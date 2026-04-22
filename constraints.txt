@@ -6,7 +6,7 @@ starlette==0.48.0
 pydantic==2.12.3
 pydantic-core==2.41.4
 pydantic-settings==2.11.0
-python-dotenv==1.1.1
+python-dotenv==1.2.2
 tenacity==9.1.2
 tzlocal==5.2
 uvicorn==0.29.0
