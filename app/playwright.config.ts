@@ -1,6 +1,4 @@
 import { defineConfig } from '@playwright/test';
-import { randomUUID } from 'node:crypto';
-import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -13,9 +11,9 @@ const resolvedRetries = Number.isFinite(retriesFromEnv)
     : 0;
 const reportRoot =
   process.env.PLAYWRIGHT_OUTPUT_DIR ??
-  path.join(os.tmpdir(), 'black-skies-playwright', randomUUID());
+  process.cwd();
 const resultsRoot = path.join(reportRoot, 'test-results');
-const htmlReportFolder = path.join(reportRoot, 'html-report');
+const htmlReportFolder = path.join(reportRoot, 'playwright-report');
 
 if (disableAnimations) {
   process.env.PLAYWRIGHT_DISABLE_ANIMATIONS = '1';

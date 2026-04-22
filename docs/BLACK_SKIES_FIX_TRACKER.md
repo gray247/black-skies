@@ -1,7 +1,7 @@
 ﻿# BLACK SKIES - FIX TRACKER
 
 Status: Active
-Last Reviewed: 2026-04-21
+Last Reviewed: 2026-04-22
 
 ## Purpose
 This document tracks defects, technical debt, and instability across Black Skies.
@@ -317,6 +317,8 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
   - HTML report folder is `playwright-report`,
   - HARNESS_ONLY/PASS 5 jobs explicitly set `PLAYWRIGHT_OUTPUT_DIR=app`.
 - Gauntlet proof-manifest flow now materializes explicit placeholder summaries when upstream pass artifacts are missing (for example PASS 5 job failure), so manifest upload remains readable without masking upstream failures.
+- Latest eval CI evidence (run #240, Apr 22, 2026) shows HARNESS_ONLY artifact upload still warns when no Playwright outputs are produced:
+  - `Upload Playwright artifacts` -> `No files were found with the provided path: app/playwright-report app/test-results. No artifacts will be uploaded.`
 
 #### Actions
 - Continue monitoring artifact upload stability across ubuntu and macOS while dependency gates are remediated separately.
@@ -335,6 +337,7 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 - 2026-04-22 - Codex - Latest CI evidence: load-ledger upload path bug no longer appears as active failure mode.
 - 2026-04-22 - Codex - Updated eval artifact upload step with `if-no-files-found: ignore` to suppress noisy warnings when eval outputs are not produced.
 - 2026-04-22 - Codex - Kept artifact publication fully enabled while narrowing security failure threshold logic to HIGH/CRITICAL only (reporting still preserved for all severities).
+- 2026-04-22 - Codex - Eval run #240 (`https://github.com/gray247/black-skies/actions/runs/24806497149`) confirms PASS 5 proof + gauntlet proof-manifest jobs complete successfully, while HARNESS_ONLY job still emits a no-files Playwright artifact warning on failure.
 
 ---
 
@@ -628,6 +631,11 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
   - failing state was not missing DOM node; `wizard-root` existed but was hidden at assertion time.
   - root cause was harness mode timing in this spec path: flat-mode flags/stubs were applied after initial renderer mount, so first render could remain in full workspace layout before harness mode took effect.
   - additional harness hardening landed for renderer test-mode detection and init-script null safety to reduce startup timing noise during reload-based setup.
+- Latest CI evidence (eval run #240, Apr 22, 2026):
+  - `Gauntlet PASS 5 Proof (Harness/Smoke)` completed successfully.
+  - `Publish Gauntlet CI Proof Manifest` completed successfully.
+  - Remaining failing lane is `HARNESS_ONLY App Smoke (Playwright)` with annotation:
+    `Run HARNESS_ONLY Playwright UI smoke tests` -> `Process completed with exit code 1.`
 
 #### Progress Log
 - 2026-04-22 - Codex - Updated renderer test expectations to current contracts:
@@ -692,6 +700,10 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 - 2026-04-22 - Codex - PASS 5 local sweep confirmation:
   - `PLAYWRIGHT_RETRIES=0 pnpm --filter app exec playwright test tests/e2e/gui.flows.spec.ts --reporter=line` -> PASS (5 passed, 2 skipped).
   - remaining confidence gap is CI replay on ubuntu runner with full PASS 5 job context.
+- 2026-04-22 - Codex - CI replay evidence from eval run #240:
+  - PASS 5 gauntlet proof lane is green (`Gauntlet PASS 5 Proof (Harness/Smoke)` successful).
+  - gauntlet proof-manifest lane is green (`Publish Gauntlet CI Proof Manifest` successful).
+  - first remaining harness failure is outside PASS 5 proof lane: `HARNESS_ONLY App Smoke (Playwright)` failed with `Process completed with exit code 1`.
 
 #### Verification
 - Partial: local targeted app tests and lint are green; CI App Lint + Unit Tests run is still required.

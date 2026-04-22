@@ -17,9 +17,6 @@ test('snapshot verification flow (UI)', async ({ page }) => {
   await expect(snapshotButton).toBeEnabled();
   await snapshotButton.click();
 
-  await page.waitForFunction(
-    () => (window as typeof window & { __paneReady?: number }).__paneReady ?? 0 >= 4,
-  );
   const toastTitle = page.locator('.toast__title', { hasText: /snapshot created/i });
   await expect(toastTitle).toBeVisible({ timeout: 30_000 });
   const viewReportAction = page.locator('.toast__action-button', { hasText: /view report/i });
