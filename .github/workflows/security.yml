@@ -1,7 +1,12 @@
 name: Security Audit
 
 on:
+  push:
+    branches:
+      - main
+      - phase-b2-memory-lab
   pull_request:
+  workflow_dispatch:
   schedule:
     - cron: '0 6 * * *'
 

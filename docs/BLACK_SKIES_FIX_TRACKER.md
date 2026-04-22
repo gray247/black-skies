@@ -293,13 +293,18 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 
 ## [9] Workflow duplication/divergence
 - Status: ACTIVE
-- Last Updated: 2026-04-21
+- Last Updated: 2026-04-22
 
 #### Known Facts
 - `eval.yml` and `security.yml` still duplicate setup and policy logic.
+- Trigger gap was present: workflow runs were not configured on push for active development branches (`main`, `phase-b2-memory-lab`), so branch pushes did not automatically execute these lanes.
 
 #### Actions
 - Consolidate shared workflow patterns.
+- Keep push/pull_request/workflow_dispatch trigger coverage explicit for active verification workflows.
+
+#### Progress Log
+- 2026-04-22 - Codex - Added `push` triggers for `main` and `phase-b2-memory-lab` in `eval.yml` and `security.yml`; retained existing `pull_request` and manual dispatch triggers.
 
 ---
 
