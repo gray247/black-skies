@@ -304,6 +304,7 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 - Workflow now normalizes ledger artifacts to a deterministic file (`load-ledger.json`) before upload, removing runtime dependence on output interpolation for `path`.
 - Safety report upload reliability depended on command-level report emission; Safety flags are now aligned to explicit JSON file output (`--save-json safety-report.json`).
 - Latest CI evidence indicates load-ledger artifact upload is functioning with the deterministic path.
+- Eval workflow emitted warnings when `out/eval.html` / `out/eval.json` were absent; upload step now ignores missing files instead of warning.
 
 #### Actions
 - Continue monitoring artifact upload stability across ubuntu and macOS while dependency gates are remediated separately.
@@ -318,6 +319,7 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 - 2026-04-22 - Codex - Reworked load-ledger artifact publication to always upload `load-ledger.json` written by discovery step (real ledger copy or fallback JSON).
 - 2026-04-22 - Codex - Hardened Safety artifact production path by switching to explicit JSON file save flags before upload.
 - 2026-04-22 - Codex - Latest CI evidence: load-ledger upload path bug no longer appears as active failure mode.
+- 2026-04-22 - Codex - Updated eval artifact upload step with `if-no-files-found: ignore` to suppress noisy warnings when eval outputs are not produced.
 
 ---
 
@@ -330,6 +332,7 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 - Trigger gap was present: workflow runs were not configured on push for active development branches (`main`, `phase-b2-memory-lab`), so branch pushes did not automatically execute these lanes.
 - Dependency/tool download churn remains a CI cost driver on reruns.
 - GitHub-hosted runners are ephemeral; `apt-get` system package downloads (`xvfb` and Playwright Linux deps via `--with-deps`) are not practically cacheable inside workflow jobs.
+- Node runtime deprecation warnings were present while workflows explicitly pinned Node 20.
 
 #### Actions
 - Consolidate shared workflow patterns.
@@ -341,6 +344,7 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 - 2026-04-22 - Codex - Added pnpm store caching to Node jobs in `eval.yml` and `security.yml` via `actions/cache` keyed by `pnpm-lock.yaml`.
 - 2026-04-22 - Codex - Added Playwright browser cache (`~/.cache/ms-playwright`) in eval jobs that install browsers.
 - 2026-04-22 - Codex - Documented hosted-runner limit: `apt-get` and Playwright `--with-deps` OS-level dependency downloads still recur by design; self-hosted/prebaked runners are the real optimization path.
+- 2026-04-22 - Codex - Bumped workflow `actions/setup-node` targets from Node 20 to Node 24 in eval/security workflows to address Actions deprecation warnings.
 
 ---
 
@@ -469,16 +473,19 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 
 ## [21] Environment instability
 - Status: PARTIAL
-- Last Updated: 2026-04-21
+- Last Updated: 2026-04-22
 
 #### Known Facts
 - Root `.venv` in WSL now has `black` and `mypy` available via lockfile install command.
 - Remaining environment blocker is narrowed: legacy ACL-locked dirs under `codex_temp/` still return permission denied on this host (`m700`, `probeperm`, one historical `service-truth/.../basetemp`).
 - Preventive guardrail added in `scripts/pytest_repo_temp_compat.py` to force traversable perms for pytest-created repo-local temp directories.
 - Repo-root mypy discovery is now guarded from known generated temp roots via `[tool.mypy].exclude` in `pyproject.toml`; command now reaches type analysis instead of permission crash.
+- PASS 2 service-truth runner had cross-platform interpreter drift: script hard-coded Windows `.venv/Scripts/python.exe`, which fails on Linux/macOS runners.
+- PASS 2 script now resolves interpreter from `.venv/Scripts/python.exe`, `.venv/bin/python`, or `sys.executable` (in that order).
 - Repro evidence for guardrail:
   `./.venv/bin/python -m pytest -q tests/test_cache.py --basetemp codex_temp/permcheck -p scripts.pytest_repo_temp_compat`
   created traversable `codex_temp/permcheck` tree (no permission-denied entries).
+- 2026-04-22 - Codex - Fixed PASS 2 script interpreter selection to be OS-agnostic and CI-safe for Linux/macOS + Windows.
 
 ---
 
@@ -501,6 +508,7 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 - Current security failure mode is primarily real dependency advisories at `Fail if vulnerabilities detected` (intentional gate behavior).
 - Local vulnerability triage/repro (2026-04-22) now confirms command plumbing is stable and findings are dependency debt:
   - `pip-audit`: 5 -> 4 CVEs after first safe remediation batch.
+  - `pip-audit`: 4 -> 3 CVEs after final low-risk Python sweep (`Pygments` update).
   - `pnpm audit`: 58 -> 57 advisories after first safe remediation batch.
 - Security lane now includes explicit pnpm store caching keyed by `pnpm-lock.yaml` to reduce rerun install churn without weakening failure gates.
 - CI confirmation is still required before status can advance beyond partial while advisories remain open.
@@ -514,6 +522,8 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 - 2026-04-22 - Codex - Local post-change scans confirm both remediations removed their targeted advisories; remaining failures are still vulnerability gates.
 - 2026-04-22 - Codex - Added security workflow pnpm-store cache and expanded pip cache key inputs to include `constraints.txt` for more reliable invalidation.
 - 2026-04-22 - Codex - Re-checked security workflow for prior defect patterns (`pnpm audit` args, Safety report emission, artifact `path` wiring); no new workflow bug behavior found in repo state.
+- 2026-04-22 - Codex - Applied final low-risk Python remediation in this pass: `Pygments` `2.19.2` -> `2.20.0` (CVE-2026-4539).
+- 2026-04-22 - Codex - Post-change local `pip-audit` result: remaining Python CVEs are `starlette`, `black`, `pytest`; vulnerability gate remains intentional.
 
 ---
 
@@ -525,12 +535,17 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 - Security workflow now reaches advisory gating and reports real package vulnerabilities after command-level fixes.
 - Upgrade/remediation planning needs to be tracked separately from workflow command/runtime reliability work.
 - Triage split now established:
-  - Python/backend: 5 CVEs identified from lockfiles (3 direct, 2 transitive) before first batch; 4 remain after first batch.
+  - Python/backend: 5 CVEs identified from lockfiles (3 direct, 2 transitive) before first batch; 3 remain after low-risk sweeps.
   - Node/app: 58 advisories identified (20 direct, 38 transitive) before first batch; 57 remain after first batch.
 - Remaining high-impact direct debt is concentrated in Electron major-version advisories; these require compatibility review rather than patch-only bumps.
 - Batch A changes are now applied in repo manifests/locks:
   - `python-dotenv` pinned to `1.2.2` (`constraints.txt`, `requirements.lock`, `requirements.dev.lock`)
   - `yaml` bumped to `^2.8.3` (`package.json`, `app/package.json`, `pnpm-lock.yaml`)
+- Additional low-risk Python change now applied:
+  - `Pygments` pinned to `2.20.0` (`constraints.txt`, `requirements.dev.lock`)
+- Deferred in this pass (by design):
+  - `black` security fix requires resolver-aligned lockfile updates beyond a one-line pin (`black 26.3.1` conflicts with `pathspec==0.12.1` in current lock).
+  - `starlette` and `pytest` security fixes require higher compatibility review due framework/test major-version impacts.
 
 #### Actions
 - Maintain explicit dependency remediation plan tied to advisory reports (pip-audit, Safety, pnpm audit), separate from workflow bug fixes.

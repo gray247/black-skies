@@ -12,7 +12,6 @@ from pathlib import Path
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-PYTHON = REPO_ROOT / ".venv" / "Scripts" / "python.exe"
 PASS2_TESTS = [
     "services/tests/test_rewrite_error_path.py",
     "services/tests/test_draft_submission_normalization.py",
@@ -25,9 +24,22 @@ PASS2_TESTS = [
 ]
 
 
+def resolve_python_executable() -> Path | None:
+    candidates = (
+        REPO_ROOT / ".venv" / "Scripts" / "python.exe",
+        REPO_ROOT / ".venv" / "bin" / "python",
+        Path(sys.executable),
+    )
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+    return None
+
+
 def main() -> int:
-    if not PYTHON.exists():
-        print(f"[service-truth] missing python executable: {PYTHON}", file=sys.stderr)
+    python_exe = resolve_python_executable()
+    if python_exe is None:
+        print("[service-truth] missing python executable (.venv or interpreter)", file=sys.stderr)
         return 2
 
     run_id = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S_%f")
@@ -45,7 +57,7 @@ def main() -> int:
     env["TMPDIR"] = str(scratch)
 
     cmd = [
-        str(PYTHON),
+        str(python_exe),
         "-m",
         "pytest",
         "--basetemp",
@@ -64,6 +76,7 @@ def main() -> int:
     ]
 
     print("[service-truth] running authoritative PASS 2 lane")
+    print(f"[service-truth] python: {python_exe}")
     print("[service-truth] command:", " ".join(cmd))
     result = subprocess.run(cmd, cwd=REPO_ROOT, env=env)
 
