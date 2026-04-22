@@ -89,7 +89,7 @@ If an issue is not tracked here, it is not part of the active fix scope.
 - Status: PARTIAL
 - Priority: Critical
 - Owner: Codex / Human
-- Last Updated: 2026-04-22
+- Last Updated: 2026-04-23
 
 #### Description
 Security workflow had setup/artifact reliability issues.
@@ -102,13 +102,18 @@ Security workflow had setup/artifact reliability issues.
   - upload step always receives a non-empty path output
 - Dependency report generation now guarantees `dependency-report.json` exists before upload (fallback JSON when generation aborts).
 - Matrix artifact names remain OS-unique (`-${{ matrix.os }}` suffix) for pip-audit, safety, pnpm-audit, load-ledger, and dependency-report.
+- Runtime load sanity failure remained after trigger/setup fixes:
+  - `scripts/load.py` expects an existing project root at `sample_project/proj_esther_estate`
+  - that project fixture is not present in CI checkout by default.
+- Load-ledger upload still failed in that scenario because `Discover load ledger` did not run after a failed load step, leaving `steps.load_ledger.outputs.run_json` unset.
 
 #### Root Cause
-Workflow setup and artifact-hardening were incomplete: Node setup used pnpm cache before pnpm availability, and a dynamic upload path could be empty when ledger discovery failed.
+Security workflow still assumed local sample-project fixture state that does not exist in clean CI checkouts, and artifact fallback logic depended on a step that was skipped after earlier failure.
 
 #### Actions
 - Re-run `security.yml` matrix (ubuntu + macOS) to confirm:
   - no `pnpm` executable-resolution failures
+  - light-load sanity succeeds with the CI-created project fixture
   - no upload-artifact missing-path failures
   - artifacts upload on both matrix OS jobs.
 
@@ -119,9 +124,11 @@ Workflow setup and artifact-hardening were incomplete: Node setup used pnpm cach
 - 2026-04-22 - Codex - Removed `cache: 'pnpm'` from `setup-node` in `security.yml` to avoid pre-install pnpm resolution failure on ubuntu/macos.
 - 2026-04-22 - Codex - Fixed load-ledger discovery/upload path contract (`--kind load-test`, fallback file, non-empty output path) to prevent upload-artifact missing `path`.
 - 2026-04-22 - Codex - Added dependency-report fallback file creation before upload so artifact path is always valid.
+- 2026-04-23 - Codex - Added a minimal CI fixture-prep step to materialize `sample_project/proj_esther_estate` (project.json, outline.json, drafts) before light-load sanity.
+- 2026-04-23 - Codex - Set `Discover load ledger` to `if: always()` so it still emits a fallback artifact path after a failing load step.
 
 #### Verification
-- Pending CI run after pnpm-ordering and upload-path fixes.
+- Pending CI run after load fixture and always-run ledger discovery fixes.
 
 #### Exit Criteria
 - Security workflow green on all matrix OS jobs with no artifact upload errors.
@@ -272,13 +279,14 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 
 ## [8] Artifact upload logic issues
 - Status: PARTIAL
-- Last Updated: 2026-04-22
+- Last Updated: 2026-04-23
 
 #### Known Facts
 - File-existence guards are now present.
 - Matrix artifact naming collision risk was addressed in a prior pass and remains fixed.
 - Dynamic load-ledger upload path in `security.yml` could be empty when `find_latest_run.py` failed, which maps to upload-artifact missing required `path`.
 - `security.yml` now guarantees path-safe uploads for dynamic and generated artifacts (load-ledger and dependency report fallbacks).
+- Additional failure mode identified: when light-load sanity step fails, downstream ledger-discovery step is skipped by default step conditions unless explicitly marked `if: always()`.
 
 #### Actions
 - Confirm CI uploads all security artifacts successfully on ubuntu and macOS.
@@ -288,6 +296,7 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 - 2026-04-21 - Codex - Implemented matrix-unique artifact names in `security.yml`; awaiting CI confirmation.
 - 2026-04-22 - Codex - Fixed dynamic load-ledger artifact path contract so upload-artifact always receives a valid `path`.
 - 2026-04-22 - Codex - Added dependency report fallback file generation to keep upload path valid when command exits early.
+- 2026-04-23 - Codex - Marked `Discover load ledger` as `if: always()` so upload path fallback executes even after load sanity failure.
 
 ---
 
@@ -432,7 +441,7 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 
 ## [22] Security workflow + vulnerability reporting
 - Status: PARTIAL
-- Last Updated: 2026-04-22
+- Last Updated: 2026-04-23
 
 #### Known Facts
 - Reporting steps exist and fail-closed behavior is present.
@@ -440,6 +449,7 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 - Workflow stability fixes were applied for known runner failures:
   - pnpm availability issue in Node setup path
   - upload-artifact missing `path` from failed dynamic ledger discovery
+- Load sanity now has an explicit CI fixture-preparation step so the expected project root exists before `scripts/load.py` runs.
 - CI confirmation is still required before status can advance.
 
 ---

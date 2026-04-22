@@ -150,10 +150,43 @@ jobs:
         with:
           name: pnpm-audit-report-${{ matrix.os }}
           path: pnpm-audit-report.json
+      - name: Prepare load sanity project fixture
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          project_root = Path("sample_project/proj_esther_estate")
+          drafts_dir = project_root / "drafts"
+          drafts_dir.mkdir(parents=True, exist_ok=True)
+
+          (project_root / "project.json").write_text(
+              json.dumps({"project_id": "proj_esther_estate", "name": "Esther Estate"}, indent=2),
+              encoding="utf-8",
+          )
+          outline = {
+              "project_id": "proj_esther_estate",
+              "scenes": [
+                  {"id": "sc_0001", "title": "Scene 1"},
+                  {"id": "sc_0002", "title": "Scene 2"},
+                  {"id": "sc_0003", "title": "Scene 3"},
+                  {"id": "sc_0004", "title": "Scene 4"},
+              ],
+          }
+          (project_root / "outline.json").write_text(json.dumps(outline, indent=2), encoding="utf-8")
+
+          for index in range(1, 5):
+              scene_id = f"sc_{index:04d}"
+              (drafts_dir / f"{scene_id}.md").write_text(
+                  f"---\nid: {scene_id}\n---\nSeed scene body {index}.\n",
+                  encoding="utf-8",
+              )
+          PY
       - name: Run light-load sanity check
         run: |
           python scripts/load.py --total-cycles 4 --concurrency 2 --timeout 45 --start-service
       - name: Discover load ledger
+        if: always()
         id: load_ledger
         run: |
           set +e
