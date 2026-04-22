@@ -98,32 +98,29 @@ Security workflow had setup/artifact reliability issues.
 - `security.yml` now sets up Node and pnpm without `setup-node` pnpm-cache coupling that required a pre-existing `pnpm` binary.
 - Runtime load sanity root lookup now succeeds in CI after fixture preparation for `sample_project/proj_esther_estate`.
 - Load sanity fixture writes required outline structure fields for `/api/v1/draft/generate` (`schema_version`, `outline_id`, `chapters`, scene `order`/`chapter_id`).
-- Current CI runtime evidence shows one remaining outline schema mismatch:
-  - `outline_id` failed pattern validation (`^out_\\d{3}$`) when set to `out_ci_security_load`.
+- Prior outline schema mismatch (`outline_id` regex) was corrected in workflow fixture preparation (`out_001`).
 - Load-ledger artifact flow now uses a deterministic file (`load-ledger.json`) instead of direct dynamic upload-path binding:
   - `find_latest_run.py` is called with required `--kind load-test`
   - fallback JSON is written when discovery fails
   - upload uses static path `load-ledger.json`
+- Latest CI evidence indicates load-ledger artifact upload now works with the deterministic path flow.
 - Dependency report generation now guarantees `dependency-report.json` exists before upload (fallback JSON when generation aborts).
 - Matrix artifact names remain OS-unique (`-${{ matrix.os }}` suffix) for pip-audit, safety, pnpm-audit, load-ledger, and dependency-report.
 - CI evidence now separates command bugs from advisory gates:
-  - Broken behavior: `pnpm audit --recursive --json` fails with `Unknown option: 'recursive'`.
-  - Broken behavior: Safety command flags were inconsistent with current CLI output contract and could exit without writing `safety-report.json`.
+  - Resolved bug: `pnpm audit --recursive --json` invalid-option failure (`Unknown option: 'recursive'`).
+  - Resolved bug: Safety command flags now reliably emit JSON report artifacts.
   - Intended gate: workflow reaches `Fail if vulnerabilities detected` and reports real dependency advisories.
 
 #### Root Cause
-Initial setup/runtime assumptions were corrected (pnpm availability and project-root existence). Remaining failures were caused by an under-specified synthetic outline fixture and fragile runtime path propagation for load-ledger upload.
+Initial setup/runtime assumptions and command contracts were misaligned (pnpm availability, load-sanity fixture validity, artifact-path determinism, and audit command flags). Those workflow defects were corrected; primary remaining failures are dependency advisories detected by policy gates.
 
 #### Actions
 - Re-run `security.yml` matrix (ubuntu + macOS) to confirm:
   - no `pnpm` executable-resolution failures
   - no invalid command failures (`Unknown option: 'recursive'`)
   - Safety report is always produced as JSON artifact
-  - no project-root missing failures for load sanity
-  - light-load sanity passes outline schema validation with regex-valid `outline_id`
-  - load-ledger upload succeeds using deterministic `load-ledger.json`
-  - artifacts upload on both matrix OS jobs
-  - failures (if any) are only vulnerability-policy gates.
+  - load-ledger artifact upload remains stable with deterministic `load-ledger.json`
+  - failures (if any) are vulnerability-policy gates tied to real advisories.
 
 #### Progress Log
 - 2026-04-21 - Codex - Verified setup improvements and identified matrix artifact-name collision risk.
@@ -144,9 +141,10 @@ Initial setup/runtime assumptions were corrected (pnpm availability and project-
 - 2026-04-22 - Codex - Identified invalid pnpm audit argument in CI: `--recursive` is not accepted by current pnpm audit command.
 - 2026-04-22 - Codex - Updated pnpm audit invocation to `pnpm audit --json`.
 - 2026-04-22 - Codex - Updated Safety invocation to `--output json --save-json safety-report.json` so report emission is deterministic.
+- 2026-04-22 - Codex - CI evidence now indicates security lane primarily fails at intentional vulnerability gate after report generation.
 
 #### Verification
-- Pending CI run after pnpm/safety command fixes to confirm only real advisories remain as failing gate conditions.
+- Partial: workflow-bug symptoms above are addressed; CI now needs to be interpreted as dependency-advisory policy failure unless new workflow regressions appear.
 
 #### Exit Criteria
 - Security workflow green on all matrix OS jobs with no artifact upload errors.
@@ -305,9 +303,10 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 - Prior dynamic load-ledger output path was unstable under failure conditions.
 - Workflow now normalizes ledger artifacts to a deterministic file (`load-ledger.json`) before upload, removing runtime dependence on output interpolation for `path`.
 - Safety report upload reliability depended on command-level report emission; Safety flags are now aligned to explicit JSON file output (`--save-json safety-report.json`).
+- Latest CI evidence indicates load-ledger artifact upload is functioning with the deterministic path.
 
 #### Actions
-- Confirm CI uploads all security artifacts successfully on ubuntu and macOS.
+- Continue monitoring artifact upload stability across ubuntu and macOS while dependency gates are remediated separately.
 
 #### Progress Log
 - 2026-04-21 - Codex - Issue execution batched with [1] due same file and same root cause.
@@ -318,6 +317,7 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 - 2026-04-22 - Codex - CI matrix evidence (ubuntu + macOS) still reports load-ledger upload failure due missing/invalid runtime `path`.
 - 2026-04-22 - Codex - Reworked load-ledger artifact publication to always upload `load-ledger.json` written by discovery step (real ledger copy or fallback JSON).
 - 2026-04-22 - Codex - Hardened Safety artifact production path by switching to explicit JSON file save flags before upload.
+- 2026-04-22 - Codex - Latest CI evidence: load-ledger upload path bug no longer appears as active failure mode.
 
 ---
 
@@ -417,21 +417,22 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 ---
 
 ## [18] Runtime truth sync risk
-- Status: ACTIVE
+- Status: PARTIAL
 - Last Updated: 2026-04-22
 
 #### Known Facts
 - `services/tests/unit/test_runtime_truth.py` imports `tools.runtime_truth.build_runtime_truth`.
 - CI failure showed `ModuleNotFoundError: No module named 'tools'` under services test invocation context.
 - Root cause was test path setup only adding `services/src` to `sys.path`; repo root (which contains `tools/`) was not guaranteed on path.
-- Local repro after path fix confirms import path issue is resolved; test module executes (2 passed / 1 failed on unrelated runtime-truth freshness assertion).
+- Local repro after path fix confirms import path issue is resolved; test module executes and now fails on runtime-truth freshness assertion.
+- Current blocker is `AssertionError` in `services/tests/unit/test_runtime_truth.py::test_runtime_truth_artifact_is_fresh`.
 
 #### Progress Log
 - 2026-04-22 - Codex - Updated `services/tests/conftest.py` to add both repo root and `services/src` to `sys.path` for services test runs.
 - 2026-04-22 - Codex - Re-ran `./.venv/bin/python -m pytest -q services/tests/unit/test_runtime_truth.py`; import error no longer reproduces.
 
 #### Verification
-- Partial: import-path blocker is resolved locally; CI run evidence is still required to close this issue.
+- Partial: import-path blocker is resolved; remaining failure is runtime-truth freshness assertion and still needs CI confirmation after remediation.
 
 ---
 
@@ -483,13 +484,13 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 - Matrix artifact naming remains OS-unique.
 - Workflow stability fixes were applied for known runner failures:
   - pnpm availability issue in Node setup path
-  - runtime artifact path instability in load-ledger upload path handling
-  - invalid pnpm audit argument (`--recursive`)
-  - Safety report command/flag mismatch with current CLI behavior
+  - runtime artifact path instability in load-ledger upload path handling (load-ledger upload now working with deterministic file path)
+  - invalid pnpm audit argument (`--recursive`) fixed
+  - Safety report command/flag mismatch with current CLI behavior fixed
 - Load sanity now has an explicit CI fixture-preparation step so the expected project root exists before `scripts/load.py` runs.
-- Load sanity fixture includes required outline contract fields, but CI evidence identified an `outline_id` regex mismatch; workflow now sets `outline_id` to `out_001`.
-- Real dependency advisories are still expected to fail the lane by design at `Fail if vulnerabilities detected`.
-- CI confirmation is still required before status can advance.
+- Load sanity fixture includes required outline contract fields and now sets regex-valid `outline_id` (`out_001`).
+- Current security failure mode is primarily real dependency advisories at `Fail if vulnerabilities detected` (intentional gate behavior).
+- CI confirmation is still required before status can advance beyond partial while advisories remain open.
 
 ---
 
