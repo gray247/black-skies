@@ -26,6 +26,7 @@ else:
     app = _app
     create_app = _create_app
 
+
 def main(*args: Any, **kwargs: Any) -> Any:
     """Lazy CLI entrypoint import to avoid preloading ``__main__`` during package import."""
 
@@ -34,6 +35,7 @@ def main(*args: Any, **kwargs: Any) -> Any:
     except ModuleNotFoundError as exc:  # pragma: no cover - executed when uvicorn is absent
         raise ModuleNotFoundError("uvicorn is required to launch the CLI entrypoint") from exc
     return _main(*args, **kwargs)
+
 
 if TYPE_CHECKING:  # pragma: no cover - handled via static imports above
     from .services import AgentOrchestrator, ToolNotPermittedError
