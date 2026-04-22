@@ -166,7 +166,7 @@ jobs:
           )
           outline = {
               "schema_version": "OutlineSchema v1",
-              "outline_id": "out_ci_security_load",
+              "outline_id": "out_001",
               "project_id": "proj_esther_estate",
               "acts": ["Act I"],
               "chapters": [

@@ -97,7 +97,9 @@ Security workflow had setup/artifact reliability issues.
 #### Known Facts
 - `security.yml` now sets up Node and pnpm without `setup-node` pnpm-cache coupling that required a pre-existing `pnpm` binary.
 - Runtime load sanity root lookup now succeeds in CI after fixture preparation for `sample_project/proj_esther_estate`.
-- Load sanity fixture now writes schema-valid outline fields required by `/api/v1/draft/generate` validation (`schema_version`, `outline_id`, `chapters`, and scene `order`/`chapter_id`).
+- Load sanity fixture writes required outline structure fields for `/api/v1/draft/generate` (`schema_version`, `outline_id`, `chapters`, scene `order`/`chapter_id`).
+- Current CI runtime evidence shows one remaining outline schema mismatch:
+  - `outline_id` failed pattern validation (`^out_\\d{3}$`) when set to `out_ci_security_load`.
 - Load-ledger artifact flow now uses a deterministic file (`load-ledger.json`) instead of direct dynamic upload-path binding:
   - `find_latest_run.py` is called with required `--kind load-test`
   - fallback JSON is written when discovery fails
@@ -112,7 +114,7 @@ Initial setup/runtime assumptions were corrected (pnpm availability and project-
 - Re-run `security.yml` matrix (ubuntu + macOS) to confirm:
   - no `pnpm` executable-resolution failures
   - no project-root missing failures for load sanity
-  - light-load sanity passes outline schema validation with the updated fixture
+  - light-load sanity passes outline schema validation with regex-valid `outline_id`
   - load-ledger upload succeeds using deterministic `load-ledger.json`
   - artifacts upload on both matrix OS jobs.
 
@@ -130,6 +132,8 @@ Initial setup/runtime assumptions were corrected (pnpm availability and project-
 - 2026-04-22 - Codex - CI matrix evidence (ubuntu + macOS): upload load ledger still fails with missing/invalid `path` at runtime.
 - 2026-04-22 - Codex - Updated security workflow fixture writer to emit schema-valid outline payload for load sanity (`outline_id`, chapter metadata, scene order/chapter_id).
 - 2026-04-22 - Codex - Switched load-ledger upload to deterministic artifact file `load-ledger.json`, written on both success and fallback paths.
+- 2026-04-22 - Codex - CI runtime evidence identified specific outline schema mismatch: `outline_id` pattern expected `^out_\\d{3}$`, actual `out_ci_security_load`.
+- 2026-04-22 - Codex - Updated security workflow fixture `outline_id` to regex-valid value `out_001`.
 
 #### Verification
 - Pending CI run after schema-valid fixture and deterministic load-ledger artifact-path fixes.
@@ -402,6 +406,20 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 
 ## [18] Runtime truth sync risk
 - Status: ACTIVE
+- Last Updated: 2026-04-22
+
+#### Known Facts
+- `services/tests/unit/test_runtime_truth.py` imports `tools.runtime_truth.build_runtime_truth`.
+- CI failure showed `ModuleNotFoundError: No module named 'tools'` under services test invocation context.
+- Root cause was test path setup only adding `services/src` to `sys.path`; repo root (which contains `tools/`) was not guaranteed on path.
+- Local repro after path fix confirms import path issue is resolved; test module executes (2 passed / 1 failed on unrelated runtime-truth freshness assertion).
+
+#### Progress Log
+- 2026-04-22 - Codex - Updated `services/tests/conftest.py` to add both repo root and `services/src` to `sys.path` for services test runs.
+- 2026-04-22 - Codex - Re-ran `./.venv/bin/python -m pytest -q services/tests/unit/test_runtime_truth.py`; import error no longer reproduces.
+
+#### Verification
+- Partial: import-path blocker is resolved locally; CI run evidence is still required to close this issue.
 
 ---
 
@@ -455,7 +473,7 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
   - pnpm availability issue in Node setup path
   - runtime artifact path instability in load-ledger upload path handling
 - Load sanity now has an explicit CI fixture-preparation step so the expected project root exists before `scripts/load.py` runs.
-- Load sanity fixture now includes schema-valid outline contract fields required by draft generation validation.
+- Load sanity fixture includes required outline contract fields, but CI evidence identified an `outline_id` regex mismatch; workflow now sets `outline_id` to `out_001`.
 - CI confirmation is still required before status can advance.
 
 ---
