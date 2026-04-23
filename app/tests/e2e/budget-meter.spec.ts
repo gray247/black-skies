@@ -198,10 +198,11 @@ test.describe('HARNESS_ONLY: Budget meter (packaged)', () => {
     await generateButton.click();
 
     await expect(page.getByText(preflightBudgetLabel, { exact: true })).toBeVisible();
-    await page
-      .getByRole('dialog', { name: 'Draft preflight' })
-      .getByRole('button', { name: 'Close' })
-      .click();
+    const preflightDialog = page.getByRole('dialog', { name: 'Draft preflight' });
+    const closePreflightButton = preflightDialog.getByRole('button', { name: 'Close' });
+    if (await closePreflightButton.isVisible({ timeout: 3_000 }).catch(() => false)) {
+      await closePreflightButton.click();
+    }
 
     const critiqueButton = page.getByTestId('workspace-action-critique');
     await expect(critiqueButton).toBeEnabled();

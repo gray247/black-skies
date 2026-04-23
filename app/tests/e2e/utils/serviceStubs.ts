@@ -461,18 +461,14 @@ export async function installServiceStubs(
   const targetMode = scenario === 'snapshot' ? 'full' : modeOverride ?? defaultMode;
   const offlineReason = scenario === 'offline' ? 'service_port_unavailable' : undefined;
   await applyTestMode(page, targetMode, offlineReason);
-  await page.evaluate(() => {
-    const root = document.documentElement;
-    if (!root) {
-      return;
-    }
-    root.dataset.testActiveFlow = '1';
-    if (document.body) {
-      document.body.dataset.testActiveFlow = '1';
-    }
-  });
+  await page.addInitScript((enabled) => {
+    (window as typeof window & { __testEnvSnapshotRestoreFlow?: boolean })
+      .__testEnvSnapshotRestoreFlow = enabled;
+  }, scenario === 'snapshot');
   await ensureServer();
   currentScenario = scenario;
+  // Ensure init-script harness flags are applied before renderer startup assertions run.
+  await page.reload({ waitUntil: 'domcontentloaded' });
   console.log('[backup-stub-installed]', `scenario=${scenario}, mode=${targetMode}`);
   await page.evaluate((enabled) => {
     (window as typeof window & { __testEnvSnapshotRestoreFlow?: boolean })

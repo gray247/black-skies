@@ -347,6 +347,10 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 - 2026-04-23 - Codex - Eval run #242 (`https://github.com/gray247/black-skies/actions/runs/24809238316`) confirms downstream gauntlet proof-manifest fallout is reduced: PASS 5 proof + proof-manifest both succeeded, with no missing `gauntlet-pass5-proof` cascade in this run.
 - 2026-04-23 - Codex - HARNESS_ONLY artifact upload warning still occurs on failing runs (`No files were found with the provided path: app/playwright-report app/test-results`), so artifact-path behavior remains PARTIAL.
 - 2026-04-23 - Codex - Expanded HARNESS_ONLY artifact upload globs in `eval.yml` to include `app/app/playwright-report` and `app/app/test-results` as fallback roots; CI confirmation still required.
+- 2026-04-23 - Codex - CI confirmation from eval run #243 (`https://github.com/gray247/black-skies/actions/runs/24811124430`):
+  - HARNESS_ONLY `Upload Playwright artifacts` no longer reported `No files were found...`.
+  - Artifact upload completed successfully (`playwright-artifacts`, 92 files, artifact id `6592064466`).
+  - keep status PARTIAL because HARNESS_ONLY test failures remain, but diagnostic artifact capture regression appears resolved.
 
 ---
 
@@ -669,6 +673,26 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
   - budget/service overrides were installed via `page.addInitScript(...)` after initial renderer load,
   - this only guaranteed future navigations, not immediate current-page state,
   - resulting in non-deterministic packaged vs harness service contract application under CI timing.
+- Latest CI evidence (eval run #244, Apr 23, 2026) shows the first budget-meter failure anchor at `tests/e2e/budget-meter.spec.ts:203`, which maps to an unconditional preflight-modal close click path.
+- Residual budget-meter contract appears CI-timing sensitive at modal teardown:
+  - preflight budget text assertion can pass while the modal close button is already gone/not interactable by the time the click executes on runner timing,
+  - this leaves the budget contract assertion path gated by brittle UI teardown timing rather than the intended budget-after-critique contract.
+- Budget-meter cluster root-cause classification is now concrete from CI artifact + local replay evidence:
+  - stale expectation drift (legacy `$1.75 / $10.00` assertion vs harness stub contract `$0.02 / $10.00`),
+  - plus a preflight modal teardown race (unconditional `Close` click after budget assertion on CI timing).
+- No other currently failing HARNESS_ONLY spec in this sweep has the same concrete stale-budget-expectation contract mismatch; remaining failures are separate clusters.
+- Next remaining HARNESS_ONLY cluster (readiness/anchor) root cause was a shared readiness-contract mismatch:
+  - `_bootstrap.ts` required `data-testid="dock-workspace"` visibility as a universal ready anchor,
+  - but flat harness mode intentionally hides `.dock-workspace` via `test-mode.css`,
+  - causing startup/readiness assertions to fail despite app state being otherwise ready.
+- Readiness contract is now unified in `_bootstrap.ts` to a mode-agnostic harness signal:
+  - service health pill reaches `data-status="online"`,
+  - renderer test mode flag is set (`body[data-test-mode]` in `flat|full|recovery`),
+  - and `data-testid="workspace-action-generate"` is visible.
+- Harness startup ordering was tightened to reduce mode/readiness drift:
+  - `installServiceStubs` now starts/configures the stub server (`currentScenario`) before the forced reload that applies init-script mode flags,
+  - snapshot restore test flag is registered via `addInitScript` pre-reload so first post-reload render sees the intended harness state.
+- Recovery startup click interception was observed in this cluster (`open-project` visible but pointer-intercepted by wizard pane during startup); bootstrap now force-clicks that preflight button in harness setup only.
 
 #### Progress Log
 - 2026-04-22 - Codex - Updated renderer test expectations to current contracts:
@@ -754,6 +778,30 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
   - `PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_DISABLE_ANIMATIONS=1 pnpm --filter app exec playwright test tests/e2e/budget-meter.spec.ts --project=electron --workers=1 --reporter=line` -> PASS.
   - `PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_DISABLE_ANIMATIONS=1 pnpm --filter app exec playwright test tests/e2e/gui.flows.spec.ts -g \"budget_guardrail_smoke\" --project=electron --workers=1 --reporter=line` -> PASS.
   - CI confirmation still required before narrowing broader issue status.
+- 2026-04-23 - Codex - CI verification run #243 (`04e635b`) result:
+  - HARNESS_ONLY remains at `15 failed / 2 skipped / 8 passed` (no additional drop vs run #242).
+  - `budget-meter.spec.ts` remains the first listed HARNESS_ONLY failure in CI despite local pass, so this cluster is not yet closed.
+  - first remaining CI-visible failure focus remains functional/UI contract drift (not launch environment).
+- 2026-04-23 - Codex - CI-only budget-meter hardening pass (run #244 follow-up):
+  - identified first failing location as `tests/e2e/budget-meter.spec.ts:203` (preflight dialog close path) from HARNESS_ONLY failure inventory.
+  - made preflight close click conditional (`Close` button is clicked only when visible within bounded timeout) so critique/budget assertions are no longer blocked by modal teardown race.
+  - local validation:
+    - `PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_DISABLE_ANIMATIONS=1 pnpm --filter app exec playwright test tests/e2e/budget-meter.spec.ts --project=electron --workers=1 --reporter=line` -> PASS.
+    - `PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_DISABLE_ANIMATIONS=1 pnpm --filter app exec playwright test tests/e2e/gui.flows.spec.ts -g "budget_guardrail_smoke" --project=electron --workers=1 --reporter=line` -> PASS.
+  - note: one local parallel-run attempt produced `EADDRINUSE` on stub port `9999`; rerun serially passed.
+  - CI confirmation still required before narrowing status.
+- 2026-04-23 - Codex - Budget-meter cluster continuation pass:
+  - reconfirmed CI artifact contract mismatch as stale expectation drift + modal teardown race (not packaged-vs-harness override drift and not duplicate-toast ambiguity),
+  - reran targeted budget-meter spec with CI-like env from `app/` workspace:
+    - `PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_DISABLE_ANIMATIONS=1 pnpm exec playwright test tests/e2e/budget-meter.spec.ts --project=electron --workers=1 --reporter=line` -> PASS,
+  - no additional HARNESS_ONLY failures in this pass were batched because no other failure shared this exact root cause signature.
+- 2026-04-23 - Codex - Readiness/anchor cluster pass (HARNESS_ONLY):
+  - replaced brittle bootstrap anchor (`dock-workspace` visible) with shared readiness contract: mode flag present (`body[data-test-mode]`), service status online, and visible `workspace-action-generate`,
+  - moved stub-server scenario setup before reload in `installServiceStubs` so reload applies harness mode flags against the correct service scenario,
+  - hardened bootstrap project-open click path for recovery startup layering (`open-project.click({ force: true })`),
+  - local validation (CI-like env, targeted readiness specs):
+    - `PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_DISABLE_ANIMATIONS=1 pnpm --filter app exec playwright test tests/e2e/gui.flows.spec.ts tests/e2e/gui-contract.spec.ts tests/e2e/layout-no-floating-panes.spec.ts --project=electron --workers=1 --reporter=line` -> PASS (`8 passed, 2 skipped`),
+  - status remains PARTIAL pending CI HARNESS_ONLY replay confirmation.
 
 #### Verification
 - Partial: local targeted app tests and lint are green; CI App Lint + Unit Tests run is still required.

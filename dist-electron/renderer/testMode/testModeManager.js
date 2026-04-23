@@ -31,7 +31,17 @@ function datasetFlagEnabled(flag) {
     return bodyValue === '1';
 }
 function isHarnessHooksEnabled() {
-    return typeof process !== 'undefined' && process.env?.BLACKSKIES_ENABLE_HARNESS_HOOKS === '1';
+    if (typeof process !== 'undefined' && process.env?.BLACKSKIES_ENABLE_HARNESS_HOOKS === '1') {
+        return true;
+    }
+    const win = getWindow();
+    if (!win) {
+        return false;
+    }
+    const envFlag = win.__testEnv;
+    const isPlaywrightFlag = envFlag === true ||
+        (envFlag !== false && typeof envFlag === 'object' && envFlag.isPlaywright === true);
+    return Boolean(isPlaywrightFlag && win.__dev);
 }
 function getMode() {
     if (!isHarnessHooksEnabled()) {

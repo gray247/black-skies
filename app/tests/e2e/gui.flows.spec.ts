@@ -24,7 +24,6 @@ type GuiFlowWindow = typeof window & {
 test.describe('GUI flow smoke tests', () => {
   test('smoke_wizard_to_draft_flow (UI)', async ({ page }) => {
     await installServiceStubs(page, 'normal', 'flat');
-    await page.reload({ waitUntil: 'domcontentloaded' });
     await bootstrapHarness(page);
 
     await expect(page.getByTestId(TID.wizardRoot)).toBeVisible({ timeout: 30_000 });

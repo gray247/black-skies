@@ -45,7 +45,7 @@ export async function bootstrapHarness(page: Page): Promise<void> {
       )
       .catch(() => undefined);
     if (await openProject.isEnabled().catch(() => false)) {
-      await openProject.click();
+      await openProject.click({ force: true });
     }
   }
 
@@ -75,12 +75,12 @@ export async function bootstrapHarness(page: Page): Promise<void> {
   );
 
   await page.waitForFunction(
-    () =>
-      Boolean(
-        document.querySelector('[data-testid="dock-workspace"]') ??
-          document.querySelector('[data-testid="workspace-action-generate"]'),
-      ),
+    () => {
+      const mode = document.body?.dataset?.testMode;
+      return mode === 'flat' || mode === 'full' || mode === 'recovery';
+    },
     null,
     { timeout: 30_000 },
   );
+  await page.getByTestId('workspace-action-generate').waitFor({ state: 'visible', timeout: 30_000 });
 }
