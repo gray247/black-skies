@@ -717,6 +717,9 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
   - floating window URL builder treated `ELECTRON_RENDERER_URL=file://.../index.html` as an HTTP dev-server base and built `.../index.html/?...`,
   - Electron then raised `ERR_FILE_NOT_FOUND` for the floating renderer open path.
 - Floating renderer target resolution now falls back to `loadFile(rendererIndexFile, { search })` unless the configured renderer URL is `http/https`.
+- New workflow regression observed in latest CI run:
+  - multiple jobs fail at `Set up Node` with `Unable to locate executable file: pnpm`,
+  - this is bootstrap-layer failure/cascade noise (HARNESS_ONLY, PASS 3/5/6, docs-lint, App Lint + Unit Tests, and proof-manifest artifact follow-ons) until pnpm availability is restored before install steps.
 
 #### Progress Log
 - 2026-04-22 - Codex - Updated renderer test expectations to current contracts:
@@ -848,6 +851,10 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
   - local validation:
     - `pnpm --filter app build:main` -> PASS.
     - `PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_DISABLE_ANIMATIONS=1 pnpm --filter app exec playwright test tests/e2e/dock-workspace.spec.ts --project=electron --workers=1 --reporter=line` -> PASS (`2 passed`).
+- 2026-04-23 - Codex - Emergency workflow bootstrap regression fix:
+  - root cause: `actions/setup-node@v5` package-manager cache auto-detection attempted to resolve `pnpm` before `pnpm/action-setup` ran, producing `Unable to locate executable file: pnpm` at `Set up Node`.
+  - remediation: set `package-manager-cache: false` on all `setup-node@v5` steps in `eval.yml` and `security.yml`, while retaining explicit pnpm store cache steps that run after `pnpm/action-setup`.
+  - scope note: downstream failures in this run are treated as cascade fallout until Node/pnpm bootstrap is restored in CI.
 
 #### Verification
 - Partial: local targeted app tests and lint are green; CI App Lint + Unit Tests run is still required.
