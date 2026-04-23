@@ -1,7 +1,19 @@
 import type { Page } from '@playwright/test';
 import { loadSampleProject } from './utils/sampleProject';
 
-export async function bootstrapHarness(page: Page): Promise<void> {
+type HarnessServiceStatus = 'online' | 'offline' | 'port-unavailable';
+
+interface BootstrapHarnessOptions {
+  expectedServiceStatus?: HarnessServiceStatus | null;
+  expectedServiceReason?: string;
+}
+
+export async function bootstrapHarness(
+  page: Page,
+  options: BootstrapHarnessOptions = {},
+): Promise<void> {
+  const expectedServiceStatus = options.expectedServiceStatus ?? 'online';
+  const expectedServiceReason = options.expectedServiceReason;
   await page.waitForFunction(() => (window as typeof window & { __APP_READY__?: boolean }).__APP_READY__ === true, null, {
     timeout: 30_000,
   });
@@ -49,30 +61,45 @@ export async function bootstrapHarness(page: Page): Promise<void> {
     }
   }
 
-  await page.evaluate(() => {
-    window.__dev?.overrideServices?.({
-      async checkHealth() {
-        return {
-          ok: true,
-          data: { status: 'online' },
-          traceId: 'pw-health',
-        };
-      },
+  if (expectedServiceStatus === 'online') {
+    await page.evaluate(() => {
+      window.__dev?.overrideServices?.({
+        async checkHealth() {
+          return {
+            ok: true,
+            data: { status: 'online' },
+            traceId: 'pw-health',
+          };
+        },
+      });
+      window.dispatchEvent(
+        new CustomEvent('test:service-health', {
+          detail: { status: 'online' },
+        }),
+      );
     });
-    window.dispatchEvent(
-      new CustomEvent('test:service-health', {
-        detail: { status: 'online' },
-      }),
-    );
-  });
+  }
 
-  await page.waitForFunction(
-    () =>
-      (document.querySelector('[data-testid="service-status-pill"]') as HTMLElement | null)
-        ?.getAttribute('data-status') === 'online',
-    null,
-    { timeout: 30_000 },
-  );
+  if (expectedServiceStatus) {
+    await page.waitForFunction(
+      ({ expectedStatus, expectedReason }) => {
+        const pill = document.querySelector('[data-testid="service-status-pill"]') as HTMLElement | null;
+        const status = pill?.getAttribute('data-status');
+        if (status !== expectedStatus) {
+          return false;
+        }
+        if (!expectedReason) {
+          return true;
+        }
+        return pill?.getAttribute('data-reason') === expectedReason;
+      },
+      {
+        expectedStatus: expectedServiceStatus,
+        expectedReason: expectedServiceReason ?? null,
+      },
+      { timeout: 30_000 },
+    );
+  }
 
   await page.waitForFunction(
     () => {

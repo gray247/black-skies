@@ -248,7 +248,9 @@ test.describe('GUI flow smoke tests', () => {
         },
       });
     });
-    await bootstrapHarness(page);
+    await bootstrapHarness(page, {
+      expectedServiceStatus: null,
+    });
 
     await page.waitForFunction(
       () => {
@@ -273,6 +275,9 @@ test.describe('GUI flow smoke tests', () => {
 
     const banner = page.getByTestId(TID.serviceHealthBanner);
     await expect(banner).toBeVisible({ timeout: 30_000 });
+    const statusPill = page.getByTestId(TID.serviceStatusPill);
+    await expect(statusPill).toHaveAttribute('data-status', 'port-unavailable');
+    await expect(statusPill).toHaveAttribute('data-reason', 'service_port_unavailable');
     await expect(
       banner.getByText(/The writing tools service port is unavailable\./i),
     ).toBeVisible();
@@ -299,6 +304,7 @@ test.describe('GUI flow smoke tests', () => {
         }),
       );
     });
+    await expect(statusPill).toHaveAttribute('data-status', 'online');
     await expect(page.getByTestId(TID.serviceHealthBanner)).toHaveCount(0);
     await expect(page.getByTestId('workspace-action-generate')).toBeEnabled({
       timeout: 30_000,

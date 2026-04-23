@@ -285,11 +285,12 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 
 ## [7] Node/pnpm inconsistency
 - Status: PARTIAL
-- Last Updated: 2026-04-22
+- Last Updated: 2026-04-23
 
 #### Known Facts
 - Both `eval.yml` and `security.yml` now set Node 24 and pnpm 8.
 - Workflows now set `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true` at top level to reduce GitHub Actions Node runtime deprecation noise.
+- `actions/setup-node` usage is now standardized on `actions/setup-node@v5` across `eval.yml` and `security.yml` to reduce mixed-action-runtime warning noise while preserving Node 24 toolchain targets.
 - Duplication and minor setup drift still exist across workflow jobs.
 
 #### Actions
@@ -323,6 +324,8 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
   - when upstream PASS 5 fails before proof write/upload, downstream proof-manifest lane should stay readable via placeholder summaries (not fail with ambiguous missing-artifact noise);
 - HARNESS_ONLY artifact upload warnings are secondary effects when Electron fails before report artifacts are generated.
 - HARNESS_ONLY upload path coverage now includes both workspace-root and package-relative Playwright output roots (`app/*` and `app/app/*`) to improve diagnostic artifact capture when runner working-directory resolution differs.
+- HARNESS_ONLY Playwright artifact upload step now explicitly sets `if-no-files-found: ignore` to avoid secondary warning noise when upstream failures abort before report generation.
+- Gauntlet proof-manifest placeholder materialization now also creates PASS 4 truth-receipt placeholders (`latest.json` / `latest.txt`) when absent, keeping manifest artifact payload deterministic without masking upstream pass results.
 
 #### Actions
 - Continue monitoring artifact upload stability across ubuntu and macOS while dependency gates are remediated separately.
@@ -351,12 +354,16 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
   - HARNESS_ONLY `Upload Playwright artifacts` no longer reported `No files were found...`.
   - Artifact upload completed successfully (`playwright-artifacts`, 92 files, artifact id `6592064466`).
   - keep status PARTIAL because HARNESS_ONLY test failures remain, but diagnostic artifact capture regression appears resolved.
+- 2026-04-23 - Codex - Workflow cleanup pass (low-risk):
+  - set HARNESS_ONLY `Upload Playwright artifacts` to `if-no-files-found: ignore` in `eval.yml` to suppress non-actionable missing-file warnings on early failures.
+  - extended gauntlet proof-manifest placeholder step to materialize missing PASS 4 truth receipts (`ci_artifacts/pass4/build/truth_receipts/latest.json` and `latest.txt`) when upstream pass artifacts are absent.
+  - scope: reporting/diagnostic noise cleanup only; no failure-gate weakening and no app/test runtime behavior changes.
 
 ---
 
 ## [9] Workflow duplication/divergence
 - Status: ACTIVE
-- Last Updated: 2026-04-22
+- Last Updated: 2026-04-23
 
 #### Known Facts
 - `eval.yml` and `security.yml` still duplicate setup and policy logic.
@@ -364,6 +371,7 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 - Dependency/tool download churn remains a CI cost driver on reruns.
 - GitHub-hosted runners are ephemeral; `apt-get` system package downloads (`xvfb` and Playwright Linux deps via `--with-deps`) are not practically cacheable inside workflow jobs.
 - Node runtime deprecation warnings were present while workflows explicitly pinned Node 20.
+- Node setup action version is now aligned to `actions/setup-node@v5` in both eval/security workflows, reducing per-job runtime-version drift while keeping existing Node 24 toolchain inputs.
 
 #### Actions
 - Consolidate shared workflow patterns.
@@ -376,6 +384,7 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 - 2026-04-22 - Codex - Added Playwright browser cache (`~/.cache/ms-playwright`) in eval jobs that install browsers.
 - 2026-04-22 - Codex - Documented hosted-runner limit: `apt-get` and Playwright `--with-deps` OS-level dependency downloads still recur by design; self-hosted/prebaked runners are the real optimization path.
 - 2026-04-22 - Codex - Bumped workflow `actions/setup-node` targets from Node 20 to Node 24 in eval/security workflows to address Actions deprecation warnings.
+- 2026-04-23 - Codex - Standardized `actions/setup-node` action version from `@v4` to `@v5` in `eval.yml` and `security.yml` (no toolchain version change; still `node-version: '24'`).
 
 ---
 
@@ -693,6 +702,13 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
   - `installServiceStubs` now starts/configures the stub server (`currentScenario`) before the forced reload that applies init-script mode flags,
   - snapshot restore test flag is registered via `addInitScript` pre-reload so first post-reload render sees the intended harness state.
 - Recovery startup click interception was observed in this cluster (`open-project` visible but pointer-intercepted by wizard pane during startup); bootstrap now force-clicks that preflight button in harness setup only.
+- Next HARNESS_ONLY service/bridge-health drift cluster is now partially stabilized:
+  - root cause was mixed health-source assumptions in harness tests (`_bootstrap.ts` always forcing `online` health) conflicting with offline/port-unavailable scenario assertions.
+  - shared harness contract now distinguishes bootstrap modes:
+    - default/bootstrap online path still pins `service-status-pill[data-status="online"]` for normal harness flows,
+    - offline scenario flows opt out of bootstrap health forcing and assert explicit transition via `test:service-health` event to `data-status="port-unavailable"` and `data-reason="service_port_unavailable"`.
+  - offline-cache flow assertions now verify explicit reason transition contract (`offline` + `data-reason="test-offline"` -> `online`).
+  - `truth.real-service.spec.ts` is now explicitly gated to external-service runs only (`BLACKSKIES_E2E_EXTERNAL_SERVICE=1`) so HARNESS_ONLY does not fail on a non-harness real-backend expectation.
 
 #### Progress Log
 - 2026-04-22 - Codex - Updated renderer test expectations to current contracts:
@@ -802,6 +818,14 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
   - local validation (CI-like env, targeted readiness specs):
     - `PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_DISABLE_ANIMATIONS=1 pnpm --filter app exec playwright test tests/e2e/gui.flows.spec.ts tests/e2e/gui-contract.spec.ts tests/e2e/layout-no-floating-panes.spec.ts --project=electron --workers=1 --reporter=line` -> PASS (`8 passed, 2 skipped`),
   - status remains PARTIAL pending CI HARNESS_ONLY replay confirmation.
+- 2026-04-23 - Codex - Service/bridge-health contract drift batch (HARNESS_ONLY):
+  - `_bootstrap.ts` now supports explicit expected service state and no longer unconditionally forces online health for offline scenario tests.
+  - `gui.flows.spec.ts` `service_port_unavailable_flow` now uses bootstrap without online-health forcing and asserts explicit pill contract (`port-unavailable` + `service_port_unavailable`) before retry-to-online transition.
+  - `gui.analytics_offline_cache_flow.spec.ts` now asserts pill reason contract for offline/online transitions.
+  - `truth.real-service.spec.ts` is skipped unless `BLACKSKIES_E2E_EXTERNAL_SERVICE=1` (real-service reference spec, out of HARNESS_ONLY contract by default).
+  - local validation:
+    - `PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_DISABLE_ANIMATIONS=1 pnpm --filter app exec playwright test tests/e2e/truth.real-service.spec.ts tests/e2e/gui.analytics_offline_cache_flow.spec.ts tests/e2e/gui.flows.spec.ts -g "service_port_unavailable_flow|analytics offline cache flow|real service path" --project=electron --workers=1 --reporter=line` -> `2 passed, 1 skipped`.
+  - status remains PARTIAL pending CI HARNESS_ONLY replay.
 
 #### Verification
 - Partial: local targeted app tests and lint are green; CI App Lint + Unit Tests run is still required.
