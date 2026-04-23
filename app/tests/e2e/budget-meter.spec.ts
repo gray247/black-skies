@@ -1,6 +1,7 @@
 import { test, expect } from './_electron.fixture';
 import { bootstrapHarness } from './_bootstrap';
 import { loadSampleProject } from './utils/sampleProject';
+import type { Page } from '@playwright/test';
 
 const fixture = loadSampleProject();
 const { projectId, outline, drafts, scenes } = fixture;
@@ -90,155 +91,110 @@ const acceptResponse = {
   budget: critiqueBudget,
 };
 
+type BudgetHarnessPayload = {
+  project: typeof loadedProject;
+  preflight: typeof preflightEstimate;
+  critique: typeof critiqueResponse;
+  accept: typeof acceptResponse;
+};
+
+async function installBudgetHarnessOverrides(
+  page: Page,
+  payload: BudgetHarnessPayload,
+): Promise<void> {
+  const installer = ({ project, preflight, critique, accept }: BudgetHarnessPayload) => {
+    const services = {
+      checkHealth: async () => ({
+        ok: true,
+        data: { status: 'online' },
+        traceId: 'trace-health',
+      }),
+      buildOutline: async () => ({ ok: true, data: project.outline, traceId: 'trace-outline' }),
+      preflightDraft: async () => {
+        return { ok: true, data: preflight, traceId: 'trace-preflight' };
+      },
+      generateDraft: async () => ({
+        ok: true,
+        data: {
+          draft_id: 'dr_stub',
+          schema_version: 'DraftUnitSchema v1',
+          units: [],
+          budget: { status: 'ok' },
+        },
+        traceId: 'trace-generate',
+      }),
+      critiqueDraft: async () => {
+        return { ok: true, data: critique, traceId: 'trace-critique' };
+      },
+      acceptDraft: async () => {
+        return { ok: true, data: accept, traceId: 'trace-accept' };
+      },
+      createSnapshot: async () => ({
+        ok: true,
+        data: accept.snapshot,
+        traceId: 'trace-snapshot',
+      }),
+      getRecoveryStatus: async () => ({
+        ok: true,
+        data: {
+          project_id: project.project_id,
+          status: 'idle',
+          needs_recovery: false,
+          last_snapshot: null,
+        },
+        traceId: 'trace-recovery',
+      }),
+      restoreSnapshot: async () => ({
+        ok: true,
+        data: {
+          project_id: project.project_id,
+          status: 'idle',
+          needs_recovery: false,
+        },
+        traceId: 'trace-restore',
+      }),
+    };
+
+    const projectLoader = {
+      openProjectDialog: async () => ({ canceled: false, filePath: project.path }),
+      loadProject: async () => ({ ok: true, project, issues: [] }),
+      getSampleProjectPath: async () => project.path,
+    };
+
+    (window as typeof window & { services?: unknown }).services = services;
+    (
+      window as typeof window & {
+        __dev?: { overrideServices?: (overrides: Partial<typeof services>) => void };
+      }
+    ).__dev?.overrideServices?.(services);
+    (window as typeof window & { projectLoader?: unknown }).projectLoader = projectLoader;
+  };
+
+  await page.addInitScript(installer, payload);
+  await page.evaluate(installer, payload);
+}
+
 test.beforeEach(async ({ page }) => {
-  await page.addInitScript(
-    ({ project, preflight, critique, accept }) => {
-      const services = {
-        checkHealth: async () => ({
-          ok: true,
-          data: { status: 'online' },
-          traceId: 'trace-health',
-        }),
-        buildOutline: async () => ({ ok: true, data: project.outline, traceId: 'trace-outline' }),
-        preflightDraft: async () => {
-          return { ok: true, data: preflight, traceId: 'trace-preflight' };
-        },
-        generateDraft: async () => ({
-          ok: true,
-          data: {
-            draft_id: 'dr_stub',
-            schema_version: 'DraftUnitSchema v1',
-            units: [],
-            budget: { status: 'ok' },
-          },
-          traceId: 'trace-generate',
-        }),
-        critiqueDraft: async () => {
-          return { ok: true, data: critique, traceId: 'trace-critique' };
-        },
-        acceptDraft: async () => {
-          return { ok: true, data: accept, traceId: 'trace-accept' };
-        },
-        createSnapshot: async () => ({
-          ok: true,
-          data: accept.snapshot,
-          traceId: 'trace-snapshot',
-        }),
-        getRecoveryStatus: async () => ({
-          ok: true,
-          data: {
-            project_id: project.project_id,
-            status: 'idle',
-            needs_recovery: false,
-            last_snapshot: null,
-          },
-          traceId: 'trace-recovery',
-        }),
-        restoreSnapshot: async () => ({
-          ok: true,
-          data: {
-            project_id: project.project_id,
-            status: 'idle',
-            needs_recovery: false,
-          },
-          traceId: 'trace-restore',
-        }),
-      };
-
-      const projectLoader = {
-        openProjectDialog: async () => ({ canceled: false, filePath: project.path }),
-        loadProject: async () => ({ ok: true, project, issues: [] }),
-        getSampleProjectPath: async () => project.path,
-      };
-
-      Object.defineProperty(window, 'services', { value: services, configurable: true });
-      (
-        window as typeof window & {
-          __dev?: { overrideServices?: (overrides: Partial<typeof services>) => void };
-        }
-      ).__dev?.overrideServices?.(services);
-      Object.defineProperty(window, 'projectLoader', { value: projectLoader, configurable: true });
-    },
-    {
-      project: loadedProject,
-      preflight: preflightEstimate,
-      critique: critiqueResponse,
-      accept: acceptResponse,
-    },
-  );
+  await installBudgetHarnessOverrides(page, {
+    project: loadedProject,
+    preflight: preflightEstimate,
+    critique: critiqueResponse,
+    accept: acceptResponse,
+  });
   await bootstrapHarness(page);
 });
 
 test.describe('HARNESS_ONLY: Budget meter (packaged)', () => {
   test('updates immediately after critique', async ({ page }) => {
     await expect(page.getByTestId('dock-workspace')).toBeVisible();
-    await page.evaluate(
-      ({ preflight, critique, accept }) => {
-        const services = {
-          checkHealth: async () => ({
-            ok: true,
-            data: { status: 'online' },
-            traceId: 'trace-health',
-          }),
-          buildOutline: async () => ({
-            ok: true,
-            data: preflight.outline ?? null,
-            traceId: 'trace-outline',
-          }),
-          preflightDraft: async () => {
-            return { ok: true, data: preflight, traceId: 'trace-preflight' };
-          },
-          generateDraft: async () => ({
-            ok: true,
-            data: {
-              draft_id: 'dr_stub',
-              schema_version: 'DraftUnitSchema v1',
-              units: [],
-              budget: { status: 'ok' },
-            },
-            traceId: 'trace-generate',
-          }),
-          critiqueDraft: async () => {
-            return { ok: true, data: critique, traceId: 'trace-critique' };
-          },
-          acceptDraft: async () => {
-            return { ok: true, data: accept, traceId: 'trace-accept' };
-          },
-          createSnapshot: async () => ({
-            ok: true,
-            data: accept.snapshot,
-            traceId: 'trace-snapshot',
-          }),
-          getRecoveryStatus: async () => ({
-            ok: true,
-            data: {
-              project_id: preflight.projectId,
-              status: 'idle',
-              needs_recovery: false,
-              last_snapshot: null,
-            },
-            traceId: 'trace-recovery',
-          }),
-          restoreSnapshot: async () => ({
-            ok: true,
-            data: {
-              project_id: preflight.projectId,
-              status: 'idle',
-              needs_recovery: false,
-            },
-            traceId: 'trace-restore',
-          }),
-        };
-        (window as typeof window & { services?: unknown }).services = services;
-        (
-          window as typeof window & {
-            __dev?: { overrideServices?: (overrides: Partial<typeof services>) => void };
-          }
-        ).__dev?.overrideServices?.(services);
-      },
-      { preflight: preflightEstimate, critique: critiqueResponse, accept: acceptResponse },
-    );
+    await installBudgetHarnessOverrides(page, {
+      project: loadedProject,
+      preflight: preflightEstimate,
+      critique: critiqueResponse,
+      accept: acceptResponse,
+    });
     const generateButton = page.getByRole('button', { name: 'Generate' });
+    await expect(generateButton).toBeEnabled();
     await generateButton.click();
 
     await expect(page.getByText(preflightBudgetLabel, { exact: true })).toBeVisible();

@@ -196,6 +196,8 @@ jobs:
           path: |
             app/playwright-report
             app/test-results
+            app/app/playwright-report
+            app/app/test-results
 
   app-truth-lane:
     name: App Truth Lane (Real Service Path)

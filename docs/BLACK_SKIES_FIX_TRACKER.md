@@ -299,7 +299,7 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 
 ## [8] Artifact upload logic issues
 - Status: PARTIAL
-- Last Updated: 2026-04-22
+- Last Updated: 2026-04-23
 
 #### Known Facts
 - File-existence guards are now present.
@@ -321,7 +321,8 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
   - `Upload Playwright artifacts` -> `No files were found with the provided path: app/playwright-report app/test-results. No artifacts will be uploaded.`
 - Playwright/Gauntlet proof fallout is now explicitly split:
   - when upstream PASS 5 fails before proof write/upload, downstream proof-manifest lane should stay readable via placeholder summaries (not fail with ambiguous missing-artifact noise);
-  - HARNESS_ONLY artifact upload warnings are secondary effects when Electron fails before report artifacts are generated.
+- HARNESS_ONLY artifact upload warnings are secondary effects when Electron fails before report artifacts are generated.
+- HARNESS_ONLY upload path coverage now includes both workspace-root and package-relative Playwright output roots (`app/*` and `app/app/*`) to improve diagnostic artifact capture when runner working-directory resolution differs.
 
 #### Actions
 - Continue monitoring artifact upload stability across ubuntu and macOS while dependency gates are remediated separately.
@@ -343,6 +344,9 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 - 2026-04-22 - Codex - Eval run #240 (`https://github.com/gray247/black-skies/actions/runs/24806497149`) confirms PASS 5 proof + gauntlet proof-manifest jobs complete successfully, while HARNESS_ONLY job still emits a no-files Playwright artifact warning on failure.
 - 2026-04-22 - Codex - Added grouped failure accounting note: missing downstream proof/artifact outputs are treated as fallout when upstream Electron launch/setup fails, not as independent product defects.
 - 2026-04-22 - Codex - Launch-environment hardening pass added `xvfb-run -a` to HARNESS_ONLY Playwright execution in `eval.yml`; expected effect is fewer early-launch crashes and fewer no-files artifact fallouts.
+- 2026-04-23 - Codex - Eval run #242 (`https://github.com/gray247/black-skies/actions/runs/24809238316`) confirms downstream gauntlet proof-manifest fallout is reduced: PASS 5 proof + proof-manifest both succeeded, with no missing `gauntlet-pass5-proof` cascade in this run.
+- 2026-04-23 - Codex - HARNESS_ONLY artifact upload warning still occurs on failing runs (`No files were found with the provided path: app/playwright-report app/test-results`), so artifact-path behavior remains PARTIAL.
+- 2026-04-23 - Codex - Expanded HARNESS_ONLY artifact upload globs in `eval.yml` to include `app/app/playwright-report` and `app/app/test-results` as fallback roots; CI confirmation still required.
 
 ---
 
@@ -496,7 +500,7 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 
 ## [21] Environment instability
 - Status: PARTIAL
-- Last Updated: 2026-04-22
+- Last Updated: 2026-04-23
 
 #### Known Facts
 - Root `.venv` in WSL now has `black` and `mypy` available via lockfile install command.
@@ -540,6 +544,10 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 - Root-cause concentration in current CI harness collapse is now attributed to Linux launch-environment inconsistency between jobs:
   - HARNESS_ONLY job executed Electron Playwright without explicit Xvfb wrapper while PASS 5 used `xvfb-run`,
   - `electron.launch.ts` lacked Linux sandbox-disabling launch parity (`--no-sandbox`, `ELECTRON_DISABLE_SANDBOX`) present in `_electron.fixture.ts`.
+- CI evidence after launch-path hardening (eval run #242) indicates the prior Linux launch-environment signatures are no longer the dominant failure mode:
+  - no `Missing X server or $DISPLAY` signature,
+  - no `chrome-sandbox` helper misconfiguration signature,
+  - failure profile shifted to app/harness assertions and readiness-state expectations.
 
 ---
 
@@ -617,7 +625,7 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 
 ## [24] GUI navigation instability
 - Status: PARTIAL
-- Last Updated: 2026-04-22
+- Last Updated: 2026-04-23
 
 #### Known Facts
 - App Lint + Unit Tests had a renderer contract drift cluster:
@@ -656,6 +664,11 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
   - Downstream proof/artifact fallout: missing PASS 5 proof artifact only when upstream harness job fails before proof emission.
   - Linux packaging warning noise: bundled-Windows `python.exe` resource path warnings under Linux runtime.
 - Recent CI sample count for this cluster: 23 failed, 2 skipped; multiple named spec failures (for example `dock-workspace.spec.ts`, `gui.analytics_offline_cache_flow.spec.ts`, `hotkeys-status.spec.ts`, `smoke.project.spec.ts`, `truth.real-service.spec.ts`) map to the same launch-environment root cause family.
+- First post-launch-stabilization functional cluster selected: `budget-meter.spec.ts` packaged budget contract flow (`updates immediately after critique`).
+- Root cause for this cluster is harness override timing drift in the spec:
+  - budget/service overrides were installed via `page.addInitScript(...)` after initial renderer load,
+  - this only guaranteed future navigations, not immediate current-page state,
+  - resulting in non-deterministic packaged vs harness service contract application under CI timing.
 
 #### Progress Log
 - 2026-04-22 - Codex - Updated renderer test expectations to current contracts:
@@ -729,6 +742,18 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
   - `.github/workflows/eval.yml` HARNESS_ONLY lane now installs `xvfb` and runs via `xvfb-run -a`.
   - `app/tests/e2e/electron.launch.ts` now matches Linux sandbox posture used by `_electron.fixture.ts` (`ELECTRON_DISABLE_SANDBOX=1`, `--no-sandbox`).
   - expected impact: reduce `Missing X server/$DISPLAY`, platform-init, and chrome-sandbox launch failures that cascade into readiness/beforeEach timeouts.
+- 2026-04-23 - Codex - CI verification run #242 (`3c0c6ec`) confirms HARNESS_ONLY failure count drop from prior 23 failed / 2 skipped (run #241) to 15 failed / 2 skipped / 8 passed.
+- 2026-04-23 - Codex - First remaining failure cluster is now functional/UI-harness behavior, not launcher bring-up:
+  - first listed failing test in HARNESS_ONLY summary: `tests/e2e/budget-meter.spec.ts` (`HARNESS_ONLY: Budget meter (packaged) › updates immediately after critique`),
+  - additional remaining failures include missing/hidden UI anchors (`wizard-root`, pane title visibility), bridge-health expectation mismatch in `truth.real-service.spec.ts`, and missing visual snapshot baseline in `visual.home.spec.ts`.
+- 2026-04-23 - Codex - Budget-meter cluster fix:
+  - refactored `budget-meter.spec.ts` to apply harness overrides both immediately (`page.evaluate`) and on future navigations (`page.addInitScript`) via shared helper,
+  - replaced non-redefinable `Object.defineProperty(window, 'services'|'projectLoader')` writes with direct assignment to avoid runtime `Cannot redefine property` failures,
+  - added explicit `Generate` button enabled assertion before click to tighten readiness contract.
+- 2026-04-23 - Codex - Local validation after budget-meter fix:
+  - `PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_DISABLE_ANIMATIONS=1 pnpm --filter app exec playwright test tests/e2e/budget-meter.spec.ts --project=electron --workers=1 --reporter=line` -> PASS.
+  - `PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_DISABLE_ANIMATIONS=1 pnpm --filter app exec playwright test tests/e2e/gui.flows.spec.ts -g \"budget_guardrail_smoke\" --project=electron --workers=1 --reporter=line` -> PASS.
+  - CI confirmation still required before narrowing broader issue status.
 
 #### Verification
 - Partial: local targeted app tests and lint are green; CI App Lint + Unit Tests run is still required.
