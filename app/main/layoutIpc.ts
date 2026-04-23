@@ -276,10 +276,17 @@ function makeFloatingWindowUrl(
     });
   }
   if (options.devServerUrl) {
-    const base = options.devServerUrl.endsWith('/')
-      ? options.devServerUrl.slice(0, -1)
-      : options.devServerUrl;
-    return `${base}/?${searchParams.toString()}`;
+    try {
+      const parsed = new URL(options.devServerUrl);
+      if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+        const base = options.devServerUrl.endsWith('/')
+          ? options.devServerUrl.slice(0, -1)
+          : options.devServerUrl;
+        return `${base}/?${searchParams.toString()}`;
+      }
+    } catch {
+      // Invalid URL falls back to renderer file path.
+    }
   }
   return {
     file: options.rendererIndexFile,

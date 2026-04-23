@@ -709,6 +709,14 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
     - offline scenario flows opt out of bootstrap health forcing and assert explicit transition via `test:service-health` event to `data-status="port-unavailable"` and `data-reason="service_port_unavailable"`.
   - offline-cache flow assertions now verify explicit reason transition contract (`offline` + `data-reason="test-offline"` -> `online`).
   - `truth.real-service.spec.ts` is now explicitly gated to external-service runs only (`BLACKSKIES_E2E_EXTERNAL_SERVICE=1`) so HARNESS_ONLY does not fail on a non-harness real-backend expectation.
+- Mode/layout readiness contract is now explicit in shared bootstrap:
+  - flat mode readiness anchor: visible `wizard-root`,
+  - full/recovery readiness anchors: visible `dock-workspace` plus dock-pane readiness (`[data-pane-id="outline"]` or outline close control),
+  - action-enabled waits are now opt-in per test (`requiredEnabledActions`) instead of globally assumed.
+- Residual Batch A floating-window failure was a runtime URL contract bug in Playwright/harness file-mode:
+  - floating window URL builder treated `ELECTRON_RENDERER_URL=file://.../index.html` as an HTTP dev-server base and built `.../index.html/?...`,
+  - Electron then raised `ERR_FILE_NOT_FOUND` for the floating renderer open path.
+- Floating renderer target resolution now falls back to `loadFile(rendererIndexFile, { search })` unless the configured renderer URL is `http/https`.
 
 #### Progress Log
 - 2026-04-22 - Codex - Updated renderer test expectations to current contracts:
@@ -826,6 +834,20 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
   - local validation:
     - `PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_DISABLE_ANIMATIONS=1 pnpm --filter app exec playwright test tests/e2e/truth.real-service.spec.ts tests/e2e/gui.analytics_offline_cache_flow.spec.ts tests/e2e/gui.flows.spec.ts -g "service_port_unavailable_flow|analytics offline cache flow|real service path" --project=electron --workers=1 --reporter=line` -> `2 passed, 1 skipped`.
   - status remains PARTIAL pending CI HARNESS_ONLY replay.
+- 2026-04-23 - Codex - Batch A mode/layout contract pass (HARNESS_ONLY):
+  - `_bootstrap.ts` now provides mode-aware readiness gating and optional per-test action-enabled waits.
+  - refactored targeted specs to consume shared readiness contract and remove early ad hoc action assumptions (companion/snapshot/generate enablement now waited only where needed).
+  - updated packaged smoke assertions to be mode-aware (`flat` uses wizard anchors; `full/recovery` uses dock/workspace anchors).
+  - local validation:
+    - `PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_DISABLE_ANIMATIONS=1 pnpm --filter app exec playwright test tests/e2e/dock-workspace.spec.ts tests/e2e/gui-contract.spec.ts tests/e2e/gui.flows.spec.ts tests/e2e/gui.insights.spec.ts tests/e2e/gui.snapshot_verification_flow.spec.ts tests/e2e/layout-no-floating-panes.spec.ts tests/e2e/smoke.project.spec.ts tests/e2e/gui.analytics_offline_cache_flow.spec.ts --project=electron --workers=1 --reporter=line` -> `13 passed, 2 skipped, 1 failed`.
+    - residual failure after readiness fixes is in `dock-workspace.spec.ts` floating-pane open assertion path (`ERR_FILE_NOT_FOUND` for floating renderer URL), which appears to be a separate floating-window URL/runtime path bug rather than readiness-anchor timing.
+- 2026-04-23 - Codex - Batch A residual floating-window path fix:
+  - `app/main/layoutIpc.ts` floating URL builder now only composes `/?query` URLs for `http/https` renderer targets.
+  - file-based harness/packaged targets now use `loadFile(rendererIndexFile, { search })`, removing the invalid `index.html/?...` URL shape.
+  - `dock-workspace.spec.ts` dropped a brittle harness-internal `__layoutState.floatingPanes` poll and keeps strict open-call plus floating-renderer behavior assertions.
+  - local validation:
+    - `pnpm --filter app build:main` -> PASS.
+    - `PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_DISABLE_ANIMATIONS=1 pnpm --filter app exec playwright test tests/e2e/dock-workspace.spec.ts --project=electron --workers=1 --reporter=line` -> PASS (`2 passed`).
 
 #### Verification
 - Partial: local targeted app tests and lint are green; CI App Lint + Unit Tests run is still required.

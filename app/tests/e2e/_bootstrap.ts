@@ -6,6 +6,7 @@ type HarnessServiceStatus = 'online' | 'offline' | 'port-unavailable';
 interface BootstrapHarnessOptions {
   expectedServiceStatus?: HarnessServiceStatus | null;
   expectedServiceReason?: string;
+  requiredEnabledActions?: string[];
 }
 
 export async function bootstrapHarness(
@@ -14,6 +15,7 @@ export async function bootstrapHarness(
 ): Promise<void> {
   const expectedServiceStatus = options.expectedServiceStatus ?? 'online';
   const expectedServiceReason = options.expectedServiceReason;
+  const requiredEnabledActions = options.requiredEnabledActions ?? [];
   await page.waitForFunction(() => (window as typeof window & { __APP_READY__?: boolean }).__APP_READY__ === true, null, {
     timeout: 30_000,
   });
@@ -109,5 +111,35 @@ export async function bootstrapHarness(
     null,
     { timeout: 30_000 },
   );
+  const mode = await page.evaluate(() => document.body?.dataset?.testMode ?? 'full');
+  if (mode === 'flat') {
+    await page.getByTestId('wizard-root').waitFor({ state: 'visible', timeout: 30_000 });
+  } else {
+    await page.getByTestId('dock-workspace').waitFor({ state: 'visible', timeout: 30_000 });
+    await page.waitForFunction(
+      () => {
+        const outlinePane = document.querySelector('[data-pane-id="outline"]');
+        const closeOutlineButton = Array.from(document.querySelectorAll('button')).some((button) => {
+          const label = button.getAttribute('aria-label') ?? '';
+          return /close outline pane/i.test(label);
+        });
+        return Boolean(outlinePane || closeOutlineButton);
+      },
+      null,
+      { timeout: 30_000 },
+    );
+  }
   await page.getByTestId('workspace-action-generate').waitFor({ state: 'visible', timeout: 30_000 });
+  for (const actionId of requiredEnabledActions) {
+    await page.waitForFunction(
+      (testId) => {
+        const button = document.querySelector(`[data-testid="${testId}"]`) as
+          | HTMLButtonElement
+          | null;
+        return button !== null && !button.disabled;
+      },
+      actionId,
+      { timeout: 30_000 },
+    );
+  }
 }

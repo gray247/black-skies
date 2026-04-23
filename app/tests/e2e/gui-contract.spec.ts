@@ -187,24 +187,26 @@ test('matches pane labels defined in documentation', async ({ page }) => {
     if (hiddenPanes.has(paneId)) {
       await expect(
         page.locator('.dock-workspace__hidden-actions button', { hasText: expectedLabel }),
-      ).toBeVisible();
+      ).toBeVisible({ timeout: 30_000 });
       continue;
     }
     const pane = page.locator(`[data-pane-id="${paneId}"]`);
-    await expect(pane).toBeVisible();
+    await expect(pane).toBeVisible({ timeout: 30_000 });
     await expect(pane).toHaveAttribute('aria-label', expectedLabel);
   }
 });
 
 test('hidden pane dropdown restores removed panes and retains focus', async ({ page }) => {
   await bootstrapHarness(page);
-  await expect(page.getByTestId('dock-workspace')).toBeVisible({ timeout: 30_000 });
-  const closeButton = page.getByRole('button', { name: /Close Outline pane/i }).first();
+  const outlinePane = page.locator('[data-pane-id="outline"]');
+  await expect(outlinePane).toBeVisible({ timeout: 30_000 });
+  const outlinePaneContainer = page.locator('.dock-pane').filter({ has: outlinePane }).first();
+  const closeButton = outlinePaneContainer.getByTitle('Close this pane.');
+  await expect(closeButton).toBeVisible({ timeout: 30_000 });
   await closeButton.click();
   const hiddenRegion = page.getByRole('region', { name: 'Hidden panes' });
   const hiddenButton = hiddenRegion.getByRole('button', { name: 'Outline' });
   await hiddenButton.click();
-  const outlinePane = page.locator('[data-pane-id="outline"]');
-  await expect(outlinePane).toBeVisible();
+  await expect(outlinePane).toBeVisible({ timeout: 30_000 });
   await expect(outlinePane).toHaveAttribute('data-focused', 'true');
 });

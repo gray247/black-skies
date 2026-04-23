@@ -86,7 +86,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: '24'
       - name: Set up pnpm
@@ -119,7 +119,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: '24'
       - name: Set up pnpm
@@ -149,7 +149,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: '24'
       - name: Set up pnpm
@@ -193,6 +193,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: playwright-artifacts
+          if-no-files-found: ignore
           path: |
             app/playwright-report
             app/test-results
@@ -206,7 +207,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: '24'
       - name: Set up pnpm
@@ -279,7 +280,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: '24'
       - name: Set up pnpm
@@ -325,7 +326,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: '24'
       - name: Set up pnpm
@@ -407,7 +408,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: '24'
       - name: Set up pnpm
@@ -551,6 +552,32 @@ jobs:
                       indent=2,
                   )
                   + "\n",
+                  encoding="utf-8",
+              )
+
+          pass4_result = os.environ.get("PASS4_RESULT", "unknown")
+          pass4_latest_json = Path("ci_artifacts/pass4/build/truth_receipts/latest.json")
+          if not pass4_latest_json.exists():
+              pass4_latest_json.parent.mkdir(parents=True, exist_ok=True)
+              pass4_latest_json.write_text(
+                  json.dumps(
+                      {
+                          "status": "missing_artifact",
+                          "artifact": "gauntlet-pass4-proof",
+                          "upstream_result": pass4_result,
+                          "reason": "PASS 4 truth receipt JSON was not published.",
+                      },
+                      indent=2,
+                  )
+                  + "\n",
+                  encoding="utf-8",
+              )
+
+          pass4_latest_txt = Path("ci_artifacts/pass4/build/truth_receipts/latest.txt")
+          if not pass4_latest_txt.exists():
+              pass4_latest_txt.parent.mkdir(parents=True, exist_ok=True)
+              pass4_latest_txt.write_text(
+                  f"missing_artifact: gauntlet-pass4-proof (upstream_result={pass4_result})\n",
                   encoding="utf-8",
               )
           PY

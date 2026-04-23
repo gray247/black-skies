@@ -48,9 +48,13 @@ test.describe('GUI flow smoke tests', () => {
 
   test('snapshot_restore_flow (UI)', async ({ page }) => {
     await installServiceStubs(page, 'snapshot', 'flat');
-    await bootstrapHarness(page);
+    await bootstrapHarness(page, {
+      requiredEnabledActions: ['workspace-action-snapshot'],
+    });
 
     const lockButton = page.getByRole('button', { name: /Lock$/i }).first();
+    await expect(lockButton).toBeVisible({ timeout: 30_000 });
+    await expect(lockButton).toBeEnabled({ timeout: 30_000 });
     await lockButton.click();
     await expect(page.locator('.toast__title', { hasText: 'Input & Scope locked' })).toBeVisible({
       timeout: 30_000,
@@ -81,12 +85,16 @@ test.describe('GUI flow smoke tests', () => {
 
   test('budget_guardrail_smoke (UI)', async ({ page }) => {
     await installServiceStubs(page, 'budget');
-    await bootstrapHarness(page);
+    await bootstrapHarness(page, {
+      requiredEnabledActions: ['workspace-action-generate', 'workspace-action-critique'],
+    });
 
     await page.evaluate(() => {
       window.dispatchEvent(new CustomEvent('test:select-scene', { detail: 'sc_0001' }));
     });
-    await page.getByTestId('workspace-action-generate').click();
+    const generateButton = page.getByTestId('workspace-action-generate');
+    await expect(generateButton).toBeEnabled({ timeout: 30_000 });
+    await generateButton.click();
 
     const preflightDialog = page.getByRole('dialog', { name: /draft preflight/i });
     await expect(preflightDialog).toBeVisible({ timeout: 30_000 });

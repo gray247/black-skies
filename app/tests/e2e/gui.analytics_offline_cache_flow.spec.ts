@@ -1,30 +1,21 @@
 import { test, expect } from './_electron.fixture';
-import { loadSampleProject } from './utils/sampleProject';
+import { bootstrapHarness } from './_bootstrap';
 
 // HARNESS_ONLY:
 // Reason: validates cached analytics UX in local/offline harness conditions.
 // Owner: app/tests/e2e/gui.analytics_offline_cache_flow.spec.ts
 // Retire when: offline-cache assertions are covered by a real-service diagnostics lane.
 
-const { loadedProject } = loadSampleProject();
-const sampleProjectPath = loadedProject.path;
-
 test('analytics offline cache flow keeps cached metrics visible', async ({ page }) => {
-  await page.waitForLoadState('domcontentloaded');
+  await bootstrapHarness(page, {
+    requiredEnabledActions: ['workspace-action-companion'],
+  });
 
-  await page.evaluate((projectPath) => {
-    (
-      window as typeof window & { __dev?: { setProjectDir?: (dir: string) => void } }
-    ).__dev?.setProjectDir?.(projectPath ?? null);
-  }, sampleProjectPath);
-
-  const openProjectButton = page.getByTestId('open-project');
-  await expect(openProjectButton).toBeVisible({ timeout: 30_000 });
-  await openProjectButton.click();
   await expect(page.getByTestId('dock-workspace')).toBeVisible({ timeout: 30_000 });
 
   const companionToggle = page.getByTestId('workspace-action-companion');
   await expect(companionToggle).toBeVisible({ timeout: 30_000 });
+  await expect(companionToggle).toBeEnabled({ timeout: 30_000 });
   await companionToggle.click();
   await expect(page.getByTestId('insights-toolbar')).toBeVisible({ timeout: 30_000 });
 

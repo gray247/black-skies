@@ -1,7 +1,6 @@
 import { test, expect } from './_electron.fixture';
 import { bootstrapHarness } from './_bootstrap';
 import { installServiceStubs } from './utils/serviceStubs';
-import { TID } from '../../renderer/utils/testIds';
 
 // HARNESS_ONLY:
 // Reason: validates snapshot-verification UI plumbing with stubbed service responses.
@@ -10,7 +9,9 @@ import { TID } from '../../renderer/utils/testIds';
 
 test('snapshot verification flow (UI)', async ({ page }) => {
   await installServiceStubs(page, 'snapshot', 'flat');
-  await bootstrapHarness(page);
+  await bootstrapHarness(page, {
+    requiredEnabledActions: ['workspace-action-snapshot'],
+  });
 
   const snapshotButton = page.getByTestId('workspace-action-snapshot');
   await expect(snapshotButton).toBeVisible({ timeout: 30_000 });
@@ -54,5 +55,5 @@ test('snapshot verification flow (UI)', async ({ page }) => {
   await page.waitForTimeout(1000);
   await expect(toastTitle).toBeVisible();
 
-  await expect(page.getByTestId(TID.dockWorkspace)).toBeVisible();
+  await expect(page.getByTestId('wizard-root')).toBeVisible();
 });

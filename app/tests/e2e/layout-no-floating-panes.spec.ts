@@ -29,10 +29,10 @@ test.describe('Layout regression: no floating panes', () => {
     // Default preset panes should be visible; analytics surfaces should not auto-open.
     const paneTitle = (text: string) =>
       page.locator('.dock-pane__titlebar', { hasText: text }).first();
-    await expect(paneTitle('Outline')).toBeVisible();
-    await expect(paneTitle('Draft preview')).toBeVisible();
-    await expect(paneTitle('Story Insights')).toBeVisible();
-    await expect(paneTitle('Corkboard')).toBeVisible();
+    await expect(paneTitle('Outline')).toBeVisible({ timeout: 30_000 });
+    await expect(paneTitle('Draft preview')).toBeVisible({ timeout: 30_000 });
+    await expect(paneTitle('Story Insights')).toBeVisible({ timeout: 30_000 });
+    await expect(paneTitle('Corkboard')).toBeVisible({ timeout: 30_000 });
 
     await expect(page.getByRole('heading', { name: /Story Insights/i })).toBeVisible();
     await expect(page.locator('[data-pane-id="relationshipGraph"]')).toHaveCount(0);

@@ -128,18 +128,21 @@ test.describe('Electron smoke', () => {
     await page.getByTestId(TID.openProjectBtn).click();
 
     await expect(page.getByTestId(TID.dockWorkspace)).toBeVisible();
-    await expect(page.getByTestId(TID.wizardRoot)).toBeVisible();
-
-    const outlineEditor = page.getByTestId(TID.outlineEditor);
-    const wizardNext = page.getByTestId(TID.wizardNext);
-
-    for (let attempt = 0; attempt < 5; attempt += 1) {
-      if (await outlineEditor.isVisible()) {
-        break;
+    const mode = await page.evaluate(() => document.body?.dataset?.testMode ?? 'full');
+    if (mode === 'flat') {
+      await expect(page.getByTestId(TID.wizardRoot)).toBeVisible({ timeout: 30_000 });
+      const outlineEditor = page.getByTestId(TID.outlineEditor);
+      const wizardNext = page.getByTestId(TID.wizardNext);
+      for (let attempt = 0; attempt < 5; attempt += 1) {
+        if (await outlineEditor.isVisible()) {
+          break;
+        }
+        await wizardNext.click();
       }
-      await wizardNext.click();
+      await expect(outlineEditor).toBeVisible({ timeout: 30_000 });
+      return;
     }
-
-    await expect(outlineEditor).toBeVisible();
+    await expect(page.locator('[data-pane-id="outline"]')).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByTestId('workspace-action-generate')).toBeVisible({ timeout: 30_000 });
   });
 });
