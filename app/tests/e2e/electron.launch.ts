@@ -34,7 +34,7 @@ export const test = base.extend<AppFixtures>({
       ? pathToFileURL(rendererIndex).toString()
       : undefined;
 
-    const disableAnimations = process.env.PLAYWRIGHT_DISABLE_ANIMATIONS === '1';
+    const disableAnimations = process.env.PLAYWRIGHT_DISABLE_ANIMATIONS === '1' || !!process.env.CI;
     const launchEnv: NodeJS.ProcessEnv = {
       ...process.env,
       PLAYWRIGHT: '1',
@@ -45,9 +45,12 @@ export const test = base.extend<AppFixtures>({
     if (!launchEnv.ELECTRON_RENDERER_URL && rendererUrl) {
       launchEnv.ELECTRON_RENDERER_URL = rendererUrl;
     }
+    if (process.platform === 'linux') {
+      launchEnv.ELECTRON_DISABLE_SANDBOX = '1';
+    }
 
     const application = await electron.launch({
-      args: [entryPoint],
+      args: [...(process.platform === 'linux' ? ['--no-sandbox'] : []), entryPoint],
       env: launchEnv,
     });
 

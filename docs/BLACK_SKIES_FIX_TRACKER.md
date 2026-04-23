@@ -319,6 +319,9 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 - Gauntlet proof-manifest flow now materializes explicit placeholder summaries when upstream pass artifacts are missing (for example PASS 5 job failure), so manifest upload remains readable without masking upstream failures.
 - Latest eval CI evidence (run #240, Apr 22, 2026) shows HARNESS_ONLY artifact upload still warns when no Playwright outputs are produced:
   - `Upload Playwright artifacts` -> `No files were found with the provided path: app/playwright-report app/test-results. No artifacts will be uploaded.`
+- Playwright/Gauntlet proof fallout is now explicitly split:
+  - when upstream PASS 5 fails before proof write/upload, downstream proof-manifest lane should stay readable via placeholder summaries (not fail with ambiguous missing-artifact noise);
+  - HARNESS_ONLY artifact upload warnings are secondary effects when Electron fails before report artifacts are generated.
 
 #### Actions
 - Continue monitoring artifact upload stability across ubuntu and macOS while dependency gates are remediated separately.
@@ -338,6 +341,8 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 - 2026-04-22 - Codex - Updated eval artifact upload step with `if-no-files-found: ignore` to suppress noisy warnings when eval outputs are not produced.
 - 2026-04-22 - Codex - Kept artifact publication fully enabled while narrowing security failure threshold logic to HIGH/CRITICAL only (reporting still preserved for all severities).
 - 2026-04-22 - Codex - Eval run #240 (`https://github.com/gray247/black-skies/actions/runs/24806497149`) confirms PASS 5 proof + gauntlet proof-manifest jobs complete successfully, while HARNESS_ONLY job still emits a no-files Playwright artifact warning on failure.
+- 2026-04-22 - Codex - Added grouped failure accounting note: missing downstream proof/artifact outputs are treated as fallout when upstream Electron launch/setup fails, not as independent product defects.
+- 2026-04-22 - Codex - Launch-environment hardening pass added `xvfb-run -a` to HARNESS_ONLY Playwright execution in `eval.yml`; expected effect is fewer early-launch crashes and fewer no-files artifact fallouts.
 
 ---
 
@@ -526,6 +531,15 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
   - `./.venv/bin/python scripts/eval.py --html out/eval.html --json out/eval.json` -> PASS
   - `bash scripts/smoke.sh` -> PASS (no rubric fixture validation failure)
 - 2026-04-22 - Codex - Replaced eager `from .__main__ import main` export with lazy `main()` wrapper in `services/__init__.py` to prevent duplicate-module preload warning under `python -m blackskies.services`.
+- Latest CI failure inventory for Electron/Playwright indicates a dominant Linux launch-environment cluster:
+  - `Missing X server or $DISPLAY`,
+  - platform initialization failure during `electron.launch`,
+  - `chrome-sandbox` helper misconfiguration errors on Linux,
+  - cascading `beforeEach` / `electronApp` setup timeouts.
+- Many apparent spec-level failures are likely downstream of launch-environment instability rather than independent UI regressions.
+- Root-cause concentration in current CI harness collapse is now attributed to Linux launch-environment inconsistency between jobs:
+  - HARNESS_ONLY job executed Electron Playwright without explicit Xvfb wrapper while PASS 5 used `xvfb-run`,
+  - `electron.launch.ts` lacked Linux sandbox-disabling launch parity (`--no-sandbox`, `ELECTRON_DISABLE_SANDBOX`) present in `_electron.fixture.ts`.
 
 ---
 
@@ -636,6 +650,12 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
   - `Publish Gauntlet CI Proof Manifest` completed successfully.
   - Remaining failing lane is `HARNESS_ONLY App Smoke (Playwright)` with annotation:
     `Run HARNESS_ONLY Playwright UI smoke tests` -> `Process completed with exit code 1.`
+- Expanded CI failure inventory (latest harness collapse) is now grouped into shared root-cause buckets instead of per-test noise:
+  - Launch environment failures (dominant): `Missing X server or $DISPLAY`, platform init failure, `electron.launch` process launch failures, Linux `chrome-sandbox` helper errors.
+  - Harness/bootstrap fallout: `beforeEach` and `electronApp` setup timeouts, readiness anchors like `wizard-root` never converging when app launch fails.
+  - Downstream proof/artifact fallout: missing PASS 5 proof artifact only when upstream harness job fails before proof emission.
+  - Linux packaging warning noise: bundled-Windows `python.exe` resource path warnings under Linux runtime.
+- Recent CI sample count for this cluster: 23 failed, 2 skipped; multiple named spec failures (for example `dock-workspace.spec.ts`, `gui.analytics_offline_cache_flow.spec.ts`, `hotkeys-status.spec.ts`, `smoke.project.spec.ts`, `truth.real-service.spec.ts`) map to the same launch-environment root cause family.
 
 #### Progress Log
 - 2026-04-22 - Codex - Updated renderer test expectations to current contracts:
@@ -704,6 +724,11 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
   - PASS 5 gauntlet proof lane is green (`Gauntlet PASS 5 Proof (Harness/Smoke)` successful).
   - gauntlet proof-manifest lane is green (`Publish Gauntlet CI Proof Manifest` successful).
   - first remaining harness failure is outside PASS 5 proof lane: `HARNESS_ONLY App Smoke (Playwright)` failed with `Process completed with exit code 1`.
+- 2026-04-22 - Codex - Added grouped failure inventory for current Electron/Playwright collapse and classified most failures as downstream of Linux launch-environment instability pending launch-path hardening.
+- 2026-04-22 - Codex - Applied launch-environment cluster fix (minimal scope):
+  - `.github/workflows/eval.yml` HARNESS_ONLY lane now installs `xvfb` and runs via `xvfb-run -a`.
+  - `app/tests/e2e/electron.launch.ts` now matches Linux sandbox posture used by `_electron.fixture.ts` (`ELECTRON_DISABLE_SANDBOX=1`, `--no-sandbox`).
+  - expected impact: reduce `Missing X server/$DISPLAY`, platform-init, and chrome-sandbox launch failures that cascade into readiness/beforeEach timeouts.
 
 #### Verification
 - Partial: local targeted app tests and lint are green; CI App Lint + Unit Tests run is still required.

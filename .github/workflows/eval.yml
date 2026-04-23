@@ -178,12 +178,16 @@ jobs:
             ${{ runner.os }}-playwright-
       - name: Install Playwright browsers
         run: pnpm --filter app exec playwright install --with-deps
+      - name: Install headless display runtime
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb
       - name: Run HARNESS_ONLY Playwright UI smoke tests
         env:
           PLAYWRIGHT_DISABLE_ANIMATIONS: '1'
           PLAYWRIGHT_RETRIES: '0'
           PLAYWRIGHT_OUTPUT_DIR: app
-        run: pnpm --filter app test:e2e
+        run: xvfb-run -a pnpm --filter app test:e2e
       - name: Upload Playwright artifacts
         if: failure()
         uses: actions/upload-artifact@v4
