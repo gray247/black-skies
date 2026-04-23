@@ -952,6 +952,19 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
     - `PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_DISABLE_ANIMATIONS=1 pnpm --filter app exec playwright test tests/e2e/gui.flows.spec.ts -g "snapshot_restore_flow|budget_guardrail_smoke" --project=electron --workers=1 --reporter=line` -> `2 passed`.
     - `PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_DISABLE_ANIMATIONS=1 pnpm --filter app exec playwright test tests/e2e/hotkeys-status.spec.ts -g "restores a snapshot from the recovery banner" --project=electron --workers=1 --reporter=line` -> `1 passed`.
   - note: one parallel run attempt hit `EADDRINUSE` on `127.0.0.1:9999`; serial rerun passed and is the recorded evidence.
+- 2026-04-23 - Codex - Latest HARNESS dominant blocker correction (no status change):
+  - root cause focus reset to shared bootstrap regression in `_bootstrap.ts::waitForProjectLoaded` (not pane-copy/docs drift).
+  - proven failure mechanism: gate captured a mode snapshot and required strict mode equality plus companion-enabled state, which can transiently diverge during harness mode transitions while project state is already usable.
+  - minimal fix applied:
+    - `waitForProjectLoaded` now accepts any live valid harness mode (`flat|full|recovery`) during convergence,
+    - keeps state-based loaded signal (`workspace subtitle` not `No project loaded`) and mode-aware visible anchor checks,
+    - removed companion-enabled requirement from project-loaded gating; enabled-action checks remain in explicit `requiredEnabledActions` waits.
+  - scope guardrails:
+    - no pane-copy/docs contract edits,
+    - no visual snapshot baseline edits,
+    - no truth-lane/packfile edits.
+  - local focused validation (CI-like flags):
+    - `PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_DISABLE_ANIMATIONS=1 pnpm --filter app exec playwright test tests/e2e/budget-meter.spec.ts tests/e2e/dock-workspace.spec.ts tests/e2e/gui.flows.spec.ts --project=electron --workers=1 --reporter=line` -> `8 passed, 2 skipped`.
 
 #### Verification
 - Partial: local targeted app tests and lint are green; CI App Lint + Unit Tests run is still required.

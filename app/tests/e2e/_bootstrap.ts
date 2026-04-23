@@ -74,25 +74,18 @@ async function waitForProjectLoaded(
   options: { timeoutMs?: number; mode?: HarnessMode } = {},
 ): Promise<HarnessMode> {
   const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
-  const mode = options.mode ?? (await waitForHarnessMode(page, timeoutMs));
+  const initialMode = options.mode ?? (await waitForHarnessMode(page, timeoutMs));
 
   await page.waitForFunction(
-    (expectedMode) => {
+    ({ expectedMode }) => {
       const bodyMode = document.body?.dataset?.testMode;
-      if (bodyMode !== expectedMode) {
+      if (bodyMode !== 'flat' && bodyMode !== 'full' && bodyMode !== 'recovery') {
         return false;
       }
 
       const subtitle = document.querySelector('.app-shell__workspace-subtitle');
       const projectLabel = subtitle?.textContent?.trim() ?? '';
       if (!projectLabel || projectLabel === 'No project loaded') {
-        return false;
-      }
-
-      const companionAction = document.querySelector(
-        '[data-testid="workspace-action-companion"]',
-      ) as HTMLButtonElement | null;
-      if (!companionAction || companionAction.disabled) {
         return false;
       }
 
@@ -113,16 +106,16 @@ async function waitForProjectLoaded(
         return style.display !== 'none' && style.visibility !== 'hidden';
       })();
 
-      if (expectedMode === 'flat') {
+      if (bodyMode === 'flat' || expectedMode === 'flat') {
         return wizardVisible;
       }
       return dockVisible || wizardVisible;
     },
-    mode,
+    { expectedMode: initialMode },
     { timeout: timeoutMs },
   );
 
-  return mode;
+  return waitForHarnessMode(page, timeoutMs);
 }
 
 export async function bootstrapHarness(
@@ -226,8 +219,7 @@ export async function bootstrapHarness(
     );
   }
 
-  const mode = await waitForHarnessMode(page, DEFAULT_TIMEOUT_MS);
-  await waitForProjectLoaded(page, { timeoutMs: DEFAULT_TIMEOUT_MS, mode });
+  await waitForProjectLoaded(page, { timeoutMs: DEFAULT_TIMEOUT_MS });
   for (const actionId of requiredEnabledActions) {
     await waitForActionEnabled(page, actionId, DEFAULT_TIMEOUT_MS);
   }
