@@ -342,9 +342,8 @@ test.describe('Hotkeys status', () => {
 
     await page.evaluate(() => window.__setOffline?.(true));
     const serviceStatusPill = page.getByTestId('service-status-pill');
-    await serviceStatusPill.click();
-
     await expect(serviceStatusPill).toHaveAttribute('data-status', 'offline');
+    await expect(serviceStatusPill).toHaveAttribute('data-reason', 'test-offline');
     await expect(serviceStatusPill).toHaveAttribute(
       'title',
       'Writing tools services are forced offline for this automated test run.',
@@ -353,9 +352,8 @@ test.describe('Hotkeys status', () => {
     await expect(critiqueButton).toBeDisabled();
 
     await page.evaluate(() => window.__setOffline?.(false));
-    await serviceStatusPill.click();
-
     await expect(serviceStatusPill).toHaveAttribute('data-status', 'online');
+    await expect(serviceStatusPill).toHaveAttribute('data-reason', 'online');
     await expect(generateButton).toBeEnabled();
     await expect(critiqueButton).toBeEnabled();
   });
@@ -368,8 +366,15 @@ test.describe('Hotkeys status', () => {
     await restoreButton.click();
 
     await expect
-      .poll(() => page.evaluate(() => window.__recoveryLog?.restore ?? 0))
-      .toBeGreaterThan(0);
+      .poll(() =>
+        page.evaluate(
+          () =>
+            (window as typeof window & { __snapshotRestoreDone?: boolean })
+              .__snapshotRestoreDone === true,
+        ),
+      )
+      .toBe(true);
     await expect(restoreButton).not.toBeVisible();
+    await expect(recoveryBanner).not.toBeVisible();
   });
 });

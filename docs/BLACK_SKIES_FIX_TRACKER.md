@@ -727,6 +727,10 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
   - mode-aware anchor remains (`wizard-root` for flat, `dock-workspace` for full/recovery),
   - universal actionable readiness anchor is now visible `workspace-action-generate`,
   - outline-specific presence is no longer treated as a bootstrap prerequisite.
+- Service-health/hotkeys transition contract is now explicit for HARNESS-only assertions:
+  - offline assertions wait for `service-status-pill[data-status="offline"][data-reason="test-offline"]` before validating disabled writing actions,
+  - online recovery assertions wait for `service-status-pill[data-status="online"][data-reason="online"]` before validating re-enabled actions,
+  - recovery restore completion uses `window.__snapshotRestoreDone === true` plus recovery-banner dismissal as the deterministic completion signal.
 
 #### Progress Log
 - 2026-04-22 - Codex - Updated renderer test expectations to current contracts:
@@ -869,6 +873,13 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
   - local validation:
     - `PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_DISABLE_ANIMATIONS=1 pnpm --filter app exec playwright test tests/e2e/budget-meter.spec.ts tests/e2e/dock-workspace.spec.ts tests/e2e/gui-contract.spec.ts tests/e2e/gui.analytics_offline_cache_flow.spec.ts tests/e2e/gui.flows.spec.ts tests/e2e/gui.insights.spec.ts tests/e2e/gui.snapshot_verification_flow.spec.ts tests/e2e/layout-no-floating-panes.spec.ts tests/e2e/phase5-export-integrity-flow.spec.ts --project=electron --workers=1 --reporter=line` -> `15 passed, 2 skipped`.
     - `PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_DISABLE_ANIMATIONS=1 pnpm --filter app exec playwright test tests/e2e/hotkeys-status.spec.ts -g "disables writing actions while services are offline" --project=electron --workers=1 --reporter=line` -> `1 passed`.
+- 2026-04-23 - Codex - Service-health/hotkeys/recovery transition stabilization pass:
+  - `hotkeys-status.spec.ts` now enforces a deterministic transition contract:
+    - assert offline state by `data-status="offline"` + `data-reason="test-offline"` prior to disabled-action assertions,
+    - assert online state by `data-status="online"` + `data-reason="online"` prior to re-enabled-action assertions.
+  - recovery restore assertion now keys on `__snapshotRestoreDone` and banner dismissal instead of only `__recoveryLog` counter.
+  - local validation:
+    - `PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_DISABLE_ANIMATIONS=1 pnpm --filter app exec playwright test tests/e2e/hotkeys-status.spec.ts tests/e2e/gui.analytics_offline_cache_flow.spec.ts tests/e2e/gui.flows.spec.ts -g "disables writing actions while services are offline|restores a snapshot from the recovery banner|analytics offline cache flow|service_port_unavailable_flow" --project=electron --workers=1 --reporter=line` -> `4 passed`.
 
 #### Verification
 - Partial: local targeted app tests and lint are green; CI App Lint + Unit Tests run is still required.
