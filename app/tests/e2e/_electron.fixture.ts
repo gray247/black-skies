@@ -1,6 +1,7 @@
 import { _electron as electron, test as base, expect as baseExpect } from '@playwright/test';
 import type { ElectronApplication, Page } from 'playwright';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { SERVICE_PORT } from './servicePort';
@@ -14,15 +15,31 @@ type Fixtures = {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+function resetPersistedHarnessState(repoRoot: string): void {
+  const candidateLayoutDirs = [
+    path.join(repoRoot, 'sample_project', 'proj_esther_estate', '.blackskies'),
+    path.join(repoRoot, 'sample_project', 'Esther_Estate', '.blackskies'),
+  ];
+  for (const dir of candidateLayoutDirs) {
+    try {
+      fs.rmSync(dir, { recursive: true, force: true });
+    } catch {
+      // best effort cleanup for deterministic harness launches
+    }
+  }
+}
+
 export const test = base.extend<Fixtures>({
   electronApp: async ({}, use) => {
     const useExternalService = process.env.BLACKSKIES_E2E_EXTERNAL_SERVICE === '1';
     const appDir = path.resolve(__dirname, '..', '..');
+    const repoRoot = path.resolve(appDir, '..');
     const packagedEntry = path.resolve(appDir, 'dist-electron', 'main', 'main.js');
     const devFallback = path.resolve(appDir, 'main', 'main.ts');
     const entryPoint = fs.existsSync(packagedEntry) ? packagedEntry : devFallback;
     const rendererIndex = path.resolve(appDir, 'dist', 'index.html');
     const rendererUrl = fs.existsSync(rendererIndex) ? pathToFileURL(rendererIndex).toString() : undefined;
+    const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'blackskies-e2e-userdata-'));
     const disableAnimations = process.env.PLAYWRIGHT_DISABLE_ANIMATIONS === '1' || !!process.env.CI;
     const launchEnv: NodeJS.ProcessEnv = {
       ...process.env,
@@ -33,6 +50,7 @@ export const test = base.extend<Fixtures>({
       ...(disableAnimations ? { PLAYWRIGHT_DISABLE_ANIMATIONS: '1' } : {}),
       BLACKSKIES_SERVICES_PORT: String(SERVICE_PORT),
       BLACKSKIES_E2E_PORT: String(SERVICE_PORT),
+      BLACKSKIES_E2E_MODE: '1',
     };
     if (process.platform === 'linux') {
       launchEnv.ELECTRON_DISABLE_SANDBOX = '1';
@@ -43,11 +61,16 @@ export const test = base.extend<Fixtures>({
     process.env.BLACKSKIES_SERVICES_PORT = launchEnv.BLACKSKIES_SERVICES_PORT;
     process.env.BLACKSKIES_E2E_PORT = launchEnv[ 'BLACKSKIES_E2E_PORT' ] ?? launchEnv.BLACKSKIES_SERVICES_PORT;
 
+    resetPersistedHarnessState(repoRoot);
     if (!useExternalService) {
       await startServiceStubs();
     }
     const application = await electron.launch({
-      args: [...(process.platform === 'linux' ? ['--no-sandbox'] : []), entryPoint],
+      args: [
+        ...(process.platform === 'linux' ? ['--no-sandbox'] : []),
+        `--user-data-dir=${userDataDir}`,
+        entryPoint,
+      ],
       env: launchEnv,
     });
 
@@ -60,6 +83,7 @@ export const test = base.extend<Fixtures>({
       }
       process.env.BLACKSKIES_SERVICES_PORT = prevServicePort;
       process.env.BLACKSKIES_E2E_PORT = prevE2ePort;
+      fs.rmSync(userDataDir, { recursive: true, force: true });
     }
   },
 

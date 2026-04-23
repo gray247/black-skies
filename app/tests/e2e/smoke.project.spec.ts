@@ -1,5 +1,5 @@
 import type { Page } from '@playwright/test';
-import { test, expect } from './electron.launch';
+import { test, expect } from './_electron.fixture';
 import { ensureDockPaneVisible } from './_bootstrap';
 import { TID } from '../../renderer/utils/testIds';
 import { loadSampleProject } from './utils/sampleProject';

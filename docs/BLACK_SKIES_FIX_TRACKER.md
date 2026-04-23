@@ -744,6 +744,14 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
   - canonical budget assertions use stub-driven values (`$0.02 / $10.00` post-critique meter) and preflight dialog readiness (`Estimate within budget.` + enabled `Proceed`) instead of brittle duplicated amount text in modal summary rows,
   - service transition assertions for analytics/insights flows key on `service-status-pill[data-status][data-reason]` (`offline/test-offline` then `online/online`) before validating queued/resumed or cached-analytics UI,
   - brittle proofs avoided: fixed sleeps, ambiguous duplicate-text locators in preflight dialog, and queue/resume assertions before service-state transition settles.
+- Diagnostic reconciliation (CI vs local targeted) indicates remaining HARNESS_ONLY failures are still likely dominated by shared runtime-state divergence rather than many independent regressions:
+  - targeted local subsets frequently pass while full CI lane remains red, suggesting hidden shared-state coupling across suite order,
+  - mixed harness launch paths (`_electron.fixture.ts` with service-stub lifecycle vs `electron.launch.ts` direct launch) increase contract drift risk between specs,
+  - layout/pane and recovery-mode assertions remain sensitive to persisted renderer/main-process state between tests (project-open mode, hidden-pane state, and recovery flags).
+- Shared HARNESS determinism hardening is now applied at fixture lifecycle boundaries:
+  - each Electron test launch now uses an isolated temporary Chromium user-data directory (`--user-data-dir=...`), reducing cross-test localStorage/session leakage in full-suite runs,
+  - pre-launch cleanup now removes persisted sample-project dock layout state (`sample_project/*/.blackskies`) before each launch,
+  - `smoke.project.spec.ts` is now aligned to `_electron.fixture.ts` lifecycle instead of `electron.launch.ts` to reduce harness path divergence inside HARNESS_ONLY canaries.
 
 #### Progress Log
 - 2026-04-22 - Codex - Updated renderer test expectations to current contracts:
@@ -911,6 +919,16 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
   - updated `budget-meter.spec.ts` preflight assertion from brittle duplicate-text amount checks to deterministic preflight readiness (`Estimate within budget.` and enabled `Proceed`) while preserving strict post-critique budget meter assertion (`$0.02 / $10.00`).
   - local validation:
     - `PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_DISABLE_ANIMATIONS=1 pnpm --filter app exec playwright test tests/e2e/budget-meter.spec.ts tests/e2e/gui.flows.spec.ts tests/e2e/gui.analytics_offline_cache_flow.spec.ts tests/e2e/gui.insights.spec.ts --project=electron --workers=1 --reporter=line` -> `8 passed, 2 skipped`.
+- 2026-04-23 - Codex - Diagnostic reset pass (no code changes):
+  - reconciled current failing HARNESS_ONLY set against recent local targeted greens and identified likely dominant residual cause as CI full-suite state divergence (not yet fully isolated by current targeted-batch strategy).
+  - next planned isolation focus: shared harness runtime-state determinism (fixture parity, persisted layout/project state control, and contamination canaries) before additional per-spec expectation tuning.
+- 2026-04-23 - Codex - Fixture/state determinism isolation batch:
+  - `_electron.fixture.ts` and `electron.launch.ts` now enforce per-launch isolated user profiles via temp `--user-data-dir`.
+  - both fixtures now perform pre-launch sample-project persisted-layout cleanup (`.blackskies`) to prevent cross-spec/layout carryover.
+  - `smoke.project.spec.ts` now uses `_electron.fixture.ts` for lifecycle parity with HARNESS_ONLY canaries.
+  - local canary validation:
+    - `PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_DISABLE_ANIMATIONS=1 pnpm --filter app exec playwright test tests/e2e/hotkeys-status.spec.ts -g "restores a snapshot from the recovery banner" --project=electron --workers=1 --reporter=line` -> `1 passed`.
+    - `PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_DISABLE_ANIMATIONS=1 pnpm --filter app exec playwright test tests/e2e/dock-workspace.spec.ts tests/e2e/gui-contract.spec.ts tests/e2e/layout-no-floating-panes.spec.ts tests/e2e/smoke.project.spec.ts tests/e2e/budget-meter.spec.ts --project=electron --workers=1 --reporter=line` -> `7 passed`.
 
 #### Verification
 - Partial: local targeted app tests and lint are green; CI App Lint + Unit Tests run is still required.

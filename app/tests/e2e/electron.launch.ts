@@ -14,6 +14,20 @@ type AppFixtures = {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+function resetPersistedHarnessState(repoRoot: string): void {
+  const candidateLayoutDirs = [
+    path.join(repoRoot, 'sample_project', 'proj_esther_estate', '.blackskies'),
+    path.join(repoRoot, 'sample_project', 'Esther_Estate', '.blackskies'),
+  ];
+  for (const dir of candidateLayoutDirs) {
+    try {
+      fs.rmSync(dir, { recursive: true, force: true });
+    } catch {
+      // best effort cleanup for deterministic launches
+    }
+  }
+}
+
 export const test = base.extend<AppFixtures>({
   tmpProjectDir: async ({}, use) => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'blackskies-e2e-'));
@@ -26,6 +40,7 @@ export const test = base.extend<AppFixtures>({
 
   app: async ({}, use) => {
     const appDir = path.resolve(__dirname, '..', '..');
+    const repoRoot = path.resolve(appDir, '..');
     const packagedEntry = path.resolve(appDir, 'dist-electron', 'main', 'main.js');
     const devFallback = path.resolve(appDir, 'main', 'main.ts');
     const entryPoint = fs.existsSync(packagedEntry) ? packagedEntry : devFallback;
@@ -33,12 +48,14 @@ export const test = base.extend<AppFixtures>({
     const rendererUrl = fs.existsSync(rendererIndex)
       ? pathToFileURL(rendererIndex).toString()
       : undefined;
+    const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'blackskies-e2e-userdata-'));
 
     const disableAnimations = process.env.PLAYWRIGHT_DISABLE_ANIMATIONS === '1' || !!process.env.CI;
     const launchEnv: NodeJS.ProcessEnv = {
       ...process.env,
       PLAYWRIGHT: '1',
       BLACKSKIES_ENABLE_HARNESS_HOOKS: '1',
+      BLACKSKIES_E2E_MODE: '1',
       ...(disableAnimations ? { PLAYWRIGHT_DISABLE_ANIMATIONS: '1' } : {}),
     };
 
@@ -48,9 +65,14 @@ export const test = base.extend<AppFixtures>({
     if (process.platform === 'linux') {
       launchEnv.ELECTRON_DISABLE_SANDBOX = '1';
     }
+    resetPersistedHarnessState(repoRoot);
 
     const application = await electron.launch({
-      args: [...(process.platform === 'linux' ? ['--no-sandbox'] : []), entryPoint],
+      args: [
+        ...(process.platform === 'linux' ? ['--no-sandbox'] : []),
+        `--user-data-dir=${userDataDir}`,
+        entryPoint,
+      ],
       env: launchEnv,
     });
 
@@ -58,6 +80,7 @@ export const test = base.extend<AppFixtures>({
       await use(application);
     } finally {
       await application.close();
+      fs.rmSync(userDataDir, { recursive: true, force: true });
     }
   },
 
