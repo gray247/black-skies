@@ -965,6 +965,30 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
     - no truth-lane/packfile edits.
   - local focused validation (CI-like flags):
     - `PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_DISABLE_ANIMATIONS=1 pnpm --filter app exec playwright test tests/e2e/budget-meter.spec.ts tests/e2e/dock-workspace.spec.ts tests/e2e/gui.flows.spec.ts --project=electron --workers=1 --reporter=line` -> `8 passed, 2 skipped`.
+- 2026-04-23 - Codex - waitForProjectLoaded predicate refinement (no status change):
+  - exact unstable condition identified: project-loaded gate required subtitle to move off `No project loaded`, but bootstrap did not set `__testEnvAutoSeedProjectSummary`, so CI runs that miss/open-project click visibility race can stay on the no-project subtitle despite usable harness state.
+  - minimal fix in `_bootstrap.ts`:
+    - bootstrap now sets `window.__testEnvAutoSeedProjectSummary = true` alongside default project id/path wiring.
+    - no sleeps, no per-spec overrides, no pane-copy/visual/truth-lane edits.
+  - focused re-validation:
+    - `PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_DISABLE_ANIMATIONS=1 pnpm --filter app exec playwright test tests/e2e/budget-meter.spec.ts tests/e2e/dock-workspace.spec.ts tests/e2e/gui.flows.spec.ts --project=electron --workers=1 --reporter=line` -> `8 passed, 2 skipped`.
+- 2026-04-23 - Codex - Shared project-open bridge regression isolated (no status change):
+  - updated root-cause understanding: the dominant blocker was not only `waitForProjectLoaded` strictness. In Playwright harness mode, `__dev.setProjectDir` did not apply `PROJECT_LOADER_CHANNELS.setDevProjectPath`; it only emitted `test:set-project`.
+  - consequence in CI: bootstrap could click `open-project` before any deterministic project override existed, leaving `ProjectHome` in `isLoading` (`Loading...` disabled) with subtitle `No project loaded`, while debug log still showed `dbg:project.loaded` from the synthetic event.
+  - minimal shared fix:
+    - `app/main/preload.ts`: wire `devApi.setProjectDir` in Playwright to invoke `setDevProjectPath` first, then emit `test:set-project`.
+    - `app/tests/e2e/_bootstrap.ts`: await `__dev.setProjectDir(...)` completion before proceeding with project-open bootstrap actions.
+  - focused re-validation:
+    - `PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_DISABLE_ANIMATIONS=1 pnpm --filter app exec playwright test --project=electron --workers=1 --reporter=line tests/e2e/budget-meter.spec.ts tests/e2e/dock-workspace.spec.ts tests/e2e/gui.flows.spec.ts` -> `8 passed, 2 skipped`.
+- 2026-04-23 - Codex - Project-loaded gate and visual baseline completion pass (no status change):
+  - `waitForProjectLoaded(...)` refined to rely on renderer-committed workspace subtitle state only (`project label` present and not `No project loaded`), removing debug-log fallback as a readiness truth source.
+  - kept shared bridge/bootstrap sequencing fix: awaitable `__dev.setProjectDir(...)` and IPC project-dir override before bootstrap project-open interactions.
+  - visual baseline cluster addressed:
+    - added Linux baseline snapshot for `tests/e2e/visual.home.spec.ts` (`home-electron-linux.png`).
+  - validation:
+    - `PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_DISABLE_ANIMATIONS=1 pnpm --filter app exec playwright test --project=electron --workers=1 --reporter=line tests/e2e/budget-meter.spec.ts tests/e2e/dock-workspace.spec.ts tests/e2e/gui.flows.spec.ts` -> `8 passed, 2 skipped`.
+    - `PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_DISABLE_ANIMATIONS=1 pnpm --filter app exec playwright test --project=electron --workers=1 --reporter=line tests/e2e/visual.home.spec.ts --update-snapshots` -> `1 passed` (baseline written).
+    - `PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_DISABLE_ANIMATIONS=1 pnpm --filter app exec playwright test --project=electron --workers=1 --reporter=line tests/e2e/visual.home.spec.ts` -> `1 passed`.
 
 #### Verification
 - Partial: local targeted app tests and lint are green; CI App Lint + Unit Tests run is still required.

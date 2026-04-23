@@ -147,3 +147,5 @@ tmp/pytest-of-*/
 # -------------------------
 !services/src/blackskies/services/py.typed
 !docs/
+!app/tests/e2e/*.spec.ts-snapshots/
+!app/tests/e2e/*.spec.ts-snapshots/*.png

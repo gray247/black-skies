@@ -283,11 +283,12 @@ if (isPlaywright && typeof window !== 'undefined') {
 }
 
 const devApi: {
-  setProjectDir: (absPath: string | null) => boolean;
+  setProjectDir: (absPath: string | null) => void | Promise<void>;
   overrideServices?: (overrides: Partial<ServicesBridge>) => void;
 } = {
-  setProjectDir: (absPath: string | null) =>
-    window.dispatchEvent(new CustomEvent('test:set-project', { detail: absPath })),
+  setProjectDir: (absPath: string | null) => {
+    window.dispatchEvent(new CustomEvent('test:set-project', { detail: absPath }));
+  },
 };
 
 // --- harness-only bridges ---
@@ -1543,5 +1544,9 @@ if (process.env.PLAYWRIGHT === '1') {
     }
   }
 
+  devApi.setProjectDir = async (dir: string | null): Promise<void> => {
+    await devTools.setProjectDir(dir);
+    window.dispatchEvent(new CustomEvent('test:set-project', { detail: dir }));
+  };
   devApi.overrideServices = devTools.overrideServices;
 }

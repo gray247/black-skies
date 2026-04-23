@@ -74,10 +74,12 @@ async function waitForProjectLoaded(
   options: { timeoutMs?: number; mode?: HarnessMode } = {},
 ): Promise<HarnessMode> {
   const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
-  const initialMode = options.mode ?? (await waitForHarnessMode(page, timeoutMs));
+  if (!options.mode) {
+    await waitForHarnessMode(page, timeoutMs);
+  }
 
   await page.waitForFunction(
-    ({ expectedMode }) => {
+    () => {
       const bodyMode = document.body?.dataset?.testMode;
       if (bodyMode !== 'flat' && bodyMode !== 'full' && bodyMode !== 'recovery') {
         return false;
@@ -85,33 +87,9 @@ async function waitForProjectLoaded(
 
       const subtitle = document.querySelector('.app-shell__workspace-subtitle');
       const projectLabel = subtitle?.textContent?.trim() ?? '';
-      if (!projectLabel || projectLabel === 'No project loaded') {
-        return false;
-      }
-
-      const wizardVisible = (() => {
-        const node = document.querySelector('[data-testid="wizard-root"]') as HTMLElement | null;
-        if (!node) {
-          return false;
-        }
-        const style = window.getComputedStyle(node);
-        return style.display !== 'none' && style.visibility !== 'hidden';
-      })();
-      const dockVisible = (() => {
-        const node = document.querySelector('[data-testid="dock-workspace"]') as HTMLElement | null;
-        if (!node) {
-          return false;
-        }
-        const style = window.getComputedStyle(node);
-        return style.display !== 'none' && style.visibility !== 'hidden';
-      })();
-
-      if (bodyMode === 'flat' || expectedMode === 'flat') {
-        return wizardVisible;
-      }
-      return dockVisible || wizardVisible;
+      return Boolean(projectLabel) && projectLabel !== 'No project loaded';
     },
-    { expectedMode: initialMode },
+    null,
     { timeout: timeoutMs },
   );
 
@@ -144,18 +122,22 @@ export async function bootstrapHarness(
   const { projectRoot: sampleProjectPath, projectId: sampleProjectId } = loadSampleProject();
   await page.evaluate((projectPath) => {
     const win = window as typeof window & {
-      __dev?: { setProjectDir?: (path: string | null) => void };
+      __dev?: { setProjectDir?: (path: string | null) => void | Promise<void> };
     };
-    win.__dev?.setProjectDir?.(projectPath ?? null);
+    return Promise.resolve(win.__dev?.setProjectDir?.(projectPath ?? null));
   }, sampleProjectPath);
   await page.evaluate(
     ({ projectId, projectPath }: { projectId: string; projectPath: string }) => {
       const win = window as typeof window & {
         __testEnvDefaultProjectId?: string;
         __testEnvDefaultProjectPath?: string;
+        __testEnvAutoSeedProjectSummary?: boolean;
       };
       win.__testEnvDefaultProjectId = projectId;
       win.__testEnvDefaultProjectPath = projectPath;
+      // Keep harness bootstrap state-based but avoid relying on click visibility races
+      // for initial project summary hydration in CI startup timing.
+      win.__testEnvAutoSeedProjectSummary = true;
     },
     { projectId: sampleProjectId, projectPath: sampleProjectPath },
   );
