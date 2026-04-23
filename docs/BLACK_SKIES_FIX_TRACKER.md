@@ -720,6 +720,13 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 - New workflow regression observed in latest CI run:
   - multiple jobs fail at `Set up Node` with `Unable to locate executable file: pnpm`,
   - this is bootstrap-layer failure/cascade noise (HARNESS_ONLY, PASS 3/5/6, docs-lint, App Lint + Unit Tests, and proof-manifest artifact follow-ons) until pnpm availability is restored before install steps.
+- Batch A introduced a residual bootstrap-readiness regression in HARNESS_ONLY:
+  - `_bootstrap.ts` full/recovery readiness required outline-specific anchors (`[data-pane-id="outline"]` or "Close Outline pane"),
+  - CI evidence shows app/project load completed and dock workspace visible, but that outline-specific condition did not always converge across persisted layout states.
+- Corrected shared readiness contract:
+  - mode-aware anchor remains (`wizard-root` for flat, `dock-workspace` for full/recovery),
+  - universal actionable readiness anchor is now visible `workspace-action-generate`,
+  - outline-specific presence is no longer treated as a bootstrap prerequisite.
 
 #### Progress Log
 - 2026-04-22 - Codex - Updated renderer test expectations to current contracts:
@@ -855,6 +862,13 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
   - root cause: `actions/setup-node@v5` package-manager cache auto-detection attempted to resolve `pnpm` before `pnpm/action-setup` ran, producing `Unable to locate executable file: pnpm` at `Set up Node`.
   - remediation: set `package-manager-cache: false` on all `setup-node@v5` steps in `eval.yml` and `security.yml`, while retaining explicit pnpm store cache steps that run after `pnpm/action-setup`.
   - scope note: downstream failures in this run are treated as cascade fallout until Node/pnpm bootstrap is restored in CI.
+- 2026-04-23 - Codex - Bootstrap readiness regression correction (HARNESS_ONLY):
+  - root cause: stale outline-pane readiness assumption in `_bootstrap.ts` after Batch A mode/layout refactor.
+  - fix: removed full/recovery outline-specific bootstrap gate and standardized on mode anchor + `workspace-action-generate` visibility as deterministic readiness contract.
+  - secondary adjacent fix: hardened `hotkeys-status.spec.ts` init-script startup flag writes to avoid null `documentElement`/`body` dataset access during early init timing.
+  - local validation:
+    - `PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_DISABLE_ANIMATIONS=1 pnpm --filter app exec playwright test tests/e2e/budget-meter.spec.ts tests/e2e/dock-workspace.spec.ts tests/e2e/gui-contract.spec.ts tests/e2e/gui.analytics_offline_cache_flow.spec.ts tests/e2e/gui.flows.spec.ts tests/e2e/gui.insights.spec.ts tests/e2e/gui.snapshot_verification_flow.spec.ts tests/e2e/layout-no-floating-panes.spec.ts tests/e2e/phase5-export-integrity-flow.spec.ts --project=electron --workers=1 --reporter=line` -> `15 passed, 2 skipped`.
+    - `PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_DISABLE_ANIMATIONS=1 pnpm --filter app exec playwright test tests/e2e/hotkeys-status.spec.ts -g "disables writing actions while services are offline" --project=electron --workers=1 --reporter=line` -> `1 passed`.
 
 #### Verification
 - Partial: local targeted app tests and lint are green; CI App Lint + Unit Tests run is still required.

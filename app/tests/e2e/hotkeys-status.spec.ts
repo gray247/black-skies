@@ -21,8 +21,14 @@ test.describe('Hotkeys status', () => {
           return;
         }
         flaggedWindow.__hotkeysStatusInit = true;
-        document.documentElement.dataset.testNeedsRecovery = '1';
-        document.body?.dataset && (document.body.dataset.testNeedsRecovery = '1');
+        const root = document.documentElement;
+        if (root) {
+          root.dataset.testNeedsRecovery = '1';
+        }
+        const body = document.body;
+        if (body) {
+          body.dataset.testNeedsRecovery = '1';
+        }
         let offline = false;
         const recoveryLog = { restore: 0 };
         const recoveryState = {

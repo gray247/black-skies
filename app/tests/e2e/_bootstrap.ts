@@ -116,19 +116,9 @@ export async function bootstrapHarness(
     await page.getByTestId('wizard-root').waitFor({ state: 'visible', timeout: 30_000 });
   } else {
     await page.getByTestId('dock-workspace').waitFor({ state: 'visible', timeout: 30_000 });
-    await page.waitForFunction(
-      () => {
-        const outlinePane = document.querySelector('[data-pane-id="outline"]');
-        const closeOutlineButton = Array.from(document.querySelectorAll('button')).some((button) => {
-          const label = button.getAttribute('aria-label') ?? '';
-          return /close outline pane/i.test(label);
-        });
-        return Boolean(outlinePane || closeOutlineButton);
-      },
-      null,
-      { timeout: 30_000 },
-    );
   }
+  // Workspace action visibility is stable across flat/full/recovery modes, unlike
+  // pane-specific anchors that can vary with persisted layout state.
   await page.getByTestId('workspace-action-generate').waitFor({ state: 'visible', timeout: 30_000 });
   for (const actionId of requiredEnabledActions) {
     await page.waitForFunction(
