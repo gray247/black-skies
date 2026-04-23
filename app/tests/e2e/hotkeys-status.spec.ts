@@ -1,5 +1,5 @@
 import { test, expect } from './_electron.fixture';
-import { bootstrapHarness } from './_bootstrap';
+import { bootstrapHarness, waitForSnapshotRestoreComplete } from './_bootstrap';
 import { loadSampleProject } from './utils/sampleProject';
 import { setFlatMode } from './utils/testModeConfig';
 
@@ -365,15 +365,7 @@ test.describe('Hotkeys status', () => {
     await expect(restoreButton).toBeVisible();
     await restoreButton.click();
 
-    await expect
-      .poll(() =>
-        page.evaluate(
-          () =>
-            (window as typeof window & { __snapshotRestoreDone?: boolean })
-              .__snapshotRestoreDone === true,
-        ),
-      )
-      .toBe(true);
+    await waitForSnapshotRestoreComplete(page);
     await expect(restoreButton).not.toBeVisible();
     await expect(recoveryBanner).not.toBeVisible();
   });

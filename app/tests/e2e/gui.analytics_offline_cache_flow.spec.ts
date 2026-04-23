@@ -1,5 +1,5 @@
 import { test, expect } from './_electron.fixture';
-import { bootstrapHarness } from './_bootstrap';
+import { bootstrapHarness, waitForServiceStatus } from './_bootstrap';
 
 // HARNESS_ONLY:
 // Reason: validates cached analytics UX in local/offline harness conditions.
@@ -43,17 +43,7 @@ test('analytics offline cache flow keeps cached metrics visible', async ({ page 
     window.dispatchEvent(event);
   });
 
-  await page.waitForFunction(
-    () =>
-      (
-        document.querySelector('[data-testid="service-status-pill"]') as HTMLElement | null
-      )?.getAttribute('data-status') === 'offline',
-    null,
-    { timeout: 30_000 },
-  );
-  const statusPill = page.getByTestId('service-status-pill');
-  await expect(statusPill).toHaveAttribute('data-status', 'offline');
-  await expect(statusPill).toHaveAttribute('data-reason', 'test-offline');
+  await waitForServiceStatus(page, { status: 'offline', reason: 'test-offline' });
 
   const offlineBanner = page.getByTestId('analytics-offline-banner').first();
   await expect(offlineBanner).toBeVisible({ timeout: 30_000 });
@@ -79,6 +69,6 @@ test('analytics offline cache flow keeps cached metrics visible', async ({ page 
     window.dispatchEvent(event);
   });
 
-  await expect(statusPill).toHaveAttribute('data-status', 'online');
+  await waitForServiceStatus(page, { status: 'online', reason: 'online' });
   await expect(page.getByTestId('analytics-emotion-graph')).toBeVisible();
 });

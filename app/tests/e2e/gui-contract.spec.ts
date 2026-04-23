@@ -1,5 +1,5 @@
 import { test, expect } from './_electron.fixture';
-import { bootstrapHarness } from './_bootstrap';
+import { bootstrapHarness, ensureDockPaneVisible } from './_bootstrap';
 import { loadSampleProject } from './utils/sampleProject';
 import { loadGuiContract } from './utils/guiContract';
 
@@ -184,13 +184,17 @@ test('matches pane labels defined in documentation', async ({ page }) => {
 
   const hiddenPanes = new Set(['timeline', 'critique', 'relationshipGraph']);
   for (const [paneId, expectedLabel] of Object.entries(guiContract.paneLabels)) {
+    const pane = page.locator(`[data-pane-id="${paneId}"]`);
+    if (await pane.first().isVisible({ timeout: 1_000 }).catch(() => false)) {
+      await expect(pane).toHaveAttribute('aria-label', expectedLabel);
+      continue;
+    }
     if (hiddenPanes.has(paneId)) {
       await expect(
         page.locator('.dock-workspace__hidden-actions button', { hasText: expectedLabel }),
       ).toBeVisible({ timeout: 30_000 });
       continue;
     }
-    const pane = page.locator(`[data-pane-id="${paneId}"]`);
     await expect(pane).toBeVisible({ timeout: 30_000 });
     await expect(pane).toHaveAttribute('aria-label', expectedLabel);
   }
@@ -198,6 +202,7 @@ test('matches pane labels defined in documentation', async ({ page }) => {
 
 test('hidden pane dropdown restores removed panes and retains focus', async ({ page }) => {
   await bootstrapHarness(page);
+  await ensureDockPaneVisible(page, { paneId: 'outline', hiddenLabel: 'Outline' });
   const outlinePane = page.locator('[data-pane-id="outline"]');
   await expect(outlinePane).toBeVisible({ timeout: 30_000 });
   const outlinePaneContainer = page.locator('.dock-pane').filter({ has: outlinePane }).first();

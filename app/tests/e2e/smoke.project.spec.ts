@@ -1,5 +1,6 @@
 import type { Page } from '@playwright/test';
 import { test, expect } from './electron.launch';
+import { ensureDockPaneVisible } from './_bootstrap';
 import { TID } from '../../renderer/utils/testIds';
 import { loadSampleProject } from './utils/sampleProject';
 
@@ -142,6 +143,7 @@ test.describe('Electron smoke', () => {
       await expect(outlineEditor).toBeVisible({ timeout: 30_000 });
       return;
     }
+    await ensureDockPaneVisible(page, { paneId: 'outline', hiddenLabel: 'Outline' });
     await expect(page.locator('[data-pane-id="outline"]')).toBeVisible({ timeout: 30_000 });
     await expect(page.getByTestId('workspace-action-generate')).toBeVisible({ timeout: 30_000 });
   });

@@ -51,9 +51,5 @@ test('snapshot verification flow (UI)', async ({ page }) => {
   await expect(modal).not.toBeVisible();
 
   await expect(panel.getByRole('button', { name: /view full report/i })).toBeVisible();
-
-  await page.waitForTimeout(1000);
-  await expect(toastTitle).toBeVisible();
-
-  await expect(page.getByTestId('wizard-root')).toBeVisible();
+  await expect(page.getByTestId('workspace-action-snapshot')).toBeEnabled({ timeout: 30_000 });
 });

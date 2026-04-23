@@ -731,6 +731,19 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
   - offline assertions wait for `service-status-pill[data-status="offline"][data-reason="test-offline"]` before validating disabled writing actions,
   - online recovery assertions wait for `service-status-pill[data-status="online"][data-reason="online"]` before validating re-enabled actions,
   - recovery restore completion uses `window.__snapshotRestoreDone === true` plus recovery-banner dismissal as the deterministic completion signal.
+- Snapshot/restore/recovery contract is now explicit for the remaining HARNESS-only restore flows:
+  - restore trigger is always the user-visible `Restore snapshot` action (banner button or flow-specific restore control),
+  - canonical completion signal is `window.__snapshotRestoreDone === true`,
+  - banner dismissal is mode-dependent (required in hotkeys recovery path, not universal in snapshot-flow override paths),
+  - brittle cross-signal coupling to `__recoveryLog` counters and fixed sleeps is removed from completion gating.
+- Layout/pane/workspace contract for HARNESS-only is now explicit:
+  - post-bootstrap workspace guarantee is dock shell visibility, not unconditional visibility of every pane id,
+  - individual pane assertions must account for persisted-layout starts where panes are hidden by design,
+  - pane restoration success signal is: hidden-pane button click -> pane `[data-pane-id="<id>"]` becomes visible (and focus assertions may then apply).
+- Budget/analytics/insights HARNESS contract is now explicit:
+  - canonical budget assertions use stub-driven values (`$0.02 / $10.00` post-critique meter) and preflight dialog readiness (`Estimate within budget.` + enabled `Proceed`) instead of brittle duplicated amount text in modal summary rows,
+  - service transition assertions for analytics/insights flows key on `service-status-pill[data-status][data-reason]` (`offline/test-offline` then `online/online`) before validating queued/resumed or cached-analytics UI,
+  - brittle proofs avoided: fixed sleeps, ambiguous duplicate-text locators in preflight dialog, and queue/resume assertions before service-state transition settles.
 
 #### Progress Log
 - 2026-04-22 - Codex - Updated renderer test expectations to current contracts:
@@ -880,6 +893,24 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
   - recovery restore assertion now keys on `__snapshotRestoreDone` and banner dismissal instead of only `__recoveryLog` counter.
   - local validation:
     - `PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_DISABLE_ANIMATIONS=1 pnpm --filter app exec playwright test tests/e2e/hotkeys-status.spec.ts tests/e2e/gui.analytics_offline_cache_flow.spec.ts tests/e2e/gui.flows.spec.ts -g "disables writing actions while services are offline|restores a snapshot from the recovery banner|analytics offline cache flow|service_port_unavailable_flow" --project=electron --workers=1 --reporter=line` -> `4 passed`.
+- 2026-04-23 - Codex - Layout/pane/workspace contract drift batch:
+  - added shared helper `ensureDockPaneVisible(...)` in `_bootstrap.ts` to enforce a deterministic pane contract: visible now, or restore via Hidden panes and then assert visible.
+  - updated dock/gui-contract/layout/smoke specs to use shared pane restoration contract instead of assuming pane visibility at boot regardless of persisted layout state.
+  - local validation:
+    - `PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_DISABLE_ANIMATIONS=1 pnpm --filter app exec playwright test tests/e2e/dock-workspace.spec.ts tests/e2e/gui-contract.spec.ts tests/e2e/layout-no-floating-panes.spec.ts tests/e2e/smoke.project.spec.ts --project=electron --workers=1 --reporter=line` -> `6 passed`.
+- 2026-04-23 - Codex - Snapshot/restore/recovery-transition cluster pass:
+  - added shared helper `waitForSnapshotRestoreComplete(...)` in `_bootstrap.ts` and made `__snapshotRestoreDone` the single completion source of truth for restore assertions.
+  - updated `gui.flows.spec.ts` `snapshot_restore_flow` to use restore-complete helper with `requireBannerDismissed: false` for snapshot-flow override mode.
+  - updated `hotkeys-status.spec.ts` recovery restore test to use shared restore-complete helper, while keeping strict postconditions that restore button and recovery banner are dismissed.
+  - removed brittle `waitForTimeout(1000)` and stale `wizard-root` post-restore assumption from `gui.snapshot_verification_flow.spec.ts`; post-restore readiness now asserts actionable `workspace-action-snapshot` enabled state.
+  - local validation:
+    - `PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_DISABLE_ANIMATIONS=1 pnpm --filter app exec playwright test tests/e2e/gui.flows.spec.ts tests/e2e/gui.snapshot_verification_flow.spec.ts tests/e2e/hotkeys-status.spec.ts --project=electron --workers=1 --reporter=line` -> `9 passed, 2 skipped`.
+- 2026-04-23 - Codex - Budget/analytics/insights contract drift batch:
+  - added shared helper `waitForServiceStatus(...)` in `_bootstrap.ts` to centralize deterministic `service-status-pill` + reason waiting.
+  - updated `gui.analytics_offline_cache_flow.spec.ts` and `gui.insights.spec.ts` to gate assertions on explicit service-state transitions (`offline/test-offline` -> `online/online`) before checking cached/offline and resume indicators.
+  - updated `budget-meter.spec.ts` preflight assertion from brittle duplicate-text amount checks to deterministic preflight readiness (`Estimate within budget.` and enabled `Proceed`) while preserving strict post-critique budget meter assertion (`$0.02 / $10.00`).
+  - local validation:
+    - `PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_DISABLE_ANIMATIONS=1 pnpm --filter app exec playwright test tests/e2e/budget-meter.spec.ts tests/e2e/gui.flows.spec.ts tests/e2e/gui.analytics_offline_cache_flow.spec.ts tests/e2e/gui.insights.spec.ts --project=electron --workers=1 --reporter=line` -> `8 passed, 2 skipped`.
 
 #### Verification
 - Partial: local targeted app tests and lint are green; CI App Lint + Unit Tests run is still required.

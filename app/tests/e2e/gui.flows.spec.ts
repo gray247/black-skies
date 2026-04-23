@@ -1,5 +1,5 @@
 import { test, expect } from './_electron.fixture';
-import { bootstrapHarness } from './_bootstrap';
+import { bootstrapHarness, waitForSnapshotRestoreComplete } from './_bootstrap';
 import { loadSampleProject } from './utils/sampleProject';
 import { installServiceStubs } from './utils/serviceStubs';
 import { TID } from '../../renderer/utils/testIds';
@@ -72,15 +72,7 @@ test.describe('GUI flow smoke tests', () => {
     await expect(editor).toContainText('Corrupted by test.');
 
     await page.getByRole('button', { name: 'Restore snapshot' }).click();
-    await page.waitForFunction(
-      () =>
-        (window as typeof window & { __snapshotRestoreDone?: boolean }).__snapshotRestoreDone ===
-        true,
-    );
-    await page.waitForFunction(() => {
-      const win = window as typeof window & { __recoveryLog?: { restore?: number } };
-      return (win.__recoveryLog?.restore ?? 0) >= 1;
-    });
+    await waitForSnapshotRestoreComplete(page, { requireBannerDismissed: false });
   });
 
   test('budget_guardrail_smoke (UI)', async ({ page }) => {

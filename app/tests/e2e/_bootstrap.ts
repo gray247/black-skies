@@ -9,6 +9,21 @@ interface BootstrapHarnessOptions {
   requiredEnabledActions?: string[];
 }
 
+interface EnsureDockPaneVisibleOptions {
+  paneId: string;
+  hiddenLabel: string;
+}
+
+interface WaitForSnapshotRestoreOptions {
+  requireBannerDismissed?: boolean;
+}
+
+interface WaitForServiceStatusOptions {
+  status: HarnessServiceStatus;
+  reason?: string;
+  timeoutMs?: number;
+}
+
 export async function bootstrapHarness(
   page: Page,
   options: BootstrapHarnessOptions = {},
@@ -132,4 +147,71 @@ export async function bootstrapHarness(
       { timeout: 30_000 },
     );
   }
+}
+
+export async function ensureDockPaneVisible(
+  page: Page,
+  options: EnsureDockPaneVisibleOptions,
+): Promise<void> {
+  const pane = page.locator(`[data-pane-id="${options.paneId}"]`);
+  if (await pane.first().isVisible({ timeout: 1_000 }).catch(() => false)) {
+    return;
+  }
+
+  const hiddenRegion = page.getByRole('region', { name: 'Hidden panes' });
+  if (!(await hiddenRegion.isVisible({ timeout: 3_000 }).catch(() => false))) {
+    throw new Error(
+      `Pane "${options.paneId}" is not visible and Hidden panes region is unavailable.`,
+    );
+  }
+
+  const restoreButton = hiddenRegion.getByRole('button', { name: options.hiddenLabel });
+  await restoreButton.click();
+  await pane.waitFor({ state: 'visible', timeout: 30_000 });
+}
+
+export async function waitForSnapshotRestoreComplete(
+  page: Page,
+  options: WaitForSnapshotRestoreOptions = {},
+): Promise<void> {
+  await page.waitForFunction(
+    () =>
+      (window as typeof window & { __snapshotRestoreDone?: boolean }).__snapshotRestoreDone ===
+      true,
+    null,
+    { timeout: 30_000 },
+  );
+  if (options.requireBannerDismissed !== false) {
+    await page.waitForFunction(
+      () => document.querySelector('[data-testid="recovery-banner"]') === null,
+      null,
+      { timeout: 30_000 },
+    );
+  }
+}
+
+export async function waitForServiceStatus(
+  page: Page,
+  options: WaitForServiceStatusOptions,
+): Promise<void> {
+  await page.waitForFunction(
+    ({ expectedStatus, expectedReason }) => {
+      const pill = document.querySelector('[data-testid="service-status-pill"]') as HTMLElement | null;
+      if (!pill) {
+        return false;
+      }
+      if (pill.getAttribute('data-status') !== expectedStatus) {
+        return false;
+      }
+      if (!expectedReason) {
+        return true;
+      }
+      return pill.getAttribute('data-reason') === expectedReason;
+    },
+    {
+      expectedStatus: options.status,
+      expectedReason: options.reason ?? null,
+    },
+    { timeout: options.timeoutMs ?? 30_000 },
+  );
 }

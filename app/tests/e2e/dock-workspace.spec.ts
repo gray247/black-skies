@@ -1,5 +1,5 @@
 import { test, expect } from './_electron.fixture';
-import { bootstrapHarness } from './_bootstrap';
+import { bootstrapHarness, ensureDockPaneVisible } from './_bootstrap';
 import { loadSampleProject } from './utils/sampleProject';
 import { loadPackagedRenderer } from './utils/loadRenderer';
 
@@ -240,6 +240,7 @@ test('smoke_dock_workspace_basics (UI)', async ({ page }) => {
 
 test.describe('Dock workspace interactions', () => {
   test('supports drag, float, and focus controls', async ({ page }) => {
+    await ensureDockPaneVisible(page, { paneId: 'outline', hiddenLabel: 'Outline' });
     const outlinePane = page.locator('[data-pane-id="outline"]');
     await expect(outlinePane).toBeVisible({ timeout: 30_000 });
 

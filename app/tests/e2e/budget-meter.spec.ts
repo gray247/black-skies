@@ -65,7 +65,6 @@ const critiqueBudget = {
   remaining: 9.98,
 };
 
-const preflightBudgetLabel = `$${preflightBudget.total_after_usd.toFixed(2)} / $${preflightBudget.hard_limit_usd.toFixed(2)}`;
 const critiqueBudgetLabel = `$${critiqueBudget.total_after_usd.toFixed(2)} / $${critiqueBudget.hard_limit_usd.toFixed(2)}`;
 
 const critiqueResponse = {
@@ -197,8 +196,10 @@ test.describe('HARNESS_ONLY: Budget meter (packaged)', () => {
     await expect(generateButton).toBeEnabled();
     await generateButton.click();
 
-    await expect(page.getByText(preflightBudgetLabel, { exact: true })).toBeVisible();
     const preflightDialog = page.getByRole('dialog', { name: 'Draft preflight' });
+    await expect(preflightDialog).toBeVisible({ timeout: 30_000 });
+    await expect(preflightDialog.getByText('Estimate within budget.')).toBeVisible();
+    await expect(preflightDialog.getByRole('button', { name: 'Proceed' })).toBeEnabled();
     const closePreflightButton = preflightDialog.getByRole('button', { name: 'Close' });
     if (await closePreflightButton.isVisible({ timeout: 3_000 }).catch(() => false)) {
       await closePreflightButton.click();

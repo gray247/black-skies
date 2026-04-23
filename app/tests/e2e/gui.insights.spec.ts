@@ -1,5 +1,5 @@
 import { test, expect } from './_electron.fixture';
-import { bootstrapHarness } from './_bootstrap';
+import { bootstrapHarness, waitForServiceStatus } from './_bootstrap';
 import { TID } from '../../renderer/utils/testIds';
 
 // HARNESS_ONLY:
@@ -38,6 +38,7 @@ test('queues model insights offline and resumes when online', async ({ page }) =
     win.__testInsights?.selectScene?.('sc_0001');
     win.__testInsights?.setServiceStatus?.('offline');
   });
+  await waitForServiceStatus(page, { status: 'offline', reason: 'test-offline' });
 
   const runAllInsights = page.getByRole('button', { name: /run all insights/i });
   await expect(runAllInsights).toBeEnabled({ timeout: 30_000 });
@@ -52,6 +53,7 @@ test('queues model insights offline and resumes when online', async ({ page }) =
     };
     win.__testInsights?.setServiceStatus?.('online');
   });
+  await waitForServiceStatus(page, { status: 'online', reason: 'online' });
 
   await expect(page.getByTestId('insights-model-resumed')).toBeVisible({ timeout: 30_000 });
 });
