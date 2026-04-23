@@ -2,6 +2,7 @@ import type { Page } from '@playwright/test';
 import { loadSampleProject } from './utils/sampleProject';
 
 type HarnessServiceStatus = 'online' | 'offline' | 'port-unavailable';
+type HarnessMode = 'flat' | 'full' | 'recovery';
 
 interface BootstrapHarnessOptions {
   expectedServiceStatus?: HarnessServiceStatus | null;
@@ -18,10 +19,110 @@ interface WaitForSnapshotRestoreOptions {
   requireBannerDismissed?: boolean;
 }
 
+interface OpenPreflightDialogOptions {
+  actionTestId?: string;
+  dialogName?: string | RegExp;
+  timeoutMs?: number;
+}
+
 interface WaitForServiceStatusOptions {
   status: HarnessServiceStatus;
   reason?: string;
   timeoutMs?: number;
+}
+
+const DEFAULT_TIMEOUT_MS = 30_000;
+
+async function waitForHarnessMode(page: Page, timeoutMs = DEFAULT_TIMEOUT_MS): Promise<HarnessMode> {
+  await page.waitForFunction(
+    () => {
+      const mode = document.body?.dataset?.testMode;
+      return mode === 'flat' || mode === 'full' || mode === 'recovery';
+    },
+    null,
+    { timeout: timeoutMs },
+  );
+  return page.evaluate(() => (document.body?.dataset?.testMode ?? 'full') as HarnessMode);
+}
+
+async function waitForActionEnabled(
+  page: Page,
+  testId: string,
+  timeoutMs = DEFAULT_TIMEOUT_MS,
+): Promise<void> {
+  await page.waitForFunction(
+    (targetTestId) => {
+      const button = document.querySelector(`[data-testid="${targetTestId}"]`) as
+        | HTMLButtonElement
+        | null;
+      if (!button) {
+        return false;
+      }
+      if (button.disabled) {
+        return false;
+      }
+      const style = window.getComputedStyle(button);
+      return style.display !== 'none' && style.visibility !== 'hidden';
+    },
+    testId,
+    { timeout: timeoutMs },
+  );
+}
+
+async function waitForProjectLoaded(
+  page: Page,
+  options: { timeoutMs?: number; mode?: HarnessMode } = {},
+): Promise<HarnessMode> {
+  const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
+  const mode = options.mode ?? (await waitForHarnessMode(page, timeoutMs));
+
+  await page.waitForFunction(
+    (expectedMode) => {
+      const bodyMode = document.body?.dataset?.testMode;
+      if (bodyMode !== expectedMode) {
+        return false;
+      }
+
+      const subtitle = document.querySelector('.app-shell__workspace-subtitle');
+      const projectLabel = subtitle?.textContent?.trim() ?? '';
+      if (!projectLabel || projectLabel === 'No project loaded') {
+        return false;
+      }
+
+      const companionAction = document.querySelector(
+        '[data-testid="workspace-action-companion"]',
+      ) as HTMLButtonElement | null;
+      if (!companionAction || companionAction.disabled) {
+        return false;
+      }
+
+      const wizardVisible = (() => {
+        const node = document.querySelector('[data-testid="wizard-root"]') as HTMLElement | null;
+        if (!node) {
+          return false;
+        }
+        const style = window.getComputedStyle(node);
+        return style.display !== 'none' && style.visibility !== 'hidden';
+      })();
+      const dockVisible = (() => {
+        const node = document.querySelector('[data-testid="dock-workspace"]') as HTMLElement | null;
+        if (!node) {
+          return false;
+        }
+        const style = window.getComputedStyle(node);
+        return style.display !== 'none' && style.visibility !== 'hidden';
+      })();
+
+      if (expectedMode === 'flat') {
+        return wizardVisible;
+      }
+      return dockVisible || wizardVisible;
+    },
+    mode,
+    { timeout: timeoutMs },
+  );
+
+  return mode;
 }
 
 export async function bootstrapHarness(
@@ -31,10 +132,14 @@ export async function bootstrapHarness(
   const expectedServiceStatus = options.expectedServiceStatus ?? 'online';
   const expectedServiceReason = options.expectedServiceReason;
   const requiredEnabledActions = options.requiredEnabledActions ?? [];
-  await page.waitForFunction(() => (window as typeof window & { __APP_READY__?: boolean }).__APP_READY__ === true, null, {
-    timeout: 30_000,
-  });
-  await page.getByTestId('app-root').waitFor({ timeout: 30_000 });
+  await page.waitForFunction(
+    () => (window as typeof window & { __APP_READY__?: boolean }).__APP_READY__ === true,
+    null,
+    {
+      timeout: DEFAULT_TIMEOUT_MS,
+    },
+  );
+  await page.getByTestId('app-root').waitFor({ timeout: DEFAULT_TIMEOUT_MS });
 
   await page.evaluate(() => {
     const overlay = document.querySelector('[data-testid="companion-overlay"]') as HTMLElement | null;
@@ -45,7 +150,10 @@ export async function bootstrapHarness(
 
   const { projectRoot: sampleProjectPath, projectId: sampleProjectId } = loadSampleProject();
   await page.evaluate((projectPath) => {
-    (window as any).__dev?.setProjectDir?.(projectPath ?? null);
+    const win = window as typeof window & {
+      __dev?: { setProjectDir?: (path: string | null) => void };
+    };
+    win.__dev?.setProjectDir?.(projectPath ?? null);
   }, sampleProjectPath);
   await page.evaluate(
     ({ projectId, projectPath }: { projectId: string; projectPath: string }) => {
@@ -114,38 +222,14 @@ export async function bootstrapHarness(
         expectedStatus: expectedServiceStatus,
         expectedReason: expectedServiceReason ?? null,
       },
-      { timeout: 30_000 },
+      { timeout: DEFAULT_TIMEOUT_MS },
     );
   }
 
-  await page.waitForFunction(
-    () => {
-      const mode = document.body?.dataset?.testMode;
-      return mode === 'flat' || mode === 'full' || mode === 'recovery';
-    },
-    null,
-    { timeout: 30_000 },
-  );
-  const mode = await page.evaluate(() => document.body?.dataset?.testMode ?? 'full');
-  if (mode === 'flat') {
-    await page.getByTestId('wizard-root').waitFor({ state: 'visible', timeout: 30_000 });
-  } else {
-    await page.getByTestId('dock-workspace').waitFor({ state: 'visible', timeout: 30_000 });
-  }
-  // Workspace action visibility is stable across flat/full/recovery modes, unlike
-  // pane-specific anchors that can vary with persisted layout state.
-  await page.getByTestId('workspace-action-generate').waitFor({ state: 'visible', timeout: 30_000 });
+  const mode = await waitForHarnessMode(page, DEFAULT_TIMEOUT_MS);
+  await waitForProjectLoaded(page, { timeoutMs: DEFAULT_TIMEOUT_MS, mode });
   for (const actionId of requiredEnabledActions) {
-    await page.waitForFunction(
-      (testId) => {
-        const button = document.querySelector(`[data-testid="${testId}"]`) as
-          | HTMLButtonElement
-          | null;
-        return button !== null && !button.disabled;
-      },
-      actionId,
-      { timeout: 30_000 },
-    );
+    await waitForActionEnabled(page, actionId, DEFAULT_TIMEOUT_MS);
   }
 }
 
@@ -153,21 +237,88 @@ export async function ensureDockPaneVisible(
   page: Page,
   options: EnsureDockPaneVisibleOptions,
 ): Promise<void> {
+  await waitForProjectLoaded(page, { timeoutMs: DEFAULT_TIMEOUT_MS });
+
   const pane = page.locator(`[data-pane-id="${options.paneId}"]`);
   if (await pane.first().isVisible({ timeout: 1_000 }).catch(() => false)) {
     return;
   }
 
   const hiddenRegion = page.getByRole('region', { name: 'Hidden panes' });
-  if (!(await hiddenRegion.isVisible({ timeout: 3_000 }).catch(() => false))) {
+  const restoreButton = hiddenRegion.getByRole('button', { name: options.hiddenLabel });
+
+  try {
+    await page.waitForFunction(
+      ({ paneId, hiddenLabel }) => {
+        const paneVisible = (() => {
+          const paneNode = document.querySelector(`[data-pane-id="${paneId}"]`) as HTMLElement | null;
+          if (!paneNode) {
+            return false;
+          }
+          const style = window.getComputedStyle(paneNode);
+          return style.display !== 'none' && style.visibility !== 'hidden';
+        })();
+        if (paneVisible) {
+          return true;
+        }
+
+        const hiddenRegionNode = Array.from(document.querySelectorAll('[role="region"]')).find(
+          (element) => element.getAttribute('aria-label') === 'Hidden panes',
+        ) as HTMLElement | undefined;
+        if (!hiddenRegionNode) {
+          return false;
+        }
+        const hiddenRegionStyle = window.getComputedStyle(hiddenRegionNode);
+        if (hiddenRegionStyle.display === 'none' || hiddenRegionStyle.visibility === 'hidden') {
+          return false;
+        }
+        const restoreNode = Array.from(hiddenRegionNode.querySelectorAll('button')).find(
+          (button) => button.textContent?.trim() === hiddenLabel,
+        ) as HTMLButtonElement | undefined;
+        return Boolean(restoreNode && !restoreNode.disabled);
+      },
+      { paneId: options.paneId, hiddenLabel: options.hiddenLabel },
+      { timeout: DEFAULT_TIMEOUT_MS },
+    );
+  } catch (error) {
+    const diagnostics = await page.evaluate(() => {
+      const mode = document.body?.dataset?.testMode ?? 'unknown';
+      const dock = document.querySelector('[data-testid="dock-workspace"]') as HTMLElement | null;
+      const hidden = Array.from(document.querySelectorAll('[role="region"]')).find(
+        (element) => element.getAttribute('aria-label') === 'Hidden panes',
+      ) as HTMLElement | undefined;
+      const projectLabel =
+        document.querySelector('.app-shell__workspace-subtitle')?.textContent?.trim() ?? '';
+      const isVisible = (node: HTMLElement | null | undefined) => {
+        if (!node) {
+          return false;
+        }
+        const style = window.getComputedStyle(node);
+        return style.display !== 'none' && style.visibility !== 'hidden';
+      };
+      return {
+        mode,
+        dockPresent: Boolean(dock),
+        dockVisible: isVisible(dock),
+        hiddenPanesVisible: isVisible(hidden),
+        projectLabel,
+      };
+    });
     throw new Error(
-      `Pane "${options.paneId}" is not visible and Hidden panes region is unavailable.`,
+      `Pane "${options.paneId}" failed to converge within ${DEFAULT_TIMEOUT_MS}ms. ` +
+        `mode=${diagnostics.mode} dockPresent=${diagnostics.dockPresent} ` +
+        `dockVisible=${diagnostics.dockVisible} hiddenPanesVisible=${diagnostics.hiddenPanesVisible} ` +
+        `projectLabel="${diagnostics.projectLabel}"` +
+        (error instanceof Error ? ` cause="${error.message}"` : ''),
     );
   }
 
-  const restoreButton = hiddenRegion.getByRole('button', { name: options.hiddenLabel });
+  if (await pane.first().isVisible({ timeout: 1_000 }).catch(() => false)) {
+    return;
+  }
+
   await restoreButton.click();
-  await pane.waitFor({ state: 'visible', timeout: 30_000 });
+  await pane.waitFor({ state: 'visible', timeout: DEFAULT_TIMEOUT_MS });
 }
 
 export async function waitForSnapshotRestoreComplete(
@@ -179,15 +330,32 @@ export async function waitForSnapshotRestoreComplete(
       (window as typeof window & { __snapshotRestoreDone?: boolean }).__snapshotRestoreDone ===
       true,
     null,
-    { timeout: 30_000 },
+    { timeout: DEFAULT_TIMEOUT_MS },
   );
-  if (options.requireBannerDismissed !== false) {
+  if (options.requireBannerDismissed === true) {
     await page.waitForFunction(
       () => document.querySelector('[data-testid="recovery-banner"]') === null,
       null,
-      { timeout: 30_000 },
+      { timeout: DEFAULT_TIMEOUT_MS },
     );
   }
+}
+
+export async function openPreflightDialog(
+  page: Page,
+  options: OpenPreflightDialogOptions = {},
+) {
+  const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
+  const actionTestId = options.actionTestId ?? 'workspace-action-generate';
+  const dialogName = options.dialogName ?? /draft preflight/i;
+
+  await waitForProjectLoaded(page, { timeoutMs });
+  await waitForActionEnabled(page, actionTestId, timeoutMs);
+  await page.getByTestId(actionTestId).click();
+
+  const dialog = page.getByRole('dialog', { name: dialogName });
+  await dialog.waitFor({ state: 'visible', timeout: timeoutMs });
+  return dialog;
 }
 
 export async function waitForServiceStatus(
@@ -212,6 +380,6 @@ export async function waitForServiceStatus(
       expectedStatus: options.status,
       expectedReason: options.reason ?? null,
     },
-    { timeout: options.timeoutMs ?? 30_000 },
+    { timeout: options.timeoutMs ?? DEFAULT_TIMEOUT_MS },
   );
 }

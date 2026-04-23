@@ -1,10 +1,10 @@
 import { test, expect } from './_electron.fixture';
-import { bootstrapHarness } from './_bootstrap';
+import { bootstrapHarness, openPreflightDialog } from './_bootstrap';
 import { loadSampleProject } from './utils/sampleProject';
 import type { Page } from '@playwright/test';
 
 const fixture = loadSampleProject();
-const { projectId, outline, drafts, scenes } = fixture;
+const { projectId, scenes } = fixture;
 
 // NOTE: These fixtures mirror sample_project/proj_esther_estate. If the sample project
 // budgets or outline change, update the stub values below to keep the test in sync.
@@ -194,10 +194,10 @@ test.describe('HARNESS_ONLY: Budget meter (packaged)', () => {
     });
     const generateButton = page.getByRole('button', { name: 'Generate' });
     await expect(generateButton).toBeEnabled();
-    await generateButton.click();
-
-    const preflightDialog = page.getByRole('dialog', { name: 'Draft preflight' });
-    await expect(preflightDialog).toBeVisible({ timeout: 30_000 });
+    const preflightDialog = await openPreflightDialog(page, {
+      actionTestId: 'workspace-action-generate',
+      dialogName: 'Draft preflight',
+    });
     await expect(preflightDialog.getByText('Estimate within budget.')).toBeVisible();
     await expect(preflightDialog.getByRole('button', { name: 'Proceed' })).toBeEnabled();
     const closePreflightButton = preflightDialog.getByRole('button', { name: 'Close' });

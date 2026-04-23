@@ -1,0 +1,453 @@
+  1) [electron] › tests/e2e/budget-meter.spec.ts:202:3 › HARNESS_ONLY: Budget meter (packaged) › updates immediately after critique 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: 'Draft preflight' })
+    Expected: visible
+    Timeout: 30000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 30000ms
+      - waiting for getByRole('dialog', { name: 'Draft preflight' })
+
+
+      198 |
+      199 |     const preflightDialog = page.getByRole('dialog', { name: 'Draft preflight' });
+    > 200 |     await expect(preflightDialog).toBeVisible({ timeout: 30_000 });
+          |                                   ^
+      201 |     await expect(preflightDialog.getByText('Estimate within budget.')).toBeVisible();
+      202 |     await expect(preflightDialog.getByRole('button', { name: 'Proceed' })).toBeEnabled();
+      203 |     const closePreflightButton = preflightDialog.getByRole('button', { name: 'Close' });
+        at /home/runner/work/black-skies/black-skies/app/tests/e2e/budget-meter.spec.ts:200:35
+
+    Error Context: app/test-results/budget-meter-HARNESS-ONLY--a1345--immediately-after-critique-electron/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    app/test-results/budget-meter-HARNESS-ONLY--a1345--immediately-after-critique-electron/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace app/test-results/budget-meter-HARNESS-ONLY--a1345--immediately-after-critique-electron/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [electron] › tests/e2e/dock-workspace.spec.ts:278:3 › Dock workspace interactions › supports drag, float, and focus controls 
+
+    Error: Pane "outline" is not visible and Hidden panes region is unavailable.
+
+       at _bootstrap.ts:163
+
+      161 |   const hiddenRegion = page.getByRole('region', { name: 'Hidden panes' });
+      162 |   if (!(await hiddenRegion.isVisible({ timeout: 3_000 }).catch(() => false))) {
+    > 163 |     throw new Error(
+          |           ^
+      164 |       `Pane "${options.paneId}" is not visible and Hidden panes region is unavailable.`,
+      165 |     );
+      166 |   }
+        at ensureDockPaneVisible (/home/runner/work/black-skies/black-skies/app/tests/e2e/_bootstrap.ts:163:11)
+        at /home/runner/work/black-skies/black-skies/app/tests/e2e/dock-workspace.spec.ts:243:5
+
+    Error Context: app/test-results/dock-workspace-Dock-worksp-11315-ag-float-and-focus-controls-electron/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    app/test-results/dock-workspace-Dock-worksp-11315-ag-float-and-focus-controls-electron/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace app/test-results/dock-workspace-Dock-worksp-11315-ag-float-and-focus-controls-electron/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [electron] › tests/e2e/gui-contract.spec.ts:230:1 › matches pane labels defined in documentation 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.dock-workspace__hidden-actions button').filter({ hasText: 'Feedback notes' })
+    Expected: visible
+    Timeout: 30000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 30000ms
+      - waiting for locator('.dock-workspace__hidden-actions button').filter({ hasText: 'Feedback notes' })
+
+
+      193 |       await expect(
+      194 |         page.locator('.dock-workspace__hidden-actions button', { hasText: expectedLabel }),
+    > 195 |       ).toBeVisible({ timeout: 30_000 });
+          |         ^
+      196 |       continue;
+      197 |     }
+      198 |     await expect(pane).toBeVisible({ timeout: 30_000 });
+        at /home/runner/work/black-skies/black-skies/app/tests/e2e/gui-contract.spec.ts:195:9
+
+    Error Context: app/test-results/gui-contract-matches-pane-labels-defined-in-documentation-electron/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    app/test-results/gui-contract-matches-pane-labels-defined-in-documentation-electron/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace app/test-results/gui-contract-matches-pane-labels-defined-in-documentation-electron/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [electron] › tests/e2e/gui-contract.spec.ts:257:1 › hidden pane dropdown restores removed panes and retains focus 
+
+    Error: Pane "outline" is not visible and Hidden panes region is unavailable.
+
+       at _bootstrap.ts:163
+
+      161 |   const hiddenRegion = page.getByRole('region', { name: 'Hidden panes' });
+      162 |   if (!(await hiddenRegion.isVisible({ timeout: 3_000 }).catch(() => false))) {
+    > 163 |     throw new Error(
+          |           ^
+      164 |       `Pane "${options.paneId}" is not visible and Hidden panes region is unavailable.`,
+      165 |     );
+      166 |   }
+        at ensureDockPaneVisible (/home/runner/work/black-skies/black-skies/app/tests/e2e/_bootstrap.ts:163:11)
+        at /home/runner/work/black-skies/black-skies/app/tests/e2e/gui-contract.spec.ts:205:3
+
+    Error Context: app/test-results/gui-contract-hidden-pane-d-c8459-ved-panes-and-retains-focus-electron/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    app/test-results/gui-contract-hidden-pane-d-c8459-ved-panes-and-retains-focus-electron/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace app/test-results/gui-contract-hidden-pane-d-c8459-ved-panes-and-retains-focus-electron/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [electron] › tests/e2e/gui.analytics_offline_cache_flow.spec.ts:9:1 › analytics offline cache flow keeps cached metrics visible 
+
+    TimeoutError: page.waitForFunction: Timeout 30000ms exceeded.
+
+       at _bootstrap.ts:139
+
+      137 |   await page.getByTestId('workspace-action-generate').waitFor({ state: 'visible', timeout: 30_000 });
+      138 |   for (const actionId of requiredEnabledActions) {
+    > 139 |     await page.waitForFunction(
+          |                ^
+      140 |       (testId) => {
+      141 |         const button = document.querySelector(`[data-testid="${testId}"]`) as
+      142 |           | HTMLButtonElement
+        at bootstrapHarness (/home/runner/work/black-skies/black-skies/app/tests/e2e/_bootstrap.ts:139:16)
+        at /home/runner/work/black-skies/black-skies/app/tests/e2e/gui.analytics_offline_cache_flow.spec.ts:10:3
+
+    Error Context: app/test-results/gui.analytics_offline_cach-dc857-eeps-cached-metrics-visible-electron/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    app/test-results/gui.analytics_offline_cach-dc857-eeps-cached-metrics-visible-electron/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace app/test-results/gui.analytics_offline_cach-dc857-eeps-cached-metrics-visible-electron/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) [electron] › tests/e2e/gui.flows.spec.ts:54:3 › GUI flow smoke tests › snapshot_restore_flow (UI) 
+
+    TimeoutError: page.waitForFunction: Timeout 30000ms exceeded.
+
+       at _bootstrap.ts:139
+
+      137 |   await page.getByTestId('workspace-action-generate').waitFor({ state: 'visible', timeout: 30_000 });
+      138 |   for (const actionId of requiredEnabledActions) {
+    > 139 |     await page.waitForFunction(
+          |                ^
+      140 |       (testId) => {
+      141 |         const button = document.querySelector(`[data-testid="${testId}"]`) as
+      142 |           | HTMLButtonElement
+        at bootstrapHarness (/home/runner/work/black-skies/black-skies/app/tests/e2e/_bootstrap.ts:139:16)
+        at /home/runner/work/black-skies/black-skies/app/tests/e2e/gui.flows.spec.ts:51:5
+
+    Error Context: app/test-results/gui.flows-GUI-flow-smoke-tests-snapshot-restore-flow-UI--electron/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    app/test-results/gui.flows-GUI-flow-smoke-tests-snapshot-restore-flow-UI--electron/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace app/test-results/gui.flows-GUI-flow-smoke-tests-snapshot-restore-flow-UI--electron/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) [electron] › tests/e2e/gui.flows.spec.ts:91:3 › GUI flow smoke tests › budget_guardrail_smoke (UI) 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: /draft preflight/i })
+    Expected: visible
+    Timeout: 30000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 30000ms
+      - waiting for getByRole('dialog', { name: /draft preflight/i })
+
+
+      90 |
+      91 |     const preflightDialog = page.getByRole('dialog', { name: /draft preflight/i });
+    > 92 |     await expect(preflightDialog).toBeVisible({ timeout: 30_000 });
+         |                                   ^
+      93 |     await preflightDialog.getByRole('button', { name: 'Proceed' }).click();
+      94 |
+      95 |     const draftErrorToast = page
+        at /home/runner/work/black-skies/black-skies/app/tests/e2e/gui.flows.spec.ts:92:35
+
+    Error Context: app/test-results/gui.flows-GUI-flow-smoke-tests-budget-guardrail-smoke-UI--electron/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    app/test-results/gui.flows-GUI-flow-smoke-tests-budget-guardrail-smoke-UI--electron/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace app/test-results/gui.flows-GUI-flow-smoke-tests-budget-guardrail-smoke-UI--electron/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) [electron] › tests/e2e/gui.insights.spec.ts:10:1 › queues model insights offline and resumes when online 
+
+    TimeoutError: page.waitForFunction: Timeout 30000ms exceeded.
+
+       at _bootstrap.ts:139
+
+      137 |   await page.getByTestId('workspace-action-generate').waitFor({ state: 'visible', timeout: 30_000 });
+      138 |   for (const actionId of requiredEnabledActions) {
+    > 139 |     await page.waitForFunction(
+          |                ^
+      140 |       (testId) => {
+      141 |         const button = document.querySelector(`[data-testid="${testId}"]`) as
+      142 |           | HTMLButtonElement
+        at bootstrapHarness (/home/runner/work/black-skies/black-skies/app/tests/e2e/_bootstrap.ts:139:16)
+        at /home/runner/work/black-skies/black-skies/app/tests/e2e/gui.insights.spec.ts:11:3
+
+    Error Context: app/test-results/gui.insights-queues-model--4cc5a-ine-and-resumes-when-online-electron/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    app/test-results/gui.insights-queues-model--4cc5a-ine-and-resumes-when-online-electron/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace app/test-results/gui.insights-queues-model--4cc5a-ine-and-resumes-when-online-electron/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) [electron] › tests/e2e/gui.snapshot_verification_flow.spec.ts:10:1 › snapshot verification flow (UI) 
+
+    TimeoutError: page.waitForFunction: Timeout 30000ms exceeded.
+
+       at _bootstrap.ts:139
+
+      137 |   await page.getByTestId('workspace-action-generate').waitFor({ state: 'visible', timeout: 30_000 });
+      138 |   for (const actionId of requiredEnabledActions) {
+    > 139 |     await page.waitForFunction(
+          |                ^
+      140 |       (testId) => {
+      141 |         const button = document.querySelector(`[data-testid="${testId}"]`) as
+      142 |           | HTMLButtonElement
+        at bootstrapHarness (/home/runner/work/black-skies/black-skies/app/tests/e2e/_bootstrap.ts:139:16)
+        at /home/runner/work/black-skies/black-skies/app/tests/e2e/gui.snapshot_verification_flow.spec.ts:12:3
+
+    Error Context: app/test-results/gui.snapshot_verification_-3e404-pshot-verification-flow-UI--electron/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────  ───────────────────
+    app/test-results/gui.snapshot_verification_-3e404-pshot-verification-flow-UI--electron/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace app/test-results/gui.snapshot_verification_-3e404-pshot-verification-flow-UI--electron/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) [electron] › tests/e2e/hotkeys-status.spec.ts:403:3 › Hotkeys status › restores a snapshot from the recovery banner 
+
+    TimeoutError: page.waitForFunction: Timeout 30000ms exceeded.
+
+       at _bootstrap.ts:185
+
+      183 |   );
+      184 |   if (options.requireBannerDismissed !== false) {
+    > 185 |     await page.waitForFunction(
+          |                ^
+      186 |       () => document.querySelector('[data-testid="recovery-banner"]') === null,
+      187 |       null,
+      188 |       { timeout: 30_000 },
+        at waitForSnapshotRestoreComplete (/home/runner/work/black-skies/black-skies/app/tests/e2e/_bootstrap.ts:185:16)
+        at /home/runner/work/black-skies/black-skies/app/tests/e2e/hotkeys-status.spec.ts:368:5
+
+    Error Context: app/test-results/hotkeys-status-Hotkeys-sta-09ade-ot-from-the-recovery-banner-electron/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    app/test-results/hotkeys-status-Hotkeys-sta-09ade-ot-from-the-recovery-banner-electron/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace app/test-results/hotkeys-status-Hotkeys-sta-09ade-ot-from-the-recovery-banner-electron/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) [electron] › tests/e2e/layout-no-floating-panes.spec.ts:10:3 › Layout regression: no floating panes › does not auto-spawn floating panes on project load 
+
+    Error: Pane "outline" is not visible and Hidden panes region is unavailable.
+
+       at _bootstrap.ts:163
+
+      161 |   const hiddenRegion = page.getByRole('region', { name: 'Hidden panes' });
+      162 |   if (!(await hiddenRegion.isVisible({ timeout: 3_000 }).catch(() => false))) {
+    > 163 |     throw new Error(
+          |           ^
+      164 |       `Pane "${options.paneId}" is not visible and Hidden panes region is unavailable.`,
+      165 |     );
+      166 |   }
+        at ensureDockPaneVisible (/home/runner/work/black-skies/black-skies/app/tests/e2e/_bootstrap.ts:163:11)
+        at /home/runner/work/black-skies/black-skies/app/tests/e2e/layout-no-floating-panes.spec.ts:31:5
+
+    Error Context: app/test-results/layout-no-floating-panes-L-13cc5-ating-panes-on-project-load-electron/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    app/test-results/layout-no-floating-panes-L-13cc5-ating-panes-on-project-load-electron/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace app/test-results/layout-no-floating-panes-L-13cc5-ating-panes-on-project-load-electron/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) [electron] › tests/e2e/smoke.project.spec.ts:139:3 › Electron smoke › load project, advance wizard, and surface dock workspace 
+
+    Error: Pane "outline" is not visible and Hidden panes region is unavailable.
+
+       at _bootstrap.ts:163
+
+      161 |   const hiddenRegion = page.getByRole('region', { name: 'Hidden panes' });
+      162 |   if (!(await hiddenRegion.isVisible({ timeout: 3_000 }).catch(() => false))) {
+    > 163 |     throw new Error(
+          |           ^
+      164 |       `Pane "${options.paneId}" is not visible and Hidden panes region is unavailable.`,
+      165 |     );
+      166 |   }
+        at ensureDockPaneVisible (/home/runner/work/black-skies/black-skies/app/tests/e2e/_bootstrap.ts:163:11)
+        at /home/runner/work/black-skies/black-skies/app/tests/e2e/smoke.project.spec.ts:146:5
+
+    Error Context: app/test-results/smoke.project-Electron-smo-be2b0--and-surface-dock-workspace-electron/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    app/test-results/smoke.project-Electron-smo-be2b0--and-surface-dock-workspace-electron/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace app/test-results/smoke.project-Electron-smo-be2b0--and-surface-dock-workspace-electron/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) [electron] › tests/e2e/visual.home.spec.ts:10:3 › Visual snapshots › home screen ─────────────
+
+    Error: A snapshot doesn't exist at /home/runner/work/black-skies/black-skies/app/tests/e2e/visual.home.spec.ts-snapshots/home-electron-linux.png, writing actual.
+
+      30 |     await expect(openProjectButton).toBeEnabled();
+      31 |     await expect(openProjectButton).toHaveText('Open project...');
+    > 32 |     await expect(page).toHaveScreenshot('home.png', {
+         |     ^
+      33 |       fullPage: true,
+      34 |       maxDiffPixels: 200,
+      35 |     });
+        at /home/runner/work/black-skies/black-skies/app/tests/e2e/visual.home.spec.ts:32:5
+
+    attachment #2: home (image/png) ────────────────────────────────────────────────────────────────
+    Expected: tests/e2e/visual.home.spec.ts-snapshots/home-electron-linux.png
+    Received: app/test-results/visual.home-Visual-snapshots-home-screen-electron/home-actual.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: app/test-results/visual.home-Visual-snapshots-home-screen-electron/error-context.md
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    app/test-results/visual.home-Visual-snapshots-home-screen-electron/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace app/test-results/visual.home-Visual-snapshots-home-screen-electron/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13 failed
+    [electron] › tests/e2e/budget-meter.spec.ts:202:3 › HARNESS_ONLY: Budget meter (packaged) › updates immediately after critique 
+    [electron] › tests/e2e/dock-workspace.spec.ts:278:3 › Dock workspace interactions › supports drag, float, and focus controls 
+    [electron] › tests/e2e/gui-contract.spec.ts:230:1 › matches pane labels defined in documentation 
+    [electron] › tests/e2e/gui-contract.spec.ts:257:1 › hidden pane dropdown restores removed panes and retains focus 
+    [electron] › tests/e2e/gui.analytics_offline_cache_flow.spec.ts:9:1 › analytics offline cache flow keeps cached metrics visible 
+    [electron] › tests/e2e/gui.flows.spec.ts:54:3 › GUI flow smoke tests › snapshot_restore_flow (UI) 
+    [electron] › tests/e2e/gui.flows.spec.ts:91:3 › GUI flow smoke tests › budget_guardrail_smoke (UI) 
+    [electron] › tests/e2e/gui.insights.spec.ts:10:1 › queues model insights offline and resumes when online 
+    [electron] › tests/e2e/gui.snapshot_verification_flow.spec.ts:10:1 › snapshot verification flow (UI) 
+    [electron] › tests/e2e/hotkeys-status.spec.ts:403:3 › Hotkeys status › restores a snapshot from the recovery banner 
+    [electron] › tests/e2e/layout-no-floating-panes.spec.ts:10:3 › Layout regression: no floating panes › does not auto-spawn floating panes on project load 
+    [electron] › tests/e2e/smoke.project.spec.ts:139:3 › Electron smoke › load project, advance wizard, and surface dock workspace 
+    [electron] › tests/e2e/visual.home.spec.ts:10:3 › Visual snapshots › home screen ───────────────
+  3 skipped
+  9 passed (4.7m)
+/home/runner/work/black-skies/black-skies/app:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @blackskies/app@1.0.0-rc1 test:e2e: `pnpm run build:renderer && pnpm run build:main && pnpm exec playwright test`
+Exit status 1
+Error: Process completed with exit code 1.
+
+
+
+
+
+
+
+
+App Truth Lane (Real Service Path)
+expected 'packfile'
+App Truth Lane (Real Service Path)
+RPC failed; HTTP 500 curl 22 The requested URL returned error: 500
+HARNESS_ONLY App Smoke (Playwright)
+Process completed with exit code 1.
+HARNESS_ONLY App Smoke (Playwright)
+Process completed with exit code 1.
+Gauntlet PASS 3 Proof (Renderer/Preload)
+Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4, actions/upload-artifact@v4, pnpm/action-setup@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+lint
+Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4, actions/setup-python@v5. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+docs-lint
+Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4, pnpm/action-setup@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+typecheck
+Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4, actions/setup-python@v5. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+App Lint + Unit Tests
+Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4, pnpm/action-setup@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+Gauntlet PASS 6 Proof (Build/Startup)
+Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4, actions/setup-python@v5, actions/upload-artifact@v4, pnpm/action-setup@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+Gauntlet PASS 5 Proof (Harness/Smoke)
+Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4, actions/setup-python@v5, actions/upload-artifact@v4, pnpm/action-setup@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+App Truth Lane (Real Service Path)
+Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4, actions/setup-python@v5, actions/upload-artifact@v4, pnpm/action-setup@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+Publish Gauntlet CI Proof Manifest
+Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/download-artifact@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+Services Validation + Eval + Route Smoke
+Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+HARNESS_ONLY App Smoke (Playwright)
+Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4, actions/upload-artifact@v4, pnpm/action-setup@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+HARNESS_ONLY App Smoke (Playwright)
+Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4, actions/upload-artifact@v4, pnpm/action-setup@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+App Truth Lane (Real Service Path)
+expected 'packfile'
+App Truth Lane (Real Service Path)
+RPC failed; HTTP 500 curl 22 The requested URL returned error: 500
+HARNESS_ONLY App Smoke (Playwright)
+Process completed with exit code 1.
+HARNESS_ONLY App Smoke (Playwright)
+Process completed with exit code 1.
+Gauntlet PASS 3 Proof (Renderer/Preload)
+Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4, actions/upload-artifact@v4, pnpm/action-setup@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+lint
+Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4, actions/setup-python@v5. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+docs-lint
+Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4, pnpm/action-setup@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+typecheck
+Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4, actions/setup-python@v5. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+App Lint + Unit Tests
+Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4, pnpm/action-setup@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+Gauntlet PASS 6 Proof (Build/Startup)
+Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4, actions/setup-python@v5, actions/upload-artifact@v4, pnpm/action-setup@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+Gauntlet PASS 5 Proof (Harness/Smoke)
+Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4, actions/setup-python@v5, actions/upload-artifact@v4, pnpm/action-setup@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+App Truth Lane (Real Service Path)
+Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4, actions/setup-python@v5, actions/upload-artifact@v4, pnpm/action-setup@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+Publish Gauntlet CI Proof Manifest
+Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/download-artifact@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+Services Validation + Eval + Route Smoke
+Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+HARNESS_ONLY App Smoke (Playwright)
+Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4, actions/upload-artifact@v4, pnpm/action-setup@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+HARNESS_ONLY App Smoke (Playwright)
+Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4, actions/upload-artifact@v4, pnpm/action-setup@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

@@ -1,7 +1,7 @@
 ﻿# BLACK SKIES - FIX TRACKER
 
 Status: Active
-Last Reviewed: 2026-04-22
+Last Reviewed: 2026-04-23
 
 ## Purpose
 This document tracks defects, technical debt, and instability across Black Skies.
@@ -929,6 +929,29 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
   - local canary validation:
     - `PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_DISABLE_ANIMATIONS=1 pnpm --filter app exec playwright test tests/e2e/hotkeys-status.spec.ts -g "restores a snapshot from the recovery banner" --project=electron --workers=1 --reporter=line` -> `1 passed`.
     - `PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_DISABLE_ANIMATIONS=1 pnpm --filter app exec playwright test tests/e2e/dock-workspace.spec.ts tests/e2e/gui-contract.spec.ts tests/e2e/layout-no-floating-panes.spec.ts tests/e2e/smoke.project.spec.ts tests/e2e/budget-meter.spec.ts --project=electron --workers=1 --reporter=line` -> `7 passed`.
+- 2026-04-23 - Codex - HARNESS-only shared-contract stabilization pass (root-cause batch):
+  - `_bootstrap.ts` now enforces a deterministic project-loaded readiness gate before action-enabled waits:
+    - `__APP_READY__` + `app-root`,
+    - known harness mode (`flat|full|recovery`),
+    - workspace subtitle no longer `No project loaded`,
+    - companion action enabled (project state loaded),
+    - mode anchor visible (`wizard-root` in flat, dock/wizard in full/recovery).
+  - `ensureDockPaneVisible(...)` now uses bounded convergence (30s) instead of immediate hidden-region failure:
+    - accepts either pane naturally visible or hidden-pane restore path available,
+    - throws only after bounded timeout with diagnostics (`mode`, dock presence/visibility, hidden-region visibility, project label).
+  - restore helper contract decoupled:
+    - `waitForSnapshotRestoreComplete(...)` now treats `__snapshotRestoreDone === true` as canonical completion,
+    - recovery-banner dismissal is now explicit opt-in (`requireBannerDismissed: true`).
+  - added shared preflight opener in `_bootstrap.ts`:
+    - `openPreflightDialog(...)` waits for project-loaded gate, waits target action enabled, clicks, and waits dialog visible.
+  - budget flows now use shared preflight contract instead of ad hoc modal timing:
+    - `budget-meter.spec.ts`,
+    - `gui.flows.spec.ts` (`budget_guardrail_smoke`).
+  - local validation (CI-like flags, electron project, single worker):
+    - `PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_DISABLE_ANIMATIONS=1 pnpm --filter app exec playwright test tests/e2e/dock-workspace.spec.ts tests/e2e/gui-contract.spec.ts tests/e2e/layout-no-floating-panes.spec.ts tests/e2e/smoke.project.spec.ts tests/e2e/budget-meter.spec.ts tests/e2e/gui.analytics_offline_cache_flow.spec.ts tests/e2e/gui.insights.spec.ts tests/e2e/gui.snapshot_verification_flow.spec.ts --project=electron --workers=1 --reporter=line` -> `10 passed`.
+    - `PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_DISABLE_ANIMATIONS=1 pnpm --filter app exec playwright test tests/e2e/gui.flows.spec.ts -g "snapshot_restore_flow|budget_guardrail_smoke" --project=electron --workers=1 --reporter=line` -> `2 passed`.
+    - `PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_DISABLE_ANIMATIONS=1 pnpm --filter app exec playwright test tests/e2e/hotkeys-status.spec.ts -g "restores a snapshot from the recovery banner" --project=electron --workers=1 --reporter=line` -> `1 passed`.
+  - note: one parallel run attempt hit `EADDRINUSE` on `127.0.0.1:9999`; serial rerun passed and is the recorded evidence.
 
 #### Verification
 - Partial: local targeted app tests and lint are green; CI App Lint + Unit Tests run is still required.

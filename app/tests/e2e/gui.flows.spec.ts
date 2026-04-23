@@ -1,5 +1,9 @@
 import { test, expect } from './_electron.fixture';
-import { bootstrapHarness, waitForSnapshotRestoreComplete } from './_bootstrap';
+import {
+  bootstrapHarness,
+  openPreflightDialog,
+  waitForSnapshotRestoreComplete,
+} from './_bootstrap';
 import { loadSampleProject } from './utils/sampleProject';
 import { installServiceStubs } from './utils/serviceStubs';
 import { TID } from '../../renderer/utils/testIds';
@@ -12,7 +16,6 @@ import { TID } from '../../renderer/utils/testIds';
 
 const { loadedProject } = loadSampleProject();
 const FULL_ANALYTICS_E2E = process.env.FULL_ANALYTICS_E2E === '1';
-const primaryScene = loadedProject.scenes[0];
 
 type GuiFlowWindow = typeof window & {
   __testBudgetResponse?: unknown;
@@ -84,12 +87,10 @@ test.describe('GUI flow smoke tests', () => {
     await page.evaluate(() => {
       window.dispatchEvent(new CustomEvent('test:select-scene', { detail: 'sc_0001' }));
     });
-    const generateButton = page.getByTestId('workspace-action-generate');
-    await expect(generateButton).toBeEnabled({ timeout: 30_000 });
-    await generateButton.click();
-
-    const preflightDialog = page.getByRole('dialog', { name: /draft preflight/i });
-    await expect(preflightDialog).toBeVisible({ timeout: 30_000 });
+    const preflightDialog = await openPreflightDialog(page, {
+      actionTestId: 'workspace-action-generate',
+      dialogName: /draft preflight/i,
+    });
     await preflightDialog.getByRole('button', { name: 'Proceed' }).click();
 
     const draftErrorToast = page
