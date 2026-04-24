@@ -300,7 +300,9 @@ if (isPlaywright && typeof window !== 'undefined') {
     }
 }
 const devApi = {
-    setProjectDir: (absPath) => window.dispatchEvent(new CustomEvent('test:set-project', { detail: absPath })),
+    setProjectDir: (absPath) => {
+        window.dispatchEvent(new CustomEvent('test:set-project', { detail: absPath }));
+    },
 };
 // --- harness-only bridges ---
 // These are explicit test hooks and must stay out of the truth lane unless a harness runner
@@ -1233,6 +1235,10 @@ if (process.env.PLAYWRIGHT === '1') {
             }
         }
     }
+    devApi.setProjectDir = async (dir) => {
+        await devTools.setProjectDir(dir);
+        window.dispatchEvent(new CustomEvent('test:set-project', { detail: dir }));
+    };
     devApi.overrideServices = devTools.overrideServices;
 }
 //# sourceMappingURL=preload.js.map
