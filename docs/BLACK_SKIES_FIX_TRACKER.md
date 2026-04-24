@@ -264,11 +264,38 @@ Truth lane path appears intentionally separated (`scripts/truth-with-backend.mjs
 ---
 
 ## [5] PASS 5 harness fragility
-- Status: MONITOR
-- Last Updated: 2026-04-21
+- Status: ACTIVE
+- Last Updated: 2026-04-24
 
-#### Notes
-Harness lane remains intentionally synthetic and hook-driven.
+#### Known Facts
+- `app-e2e` remains a harness-only lane and should not be used for truth-lane claims.
+- CI now runs a canary-first fail-fast sequence before the full harness suite:
+  - canary command: `xvfb-run -a pnpm test:e2e`
+  - full suite command: `xvfb-run -a pnpm --dir app exec playwright test -c ./playwright.config.ts`
+- Canary launch timeline is now emitted from `scripts/e2e-with-backend.mjs` when `BLACKSKIES_E2E_TIMELINE_PATH` is set.
+- CI now emits an environment manifest for lane-level reproducibility in:
+  `ci_artifacts/playwright_diagnostics/env-manifest.json`.
+- Playwright diagnostic artifacts are now uploaded with `if: always()` in `eval.yml` so canary/full logs and timeline are preserved even on early failure.
+
+#### Actions
+- Use canary logs + timeline as the first triage source before opening spec-level fixes.
+- Record each root-cause classification update under this issue with reproducible evidence from artifacts.
+
+#### Progress Log
+- 2026-04-24 - Codex - Added runbook `docs/runbooks/ci_playwright_diagnostic_plan.md` to standardize hypothesis map, probes, decision tree, and incident sequence.
+- 2026-04-24 - Codex - Updated `eval.yml` `app-e2e` job to:
+  - materialize diagnostics directory,
+  - write CI env manifest,
+  - run canary fail-fast harness command before full suite,
+  - upload diagnostics artifact paths with `if: always()`.
+- 2026-04-24 - Codex - Added timeline instrumentation to `scripts/e2e-with-backend.mjs` for launch/backend/playwright milestones written to JSON.
+- 2026-04-24 - Codex - Linked the new runbook from `docs/tests.md` under harness-driven lane guidance.
+- 2026-04-24 - Codex - Verified local early-failure diagnostics behavior: with `BLACKSKIES_E2E_TIMELINE_PATH=ci_artifacts/playwright_diagnostics/local-canary-timeline.json`, launcher failure (`listen EPERM 127.0.0.1:9999`) still emitted timeline JSON containing startup/error/cleanup events.
+
+#### Verification
+- Partial:
+  - local evidence confirms timeline artifact writes on pre-backend launcher failure,
+  - CI evidence is still required for canary/full-sequence artifact integrity.
 
 ---
 

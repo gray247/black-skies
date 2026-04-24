@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "events": [
+    {
+      "ts": "2026-04-24T01:26:20.812Z",
+      "stage": "launcher_start",
+      "details": {
+        "pid": 4,
+        "platform": "linux"
+      }
+    },
+    {
+      "ts": "2026-04-24T01:26:20.817Z",
+      "stage": "launcher_error",
+      "details": {
+        "message": "listen EPERM: operation not permitted 127.0.0.1:9999"
+      }
+    },
+    {
+      "ts": "2026-04-24T01:26:20.817Z",
+      "stage": "launcher_cleanup_start",
+      "details": {}
+    },
+    {
+      "ts": "2026-04-24T01:26:20.817Z",
+      "stage": "launcher_cleanup_complete",
+      "details": {}
+    }
+  ]
+}

@@ -185,19 +185,83 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y xvfb
-      - name: Run HARNESS_ONLY Playwright UI smoke tests
+      - name: Prepare Playwright diagnostics directory
+        run: mkdir -p ci_artifacts/playwright_diagnostics
+      - name: Write app-e2e diagnostic environment manifest
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import platform
+          import subprocess
+          from pathlib import Path
+
+          def run(cmd):
+              try:
+                  completed = subprocess.run(
+                      cmd,
+                      check=True,
+                      capture_output=True,
+                      text=True,
+                  )
+                  return completed.stdout.strip()
+              except Exception:
+                  return "unavailable"
+
+          manifest = {
+              "schema_version": 1,
+              "ci": {
+                  "workflow": os.environ.get("GITHUB_WORKFLOW", ""),
+                  "run_id": os.environ.get("GITHUB_RUN_ID", ""),
+                  "run_number": os.environ.get("GITHUB_RUN_NUMBER", ""),
+                  "sha": os.environ.get("GITHUB_SHA", ""),
+                  "ref": os.environ.get("GITHUB_REF", ""),
+              },
+              "runtime": {
+                  "os": platform.platform(),
+                  "python": run(["python", "--version"]),
+                  "node": run(["node", "--version"]),
+                  "pnpm": run(["pnpm", "--version"]),
+              },
+              "playwright": {
+                  "disable_animations": "1",
+                  "retries": "0",
+                  "output_dir": "app",
+              },
+          }
+          path = Path("ci_artifacts/playwright_diagnostics/env-manifest.json")
+          path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+          PY
+      - name: Canary fail-fast preflight (backend + smoke subset)
         env:
           PLAYWRIGHT_DISABLE_ANIMATIONS: '1'
           PLAYWRIGHT_RETRIES: '0'
           PLAYWRIGHT_OUTPUT_DIR: app
-        run: xvfb-run -a pnpm --filter app test:e2e
+          FULL_ANALYTICS_E2E: '0'
+          BLACKSKIES_E2E_TIMELINE_PATH: ci_artifacts/playwright_diagnostics/canary-timeline.json
+        run: |
+          set -o pipefail
+          xvfb-run -a pnpm test:e2e 2>&1 | tee ci_artifacts/playwright_diagnostics/canary.log
+      - name: Build renderer and main bundles for full suite
+        run: |
+          pnpm --filter app build:renderer
+          pnpm --filter app build:main
+      - name: Run HARNESS_ONLY Playwright full suite
+        env:
+          PLAYWRIGHT_DISABLE_ANIMATIONS: '1'
+          PLAYWRIGHT_RETRIES: '0'
+          PLAYWRIGHT_OUTPUT_DIR: app
+        run: |
+          set -o pipefail
+          xvfb-run -a pnpm --dir app exec playwright test -c ./playwright.config.ts 2>&1 | tee ci_artifacts/playwright_diagnostics/full-suite.log
       - name: Upload Playwright artifacts
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: playwright-artifacts
           if-no-files-found: ignore
           path: |
+            ci_artifacts/playwright_diagnostics
             app/playwright-report
             app/test-results
             app/app/playwright-report

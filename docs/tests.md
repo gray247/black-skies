@@ -41,6 +41,7 @@ Use these for renderer appearance and accessibility checks only. They do not pro
 - `pnpm --dir app exec playwright test tests/e2e/gui.analytics_offline_cache_flow.spec.ts --project=electron --workers=1`
 
 Use these for launcher, fixture, and interaction sanity. Do not claim backend truth from a harness pass.
+For CI incident handling in `app-e2e`, follow [CI Playwright Diagnostic Plan](./runbooks/ci_playwright_diagnostic_plan.md) for canary-first triage, timeline artifacts, and fail-fast sequencing.
 Harness runs may use the explicit preload hooks listed in [Preload Hook Inventory and Containment](./reviews/preload_hook_inventory_and_containment.md), but those hooks are not truth evidence.
 Scene selection and forced-offline control now use the existing `test:select-scene` and `test:force-offline` event paths plus dataset flags, not the removed `__selectSceneForTest` helper or any preload-global force-offline toggle.
 Remaining harness markers such as `data-test-active-flow`, `data-test-stable-dock`, `data-test-visual-stable`, and `data-test-needs-recovery` are harness-only dataset controls. They are useful for lane setup but they do not prove production behavior. The budget-meter flow now depends on injected budget responses plus the refresh hook, not on a preload budget override.

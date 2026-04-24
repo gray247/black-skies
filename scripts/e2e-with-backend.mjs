@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
 import { setTimeout as delay } from 'node:timers/promises';
 import { existsSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -19,6 +20,32 @@ const PLAYWRIGHT_ARGS = [
   '--trace=on',
 ];
 const REPO_ROOT = path.resolve(__dirname, '..');
+const TIMELINE_PATH = process.env.BLACKSKIES_E2E_TIMELINE_PATH?.trim() ?? '';
+const timelineEvents = [];
+
+function recordTimelineEvent(stage, details = {}) {
+  if (!TIMELINE_PATH) {
+    return;
+  }
+  timelineEvents.push({
+    ts: new Date().toISOString(),
+    stage,
+    details,
+  });
+}
+
+function flushTimeline() {
+  if (!TIMELINE_PATH) {
+    return;
+  }
+  const destination = path.resolve(REPO_ROOT, TIMELINE_PATH);
+  mkdirSync(path.dirname(destination), { recursive: true });
+  writeFileSync(
+    destination,
+    `${JSON.stringify({ version: 1, events: timelineEvents }, null, 2)}\n`,
+    'utf-8',
+  );
+}
 
 function resolvePythonCommand() {
   const envPython = process.env.PYTHON?.trim();
@@ -118,49 +145,14 @@ async function ensurePortAvailable(host, port) {
 }
 
 async function run() {
-  const serviceCommandEnv = process.env.E2E_SERVICE_COMMAND;
-  const defaultCommand = [
-    resolvePythonCommand(),
-    '-m',
-    'uvicorn',
-    'blackskies.services.app:create_app',
-    '--factory',
-    '--host',
-    '127.0.0.1',
-    '--port',
-    String(SERVICE_PORT),
-  ];
-  const overrideTokens = splitCommand(serviceCommandEnv);
-  const backendTokens = overrideTokens.length ? overrideTokens : defaultCommand;
-  const backendCommand = backendTokens[0];
-  const backendArgs = backendTokens.slice(1);
-
-  await ensurePortAvailable('127.0.0.1', SERVICE_PORT);
-  console.log(`[e2e] launching backend: ${backendCommand} ${backendArgs.join(' ')}`);
-  const backendEnv = {
-    ...process.env,
-    BLACKSKIES_SERVICES_PORT: String(SERVICE_PORT),
-    BLACKSKIES_E2E_PORT: String(SERVICE_PORT),
-    BLACKSKIES_E2E_MODE: "1",
-    BLACKSKIES_E2E_SYNTHETIC_MODE: "1",
-    BLACKSKIES_E2E_EXTERNAL_SERVICE: "1",
-    BLACKSKIES_ENABLE_PHASE4_MOCK_FLOW: "1",
-  };
-  process.env.BLACKSKIES_SERVICES_PORT = String(SERVICE_PORT);
-  process.env.BLACKSKIES_E2E_PORT = String(SERVICE_PORT);
-  process.env.BLACKSKIES_E2E_MODE = "1";
-  process.env.BLACKSKIES_E2E_SYNTHETIC_MODE = "1";
-  process.env.BLACKSKIES_E2E_EXTERNAL_SERVICE = "1";
-  process.env.BLACKSKIES_ENABLE_PHASE4_MOCK_FLOW = "1";
-  process.env.PATH = prependVenvPath(process.env.PATH);
-  backendEnv.PATH = prependVenvPath(backendEnv.PATH);
-  const backend = spawn(backendCommand, backendArgs, {
-    env: backendEnv,
-    stdio: 'inherit',
+  recordTimelineEvent('launcher_start', {
+    pid: process.pid,
+    platform: process.platform,
   });
+  let backend = null;
 
   const stopBackend = () => {
-    if (!backend.killed) {
+    if (backend && !backend.killed) {
       backend.kill('SIGTERM');
     }
   };
@@ -174,7 +166,61 @@ async function run() {
   process.on('exit', cleanup);
 
   try {
+    const serviceCommandEnv = process.env.E2E_SERVICE_COMMAND;
+    const defaultCommand = [
+      resolvePythonCommand(),
+      '-m',
+      'uvicorn',
+      'blackskies.services.app:create_app',
+      '--factory',
+      '--host',
+      '127.0.0.1',
+      '--port',
+      String(SERVICE_PORT),
+    ];
+    const overrideTokens = splitCommand(serviceCommandEnv);
+    const backendTokens = overrideTokens.length ? overrideTokens : defaultCommand;
+    const backendCommand = backendTokens[0];
+    const backendArgs = backendTokens.slice(1);
+
+    await ensurePortAvailable('127.0.0.1', SERVICE_PORT);
+    recordTimelineEvent('port_check_passed', {
+      host: '127.0.0.1',
+      port: SERVICE_PORT,
+    });
+    console.log(`[e2e] launching backend: ${backendCommand} ${backendArgs.join(' ')}`);
+    const backendEnv = {
+      ...process.env,
+      BLACKSKIES_SERVICES_PORT: String(SERVICE_PORT),
+      BLACKSKIES_E2E_PORT: String(SERVICE_PORT),
+      BLACKSKIES_E2E_MODE: "1",
+      BLACKSKIES_E2E_SYNTHETIC_MODE: "1",
+      BLACKSKIES_E2E_EXTERNAL_SERVICE: "1",
+      BLACKSKIES_ENABLE_PHASE4_MOCK_FLOW: "1",
+    };
+    process.env.BLACKSKIES_SERVICES_PORT = String(SERVICE_PORT);
+    process.env.BLACKSKIES_E2E_PORT = String(SERVICE_PORT);
+    process.env.BLACKSKIES_E2E_MODE = "1";
+    process.env.BLACKSKIES_E2E_SYNTHETIC_MODE = "1";
+    process.env.BLACKSKIES_E2E_EXTERNAL_SERVICE = "1";
+    process.env.BLACKSKIES_ENABLE_PHASE4_MOCK_FLOW = "1";
+    process.env.PATH = prependVenvPath(process.env.PATH);
+    backendEnv.PATH = prependVenvPath(backendEnv.PATH);
+    backend = spawn(backendCommand, backendArgs, {
+      env: backendEnv,
+      stdio: 'inherit',
+    });
+    recordTimelineEvent('backend_spawned', {
+      command: backendCommand,
+      args: backendArgs,
+      port: SERVICE_PORT,
+    });
+
     await waitForHealth(`http://127.0.0.1:${SERVICE_PORT}${HEALTH_PATH}`, HEALTH_TIMEOUT_MS);
+    recordTimelineEvent('backend_healthy', {
+      path: HEALTH_PATH,
+      timeout_ms: HEALTH_TIMEOUT_MS,
+    });
     const tests = process.argv.slice(2);
     const testFiles = tests.length ? tests : ['gui.flows.spec.ts', 'dock-workspace.spec.ts'];
     const runFullSuite = process.env.FULL_ANALYTICS_E2E === '1';
@@ -199,6 +245,11 @@ async function run() {
     const args = isWindows
       ? ['/c', playwrightBin, ...playwrightArgs]
       : playwrightArgs;
+    recordTimelineEvent('playwright_start', {
+      command,
+      args,
+      cwd: path.resolve(REPO_ROOT, 'app'),
+    });
     console.log('[e2e] running', command, args);
     process.env.PLAYWRIGHT = '1';
     const exitCode = await spawnCommand(command, args, {
@@ -209,13 +260,26 @@ async function run() {
       },
       cwd: path.resolve(REPO_ROOT, 'app'),
     });
-    process.exitCode = exitCode;
-  } finally {
-    cleanup();
-    await new Promise((resolve) => {
-      backend.once('exit', resolve);
-      setTimeout(resolve, 5000);
+    recordTimelineEvent('playwright_exit', {
+      exit_code: exitCode,
     });
+    process.exitCode = exitCode;
+  } catch (error) {
+    recordTimelineEvent('launcher_error', {
+      message: error instanceof Error ? error.message : String(error),
+    });
+    throw error;
+  } finally {
+    recordTimelineEvent('launcher_cleanup_start');
+    cleanup();
+    if (backend) {
+      await new Promise((resolve) => {
+        backend.once('exit', resolve);
+        setTimeout(resolve, 5000);
+      });
+    }
+    recordTimelineEvent('launcher_cleanup_complete');
+    flushTimeline();
   }
 }
 
