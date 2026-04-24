@@ -85,6 +85,7 @@ safeExpose('__electronApi', { fs: electronFsApi });
 
 const isPlaywright = process.env.PLAYWRIGHT === '1';
 const harnessHooksEnabled = process.env.BLACKSKIES_ENABLE_HARNESS_HOOKS === '1';
+const forceRecoveryInHarness = process.env.BLACKSKIES_TEST_NEEDS_RECOVERY === '1';
 const phase4MockFlowEnabled = process.env.BLACKSKIES_ENABLE_PHASE4_MOCK_FLOW === '1';
 safeExpose('__phase4MockFlowEnabled', phase4MockFlowEnabled);
 const setPlaywrightTestAttribute = (): void => {
@@ -1491,7 +1492,7 @@ if (process.env.PLAYWRIGHT === '1') {
     },
   };
 
-  if (harnessHooksEnabled && typeof document !== 'undefined') {
+  if (harnessHooksEnabled && forceRecoveryInHarness && typeof document !== 'undefined') {
     const applyRecoveryFlag = (): boolean => {
       const root = document.documentElement;
       const body = document.body;

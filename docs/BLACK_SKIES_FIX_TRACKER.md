@@ -293,6 +293,13 @@ Truth lane path appears intentionally separated (`scripts/truth-with-backend.mjs
 - `electronApp.firstWindow` timeout is downstream noise when packaged entry/renderer output are absent; no BrowserWindow can be created in that state.
 - Latest canary transition (2026-04-24): backend healthy + Electron window + renderer boot + project-loaded debug event all occur, but harness still times out in `_bootstrap.waitForProjectLoaded`.
 - Current blocker has shifted to readiness-contract mismatch: project-loaded signal/log fires before (or without) the committed UI/state marker expected by the bootstrap predicate.
+- New canary diagnostics (2026-04-24) show `waitForProjectLoaded` timeout payloads with:
+  - `testNeedsRecovery=1`,
+  - `projectLoaded=0`,
+  - subtitle `No project loaded`,
+  - visible recovery banner across canary flows.
+- Root cause for this regression path: `app/main/preload.ts` was force-setting `data-test-needs-recovery=1` for all Playwright harness launches when harness hooks were enabled, overriding normal project-load readiness.
+- Fix applied: preload now only applies forced recovery dataset when explicit env `BLACKSKIES_TEST_NEEDS_RECOVERY=1` is set; default canary/harness launches no longer auto-force recovery mode.
 
 #### Actions
 - Use canary logs + timeline as the first triage source before opening spec-level fixes.
@@ -335,12 +342,15 @@ Truth lane path appears intentionally separated (`scripts/truth-with-backend.mjs
 - 2026-04-24 - Codex - Added committed project-state readiness markers in renderer (`data-project-loaded`, `data-project-path`, `data-project-id`) plus debug instrumentation (`[dbg:project.commit.start]`, `[dbg:project.commit.done]`, `[dbg:dock.projectPath]`, `[dbg:workspace.actions]`).
 - 2026-04-24 - Codex - Updated `_bootstrap.waitForProjectLoaded` to wait on committed marker + subtitle and emit structured timeout diagnostics for mode/path/subtitle/dock/actions/recovery/body+html datasets/debug project state.
 - 2026-04-24 - Codex - Reordered harness bootstrap seeding so `__testEnvAutoSeedProjectSummary` defaults are set before `__dev.setProjectDir`, reducing pre-commit timing mismatch risk.
+- 2026-04-24 - Codex - Fixed preload recovery-flag injection regression:
+  - gated `data-test-needs-recovery=1` forcing behind explicit `BLACKSKIES_TEST_NEEDS_RECOVERY=1`,
+  - removed implicit forced-recovery behavior for normal Playwright harness startups.
 
 #### Verification
 - Partial:
   - local evidence confirms timeline artifact writes on pre-backend launcher failure,
   - CI evidence is still required for canary rerun confirming artifact-preflight now passes and launch reaches Electron window creation path,
-  - CI evidence is still required to confirm `waitForProjectLoaded` converges on committed state markers and no longer times out after project-loaded debug events.
+  - CI evidence is still required to confirm `waitForProjectLoaded` converges on committed state markers without forced recovery in default canary startup.
 
 ---
 
