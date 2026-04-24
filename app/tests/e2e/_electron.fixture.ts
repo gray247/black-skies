@@ -46,6 +46,126 @@ const launchContextByApp = new WeakMap<ElectronApplication, ElectronLaunchContex
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const RESETTABLE_DATASET_KEYS = [
+  'testMode',
+  'testNeedsRecovery',
+  'testForceOffline',
+  'testEnvForceOfflineReason',
+  'testStableDock',
+  'testStableHome',
+  'testVisualStable',
+  'projectLoaded',
+  'projectPath',
+  'projectId',
+] as const;
+
+const BASELINE_DATASET_KEYS = [
+  'testEnv',
+  'testActiveFlow',
+  'testMode',
+  'testStableDock',
+  'testStableHome',
+  'testVisualStable',
+  'testForceOffline',
+  'testEnvForceOfflineReason',
+] as const;
+
+async function captureBaselineFlags(page: Page): Promise<{ body: Record<string, string>; html: Record<string, string> }> {
+  return page.evaluate((keys) => {
+    const capture = (target: HTMLElement | null): Record<string, string> => {
+      const result: Record<string, string> = {};
+      if (!target) {
+        return result;
+      }
+      for (const key of keys) {
+        const value = target.dataset[key];
+        if (typeof value === 'string') {
+          result[key] = value;
+        }
+      }
+      return result;
+    };
+    return {
+      body: capture(document.body),
+      html: capture(document.documentElement),
+    };
+  }, [...BASELINE_DATASET_KEYS]);
+}
+
+async function resetMutableHarnessState(
+  page: Page,
+  baseline?: { body: Record<string, string>; html: Record<string, string> },
+): Promise<void> {
+  await page.evaluate(
+    ({ resetKeys, baselineFlags }) => {
+      const clearDatasetKeys = (target: HTMLElement | null) => {
+        if (!target) {
+          return;
+        }
+        for (const key of resetKeys) {
+          delete target.dataset[key];
+        }
+      };
+      const applyDataset = (target: HTMLElement | null, values: Record<string, string>) => {
+        if (!target) {
+          return;
+        }
+        for (const [key, value] of Object.entries(values)) {
+          target.dataset[key] = value;
+        }
+      };
+      clearDatasetKeys(document.documentElement);
+      clearDatasetKeys(document.body);
+      applyDataset(document.documentElement, baselineFlags.html);
+      applyDataset(document.body, baselineFlags.body);
+
+      const resetWindow = window as typeof window & {
+        __testProjectState?: unknown;
+        __blackskiesDebugLog?: unknown;
+        __snapshotRestoreDone?: boolean;
+        __recoveryLog?: unknown;
+        __testBudgetResponse?: unknown;
+        __budgetRefresh?: unknown;
+        __revealCalls?: unknown;
+        __serviceHealthRetry?: unknown;
+        __layoutCallLog?: unknown;
+        __layoutState?: unknown;
+        __stableDockHandleReady?: unknown;
+        __testEnvSnapshotRestoreFlow?: unknown;
+        __testEnvDefaultProjectId?: unknown;
+        __testEnvDefaultProjectPath?: unknown;
+        __testEnvAutoSeedProjectSummary?: unknown;
+      };
+      delete resetWindow.__testProjectState;
+      delete resetWindow.__blackskiesDebugLog;
+      delete resetWindow.__snapshotRestoreDone;
+      delete resetWindow.__recoveryLog;
+      delete resetWindow.__testBudgetResponse;
+      delete resetWindow.__budgetRefresh;
+      delete resetWindow.__revealCalls;
+      delete resetWindow.__serviceHealthRetry;
+      delete resetWindow.__layoutCallLog;
+      delete resetWindow.__layoutState;
+      delete resetWindow.__stableDockHandleReady;
+      delete resetWindow.__testEnvSnapshotRestoreFlow;
+      delete resetWindow.__testEnvDefaultProjectId;
+      delete resetWindow.__testEnvDefaultProjectPath;
+      delete resetWindow.__testEnvAutoSeedProjectSummary;
+
+      const keysToDelete = Object.keys(window.localStorage).filter((key) =>
+        /(test|layout|recovery|dock|blackskies)/i.test(key),
+      );
+      for (const key of keysToDelete) {
+        window.localStorage.removeItem(key);
+      }
+    },
+    {
+      resetKeys: [...RESETTABLE_DATASET_KEYS],
+      baselineFlags: baseline ?? { body: {}, html: {} },
+    },
+  );
+}
+
 function resetPersistedHarnessState(repoRoot: string): void {
   const candidateLayoutDirs = [
     path.join(repoRoot, 'sample_project', 'proj_esther_estate', '.blackskies'),
@@ -336,10 +456,13 @@ export const test = base.extend<Fixtures>({
       { timeout: 30000 },
     );
     await baseExpect(window.getByTestId('app-root')).toBeVisible({ timeout: 30000 });
+    const baselineFlags = await captureBaselineFlags(window);
+    await resetMutableHarnessState(window, baselineFlags);
 
     try {
       await use(window);
     } finally {
+      await resetMutableHarnessState(window, baselineFlags).catch(() => undefined);
       if (testInfo.status === 'passed') {
         return;
       }

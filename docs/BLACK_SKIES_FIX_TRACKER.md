@@ -305,6 +305,7 @@ Truth lane path appears intentionally separated (`scripts/truth-with-backend.mjs
 - Fixes applied:
   - preload now only applies forced recovery dataset when explicit env `BLACKSKIES_TEST_NEEDS_RECOVERY=1` is set;
   - renderer now handles `test:set-project` by loading via `projectLoader.loadProject(...)` and calling `activateProject(...)`, with race guards and diagnostics (`[dbg:project.bridge.load.start|done|error|exception]`).
+- Current stabilization focus after project-load predicate fixes: post-bootstrap state integrity (mode contract, service survival across reload, action readiness, path normalization, and mutable test-flag leakage).
 
 #### Actions
 - Use canary logs + timeline as the first triage source before opening spec-level fixes.
@@ -354,12 +355,23 @@ Truth lane path appears intentionally separated (`scripts/truth-with-backend.mjs
   - added renderer-side bridge handler that resolves the project path through `projectLoader.loadProject`,
   - commits loaded project via `activateProject`,
   - added request-order/race guard and debug breadcrumbs for load start/success/failure.
+- 2026-04-24 - Codex - Added post-bootstrap guardrails:
+  - explicit mode contract helpers (`waitForFlatModeReady`, `waitForFullModeReady`, `waitForRecoveryModeReady`),
+  - shared strict `assertPostBootstrapStable(...)` with actionable JSON failure payloads,
+  - startup state attachment `startup-state-snapshot.json` emitted once per test after bootstrap.
+- 2026-04-24 - Codex - Added deterministic harness state reset in Electron page fixture:
+  - resets mutable dataset flags/debug globals/layout/recovery/test-mode leftovers before and after each test,
+  - reapplies baseline preload-required flags to keep harness startup deterministic.
+- 2026-04-24 - Codex - Added targeted post-bootstrap diagnostics:
+  - `startup.diagnostic.spec.ts` covers service survival across reload, mode-contract split, action-readiness generate contract, and startup snapshot shape,
+  - `path-normalization.diagnostic.spec.ts` covers cross-platform project-path normalization/matching contract.
 
 #### Verification
 - Partial:
   - local evidence confirms timeline artifact writes on pre-backend launcher failure,
   - CI evidence is still required for canary rerun confirming artifact-preflight now passes and launch reaches Electron window creation path,
-  - CI evidence is still required to confirm `waitForProjectLoaded` converges on committed state markers after `test:set-project`-to-`activateProject` wiring.
+  - CI evidence is still required to confirm `waitForProjectLoaded` converges on committed state markers after `test:set-project`-to-`activateProject` wiring,
+  - CI evidence is still required to confirm new post-bootstrap diagnostics stay green in canary lanes.
 
 ---
 

@@ -27,7 +27,7 @@ type GuiFlowWindow = typeof window & {
 test.describe('GUI flow smoke tests', () => {
   test('smoke_wizard_to_draft_flow (UI)', async ({ page }) => {
     await installServiceStubs(page, 'normal', 'flat');
-    await bootstrapHarness(page);
+    await bootstrapHarness(page, { expectedMode: 'flat' });
 
     await expect(page.getByTestId(TID.wizardRoot)).toBeVisible({ timeout: 30_000 });
     await page.evaluate(() => {
@@ -40,7 +40,7 @@ test.describe('GUI flow smoke tests', () => {
 
   test('smoke_draft_to_critique_flow (UI)', async ({ page }) => {
     await installServiceStubs(page, 'normal', 'flat');
-    await bootstrapHarness(page);
+    await bootstrapHarness(page, { expectedMode: 'flat' });
 
     await page.evaluate(() => {
       window.dispatchEvent(new CustomEvent('test:select-scene', { detail: 'sc_0001' }));
@@ -52,6 +52,7 @@ test.describe('GUI flow smoke tests', () => {
   test('snapshot_restore_flow (UI)', async ({ page }) => {
     await installServiceStubs(page, 'snapshot', 'flat');
     await bootstrapHarness(page, {
+      expectedMode: 'flat',
       requiredEnabledActions: ['workspace-action-snapshot'],
     });
 
@@ -81,6 +82,7 @@ test.describe('GUI flow smoke tests', () => {
   test('budget_guardrail_smoke (UI)', async ({ page }) => {
     await installServiceStubs(page, 'budget');
     await bootstrapHarness(page, {
+      expectedMode: 'full',
       requiredEnabledActions: ['workspace-action-generate', 'workspace-action-critique'],
     });
 
@@ -115,7 +117,7 @@ test.describe('GUI flow smoke tests', () => {
 
   (FULL_ANALYTICS_E2E ? test : test.skip)('budget_indicator_flow (UI)', async ({ page }) => {
     await installServiceStubs(page, 'budget-indicator');
-    await bootstrapHarness(page);
+    await bootstrapHarness(page, { expectedMode: 'full' });
 
     await expect(page.getByTestId(TID.budgetIndicator).first()).toBeVisible({
       timeout: 30_000,
@@ -168,7 +170,7 @@ test.describe('GUI flow smoke tests', () => {
 
   (FULL_ANALYTICS_E2E ? test : test.skip)('snapshots_panel_flow (UI)', async ({ page }) => {
     await installServiceStubs(page, 'normal', 'full');
-    await bootstrapHarness(page);
+    await bootstrapHarness(page, { expectedMode: 'full' });
 
     const panelSnapshots = [
       {
@@ -250,6 +252,8 @@ test.describe('GUI flow smoke tests', () => {
       });
     });
     await bootstrapHarness(page, {
+      expectedMode: 'recovery',
+      allowRecoveryBanner: true,
       expectedServiceStatus: null,
     });
 

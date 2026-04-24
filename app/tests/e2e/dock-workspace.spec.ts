@@ -228,7 +228,7 @@ test.beforeEach(async ({ page }) => {
     },
     { project: loadedProject },
   );
-  await bootstrapHarness(page);
+  await bootstrapHarness(page, { expectedMode: 'full' });
 });
 
 test('smoke_dock_workspace_basics (UI)', async ({ page }) => {
@@ -289,7 +289,7 @@ test.describe('Dock workspace interactions', () => {
       .toBe(0);
 
     await page.reload();
-    await bootstrapHarness(page);
+    await bootstrapHarness(page, { expectedMode: 'full' });
 
     await expect
       .poll(() => page.evaluate(() => window.__layoutCallLog?.loadLayout.length ?? 0))
