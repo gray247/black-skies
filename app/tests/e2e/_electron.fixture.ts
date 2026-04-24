@@ -12,6 +12,36 @@ type Fixtures = {
   page: Page;
 };
 
+type ElectronLaunchContext = {
+  appDir: string;
+  entryPoint: string;
+  rendererUrl?: string;
+  packagedEntry: string;
+  packagedEntryExists: boolean;
+  devFallback: string;
+  devFallbackExists: boolean;
+  rendererIndex: string;
+  rendererIndexExists: boolean;
+  launchEnv: {
+    ELECTRON_RENDERER_URL?: string;
+    PLAYWRIGHT?: string;
+    BLACKSKIES_SERVICES_PORT?: string;
+    BLACKSKIES_E2E_PORT?: string;
+    BLACKSKIES_E2E_MODE?: string;
+    BLACKSKIES_E2E_EXTERNAL_SERVICE?: string;
+    BLACKSKIES_ENABLE_HARNESS_HOOKS?: string;
+  };
+  getProcessState: () => {
+    pid: number | null;
+    exited: boolean;
+    exitCode: number | null;
+    exitSignal: NodeJS.Signals | null;
+  };
+  getOutput: () => { stdout: string; stderr: string };
+};
+
+const launchContextByApp = new WeakMap<ElectronApplication, ElectronLaunchContext>();
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -36,9 +66,12 @@ export const test = base.extend<Fixtures>({
     const repoRoot = path.resolve(appDir, '..');
     const packagedEntry = path.resolve(appDir, 'dist-electron', 'main', 'main.js');
     const devFallback = path.resolve(appDir, 'main', 'main.ts');
-    const entryPoint = fs.existsSync(packagedEntry) ? packagedEntry : devFallback;
+    const packagedEntryExists = fs.existsSync(packagedEntry);
+    const devFallbackExists = fs.existsSync(devFallback);
+    const entryPoint = packagedEntryExists ? packagedEntry : devFallback;
     const rendererIndex = path.resolve(appDir, 'dist', 'index.html');
-    const rendererUrl = fs.existsSync(rendererIndex) ? pathToFileURL(rendererIndex).toString() : undefined;
+    const rendererIndexExists = fs.existsSync(rendererIndex);
+    const rendererUrl = rendererIndexExists ? pathToFileURL(rendererIndex).toString() : undefined;
     const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'blackskies-e2e-userdata-'));
     const disableAnimations = process.env.PLAYWRIGHT_DISABLE_ANIMATIONS === '1' || !!process.env.CI;
     const launchEnv: NodeJS.ProcessEnv = {
@@ -73,10 +106,71 @@ export const test = base.extend<Fixtures>({
       ],
       env: launchEnv,
     });
+    const appProcess = application.process();
+    const stdoutChunks: string[] = [];
+    const stderrChunks: string[] = [];
+    const maxChunkChars = 20_000;
+    const maxJoinedChars = 100_000;
+    const pushChunk = (target: string[], raw: unknown) => {
+      const text = String(raw);
+      target.push(text.length > maxChunkChars ? text.slice(-maxChunkChars) : text);
+      while (target.join('').length > maxJoinedChars && target.length > 1) {
+        target.shift();
+      }
+    };
+    let processExited = false;
+    let processExitCode: number | null = null;
+    let processExitSignal: NodeJS.Signals | null = null;
+    if (appProcess?.stdout) {
+      appProcess.stdout.on('data', (chunk) => pushChunk(stdoutChunks, chunk));
+    }
+    if (appProcess?.stderr) {
+      appProcess.stderr.on('data', (chunk) => pushChunk(stderrChunks, chunk));
+    }
+    if (appProcess) {
+      appProcess.once('exit', (code, signal) => {
+        processExited = true;
+        processExitCode = code;
+        processExitSignal = signal;
+      });
+    }
+
+    const launchContext: ElectronLaunchContext = {
+      appDir,
+      entryPoint,
+      rendererUrl,
+      packagedEntry,
+      packagedEntryExists,
+      devFallback,
+      devFallbackExists,
+      rendererIndex,
+      rendererIndexExists,
+      launchEnv: {
+        ELECTRON_RENDERER_URL: launchEnv.ELECTRON_RENDERER_URL,
+        PLAYWRIGHT: launchEnv.PLAYWRIGHT,
+        BLACKSKIES_SERVICES_PORT: launchEnv.BLACKSKIES_SERVICES_PORT,
+        BLACKSKIES_E2E_PORT: launchEnv.BLACKSKIES_E2E_PORT,
+        BLACKSKIES_E2E_MODE: launchEnv.BLACKSKIES_E2E_MODE,
+        BLACKSKIES_E2E_EXTERNAL_SERVICE: launchEnv.BLACKSKIES_E2E_EXTERNAL_SERVICE,
+        BLACKSKIES_ENABLE_HARNESS_HOOKS: launchEnv.BLACKSKIES_ENABLE_HARNESS_HOOKS,
+      },
+      getProcessState: () => ({
+        pid: appProcess?.pid ?? null,
+        exited: processExited,
+        exitCode: processExitCode,
+        exitSignal: processExitSignal,
+      }),
+      getOutput: () => ({
+        stdout: stdoutChunks.join(''),
+        stderr: stderrChunks.join(''),
+      }),
+    };
+    launchContextByApp.set(application, launchContext);
 
     try {
       await use(application);
     } finally {
+      launchContextByApp.delete(application);
       await application.close();
       if (!useExternalService) {
         await stopServiceStubs();
@@ -88,7 +182,94 @@ export const test = base.extend<Fixtures>({
   },
 
   page: async ({ electronApp }, use, testInfo) => {
-    const window = await electronApp.firstWindow();
+    const launchContext = launchContextByApp.get(electronApp);
+    const firstWindowTimeoutMs = 30_000;
+    const processState = launchContext?.getProcessState();
+    const appProcess = electronApp.process();
+    const firstWindowPromise = electronApp
+      .firstWindow()
+      .then((window) => ({ kind: 'window' as const, window }))
+      .catch((error) => ({ kind: 'firstWindowError' as const, error }));
+    let exitListener: ((code: number | null, signal: NodeJS.Signals | null) => void) | null = null;
+    const processExitPromise = appProcess
+      ? new Promise<{
+          kind: 'processExit';
+          code: number | null;
+          signal: NodeJS.Signals | null;
+        }>((resolve) => {
+          exitListener = (code, signal) => resolve({ kind: 'processExit', code, signal });
+          appProcess.once('exit', exitListener);
+        })
+      : null;
+    const timeoutPromise = new Promise<{ kind: 'timeout' }>((resolve) => {
+      setTimeout(() => resolve({ kind: 'timeout' }), firstWindowTimeoutMs);
+    });
+    const raceCandidates = [firstWindowPromise, timeoutPromise];
+    if (processExitPromise) {
+      raceCandidates.push(processExitPromise);
+    }
+    const outcome = await Promise.race(raceCandidates);
+    if (appProcess && exitListener) {
+      appProcess.off('exit', exitListener);
+    }
+
+    if (!outcome || outcome.kind !== 'window') {
+      const windows = electronApp.windows();
+      const output = launchContext?.getOutput() ?? { stdout: '', stderr: '' };
+      const resolvedProcessState = launchContext?.getProcessState() ??
+        processState ?? {
+          pid: appProcess?.pid ?? null,
+          exited: false,
+          exitCode: null,
+          exitSignal: null,
+        };
+      const diagnostics = {
+        reason: outcome?.kind ?? 'unknown',
+        timeoutMs: firstWindowTimeoutMs,
+        electronProcessPid: resolvedProcessState.pid,
+        electronProcessExited: resolvedProcessState.exited,
+        electronExitCode: resolvedProcessState.exitCode,
+        electronExitSignal: resolvedProcessState.exitSignal,
+        currentWindowCount: windows.length,
+        appDir: launchContext?.appDir ?? path.resolve(__dirname, '..', '..'),
+        entryPoint: launchContext?.entryPoint ?? null,
+        rendererUrl: launchContext?.rendererUrl ?? null,
+        packagedEntry: launchContext?.packagedEntry ?? null,
+        packagedEntryExists: launchContext?.packagedEntryExists ?? null,
+        devFallback: launchContext?.devFallback ?? null,
+        devFallbackExists: launchContext?.devFallbackExists ?? null,
+        rendererIndex: launchContext?.rendererIndex ?? null,
+        rendererIndexExists: launchContext?.rendererIndexExists ?? null,
+        launchEnv: launchContext?.launchEnv ?? {
+          ELECTRON_RENDERER_URL: process.env.ELECTRON_RENDERER_URL,
+          PLAYWRIGHT: process.env.PLAYWRIGHT,
+          BLACKSKIES_SERVICES_PORT: process.env.BLACKSKIES_SERVICES_PORT,
+          BLACKSKIES_E2E_PORT: process.env.BLACKSKIES_E2E_PORT,
+          BLACKSKIES_E2E_MODE: process.env.BLACKSKIES_E2E_MODE,
+          BLACKSKIES_E2E_EXTERNAL_SERVICE: process.env.BLACKSKIES_E2E_EXTERNAL_SERVICE,
+          BLACKSKIES_ENABLE_HARNESS_HOOKS: process.env.BLACKSKIES_ENABLE_HARNESS_HOOKS,
+        },
+        stdout: output.stdout,
+        stderr: output.stderr,
+      };
+      console.error('[electron.firstWindow.diagnostics]', JSON.stringify(diagnostics, null, 2));
+      await testInfo.attach('electron-first-window-diagnostics', {
+        body: Buffer.from(`${JSON.stringify(diagnostics, null, 2)}\n`, 'utf-8'),
+        contentType: 'application/json',
+      });
+      if (outcome?.kind === 'firstWindowError') {
+        throw outcome.error;
+      }
+      if (outcome?.kind === 'processExit') {
+        throw new Error(
+          `electronApp.firstWindow aborted: process exited before window creation (code=${outcome.code}, signal=${String(outcome.signal)})`,
+        );
+      }
+      throw new Error(
+        `electronApp.firstWindow timed out after ${firstWindowTimeoutMs}ms before BrowserWindow creation`,
+      );
+    }
+    const window = outcome.window;
     window.on('console', (msg) => {
       console.log('[renderer]', msg.type(), msg.text());
     });

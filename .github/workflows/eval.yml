@@ -259,7 +259,7 @@ jobs:
           BLACKSKIES_E2E_TIMELINE_PATH: ci_artifacts/playwright_diagnostics/canary-timeline.json
         run: |
           set -o pipefail
-          xvfb-run -a pnpm test:e2e 2>&1 | tee ci_artifacts/playwright_diagnostics/canary.log
+          xvfb-run -a pnpm test:e2e -- --workers=1 2>&1 | tee ci_artifacts/playwright_diagnostics/canary.log
       - name: Build renderer and main bundles for full suite
         run: |
           pnpm --filter app build:renderer

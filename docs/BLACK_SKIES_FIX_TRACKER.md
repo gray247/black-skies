@@ -278,6 +278,12 @@ Truth lane path appears intentionally separated (`scripts/truth-with-backend.mjs
 - Playwright diagnostic artifacts are now uploaded with `if: always()` in `eval.yml` so canary/full logs and timeline are preserved even on early failure.
 - New CI finding (2026-04-24): canary proved backend never starts in `app-e2e` when the job lacks Python dependency install; launcher invokes `python3 -m uvicorn ...` and exits immediately with `/usr/bin/python3: No module named uvicorn`.
 - The observed health-check timeout (`Backend did not respond ... within 30000ms`) is downstream noise from the missing `uvicorn` interpreter dependency, not the root failure.
+- Backend dependency issue is now addressed in workflow setup (`setup-python` + lockfile pip install + uvicorn preflight checks).
+- New blocker (2026-04-24): canary now reaches Electron harness launch but fails before UI readiness because `electronApp.firstWindow()` times out waiting for a BrowserWindow event.
+- Diagnostic split now required:
+  - if `--workers=1` passes and default workers fail, Electron launches are contending in parallel runs;
+  - if `--workers=1` still fails, a single Electron launch cannot create first window in CI.
+- Artifact requirement expanded: first-window timeout paths must include Electron launch diagnostics (entrypoint/path/env/process/exit/stdout/stderr/window-count).
 
 #### Actions
 - Use canary logs + timeline as the first triage source before opening spec-level fixes.
@@ -294,11 +300,17 @@ Truth lane path appears intentionally separated (`scripts/truth-with-backend.mjs
 - 2026-04-24 - Codex - Linked the new runbook from `docs/tests.md` under harness-driven lane guidance.
 - 2026-04-24 - Codex - Verified local early-failure diagnostics behavior: with `BLACKSKIES_E2E_TIMELINE_PATH=ci_artifacts/playwright_diagnostics/local-canary-timeline.json`, launcher failure (`listen EPERM 127.0.0.1:9999`) still emitted timeline JSON containing startup/error/cleanup events.
 - 2026-04-24 - Codex - Incorporated CI root-cause fix for missing backend runtime dependency in `app-e2e`: added Python setup + pip dependency install from lockfiles and explicit `uvicorn` preflight check (`python3 -m uvicorn --help`, version import) before canary run.
+- 2026-04-24 - Codex - Added Electron first-window diagnostic guardrails in `app/tests/e2e/_electron.fixture.ts`:
+  - race `firstWindow` against process-exit and timeout,
+  - emit structured diagnostics on failure including pid/exit/code/signal/stdout/stderr, launch entrypoint/path checks, env snapshot, and current window count.
+- 2026-04-24 - Codex - Updated `app-e2e` canary command to force serial launch temporarily (`pnpm test:e2e -- --workers=1`) for contention split.
+- 2026-04-24 - Codex - Confirmed `app/main/main.ts` already skips single-instance lock enforcement when `PLAYWRIGHT=1`; no lock-policy change applied in this pass.
 
 #### Verification
 - Partial:
   - local evidence confirms timeline artifact writes on pre-backend launcher failure,
-  - CI evidence is still required for canary rerun confirming backend startup path now reaches health checks with `uvicorn` available.
+  - CI evidence is still required for canary rerun confirming backend startup path now reaches health checks with `uvicorn` available,
+  - CI evidence is still required to classify first-window blocker as parallel contention vs single-launch failure.
 
 ---
 
