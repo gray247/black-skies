@@ -294,12 +294,17 @@ Truth lane path appears intentionally separated (`scripts/truth-with-backend.mjs
 - Latest canary transition (2026-04-24): backend healthy + Electron window + renderer boot + project-loaded debug event all occur, but harness still times out in `_bootstrap.waitForProjectLoaded`.
 - Current blocker has shifted to readiness-contract mismatch: project-loaded signal/log fires before (or without) the committed UI/state marker expected by the bootstrap predicate.
 - New canary diagnostics (2026-04-24) show `waitForProjectLoaded` timeout payloads with:
-  - `testNeedsRecovery=1`,
+  - initially `testNeedsRecovery=1` (first regression snapshot),
+  - then `testNeedsRecovery` cleared but failures persisted,
   - `projectLoaded=0`,
   - subtitle `No project loaded`,
-  - visible recovery banner across canary flows.
-- Root cause for this regression path: `app/main/preload.ts` was force-setting `data-test-needs-recovery=1` for all Playwright harness launches when harness hooks were enabled, overriding normal project-load readiness.
-- Fix applied: preload now only applies forced recovery dataset when explicit env `BLACKSKIES_TEST_NEEDS_RECOVERY=1` is set; default canary/harness launches no longer auto-force recovery mode.
+  - and no committed `projectPath`/`projectId` despite `[dbg:project.loaded]` firing.
+- Confirmed two-part regression chain:
+  1) `app/main/preload.ts` force-set `data-test-needs-recovery=1` for harness launches (fixed),
+  2) `test:set-project` event emitted/observed debug logs but did not commit project state in renderer.
+- Fixes applied:
+  - preload now only applies forced recovery dataset when explicit env `BLACKSKIES_TEST_NEEDS_RECOVERY=1` is set;
+  - renderer now handles `test:set-project` by loading via `projectLoader.loadProject(...)` and calling `activateProject(...)`, with race guards and diagnostics (`[dbg:project.bridge.load.start|done|error|exception]`).
 
 #### Actions
 - Use canary logs + timeline as the first triage source before opening spec-level fixes.
@@ -345,12 +350,16 @@ Truth lane path appears intentionally separated (`scripts/truth-with-backend.mjs
 - 2026-04-24 - Codex - Fixed preload recovery-flag injection regression:
   - gated `data-test-needs-recovery=1` forcing behind explicit `BLACKSKIES_TEST_NEEDS_RECOVERY=1`,
   - removed implicit forced-recovery behavior for normal Playwright harness startups.
+- 2026-04-24 - Codex - Fixed harness project-commit gap after `test:set-project`:
+  - added renderer-side bridge handler that resolves the project path through `projectLoader.loadProject`,
+  - commits loaded project via `activateProject`,
+  - added request-order/race guard and debug breadcrumbs for load start/success/failure.
 
 #### Verification
 - Partial:
   - local evidence confirms timeline artifact writes on pre-backend launcher failure,
   - CI evidence is still required for canary rerun confirming artifact-preflight now passes and launch reaches Electron window creation path,
-  - CI evidence is still required to confirm `waitForProjectLoaded` converges on committed state markers without forced recovery in default canary startup.
+  - CI evidence is still required to confirm `waitForProjectLoaded` converges on committed state markers after `test:set-project`-to-`activateProject` wiring.
 
 ---
 

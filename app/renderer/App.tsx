@@ -485,6 +485,7 @@ export default function App(): JSX.Element {
   const [currentProject, setCurrentProject] = useState<TrackedLoadedProject | null>(null);
   const currentProjectRef = useRef<LoadedProject | null>(null);
   const pendingSceneSelectionRef = useRef<string | null>(null);
+  const testSetProjectLoadRequestRef = useRef(0);
   const isVisualHomeMode = isVisualMode && currentProject === null;
   useEffect(() => {
     currentProjectRef.current = currentProject;
@@ -1525,6 +1526,66 @@ export default function App(): JSX.Element {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [activateProject, resetProjectState, updateLastProjectPath],
   );
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const handleTestSetProjectLoad = (event: Event) => {
+      const detail = (event as CustomEvent<string | null | undefined>).detail;
+      if (typeof detail !== "string" || detail.trim().length === 0) {
+        return;
+      }
+      const projectPath = detail.trim();
+      const loader = window.projectLoader;
+      if (!loader?.loadProject) {
+        console.warn("[dbg:project.bridge.load.missing-loader]", projectPath);
+        return;
+      }
+      const requestId = testSetProjectLoadRequestRef.current + 1;
+      testSetProjectLoadRequestRef.current = requestId;
+      console.log("[dbg:project.bridge.load.start]", projectPath);
+      void loader
+        .loadProject({ path: projectPath })
+        .then((response) => {
+          if (!isMountedRef.current || requestId !== testSetProjectLoadRequestRef.current) {
+            return;
+          }
+          if (response?.ok) {
+            console.log("[dbg:project.bridge.load.done]", projectPath);
+            activateProject(response.project);
+            return;
+          }
+          const message =
+            response?.error?.message ?? "Harness project load failed for test:set-project";
+          console.warn("[dbg:project.bridge.load.error]", projectPath, message);
+          pushToast({
+            tone: "warning",
+            title: "Harness project load failed",
+            description: message,
+            traceId: response?.traceId ?? response?.error?.traceId,
+          });
+        })
+        .catch((error: unknown) => {
+          if (!isMountedRef.current || requestId !== testSetProjectLoadRequestRef.current) {
+            return;
+          }
+          const message = error instanceof Error ? error.message : String(error);
+          console.error("[dbg:project.bridge.load.exception]", projectPath, message);
+          pushToast({
+            tone: "error",
+            title: "Harness project load threw",
+            description: message,
+          });
+        });
+    };
+
+    window.addEventListener("test:set-project", handleTestSetProjectLoad);
+    return () => {
+      window.removeEventListener("test:set-project", handleTestSetProjectLoad);
+    };
+  }, [activateProject, isMountedRef, pushToast]);
 
   const handleActiveSceneChange = useCallback((payload: ActiveScenePayload | null) => {
     if (!payload) {
