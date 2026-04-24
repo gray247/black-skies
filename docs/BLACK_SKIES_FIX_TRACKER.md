@@ -286,6 +286,11 @@ Truth lane path appears intentionally separated (`scripts/truth-with-backend.mjs
 - Artifact requirement expanded: first-window timeout paths must include Electron launch diagnostics (entrypoint/path/env/process/exit/stdout/stderr/window-count).
 - Latest canary transition (2026-04-24): backend now starts and health checks pass, but launcher failed before test execution due Playwright arg forwarding (`No tests found`) when pnpm separator `--` was forwarded as a positional pattern.
 - Current blocker for this specific run is launcher argument synthesis, not backend startup and not Electron/UI readiness.
+- Backend dependency issue is resolved and canary now reaches backend healthy state.
+- Launcher arg-forwarding issue is resolved (separator forwarding no longer expected).
+- Latest canary classification disproves parallel contention for this failure: both serial and default canaries failed (`classification=single_launch_failure`).
+- Current proven blocker: missing Electron build artifacts in canary path (`app/dist-electron/main/main.js`, `app/dist/index.html`) before Playwright launch.
+- `electronApp.firstWindow` timeout is downstream noise when packaged entry/renderer output are absent; no BrowserWindow can be created in that state.
 
 #### Actions
 - Use canary logs + timeline as the first triage source before opening spec-level fixes.
@@ -320,12 +325,17 @@ Truth lane path appears intentionally separated (`scripts/truth-with-backend.mjs
   - asserts canary logs contain normalized Playwright command form (no forwarded standalone `--` tail),
   - writes `ci_artifacts/playwright_diagnostics/canary-classification.json`,
   - fails hard on serial-canary failure; flags default-only failure as contention-suspected.
+- 2026-04-24 - Codex - Added explicit Electron artifact contract enforcement for canary:
+  - `app-e2e` workflow now builds renderer/main artifacts before canary (`pnpm --dir app run build:renderer`, `pnpm --dir app run build:main`),
+  - workflow preflight asserts `app/dist-electron/main/main.js` and `app/dist/index.html` exist,
+  - `scripts/e2e-with-backend.mjs` now fails early with `missing Electron build artifacts` before Playwright launch if artifacts are absent.
+- 2026-04-24 - Codex - Hardened Playwright fixtures to avoid silent CI fallback to `app/main/main.ts` when packaged artifacts are missing; CI/Playwright mode now fails fast with explicit artifact paths.
 
 #### Verification
 - Partial:
   - local evidence confirms timeline artifact writes on pre-backend launcher failure,
-  - CI evidence is still required for canary rerun confirming backend startup path now reaches health checks with `uvicorn` available,
-  - CI evidence is still required to confirm the launcher no longer forwards separator args and canary reaches test execution.
+  - CI evidence is still required for canary rerun confirming artifact-preflight now passes and launch reaches Electron window creation path,
+  - CI evidence is still required to confirm first-window timeouts disappear once packaged artifacts are present at canary start.
 
 ---
 

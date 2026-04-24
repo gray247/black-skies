@@ -60,6 +60,36 @@ function resetPersistedHarnessState(repoRoot: string): void {
   }
 }
 
+function requireElectronBuildArtifacts(params: {
+  packagedEntry: string;
+  packagedEntryExists: boolean;
+  rendererIndex: string;
+  rendererIndexExists: boolean;
+  devFallback: string;
+  strict: boolean;
+}): void {
+  const {
+    packagedEntry,
+    packagedEntryExists,
+    rendererIndex,
+    rendererIndexExists,
+    devFallback,
+    strict,
+  } = params;
+  if (packagedEntryExists && rendererIndexExists) {
+    return;
+  }
+  const message =
+    '[electron.fixture] missing Electron build artifacts: ' +
+    `packagedEntry=${packagedEntry} exists=${packagedEntryExists}, ` +
+    `rendererIndex=${rendererIndex} exists=${rendererIndexExists}, ` +
+    `devFallback=${devFallback}. Run app build:renderer and app build:main before e2e.`;
+  if (strict) {
+    throw new Error(message);
+  }
+  console.warn(message);
+}
+
 export const test = base.extend<Fixtures>({
   electronApp: async ({}, use) => {
     const useExternalService = process.env.BLACKSKIES_E2E_EXTERNAL_SERVICE === '1';
@@ -69,9 +99,19 @@ export const test = base.extend<Fixtures>({
     const devFallback = path.resolve(appDir, 'main', 'main.ts');
     const packagedEntryExists = fs.existsSync(packagedEntry);
     const devFallbackExists = fs.existsSync(devFallback);
-    const entryPoint = packagedEntryExists ? packagedEntry : devFallback;
     const rendererIndex = path.resolve(appDir, 'dist', 'index.html');
     const rendererIndexExists = fs.existsSync(rendererIndex);
+    const strictPackagedArtifacts =
+      process.env.CI === 'true' || process.env.PLAYWRIGHT === '1';
+    requireElectronBuildArtifacts({
+      packagedEntry,
+      packagedEntryExists,
+      rendererIndex,
+      rendererIndexExists,
+      devFallback,
+      strict: strictPackagedArtifacts,
+    });
+    const entryPoint = packagedEntryExists ? packagedEntry : devFallback;
     const rendererUrl = rendererIndexExists ? pathToFileURL(rendererIndex).toString() : undefined;
     const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'blackskies-e2e-userdata-'));
     const disableAnimations = process.env.PLAYWRIGHT_DISABLE_ANIMATIONS === '1' || !!process.env.CI;

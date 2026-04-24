@@ -28,6 +28,36 @@ function resetPersistedHarnessState(repoRoot: string): void {
   }
 }
 
+function requireElectronBuildArtifacts(params: {
+  packagedEntry: string;
+  packagedEntryExists: boolean;
+  rendererIndex: string;
+  rendererIndexExists: boolean;
+  devFallback: string;
+  strict: boolean;
+}): void {
+  const {
+    packagedEntry,
+    packagedEntryExists,
+    rendererIndex,
+    rendererIndexExists,
+    devFallback,
+    strict,
+  } = params;
+  if (packagedEntryExists && rendererIndexExists) {
+    return;
+  }
+  const message =
+    '[electron.launch] missing Electron build artifacts: ' +
+    `packagedEntry=${packagedEntry} exists=${packagedEntryExists}, ` +
+    `rendererIndex=${rendererIndex} exists=${rendererIndexExists}, ` +
+    `devFallback=${devFallback}. Run app build:renderer and app build:main before e2e.`;
+  if (strict) {
+    throw new Error(message);
+  }
+  console.warn(message);
+}
+
 export const test = base.extend<AppFixtures>({
   tmpProjectDir: async ({}, use) => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'blackskies-e2e-'));
@@ -43,9 +73,21 @@ export const test = base.extend<AppFixtures>({
     const repoRoot = path.resolve(appDir, '..');
     const packagedEntry = path.resolve(appDir, 'dist-electron', 'main', 'main.js');
     const devFallback = path.resolve(appDir, 'main', 'main.ts');
-    const entryPoint = fs.existsSync(packagedEntry) ? packagedEntry : devFallback;
+    const packagedEntryExists = fs.existsSync(packagedEntry);
     const rendererIndex = path.resolve(appDir, 'dist', 'index.html');
-    const rendererUrl = fs.existsSync(rendererIndex)
+    const rendererIndexExists = fs.existsSync(rendererIndex);
+    const strictPackagedArtifacts =
+      process.env.CI === 'true' || process.env.PLAYWRIGHT === '1';
+    requireElectronBuildArtifacts({
+      packagedEntry,
+      packagedEntryExists,
+      rendererIndex,
+      rendererIndexExists,
+      devFallback,
+      strict: strictPackagedArtifacts,
+    });
+    const entryPoint = packagedEntryExists ? packagedEntry : devFallback;
+    const rendererUrl = rendererIndexExists
       ? pathToFileURL(rendererIndex).toString()
       : undefined;
     const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'blackskies-e2e-userdata-'));

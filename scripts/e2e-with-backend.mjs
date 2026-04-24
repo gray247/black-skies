@@ -105,6 +105,28 @@ function assertArgNormalization() {
 }
 export { normalizeForwardedArgs, buildPlaywrightArgs };
 
+function assertElectronBuildArtifacts() {
+  const appDir = path.resolve(REPO_ROOT, 'app');
+  const packagedEntry = path.resolve(appDir, 'dist-electron', 'main', 'main.js');
+  const rendererIndex = path.resolve(appDir, 'dist', 'index.html');
+  const packagedEntryExists = existsSync(packagedEntry);
+  const rendererIndexExists = existsSync(rendererIndex);
+  console.log('[e2e] artifact preflight', {
+    appDir,
+    packagedEntry,
+    packagedEntryExists,
+    rendererIndex,
+    rendererIndexExists,
+  });
+  if (!packagedEntryExists || !rendererIndexExists) {
+    throw new Error(
+      `[e2e] missing Electron build artifacts: packagedEntry=${packagedEntry} exists=${packagedEntryExists}, ` +
+        `rendererIndex=${rendererIndex} exists=${rendererIndexExists}. ` +
+        'Run `pnpm --dir app run build:renderer` and `pnpm --dir app run build:main` before e2e.',
+    );
+  }
+}
+
 function recordTimelineEvent(stage, details = {}) {
   if (!TIMELINE_PATH) {
     return;
@@ -303,6 +325,8 @@ async function run() {
       path: HEALTH_PATH,
       timeout_ms: HEALTH_TIMEOUT_MS,
     });
+    assertElectronBuildArtifacts();
+    recordTimelineEvent('artifact_preflight_passed');
     const forwardedArgs = normalizeForwardedArgs(process.argv.slice(2));
     const runFullSuite = process.env.FULL_ANALYTICS_E2E === '1';
     const playwrightBin = path.resolve(

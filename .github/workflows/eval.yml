@@ -205,6 +205,16 @@ jobs:
           sudo apt-get install -y xvfb
       - name: Prepare Playwright diagnostics directory
         run: mkdir -p ci_artifacts/playwright_diagnostics
+      - name: Build Electron artifacts for canary
+        run: |
+          pnpm --dir app run build:renderer
+          pnpm --dir app run build:main
+      - name: Verify Electron artifact preflight
+        run: |
+          echo "packagedEntry=app/dist-electron/main/main.js"
+          echo "rendererIndex=app/dist/index.html"
+          test -f app/dist-electron/main/main.js
+          test -f app/dist/index.html
       - name: Write app-e2e diagnostic environment manifest
         run: |
           python - <<'PY'
@@ -354,9 +364,7 @@ jobs:
           fi
       - name: Build renderer and main bundles for full suite
         if: steps.canary_serial.outcome == 'success'
-        run: |
-          pnpm --filter app build:renderer
-          pnpm --filter app build:main
+        run: echo "Canary prebuild already produced renderer/main artifacts."
       - name: Run HARNESS_ONLY Playwright full suite
         if: steps.canary_serial.outcome == 'success'
         env:
