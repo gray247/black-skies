@@ -1089,6 +1089,9 @@ export default function App(): JSX.Element {
 
   const activateProject = useCallback(
     (project: LoadedProject, options?: { preserveSceneId?: string | null }) => {
+      if (typeof window !== "undefined") {
+        console.log("[dbg:project.commit.start]", project.path);
+      }
       if (!isPlaywrightEnv) {
         console.info("[App] activateProject", {
           path: project.path,
@@ -1620,6 +1623,64 @@ export default function App(): JSX.Element {
   }, [activateProject, floatingProjectPath, isFloatingHost, isMountedRef, pushToast]);
 
   const projectLabel = useMemo(() => projectSummary?.path ?? "No project loaded", [projectSummary]);
+  useEffect(() => {
+    if (typeof document === "undefined") {
+      return;
+    }
+    const html = document.documentElement;
+    const body = document.body;
+    const target = body ?? html;
+    if (!target) {
+      return;
+    }
+    const pathValue = projectSummary?.path ?? "";
+    const projectIdValue = projectSummary?.projectId ?? "";
+    const loaded = pathValue.length > 0 ? "1" : "0";
+    target.dataset.projectLoaded = loaded;
+    if (html && html !== target) {
+      html.dataset.projectLoaded = loaded;
+    }
+    if (pathValue) {
+      target.dataset.projectPath = pathValue;
+      if (html && html !== target) {
+        html.dataset.projectPath = pathValue;
+      }
+    } else {
+      delete target.dataset.projectPath;
+      if (html && html !== target) {
+        delete html.dataset.projectPath;
+      }
+    }
+    if (projectIdValue) {
+      target.dataset.projectId = projectIdValue;
+      if (html && html !== target) {
+        html.dataset.projectId = projectIdValue;
+      }
+    } else {
+      delete target.dataset.projectId;
+      if (html && html !== target) {
+        delete html.dataset.projectId;
+      }
+    }
+    if (typeof window !== "undefined") {
+      (
+        window as typeof window & {
+          __testProjectState?: {
+            loaded: boolean;
+            path: string | null;
+            projectId: string | null;
+            label: string;
+          };
+        }
+      ).__testProjectState = {
+        loaded: loaded === "1",
+        path: pathValue || null,
+        projectId: projectIdValue || null,
+        label: projectLabel,
+      };
+      console.log("[dbg:project.commit.done]", pathValue || "null");
+    }
+  }, [projectLabel, projectSummary?.path, projectSummary?.projectId]);
   const testRecoveryStatusOverride = useMemo(() => {
     if (!isSnapshotRestoreFlowActive || recoveryStatus) {
       return null;
@@ -1854,9 +1915,25 @@ export default function App(): JSX.Element {
     }
     return stableDockPropsRef.current ?? dockWorkspaceProps;
   }, [dockWorkspaceProps, isStableDockMode]);
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    console.log("[dbg:dock.projectPath]", resolvedDockWorkspaceProps.projectPath ?? "null");
+  }, [resolvedDockWorkspaceProps.projectPath]);
 
   const stableHomeBody = renderProjectHome();
   const shouldRenderDockWorkspace = dockingEnabled && (!isVisualHomeMode || Boolean(projectSummary));
+  useEffect(() => {
+    if (typeof document === "undefined") {
+      return;
+    }
+    const action = document.querySelector('[data-testid="workspace-action-generate"]') as
+      | HTMLButtonElement
+      | null;
+    const enabled = Boolean(action && !action.disabled);
+    console.log("[dbg:workspace.actions]", JSON.stringify({ generateEnabled: enabled }));
+  }, [projectSummary?.path, shouldRenderDockWorkspace]);
 
   const fullWorkspaceBody = isStableHomeMode
     ? stableHomeBody

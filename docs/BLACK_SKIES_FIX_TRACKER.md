@@ -291,6 +291,8 @@ Truth lane path appears intentionally separated (`scripts/truth-with-backend.mjs
 - Latest canary classification disproves parallel contention for this failure: both serial and default canaries failed (`classification=single_launch_failure`).
 - Current proven blocker: missing Electron build artifacts in canary path (`app/dist-electron/main/main.js`, `app/dist/index.html`) before Playwright launch.
 - `electronApp.firstWindow` timeout is downstream noise when packaged entry/renderer output are absent; no BrowserWindow can be created in that state.
+- Latest canary transition (2026-04-24): backend healthy + Electron window + renderer boot + project-loaded debug event all occur, but harness still times out in `_bootstrap.waitForProjectLoaded`.
+- Current blocker has shifted to readiness-contract mismatch: project-loaded signal/log fires before (or without) the committed UI/state marker expected by the bootstrap predicate.
 
 #### Actions
 - Use canary logs + timeline as the first triage source before opening spec-level fixes.
@@ -330,12 +332,15 @@ Truth lane path appears intentionally separated (`scripts/truth-with-backend.mjs
   - workflow preflight asserts `app/dist-electron/main/main.js` and `app/dist/index.html` exist,
   - `scripts/e2e-with-backend.mjs` now fails early with `missing Electron build artifacts` before Playwright launch if artifacts are absent.
 - 2026-04-24 - Codex - Hardened Playwright fixtures to avoid silent CI fallback to `app/main/main.ts` when packaged artifacts are missing; CI/Playwright mode now fails fast with explicit artifact paths.
+- 2026-04-24 - Codex - Added committed project-state readiness markers in renderer (`data-project-loaded`, `data-project-path`, `data-project-id`) plus debug instrumentation (`[dbg:project.commit.start]`, `[dbg:project.commit.done]`, `[dbg:dock.projectPath]`, `[dbg:workspace.actions]`).
+- 2026-04-24 - Codex - Updated `_bootstrap.waitForProjectLoaded` to wait on committed marker + subtitle and emit structured timeout diagnostics for mode/path/subtitle/dock/actions/recovery/body+html datasets/debug project state.
+- 2026-04-24 - Codex - Reordered harness bootstrap seeding so `__testEnvAutoSeedProjectSummary` defaults are set before `__dev.setProjectDir`, reducing pre-commit timing mismatch risk.
 
 #### Verification
 - Partial:
   - local evidence confirms timeline artifact writes on pre-backend launcher failure,
   - CI evidence is still required for canary rerun confirming artifact-preflight now passes and launch reaches Electron window creation path,
-  - CI evidence is still required to confirm first-window timeouts disappear once packaged artifacts are present at canary start.
+  - CI evidence is still required to confirm `waitForProjectLoaded` converges on committed state markers and no longer times out after project-loaded debug events.
 
 ---
 

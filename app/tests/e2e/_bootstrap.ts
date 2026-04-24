@@ -78,20 +78,93 @@ async function waitForProjectLoaded(
     await waitForHarnessMode(page, timeoutMs);
   }
 
-  await page.waitForFunction(
-    () => {
-      const bodyMode = document.body?.dataset?.testMode;
-      if (bodyMode !== 'flat' && bodyMode !== 'full' && bodyMode !== 'recovery') {
-        return false;
-      }
+  try {
+    await page.waitForFunction(
+      () => {
+        const bodyMode = document.body?.dataset?.testMode;
+        const htmlMode = document.documentElement?.dataset?.testMode;
+        const mode = bodyMode ?? htmlMode;
+        if (mode !== 'flat' && mode !== 'full' && mode !== 'recovery') {
+          return false;
+        }
 
-      const subtitle = document.querySelector('.app-shell__workspace-subtitle');
-      const projectLabel = subtitle?.textContent?.trim() ?? '';
-      return Boolean(projectLabel) && projectLabel !== 'No project loaded';
-    },
-    null,
-    { timeout: timeoutMs },
-  );
+        const subtitle = document.querySelector('.app-shell__workspace-subtitle');
+        const projectLabel = subtitle?.textContent?.trim() ?? '';
+        const bodyLoaded = document.body?.dataset?.projectLoaded;
+        const htmlLoaded = document.documentElement?.dataset?.projectLoaded;
+        const loaded = bodyLoaded ?? htmlLoaded;
+        const bodyPath = document.body?.dataset?.projectPath ?? '';
+        const htmlPath = document.documentElement?.dataset?.projectPath ?? '';
+        const committedPath = bodyPath || htmlPath;
+        return (
+          loaded === '1' &&
+          Boolean(committedPath) &&
+          Boolean(projectLabel) &&
+          projectLabel !== 'No project loaded'
+        );
+      },
+      null,
+      { timeout: timeoutMs },
+    );
+  } catch (error) {
+    const diagnostics = await page.evaluate(() => {
+      const subtitle = document.querySelector('.app-shell__workspace-subtitle') as HTMLElement | null;
+      const dock = document.querySelector('[data-testid="dock-workspace"]') as HTMLElement | null;
+      const generate = document.querySelector('[data-testid="workspace-action-generate"]') as
+        | HTMLButtonElement
+        | null;
+      const openProject = document.querySelector('[data-testid="open-project"]') as
+        | HTMLButtonElement
+        | null;
+      const recoveryBanner = document.querySelector('[data-testid="recovery-banner"]') as HTMLElement | null;
+      const isVisible = (element: HTMLElement | null): boolean => {
+        if (!element) {
+          return false;
+        }
+        const style = window.getComputedStyle(element);
+        return style.display !== 'none' && style.visibility !== 'hidden';
+      };
+      const bodyDataset = { ...(document.body?.dataset ?? {}) };
+      const htmlDataset = { ...(document.documentElement?.dataset ?? {}) };
+      const dockPathFromDataset =
+        dock?.getAttribute('data-project-path') ??
+        dock?.dataset?.projectPath ??
+        dock?.dataset?.path ??
+        null;
+      const debugState = (
+        window as typeof window & {
+          __testProjectState?: unknown;
+          __blackskiesDebugLog?: unknown;
+        }
+      ).__testProjectState;
+      return {
+        testModeBody: document.body?.dataset?.testMode ?? null,
+        testModeHtml: document.documentElement?.dataset?.testMode ?? null,
+        projectLoadedBody: document.body?.dataset?.projectLoaded ?? null,
+        projectLoadedHtml: document.documentElement?.dataset?.projectLoaded ?? null,
+        projectPathBody: document.body?.dataset?.projectPath ?? null,
+        projectPathHtml: document.documentElement?.dataset?.projectPath ?? null,
+        projectIdBody: document.body?.dataset?.projectId ?? null,
+        projectIdHtml: document.documentElement?.dataset?.projectId ?? null,
+        projectSubtitle: subtitle?.textContent?.trim() ?? null,
+        dockWorkspacePresent: Boolean(dock),
+        dockWorkspaceVisible: isVisible(dock),
+        dockWorkspaceProjectPath: dockPathFromDataset,
+        openProjectVisible: isVisible(openProject),
+        workspaceActionGenerateVisible: isVisible(generate),
+        workspaceActionGenerateEnabled: Boolean(generate && !generate.disabled),
+        recoveryBannerPresent: Boolean(recoveryBanner),
+        recoveryBannerVisible: isVisible(recoveryBanner),
+        bodyDataset,
+        htmlDataset,
+        debugProjectState: debugState ?? null,
+      };
+    });
+    throw new Error(
+      `waitForProjectLoaded did not converge within ${timeoutMs}ms: ${JSON.stringify(diagnostics)}` +
+        (error instanceof Error ? ` cause="${error.message}"` : ''),
+    );
+  }
 
   return waitForHarnessMode(page, timeoutMs);
 }
@@ -120,12 +193,6 @@ export async function bootstrapHarness(
   });
 
   const { projectRoot: sampleProjectPath, projectId: sampleProjectId } = loadSampleProject();
-  await page.evaluate((projectPath) => {
-    const win = window as typeof window & {
-      __dev?: { setProjectDir?: (path: string | null) => void | Promise<void> };
-    };
-    return Promise.resolve(win.__dev?.setProjectDir?.(projectPath ?? null));
-  }, sampleProjectPath);
   await page.evaluate(
     ({ projectId, projectPath }: { projectId: string; projectPath: string }) => {
       const win = window as typeof window & {
@@ -141,6 +208,12 @@ export async function bootstrapHarness(
     },
     { projectId: sampleProjectId, projectPath: sampleProjectPath },
   );
+  await page.evaluate((projectPath) => {
+    const win = window as typeof window & {
+      __dev?: { setProjectDir?: (path: string | null) => void | Promise<void> };
+    };
+    return Promise.resolve(win.__dev?.setProjectDir?.(projectPath ?? null));
+  }, sampleProjectPath);
 
   const openProject = page.getByTestId('open-project');
   if (await openProject.isVisible({ timeout: 10_000 }).catch(() => false)) {
