@@ -276,6 +276,8 @@ Truth lane path appears intentionally separated (`scripts/truth-with-backend.mjs
 - CI now emits an environment manifest for lane-level reproducibility in:
   `ci_artifacts/playwright_diagnostics/env-manifest.json`.
 - Playwright diagnostic artifacts are now uploaded with `if: always()` in `eval.yml` so canary/full logs and timeline are preserved even on early failure.
+- New CI finding (2026-04-24): canary proved backend never starts in `app-e2e` when the job lacks Python dependency install; launcher invokes `python3 -m uvicorn ...` and exits immediately with `/usr/bin/python3: No module named uvicorn`.
+- The observed health-check timeout (`Backend did not respond ... within 30000ms`) is downstream noise from the missing `uvicorn` interpreter dependency, not the root failure.
 
 #### Actions
 - Use canary logs + timeline as the first triage source before opening spec-level fixes.
@@ -291,11 +293,12 @@ Truth lane path appears intentionally separated (`scripts/truth-with-backend.mjs
 - 2026-04-24 - Codex - Added timeline instrumentation to `scripts/e2e-with-backend.mjs` for launch/backend/playwright milestones written to JSON.
 - 2026-04-24 - Codex - Linked the new runbook from `docs/tests.md` under harness-driven lane guidance.
 - 2026-04-24 - Codex - Verified local early-failure diagnostics behavior: with `BLACKSKIES_E2E_TIMELINE_PATH=ci_artifacts/playwright_diagnostics/local-canary-timeline.json`, launcher failure (`listen EPERM 127.0.0.1:9999`) still emitted timeline JSON containing startup/error/cleanup events.
+- 2026-04-24 - Codex - Incorporated CI root-cause fix for missing backend runtime dependency in `app-e2e`: added Python setup + pip dependency install from lockfiles and explicit `uvicorn` preflight check (`python3 -m uvicorn --help`, version import) before canary run.
 
 #### Verification
 - Partial:
   - local evidence confirms timeline artifact writes on pre-backend launcher failure,
-  - CI evidence is still required for canary/full-sequence artifact integrity.
+  - CI evidence is still required for canary rerun confirming backend startup path now reaches health checks with `uvicorn` available.
 
 ---
 

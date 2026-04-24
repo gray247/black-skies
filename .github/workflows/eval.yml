@@ -150,6 +150,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements*.lock', 'constraints.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
       - name: Set up Node
         uses: actions/setup-node@v5
         with:
@@ -171,7 +182,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
       - name: Install dependencies
-        run: pnpm install --recursive --no-frozen-lockfile
+        run: |
+          python -m pip install --upgrade pip
+          pip install -c constraints.txt -r requirements.lock -r requirements.dev.lock
+          pnpm install --recursive --no-frozen-lockfile
+      - name: Verify backend runtime dependency (uvicorn)
+        run: |
+          python3 -m uvicorn --help > /dev/null
+          python3 -c "import uvicorn; print(uvicorn.__version__)"
       - name: Cache Playwright browsers
         uses: actions/cache@v4
         with:
