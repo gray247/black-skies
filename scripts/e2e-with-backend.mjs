@@ -13,15 +13,97 @@ const __dirname = path.dirname(__filename);
 const SERVICE_PORT = 9999;
 const HEALTH_PATH = `/api/v1/healthz`;
 const HEALTH_TIMEOUT_MS = 30_000;
-const PLAYWRIGHT_ARGS = [
-  '--project=electron',
-  '--workers=1',
-  '--reporter=list',
-  '--trace=on',
-];
+const PLAYWRIGHT_BASE_ARGS = ['--project=electron', '--reporter=list', '--trace=on'];
+const DEFAULT_PLAYWRIGHT_WORKERS_ARG = '--workers=1';
+const DEFAULT_SMOKE_TEST_FILES = ['gui.flows.spec.ts', 'dock-workspace.spec.ts'];
 const REPO_ROOT = path.resolve(__dirname, '..');
 const TIMELINE_PATH = process.env.BLACKSKIES_E2E_TIMELINE_PATH?.trim() ?? '';
 const timelineEvents = [];
+
+function normalizeForwardedArgs(rawArgs) {
+  const args = [...rawArgs];
+  if (args[0] === '--') {
+    args.shift();
+  }
+  return args.filter((arg) => arg !== '--');
+}
+
+function hasWorkerFlag(args) {
+  return args.some((arg) => arg === '--workers' || arg.startsWith('--workers='));
+}
+
+function countWorkerFlags(args) {
+  return args.filter((arg) => arg === '--workers' || arg.startsWith('--workers=')).length;
+}
+
+function hasTestSelectors(args) {
+  const optionsWithValues = new Set([
+    '--workers',
+    '--project',
+    '--reporter',
+    '--trace',
+    '--grep',
+    '--grep-invert',
+    '--config',
+    '--retries',
+    '--timeout',
+    '-c',
+    '-g',
+  ]);
+  let expectValueForOption = false;
+  for (const arg of args) {
+    if (expectValueForOption) {
+      expectValueForOption = false;
+      continue;
+    }
+    if (optionsWithValues.has(arg)) {
+      expectValueForOption = true;
+      continue;
+    }
+    if (arg.startsWith('-')) {
+      continue;
+    }
+    return true;
+  }
+  return false;
+}
+
+function buildPlaywrightArgs(forwardedArgs, runFullSuite) {
+  const hasUserWorkers = hasWorkerFlag(forwardedArgs);
+  const selectorsProvided = hasTestSelectors(forwardedArgs);
+  const smokeFilterArgs = runFullSuite || selectorsProvided ? [] : ['--grep', 'smoke_'];
+  const defaultTestFiles = selectorsProvided ? [] : DEFAULT_SMOKE_TEST_FILES;
+  const args = [
+    'test',
+    ...PLAYWRIGHT_BASE_ARGS,
+    ...(hasUserWorkers ? [] : [DEFAULT_PLAYWRIGHT_WORKERS_ARG]),
+    ...smokeFilterArgs,
+    ...defaultTestFiles,
+    ...forwardedArgs,
+  ];
+  if (countWorkerFlags(args) > 1) {
+    throw new Error(
+      `[e2e] invalid playwright arg synthesis: duplicate worker flags in ${JSON.stringify(args)}`,
+    );
+  }
+  return args;
+}
+
+function assertArgNormalization() {
+  const normalizedWithSeparator = normalizeForwardedArgs(['--', '--workers=1']);
+  if (normalizedWithSeparator.length !== 1 || normalizedWithSeparator[0] !== '--workers=1') {
+    throw new Error('[e2e] arg normalization assertion failed for ["--","--workers=1"]');
+  }
+  const normalizedWithoutSeparator = normalizeForwardedArgs(['--workers=1']);
+  if (normalizedWithoutSeparator.length !== 1 || normalizedWithoutSeparator[0] !== '--workers=1') {
+    throw new Error('[e2e] arg normalization assertion failed for ["--workers=1"]');
+  }
+  const noDuplicateWorkers = buildPlaywrightArgs(normalizedWithSeparator, false);
+  if (countWorkerFlags(noDuplicateWorkers) !== 1) {
+    throw new Error('[e2e] arg normalization assertion failed: duplicate worker flags emitted');
+  }
+}
+export { normalizeForwardedArgs, buildPlaywrightArgs };
 
 function recordTimelineEvent(stage, details = {}) {
   if (!TIMELINE_PATH) {
@@ -221,11 +303,8 @@ async function run() {
       path: HEALTH_PATH,
       timeout_ms: HEALTH_TIMEOUT_MS,
     });
-    const tests = process.argv.slice(2);
-    const testFiles = tests.length ? tests : ['gui.flows.spec.ts', 'dock-workspace.spec.ts'];
+    const forwardedArgs = normalizeForwardedArgs(process.argv.slice(2));
     const runFullSuite = process.env.FULL_ANALYTICS_E2E === '1';
-    const smokeFilterArgs =
-      runFullSuite || tests.length > 0 ? [] : ['--grep', 'smoke_'];
     const playwrightBin = path.resolve(
       __dirname,
       '..',
@@ -234,12 +313,7 @@ async function run() {
       '.bin',
       process.platform === 'win32' ? 'playwright.cmd' : 'playwright',
     );
-    const playwrightArgs = [
-      'test',
-      ...PLAYWRIGHT_ARGS,
-      ...smokeFilterArgs,
-      ...testFiles,
-    ];
+    const playwrightArgs = buildPlaywrightArgs(forwardedArgs, runFullSuite);
     const isWindows = process.platform === 'win32';
     const command = isWindows ? 'cmd.exe' : playwrightBin;
     const args = isWindows
@@ -283,7 +357,14 @@ async function run() {
   }
 }
 
-run().catch((error) => {
-  console.error('[e2e] failed', error);
-  process.exitCode = 1;
-});
+const isDirectExecution = process.argv[1]
+  ? path.resolve(process.argv[1]) === __filename
+  : false;
+
+if (isDirectExecution) {
+  assertArgNormalization();
+  run().catch((error) => {
+    console.error('[e2e] failed', error);
+    process.exitCode = 1;
+  });
+}

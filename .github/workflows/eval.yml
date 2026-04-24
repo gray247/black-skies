@@ -250,7 +250,9 @@ jobs:
           path = Path("ci_artifacts/playwright_diagnostics/env-manifest.json")
           path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
           PY
-      - name: Canary fail-fast preflight (backend + smoke subset)
+      - name: Canary preflight (serial workers=1)
+        id: canary_serial
+        continue-on-error: true
         env:
           PLAYWRIGHT_DISABLE_ANIMATIONS: '1'
           PLAYWRIGHT_RETRIES: '0'
@@ -259,12 +261,104 @@ jobs:
           BLACKSKIES_E2E_TIMELINE_PATH: ci_artifacts/playwright_diagnostics/canary-timeline.json
         run: |
           set -o pipefail
-          xvfb-run -a pnpm test:e2e -- --workers=1 2>&1 | tee ci_artifacts/playwright_diagnostics/canary.log
+          xvfb-run -a pnpm test:e2e -- --workers=1 2>&1 | tee ci_artifacts/playwright_diagnostics/canary-serial.log
+      - name: Canary preflight (default launcher workers)
+        id: canary_default
+        continue-on-error: true
+        env:
+          PLAYWRIGHT_DISABLE_ANIMATIONS: '1'
+          PLAYWRIGHT_RETRIES: '0'
+          PLAYWRIGHT_OUTPUT_DIR: app
+          FULL_ANALYTICS_E2E: '0'
+          BLACKSKIES_E2E_TIMELINE_PATH: ci_artifacts/playwright_diagnostics/canary-timeline-default.json
+        run: |
+          set -o pipefail
+          xvfb-run -a pnpm test:e2e 2>&1 | tee ci_artifacts/playwright_diagnostics/canary-default.log
+      - name: Assert normalized Playwright command in canary logs
+        id: assert_canary_command
+        if: always()
+        continue-on-error: true
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          logs = [
+            Path("ci_artifacts/playwright_diagnostics/canary-serial.log"),
+            Path("ci_artifacts/playwright_diagnostics/canary-default.log"),
+          ]
+          for log_path in logs:
+            if not log_path.exists():
+              raise SystemExit(f"missing canary log: {log_path}")
+            text = log_path.read_text(encoding="utf-8", errors="replace")
+            if "[e2e] running" not in text:
+              raise SystemExit(f"canary log missing '[e2e] running': {log_path}")
+            if "'--'," in text:
+              raise SystemExit(f"unexpected separator token forwarded to Playwright in {log_path}")
+            if re.search(r"'--'\s*,\s*'--workers=1'", text):
+              raise SystemExit(f"separator + workers tail found in {log_path}")
+          print("canary command assertions passed")
+          PY
+      - name: Classify canary serial-vs-default outcomes
+        if: always()
+        env:
+          SERIAL_CANARY: ${{ steps.canary_serial.outcome }}
+          DEFAULT_CANARY: ${{ steps.canary_default.outcome }}
+          COMMAND_ASSERT: ${{ steps.assert_canary_command.outcome }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          serial = os.environ.get("SERIAL_CANARY", "unknown")
+          default = os.environ.get("DEFAULT_CANARY", "unknown")
+          command_assert = os.environ.get("COMMAND_ASSERT", "unknown")
+
+          if serial == "success" and default == "success":
+              classification = "healthy"
+          elif serial == "success" and default != "success":
+              classification = "parallel_contention_suspected"
+          elif serial != "success":
+              classification = "single_launch_failure"
+          else:
+              classification = "indeterminate"
+
+          payload = {
+              "serial_canary": serial,
+              "default_canary": default,
+              "command_assertion": command_assert,
+              "classification": classification,
+          }
+          out = Path("ci_artifacts/playwright_diagnostics/canary-classification.json")
+          out.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+          print(json.dumps(payload, indent=2))
+          PY
+      - name: Enforce canary launch gate
+        if: always()
+        env:
+          SERIAL_CANARY: ${{ steps.canary_serial.outcome }}
+          DEFAULT_CANARY: ${{ steps.canary_default.outcome }}
+          COMMAND_ASSERT: ${{ steps.assert_canary_command.outcome }}
+        run: |
+          if [ "$COMMAND_ASSERT" != "success" ]; then
+            echo "Canary command assertion failed."
+            exit 1
+          fi
+          if [ "$SERIAL_CANARY" != "success" ]; then
+            echo "Serial canary failed; single-launch path is not healthy."
+            exit 1
+          fi
+          if [ "$DEFAULT_CANARY" != "success" ]; then
+            echo "Default canary failed while serial passed; contention is suspected."
+          fi
       - name: Build renderer and main bundles for full suite
+        if: steps.canary_serial.outcome == 'success'
         run: |
           pnpm --filter app build:renderer
           pnpm --filter app build:main
       - name: Run HARNESS_ONLY Playwright full suite
+        if: steps.canary_serial.outcome == 'success'
         env:
           PLAYWRIGHT_DISABLE_ANIMATIONS: '1'
           PLAYWRIGHT_RETRIES: '0'

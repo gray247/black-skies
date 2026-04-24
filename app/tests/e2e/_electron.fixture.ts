@@ -6,6 +6,7 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { SERVICE_PORT } from './servicePort';
 import { startServiceStubs, stopServiceStubs } from './utils/serviceStubs';
+import { buildFirstWindowDiagnostics } from './electronFirstWindowDiagnostics';
 
 type Fixtures = {
   electronApp: ElectronApplication;
@@ -223,24 +224,15 @@ export const test = base.extend<Fixtures>({
           exitCode: null,
           exitSignal: null,
         };
-      const diagnostics = {
+      const diagnostics = buildFirstWindowDiagnostics({
         reason: outcome?.kind ?? 'unknown',
         timeoutMs: firstWindowTimeoutMs,
-        electronProcessPid: resolvedProcessState.pid,
-        electronProcessExited: resolvedProcessState.exited,
-        electronExitCode: resolvedProcessState.exitCode,
-        electronExitSignal: resolvedProcessState.exitSignal,
+        processState: resolvedProcessState,
         currentWindowCount: windows.length,
-        appDir: launchContext?.appDir ?? path.resolve(__dirname, '..', '..'),
-        entryPoint: launchContext?.entryPoint ?? null,
-        rendererUrl: launchContext?.rendererUrl ?? null,
-        packagedEntry: launchContext?.packagedEntry ?? null,
-        packagedEntryExists: launchContext?.packagedEntryExists ?? null,
-        devFallback: launchContext?.devFallback ?? null,
-        devFallbackExists: launchContext?.devFallbackExists ?? null,
-        rendererIndex: launchContext?.rendererIndex ?? null,
-        rendererIndexExists: launchContext?.rendererIndexExists ?? null,
-        launchEnv: launchContext?.launchEnv ?? {
+        launchContext,
+        output,
+        fallbackAppDir: path.resolve(__dirname, '..', '..'),
+        fallbackEnv: {
           ELECTRON_RENDERER_URL: process.env.ELECTRON_RENDERER_URL,
           PLAYWRIGHT: process.env.PLAYWRIGHT,
           BLACKSKIES_SERVICES_PORT: process.env.BLACKSKIES_SERVICES_PORT,
@@ -249,9 +241,7 @@ export const test = base.extend<Fixtures>({
           BLACKSKIES_E2E_EXTERNAL_SERVICE: process.env.BLACKSKIES_E2E_EXTERNAL_SERVICE,
           BLACKSKIES_ENABLE_HARNESS_HOOKS: process.env.BLACKSKIES_ENABLE_HARNESS_HOOKS,
         },
-        stdout: output.stdout,
-        stderr: output.stderr,
-      };
+      });
       console.error('[electron.firstWindow.diagnostics]', JSON.stringify(diagnostics, null, 2));
       await testInfo.attach('electron-first-window-diagnostics', {
         body: Buffer.from(`${JSON.stringify(diagnostics, null, 2)}\n`, 'utf-8'),

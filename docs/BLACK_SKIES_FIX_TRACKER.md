@@ -284,6 +284,8 @@ Truth lane path appears intentionally separated (`scripts/truth-with-backend.mjs
   - if `--workers=1` passes and default workers fail, Electron launches are contending in parallel runs;
   - if `--workers=1` still fails, a single Electron launch cannot create first window in CI.
 - Artifact requirement expanded: first-window timeout paths must include Electron launch diagnostics (entrypoint/path/env/process/exit/stdout/stderr/window-count).
+- Latest canary transition (2026-04-24): backend now starts and health checks pass, but launcher failed before test execution due Playwright arg forwarding (`No tests found`) when pnpm separator `--` was forwarded as a positional pattern.
+- Current blocker for this specific run is launcher argument synthesis, not backend startup and not Electron/UI readiness.
 
 #### Actions
 - Use canary logs + timeline as the first triage source before opening spec-level fixes.
@@ -305,12 +307,25 @@ Truth lane path appears intentionally separated (`scripts/truth-with-backend.mjs
   - emit structured diagnostics on failure including pid/exit/code/signal/stdout/stderr, launch entrypoint/path checks, env snapshot, and current window count.
 - 2026-04-24 - Codex - Updated `app-e2e` canary command to force serial launch temporarily (`pnpm test:e2e -- --workers=1`) for contention split.
 - 2026-04-24 - Codex - Confirmed `app/main/main.ts` already skips single-instance lock enforcement when `PLAYWRIGHT=1`; no lock-policy change applied in this pass.
+- 2026-04-24 - Codex - Fixed `scripts/e2e-with-backend.mjs` argument forwarding bug:
+  - strips leading standalone pnpm separator (`--`) before forwarding to Playwright,
+  - preserves default smoke selectors when only option flags are forwarded,
+  - prevents duplicate worker flags when user supplies `--workers`.
+- 2026-04-24 - Codex - Added standalone launcher-arg regression guard `scripts/test_e2e_launcher_args.mjs` (wired as `pnpm test:e2e:args`) to assert separator stripping and worker-flag dedupe behavior.
+- 2026-04-24 - Codex - Added fixture-level diagnostics shape guard:
+  - extracted pure builder `app/tests/e2e/electronFirstWindowDiagnostics.ts`,
+  - added unit test `app/main/__tests__/electronFixtureDiagnostics.test.ts` verifying PID/exit/entrypoint/env/window-count fields are present on first-window failure payloads.
+- 2026-04-24 - Codex - Updated `app-e2e` canary lane with temporary serial-vs-default split and automatic tracking:
+  - runs serial canary (`--workers=1`) and default canary sequentially with per-mode logs,
+  - asserts canary logs contain normalized Playwright command form (no forwarded standalone `--` tail),
+  - writes `ci_artifacts/playwright_diagnostics/canary-classification.json`,
+  - fails hard on serial-canary failure; flags default-only failure as contention-suspected.
 
 #### Verification
 - Partial:
   - local evidence confirms timeline artifact writes on pre-backend launcher failure,
   - CI evidence is still required for canary rerun confirming backend startup path now reaches health checks with `uvicorn` available,
-  - CI evidence is still required to classify first-window blocker as parallel contention vs single-launch failure.
+  - CI evidence is still required to confirm the launcher no longer forwards separator args and canary reaches test execution.
 
 ---
 
