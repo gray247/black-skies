@@ -1154,17 +1154,75 @@ async function run() {
       );
       console.log('[truth] renderer debug snapshot', debugSnapshot);
 
-      console.log('[truth] waiting for generate button to enable');
+      console.log(`[truth] selecting primary scene ${sampleLoadProbe.sceneIds[0]} before action readiness`);
+      const initialSceneSelectionMode = await evaluate(
+        cdp,
+        `(() => {
+          const targetSceneId = ${JSON.stringify(sampleLoadProbe.sceneIds[0])};
+          const buttons = Array.from(document.querySelectorAll('.project-home__scene-button'));
+          const targetButton = buttons.find((button) =>
+            (button.textContent ?? '').includes(targetSceneId),
+          );
+          if (targetButton instanceof HTMLButtonElement) {
+            targetButton.click();
+            return 'button';
+          }
+          window.dispatchEvent(new CustomEvent('test:select-scene', { detail: targetSceneId }));
+          return 'event';
+        })()`,
+      );
+      console.log('[truth] initial scene selection mode', initialSceneSelectionMode);
       await waitForCondition(async () => {
-        const enabled = await evaluate(
+        const hasActiveScene = await evaluate(
+          cdp,
+          `Boolean(document.querySelector('.project-home__scene-card--active .project-home__scene-button[aria-pressed="true"]'))`,
+        );
+        return hasActiveScene === true;
+      }, 30_000, 'active scene selection');
+
+      console.log('[truth] waiting for generate button to enable');
+      try {
+        await waitForCondition(async () => {
+          const enabled = await evaluate(
+            cdp,
+            `(() => {
+              const button = document.querySelector('[data-testid="workspace-action-generate"]');
+              return Boolean(button) && !(button instanceof HTMLButtonElement ? button.disabled : false);
+            })()`,
+          );
+          return enabled === true;
+        }, 30_000, 'generate button enabled');
+      } catch (error) {
+        const generateDiagnostics = await evaluate(
           cdp,
           `(() => {
-            const button = document.querySelector('[data-testid="workspace-action-generate"]');
-            return Boolean(button) && !(button instanceof HTMLButtonElement ? button.disabled : false);
+            const generate = document.querySelector('[data-testid="workspace-action-generate"]') as HTMLButtonElement | null;
+            const critique = document.querySelector('[data-testid="workspace-action-critique"]') as HTMLButtonElement | null;
+            const activeScene = document.querySelector('.project-home__scene-card--active .project-home__scene-button[aria-pressed="true"]');
+            const servicePill = document.querySelector('[data-testid="service-status-pill"]');
+            const body = document.body;
+            const html = document.documentElement;
+            return {
+              generatePresent: Boolean(generate),
+              generateDisabled: generate ? generate.disabled : null,
+              critiquePresent: Boolean(critique),
+              critiqueDisabled: critique ? critique.disabled : null,
+              activeScenePresent: Boolean(activeScene),
+              serviceStatus: servicePill?.getAttribute('data-status') ?? null,
+              projectLoadedBody: body?.dataset?.projectLoaded ?? null,
+              projectLoadedHtml: html?.dataset?.projectLoaded ?? null,
+              projectPathBody: body?.dataset?.projectPath ?? null,
+              projectPathHtml: html?.dataset?.projectPath ?? null,
+              debugProjectState: (window as typeof window & { __blackskiesDebugProjectState?: unknown })
+                .__blackskiesDebugProjectState ?? null,
+            };
           })()`,
         );
-        return enabled === true;
-      }, 30_000, 'generate button enabled');
+        throw new Error(
+          `[truth] Generate action never enabled after scene selection: ${JSON.stringify(generateDiagnostics)}` +
+            (error instanceof Error ? ` cause="${error.message}"` : ''),
+        );
+      }
 
       console.log('[truth] invoking preflight bridge');
       const preflightResult = await evaluate(

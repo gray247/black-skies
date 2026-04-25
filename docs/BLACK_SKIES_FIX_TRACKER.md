@@ -255,11 +255,21 @@ Unresolved repo-wide typing debt and temporary CI scope narrowing.
 # Tier 2 - Fragile Test Systems
 
 ## [4] PASS 4 truth-lane fragility
-- Status: MONITOR
-- Last Updated: 2026-04-21
+- Status: PARTIAL
+- Last Updated: 2026-04-25
 
-#### Notes
-Truth lane path appears intentionally separated (`scripts/truth-with-backend.mjs` sets synthetic/mock flags to `0`). Keep monitoring for drift.
+#### Known Facts
+- Truth lane remains intentionally separated (`scripts/truth-with-backend.mjs` enforces synthetic/mock flags `0`).
+- New reproducible failure (2026-04-25 CI): truth lane timed out waiting for Generate enabled after project load while bridge/service status already showed healthy.
+- Root cause for this failure: script ordering drifted against the hardened renderer action contract. Truth lane waited for Generate enable before selecting an active scene, while Generate now requires project + active scene + online service.
+- Fix applied: truth lane now selects the primary scene and confirms active-scene state before waiting on Generate enable, and emits focused action-readiness diagnostics on timeout.
+
+#### Actions
+- Re-run truth lane in CI to verify the generate-enable timeout regression is removed.
+- If truth lane still fails, use the new generate diagnostics payload to classify next failure stage (scene activation, service status, or project-commit state).
+
+#### Progress Log
+- 2026-04-25 - Codex - Updated `scripts/truth-with-backend.mjs` startup sequence to select primary scene before Generate readiness wait and added structured generate-timeout diagnostics (`generate/critique disabled`, active-scene presence, service pill state, project dataset, debug project state).
 
 ---
 
@@ -300,6 +310,7 @@ Truth lane path appears intentionally separated (`scripts/truth-with-backend.mjs
   `projectLoaded=1`, mode contract aligned, service status online, recovery absent, dock/panes present, actions visible/enabled.
 - New CI canary evidence (2026-04-25): `canary-classification.json` reports `serial_canary=success`, `default_canary=success`, `classification=healthy`; timelines show backend healthy, artifact preflight passed, and Playwright exited 0.
 - Current active failure moved to truth lane contract drift: `scripts/truth-with-backend.mjs` asserted bridge health status `'ok'` while normalized bridge/UI semantics now report `'online'`.
+- Cross-shell truth-lane startup risk (2026-04-25): WSL-exported env values with CRLF suffixes (for example `api_only\r`, `true\r`) can fail `ServiceSettings.from_environment()` enum/bool parsing and surface as backend health timeout noise.
 - New canary diagnostics (2026-04-24) show `waitForProjectLoaded` timeout payloads with:
   - initially `testNeedsRecovery=1` (first regression snapshot),
   - then `testNeedsRecovery` cleared but failures persisted,
@@ -397,6 +408,9 @@ Truth lane path appears intentionally separated (`scripts/truth-with-backend.mjs
   - passed `requireCorkboardPane` (and all other predicate inputs) through `page.waitForFunction` args,
   - removed implicit closure dependence that produced `ReferenceError` in browser context.
 - 2026-04-25 - Codex - Updated truth lane health assertion in `scripts/truth-with-backend.mjs` to assert bridge-normalized status `'online'` (with layer-intent comment), resolving stale `'ok'` expectation drift without loosening unrelated truth assertions.
+- 2026-04-25 - Codex - Hardened service config env ingestion against CRLF-tainted shell exports:
+  - `services/src/blackskies/services/config.py` now normalizes env/file override values via `strip()` before Pydantic validation,
+  - added regression test `services/tests/unit/test_config.py::test_from_environment_strips_crlf_suffix_from_env_overrides`.
 
 #### Verification
 - Partial:
@@ -404,6 +418,10 @@ Truth lane path appears intentionally separated (`scripts/truth-with-backend.mjs
     `pnpm --dir app run build:renderer`, `pnpm --dir app run build:main`, `pnpm test:e2e -- --project=electron --workers=1 --grep "smoke_"` -> 3 passed, `ReferenceError: requireCorkboardPane is not defined` no longer reproduced.
   - Local PowerShell validation on 2026-04-25 after truth-lane contract update:
     `pnpm test:truth` -> PASS (bridge health asserted as normalized `online`).
+  - Local validation with explicit CRLF-suffixed env values on 2026-04-25:
+    `BLACKSKIES_MODEL_ROUTING_POLICY="api_only\r"`, `BLACKSKIES_MODEL_ROUTER_PROVIDER_CALLS_ENABLED="true\r"`, `BLACKSKIES_LONG_FORM_PROVIDER_ENABLED="true\r"` no longer crash settings bootstrap (`ServiceSettings.from_environment()` resolves to `api_only / True / True`).
+  - Regression coverage:
+    `pytest services/tests/unit/test_config.py -k "crlf_suffix"` -> PASS.
   - Local PowerShell full harness validation on 2026-04-25:
     `FULL_ANALYTICS_E2E=1 pnpm test:e2e -- --project=electron --workers=1` -> PASS (9/9; no harness assertion failures reproduced).
   - local evidence confirms timeline artifact writes on pre-backend launcher failure,

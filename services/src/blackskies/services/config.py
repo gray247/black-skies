@@ -540,19 +540,24 @@ class ServiceSettings(BaseModel):
             "local_llm_model": ["BLACKSKIES_LOCAL_MODEL"],
             "local_llm_timeout_seconds": ["BLACKSKIES_LOCAL_TIMEOUT_SECONDS"],
         }
+        def _normalize_env_value(raw_value: str) -> str:
+            # Shell export flows (notably mixed CRLF in WSL/CI handoffs) can leak
+            # trailing carriage returns into env values and break enum/bool parsing.
+            return raw_value.strip()
+
         for field_name in cls.model_fields:
             env_key = f"{env_prefix}{field_name.upper()}"
             if env_key in os.environ:
-                overrides[field_name] = os.environ[env_key]
+                overrides[field_name] = _normalize_env_value(os.environ[env_key])
             elif env_key in file_values:
-                overrides[field_name] = file_values[env_key]
+                overrides[field_name] = _normalize_env_value(file_values[env_key])
             elif field_name in alias_keys:
                 for alias in alias_keys[field_name]:
                     if alias in os.environ:
-                        overrides[field_name] = os.environ[alias]
+                        overrides[field_name] = _normalize_env_value(os.environ[alias])
                         break
                     if alias in file_values:
-                        overrides[field_name] = file_values[alias]
+                        overrides[field_name] = _normalize_env_value(file_values[alias])
                         break
 
         typed_overrides = cast(dict[str, Any], overrides)
