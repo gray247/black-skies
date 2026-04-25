@@ -65,7 +65,11 @@ test.describe('GUI flow smoke tests', () => {
       timeout: 30_000,
     });
 
-    const editor = page.locator('.project-home__draft-editor .cm-content');
+    await page.evaluate(() => {
+      window.dispatchEvent(new CustomEvent('test:select-scene', { detail: 'sc_0001' }));
+    });
+    const editor = page.locator('.project-home__draft-editor .cm-content').first();
+    await expect(editor).toBeVisible({ timeout: 30_000 });
     await page.evaluate(() => {
       const el = document.querySelector(
         '.project-home__draft-editor .cm-content',

@@ -540,6 +540,7 @@ class ServiceSettings(BaseModel):
             "local_llm_model": ["BLACKSKIES_LOCAL_MODEL"],
             "local_llm_timeout_seconds": ["BLACKSKIES_LOCAL_TIMEOUT_SECONDS"],
         }
+
         def _normalize_env_value(raw_value: str) -> str:
             # Shell export flows (notably mixed CRLF in WSL/CI handoffs) can leak
             # trailing carriage returns into env values and break enum/bool parsing.

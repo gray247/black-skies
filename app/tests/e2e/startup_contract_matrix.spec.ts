@@ -9,6 +9,11 @@ import {
 import { installServiceStubs } from './utils/serviceStubs';
 import { loadSampleProject } from './utils/sampleProject';
 
+// HARNESS_ONLY:
+// Reason: matrix tests assert harness-mode startup contracts and guardrails.
+// Owner: app/tests/e2e/startup_contract_matrix.spec.ts
+// Retire when: equivalent mode-contract guarantees are enforced in truth-lane coverage.
+
 const { loadedProject } = loadSampleProject();
 
 test.describe('startup_contract_matrix', () => {
@@ -113,4 +118,3 @@ test.describe('startup_contract_matrix', () => {
     expect(recoverySnapshot.recovery.visible).toBe(true);
   });
 });
-

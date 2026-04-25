@@ -311,6 +311,9 @@ Unresolved repo-wide typing debt and temporary CI scope narrowing.
 - New CI canary evidence (2026-04-25): `canary-classification.json` reports `serial_canary=success`, `default_canary=success`, `classification=healthy`; timelines show backend healthy, artifact preflight passed, and Playwright exited 0.
 - Current active failure moved to truth lane contract drift: `scripts/truth-with-backend.mjs` asserted bridge health status `'ok'` while normalized bridge/UI semantics now report `'online'`.
 - Cross-shell truth-lane startup risk (2026-04-25): WSL-exported env values with CRLF suffixes (for example `api_only\r`, `true\r`) can fail `ServiceSettings.from_environment()` enum/bool parsing and surface as backend health timeout noise.
+- New CI harness drift (2026-04-25): two UI checks flaked on missing transient nodes:
+  - `gui.analytics_offline_cache_flow.spec.ts` expected `.corkboard-card` before cache priming converged,
+  - `gui.flows.spec.ts::snapshot_restore_flow` expected draft editor `.cm-content` before active-scene selection converged.
 - New canary diagnostics (2026-04-24) show `waitForProjectLoaded` timeout payloads with:
   - initially `testNeedsRecovery=1` (first regression snapshot),
   - then `testNeedsRecovery` cleared but failures persisted,
@@ -411,6 +414,9 @@ Unresolved repo-wide typing debt and temporary CI scope narrowing.
 - 2026-04-25 - Codex - Hardened service config env ingestion against CRLF-tainted shell exports:
   - `services/src/blackskies/services/config.py` now normalizes env/file override values via `strip()` before Pydantic validation,
   - added regression test `services/tests/unit/test_config.py::test_from_environment_strips_crlf_suffix_from_env_overrides`.
+- 2026-04-25 - Codex - Hardened flaky harness selectors/state ordering:
+  - `gui.analytics_offline_cache_flow.spec.ts` now primes and asserts `data-testid="corkboard-card"` visibility before forcing offline, then re-asserts cached card visibility offline;
+  - `gui.flows.spec.ts::snapshot_restore_flow` now explicitly dispatches `test:select-scene` and waits for draft editor visibility before mutating draft content.
 
 #### Verification
 - Partial:
@@ -422,6 +428,8 @@ Unresolved repo-wide typing debt and temporary CI scope narrowing.
     `BLACKSKIES_MODEL_ROUTING_POLICY="api_only\r"`, `BLACKSKIES_MODEL_ROUTER_PROVIDER_CALLS_ENABLED="true\r"`, `BLACKSKIES_LONG_FORM_PROVIDER_ENABLED="true\r"` no longer crash settings bootstrap (`ServiceSettings.from_environment()` resolves to `api_only / True / True`).
   - Regression coverage:
     `pytest services/tests/unit/test_config.py -k "crlf_suffix"` -> PASS.
+  - Targeted harness repro/fix validation on 2026-04-25:
+    `pnpm --dir app exec playwright test tests/e2e/gui.analytics_offline_cache_flow.spec.ts tests/e2e/gui.flows.spec.ts -g "analytics offline cache flow keeps cached metrics visible|snapshot_restore_flow" --project=electron --workers=1 --reporter=line` -> PASS (2/2).
   - Local PowerShell full harness validation on 2026-04-25:
     `FULL_ANALYTICS_E2E=1 pnpm test:e2e -- --project=electron --workers=1` -> PASS (9/9; no harness assertion failures reproduced).
   - local evidence confirms timeline artifact writes on pre-backend launcher failure,

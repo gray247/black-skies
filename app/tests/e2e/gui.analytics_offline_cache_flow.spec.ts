@@ -29,6 +29,8 @@ test('analytics offline cache flow keeps cached metrics visible', async ({ page 
     .first()
     .waitFor({ state: 'visible', timeout: 30_000 });
   await expect(page.getByTestId('analytics-emotion-graph')).toBeVisible();
+  const corkboardCard = page.getByTestId('corkboard-card').first();
+  await expect(corkboardCard).toBeVisible({ timeout: 30_000 });
 
   await page.evaluate(() => {
     window.__dev?.overrideServices?.({
@@ -51,7 +53,7 @@ test('analytics offline cache flow keeps cached metrics visible', async ({ page 
   await expect(page.locator('.analytics-dashboard__readability-badge').first()).toBeVisible();
   await expect(page.locator('.analytics-dashboard__pacing-strip span').first()).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Corkboard' }).first()).toBeVisible();
-  await expect(page.locator('.corkboard-card').first()).toBeVisible();
+  await expect(corkboardCard).toBeVisible();
 
   await page.evaluate(() => {
     window.__dev?.overrideServices?.({

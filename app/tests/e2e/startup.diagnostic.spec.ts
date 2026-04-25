@@ -9,6 +9,11 @@ import {
 import { installServiceStubs } from './utils/serviceStubs';
 import { loadSampleProject } from './utils/sampleProject';
 
+// HARNESS_ONLY:
+// Reason: startup diagnostics validate harness readiness/seams under stubbed services.
+// Owner: app/tests/e2e/startup.diagnostic.spec.ts
+// Retire when: equivalent startup contracts are covered by truth-lane startup checks.
+
 const { loadedProject } = loadSampleProject();
 
 test('diagnostic_service_override_survival_after_reload (startup)', async ({ page }) => {
@@ -178,4 +183,3 @@ test('diagnostic_startup_snapshot_shape (startup)', async ({ page }) => {
   expect(snapshot.service.status).toBe('online');
   expect(snapshot.actions.some((entry) => entry.testId === 'workspace-action-generate')).toBe(true);
 });
-
