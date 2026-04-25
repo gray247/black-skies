@@ -1,6 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.isHarnessHooksEnabled = isHarnessHooksEnabled;
+exports.getStartupConfig = getStartupConfig;
+exports.isModeLocked = isModeLocked;
+exports.allowLayoutRestore = allowLayoutRestore;
 exports.getMode = getMode;
 exports.isFlat = isFlat;
 exports.isFlatMode = isFlatMode;
@@ -43,6 +46,30 @@ function isHarnessHooksEnabled() {
         (envFlag !== false && typeof envFlag === 'object' && envFlag.isPlaywright === true);
     return Boolean(isPlaywrightFlag && win.__dev);
 }
+function getStartupConfig() {
+    if (!isHarnessHooksEnabled()) {
+        return null;
+    }
+    const win = getWindow();
+    if (!win) {
+        return null;
+    }
+    return win.__E2E_STARTUP_CONFIG ?? null;
+}
+function isModeLocked() {
+    const startup = getStartupConfig();
+    if (!startup) {
+        return false;
+    }
+    return startup.allowRuntimeModeOverride !== true;
+}
+function allowLayoutRestore() {
+    const startup = getStartupConfig();
+    if (!startup) {
+        return true;
+    }
+    return startup.allowLayoutRestore === true;
+}
 function getMode() {
     if (!isHarnessHooksEnabled()) {
         return 'none';
@@ -50,6 +77,10 @@ function getMode() {
     const win = getWindow();
     if (!win) {
         return 'none';
+    }
+    const startupMode = win.__E2E_STARTUP_CONFIG?.mode;
+    if (startupMode === 'flat' || startupMode === 'full' || startupMode === 'recovery') {
+        return startupMode;
     }
     if (win.__testEnvFlatMode === true) {
         return 'flat';
@@ -109,6 +140,10 @@ function isVisualHome() {
 }
 function getOfflineReason() {
     if (!isHarnessHooksEnabled()) {
+        return null;
+    }
+    const startup = getStartupConfig();
+    if (startup && startup.services === 'real') {
         return null;
     }
     const datasetReason = typeof document !== 'undefined' ? document.body?.dataset?.testEnvForceOfflineReason ?? null : null;

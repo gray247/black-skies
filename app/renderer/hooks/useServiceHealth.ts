@@ -305,15 +305,17 @@ export function useServiceHealth(
         errorMessage?: string;
       }>;
       const detail = customEvent.detail;
-      if (detail?.status !== 'online' && detail?.status !== 'offline') {
+      const detailStatus = detail?.status as string | undefined;
+      const normalizedStatus = detailStatus === 'ok' ? 'online' : detailStatus;
+      if (normalizedStatus !== 'online' && normalizedStatus !== 'offline') {
         return;
       }
       if (!mountedRef.current) {
         return;
       }
-      setStatus(detail.status);
-      setForceOffline(detail.status === 'offline');
-      if (detail.status === 'online') {
+      setStatus(normalizedStatus);
+      setForceOffline(normalizedStatus === 'offline');
+      if (normalizedStatus === 'online') {
         setIsPortUnavailable(false);
         setLastError(null);
       } else {

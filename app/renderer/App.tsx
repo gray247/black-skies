@@ -80,9 +80,17 @@ declare global {
       selectScene?: (sceneId: string) => void;
     };
     __blackskiesDebugLog?: Array<DebugLogEntry>;
-    __testEnv?: boolean;
+    __testEnv?: boolean | { isPlaywright?: boolean };
     __testEnvSnapshotRestoreFlow?: boolean;
     __testEnvFullMode?: boolean;
+    __E2E_STARTUP_CONFIG?: {
+      mode: "flat" | "full" | "recovery";
+      projectPath: string | null;
+      recovery: boolean;
+      services: "stub" | "real";
+      allowRuntimeModeOverride?: boolean;
+      allowLayoutRestore?: boolean;
+    };
   }
 }
 
@@ -171,6 +179,11 @@ interface BatchCritiqueResult {
 export default function App(): JSX.Element {
   const hasWindow = typeof window !== 'undefined';
   const harnessHooksEnabled = testMode.isHarnessHooksEnabled();
+  const startupConfig = testMode.getStartupConfig();
+  const startupModeLocked = harnessHooksEnabled && testMode.isModeLocked();
+  const startupLockedMode = startupConfig?.mode ?? null;
+  const startupRecoveryRequested = startupConfig?.recovery === true;
+  const startupConfigProvided = startupConfig !== null;
   const services: ServicesBridge | undefined = window.services;
   const diagnostics: DiagnosticsBridge | undefined = window.diagnostics;
   const runtimeConfigOverride =
@@ -262,7 +275,7 @@ export default function App(): JSX.Element {
   const isSnapshotRestoreFlowActive =
     harnessHooksEnabled &&
     hasWindow &&
-    window.__testEnvSnapshotRestoreFlow === true;
+    (startupConfigProvided ? startupRecoveryRequested : window.__testEnvSnapshotRestoreFlow === true);
   const activeFlow =
     harnessHooksEnabled &&
     typeof document !== 'undefined' &&
@@ -313,7 +326,9 @@ export default function App(): JSX.Element {
     if (!activeFlow || typeof document === 'undefined') {
       return;
     }
-    document.body.dataset.testMode = 'full';
+    if (!startupModeLocked) {
+      document.body.dataset.testMode = 'full';
+    }
     delete document.body.dataset.testStableDock;
     delete document.body.dataset.testVisualStable;
     void import('./styles/stable-dock-test.css');
@@ -327,7 +342,34 @@ export default function App(): JSX.Element {
       marker.setAttribute('aria-hidden', 'true');
       document.body.appendChild(marker);
     }
-  }, [activeFlow]);
+  }, [activeFlow, startupModeLocked]);
+
+  useEffect(() => {
+    if (!startupModeLocked || !startupLockedMode || typeof document === 'undefined') {
+      return;
+    }
+    const enforce = () => {
+      const html = document.documentElement;
+      const body = document.body ?? html;
+      if (html) {
+        html.dataset.testMode = startupLockedMode;
+      }
+      if (body) {
+        body.dataset.testMode = startupLockedMode;
+      }
+    };
+    enforce();
+    const observer = new MutationObserver(enforce);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-test-mode'] });
+    if (document.body) {
+      observer.observe(document.body, { attributes: true, attributeFilter: ['data-test-mode'] });
+    }
+    window.addEventListener('test:startup-config', enforce);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('test:startup-config', enforce);
+    };
+  }, [startupLockedMode, startupModeLocked]);
   const stableDockExplicitFlag = liveFlowGuard ? false : stableDockEnvRequested;
   if (liveFlowGuard && stableDockEnvRequested) {
     console.warn('[MODE-LEAK] stableDock active during live flow');
@@ -700,8 +742,11 @@ export default function App(): JSX.Element {
   const wizardDefaultProjectPath =
     globalWindowForDefaults.__testEnvDefaultProjectPath ?? projectSummary?.path ?? null;
   const shouldAutoSeedProjectSummary =
-    isPlaywrightEnv && globalWindowForDefaults.__testEnvAutoSeedProjectSummary === true;
+    isPlaywrightEnv &&
+    globalWindowForDefaults.__testEnvAutoSeedProjectSummary === true &&
+    !startupModeLocked;
   const snapshotRestoreFlowActive =
+    startupRecoveryRequested &&
     globalWindowForDefaults.__testEnvSnapshotRestoreFlow === true;
   if (!isPlaywrightEnv) {
     console.log('[app-snapshot-flow]', snapshotRestoreFlowActive);
@@ -1472,6 +1517,27 @@ export default function App(): JSX.Element {
 
       if ("status" in payload) {
         const { status, project, lastOpenedPath } = payload;
+        if (startupModeLocked && status === "init" && !project) {
+          recordDebugEvent("app.handleProjectLoaded.init-ignored", {
+            status,
+            lastOpenedPath: lastOpenedPath ?? null,
+          });
+          return;
+        }
+        if (
+          startupModeLocked &&
+          typeof startupConfig?.projectPath === 'string' &&
+          startupConfig.projectPath.length > 0 &&
+          project?.path &&
+          project.path !== startupConfig.projectPath
+        ) {
+          recordDebugEvent("app.handleProjectLoaded.path-mismatch-ignored", {
+            configuredPath: startupConfig.projectPath,
+            incomingPath: project.path,
+            status,
+          });
+          return;
+        }
 
         if (!isPlaywrightEnv) {
           console.info("[App] handleProjectLoaded(status)", {
@@ -1524,7 +1590,7 @@ export default function App(): JSX.Element {
       activateProject(payload);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [activateProject, resetProjectState, updateLastProjectPath],
+    [activateProject, resetProjectState, startupConfig?.projectPath, startupModeLocked, updateLastProjectPath],
   );
 
   useEffect(() => {
@@ -1751,8 +1817,9 @@ export default function App(): JSX.Element {
   const forcedRecoveryFlag =
     harnessHooksEnabled &&
     isTestEnvActive &&
-    typeof window !== 'undefined' &&
-    typeof document !== 'undefined' && document.body?.dataset?.testNeedsRecovery === '1';
+    (startupConfigProvided
+      ? startupRecoveryRequested
+      : typeof document !== 'undefined' && document.body?.dataset?.testNeedsRecovery === '1');
   const forcedRecoveryStatus = useMemo(() => {
     if (!forcedRecoveryFlag) {
       return null;
@@ -1761,8 +1828,10 @@ export default function App(): JSX.Element {
   }, [forcedRecoveryFlag, projectSummary?.projectId]);
   const effectiveRecoveryStatus = forcedRecoveryStatus ?? recoveryStatus ?? testRecoveryStatusOverride;
   const recoverySnapshot = effectiveRecoveryStatus?.last_snapshot ?? null;
-  const recoveryBannerVisible =
-    isSnapshotRestoreFlowActive || forcedRecoveryFlag || (effectiveRecoveryStatus?.needs_recovery ?? false);
+  const recoveryBannerVisible = startupConfigProvided
+    ? startupRecoveryRequested &&
+      (isSnapshotRestoreFlowActive || forcedRecoveryFlag || (effectiveRecoveryStatus?.needs_recovery ?? false))
+    : isSnapshotRestoreFlowActive || forcedRecoveryFlag || (effectiveRecoveryStatus?.needs_recovery ?? false);
   const recoveryBusy = recoveryAction !== "idle";
   const reopenBusy = reopenInFlight;
   const restoreDisabled = recoveryBusy || reopenBusy;
@@ -2105,6 +2174,9 @@ export default function App(): JSX.Element {
     exporting ||
     !projectSummary?.projectId ||
     !services?.exportProject;
+  const projectReadyForActions = Boolean(projectSummary?.projectId && projectSummary?.path);
+  const sceneReadyForActions = Boolean(activeSceneId);
+  const servicesReadyForActions = effectiveServiceStatus === 'online' && !serviceOffline;
   const disableSnapshot =
     disableExport || snapshotting || !services?.createProjectSnapshot;
   const disableVerify =
@@ -2129,6 +2201,9 @@ export default function App(): JSX.Element {
     companionOpen,
     currentProject,
     budgetBlocked,
+    projectReadyForActions,
+    sceneReadyForActions,
+    servicesReadyForActions,
     disableExport,
     disableSnapshot,
     disableVerify,
@@ -2158,8 +2233,8 @@ export default function App(): JSX.Element {
       onExportFormatChange: handleExportFormatChange,
       companionOpen,
       disableCompanion: !currentProject,
-      disableGenerate: serviceOffline || budgetBlocked,
-      disableCritique: serviceOffline || budgetBlocked,
+      disableGenerate: serviceOffline || budgetBlocked || !projectReadyForActions || !sceneReadyForActions || !servicesReadyForActions,
+      disableCritique: serviceOffline || budgetBlocked || !projectReadyForActions || !sceneReadyForActions || !servicesReadyForActions,
       disableExport,
       disableSnapshot,
       disableVerify,
@@ -2366,7 +2441,10 @@ export default function App(): JSX.Element {
     if (typeof document === "undefined" || !document.body) {
       return;
     }
-    document.body.dataset.testMode = modeLabel;
+    const resolvedMode =
+      startupModeLocked && startupLockedMode ? startupLockedMode : modeLabel;
+    document.body.dataset.testMode = resolvedMode;
+    document.documentElement.dataset.testMode = resolvedMode;
   };
   const renderFlatModeRoot = (content: ReactNode) => (
     <div id="app-root" data-testid="app-root" className="test-flat-home-shell">

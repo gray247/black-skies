@@ -292,7 +292,7 @@ Truth lane path appears intentionally separated (`scripts/truth-with-backend.mjs
 - Current proven blocker: missing Electron build artifacts in canary path (`app/dist-electron/main/main.js`, `app/dist/index.html`) before Playwright launch.
 - `electronApp.firstWindow` timeout is downstream noise when packaged entry/renderer output are absent; no BrowserWindow can be created in that state.
 - Latest canary transition (2026-04-24): backend healthy + Electron window + renderer boot + project-loaded debug event all occur, but harness still times out in `_bootstrap.waitForProjectLoaded`.
-- Current blocker has shifted to readiness-contract mismatch: project-loaded signal/log fires before (or without) the committed UI/state marker expected by the bootstrap predicate.
+- Root cause upgraded: startup is non-deterministic across subsystems (mode drift, recovery leakage, project injection races, service-status contract drift, early-enabled actions, and persisted client state bleed).
 - New canary diagnostics (2026-04-24) show `waitForProjectLoaded` timeout payloads with:
   - initially `testNeedsRecovery=1` (first regression snapshot),
   - then `testNeedsRecovery` cleared but failures persisted,
@@ -306,6 +306,14 @@ Truth lane path appears intentionally separated (`scripts/truth-with-backend.mjs
   - preload now only applies forced recovery dataset when explicit env `BLACKSKIES_TEST_NEEDS_RECOVERY=1` is set;
   - renderer now handles `test:set-project` by loading via `projectLoader.loadProject(...)` and calling `activateProject(...)`, with race guards and diagnostics (`[dbg:project.bridge.load.start|done|error|exception]`).
 - Current stabilization focus after project-load predicate fixes: post-bootstrap state integrity (mode contract, service survival across reload, action readiness, path normalization, and mutable test-flag leakage).
+- Risk coverage matrix (2026-04-25):
+  - [1] project-load race after bootstrap: YES (`_bootstrap.bootstrapHarness` startup-config-first sequencing + `App` `test:set-project` load/activate path guards).
+  - [2] service override/state loss across reload: YES (`startup.diagnostic.spec.ts::diagnostic_service_override_survival_after_reload`).
+  - [3] mode-specific UI contract drift: YES (`_bootstrap.waitForFlatModeReady|waitForFullModeReady|waitForRecoveryModeReady` + `startup_contract_matrix.spec.ts`).
+  - [4] action-level readiness mismatch: YES (`App` generate/critique disable contract + `startup.diagnostic.spec.ts::diagnostic_action_readiness_generate_contract` + matrix flat-mode negative assertion).
+  - [5] path normalization/assertion mismatch: YES (`utils/pathNormalization.ts` + `path-normalization.diagnostic.spec.ts` + `_bootstrap` contract match checks).
+  - [6] recovery/test flag leakage between tests: YES (`_electron.fixture` hard reset pre/post test for datasets/window globals/storage/indexedDB + persisted `.blackskies` cleanup).
+  - Remaining gap classification: local Playwright execution remains environment-blocked (`EPERM` socket/pipe), so validation evidence must come from CI artifacts.
 
 #### Actions
 - Use canary logs + timeline as the first triage source before opening spec-level fixes.
@@ -365,6 +373,18 @@ Truth lane path appears intentionally separated (`scripts/truth-with-backend.mjs
 - 2026-04-24 - Codex - Added targeted post-bootstrap diagnostics:
   - `startup.diagnostic.spec.ts` covers service survival across reload, mode-contract split, action-readiness generate contract, and startup snapshot shape,
   - `path-normalization.diagnostic.spec.ts` covers cross-platform project-path normalization/matching contract.
+- 2026-04-25 - Codex - Introduced deterministic startup isolation layer for harness runs:
+  - hard reset before/after each Electron test clears local/session storage, indexedDB, datasets, and mutable test globals;
+  - single startup source of truth via `window.__E2E_STARTUP_CONFIG` (mode/project/recovery/services) set by bootstrap through `__dev.setStartupConfig(...)`;
+  - mode lock now enforced (no runtime testMode override unless explicitly allowed);
+  - Playwright startup now disables implicit auto-seeding/auto-recovery/implicit layout restore by default;
+  - service health payload normalizes backend `status=ok` to UI `online`;
+  - workspace action readiness now requires committed project + active scene + online services.
+- 2026-04-25 - Codex - Added `startup_determinism.spec.ts` to bootstrap twice in one test and fail on snapshot drift (mode/recovery/project path/service status/visible panes).
+- 2026-04-25 - Codex - Added `startup_contract_matrix.spec.ts` as a consolidated startup contract guard:
+  - flat mode asserts no unexpected recovery, mode-lock resilience, and action disable when active scene is absent;
+  - full mode asserts dock/pane contract (including corkboard visibility) and no unexpected recovery;
+  - recovery mode asserts banner visibility only when explicitly requested.
 
 #### Verification
 - Partial:
@@ -372,6 +392,7 @@ Truth lane path appears intentionally separated (`scripts/truth-with-backend.mjs
   - CI evidence is still required for canary rerun confirming artifact-preflight now passes and launch reaches Electron window creation path,
   - CI evidence is still required to confirm `waitForProjectLoaded` converges on committed state markers after `test:set-project`-to-`activateProject` wiring,
   - CI evidence is still required to confirm new post-bootstrap diagnostics stay green in canary lanes.
+  - Canary rerun recommendation: YES. Risk coverage is now broad enough that CI canary should provide high-signal pass/fail classification instead of ambiguous timeout noise.
 
 ---
 

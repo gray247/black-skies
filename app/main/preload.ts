@@ -286,9 +286,69 @@ if (isPlaywright && typeof window !== 'undefined') {
 const devApi: {
   setProjectDir: (absPath: string | null) => void | Promise<void>;
   overrideServices?: (overrides: Partial<ServicesBridge>) => void;
+  setStartupConfig?: (config: {
+    mode: 'flat' | 'full' | 'recovery';
+    projectPath: string | null;
+    recovery: boolean;
+    services: 'stub' | 'real';
+    allowRuntimeModeOverride?: boolean;
+    allowLayoutRestore?: boolean;
+  }) => void;
 } = {
   setProjectDir: (absPath: string | null) => {
     window.dispatchEvent(new CustomEvent('test:set-project', { detail: absPath }));
+  },
+  setStartupConfig: (config) => {
+    const win = window as typeof window & {
+      __E2E_STARTUP_CONFIG?: {
+        mode: 'flat' | 'full' | 'recovery';
+        projectPath: string | null;
+        recovery: boolean;
+        services: 'stub' | 'real';
+        allowRuntimeModeOverride?: boolean;
+        allowLayoutRestore?: boolean;
+      };
+      __testEnvFlatMode?: boolean;
+      __testEnvRecoveryMode?: boolean;
+      __testEnvFullMode?: boolean;
+    };
+    win.__E2E_STARTUP_CONFIG = {
+      ...config,
+      projectPath: config.projectPath ?? null,
+      recovery: Boolean(config.recovery),
+    };
+    if (config.mode === 'flat') {
+      win.__testEnvFlatMode = true;
+      win.__testEnvRecoveryMode = false;
+      win.__testEnvFullMode = false;
+    } else if (config.mode === 'recovery') {
+      win.__testEnvFlatMode = false;
+      win.__testEnvRecoveryMode = true;
+      win.__testEnvFullMode = false;
+    } else {
+      win.__testEnvFlatMode = false;
+      win.__testEnvRecoveryMode = false;
+      win.__testEnvFullMode = true;
+    }
+    const root = document.documentElement;
+    const body = document.body ?? root;
+    if (root) {
+      root.dataset.testMode = config.mode;
+      if (config.recovery) {
+        root.dataset.testNeedsRecovery = '1';
+      } else {
+        delete root.dataset.testNeedsRecovery;
+      }
+    }
+    if (body) {
+      body.dataset.testMode = config.mode;
+      if (config.recovery) {
+        body.dataset.testNeedsRecovery = '1';
+      } else {
+        delete body.dataset.testNeedsRecovery;
+      }
+    }
+    window.dispatchEvent(new CustomEvent('test:startup-config', { detail: win.__E2E_STARTUP_CONFIG }));
   },
 };
 
@@ -885,8 +945,12 @@ async function probeHealth(): Promise<ServiceHealthResponse> {
         traceId,
       };
     }
-    if (data?.status === 'ok') {
-      return { ok: true, data, traceId };
+    if (data?.status === 'ok' || data?.status === 'online') {
+      const normalized = {
+        ...data,
+        status: 'online',
+      };
+      return { ok: true, data: normalized, traceId };
     }
 
     return {

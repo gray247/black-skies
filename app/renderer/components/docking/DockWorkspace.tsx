@@ -32,6 +32,7 @@ import { usePaneBoundsLogger } from './usePaneBoundsLogger';
 import { TID } from '../../utils/testIds';
 import type { ToastPayload } from '../../types/toast';
 import { boundsDiffer } from '../../utils/layout';
+import * as testMode from '../../testMode/testModeManager';
 
 const RELOCATION_HIGHLIGHT_DURATION = 2000;
 
@@ -794,6 +795,18 @@ function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
         recordDebugEvent('dock-workspace.layout.default', {
           projectPath,
           reason: !projectPath ? 'missing-project' : 'missing-bridge',
+        });
+      }
+      return;
+    }
+    if (testMode.isHarnessHooksEnabled() && !testMode.allowLayoutRestore()) {
+      setLoadError(null);
+      setLoading(false);
+      if (!layoutReadyRef.current) {
+        scheduleLayoutApply(getPreset(resolvedDefaultPreset));
+        recordDebugEvent('dock-workspace.layout.default', {
+          projectPath,
+          reason: 'startup-config-layout-restore-disabled',
         });
       }
       return;

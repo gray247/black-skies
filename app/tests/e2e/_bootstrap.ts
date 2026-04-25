@@ -57,6 +57,7 @@ interface StartupStateSnapshot {
     idHtml: string | null;
     subtitle: string | null;
     debugState: unknown;
+    startupConfig?: unknown;
   };
   service: {
     present: boolean;
@@ -152,8 +153,14 @@ export async function collectStartupStateSnapshot(page: Page): Promise<StartupSt
       window as typeof window & {
         __testProjectState?: unknown;
         __blackskiesDebugLog?: unknown;
+        __E2E_STARTUP_CONFIG?: unknown;
       }
     ).__testProjectState ?? null;
+    const startupConfig = (
+      window as typeof window & {
+        __E2E_STARTUP_CONFIG?: unknown;
+      }
+    ).__E2E_STARTUP_CONFIG ?? null;
     const isVisible = (element: HTMLElement | null): boolean => {
       if (!element) {
         return false;
@@ -179,6 +186,7 @@ export async function collectStartupStateSnapshot(page: Page): Promise<StartupSt
         idHtml: document.documentElement?.dataset?.projectId ?? null,
         subtitle: subtitle?.textContent?.trim() ?? null,
         debugState,
+        startupConfig,
       },
       service: {
         present: Boolean(servicePill),
@@ -370,6 +378,7 @@ interface PostBootstrapStableOptions {
   expectedServiceStatus?: HarnessServiceStatus | null;
   allowRecoveryBanner?: boolean;
   requireDockWorkspace?: boolean;
+  requireCorkboardPane?: boolean;
   requireGenerateAction?: boolean;
   requireActiveScene?: boolean;
   expectedProjectPath?: string | null;
@@ -383,6 +392,7 @@ export async function assertPostBootstrapStable(
   const expectedServiceStatus = options.expectedServiceStatus ?? 'online';
   const allowRecoveryBanner = options.allowRecoveryBanner ?? false;
   const requireDockWorkspace = options.requireDockWorkspace ?? true;
+  const requireCorkboardPane = options.requireCorkboardPane ?? (options.mode === 'full');
   const requireGenerateAction = options.requireGenerateAction ?? true;
   const requireActiveScene = options.requireActiveScene ?? false;
   const expectedProjectPath = options.expectedProjectPath ?? null;
@@ -434,6 +444,16 @@ export async function assertPostBootstrapStable(
             return false;
           }
         }
+        if (requireCorkboardPane) {
+          const corkboardPane = document.querySelector('[data-pane-id=\"corkboard\"]') as HTMLElement | null;
+          if (!corkboardPane) {
+            return false;
+          }
+          const style = window.getComputedStyle(corkboardPane);
+          if (style.display === 'none' || style.visibility === 'hidden') {
+            return false;
+          }
+        }
         if (requireGenerate) {
           const generate = document.querySelector('[data-testid="workspace-action-generate"]') as
             | HTMLButtonElement
@@ -461,6 +481,7 @@ export async function assertPostBootstrapStable(
         expectedServiceStatus,
         allowRecoveryBanner,
         requireDockWorkspace,
+        requireCorkboardPane,
         requireGenerateAction,
         requireActiveScene,
       },
@@ -477,6 +498,7 @@ export async function assertPostBootstrapStable(
         expectedServiceStatus,
         allowRecoveryBanner,
         requireDockWorkspace,
+        requireCorkboardPane,
         requireGenerateAction,
         requireActiveScene,
         expectedProjectPath: normalizeProjectPath(expectedProjectPath),
@@ -565,6 +587,45 @@ export async function bootstrapHarness(
   });
 
   const { projectRoot: sampleProjectPath, projectId: sampleProjectId } = loadSampleProject();
+  const resolvedStartupMode: HarnessMode =
+    options.expectedMode ??
+    (await page.evaluate(() => {
+      const mode = document.body?.dataset?.testMode ?? document.documentElement?.dataset?.testMode;
+      if (mode === 'flat' || mode === 'full' || mode === 'recovery') {
+        return mode;
+      }
+      return 'full';
+    }));
+  const startupRecovery = resolvedStartupMode === 'recovery' || allowRecoveryBanner;
+  const startupServiceSource = process.env.BLACKSKIES_E2E_EXTERNAL_SERVICE === '1' ? 'real' : 'stub';
+  await page.evaluate(
+    ({
+      mode,
+      projectPath,
+      recovery,
+      services,
+    }: {
+      mode: HarnessMode;
+      projectPath: string;
+      recovery: boolean;
+      services: 'stub' | 'real';
+    }) => {
+      window.__dev?.setStartupConfig?.({
+        mode,
+        projectPath,
+        recovery,
+        services,
+        allowRuntimeModeOverride: false,
+        allowLayoutRestore: false,
+      });
+    },
+    {
+      mode: resolvedStartupMode,
+      projectPath: sampleProjectPath,
+      recovery: startupRecovery,
+      services: startupServiceSource,
+    },
+  );
   await page.evaluate(
     ({ projectId, projectPath }: { projectId: string; projectPath: string }) => {
       const win = window as typeof window & {
@@ -574,21 +635,23 @@ export async function bootstrapHarness(
       };
       win.__testEnvDefaultProjectId = projectId;
       win.__testEnvDefaultProjectPath = projectPath;
-      // Keep harness bootstrap state-based but avoid relying on click visibility races
-      // for initial project summary hydration in CI startup timing.
-      win.__testEnvAutoSeedProjectSummary = true;
+      // Deterministic startup requires explicit project injection only.
+      win.__testEnvAutoSeedProjectSummary = false;
     },
     { projectId: sampleProjectId, projectPath: sampleProjectPath },
   );
-  await page.evaluate((projectPath) => {
+  const projectSetViaBridge = await page.evaluate((projectPath) => {
     const win = window as typeof window & {
       __dev?: { setProjectDir?: (path: string | null) => void | Promise<void> };
     };
-    return Promise.resolve(win.__dev?.setProjectDir?.(projectPath ?? null));
+    if (!win.__dev?.setProjectDir) {
+      return false;
+    }
+    return Promise.resolve(win.__dev?.setProjectDir?.(projectPath ?? null)).then(() => true);
   }, sampleProjectPath);
 
   const openProject = page.getByTestId('open-project');
-  if (await openProject.isVisible({ timeout: 10_000 }).catch(() => false)) {
+  if (!projectSetViaBridge && (await openProject.isVisible({ timeout: 10_000 }).catch(() => false))) {
     await page
       .waitForFunction(
         () => {

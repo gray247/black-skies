@@ -7,6 +7,19 @@ import type { RuntimeConfig } from '../../shared/config/runtime';
 type DevHarness = {
   setProjectDir?: (path: string | null) => Promise<void>;
   overrideServices?: (overrides: Partial<ServicesBridge>) => void;
+  setStartupConfig?: (config: E2EStartupConfig) => void;
+};
+
+type E2EStartupMode = 'flat' | 'full' | 'recovery';
+type E2EServiceSource = 'stub' | 'real';
+
+type E2EStartupConfig = {
+  mode: E2EStartupMode;
+  projectPath: string | null;
+  recovery: boolean;
+  services: E2EServiceSource;
+  allowRuntimeModeOverride?: boolean;
+  allowLayoutRestore?: boolean;
 };
 
 type ElectronFsEntry = {
@@ -50,6 +63,7 @@ declare global {
     __testEnvDefaultProjectId?: string;
     __testEnvDefaultProjectPath?: string;
     __testEnvAutoSeedProjectSummary?: boolean;
+    __E2E_STARTUP_CONFIG?: E2EStartupConfig;
   }
 }
 

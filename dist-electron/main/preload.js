@@ -304,6 +304,50 @@ const devApi = {
     setProjectDir: (absPath) => {
         window.dispatchEvent(new CustomEvent('test:set-project', { detail: absPath }));
     },
+    setStartupConfig: (config) => {
+        const win = window;
+        win.__E2E_STARTUP_CONFIG = {
+            ...config,
+            projectPath: config.projectPath ?? null,
+            recovery: Boolean(config.recovery),
+        };
+        if (config.mode === 'flat') {
+            win.__testEnvFlatMode = true;
+            win.__testEnvRecoveryMode = false;
+            win.__testEnvFullMode = false;
+        }
+        else if (config.mode === 'recovery') {
+            win.__testEnvFlatMode = false;
+            win.__testEnvRecoveryMode = true;
+            win.__testEnvFullMode = false;
+        }
+        else {
+            win.__testEnvFlatMode = false;
+            win.__testEnvRecoveryMode = false;
+            win.__testEnvFullMode = true;
+        }
+        const root = document.documentElement;
+        const body = document.body ?? root;
+        if (root) {
+            root.dataset.testMode = config.mode;
+            if (config.recovery) {
+                root.dataset.testNeedsRecovery = '1';
+            }
+            else {
+                delete root.dataset.testNeedsRecovery;
+            }
+        }
+        if (body) {
+            body.dataset.testMode = config.mode;
+            if (config.recovery) {
+                body.dataset.testNeedsRecovery = '1';
+            }
+            else {
+                delete body.dataset.testNeedsRecovery;
+            }
+        }
+        window.dispatchEvent(new CustomEvent('test:startup-config', { detail: win.__E2E_STARTUP_CONFIG }));
+    },
 };
 // --- harness-only bridges ---
 // These are explicit test hooks and must stay out of the truth lane unless a harness runner
@@ -742,8 +786,12 @@ async function probeHealth() {
                 traceId,
             };
         }
-        if (data?.status === 'ok') {
-            return { ok: true, data, traceId };
+        if (data?.status === 'ok' || data?.status === 'online') {
+            const normalized = {
+                ...data,
+                status: 'online',
+            };
+            return { ok: true, data: normalized, traceId };
         }
         return {
             ok: false,

@@ -1,10 +1,22 @@
-﻿export type TestModeName = 'none' | 'flat' | 'recovery' | 'full';
+export type TestModeName = 'none' | 'flat' | 'recovery' | 'full';
+export type E2EStartupMode = 'flat' | 'full' | 'recovery';
+export type E2EServiceSource = 'stub' | 'real';
+
+export type E2EStartupConfig = {
+  mode: E2EStartupMode;
+  projectPath: string | null;
+  recovery: boolean;
+  services: E2EServiceSource;
+  allowRuntimeModeOverride?: boolean;
+  allowLayoutRestore?: boolean;
+};
 
 type WindowWithTestFlags = typeof window & {
   __testEnv?: boolean | { isPlaywright?: boolean };
   __testEnvFlatMode?: boolean;
   __testEnvRecoveryMode?: boolean;
   __testEnvFullMode?: boolean;
+  __E2E_STARTUP_CONFIG?: E2EStartupConfig;
   __dev?: unknown;
 };
 
@@ -42,6 +54,33 @@ export function isHarnessHooksEnabled(): boolean {
   return Boolean(isPlaywrightFlag && win.__dev);
 }
 
+export function getStartupConfig(): E2EStartupConfig | null {
+  if (!isHarnessHooksEnabled()) {
+    return null;
+  }
+  const win = getWindow();
+  if (!win) {
+    return null;
+  }
+  return win.__E2E_STARTUP_CONFIG ?? null;
+}
+
+export function isModeLocked(): boolean {
+  const startup = getStartupConfig();
+  if (!startup) {
+    return false;
+  }
+  return startup.allowRuntimeModeOverride !== true;
+}
+
+export function allowLayoutRestore(): boolean {
+  const startup = getStartupConfig();
+  if (!startup) {
+    return true;
+  }
+  return startup.allowLayoutRestore === true;
+}
+
 export function getMode(): TestModeName {
   if (!isHarnessHooksEnabled()) {
     return 'none';
@@ -49,6 +88,10 @@ export function getMode(): TestModeName {
   const win = getWindow();
   if (!win) {
     return 'none';
+  }
+  const startupMode = win.__E2E_STARTUP_CONFIG?.mode;
+  if (startupMode === 'flat' || startupMode === 'full' || startupMode === 'recovery') {
+    return startupMode;
   }
   if (win.__testEnvFlatMode === true) {
     return 'flat';
@@ -120,6 +163,10 @@ export function isVisualHome(): boolean {
 
 export function getOfflineReason(): string | null {
   if (!isHarnessHooksEnabled()) {
+    return null;
+  }
+  const startup = getStartupConfig();
+  if (startup && startup.services === 'real') {
     return null;
   }
   const datasetReason =

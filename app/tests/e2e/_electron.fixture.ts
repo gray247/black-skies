@@ -97,10 +97,13 @@ async function resetMutableHarnessState(
   baseline?: { body: Record<string, string>; html: Record<string, string> },
 ): Promise<void> {
   await page.evaluate(
-    ({ resetKeys, baselineFlags }) => {
-      const clearDatasetKeys = (target: HTMLElement | null) => {
+    async ({ resetKeys, baselineFlags }) => {
+      const clearAllDatasetKeys = (target: HTMLElement | null) => {
         if (!target) {
           return;
+        }
+        for (const key of Object.keys(target.dataset)) {
+          delete target.dataset[key];
         }
         for (const key of resetKeys) {
           delete target.dataset[key];
@@ -114,8 +117,8 @@ async function resetMutableHarnessState(
           target.dataset[key] = value;
         }
       };
-      clearDatasetKeys(document.documentElement);
-      clearDatasetKeys(document.body);
+      clearAllDatasetKeys(document.documentElement);
+      clearAllDatasetKeys(document.body);
       applyDataset(document.documentElement, baselineFlags.html);
       applyDataset(document.body, baselineFlags.body);
 
@@ -135,6 +138,7 @@ async function resetMutableHarnessState(
         __testEnvDefaultProjectId?: unknown;
         __testEnvDefaultProjectPath?: unknown;
         __testEnvAutoSeedProjectSummary?: unknown;
+        __E2E_STARTUP_CONFIG?: unknown;
       };
       delete resetWindow.__testProjectState;
       delete resetWindow.__blackskiesDebugLog;
@@ -151,12 +155,30 @@ async function resetMutableHarnessState(
       delete resetWindow.__testEnvDefaultProjectId;
       delete resetWindow.__testEnvDefaultProjectPath;
       delete resetWindow.__testEnvAutoSeedProjectSummary;
+      delete resetWindow.__E2E_STARTUP_CONFIG;
 
-      const keysToDelete = Object.keys(window.localStorage).filter((key) =>
-        /(test|layout|recovery|dock|blackskies)/i.test(key),
-      );
-      for (const key of keysToDelete) {
-        window.localStorage.removeItem(key);
+      window.localStorage.clear();
+      window.sessionStorage.clear();
+
+      if (typeof window.indexedDB !== 'undefined' && typeof window.indexedDB.databases === 'function') {
+        try {
+          const dbs = await window.indexedDB.databases();
+          await Promise.all(
+            dbs
+              .filter((db) => Boolean(db.name))
+              .map(
+                (db) =>
+                  new Promise<void>((resolve) => {
+                    const request = window.indexedDB.deleteDatabase(db.name as string);
+                    request.onsuccess = () => resolve();
+                    request.onerror = () => resolve();
+                    request.onblocked = () => resolve();
+                  }),
+              ),
+          );
+        } catch {
+          // ignore best-effort indexedDB cleanup failures
+        }
       }
     },
     {
