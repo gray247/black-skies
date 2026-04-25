@@ -49,6 +49,8 @@ yarn-error.log*
 app/dist-electron/
 app/test-results/
 app/playwright-report/
+workflow results/
+workflow-results/
 vendor/wheels/
 sample_project/
 

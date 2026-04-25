@@ -329,20 +329,17 @@ async function run() {
     recordTimelineEvent('artifact_preflight_passed');
     const forwardedArgs = normalizeForwardedArgs(process.argv.slice(2));
     const runFullSuite = process.env.FULL_ANALYTICS_E2E === '1';
-    const playwrightBin = path.resolve(
+    const playwrightCli = path.resolve(
       __dirname,
       '..',
       'app',
       'node_modules',
-      '.bin',
-      process.platform === 'win32' ? 'playwright.cmd' : 'playwright',
+      'playwright',
+      'cli.js',
     );
     const playwrightArgs = buildPlaywrightArgs(forwardedArgs, runFullSuite);
-    const isWindows = process.platform === 'win32';
-    const command = isWindows ? 'cmd.exe' : playwrightBin;
-    const args = isWindows
-      ? ['/c', playwrightBin, ...playwrightArgs]
-      : playwrightArgs;
+    const command = process.execPath;
+    const args = [playwrightCli, ...playwrightArgs];
     recordTimelineEvent('playwright_start', {
       command,
       args,

@@ -314,6 +314,13 @@ Unresolved repo-wide typing debt and temporary CI scope narrowing.
 - New CI harness drift (2026-04-25): two UI checks flaked on missing transient nodes:
   - `gui.analytics_offline_cache_flow.spec.ts` expected `.corkboard-card` before cache priming converged,
   - `gui.flows.spec.ts::snapshot_restore_flow` expected draft editor `.cm-content` before active-scene selection converged.
+- Canary remains healthy (`serial_canary=success`, `default_canary=success`), but remaining truth-lane CI-only timeout is now isolated to active-scene selection convergence after project load.
+- Truth lane now includes midpoint active-scene diagnostics to distinguish:
+  - missing scene/corkboard nodes,
+  - selector mismatch,
+  - click/event dispatch without state commit,
+  - action-readiness blocked by absent active scene.
+- Workflow result dump dirs are now ignored for future CI diagnostic artifacts (`workflow results/`, `workflow-results/`).
 - New canary diagnostics (2026-04-24) show `waitForProjectLoaded` timeout payloads with:
   - initially `testNeedsRecovery=1` (first regression snapshot),
   - then `testNeedsRecovery` cleared but failures persisted,
@@ -417,6 +424,13 @@ Unresolved repo-wide typing debt and temporary CI scope narrowing.
 - 2026-04-25 - Codex - Hardened flaky harness selectors/state ordering:
   - `gui.analytics_offline_cache_flow.spec.ts` now primes and asserts `data-testid="corkboard-card"` visibility before forcing offline, then re-asserts cached card visibility offline;
   - `gui.flows.spec.ts::snapshot_restore_flow` now explicitly dispatches `test:select-scene` and waits for draft editor visibility before mutating draft content.
+- 2026-04-25 - Codex - Added truth-lane active-scene midpoint diagnostics in `scripts/truth-with-backend.mjs`:
+  - pre-click scene snapshot logs datasets/project/service/dock/corkboard/debug/localStorage state,
+  - selection instrumentation records selector match, click target metadata, and dispatch timestamps,
+  - no-selector branch now fails immediately with diagnostic artifact instead of waiting 30s,
+  - post-click active-scene polling captures active scene, focused node, action enabled state, corkboard counts, and runtime console/pageerror streams,
+  - timeout artifact written to `build/truth_receipts/active_scene_timeout.json` with pre/post snapshots, poll samples, event logs, and DOM excerpts around corkboard/project-home.
+- 2026-04-25 - Codex - Added focused diagnostic e2e guard `app/tests/e2e/truth_active_scene_diagnostic.spec.ts` to exercise truth-like active-scene selection and attach active-scene snapshots.
 
 #### Verification
 - Partial:
@@ -430,6 +444,7 @@ Unresolved repo-wide typing debt and temporary CI scope narrowing.
     `pytest services/tests/unit/test_config.py -k "crlf_suffix"` -> PASS.
   - Targeted harness repro/fix validation on 2026-04-25:
     `pnpm --dir app exec playwright test tests/e2e/gui.analytics_offline_cache_flow.spec.ts tests/e2e/gui.flows.spec.ts -g "analytics offline cache flow keeps cached metrics visible|snapshot_restore_flow" --project=electron --workers=1 --reporter=line` -> PASS (2/2).
+  - Truth-lane active-scene timeout path now emits deterministic artifact payload (`build/truth_receipts/active_scene_timeout.json`) so CI can classify selector/card/state failures without opaque 30s timeout only.
   - Local PowerShell full harness validation on 2026-04-25:
     `FULL_ANALYTICS_E2E=1 pnpm test:e2e -- --project=electron --workers=1` -> PASS (9/9; no harness assertion failures reproduced).
   - local evidence confirms timeline artifact writes on pre-backend launcher failure,

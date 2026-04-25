@@ -663,6 +663,7 @@ async function attachCdpClient(wsUrl) {
   await cdp.ready;
   await cdp.send('Page.enable');
   await cdp.send('Runtime.enable');
+  await cdp.send('Log.enable').catch(() => {});
   return cdp;
 }
 
@@ -671,12 +672,23 @@ class CdpClient {
     this.ws = new WebSocketImpl(wsUrl);
     this.nextId = 1;
     this.pending = new Map();
+    this.eventHandlers = new Map();
     this.ready = new Promise((resolve, reject) => {
       this.ws.addEventListener('open', () => resolve(), { once: true });
       this.ws.addEventListener('error', reject, { once: true });
     });
     this.ws.addEventListener('message', (event) => {
       const message = JSON.parse(event.data);
+      if (typeof message.method === 'string') {
+        const handlers = this.eventHandlers.get(message.method) ?? [];
+        for (const handler of handlers) {
+          try {
+            handler(message.params ?? {});
+          } catch {
+            // best effort event fan-out
+          }
+        }
+      }
       if (typeof message.id === 'number') {
         const pending = this.pending.get(message.id);
         if (!pending) {
@@ -696,6 +708,19 @@ class CdpClient {
       }
       this.pending.clear();
     });
+  }
+
+  on(method, handler) {
+    const handlers = this.eventHandlers.get(method) ?? [];
+    handlers.push(handler);
+    this.eventHandlers.set(method, handlers);
+    return () => {
+      const current = this.eventHandlers.get(method) ?? [];
+      this.eventHandlers.set(
+        method,
+        current.filter((entry) => entry !== handler),
+      );
+    };
   }
 
   async send(method, params = {}) {
@@ -748,6 +773,342 @@ async function waitForCondition(check, timeoutMs, label = 'condition') {
     throw new Error(`[truth] Timed out waiting for ${label}: ${lastError.message}`);
   }
   throw new Error(`[truth] Timed out after ${timeoutMs}ms waiting for ${label}`);
+}
+
+function trimText(value, maxLength = 800) {
+  const text = String(value ?? '');
+  if (text.length <= maxLength) {
+    return text;
+  }
+  return `${text.slice(0, maxLength)}…`;
+}
+
+function createActiveSceneRuntimeDiagnosticsCollector(cdp) {
+  const consoleLogs = [];
+  const pageErrors = [];
+  const maxEntries = 200;
+  const toPlainArg = (arg) => {
+    if (!arg || typeof arg !== 'object') {
+      return null;
+    }
+    if (Object.prototype.hasOwnProperty.call(arg, 'value')) {
+      return trimText(arg.value, 400);
+    }
+    if (typeof arg.description === 'string') {
+      return trimText(arg.description, 400);
+    }
+    if (arg.preview && typeof arg.preview.description === 'string') {
+      return trimText(arg.preview.description, 400);
+    }
+    if (typeof arg.type === 'string') {
+      return arg.type;
+    }
+    return null;
+  };
+  const pushBounded = (bucket, payload) => {
+    bucket.push(payload);
+    if (bucket.length > maxEntries) {
+      bucket.shift();
+    }
+  };
+  const unsubscribeConsole = cdp.on('Runtime.consoleAPICalled', (params) => {
+    pushBounded(consoleLogs, {
+      ts_ms: Date.now(),
+      type: params?.type ?? null,
+      text: Array.isArray(params?.args)
+        ? params.args
+            .map((arg) => toPlainArg(arg))
+            .filter((entry) => entry !== null)
+            .join(' ')
+        : '',
+      executionContextId: params?.executionContextId ?? null,
+    });
+  });
+  const unsubscribeException = cdp.on('Runtime.exceptionThrown', (params) => {
+    const details = params?.exceptionDetails ?? {};
+    pushBounded(pageErrors, {
+      ts_ms: Date.now(),
+      text: details?.text ?? null,
+      exception:
+        details?.exception && typeof details.exception.description === 'string'
+          ? trimText(details.exception.description, 1200)
+          : null,
+      url: details?.url ?? null,
+      lineNumber: details?.lineNumber ?? null,
+      columnNumber: details?.columnNumber ?? null,
+    });
+  });
+  const unsubscribeLogEntry = cdp.on('Log.entryAdded', (params) => {
+    const entry = params?.entry ?? {};
+    if (entry.level !== 'error') {
+      return;
+    }
+    pushBounded(pageErrors, {
+      ts_ms: Date.now(),
+      text: entry.text ?? null,
+      source: entry.source ?? null,
+      url: entry.url ?? null,
+      lineNumber: entry.lineNumber ?? null,
+    });
+  });
+  return {
+    consoleLogs,
+    pageErrors,
+    dispose() {
+      unsubscribeConsole();
+      unsubscribeException();
+      unsubscribeLogEntry();
+    },
+  };
+}
+
+async function collectActiveSceneDiagnosticSnapshot(cdp, targetSceneId) {
+  return evaluate(
+    cdp,
+    `(() => {
+      const targetSceneId = ${JSON.stringify(targetSceneId)};
+      const body = document.body;
+      const html = document.documentElement;
+      const servicePill = document.querySelector('[data-testid="service-status-pill"]');
+      const recoveryBanner = document.querySelector('[data-testid="recovery-banner"]');
+      const dockWorkspace = document.querySelector('[data-testid="dock-workspace"]');
+      const corkboardHeading = Array.from(document.querySelectorAll('h1,h2,h3,h4,h5,h6')).find(
+        (node) => (node.textContent ?? '').trim() === 'Corkboard',
+      );
+      const activeSceneButton = document.querySelector(
+        '.project-home__scene-card--active .project-home__scene-button[aria-pressed="true"]',
+      );
+      const selectedSceneButtons = Array.from(
+        document.querySelectorAll('.project-home__scene-button[aria-pressed="true"]'),
+      );
+      const sceneNodesWithTarget = Array.from(document.querySelectorAll('*'))
+        .filter((node) => (node.textContent ?? '').includes(targetSceneId))
+        .slice(0, 25)
+        .map((node) => ({
+          tag: node.tagName?.toLowerCase() ?? null,
+          className: node.className ?? null,
+          testId: node.getAttribute?.('data-testid') ?? null,
+          text: (node.textContent ?? '').trim().slice(0, 200),
+        }));
+      const relevantStorage = Object.keys(window.localStorage)
+        .filter((key) => /(blackskies|test|layout|recovery|dock|scene|project)/i.test(key))
+        .sort()
+        .reduce((acc, key) => {
+          acc[key] = window.localStorage.getItem(key);
+          return acc;
+        }, {});
+      const excerpt = (selector) => {
+        const node = document.querySelector(selector);
+        if (!node) {
+          return null;
+        }
+        return (node.outerHTML ?? '').slice(0, 5000);
+      };
+      return {
+        captured_at: new Date().toISOString(),
+        targetSceneId,
+        readyState: document.readyState,
+        url: window.location.href,
+        datasets: {
+          body: { ...(body?.dataset ?? {}) },
+          html: { ...(html?.dataset ?? {}) },
+        },
+        project: {
+          loaded: body?.dataset?.projectLoaded ?? html?.dataset?.projectLoaded ?? null,
+          path: body?.dataset?.projectPath ?? html?.dataset?.projectPath ?? null,
+          id: body?.dataset?.projectId ?? html?.dataset?.projectId ?? null,
+        },
+        service: {
+          status: servicePill?.getAttribute('data-status') ?? null,
+          reason: servicePill?.getAttribute('data-reason') ?? null,
+        },
+        recoveryBannerPresent: Boolean(recoveryBanner),
+        dockWorkspacePresent: Boolean(dockWorkspace),
+        corkboardHeadingPresent: Boolean(corkboardHeading),
+        corkboardCardCounts: {
+          byTestId: document.querySelectorAll('[data-testid="corkboard-card"]').length,
+          byClass: document.querySelectorAll('.corkboard-card').length,
+        },
+        containsTargetScene: {
+          count: sceneNodesWithTarget.length,
+          nodes: sceneNodesWithTarget,
+        },
+        activeScene: {
+          present: Boolean(activeSceneButton),
+          text: activeSceneButton?.textContent?.trim() ?? null,
+          selectedCount: selectedSceneButtons.length,
+        },
+        debugState: {
+          blackSkiesDebugState:
+            window.__blackSkiesDebugState ??
+            window.__blackskiesDebugState ??
+            window.__blackskiesDebugProjectState ??
+            null,
+          startupDebugState: window.__startupDebugState ?? null,
+          dockRenderLog: window.__dockRenderLog ?? null,
+          blackskiesDebugLogTail: Array.isArray(window.__blackskiesDebugLog)
+            ? window.__blackskiesDebugLog.slice(-20)
+            : null,
+        },
+        localStorageRelevant: relevantStorage,
+        domExcerpt: {
+          projectHome: excerpt('.project-home'),
+          corkboardPane: excerpt('[data-pane-id="corkboard"]'),
+          sceneList: excerpt('.project-home__scene-list'),
+          dockWorkspace: excerpt('[data-testid="dock-workspace"]'),
+        },
+      };
+    })()`,
+  );
+}
+
+async function attemptSceneSelectionWithDiagnostics(cdp, targetSceneId) {
+  return evaluate(
+    cdp,
+    `(() => {
+      const target = ${JSON.stringify(targetSceneId)};
+      const now = Date.now();
+      const toVisibility = (node) => {
+        if (!node) {
+          return { visible: false, display: null, visibility: null };
+        }
+        const style = window.getComputedStyle(node);
+        return {
+          visible: style.display !== 'none' && style.visibility !== 'hidden',
+          display: style.display,
+          visibility: style.visibility,
+        };
+      };
+      const clickPayload = {
+        targetSceneId: target,
+        attemptedAt: new Date(now).toISOString(),
+        selectorMatched: null,
+        hasSelector: false,
+        selectionMethod: null,
+        targetText: null,
+        targetVisible: false,
+        targetRect: null,
+        clickDispatchedAt: null,
+        eventDispatchedAt: null,
+        candidateSummary: {},
+      };
+      const candidateButtons = Array.from(document.querySelectorAll('.project-home__scene-button'));
+      const buttonFromIdNode = (() => {
+        const idNode = Array.from(document.querySelectorAll('.project-home__scene-id')).find(
+          (node) => (node.textContent ?? '').trim() === target,
+        );
+        return idNode?.closest('button') ?? null;
+      })();
+      const buttonFromText = candidateButtons.find((button) =>
+        (button.textContent ?? '').includes(target),
+      );
+      const buttonFromAriaLabel = Array.from(document.querySelectorAll('button[aria-label]')).find((button) =>
+        (button.getAttribute('aria-label') ?? '').includes(target),
+      );
+      clickPayload.candidateSummary = {
+        sceneButtonsCount: candidateButtons.length,
+        sceneIdNodesCount: document.querySelectorAll('.project-home__scene-id').length,
+        corkboardByTestIdCount: document.querySelectorAll('[data-testid="corkboard-card"]').length,
+        corkboardByClassCount: document.querySelectorAll('.corkboard-card').length,
+      };
+      const targetButton =
+        buttonFromIdNode instanceof HTMLButtonElement
+          ? buttonFromIdNode
+          : buttonFromText instanceof HTMLButtonElement
+            ? buttonFromText
+            : buttonFromAriaLabel instanceof HTMLButtonElement
+              ? buttonFromAriaLabel
+              : null;
+      if (targetButton) {
+        clickPayload.hasSelector = true;
+        clickPayload.selectorMatched =
+          targetButton === buttonFromIdNode
+            ? '.project-home__scene-id -> closest(button.project-home__scene-button)'
+            : targetButton === buttonFromText
+              ? '.project-home__scene-button (text contains scene id)'
+              : 'button[aria-label*="<scene-id>"]';
+        clickPayload.selectionMethod = 'button-click';
+        clickPayload.targetText = (targetButton.textContent ?? '').trim().slice(0, 300);
+        const rect = targetButton.getBoundingClientRect();
+        clickPayload.targetRect = {
+          x: rect.x,
+          y: rect.y,
+          width: rect.width,
+          height: rect.height,
+        };
+        clickPayload.targetVisible = toVisibility(targetButton).visible;
+        targetButton.click();
+        clickPayload.clickDispatchedAt = new Date().toISOString();
+        return clickPayload;
+      }
+      window.dispatchEvent(new CustomEvent('test:select-scene', { detail: target }));
+      clickPayload.selectionMethod = 'event-only';
+      clickPayload.eventDispatchedAt = new Date().toISOString();
+      return clickPayload;
+    })()`,
+  );
+}
+
+async function collectActiveScenePollSample(cdp, targetSceneId) {
+  return evaluate(
+    cdp,
+    `(() => {
+      const target = ${JSON.stringify(targetSceneId)};
+      const activeButton = document.querySelector(
+        '.project-home__scene-card--active .project-home__scene-button[aria-pressed="true"]',
+      );
+      const selectedButtons = Array.from(
+        document.querySelectorAll('.project-home__scene-button[aria-pressed="true"]'),
+      );
+      const focused = document.activeElement;
+      const generate = document.querySelector('[data-testid="workspace-action-generate"]');
+      const critique = document.querySelector('[data-testid="workspace-action-critique"]');
+      const summaryTarget = selectedButtons.find((node) => (node.textContent ?? '').includes(target));
+      return {
+        ts_ms: Date.now(),
+        activeScene: {
+          present: Boolean(activeButton),
+          text: activeButton?.textContent?.trim() ?? null,
+          selectedCount: selectedButtons.length,
+          includesTarget: Boolean(summaryTarget),
+        },
+        focusedElement: focused
+          ? {
+              tag: focused.tagName?.toLowerCase() ?? null,
+              testId: focused.getAttribute?.('data-testid') ?? null,
+              className: focused.className ?? null,
+              text: (focused.textContent ?? '').trim().slice(0, 120),
+            }
+          : null,
+        actions: {
+          generate: {
+            present: Boolean(generate),
+            enabled: generate instanceof HTMLButtonElement ? !generate.disabled : null,
+          },
+          critique: {
+            present: Boolean(critique),
+            enabled: critique instanceof HTMLButtonElement ? !critique.disabled : null,
+          },
+        },
+        corkboardCardCounts: {
+          byTestId: document.querySelectorAll('[data-testid="corkboard-card"]').length,
+          byClass: document.querySelectorAll('.corkboard-card').length,
+        },
+        debugActiveScene:
+          window.__blackSkiesDebugState?.activeScene ??
+          window.__blackskiesDebugState?.activeScene ??
+          window.__blackskiesDebugProjectState?.activeScene ??
+          null,
+      };
+    })()`,
+  );
+}
+
+function writeActiveSceneTimeoutArtifact(payload) {
+  mkdirSync(RECEIPT_DIR, { recursive: true });
+  const artifactPath = path.join(RECEIPT_DIR, 'active_scene_timeout.json');
+  writeFileSync(artifactPath, `${JSON.stringify(payload, null, 2)}\n`, 'utf8');
+  return artifactPath;
 }
 
 async function waitForProcessExit(pid, timeoutMs) {
@@ -1148,37 +1509,102 @@ async function run() {
         return dockVisible === true;
       }, 30_000, 'dock workspace');
 
-      const debugSnapshot = await evaluate(
+      const activeSceneRuntimeDiagnostics = createActiveSceneRuntimeDiagnosticsCollector(cdp);
+      try {
+        const debugSnapshot = await evaluate(
         cdp,
         `Array.isArray(window.__blackskiesDebugLog) ? window.__blackskiesDebugLog.slice(-20) : null`,
-      );
-      console.log('[truth] renderer debug snapshot', debugSnapshot);
-
-      console.log(`[truth] selecting primary scene ${sampleLoadProbe.sceneIds[0]} before action readiness`);
-      const initialSceneSelectionMode = await evaluate(
-        cdp,
-        `(() => {
-          const targetSceneId = ${JSON.stringify(sampleLoadProbe.sceneIds[0])};
-          const buttons = Array.from(document.querySelectorAll('.project-home__scene-button'));
-          const targetButton = buttons.find((button) =>
-            (button.textContent ?? '').includes(targetSceneId),
-          );
-          if (targetButton instanceof HTMLButtonElement) {
-            targetButton.click();
-            return 'button';
-          }
-          window.dispatchEvent(new CustomEvent('test:select-scene', { detail: targetSceneId }));
-          return 'event';
-        })()`,
-      );
-      console.log('[truth] initial scene selection mode', initialSceneSelectionMode);
-      await waitForCondition(async () => {
-        const hasActiveScene = await evaluate(
-          cdp,
-          `Boolean(document.querySelector('.project-home__scene-card--active .project-home__scene-button[aria-pressed="true"]'))`,
         );
-        return hasActiveScene === true;
-      }, 30_000, 'active scene selection');
+        console.log('[truth] renderer debug snapshot', debugSnapshot);
+
+        const actionReadySceneId = sampleLoadProbe.sceneIds[0];
+        const activeScenePreClickSnapshot = await collectActiveSceneDiagnosticSnapshot(cdp, actionReadySceneId);
+        console.log('[truth] active scene pre-click snapshot', {
+          targetSceneId: actionReadySceneId,
+          project: activeScenePreClickSnapshot.project,
+          service: activeScenePreClickSnapshot.service,
+          recoveryBannerPresent: activeScenePreClickSnapshot.recoveryBannerPresent,
+          dockWorkspacePresent: activeScenePreClickSnapshot.dockWorkspacePresent,
+          corkboardHeadingPresent: activeScenePreClickSnapshot.corkboardHeadingPresent,
+          corkboardCardCounts: activeScenePreClickSnapshot.corkboardCardCounts,
+          containsTargetSceneCount: activeScenePreClickSnapshot.containsTargetScene?.count ?? null,
+          activeScene: activeScenePreClickSnapshot.activeScene,
+        });
+
+        console.log(`[truth] selecting primary scene ${actionReadySceneId} before action readiness`);
+        const sceneClickResult = await attemptSceneSelectionWithDiagnostics(cdp, actionReadySceneId);
+        console.log('[truth] initial scene selection diagnostics', sceneClickResult);
+
+        if (!sceneClickResult.hasSelector) {
+          const noSelectorPayload = {
+            recorded_at: new Date().toISOString(),
+            reason: 'no_scene_selector_match',
+            targetSceneId: actionReadySceneId,
+            preClickSnapshot: activeScenePreClickSnapshot,
+            clickResult: sceneClickResult,
+            consoleLogs: activeSceneRuntimeDiagnostics.consoleLogs,
+            pageErrors: activeSceneRuntimeDiagnostics.pageErrors,
+          };
+          const noSelectorArtifactPath = writeActiveSceneTimeoutArtifact(noSelectorPayload);
+          receipt.artifacts.push({
+            kind: 'active_scene_timeout',
+            path: path.relative(REPO_ROOT, noSelectorArtifactPath),
+          });
+          throw new Error(
+            `[truth] No selectable scene node found for ${actionReadySceneId}; wrote diagnostics to ${noSelectorArtifactPath}`,
+          );
+        }
+
+        const selectionStartMs =
+          Date.parse(sceneClickResult.clickDispatchedAt ?? sceneClickResult.eventDispatchedAt ?? '') || Date.now();
+        const pollIntervalMs = 250;
+        const activeScenePollSamples = [];
+        const activeSceneDeadline = Date.now() + 30_000;
+        let activeSceneSelected = false;
+        while (Date.now() < activeSceneDeadline) {
+          const sample = await collectActiveScenePollSample(cdp, actionReadySceneId);
+          activeScenePollSamples.push(sample);
+          if (activeScenePollSamples.length > 240) {
+            activeScenePollSamples.shift();
+          }
+          if (sample?.activeScene?.present === true && sample?.activeScene?.includesTarget === true) {
+            activeSceneSelected = true;
+            break;
+          }
+          await delay(pollIntervalMs);
+        }
+        if (!activeSceneSelected) {
+          const activeScenePostClickSnapshot = await collectActiveSceneDiagnosticSnapshot(cdp, actionReadySceneId);
+          const timeoutPayload = {
+            recorded_at: new Date().toISOString(),
+            reason: 'active_scene_selection_timeout',
+            timeout_ms: 30_000,
+            poll_interval_ms: pollIntervalMs,
+            targetSceneId: actionReadySceneId,
+            preClickSnapshot: activeScenePreClickSnapshot,
+            clickResult: sceneClickResult,
+            pollSamples: activeScenePollSamples,
+            consoleLogsSinceClick: activeSceneRuntimeDiagnostics.consoleLogs.filter(
+              (entry) => (entry?.ts_ms ?? 0) >= selectionStartMs,
+            ),
+            pageErrorsSinceClick: activeSceneRuntimeDiagnostics.pageErrors.filter(
+              (entry) => (entry?.ts_ms ?? 0) >= selectionStartMs,
+            ),
+            postClickSnapshot: activeScenePostClickSnapshot,
+            finalDomExcerpt: activeScenePostClickSnapshot.domExcerpt,
+          };
+          const timeoutArtifactPath = writeActiveSceneTimeoutArtifact(timeoutPayload);
+          receipt.artifacts.push({
+            kind: 'active_scene_timeout',
+            path: path.relative(REPO_ROOT, timeoutArtifactPath),
+          });
+          throw new Error(
+            `[truth] Timed out after 30000ms waiting for active scene selection; diagnostics written to ${timeoutArtifactPath}`,
+          );
+        }
+      } finally {
+        activeSceneRuntimeDiagnostics.dispose();
+      }
 
       console.log('[truth] waiting for generate button to enable');
       try {
