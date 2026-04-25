@@ -384,6 +384,96 @@ interface PostBootstrapStableOptions {
   expectedProjectPath?: string | null;
 }
 
+interface PostBootstrapStablePredicateArgs {
+  expectedMode: HarnessMode;
+  expectedServiceStatus: HarnessServiceStatus | null;
+  allowRecoveryBanner: boolean;
+  requireDockWorkspace: boolean;
+  requireCorkboardPane: boolean;
+  requireGenerateAction: boolean;
+  requireActiveScene: boolean;
+}
+
+function postBootstrapStablePredicate({
+  expectedMode,
+  expectedServiceStatus: expectedStatus,
+  allowRecoveryBanner: allowRecovery,
+  requireDockWorkspace: requireDock,
+  requireCorkboardPane: requireCorkboard,
+  requireGenerateAction: requireGenerate,
+  requireActiveScene: requireScene,
+}: PostBootstrapStablePredicateArgs): boolean {
+  // Keep browser-context checks argument-only to avoid closure leaks in page.waitForFunction serialization.
+  const mode = document.body?.dataset?.testMode ?? document.documentElement?.dataset?.testMode;
+  if (mode !== expectedMode) {
+    return false;
+  }
+  const projectPath = document.body?.dataset?.projectPath ?? document.documentElement?.dataset?.projectPath;
+  const projectId = document.body?.dataset?.projectId ?? document.documentElement?.dataset?.projectId;
+  const projectLoaded = document.body?.dataset?.projectLoaded ?? document.documentElement?.dataset?.projectLoaded;
+  if (projectLoaded !== '1' || !projectPath || !projectId) {
+    return false;
+  }
+  const subtitle = document.querySelector('.app-shell__workspace-subtitle') as HTMLElement | null;
+  if (!subtitle || !subtitle.textContent || subtitle.textContent.trim() === 'No project loaded') {
+    return false;
+  }
+  const servicePill = document.querySelector('[data-testid="service-status-pill"]') as HTMLElement | null;
+  if (expectedStatus && expectedStatus !== 'port-unavailable') {
+    if (!servicePill || servicePill.getAttribute('data-status') !== expectedStatus) {
+      return false;
+    }
+  }
+  const recoveryBanner = document.querySelector('[data-testid="recovery-banner"]') as HTMLElement | null;
+  if (!allowRecovery && recoveryBanner) {
+    const style = window.getComputedStyle(recoveryBanner);
+    if (style.display !== 'none' && style.visibility !== 'hidden') {
+      return false;
+    }
+  }
+  if (requireDock) {
+    const dock = document.querySelector('[data-testid="dock-workspace"]') as HTMLElement | null;
+    if (!dock) {
+      return false;
+    }
+    const style = window.getComputedStyle(dock);
+    if (style.display === 'none' || style.visibility === 'hidden') {
+      return false;
+    }
+  }
+  if (requireCorkboard) {
+    const corkboardPane = document.querySelector('[data-pane-id=\"corkboard\"]') as HTMLElement | null;
+    if (!corkboardPane) {
+      return false;
+    }
+    const style = window.getComputedStyle(corkboardPane);
+    if (style.display === 'none' || style.visibility === 'hidden') {
+      return false;
+    }
+  }
+  if (requireGenerate) {
+    const generate = document.querySelector('[data-testid="workspace-action-generate"]') as
+      | HTMLButtonElement
+      | null;
+    if (!generate || generate.disabled) {
+      return false;
+    }
+    const style = window.getComputedStyle(generate);
+    if (style.display === 'none' || style.visibility === 'hidden') {
+      return false;
+    }
+  }
+  if (requireScene) {
+    const activeScene = document.querySelector(
+      '.project-home__scene-card--active .project-home__scene-button[aria-pressed="true"]',
+    );
+    if (!activeScene) {
+      return false;
+    }
+  }
+  return true;
+}
+
 export async function assertPostBootstrapStable(
   page: Page,
   options: PostBootstrapStableOptions,
@@ -396,97 +486,17 @@ export async function assertPostBootstrapStable(
   const requireGenerateAction = options.requireGenerateAction ?? true;
   const requireActiveScene = options.requireActiveScene ?? false;
   const expectedProjectPath = options.expectedProjectPath ?? null;
+  const predicateArgs: PostBootstrapStablePredicateArgs = {
+    expectedMode: options.mode,
+    expectedServiceStatus,
+    allowRecoveryBanner,
+    requireDockWorkspace,
+    requireCorkboardPane,
+    requireGenerateAction,
+    requireActiveScene,
+  };
   try {
-    await page.waitForFunction(
-      ({
-        expectedMode,
-        expectedServiceStatus: expectedStatus,
-        allowRecoveryBanner: allowRecovery,
-        requireDockWorkspace: requireDock,
-        requireGenerateAction: requireGenerate,
-        requireActiveScene: requireScene,
-      }) => {
-        const mode = document.body?.dataset?.testMode ?? document.documentElement?.dataset?.testMode;
-        if (mode !== expectedMode) {
-          return false;
-        }
-        const projectPath = document.body?.dataset?.projectPath ?? document.documentElement?.dataset?.projectPath;
-        const projectId = document.body?.dataset?.projectId ?? document.documentElement?.dataset?.projectId;
-        const projectLoaded =
-          document.body?.dataset?.projectLoaded ?? document.documentElement?.dataset?.projectLoaded;
-        if (projectLoaded !== '1' || !projectPath || !projectId) {
-          return false;
-        }
-        const subtitle = document.querySelector('.app-shell__workspace-subtitle') as HTMLElement | null;
-        if (!subtitle || !subtitle.textContent || subtitle.textContent.trim() === 'No project loaded') {
-          return false;
-        }
-        const servicePill = document.querySelector('[data-testid="service-status-pill"]') as HTMLElement | null;
-        if (expectedStatus && expectedStatus !== 'port-unavailable') {
-          if (!servicePill || servicePill.getAttribute('data-status') !== expectedStatus) {
-            return false;
-          }
-        }
-        const recoveryBanner = document.querySelector('[data-testid="recovery-banner"]') as HTMLElement | null;
-        if (!allowRecovery && recoveryBanner) {
-          const style = window.getComputedStyle(recoveryBanner);
-          if (style.display !== 'none' && style.visibility !== 'hidden') {
-            return false;
-          }
-        }
-        if (requireDock) {
-          const dock = document.querySelector('[data-testid="dock-workspace"]') as HTMLElement | null;
-          if (!dock) {
-            return false;
-          }
-          const style = window.getComputedStyle(dock);
-          if (style.display === 'none' || style.visibility === 'hidden') {
-            return false;
-          }
-        }
-        if (requireCorkboardPane) {
-          const corkboardPane = document.querySelector('[data-pane-id=\"corkboard\"]') as HTMLElement | null;
-          if (!corkboardPane) {
-            return false;
-          }
-          const style = window.getComputedStyle(corkboardPane);
-          if (style.display === 'none' || style.visibility === 'hidden') {
-            return false;
-          }
-        }
-        if (requireGenerate) {
-          const generate = document.querySelector('[data-testid="workspace-action-generate"]') as
-            | HTMLButtonElement
-            | null;
-          if (!generate || generate.disabled) {
-            return false;
-          }
-          const style = window.getComputedStyle(generate);
-          if (style.display === 'none' || style.visibility === 'hidden') {
-            return false;
-          }
-        }
-        if (requireScene) {
-          const activeScene = document.querySelector(
-            '.project-home__scene-card--active .project-home__scene-button[aria-pressed="true"]',
-          );
-          if (!activeScene) {
-            return false;
-          }
-        }
-        return true;
-      },
-      {
-        expectedMode: options.mode,
-        expectedServiceStatus,
-        allowRecoveryBanner,
-        requireDockWorkspace,
-        requireCorkboardPane,
-        requireGenerateAction,
-        requireActiveScene,
-      },
-      { timeout: timeoutMs },
-    );
+    await page.waitForFunction(postBootstrapStablePredicate, predicateArgs, { timeout: timeoutMs });
   } catch (error) {
     const snapshot = await collectStartupStateSnapshot(page);
     const actualPath = snapshot.project.pathBody ?? snapshot.project.pathHtml;

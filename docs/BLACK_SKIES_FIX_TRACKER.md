@@ -293,6 +293,11 @@ Truth lane path appears intentionally separated (`scripts/truth-with-backend.mjs
 - `electronApp.firstWindow` timeout is downstream noise when packaged entry/renderer output are absent; no BrowserWindow can be created in that state.
 - Latest canary transition (2026-04-24): backend healthy + Electron window + renderer boot + project-loaded debug event all occur, but harness still times out in `_bootstrap.waitForProjectLoaded`.
 - Root cause upgraded: startup is non-deterministic across subsystems (mode drift, recovery leakage, project injection races, service-status contract drift, early-enabled actions, and persisted client state bleed).
+- New parity repro (2026-04-25): CI and local PowerShell now fail with the same error in `assertPostBootstrapStable`:
+  `ReferenceError: requireCorkboardPane is not defined`.
+- Failure root for this regression is test-helper browser-context variable leakage in `page.waitForFunction` (predicate referenced `requireCorkboardPane` from outer scope instead of serialized args).
+- Current snapshots during this failure indicate startup is healthier than earlier regressions:
+  `projectLoaded=1`, mode contract aligned, service status online, recovery absent, dock/panes present, actions visible/enabled.
 - New canary diagnostics (2026-04-24) show `waitForProjectLoaded` timeout payloads with:
   - initially `testNeedsRecovery=1` (first regression snapshot),
   - then `testNeedsRecovery` cleared but failures persisted,
@@ -385,9 +390,15 @@ Truth lane path appears intentionally separated (`scripts/truth-with-backend.mjs
   - flat mode asserts no unexpected recovery, mode-lock resilience, and action disable when active scene is absent;
   - full mode asserts dock/pane contract (including corkboard visibility) and no unexpected recovery;
   - recovery mode asserts banner visibility only when explicitly requested.
+- 2026-04-25 - Codex - Fixed `assertPostBootstrapStable` browser predicate serialization leak in `app/tests/e2e/_bootstrap.ts`:
+  - moved post-bootstrap readiness predicate to typed module-scope helper with explicit serialized args,
+  - passed `requireCorkboardPane` (and all other predicate inputs) through `page.waitForFunction` args,
+  - removed implicit closure dependence that produced `ReferenceError` in browser context.
 
 #### Verification
 - Partial:
+  - Local PowerShell repro/validation on 2026-04-25 passed after fix:
+    `pnpm --dir app run build:renderer`, `pnpm --dir app run build:main`, `pnpm test:e2e -- --project=electron --workers=1 --grep "smoke_"` -> 3 passed, `ReferenceError: requireCorkboardPane is not defined` no longer reproduced.
   - local evidence confirms timeline artifact writes on pre-backend launcher failure,
   - CI evidence is still required for canary rerun confirming artifact-preflight now passes and launch reaches Electron window creation path,
   - CI evidence is still required to confirm `waitForProjectLoaded` converges on committed state markers after `test:set-project`-to-`activateProject` wiring,
