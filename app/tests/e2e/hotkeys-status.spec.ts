@@ -358,11 +358,70 @@ test.describe('Hotkeys status', () => {
     await expect(critiqueButton).toBeEnabled();
   });
 
-  test('restores a snapshot from the recovery banner', async ({ page }) => {
+  test('restores a snapshot from the recovery banner', async ({ page }, testInfo) => {
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await bootstrapHarness(page, {
+      expectedMode: 'flat',
+      allowRecoveryBanner: true,
+    });
     await page.evaluate(() => window.__setRecoveryState?.(true));
-    const recoveryBanner = page.getByTestId('recovery-banner');
+
+    const recoveryBanner = page
+      .getByTestId('recovery-banner')
+      .filter({ has: page.getByRole('button', { name: 'Restore snapshot' }) })
+      .first();
     const restoreButton = recoveryBanner.getByRole('button', { name: 'Restore snapshot' });
-    await expect(restoreButton).toBeVisible();
+    const recoveryDiagnostics = await page.evaluate(async () => {
+      const banner = document.querySelector('[data-testid="recovery-banner"]') as HTMLElement | null;
+      const servicePill = document.querySelector('[data-testid="service-status-pill"]') as HTMLElement | null;
+      const projectId =
+        document.body?.dataset?.projectId ?? document.documentElement?.dataset?.projectId ?? null;
+      const serviceRecoveryResponse =
+        projectId && window.services?.getRecoveryStatus
+          ? await window.services.getRecoveryStatus({ projectId })
+          : null;
+      const buttonRows = banner
+        ? Array.from(banner.querySelectorAll('button')).map((button) => {
+            const style = window.getComputedStyle(button);
+            return {
+              name: button.textContent?.trim() ?? null,
+              role: button.getAttribute('role') ?? 'button',
+              visible: style.display !== 'none' && style.visibility !== 'hidden',
+              disabled: button.disabled,
+            };
+          })
+        : [];
+      return {
+        capturedAt: new Date().toISOString(),
+        startupConfig:
+          (window as typeof window & { __E2E_STARTUP_CONFIG?: unknown }).__E2E_STARTUP_CONFIG ?? null,
+        recoveryDebugState: {
+          recoveryLog:
+            (window as typeof window & { __recoveryLog?: unknown }).__recoveryLog ?? null,
+          snapshotRestoreDone:
+            (window as typeof window & { __snapshotRestoreDone?: boolean }).__snapshotRestoreDone ?? null,
+          testNeedsRecoveryBody: document.body?.dataset?.testNeedsRecovery ?? null,
+          testNeedsRecoveryHtml: document.documentElement?.dataset?.testNeedsRecovery ?? null,
+        },
+        service: {
+          status: servicePill?.getAttribute('data-status') ?? null,
+          reason: servicePill?.getAttribute('data-reason') ?? null,
+          recoveryResponse: serviceRecoveryResponse,
+        },
+        banner: {
+          present: Boolean(banner),
+          html: banner?.outerHTML ?? null,
+          text: banner?.textContent?.trim() ?? null,
+          buttons: buttonRows,
+        },
+      };
+    });
+    await testInfo.attach('recovery-banner-diagnostic.json', {
+      body: Buffer.from(`${JSON.stringify(recoveryDiagnostics, null, 2)}\n`, 'utf-8'),
+      contentType: 'application/json',
+    });
+    await expect(recoveryBanner).toBeVisible({ timeout: 30_000 });
+    await expect(restoreButton).toBeVisible({ timeout: 30_000 });
     await restoreButton.click();
 
     await waitForSnapshotRestoreComplete(page);

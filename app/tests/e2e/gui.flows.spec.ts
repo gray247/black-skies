@@ -6,6 +6,7 @@ import {
 } from './_bootstrap';
 import { loadSampleProject } from './utils/sampleProject';
 import { installServiceStubs } from './utils/serviceStubs';
+import { selectSceneWithDiagnostics } from './utils/sceneSelectionDiagnostics';
 import { TID } from '../../renderer/utils/testIds';
 
 // HARNESS_ONLY:
@@ -30,9 +31,12 @@ test.describe('GUI flow smoke tests', () => {
     await bootstrapHarness(page, { expectedMode: 'flat' });
 
     await expect(page.getByTestId(TID.wizardRoot)).toBeVisible({ timeout: 30_000 });
-    await page.evaluate(() => {
-      window.dispatchEvent(new CustomEvent('test:select-scene', { detail: 'sc_0001' }));
+    const selectionDiagnostics = await selectSceneWithDiagnostics(page, test.info(), 'sc_0001', {
+      attachmentName: 'snapshot-restore-scene-selection.json',
+      timeoutMs: 30_000,
+      pollIntervalMs: 500,
     });
+    expect(selectionDiagnostics.activeSceneReached).toBe(true);
 
     await expect(page.getByTestId('workspace-action-generate')).toBeVisible({ timeout: 30_000 });
     await expect(page.getByTestId('workspace-action-critique')).toBeVisible({ timeout: 30_000 });

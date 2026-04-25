@@ -10,6 +10,7 @@ import { installServiceStubs } from './utils/serviceStubs';
 test('snapshot verification flow (UI)', async ({ page }) => {
   await installServiceStubs(page, 'snapshot', 'flat');
   await bootstrapHarness(page, {
+    allowRecoveryBanner: true,
     requiredEnabledActions: ['workspace-action-snapshot'],
   });
 

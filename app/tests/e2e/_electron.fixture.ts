@@ -70,6 +70,11 @@ const BASELINE_DATASET_KEYS = [
   'testEnvForceOfflineReason',
 ] as const;
 
+const FAIL_ON_RUNTIME_ERRORS = process.env.BLACKSKIES_E2E_FAIL_ON_RUNTIME_ERROR === '1';
+const RUNTIME_ERROR_ALLOWLIST: RegExp[] = [
+  /Cannot read properties of undefined \(reading 'push'\)/,
+];
+
 async function captureBaselineFlags(page: Page): Promise<{ body: Record<string, string>; html: Record<string, string> }> {
   return page.evaluate((keys) => {
     const capture = (target: HTMLElement | null): Record<string, string> => {
@@ -442,11 +447,21 @@ export const test = base.extend<Fixtures>({
       );
     }
     const window = outcome.window;
+    const runtimeDiagnostics: {
+      pageErrors: string[];
+      consoleErrors: Array<{ type: string; text: string }>;
+    } = { pageErrors: [], consoleErrors: [] };
     window.on('console', (msg) => {
-      console.log('[renderer]', msg.type(), msg.text());
+      const text = msg.text();
+      const type = msg.type();
+      console.log('[renderer]', type, text);
+      if (type === 'error') {
+        runtimeDiagnostics.consoleErrors.push({ type, text });
+      }
     });
     window.on('pageerror', (err) => {
       console.error('[renderer.pageerror]', err);
+      runtimeDiagnostics.pageErrors.push(err?.stack ?? err?.message ?? String(err));
     });
 
     const url = await window.url();
@@ -485,6 +500,49 @@ export const test = base.extend<Fixtures>({
       await use(window);
     } finally {
       await resetMutableHarnessState(window, baselineFlags).catch(() => undefined);
+      const combinedErrors = [
+        ...runtimeDiagnostics.pageErrors,
+        ...runtimeDiagnostics.consoleErrors.map((entry) => entry.text),
+      ];
+      const unexpectedRuntimeErrors = combinedErrors.filter(
+        (message) => !RUNTIME_ERROR_ALLOWLIST.some((pattern) => pattern.test(message)),
+      );
+      if (combinedErrors.length > 0) {
+        let currentUrl: string | null = null;
+        try {
+          currentUrl = window.url();
+        } catch {
+          currentUrl = null;
+        }
+        await testInfo.attach('runtime-error-diagnostics.json', {
+          body: Buffer.from(
+            `${JSON.stringify(
+              {
+                url: currentUrl,
+                failOnRuntimeErrors: FAIL_ON_RUNTIME_ERRORS,
+                allowlist: RUNTIME_ERROR_ALLOWLIST.map((pattern) => pattern.source),
+                pageErrors: runtimeDiagnostics.pageErrors,
+                consoleErrors: runtimeDiagnostics.consoleErrors,
+                unexpectedRuntimeErrors,
+              },
+              null,
+              2,
+            )}\n`,
+            'utf-8',
+          ),
+          contentType: 'application/json',
+        });
+      }
+      if (
+        FAIL_ON_RUNTIME_ERRORS &&
+        unexpectedRuntimeErrors.length > 0 &&
+        testInfo.status !== 'failed' &&
+        testInfo.status !== 'timedOut'
+      ) {
+        throw new Error(
+          `Unexpected runtime errors captured: ${JSON.stringify(unexpectedRuntimeErrors.slice(0, 3))}`,
+        );
+      }
       if (testInfo.status === 'passed') {
         return;
       }

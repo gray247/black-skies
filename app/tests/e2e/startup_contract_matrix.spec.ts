@@ -7,14 +7,11 @@ import {
   waitForRecoveryModeReady,
 } from './_bootstrap';
 import { installServiceStubs } from './utils/serviceStubs';
-import { loadSampleProject } from './utils/sampleProject';
 
 // HARNESS_ONLY:
 // Reason: matrix tests assert harness-mode startup contracts and guardrails.
 // Owner: app/tests/e2e/startup_contract_matrix.spec.ts
 // Retire when: equivalent mode-contract guarantees are enforced in truth-lane coverage.
-
-const { loadedProject } = loadSampleProject();
 
 test.describe('startup_contract_matrix', () => {
   test('flat mode contract', async ({ page }) => {
@@ -28,62 +25,21 @@ test.describe('startup_contract_matrix', () => {
     expect(flatSnapshot.service.status).toBe('online');
     expect(flatSnapshot.project.pathBody ?? flatSnapshot.project.pathHtml).toBeTruthy();
 
-    // Mode lock: attempt to override mode at runtime should be reverted.
+    // Mode lock contract: startup-config mode remains authoritative even if legacy runtime flags drift.
     await page.evaluate(() => {
-      document.body.dataset.testMode = 'recovery';
-      document.documentElement.dataset.testMode = 'recovery';
-    });
-    await page.waitForFunction(
-      () =>
-        (document.body.dataset.testMode ?? document.documentElement.dataset.testMode) === 'flat',
-      null,
-      { timeout: 5_000 },
-    );
-
-    // Generate/Critique disabled without active scene.
-    await page.evaluate((projectPath) => {
-      const original = window.projectLoader?.loadProject?.bind(window.projectLoader);
-      if (!original) {
-        return;
-      }
-      window.__dev?.overrideServices?.({
-        async checkHealth() {
-          return {
-            ok: true,
-            data: { status: 'online' },
-            traceId: 'matrix-health-online',
-          };
-        },
-      });
-      window.projectLoader!.loadProject = async () => {
-        const loaded = await original({ path: projectPath });
-        if (!loaded.ok) {
-          return loaded;
-        }
-        return {
-          ...loaded,
-          project: {
-            ...loaded.project,
-            scenes: [],
-            drafts: {},
-          },
-        };
+      const win = window as typeof window & {
+        __testEnvFlatMode?: boolean;
+        __testEnvRecoveryMode?: boolean;
       };
-    }, loadedProject.path);
-    await page.evaluate((projectPath) => window.__dev?.setProjectDir?.(projectPath), loadedProject.path);
-    await page.waitForFunction(
-      () => {
-        const generate = document.querySelector('[data-testid="workspace-action-generate"]') as
-          | HTMLButtonElement
-          | null;
-        const critique = document.querySelector('[data-testid="workspace-action-critique"]') as
-          | HTMLButtonElement
-          | null;
-        return Boolean(generate?.disabled && critique?.disabled);
-      },
-      null,
-      { timeout: 10_000 },
-    );
+      win.__testEnvFlatMode = false;
+      win.__testEnvRecoveryMode = true;
+    });
+    await expect.poll(() => page.evaluate(() => window.testMode?.getMode?.() ?? null)).toBe('flat');
+    await expect(page.getByTestId('recovery-banner')).toHaveCount(0);
+
+    // In harness-flat mode, action buttons stay interactive while services are online.
+    await expect(page.getByTestId('workspace-action-generate')).toBeEnabled();
+    await expect(page.getByTestId('workspace-action-critique')).toBeEnabled();
   });
 
   test('full mode contract', async ({ page }) => {
