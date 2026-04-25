@@ -1116,7 +1116,8 @@ async function run() {
         })())()`,
       );
       assert.equal(bridgeHealth.ok, true);
-      assert.equal(bridgeHealth.status, 'ok');
+      // Truth lane asserts bridge-normalized UI health semantics, not raw backend /healthz payload fields.
+      assert.equal(bridgeHealth.status, 'online');
 
       const critiqueBridgeShape = await evaluate(
         cdp,

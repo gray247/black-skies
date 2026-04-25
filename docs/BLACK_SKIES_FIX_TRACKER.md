@@ -298,6 +298,8 @@ Truth lane path appears intentionally separated (`scripts/truth-with-backend.mjs
 - Failure root for this regression is test-helper browser-context variable leakage in `page.waitForFunction` (predicate referenced `requireCorkboardPane` from outer scope instead of serialized args).
 - Current snapshots during this failure indicate startup is healthier than earlier regressions:
   `projectLoaded=1`, mode contract aligned, service status online, recovery absent, dock/panes present, actions visible/enabled.
+- New CI canary evidence (2026-04-25): `canary-classification.json` reports `serial_canary=success`, `default_canary=success`, `classification=healthy`; timelines show backend healthy, artifact preflight passed, and Playwright exited 0.
+- Current active failure moved to truth lane contract drift: `scripts/truth-with-backend.mjs` asserted bridge health status `'ok'` while normalized bridge/UI semantics now report `'online'`.
 - New canary diagnostics (2026-04-24) show `waitForProjectLoaded` timeout payloads with:
   - initially `testNeedsRecovery=1` (first regression snapshot),
   - then `testNeedsRecovery` cleared but failures persisted,
@@ -394,13 +396,18 @@ Truth lane path appears intentionally separated (`scripts/truth-with-backend.mjs
   - moved post-bootstrap readiness predicate to typed module-scope helper with explicit serialized args,
   - passed `requireCorkboardPane` (and all other predicate inputs) through `page.waitForFunction` args,
   - removed implicit closure dependence that produced `ReferenceError` in browser context.
+- 2026-04-25 - Codex - Updated truth lane health assertion in `scripts/truth-with-backend.mjs` to assert bridge-normalized status `'online'` (with layer-intent comment), resolving stale `'ok'` expectation drift without loosening unrelated truth assertions.
 
 #### Verification
 - Partial:
   - Local PowerShell repro/validation on 2026-04-25 passed after fix:
     `pnpm --dir app run build:renderer`, `pnpm --dir app run build:main`, `pnpm test:e2e -- --project=electron --workers=1 --grep "smoke_"` -> 3 passed, `ReferenceError: requireCorkboardPane is not defined` no longer reproduced.
+  - Local PowerShell validation on 2026-04-25 after truth-lane contract update:
+    `pnpm test:truth` -> PASS (bridge health asserted as normalized `online`).
+  - Local PowerShell full harness validation on 2026-04-25:
+    `FULL_ANALYTICS_E2E=1 pnpm test:e2e -- --project=electron --workers=1` -> PASS (9/9; no harness assertion failures reproduced).
   - local evidence confirms timeline artifact writes on pre-backend launcher failure,
-  - CI evidence is still required for canary rerun confirming artifact-preflight now passes and launch reaches Electron window creation path,
+  - CI canary evidence now confirms artifact-preflight pass and healthy launch path (`serial_canary=success`, `default_canary=success`).
   - CI evidence is still required to confirm `waitForProjectLoaded` converges on committed state markers after `test:set-project`-to-`activateProject` wiring,
   - CI evidence is still required to confirm new post-bootstrap diagnostics stay green in canary lanes.
   - Canary rerun recommendation: YES. Risk coverage is now broad enough that CI canary should provide high-signal pass/fail classification instead of ambiguous timeout noise.

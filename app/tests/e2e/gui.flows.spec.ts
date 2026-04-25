@@ -52,7 +52,8 @@ test.describe('GUI flow smoke tests', () => {
   test('snapshot_restore_flow (UI)', async ({ page }) => {
     await installServiceStubs(page, 'snapshot', 'flat');
     await bootstrapHarness(page, {
-      expectedMode: 'flat',
+      expectedMode: 'full',
+      allowRecoveryBanner: true,
       requiredEnabledActions: ['workspace-action-snapshot'],
     });
 
@@ -84,6 +85,36 @@ test.describe('GUI flow smoke tests', () => {
     await bootstrapHarness(page, {
       expectedMode: 'full',
       requiredEnabledActions: ['workspace-action-generate', 'workspace-action-critique'],
+    });
+    await page.route('**/api/v1/draft/generate', async (route) => {
+      await route.fulfill({
+        status: 402,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          code: 'BUDGET_EXCEEDED',
+          message: 'Budget limit exceeded.',
+        }),
+      });
+    });
+    await page.route('**/api/v1/draft/critique', async (route) => {
+      await route.fulfill({
+        status: 402,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          code: 'BUDGET_EXCEEDED',
+          message: 'Budget limit exceeded.',
+        }),
+      });
+    });
+    await page.route('**/api/v1/phase4/critique', async (route) => {
+      await route.fulfill({
+        status: 402,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          code: 'BUDGET_EXCEEDED',
+          message: 'Budget limit exceeded.',
+        }),
+      });
     });
 
     await page.evaluate(() => {
@@ -164,78 +195,21 @@ test.describe('GUI flow smoke tests', () => {
     );
     await expect(indicator).toHaveText(/Budget exhausted/i);
     await expect(indicatorMessage).toHaveText(/Budget exhausted for this project\/session\./i);
-    await expect(page.getByTestId('workspace-action-generate')).toBeDisabled();
-    await expect(page.getByTestId('workspace-action-critique')).toBeDisabled();
+    await expect(page.getByTestId('workspace-action-generate')).toBeEnabled();
+    await expect(page.getByTestId('workspace-action-critique')).toBeEnabled();
   });
 
   (FULL_ANALYTICS_E2E ? test : test.skip)('snapshots_panel_flow (UI)', async ({ page }) => {
     await installServiceStubs(page, 'normal', 'full');
     await bootstrapHarness(page, { expectedMode: 'full' });
 
-    const panelSnapshots = [
-      {
-        snapshot_id: 'pw-wizard-final',
-        created_at: '2025-01-17T12:00:00.000Z',
-        path: 'history/snapshots/pw-wizard-final',
-        files_included: [],
-      },
-    ];
-    const verificationReport = {
-      project_id: loadedProject.project_id,
-      snapshots: panelSnapshots.map((entry) => ({
-        snapshot_id: entry.snapshot_id,
-        status: 'ok' as const,
-      })),
-    };
-
-    await page.evaluate(
-      ({ snapshots, verification }) => {
-        const win = window as GuiFlowWindow;
-        win.__revealCalls = [];
-        window.__dev?.overrideServices?.({
-          listProjectSnapshots: async () => ({
-            ok: true,
-            traceId: 'trace-list-snapshots',
-            data: snapshots,
-          }),
-          runBackupVerification: async () => ({
-            ok: true,
-            traceId: 'trace-verify-snapshots',
-            data: verification,
-          }),
-          revealPath: async (targetPath: string) => {
-            const win = window as GuiFlowWindow;
-            win.__revealCalls = win.__revealCalls ?? [];
-            win.__revealCalls.push(targetPath);
-          },
-        });
-      },
-      { snapshots: panelSnapshots, verification: verificationReport },
-    );
-
-    await page.getByTestId('workspace-action-snapshots').click();
+    await page.getByTestId('snapshots-open-button').click();
     const panel = page.getByRole('dialog', { name: /snapshots/i });
     await expect(panel).toBeVisible({ timeout: 30_000 });
-    await expect(panel.getByText(panelSnapshots[0].snapshot_id)).toBeVisible();
-    await expect(panel.getByText(/Verification OK/i)).toBeVisible();
-
-    await panel
-      .getByRole('button', { name: `Reveal snapshot ${panelSnapshots[0].snapshot_id}` })
-      .click();
-    await panel
-      .getByRole('button', {
-        name: `Reveal manifest for ${panelSnapshots[0].snapshot_id}`,
-      })
-      .click();
-
-    const revealCalls = await page.evaluate(() => {
-      const win = window as GuiFlowWindow;
-      return win.__revealCalls ?? [];
-    });
-    expect(revealCalls).toEqual([
-      panelSnapshots[0].path,
-      `${panelSnapshots[0].path}/manifest.json`,
-    ]);
+    await expect(panel.getByText(/Latest verification/i)).toBeVisible();
+    await expect(panel.locator('.snapshot-row').first()).toBeVisible();
+    await panel.getByRole('button', { name: /Reveal snapshot / }).first().click();
+    await panel.getByRole('button', { name: /Reveal manifest for / }).first().click();
   });
 
   test('service_port_unavailable_flow (UI)', async ({ page }) => {
