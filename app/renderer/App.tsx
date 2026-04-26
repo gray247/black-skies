@@ -680,28 +680,57 @@ export default function App(): JSX.Element {
   const applySceneSelection = useCallback(
     (requestedSceneId?: string | null) => {
       const scenesList = currentProjectRef.current?.scenes ?? [];
+      const normalizedRequestedSceneId =
+        typeof requestedSceneId === "string" ? requestedSceneId.trim() : "";
       if (scenesList.length === 0) {
+        console.log(
+          "[dbg:scene.select.missing-scene]",
+          JSON.stringify({
+            requestedSceneId: normalizedRequestedSceneId || null,
+            reason: "no-scenes",
+          }),
+        );
         recordDebugEvent("scene.select.apply.miss", {
-          requestedSceneId: requestedSceneId ?? null,
+          requestedSceneId: normalizedRequestedSceneId || null,
           reason: "no-scenes",
         });
         return false;
       }
+      const sceneIds = scenesList.map((scene) => scene.id);
       const fallbackScene = scenesList[0] ?? null;
-      const targetScene =
-        scenesList.find((scene) => scene.id === requestedSceneId) ?? fallbackScene;
+      const targetScene = normalizedRequestedSceneId
+        ? scenesList.find((scene) => scene.id === normalizedRequestedSceneId) ?? null
+        : fallbackScene;
       if (!targetScene) {
+        console.log(
+          "[dbg:scene.select.missing-scene]",
+          JSON.stringify({
+            requestedSceneId: normalizedRequestedSceneId || null,
+            reason: "scene-id-not-found",
+            sceneIds,
+          }),
+        );
         recordDebugEvent("scene.select.apply.miss", {
-          requestedSceneId: requestedSceneId ?? null,
+          requestedSceneId: normalizedRequestedSceneId || null,
           reason: "no-target-scene",
+          sceneIds,
         });
         return false;
       }
+      console.log(
+        "[dbg:scene.select.apply]",
+        JSON.stringify({
+          requestedSceneId: normalizedRequestedSceneId || null,
+          selectedSceneId: targetScene.id,
+          sceneCount: scenesList.length,
+        }),
+      );
       recordDebugEvent("scene.select.apply", {
-        requestedSceneId: requestedSceneId ?? null,
+        requestedSceneId: normalizedRequestedSceneId || null,
         selectedSceneId: targetScene.id,
         selectedSceneTitle: targetScene.title ?? null,
         sceneCount: scenesList.length,
+        sceneIds,
       });
       setActiveScene({ id: targetScene.id, title: targetScene.title ?? null });
       pendingSceneSelectionRef.current = null;
@@ -721,10 +750,12 @@ export default function App(): JSX.Element {
       __blackSkiesSelectScene?: (sceneId: string | null | undefined) => boolean;
     };
     win.__blackSkiesSelectScene = (sceneId) => applySceneSelection(sceneId);
+    console.log('[dbg:scene.select.hook.present]', JSON.stringify({ hookPresent: true }));
     return () => {
+      console.log('[dbg:scene.select.hook.present]', JSON.stringify({ hookPresent: false }));
       delete win.__blackSkiesSelectScene;
     };
-  }, [applySceneSelection]);
+  }, [applySceneSelection, harnessHooksEnabled, isPlaywrightEnv]);
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -734,6 +765,7 @@ export default function App(): JSX.Element {
       const customEvent = event as CustomEvent<string | undefined>;
       const sceneId = customEvent.detail;
       if (typeof sceneId === 'string' && sceneId.length > 0) {
+        console.log('[dbg:scene.select.request]', JSON.stringify({ sceneId }));
         pendingSceneSelectionRef.current = sceneId;
         applySceneSelection(sceneId);
       }
@@ -1781,6 +1813,7 @@ export default function App(): JSX.Element {
     const projectIdValue = projectSummary?.projectId ?? "";
     const activeSceneIdValue = activeSceneId ?? "";
     const activeSceneTitleValue = activeScene?.title ?? null;
+    const sceneIds = currentProjectRef.current?.scenes?.map((scene) => scene.id) ?? [];
     const loaded = pathValue.length > 0 ? "1" : "0";
     target.dataset.projectLoaded = loaded;
     if (html && html !== target) {
@@ -1828,6 +1861,7 @@ export default function App(): JSX.Element {
             projectId: string | null;
             activeSceneId: string | null;
             activeSceneTitle: string | null;
+            sceneIds?: string[];
             label: string;
           };
           __blackskiesDebugProjectState?: {
@@ -1836,6 +1870,7 @@ export default function App(): JSX.Element {
             projectId: string | null;
             activeSceneId: string | null;
             activeSceneTitle: string | null;
+            sceneIds?: string[];
             label: string;
           };
         }
@@ -1845,6 +1880,7 @@ export default function App(): JSX.Element {
         projectId: projectIdValue || null,
         activeSceneId: activeSceneIdValue || null,
         activeSceneTitle: activeSceneTitleValue,
+        sceneIds,
         label: projectLabel,
       };
       const committedProjectState = {
@@ -1853,6 +1889,7 @@ export default function App(): JSX.Element {
         projectId: projectIdValue || null,
         activeSceneId: activeSceneIdValue || null,
         activeSceneTitle: activeSceneTitleValue,
+        sceneIds,
         label: projectLabel,
       };
       (
@@ -1875,6 +1912,7 @@ export default function App(): JSX.Element {
             projectId?: string | null;
             activeSceneId?: string | null;
             activeSceneTitle?: string | null;
+            sceneIds?: string[];
             label?: string;
           };
         }
@@ -1886,7 +1924,16 @@ export default function App(): JSX.Element {
         activeSceneId: activeSceneIdValue || null,
         activeSceneTitle: activeSceneTitleValue,
         projectId: projectIdValue || null,
+        sceneIds,
       });
+      console.log(
+        "[dbg:scene.select.commit]",
+        JSON.stringify({
+          activeSceneId: activeSceneIdValue || null,
+          projectId: projectIdValue || null,
+          sceneCount: sceneIds.length,
+        }),
+      );
       console.log("[dbg:project.commit.done]", pathValue || "null");
     }
   }, [activeScene?.title, activeSceneId, projectLabel, projectSummary?.path, projectSummary?.projectId]);

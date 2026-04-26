@@ -6,7 +6,13 @@ import type { RuntimeConfig } from '../../shared/config/runtime';
 
 type DevHarness = {
   setProjectDir?: (path: string | null) => Promise<void>;
-  selectScene?: (sceneId: string) => void;
+  selectScene?: (sceneId: string) => Promise<{
+    ok: boolean;
+    method: 'hook' | 'event';
+    sceneId: string;
+    hookPresent: boolean;
+    error?: string;
+  }>;
   overrideServices?: (overrides: Partial<ServicesBridge>) => void;
   setStartupConfig?: (config: E2EStartupConfig) => void;
 };
@@ -73,6 +79,7 @@ declare global {
       projectId?: string | null;
       activeSceneId?: string | null;
       activeSceneTitle?: string | null;
+      sceneIds?: string[];
       label?: string;
     };
   }

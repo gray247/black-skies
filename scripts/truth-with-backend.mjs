@@ -31,6 +31,8 @@ const REPO_ROOT = path.resolve(__dirname, '..');
 const LAUNCH_PREFIX = 'blackskies-truth-';
 const RECEIPT_DIR = path.join(REPO_ROOT, 'build', 'truth_receipts');
 const AUDITED_CHAIN_CONTRACT_PATH = path.join(REPO_ROOT, 'docs', 'specs', 'audited_chain_contract.json');
+const E2E_FIXTURE_MATERIALIZE_SCRIPT = path.join(REPO_ROOT, 'scripts', 'materialize_e2e_fixture.mjs');
+const E2E_FIXTURE_CONTRACT_SCRIPT = path.join(REPO_ROOT, 'scripts', 'check_e2e_fixture_contract.mjs');
 const FAILURE_CATEGORY = Object.freeze({
   BOOT_FAIL: 'BOOT_FAIL',
   CDP_CONNECT_FAIL: 'CDP_CONNECT_FAIL',
@@ -119,6 +121,26 @@ function splitCommand(command) {
     tokens.push(match[1] ?? match[2]);
   }
   return tokens;
+}
+
+function runNodeScriptOrThrow(scriptPath, category, label, args = []) {
+  const result = spawnSync(process.execPath, [scriptPath, ...args], {
+    cwd: REPO_ROOT,
+    env: process.env,
+    stdio: 'inherit',
+  });
+  if (result.error) {
+    throw makeFailureError(
+      category,
+      `[truth] ${label} failed to start: ${normalizeErrorMessage(result.error)}`,
+    );
+  }
+  if ((result.status ?? 0) !== 0) {
+    throw makeFailureError(
+      category,
+      `[truth] ${label} failed with exit code ${result.status ?? 'unknown'}`,
+    );
+  }
 }
 
 function extractSceneBody(markdown) {
@@ -1083,10 +1105,30 @@ async function collectActiveSceneDiagnosticSnapshot(cdp, targetSceneId) {
   );
 }
 
+async function waitForSceneSelectionHook(cdp, timeoutMs) {
+  const deadline = Date.now() + timeoutMs;
+  let lastStatus = null;
+  while (Date.now() < deadline) {
+    lastStatus = await evaluate(
+      cdp,
+      `(() => ({
+        hasDevApi: Boolean(window.__dev),
+        hasDevSelectScene: typeof window.__dev?.selectScene === 'function',
+        hookPresent: typeof window.__blackSkiesSelectScene === 'function',
+      }))()`,
+    );
+    if (lastStatus?.hookPresent === true) {
+      return lastStatus;
+    }
+    await delay(100);
+  }
+  return lastStatus ?? { hasDevApi: false, hasDevSelectScene: false, hookPresent: false };
+}
+
 async function attemptSceneSelectionWithDiagnostics(cdp, targetSceneId) {
   return evaluate(
     cdp,
-    `(() => {
+    `(() => (async () => {
       const target = ${JSON.stringify(targetSceneId)};
       const now = Date.now();
       const toVisibility = (node) => {
@@ -1113,6 +1155,7 @@ async function attemptSceneSelectionWithDiagnostics(cdp, targetSceneId) {
         targetRect: null,
         clickDispatchedAt: null,
         eventDispatchedAt: null,
+        devSelectResult: null,
         candidateSummary: {},
       };
       const candidateButtons = Array.from(document.querySelectorAll('button.project-home__scene-button'));
@@ -1179,10 +1222,21 @@ async function attemptSceneSelectionWithDiagnostics(cdp, targetSceneId) {
       }
       const devSelectScene = window.__dev?.selectScene;
       if (typeof devSelectScene === 'function') {
-        devSelectScene(target);
         clickPayload.hasSelector = true;
         clickPayload.selectorMatched = '__dev.selectScene("<scene-id>")';
         clickPayload.selectionMethod = 'dev-api';
+        try {
+          clickPayload.devSelectResult = await devSelectScene(target);
+        } catch (error) {
+          clickPayload.selectionMethod = 'dev-api-throw';
+          clickPayload.devSelectResult = {
+            ok: false,
+            method: 'hook',
+            sceneId: target,
+            hookPresent: typeof window.__blackSkiesSelectScene === 'function',
+            error: error instanceof Error ? error.message : String(error),
+          };
+        }
         clickPayload.eventDispatchedAt = new Date().toISOString();
         return clickPayload;
       }
@@ -1192,7 +1246,7 @@ async function attemptSceneSelectionWithDiagnostics(cdp, targetSceneId) {
       clickPayload.selectionMethod = 'event-only';
       clickPayload.eventDispatchedAt = new Date().toISOString();
       return clickPayload;
-    })()`,
+    })())()`,
   );
 }
 
@@ -1304,6 +1358,16 @@ async function run() {
   const backendTokens = overrideTokens.length ? overrideTokens : defaultCommand;
   const backendCommand = backendTokens[0];
   const backendArgs = backendTokens.slice(1);
+  runNodeScriptOrThrow(
+    E2E_FIXTURE_MATERIALIZE_SCRIPT,
+    FAILURE_CATEGORY.ARTIFACT_VALIDATION_FAIL,
+    'fixture materialization',
+  );
+  runNodeScriptOrThrow(
+    E2E_FIXTURE_CONTRACT_SCRIPT,
+    FAILURE_CATEGORY.ARTIFACT_VALIDATION_FAIL,
+    'fixture contract verification',
+  );
   const launchRoot = mkdtempSync(path.join(os.tmpdir(), LAUNCH_PREFIX));
   const truthProjectSourcePath = resolveTruthProjectSourcePath(
     path.resolve(REPO_ROOT, 'sample_project', 'Esther_Estate'),
@@ -1705,8 +1769,16 @@ async function run() {
         });
 
         console.log(`[truth] selecting primary scene ${actionReadySceneId} before action readiness`);
+        const sceneHookReadiness = await waitForSceneSelectionHook(cdp, 10_000);
+        console.log('[truth] scene selection hook readiness', sceneHookReadiness);
         const sceneClickResult = await attemptSceneSelectionWithDiagnostics(cdp, actionReadySceneId);
         console.log('[truth] initial scene selection diagnostics', sceneClickResult);
+        if (
+          sceneClickResult.selectionMethod === 'dev-api' ||
+          sceneClickResult.selectionMethod === 'dev-api-throw'
+        ) {
+          console.log('[truth] __dev.selectScene result', sceneClickResult.devSelectResult ?? null);
+        }
 
         if (!sceneClickResult.hasSelector) {
           const noSelectorPayload = {
@@ -1725,6 +1797,80 @@ async function run() {
           });
           throw new Error(
             `[truth] No selectable scene node found for ${actionReadySceneId}; wrote diagnostics to ${noSelectorArtifactPath}`,
+          );
+        }
+
+        if (sceneClickResult.selectionMethod === 'dev-api-throw') {
+          const thrownPayload = {
+            recorded_at: new Date().toISOString(),
+            reason: 'selectScene threw',
+            targetSceneId: actionReadySceneId,
+            hookReadiness: sceneHookReadiness,
+            clickResult: sceneClickResult,
+            preClickSnapshot: activeScenePreClickSnapshot,
+            consoleLogs: activeSceneRuntimeDiagnostics.consoleLogs,
+            pageErrors: activeSceneRuntimeDiagnostics.pageErrors,
+          };
+          const thrownArtifactPath = writeActiveSceneTimeoutArtifact(thrownPayload);
+          receipt.artifacts.push({
+            kind: 'active_scene_timeout',
+            path: path.relative(REPO_ROOT, thrownArtifactPath),
+          });
+          throw new Error(
+            `[truth] Scene selection failed: selectScene threw; diagnostics written to ${thrownArtifactPath}`,
+          );
+        }
+
+        const devSelectResult = sceneClickResult.devSelectResult ?? null;
+        if (
+          sceneClickResult.selectionMethod === 'dev-api' &&
+          devSelectResult &&
+          devSelectResult.hookPresent === false
+        ) {
+          const hookMissingPayload = {
+            recorded_at: new Date().toISOString(),
+            reason: 'hook missing',
+            targetSceneId: actionReadySceneId,
+            hookReadiness: sceneHookReadiness,
+            clickResult: sceneClickResult,
+            preClickSnapshot: activeScenePreClickSnapshot,
+            consoleLogs: activeSceneRuntimeDiagnostics.consoleLogs,
+            pageErrors: activeSceneRuntimeDiagnostics.pageErrors,
+          };
+          const hookMissingArtifactPath = writeActiveSceneTimeoutArtifact(hookMissingPayload);
+          receipt.artifacts.push({
+            kind: 'active_scene_timeout',
+            path: path.relative(REPO_ROOT, hookMissingArtifactPath),
+          });
+          throw new Error(
+            `[truth] Scene selection failed: hook missing; diagnostics written to ${hookMissingArtifactPath}`,
+          );
+        }
+
+        if (
+          sceneClickResult.selectionMethod === 'dev-api' &&
+          devSelectResult &&
+          devSelectResult.ok !== true
+        ) {
+          const isMissingScene = /missing-scene/i.test(String(devSelectResult.error ?? ''));
+          const selectionFailureReason = isMissingScene ? 'scene id missing' : 'selectScene threw';
+          const selectionFailurePayload = {
+            recorded_at: new Date().toISOString(),
+            reason: selectionFailureReason,
+            targetSceneId: actionReadySceneId,
+            hookReadiness: sceneHookReadiness,
+            clickResult: sceneClickResult,
+            preClickSnapshot: activeScenePreClickSnapshot,
+            consoleLogs: activeSceneRuntimeDiagnostics.consoleLogs,
+            pageErrors: activeSceneRuntimeDiagnostics.pageErrors,
+          };
+          const selectionFailureArtifactPath = writeActiveSceneTimeoutArtifact(selectionFailurePayload);
+          receipt.artifacts.push({
+            kind: 'active_scene_timeout',
+            path: path.relative(REPO_ROOT, selectionFailureArtifactPath),
+          });
+          throw new Error(
+            `[truth] Scene selection failed: ${selectionFailureReason}; diagnostics written to ${selectionFailureArtifactPath}`,
           );
         }
 
@@ -1748,9 +1894,18 @@ async function run() {
         }
         if (!activeSceneSelected) {
           const activeScenePostClickSnapshot = await collectActiveSceneDiagnosticSnapshot(cdp, actionReadySceneId);
+          const timeoutReason =
+            sceneClickResult.selectionMethod === 'dev-api' && devSelectResult?.hookPresent === false
+              ? 'hook missing'
+              : sceneClickResult.selectionMethod === 'dev-api' &&
+                  /missing-scene/i.test(String(devSelectResult?.error ?? ''))
+                ? 'scene id missing'
+                : sceneClickResult.selectionMethod === 'dev-api-throw'
+                  ? 'selectScene threw'
+                  : 'commit marker not updated';
           const timeoutPayload = {
             recorded_at: new Date().toISOString(),
-            reason: 'active_scene_selection_timeout',
+            reason: timeoutReason,
             timeout_ms: 30_000,
             poll_interval_ms: pollIntervalMs,
             targetSceneId: actionReadySceneId,
@@ -1772,7 +1927,7 @@ async function run() {
             path: path.relative(REPO_ROOT, timeoutArtifactPath),
           });
           throw new Error(
-            `[truth] Timed out after 30000ms waiting for active scene selection; diagnostics written to ${timeoutArtifactPath}`,
+            `[truth] Scene selection failed: ${timeoutReason}; diagnostics written to ${timeoutArtifactPath}`,
           );
         }
       } finally {
@@ -1859,9 +2014,11 @@ async function run() {
       receipt.routes_hit.push('/api/v1/draft/preflight');
 
       console.log(`[truth] selecting primary scene ${sampleLoadProbe.sceneIds[0]} before critique`);
+      const critiqueSceneHookReadiness = await waitForSceneSelectionHook(cdp, 10_000);
+      console.log('[truth] critique scene hook readiness', critiqueSceneHookReadiness);
       const sceneSelectionMode = await evaluate(
         cdp,
-        `(() => {
+        `(() => (async () => {
           const targetSceneId = ${JSON.stringify(sampleLoadProbe.sceneIds[0])};
           const byDataScene = document.querySelector(
             \`button.project-home__scene-button[data-scene-id="\${targetSceneId}"]\`,
@@ -1880,14 +2037,31 @@ async function run() {
           }
           const devSelectScene = window.__dev?.selectScene;
           if (typeof devSelectScene === 'function') {
-            devSelectScene(targetSceneId);
-            return 'dev-api';
+            try {
+              const devSelectResult = await devSelectScene(targetSceneId);
+              return {
+                mode: 'dev-api',
+                devSelectResult,
+              };
+            } catch (error) {
+              return {
+                mode: 'dev-api-throw',
+                devSelectResult: {
+                  ok: false,
+                  method: 'hook',
+                  sceneId: targetSceneId,
+                  hookPresent: typeof window.__blackSkiesSelectScene === 'function',
+                  error: error instanceof Error ? error.message : String(error),
+                },
+              };
+            }
           }
           window.dispatchEvent(new CustomEvent('test:select-scene', { detail: targetSceneId }));
-          return 'event';
-        })()`,
+          return { mode: 'event', devSelectResult: null };
+        })())()`,
       );
       console.log('[truth] scene selection mode', sceneSelectionMode);
+      console.log('[truth] __dev.selectScene("sc_0001") return value', sceneSelectionMode?.devSelectResult ?? null);
 
       console.log('[truth] waiting for critique button to enable');
       await waitForCondition(async () => {

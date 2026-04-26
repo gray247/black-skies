@@ -45,7 +45,7 @@ export async function selectSceneWithDiagnostics(
   const attachmentName = options.attachmentName ?? `scene-selection-${sceneId}.json`;
   const pollSamples: SceneSelectionPollSample[] = [];
 
-  const clickResult = await page.evaluate((targetSceneId) => {
+  const clickResult = await page.evaluate(async (targetSceneId) => {
     const buttons = Array.from(document.querySelectorAll('button.project-home__scene-button'));
     const byDataScene = document.querySelector(
       `button.project-home__scene-button[data-scene-id="${targetSceneId}"]`,
@@ -79,13 +79,24 @@ export async function selectSceneWithDiagnostics(
     }
 
     const devSelectScene = (
-      window as typeof window & { __dev?: { selectScene?: (sceneId: string) => boolean | void } }
+      window as typeof window & {
+        __dev?: {
+          selectScene?: (sceneId: string) => Promise<{
+            ok: boolean;
+            method: 'hook' | 'event';
+            sceneId: string;
+            hookPresent: boolean;
+            error?: string;
+          }>;
+        };
+      }
     ).__dev?.selectScene;
     if (typeof devSelectScene === 'function') {
-      devSelectScene(targetSceneId);
+      const devSelectResult = await devSelectScene(targetSceneId);
       return {
         matchedSelector: '__dev.selectScene("<scene-id>")',
         selectionMethod: 'dev-api',
+        devSelectResult,
         targetText: null,
         targetVisible: false,
         targetRect: null,

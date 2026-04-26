@@ -204,49 +204,14 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y xvfb
       - name: Prepare sample project fixture
+        run: node scripts/materialize_e2e_fixture.mjs
+      - name: Debug sample project materialization
         run: |
-          python - <<'PY'
-          import json
-          from pathlib import Path
-
-          root = Path("sample_project/proj_esther_estate")
-          drafts = root / "drafts"
-          drafts.mkdir(parents=True, exist_ok=True)
-
-          (root / "project.json").write_text(
-              json.dumps(
-                  {
-                      "project_id": "proj_esther_estate",
-                      "name": "Esther Estate",
-                  },
-                  indent=2,
-              )
-          )
-
-          outline = {
-              "schema_version": "OutlineSchema v1",
-              "outline_id": "out_001",
-              "project_id": "proj_esther_estate",
-              "acts": ["Act I"],
-              "chapters": [{"id": "ch_0001", "order": 1, "title": "Chapter 1"}],
-              "scenes": [
-                  {
-                      "id": f"sc_{i:04d}",
-                      "order": i,
-                      "title": f"Scene {i}",
-                      "chapter_id": "ch_0001",
-                  }
-                  for i in range(1, 5)
-              ],
-          }
-
-          (root / "outline.json").write_text(json.dumps(outline, indent=2))
-
-          for i in range(1, 5):
-              (drafts / f"sc_{i:04d}.md").write_text(
-                  f"---\nid: sc_{i:04d}\ntitle: Scene {i}\norder: {i}\nchapter_id: ch_0001\n---\nScene {i} body.\n"
-              )
-          PY
+          pwd
+          find sample_project -maxdepth 3 -type f | sort
+          test -f sample_project/proj_esther_estate/project.json
+          test -f sample_project/proj_esther_estate/outline.json
+          test -d sample_project/proj_esther_estate/drafts
       - name: Verify sample project fixture contract
         run: node scripts/check_e2e_fixture_contract.mjs
       - name: Prepare Playwright diagnostics directory
@@ -613,6 +578,10 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y xvfb
+      - name: Prepare sample project fixture
+        run: node scripts/materialize_e2e_fixture.mjs
+      - name: Verify sample project fixture contract
+        run: node scripts/check_e2e_fixture_contract.mjs
       - name: Run PASS 5 metadata guard + harness smoke
         env:
           PLAYWRIGHT_DISABLE_ANIMATIONS: '1'
@@ -889,49 +858,9 @@ jobs:
           LEDGER_PATH=$(python scripts/find_latest_run.py --kind evaluation --root sample_project/_runtime/runs)
           python scripts/check_slo.py "$LEDGER_PATH"
       - name: Prepare sample project fixture
-        run: |
-          python - <<'PY'
-          import json
-          from pathlib import Path
-
-          root = Path("sample_project/proj_esther_estate")
-          drafts = root / "drafts"
-          drafts.mkdir(parents=True, exist_ok=True)
-
-          (root / "project.json").write_text(
-              json.dumps(
-                  {
-                      "project_id": "proj_esther_estate",
-                      "name": "Esther Estate",
-                  },
-                  indent=2,
-              )
-          )
-
-          outline = {
-              "schema_version": "OutlineSchema v1",
-              "outline_id": "out_001",
-              "project_id": "proj_esther_estate",
-              "acts": ["Act I"],
-              "chapters": [{"id": "ch_0001", "order": 1, "title": "Chapter 1"}],
-              "scenes": [
-                  {
-                      "id": f"sc_{i:04d}",
-                      "order": i,
-                      "title": f"Scene {i}",
-                      "chapter_id": "ch_0001",
-                  }
-                  for i in range(1, 5)
-              ],
-          }
-
-          (root / "outline.json").write_text(json.dumps(outline, indent=2))
-
-          for i in range(1, 5):
-              (drafts / f"sc_{i:04d}.md").write_text(
-                  f"---\nid: sc_{i:04d}\ntitle: Scene {i}\norder: {i}\nchapter_id: ch_0001\n---\nScene {i} body.\n"
-              )
-          PY
+        run: node scripts/materialize_e2e_fixture.mjs
+      - name: Verify sample project fixture contract
+        run: node scripts/check_e2e_fixture_contract.mjs
       - name: Run route smoke tests
         run: bash scripts/smoke.sh
       - name: Start FastAPI service for load test

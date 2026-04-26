@@ -263,6 +263,7 @@ Unresolved repo-wide typing debt and temporary CI scope narrowing.
 - New reproducible failure (2026-04-25 CI): truth lane timed out waiting for Generate enabled after project load while bridge/service status already showed healthy.
 - Root cause for this failure: script ordering drifted against the hardened renderer action contract. Truth lane waited for Generate enable before selecting an active scene, while Generate now requires project + active scene + online service.
 - Fix applied: truth lane now selects the primary scene and confirms active-scene state before waiting on Generate enable, and emits focused action-readiness diagnostics on timeout.
+- Current regression classification (2026-04-26): truth-lane failure is in dev-api scene selection commit semantics (`__dev.selectScene(...)` path did not commit `activeSceneId`), not analytics route health.
 
 #### Actions
 - Re-run truth lane in CI to verify the generate-enable timeout regression is removed.
@@ -281,6 +282,7 @@ Unresolved repo-wide typing debt and temporary CI scope narrowing.
 - Root cause for intermittent analytics preflight 500s is fixture/schema drift, not generic FastAPI instability:
   - invalid outline artifact shape (`outline_id` missing),
   - invalid chapter id format (`ch_01` instead of `ch_0001`).
+- Current CI regression classification (2026-04-26): latest e2e harness failure is fixture materialization/path drift for `sample_project/proj_esther_estate` and `sample_project/Esther_Estate` contract files, not an analytics backend bug.
 - Generic endpoint exception wrapping was explicitly rejected as the primary fix; harness now prioritizes artifact/schema diagnostics.
 - Canonical project conventions:
   - harness analytics smoke lane: `sample_project/proj_esther_estate` (`project_id=proj_esther_estate`),
@@ -421,6 +423,12 @@ Unresolved repo-wide typing debt and temporary CI scope narrowing.
   action: no change.
 
 #### Progress Log
+- 2026-04-26 - Codex - Fixed fixture materialization path reliability and truth scene-selection diagnostics:
+  - added shared `scripts/materialize_e2e_fixture.mjs` to materialize both canonical sample roots (`sample_project/proj_esther_estate`, `sample_project/Esther_Estate`),
+  - updated `eval.yml` `app-e2e`, `gauntlet-pass5-proof`, and `eval` jobs to call the shared materializer + `scripts/check_e2e_fixture_contract.mjs`,
+  - added post-materialization workflow debug checks (`pwd`, `find sample_project`, required file/directory asserts),
+  - updated `scripts/e2e-with-backend.mjs` and `scripts/truth-with-backend.mjs` to call the shared materializer before runtime checks,
+  - hardened truth active-scene failure classification to emit exact reasons (`hook missing`, `scene id missing`, `selectScene threw`, `commit marker not updated`) and log `__dev.selectScene("sc_0001")` return diagnostics.
 - 2026-04-26 - Codex - Published explicit scene-selection authority mapping and aligned test hooks:
   - added test-only `window.__dev.selectScene(sceneId)` in preload bridge as canonical harness selector trigger,
   - kept event path single-source by routing through existing `test:select-scene` listener in `App.applySceneSelection(...)`,
@@ -1315,6 +1323,104 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 
 ## [27] Budget meter reliability
 - Status: ACTIVE
+
+## PASS 5 — Fixture Authority & Scene Selection Stability
+
+### Section 1 — Fixture Contract Authority
+- Status: RESOLVED
+- Root cause: E2E and truth lanes referenced different or non-existent sample project paths. `sample_project/proj_esther_estate` and `sample_project/Esther_Estate` were not reliably materialized in CI.
+- Fix: introduced shared materializer `scripts/materialize_e2e_fixture.mjs`.
+- Contract: both paths are now guaranteed to exist with `project.json`, `outline.json`, and `drafts/`.
+- Enforcement:
+  - e2e and truth launchers call the same materializer.
+  - fixture contract probe blocks execution if invalid.
+  - workflow verifies filesystem state immediately after materialization.
+- Key invariant: `No Playwright or truth execution occurs unless fixture contract is valid`
+
+### Section 2 — Scene Selection Authority
+- Status: RESOLVED
+- Root cause: tests used event-only or DOM-based selection paths that did not guarantee commit to `App` active scene state.
+- Authority map:
+  - canonical state: `App.tsx` -> `activeScene`
+  - update path: `applySceneSelection(...)`
+  - test API: `window.__dev.selectScene(sceneId)`
+  - hook: `window.__blackSkiesSelectScene`
+  - commit markers:
+    - `body.dataset.activeSceneId`
+    - `html.dataset.activeSceneId`
+    - `window.__blackSkiesDebugState.activeSceneId`
+- Fix:
+  - `__dev.selectScene` now waits for the hook.
+  - `__dev.selectScene` now returns structured diagnostics.
+  - `__dev.selectScene` now calls the real `App` selection path.
+  - truth lane waits for hook readiness.
+  - truth lane logs `selectScene` return value.
+  - truth lane classifies failures as:
+    - hook missing
+    - scene id missing
+    - selection error
+    - commit marker missing
+- Key invariant: `Active scene is only considered selected when committed marker is set`
+
+### Section 3 — Large File / Coupling Risk
+- Status: NEW FINDING
+- Observation: `App.tsx` and `preload.ts` are large enough that full inspection is truncated in terminal/debug output.
+- Risk:
+  - scene selection authority spans the preload bridge, App hook registration, `applySceneSelection` logic, and debug/DOM marker writes.
+  - small regressions can silently break selection.
+  - debugging requires targeted extraction, not full file reads.
+- Action:
+  - document the selection authority map above.
+  - add a targeted regression test that enforces the canonical authority contract below.
+  - prefer small, explicit test APIs over indirect DOM/event paths.
+- Classification: `High-coupling authority zone — requires explicit contract tests`
+- Selection authority regression guard:
+  - wait for selection hook readiness: `typeof window.__blackSkiesSelectScene === "function"`
+  - execute: `const result = window.__dev.selectScene("sc_0001")`
+  - validate:
+    - `result.ok === true`
+    - `result.hookPresent === true`
+  - assert committed state:
+    - `document.body.dataset.activeSceneId === "sc_0001"`
+    - `document.documentElement.dataset.activeSceneId === "sc_0001"`
+    - `window.__blackSkiesDebugState.activeSceneId === "sc_0001"`
+  - failure classification must be explicit:
+    - hook missing
+    - scene id not found
+    - selection threw error
+    - commit marker not written
+- Invariant: `Scene selection is only valid when commit markers match the requested scene id.`
+- Non-proof signals:
+  - logs such as `[dbg:scene.selected]` are not proof
+  - DOM presence of corkboard cards is not proof
+  - event dispatch alone is not proof
+
+### Section 4 — Current System State
+- Fixture contract: enforced and deterministic
+- Analytics preflight: reliable gate
+- Scene selection: routed through canonical authority
+- Truth lane: passing
+- Smoke lane: passing
+- Remaining risks:
+  - large-file coupling
+  - future contract drift
+
+### Section 5 — Repository Hygiene Note
+- Status: NON-FUNCTIONAL / UNRELATED WORKSPACE ARTIFACT
+- Observation: `git status` shows a pre-existing deleted path: `D "ted memory docs, services, and tests\\"`.
+- Scope: this deletion was not introduced by the current fixture or scene-selection fixes.
+- Classification: non-functional / unrelated workspace artifact
+- Risk:
+  - could accidentally be committed in future changes
+  - path formatting suggests a possible OS/path normalization issue
+  - may represent a previously malformed directory name
+- Action:
+  - explicitly exclude from current commit scope
+  - do not treat as part of CI/test failures
+  - optional future cleanup:
+    - verify whether the path exists in repo history
+    - normalize or remove safely in a dedicated cleanup commit
+- Invariant: `Test and CI fixes must not include unrelated filesystem changes`
 
 ---
 

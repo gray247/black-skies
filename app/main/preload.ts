@@ -283,9 +283,41 @@ if (isPlaywright && typeof window !== 'undefined') {
   }
 }
 
+type SceneSelectionDiagnostic = {
+  ok: boolean;
+  method: 'hook' | 'event';
+  sceneId: string;
+  hookPresent: boolean;
+  error?: string;
+};
+
+function resolveSceneSelectionHook():
+  | ((value: string | null | undefined) => boolean)
+  | null {
+  const selector = (window as typeof window & {
+    __blackSkiesSelectScene?: (value: string | null | undefined) => boolean;
+  }).__blackSkiesSelectScene;
+  return typeof selector === 'function' ? selector : null;
+}
+
+async function waitForSceneSelectionHook(timeoutMs = 3_000): Promise<{
+  hook: ((value: string | null | undefined) => boolean) | null;
+  hookPresent: boolean;
+}> {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    const hook = resolveSceneSelectionHook();
+    if (hook) {
+      return { hook, hookPresent: true };
+    }
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  return { hook: null, hookPresent: false };
+}
+
 const devApi: {
   setProjectDir: (absPath: string | null) => void | Promise<void>;
-  selectScene?: (sceneId: string) => boolean;
+  selectScene?: (sceneId: string) => Promise<SceneSelectionDiagnostic>;
   overrideServices?: (overrides: Partial<ServicesBridge>) => void;
   setStartupConfig?: (config: {
     mode: 'flat' | 'full' | 'recovery';
@@ -299,18 +331,62 @@ const devApi: {
   setProjectDir: (absPath: string | null) => {
     window.dispatchEvent(new CustomEvent('test:set-project', { detail: absPath }));
   },
-  selectScene: (sceneId: string) => {
-    const selector = (window as typeof window & {
-      __blackSkiesSelectScene?: (value: string | null | undefined) => boolean;
-    }).__blackSkiesSelectScene;
-    if (typeof selector === 'function') {
-      const applied = selector(sceneId);
-      if (applied) {
-        return true;
+  selectScene: async (sceneId: string) => {
+    const normalizedSceneId = typeof sceneId === 'string' ? sceneId.trim() : '';
+    console.log(
+      '[dbg:scene.select.request]',
+      JSON.stringify({ sceneId: normalizedSceneId || sceneId || null }),
+    );
+    if (!normalizedSceneId) {
+      return {
+        ok: false,
+        method: 'hook',
+        sceneId: normalizedSceneId,
+        hookPresent: false,
+        error: 'missing-scene-id',
+      };
+    }
+    const hookState = await waitForSceneSelectionHook();
+    console.log(
+      '[dbg:scene.select.hook.present]',
+      JSON.stringify({ sceneId: normalizedSceneId, hookPresent: hookState.hookPresent }),
+    );
+    if (hookState.hook) {
+      try {
+        const applied = hookState.hook(normalizedSceneId);
+        if (applied) {
+          return {
+            ok: true,
+            method: 'hook',
+            sceneId: normalizedSceneId,
+            hookPresent: true,
+          };
+        }
+        return {
+          ok: false,
+          method: 'hook',
+          sceneId: normalizedSceneId,
+          hookPresent: true,
+          error: 'missing-scene',
+        };
+      } catch (error) {
+        return {
+          ok: false,
+          method: 'hook',
+          sceneId: normalizedSceneId,
+          hookPresent: true,
+          error: error instanceof Error ? error.message : String(error),
+        };
       }
     }
-    window.dispatchEvent(new CustomEvent('test:select-scene', { detail: sceneId }));
-    return true;
+    window.dispatchEvent(new CustomEvent('test:select-scene', { detail: normalizedSceneId }));
+    return {
+      ok: false,
+      method: 'event',
+      sceneId: normalizedSceneId,
+      hookPresent: false,
+      error: 'hook missing',
+    };
   },
   setStartupConfig: (config) => {
     const win = window as typeof window & {

@@ -19,6 +19,7 @@ const DEFAULT_PLAYWRIGHT_WORKERS_ARG = '--workers=1';
 const DEFAULT_SMOKE_TEST_FILES = ['gui.flows.spec.ts', 'dock-workspace.spec.ts'];
 const REPO_ROOT = path.resolve(__dirname, '..');
 const HARNESS_ANALYTICS_PROJECT_ROOT = path.resolve(REPO_ROOT, 'sample_project', ANALYTICS_PROJECT_ID);
+const E2E_FIXTURE_MATERIALIZE_SCRIPT = path.resolve(__dirname, 'materialize_e2e_fixture.mjs');
 const E2E_FIXTURE_CONTRACT_SCRIPT = path.resolve(__dirname, 'check_e2e_fixture_contract.mjs');
 const TIMELINE_PATH = process.env.BLACKSKIES_E2E_TIMELINE_PATH?.trim() ?? '';
 const timelineEvents = [];
@@ -393,6 +394,23 @@ async function run() {
   process.on('exit', cleanup);
 
   try {
+    const fixtureMaterializeExitCode = await spawnCommand(
+      process.execPath,
+      [E2E_FIXTURE_MATERIALIZE_SCRIPT],
+      {
+        stdio: 'inherit',
+        cwd: REPO_ROOT,
+      },
+    );
+    if (fixtureMaterializeExitCode !== 0) {
+      throw new Error(
+        `[e2e] fixture materialization failed with exit code ${fixtureMaterializeExitCode}`,
+      );
+    }
+    recordTimelineEvent('fixture_materialized', {
+      script: E2E_FIXTURE_MATERIALIZE_SCRIPT,
+    });
+
     const serviceCommandEnv = process.env.E2E_SERVICE_COMMAND;
     const defaultCommand = [
       resolvePythonCommand(),
