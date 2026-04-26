@@ -1405,7 +1405,12 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 - Scene selection: routed through canonical authority
 - Truth lane: passing
 - Smoke lane: passing
-- Visual.home snapshot failure: real UI state drift, caused by recovery banner leakage into visual-home mode; not baseline drift.
+- Visual.home snapshot failure: real UI state drift from visual-home startup contamination, where the sample project auto-loaded into the home lane (`ProjectHome` bootstrap / sample-path bridge). Linux CI still compares against `home-electron-linux.png`; the Windows `home-electron-win32.png` update does not satisfy that baseline.
+- Remediation:
+  - gated `ProjectHome` bootstrap with the visual-home lane authority,
+  - suppressed sample-path resolution when `BLACKSKIES_VISUAL_STABLE=1`,
+  - added pre-screenshot assertions for `projectLoaded` markers, subtitle text, and recovery visibility,
+  - regenerated the local Windows snapshot for the now-clean home state.
 - Remaining risks:
   - large-file coupling
   - future contract drift

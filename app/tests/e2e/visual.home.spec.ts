@@ -29,7 +29,20 @@ test.describe('Visual snapshots', () => {
     await expect(openProjectButton).toBeVisible();
     await expect(openProjectButton).toBeEnabled();
     await expect(openProjectButton).toHaveText('Open project...');
+    await expect(page.locator('.app-shell__workspace-subtitle')).toHaveText('No project loaded');
+    await expect(page.locator('body')).not.toHaveAttribute('data-project-loaded', '1');
+    await expect(page.locator('html')).not.toHaveAttribute('data-project-loaded', '1');
     await expect(page.getByTestId('recovery-banner')).toBeHidden();
+    await expect
+      .poll(async () =>
+        page.evaluate(() => {
+          const events = (window as typeof window & {
+            __blackskiesDebugLog?: Array<{ scope?: string }>;
+          }).__blackskiesDebugLog ?? [];
+          return events.some((entry) => entry.scope === 'project-home.load.success');
+        }),
+      )
+      .toBe(false);
     await expect(page).toHaveScreenshot('home.png', {
       fullPage: true,
       maxDiffPixels: 200,

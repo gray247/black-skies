@@ -57,10 +57,13 @@ export function getTestModes() {
   if (typeof document === "undefined") {
     return { visualMode: false, stableDockMode: false, flowMode: true };
   }
+  const envVisualStable = typeof process !== "undefined" && process.env?.BLACKSKIES_VISUAL_STABLE === "1";
   const bodyDataset = document.body?.dataset;
   const htmlDataset = document.documentElement?.dataset;
   const visualMode =
-    bodyDataset?.testVisualStable === "1" || htmlDataset?.testVisualStable === "1";
+    envVisualStable ||
+    bodyDataset?.testVisualStable === "1" ||
+    htmlDataset?.testVisualStable === "1";
   const stableDockMode =
     bodyDataset?.testStableDock === "1" || htmlDataset?.testStableDock === "1";
   const flowMode = !visualMode && !stableDockMode;
@@ -2025,7 +2028,7 @@ export default function App(): JSX.Element {
       autoSnapEnabled,
       onRelocationNotifyChange: setRelocationNotifyEnabled,
       onAutoSnapChange: setAutoSnapEnabled,
-      suppressBootstrap: isStableHomeMode,
+      suppressBootstrap: isStableHomeMode || isVisualHomeMode,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
@@ -2041,6 +2044,7 @@ export default function App(): JSX.Element {
       setAutoSnapEnabled,
       setRelocationNotifyEnabled,
       isStableHomeMode,
+      isVisualHomeMode,
     ],
   );
 

@@ -50,6 +50,7 @@ export interface ProjectHomeProps {
   autoSnapEnabled?: boolean;
   onRelocationNotifyChange?: (value: boolean) => void;
   onAutoSnapChange?: (value: boolean) => void;
+  suppressBootstrap?: boolean;
 }
 
 interface RecentProjectEntry {
@@ -167,6 +168,7 @@ export default function ProjectHome({
   autoSnapEnabled = false,
   onRelocationNotifyChange,
   onAutoSnapChange,
+  suppressBootstrap = false,
 }: ProjectHomeProps): JSX.Element {
   const projectLoader: ProjectLoaderApi | undefined = window.projectLoader;
   const loaderAvailable = Boolean(projectLoader);
@@ -686,7 +688,7 @@ export default function ProjectHome({
   );
 
   useEffect(() => {
-    if (!projectLoader || activeProject || sampleAttemptedRef.current) {
+    if (!projectLoader || activeProject || sampleAttemptedRef.current || suppressBootstrap) {
       return;
     }
 
@@ -725,7 +727,7 @@ export default function ProjectHome({
     return () => {
       cancelled = true;
     };
-  }, [activeProject, loadProjectAtPath, onToast, projectLoader]);
+  }, [activeProject, loadProjectAtPath, onToast, projectLoader, suppressBootstrap]);
 
   useEffect(() => {
     if (!onActiveSceneChange) {

@@ -31,6 +31,7 @@ type ElectronLaunchContext = {
     BLACKSKIES_E2E_MODE?: string;
     BLACKSKIES_E2E_EXTERNAL_SERVICE?: string;
     BLACKSKIES_ENABLE_HARNESS_HOOKS?: string;
+    BLACKSKIES_VISUAL_STABLE?: string;
   };
   getProcessState: () => {
     pid: number | null;
@@ -238,7 +239,7 @@ function requireElectronBuildArtifacts(params: {
 }
 
 export const test = base.extend<Fixtures>({
-  electronApp: async ({}, use) => {
+  electronApp: async ({}, use, testInfo) => {
     const useExternalService = process.env.BLACKSKIES_E2E_EXTERNAL_SERVICE === '1';
     const appDir = path.resolve(__dirname, '..', '..');
     const repoRoot = path.resolve(appDir, '..');
@@ -273,6 +274,9 @@ export const test = base.extend<Fixtures>({
       BLACKSKIES_E2E_PORT: String(SERVICE_PORT),
       BLACKSKIES_E2E_MODE: '1',
     };
+    if (path.basename(testInfo.file) === 'visual.home.spec.ts') {
+      launchEnv.BLACKSKIES_VISUAL_STABLE = '1';
+    }
     if (process.platform === 'linux') {
       launchEnv.ELECTRON_DISABLE_SANDBOX = '1';
     }
@@ -337,11 +341,12 @@ export const test = base.extend<Fixtures>({
         ELECTRON_RENDERER_URL: launchEnv.ELECTRON_RENDERER_URL,
         PLAYWRIGHT: launchEnv.PLAYWRIGHT,
         BLACKSKIES_SERVICES_PORT: launchEnv.BLACKSKIES_SERVICES_PORT,
-        BLACKSKIES_E2E_PORT: launchEnv.BLACKSKIES_E2E_PORT,
-        BLACKSKIES_E2E_MODE: launchEnv.BLACKSKIES_E2E_MODE,
-        BLACKSKIES_E2E_EXTERNAL_SERVICE: launchEnv.BLACKSKIES_E2E_EXTERNAL_SERVICE,
-        BLACKSKIES_ENABLE_HARNESS_HOOKS: launchEnv.BLACKSKIES_ENABLE_HARNESS_HOOKS,
-      },
+      BLACKSKIES_E2E_PORT: launchEnv.BLACKSKIES_E2E_PORT,
+      BLACKSKIES_E2E_MODE: launchEnv.BLACKSKIES_E2E_MODE,
+      BLACKSKIES_E2E_EXTERNAL_SERVICE: launchEnv.BLACKSKIES_E2E_EXTERNAL_SERVICE,
+      BLACKSKIES_ENABLE_HARNESS_HOOKS: launchEnv.BLACKSKIES_ENABLE_HARNESS_HOOKS,
+      BLACKSKIES_VISUAL_STABLE: launchEnv.BLACKSKIES_VISUAL_STABLE,
+    },
       getProcessState: () => ({
         pid: appProcess?.pid ?? null,
         exited: processExited,

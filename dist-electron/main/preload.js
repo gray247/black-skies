@@ -300,9 +300,76 @@ if (isPlaywright && typeof window !== 'undefined') {
         markDockReady();
     }
 }
+function resolveSceneSelectionHook() {
+    const selector = window.__blackSkiesSelectScene;
+    return typeof selector === 'function' ? selector : null;
+}
+async function waitForSceneSelectionHook(timeoutMs = 3_000) {
+    const deadline = Date.now() + timeoutMs;
+    while (Date.now() < deadline) {
+        const hook = resolveSceneSelectionHook();
+        if (hook) {
+            return { hook, hookPresent: true };
+        }
+        await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+    return { hook: null, hookPresent: false };
+}
 const devApi = {
     setProjectDir: (absPath) => {
         window.dispatchEvent(new CustomEvent('test:set-project', { detail: absPath }));
+    },
+    selectScene: async (sceneId) => {
+        const normalizedSceneId = typeof sceneId === 'string' ? sceneId.trim() : '';
+        console.log('[dbg:scene.select.request]', JSON.stringify({ sceneId: normalizedSceneId || sceneId || null }));
+        if (!normalizedSceneId) {
+            return {
+                ok: false,
+                method: 'hook',
+                sceneId: normalizedSceneId,
+                hookPresent: false,
+                error: 'missing-scene-id',
+            };
+        }
+        const hookState = await waitForSceneSelectionHook();
+        console.log('[dbg:scene.select.hook.present]', JSON.stringify({ sceneId: normalizedSceneId, hookPresent: hookState.hookPresent }));
+        if (hookState.hook) {
+            try {
+                const applied = hookState.hook(normalizedSceneId);
+                if (applied) {
+                    return {
+                        ok: true,
+                        method: 'hook',
+                        sceneId: normalizedSceneId,
+                        hookPresent: true,
+                    };
+                }
+                return {
+                    ok: false,
+                    method: 'hook',
+                    sceneId: normalizedSceneId,
+                    hookPresent: true,
+                    error: 'missing-scene',
+                };
+            }
+            catch (error) {
+                return {
+                    ok: false,
+                    method: 'hook',
+                    sceneId: normalizedSceneId,
+                    hookPresent: true,
+                    error: error instanceof Error ? error.message : String(error),
+                };
+            }
+        }
+        window.dispatchEvent(new CustomEvent('test:select-scene', { detail: normalizedSceneId }));
+        return {
+            ok: false,
+            method: 'event',
+            sceneId: normalizedSceneId,
+            hookPresent: false,
+            error: 'hook missing',
+        };
     },
     setStartupConfig: (config) => {
         const win = window;
@@ -352,14 +419,20 @@ const devApi = {
 // --- harness-only bridges ---
 // These are explicit test hooks and must stay out of the truth lane unless a harness runner
 // opts in with BLACKSKIES_ENABLE_HARNESS_HOOKS=1.
-if (harnessHooksEnabled) {
+if (isPlaywright || harnessHooksEnabled) {
     safeExpose('__test', {
         markBoot: () => console.log('[boot] renderer mounted'),
     });
     safeExpose('__dev', devApi);
     safeExpose('__testInsights', {
         setServiceStatus: (status) => window.dispatchEvent(new CustomEvent('test:service-status', { detail: status })),
-        selectScene: (id) => window.dispatchEvent(new CustomEvent('test:select-scene', { detail: id })),
+        selectScene: (id) => {
+            const selector = window.__blackSkiesSelectScene;
+            if (typeof selector === 'function' && selector(id)) {
+                return;
+            }
+            window.dispatchEvent(new CustomEvent('test:select-scene', { detail: id }));
+        },
     });
     safeExpose('testMode', {
         getMode: testMode.getMode,
@@ -1080,6 +1153,9 @@ const projectLoaderApi = {
         return response;
     },
     async getSampleProjectPath() {
+        if (process.env.BLACKSKIES_VISUAL_STABLE === '1') {
+            return null;
+        }
         try {
             const path = await electron_1.ipcRenderer.invoke(projectLoader_js_1.PROJECT_LOADER_CHANNELS.getSamplePath);
             return typeof path === 'string' ? path : null;

@@ -1492,6 +1492,9 @@ const projectLoaderApi: ProjectLoaderApi = {
     return response as ProjectLoadResponse;
   },
   async getSampleProjectPath(): Promise<string | null> {
+    if (process.env.BLACKSKIES_VISUAL_STABLE === '1') {
+      return null;
+    }
     try {
       const path = await ipcRenderer.invoke(PROJECT_LOADER_CHANNELS.getSamplePath);
       return typeof path === 'string' ? path : null;
