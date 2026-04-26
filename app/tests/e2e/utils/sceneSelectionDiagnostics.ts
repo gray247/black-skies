@@ -21,6 +21,7 @@ interface SceneSelectionPollSample {
 interface SceneSelectionDiagnostics {
   targetSceneId: string;
   matchedSelector: string | null;
+  selectionMethod: string | null;
   targetText: string | null;
   targetVisible: boolean;
   targetRect: { x: number; y: number; width: number; height: number } | null;
@@ -45,37 +46,60 @@ export async function selectSceneWithDiagnostics(
   const pollSamples: SceneSelectionPollSample[] = [];
 
   const clickResult = await page.evaluate((targetSceneId) => {
-    const buttons = Array.from(document.querySelectorAll('.project-home__scene-button'));
+    const buttons = Array.from(document.querySelectorAll('button.project-home__scene-button'));
+    const byDataScene = document.querySelector(
+      `button.project-home__scene-button[data-scene-id="${targetSceneId}"]`,
+    ) as HTMLButtonElement | null;
     const bySceneIdNode = Array.from(document.querySelectorAll('.project-home__scene-id')).find(
       (node) => (node.textContent ?? '').trim() === targetSceneId,
     );
-    const candidateById = bySceneIdNode?.closest('button.project-home__scene-button') as
+    const bySceneIdNodeButton = bySceneIdNode?.closest('button.project-home__scene-button') as
       | HTMLButtonElement
       | null;
-    const candidateByText = buttons.find((button) =>
+    const byText = buttons.find((button) =>
       (button.textContent ?? '').includes(targetSceneId),
     ) as HTMLButtonElement | undefined;
-    const targetButton = candidateById ?? candidateByText ?? null;
-    if (!targetButton) {
+    const targetButton = byDataScene ?? bySceneIdNodeButton ?? byText ?? null;
+    if (targetButton) {
+      const style = window.getComputedStyle(targetButton);
+      const rect = targetButton.getBoundingClientRect();
+      targetButton.click();
       return {
-        matchedSelector: null,
-        targetText: null,
-        targetVisible: false,
-        targetRect: null,
-        clickDispatchedAt: null,
+        matchedSelector: byDataScene
+          ? 'button.project-home__scene-button[data-scene-id="<scene-id>"]'
+          : bySceneIdNodeButton
+            ? '.project-home__scene-id -> closest(button.project-home__scene-button)'
+            : '.project-home__scene-button (text contains scene id)',
+        selectionMethod: 'button-click',
+        targetText: targetButton.textContent?.trim() ?? null,
+        targetVisible: style.display !== 'none' && style.visibility !== 'hidden',
+        targetRect: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
+        clickDispatchedAt: new Date().toISOString(),
       };
     }
 
-    const style = window.getComputedStyle(targetButton);
-    const rect = targetButton.getBoundingClientRect();
-    targetButton.click();
+    const devSelectScene = (
+      window as typeof window & { __dev?: { selectScene?: (sceneId: string) => boolean | void } }
+    ).__dev?.selectScene;
+    if (typeof devSelectScene === 'function') {
+      devSelectScene(targetSceneId);
+      return {
+        matchedSelector: '__dev.selectScene("<scene-id>")',
+        selectionMethod: 'dev-api',
+        targetText: null,
+        targetVisible: false,
+        targetRect: null,
+        clickDispatchedAt: new Date().toISOString(),
+      };
+    }
+
+    window.dispatchEvent(new CustomEvent('test:select-scene', { detail: targetSceneId }));
     return {
-      matchedSelector: candidateById
-        ? '.project-home__scene-id -> closest(button.project-home__scene-button)'
-        : '.project-home__scene-button (text contains scene id)',
-      targetText: targetButton.textContent?.trim() ?? null,
-      targetVisible: style.display !== 'none' && style.visibility !== 'hidden',
-      targetRect: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
+      matchedSelector: 'window.dispatchEvent("test:select-scene")',
+      selectionMethod: 'event-dispatch',
+      targetText: null,
+      targetVisible: false,
+      targetRect: null,
       clickDispatchedAt: new Date().toISOString(),
     };
   }, sceneId);
@@ -84,6 +108,7 @@ export async function selectSceneWithDiagnostics(
     const payload: SceneSelectionDiagnostics = {
       targetSceneId: sceneId,
       matchedSelector: null,
+      selectionMethod: null,
       targetText: null,
       targetVisible: false,
       targetRect: null,
@@ -109,17 +134,36 @@ export async function selectSceneWithDiagnostics(
       const selectedCards = document.querySelectorAll('.project-home__scene-card--active').length;
       const focused = document.activeElement as HTMLElement | null;
       const activeText = active?.textContent?.trim() ?? null;
+      const bodySceneId = document.body?.dataset?.activeSceneId ?? null;
+      const htmlSceneId = document.documentElement?.dataset?.activeSceneId ?? null;
+      const debugState = (
+        window as typeof window & {
+          __testProjectState?: { activeSceneId?: string | null };
+          __blackskiesDebugProjectState?: { activeSceneId?: string | null };
+        }
+      );
+      const debugSceneId =
+        debugState.__testProjectState?.activeSceneId ??
+        debugState.__blackskiesDebugProjectState?.activeSceneId ??
+        null;
       return {
         at: new Date().toISOString(),
         activeSceneText: activeText,
         activeScenePresent: Boolean(active),
         selectedCardCount: selectedCards,
+        bodySceneId,
+        htmlSceneId,
+        debugSceneId,
         focused: {
           testId: focused?.getAttribute('data-testid') ?? null,
           className: focused?.className ?? null,
           text: focused?.textContent?.trim() ?? null,
         },
-        matched: Boolean(activeText && activeText.includes(targetSceneId)),
+        matched:
+          Boolean(activeText && activeText.includes(targetSceneId)) ||
+          bodySceneId === targetSceneId ||
+          htmlSceneId === targetSceneId ||
+          debugSceneId === targetSceneId,
       };
     }, sceneId);
     pollSamples.push({
@@ -139,6 +183,7 @@ export async function selectSceneWithDiagnostics(
   const payload: SceneSelectionDiagnostics = {
     targetSceneId: sceneId,
     matchedSelector: clickResult.matchedSelector,
+    selectionMethod: clickResult.selectionMethod ?? null,
     targetText: clickResult.targetText,
     targetVisible: clickResult.targetVisible,
     targetRect: clickResult.targetRect,

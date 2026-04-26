@@ -120,6 +120,7 @@ function Corkboard({ projectId, projectPath }: CorkboardProps): JSX.Element {
             key={scene.sceneId}
             className="corkboard-card"
             data-testid="corkboard-card"
+            data-scene-id={scene.sceneId}
             aria-label={`Scene card for ${scene.title ?? scene.sceneId}`}
           >
             <header>

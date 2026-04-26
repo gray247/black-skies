@@ -1059,10 +1059,12 @@ export default function ProjectHome({
                     className={`project-home__scene-card${
                       isActive ? ' project-home__scene-card--active' : ''
                     }`}
+                    data-scene-id={scene.id}
                   >
                     <button
                       type="button"
                       className="project-home__scene-button"
+                      data-scene-id={scene.id}
                       onClick={() => setActiveSceneId(scene.id)}
                       aria-pressed={isActive}
                     >

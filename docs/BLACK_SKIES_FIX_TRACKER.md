@@ -275,7 +275,7 @@ Unresolved repo-wide typing debt and temporary CI scope narrowing.
 
 ## [5] PASS 5 harness fragility
 - Status: ACTIVE
-- Last Updated: 2026-04-24
+- Last Updated: 2026-04-26
 
 #### Known Facts
 - `app-e2e` remains a harness-only lane and should not be used for truth-lane claims.
@@ -310,6 +310,14 @@ Unresolved repo-wide typing debt and temporary CI scope narrowing.
   `projectLoaded=1`, mode contract aligned, service status online, recovery absent, dock/panes present, actions visible/enabled.
 - New CI canary evidence (2026-04-25): `canary-classification.json` reports `serial_canary=success`, `default_canary=success`, `classification=healthy`; timelines show backend healthy, artifact preflight passed, and Playwright exited 0.
 - Current active failure moved to truth lane contract drift: `scripts/truth-with-backend.mjs` asserted bridge health status `'ok'` while normalized bridge/UI semantics now report `'online'`.
+- New CI truth-lane evidence (2026-04-25): project/dock/corkboard readiness can pass while `.project-home__scene-button` selectors are absent (`sceneButtonsCount=0`, `sceneIdNodesCount=0`), so scene selection falls back to event-only and active-scene wait can fail.
+- Smoke selection diagnostic drift confirmed: `[dbg:scene.selected] sc_0001` can fire without the legacy DOM-only active-scene predicate converging.
+- Canary hidden backend fault class identified: analytics endpoints (`/api/v1/analytics/summary`, `/api/v1/analytics/scenes`) can return 500 during startup when synthetic sample outline schema is invalid; UI canary alone can mask this.
+- Fixes applied in this pass:
+  - scene-selection diagnostics now prefer canonical `data-scene-id` selectors and accept committed active-scene markers (`data-active-scene-id` / debug state), not only legacy DOM text matching;
+  - renderer now publishes committed active-scene marker (`data-active-scene-id`, `__testProjectState.activeSceneId`, `__blackskiesDebugProjectState.activeSceneId`);
+  - synthetic sample fixture schema normalized (`outline_id` present, `chapter_id` pattern `ch_0001`) to prevent analytics schema 500s;
+  - e2e launcher now performs explicit analytics preflight probes and fails before Playwright when analytics endpoints are unhealthy.
 - Cross-shell truth-lane startup risk (2026-04-25): WSL-exported env values with CRLF suffixes (for example `api_only\r`, `true\r`) can fail `ServiceSettings.from_environment()` enum/bool parsing and surface as backend health timeout noise.
 - New CI harness drift (2026-04-25): two UI checks flaked on missing transient nodes:
   - `gui.analytics_offline_cache_flow.spec.ts` expected `.corkboard-card` before cache priming converged,
@@ -339,6 +347,9 @@ Unresolved repo-wide typing debt and temporary CI scope narrowing.
   - preload now only applies forced recovery dataset when explicit env `BLACKSKIES_TEST_NEEDS_RECOVERY=1` is set;
   - renderer now handles `test:set-project` by loading via `projectLoader.loadProject(...)` and calling `activateProject(...)`, with race guards and diagnostics (`[dbg:project.bridge.load.start|done|error|exception]`).
 - Current stabilization focus after project-load predicate fixes: post-bootstrap state integrity (mode contract, service survival across reload, action readiness, path normalization, and mutable test-flag leakage).
+- Launcher ownership hardening (2026-04-26): backend wrappers now treat startup ownership as a contract.
+  - `scripts/e2e-with-backend.mjs` and `scripts/truth-with-backend.mjs` health waits now abort when the spawned backend emits a spawn error or exits before health convergence.
+  - This prevents accidental attachment to unrelated processes on `127.0.0.1:9999`, which previously produced misleading downstream failures.
 - Risk coverage matrix (2026-04-25):
   - [1] project-load race after bootstrap: YES (`_bootstrap.bootstrapHarness` startup-config-first sequencing + `App` `test:set-project` load/activate path guards).
   - [2] service override/state loss across reload: YES (`startup.diagnostic.spec.ts::diagnostic_service_override_survival_after_reload`).
@@ -351,6 +362,7 @@ Unresolved repo-wide typing debt and temporary CI scope narrowing.
 #### Actions
 - Use canary logs + timeline as the first triage source before opening spec-level fixes.
 - Record each root-cause classification update under this issue with reproducible evidence from artifacts.
+- Keep startup/action readiness truthful end-to-end: fail preflight on analytics 500s instead of allowing UI smoke to hide backend schema faults.
 
 #### Audit Report (2026-04-25, startup-mutation pattern)
 - `app/tests/e2e/hotkeys-status.spec.ts::restores a snapshot from the recovery banner`
@@ -391,6 +403,7 @@ Unresolved repo-wide typing debt and temporary CI scope narrowing.
   action: no change.
 
 #### Progress Log
+- 2026-04-26 - Codex - Hardened backend startup ownership checks in `scripts/e2e-with-backend.mjs` and `scripts/truth-with-backend.mjs` so health wait fails fast on spawn error/premature backend exit instead of proceeding against a potentially different process bound to the same port.
 - 2026-04-24 - Codex - Added runbook `docs/runbooks/ci_playwright_diagnostic_plan.md` to standardize hypothesis map, probes, decision tree, and incident sequence.
 - 2026-04-24 - Codex - Updated `eval.yml` `app-e2e` job to:
   - materialize diagnostics directory,
@@ -461,6 +474,19 @@ Unresolved repo-wide typing debt and temporary CI scope narrowing.
   - passed `requireCorkboardPane` (and all other predicate inputs) through `page.waitForFunction` args,
   - removed implicit closure dependence that produced `ReferenceError` in browser context.
 - 2026-04-25 - Codex - Updated truth lane health assertion in `scripts/truth-with-backend.mjs` to assert bridge-normalized status `'online'` (with layer-intent comment), resolving stale `'ok'` expectation drift without loosening unrelated truth assertions.
+- 2026-04-25 - Codex - Addressed scene-selection contract drift for truth/smoke diagnostics:
+  - added `data-scene-id` markers on ProjectHome scene controls and Corkboard cards,
+  - updated scene selection diagnostics to use canonical selectors first and then deterministic test selection APIs/events,
+  - aligned active-scene convergence checks to committed markers (`data-active-scene-id`, debug project state).
+- 2026-04-25 - Codex - Hardened canary backend preflight in `scripts/e2e-with-backend.mjs` with explicit analytics probes (`analytics/summary`, `analytics/scenes`) for `proj_esther_estate`; lane now fails fast on backend analytics 500s.
+- 2026-04-25 - Codex - Fixed synthetic e2e sample fallback schema in `app/tests/e2e/utils/sampleProject.ts` (`outline_id` + `ch_0001`) to prevent analytics schema-validation 500 regressions.
+- 2026-04-25 - Codex - Validation pass outcomes (local WSL):
+  - `node --check scripts/e2e-with-backend.mjs` => PASS.
+  - `node --check scripts/truth-with-backend.mjs` => PASS.
+  - `pnpm test:truth` => BLOCKED locally by Electron binary mismatch (`spawn .../app/node_modules/electron/dist/electron ENOENT`).
+  - `pnpm test:e2e -- --project=electron --workers=1 --grep "smoke_"` => BLOCKED locally by socket permission (`listen EPERM 127.0.0.1:9999`).
+  - `pnpm --dir app exec playwright test tests/e2e/truth_active_scene_diagnostic.spec.ts --project=electron --workers=1` => BLOCKED locally by pipe-spawn preflight (`EPERM`).
+  - Next validation target: CI rerun where Electron/pipe/socket constraints are not present.
 - 2026-04-25 - Codex - Fixed `hotkeys-status` recovery restore harness test to re-bootstrap with recovery enabled via startup contract (`bootstrapHarness(... allowRecoveryBanner: true)`), attached recovery diagnostics before strict `Restore snapshot` assertion, and validated restore flow.
 - 2026-04-25 - Codex - Updated `startup_contract_matrix` flat-mode contract to validate supported lock authority (`testMode.getMode()` stays `flat` despite runtime flag flips) instead of direct dataset mutation behavior.
 - 2026-04-25 - Codex - Validation evidence:

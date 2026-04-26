@@ -365,9 +365,20 @@ function enforceTruthReceiptRules(receipt) {
   }
 }
 
-async function waitForHealth(url, timeoutMs) {
+async function waitForHealth(url, timeoutMs, backendMonitor = null) {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
+    const spawnError = backendMonitor?.getSpawnError?.() ?? null;
+    if (spawnError) {
+      throw new Error(`[truth] backend failed to start: ${spawnError.message}`);
+    }
+    if (backendMonitor?.process && backendMonitor.process.exitCode !== null) {
+      throw new Error(
+        `[truth] backend exited before health became ready (code=${backendMonitor.process.exitCode}, signal=${String(
+          backendMonitor.process.signalCode ?? 'null',
+        )})`,
+      );
+    }
     try {
       const response = await fetch(url, { method: 'GET' });
       if (response.ok) {
@@ -917,6 +928,7 @@ async function collectActiveSceneDiagnosticSnapshot(cdp, targetSceneId) {
           loaded: body?.dataset?.projectLoaded ?? html?.dataset?.projectLoaded ?? null,
           path: body?.dataset?.projectPath ?? html?.dataset?.projectPath ?? null,
           id: body?.dataset?.projectId ?? html?.dataset?.projectId ?? null,
+          activeSceneId: body?.dataset?.activeSceneId ?? html?.dataset?.activeSceneId ?? null,
         },
         service: {
           status: servicePill?.getAttribute('data-status') ?? null,
@@ -928,6 +940,7 @@ async function collectActiveSceneDiagnosticSnapshot(cdp, targetSceneId) {
         corkboardCardCounts: {
           byTestId: document.querySelectorAll('[data-testid="corkboard-card"]').length,
           byClass: document.querySelectorAll('.corkboard-card').length,
+          bySceneId: document.querySelectorAll('[data-testid="corkboard-card"][data-scene-id]').length,
         },
         containsTargetScene: {
           count: sceneNodesWithTarget.length,
@@ -984,6 +997,8 @@ async function attemptSceneSelectionWithDiagnostics(cdp, targetSceneId) {
         attemptedAt: new Date(now).toISOString(),
         selectorMatched: null,
         hasSelector: false,
+        domSelectorMatched: null,
+        domSelectorFound: false,
         selectionMethod: null,
         targetText: null,
         targetVisible: false,
@@ -992,7 +1007,10 @@ async function attemptSceneSelectionWithDiagnostics(cdp, targetSceneId) {
         eventDispatchedAt: null,
         candidateSummary: {},
       };
-      const candidateButtons = Array.from(document.querySelectorAll('.project-home__scene-button'));
+      const candidateButtons = Array.from(document.querySelectorAll('button.project-home__scene-button'));
+      const buttonFromDataScene = document.querySelector(
+        'button.project-home__scene-button[data-scene-id="' + target + '"]',
+      );
       const buttonFromIdNode = (() => {
         const idNode = Array.from(document.querySelectorAll('.project-home__scene-id')).find(
           (node) => (node.textContent ?? '').trim() === target,
@@ -1008,11 +1026,16 @@ async function attemptSceneSelectionWithDiagnostics(cdp, targetSceneId) {
       clickPayload.candidateSummary = {
         sceneButtonsCount: candidateButtons.length,
         sceneIdNodesCount: document.querySelectorAll('.project-home__scene-id').length,
+        sceneButtonsByDataSceneCount: document.querySelectorAll(
+          'button.project-home__scene-button[data-scene-id]',
+        ).length,
         corkboardByTestIdCount: document.querySelectorAll('[data-testid="corkboard-card"]').length,
         corkboardByClassCount: document.querySelectorAll('.corkboard-card').length,
       };
       const targetButton =
-        buttonFromIdNode instanceof HTMLButtonElement
+        buttonFromDataScene instanceof HTMLButtonElement
+          ? buttonFromDataScene
+          : buttonFromIdNode instanceof HTMLButtonElement
           ? buttonFromIdNode
           : buttonFromText instanceof HTMLButtonElement
             ? buttonFromText
@@ -1021,12 +1044,17 @@ async function attemptSceneSelectionWithDiagnostics(cdp, targetSceneId) {
               : null;
       if (targetButton) {
         clickPayload.hasSelector = true;
+        clickPayload.domSelectorFound = true;
+        clickPayload.domSelectorMatched =
+          targetButton === buttonFromDataScene
+            ? 'button.project-home__scene-button[data-scene-id="<scene-id>"]'
+            : targetButton === buttonFromIdNode
+              ? '.project-home__scene-id -> closest(button.project-home__scene-button)'
+              : targetButton === buttonFromText
+                ? '.project-home__scene-button (text contains scene id)'
+                : 'button[aria-label*="<scene-id>"]';
         clickPayload.selectorMatched =
-          targetButton === buttonFromIdNode
-            ? '.project-home__scene-id -> closest(button.project-home__scene-button)'
-            : targetButton === buttonFromText
-              ? '.project-home__scene-button (text contains scene id)'
-              : 'button[aria-label*="<scene-id>"]';
+          clickPayload.domSelectorMatched;
         clickPayload.selectionMethod = 'button-click';
         clickPayload.targetText = (targetButton.textContent ?? '').trim().slice(0, 300);
         const rect = targetButton.getBoundingClientRect();
@@ -1041,7 +1069,18 @@ async function attemptSceneSelectionWithDiagnostics(cdp, targetSceneId) {
         clickPayload.clickDispatchedAt = new Date().toISOString();
         return clickPayload;
       }
+      const devSelectScene = window.__dev?.selectScene;
+      if (typeof devSelectScene === 'function') {
+        devSelectScene(target);
+        clickPayload.hasSelector = true;
+        clickPayload.selectorMatched = '__dev.selectScene("<scene-id>")';
+        clickPayload.selectionMethod = 'dev-api';
+        clickPayload.eventDispatchedAt = new Date().toISOString();
+        return clickPayload;
+      }
       window.dispatchEvent(new CustomEvent('test:select-scene', { detail: target }));
+      clickPayload.hasSelector = true;
+      clickPayload.selectorMatched = 'window.dispatchEvent("test:select-scene")';
       clickPayload.selectionMethod = 'event-only';
       clickPayload.eventDispatchedAt = new Date().toISOString();
       return clickPayload;
@@ -1064,13 +1103,26 @@ async function collectActiveScenePollSample(cdp, targetSceneId) {
       const generate = document.querySelector('[data-testid="workspace-action-generate"]');
       const critique = document.querySelector('[data-testid="workspace-action-critique"]');
       const summaryTarget = selectedButtons.find((node) => (node.textContent ?? '').includes(target));
+      const bodySceneId = document.body?.dataset?.activeSceneId ?? null;
+      const htmlSceneId = document.documentElement?.dataset?.activeSceneId ?? null;
+      const debugProjectState = window.__blackskiesDebugProjectState ?? window.__testProjectState ?? null;
+      const debugSceneId = debugProjectState?.activeSceneId ?? null;
       return {
         ts_ms: Date.now(),
         activeScene: {
           present: Boolean(activeButton),
           text: activeButton?.textContent?.trim() ?? null,
           selectedCount: selectedButtons.length,
-          includesTarget: Boolean(summaryTarget),
+          includesTarget:
+            Boolean(summaryTarget) ||
+            bodySceneId === target ||
+            htmlSceneId === target ||
+            debugSceneId === target,
+        },
+        markers: {
+          bodySceneId,
+          htmlSceneId,
+          debugSceneId,
         },
         focusedElement: focused
           ? {
@@ -1093,11 +1145,13 @@ async function collectActiveScenePollSample(cdp, targetSceneId) {
         corkboardCardCounts: {
           byTestId: document.querySelectorAll('[data-testid="corkboard-card"]').length,
           byClass: document.querySelectorAll('.corkboard-card').length,
+          bySceneId: document.querySelectorAll('[data-testid="corkboard-card"][data-scene-id]').length,
         },
         debugActiveScene:
           window.__blackSkiesDebugState?.activeScene ??
           window.__blackskiesDebugState?.activeScene ??
-          window.__blackskiesDebugProjectState?.activeScene ??
+          window.__blackskiesDebugProjectState?.activeSceneId ??
+          window.__testProjectState?.activeSceneId ??
           null,
       };
     })()`,
@@ -1201,7 +1255,10 @@ async function run() {
   process.on('exit', cleanup);
 
   try {
-    await waitForHealth(`http://127.0.0.1:${SERVICE_PORT}${HEALTH_PATH}`, HEALTH_TIMEOUT_MS).catch((error) => {
+    await waitForHealth(`http://127.0.0.1:${SERVICE_PORT}${HEALTH_PATH}`, HEALTH_TIMEOUT_MS, {
+      process: backend,
+      getSpawnError: () => backendSpawnError,
+    }).catch((error) => {
       throw makeFailureError(FAILURE_CATEGORY.BOOT_FAIL, normalizeErrorMessage(error));
     });
     if (backendSpawnError) {
@@ -1690,13 +1747,25 @@ async function run() {
         cdp,
         `(() => {
           const targetSceneId = ${JSON.stringify(sampleLoadProbe.sceneIds[0])};
-          const buttons = Array.from(document.querySelectorAll('.project-home__scene-button'));
+          const byDataScene = document.querySelector(
+            \`button.project-home__scene-button[data-scene-id="\${targetSceneId}"]\`,
+          );
+          const buttons = Array.from(document.querySelectorAll('button.project-home__scene-button'));
           const targetButton = buttons.find((button) =>
             (button.textContent ?? '').includes(targetSceneId),
           );
+          if (byDataScene instanceof HTMLButtonElement) {
+            byDataScene.click();
+            return 'button:data-scene-id';
+          }
           if (targetButton instanceof HTMLButtonElement) {
             targetButton.click();
             return 'button';
+          }
+          const devSelectScene = window.__dev?.selectScene;
+          if (typeof devSelectScene === 'function') {
+            devSelectScene(targetSceneId);
+            return 'dev-api';
           }
           window.dispatchEvent(new CustomEvent('test:select-scene', { detail: targetSceneId }));
           return 'event';

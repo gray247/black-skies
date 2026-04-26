@@ -1762,6 +1762,8 @@ export default function App(): JSX.Element {
     }
     const pathValue = projectSummary?.path ?? "";
     const projectIdValue = projectSummary?.projectId ?? "";
+    const activeSceneIdValue = activeSceneId ?? "";
+    const activeSceneTitleValue = activeScene?.title ?? null;
     const loaded = pathValue.length > 0 ? "1" : "0";
     target.dataset.projectLoaded = loaded;
     if (html && html !== target) {
@@ -1789,6 +1791,17 @@ export default function App(): JSX.Element {
         delete html.dataset.projectId;
       }
     }
+    if (activeSceneIdValue) {
+      target.dataset.activeSceneId = activeSceneIdValue;
+      if (html && html !== target) {
+        html.dataset.activeSceneId = activeSceneIdValue;
+      }
+    } else {
+      delete target.dataset.activeSceneId;
+      if (html && html !== target) {
+        delete html.dataset.activeSceneId;
+      }
+    }
     if (typeof window !== "undefined") {
       (
         window as typeof window & {
@@ -1796,6 +1809,16 @@ export default function App(): JSX.Element {
             loaded: boolean;
             path: string | null;
             projectId: string | null;
+            activeSceneId: string | null;
+            activeSceneTitle: string | null;
+            label: string;
+          };
+          __blackskiesDebugProjectState?: {
+            loaded: boolean;
+            path: string | null;
+            projectId: string | null;
+            activeSceneId: string | null;
+            activeSceneTitle: string | null;
             label: string;
           };
         }
@@ -1803,11 +1826,32 @@ export default function App(): JSX.Element {
         loaded: loaded === "1",
         path: pathValue || null,
         projectId: projectIdValue || null,
+        activeSceneId: activeSceneIdValue || null,
+        activeSceneTitle: activeSceneTitleValue,
+        label: projectLabel,
+      };
+      (
+        window as typeof window & {
+          __blackskiesDebugProjectState?: {
+            loaded: boolean;
+            path: string | null;
+            projectId: string | null;
+            activeSceneId: string | null;
+            activeSceneTitle: string | null;
+            label: string;
+          };
+        }
+      ).__blackskiesDebugProjectState = {
+        loaded: loaded === "1",
+        path: pathValue || null,
+        projectId: projectIdValue || null,
+        activeSceneId: activeSceneIdValue || null,
+        activeSceneTitle: activeSceneTitleValue,
         label: projectLabel,
       };
       console.log("[dbg:project.commit.done]", pathValue || "null");
     }
-  }, [projectLabel, projectSummary?.path, projectSummary?.projectId]);
+  }, [activeScene?.title, activeSceneId, projectLabel, projectSummary?.path, projectSummary?.projectId]);
   const testRecoveryStatusOverride = useMemo(() => {
     if (!isSnapshotRestoreFlowActive || recoveryStatus) {
       return null;

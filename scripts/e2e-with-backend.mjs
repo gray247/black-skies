@@ -12,6 +12,11 @@ const __dirname = path.dirname(__filename);
 
 const SERVICE_PORT = 9999;
 const HEALTH_PATH = `/api/v1/healthz`;
+const ANALYTICS_PROJECT_ID = 'proj_esther_estate';
+const ANALYTICS_HEALTH_PATHS = [
+  `/api/v1/analytics/summary?project_id=${encodeURIComponent(ANALYTICS_PROJECT_ID)}`,
+  `/api/v1/analytics/scenes?project_id=${encodeURIComponent(ANALYTICS_PROJECT_ID)}`,
+];
 const HEALTH_TIMEOUT_MS = 30_000;
 const PLAYWRIGHT_BASE_ARGS = ['--project=electron', '--reporter=list', '--trace=on'];
 const DEFAULT_PLAYWRIGHT_WORKERS_ARG = '--workers=1';
@@ -211,9 +216,20 @@ function spawnCommand(command, args, options = {}) {
   });
 }
 
-async function waitForHealth(url, timeoutMs) {
+async function waitForHealth(url, timeoutMs, backendMonitor = null) {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
+    const spawnError = backendMonitor?.getSpawnError?.() ?? null;
+    if (spawnError) {
+      throw new Error(`[e2e] backend failed to start: ${spawnError.message}`);
+    }
+    if (backendMonitor?.process && backendMonitor.process.exitCode !== null) {
+      throw new Error(
+        `[e2e] backend exited before health became ready (code=${backendMonitor.process.exitCode}, signal=${String(
+          backendMonitor.process.signalCode ?? 'null',
+        )})`,
+      );
+    }
     try {
       const response = await fetch(url, { method: 'GET' });
       if (response.ok) {
@@ -225,6 +241,44 @@ async function waitForHealth(url, timeoutMs) {
     await delay(500);
   }
   throw new Error(`Backend did not respond at ${url} within ${timeoutMs}ms`);
+}
+
+async function waitForAnalyticsHealth(baseUrl, timeoutMs) {
+  const deadline = Date.now() + timeoutMs;
+  let lastFailure = null;
+  while (Date.now() < deadline) {
+    let allHealthy = true;
+    for (const endpoint of ANALYTICS_HEALTH_PATHS) {
+      const url = `${baseUrl}${endpoint}`;
+      try {
+        const response = await fetch(url, { method: 'GET' });
+        if (!response.ok) {
+          allHealthy = false;
+          const bodySnippet = (await response.text()).slice(0, 400);
+          lastFailure = {
+            endpoint,
+            status: response.status,
+            body: bodySnippet,
+          };
+          break;
+        }
+      } catch (error) {
+        allHealthy = false;
+        lastFailure = {
+          endpoint,
+          error: error instanceof Error ? error.message : String(error),
+        };
+        break;
+      }
+    }
+    if (allHealthy) {
+      return;
+    }
+    await delay(500);
+  }
+  throw new Error(
+    `[e2e] analytics preflight failed within ${timeoutMs}ms: ${JSON.stringify(lastFailure ?? {})}`,
+  );
 }
 
 async function ensurePortAvailable(host, port) {
@@ -314,15 +368,28 @@ async function run() {
       env: backendEnv,
       stdio: 'inherit',
     });
+    let backendSpawnError = null;
+    backend.once('error', (error) => {
+      backendSpawnError = error;
+    });
     recordTimelineEvent('backend_spawned', {
       command: backendCommand,
       args: backendArgs,
       port: SERVICE_PORT,
     });
 
-    await waitForHealth(`http://127.0.0.1:${SERVICE_PORT}${HEALTH_PATH}`, HEALTH_TIMEOUT_MS);
+    await waitForHealth(`http://127.0.0.1:${SERVICE_PORT}${HEALTH_PATH}`, HEALTH_TIMEOUT_MS, {
+      process: backend,
+      getSpawnError: () => backendSpawnError,
+    });
     recordTimelineEvent('backend_healthy', {
       path: HEALTH_PATH,
+      timeout_ms: HEALTH_TIMEOUT_MS,
+    });
+    await waitForAnalyticsHealth(`http://127.0.0.1:${SERVICE_PORT}`, HEALTH_TIMEOUT_MS);
+    recordTimelineEvent('analytics_preflight_healthy', {
+      endpoints: ANALYTICS_HEALTH_PATHS,
+      project_id: ANALYTICS_PROJECT_ID,
       timeout_ms: HEALTH_TIMEOUT_MS,
     });
     assertElectronBuildArtifacts();

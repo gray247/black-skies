@@ -51,6 +51,8 @@ test('truth_active_scene_diagnostic (UI)', async ({ page }, testInfo) => {
       activeScene: {
         present: Boolean(active),
         text: active?.textContent?.trim() ?? null,
+        bodySceneId: document.body?.dataset?.activeSceneId ?? null,
+        htmlSceneId: document.documentElement?.dataset?.activeSceneId ?? null,
       },
       debugState: {
         blackSkiesDebugState:
