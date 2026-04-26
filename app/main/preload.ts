@@ -285,7 +285,7 @@ if (isPlaywright && typeof window !== 'undefined') {
 
 const devApi: {
   setProjectDir: (absPath: string | null) => void | Promise<void>;
-  selectScene?: (sceneId: string) => void;
+  selectScene?: (sceneId: string) => boolean;
   overrideServices?: (overrides: Partial<ServicesBridge>) => void;
   setStartupConfig?: (config: {
     mode: 'flat' | 'full' | 'recovery';
@@ -300,7 +300,17 @@ const devApi: {
     window.dispatchEvent(new CustomEvent('test:set-project', { detail: absPath }));
   },
   selectScene: (sceneId: string) => {
+    const selector = (window as typeof window & {
+      __blackSkiesSelectScene?: (value: string | null | undefined) => boolean;
+    }).__blackSkiesSelectScene;
+    if (typeof selector === 'function') {
+      const applied = selector(sceneId);
+      if (applied) {
+        return true;
+      }
+    }
     window.dispatchEvent(new CustomEvent('test:select-scene', { detail: sceneId }));
+    return true;
   },
   setStartupConfig: (config) => {
     const win = window as typeof window & {
@@ -359,7 +369,7 @@ const devApi: {
 // --- harness-only bridges ---
 // These are explicit test hooks and must stay out of the truth lane unless a harness runner
 // opts in with BLACKSKIES_ENABLE_HARNESS_HOOKS=1.
-if (harnessHooksEnabled) {
+if (isPlaywright || harnessHooksEnabled) {
   safeExpose('__test', {
     markBoot: () => console.log('[boot] renderer mounted'),
   });
@@ -369,8 +379,15 @@ if (harnessHooksEnabled) {
   safeExpose('__testInsights', {
     setServiceStatus: (status: 'offline' | 'online') =>
       window.dispatchEvent(new CustomEvent('test:service-status', { detail: status })),
-    selectScene: (id: string) =>
-      window.dispatchEvent(new CustomEvent('test:select-scene', { detail: id })),
+    selectScene: (id: string) => {
+      const selector = (window as typeof window & {
+        __blackSkiesSelectScene?: (value: string | null | undefined) => boolean;
+      }).__blackSkiesSelectScene;
+      if (typeof selector === 'function' && selector(id)) {
+        return;
+      }
+      window.dispatchEvent(new CustomEvent('test:select-scene', { detail: id }));
+    },
   });
 
   safeExpose('testMode', {

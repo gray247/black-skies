@@ -68,8 +68,6 @@ export function getTestModes() {
 }
 import "./styles/stable-dock.css";
 
-type DebugLogEntry = { scope: string; msg?: string };
-
 declare global {
   interface Window {
     __test?: {
@@ -78,26 +76,6 @@ declare global {
     __testInsights?: {
       setServiceStatus?: (status: "offline" | "online") => void;
       selectScene?: (sceneId: string) => void;
-    };
-    __blackskiesDebugLog?: Array<DebugLogEntry>;
-    __testEnv?: boolean | { isPlaywright?: boolean };
-    __testEnvSnapshotRestoreFlow?: boolean;
-    __testEnvFullMode?: boolean;
-    __blackSkiesDebugState?: {
-      loaded?: boolean;
-      path?: string | null;
-      projectId?: string | null;
-      activeSceneId?: string | null;
-      activeSceneTitle?: string | null;
-      label?: string;
-    };
-    __E2E_STARTUP_CONFIG?: {
-      mode: "flat" | "full" | "recovery";
-      projectPath: string | null;
-      recovery: boolean;
-      services: "stub" | "real";
-      allowRuntimeModeOverride?: boolean;
-      allowLayoutRestore?: boolean;
     };
   }
 }
@@ -197,12 +175,13 @@ export default function App(): JSX.Element {
   const runtimeConfigOverride =
     (window as typeof window & { __runtimeConfigOverride?: RuntimeConfig }).__runtimeConfigOverride;
   const runtimeUi = runtimeConfigOverride?.ui ?? window.runtimeConfig?.ui;
+  type TestEnvFlag = boolean | { isPlaywright?: boolean };
   const isPlaywrightEnv =
     Boolean(
       (typeof process !== 'undefined' && process.env?.PLAYWRIGHT === '1') ||
         (hasWindow &&
-          ((window as typeof window & { __testEnv?: { isPlaywright?: boolean } }).__testEnv === true ||
-            (window as typeof window & { __testEnv?: { isPlaywright?: boolean } }).__testEnv?.isPlaywright)),
+          ((window as typeof window & { __testEnv?: TestEnvFlag }).__testEnv === true ||
+            (window as typeof window & { __testEnv?: TestEnvFlag }).__testEnv?.isPlaywright)),
     );
   if (!isPlaywrightEnv) {
     console.info(`[playwright] runtimeUi=${JSON.stringify(runtimeUi)}`);
@@ -702,20 +681,50 @@ export default function App(): JSX.Element {
     (requestedSceneId?: string | null) => {
       const scenesList = currentProjectRef.current?.scenes ?? [];
       if (scenesList.length === 0) {
+        recordDebugEvent("scene.select.apply.miss", {
+          requestedSceneId: requestedSceneId ?? null,
+          reason: "no-scenes",
+        });
         return false;
       }
       const fallbackScene = scenesList[0] ?? null;
       const targetScene =
         scenesList.find((scene) => scene.id === requestedSceneId) ?? fallbackScene;
       if (!targetScene) {
+        recordDebugEvent("scene.select.apply.miss", {
+          requestedSceneId: requestedSceneId ?? null,
+          reason: "no-target-scene",
+        });
         return false;
       }
+      recordDebugEvent("scene.select.apply", {
+        requestedSceneId: requestedSceneId ?? null,
+        selectedSceneId: targetScene.id,
+        selectedSceneTitle: targetScene.title ?? null,
+        sceneCount: scenesList.length,
+      });
       setActiveScene({ id: targetScene.id, title: targetScene.title ?? null });
       pendingSceneSelectionRef.current = null;
       return true;
     },
     [setActiveScene],
   );
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    if (!isPlaywrightEnv && !harnessHooksEnabled) {
+      return;
+    }
+    const win = window as typeof window & {
+      __blackSkiesSelectScene?: (sceneId: string | null | undefined) => boolean;
+    };
+    win.__blackSkiesSelectScene = (sceneId) => applySceneSelection(sceneId);
+    return () => {
+      delete win.__blackSkiesSelectScene;
+    };
+  }, [applySceneSelection]);
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -1873,6 +1882,11 @@ export default function App(): JSX.Element {
         ...(window.__blackSkiesDebugState ?? {}),
         ...committedProjectState,
       };
+      recordDebugEvent("scene.select.commit", {
+        activeSceneId: activeSceneIdValue || null,
+        activeSceneTitle: activeSceneTitleValue,
+        projectId: projectIdValue || null,
+      });
       console.log("[dbg:project.commit.done]", pathValue || "null");
     }
   }, [activeScene?.title, activeSceneId, projectLabel, projectSummary?.path, projectSummary?.projectId]);

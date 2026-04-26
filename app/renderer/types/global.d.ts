@@ -55,12 +55,14 @@ declare global {
     runtimeConfig?: RuntimeConfig;
     layout?: LayoutBridge;
     __dev?: DevHarness;
+    __blackSkiesSelectScene?: (sceneId: string | null | undefined) => boolean;
     __serviceHealthRetry?: () => Promise<void>;
     __electronApi?: ElectronApi;
     __testEnv?: boolean | { isPlaywright?: boolean };
     __testEnvFlatMode?: boolean;
     __testEnvFullMode?: boolean;
     __testEnvRecoveryMode?: boolean;
+    __testEnvSnapshotRestoreFlow?: boolean;
     __testEnvDefaultProjectId?: string;
     __testEnvDefaultProjectPath?: string;
     __testEnvAutoSeedProjectSummary?: boolean;

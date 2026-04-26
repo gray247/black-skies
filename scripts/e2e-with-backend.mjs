@@ -19,6 +19,7 @@ const DEFAULT_PLAYWRIGHT_WORKERS_ARG = '--workers=1';
 const DEFAULT_SMOKE_TEST_FILES = ['gui.flows.spec.ts', 'dock-workspace.spec.ts'];
 const REPO_ROOT = path.resolve(__dirname, '..');
 const HARNESS_ANALYTICS_PROJECT_ROOT = path.resolve(REPO_ROOT, 'sample_project', ANALYTICS_PROJECT_ID);
+const E2E_FIXTURE_CONTRACT_SCRIPT = path.resolve(__dirname, 'check_e2e_fixture_contract.mjs');
 const TIMELINE_PATH = process.env.BLACKSKIES_E2E_TIMELINE_PATH?.trim() ?? '';
 const timelineEvents = [];
 
@@ -454,13 +455,34 @@ async function run() {
       path: HEALTH_PATH,
       timeout_ms: HEALTH_TIMEOUT_MS,
     });
-    await waitForAnalyticsHealth(`http://127.0.0.1:${SERVICE_PORT}`, HEALTH_TIMEOUT_MS);
+    const fixtureContractExitCode = await spawnCommand(
+      process.execPath,
+      [
+        E2E_FIXTURE_CONTRACT_SCRIPT,
+        '--project-id',
+        ANALYTICS_PROJECT_ID,
+        '--project-root',
+        HARNESS_ANALYTICS_PROJECT_ROOT,
+        '--base-url',
+        `http://127.0.0.1:${SERVICE_PORT}`,
+      ],
+      {
+        stdio: 'inherit',
+        cwd: REPO_ROOT,
+      },
+    );
+    if (fixtureContractExitCode !== 0) {
+      throw new Error(
+        `[e2e] fixture contract probe failed with exit code ${fixtureContractExitCode}`,
+      );
+    }
     recordTimelineEvent('analytics_preflight_healthy', {
       endpoints: [
         `/api/v1/analytics/summary?project_id=${encodeURIComponent(ANALYTICS_PROJECT_ID)}`,
         `/api/v1/analytics/scenes?project_id=${encodeURIComponent(ANALYTICS_PROJECT_ID)}`,
       ],
       project_id: ANALYTICS_PROJECT_ID,
+      project_path: HARNESS_ANALYTICS_PROJECT_ROOT,
       timeout_ms: HEALTH_TIMEOUT_MS,
     });
     assertElectronBuildArtifacts();

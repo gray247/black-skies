@@ -1256,8 +1256,8 @@ async function collectActiveScenePollSample(cdp, targetSceneId) {
           bySceneId: document.querySelectorAll('[data-testid="corkboard-card"][data-scene-id]').length,
         },
         debugActiveScene:
-          window.__blackSkiesDebugState?.activeScene ??
-          window.__blackskiesDebugState?.activeScene ??
+          window.__blackSkiesDebugState?.activeSceneId ??
+          window.__blackskiesDebugState?.activeSceneId ??
           window.__blackskiesDebugProjectState?.activeSceneId ??
           window.__testProjectState?.activeSceneId ??
           null,

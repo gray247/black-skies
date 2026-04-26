@@ -283,8 +283,12 @@ Unresolved repo-wide typing debt and temporary CI scope narrowing.
   - invalid chapter id format (`ch_01` instead of `ch_0001`).
 - Generic endpoint exception wrapping was explicitly rejected as the primary fix; harness now prioritizes artifact/schema diagnostics.
 - Canonical project conventions:
-  - harness analytics smoke lane: `sample_project/proj_esther_estate`,
-  - truth lane materialized project root: `.../project-base/Esther_Estate` copied from `sample_project/Esther_Estate`.
+  - harness analytics smoke lane: `sample_project/proj_esther_estate` (`project_id=proj_esther_estate`),
+  - truth lane materialized project root: `.../project-base/Esther_Estate` copied from `sample_project/Esther_Estate` as a path alias for the same canonical project snapshot (`project_id=proj_esther_estate`).
+- Canary-side fixture contract is now materialized and validated explicitly before Playwright:
+  - `app-e2e` prepares `sample_project/proj_esther_estate` with schema-valid `project.json`, `outline.json`, and `drafts/`,
+  - `scripts/check_e2e_fixture_contract.mjs` verifies the harness fixture shape before backend preflight,
+  - analytics preflight still checks `/api/v1/analytics/summary` and `/api/v1/analytics/scenes` for `proj_esther_estate` before Playwright starts.
 - `app-e2e` remains a harness-only lane and should not be used for truth-lane claims.
 - CI now runs a canary-first fail-fast sequence before the full harness suite:
   - canary command: `xvfb-run -a pnpm test:e2e`
@@ -323,6 +327,7 @@ Unresolved repo-wide typing debt and temporary CI scope narrowing.
 - Fixes applied in this pass:
   - scene-selection diagnostics now prefer canonical `data-scene-id` selectors and accept committed active-scene markers (`data-active-scene-id` / debug state), not only legacy DOM text matching;
   - renderer now publishes committed active-scene marker (`data-active-scene-id`, `__testProjectState.activeSceneId`, `__blackskiesDebugProjectState.activeSceneId`);
+  - renderer/preload now expose a canonical test-only scene authority hook (`window.__blackSkiesSelectScene` / `window.__dev.selectScene`) that routes to the same real `applySceneSelection(...)` path;
   - synthetic sample fixture schema normalized (`outline_id` present, `chapter_id` pattern `ch_0001`) to prevent analytics schema 500s;
   - e2e launcher now performs explicit analytics preflight probes and fails before Playwright when analytics endpoints are unhealthy.
 - Scene-selection authority map (2026-04-26):
@@ -503,6 +508,14 @@ Unresolved repo-wide typing debt and temporary CI scope narrowing.
   - aligned active-scene convergence checks to committed markers (`data-active-scene-id`, debug project state).
 - 2026-04-25 - Codex - Hardened canary backend preflight in `scripts/e2e-with-backend.mjs` with explicit analytics probes (`analytics/summary`, `analytics/scenes`) for `proj_esther_estate`; lane now fails fast on backend analytics 500s.
 - 2026-04-25 - Codex - Fixed synthetic e2e sample fallback schema in `app/tests/e2e/utils/sampleProject.ts` (`outline_id` + `ch_0001`) to prevent analytics schema-validation 500 regressions.
+- 2026-04-26 - Codex - Hardened fixture identity and scene-selection authority for canary:
+  - `app-e2e` now materializes `sample_project/proj_esther_estate` before canary and validates both harness/truth sample roots with `scripts/check_e2e_fixture_contract.mjs`,
+  - `scripts/e2e-with-backend.mjs` now invokes the fixture contract probe before analytics preflight and Playwright launch,
+  - renderer/preload now expose canonical test-only scene selection authority (`window.__blackSkiesSelectScene` / `window.__dev.selectScene`) that routes to the real `applySceneSelection(...)` path,
+  - truth diagnostics now read committed `activeSceneId` markers instead of the stale `activeScene` field.
+- 2026-04-26 - Codex - Softened light-load false-failure risk:
+  - default load-profile thresholds now use `p95=280ms` / `p99=320ms`,
+  - load test output now logs the threshold source, warmup count, and per-path timing summary so CI variance is diagnosable before threshold tuning.
 - 2026-04-25 - Codex - Validation pass outcomes (local WSL):
   - `node --check scripts/e2e-with-backend.mjs` => PASS.
   - `node --check scripts/truth-with-backend.mjs` => PASS.

@@ -513,6 +513,7 @@ def evaluate_thresholds(metrics: LoadMetrics, thresholds: Thresholds) -> list[st
 def build_result_payload(
     metrics: LoadMetrics,
     thresholds: Thresholds,
+    profile: LoadProfile,
     breaches: list[str],
 ) -> dict[str, Any]:
     duration = metrics.duration_seconds
@@ -540,6 +541,13 @@ def build_result_payload(
             "p99_ms": thresholds.p99_ms,
             "max_error_rate": thresholds.max_error_rate,
             "max_budget_usd": thresholds.max_budget_usd,
+        },
+        "profile": {
+            "name": profile.name,
+            "total_cycles": profile.total_cycles,
+            "concurrency": profile.concurrency,
+            "warmup_cycles": profile.warmup_cycles,
+            "description": profile.description,
         },
         "breaches": breaches,
         "slo": {
@@ -596,7 +604,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             return 1
 
     breaches = evaluate_thresholds(metrics, profile.thresholds)
-    result_payload = build_result_payload(metrics, profile.thresholds, breaches)
+    result_payload = build_result_payload(metrics, profile.thresholds, profile, breaches)
     runs.finalize_run(
         run_id,
         status="failed" if breaches else "completed",
@@ -632,6 +640,15 @@ def main(argv: Sequence[str] | None = None) -> int:
         (metrics.percentile(95.0) or 0.0),
         (metrics.percentile(99.0) or 0.0),
         metrics.total_budget,
+    )
+    LOGGER.info(
+        "Threshold source: config/load_profiles.yaml profile=%s warmup_cycles=%s",
+        profile.name,
+        profile.warmup_cycles,
+    )
+    LOGGER.info(
+        "Per-path timings: %s",
+        json.dumps(result_payload["metrics"]["per_path"], sort_keys=True),
     )
     LOGGER.info("Run ledger written to %s", ledger_path)
 
