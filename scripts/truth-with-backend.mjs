@@ -413,6 +413,114 @@ async function ensurePortAvailable(host, port) {
   });
 }
 
+function collectOutlineSchemaDiagnostics(projectPath) {
+  const outlinePath = path.join(projectPath, 'outline.json');
+  const diagnostics = {
+    project_path: projectPath,
+    outline_path: outlinePath,
+    outline_exists: existsSync(outlinePath),
+    outline_id: null,
+    scene_count: null,
+    valid_outline_schema: false,
+    issues: [],
+  };
+  if (!diagnostics.outline_exists) {
+    diagnostics.issues.push('outline.json missing');
+    return diagnostics;
+  }
+  let payload = null;
+  try {
+    payload = JSON.parse(readFileSync(outlinePath, 'utf8'));
+  } catch (error) {
+    diagnostics.issues.push(
+      `outline.json invalid JSON: ${error instanceof Error ? error.message : String(error)}`,
+    );
+    return diagnostics;
+  }
+  diagnostics.outline_id = typeof payload?.outline_id === 'string' ? payload.outline_id : null;
+  diagnostics.scene_count = Array.isArray(payload?.scenes) ? payload.scenes.length : null;
+  if (!diagnostics.outline_id) {
+    diagnostics.issues.push('outline_id missing');
+  } else if (!/^out_\d{3}$/.test(diagnostics.outline_id)) {
+    diagnostics.issues.push(`outline_id invalid: ${diagnostics.outline_id}`);
+  }
+  if (!Array.isArray(payload?.scenes)) {
+    diagnostics.issues.push('scenes missing or not an array');
+  } else {
+    const badScene = payload.scenes.find(
+      (scene) => !scene || typeof scene.chapter_id !== 'string' || !/^ch_\d{4}$/.test(scene.chapter_id),
+    );
+    if (badScene) {
+      diagnostics.issues.push(`invalid scene.chapter_id: ${JSON.stringify(badScene?.chapter_id ?? null)}`);
+    }
+  }
+  diagnostics.valid_outline_schema = diagnostics.issues.length === 0;
+  return diagnostics;
+}
+
+async function probeAnalyticsPreflight(baseUrl, projectId, projectPath, timeoutMs) {
+  const endpoints = [
+    `/api/v1/analytics/summary?project_id=${encodeURIComponent(projectId)}`,
+    `/api/v1/analytics/scenes?project_id=${encodeURIComponent(projectId)}`,
+  ];
+  const outlineDiagnostics = collectOutlineSchemaDiagnostics(projectPath);
+  const deadline = Date.now() + timeoutMs;
+  let lastFailure = null;
+  while (Date.now() < deadline) {
+    let allHealthy = true;
+    for (const endpoint of endpoints) {
+      const url = `${baseUrl}${endpoint}`;
+      try {
+        const response = await fetch(url, { method: 'GET' });
+        if (!response.ok) {
+          allHealthy = false;
+          lastFailure = {
+            project_id: projectId,
+            project_path: projectPath,
+            expected_outline_path: outlineDiagnostics.outline_path,
+            outline_exists: outlineDiagnostics.outline_exists,
+            outline_validation: {
+              valid_outline_schema: outlineDiagnostics.valid_outline_schema,
+              outline_id: outlineDiagnostics.outline_id,
+              scene_count: outlineDiagnostics.scene_count,
+              issues: outlineDiagnostics.issues,
+            },
+            endpoint,
+            status: response.status,
+            body: (await response.text()).slice(0, 800),
+          };
+          break;
+        }
+      } catch (error) {
+        allHealthy = false;
+        lastFailure = {
+          project_id: projectId,
+          project_path: projectPath,
+          expected_outline_path: outlineDiagnostics.outline_path,
+          outline_exists: outlineDiagnostics.outline_exists,
+          outline_validation: {
+            valid_outline_schema: outlineDiagnostics.valid_outline_schema,
+            outline_id: outlineDiagnostics.outline_id,
+            scene_count: outlineDiagnostics.scene_count,
+            issues: outlineDiagnostics.issues,
+          },
+          endpoint,
+          error: error instanceof Error ? error.message : String(error),
+        };
+        break;
+      }
+    }
+    if (allHealthy) {
+      return;
+    }
+    await delay(500);
+  }
+  throw makeFailureError(
+    FAILURE_CATEGORY.ARTIFACT_VALIDATION_FAIL,
+    `[truth] analytics preflight failed within ${timeoutMs}ms: ${JSON.stringify(lastFailure ?? {})}`,
+  );
+}
+
 function quotePowerShell(value) {
   return `'${String(value).replace(/'/g, "''")}'`;
 }
@@ -1457,6 +1565,14 @@ async function run() {
           },
         );
       }
+
+      console.log('[truth] probing analytics endpoints for resolved project');
+      await probeAnalyticsPreflight(
+        `http://127.0.0.1:${SERVICE_PORT}`,
+        sampleLoadProbe.projectId,
+        truthProject.projectPath,
+        30_000,
+      );
 
       const samplePathLiteral = JSON.stringify(truthProject.projectPath);
       const sampleNameLiteral = JSON.stringify(path.basename(truthProject.projectPath));

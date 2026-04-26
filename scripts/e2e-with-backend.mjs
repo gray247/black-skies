@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
 import { setTimeout as delay } from 'node:timers/promises';
 import { existsSync } from 'node:fs';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -13,15 +13,12 @@ const __dirname = path.dirname(__filename);
 const SERVICE_PORT = 9999;
 const HEALTH_PATH = `/api/v1/healthz`;
 const ANALYTICS_PROJECT_ID = 'proj_esther_estate';
-const ANALYTICS_HEALTH_PATHS = [
-  `/api/v1/analytics/summary?project_id=${encodeURIComponent(ANALYTICS_PROJECT_ID)}`,
-  `/api/v1/analytics/scenes?project_id=${encodeURIComponent(ANALYTICS_PROJECT_ID)}`,
-];
 const HEALTH_TIMEOUT_MS = 30_000;
 const PLAYWRIGHT_BASE_ARGS = ['--project=electron', '--reporter=list', '--trace=on'];
 const DEFAULT_PLAYWRIGHT_WORKERS_ARG = '--workers=1';
 const DEFAULT_SMOKE_TEST_FILES = ['gui.flows.spec.ts', 'dock-workspace.spec.ts'];
 const REPO_ROOT = path.resolve(__dirname, '..');
+const HARNESS_ANALYTICS_PROJECT_ROOT = path.resolve(REPO_ROOT, 'sample_project', ANALYTICS_PROJECT_ID);
 const TIMELINE_PATH = process.env.BLACKSKIES_E2E_TIMELINE_PATH?.trim() ?? '';
 const timelineEvents = [];
 
@@ -244,11 +241,62 @@ async function waitForHealth(url, timeoutMs, backendMonitor = null) {
 }
 
 async function waitForAnalyticsHealth(baseUrl, timeoutMs) {
+  const outlinePath = path.resolve(HARNESS_ANALYTICS_PROJECT_ROOT, 'outline.json');
+  const projectRoot = HARNESS_ANALYTICS_PROJECT_ROOT;
+  const analyticsEndpoints = [
+    `/api/v1/analytics/summary?project_id=${encodeURIComponent(ANALYTICS_PROJECT_ID)}`,
+    `/api/v1/analytics/scenes?project_id=${encodeURIComponent(ANALYTICS_PROJECT_ID)}`,
+  ];
+  const outlineDiagnostics = (() => {
+    const diagnostics = {
+      project_id: ANALYTICS_PROJECT_ID,
+      project_path: projectRoot,
+      outline_path: outlinePath,
+      outline_exists: existsSync(outlinePath),
+      outline_id: null,
+      scene_count: null,
+      valid_outline_schema: false,
+      issues: [],
+    };
+    if (!diagnostics.outline_exists) {
+      diagnostics.issues.push('outline.json missing');
+      return diagnostics;
+    }
+    let payload = null;
+    try {
+      payload = JSON.parse(readFileSync(outlinePath, 'utf-8'));
+    } catch (error) {
+      diagnostics.issues.push(
+        `outline.json invalid JSON: ${error instanceof Error ? error.message : String(error)}`,
+      );
+      return diagnostics;
+    }
+    diagnostics.outline_id = typeof payload?.outline_id === 'string' ? payload.outline_id : null;
+    diagnostics.scene_count = Array.isArray(payload?.scenes) ? payload.scenes.length : null;
+    if (!diagnostics.outline_id) {
+      diagnostics.issues.push('outline_id missing');
+    } else if (!/^out_\d{3}$/.test(diagnostics.outline_id)) {
+      diagnostics.issues.push(`outline_id invalid: ${diagnostics.outline_id}`);
+    }
+    if (!Array.isArray(payload?.scenes)) {
+      diagnostics.issues.push('scenes missing or not an array');
+    } else {
+      const badScene = payload.scenes.find(
+        (scene) => !scene || typeof scene.chapter_id !== 'string' || !/^ch_\d{4}$/.test(scene.chapter_id),
+      );
+      if (badScene) {
+        diagnostics.issues.push(`invalid scene.chapter_id: ${JSON.stringify(badScene?.chapter_id ?? null)}`);
+      }
+    }
+    diagnostics.valid_outline_schema = diagnostics.issues.length === 0;
+    return diagnostics;
+  })();
+
   const deadline = Date.now() + timeoutMs;
   let lastFailure = null;
   while (Date.now() < deadline) {
     let allHealthy = true;
-    for (const endpoint of ANALYTICS_HEALTH_PATHS) {
+    for (const endpoint of analyticsEndpoints) {
       const url = `${baseUrl}${endpoint}`;
       try {
         const response = await fetch(url, { method: 'GET' });
@@ -256,6 +304,16 @@ async function waitForAnalyticsHealth(baseUrl, timeoutMs) {
           allHealthy = false;
           const bodySnippet = (await response.text()).slice(0, 400);
           lastFailure = {
+            project_id: ANALYTICS_PROJECT_ID,
+            project_path: projectRoot,
+            expected_outline_path: outlinePath,
+            outline_exists: outlineDiagnostics.outline_exists,
+            outline_validation: {
+              valid_outline_schema: outlineDiagnostics.valid_outline_schema,
+              outline_id: outlineDiagnostics.outline_id,
+              scene_count: outlineDiagnostics.scene_count,
+              issues: outlineDiagnostics.issues,
+            },
             endpoint,
             status: response.status,
             body: bodySnippet,
@@ -265,6 +323,16 @@ async function waitForAnalyticsHealth(baseUrl, timeoutMs) {
       } catch (error) {
         allHealthy = false;
         lastFailure = {
+          project_id: ANALYTICS_PROJECT_ID,
+          project_path: projectRoot,
+          expected_outline_path: outlinePath,
+          outline_exists: outlineDiagnostics.outline_exists,
+          outline_validation: {
+            valid_outline_schema: outlineDiagnostics.valid_outline_schema,
+            outline_id: outlineDiagnostics.outline_id,
+            scene_count: outlineDiagnostics.scene_count,
+            issues: outlineDiagnostics.issues,
+          },
           endpoint,
           error: error instanceof Error ? error.message : String(error),
         };
@@ -388,7 +456,10 @@ async function run() {
     });
     await waitForAnalyticsHealth(`http://127.0.0.1:${SERVICE_PORT}`, HEALTH_TIMEOUT_MS);
     recordTimelineEvent('analytics_preflight_healthy', {
-      endpoints: ANALYTICS_HEALTH_PATHS,
+      endpoints: [
+        `/api/v1/analytics/summary?project_id=${encodeURIComponent(ANALYTICS_PROJECT_ID)}`,
+        `/api/v1/analytics/scenes?project_id=${encodeURIComponent(ANALYTICS_PROJECT_ID)}`,
+      ],
       project_id: ANALYTICS_PROJECT_ID,
       timeout_ms: HEALTH_TIMEOUT_MS,
     });

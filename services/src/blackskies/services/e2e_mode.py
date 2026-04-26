@@ -11,6 +11,7 @@ SYNTHETIC_FLAG = "BLACKSKIES_E2E_SYNTHETIC_MODE"
 SNAPSHOT_ID = "pw-e2e-lock"
 SNAPSHOT_PATH = f"history/snapshots/{SNAPSHOT_ID}"
 SNAPSHOT_LABEL = "wizard-e2e-lock"
+E2E_CHAPTER_ID = "ch_0001"
 
 
 def _now_iso() -> str:
@@ -22,7 +23,7 @@ def _scene_metadata(scene_id: str, index: int) -> dict[str, Any]:
         "id": scene_id,
         "title": f"Scene {scene_id}",
         "order": index + 1,
-        "chapter_id": "ch_e2e",
+        "chapter_id": E2E_CHAPTER_ID,
         "beat_refs": [],
     }
 
@@ -135,7 +136,7 @@ def e2e_generate_response(
                     "slug": unit_id,
                     "title": f"Scene {unit_id}",
                     "order": index + 1,
-                    "chapter_id": "ch_e2e",
+                    "chapter_id": E2E_CHAPTER_ID,
                     "purpose": "escalation",
                     "emotion_tag": "tension",
                     "pov": "Mara",

@@ -278,6 +278,13 @@ Unresolved repo-wide typing debt and temporary CI scope narrowing.
 - Last Updated: 2026-04-26
 
 #### Known Facts
+- Root cause for intermittent analytics preflight 500s is fixture/schema drift, not generic FastAPI instability:
+  - invalid outline artifact shape (`outline_id` missing),
+  - invalid chapter id format (`ch_01` instead of `ch_0001`).
+- Generic endpoint exception wrapping was explicitly rejected as the primary fix; harness now prioritizes artifact/schema diagnostics.
+- Canonical project conventions:
+  - harness analytics smoke lane: `sample_project/proj_esther_estate`,
+  - truth lane materialized project root: `.../project-base/Esther_Estate` copied from `sample_project/Esther_Estate`.
 - `app-e2e` remains a harness-only lane and should not be used for truth-lane claims.
 - CI now runs a canary-first fail-fast sequence before the full harness suite:
   - canary command: `xvfb-run -a pnpm test:e2e`
@@ -403,6 +410,11 @@ Unresolved repo-wide typing debt and temporary CI scope narrowing.
   action: no change.
 
 #### Progress Log
+- 2026-04-26 - Codex - Added schema-aware analytics preflight gates:
+  - `scripts/e2e-with-backend.mjs` now includes project-root outline diagnostics (`outline_id`, `chapter_id` format, outline existence/path) in analytics preflight failures before Playwright execution.
+  - `scripts/truth-with-backend.mjs` now probes analytics summary/scenes after resolved project load identity and fails immediately with project/outline diagnostics on non-200 responses.
+- 2026-04-26 - Codex - Updated synthetic e2e metadata chapter id in `services/src/blackskies/services/e2e_mode.py` from non-schema value to schema-valid `ch_0001`.
+- 2026-04-26 - Codex - Updated PASS 5 proof publication in `.github/workflows/eval.yml` to always emit `gauntlet-pass5-proof` summary artifact with explicit status (`success`/`failure`/`cancelled`) so manifest publishing classifies PASS 5 as failed/missing instead of ambiguous downstream artifact failure.
 - 2026-04-26 - Codex - Hardened backend startup ownership checks in `scripts/e2e-with-backend.mjs` and `scripts/truth-with-backend.mjs` so health wait fails fast on spawn error/premature backend exit instead of proceeding against a potentially different process bound to the same port.
 - 2026-04-24 - Codex - Added runbook `docs/runbooks/ci_playwright_diagnostic_plan.md` to standardize hypothesis map, probes, decision tree, and incident sequence.
 - 2026-04-24 - Codex - Updated `eval.yml` `app-e2e` job to:

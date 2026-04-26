@@ -576,13 +576,22 @@ jobs:
           pytest -q services/tests/unit/test_e2e_seam_metadata.py
           xvfb-run -a pnpm test:e2e
       - name: Write PASS 5 proof summary
-        if: success()
+        if: always()
+        env:
+          PASS5_JOB_STATUS: ${{ job.status }}
         run: |
           mkdir -p build/ci_proof/pass5
+          proof_status="failure"
+          if [ "$PASS5_JOB_STATUS" = "success" ]; then
+            proof_status="success"
+          elif [ "$PASS5_JOB_STATUS" = "cancelled" ]; then
+            proof_status="cancelled"
+          fi
           python scripts/write_gauntlet_pass_summary.py \
             --pass-id "PASS 5" \
             --command "pytest -q services/tests/unit/test_e2e_seam_metadata.py && pnpm test:e2e" \
             --commit-sha "${{ github.sha }}" \
+            --status "$proof_status" \
             --output "build/ci_proof/pass5/summary.json"
       - name: Upload PASS 5 proof artifact
         if: always()
