@@ -151,3 +151,8 @@ tmp/pytest-of-*/
 !docs/
 !app/tests/e2e/*.spec.ts-snapshots/
 !app/tests/e2e/*.spec.ts-snapshots/*.png
+
+# Local Playwright artifacts
+playwright-artifacts*/
+app/test-results/
+app/playwright-report/
