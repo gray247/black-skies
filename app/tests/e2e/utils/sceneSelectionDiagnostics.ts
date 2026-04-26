@@ -140,11 +140,13 @@ export async function selectSceneWithDiagnostics(
         window as typeof window & {
           __testProjectState?: { activeSceneId?: string | null };
           __blackskiesDebugProjectState?: { activeSceneId?: string | null };
+          __blackSkiesDebugState?: { activeSceneId?: string | null };
         }
       );
       const debugSceneId =
         debugState.__testProjectState?.activeSceneId ??
         debugState.__blackskiesDebugProjectState?.activeSceneId ??
+        debugState.__blackSkiesDebugState?.activeSceneId ??
         null;
       return {
         at: new Date().toISOString(),

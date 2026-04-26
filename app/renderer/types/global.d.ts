@@ -6,6 +6,7 @@ import type { RuntimeConfig } from '../../shared/config/runtime';
 
 type DevHarness = {
   setProjectDir?: (path: string | null) => Promise<void>;
+  selectScene?: (sceneId: string) => void;
   overrideServices?: (overrides: Partial<ServicesBridge>) => void;
   setStartupConfig?: (config: E2EStartupConfig) => void;
 };
@@ -64,6 +65,14 @@ declare global {
     __testEnvDefaultProjectPath?: string;
     __testEnvAutoSeedProjectSummary?: boolean;
     __E2E_STARTUP_CONFIG?: E2EStartupConfig;
+    __blackSkiesDebugState?: {
+      loaded?: boolean;
+      path?: string | null;
+      projectId?: string | null;
+      activeSceneId?: string | null;
+      activeSceneTitle?: string | null;
+      label?: string;
+    };
   }
 }
 

@@ -47,7 +47,8 @@ test.describe('GUI flow smoke tests', () => {
     await bootstrapHarness(page, { expectedMode: 'flat' });
 
     await page.evaluate(() => {
-      window.dispatchEvent(new CustomEvent('test:select-scene', { detail: 'sc_0001' }));
+      window.__dev?.selectScene?.('sc_0001') ??
+        window.dispatchEvent(new CustomEvent('test:select-scene', { detail: 'sc_0001' }));
     });
     const critiqueButton = page.getByTestId('workspace-action-critique');
     await expect(critiqueButton).toBeVisible({ timeout: 30_000 });
@@ -70,7 +71,8 @@ test.describe('GUI flow smoke tests', () => {
     });
 
     await page.evaluate(() => {
-      window.dispatchEvent(new CustomEvent('test:select-scene', { detail: 'sc_0001' }));
+      window.__dev?.selectScene?.('sc_0001') ??
+        window.dispatchEvent(new CustomEvent('test:select-scene', { detail: 'sc_0001' }));
     });
     const editor = page.locator('.project-home__draft-editor .cm-content').first();
     await expect(editor).toBeVisible({ timeout: 30_000 });
@@ -126,7 +128,8 @@ test.describe('GUI flow smoke tests', () => {
     });
 
     await page.evaluate(() => {
-      window.dispatchEvent(new CustomEvent('test:select-scene', { detail: 'sc_0001' }));
+      window.__dev?.selectScene?.('sc_0001') ??
+        window.dispatchEvent(new CustomEvent('test:select-scene', { detail: 'sc_0001' }));
     });
     const preflightDialog = await openPreflightDialog(page, {
       actionTestId: 'workspace-action-generate',

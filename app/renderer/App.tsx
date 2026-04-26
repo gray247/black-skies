@@ -83,6 +83,14 @@ declare global {
     __testEnv?: boolean | { isPlaywright?: boolean };
     __testEnvSnapshotRestoreFlow?: boolean;
     __testEnvFullMode?: boolean;
+    __blackSkiesDebugState?: {
+      loaded?: boolean;
+      path?: string | null;
+      projectId?: string | null;
+      activeSceneId?: string | null;
+      activeSceneTitle?: string | null;
+      label?: string;
+    };
     __E2E_STARTUP_CONFIG?: {
       mode: "flat" | "full" | "recovery";
       projectPath: string | null;
@@ -1830,6 +1838,14 @@ export default function App(): JSX.Element {
         activeSceneTitle: activeSceneTitleValue,
         label: projectLabel,
       };
+      const committedProjectState = {
+        loaded: loaded === "1",
+        path: pathValue || null,
+        projectId: projectIdValue || null,
+        activeSceneId: activeSceneIdValue || null,
+        activeSceneTitle: activeSceneTitleValue,
+        label: projectLabel,
+      };
       (
         window as typeof window & {
           __blackskiesDebugProjectState?: {
@@ -1841,13 +1857,21 @@ export default function App(): JSX.Element {
             label: string;
           };
         }
-      ).__blackskiesDebugProjectState = {
-        loaded: loaded === "1",
-        path: pathValue || null,
-        projectId: projectIdValue || null,
-        activeSceneId: activeSceneIdValue || null,
-        activeSceneTitle: activeSceneTitleValue,
-        label: projectLabel,
+      ).__blackskiesDebugProjectState = committedProjectState;
+      (
+        window as typeof window & {
+          __blackSkiesDebugState?: {
+            loaded?: boolean;
+            path?: string | null;
+            projectId?: string | null;
+            activeSceneId?: string | null;
+            activeSceneTitle?: string | null;
+            label?: string;
+          };
+        }
+      ).__blackSkiesDebugState = {
+        ...(window.__blackSkiesDebugState ?? {}),
+        ...committedProjectState,
       };
       console.log("[dbg:project.commit.done]", pathValue || "null");
     }

@@ -285,6 +285,7 @@ if (isPlaywright && typeof window !== 'undefined') {
 
 const devApi: {
   setProjectDir: (absPath: string | null) => void | Promise<void>;
+  selectScene?: (sceneId: string) => void;
   overrideServices?: (overrides: Partial<ServicesBridge>) => void;
   setStartupConfig?: (config: {
     mode: 'flat' | 'full' | 'recovery';
@@ -297,6 +298,9 @@ const devApi: {
 } = {
   setProjectDir: (absPath: string | null) => {
     window.dispatchEvent(new CustomEvent('test:set-project', { detail: absPath }));
+  },
+  selectScene: (sceneId: string) => {
+    window.dispatchEvent(new CustomEvent('test:select-scene', { detail: sceneId }));
   },
   setStartupConfig: (config) => {
     const win = window as typeof window & {

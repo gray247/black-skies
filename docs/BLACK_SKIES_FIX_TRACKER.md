@@ -325,6 +325,12 @@ Unresolved repo-wide typing debt and temporary CI scope narrowing.
   - renderer now publishes committed active-scene marker (`data-active-scene-id`, `__testProjectState.activeSceneId`, `__blackskiesDebugProjectState.activeSceneId`);
   - synthetic sample fixture schema normalized (`outline_id` present, `chapter_id` pattern `ch_0001`) to prevent analytics schema 500s;
   - e2e launcher now performs explicit analytics preflight probes and fails before Playwright when analytics endpoints are unhealthy.
+- Scene-selection authority map (2026-04-26):
+  - canonical state authority: `App` state `activeScene` (`activeSceneId = activeScene?.id ?? null`);
+  - canonical updater path: `App.applySceneSelection(...)` and `setActiveScene(...)` (including `activateProject(...)` + `handleActiveSceneChange(...)`);
+  - canonical test trigger: `window.__dev.selectScene(sceneId)` (test-only), which dispatches `test:select-scene` consumed by `App` listener and routed through `applySceneSelection`;
+  - non-authority UI: corkboard cards are diagnostic/analytics only and do not select scene;
+  - committed marker contract: `document.body.dataset.activeSceneId`, `document.documentElement.dataset.activeSceneId`, `window.__blackSkiesDebugState.activeSceneId`.
 - Cross-shell truth-lane startup risk (2026-04-25): WSL-exported env values with CRLF suffixes (for example `api_only\r`, `true\r`) can fail `ServiceSettings.from_environment()` enum/bool parsing and surface as backend health timeout noise.
 - New CI harness drift (2026-04-25): two UI checks flaked on missing transient nodes:
   - `gui.analytics_offline_cache_flow.spec.ts` expected `.corkboard-card` before cache priming converged,
@@ -410,6 +416,11 @@ Unresolved repo-wide typing debt and temporary CI scope narrowing.
   action: no change.
 
 #### Progress Log
+- 2026-04-26 - Codex - Published explicit scene-selection authority mapping and aligned test hooks:
+  - added test-only `window.__dev.selectScene(sceneId)` in preload bridge as canonical harness selector trigger,
+  - kept event path single-source by routing through existing `test:select-scene` listener in `App.applySceneSelection(...)`,
+  - exposed committed debug marker `window.__blackSkiesDebugState.activeSceneId` alongside body/html `data-active-scene-id`,
+  - updated smoke flow helpers to prefer `__dev.selectScene(...)` over raw custom-event dispatch.
 - 2026-04-26 - Codex - Added schema-aware analytics preflight gates:
   - `scripts/e2e-with-backend.mjs` now includes project-root outline diagnostics (`outline_id`, `chapter_id` format, outline existence/path) in analytics preflight failures before Playwright execution.
   - `scripts/truth-with-backend.mjs` now probes analytics summary/scenes after resolved project load identity and fails immediately with project/outline diagnostics on non-200 responses.
