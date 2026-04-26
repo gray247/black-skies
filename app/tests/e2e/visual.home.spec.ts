@@ -29,6 +29,7 @@ test.describe('Visual snapshots', () => {
     await expect(openProjectButton).toBeVisible();
     await expect(openProjectButton).toBeEnabled();
     await expect(openProjectButton).toHaveText('Open project...');
+    await expect(page.getByTestId('recovery-banner')).toBeHidden();
     await expect(page).toHaveScreenshot('home.png', {
       fullPage: true,
       maxDiffPixels: 200,

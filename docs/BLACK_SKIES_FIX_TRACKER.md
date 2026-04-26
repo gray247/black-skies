@@ -429,6 +429,10 @@ Unresolved repo-wide typing debt and temporary CI scope narrowing.
   - added post-materialization workflow debug checks (`pwd`, `find sample_project`, required file/directory asserts),
   - updated `scripts/e2e-with-backend.mjs` and `scripts/truth-with-backend.mjs` to call the shared materializer before runtime checks,
   - hardened truth active-scene failure classification to emit exact reasons (`hook missing`, `scene id missing`, `selectScene threw`, `commit marker not updated`) and log `__dev.selectScene("sc_0001")` return diagnostics.
+- 2026-04-26 - Codex - Fixed visual.home recovery-banner leakage in visual-home mode:
+  - suppressed recovery banner rendering when `isVisualHomeMode` is true,
+  - added explicit visual-home assertion that `recovery-banner` stays hidden,
+  - classified the failure as real UI state drift rather than snapshot baseline drift.
 - 2026-04-26 - Codex - Published explicit scene-selection authority mapping and aligned test hooks:
   - added test-only `window.__dev.selectScene(sceneId)` in preload bridge as canonical harness selector trigger,
   - kept event path single-source by routing through existing `test:select-scene` listener in `App.applySceneSelection(...)`,
@@ -1401,6 +1405,7 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 - Scene selection: routed through canonical authority
 - Truth lane: passing
 - Smoke lane: passing
+- Visual.home snapshot failure: real UI state drift, caused by recovery banner leakage into visual-home mode; not baseline drift.
 - Remaining risks:
   - large-file coupling
   - future contract drift

@@ -1957,7 +1957,9 @@ export default function App(): JSX.Element {
   }, [forcedRecoveryFlag, projectSummary?.projectId]);
   const effectiveRecoveryStatus = forcedRecoveryStatus ?? recoveryStatus ?? testRecoveryStatusOverride;
   const recoverySnapshot = effectiveRecoveryStatus?.last_snapshot ?? null;
-  const recoveryBannerVisible = startupConfigProvided
+  const recoveryBannerVisible = isVisualHomeMode
+    ? false
+    : startupConfigProvided
     ? startupRecoveryRequested &&
       (isSnapshotRestoreFlowActive || forcedRecoveryFlag || (effectiveRecoveryStatus?.needs_recovery ?? false))
     : isSnapshotRestoreFlowActive || forcedRecoveryFlag || (effectiveRecoveryStatus?.needs_recovery ?? false);
