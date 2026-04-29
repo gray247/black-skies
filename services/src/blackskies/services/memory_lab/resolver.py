@@ -302,32 +302,37 @@ def resolve_memory_packet(
             }
         )
     if unresolved_ranked_pool:
-        winner = unresolved_selected[0] if unresolved_selected else None
+        selected_winner: tuple[MemoryArtifact, MemorySelectionReason] | None = (
+            unresolved_selected[0] if unresolved_selected else None
+        )
         top_loser = next(
             (
                 item
                 for item in unresolved_ranked_pool
-                if winner is None or item[0].artifact_id != winner[0].artifact_id
+                if selected_winner is None
+                or item[0].artifact_id != selected_winner[0].artifact_id
             ),
             None,
         )
         slot_diagnostics.append(
             {
                 "slot": "unresolved_tension",
-                "winner": winner[0].artifact_id if winner else None,
+                "winner": selected_winner[0].artifact_id if selected_winner else None,
                 "top_loser": top_loser[0].artifact_id if top_loser else None,
                 "score_delta": (
-                    float(winner[1].total_score - top_loser[1].total_score)
-                    if winner is not None and top_loser is not None
+                    float(selected_winner[1].total_score - top_loser[1].total_score)
+                    if selected_winner is not None and top_loser is not None
                     else None
                 ),
                 "used_fallback": bool(
                     suppressed_fallback_enabled
-                    and winner is not None
-                    and winner[0].status == "suppressed"
+                    and selected_winner is not None
+                    and selected_winner[0].status == "suppressed"
                 ),
-                "tie_break_tuple": _ranking_tuple(winner) if winner is not None else None,
-                "tie_break_rationale": _tie_break_rationale(winner, top_loser),
+                "tie_break_tuple": (
+                    _ranking_tuple(selected_winner) if selected_winner is not None else None
+                ),
+                "tie_break_rationale": _tie_break_rationale(selected_winner, top_loser),
             }
         )
 

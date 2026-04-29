@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import zipfile
 from pathlib import Path
+from typing import cast
 
 from fastapi.testclient import TestClient
 
@@ -58,12 +59,12 @@ def _project_base_dir(client: TestClient) -> Path:
     return Path(client.app.state.settings.project_base_dir)
 
 
-def _run_export(client: TestClient, project_id: str, export_format: str) -> dict[str, object]:
+def _run_export(client: TestClient, project_id: str, export_format: str) -> dict[str, str]:
     response = client.post(
         "/api/v1/export", json={"project_id": project_id, "format": export_format}
     )
     assert response.status_code == 200
-    payload = response.json()
+    payload = cast(dict[str, str], response.json())
     assert payload["project_id"] == project_id
     assert payload["format"] == export_format
     assert payload["schema_version"] == "ProjectExportResult v1"

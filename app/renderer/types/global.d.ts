@@ -6,10 +6,10 @@ import type { RuntimeConfig } from '../../shared/config/runtime';
 
 type DevHarness = {
   setProjectDir?: (path: string | null) => Promise<void>;
-  selectScene?: (sceneId: string) => Promise<{
+  selectScene?: (sceneId: string | null) => Promise<{
     ok: boolean;
     method: 'hook' | 'event';
-    sceneId: string;
+    sceneId: string | null;
     hookPresent: boolean;
     error?: string;
   }>;

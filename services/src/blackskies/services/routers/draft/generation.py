@@ -53,20 +53,20 @@ async def generate_draft(
             project_root=project_root,
         )
 
-    project_root = settings.project_base_dir / request_model.project_id
+    resolved_project_root = settings.project_base_dir / request_model.project_id
     try:
-        outline = load_outline_artifact(project_root)
+        outline = load_outline_artifact(resolved_project_root)
     except DraftRequestError as exc:
         raise_validation_error(
             message=str(exc),
             details=exc.details,
             diagnostics=diagnostics,
-            project_root=project_root,
+            project_root=resolved_project_root,
         )
 
     if allow_e2e_synthetic_mode():
         return e2e_generate_response(
-            project_root=project_root,
+            project_root=resolved_project_root,
             project_id=request_model.project_id,
             unit_scope=request_model.unit_scope,
             unit_ids=request_model.unit_ids,
@@ -91,7 +91,7 @@ async def generate_draft(
         result = await generation_service.generate(
             request_model,
             scene_summaries,
-            project_root=project_root,
+            project_root=resolved_project_root,
         )
     except DraftRequestError as exc:
         raise_validation_error(
@@ -102,7 +102,7 @@ async def generate_draft(
         )
     except DraftGenerationTimeoutError as exc:
         diagnostics.log(
-            project_root,
+            resolved_project_root,
             code="TIMEOUT",
             message="Draft generation timed out.",
             details={"error": str(exc)},
@@ -113,7 +113,7 @@ async def generate_draft(
             message="Draft generation timed out.",
             details={"project_id": request_model.project_id},
             diagnostics=diagnostics,
-            project_root=project_root,
+            project_root=resolved_project_root,
         )
     except HTTPException:
         raise
@@ -121,7 +121,7 @@ async def generate_draft(
         raise
     except Exception as exc:  # pragma: no cover - surfaced via diagnostics
         diagnostics.log(
-            project_root,
+            resolved_project_root,
             code="INTERNAL",
             message="Draft generation failed.",
             details={"error": str(exc)},
@@ -132,7 +132,7 @@ async def generate_draft(
             message="Failed to generate draft units.",
             details={"project_id": request_model.project_id},
             diagnostics=diagnostics,
-            project_root=project_root,
+            project_root=resolved_project_root,
             cause=exc,
         )
     return result.response
@@ -161,15 +161,15 @@ async def preflight_draft(
             project_root=project_root,
         )
 
-    project_root = settings.project_base_dir / request_model.project_id
+    resolved_project_root = settings.project_base_dir / request_model.project_id
     try:
-        outline = load_outline_artifact(project_root)
+        outline = load_outline_artifact(resolved_project_root)
     except DraftRequestError as exc:
         raise_validation_error(
             message=str(exc),
             details=exc.details,
             diagnostics=diagnostics,
-            project_root=project_root,
+            project_root=resolved_project_root,
         )
 
     if allow_e2e_synthetic_mode():
@@ -197,7 +197,7 @@ async def preflight_draft(
         result = await generation_service.preflight(
             request_model,
             scene_summaries,
-            project_root=project_root,
+            project_root=resolved_project_root,
         )
     except DraftRequestError as exc:
         raise_validation_error(
@@ -208,7 +208,7 @@ async def preflight_draft(
         )
     except DraftGenerationTimeoutError as exc:
         diagnostics.log(
-            project_root,
+            resolved_project_root,
             code="TIMEOUT",
             message="Draft preflight timed out.",
             details={"error": str(exc)},
@@ -219,11 +219,11 @@ async def preflight_draft(
             message="Draft preflight timed out.",
             details={"project_id": request_model.project_id},
             diagnostics=diagnostics,
-            project_root=project_root,
+            project_root=resolved_project_root,
         )
     except Exception as exc:  # pragma: no cover - surfaced via diagnostics
         diagnostics.log(
-            project_root,
+            resolved_project_root,
             code="INTERNAL",
             message="Draft preflight failed.",
             details={"error": str(exc)},
@@ -234,7 +234,7 @@ async def preflight_draft(
             message="Failed to compute draft preflight.",
             details={"project_id": request_model.project_id},
             diagnostics=diagnostics,
-            project_root=project_root,
+            project_root=resolved_project_root,
         )
 
     return result.payload

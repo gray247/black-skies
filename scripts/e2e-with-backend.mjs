@@ -184,6 +184,15 @@ function prependVenvPath(currentPath) {
   return `${venvBin}${path.delimiter}${currentPath ?? ''}`;
 }
 
+function sanitizeColorEnv(env) {
+  const nextEnv = { ...env };
+  // Keep readable colored output; drop contradictory NO_COLOR when FORCE_COLOR is present.
+  if (nextEnv.FORCE_COLOR && nextEnv.NO_COLOR) {
+    delete nextEnv.NO_COLOR;
+  }
+  return nextEnv;
+}
+
 function splitCommand(command) {
   const tokens = [];
   if (!command) {
@@ -372,21 +381,66 @@ async function ensurePortAvailable(host, port) {
   });
 }
 
+async function classifyPortOccupancy(host, port, healthPath) {
+  const healthUrl = `http://${host}:${port}${healthPath}`;
+  try {
+    const response = await fetch(healthUrl, { method: 'GET' });
+    if (!response.ok) {
+      let bodySnippet = '';
+      try {
+        bodySnippet = (await response.text()).slice(0, 200);
+      } catch {
+        // best-effort diagnostics only
+      }
+      return {
+        classification: 'PORT_CONFLICT_STALE_OR_UNEXPECTED_SERVICE',
+        healthy: false,
+        status: response.status,
+        bodySnippet,
+      };
+    }
+    return {
+      classification: 'PORT_OCCUPIED_REUSING_HEALTHY_BACKEND',
+      healthy: true,
+      status: response.status,
+    };
+  } catch (error) {
+    return {
+      classification: 'PORT_CONFLICT_STALE_OR_UNEXPECTED_SERVICE',
+      healthy: false,
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
+}
+
 async function run() {
   recordTimelineEvent('launcher_start', {
     pid: process.pid,
     platform: process.platform,
   });
   let backend = null;
+  let backendStartedByLauncher = false;
 
-  const stopBackend = () => {
-    if (backend && !backend.killed) {
-      backend.kill('SIGTERM');
+  const stopBackend = async () => {
+    if (!backendStartedByLauncher || !backend || backend.killed || backend.exitCode !== null) {
+      return;
+    }
+    backend.kill('SIGTERM');
+    await Promise.race([
+      new Promise((resolve) => backend.once('exit', resolve)),
+      delay(5_000),
+    ]);
+    if (backend.exitCode === null && !backend.killed) {
+      backend.kill('SIGKILL');
+      await Promise.race([
+        new Promise((resolve) => backend.once('exit', resolve)),
+        delay(2_000),
+      ]);
     }
   };
 
-  const cleanup = () => {
-    stopBackend();
+  const cleanup = async () => {
+    await stopBackend();
   };
 
   process.on('SIGINT', cleanup);
@@ -428,14 +482,45 @@ async function run() {
     const backendCommand = backendTokens[0];
     const backendArgs = backendTokens.slice(1);
 
-    await ensurePortAvailable('127.0.0.1', SERVICE_PORT);
-    recordTimelineEvent('port_check_passed', {
-      host: '127.0.0.1',
-      port: SERVICE_PORT,
-    });
-    console.log(`[e2e] launching backend: ${backendCommand} ${backendArgs.join(' ')}`);
+    let reuseExistingBackend = false;
+    try {
+      await ensurePortAvailable('127.0.0.1', SERVICE_PORT);
+      recordTimelineEvent('port_check_passed', {
+        host: '127.0.0.1',
+        port: SERVICE_PORT,
+      });
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        error.message.includes(`Port ${SERVICE_PORT} on 127.0.0.1 is already in use`)
+      ) {
+        const occupancy = await classifyPortOccupancy('127.0.0.1', SERVICE_PORT, HEALTH_PATH);
+        recordTimelineEvent('port_check_occupied', {
+          host: '127.0.0.1',
+          port: SERVICE_PORT,
+          ...occupancy,
+        });
+        if (occupancy.healthy) {
+          reuseExistingBackend = true;
+          console.log(
+            `[e2e] preflight: port ${SERVICE_PORT} is occupied by a healthy backend; reusing existing service.`,
+          );
+        } else {
+          throw new Error(
+            `[e2e] preflight: port ${SERVICE_PORT} occupied but health check failed; classify as stale/conflict. ` +
+              `details=${JSON.stringify(occupancy)}`,
+          );
+        }
+      } else {
+        throw error;
+      }
+    }
+
+    if (!reuseExistingBackend) {
+      console.log(`[e2e] launching backend: ${backendCommand} ${backendArgs.join(' ')}`);
+    }
     const backendEnv = {
-      ...process.env,
+      ...sanitizeColorEnv(process.env),
       BLACKSKIES_SERVICES_PORT: String(SERVICE_PORT),
       BLACKSKIES_E2E_PORT: String(SERVICE_PORT),
       BLACKSKIES_E2E_MODE: "1",
@@ -443,6 +528,10 @@ async function run() {
       BLACKSKIES_E2E_EXTERNAL_SERVICE: "1",
       BLACKSKIES_ENABLE_PHASE4_MOCK_FLOW: "1",
     };
+    const sanitizedProcessEnv = sanitizeColorEnv(process.env);
+    if (!('NO_COLOR' in sanitizedProcessEnv) && 'NO_COLOR' in process.env) {
+      delete process.env.NO_COLOR;
+    }
     process.env.BLACKSKIES_SERVICES_PORT = String(SERVICE_PORT);
     process.env.BLACKSKIES_E2E_PORT = String(SERVICE_PORT);
     process.env.BLACKSKIES_E2E_MODE = "1";
@@ -451,19 +540,22 @@ async function run() {
     process.env.BLACKSKIES_ENABLE_PHASE4_MOCK_FLOW = "1";
     process.env.PATH = prependVenvPath(process.env.PATH);
     backendEnv.PATH = prependVenvPath(backendEnv.PATH);
-    backend = spawn(backendCommand, backendArgs, {
-      env: backendEnv,
-      stdio: 'inherit',
-    });
     let backendSpawnError = null;
-    backend.once('error', (error) => {
-      backendSpawnError = error;
-    });
-    recordTimelineEvent('backend_spawned', {
-      command: backendCommand,
-      args: backendArgs,
-      port: SERVICE_PORT,
-    });
+    if (!reuseExistingBackend) {
+      backend = spawn(backendCommand, backendArgs, {
+        env: backendEnv,
+        stdio: 'inherit',
+      });
+      backendStartedByLauncher = true;
+      backend.once('error', (error) => {
+        backendSpawnError = error;
+      });
+      recordTimelineEvent('backend_spawned', {
+        command: backendCommand,
+        args: backendArgs,
+        port: SERVICE_PORT,
+      });
+    }
 
     await waitForHealth(`http://127.0.0.1:${SERVICE_PORT}${HEALTH_PATH}`, HEALTH_TIMEOUT_MS, {
       process: backend,
@@ -528,7 +620,7 @@ async function run() {
     const exitCode = await spawnCommand(command, args, {
       stdio: 'inherit',
       env: {
-        ...process.env,
+        ...sanitizeColorEnv(process.env),
         PLAYWRIGHT: '1',
       },
       cwd: path.resolve(REPO_ROOT, 'app'),
@@ -544,8 +636,8 @@ async function run() {
     throw error;
   } finally {
     recordTimelineEvent('launcher_cleanup_start');
-    cleanup();
-    if (backend) {
+    await cleanup();
+    if (backendStartedByLauncher && backend) {
       await new Promise((resolve) => {
         backend.once('exit', resolve);
         setTimeout(resolve, 5000);

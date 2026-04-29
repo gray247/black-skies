@@ -310,7 +310,9 @@ class LongFormExecutionService:
             normalized_response = adapter.normalize_text_response(response)
             raw_text = normalized_response.text
             cleaned = normalize_long_form_output(raw_text)
-            if is_usable_long_form_output(cleaned, prior_excerpt=continuation.prior_excerpt):
+            if cleaned is not None and is_usable_long_form_output(
+                cleaned, prior_excerpt=continuation.prior_excerpt
+            ):
                 return cleaned.strip(), None, False
             report = evaluate_long_form_output(cleaned, prior_excerpt=continuation.prior_excerpt)
             self._diagnostics.log(

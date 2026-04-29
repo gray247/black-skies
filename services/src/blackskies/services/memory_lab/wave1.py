@@ -7,6 +7,7 @@ import json
 import math
 from pathlib import Path
 from time import perf_counter
+from typing import TypedDict, cast
 
 from .experimental import ExperimentDescriptor, register_experiment
 from .options import MemoryLabRuntimeOptions
@@ -25,6 +26,16 @@ B1_MAX_LATENCY_GROWTH = 0.10
 COMBINED_MAX_PROMPT_GROWTH = 0.20
 COMBINED_MAX_EVENT_GROWTH = 0.15
 COMBINED_MAX_LATENCY_GROWTH = 0.15
+
+
+class _SlotDiagnostic(TypedDict):
+    slot: str
+    winner: str
+    top_loser: str
+    score_delta: float
+    used_fallback: bool
+    tie_break_tuple: tuple[object, ...] | None
+    tie_break_rationale: str | None
 
 
 def ensure_wave1_descriptors_registered() -> None:
@@ -96,7 +107,7 @@ def apply_a1_exploration_pressure(
     started = perf_counter()
     slot_diags = list(packet.selection_slot_diagnostics)
     eligible_slots = [
-        slot
+        cast(_SlotDiagnostic, slot)
         for slot in slot_diags
         if isinstance(slot.get("winner"), str)
         and isinstance(slot.get("top_loser"), str)

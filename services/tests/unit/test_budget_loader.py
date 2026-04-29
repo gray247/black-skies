@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from typing import TypedDict, cast
 
 import pytest
 
@@ -19,6 +20,17 @@ from blackskies.services.constants import (
     DEFAULT_SOFT_BUDGET_LIMIT_USD,
 )
 from blackskies.services.diagnostics import DiagnosticLogger
+
+
+class _BudgetValues(TypedDict):
+    soft: float
+    hard: float
+    spent_usd: float
+
+
+class _ProjectBudgetPayload(TypedDict):
+    project_id: str
+    budget: _BudgetValues
 
 
 @pytest.fixture()
@@ -36,15 +48,15 @@ def _write_project_file(project_root: Path, payload: dict[str, object]) -> None:
     project_file.write_text(json.dumps(payload), encoding="utf-8")
 
 
-def _read_project_payload(project_root: Path) -> dict[str, object]:
+def _read_project_payload(project_root: Path) -> _ProjectBudgetPayload:
     project_file = project_root / "project.json"
-    return json.loads(project_file.read_text(encoding="utf-8"))
+    return cast(_ProjectBudgetPayload, json.loads(project_file.read_text(encoding="utf-8")))
 
 
 def test_load_project_budget_state_sanitizes_currency(
     project_root: Path, diagnostics: DiagnosticLogger
 ) -> None:
-    project_data = {
+    project_data: dict[str, object] = {
         "project_id": project_root.name,
         "budget": {
             "soft": "5,000",
@@ -67,7 +79,7 @@ def test_load_project_budget_state_sanitizes_currency(
 def test_load_project_budget_state_defaults_on_invalid_values(
     project_root: Path, diagnostics: DiagnosticLogger
 ) -> None:
-    project_data = {
+    project_data: dict[str, object] = {
         "project_id": project_root.name,
         "budget": {
             "soft": "five thousand",

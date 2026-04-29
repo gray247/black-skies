@@ -1,15 +1,30 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import TypedDict
 
 import yaml
+from typing import cast
 
 from blackskies.services.critique import CritiqueService
 from blackskies.services.models.critique import DraftCritiqueRequest
 
 
+class _Conflict(TypedDict):
+    description: str
+    type: str
+
+
+class _HeuristicsPayload(TypedDict):
+    povs: list[str]
+    goals: list[str]
+    conflicts: list[_Conflict]
+    word_target: dict[str, int]
+    pacing_target: str
+
+
 def _write_draft(
-    project_root: Path, heuristics_payload: dict[str, object]
+    project_root: Path, heuristics_payload: _HeuristicsPayload
 ) -> tuple[dict[str, object], str]:
     drafts_dir = project_root / "drafts"
     heuristics_dir = project_root / ".blackskies"
@@ -49,7 +64,7 @@ def _write_draft(
         f"conflict_type: {front_matter['conflict_type']}",
         f"pacing_target: {front_matter['pacing_target']}",
         f"word_target: {front_matter['word_target']}",
-        f"beats: [{', '.join(front_matter['beats'])}]",
+        f"beats: [{', '.join(cast(list[str], front_matter['beats']))}]",
     ]
     front_block = "".join(f"{line}\n" for line in front_lines)
     content = f"---\n{front_block}---\n{body}\n"
@@ -71,19 +86,21 @@ def test_heuristics_config_affects_scores(tmp_path):
     project_root = tmp_path / "proj"
     project_root.mkdir(parents=True)
 
-    initial_heuristics = {
+    initial_heuristics: _HeuristicsPayload = {
         "povs": ["Mara Ibarra"],
         "goals": ["stabilize the perimeter sensors"],
         "conflicts": [
             {"description": "humidity chews through every circuit", "type": "environmental"}
         ],
         "word_target": {"base": 900, "per_order": 0},
+        "pacing_target": "steady",
     }
-    updated_heuristics = {
+    updated_heuristics: _HeuristicsPayload = {
         "povs": ["Mara Ibarra"],
         "goals": ["secure the perimeter and the ancestral archive after sunrise"],
         "conflicts": [{"description": "the radio shakes with unknown voices", "type": "cosmic"}],
         "word_target": {"base": 400, "per_order": 0},
+        "pacing_target": "steady",
     }
 
     _write_draft(project_root, initial_heuristics)

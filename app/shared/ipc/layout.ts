@@ -177,7 +177,7 @@ export interface LayoutSaveRequest extends LayoutLoadRequest {
   schemaVersion?: number;
 }
 
-export interface LayoutResetRequest extends LayoutLoadRequest {}
+export type LayoutResetRequest = LayoutLoadRequest;
 
 export interface LayoutLoadResponse {
   layout: LayoutTree | null;

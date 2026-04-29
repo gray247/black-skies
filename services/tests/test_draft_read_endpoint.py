@@ -4,11 +4,31 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import TypedDict, cast
 
+from httpx import Response
 from fastapi.testclient import TestClient
 
 
 API_PREFIX = "/api/v1"
+
+
+class _DraftReadSceneResponse(TypedDict):
+    sceneId: str
+    title: str
+    text: str
+
+
+class _ErrorDetails(TypedDict):
+    project_id: str
+    scene_id: str
+
+
+class _ErrorResponse(TypedDict):
+    code: str
+    message: str
+    details: _ErrorDetails
+    trace_id: str
 
 
 def _seed_project(client: TestClient, project_id: str) -> Path:
@@ -47,8 +67,8 @@ def _seed_project(client: TestClient, project_id: str) -> Path:
     return project_root
 
 
-def _read_error(response) -> dict[str, object]:
-    payload = response.json()
+def _read_error(response: Response) -> _ErrorResponse:
+    payload = cast(_ErrorResponse, response.json())
     assert "trace_id" in payload
     return payload
 
@@ -62,7 +82,7 @@ def test_draft_read_endpoint_returns_scene_text(test_client: TestClient) -> None
         params={"project_id": project_id},
     )
     assert response.status_code == 200
-    payload = response.json()
+    payload = cast(_DraftReadSceneResponse, response.json())
     assert payload == {
         "sceneId": "sc_0001",
         "title": "Scene One",
@@ -85,8 +105,9 @@ def test_draft_read_endpoint_rejects_invalid_project_id(test_client: TestClient)
     payload = _read_error(response)
     assert payload["code"] == "VALIDATION"
     assert payload["message"] == "Invalid project id."
-    assert payload["details"]["project_id"] == "bad/project"
-    assert payload["details"]["scene_id"] == "sc_0001"
+    details = payload["details"]
+    assert details["project_id"] == "bad/project"
+    assert details["scene_id"] == "sc_0001"
 
 
 def test_draft_read_endpoint_returns_404_for_missing_project(test_client: TestClient) -> None:
@@ -98,7 +119,8 @@ def test_draft_read_endpoint_returns_404_for_missing_project(test_client: TestCl
     payload = _read_error(response)
     assert payload["code"] == "PROJECT_NOT_FOUND"
     assert payload["message"] == "Project does not exist."
-    assert payload["details"]["project_id"] == "proj_missing_draft_read"
+    details = payload["details"]
+    assert details["project_id"] == "proj_missing_draft_read"
 
 
 def test_draft_read_endpoint_returns_404_for_missing_scene_draft(test_client: TestClient) -> None:
@@ -113,5 +135,6 @@ def test_draft_read_endpoint_returns_404_for_missing_scene_draft(test_client: Te
     payload = _read_error(response)
     assert payload["code"] == "DRAFT_NOT_FOUND"
     assert payload["message"] == "Draft scene markdown is missing."
-    assert payload["details"]["project_id"] == project_id
-    assert payload["details"]["scene_id"] == "sc_0002"
+    details = payload["details"]
+    assert details["project_id"] == project_id
+    assert details["scene_id"] == "sc_0002"

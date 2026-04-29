@@ -167,21 +167,21 @@ async def rewrite_draft(
 ) -> dict[str, Any]:
     """Apply rewrite instructions and persist the revised draft unit."""
 
-    project_root: Path | None = None
+    validation_project_root: Path | None = None
     try:
         request_model = DraftRewriteRequest.model_validate(payload)
     except ValidationError as exc:
         project_id = payload.get("project_id") if isinstance(payload, dict) else None
         if isinstance(project_id, str):
-            project_root = settings.project_base_dir / project_id
+            validation_project_root = settings.project_base_dir / project_id
         raise_validation_error(
             message="Invalid draft rewrite request.",
             details={"errors": exc.errors()},
             diagnostics=diagnostics,
-            project_root=project_root,
+            project_root=validation_project_root,
         )
 
-    project_root = settings.project_base_dir / request_model.project_id
+    resolved_project_root = settings.project_base_dir / request_model.project_id
     route_provenance = _build_provenance(
         route_name="draft/rewrite",
         provider_called=False,
@@ -190,7 +190,7 @@ async def rewrite_draft(
     )
     try:
         target_path, front_matter, current_body = read_scene_document(
-            project_root, request_model.unit_id
+            resolved_project_root, request_model.unit_id
         )
     except DraftRequestError as exc:
         raise_conflict_error(
@@ -201,7 +201,7 @@ async def rewrite_draft(
                 "error_code": "CONFLICT",
             },
             diagnostics=diagnostics,
-            project_root=project_root,
+            project_root=resolved_project_root,
         )
 
     current_normalized = normalize_markdown(current_body)
@@ -215,7 +215,7 @@ async def rewrite_draft(
                 "error_code": "CONFLICT",
             },
             diagnostics=diagnostics,
-            project_root=project_root,
+            project_root=resolved_project_root,
         )
 
     revised_text = request_model.new_text
@@ -251,14 +251,14 @@ async def rewrite_draft(
                         adapter_used = True
                     else:
                         diagnostics.log(
-                            project_root,
+                            resolved_project_root,
                             code="ADAPTER",
                             message="Rewrite adapter returned empty text; falling back to local rewrite.",
                             details={"unit_id": request_model.unit_id},
                         )
             except AdapterError as exc:
                 diagnostics.log(
-                    project_root,
+                    resolved_project_root,
                     code="ADAPTER",
                     message="Rewrite adapter failed; falling back to local rewrite.",
                     details={"error": str(exc)},
@@ -279,7 +279,7 @@ async def rewrite_draft(
                 message="Revised text must not be empty.",
                 details={"unit_id": request_model.unit_id},
                 diagnostics=diagnostics,
-                project_root=project_root,
+                project_root=resolved_project_root,
             )
 
     diff_payload = compute_diff(current_normalized, normalized_revised)
@@ -288,7 +288,7 @@ async def rewrite_draft(
     updated_front_matter["id"] = request_model.unit_id
 
     persistence = DraftPersistence(settings=settings)
-    target_path = project_root / "drafts" / f"{request_model.unit_id}.md"
+    target_path = resolved_project_root / "drafts" / f"{request_model.unit_id}.md"
 
     async def _persist_rewrite() -> None:
         backup_path: Path | None = None
@@ -309,7 +309,7 @@ async def rewrite_draft(
                 except OSError:  # pragma: no cover - best effort restore
                     pass
             diagnostics.log(
-                project_root,
+                resolved_project_root,
                 code="INTERNAL",
                 message="Failed to persist rewritten scene.",
                 details={"unit_id": request_model.unit_id, "error": str(exc)},

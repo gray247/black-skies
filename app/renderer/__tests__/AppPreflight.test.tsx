@@ -573,18 +573,17 @@ describe('App preflight integration', () => {
     fireEvent.click(snapshotButton);
     await waitFor(() => {
       expect(services.createProjectSnapshot).toBeDefined();
-      services.createProjectSnapshot && expect(services.createProjectSnapshot).toHaveBeenCalled();
+      expect(services.createProjectSnapshot).toHaveBeenCalled();
     });
 
     const verifyButton = await screen.findByTestId('workspace-action-verify');
     fireEvent.click(verifyButton);
     await waitFor(() => {
       expect(services.runBackupVerification).toBeDefined();
-      services.runBackupVerification &&
-        expect(services.runBackupVerification).toHaveBeenCalledWith({
-          projectId: 'demo',
-          latestOnly: true,
-        });
+      expect(services.runBackupVerification).toHaveBeenCalledWith({
+        projectId: 'demo',
+        latestOnly: true,
+      });
     });
   });
 

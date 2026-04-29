@@ -3,17 +3,26 @@
 from __future__ import annotations
 
 import re
+from typing import TypedDict
 
 from .schemas import (
     ContinuitySignal,
     ContinuitySignalArtifact,
     SceneDeltaArtifact,
     SceneDeltaCandidate,
+    SignalSeverity,
+    SignalAnchor,
 )
 
 _SEVERITIES = {"info", "warning", "conflict"}
 _STATUS_ALIVE = "alive"
 _STATUS_DEAD = "dead"
+
+
+class _StatusBucket(TypedDict):
+    statuses: set[str]
+    anchor: SignalAnchor | None
+    confidence: float
 
 
 class ContinuitySignalNormalizer:
@@ -56,7 +65,7 @@ class ContinuitySignalNormalizer:
         return mapping.get(category, "advisory_delta")
 
     @staticmethod
-    def _severity_for_candidate(category: str, value: str) -> str:
+    def _severity_for_candidate(category: str, value: str) -> SignalSeverity:
         lower = value.lower()
         if category == "injury_status_change" and (
             _STATUS_DEAD in lower and _STATUS_ALIVE in lower
@@ -70,7 +79,7 @@ class ContinuitySignalNormalizer:
     def _status_conflicts(
         *, unit_id: str, candidates: list[SceneDeltaCandidate]
     ) -> list[ContinuitySignal]:
-        grouped: dict[str, dict[str, object]] = {}
+        grouped: dict[str, _StatusBucket] = {}
         for candidate in candidates:
             statuses = ContinuitySignalNormalizer._extract_statuses(candidate.value)
             if not statuses:
@@ -81,7 +90,7 @@ class ContinuitySignalNormalizer:
                     entity, {"statuses": set(), "anchor": None, "confidence": 0.0}
                 )
                 bucket["statuses"].update(statuses)
-                bucket["confidence"] = max(float(bucket["confidence"]), float(candidate.confidence))
+                bucket["confidence"] = max(bucket["confidence"], float(candidate.confidence))
                 if bucket["anchor"] is None:
                     bucket["anchor"] = candidate.anchor
 
@@ -98,7 +107,7 @@ class ContinuitySignalNormalizer:
                     entities=entities,
                     scope=f"scene:{unit_id}",
                     severity="conflict",
-                    confidence=max(0.7, min(1.0, float(bucket["confidence"]))),
+                    confidence=max(0.7, min(1.0, bucket["confidence"])),
                     anchor=raw_anchor,
                     metadata={
                         "category": "injury_status_change",

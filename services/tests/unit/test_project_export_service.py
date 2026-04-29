@@ -6,10 +6,18 @@ import asyncio
 import json
 import zipfile
 from pathlib import Path
+from typing import Any, TypedDict, cast
 
 from blackskies.services.config import ServiceSettings
 from blackskies.services.diagnostics import DiagnosticLogger
 from blackskies.services.export_service import ExportFormat, ProjectExportService
+
+class _ExportPayload(TypedDict):
+    project_id: str
+    format: str
+    chapters: int
+    scenes: int
+    path: str
 
 
 def _write_outline(project_root: Path) -> None:
@@ -59,7 +67,7 @@ def _prepare_project(tmp_path: Path, project_id: str) -> Path:
     return project_root
 
 
-def _run_export(project_root: Path, project_id: str, fmt: ExportFormat) -> dict[str, object]:
+def _run_export(project_root: Path, project_id: str, fmt: ExportFormat) -> _ExportPayload:
     settings = ServiceSettings(project_base_dir=project_root.parent)
     diagnostics = DiagnosticLogger()
     service = ProjectExportService(settings=settings, diagnostics=diagnostics)
@@ -69,7 +77,7 @@ def _run_export(project_root: Path, project_id: str, fmt: ExportFormat) -> dict[
             format=fmt,
         )
     )
-    return result.payload
+    return cast(_ExportPayload, result.payload)
 
 
 def test_project_export_service_writes_markdown(tmp_path: Path) -> None:

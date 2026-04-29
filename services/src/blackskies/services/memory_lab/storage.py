@@ -6,7 +6,7 @@ import json
 from dataclasses import asdict
 from pathlib import Path
 from urllib.parse import quote
-from typing import Any
+from typing import Any, cast
 
 from blackskies.services.io import atomic_write_json
 
@@ -18,6 +18,17 @@ from .schemas import (
     MemoryLedgerEntry,
     ReinforcementEvent,
 )
+from .types import ArtifactType
+
+
+MEMORY_ARTIFACT_TYPES: set[ArtifactType] = {
+    "summary",
+    "unresolved_tension",
+    "emotional_state",
+    "location_state",
+    "reveal",
+    "interpretation_hint",
+}
 
 
 def memory_lab_root(project_root: Path) -> Path:
@@ -263,11 +274,14 @@ def _artifact_from_payload(payload: Any) -> MemoryArtifact | None:
         tags = payload["tags"]
         if not isinstance(tags, list) or not all(isinstance(item, str) for item in tags):
             return None
+        artifact_type_raw = payload["artifact_type"]
+        if not isinstance(artifact_type_raw, str) or artifact_type_raw not in MEMORY_ARTIFACT_TYPES:
+            return None
 
         return MemoryArtifact(
             artifact_id=str(payload["artifact_id"]),
             schema_version=str(payload["schema_version"]),
-            artifact_type=str(payload["artifact_type"]),
+            artifact_type=cast(ArtifactType, artifact_type_raw),
             scene_id=str(payload["scene_id"]),
             chapter_id=_optional_str(payload.get("chapter_id")),
             source_excerpt=_optional_str(payload.get("source_excerpt")),

@@ -43,12 +43,12 @@ except ModuleNotFoundError:  # pragma: no cover - optional dependency stub
 
         return decorator
 
-    pydantic_stub.BaseModel = _BaseModel
-    pydantic_stub.Field = _field
-    pydantic_stub.field_validator = _field_validator
-    pydantic_stub.AliasChoices = _AliasChoices
-    pydantic_stub.ConfigDict = dict[str, Any]
-    pydantic_stub.model_validator = _model_validator
+    setattr(pydantic_stub, "BaseModel", _BaseModel)
+    setattr(pydantic_stub, "Field", _field)
+    setattr(pydantic_stub, "field_validator", _field_validator)
+    setattr(pydantic_stub, "AliasChoices", _AliasChoices)
+    setattr(pydantic_stub, "ConfigDict", dict[str, Any])
+    setattr(pydantic_stub, "model_validator", _model_validator)
     sys.modules["pydantic"] = pydantic_stub
 
 from blackskies.services.persistence import SnapshotPersistence

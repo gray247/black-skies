@@ -286,7 +286,7 @@ if (isPlaywright && typeof window !== 'undefined') {
 type SceneSelectionDiagnostic = {
   ok: boolean;
   method: 'hook' | 'event';
-  sceneId: string;
+  sceneId: string | null;
   hookPresent: boolean;
   error?: string;
 };
@@ -317,7 +317,7 @@ async function waitForSceneSelectionHook(timeoutMs = 3_000): Promise<{
 
 const devApi: {
   setProjectDir: (absPath: string | null) => void | Promise<void>;
-  selectScene?: (sceneId: string) => Promise<SceneSelectionDiagnostic>;
+  selectScene?: (sceneId: string | null) => Promise<SceneSelectionDiagnostic>;
   overrideServices?: (overrides: Partial<ServicesBridge>) => void;
   setStartupConfig?: (config: {
     mode: 'flat' | 'full' | 'recovery';
@@ -331,13 +331,13 @@ const devApi: {
   setProjectDir: (absPath: string | null) => {
     window.dispatchEvent(new CustomEvent('test:set-project', { detail: absPath }));
   },
-  selectScene: async (sceneId: string) => {
-    const normalizedSceneId = typeof sceneId === 'string' ? sceneId.trim() : '';
+  selectScene: async (sceneId: string | null) => {
+    const normalizedSceneId = typeof sceneId === 'string' ? sceneId.trim() : null;
     console.log(
       '[dbg:scene.select.request]',
-      JSON.stringify({ sceneId: normalizedSceneId || sceneId || null }),
+      JSON.stringify({ sceneId: normalizedSceneId || null }),
     );
-    if (!normalizedSceneId) {
+    if (normalizedSceneId === '') {
       return {
         ok: false,
         method: 'hook',

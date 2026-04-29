@@ -67,10 +67,11 @@ class BackupService:
                         {"path": relative_path.as_posix(), "checksum": _hashfile(absolute_path)}
                     )
 
+                created_at = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
                 checksums_payload = {
                     "schema_version": "BackupChecksums v1",
                     "project_id": project_id,
-                    "created_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+                    "created_at": created_at,
                     "files": files_list,
                 }
                 archive.writestr(BACKUP_CHECKSUMS, json.dumps(checksums_payload, indent=2))
@@ -79,11 +80,11 @@ class BackupService:
                 target_path.unlink()
             temp_path.replace(target_path)
 
-            payload = {
+            payload: dict[str, str] = {
                 "project_id": project_id,
                 "filename": filename,
                 "path": to_posix(target_path.relative_to(self._settings.project_base_dir)),
-                "created_at": checksums_payload["created_at"],
+                "created_at": created_at,
                 "checksum": _hashfile(target_path),
             }
             return payload
@@ -156,7 +157,10 @@ class BackupService:
 
             with project_json.open("r", encoding="utf-8") as handle:
                 project_data = json.load(handle)
-            slug = project_data.get("project_id") or project_data.get("slug") or "restored"
+            if not isinstance(project_data, dict):
+                raise FileNotFoundError("project.json payload is invalid in backup")
+            slug_value = project_data.get("project_id") or project_data.get("slug")
+            slug = slug_value if isinstance(slug_value, str) and slug_value.strip() else "restored"
 
             parent = self._settings.project_base_dir
             destination = _create_destination(str(parent), slug)

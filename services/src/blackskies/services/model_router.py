@@ -162,6 +162,7 @@ class ModelRouter:
 
         if policy is ModelRoutingPolicy.API_ONLY:
             if api_available:
+                assert api is not None
                 decision = self._build_decision(task, api, "policy.api_only")
                 self._trace(decision)
                 return decision
@@ -169,6 +170,7 @@ class ModelRouter:
 
         if policy is ModelRoutingPolicy.LOCAL_ONLY:
             if local_available:
+                assert local is not None
                 decision = self._build_decision(task, local, "policy.local_only")
                 self._trace(decision)
                 return decision
@@ -176,12 +178,14 @@ class ModelRouter:
 
         if policy is ModelRoutingPolicy.LOCAL_THEN_API_FALLBACK:
             if local_available:
+                assert local is not None
                 decision = self._build_decision(task, local, "policy.local_then_api_fallback")
                 self._trace(decision)
                 return decision
             fallback_used = True
 
         if api_available:
+            assert api is not None
             decision = self._build_decision(task, api, "fallback.api")
             decision = ModelRouteDecision(
                 **{**decision.__dict__, "fallback_used": fallback_used},
@@ -190,6 +194,7 @@ class ModelRouter:
             return decision
 
         if local_available:
+            assert local is not None
             decision = self._build_decision(task, local, "fallback.local")
             decision = ModelRouteDecision(
                 **{**decision.__dict__, "fallback_used": fallback_used},
@@ -232,11 +237,13 @@ class ModelRouter:
 
         if policy_decision.prefer_local:
             if allow_local:
+                assert local is not None
                 decision = self._build_decision(task, local, policy_decision.reason)
                 self._trace(decision)
                 return decision
             fallback_used = True
             if allow_api:
+                assert api is not None
                 decision = self._build_decision(task, api, policy_decision.reason)
                 decision = ModelRouteDecision(
                     **{**decision.__dict__, "fallback_used": True},
@@ -245,11 +252,13 @@ class ModelRouter:
                 return decision
         else:
             if allow_api:
+                assert api is not None
                 decision = self._build_decision(task, api, policy_decision.reason)
                 self._trace(decision)
                 return decision
             fallback_used = True
             if allow_local:
+                assert local is not None
                 decision = self._build_decision(task, local, policy_decision.reason)
                 decision = ModelRouteDecision(
                     **{**decision.__dict__, "fallback_used": True},

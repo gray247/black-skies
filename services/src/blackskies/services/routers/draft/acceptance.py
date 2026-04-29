@@ -58,8 +58,8 @@ async def accept_draft(
             project_root=project_root,
         )
 
-    project_root = settings.project_base_dir / request_model.project_id
-    if not project_root.exists():
+    resolved_project_root = settings.project_base_dir / request_model.project_id
+    if not resolved_project_root.exists():
         raise_validation_error(
             message="Project root is missing.",
             details={"project_id": request_model.project_id},
@@ -68,13 +68,15 @@ async def accept_draft(
         )
 
     try:
-        _, front_matter, current_body = read_scene_document(project_root, request_model.unit_id)
+        _, front_matter, current_body = read_scene_document(
+            resolved_project_root, request_model.unit_id
+        )
     except DraftRequestError as exc:
         raise_validation_error(
             message=str(exc),
             details=exc.details,
             diagnostics=diagnostics,
-            project_root=project_root,
+            project_root=resolved_project_root,
         )
 
     current_normalized = normalize_markdown(current_body)
@@ -84,7 +86,7 @@ async def accept_draft(
             message="The submitted draft unit is out of date.",
             details={"unit_id": request_model.unit_id},
             diagnostics=diagnostics,
-            project_root=project_root,
+            project_root=resolved_project_root,
         )
 
     recovery_tracker.mark_in_progress(
@@ -108,7 +110,7 @@ async def accept_draft(
     try:
         acceptance = await accept_service.accept(
             request=request_model,
-            project_root=project_root,
+            project_root=resolved_project_root,
             updated_front_matter=updated_front_matter,
             normalized_text=normalized_text,
             current_normalized=current_normalized,
@@ -121,7 +123,7 @@ async def accept_draft(
                 message="Failed to persist accepted scene.",
                 details={"unit_id": exc.unit_id},
                 diagnostics=diagnostics,
-                project_root=project_root,
+                project_root=resolved_project_root,
             )
         raise_service_error(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -129,11 +131,11 @@ async def accept_draft(
             message="Failed to persist accepted scene.",
             details={"unit_id": exc.unit_id, "error": exc.error},
             diagnostics=diagnostics,
-            project_root=project_root,
+            project_root=resolved_project_root,
         )
     except SnapshotPersistenceError as exc:
         diagnostics.log(
-            project_root,
+            resolved_project_root,
             code="CONFLICT",
             message=str(exc),
             details=exc.details or {"project_id": request_model.project_id},
@@ -148,7 +150,7 @@ async def accept_draft(
         ) from exc
     except Exception as exc:  # pragma: no cover - defensive logging for unexpected failures
         diagnostics.log(
-            project_root,
+            resolved_project_root,
             code="INTERNAL",
             message="Draft accept pipeline raised an unexpected error.",
             details={"error": str(exc), "unit_id": request_model.unit_id},
@@ -159,7 +161,7 @@ async def accept_draft(
             message="Failed to accept draft unit.",
             details={"unit_id": request_model.unit_id, "error": str(exc)},
             diagnostics=diagnostics,
-            project_root=project_root,
+            project_root=resolved_project_root,
             cause=exc,
         )
 

@@ -16,11 +16,11 @@ websockets==15.0.1
 httptools==0.7.1
 h11==0.16.0
 PyYAML==6.0.3
-black==25.9.0
+black==26.3.1
 flake8==7.3.0
 mypy==1.11.2
 Pygments==2.20.0
-pytest==8.4.2
+pytest==9.0.3
 pytest-cov==7.0.0
 pytest-rerunfailures==16.1
-wheel==0.45.1
+wheel==0.46.2

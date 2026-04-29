@@ -58,13 +58,13 @@ async def execute_long_form(
             project_root=project_root,
         )
 
-    project_root = settings.project_base_dir / request_model.project_id
-    if not project_root.exists():
+    resolved_project_root = settings.project_base_dir / request_model.project_id
+    if not resolved_project_root.exists():
         raise_validation_error(
             message="Project not found.",
             details={"project_id": request_model.project_id},
             diagnostics=diagnostics,
-            project_root=project_root,
+            project_root=resolved_project_root,
         )
 
     service = LongFormExecutionService(
@@ -74,7 +74,7 @@ async def execute_long_form(
         enabled=request_model.enabled,
     )
     result = service.execute(
-        project_root=project_root,
+        project_root=resolved_project_root,
         chapter_id=request_model.chapter_id,
         scene_ids=request_model.scene_ids,
         chunk_size=request_model.chunk_size,

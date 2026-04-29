@@ -1,7 +1,7 @@
 ﻿# BLACK SKIES - FIX TRACKER
 
 Status: Active
-Last Reviewed: 2026-04-23
+Last Reviewed: 2026-04-29
 
 ## Purpose
 This document tracks defects, technical debt, and instability across Black Skies.
@@ -1478,7 +1478,7 @@ Operational doc was not updated after dev launcher migration.
 - Last Updated: 2026-04-21
 
 #### Description
-Multiple active docs contained mojibake characters (`â€”`, `â€œ`, `Ã¢â‚¬â€`).
+Multiple active docs contained mojibake characters (`—`, `“`, `”`).
 
 #### Known Facts
 - `docs/phase_bridge.md` and `docs/ops/start_codex_gui_notes.md` were remediated in this pass.
@@ -1579,7 +1579,194 @@ Backlog note drifted after phase-log cleanup.
 ---
 
 ## Change Log
+- 2026-04-29 - Codex - Phase 4.8B first test-only mypy reduction batch:
+  - reduced the mypy baseline from `175 errors in 49 files` to `158 errors in 44 files`,
+  - fixed test-local typing gaps in `tests/test_tool_search.py`, `services/tests/test_heuristics_pipeline.py`, `services/tests/test_draft_read_endpoint.py`, `services/tests/test_snapshot_endpoints.py`, and `services/tests/test_export_endpoints.py`,
+  - validation passed: `services/tests/test_app.py` `64 passed`, targeted contract lane `11 passed`, and smoke lane `3 passed`,
+  - remaining heavy test targets are still documented in `docs/technical_debt/mypy_reduction_phase4_2026-04-28.md`.
+- 2026-04-29 - Codex - Phase 4.8A mypy reduction planning checkpoint:
+  - confirmed current baseline at `175 errors in 49 files (checked 346 source files)`,
+  - documented a test-only first batch, utility/tooling second batch, and runtime-sensitive service code as deferred,
+  - anchored the plan in `docs/technical_debt/mypy_reduction_phase4_2026-04-28.md` and the ranked type debt inventory.
+- 2026-04-28 - Codex - Phase 4.3A dependency remediation batching plan created in `docs/technical_debt/dependency_remediation_phase4_2026-04-28.md`:
+  - recorded the current `pnpm audit` / `pip-audit` baselines,
+  - split advisories into tooling-only, Python runtime-sensitive, Node/Electron/toolchain-sensitive, and residual transitive batches,
+  - selected Batch A (lowest-risk tooling) as the recommended first upgrade pass.
+- 2026-04-28 - Codex - Phase 4.2 warning cleanup completed:
+  - CSP warning resolved via conservative CSP meta tag in `app/index.html`,
+  - NO_COLOR/FORCE_COLOR remains partially mitigated and is deferred to shell-level normalization,
+  - dock layout warning remains classified and deferred as legacy-layout compatibility noise,
+  - final state recorded in `docs/technical_debt/warning_cleanup_phase4_2026-04-28.md`.
+- 2026-04-28 - Codex - Phase 4.2C Electron CSP warning audit/classification:
+  - traced warning to the renderer HTML template / packaged `dist/index.html` path loaded by `app/main/main.ts`,
+  - classified as a real policy gap with dev/test visibility and production artifact impact, but deferred the implementation pass because it is a security-policy change,
+  - recorded the safe fix path and rollback note in `docs/technical_debt/warning_cleanup_phase4_2026-04-28.md`.
+- 2026-04-28 - Codex - Phase 4.2B dock-layout warning cleanup pass:
+  - traced warning source to layout sanitizer fallback path and inspected sample-project persisted snapshot layouts,
+  - confirmed repeated warning is compatibility noise from historical/legacy layout payloads that fail current schema requirements,
+  - classified as deferred (safe fallback retained), with validation evidence recorded in `docs/technical_debt/warning_cleanup_phase4_2026-04-28.md` (`startup_authority_contract` `11 passed`, smoke lane `3 passed`).
+- 2026-04-28 - Codex - Phase 4.2A warning cleanup planning + NO_COLOR/FORCE_COLOR pass:
+  - created `docs/technical_debt/warning_cleanup_phase4_2026-04-28.md` with tracked entries for NO_COLOR/FORCE_COLOR, dock layout warning, and Electron CSP warning,
+  - applied minimal launcher/config env sanitization (`NO_COLOR` dropped only when `FORCE_COLOR` is present) in `scripts/e2e-with-backend.mjs` and `app/playwright.config.ts`,
+  - validation runs pass, with warning status classified as **partial** because direct Playwright runs can still inherit contradictory env from the parent shell before repo scripts execute.
+- 2026-04-28 - Codex - Phase 4.1 EADDRINUSE harness stabilization completed in `scripts/e2e-with-backend.mjs`:
+  - port preflight now classifies occupied `127.0.0.1:9999` as either healthy-backend reuse or stale/conflict,
+  - launcher now only tears down backend processes it started (with bounded TERM/KILL fallback),
+  - validation evidence: contract lane `11 passed`, smoke lane (`pnpm test:e2e -- --workers=1`) `3 passed`.
+- 2026-04-28 - Codex - Phase 3E contract-lane proof consolidation recorded:
+  - targeted contract lane command showed one transient infra/startup contention failure (`EADDRINUSE 127.0.0.1:9999`) then passed on rerun (`11 passed`),
+  - documented smoke-lane confirmation via `pnpm test:e2e -- --workers=1` (`3 passed`),
+  - classified remaining items as deferred warnings/stability debt (CSP warning, dock layout warning, occasional port contention).
+- 2026-04-28 - Codex - Phase 3D recovery behavior contract implemented in `app/tests/e2e/startup_authority_contract.spec.ts`:
+  - added explicit checks for recovery-banner policy, restore-button contract, and restore completion marker (`__snapshotRestoreDone`),
+  - required validation runs passed (`--workers=1` and default signal), both `11 passed`,
+  - deferred warning categories unchanged (Electron CSP + dock layout warning) and recorded in `docs/technical_debt/phase3_contract_test_plan_2026-04-28.md`.
+- 2026-04-28 - Codex - Phase 3C contract batch implemented in `app/tests/e2e/startup_authority_contract.spec.ts`:
+  - added `startup determinism contract` and `service online/offline transition contract`,
+  - validated with required runs (`--workers=1` and default worker signal), both passing (`9 passed`),
+  - documented deferred no-project rehydrate caveat and non-blocking CSP/dock warnings in `docs/technical_debt/phase3_contract_test_plan_2026-04-28.md`.
+- 2026-04-28 - Codex - Phase 3B first contract batch implemented in `app/tests/e2e/startup_authority_contract.spec.ts`; targeted contract run now passes (`7 passed`). Deferred/non-blocking warnings and caveats (CSP, dock layout warning, fast no-project rehydrate) were logged in `docs/technical_debt/phase3_contract_test_plan_2026-04-28.md`.
+- 2026-04-28 - Codex - Added Phase 2 system authority map at `docs/system_truth_map.md` to codify project/scene/readiness/startup/recovery contracts and lane responsibilities.
+- 2026-04-28 - Codex - Phase 4.3B lowest-risk tooling dependency remediation:
+  - upgraded Batch A tooling pins (`black`, `pathspec`, `pytest`, `pytest-asyncio`, `pytokens`, `wheel`) through the repo lockfiles/constraints,
+  - reduced `pip-audit` from 8 advisories in 7 packages to 3 advisories in 2 packages,
+  - validated with `mypy` baseline unchanged, `startup_authority_contract.spec.ts` passing (`11 passed`), and smoke lane passing (`3 passed`),
+  - deferred `pip` and `starlette` to the next batch because they are not lowest-risk tooling-only updates.
+- 2026-04-29 - Codex - Phase 4.3C runtime-sensitive advisory review:
+  - verified `fastapi==0.118.3` still constrains `starlette<0.49.0`, so the advisory target `starlette==0.49.1` is not a safe minimal bump under the current runtime pin,
+  - kept `pip` separate as environment/tooling debt,
+  - documented the blocker and the unrelated analytics-disabled service test failure in `docs/technical_debt/dependency_remediation_phase4_2026-04-28.md`.
+- 2026-04-29 - Codex - Phase 4.3D dependency remediation closure recorded:
+  - `starlette` remains blocked by the current FastAPI upper bound, no forced upgrade was performed,
+  - remaining Python advisories are classified as `pip` environment/tooling debt and the blocked `starlette` runtime advisory,
+  - deferred service-test defect from validation is documented for later cleanup.
 - 2026-04-21 - Codex - Verified tracker against current repo state, updated statuses for CI/doc issues, and added new issues [28]-[31].
 - 2026-04-21 - Codex - Added explicit top-3 execution plan, recorded doc remediation progress, and moved [1]/[8] into active implementation.
 - 2026-04-21 - Codex - Closed local repo-wide Black formatting debt on 10 files; updated [2]/[10]/[19]/[20] with reproducible evidence and conservative status.
 - 2026-04-21 - Codex - Updated CI Black lane to repo-wide check, hardened pytest temp-dir permissions guardrail, and mitigated repo-root mypy discovery crashes by excluding generated temp roots.
+- 2026-04-29 - Codex - Phase 4.5A service defect cleanup investigation:
+  - fixed stale analytics-disable test setup to use `BLACKSKIES_ANALYTICS_MATURITY=off`,
+  - disabled repo `.env` loading in the service test fixture so contract tests do not inherit production-like routing config,
+  - updated the stale draft critique snapshot to include the live `provenance` contract block,
+  - validation evidence: `services/tests/test_app.py` `64 passed`, `mypy` baseline unchanged, contract lane `11 passed`, smoke lane `3 passed`.
+- 2026-04-29 - Codex - Phase 4.6 stabilization proof checkpoint:
+  - validated backend service tests (`64 passed`), targeted contract lane (`11 passed`), and smoke lane (`3 passed`),
+  - recorded unchanged `mypy` baseline plus current advisory counts (`pip_audit` 3 in 2, `pnpm audit` 63),
+  - documented remaining deferred risks before reopening dependency/security remediation.
+- 2026-04-29 - Codex - Phase 4.3E dependency audit proof consolidated:
+  - final advisory state remains `pip-audit` 3 in 2 packages (`pip` tooling, blocked `starlette`),
+  - resolved advisories documented: `black`, `pytest`, `wheel`, `pygments`, `python-dotenv`,
+  - phase marked complete with deferred FastAPI/Starlette and environment/tooling items recorded.
+- 2026-04-29 - Codex - Phase 4.7A Node advisory batching plan created:
+  - audited `pnpm audit` baseline (`63 vulnerabilities`),
+  - split Node advisories into docs/lint tooling, app dev/test tooling, Electron/runtime-sensitive, transitive-only chains, and blocked/coordinated upgrade batches,
+  - recommended Batch A (docs/lint tooling) as the lowest-risk first remediation pass.
+- 2026-04-29 - Codex - Phase 4.3E completed:
+  - dependency remediation closed with deferred items recorded,
+  - final advisory state remains `pip-audit` 3 in 2 packages (`pip` tooling, blocked `starlette`),
+  - proof evidence kept in `docs/technical_debt/dependency_remediation_phase4_2026-04-28.md`.
+- 2026-04-29 - Codex - Phase 4.7A Node advisory batching plan finalized:
+  - 63 advisories grouped into docs/lint/build tooling, app dev/test tooling, Electron/runtime-sensitive UI paths, transitive-only chains, and blocked/coordinated Electron upgrade lanes,
+  - Batch A (docs/lint/build tooling) remains the lowest-risk first remediation pass.
+- 2026-04-29 - Codex - Phase 4.7B docs/lint batch implemented:
+  - upgraded `markdownlint-cli` from `0.45.0` to `0.48.0`,
+  - reduced `pnpm audit` from `63` vulnerabilities to `56`,
+  - validated with `pnpm lint:docs`, contract lane (`11 passed` after serial rerun), and smoke lane (`3 passed`).
+- 2026-04-29 - Codex - Phase 4.7C app dev/test tooling plan created:
+  - identified the 22-advisory build/test slice across Vite, Vitest, ESLint, TypeScript-ESLint, and their transitive `esbuild`/`rollup`/`postcss`/`js-yaml`/`ajv`/`minimatch`/`brace-expansion`/`flatted`/`picomatch` chains,
+  - recommended the Vite/Vitest renderer/test stack as the smallest first implementation batch.
+- 2026-04-29 - Codex - Phase 4.7D Vite/Vitest renderer/test stack implemented:
+  - upgraded `vite` to `^8.0.10`, `vitest` to `^4.1.5`, `@vitejs/plugin-react` to `^6.0.1`, and `@vitest/coverage-v8` to `^4.1.5`,
+  - reduced `pnpm audit` from `56` vulnerabilities to `51`,
+  - validation passed: `pnpm --filter app run build:production`, serial `startup_authority_contract.spec.ts` rerun (`11 passed`), and smoke lane (`3 passed`),
+  - remaining Node advisories now cluster in ESLint / TypeScript-ESLint and Electron/runtime-sensitive batches.
+- 2026-04-29 - Codex - Phase 4.7E lint-chain remediation plan created:
+  - scoped the remaining app dev/test lint advisories to `eslint`, `@typescript-eslint/eslint-plugin`, and `@typescript-eslint/parser` plus their transitive glob/JSON/YAML helper chains,
+  - kept the lint batch isolated from Electron, Vite/Vitest, and packaging-tool changes,
+  - recommended the ESLint / TypeScript-ESLint pair as the smallest implementation batch.
+- 2026-04-29 - Codex - Phase 4.7F lint chain implemented:
+  - upgraded `eslint` to `^9.39.4`, `@typescript-eslint/eslint-plugin` and `@typescript-eslint/parser` to `^8.59.1`, and `eslint-plugin-react-hooks` to `^6.1.1`,
+  - reduced `pnpm audit` from `51` vulnerabilities to `49`,
+  - validation passed: `pnpm lint` (with expected ESLintRC warning only), `pnpm lint:docs`, `build:production`, targeted contract lane (`11 passed`), and smoke lane (`3 passed`),
+  - remaining advisories are now concentrated in Electron/runtime-sensitive and packaging-tool chains.
+- 2026-04-29 - Codex - Phase 4.7G Node remediation checkpoint documented:
+  - Batch A docs/lint/build tooling, the Vite/Vitest stack, and the ESLint / TypeScript-ESLint lint chain are all complete,
+  - current `pnpm audit` baseline is `49 vulnerabilities found`,
+  - remaining Node advisories are grouped into Electron/runtime-sensitive UI paths, transitive-only chains, and the coordinated Electron upgrade lane,
+  - legacy ESLint config bridge warning is deferred until a flat-config migration phase.
+- 2026-04-29 - Codex - Phase 4.7H Electron/runtime-sensitive remediation plan created:
+  - remaining advisories are `electron`, `uuid`, `tar`, `glob`, `minimatch`, and `@tootallnate/once`,
+  - classified the Electron packaging chain as high-risk and the `uuid` UI dependency as the only plausible non-major candidate,
+  - recorded validation and rollback assumptions for a future coordinated runtime upgrade pass.
+- 2026-04-29 - Codex - Phase 4.7I uuid investigation concluded:
+  - `uuid` is only pulled transitively through `react-mosaic-component@6.1.1`,
+  - the consumer uses CommonJS `require("uuid")`, so the audited fix target `uuid@14.0.0` is not a proven drop-in here,
+  - `uuid` remains deferred with the Electron/runtime-sensitive lane pending a compatible consumer upgrade or a safer bridge.
+- 2026-04-29 - Codex - Phase 4.7J Electron/packaging chain decision recorded:
+  - current Node audit remains at `49 vulnerabilities found`,
+  - `uuid`, `electron`, `tar`, `glob`, `minimatch`, and `@tootallnate/once` are deferred with documented coordination requirements,
+  - Node remediation is now closed as a documented checkpoint pending a future Electron/runtime packaging plan.
+- 2026-04-29 - Codex - Phase 4.8C second test-only mypy reduction batch:
+  - reduced the mypy baseline from `135 errors in 41 files` to `123 errors in 36 files`,
+  - improved `services/tests/test_async_concurrency.py`, `services/tests/test_e2e_synthetic_switch.py`, `services/tests/unit/test_snapshot_persistence_refactor.py`, `services/tests/unit/test_scheduler_runner.py`, and `services/tests/unit/test_logging_redaction.py`,
+  - validated with `services/tests/test_app.py` (`64 passed`), the contract lane (`11 passed`), and smoke lane (`3 passed`),
+  - deferred the remaining test-only targets listed in `docs/technical_debt/mypy_reduction_phase4_2026-04-28.md`.
+- 2026-04-29 - Codex - Phase 4.8E large test-only mypy reduction batch:
+  - reduced the mypy baseline from `88 errors in 29 files` to `75 errors in 28 files` on the latest pass,
+  - improved `services/tests/test_app.py`, `services/tests/unit/test_analytics.py`, `services/tests/unit/test_agent_base.py`, `services/tests/unit/test_diagnostics.py`, `services/tests/unit/test_critique_adapter_validation.py`, `services/tests/unit/test_backup_verifier.py`, `services/tests/unit/test_project_export_service.py`, and `tests/test_eval_harness.py`,
+  - validated with `services/tests/test_app.py` (`64 passed`), the contract lane (`11 passed`), and smoke lane (`3 passed`),
+  - left the remaining prototype memory-packet tests for the next test-only pass.
+- 2026-04-29 - Codex - Phase 4.8F final test-only mypy cleanup:
+  - reduced the mypy baseline from `75 errors in 28 files` to `71 errors in 24 files`,
+  - cleared the remaining prototype memory-packet test debt in:
+    - `services/tests/prototype/test_memory_packet_precedence.py`
+    - `services/tests/prototype/test_memory_packet_assembly.py`
+    - `services/tests/prototype/test_memory_non_mutation.py`
+    - `services/tests/prototype/test_memory_delta_extraction.py`
+  - validated with `services/tests/test_app.py` (`64 passed`), `pnpm test:e2e -- --workers=1` (`3 passed`), and the targeted contract lane (`11 passed`),
+  - remaining mypy errors are runtime/tooling/service areas only.
+- 2026-04-29 - Codex - Phase 4.8G low-risk tooling/runtime mypy batch:
+  - reduced the mypy baseline from `71 errors in 24 files` to `59 errors in 19 files`,
+  - improved `scripts/dependency_report.py`, `scripts/security_sweep.py`, `services/src/blackskies/services/analytics_stub.py`, `services/src/blackskies/services/settings.py`, and `services/src/blackskies/services/scheduler.py`,
+  - validated with `services/tests/test_app.py` (`64 passed`), `pnpm test:e2e -- --workers=1` (`3 passed`), and the targeted contract lane (`11 passed`),
+  - skipped router and memory-runtime fixes that are still higher risk.
+- 2026-04-29 - Codex - Phase 4.8H service utility mypy batch:
+  - reduced the mypy baseline from `59 errors in 19 files` to `47 errors in 15 files`,
+  - improved `services/src/blackskies/services/backup_service.py`, `services/src/blackskies/services/export_service.py`, `services/src/blackskies/services/model_router.py`, and `services/src/blackskies/services/operations/long_form_execution.py`,
+  - validated with `services/tests/test_app.py` (`64 passed`), `pnpm test:e2e -- --workers=1` (`3 passed`), and the targeted contract lane (`11 passed`),
+  - left router/memory runtime typing debt deferred for the next phase.
+- 2026-04-29 - Codex - Phase 4.8I memory-runtime mypy batch:
+  - reduced the mypy baseline from `47 errors in 15 files` to `27 errors in 8 files`,
+  - improved `services/src/blackskies/services/memory_lab/locking.py`, `services/src/blackskies/services/memory_lab/wave1.py`, `services/src/blackskies/services/memory_lab/storage.py`, `services/src/blackskies/services/memory_lab/resolver.py`, `services/src/blackskies/services/memory_lab/extractor.py`, `services/src/blackskies/services/memory_prototype/task_packet_assembler.py`, and `services/src/blackskies/services/memory_prototype/continuity_signal_normalizer.py`,
+  - validated with `services/tests/test_app.py` (`64 passed`), `pnpm test:e2e -- --workers=1` (`3 passed`), and the targeted contract lane (`11 passed`),
+  - remaining mypy errors are now limited to router/control-flow files only.
+- 2026-04-29 - Codex - Phase 4.8J router/control-flow mypy cleanup plan:
+  - current baseline is `27 errors in 8 files`,
+  - remaining files are `services/src/blackskies/services/routers/phase4.py`, `restore.py`, `draft/wizard.py`, `draft/export.py`, `draft/revision.py`, `draft/acceptance.py`, `long_form.py`, and `draft/generation.py`,
+  - the plan now ranks the safest implementation order and keeps the broadest draft-generation file for last,
+  - all remaining debt is router/control-flow typing only.
+- 2026-04-29 - Codex - Phase 4.8K router/control-flow mypy batch 1:
+  - reduced the mypy baseline from `27 errors in 8 files` to `24 errors in 6 files`,
+  - improved `services/src/blackskies/services/routers/phase4.py` and `services/src/blackskies/services/routers/restore.py`,
+  - validated with `services/tests/test_app.py` (`64 passed`), `pnpm test:e2e -- --workers=1` (`3 passed`), and the targeted contract lane (`11 passed`),
+  - remaining router/control-flow typing is now limited to `long_form.py` and the draft-router files documented in the mypy plan.
+- 2026-04-29 - Codex - Phase 4.8L router/control-flow mypy batch 2:
+  - reduced the mypy baseline from `24 errors in 6 files` to `19 errors in 3 files`,
+  - improved `services/src/blackskies/services/routers/long_form.py`, `services/src/blackskies/services/routers/draft/wizard.py`, and `services/src/blackskies/services/routers/draft/export.py`,
+  - validated with `services/tests/test_app.py` (`64 passed`), `pnpm test:e2e -- --workers=1` (`3 passed`), and the targeted contract lane (`11 passed`),
+  - remaining router/control-flow typing is now limited to `draft/revision.py`, `draft/acceptance.py`, and `draft/generation.py`.
+- 2026-04-29 - Codex - Phase 4.8M router/control-flow mypy batch 3:
+  - reduced the mypy baseline from `19 errors in 3 files` to `9 errors in 1 file`,
+  - improved `services/src/blackskies/services/routers/draft/revision.py` and `services/src/blackskies/services/routers/draft/acceptance.py`,
+  - corrected the critique-path regression by restoring payload-derived `project_root` handling in `draft/revision.py`,
+  - validated with `services/tests/test_app.py` (`64 passed`), `pnpm test:e2e -- --workers=1` (`3 passed`), and the targeted contract lane (`11 passed`),
+  - remaining router/control-flow typing is now limited to `services/src/blackskies/services/routers/draft/generation.py`.
+- 2026-04-29 - Codex - Phase 4.8N router/control-flow mypy final cleanup:
+  - reduced the mypy baseline from `9 errors in 1 file` to `0 errors` for `.\.venv\Scripts\python.exe -m mypy --follow-imports=skip services/src services/tests scripts tests tools/runtime_truth`,
+  - improved `services/src/blackskies/services/routers/draft/generation.py` by splitting optional validation-path `project_root` from concrete execution-path `resolved_project_root` so strict `Path` consumers no longer receive `Path | None`,
+  - validated with `services/tests/test_app.py` (`64 passed`), `pnpm test:e2e -- --workers=1` (`3 passed`), and targeted contract lane (`11 passed`) after port `9999` preflight showed no active listener,
+  - router/control-flow mypy cleanup is complete and the configured mypy baseline is now clean.
+- 2026-04-29 - Codex - Phase 4.8O mypy closure checkpoint:
+  - formally closed Phase 4.8 with end-to-end proof from `175 errors in 49 files` to `Success: no issues found in 346 source files`,
+  - reconfirmed validation lanes remain green: `services/tests/test_app.py` (`64 passed`), smoke lane (`3 passed`), contract lane (`11 passed`),
+  - recorded deferred non-mypy risks: `NO_COLOR`/`FORCE_COLOR` warning, dock layout warning, Node/Electron advisories, and `pip`/`starlette` advisory deferrals.

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import cast
 
 import pytest
 from fastapi.testclient import TestClient
@@ -52,10 +53,10 @@ def _create_sample_project(base_dir: Path, project_id: str) -> Path:
 
 def _call_create_snapshot(
     client: TestClient, project_id: str, path: str = "/api/v1/snapshots"
-) -> dict[str, object]:
+) -> dict[str, str]:
     response = client.post(path, json={"project_id": project_id})
     assert response.status_code == 200
-    payload = response.json()
+    payload = cast(dict[str, str], response.json())
     assert "snapshot_id" in payload
     assert payload["path"].startswith(".snapshots/")
     return payload
@@ -72,7 +73,10 @@ def test_snapshot_creation_endpoint_writes_manifest_and_files(test_client: TestC
     assert manifest_path.exists()
 
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    included_paths = [entry["path"] for entry in manifest.get("files_included", [])]
+    included_paths = [
+        cast(dict[str, str], entry)["path"]
+        for entry in cast(list[object], manifest.get("files_included", []))
+    ]
     assert "project.json" in included_paths
     assert "outline.json" in included_paths
     assert "drafts/sc_0001.md" in included_paths

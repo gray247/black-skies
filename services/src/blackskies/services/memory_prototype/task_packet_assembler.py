@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import Any
+from typing import Any, TypedDict
 
 from .schemas import (
     CanonicalConflict,
@@ -49,6 +49,21 @@ class _ResolvedField:
     conflicts: tuple[CanonicalConflict, ...]
 
 
+class _DeltaHighlight(TypedDict):
+    category: str
+    value: str
+    confidence: float
+    anchor: dict[str, Any]
+
+
+class _ContinuitySignalHighlight(TypedDict):
+    type: str
+    severity: str
+    confidence: float
+    entities: list[str]
+    anchor: dict[str, Any]
+
+
 class TaskPacketAssembler:
     """Assemble compact lineage-safe advisory task packets."""
 
@@ -71,39 +86,41 @@ class TaskPacketAssembler:
             "locked_facts": self._locked_facts(snapshot)[:10],
             "draft_excerpt": snapshot.draft_text[:600],
         }
-        advisory = {
-            "delta_highlights": [
-                {
-                    "category": candidate.category,
-                    "value": candidate.value[:180],
-                    "confidence": candidate.confidence,
-                    "anchor": candidate.anchor.as_dict(),
-                }
-                for candidate in deltas.candidates[:6]
-            ],
-            "continuity_signals": [
-                {
-                    "type": signal.type,
-                    "severity": signal.severity,
-                    "confidence": signal.confidence,
-                    "entities": list(signal.entities),
-                    "anchor": signal.anchor.as_dict(),
-                }
-                for signal in signals.signals[:6]
-            ],
+        delta_highlights: list[_DeltaHighlight] = [
+            {
+                "category": candidate.category,
+                "value": candidate.value[:180],
+                "confidence": candidate.confidence,
+                "anchor": candidate.anchor.as_dict(),
+            }
+            for candidate in deltas.candidates[:6]
+        ]
+        continuity_signals: list[_ContinuitySignalHighlight] = [
+            {
+                "type": signal.type,
+                "severity": signal.severity,
+                "confidence": signal.confidence,
+                "entities": list(signal.entities),
+                "anchor": signal.anchor.as_dict(),
+            }
+            for signal in signals.signals[:6]
+        ]
+        advisory: dict[str, object] = {
+            "delta_highlights": delta_highlights,
+            "continuity_signals": continuity_signals,
         }
         if packet_type == "draft":
-            advisory["task_focus"] = [item["value"] for item in advisory["delta_highlights"][:3]]
+            advisory["task_focus"] = [item["value"] for item in delta_highlights[:3]]
         elif packet_type == "rewrite":
             advisory["task_focus"] = [
                 item["type"]
-                for item in advisory["continuity_signals"]
+                for item in continuity_signals
                 if item["severity"] in {"warning", "conflict"}
             ][:3]
         elif packet_type == "critique":
             advisory["task_focus"] = [
                 item["category"]
-                for item in advisory["delta_highlights"]
+                for item in delta_highlights
                 if item["confidence"] >= 0.6
             ][:3]
 

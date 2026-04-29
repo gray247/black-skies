@@ -47,12 +47,17 @@ yarn-debug.log*
 yarn-error.log*
 .hypothesis/
 app/dist-electron/
+dist-electron/
 app/test-results/
 app/playwright-report/
+test-results/
+playwright-artifacts/
 workflow results/
 workflow-results/
 vendor/wheels/
 sample_project/
+sample_project/**/.snapshots/
+_external_archives/
 
 # -------------------------
 # Temp / Scratch Files
@@ -60,6 +65,7 @@ sample_project/
 tmp_*
 temp_*
 *.tmp
+*.zip
 tmp/
 temp/
 
@@ -131,6 +137,7 @@ tmp/pytest-of-*/
 # Archives / Backups
 # -------------------------
 *.bak
+*.bak*
 *.bak2
 *.bak3
 *.backup

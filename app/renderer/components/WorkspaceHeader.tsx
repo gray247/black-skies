@@ -86,8 +86,12 @@ export function WorkspaceHeader(props: WorkspaceHeaderProps): JSX.Element {
           : 'app-shell__workspace-button',
       [companionOpen],
     );
-  const computedDisableGenerate = testFreezeActions ? serviceOffline : disableGenerate;
-  const computedDisableCritique = testFreezeActions ? serviceOffline : disableCritique;
+  const computedDisableGenerate = testFreezeActions
+    ? serviceOffline || disableGenerate
+    : disableGenerate;
+  const computedDisableCritique = testFreezeActions
+    ? serviceOffline || disableCritique
+    : disableCritique;
 
   return (
     <header className="app-shell__workspace-header">

@@ -44,8 +44,10 @@ def service_app(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> "FastAPI":
     if FastAPI is None:
         pytest.skip("FastAPI is not installed")
     from blackskies.services.app import create_app
+    from blackskies.services.config import ServiceSettings
 
     monkeypatch.setenv("BLACKSKIES_PROJECT_BASE_DIR", str(tmp_path))
+    monkeypatch.setattr(ServiceSettings, "ENV_FILE", None, raising=False)
     app = create_app()
     yield app
     app.dependency_overrides.clear()

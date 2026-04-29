@@ -683,6 +683,18 @@ export default function App(): JSX.Element {
   const applySceneSelection = useCallback(
     (requestedSceneId?: string | null) => {
       const scenesList = currentProjectRef.current?.scenes ?? [];
+      if (requestedSceneId === null) {
+        console.log(
+          "[dbg:scene.select.clear]",
+          JSON.stringify({ sceneCount: scenesList.length }),
+        );
+        recordDebugEvent("scene.select.clear", {
+          sceneCount: scenesList.length,
+        });
+        setActiveScene(null);
+        pendingSceneSelectionRef.current = null;
+        return true;
+      }
       const normalizedRequestedSceneId =
         typeof requestedSceneId === "string" ? requestedSceneId.trim() : "";
       if (scenesList.length === 0) {
@@ -765,9 +777,9 @@ export default function App(): JSX.Element {
       return;
     }
     const handler = (event: Event) => {
-      const customEvent = event as CustomEvent<string | undefined>;
+      const customEvent = event as CustomEvent<string | null | undefined>;
       const sceneId = customEvent.detail;
-      if (typeof sceneId === 'string' && sceneId.length > 0) {
+      if (sceneId === null || (typeof sceneId === 'string' && sceneId.length > 0)) {
         console.log('[dbg:scene.select.request]', JSON.stringify({ sceneId }));
         pendingSceneSelectionRef.current = sceneId;
         applySceneSelection(sceneId);
@@ -2309,7 +2321,12 @@ export default function App(): JSX.Element {
     exporting ||
     !projectSummary?.projectId ||
     !services?.exportProject;
-  const projectReadyForActions = Boolean(projectSummary?.projectId && projectSummary?.path);
+  const projectLoadedMarkerCommitted =
+    typeof document !== "undefined" &&
+    (document.body?.dataset.projectLoaded === "1" ||
+      document.documentElement?.dataset.projectLoaded === "1");
+  const projectReadyForActions =
+    projectLoadedMarkerCommitted && Boolean(projectSummary?.projectId && projectSummary?.path);
   const sceneReadyForActions = Boolean(activeSceneId);
   const servicesReadyForActions = effectiveServiceStatus === 'online' && !serviceOffline;
   const disableSnapshot =

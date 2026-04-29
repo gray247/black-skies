@@ -11,7 +11,7 @@ import time
 from contextlib import contextmanager
 import os
 from pathlib import Path
-from typing import Any
+from typing import Any, Protocol, TypedDict, cast
 from uuid import UUID
 
 import httpx
@@ -44,6 +44,18 @@ API_PREFIX = "/api/v1"
 CONTRACT_FIXTURES_DIR = Path(__file__).parent / "contracts"
 
 
+class _SceneRecord(TypedDict):
+    id: str
+    order: int
+    title: str
+    chapter_id: str
+    beat_refs: list[str]
+
+
+class _BuildTrackerState(Protocol):
+    build_tracker: BuildTracker
+
+
 def _assert_trace_header(response: Any) -> str:
     """Ensure the response includes a valid trace identifier header."""
 
@@ -53,7 +65,7 @@ def _assert_trace_header(response: Any) -> str:
     return trace_id
 
 
-def _read_error(response: Any) -> dict[str, object]:
+def _read_error(response: Any) -> dict[str, Any]:
     """Return the structured error payload with validated trace metadata."""
 
     payload = response.json()
@@ -93,7 +105,7 @@ def test_favicon_placeholder_returns_no_content(test_client: TestClient) -> None
     _assert_trace_header(response)
 
 
-def _build_payload() -> dict[str, object]:
+def _build_payload() -> dict[str, Any]:
     """Return a representative outline build payload."""
 
     return {
@@ -225,7 +237,7 @@ def _bootstrap_outline(
         spent_usd=spent_usd,
     )
 
-    scenes: list[dict[str, object]] = []
+    scenes: list[_SceneRecord] = []
     for index in range(scene_count):
         order = index + 1
         scene_id = f"sc_{order:04d}"
@@ -356,7 +368,7 @@ def test_analytics_routes_are_hidden_when_disabled(
 ) -> None:
     """Analytics endpoints respond 404 when the feature is not enabled."""
 
-    monkeypatch.delenv("BLACKSKIES_ENABLE_ANALYTICS", raising=False)
+    monkeypatch.setenv("BLACKSKIES_ANALYTICS_MATURITY", "off")
     monkeypatch.setenv("BLACKSKIES_PROJECT_BASE_DIR", str(tmp_path))
     app = create_app()
     with TestClient(app) as client:
@@ -382,7 +394,7 @@ def test_export_omits_analytics_when_disabled(
     scene_ids = _bootstrap_outline(tmp_path, project_id, scene_count=1)
     _bootstrap_scene(tmp_path, project_id, scene_id=scene_ids[0], body="Scene text.")
 
-    monkeypatch.delenv("BLACKSKIES_ENABLE_ANALYTICS", raising=False)
+    monkeypatch.setenv("BLACKSKIES_ANALYTICS_MATURITY", "off")
     monkeypatch.setenv("BLACKSKIES_PROJECT_BASE_DIR", str(tmp_path))
     app = create_app()
     with TestClient(app) as client:
@@ -631,7 +643,7 @@ def test_outline_build_conflict(test_client: TestClient, tmp_path: Path) -> None
     payload = _build_payload()
     payload["project_id"] = "proj_conflict"
 
-    tracker: BuildTracker = test_client.app.state.build_tracker  # type: ignore[attr-defined]
+    tracker = cast(BuildTracker, cast(_BuildTrackerState, test_client.app.state).build_tracker)
     asyncio.run(tracker.begin(payload["project_id"]))
     try:
         response = test_client.post(f"{API_PREFIX}/outline/build", json=payload)
@@ -882,33 +894,47 @@ def test_draft_generate_soft_limit_status(test_client: TestClient, tmp_path: Pat
 
 
 @pytest.mark.contract
-def test_contract_draft_preflight_ok(test_client: TestClient, tmp_path: Path) -> None:
+def test_contract_draft_preflight_ok(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """Draft preflight matches the documented ok contract payload."""
 
     project_id = "proj_contract_preflight_ok"
-    build_payload = _build_contract_outline_request(project_id)
-    build_response = test_client.post(f"{API_PREFIX}/outline/build", json=build_payload)
-    assert build_response.status_code == 200
+    monkeypatch.setattr(ServiceSettings, "ENV_FILE", None, raising=False)
+    # Force the local/Ollama path so this contract stays deterministic even when
+    # the host environment carries an OpenAI API key.
+    monkeypatch.delenv("BLACKSKIES_OPENAI_API_KEY", raising=False)
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.setenv("BLACKSKIES_PROJECT_BASE_DIR", str(tmp_path))
+    monkeypatch.setenv("BLACKSKIES_MODEL_ROUTING_POLICY", "local_only")
+    monkeypatch.setenv("BLACKSKIES_LOCAL_PROVIDER", "ollama")
+    monkeypatch.setenv("BLACKSKIES_LOCAL_MODEL", "qwen3:4b")
+    app = create_app()
+    with TestClient(app) as test_client:
+        build_payload = _build_contract_outline_request(project_id)
+        build_response = test_client.post(f"{API_PREFIX}/outline/build", json=build_payload)
+        assert build_response.status_code == 200
 
-    _write_project_budget(
-        tmp_path,
-        project_id,
-        soft_limit=5.0,
-        hard_limit=10.0,
-        spent_usd=0.18,
-    )
+        _write_project_budget(
+            tmp_path,
+            project_id,
+            soft_limit=5.0,
+            hard_limit=10.0,
+            spent_usd=0.18,
+        )
 
-    request_payload = {
-        "project_id": project_id,
-        "unit_scope": "scene",
-        "unit_ids": ["sc_0001"],
-        "overrides": {"sc_0001": {"word_target": 62000}},
-    }
+        request_payload = {
+            "project_id": project_id,
+            "unit_scope": "scene",
+            "unit_ids": ["sc_0001"],
+            "overrides": {"sc_0001": {"word_target": 62000}},
+        }
 
-    response = test_client.post(f"{API_PREFIX}/draft/preflight", json=request_payload)
-    assert response.status_code == 200
-    assert response.json() == _load_contract_snapshot("draft_preflight_ok")
-    _assert_trace_header(response)
+        response = test_client.post(f"{API_PREFIX}/draft/preflight", json=request_payload)
+        assert response.status_code == 200
+        assert response.json() == _load_contract_snapshot("draft_preflight_ok")
+        _assert_trace_header(response)
 
 
 @pytest.mark.contract
@@ -1355,10 +1381,10 @@ def test_draft_preflight_soft_limit(test_client: TestClient, tmp_path: Path) -> 
     response = test_client.post(f"{API_PREFIX}/draft/preflight", json=payload)
     assert response.status_code == 200
 
-    payload = response.json()
-    budget = payload["budget"]
-    assert payload["model"]["name"] == "qwen3:4b"
-    assert len(payload["scenes"]) == 1
+    preflight_payload = cast(dict[str, Any], response.json())
+    budget = preflight_payload["budget"]
+    assert preflight_payload["model"]["name"] == "qwen3:4b"
+    assert len(preflight_payload["scenes"]) == 1
     assert budget["status"] == "soft-limit"
     assert budget["estimated_usd"] >= 5.0
     assert budget["soft_limit_usd"] == pytest.approx(5.0)
@@ -1425,7 +1451,8 @@ def test_draft_to_critique_flow(test_client: TestClient, tmp_path: Path) -> None
     payload["project_id"] = project_id
     build_response = test_client.post(f"{API_PREFIX}/outline/build", json=payload)
     assert build_response.status_code == 200
-    scene_ids = [scene["id"] for scene in build_response.json()["scenes"]]
+    build_payload = cast(dict[str, Any], build_response.json())
+    scene_ids = [scene["id"] for scene in cast(list[dict[str, Any]], build_payload["scenes"])]
 
     draft_payload = {
         "project_id": project_id,
@@ -1468,10 +1495,10 @@ def test_draft_preflight_blocked(test_client: TestClient, tmp_path: Path) -> Non
     response = test_client.post(f"{API_PREFIX}/draft/preflight", json=payload)
     assert response.status_code == 200
 
-    payload = response.json()
-    budget = payload["budget"]
-    assert payload["model"]["name"] == "qwen3:4b"
-    assert len(payload["scenes"]) == 1
+    preflight_payload = cast(dict[str, Any], response.json())
+    budget = preflight_payload["budget"]
+    assert preflight_payload["model"]["name"] == "qwen3:4b"
+    assert len(preflight_payload["scenes"]) == 1
     assert budget["status"] == "blocked"
     assert budget["estimated_usd"] >= 10.0
     assert budget["hard_limit_usd"] == pytest.approx(10.0)
@@ -1897,7 +1924,8 @@ def test_snapshot_restore_flow(test_client: TestClient, tmp_path: Path) -> None:
     outline_path = tmp_path / project_id / "outline.json"
     original_outline = outline_path.read_text(encoding="utf-8")
 
-    scene_ids = [scene["id"] for scene in build_response.json()["scenes"]]
+    build_payload = cast(dict[str, Any], build_response.json())
+    scene_ids = [scene["id"] for scene in cast(list[dict[str, Any]], build_payload["scenes"])]
     draft_response = test_client.post(
         f"{API_PREFIX}/draft/generate",
         json={

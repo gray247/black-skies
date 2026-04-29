@@ -10,8 +10,10 @@ from typing import Any, ClassVar, Literal, Optional
 
 from pydantic import AliasChoices, Field, field_validator
 
+BaseSettings: type[Any]
+
 try:  # pragma: no cover - exercised via fallback tests
-    from pydantic_settings import BaseSettings, SettingsConfigDict
+    from pydantic_settings import BaseSettings as PydanticBaseSettings, SettingsConfigDict
 except ModuleNotFoundError:  # pragma: no cover - exercised when optional dep is absent
     from pydantic import BaseModel, ConfigDict as SettingsConfigDict
 
@@ -42,7 +44,7 @@ except ModuleNotFoundError:  # pragma: no cover - exercised when optional dep is
             return [str(choice) for choice in choices]
         return [str(alias)]
 
-    class BaseSettings(BaseModel):
+    class _BaseSettings(BaseModel):
         model_config: ClassVar[SettingsConfigDict] = SettingsConfigDict(
             extra="ignore",
             populate_by_name=True,
@@ -80,6 +82,10 @@ except ModuleNotFoundError:  # pragma: no cover - exercised when optional dep is
                         break
 
             return values
+
+    BaseSettings = _BaseSettings
+else:
+    BaseSettings = PydanticBaseSettings
 
 
 logger = logging.getLogger(__name__)

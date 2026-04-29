@@ -18,7 +18,7 @@ class DependencyRecord:
 
 def parse_requirements(path: Path) -> Iterator[DependencyRecord]:
     if not path.exists():
-        return iter(())
+        return
     for line in path.read_text(encoding="utf-8").splitlines():
         stripped = line.strip()
         if not stripped or stripped.startswith("#"):

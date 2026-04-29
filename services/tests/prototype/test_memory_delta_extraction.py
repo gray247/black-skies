@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
+from typing import Any
 
 from blackskies.services.memory_prototype.canonical_state_reader import CanonicalStateReader
 from blackskies.services.memory_prototype.scene_delta_extractor import SceneDeltaExtractor
@@ -12,7 +13,7 @@ from blackskies.services.memory_prototype.schemas import CanonicalLineageKey
 from blackskies.services.memory_prototype.storage import MemoryPrototypeStorage
 
 
-def _write_json(path: Path, payload: dict[str, object]) -> None:
+def _write_json(path: Path, payload: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
@@ -21,7 +22,7 @@ def _sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def _accepted_hash(unit_id: str, text: str, scene_payload: dict[str, object]) -> str:
+def _accepted_hash(unit_id: str, text: str, scene_payload: dict[str, Any]) -> str:
     front = json.dumps(scene_payload, sort_keys=True, ensure_ascii=False)
     return hashlib.sha256(f"{unit_id}\n{front}\n{text}".encode("utf-8")).hexdigest()
 

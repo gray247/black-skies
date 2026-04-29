@@ -39,6 +39,10 @@ const { status, error } = spawnSync(
   ["--config", legacyConfigPath, ...lintTargets],
   {
     cwd: appDir,
+    env: {
+      ...process.env,
+      ESLINT_USE_FLAT_CONFIG: "false"
+    },
     stdio: "inherit",
     shell: process.platform === "win32"
   }

@@ -61,8 +61,8 @@ async def export_manuscript(
             project_root=project_root,
         )
 
-    project_root = settings.project_base_dir / request_model.project_id
-    if not project_root.exists():
+    resolved_project_root = settings.project_base_dir / request_model.project_id
+    if not resolved_project_root.exists():
         raise_validation_error(
             message="Project root is missing.",
             details={"project_id": request_model.project_id},
@@ -92,7 +92,7 @@ async def export_manuscript(
             message="Analytics service is temporarily unavailable.",
             details={"error": str(exc)},
             diagnostics=diagnostics,
-            project_root=project_root,
+            project_root=resolved_project_root,
         )
     except asyncio.TimeoutError as exc:
         raise_service_error(
@@ -101,14 +101,14 @@ async def export_manuscript(
             message="Analytics export timed out.",
             details={"error": str(exc), "timeout_seconds": analytics_timeout},
             diagnostics=diagnostics,
-            project_root=project_root,
+            project_root=resolved_project_root,
         )
     except DraftRequestError as exc:
         raise_validation_error(
             message=str(exc),
             details=exc.details,
             diagnostics=diagnostics,
-            project_root=project_root,
+            project_root=resolved_project_root,
         )
     except FileNotFoundError:
         raise_validation_error(
@@ -123,7 +123,7 @@ async def export_manuscript(
             message="Failed to write export artifacts.",
             details={"project_id": request_model.project_id},
             diagnostics=diagnostics,
-            project_root=project_root,
+            project_root=resolved_project_root,
         )
 
     return result.payload

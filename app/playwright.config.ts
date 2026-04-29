@@ -19,6 +19,11 @@ if (disableAnimations) {
   process.env.PLAYWRIGHT_DISABLE_ANIMATIONS = '1';
 }
 
+// Avoid contradictory color env vars that produce noisy Node warnings in test output.
+if (process.env.FORCE_COLOR && process.env.NO_COLOR) {
+  delete process.env.NO_COLOR;
+}
+
 export default defineConfig({
   testDir: './tests/e2e',
   globalSetup: fileURLToPath(new URL('../scripts/playwright_pipe_preflight.mjs', import.meta.url)),
