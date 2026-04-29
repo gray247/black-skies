@@ -8,7 +8,6 @@ from pathlib import Path
 from blackskies.services.config import ServiceSettings
 from blackskies.services.integrity import validate_project
 
-
 CHAPTER_ID = "ch_1000"
 
 

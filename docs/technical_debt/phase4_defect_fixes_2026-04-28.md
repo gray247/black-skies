@@ -99,3 +99,72 @@
 
 ## Decision
 - Reopen dependency/security remediation with the above baseline preserved.
+
+## Phase 4.9 - CI-Red Recovery Pass
+
+## Root Cause
+- CI Black lane failed because formatting drift accumulated (`23 files would be reformatted`), and formatter target compatibility with CI Python 3.11 was not explicitly pinned.
+- DockWorkspace unit tests failed due a timer cleanup mismatch in `usePaneBoundsLogger.ts` under Vitest/jsdom timer shims:
+  - a requestAnimationFrame handle can be timeout-backed in tests,
+  - cleanup used `cancelAnimationFrame(...)` only and raised `Cannot clear timer: timer created with setTimeout() but cleared with cancelAnimationFrame()`.
+
+## Files Changed
+- `pyproject.toml`
+- `app/renderer/components/docking/usePaneBoundsLogger.ts`
+- black reformat set (23 files):
+  - `scripts/find_latest_run.py`
+  - `scripts/pytest_repo_temp_compat.py`
+  - `scripts/run_service_truth.py`
+  - `scripts/check_roadmap_vs_phase_log.py`
+  - `services/src/blackskies/services/analytics/text_utils.py`
+  - `scripts/eval.py`
+  - `services/src/blackskies/services/analytics_stub.py`
+  - `services/src/blackskies/services/memory_prototype/task_packet_assembler.py`
+  - `scripts/verify_gauntlet.py`
+  - `services/src/blackskies/services/routers/phase4.py`
+  - `services/src/blackskies/services/memory_lab/resolver.py`
+  - `services/src/blackskies/services/memory_lab/storage.py`
+  - `services/tests/test_draft_read_endpoint.py`
+  - `services/tests/test_e2e_synthetic_switch.py`
+  - `services/tests/prototype/test_memory_non_mutation.py`
+  - `services/tests/test_integrity_validator.py`
+  - `services/tests/test_export_consistency.py`
+  - `services/tests/unit/test_e2e_seam_metadata.py`
+  - `services/tests/test_gui_bridge_contracts.py`
+  - `services/tests/unit/test_diagnostics.py`
+  - `services/tests/unit/test_config.py`
+  - `services/tools/check_startup.py`
+  - `services/tests/unit/test_project_export_service.py`
+
+## Exact Fix
+- Black config:
+  - set `[tool.black] target-version = ["py311"]` in `pyproject.toml`.
+  - executed full format + check.
+- Timer cleanup:
+  - retained `cancelAnimationFrame(frame)` as primary cleanup.
+  - added a narrow fallback to `clearTimeout(frame)` when timer shim behavior throws in tests.
+
+## Commands Run
+- `.\.venv\Scripts\python.exe -m black .`
+- `.\.venv\Scripts\python.exe -m black --check .`
+- `pnpm --filter app test -- DockWorkspace`
+- `pnpm lint`
+- `pnpm --filter app run build:production`
+- `pnpm test:e2e -- --workers=1`
+- `.\.venv\Scripts\python.exe -m mypy --follow-imports=skip services/src services/tests scripts tests tools/runtime_truth`
+- `.\.venv\Scripts\python.exe -m pytest services/tests/test_app.py -q`
+- `pnpm --filter app exec playwright test tests/e2e/startup_authority_contract.spec.ts --project=electron --workers=1 --reporter=line`
+
+## Results
+- Black check: passed (`362 files would be left unchanged`).
+- DockWorkspace test slice: passed (`7 passed`).
+- `pnpm lint`: passed.
+- `build:production`: passed.
+- e2e smoke lane: passed (`3 passed`).
+- mypy: passed (`Success: no issues found in 346 source files`).
+- backend app tests: passed (`64 passed`).
+- contract lane: passed (`11 passed`).
+
+## Remaining CI Warnings
+- `NO_COLOR` / `FORCE_COLOR` warning remains (known deferred environment-level warning).
+- Dock layout warning remains (known deferred compatibility warning with safe fallback).

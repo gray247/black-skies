@@ -36,6 +36,13 @@ export function usePaneBoundsLogger(
         panes: bounds,
       });
     });
-    return () => window.cancelAnimationFrame(frame);
+    return () => {
+      try {
+        window.cancelAnimationFrame(frame);
+      } catch {
+        // Vitest/jsdom timer shims can back requestAnimationFrame with setTimeout.
+        window.clearTimeout(frame);
+      }
+    };
   }, [layoutState, paneRefs, projectPath]);
 }

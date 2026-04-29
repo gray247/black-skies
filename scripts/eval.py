@@ -30,7 +30,6 @@ from blackskies.services.eval.report import (
 )
 from blackskies.services.tools.registry import ToolRegistry
 
-
 logger = logging.getLogger("blackskies.services.scripts.eval")
 
 

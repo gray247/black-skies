@@ -20,6 +20,7 @@ class _SceneEntry(TypedDict):
     chapter_id: str
     beat_refs: list[str]
 
+
 # HARNESS_ONLY seam metadata for explicit synthetic-mode coverage.
 # Reason: verify e2e synthetic toggle behavior without treating synthetic mode as default truth.
 # Owner: services/src/blackskies/services/e2e_mode.py

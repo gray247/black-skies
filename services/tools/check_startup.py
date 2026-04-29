@@ -3,6 +3,7 @@
 Dev helper: diagnostic script to import the backend module and surface import/startup tracebacks.
 Safe to remove. Run with: python services/tools/check_startup.py
 """
+
 import importlib
 import pathlib
 import re

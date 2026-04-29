@@ -12,7 +12,6 @@ import json
 
 import pytest
 
-
 if "pydantic" not in sys.modules:
     pydantic_stub = types.ModuleType("pydantic")
     pydantic_stub_any: Any = pydantic_stub

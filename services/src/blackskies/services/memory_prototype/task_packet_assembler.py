@@ -119,9 +119,7 @@ class TaskPacketAssembler:
             ][:3]
         elif packet_type == "critique":
             advisory["task_focus"] = [
-                item["category"]
-                for item in delta_highlights
-                if item["confidence"] >= 0.6
+                item["category"] for item in delta_highlights if item["confidence"] >= 0.6
             ][:3]
 
         conflicts = tuple(list(location.conflicts) + list(goal.conflicts))

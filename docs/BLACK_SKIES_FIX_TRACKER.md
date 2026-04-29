@@ -1770,3 +1770,12 @@ Backlog note drifted after phase-log cleanup.
   - formally closed Phase 4.8 with end-to-end proof from `175 errors in 49 files` to `Success: no issues found in 346 source files`,
   - reconfirmed validation lanes remain green: `services/tests/test_app.py` (`64 passed`), smoke lane (`3 passed`), contract lane (`11 passed`),
   - recorded deferred non-mypy risks: `NO_COLOR`/`FORCE_COLOR` warning, dock layout warning, Node/Electron advisories, and `pip`/`starlette` advisory deferrals.
+- 2026-04-29 - Codex - Phase 4.9A deferred-risk triage:
+  - created `docs/technical_debt/phase4_deferred_risk_triage_2026-04-28.md` as the final Phase 4 deferred-risk register before Phase 5 hardening,
+  - classified remaining risks by status/severity/owner/defer rationale/safe fix path/validation/target phase,
+  - closure recommendation: Phase 4 can close with documented deferrals; Phase 5 should prioritize high-severity dependency and packaging-chain hardening first.
+- 2026-04-29 - Codex - CI-red recovery pass:
+  - fixed Black CI failure by pinning `[tool.black] target-version` to `py311` and applying repo formatting (`23 files reformatted`, `black --check .` now clean),
+  - fixed DockWorkspace unit failure in `usePaneBoundsLogger.ts` by keeping `cancelAnimationFrame(...)` and adding a narrow `clearTimeout(...)` fallback for timeout-backed RAF handles in Vitest/jsdom,
+  - validation evidence: DockWorkspace slice `7 passed`, `pnpm lint` passed, `build:production` passed, smoke lane `3 passed`, mypy clean, backend app tests `64 passed`, and contract lane `11 passed`,
+  - remaining warnings unchanged: `NO_COLOR`/`FORCE_COLOR` and dock layout compatibility warning.

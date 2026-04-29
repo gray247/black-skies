@@ -9,7 +9,6 @@ from typing import TypedDict, cast
 from httpx import Response
 from fastapi.testclient import TestClient
 
-
 API_PREFIX = "/api/v1"
 
 

@@ -34,7 +34,6 @@ from .analytics.text_utils import (
     score_scene_pacing,
 )
 
-
 SENTENCE_SPLIT = re.compile(r"[.!?]+")
 
 
@@ -64,9 +63,7 @@ def get_project_summary(
                 scene.pacing_bucket = pacing_bucket
     word_count = sum(scene.word_count for scene in scenes)
     readability_details: list[dict[str, object]] = [
-        scene.readability_metrics
-        for scene in scenes
-        if isinstance(scene.readability_metrics, dict)
+        scene.readability_metrics for scene in scenes if isinstance(scene.readability_metrics, dict)
     ]
 
     def _agg_float(key: str) -> float | None:

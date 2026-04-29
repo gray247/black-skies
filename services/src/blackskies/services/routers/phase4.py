@@ -115,9 +115,7 @@ async def critique_phase4(payload: Phase4CritiqueRequest) -> Phase4CritiqueRespo
     """Return deterministic mock feedback for the requested scene."""
 
     if is_e2e_mode():
-        return Phase4CritiqueResponse.model_validate(
-            e2e_phase4_critique_response(payload.scene_id)
-        )
+        return Phase4CritiqueResponse.model_validate(e2e_phase4_critique_response(payload.scene_id))
 
     normalized_text = payload.text.strip()
     summary = _build_summary(normalized_text, payload.mode)

@@ -51,6 +51,7 @@ exclude = ["tests", "vendor", "data"]
 
 [tool.black]
 line-length = 100
+target-version = ["py311"]
 
 [tool.coverage.run]
 branch = true

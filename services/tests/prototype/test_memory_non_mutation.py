@@ -26,9 +26,7 @@ def _write_json(path: Path, payload: dict[str, Any]) -> None:
     path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
 
-def _accepted_source_hash(
-    *, unit_id: str, draft_text: str, scene_payload: dict[str, Any]
-) -> str:
+def _accepted_source_hash(*, unit_id: str, draft_text: str, scene_payload: dict[str, Any]) -> str:
     front_matter = json.dumps(scene_payload, sort_keys=True, ensure_ascii=False)
     return hashlib.sha256(f"{unit_id}\n{front_matter}\n{draft_text}".encode("utf-8")).hexdigest()
 

@@ -20,7 +20,6 @@ from .schemas import (
 )
 from .types import ArtifactType
 
-
 MEMORY_ARTIFACT_TYPES: set[ArtifactType] = {
     "summary",
     "unresolved_tension",

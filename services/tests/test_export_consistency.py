@@ -65,7 +65,9 @@ def _run_export(project_root: Path, project_id: str, fmt: ExportFormat) -> _Expo
     settings = ServiceSettings(project_base_dir=project_root.parent)
     diagnostics = DiagnosticLogger()
     service = ProjectExportService(settings=settings, diagnostics=diagnostics)
-    return cast(_ExportPayload, asyncio.run(service.export(project_id=project_id, format=fmt)).payload)
+    return cast(
+        _ExportPayload, asyncio.run(service.export(project_id=project_id, format=fmt)).payload
+    )
 
 
 def _body_word_count(project_root: Path) -> int:

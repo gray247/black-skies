@@ -309,8 +309,7 @@ def resolve_memory_packet(
             (
                 item
                 for item in unresolved_ranked_pool
-                if selected_winner is None
-                or item[0].artifact_id != selected_winner[0].artifact_id
+                if selected_winner is None or item[0].artifact_id != selected_winner[0].artifact_id
             ),
             None,
         )

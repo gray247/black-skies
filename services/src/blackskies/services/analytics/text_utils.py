@@ -7,7 +7,6 @@ import string
 from statistics import mean
 from typing import Iterable, List, NamedTuple, Tuple
 
-
 ConversationSpan = NamedTuple(
     "ConversationSpan",
     [

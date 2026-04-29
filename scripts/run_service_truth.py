@@ -10,7 +10,6 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-
 REPO_ROOT = Path(__file__).resolve().parents[1]
 PASS2_TESTS = [
     "services/tests/test_rewrite_error_path.py",

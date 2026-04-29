@@ -104,9 +104,7 @@ def anyio_backend() -> str:
     return "asyncio"
 
 
-async def test_health_endpoint_contract(
-    async_client: Any, monkeypatch: pytest.MonkeyPatch
-) -> None:
+async def test_health_endpoint_contract(async_client: Any, monkeypatch: pytest.MonkeyPatch) -> None:
     """The health probe returns the expected payload and trace headers."""
 
     monkeypatch.setenv("BLACKSKIES_ENABLE_VOICE_NOTES", "1")
@@ -157,9 +155,7 @@ async def test_preflight_success_contract(async_client: Any, tmp_path: Path) -> 
     _assert_trace_header(response)
 
 
-async def test_preflight_missing_scene_contract(
-    async_client: Any, tmp_path: Path
-) -> None:
+async def test_preflight_missing_scene_contract(async_client: Any, tmp_path: Path) -> None:
     """Preflight surfaces validation errors for unknown scene identifiers."""
 
     project_id = "proj_async_preflight_missing"
@@ -221,9 +217,7 @@ async def test_critique_validation_unknown_category(
     assert any("Unknown rubric categories" in error["msg"] for error in errors)
 
 
-async def test_recovery_status_idle_contract(
-    async_client: Any, tmp_path: Path
-) -> None:
+async def test_recovery_status_idle_contract(async_client: Any, tmp_path: Path) -> None:
     """Recovery status endpoint reports idle projects with trace metadata."""
 
     project_id = "proj_async_recovery"
