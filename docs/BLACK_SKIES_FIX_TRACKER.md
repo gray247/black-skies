@@ -1779,3 +1779,17 @@ Backlog note drifted after phase-log cleanup.
   - fixed DockWorkspace unit failure in `usePaneBoundsLogger.ts` by keeping `cancelAnimationFrame(...)` and adding a narrow `clearTimeout(...)` fallback for timeout-backed RAF handles in Vitest/jsdom,
   - validation evidence: DockWorkspace slice `7 passed`, `pnpm lint` passed, `build:production` passed, smoke lane `3 passed`, mypy clean, backend app tests `64 passed`, and contract lane `11 passed`,
   - remaining warnings unchanged: `NO_COLOR`/`FORCE_COLOR` and dock layout compatibility warning.
+- 2026-04-29 - Codex - Phase 5B Node 20 deprecation warning audit:
+  - workflow-only action pin audit completed for `.github/workflows/eval.yml` and `.github/workflows/security.yml`,
+  - safe upgrades applied: `actions/checkout` `v4->v5`, `actions/cache` `v4->v5`, `actions/setup-python` `v5->v6`, `pnpm/action-setup` `v2->v4`,
+  - deferred for dedicated compatibility lane: `actions/upload-artifact@v4`, `actions/download-artifact@v4`,
+  - rationale and sources documented in `docs/technical_debt/phase5_hardening_plan_2026-04-28.md`.
+- 2026-04-29 - Codex - Phase 5B-2 artifact action compatibility follow-up:
+  - upgraded artifact actions in lockstep: `actions/upload-artifact` `v4->v6` and `actions/download-artifact` `v4->v7`,
+  - preserved artifact names/paths/retention semantics and existing gauntlet proof manifest handoff structure,
+  - documented follow-up validation checklist in `docs/technical_debt/phase5_hardening_plan_2026-04-28.md`.
+- 2026-04-29 - Codex - Phase 5B-3 CI action-upgrade validation (evidence pass):
+  - inspected latest completed `eval` run `25135049889` and `security` run `25135049880`; both workflows and all jobs were `success`,
+  - confirmed artifact handoff health across proof and report outputs (`gauntlet-pass3/4/5/6-proof`, `gauntlet-ci-proof-manifest`, `playwright-artifacts`, `eval-report`, `load-ledger*`, `dependency-report-*`),
+  - confirmed `Publish Gauntlet CI Proof Manifest` job downloaded all required pass artifacts successfully,
+  - Node 20 deprecation warnings still appear in these logs because they are pre-upgrade runs on commit `4fb029eecc5c0ba1fb9461a75f7f9e2d7c4dd0a3`; post-upgrade warning clearance remains pending a fresh run on the upgraded workflow commit.
