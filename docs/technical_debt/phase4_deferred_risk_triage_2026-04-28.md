@@ -1,5 +1,10 @@
 # Phase 4.9A Deferred Risk Triage - 2026-04-28
 
+Canonical register note:
+- authoritative deferred-risk state has been consolidated in:
+  - `docs/technical_debt/deferred_risk_register_2026-04-29.md`
+- this Phase 4.9A document remains as the phase-time snapshot and rationale trail.
+
 ## Remaining Deferred Risks
 
 ### NO_COLOR / FORCE_COLOR
@@ -140,3 +145,12 @@
   - remaining items are known, classified, and primarily security/toolchain compatibility hardening work better suited for Phase 5 coordinated upgrades.
 - do not defer further before Phase 5:
   - start Phase 5 with high-severity dependency/packaging lanes (Node/Electron advisories, Starlette/FastAPI block, packaging chain) as first hardening priorities.
+
+## Sync Note (2026-04-29)
+- grouping alignment update:
+  - `Node/Electron Advisories` + `Electron Packaging Chain Advisories` are now treated as one canonical P1 umbrella: `Electron/package-chain advisories`.
+- additional deferred items tracked centrally:
+  - `CI artifact observability debt for ignored uploads`
+  - `ESLint legacy config / flat-config migration`
+  - `Renderer TypeError warning noise (if still reproducible)`
+  - `Local EPERM Playwright launch caveat`

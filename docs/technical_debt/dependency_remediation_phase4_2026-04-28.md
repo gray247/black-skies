@@ -818,3 +818,11 @@ Rollback plan:
 
 ### Conclusion
 - Node remediation is complete as a documented checkpoint, with the remaining issues intentionally deferred to the Electron/runtime packaging lane and the `react-mosaic-component`/`uuid` compatibility path
+
+## Deferred Risk Register Sync (2026-04-29)
+- canonical deferred-risk register:
+  - `docs/technical_debt/deferred_risk_register_2026-04-29.md`
+- ambiguity reduction:
+  - prior split labels (`Node/Electron advisories` and `Electron packaging chain advisories`) are now grouped under one canonical P1 category:
+    - `Electron/package-chain advisories`
+- this document remains the implementation history for dependency remediation batches and evidence.

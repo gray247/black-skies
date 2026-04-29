@@ -1832,3 +1832,8 @@ Backlog note drifted after phase-log cleanup.
   - closure confirms full local + CI green proof (black, mypy, backend/app tests, build, smoke e2e, startup authority contract, eval CI, security CI),
   - major cycle outcomes documented, including mypy reduction from `175` to `0` and CI/artifact proof hardening completion,
   - deferred risk register and next-cycle hardening priorities captured for continuation planning.
+- 2026-04-29 - Codex - Deferred-risk documentation sync:
+  - created canonical register `docs/technical_debt/deferred_risk_register_2026-04-29.md` with normalized P0/P1/P2 grouping, status/evidence/defer rationale/next safe action/validation fields,
+  - aligned closure and phase docs to reference the canonical register instead of repeating divergent deferred lists,
+  - standardized advisory grouping by consolidating prior split labels (`Node/Electron advisories` + `Electron packaging chain advisories`) under canonical `Electron/package-chain advisories`,
+  - added date-tag interpretation note in hardening docs so Node20 warning evidence from pre-upgrade runs is explicitly distinguished from post-upgrade green runs.

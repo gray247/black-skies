@@ -266,3 +266,55 @@
 1. Trigger fresh `eval.yml` and `security.yml` runs on the commit that includes the upgraded action pins.
 2. Re-run this exact Phase X checklist and confirm warning lines no longer cite `@v4/@v5` action runtimes.
 3. If warnings persist after upgraded-pin runs, classify remaining lines as platform/external noise and close Phase 5B with evidence.
+
+## Phase 5D - Final Validation Checkpoint (2026-04-29)
+
+### Local Validation Results
+- `python -m black --check .`:
+  - system `python` lacked `black`; re-run with venv interpreter.
+  - `.\.venv\Scripts\python.exe -m black --check .` -> passed (`362 files would be left unchanged`).
+- `python -m mypy --follow-imports=skip services/src services/tests scripts tests tools/runtime_truth`:
+  - system `python` lacked `mypy`; re-run with venv interpreter.
+  - `.\.venv\Scripts\python.exe -m mypy ...` -> passed (`Success: no issues found in 346 source files`).
+- `python -m pytest services/tests/test_app.py -q` -> passed (`64 passed`).
+- `pnpm lint` -> passed.
+- `pnpm --filter app test` -> passed (`145 passed`).
+- `pnpm --filter app run build:production` -> passed.
+- `pnpm test:e2e -- --workers=1` -> passed (`3 passed`).
+- contract lane preflight:
+  - port `9999` check: free.
+  - `pnpm --filter app exec playwright test tests/e2e/startup_authority_contract.spec.ts --project=electron --workers=1 --reporter=line` -> passed (`11 passed`).
+
+### CI Validation Results (Post-Phase 5C-2)
+- latest eval run: `25137899738` on commit `c8d42bae16e2a35805a69fba0353a9f8fc35b717` -> `success`.
+- latest security run: `25137899691` on same commit -> `success`.
+- PASS proof summary execution confirmed on success:
+  - `Write PASS 3 proof summary`: success.
+  - `Write PASS 4 proof summary`: success.
+  - `Write PASS 6 proof summary`: success.
+- proof-manifest handshake:
+  - download steps for pass3/4/5/6 all success.
+  - `gauntlet-ci-proof-manifest` uploaded successfully.
+- artifact name mismatch check:
+  - none found (upload and download names aligned).
+
+### Remaining Warnings / Deferred Risks
+- `NO_COLOR` / `FORCE_COLOR` warning in Playwright/e2e runs.
+- dock layout compatibility warning (`Invalid saved layout ignored`) in renderer logs.
+- ESLint RC deprecation warning for `.eslintrc` mode.
+- these remain deferred and non-blocking for Phase 5D checkpoint.
+
+### Checkpoint Decision
+- Phase 5D final validation is green on local + latest CI evidence.
+- Phase 5E closure is unblocked.
+
+## Deferred Risk Register Sync (2026-04-29)
+- canonical deferred-risk register:
+  - `docs/technical_debt/deferred_risk_register_2026-04-29.md`
+- Node20 warning evidence date-tags:
+  - pre-upgrade warning evidence:
+    - Phase 5B-3 / Phase X sections that reference runs on commit `4fb029eecc5c0ba1fb9461a75f7f9e2d7c4dd0a3` (old action pins still active in executed runs)
+  - post-upgrade green evidence:
+    - Phase 5D section referencing eval `25137899738` and security `25137899691` on commit `c8d42bae16e2a35805a69fba0353a9f8fc35b717`
+- interpretation guardrail:
+  - pre-upgrade warnings in this document are historical timeline evidence, not current workflow pin state.
