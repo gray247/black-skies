@@ -1808,3 +1808,7 @@ Backlog note drifted after phase-log cleanup.
   - applied minimal CI-only import-path fix in `.github/workflows/eval.yml`: `Validate runtime truth ledger` now runs `PYTHONPATH=. pytest -q services/tests/unit/test_runtime_truth.py`,
   - kept scope strict: no runtime/test logic refactor, no dependency changes, no workflow-wide behavior change,
   - validation remained green: runtime_truth unit (`3 passed`), backend app tests (`64 passed`), mypy clean (`346 files`), app lint/test green, smoke e2e (`3 passed`).
+- 2026-04-29 - Codex - Emergency CI pnpm setup root-cause fix:
+  - root cause: `pnpm/action-setup@v4` failed with `Multiple versions of pnpm specified` because workflows passed `version: 8` while repo already pins `packageManager` to `pnpm@8.15.9` in `package.json`,
+  - fix: removed explicit `version: 8` from every `pnpm/action-setup@v4` step in `.github/workflows/eval.yml` and `.github/workflows/security.yml`, keeping action major at `v4`,
+  - classification: missing artifact/download errors in the same failed runs are cascading downstream failures from pnpm setup aborts, not primary root-cause defects in artifact flow.
