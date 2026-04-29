@@ -168,3 +168,65 @@
 ## Remaining CI Warnings
 - `NO_COLOR` / `FORCE_COLOR` warning remains (known deferred environment-level warning).
 - Dock layout warning remains (known deferred compatibility warning with safe fallback).
+
+## CI-Red App Unit Recovery Pass (2026-04-29)
+
+## Workflow Commit Check
+- failing workflow inspected: `https://github.com/gray247/black-skies/actions/runs/25136317998`
+- workflow commit SHA: `d2b50a8ee9fbf33784e860040c8836b5c52ea106`
+- local `HEAD`: `8d154c8064011f63772cf9014b6e87db0d2ac9e7`
+- conclusion: reported app-unit failures were on an older workflow commit than current local branch state.
+
+## Reproduction Results (Targeted Failing Slices)
+- `pnpm --filter app test -- StoryInsightsRegression`: `6 passed`
+- `pnpm --filter app test -- DraftEditor`: `3 passed`
+- `pnpm --filter app test -- AppPreflight`: `12 passed`
+- `pnpm --filter app test -- AnalyticsDashboard`: `1 passed`
+
+## Failure Classification
+- `StoryInsightsRegression.test.tsx`:
+  - classification: stale CI expectation from older workflow commit.
+  - local status on current head: pass.
+- `DraftEditor.test.tsx` (`sample_project/Esther_Estate/drafts/sc_0001.md`):
+  - classification: fixture-materialization/commit-drift issue on workflow commit, not current local head.
+  - local status on current head: pass (fixture present through current fixture contract).
+- `AppPreflight.test.tsx` (`show snapshots` button):
+  - classification: stale UI expectation on older workflow commit.
+  - local status on current head: pass.
+- `AnalyticsDashboard.test.tsx` (`Easy` label):
+  - classification: stale assertion path on older workflow commit.
+  - local status on current head: pass.
+
+## Fix Outcome
+- no source code edits required in this pass.
+- no test loosening applied.
+- no runtime behavior changes applied.
+- this pass establishes that failures are not reproducible on current branch head and align with commit drift between workflow run SHA and local HEAD.
+
+## CI-Red Runtime Truth Import Fix (2026-04-29)
+
+## Root Cause
+- CI failure: `ModuleNotFoundError: No module named 'tools'` while running `pytest -q services/tests/unit/test_runtime_truth.py`.
+- the test imports `tools.runtime_truth.build_runtime_truth` and relies on repository-root module visibility.
+- local runs passed on current head because local test bootstrap context already resolved repo-root imports; CI needed explicit repo-root path for this targeted step.
+
+## Exact Fix
+- workflow-only surgical change in `.github/workflows/eval.yml`:
+  - `Validate runtime truth ledger` step changed from:
+    - `pytest -q services/tests/unit/test_runtime_truth.py`
+  - to:
+    - `PYTHONPATH=. pytest -q services/tests/unit/test_runtime_truth.py`
+- no runtime code changes, no dependency changes, no test loosening.
+
+## Other Workflow Pytest Commands
+- checked other pytest invocations in `eval.yml`.
+- only the dedicated runtime-truth step directly depends on `tools.runtime_truth` import path.
+- no additional PYTHONPATH change applied in this pass to keep scope minimal.
+
+## Validation
+- `.\.venv\Scripts\python.exe -m pytest services/tests/unit/test_runtime_truth.py -q` -> `3 passed`
+- `.\.venv\Scripts\python.exe -m pytest services/tests/test_app.py -q` -> `64 passed`
+- `.\.venv\Scripts\python.exe -m mypy --follow-imports=skip services/src services/tests scripts tests tools/runtime_truth` -> `Success: no issues found in 346 source files`
+- `pnpm lint` -> passed
+- `pnpm --filter app test` -> `145 passed`
+- `pnpm test:e2e -- --workers=1` -> `3 passed`

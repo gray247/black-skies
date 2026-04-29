@@ -1793,3 +1793,18 @@ Backlog note drifted after phase-log cleanup.
   - confirmed artifact handoff health across proof and report outputs (`gauntlet-pass3/4/5/6-proof`, `gauntlet-ci-proof-manifest`, `playwright-artifacts`, `eval-report`, `load-ledger*`, `dependency-report-*`),
   - confirmed `Publish Gauntlet CI Proof Manifest` job downloaded all required pass artifacts successfully,
   - Node 20 deprecation warnings still appear in these logs because they are pre-upgrade runs on commit `4fb029eecc5c0ba1fb9461a75f7f9e2d7c4dd0a3`; post-upgrade warning clearance remains pending a fresh run on the upgraded workflow commit.
+- 2026-04-29 - Codex - Phase X validation loop (CI/workflow/hardening re-check):
+  - inspected latest `eval` run `25135941347` and latest `security` run `25135941342` (both `success`; no partial failures/skips/retries observed),
+  - revalidated artifact integrity: all required proof/report artifacts present and non-empty, including `gauntlet-pass3/4/5/6-proof`, `gauntlet-ci-proof-manifest`, `playwright-artifacts`, `eval-report`, `load-ledger*`, and `dependency-report-*`,
+  - confirmed proof-manifest job still downloads PASS 3/4/5/6 artifacts successfully before publishing manifest output,
+  - warning classification remained `ACTIONABLE` for Node 20 migration objective because latest run logs still cite old action pins (`checkout@v4`, `cache@v4`, `setup-python@v5`, `pnpm/action-setup@v2`, `upload-artifact@v4`, `download-artifact@v4`), while workspace workflow YAML is already upgraded and awaits post-upgrade execution evidence.
+- 2026-04-29 - Codex - CI-red app unit recovery pass:
+  - inspected failing workflow run `25136317998` and confirmed it executed on commit `d2b50a8ee9fbf33784e860040c8836b5c52ea106`, while local `HEAD` is `8d154c8064011f63772cf9014b6e87db0d2ac9e7`,
+  - targeted failing app slices all passed locally on current head (`StoryInsightsRegression` 6/6, `DraftEditor` 3/3, `AppPreflight` 12/12, `AnalyticsDashboard` 1/1),
+  - classification for all four failures: stale workflow commit / fixture-state drift rather than a reproducible regression on current branch,
+  - no source edits required; verification lanes remain green (`pnpm lint`, `pnpm --filter app test`, `build:production`, smoke e2e, mypy clean, `services/tests/test_app.py` 64 passed).
+- 2026-04-29 - Codex - CI-red runtime_truth import fix:
+  - confirmed current `HEAD` is `8d154c8064011f63772cf9014b6e87db0d2ac9e7` and stale failing workflow context was `d2b50a8ee9fbf33784e860040c8836b5c52ea106`,
+  - applied minimal CI-only import-path fix in `.github/workflows/eval.yml`: `Validate runtime truth ledger` now runs `PYTHONPATH=. pytest -q services/tests/unit/test_runtime_truth.py`,
+  - kept scope strict: no runtime/test logic refactor, no dependency changes, no workflow-wide behavior change,
+  - validation remained green: runtime_truth unit (`3 passed`), backend app tests (`64 passed`), mypy clean (`346 files`), app lint/test green, smoke e2e (`3 passed`).

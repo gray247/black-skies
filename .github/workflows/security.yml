@@ -19,10 +19,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Python 3.11
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
 
@@ -56,10 +56,10 @@ jobs:
         os: [ubuntu-latest, macos-latest]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Python 3.11
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
           cache: 'pip'
@@ -96,7 +96,7 @@ jobs:
           exit 0
       - name: Upload pip-audit report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: pip-audit-report-${{ matrix.os }}
           path: pip-audit-report.json
@@ -122,7 +122,7 @@ jobs:
           exit 0
       - name: Upload Safety report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: safety-report-${{ matrix.os }}
           path: safety-report.json
@@ -132,7 +132,7 @@ jobs:
           node-version: '24'
           package-manager-cache: false
       - name: Set up pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v4
         with:
           version: 8
           run_install: false
@@ -141,7 +141,7 @@ jobs:
         shell: bash
         run: echo "path=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
       - name: Cache pnpm store
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ${{ steps.pnpm_store.outputs.path }}
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('pnpm-lock.yaml') }}
@@ -162,7 +162,7 @@ jobs:
           exit 0
       - name: Upload pnpm audit report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: pnpm-audit-report-${{ matrix.os }}
           path: pnpm-audit-report.json
@@ -236,7 +236,7 @@ jobs:
         run: python scripts/check_slo.py "${{ steps.load_ledger.outputs.run_json }}"
       - name: Upload load ledger
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: load-ledger-${{ matrix.os }}
           path: load-ledger.json
@@ -253,7 +253,7 @@ jobs:
           exit 0
       - name: Upload dependency report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: dependency-report-${{ matrix.os }}
           path: dependency-report.json
