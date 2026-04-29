@@ -1842,3 +1842,13 @@ Backlog note drifted after phase-log cleanup.
   - documented symptom/impact and manual-control status in `docs/technical_debt/deferred_risk_register_2026-04-29.md`,
   - recorded required pre-commit checks: `git status --short`, `git diff --cached --name-status`, and `git diff --cached --check`,
   - noted future hardening option: phase handoff checklist and/or pre-commit helper script.
+- 2026-04-29 - Codex - Next-cycle Phase 1 CI observability upgrade plan:
+  - created `docs/technical_debt/ci_observability_upgrade_plan_2026-04-29.md` as a workflow-only observability design pass,
+  - planned additive summary artifacts for run metadata, SHA consistency, artifact completeness, failure classification, and warning taxonomy,
+  - kept scope non-semantic: no runtime/app/test/dependency changes and no workflow edits in this phase,
+  - defined smallest safe implementation batch as `ci-run-summary.json` + `ci-sha-consistency.json` first, non-blocking, with staged follow-on batches.
+- 2026-04-29 - Codex - CI observability Batch 1 implementation:
+  - added additive `ci-observability` jobs to `.github/workflows/eval.yml` and `.github/workflows/security.yml` with `if: always()`,
+  - each job writes `ci-run-summary.json` and `ci-sha-consistency.json` (including `actual_sha` from `git rev-parse HEAD` and `sha_match` vs `${{ github.sha }}`),
+  - uploads the summary files via `actions/upload-artifact@v6` as `ci-observability-${{ github.job }}` with `if-no-files-found: ignore`,
+  - existing jobs, artifacts, test commands, and dependency pins were left unchanged.

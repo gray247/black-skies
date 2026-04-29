@@ -336,3 +336,72 @@ jobs:
 
           raise SystemExit(1 if findings else 0)
           PY
+
+  ci-observability:
+    name: CI Observability Summary
+    if: always()
+    runs-on: ubuntu-latest
+    needs:
+      - hygiene
+      - pip-audit
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Write observability summary artifacts
+        if: always()
+        env:
+          JOB_STATUS: ${{ job.status }}
+          GITHUB_WORKFLOW: ${{ github.workflow }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_RUN_NUMBER: ${{ github.run_number }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_REF: ${{ github.ref }}
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_ACTOR: ${{ github.actor }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import subprocess
+          from pathlib import Path
+
+          actual_sha = (
+              subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+          )
+          github_sha = os.environ.get("GITHUB_SHA", "")
+          summary = {
+              "workflow": os.environ.get("GITHUB_WORKFLOW", ""),
+              "run_id": os.environ.get("GITHUB_RUN_ID", ""),
+              "run_number": os.environ.get("GITHUB_RUN_NUMBER", ""),
+              "event": os.environ.get("GITHUB_EVENT_NAME", ""),
+              "ref": os.environ.get("GITHUB_REF", ""),
+              "github_sha": github_sha,
+              "actor": os.environ.get("GITHUB_ACTOR", ""),
+              "job_status": os.environ.get("JOB_STATUS", ""),
+              "actual_sha": actual_sha,
+          }
+          sha_consistency = {
+              "workflow": os.environ.get("GITHUB_WORKFLOW", ""),
+              "run_id": os.environ.get("GITHUB_RUN_ID", ""),
+              "job_status": os.environ.get("JOB_STATUS", ""),
+              "github_sha": github_sha,
+              "actual_sha": actual_sha,
+              "sha_match": actual_sha == github_sha,
+          }
+
+          Path("ci-run-summary.json").write_text(
+              json.dumps(summary, indent=2) + "\n", encoding="utf-8"
+          )
+          Path("ci-sha-consistency.json").write_text(
+              json.dumps(sha_consistency, indent=2) + "\n", encoding="utf-8"
+          )
+          PY
+      - name: Upload observability summary artifacts
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: ci-observability-${{ github.job }}
+          if-no-files-found: ignore
+          path: |
+            ci-run-summary.json
+            ci-sha-consistency.json

@@ -443,13 +443,22 @@ jobs:
       - name: Run truth lane checks
         run: pnpm test:truth
       - name: Write PASS 4 proof summary
-        if: success()
+        if: always()
+        env:
+          PASS4_JOB_STATUS: ${{ job.status }}
         run: |
           mkdir -p build/ci_proof/pass4
+          proof_status="failure"
+          if [ "$PASS4_JOB_STATUS" = "success" ]; then
+            proof_status="success"
+          elif [ "$PASS4_JOB_STATUS" = "cancelled" ]; then
+            proof_status="cancelled"
+          fi
           python scripts/write_gauntlet_pass_summary.py \
             --pass-id "PASS 4" \
             --command "pnpm test:truth" \
             --commit-sha "${{ github.sha }}" \
+            --status "$proof_status" \
             --output "build/ci_proof/pass4/summary.json" \
             --artifact "build/truth_receipts/latest.json" \
             --artifact "build/truth_receipts/latest.txt"
@@ -494,13 +503,22 @@ jobs:
         run: |
           pnpm --filter app test -- --run main/__tests__/serviceApi.test.ts renderer/__tests__/AppCritique.test.tsx renderer/__tests__/useCritique.test.ts
       - name: Write PASS 3 proof summary
-        if: success()
+        if: always()
+        env:
+          PASS3_JOB_STATUS: ${{ job.status }}
         run: |
           mkdir -p build/ci_proof/pass3
+          proof_status="failure"
+          if [ "$PASS3_JOB_STATUS" = "success" ]; then
+            proof_status="success"
+          elif [ "$PASS3_JOB_STATUS" = "cancelled" ]; then
+            proof_status="cancelled"
+          fi
           python scripts/write_gauntlet_pass_summary.py \
             --pass-id "PASS 3" \
             --command "pnpm --filter app test -- --run main/__tests__/serviceApi.test.ts renderer/__tests__/AppCritique.test.tsx renderer/__tests__/useCritique.test.ts" \
             --commit-sha "${{ github.sha }}" \
+            --status "$proof_status" \
             --output "build/ci_proof/pass3/summary.json"
       - name: Upload PASS 3 proof artifact
         if: always()
@@ -649,13 +667,22 @@ jobs:
           pnpm --filter app build:renderer
           pnpm --filter app build:main
       - name: Write PASS 6 proof summary
-        if: success()
+        if: always()
+        env:
+          PASS6_JOB_STATUS: ${{ job.status }}
         run: |
           mkdir -p build/ci_proof/pass6
+          proof_status="failure"
+          if [ "$PASS6_JOB_STATUS" = "success" ]; then
+            proof_status="success"
+          elif [ "$PASS6_JOB_STATUS" = "cancelled" ]; then
+            proof_status="cancelled"
+          fi
           python scripts/write_gauntlet_pass_summary.py \
             --pass-id "PASS 6" \
             --command "python scripts/gauntlet_capability_probe.py && pnpm --filter app build:renderer && pnpm --filter app build:main" \
             --commit-sha "${{ github.sha }}" \
+            --status "$proof_status" \
             --output "build/ci_proof/pass6/summary.json"
       - name: Upload PASS 6 proof artifact
         if: always()
@@ -887,3 +914,81 @@ jobs:
           path: |
             out/eval.html
             out/eval.json
+
+  ci-observability:
+    name: CI Observability Summary
+    if: always()
+    runs-on: ubuntu-latest
+    needs:
+      - lint
+      - typecheck
+      - app-tests
+      - docs-lint
+      - app-e2e
+      - app-truth-lane
+      - gauntlet-pass3-proof
+      - gauntlet-pass5-proof
+      - gauntlet-pass6-proof
+      - gauntlet-proof-manifest
+      - eval
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Write observability summary artifacts
+        if: always()
+        env:
+          JOB_STATUS: ${{ job.status }}
+          GITHUB_WORKFLOW: ${{ github.workflow }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_RUN_NUMBER: ${{ github.run_number }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_REF: ${{ github.ref }}
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_ACTOR: ${{ github.actor }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import subprocess
+          from pathlib import Path
+
+          actual_sha = (
+              subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+          )
+          github_sha = os.environ.get("GITHUB_SHA", "")
+          summary = {
+              "workflow": os.environ.get("GITHUB_WORKFLOW", ""),
+              "run_id": os.environ.get("GITHUB_RUN_ID", ""),
+              "run_number": os.environ.get("GITHUB_RUN_NUMBER", ""),
+              "event": os.environ.get("GITHUB_EVENT_NAME", ""),
+              "ref": os.environ.get("GITHUB_REF", ""),
+              "github_sha": github_sha,
+              "actor": os.environ.get("GITHUB_ACTOR", ""),
+              "job_status": os.environ.get("JOB_STATUS", ""),
+              "actual_sha": actual_sha,
+          }
+          sha_consistency = {
+              "workflow": os.environ.get("GITHUB_WORKFLOW", ""),
+              "run_id": os.environ.get("GITHUB_RUN_ID", ""),
+              "job_status": os.environ.get("JOB_STATUS", ""),
+              "github_sha": github_sha,
+              "actual_sha": actual_sha,
+              "sha_match": actual_sha == github_sha,
+          }
+
+          Path("ci-run-summary.json").write_text(
+              json.dumps(summary, indent=2) + "\n", encoding="utf-8"
+          )
+          Path("ci-sha-consistency.json").write_text(
+              json.dumps(sha_consistency, indent=2) + "\n", encoding="utf-8"
+          )
+          PY
+      - name: Upload observability summary artifacts
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: ci-observability-${{ github.job }}
+          if-no-files-found: ignore
+          path: |
+            ci-run-summary.json
+            ci-sha-consistency.json
