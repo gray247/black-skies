@@ -154,6 +154,25 @@ Purpose:
   - local Playwright launch preflight on target environment
   - parity check against CI artifact outputs
 
+### Uncommitted working-tree drift during Codex passes
+- status:
+  - process risk (managed manually)
+- evidence doc/source:
+  - `docs/BLACK_SKIES_FIX_TRACKER.md` (deferred-risk documentation sync notes)
+  - observed pass behavior where existing uncommitted workflow/doc changes were detected and intentionally avoided
+- why deferred:
+  - not currently breaking CI/test gates, but increases mixed-commit and ownership ambiguity risk
+- symptom:
+  - Codex notices existing uncommitted workflow/doc changes and avoids touching them
+- why it matters:
+  - can cause mixed commits, skipped files, stale diffs, or confusion about phase ownership of changes
+- next safe action:
+  - require `git status --short`, `git diff --cached --name-status`, and `git diff --cached --check` before every commit
+- future improvement:
+  - add a phase handoff checklist and/or a pre-commit/commit helper script that enforces these checks
+- validation required:
+  - clean working tree or intentionally staged-only tree before each phase handoff
+
 ## Node 20 Warning Evidence Date Tags
 - pre-upgrade evidence:
   - runs on commit `4fb029eecc5c0ba1fb9461a75f7f9e2d7c4dd0a3` still showed Node 20 deprecation warnings tied to old action pins

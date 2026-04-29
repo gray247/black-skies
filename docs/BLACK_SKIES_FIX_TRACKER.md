@@ -1837,3 +1837,8 @@ Backlog note drifted after phase-log cleanup.
   - aligned closure and phase docs to reference the canonical register instead of repeating divergent deferred lists,
   - standardized advisory grouping by consolidating prior split labels (`Node/Electron advisories` + `Electron packaging chain advisories`) under canonical `Electron/package-chain advisories`,
   - added date-tag interpretation note in hardening docs so Node20 warning evidence from pre-upgrade runs is explicitly distinguished from post-upgrade green runs.
+- 2026-04-29 - Codex - Deferred-risk sync follow-up (operational hygiene):
+  - added P2 process risk: `Uncommitted working-tree drift during Codex passes`,
+  - documented symptom/impact and manual-control status in `docs/technical_debt/deferred_risk_register_2026-04-29.md`,
+  - recorded required pre-commit checks: `git status --short`, `git diff --cached --name-status`, and `git diff --cached --check`,
+  - noted future hardening option: phase handoff checklist and/or pre-commit helper script.

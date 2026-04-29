@@ -26,7 +26,7 @@
   - `docs/technical_debt/deferred_risk_register_2026-04-29.md`
 - summarized categories:
   - P1: FastAPI/Starlette blocked advisory path; Electron/package-chain advisories; react-mosaic-component/uuid advisory path; CI artifact observability debt
-  - P2: NO_COLOR/FORCE_COLOR warning; dock layout compatibility warning; ESLint flat-config migration; renderer TypeError warning noise (if reproducible); local EPERM Playwright launch caveat
+  - P2: NO_COLOR/FORCE_COLOR warning; dock layout compatibility warning; ESLint flat-config migration; renderer TypeError warning noise (if reproducible); local EPERM Playwright launch caveat; uncommitted working-tree drift during Codex passes (operational hygiene)
 
 ## Recommended Next Cycle
 - Electron/package-chain compatibility plan
