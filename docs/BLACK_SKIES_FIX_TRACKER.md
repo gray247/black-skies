@@ -1812,3 +1812,23 @@ Backlog note drifted after phase-log cleanup.
   - root cause: `pnpm/action-setup@v4` failed with `Multiple versions of pnpm specified` because workflows passed `version: 8` while repo already pins `packageManager` to `pnpm@8.15.9` in `package.json`,
   - fix: removed explicit `version: 8` from every `pnpm/action-setup@v4` step in `.github/workflows/eval.yml` and `.github/workflows/security.yml`, keeping action major at `v4`,
   - classification: missing artifact/download errors in the same failed runs are cascading downstream failures from pnpm setup aborts, not primary root-cause defects in artifact flow.
+- 2026-04-29 - Codex - Phase 5C CI artifact/proof hardening audit:
+  - created `docs/technical_debt/phase5_artifact_proof_audit_2026-04-29.md` with producer/consumer inventory for eval + security artifacts, upload conditions, expected files, and failure-path behavior,
+  - confirmed proof-manifest handshake naming is consistent and that missing pass artifacts are explicitly classified via placeholder summaries (`status: missing_artifact`, `upstream_result`, `reason`),
+  - identified classification gaps: PASS 3/4/6 summaries are success-only writes, and some uploads use `if-no-files-found: ignore` without explicit absence markers,
+  - recommendation: proceed with Phase 5C workflow-only implementation to standardize failure summaries and add explicit artifact-contract signaling.
+- 2026-04-29 - Codex - Phase 5C-2 tiny artifact/proof hardening implementation:
+  - applied smallest safe workflow-only fix in `.github/workflows/eval.yml`: PASS 3/4/6 proof-summary steps now run on `if: always()` and write explicit status from `job.status` (`success`/`failure`/`cancelled`),
+  - preserved job graph, test commands, artifact names, and retention behavior; no runtime/app/test code changes,
+  - updated `docs/technical_debt/phase5_artifact_proof_audit_2026-04-29.md` to reflect implemented vs deferred hardening items,
+  - remaining deferred gap is primarily ignored-file uploads (`if-no-files-found: ignore`) and lack of a final artifact-contract summary step.
+- 2026-04-29 - Codex - Phase 5D final validation checkpoint:
+  - local matrix green: black check, mypy clean (`346` sources), backend app tests (`64 passed`), app lint/test (`145 passed`), production build, smoke e2e (`3 passed`), and contract lane (`11 passed`) after port `9999` free preflight,
+  - latest post-5C-2 CI pair green on commit `c8d42bae16e2a35805a69fba0353a9f8fc35b717`: eval `25137899738` and security `25137899691`,
+  - artifact/proof verification: PASS 3/4/6 summary steps executed successfully, pass proof artifacts uploaded, proof-manifest downloaded pass artifacts without mismatch, and `gauntlet-ci-proof-manifest` uploaded,
+  - remaining non-blocking warnings unchanged: `NO_COLOR`/`FORCE_COLOR`, dock layout compatibility warning, and ESLint RC deprecation warning.
+- 2026-04-29 - Codex - Phase 5E final stabilization closure:
+  - recorded final closure artifact at `docs/technical_debt/stabilization_closure_2026-04-29.md`,
+  - closure confirms full local + CI green proof (black, mypy, backend/app tests, build, smoke e2e, startup authority contract, eval CI, security CI),
+  - major cycle outcomes documented, including mypy reduction from `175` to `0` and CI/artifact proof hardening completion,
+  - deferred risk register and next-cycle hardening priorities captured for continuation planning.
