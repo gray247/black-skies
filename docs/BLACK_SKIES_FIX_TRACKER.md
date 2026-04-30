@@ -2161,3 +2161,16 @@ Backlog note drifted after phase-log cleanup.
     - audit delta retained: `24 -> 7`,
     - Electron advisories retained as cleared: `17 -> 0`,
     - remaining advisories remain previously classified/deferred (dev/tooling + react-mosaic `uuid`).
+- 2026-04-30 - Codex - Phase 6 focused CI failure lane (`startup_authority_contract` seam consistency):
+  - CI failure isolated to `tests/e2e/startup_authority_contract.spec.ts::diagnostic_service_override_seam_consistency`,
+  - root-cause classification: test/harness timing seam, not confirmed runtime regression:
+    - assertion sampled modal text immediately after dialog open,
+    - budget hint text can arrive asynchronously after preflight result hydration in CI timing.
+  - minimal fix:
+    - updated the test to poll the opened preflight dialog until one supported budget-hint phrase appears (`Estimate within budget` / `Budget healthy` / `Budget OK`) before final assertion.
+  - validation:
+    - focused test (`-g diagnostic_service_override_seam_consistency`) PASS,
+    - full `startup_authority_contract.spec.ts` PASS (`11 passed`),
+    - `pnpm test:e2e -- --workers=1` PASS (`3 passed`),
+    - `pnpm --filter app test` PASS (`145 passed`),
+    - `pnpm --filter app run build:production` PASS.

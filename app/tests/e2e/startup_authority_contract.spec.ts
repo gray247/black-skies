@@ -662,6 +662,19 @@ test.describe('startup_authority_contract', () => {
       dialogName: /draft preflight/i,
       timeoutMs: 30_000,
     });
+    await expect
+      .poll(
+        async () => {
+          const text = (await dialog.textContent()) ?? '';
+          return (
+            text.includes('Estimate within budget') ||
+            text.includes('Budget healthy') ||
+            text.includes('Budget OK')
+          );
+        },
+        { timeout: 15_000 },
+      )
+      .toBe(true);
     const modalText = (await dialog.textContent()) ?? '';
     const hasBudgetHint =
       modalText.includes('Estimate within budget') ||
