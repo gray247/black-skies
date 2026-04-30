@@ -2091,3 +2091,25 @@ Backlog note drifted after phase-log cleanup.
     - `pnpm build` is not a failure signal in this repo: `pnpm build: not applicable; root package has no build script`,
   - explicit scope note:
     - no dependency changes were made in final closeout unless validation uncovered a directly related documentation correction.
+- 2026-04-30 - Codex - Phase 6 Batch 6A baseline capture (evidence-only):
+  - scope guardrails held: no dependency changes, no runtime code edits, no Electron upgrade in this pass,
+  - baseline versions:
+    - `electron` declared `^31.7.7` (resolved `31.7.7`),
+    - `electron-builder` declared `^26.8.1`,
+    - local tooling: `node v22.19.0`, `pnpm 8.15.9`,
+  - advisory baseline:
+    - `pnpm audit`: `24 vulnerabilities` (`3 low | 12 moderate | 9 high`),
+    - Electron advisories still map to `17` IDs on `app > electron@31.7.7` with patched ranges `>=35.7.5`, `>=38.8.6`, `>=39.8.1`, `>=39.8.5`,
+  - discovered/used validation commands:
+    - required: `pnpm --filter app test`, `pnpm --filter app run build:production`, `pnpm --filter app run package:dir`, `pnpm audit`,
+    - optional (executed): `pnpm test:e2e -- --workers=1`,
+    - contract (documented command, port 9999 free): `pnpm --filter app exec playwright test tests/e2e/startup_authority_contract.spec.ts --project=electron --workers=1 --reporter=line`,
+  - validation results:
+    - `pnpm --filter app test` -> pass (`145 passed`),
+    - `pnpm --filter app run build:production` -> pass,
+    - `pnpm --filter app run package:dir` -> pass (`electron-builder 26.8.1`, `electron 31.7.7`),
+    - `pnpm audit` -> unchanged advisory baseline (`24`),
+    - `pnpm test:e2e -- --workers=1` -> pass (`3 passed`),
+    - startup authority contract lane -> pass (`11 passed`),
+  - recommendation:
+    - Batch 6B isolated Electron major bump is safe to attempt from this baseline.

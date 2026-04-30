@@ -53,6 +53,12 @@ Purpose:
   - `pnpm --filter app exec playwright test tests/e2e/startup_authority_contract.spec.ts --project=electron --workers=1 --reporter=line`
   - `pnpm test:e2e -- --workers=1`
   - fresh `pnpm audit` delta showing actual advisory-ID reduction, not just runtime version movement
+ - Phase 6A baseline evidence (2026-04-30):
+   - runtime versions: `electron ^31.7.7` (resolved `31.7.7`), `electron-builder ^26.8.1`,
+   - `pnpm audit` totals unchanged at `24` (`3 low | 12 moderate | 9 high`),
+   - Electron advisory set remains `17` IDs on `app > electron@31.7.7` with patched floors at `>=35.7.5`, `>=38.8.6`, `>=39.8.1`, and `>=39.8.5`,
+   - baseline validation passed: app tests (`145`), `build:production` pass, `package:dir` pass, smoke e2e (`3 passed`), startup authority contract (`11 passed`),
+   - interpretation: baseline is stable enough to attempt an isolated Phase 6B Electron-major bump lane.
 
 ### react-mosaic-component runtime transitive advisories (`uuid`, `lodash`)
 - status:
