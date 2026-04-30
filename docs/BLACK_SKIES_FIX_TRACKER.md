@@ -2113,3 +2113,23 @@ Backlog note drifted after phase-log cleanup.
     - startup authority contract lane -> pass (`11 passed`),
   - recommendation:
     - Batch 6B isolated Electron major bump is safe to attempt from this baseline.
+- 2026-04-30 - Codex - Phase 6 Batch 6B Electron major bump:
+  - scope guardrails held:
+    - Electron version bump only, no runtime code edits, no electron-builder upgrade, no react-mosaic/dev-tooling lane changes,
+  - dependency change:
+    - `app/package.json`: `electron ^31.7.7 -> ^39.8.9`,
+    - `pnpm-lock.yaml` updated by install resolution,
+  - install step:
+    - `pnpm --filter @blackskies/app up electron@39.8.9`
+    - `pnpm install` (lockfile already current after targeted update),
+  - validation:
+    - `pnpm --filter app test` -> pass (`145 passed`),
+    - `pnpm --filter app run build:production` -> pass,
+    - `pnpm --filter app run package:dir` -> pass (`electron-builder 26.8.1`, packaged with `electron 39.8.9`),
+    - `pnpm audit` -> advisory set reduced and no Electron advisories remained,
+    - optional: `pnpm test:e2e -- --workers=1` -> pass (`3 passed`),
+    - optional: startup authority contract lane (port `9999` free) -> pass (`11 passed`),
+  - advisory delta:
+    - before bump: `24 vulnerabilities` (`3 low | 12 moderate | 9 high`),
+    - after bump: `7 vulnerabilities` (`2 moderate | 5 high`),
+    - Electron major-line advisories cleared; remaining advisories are deferred non-Electron chains.

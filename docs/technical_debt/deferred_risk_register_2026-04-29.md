@@ -39,26 +39,32 @@ Purpose:
 
 ### Electron/package-chain advisories
 - status:
-  - deferred/accepted for current stabilization, high-risk coordinated follow-up lane (post-B2 reviewed)
+  - partially resolved in Phase 6B; major-line runtime advisories cleared, residual non-Electron advisories remain deferred
 - evidence doc/source:
   - `docs/technical_debt/dependency_remediation_phase4_2026-04-28.md` (Phase 4.7H-4.7J)
   - `docs/technical_debt/phase4_deferred_risk_triage_2026-04-28.md`
 - why deferred:
-  - Batch A completed with material reduction (`49 -> 27`) and Batch B2 completed with validated runtime compatibility (`30.5.1 -> 31.7.7`) but unchanged remaining total (`27`); unresolved Electron advisories still require major lines `>=35`, `>=38`, and `>=39`, which exceeds safe incremental stabilization scope
+  - historical state required higher Electron majors than `31.x`; Phase 6B upgraded Electron to `39.8.9` and cleared Electron-specific advisories without runtime code changes
+  - remaining advisories are now outside the Electron major-line set (dev/tooling + uuid transitive) and stay deferred by existing lane decisions
 - next safe action:
-  - plan a dedicated major Electron modernization lane (likely `39+`) with explicit compatibility budget, instead of incremental `31 -> 32` hops that do not satisfy current advisory floors
+  - retain Electron at secure `39.x` line and continue deferred-risk handling for non-Electron residual advisories in their dedicated lanes
 - validation required:
   - `pnpm --filter app run build:production`
   - packaging smoke command in release flow
   - `pnpm --filter app exec playwright test tests/e2e/startup_authority_contract.spec.ts --project=electron --workers=1 --reporter=line`
   - `pnpm test:e2e -- --workers=1`
   - fresh `pnpm audit` delta showing actual advisory-ID reduction, not just runtime version movement
- - Phase 6A baseline evidence (2026-04-30):
+- Phase 6A baseline evidence (2026-04-30):
    - runtime versions: `electron ^31.7.7` (resolved `31.7.7`), `electron-builder ^26.8.1`,
    - `pnpm audit` totals unchanged at `24` (`3 low | 12 moderate | 9 high`),
    - Electron advisory set remains `17` IDs on `app > electron@31.7.7` with patched floors at `>=35.7.5`, `>=38.8.6`, `>=39.8.1`, and `>=39.8.5`,
    - baseline validation passed: app tests (`145`), `build:production` pass, `package:dir` pass, smoke e2e (`3 passed`), startup authority contract (`11 passed`),
    - interpretation: baseline is stable enough to attempt an isolated Phase 6B Electron-major bump lane.
+ - Phase 6B upgrade evidence (2026-04-30):
+   - Electron upgraded `31.7.7 -> 39.8.9` (`app/package.json`, `pnpm-lock.yaml`) with no `electron-builder` change (`26.8.1` retained),
+   - required validation passed: app tests (`145`), `build:production` pass, `package:dir` pass, `pnpm audit` pass-as-reporting,
+   - optional validation passed: smoke e2e (`3 passed`) and startup authority contract lane (`11 passed`) with port `9999` preflight free,
+   - advisory delta: `pnpm audit` reduced from `24` (`3 low | 12 moderate | 9 high`) to `7` (`2 moderate | 5 high`), and Electron advisory IDs were removed from the remaining set.
 
 ### react-mosaic-component runtime transitive advisories (`uuid`, `lodash`)
 - status:
