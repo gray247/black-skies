@@ -945,6 +945,10 @@ jobs:
           GITHUB_REF: ${{ github.ref }}
           GITHUB_SHA: ${{ github.sha }}
           GITHUB_ACTOR: ${{ github.actor }}
+          LINT_RESULT: ${{ needs.lint.result }}
+          TYPECHECK_RESULT: ${{ needs.typecheck.result }}
+          APP_TESTS_RESULT: ${{ needs.app-tests.result }}
+          DOCS_LINT_RESULT: ${{ needs.docs-lint.result }}
           APP_E2E_RESULT: ${{ needs.app-e2e.result }}
           APP_TRUTH_RESULT: ${{ needs.app-truth-lane.result }}
           PASS3_RESULT: ${{ needs.gauntlet-pass3-proof.result }}
@@ -980,6 +984,10 @@ jobs:
               subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
           )
           github_sha = os.environ.get("GITHUB_SHA", "")
+          lint_result = os.environ.get("LINT_RESULT", "")
+          typecheck_result = os.environ.get("TYPECHECK_RESULT", "")
+          app_tests_result = os.environ.get("APP_TESTS_RESULT", "")
+          docs_lint_result = os.environ.get("DOCS_LINT_RESULT", "")
           app_e2e_result = os.environ.get("APP_E2E_RESULT", "")
           app_truth_result = os.environ.get("APP_TRUTH_RESULT", "")
           pass3_result = os.environ.get("PASS3_RESULT", "")
@@ -1043,6 +1051,119 @@ jobs:
               "counts": counts,
           }
 
+          upstream_results = {
+              "lint": lint_result,
+              "typecheck": typecheck_result,
+              "app-tests": app_tests_result,
+              "docs-lint": docs_lint_result,
+              "app-e2e": app_e2e_result,
+              "app-truth-lane": app_truth_result,
+              "gauntlet-pass3-proof": pass3_result,
+              "gauntlet-pass5-proof": pass5_result,
+              "gauntlet-pass6-proof": pass6_result,
+              "gauntlet-proof-manifest": manifest_result,
+              "eval": eval_result,
+          }
+
+          source_signals: list[str] = []
+          secondary_classes: list[str] = []
+          job_status = os.environ.get("JOB_STATUS", "")
+
+          missing_with_success_producer = [
+              a
+              for a in artifacts
+              if a["classification"] == "missing_expected"
+              and upstream_results.get(a["producer_job"], "") == "success"
+          ]
+          if missing_with_success_producer:
+              source_signals.append("missing_expected_with_success_producer")
+
+          def add_secondary(value: str) -> None:
+              if value not in secondary_classes:
+                  secondary_classes.append(value)
+
+          failing_setup_jobs = [
+              j
+              for j in ["lint", "typecheck", "app-tests", "docs-lint"]
+              if upstream_results.get(j) in {"failure", "cancelled", "skipped"}
+          ]
+          if failing_setup_jobs:
+              source_signals.append(f"setup_jobs_failed:{','.join(failing_setup_jobs)}")
+
+          if upstream_results.get("app-e2e") in {"failure", "cancelled", "skipped"}:
+              source_signals.append("app-e2e_failed")
+
+          failing_assertion_jobs = [
+              j
+              for j in [
+                  "app-truth-lane",
+                  "gauntlet-pass3-proof",
+                  "gauntlet-pass5-proof",
+                  "gauntlet-pass6-proof",
+                  "gauntlet-proof-manifest",
+                  "eval",
+              ]
+              if upstream_results.get(j) in {"failure", "cancelled", "skipped"}
+          ]
+          if failing_assertion_jobs:
+              source_signals.append(f"validation_jobs_failed:{','.join(failing_assertion_jobs)}")
+
+          if job_status == "success":
+              primary_class = "no_failure"
+              confidence = "high"
+              notes = "All required upstream jobs succeeded for this run."
+              if missing_with_success_producer:
+                  add_secondary("artifact_missing")
+                  confidence = "low"
+                  notes = "Run succeeded but completeness suggests missing expected artifacts."
+          else:
+              if missing_with_success_producer:
+                  primary_class = "artifact_missing"
+                  confidence = "medium"
+                  notes = "Expected artifact missing while producer job reported success."
+              elif upstream_results.get("app-e2e") in {"failure", "cancelled", "skipped"}:
+                  primary_class = "infra_port_process"
+                  confidence = "medium"
+                  notes = "Harness/smoke producer job failed."
+              elif failing_setup_jobs:
+                  primary_class = "setup_tooling"
+                  confidence = "high"
+                  notes = "Setup/lint/typecheck/app-tests/docs-lint producer failure."
+              elif failing_assertion_jobs:
+                  primary_class = "test_assertion"
+                  confidence = "medium"
+                  notes = "Validation/eval/gauntlet producer failure."
+              else:
+                  primary_class = "unknown_success"
+                  confidence = "low"
+                  notes = "Non-success run without deterministic class mapping."
+
+          if missing_with_success_producer and primary_class != "artifact_missing":
+              add_secondary("artifact_missing")
+          if failing_setup_jobs and primary_class != "setup_tooling":
+              add_secondary("setup_tooling")
+          if upstream_results.get("app-e2e") in {"failure", "cancelled", "skipped"} and primary_class != "infra_port_process":
+              add_secondary("infra_port_process")
+          if failing_assertion_jobs and primary_class != "test_assertion":
+              add_secondary("test_assertion")
+
+          failure_classification = {
+              "schema_version": 1,
+              "workflow": os.environ.get("GITHUB_WORKFLOW", ""),
+              "run_id": os.environ.get("GITHUB_RUN_ID", ""),
+              "run_number": os.environ.get("GITHUB_RUN_NUMBER", ""),
+              "event": os.environ.get("GITHUB_EVENT_NAME", ""),
+              "ref": os.environ.get("GITHUB_REF", ""),
+              "github_sha": github_sha,
+              "job_status": job_status,
+              "primary_class": primary_class,
+              "secondary_classes": secondary_classes,
+              "source_signals": source_signals if source_signals else ["no_failure_signals"],
+              "upstream_results": upstream_results,
+              "confidence": confidence,
+              "notes": notes,
+          }
+
           Path("ci-run-summary.json").write_text(
               json.dumps(summary, indent=2) + "\n", encoding="utf-8"
           )
@@ -1051,6 +1172,9 @@ jobs:
           )
           Path("ci-artifact-completeness.json").write_text(
               json.dumps(completeness, indent=2) + "\n", encoding="utf-8"
+          )
+          Path("ci-failure-classification.json").write_text(
+              json.dumps(failure_classification, indent=2) + "\n", encoding="utf-8"
           )
           PY
       - name: Upload observability summary artifacts
@@ -1063,3 +1187,4 @@ jobs:
             ci-run-summary.json
             ci-sha-consistency.json
             ci-artifact-completeness.json
+            ci-failure-classification.json

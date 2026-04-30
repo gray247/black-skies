@@ -321,3 +321,157 @@ All JSON artifacts should be uploaded with `if: always()` and stable names/paths
 - current inference model:
   - completeness is inferred from upstream producer job results (`needs.<job>.result`) to keep the pass additive and non-gating.
   - no hard-fail checks were introduced.
+
+## Batch 3 Planning (Failure Classification) - 2026-04-30
+
+### Objective
+- add deterministic, non-blocking `ci-failure-classification.json` in the existing `ci-observability` jobs.
+- classify failures using stable workflow/job signals first, without brittle log parsing.
+
+### Planned Report
+- file: `ci-failure-classification.json`
+- generated once per workflow run.
+
+### Proposed JSON Shape
+```json
+{
+  "schema_version": 1,
+  "workflow": "Validation & Eval Harness",
+  "run_id": "25141347200",
+  "run_number": "295",
+  "event": "push",
+  "ref": "refs/heads/phase-b2-memory-lab",
+  "github_sha": "<sha>",
+  "job_status": "success",
+  "primary_class": "no_failure",
+  "secondary_classes": [],
+  "source_signals": [
+    "all_needs_success"
+  ],
+  "upstream_results": {
+    "app-e2e": "success",
+    "gauntlet-pass3-proof": "success"
+  },
+  "confidence": "high",
+  "notes": "Classification based on needs/job result inference only."
+}
+```
+
+### Class Set
+- `setup_tooling`
+- `dependency_audit`
+- `test_assertion`
+- `infra_port_process`
+- `artifact_missing`
+- `unknown_success`
+- `no_failure`
+
+### Design Rules (Batch 3A)
+- use `job.status` + `needs.<job>.result` + existing completeness report signals first.
+- no new hard-fail behavior.
+- avoid step-log text parsing in first implementation.
+- green runs:
+  - classify as `no_failure`.
+- `artifact_missing`:
+  - only classify when completeness indicates missing artifact(s) while the mapped producer job result is `success`.
+- `setup_tooling`:
+  - classify when infra/setup-style jobs fail (for example checkout/setup/cache/dependency install gate jobs), based on known producer-job failure surfaces.
+  - keep note that detailed cause granularity (e.g., pnpm/action conflict) remains best-effort without logs.
+
+### Initial Mapping Heuristics (No Log Parsing)
+
+Eval workflow:
+- if all `needs` are `success` and current job `success`:
+  - `primary_class=no_failure`
+- else if any completeness entry is `missing_expected` with producer result `success`:
+  - `primary_class=artifact_missing`
+- else if failing need in `{lint, typecheck, docs-lint, app-tests}`:
+  - `primary_class=setup_tooling`
+- else if failing need in `{app-e2e}`:
+  - `primary_class=infra_port_process` (harness/launcher/runtime surface)
+- else if failing need in `{app-truth-lane, gauntlet-pass3-proof, gauntlet-pass5-proof, gauntlet-pass6-proof, eval}`:
+  - `primary_class=test_assertion`
+- else:
+  - `primary_class=unknown_success` when run status is success but signals conflict
+  - otherwise fallback to `setup_tooling` for non-success runs with no stronger mapping
+
+Security workflow:
+- if all `needs` are `success` and current job `success`:
+  - `primary_class=no_failure`
+- else if any completeness entry is `missing_expected` with producer result `success`:
+  - `primary_class=artifact_missing`
+- else if failing need is `pip-audit`:
+  - `primary_class=dependency_audit`
+- else if failing need is `hygiene`:
+  - `primary_class=setup_tooling`
+- else:
+  - `primary_class=unknown_success` when run status is success but signals conflict
+  - otherwise fallback to `setup_tooling`
+
+### Secondary Classes
+- add `secondary_classes` when multiple independent failing surfaces are present.
+- keep deterministic ordering:
+  1. `artifact_missing`
+  2. `dependency_audit`
+  3. `setup_tooling`
+  4. `infra_port_process`
+  5. `test_assertion`
+  6. `unknown_success`
+
+### Confidence Rules
+- `high`:
+  - all classification decisions derived from direct `needs`/completeness consistency.
+- `medium`:
+  - fallback mapping used due to partial signal ambiguity.
+- `low`:
+  - contradictory signals (for example success run with multiple missing-expected artifacts and no clear producer correlation).
+
+### Smallest Safe Implementation Batch
+- Batch 3A:
+  - add `ci-failure-classification.json` generation only.
+  - derive from existing `needs` env + completeness report.
+  - upload in existing `ci-observability-${{ github.job }}` artifact bundle.
+  - no naming changes, no dependency changes, no job graph changes.
+
+### Risk Level
+- low to medium
+- low:
+  - additive JSON only, no gate semantics changes.
+- medium:
+  - class ambiguity without log parsing can mislabel edge-cases (`setup_tooling` vs `infra_port_process`).
+  - explicit caveat recorded via `confidence` and `notes`.
+
+### Validation Steps (When Implementing Batch 3A)
+- local/static:
+  - YAML parse check.
+  - `git diff -- .github/workflows/eval.yml .github/workflows/security.yml`
+- CI:
+  - confirm `ci-failure-classification.json` exists in both workflows.
+  - verify green runs classify `no_failure`.
+  - verify class value is in allowed enum set.
+  - verify `upstream_results` mirrors `needs` values used by classifier.
+- controlled-failure validation:
+  - induce one security dependency gate failure and verify `dependency_audit`.
+  - induce one harness/setup-style failure and verify mapped non-`no_failure` class.
+
+### Rollback Plan
+- revert only Batch 3 classification generation/upload changes.
+- keep Batch 1 and Batch 2A outputs (`ci-run-summary.json`, `ci-sha-consistency.json`, `ci-artifact-completeness.json`) intact.
+- rerun eval/security to confirm observability baseline behavior.
+
+## Batch 3A Implementation Note (2026-04-30)
+- status:
+  - implemented in:
+    - `.github/workflows/eval.yml`
+    - `.github/workflows/security.yml`
+- added output:
+  - `ci-failure-classification.json` in existing `ci-observability` jobs
+- upload behavior:
+  - unchanged artifact name: `ci-observability-${{ github.job }}`
+  - upload remains `if: always()` + `if-no-files-found: ignore`
+- implementation approach:
+  - uses `job.status` + `needs.<job>.result` + in-job completeness data
+  - no brittle log parsing
+  - additive/non-blocking only
+- green-run behavior:
+  - `primary_class=no_failure`

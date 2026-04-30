@@ -1867,3 +1867,13 @@ Backlog note drifted after phase-log cleanup.
   - kept artifact upload name unchanged (`ci-observability-${{ github.job }}`) and upload behavior non-blocking (`if: always()`, `if-no-files-found: ignore`),
   - included required completeness counts and minimum artifact sets for eval/security in the generated report payload,
   - used upstream job-result inference for initial classification to avoid changing workflow semantics.
+- 2026-04-30 - Codex - CI observability Batch 3 planning (failure classification):
+  - documented `ci-failure-classification.json` design in `docs/technical_debt/ci_observability_upgrade_plan_2026-04-29.md` only (no workflow edits),
+  - added schema fields: `primary_class`, `secondary_classes`, `source_signals`, `upstream_results`, `confidence`, and `notes`,
+  - defined class set and deterministic mapping rules using `job.status` + `needs` + completeness outputs first (no brittle log parsing in first implementation),
+  - specified Batch 3A as smallest safe implementation: additive, non-blocking classification artifact generation in existing `ci-observability` jobs.
+- 2026-04-30 - Codex - CI observability Batch 3A implementation:
+  - extended existing `ci-observability` jobs in `.github/workflows/eval.yml` and `.github/workflows/security.yml` to generate `ci-failure-classification.json`,
+  - kept artifact upload name unchanged (`ci-observability-${{ github.job }}`) and upload behavior non-blocking (`if: always()`, `if-no-files-found: ignore`),
+  - classification is derived from `job.status`, `needs` results, and completeness output (no log parsing),
+  - included required schema fields: `primary_class`, `secondary_classes`, `source_signals`, `upstream_results`, `confidence`, and `notes`.

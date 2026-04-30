@@ -389,6 +389,7 @@ jobs:
           )
           github_sha = os.environ.get("GITHUB_SHA", "")
           pip_audit_result = os.environ.get("PIP_AUDIT_RESULT", "")
+          hygiene_result = os.environ.get("HYGIENE_RESULT", "")
           summary = {
               "workflow": os.environ.get("GITHUB_WORKFLOW", ""),
               "run_id": os.environ.get("GITHUB_RUN_ID", ""),
@@ -447,6 +448,83 @@ jobs:
               "counts": counts,
           }
 
+          upstream_results = {
+              "hygiene": hygiene_result,
+              "pip-audit": pip_audit_result,
+          }
+
+          source_signals: list[str] = []
+          secondary_classes: list[str] = []
+          job_status = os.environ.get("JOB_STATUS", "")
+
+          missing_with_success_producer = [
+              a
+              for a in artifacts
+              if a["classification"] == "missing_expected"
+              and upstream_results.get(a["producer_job"], "") == "success"
+          ]
+          if missing_with_success_producer:
+              source_signals.append("missing_expected_with_success_producer")
+
+          if upstream_results.get("pip-audit") in {"failure", "cancelled", "skipped"}:
+              source_signals.append("pip-audit_failed")
+          if upstream_results.get("hygiene") in {"failure", "cancelled", "skipped"}:
+              source_signals.append("hygiene_failed")
+
+          def add_secondary(value: str) -> None:
+              if value not in secondary_classes:
+                  secondary_classes.append(value)
+
+          if job_status == "success":
+              primary_class = "no_failure"
+              confidence = "high"
+              notes = "All required upstream jobs succeeded for this run."
+              if missing_with_success_producer:
+                  add_secondary("artifact_missing")
+                  confidence = "low"
+                  notes = "Run succeeded but completeness suggests missing expected artifacts."
+          else:
+              if missing_with_success_producer:
+                  primary_class = "artifact_missing"
+                  confidence = "medium"
+                  notes = "Expected artifact missing while producer job reported success."
+              elif upstream_results.get("pip-audit") in {"failure", "cancelled", "skipped"}:
+                  primary_class = "dependency_audit"
+                  confidence = "high"
+                  notes = "Security audit producer job failed."
+              elif upstream_results.get("hygiene") in {"failure", "cancelled", "skipped"}:
+                  primary_class = "setup_tooling"
+                  confidence = "high"
+                  notes = "Repository/setup hygiene producer job failed."
+              else:
+                  primary_class = "unknown_success"
+                  confidence = "low"
+                  notes = "Non-success run without deterministic class mapping."
+
+          if missing_with_success_producer and primary_class != "artifact_missing":
+              add_secondary("artifact_missing")
+          if upstream_results.get("pip-audit") in {"failure", "cancelled", "skipped"} and primary_class != "dependency_audit":
+              add_secondary("dependency_audit")
+          if upstream_results.get("hygiene") in {"failure", "cancelled", "skipped"} and primary_class != "setup_tooling":
+              add_secondary("setup_tooling")
+
+          failure_classification = {
+              "schema_version": 1,
+              "workflow": os.environ.get("GITHUB_WORKFLOW", ""),
+              "run_id": os.environ.get("GITHUB_RUN_ID", ""),
+              "run_number": os.environ.get("GITHUB_RUN_NUMBER", ""),
+              "event": os.environ.get("GITHUB_EVENT_NAME", ""),
+              "ref": os.environ.get("GITHUB_REF", ""),
+              "github_sha": github_sha,
+              "job_status": job_status,
+              "primary_class": primary_class,
+              "secondary_classes": secondary_classes,
+              "source_signals": source_signals if source_signals else ["no_failure_signals"],
+              "upstream_results": upstream_results,
+              "confidence": confidence,
+              "notes": notes,
+          }
+
           Path("ci-run-summary.json").write_text(
               json.dumps(summary, indent=2) + "\n", encoding="utf-8"
           )
@@ -455,6 +533,9 @@ jobs:
           )
           Path("ci-artifact-completeness.json").write_text(
               json.dumps(completeness, indent=2) + "\n", encoding="utf-8"
+          )
+          Path("ci-failure-classification.json").write_text(
+              json.dumps(failure_classification, indent=2) + "\n", encoding="utf-8"
           )
           PY
       - name: Upload observability summary artifacts
@@ -467,3 +548,4 @@ jobs:
             ci-run-summary.json
             ci-sha-consistency.json
             ci-artifact-completeness.json
+            ci-failure-classification.json
