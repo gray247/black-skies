@@ -46,6 +46,78 @@ describe('ProjectHome recent project recovery', () => {
     delete (window as Partial<Record<string, unknown>>).projectLoader;
   });
 
+  it('shows an explicit welcome card while bootstrap waits for the sample project', async () => {
+    const samplePath = 'C:\\Dev\\black-skies\\sample_project\\Esther_Estate';
+    let resolveSamplePath!: (value: string | null) => void;
+    const samplePathPromise = new Promise<string | null>((resolve) => {
+      resolveSamplePath = resolve;
+    });
+
+    const projectLoader: ProjectLoaderApi = {
+      openProjectDialog: vi.fn(),
+      getSampleProjectPath: vi.fn().mockReturnValue(samplePathPromise),
+      loadProject: vi.fn().mockResolvedValue({
+        ok: true,
+        project: createSampleProject(samplePath),
+        issues: [],
+      }),
+    };
+
+    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+
+    render(<ProjectHome onToast={vi.fn()} onProjectLoaded={vi.fn()} />);
+
+    expect(
+      await screen.findByRole('heading', {
+        name: /Start with an existing project or the sample project/i,
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /Open existing project/i }),
+    ).toBeEnabled();
+    expect(
+      screen.getByRole('button', { name: /Quick start with sample project/i }),
+    ).toBeEnabled();
+
+    resolveSamplePath?.(samplePath);
+
+    await waitFor(() => {
+      expect(projectLoader.loadProject).toHaveBeenCalledWith({ path: samplePath });
+    });
+  });
+
+  it('loads the sample project when quick start is selected', async () => {
+    const samplePath = 'C:\\Dev\\black-skies\\sample_project\\Esther_Estate';
+    const loadProjectMock = vi.fn().mockResolvedValue({
+      ok: true,
+      project: createSampleProject(samplePath),
+      issues: [],
+    });
+    const projectLoader: ProjectLoaderApi = {
+      openProjectDialog: vi.fn(),
+      getSampleProjectPath: vi.fn().mockResolvedValue(samplePath),
+      loadProject: loadProjectMock,
+    };
+
+    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+
+    render(
+      <ProjectHome
+        suppressBootstrap
+        onToast={vi.fn()}
+        onProjectLoaded={vi.fn()}
+      />,
+    );
+
+    fireEvent.click(
+      await screen.findByRole('button', { name: /Quick start with sample project/i }),
+    );
+
+    await waitFor(() => {
+      expect(loadProjectMock).toHaveBeenCalledWith({ path: samplePath });
+    });
+  });
+
   it('removes stale recent entries and falls back to the sample project', async () => {
     const stalePath = 'C:\\missing\\project';
     const samplePath = 'C:\\Dev\\black-skies\\sample_project\\Esther_Estate';

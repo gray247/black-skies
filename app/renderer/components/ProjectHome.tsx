@@ -195,6 +195,7 @@ export default function ProjectHome({
   );
   const hasDebugLog = debugLogEntries.length > 0;
   const diagnosticsSectionId = useId();
+  const welcomeSectionId = useId();
   const draftSceneTitleId = useId();
   const draftSceneMetaId = useId();
 
@@ -687,6 +688,44 @@ export default function ProjectHome({
     [loadProjectAtPath],
   );
 
+  const handleOpenSampleProject = useCallback(
+    async (silent: boolean) => {
+      if (!projectLoader) {
+        onToast({
+          tone: 'error',
+          title: 'Electron bridge unavailable',
+          description: 'Launch the desktop shell to start the sample project.',
+        });
+        return;
+      }
+
+      try {
+        recordDebugEvent('project-home.sample.open', { silent });
+        const samplePath = await projectLoader.getSampleProjectPath?.();
+        if (!samplePath) {
+          onToast({
+            tone: 'warning',
+            title: 'Sample project unavailable',
+            description: 'The packaged sample project path could not be resolved.',
+          });
+          return;
+        }
+        await loadProjectAtPath(samplePath, {
+          reason: 'bootstrap',
+          silent,
+          allowFallback: false,
+        });
+      } catch (error) {
+        onToast({
+          tone: 'warning',
+          title: 'Sample project unavailable',
+          description: error instanceof Error ? error.message : String(error),
+        });
+      }
+    },
+    [loadProjectAtPath, onToast, projectLoader],
+  );
+
   useEffect(() => {
     if (!projectLoader || activeProject || sampleAttemptedRef.current || suppressBootstrap) {
       return;
@@ -698,16 +737,11 @@ export default function ProjectHome({
     const bootstrap = async () => {
       try {
         recordDebugEvent('project-home.bootstrap.attempt', {});
-        const samplePath = await projectLoader.getSampleProjectPath?.();
-        if (!samplePath || cancelled) {
+        if (cancelled) {
           return;
         }
-        await loadProjectAtPath(samplePath, {
-          reason: 'bootstrap',
-          silent: true,
-          allowFallback: false,
-        });
-        recordDebugEvent('project-home.bootstrap.success', { samplePath });
+        await handleOpenSampleProject(true);
+        recordDebugEvent('project-home.bootstrap.success', {});
       } catch (error) {
         recordDebugEvent('project-home.bootstrap.error', {
           message: error instanceof Error ? error.message : String(error),
@@ -727,7 +761,7 @@ export default function ProjectHome({
     return () => {
       cancelled = true;
     };
-  }, [activeProject, loadProjectAtPath, onToast, projectLoader, suppressBootstrap]);
+  }, [activeProject, handleOpenSampleProject, onToast, projectLoader, suppressBootstrap]);
 
   useEffect(() => {
     if (!onActiveSceneChange) {
@@ -790,6 +824,37 @@ export default function ProjectHome({
           {isLoading ? 'Loading...' : 'Open project...'}
         </button>
       </header>
+
+      {activeProject ? null : (
+        <section className="project-home__welcome" aria-labelledby={welcomeSectionId}>
+          <div className="project-home__welcome-copy">
+            <p className="project-home__welcome-eyebrow">Welcome</p>
+            <h3 id={welcomeSectionId}>Start with an existing project or the sample project</h3>
+            <p>
+              Open a project folder to continue an existing draft, or load the packaged sample
+              project to see the workspace layout and draft flow immediately.
+            </p>
+          </div>
+          <div className="project-home__welcome-actions">
+            <button
+              type="button"
+              className="project-home__welcome-button project-home__welcome-button--secondary"
+              onClick={handleOpenProject}
+              disabled={!loaderAvailable || isLoading}
+            >
+              Open existing project
+            </button>
+            <button
+              type="button"
+              className="project-home__welcome-button"
+              onClick={() => void handleOpenSampleProject(false)}
+              disabled={!loaderAvailable || !projectLoader?.getSampleProjectPath || isLoading}
+            >
+              Quick start with sample project
+            </button>
+          </div>
+        </section>
+      )}
 
       <section className="project-home__diagnostics">
         <div className="project-home__diagnostics-header">

@@ -488,6 +488,71 @@ button:disabled {
   font-weight: 600;
 }
 
+.project-home__welcome {
+  margin-top: 1rem;
+  padding: 1.1rem 1.25rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(99, 102, 241, 0.24);
+  background:
+    linear-gradient(135deg, rgba(79, 70, 229, 0.24), rgba(15, 23, 42, 0.72)),
+    rgba(15, 23, 42, 0.72);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.project-home__welcome-copy {
+  min-width: 0;
+  max-width: 58rem;
+}
+
+.project-home__welcome-eyebrow {
+  margin: 0 0 0.35rem;
+  color: rgba(196, 181, 253, 0.95);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.project-home__welcome h3 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.project-home__welcome p {
+  margin: 0.5rem 0 0;
+  color: rgba(226, 232, 240, 0.86);
+  line-height: 1.5;
+}
+
+.project-home__welcome-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.project-home__welcome-button {
+  border: 1px solid rgba(129, 140, 248, 0.55);
+  background: rgba(79, 70, 229, 0.28);
+  color: rgba(226, 232, 240, 0.95);
+  padding: 0.55rem 1rem;
+  border-radius: 0.7rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.project-home__welcome-button--secondary {
+  background: rgba(15, 23, 42, 0.35);
+}
+
+.project-home__welcome-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .project-home__diagnostics {
   background: rgba(15, 23, 42, 0.45);
   border: 1px solid rgba(148, 163, 184, 0.2);
