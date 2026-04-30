@@ -10,7 +10,11 @@ import pytest
 from blackskies.services.diagnostics import DiagnosticLogger
 from blackskies.services.models.wizard import WizardLockSnapshotRequest
 import blackskies.services.snapshots as snapshots_module
-from blackskies.services.snapshots import create_snapshot, create_wizard_lock_snapshot, list_snapshots
+from blackskies.services.snapshots import (
+    create_snapshot,
+    create_wizard_lock_snapshot,
+    list_snapshots,
+)
 
 
 def _build_project(tmp_path: Path) -> Path:
@@ -111,5 +115,7 @@ def test_wizard_lock_logs_slow_snapshot_timings(
 
     assert result["snapshot_id"] == "ss_20260430T000000Z"
     assert recorded_messages
-    assert "Slow wizard lock snapshot request path=/api/v1/draft/wizard/lock" in recorded_messages[0]
+    assert (
+        "Slow wizard lock snapshot request path=/api/v1/draft/wizard/lock" in recorded_messages[0]
+    )
     assert "total_ms=140.00" in recorded_messages[0]

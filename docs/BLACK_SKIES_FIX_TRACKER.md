@@ -825,6 +825,12 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 
 ## [12] Capability coverage gaps
 - Status: ACTIVE
+- Last Updated: 2026-04-30
+
+#### Known Facts
+- Current service code does not expose a live `Link`/`Deprecation`/`Sunset` successor-header helper to patch; the archived review note appears stale relative to the present `services/src/blackskies/services/app.py` surface.
+- `docs/specs/endpoints.md` already treats unversioned aliases as retired, so there is no obvious current contract seam to close without inventing a new one.
+- Targeted search across current services/tests found no standalone closure proof yet.
 
 ## [13] Accept step not in UI chain
 - Status: VERIFIED
@@ -932,21 +938,24 @@ Last Updated: 2026-04-30
 
 ## [19] Junk artifact buildup
 - Status: ACTIVE
-- Last Updated: 2026-04-21
+- Last Updated: 2026-04-30
 
 #### Known Facts
 - Permission-denied temp dirs exist under `services/` (`testtmp-app-1`, `testtmp-budget-1`, `testtmp-longform-1`) and interfere with repo scanning.
 - Tracked ad-hoc diagnostics scripts (`app/temp-trace/*.py` and root `diff*/trace*` helpers) created avoidable repo-wide Black debt before this pass.
+- 2026-04-30 cleanup removed the obvious repo-root residue set: `1.txt`, `black-test-delete/`, `diffpixels.py`, `diffregion.py`, `diffscript.py`, `diffstats.py`, `list_trace.py`, `scan_trace.py`, `trace_search.py`, `e-b2-memory-lab`, `loading.jpg`, `work/app-preflight-output.txt`, `work/errors_clip-*.json`, and `work/full-renderer.txt`.
+- `python scripts/check_repo_hygiene.py` passes after that cleanup; remaining scan friction is still the host ACL issue tracked under [21]/[30].
 
 ---
 
 ## [20] .gitignore discipline issues
 - Status: ACTIVE
-- Last Updated: 2026-04-21
+- Last Updated: 2026-04-30
 
 #### Known Facts
 - `.gitignore` includes `services/testtmp-*/`, but existing directories are still present and causing tooling friction.
 - `.gitignore` cannot contain already-tracked ad-hoc scripts; containment needs policy discipline (where such scripts live and how they are maintained), not broad new ignore globs.
+- The repo-root ad-hoc helper residue was removed instead of hidden behind broader ignore rules, keeping the policy narrow and source-safe.
 
 ---
 
@@ -1443,6 +1452,12 @@ Last Updated: 2026-04-30
 
 ## [26] Project creation UX weak
 - Status: ACTIVE
+- Last Updated: 2026-04-30
+
+#### Known Facts
+- `docs/onboarding.md` and `docs/packaging.md` describe the intended welcome screen and quick-start behavior, but the live renderer still routes through the existing `ProjectHome` open-project flow.
+- The current code surface is enough to scope a UX contract, but not enough to justify a speculative code change without product/design approval.
+- Next action remains: define the smallest explicit project-creation UX contract, then implement it in a single targeted pass.
 
 ## [27] Budget meter reliability
 - Status: VERIFIED
