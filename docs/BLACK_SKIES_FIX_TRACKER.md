@@ -2034,3 +2034,20 @@ Backlog note drifted after phase-log cleanup.
   - decision:
     - no safe minimal fix was available in this lane without broader lint-stack churn or crossing out-of-scope packaging/Electron boundaries,
     - advisories deferred and normalized into canonical deferred-risk register.
+- 2026-04-30 - Codex - Lane 1 validation wording correction:
+  - clarified prior report wording: `pnpm build` is not an app/build failure in this repo,
+  - canonical wording is now: `pnpm build: not applicable; root package has no build script`.
+- 2026-04-30 - Codex - Lane 2 uuid via react-mosaic investigation:
+  - targeted advisory confirmed:
+    - ID `1116970` (`GHSA-w5hq-g745-h8pq`), severity `moderate`,
+    - vulnerable range `<14.0.0`, patched `>=14.0.0`,
+    - dependency path `app > react-mosaic-component@6.2.0 > uuid@9.0.1`,
+    - classification: runtime-affecting transitive dependency in renderer docking surface (not dev-only, not packaging-only),
+  - upstream state check:
+    - current installed `react-mosaic-component` is `6.2.0` and still depends on `uuid^9.0.0`,
+    - no newer stable release exists beyond `6.2.0`,
+    - only newer published line is prerelease `7.0.0-beta0` (depends on `uuid^11.1.0`, still below fixed floor and not stable),
+  - decision:
+    - no clean stable upstream fix path currently exists for uuid advisory closure,
+    - defer uuid remediation to a dedicated future lane,
+    - explicit guardrail: no override/patch-package/transitive surgery approved in Phase 5.

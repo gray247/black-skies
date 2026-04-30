@@ -63,7 +63,9 @@ Purpose:
   - `docs/technical_debt/react_mosaic_runtime_transitives_plan_2026-04-30.md`
 - why deferred:
   - stable micro-lane (`react-mosaic-component 6.1.1 -> 6.2.0`) cleared `lodash` advisories without overrides and passed validation
-  - remaining `uuid` advisory floor (`>=14`) is not reachable through current stable `react-mosaic-component` line and forced major override is not yet proven safe for the current CJS-oriented consumer path
+  - remaining `uuid` advisory (`1116970`, `GHSA-w5hq-g745-h8pq`, moderate, vulnerable `<14.0.0`, fixed `>=14.0.0`) is runtime-affecting on path `app > react-mosaic-component@6.2.0 > uuid@9.0.1`
+  - current stable upstream line does not provide a clean fix: `react-mosaic-component@6.2.0` still depends on `uuid^9.0.0`; next upstream line is `7.0.0-beta0` with `uuid^11.1.0` (still below patched floor and prerelease)
+  - no override/patch-package/transitive surgery approved in Phase 5
 - next safe action:
   - keep `uuid` remediation deferred until stable upstream path or dedicated major migration/replacement strategy is approved
 - validation required:
@@ -147,7 +149,7 @@ Purpose:
 - validation required:
   - `pnpm lint`
   - `pnpm --filter app test`
-  - `pnpm build`
+  - `pnpm build` not applicable at repo root (no root build script)
   - `pnpm --filter app run build:production`
   - `pnpm audit`
 
