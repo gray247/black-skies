@@ -1944,3 +1944,12 @@ Backlog note drifted after phase-log cleanup.
   - outcome:
     - no packaging compatibility break observed in Batch A,
     - remaining direct Electron advisories require a separate Batch B Electron runtime upgrade lane.
+- 2026-04-30 - Codex - Emergency CI security workflow repair:
+  - scope constrained to `.github/workflows/security.yml` with behavior-equivalent workflow hardening,
+  - confirmed current security sweep setup ordering already matches eval baseline (`actions/setup-node@v5` + `pnpm/action-setup@v4` before pnpm store/cache/install) and avoids explicit pnpm version duplication,
+  - hardened load-ledger artifact upload contract:
+    - `Upload load ledger` now uses `path: ${{ steps.load_ledger.outputs.run_json }}` from `Discover load ledger` output, guaranteeing a concrete produced/fallback file path,
+  - preserved artifact naming and audit semantics (`load-ledger-${{ matrix.os }}` unchanged),
+  - local validation:
+    - YAML parse succeeded (`YAML_OK`) via Node YAML parser,
+    - grep check confirmed expected setup-node/pnpm/action/upload/load-ledger path wiring.

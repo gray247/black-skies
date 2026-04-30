@@ -318,3 +318,31 @@
     - Phase 5D section referencing eval `25137899738` and security `25137899691` on commit `c8d42bae16e2a35805a69fba0353a9f8fc35b717`
 - interpretation guardrail:
   - pre-upgrade warnings in this document are historical timeline evidence, not current workflow pin state.
+
+## Emergency Security Workflow Repair (2026-04-30)
+
+### Trigger
+- security workflow red run reported:
+  - setup-node/pnpm resolution failure in the security sweep lane
+  - load-ledger artifact upload failure (`path` not supplied in failing execution context)
+
+### Root Cause Classification
+- workflow drift between executed failing revision and current branch definitions.
+- load-ledger upload contract was hardened to avoid any implicit filename assumptions.
+
+### Applied Workflow-Only Fix
+- file changed:
+  - `.github/workflows/security.yml`
+- fix:
+  - `Upload load ledger` now uploads the exact path emitted by discovery/fallback step:
+    - `path: ${{ steps.load_ledger.outputs.run_json }}`
+- preserved:
+  - artifact naming (`load-ledger-${{ matrix.os }}`)
+  - audit/report semantics and job graph
+  - Node/pnpm setup order already aligned with eval pattern (`setup-node@v5` + `pnpm/action-setup@v4` before pnpm store/cache/install)
+
+### Validation
+- YAML parse:
+  - `node -e "const fs=require('fs'); const YAML=require('yaml'); YAML.parse(fs.readFileSync('.github/workflows/security.yml','utf8')); console.log('YAML_OK');"`
+- grep confirmation:
+  - `rg -n "setup-node|pnpm/action-setup|upload-artifact|load-ledger|path:" .github/workflows/security.yml`

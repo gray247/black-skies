@@ -238,7 +238,7 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: load-ledger-${{ matrix.os }}
-          path: load-ledger.json
+          path: ${{ steps.load_ledger.outputs.run_json }}
       - name: Generate dependency report
         id: dependency_report
         run: |
