@@ -1877,3 +1877,13 @@ Backlog note drifted after phase-log cleanup.
   - kept artifact upload name unchanged (`ci-observability-${{ github.job }}`) and upload behavior non-blocking (`if: always()`, `if-no-files-found: ignore`),
   - classification is derived from `job.status`, `needs` results, and completeness output (no log parsing),
   - included required schema fields: `primary_class`, `secondary_classes`, `source_signals`, `upstream_results`, `confidence`, and `notes`.
+- 2026-04-30 - Codex - CI observability Batch 4 planning (warning summary):
+  - documented `ci-warning-summary.json` planning in `docs/technical_debt/ci_observability_upgrade_plan_2026-04-29.md` only (no workflow edits),
+  - defined warning family enum: `NO_COLOR_FORCE_COLOR`, `DOCK_LAYOUT_FALLBACK`, `ESLINTRC_DEPRECATION`, `NODE_ACTION_RUNTIME_WARNING`, `NODE_PUNYCODE_URL_PARSE_TRANSITIVE`, `RENDERER_TYPEERROR_NOISE`,
+  - defined warning status enum: `observed`, `not_observed`, `deferred`, `unknown`,
+  - set Batch 4A source strategy to deferred-risk registry + workflow metadata first (no brittle full-log parsing), and confirmed warnings remain non-blocking to CI/failure classification.
+- 2026-04-30 - Codex - CI observability Batch 4A implementation:
+  - extended existing `ci-observability` jobs in `.github/workflows/eval.yml` and `.github/workflows/security.yml` to generate `ci-warning-summary.json`,
+  - kept artifact upload name unchanged (`ci-observability-${{ github.job }}`) and upload behavior non-blocking (`if: always()`, `if-no-files-found: ignore`),
+  - warning summary uses conservative status mapping from deferred-risk taxonomy + workflow metadata (`deferred` / `unknown`) with `non_blocking: true`,
+  - no full-log parsing and no CI gate behavior changes were introduced.

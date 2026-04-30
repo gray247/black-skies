@@ -525,6 +525,76 @@ jobs:
               "notes": notes,
           }
 
+          warning_families = [
+              {
+                  "family": "NO_COLOR_FORCE_COLOR",
+                  "status": "deferred",
+                  "source": "deferred_risk_register",
+                  "confidence": "medium",
+                  "notes": "Known deferred warning family; direct run observation is not asserted in Batch 4A.",
+              },
+              {
+                  "family": "DOCK_LAYOUT_FALLBACK",
+                  "status": "deferred",
+                  "source": "deferred_risk_register",
+                  "confidence": "medium",
+                  "notes": "Known deferred compatibility warning; no full-log parsing in this batch.",
+              },
+              {
+                  "family": "ESLINTRC_DEPRECATION",
+                  "status": "deferred",
+                  "source": "deferred_risk_register",
+                  "confidence": "medium",
+                  "notes": "Known deferred config migration warning family.",
+              },
+              {
+                  "family": "NODE_ACTION_RUNTIME_WARNING",
+                  "status": "unknown",
+                  "source": "workflow_metadata_only",
+                  "confidence": "low",
+                  "notes": "No log parsing in Batch 4A; status intentionally conservative.",
+              },
+              {
+                  "family": "NODE_PUNYCODE_URL_PARSE_TRANSITIVE",
+                  "status": "unknown",
+                  "source": "workflow_metadata_only",
+                  "confidence": "low",
+                  "notes": "No deterministic signal source without log parsing.",
+              },
+              {
+                  "family": "RENDERER_TYPEERROR_NOISE",
+                  "status": "deferred",
+                  "source": "deferred_risk_register",
+                  "confidence": "low",
+                  "notes": "Deferred warning noise family; reproducibility remains conditional.",
+              },
+          ]
+
+          warning_counts = {
+              "observed": 0,
+              "not_observed": 0,
+              "deferred": 0,
+              "unknown": 0,
+          }
+          for item in warning_families:
+              status = item["status"]
+              if status in warning_counts:
+                  warning_counts[status] += 1
+
+          warning_summary = {
+              "schema_version": 1,
+              "workflow": os.environ.get("GITHUB_WORKFLOW", ""),
+              "run_id": os.environ.get("GITHUB_RUN_ID", ""),
+              "run_number": os.environ.get("GITHUB_RUN_NUMBER", ""),
+              "event": os.environ.get("GITHUB_EVENT_NAME", ""),
+              "ref": os.environ.get("GITHUB_REF", ""),
+              "github_sha": github_sha,
+              "job_status": job_status,
+              "warning_families": warning_families,
+              "summary": warning_counts,
+              "non_blocking": True,
+          }
+
           Path("ci-run-summary.json").write_text(
               json.dumps(summary, indent=2) + "\n", encoding="utf-8"
           )
@@ -536,6 +606,9 @@ jobs:
           )
           Path("ci-failure-classification.json").write_text(
               json.dumps(failure_classification, indent=2) + "\n", encoding="utf-8"
+          )
+          Path("ci-warning-summary.json").write_text(
+              json.dumps(warning_summary, indent=2) + "\n", encoding="utf-8"
           )
           PY
       - name: Upload observability summary artifacts
@@ -549,3 +622,4 @@ jobs:
             ci-sha-consistency.json
             ci-artifact-completeness.json
             ci-failure-classification.json
+            ci-warning-summary.json

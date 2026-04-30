@@ -475,3 +475,124 @@ Security workflow:
   - additive/non-blocking only
 - green-run behavior:
   - `primary_class=no_failure`
+
+## Batch 4 Planning (Warning Summary) - 2026-04-30
+
+### Objective
+- add `ci-warning-summary.json` as additive observability output.
+- warnings remain informational only and must not fail CI.
+
+### Planned Report
+- file: `ci-warning-summary.json`
+- generated in existing `ci-observability` jobs for both workflows.
+
+### Proposed JSON Schema
+```json
+{
+  "schema_version": 1,
+  "workflow": "Validation & Eval Harness",
+  "run_id": "25142504610",
+  "run_number": "296",
+  "event": "push",
+  "ref": "refs/heads/phase-b2-memory-lab",
+  "github_sha": "<sha>",
+  "job_status": "success",
+  "warning_families": [
+    {
+      "family": "NO_COLOR_FORCE_COLOR",
+      "status": "deferred",
+      "source": "deferred_risk_register",
+      "confidence": "medium",
+      "notes": "Known deferred warning family; run-level direct observation not asserted in Batch 4A."
+    }
+  ],
+  "summary": {
+    "observed": 0,
+    "not_observed": 0,
+    "deferred": 0,
+    "unknown": 0
+  },
+  "non_blocking": true
+}
+```
+
+### Warning Family Enum
+- `NO_COLOR_FORCE_COLOR`
+- `DOCK_LAYOUT_FALLBACK`
+- `ESLINTRC_DEPRECATION`
+- `NODE_ACTION_RUNTIME_WARNING`
+- `NODE_PUNYCODE_URL_PARSE_TRANSITIVE`
+- `RENDERER_TYPEERROR_NOISE`
+
+### Status Enum
+- `observed`
+- `not_observed`
+- `deferred`
+- `unknown`
+
+### Source Strategy (Batch 4A)
+- do not parse full workflow logs in first implementation.
+- primary sources:
+  - canonical deferred registry (`docs/technical_debt/deferred_risk_register_2026-04-29.md`)
+  - workflow identity and run metadata from existing observability context
+  - existing known warning classifications from prior docs/tracker
+- conservative mapping policy:
+  - warning families listed as deferred risks default to `deferred` (unless deterministic in-workflow signal exists).
+  - families without deterministic signal and without explicit deferred registry entry default to `unknown`.
+  - `observed` / `not_observed` reserved for later pass with reliable, scoped signal inputs.
+
+### Green-Run Behavior
+- warning summary is orthogonal to failure classification.
+- green runs remain `primary_class=no_failure` when failure-classification signals are healthy.
+- warnings do not alter CI pass/fail status.
+
+### Smallest Safe Implementation Batch
+- Batch 4A:
+  - generate `ci-warning-summary.json` from deferred registry + run metadata only.
+  - upload in existing `ci-observability-${{ github.job }}` bundle.
+  - no job-graph changes, no artifact rename, no gating behavior.
+
+### Risk Level
+- low to medium
+- low:
+  - additive JSON output only; no CI semantics change.
+- medium:
+  - false precision risk if statuses are interpreted as direct run observation.
+  - mitigated with explicit `source`, `confidence`, and conservative status policy.
+
+### Validation Steps (When Implementing Batch 4A)
+- local/static:
+  - YAML parse check.
+  - `git diff -- .github/workflows/eval.yml .github/workflows/security.yml`
+- CI evidence:
+  - confirm `ci-warning-summary.json` exists in both observability artifacts.
+  - verify warning family enum membership and status enum membership.
+  - verify `non_blocking=true`.
+  - verify failure classification remains unaffected on green runs.
+
+### Rollback Plan
+- revert only `ci-warning-summary.json` generation/upload additions.
+- keep Batch 1-3 outputs intact:
+  - `ci-run-summary.json`
+  - `ci-sha-consistency.json`
+  - `ci-artifact-completeness.json`
+  - `ci-failure-classification.json`
+- rerun eval/security to confirm baseline observability behavior.
+
+## Batch 4A Implementation Note (2026-04-30)
+- status:
+  - implemented in:
+    - `.github/workflows/eval.yml`
+    - `.github/workflows/security.yml`
+- added output:
+  - `ci-warning-summary.json` in existing `ci-observability` jobs
+- warning statuses used:
+  - `deferred` for registry-tracked deferred warning families
+  - `unknown` for families without deterministic non-log signals in this batch
+  - `observed` and `not_observed` remain available enum values for later signal-enhanced phases
+- upload behavior:
+  - unchanged artifact name: `ci-observability-${{ github.job }}`
+  - upload remains `if: always()` + `if-no-files-found: ignore`
+- safety:
+  - `non_blocking: true`
+  - no impact on failure classification / CI pass-fail semantics
