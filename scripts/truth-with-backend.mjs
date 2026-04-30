@@ -2027,41 +2027,46 @@ async function run() {
           const targetButton = buttons.find((button) =>
             (button.textContent ?? '').includes(targetSceneId),
           );
-          if (byDataScene instanceof HTMLButtonElement) {
-            byDataScene.click();
-            return 'button:data-scene-id';
+          const realButton = byDataScene instanceof HTMLButtonElement ? byDataScene : targetButton;
+          if (!(realButton instanceof HTMLButtonElement)) {
+            throw new Error(
+              \`[truth] Unable to locate a real scene button for scene \${targetSceneId}; synthetic fallback is not allowed in the truth lane.\`,
+            );
           }
-          if (targetButton instanceof HTMLButtonElement) {
-            targetButton.click();
-            return 'button';
-          }
-          const devSelectScene = window.__dev?.selectScene;
-          if (typeof devSelectScene === 'function') {
-            try {
-              const devSelectResult = await devSelectScene(targetSceneId);
-              return {
-                mode: 'dev-api',
-                devSelectResult,
-              };
-            } catch (error) {
-              return {
-                mode: 'dev-api-throw',
-                devSelectResult: {
-                  ok: false,
-                  method: 'hook',
-                  sceneId: targetSceneId,
-                  hookPresent: typeof window.__blackSkiesSelectScene === 'function',
-                  error: error instanceof Error ? error.message : String(error),
-                },
-              };
-            }
-          }
-          window.dispatchEvent(new CustomEvent('test:select-scene', { detail: targetSceneId }));
-          return { mode: 'event', devSelectResult: null };
+          const buttonVisible = (() => {
+            const style = window.getComputedStyle(realButton);
+            return style.display !== 'none' && style.visibility !== 'hidden';
+          })();
+          const buttonRect = realButton.getBoundingClientRect();
+          realButton.click();
+          return {
+            matchedSelector: byDataScene instanceof HTMLButtonElement
+              ? 'button.project-home__scene-button[data-scene-id="<scene-id>"]'
+              : '.project-home__scene-button (text contains scene id)',
+            selectionMethod: 'button-click',
+            targetText: realButton.textContent?.trim() ?? null,
+            targetVisible: buttonVisible,
+            targetRect: {
+              x: buttonRect.x,
+              y: buttonRect.y,
+              width: buttonRect.width,
+              height: buttonRect.height,
+            },
+            clickDispatchedAt: new Date().toISOString(),
+          };
         })())()`,
       );
       console.log('[truth] scene selection mode', sceneSelectionMode);
-      console.log('[truth] __dev.selectScene("sc_0001") return value', sceneSelectionMode?.devSelectResult ?? null);
+      assert.equal(
+        sceneSelectionMode?.selectionMethod,
+        'button-click',
+        'Truth lane must select the scene through a real scene button click',
+      );
+      assert.ok(
+        typeof sceneSelectionMode?.matchedSelector === 'string' &&
+          sceneSelectionMode.matchedSelector.includes('project-home__scene-button'),
+        'Truth lane must match a real scene button selector',
+      );
 
       console.log('[truth] waiting for critique button to enable');
       await waitForCondition(async () => {

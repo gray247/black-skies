@@ -75,8 +75,13 @@ function hasTestSelectors(args) {
 function buildPlaywrightArgs(forwardedArgs, runFullSuite) {
   const hasUserWorkers = hasWorkerFlag(forwardedArgs);
   const selectorsProvided = hasTestSelectors(forwardedArgs);
-  const smokeFilterArgs = runFullSuite || selectorsProvided ? [] : ['--grep', 'smoke_'];
-  const defaultTestFiles = selectorsProvided ? [] : DEFAULT_SMOKE_TEST_FILES;
+  if (!runFullSuite && selectorsProvided) {
+    throw new Error(
+      '[e2e] smoke launcher does not accept explicit selectors. Use the default smoke set or run FULL_ANALYTICS_E2E=1 for broader coverage.',
+    );
+  }
+  const smokeFilterArgs = runFullSuite ? [] : ['--grep', 'smoke_'];
+  const defaultTestFiles = runFullSuite ? [] : DEFAULT_SMOKE_TEST_FILES;
   const args = [
     'test',
     ...PLAYWRIGHT_BASE_ARGS,

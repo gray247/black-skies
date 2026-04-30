@@ -49,37 +49,34 @@ test.describe('startup_authority_contract', () => {
       expectedServiceStatus: 'online',
       requireActiveScene: false,
     });
+    await page.waitForFunction(
+      () => typeof window.__blackSkiesSelectScene === 'function',
+      null,
+      { timeout: 30_000 },
+    );
 
     const selectionResult = await page.evaluate(async () => {
       const win = window as typeof window & {
-        __dev?: {
-          selectScene?: (sceneId: string | null) => Promise<{
-            ok: boolean;
-            hookPresent?: boolean;
-            sceneId?: string | null;
-            error?: string;
-          }>;
-        };
+        __blackSkiesSelectScene?: (sceneId: string | null | undefined) => boolean;
         __testProjectState?: { activeSceneId?: string | null };
       };
-      const selectScene = win.__dev?.selectScene;
+      const selectScene = win.__blackSkiesSelectScene;
       if (typeof selectScene !== 'function') {
         return {
           classification: 'BRIDGE_MISSING',
           details: {
-            hasDevBridge: Boolean(win.__dev),
-            hasSelectScene: false,
+            hasSelectSceneHook: false,
           },
         };
       }
       try {
-        const result = await selectScene('sc_0001');
+        const ok = selectScene('sc_0001');
         const bodySceneId = document.body?.dataset?.activeSceneId ?? null;
         const htmlSceneId = document.documentElement?.dataset?.activeSceneId ?? null;
         const debugSceneId = win.__testProjectState?.activeSceneId ?? null;
         return {
           classification: 'OK',
-          result,
+          ok,
           bodySceneId,
           htmlSceneId,
           debugSceneId,
@@ -105,7 +102,6 @@ test.describe('startup_authority_contract', () => {
       );
     }
 
-    const selectionResponse = selectionResult.result;
     if (
       selectionResult.bodySceneId !== 'sc_0001' ||
       selectionResult.htmlSceneId !== 'sc_0001' ||
@@ -121,17 +117,10 @@ test.describe('startup_authority_contract', () => {
         )}`,
       );
     }
-    // Authority is committed marker convergence. Hook-missing event fallback is acceptable when all markers converge.
-    if (!selectionResponse?.ok) {
-      const fallbackSucceeded =
-        selectionResult.bodySceneId === 'sc_0001' &&
-        selectionResult.htmlSceneId === 'sc_0001' &&
-        selectionResult.debugSceneId === 'sc_0001';
-      if (!fallbackSucceeded) {
-        throw new Error(
-          `[SELECTION_CALL_FAILED] __dev.selectScene returned non-ok without marker convergence: ${JSON.stringify(selectionResult)}`,
-        );
-      }
+    if (selectionResult.ok !== true) {
+      throw new Error(
+        `[SELECTION_CALL_FAILED] __blackSkiesSelectScene returned non-ok: ${JSON.stringify(selectionResult)}`,
+      );
     }
   });
 
@@ -177,19 +166,24 @@ test.describe('startup_authority_contract', () => {
       expectedServiceStatus: 'online',
       requireActiveScene: false,
     });
+    await page.waitForFunction(
+      () => typeof window.__blackSkiesSelectScene === 'function',
+      null,
+      { timeout: 30_000 },
+    );
     const clearScene = await page.evaluate(async () => {
       const win = window as typeof window & {
-        __dev?: { selectScene?: (sceneId: string | null) => Promise<{ ok: boolean }> };
+        __blackSkiesSelectScene?: (sceneId: string | null | undefined) => boolean;
       };
-      const selectScene = win.__dev?.selectScene;
+      const selectScene = win.__blackSkiesSelectScene;
       if (typeof selectScene !== 'function') {
         return { classification: 'BRIDGE_MISSING' as const };
       }
       try {
-        const result = await selectScene(null);
+        const result = selectScene(null);
         return {
           classification: 'OK' as const,
-          ok: result?.ok ?? false,
+          ok: Boolean(result),
         };
       } catch (error) {
         return {
@@ -220,19 +214,17 @@ test.describe('startup_authority_contract', () => {
     // Case C: project + selected scene + online service => actions enabled and flows open.
     const selectSceneResult = await page.evaluate(async () => {
       const win = window as typeof window & {
-        __dev?: {
-          selectScene?: (sceneId: string | null) => Promise<{ ok: boolean }>;
-        };
+        __blackSkiesSelectScene?: (sceneId: string | null | undefined) => boolean;
       };
-      const selectScene = win.__dev?.selectScene;
+      const selectScene = win.__blackSkiesSelectScene;
       if (typeof selectScene !== 'function') {
         return { classification: 'BRIDGE_MISSING' as const };
       }
       try {
-        const result = await selectScene('sc_0001');
+        const result = selectScene('sc_0001');
         return {
           classification: 'OK' as const,
-          ok: result?.ok ?? false,
+          ok: Boolean(result),
         };
       } catch (error) {
         return {

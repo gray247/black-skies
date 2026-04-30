@@ -169,7 +169,10 @@ test('diagnostic_action_readiness_generate_contract (action)', async ({ page }, 
   expect(buttonStateBefore?.visible).toBe(true);
   expect(buttonStateBefore?.enabled).toBe(true);
 
-  await openPreflightDialog(page, { actionTestId: 'workspace-action-generate', timeoutMs: 15_000 });
+  const dialog = await openPreflightDialog(page, {
+    actionTestId: 'workspace-action-generate',
+    timeoutMs: 15_000,
+  });
 
   const result = await page.evaluate(() => {
     const win = window as typeof window & {
@@ -192,6 +195,20 @@ test('diagnostic_action_readiness_generate_contract (action)', async ({ page }, 
     };
   });
 
+  await expect
+    .poll(
+      async () => {
+        const dialogText = (await dialog.textContent()) ?? '';
+        return (
+          dialogText.includes('Estimate within budget') ||
+          dialogText.includes('Budget healthy') ||
+          dialogText.includes('Budget OK')
+        );
+      },
+      { timeout: 15_000 },
+    )
+    .toBe(true);
+
   await testInfo.attach('diagnostic-action-readiness.json', {
     body: Buffer.from(`${JSON.stringify({
       buttonStateBefore,
@@ -199,9 +216,8 @@ test('diagnostic_action_readiness_generate_contract (action)', async ({ page }, 
     }, null, 2)}\n`, 'utf-8'),
     contentType: 'application/json',
   });
-  // Some harness paths no longer route preflight through the overrideable window.services seam.
-  // Keep the assertion on user-visible readiness contract, not seam-specific instrumentation.
-  expect(result.preflightCalls.length > 0 || result.modalHasBudgetHint).toBe(true);
+  // The dialog content is the user-visible readiness contract. Fail if it never materializes.
+  expect(result.modalHasBudgetHint).toBe(true);
   expect(result.modalOpen).toBe(true);
 });
 

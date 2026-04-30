@@ -23,6 +23,8 @@ test('truth_active_scene_diagnostic (UI)', async ({ page }, testInfo) => {
     pollIntervalMs: 500,
   });
   expect(selectionDiagnostics.matchedSelector).toBeTruthy();
+  expect(selectionDiagnostics.selectionMethod).toBe('button-click');
+  expect(selectionDiagnostics.matchedSelector).toContain('button.project-home__scene-button');
   expect(selectionDiagnostics.activeSceneReached).toBe(true);
 
   const startupSnapshot = await collectStartupStateSnapshot(page);
