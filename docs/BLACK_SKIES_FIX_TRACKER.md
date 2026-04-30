@@ -1920,3 +1920,27 @@ Backlog note drifted after phase-log cleanup.
   - confirmed first line moving to newer uuid is `react-mosaic-component@7.0.0-beta0` (`uuid^11.1.0`), which is major+beta risk,
   - documented CJS/ESM and docking-surface risks, safe remediation options, and validation gates,
   - recommendation recorded: defer implementation until a stable compatible path is available or run an isolated beta migration lane.
+- 2026-04-30 - Codex - Electron/package-chain advisory planning lane:
+  - created `docs/technical_debt/electron_package_chain_plan_2026-04-29.md` (planning-only),
+  - refreshed advisory baseline from `pnpm audit --json`: `49 total` (`4 low`, `17 moderate`, `28 high`),
+  - mapped targeted chain paths:
+    - runtime: direct `electron@30.5.1` advisories,
+    - packaging-chain: `electron-builder@24.13.3` transitive `tar@6.2.1`, `glob@10.4.5`, `minimatch` variants, `@tootallnate/once@2.0.0`,
+    - dev-only side-paths: `minimatch` via ESLint plugin stack,
+  - documented candidate upgrade lanes (`electron-builder` family first, then Electron), risk zones (preload/main/packaging/Playwright/artifact flow), and validation gates,
+  - recommendation recorded: proceed as isolated high-risk remediation lane with Batch A (`electron-builder` + packaging chain) before Electron runtime bump.
+- 2026-04-30 - Codex - Electron/package-chain Batch A implementation:
+  - upgraded `app` dev dependency `electron-builder` from `^24.13.3` to `^26.8.1` with lockfile refresh (`pnpm-lock.yaml`),
+  - preserved Electron runtime major/version line (`electron` remained on `^30.0.2`, resolved `30.5.1`),
+  - advisory delta from `pnpm audit`:
+    - before: `49` (`4 low | 17 moderate | 28 high`)
+    - after: `27` (`3 low | 14 moderate | 10 high`)
+  - validation remained green:
+    - `pnpm --filter app run build:production` pass
+    - `pnpm --filter app test` (`145 passed`)
+    - `pnpm test:e2e -- --workers=1` (`3 passed`)
+    - startup authority contract lane (`11 passed`)
+    - packaging smoke `pnpm --filter app run package:dir` pass on `electron-builder 26.8.1`
+  - outcome:
+    - no packaging compatibility break observed in Batch A,
+    - remaining direct Electron advisories require a separate Batch B Electron runtime upgrade lane.
