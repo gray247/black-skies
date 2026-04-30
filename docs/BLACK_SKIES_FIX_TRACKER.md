@@ -334,7 +334,7 @@ Unresolved repo-wide typing debt and temporary CI scope narrowing.
 
 ## [5] PASS 5 harness fragility
 - Status: ACTIVE
-- Last Updated: 2026-04-26
+- Last Updated: 2026-04-30
 
 #### Known Facts
 - Root cause for intermittent analytics preflight 500s is fixture/schema drift, not generic FastAPI instability:
@@ -428,6 +428,11 @@ Unresolved repo-wide typing debt and temporary CI scope narrowing.
 - Launcher ownership hardening (2026-04-26): backend wrappers now treat startup ownership as a contract.
   - `scripts/e2e-with-backend.mjs` and `scripts/truth-with-backend.mjs` health waits now abort when the spawned backend emits a spawn error or exits before health convergence.
   - This prevents accidental attachment to unrelated processes on `127.0.0.1:9999`, which previously produced misleading downstream failures.
+- CI rerun on truth/smoke boundary commit `d7389551cb12b5c471b5e996cbce9da47688e3b3` (2026-04-30):
+  - `eval.yml` failed in the smoke wrapper because `startup.diagnostic.spec.ts::diagnostic_action_readiness_generate_contract` read modal visibility from a raw DOM query before the dialog locator had stabilized;
+  - validation on the local workspace confirmed the dialog contract itself was still present, so the fix stayed in harness/test space: `startup.diagnostic.spec.ts` now checks `await dialog.isVisible()` after `openPreflightDialog(...)` instead of a raw `document.querySelector(...)` snapshot;
+  - this is classified as harness fragility under issue 5, not as a new truth/smoke boundary regression under issues 11/15;
+  - the recurring smoke renderer `TypeError: Cannot read properties of undefined (reading 'push')` remains an allowed, separate runtime-noise signal in the smoke lane and did not drive the modal fix.
 - Risk coverage matrix (2026-04-25):
   - [1] project-load race after bootstrap: YES (`_bootstrap.bootstrapHarness` startup-config-first sequencing + `App` `test:set-project` load/activate path guards).
   - [2] service override/state loss across reload: YES (`startup.diagnostic.spec.ts::diagnostic_service_override_survival_after_reload`).

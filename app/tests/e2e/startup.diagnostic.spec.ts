@@ -174,6 +174,7 @@ test('diagnostic_action_readiness_generate_contract (action)', async ({ page }, 
     timeoutMs: 15_000,
   });
 
+  const modalOpen = await dialog.isVisible();
   const result = await page.evaluate(() => {
     const win = window as typeof window & {
       __actionReadinessLog?: Array<Record<string, unknown>>;
@@ -185,7 +186,6 @@ test('diagnostic_action_readiness_generate_contract (action)', async ({ page }, 
     const dialogText = dialog?.textContent ?? '';
     return {
       preflightCalls: win.__actionReadinessLog ?? [],
-      modalOpen: Boolean(dialog),
       modalHasBudgetHint:
         dialogText.includes('Estimate within budget') ||
         dialogText.includes('Budget healthy') ||
@@ -218,7 +218,7 @@ test('diagnostic_action_readiness_generate_contract (action)', async ({ page }, 
   });
   // The dialog content is the user-visible readiness contract. Fail if it never materializes.
   expect(result.modalHasBudgetHint).toBe(true);
-  expect(result.modalOpen).toBe(true);
+  expect(modalOpen).toBe(true);
 });
 
 test('diagnostic_startup_snapshot_shape (startup)', async ({ page }) => {
