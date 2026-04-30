@@ -1913,3 +1913,10 @@ Backlog note drifted after phase-log cleanup.
     - `python -m pip install -e services -c constraints.txt`
   - validation after fix remains green: backend tests (`64 passed`), mypy clean (`346 files`), smoke e2e (`3 passed`), startup authority contract (`11 passed`),
   - classification note: downstream canary/playwright failures after resolver abort are cascading failures, not primary defects in those lanes.
+- 2026-04-30 - Codex - react-mosaic-component / uuid compatibility planning lane:
+  - created `docs/technical_debt/react_mosaic_uuid_compat_plan_2026-04-29.md` (planning-only),
+  - confirmed path: `@blackskies/app -> react-mosaic-component@6.1.1 -> uuid@9.0.1`,
+  - confirmed stable `react-mosaic-component@6.2.0` still depends on `uuid^9.0.0`,
+  - confirmed first line moving to newer uuid is `react-mosaic-component@7.0.0-beta0` (`uuid^11.1.0`), which is major+beta risk,
+  - documented CJS/ESM and docking-surface risks, safe remediation options, and validation gates,
+  - recommendation recorded: defer implementation until a stable compatible path is available or run an isolated beta migration lane.
