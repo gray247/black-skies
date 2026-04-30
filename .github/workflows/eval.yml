@@ -945,17 +945,48 @@ jobs:
           GITHUB_REF: ${{ github.ref }}
           GITHUB_SHA: ${{ github.sha }}
           GITHUB_ACTOR: ${{ github.actor }}
+          APP_E2E_RESULT: ${{ needs.app-e2e.result }}
+          APP_TRUTH_RESULT: ${{ needs.app-truth-lane.result }}
+          PASS3_RESULT: ${{ needs.gauntlet-pass3-proof.result }}
+          PASS5_RESULT: ${{ needs.gauntlet-pass5-proof.result }}
+          PASS6_RESULT: ${{ needs.gauntlet-pass6-proof.result }}
+          MANIFEST_RESULT: ${{ needs.gauntlet-proof-manifest.result }}
+          EVAL_RESULT: ${{ needs.eval.result }}
         run: |
           python - <<'PY'
           import json
           import os
           import subprocess
+          from datetime import datetime, timezone
           from pathlib import Path
+
+          def classify_from_result(result: str) -> str:
+              if result == "success":
+                  return "present"
+              if result in {"failure", "cancelled", "skipped"}:
+                  return "skipped_due_upstream_failure"
+              return "missing_expected"
+
+          def entry(group: str, name: str, producer_job: str, producer_result: str) -> dict[str, str]:
+              return {
+                  "group": group,
+                  "name": name,
+                  "classification": classify_from_result(producer_result),
+                  "producer_job": producer_job,
+                  "notes": f"inferred_from_result:{producer_result or 'unknown'}",
+              }
 
           actual_sha = (
               subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
           )
           github_sha = os.environ.get("GITHUB_SHA", "")
+          app_e2e_result = os.environ.get("APP_E2E_RESULT", "")
+          app_truth_result = os.environ.get("APP_TRUTH_RESULT", "")
+          pass3_result = os.environ.get("PASS3_RESULT", "")
+          pass5_result = os.environ.get("PASS5_RESULT", "")
+          pass6_result = os.environ.get("PASS6_RESULT", "")
+          manifest_result = os.environ.get("MANIFEST_RESULT", "")
+          eval_result = os.environ.get("EVAL_RESULT", "")
           summary = {
               "workflow": os.environ.get("GITHUB_WORKFLOW", ""),
               "run_id": os.environ.get("GITHUB_RUN_ID", ""),
@@ -976,11 +1007,50 @@ jobs:
               "sha_match": actual_sha == github_sha,
           }
 
+          artifacts = [
+              entry("gauntlet_pass_proof", "gauntlet-pass3-proof", "gauntlet-pass3-proof", pass3_result),
+              entry("gauntlet_pass_proof", "gauntlet-pass4-proof", "app-truth-lane", app_truth_result),
+              entry("gauntlet_pass_proof", "gauntlet-pass5-proof", "gauntlet-pass5-proof", pass5_result),
+              entry("gauntlet_pass_proof", "gauntlet-pass6-proof", "gauntlet-pass6-proof", pass6_result),
+              entry("gauntlet_manifest", "gauntlet-ci-proof-manifest", "gauntlet-proof-manifest", manifest_result),
+              entry("playwright_artifacts", "playwright-artifacts", "app-e2e", app_e2e_result),
+              entry("eval_report", "eval-report", "eval", eval_result),
+              entry("load_ledger", "load-ledger", "eval", eval_result),
+          ]
+
+          counts = {
+              "present": 0,
+              "missing_expected": 0,
+              "ignored_no_files": 0,
+              "skipped_due_upstream_failure": 0,
+          }
+          for artifact in artifacts:
+              classification = artifact["classification"]
+              if classification in counts:
+                  counts[classification] += 1
+
+          completeness = {
+              "schema_version": 1,
+              "workflow": os.environ.get("GITHUB_WORKFLOW", ""),
+              "run_id": os.environ.get("GITHUB_RUN_ID", ""),
+              "run_number": os.environ.get("GITHUB_RUN_NUMBER", ""),
+              "event": os.environ.get("GITHUB_EVENT_NAME", ""),
+              "ref": os.environ.get("GITHUB_REF", ""),
+              "github_sha": github_sha,
+              "job_status": os.environ.get("JOB_STATUS", ""),
+              "generated_at_utc": datetime.now(timezone.utc).isoformat(),
+              "artifacts": artifacts,
+              "counts": counts,
+          }
+
           Path("ci-run-summary.json").write_text(
               json.dumps(summary, indent=2) + "\n", encoding="utf-8"
           )
           Path("ci-sha-consistency.json").write_text(
               json.dumps(sha_consistency, indent=2) + "\n", encoding="utf-8"
+          )
+          Path("ci-artifact-completeness.json").write_text(
+              json.dumps(completeness, indent=2) + "\n", encoding="utf-8"
           )
           PY
       - name: Upload observability summary artifacts
@@ -992,3 +1062,4 @@ jobs:
           path: |
             ci-run-summary.json
             ci-sha-consistency.json
+            ci-artifact-completeness.json

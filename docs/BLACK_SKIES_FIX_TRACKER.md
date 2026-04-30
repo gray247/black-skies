@@ -1852,3 +1852,18 @@ Backlog note drifted after phase-log cleanup.
   - each job writes `ci-run-summary.json` and `ci-sha-consistency.json` (including `actual_sha` from `git rev-parse HEAD` and `sha_match` vs `${{ github.sha }}`),
   - uploads the summary files via `actions/upload-artifact@v6` as `ci-observability-${{ github.job }}` with `if-no-files-found: ignore`,
   - existing jobs, artifacts, test commands, and dependency pins were left unchanged.
+- 2026-04-29 - Codex - CI observability Batch 1 validation:
+  - inspected fresh runs: eval `25139874808` and security `25139874820`, both `success` on commit `08b69c6d96654b6a80f6ad109a97c8731f27d838`,
+  - confirmed `CI Observability Summary` job succeeded in both workflows and uploaded `ci-observability-ci-observability`,
+  - downloaded artifacts and verified both files exist (`ci-run-summary.json`, `ci-sha-consistency.json`) with `github_sha == actual_sha` and `sha_match=true`,
+  - noted minor readability caveat: same artifact name appears in both workflows; functionally valid but slightly ambiguous for cross-workflow triage.
+- 2026-04-29 - Codex - CI observability Batch 2 planning (artifact completeness):
+  - documented Batch 2 plan in `docs/technical_debt/ci_observability_upgrade_plan_2026-04-29.md` only (no workflow edits),
+  - defined `ci-artifact-completeness.json` schema and required classifications: `present`, `missing_expected`, `ignored_no_files`, `skipped_due_upstream_failure`,
+  - mapped completeness reporting groups for gauntlet proofs/manifest, playwright artifacts, eval report, load ledger, and dependency/security artifacts,
+  - captured optional readability improvement for observability artifact naming (workflow-scoped label) as a separate optional step.
+- 2026-04-29 - Codex - CI observability Batch 2A implementation:
+  - extended existing `ci-observability` jobs in `.github/workflows/eval.yml` and `.github/workflows/security.yml` to generate `ci-artifact-completeness.json`,
+  - kept artifact upload name unchanged (`ci-observability-${{ github.job }}`) and upload behavior non-blocking (`if: always()`, `if-no-files-found: ignore`),
+  - included required completeness counts and minimum artifact sets for eval/security in the generated report payload,
+  - used upstream job-result inference for initial classification to avoid changing workflow semantics.
