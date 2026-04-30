@@ -2147,3 +2147,17 @@ Backlog note drifted after phase-log cleanup.
     - production build lane: `pnpm --filter app run build:production` -> pass,
   - note:
     - repeat-run probe (`--repeat-each=3`) hit local infra contention (`EADDRINUSE 127.0.0.1:9999`) and is classified as environment/port noise, not product regression.
+- 2026-04-30 - Codex - Phase 6 Batch 6D closeout retry after 6C seam fix:
+  - final validation rerun (serial evidence):
+    - `pnpm --filter app test` -> pass (`145 passed`),
+    - `pnpm --filter app run build:production` -> pass,
+    - `pnpm --filter app run package:dir` -> pass (electron-builder `26.8.1`, electron `39.8.9`),
+    - `pnpm audit` -> `7 vulnerabilities` (`2 moderate | 5 high`) unchanged,
+    - `pnpm --filter app exec playwright test tests/e2e/startup.diagnostic.spec.ts --project=electron --workers=1 --reporter=line` -> pass (`4 passed`),
+    - `pnpm test:e2e -- --workers=1` -> pass (`3 passed`),
+    - `pnpm --filter app exec playwright test tests/e2e/startup_authority_contract.spec.ts --project=electron --workers=1 --reporter=line` -> pass (`11 passed`),
+  - audit closure state confirmed:
+    - Electron uplift retained: `31.7.7 -> 39.8.9`,
+    - audit delta retained: `24 -> 7`,
+    - Electron advisories retained as cleared: `17 -> 0`,
+    - remaining advisories remain previously classified/deferred (dev/tooling + react-mosaic `uuid`).
