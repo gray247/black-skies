@@ -1,7 +1,7 @@
 ﻿# BLACK SKIES - FIX TRACKER
 
 Status: Active
-Last Reviewed: 2026-04-29
+Last Reviewed: 2026-04-30
 
 ## Purpose
 This document tracks defects, technical debt, and instability across Black Skies.
@@ -23,6 +23,64 @@ If an issue is not tracked here, it is not part of the active fix scope.
 - `VERIFIED`: fixed with evidence
 - `REGRESSED`: previously fixed, failing again
 - `UNVERIFIED`: cannot currently validate from local environment
+
+## Canonical Normalized Ledger (2026-04-30)
+Historical sections below are retained as provenance. This table is the current normalized source of truth for issue status, evidence, and next action.
+
+| ID | Title | Normalized Status | Evidence | Lane | Next Action |
+| ---: | --- | --- | --- | --- | --- |
+| 1 | security.yml workflow failures | Closed-Verified | 2026-04-30; eval/security green, artifact hardening validated | CI workflows | Keep monitoring only |
+| 2 | Black failing in CI | Closed-Verified | 2026-04-22; `black --check .` clean | Python lint | None |
+| 3 | Mypy failing in CI | Closed-Verified | 2026-04-30; `mypy ...` clean, 346 files | Typing | None |
+| 4 | PASS 4 truth-lane fragility | Closed-Verified | 2026-04-30; `startup_authority_contract.spec.ts` and smoke e2e green | Truth lane | None |
+| 5 | PASS 5 harness fragility | Open-Actionable | 2026-04-30; residual harness-fragility umbrella remains in tracker docs | Harness/CI | Continue targeted contract work |
+| 6 | PASS 6 build/startup assumptions | Deferred-Accepted | 2026-04-30; no new direct failures in final validation | Startup/build | Monitor only |
+| 7 | Node/pnpm inconsistency | Closed-Verified | 2026-04-23; `setup-node@v5` / pnpm bootstrap standardized | CI workflows | None |
+| 8 | Artifact upload logic issues | Closed-Verified | 2026-04-23; deterministic artifact paths and proof uploads validated | CI artifacts | None |
+| 9 | Workflow duplication/divergence | Deferred-Accepted | 2026-04-23; duplication remains structural, not blocking | Workflow architecture | Defer to reusable-workflow lane |
+| 10 | Temporary CI scope narrowing | Deferred-Accepted | 2026-04-29; scoped mypy/flake8 debt still intentionally narrowed | CI governance | Retire in separate scope-removal lane |
+| 11 | Smoke vs truth-lane boundary | Open-Actionable | 2026-04-25; truth/smoke split still explicitly enforced | E2E contracts | Continue dedicated boundary coverage |
+| 12 | Capability coverage gaps | Open-Actionable | 2026-04-25; no standalone closure proof in tracker | E2E contracts | Add targeted coverage as needed |
+| 13 | Accept step not in UI chain | Open-Actionable | 2026-04-25; no standalone closure proof in tracker | UI contracts | Add/verify UI path coverage |
+| 14 | Dual snapshot system risk | Open-Actionable | 2026-04-25; still documented as a risk bucket | Snapshot/recovery | Decide canonical snapshot authority |
+| 15 | No-silent-success enforcement | Open-Actionable | 2026-04-25; enforcement remains a policy bucket | Harness policy | Continue explicit-failure checks |
+| 16 | Phase docs out of sync | Closed-Verified | 2026-04-29; closure doc and phase docs now reference canonical state | Documentation | None |
+| 17 | Doc authority drift | Closed-Verified | 2026-04-29; canonical system truth map and closeout docs aligned | Documentation | None |
+| 18 | Runtime truth sync risk | Deferred-Accepted | 2026-04-29; canonical truth map exists but risk is evergreen | Governance | Monitor |
+| 19 | Junk artifact buildup | Open-Actionable | 2026-04-21; no current closure proof | Hygiene | Cleanup/ignore-policy lane |
+| 20 | .gitignore discipline issues | Open-Actionable | 2026-04-21; no current closure proof | Hygiene | Maintain ignore-policy discipline |
+| 21 | Environment instability | Open-Blocked | 2026-04-30; local Playwright/port caveats still documented | Local environment | Host cleanup / stronger preflight |
+| 22 | Security workflow + vulnerability reporting | Closed-Verified | 2026-04-30; `security.yml` green and reporting validated | Security CI | None |
+| 23 | Dependency update plan missing | Closed-Verified | 2026-04-30; remediation plans and deferred register exist | Dependency planning | None |
+| 24 | GUI navigation instability | Closed-Verified | 2026-04-30; renderer/app UI contract fixes and CI passes | App UI / E2E | None |
+| 25 | Layout persistence issues | Open-Actionable | 2026-04-21; still listed as active UX/debt | Layout | Targeted migration lane |
+| 26 | Project creation UX weak | Open-Actionable | 2026-04-21; still listed as active UX/debt | Product UX | Targeted UX improvement lane |
+| 27 | Budget meter reliability | Open-Actionable | 2026-04-23; still listed as active UX/debt | Budget contract | Continue if it resurfaces |
+| 28 | Ops doc command drift (invalid dev launcher guidance) | Closed-Verified | 2026-04-21; launcher guidance corrected | Docs | None |
+| 29 | Encoding corruption in active docs | Closed-Verified | 2026-04-21; targeted UTF-8 normalization applied | Docs hygiene | None |
+| 30 | Permission-denied temp directories break tooling scans | Open-Blocked | 2026-04-30; host ACL/temp-dir cleanup still needed | Local tooling | Host cleanup only |
+| 31 | Backlog doc references stale TODO inventory | Closed-Verified | 2026-04-21; backlog discrepancy normalized | Docs hygiene | None |
+| 32 | Project-load race after bootstrap | Closed-Verified | 2026-04-26; `_bootstrap.bootstrapHarness` sequencing and `test:set-project` load/activate path fixed | Startup harness | None |
+| 33 | Service override/state loss across reload | Closed-Verified | 2026-04-25; `startup.diagnostic.spec.ts` reload contract fixed | Startup authority | None |
+| 34 | Mode-specific UI contract drift | Closed-Verified | 2026-04-23; mode-aware readiness helpers and matrix fixed | Startup contracts | None |
+| 35 | Action-level readiness mismatch | Closed-Verified | 2026-04-30; preflight dialog + budget hint polling seam fixed | Startup authority | None |
+| 36 | Path normalization/assertion mismatch | Closed-Verified | 2026-04-25; `path-normalization.diagnostic.spec.ts` and helpers fixed | Path contracts | None |
+| 37 | Recovery/test flag leakage between tests | Closed-Verified | 2026-04-25; hard reset before/after each Electron test fixed | Fixture isolation | None |
+| 38 | StoryInsights refresh analytics selector drift | Closed-Verified | 2026-04-22; renderer unit regression suite updated | App UI tests | None |
+| 39 | AppPreflight show snapshots label drift | Closed-Verified | 2026-04-22; renderer unit regression suite updated | App UI tests | None |
+| 40 | AnalyticsDashboard readability drift | Closed-Verified | 2026-04-22; renderer unit regression suite updated | App UI tests | None |
+| 41 | DraftEditor sample-project fixture coupling | Closed-Verified | 2026-04-22; DraftEditor fixture path coupling removed | App UI tests | None |
+| 42 | useCritique callback dependency omission | Closed-Verified | 2026-04-22; lint warning fixed with `state.draftId` dependency | Renderer lint/tests | None |
+
+Normalized counts:
+- Closed-Verified: 25
+- Deferred-Accepted: 4
+- Open-Actionable: 11
+- Open-Blocked: 2
+
+Promotion notes:
+- PASS 5 concrete startup-contract subclaims are now represented as standalone normalized entries `32-37`.
+- GUI-navigation subclaims from the app lint/unit cleanup are now represented as standalone normalized entries `38-42`.
 
 ---
 

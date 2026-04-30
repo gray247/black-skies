@@ -3,6 +3,7 @@
 Purpose:
 - canonical deferred-risk register for stabilization closure and follow-on hardening phases
 - single source of truth referenced by closure/tracker/phase docs to avoid drift
+- the normalized issue ledger now lives in `docs/BLACK_SKIES_FIX_TRACKER.md` and includes promoted child issues `32-42` for standalone startup/UI subclaims
 
 ## P0
 
