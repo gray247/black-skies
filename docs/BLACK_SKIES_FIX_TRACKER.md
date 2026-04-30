@@ -1887,3 +1887,20 @@ Backlog note drifted after phase-log cleanup.
   - kept artifact upload name unchanged (`ci-observability-${{ github.job }}`) and upload behavior non-blocking (`if: always()`, `if-no-files-found: ignore`),
   - warning summary uses conservative status mapping from deferred-risk taxonomy + workflow metadata (`deferred` / `unknown`) with `non_blocking: true`,
   - no full-log parsing and no CI gate behavior changes were introduced.
+- 2026-04-30 - Codex - CI observability Batch 4A validation:
+  - inspected fresh runs eval `25142869893` and security `25142869880`; both workflows and `CI Observability Summary` jobs were `success` on commit `e64aa34f2fa23d828374de759a5acd04c4d3f0eb`,
+  - verified observability artifact bundle includes all expected files: `ci-run-summary.json`, `ci-sha-consistency.json`, `ci-artifact-completeness.json`, `ci-failure-classification.json`, and `ci-warning-summary.json`,
+  - confirmed `ci-warning-summary.json` has `non_blocking=true`, all planned warning families, and valid enum statuses,
+  - confirmed `ci-failure-classification.json` remains `primary_class=no_failure` on green runs and SHA consistency remains true.
+- 2026-04-30 - Codex - FastAPI/Starlette compatibility lane planning:
+  - created `docs/technical_debt/fastapi_starlette_compat_plan_2026-04-29.md` as a planning-only lane for the blocked Starlette advisory,
+  - confirmed repo/lock facts: `fastapi==0.118.3` and `starlette==0.48.0` with effective constraint `starlette<0.49.0`,
+  - confirmed constraint conflict against advisory target (`starlette>=0.49.1`) and identified `fastapi>=0.121.x` as first compatible family allowing `starlette 0.49.1+`,
+  - documented risk areas (middleware, exception handlers, TestClient behavior, router contracts), staged implementation batches (A/B/C), validation gates, and rollback path,
+  - no dependency, runtime, test, or lockfile changes were made in this pass.
+- 2026-04-30 - Codex - FastAPI/Starlette compatibility Batch A:
+  - applied smallest compatible runtime bump in dependency artifacts only: `fastapi 0.118.3 -> 0.121.3` and `starlette 0.48.0 -> 0.49.3`,
+  - updated bounds to compatible lane in `pyproject.toml` and `services/pyproject.toml` (`fastapi>=0.121.3,<0.122`, `starlette>=0.49.1,<0.50`),
+  - synchronized `constraints.txt`, `requirements.lock`, `requirements.dev.lock`, and `requirements.win.dev.txt`,
+  - advisory delta: `pip-audit` moved from `3 vulns / 2 packages` (`pip`, `starlette`) to `2 vulns / 1 package` (`pip` only), clearing the blocked Starlette advisory,
+  - validation remained green: backend app tests (`64 passed`), mypy clean (`346` files), smoke e2e (`3 passed`), and startup authority contract lane (`11 passed`); no compatibility failures observed.
