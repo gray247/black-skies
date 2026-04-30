@@ -184,15 +184,19 @@ jobs:
         run: |
           python3 -m uvicorn --help > /dev/null
           python3 -c "import uvicorn; print(uvicorn.__version__)"
+      - name: Resolve Playwright version
+        id: playwright_version
+        run: |
+          echo "version=$(node -p 'require(\"./app/package.json\").devDependencies[\"@playwright/test\"] || require(\"./app/package.json\").devDependencies[\"playwright\"]')" >> "$GITHUB_OUTPUT"
       - name: Cache Playwright browsers
         uses: actions/cache@v5
         with:
           path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('pnpm-lock.yaml', 'app/package.json') }}
+          key: ${{ runner.os }}-playwright-${{ steps.playwright_version.outputs.version }}
           restore-keys: |
             ${{ runner.os }}-playwright-
       - name: Install Playwright browsers
-        run: pnpm --filter app exec playwright install --with-deps
+        run: pnpm --filter app exec playwright install --with-deps chromium
       - name: Install headless display runtime
         run: |
           sudo apt-get update
@@ -567,15 +571,19 @@ jobs:
           python -m pip install --upgrade pip
           pip install -c constraints.txt -r requirements.lock -r requirements.dev.lock
           pnpm install --recursive --no-frozen-lockfile
+      - name: Resolve Playwright version
+        id: playwright_version
+        run: |
+          echo "version=$(node -p 'require(\"./app/package.json\").devDependencies[\"@playwright/test\"] || require(\"./app/package.json\").devDependencies[\"playwright\"]')" >> "$GITHUB_OUTPUT"
       - name: Cache Playwright browsers
         uses: actions/cache@v5
         with:
           path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('pnpm-lock.yaml', 'app/package.json') }}
+          key: ${{ runner.os }}-playwright-${{ steps.playwright_version.outputs.version }}
           restore-keys: |
             ${{ runner.os }}-playwright-
       - name: Install Playwright browsers
-        run: pnpm --filter app exec playwright install --with-deps
+        run: pnpm --filter app exec playwright install --with-deps chromium
       - name: Build renderer and main bundles
         run: |
           pnpm --filter app build:renderer
