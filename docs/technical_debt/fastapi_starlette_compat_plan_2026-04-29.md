@@ -133,3 +133,40 @@
 ### Compatibility Outcome
 - no FastAPI/Starlette compatibility failures surfaced in the required validation lanes
 - Batch B compatibility-fix lane is not required at this time
+
+## Emergency CI Resolver Follow-up (2026-04-30)
+
+### CI-Red Root Cause
+- install failure was caused by stale package metadata for `black-skies 1.0.0rc1` still declaring:
+  - `fastapi>=0.118.3,<0.119`
+  - `starlette>=0.48.0,<0.49`
+- stale declarations were present in:
+  - `services/src/black_skies.egg-info/PKG-INFO`
+  - `services/src/black_skies.egg-info/requires.txt`
+- additional contributing factor:
+  - prior lock snapshots had included an editable VCS line for the repo package; this can pull metadata from older commits and recreate the same conflict.
+
+### Emergency Metadata Fix Applied
+- updated egg-info dependency metadata to match Batch A lane:
+  - `fastapi>=0.121.3,<0.122`
+  - `starlette>=0.49.1,<0.50`
+- removed stale editable VCS package line from:
+  - `requirements.lock`
+  - `requirements.dev.lock`
+  - `requirements.win.dev.txt`
+
+### Validation After Emergency Fix
+- CI-shape install commands:
+  - `.\.venv\Scripts\python.exe -m pip install -c constraints.txt -r requirements.lock` -> pass
+  - `.\.venv\Scripts\python.exe -m pip install -e services -c constraints.txt` -> pass
+- `pip check`:
+  - FastAPI/Starlette package-conflict errors cleared
+  - remaining non-blocking environment warnings unchanged (`httptools`/`mypy` platform markers)
+- functional lanes remained green:
+  - backend tests: `64 passed`
+  - mypy: clean (`346` source files)
+  - smoke e2e: `3 passed`
+  - startup authority contract: `11 passed`
+
+### Classification
+- downstream canary/playwright failures observed in prior red runs are classified as cascading failures when occurring after resolver/install aborts.

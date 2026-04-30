@@ -1904,3 +1904,12 @@ Backlog note drifted after phase-log cleanup.
   - synchronized `constraints.txt`, `requirements.lock`, `requirements.dev.lock`, and `requirements.win.dev.txt`,
   - advisory delta: `pip-audit` moved from `3 vulns / 2 packages` (`pip`, `starlette`) to `2 vulns / 1 package` (`pip` only), clearing the blocked Starlette advisory,
   - validation remained green: backend app tests (`64 passed`), mypy clean (`346` files), smoke e2e (`3 passed`), and startup authority contract lane (`11 passed`); no compatibility failures observed.
+- 2026-04-30 - Codex - Emergency CI-red fix (FastAPI metadata conflict):
+  - reproduced resolver failure path and confirmed stale package metadata source was `services/src/black_skies.egg-info` (`PKG-INFO` and `requires.txt`) still pinned to `fastapi<0.119` / `starlette<0.49`,
+  - removed stale editable VCS repo package line from `requirements.lock`, `requirements.dev.lock`, and `requirements.win.dev.txt` to prevent old-commit metadata reintroduction during lock-driven installs,
+  - updated stale egg metadata bounds to `fastapi>=0.121.3,<0.122` and `starlette>=0.49.1,<0.50`,
+  - CI-shape install commands now pass:
+    - `python -m pip install -c constraints.txt -r requirements.lock`
+    - `python -m pip install -e services -c constraints.txt`
+  - validation after fix remains green: backend tests (`64 passed`), mypy clean (`346 files`), smoke e2e (`3 passed`), startup authority contract (`11 passed`),
+  - classification note: downstream canary/playwright failures after resolver abort are cascading failures, not primary defects in those lanes.

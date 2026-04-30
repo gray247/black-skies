@@ -5,7 +5,6 @@ anyio==4.11.0
 APScheduler==3.10.4
 attrs==25.4.0
 black==26.3.1
--e git+https://github.com/gray247/black-skies.git@e64aa34f2fa23d828374de759a5acd04c4d3f0eb#egg=black_skies
 boolean.py==5.0
 CacheControl==0.14.4
 certifi==2025.10.5
