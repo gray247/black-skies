@@ -39,11 +39,11 @@ Historical sections below are retained as provenance. This table is the current 
 | 8 | Artifact upload logic issues | Closed-Verified | 2026-04-23; deterministic artifact paths and proof uploads validated | CI artifacts | None |
 | 9 | Workflow duplication/divergence | Deferred-Accepted | 2026-04-23; duplication remains structural, not blocking | Workflow architecture | Defer to reusable-workflow lane |
 | 10 | Temporary CI scope narrowing | Deferred-Accepted | 2026-04-29; scoped mypy/flake8 debt still intentionally narrowed | CI governance | Retire in separate scope-removal lane |
-| 11 | Smoke vs truth-lane boundary | Open-Actionable | 2026-04-25; truth/smoke split still explicitly enforced | E2E contracts | Continue dedicated boundary coverage |
+| 11 | Smoke vs truth-lane boundary | Closed-Verified | 2026-04-30; launcher-boundary guard and smoke/full-suite separation verified in CI | E2E contracts | None |
 | 12 | Capability coverage gaps | Open-Actionable | 2026-04-25; no standalone closure proof in tracker | E2E contracts | Add targeted coverage as needed |
 | 13 | Accept step not in UI chain | Open-Actionable | 2026-04-25; no standalone closure proof in tracker | UI contracts | Add/verify UI path coverage |
 | 14 | Dual snapshot system risk | Open-Actionable | 2026-04-25; still documented as a risk bucket | Snapshot/recovery | Decide canonical snapshot authority |
-| 15 | No-silent-success enforcement | Open-Actionable | 2026-04-25; enforcement remains a policy bucket | Harness policy | Continue explicit-failure checks |
+| 15 | No-silent-success enforcement | Open-Actionable | 2026-04-30; gate now fails fast on unallowlisted runtime noise, with budget 402 classified only in the budget smoke lane | Harness policy | Confirm CI green after budget-402 classification |
 | 16 | Phase docs out of sync | Closed-Verified | 2026-04-29; closure doc and phase docs now reference canonical state | Documentation | None |
 | 17 | Doc authority drift | Closed-Verified | 2026-04-29; canonical system truth map and closeout docs aligned | Documentation | None |
 | 18 | Runtime truth sync risk | Deferred-Accepted | 2026-04-29; canonical truth map exists but risk is evergreen | Governance | Monitor |
@@ -73,9 +73,9 @@ Historical sections below are retained as provenance. This table is the current 
 | 42 | useCritique callback dependency omission | Closed-Verified | 2026-04-22; lint warning fixed with `state.draftId` dependency | Renderer lint/tests | None |
 
 Normalized counts:
-- Closed-Verified: 25
+- Closed-Verified: 26
 - Deferred-Accepted: 4
-- Open-Actionable: 11
+- Open-Actionable: 10
 - Open-Blocked: 2
 
 Promotion notes:
@@ -797,16 +797,18 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 # Tier 4 - Testing and Verification Debt
 
 ## [11] Smoke vs truth-lane boundary
-- Status: ACTIVE
+- Status: VERIFIED
 - Last Updated: 2026-04-30
 
 #### Known Facts
 - `scripts/e2e-with-backend.mjs` rejects explicit selectors in smoke mode and keeps the fixed smoke set separate from full-suite selector paths.
 - `app/main/__tests__/e2eLauncherArgs.test.ts` now exercises smoke rejection, full-suite selector acceptance, and smoke default-file behavior; `scripts/test_e2e_launcher_args.mjs` mirrors the same contract.
+- `pnpm test:e2e:args`, the launcher Vitest guard, `pnpm test:e2e -- --workers=1`, `pnpm --filter app test`, and `pnpm --filter app run build:production` all passed on the boundary-fix commit chain.
 - Harness lane also sets synthetic/mock assumptions by default (`BLACKSKIES_E2E_SYNTHETIC_MODE=1`, `BLACKSKIES_ENABLE_PHASE4_MOCK_FLOW=1`).
 
 #### Progress Log
 - 2026-04-30 - Codex - Added CI-run launcher boundary contract and refreshed the manual launcher-arg regression so smoke-vs-full-suite separation stays explicit.
+- 2026-04-30 - Codex - Marked the smoke/truth boundary verified after the green launcher-boundary and smoke-suite validation chain.
 
 ---
 
@@ -826,9 +828,11 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 #### Known Facts
 - `app/tests/e2e/_electron.fixture.ts` attaches runtime-error diagnostics and now fails on any non-allowlisted runtime/page error once the test itself is otherwise passing.
 - The current allowlist still tolerates the known renderer `push` noise.
+- `budget_guardrail_smoke` now marks its expected 402 resource noise so the runtime gate only fails on unexpected errors.
 
 #### Progress Log
 - 2026-04-30 - Codex - Wired a fail-fast runtime-error gate in the Electron fixture while preserving the known `push` allowlist.
+- 2026-04-30 - Codex - Scoped the expected budget 402 resource noise to the budget smoke lane instead of widening the runtime gate.
 
 ---
 

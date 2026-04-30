@@ -13,8 +13,14 @@ const { loadedProject } = loadSampleProject();
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(
     ({ project }) => {
-      document.documentElement.dataset.testActiveFlow = '1';
-      document.body?.dataset && (document.body.dataset.testActiveFlow = '1');
+      const root = document.documentElement;
+      if (!root) {
+        return;
+      }
+      root.dataset.testActiveFlow = '1';
+      if (document.body) {
+        document.body.dataset.testActiveFlow = '1';
+      }
       const layoutCalls = {
         openFloating: [] as Array<{ projectPath: string; paneId: string }>,
         saveLayout: [] as Array<{ projectPath: string; layout: unknown }>,

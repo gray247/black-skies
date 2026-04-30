@@ -92,38 +92,27 @@ test.describe('GUI flow smoke tests', () => {
 
   test('budget_guardrail_smoke (UI)', async ({ page }) => {
     await installServiceStubs(page, 'budget');
+    await page.evaluate(() => {
+      (window as typeof window & { __allowBudget402Noise?: boolean }).__allowBudget402Noise = true;
+    });
     await bootstrapHarness(page, {
       expectedMode: 'full',
       requiredEnabledActions: ['workspace-action-generate', 'workspace-action-critique'],
     });
-    await page.route('**/api/v1/draft/generate', async (route) => {
-      await route.fulfill({
-        status: 402,
-        contentType: 'application/json',
-        body: JSON.stringify({
+    await page.evaluate(() => {
+      const budgetExceeded = async () => ({
+        ok: false as const,
+        error: {
           code: 'BUDGET_EXCEEDED',
           message: 'Budget limit exceeded.',
-        }),
+          httpStatus: 402,
+        },
+        traceId: 'trace-budget-exceeded',
       });
-    });
-    await page.route('**/api/v1/draft/critique', async (route) => {
-      await route.fulfill({
-        status: 402,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          code: 'BUDGET_EXCEEDED',
-          message: 'Budget limit exceeded.',
-        }),
-      });
-    });
-    await page.route('**/api/v1/phase4/critique', async (route) => {
-      await route.fulfill({
-        status: 402,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          code: 'BUDGET_EXCEEDED',
-          message: 'Budget limit exceeded.',
-        }),
+      window.__dev?.overrideServices?.({
+        generateDraft: budgetExceeded,
+        critiqueDraft: budgetExceeded,
+        phase4Critique: budgetExceeded,
       });
     });
 

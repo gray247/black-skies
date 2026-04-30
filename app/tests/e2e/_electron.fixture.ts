@@ -506,12 +506,27 @@ export const test = base.extend<Fixtures>({
       await use(window);
     } finally {
       await resetMutableHarnessState(window, baselineFlags).catch(() => undefined);
+      let allowBudget402Noise = false;
+      try {
+        allowBudget402Noise = await window.evaluate(
+          () =>
+            Boolean(
+              (window as typeof window & { __allowBudget402Noise?: boolean })
+                .__allowBudget402Noise,
+            ),
+        );
+      } catch {
+        allowBudget402Noise = false;
+      }
       const combinedErrors = [
         ...runtimeDiagnostics.pageErrors,
         ...runtimeDiagnostics.consoleErrors.map((entry) => entry.text),
       ];
+      const budget402Pattern = /Failed to load resource: the server responded with a status of 402 \(Payment Required\)/;
       const unexpectedRuntimeErrors = combinedErrors.filter(
-        (message) => !RUNTIME_ERROR_ALLOWLIST.some((pattern) => pattern.test(message)),
+        (message) =>
+          !RUNTIME_ERROR_ALLOWLIST.some((pattern) => pattern.test(message)) &&
+          !(allowBudget402Noise && budget402Pattern.test(message)),
       );
       if (combinedErrors.length > 0) {
         let currentUrl: string | null = null;
@@ -527,6 +542,7 @@ export const test = base.extend<Fixtures>({
                 url: currentUrl,
                 failOnRuntimeErrors: FAIL_ON_RUNTIME_ERRORS,
                 allowlist: RUNTIME_ERROR_ALLOWLIST.map((pattern) => pattern.source),
+                allowBudget402Noise,
                 pageErrors: runtimeDiagnostics.pageErrors,
                 consoleErrors: runtimeDiagnostics.consoleErrors,
                 unexpectedRuntimeErrors,
