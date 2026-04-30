@@ -294,3 +294,71 @@
 ### Compatibility Outcome
 - no runtime/app/test compatibility fixes were required in this pass.
 - because advisory totals remained unchanged, further Electron/runtime remediation may require additional major progression and/or separate advisory interpretation lane.
+
+## Post-B2 Advisory Review (2026-04-30)
+
+### Current Remaining Advisory Map (`pnpm audit --json`)
+- total: `27` (`3 low | 14 moderate | 10 high`)
+- advisory groups:
+  - `electron` (`17` advisories):
+    - IDs: `1107272`, `1116041`, `1116045`, `1116049`, `1116053`, `1116057`, `1116060`, `1116064`, `1116068`, `1116072`, `1116076`, `1116080`, `1116084`, `1116088`, `1116092`, `1116259`, `1116320`
+    - path: `app > electron@31.7.7`
+    - patched ranges: `>=35.7.5`, `>=38.8.6`, `>=39.8.1`, `>=39.8.5`
+    - classification: `runtime`
+    - Electron 32 sufficiency: `no` (all patches are well above 32)
+  - `lodash` (`3` advisories: `1112455`, `1115806`, `1115810`)
+    - path: `app > react-mosaic-component@6.1.1 > lodash@4.17.21`
+    - patched ranges: `>=4.17.23`, `>=4.18.0`
+    - classification: `runtime` (renderer dependency)
+  - `uuid` (`1` advisory: `1116970`)
+    - path: `app > react-mosaic-component@6.1.1 > uuid@9.0.1`
+    - patched range: `>=14.0.0`
+    - classification: `runtime` (transitive through docking library)
+  - `minimatch` (`3` advisories: `1113459`, `1113538`, `1113546`)
+    - path: `eslint-plugin-jsx-a11y` / `eslint-plugin-react` chains
+    - patched ranges: `>=3.1.3`, `>=3.1.4`
+    - classification: `dev-only`
+  - `flatted` (`2` advisories: `1114526`, `1115357`)
+    - path: `eslint -> file-entry-cache -> flat-cache -> flatted`
+    - patched ranges: `>=3.4.0`, `>=3.4.2`
+    - classification: `dev-only`
+  - `brace-expansion` (`1` advisory: `1115540`)
+    - paths include both eslint chains and remaining electron-builder transitive chains
+    - patched range: `>=1.1.13`
+    - classification: `mixed` (`dev-only` + `packaging`)
+
+### Why Count Stayed At 27
+- Electron `30.5.1 -> 31.7.7` changed the runtime baseline but did not cross advisory fix floors.
+- Remaining Electron advisories require major lines `35/38/39`, so B2 is below all current patch thresholds.
+- Non-Electron runtime advisories (`react-mosaic-component` transitive `uuid`/`lodash`) and dev-only lint-chain advisories are unaffected by the Electron bump.
+
+### Pre/Post Electron Set Comparison
+- pre-B2 and post-B2 totals are identical (`27`).
+- Electron advisory IDs remained present; path changed from `electron@30.5.1` to `electron@31.7.7`.
+- net result: no advisory removals from the B2 move itself.
+
+### Decision
+- Electron 32 escalation is **not justified as a closure move** for the current advisory set.
+- Any meaningful Electron advisory reduction now implies a much larger runtime jump (`>=35`, likely `>=39`) with high compatibility risk.
+- recommended handling:
+  - classify current Electron advisories as deferred accepted runtime risk for this cycle,
+  - keep this as a dedicated future modernization lane (major Electron progression with broader compatibility budget),
+  - continue separate `react-mosaic-component` lane for `uuid`/`lodash` transitive runtime advisories.
+
+## Closure Checkpoint (2026-04-30)
+
+### Completed Proof
+- Batch A (`electron-builder` / package-chain) completed:
+  - advisory delta: `49 -> 27`
+  - packaging smoke: `pnpm --filter app run package:dir` passed
+  - validation: app tests, production build, smoke e2e, and startup authority contract lane passed
+- Batch B (Electron runtime) completed:
+  - `electron 30.5.1 -> 31.7.7`
+  - compatibility validation remained green (no code compatibility patch required)
+  - advisory total remained `27`
+
+### Closure Decision
+- Electron 32 escalation is not justified for current remaining Electron advisories.
+- Current fixed floors require significantly higher majors (`>=35`, `>=38`, `>=39`).
+- Required future lane: dedicated Electron major modernization targeting advisory-floor majors (likely `39+`).
+- Current stabilization status: deferred/accepted with no P0 blocker while CI remains green.
