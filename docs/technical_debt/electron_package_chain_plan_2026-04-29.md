@@ -193,3 +193,104 @@
 ### Batch A Outcome
 - no packaging/build compatibility break was observed in this batch.
 - Batch B (Electron runtime upgrade lane) is still required to address remaining direct Electron advisories.
+
+## Batch B Runtime Planning (2026-04-30)
+
+### Current Electron Runtime State
+- declared (`app/package.json`):
+  - `electron: ^30.0.2`
+- resolved (`pnpm-lock.yaml`):
+  - `electron@30.5.1`
+
+### Current Advisory State After Batch A
+- `pnpm audit` totals:
+  - `27 vulnerabilities` (`3 low | 14 moderate | 10 high`)
+- Electron-specific:
+  - `17` advisories still mapped to `app > electron@30.5.1`
+  - severities include `low`, `moderate`, and `high`
+
+### Candidate Target Versions
+- B1 candidate (same major, lowest risk):
+  - no newer 30.x patch beyond `30.5.1` is currently available
+  - implication: patch-only in current major cannot reduce further
+- B2 candidate (next major, controlled step-up):
+  - `31.7.7` (latest 31.x stable)
+- B2 fallback/next step if needed:
+  - `32.3.3` (latest 32.x stable) only if 31.x does not sufficiently address advisories
+
+### Electron Breaking-Change Risk Areas (codebase-specific)
+- main process startup/window lifecycle:
+  - `app/main/main.ts` (`BrowserWindow` creation, startup fallbacks, loadURL/loadFile paths)
+- preload bridge and API exposure:
+  - `app/main/preload.ts` (`contextBridge`, renderer-facing APIs, IPC invoke/send paths)
+- context isolation / sandbox posture:
+  - `contextIsolation: true`, `nodeIntegration: false`, `sandbox: false` in main/layout windows
+- IPC contracts:
+  - `ipcMain.handle`/`ipcRenderer.invoke` surfaces in `main.ts`, `layoutIpc.ts`, `projectLoaderIpc.ts`, preload bridge
+- `file://` navigation/load protections:
+  - explicit URL filtering and fallback loading behavior in `main.ts` and `layoutIpc.ts`
+- CSP/security warning behavior:
+  - existing security/sandbox regression tests under `app/renderer/__tests__/SecuritySandbox.test.tsx`
+- Playwright Electron launch stability:
+  - `app/tests/e2e/_electron.fixture.ts`, `app/tests/e2e/electron.launch.ts`
+- packaged build behavior:
+  - `pnpm --filter app run package:dir` path must stay green after runtime bump
+
+### Batch B Implementation Plan
+- B1:
+  - attempt same-major patch/minor bump only if new 30.x appears (currently none)
+- B2:
+  - upgrade Electron to latest stable `31.x` (`31.7.7`) with no other intentional dependency churn
+- B3:
+  - apply only narrow compatibility fixes if validation fails after B2
+
+### Validation Gate for B2/B3
+- `pnpm audit`
+- `pnpm --filter app run build:production`
+- `pnpm --filter app test`
+- `pnpm test:e2e -- --workers=1`
+- contract lane:
+  - `pnpm --filter app exec playwright test tests/e2e/startup_authority_contract.spec.ts --project=electron --workers=1 --reporter=line`
+- packaging smoke:
+  - `pnpm --filter app run package:dir`
+- CI:
+  - fresh `eval.yml` and `security.yml` runs on upgraded commit
+
+### Recommendation
+- **Implement now** as the next isolated lane (`Batch B2`), since Batch A landed clean and no additional 30.x patch path exists.
+
+## Batch B2 Execution Evidence (2026-04-30)
+
+### Applied Change
+- upgraded Electron runtime only:
+  - `electron` in `app/package.json`: `^30.0.2 -> ^31.7.7`
+- explicitly unchanged:
+  - `electron-builder` remained `^26.8.1`
+
+### Version Before/After
+- before:
+  - declared `electron: ^30.0.2`
+  - resolved `electron@30.5.1`
+- after:
+  - declared `electron: ^31.7.7`
+  - resolved `electron@31.7.7`
+
+### Advisory Delta (`pnpm audit`)
+- before:
+  - `27 vulnerabilities` (`3 low | 14 moderate | 10 high`)
+- after:
+  - `27 vulnerabilities` (`3 low | 14 moderate | 10 high`)
+- note:
+  - direct Electron advisory paths moved from `electron@30.5.1` to `electron@31.7.7`, but total advisory count did not change.
+
+### Validation Results
+- `pnpm --filter app run build:production` -> pass
+- `pnpm --filter app test` -> `145 passed`
+- `pnpm test:e2e -- --workers=1` -> `3 passed`
+- `pnpm --filter app run package:dir` -> pass (unpacked build flow completed on Electron `31.7.7`)
+- contract lane (port `9999` free):
+  - `pnpm --filter app exec playwright test tests/e2e/startup_authority_contract.spec.ts --project=electron --workers=1 --reporter=line` -> `11 passed`
+
+### Compatibility Outcome
+- no runtime/app/test compatibility fixes were required in this pass.
+- because advisory totals remained unchanged, further Electron/runtime remediation may require additional major progression and/or separate advisory interpretation lane.

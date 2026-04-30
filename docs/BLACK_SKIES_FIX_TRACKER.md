@@ -1953,3 +1953,32 @@ Backlog note drifted after phase-log cleanup.
   - local validation:
     - YAML parse succeeded (`YAML_OK`) via Node YAML parser,
     - grep check confirmed expected setup-node/pnpm/action/upload/load-ledger path wiring.
+- 2026-04-30 - Codex - Electron runtime Batch B planning:
+  - updated `docs/technical_debt/electron_package_chain_plan_2026-04-29.md` with post-Batch-A runtime remediation plan,
+  - confirmed current runtime pin state:
+    - declared `electron: ^30.0.2`
+    - resolved `electron@30.5.1` in lockfile,
+  - confirmed current advisory baseline after Batch A:
+    - `27 total` (`3 low | 14 moderate | 10 high`)
+    - `17` advisories mapped directly to `electron@30.5.1`,
+  - assessed candidate targets:
+    - no newer `30.x` patch currently available beyond `30.5.1`,
+    - next safe step is `31.x` stable (`31.7.7`), with `32.x` only as fallback escalation,
+  - documented high-risk validation surfaces (main/preload/IPC/context isolation/file loading/Playwright launch/packaging),
+  - recommendation recorded: proceed with isolated Batch B2 Electron runtime upgrade lane next.
+- 2026-04-30 - Codex - Electron runtime Batch B2 implementation:
+  - upgraded only `electron` in `app/package.json` from `^30.0.2` to `^31.7.7`,
+  - preserved `electron-builder` at `^26.8.1` (no builder/package-chain change in this pass),
+  - lockfile resolved runtime moved from `electron@30.5.1` to `electron@31.7.7`,
+  - advisory totals from `pnpm audit` remained unchanged:
+    - before: `27` (`3 low | 14 moderate | 10 high`)
+    - after: `27` (`3 low | 14 moderate | 10 high`)
+  - validation remained green:
+    - `pnpm --filter app run build:production` pass
+    - `pnpm --filter app test` (`145 passed`)
+    - `pnpm test:e2e -- --workers=1` (`3 passed`)
+    - `pnpm --filter app run package:dir` pass (`electron=31.7.7`)
+    - startup authority contract lane (`11 passed`)
+  - outcome:
+    - no compatibility code fixes required,
+    - Batch B3 remains optional (not required for compatibility), but further advisory reduction may need additional Electron-major strategy.
