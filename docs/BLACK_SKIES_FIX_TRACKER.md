@@ -47,8 +47,8 @@ Historical sections below are retained as provenance. This table is the current 
 | 16 | Phase docs out of sync | Closed-Verified | 2026-04-29; closure doc and phase docs now reference canonical state | Documentation | None |
 | 17 | Doc authority drift | Closed-Verified | 2026-04-29; canonical system truth map and closeout docs aligned | Documentation | None |
 | 18 | Runtime truth sync risk | Deferred-Accepted | 2026-04-29; canonical truth map exists but risk is evergreen | Governance | Monitor |
-| 19 | Junk artifact buildup | Open-Actionable | 2026-04-21; no current closure proof | Hygiene | Cleanup/ignore-policy lane |
-| 20 | .gitignore discipline issues | Open-Actionable | 2026-04-21; no current closure proof | Hygiene | Maintain ignore-policy discipline |
+| 19 | Junk artifact buildup | Closed-Verified | 2026-04-30; tracked residue cleanup and hygiene gates passed in green CI | Hygiene | None |
+| 20 | .gitignore discipline issues | Closed-Verified | 2026-04-30; ignore-policy cleanup validated by green CI and repo hygiene pass | Hygiene | None |
 | 21 | Environment instability | Open-Blocked | 2026-04-30; local Playwright/port caveats still documented | Local environment | Host cleanup / stronger preflight |
 | 22 | Security workflow + vulnerability reporting | Closed-Verified | 2026-04-30; `security.yml` green and reporting validated | Security CI | None |
 | 23 | Dependency update plan missing | Closed-Verified | 2026-04-30; remediation plans and deferred register exist | Dependency planning | None |
@@ -73,9 +73,9 @@ Historical sections below are retained as provenance. This table is the current 
 | 42 | useCritique callback dependency omission | Closed-Verified | 2026-04-22; lint warning fixed with `state.draftId` dependency | Renderer lint/tests | None |
 
 Normalized counts:
-- Closed-Verified: 31
+- Closed-Verified: 33
 - Deferred-Accepted: 5
-- Open-Actionable: 4
+- Open-Actionable: 2
 - Open-Blocked: 2
 
 Promotion notes:
@@ -937,7 +937,7 @@ Last Updated: 2026-04-30
 # Tier 6 - Repo Hygiene
 
 ## [19] Junk artifact buildup
-- Status: ACTIVE
+- Status: VERIFIED
 - Last Updated: 2026-04-30
 
 #### Known Facts
@@ -946,16 +946,22 @@ Last Updated: 2026-04-30
 - 2026-04-30 cleanup removed the obvious repo-root residue set: `1.txt`, `black-test-delete/`, `diffpixels.py`, `diffregion.py`, `diffscript.py`, `diffstats.py`, `list_trace.py`, `scan_trace.py`, `trace_search.py`, `e-b2-memory-lab`, `loading.jpg`, `work/app-preflight-output.txt`, `work/errors_clip-*.json`, and `work/full-renderer.txt`.
 - `python scripts/check_repo_hygiene.py` passes after that cleanup; remaining scan friction is still the host ACL issue tracked under [21]/[30].
 
+#### Progress Log
+- 2026-04-30 - Codex - Removed the tracked repo-root residue set and verified `python scripts/check_repo_hygiene.py`, `eval.yml`, `security.yml`, Black, load lane, and Playwright/runtime-error gate all passed on SHA `7239c7aee6b70ad11ff3560d50f2badc04cdba80`.
+
 ---
 
 ## [20] .gitignore discipline issues
-- Status: ACTIVE
+- Status: VERIFIED
 - Last Updated: 2026-04-30
 
 #### Known Facts
 - `.gitignore` includes `services/testtmp-*/`, but existing directories are still present and causing tooling friction.
 - `.gitignore` cannot contain already-tracked ad-hoc scripts; containment needs policy discipline (where such scripts live and how they are maintained), not broad new ignore globs.
 - The repo-root ad-hoc helper residue was removed instead of hidden behind broader ignore rules, keeping the policy narrow and source-safe.
+
+#### Progress Log
+- 2026-04-30 - Codex - Validated ignore-policy discipline by cleaning tracked residue instead of broadening ignore globs; green CI on SHA `7239c7aee6b70ad11ff3560d50f2badc04cdba80` confirms the narrowed policy is stable.
 
 ---
 
