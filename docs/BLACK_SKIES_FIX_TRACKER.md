@@ -2133,3 +2133,17 @@ Backlog note drifted after phase-log cleanup.
     - before bump: `24 vulnerabilities` (`3 low | 12 moderate | 9 high`),
     - after bump: `7 vulnerabilities` (`2 moderate | 5 high`),
     - Electron major-line advisories cleared; remaining advisories are deferred non-Electron chains.
+- 2026-04-30 - Codex - Phase 6 Batch 6C focused Electron 39 CI failure investigation:
+  - CI-only failing surface: `tests/e2e/startup.diagnostic.spec.ts::diagnostic_action_readiness_generate_contract (action)`,
+  - root cause classification: harness/timing seam drift (not confirmed runtime regression):
+    - test previously waited for `dialog OR toast`, then asserted dialog-only readiness state, which can race on CI,
+  - minimal fix:
+    - `app/tests/e2e/startup.diagnostic.spec.ts` now uses existing `openPreflightDialog(...)` helper before readiness assertions, removing brittle `dialog||toast` wait path while preserving user-visible modal readiness contract,
+  - validation:
+    - targeted spec: `pnpm --filter app exec playwright test tests/e2e/startup.diagnostic.spec.ts --project=electron --workers=1 --reporter=line` -> pass (`4 passed`),
+    - full smoke e2e wrapper: `pnpm test:e2e -- --workers=1` -> pass (`3 passed`),
+    - startup authority contract lane (port `9999` free): `pnpm --filter app exec playwright test tests/e2e/startup_authority_contract.spec.ts --project=electron --workers=1 --reporter=line` -> pass (`11 passed`),
+    - app unit lane: `pnpm --filter app test` -> pass (`145 passed`),
+    - production build lane: `pnpm --filter app run build:production` -> pass,
+  - note:
+    - repeat-run probe (`--repeat-each=3`) hit local infra contention (`EADDRINUSE 127.0.0.1:9999`) and is classified as environment/port noise, not product regression.

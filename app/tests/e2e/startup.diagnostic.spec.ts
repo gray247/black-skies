@@ -2,6 +2,7 @@ import { test, expect } from './_electron.fixture';
 import {
   bootstrapHarness,
   collectStartupStateSnapshot,
+  openPreflightDialog,
   waitForFlatModeReady,
   waitForFullModeReady,
   waitForRecoveryModeReady,
@@ -168,14 +169,7 @@ test('diagnostic_action_readiness_generate_contract (action)', async ({ page }, 
   expect(buttonStateBefore?.visible).toBe(true);
   expect(buttonStateBefore?.enabled).toBe(true);
 
-  await page.getByTestId('workspace-action-generate').click();
-  await page.waitForFunction(
-    () =>
-      Boolean(document.querySelector('[role="dialog"][aria-label*="Draft preflight"]')) ||
-      Boolean(document.querySelector('.toast')),
-    null,
-    { timeout: 15_000 },
-  );
+  await openPreflightDialog(page, { actionTestId: 'workspace-action-generate', timeoutMs: 15_000 });
 
   const result = await page.evaluate(() => {
     const win = window as typeof window & {
