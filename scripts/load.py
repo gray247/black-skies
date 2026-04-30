@@ -8,6 +8,7 @@ import contextlib
 import json
 import logging
 import math
+import os
 import shlex
 import shutil
 import subprocess
@@ -21,6 +22,9 @@ from typing import Any, Iterable, Iterator, Mapping, Sequence
 REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:  # pragma: no cover - path hygiene
     sys.path.insert(0, str(REPO_ROOT))
+SCRIPT_DIR = Path(__file__).resolve().parent
+if str(SCRIPT_DIR) not in sys.path:  # pragma: no cover - path hygiene
+    sys.path.insert(0, str(SCRIPT_DIR))
 
 try:  # pragma: no cover - ensure repo hooks apply when running as script
     import sitecustomize  # noqa: F401
@@ -44,6 +48,15 @@ DEFAULT_PROFILES_PATH = Path("config/load_profiles.yaml")
 DEFAULT_SERVICE_COMMAND = (
     "uvicorn blackskies.services.app:create_app --factory --host {host} --port {port}"
 )
+
+
+def _build_started_service_env(base_env: Mapping[str, str]) -> dict[str, str]:
+    """Return the service environment used for load-sanctioned self-hosting."""
+
+    service_env = dict(base_env)
+    service_env["BLACKSKIES_E2E_MODE"] = "1"
+    service_env["BLACKSKIES_E2E_SYNTHETIC_MODE"] = "1"
+    return service_env
 
 
 @dataclass(slots=True)
@@ -376,8 +389,9 @@ def _maybe_started_service(args: argparse.Namespace) -> Iterator[None]:
 
     command_tokens = _resolve_service_command(args)
     LOGGER.info("Starting services with command: %s", " ".join(command_tokens))
+    service_env = _build_started_service_env(os.environ)
     try:
-        process = subprocess.Popen(command_tokens, cwd=REPO_ROOT)
+        process = subprocess.Popen(command_tokens, cwd=REPO_ROOT, env=service_env)
     except FileNotFoundError as exc:
         raise SystemExit(f"Unable to start services: {exc}") from exc
     try:

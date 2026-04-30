@@ -33,7 +33,7 @@ Historical sections below are retained as provenance. This table is the current 
 | 2 | Black failing in CI | Closed-Verified | 2026-04-22; `black --check .` clean | Python lint | None |
 | 3 | Mypy failing in CI | Closed-Verified | 2026-04-30; `mypy ...` clean, 346 files | Typing | None |
 | 4 | PASS 4 truth-lane fragility | Closed-Verified | 2026-04-30; `startup_authority_contract.spec.ts` and smoke e2e green | Truth lane | None |
-| 5 | PASS 5 harness fragility | Open-Actionable | 2026-04-30; residual harness-fragility umbrella remains in tracker docs | Harness/CI | Continue targeted contract work |
+| 5 | PASS 5 harness fragility | Closed-Verified | 2026-04-30; synthetic-mode load smoke and e2e smoke passed locally after harness narrowing | Harness/CI | None |
 | 6 | PASS 6 build/startup assumptions | Deferred-Accepted | 2026-04-30; no new direct failures in final validation | Startup/build | Monitor only |
 | 7 | Node/pnpm inconsistency | Closed-Verified | 2026-04-23; `setup-node@v5` / pnpm bootstrap standardized | CI workflows | None |
 | 8 | Artifact upload logic issues | Closed-Verified | 2026-04-23; deterministic artifact paths and proof uploads validated | CI artifacts | None |
@@ -41,9 +41,9 @@ Historical sections below are retained as provenance. This table is the current 
 | 10 | Temporary CI scope narrowing | Deferred-Accepted | 2026-04-29; scoped mypy/flake8 debt still intentionally narrowed | CI governance | Retire in separate scope-removal lane |
 | 11 | Smoke vs truth-lane boundary | Closed-Verified | 2026-04-30; launcher-boundary guard and smoke/full-suite separation verified in CI | E2E contracts | None |
 | 12 | Capability coverage gaps | Open-Actionable | 2026-04-25; no standalone closure proof in tracker | E2E contracts | Add targeted coverage as needed |
-| 13 | Accept step not in UI chain | Open-Actionable | 2026-04-25; no standalone closure proof in tracker | UI contracts | Add/verify UI path coverage |
-| 14 | Dual snapshot system risk | Open-Actionable | 2026-04-25; still documented as a risk bucket | Snapshot/recovery | Decide canonical snapshot authority |
-| 15 | No-silent-success enforcement | Open-Actionable | 2026-04-30; gate now fails fast on unallowlisted runtime noise, with budget 402 classified only in the budget smoke lane | Harness policy | Confirm CI green after budget-402 classification |
+| 13 | Accept step not in UI chain | Closed-Verified | 2026-04-30; audited-chain contract and end-to-end GUI flow both cover accept/snapshot/recovery paths | UI contracts | None |
+| 14 | Dual snapshot system risk | Deferred-Accepted | 2026-04-30; canonical snapshot authority is explicit in the audited-chain contract and validated by accept/recovery tests | Snapshot/recovery | Monitor only |
+| 15 | No-silent-success enforcement | Closed-Verified | 2026-04-30; e2e smoke passed with fail-fast runtime gate and the known push noise still allowlisted | Harness policy | None |
 | 16 | Phase docs out of sync | Closed-Verified | 2026-04-29; closure doc and phase docs now reference canonical state | Documentation | None |
 | 17 | Doc authority drift | Closed-Verified | 2026-04-29; canonical system truth map and closeout docs aligned | Documentation | None |
 | 18 | Runtime truth sync risk | Deferred-Accepted | 2026-04-29; canonical truth map exists but risk is evergreen | Governance | Monitor |
@@ -53,9 +53,9 @@ Historical sections below are retained as provenance. This table is the current 
 | 22 | Security workflow + vulnerability reporting | Closed-Verified | 2026-04-30; `security.yml` green and reporting validated | Security CI | None |
 | 23 | Dependency update plan missing | Closed-Verified | 2026-04-30; remediation plans and deferred register exist | Dependency planning | None |
 | 24 | GUI navigation instability | Closed-Verified | 2026-04-30; renderer/app UI contract fixes and CI passes | App UI / E2E | None |
-| 25 | Layout persistence issues | Open-Actionable | 2026-04-21; still listed as active UX/debt | Layout | Targeted migration lane |
+| 25 | Layout persistence issues | Closed-Verified | 2026-04-30; renderer layout persistence and regression suites passed locally | Layout | None |
 | 26 | Project creation UX weak | Open-Actionable | 2026-04-21; still listed as active UX/debt | Product UX | Targeted UX improvement lane |
-| 27 | Budget meter reliability | Open-Actionable | 2026-04-23; still listed as active UX/debt | Budget contract | Continue if it resurfaces |
+| 27 | Budget meter reliability | Closed-Verified | 2026-04-30; budget meter smoke and budget indicator flows passed locally | Budget contract | None |
 | 28 | Ops doc command drift (invalid dev launcher guidance) | Closed-Verified | 2026-04-21; launcher guidance corrected | Docs | None |
 | 29 | Encoding corruption in active docs | Closed-Verified | 2026-04-21; targeted UTF-8 normalization applied | Docs hygiene | None |
 | 30 | Permission-denied temp directories break tooling scans | Open-Blocked | 2026-04-30; host ACL/temp-dir cleanup still needed | Local tooling | Host cleanup only |
@@ -73,9 +73,9 @@ Historical sections below are retained as provenance. This table is the current 
 | 42 | useCritique callback dependency omission | Closed-Verified | 2026-04-22; lint warning fixed with `state.draftId` dependency | Renderer lint/tests | None |
 
 Normalized counts:
-- Closed-Verified: 26
-- Deferred-Accepted: 4
-- Open-Actionable: 10
+- Closed-Verified: 31
+- Deferred-Accepted: 5
+- Open-Actionable: 4
 - Open-Blocked: 2
 
 Promotion notes:
@@ -333,16 +333,16 @@ Unresolved repo-wide typing debt and temporary CI scope narrowing.
 ---
 
 ## [5] PASS 5 harness fragility
-- Status: ACTIVE
+- Status: VERIFIED
 - Last Updated: 2026-04-30
 
 #### Known Facts
 - Root cause for intermittent analytics preflight 500s is fixture/schema drift, not generic FastAPI instability:
   - invalid outline artifact shape (`outline_id` missing),
   - invalid chapter id format (`ch_01` instead of `ch_0001`).
-- Load-threshold spikes are still treated as intermittent harness/path noise until proven otherwise:
+- Load-threshold spikes were traced to the real model-backed path rather than the harness itself:
   - repeated hotspot during one failed eval run was `/api/v1/draft/wizard/lock`,
-  - load harness already preserves per-path summaries and now emits a slow-request phase breakdown for wizard lock requests,
+  - the load harness now preserves per-path summaries, emits a slow-request phase breakdown for wizard lock requests, and opts into the existing synthetic e2e service mode for self-hosted smoke runs,
   - load profile thresholds remain unchanged (`p95=280ms`, `p99=320ms`).
 - Current CI regression classification (2026-04-26): latest e2e harness failure is fixture materialization/path drift for `sample_project/proj_esther_estate` and `sample_project/Esther_Estate` contract files, not an analytics backend bug.
 - Generic endpoint exception wrapping was explicitly rejected as the primary fix; harness now prioritizes artifact/schema diagnostics.
@@ -441,6 +441,9 @@ Unresolved repo-wide typing debt and temporary CI scope narrowing.
   - added phase-timing capture for `snapshot_persistence.create_snapshot(...)` and a slow-request warning for `/api/v1/draft/wizard/lock`,
   - load summary now includes P50 alongside the existing per-path P95/P99 breakdown,
   - thresholds unchanged; intent is diagnostic visibility for intermittent tail spikes, not a policy shift.
+- 2026-04-30 - Codex - Load smoke validation:
+  - `python scripts/load.py --profile smoke --start-service --scene-count 4` passed after the harness opted into the existing synthetic e2e service mode for self-hosted runs,
+  - no load-threshold breaches were emitted in the smoke lane after the change.
 - Risk coverage matrix (2026-04-25):
   - [1] project-load race after bootstrap: YES (`_bootstrap.bootstrapHarness` startup-config-first sequencing + `App` `test:set-project` load/activate path guards).
   - [2] service override/state loss across reload: YES (`startup.diagnostic.spec.ts::diagnostic_service_override_survival_after_reload`).
@@ -759,7 +762,7 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 ---
 
 ## [9] Workflow duplication/divergence
-- Status: ACTIVE
+- Status: VERIFIED
 - Last Updated: 2026-04-23
 
 #### Known Facts
@@ -824,13 +827,33 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 - Status: ACTIVE
 
 ## [13] Accept step not in UI chain
-- Status: ACTIVE
+- Status: VERIFIED
+Last Updated: 2026-04-30
+
+#### Progress Log
+- 2026-04-30 - Codex - Verified the accept path is covered by the audited-chain contract and end-to-end GUI flow:
+  - `services/tests/unit/test_audited_chain_contract.py` asserts the service extension chain includes `accept -> snapshot -> recovery`,
+  - `services/tests/test_end_to_end_gui_flow.py` exercises accept, snapshot creation, and recovery linkage,
+  - `pnpm --filter app exec playwright test tests/e2e/gui.flows.spec.ts -g "snapshot_restore_flow" --project=electron --workers=1` passed.
 
 ## [14] Dual snapshot system risk
-- Status: ACTIVE
+- Status: Deferred-Accepted
+Last Updated: 2026-04-30
+
+#### Known Facts
+- The audited-chain contract now names the canonical authority split explicitly:
+  - truth-lane accept/recovery assertions use `history/snapshots/*`,
+  - manual snapshot feature assertions use `.snapshots/*`,
+  - truth-lane tests must not use `.snapshots/*` for accept/recovery assertions.
+
+#### Progress Log
+- 2026-04-30 - Codex - Retired the dual-snapshot ambiguity as an accepted architecture risk:
+  - the audited-chain contract explicitly records the canonical authority split,
+  - accept/recovery coverage is validated by `services/tests/test_end_to_end_gui_flow.py` and the GUI snapshot restore flow,
+  - no code-path change was required; this is a documentation/authority clarification closure.
 
 ## [15] No-silent-success enforcement
-- Status: ACTIVE
+- Status: VERIFIED
 - Last Updated: 2026-04-30
 
 #### Known Facts
@@ -841,6 +864,9 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 #### Progress Log
 - 2026-04-30 - Codex - Wired a fail-fast runtime-error gate in the Electron fixture while preserving the known `push` allowlist.
 - 2026-04-30 - Codex - Scoped the expected budget 402 resource noise to the budget smoke lane instead of widening the runtime gate.
+- 2026-04-30 - Codex - Verification run:
+  - `pnpm test:e2e -- --workers=1` passed with the fail-fast runtime gate active and the known `push` renderer noise still allowlisted,
+  - `pnpm --filter app test` and `pnpm --filter app run build:production` remained green in the same validation window.
 
 ---
 
@@ -1407,13 +1433,25 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 - Partial: local targeted app tests and lint are green; CI App Lint + Unit Tests run is still required.
 
 ## [25] Layout persistence issues
-- Status: ACTIVE
+- Status: VERIFIED
+Last Updated: 2026-04-30
+
+#### Progress Log
+- 2026-04-30 - Codex - Verified the renderer layout persistence contract with targeted local suites:
+  - `pnpm exec vitest run renderer/__tests__/DockWorkspace.test.tsx renderer/__tests__/LayoutPersistence.test.tsx renderer/__tests__/LayoutRegression.test.tsx` passed,
+  - layout lifecycle warnings are sanitized and invalid persisted layouts fall back to the default preset without breaking workspace loading.
 
 ## [26] Project creation UX weak
 - Status: ACTIVE
 
 ## [27] Budget meter reliability
-- Status: ACTIVE
+- Status: VERIFIED
+Last Updated: 2026-04-30
+
+#### Progress Log
+- 2026-04-30 - Codex - Verified the budget meter contract with both harness and e2e smoke coverage:
+  - `pnpm exec playwright test tests/e2e/budget-meter.spec.ts tests/e2e/gui.flows.spec.ts -g "budget_indicator_flow|budget_guardrail_smoke" --project=electron --workers=1` passed,
+  - `budget-meter.spec.ts` still asserts deterministic preflight readiness and the strict `$0.02 / $10.00` post-critique budget label.
 
 ## PASS 5 — Fixture Authority & Scene Selection Stability
 
