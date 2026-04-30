@@ -596,3 +596,37 @@ Security workflow:
 - safety:
   - `non_blocking: true`
   - no impact on failure classification / CI pass-fail semantics
+
+## Batch 4A Validation Evidence (2026-04-30)
+- runs inspected:
+  - eval: `25142869893` (`Validation & Eval Harness`)
+  - security: `25142869880` (`Security Audit`)
+  - both on commit `e64aa34f2fa23d828374de759a5acd04c4d3f0eb`
+- workflow status:
+  - eval: `success`
+  - security: `success`
+- observability job status:
+  - eval `CI Observability Summary`: `success`
+  - security `CI Observability Summary`: `success`
+- observability artifact contents verified in both workflows:
+  - `ci-run-summary.json`
+  - `ci-sha-consistency.json`
+  - `ci-artifact-completeness.json`
+  - `ci-failure-classification.json`
+  - `ci-warning-summary.json`
+- warning summary sanity:
+  - `non_blocking: true` in both runs
+  - all expected warning families present
+  - status values in allowed enum set (`deferred`/`unknown` in this batch)
+  - summary counts coherent (`deferred=4`, `unknown=2`, `observed=0`, `not_observed=0`)
+- failure classification check:
+  - eval: `primary_class=no_failure`, `confidence=high`
+  - security: `primary_class=no_failure`, `confidence=high`
+- SHA consistency:
+  - eval: `sha_match=true`
+  - security: `sha_match=true`
+
+## Batch 4A Validation Notes
+- no defects found for Batch 4A behavior on green runs.
+- known design limit remains:
+  - status values are intentionally conservative without full-log parsing; `observed`/`not_observed` are reserved for later signal-enhanced pass.
