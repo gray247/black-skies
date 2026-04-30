@@ -2024,3 +2024,13 @@ Backlog note drifted after phase-log cleanup.
     - contract lane (`11 passed`) when port `9999` was free,
   - follow-up:
     - no override applied in this pass; `uuid` remains deferred to dedicated compatibility lane.
+- 2026-04-30 - Codex - Residual dev/tooling advisory review (Lane 1):
+  - preflight re-run completed on branch `phase-b2-memory-lab` (`git branch --show-current`, `git status --short`, `git diff --cached --name-status`, `git diff --cached --check`),
+  - targeted audit scope only: `minimatch`, `flatted`, `brace-expansion`,
+  - classification:
+    - `minimatch` (`GHSA-3ppc-4f35-3m26`, `GHSA-7r86-cg39-jmmj`, `GHSA-23c5-xmqv-rm74`): high, dev/tooling-only; path is `eslint-plugin-jsx-a11y@6.10.2` and `eslint-plugin-react@7.37.5` transitives at `minimatch@3.1.2`,
+    - `flatted` (`GHSA-25h7-pfq9-p65f`, `GHSA-rf6f-7fwh-wjgh`): high, dev/tooling-only; path is `eslint@9.39.4 -> file-entry-cache@8.0.0 -> flat-cache@4.0.1 -> flatted@3.3.3`,
+    - `brace-expansion` (`GHSA-f886-m6hf-6m8v`): moderate, mixed (dev/tooling + packaging chain); includes lint-stack paths and residual `electron-builder` transitive paths,
+  - decision:
+    - no safe minimal fix was available in this lane without broader lint-stack churn or crossing out-of-scope packaging/Electron boundaries,
+    - advisories deferred and normalized into canonical deferred-risk register.

@@ -132,6 +132,25 @@ Purpose:
   - `pnpm --filter app test`
   - `pnpm --filter app run build:production`
 
+### Dev/tooling advisory residue (`minimatch`, `flatted`, `brace-expansion`)
+- status:
+  - deferred after targeted Lane 1 review (no safe minimal fix found under current constraints)
+- evidence doc/source:
+  - `docs/BLACK_SKIES_FIX_TRACKER.md` (2026-04-30 Lane 1 entry)
+  - `pnpm audit` and `pnpm audit --json` dependency-path capture
+- why deferred:
+  - `minimatch`: vulnerable `3.1.2` is pulled by latest stable `eslint-plugin-jsx-a11y@6.10.2` and `eslint-plugin-react@7.37.5`; no smaller in-lane upgrade was available
+  - `flatted`: vulnerable `3.3.3` is transitive through `eslint@9.39.4 -> file-entry-cache@8 -> flat-cache@4`; fix likely requires broader lint-stack movement
+  - `brace-expansion`: mixed dev/tooling + packaging transitive exposure; packaging-side paths are tied to the Electron/package-chain lane and are out of scope for this pass
+- next safe action:
+  - defer to a dedicated tooling-only remediation pass that can absorb controlled ESLint-stack churn, while keeping Electron/runtime lanes isolated
+- validation required:
+  - `pnpm lint`
+  - `pnpm --filter app test`
+  - `pnpm build`
+  - `pnpm --filter app run build:production`
+  - `pnpm audit`
+
 ### Renderer TypeError warning noise (if still reproducible)
 - status:
   - deferred pending reproducibility confirmation
