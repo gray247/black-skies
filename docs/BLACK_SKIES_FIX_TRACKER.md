@@ -340,6 +340,10 @@ Unresolved repo-wide typing debt and temporary CI scope narrowing.
 - Root cause for intermittent analytics preflight 500s is fixture/schema drift, not generic FastAPI instability:
   - invalid outline artifact shape (`outline_id` missing),
   - invalid chapter id format (`ch_01` instead of `ch_0001`).
+- Load-threshold spikes are still treated as intermittent harness/path noise until proven otherwise:
+  - repeated hotspot during one failed eval run was `/api/v1/draft/wizard/lock`,
+  - load harness already preserves per-path summaries and now emits a slow-request phase breakdown for wizard lock requests,
+  - load profile thresholds remain unchanged (`p95=280ms`, `p99=320ms`).
 - Current CI regression classification (2026-04-26): latest e2e harness failure is fixture materialization/path drift for `sample_project/proj_esther_estate` and `sample_project/Esther_Estate` contract files, not an analytics backend bug.
 - Generic endpoint exception wrapping was explicitly rejected as the primary fix; harness now prioritizes artifact/schema diagnostics.
 - Canonical project conventions:
@@ -433,6 +437,10 @@ Unresolved repo-wide typing debt and temporary CI scope narrowing.
   - validation on the local workspace confirmed the dialog contract itself was still present, so the fix stayed in harness/test space: `startup.diagnostic.spec.ts` now checks `await dialog.isVisible()` after `openPreflightDialog(...)` instead of a raw `document.querySelector(...)` snapshot;
   - this is classified as harness fragility under issue 5, not as a new truth/smoke boundary regression under issues 11/15;
   - the recurring smoke renderer `TypeError: Cannot read properties of undefined (reading 'push')` remains an allowed, separate runtime-noise signal in the smoke lane and did not drive the modal fix.
+- 2026-04-30 - Codex - Narrow load instrumentation lane:
+  - added phase-timing capture for `snapshot_persistence.create_snapshot(...)` and a slow-request warning for `/api/v1/draft/wizard/lock`,
+  - load summary now includes P50 alongside the existing per-path P95/P99 breakdown,
+  - thresholds unchanged; intent is diagnostic visibility for intermittent tail spikes, not a policy shift.
 - Risk coverage matrix (2026-04-25):
   - [1] project-load race after bootstrap: YES (`_bootstrap.bootstrapHarness` startup-config-first sequencing + `App` `test:set-project` load/activate path guards).
   - [2] service override/state loss across reload: YES (`startup.diagnostic.spec.ts::diagnostic_service_override_survival_after_reload`).

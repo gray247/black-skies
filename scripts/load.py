@@ -152,6 +152,9 @@ class LoadMetrics(smoke_runner.SmokeMetricsSink):
             return None
         return mean(entry["elapsed_ms"] for entry in self.requests)
 
+    def p50_latency(self) -> float | None:
+        return self.percentile(50.0)
+
     def per_path_summary(self) -> dict[str, Any]:
         summary: dict[str, Any] = {}
         by_path: dict[str, list[dict[str, Any]]] = {}
@@ -162,6 +165,7 @@ class LoadMetrics(smoke_runner.SmokeMetricsSink):
             summary[path] = {
                 "count": len(entries),
                 "avg_ms": mean(latencies),
+                "p50_ms": self._percentile_from_sorted(latencies, 50.0),
                 "p95_ms": self._percentile_from_sorted(latencies, 95.0),
                 "p99_ms": self._percentile_from_sorted(latencies, 99.0),
                 "error_count": sum(1 for item in entries if item["status"] >= 400),
@@ -527,6 +531,7 @@ def build_result_payload(
             "error_count": metrics.error_count,
             "error_rate": metrics.error_rate,
             "avg_latency_ms": metrics.average_latency(),
+            "p50_latency_ms": metrics.p50_latency(),
             "p95_latency_ms": metrics.percentile(95.0),
             "p99_latency_ms": metrics.percentile(99.0),
             "total_budget_usd": metrics.total_budget,
@@ -631,12 +636,13 @@ def main(argv: Sequence[str] | None = None) -> int:
     LOGGER.info(
         (
             "Load metrics: %s requests over %.2fs (%.2f req/s), error rate %.2f%%, "
-            "P95 %.2fms, P99 %.2fms, budget $%.2f"
+            "P50 %.2fms, P95 %.2fms, P99 %.2fms, budget $%.2f"
         ),
         metrics.total_requests,
         duration,
         rps,
         metrics.error_rate * 100,
+        (metrics.percentile(50.0) or 0.0),
         (metrics.percentile(95.0) or 0.0),
         (metrics.percentile(99.0) or 0.0),
         metrics.total_budget,

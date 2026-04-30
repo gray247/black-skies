@@ -80,11 +80,19 @@ def test_snapshot_creation_happy_path(tmp_path: Path) -> None:
     project_payload = {"title": "Happy Project"}
     (project_root / "project.json").write_text(json.dumps(project_payload), encoding="utf-8")
 
-    snapshot = persistence.create_snapshot(project_id, label="Review Build")
+    timings: dict[str, float] = {}
+    snapshot = persistence.create_snapshot(
+        project_id,
+        label="Review Build",
+        timing_hook=timings.update,
+    )
 
     assert snapshot["label"] == "Review-Build"
     assert snapshot["snapshot_id"]
     assert set(snapshot["includes"]) == {"drafts", "outline.json", "project.json"}
+    assert timings["total_ms"] >= timings["allocate_ms"]
+    assert timings["metadata_ms"] >= 0.0
+    assert timings["manifest_ms"] >= 0.0
 
     snapshot_dir = (
         project_root / "history" / "snapshots" / f"{snapshot['snapshot_id']}_{snapshot['label']}"

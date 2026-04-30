@@ -9,7 +9,8 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from threading import Lock
-from typing import Any, Sequence
+from time import perf_counter
+from typing import Any, Callable, Sequence
 from uuid import uuid4
 
 from blackskies.services.utils import safe_dump, to_posix
@@ -135,18 +136,25 @@ class SnapshotPersistence:
         *,
         label: str | None = None,
         include_entries: Sequence[str] | None = None,
+        timing_hook: Callable[[dict[str, float]], None] | None = None,
     ) -> dict[str, Any]:
         """Create a snapshot of the project directory."""
 
+        started_at = perf_counter()
+
+        allocate_started = perf_counter()
         label_token = self._sanitize_label(label)
         directory, directory_resolved, snapshot_id = self._allocate_directory(
             project_id,
             label_token,
         )
+        allocate_ms = (perf_counter() - allocate_started) * 1000.0
+
         project_root = self.settings.project_base_dir / project_id
         project_root.mkdir(parents=True, exist_ok=True)
         project_root_resolved = project_root.resolve()
 
+        include_started = perf_counter()
         try:
             include_specs = collect_include_specs(
                 project_root=project_root,
@@ -159,8 +167,13 @@ class SnapshotPersistence:
             if directory.exists():
                 shutil.rmtree(directory, ignore_errors=True)
             raise
+        include_ms = (perf_counter() - include_started) * 1000.0
 
+        copy_started = perf_counter()
         recorded = copy_include_entries(include_specs)
+        copy_ms = (perf_counter() - copy_started) * 1000.0
+
+        metadata_started = perf_counter()
         metadata = self._build_metadata(
             snapshot_id=snapshot_id,
             project_id=project_id,
@@ -168,7 +181,23 @@ class SnapshotPersistence:
             includes=recorded,
         )
         write_json_atomic(directory / "metadata.json", metadata.as_dict())
+        metadata_ms = (perf_counter() - metadata_started) * 1000.0
+
+        manifest_started = perf_counter()
         self._write_snapshot_manifest(directory, metadata=metadata)
+        manifest_ms = (perf_counter() - manifest_started) * 1000.0
+
+        if timing_hook is not None:
+            timing_hook(
+                {
+                    "allocate_ms": allocate_ms,
+                    "include_ms": include_ms,
+                    "copy_ms": copy_ms,
+                    "metadata_ms": metadata_ms,
+                    "manifest_ms": manifest_ms,
+                    "total_ms": (perf_counter() - started_at) * 1000.0,
+                }
+            )
 
         try:
             relative_path = to_posix(directory.relative_to(project_root))

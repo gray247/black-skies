@@ -18,6 +18,7 @@ if TYPE_CHECKING:
 
 SNAPSHOT_DIR_NAME = ".snapshots"
 SNAPSHOT_RETENTION = 7
+WIZARD_LOCK_SLOW_LATENCY_MS = 100.0
 
 LOGGER = logging.getLogger(__name__)
 
@@ -77,11 +78,18 @@ def create_wizard_lock_snapshot(
 ) -> dict[str, Any]:
     """Create a snapshot for a wizard lock action with diagnostics."""
 
+    timing_snapshot: dict[str, float] | None = None
+
+    def _capture_timing_snapshot(timings: dict[str, float]) -> None:
+        nonlocal timing_snapshot
+        timing_snapshot = dict(timings)
+
     try:
         snapshot_info = snapshot_persistence.create_snapshot(
             project_id,
             label=label,
             include_entries=includes,
+            timing_hook=_capture_timing_snapshot,
         )
     except ValueError as exc:
         raise SnapshotIncludesError(
@@ -99,6 +107,24 @@ def create_wizard_lock_snapshot(
             "Failed to create wizard snapshot.",
             details={"project_id": project_id, "step": step},
         ) from exc
+
+    if timing_snapshot and timing_snapshot.get("total_ms", 0.0) >= WIZARD_LOCK_SLOW_LATENCY_MS:
+        LOGGER.warning(
+            (
+                "Slow wizard lock snapshot request path=/api/v1/draft/wizard/lock "
+                "project_id=%s step=%s total_ms=%.2f allocate_ms=%.2f include_ms=%.2f "
+                "copy_ms=%.2f metadata_ms=%.2f manifest_ms=%.2f snapshot_id=%s"
+            ),
+            project_id,
+            step,
+            timing_snapshot.get("total_ms", 0.0),
+            timing_snapshot.get("allocate_ms", 0.0),
+            timing_snapshot.get("include_ms", 0.0),
+            timing_snapshot.get("copy_ms", 0.0),
+            timing_snapshot.get("metadata_ms", 0.0),
+            timing_snapshot.get("manifest_ms", 0.0),
+            snapshot_info.get("snapshot_id"),
+        )
 
     diagnostics.log(
         project_root,
