@@ -2068,3 +2068,26 @@ Backlog note drifted after phase-log cleanup.
   - validation:
     - `.\.venv\Scripts\python.exe -m pip_audit` -> found 2 advisories in pip only,
     - no Python package changes were made in this lane.
+- 2026-04-30 - Codex - Phase 5 final closeout validation gate:
+  - scope: closure validation only (no feature/runtime/dependency changes),
+  - required validation commands:
+    - `pnpm lint` -> pass (existing ESLintRC deprecation warning only),
+    - `pnpm --filter app test` -> pass (`145 passed`),
+    - `pnpm --filter app run build:production` -> pass,
+    - `pnpm audit` -> `24 vulnerabilities` (`3 low | 12 moderate | 9 high`), unchanged and previously classified/deferred,
+    - `.\.venv\Scripts\python.exe -m pip_audit` -> `2 vulnerabilities` in `pip` only, unchanged and previously classified/deferred,
+  - closure-state confirmation:
+    - resolved in cycle:
+      - Starlette advisory path resolved (FastAPI/Starlette compatibility lane complete),
+      - electron-builder/package-chain reduction complete (`49 -> 27` prior milestone),
+      - react-mosaic lodash advisories cleared (`react-mosaic-component 6.2.0`),
+      - Playwright install/cache hardening validated with restored CI runtime band (~3.5 minutes),
+    - deferred in cycle:
+      - Electron major-line advisories (future dedicated `39+` modernization lane),
+      - react-mosaic uuid advisory (no clean stable upstream fix),
+      - dev/tooling advisories (`minimatch`, `flatted`, `brace-expansion`),
+      - Python advisories (`pip` only, environment/tooling scope),
+  - explicit command note:
+    - `pnpm build` is not a failure signal in this repo: `pnpm build: not applicable; root package has no build script`,
+  - explicit scope note:
+    - no dependency changes were made in final closeout unless validation uncovered a directly related documentation correction.
