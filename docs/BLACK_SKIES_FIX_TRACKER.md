@@ -798,11 +798,15 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 
 ## [11] Smoke vs truth-lane boundary
 - Status: ACTIVE
-- Last Updated: 2026-04-21
+- Last Updated: 2026-04-30
 
 #### Known Facts
-- `scripts/e2e-with-backend.mjs` defaults to smoke filtering (`--grep smoke_`) when no explicit tests are passed.
+- `scripts/e2e-with-backend.mjs` rejects explicit selectors in smoke mode and keeps the fixed smoke set separate from full-suite selector paths.
+- `app/main/__tests__/e2eLauncherArgs.test.ts` now exercises smoke rejection, full-suite selector acceptance, and smoke default-file behavior; `scripts/test_e2e_launcher_args.mjs` mirrors the same contract.
 - Harness lane also sets synthetic/mock assumptions by default (`BLACKSKIES_E2E_SYNTHETIC_MODE=1`, `BLACKSKIES_ENABLE_PHASE4_MOCK_FLOW=1`).
+
+#### Progress Log
+- 2026-04-30 - Codex - Added CI-run launcher boundary contract and refreshed the manual launcher-arg regression so smoke-vs-full-suite separation stays explicit.
 
 ---
 
@@ -817,6 +821,14 @@ No new direct failures found in this sweep; continue monitoring startup assumpti
 
 ## [15] No-silent-success enforcement
 - Status: ACTIVE
+- Last Updated: 2026-04-30
+
+#### Known Facts
+- `app/tests/e2e/_electron.fixture.ts` attaches runtime-error diagnostics and now fails on any non-allowlisted runtime/page error once the test itself is otherwise passing.
+- The current allowlist still tolerates the known renderer `push` noise.
+
+#### Progress Log
+- 2026-04-30 - Codex - Wired a fail-fast runtime-error gate in the Electron fixture while preserving the known `push` allowlist.
 
 ---
 

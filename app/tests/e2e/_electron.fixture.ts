@@ -71,7 +71,8 @@ const BASELINE_DATASET_KEYS = [
   'testEnvForceOfflineReason',
 ] as const;
 
-const FAIL_ON_RUNTIME_ERRORS = process.env.BLACKSKIES_E2E_FAIL_ON_RUNTIME_ERROR === '1';
+// Runtime errors are fail-fast by default; the allowlist defines the only tolerated noise.
+const FAIL_ON_RUNTIME_ERRORS = true;
 const RUNTIME_ERROR_ALLOWLIST: RegExp[] = [
   /Cannot read properties of undefined \(reading 'push'\)/,
 ];

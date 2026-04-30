@@ -48,22 +48,37 @@ assertNoStandaloneSeparator(argsWorkers2, 'user workers=2 args');
 assertNoDuplicateWorkers(argsWorkers2, 'user workers=2 args');
 assertContains(argsWorkers2, ['--workers=2'], 'user workers=2 args');
 
-// Case 4: explicit selector should suppress default smoke selectors/files.
-const argsExplicitSelector = buildPlaywrightArgs(normalizeForwardedArgs(['gui.flows.spec.ts']), false);
-assertNoStandaloneSeparator(argsExplicitSelector, 'explicit selector args');
-assertNoDuplicateWorkers(argsExplicitSelector, 'explicit selector args');
-assert.equal(
-  argsExplicitSelector.includes('dock-workspace.spec.ts'),
-  false,
-  'explicit selector args: default smoke file must not be injected',
-);
-assert.equal(
-  argsExplicitSelector.includes('--grep'),
-  false,
-  'explicit selector args: default smoke grep must not be injected',
+// Case 4: explicit selector is not allowed in smoke mode.
+assert.throws(
+  () => buildPlaywrightArgs(normalizeForwardedArgs(['gui.flows.spec.ts']), false),
+  /smoke launcher does not accept explicit selectors/,
+  'explicit selector args must fail closed in smoke mode',
 );
 
-// Case 5: option-only forwarding should still include default smoke selectors/files (avoids no-tests-found shape).
+// Case 5: full-suite forwarding should accept explicit selectors without injecting smoke defaults.
+const argsExplicitSelectorFullSuite = buildPlaywrightArgs(
+  normalizeForwardedArgs(['gui.flows.spec.ts']),
+  true,
+);
+assertNoStandaloneSeparator(argsExplicitSelectorFullSuite, 'explicit selector full-suite args');
+assertNoDuplicateWorkers(argsExplicitSelectorFullSuite, 'explicit selector full-suite args');
+assertContains(
+  argsExplicitSelectorFullSuite,
+  ['gui.flows.spec.ts'],
+  'explicit selector full-suite args',
+);
+assert.equal(
+  argsExplicitSelectorFullSuite.includes('dock-workspace.spec.ts'),
+  false,
+  'explicit selector full-suite args: smoke file must not be injected',
+);
+assert.equal(
+  argsExplicitSelectorFullSuite.includes('--grep'),
+  false,
+  'explicit selector full-suite args: smoke grep must not be injected',
+);
+
+// Case 6: option-only forwarding should still include default smoke selectors/files (avoids no-tests-found shape).
 const argsOptionOnly = buildPlaywrightArgs(normalizeForwardedArgs(['--grep', 'smoke_']), false);
 assertNoStandaloneSeparator(argsOptionOnly, 'option-only args');
 assertNoDuplicateWorkers(argsOptionOnly, 'option-only args');
