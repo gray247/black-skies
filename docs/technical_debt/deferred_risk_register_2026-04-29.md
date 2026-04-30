@@ -180,6 +180,27 @@ Purpose:
   - local Playwright launch preflight on target environment
   - parity check against CI artifact outputs
 
+### Python advisory residue (`pip` only)
+- status:
+  - deferred as pip/environment-only residual risk after classification pass
+- evidence doc/source:
+  - `docs/BLACK_SKIES_FIX_TRACKER.md` (2026-04-30 Lane 4 entry)
+  - `.\.venv\Scripts\python.exe -m pip_audit`
+  - `.\.venv\Scripts\python.exe -m pip_audit -f json`
+- why deferred:
+  - current advisories are only on the environment installer tool (`pip`) and are not in service runtime packages
+  - one advisory has no published fixed version yet in audit output (`CVE-2026-3219`)
+  - no backend/runtime package vulnerability was detected in the current pass
+- classification table:
+  - `pip` `25.3` `CVE-2026-1703` (`GHSA-6vgw-5pg2-w6jp`) fix `26.0`:
+    pip/environment-only; no direct runtime package path; safe direct bump likely but deferred in stabilization lane
+  - `pip` `25.3` `CVE-2026-3219` (`GHSA-58qw-9mgm-455v`) fix `none listed`:
+    pip/environment-only; no direct runtime package path; cannot fully close until upstream publishes a fix version
+- next safe action:
+  - defer to a small, isolated Python tooling lane after stabilization closure (pip installer tool update policy and lock refresh)
+- validation required:
+  - `.\.venv\Scripts\python.exe -m pip_audit`
+
 ### Uncommitted working-tree drift during Codex passes
 - status:
   - process risk (managed manually)

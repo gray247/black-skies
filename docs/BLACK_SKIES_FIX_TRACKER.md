@@ -2051,3 +2051,20 @@ Backlog note drifted after phase-log cleanup.
     - no clean stable upstream fix path currently exists for uuid advisory closure,
     - defer uuid remediation to a dedicated future lane,
     - explicit guardrail: no override/patch-package/transitive surgery approved in Phase 5.
+- 2026-04-30 - Codex - Lane 4 Python advisory classification:
+  - scope: classification-first only, no dependency edits and no backend/runtime refactor,
+  - audit command used (existing project lane): `.\.venv\Scripts\python.exe -m pip_audit` (plus `-f json` for machine-readable details),
+  - current Python advisory result:
+    - `2` advisories in `1` package (`pip`), with runtime packages (including `fastapi`/`starlette`) clean in this pass,
+  - classification table:
+    - `pip 25.3` `CVE-2026-1703` (`GHSA-6vgw-5pg2-w6jp`) fix `26.0`: `pip-only/environment-only`, no runtime code dependency path surfaced by audit,
+    - `pip 25.3` `CVE-2026-3219` (`GHSA-58qw-9mgm-455v`) fix `none listed`: `pip-only/environment-only`, no runtime code dependency path surfaced by audit,
+  - advisory ownership classification:
+    - runtime-affecting: none found in current Python audit
+    - tooling-only (test/dev package): none currently flagged
+    - pip/environment-only: `pip` advisories above
+  - recommendation:
+    - defer as non-runtime stabilization risk; revisit in a dedicated Python tooling lane when a full upstream fix path exists for both pip CVEs,
+  - validation:
+    - `.\.venv\Scripts\python.exe -m pip_audit` -> found 2 advisories in pip only,
+    - no Python package changes were made in this lane.
