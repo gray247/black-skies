@@ -1982,3 +1982,45 @@ Backlog note drifted after phase-log cleanup.
   - outcome:
     - no compatibility code fixes required,
     - Batch B3 remains optional (not required for compatibility), but further advisory reduction may need additional Electron-major strategy.
+- 2026-04-30 - Codex - Electron advisory post-upgrade audit review:
+  - refreshed `pnpm audit --json` after Electron `31.7.7` and mapped all remaining `27` advisories by ID/package/path/fix range/classification,
+  - confirmed Electron advisories remain `17` items (`1107272`, `1116041`, `1116045`, `1116049`, `1116053`, `1116057`, `1116060`, `1116064`, `1116068`, `1116072`, `1116076`, `1116080`, `1116084`, `1116088`, `1116092`, `1116259`, `1116320`) with patched floors at `>=35.7.5`, `>=38.8.6`, `>=39.8.1`, `>=39.8.5`,
+  - finding: `30.5.1 -> 31.7.7` changed runtime version but did not cross any advisory fix floor, so total remained `27`,
+  - classification update:
+    - runtime: Electron advisories + `react-mosaic-component` transitive `lodash`/`uuid`,
+    - dev-only: `minimatch`/`flatted` via lint stack,
+    - mixed: `brace-expansion` across lint and residual packaging paths,
+  - decision:
+    - Electron 32 escalation is not sufficient for current Electron advisories,
+    - reclassify remaining Electron advisory closure as a future major modernization lane (likely `39+`) and keep deferred for this cycle.
+- 2026-04-30 - Codex - Electron/package-chain closure checkpoint:
+  - Batch A closure proof recorded: `electron-builder` package-chain lane reduced advisories `49 -> 27`, packaging smoke (`package:dir`) passed, and app/build/e2e/contract validations remained green,
+  - Batch B closure proof recorded: Electron runtime upgraded `30.5.1 -> 31.7.7`, compatibility remained green, advisory total unchanged at `27`,
+  - closure classification: deferred/accepted for stabilization; no P0 blocker while eval/security CI remains green,
+  - forward path: dedicated future Electron major modernization lane targeting advisory floor majors (likely `39+`).
+- 2026-04-30 - Codex - react-mosaic runtime transitive advisory planning:
+  - created `docs/technical_debt/react_mosaic_runtime_transitives_plan_2026-04-30.md` as planning-only coverage for runtime transitive advisories through `react-mosaic-component`,
+  - confirmed current paths:
+    - `app > react-mosaic-component@6.1.1 > uuid@9.0.1` (`1116970`, fixed `>=14.0.0`),
+    - `app > react-mosaic-component@6.1.1 > lodash@4.17.21` (`1112455`, `1115806`, `1115810`, fixed `>=4.17.23`/`>=4.18.0`),
+  - upstream version fact check:
+    - stable `react-mosaic-component@6.2.0` keeps `uuid:^9.0.0` but moves `lodash` to `^4.18.1`,
+    - `7.0.0-beta0` shifts to `uuid:^11.1.0` + `lodash-es`, still below `uuid` advisory fix floor and introduces beta/major risk,
+  - recommendation:
+    - defer immediate `uuid` remediation,
+    - optionally run a separate isolated `lodash`-only remediation lane with full docking/build/e2e validation.
+- 2026-04-30 - Codex - react-mosaic lodash-only micro-lane implementation:
+  - applied safest stable change only: `react-mosaic-component 6.1.1 -> 6.2.0` (no beta migration, no `uuid` override),
+  - advisory delta from `pnpm audit --json`:
+    - before: `27` (`3 low | 14 moderate | 10 high`)
+    - after: `24` (`3 low | 12 moderate | 9 high`)
+  - result:
+    - runtime `lodash` advisories through mosaic (`1112455`, `1115806`, `1115810`) cleared,
+    - `uuid` advisory (`1116970`) remains on `app > react-mosaic-component@6.2.0 > uuid@9.0.1`,
+  - validation remained green:
+    - `pnpm --filter app test -- DockWorkspace` (`7 passed`)
+    - `pnpm --filter app run build:production` pass
+    - `pnpm test:e2e -- --workers=1` (`3 passed`)
+    - contract lane (`11 passed`) when port `9999` was free,
+  - follow-up:
+    - no override applied in this pass; `uuid` remains deferred to dedicated compatibility lane.

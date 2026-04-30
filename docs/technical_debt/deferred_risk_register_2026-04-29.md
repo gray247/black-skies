@@ -39,31 +39,36 @@ Purpose:
 
 ### Electron/package-chain advisories
 - status:
-  - deferred, high-risk coordinated lane
+  - deferred/accepted for current stabilization, high-risk coordinated follow-up lane (post-B2 reviewed)
 - evidence doc/source:
   - `docs/technical_debt/dependency_remediation_phase4_2026-04-28.md` (Phase 4.7H-4.7J)
   - `docs/technical_debt/phase4_deferred_risk_triage_2026-04-28.md`
 - why deferred:
-  - remaining advisories are in Electron/runtime packaging chains (`electron`, `tar`, `glob`, `minimatch`, `@tootallnate/once`) and are unsafe for piecemeal bumping
+  - Batch A completed with material reduction (`49 -> 27`) and Batch B2 completed with validated runtime compatibility (`30.5.1 -> 31.7.7`) but unchanged remaining total (`27`); unresolved Electron advisories still require major lines `>=35`, `>=38`, and `>=39`, which exceeds safe incremental stabilization scope
 - next safe action:
-  - coordinated Electron + packaging-chain remediation batch, separated from unrelated tooling changes
+  - plan a dedicated major Electron modernization lane (likely `39+`) with explicit compatibility budget, instead of incremental `31 -> 32` hops that do not satisfy current advisory floors
 - validation required:
   - `pnpm --filter app run build:production`
   - packaging smoke command in release flow
   - `pnpm --filter app exec playwright test tests/e2e/startup_authority_contract.spec.ts --project=electron --workers=1 --reporter=line`
   - `pnpm test:e2e -- --workers=1`
+  - fresh `pnpm audit` delta showing actual advisory-ID reduction, not just runtime version movement
 
-### react-mosaic-component / uuid advisory path
+### react-mosaic-component runtime transitive advisories (`uuid`, `lodash`)
 - status:
-  - deferred compatibility risk
+  - partial: `lodash` cleared in stable micro-lane; `uuid` remains deferred compatibility risk
 - evidence doc/source:
   - `docs/technical_debt/dependency_remediation_phase4_2026-04-28.md` (Phase 4.7I)
   - `docs/technical_debt/phase4_deferred_risk_triage_2026-04-28.md`
+  - `docs/technical_debt/react_mosaic_runtime_transitives_plan_2026-04-30.md`
 - why deferred:
-  - `uuid` is transitive via `react-mosaic-component` CommonJS consumer path; audited target is not yet proven drop-in safe
+  - stable micro-lane (`react-mosaic-component 6.1.1 -> 6.2.0`) cleared `lodash` advisories without overrides and passed validation
+  - remaining `uuid` advisory floor (`>=14`) is not reachable through current stable `react-mosaic-component` line and forced major override is not yet proven safe for the current CJS-oriented consumer path
 - next safe action:
-  - evaluate `react-mosaic-component` upgrade/replacement path before `uuid` remediation
+  - keep `uuid` remediation deferred until stable upstream path or dedicated major migration/replacement strategy is approved
 - validation required:
+  - `pnpm audit`
+  - `pnpm --filter app test -- DockWorkspace`
   - `pnpm --filter app run build:production`
   - `pnpm --filter app exec playwright test tests/e2e/startup_authority_contract.spec.ts --project=electron --workers=1 --reporter=line`
   - `pnpm test:e2e -- --workers=1`
