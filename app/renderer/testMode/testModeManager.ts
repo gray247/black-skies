@@ -40,18 +40,7 @@ function datasetFlagEnabled(flag: string): boolean {
 }
 
 export function isHarnessHooksEnabled(): boolean {
-  if (typeof process !== 'undefined' && process.env?.BLACKSKIES_ENABLE_HARNESS_HOOKS === '1') {
-    return true;
-  }
-  const win = getWindow();
-  if (!win) {
-    return false;
-  }
-  const envFlag = win.__testEnv;
-  const isPlaywrightFlag =
-    envFlag === true ||
-    (envFlag !== false && typeof envFlag === 'object' && envFlag.isPlaywright === true);
-  return Boolean(isPlaywrightFlag && win.__dev);
+  return modePolicy.isHarnessEnabled();
 }
 
 export function getStartupConfig(): E2EStartupConfig | null {
@@ -154,11 +143,7 @@ export function isVisualHome(): boolean {
   if (!isHarnessHooksEnabled()) {
     return false;
   }
-  const datasetFlag =
-    typeof document !== 'undefined' &&
-    (document.body?.dataset?.testVisualStable === '1' ||
-      document.documentElement?.dataset?.testVisualStable === '1');
-  return datasetFlag;
+  return modePolicy.isVisualStable();
 }
 
 export function getOfflineReason(): string | null {
@@ -195,3 +180,4 @@ export function testModeFreezeServiceHealth(): boolean {
   }
   return Boolean(datasetFlagEnabled('testModeFreezeServiceHealth'));
 }
+import * as modePolicy from "../../shared/modePolicy";

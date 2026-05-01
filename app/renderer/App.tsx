@@ -52,18 +52,15 @@ import { TestModeRecoveryHome } from "./screens/TestModeRecoveryHome";
 import * as testMode from "./testMode/testModeManager";
 import * as testUISandbox from "./testMode/testUISandbox";
 import { ServiceHealthProvider } from "./contexts/serviceHealthContext";
+import * as modePolicy from "../shared/modePolicy";
 import "./styles/stable-home.css";
 export function getTestModes() {
   if (typeof document === "undefined") {
     return { visualMode: false, stableDockMode: false, flowMode: true };
   }
-  const envVisualStable = typeof process !== "undefined" && process.env?.BLACKSKIES_VISUAL_STABLE === "1";
   const bodyDataset = document.body?.dataset;
   const htmlDataset = document.documentElement?.dataset;
-  const visualMode =
-    envVisualStable ||
-    bodyDataset?.testVisualStable === "1" ||
-    htmlDataset?.testVisualStable === "1";
+  const visualMode = modePolicy.isVisualStable() || bodyDataset?.testVisualStable === "1" || htmlDataset?.testVisualStable === "1";
   const stableDockMode =
     bodyDataset?.testStableDock === "1" || htmlDataset?.testStableDock === "1";
   const flowMode = !visualMode && !stableDockMode;
@@ -167,7 +164,7 @@ interface BatchCritiqueResult {
 
 export default function App(): JSX.Element {
   const hasWindow = typeof window !== 'undefined';
-  const harnessHooksEnabled = testMode.isHarnessHooksEnabled();
+  const harnessHooksEnabled = modePolicy.isHarnessEnabled();
   const startupConfig = testMode.getStartupConfig();
   const startupModeLocked = harnessHooksEnabled && testMode.isModeLocked();
   const startupLockedMode = startupConfig?.mode ?? null;
@@ -2040,7 +2037,8 @@ export default function App(): JSX.Element {
       autoSnapEnabled,
       onRelocationNotifyChange: setRelocationNotifyEnabled,
       onAutoSnapChange: setAutoSnapEnabled,
-      suppressBootstrap: isStableHomeMode || isVisualHomeMode,
+      suppressBootstrap: isStableHomeMode || testMode.isVisualHome(),
+      suppressWelcome: testMode.isVisualHome(),
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [

@@ -5,6 +5,8 @@
   background-color: #f8fafc;
   color-scheme: light;
   zoom: 1;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
 }
 
 :is([data-visual-stable="1"], [data-test-visual-stable="1"]) body *,
@@ -89,4 +91,15 @@
 
 :is([data-visual-stable="1"], [data-test-visual-stable="1"]) body .app-shell__workspace-button {
   font-weight: 500 !important;
+}
+
+:is([data-visual-stable="1"], [data-test-visual-stable="1"]) body .app-shell__workspace-button:focus-visible,
+:is([data-visual-stable="1"], [data-test-visual-stable="1"]) body .workspace-header__export-select:focus-visible,
+:is([data-visual-stable="1"], [data-test-visual-stable="1"]) body .project-home__toggle-input:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+:is([data-visual-stable="1"], [data-test-visual-stable="1"]) body .project-home__toggle-input {
+  accent-color: #3b82f6 !important;
 }

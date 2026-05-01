@@ -1,6 +1,7 @@
 ﻿import { contextBridge, ipcRenderer, shell } from 'electron';
 import { promises as fs } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
+import * as modePolicy from '../shared/modePolicy';
 import * as testMode from '../renderer/testMode/testModeManager';
 
 const safeExpose = (key: string, api: unknown) => {
@@ -84,7 +85,7 @@ const electronFsApi = {
 safeExpose('__electronApi', { fs: electronFsApi });
 
 const isPlaywright = process.env.PLAYWRIGHT === '1';
-const harnessHooksEnabled = process.env.BLACKSKIES_ENABLE_HARNESS_HOOKS === '1';
+const harnessHooksEnabled = modePolicy.isHarnessEnabled();
 const forceRecoveryInHarness = process.env.BLACKSKIES_TEST_NEEDS_RECOVERY === '1';
 const phase4MockFlowEnabled = process.env.BLACKSKIES_ENABLE_PHASE4_MOCK_FLOW === '1';
 safeExpose('__phase4MockFlowEnabled', phase4MockFlowEnabled);
@@ -205,10 +206,7 @@ if (typeof window !== 'undefined' && harnessHooksEnabled) {
       'testStableHome',
       process.env.BLACKSKIES_STABLE_HOME === '1',
     );
-    const visualStableApplied = setHarnessFlag(
-      'testVisualStable',
-      process.env.BLACKSKIES_VISUAL_STABLE === '1',
-    );
+    const visualStableApplied = setHarnessFlag('testVisualStable', modePolicy.isVisualStable());
     return activeFlowApplied || stableDockApplied || stableHomeApplied || visualStableApplied;
   };
   const ensureHarnessFlags = (): void => {
@@ -262,7 +260,7 @@ if (typeof window !== 'undefined' && harnessHooksEnabled) {
       }
     }
   }
-  if (process.env.BLACKSKIES_VISUAL_STABLE === '1') {
+  if (modePolicy.isVisualStable()) {
     ensureVisualStableAttrsWithRetry();
     if (typeof window !== 'undefined') {
       window.addEventListener('load', ensureVisualStableAttrsWithRetry, { once: true });
