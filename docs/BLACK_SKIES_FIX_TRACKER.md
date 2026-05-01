@@ -71,10 +71,11 @@ Historical sections below are retained as provenance. This table is the current 
 | 40 | AnalyticsDashboard readability drift | Closed-Verified | 2026-04-22; renderer unit regression suite updated | App UI tests | None |
 | 41 | DraftEditor sample-project fixture coupling | Closed-Verified | 2026-04-22; DraftEditor fixture path coupling removed | App UI tests | None |
 | 42 | useCritique callback dependency omission | Closed-Verified | 2026-04-22; lint warning fixed with `state.draftId` dependency | Renderer lint/tests | None |
+| 43 | visual.home snapshot instability | Deferred-Accepted | 2026-05-01; large pixel diff persists from cross-platform toolbar/header rendering drift despite welcome-card isolation and visual-mode CSS normalization; test cannot be made deterministic under current approach | Visual snapshots | Use future masking, segmented snapshots, or semantic checks |
 
 Normalized counts:
 - Closed-Verified: 33
-- Deferred-Accepted: 5
+- Deferred-Accepted: 6
 - Open-Actionable: 2
 - Open-Blocked: 2
 

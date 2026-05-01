@@ -102,6 +102,30 @@ Purpose:
   - inspect a green run and a forced-failure run for explicit artifact-absence classification
   - verify no artifact name/path/retention behavior regressions
 
+### Visual snapshot instability in `visual.home.spec.ts`
+- status:
+  - deferred visual-lane limitation
+- evidence doc/source:
+  - `docs/BLACK_SKIES_FIX_TRACKER.md` (Issue 43)
+  - `app/tests/e2e/visual.home.spec.ts`
+  - `app/renderer/components/ProjectHome.tsx`
+- why deferred:
+  - the welcome-card regression has already been isolated and gated correctly, but the remaining whole-page snapshot diff is dominated by cross-platform toolbar/header rendering drift
+  - visual normalization and focus stabilization reduced but did not eliminate the delta
+  - the current whole-page pixel snapshot approach is not deterministic enough on Windows vs. the committed baseline
+- what has already been fixed:
+  - welcome card suppressed in visual-home mode
+  - bootstrap/sample-project path suppressed in visual-home mode
+  - visual-mode CSS normalization applied for focus/checkbox/font smoothing
+- future redesign options:
+  - region masking for stable sub-areas
+  - segmented visual assertions instead of a single full-page capture
+  - semantic UI checks for toolbar/home-state correctness instead of pixel-only comparison
+- next safe action:
+  - keep the test documented as a known limitation until the visual lane is redesigned around stable subregions or non-pixel assertions
+- validation required:
+  - future redesign must prove deterministic output on CI and local Windows/Linux captures before reclassifying
+
 ## P2
 
 ### NO_COLOR/FORCE_COLOR warning
