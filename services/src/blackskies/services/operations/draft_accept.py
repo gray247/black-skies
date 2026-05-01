@@ -119,6 +119,7 @@ class DraftAcceptService:
         timings.update(snapshot_timings)
 
         budget_started = perf_counter()
+
         def _update_budget() -> tuple[ProjectBudgetState, float, float]:
             with edit_project_budget_state(project_root, self._diagnostics) as budget_state:
                 accept_cost = derive_accept_unit_cost(
