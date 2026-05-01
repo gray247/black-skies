@@ -11,7 +11,9 @@ from blackskies.services.diagnostics import DiagnosticLogger
 from blackskies.services.models.wizard import WizardLockSnapshotRequest
 import blackskies.services.snapshots as snapshots_module
 from blackskies.services.snapshots import (
+    ACCEPT_SLOW_LATENCY_MS,
     create_snapshot,
+    log_accept_timing_snapshot,
     create_wizard_lock_snapshot,
     list_snapshots,
 )
@@ -119,3 +121,68 @@ def test_wizard_lock_logs_slow_snapshot_timings(
         "Slow wizard lock snapshot request path=/api/v1/draft/wizard/lock" in recorded_messages[0]
     )
     assert "total_ms=140.00" in recorded_messages[0]
+
+
+def test_accept_timing_logs_slow_breakdown(monkeypatch: pytest.MonkeyPatch) -> None:
+    recorded_messages: list[str] = []
+
+    monkeypatch.setattr(
+        snapshots_module.LOGGER,
+        "warning",
+        lambda message, *args: recorded_messages.append(message % args if args else message),
+    )
+
+    log_accept_timing_snapshot(
+        project_id="proj_accept_timing",
+        unit_id="sc_0001",
+        draft_id="dr_401",
+        snapshot_id="20260430T000000Z",
+        timings={
+            "request_validation_ms": 1.25,
+            "draft_lookup_ms": 2.5,
+            "audited_chain_write_ms": 3.75,
+            "diff_ms": 4.0,
+            "accept_apply_ms": 120.0,
+            "snapshot_create_allocate_ms": 10.0,
+            "snapshot_create_include_ms": 20.0,
+            "snapshot_create_copy_ms": 30.0,
+            "snapshot_create_metadata_ms": 5.0,
+            "snapshot_create_manifest_ms": 15.0,
+            "snapshot_create_total_ms": 80.0,
+            "recovery_finalize_ms": 1.0,
+            "budget_update_ms": 2.0,
+            "response_assembly_ms": 0.5,
+            "total_ms": 150.0,
+        },
+    )
+
+    assert recorded_messages
+    message = recorded_messages[0]
+    assert "Slow draft accept request path=/api/v1/draft/accept" in message
+    assert "project_id=proj_accept_timing" in message
+    assert "unit_id=sc_0001" in message
+    assert "draft_id=dr_401" in message
+    assert "total_ms=150.00" in message
+    assert "accept_apply_ms=120.00" in message
+    assert "snapshot_create_total_ms=80.00" in message
+    assert "Accepted text" not in message
+
+
+def test_accept_timing_below_threshold_is_quiet(monkeypatch: pytest.MonkeyPatch) -> None:
+    recorded_messages: list[str] = []
+
+    monkeypatch.setattr(
+        snapshots_module.LOGGER,
+        "warning",
+        lambda message, *args: recorded_messages.append(message % args if args else message),
+    )
+
+    log_accept_timing_snapshot(
+        project_id="proj_accept_timing",
+        unit_id="sc_0001",
+        draft_id="dr_401",
+        snapshot_id=None,
+        timings={"total_ms": ACCEPT_SLOW_LATENCY_MS - 0.1},
+    )
+
+    assert recorded_messages == []

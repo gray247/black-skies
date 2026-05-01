@@ -8,7 +8,8 @@ import logging
 import shutil
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Iterable, Mapping
+from time import perf_counter
+from typing import TYPE_CHECKING, Any, Callable, Iterable, Mapping
 
 from .diagnostics import DiagnosticLogger
 from .persistence import SnapshotPersistence
@@ -19,6 +20,7 @@ if TYPE_CHECKING:
 SNAPSHOT_DIR_NAME = ".snapshots"
 SNAPSHOT_RETENTION = 7
 WIZARD_LOCK_SLOW_LATENCY_MS = 100.0
+ACCEPT_SLOW_LATENCY_MS = 100.0
 
 LOGGER = logging.getLogger(__name__)
 
@@ -45,11 +47,24 @@ def create_accept_snapshot(
     *,
     snapshot_persistence: SnapshotPersistence,
     recovery_tracker: RecoveryTracker,
+    timing_hook: Callable[[dict[str, float]], None] | None = None,
+    durable: bool = True,
 ) -> dict[str, Any]:
     """Create a snapshot for an accepted draft unit and record recovery state."""
 
+    timing_snapshot: dict[str, float] | None = None
+
+    def _capture_timing_snapshot(timings: dict[str, float]) -> None:
+        nonlocal timing_snapshot
+        timing_snapshot = dict(timings)
+
     try:
-        snapshot_info = snapshot_persistence.create_snapshot(project_id, label=snapshot_label)
+        snapshot_info = snapshot_persistence.create_snapshot(
+            project_id,
+            label=snapshot_label,
+            timing_hook=_capture_timing_snapshot if timing_hook is not None else None,
+            durable=durable,
+        )
     except OSError as exc:
         label_token = snapshot_label or "accept"
         raise SnapshotPersistenceError(
@@ -61,9 +76,82 @@ def create_accept_snapshot(
                 "error": str(exc),
             },
         ) from exc
+    snapshot_ms = timing_snapshot.get("total_ms", 0.0) if timing_snapshot else 0.0
+    recovery_started = perf_counter()
     recovery_tracker.mark_completed(project_id, snapshot_info)
+    recovery_ms = (perf_counter() - recovery_started) * 1000.0
+    if timing_hook is not None:
+        timing_hook(
+            {
+                "snapshot_create_allocate_ms": (
+                    timing_snapshot.get("allocate_ms", 0.0) if timing_snapshot else 0.0
+                ),
+                "snapshot_create_include_ms": (
+                    timing_snapshot.get("include_ms", 0.0) if timing_snapshot else 0.0
+                ),
+                "snapshot_create_copy_ms": (
+                    timing_snapshot.get("copy_ms", 0.0) if timing_snapshot else 0.0
+                ),
+                "snapshot_create_metadata_ms": (
+                    timing_snapshot.get("metadata_ms", 0.0) if timing_snapshot else 0.0
+                ),
+                "snapshot_create_manifest_ms": (
+                    timing_snapshot.get("manifest_ms", 0.0) if timing_snapshot else 0.0
+                ),
+                "snapshot_create_total_ms": snapshot_ms,
+                "recovery_finalize_ms": recovery_ms,
+                "total_ms": snapshot_ms + recovery_ms,
+            }
+        )
     LOGGER.debug("Created accept snapshot", extra={"project_id": project_id, **snapshot_info})
     return snapshot_info
+
+
+def log_accept_timing_snapshot(
+    *,
+    project_id: str,
+    unit_id: str,
+    draft_id: str,
+    snapshot_id: str | None,
+    timings: Mapping[str, float],
+) -> None:
+    """Emit a low-noise warning when accept timing exceeds the diagnostic floor."""
+
+    total_ms = float(timings.get("total_ms", 0.0))
+    if total_ms < ACCEPT_SLOW_LATENCY_MS:
+        return
+
+    LOGGER.warning(
+        (
+            "Slow draft accept request path=/api/v1/draft/accept "
+            "project_id=%s unit_id=%s draft_id=%s total_ms=%.2f "
+            "request_validation_ms=%.2f draft_lookup_ms=%.2f audited_chain_write_ms=%.2f "
+            "diff_ms=%.2f accept_apply_ms=%.2f snapshot_create_total_ms=%.2f "
+            "snapshot_create_allocate_ms=%.2f snapshot_create_include_ms=%.2f "
+            "snapshot_create_copy_ms=%.2f snapshot_create_metadata_ms=%.2f "
+            "snapshot_create_manifest_ms=%.2f recovery_finalize_ms=%.2f "
+            "budget_update_ms=%.2f response_assembly_ms=%.2f snapshot_id=%s"
+        ),
+        project_id,
+        unit_id,
+        draft_id,
+        total_ms,
+        float(timings.get("request_validation_ms", 0.0)),
+        float(timings.get("draft_lookup_ms", 0.0)),
+        float(timings.get("audited_chain_write_ms", 0.0)),
+        float(timings.get("diff_ms", 0.0)),
+        float(timings.get("accept_apply_ms", 0.0)),
+        float(timings.get("snapshot_create_total_ms", 0.0)),
+        float(timings.get("snapshot_create_allocate_ms", 0.0)),
+        float(timings.get("snapshot_create_include_ms", 0.0)),
+        float(timings.get("snapshot_create_copy_ms", 0.0)),
+        float(timings.get("snapshot_create_metadata_ms", 0.0)),
+        float(timings.get("snapshot_create_manifest_ms", 0.0)),
+        float(timings.get("recovery_finalize_ms", 0.0)),
+        float(timings.get("budget_update_ms", 0.0)),
+        float(timings.get("response_assembly_ms", 0.0)),
+        snapshot_id or "<unknown>",
+    )
 
 
 def create_wizard_lock_snapshot(
@@ -254,9 +342,11 @@ __all__ = [
     "SnapshotIncludesError",
     "SnapshotOperationError",
     "SnapshotPersistenceError",
+    "ACCEPT_SLOW_LATENCY_MS",
     "create_accept_snapshot",
     "create_wizard_lock_snapshot",
     "create_snapshot",
     "list_snapshots",
+    "log_accept_timing_snapshot",
     "prune_snapshots",
 ]

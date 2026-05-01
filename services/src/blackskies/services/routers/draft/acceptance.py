@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from typing import Any
+from time import perf_counter
 
 from fastapi import Depends, HTTPException, status
 from pydantic import ValidationError
@@ -19,7 +20,7 @@ from ...http import (
 from ...models.accept import DraftAcceptRequest
 from ...persistence import SnapshotPersistence
 from ...scene_docs import DraftRequestError, read_scene_document
-from ...snapshots import SnapshotPersistenceError
+from ...snapshots import SnapshotPersistenceError, log_accept_timing_snapshot
 from ..dependencies import (
     get_diagnostics,
     get_recovery_tracker,
@@ -44,6 +45,10 @@ async def accept_draft(
 ) -> dict[str, Any]:
     """Persist an accepted draft unit and snapshot the project state."""
 
+    request_started = perf_counter()
+    timings: dict[str, float] = {}
+
+    validation_started = perf_counter()
     try:
         request_model = DraftAcceptRequest.model_validate(payload)
     except ValidationError as exc:
@@ -57,7 +62,9 @@ async def accept_draft(
             diagnostics=diagnostics,
             project_root=project_root,
         )
+    timings["request_validation_ms"] = (perf_counter() - validation_started) * 1000.0
 
+    lookup_started = perf_counter()
     resolved_project_root = settings.project_base_dir / request_model.project_id
     if not resolved_project_root.exists():
         raise_validation_error(
@@ -88,6 +95,7 @@ async def accept_draft(
             diagnostics=diagnostics,
             project_root=resolved_project_root,
         )
+    timings["draft_lookup_ms"] = (perf_counter() - lookup_started) * 1000.0
 
     recovery_tracker.mark_in_progress(
         request_model.project_id,
@@ -107,6 +115,7 @@ async def accept_draft(
         recovery_tracker=recovery_tracker,
     )
 
+    accept_started = perf_counter()
     try:
         acceptance = await accept_service.accept(
             request=request_model,
@@ -164,6 +173,22 @@ async def accept_draft(
             project_root=resolved_project_root,
             cause=exc,
         )
+
+    timings.update(acceptance.timings)
+    timings["accept_apply_ms"] = timings.get(
+        "accept_apply_ms",
+        (perf_counter() - accept_started) * 1000.0,
+    )
+    timings["total_ms"] = (perf_counter() - request_started) * 1000.0
+    snapshot_info = acceptance.response.get("snapshot")
+    snapshot_id = snapshot_info.get("snapshot_id") if isinstance(snapshot_info, dict) else None
+    log_accept_timing_snapshot(
+        project_id=request_model.project_id,
+        unit_id=request_model.unit_id,
+        draft_id=request_model.draft_id,
+        snapshot_id=snapshot_id if isinstance(snapshot_id, str) else None,
+        timings=timings,
+    )
 
     return acceptance.response
 

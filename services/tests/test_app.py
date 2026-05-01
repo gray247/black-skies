@@ -32,10 +32,12 @@ from blackskies.services.analytics.service import AnalyticsSummaryService
 from blackskies.services.app import SERVICE_VERSION, BuildTracker, create_app
 from blackskies.services.config import ServiceSettings
 from blackskies.services.diagnostics import DiagnosticLogger
+import blackskies.services.snapshots as snapshots_module
 from blackskies.services.persistence import DraftPersistence, SnapshotPersistence
 from blackskies.services.routers.recovery import RecoveryTracker
 from blackskies.services.critique import CritiqueService
-from blackskies.services.operations.draft_accept import DraftAcceptService
+import blackskies.services.operations.draft_accept as draft_accept_module
+from blackskies.services.operations.draft_accept import DraftAcceptService, DraftAcceptanceResult
 from blackskies.services.operations.draft_generation import DraftGenerationService
 from blackskies.services.scene_docs import DraftRequestError
 
@@ -1699,6 +1701,102 @@ def test_draft_accept_success_creates_snapshot(test_client: TestClient, tmp_path
     assert "missing_drafts" not in manifest
 
 
+def test_draft_accept_logs_slow_timing_metadata_without_payload_text(
+    test_client: TestClient,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Slow accept timings emit a bounded warning without changing the response."""
+
+    project_id = "proj_accept_timing"
+    scene_body = _bootstrap_scene(tmp_path, project_id)
+    accepted_text = f"{scene_body}\n\nAccepted text should not leak into logs."
+    checksum = _compute_sha256(scene_body)
+
+    payload = {
+        "project_id": project_id,
+        "draft_id": "dr_timing_001",
+        "unit_id": "sc_0001",
+        "unit": {
+            "id": "sc_0001",
+            "previous_sha256": checksum,
+            "text": accepted_text,
+            "meta": {"purpose": "payoff"},
+        },
+        "message": "Timing probe.",
+        "snapshot_label": "accept",
+    }
+
+    slow_timings = {
+        "request_validation_ms": 1.0,
+        "draft_lookup_ms": 2.0,
+        "audited_chain_write_ms": 3.0,
+        "diff_ms": 4.0,
+        "accept_apply_ms": 120.0,
+        "snapshot_create_allocate_ms": 10.0,
+        "snapshot_create_include_ms": 20.0,
+        "snapshot_create_copy_ms": 30.0,
+        "snapshot_create_metadata_ms": 5.0,
+        "snapshot_create_manifest_ms": 15.0,
+        "snapshot_create_total_ms": 80.0,
+        "recovery_finalize_ms": 1.0,
+        "budget_update_ms": 2.0,
+        "response_assembly_ms": 0.5,
+        "total_ms": 150.0,
+    }
+
+    async def _fake_accept(
+        self: DraftAcceptService,
+        *,
+        request: Any,
+        project_root: Path,
+        updated_front_matter: dict[str, Any],
+        normalized_text: str,
+        current_normalized: str,
+    ) -> DraftAcceptanceResult:
+        await asyncio.sleep(0.12)
+        return DraftAcceptanceResult(
+            response={
+                "project_id": request.project_id,
+                "unit_id": request.unit_id,
+                "status": "accepted",
+                "snapshot": {"snapshot_id": "20260430T000001Z", "path": "history/snapshots/x"},
+                "diff": {"added": [], "removed": [], "changed": [], "anchors": []},
+                "budget": {
+                    "soft_limit_usd": 5.0,
+                    "hard_limit_usd": 10.0,
+                    "spent_usd": 1.0,
+                },
+                "schema_version": "DraftAcceptResult v1",
+            },
+            timings=slow_timings,
+        )
+
+    recorded_messages: list[str] = []
+    monkeypatch.setattr(
+        snapshots_module.LOGGER,
+        "warning",
+        lambda message, *args: recorded_messages.append(message % args if args else message),
+    )
+    monkeypatch.setattr(DraftAcceptService, "accept", _fake_accept)
+
+    response = test_client.post(f"{API_PREFIX}/draft/accept", json=payload)
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["unit_id"] == "sc_0001"
+    assert data["snapshot"]["snapshot_id"] == "20260430T000001Z"
+    assert recorded_messages
+    warning = recorded_messages[0]
+    assert warning
+    assert "Slow draft accept request path=/api/v1/draft/accept" in warning
+    assert "project_id=proj_accept_timing" in warning
+    assert "unit_id=sc_0001" in warning
+    assert "draft_id=dr_timing_001" in warning
+    assert "total_ms=" in warning
+    assert "Accepted text should not leak into logs." not in warning
+
+
 def test_draft_accept_handles_unexpected_error(
     test_client: TestClient,
     tmp_path: Path,
@@ -1799,6 +1897,107 @@ def test_draft_accept_ignores_tampered_cost(test_client: TestClient, tmp_path: P
 
     persisted_meta = json.loads(project_path.read_text(encoding="utf-8"))
     assert persisted_meta["budget"]["spent_usd"] == pytest.approx(1.03)
+
+
+def test_draft_accept_uses_nondurable_writes_in_synthetic_mode(
+    test_client: TestClient,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Synthetic smoke accept keeps correctness while skipping durability fsyncs."""
+
+    project_id = "proj_accept_synthetic_writes"
+    draft_id = "dr_synthetic_001"
+    scene_body = _bootstrap_scene(tmp_path, project_id)
+    checksum = _compute_sha256(scene_body)
+    _write_project_budget(tmp_path, project_id, soft_limit=5.0, hard_limit=10.0, spent_usd=1.0)
+
+    recorded: dict[str, Any] = {}
+
+    def _write_scene(
+        self: DraftPersistence,
+        project_id: str,
+        front_matter: dict[str, Any],
+        body: str,
+        *,
+        durable: bool | None = None,
+    ) -> Path:
+        recorded["scene_durable"] = durable
+        target = tmp_path / project_id / "drafts" / f"{front_matter['id']}.md"
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(self._render(front_matter, body), encoding="utf-8")
+        return target
+
+    def _create_snapshot(
+        self: SnapshotPersistence,
+        project_id: str,
+        *,
+        label: str | None = None,
+        include_entries: Any | None = None,
+        timing_hook=None,
+        durable: bool = True,
+    ) -> dict[str, Any]:
+        recorded["snapshot_durable"] = durable
+        if timing_hook is not None:
+            timing_hook(
+                {
+                    "allocate_ms": 1.0,
+                    "include_ms": 1.0,
+                    "copy_ms": 1.0,
+                    "metadata_ms": 1.0,
+                    "manifest_ms": 1.0,
+                    "total_ms": 5.0,
+                }
+            )
+        return {
+            "snapshot_id": "20260430T000000Z",
+            "label": label or "accept",
+            "created_at": "2026-04-30T00:00:00Z",
+            "path": f"history/snapshots/20260430T000000Z_{label or 'accept'}",
+            "includes": list(include_entries or []),
+        }
+
+    def _persist_budget(
+        state: Any,
+        new_spent_usd: float,
+        *,
+        durable: bool = True,
+    ) -> None:
+        recorded["budget_durable"] = durable
+        budget_section = state.metadata.setdefault("budget", {})
+        budget_section["spent_usd"] = round(max(new_spent_usd, 0.0), 2)
+        state.spent_usd = budget_section["spent_usd"]
+
+    monkeypatch.setenv("BLACKSKIES_E2E_MODE", "1")
+    monkeypatch.setenv("BLACKSKIES_E2E_SYNTHETIC_MODE", "1")
+    monkeypatch.setattr(DraftPersistence, "write_scene", _write_scene)
+    monkeypatch.setattr(SnapshotPersistence, "create_snapshot", _create_snapshot)
+    monkeypatch.setattr(draft_accept_module, "persist_project_budget", _persist_budget)
+
+    payload = {
+        "project_id": project_id,
+        "draft_id": draft_id,
+        "unit_id": "sc_0001",
+        "unit": {
+            "id": "sc_0001",
+            "previous_sha256": checksum,
+            "text": f"{scene_body}\n\nSynthetic accept.",
+            "meta": {
+                "word_target": 900,
+                "order": 1,
+                "chapter_id": "ch_0001",
+            },
+            "estimated_cost_usd": 0.02,
+        },
+        "message": "Synthetic mode accept.",
+        "snapshot_label": "accept",
+    }
+
+    response = test_client.post(f"{API_PREFIX}/draft/accept", json=payload)
+    assert response.status_code == 200
+    assert recorded["scene_durable"] is False
+    assert recorded["snapshot_durable"] is False
+    assert recorded["budget_durable"] is False
 
 
 def test_draft_accept_snapshot_conflict(
