@@ -255,7 +255,12 @@ def classify_budget(
     return "ok", "Estimate within budget.", total_after_run
 
 
-def persist_project_budget(state: ProjectBudgetState, new_spent_usd: float) -> None:
+def persist_project_budget(
+    state: ProjectBudgetState,
+    new_spent_usd: float,
+    *,
+    durable: bool = True,
+) -> None:
     """Persist the updated budget metadata back to disk."""
 
     payload = copy.deepcopy(state.metadata)
@@ -269,7 +274,7 @@ def persist_project_budget(state: ProjectBudgetState, new_spent_usd: float) -> N
     serialized = json.dumps(payload, indent=2, ensure_ascii=False)
 
     state.project_root.mkdir(parents=True, exist_ok=True)
-    write_text_atomic(state.project_path, serialized, durable=True)
+    write_text_atomic(state.project_path, serialized, durable=durable)
     state.metadata = payload
     state.spent_usd = budget_section["spent_usd"]
 

@@ -104,6 +104,31 @@ def test_snapshot_creation_happy_path(tmp_path: Path) -> None:
     assert metadata["includes"] == ["drafts", "outline.json", "project.json"]
 
 
+def test_snapshot_creation_accepts_non_durable_writes(tmp_path: Path) -> None:
+    settings = _Settings(project_base_dir=tmp_path)
+    persistence = SnapshotPersistence(settings=settings)
+
+    project_id = "project-nondurable"
+    project_root = tmp_path / project_id
+    _write_scene(project_root / "drafts" / "scene-1.md", "scene-1")
+    (project_root / "project.json").write_text(
+        json.dumps({"title": "Non-Durable Project"}), encoding="utf-8"
+    )
+
+    snapshot = persistence.create_snapshot(
+        project_id,
+        label="accept",
+        durable=False,
+    )
+
+    snapshot_dir = (
+        project_root / "history" / "snapshots" / f"{snapshot['snapshot_id']}_{snapshot['label']}"
+    )
+    assert snapshot_dir.exists()
+    assert (snapshot_dir / "metadata.json").exists()
+    assert (snapshot_dir / "snapshot.yaml").exists()
+
+
 def test_snapshot_creation_invalid_include_cleans_up(tmp_path: Path) -> None:
     settings = _Settings(project_base_dir=tmp_path)
     persistence = SnapshotPersistence(settings=settings)
