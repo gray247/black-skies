@@ -118,6 +118,7 @@ class SnapshotPersistence:
         directory: Path,
         *,
         metadata: SnapshotMetadata,
+        durable: bool = True,
     ) -> None:
         """Render a YAML manifest describing the snapshot contents."""
 
@@ -128,7 +129,7 @@ class SnapshotPersistence:
             project_root=project_root,
         )
         manifest_yaml = safe_dump(manifest, sort_keys=False, allow_unicode=True, indent=2)
-        write_text_atomic(directory / "snapshot.yaml", manifest_yaml)
+        write_text_atomic(directory / "snapshot.yaml", manifest_yaml, durable=durable)
 
     def create_snapshot(
         self,
@@ -137,6 +138,7 @@ class SnapshotPersistence:
         label: str | None = None,
         include_entries: Sequence[str] | None = None,
         timing_hook: Callable[[dict[str, float]], None] | None = None,
+        durable: bool = True,
     ) -> dict[str, Any]:
         """Create a snapshot of the project directory."""
 
@@ -180,11 +182,11 @@ class SnapshotPersistence:
             label=label_token,
             includes=recorded,
         )
-        write_json_atomic(directory / "metadata.json", metadata.as_dict())
+        write_json_atomic(directory / "metadata.json", metadata.as_dict(), durable=durable)
         metadata_ms = (perf_counter() - metadata_started) * 1000.0
 
         manifest_started = perf_counter()
-        self._write_snapshot_manifest(directory, metadata=metadata)
+        self._write_snapshot_manifest(directory, metadata=metadata, durable=durable)
         manifest_ms = (perf_counter() - manifest_started) * 1000.0
 
         if timing_hook is not None:
