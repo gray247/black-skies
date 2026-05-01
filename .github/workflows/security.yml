@@ -126,15 +126,16 @@ jobs:
         with:
           name: safety-report-${{ matrix.os }}
           path: safety-report.json
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8.15.9
+          run_install: false
       - name: Set up Node 24
         uses: actions/setup-node@v5
         with:
           node-version: '24'
           package-manager-cache: false
-      - name: Set up pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          run_install: false
       - name: Resolve pnpm store path
         id: pnpm_store
         shell: bash
@@ -234,7 +235,7 @@ jobs:
         if: ${{ steps.load_ledger.outputs.found == 'true' }}
         run: python scripts/check_slo.py "${{ steps.load_ledger.outputs.run_json }}"
       - name: Upload load ledger
-        if: always()
+        if: ${{ always() && steps.load_ledger.outputs.found == 'true' }}
         uses: actions/upload-artifact@v6
         with:
           name: load-ledger-${{ matrix.os }}
