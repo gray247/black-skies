@@ -51,6 +51,7 @@ export interface ProjectHomeProps {
   onRelocationNotifyChange?: (value: boolean) => void;
   onAutoSnapChange?: (value: boolean) => void;
   suppressBootstrap?: boolean;
+  suppressWelcome?: boolean;
 }
 
 interface RecentProjectEntry {
@@ -169,6 +170,7 @@ export default function ProjectHome({
   onRelocationNotifyChange,
   onAutoSnapChange,
   suppressBootstrap = false,
+  suppressWelcome = false,
 }: ProjectHomeProps): JSX.Element {
   const projectLoader: ProjectLoaderApi | undefined = window.projectLoader;
   const loaderAvailable = Boolean(projectLoader);
@@ -825,7 +827,7 @@ export default function ProjectHome({
         </button>
       </header>
 
-      {activeProject ? null : (
+      {activeProject || suppressWelcome ? null : (
         <section className="project-home__welcome" aria-labelledby={welcomeSectionId}>
           <div className="project-home__welcome-copy">
             <p className="project-home__welcome-eyebrow">Welcome</p>

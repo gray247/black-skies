@@ -86,6 +86,37 @@ describe('ProjectHome recent project recovery', () => {
     });
   });
 
+  it('hides the welcome card in visual-home mode while still allowing project loading', async () => {
+    const samplePath = 'C:\\Dev\\black-skies\\sample_project\\Esther_Estate';
+    const projectLoader: ProjectLoaderApi = {
+      openProjectDialog: vi.fn(),
+      getSampleProjectPath: vi.fn().mockResolvedValue(samplePath),
+      loadProject: vi.fn().mockResolvedValue({
+        ok: true,
+        project: createSampleProject(samplePath),
+        issues: [],
+      }),
+    };
+
+    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+
+    render(
+      <ProjectHome
+        suppressBootstrap
+        suppressWelcome
+        onToast={vi.fn()}
+        onProjectLoaded={vi.fn()}
+      />,
+    );
+
+    expect(
+      screen.queryByRole('heading', {
+        name: /Start with an existing project or the sample project/i,
+      }),
+    ).toBeNull();
+    expect(screen.getByRole('button', { name: /Open project/i })).toBeEnabled();
+  });
+
   it('loads the sample project when quick start is selected', async () => {
     const samplePath = 'C:\\Dev\\black-skies\\sample_project\\Esther_Estate';
     const loadProjectMock = vi.fn().mockResolvedValue({
