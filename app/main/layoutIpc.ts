@@ -14,6 +14,7 @@ import {
   type LayoutLoadResponse,
   type LayoutPaneId,
   type LayoutSaveRequest,
+  sanitizeLayoutNode,
 } from '../shared/ipc/layout.js';
 
 interface RegisterLayoutIpcOptions {
@@ -59,7 +60,7 @@ async function ensureLayoutDir(projectPath: string): Promise<string> {
   return dir;
 }
 
-async function loadPersistedLayout(projectPath: string): Promise<PersistedLayoutPayload | null> {
+export async function loadPersistedLayout(projectPath: string): Promise<PersistedLayoutPayload | null> {
   const filePath = resolveLayoutFile(projectPath);
   try {
     const raw = await fs.readFile(filePath, 'utf-8');
@@ -113,9 +114,20 @@ async function loadPersistedLayout(projectPath: string): Promise<PersistedLayout
       });
       return null;
     }
+    const sanitizedLayout = sanitizeLayoutNode(
+      parsed.layout as Parameters<typeof sanitizeLayoutNode>[0],
+    );
+    if (parsed.layout != null && !sanitizedLayout) {
+      await resetPersistedLayout(projectPath);
+      console.info('[layout] Discarded saved layout after validation failure', {
+        projectPath,
+        filePath,
+      });
+      return null;
+    }
     return {
       version: payloadVersion,
-      layout: parsed.layout ?? null,
+      layout: sanitizedLayout,
       floatingPanes: normalisedFloating,
     };
   } catch (error) {

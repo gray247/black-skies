@@ -174,7 +174,7 @@ export function CritiqueModal({
               <section className="critique-modal__section">
                 <div className="critique-modal__summary">
                   <h4>Summary</h4>
-                  <p>{critique.summary}</p>
+                  <p className="critique-modal__summary-body">{critique.summary}</p>
                 </div>
               </section>
               {'issues' in critique ? renderIssues(critique.issues as Phase4Issue[]) : null}

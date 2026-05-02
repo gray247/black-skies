@@ -1738,7 +1738,7 @@ export default function App(): JSX.Element {
   }, []);
 
   const handleOutlineReady = useCallback(
-    (projectId: string) => {
+    (projectId: string, sceneIds: string[]) => {
       pushToast({
         tone: "info",
         title: "Outline updated",
@@ -1748,7 +1748,7 @@ export default function App(): JSX.Element {
         if (!previous) {
           return previous;
         }
-        return { ...previous, projectId };
+        return { ...previous, projectId, unitIds: sceneIds };
       });
     },
     [pushToast],

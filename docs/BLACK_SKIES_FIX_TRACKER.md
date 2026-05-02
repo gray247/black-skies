@@ -83,6 +83,19 @@ Promotion notes:
 - PASS 5 concrete startup-contract subclaims are now represented as standalone normalized entries `32-37`.
 - GUI-navigation subclaims from the app lint/unit cleanup are now represented as standalone normalized entries `38-42`.
 
+## Phase 10 Human-Verification Fixes (2026-05-02)
+- Status: VERIFIED for the Phase 10 manual-verification blockers addressed in this pass.
+- Fixed stale preflight scene IDs after outline rebuild by propagating outline scene IDs into `projectSummary.unitIds`.
+- Hardened project selection so one-level-deep nested folders auto-correct to the parent project root with a warning issue instead of loading silently.
+- Cleared invalid persisted dock layouts on load so the fallback default no longer leaves the bad layout file behind.
+- Improved critique summary readability with preserved paragraph/line wrapping in the modal.
+- Validation evidence:
+  - `pnpm --filter app test`
+  - `pnpm --filter app run build:production`
+  - `pnpm test:e2e -- --workers=1`
+- Deferred to Phase 11:
+  - sample-content / story-insight quality remains a fixture/content issue, not part of this fix pass.
+
 ---
 
 ## Verification Sweep (2026-04-21, Codex)
