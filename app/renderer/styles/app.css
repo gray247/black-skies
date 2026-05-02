@@ -1685,6 +1685,12 @@ button:disabled {
   color: rgba(226, 232, 240, 0.92);
 }
 
+.critique-modal__summary-body {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
 .critique-modal__meta {
   margin: 0;
   font-size: 0.78rem;

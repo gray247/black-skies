@@ -216,6 +216,7 @@ function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
   const stableLayoutAppliedRef = useRef<boolean>(stableDockMode);
   const layoutReadyRef = useRef(false);
   const saveTimerRef = useRef<number | null>(null);
+  const suppressNextPersistRef = useRef(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [focusedPaneId, setFocusedPaneId] = useState<LayoutPaneId | null>(null);
@@ -599,6 +600,10 @@ function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
       if (stableDockMode) {
         return;
       }
+      if (suppressNextPersistRef.current) {
+        suppressNextPersistRef.current = false;
+        return;
+      }
       if (!projectPath || !layoutBridge) {
         return;
       }
@@ -843,6 +848,9 @@ function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
           projectPath,
           layout: sanitised,
         });
+        if (result.wasReset) {
+          suppressNextPersistRef.current = true;
+        }
         layoutRef.current = cloneLayout(sanitised);
         layoutReadyRef.current = true;
         setLayoutState(cloneLayout(sanitised));

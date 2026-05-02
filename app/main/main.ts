@@ -75,6 +75,7 @@ const DEV_SERVER_URL = process.env.ELECTRON_RENDERER_URL ?? 'http://127.0.0.1:51
 const isDev = !app.isPackaged;
 const isPlaywright = process.env.PLAYWRIGHT === '1';
 const shouldSpawnServices = process.env.BLACKSKIES_FORCE_SERVICES === '1' || !isPlaywright;
+const START_URL = getStartUrl();
 
 function getStartUrl(): string {
   const override = process.env.ELECTRON_RENDERER_URL;
@@ -649,16 +650,15 @@ async function createMainWindow(): Promise<BrowserWindow> {
     console.error('[main] BrowserWindow became unresponsive.');
   });
 
-  const startUrl = getStartUrl();
-  console.log('[main] loading', startUrl);
+  console.log('[main] loading', START_URL);
   try {
-    await window.loadURL(startUrl);
+    await window.loadURL(START_URL);
   } catch (error) {
     ensureMainLogger().warn('Failed to load renderer URL', {
       error: error instanceof Error ? error.message : String(error),
-      url: startUrl,
+      url: START_URL,
     });
-    if (startUrl !== rendererIndexFile) {
+    if (START_URL !== rendererIndexFile) {
       try {
         await window.loadFile(rendererIndexFile);
       } catch (innerError) {
@@ -768,7 +768,7 @@ if (!hasSingleInstanceLock) {
       registerProjectLoaderIpc();
       registerDiagnosticsIpc();
       registerLayoutIpc({
-        devServerUrl: isDev ? DEV_SERVER_URL : null,
+        devServerUrl: START_URL.startsWith('http') ? START_URL : null,
         rendererIndexFile,
         preloadPath: PRELOAD_PATH,
         getMainWindow: () => mainWindow,

@@ -57,7 +57,7 @@ type LockRequestMap = Record<WizardStep, boolean>;
 interface WizardPanelProps {
   services?: ServicesBridge;
   onToast: (toast: ToastPayload) => void;
-  onOutlineReady?: (projectId: string) => void;
+  onOutlineReady?: (projectId: string, sceneIds: string[]) => void;
   defaultProjectId?: string | null;
 }
 
@@ -715,7 +715,10 @@ export default function WizardPanel({
       };
       onToast(successToast);
       setLastMessage(successToast);
-      onOutlineReady?.(safeProjectId);
+      onOutlineReady?.(
+        safeProjectId,
+        result.data.scenes.map((scene) => scene.id),
+      );
       return;
     }
 

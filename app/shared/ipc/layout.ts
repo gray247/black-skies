@@ -183,6 +183,7 @@ export interface LayoutLoadResponse {
   layout: LayoutTree | null;
   floatingPanes: FloatingPaneDescriptor[];
   schemaVersion?: number;
+  wasReset?: boolean;
 }
 
 export interface FloatingPaneDescriptor {
@@ -296,7 +297,7 @@ function logInvalidLayout(reason: string): void {
   console.warn('[dock] Invalid saved layout ignored; using default layout', { reason });
 }
 
-export function sanitizeLayoutNode(node: MosaicNode<LayoutPaneId> | null): LayoutTree | null {
+function normalizeLayoutTree(node: unknown): LayoutTree | null {
   if (!node) {
     return null;
   }
@@ -304,22 +305,37 @@ export function sanitizeLayoutNode(node: MosaicNode<LayoutPaneId> | null): Layou
     const normalized = normalizeLegacyPane(node);
     return normalized ?? null;
   }
-  const first = sanitizeLayoutNode(node.first);
-  const second = sanitizeLayoutNode(node.second);
+  const candidateNode = node as {
+    first?: unknown;
+    second?: unknown;
+    direction?: MosaicDirection;
+    splitPercentage?: number;
+    weights?: LayoutSplitWeights;
+  };
+  const first = normalizeLayoutTree(candidateNode.first);
+  const second = normalizeLayoutTree(candidateNode.second);
   if (!first || !second) {
     return null;
   }
-  const direction = node.direction ?? 'row';
+  const direction = candidateNode.direction ?? 'row';
   const candidate: LayoutTree = makeSplitNode(
     direction,
     first,
     second,
-    node.splitPercentage,
-    hasWeights(node) ? node.weights : undefined,
+    candidateNode.splitPercentage,
+    candidateNode.weights,
   );
-  if (!treeMeetsRequirements(candidate)) {
+  return treeMeetsRequirements(candidate) ? candidate : null;
+}
+
+export function sanitizeLayoutNode(node: MosaicNode<LayoutPaneId> | null): LayoutTree | null {
+  const candidate = normalizeLayoutTree(node);
+  if (!candidate) {
     logInvalidLayout('layout contains duplicates or missing required panes');
-    return null;
   }
   return candidate;
+}
+
+export function isValidLayoutTree(node: unknown): boolean {
+  return normalizeLayoutTree(node) !== null;
 }

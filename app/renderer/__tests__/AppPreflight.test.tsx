@@ -45,7 +45,19 @@ beforeEach(() => {
 
 vi.mock('../components/WizardPanel', () => ({
   __esModule: true,
-  default: () => <div data-testid="wizard-panel-mock" />,
+  default: ({
+    onOutlineReady,
+  }: {
+    onOutlineReady?: (projectId: string, sceneIds: string[]) => void;
+  }) => (
+    <button
+      type="button"
+      data-testid="wizard-panel-mock"
+      onClick={() => onOutlineReady?.('demo_project', ['sc_0001', 'sc_0002', 'sc_0003'])}
+    >
+      Build Outline
+    </button>
+  ),
 }));
 
 function ProjectHomeMock({
@@ -472,6 +484,51 @@ describe('App preflight integration', () => {
     expect(listItems).toHaveLength(2);
     expect(listItems[0]).toHaveTextContent('sc_0002');
     expect(listItems[1]).toHaveTextContent('sc_0003');
+  });
+
+  it('refreshes preflight scene IDs after outline rebuild', async () => {
+    services.preflightDraft = vi.fn().mockResolvedValue({
+      ok: true,
+      data: {
+        projectId: 'demo_project',
+        unitScope: 'scene',
+        unitIds: ['sc_0001', 'sc_0002', 'sc_0003'],
+        model: { name: 'draft-synthesizer-v1', provider: 'black-skies-local' },
+        scenes: [
+          { id: 'sc_0001', title: 'Arrival', order: 1, chapter_id: 'ch_0001' },
+          { id: 'sc_0002', title: 'Surface Impact', order: 2, chapter_id: 'ch_0001' },
+          { id: 'sc_0003', title: 'Basement Pulse', order: 3, chapter_id: 'ch_0001' },
+        ],
+        budget: {
+          estimated_usd: 3.25,
+          status: 'ok',
+          soft_limit_usd: 5,
+          hard_limit_usd: 10,
+          spent_usd: 0,
+          total_after_usd: 3.25,
+        },
+      },
+      traceId: 'trace-preflight-refresh',
+    });
+
+    const App = loadAppWithServices(services);
+
+    render(<App />);
+
+    fireEvent.click(await screen.findByTestId('wizard-panel-mock'));
+
+    const generateButton = await screen.findByRole('button', { name: /generate/i });
+    await waitFor(() => expect(generateButton).not.toBeDisabled());
+
+    fireEvent.click(generateButton);
+
+    await waitFor(() => expect(services.preflightDraft).toHaveBeenCalledTimes(1));
+    expect(services.preflightDraft).toHaveBeenCalledWith(
+      expect.objectContaining({
+        projectId: 'demo_project',
+        unitIds: ['sc_0001', 'sc_0002', 'sc_0003'],
+      }),
+    );
   });
 
   it('keeps proceed disabled when the service port is unavailable', async () => {

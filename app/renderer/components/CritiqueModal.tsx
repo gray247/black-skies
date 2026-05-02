@@ -157,7 +157,7 @@ export function CritiqueModal({
             <p className="critique-modal__subtitle">{derivedTitle}</p>
           </div>
           <button type="button" className="critique-modal__close" onClick={onClose} aria-label="Close">
-            A-
+            Close
           </button>
         </header>
 

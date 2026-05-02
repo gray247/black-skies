@@ -337,4 +337,48 @@ describe('ProjectHome recent project recovery', () => {
     expect(screen.getByRole('heading', { level: 4, name: /Scene One/ })).toBeInTheDocument();
     expect(screen.getByText(/Scenes/)).toBeInTheDocument();
   });
+
+  it('surfaces loader warnings when a nested project folder is auto-corrected', async () => {
+    const samplePath = 'C:\\Dev\\black-skies\\sample_project\\Esther_Estate';
+    const nestedPath = `${samplePath}\\Esther_Estate`;
+    const warningIssues: ProjectIssue[] = [
+      {
+        level: 'warning',
+        message: 'Selected folder was nested inside a project root.',
+        detail: `Using parent project root: ${samplePath}`,
+        path: nestedPath,
+      },
+    ];
+    const toasts: ToastPayload[] = [];
+
+    const projectLoader: ProjectLoaderApi = {
+      openProjectDialog: vi.fn().mockResolvedValue({ canceled: false, filePath: nestedPath }),
+      getSampleProjectPath: vi.fn().mockResolvedValue(samplePath),
+      loadProject: vi.fn().mockResolvedValue({
+        ok: true,
+        project: createSampleProject(samplePath),
+        issues: warningIssues,
+      }),
+    };
+
+    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+
+    render(
+      <ProjectHome
+        suppressBootstrap
+        onToast={(toast) => toasts.push(toast)}
+        onProjectLoaded={vi.fn()}
+      />,
+    );
+
+    fireEvent.click(await screen.findByRole('button', { name: /Open project/i }));
+
+    await waitFor(() => {
+      expect(projectLoader.loadProject).toHaveBeenCalledWith({ path: nestedPath });
+    });
+
+    const warningToast = toasts.find((toast) => toast.title === warningIssues[0].message);
+    expect(warningToast?.tone).toBe('warning');
+    expect(warningToast?.description).toContain(samplePath);
+  });
 });
