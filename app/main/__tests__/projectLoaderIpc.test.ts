@@ -1,4 +1,5 @@
 import { join } from 'node:path';
+import { tmpdir } from 'node:os';
 
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 
@@ -91,7 +92,7 @@ Scene body`;
   });
 
   it('walks upward from nested selections to the project root', async () => {
-    const parentPath = 'C:/Dev/black-skies/sample_project/Esther_Estate';
+    const parentPath = join(tmpdir(), 'black-skies', 'sample_project', 'Esther_Estate');
     const nestedPath = join(parentPath, 'Esther_Estate', 'history', 'scenes');
 
     fsMock.access.mockImplementation(async (filePath: string) => {
@@ -106,7 +107,7 @@ Scene body`;
 
     const result = await resolveProjectRootPath(nestedPath);
 
-    expect(result.projectPath).toBe(join(parentPath));
+    expect(result.projectPath).toBe(parentPath);
     expect(result.issues).toEqual([
       expect.objectContaining({
         level: 'warning',

@@ -47,6 +47,7 @@ async def generate_draft(
 ) -> dict[str, Any]:
     """Synthesize a draft by walking the outline and writing scene documents."""
 
+    trace_id = ensure_trace_id()
     project_root: Path | None = None
     try:
         request_model = DraftGenerateRequest.model_validate(payload)
