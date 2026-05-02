@@ -118,20 +118,6 @@ export function applySplitWeights(node: LayoutSplitNode, weights: LayoutSplitWei
   };
 }
 
-type MosaicSplitNodeWithWeights = {
-  direction: MosaicDirection;
-  first: MosaicNode<LayoutPaneId>;
-  second: MosaicNode<LayoutPaneId>;
-  splitPercentage?: number;
-  weights?: LayoutSplitWeights;
-};
-
-function hasWeights(
-  node: MosaicNode<LayoutPaneId>,
-): node is MosaicSplitNodeWithWeights {
-  return typeof node === "object" && node !== null && "weights" in node;
-}
-
 function makeSplitNode(
   direction: LayoutSplitNode["direction"],
   first: LayoutTree,
