@@ -89,6 +89,11 @@ Promotion notes:
 - Hardened project selection so one-level-deep nested folders auto-correct to the parent project root with a warning issue instead of loading silently.
 - Cleared invalid persisted dock layouts on load so the fallback default no longer leaves the bad layout file behind.
 - Improved critique summary readability with preserved paragraph/line wrapping in the modal.
+- Preflight timeout investigation:
+  - Electron now honors an explicitly provided `BLACKSKIES_SERVICES_PORT` as an external backend instead of silently spawning a second service.
+  - The failed manual path was routing to Electron's spawned service port, not to the external Uvicorn instance on `127.0.0.1:8000`.
+  - Preflight requests now carry a shared trace ID from renderer through preload to the backend, with bounded logs for route entry, bridge target URL, and backend phase timings.
+  - Manual retry guidance should use `uvicorn blackskies.services.app:app --host 127.0.0.1 --port 8000` and a health probe against `/api/v1/healthz`.
 - Manual verification follow-up:
   - backend startup for local verification should use `uvicorn blackskies.services.app:app --host 127.0.0.1 --port 8000`; direct `python -m blackskies.services.app` is unsupported and now fails loudly with a helpful message.
   - dock layout warning was traced to nested-tree validation in the shared sanitizer and should stop once the corrected validator is deployed.

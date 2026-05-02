@@ -38,6 +38,10 @@ const INITIAL_STATE: PreflightState = {
   errorDetails: null,
 };
 
+function createPreflightTraceId(): string {
+  return globalThis.crypto?.randomUUID?.() ?? `preflight-${Date.now()}-${Math.random().toString(16).slice(2, 10)}`;
+}
+
 function mergeGeneratedDrafts(
   response: DraftGenerateBridgeResponse,
   projectDrafts: Record<string, string>,
@@ -87,6 +91,14 @@ export function usePreflight({
       return;
     }
 
+    const traceId = createPreflightTraceId();
+    const startedAt = performance.now();
+    console.info('[preflight] start', {
+      traceId,
+      projectId: projectSummary.projectId,
+      unitScope: projectSummary.unitScope,
+      unitCount: projectSummary.unitIds.length,
+    });
     setState({
       open: true,
       loading: true,
@@ -99,6 +111,7 @@ export function usePreflight({
       projectId: projectSummary.projectId,
       unitScope: projectSummary.unitScope,
       unitIds: projectSummary.unitIds,
+      traceId,
     });
 
     if (!isMountedRef.current) {
@@ -106,6 +119,13 @@ export function usePreflight({
     }
 
     if (result.ok) {
+      console.info('[preflight] success', {
+        traceId,
+        durationMs: Math.round(performance.now() - startedAt),
+        projectId: projectSummary.projectId,
+        unitScope: projectSummary.unitScope,
+        unitCount: projectSummary.unitIds.length,
+      });
       console.info('[preflight] result', { budget: result.data.budget });
       if (result.data.budget) {
         console.info('[budget:preflight]', result.data.budget);
@@ -119,6 +139,14 @@ export function usePreflight({
         estimate: result.data,
       });
     } else {
+      console.warn('[preflight] error', {
+        traceId,
+        durationMs: Math.round(performance.now() - startedAt),
+        projectId: projectSummary.projectId,
+        unitScope: projectSummary.unitScope,
+        unitCount: projectSummary.unitIds.length,
+        code: result.error.code ?? null,
+      });
       setState({
         open: true,
         loading: false,

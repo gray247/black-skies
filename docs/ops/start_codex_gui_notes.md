@@ -73,6 +73,12 @@ uvicorn blackskies.services.app:app --host 127.0.0.1 --port 8000
 
 The health check is exposed at <http://127.0.0.1:8000/api/v1/healthz>.
 
+To verify the service is live from PowerShell:
+
+```powershell
+Invoke-RestMethod http://127.0.0.1:8000/api/v1/healthz
+```
+
 If you need to launch the ASGI app directly, use the same Uvicorn command
 instead of invoking `python -m blackskies.services.app`:
 
@@ -82,6 +88,10 @@ uvicorn blackskies.services.app:app --host 127.0.0.1 --port 8000
 
 The module path `python -m blackskies.services.app` is not the supported
 startup path and can produce import-order warnings.
+
+When launching Electron against an already running backend, set
+`BLACKSKIES_SERVICES_PORT=8000`. The Electron main process now treats that as
+an external backend and does not spawn a second service process.
 
 ## Next steps for a full desktop shell
 

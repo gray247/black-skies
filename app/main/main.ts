@@ -32,6 +32,7 @@ import {
   loadRuntimeConfig,
   type ServicePortRange,
 } from '../shared/config/runtime.js';
+import { resolveConfiguredServicePort } from './serviceResolution.js';
 
 function resolveProjectRoot(): string {
   const immediate = resolve(__dirname, '..');
@@ -395,6 +396,38 @@ function resolveServicesCwd(): string {
 
 async function startServices(): Promise<void> {
   if (servicesProcess) {
+    return;
+  }
+
+  const configuredServicePortRaw = process.env.BLACKSKIES_SERVICES_PORT;
+  const configuredServicePort = resolveConfiguredServicePort();
+  if (configuredServicePortRaw && configuredServicePort === null) {
+    throw new Error(
+      'BLACKSKIES_SERVICES_PORT must be a valid TCP port number when using an external backend.',
+    );
+  }
+  if (configuredServicePort !== null) {
+    const logger = ensureMainLogger();
+    servicesProcess = null;
+    servicesPort = configuredServicePort;
+    logger.info('Using externally managed FastAPI services', {
+      port: configuredServicePort,
+      source: 'BLACKSKIES_SERVICES_PORT',
+    });
+    console.log('[main] Using external FastAPI services', {
+      port: configuredServicePort,
+      source: 'BLACKSKIES_SERVICES_PORT',
+    });
+    try {
+      await waitForServicesHealthy(configuredServicePort);
+      logger.info('External FastAPI services are healthy', { port: configuredServicePort });
+    } catch (error) {
+      logger.error('External FastAPI services failed health verification', {
+        port: configuredServicePort,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      throw error instanceof Error ? error : new Error(String(error));
+    }
     return;
   }
 

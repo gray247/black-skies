@@ -110,6 +110,28 @@ describe('serviceApi', () => {
     );
   });
 
+  it('injects explicit trace ids into preflight bridge requests', async () => {
+    const serviceApi = await loadServiceApi();
+
+    await serviceApi.preflightDraft({
+      projectId: 'proj_test',
+      unitScope: 'scene',
+      unitIds: ['sc_0001'],
+      traceId: 'trace-preflight-request',
+    });
+
+    expect(fetch).toHaveBeenCalledWith(
+      'http://127.0.0.1:5000/api/v1/draft/preflight',
+      expect.objectContaining({
+        method: 'POST',
+        headers: expect.objectContaining({
+          'Content-Type': 'application/json',
+          'x-trace-id': 'trace-preflight-request',
+        }),
+      }),
+    );
+  });
+
   it('performs GET requests with query parameters for recovery status', async () => {
     const serviceApi = await loadServiceApi();
 

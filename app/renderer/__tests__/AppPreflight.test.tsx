@@ -527,6 +527,7 @@ describe('App preflight integration', () => {
       expect.objectContaining({
         projectId: 'demo_project',
         unitIds: ['sc_0001', 'sc_0002', 'sc_0003'],
+        traceId: expect.any(String),
       }),
     );
   });

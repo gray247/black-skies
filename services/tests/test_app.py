@@ -11,6 +11,8 @@ import time
 from contextlib import contextmanager
 import os
 from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import Mock
 from typing import Any, Protocol, TypedDict, cast
 from uuid import UUID
 
@@ -35,6 +37,7 @@ from blackskies.services.diagnostics import DiagnosticLogger
 import blackskies.services.snapshots as snapshots_module
 from blackskies.services.persistence import DraftPersistence, SnapshotPersistence
 from blackskies.services.routers.recovery import RecoveryTracker
+import blackskies.services.routers.draft.generation as draft_generation_router
 from blackskies.services.critique import CritiqueService
 import blackskies.services.operations.draft_accept as draft_accept_module
 from blackskies.services.operations.draft_accept import DraftAcceptService, DraftAcceptanceResult
@@ -1552,6 +1555,74 @@ def test_draft_preflight_handles_request_error(
     detail = _read_error(response)
     assert detail["code"] == "VALIDATION"
     assert detail["details"]["chapter_id"] == "ch_9999"
+
+
+def test_draft_preflight_emits_trace_logs(
+    test_client: TestClient,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Preflight logs bounded trace metadata without leaking payload text."""
+
+    project_id = "proj_preflight_trace_logs"
+    scene_ids = _bootstrap_outline(tmp_path, project_id, scene_count=1)
+    payload = {
+        "project_id": project_id,
+        "unit_scope": "scene",
+        "unit_ids": scene_ids,
+    }
+
+    async def _preflight(self, *_args: Any, **_kwargs: Any) -> Any:
+        return SimpleNamespace(
+            payload={
+                "project_id": project_id,
+                "unit_scope": "scene",
+                "unit_ids": scene_ids,
+                "model": {"name": "qwen3:4b", "provider": "ollama"},
+                "scenes": [
+                    {
+                        "id": scene_ids[0],
+                        "title": "Arrival",
+                        "order": 1,
+                        "chapter_id": "ch_0001",
+                    }
+                ],
+                "budget": {
+                    "estimated_usd": 1.0,
+                    "status": "ok",
+                    "soft_limit_usd": 5,
+                    "hard_limit_usd": 10,
+                    "spent_usd": 0.0,
+                    "total_after_usd": 1.0,
+                },
+            }
+        )
+
+    info_mock = Mock()
+    monkeypatch.setattr(draft_generation_router.LOGGER, "info", info_mock)
+    monkeypatch.setattr(DraftGenerationService, "preflight", _preflight)
+
+    response = test_client.post(
+        f"{API_PREFIX}/draft/preflight",
+        json=payload,
+        headers={TRACE_HEADER: "11111111-1111-4111-8111-111111111111"},
+    )
+    assert response.status_code == 200
+
+    def _render_message(call: Any) -> str:
+        if not call.args:
+            return ""
+        if len(call.args) == 1:
+            return str(call.args[0])
+        try:
+            return str(call.args[0] % call.args[1:])
+        except Exception:
+            return " ".join(str(part) for part in call.args)
+
+    logged_messages = " ".join(_render_message(call) for call in info_mock.call_args_list)
+    assert "[preflight][11111111-1111-4111-8111-111111111111] route-start" in logged_messages
+    assert "[preflight][11111111-1111-4111-8111-111111111111] route-exit" in logged_messages
+    assert "Arrival" not in logged_messages
 
 
 def test_draft_rewrite_success(test_client: TestClient, tmp_path: Path) -> None:

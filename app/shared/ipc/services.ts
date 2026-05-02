@@ -374,6 +374,7 @@ export interface DraftPreflightBridgeRequest {
   unitScope: DraftUnitScope;
   unitIds: string[];
   overrides?: Record<string, DraftUnitOverrides>;
+  traceId?: string;
 }
 
 export interface DraftPreflightEstimate {

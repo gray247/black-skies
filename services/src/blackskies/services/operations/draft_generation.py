@@ -6,8 +6,10 @@ import asyncio
 import copy
 import hashlib
 import json
+import logging
 from dataclasses import dataclass
 from pathlib import Path
+from time import perf_counter
 from typing import Any, Sequence
 from uuid import uuid4
 
@@ -47,6 +49,8 @@ from ..scene_memory import (
     extract_carryover,
     persist_carryover,
 )
+
+LOGGER = logging.getLogger(__name__)
 
 
 @dataclass(slots=True)
@@ -320,22 +324,76 @@ class DraftGenerationService:
     ) -> DraftPreflightResult:
         """Return cost projections and metadata for a draft request."""
 
+        trace_id = None
+        try:
+            from ..http import ensure_trace_id
+
+            trace_id = ensure_trace_id()
+        except Exception:
+            trace_id = None
+
+        def log_phase(phase: str, *, duration_ms: float | None = None, **details: Any) -> None:
+            payload = dict(details)
+            if duration_ms is not None:
+                payload["duration_ms"] = round(duration_ms, 2)
+            LOGGER.info("[preflight][%s] %s %s", trace_id or "unknown", phase, payload)
+
+        preflight_started = perf_counter()
+        log_phase(
+            "service-start",
+            project_id=request.project_id,
+            unit_scope=request.unit_scope.value,
+            unit_count=len(scenes),
+        )
+
+        budget_load_started = perf_counter()
         budget_state = self._budget_service.load_state(project_root)
+        log_phase(
+            "budget-load",
+            duration_ms=(perf_counter() - budget_load_started) * 1000,
+            project_id=request.project_id,
+        )
+
+        estimate_started = perf_counter()
         total_words = 0
         for scene in scenes:
             overrides = request.overrides.get(scene.id)
             total_words += estimate_word_target(scene, overrides)
         estimated_cost = round((total_words / 1000) * 0.02, 2)
+        log_phase(
+            "budget-estimate",
+            duration_ms=(perf_counter() - estimate_started) * 1000,
+            project_id=request.project_id,
+            estimated_usd=estimated_cost,
+        )
+
+        classify_started = perf_counter()
         status_label, _, _ = self._budget_service.classify(
             state=budget_state,
             estimated_cost=estimated_cost,
         )
+        log_phase(
+            "budget-classify",
+            duration_ms=(perf_counter() - classify_started) * 1000,
+            project_id=request.project_id,
+            status=status_label,
+        )
 
+        policy_started = perf_counter()
         policy_decision = self._evaluate_run_policy(
             task=ModelTask.DRAFT,
             budget_status=status_label,
         )
         synthesizer = self._create_synthesizer(project_root, policy_decision=policy_decision)
+        log_phase(
+            "provider-estimate",
+            duration_ms=(perf_counter() - policy_started) * 1000,
+            project_id=request.project_id,
+            routing_provider=self._last_route.provider if self._last_route else None,
+            routing_model=self._last_route.model.name if self._last_route else None,
+        )
+
+        payload_started = perf_counter()
         payload = await self._run_with_timeout(
             self._compute_preflight_payload,
             request,
@@ -343,6 +401,17 @@ class DraftGenerationService:
             budget_state,
             synthesizer,
             project_root=project_root,
+        )
+        log_phase(
+            "response-assembly",
+            duration_ms=(perf_counter() - payload_started) * 1000,
+            project_id=request.project_id,
+            scene_count=len(scenes),
+        )
+        log_phase(
+            "service-exit",
+            duration_ms=(perf_counter() - preflight_started) * 1000,
+            project_id=request.project_id,
         )
         return DraftPreflightResult(payload=payload)
 

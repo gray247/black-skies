@@ -1,4 +1,5 @@
 ﻿import { contextBridge, ipcRenderer, shell } from 'electron';
+import { randomUUID } from 'node:crypto';
 import { promises as fs } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import * as modePolicy from '../shared/modePolicy';
@@ -902,6 +903,7 @@ export async function makeServiceCall<T>(
   path: string,
   method: HttpMethod,
   body?: Record<string, unknown>,
+  requestTraceId?: string,
 ): Promise<ServiceResult<T>> {
   const port = currentServicePort();
   if (!port) {
@@ -923,7 +925,9 @@ export async function makeServiceCall<T>(
           service_port: process.env.BLACKSKIES_SERVICES_PORT ?? null,
           e2e_port: process.env.BLACKSKIES_E2E_PORT ?? null,
         },
+        traceId: requestTraceId,
       }),
+      traceId: requestTraceId,
     };
   }
 
@@ -932,6 +936,9 @@ export async function makeServiceCall<T>(
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   };
+  if (requestTraceId) {
+    headers['x-trace-id'] = requestTraceId;
+  }
   const requestInit: RequestInit = {
     method,
     headers,
@@ -939,6 +946,14 @@ export async function makeServiceCall<T>(
   };
 
   try {
+    if (normalizedPath === 'draft/preflight') {
+      console.info('[preflight] preload request', {
+        traceId: requestTraceId ?? null,
+        servicePort: port,
+        timeoutMs: REQUEST_POLICY.timeoutMs,
+        url,
+      });
+    }
     const response = await fetchWithResilience(url, requestInit, method);
 
     const traceId = response.headers.get('x-trace-id') ?? undefined;
@@ -967,23 +982,52 @@ export async function makeServiceCall<T>(
     }
   } catch (error) {
     if (error instanceof BridgeCircuitOpenError) {
+      if (normalizedPath === 'draft/preflight') {
+        console.warn('[preflight] preload circuit open', {
+          traceId: requestTraceId ?? null,
+          servicePort: port,
+          timeoutMs: REQUEST_POLICY.timeoutMs,
+          url,
+        });
+      }
       return {
         ok: false,
         error: normalizeError('Service requests temporarily unavailable.', {
           code: 'SERVICE_UNAVAILABLE',
+          traceId: requestTraceId,
         }),
+        traceId: requestTraceId,
       };
     }
     if (error instanceof BridgeTimeoutError) {
+      if (normalizedPath === 'draft/preflight') {
+        console.warn('[preflight] preload timeout', {
+          traceId: requestTraceId ?? null,
+          servicePort: port,
+          timeoutMs: error.timeoutMs,
+          url,
+        });
+      }
       return {
         ok: false,
         error: normalizeError(error.message, {
           code: 'TIMEOUT',
           details: { timeout_ms: error.timeoutMs },
+          traceId: requestTraceId,
         }),
+        traceId: requestTraceId,
       };
     }
     if (error instanceof BridgeNetworkError) {
+      if (normalizedPath === 'draft/preflight') {
+        console.warn('[preflight] preload network error', {
+          traceId: requestTraceId ?? null,
+          servicePort: port,
+          timeoutMs: REQUEST_POLICY.timeoutMs,
+          url,
+          message: error.message,
+        });
+      }
       console.warn('[preload] makeServiceCall network failure for', url, {
         message: error.message,
       });
@@ -993,7 +1037,9 @@ export async function makeServiceCall<T>(
         error: normalizeError(`Service request to ${url} failed: ${message}`, {
           code: 'NETWORK_ERROR',
           details: { url, message },
+          traceId: requestTraceId,
         }),
+        traceId: requestTraceId,
       };
     }
     const message = error instanceof Error ? error.message : String(error);
@@ -1375,6 +1421,7 @@ export const serviceApi = {
       'draft/preflight',
       'POST',
       serializePreflightRequest(request),
+      request.traceId ?? randomUUID(),
     ),
   acceptDraft: (request: DraftAcceptBridgeRequest) =>
     makeServiceCall<DraftAcceptBridgeResponse>(
