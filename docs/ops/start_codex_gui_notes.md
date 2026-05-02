@@ -24,7 +24,7 @@ means:
 3. The automated test suites execute (pytest for the services, `pnpm --filter app
    test` for the renderer). On failure the script stops here.
 4. If `-LaunchGui` was provided, the script starts two new PowerShell windows: one
-   for `python -m blackskies.services`, another for `pnpm run dev`.
+   for `uvicorn blackskies.services.app:app --host 127.0.0.1 --port 8000`, another for `pnpm run dev`.
 
 Because provisioning re-runs every invocation, the script can appear to "stall"
 while it reinstalls dependencies. When running in environments without a
@@ -68,10 +68,20 @@ Start the FastAPI services in a second terminal so the renderer can hit the API
 endpoints:
 
 ```powershell
-python -m blackskies.services
+uvicorn blackskies.services.app:app --host 127.0.0.1 --port 8000
 ```
 
 The health check is exposed at <http://127.0.0.1:8000/api/v1/healthz>.
+
+If you need to launch the ASGI app directly, use the same Uvicorn command
+instead of invoking `python -m blackskies.services.app`:
+
+```powershell
+uvicorn blackskies.services.app:app --host 127.0.0.1 --port 8000
+```
+
+The module path `python -m blackskies.services.app` is not the supported
+startup path and can produce import-order warnings.
 
 ## Next steps for a full desktop shell
 

@@ -555,6 +555,63 @@ describe('App preflight integration', () => {
     expect(screen.getByRole('button', { name: /proceed/i })).toBeDisabled();
   });
 
+  it('shows a backend-unreachable message when preflight cannot connect to the services', async () => {
+    services.preflightDraft = vi.fn().mockResolvedValue({
+      ok: false,
+      error: {
+        code: 'NETWORK_ERROR',
+        message: 'Service request to http://127.0.0.1:8000/api/v1/draft/preflight failed: fetch failed',
+        details: {
+          url: 'http://127.0.0.1:8000/api/v1/draft/preflight',
+          message: 'fetch failed',
+        },
+        traceId: 'trace-preflight-network-error',
+      },
+      traceId: 'trace-preflight-network-error',
+    });
+
+    const App = loadAppWithServices(services);
+
+    render(<App />);
+
+    const generateButton = await screen.findByRole('button', { name: /generate/i });
+    await waitFor(() => expect(generateButton).not.toBeDisabled());
+
+    fireEvent.click(generateButton);
+
+    await waitFor(() => expect(services.preflightDraft).toHaveBeenCalledTimes(1));
+    await screen.findByText(/Unable to complete preflight/i);
+    expect(screen.getByText(/backend unreachable/i)).toBeInTheDocument();
+    expect(screen.getByText(/uvicorn blackskies\.services\.app:app/i)).toBeInTheDocument();
+  });
+
+  it('shows a distinct timeout message when preflight exceeds the bridge timeout', async () => {
+    services.preflightDraft = vi.fn().mockResolvedValue({
+      ok: false,
+      error: {
+        code: 'TIMEOUT',
+        message: 'Request timed out after 45000ms.',
+        details: { timeout_ms: 45_000 },
+        traceId: 'trace-preflight-timeout',
+      },
+      traceId: 'trace-preflight-timeout',
+    });
+
+    const App = loadAppWithServices(services);
+
+    render(<App />);
+
+    const generateButton = await screen.findByRole('button', { name: /generate/i });
+    await waitFor(() => expect(generateButton).not.toBeDisabled());
+
+    fireEvent.click(generateButton);
+
+    await waitFor(() => expect(services.preflightDraft).toHaveBeenCalledTimes(1));
+    await screen.findByText(/Unable to complete preflight/i);
+    expect(screen.getByText(/timed out/i)).toBeInTheDocument();
+    expect(screen.queryByText(/backend unreachable/i)).toBeNull();
+  });
+
   it('displays trace IDs for generation success toasts', async () => {
     const App = loadAppWithServices(services);
 

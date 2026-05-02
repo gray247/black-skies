@@ -293,6 +293,13 @@ def create_app(settings: ServiceSettings | None = None) -> FastAPI:
     return application
 
 
+if __name__ == "__main__":
+    raise SystemExit(
+        "Direct execution of blackskies.services.app is not supported. "
+        "Start the backend with 'uvicorn blackskies.services.app:app --host 127.0.0.1 --port 8000'."
+    )
+
+
 # Materialize the module-level ASGI app for Uvicorn and tests. This preserves
 # existing runtime behavior while keeping startup failures explicit.
 try:

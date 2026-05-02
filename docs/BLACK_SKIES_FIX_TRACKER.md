@@ -89,6 +89,9 @@ Promotion notes:
 - Hardened project selection so one-level-deep nested folders auto-correct to the parent project root with a warning issue instead of loading silently.
 - Cleared invalid persisted dock layouts on load so the fallback default no longer leaves the bad layout file behind.
 - Improved critique summary readability with preserved paragraph/line wrapping in the modal.
+- Manual verification follow-up:
+  - backend startup for local verification should use `uvicorn blackskies.services.app:app --host 127.0.0.1 --port 8000`; direct `python -m blackskies.services.app` is unsupported and now fails loudly with a helpful message.
+  - dock layout warning was traced to nested-tree validation in the shared sanitizer and should stop once the corrected validator is deployed.
 - Validation evidence:
   - `pnpm --filter app test`
   - `pnpm --filter app run build:production`

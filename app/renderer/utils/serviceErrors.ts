@@ -32,12 +32,33 @@ const BUDGET_TITLE_BY_CONTEXT: Record<ServiceErrorContext, string> = {
 
 const BUDGET_DESCRIPTION = 'Budget limit exceeded.';
 
+export function describeServiceError(
+  error: ServiceError,
+  context: ServiceErrorContext,
+): string {
+  const code = (error.code ?? '').toUpperCase();
+  const message = error.message || GENERIC_ERROR_DESC;
+
+  if (context === 'preflight') {
+    if (code === 'NETWORK_ERROR' || code === 'SERVICE_UNAVAILABLE') {
+      return [
+        'Writing tools backend unreachable.',
+        'Start the FastAPI services with `uvicorn blackskies.services.app:app --host 127.0.0.1 --port 8000`, then retry.',
+      ].join(' ');
+    }
+    if (code === 'TIMEOUT') {
+      return 'Preflight timed out. The backend may still be starting or responding too slowly.';
+    }
+  }
+
+  return message;
+}
+
 export function mapServiceErrorToToast(
   error: ServiceError,
   context: ServiceErrorContext,
   traceId?: string,
 ): StructuredServiceError {
-  const message = error.message || GENERIC_ERROR_DESC;
   const code = (error.code ?? '').toUpperCase();
   const resolvedTraceId = traceId ?? error.traceId;
   const attachTraceId = (payload: ToastPayload): ToastPayload =>
@@ -71,7 +92,7 @@ export function mapServiceErrorToToast(
     toast: attachTraceId({
       tone: 'error',
       title: GENERIC_ERROR_TITLE,
-      description: message,
+      description: describeServiceError(error, context),
     }),
   };
 }

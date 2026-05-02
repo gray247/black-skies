@@ -8,7 +8,7 @@ import type {
 import type { ToastPayload } from '../types/toast';
 import type ProjectSummary from '../types/project';
 import { mergeSceneMarkdown } from '../utils/sceneMarkdown';
-import { handleServiceError } from '../utils/serviceErrors';
+import { describeServiceError, handleServiceError } from '../utils/serviceErrors';
 
 export interface PreflightState {
   open: boolean;
@@ -122,7 +122,7 @@ export function usePreflight({
       setState({
         open: true,
         loading: false,
-        error: result.error.message,
+        error: describeServiceError(result.error, 'preflight'),
         errorDetails: result.error.details ?? null,
         estimate: undefined,
       });
