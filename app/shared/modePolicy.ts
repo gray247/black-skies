@@ -10,8 +10,12 @@ function getDocument(): BrowserLikeDocument | undefined {
   return document as unknown as BrowserLikeDocument;
 }
 
+function getProcessEnv(): NodeJS.ProcessEnv | undefined {
+  return typeof process !== 'undefined' && process.env ? process.env : undefined;
+}
+
 function getEnvFlag(name: string): string | undefined {
-  return process?.env?.[name];
+  return getProcessEnv()?.[name];
 }
 
 function datasetFlagEnabled(flag: string): boolean {

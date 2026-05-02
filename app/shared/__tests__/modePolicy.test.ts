@@ -13,6 +13,26 @@ afterEach(() => {
 });
 
 describe('modePolicy', () => {
+  it('does not throw when process is unavailable', () => {
+    const originalProcess = globalThis.process;
+    delete (globalThis as typeof globalThis & { process?: typeof process }).process;
+
+    try {
+      expect(modePolicy.isProduction()).toBe(false);
+      expect(modePolicy.isDev()).toBe(false);
+      expect(modePolicy.isE2E()).toBe(false);
+      expect(modePolicy.isSynthetic()).toBe(false);
+      expect(modePolicy.isTruthLane()).toBe(false);
+      expect(modePolicy.isSmokeLane()).toBe(false);
+      expect(modePolicy.isVisualStrict()).toBe(false);
+      expect(modePolicy.isVisualStable()).toBe(false);
+      expect(modePolicy.isHarnessEnabled()).toBe(false);
+      expect(() => modePolicy.assertValidMode()).not.toThrow();
+    } finally {
+      globalThis.process = originalProcess;
+    }
+  });
+
   it('defaults VISUAL_STRICT to false', () => {
     delete process.env.VISUAL_STRICT;
     expect(modePolicy.isVisualStrict()).toBe(false);
