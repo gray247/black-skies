@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import type { MutableRefObject } from 'react';
 import type {
   DraftPreflightEstimate,
@@ -72,6 +72,7 @@ export function usePreflight({
 }: UsePreflightOptions) {
   const onBudgetBlockHandler = onBudgetBlock;
   const [state, setState] = useState<PreflightState>(INITIAL_STATE);
+  const activeRequestIdRef = useRef(0);
 
   const openPreflight = useCallback(async () => {
     if (!services) {
@@ -91,6 +92,8 @@ export function usePreflight({
       return;
     }
 
+    const requestId = activeRequestIdRef.current + 1;
+    activeRequestIdRef.current = requestId;
     const traceId = createPreflightTraceId();
     const startedAt = performance.now();
     console.info('[preflight] start', {

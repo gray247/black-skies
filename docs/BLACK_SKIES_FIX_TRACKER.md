@@ -93,7 +93,10 @@ Promotion notes:
   - Electron now honors an explicitly provided `BLACKSKIES_SERVICES_PORT` as an external backend instead of silently spawning a second service.
   - The failed manual path was routing to Electron's spawned service port, not to the external Uvicorn instance on `127.0.0.1:8000`.
   - Preflight requests now carry a shared trace ID from renderer through preload to the backend, with bounded logs for route entry, bridge target URL, and backend phase timings.
+  - renderer preflight state now ignores stale out-of-order responses so a late timeout cannot overwrite a newer success.
   - Manual retry guidance should use `uvicorn blackskies.services.app:app --host 127.0.0.1 --port 8000` and a health probe against `/api/v1/healthz`.
+- Rewrite/apply conflict follow-up:
+  - rewrite 409 is expected when the on-disk scene changes after critique; the modal now explains that the user should refresh the project or rerun critique before generating the rewrite again.
 - Manual verification follow-up:
   - backend startup for local verification should use `uvicorn blackskies.services.app:app --host 127.0.0.1 --port 8000`; direct `python -m blackskies.services.app` is unsupported and now fails loudly with a helpful message.
   - dock layout warning was traced to nested-tree validation in the shared sanitizer and should stop once the corrected validator is deployed.
@@ -1762,6 +1765,7 @@ Backlog note drifted after phase-log cleanup.
   - selected Batch A (lowest-risk tooling) as the recommended first upgrade pass.
 - 2026-04-28 - Codex - Phase 4.2 warning cleanup completed:
   - CSP warning resolved via conservative CSP meta tag in `app/index.html`,
+  - blob-backed worker warning resolved by adding `worker-src 'self' blob:` to the renderer CSP,
   - NO_COLOR/FORCE_COLOR remains partially mitigated and is deferred to shell-level normalization,
   - dock layout warning remains classified and deferred as legacy-layout compatibility noise,
   - final state recorded in `docs/technical_debt/warning_cleanup_phase4_2026-04-28.md`.
