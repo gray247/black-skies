@@ -95,6 +95,17 @@ Promotion notes:
   - Preflight requests now carry a shared trace ID from renderer through preload to the backend, with bounded logs for route entry, bridge target URL, and backend phase timings.
   - renderer preflight state now ignores stale out-of-order responses so a late timeout cannot overwrite a newer success.
   - Manual retry guidance should use `uvicorn blackskies.services.app:app --host 127.0.0.1 --port 8000` and a health probe against `/api/v1/healthz`.
+  - Generate-flow instrumentation pass:
+    - The live path from Generate -> Preflight -> Proceed -> Draft Generation now carries one trace id from the renderer click through preload, backend route entry/exit, and provider adapter calls.
+    - Renderer and preload boundary logs now prove the draft-generate response returns back through the bridge (`before-await` -> `preload:draft-generate:response` / `returning` -> `after-await` -> `state-update` -> `finally`).
+    - Preflight and draft-generation timeout labels are split in the renderer so a post-Proceed timeout is reported as draft generation, not preflight.
+    - The manual failure is no longer attributed to backend preflight/generate transport; if it still appears in the truth lane, the remaining suspect is renderer state/error handling after the bridge returns.
+    - Phase 10 stays open until a manual Generate -> Proceed succeeds against the external service and the end-to-end flow is observed in the UI.
+    - Added a local diagnostic script for `/api/v1/draft/preflight` and `/api/v1/draft/generate` against `sample_project/Esther_Estate`.
+  - External-service launch probe investigation:
+    - Electron main and preload health checks already target `http://127.0.0.1:${BLACKSKIES_SERVICES_PORT}/api/v1/healthz`.
+    - The health contract still expects the backend payload to report `status: "ok"` before the UI bootstrap proceeds.
+    - Added regression coverage for the external-service `8000` health probe path.
 - Rewrite/apply conflict follow-up:
   - rewrite 409 is expected when the on-disk scene changes after critique; the modal now explains that the user should refresh the project or rerun critique before generating the rewrite again.
 - Manual verification follow-up:

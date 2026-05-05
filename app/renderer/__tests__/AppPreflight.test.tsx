@@ -613,6 +613,108 @@ describe('App preflight integration', () => {
     expect(screen.queryByText(/backend unreachable/i)).toBeNull();
   });
 
+  it('propagates the same trace id from preflight into draft generation', async () => {
+    const App = loadAppWithServices(services);
+
+    render(<App />);
+
+    const generateButton = await screen.findByRole('button', { name: /generate/i });
+    await waitFor(() => expect(generateButton).not.toBeDisabled());
+
+    fireEvent.click(generateButton);
+
+    await waitFor(() => expect(services.preflightDraft).toHaveBeenCalledTimes(1));
+    const preflightRequest = vi.mocked(services.preflightDraft).mock.calls[0][0];
+    expect(preflightRequest.traceId).toEqual(expect.any(String));
+
+    const proceedButton = await screen.findByRole('button', { name: /proceed/i });
+    fireEvent.click(proceedButton);
+
+    await waitFor(() => expect(services.generateDraft).toHaveBeenCalledTimes(1));
+    expect(services.generateDraft).toHaveBeenCalledWith(
+      expect.objectContaining({
+        projectId: 'demo',
+        unitScope: 'scene',
+        unitIds: ['sc_0001'],
+      }),
+      preflightRequest.traceId,
+    );
+  });
+
+  it('clears Working state and closes the modal after a successful Proceed response', async () => {
+    let resolveGenerate:
+      | ((value: { ok: true; data: DraftGenerateBridgeResponse; traceId: string }) => void)
+      | undefined;
+    services.generateDraft = vi.fn().mockImplementation(
+      () =>
+        new Promise<{ ok: true; data: DraftGenerateBridgeResponse; traceId: string }>((resolve) => {
+          resolveGenerate = resolve;
+        }),
+    );
+
+    const App = loadAppWithServices(services);
+
+    render(<App />);
+
+    const generateButton = await screen.findByRole('button', { name: /generate/i });
+    await waitFor(() => expect(generateButton).not.toBeDisabled());
+
+    fireEvent.click(generateButton);
+
+    await waitFor(() => expect(services.preflightDraft).toHaveBeenCalledTimes(1));
+    const proceedButton = await screen.findByRole('button', { name: /proceed/i });
+    fireEvent.click(proceedButton);
+
+    await waitFor(() => expect(services.generateDraft).toHaveBeenCalledTimes(1));
+    expect(within(await screen.findByRole('dialog', { name: /draft preflight/i })).getByRole('button', { name: /working/i })).toBeInTheDocument();
+
+    resolveGenerate?.({
+      ok: true,
+      data: {
+        draft_id: 'dr_001',
+        schema_version: 'DraftUnitSchema v1',
+        units: [],
+        budget: undefined,
+      },
+      traceId: 'trace-generate-success',
+    });
+
+    await waitFor(() => expect(screen.queryByRole('dialog', { name: /draft preflight/i })).toBeNull());
+    expect(screen.queryByText(/Working/i)).toBeNull();
+  });
+
+  it('shows a draft-generation timeout message after proceed instead of preflight timeout text', async () => {
+    services.generateDraft = vi.fn().mockResolvedValue({
+      ok: false,
+      error: {
+        code: 'TIMEOUT',
+        message: 'Request timed out after 45000ms.',
+        details: { timeout_ms: 45_000 },
+        traceId: 'trace-generate-timeout',
+      },
+      traceId: 'trace-generate-timeout',
+    });
+
+    const App = loadAppWithServices(services);
+
+    render(<App />);
+
+    const generateButton = await screen.findByRole('button', { name: /generate/i });
+    await waitFor(() => expect(generateButton).not.toBeDisabled());
+
+    fireEvent.click(generateButton);
+
+    await waitFor(() => expect(services.preflightDraft).toHaveBeenCalledTimes(1));
+    const proceedButton = await screen.findByRole('button', { name: /proceed/i });
+    fireEvent.click(proceedButton);
+
+    await waitFor(() => expect(services.generateDraft).toHaveBeenCalledTimes(1));
+    const modal = await screen.findByRole('dialog', { name: /draft preflight/i });
+    expect(within(modal).getByText(/Unable to complete draft generation/i)).toBeInTheDocument();
+    expect(within(modal).getByText(/Draft generation timed out/i)).toBeInTheDocument();
+    expect(within(modal).queryByText(/Unable to complete preflight/i)).toBeNull();
+  });
+
   it('displays trace IDs for generation success toasts', async () => {
     const App = loadAppWithServices(services);
 

@@ -132,6 +132,73 @@ describe('serviceApi', () => {
     );
   });
 
+  it('injects explicit trace ids into draft generation bridge requests', async () => {
+    const serviceApi = await loadServiceApi();
+
+    await serviceApi.generateDraft(
+      {
+        projectId: 'proj_test',
+        unitScope: 'scene',
+        unitIds: ['sc_0001'],
+      },
+      'trace-generate-request',
+    );
+
+    expect(fetch).toHaveBeenCalledWith(
+      'http://127.0.0.1:5000/api/v1/draft/generate',
+      expect.objectContaining({
+        method: 'POST',
+        headers: expect.objectContaining({
+          'Content-Type': 'application/json',
+          'x-trace-id': 'trace-generate-request',
+        }),
+      }),
+    );
+  });
+
+  it('returns draft generation responses back to the renderer bridge', async () => {
+    const fetchMock = global.fetch as unknown as vi.Mock;
+    fetchMock.mockReset();
+    fetchMock.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: vi.fn().mockResolvedValue({
+        draft_id: 'dr_001',
+        schema_version: 'DraftUnitSchema v1',
+        units: [],
+        budget: undefined,
+      }),
+      headers: {
+        get: (name: string) => (name.toLowerCase() === 'x-trace-id' ? 'trace-generate-response' : null),
+      },
+    } as unknown as Response);
+
+    const serviceApi = await loadServiceApi();
+    const response = await serviceApi.generateDraft(
+      {
+        projectId: 'proj_test',
+        unitScope: 'scene',
+        unitIds: ['sc_0001'],
+      },
+      'trace-generate-response-request',
+    );
+
+    expect(response.ok).toBe(true);
+    if (response.ok) {
+      expect(response.data.draft_id).toBe('dr_001');
+    }
+    expect(response.traceId).toBe('trace-generate-response');
+    expect(fetch).toHaveBeenCalledWith(
+      'http://127.0.0.1:5000/api/v1/draft/generate',
+      expect.objectContaining({
+        method: 'POST',
+        headers: expect.objectContaining({
+          'x-trace-id': 'trace-generate-response-request',
+        }),
+      }),
+    );
+  });
+
   it('performs GET requests with query parameters for recovery status', async () => {
     const serviceApi = await loadServiceApi();
 
@@ -139,6 +206,38 @@ describe('serviceApi', () => {
 
     expect(fetch).toHaveBeenCalledWith(
       'http://127.0.0.1:5000/api/v1/draft/recovery?project_id=proj_test',
+      expect.objectContaining({ method: 'GET' }),
+    );
+  });
+
+  it('checks the external backend health endpoint on the configured port', async () => {
+    process.env.BLACKSKIES_SERVICES_PORT = '8000';
+
+    const fetchMock = global.fetch as unknown as vi.Mock;
+    fetchMock.mockReset();
+    fetchMock.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: vi.fn().mockResolvedValue({ status: 'ok', version: '1.0.0-rc1' }),
+      headers: {
+        get: (name: string) => (name.toLowerCase() === 'x-trace-id' ? 'trace-health' : null),
+      },
+    } as unknown as Response);
+
+    await loadServiceApi();
+    const { contextBridge } = await import('electron');
+    const exposeMock = vi.mocked(contextBridge.exposeInMainWorld);
+    const servicesBridge = exposeMock.mock.calls.find(([key]) => key === 'services')?.[1] as
+      | { checkHealth: () => Promise<{ ok: boolean; data?: { status?: string } }> }
+      | undefined;
+    expect(servicesBridge).toBeDefined();
+
+    const result = await servicesBridge!.checkHealth();
+
+    expect(result.ok).toBe(true);
+    expect(result.data?.status).toBe('online');
+    expect(fetch).toHaveBeenCalledWith(
+      'http://127.0.0.1:8000/api/v1/healthz',
       expect.objectContaining({ method: 'GET' }),
     );
   });

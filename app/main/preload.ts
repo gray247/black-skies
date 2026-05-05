@@ -933,6 +933,14 @@ export async function makeServiceCall<T>(
 
   const normalizedPath = path.startsWith('/') ? path.slice(1) : path;
   const url = `http://127.0.0.1:${port}/api/v1/${normalizedPath}`;
+  const phaseLabel =
+    normalizedPath === 'draft/preflight'
+      ? 'preflight'
+      : normalizedPath === 'draft/generate'
+        ? 'draft-generate'
+        : null;
+  const phaseLogPrefix = phaseLabel === 'draft-generate' ? 'preload:draft-generate' : phaseLabel;
+  const startedAt = performance.now();
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   };
@@ -946,8 +954,8 @@ export async function makeServiceCall<T>(
   };
 
   try {
-    if (normalizedPath === 'draft/preflight') {
-      console.info('[preflight] preload request', {
+    if (phaseLogPrefix) {
+      console.info(`[${phaseLogPrefix}:request]`, {
         traceId: requestTraceId ?? null,
         servicePort: port,
         timeoutMs: REQUEST_POLICY.timeoutMs,
@@ -960,19 +968,96 @@ export async function makeServiceCall<T>(
 
     if (!response.ok) {
       const error = await parseErrorPayload(response, traceId);
+      if (phaseLogPrefix) {
+        console.info(`[${phaseLogPrefix}:response]`, {
+          traceId: error.traceId ?? traceId ?? requestTraceId ?? null,
+          ok: false,
+          status: response.status,
+          durationMs: Math.round(performance.now() - startedAt),
+          code: error.code ?? null,
+        });
+        console.warn(`[${phaseLogPrefix}:error]`, {
+          traceId: error.traceId ?? traceId ?? requestTraceId ?? null,
+          status: response.status,
+          durationMs: Math.round(performance.now() - startedAt),
+          code: error.code ?? null,
+        });
+        if (phaseLabel === 'draft-generate') {
+          console.info(`[${phaseLogPrefix}:returning]`, {
+            traceId: error.traceId ?? traceId ?? requestTraceId ?? null,
+            ok: false,
+            status: response.status,
+            durationMs: Math.round(performance.now() - startedAt),
+            resultType: 'error',
+            resultKeys: Object.keys(error ?? {}),
+          });
+        }
+      }
       return { ok: false, error, traceId: error.traceId ?? traceId };
     }
 
     if (response.status === 204) {
+      if (phaseLogPrefix) {
+        console.info(`[${phaseLogPrefix}:response]`, {
+          traceId: traceId ?? requestTraceId ?? null,
+          ok: true,
+          status: response.status,
+          durationMs: Math.round(performance.now() - startedAt),
+        });
+        console.info(`[${phaseLogPrefix}:returning]`, {
+          traceId: traceId ?? requestTraceId ?? null,
+          ok: true,
+          status: response.status,
+          durationMs: Math.round(performance.now() - startedAt),
+          resultType: 'void',
+        });
+      }
       return { ok: true, data: undefined as T, traceId };
     }
 
     try {
       const data = (await response.json()) as T;
+      if (phaseLogPrefix) {
+        const resultKeys =
+          data && typeof data === 'object' ? Object.keys(data as Record<string, unknown>) : [];
+        console.info(`[${phaseLogPrefix}:response]`, {
+          traceId: traceId ?? requestTraceId ?? null,
+          ok: true,
+          status: response.status,
+          durationMs: Math.round(performance.now() - startedAt),
+          resultType: Array.isArray(data) ? 'array' : typeof data,
+          resultKeys,
+        });
+        console.info(`[${phaseLogPrefix}:returning]`, {
+          traceId: traceId ?? requestTraceId ?? null,
+          ok: true,
+          status: response.status,
+          durationMs: Math.round(performance.now() - startedAt),
+          resultType: Array.isArray(data) ? 'array' : typeof data,
+          resultKeys,
+        });
+      }
       return { ok: true, data, traceId };
     } catch (parseError) {
       const parseMessage =
         parseError instanceof Error ? parseError.message : String(parseError);
+      if (phaseLogPrefix) {
+        console.warn(`[${phaseLogPrefix}:error]`, {
+          traceId: traceId ?? requestTraceId ?? null,
+          status: response.status,
+          durationMs: Math.round(performance.now() - startedAt),
+          message: parseMessage,
+        });
+        if (phaseLabel === 'draft-generate') {
+          console.info(`[${phaseLogPrefix}:returning]`, {
+            traceId: traceId ?? requestTraceId ?? null,
+            ok: false,
+            status: response.status,
+            durationMs: Math.round(performance.now() - startedAt),
+            resultType: 'parse-error',
+          });
+        }
+      }
       const error = normalizeError('Failed to parse response payload.', {
         traceId,
         httpStatus: response.status,
@@ -982,13 +1067,24 @@ export async function makeServiceCall<T>(
     }
   } catch (error) {
     if (error instanceof BridgeCircuitOpenError) {
-      if (normalizedPath === 'draft/preflight') {
-        console.warn('[preflight] preload circuit open', {
+      if (phaseLogPrefix) {
+        console.warn(`[${phaseLogPrefix}:error]`, {
           traceId: requestTraceId ?? null,
           servicePort: port,
           timeoutMs: REQUEST_POLICY.timeoutMs,
           url,
+          durationMs: Math.round(performance.now() - startedAt),
+          code: 'SERVICE_UNAVAILABLE',
         });
+        if (phaseLabel === 'draft-generate') {
+          console.info(`[${phaseLogPrefix}:returning]`, {
+            traceId: requestTraceId ?? null,
+            ok: false,
+            durationMs: Math.round(performance.now() - startedAt),
+            resultType: 'error',
+            code: 'SERVICE_UNAVAILABLE',
+          });
+        }
       }
       return {
         ok: false,
@@ -1000,13 +1096,24 @@ export async function makeServiceCall<T>(
       };
     }
     if (error instanceof BridgeTimeoutError) {
-      if (normalizedPath === 'draft/preflight') {
-        console.warn('[preflight] preload timeout', {
+      if (phaseLogPrefix) {
+        console.warn(`[${phaseLogPrefix}:error]`, {
           traceId: requestTraceId ?? null,
           servicePort: port,
           timeoutMs: error.timeoutMs,
           url,
+          durationMs: Math.round(performance.now() - startedAt),
+          code: 'TIMEOUT',
         });
+        if (phaseLabel === 'draft-generate') {
+          console.info(`[${phaseLogPrefix}:returning]`, {
+            traceId: requestTraceId ?? null,
+            ok: false,
+            durationMs: Math.round(performance.now() - startedAt),
+            resultType: 'error',
+            code: 'TIMEOUT',
+          });
+        }
       }
       return {
         ok: false,
@@ -1019,14 +1126,25 @@ export async function makeServiceCall<T>(
       };
     }
     if (error instanceof BridgeNetworkError) {
-      if (normalizedPath === 'draft/preflight') {
-        console.warn('[preflight] preload network error', {
+      if (phaseLogPrefix) {
+        console.warn(`[${phaseLogPrefix}:error]`, {
           traceId: requestTraceId ?? null,
           servicePort: port,
           timeoutMs: REQUEST_POLICY.timeoutMs,
           url,
           message: error.message,
+          durationMs: Math.round(performance.now() - startedAt),
+          code: 'NETWORK_ERROR',
         });
+        if (phaseLabel === 'draft-generate') {
+          console.info(`[${phaseLogPrefix}:returning]`, {
+            traceId: requestTraceId ?? null,
+            ok: false,
+            durationMs: Math.round(performance.now() - startedAt),
+            resultType: 'error',
+            code: 'NETWORK_ERROR',
+          });
+        }
       }
       console.warn('[preload] makeServiceCall network failure for', url, {
         message: error.message,
@@ -1043,6 +1161,15 @@ export async function makeServiceCall<T>(
       };
     }
     const message = error instanceof Error ? error.message : String(error);
+    if (phaseLabel === 'draft-generate') {
+      console.info(`[${phaseLogPrefix}:returning]`, {
+        traceId: requestTraceId ?? null,
+        ok: false,
+        durationMs: Math.round(performance.now() - startedAt),
+        resultType: 'throw',
+        code: error instanceof Error ? error.name : 'UNKNOWN',
+      });
+    }
     return { ok: false, error: normalizeError(message) };
   }
 }
@@ -1386,11 +1513,12 @@ export const serviceApi = {
       'POST',
       serializeOutlineRequest(request),
     ),
-  generateDraft: (request: DraftGenerateBridgeRequest) =>
+  generateDraft: (request: DraftGenerateBridgeRequest, traceId?: string) =>
     makeServiceCall<DraftGenerateBridgeResponse>(
       'draft/generate',
       'POST',
       serializeDraftGenerateRequest(request),
+      traceId,
     ),
   critiqueDraft: (request: DraftCritiqueBridgeRequest) =>
     makeServiceCall<DraftCritiqueBridgeResponse>(
