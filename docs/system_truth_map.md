@@ -59,6 +59,23 @@ Define the authoritative state contracts for Black Skies so runtime behavior, ha
   - service-state mismatch (`online/offline/port-unavailable` drift)
   - preflight opens before contract convergence
 
+## Draft Preview Sync
+- owner:
+  - Renderer draft preview state in `App.tsx` and the shared preview-sync helpers.
+- setter:
+  - Generate -> Proceed commits generated drafts into shared live state keyed by project path.
+  - Floated windows subscribe to the same live state and hydrate from override text before falling back to disk.
+- proof marker:
+  - docked and floating Draft Preview show the same generated text
+  - a post-generate disk refresh does not erase visible generated output
+- dependent tests:
+  - `app/renderer/__tests__/AppPreflight.test.tsx`
+  - `app/renderer/__tests__/ProjectHome.test.tsx`
+- failure classification:
+  - stale disk text reappears in a floated pane
+  - shared-state key missing for the active project path
+  - override text dropped during window handoff or disk refresh
+
 ## Startup Config
 - owner:
   - Harness startup contract (`_bootstrap.ts` + renderer startup config handling).
@@ -120,6 +137,13 @@ Define the authoritative state contracts for Black Skies so runtime behavior, ha
   - banner visibility, restore trigger, and `__snapshotRestoreDone` completion coupling.
 - Playwright readiness helpers:
   - `_bootstrap.ts` is authority-critical; assumptions here can invalidate multiple suites simultaneously.
+
+## Renderer Isolation / Contamination Controls
+- cleanup contract:
+  - reset `document.body.dataset` and `document.documentElement.dataset` markers after each renderer spec.
+  - clear `window.__*` helpers, `window.timeline`, `localStorage`, `sessionStorage`, timers, and `modal-root` portal state between specs.
+- residual risk:
+  - any new renderer-global helper or dataset marker must be added to the cleanup allowlist before it is safe to rely on in test suites.
 
 ## Unsupported Mutation Paths
 Tests should not mutate these directly unless a dedicated dev-only bridge exists:

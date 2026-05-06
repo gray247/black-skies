@@ -1,3 +1,39 @@
+## Phase 10 Closure Summary
+- Root causes fixed:
+  - canonical project identity drift between the folder name and `project.json`
+  - stale active-scene commit flow in the renderer
+  - draft preview refresh logic that preferred disk state over the live generated override
+  - fixed single-budget timeout handling for multi-scene generation
+  - renderer contamination between specs
+- Architectural improvements:
+  - live draft-preview sync keyed by project path
+  - shared active-scene authority for generation and preview flows
+  - timeout budget scaling by requested unit count
+  - renderer test cleanup that resets shared globals after each spec
+- Renderer isolation cleanup:
+  - `document.body.dataset`
+  - `document.documentElement.dataset`
+  - `window.__*` helpers
+  - `window.timeline`
+  - `localStorage`
+  - `sessionStorage`
+  - timers
+  - `modal-root` portal state
+- Contamination cleanup strategy:
+  - keep renderer globals scoped to a single spec run
+  - clear storage and timers after each renderer test
+  - recreate or empty the modal root so portal-backed UI cannot bleed between specs
+- Deferred UX issues:
+  - pane sizing
+  - docking ergonomics
+  - Scene Metadata usability
+  - floating pane recovery UX
+- Remaining blockers:
+  - no Phase 10 blockers remain
+  - `AppSnapshotsVerification.test.tsx` is still unrelated and remains a separate suite failure
+- Closure recommendation:
+  - Phase 10 COMPLETE
+
 ## Final Green Proof
 - Black check: pass
 - mypy: clean, 346 files

@@ -55,7 +55,9 @@ LOGGER = logging.getLogger(__name__)
 
 
 def _generate_log(trace_id: str | None, message: str, **details: Any) -> None:
-    LOGGER.info("[draft-generate][%s] draft-generate:%s %s", trace_id or "unknown", message, details)
+    LOGGER.info(
+        "[draft-generate][%s] draft-generate:%s %s", trace_id or "unknown", message, details
+    )
 
 
 @dataclass(slots=True)
@@ -556,9 +558,9 @@ class DraftGenerationService:
                     "temperature": request.temperature,
                     "options": (
                         {"temperature": request.temperature}
-                    if request.temperature is not None
-                    else None
-                ),
+                        if request.temperature is not None
+                        else None
+                    ),
                 }
                 provider_timeout_seconds = max(
                     1.0,

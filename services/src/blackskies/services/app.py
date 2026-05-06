@@ -74,8 +74,14 @@ class TraceMiddleware:
                 "method": request.method,
                 "path": request.url.path,
                 "trace_header": trace_header,
-                "content_length": int(content_length) if content_length and content_length.isdigit() else None,
-                "client": f"{client_host}:{client_port}" if client_host and client_port is not None else client_host,
+                "content_length": (
+                    int(content_length) if content_length and content_length.isdigit() else None
+                ),
+                "client": (
+                    f"{client_host}:{client_port}"
+                    if client_host and client_port is not None
+                    else client_host
+                ),
             },
         )
         trace_id = resolve_trace_id(request.headers.get(TRACE_ID_HEADER))

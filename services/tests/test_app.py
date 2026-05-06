@@ -1697,11 +1697,26 @@ def test_draft_generate_emits_trace_logs(
             return " ".join(str(part) for part in call.args)
 
     logged_messages = " ".join(_render_message(call) for call in info_mock.call_args_list)
-    assert "[draft-generate][22222222-2222-4222-8222-222222222222] draft-generate:route-enter" in logged_messages
-    assert "[draft-generate][22222222-2222-4222-8222-222222222222] draft-generate:backend-enter" in logged_messages
-    assert "[draft-generate][22222222-2222-4222-8222-222222222222] draft-generate:request-validated" in logged_messages
-    assert "[draft-generate][22222222-2222-4222-8222-222222222222] draft-generate:response" in logged_messages
-    assert "[draft-generate][22222222-2222-4222-8222-222222222222] draft-generate:backend-exit" in logged_messages
+    assert (
+        "[draft-generate][22222222-2222-4222-8222-222222222222] draft-generate:route-enter"
+        in logged_messages
+    )
+    assert (
+        "[draft-generate][22222222-2222-4222-8222-222222222222] draft-generate:backend-enter"
+        in logged_messages
+    )
+    assert (
+        "[draft-generate][22222222-2222-4222-8222-222222222222] draft-generate:request-validated"
+        in logged_messages
+    )
+    assert (
+        "[draft-generate][22222222-2222-4222-8222-222222222222] draft-generate:response"
+        in logged_messages
+    )
+    assert (
+        "[draft-generate][22222222-2222-4222-8222-222222222222] draft-generate:backend-exit"
+        in logged_messages
+    )
     assert "Arrival" not in logged_messages
 
 

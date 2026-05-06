@@ -55,7 +55,9 @@ class _StubAdapter:
 
 
 class _SlowAdapter:
-    config = AdapterConfig(base_url="http://127.0.0.1:9999", model="slow-model", timeout_seconds=1.0)
+    config = AdapterConfig(
+        base_url="http://127.0.0.1:9999", model="slow-model", timeout_seconds=1.0
+    )
 
     def generate_draft(self, _payload: dict[str, object]) -> dict[str, object]:
         time.sleep(1.2)
