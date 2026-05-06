@@ -503,12 +503,19 @@ it('renders backup list and triggers backup actions', async () => {
   expect(await screen.findByText('BS_20251119_120000.zip')).toBeInTheDocument();
 
   fireEvent.click(screen.getByRole('button', { name: /Create backup/i }));
+  await waitFor(() => expect(createBackup).not.toHaveBeenCalled());
   await waitFor(() =>
-    expect(createBackup).toHaveBeenCalledWith({ projectId: 'proj' }),
+    expect(
+      pushToast.mock.calls.some(
+        (call) =>
+          call[0]?.title === 'Backup created' &&
+          String(call[0]?.description ?? '').includes('Created backup /mock/path'),
+      ),
+    ).toBe(true),
   );
   await waitFor(() => expect(listBackups).toHaveBeenCalledTimes(2));
 
-const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
+  const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
   fireEvent.click(
     await screen.findByRole('button', {
       name: /Restore backup BS_20251119_120000\.zip/i,
