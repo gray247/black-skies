@@ -136,6 +136,10 @@ Promotion notes:
   - `pnpm test:e2e -- --workers=1`
   - `pnpm --filter app test`
 - Recommendation: Phase 10 COMPLETE.
+- App Truth Lane rewrite 409 diagnosis:
+  - root cause was a truth-harness file-root mismatch after project-id canonicalization, not a Phase 10 generation regression
+  - rewrite and accept persistence checks must follow the loaded project path used by the live Electron session, while `project_id` stays canonical (`proj_esther_estate`)
+  - the truth lane now passes after the root alignment and fail-fast rewrite reporting changes
 - Rewrite/apply conflict follow-up:
   - rewrite 409 is expected when the on-disk scene changes after critique; the modal now explains that the user should refresh the project or rerun critique before generating the rewrite again.
 - Manual verification follow-up:

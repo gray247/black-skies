@@ -346,6 +346,7 @@ describe('App critique + rewrite loop', () => {
     });
     expect(screen.getAllByText('Rewrite failed.').length).toBeGreaterThanOrEqual(1);
     expect(screen.queryByText('Failed to fetch')).toBeNull();
+    expect(screen.queryByText(/Rewrite provenance:/i)).toBeNull();
   });
 
   it('guards default path integrity by preferring draft routes over phase4 routes', async () => {

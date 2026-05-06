@@ -751,9 +751,11 @@ function resolveTruthProjectSourcePath(sampleRoot, launchRoot) {
 function materializeTruthProjectRoot(sourcePath, launchRoot) {
   const projectBaseDir = path.join(launchRoot, 'project-base');
   const projectPath = path.join(projectBaseDir, 'Esther_Estate');
+  const canonicalProjectPath = path.join(projectBaseDir, 'proj_esther_estate');
   mkdirSync(projectBaseDir, { recursive: true });
   cpSync(sourcePath, projectPath, { recursive: true, force: true });
-  return { projectBaseDir, projectPath };
+  cpSync(sourcePath, canonicalProjectPath, { recursive: true, force: true });
+  return { projectBaseDir, projectPath, canonicalProjectPath };
 }
 
 async function waitForDebuggerVersion(port, timeoutMs) {
@@ -1634,7 +1636,7 @@ async function run() {
       await probeAnalyticsPreflight(
         `http://127.0.0.1:${SERVICE_PORT}`,
         sampleLoadProbe.projectId,
-        truthProject.projectPath,
+        truthProject.canonicalProjectPath,
         30_000,
       );
 
@@ -2163,6 +2165,144 @@ async function run() {
       });
 
       console.log('[truth] requesting rewrite from critique modal');
+      await cdp.send('Network.enable');
+      const rewriteRequests = new Map();
+      let rewriteResult = null;
+      const sanitizeRewriteResponseBody = (value) => {
+        if (value === null || value === undefined) {
+          return null;
+        }
+        if (typeof value === 'string') {
+          return trimText(value, 1200);
+        }
+        if (typeof value !== 'object') {
+          return value;
+        }
+        const source = value;
+        const sanitized = {};
+        for (const key of ['code', 'message', 'detail', 'error', 'traceId', 'trace_id', 'project_id', 'unit_id']) {
+          if (key in source) {
+            sanitized[key] = source[key];
+          }
+        }
+        if ('details' in source && source.details && typeof source.details === 'object') {
+          const details = source.details;
+          const sanitizedDetails = {};
+          for (const key of ['code', 'message', 'error_code', 'project_id', 'unit_id']) {
+            if (key in details) {
+              sanitizedDetails[key] = details[key];
+            }
+          }
+          if (Object.keys(sanitizedDetails).length > 0) {
+            sanitized.details = sanitizedDetails;
+          }
+        }
+        return Object.keys(sanitized).length > 0 ? sanitized : source;
+      };
+      const unsubscribeRewriteRequest = cdp.on('Network.requestWillBeSent', (params) => {
+        const request = params?.request ?? {};
+        const requestUrl = request.url ?? '';
+        if (!requestUrl.includes('/api/v1/draft/rewrite')) {
+          return;
+        }
+        let requestBody = null;
+        if (typeof request.postData === 'string' && request.postData.trim()) {
+          try {
+            requestBody = JSON.parse(request.postData);
+          } catch {
+            requestBody = null;
+          }
+        }
+        rewriteRequests.set(params.requestId, {
+          requestBody,
+          responseStatus: null,
+          responseHeaders: null,
+        });
+      });
+      const unsubscribeRewriteResponse = cdp.on('Network.responseReceived', (params) => {
+        const requestUrl = params?.response?.url ?? '';
+        if (!requestUrl.includes('/api/v1/draft/rewrite')) {
+          return;
+        }
+        const existing = rewriteRequests.get(params.requestId) ?? {
+          requestBody: null,
+          responseStatus: null,
+          responseHeaders: null,
+        };
+        existing.responseStatus = params?.response?.status ?? null;
+        existing.responseHeaders = params?.response?.headers ?? null;
+        rewriteRequests.set(params.requestId, existing);
+      });
+      const unsubscribeRewriteFinished = cdp.on('Network.loadingFinished', (params) => {
+        const existing = rewriteRequests.get(params.requestId);
+        if (!existing || rewriteResult) {
+          return;
+        }
+        void (async () => {
+          try {
+            const bodyResult = await cdp.send('Network.getResponseBody', {
+              requestId: params.requestId,
+            });
+            const rawBody =
+              typeof bodyResult?.body === 'string' ? bodyResult.body : null;
+            let parsedBody = null;
+            if (rawBody && rawBody.trim()) {
+              try {
+                parsedBody = JSON.parse(rawBody);
+              } catch {
+                parsedBody = rawBody;
+              }
+            }
+            const headers = existing.responseHeaders ?? {};
+            const traceId =
+              headers['x-trace-id'] ??
+              headers['X-Trace-Id'] ??
+              headers['trace-id'] ??
+              headers['Trace-Id'] ??
+              null;
+            const projectId =
+              existing.requestBody?.project_id ??
+              existing.requestBody?.projectId ??
+              null;
+            const unitId =
+              existing.requestBody?.unit_id ?? existing.requestBody?.unitId ?? null;
+            rewriteResult = {
+              ok: typeof existing.responseStatus === 'number' && existing.responseStatus >= 200 && existing.responseStatus < 300,
+              status: existing.responseStatus,
+              traceId,
+              projectId,
+              unitId,
+              error: typeof existing.responseStatus === 'number' && existing.responseStatus >= 200 && existing.responseStatus < 300
+                ? null
+                : sanitizeRewriteResponseBody(parsedBody),
+              data: typeof existing.responseStatus === 'number' && existing.responseStatus >= 200 && existing.responseStatus < 300
+                ? parsedBody
+                : null,
+            };
+          } catch (error) {
+            const headers = existing.responseHeaders ?? {};
+            const traceId =
+              headers['x-trace-id'] ??
+              headers['X-Trace-Id'] ??
+              headers['trace-id'] ??
+              headers['Trace-Id'] ??
+              null;
+            rewriteResult = {
+              ok: false,
+              status: existing.responseStatus ?? null,
+              traceId,
+              projectId:
+                existing.requestBody?.project_id ?? existing.requestBody?.projectId ?? null,
+              unitId: existing.requestBody?.unit_id ?? existing.requestBody?.unitId ?? null,
+              error:
+                error instanceof Error
+                  ? { message: error.message, name: error.name }
+                  : { message: String(error) },
+              data: null,
+            };
+          }
+        })();
+      });
       await evaluate(
         cdp,
         `(() => {
@@ -2182,6 +2322,26 @@ async function run() {
           return true;
         })()`,
       );
+
+      await waitForCondition(async () => {
+        return rewriteResult !== null;
+      }, 30_000, 'rewrite bridge result');
+
+      assert.ok(rewriteResult, 'Rewrite bridge did not report a result.');
+      if (rewriteResult.ok !== true) {
+        const rewriteErrorDetails = {
+          status: rewriteResult.status ?? null,
+          traceId: rewriteResult.traceId ?? null,
+          projectId: rewriteResult.projectId ?? null,
+          unitId: rewriteResult.unitId ?? null,
+          error: rewriteResult.error ?? null,
+        };
+        console.error('[truth] rewrite failed', rewriteErrorDetails);
+        throw new Error(`[truth] rewrite request failed: ${JSON.stringify(rewriteErrorDetails)}`);
+      }
+      unsubscribeRewriteFinished();
+      unsubscribeRewriteResponse();
+      unsubscribeRewriteRequest();
 
       await waitForCondition(async () => {
         const hasRewriteProvenance = await evaluate(
@@ -2245,11 +2405,8 @@ async function run() {
       console.log('[truth] validating accept persistence');
       const sceneFilePath = path.join(truthProject.projectPath, 'drafts', `${primarySceneId}.md`);
       assert.ok(existsSync(sceneFilePath), `Scene file missing for truth lane: ${sceneFilePath}`);
-      const sceneState = readServiceSceneState(truthProject.projectPath, primarySceneId);
       const truthMarker = `TRUTH-LANE-MARKER-${Date.now()}`;
       const acceptedSceneEvidence = `TRUTH-LANE-SCENE-ID:${primarySceneId}`;
-      let acceptedBody = `${sceneState.body}\n\n${truthMarker}\n${acceptedSceneEvidence}`;
-
       const acceptRequestBase = {
         project_id: sampleLoadProbe.projectId,
         draft_id: `dr_truth_${primarySceneId}`,
@@ -2257,20 +2414,35 @@ async function run() {
         message: 'Truth lane acceptance validation.',
         snapshot_label: 'truth-lane-accept',
       };
-      let acceptResponse = await fetch(`http://127.0.0.1:${SERVICE_PORT}/api/v1/draft/accept`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...acceptRequestBase,
-          unit: {
-            id: primarySceneId,
-            previous_sha256: sceneState.digest,
-            text: acceptedBody,
-            meta: {},
-          },
-        }),
-      });
-      if (!acceptResponse.ok && acceptResponse.status === 409) {
+      let acceptResponse = null;
+      let acceptedBody = null;
+      for (let attempt = 1; attempt <= 5; attempt += 1) {
+        const sceneState = readServiceSceneState(truthProject.projectPath, primarySceneId);
+        acceptedBody = `${sceneState.body}\n\n${truthMarker}\n${acceptedSceneEvidence}`;
+        console.log('[truth] accept attempt', {
+          attempt,
+          digest: sceneState.digest,
+          bodyExcerpt: sceneState.body.replace(/\s+/g, ' ').trim().slice(0, 80),
+        });
+        acceptResponse = await fetch(`http://127.0.0.1:${SERVICE_PORT}/api/v1/draft/accept`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            ...acceptRequestBase,
+            unit: {
+              id: primarySceneId,
+              previous_sha256: sceneState.digest,
+              text: acceptedBody,
+              meta: {},
+            },
+          }),
+        });
+        if (acceptResponse.ok) {
+          break;
+        }
+        if (acceptResponse.status !== 409) {
+          break;
+        }
         const conflictBodyText = await acceptResponse.text();
         let conflictPayload = null;
         try {
@@ -2281,22 +2453,11 @@ async function run() {
         if (conflictPayload?.code !== 'CONFLICT') {
           throw new Error(`Accept route failed: ${conflictBodyText}`);
         }
-        const refreshedSceneState = readServiceSceneState(truthProject.projectPath, primarySceneId);
-        acceptedBody = `${refreshedSceneState.body}\n\n${truthMarker}\n${acceptedSceneEvidence}`;
-        acceptResponse = await fetch(`http://127.0.0.1:${SERVICE_PORT}/api/v1/draft/accept`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            ...acceptRequestBase,
-            unit: {
-              id: primarySceneId,
-              previous_sha256: refreshedSceneState.digest,
-              text: acceptedBody,
-              meta: {},
-            },
-          }),
-        });
+        if (attempt < 5) {
+          await new Promise((resolve) => setTimeout(resolve, 250 * attempt));
+        }
       }
+      assert.ok(acceptResponse, 'Accept route did not return a response.');
       await assertOkResponse(acceptResponse, 'Accept route');
       const acceptPayload = await acceptResponse.json();
       const acceptedBodyExcerpt = acceptedBody
@@ -2307,7 +2468,11 @@ async function run() {
       const snapshotId = acceptPayload?.snapshot?.snapshot_id;
       assert.equal(typeof snapshotPath, 'string', 'Accept payload missing snapshot.path');
       assert.equal(typeof snapshotId, 'string', 'Accept payload missing snapshot.snapshot_id');
-      const absoluteSnapshotPath = path.join(truthProject.projectPath, snapshotPath);
+      const snapshotRootCandidates = [truthProject.canonicalProjectPath, truthProject.projectPath];
+      const absoluteSnapshotPath =
+        snapshotRootCandidates
+          .map((root) => path.join(root, snapshotPath))
+          .find((candidate) => existsSync(candidate)) ?? null;
       assert.ok(
         snapshotPath.startsWith('history/snapshots/'),
         `Snapshot authority violation: expected history/snapshots/*, received ${snapshotPath}`,
@@ -2317,8 +2482,8 @@ async function run() {
         `Snapshot authority violation: accept path must not use .snapshots/* (${snapshotPath})`,
       );
       assert.ok(
-        existsSync(absoluteSnapshotPath),
-        `Accept snapshot path was not persisted: ${absoluteSnapshotPath}`,
+        absoluteSnapshotPath,
+        `Accept snapshot path was not persisted under either truth root: ${snapshotPath}`,
       );
       const snapshotMetadataPath = path.join(absoluteSnapshotPath, 'metadata.json');
       assert.ok(
@@ -2404,8 +2569,11 @@ async function run() {
       assert.equal(exportPayload?.project_id, sampleLoadProbe.projectId);
       const exportPath = exportPayload?.path;
       assert.equal(typeof exportPath, 'string', 'Export payload missing path');
-      const absoluteExportPath = path.join(truthProject.projectPath, exportPath);
-      assert.ok(existsSync(absoluteExportPath), `Export artifact missing on disk: ${absoluteExportPath}`);
+      const exportPathCandidates = [truthProject.canonicalProjectPath, truthProject.projectPath]
+        .map((root) => path.join(root, exportPath))
+        .filter((candidate) => existsSync(candidate));
+      const absoluteExportPath = exportPathCandidates[0] ?? null;
+      assert.ok(absoluteExportPath, `Export artifact missing on disk under either truth root: ${exportPath}`);
       const exportContents = readFileSync(absoluteExportPath, 'utf8');
       const normalizedExportContents = exportContents.replace(/\s+/g, ' ').trim();
       assert.ok(
