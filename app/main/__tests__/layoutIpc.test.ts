@@ -85,6 +85,43 @@ describe('layoutIpc loadPersistedLayout', () => {
     expect(fsMock.rm).toHaveBeenCalledTimes(1);
   });
 
+  it('drops unknown floating pane ids when loading persisted layout', async () => {
+    const projectPath = 'C:/Dev/black-skies/sample_project/Esther_Estate';
+    fsMock.readFile.mockResolvedValueOnce(
+      JSON.stringify({
+        version: LAYOUT_SCHEMA_VERSION,
+        layout: DEFAULT_LAYOUT,
+        floatingPanes: [
+          {
+            id: 'draftPreview',
+            bounds: { x: 10, y: 20, width: 640, height: 420 },
+            displayId: 1,
+          },
+          {
+            id: 'unknown-pane',
+            bounds: { x: 40, y: 50, width: 320, height: 240 },
+            displayId: 1,
+          },
+        ],
+      }),
+    );
+
+    const result = await loadPersistedLayout(projectPath);
+
+    expect(result).toEqual(
+      expect.objectContaining({
+        layout: DEFAULT_LAYOUT,
+        floatingPanes: [
+          expect.objectContaining({
+            id: 'draftPreview',
+            bounds: { x: 10, y: 20, width: 640, height: 420 },
+            displayId: 1,
+          }),
+        ],
+      }),
+    );
+  });
+
   it('uses the dev server URL only when the renderer is running from http', () => {
     const devTarget = makeFloatingWindowUrl(
       {

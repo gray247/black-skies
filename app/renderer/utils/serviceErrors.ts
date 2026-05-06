@@ -43,11 +43,12 @@ export function describeServiceError(
     if (code === 'NETWORK_ERROR' || code === 'SERVICE_UNAVAILABLE') {
       return [
         'Writing tools backend unreachable.',
+        'No draft text was changed.',
         'Start the FastAPI services with `uvicorn blackskies.services.app:app --host 127.0.0.1 --port 8000`, then retry.',
       ].join(' ');
     }
     if (code === 'TIMEOUT') {
-      return 'Preflight timed out. The backend may still be starting or responding too slowly.';
+      return 'Preflight timed out before any draft text was changed. The backend may still be starting or responding too slowly.';
     }
     if (code === 'PORT_UNAVAILABLE') {
       return 'Preflight did not start because the bridge could not resolve a service port.';
@@ -58,14 +59,15 @@ export function describeServiceError(
     if (code === 'NETWORK_ERROR' || code === 'SERVICE_UNAVAILABLE') {
       return [
         'Draft generation backend unreachable.',
+        'No draft text was changed.',
         'Start the FastAPI services with `uvicorn blackskies.services.app:app --host 127.0.0.1 --port 8000`, then retry.',
       ].join(' ');
     }
     if (code === 'TIMEOUT') {
-      return 'Draft generation timed out. The backend may still be starting or responding too slowly.';
+      return 'Draft generation timed out before any draft text was saved. The backend may still be starting or responding too slowly.';
     }
     if (code === 'PROVIDER_TIMEOUT') {
-      return 'Provider/model timed out. The backend did not finish the generation request in time.';
+      return 'Provider/model timed out before draft text was saved. The backend did not finish the generation request in time.';
     }
     if (code === 'PORT_UNAVAILABLE') {
       return 'Draft generation did not start because the bridge could not resolve a service port.';
@@ -78,7 +80,8 @@ export function describeServiceError(
   if (context === 'rewrite' && (code === 'CONFLICT' || error.httpStatus === 409)) {
     return [
       'The scene changed on disk after critique.',
-      'Refresh the project or rerun critique, then generate the rewrite again.',
+      'The rewrite request was not saved.',
+      'Refresh the project or rerun critique, then request the rewrite again.',
     ].join(' ');
   }
 

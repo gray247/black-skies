@@ -20,6 +20,7 @@ export const CANONICAL_PANES = [
 ] as const;
 
 export type LayoutPaneId = (typeof CANONICAL_PANES)[number];
+export type PaneScope = 'global' | 'project-scoped' | 'scene-scoped' | 'selection-scoped' | 'generation-scoped';
 
 export const DEFAULT_PANE_IDS: readonly LayoutPaneId[] = CANONICAL_PANES;
 
@@ -27,37 +28,45 @@ export interface PaneMetadata {
   readonly title: string;
   readonly description: string;
   readonly hidden?: boolean;
+  readonly scope: PaneScope;
 }
 
 export const PANE_METADATA: Record<LayoutPaneId, PaneMetadata> = {
   outline: {
     title: "Outline",
     description: "Plan chapters, scenes, and beats.",
+    scope: "project-scoped",
   },
   draftPreview: {
     title: "Draft preview",
-    description: "Write and edit your scene text.",
+    description: "Preview selected scene output without mutating the canonical draft.",
+    scope: "selection-scoped",
   },
   timeline: {
     title: "Timeline",
     description: "Review your history and progress.",
+    scope: "project-scoped",
   },
   storyInsights: {
     title: "Story Insights",
     description: "See pacing and emotion data.",
+    scope: "project-scoped",
   },
   corkboard: {
     title: "Corkboard",
     description: "Browse scene cards with metadata.",
+    scope: "project-scoped",
   },
   relationshipGraph: {
     title: "Feedback notes",
     description: "Explore character-scene relationships.",
     hidden: true,
+    scope: "project-scoped",
   },
   critique: {
     title: "Critique",
     description: "Review feedback and suggested revisions.",
+    scope: "selection-scoped",
   },
 };
 

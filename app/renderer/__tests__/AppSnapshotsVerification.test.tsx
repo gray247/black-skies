@@ -529,6 +529,72 @@ it('renders backup list and triggers backup actions', async () => {
   confirmSpy.mockRestore();
 });
 
+it('surfaces actionable text when backup verification fails', async () => {
+  const listProjectSnapshots = vi.fn().mockResolvedValue({
+    ok: true,
+    data: [],
+  });
+
+  const getLastVerification = vi.fn().mockResolvedValue({
+    ok: true,
+    data: {
+      project_id: 'proj',
+      snapshots: [],
+    },
+  });
+
+  const runBackupVerification = vi.fn().mockResolvedValue({
+    ok: false,
+    error: {
+      code: 'SERVICE_UNAVAILABLE',
+      message: 'Verification bridge offline',
+      traceId: 'trace-verify-failed',
+    },
+    traceId: 'trace-verify-failed',
+  });
+
+  const pushToast = vi.fn();
+
+  render(
+    <SnapshotsPanel
+      projectId="proj"
+      projectPath="/projects/proj"
+      services={
+        {
+          listProjectSnapshots,
+          getLastVerification,
+          runBackupVerification,
+        } as Partial<ServicesBridge>
+      }
+      serviceStatus="online"
+      pushToast={pushToast}
+    />,
+  );
+
+  await waitFor(() =>
+    expect(listProjectSnapshots).toHaveBeenCalledWith({ projectId: 'proj' }),
+  );
+
+  fireEvent.click(screen.getByTestId('snapshots-manual-verify-button'));
+
+  await waitFor(() =>
+    expect(pushToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        tone: 'error',
+        title: 'Backup verification failed',
+        traceId: 'trace-verify-failed',
+      }),
+    ),
+  );
+  expect(
+    pushToast.mock.calls.some((call) =>
+      String(call[0]?.description ?? '').includes(
+        'Backup verification failed. The current project was not changed',
+      ),
+    ),
+  ).toBe(true);
+});
+
 it('renders the updated snapshot and verification sections', async () => {
   const snapshots: SnapshotManifest[] = [
     {

@@ -287,11 +287,11 @@ describe('App critique + rewrite loop', () => {
     );
     expect(services.phase4Rewrite).not.toHaveBeenCalled();
 
-    await screen.findByText('Rewrite preview');
+    await screen.findByText('Saved rewrite');
     await screen.findByText(/route=draft\/rewrite/i);
 
-    const applyButton = screen.getByRole('button', { name: 'Apply rewrite' });
-    fireEvent.click(applyButton);
+    const syncButton = screen.getByRole('button', { name: 'Sync draft view' });
+    fireEvent.click(syncButton);
 
     await waitFor(() => {
       expect(screen.queryByRole('dialog')).toBeNull();
@@ -340,7 +340,7 @@ describe('App critique + rewrite loop', () => {
     await waitFor(() => {
       expect(
         screen.getAllByText(
-          'The scene changed on disk after critique. Refresh the project or rerun critique, then generate the rewrite again.',
+          'The scene changed on disk after critique. The rewrite request was not saved. Refresh the project or rerun critique, then request the rewrite again.',
         ).length,
       ).toBeGreaterThanOrEqual(1);
     });

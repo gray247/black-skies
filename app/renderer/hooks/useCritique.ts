@@ -607,8 +607,8 @@ export function useCritique({
     });
     pushToast({
       tone: 'success',
-      title: 'Rewrite applied',
-      description: 'Scene text updated with the latest revision.',
+      title: 'Rewrite synced',
+      description: 'Local draft view updated from the saved rewrite.',
       traceId: state.traceId,
     });
   }, [state.rewrite, state.unitId, state.traceId, setProjectDrafts, setDraftEdits, setCurrentProject, pushToast]);

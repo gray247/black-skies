@@ -100,6 +100,8 @@ export function WorkspaceHeader(props: WorkspaceHeaderProps): JSX.Element {
   const computedDisableCritique = testFreezeActions
     ? serviceOffline || disableCritique
     : disableCritique;
+  const generateButtonLabel =
+    generationScope === 'all-scenes' ? 'Generate all scenes' : 'Generate active scene';
 
   return (
     <header className="app-shell__workspace-header">
@@ -131,11 +133,11 @@ export function WorkspaceHeader(props: WorkspaceHeaderProps): JSX.Element {
           type="button"
           className="app-shell__workspace-button"
           disabled={computedDisableGenerate}
-          aria-label="Generate draft"
+          aria-label={generateButtonLabel}
           data-testid="workspace-action-generate"
           onClick={onGenerate}
         >
-          Generate
+          {generateButtonLabel}
         </button>
         <div className="workspace-header__generation-scope" role="group" aria-label="Generate scope">
           <button

@@ -15,6 +15,7 @@ import {
   type LayoutLoadResponse,
   type LayoutPaneId,
   type LayoutSaveRequest,
+  normalisePaneId,
   isValidLayoutTree,
 } from '../shared/ipc/layout.js';
 
@@ -81,6 +82,10 @@ export async function loadPersistedLayout(projectPath: string): Promise<Persiste
         if (typeof descriptor.id !== 'string') {
           return null;
         }
+        const normalizedId = normalisePaneId(descriptor.id);
+        if (!normalizedId) {
+          return null;
+        }
         const bounds = descriptor.bounds;
         const normalizedBounds =
           bounds && typeof bounds === 'object'
@@ -92,7 +97,7 @@ export async function loadPersistedLayout(projectPath: string): Promise<Persiste
               }
             : undefined;
         const result: FloatingPaneDescriptor = {
-          id: descriptor.id as LayoutPaneId,
+          id: normalizedId,
           bounds:
             normalizedBounds && normalizedBounds.width && normalizedBounds.height
               ? {

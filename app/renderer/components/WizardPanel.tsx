@@ -580,14 +580,17 @@ export default function WizardPanel({
         });
 
         if (!response.ok) {
-         onToast({
-           tone: 'error',
-           title: 'Snapshot failed',
-           description: response.error.message || 'Unable to create a snapshot for this step.',
-           traceId: response.traceId ?? response.error.traceId,
-         });
-         return;
-       }
+          onToast({
+            tone: 'error',
+            title: 'Snapshot creation failed',
+            description: `No snapshot was created for this step. ${
+              response.error.message ||
+              'Check the trace ID, then retry locking.'
+            }`.trim(),
+            traceId: response.traceId ?? response.error.traceId,
+          });
+          return;
+        }
 
         const snapshot = response.data;
         setLocks((previous) => ({
@@ -603,11 +606,11 @@ export default function WizardPanel({
       } catch (error) {
         onToast({
           tone: 'error',
-          title: 'Snapshot failed',
+          title: 'Snapshot creation failed',
           description:
             error instanceof Error
               ? error.message
-              : 'Unable to create a snapshot for this step.',
+              : 'No snapshot was created for this step.',
         });
       } finally {
         setLockRequests((previous) => ({

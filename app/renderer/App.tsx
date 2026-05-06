@@ -1490,7 +1490,7 @@ export default function App(): JSX.Element {
       pushToast({
         tone: "error",
         title: "Project refresh failed",
-        description: message,
+        description: `Local project state was not updated. ${message}`.trim(),
       });
     }
   }, [activateProject, activeSceneId, isMountedRef, projectSummary, pushToast]);
@@ -1572,8 +1572,11 @@ export default function App(): JSX.Element {
       if (!response.ok) {
         pushToast({
           tone: 'error',
-          title: 'Snapshot failed',
-          description: response.error?.message ?? 'Unable to create snapshot.',
+          title: 'Snapshot creation failed',
+          description: `No snapshot was created. ${
+            response.error?.message ?? 'Check the trace ID, then try again.'
+          }`.trim(),
+          traceId: response.traceId ?? response.error?.traceId,
         });
         return;
       }
@@ -1612,8 +1615,8 @@ export default function App(): JSX.Element {
       const message = error instanceof Error ? error.message : String(error);
       pushToast({
         tone: 'error',
-        title: 'Snapshot failed',
-        description: message,
+        title: 'Snapshot creation failed',
+        description: `No snapshot was created. ${message}`.trim(),
       });
     } finally {
       setSnapshotting(false);
@@ -1658,8 +1661,12 @@ export default function App(): JSX.Element {
       if (!response.ok) {
         pushToast({
           tone: 'error',
-          title: 'Verification failed',
-          description: response.error?.message ?? 'Unable to verify snapshots.',
+          title: 'Backup verification failed',
+          description:
+            `The current project was not changed. ${
+              response.error?.message ?? 'Run verification again or create a fresh backup before restoring.'
+            }`.trim(),
+          traceId: response.traceId ?? response.error?.traceId,
         });
         return;
       }
@@ -1697,8 +1704,8 @@ export default function App(): JSX.Element {
       const message = error instanceof Error ? error.message : String(error);
       pushToast({
         tone: 'error',
-        title: 'Verification failed',
-        description: message,
+        title: 'Backup verification failed',
+        description: `The current project was not changed. ${message}`.trim(),
       });
     } finally {
       setVerifying(false);
@@ -1750,7 +1757,8 @@ export default function App(): JSX.Element {
         pushToast({
           tone: "error",
           title: "Export failed",
-          description: message,
+          description: `No files were exported. ${message}`.trim(),
+          traceId: response.traceId ?? response.error?.traceId,
         });
         return;
       }
@@ -1777,7 +1785,7 @@ export default function App(): JSX.Element {
       pushToast({
         tone: "error",
         title: "Export failed",
-        description: message,
+        description: `No files were exported. ${message}`.trim(),
       });
     } finally {
       setExporting(false);
@@ -2666,6 +2674,8 @@ export default function App(): JSX.Element {
       errorDetails={preflightErrorDetails}
       estimate={preflightEstimate}
       errorPhase={preflightState.phase}
+      generationScope={draftGenerationScope}
+      generationScopeCount={generationProjectSummary?.unitIds.length ?? 0}
       onClose={closePreflight}
       onProceed={() => void proceedPreflight()}
     />

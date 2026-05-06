@@ -28,6 +28,11 @@ const baseEstimate: DraftPreflightEstimate = {
   },
 };
 
+const modalDefaults = {
+  generationScope: 'active-scene' as const,
+  generationScopeCount: 1,
+};
+
 describe('PreflightModal', () => {
   it('disables proceed when blocked', () => {
     render(
@@ -39,6 +44,7 @@ describe('PreflightModal', () => {
           ...baseEstimate,
           budget: { ...baseEstimate.budget, status: 'blocked' },
         }}
+        {...modalDefaults}
         onClose={() => undefined}
         onProceed={() => undefined}
       />,
@@ -56,6 +62,7 @@ describe('PreflightModal', () => {
         loading={false}
         error={null}
         estimate={baseEstimate}
+        {...modalDefaults}
         onClose={() => undefined}
         onProceed={onProceed}
       />,
@@ -79,11 +86,15 @@ describe('PreflightModal', () => {
             { id: 'sc_0002', title: 'Storm Cellar', order: 2 },
           ],
         }}
+        generationScope="all-scenes"
+        generationScopeCount={2}
         onClose={() => undefined}
         onProceed={() => undefined}
       />,
     );
 
+    expect(screen.getByText(/every loaded scene/i)).toBeInTheDocument();
+    expect(screen.getByText(/2 scenes are affected/i)).toBeInTheDocument();
     expect(screen.getByText('Scenes in this run')).toBeInTheDocument();
     expect(screen.getByText('Arrival')).toBeInTheDocument();
     expect(screen.getByText(/sc_0002/)).toBeInTheDocument();
@@ -98,6 +109,7 @@ describe('PreflightModal', () => {
         loading={false}
         error="Unable to reach the service"
         estimate={undefined}
+        {...modalDefaults}
         onClose={onClose}
         onProceed={() => undefined}
       />,
@@ -116,6 +128,7 @@ describe('PreflightModal', () => {
         error="Draft generation timed out."
         errorPhase="generation"
         estimate={undefined}
+        {...modalDefaults}
         onClose={() => undefined}
         onProceed={() => undefined}
       />,

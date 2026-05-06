@@ -8,6 +8,8 @@ interface PreflightModalProps {
   errorDetails?: unknown | null;
   estimate?: DraftPreflightEstimate;
   errorPhase?: GenerateFlowPhase | null;
+  generationScope: 'active-scene' | 'all-scenes';
+  generationScopeCount: number;
   onClose: () => void;
   onProceed: () => void;
 }
@@ -65,6 +67,8 @@ export function PreflightModal({
   errorDetails,
   estimate,
   errorPhase,
+  generationScope,
+  generationScopeCount,
   onClose,
   onProceed,
 }: PreflightModalProps): JSX.Element | null {
@@ -84,6 +88,14 @@ export function PreflightModal({
   const scenes = estimate?.scenes ?? [];
   const model = estimate?.model;
   const disableProceed = showLoading || !budget || status === 'blocked' || Boolean(error);
+  const generationScopeLabel =
+    generationScope === 'all-scenes' ? 'All scenes only' : 'Active scene';
+  const generationScopeAction =
+    generationScope === 'all-scenes'
+      ? 'This run will write draft text for every loaded scene.'
+      : 'This run will write draft text for the active scene only.';
+  const affectedSceneCountLabel =
+    generationScopeCount === 1 ? '1 scene is affected.' : `${generationScopeCount} scenes are affected.`;
 
   return (
     <div className="preflight-modal" role="dialog" aria-modal="true" aria-label="Draft preflight">
@@ -95,6 +107,16 @@ export function PreflightModal({
           </button>
         </header>
         <section className="preflight-modal__body">
+          <div className="preflight-modal__scope-summary" aria-live="polite">
+            <p className="preflight-modal__scope-line">
+              <strong>Generation scope:</strong> {generationScopeLabel}
+            </p>
+            <p className="preflight-modal__scope-line">{generationScopeAction}</p>
+            <p className="preflight-modal__scope-line">{affectedSceneCountLabel}</p>
+            <p className="preflight-modal__scope-line">
+              Draft text may be replaced for the selected scope after you proceed.
+            </p>
+          </div>
           {showLoading ? (
             <p>Estimating…</p>
           ) : error ? (

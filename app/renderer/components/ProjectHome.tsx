@@ -1175,6 +1175,9 @@ export default function ProjectHome({
             <h3>Scene Metadata</h3>
             <span>{activeProject?.scenes.length ?? 0}</span>
           </div>
+          <p className="project-home__details-hint">
+            Display-only in this version. Purpose, emotion tag, and word target feed generation and Companion guidance.
+          </p>
           {activeProject ? (
             <ul className="project-home__scene-list">
               {activeProject.scenes.map((scene) => {

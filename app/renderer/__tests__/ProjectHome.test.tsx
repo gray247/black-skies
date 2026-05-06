@@ -60,6 +60,23 @@ function createMultiSceneProject(path: string): LoadedProject {
       title: scene.title,
       order: scene.order,
       chapter_id: scene.chapter_id,
+      purpose:
+        scene.id === 'sc_0001'
+          ? 'setup'
+          : scene.id === 'sc_0002'
+            ? 'escalation'
+            : scene.id === 'sc_0003'
+              ? 'payoff'
+              : 'breath',
+      emotion_tag:
+        scene.id === 'sc_0001'
+          ? 'tension'
+          : scene.id === 'sc_0002'
+            ? 'dread'
+            : scene.id === 'sc_0003'
+              ? 'revelation'
+              : 'respite',
+      word_target: scene.id === 'sc_0004' ? 210 : 260,
     })),
     drafts: {
       sc_0001: '# Scene One',
@@ -452,6 +469,42 @@ describe('ProjectHome recent project recovery', () => {
       'true',
     );
     expect(screen.getByRole('heading', { level: 3, name: /Scene Four/i })).toBeInTheDocument();
+    expect(screen.getAllByText('respite').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('breath').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('210 words').length).toBeGreaterThan(0);
+  });
+
+  it('labels scene metadata as display-only while still surfacing generation-affecting cues', async () => {
+    const samplePath = 'C:\\Dev\\black-skies\\sample_project\\Esther_Estate';
+    const project = createMultiSceneProject(samplePath);
+    const projectLoader: ProjectLoaderApi = {
+      openProjectDialog: vi.fn(),
+      getSampleProjectPath: vi.fn().mockResolvedValue(samplePath),
+      loadProject: vi.fn().mockResolvedValue({
+        ok: true,
+        project,
+        issues: [],
+      }),
+    };
+
+    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+
+    render(
+      <ProjectHome
+        onToast={vi.fn()}
+        onProjectLoaded={vi.fn()}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(projectLoader.loadProject).toHaveBeenCalledWith({ path: samplePath });
+    });
+
+    expect(screen.getByText(/Display-only in this version/i)).toBeInTheDocument();
+    expect(screen.getByText(/Purpose, emotion tag, and word target feed generation/i)).toBeInTheDocument();
+    expect(screen.getAllByText('tension').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('setup').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('260 words').length).toBeGreaterThan(0);
   });
 
   it('surfaces loader warnings when a nested project folder is auto-corrected', async () => {

@@ -142,6 +142,30 @@ Promotion notes:
   - the truth lane now passes after the root alignment and fail-fast rewrite reporting changes
 - AppSnapshotsVerification follow-up:
   - the last red app suite is now green again after aligning the backup action expectation with the test-env mock path
+- Phase 11 pass 1:
+  - generation scope labels are now explicit in the primary workspace action and the preflight modal
+  - preflight copy now states whether the run affects the active scene or all loaded scenes and shows the affected scene count
+  - snapshot backup / verification / restore toasts now carry clearer recovery guidance and preserve trace IDs when available
+  - floated-pane project-switch E2E coverage was reviewed but deferred for this pass because the current harness path would require broader setup changes than this slice allows
+- Phase 11 pass 2:
+  - rewrite semantics are now UI-truthful: the modal says the rewrite result is already saved, and Sync draft view reconciles the local renderer state with that saved output
+  - rewrite conflict copy now explains that the backend rewrite request was not saved when the on-disk scene changed
+  - the floated-pane project-switch regression was attempted in Playwright but deferred because the temp-project harness path triggers a backend recovery 400; the fallback renderer regression now covers the stale-state contract without broad harness surgery
+- Phase 11 pass 3:
+  - pane lifecycle now has an explicit scope map in the shared pane registry for project-scoped and selection-scoped panes
+  - layout load now drops unknown floating-pane ids instead of trusting them through reload
+  - pane lifecycle and layout persistence specs were updated to spell out the classification matrix and recovery rules
+- Phase 11 pass 4:
+  - Scene Metadata is now explicitly labeled as display-only in the current sidebar, while purpose/emotion/word target are called out as generation and Companion guidance inputs
+  - workflow spine text now says scene metadata is review-only in this phase
+  - a renderer regression now checks that scene metadata labels stay aligned with the selected scene and do not leave stale metadata behind after scene switching
+- Phase 11 pass 5:
+  - final error/toast copy was tightened on the main app surfaces so snapshot creation, backup verification, export, and project refresh failures say what did not change and preserve trace IDs where available
+  - the wizard lock flow now uses the same recovery-oriented snapshot failure wording as the rest of the app
+  - the Phase 11A closure checklist is now explicit in the workflow audit, including the deferred floated-pane Playwright E2E blocker and the remaining known risks
+- 2026-05-06 - Codex - Started the Phase 11 workflow/pane/UX contract stabilization audit and documentation pass; pass 1 runtime slice now landed for generation labels, preflight scope copy, and recovery toast clarity, and the later GUI/outline overhaul is still split into a separate follow-up plan.
+- 2026-05-06 - Codex - Completed Phase 11A pass 2 rewrite truthfulness updates and added a renderer-level floated-pane project-switch regression after the Playwright temp-project path proved too brittle; backend rewrite persistence remained unchanged.
+- 2026-05-06 - Codex - Completed Phase 11A pass 3 pane scope classification and layout recovery hardening; unknown floating-pane ids are now dropped on layout load and the pane lifecycle matrix is documented.
 - Rewrite/apply conflict follow-up:
   - rewrite 409 is expected when the on-disk scene changes after critique; the modal now explains that the user should refresh the project or rerun critique before generating the rewrite again.
 - Manual verification follow-up:

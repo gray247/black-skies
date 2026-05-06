@@ -20,6 +20,8 @@ import {
 } from '../utils/draftPreviewSync';
 
 let mockLoadedProjectId: string | undefined;
+let mockLoadedProjectPath: string | undefined;
+let mockLoadedProjectName: string | undefined;
 let mockLoadedProjectScenes: Array<{ id: string; title: string; order: number }> | undefined;
 let mockActiveSceneId: string | undefined;
 
@@ -83,12 +85,14 @@ function ProjectHomeMock({
   onDraftChange?: (sceneId: string, draft: string) => void;
   draftOverrides?: Record<string, string>;
 }): JSX.Element {
-  const bootstrappedRef = useRef(false);
+  const lastLoadedProjectPathRef = useRef<string | null>(null);
   const lastDraftRef = useRef<string | null>(null);
   const scenes = useMemo(
     () => mockLoadedProjectScenes ?? [{ id: 'sc_0001', title: 'Arrival', order: 1 }],
     [],
   );
+  const projectPath = mockLoadedProjectPath ?? '/projects/demo';
+  const projectName = mockLoadedProjectName ?? 'Demo Project';
   const bodyActiveSceneId =
     typeof document !== 'undefined' ? document.body?.dataset.activeSceneId ?? null : null;
   const activeSceneId = bodyActiveSceneId ?? mockActiveSceneId ?? null;
@@ -97,12 +101,12 @@ function ProjectHomeMock({
   const currentDraft = activeScene ? draftOverrides?.[activeScene.id] ?? '' : '';
 
   useEffect(() => {
-    if (!bootstrappedRef.current) {
-      bootstrappedRef.current = true;
+    if (lastLoadedProjectPathRef.current !== projectPath) {
+      lastLoadedProjectPathRef.current = projectPath;
       onProjectLoaded?.({
-        path: '/projects/demo',
+        path: projectPath,
         projectId: mockLoadedProjectId,
-        name: 'Demo Project',
+        name: projectName,
         outline: {
           schema_version: 'OutlineSchema v1',
           outline_id: 'out_demo',
@@ -142,7 +146,17 @@ function ProjectHomeMock({
     if (currentDraft) {
       onDraftChange?.(activeScene.id, currentDraft);
     }
-  }, [activeScene, currentDraft, draftOverrides, onActiveSceneChange, onDraftChange, onProjectLoaded, scenes]);
+  }, [
+    activeScene,
+    currentDraft,
+    draftOverrides,
+    onActiveSceneChange,
+    onDraftChange,
+    onProjectLoaded,
+    projectName,
+    projectPath,
+    scenes,
+  ]);
 
   return (
     <div
@@ -333,6 +347,8 @@ describe('App preflight integration', () => {
   beforeEach(() => {
     services = createServicesMock();
     mockLoadedProjectId = undefined;
+    mockLoadedProjectPath = undefined;
+    mockLoadedProjectName = undefined;
     mockLoadedProjectScenes = undefined;
     mockActiveSceneId = undefined;
   });
@@ -466,7 +482,7 @@ describe('App preflight integration', () => {
 
     render(<App />);
 
-    const generateButton = await screen.findByRole('button', { name: /generate/i });
+    const generateButton = await screen.findByRole('button', { name: /generate active scene/i });
     await waitFor(() => expect(generateButton).not.toBeDisabled());
 
     fireEvent.click(generateButton);
@@ -711,6 +727,7 @@ describe('App preflight integration', () => {
       }),
     );
     const modal = await screen.findByRole('dialog', { name: /draft preflight/i });
+    expect(within(modal).getByText(/1 scene is affected/i)).toBeInTheDocument();
     expect(within(modal).getByText('Signal Drift')).toBeInTheDocument();
 
     fireEvent.click(await screen.findByRole('button', { name: /proceed/i }));
@@ -763,7 +780,7 @@ describe('App preflight integration', () => {
 
     fireEvent.click(await screen.findByTestId('generation-scope-all-scenes'));
 
-    const generateButton = await screen.findByRole('button', { name: /generate/i });
+    const generateButton = await screen.findByRole('button', { name: /generate all scenes/i });
     await waitFor(() => expect(generateButton).not.toBeDisabled());
 
     fireEvent.click(generateButton);
@@ -1179,6 +1196,116 @@ describe('App preflight integration', () => {
     await waitFor(() => expect(screen.getByTestId('project-home-mock')).toHaveTextContent(secondGeneratedText));
     expect(screen.getByTestId('project-home-mock')).toHaveAttribute('data-active-scene-id', 'sc_0002');
     expect(screen.getByTestId('project-home-mock')).not.toHaveTextContent('stale disk draft');
+  });
+
+  it('rebinds a floated draft preview to the next project path instead of leaving stale project state behind', async () => {
+    const projectPathA = '/projects/alpha';
+    const projectPathB = '/projects/beta';
+    const generatedTextA = 'Alpha floating preview text.';
+    const generatedTextB = 'Beta floating preview text.';
+
+    mockLoadedProjectPath = projectPathA;
+    mockLoadedProjectId = 'proj_alpha';
+    mockLoadedProjectName = 'Alpha Project';
+    mockLoadedProjectScenes = [{ id: 'sc_0001', title: 'Arrival', order: 1 }];
+
+    const alphaProject: LoadedProject = {
+      path: projectPathA,
+      name: 'Alpha Project',
+      outline: {
+        schema_version: 'OutlineSchema v1',
+        outline_id: 'out_alpha',
+        acts: [],
+        chapters: [],
+        scenes: [
+          {
+            id: 'sc_0001',
+            order: 1,
+            title: 'Arrival',
+            chapter_id: 'ch_0001',
+            beat_refs: [],
+          },
+        ],
+      },
+      scenes: [{ id: 'sc_0001', title: 'Arrival', order: 1 }],
+      drafts: { sc_0001: 'stale alpha disk draft' },
+    };
+    const betaProject: LoadedProject = {
+      path: projectPathB,
+      name: 'Beta Project',
+      outline: {
+        schema_version: 'OutlineSchema v1',
+        outline_id: 'out_beta',
+        acts: [],
+        chapters: [],
+        scenes: [
+          {
+            id: 'sc_0001',
+            order: 1,
+            title: 'Arrival',
+            chapter_id: 'ch_0001',
+            beat_refs: [],
+          },
+        ],
+      },
+      scenes: [{ id: 'sc_0001', title: 'Arrival', order: 1 }],
+      drafts: { sc_0001: 'stale beta disk draft' },
+    };
+
+    const projectLoader: ProjectLoaderApi = {
+      openProjectDialog: vi.fn(),
+      getSampleProjectPath: vi.fn(),
+      loadProject: vi.fn().mockImplementation(async ({ path }) => ({
+        ok: true,
+        project: path === projectPathB ? betaProject : alphaProject,
+        issues: [],
+      })),
+    };
+
+    writeDraftPreviewSyncState(projectPathA, {
+      sourceId: 'dock-window-a',
+      projectPath: projectPathA,
+      activeSceneId: 'sc_0001',
+      projectDrafts: { sc_0001: 'stale alpha disk draft' },
+      draftEdits: { sc_0001: generatedTextA },
+      updatedAt: Date.now(),
+    });
+    window.history.pushState(
+      null,
+      '',
+      `/?floatingPane=draftPreview&projectPath=${encodeURIComponent(projectPathA)}`,
+    );
+
+    const App = loadAppWithServices(services, { projectLoader });
+    const { unmount } = render(<App />);
+
+    await waitFor(() => expect(screen.getByTestId('project-home-mock')).toHaveTextContent(generatedTextA));
+    expect(screen.getByTestId('project-home-mock')).toHaveAttribute('data-active-scene-id', 'sc_0001');
+
+    mockLoadedProjectPath = projectPathB;
+    mockLoadedProjectId = 'proj_beta';
+    mockLoadedProjectName = 'Beta Project';
+    writeDraftPreviewSyncState(projectPathB, {
+      sourceId: 'dock-window-b',
+      projectPath: projectPathB,
+      activeSceneId: 'sc_0001',
+      projectDrafts: { sc_0001: 'stale beta disk draft' },
+      draftEdits: { sc_0001: generatedTextB },
+      updatedAt: Date.now() + 1,
+    });
+    dispatchDraftPreviewStorageEvent(projectPathB);
+    window.history.pushState(
+      null,
+      '',
+      `/?floatingPane=draftPreview&projectPath=${encodeURIComponent(projectPathB)}`,
+    );
+
+    unmount();
+    render(<App />);
+
+    await waitFor(() => expect(screen.getByTestId('project-home-mock')).toHaveTextContent(generatedTextB));
+    expect(screen.getByTestId('project-home-mock')).toHaveAttribute('data-active-scene-id', 'sc_0001');
+    expect(screen.getByTestId('project-home-mock')).not.toHaveTextContent(generatedTextA);
   });
 
   it('uses project.json projectId from the loaded project for preflight and generation requests', async () => {

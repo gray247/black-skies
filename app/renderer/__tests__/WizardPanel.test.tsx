@@ -144,4 +144,40 @@ describe('WizardPanel', () => {
       ),
     );
   });
+
+  it('surfaces recovery-oriented copy when snapshot creation fails', async () => {
+    const services = createServices();
+    (services.createSnapshot as vi.Mock).mockResolvedValue({
+      ok: false,
+      error: {
+        message: 'Snapshot service offline',
+        traceId: 'trace-snapshot-failed',
+      },
+      traceId: 'trace-snapshot-failed',
+    });
+    const onToast = vi.fn();
+
+    render(<WizardPanel services={services} onToast={onToast} />);
+
+    const projectInput = screen.getByLabelText(/Project ID/i);
+    fireEvent.change(projectInput, { target: { value: 'Test Project' } });
+
+    const lockButton = screen.getByRole('button', { name: /lock/i });
+    fireEvent.click(lockButton);
+
+    await waitFor(() =>
+      expect(onToast).toHaveBeenCalledWith(
+        expect.objectContaining({
+          tone: 'error',
+          title: 'Snapshot creation failed',
+          traceId: 'trace-snapshot-failed',
+        }),
+      ),
+    );
+    expect(
+      onToast.mock.calls.some((call) =>
+        String(call[0]?.description ?? '').includes('No snapshot was created for this step.'),
+      ),
+    ).toBe(true);
+  });
 });

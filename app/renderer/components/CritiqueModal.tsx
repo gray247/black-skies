@@ -214,8 +214,12 @@ export function CritiqueModal({
           {rewrite ? (
             <section className="critique-modal__section critique-modal__section--rewrite">
               <header>
-                <h4>Rewrite preview</h4>
-                <p>Compare the original and revised scene text.</p>
+                <h4>Saved rewrite</h4>
+                <p>
+                  Compare the original and revised scene text. The rewritten output has already
+                  been generated and saved; syncing this view will reconcile the local draft with
+                  the saved result.
+                </p>
               </header>
               <div className="critique-modal__rewrite-columns">
                 <div>
@@ -249,7 +253,7 @@ export function CritiqueModal({
               onClick={onApplyRewrite}
               disabled={!rewrite}
             >
-              Apply rewrite
+              Sync draft view
             </button>
           </div>
         </footer>
