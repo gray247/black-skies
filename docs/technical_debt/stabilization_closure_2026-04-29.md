@@ -30,9 +30,35 @@
   - floating pane recovery UX
 - Remaining blockers:
   - no Phase 10 blockers remain
-  - `AppSnapshotsVerification.test.tsx` is still unrelated and remains a separate suite failure
 - Closure recommendation:
   - Phase 10 COMPLETE
+
+## Final Closeout Note
+- Final CI status: green
+- Final manual verification status:
+  - active scene generation: verified
+  - all scenes generation: verified
+  - docked Draft Preview: verified
+  - floated Draft Preview: verified
+- Root causes fixed:
+  - project id drift
+  - reload overwrite
+  - active scene selection mismatch
+  - multi-scene timeout mismatch
+  - Draft Preview collapse
+  - floated preview stale state
+  - renderer test contamination
+  - truth harness root mismatch
+  - snapshots test expectation mismatch
+- Deferred Phase 11 items:
+  - pane resizing/ergonomics
+  - Scene Metadata usability
+  - floating pane polish
+  - Companion Run All Insights warning flicker
+  - multi-select 2-3 scene generation
+- Blocker status:
+  - no Phase 10 blockers remain
+  - no remaining unrelated app test blockers
 
 ## Final Green Proof
 - Black check: pass
