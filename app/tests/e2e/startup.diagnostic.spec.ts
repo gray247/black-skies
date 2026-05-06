@@ -186,10 +186,11 @@ test('diagnostic_action_readiness_generate_contract (action)', async ({ page }, 
     const dialogText = dialog?.textContent ?? '';
     return {
       preflightCalls: win.__actionReadinessLog ?? [],
-      modalHasBudgetHint:
-        dialogText.includes('Estimate within budget') ||
-        dialogText.includes('Budget healthy') ||
-        dialogText.includes('Budget OK'),
+      modalHasPreflightContract:
+        dialogText.includes('Generation scope: Active scene') &&
+        dialogText.includes('1 scene is affected.') &&
+        dialogText.includes('Draft text may be replaced for the selected scope after you proceed.') &&
+        dialogText.includes('Within budget'),
       toastTitle,
       toastDescription,
     };
@@ -197,12 +198,13 @@ test('diagnostic_action_readiness_generate_contract (action)', async ({ page }, 
 
   await expect
     .poll(
-      async () => {
+    async () => {
         const dialogText = (await dialog.textContent()) ?? '';
         return (
-          dialogText.includes('Estimate within budget') ||
-          dialogText.includes('Budget healthy') ||
-          dialogText.includes('Budget OK')
+          dialogText.includes('Generation scope: Active scene') &&
+          dialogText.includes('1 scene is affected.') &&
+          dialogText.includes('Draft text may be replaced for the selected scope after you proceed.') &&
+          dialogText.includes('Within budget')
         );
       },
       { timeout: 15_000 },
@@ -217,7 +219,7 @@ test('diagnostic_action_readiness_generate_contract (action)', async ({ page }, 
     contentType: 'application/json',
   });
   // The dialog content is the user-visible readiness contract. Fail if it never materializes.
-  expect(result.modalHasBudgetHint).toBe(true);
+  expect(result.modalHasPreflightContract).toBe(true);
   expect(modalOpen).toBe(true);
 });
 
