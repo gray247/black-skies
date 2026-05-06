@@ -46,6 +46,7 @@ export interface ProjectHomeProps {
   draftOverrides?: Record<string, string>;
   onActiveSceneChange?: (payload: ActiveScenePayload | null) => void;
   onDraftChange?: (sceneId: string, draft: string) => void;
+  paneMode?: 'docked' | 'floating' | 'standalone';
   relocationNotifyEnabled?: boolean;
   autoSnapEnabled?: boolean;
   onRelocationNotifyChange?: (value: boolean) => void;
@@ -64,6 +65,7 @@ const RECENTS_STORAGE_KEY = 'blackskies.recent-projects';
 const LAST_PROJECT_STORAGE_KEY = 'blackskies.last-project';
 // Ceiling: keep the recent-project list lightweight for the home view and storage churn.
 const MAX_RECENTS = 7;
+const DRAFT_PREVIEW_MIN_HEIGHT = '24rem';
 
 function readStoredRecents(): RecentProjectEntry[] {
   if (typeof window === 'undefined') {
@@ -165,6 +167,7 @@ export default function ProjectHome({
   draftOverrides,
   onActiveSceneChange,
   onDraftChange,
+  paneMode = 'standalone',
   relocationNotifyEnabled = true,
   autoSnapEnabled = false,
   onRelocationNotifyChange,
@@ -226,6 +229,36 @@ export default function ProjectHome({
     }
     return activeProject.drafts[activeSceneId] ?? '';
   }, [activeProject, activeSceneId, draftOverrides]);
+
+  const activeSceneDraftSource = useMemo(() => {
+    if (!activeProject || !activeSceneId) {
+      return 'fallback';
+    }
+    const override = draftOverrides?.[activeSceneId];
+    if (typeof override === 'string') {
+      return 'override';
+    }
+    if (typeof activeProject.drafts[activeSceneId] === 'string') {
+      return 'disk';
+    }
+    return 'fallback';
+  }, [activeProject, activeSceneId, draftOverrides]);
+
+  useEffect(() => {
+    if (!activeProject || !activeSceneId) {
+      return;
+    }
+    const override = draftOverrides?.[activeSceneId];
+    console.info('[ProjectHome:draft-preview]', {
+      paneMode,
+      activeSceneId,
+      activeSceneDraftLength: activeSceneDraft.length,
+      activeSceneDraftSource,
+      overrideLength: typeof override === 'string' ? override.length : null,
+      diskDraftLength: activeProject.drafts[activeSceneId]?.length ?? null,
+      draftOverrideKeys: Object.keys(draftOverrides ?? {}),
+    });
+  }, [activeProject, activeSceneDraft.length, activeSceneDraftSource, activeSceneId, draftOverrides, paneMode]);
 
   const notifyIssues = useCallback(
     (items: ProjectIssue[]) => {
@@ -1048,7 +1081,10 @@ export default function ProjectHome({
             )}
           </section>
 
-          <section className="project-home__draft">
+          <section
+            className="project-home__draft"
+            style={{ minHeight: DRAFT_PREVIEW_MIN_HEIGHT }}
+          >
             <div className="project-home__draft-header">
               {activeScene ? (
                 <>

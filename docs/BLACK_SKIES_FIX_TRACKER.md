@@ -1,7 +1,7 @@
 ﻿# BLACK SKIES - FIX TRACKER
 
 Status: Active
-Last Reviewed: 2026-04-30
+Last Reviewed: 2026-05-05
 
 ## Purpose
 This document tracks defects, technical debt, and instability across Black Skies.
@@ -84,7 +84,7 @@ Promotion notes:
 - GUI-navigation subclaims from the app lint/unit cleanup are now represented as standalone normalized entries `38-42`.
 
 ## Phase 10 Human-Verification Fixes (2026-05-02)
-- Status: VERIFIED for the Phase 10 manual-verification blockers addressed in this pass.
+- Status: IN_PROGRESS. Phase 10 is not closed until manual Generate -> Proceed is verified in the app without timeout and generated text is visible in Draft Preview.
 - Fixed stale preflight scene IDs after outline rebuild by propagating outline scene IDs into `projectSummary.unitIds`.
 - Hardened project selection so one-level-deep nested folders auto-correct to the parent project root with a warning issue instead of loading silently.
 - Cleared invalid persisted dock layouts on load so the fallback default no longer leaves the bad layout file behind.
@@ -102,6 +102,89 @@ Promotion notes:
     - The manual failure is no longer attributed to backend preflight/generate transport; if it still appears in the truth lane, the remaining suspect is renderer state/error handling after the bridge returns.
     - Phase 10 stays open until a manual Generate -> Proceed succeeds against the external service and the end-to-end flow is observed in the UI.
     - Added a local diagnostic script for `/api/v1/draft/preflight` and `/api/v1/draft/generate` against `sample_project/Esther_Estate`.
+    - Backend generate route now logs `route-enter` before validation/heavy work, `request-validated` after schema validation, and explicit provider phases so the last reached stage is visible in logs.
+    - Provider hangs now surface as `PROVIDER_TIMEOUT` with a 504 response instead of falling through to the generic draft-generation timeout label.
+    - Validation evidence for this pass: `pytest services/tests/test_app.py -k "draft_generate_emits_trace_logs or draft_generate_provider_timeout_returns_controlled_error"`, `pytest services/tests/unit/test_draft_generation_adapter.py -k "provider_phase_order or provider_timeout_error or raises_provider_timeout_on_hung_adapter"`, `pnpm --filter app lint`, `pnpm --filter app test`, `pnpm --filter app run build:production`, and `pnpm test:e2e -- --workers=1`.
+    - Transport observability pass:
+      - Preload now logs `request-start` immediately before each fetch with method, URL, trace id, body byte length, timeout, and timestamp.
+      - The ASGI trace middleware now logs request entry for every HTTP request before routing, including method, path, trace header, content length, client, and timestamp.
+      - A sanitized payload-file replay mode was added to `scripts/draft_flow_diagnostic.mjs` so the Electron-shaped draft payload can be reissued without logging scene text.
+      - Live replay against `127.0.0.1:8000` showed the sequence `preload request-start` -> `ASGI request-start` -> `draft-generate:route-enter` -> `draft-generate:backend-enter` -> `draft-generate:request-validated` -> `draft-generate:draft-assembly` -> `draft-generate:response`.
+      - This narrows the remaining failure, if it still reproduces manually, to code outside the request start path rather than URL routing or backend receipt.
+    - Phase 10 closure audit follow-up (2026-05-05):
+      - Canonical phase status remains split: `docs/roadmap.md` marks formal P10 Accessibility and Professional Exports as `Partial`; this tracker section is the narrower Phase 10 manual-verification/stabilization lane.
+      - Manual evidence supplied for this pass confirms Electron now posts to `http://127.0.0.1:8000/api/v1/draft/generate`, receives `200 OK`, and the response includes generated `units` with story text.
+      - Added renderer regression coverage proving a successful Generate -> Proceed response merges generated unit text into the draft preview state instead of silently discarding it.
+      - Local validation evidence for the preview regression: `pnpm --filter app test -- AppPreflight.test.tsx`.
+      - Diagnostic replay against the existing `127.0.0.1:8000` listener returned `/draft/preflight` 200 and `/draft/generate` 200 with four generated units. First uncached four-scene replay took `69507ms`; cached full replay took `58ms`; uncached single-scene replay took `14601ms`.
+      - Timeout classification: backend transport and routing are healthy under the correct external port, but uncached multi-scene generation can still exceed the default bridge timeout budget. Do not change thresholds without a separate proven timeout-scope decision.
+      - UI output visibility classification: generated response storage/render wiring is covered by regression test; if manual UI still makes the generated text hard to notice, classify that as deferred UX polish unless the text is absent from Draft Preview after selecting the generated scene.
+      - Draft Preview viewport blocker:
+        - Root cause: the Draft Preview stack could collapse to the height of the header and outer pane chrome, and the embedded CodeMirror shell did not have a hard minimum height plus scroll contract inside the docked flex layout. In the bad case the user saw only the scene header and a tiny resize sliver.
+        - Fix: Draft Preview now reserves a 24rem minimum height, `ProjectHome` preserves the draft stack floor inside the docked layout, and `DraftEditor` fills the available height with a scrollable editor shell so generated text is visible and reachable.
+      - Tests added/updated:
+          - `ProjectHome.test.tsx` asserts the Draft Preview region keeps a visible height floor and still renders generated text for the active scene.
+          - `DraftEditor.test.tsx` asserts the editor shell keeps a non-collapsed full-height contract.
+        - Manual verification required before Phase 10 can close:
+          - start backend on `8000`
+          - start Vite on `5173`
+          - launch Electron with `BLACKSKIES_SERVICES_PORT=8000`
+          - open `Esther_Estate`
+          - select `sc_0001`
+          - click Generate -> Proceed
+          - confirm `/draft/generate` returns `200`
+          - confirm the success toast appears
+          - confirm Draft Preview shows readable generated text
+          - confirm long generated text scrolls vertically
+          - confirm Expand or Focus improves visibility rather than hiding the editor
+        - Phase 10 remains open until that manual visibility evidence is captured.
+    - Draft Preview visibility fix (2026-05-05):
+      - Root cause: the renderer derived service `projectId` from the folder name (`Esther_Estate`) instead of the canonical `project_id` in `project.json` (`proj_esther_estate`). Generated drafts could be written/read against a different project root than the Project Home preview root.
+      - Secondary guard: successful generation now preserves generated draft overrides across the post-generate disk refresh, so a stale or lagging reload cannot erase visible generated output before the user sees it.
+      - Exact fix: `projectLoader` now exposes `LoadedProject.projectId` from `project.json`; `App.activateProject(...)` uses that canonical id for service calls; `usePreflight.proceedPreflight(...)` passes generated drafts into `reloadProjectFromDisk(...)` for preservation after reload.
+      - Diagnostic logs added without story text: generated unit ids/text lengths, generated draft lengths, Project Home active scene id, active draft length, override length, disk draft length, and draft override keys.
+      - Tests added/updated:
+        - `AppPreflight.test.tsx` proves generated text remains visible after Generate -> Proceed even when disk reload returns a stale draft.
+        - `AppPreflight.test.tsx` proves preflight/generation use canonical `projectId` from the loaded project metadata.
+        - `ProjectHome.test.tsx` proves actual Draft Preview/DraftEditor renders generated `draftOverrides` for the active scene.
+        - `projectLoaderIpc.test.ts` proves `project.json.project_id` is exposed as `LoadedProject.projectId`.
+      - Validation evidence: `pnpm --filter app test -- ProjectHome.test.tsx AppPreflight.test.tsx projectLoaderIpc.test.ts`, `pnpm --filter app test`, `pnpm --filter app lint`, `pnpm --filter app run build:production`, `pnpm test:e2e -- --workers=1`.
+      - Diagnostic replay note: default local shell settings routed provider calls to `api_only` and correctly returned `PROVIDER_TIMEOUT` after 30s; explicit `BLACKSKIES_MODEL_ROUTING_POLICY=local_only` and `BLACKSKIES_MODEL_ROUTER_PROVIDER_CALLS_ENABLED=0` returned `/draft/preflight` 200 and `/draft/generate` 200 against `127.0.0.1:8000`.
+      - Phase 10 stabilization closure recommendation from this pass was superseded by later manual evidence; Phase 10 remains open.
+    - Floating Draft Preview stale-state blocker (2026-05-05):
+      - Root cause: the floated Draft Preview was starting a separate renderer `ProjectHome` instance that only knew its own disk-loaded snapshot. The docked window's live `draftOverrides` and active-scene selection were not being shared into the float, so the floated pane could fall back to stale scene body text.
+      - Fix: renderer draft-preview state is now synchronized across windows by project path. `App` publishes the live `activeSceneId`, `projectDrafts`, and `draftEdits` into shared renderer storage, floated windows subscribe to that state, and `ProjectHome` now logs pane mode plus whether the preview text came from an override, disk, or fallback.
+      - Tests added/updated:
+        - `AppPreflight.test.tsx` proves a floated Draft Preview hydrates generated text from shared live state instead of stale disk text.
+        - `AppPreflight.test.tsx` proves a floated Draft Preview updates when another window publishes a new active scene and generated draft.
+        - `ProjectHome.test.tsx` now guards the active draft preview against stale scene-body fallback when an override exists.
+      - Validation evidence: pending for the updated App and e2e runs in this pass.
+      - Manual verification required before Phase 10 can close:
+        - open `Esther_Estate`
+        - select `sc_0001`
+        - click Generate -> Proceed
+        - confirm Generate returns `200`
+        - confirm docked Draft Preview shows generated text
+        - click Float
+        - confirm floated Draft Preview shows the same generated text
+        - scroll the floated preview
+        - close float
+        - confirm docked preview still shows generated text
+      - Phase 10 remains open until that float-mode manual evidence is captured.
+    - Manual multi-scene timeout fix (2026-05-05):
+      - New manual evidence: Electron now uses canonical `project_id` (`proj_esther_estate`), targets `127.0.0.1:8000`, and preflight succeeds, but Generate can still time out/cancel manually.
+      - Root cause: the manual Generate button was still using `projectSummary.unitIds`, which is populated with every loaded scene. For `Esther_Estate`, the default request was therefore a four-scene generation batch.
+      - Evidence from prior replay showed uncached four-scene generation took about `69507ms`, exceeding the `45000ms` Electron bridge timeout, while uncached single-scene generation took about `14601ms`. This is separate from the earlier project-id/root drift issue.
+      - Narrow fix: Phase 10 manual Generate now scopes preflight and draft generation to the active scene only (`unit_scope: "scene"`, `unit_ids: [activeSceneId]`). The full project scene list remains in project state for other surfaces; the backend contract and bridge timeout were not changed.
+      - Multi-scene generation is deferred until a queue/progress/chunked request design exists. It should not be the default manual Phase 10 path because the current bridge treats the batch as one request with one timeout budget.
+      - Diagnostic logs now include generated request unit IDs and counts at renderer preflight/generation boundaries, with no story text logged.
+      - Success toast for draft generation now persists for `10000ms` and includes the trace id.
+      - Tests added/updated:
+        - `AppPreflight.test.tsx` proves manual Generate and Proceed send only the active scene when a loaded project has multiple scenes.
+        - `AppPreflight.test.tsx` now treats outline-rebuild scene IDs as project metadata while keeping manual generation scoped to the active scene.
+      - Validation evidence so far: `pnpm --filter app test -- AppPreflight.test.tsx`.
+      - Companion `Run All Insights` red warning is tracked as a separate toast/error-readability observation unless it reproduces the same generation timeout trace; no code link has been proven yet.
+      - Required manual verification after this fix: launch external backend on `127.0.0.1:8000`, launch Electron with `BLACKSKIES_SERVICES_PORT=8000`, open `Esther_Estate`, select a scene, click Generate -> Proceed, and confirm the request payload contains one active scene ID and the generated text appears in Draft Preview.
   - External-service launch probe investigation:
     - Electron main and preload health checks already target `http://127.0.0.1:${BLACKSKIES_SERVICES_PORT}/api/v1/healthz`.
     - The health contract still expects the backend payload to report `status: "ok"` before the UI bootstrap proceeds.

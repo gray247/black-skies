@@ -30,6 +30,18 @@ describe('DraftEditor', () => {
     expect(bodyLine).toBeTruthy();
   });
 
+  it('keeps the editor shell full-height so the preview can occupy a visible viewport', () => {
+    const { container } = render(
+      <DraftEditor
+        value={sampleSceneMarkdown}
+        readOnly
+        placeholder="Draft body placeholder"
+      />,
+    );
+
+    expect(container.querySelector('.draft-editor')).toHaveStyle({ minHeight: '100%' });
+  });
+
   it('applies fallback accessibility metadata when no labels are provided', async () => {
     const { container } = render(
       <DraftEditor

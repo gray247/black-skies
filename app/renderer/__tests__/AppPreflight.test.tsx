@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import App from '../App';
@@ -14,6 +14,14 @@ import type {
   SnapshotManifest,
 } from '../../shared/ipc/services';
 import type { LoadedProject, ProjectLoaderApi } from '../../shared/ipc/projectLoader';
+import {
+  getDraftPreviewSyncKey,
+  type DraftPreviewSyncState,
+} from '../utils/draftPreviewSync';
+
+let mockLoadedProjectId: string | undefined;
+let mockLoadedProjectScenes: Array<{ id: string; title: string; order: number }> | undefined;
+let mockActiveSceneId: string | undefined;
 
 beforeEach(() => {
   if (!(global as typeof globalThis & { window?: Window }).window) {
@@ -77,52 +85,73 @@ function ProjectHomeMock({
 }): JSX.Element {
   const bootstrappedRef = useRef(false);
   const lastDraftRef = useRef<string | null>(null);
+  const scenes = useMemo(
+    () => mockLoadedProjectScenes ?? [{ id: 'sc_0001', title: 'Arrival', order: 1 }],
+    [],
+  );
+  const bodyActiveSceneId =
+    typeof document !== 'undefined' ? document.body?.dataset.activeSceneId ?? null : null;
+  const activeSceneId = bodyActiveSceneId ?? mockActiveSceneId ?? null;
+  const activeScene =
+    scenes.find((scene) => scene.id === activeSceneId) ?? scenes[0] ?? null;
+  const currentDraft = activeScene ? draftOverrides?.[activeScene.id] ?? '' : '';
 
   useEffect(() => {
-    const currentDraft = draftOverrides?.sc_0001 ?? '';
-
     if (!bootstrappedRef.current) {
       bootstrappedRef.current = true;
       onProjectLoaded?.({
         path: '/projects/demo',
+        projectId: mockLoadedProjectId,
         name: 'Demo Project',
         outline: {
           schema_version: 'OutlineSchema v1',
           outline_id: 'out_demo',
           acts: [],
           chapters: [],
-          scenes: [
-            {
-              id: 'sc_0001',
-              order: 1,
-              title: 'Arrival',
-              chapter_id: 'ch_0001',
-              beat_refs: [],
-            },
-          ],
+          scenes: scenes.map((scene) => ({
+            id: scene.id,
+            order: scene.order,
+            title: scene.title,
+            chapter_id: 'ch_0001',
+            beat_refs: [],
+          })),
         },
-        scenes: [
-          {
-            id: 'sc_0001',
-            title: 'Arrival',
-            order: 1,
-          },
-        ],
+        scenes: scenes.map((scene) => ({
+          id: scene.id,
+          title: scene.title,
+          order: scene.order,
+        })),
         drafts: {},
       } satisfies LoadedProject);
     }
 
-    if (lastDraftRef.current === currentDraft) {
+    if (!activeScene) {
       return;
     }
-    lastDraftRef.current = currentDraft;
-    onActiveSceneChange?.({ sceneId: 'sc_0001', sceneTitle: 'Arrival', draft: currentDraft });
-    if (currentDraft) {
-      onDraftChange?.('sc_0001', currentDraft);
-    }
-  }, [draftOverrides, onActiveSceneChange, onDraftChange, onProjectLoaded]);
 
-  return <div data-testid="project-home-mock" />;
+    const activeDraftKey = `${activeScene.id}:${currentDraft}`;
+    if (lastDraftRef.current === activeDraftKey) {
+      return;
+    }
+    lastDraftRef.current = activeDraftKey;
+    onActiveSceneChange?.({
+      sceneId: activeScene.id,
+      sceneTitle: activeScene.title,
+      draft: currentDraft,
+    });
+    if (currentDraft) {
+      onDraftChange?.(activeScene.id, currentDraft);
+    }
+  }, [activeScene, currentDraft, draftOverrides, onActiveSceneChange, onDraftChange, onProjectLoaded, scenes]);
+
+  return (
+    <div
+      data-testid="project-home-mock"
+      data-active-scene-id={activeScene?.id ?? ''}
+    >
+      {currentDraft}
+    </div>
+  );
 }
 
 vi.mock('../components/ProjectHome', () => ({
@@ -276,15 +305,42 @@ function loadAppWithServices(
   return App;
 }
 
+function writeDraftPreviewSyncState(projectPath: string, state: DraftPreviewSyncState): void {
+  const key = getDraftPreviewSyncKey(projectPath);
+  if (!key) {
+    throw new Error('Missing draft preview sync key.');
+  }
+  window.localStorage.setItem(key, JSON.stringify(state));
+}
+
+function dispatchDraftPreviewStorageEvent(projectPath: string): void {
+  const key = getDraftPreviewSyncKey(projectPath);
+  if (!key) {
+    throw new Error('Missing draft preview sync key.');
+  }
+  window.dispatchEvent(
+    new StorageEvent('storage', {
+      key,
+      storageArea: window.localStorage,
+      newValue: window.localStorage.getItem(key),
+    }),
+  );
+}
+
 describe('App preflight integration', () => {
   let services: ServicesBridge;
 
   beforeEach(() => {
     services = createServicesMock();
+    mockLoadedProjectId = undefined;
+    mockLoadedProjectScenes = undefined;
+    mockActiveSceneId = undefined;
   });
 
   afterEach(() => {
     vi.clearAllMocks();
+    window.localStorage.clear();
+    window.history.replaceState(null, '', '/');
     Reflect.deleteProperty(window as typeof window & { services?: ServicesBridge }, 'services');
     Reflect.deleteProperty(window as typeof window & { projectLoader?: ProjectLoaderApi }, 'projectLoader');
   });
@@ -486,7 +542,7 @@ describe('App preflight integration', () => {
     expect(listItems[1]).toHaveTextContent('sc_0003');
   });
 
-  it('refreshes preflight scene IDs after outline rebuild', async () => {
+  it('keeps manual generation scoped to the active scene after outline rebuild', async () => {
     services.preflightDraft = vi.fn().mockResolvedValue({
       ok: true,
       data: {
@@ -526,9 +582,69 @@ describe('App preflight integration', () => {
     expect(services.preflightDraft).toHaveBeenCalledWith(
       expect.objectContaining({
         projectId: 'demo_project',
-        unitIds: ['sc_0001', 'sc_0002', 'sc_0003'],
+        unitIds: ['sc_0001'],
         traceId: expect.any(String),
       }),
+    );
+  });
+
+  it('scopes manual Generate and Proceed to the active scene when a project has multiple scenes', async () => {
+    mockLoadedProjectScenes = [
+      { id: 'sc_0001', title: 'Arrival', order: 1 },
+      { id: 'sc_0002', title: 'Surface Impact', order: 2 },
+      { id: 'sc_0003', title: 'Basement Pulse', order: 3 },
+    ];
+    mockActiveSceneId = 'sc_0002';
+    services.preflightDraft = vi.fn().mockResolvedValue({
+      ok: true,
+      data: {
+        projectId: 'demo_project',
+        unitScope: 'scene',
+        unitIds: ['sc_0002'],
+        model: { name: 'draft-synthesizer-v1', provider: 'black-skies-local' },
+        scenes: [
+          { id: 'sc_0002', title: 'Surface Impact', order: 2, chapter_id: 'ch_0001' },
+        ],
+        budget: {
+          estimated_usd: 1.25,
+          status: 'ok',
+          soft_limit_usd: 5,
+          hard_limit_usd: 10,
+          spent_usd: 0,
+          total_after_usd: 1.25,
+        },
+      },
+      traceId: 'trace-active-scene-preflight',
+    });
+
+    const App = loadAppWithServices(services);
+
+    render(<App />);
+
+    const generateButton = await screen.findByRole('button', { name: /generate/i });
+    await waitFor(() => expect(generateButton).not.toBeDisabled());
+
+    fireEvent.click(generateButton);
+
+    await waitFor(() => expect(services.preflightDraft).toHaveBeenCalledTimes(1));
+    expect(services.preflightDraft).toHaveBeenCalledWith(
+      expect.objectContaining({
+        projectId: 'demo',
+        unitScope: 'scene',
+        unitIds: ['sc_0002'],
+      }),
+    );
+
+    fireEvent.click(await screen.findByRole('button', { name: /proceed/i }));
+
+    await waitFor(() => expect(services.generateDraft).toHaveBeenCalledTimes(1));
+    expect(services.generateDraft).toHaveBeenCalledWith(
+      expect.objectContaining({
+        projectId: 'demo',
+        unitScope: 'scene',
+        unitIds: ['sc_0002'],
+      }),
+      expect.any(String),
     );
   });
 
@@ -683,6 +799,274 @@ describe('App preflight integration', () => {
     expect(screen.queryByText(/Working/i)).toBeNull();
   });
 
+  it('surfaces generated unit text in the draft preview state after Proceed succeeds even after disk reload', async () => {
+    const generatedText = 'Mara steadied her breath as the corridor held still.';
+    const staleProject: LoadedProject = {
+      path: '/projects/demo',
+      name: 'Demo Project',
+      outline: {
+        schema_version: 'OutlineSchema v1',
+        outline_id: 'out_demo',
+        acts: [],
+        chapters: [],
+        scenes: [
+          {
+            id: 'sc_0001',
+            order: 1,
+            title: 'Arrival',
+            chapter_id: 'ch_0001',
+            beat_refs: [],
+          },
+        ],
+      },
+      scenes: [
+        {
+          id: 'sc_0001',
+          title: 'Arrival',
+          order: 1,
+        },
+      ],
+      drafts: {
+        sc_0001: 'stale disk draft',
+      },
+    };
+    const projectLoader: ProjectLoaderApi = {
+      openProjectDialog: vi.fn(),
+      getSampleProjectPath: vi.fn(),
+      loadProject: vi.fn().mockResolvedValue({
+        ok: true,
+        project: staleProject,
+        issues: [],
+      }),
+    };
+    services.generateDraft = vi.fn().mockResolvedValue({
+      ok: true,
+      data: {
+        draft_id: 'dr_generated_preview',
+        schema_version: 'DraftUnitSchema v1',
+        units: [
+          {
+            id: 'sc_0001',
+            text: generatedText,
+            meta: { title: 'Arrival' },
+          },
+        ],
+        budget: undefined,
+      },
+      traceId: 'trace-generated-preview',
+    });
+
+    const App = loadAppWithServices(services, { projectLoader });
+
+    render(<App />);
+
+    const generateButton = await screen.findByRole('button', { name: /generate/i });
+    await waitFor(() => expect(generateButton).not.toBeDisabled());
+
+    fireEvent.click(generateButton);
+
+    await waitFor(() => expect(services.preflightDraft).toHaveBeenCalledTimes(1));
+    fireEvent.click(await screen.findByRole('button', { name: /proceed/i }));
+
+    await waitFor(() => expect(services.generateDraft).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(projectLoader.loadProject).toHaveBeenCalledWith({ path: '/projects/demo' }));
+    await waitFor(() => expect(screen.getByTestId('project-home-mock')).toHaveTextContent(generatedText));
+    expect(screen.getByTestId('project-home-mock')).not.toHaveTextContent('stale disk draft');
+  });
+
+  it('hydrates floated draft preview from the shared live state instead of stale disk text', async () => {
+    const generatedText = 'Mara steadied her breath as the corridor held still.';
+    const projectPath = '/projects/demo';
+    const staleProject: LoadedProject = {
+      path: projectPath,
+      name: 'Demo Project',
+      outline: {
+        schema_version: 'OutlineSchema v1',
+        outline_id: 'out_demo',
+        acts: [],
+        chapters: [],
+        scenes: [
+          {
+            id: 'sc_0001',
+            order: 1,
+            title: 'Arrival',
+            chapter_id: 'ch_0001',
+            beat_refs: [],
+          },
+        ],
+      },
+      scenes: [
+        {
+          id: 'sc_0001',
+          title: 'Arrival',
+          order: 1,
+        },
+      ],
+      drafts: {
+        sc_0001: 'stale disk draft',
+      },
+    };
+    const projectLoader: ProjectLoaderApi = {
+      openProjectDialog: vi.fn(),
+      getSampleProjectPath: vi.fn(),
+      loadProject: vi.fn().mockResolvedValue({
+        ok: true,
+        project: staleProject,
+        issues: [],
+      }),
+    };
+    const sharedState: DraftPreviewSyncState = {
+      sourceId: 'dock-window',
+      projectPath,
+      activeSceneId: 'sc_0001',
+      projectDrafts: {
+        sc_0001: 'stale disk draft',
+      },
+      draftEdits: {
+        sc_0001: generatedText,
+      },
+      updatedAt: Date.now(),
+    };
+
+    writeDraftPreviewSyncState(projectPath, sharedState);
+    window.history.pushState(null, '', `/?floatingPane=draftPreview&projectPath=${encodeURIComponent(projectPath)}`);
+
+    const App = loadAppWithServices(services, { projectLoader });
+
+    render(<App />);
+
+    await waitFor(() => expect(projectLoader.loadProject).toHaveBeenCalledWith({ path: projectPath }));
+    await waitFor(() => expect(screen.getByTestId('project-home-mock')).toHaveTextContent(generatedText));
+    expect(screen.getByTestId('project-home-mock')).not.toHaveTextContent('stale disk draft');
+    expect(screen.getByTestId('project-home-mock')).toHaveAttribute('data-active-scene-id', 'sc_0001');
+  });
+
+  it('keeps the floated draft preview synced when another window publishes a new active scene', async () => {
+    const firstGeneratedText = 'Mara steadied her breath as the corridor held still.';
+    const secondGeneratedText = 'Surface impact draft text from the synced dock window.';
+    const projectPath = '/projects/demo';
+    mockLoadedProjectScenes = [
+      { id: 'sc_0001', title: 'Arrival', order: 1 },
+      { id: 'sc_0002', title: 'Surface Impact', order: 2 },
+    ];
+
+    const projectLoader: ProjectLoaderApi = {
+      openProjectDialog: vi.fn(),
+      getSampleProjectPath: vi.fn(),
+      loadProject: vi.fn().mockResolvedValue({
+        ok: true,
+        project: {
+          path: projectPath,
+          name: 'Demo Project',
+          outline: {
+            schema_version: 'OutlineSchema v1',
+            outline_id: 'out_demo',
+            acts: [],
+            chapters: [],
+            scenes: [
+              {
+                id: 'sc_0001',
+                order: 1,
+                title: 'Arrival',
+                chapter_id: 'ch_0001',
+                beat_refs: [],
+              },
+              {
+                id: 'sc_0002',
+                order: 2,
+                title: 'Surface Impact',
+                chapter_id: 'ch_0001',
+                beat_refs: [],
+              },
+            ],
+          },
+          scenes: [
+            { id: 'sc_0001', title: 'Arrival', order: 1 },
+            { id: 'sc_0002', title: 'Surface Impact', order: 2 },
+          ],
+          drafts: {
+            sc_0001: 'stale disk draft',
+            sc_0002: 'stale disk draft two',
+          },
+        } satisfies LoadedProject,
+        issues: [],
+      }),
+    };
+    const initialState: DraftPreviewSyncState = {
+      sourceId: 'dock-window',
+      projectPath,
+      activeSceneId: 'sc_0001',
+      projectDrafts: {
+        sc_0001: 'stale disk draft',
+        sc_0002: 'stale disk draft two',
+      },
+      draftEdits: {
+        sc_0001: firstGeneratedText,
+      },
+      updatedAt: Date.now(),
+    };
+
+    writeDraftPreviewSyncState(projectPath, initialState);
+    window.history.pushState(null, '', `/?floatingPane=draftPreview&projectPath=${encodeURIComponent(projectPath)}`);
+
+    const App = loadAppWithServices(services, { projectLoader });
+
+    render(<App />);
+
+    await waitFor(() => expect(screen.getByTestId('project-home-mock')).toHaveTextContent(firstGeneratedText));
+    expect(screen.getByTestId('project-home-mock')).toHaveAttribute('data-active-scene-id', 'sc_0001');
+
+    const nextState: DraftPreviewSyncState = {
+      sourceId: 'dock-window-2',
+      projectPath,
+      activeSceneId: 'sc_0002',
+      projectDrafts: {
+        sc_0001: 'stale disk draft',
+        sc_0002: 'stale disk draft two',
+      },
+      draftEdits: {
+        sc_0002: secondGeneratedText,
+      },
+      updatedAt: Date.now() + 1,
+    };
+
+    writeDraftPreviewSyncState(projectPath, nextState);
+    dispatchDraftPreviewStorageEvent(projectPath);
+
+    await waitFor(() => expect(screen.getByTestId('project-home-mock')).toHaveTextContent(secondGeneratedText));
+    expect(screen.getByTestId('project-home-mock')).toHaveAttribute('data-active-scene-id', 'sc_0002');
+    expect(screen.getByTestId('project-home-mock')).not.toHaveTextContent('stale disk draft');
+  });
+
+  it('uses project.json projectId from the loaded project for preflight and generation requests', async () => {
+    mockLoadedProjectId = 'proj_demo_canonical';
+    const App = loadAppWithServices(services);
+
+    render(<App />);
+
+    const generateButton = await screen.findByRole('button', { name: /generate/i });
+    await waitFor(() => expect(generateButton).not.toBeDisabled());
+
+    fireEvent.click(generateButton);
+
+    await waitFor(() => expect(services.preflightDraft).toHaveBeenCalledTimes(1));
+    expect(services.preflightDraft).toHaveBeenCalledWith(
+      expect.objectContaining({
+        projectId: 'proj_demo_canonical',
+      }),
+    );
+
+    fireEvent.click(await screen.findByRole('button', { name: /proceed/i }));
+
+    await waitFor(() => expect(services.generateDraft).toHaveBeenCalledTimes(1));
+    expect(services.generateDraft).toHaveBeenCalledWith(
+      expect.objectContaining({
+        projectId: 'proj_demo_canonical',
+      }),
+      expect.any(String),
+    );
+  });
+
   it('shows a draft-generation timeout message after proceed instead of preflight timeout text', async () => {
     services.generateDraft = vi.fn().mockResolvedValue({
       ok: false,
@@ -713,6 +1097,38 @@ describe('App preflight integration', () => {
     expect(within(modal).getByText(/Unable to complete draft generation/i)).toBeInTheDocument();
     expect(within(modal).getByText(/Draft generation timed out/i)).toBeInTheDocument();
     expect(within(modal).queryByText(/Unable to complete preflight/i)).toBeNull();
+  });
+
+  it('shows a provider timeout message after proceed when the backend reports provider timeout', async () => {
+    services.generateDraft = vi.fn().mockResolvedValue({
+      ok: false,
+      error: {
+        code: 'PROVIDER_TIMEOUT',
+        message: 'Provider/model timed out.',
+        details: { provider: 'openai', model: 'gpt-4o-mini' },
+        traceId: 'trace-provider-timeout',
+      },
+      traceId: 'trace-provider-timeout',
+    });
+
+    const App = loadAppWithServices(services);
+
+    render(<App />);
+
+    const generateButton = await screen.findByRole('button', { name: /generate/i });
+    await waitFor(() => expect(generateButton).not.toBeDisabled());
+
+    fireEvent.click(generateButton);
+
+    await waitFor(() => expect(services.preflightDraft).toHaveBeenCalledTimes(1));
+    const proceedButton = await screen.findByRole('button', { name: /proceed/i });
+    fireEvent.click(proceedButton);
+
+    await waitFor(() => expect(services.generateDraft).toHaveBeenCalledTimes(1));
+    const modal = await screen.findByRole('dialog', { name: /draft preflight/i });
+    expect(within(modal).getByText(/Unable to complete draft generation/i)).toBeInTheDocument();
+    expect(within(modal).getByText(/Provider\/model timed out/i)).toBeInTheDocument();
+    expect(within(modal).queryByText(/Draft generation timed out/i)).toBeNull();
   });
 
   it('displays trace IDs for generation success toasts', async () => {

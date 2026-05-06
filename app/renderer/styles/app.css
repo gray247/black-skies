@@ -703,6 +703,7 @@ button:disabled {
   flex-direction: column;
   gap: 1.5rem;
   min-width: 0;
+  min-height: 0;
 }
 
 .project-home__recents,
@@ -884,7 +885,8 @@ button:disabled {
   flex-direction: column;
   gap: 1rem;
   flex: 1;
-  min-height: 0;
+  min-height: 24rem;
+  overflow: hidden;
 }
 
 .project-home__draft-header {
@@ -967,6 +969,7 @@ button:disabled {
   flex: 1;
   display: flex;
   min-height: 0;
+  width: 100%;
 }
 
 .draft-editor__mount {
@@ -978,6 +981,14 @@ button:disabled {
 
 .draft-editor__mount .cm-editor {
   flex: 1;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.draft-editor__mount .cm-scroller {
+  min-height: 0;
+  overflow: auto;
 }
 
 .project-home__sidebar {

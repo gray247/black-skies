@@ -38,6 +38,14 @@ import useServiceHealth, { isDominantOffline } from "./hooks/useServiceHealth";
 import { isTestEnvironment } from "./utils/env";
 import { normaliseBudgetNumber, type BudgetSnapshotSource } from "./utils/budgetIndicator";
 import { usePreflight } from "./hooks/usePreflight";
+import {
+  clearDraftPreviewSyncState,
+  createDraftPreviewSyncState,
+  type DraftPreviewSyncState,
+  readDraftPreviewSyncState,
+  parseDraftPreviewSyncState,
+  writeDraftPreviewSyncState,
+} from "./utils/draftPreviewSync";
 import { useCritique, DEFAULT_CRITIQUE_RUBRIC } from "./hooks/useCritique";
 import type { CritiqueDialogState } from "./hooks/useCritique";
 import useRecovery from "./hooks/useRecovery";
@@ -516,6 +524,11 @@ export default function App(): JSX.Element {
   const pendingSceneSelectionRef = useRef<string | null>(null);
   const testSetProjectLoadRequestRef = useRef(0);
   const isVisualHomeMode = isVisualMode && currentProject === null;
+  const draftPreviewSyncSourceIdRef = useRef(
+    typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+      ? crypto.randomUUID()
+      : `draft-preview-${Math.random().toString(36).slice(2)}`,
+  );
   useEffect(() => {
     currentProjectRef.current = currentProject;
   }, [currentProject]);
@@ -845,6 +858,173 @@ export default function App(): JSX.Element {
     projectDraftsRef.current = projectDrafts;
   }, [projectDrafts]);
 
+  const draftPreviewSyncKey = useMemo(
+    () =>
+      projectSummary?.path ? `blackskies.draft-preview-state:${encodeURIComponent(projectSummary.path)}` : null,
+    [projectSummary?.path],
+  );
+  const draftPreviewSyncHydratedRef = useRef(false);
+  const draftPreviewSyncPendingStateRef = useRef<DraftPreviewSyncState | null>(null);
+
+  const areStringMapsEqual = useCallback(
+    (left: Record<string, string>, right: Record<string, string>) => {
+      const leftKeys = Object.keys(left);
+      const rightKeys = Object.keys(right);
+      if (leftKeys.length !== rightKeys.length) {
+        return false;
+      }
+      return leftKeys.every((key) => right[key] === left[key]);
+    },
+    [],
+  );
+
+  const isDraftPreviewStateEqual = useCallback(
+    (left: DraftPreviewSyncState | null, right: DraftPreviewSyncState | null) => {
+      if (!left || !right) {
+        return false;
+      }
+      return (
+        left.projectPath === right.projectPath &&
+        left.activeSceneId === right.activeSceneId &&
+        areStringMapsEqual(left.projectDrafts, right.projectDrafts) &&
+        areStringMapsEqual(left.draftEdits, right.draftEdits)
+      );
+    },
+    [areStringMapsEqual],
+  );
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !draftPreviewSyncKey || !projectSummary?.path) {
+      return;
+    }
+
+    const applyDraftPreviewState = (rawValue: string | null) => {
+      const sharedState = parseDraftPreviewSyncState(rawValue);
+      if (
+        !sharedState ||
+        sharedState.projectPath !== projectSummary.path ||
+        sharedState.sourceId === draftPreviewSyncSourceIdRef.current
+      ) {
+        draftPreviewSyncPendingStateRef.current = null;
+        draftPreviewSyncHydratedRef.current = true;
+        return;
+      }
+
+      const nextProjectDrafts = sharedState.projectDrafts ?? {};
+      const nextDraftEdits = sharedState.draftEdits ?? {};
+      const nextDrafts = { ...nextProjectDrafts, ...nextDraftEdits };
+      const currentState: DraftPreviewSyncState = {
+        sourceId: draftPreviewSyncSourceIdRef.current,
+        projectPath: projectSummary.path,
+        activeSceneId: activeSceneId ?? null,
+        projectDrafts,
+        draftEdits,
+        updatedAt: 0,
+      };
+      if (isDraftPreviewStateEqual(sharedState, currentState)) {
+        draftPreviewSyncPendingStateRef.current = null;
+        draftPreviewSyncHydratedRef.current = true;
+        return;
+      }
+
+      draftPreviewSyncPendingStateRef.current = sharedState;
+      draftPreviewSyncHydratedRef.current = false;
+
+      if (Object.keys(nextProjectDrafts).length > 0) {
+        setProjectDrafts((previous) => ({ ...previous, ...nextProjectDrafts }));
+      }
+      if (Object.keys(nextDraftEdits).length > 0) {
+        setDraftEdits((previous) => ({ ...previous, ...nextDraftEdits }));
+      }
+      if (currentProjectRef.current) {
+        setCurrentProject((previous) =>
+          previous ? { ...previous, drafts: { ...previous.drafts, ...nextDrafts } } : previous,
+        );
+      }
+      if (sharedState.activeSceneId) {
+        const targetScene =
+          currentProjectRef.current?.scenes.find((scene) => scene.id === sharedState.activeSceneId) ??
+          null;
+        if (targetScene) {
+          setActiveScene({ id: targetScene.id, title: targetScene.title ?? null });
+        }
+      }
+    };
+
+    applyDraftPreviewState(window.localStorage.getItem(draftPreviewSyncKey));
+
+    const handleStorage = (event: StorageEvent) => {
+      if (event.storageArea !== window.localStorage || event.key !== draftPreviewSyncKey) {
+        return;
+      }
+      applyDraftPreviewState(event.newValue);
+    };
+
+    window.addEventListener("storage", handleStorage);
+    return () => {
+      window.removeEventListener("storage", handleStorage);
+    };
+  }, [
+    activeSceneId,
+    draftEdits,
+    draftPreviewSyncKey,
+    isDraftPreviewStateEqual,
+    projectDrafts,
+    projectSummary?.path,
+    setActiveScene,
+    setCurrentProject,
+    setDraftEdits,
+    setProjectDrafts,
+  ]);
+
+  useEffect(() => {
+    if (!draftPreviewSyncKey || !projectSummary?.path || !currentProject) {
+      return;
+    }
+
+    const pendingState = draftPreviewSyncPendingStateRef.current;
+    if (pendingState) {
+      const nextState: DraftPreviewSyncState = {
+        sourceId: draftPreviewSyncSourceIdRef.current,
+        projectPath: projectSummary.path,
+        activeSceneId: activeSceneId ?? null,
+        projectDrafts,
+        draftEdits,
+        updatedAt: 0,
+      };
+      if (!isDraftPreviewStateEqual(pendingState, nextState)) {
+        return;
+      }
+      draftPreviewSyncPendingStateRef.current = null;
+    }
+
+    draftPreviewSyncHydratedRef.current = true;
+  }, [
+    activeSceneId,
+    currentProject,
+    draftEdits,
+    draftPreviewSyncKey,
+    isDraftPreviewStateEqual,
+    projectDrafts,
+    projectSummary?.path,
+  ]);
+
+  useEffect(() => {
+    if (!draftPreviewSyncKey || !projectSummary?.path || !currentProject || !draftPreviewSyncHydratedRef.current) {
+      return;
+    }
+
+    const nextState = createDraftPreviewSyncState({
+      sourceId: draftPreviewSyncSourceIdRef.current,
+      projectPath: projectSummary.path,
+      activeSceneId: activeSceneId ?? null,
+      projectDrafts,
+      draftEdits,
+    });
+
+    writeDraftPreviewSyncState(projectSummary.path, nextState);
+  }, [activeSceneId, currentProject, draftEdits, draftPreviewSyncKey, projectDrafts, projectSummary?.path]);
+
   useEffect(() => {
     if (
       !shouldAutoSeedProjectSummary ||
@@ -912,6 +1092,7 @@ export default function App(): JSX.Element {
   });
 
   const resetProjectState = useCallback(() => {
+    clearDraftPreviewSyncState(projectSummary?.path ?? currentProjectRef.current?.path ?? null);
     setCurrentProject(null);
     setProjectDrafts({});
     setDraftEdits({});
@@ -931,6 +1112,7 @@ export default function App(): JSX.Element {
     setCritiqueRubric,
     setCompanionOpen,
     setBudgetSnapshot,
+    projectSummary?.path,
   ]);
 
   const updateCritiqueRubric = useCallback(
@@ -1213,7 +1395,7 @@ export default function App(): JSX.Element {
         drafts: Object.keys(project.drafts).length,
         preserveSceneId: options?.preserveSceneId ?? null,
       });
-      const projectId = deriveProjectIdFromPath(project.path);
+      const projectId = project.projectId ?? deriveProjectIdFromPath(project.path);
       const unitIds = project.scenes.map((scene) => scene.id);
 
       const projectWithId: TrackedLoadedProject = { ...project, projectId };
@@ -1257,7 +1439,7 @@ export default function App(): JSX.Element {
     ],
   );
 
-  const reloadProjectFromDisk = useCallback(async () => {
+  const reloadProjectFromDisk = useCallback(async (preserveDrafts?: Record<string, string>) => {
     if (!projectSummary?.path) {
       return;
     }
@@ -1273,6 +1455,17 @@ export default function App(): JSX.Element {
       }
       if (response.ok) {
         activateProject(response.project, { preserveSceneId: activeSceneId });
+        if (preserveDrafts && Object.keys(preserveDrafts).length > 0) {
+          setProjectDrafts((previous) => {
+            const nextDrafts = { ...previous, ...preserveDrafts };
+            projectDraftsRef.current = nextDrafts;
+            return nextDrafts;
+          });
+          setDraftEdits((previous) => ({ ...previous, ...preserveDrafts }));
+          setCurrentProject((previous) =>
+            previous ? { ...previous, drafts: { ...previous.drafts, ...preserveDrafts } } : previous,
+          );
+        }
       } else {
         pushToast({
           tone: "warning",
@@ -1293,6 +1486,17 @@ export default function App(): JSX.Element {
     }
   }, [activateProject, activeSceneId, isMountedRef, projectSummary, pushToast]);
 
+  const generationProjectSummary = useMemo<ProjectSummary | null>(() => {
+    if (!projectSummary || !activeSceneId) {
+      return null;
+    }
+    return {
+      ...projectSummary,
+      unitScope: "scene",
+      unitIds: [activeSceneId],
+    };
+  }, [activeSceneId, projectSummary]);
+
   const {
     state: preflightState,
     openPreflight,
@@ -1300,7 +1504,7 @@ export default function App(): JSX.Element {
     proceedPreflight,
   } = usePreflight({
     services,
-    projectSummary,
+    projectSummary: generationProjectSummary,
     isMountedRef,
     pushToast,
     projectDraftsRef,
@@ -1781,7 +1985,20 @@ export default function App(): JSX.Element {
           return;
         }
         if (response?.ok) {
-          activateProject(response.project);
+          const sharedDraftState = readDraftPreviewSyncState(floatingProjectPath);
+          if (sharedDraftState && sharedDraftState.projectPath === floatingProjectPath) {
+            const mergedDrafts = {
+              ...response.project.drafts,
+              ...sharedDraftState.projectDrafts,
+              ...sharedDraftState.draftEdits,
+            };
+            activateProject(
+              { ...response.project, drafts: mergedDrafts },
+              { preserveSceneId: sharedDraftState.activeSceneId ?? null },
+            );
+          } else {
+            activateProject(response.project);
+          }
         } else if (response?.error) {
           const message =
             typeof response.error.message === "string"
@@ -2033,6 +2250,7 @@ export default function App(): JSX.Element {
       draftOverrides: draftEdits,
       onActiveSceneChange: handleActiveSceneChange,
       onDraftChange: handleDraftChange,
+      paneMode: isFloatingHost ? "floating" : dockingEnabled ? "docked" : "standalone",
       relocationNotifyEnabled,
       autoSnapEnabled,
       onRelocationNotifyChange: setRelocationNotifyEnabled,
@@ -2055,6 +2273,8 @@ export default function App(): JSX.Element {
       setRelocationNotifyEnabled,
       isStableHomeMode,
       isVisualHomeMode,
+      isFloatingHost,
+      dockingEnabled,
     ],
   );
 
@@ -2417,6 +2637,7 @@ export default function App(): JSX.Element {
       error={preflightError}
       errorDetails={preflightErrorDetails}
       estimate={preflightEstimate}
+      errorPhase={preflightState.phase}
       onClose={closePreflight}
       onProceed={() => void proceedPreflight()}
     />

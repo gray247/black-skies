@@ -338,6 +338,41 @@ describe('ProjectHome recent project recovery', () => {
     expect(screen.getByText(/Scenes/)).toBeInTheDocument();
   });
 
+  it('renders generated draft overrides in the Draft Preview editor for the active scene', async () => {
+    const samplePath = 'C:\\Dev\\black-skies\\sample_project\\Esther_Estate';
+    const generatedMarker = 'PHASE10_VISIBLE_GENERATED_DRAFT_MARKER';
+    const project = createSampleProject(samplePath);
+
+    const projectLoader: ProjectLoaderApi = {
+      openProjectDialog: vi.fn(),
+      getSampleProjectPath: vi.fn().mockResolvedValue(samplePath),
+      loadProject: vi.fn().mockResolvedValue({
+        ok: true,
+        project,
+        issues: [],
+      }),
+    };
+
+    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+
+    render(
+      <ProjectHome
+        onToast={vi.fn()}
+        onProjectLoaded={vi.fn()}
+        draftOverrides={{ sc_0001: generatedMarker }}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(projectLoader.loadProject).toHaveBeenCalledWith({ path: samplePath });
+    });
+
+    const draftPreview = document.querySelector<HTMLElement>('.project-home__draft');
+    expect(draftPreview).toHaveStyle({ minHeight: '24rem' });
+    expect(await screen.findByText(generatedMarker)).toBeInTheDocument();
+    expect(screen.queryByText(/# Scene One/i)).not.toBeInTheDocument();
+  });
+
   it('surfaces loader warnings when a nested project folder is auto-corrected', async () => {
     const samplePath = 'C:\\Dev\\black-skies\\sample_project\\Esther_Estate';
     const nestedPath = `${samplePath}\\Esther_Estate`;

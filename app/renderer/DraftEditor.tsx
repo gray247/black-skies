@@ -273,7 +273,7 @@ export default function DraftEditor({
   }, []);
 
   return (
-    <div className={`draft-editor ${className ?? ''}`}>
+    <div className={`draft-editor ${className ?? ''}`} style={{ minHeight: '100%' }}>
       <div ref={mountRef} className={hostClassName} />
     </div>
   );
