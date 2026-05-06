@@ -7,6 +7,7 @@ import copy
 import hashlib
 import json
 import logging
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
 from dataclasses import dataclass
 from pathlib import Path
 from time import perf_counter
@@ -20,7 +21,7 @@ from ..draft_synthesizer import DraftSynthesizer
 from ..fracture_analysis import FractureInputs, analyze_fractures
 from ..heuristics import load_project_heuristics
 from ..analytics.runtime import log_runtime_event
-from ..http import raise_budget_error
+from ..http import ensure_trace_id, raise_budget_error
 from ..models.draft import DraftGenerateRequest, DraftUnitOverrides, DraftUnitScope
 from ..models.outline import OutlineArtifact, OutlineScene
 from ..persistence import DraftPersistence
@@ -53,6 +54,10 @@ from ..scene_memory import (
 LOGGER = logging.getLogger(__name__)
 
 
+def _generate_log(trace_id: str | None, message: str, **details: Any) -> None:
+    LOGGER.info("[draft-generate][%s] draft-generate:%s %s", trace_id or "unknown", message, details)
+
+
 @dataclass(slots=True)
 class DraftGenerationResult:
     """Response payload for a draft generation request."""
@@ -69,6 +74,10 @@ class DraftPreflightResult:
 
 class DraftGenerationTimeoutError(RuntimeError):
     """Raised when draft generation helpers exceed the configured timeout."""
+
+
+class DraftGenerationProviderTimeoutError(RuntimeError):
+    """Raised when a provider/model call exceeds its timeout."""
 
 
 def resolve_requested_scenes(
@@ -164,6 +173,7 @@ class DraftGenerationService:
     ) -> DraftGenerationResult:
         """Generate draft units for the provided request."""
 
+        trace_id = ensure_trace_id()
         budget_state = self._budget_service.load_state(project_root)
         budget_meta = budget_state.metadata.setdefault("budget", {})
 
@@ -495,6 +505,7 @@ class DraftGenerationService:
         artifacts: list[dict[str, Any]] = []
         fracture_reports: list[dict[str, Any]] = []
         total_scenes = len(scenes)
+        trace_id = ensure_trace_id()
         adapter = self._last_adapter
         scene_lookup = {scene.id: scene for scene in scenes}
         memory_lab_options = self._settings.memory_lab_runtime_options()
@@ -516,6 +527,19 @@ class DraftGenerationService:
                 memory_lab_options=memory_lab_options,
             )
             if adapter is not None:
+                provider_name = self._last_route.provider if self._last_route else None
+                model_name = self._last_route.model.name if self._last_route else None
+                _generate_log(
+                    trace_id,
+                    "provider-start",
+                    project_id=request.project_id,
+                    scene_id=scene.id,
+                    unit_index=index + 1,
+                    unit_count=total_scenes,
+                    provider=provider_name,
+                    model=model_name,
+                )
+                provider_started = perf_counter()
                 prompt = self._build_adapter_prompt(
                     scene=scene,
                     front_matter=synthesis.front_matter,
@@ -531,12 +555,53 @@ class DraftGenerationService:
                     "temperature": request.temperature,
                     "options": (
                         {"temperature": request.temperature}
-                        if request.temperature is not None
-                        else None
-                    ),
+                    if request.temperature is not None
+                    else None
+                ),
                 }
+                provider_timeout_seconds = max(
+                    1.0,
+                    float(
+                        getattr(
+                            getattr(adapter, "config", None),
+                            "timeout_seconds",
+                            30.0,
+                        )
+                        or 30.0
+                    ),
+                )
+                provider_executor = ThreadPoolExecutor(max_workers=1)
                 try:
-                    adapter_response = adapter.generate_draft(payload)
+                    provider_future = provider_executor.submit(adapter.generate_draft, payload)
+                    try:
+                        adapter_response = provider_future.result(timeout=provider_timeout_seconds)
+                    except FuturesTimeoutError as exc:
+                        _generate_log(
+                            trace_id,
+                            "provider-timeout",
+                            project_id=request.project_id,
+                            scene_id=scene.id,
+                            unit_index=index + 1,
+                            unit_count=total_scenes,
+                            provider=provider_name,
+                            model=model_name,
+                            duration_ms=round((perf_counter() - provider_started) * 1000, 2),
+                            timeout_seconds=provider_timeout_seconds,
+                        )
+                        raise DraftGenerationProviderTimeoutError(
+                            f"Provider call exceeded {provider_timeout_seconds} seconds."
+                        ) from exc
+                    _generate_log(
+                        trace_id,
+                        "provider-response",
+                        project_id=request.project_id,
+                        scene_id=scene.id,
+                        unit_index=index + 1,
+                        unit_count=total_scenes,
+                        provider=provider_name,
+                        model=model_name,
+                        duration_ms=round((perf_counter() - provider_started) * 1000, 2),
+                    )
                     extract_text = getattr(adapter, "extract_text", None)
                     if callable(extract_text):
                         adapter_text = extract_text(adapter_response)
@@ -548,12 +613,40 @@ class DraftGenerationService:
                         synthesis.body = adapter_text.strip()
                         synthesis.unit["text"] = synthesis.body
                 except AdapterError as exc:
+                    message = str(exc)
+                    _generate_log(
+                        trace_id,
+                        "provider-error",
+                        project_id=request.project_id,
+                        scene_id=scene.id,
+                        unit_index=index + 1,
+                        unit_count=total_scenes,
+                        provider=provider_name,
+                        model=model_name,
+                        duration_ms=round((perf_counter() - provider_started) * 1000, 2),
+                        error=message,
+                    )
+                    if "timeout" in message.lower() or "timed out" in message.lower():
+                        _generate_log(
+                            trace_id,
+                            "provider-timeout",
+                            project_id=request.project_id,
+                            scene_id=scene.id,
+                            unit_index=index + 1,
+                            unit_count=total_scenes,
+                            provider=provider_name,
+                            model=model_name,
+                            duration_ms=round((perf_counter() - provider_started) * 1000, 2),
+                        )
+                        raise DraftGenerationProviderTimeoutError(message) from exc
                     self._diagnostics.log(
                         project_root,
                         code="ADAPTER",
                         message="Draft adapter failed; falling back to local synthesis.",
                         details={"error": str(exc)},
                     )
+                finally:
+                    provider_executor.shutdown(wait=False, cancel_futures=True)
             continuity = evaluate_continuity(
                 text=synthesis.body,
                 pov=context.pov,
@@ -816,6 +909,8 @@ class DraftGenerationService:
             try:
                 async with asyncio.timeout(timeout):
                     return await asyncio.to_thread(func, *args)
+            except DraftGenerationProviderTimeoutError:
+                raise
             except asyncio.TimeoutError as exc:
                 last_error = DraftGenerationTimeoutError(str(exc))
                 self._diagnostics.log(
@@ -843,6 +938,7 @@ class DraftGenerationService:
 __all__ = [
     "DraftGenerationResult",
     "DraftPreflightResult",
+    "DraftGenerationProviderTimeoutError",
     "DraftGenerationTimeoutError",
     "DraftGenerationService",
     "estimate_word_target",

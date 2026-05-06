@@ -38,7 +38,12 @@ import {
   makeFloatingWindowUrl,
   shouldUseFileRendererEntry,
 } from '../layoutIpc';
-import { DEFAULT_LAYOUT, LAYOUT_SCHEMA_VERSION } from '../../shared/ipc/layout';
+import {
+  DEFAULT_LAYOUT,
+  LAYOUT_SCHEMA_VERSION,
+  isValidLayoutTree,
+  sanitizeLayoutNode,
+} from '../../shared/ipc/layout';
 
 describe('layoutIpc loadPersistedLayout', () => {
   beforeEach(() => {
@@ -54,15 +59,15 @@ describe('layoutIpc loadPersistedLayout', () => {
     const layoutPath = join(projectPath, '.blackskies', 'layout.json');
     fsMock.readFile
       .mockResolvedValueOnce(
-      JSON.stringify({
-        version: LAYOUT_SCHEMA_VERSION,
-        layout: {
-          direction: 'row',
-          first: 'outline',
-          second: 'outline',
-        },
-        floatingPanes: [],
-      }),
+        JSON.stringify({
+          version: LAYOUT_SCHEMA_VERSION,
+          layout: {
+            direction: 'row',
+            first: 'outline',
+            second: 'outline',
+          },
+          floatingPanes: [],
+        }),
       )
       .mockRejectedValueOnce(Object.assign(new Error('ENOENT'), { code: 'ENOENT' }));
 
@@ -132,5 +137,10 @@ describe('layoutIpc loadPersistedLayout', () => {
     });
     expect(shouldUseFileRendererEntry('file:///C:/Dev/black-skies/app/dist/index.html')).toBe(true);
     expect(shouldUseFileRendererEntry('http://127.0.0.1:5173/')).toBe(false);
+  });
+
+  it('accepts the nested default layout tree as valid', () => {
+    expect(isValidLayoutTree(DEFAULT_LAYOUT)).toBe(true);
+    expect(sanitizeLayoutNode(DEFAULT_LAYOUT as never)).toEqual(DEFAULT_LAYOUT);
   });
 });

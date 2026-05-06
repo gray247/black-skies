@@ -107,4 +107,20 @@ describe('PreflightModal', () => {
     const proceed = screen.getByRole('button', { name: /proceed/i });
     expect(proceed).toHaveProperty('disabled', true);
   });
+
+  it('shows a generation-specific error heading when the phase is generation', () => {
+    render(
+      <PreflightModal
+        isOpen
+        loading={false}
+        error="Draft generation timed out."
+        errorPhase="generation"
+        estimate={undefined}
+        onClose={() => undefined}
+        onProceed={() => undefined}
+      />,
+    );
+
+    expect(screen.getByText(/Unable to complete draft generation/i)).toBeInTheDocument();
+  });
 });

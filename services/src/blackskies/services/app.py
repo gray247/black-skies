@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 from contextvars import ContextVar
+from datetime import datetime, timezone
 from typing import Awaitable, Callable, Final
 
 from fastapi import FastAPI, HTTPException, Request, Response, status
@@ -62,6 +63,21 @@ class TraceMiddleware:
             return
 
         request = Request(scope, receive)
+        client_host = request.client.host if request.client else None
+        client_port = request.client.port if request.client else None
+        trace_header = request.headers.get(TRACE_ID_HEADER)
+        content_length = request.headers.get("content-length")
+        LOGGER.info(
+            "[http][request-start] %s",
+            {
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "method": request.method,
+                "path": request.url.path,
+                "trace_header": trace_header,
+                "content_length": int(content_length) if content_length and content_length.isdigit() else None,
+                "client": f"{client_host}:{client_port}" if client_host and client_port is not None else client_host,
+            },
+        )
         trace_id = resolve_trace_id(request.headers.get(TRACE_ID_HEADER))
         token = self._trace_context.set(trace_id)
         scope.setdefault("state", {})

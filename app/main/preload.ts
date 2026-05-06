@@ -766,10 +766,19 @@ async function fetchWithTimeout(url: string, init: RequestInit, timeoutMs: numbe
   }
 }
 
+function summarizeBodyByteLength(body: BodyInit | null | undefined): number {
+  if (typeof body === 'string') {
+    return new TextEncoder().encode(body).byteLength;
+  }
+  return 0;
+}
+
 async function fetchWithResilience(
   url: string,
   init: RequestInit,
   method: HttpMethod,
+  phaseLogPrefix: string | null,
+  requestTraceId?: string,
 ): Promise<Response> {
   let lastError: unknown;
   for (let attempt = 1; attempt <= REQUEST_POLICY.maxAttempts; attempt += 1) {
@@ -778,6 +787,17 @@ async function fetchWithResilience(
     }
 
     try {
+      if (phaseLogPrefix) {
+        console.info(`[${phaseLogPrefix}:request-start]`, {
+          traceId: requestTraceId ?? null,
+          method,
+          url,
+          timeoutMs: REQUEST_POLICY.timeoutMs,
+          bodyByteLength: summarizeBodyByteLength(init.body),
+          timestamp: new Date().toISOString(),
+          attempt,
+        });
+      }
       const response = await fetchWithTimeout(url, init, REQUEST_POLICY.timeoutMs);
       REQUEST_BREAKER.recordSuccess();
       return response;
@@ -962,7 +982,13 @@ export async function makeServiceCall<T>(
         url,
       });
     }
-    const response = await fetchWithResilience(url, requestInit, method);
+    const response = await fetchWithResilience(
+      url,
+      requestInit,
+      method,
+      phaseLogPrefix,
+      requestTraceId,
+    );
 
     const traceId = response.headers.get('x-trace-id') ?? undefined;
 
@@ -1186,7 +1212,7 @@ async function probeHealth(): Promise<ServiceHealthResponse> {
   const url = `http://127.0.0.1:${port}/api/v1/healthz`;
 
   try {
-    const response = await fetchWithResilience(url, { method: 'GET' }, 'GET');
+    const response = await fetchWithResilience(url, { method: 'GET' }, 'GET', null);
     const traceId = response.headers.get('x-trace-id') ?? undefined;
     if (!response.ok) {
       const error = await parseErrorPayload(response, traceId);

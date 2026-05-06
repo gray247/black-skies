@@ -311,17 +311,19 @@ function normalizeLayoutTree(node: unknown): LayoutTree | null {
     candidateNode.splitPercentage,
     candidateNode.weights,
   );
-  return treeMeetsRequirements(candidate) ? candidate : null;
+  return candidate;
 }
 
 export function sanitizeLayoutNode(node: MosaicNode<LayoutPaneId> | null): LayoutTree | null {
   const candidate = normalizeLayoutTree(node);
-  if (!candidate) {
+  if (!candidate || !treeMeetsRequirements(candidate)) {
     logInvalidLayout('layout contains duplicates or missing required panes');
+    return null;
   }
   return candidate;
 }
 
 export function isValidLayoutTree(node: unknown): boolean {
-  return normalizeLayoutTree(node) !== null;
+  const candidate = normalizeLayoutTree(node);
+  return candidate !== null && treeMeetsRequirements(candidate);
 }

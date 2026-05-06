@@ -1,4 +1,5 @@
-﻿import type { DraftPreflightEstimate } from '../../shared/ipc/services';
+import type { DraftPreflightEstimate } from '../../shared/ipc/services';
+import type { GenerateFlowPhase } from '../hooks/usePreflight';
 
 interface PreflightModalProps {
   isOpen: boolean;
@@ -6,6 +7,7 @@ interface PreflightModalProps {
   error?: string | null;
   errorDetails?: unknown | null;
   estimate?: DraftPreflightEstimate;
+  errorPhase?: GenerateFlowPhase | null;
   onClose: () => void;
   onProceed: () => void;
 }
@@ -62,6 +64,7 @@ export function PreflightModal({
   error,
   errorDetails,
   estimate,
+  errorPhase,
   onClose,
   onProceed,
 }: PreflightModalProps): JSX.Element | null {
@@ -96,7 +99,11 @@ export function PreflightModal({
             <p>Estimating…</p>
           ) : error ? (
             <div className="preflight-modal__error">
-              <strong>Unable to complete preflight</strong>
+              <strong>
+                {errorPhase === 'generation'
+                  ? 'Unable to complete draft generation'
+                  : 'Unable to complete preflight'}
+              </strong>
               <p>{error}</p>
               {validationSummary.length > 0 ? (
                 <div className="preflight-modal__error-summary" aria-live="polite">

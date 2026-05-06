@@ -6,6 +6,7 @@ import asyncio
 import errno
 import hashlib
 import json
+import importlib
 import threading
 import time
 from contextlib import contextmanager
@@ -43,6 +44,8 @@ import blackskies.services.operations.draft_accept as draft_accept_module
 from blackskies.services.operations.draft_accept import DraftAcceptService, DraftAcceptanceResult
 from blackskies.services.operations.draft_generation import DraftGenerationService
 from blackskies.services.scene_docs import DraftRequestError
+
+app_module = importlib.import_module("blackskies.services.app")
 
 TRACE_HEADER = "x-trace-id"
 API_PREFIX = "/api/v1"
@@ -1623,6 +1626,185 @@ def test_draft_preflight_emits_trace_logs(
     assert "[preflight][11111111-1111-4111-8111-111111111111] route-start" in logged_messages
     assert "[preflight][11111111-1111-4111-8111-111111111111] route-exit" in logged_messages
     assert "Arrival" not in logged_messages
+
+
+def test_draft_generate_emits_trace_logs(
+    test_client: TestClient,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Generate logs entry before service work and keeps the trace id intact."""
+
+    project_id = "proj_generate_trace_logs"
+    payload = _build_payload()
+    payload["project_id"] = project_id
+    build_response = test_client.post(f"{API_PREFIX}/outline/build", json=payload)
+    assert build_response.status_code == 200
+    build_payload = cast(dict[str, Any], build_response.json())
+    scene_ids = [scene["id"] for scene in cast(list[dict[str, Any]], build_payload["scenes"])]
+    _write_project_budget(tmp_path, project_id, soft_limit=5.0, hard_limit=10.0, spent_usd=0.0)
+
+    info_mock = Mock()
+    monkeypatch.setattr(draft_generation_router.LOGGER, "info", info_mock)
+
+    async def _generate(self, *_args: Any, **_kwargs: Any) -> Any:
+        def _render_message(call: Any) -> str:
+            if not call.args:
+                return ""
+            if len(call.args) == 1:
+                return str(call.args[0])
+            try:
+                return str(call.args[0] % call.args[1:])
+            except Exception:
+                return " ".join(str(part) for part in call.args)
+
+        logged_messages = " ".join(_render_message(call) for call in info_mock.call_args_list)
+        assert "draft-generate:backend-enter" in logged_messages
+        return SimpleNamespace(
+            response={
+                "project_id": project_id,
+                "unit_scope": "scene",
+                "unit_ids": [scene_ids[0]],
+                "draft_id": "dr_trace",
+                "schema_version": "DraftUnitSchema v1",
+                "units": [],
+                "model": {"name": "qwen3:4b", "provider": "ollama"},
+                "budget": {"status": "ok"},
+            }
+        )
+
+    monkeypatch.setattr(DraftGenerationService, "generate", _generate)
+
+    response = test_client.post(
+        f"{API_PREFIX}/draft/generate",
+        json={
+            "project_id": project_id,
+            "unit_scope": "scene",
+            "unit_ids": [scene_ids[0]],
+        },
+        headers={TRACE_HEADER: "22222222-2222-4222-8222-222222222222"},
+    )
+    assert response.status_code == 200
+
+    def _render_message(call: Any) -> str:
+        if not call.args:
+            return ""
+        if len(call.args) == 1:
+            return str(call.args[0])
+        try:
+            return str(call.args[0] % call.args[1:])
+        except Exception:
+            return " ".join(str(part) for part in call.args)
+
+    logged_messages = " ".join(_render_message(call) for call in info_mock.call_args_list)
+    assert "[draft-generate][22222222-2222-4222-8222-222222222222] draft-generate:route-enter" in logged_messages
+    assert "[draft-generate][22222222-2222-4222-8222-222222222222] draft-generate:backend-enter" in logged_messages
+    assert "[draft-generate][22222222-2222-4222-8222-222222222222] draft-generate:request-validated" in logged_messages
+    assert "[draft-generate][22222222-2222-4222-8222-222222222222] draft-generate:response" in logged_messages
+    assert "[draft-generate][22222222-2222-4222-8222-222222222222] draft-generate:backend-exit" in logged_messages
+    assert "Arrival" not in logged_messages
+
+
+def test_draft_generate_logs_asgi_request_start_before_route(
+    test_client: TestClient,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The ASGI middleware should log draft generate requests before route handling."""
+
+    project_id = "proj_generate_request_start"
+    payload = _build_payload()
+    payload["project_id"] = project_id
+    build_response = test_client.post(f"{API_PREFIX}/outline/build", json=payload)
+    assert build_response.status_code == 200
+    build_payload = cast(dict[str, Any], build_response.json())
+    scene_ids = [scene["id"] for scene in cast(list[dict[str, Any]], build_payload["scenes"])]
+    _write_project_budget(tmp_path, project_id, soft_limit=5.0, hard_limit=10.0, spent_usd=0.0)
+
+    info_mock = Mock()
+    monkeypatch.setattr(app_module.LOGGER, "info", info_mock)
+
+    async def _generate(self, *_args: Any, **_kwargs: Any) -> Any:
+        return SimpleNamespace(
+            response={
+                "project_id": project_id,
+                "unit_scope": "scene",
+                "unit_ids": [scene_ids[0]],
+                "draft_id": "dr_request_start",
+                "schema_version": "DraftUnitSchema v1",
+                "units": [],
+                "model": {"name": "qwen3:4b", "provider": "ollama"},
+                "budget": {"status": "ok"},
+            }
+        )
+
+    monkeypatch.setattr(DraftGenerationService, "generate", _generate)
+
+    response = test_client.post(
+        f"{API_PREFIX}/draft/generate",
+        json={
+            "project_id": project_id,
+            "unit_scope": "scene",
+            "unit_ids": [scene_ids[0]],
+        },
+        headers={TRACE_HEADER: "44444444-4444-4444-8444-444444444444"},
+    )
+    assert response.status_code == 200
+
+    def _render_message(call: Any) -> str:
+        if not call.args:
+            return ""
+        if len(call.args) == 1:
+            return str(call.args[0])
+        try:
+            return str(call.args[0] % call.args[1:])
+        except Exception:
+            return " ".join(str(part) for part in call.args)
+
+    logged_messages = " ".join(_render_message(call) for call in info_mock.call_args_list)
+    assert "[http][request-start]" in logged_messages
+    assert "request-start" in logged_messages
+    assert "/api/v1/draft/generate" in logged_messages
+    assert "trace_header" in logged_messages
+    assert "44444444-4444-4444-8444-444444444444" in logged_messages
+
+
+def test_draft_generate_provider_timeout_returns_controlled_error(
+    test_client: TestClient,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A provider timeout should surface as a controlled 504 error."""
+
+    project_id = "proj_generate_provider_timeout"
+    payload = _build_payload()
+    payload["project_id"] = project_id
+    build_response = test_client.post(f"{API_PREFIX}/outline/build", json=payload)
+    assert build_response.status_code == 200
+    build_payload = cast(dict[str, Any], build_response.json())
+    scene_ids = [scene["id"] for scene in cast(list[dict[str, Any]], build_payload["scenes"])]
+    _write_project_budget(tmp_path, project_id, soft_limit=5.0, hard_limit=10.0, spent_usd=0.0)
+
+    async def _generate(self, *_args: Any, **_kwargs: Any) -> Any:
+        raise draft_generation_router.DraftGenerationProviderTimeoutError(
+            "Provider call exceeded 0.01 seconds."
+        )
+
+    monkeypatch.setattr(DraftGenerationService, "generate", _generate)
+
+    response = test_client.post(
+        f"{API_PREFIX}/draft/generate",
+        json={
+            "project_id": project_id,
+            "unit_scope": "scene",
+            "unit_ids": [scene_ids[0]],
+        },
+        headers={TRACE_HEADER: "33333333-3333-4333-8333-333333333333"},
+    )
+    assert response.status_code == status.HTTP_504_GATEWAY_TIMEOUT
+    error = response.json()
+    assert error["code"] == "PROVIDER_TIMEOUT"
+    assert error["message"] == "Provider/model timed out."
 
 
 def test_draft_rewrite_success(test_client: TestClient, tmp_path: Path) -> None:

@@ -32,7 +32,7 @@ interface UsePreflightOptions {
   projectDraftsRef: MutableRefObject<Record<string, string>>;
   setProjectDrafts: React.Dispatch<React.SetStateAction<Record<string, string>>>;
   setDraftEdits: React.Dispatch<React.SetStateAction<Record<string, string>>>;
-  reloadProjectFromDisk: () => Promise<void>;
+  reloadProjectFromDisk: (preserveDrafts?: Record<string, string>) => Promise<void>;
   onBudgetUpdate?: (budget: DraftGenerateBridgeResponse['budget']) => void;
   onBudgetBlock?: () => void;
 }
@@ -118,6 +118,14 @@ function mergeGeneratedDrafts(
   return nextDrafts;
 }
 
+function summarizeDraftLengths(drafts: Record<string, string>): Record<string, number> {
+  const lengths: Record<string, number> = {};
+  for (const [sceneId, draft] of Object.entries(drafts)) {
+    lengths[sceneId] = draft.length;
+  }
+  return lengths;
+}
+
 export function usePreflight({
   services,
   projectSummary,
@@ -162,12 +170,14 @@ export function usePreflight({
       traceId,
       projectId: projectSummary.projectId,
       unitScope: projectSummary.unitScope,
+      unitIds: projectSummary.unitIds,
       unitCount: projectSummary.unitIds.length,
     });
     logGenerateFlowPhase('preflight:request', {
       traceId,
       projectId: projectSummary.projectId,
       unitScope: projectSummary.unitScope,
+      unitIds: projectSummary.unitIds,
       unitCount: projectSummary.unitIds.length,
     });
     setState({
@@ -198,12 +208,14 @@ export function usePreflight({
         durationMs: Math.round(performance.now() - startedAt),
         projectId: projectSummary.projectId,
         unitScope: projectSummary.unitScope,
+        unitIds: projectSummary.unitIds,
         unitCount: projectSummary.unitIds.length,
       });
       logGenerateFlowPhase('preflight:modal-open', {
         traceId,
         projectId: projectSummary.projectId,
         unitScope: projectSummary.unitScope,
+        unitIds: projectSummary.unitIds,
         unitCount: projectSummary.unitIds.length,
       });
       if (result.data.budget) {
@@ -226,6 +238,7 @@ export function usePreflight({
         durationMs: Math.round(performance.now() - startedAt),
         projectId: projectSummary.projectId,
         unitScope: projectSummary.unitScope,
+        unitIds: projectSummary.unitIds,
         unitCount: projectSummary.unitIds.length,
         code: result.error.code ?? null,
       });
@@ -235,6 +248,7 @@ export function usePreflight({
         code: result.error.code ?? null,
         projectId: projectSummary.projectId,
         unitScope: projectSummary.unitScope,
+        unitIds: projectSummary.unitIds,
         unitCount: projectSummary.unitIds.length,
       });
       setState({
@@ -279,12 +293,14 @@ export function usePreflight({
       traceId,
       projectId: projectSummary.projectId,
       unitScope: projectSummary.unitScope,
+      unitIds: projectSummary.unitIds,
       unitCount: projectSummary.unitIds.length,
     });
     logGenerateFlowPhase('draft-generate:request', {
       traceId,
       projectId: projectSummary.projectId,
       unitScope: projectSummary.unitScope,
+      unitIds: projectSummary.unitIds,
       unitCount: projectSummary.unitIds.length,
     });
     setState((previous) => ({
@@ -301,6 +317,7 @@ export function usePreflight({
         route: 'draft/generate',
         projectId: projectSummary.projectId,
         unitScope: projectSummary.unitScope,
+        unitIds: projectSummary.unitIds,
         unitCount: projectSummary.unitIds.length,
       });
       const result = await services.generateDraft(
@@ -323,12 +340,17 @@ export function usePreflight({
         durationMs: Math.round(performance.now() - startedAt),
         projectId: projectSummary.projectId,
         unitScope: projectSummary.unitScope,
+        unitIds: projectSummary.unitIds,
         unitCount: projectSummary.unitIds.length,
         ...summarizeDraftGenerateResult(result),
       });
 
       if (result.ok) {
         const nextDrafts = mergeGeneratedDrafts(result.data, projectDraftsRef.current);
+        const generatedDrafts: Record<string, string> = {};
+        for (const unit of result.data.units) {
+          generatedDrafts[unit.id] = nextDrafts[unit.id] ?? unit.text;
+        }
         logGenerateFlowPhase('renderer:draft-generate:state-update', {
           traceId,
           route: 'draft/generate',
@@ -336,7 +358,13 @@ export function usePreflight({
           loading: false,
           projectId: projectSummary.projectId,
           unitScope: projectSummary.unitScope,
+          unitIds: projectSummary.unitIds,
           unitCount: projectSummary.unitIds.length,
+          generatedUnits: result.data.units.map((unit) => ({
+            id: unit.id,
+            textLength: unit.text.length,
+          })),
+          nextDraftLengths: summarizeDraftLengths(generatedDrafts),
         });
         setProjectDrafts(nextDrafts);
         setDraftEdits({ ...nextDrafts });
@@ -361,16 +389,18 @@ export function usePreflight({
           title: 'New draft written.',
           description: `Draft ${result.data.draft_id} queued with ${result.data.units.length} unit(s).`,
           traceId: result.traceId,
+          durationMs: 10000,
         });
 
         logGenerateFlowPhase('generate-flow:complete', {
           traceId,
           projectId: projectSummary.projectId,
           unitScope: projectSummary.unitScope,
+          unitIds: projectSummary.unitIds,
           unitCount: projectSummary.unitIds.length,
         });
 
-        await reloadProjectFromDisk();
+        await reloadProjectFromDisk(generatedDrafts);
       } else {
         logGenerateFlowPhase('generate-flow:error', {
           traceId,
@@ -378,6 +408,7 @@ export function usePreflight({
           code: result.error.code ?? null,
           projectId: projectSummary.projectId,
           unitScope: projectSummary.unitScope,
+          unitIds: projectSummary.unitIds,
           unitCount: projectSummary.unitIds.length,
         });
         logGenerateFlowPhase('renderer:draft-generate:state-update', {
@@ -387,6 +418,7 @@ export function usePreflight({
           loading: false,
           projectId: projectSummary.projectId,
           unitScope: projectSummary.unitScope,
+          unitIds: projectSummary.unitIds,
           unitCount: projectSummary.unitIds.length,
         });
         setState((previous) => ({
@@ -423,6 +455,7 @@ export function usePreflight({
         code: normalizedError.code ?? null,
         projectId: projectSummary.projectId,
         unitScope: projectSummary.unitScope,
+        unitIds: projectSummary.unitIds,
         unitCount: projectSummary.unitIds.length,
       });
       logGenerateFlowPhase('renderer:draft-generate:state-update', {
@@ -432,6 +465,7 @@ export function usePreflight({
         loading: false,
         projectId: projectSummary.projectId,
         unitScope: projectSummary.unitScope,
+        unitIds: projectSummary.unitIds,
         unitCount: projectSummary.unitIds.length,
       });
       setState((previous) => ({
@@ -456,6 +490,7 @@ export function usePreflight({
         durationMs: Math.round(performance.now() - startedAt),
         projectId: projectSummary.projectId,
         unitScope: projectSummary.unitScope,
+        unitIds: projectSummary.unitIds,
         unitCount: projectSummary.unitIds.length,
       });
     }

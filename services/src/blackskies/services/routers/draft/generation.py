@@ -20,6 +20,7 @@ from ...service_errors import ServiceError
 from ..dependencies import get_diagnostics, get_settings, get_model_router
 from ...operations.draft_generation import (
     DraftGenerationService,
+    DraftGenerationProviderTimeoutError,
     DraftGenerationTimeoutError,
     resolve_requested_scenes,
 )
@@ -38,6 +39,10 @@ def _preflight_log(trace_id: str, message: str, **details: Any) -> None:
     LOGGER.info("[preflight][%s] %s %s", trace_id, message, details)
 
 
+def _generate_log(trace_id: str, message: str, **details: Any) -> None:
+    LOGGER.info("[draft-generate][%s] draft-generate:%s %s", trace_id, message, details)
+
+
 @router.post("/generate")
 async def generate_draft(
     payload: dict[str, Any],
@@ -48,14 +53,34 @@ async def generate_draft(
     """Synthesize a draft by walking the outline and writing scene documents."""
 
     trace_id = ensure_trace_id()
+    route_started = perf_counter()
     project_root: Path | None = None
+    if isinstance(payload, dict):
+        unit_ids_value = payload.get("unit_ids")
+        _generate_log(
+            trace_id,
+            "route-enter",
+            payload_keys=sorted(str(key) for key in payload.keys()),
+            has_project_id=isinstance(payload.get("project_id"), str),
+            unit_ids_count=len(unit_ids_value) if isinstance(unit_ids_value, list) else None,
+        )
+    else:
+        _generate_log(trace_id, "route-enter", payload_type=type(payload).__name__)
     try:
         request_model = DraftGenerateRequest.model_validate(payload)
     except ValidationError as exc:
-        _preflight_log(
+        _generate_log(
             trace_id,
-            "validation-error",
+            "backend-error",
+            duration_ms=round((perf_counter() - route_started) * 1000, 2),
+            phase="validation",
             error_count=len(exc.errors()),
+        )
+        _generate_log(
+            trace_id,
+            "backend-exit",
+            duration_ms=round((perf_counter() - route_started) * 1000, 2),
+            status="error",
         )
         project_id = payload.get("project_id") if isinstance(payload, dict) else None
         if isinstance(project_id, str):
@@ -68,9 +93,38 @@ async def generate_draft(
         )
 
     resolved_project_root = settings.project_base_dir / request_model.project_id
+    _generate_log(
+        trace_id,
+        "backend-enter",
+        project_id=request_model.project_id,
+        unit_scope=request_model.unit_scope.value,
+        unit_count=len(request_model.unit_ids),
+    )
+    _generate_log(
+        trace_id,
+        "request-validated",
+        project_id=request_model.project_id,
+        unit_scope=request_model.unit_scope.value,
+        unit_count=len(request_model.unit_ids),
+    )
     try:
         outline = load_outline_artifact(resolved_project_root)
     except DraftRequestError as exc:
+        _generate_log(
+            trace_id,
+            "backend-error",
+            duration_ms=round((perf_counter() - route_started) * 1000, 2),
+            project_id=request_model.project_id,
+            phase="outline-load",
+            error=str(exc),
+        )
+        _generate_log(
+            trace_id,
+            "backend-exit",
+            duration_ms=round((perf_counter() - route_started) * 1000, 2),
+            project_id=request_model.project_id,
+            status="error",
+        )
         raise_validation_error(
             message=str(exc),
             details=exc.details,
@@ -79,16 +133,50 @@ async def generate_draft(
         )
 
     if allow_e2e_synthetic_mode():
-        return e2e_generate_response(
+        response = e2e_generate_response(
             project_root=resolved_project_root,
             project_id=request_model.project_id,
             unit_scope=request_model.unit_scope,
             unit_ids=request_model.unit_ids,
         )
+        _generate_log(
+            trace_id,
+            "response",
+            duration_ms=round((perf_counter() - route_started) * 1000, 2),
+            project_id=request_model.project_id,
+            unit_count=len(request_model.unit_ids),
+            draft_id=response.get("draft_id"),
+            mode="synthetic",
+        )
+        _generate_log(
+            trace_id,
+            "backend-exit",
+            duration_ms=round((perf_counter() - route_started) * 1000, 2),
+            project_id=request_model.project_id,
+            unit_count=len(request_model.unit_ids),
+            status="ok",
+            mode="synthetic",
+        )
+        return response
 
     try:
         scene_summaries = resolve_requested_scenes(request_model, outline)
     except DraftRequestError as exc:
+        _generate_log(
+            trace_id,
+            "backend-error",
+            duration_ms=round((perf_counter() - route_started) * 1000, 2),
+            project_id=request_model.project_id,
+            phase="scene-validation",
+            error=str(exc),
+        )
+        _generate_log(
+            trace_id,
+            "backend-exit",
+            duration_ms=round((perf_counter() - route_started) * 1000, 2),
+            project_id=request_model.project_id,
+            status="error",
+        )
         raise_validation_error(
             message=str(exc),
             details=exc.details,
@@ -108,6 +196,21 @@ async def generate_draft(
             project_root=resolved_project_root,
         )
     except DraftRequestError as exc:
+        _generate_log(
+            trace_id,
+            "backend-error",
+            duration_ms=round((perf_counter() - route_started) * 1000, 2),
+            project_id=request_model.project_id,
+            phase="service",
+            error=str(exc),
+        )
+        _generate_log(
+            trace_id,
+            "backend-exit",
+            duration_ms=round((perf_counter() - route_started) * 1000, 2),
+            project_id=request_model.project_id,
+            status="error",
+        )
         raise_validation_error(
             message=str(exc),
             details=exc.details,
@@ -115,6 +218,21 @@ async def generate_draft(
             project_root=project_root,
         )
     except DraftGenerationTimeoutError as exc:
+        _generate_log(
+            trace_id,
+            "backend-error",
+            duration_ms=round((perf_counter() - route_started) * 1000, 2),
+            project_id=request_model.project_id,
+            phase="service-timeout",
+            error=str(exc),
+        )
+        _generate_log(
+            trace_id,
+            "backend-exit",
+            duration_ms=round((perf_counter() - route_started) * 1000, 2),
+            project_id=request_model.project_id,
+            status="error",
+        )
         diagnostics.log(
             resolved_project_root,
             code="TIMEOUT",
@@ -129,11 +247,89 @@ async def generate_draft(
             diagnostics=diagnostics,
             project_root=resolved_project_root,
         )
+    except DraftGenerationProviderTimeoutError as exc:
+        route_decision = getattr(generation_service, "_last_route", None)
+        _generate_log(
+            trace_id,
+            "backend-error",
+            duration_ms=round((perf_counter() - route_started) * 1000, 2),
+            project_id=request_model.project_id,
+            phase="provider-timeout",
+            error=str(exc),
+        )
+        _generate_log(
+            trace_id,
+            "backend-exit",
+            duration_ms=round((perf_counter() - route_started) * 1000, 2),
+            project_id=request_model.project_id,
+            status="error",
+        )
+        diagnostics.log(
+            resolved_project_root,
+            code="PROVIDER_TIMEOUT",
+            message="Draft provider timed out.",
+            details={"error": str(exc)},
+        )
+        raise_service_error(
+            status_code=status.HTTP_504_GATEWAY_TIMEOUT,
+            code="PROVIDER_TIMEOUT",
+            message="Provider/model timed out.",
+            details={
+                "project_id": request_model.project_id,
+                "provider": route_decision.provider if route_decision else None,
+                "model": route_decision.model.name if route_decision else None,
+            },
+            diagnostics=diagnostics,
+            project_root=resolved_project_root,
+        )
     except HTTPException:
+        _generate_log(
+            trace_id,
+            "backend-error",
+            duration_ms=round((perf_counter() - route_started) * 1000, 2),
+            project_id=request_model.project_id,
+            phase="http-exception",
+        )
+        _generate_log(
+            trace_id,
+            "backend-exit",
+            duration_ms=round((perf_counter() - route_started) * 1000, 2),
+            project_id=request_model.project_id,
+            status="error",
+        )
         raise
     except ServiceError:
+        _generate_log(
+            trace_id,
+            "backend-error",
+            duration_ms=round((perf_counter() - route_started) * 1000, 2),
+            project_id=request_model.project_id,
+            phase="service-error",
+        )
+        _generate_log(
+            trace_id,
+            "backend-exit",
+            duration_ms=round((perf_counter() - route_started) * 1000, 2),
+            project_id=request_model.project_id,
+            status="error",
+        )
         raise
     except Exception as exc:  # pragma: no cover - surfaced via diagnostics
+        _generate_log(
+            trace_id,
+            "backend-error",
+            duration_ms=round((perf_counter() - route_started) * 1000, 2),
+            project_id=request_model.project_id,
+            phase="internal",
+            error=str(exc),
+        )
+        _generate_log(
+            trace_id,
+            "backend-exit",
+            duration_ms=round((perf_counter() - route_started) * 1000, 2),
+            project_id=request_model.project_id,
+            status="error",
+        )
         diagnostics.log(
             resolved_project_root,
             code="INTERNAL",
@@ -149,6 +345,29 @@ async def generate_draft(
             project_root=resolved_project_root,
             cause=exc,
         )
+    _generate_log(
+        trace_id,
+        "draft-assembly",
+        project_id=request_model.project_id,
+        unit_count=len(scene_summaries),
+        draft_id=result.response.get("draft_id"),
+    )
+    _generate_log(
+        trace_id,
+        "response",
+        duration_ms=round((perf_counter() - route_started) * 1000, 2),
+        project_id=request_model.project_id,
+        unit_count=len(scene_summaries),
+        draft_id=result.response.get("draft_id"),
+    )
+    _generate_log(
+        trace_id,
+        "backend-exit",
+        duration_ms=round((perf_counter() - route_started) * 1000, 2),
+        project_id=request_model.project_id,
+        unit_count=len(scene_summaries),
+        status="ok",
+    )
     return result.response
 
 

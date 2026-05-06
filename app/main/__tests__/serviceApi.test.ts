@@ -156,6 +156,40 @@ describe('serviceApi', () => {
     );
   });
 
+  it('logs draft generation request-start metadata before fetch', async () => {
+    const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => undefined);
+    const serviceApi = await loadServiceApi();
+
+    await serviceApi.generateDraft(
+      {
+        projectId: 'proj_test',
+        unitScope: 'scene',
+        unitIds: ['sc_0001', 'sc_0002'],
+        temperature: 0.7,
+      },
+      'trace-generate-request-start',
+    );
+
+    const requestStart = infoSpy.mock.calls.find(
+      ([label]) => typeof label === 'string' && label.includes('preload:draft-generate:request-start'),
+    );
+    expect(requestStart).toBeDefined();
+    if (requestStart) {
+      expect(requestStart[1]).toEqual(
+        expect.objectContaining({
+          traceId: 'trace-generate-request-start',
+          method: 'POST',
+          url: 'http://127.0.0.1:5000/api/v1/draft/generate',
+          timeoutMs: 50,
+          bodyByteLength: expect.any(Number),
+          timestamp: expect.any(String),
+        }),
+      );
+    }
+
+    infoSpy.mockRestore();
+  });
+
   it('returns draft generation responses back to the renderer bridge', async () => {
     const fetchMock = global.fetch as unknown as vi.Mock;
     fetchMock.mockReset();

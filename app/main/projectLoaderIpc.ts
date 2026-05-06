@@ -152,6 +152,7 @@ async function loadProjectFromDisk(projectPath: string): Promise<{
   const metadata = await readProjectMetadata(normalizedPath);
   const project: LoadedProject = {
     path: normalizedPath,
+    projectId: metadata.projectId,
     name: metadata.name ?? path.basename(normalizedPath),
     outline,
     scenes,
@@ -233,14 +234,21 @@ export async function resolveProjectRootPath(projectPath: string): Promise<{
   return { projectPath: normalizedPath, issues: [] };
 }
 
-async function readProjectMetadata(projectPath: string): Promise<{ name?: string }> {
+export async function readProjectMetadata(projectPath: string): Promise<{ name?: string; projectId?: string }> {
   const metadataPath = path.join(projectPath, 'project.json');
   try {
     const raw = await fs.readFile(metadataPath, 'utf8');
-    const parsed = JSON.parse(raw) as { name?: string };
-    if (typeof parsed.name === 'string' && parsed.name.trim().length > 0) {
-      return { name: parsed.name };
+    const parsed = JSON.parse(raw) as { name?: string; project_id?: string };
+    const projectId = typeof parsed.project_id === 'string' ? parsed.project_id.trim() : '';
+    const name = typeof parsed.name === 'string' ? parsed.name.trim() : '';
+    const metadata: { name?: string; projectId?: string } = {};
+    if (projectId.length > 0) {
+      metadata.projectId = projectId;
     }
+    if (name.length > 0) {
+      metadata.name = name;
+    }
+    return metadata;
   } catch {
     // best effort: ignore missing or invalid metadata
   }

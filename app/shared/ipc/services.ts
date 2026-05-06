@@ -464,6 +464,7 @@ export interface ServicesBridge {
   ) => Promise<ServiceResult<OutlineBuildBridgeResponse>>;
   generateDraft: (
     request: DraftGenerateBridgeRequest,
+    traceId?: string,
   ) => Promise<ServiceResult<DraftGenerateBridgeResponse>>;
   critiqueDraft: (
     request: DraftCritiqueBridgeRequest,

@@ -33,6 +33,7 @@ vi.mock('node:fs/promises', () => ({
 import {
   extractFrontMatter,
   parseFrontMatterValue,
+  readProjectMetadata,
   resolveProjectRootPath,
   runWithConcurrency,
   MAX_SCENE_READ_CONCURRENCY,
@@ -73,6 +74,19 @@ Scene body`;
     expect(parseFrontMatterValue('"whisper"')).toBe('whisper');
     expect(parseFrontMatterValue('["one","two"]')).toEqual(['one', 'two']);
     expect(parseFrontMatterValue('42')).toBe(42);
+  });
+
+  it('readProjectMetadata exposes the canonical project id from project.json', async () => {
+    const projectPath = join(tmpdir(), 'black-skies', 'sample_project', 'Esther_Estate');
+    fsMock.readFile.mockResolvedValue(
+      JSON.stringify({ project_id: 'proj_esther_estate', name: 'Esther Estate' }),
+    );
+
+    await expect(readProjectMetadata(projectPath)).resolves.toEqual({
+      projectId: 'proj_esther_estate',
+      name: 'Esther Estate',
+    });
+    expect(fsMock.readFile).toHaveBeenCalledWith(join(projectPath, 'project.json'), 'utf8');
   });
 
   it('runWithConcurrency limits concurrent executions', async () => {

@@ -16,6 +16,7 @@ import type { ToastPayload } from '../types/toast';
 import { generateDraftId } from '../utils/draft';
 import type { BudgetSnapshotSource } from '../utils/budgetIndicator';
 import { recordDebugEvent } from '../utils/debugLog';
+import { describeServiceError } from '../utils/serviceErrors';
 
 export type CritiqueLoopPhase =
   | 'idle'
@@ -537,16 +538,17 @@ export function useCritique({
           budgetStatusLine: 'Budget source: no budgeted action.',
         }));
       } else {
+        const rewriteMessage = describeServiceError(result.error, 'rewrite');
         setState((previous) => ({
           ...previous,
           rewriteLoading: false,
-          rewriteError: result.error.message,
+          rewriteError: rewriteMessage,
           phase: 'rewrite_error',
         }));
         pushToast({
           tone: 'error',
           title: 'Rewrite failed.',
-          description: result.error.message,
+          description: rewriteMessage,
         });
       }
     } catch (error) {

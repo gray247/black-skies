@@ -10,8 +10,10 @@
 ### Electron CSP warning
 - root cause:
   - the renderer HTML template shipped with no CSP, so Electron warned when loading `app/dist/index.html`.
+  - later, blob-backed worker creation still violated the policy because `worker-src` was not explicit.
 - fix:
   - added a conservative CSP meta tag to `app/index.html`.
+  - added `worker-src 'self' blob:` so blob-backed workers are permitted without relaxing the broader policy.
 - validation results:
   - `pnpm --filter app run build:production` passed.
   - `pnpm --filter app exec playwright test tests/e2e/startup_authority_contract.spec.ts --project=electron --workers=1 --reporter=line` passed.
@@ -42,7 +44,7 @@
 ## Validation Evidence
 - contract lane: 11 passed
 - smoke lane: 3 passed
-- CSP warning removed
+- CSP warning removed, including the blob-worker violation
 - no regressions introduced
 
 ## Final Status

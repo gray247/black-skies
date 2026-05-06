@@ -339,7 +339,9 @@ describe('App critique + rewrite loop', () => {
 
     await waitFor(() => {
       expect(
-        screen.getAllByText('The scene on disk no longer matches the submitted draft unit.').length,
+        screen.getAllByText(
+          'The scene changed on disk after critique. Refresh the project or rerun critique, then generate the rewrite again.',
+        ).length,
       ).toBeGreaterThanOrEqual(1);
     });
     expect(screen.getAllByText('Rewrite failed.').length).toBeGreaterThanOrEqual(1);

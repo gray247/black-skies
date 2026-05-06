@@ -1,3 +1,7 @@
+import { readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 import { vi } from 'vitest';
 
 type SecurityWindow = typeof window & {
@@ -6,6 +10,8 @@ type SecurityWindow = typeof window & {
 };
 
 describe('Security and sandbox regressions', () => {
+  const appRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
+
   afterEach(() => {
     vi.restoreAllMocks();
     (window as SecurityWindow).services = undefined;
@@ -68,5 +74,10 @@ describe('Security and sandbox regressions', () => {
     logWarning();
     logWarning();
     expect(warn).toHaveBeenCalledTimes(1);
+  });
+
+  it('allows blob workers in the renderer CSP', () => {
+    const html = readFileSync(resolve(appRoot, 'index.html'), 'utf8');
+    expect(html).toContain("worker-src 'self' blob:");
   });
 });

@@ -1,7 +1,7 @@
 import type { ServiceError } from '../../shared/ipc/services';
 import type { ToastPayload } from '../types/toast';
 
-export type ServiceErrorContext = 'preflight' | 'generation' | 'critique' | 'analytics';
+export type ServiceErrorContext = 'preflight' | 'generation' | 'critique' | 'rewrite' | 'analytics';
 
 export interface StructuredServiceError {
   toast: ToastPayload;
@@ -49,6 +49,37 @@ export function describeServiceError(
     if (code === 'TIMEOUT') {
       return 'Preflight timed out. The backend may still be starting or responding too slowly.';
     }
+    if (code === 'PORT_UNAVAILABLE') {
+      return 'Preflight did not start because the bridge could not resolve a service port.';
+    }
+  }
+
+  if (context === 'generation') {
+    if (code === 'NETWORK_ERROR' || code === 'SERVICE_UNAVAILABLE') {
+      return [
+        'Draft generation backend unreachable.',
+        'Start the FastAPI services with `uvicorn blackskies.services.app:app --host 127.0.0.1 --port 8000`, then retry.',
+      ].join(' ');
+    }
+    if (code === 'TIMEOUT') {
+      return 'Draft generation timed out. The backend may still be starting or responding too slowly.';
+    }
+    if (code === 'PROVIDER_TIMEOUT') {
+      return 'Provider/model timed out. The backend did not finish the generation request in time.';
+    }
+    if (code === 'PORT_UNAVAILABLE') {
+      return 'Draft generation did not start because the bridge could not resolve a service port.';
+    }
+    if (code === 'INTERNAL' || code === 'ADAPTER') {
+      return 'Draft generation failed in the backend or provider/model layer.';
+    }
+  }
+
+  if (context === 'rewrite' && (code === 'CONFLICT' || error.httpStatus === 409)) {
+    return [
+      'The scene changed on disk after critique.',
+      'Refresh the project or rerun critique, then generate the rewrite again.',
+    ].join(' ');
   }
 
   return message;

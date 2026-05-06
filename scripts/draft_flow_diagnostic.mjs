@@ -10,6 +10,9 @@ const outlinePath = join(baseDir, 'outline.json');
 const port = Number.parseInt(process.env.BLACKSKIES_SERVICES_PORT ?? '8000', 10);
 const baseUrl = `http://127.0.0.1:${Number.isFinite(port) ? port : 8000}/api/v1`;
 const traceId = randomUUID();
+const payloadFileIndex = process.argv.indexOf('--payload-file');
+const payloadFilePath =
+  payloadFileIndex >= 0 ? process.argv[payloadFileIndex + 1] : process.env.BLACKSKIES_DRAFT_PAYLOAD_FILE;
 
 function printResult(label, response, elapsedMs, responseTraceId) {
   console.log(
@@ -43,24 +46,38 @@ async function postJson(pathname, payload) {
 }
 
 async function main() {
-  const project = JSON.parse(await readFile(projectPath, 'utf-8'));
-  const outline = JSON.parse(await readFile(outlinePath, 'utf-8'));
-  const sceneIds = Array.isArray(outline?.scenes)
-    ? outline.scenes
-        .map((scene) => scene?.id)
-        .filter((sceneId) => typeof sceneId === 'string')
-        .slice(0, 4)
-    : [];
+  let payload;
+  if (payloadFilePath) {
+    payload = JSON.parse(await readFile(payloadFilePath, 'utf-8'));
+    if (
+      !payload ||
+      typeof payload !== 'object' ||
+      typeof payload.project_id !== 'string' ||
+      typeof payload.unit_scope !== 'string' ||
+      !Array.isArray(payload.unit_ids)
+    ) {
+      throw new Error('Payload file must include project_id, unit_scope, and unit_ids.');
+    }
+  } else {
+    const project = JSON.parse(await readFile(projectPath, 'utf-8'));
+    const outline = JSON.parse(await readFile(outlinePath, 'utf-8'));
+    const sceneIds = Array.isArray(outline?.scenes)
+      ? outline.scenes
+          .map((scene) => scene?.id)
+          .filter((sceneId) => typeof sceneId === 'string')
+          .slice(0, 4)
+      : [];
 
-  if (!project?.project_id || sceneIds.length === 0) {
-    throw new Error('Unable to resolve sample project identifiers.');
+    if (!project?.project_id || sceneIds.length === 0) {
+      throw new Error('Unable to resolve sample project identifiers.');
+    }
+
+    payload = {
+      project_id: project.project_id,
+      unit_scope: 'scene',
+      unit_ids: sceneIds,
+    };
   }
-
-  const payload = {
-    project_id: project.project_id,
-    unit_scope: 'scene',
-    unit_ids: sceneIds,
-  };
 
   await postJson('/draft/preflight', payload);
   await postJson('/draft/generate', payload);
