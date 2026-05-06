@@ -116,6 +116,12 @@ export function isFull(): boolean {
 }
 
 export function isTestEnv(): boolean {
+  if (typeof navigator !== 'undefined') {
+    const userAgent = navigator.userAgent.toLowerCase();
+    if (userAgent.includes('jsdom') || userAgent.includes('vitest')) {
+      return true;
+    }
+  }
   const win = getWindow();
   const documentTestEnv = typeof document !== 'undefined' && document.body?.dataset?.testEnv === '1';
   if (!win) {

@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useEffect, useMemo, useRef } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -338,11 +338,86 @@ describe('App preflight integration', () => {
   });
 
   afterEach(() => {
+    cleanup();
+    vi.clearAllTimers();
+    vi.useRealTimers();
     vi.clearAllMocks();
     window.localStorage.clear();
+    window.sessionStorage.clear();
     window.history.replaceState(null, '', '/');
     Reflect.deleteProperty(window as typeof window & { services?: ServicesBridge }, 'services');
     Reflect.deleteProperty(window as typeof window & { projectLoader?: ProjectLoaderApi }, 'projectLoader');
+    Reflect.deleteProperty(window as typeof window & { __testEnv?: unknown }, '__testEnv');
+    Reflect.deleteProperty(window as typeof window & { __testEnvFlatMode?: boolean }, '__testEnvFlatMode');
+    Reflect.deleteProperty(window as typeof window & { __testEnvRecoveryMode?: boolean }, '__testEnvRecoveryMode');
+    Reflect.deleteProperty(window as typeof window & { __testEnvFullMode?: boolean }, '__testEnvFullMode');
+    Reflect.deleteProperty(
+      window as typeof window & { __testEnvSnapshotRestoreFlow?: boolean },
+      '__testEnvSnapshotRestoreFlow',
+    );
+    Reflect.deleteProperty(
+      window as typeof window & { __testEnvDefaultProjectId?: string },
+      '__testEnvDefaultProjectId',
+    );
+    Reflect.deleteProperty(
+      window as typeof window & { __testEnvDefaultProjectPath?: string },
+      '__testEnvDefaultProjectPath',
+    );
+    Reflect.deleteProperty(
+      window as typeof window & { __testEnvAutoSeedProjectSummary?: boolean },
+      '__testEnvAutoSeedProjectSummary',
+    );
+    Reflect.deleteProperty(
+      window as typeof window & { __serviceHealthRetry?: () => Promise<void> },
+      '__serviceHealthRetry',
+    );
+    Reflect.deleteProperty(window as typeof window & { __dockReady?: boolean }, '__dockReady');
+    Reflect.deleteProperty(window as typeof window & { __appBootReady?: boolean }, '__appBootReady');
+    Reflect.deleteProperty(window as typeof window & { timeline?: History }, 'timeline');
+    Reflect.deleteProperty(
+      window as typeof window & { __stableDockHandleReady?: boolean },
+      '__stableDockHandleReady',
+    );
+    Reflect.deleteProperty(
+      window as typeof window & { __snapshotRestoreDone?: boolean },
+      '__snapshotRestoreDone',
+    );
+    Reflect.deleteProperty(window as typeof window & { __layoutCallLog?: unknown }, '__layoutCallLog');
+    Reflect.deleteProperty(window as typeof window & { __layoutState?: unknown }, '__layoutState');
+    delete document.body.dataset.testStableDock;
+    delete document.documentElement.dataset.testStableDock;
+    delete document.body.dataset.testStablehome;
+    delete document.documentElement.dataset.testStablehome;
+    delete document.body.dataset.testVisualStable;
+    delete document.documentElement.dataset.testVisualStable;
+    delete document.body.dataset.projectLoaded;
+    delete document.documentElement.dataset.projectLoaded;
+    delete document.body.dataset.projectPath;
+    delete document.documentElement.dataset.projectPath;
+    delete document.body.dataset.projectId;
+    delete document.documentElement.dataset.projectId;
+    delete document.body.dataset.activeSceneId;
+    delete document.documentElement.dataset.activeSceneId;
+    delete document.body.dataset.testEnv;
+    delete document.documentElement.dataset.testEnv;
+    delete document.body.dataset.testForceOffline;
+    delete document.documentElement.dataset.testForceOffline;
+    delete document.body.dataset.testEnvForceOfflineReason;
+    delete document.documentElement.dataset.testEnvForceOfflineReason;
+    delete document.body.dataset.testNeedsRecovery;
+    delete document.documentElement.dataset.testNeedsRecovery;
+    delete document.body.dataset.testModeFreezeServiceHealth;
+    delete document.documentElement.dataset.testModeFreezeServiceHealth;
+    Reflect.deleteProperty(window as typeof window & { __testProjectState?: unknown }, '__testProjectState');
+    Reflect.deleteProperty(
+      window as typeof window & { __blackskiesDebugProjectState?: unknown },
+      '__blackskiesDebugProjectState',
+    );
+    document.body.replaceChildren();
+    const modalRoot = document.createElement('div');
+    modalRoot.setAttribute('id', 'modal-root');
+    document.body.appendChild(modalRoot);
+
   });
 
   it('renders SnapshotsPanel standalone without App flow', async () => {
@@ -593,17 +668,18 @@ describe('App preflight integration', () => {
       { id: 'sc_0001', title: 'Arrival', order: 1 },
       { id: 'sc_0002', title: 'Surface Impact', order: 2 },
       { id: 'sc_0003', title: 'Basement Pulse', order: 3 },
+      { id: 'sc_0004', title: 'Signal Drift', order: 4 },
     ];
-    mockActiveSceneId = 'sc_0002';
+    mockActiveSceneId = 'sc_0004';
     services.preflightDraft = vi.fn().mockResolvedValue({
       ok: true,
       data: {
         projectId: 'demo_project',
         unitScope: 'scene',
-        unitIds: ['sc_0002'],
+        unitIds: ['sc_0004'],
         model: { name: 'draft-synthesizer-v1', provider: 'black-skies-local' },
         scenes: [
-          { id: 'sc_0002', title: 'Surface Impact', order: 2, chapter_id: 'ch_0001' },
+          { id: 'sc_0004', title: 'Signal Drift', order: 4, chapter_id: 'ch_0001' },
         ],
         budget: {
           estimated_usd: 1.25,
@@ -631,7 +707,74 @@ describe('App preflight integration', () => {
       expect.objectContaining({
         projectId: 'demo',
         unitScope: 'scene',
-        unitIds: ['sc_0002'],
+        unitIds: ['sc_0004'],
+      }),
+    );
+    const modal = await screen.findByRole('dialog', { name: /draft preflight/i });
+    expect(within(modal).getByText('Signal Drift')).toBeInTheDocument();
+
+    fireEvent.click(await screen.findByRole('button', { name: /proceed/i }));
+
+    await waitFor(() => expect(services.generateDraft).toHaveBeenCalledTimes(1));
+    expect(services.generateDraft).toHaveBeenCalledWith(
+      expect.objectContaining({
+        projectId: 'demo',
+        unitScope: 'scene',
+        unitIds: ['sc_0004'],
+      }),
+      expect.any(String),
+    );
+  });
+
+  it('switches manual Generate to all scenes only after an explicit scope change', async () => {
+    mockLoadedProjectScenes = [
+      { id: 'sc_0001', title: 'Arrival', order: 1 },
+      { id: 'sc_0002', title: 'Surface Impact', order: 2 },
+      { id: 'sc_0003', title: 'Basement Pulse', order: 3 },
+    ];
+    mockActiveSceneId = 'sc_0002';
+    services.preflightDraft = vi.fn().mockResolvedValue({
+      ok: true,
+      data: {
+        projectId: 'demo_project',
+        unitScope: 'scene',
+        unitIds: ['sc_0001', 'sc_0002', 'sc_0003'],
+        model: { name: 'draft-synthesizer-v1', provider: 'black-skies-local' },
+        scenes: [
+          { id: 'sc_0001', title: 'Arrival', order: 1, chapter_id: 'ch_0001' },
+          { id: 'sc_0002', title: 'Surface Impact', order: 2, chapter_id: 'ch_0001' },
+          { id: 'sc_0003', title: 'Basement Pulse', order: 3, chapter_id: 'ch_0001' },
+        ],
+        budget: {
+          estimated_usd: 3.75,
+          status: 'ok',
+          soft_limit_usd: 5,
+          hard_limit_usd: 10,
+          spent_usd: 0,
+          total_after_usd: 3.75,
+        },
+      },
+      traceId: 'trace-all-scenes-preflight',
+    });
+
+    const App = loadAppWithServices(services);
+
+    render(<App />);
+
+    fireEvent.click(await screen.findByTestId('generation-scope-all-scenes'));
+
+    const generateButton = await screen.findByRole('button', { name: /generate/i });
+    await waitFor(() => expect(generateButton).not.toBeDisabled());
+
+    fireEvent.click(generateButton);
+
+    await waitFor(() => expect(services.preflightDraft).toHaveBeenCalledTimes(1));
+    expect(services.preflightDraft).toHaveBeenCalledWith(
+      expect.objectContaining({
+        projectId: 'demo',
+        unitScope: 'scene',
+        unitIds: ['sc_0001', 'sc_0002', 'sc_0003'],
+        traceId: expect.any(String),
       }),
     );
 
@@ -642,7 +785,7 @@ describe('App preflight integration', () => {
       expect.objectContaining({
         projectId: 'demo',
         unitScope: 'scene',
-        unitIds: ['sc_0002'],
+        unitIds: ['sc_0001', 'sc_0002', 'sc_0003'],
       }),
       expect.any(String),
     );

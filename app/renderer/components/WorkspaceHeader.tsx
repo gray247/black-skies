@@ -8,6 +8,8 @@ import ServiceStatusPill from './ServiceStatusPill';
 import type { ServiceStatus } from './ServiceStatusPill';
 import type { ExportFormat } from '../shared/ipc/services';
 
+type DraftGenerationScope = 'active-scene' | 'all-scenes';
+
 interface WorkspaceHeaderProps {
   projectLabel: string;
   projectId: string | null;
@@ -20,6 +22,9 @@ interface WorkspaceHeaderProps {
   onExport: () => void;
   exportFormat: ExportFormat;
   onExportFormatChange: (next: ExportFormat) => void;
+  generationScope: DraftGenerationScope;
+  generationScopeCount: number;
+  onGenerationScopeChange: (next: DraftGenerationScope) => void;
   onSnapshot: () => void;
   onVerify: () => void;
   onSnapshots: () => void;
@@ -51,6 +56,9 @@ export function WorkspaceHeader(props: WorkspaceHeaderProps): JSX.Element {
     onExport,
     exportFormat,
     onExportFormatChange,
+    generationScope,
+    generationScopeCount,
+    onGenerationScopeChange,
     onSnapshot,
     onVerify,
     companionOpen,
@@ -129,6 +137,33 @@ export function WorkspaceHeader(props: WorkspaceHeaderProps): JSX.Element {
         >
           Generate
         </button>
+        <div className="workspace-header__generation-scope" role="group" aria-label="Generate scope">
+          <button
+            type="button"
+            className={`app-shell__workspace-button${
+              generationScope === 'active-scene' ? ' app-shell__workspace-button--active' : ''
+            }`}
+            aria-pressed={generationScope === 'active-scene'}
+            aria-label="Use active scene for generation"
+            data-testid="generation-scope-active"
+            onClick={() => onGenerationScopeChange('active-scene')}
+          >
+            Active scene
+          </button>
+          <button
+            type="button"
+            className={`app-shell__workspace-button${
+              generationScope === 'all-scenes' ? ' app-shell__workspace-button--active' : ''
+            }`}
+            aria-pressed={generationScope === 'all-scenes'}
+            aria-label="Use all loaded scenes only for generation"
+            data-testid="generation-scope-all-scenes"
+            disabled={generationScopeCount <= 1}
+            onClick={() => onGenerationScopeChange('all-scenes')}
+          >
+            All scenes only
+          </button>
+        </div>
         <button
           type="button"
           className="app-shell__workspace-button"

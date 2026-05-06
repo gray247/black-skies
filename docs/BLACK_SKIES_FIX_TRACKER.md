@@ -1,4 +1,6 @@
-﻿# BLACK SKIES - FIX TRACKER
+﻿
+
+# BLACK SKIES - FIX TRACKER
 
 Status: Active
 Last Reviewed: 2026-05-05
@@ -184,11 +186,32 @@ Promotion notes:
         - `AppPreflight.test.tsx` now treats outline-rebuild scene IDs as project metadata while keeping manual generation scoped to the active scene.
       - Validation evidence so far: `pnpm --filter app test -- AppPreflight.test.tsx`.
       - Companion `Run All Insights` red warning is tracked as a separate toast/error-readability observation unless it reproduces the same generation timeout trace; no code link has been proven yet.
-      - Required manual verification after this fix: launch external backend on `127.0.0.1:8000`, launch Electron with `BLACKSKIES_SERVICES_PORT=8000`, open `Esther_Estate`, select a scene, click Generate -> Proceed, and confirm the request payload contains one active scene ID and the generated text appears in Draft Preview.
-  - External-service launch probe investigation:
-    - Electron main and preload health checks already target `http://127.0.0.1:${BLACKSKIES_SERVICES_PORT}/api/v1/healthz`.
-    - The health contract still expects the backend payload to report `status: "ok"` before the UI bootstrap proceeds.
-    - Added regression coverage for the external-service `8000` health probe path.
+    - Required manual verification after this fix: launch external backend on `127.0.0.1:8000`, launch Electron with `BLACKSKIES_SERVICES_PORT=8000`, open `Esther_Estate`, select a scene, click Generate -> Proceed, and confirm the request payload contains one active scene ID and the generated text appears in Draft Preview.
+    - AppPreflight file-level hang stabilization (2026-05-06):
+      - Root cause: the `App` renderer writes active project state onto `document.body` / `document.documentElement` dataset fields (`projectLoaded`, `projectPath`, `projectId`, `activeSceneId`), and the preflight suite was not clearing those fields between specs. Later tests inherited stale scene/project state from earlier App renders, which left the file-level run stuck in cross-test state instead of exiting cleanly.
+      - Fix: the `AppPreflight` suite cleanup now clears those dataset fields, removes the `timeline` alias, clears session/local storage, resets timers, and recreates the modal root so portal-backed UI state cannot bleed into the next spec.
+      - Validation: `pnpm --filter app test -- AppPreflight.test.tsx` and `pnpm --filter app test -- ProjectHome.test.tsx DraftEditor.test.tsx AppPreflight.test.tsx` both exit cleanly.
+      - Residual note: the full `pnpm --filter app test` run still reports an unrelated existing failure in `AppSnapshotsVerification.test.tsx`; that suite is separate from the preflight hang and remains to be triaged.
+    - Phase 10 audit/fix pass (2026-05-06):
+      - Scene selection truth bug was in the renderer commit path: scene-card clicks updated only local project-home highlight state until `ProjectHome` now commits the selected scene back through `onActiveSceneChange` immediately.
+      - Manual Generate now scopes to the selected active scene (`sc_0004` in the regression repro), and the preflight modal reflects the selected scene instead of falling back to Scene 1.
+      - Generation-scope UI now reads as `Active scene` and `All scenes only`; multi-select generation is deferred to a later pane/UX pass rather than partially implied here.
+      - Bridge/backend/provider timeout behavior was aligned per unit count so uncached multi-scene generation uses a scaled timeout budget instead of the old fixed single-request ceiling.
+      - Shared renderer test cleanup now resets timers, storage, dataset globals, `window.timeline`, `window.__*` helpers, and `modal-root` state after each spec to prevent contamination.
+      - Validation evidence for this pass:
+        - `pnpm --filter app test -- AppPreflight.test.tsx`
+        - `pnpm --filter app test -- ProjectHome.test.tsx DraftEditor.test.tsx AppPreflight.test.tsx`
+        - `pnpm --filter app test -- AppCritique.test.tsx`
+        - `pytest services/tests/unit/test_draft_generation_adapter.py`
+        - `pnpm --filter app lint`
+        - `pnpm --filter app run build:production`
+        - `pnpm test:e2e -- --workers=1`
+        - `pnpm --filter app test`
+      - Residual suite status after this pass: `AppSnapshotsVerification.test.tsx` still fails on the backup-create action and remains classified as unrelated/pre-existing; `AppCritique.test.tsx` is green again.
+    - External-service launch probe investigation:
+      - Electron main and preload health checks already target `http://127.0.0.1:${BLACKSKIES_SERVICES_PORT}/api/v1/healthz`.
+      - The health contract still expects the backend payload to report `status: "ok"` before the UI bootstrap proceeds.
+      - Added regression coverage for the external-service `8000` health probe path.
 - Rewrite/apply conflict follow-up:
   - rewrite 409 is expected when the on-disk scene changes after critique; the modal now explains that the user should refresh the project or rerun critique before generating the rewrite again.
 - Manual verification follow-up:

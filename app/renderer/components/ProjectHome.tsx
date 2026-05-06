@@ -244,6 +244,27 @@ export default function ProjectHome({
     return 'fallback';
   }, [activeProject, activeSceneId, draftOverrides]);
 
+  const commitActiveSceneSelection = useCallback(
+    (sceneId: string) => {
+      setActiveSceneId(sceneId);
+      if (!onActiveSceneChange || !activeProject) {
+        return;
+      }
+      const selectedScene = activeProject.scenes.find((scene) => scene.id === sceneId) ?? null;
+      if (!selectedScene) {
+        onActiveSceneChange(null);
+        return;
+      }
+      const nextDraft = draftOverrides?.[selectedScene.id] ?? activeProject.drafts[selectedScene.id] ?? '';
+      onActiveSceneChange({
+        sceneId: selectedScene.id,
+        sceneTitle: selectedScene.title,
+        draft: nextDraft,
+      });
+    },
+    [activeProject, draftOverrides, onActiveSceneChange],
+  );
+
   useEffect(() => {
     if (!activeProject || !activeSceneId) {
       return;
@@ -1170,7 +1191,7 @@ export default function ProjectHome({
                       type="button"
                       className="project-home__scene-button"
                       data-scene-id={scene.id}
-                      onClick={() => setActiveSceneId(scene.id)}
+                      onClick={() => commitActiveSceneSelection(scene.id)}
                       aria-pressed={isActive}
                     >
                       <div className="project-home__scene-header">

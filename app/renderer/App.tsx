@@ -62,6 +62,9 @@ import * as testUISandbox from "./testMode/testUISandbox";
 import { ServiceHealthProvider } from "./contexts/serviceHealthContext";
 import * as modePolicy from "../shared/modePolicy";
 import "./styles/stable-home.css";
+
+type DraftGenerationScope = "active-scene" | "all-scenes";
+
 export function getTestModes() {
   if (typeof document === "undefined") {
     return { visualMode: false, stableDockMode: false, flowMode: true };
@@ -807,6 +810,8 @@ export default function App(): JSX.Element {
     }
   }, [applySceneSelection, currentProject]);
   const [projectSummary, setProjectSummary] = useState<ProjectSummary | null>(null);
+  const [draftGenerationScope, setDraftGenerationScope] =
+    useState<DraftGenerationScope>("active-scene");
   const globalWindowForDefaults = window as typeof window & {
     __testEnvDefaultProjectId?: string;
     __testEnvSnapshotRestoreFlow?: boolean;
@@ -852,6 +857,10 @@ export default function App(): JSX.Element {
   }, [setShowSnapshotsPanel]);
   const [exportFormat, setExportFormat] = useState<ExportFormat>("md");
   const batchJobRef = useRef<{ cancelled: boolean } | null>(null);
+
+  useEffect(() => {
+    setDraftGenerationScope("active-scene");
+  }, [projectSummary?.path]);
 
   const projectDraftsRef = useRef<Record<string, string>>({});
   useEffect(() => {
@@ -1487,7 +1496,20 @@ export default function App(): JSX.Element {
   }, [activateProject, activeSceneId, isMountedRef, projectSummary, pushToast]);
 
   const generationProjectSummary = useMemo<ProjectSummary | null>(() => {
-    if (!projectSummary || !activeSceneId) {
+    if (!projectSummary) {
+      return null;
+    }
+    if (draftGenerationScope === "all-scenes") {
+      if (projectSummary.unitIds.length === 0) {
+        return null;
+      }
+      return {
+        ...projectSummary,
+        unitScope: "scene",
+        unitIds: projectSummary.unitIds,
+      };
+    }
+    if (!activeSceneId) {
       return null;
     }
     return {
@@ -1495,7 +1517,7 @@ export default function App(): JSX.Element {
       unitScope: "scene",
       unitIds: [activeSceneId],
     };
-  }, [activeSceneId, projectSummary]);
+  }, [activeSceneId, draftGenerationScope, projectSummary]);
 
   const {
     state: preflightState,
@@ -2568,6 +2590,9 @@ export default function App(): JSX.Element {
     openSnapshotsPanel,
     exportFormat,
     handleExportFormatChange,
+    draftGenerationScope,
+    setDraftGenerationScope,
+    projectSummary?.unitIds.length ?? 0,
     companionOpen,
     currentProject,
     budgetBlocked,
@@ -2601,6 +2626,9 @@ export default function App(): JSX.Element {
       onSnapshots: openSnapshotsPanel,
       exportFormat,
       onExportFormatChange: handleExportFormatChange,
+      generationScope: draftGenerationScope,
+      generationScopeCount: projectSummary?.unitIds.length ?? 0,
+      onGenerationScopeChange: setDraftGenerationScope,
       companionOpen,
       disableCompanion: !currentProject,
       disableGenerate: serviceOffline || budgetBlocked || !projectReadyForActions || !sceneReadyForActions || !servicesReadyForActions,

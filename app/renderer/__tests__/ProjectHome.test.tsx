@@ -37,6 +37,39 @@ function createSampleProject(path: string): LoadedProject {
   };
 }
 
+function createMultiSceneProject(path: string): LoadedProject {
+  const outline: OutlineFile = {
+    schema_version: 'OutlineSchema v1',
+    outline_id: 'outline-004',
+    acts: ['Act I'],
+    chapters: [{ id: 'ch_0001', order: 1, title: 'Opening' }],
+    scenes: [
+      { id: 'sc_0001', order: 1, title: 'Scene One', chapter_id: 'ch_0001' },
+      { id: 'sc_0002', order: 2, title: 'Scene Two', chapter_id: 'ch_0001' },
+      { id: 'sc_0003', order: 3, title: 'Scene Three', chapter_id: 'ch_0001' },
+      { id: 'sc_0004', order: 4, title: 'Scene Four', chapter_id: 'ch_0001' },
+    ],
+  };
+
+  return {
+    path,
+    name: 'Sample Project',
+    outline,
+    scenes: outline.scenes.map((scene) => ({
+      id: scene.id,
+      title: scene.title,
+      order: scene.order,
+      chapter_id: scene.chapter_id,
+    })),
+    drafts: {
+      sc_0001: '# Scene One',
+      sc_0002: '# Scene Two',
+      sc_0003: '# Scene Three',
+      sc_0004: '# Scene Four',
+    },
+  };
+}
+
 describe('ProjectHome recent project recovery', () => {
   const flushPromises = () => act(async () => { await Promise.resolve(); });
 
@@ -371,6 +404,54 @@ describe('ProjectHome recent project recovery', () => {
     expect(draftPreview).toHaveStyle({ minHeight: '24rem' });
     expect(await screen.findByText(generatedMarker)).toBeInTheDocument();
     expect(screen.queryByText(/# Scene One/i)).not.toBeInTheDocument();
+  });
+
+  it('updates the active scene when a scene card is selected', async () => {
+    const samplePath = 'C:\\Dev\\black-skies\\sample_project\\Esther_Estate';
+    const project = createMultiSceneProject(samplePath);
+    const onActiveSceneChange = vi.fn();
+
+    const projectLoader: ProjectLoaderApi = {
+      openProjectDialog: vi.fn(),
+      getSampleProjectPath: vi.fn().mockResolvedValue(samplePath),
+      loadProject: vi.fn().mockResolvedValue({
+        ok: true,
+        project,
+        issues: [],
+      }),
+    };
+
+    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+
+    render(
+      <ProjectHome
+        onToast={vi.fn()}
+        onProjectLoaded={vi.fn()}
+        onActiveSceneChange={onActiveSceneChange}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(projectLoader.loadProject).toHaveBeenCalledWith({ path: samplePath });
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /Scene Four/i }));
+
+    await waitFor(() => {
+      expect(onActiveSceneChange).toHaveBeenCalledWith(
+        expect.objectContaining({
+          sceneId: 'sc_0004',
+          sceneTitle: 'Scene Four',
+          draft: '# Scene Four',
+        }),
+      );
+    });
+
+    expect(screen.getByRole('button', { name: /Scene Four/i })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    expect(screen.getByRole('heading', { level: 3, name: /Scene Four/i })).toBeInTheDocument();
   });
 
   it('surfaces loader warnings when a nested project folder is auto-corrected', async () => {

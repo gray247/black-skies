@@ -164,7 +164,7 @@ describe('serviceApi', () => {
       {
         projectId: 'proj_test',
         unitScope: 'scene',
-        unitIds: ['sc_0001', 'sc_0002'],
+        unitIds: ['sc_0001'],
         temperature: 0.7,
       },
       'trace-generate-request-start',
@@ -181,11 +181,55 @@ describe('serviceApi', () => {
           method: 'POST',
           url: 'http://127.0.0.1:5000/api/v1/draft/generate',
           timeoutMs: 50,
+          unitCount: 1,
           bodyByteLength: expect.any(Number),
           timestamp: expect.any(String),
         }),
       );
     }
+
+    infoSpy.mockRestore();
+  });
+
+  it('scales draft generation timeout deterministically with the unit count', async () => {
+    const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => undefined);
+    const serviceApi = await loadServiceApi();
+
+    await serviceApi.generateDraft(
+      {
+        projectId: 'proj_test',
+        unitScope: 'scene',
+        unitIds: ['sc_0001', 'sc_0002', 'sc_0003', 'sc_0004'],
+      },
+      'trace-generate-batch-1',
+    );
+    await serviceApi.generateDraft(
+      {
+        projectId: 'proj_test',
+        unitScope: 'scene',
+        unitIds: ['sc_0001', 'sc_0002', 'sc_0003', 'sc_0004'],
+      },
+      'trace-generate-batch-2',
+    );
+
+    const requestStarts = infoSpy.mock.calls.filter(
+      ([label]) => typeof label === 'string' && label.includes('preload:draft-generate:request-start'),
+    );
+    expect(requestStarts).toHaveLength(2);
+    expect(requestStarts[0]?.[1]).toEqual(
+      expect.objectContaining({
+        traceId: 'trace-generate-batch-1',
+        timeoutMs: 200,
+        unitCount: 4,
+      }),
+    );
+    expect(requestStarts[1]?.[1]).toEqual(
+      expect.objectContaining({
+        traceId: 'trace-generate-batch-2',
+        timeoutMs: 200,
+        unitCount: 4,
+      }),
+    );
 
     infoSpy.mockRestore();
   });
@@ -327,7 +371,7 @@ describe('serviceApi', () => {
 
     expect(result.ok).toBe(false);
     expect(result.error.code).toBe('TIMEOUT');
-    expect(result.error.details).toEqual({ timeout_ms: 50 });
+    expect(result.error.details).toEqual({ timeout_ms: 50, unit_count: 0 });
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 

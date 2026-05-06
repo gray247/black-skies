@@ -153,6 +153,12 @@ button:disabled {
   gap: 0.6rem;
 }
 
+.workspace-header__generation-scope {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
 .app-shell__workspace-button[aria-disabled='true'],
 .app-shell__workspace-button--disabled {
   opacity: 0.6;

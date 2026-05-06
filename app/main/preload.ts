@@ -656,6 +656,8 @@ const REQUEST_POLICY: BridgeResiliencePolicy = {
   circuitResetMs: Math.max(0, parsePositiveInt(process.env.BLACKSKIES_BRIDGE_RESET_MS, 15_000)),
 };
 
+const DRAFT_REQUEST_MAX_TIMEOUT_MS = 300_000;
+
 const REQUEST_BREAKER = new CircuitBreaker(
   REQUEST_POLICY.circuitFailureThreshold,
   REQUEST_POLICY.circuitResetMs,
@@ -773,12 +775,30 @@ function summarizeBodyByteLength(body: BodyInit | null | undefined): number {
   return 0;
 }
 
+function summarizeRequestUnitCount(body: Record<string, unknown> | undefined): number {
+  const unitIds = body?.unit_ids;
+  if (!Array.isArray(unitIds)) {
+    return 0;
+  }
+  return unitIds.filter((unitId) => typeof unitId === 'string' && unitId.length > 0).length;
+}
+
+function resolveRequestTimeoutMs(unitCount: number): number {
+  const scaledUnitCount = Math.max(1, unitCount);
+  return Math.min(
+    DRAFT_REQUEST_MAX_TIMEOUT_MS,
+    REQUEST_POLICY.timeoutMs * scaledUnitCount,
+  );
+}
+
 async function fetchWithResilience(
   url: string,
   init: RequestInit,
   method: HttpMethod,
   phaseLogPrefix: string | null,
   requestTraceId?: string,
+  timeoutMs = REQUEST_POLICY.timeoutMs,
+  unitCount = 0,
 ): Promise<Response> {
   let lastError: unknown;
   for (let attempt = 1; attempt <= REQUEST_POLICY.maxAttempts; attempt += 1) {
@@ -792,13 +812,14 @@ async function fetchWithResilience(
           traceId: requestTraceId ?? null,
           method,
           url,
-          timeoutMs: REQUEST_POLICY.timeoutMs,
+          timeoutMs,
+          unitCount,
           bodyByteLength: summarizeBodyByteLength(init.body),
           timestamp: new Date().toISOString(),
           attempt,
         });
       }
-      const response = await fetchWithTimeout(url, init, REQUEST_POLICY.timeoutMs);
+      const response = await fetchWithTimeout(url, init, timeoutMs);
       REQUEST_BREAKER.recordSuccess();
       return response;
     } catch (error) {
@@ -972,13 +993,16 @@ export async function makeServiceCall<T>(
     headers,
     body: body ? JSON.stringify(body) : undefined,
   };
+  const unitCount = summarizeRequestUnitCount(body);
+  const timeoutMs = resolveRequestTimeoutMs(unitCount);
 
   try {
     if (phaseLogPrefix) {
       console.info(`[${phaseLogPrefix}:request]`, {
         traceId: requestTraceId ?? null,
         servicePort: port,
-        timeoutMs: REQUEST_POLICY.timeoutMs,
+        timeoutMs,
+        unitCount,
         url,
       });
     }
@@ -988,6 +1012,8 @@ export async function makeServiceCall<T>(
       method,
       phaseLogPrefix,
       requestTraceId,
+      timeoutMs,
+      unitCount,
     );
 
     const traceId = response.headers.get('x-trace-id') ?? undefined;
@@ -1097,7 +1123,8 @@ export async function makeServiceCall<T>(
         console.warn(`[${phaseLogPrefix}:error]`, {
           traceId: requestTraceId ?? null,
           servicePort: port,
-          timeoutMs: REQUEST_POLICY.timeoutMs,
+          timeoutMs,
+          unitCount,
           url,
           durationMs: Math.round(performance.now() - startedAt),
           code: 'SERVICE_UNAVAILABLE',
@@ -1127,6 +1154,7 @@ export async function makeServiceCall<T>(
           traceId: requestTraceId ?? null,
           servicePort: port,
           timeoutMs: error.timeoutMs,
+          unitCount,
           url,
           durationMs: Math.round(performance.now() - startedAt),
           code: 'TIMEOUT',
@@ -1145,7 +1173,7 @@ export async function makeServiceCall<T>(
         ok: false,
         error: normalizeError(error.message, {
           code: 'TIMEOUT',
-          details: { timeout_ms: error.timeoutMs },
+          details: { timeout_ms: error.timeoutMs, unit_count: unitCount },
           traceId: requestTraceId,
         }),
         traceId: requestTraceId,
@@ -1156,7 +1184,8 @@ export async function makeServiceCall<T>(
         console.warn(`[${phaseLogPrefix}:error]`, {
           traceId: requestTraceId ?? null,
           servicePort: port,
-          timeoutMs: REQUEST_POLICY.timeoutMs,
+          timeoutMs,
+          unitCount,
           url,
           message: error.message,
           durationMs: Math.round(performance.now() - startedAt),

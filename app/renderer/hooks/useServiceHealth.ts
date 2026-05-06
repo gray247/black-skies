@@ -135,10 +135,10 @@ export function useServiceHealth(
   const handleFailure = useCallback(
     (error?: ServiceError | null, portIssue = false) => {
       logFailure(error);
-      if (!mountedRef.current) {
+    if (!mountedRef.current) {
         return;
       }
-      if (isTestEnv || dominantOffline) {
+      if (dominantOffline) {
         return;
       }
       if (!initialPortUnavailable && !dominantOffline) {
@@ -154,7 +154,6 @@ export function useServiceHealth(
   const retry = useCallback(async () => {
     if (
       testHardFreezeHealthRef?.current ||
-      isTestEnv ||
       dominantOffline ||
       options.stableHomeMode ||
       options.visualStableHome ||
@@ -164,7 +163,6 @@ export function useServiceHealth(
     }
     const now = performance.now ? performance.now() : Date.now();
     if (
-      skipPolling ||
       isCheckingRef.current ||
       (!testEnv && now - lastRetryTimestampRef.current < RETRY_THROTTLE_MS)
     ) {
@@ -254,11 +252,14 @@ export function useServiceHealth(
   }, [retry]);
 
   useEffect(() => {
-    if (skipPolling) {
-      return () => {};
-    }
     let cancelled = false;
     void retry();
+
+    if (skipPolling) {
+      return () => {
+        cancelled = true;
+      };
+    }
 
     if (intervalMs <= 0) {
       return () => {

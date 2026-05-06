@@ -271,6 +271,7 @@ class DraftGenerationService:
             summary,
             synthesizer,
             project_root,
+            unit_count=len(scenes),
             project_root=project_root,
         )
 
@@ -568,7 +569,8 @@ class DraftGenerationService:
                             30.0,
                         )
                         or 30.0
-                    ),
+                    )
+                    * max(1, total_scenes),
                 )
                 provider_executor = ThreadPoolExecutor(max_workers=1)
                 try:
@@ -899,8 +901,14 @@ class DraftGenerationService:
                 details={"error": str(exc)},
             )
 
-    async def _run_with_timeout(self, func, *args, project_root: Path | None = None) -> Any:
-        timeout = max(5, int(self._timeout_seconds))
+    async def _run_with_timeout(
+        self,
+        func,
+        *args,
+        project_root: Path | None = None,
+        unit_count: int = 1,
+    ) -> Any:
+        timeout = max(5, int(self._timeout_seconds) * max(1, unit_count))
         attempts = max(1, int(self._retry_attempts) + 1)
         last_error: Exception | None = None
         diagnostics_root = project_root or Path(self._settings.project_base_dir)

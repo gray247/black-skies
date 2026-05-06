@@ -167,6 +167,40 @@ async def test_draft_generation_adapter_exception_falls_back(
 
 
 @pytest.mark.anyio("asyncio")
+async def test_draft_generation_scales_timeout_for_multi_scene_batches(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    project_root = tmp_path / "proj_multi_scene_timeout"
+    _write_project_budget(project_root)
+    service = _build_service(tmp_path, _SlowAdapter(), monkeypatch)
+    scenes = [
+        OutlineScene(
+            id="sc_0001",
+            order=1,
+            title="Scene 1",
+            chapter_id="ch_0001",
+            beat_refs=[],
+        ),
+        OutlineScene(
+            id="sc_0002",
+            order=2,
+            title="Scene 2",
+            chapter_id="ch_0001",
+            beat_refs=[],
+        ),
+    ]
+    request = DraftGenerateRequest(
+        project_id=project_root.name,
+        unit_scope=DraftUnitScope.SCENE,
+        unit_ids=["sc_0001", "sc_0002"],
+    )
+
+    result = await service.generate(request, scenes, project_root=project_root)
+
+    assert [unit["id"] for unit in result.response["units"]] == ["sc_0001", "sc_0002"]
+
+
+@pytest.mark.anyio("asyncio")
 async def test_draft_generation_budget_includes_routing_metadata(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
