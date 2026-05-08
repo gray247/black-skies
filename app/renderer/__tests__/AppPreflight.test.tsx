@@ -1637,4 +1637,36 @@ describe('App preflight integration', () => {
     );
   });
 
+  it('keeps snapshot and export actions wired when ProjectHome is wrapped by Split Command', async () => {
+    enableSplitCommandWorkspace();
+    mockLoadedProjectId = 'proj_split_command';
+    mockLoadedProjectName = 'Split Command Demo';
+    mockLoadedProjectScenes = [
+      { id: 'sc_0001', title: 'Arrival', order: 1 },
+      { id: 'sc_0002', title: 'Signal', order: 2 },
+    ];
+
+    const App = loadAppWithServices(services);
+    render(<App />);
+
+    expect(await screen.findByTestId('split-command-workspace')).toBeInTheDocument();
+
+    const snapshotButton = await screen.findByTestId('workspace-action-snapshot');
+    fireEvent.click(snapshotButton);
+    await waitFor(() => {
+      expect(services.createProjectSnapshot).toHaveBeenCalledWith({
+        projectId: 'proj_split_command',
+      });
+    });
+
+    const exportButton = await screen.findByTestId('workspace-action-export');
+    fireEvent.click(exportButton);
+    await waitFor(() => {
+      expect(services.exportProject).toHaveBeenCalledWith({
+        format: 'md',
+        projectId: 'proj_split_command',
+      });
+    });
+  });
+
 });

@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import App from '../App';
 
+import { DEFAULT_RUNTIME_CONFIG } from '../../shared/config/runtime';
 import type { LoadedProject } from '../../shared/ipc/projectLoader';
 import type {
   DraftCritiqueBridgeResponse,
@@ -218,6 +219,20 @@ function createServices(): ServicesBridge {
   };
 }
 
+function enableSplitCommandWorkspace(): void {
+  (
+    window as typeof window & {
+      __runtimeConfigOverride?: typeof DEFAULT_RUNTIME_CONFIG;
+    }
+  ).__runtimeConfigOverride = {
+    ...DEFAULT_RUNTIME_CONFIG,
+    ui: {
+      ...DEFAULT_RUNTIME_CONFIG.ui,
+      experimentalSplitCommandWorkspace: true,
+    },
+  };
+}
+
 describe('App critique + rewrite loop', () => {
   let services: ServicesBridge;
 
@@ -230,6 +245,7 @@ describe('App critique + rewrite loop', () => {
     delete window.services;
     delete window.__TEST_PROJECT_HOME_EDITED_DRAFT;
     delete (window as typeof window & { __BLACKSKIES_PHASE4_MOCK?: boolean }).__BLACKSKIES_PHASE4_MOCK;
+    delete (window as typeof window & { __runtimeConfigOverride?: unknown }).__runtimeConfigOverride;
     vi.resetAllMocks();
   });
 
@@ -437,5 +453,34 @@ describe('App critique + rewrite loop', () => {
     const statsEntry = wordCountTerm.closest('div');
     const wordCountValue = statsEntry?.querySelector('dd')?.textContent?.trim() ?? null;
     expect(wordCountValue).toBe('7');
+  });
+
+  it('opens critique through the wrapped Split Command shell', async () => {
+    const critiqueResponse: DraftCritiqueBridgeResponse = {
+      unit_id: 'sc_0001',
+      schema_version: 'CritiqueOutputSchema v1',
+      summary: 'Split Command critique smoke.',
+      priorities: [],
+      line_comments: [],
+    };
+    (services.critiqueDraft as vi.Mock).mockResolvedValue({
+      ok: true,
+      data: critiqueResponse,
+      traceId: 'trace-critique-split-command',
+    });
+
+    enableSplitCommandWorkspace();
+    render(<App />);
+
+    expect(await screen.findByTestId('split-command-workspace')).toBeInTheDocument();
+    fireEvent.click(await screen.findByTestId('workspace-action-critique'));
+
+    await screen.findByText(critiqueResponse.summary);
+    expect(services.critiqueDraft).toHaveBeenCalledWith(
+      expect.objectContaining({
+        projectId: 'demo',
+        unitId: 'sc_0001',
+      }),
+    );
   });
 });

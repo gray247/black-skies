@@ -194,6 +194,12 @@ Promotion notes:
   - generation/preflight parity now verifies that selecting a Story Navigation item changes the active-scene generation target through the wrapped Writing Studio path
   - validation passed: `pnpm --filter app test -- SplitCommandWorkspace.test.tsx AppPreflight.test.tsx ProjectHome.test.tsx` (`3 passed`, `43 tests`), `pnpm --filter app test` (`50 passed`, `203 tests`), `pnpm --filter app lint` (pass; ESLintRC deprecation notice only), `pnpm --filter app run build:production` (pass), and `git diff --check` (pass)
   - guardrails held: Split Command remains opt-in, selection is not persisted, no backend/project format/generation/rewrite/snapshot behavior changed
+- 2026-05-08 - Codex - Phase 11B pass 5 flagged-shell workflow surface smoke:
+  - added renderer smoke that critique entry still opens through the wrapped Split Command shell and still calls the existing critique route
+  - added renderer smoke that snapshot and export header actions still call the existing service paths through the wrapped Split Command shell
+  - no new runtime workflow surfaces were introduced; this pass only extends parity coverage for the experimental shell
+  - validation passed: `pnpm --filter app test -- AppCritique.test.tsx AppSnapshotsVerification.test.tsx SplitCommandWorkspace.test.tsx` (`3 passed`, `14 tests`), `pnpm --filter app test` (`50 passed`, `205 tests`), `pnpm --filter app lint` (pass; ESLintRC deprecation notice only), `pnpm --filter app run build:production` (pass), and `git diff --check` (pass)
+  - deferred ledger unchanged: no Playwright shell work, no command palette, no intelligence panels, no persistence changes
 - 2026-05-06 - Codex - Started the Phase 11 workflow/pane/UX contract stabilization audit and documentation pass; pass 1 runtime slice now landed for generation labels, preflight scope copy, and recovery toast clarity, and the later GUI/outline overhaul is still split into a separate follow-up plan.
 - 2026-05-06 - Codex - Completed Phase 11A pass 2 rewrite truthfulness updates and added a renderer-level floated-pane project-switch regression after the Playwright temp-project path proved too brittle; backend rewrite persistence remained unchanged.
 - 2026-05-06 - Codex - Completed Phase 11A pass 3 pane scope classification and layout recovery hardening; unknown floating-pane ids are now dropped on layout load and the pane lifecycle matrix is documented.

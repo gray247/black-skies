@@ -36,6 +36,12 @@ Pass 4 shared scene-selection interface:
 - Generation/preflight continues to use App-owned `activeSceneId`, so selecting a Story Navigation item changes the active-scene generation target through the same authority path.
 - No selection state is persisted, no backend calls changed, and no project file format changed.
 
+Pass 5 flagged-shell workflow surface smoke:
+- Renderer smoke now covers critique entry through the wrapped Split Command shell.
+- Renderer smoke now covers snapshot and export header actions through the wrapped Split Command shell.
+- These tests assert the existing service call paths only; they do not add new UI, change workflow behavior, or widen shell responsibilities.
+- Remaining deferred workflow parity items should stay small and renderer-level unless a real integration gap appears.
+
 ## 1. Current GUI Reality
 
 The current renderer is a stable Electron workspace rooted in `app/renderer/App.tsx`. `App` owns the active project summary, active scene state, generation scope, preflight/generation flow, critique/rewrite state, snapshot/export actions, recovery state, and the dock workspace composition.
