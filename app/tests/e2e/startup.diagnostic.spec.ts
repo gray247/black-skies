@@ -175,51 +175,53 @@ test('diagnostic_action_readiness_generate_contract (action)', async ({ page }, 
   });
 
   const modalOpen = await dialog.isVisible();
+  const scopeSummary = dialog.locator('.preflight-modal__scope-summary');
+  const scopeLine = scopeSummary.locator('.preflight-modal__scope-line').nth(0);
+  const countLine = scopeSummary.locator('.preflight-modal__scope-line').nth(2);
+  const warningLine = scopeSummary.locator('.preflight-modal__scope-line').nth(3);
+  const budgetLine = dialog.locator('.preflight-modal__message');
   const result = await page.evaluate(() => {
     const win = window as typeof window & {
       __actionReadinessLog?: Array<Record<string, unknown>>;
     };
-    const dialog = document.querySelector('[role="dialog"][aria-label*="Draft preflight"]');
     const toast = document.querySelector('.toast');
     const toastTitle = toast?.querySelector('.toast__title')?.textContent?.trim() ?? null;
     const toastDescription = toast?.querySelector('.toast__description')?.textContent?.trim() ?? null;
-    const dialogText = dialog?.textContent ?? '';
     return {
       preflightCalls: win.__actionReadinessLog ?? [],
-      modalHasPreflightContract:
-        dialogText.includes('Generation scope: Active scene') &&
-        dialogText.includes('1 scene is affected.') &&
-        dialogText.includes('Draft text may be replaced for the selected scope after you proceed.') &&
-        dialogText.includes('Within budget'),
       toastTitle,
       toastDescription,
     };
   });
 
-  await expect
-    .poll(
-    async () => {
-        const dialogText = (await dialog.textContent()) ?? '';
-        return (
-          dialogText.includes('Generation scope: Active scene') &&
-          dialogText.includes('1 scene is affected.') &&
-          dialogText.includes('Draft text may be replaced for the selected scope after you proceed.') &&
-          dialogText.includes('Within budget')
-        );
-      },
-      { timeout: 15_000 },
-    )
-    .toBe(true);
+  await expect(scopeSummary).toBeVisible({ timeout: 15_000 });
+  await expect(scopeLine).toContainText(/Generation scope:\s*Active scene/i, {
+    timeout: 15_000,
+  });
+  await expect(countLine).toHaveText('1 scene is affected.');
+  await expect(warningLine).toContainText(
+    'Draft text may be replaced for the selected scope after you proceed.',
+  );
+  await expect(budgetLine).toContainText(/within budget/i);
+
+  const finalContractState = {
+    modalHasPreflightContract: true,
+    scopeText: await scopeLine.textContent(),
+    countText: await countLine.textContent(),
+    warningText: await warningLine.textContent(),
+    budgetText: await budgetLine.textContent(),
+  };
 
   await testInfo.attach('diagnostic-action-readiness.json', {
     body: Buffer.from(`${JSON.stringify({
       buttonStateBefore,
       result,
+      finalContractState,
     }, null, 2)}\n`, 'utf-8'),
     contentType: 'application/json',
   });
   // The dialog content is the user-visible readiness contract. Fail if it never materializes.
-  expect(result.modalHasPreflightContract).toBe(true);
+  expect(finalContractState.modalHasPreflightContract).toBe(true);
   expect(modalOpen).toBe(true);
 });
 

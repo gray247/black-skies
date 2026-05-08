@@ -101,6 +101,29 @@ describe('PreflightModal', () => {
     expect(screen.getByText(/draft-synthesizer-v1/i)).toBeInTheDocument();
   });
 
+  it('renders stable preflight contract markers for scope, count, warning, and budget', () => {
+    render(
+      <PreflightModal
+        isOpen
+        loading={false}
+        error={null}
+        estimate={baseEstimate}
+        {...modalDefaults}
+        onClose={() => undefined}
+        onProceed={() => undefined}
+      />,
+    );
+
+    expect(screen.getByTestId('preflight-contract-scope')).toHaveTextContent(
+      /Generation scope:\s*Active scene/i,
+    );
+    expect(screen.getByTestId('preflight-contract-count')).toHaveTextContent('1 scene is affected.');
+    expect(screen.getByTestId('preflight-contract-warning')).toHaveTextContent(
+      /Draft text may be replaced/i,
+    );
+    expect(screen.getByTestId('preflight-contract-budget')).toHaveTextContent(/Within budget/i);
+  });
+
   it('shows error state and disables proceed', () => {
     const onClose = vi.fn();
     render(

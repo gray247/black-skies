@@ -107,13 +107,28 @@ export function PreflightModal({
           </button>
         </header>
         <section className="preflight-modal__body">
-          <div className="preflight-modal__scope-summary" aria-live="polite">
-            <p className="preflight-modal__scope-line">
+          <div
+            className="preflight-modal__scope-summary"
+            aria-live="polite"
+            data-testid="preflight-contract"
+          >
+            <p
+              className="preflight-modal__scope-line"
+              data-testid="preflight-contract-scope"
+            >
               <strong>Generation scope:</strong> {generationScopeLabel}
             </p>
             <p className="preflight-modal__scope-line">{generationScopeAction}</p>
-            <p className="preflight-modal__scope-line">{affectedSceneCountLabel}</p>
-            <p className="preflight-modal__scope-line">
+            <p
+              className="preflight-modal__scope-line"
+              data-testid="preflight-contract-count"
+            >
+              {affectedSceneCountLabel}
+            </p>
+            <p
+              className="preflight-modal__scope-line"
+              data-testid="preflight-contract-warning"
+            >
               Draft text may be replaced for the selected scope after you proceed.
             </p>
           </div>
@@ -190,7 +205,12 @@ export function PreflightModal({
                 ) : null}
               </dl>
               {budget.message ? (
-                <p className="preflight-modal__message">{budget.message}</p>
+                <p
+                  className="preflight-modal__message"
+                  data-testid="preflight-contract-budget"
+                >
+                  {budget.message}
+                </p>
               ) : null}
               {scenes.length > 0 ? (
                 <div className="preflight-modal__scenes" aria-live="polite">
