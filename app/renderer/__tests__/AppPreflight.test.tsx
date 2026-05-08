@@ -14,6 +14,7 @@ import type {
   SnapshotManifest,
 } from '../../shared/ipc/services';
 import type { LoadedProject, ProjectLoaderApi } from '../../shared/ipc/projectLoader';
+import { DEFAULT_RUNTIME_CONFIG } from '../../shared/config/runtime';
 import {
   getDraftPreviewSyncKey,
   type DraftPreviewSyncState,
@@ -386,6 +387,10 @@ describe('App preflight integration', () => {
     Reflect.deleteProperty(
       window as typeof window & { __serviceHealthRetry?: () => Promise<void> },
       '__serviceHealthRetry',
+    );
+    Reflect.deleteProperty(
+      window as typeof window & { __runtimeConfigOverride?: unknown },
+      '__runtimeConfigOverride',
     );
     Reflect.deleteProperty(window as typeof window & { __dockReady?: boolean }, '__dockReady');
     Reflect.deleteProperty(window as typeof window & { __appBootReady?: boolean }, '__appBootReady');
@@ -1539,6 +1544,43 @@ describe('App preflight integration', () => {
     const reopenedSnapshotsPanel = await screen.findByTestId('snapshots-panel');
     expect(reopenedSnapshotsPanel).toBeInTheDocument();
     expect(services.revealPath).toHaveBeenCalledWith(expect.stringContaining('.snapshots'));
+  });
+
+  it('keeps the Phase 11A shell as the default when Split Command is not enabled', async () => {
+    const App = loadAppWithServices(services);
+
+    render(<App />);
+
+    expect(await screen.findByTestId('project-home-mock')).toBeInTheDocument();
+    expect(screen.queryByTestId('split-command-workspace')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('Wizard dock')).toBeInTheDocument();
+  });
+
+  it('renders the experimental Split Command shell only when the runtime flag is enabled', async () => {
+    (window as typeof window & { __runtimeConfigOverride?: typeof DEFAULT_RUNTIME_CONFIG }).__runtimeConfigOverride = {
+      ...DEFAULT_RUNTIME_CONFIG,
+      ui: {
+        ...DEFAULT_RUNTIME_CONFIG.ui,
+        experimentalSplitCommandWorkspace: true,
+      },
+    };
+    mockLoadedProjectId = 'proj_split_command';
+    mockLoadedProjectName = 'Split Command Demo';
+    mockLoadedProjectScenes = [
+      { id: 'sc_0001', title: 'Arrival', order: 1 },
+      { id: 'sc_0002', title: 'Signal', order: 2 },
+    ];
+
+    const App = loadAppWithServices(services);
+
+    render(<App />);
+
+    expect(await screen.findByTestId('split-command-workspace')).toBeInTheDocument();
+    expect(screen.getByLabelText('Command Center')).toBeInTheDocument();
+    expect(screen.getByLabelText('Writing Studio')).toBeInTheDocument();
+    expect(screen.getByTestId('project-home-mock')).toBeInTheDocument();
+    expect(await screen.findByText('Arrival')).toBeInTheDocument();
+    expect(screen.queryByLabelText('Wizard dock')).not.toBeInTheDocument();
   });
 
 });

@@ -21,6 +21,7 @@ import { CritiqueModal } from "./components/CritiqueModal";
 import { ToastStack } from "./components/ToastStack";
 import ServiceHealthBanner from "./components/ServiceHealthBanner";
 import DockWorkspace from "./components/docking/DockWorkspace";
+import SplitCommandWorkspace from "./components/workspace/SplitCommandWorkspace";
 import type { LoadedProject } from "../shared/ipc/projectLoader";
 import type { DiagnosticsBridge } from "../shared/ipc/diagnostics";
 import type {
@@ -186,6 +187,7 @@ export default function App(): JSX.Element {
   const runtimeConfigOverride =
     (window as typeof window & { __runtimeConfigOverride?: RuntimeConfig }).__runtimeConfigOverride;
   const runtimeUi = runtimeConfigOverride?.ui ?? window.runtimeConfig?.ui;
+  const splitCommandWorkspaceEnabled = runtimeUi?.experimentalSplitCommandWorkspace === true;
   type TestEnvFlag = boolean | { isPlaywright?: boolean };
   const isPlaywrightEnv =
     Boolean(
@@ -2481,6 +2483,16 @@ export default function App(): JSX.Element {
         </div>
       );
 
+  const workspaceBody = splitCommandWorkspaceEnabled && !isFloatingHost && !isStableHomeMode ? (
+    <SplitCommandWorkspace
+      project={currentProject}
+      activeSceneId={activeSceneId}
+      writingStudio={fullWorkspaceBody}
+    />
+  ) : (
+    fullWorkspaceBody
+  );
+
   const freezeServiceHealthActive = testMode.testModeFreezeServiceHealth();
   const freezeOfflineActive = freezeServiceHealthActive && testMode.isForcedOffline();
   const actualServiceOffline = serviceUnavailable || dominantOfflineActive;
@@ -2700,9 +2712,9 @@ export default function App(): JSX.Element {
       data-testid="app-root"
       className={`app-shell${dockingEnabled ? " app-shell--dock-enabled" : ""}${
         isFloatingHost ? " app-shell--floating" : ""
-      }`}
+      }${splitCommandWorkspaceEnabled && !isFloatingHost ? " app-shell--split-command" : ""}`}
     >
-      {!dockingEnabled && !isFloatingHost && (
+      {!dockingEnabled && !isFloatingHost && !splitCommandWorkspaceEnabled && (
         <aside className="app-shell__dock" aria-label="Wizard dock">
           <div className="app-shell__dock-header">
             <h1>Black Skies</h1>
@@ -2715,7 +2727,7 @@ export default function App(): JSX.Element {
       <div className="app-shell__workspace">
         {workspaceHeaderElement}
 
-        <main className="app-shell__workspace-body">{fullWorkspaceBody}</main>
+        <main className="app-shell__workspace-body">{workspaceBody}</main>
       </div>
 
       {!isStableHomeMode && (

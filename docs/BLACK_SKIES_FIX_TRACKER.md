@@ -166,7 +166,17 @@ Promotion notes:
 - Phase 11B planning:
   - Design System v1 is captured in `docs/specs/design_system_v1.md` as the planning baseline for the GUI/outline overhaul
   - `docs/phases/phase11b_gui_outline_overhaul_plan.md` now points to the design-system spec as the canonical Phase 11B design source
-  - implementation has not started; no runtime code or app/shared design token files were changed
+  - foundation implementation has started behind the disabled-by-default `ui.experimental_split_command_workspace` runtime flag; the current Phase 11A shell remains production default
+  - runtime token seed lives in `app/renderer/styles/design-system.css` and is imported before the existing app styles without globally restyling the current shell
+  - experimental Split Command renders Command Center and Writing Studio zones only when the flag is explicitly enabled; Writing Studio wraps the existing stable workspace body
+  - Story Unit v1 is a read-only compatibility view derived from current scenes only; it does not persist, migrate project files, or infer lifecycle state from draft text
+  - command registry metadata is descriptive only; no command palette, dispatch framework, middleware, routing, or plugin abstraction was added
+  - `docs/phases/phase11b_implementation_plan.md` now captures the pre-implementation architecture review, recommended flagged-shell strategy, Story Unit compatibility plan, tests, rollback path, and questions to answer before coding
+- 2026-05-08 - Codex - Phase 11B foundation implementation pass:
+  - added disabled-by-default Split Command flag, token seed, experimental shell wrapper, Story Unit v1 scene adapter, one-active-outline compatibility selector, and declarative command metadata
+  - validated focused runtime coverage with `pnpm --filter app test -- runtimeConfig.test.ts CommandRegistry.test.ts SplitCommandWorkspace.test.tsx storyUnits.test.ts AppPreflight.test.tsx` (`5 passed`, `38 tests`)
+  - full validation passed: `pnpm --filter app test` (`50 passed`, `199 tests`), `pnpm --filter app lint` (pass with existing `useServiceHealth.ts` hook-deps warning), `pnpm --filter app run build:production` (pass), and `git diff --check` (pass)
+  - guardrails held: no backend behavior changed, no project file format changed, current shell remains default, and command metadata has no execution path
 - 2026-05-06 - Codex - Started the Phase 11 workflow/pane/UX contract stabilization audit and documentation pass; pass 1 runtime slice now landed for generation labels, preflight scope copy, and recovery toast clarity, and the later GUI/outline overhaul is still split into a separate follow-up plan.
 - 2026-05-06 - Codex - Completed Phase 11A pass 2 rewrite truthfulness updates and added a renderer-level floated-pane project-switch regression after the Playwright temp-project path proved too brittle; backend rewrite persistence remained unchanged.
 - 2026-05-06 - Codex - Completed Phase 11A pass 3 pane scope classification and layout recovery hardening; unknown floating-pane ids are now dropped on layout load and the pane lifecycle matrix is documented.

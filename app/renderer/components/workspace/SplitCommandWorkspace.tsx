@@ -1,0 +1,112 @@
+import type { ReactNode } from "react";
+
+import type { LoadedProject } from "../../../shared/ipc/projectLoader";
+import { listCommandRegistryEntries } from "../../commands/commandRegistry";
+import { deriveActiveOutline } from "../../utils/storyUnits";
+
+interface SplitCommandWorkspaceProps {
+  readonly project: LoadedProject | null;
+  readonly activeSceneId: string | null;
+  readonly writingStudio: ReactNode;
+}
+
+function PlaceholderPanel({
+  title,
+  children,
+}: {
+  readonly title: string;
+  readonly children: ReactNode;
+}): JSX.Element {
+  return (
+    <section className="split-command__panel" aria-label={title}>
+      <h3>{title}</h3>
+      <div className="split-command__panel-body">{children}</div>
+    </section>
+  );
+}
+
+export default function SplitCommandWorkspace({
+  project,
+  activeSceneId,
+  writingStudio,
+}: SplitCommandWorkspaceProps): JSX.Element {
+  const activeOutline = deriveActiveOutline(project);
+  const activeUnit =
+    activeSceneId ? activeOutline.units.find((unit) => unit.sceneId === activeSceneId) ?? null : null;
+  const commandCount = listCommandRegistryEntries().length;
+
+  return (
+    <div className="split-command" data-testid="split-command-workspace">
+      <aside
+        className="split-command__zone split-command__zone--command"
+        aria-label="Command Center"
+      >
+        <div className="split-command__zone-header">
+          <span className="split-command__eyebrow">Command Center</span>
+          <h2>Story intelligence</h2>
+          <p>
+            Experimental Phase 11B shell. Panels are read-only placeholders unless marked
+            as existing workspace data.
+          </p>
+        </div>
+
+        <PlaceholderPanel title="Story Navigation">
+          {activeOutline.units.length > 0 ? (
+            <ol className="split-command__story-list">
+              {activeOutline.units.slice(0, 8).map((unit) => (
+                <li
+                  key={unit.unitId}
+                  className={
+                    unit.sceneId === activeSceneId
+                      ? "split-command__story-item split-command__story-item--active"
+                      : "split-command__story-item"
+                  }
+                >
+                  <span>{unit.title}</span>
+                  <small>{unit.state}</small>
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <p>No project scenes loaded.</p>
+          )}
+        </PlaceholderPanel>
+
+        <PlaceholderPanel title="Narrative Overview">
+          <p>
+            Placeholder only. Future story-health signals will appear here after their
+            contracts are implemented.
+          </p>
+        </PlaceholderPanel>
+
+        <PlaceholderPanel title="Narrative Gaps">
+          <p>Placeholder only. No gap detection is running in Phase 11B foundation.</p>
+        </PlaceholderPanel>
+
+        <PlaceholderPanel title="AI Companion">
+          <p>Placeholder only. Existing Companion behavior remains in the current overlay.</p>
+        </PlaceholderPanel>
+
+        <PlaceholderPanel title="Global Tools">
+          <p>{commandCount} commands registered as descriptive metadata. No command palette is active.</p>
+        </PlaceholderPanel>
+      </aside>
+
+      <section
+        className="split-command__zone split-command__zone--writing"
+        aria-label="Writing Studio"
+      >
+        <div className="split-command__zone-header">
+          <span className="split-command__eyebrow">Writing Studio</span>
+          <h2>{project?.name ?? "No project loaded"}</h2>
+          <p>
+            {activeUnit
+              ? `Active scene: ${activeUnit.title}`
+              : "Existing stable writing surfaces are wrapped here without changing workflow behavior."}
+          </p>
+        </div>
+        <div className="split-command__writing-surface">{writingStudio}</div>
+      </section>
+    </div>
+  );
+}

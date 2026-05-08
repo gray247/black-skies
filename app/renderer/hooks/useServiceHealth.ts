@@ -148,7 +148,7 @@ export function useServiceHealth(
       setLastError(error ?? null);
       setStatus('offline');
     },
-    [logFailure, mountedRef, setForceOffline, initialPortUnavailable, dominantOffline, isTestEnv],
+    [logFailure, mountedRef, setForceOffline, initialPortUnavailable, dominantOffline],
   );
 
   const retry = useCallback(async () => {

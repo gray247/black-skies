@@ -63,4 +63,18 @@ describe('loadRuntimeConfig caching and validation', () => {
     const config = loadRuntimeConfig();
     expect(config).toBe(DEFAULT_RUNTIME_CONFIG);
   });
+
+  it('defaults the experimental Split Command workspace off', () => {
+    expect(DEFAULT_RUNTIME_CONFIG.ui.experimentalSplitCommandWorkspace).toBe(false);
+  });
+
+  it('normalizes the experimental Split Command workspace flag from YAML', () => {
+    const configPath = join(tempDir, 'runtime-split-command.yaml');
+    writeFileSync(configPath, 'ui:\n  experimental_split_command_workspace: true\n', 'utf8');
+
+    process.env.BLACKSKIES_CONFIG_PATH = configPath;
+    const config = loadRuntimeConfig();
+
+    expect(config.ui.experimentalSplitCommandWorkspace).toBe(true);
+  });
 });
