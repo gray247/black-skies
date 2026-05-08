@@ -4,6 +4,11 @@ Status: Follow-up plan
 Last Reviewed: 2026-05-06
 Purpose: define the later GUI and outline redesign that should only start after Phase 11 contracts are stable.
 
+## Canonical Design System Source
+- `docs/specs/design_system_v1.md` is the canonical Phase 11B design-system source.
+- Runtime GUI and outline work should treat that spec as the planning baseline for topology, zones, component contracts, interaction doctrine, visual language, adaptive rules, Story Unit UI, command palette/tool registry, and Phase 11B build/defer boundaries.
+- This plan remains a sequencing document; it does not override the design-system spec.
+
 ## Entry Criteria
 - Pane lifecycle is documented and classified.
 - Layout persistence has version, recovery, reset, and corruption rules.

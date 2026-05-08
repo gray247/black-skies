@@ -163,6 +163,10 @@ Promotion notes:
   - final error/toast copy was tightened on the main app surfaces so snapshot creation, backup verification, export, and project refresh failures say what did not change and preserve trace IDs where available
   - the wizard lock flow now uses the same recovery-oriented snapshot failure wording as the rest of the app
   - the Phase 11A closure checklist is now explicit in the workflow audit, including the deferred floated-pane Playwright E2E blocker and the remaining known risks
+- Phase 11B planning:
+  - Design System v1 is captured in `docs/specs/design_system_v1.md` as the planning baseline for the GUI/outline overhaul
+  - `docs/phases/phase11b_gui_outline_overhaul_plan.md` now points to the design-system spec as the canonical Phase 11B design source
+  - implementation has not started; no runtime code or app/shared design token files were changed
 - 2026-05-06 - Codex - Started the Phase 11 workflow/pane/UX contract stabilization audit and documentation pass; pass 1 runtime slice now landed for generation labels, preflight scope copy, and recovery toast clarity, and the later GUI/outline overhaul is still split into a separate follow-up plan.
 - 2026-05-06 - Codex - Completed Phase 11A pass 2 rewrite truthfulness updates and added a renderer-level floated-pane project-switch regression after the Playwright temp-project path proved too brittle; backend rewrite persistence remained unchanged.
 - 2026-05-06 - Codex - Completed Phase 11A pass 3 pane scope classification and layout recovery hardening; unknown floating-pane ids are now dropped on layout load and the pane lifecycle matrix is documented.
