@@ -3,10 +3,12 @@ import type { ReactNode } from "react";
 import type { LoadedProject } from "../../../shared/ipc/projectLoader";
 import { listCommandRegistryEntries } from "../../commands/commandRegistry";
 import { deriveActiveOutline } from "../../utils/storyUnits";
+import StoryNavigationPanel from "./StoryNavigationPanel";
 
 interface SplitCommandWorkspaceProps {
   readonly project: LoadedProject | null;
   readonly activeSceneId: string | null;
+  readonly onSelectScene?: (sceneId: string) => void;
   readonly writingStudio: ReactNode;
 }
 
@@ -28,6 +30,7 @@ function PlaceholderPanel({
 export default function SplitCommandWorkspace({
   project,
   activeSceneId,
+  onSelectScene,
   writingStudio,
 }: SplitCommandWorkspaceProps): JSX.Element {
   const activeOutline = deriveActiveOutline(project);
@@ -50,27 +53,11 @@ export default function SplitCommandWorkspace({
           </p>
         </div>
 
-        <PlaceholderPanel title="Story Navigation">
-          {activeOutline.units.length > 0 ? (
-            <ol className="split-command__story-list">
-              {activeOutline.units.slice(0, 8).map((unit) => (
-                <li
-                  key={unit.unitId}
-                  className={
-                    unit.sceneId === activeSceneId
-                      ? "split-command__story-item split-command__story-item--active"
-                      : "split-command__story-item"
-                  }
-                >
-                  <span>{unit.title}</span>
-                  <small>{unit.state}</small>
-                </li>
-              ))}
-            </ol>
-          ) : (
-            <p>No project scenes loaded.</p>
-          )}
-        </PlaceholderPanel>
+        <StoryNavigationPanel
+          outline={activeOutline}
+          activeSceneId={activeSceneId}
+          onSelectScene={onSelectScene}
+        />
 
         <PlaceholderPanel title="Narrative Overview">
           <p>

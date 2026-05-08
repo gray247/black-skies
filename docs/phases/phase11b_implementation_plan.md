@@ -14,6 +14,28 @@ Locked implementation decisions:
 - The active outline compatibility view is named `main` and derives from the current loaded outline without persistence or migration.
 - Command registry metadata is descriptive only. It must not introduce execution, dispatch, middleware, routing, or plugin behavior.
 
+Dev/test enablement note:
+- The flag is defined in `app/shared/config/runtime.ts` as `UiConfig.experimentalSplitCommandWorkspace`.
+- Runtime YAML uses `ui.experimental_split_command_workspace: true`.
+- Renderer tests may enable it through `window.__runtimeConfigOverride`.
+- The flag is experimental and must remain off by default until Split Command parity is explicitly closed.
+
+Pass 2 parity guard:
+- Renderer coverage now verifies flag-off default shell rendering, flag-on Split Command rendering, Writing Studio wrapping the stable workspace body, Command Center placeholder labeling, generation/preflight calls through the wrapped ProjectHome path, and Story Unit derivation without project mutation.
+
+Pass 3 Story Navigation wrapper:
+- Command Center Story Navigation now renders real read-only Story Unit v1 / active outline compatibility data instead of a generic placeholder.
+- It shows the Main outline label, total unit count, ordered scene-derived units, active-scene marker, preview text where available, `placed` state chips, and `scene` source indicators.
+- Click-to-select is deferred. Selection currently flows through `ProjectHome` and `App`; exposing it to Command Center should wait for an explicit shared selection interface rather than adding ad hoc shell plumbing.
+- Other Command Center panels remain honest placeholders and must not show fake analytics, gap detection, AI output, or executable command palette behavior.
+
+Pass 4 shared scene-selection interface:
+- Split Command now receives the App-owned selection interface: `activeSceneId` plus `onSelectScene(sceneId)`.
+- Story Navigation items are keyboard-accessible buttons that call the shared App selection path.
+- `ProjectHome` receives a one-way `requestedActiveSceneId` sync prop so the stable Writing Studio surface follows App-owned selections without adding a competing selection store.
+- Generation/preflight continues to use App-owned `activeSceneId`, so selecting a Story Navigation item changes the active-scene generation target through the same authority path.
+- No selection state is persisted, no backend calls changed, and no project file format changed.
+
 ## 1. Current GUI Reality
 
 The current renderer is a stable Electron workspace rooted in `app/renderer/App.tsx`. `App` owns the active project summary, active scene state, generation scope, preflight/generation flow, critique/rewrite state, snapshot/export actions, recovery state, and the dock workspace composition.

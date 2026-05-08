@@ -486,10 +486,28 @@ button:disabled {
   background: rgba(17, 24, 34, 0.76);
 }
 
+.split-command__panel-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
 .split-command__panel-body {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+}
+
+.split-command__count {
+  min-width: 1.7rem;
+  padding: 0.2rem 0.45rem;
+  border-radius: 999px;
+  color: var(--bs-color-text-primary, #e7ecf2);
+  background: rgba(155, 92, 255, 0.18);
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 700;
 }
 
 .split-command__story-list {
@@ -502,13 +520,71 @@ button:disabled {
 }
 
 .split-command__story-item {
-  display: flex;
-  justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.45rem 0.55rem;
+  padding: 0;
   border-radius: var(--bs-radius-sm, 4px);
   color: var(--bs-color-text-secondary, #a8b0ba);
   background: rgba(255, 255, 255, 0.03);
+}
+
+.split-command__story-button {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.45rem 0.55rem;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  text-align: left;
+}
+
+.split-command__story-button:disabled {
+  opacity: 1;
+}
+
+.split-command__story-item-main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.split-command__story-title {
+  color: var(--bs-color-text-primary, #e7ecf2);
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.split-command__story-preview {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.split-command__story-meta {
+  display: flex;
+  flex-shrink: 0;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.3rem;
+}
+
+.split-command__chip,
+.split-command__source {
+  border: 1px solid var(--bs-color-border-subtle, #1a232e);
+  border-radius: 999px;
+  padding: 0.12rem 0.45rem;
+  color: var(--bs-color-text-secondary, #a8b0ba);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 0.68rem;
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+
+.split-command__source {
+  color: var(--bs-color-accent-secondary, #12c8d9);
 }
 
 .split-command__story-item--active {

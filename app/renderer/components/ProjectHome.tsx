@@ -46,6 +46,7 @@ export interface ProjectHomeProps {
   draftOverrides?: Record<string, string>;
   onActiveSceneChange?: (payload: ActiveScenePayload | null) => void;
   onDraftChange?: (sceneId: string, draft: string) => void;
+  requestedActiveSceneId?: string | null;
   paneMode?: 'docked' | 'floating' | 'standalone';
   relocationNotifyEnabled?: boolean;
   autoSnapEnabled?: boolean;
@@ -167,6 +168,7 @@ export default function ProjectHome({
   draftOverrides,
   onActiveSceneChange,
   onDraftChange,
+  requestedActiveSceneId,
   paneMode = 'standalone',
   relocationNotifyEnabled = true,
   autoSnapEnabled = false,
@@ -243,6 +245,15 @@ export default function ProjectHome({
     }
     return 'fallback';
   }, [activeProject, activeSceneId, draftOverrides]);
+
+  useEffect(() => {
+    if (!activeProject || !requestedActiveSceneId || requestedActiveSceneId === activeSceneId) {
+      return;
+    }
+    if (activeProject.scenes.some((scene) => scene.id === requestedActiveSceneId)) {
+      setActiveSceneId(requestedActiveSceneId);
+    }
+  }, [activeProject, activeSceneId, requestedActiveSceneId]);
 
   const commitActiveSceneSelection = useCallback(
     (sceneId: string) => {

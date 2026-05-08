@@ -77,4 +77,13 @@ describe("Story Unit v1 compatibility view", () => {
     expect(outline.sourceOutlineId).toBe("out_demo");
     expect(outline.units.map((unit) => unit.unitId)).toEqual(["sc_0001", "sc_0002"]);
   });
+
+  it("does not mutate the loaded project while deriving units", () => {
+    const before = structuredClone(PROJECT);
+
+    deriveStoryUnits(PROJECT);
+    deriveActiveOutline(PROJECT);
+
+    expect(PROJECT).toEqual(before);
+  });
 });

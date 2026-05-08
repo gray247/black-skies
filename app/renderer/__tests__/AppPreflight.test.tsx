@@ -76,6 +76,7 @@ function ProjectHomeMock({
   onActiveSceneChange,
   onDraftChange,
   draftOverrides,
+  requestedActiveSceneId,
 }: {
   onProjectLoaded?: (project: LoadedProject | null) => void;
   onActiveSceneChange?: (payload: {
@@ -85,6 +86,7 @@ function ProjectHomeMock({
   }) => void;
   onDraftChange?: (sceneId: string, draft: string) => void;
   draftOverrides?: Record<string, string>;
+  requestedActiveSceneId?: string | null;
 }): JSX.Element {
   const lastLoadedProjectPathRef = useRef<string | null>(null);
   const lastDraftRef = useRef<string | null>(null);
@@ -96,7 +98,7 @@ function ProjectHomeMock({
   const projectName = mockLoadedProjectName ?? 'Demo Project';
   const bodyActiveSceneId =
     typeof document !== 'undefined' ? document.body?.dataset.activeSceneId ?? null : null;
-  const activeSceneId = bodyActiveSceneId ?? mockActiveSceneId ?? null;
+  const activeSceneId = requestedActiveSceneId ?? bodyActiveSceneId ?? mockActiveSceneId ?? null;
   const activeScene =
     scenes.find((scene) => scene.id === activeSceneId) ?? scenes[0] ?? null;
   const currentDraft = activeScene ? draftOverrides?.[activeScene.id] ?? '' : '';
@@ -156,6 +158,7 @@ function ProjectHomeMock({
     onProjectLoaded,
     projectName,
     projectPath,
+    requestedActiveSceneId,
     scenes,
   ]);
 
@@ -340,6 +343,16 @@ function dispatchDraftPreviewStorageEvent(projectPath: string): void {
       newValue: window.localStorage.getItem(key),
     }),
   );
+}
+
+function enableSplitCommandWorkspace(): void {
+  (window as typeof window & { __runtimeConfigOverride?: typeof DEFAULT_RUNTIME_CONFIG }).__runtimeConfigOverride = {
+    ...DEFAULT_RUNTIME_CONFIG,
+    ui: {
+      ...DEFAULT_RUNTIME_CONFIG.ui,
+      experimentalSplitCommandWorkspace: true,
+    },
+  };
 }
 
 describe('App preflight integration', () => {
@@ -1557,13 +1570,7 @@ describe('App preflight integration', () => {
   });
 
   it('renders the experimental Split Command shell only when the runtime flag is enabled', async () => {
-    (window as typeof window & { __runtimeConfigOverride?: typeof DEFAULT_RUNTIME_CONFIG }).__runtimeConfigOverride = {
-      ...DEFAULT_RUNTIME_CONFIG,
-      ui: {
-        ...DEFAULT_RUNTIME_CONFIG.ui,
-        experimentalSplitCommandWorkspace: true,
-      },
-    };
+    enableSplitCommandWorkspace();
     mockLoadedProjectId = 'proj_split_command';
     mockLoadedProjectName = 'Split Command Demo';
     mockLoadedProjectScenes = [
@@ -1581,6 +1588,53 @@ describe('App preflight integration', () => {
     expect(screen.getByTestId('project-home-mock')).toBeInTheDocument();
     expect(await screen.findByText('Arrival')).toBeInTheDocument();
     expect(screen.queryByLabelText('Wizard dock')).not.toBeInTheDocument();
+  });
+
+  it('keeps generation and preflight wired when ProjectHome is wrapped by Split Command', async () => {
+    enableSplitCommandWorkspace();
+    mockLoadedProjectId = 'proj_split_command';
+    mockLoadedProjectName = 'Split Command Demo';
+    mockLoadedProjectScenes = [
+      { id: 'sc_0001', title: 'Arrival', order: 1 },
+      { id: 'sc_0002', title: 'Signal', order: 2 },
+    ];
+
+    const App = loadAppWithServices(services);
+
+    render(<App />);
+
+    expect(await screen.findByTestId('split-command-workspace')).toBeInTheDocument();
+    expect(screen.getByTestId('project-home-mock')).toBeInTheDocument();
+
+    const storyNavigation = screen.getByLabelText('Story Navigation');
+    fireEvent.click(within(storyNavigation).getByRole('button', { name: 'Select Signal' }));
+    await waitFor(() =>
+      expect(screen.getByTestId('project-home-mock')).toHaveAttribute('data-active-scene-id', 'sc_0002'),
+    );
+
+    const generateButton = await screen.findByRole('button', { name: /generate active scene/i });
+    await waitFor(() => expect(generateButton).not.toBeDisabled());
+    fireEvent.click(generateButton);
+
+    await waitFor(() => expect(services.preflightDraft).toHaveBeenCalledTimes(1));
+    expect(services.preflightDraft).toHaveBeenCalledWith(
+      expect.objectContaining({
+        projectId: 'proj_split_command',
+        unitIds: ['sc_0002'],
+      }),
+    );
+
+    const proceedButton = await screen.findByRole('button', { name: /proceed/i });
+    fireEvent.click(proceedButton);
+
+    await waitFor(() => expect(services.generateDraft).toHaveBeenCalledTimes(1));
+    expect(services.generateDraft).toHaveBeenCalledWith(
+      expect.objectContaining({
+        projectId: 'proj_split_command',
+        unitIds: ['sc_0002'],
+      }),
+      expect.any(String),
+    );
   });
 
 });

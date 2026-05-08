@@ -1,5 +1,5 @@
-import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { fireEvent, render, screen, within } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 
 import type { LoadedProject } from "../../shared/ipc/projectLoader";
 import SplitCommandWorkspace from "../components/workspace/SplitCommandWorkspace";
@@ -13,18 +13,40 @@ const PROJECT: LoadedProject = {
     outline_id: "out_demo",
     acts: [],
     chapters: [],
-    scenes: [{ id: "sc_0001", order: 1, title: "Arrival", chapter_id: "ch_1", beat_refs: [] }],
+    scenes: [
+      { id: "sc_0002", order: 2, title: "Signal", chapter_id: "ch_1", beat_refs: [] },
+      { id: "sc_0001", order: 1, title: "Arrival", chapter_id: "ch_1", beat_refs: [] },
+    ],
   },
-  scenes: [{ id: "sc_0001", title: "Arrival", order: 1, chapter_id: "ch_1" }],
-  drafts: {},
+  scenes: [
+    {
+      id: "sc_0002",
+      title: "Signal",
+      order: 2,
+      chapter_id: "ch_1",
+      purpose: "Escalate the signal.",
+    },
+    {
+      id: "sc_0001",
+      title: "Arrival",
+      order: 1,
+      chapter_id: "ch_1",
+      goal: "Reach the estate.",
+    },
+  ],
+  drafts: {
+    sc_0001: "Arrival draft preview text.",
+  },
 };
 
 describe("SplitCommandWorkspace", () => {
   it("renders command and writing zones without replacing the wrapped writing surface", () => {
+    const onSelectScene = vi.fn();
     render(
       <SplitCommandWorkspace
         project={PROJECT}
         activeSceneId="sc_0001"
+        onSelectScene={onSelectScene}
         writingStudio={<div data-testid="stable-writing-surface">Stable surface</div>}
       />,
     );
@@ -35,8 +57,47 @@ describe("SplitCommandWorkspace", () => {
     expect(screen.getByTestId("stable-writing-surface")).toHaveTextContent("Stable surface");
 
     const storyNavigation = screen.getByLabelText("Story Navigation");
+    expect(within(storyNavigation).getByText("Main outline")).toBeInTheDocument();
+    expect(within(storyNavigation).getByLabelText("2 story units")).toHaveTextContent("2");
     expect(within(storyNavigation).getByText("Arrival")).toBeInTheDocument();
-    expect(within(storyNavigation).getByText("placed")).toBeInTheDocument();
-    expect(screen.getAllByText(/Placeholder only/i).length).toBeGreaterThan(0);
+    expect(within(storyNavigation).getByText("Signal")).toBeInTheDocument();
+    expect(within(storyNavigation).getByText("Arrival draft preview text.")).toBeInTheDocument();
+    expect(within(storyNavigation).getAllByText("placed")).toHaveLength(2);
+    expect(within(storyNavigation).getAllByText("scene")).toHaveLength(2);
+    expect(within(storyNavigation).getByText("Arrival").closest("li")).toHaveAttribute(
+      "aria-current",
+      "true",
+    );
+    expect(screen.getByLabelText("Narrative Overview")).toHaveTextContent(/Placeholder only/i);
+    expect(screen.getByLabelText("Narrative Gaps")).toHaveTextContent(/Placeholder only/i);
+    expect(screen.getByLabelText("AI Companion")).toHaveTextContent(/Placeholder only/i);
+    expect(screen.getByLabelText("Global Tools")).toHaveTextContent(/No command palette is active/i);
+
+    fireEvent.click(within(storyNavigation).getByRole("button", { name: "Select Signal" }));
+    expect(onSelectScene).toHaveBeenCalledWith("sc_0002");
+  });
+
+  it("updates the active marker from the shared activeSceneId prop", () => {
+    const { rerender } = render(
+      <SplitCommandWorkspace
+        project={PROJECT}
+        activeSceneId="sc_0001"
+        onSelectScene={vi.fn()}
+        writingStudio={<div data-testid="stable-writing-surface">Stable surface</div>}
+      />,
+    );
+
+    expect(screen.getByText("Arrival").closest("li")).toHaveAttribute("aria-current", "true");
+
+    rerender(
+      <SplitCommandWorkspace
+        project={PROJECT}
+        activeSceneId="sc_0002"
+        onSelectScene={vi.fn()}
+        writingStudio={<div data-testid="stable-writing-surface">Stable surface</div>}
+      />,
+    );
+
+    expect(screen.getByText("Signal").closest("li")).toHaveAttribute("aria-current", "true");
   });
 });

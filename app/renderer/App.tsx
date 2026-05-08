@@ -2282,6 +2282,7 @@ export default function App(): JSX.Element {
       draftOverrides: draftEdits,
       onActiveSceneChange: handleActiveSceneChange,
       onDraftChange: handleDraftChange,
+      requestedActiveSceneId: activeSceneId,
       paneMode: isFloatingHost ? "floating" : dockingEnabled ? "docked" : "standalone",
       relocationNotifyEnabled,
       autoSnapEnabled,
@@ -2303,6 +2304,7 @@ export default function App(): JSX.Element {
       relocationNotifyEnabled,
       setAutoSnapEnabled,
       setRelocationNotifyEnabled,
+      activeSceneId,
       isStableHomeMode,
       isVisualHomeMode,
       isFloatingHost,
@@ -2487,6 +2489,7 @@ export default function App(): JSX.Element {
     <SplitCommandWorkspace
       project={currentProject}
       activeSceneId={activeSceneId}
+      onSelectScene={applySceneSelection}
       writingStudio={fullWorkspaceBody}
     />
   ) : (

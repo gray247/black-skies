@@ -177,6 +177,23 @@ Promotion notes:
   - validated focused runtime coverage with `pnpm --filter app test -- runtimeConfig.test.ts CommandRegistry.test.ts SplitCommandWorkspace.test.tsx storyUnits.test.ts AppPreflight.test.tsx` (`5 passed`, `38 tests`)
   - full validation passed: `pnpm --filter app test` (`50 passed`, `199 tests`), `pnpm --filter app lint` (pass with existing `useServiceHealth.ts` hook-deps warning), `pnpm --filter app run build:production` (pass), and `git diff --check` (pass)
   - guardrails held: no backend behavior changed, no project file format changed, current shell remains default, and command metadata has no execution path
+- 2026-05-08 - Codex - Phase 11B pass 2 flagged-shell smoke/parity guard:
+  - added coverage that Split Command remains opt-in, wraps the existing stable workspace body, preserves generation/preflight calls through the wrapped ProjectHome path, and keeps Story Unit derivation non-mutating
+  - documented dev/test enablement: `ui.experimental_split_command_workspace: true` in runtime YAML or `window.__runtimeConfigOverride` in renderer tests
+  - validation passed: `pnpm --filter app test -- SplitCommandWorkspace.test.tsx AppPreflight.test.tsx runtimeConfig.test.ts` (`3 passed`, `35 tests`), `pnpm --filter app test` (`50 passed`, `201 tests`), `pnpm --filter app lint` (pass; ESLintRC deprecation notice only), `pnpm --filter app run build:production` (pass), and `git diff --check` (pass)
+  - guardrails held: Split Command is still not default, placeholders remain placeholders, and no backend/project persistence behavior changed
+- 2026-05-08 - Codex - Phase 11B pass 3 read-only Story Navigation wrapper:
+  - replaced the Command Center Story Navigation placeholder with a real read-only panel derived from Story Unit v1 / one-active-outline compatibility data
+  - panel shows Main outline, unit count, ordered scene-derived units, active scene marker, preview text, `placed` state, and `scene` source labels
+  - click-to-select is deferred until a shared selection interface exists; no project persistence, outline editing, backend calls, or Story Unit migration were introduced
+  - validation passed: `pnpm --filter app test -- SplitCommandWorkspace.test.tsx storyUnits.test.ts AppPreflight.test.tsx` (`3 passed`, `34 tests`), `pnpm --filter app test` (`50 passed`, `201 tests`), `pnpm --filter app lint` (pass; ESLintRC deprecation notice only), `pnpm --filter app run build:production` (pass), and `git diff --check` (pass)
+  - Narrative Overview, Narrative Gaps, AI Companion, and Global Tools remain explicit placeholders only
+- 2026-05-08 - Codex - Phase 11B pass 4 shared scene-selection interface:
+  - added the App-owned `activeSceneId`/`onSelectScene(sceneId)` interface to the flagged Split Command shell and wired Story Navigation buttons through it
+  - added a one-way `requestedActiveSceneId` sync prop so `ProjectHome` follows App-owned selection without creating a second selection store
+  - generation/preflight parity now verifies that selecting a Story Navigation item changes the active-scene generation target through the wrapped Writing Studio path
+  - validation passed: `pnpm --filter app test -- SplitCommandWorkspace.test.tsx AppPreflight.test.tsx ProjectHome.test.tsx` (`3 passed`, `43 tests`), `pnpm --filter app test` (`50 passed`, `203 tests`), `pnpm --filter app lint` (pass; ESLintRC deprecation notice only), `pnpm --filter app run build:production` (pass), and `git diff --check` (pass)
+  - guardrails held: Split Command remains opt-in, selection is not persisted, no backend/project format/generation/rewrite/snapshot behavior changed
 - 2026-05-06 - Codex - Started the Phase 11 workflow/pane/UX contract stabilization audit and documentation pass; pass 1 runtime slice now landed for generation labels, preflight scope copy, and recovery toast clarity, and the later GUI/outline overhaul is still split into a separate follow-up plan.
 - 2026-05-06 - Codex - Completed Phase 11A pass 2 rewrite truthfulness updates and added a renderer-level floated-pane project-switch regression after the Playwright temp-project path proved too brittle; backend rewrite persistence remained unchanged.
 - 2026-05-06 - Codex - Completed Phase 11A pass 3 pane scope classification and layout recovery hardening; unknown floating-pane ids are now dropped on layout load and the pane lifecycle matrix is documented.

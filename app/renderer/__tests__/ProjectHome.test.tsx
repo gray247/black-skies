@@ -474,6 +474,59 @@ describe('ProjectHome recent project recovery', () => {
     expect(screen.getAllByText('210 words').length).toBeGreaterThan(0);
   });
 
+  it('follows the shared requested active scene without bypassing the normal callback', async () => {
+    const samplePath = 'C:\\Dev\\black-skies\\sample_project\\Esther_Estate';
+    const project = createMultiSceneProject(samplePath);
+    const onActiveSceneChange = vi.fn();
+
+    const projectLoader: ProjectLoaderApi = {
+      openProjectDialog: vi.fn(),
+      getSampleProjectPath: vi.fn().mockResolvedValue(samplePath),
+      loadProject: vi.fn().mockResolvedValue({
+        ok: true,
+        project,
+        issues: [],
+      }),
+    };
+
+    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+
+    const { rerender } = render(
+      <ProjectHome
+        onToast={vi.fn()}
+        onProjectLoaded={vi.fn()}
+        onActiveSceneChange={onActiveSceneChange}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(projectLoader.loadProject).toHaveBeenCalledWith({ path: samplePath });
+    });
+
+    rerender(
+      <ProjectHome
+        onToast={vi.fn()}
+        onProjectLoaded={vi.fn()}
+        onActiveSceneChange={onActiveSceneChange}
+        requestedActiveSceneId="sc_0004"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /Scene Four/i })).toHaveAttribute(
+        'aria-pressed',
+        'true',
+      );
+    });
+    expect(onActiveSceneChange).toHaveBeenCalledWith(
+      expect.objectContaining({
+        sceneId: 'sc_0004',
+        sceneTitle: 'Scene Four',
+        draft: '# Scene Four',
+      }),
+    );
+  });
+
   it('labels scene metadata as display-only while still surfacing generation-affecting cues', async () => {
     const samplePath = 'C:\\Dev\\black-skies\\sample_project\\Esther_Estate';
     const project = createMultiSceneProject(samplePath);
