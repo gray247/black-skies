@@ -44,6 +44,7 @@ Current progress snapshot:
 - Pass 19 reviewed and preserved the deferred ledger, narrowing completed foundation items to residual/future work where needed.
 - Pass 20 completed cleanup and closure validation for the Phase 11B foundation.
 - Pass 21 completed the Phase 11B closure review.
+- Phase 12 planning now lives in `docs/phases/phase12_editorial_workflow_plan.md`.
 
 Pass 2 parity guard:
 - Renderer coverage now verifies flag-off default shell rendering, flag-on Split Command rendering, Writing Studio wrapping the stable workspace body, Command Center placeholder labeling, generation/preflight calls through the wrapped ProjectHome path, and Story Unit derivation without project mutation.

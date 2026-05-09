@@ -28,6 +28,9 @@ If an issue is not tracked here, it is not part of the active fix scope.
 - Production default remains flag-off; Split Command remains experimental behind `ui.experimental_split_command_workspace`.
 - No further Phase 11B runtime passes are queued after closure review.
 - No backend, project format, generation, rewrite, snapshot, export, command execution, or Story Unit persistence behavior changed in Passes 6-21.
+- Phase 12 planning is underway in `docs/phases/phase12_editorial_workflow_plan.md`; this is docs-only planning and does not change runtime behavior.
+- Phase 12 Pass 1 established the canonical editorial workflow contract layer in `docs/specs/editorial_workflow_contract.md`; the contract is docs-only and does not change runtime behavior.
+- Phase 12 Passes 2-5 are documented in `docs/phases/phase12_runtime_audit.md`; the audit covers current critique/rewrite runtime truth, rewrite/sync labels, revision comparison planning, and provenance surface planning without runtime or test changes.
 
 ## Status Definitions
 - `ACTIVE`: known issue, unresolved
