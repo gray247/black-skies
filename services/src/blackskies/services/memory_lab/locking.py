@@ -5,17 +5,17 @@ from __future__ import annotations
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterator
+from typing import Any, Iterator, cast
 
 try:
     import fcntl as _fcntl  # type: ignore
 except ImportError:  # pragma: no cover - non-posix fallback
-    _fcntl = None
+    _fcntl = None  # type: ignore[assignment]
 
 try:
     import msvcrt as _msvcrt  # type: ignore
 except ImportError:  # pragma: no cover - non-windows fallback
-    _msvcrt = None
+    _msvcrt = None  # type: ignore[assignment]
 
 
 @dataclass(frozen=True)
@@ -36,13 +36,15 @@ def acquire_project_lock(project_root: Path) -> Iterator[LockState]:
     lock_effective = False
     try:
         if _fcntl is not None:
-            _fcntl.flock(lock_file.fileno(), _fcntl.LOCK_EX)
+            fcntl = cast(Any, _fcntl)
+            fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
             lock_mode = "fcntl"
             lock_effective = True
         elif _msvcrt is not None:
             # Lock a single byte at the beginning of the lock file.
             lock_file.seek(0)
-            _msvcrt.locking(lock_file.fileno(), _msvcrt.LK_LOCK, 1)
+            msvcrt = cast(Any, _msvcrt)
+            msvcrt.locking(lock_file.fileno(), msvcrt.LK_LOCK, 1)
             lock_mode = "msvcrt"
             lock_effective = True
         yield LockState(
@@ -53,9 +55,11 @@ def acquire_project_lock(project_root: Path) -> Iterator[LockState]:
     finally:
         try:
             if lock_mode == "fcntl" and _fcntl is not None:
-                _fcntl.flock(lock_file.fileno(), _fcntl.LOCK_UN)
+                fcntl = cast(Any, _fcntl)
+                fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
             elif lock_mode == "msvcrt" and _msvcrt is not None:
                 lock_file.seek(0)
-                _msvcrt.locking(lock_file.fileno(), _msvcrt.LK_UNLCK, 1)
+                msvcrt = cast(Any, _msvcrt)
+                msvcrt.locking(lock_file.fileno(), msvcrt.LK_UNLCK, 1)
         finally:
             lock_file.close()

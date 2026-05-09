@@ -193,6 +193,9 @@ async function syncForceOfflineFlag(page: Page, shouldForce: boolean): Promise<v
   const normalized = Boolean(shouldForce);
   const applyForceState = (force: boolean): void => {
     const root = document.documentElement;
+    if (!root) {
+      return;
+    }
     const body = document.body ?? root;
     if (force) {
       root.dataset.testForceOffline = '1';
@@ -409,13 +412,21 @@ export async function installServiceStubs(
   modeOverride?: TestMode,
 ): Promise<void> {
   const applyActiveFlowFlag = (): void => {
-    document.documentElement.dataset.testActiveFlow = '1';
+    const root = document.documentElement;
+    if (!root) {
+      return;
+    }
+    root.dataset.testActiveFlow = '1';
     if (document.body) {
       document.body.dataset.testActiveFlow = '1';
     }
   };
   await page.addInitScript(() => {
-    document.documentElement.dataset.testActiveFlow = '1';
+    const root = document.documentElement;
+    if (!root) {
+      return;
+    }
+    root.dataset.testActiveFlow = '1';
     if (document.body) {
       document.body.dataset.testActiveFlow = '1';
     }
@@ -429,6 +440,9 @@ export async function installServiceStubs(
   await page.evaluate((shouldSetReason) => {
     const reason = shouldSetReason ? 'service_port_unavailable' : undefined;
     const root = document.documentElement;
+    if (!root) {
+      return;
+    }
     const body = document.body ?? root;
     if (reason) {
       root.dataset.testEnvForceOfflineReason = reason;
@@ -447,14 +461,14 @@ export async function installServiceStubs(
   const targetMode = scenario === 'snapshot' ? 'full' : modeOverride ?? defaultMode;
   const offlineReason = scenario === 'offline' ? 'service_port_unavailable' : undefined;
   await applyTestMode(page, targetMode, offlineReason);
-  await page.evaluate(() => {
-    document.documentElement.dataset.testActiveFlow = '1';
-    if (document.body) {
-      document.body.dataset.testActiveFlow = '1';
-    }
-  });
+  await page.addInitScript((enabled) => {
+    (window as typeof window & { __testEnvSnapshotRestoreFlow?: boolean })
+      .__testEnvSnapshotRestoreFlow = enabled;
+  }, scenario === 'snapshot');
   await ensureServer();
   currentScenario = scenario;
+  // Ensure init-script harness flags are applied before renderer startup assertions run.
+  await page.reload({ waitUntil: 'domcontentloaded' });
   console.log('[backup-stub-installed]', `scenario=${scenario}, mode=${targetMode}`);
   await page.evaluate((enabled) => {
     (window as typeof window & { __testEnvSnapshotRestoreFlow?: boolean })

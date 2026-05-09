@@ -1,24 +1,31 @@
 name: Validation & Eval Harness
 
 on:
+  push:
+    branches:
+      - main
+      - phase-b2-memory-lab
   pull_request:
   workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
       - name: Cache pip
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.lock', 'requirements.dev.lock', 'constraints.txt') }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements*.lock', 'constraints.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
       - name: Install dependencies
@@ -39,16 +46,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
       - name: Cache pip
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.lock', 'requirements.dev.lock', 'constraints.txt') }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements*.lock', 'constraints.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
       - name: Install dependencies
@@ -77,15 +84,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: '20'
+          node-version: '24'
+          package-manager-cache: false
       - name: Set up pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v4
+      - name: Resolve pnpm store path
+        id: pnpm_store
+        shell: bash
+        run: echo "path=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+      - name: Cache pnpm store
+        uses: actions/cache@v5
         with:
-          version: 8
+          path: ${{ steps.pnpm_store.outputs.path }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
       - name: Install dependencies
         run: pnpm install --recursive --no-frozen-lockfile
       - name: Run app lint
@@ -99,15 +116,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: '20'
+          node-version: '24'
+          package-manager-cache: false
       - name: Set up pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v4
+      - name: Resolve pnpm store path
+        id: pnpm_store
+        shell: bash
+        run: echo "path=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+      - name: Cache pnpm store
+        uses: actions/cache@v5
         with:
-          version: 8
+          path: ${{ steps.pnpm_store.outputs.path }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
       - name: Install dependencies
         run: pnpm install --recursive --no-frozen-lockfile
       - name: Run markdownlint
@@ -118,55 +145,290 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Cache pip
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements*.lock', 'constraints.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: '20'
+          node-version: '24'
+          package-manager-cache: false
       - name: Set up pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v4
+      - name: Resolve pnpm store path
+        id: pnpm_store
+        shell: bash
+        run: echo "path=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+      - name: Cache pnpm store
+        uses: actions/cache@v5
         with:
-          version: 8
+          path: ${{ steps.pnpm_store.outputs.path }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
       - name: Install dependencies
-        run: pnpm install --recursive --no-frozen-lockfile
+        run: |
+          python -m pip install --upgrade pip
+          pip install -c constraints.txt -r requirements.lock -r requirements.dev.lock
+          pnpm install --recursive --no-frozen-lockfile
+      - name: Verify backend runtime dependency (uvicorn)
+        run: |
+          python3 -m uvicorn --help > /dev/null
+          python3 -c "import uvicorn; print(uvicorn.__version__)"
+      - name: Resolve Playwright version
+        id: playwright_version
+        run: |
+          echo "version=$(node -p 'require(\"./app/package.json\").devDependencies[\"@playwright/test\"] || require(\"./app/package.json\").devDependencies[\"playwright\"]')" >> "$GITHUB_OUTPUT"
+      - name: Cache Playwright browsers
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ steps.playwright_version.outputs.version }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
       - name: Install Playwright browsers
-        run: pnpm --filter app exec playwright install --with-deps
-      - name: Run HARNESS_ONLY Playwright UI smoke tests
+        run: pnpm --filter app exec playwright install --with-deps chromium
+      - name: Install headless display runtime
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb
+      - name: Prepare sample project fixture
+        run: node scripts/materialize_e2e_fixture.mjs
+      - name: Debug sample project materialization
+        run: |
+          pwd
+          find sample_project -maxdepth 3 -type f | sort
+          test -f sample_project/proj_esther_estate/project.json
+          test -f sample_project/proj_esther_estate/outline.json
+          test -d sample_project/proj_esther_estate/drafts
+      - name: Verify sample project fixture contract
+        run: node scripts/check_e2e_fixture_contract.mjs
+      - name: Prepare Playwright diagnostics directory
+        run: mkdir -p ci_artifacts/playwright_diagnostics
+      - name: Build Electron artifacts for canary
+        run: |
+          pnpm --dir app run build:renderer
+          pnpm --dir app run build:main
+      - name: Verify Electron artifact preflight
+        run: |
+          echo "packagedEntry=app/dist-electron/main/main.js"
+          echo "rendererIndex=app/dist/index.html"
+          test -f app/dist-electron/main/main.js
+          test -f app/dist/index.html
+      - name: Write app-e2e diagnostic environment manifest
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import platform
+          import subprocess
+          from pathlib import Path
+
+          def run(cmd):
+              try:
+                  completed = subprocess.run(
+                      cmd,
+                      check=True,
+                      capture_output=True,
+                      text=True,
+                  )
+                  return completed.stdout.strip()
+              except Exception:
+                  return "unavailable"
+
+          manifest = {
+              "schema_version": 1,
+              "ci": {
+                  "workflow": os.environ.get("GITHUB_WORKFLOW", ""),
+                  "run_id": os.environ.get("GITHUB_RUN_ID", ""),
+                  "run_number": os.environ.get("GITHUB_RUN_NUMBER", ""),
+                  "sha": os.environ.get("GITHUB_SHA", ""),
+                  "ref": os.environ.get("GITHUB_REF", ""),
+              },
+              "runtime": {
+                  "os": platform.platform(),
+                  "python": run(["python", "--version"]),
+                  "node": run(["node", "--version"]),
+                  "pnpm": run(["pnpm", "--version"]),
+              },
+              "playwright": {
+                  "disable_animations": "1",
+                  "retries": "0",
+                  "output_dir": "app",
+              },
+          }
+          path = Path("ci_artifacts/playwright_diagnostics/env-manifest.json")
+          path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+          PY
+      - name: Canary preflight (serial workers=1)
+        id: canary_serial
+        continue-on-error: true
         env:
           PLAYWRIGHT_DISABLE_ANIMATIONS: '1'
-        run: pnpm --filter app test:e2e
+          PLAYWRIGHT_RETRIES: '0'
+          PLAYWRIGHT_OUTPUT_DIR: app
+          FULL_ANALYTICS_E2E: '0'
+          BLACKSKIES_E2E_TIMELINE_PATH: ci_artifacts/playwright_diagnostics/canary-timeline.json
+        run: |
+          set -o pipefail
+          xvfb-run -a pnpm test:e2e -- --workers=1 2>&1 | tee ci_artifacts/playwright_diagnostics/canary-serial.log
+      - name: Canary preflight (default launcher workers)
+        id: canary_default
+        continue-on-error: true
+        env:
+          PLAYWRIGHT_DISABLE_ANIMATIONS: '1'
+          PLAYWRIGHT_RETRIES: '0'
+          PLAYWRIGHT_OUTPUT_DIR: app
+          FULL_ANALYTICS_E2E: '0'
+          BLACKSKIES_E2E_TIMELINE_PATH: ci_artifacts/playwright_diagnostics/canary-timeline-default.json
+        run: |
+          set -o pipefail
+          xvfb-run -a pnpm test:e2e 2>&1 | tee ci_artifacts/playwright_diagnostics/canary-default.log
+      - name: Assert normalized Playwright command in canary logs
+        id: assert_canary_command
+        if: always()
+        continue-on-error: true
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          logs = [
+            Path("ci_artifacts/playwright_diagnostics/canary-serial.log"),
+            Path("ci_artifacts/playwright_diagnostics/canary-default.log"),
+          ]
+          for log_path in logs:
+            if not log_path.exists():
+              raise SystemExit(f"missing canary log: {log_path}")
+            text = log_path.read_text(encoding="utf-8", errors="replace")
+            if "[e2e] running" not in text:
+              raise SystemExit(f"canary log missing '[e2e] running': {log_path}")
+            if "'--'," in text:
+              raise SystemExit(f"unexpected separator token forwarded to Playwright in {log_path}")
+            if re.search(r"'--'\s*,\s*'--workers=1'", text):
+              raise SystemExit(f"separator + workers tail found in {log_path}")
+          print("canary command assertions passed")
+          PY
+      - name: Classify canary serial-vs-default outcomes
+        if: always()
+        env:
+          SERIAL_CANARY: ${{ steps.canary_serial.outcome }}
+          DEFAULT_CANARY: ${{ steps.canary_default.outcome }}
+          COMMAND_ASSERT: ${{ steps.assert_canary_command.outcome }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          serial = os.environ.get("SERIAL_CANARY", "unknown")
+          default = os.environ.get("DEFAULT_CANARY", "unknown")
+          command_assert = os.environ.get("COMMAND_ASSERT", "unknown")
+
+          if serial == "success" and default == "success":
+              classification = "healthy"
+          elif serial == "success" and default != "success":
+              classification = "parallel_contention_suspected"
+          elif serial != "success":
+              classification = "single_launch_failure"
+          else:
+              classification = "indeterminate"
+
+          payload = {
+              "serial_canary": serial,
+              "default_canary": default,
+              "command_assertion": command_assert,
+              "classification": classification,
+          }
+          out = Path("ci_artifacts/playwright_diagnostics/canary-classification.json")
+          out.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+          print(json.dumps(payload, indent=2))
+          PY
+      - name: Enforce canary launch gate
+        if: always()
+        env:
+          SERIAL_CANARY: ${{ steps.canary_serial.outcome }}
+          DEFAULT_CANARY: ${{ steps.canary_default.outcome }}
+          COMMAND_ASSERT: ${{ steps.assert_canary_command.outcome }}
+        run: |
+          if [ "$COMMAND_ASSERT" != "success" ]; then
+            echo "Canary command assertion failed."
+            exit 1
+          fi
+          if [ "$SERIAL_CANARY" != "success" ]; then
+            echo "Serial canary failed; single-launch path is not healthy."
+            exit 1
+          fi
+          if [ "$DEFAULT_CANARY" != "success" ]; then
+            echo "Default canary failed while serial passed; contention is suspected."
+          fi
+      - name: Build renderer and main bundles for full suite
+        if: steps.canary_serial.outcome == 'success'
+        run: echo "Canary prebuild already produced renderer/main artifacts."
+      - name: Run HARNESS_ONLY Playwright full suite
+        if: steps.canary_serial.outcome == 'success'
+        env:
+          PLAYWRIGHT_DISABLE_ANIMATIONS: '1'
+          PLAYWRIGHT_RETRIES: '0'
+          PLAYWRIGHT_OUTPUT_DIR: app
+        run: |
+          set -o pipefail
+          xvfb-run -a pnpm --dir app exec playwright test -c ./playwright.config.ts 2>&1 | tee ci_artifacts/playwright_diagnostics/full-suite.log
       - name: Upload Playwright artifacts
-        if: failure()
-        uses: actions/upload-artifact@v4
+        if: always()
+        uses: actions/upload-artifact@v6
         with:
           name: playwright-artifacts
+          if-no-files-found: ignore
           path: |
+            ci_artifacts/playwright_diagnostics
             app/playwright-report
             app/test-results
+            app/app/playwright-report
+            app/app/test-results
 
   app-truth-lane:
     name: App Truth Lane (Real Service Path)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: '20'
+          node-version: '24'
+          package-manager-cache: false
       - name: Set up pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v4
+      - name: Resolve pnpm store path
+        id: pnpm_store
+        shell: bash
+        run: echo "path=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+      - name: Cache pnpm store
+        uses: actions/cache@v5
         with:
-          version: 8
+          path: ${{ steps.pnpm_store.outputs.path }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
       - name: Cache pip
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.lock', 'requirements.dev.lock', 'constraints.txt') }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements*.lock', 'constraints.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
       - name: Install dependencies
@@ -185,19 +447,28 @@ jobs:
       - name: Run truth lane checks
         run: pnpm test:truth
       - name: Write PASS 4 proof summary
-        if: success()
+        if: always()
+        env:
+          PASS4_JOB_STATUS: ${{ job.status }}
         run: |
           mkdir -p build/ci_proof/pass4
+          proof_status="failure"
+          if [ "$PASS4_JOB_STATUS" = "success" ]; then
+            proof_status="success"
+          elif [ "$PASS4_JOB_STATUS" = "cancelled" ]; then
+            proof_status="cancelled"
+          fi
           python scripts/write_gauntlet_pass_summary.py \
             --pass-id "PASS 4" \
             --command "pnpm test:truth" \
             --commit-sha "${{ github.sha }}" \
+            --status "$proof_status" \
             --output "build/ci_proof/pass4/summary.json" \
             --artifact "build/truth_receipts/latest.json" \
             --artifact "build/truth_receipts/latest.txt"
       - name: Upload PASS 4 proof artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: gauntlet-pass4-proof
           path: |
@@ -211,32 +482,51 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: '20'
+          node-version: '24'
+          package-manager-cache: false
       - name: Set up pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v4
+      - name: Resolve pnpm store path
+        id: pnpm_store
+        shell: bash
+        run: echo "path=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+      - name: Cache pnpm store
+        uses: actions/cache@v5
         with:
-          version: 8
+          path: ${{ steps.pnpm_store.outputs.path }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
       - name: Install dependencies
         run: pnpm install --recursive --no-frozen-lockfile
       - name: Run PASS 3 targeted suite
         run: |
           pnpm --filter app test -- --run main/__tests__/serviceApi.test.ts renderer/__tests__/AppCritique.test.tsx renderer/__tests__/useCritique.test.ts
       - name: Write PASS 3 proof summary
-        if: success()
+        if: always()
+        env:
+          PASS3_JOB_STATUS: ${{ job.status }}
         run: |
           mkdir -p build/ci_proof/pass3
+          proof_status="failure"
+          if [ "$PASS3_JOB_STATUS" = "success" ]; then
+            proof_status="success"
+          elif [ "$PASS3_JOB_STATUS" = "cancelled" ]; then
+            proof_status="cancelled"
+          fi
           python scripts/write_gauntlet_pass_summary.py \
             --pass-id "PASS 3" \
             --command "pnpm --filter app test -- --run main/__tests__/serviceApi.test.ts renderer/__tests__/AppCritique.test.tsx renderer/__tests__/useCritique.test.ts" \
             --commit-sha "${{ github.sha }}" \
+            --status "$proof_status" \
             --output "build/ci_proof/pass3/summary.json"
       - name: Upload PASS 3 proof artifact
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: gauntlet-pass3-proof
           path: build/ci_proof/pass3/summary.json
@@ -246,24 +536,34 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: '20'
+          node-version: '24'
+          package-manager-cache: false
       - name: Set up pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v4
+      - name: Resolve pnpm store path
+        id: pnpm_store
+        shell: bash
+        run: echo "path=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+      - name: Cache pnpm store
+        uses: actions/cache@v5
         with:
-          version: 8
+          path: ${{ steps.pnpm_store.outputs.path }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
       - name: Cache pip
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.lock', 'requirements.dev.lock', 'constraints.txt') }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements*.lock', 'constraints.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
       - name: Install dependencies
@@ -271,8 +571,19 @@ jobs:
           python -m pip install --upgrade pip
           pip install -c constraints.txt -r requirements.lock -r requirements.dev.lock
           pnpm install --recursive --no-frozen-lockfile
+      - name: Resolve Playwright version
+        id: playwright_version
+        run: |
+          echo "version=$(node -p 'require(\"./app/package.json\").devDependencies[\"@playwright/test\"] || require(\"./app/package.json\").devDependencies[\"playwright\"]')" >> "$GITHUB_OUTPUT"
+      - name: Cache Playwright browsers
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ steps.playwright_version.outputs.version }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
       - name: Install Playwright browsers
-        run: pnpm --filter app exec playwright install --with-deps
+        run: pnpm --filter app exec playwright install --with-deps chromium
       - name: Build renderer and main bundles
         run: |
           pnpm --filter app build:renderer
@@ -281,24 +592,39 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y xvfb
+      - name: Prepare sample project fixture
+        run: node scripts/materialize_e2e_fixture.mjs
+      - name: Verify sample project fixture contract
+        run: node scripts/check_e2e_fixture_contract.mjs
       - name: Run PASS 5 metadata guard + harness smoke
         env:
           PLAYWRIGHT_DISABLE_ANIMATIONS: '1'
+          PLAYWRIGHT_RETRIES: '0'
+          PLAYWRIGHT_OUTPUT_DIR: app
         run: |
           pytest -q services/tests/unit/test_e2e_seam_metadata.py
           xvfb-run -a pnpm test:e2e
       - name: Write PASS 5 proof summary
-        if: success()
+        if: always()
+        env:
+          PASS5_JOB_STATUS: ${{ job.status }}
         run: |
           mkdir -p build/ci_proof/pass5
+          proof_status="failure"
+          if [ "$PASS5_JOB_STATUS" = "success" ]; then
+            proof_status="success"
+          elif [ "$PASS5_JOB_STATUS" = "cancelled" ]; then
+            proof_status="cancelled"
+          fi
           python scripts/write_gauntlet_pass_summary.py \
             --pass-id "PASS 5" \
             --command "pytest -q services/tests/unit/test_e2e_seam_metadata.py && pnpm test:e2e" \
             --commit-sha "${{ github.sha }}" \
+            --status "$proof_status" \
             --output "build/ci_proof/pass5/summary.json"
       - name: Upload PASS 5 proof artifact
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: gauntlet-pass5-proof
           path: build/ci_proof/pass5/summary.json
@@ -308,19 +634,36 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: '20'
+          node-version: '24'
+          package-manager-cache: false
       - name: Set up pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v4
+      - name: Resolve pnpm store path
+        id: pnpm_store
+        shell: bash
+        run: echo "path=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+      - name: Cache pnpm store
+        uses: actions/cache@v5
         with:
-          version: 8
+          path: ${{ steps.pnpm_store.outputs.path }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
+      - name: Cache pip
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements*.lock', 'constraints.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -332,17 +675,26 @@ jobs:
           pnpm --filter app build:renderer
           pnpm --filter app build:main
       - name: Write PASS 6 proof summary
-        if: success()
+        if: always()
+        env:
+          PASS6_JOB_STATUS: ${{ job.status }}
         run: |
           mkdir -p build/ci_proof/pass6
+          proof_status="failure"
+          if [ "$PASS6_JOB_STATUS" = "success" ]; then
+            proof_status="success"
+          elif [ "$PASS6_JOB_STATUS" = "cancelled" ]; then
+            proof_status="cancelled"
+          fi
           python scripts/write_gauntlet_pass_summary.py \
             --pass-id "PASS 6" \
             --command "python scripts/gauntlet_capability_probe.py && pnpm --filter app build:renderer && pnpm --filter app build:main" \
             --commit-sha "${{ github.sha }}" \
+            --status "$proof_status" \
             --output "build/ci_proof/pass6/summary.json"
       - name: Upload PASS 6 proof artifact
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: gauntlet-pass6-proof
           path: build/ci_proof/pass6/summary.json
@@ -358,27 +710,27 @@ jobs:
       - gauntlet-pass6-proof
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Download PASS 3 proof
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         continue-on-error: true
         with:
           name: gauntlet-pass3-proof
           path: ci_artifacts/pass3
       - name: Download PASS 4 proof
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         continue-on-error: true
         with:
           name: gauntlet-pass4-proof
           path: ci_artifacts/pass4
       - name: Download PASS 5 proof
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         continue-on-error: true
         with:
           name: gauntlet-pass5-proof
           path: ci_artifacts/pass5
       - name: Download PASS 6 proof
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         continue-on-error: true
         with:
           name: gauntlet-pass6-proof
@@ -399,8 +751,74 @@ jobs:
             --pass4-result "$PASS4_RESULT" \
             --pass5-result "$PASS5_RESULT" \
             --pass6-result "$PASS6_RESULT"
+      - name: Materialize missing pass proof placeholders
+        if: always()
+        env:
+          PASS3_RESULT: ${{ needs.gauntlet-pass3-proof.result }}
+          PASS4_RESULT: ${{ needs.app-truth-lane.result }}
+          PASS5_RESULT: ${{ needs.gauntlet-pass5-proof.result }}
+          PASS6_RESULT: ${{ needs.gauntlet-pass6-proof.result }}
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          entries = [
+              ("pass3", "PASS 3", "gauntlet-pass3-proof", "PASS3_RESULT"),
+              ("pass4", "PASS 4", "gauntlet-pass4-proof", "PASS4_RESULT"),
+              ("pass5", "PASS 5", "gauntlet-pass5-proof", "PASS5_RESULT"),
+              ("pass6", "PASS 6", "gauntlet-pass6-proof", "PASS6_RESULT"),
+          ]
+
+          import os
+          for slug, pass_id, artifact_name, env_key in entries:
+              summary = Path(f"ci_artifacts/{slug}/build/ci_proof/{slug}/summary.json")
+              if summary.exists():
+                  continue
+              summary.parent.mkdir(parents=True, exist_ok=True)
+              summary.write_text(
+                  json.dumps(
+                      {
+                          "pass_id": pass_id,
+                          "status": "missing_artifact",
+                          "artifact": artifact_name,
+                          "upstream_result": os.environ.get(env_key, "unknown"),
+                          "reason": "Upstream pass did not publish proof summary.",
+                      },
+                      indent=2,
+                  )
+                  + "\n",
+                  encoding="utf-8",
+              )
+
+          pass4_result = os.environ.get("PASS4_RESULT", "unknown")
+          pass4_latest_json = Path("ci_artifacts/pass4/build/truth_receipts/latest.json")
+          if not pass4_latest_json.exists():
+              pass4_latest_json.parent.mkdir(parents=True, exist_ok=True)
+              pass4_latest_json.write_text(
+                  json.dumps(
+                      {
+                          "status": "missing_artifact",
+                          "artifact": "gauntlet-pass4-proof",
+                          "upstream_result": pass4_result,
+                          "reason": "PASS 4 truth receipt JSON was not published.",
+                      },
+                      indent=2,
+                  )
+                  + "\n",
+                  encoding="utf-8",
+              )
+
+          pass4_latest_txt = Path("ci_artifacts/pass4/build/truth_receipts/latest.txt")
+          if not pass4_latest_txt.exists():
+              pass4_latest_txt.parent.mkdir(parents=True, exist_ok=True)
+              pass4_latest_txt.write_text(
+                  f"missing_artifact: gauntlet-pass4-proof (upstream_result={pass4_result})\n",
+                  encoding="utf-8",
+              )
+          PY
       - name: Upload gauntlet CI proof manifest
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: gauntlet-ci-proof-manifest
           path: |
@@ -426,16 +844,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
       - name: Cache pip
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.lock', 'requirements.dev.lock', 'constraints.txt') }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements*.lock', 'constraints.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
       - name: Install dependencies
@@ -443,7 +861,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -c constraints.txt -r requirements.lock -r requirements.dev.lock
       - name: Validate runtime truth ledger
-        run: pytest -q services/tests/unit/test_runtime_truth.py
+        run: PYTHONPATH=. pytest -q services/tests/unit/test_runtime_truth.py
       - name: Run authoritative PASS 2 service-truth lane
         run: python scripts/run_service_truth.py
       - name: Run long-form hardening lane
@@ -460,6 +878,10 @@ jobs:
         run: |
           LEDGER_PATH=$(python scripts/find_latest_run.py --kind evaluation --root sample_project/_runtime/runs)
           python scripts/check_slo.py "$LEDGER_PATH"
+      - name: Prepare sample project fixture
+        run: node scripts/materialize_e2e_fixture.mjs
+      - name: Verify sample project fixture contract
+        run: node scripts/check_e2e_fixture_contract.mjs
       - name: Run route smoke tests
         run: bash scripts/smoke.sh
       - name: Start FastAPI service for load test
@@ -477,7 +899,7 @@ jobs:
           python scripts/check_slo.py "$LEDGER_PATH"
       - name: Upload load test ledger
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: load-ledger
           path: sample_project/_runtime/runs
@@ -493,9 +915,358 @@ jobs:
           fi
       - name: Upload eval artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: eval-report
+          if-no-files-found: ignore
           path: |
             out/eval.html
             out/eval.json
+
+  ci-observability:
+    name: CI Observability Summary
+    if: always()
+    runs-on: ubuntu-latest
+    needs:
+      - lint
+      - typecheck
+      - app-tests
+      - docs-lint
+      - app-e2e
+      - app-truth-lane
+      - gauntlet-pass3-proof
+      - gauntlet-pass5-proof
+      - gauntlet-pass6-proof
+      - gauntlet-proof-manifest
+      - eval
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Write observability summary artifacts
+        if: always()
+        env:
+          JOB_STATUS: ${{ job.status }}
+          GITHUB_WORKFLOW: ${{ github.workflow }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_RUN_NUMBER: ${{ github.run_number }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_REF: ${{ github.ref }}
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_ACTOR: ${{ github.actor }}
+          LINT_RESULT: ${{ needs.lint.result }}
+          TYPECHECK_RESULT: ${{ needs.typecheck.result }}
+          APP_TESTS_RESULT: ${{ needs.app-tests.result }}
+          DOCS_LINT_RESULT: ${{ needs.docs-lint.result }}
+          APP_E2E_RESULT: ${{ needs.app-e2e.result }}
+          APP_TRUTH_RESULT: ${{ needs.app-truth-lane.result }}
+          PASS3_RESULT: ${{ needs.gauntlet-pass3-proof.result }}
+          PASS5_RESULT: ${{ needs.gauntlet-pass5-proof.result }}
+          PASS6_RESULT: ${{ needs.gauntlet-pass6-proof.result }}
+          MANIFEST_RESULT: ${{ needs.gauntlet-proof-manifest.result }}
+          EVAL_RESULT: ${{ needs.eval.result }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import subprocess
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          def classify_from_result(result: str) -> str:
+              if result == "success":
+                  return "present"
+              if result in {"failure", "cancelled", "skipped"}:
+                  return "skipped_due_upstream_failure"
+              return "missing_expected"
+
+          def entry(group: str, name: str, producer_job: str, producer_result: str) -> dict[str, str]:
+              return {
+                  "group": group,
+                  "name": name,
+                  "classification": classify_from_result(producer_result),
+                  "producer_job": producer_job,
+                  "notes": f"inferred_from_result:{producer_result or 'unknown'}",
+              }
+
+          actual_sha = (
+              subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+          )
+          github_sha = os.environ.get("GITHUB_SHA", "")
+          lint_result = os.environ.get("LINT_RESULT", "")
+          typecheck_result = os.environ.get("TYPECHECK_RESULT", "")
+          app_tests_result = os.environ.get("APP_TESTS_RESULT", "")
+          docs_lint_result = os.environ.get("DOCS_LINT_RESULT", "")
+          app_e2e_result = os.environ.get("APP_E2E_RESULT", "")
+          app_truth_result = os.environ.get("APP_TRUTH_RESULT", "")
+          pass3_result = os.environ.get("PASS3_RESULT", "")
+          pass5_result = os.environ.get("PASS5_RESULT", "")
+          pass6_result = os.environ.get("PASS6_RESULT", "")
+          manifest_result = os.environ.get("MANIFEST_RESULT", "")
+          eval_result = os.environ.get("EVAL_RESULT", "")
+          summary = {
+              "workflow": os.environ.get("GITHUB_WORKFLOW", ""),
+              "run_id": os.environ.get("GITHUB_RUN_ID", ""),
+              "run_number": os.environ.get("GITHUB_RUN_NUMBER", ""),
+              "event": os.environ.get("GITHUB_EVENT_NAME", ""),
+              "ref": os.environ.get("GITHUB_REF", ""),
+              "github_sha": github_sha,
+              "actor": os.environ.get("GITHUB_ACTOR", ""),
+              "job_status": os.environ.get("JOB_STATUS", ""),
+              "actual_sha": actual_sha,
+          }
+          sha_consistency = {
+              "workflow": os.environ.get("GITHUB_WORKFLOW", ""),
+              "run_id": os.environ.get("GITHUB_RUN_ID", ""),
+              "job_status": os.environ.get("JOB_STATUS", ""),
+              "github_sha": github_sha,
+              "actual_sha": actual_sha,
+              "sha_match": actual_sha == github_sha,
+          }
+
+          artifacts = [
+              entry("gauntlet_pass_proof", "gauntlet-pass3-proof", "gauntlet-pass3-proof", pass3_result),
+              entry("gauntlet_pass_proof", "gauntlet-pass4-proof", "app-truth-lane", app_truth_result),
+              entry("gauntlet_pass_proof", "gauntlet-pass5-proof", "gauntlet-pass5-proof", pass5_result),
+              entry("gauntlet_pass_proof", "gauntlet-pass6-proof", "gauntlet-pass6-proof", pass6_result),
+              entry("gauntlet_manifest", "gauntlet-ci-proof-manifest", "gauntlet-proof-manifest", manifest_result),
+              entry("playwright_artifacts", "playwright-artifacts", "app-e2e", app_e2e_result),
+              entry("eval_report", "eval-report", "eval", eval_result),
+              entry("load_ledger", "load-ledger", "eval", eval_result),
+          ]
+
+          counts = {
+              "present": 0,
+              "missing_expected": 0,
+              "ignored_no_files": 0,
+              "skipped_due_upstream_failure": 0,
+          }
+          for artifact in artifacts:
+              classification = artifact["classification"]
+              if classification in counts:
+                  counts[classification] += 1
+
+          completeness = {
+              "schema_version": 1,
+              "workflow": os.environ.get("GITHUB_WORKFLOW", ""),
+              "run_id": os.environ.get("GITHUB_RUN_ID", ""),
+              "run_number": os.environ.get("GITHUB_RUN_NUMBER", ""),
+              "event": os.environ.get("GITHUB_EVENT_NAME", ""),
+              "ref": os.environ.get("GITHUB_REF", ""),
+              "github_sha": github_sha,
+              "job_status": os.environ.get("JOB_STATUS", ""),
+              "generated_at_utc": datetime.now(timezone.utc).isoformat(),
+              "artifacts": artifacts,
+              "counts": counts,
+          }
+
+          upstream_results = {
+              "lint": lint_result,
+              "typecheck": typecheck_result,
+              "app-tests": app_tests_result,
+              "docs-lint": docs_lint_result,
+              "app-e2e": app_e2e_result,
+              "app-truth-lane": app_truth_result,
+              "gauntlet-pass3-proof": pass3_result,
+              "gauntlet-pass5-proof": pass5_result,
+              "gauntlet-pass6-proof": pass6_result,
+              "gauntlet-proof-manifest": manifest_result,
+              "eval": eval_result,
+          }
+
+          source_signals: list[str] = []
+          secondary_classes: list[str] = []
+          job_status = os.environ.get("JOB_STATUS", "")
+
+          missing_with_success_producer = [
+              a
+              for a in artifacts
+              if a["classification"] == "missing_expected"
+              and upstream_results.get(a["producer_job"], "") == "success"
+          ]
+          if missing_with_success_producer:
+              source_signals.append("missing_expected_with_success_producer")
+
+          def add_secondary(value: str) -> None:
+              if value not in secondary_classes:
+                  secondary_classes.append(value)
+
+          failing_setup_jobs = [
+              j
+              for j in ["lint", "typecheck", "app-tests", "docs-lint"]
+              if upstream_results.get(j) in {"failure", "cancelled", "skipped"}
+          ]
+          if failing_setup_jobs:
+              source_signals.append(f"setup_jobs_failed:{','.join(failing_setup_jobs)}")
+
+          if upstream_results.get("app-e2e") in {"failure", "cancelled", "skipped"}:
+              source_signals.append("app-e2e_failed")
+
+          failing_assertion_jobs = [
+              j
+              for j in [
+                  "app-truth-lane",
+                  "gauntlet-pass3-proof",
+                  "gauntlet-pass5-proof",
+                  "gauntlet-pass6-proof",
+                  "gauntlet-proof-manifest",
+                  "eval",
+              ]
+              if upstream_results.get(j) in {"failure", "cancelled", "skipped"}
+          ]
+          if failing_assertion_jobs:
+              source_signals.append(f"validation_jobs_failed:{','.join(failing_assertion_jobs)}")
+
+          if job_status == "success":
+              primary_class = "no_failure"
+              confidence = "high"
+              notes = "All required upstream jobs succeeded for this run."
+              if missing_with_success_producer:
+                  add_secondary("artifact_missing")
+                  confidence = "low"
+                  notes = "Run succeeded but completeness suggests missing expected artifacts."
+          else:
+              if missing_with_success_producer:
+                  primary_class = "artifact_missing"
+                  confidence = "medium"
+                  notes = "Expected artifact missing while producer job reported success."
+              elif upstream_results.get("app-e2e") in {"failure", "cancelled", "skipped"}:
+                  primary_class = "infra_port_process"
+                  confidence = "medium"
+                  notes = "Harness/smoke producer job failed."
+              elif failing_setup_jobs:
+                  primary_class = "setup_tooling"
+                  confidence = "high"
+                  notes = "Setup/lint/typecheck/app-tests/docs-lint producer failure."
+              elif failing_assertion_jobs:
+                  primary_class = "test_assertion"
+                  confidence = "medium"
+                  notes = "Validation/eval/gauntlet producer failure."
+              else:
+                  primary_class = "unknown_success"
+                  confidence = "low"
+                  notes = "Non-success run without deterministic class mapping."
+
+          if missing_with_success_producer and primary_class != "artifact_missing":
+              add_secondary("artifact_missing")
+          if failing_setup_jobs and primary_class != "setup_tooling":
+              add_secondary("setup_tooling")
+          if upstream_results.get("app-e2e") in {"failure", "cancelled", "skipped"} and primary_class != "infra_port_process":
+              add_secondary("infra_port_process")
+          if failing_assertion_jobs and primary_class != "test_assertion":
+              add_secondary("test_assertion")
+
+          failure_classification = {
+              "schema_version": 1,
+              "workflow": os.environ.get("GITHUB_WORKFLOW", ""),
+              "run_id": os.environ.get("GITHUB_RUN_ID", ""),
+              "run_number": os.environ.get("GITHUB_RUN_NUMBER", ""),
+              "event": os.environ.get("GITHUB_EVENT_NAME", ""),
+              "ref": os.environ.get("GITHUB_REF", ""),
+              "github_sha": github_sha,
+              "job_status": job_status,
+              "primary_class": primary_class,
+              "secondary_classes": secondary_classes,
+              "source_signals": source_signals if source_signals else ["no_failure_signals"],
+              "upstream_results": upstream_results,
+              "confidence": confidence,
+              "notes": notes,
+          }
+
+          warning_families = [
+              {
+                  "family": "NO_COLOR_FORCE_COLOR",
+                  "status": "deferred",
+                  "source": "deferred_risk_register",
+                  "confidence": "medium",
+                  "notes": "Known deferred warning family; direct run observation is not asserted in Batch 4A.",
+              },
+              {
+                  "family": "DOCK_LAYOUT_FALLBACK",
+                  "status": "deferred",
+                  "source": "deferred_risk_register",
+                  "confidence": "medium",
+                  "notes": "Known deferred compatibility warning; no full-log parsing in this batch.",
+              },
+              {
+                  "family": "ESLINTRC_DEPRECATION",
+                  "status": "deferred",
+                  "source": "deferred_risk_register",
+                  "confidence": "medium",
+                  "notes": "Known deferred config migration warning family.",
+              },
+              {
+                  "family": "NODE_ACTION_RUNTIME_WARNING",
+                  "status": "unknown",
+                  "source": "workflow_metadata_only",
+                  "confidence": "low",
+                  "notes": "No log parsing in Batch 4A; status intentionally conservative.",
+              },
+              {
+                  "family": "NODE_PUNYCODE_URL_PARSE_TRANSITIVE",
+                  "status": "unknown",
+                  "source": "workflow_metadata_only",
+                  "confidence": "low",
+                  "notes": "No deterministic signal source without log parsing.",
+              },
+              {
+                  "family": "RENDERER_TYPEERROR_NOISE",
+                  "status": "deferred",
+                  "source": "deferred_risk_register",
+                  "confidence": "low",
+                  "notes": "Deferred warning noise family; reproducibility remains conditional.",
+              },
+          ]
+
+          warning_counts = {
+              "observed": 0,
+              "not_observed": 0,
+              "deferred": 0,
+              "unknown": 0,
+          }
+          for item in warning_families:
+              status = item["status"]
+              if status in warning_counts:
+                  warning_counts[status] += 1
+
+          warning_summary = {
+              "schema_version": 1,
+              "workflow": os.environ.get("GITHUB_WORKFLOW", ""),
+              "run_id": os.environ.get("GITHUB_RUN_ID", ""),
+              "run_number": os.environ.get("GITHUB_RUN_NUMBER", ""),
+              "event": os.environ.get("GITHUB_EVENT_NAME", ""),
+              "ref": os.environ.get("GITHUB_REF", ""),
+              "github_sha": github_sha,
+              "job_status": job_status,
+              "warning_families": warning_families,
+              "summary": warning_counts,
+              "non_blocking": True,
+          }
+
+          Path("ci-run-summary.json").write_text(
+              json.dumps(summary, indent=2) + "\n", encoding="utf-8"
+          )
+          Path("ci-sha-consistency.json").write_text(
+              json.dumps(sha_consistency, indent=2) + "\n", encoding="utf-8"
+          )
+          Path("ci-artifact-completeness.json").write_text(
+              json.dumps(completeness, indent=2) + "\n", encoding="utf-8"
+          )
+          Path("ci-failure-classification.json").write_text(
+              json.dumps(failure_classification, indent=2) + "\n", encoding="utf-8"
+          )
+          Path("ci-warning-summary.json").write_text(
+              json.dumps(warning_summary, indent=2) + "\n", encoding="utf-8"
+          )
+          PY
+      - name: Upload observability summary artifacts
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: ci-observability-${{ github.job }}
+          if-no-files-found: ignore
+          path: |
+            ci-run-summary.json
+            ci-sha-consistency.json
+            ci-artifact-completeness.json
+            ci-failure-classification.json
+            ci-warning-summary.json

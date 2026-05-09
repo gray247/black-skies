@@ -1,28 +1,21 @@
 ﻿import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import fs from 'node:fs/promises';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 
 import DraftEditor from '../DraftEditor';
 
-const testDirectory = path.dirname(fileURLToPath(import.meta.url));
-const sampleScenePath = path.resolve(
-  testDirectory,
-  '../../..',
-  'sample_project',
-  'Esther_Estate',
-  'drafts',
-  'sc_0001.md',
-);
+const sampleSceneMarkdown = `---
+id: sc_0001
+slug: basement-pulse
+title: Basement Pulse
+pov: Mara Ibarra
+---
+Mara Ibarra enters Basement Pulse and maps the sealed corridor.`;
 
 describe('DraftEditor', () => {
   it('renders the sample scene title and body', async () => {
-    const markdown = await fs.readFile(sampleScenePath, 'utf8');
-
     render(
       <DraftEditor
-        value={markdown}
+        value={sampleSceneMarkdown}
         readOnly
         placeholder="Draft body placeholder"
       />,
@@ -35,6 +28,18 @@ describe('DraftEditor', () => {
       /Mara Ibarra enters Basement Pulse/i,
     );
     expect(bodyLine).toBeTruthy();
+  });
+
+  it('keeps the editor shell full-height so the preview can occupy a visible viewport', () => {
+    const { container } = render(
+      <DraftEditor
+        value={sampleSceneMarkdown}
+        readOnly
+        placeholder="Draft body placeholder"
+      />,
+    );
+
+    expect(container.querySelector('.draft-editor')).toHaveStyle({ minHeight: '100%' });
   });
 
   it('applies fallback accessibility metadata when no labels are provided', async () => {

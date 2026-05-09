@@ -5,7 +5,7 @@ from __future__ import annotations
 import asyncio
 import time
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import pytest
 
@@ -69,7 +69,8 @@ async def test_generate_allows_concurrent_health(
 
     result = await generate_task
     assert result["project_id"] == project_id
-    assert len(result["units"]) == len(scene_ids)
+    units = cast(list[object], result["units"])
+    assert len(units) == len(scene_ids)
 
 
 async def test_critique_allows_concurrent_health(

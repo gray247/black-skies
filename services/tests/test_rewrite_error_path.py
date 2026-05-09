@@ -67,6 +67,7 @@ def test_rewrite_conflict_response_includes_cors_and_provenance(tmp_path: Path) 
     assert payload["code"] == "CONFLICT"
     assert payload["message"] == "The scene on disk no longer matches the submitted draft unit."
     assert payload["details"]["error_code"] == "CONFLICT"
+    assert payload["details"]["unit_id"] == "sc_0001"
     assert payload["details"]["provenance"] == {
         "route_name": "draft/rewrite",
         "provider_called": False,

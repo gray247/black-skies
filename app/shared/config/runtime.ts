@@ -48,6 +48,7 @@ export interface UiHotkeysConfig {
 export interface UiConfig {
   readonly enableDocking: boolean;
   readonly defaultPreset: string;
+  readonly experimentalSplitCommandWorkspace: boolean;
   readonly hotkeys: UiHotkeysConfig;
 }
 
@@ -111,6 +112,7 @@ export const DEFAULT_RUNTIME_CONFIG: RuntimeConfig = Object.freeze({
   ui: {
     enableDocking: false,
     defaultPreset: "standard",
+    experimentalSplitCommandWorkspace: false,
     hotkeys: {
       enablePresetHotkeys: true,
       focusCycleOrder: DEFAULT_FOCUS_CYCLE_ORDER,
@@ -243,6 +245,10 @@ function normalizeRuntimeConfig(parsed: Record<string, unknown>): RuntimeConfig 
         typeof uiSection.default_preset === "string"
           ? uiSection.default_preset
           : DEFAULT_RUNTIME_CONFIG.ui.defaultPreset,
+      experimentalSplitCommandWorkspace: toBoolean(
+        uiSection.experimental_split_command_workspace,
+        DEFAULT_RUNTIME_CONFIG.ui.experimentalSplitCommandWorkspace,
+      ),
       hotkeys: {
         enablePresetHotkeys: toBoolean(
           uiHotkeysSection.enable_preset_hotkeys,

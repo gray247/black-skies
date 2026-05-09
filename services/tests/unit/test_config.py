@@ -24,16 +24,10 @@ def test_from_environment_supports_export_and_quotes(tmp_path, monkeypatch):
     project_dir = tmp_path / "Projects" / "Black Skies"
     project_dir.mkdir(parents=True)
 
-    env_content = (
-        textwrap.dedent(
-            """
+    env_content = textwrap.dedent("""
         # comment line
           export BLACKSKIES_PROJECT_BASE_DIR="{}"
-        """
-        )
-        .strip()
-        .format(project_dir)
-    )
+        """).strip().format(project_dir)
 
     (tmp_path / ".env").write_text(env_content, encoding="utf-8")
 
@@ -148,6 +142,28 @@ def test_openai_api_key_alias_supported(monkeypatch, tmp_path):
     settings = _load_service_settings().from_environment()
 
     assert settings.openai_api_key == "alias-key"
+
+
+def test_from_environment_strips_crlf_suffix_from_env_overrides(monkeypatch, tmp_path):
+    """Trailing carriage returns in env values should not break enum/bool parsing."""
+
+    project_dir = tmp_path / "Projects" / "CRLF Env"
+    project_dir.mkdir(parents=True)
+    (tmp_path / ".env").write_text(
+        f'BLACKSKIES_PROJECT_BASE_DIR="{project_dir}"\n',
+        encoding="utf-8",
+    )
+
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("BLACKSKIES_MODEL_ROUTING_POLICY", "api_only\r")
+    monkeypatch.setenv("BLACKSKIES_MODEL_ROUTER_PROVIDER_CALLS_ENABLED", "true\r")
+    monkeypatch.setenv("BLACKSKIES_LONG_FORM_PROVIDER_ENABLED", "true\r")
+
+    settings = _load_service_settings().from_environment()
+
+    assert settings.model_routing_policy.value == "api_only"
+    assert settings.model_router_provider_calls_enabled is True
+    assert settings.long_form_provider_enabled is True
 
 
 def test_memory_decay_thresholds_validation_fails_fast(tmp_path):

@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import zipfile
 from pathlib import Path
+from typing import Any
 
 from blackskies.services.backup_service import BackupService
 from blackskies.services.backup_verifier import run_verification
@@ -26,7 +27,7 @@ def _build_project(tmp_path: Path) -> Path:
     return project_root
 
 
-def _persist_report(project_root: Path, report: dict[str, any]) -> Path:
+def _persist_report(project_root: Path, report: dict[str, Any]) -> Path:
     snapshot_dir = project_root / ".snapshots"
     snapshot_dir.mkdir(parents=True, exist_ok=True)
     target = snapshot_dir / "last_verification.json"

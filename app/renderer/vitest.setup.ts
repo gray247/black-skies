@@ -1,4 +1,5 @@
 import { afterAll, afterEach, beforeAll, beforeEach, vi } from 'vitest';
+import { resetRendererTestState } from './testCleanup';
 
 beforeAll(() => {
   if (typeof document === 'undefined') {
@@ -63,6 +64,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  resetRendererTestState();
   vi.restoreAllMocks();
 });
 

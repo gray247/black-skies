@@ -1,4 +1,5 @@
-﻿import type { DraftPreflightEstimate } from '../../shared/ipc/services';
+import type { DraftPreflightEstimate } from '../../shared/ipc/services';
+import type { GenerateFlowPhase } from '../hooks/usePreflight';
 
 interface PreflightModalProps {
   isOpen: boolean;
@@ -6,6 +7,9 @@ interface PreflightModalProps {
   error?: string | null;
   errorDetails?: unknown | null;
   estimate?: DraftPreflightEstimate;
+  errorPhase?: GenerateFlowPhase | null;
+  generationScope: 'active-scene' | 'all-scenes';
+  generationScopeCount: number;
   onClose: () => void;
   onProceed: () => void;
 }
@@ -62,6 +66,9 @@ export function PreflightModal({
   error,
   errorDetails,
   estimate,
+  errorPhase,
+  generationScope,
+  generationScopeCount,
   onClose,
   onProceed,
 }: PreflightModalProps): JSX.Element | null {
@@ -81,6 +88,14 @@ export function PreflightModal({
   const scenes = estimate?.scenes ?? [];
   const model = estimate?.model;
   const disableProceed = showLoading || !budget || status === 'blocked' || Boolean(error);
+  const generationScopeLabel =
+    generationScope === 'all-scenes' ? 'All scenes only' : 'Active scene';
+  const generationScopeAction =
+    generationScope === 'all-scenes'
+      ? 'This run will write draft text for every loaded scene.'
+      : 'This run will write draft text for the active scene only.';
+  const affectedSceneCountLabel =
+    generationScopeCount === 1 ? '1 scene is affected.' : `${generationScopeCount} scenes are affected.`;
 
   return (
     <div className="preflight-modal" role="dialog" aria-modal="true" aria-label="Draft preflight">
@@ -92,11 +107,40 @@ export function PreflightModal({
           </button>
         </header>
         <section className="preflight-modal__body">
+          <div
+            className="preflight-modal__scope-summary"
+            aria-live="polite"
+            data-testid="preflight-contract"
+          >
+            <p
+              className="preflight-modal__scope-line"
+              data-testid="preflight-contract-scope"
+            >
+              <strong>Generation scope:</strong> {generationScopeLabel}
+            </p>
+            <p className="preflight-modal__scope-line">{generationScopeAction}</p>
+            <p
+              className="preflight-modal__scope-line"
+              data-testid="preflight-contract-count"
+            >
+              {affectedSceneCountLabel}
+            </p>
+            <p
+              className="preflight-modal__scope-line"
+              data-testid="preflight-contract-warning"
+            >
+              Draft text may be replaced for the selected scope after you proceed.
+            </p>
+          </div>
           {showLoading ? (
             <p>Estimating…</p>
           ) : error ? (
             <div className="preflight-modal__error">
-              <strong>Unable to complete preflight</strong>
+              <strong>
+                {errorPhase === 'generation'
+                  ? 'Unable to complete draft generation'
+                  : 'Unable to complete preflight'}
+              </strong>
               <p>{error}</p>
               {validationSummary.length > 0 ? (
                 <div className="preflight-modal__error-summary" aria-live="polite">
@@ -161,7 +205,12 @@ export function PreflightModal({
                 ) : null}
               </dl>
               {budget.message ? (
-                <p className="preflight-modal__message">{budget.message}</p>
+                <p
+                  className="preflight-modal__message"
+                  data-testid="preflight-contract-budget"
+                >
+                  {budget.message}
+                </p>
               ) : null}
               {scenes.length > 0 ? (
                 <div className="preflight-modal__scenes" aria-live="polite">

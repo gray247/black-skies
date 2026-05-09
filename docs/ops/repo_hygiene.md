@@ -25,7 +25,7 @@ If such scripts are intentionally tracked, keep them formatted and periodically 
 
 Current classification:
 - `app/temp-trace/` is a tracked diagnostic workspace for trace inspection helpers and fixture-adjacent probes.
-- Repo-root `diff*.py` / `*trace*.py` helpers are tracked ad-hoc diagnostics and should be treated as hygiene debt candidates for later consolidation under a contained diagnostics location.
+- Repo-root `diff*.py` / `*trace*.py` helpers were previously tracked ad-hoc diagnostics; the stale root copies were pruned in the 2026-04-30 cleanup, and any new one-off probes should still live under `app/temp-trace/` or `tools/`.
 
 ## Install the local pre-commit hook
 

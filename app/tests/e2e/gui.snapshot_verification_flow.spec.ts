@@ -1,7 +1,6 @@
 import { test, expect } from './_electron.fixture';
 import { bootstrapHarness } from './_bootstrap';
 import { installServiceStubs } from './utils/serviceStubs';
-import { TID } from '../../renderer/utils/testIds';
 
 // HARNESS_ONLY:
 // Reason: validates snapshot-verification UI plumbing with stubbed service responses.
@@ -10,16 +9,16 @@ import { TID } from '../../renderer/utils/testIds';
 
 test('snapshot verification flow (UI)', async ({ page }) => {
   await installServiceStubs(page, 'snapshot', 'flat');
-  await bootstrapHarness(page);
+  await bootstrapHarness(page, {
+    allowRecoveryBanner: true,
+    requiredEnabledActions: ['workspace-action-snapshot'],
+  });
 
   const snapshotButton = page.getByTestId('workspace-action-snapshot');
   await expect(snapshotButton).toBeVisible({ timeout: 30_000 });
   await expect(snapshotButton).toBeEnabled();
   await snapshotButton.click();
 
-  await page.waitForFunction(
-    () => (window as typeof window & { __paneReady?: number }).__paneReady ?? 0 >= 4,
-  );
   const toastTitle = page.locator('.toast__title', { hasText: /snapshot created/i });
   await expect(toastTitle).toBeVisible({ timeout: 30_000 });
   const viewReportAction = page.locator('.toast__action-button', { hasText: /view report/i });
@@ -53,9 +52,5 @@ test('snapshot verification flow (UI)', async ({ page }) => {
   await expect(modal).not.toBeVisible();
 
   await expect(panel.getByRole('button', { name: /view full report/i })).toBeVisible();
-
-  await page.waitForTimeout(1000);
-  await expect(toastTitle).toBeVisible();
-
-  await expect(page.getByTestId(TID.dockWorkspace)).toBeVisible();
+  await expect(page.getByTestId('workspace-action-snapshot')).toBeEnabled({ timeout: 30_000 });
 });

@@ -154,7 +154,7 @@ def test_generate_analytics_payload_composes_metrics(
 
 
 def test_empty_outline_returns_empty_metrics() -> None:
-    empty_outline = {"chapters": [], "scenes": []}
+    empty_outline: dict[str, list[dict[str, object]]] = {"chapters": [], "scenes": []}
     payload = generate_analytics_payload(outline=empty_outline, draft_units=[])
 
     assert payload.emotion_arc == []

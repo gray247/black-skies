@@ -6,14 +6,15 @@ from datetime import datetime, timezone, tzinfo
 from pathlib import Path
 import sys
 import types
+from typing import Any, Callable, cast
 
 import json
 
 import pytest
 
-
 if "pydantic" not in sys.modules:
     pydantic_stub = types.ModuleType("pydantic")
+    pydantic_stub_any: Any = pydantic_stub
 
     class _BaseModel:
         model_config: dict[str, object] = {}
@@ -32,7 +33,10 @@ if "pydantic" not in sys.modules:
             return None
 
     def _field(
-        *, default: object | None = None, default_factory: object | None = None, **_: object
+        *,
+        default: object | None = None,
+        default_factory: Callable[[], object] | None = None,
+        **_: object,
     ) -> object:
         if default_factory is not None:
             return default_factory()
@@ -57,12 +61,12 @@ if "pydantic" not in sys.modules:
     def _config_dict(**kwargs: object) -> dict[str, object]:  # pragma: no cover - minimal stub
         return dict(kwargs)
 
-    pydantic_stub.BaseModel = _BaseModel
-    pydantic_stub.Field = _field
-    pydantic_stub.field_validator = _field_validator
-    pydantic_stub.model_validator = _model_validator
-    pydantic_stub.AliasChoices = _AliasChoices
-    pydantic_stub.ConfigDict = _config_dict
+    pydantic_stub_any.BaseModel = _BaseModel
+    pydantic_stub_any.Field = _field
+    pydantic_stub_any.field_validator = _field_validator
+    pydantic_stub_any.model_validator = _model_validator
+    pydantic_stub_any.AliasChoices = _AliasChoices
+    pydantic_stub_any.ConfigDict = _config_dict
     sys.modules["pydantic"] = pydantic_stub
 
 import blackskies.services.diagnostics as diagnostics
@@ -74,10 +78,10 @@ class FrozenDateTime(datetime):
     _fixed = datetime(2024, 1, 2, 3, 4, 5, 678901, tzinfo=timezone.utc)
 
     @classmethod
-    def now(cls, tz: tzinfo | None = None) -> datetime:
+    def now(cls, tz: tzinfo | None = None) -> FrozenDateTime:
         if tz is None:
-            return cls._fixed.replace(tzinfo=None)
-        return cls._fixed.astimezone(tz)
+            return cast(FrozenDateTime, cls._fixed.replace(tzinfo=None))
+        return cast(FrozenDateTime, cls._fixed.astimezone(tz))
 
 
 @pytest.fixture

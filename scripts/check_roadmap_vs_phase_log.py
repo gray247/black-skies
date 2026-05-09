@@ -6,7 +6,6 @@ import re
 from pathlib import Path
 from typing import Dict
 
-
 RE_ROADMAP_ROW = re.compile(r"^\| (P\d(?:\.\d)?) \| [^|]+ \| ([^|]+) \|")
 RE_PHASE_ENTRY = re.compile(r"Phase\s+(\d(?:\.\d)?)\s.*\(([^)]+)\)")
 RE_PHASE_TABLE_ROW = re.compile(r"^\|\s*(P\d(?:\.\d)?)\s*\|[^|]*\|[^|]*\|\s*([^|]+)\|")

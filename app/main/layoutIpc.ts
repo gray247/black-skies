@@ -3,6 +3,7 @@ import { promises as fs } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 
 import {
+  DEFAULT_LAYOUT,
   LAYOUT_CHANNELS,
   LAYOUT_SCHEMA_VERSION,
   type FloatingPaneClampInfo,
@@ -14,6 +15,8 @@ import {
   type LayoutLoadResponse,
   type LayoutPaneId,
   type LayoutSaveRequest,
+  normalisePaneId,
+  isValidLayoutTree,
 } from '../shared/ipc/layout.js';
 
 interface RegisterLayoutIpcOptions {
@@ -27,6 +30,7 @@ interface PersistedLayoutPayload {
   version?: number;
   layout: unknown;
   floatingPanes: FloatingPaneDescriptor[];
+  wasReset?: boolean;
 }
 
 const LAYOUT_DIR_NAME = '.blackskies';
@@ -34,6 +38,7 @@ const LAYOUT_FILE_NAME = 'layout.json';
 
 const floatingWindows: Map<string, Map<LayoutPaneId, BrowserWindow>> = new Map();
 const authorizedProjectRoots = new Set<string>();
+const invalidLayoutResetsInFlight = new Set<string>();
 
 export function authorizeProjectPath(projectPath: string): void {
   const resolved = resolve(projectPath);
@@ -59,7 +64,7 @@ async function ensureLayoutDir(projectPath: string): Promise<string> {
   return dir;
 }
 
-async function loadPersistedLayout(projectPath: string): Promise<PersistedLayoutPayload | null> {
+export async function loadPersistedLayout(projectPath: string): Promise<PersistedLayoutPayload | null> {
   const filePath = resolveLayoutFile(projectPath);
   try {
     const raw = await fs.readFile(filePath, 'utf-8');
@@ -77,6 +82,10 @@ async function loadPersistedLayout(projectPath: string): Promise<PersistedLayout
         if (typeof descriptor.id !== 'string') {
           return null;
         }
+        const normalizedId = normalisePaneId(descriptor.id);
+        if (!normalizedId) {
+          return null;
+        }
         const bounds = descriptor.bounds;
         const normalizedBounds =
           bounds && typeof bounds === 'object'
@@ -88,7 +97,7 @@ async function loadPersistedLayout(projectPath: string): Promise<PersistedLayout
               }
             : undefined;
         const result: FloatingPaneDescriptor = {
-          id: descriptor.id as LayoutPaneId,
+          id: normalizedId,
           bounds:
             normalizedBounds && normalizedBounds.width && normalizedBounds.height
               ? {
@@ -113,10 +122,32 @@ async function loadPersistedLayout(projectPath: string): Promise<PersistedLayout
       });
       return null;
     }
+    if (parsed.layout != null && !isValidLayoutTree(parsed.layout)) {
+      const firstReset = !invalidLayoutResetsInFlight.has(projectPath);
+      invalidLayoutResetsInFlight.add(projectPath);
+      try {
+        await resetPersistedLayout(projectPath);
+      } finally {
+        invalidLayoutResetsInFlight.delete(projectPath);
+      }
+      if (firstReset) {
+        console.info('[layout] Discarded saved layout after validation failure', {
+          projectPath,
+          filePath,
+        });
+      }
+      return {
+        version: payloadVersion,
+        layout: DEFAULT_LAYOUT,
+        floatingPanes: normalisedFloating,
+        wasReset: true,
+      };
+    }
     return {
       version: payloadVersion,
       layout: parsed.layout ?? null,
       floatingPanes: normalisedFloating,
+      wasReset: false,
     };
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
@@ -233,6 +264,7 @@ async function handleLoadLayout(request: LayoutLoadRequest): Promise<LayoutLoadR
     layout: payload.layout as LayoutLoadResponse['layout'],
     floatingPanes: payload.floatingPanes ?? [],
     schemaVersion: payload.version ?? 1,
+    wasReset: payload.wasReset ?? false,
   };
 }
 
@@ -258,11 +290,19 @@ async function handleResetLayout(request: LayoutLoadRequest): Promise<void> {
   await resetPersistedLayout(resolvedProjectPath);
 }
 
-function makeFloatingWindowUrl(
+export function shouldUseFileRendererEntry(rendererUrl: string | null | undefined): boolean {
+  if (typeof rendererUrl !== 'string' || rendererUrl.length === 0) {
+    return false;
+  }
+  return rendererUrl.startsWith('file:') || rendererUrl.startsWith('about:blank');
+}
+
+export function makeFloatingWindowUrl(
   options: RegisterLayoutIpcOptions,
   paneId: LayoutPaneId,
   projectPath: string,
   extraSearchParams?: Record<string, string | undefined>,
+  rendererUrl?: string | null,
 ): string | { file: string; search: string } {
   const searchParams = new URLSearchParams({
     floatingPane: paneId,
@@ -275,11 +315,18 @@ function makeFloatingWindowUrl(
       }
     });
   }
-  if (options.devServerUrl) {
-    const base = options.devServerUrl.endsWith('/')
-      ? options.devServerUrl.slice(0, -1)
-      : options.devServerUrl;
-    return `${base}/?${searchParams.toString()}`;
+  if (!shouldUseFileRendererEntry(rendererUrl) && options.devServerUrl) {
+    try {
+      const parsed = new URL(options.devServerUrl);
+      if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+        const base = options.devServerUrl.endsWith('/')
+          ? options.devServerUrl.slice(0, -1)
+          : options.devServerUrl;
+        return `${base}/?${searchParams.toString()}`;
+      }
+    } catch {
+      // Invalid URL falls back to renderer file path.
+    }
   }
   return {
     file: options.rendererIndexFile,
@@ -391,6 +438,7 @@ async function openFloatingWindow(
     request.paneId,
     request.projectPath,
     clampInfo ? { relocated: '1' } : undefined,
+    options.getMainWindow()?.webContents.getURL() ?? null,
   );
   if (typeof target === 'string') {
     await window.loadURL(target);

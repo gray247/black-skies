@@ -12,5 +12,6 @@ _services_pkg = _repo_root / "services" / "src" / "blackskies"
 
 if _services_pkg.is_dir():
     candidate = str(_services_pkg)
-    if candidate not in __path__:
-        __path__.insert(0, candidate)  # type: ignore[attr-defined]
+    ordered_paths = [candidate]
+    ordered_paths.extend(path for path in __path__ if path != candidate)  # type: ignore[arg-type]
+    __path__[:] = ordered_paths  # type: ignore[index]

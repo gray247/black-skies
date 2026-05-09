@@ -1,59 +1,26 @@
 import { test, expect } from './_electron.fixture';
-import { bootstrapHarness } from './_bootstrap';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { bootstrapHarness, openPreflightDialog } from './_bootstrap';
+import { loadSampleProject } from './utils/sampleProject';
+import type { Page } from '@playwright/test';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const repoRoot = path.resolve(__dirname, '../../..');
-const projectId = 'proj_esther_estate';
-const projectRoot = path.join(repoRoot, 'sample_project', projectId);
-const outline = JSON.parse(fs.readFileSync(path.join(projectRoot, 'outline.json'), 'utf-8'));
-const projectMeta = JSON.parse(fs.readFileSync(path.join(projectRoot, 'project.json'), 'utf-8'));
-const draftsDir = path.join(projectRoot, 'drafts');
-const drafts = Object.fromEntries(
-  fs
-    .readdirSync(draftsDir)
-    .filter((file) => file.endsWith('.md'))
-    .map((file) => [
-      path.basename(file, '.md'),
-      fs.readFileSync(path.join(draftsDir, file), 'utf-8'),
-    ]),
-);
-
-const scenes = outline.scenes.map((scene: any) => ({
-  id: scene.id,
-  title: scene.title,
-  order: scene.order,
-  chapter_id: scene.chapter_id,
-  beat_refs: scene.beat_refs,
-  purpose: 'escalation',
-  emotion_tag: 'tension',
-}));
+const fixture = loadSampleProject();
+const { projectId, scenes } = fixture;
 
 // NOTE: These fixtures mirror sample_project/proj_esther_estate. If the sample project
 // budgets or outline change, update the stub values below to keep the test in sync.
-const loadedProject = {
-  path: projectRoot.replace(/\\/g, '/'),
-  name: projectMeta.name,
-  outline,
-  scenes,
-  drafts,
-  project_id: projectId,
-};
+const loadedProject = fixture.loadedProject;
 
 const preflightBudget = {
-  estimated_usd: 1.75,
+  estimated_usd: 0.02,
   status: 'ok',
   message: 'Estimate within budget.',
-  soft_limit_usd: 10.0,
+  soft_limit_usd: 5.0,
   hard_limit_usd: 10.0,
-  spent_usd: 1.75,
-  total_after_usd: 1.75,
-  cost: 1.75,
+  spent_usd: 0.02,
+  total_after_usd: 0.02,
+  cost: 0.02,
   limit: 10.0,
-  remaining: 8.25,
+  remaining: 9.98,
 };
 
 const preflightEstimate = {
@@ -86,17 +53,19 @@ const HARNESS_ONLY_METADATA = {
 console.log('[HARNESS_ONLY]', HARNESS_ONLY_METADATA);
 
 const critiqueBudget = {
-  estimated_usd: 0.15,
+  estimated_usd: 0.01,
   status: 'ok',
-  message: 'Critique telemetry recorded.',
-  soft_limit_usd: 10.0,
+  message: 'Critique complete.',
+  soft_limit_usd: 5.0,
   hard_limit_usd: 10.0,
-  spent_usd: 1.9,
-  total_after_usd: 1.9,
-  cost: 1.9,
+  spent_usd: 0.02,
+  total_after_usd: 0.02,
+  cost: 0.02,
   limit: 10.0,
-  remaining: 8.1,
+  remaining: 9.98,
 };
+
+const critiqueBudgetLabel = `$${critiqueBudget.total_after_usd.toFixed(2)} / $${critiqueBudget.hard_limit_usd.toFixed(2)}`;
 
 const critiqueResponse = {
   unit_id: scenes[0]?.id ?? 'sc_0001',
@@ -121,162 +90,120 @@ const acceptResponse = {
   budget: critiqueBudget,
 };
 
+type BudgetHarnessPayload = {
+  project: typeof loadedProject;
+  preflight: typeof preflightEstimate;
+  critique: typeof critiqueResponse;
+  accept: typeof acceptResponse;
+};
+
+async function installBudgetHarnessOverrides(
+  page: Page,
+  payload: BudgetHarnessPayload,
+): Promise<void> {
+  const installer = ({ project, preflight, critique, accept }: BudgetHarnessPayload) => {
+    const services = {
+      checkHealth: async () => ({
+        ok: true,
+        data: { status: 'online' },
+        traceId: 'trace-health',
+      }),
+      buildOutline: async () => ({ ok: true, data: project.outline, traceId: 'trace-outline' }),
+      preflightDraft: async () => {
+        return { ok: true, data: preflight, traceId: 'trace-preflight' };
+      },
+      generateDraft: async () => ({
+        ok: true,
+        data: {
+          draft_id: 'dr_stub',
+          schema_version: 'DraftUnitSchema v1',
+          units: [],
+          budget: { status: 'ok' },
+        },
+        traceId: 'trace-generate',
+      }),
+      critiqueDraft: async () => {
+        return { ok: true, data: critique, traceId: 'trace-critique' };
+      },
+      acceptDraft: async () => {
+        return { ok: true, data: accept, traceId: 'trace-accept' };
+      },
+      createSnapshot: async () => ({
+        ok: true,
+        data: accept.snapshot,
+        traceId: 'trace-snapshot',
+      }),
+      getRecoveryStatus: async () => ({
+        ok: true,
+        data: {
+          project_id: project.project_id,
+          status: 'idle',
+          needs_recovery: false,
+          last_snapshot: null,
+        },
+        traceId: 'trace-recovery',
+      }),
+      restoreSnapshot: async () => ({
+        ok: true,
+        data: {
+          project_id: project.project_id,
+          status: 'idle',
+          needs_recovery: false,
+        },
+        traceId: 'trace-restore',
+      }),
+    };
+
+    const projectLoader = {
+      openProjectDialog: async () => ({ canceled: false, filePath: project.path }),
+      loadProject: async () => ({ ok: true, project, issues: [] }),
+      getSampleProjectPath: async () => project.path,
+    };
+
+    (window as typeof window & { services?: unknown }).services = services;
+    (
+      window as typeof window & {
+        __dev?: { overrideServices?: (overrides: Partial<typeof services>) => void };
+      }
+    ).__dev?.overrideServices?.(services);
+    (window as typeof window & { projectLoader?: unknown }).projectLoader = projectLoader;
+  };
+
+  await page.addInitScript(installer, payload);
+  await page.evaluate(installer, payload);
+}
+
 test.beforeEach(async ({ page }) => {
-  await page.addInitScript(
-    ({ project, preflight, critique, accept }) => {
-      const services = {
-        checkHealth: async () => ({
-          ok: true,
-          data: { status: 'online' },
-          traceId: 'trace-health',
-        }),
-        buildOutline: async () => ({ ok: true, data: project.outline, traceId: 'trace-outline' }),
-        preflightDraft: async () => {
-          return { ok: true, data: preflight, traceId: 'trace-preflight' };
-        },
-        generateDraft: async () => ({
-          ok: true,
-          data: {
-            draft_id: 'dr_stub',
-            schema_version: 'DraftUnitSchema v1',
-            units: [],
-            budget: { status: 'ok' },
-          },
-          traceId: 'trace-generate',
-        }),
-        critiqueDraft: async () => {
-          return { ok: true, data: critique, traceId: 'trace-critique' };
-        },
-        acceptDraft: async () => {
-          return { ok: true, data: accept, traceId: 'trace-accept' };
-        },
-        createSnapshot: async () => ({
-          ok: true,
-          data: accept.snapshot,
-          traceId: 'trace-snapshot',
-        }),
-        getRecoveryStatus: async () => ({
-          ok: true,
-          data: {
-            project_id: project.project_id,
-            status: 'idle',
-            needs_recovery: false,
-            last_snapshot: null,
-          },
-          traceId: 'trace-recovery',
-        }),
-        restoreSnapshot: async () => ({
-          ok: true,
-          data: {
-            project_id: project.project_id,
-            status: 'idle',
-            needs_recovery: false,
-          },
-          traceId: 'trace-restore',
-        }),
-      };
-
-      const projectLoader = {
-        openProjectDialog: async () => ({ canceled: false, filePath: project.path }),
-        loadProject: async () => ({ ok: true, project, issues: [] }),
-        getSampleProjectPath: async () => project.path,
-      };
-
-      Object.defineProperty(window, 'services', { value: services, configurable: true });
-      (
-        window as typeof window & {
-          __dev?: { overrideServices?: (overrides: Partial<typeof services>) => void };
-        }
-      ).__dev?.overrideServices?.(services);
-      Object.defineProperty(window, 'projectLoader', { value: projectLoader, configurable: true });
-    },
-    {
-      project: loadedProject,
-      preflight: preflightEstimate,
-      critique: critiqueResponse,
-      accept: acceptResponse,
-    },
-  );
+  await installBudgetHarnessOverrides(page, {
+    project: loadedProject,
+    preflight: preflightEstimate,
+    critique: critiqueResponse,
+    accept: acceptResponse,
+  });
   await bootstrapHarness(page);
 });
 
 test.describe('HARNESS_ONLY: Budget meter (packaged)', () => {
   test('updates immediately after critique', async ({ page }) => {
-    await expect(page.getByRole('heading', { name: projectMeta.name })).toBeVisible();
-    await page.evaluate(
-      ({ preflight, critique, accept }) => {
-        const services = {
-          checkHealth: async () => ({
-            ok: true,
-            data: { status: 'online' },
-            traceId: 'trace-health',
-          }),
-          buildOutline: async () => ({
-            ok: true,
-            data: preflight.outline ?? null,
-            traceId: 'trace-outline',
-          }),
-          preflightDraft: async () => {
-            return { ok: true, data: preflight, traceId: 'trace-preflight' };
-          },
-          generateDraft: async () => ({
-            ok: true,
-            data: {
-              draft_id: 'dr_stub',
-              schema_version: 'DraftUnitSchema v1',
-              units: [],
-              budget: { status: 'ok' },
-            },
-            traceId: 'trace-generate',
-          }),
-          critiqueDraft: async () => {
-            return { ok: true, data: critique, traceId: 'trace-critique' };
-          },
-          acceptDraft: async () => {
-            return { ok: true, data: accept, traceId: 'trace-accept' };
-          },
-          createSnapshot: async () => ({
-            ok: true,
-            data: accept.snapshot,
-            traceId: 'trace-snapshot',
-          }),
-          getRecoveryStatus: async () => ({
-            ok: true,
-            data: {
-              project_id: preflight.projectId,
-              status: 'idle',
-              needs_recovery: false,
-              last_snapshot: null,
-            },
-            traceId: 'trace-recovery',
-          }),
-          restoreSnapshot: async () => ({
-            ok: true,
-            data: {
-              project_id: preflight.projectId,
-              status: 'idle',
-              needs_recovery: false,
-            },
-            traceId: 'trace-restore',
-          }),
-        };
-        (window as typeof window & { services?: unknown }).services = services;
-        (
-          window as typeof window & {
-            __dev?: { overrideServices?: (overrides: Partial<typeof services>) => void };
-          }
-        ).__dev?.overrideServices?.(services);
-      },
-      { preflight: preflightEstimate, critique: critiqueResponse, accept: acceptResponse },
-    );
+    await expect(page.getByTestId('dock-workspace')).toBeVisible();
+    await installBudgetHarnessOverrides(page, {
+      project: loadedProject,
+      preflight: preflightEstimate,
+      critique: critiqueResponse,
+      accept: acceptResponse,
+    });
     const generateButton = page.getByRole('button', { name: 'Generate' });
-    await generateButton.click();
-
-    await expect(page.getByText('$1.75 / $10.00', { exact: true })).toBeVisible();
-    await page
-      .getByRole('dialog', { name: 'Draft preflight' })
-      .getByRole('button', { name: 'Close' })
-      .click();
+    await expect(generateButton).toBeEnabled();
+    const preflightDialog = await openPreflightDialog(page, {
+      actionTestId: 'workspace-action-generate',
+      dialogName: 'Draft preflight',
+    });
+    await expect(preflightDialog.getByText('Estimate within budget.')).toBeVisible();
+    await expect(preflightDialog.getByRole('button', { name: 'Proceed' })).toBeEnabled();
+    const closePreflightButton = preflightDialog.getByRole('button', { name: 'Close' });
+    if (await closePreflightButton.isVisible({ timeout: 3_000 }).catch(() => false)) {
+      await closePreflightButton.click();
+    }
 
     const critiqueButton = page.getByTestId('workspace-action-critique');
     await expect(critiqueButton).toBeEnabled();
@@ -285,6 +212,6 @@ test.describe('HARNESS_ONLY: Budget meter (packaged)', () => {
     await page.evaluate(() => {
       window.__budgetRefresh?.();
     });
-    await expect(page.getByText('$1.90 / $10.00', { exact: true })).toBeVisible();
+    await expect(page.getByText(critiqueBudgetLabel, { exact: true })).toBeVisible();
   });
 });

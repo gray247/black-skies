@@ -76,7 +76,10 @@ def summarize_python_licenses(dependencies: Iterable[DependencyRecord]) -> list[
         except metadata.PackageNotFoundError:
             pass
         else:
-            license_text = meta.get("License")
+            try:
+                license_text = meta["License"]
+            except KeyError:
+                license_text = None
             if not license_text:
                 classifiers = meta.get_all("Classifier") or []
                 license_classifiers = [c for c in classifiers if c.startswith("License ::")]

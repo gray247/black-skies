@@ -21,6 +21,7 @@ import { CritiqueModal } from "./components/CritiqueModal";
 import { ToastStack } from "./components/ToastStack";
 import ServiceHealthBanner from "./components/ServiceHealthBanner";
 import DockWorkspace from "./components/docking/DockWorkspace";
+import SplitCommandWorkspace from "./components/workspace/SplitCommandWorkspace";
 import type { LoadedProject } from "../shared/ipc/projectLoader";
 import type { DiagnosticsBridge } from "../shared/ipc/diagnostics";
 import type {
@@ -38,6 +39,14 @@ import useServiceHealth, { isDominantOffline } from "./hooks/useServiceHealth";
 import { isTestEnvironment } from "./utils/env";
 import { normaliseBudgetNumber, type BudgetSnapshotSource } from "./utils/budgetIndicator";
 import { usePreflight } from "./hooks/usePreflight";
+import {
+  clearDraftPreviewSyncState,
+  createDraftPreviewSyncState,
+  type DraftPreviewSyncState,
+  readDraftPreviewSyncState,
+  parseDraftPreviewSyncState,
+  writeDraftPreviewSyncState,
+} from "./utils/draftPreviewSync";
 import { useCritique, DEFAULT_CRITIQUE_RUBRIC } from "./hooks/useCritique";
 import type { CritiqueDialogState } from "./hooks/useCritique";
 import useRecovery from "./hooks/useRecovery";
@@ -52,23 +61,24 @@ import { TestModeRecoveryHome } from "./screens/TestModeRecoveryHome";
 import * as testMode from "./testMode/testModeManager";
 import * as testUISandbox from "./testMode/testUISandbox";
 import { ServiceHealthProvider } from "./contexts/serviceHealthContext";
+import * as modePolicy from "../shared/modePolicy";
 import "./styles/stable-home.css";
+
+type DraftGenerationScope = "active-scene" | "all-scenes";
+
 export function getTestModes() {
   if (typeof document === "undefined") {
     return { visualMode: false, stableDockMode: false, flowMode: true };
   }
   const bodyDataset = document.body?.dataset;
   const htmlDataset = document.documentElement?.dataset;
-  const visualMode =
-    bodyDataset?.testVisualStable === "1" || htmlDataset?.testVisualStable === "1";
+  const visualMode = modePolicy.isVisualStable() || bodyDataset?.testVisualStable === "1" || htmlDataset?.testVisualStable === "1";
   const stableDockMode =
     bodyDataset?.testStableDock === "1" || htmlDataset?.testStableDock === "1";
   const flowMode = !visualMode && !stableDockMode;
   return { visualMode, stableDockMode, flowMode };
 }
 import "./styles/stable-dock.css";
-
-type DebugLogEntry = { scope: string; msg?: string };
 
 declare global {
   interface Window {
@@ -79,10 +89,6 @@ declare global {
       setServiceStatus?: (status: "offline" | "online") => void;
       selectScene?: (sceneId: string) => void;
     };
-    __blackskiesDebugLog?: Array<DebugLogEntry>;
-    __testEnv?: boolean;
-    __testEnvSnapshotRestoreFlow?: boolean;
-    __testEnvFullMode?: boolean;
   }
 }
 
@@ -170,18 +176,25 @@ interface BatchCritiqueResult {
 
 export default function App(): JSX.Element {
   const hasWindow = typeof window !== 'undefined';
-  const harnessHooksEnabled = testMode.isHarnessHooksEnabled();
+  const harnessHooksEnabled = modePolicy.isHarnessEnabled();
+  const startupConfig = testMode.getStartupConfig();
+  const startupModeLocked = harnessHooksEnabled && testMode.isModeLocked();
+  const startupLockedMode = startupConfig?.mode ?? null;
+  const startupRecoveryRequested = startupConfig?.recovery === true;
+  const startupConfigProvided = startupConfig !== null;
   const services: ServicesBridge | undefined = window.services;
   const diagnostics: DiagnosticsBridge | undefined = window.diagnostics;
   const runtimeConfigOverride =
     (window as typeof window & { __runtimeConfigOverride?: RuntimeConfig }).__runtimeConfigOverride;
   const runtimeUi = runtimeConfigOverride?.ui ?? window.runtimeConfig?.ui;
+  const splitCommandWorkspaceEnabled = runtimeUi?.experimentalSplitCommandWorkspace === true;
+  type TestEnvFlag = boolean | { isPlaywright?: boolean };
   const isPlaywrightEnv =
     Boolean(
       (typeof process !== 'undefined' && process.env?.PLAYWRIGHT === '1') ||
         (hasWindow &&
-          ((window as typeof window & { __testEnv?: { isPlaywright?: boolean } }).__testEnv === true ||
-            (window as typeof window & { __testEnv?: { isPlaywright?: boolean } }).__testEnv?.isPlaywright)),
+          ((window as typeof window & { __testEnv?: TestEnvFlag }).__testEnv === true ||
+            (window as typeof window & { __testEnv?: TestEnvFlag }).__testEnv?.isPlaywright)),
     );
   if (!isPlaywrightEnv) {
     console.info(`[playwright] runtimeUi=${JSON.stringify(runtimeUi)}`);
@@ -262,7 +275,7 @@ export default function App(): JSX.Element {
   const isSnapshotRestoreFlowActive =
     harnessHooksEnabled &&
     hasWindow &&
-    window.__testEnvSnapshotRestoreFlow === true;
+    (startupConfigProvided ? startupRecoveryRequested : window.__testEnvSnapshotRestoreFlow === true);
   const activeFlow =
     harnessHooksEnabled &&
     typeof document !== 'undefined' &&
@@ -273,16 +286,20 @@ export default function App(): JSX.Element {
   const visualEnvRequested = !activeFlow && visualMode;
   const liveFlowGuard =
     isPlaywrightEnv &&
+    !harnessHooksEnabled &&
     !stableDockEnvRequested &&
     !visualEnvRequested &&
     !isSnapshotRestoreFlowActive &&
     !activeFlow;
   useEffect(() => {
-    if ((!liveFlowGuard && !activeFlow) || !hasWindow || typeof document === 'undefined') {
+    if (!liveFlowGuard || !hasWindow || typeof document === 'undefined') {
       return;
     }
     const win = window as typeof window & { __testEnvFlatMode?: boolean; __testEnvRecoveryMode?: boolean };
     const body = document.body;
+    if (!body) {
+      return;
+    }
     if (win.__testEnvFlatMode) {
       console.warn('[MODE-LEAK] flat/recovery mode active during live flow');
       win.__testEnvFlatMode = false;
@@ -303,13 +320,15 @@ export default function App(): JSX.Element {
     });
     observer.observe(body, { attributes: true, attributeFilter: ['data-test-mode'] });
     return () => observer.disconnect();
-  }, [activeFlow, hasWindow, liveFlowGuard]);
+  }, [hasWindow, liveFlowGuard]);
 
   useEffect(() => {
     if (!activeFlow || typeof document === 'undefined') {
       return;
     }
-    document.body.dataset.testMode = 'full';
+    if (!startupModeLocked) {
+      document.body.dataset.testMode = 'full';
+    }
     delete document.body.dataset.testStableDock;
     delete document.body.dataset.testVisualStable;
     void import('./styles/stable-dock-test.css');
@@ -323,7 +342,34 @@ export default function App(): JSX.Element {
       marker.setAttribute('aria-hidden', 'true');
       document.body.appendChild(marker);
     }
-  }, [activeFlow]);
+  }, [activeFlow, startupModeLocked]);
+
+  useEffect(() => {
+    if (!startupModeLocked || !startupLockedMode || typeof document === 'undefined') {
+      return;
+    }
+    const enforce = () => {
+      const html = document.documentElement;
+      const body = document.body ?? html;
+      if (html) {
+        html.dataset.testMode = startupLockedMode;
+      }
+      if (body) {
+        body.dataset.testMode = startupLockedMode;
+      }
+    };
+    enforce();
+    const observer = new MutationObserver(enforce);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-test-mode'] });
+    if (document.body) {
+      observer.observe(document.body, { attributes: true, attributeFilter: ['data-test-mode'] });
+    }
+    window.addEventListener('test:startup-config', enforce);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('test:startup-config', enforce);
+    };
+  }, [startupLockedMode, startupModeLocked]);
   const stableDockExplicitFlag = liveFlowGuard ? false : stableDockEnvRequested;
   if (liveFlowGuard && stableDockEnvRequested) {
     console.warn('[MODE-LEAK] stableDock active during live flow');
@@ -481,7 +527,13 @@ export default function App(): JSX.Element {
   const [currentProject, setCurrentProject] = useState<TrackedLoadedProject | null>(null);
   const currentProjectRef = useRef<LoadedProject | null>(null);
   const pendingSceneSelectionRef = useRef<string | null>(null);
+  const testSetProjectLoadRequestRef = useRef(0);
   const isVisualHomeMode = isVisualMode && currentProject === null;
+  const draftPreviewSyncSourceIdRef = useRef(
+    typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+      ? crypto.randomUUID()
+      : `draft-preview-${Math.random().toString(36).slice(2)}`,
+  );
   useEffect(() => {
     currentProjectRef.current = currentProject;
   }, [currentProject]);
@@ -646,15 +698,70 @@ export default function App(): JSX.Element {
   const applySceneSelection = useCallback(
     (requestedSceneId?: string | null) => {
       const scenesList = currentProjectRef.current?.scenes ?? [];
+      if (requestedSceneId === null) {
+        console.log(
+          "[dbg:scene.select.clear]",
+          JSON.stringify({ sceneCount: scenesList.length }),
+        );
+        recordDebugEvent("scene.select.clear", {
+          sceneCount: scenesList.length,
+        });
+        setActiveScene(null);
+        pendingSceneSelectionRef.current = null;
+        return true;
+      }
+      const normalizedRequestedSceneId =
+        typeof requestedSceneId === "string" ? requestedSceneId.trim() : "";
       if (scenesList.length === 0) {
+        console.log(
+          "[dbg:scene.select.missing-scene]",
+          JSON.stringify({
+            requestedSceneId: normalizedRequestedSceneId || null,
+            reason: "no-scenes",
+          }),
+        );
+        recordDebugEvent("scene.select.apply.miss", {
+          requestedSceneId: normalizedRequestedSceneId || null,
+          reason: "no-scenes",
+        });
         return false;
       }
+      const sceneIds = scenesList.map((scene) => scene.id);
       const fallbackScene = scenesList[0] ?? null;
-      const targetScene =
-        scenesList.find((scene) => scene.id === requestedSceneId) ?? fallbackScene;
+      const targetScene = normalizedRequestedSceneId
+        ? scenesList.find((scene) => scene.id === normalizedRequestedSceneId) ?? null
+        : fallbackScene;
       if (!targetScene) {
+        console.log(
+          "[dbg:scene.select.missing-scene]",
+          JSON.stringify({
+            requestedSceneId: normalizedRequestedSceneId || null,
+            reason: "scene-id-not-found",
+            sceneIds,
+          }),
+        );
+        recordDebugEvent("scene.select.apply.miss", {
+          requestedSceneId: normalizedRequestedSceneId || null,
+          reason: "no-target-scene",
+          sceneIds,
+        });
         return false;
       }
+      console.log(
+        "[dbg:scene.select.apply]",
+        JSON.stringify({
+          requestedSceneId: normalizedRequestedSceneId || null,
+          selectedSceneId: targetScene.id,
+          sceneCount: scenesList.length,
+        }),
+      );
+      recordDebugEvent("scene.select.apply", {
+        requestedSceneId: normalizedRequestedSceneId || null,
+        selectedSceneId: targetScene.id,
+        selectedSceneTitle: targetScene.title ?? null,
+        sceneCount: scenesList.length,
+        sceneIds,
+      });
       setActiveScene({ id: targetScene.id, title: targetScene.title ?? null });
       pendingSceneSelectionRef.current = null;
       return true;
@@ -666,10 +773,29 @@ export default function App(): JSX.Element {
     if (typeof window === 'undefined') {
       return;
     }
+    if (!isPlaywrightEnv && !harnessHooksEnabled) {
+      return;
+    }
+    const win = window as typeof window & {
+      __blackSkiesSelectScene?: (sceneId: string | null | undefined) => boolean;
+    };
+    win.__blackSkiesSelectScene = (sceneId) => applySceneSelection(sceneId);
+    console.log('[dbg:scene.select.hook.present]', JSON.stringify({ hookPresent: true }));
+    return () => {
+      console.log('[dbg:scene.select.hook.present]', JSON.stringify({ hookPresent: false }));
+      delete win.__blackSkiesSelectScene;
+    };
+  }, [applySceneSelection, harnessHooksEnabled, isPlaywrightEnv]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
     const handler = (event: Event) => {
-      const customEvent = event as CustomEvent<string | undefined>;
+      const customEvent = event as CustomEvent<string | null | undefined>;
       const sceneId = customEvent.detail;
-      if (typeof sceneId === 'string' && sceneId.length > 0) {
+      if (sceneId === null || (typeof sceneId === 'string' && sceneId.length > 0)) {
+        console.log('[dbg:scene.select.request]', JSON.stringify({ sceneId }));
         pendingSceneSelectionRef.current = sceneId;
         applySceneSelection(sceneId);
       }
@@ -686,6 +812,8 @@ export default function App(): JSX.Element {
     }
   }, [applySceneSelection, currentProject]);
   const [projectSummary, setProjectSummary] = useState<ProjectSummary | null>(null);
+  const [draftGenerationScope, setDraftGenerationScope] =
+    useState<DraftGenerationScope>("active-scene");
   const globalWindowForDefaults = window as typeof window & {
     __testEnvDefaultProjectId?: string;
     __testEnvSnapshotRestoreFlow?: boolean;
@@ -695,8 +823,11 @@ export default function App(): JSX.Element {
   const wizardDefaultProjectPath =
     globalWindowForDefaults.__testEnvDefaultProjectPath ?? projectSummary?.path ?? null;
   const shouldAutoSeedProjectSummary =
-    isPlaywrightEnv && globalWindowForDefaults.__testEnvAutoSeedProjectSummary === true;
+    isPlaywrightEnv &&
+    globalWindowForDefaults.__testEnvAutoSeedProjectSummary === true &&
+    !startupModeLocked;
   const snapshotRestoreFlowActive =
+    startupRecoveryRequested &&
     globalWindowForDefaults.__testEnvSnapshotRestoreFlow === true;
   if (!isPlaywrightEnv) {
     console.log('[app-snapshot-flow]', snapshotRestoreFlowActive);
@@ -729,10 +860,181 @@ export default function App(): JSX.Element {
   const [exportFormat, setExportFormat] = useState<ExportFormat>("md");
   const batchJobRef = useRef<{ cancelled: boolean } | null>(null);
 
+  useEffect(() => {
+    setDraftGenerationScope("active-scene");
+  }, [projectSummary?.path]);
+
   const projectDraftsRef = useRef<Record<string, string>>({});
   useEffect(() => {
     projectDraftsRef.current = projectDrafts;
   }, [projectDrafts]);
+
+  const draftPreviewSyncKey = useMemo(
+    () =>
+      projectSummary?.path ? `blackskies.draft-preview-state:${encodeURIComponent(projectSummary.path)}` : null,
+    [projectSummary?.path],
+  );
+  const draftPreviewSyncHydratedRef = useRef(false);
+  const draftPreviewSyncPendingStateRef = useRef<DraftPreviewSyncState | null>(null);
+
+  const areStringMapsEqual = useCallback(
+    (left: Record<string, string>, right: Record<string, string>) => {
+      const leftKeys = Object.keys(left);
+      const rightKeys = Object.keys(right);
+      if (leftKeys.length !== rightKeys.length) {
+        return false;
+      }
+      return leftKeys.every((key) => right[key] === left[key]);
+    },
+    [],
+  );
+
+  const isDraftPreviewStateEqual = useCallback(
+    (left: DraftPreviewSyncState | null, right: DraftPreviewSyncState | null) => {
+      if (!left || !right) {
+        return false;
+      }
+      return (
+        left.projectPath === right.projectPath &&
+        left.activeSceneId === right.activeSceneId &&
+        areStringMapsEqual(left.projectDrafts, right.projectDrafts) &&
+        areStringMapsEqual(left.draftEdits, right.draftEdits)
+      );
+    },
+    [areStringMapsEqual],
+  );
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !draftPreviewSyncKey || !projectSummary?.path) {
+      return;
+    }
+
+    const applyDraftPreviewState = (rawValue: string | null) => {
+      const sharedState = parseDraftPreviewSyncState(rawValue);
+      if (
+        !sharedState ||
+        sharedState.projectPath !== projectSummary.path ||
+        sharedState.sourceId === draftPreviewSyncSourceIdRef.current
+      ) {
+        draftPreviewSyncPendingStateRef.current = null;
+        draftPreviewSyncHydratedRef.current = true;
+        return;
+      }
+
+      const nextProjectDrafts = sharedState.projectDrafts ?? {};
+      const nextDraftEdits = sharedState.draftEdits ?? {};
+      const nextDrafts = { ...nextProjectDrafts, ...nextDraftEdits };
+      const currentState: DraftPreviewSyncState = {
+        sourceId: draftPreviewSyncSourceIdRef.current,
+        projectPath: projectSummary.path,
+        activeSceneId: activeSceneId ?? null,
+        projectDrafts,
+        draftEdits,
+        updatedAt: 0,
+      };
+      if (isDraftPreviewStateEqual(sharedState, currentState)) {
+        draftPreviewSyncPendingStateRef.current = null;
+        draftPreviewSyncHydratedRef.current = true;
+        return;
+      }
+
+      draftPreviewSyncPendingStateRef.current = sharedState;
+      draftPreviewSyncHydratedRef.current = false;
+
+      if (Object.keys(nextProjectDrafts).length > 0) {
+        setProjectDrafts((previous) => ({ ...previous, ...nextProjectDrafts }));
+      }
+      if (Object.keys(nextDraftEdits).length > 0) {
+        setDraftEdits((previous) => ({ ...previous, ...nextDraftEdits }));
+      }
+      if (currentProjectRef.current) {
+        setCurrentProject((previous) =>
+          previous ? { ...previous, drafts: { ...previous.drafts, ...nextDrafts } } : previous,
+        );
+      }
+      if (sharedState.activeSceneId) {
+        const targetScene =
+          currentProjectRef.current?.scenes.find((scene) => scene.id === sharedState.activeSceneId) ??
+          null;
+        if (targetScene) {
+          setActiveScene({ id: targetScene.id, title: targetScene.title ?? null });
+        }
+      }
+    };
+
+    applyDraftPreviewState(window.localStorage.getItem(draftPreviewSyncKey));
+
+    const handleStorage = (event: StorageEvent) => {
+      if (event.storageArea !== window.localStorage || event.key !== draftPreviewSyncKey) {
+        return;
+      }
+      applyDraftPreviewState(event.newValue);
+    };
+
+    window.addEventListener("storage", handleStorage);
+    return () => {
+      window.removeEventListener("storage", handleStorage);
+    };
+  }, [
+    activeSceneId,
+    draftEdits,
+    draftPreviewSyncKey,
+    isDraftPreviewStateEqual,
+    projectDrafts,
+    projectSummary?.path,
+    setActiveScene,
+    setCurrentProject,
+    setDraftEdits,
+    setProjectDrafts,
+  ]);
+
+  useEffect(() => {
+    if (!draftPreviewSyncKey || !projectSummary?.path || !currentProject) {
+      return;
+    }
+
+    const pendingState = draftPreviewSyncPendingStateRef.current;
+    if (pendingState) {
+      const nextState: DraftPreviewSyncState = {
+        sourceId: draftPreviewSyncSourceIdRef.current,
+        projectPath: projectSummary.path,
+        activeSceneId: activeSceneId ?? null,
+        projectDrafts,
+        draftEdits,
+        updatedAt: 0,
+      };
+      if (!isDraftPreviewStateEqual(pendingState, nextState)) {
+        return;
+      }
+      draftPreviewSyncPendingStateRef.current = null;
+    }
+
+    draftPreviewSyncHydratedRef.current = true;
+  }, [
+    activeSceneId,
+    currentProject,
+    draftEdits,
+    draftPreviewSyncKey,
+    isDraftPreviewStateEqual,
+    projectDrafts,
+    projectSummary?.path,
+  ]);
+
+  useEffect(() => {
+    if (!draftPreviewSyncKey || !projectSummary?.path || !currentProject || !draftPreviewSyncHydratedRef.current) {
+      return;
+    }
+
+    const nextState = createDraftPreviewSyncState({
+      sourceId: draftPreviewSyncSourceIdRef.current,
+      projectPath: projectSummary.path,
+      activeSceneId: activeSceneId ?? null,
+      projectDrafts,
+      draftEdits,
+    });
+
+    writeDraftPreviewSyncState(projectSummary.path, nextState);
+  }, [activeSceneId, currentProject, draftEdits, draftPreviewSyncKey, projectDrafts, projectSummary?.path]);
 
   useEffect(() => {
     if (
@@ -801,6 +1103,7 @@ export default function App(): JSX.Element {
   });
 
   const resetProjectState = useCallback(() => {
+    clearDraftPreviewSyncState(projectSummary?.path ?? currentProjectRef.current?.path ?? null);
     setCurrentProject(null);
     setProjectDrafts({});
     setDraftEdits({});
@@ -820,6 +1123,7 @@ export default function App(): JSX.Element {
     setCritiqueRubric,
     setCompanionOpen,
     setBudgetSnapshot,
+    projectSummary?.path,
   ]);
 
   const updateCritiqueRubric = useCallback(
@@ -1085,6 +1389,9 @@ export default function App(): JSX.Element {
 
   const activateProject = useCallback(
     (project: LoadedProject, options?: { preserveSceneId?: string | null }) => {
+      if (typeof window !== "undefined") {
+        console.log("[dbg:project.commit.start]", project.path);
+      }
       if (!isPlaywrightEnv) {
         console.info("[App] activateProject", {
           path: project.path,
@@ -1099,7 +1406,7 @@ export default function App(): JSX.Element {
         drafts: Object.keys(project.drafts).length,
         preserveSceneId: options?.preserveSceneId ?? null,
       });
-      const projectId = deriveProjectIdFromPath(project.path);
+      const projectId = project.projectId ?? deriveProjectIdFromPath(project.path);
       const unitIds = project.scenes.map((scene) => scene.id);
 
       const projectWithId: TrackedLoadedProject = { ...project, projectId };
@@ -1143,7 +1450,7 @@ export default function App(): JSX.Element {
     ],
   );
 
-  const reloadProjectFromDisk = useCallback(async () => {
+  const reloadProjectFromDisk = useCallback(async (preserveDrafts?: Record<string, string>) => {
     if (!projectSummary?.path) {
       return;
     }
@@ -1159,6 +1466,17 @@ export default function App(): JSX.Element {
       }
       if (response.ok) {
         activateProject(response.project, { preserveSceneId: activeSceneId });
+        if (preserveDrafts && Object.keys(preserveDrafts).length > 0) {
+          setProjectDrafts((previous) => {
+            const nextDrafts = { ...previous, ...preserveDrafts };
+            projectDraftsRef.current = nextDrafts;
+            return nextDrafts;
+          });
+          setDraftEdits((previous) => ({ ...previous, ...preserveDrafts }));
+          setCurrentProject((previous) =>
+            previous ? { ...previous, drafts: { ...previous.drafts, ...preserveDrafts } } : previous,
+          );
+        }
       } else {
         pushToast({
           tone: "warning",
@@ -1174,10 +1492,34 @@ export default function App(): JSX.Element {
       pushToast({
         tone: "error",
         title: "Project refresh failed",
-        description: message,
+        description: `Local project state was not updated. ${message}`.trim(),
       });
     }
   }, [activateProject, activeSceneId, isMountedRef, projectSummary, pushToast]);
+
+  const generationProjectSummary = useMemo<ProjectSummary | null>(() => {
+    if (!projectSummary) {
+      return null;
+    }
+    if (draftGenerationScope === "all-scenes") {
+      if (projectSummary.unitIds.length === 0) {
+        return null;
+      }
+      return {
+        ...projectSummary,
+        unitScope: "scene",
+        unitIds: projectSummary.unitIds,
+      };
+    }
+    if (!activeSceneId) {
+      return null;
+    }
+    return {
+      ...projectSummary,
+      unitScope: "scene",
+      unitIds: [activeSceneId],
+    };
+  }, [activeSceneId, draftGenerationScope, projectSummary]);
 
   const {
     state: preflightState,
@@ -1186,7 +1528,7 @@ export default function App(): JSX.Element {
     proceedPreflight,
   } = usePreflight({
     services,
-    projectSummary,
+    projectSummary: generationProjectSummary,
     isMountedRef,
     pushToast,
     projectDraftsRef,
@@ -1232,8 +1574,11 @@ export default function App(): JSX.Element {
       if (!response.ok) {
         pushToast({
           tone: 'error',
-          title: 'Snapshot failed',
-          description: response.error?.message ?? 'Unable to create snapshot.',
+          title: 'Snapshot creation failed',
+          description: `No snapshot was created. ${
+            response.error?.message ?? 'Check the trace ID, then try again.'
+          }`.trim(),
+          traceId: response.traceId ?? response.error?.traceId,
         });
         return;
       }
@@ -1253,11 +1598,11 @@ export default function App(): JSX.Element {
         description: snapshotName,
         actions: [
           {
-            label: 'View report',
+            label: 'View snapshot report',
             onPress: () => {
               console.log('[snapshot-toast-action]', {
                 snapshotId: response.data?.snapshot_id ?? null,
-                actionLabel: 'View report',
+                actionLabel: 'View snapshot report',
               });
               // Snapshots panel is minimally wired for Phase 8; this only toggles that dialog.
               setShowSnapshotsPanel(true);
@@ -1272,8 +1617,8 @@ export default function App(): JSX.Element {
       const message = error instanceof Error ? error.message : String(error);
       pushToast({
         tone: 'error',
-        title: 'Snapshot failed',
-        description: message,
+        title: 'Snapshot creation failed',
+        description: `No snapshot was created. ${message}`.trim(),
       });
     } finally {
       setSnapshotting(false);
@@ -1318,8 +1663,12 @@ export default function App(): JSX.Element {
       if (!response.ok) {
         pushToast({
           tone: 'error',
-          title: 'Verification failed',
-          description: response.error?.message ?? 'Unable to verify snapshots.',
+          title: 'Backup verification failed',
+          description:
+            `The current project was not changed. ${
+              response.error?.message ?? 'Run verification again or create a fresh backup before restoring.'
+            }`.trim(),
+          traceId: response.traceId ?? response.error?.traceId,
         });
         return;
       }
@@ -1336,7 +1685,7 @@ export default function App(): JSX.Element {
 
       const verificationToastActions = [
         {
-          label: 'View report',
+          label: 'View snapshot report',
           onPress: () => openSnapshotsPanel(),
           dismissOnPress: true,
         },
@@ -1357,8 +1706,8 @@ export default function App(): JSX.Element {
       const message = error instanceof Error ? error.message : String(error);
       pushToast({
         tone: 'error',
-        title: 'Verification failed',
-        description: message,
+        title: 'Backup verification failed',
+        description: `The current project was not changed. ${message}`.trim(),
       });
     } finally {
       setVerifying(false);
@@ -1410,7 +1759,8 @@ export default function App(): JSX.Element {
         pushToast({
           tone: "error",
           title: "Export failed",
-          description: message,
+          description: `No files were exported. ${message}`.trim(),
+          traceId: response.traceId ?? response.error?.traceId,
         });
         return;
       }
@@ -1437,7 +1787,7 @@ export default function App(): JSX.Element {
       pushToast({
         tone: "error",
         title: "Export failed",
-        description: message,
+        description: `No files were exported. ${message}`.trim(),
       });
     } finally {
       setExporting(false);
@@ -1464,6 +1814,27 @@ export default function App(): JSX.Element {
 
       if ("status" in payload) {
         const { status, project, lastOpenedPath } = payload;
+        if (startupModeLocked && status === "init" && !project) {
+          recordDebugEvent("app.handleProjectLoaded.init-ignored", {
+            status,
+            lastOpenedPath: lastOpenedPath ?? null,
+          });
+          return;
+        }
+        if (
+          startupModeLocked &&
+          typeof startupConfig?.projectPath === 'string' &&
+          startupConfig.projectPath.length > 0 &&
+          project?.path &&
+          project.path !== startupConfig.projectPath
+        ) {
+          recordDebugEvent("app.handleProjectLoaded.path-mismatch-ignored", {
+            configuredPath: startupConfig.projectPath,
+            incomingPath: project.path,
+            status,
+          });
+          return;
+        }
 
         if (!isPlaywrightEnv) {
           console.info("[App] handleProjectLoaded(status)", {
@@ -1516,8 +1887,68 @@ export default function App(): JSX.Element {
       activateProject(payload);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [activateProject, resetProjectState, updateLastProjectPath],
+    [activateProject, resetProjectState, startupConfig?.projectPath, startupModeLocked, updateLastProjectPath],
   );
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const handleTestSetProjectLoad = (event: Event) => {
+      const detail = (event as CustomEvent<string | null | undefined>).detail;
+      if (typeof detail !== "string" || detail.trim().length === 0) {
+        return;
+      }
+      const projectPath = detail.trim();
+      const loader = window.projectLoader;
+      if (!loader?.loadProject) {
+        console.warn("[dbg:project.bridge.load.missing-loader]", projectPath);
+        return;
+      }
+      const requestId = testSetProjectLoadRequestRef.current + 1;
+      testSetProjectLoadRequestRef.current = requestId;
+      console.log("[dbg:project.bridge.load.start]", projectPath);
+      void loader
+        .loadProject({ path: projectPath })
+        .then((response) => {
+          if (!isMountedRef.current || requestId !== testSetProjectLoadRequestRef.current) {
+            return;
+          }
+          if (response?.ok) {
+            console.log("[dbg:project.bridge.load.done]", projectPath);
+            activateProject(response.project);
+            return;
+          }
+          const message =
+            response?.error?.message ?? "Harness project load failed for test:set-project";
+          console.warn("[dbg:project.bridge.load.error]", projectPath, message);
+          pushToast({
+            tone: "warning",
+            title: "Harness project load failed",
+            description: message,
+            traceId: response?.traceId ?? response?.error?.traceId,
+          });
+        })
+        .catch((error: unknown) => {
+          if (!isMountedRef.current || requestId !== testSetProjectLoadRequestRef.current) {
+            return;
+          }
+          const message = error instanceof Error ? error.message : String(error);
+          console.error("[dbg:project.bridge.load.exception]", projectPath, message);
+          pushToast({
+            tone: "error",
+            title: "Harness project load threw",
+            description: message,
+          });
+        });
+    };
+
+    window.addEventListener("test:set-project", handleTestSetProjectLoad);
+    return () => {
+      window.removeEventListener("test:set-project", handleTestSetProjectLoad);
+    };
+  }, [activateProject, isMountedRef, pushToast]);
 
   const handleActiveSceneChange = useCallback((payload: ActiveScenePayload | null) => {
     if (!payload) {
@@ -1543,7 +1974,7 @@ export default function App(): JSX.Element {
   }, []);
 
   const handleOutlineReady = useCallback(
-    (projectId: string) => {
+    (projectId: string, sceneIds: string[]) => {
       pushToast({
         tone: "info",
         title: "Outline updated",
@@ -1553,7 +1984,7 @@ export default function App(): JSX.Element {
         if (!previous) {
           return previous;
         }
-        return { ...previous, projectId };
+        return { ...previous, projectId, unitIds: sceneIds };
       });
     },
     [pushToast],
@@ -1586,7 +2017,20 @@ export default function App(): JSX.Element {
           return;
         }
         if (response?.ok) {
-          activateProject(response.project);
+          const sharedDraftState = readDraftPreviewSyncState(floatingProjectPath);
+          if (sharedDraftState && sharedDraftState.projectPath === floatingProjectPath) {
+            const mergedDrafts = {
+              ...response.project.drafts,
+              ...sharedDraftState.projectDrafts,
+              ...sharedDraftState.draftEdits,
+            };
+            activateProject(
+              { ...response.project, drafts: mergedDrafts },
+              { preserveSceneId: sharedDraftState.activeSceneId ?? null },
+            );
+          } else {
+            activateProject(response.project);
+          }
         } else if (response?.error) {
           const message =
             typeof response.error.message === "string"
@@ -1616,6 +2060,144 @@ export default function App(): JSX.Element {
   }, [activateProject, floatingProjectPath, isFloatingHost, isMountedRef, pushToast]);
 
   const projectLabel = useMemo(() => projectSummary?.path ?? "No project loaded", [projectSummary]);
+  useEffect(() => {
+    if (typeof document === "undefined") {
+      return;
+    }
+    const html = document.documentElement;
+    const body = document.body;
+    const target = body ?? html;
+    if (!target) {
+      return;
+    }
+    const pathValue = projectSummary?.path ?? "";
+    const projectIdValue = projectSummary?.projectId ?? "";
+    const activeSceneIdValue = activeSceneId ?? "";
+    const activeSceneTitleValue = activeScene?.title ?? null;
+    const sceneIds = currentProjectRef.current?.scenes?.map((scene) => scene.id) ?? [];
+    const loaded = pathValue.length > 0 ? "1" : "0";
+    target.dataset.projectLoaded = loaded;
+    if (html && html !== target) {
+      html.dataset.projectLoaded = loaded;
+    }
+    if (pathValue) {
+      target.dataset.projectPath = pathValue;
+      if (html && html !== target) {
+        html.dataset.projectPath = pathValue;
+      }
+    } else {
+      delete target.dataset.projectPath;
+      if (html && html !== target) {
+        delete html.dataset.projectPath;
+      }
+    }
+    if (projectIdValue) {
+      target.dataset.projectId = projectIdValue;
+      if (html && html !== target) {
+        html.dataset.projectId = projectIdValue;
+      }
+    } else {
+      delete target.dataset.projectId;
+      if (html && html !== target) {
+        delete html.dataset.projectId;
+      }
+    }
+    if (activeSceneIdValue) {
+      target.dataset.activeSceneId = activeSceneIdValue;
+      if (html && html !== target) {
+        html.dataset.activeSceneId = activeSceneIdValue;
+      }
+    } else {
+      delete target.dataset.activeSceneId;
+      if (html && html !== target) {
+        delete html.dataset.activeSceneId;
+      }
+    }
+    if (typeof window !== "undefined") {
+      (
+        window as typeof window & {
+          __testProjectState?: {
+            loaded: boolean;
+            path: string | null;
+            projectId: string | null;
+            activeSceneId: string | null;
+            activeSceneTitle: string | null;
+            sceneIds?: string[];
+            label: string;
+          };
+          __blackskiesDebugProjectState?: {
+            loaded: boolean;
+            path: string | null;
+            projectId: string | null;
+            activeSceneId: string | null;
+            activeSceneTitle: string | null;
+            sceneIds?: string[];
+            label: string;
+          };
+        }
+      ).__testProjectState = {
+        loaded: loaded === "1",
+        path: pathValue || null,
+        projectId: projectIdValue || null,
+        activeSceneId: activeSceneIdValue || null,
+        activeSceneTitle: activeSceneTitleValue,
+        sceneIds,
+        label: projectLabel,
+      };
+      const committedProjectState = {
+        loaded: loaded === "1",
+        path: pathValue || null,
+        projectId: projectIdValue || null,
+        activeSceneId: activeSceneIdValue || null,
+        activeSceneTitle: activeSceneTitleValue,
+        sceneIds,
+        label: projectLabel,
+      };
+      (
+        window as typeof window & {
+          __blackskiesDebugProjectState?: {
+            loaded: boolean;
+            path: string | null;
+            projectId: string | null;
+            activeSceneId: string | null;
+            activeSceneTitle: string | null;
+            label: string;
+          };
+        }
+      ).__blackskiesDebugProjectState = committedProjectState;
+      (
+        window as typeof window & {
+          __blackSkiesDebugState?: {
+            loaded?: boolean;
+            path?: string | null;
+            projectId?: string | null;
+            activeSceneId?: string | null;
+            activeSceneTitle?: string | null;
+            sceneIds?: string[];
+            label?: string;
+          };
+        }
+      ).__blackSkiesDebugState = {
+        ...(window.__blackSkiesDebugState ?? {}),
+        ...committedProjectState,
+      };
+      recordDebugEvent("scene.select.commit", {
+        activeSceneId: activeSceneIdValue || null,
+        activeSceneTitle: activeSceneTitleValue,
+        projectId: projectIdValue || null,
+        sceneIds,
+      });
+      console.log(
+        "[dbg:scene.select.commit]",
+        JSON.stringify({
+          activeSceneId: activeSceneIdValue || null,
+          projectId: projectIdValue || null,
+          sceneCount: sceneIds.length,
+        }),
+      );
+      console.log("[dbg:project.commit.done]", pathValue || "null");
+    }
+  }, [activeScene?.title, activeSceneId, projectLabel, projectSummary?.path, projectSummary?.projectId]);
   const testRecoveryStatusOverride = useMemo(() => {
     if (!isSnapshotRestoreFlowActive || recoveryStatus) {
       return null;
@@ -1625,8 +2207,9 @@ export default function App(): JSX.Element {
   const forcedRecoveryFlag =
     harnessHooksEnabled &&
     isTestEnvActive &&
-    typeof window !== 'undefined' &&
-    typeof document !== 'undefined' && document.body?.dataset?.testNeedsRecovery === '1';
+    (startupConfigProvided
+      ? startupRecoveryRequested
+      : typeof document !== 'undefined' && document.body?.dataset?.testNeedsRecovery === '1');
   const forcedRecoveryStatus = useMemo(() => {
     if (!forcedRecoveryFlag) {
       return null;
@@ -1635,8 +2218,12 @@ export default function App(): JSX.Element {
   }, [forcedRecoveryFlag, projectSummary?.projectId]);
   const effectiveRecoveryStatus = forcedRecoveryStatus ?? recoveryStatus ?? testRecoveryStatusOverride;
   const recoverySnapshot = effectiveRecoveryStatus?.last_snapshot ?? null;
-  const recoveryBannerVisible =
-    isSnapshotRestoreFlowActive || forcedRecoveryFlag || (effectiveRecoveryStatus?.needs_recovery ?? false);
+  const recoveryBannerVisible = isVisualHomeMode
+    ? false
+    : startupConfigProvided
+    ? startupRecoveryRequested &&
+      (isSnapshotRestoreFlowActive || forcedRecoveryFlag || (effectiveRecoveryStatus?.needs_recovery ?? false))
+    : isSnapshotRestoreFlowActive || forcedRecoveryFlag || (effectiveRecoveryStatus?.needs_recovery ?? false);
   const recoveryBusy = recoveryAction !== "idle";
   const reopenBusy = reopenInFlight;
   const restoreDisabled = recoveryBusy || reopenBusy;
@@ -1695,11 +2282,14 @@ export default function App(): JSX.Element {
       draftOverrides: draftEdits,
       onActiveSceneChange: handleActiveSceneChange,
       onDraftChange: handleDraftChange,
+      requestedActiveSceneId: activeSceneId,
+      paneMode: isFloatingHost ? "floating" : dockingEnabled ? "docked" : "standalone",
       relocationNotifyEnabled,
       autoSnapEnabled,
       onRelocationNotifyChange: setRelocationNotifyEnabled,
       onAutoSnapChange: setAutoSnapEnabled,
-      suppressBootstrap: isStableHomeMode,
+      suppressBootstrap: isStableHomeMode || testMode.isVisualHome(),
+      suppressWelcome: testMode.isVisualHome(),
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
@@ -1714,7 +2304,11 @@ export default function App(): JSX.Element {
       relocationNotifyEnabled,
       setAutoSnapEnabled,
       setRelocationNotifyEnabled,
+      activeSceneId,
       isStableHomeMode,
+      isVisualHomeMode,
+      isFloatingHost,
+      dockingEnabled,
     ],
   );
 
@@ -1850,9 +2444,25 @@ export default function App(): JSX.Element {
     }
     return stableDockPropsRef.current ?? dockWorkspaceProps;
   }, [dockWorkspaceProps, isStableDockMode]);
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    console.log("[dbg:dock.projectPath]", resolvedDockWorkspaceProps.projectPath ?? "null");
+  }, [resolvedDockWorkspaceProps.projectPath]);
 
   const stableHomeBody = renderProjectHome();
   const shouldRenderDockWorkspace = dockingEnabled && (!isVisualHomeMode || Boolean(projectSummary));
+  useEffect(() => {
+    if (typeof document === "undefined") {
+      return;
+    }
+    const action = document.querySelector('[data-testid="workspace-action-generate"]') as
+      | HTMLButtonElement
+      | null;
+    const enabled = Boolean(action && !action.disabled);
+    console.log("[dbg:workspace.actions]", JSON.stringify({ generateEnabled: enabled }));
+  }, [projectSummary?.path, shouldRenderDockWorkspace]);
 
   const fullWorkspaceBody = isStableHomeMode
     ? stableHomeBody
@@ -1874,6 +2484,17 @@ export default function App(): JSX.Element {
           {renderProjectHome()}
         </div>
       );
+
+  const workspaceBody = splitCommandWorkspaceEnabled && !isFloatingHost && !isStableHomeMode ? (
+    <SplitCommandWorkspace
+      project={currentProject}
+      activeSceneId={activeSceneId}
+      onSelectScene={applySceneSelection}
+      writingStudio={fullWorkspaceBody}
+    />
+  ) : (
+    fullWorkspaceBody
+  );
 
   const freezeServiceHealthActive = testMode.testModeFreezeServiceHealth();
   const freezeOfflineActive = freezeServiceHealthActive && testMode.isForcedOffline();
@@ -1963,6 +2584,14 @@ export default function App(): JSX.Element {
     exporting ||
     !projectSummary?.projectId ||
     !services?.exportProject;
+  const projectLoadedMarkerCommitted =
+    typeof document !== "undefined" &&
+    (document.body?.dataset.projectLoaded === "1" ||
+      document.documentElement?.dataset.projectLoaded === "1");
+  const projectReadyForActions =
+    projectLoadedMarkerCommitted && Boolean(projectSummary?.projectId && projectSummary?.path);
+  const sceneReadyForActions = Boolean(activeSceneId);
+  const servicesReadyForActions = effectiveServiceStatus === 'online' && !serviceOffline;
   const disableSnapshot =
     disableExport || snapshotting || !services?.createProjectSnapshot;
   const disableVerify =
@@ -1984,9 +2613,15 @@ export default function App(): JSX.Element {
     openSnapshotsPanel,
     exportFormat,
     handleExportFormatChange,
+    draftGenerationScope,
+    setDraftGenerationScope,
+    projectSummary?.unitIds.length ?? 0,
     companionOpen,
     currentProject,
     budgetBlocked,
+    projectReadyForActions,
+    sceneReadyForActions,
+    servicesReadyForActions,
     disableExport,
     disableSnapshot,
     disableVerify,
@@ -2014,10 +2649,13 @@ export default function App(): JSX.Element {
       onSnapshots: openSnapshotsPanel,
       exportFormat,
       onExportFormatChange: handleExportFormatChange,
+      generationScope: draftGenerationScope,
+      generationScopeCount: projectSummary?.unitIds.length ?? 0,
+      onGenerationScopeChange: setDraftGenerationScope,
       companionOpen,
       disableCompanion: !currentProject,
-      disableGenerate: serviceOffline || budgetBlocked,
-      disableCritique: serviceOffline || budgetBlocked,
+      disableGenerate: serviceOffline || budgetBlocked || !projectReadyForActions || !sceneReadyForActions || !servicesReadyForActions,
+      disableCritique: serviceOffline || budgetBlocked || !projectReadyForActions || !sceneReadyForActions || !servicesReadyForActions,
       disableExport,
       disableSnapshot,
       disableVerify,
@@ -2050,6 +2688,9 @@ export default function App(): JSX.Element {
       error={preflightError}
       errorDetails={preflightErrorDetails}
       estimate={preflightEstimate}
+      errorPhase={preflightState.phase}
+      generationScope={draftGenerationScope}
+      generationScopeCount={generationProjectSummary?.unitIds.length ?? 0}
       onClose={closePreflight}
       onProceed={() => void proceedPreflight()}
     />
@@ -2074,9 +2715,9 @@ export default function App(): JSX.Element {
       data-testid="app-root"
       className={`app-shell${dockingEnabled ? " app-shell--dock-enabled" : ""}${
         isFloatingHost ? " app-shell--floating" : ""
-      }`}
+      }${splitCommandWorkspaceEnabled && !isFloatingHost ? " app-shell--split-command" : ""}`}
     >
-      {!dockingEnabled && !isFloatingHost && (
+      {!dockingEnabled && !isFloatingHost && !splitCommandWorkspaceEnabled && (
         <aside className="app-shell__dock" aria-label="Wizard dock">
           <div className="app-shell__dock-header">
             <h1>Black Skies</h1>
@@ -2089,7 +2730,7 @@ export default function App(): JSX.Element {
       <div className="app-shell__workspace">
         {workspaceHeaderElement}
 
-        <main className="app-shell__workspace-body">{fullWorkspaceBody}</main>
+        <main className="app-shell__workspace-body">{workspaceBody}</main>
       </div>
 
       {!isStableHomeMode && (
@@ -2224,7 +2865,10 @@ export default function App(): JSX.Element {
     if (typeof document === "undefined" || !document.body) {
       return;
     }
-    document.body.dataset.testMode = modeLabel;
+    const resolvedMode =
+      startupModeLocked && startupLockedMode ? startupLockedMode : modeLabel;
+    document.body.dataset.testMode = resolvedMode;
+    document.documentElement.dataset.testMode = resolvedMode;
   };
   const renderFlatModeRoot = (content: ReactNode) => (
     <div id="app-root" data-testid="app-root" className="test-flat-home-shell">

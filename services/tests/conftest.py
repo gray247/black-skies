@@ -24,12 +24,14 @@ except ModuleNotFoundError:  # pragma: no cover - optional dependency for API te
 
 
 def _ensure_src_on_path() -> None:
-    """Add the services src directory to ``sys.path`` for imports."""
+    """Add required repo paths to ``sys.path`` for imports."""
 
+    repo_root = Path(__file__).resolve().parents[2]
     src_dir = Path(__file__).resolve().parent.parent / "src"
-    src_path = str(src_dir)
-    if src_dir.is_dir() and src_path not in sys.path:
-        sys.path.insert(0, src_path)
+    for path in (repo_root, src_dir):
+        candidate = str(path)
+        if path.is_dir() and candidate not in sys.path:
+            sys.path.insert(0, candidate)
 
 
 _ensure_src_on_path()
@@ -42,8 +44,10 @@ def service_app(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> "FastAPI":
     if FastAPI is None:
         pytest.skip("FastAPI is not installed")
     from blackskies.services.app import create_app
+    from blackskies.services.config import ServiceSettings
 
     monkeypatch.setenv("BLACKSKIES_PROJECT_BASE_DIR", str(tmp_path))
+    monkeypatch.setattr(ServiceSettings, "ENV_FILE", None, raising=False)
     app = create_app()
     yield app
     app.dependency_overrides.clear()

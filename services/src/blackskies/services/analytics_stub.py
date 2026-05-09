@@ -34,7 +34,6 @@ from .analytics.text_utils import (
     score_scene_pacing,
 )
 
-
 SENTENCE_SPLIT = re.compile(r"[.!?]+")
 
 
@@ -56,19 +55,23 @@ def get_project_summary(
     for scene in scenes:
         pacing_entry = pacing_map.get(scene.scene_id)
         if pacing_entry:
-            scene.structural_score = pacing_entry["structural_score"]
-            scene.pacing_bucket = pacing_entry["pacing_bucket"]
+            structural_score = pacing_entry.get("structural_score")
+            if isinstance(structural_score, (int, float)):
+                scene.structural_score = float(structural_score)
+            pacing_bucket = pacing_entry.get("pacing_bucket")
+            if isinstance(pacing_bucket, str):
+                scene.pacing_bucket = pacing_bucket
     word_count = sum(scene.word_count for scene in scenes)
-    readability_details = [
+    readability_details: list[dict[str, object]] = [
         scene.readability_metrics for scene in scenes if isinstance(scene.readability_metrics, dict)
     ]
 
     def _agg_float(key: str) -> float | None:
-        items = [
-            scene.get(key)
-            for scene in readability_details
-            if isinstance(scene.get(key), (int, float))
-        ]
+        items: list[float] = []
+        for scene in readability_details:
+            value = scene.get(key)
+            if isinstance(value, (int, float)):
+                items.append(float(value))
         if not items:
             return None
         return round(mean(items), 3 if key == "pct_long_sentences" else 2)
@@ -77,8 +80,8 @@ def get_project_summary(
     pct_long_sentences = _agg_float("pct_long_sentences")
     ttr = _agg_float("ttr")
     bucket_counts: dict[str, int] = {}
-    for scene in readability_details:
-        bucket = scene.get("bucket")
+    for entry in readability_details:
+        bucket = entry.get("bucket")
         if isinstance(bucket, str):
             bucket_counts[bucket] = bucket_counts.get(bucket, 0) + 1
     readability_bucket = (
@@ -229,8 +232,6 @@ class SceneMetrics:
     readability: float | None
     dialogue_ratio: float
     narration_ratio: float
-    structural_score: float
-    pacing_bucket: str
     readability_metrics: dict[str, object] | None = None
     structural_score: float = 0.0
     pacing_bucket: str = "Neutral"

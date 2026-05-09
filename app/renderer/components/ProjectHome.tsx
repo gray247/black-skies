@@ -46,10 +46,14 @@ export interface ProjectHomeProps {
   draftOverrides?: Record<string, string>;
   onActiveSceneChange?: (payload: ActiveScenePayload | null) => void;
   onDraftChange?: (sceneId: string, draft: string) => void;
+  requestedActiveSceneId?: string | null;
+  paneMode?: 'docked' | 'floating' | 'standalone';
   relocationNotifyEnabled?: boolean;
   autoSnapEnabled?: boolean;
   onRelocationNotifyChange?: (value: boolean) => void;
   onAutoSnapChange?: (value: boolean) => void;
+  suppressBootstrap?: boolean;
+  suppressWelcome?: boolean;
 }
 
 interface RecentProjectEntry {
@@ -62,6 +66,7 @@ const RECENTS_STORAGE_KEY = 'blackskies.recent-projects';
 const LAST_PROJECT_STORAGE_KEY = 'blackskies.last-project';
 // Ceiling: keep the recent-project list lightweight for the home view and storage churn.
 const MAX_RECENTS = 7;
+const DRAFT_PREVIEW_MIN_HEIGHT = '24rem';
 
 function readStoredRecents(): RecentProjectEntry[] {
   if (typeof window === 'undefined') {
@@ -163,10 +168,14 @@ export default function ProjectHome({
   draftOverrides,
   onActiveSceneChange,
   onDraftChange,
+  requestedActiveSceneId,
+  paneMode = 'standalone',
   relocationNotifyEnabled = true,
   autoSnapEnabled = false,
   onRelocationNotifyChange,
   onAutoSnapChange,
+  suppressBootstrap = false,
+  suppressWelcome = false,
 }: ProjectHomeProps): JSX.Element {
   const projectLoader: ProjectLoaderApi | undefined = window.projectLoader;
   const loaderAvailable = Boolean(projectLoader);
@@ -193,6 +202,7 @@ export default function ProjectHome({
   );
   const hasDebugLog = debugLogEntries.length > 0;
   const diagnosticsSectionId = useId();
+  const welcomeSectionId = useId();
   const draftSceneTitleId = useId();
   const draftSceneMetaId = useId();
 
@@ -221,6 +231,66 @@ export default function ProjectHome({
     }
     return activeProject.drafts[activeSceneId] ?? '';
   }, [activeProject, activeSceneId, draftOverrides]);
+
+  const activeSceneDraftSource = useMemo(() => {
+    if (!activeProject || !activeSceneId) {
+      return 'fallback';
+    }
+    const override = draftOverrides?.[activeSceneId];
+    if (typeof override === 'string') {
+      return 'override';
+    }
+    if (typeof activeProject.drafts[activeSceneId] === 'string') {
+      return 'disk';
+    }
+    return 'fallback';
+  }, [activeProject, activeSceneId, draftOverrides]);
+
+  useEffect(() => {
+    if (!activeProject || !requestedActiveSceneId || requestedActiveSceneId === activeSceneId) {
+      return;
+    }
+    if (activeProject.scenes.some((scene) => scene.id === requestedActiveSceneId)) {
+      setActiveSceneId(requestedActiveSceneId);
+    }
+  }, [activeProject, activeSceneId, requestedActiveSceneId]);
+
+  const commitActiveSceneSelection = useCallback(
+    (sceneId: string) => {
+      setActiveSceneId(sceneId);
+      if (!onActiveSceneChange || !activeProject) {
+        return;
+      }
+      const selectedScene = activeProject.scenes.find((scene) => scene.id === sceneId) ?? null;
+      if (!selectedScene) {
+        onActiveSceneChange(null);
+        return;
+      }
+      const nextDraft = draftOverrides?.[selectedScene.id] ?? activeProject.drafts[selectedScene.id] ?? '';
+      onActiveSceneChange({
+        sceneId: selectedScene.id,
+        sceneTitle: selectedScene.title,
+        draft: nextDraft,
+      });
+    },
+    [activeProject, draftOverrides, onActiveSceneChange],
+  );
+
+  useEffect(() => {
+    if (!activeProject || !activeSceneId) {
+      return;
+    }
+    const override = draftOverrides?.[activeSceneId];
+    console.info('[ProjectHome:draft-preview]', {
+      paneMode,
+      activeSceneId,
+      activeSceneDraftLength: activeSceneDraft.length,
+      activeSceneDraftSource,
+      overrideLength: typeof override === 'string' ? override.length : null,
+      diskDraftLength: activeProject.drafts[activeSceneId]?.length ?? null,
+      draftOverrideKeys: Object.keys(draftOverrides ?? {}),
+    });
+  }, [activeProject, activeSceneDraft.length, activeSceneDraftSource, activeSceneId, draftOverrides, paneMode]);
 
   const notifyIssues = useCallback(
     (items: ProjectIssue[]) => {
@@ -685,8 +755,46 @@ export default function ProjectHome({
     [loadProjectAtPath],
   );
 
+  const handleOpenSampleProject = useCallback(
+    async (silent: boolean) => {
+      if (!projectLoader) {
+        onToast({
+          tone: 'error',
+          title: 'Electron bridge unavailable',
+          description: 'Launch the desktop shell to start the sample project.',
+        });
+        return;
+      }
+
+      try {
+        recordDebugEvent('project-home.sample.open', { silent });
+        const samplePath = await projectLoader.getSampleProjectPath?.();
+        if (!samplePath) {
+          onToast({
+            tone: 'warning',
+            title: 'Sample project unavailable',
+            description: 'The packaged sample project path could not be resolved.',
+          });
+          return;
+        }
+        await loadProjectAtPath(samplePath, {
+          reason: 'bootstrap',
+          silent,
+          allowFallback: false,
+        });
+      } catch (error) {
+        onToast({
+          tone: 'warning',
+          title: 'Sample project unavailable',
+          description: error instanceof Error ? error.message : String(error),
+        });
+      }
+    },
+    [loadProjectAtPath, onToast, projectLoader],
+  );
+
   useEffect(() => {
-    if (!projectLoader || activeProject || sampleAttemptedRef.current) {
+    if (!projectLoader || activeProject || sampleAttemptedRef.current || suppressBootstrap) {
       return;
     }
 
@@ -696,16 +804,11 @@ export default function ProjectHome({
     const bootstrap = async () => {
       try {
         recordDebugEvent('project-home.bootstrap.attempt', {});
-        const samplePath = await projectLoader.getSampleProjectPath?.();
-        if (!samplePath || cancelled) {
+        if (cancelled) {
           return;
         }
-        await loadProjectAtPath(samplePath, {
-          reason: 'bootstrap',
-          silent: true,
-          allowFallback: false,
-        });
-        recordDebugEvent('project-home.bootstrap.success', { samplePath });
+        await handleOpenSampleProject(true);
+        recordDebugEvent('project-home.bootstrap.success', {});
       } catch (error) {
         recordDebugEvent('project-home.bootstrap.error', {
           message: error instanceof Error ? error.message : String(error),
@@ -725,7 +828,7 @@ export default function ProjectHome({
     return () => {
       cancelled = true;
     };
-  }, [activeProject, loadProjectAtPath, onToast, projectLoader]);
+  }, [activeProject, handleOpenSampleProject, onToast, projectLoader, suppressBootstrap]);
 
   useEffect(() => {
     if (!onActiveSceneChange) {
@@ -788,6 +891,37 @@ export default function ProjectHome({
           {isLoading ? 'Loading...' : 'Open project...'}
         </button>
       </header>
+
+      {activeProject || suppressWelcome ? null : (
+        <section className="project-home__welcome" aria-labelledby={welcomeSectionId}>
+          <div className="project-home__welcome-copy">
+            <p className="project-home__welcome-eyebrow">Welcome</p>
+            <h3 id={welcomeSectionId}>Start with an existing project or the sample project</h3>
+            <p>
+              Open a project folder to continue an existing draft, or load the packaged sample
+              project to see the workspace layout and draft flow immediately.
+            </p>
+          </div>
+          <div className="project-home__welcome-actions">
+            <button
+              type="button"
+              className="project-home__welcome-button project-home__welcome-button--secondary"
+              onClick={handleOpenProject}
+              disabled={!loaderAvailable || isLoading}
+            >
+              Open existing project
+            </button>
+            <button
+              type="button"
+              className="project-home__welcome-button"
+              onClick={() => void handleOpenSampleProject(false)}
+              disabled={!loaderAvailable || !projectLoader?.getSampleProjectPath || isLoading}
+            >
+              Quick start with sample project
+            </button>
+          </div>
+        </section>
+      )}
 
       <section className="project-home__diagnostics">
         <div className="project-home__diagnostics-header">
@@ -979,7 +1113,10 @@ export default function ProjectHome({
             )}
           </section>
 
-          <section className="project-home__draft">
+          <section
+            className="project-home__draft"
+            style={{ minHeight: DRAFT_PREVIEW_MIN_HEIGHT }}
+          >
             <div className="project-home__draft-header">
               {activeScene ? (
                 <>
@@ -1049,6 +1186,9 @@ export default function ProjectHome({
             <h3>Scene Metadata</h3>
             <span>{activeProject?.scenes.length ?? 0}</span>
           </div>
+          <p className="project-home__details-hint">
+            Display-only in this version. Purpose, emotion tag, and word target feed generation and Companion guidance.
+          </p>
           {activeProject ? (
             <ul className="project-home__scene-list">
               {activeProject.scenes.map((scene) => {
@@ -1059,11 +1199,13 @@ export default function ProjectHome({
                     className={`project-home__scene-card${
                       isActive ? ' project-home__scene-card--active' : ''
                     }`}
+                    data-scene-id={scene.id}
                   >
                     <button
                       type="button"
                       className="project-home__scene-button"
-                      onClick={() => setActiveSceneId(scene.id)}
+                      data-scene-id={scene.id}
+                      onClick={() => commitActiveSceneSelection(scene.id)}
                       aria-pressed={isActive}
                     >
                       <div className="project-home__scene-header">

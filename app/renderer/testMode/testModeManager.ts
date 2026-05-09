@@ -1,10 +1,23 @@
-﻿export type TestModeName = 'none' | 'flat' | 'recovery' | 'full';
+export type TestModeName = 'none' | 'flat' | 'recovery' | 'full';
+export type E2EStartupMode = 'flat' | 'full' | 'recovery';
+export type E2EServiceSource = 'stub' | 'real';
+
+export type E2EStartupConfig = {
+  mode: E2EStartupMode;
+  projectPath: string | null;
+  recovery: boolean;
+  services: E2EServiceSource;
+  allowRuntimeModeOverride?: boolean;
+  allowLayoutRestore?: boolean;
+};
 
 type WindowWithTestFlags = typeof window & {
   __testEnv?: boolean | { isPlaywright?: boolean };
   __testEnvFlatMode?: boolean;
   __testEnvRecoveryMode?: boolean;
   __testEnvFullMode?: boolean;
+  __E2E_STARTUP_CONFIG?: E2EStartupConfig;
+  __dev?: unknown;
 };
 
 function getWindow(): WindowWithTestFlags | undefined {
@@ -27,7 +40,34 @@ function datasetFlagEnabled(flag: string): boolean {
 }
 
 export function isHarnessHooksEnabled(): boolean {
-  return typeof process !== 'undefined' && process.env?.BLACKSKIES_ENABLE_HARNESS_HOOKS === '1';
+  return modePolicy.isHarnessEnabled();
+}
+
+export function getStartupConfig(): E2EStartupConfig | null {
+  if (!isHarnessHooksEnabled()) {
+    return null;
+  }
+  const win = getWindow();
+  if (!win) {
+    return null;
+  }
+  return win.__E2E_STARTUP_CONFIG ?? null;
+}
+
+export function isModeLocked(): boolean {
+  const startup = getStartupConfig();
+  if (!startup) {
+    return false;
+  }
+  return startup.allowRuntimeModeOverride !== true;
+}
+
+export function allowLayoutRestore(): boolean {
+  const startup = getStartupConfig();
+  if (!startup) {
+    return true;
+  }
+  return startup.allowLayoutRestore === true;
 }
 
 export function getMode(): TestModeName {
@@ -37,6 +77,10 @@ export function getMode(): TestModeName {
   const win = getWindow();
   if (!win) {
     return 'none';
+  }
+  const startupMode = win.__E2E_STARTUP_CONFIG?.mode;
+  if (startupMode === 'flat' || startupMode === 'full' || startupMode === 'recovery') {
+    return startupMode;
   }
   if (win.__testEnvFlatMode === true) {
     return 'flat';
@@ -72,6 +116,12 @@ export function isFull(): boolean {
 }
 
 export function isTestEnv(): boolean {
+  if (typeof navigator !== 'undefined') {
+    const userAgent = navigator.userAgent.toLowerCase();
+    if (userAgent.includes('jsdom') || userAgent.includes('vitest')) {
+      return true;
+    }
+  }
   const win = getWindow();
   const documentTestEnv = typeof document !== 'undefined' && document.body?.dataset?.testEnv === '1';
   if (!win) {
@@ -99,15 +149,15 @@ export function isVisualHome(): boolean {
   if (!isHarnessHooksEnabled()) {
     return false;
   }
-  const datasetFlag =
-    typeof document !== 'undefined' &&
-    (document.body?.dataset?.testVisualStable === '1' ||
-      document.documentElement?.dataset?.testVisualStable === '1');
-  return datasetFlag;
+  return modePolicy.isVisualStable();
 }
 
 export function getOfflineReason(): string | null {
   if (!isHarnessHooksEnabled()) {
+    return null;
+  }
+  const startup = getStartupConfig();
+  if (startup && startup.services === 'real') {
     return null;
   }
   const datasetReason =
@@ -136,3 +186,4 @@ export function testModeFreezeServiceHealth(): boolean {
   }
   return Boolean(datasetFlagEnabled('testModeFreezeServiceHealth'));
 }
+import * as modePolicy from "../../shared/modePolicy";

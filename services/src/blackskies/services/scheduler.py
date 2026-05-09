@@ -62,7 +62,7 @@ class VerificationScheduler:
     def _project_roots(self) -> Iterable[Path]:
         base = self._settings.project_base_dir
         if not base.exists():
-            return []
+            return
         for candidate in base.iterdir():
             if candidate.is_dir():
                 if (candidate / "project.json").exists():

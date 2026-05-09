@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Callable, cast
 
 import pytest
 
@@ -146,7 +147,7 @@ def test_search_handles_unreadable_files(tmp_path: Path, monkeypatch: pytest.Mon
     tool = MarkdownSearchTool(data_root=data_root)
     context = tool.context()
 
-    original_read_text = Path.read_text
+    original_read_text = cast(Callable[..., str], Path.read_text)
 
     def fake_read_text(self: Path, *args: object, **kwargs: object) -> str:
         if self == bad_file:

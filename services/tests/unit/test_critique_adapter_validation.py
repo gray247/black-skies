@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 import json
+from typing import Any
 
 import pytest
 
@@ -33,7 +34,7 @@ class _StubAdapter:
         self._text = text
         self._exc = exc
 
-    def critique(self, _payload: dict[str, object]) -> dict[str, object]:
+    def critique(self, _payload: dict[str, object]) -> dict[str, Any]:
         if self._exc:
             raise self._exc
         return {"text": self._text}
@@ -50,7 +51,7 @@ def _build_service(adapter: _StubAdapter, monkeypatch: pytest.MonkeyPatch) -> Cr
     return CritiqueService(model_router=router)
 
 
-def _run_critique(service: CritiqueService, project_root: Path) -> dict[str, object]:
+def _run_critique(service: CritiqueService, project_root: Path) -> dict[str, Any]:
     request = DraftCritiqueRequest(
         draft_id="dr_test",
         unit_id="sc_0001",
@@ -67,7 +68,7 @@ def test_critique_adapter_malformed_json_falls_back(
     _write_scene(project_root)
     service = _build_service(_StubAdapter(text="not json"), monkeypatch)
 
-    payload = _run_critique(service, project_root)
+    payload: dict[str, Any] = _run_critique(service, project_root)
 
     assert payload["summary"].startswith("Draft 'Scene 1' spans")
     assert payload["schema_version"] == "CritiqueOutputSchema v1"
@@ -90,7 +91,7 @@ def test_critique_adapter_valid_payload_used(
     )
     service = _build_service(_StubAdapter(text=adapter_payload), monkeypatch)
 
-    payload = _run_critique(service, project_root)
+    payload: dict[str, Any] = _run_critique(service, project_root)
 
     assert payload["summary"] == "Adapter summary."
     assert payload["severity"] == "low"
@@ -106,7 +107,7 @@ def test_critique_adapter_missing_fields_falls_back(
     _write_scene(project_root)
     service = _build_service(_StubAdapter(text='{"summary": "Adapter summary"}'), monkeypatch)
 
-    payload = _run_critique(service, project_root)
+    payload: dict[str, Any] = _run_critique(service, project_root)
 
     assert payload["summary"].startswith("Draft 'Scene 1' spans")
     assert payload["schema_version"] == "CritiqueOutputSchema v1"
@@ -120,7 +121,7 @@ def test_critique_adapter_exception_falls_back(
     _write_scene(project_root)
     service = _build_service(_StubAdapter(exc=AdapterError("boom")), monkeypatch)
 
-    payload = _run_critique(service, project_root)
+    payload: dict[str, Any] = _run_critique(service, project_root)
 
     assert payload["summary"].startswith("Draft 'Scene 1' spans")
     assert payload["schema_version"] == "CritiqueOutputSchema v1"

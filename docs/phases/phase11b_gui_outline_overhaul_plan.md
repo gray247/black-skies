@@ -1,0 +1,53 @@
+# Phase 11B GUI / Outline Overhaul Plan
+
+Status: Follow-up plan
+Last Reviewed: 2026-05-08
+Purpose: define the later GUI and outline redesign that should only start after Phase 11 contracts are stable.
+
+## Canonical Design System Source
+- `docs/specs/design_system_v1.md` is the canonical Phase 11B design-system source.
+- Runtime GUI and outline work should treat that spec as the planning baseline for topology, zones, component contracts, interaction doctrine, visual language, adaptive rules, Story Unit UI, command palette/tool registry, and Phase 11B build/defer boundaries.
+- This plan remains a sequencing document; it does not override the design-system spec.
+- `docs/phases/phase11b_implementation_plan.md` is the canonical living roadmap and recommended execution sequence. It should be resolved before runtime Phase 11B work starts.
+- The Phase 11B foundation implementation now begins from that plan behind the disabled-by-default `ui.experimental_split_command_workspace` flag. The current Phase 11A shell remains the production default until explicit closure criteria say otherwise.
+- That roadmap records Passes 0-5 complete, the CI diagnostic hardening fix, and the remaining expandable pass order for later runtime work.
+
+## Entry Criteria
+- Pane lifecycle is documented and classified.
+- Layout persistence has version, recovery, reset, and corruption rules.
+- Generation scope is explicit in the UI and tests.
+- Draft Preview has a stable read-only role.
+- Scene Metadata has a stable role and field classification.
+- Critique/rewrite provenance is documented.
+- Error/toast visibility is standardized.
+- Workflow spine is frozen.
+
+## Scope For The Future Overhaul
+- Narrative workspace modes.
+- Stronger outline system.
+- Scene cards and story-structure surfaces.
+- Generation targeting from the outline.
+- Visual hierarchy cleanup.
+- Accessibility pass.
+- Future emotional timeline readiness.
+- Future memory panel readiness.
+
+## Non-Goals
+- Do not add memory systems.
+- Do not add local LLM routing changes.
+- Do not add plugin expansion.
+- Do not add persona expansion.
+- Do not add new major visualization systems during this planning phase.
+- Do not treat the current contract freeze as a UI redesign.
+
+## Suggested Sequencing
+1. Lock the pane and layout contracts.
+2. Lock generation scope and preview semantics.
+3. Lock critique/rewrite provenance and error recovery.
+4. Review whether the current three-pane shell still fits the documented workflow spine.
+5. Only then design the outline-led workspace and broader GUI hierarchy.
+
+## Deliverable Shape
+- The later overhaul should be a separate plan, not an implicit Phase 11 side effect.
+- It should reuse the frozen contracts instead of redefining them.
+- It should specify what changes visually and what must remain behaviorally identical.

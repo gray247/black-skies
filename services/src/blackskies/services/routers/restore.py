@@ -48,6 +48,7 @@ async def restore_project(
         logger.error("Could not resolve project root: %s", exc)
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
 
+    zip_name: str | None
     if payload.zipName:
         zip_name = payload.zipName
     else:

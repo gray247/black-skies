@@ -20,6 +20,7 @@ export const CANONICAL_PANES = [
 ] as const;
 
 export type LayoutPaneId = (typeof CANONICAL_PANES)[number];
+export type PaneScope = 'global' | 'project-scoped' | 'scene-scoped' | 'selection-scoped' | 'generation-scoped';
 
 export const DEFAULT_PANE_IDS: readonly LayoutPaneId[] = CANONICAL_PANES;
 
@@ -27,37 +28,45 @@ export interface PaneMetadata {
   readonly title: string;
   readonly description: string;
   readonly hidden?: boolean;
+  readonly scope: PaneScope;
 }
 
 export const PANE_METADATA: Record<LayoutPaneId, PaneMetadata> = {
   outline: {
     title: "Outline",
     description: "Plan chapters, scenes, and beats.",
+    scope: "project-scoped",
   },
   draftPreview: {
     title: "Draft preview",
-    description: "Write and edit your scene text.",
+    description: "Preview selected scene output without mutating the canonical draft.",
+    scope: "selection-scoped",
   },
   timeline: {
     title: "Timeline",
     description: "Review your history and progress.",
+    scope: "project-scoped",
   },
   storyInsights: {
     title: "Story Insights",
     description: "See pacing and emotion data.",
+    scope: "project-scoped",
   },
   corkboard: {
     title: "Corkboard",
     description: "Browse scene cards with metadata.",
+    scope: "project-scoped",
   },
   relationshipGraph: {
     title: "Feedback notes",
     description: "Explore character-scene relationships.",
     hidden: true,
+    scope: "project-scoped",
   },
   critique: {
     title: "Critique",
     description: "Review feedback and suggested revisions.",
+    scope: "selection-scoped",
   },
 };
 
@@ -118,20 +127,6 @@ export function applySplitWeights(node: LayoutSplitNode, weights: LayoutSplitWei
   };
 }
 
-type MosaicSplitNodeWithWeights = {
-  direction: MosaicDirection;
-  first: MosaicNode<LayoutPaneId>;
-  second: MosaicNode<LayoutPaneId>;
-  splitPercentage?: number;
-  weights?: LayoutSplitWeights;
-};
-
-function hasWeights(
-  node: MosaicNode<LayoutPaneId>,
-): node is MosaicSplitNodeWithWeights {
-  return typeof node === "object" && node !== null && "weights" in node;
-}
-
 function makeSplitNode(
   direction: LayoutSplitNode["direction"],
   first: LayoutTree,
@@ -177,12 +172,13 @@ export interface LayoutSaveRequest extends LayoutLoadRequest {
   schemaVersion?: number;
 }
 
-export interface LayoutResetRequest extends LayoutLoadRequest {}
+export type LayoutResetRequest = LayoutLoadRequest;
 
 export interface LayoutLoadResponse {
   layout: LayoutTree | null;
   floatingPanes: FloatingPaneDescriptor[];
   schemaVersion?: number;
+  wasReset?: boolean;
 }
 
 export interface FloatingPaneDescriptor {
@@ -296,7 +292,7 @@ function logInvalidLayout(reason: string): void {
   console.warn('[dock] Invalid saved layout ignored; using default layout', { reason });
 }
 
-export function sanitizeLayoutNode(node: MosaicNode<LayoutPaneId> | null): LayoutTree | null {
+function normalizeLayoutTree(node: unknown): LayoutTree | null {
   if (!node) {
     return null;
   }
@@ -304,22 +300,39 @@ export function sanitizeLayoutNode(node: MosaicNode<LayoutPaneId> | null): Layou
     const normalized = normalizeLegacyPane(node);
     return normalized ?? null;
   }
-  const first = sanitizeLayoutNode(node.first);
-  const second = sanitizeLayoutNode(node.second);
+  const candidateNode = node as {
+    first?: unknown;
+    second?: unknown;
+    direction?: MosaicDirection;
+    splitPercentage?: number;
+    weights?: LayoutSplitWeights;
+  };
+  const first = normalizeLayoutTree(candidateNode.first);
+  const second = normalizeLayoutTree(candidateNode.second);
   if (!first || !second) {
     return null;
   }
-  const direction = node.direction ?? 'row';
+  const direction = candidateNode.direction ?? 'row';
   const candidate: LayoutTree = makeSplitNode(
     direction,
     first,
     second,
-    node.splitPercentage,
-    hasWeights(node) ? node.weights : undefined,
+    candidateNode.splitPercentage,
+    candidateNode.weights,
   );
-  if (!treeMeetsRequirements(candidate)) {
+  return candidate;
+}
+
+export function sanitizeLayoutNode(node: MosaicNode<LayoutPaneId> | null): LayoutTree | null {
+  const candidate = normalizeLayoutTree(node);
+  if (!candidate || !treeMeetsRequirements(candidate)) {
     logInvalidLayout('layout contains duplicates or missing required panes');
     return null;
   }
   return candidate;
+}
+
+export function isValidLayoutTree(node: unknown): boolean {
+  const candidate = normalizeLayoutTree(node);
+  return candidate !== null && treeMeetsRequirements(candidate);
 }

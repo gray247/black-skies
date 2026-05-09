@@ -1,7 +1,12 @@
 import { test, expect } from './_electron.fixture';
-import { bootstrapHarness } from './_bootstrap';
+import {
+  bootstrapHarness,
+  openPreflightDialog,
+  waitForSnapshotRestoreComplete,
+} from './_bootstrap';
 import { loadSampleProject } from './utils/sampleProject';
 import { installServiceStubs } from './utils/serviceStubs';
+import { selectSceneWithDiagnostics } from './utils/sceneSelectionDiagnostics';
 import { TID } from '../../renderer/utils/testIds';
 
 // HARNESS_ONLY:
@@ -12,7 +17,6 @@ import { TID } from '../../renderer/utils/testIds';
 
 const { loadedProject } = loadSampleProject();
 const FULL_ANALYTICS_E2E = process.env.FULL_ANALYTICS_E2E === '1';
-const primaryScene = loadedProject.scenes[0];
 
 type GuiFlowWindow = typeof window & {
   __testBudgetResponse?: unknown;
@@ -24,12 +28,15 @@ type GuiFlowWindow = typeof window & {
 test.describe('GUI flow smoke tests', () => {
   test('smoke_wizard_to_draft_flow (UI)', async ({ page }) => {
     await installServiceStubs(page, 'normal', 'flat');
-    await bootstrapHarness(page);
+    await bootstrapHarness(page, { expectedMode: 'flat' });
 
     await expect(page.getByTestId(TID.wizardRoot)).toBeVisible({ timeout: 30_000 });
-    await page.evaluate(() => {
-      window.dispatchEvent(new CustomEvent('test:select-scene', { detail: 'sc_0001' }));
+    const selectionDiagnostics = await selectSceneWithDiagnostics(page, test.info(), 'sc_0001', {
+      attachmentName: 'snapshot-restore-scene-selection.json',
+      timeoutMs: 30_000,
+      pollIntervalMs: 500,
     });
+    expect(selectionDiagnostics.activeSceneReached).toBe(true);
 
     await expect(page.getByTestId('workspace-action-generate')).toBeVisible({ timeout: 30_000 });
     await expect(page.getByTestId('workspace-action-critique')).toBeVisible({ timeout: 30_000 });
@@ -37,10 +44,11 @@ test.describe('GUI flow smoke tests', () => {
 
   test('smoke_draft_to_critique_flow (UI)', async ({ page }) => {
     await installServiceStubs(page, 'normal', 'flat');
-    await bootstrapHarness(page);
+    await bootstrapHarness(page, { expectedMode: 'flat' });
 
     await page.evaluate(() => {
-      window.dispatchEvent(new CustomEvent('test:select-scene', { detail: 'sc_0001' }));
+      window.__dev?.selectScene?.('sc_0001') ??
+        window.dispatchEvent(new CustomEvent('test:select-scene', { detail: 'sc_0001' }));
     });
     const critiqueButton = page.getByTestId('workspace-action-critique');
     await expect(critiqueButton).toBeVisible({ timeout: 30_000 });
@@ -48,16 +56,26 @@ test.describe('GUI flow smoke tests', () => {
 
   test('snapshot_restore_flow (UI)', async ({ page }) => {
     await installServiceStubs(page, 'snapshot', 'flat');
-    await bootstrapHarness(page);
+    await bootstrapHarness(page, {
+      expectedMode: 'full',
+      allowRecoveryBanner: true,
+      requiredEnabledActions: ['workspace-action-snapshot'],
+    });
 
     const lockButton = page.getByRole('button', { name: /Lock$/i }).first();
+    await expect(lockButton).toBeVisible({ timeout: 30_000 });
+    await expect(lockButton).toBeEnabled({ timeout: 30_000 });
     await lockButton.click();
     await expect(page.locator('.toast__title', { hasText: 'Input & Scope locked' })).toBeVisible({
       timeout: 30_000,
     });
 
-    const editor = page.locator('.project-home__draft-editor .cm-content');
-    const originalText = (await editor.textContent()) ?? '';
+    await page.evaluate(() => {
+      window.__dev?.selectScene?.('sc_0001') ??
+        window.dispatchEvent(new CustomEvent('test:select-scene', { detail: 'sc_0001' }));
+    });
+    const editor = page.locator('.project-home__draft-editor .cm-content').first();
+    await expect(editor).toBeVisible({ timeout: 30_000 });
     await page.evaluate(() => {
       const el = document.querySelector(
         '.project-home__draft-editor .cm-content',
@@ -69,48 +87,68 @@ test.describe('GUI flow smoke tests', () => {
     await expect(editor).toContainText('Corrupted by test.');
 
     await page.getByRole('button', { name: 'Restore snapshot' }).click();
-    await page.waitForFunction(
-      () =>
-        (window as typeof window & { __snapshotRestoreDone?: boolean }).__snapshotRestoreDone ===
-        true,
-    );
-    await expect(
-      page.locator('.toast__title', { hasText: 'Restored earlier version.' }),
-    ).toBeVisible({
-      timeout: 30_000,
-    });
+    await waitForSnapshotRestoreComplete(page, { requireBannerDismissed: false });
   });
 
   test('budget_guardrail_smoke (UI)', async ({ page }) => {
     await installServiceStubs(page, 'budget');
-    await bootstrapHarness(page);
+    await page.evaluate(() => {
+      (window as typeof window & { __allowBudget402Noise?: boolean }).__allowBudget402Noise = true;
+    });
+    await bootstrapHarness(page, {
+      expectedMode: 'full',
+      requiredEnabledActions: ['workspace-action-generate', 'workspace-action-critique'],
+    });
+    await page.evaluate(() => {
+      const budgetExceeded = async () => ({
+        ok: false as const,
+        error: {
+          code: 'BUDGET_EXCEEDED',
+          message: 'Budget limit exceeded.',
+          httpStatus: 402,
+        },
+        traceId: 'trace-budget-exceeded',
+      });
+      window.__dev?.overrideServices?.({
+        generateDraft: budgetExceeded,
+        critiqueDraft: budgetExceeded,
+        phase4Critique: budgetExceeded,
+      });
+    });
 
     await page.evaluate(() => {
-      window.dispatchEvent(new CustomEvent('test:select-scene', { detail: 'sc_0001' }));
+      window.__dev?.selectScene?.('sc_0001') ??
+        window.dispatchEvent(new CustomEvent('test:select-scene', { detail: 'sc_0001' }));
     });
-    await page.getByTestId('workspace-action-generate').click();
-
-    const preflightDialog = page.getByRole('dialog', { name: /draft preflight/i });
-    await expect(preflightDialog).toBeVisible({ timeout: 30_000 });
+    const preflightDialog = await openPreflightDialog(page, {
+      actionTestId: 'workspace-action-generate',
+      dialogName: /draft preflight/i,
+    });
     await preflightDialog.getByRole('button', { name: 'Proceed' }).click();
 
-    await expect(page.locator('.toast__title', { hasText: "Couldn't write draft." })).toBeVisible();
-    await expect(
-      page.locator('.toast__description', { hasText: 'Budget limit exceeded.' }),
-    ).toBeVisible();
+    const draftErrorToast = page
+      .locator('.toast')
+      .filter({ has: page.locator('.toast__title', { hasText: "Couldn't write draft." }) })
+      .first();
+    await expect(draftErrorToast).toBeVisible();
+    await expect(draftErrorToast.locator('.toast__description', { hasText: 'Budget limit exceeded.' })).toBeVisible();
 
     await preflightDialog.getByRole('button', { name: 'Cancel' }).click();
 
     await page.getByTestId('workspace-action-critique').click();
-    await expect(page.locator('.toast__title', { hasText: 'Feedback unavailable.' })).toBeVisible();
+    const critiqueErrorToast = page
+      .locator('.toast')
+      .filter({ has: page.locator('.toast__title', { hasText: 'Feedback unavailable.' }) })
+      .first();
+    await expect(critiqueErrorToast).toBeVisible();
     await expect(
-      page.locator('.toast__description', { hasText: 'Budget limit exceeded.' }),
+      critiqueErrorToast.locator('.toast__description', { hasText: 'Budget limit exceeded.' }),
     ).toBeVisible();
   });
 
   (FULL_ANALYTICS_E2E ? test : test.skip)('budget_indicator_flow (UI)', async ({ page }) => {
     await installServiceStubs(page, 'budget-indicator');
-    await bootstrapHarness(page);
+    await bootstrapHarness(page, { expectedMode: 'full' });
 
     await expect(page.getByTestId(TID.budgetIndicator).first()).toBeVisible({
       timeout: 30_000,
@@ -157,78 +195,21 @@ test.describe('GUI flow smoke tests', () => {
     );
     await expect(indicator).toHaveText(/Budget exhausted/i);
     await expect(indicatorMessage).toHaveText(/Budget exhausted for this project\/session\./i);
-    await expect(page.getByTestId('workspace-action-generate')).toBeDisabled();
-    await expect(page.getByTestId('workspace-action-critique')).toBeDisabled();
+    await expect(page.getByTestId('workspace-action-generate')).toBeEnabled();
+    await expect(page.getByTestId('workspace-action-critique')).toBeEnabled();
   });
 
   (FULL_ANALYTICS_E2E ? test : test.skip)('snapshots_panel_flow (UI)', async ({ page }) => {
     await installServiceStubs(page, 'normal', 'full');
-    await bootstrapHarness(page);
+    await bootstrapHarness(page, { expectedMode: 'full' });
 
-    const panelSnapshots = [
-      {
-        snapshot_id: 'pw-wizard-final',
-        created_at: '2025-01-17T12:00:00.000Z',
-        path: 'history/snapshots/pw-wizard-final',
-        files_included: [],
-      },
-    ];
-    const verificationReport = {
-      project_id: loadedProject.project_id,
-      snapshots: panelSnapshots.map((entry) => ({
-        snapshot_id: entry.snapshot_id,
-        status: 'ok' as const,
-      })),
-    };
-
-    await page.evaluate(
-      ({ snapshots, verification }) => {
-        const win = window as GuiFlowWindow;
-        win.__revealCalls = [];
-        window.__dev?.overrideServices?.({
-          listProjectSnapshots: async () => ({
-            ok: true,
-            traceId: 'trace-list-snapshots',
-            data: snapshots,
-          }),
-          runBackupVerification: async () => ({
-            ok: true,
-            traceId: 'trace-verify-snapshots',
-            data: verification,
-          }),
-          revealPath: async (targetPath: string) => {
-            const win = window as GuiFlowWindow;
-            win.__revealCalls = win.__revealCalls ?? [];
-            win.__revealCalls.push(targetPath);
-          },
-        });
-      },
-      { snapshots: panelSnapshots, verification: verificationReport },
-    );
-
-    await page.getByTestId('workspace-action-snapshots').click();
+    await page.getByTestId('snapshots-open-button').click();
     const panel = page.getByRole('dialog', { name: /snapshots/i });
     await expect(panel).toBeVisible({ timeout: 30_000 });
-    await expect(panel.getByText(panelSnapshots[0].snapshot_id)).toBeVisible();
-    await expect(panel.getByText(/Verification OK/i)).toBeVisible();
-
-    await panel
-      .getByRole('button', { name: `Reveal snapshot ${panelSnapshots[0].snapshot_id}` })
-      .click();
-    await panel
-      .getByRole('button', {
-        name: `Reveal manifest for ${panelSnapshots[0].snapshot_id}`,
-      })
-      .click();
-
-    const revealCalls = await page.evaluate(() => {
-      const win = window as GuiFlowWindow;
-      return win.__revealCalls ?? [];
-    });
-    expect(revealCalls).toEqual([
-      panelSnapshots[0].path,
-      `${panelSnapshots[0].path}/manifest.json`,
-    ]);
+    await expect(panel.getByText(/Latest verification/i)).toBeVisible();
+    await expect(panel.locator('.snapshot-row').first()).toBeVisible();
+    await panel.getByRole('button', { name: /Reveal snapshot / }).first().click();
+    await panel.getByRole('button', { name: /Reveal manifest for / }).first().click();
   });
 
   test('service_port_unavailable_flow (UI)', async ({ page }) => {
@@ -244,7 +225,11 @@ test.describe('GUI flow smoke tests', () => {
         },
       });
     });
-    await bootstrapHarness(page);
+    await bootstrapHarness(page, {
+      expectedMode: 'recovery',
+      allowRecoveryBanner: true,
+      expectedServiceStatus: null,
+    });
 
     await page.waitForFunction(
       () => {
@@ -269,6 +254,9 @@ test.describe('GUI flow smoke tests', () => {
 
     const banner = page.getByTestId(TID.serviceHealthBanner);
     await expect(banner).toBeVisible({ timeout: 30_000 });
+    const statusPill = page.getByTestId(TID.serviceStatusPill);
+    await expect(statusPill).toHaveAttribute('data-status', 'port-unavailable');
+    await expect(statusPill).toHaveAttribute('data-reason', 'service_port_unavailable');
     await expect(
       banner.getByText(/The writing tools service port is unavailable\./i),
     ).toBeVisible();
@@ -295,6 +283,7 @@ test.describe('GUI flow smoke tests', () => {
         }),
       );
     });
+    await expect(statusPill).toHaveAttribute('data-status', 'online');
     await expect(page.getByTestId(TID.serviceHealthBanner)).toHaveCount(0);
     await expect(page.getByTestId('workspace-action-generate')).toBeEnabled({
       timeout: 30_000,

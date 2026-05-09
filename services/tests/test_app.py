@@ -6,12 +6,15 @@ import asyncio
 import errno
 import hashlib
 import json
+import importlib
 import threading
 import time
 from contextlib import contextmanager
 import os
 from pathlib import Path
-from typing import Any
+from types import SimpleNamespace
+from unittest.mock import Mock
+from typing import Any, Protocol, TypedDict, cast
 from uuid import UUID
 
 import httpx
@@ -32,16 +35,33 @@ from blackskies.services.analytics.service import AnalyticsSummaryService
 from blackskies.services.app import SERVICE_VERSION, BuildTracker, create_app
 from blackskies.services.config import ServiceSettings
 from blackskies.services.diagnostics import DiagnosticLogger
+import blackskies.services.snapshots as snapshots_module
 from blackskies.services.persistence import DraftPersistence, SnapshotPersistence
 from blackskies.services.routers.recovery import RecoveryTracker
+import blackskies.services.routers.draft.generation as draft_generation_router
 from blackskies.services.critique import CritiqueService
-from blackskies.services.operations.draft_accept import DraftAcceptService
+import blackskies.services.operations.draft_accept as draft_accept_module
+from blackskies.services.operations.draft_accept import DraftAcceptService, DraftAcceptanceResult
 from blackskies.services.operations.draft_generation import DraftGenerationService
 from blackskies.services.scene_docs import DraftRequestError
+
+app_module = importlib.import_module("blackskies.services.app")
 
 TRACE_HEADER = "x-trace-id"
 API_PREFIX = "/api/v1"
 CONTRACT_FIXTURES_DIR = Path(__file__).parent / "contracts"
+
+
+class _SceneRecord(TypedDict):
+    id: str
+    order: int
+    title: str
+    chapter_id: str
+    beat_refs: list[str]
+
+
+class _BuildTrackerState(Protocol):
+    build_tracker: BuildTracker
 
 
 def _assert_trace_header(response: Any) -> str:
@@ -53,7 +73,7 @@ def _assert_trace_header(response: Any) -> str:
     return trace_id
 
 
-def _read_error(response: Any) -> dict[str, object]:
+def _read_error(response: Any) -> dict[str, Any]:
     """Return the structured error payload with validated trace metadata."""
 
     payload = response.json()
@@ -93,7 +113,7 @@ def test_favicon_placeholder_returns_no_content(test_client: TestClient) -> None
     _assert_trace_header(response)
 
 
-def _build_payload() -> dict[str, object]:
+def _build_payload() -> dict[str, Any]:
     """Return a representative outline build payload."""
 
     return {
@@ -225,7 +245,7 @@ def _bootstrap_outline(
         spent_usd=spent_usd,
     )
 
-    scenes: list[dict[str, object]] = []
+    scenes: list[_SceneRecord] = []
     for index in range(scene_count):
         order = index + 1
         scene_id = f"sc_{order:04d}"
@@ -356,7 +376,7 @@ def test_analytics_routes_are_hidden_when_disabled(
 ) -> None:
     """Analytics endpoints respond 404 when the feature is not enabled."""
 
-    monkeypatch.delenv("BLACKSKIES_ENABLE_ANALYTICS", raising=False)
+    monkeypatch.setenv("BLACKSKIES_ANALYTICS_MATURITY", "off")
     monkeypatch.setenv("BLACKSKIES_PROJECT_BASE_DIR", str(tmp_path))
     app = create_app()
     with TestClient(app) as client:
@@ -382,7 +402,7 @@ def test_export_omits_analytics_when_disabled(
     scene_ids = _bootstrap_outline(tmp_path, project_id, scene_count=1)
     _bootstrap_scene(tmp_path, project_id, scene_id=scene_ids[0], body="Scene text.")
 
-    monkeypatch.delenv("BLACKSKIES_ENABLE_ANALYTICS", raising=False)
+    monkeypatch.setenv("BLACKSKIES_ANALYTICS_MATURITY", "off")
     monkeypatch.setenv("BLACKSKIES_PROJECT_BASE_DIR", str(tmp_path))
     app = create_app()
     with TestClient(app) as client:
@@ -631,7 +651,7 @@ def test_outline_build_conflict(test_client: TestClient, tmp_path: Path) -> None
     payload = _build_payload()
     payload["project_id"] = "proj_conflict"
 
-    tracker: BuildTracker = test_client.app.state.build_tracker  # type: ignore[attr-defined]
+    tracker = cast(BuildTracker, cast(_BuildTrackerState, test_client.app.state).build_tracker)
     asyncio.run(tracker.begin(payload["project_id"]))
     try:
         response = test_client.post(f"{API_PREFIX}/outline/build", json=payload)
@@ -882,33 +902,47 @@ def test_draft_generate_soft_limit_status(test_client: TestClient, tmp_path: Pat
 
 
 @pytest.mark.contract
-def test_contract_draft_preflight_ok(test_client: TestClient, tmp_path: Path) -> None:
+def test_contract_draft_preflight_ok(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """Draft preflight matches the documented ok contract payload."""
 
     project_id = "proj_contract_preflight_ok"
-    build_payload = _build_contract_outline_request(project_id)
-    build_response = test_client.post(f"{API_PREFIX}/outline/build", json=build_payload)
-    assert build_response.status_code == 200
+    monkeypatch.setattr(ServiceSettings, "ENV_FILE", None, raising=False)
+    # Force the local/Ollama path so this contract stays deterministic even when
+    # the host environment carries an OpenAI API key.
+    monkeypatch.delenv("BLACKSKIES_OPENAI_API_KEY", raising=False)
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.setenv("BLACKSKIES_PROJECT_BASE_DIR", str(tmp_path))
+    monkeypatch.setenv("BLACKSKIES_MODEL_ROUTING_POLICY", "local_only")
+    monkeypatch.setenv("BLACKSKIES_LOCAL_PROVIDER", "ollama")
+    monkeypatch.setenv("BLACKSKIES_LOCAL_MODEL", "qwen3:4b")
+    app = create_app()
+    with TestClient(app) as test_client:
+        build_payload = _build_contract_outline_request(project_id)
+        build_response = test_client.post(f"{API_PREFIX}/outline/build", json=build_payload)
+        assert build_response.status_code == 200
 
-    _write_project_budget(
-        tmp_path,
-        project_id,
-        soft_limit=5.0,
-        hard_limit=10.0,
-        spent_usd=0.18,
-    )
+        _write_project_budget(
+            tmp_path,
+            project_id,
+            soft_limit=5.0,
+            hard_limit=10.0,
+            spent_usd=0.18,
+        )
 
-    request_payload = {
-        "project_id": project_id,
-        "unit_scope": "scene",
-        "unit_ids": ["sc_0001"],
-        "overrides": {"sc_0001": {"word_target": 62000}},
-    }
+        request_payload = {
+            "project_id": project_id,
+            "unit_scope": "scene",
+            "unit_ids": ["sc_0001"],
+            "overrides": {"sc_0001": {"word_target": 62000}},
+        }
 
-    response = test_client.post(f"{API_PREFIX}/draft/preflight", json=request_payload)
-    assert response.status_code == 200
-    assert response.json() == _load_contract_snapshot("draft_preflight_ok")
-    _assert_trace_header(response)
+        response = test_client.post(f"{API_PREFIX}/draft/preflight", json=request_payload)
+        assert response.status_code == 200
+        assert response.json() == _load_contract_snapshot("draft_preflight_ok")
+        _assert_trace_header(response)
 
 
 @pytest.mark.contract
@@ -1355,10 +1389,10 @@ def test_draft_preflight_soft_limit(test_client: TestClient, tmp_path: Path) -> 
     response = test_client.post(f"{API_PREFIX}/draft/preflight", json=payload)
     assert response.status_code == 200
 
-    payload = response.json()
-    budget = payload["budget"]
-    assert payload["model"]["name"] == "qwen3:4b"
-    assert len(payload["scenes"]) == 1
+    preflight_payload = cast(dict[str, Any], response.json())
+    budget = preflight_payload["budget"]
+    assert preflight_payload["model"]["name"] == "qwen3:4b"
+    assert len(preflight_payload["scenes"]) == 1
     assert budget["status"] == "soft-limit"
     assert budget["estimated_usd"] >= 5.0
     assert budget["soft_limit_usd"] == pytest.approx(5.0)
@@ -1425,7 +1459,8 @@ def test_draft_to_critique_flow(test_client: TestClient, tmp_path: Path) -> None
     payload["project_id"] = project_id
     build_response = test_client.post(f"{API_PREFIX}/outline/build", json=payload)
     assert build_response.status_code == 200
-    scene_ids = [scene["id"] for scene in build_response.json()["scenes"]]
+    build_payload = cast(dict[str, Any], build_response.json())
+    scene_ids = [scene["id"] for scene in cast(list[dict[str, Any]], build_payload["scenes"])]
 
     draft_payload = {
         "project_id": project_id,
@@ -1468,10 +1503,10 @@ def test_draft_preflight_blocked(test_client: TestClient, tmp_path: Path) -> Non
     response = test_client.post(f"{API_PREFIX}/draft/preflight", json=payload)
     assert response.status_code == 200
 
-    payload = response.json()
-    budget = payload["budget"]
-    assert payload["model"]["name"] == "qwen3:4b"
-    assert len(payload["scenes"]) == 1
+    preflight_payload = cast(dict[str, Any], response.json())
+    budget = preflight_payload["budget"]
+    assert preflight_payload["model"]["name"] == "qwen3:4b"
+    assert len(preflight_payload["scenes"]) == 1
     assert budget["status"] == "blocked"
     assert budget["estimated_usd"] >= 10.0
     assert budget["hard_limit_usd"] == pytest.approx(10.0)
@@ -1523,6 +1558,268 @@ def test_draft_preflight_handles_request_error(
     detail = _read_error(response)
     assert detail["code"] == "VALIDATION"
     assert detail["details"]["chapter_id"] == "ch_9999"
+
+
+def test_draft_preflight_emits_trace_logs(
+    test_client: TestClient,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Preflight logs bounded trace metadata without leaking payload text."""
+
+    project_id = "proj_preflight_trace_logs"
+    scene_ids = _bootstrap_outline(tmp_path, project_id, scene_count=1)
+    payload = {
+        "project_id": project_id,
+        "unit_scope": "scene",
+        "unit_ids": scene_ids,
+    }
+
+    async def _preflight(self, *_args: Any, **_kwargs: Any) -> Any:
+        return SimpleNamespace(
+            payload={
+                "project_id": project_id,
+                "unit_scope": "scene",
+                "unit_ids": scene_ids,
+                "model": {"name": "qwen3:4b", "provider": "ollama"},
+                "scenes": [
+                    {
+                        "id": scene_ids[0],
+                        "title": "Arrival",
+                        "order": 1,
+                        "chapter_id": "ch_0001",
+                    }
+                ],
+                "budget": {
+                    "estimated_usd": 1.0,
+                    "status": "ok",
+                    "soft_limit_usd": 5,
+                    "hard_limit_usd": 10,
+                    "spent_usd": 0.0,
+                    "total_after_usd": 1.0,
+                },
+            }
+        )
+
+    info_mock = Mock()
+    monkeypatch.setattr(draft_generation_router.LOGGER, "info", info_mock)
+    monkeypatch.setattr(DraftGenerationService, "preflight", _preflight)
+
+    response = test_client.post(
+        f"{API_PREFIX}/draft/preflight",
+        json=payload,
+        headers={TRACE_HEADER: "11111111-1111-4111-8111-111111111111"},
+    )
+    assert response.status_code == 200
+
+    def _render_message(call: Any) -> str:
+        if not call.args:
+            return ""
+        if len(call.args) == 1:
+            return str(call.args[0])
+        try:
+            return str(call.args[0] % call.args[1:])
+        except Exception:
+            return " ".join(str(part) for part in call.args)
+
+    logged_messages = " ".join(_render_message(call) for call in info_mock.call_args_list)
+    assert "[preflight][11111111-1111-4111-8111-111111111111] route-start" in logged_messages
+    assert "[preflight][11111111-1111-4111-8111-111111111111] route-exit" in logged_messages
+    assert "Arrival" not in logged_messages
+
+
+def test_draft_generate_emits_trace_logs(
+    test_client: TestClient,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Generate logs entry before service work and keeps the trace id intact."""
+
+    project_id = "proj_generate_trace_logs"
+    payload = _build_payload()
+    payload["project_id"] = project_id
+    build_response = test_client.post(f"{API_PREFIX}/outline/build", json=payload)
+    assert build_response.status_code == 200
+    build_payload = cast(dict[str, Any], build_response.json())
+    scene_ids = [scene["id"] for scene in cast(list[dict[str, Any]], build_payload["scenes"])]
+    _write_project_budget(tmp_path, project_id, soft_limit=5.0, hard_limit=10.0, spent_usd=0.0)
+
+    info_mock = Mock()
+    monkeypatch.setattr(draft_generation_router.LOGGER, "info", info_mock)
+
+    async def _generate(self, *_args: Any, **_kwargs: Any) -> Any:
+        def _render_message(call: Any) -> str:
+            if not call.args:
+                return ""
+            if len(call.args) == 1:
+                return str(call.args[0])
+            try:
+                return str(call.args[0] % call.args[1:])
+            except Exception:
+                return " ".join(str(part) for part in call.args)
+
+        logged_messages = " ".join(_render_message(call) for call in info_mock.call_args_list)
+        assert "draft-generate:backend-enter" in logged_messages
+        return SimpleNamespace(
+            response={
+                "project_id": project_id,
+                "unit_scope": "scene",
+                "unit_ids": [scene_ids[0]],
+                "draft_id": "dr_trace",
+                "schema_version": "DraftUnitSchema v1",
+                "units": [],
+                "model": {"name": "qwen3:4b", "provider": "ollama"},
+                "budget": {"status": "ok"},
+            }
+        )
+
+    monkeypatch.setattr(DraftGenerationService, "generate", _generate)
+
+    response = test_client.post(
+        f"{API_PREFIX}/draft/generate",
+        json={
+            "project_id": project_id,
+            "unit_scope": "scene",
+            "unit_ids": [scene_ids[0]],
+        },
+        headers={TRACE_HEADER: "22222222-2222-4222-8222-222222222222"},
+    )
+    assert response.status_code == 200
+
+    def _render_message(call: Any) -> str:
+        if not call.args:
+            return ""
+        if len(call.args) == 1:
+            return str(call.args[0])
+        try:
+            return str(call.args[0] % call.args[1:])
+        except Exception:
+            return " ".join(str(part) for part in call.args)
+
+    logged_messages = " ".join(_render_message(call) for call in info_mock.call_args_list)
+    assert (
+        "[draft-generate][22222222-2222-4222-8222-222222222222] draft-generate:route-enter"
+        in logged_messages
+    )
+    assert (
+        "[draft-generate][22222222-2222-4222-8222-222222222222] draft-generate:backend-enter"
+        in logged_messages
+    )
+    assert (
+        "[draft-generate][22222222-2222-4222-8222-222222222222] draft-generate:request-validated"
+        in logged_messages
+    )
+    assert (
+        "[draft-generate][22222222-2222-4222-8222-222222222222] draft-generate:response"
+        in logged_messages
+    )
+    assert (
+        "[draft-generate][22222222-2222-4222-8222-222222222222] draft-generate:backend-exit"
+        in logged_messages
+    )
+    assert "Arrival" not in logged_messages
+
+
+def test_draft_generate_logs_asgi_request_start_before_route(
+    test_client: TestClient,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The ASGI middleware should log draft generate requests before route handling."""
+
+    project_id = "proj_generate_request_start"
+    payload = _build_payload()
+    payload["project_id"] = project_id
+    build_response = test_client.post(f"{API_PREFIX}/outline/build", json=payload)
+    assert build_response.status_code == 200
+    build_payload = cast(dict[str, Any], build_response.json())
+    scene_ids = [scene["id"] for scene in cast(list[dict[str, Any]], build_payload["scenes"])]
+    _write_project_budget(tmp_path, project_id, soft_limit=5.0, hard_limit=10.0, spent_usd=0.0)
+
+    info_mock = Mock()
+    monkeypatch.setattr(app_module.LOGGER, "info", info_mock)
+
+    async def _generate(self, *_args: Any, **_kwargs: Any) -> Any:
+        return SimpleNamespace(
+            response={
+                "project_id": project_id,
+                "unit_scope": "scene",
+                "unit_ids": [scene_ids[0]],
+                "draft_id": "dr_request_start",
+                "schema_version": "DraftUnitSchema v1",
+                "units": [],
+                "model": {"name": "qwen3:4b", "provider": "ollama"},
+                "budget": {"status": "ok"},
+            }
+        )
+
+    monkeypatch.setattr(DraftGenerationService, "generate", _generate)
+
+    response = test_client.post(
+        f"{API_PREFIX}/draft/generate",
+        json={
+            "project_id": project_id,
+            "unit_scope": "scene",
+            "unit_ids": [scene_ids[0]],
+        },
+        headers={TRACE_HEADER: "44444444-4444-4444-8444-444444444444"},
+    )
+    assert response.status_code == 200
+
+    def _render_message(call: Any) -> str:
+        if not call.args:
+            return ""
+        if len(call.args) == 1:
+            return str(call.args[0])
+        try:
+            return str(call.args[0] % call.args[1:])
+        except Exception:
+            return " ".join(str(part) for part in call.args)
+
+    logged_messages = " ".join(_render_message(call) for call in info_mock.call_args_list)
+    assert "[http][request-start]" in logged_messages
+    assert "request-start" in logged_messages
+    assert "/api/v1/draft/generate" in logged_messages
+    assert "trace_header" in logged_messages
+    assert "44444444-4444-4444-8444-444444444444" in logged_messages
+
+
+def test_draft_generate_provider_timeout_returns_controlled_error(
+    test_client: TestClient,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A provider timeout should surface as a controlled 504 error."""
+
+    project_id = "proj_generate_provider_timeout"
+    payload = _build_payload()
+    payload["project_id"] = project_id
+    build_response = test_client.post(f"{API_PREFIX}/outline/build", json=payload)
+    assert build_response.status_code == 200
+    build_payload = cast(dict[str, Any], build_response.json())
+    scene_ids = [scene["id"] for scene in cast(list[dict[str, Any]], build_payload["scenes"])]
+    _write_project_budget(tmp_path, project_id, soft_limit=5.0, hard_limit=10.0, spent_usd=0.0)
+
+    async def _generate(self, *_args: Any, **_kwargs: Any) -> Any:
+        raise draft_generation_router.DraftGenerationProviderTimeoutError(
+            "Provider call exceeded 0.01 seconds."
+        )
+
+    monkeypatch.setattr(DraftGenerationService, "generate", _generate)
+
+    response = test_client.post(
+        f"{API_PREFIX}/draft/generate",
+        json={
+            "project_id": project_id,
+            "unit_scope": "scene",
+            "unit_ids": [scene_ids[0]],
+        },
+        headers={TRACE_HEADER: "33333333-3333-4333-8333-333333333333"},
+    )
+    assert response.status_code == status.HTTP_504_GATEWAY_TIMEOUT
+    error = response.json()
+    assert error["code"] == "PROVIDER_TIMEOUT"
+    assert error["message"] == "Provider/model timed out."
 
 
 def test_draft_rewrite_success(test_client: TestClient, tmp_path: Path) -> None:
@@ -1672,6 +1969,102 @@ def test_draft_accept_success_creates_snapshot(test_client: TestClient, tmp_path
     assert "missing_drafts" not in manifest
 
 
+def test_draft_accept_logs_slow_timing_metadata_without_payload_text(
+    test_client: TestClient,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Slow accept timings emit a bounded warning without changing the response."""
+
+    project_id = "proj_accept_timing"
+    scene_body = _bootstrap_scene(tmp_path, project_id)
+    accepted_text = f"{scene_body}\n\nAccepted text should not leak into logs."
+    checksum = _compute_sha256(scene_body)
+
+    payload = {
+        "project_id": project_id,
+        "draft_id": "dr_timing_001",
+        "unit_id": "sc_0001",
+        "unit": {
+            "id": "sc_0001",
+            "previous_sha256": checksum,
+            "text": accepted_text,
+            "meta": {"purpose": "payoff"},
+        },
+        "message": "Timing probe.",
+        "snapshot_label": "accept",
+    }
+
+    slow_timings = {
+        "request_validation_ms": 1.0,
+        "draft_lookup_ms": 2.0,
+        "audited_chain_write_ms": 3.0,
+        "diff_ms": 4.0,
+        "accept_apply_ms": 120.0,
+        "snapshot_create_allocate_ms": 10.0,
+        "snapshot_create_include_ms": 20.0,
+        "snapshot_create_copy_ms": 30.0,
+        "snapshot_create_metadata_ms": 5.0,
+        "snapshot_create_manifest_ms": 15.0,
+        "snapshot_create_total_ms": 80.0,
+        "recovery_finalize_ms": 1.0,
+        "budget_update_ms": 2.0,
+        "response_assembly_ms": 0.5,
+        "total_ms": 150.0,
+    }
+
+    async def _fake_accept(
+        self: DraftAcceptService,
+        *,
+        request: Any,
+        project_root: Path,
+        updated_front_matter: dict[str, Any],
+        normalized_text: str,
+        current_normalized: str,
+    ) -> DraftAcceptanceResult:
+        await asyncio.sleep(0.12)
+        return DraftAcceptanceResult(
+            response={
+                "project_id": request.project_id,
+                "unit_id": request.unit_id,
+                "status": "accepted",
+                "snapshot": {"snapshot_id": "20260430T000001Z", "path": "history/snapshots/x"},
+                "diff": {"added": [], "removed": [], "changed": [], "anchors": []},
+                "budget": {
+                    "soft_limit_usd": 5.0,
+                    "hard_limit_usd": 10.0,
+                    "spent_usd": 1.0,
+                },
+                "schema_version": "DraftAcceptResult v1",
+            },
+            timings=slow_timings,
+        )
+
+    recorded_messages: list[str] = []
+    monkeypatch.setattr(
+        snapshots_module.LOGGER,
+        "warning",
+        lambda message, *args: recorded_messages.append(message % args if args else message),
+    )
+    monkeypatch.setattr(DraftAcceptService, "accept", _fake_accept)
+
+    response = test_client.post(f"{API_PREFIX}/draft/accept", json=payload)
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["unit_id"] == "sc_0001"
+    assert data["snapshot"]["snapshot_id"] == "20260430T000001Z"
+    assert recorded_messages
+    warning = recorded_messages[0]
+    assert warning
+    assert "Slow draft accept request path=/api/v1/draft/accept" in warning
+    assert "project_id=proj_accept_timing" in warning
+    assert "unit_id=sc_0001" in warning
+    assert "draft_id=dr_timing_001" in warning
+    assert "total_ms=" in warning
+    assert "Accepted text should not leak into logs." not in warning
+
+
 def test_draft_accept_handles_unexpected_error(
     test_client: TestClient,
     tmp_path: Path,
@@ -1772,6 +2165,107 @@ def test_draft_accept_ignores_tampered_cost(test_client: TestClient, tmp_path: P
 
     persisted_meta = json.loads(project_path.read_text(encoding="utf-8"))
     assert persisted_meta["budget"]["spent_usd"] == pytest.approx(1.03)
+
+
+def test_draft_accept_uses_nondurable_writes_in_synthetic_mode(
+    test_client: TestClient,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Synthetic smoke accept keeps correctness while skipping durability fsyncs."""
+
+    project_id = "proj_accept_synthetic_writes"
+    draft_id = "dr_synthetic_001"
+    scene_body = _bootstrap_scene(tmp_path, project_id)
+    checksum = _compute_sha256(scene_body)
+    _write_project_budget(tmp_path, project_id, soft_limit=5.0, hard_limit=10.0, spent_usd=1.0)
+
+    recorded: dict[str, Any] = {}
+
+    def _write_scene(
+        self: DraftPersistence,
+        project_id: str,
+        front_matter: dict[str, Any],
+        body: str,
+        *,
+        durable: bool | None = None,
+    ) -> Path:
+        recorded["scene_durable"] = durable
+        target = tmp_path / project_id / "drafts" / f"{front_matter['id']}.md"
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(self._render(front_matter, body), encoding="utf-8")
+        return target
+
+    def _create_snapshot(
+        self: SnapshotPersistence,
+        project_id: str,
+        *,
+        label: str | None = None,
+        include_entries: Any | None = None,
+        timing_hook=None,
+        durable: bool = True,
+    ) -> dict[str, Any]:
+        recorded["snapshot_durable"] = durable
+        if timing_hook is not None:
+            timing_hook(
+                {
+                    "allocate_ms": 1.0,
+                    "include_ms": 1.0,
+                    "copy_ms": 1.0,
+                    "metadata_ms": 1.0,
+                    "manifest_ms": 1.0,
+                    "total_ms": 5.0,
+                }
+            )
+        return {
+            "snapshot_id": "20260430T000000Z",
+            "label": label or "accept",
+            "created_at": "2026-04-30T00:00:00Z",
+            "path": f"history/snapshots/20260430T000000Z_{label or 'accept'}",
+            "includes": list(include_entries or []),
+        }
+
+    def _persist_budget(
+        state: Any,
+        new_spent_usd: float,
+        *,
+        durable: bool = True,
+    ) -> None:
+        recorded["budget_durable"] = durable
+        budget_section = state.metadata.setdefault("budget", {})
+        budget_section["spent_usd"] = round(max(new_spent_usd, 0.0), 2)
+        state.spent_usd = budget_section["spent_usd"]
+
+    monkeypatch.setenv("BLACKSKIES_E2E_MODE", "1")
+    monkeypatch.setenv("BLACKSKIES_E2E_SYNTHETIC_MODE", "1")
+    monkeypatch.setattr(DraftPersistence, "write_scene", _write_scene)
+    monkeypatch.setattr(SnapshotPersistence, "create_snapshot", _create_snapshot)
+    monkeypatch.setattr(draft_accept_module, "persist_project_budget", _persist_budget)
+
+    payload = {
+        "project_id": project_id,
+        "draft_id": draft_id,
+        "unit_id": "sc_0001",
+        "unit": {
+            "id": "sc_0001",
+            "previous_sha256": checksum,
+            "text": f"{scene_body}\n\nSynthetic accept.",
+            "meta": {
+                "word_target": 900,
+                "order": 1,
+                "chapter_id": "ch_0001",
+            },
+            "estimated_cost_usd": 0.02,
+        },
+        "message": "Synthetic mode accept.",
+        "snapshot_label": "accept",
+    }
+
+    response = test_client.post(f"{API_PREFIX}/draft/accept", json=payload)
+    assert response.status_code == 200
+    assert recorded["scene_durable"] is False
+    assert recorded["snapshot_durable"] is False
+    assert recorded["budget_durable"] is False
 
 
 def test_draft_accept_snapshot_conflict(
@@ -1897,7 +2391,8 @@ def test_snapshot_restore_flow(test_client: TestClient, tmp_path: Path) -> None:
     outline_path = tmp_path / project_id / "outline.json"
     original_outline = outline_path.read_text(encoding="utf-8")
 
-    scene_ids = [scene["id"] for scene in build_response.json()["scenes"]]
+    build_payload = cast(dict[str, Any], build_response.json())
+    scene_ids = [scene["id"] for scene in cast(list[dict[str, Any]], build_payload["scenes"])]
     draft_response = test_client.post(
         f"{API_PREFIX}/draft/generate",
         json={

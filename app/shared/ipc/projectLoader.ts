@@ -64,6 +64,7 @@ export interface ProjectIssue {
 
 export interface LoadedProject {
   path: string;
+  projectId?: string;
   name: string;
   outline: OutlineFile;
   scenes: SceneDraftMetadata[];

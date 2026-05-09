@@ -15,7 +15,7 @@ test.describe('Phase 5 Export & Integrity flow', () => {
     await installServiceStubs(page, 'normal', 'full');
     await bootstrapHarness(page);
 
-    const { projectRoot, projectId } = loadSampleProject('Esther_Estate');
+    const { projectRoot, projectId } = loadSampleProject();
     await page.evaluate(async (targetPath) => {
       await window.projectLoader?.loadProject?.({ path: targetPath });
     }, projectRoot);

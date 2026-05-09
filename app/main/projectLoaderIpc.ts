@@ -146,28 +146,109 @@ async function loadProjectFromDisk(projectPath: string): Promise<{
   project: LoadedProject;
   issues: ProjectIssue[];
 }> {
-  const normalizedPath = path.resolve(projectPath);
+  const { projectPath: normalizedPath, issues: rootIssues } = await resolveProjectRootPath(projectPath);
   const outline = await readOutline(normalizedPath);
   const { scenes, issues, drafts } = await readScenes(normalizedPath);
   const metadata = await readProjectMetadata(normalizedPath);
   const project: LoadedProject = {
     path: normalizedPath,
+    projectId: metadata.projectId,
     name: metadata.name ?? path.basename(normalizedPath),
     outline,
     scenes,
     drafts,
   };
-  return { project, issues };
+  return { project, issues: [...rootIssues, ...issues] };
 }
 
-async function readProjectMetadata(projectPath: string): Promise<{ name?: string }> {
+async function hasOutlineMarker(projectPath: string): Promise<boolean> {
+  return fileExists(path.join(projectPath, 'outline.json'));
+}
+
+async function hasProjectMetadata(projectPath: string): Promise<boolean> {
+  return fileExists(path.join(projectPath, 'project.json'));
+}
+
+async function fileExists(filePath: string): Promise<boolean> {
+  try {
+    await fs.access(filePath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function resolveProjectRootPath(projectPath: string): Promise<{
+  projectPath: string;
+  issues: ProjectIssue[];
+}> {
+  const normalizedPath = path.resolve(projectPath);
+  let currentPath = normalizedPath;
+  while (true) {
+    if ((await hasOutlineMarker(currentPath)) && (await hasProjectMetadata(currentPath))) {
+      return currentPath === normalizedPath
+        ? { projectPath: currentPath, issues: [] }
+        : {
+            projectPath: currentPath,
+            issues: [
+              {
+                level: 'warning',
+                message: 'Selected folder was nested inside a project root.',
+                detail: `Using project root: ${currentPath}`,
+                path: normalizedPath,
+              },
+            ],
+          };
+    }
+    const parentPath = path.dirname(currentPath);
+    if (parentPath === currentPath) {
+      break;
+    }
+    currentPath = parentPath;
+  }
+
+  currentPath = normalizedPath;
+  while (true) {
+    if (await hasOutlineMarker(currentPath)) {
+      return currentPath === normalizedPath
+        ? { projectPath: currentPath, issues: [] }
+        : {
+            projectPath: currentPath,
+            issues: [
+              {
+                level: 'warning',
+                message: 'Selected folder was nested inside a project root.',
+                detail: `Using project root: ${currentPath}`,
+                path: normalizedPath,
+              },
+            ],
+          };
+    }
+    const parentPath = path.dirname(currentPath);
+    if (parentPath === currentPath) {
+      break;
+    }
+    currentPath = parentPath;
+  }
+
+  return { projectPath: normalizedPath, issues: [] };
+}
+
+export async function readProjectMetadata(projectPath: string): Promise<{ name?: string; projectId?: string }> {
   const metadataPath = path.join(projectPath, 'project.json');
   try {
     const raw = await fs.readFile(metadataPath, 'utf8');
-    const parsed = JSON.parse(raw) as { name?: string };
-    if (typeof parsed.name === 'string' && parsed.name.trim().length > 0) {
-      return { name: parsed.name };
+    const parsed = JSON.parse(raw) as { name?: string; project_id?: string };
+    const projectId = typeof parsed.project_id === 'string' ? parsed.project_id.trim() : '';
+    const name = typeof parsed.name === 'string' ? parsed.name.trim() : '';
+    const metadata: { name?: string; projectId?: string } = {};
+    if (projectId.length > 0) {
+      metadata.projectId = projectId;
     }
+    if (name.length > 0) {
+      metadata.name = name;
+    }
+    return metadata;
   } catch {
     // best effort: ignore missing or invalid metadata
   }

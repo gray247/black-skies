@@ -44,12 +44,16 @@ function materializeSyntheticProjectFixture(projectId: string, projectRoot: stri
     JSON.stringify(
       {
         schema_version: 'OutlineSchema v1',
+        outline_id: 'out_001',
+        project_id: projectId,
+        acts: ['Act I'],
+        chapters: [{ id: 'ch_0001', order: 1, title: 'Chapter 1' }],
         scenes: [
           {
             id: 'sc_0001',
             title: 'Opening Scene',
             order: 1,
-            chapter_id: 'ch_01',
+            chapter_id: 'ch_0001',
           },
         ],
       },
@@ -60,9 +64,16 @@ function materializeSyntheticProjectFixture(projectId: string, projectRoot: stri
   );
   fs.writeFileSync(
     path.join(draftsDir, 'sc_0001.md'),
-    ['---', 'id: sc_0001', 'title: Opening Scene', 'order: 1', '---', '', 'Synthetic e2e fixture draft.'].join(
-      '\n',
-    ),
+    [
+      '---',
+      'id: sc_0001',
+      'title: Opening Scene',
+      'order: 1',
+      'chapter_id: ch_0001',
+      '---',
+      '',
+      'Synthetic e2e fixture draft.',
+    ].join('\n'),
     'utf-8',
   );
   return projectRoot;
@@ -74,15 +85,6 @@ function resolveSampleProjectRoot(projectId: string): string {
   const directProject = path.join(directRoot, 'project.json');
   if (fs.existsSync(directOutline) && fs.existsSync(directProject)) {
     return directRoot;
-  }
-
-  if (projectId === 'proj_esther_estate') {
-    const canonicalRoot = path.join(repoRoot, 'sample_project', 'Esther_Estate');
-    const canonicalOutline = path.join(canonicalRoot, 'outline.json');
-    const canonicalProject = path.join(canonicalRoot, 'project.json');
-    if (fs.existsSync(canonicalOutline) && fs.existsSync(canonicalProject)) {
-      return canonicalRoot;
-    }
   }
 
   for (const snapshotDirName of ['.snapshots', '.snapshots.bak']) {

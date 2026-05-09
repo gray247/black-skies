@@ -15,7 +15,6 @@ import os
 import _pytest.pathlib as pytest_pathlib
 import _pytest.tmpdir as pytest_tmpdir
 
-
 _original_cleanup_dead_symlinks = pytest_pathlib.cleanup_dead_symlinks
 _original_getbasetemp = pytest_tmpdir.TempPathFactory.getbasetemp
 _original_make_numbered_dir = pytest_pathlib.make_numbered_dir

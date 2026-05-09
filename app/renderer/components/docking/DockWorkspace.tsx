@@ -32,6 +32,7 @@ import { usePaneBoundsLogger } from './usePaneBoundsLogger';
 import { TID } from '../../utils/testIds';
 import type { ToastPayload } from '../../types/toast';
 import { boundsDiffer } from '../../utils/layout';
+import * as testMode from '../../testMode/testModeManager';
 
 const RELOCATION_HIGHLIGHT_DURATION = 2000;
 
@@ -215,6 +216,7 @@ function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
   const stableLayoutAppliedRef = useRef<boolean>(stableDockMode);
   const layoutReadyRef = useRef(false);
   const saveTimerRef = useRef<number | null>(null);
+  const suppressNextPersistRef = useRef(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [focusedPaneId, setFocusedPaneId] = useState<LayoutPaneId | null>(null);
@@ -598,6 +600,10 @@ function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
       if (stableDockMode) {
         return;
       }
+      if (suppressNextPersistRef.current) {
+        suppressNextPersistRef.current = false;
+        return;
+      }
       if (!projectPath || !layoutBridge) {
         return;
       }
@@ -798,6 +804,18 @@ function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
       }
       return;
     }
+    if (testMode.isHarnessHooksEnabled() && !testMode.allowLayoutRestore()) {
+      setLoadError(null);
+      setLoading(false);
+      if (!layoutReadyRef.current) {
+        scheduleLayoutApply(getPreset(resolvedDefaultPreset));
+        recordDebugEvent('dock-workspace.layout.default', {
+          projectPath,
+          reason: 'startup-config-layout-restore-disabled',
+        });
+      }
+      return;
+    }
     let cancelled = false;
     setLoading(true);
     setLoadError(null);
@@ -830,6 +848,9 @@ function DockWorkspace(props: DockWorkspaceProps): JSX.Element {
           projectPath,
           layout: sanitised,
         });
+        if (result.wasReset) {
+          suppressNextPersistRef.current = true;
+        }
         layoutRef.current = cloneLayout(sanitised);
         layoutReadyRef.current = true;
         setLayoutState(cloneLayout(sanitised));

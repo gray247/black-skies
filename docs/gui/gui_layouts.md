@@ -1,6 +1,6 @@
 Status: Active (Canonical)
 Version: 1.0.0
-Last Reviewed: 2025-11-15
+Last Reviewed: 2026-05-06
 Source of Truth: Canonical pane layout for Outline/Writing/Feedback + drawer/overlay behavior; other GUI docs extend from these expectations.
 
 Spec Index:
@@ -14,7 +14,7 @@ Spec Index:
 
 # docs/gui/gui_layouts.md - Black Skies v1.1
 
-The renderer still ships the fixed three-pane layout (Outline | Writing | Feedback) with a collapsible Timeline drawer. Docking, floating Story insights panes, and Phase 9 dashboards remain experimental and are not available in production builds even though runtime flags exist.
+The renderer still ships the fixed three-pane layout (Outline | Writing | Feedback) with a collapsible Timeline drawer. Docking and floating Draft Preview behavior are live in the Electron workspace, but the remaining work is UX polish around sizing, recovery, and metadata presentation rather than feature enablement.
 
 See [Agents & Services](./agents_and_services.md) for the long-term analytics/agent contracts, but treat the sections below as the source of truth for what end users can access today.
 
@@ -26,12 +26,11 @@ Outline (left) | Writing view (center) | Feedback notes (right). The Timeline re
 Implementation priority note: **ModelRouter seam and routing/policy/budget plumbing come before any splash/onboarding expansion.** GUI work must not block the router-first rollout.
 
 ### Current Scope
-- Docking is **not** available in packaged builds. The `ui.enable_docking` flag exists for internal experiments but is left disabled by default and is not supported.
-- Docking Mode remains experimental/disabled in production; Silver builds may expose it behind `ui.enable_docking`, but the default is the fixed three-pane layout described above.
-- Layout state persists only per-pane width and Collapse/Expand toggles in `.blackskies/layout.json`. There is no multi-display awareness or floating window metadata yet.
-- Presets (`standard`, `analysis`, `critique`) are defined but hidden; the renderer always loads the standard arrangement until docking ships.
+- Docking and floating Draft Preview support are available in the workspace. The surface is functional, but pane sizing, recovery, and docking ergonomics still need polish.
+- Layout state persists only per-pane width and Collapse/Expand toggles in `.blackskies/layout.json`. Live draft-preview sync is handled separately from layout persistence.
+- Presets (`standard`, `analysis`, `critique`) are defined but hidden; the renderer still loads the standard arrangement by default.
 - Keyboard navigation still focuses each pane (`Ctrl+Alt+]` / `Ctrl+Alt+[`) and panes keep `role="group"` for assistive tooling.
-- The Analytics/Story insights view button exists in the toolbar (`Ctrl+Shift+A`) but currently only opens a placeholder overlay; the analytics service is disabled until Phase 9, so no derived data is shown.
+- The Analytics/Story insights view button exists in the toolbar (`Ctrl+Shift+A`) and opens a placeholder overlay when analytics is not enabled for the current runtime mode.
 
 ---
 
@@ -39,13 +38,13 @@ Implementation priority note: **ModelRouter seam and routing/policy/budget plumb
 - **Outline:** Decision checklist, scene planning, and quick links to validation panels.
 - **Writing view:** Scene editor, diff toggle, Companion overlay, and budget meter.
 - **Feedback notes:** Feedback threads, accept/undo controls, rubric editor, plus the collapsible Timeline drawer.
-- **Analytics drawer (Collapsible):** Placeholder region reserved for emotion arc, adaptive pacing, conflict heatmap, and scene length distribution metrics; the actual data will be sourced from `/api/v1/analytics/summary` only once Phase 9 enables the analytics service. This future drawer replaces the previously documented floating “Story insights” window.
+- **Analytics drawer (Collapsible):** Placeholder region reserved for emotion arc, adaptive pacing, conflict heatmap, and scene length distribution metrics; the actual data will be sourced from `/api/v1/analytics/summary` when analytics is enabled. This future drawer replaces the previously documented floating “Story insights” window.
 - **Companion overlay (Writing view):** A dockable in-app browser pane/window that opens ChatGPT. Companion Mode is separate from API Mode and does not route prompts through service providers or ModelRouter.
 
 ---
 
 ## Story Insights & Project Health (future state)
-The floating Story insights / Project Health pane referenced in earlier drafts is still on the roadmap. Analytics data remains gated: the drawer pulls from `docs/specs/analytics_service_spec.md` payloads once `BLACKSKIES_ENABLE_ANALYTICS=1` flips in Phase 9. Until then, the placeholder overlay is shown even if internal flags exist.
+The floating Story insights / Project Health pane referenced in earlier drafts is still on the roadmap. Analytics data remains gated by runtime configuration; when analytics is disabled, the placeholder overlay is shown instead.
 
 ---
 
@@ -62,7 +61,7 @@ The Preflight panel lives in the Draft Board sidebar below the Outline. It surfa
 ---
 
 ## Read-Through Mode
-Read-Through remains the distraction-free preview overlay. Analytics badges stay hidden in Phase 8 because `/api/v1/analytics/summary` is not yet enabled; there is no docking integration until Phase 9.
+Read-Through remains the distraction-free preview overlay. Analytics badges stay hidden while `/api/v1/analytics/summary` is disabled, and there is no separate docking integration in this mode.
 
 ---
 
@@ -103,6 +102,12 @@ See `docs/error_ux.md` for how to escalate inline warnings/toasts/modals consist
 - Actions: Preview Diff, Restore, Reveal Snapshot.
 - Filters: by reason (`accept_edits`, `chapter_save`, `export`, `shutdown`).
 
+## Known Deferred UX Issues
+- Pane sizing: the current minimum/maximum sizing behavior still feels rough and needs a dedicated polish pass.
+- Docking ergonomics: drag targets, float/return affordances, and recovery feedback are functional but still not smooth enough for final UX.
+- Scene Metadata usability: the metadata block is useful but still too dense for quick scanning during generation and preview flows.
+- Floating pane recovery UX: floated panes now stay in sync with live draft state, but the recovery and return experience still needs clearer guidance and feedback.
+
 ## Export Panel (Phase 11)
 - Checklist: MD / JSON / PDF / EPUB / ZIP.
 - Template Select: default, print-compact, ebook-serif.
@@ -120,5 +125,5 @@ See `docs/error_ux.md` for how to escalate inline warnings/toasts/modals consist
 - [`docs/gui/accessibility_toggles.md`](./accessibility_toggles.md) – High-contrast and large-font toggles scoped to the panes defined here.
 
 ## Planned GUI Enhancements (Not yet implemented)
-- Docking/floating panes, Story insights as a floating window, and the Visuals Layer presets remain experimental; no production build exposes these layouts by default.
+- Story insights as a floating window and the Visuals Layer presets remain roadmap items; the current docking/floating Draft Preview behavior is functional but still being polished.
 - Voice-related controls, backup daemon UIs, and the new Visuals + Analytics overs are future additions and do not exist in today's renderer.

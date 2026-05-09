@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any, TypedDict, cast
 
 import pytest
 
@@ -42,6 +43,60 @@ EXPECTED_HEALTH_PAYLOAD = {
 }
 
 
+class _ValidationDetails(TypedDict, total=False):
+    missing_scene_ids: list[str]
+    errors: list["_ValidationIssue"]
+
+
+class _ValidationIssue(TypedDict):
+    msg: str
+
+
+class _ValidationError(TypedDict):
+    code: str
+    message: str
+    details: _ValidationDetails
+
+
+class _CritiqueBudget(TypedDict):
+    estimated_usd: float
+    status: str
+    soft_limit_usd: float
+    hard_limit_usd: float
+    spent_usd: float
+    total_after_usd: float
+
+
+class _CritiqueResponse(TypedDict):
+    schema_version: str
+    unit_id: str
+    line_comments: list[dict[str, object]]
+    budget: _CritiqueBudget
+
+
+class _PreflightModel(TypedDict):
+    name: str
+    provider: str
+
+
+class _PreflightBudget(TypedDict):
+    estimated_usd: float
+    status: str
+    soft_limit_usd: float
+    hard_limit_usd: float
+    spent_usd: float
+    total_after_usd: float
+
+
+class _PreflightResponse(TypedDict):
+    project_id: str
+    unit_scope: str
+    unit_ids: list[str]
+    model: _PreflightModel
+    scenes: list[dict[str, object]]
+    budget: _PreflightBudget
+
+
 @pytest.fixture()
 def anyio_backend() -> str:
     """Force AnyIO to use the asyncio backend for these tests."""
@@ -49,9 +104,7 @@ def anyio_backend() -> str:
     return "asyncio"
 
 
-async def test_health_endpoint_contract(
-    async_client: httpx.AsyncClient, monkeypatch: pytest.MonkeyPatch
-) -> None:
+async def test_health_endpoint_contract(async_client: Any, monkeypatch: pytest.MonkeyPatch) -> None:
     """The health probe returns the expected payload and trace headers."""
 
     monkeypatch.setenv("BLACKSKIES_ENABLE_VOICE_NOTES", "1")
@@ -62,7 +115,7 @@ async def test_health_endpoint_contract(
     _assert_trace_header(response)
 
 
-async def test_preflight_success_contract(async_client: httpx.AsyncClient, tmp_path: Path) -> None:
+async def test_preflight_success_contract(async_client: Any, tmp_path: Path) -> None:
     """Preflight provides a budget estimate and scene metadata for valid projects."""
 
     project_id = "proj_async_preflight_ok"
@@ -78,7 +131,7 @@ async def test_preflight_success_contract(async_client: httpx.AsyncClient, tmp_p
 
     response = await async_client.post(f"{API_PREFIX}/draft/preflight", json=payload)
     assert response.status_code == 200
-    data = response.json()
+    data = cast(_PreflightResponse, response.json())
 
     assert data["project_id"] == project_id
     assert data["unit_scope"] == "scene"
@@ -102,9 +155,7 @@ async def test_preflight_success_contract(async_client: httpx.AsyncClient, tmp_p
     _assert_trace_header(response)
 
 
-async def test_preflight_missing_scene_contract(
-    async_client: httpx.AsyncClient, tmp_path: Path
-) -> None:
+async def test_preflight_missing_scene_contract(async_client: Any, tmp_path: Path) -> None:
     """Preflight surfaces validation errors for unknown scene identifiers."""
 
     project_id = "proj_async_preflight_missing"
@@ -119,12 +170,12 @@ async def test_preflight_missing_scene_contract(
     response = await async_client.post(f"{API_PREFIX}/draft/preflight", json=payload)
     assert response.status_code == 400
 
-    detail = _read_error(response)
+    detail = cast(_ValidationError, _read_error(response))
     assert detail["code"] == "VALIDATION"
     assert detail["details"]["missing_scene_ids"] == ["sc_9999"]
 
 
-async def test_critique_contract(async_client: httpx.AsyncClient, tmp_path: Path) -> None:
+async def test_critique_contract(async_client: Any, tmp_path: Path) -> None:
     """Critique endpoint returns the documented schema."""
 
     project_id = "proj_async_critique_contract"
@@ -134,7 +185,7 @@ async def test_critique_contract(async_client: httpx.AsyncClient, tmp_path: Path
     request_payload["project_id"] = project_id
     response = await async_client.post(f"{API_PREFIX}/draft/critique", json=request_payload)
     assert response.status_code == 200
-    response_payload = response.json()
+    response_payload = cast(_CritiqueResponse, response.json())
     assert response_payload["schema_version"].startswith("CritiqueOutputSchema")
     assert response_payload["unit_id"] == scene_ids[0]
     assert isinstance(response_payload.get("line_comments"), list)
@@ -152,7 +203,7 @@ async def test_critique_contract(async_client: httpx.AsyncClient, tmp_path: Path
 
 
 async def test_critique_validation_unknown_category(
-    async_client: httpx.AsyncClient,
+    async_client: Any,
 ) -> None:
     """Critique surfaces validation errors for unsupported rubric entries."""
 
@@ -160,15 +211,13 @@ async def test_critique_validation_unknown_category(
     response = await async_client.post(f"{API_PREFIX}/draft/critique", json=request_payload)
     assert response.status_code == 400
 
-    detail = _read_error(response)
+    detail = cast(_ValidationError, _read_error(response))
     assert detail["code"] == "VALIDATION"
     errors = detail["details"]["errors"]
     assert any("Unknown rubric categories" in error["msg"] for error in errors)
 
 
-async def test_recovery_status_idle_contract(
-    async_client: httpx.AsyncClient, tmp_path: Path
-) -> None:
+async def test_recovery_status_idle_contract(async_client: Any, tmp_path: Path) -> None:
     """Recovery status endpoint reports idle projects with trace metadata."""
 
     project_id = "proj_async_recovery"
@@ -178,20 +227,20 @@ async def test_recovery_status_idle_contract(
         f"{API_PREFIX}/draft/recovery", params={"project_id": project_id}
     )
     assert response.status_code == 200
-    data = response.json()
+    data = cast(dict[str, object], response.json())
     assert data["project_id"] == project_id
     assert data["status"] == "idle"
     assert data["needs_recovery"] is False
     _assert_trace_header(response)
 
 
-async def test_recovery_status_missing_project_error(async_client: httpx.AsyncClient) -> None:
+async def test_recovery_status_missing_project_error(async_client: Any) -> None:
     """Recovery status validates project identifiers and emits structured errors."""
 
     response = await async_client.get(
         f"{API_PREFIX}/draft/recovery", params={"project_id": "missing"}
     )
     assert response.status_code == 400
-    detail = _read_error(response)
+    detail = cast(_ValidationError, _read_error(response))
     assert detail["code"] == "VALIDATION"
     assert "missing" in detail["message"].lower()

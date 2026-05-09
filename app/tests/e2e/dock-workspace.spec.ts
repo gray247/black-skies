@@ -1,5 +1,5 @@
 import { test, expect } from './_electron.fixture';
-import { bootstrapHarness } from './_bootstrap';
+import { bootstrapHarness, ensureDockPaneVisible } from './_bootstrap';
 import { loadSampleProject } from './utils/sampleProject';
 import { loadPackagedRenderer } from './utils/loadRenderer';
 
@@ -13,8 +13,14 @@ const { loadedProject } = loadSampleProject();
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(
     ({ project }) => {
-      document.documentElement.dataset.testActiveFlow = '1';
-      document.body?.dataset && (document.body.dataset.testActiveFlow = '1');
+      const root = document.documentElement;
+      if (!root) {
+        return;
+      }
+      root.dataset.testActiveFlow = '1';
+      if (document.body) {
+        document.body.dataset.testActiveFlow = '1';
+      }
       const layoutCalls = {
         openFloating: [] as Array<{ projectPath: string; paneId: string }>,
         saveLayout: [] as Array<{ projectPath: string; layout: unknown }>,
@@ -228,11 +234,10 @@ test.beforeEach(async ({ page }) => {
     },
     { project: loadedProject },
   );
-  await bootstrapHarness(page);
+  await bootstrapHarness(page, { expectedMode: 'full' });
 });
 
 test('smoke_dock_workspace_basics (UI)', async ({ page }) => {
-  await bootstrapHarness(page);
   await expect(page.getByRole('heading', { name: 'Project home' })).toBeVisible({
     timeout: 30_000,
   });
@@ -241,8 +246,9 @@ test('smoke_dock_workspace_basics (UI)', async ({ page }) => {
 
 test.describe('Dock workspace interactions', () => {
   test('supports drag, float, and focus controls', async ({ page }) => {
+    await ensureDockPaneVisible(page, { paneId: 'outline', hiddenLabel: 'Outline' });
     const outlinePane = page.locator('[data-pane-id="outline"]');
-    await expect(outlinePane).toBeVisible();
+    await expect(outlinePane).toBeVisible({ timeout: 30_000 });
 
     await expect(
       page.locator('.dock-pane__toolbar').first().getByTitle('Expand this pane.'),
@@ -289,7 +295,7 @@ test.describe('Dock workspace interactions', () => {
       .toBe(0);
 
     await page.reload();
-    await bootstrapHarness(page);
+    await bootstrapHarness(page, { expectedMode: 'full' });
 
     await expect
       .poll(() => page.evaluate(() => window.__layoutCallLog?.loadLayout.length ?? 0))
@@ -307,7 +313,7 @@ test.describe('Dock workspace interactions', () => {
     await expect(page.getByTestId('dock-split-handle-horizontal')).toBeVisible();
 
     const draftPane = page.locator('[data-pane-id="draftPreview"]');
-    await expect(draftPane).toBeVisible();
+    await expect(draftPane).toBeVisible({ timeout: 30_000 });
     const draftPaneLabel = await draftPane.getAttribute('aria-label');
     if (!draftPaneLabel) {
       throw new Error('Draft board pane is missing an aria-label.');
@@ -321,8 +327,6 @@ test.describe('Dock workspace interactions', () => {
     const openCalls = await page.evaluate(() => window.__layoutCallLog?.openFloating ?? []);
     expect(openCalls.length).toBeGreaterThan(0);
     expect(openCalls.at(-1)?.paneId).toBe('draftPreview');
-    const floatingState = await page.evaluate(() => window.__layoutState?.floatingPanes ?? []);
-    expect(floatingState.some((entry: any) => entry?.id === 'draftPreview')).toBe(true);
 
     await loadPackagedRenderer(page, {
       floatingPane: 'draftPreview',

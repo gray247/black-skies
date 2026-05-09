@@ -1,18 +1,15 @@
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import type { Page } from '@playwright/test';
-import { test, expect } from './electron.launch';
+import { test, expect } from './_electron.fixture';
+import { ensureDockPaneVisible } from './_bootstrap';
 import { TID } from '../../renderer/utils/testIds';
+import { loadSampleProject } from './utils/sampleProject';
 
 // HARNESS_ONLY:
 // Reason: packaged project smoke bootstrapped with overridden local services.
 // Owner: app/tests/e2e/smoke.project.spec.ts
 // Retire when: project-open smoke is superseded by real-service truth lane coverage.
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const sampleProjectPath = path.resolve(__dirname, '../../sample_project/Esther_Estate');
+const { projectRoot: sampleProjectPath } = loadSampleProject();
 
 async function bootstrapHarness(page: Page): Promise<void> {
   await page.evaluate(() => {
@@ -132,18 +129,22 @@ test.describe('Electron smoke', () => {
     await page.getByTestId(TID.openProjectBtn).click();
 
     await expect(page.getByTestId(TID.dockWorkspace)).toBeVisible();
-    await expect(page.getByTestId(TID.wizardRoot)).toBeVisible();
-
-    const outlineEditor = page.getByTestId(TID.outlineEditor);
-    const wizardNext = page.getByTestId(TID.wizardNext);
-
-    for (let attempt = 0; attempt < 5; attempt += 1) {
-      if (await outlineEditor.isVisible()) {
-        break;
+    const mode = await page.evaluate(() => document.body?.dataset?.testMode ?? 'full');
+    if (mode === 'flat') {
+      await expect(page.getByTestId(TID.wizardRoot)).toBeVisible({ timeout: 30_000 });
+      const outlineEditor = page.getByTestId(TID.outlineEditor);
+      const wizardNext = page.getByTestId(TID.wizardNext);
+      for (let attempt = 0; attempt < 5; attempt += 1) {
+        if (await outlineEditor.isVisible()) {
+          break;
+        }
+        await wizardNext.click();
       }
-      await wizardNext.click();
+      await expect(outlineEditor).toBeVisible({ timeout: 30_000 });
+      return;
     }
-
-    await expect(outlineEditor).toBeVisible();
+    await ensureDockPaneVisible(page, { paneId: 'outline', hiddenLabel: 'Outline' });
+    await expect(page.locator('[data-pane-id="outline"]')).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByTestId('workspace-action-generate')).toBeVisible({ timeout: 30_000 });
   });
 });

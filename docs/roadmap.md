@@ -1,6 +1,6 @@
 Status: Active roadmap / status authority, not runtime authority
 Version: 1.1.0
-Last Reviewed: 2026-04-19
+Last Reviewed: 2026-05-06
 
 # Roadmap
 
@@ -29,7 +29,7 @@ Later phases can be partially implemented in parallel. A phase marked `Partial` 
 | P7 | Release candidate baseline | Complete | Core service and desktop baseline are landed and operational. |
 | P8 | Insights and feedback expansion | Partial | Docking workspace, layout persistence, budget meter, batch critique, and rubric tooling are landed; floating-pane restore-on-load behavior remains intentionally non-restored. |
 | P9 | Analytics and visualization | Partial | Analytics routes and backend metrics/budget surfaces are code-backed and baseline-enabled by maturity default; full dashboard productization remains open. |
-| P10 | Accessibility and professional exports | Partial | Export surfaces are code-backed; accessibility toggle product surface and voice-note productization remain deferred/non-baseline. |
+| P10 | Accessibility and professional exports | Complete | Export surfaces are code-backed; accessibility toggle product surface and voice-note productization remain deferred/non-baseline, but Phase 10 stabilization is closed. |
 | P11 | Agents and plugins | Partial | Plugin and backup seams exist behind flags; advisory systems (fracture diagnostics and Canon Court) are landed as non-blocking diagnostics. |
 
 ## Phase detail
@@ -62,13 +62,14 @@ Landed:
 Open:
 - Full dashboard/visualization product polish remains scope work.
 
-### P10 - Accessibility and professional exports (Partial)
+### P10 - Accessibility and professional exports (Complete)
 Landed:
 - Export path and analytics export integration are code-backed.
 - Keyboard/focus accessibility work exists in docking flows.
 
-Open:
-- Accessibility toggle UI productization remains deferred.
+Deferred:
+- No Phase 10 blockers remain.
+- Accessibility toggle UI productization remains deferred outside the closed stabilization lane.
 - Voice notes/transcription remain deferred (non-baseline with disabled seam metadata only).
 
 ### P11 - Agents and plugins (Partial)

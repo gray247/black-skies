@@ -182,10 +182,21 @@ def test_build_result_payload_sets_slo_status() -> None:
     metrics.budgets = [1.25]
 
     thresholds = load.Thresholds(100.0, 200.0, 0.1, 5.0)
-    payload = load.build_result_payload(metrics, thresholds, breaches=["p95 exceeded"])
+    profile = load.LoadProfile(
+        name="demo",
+        total_cycles=8,
+        concurrency=2,
+        timeout=30.0,
+        thresholds=thresholds,
+        warmup_cycles=1,
+        description="Demo profile",
+    )
+    payload = load.build_result_payload(metrics, thresholds, profile, breaches=["p95 exceeded"])
     assert payload["slo"]["status"] == "breached"
     assert payload["metrics"]["total_requests"] == 1
     assert payload["thresholds"]["p99_ms"] == pytest.approx(200.0)
+    assert payload["profile"]["name"] == "demo"
+    assert payload["profile"]["concurrency"] == 2
 
 
 def test_main_success_path(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:

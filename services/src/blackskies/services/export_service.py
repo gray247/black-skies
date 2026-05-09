@@ -118,7 +118,7 @@ class ProjectExportService:
             )
             raise
 
-        payload = {
+        payload: dict[str, object] = {
             "project_id": project_id,
             "path": self._relative_path(target_path, project_root),
             "format": format.value,

@@ -18,7 +18,7 @@ def test_scheduler_writes_last_report(tmp_path: Path, monkeypatch) -> None:
         '{"schema_version":"OutlineSchema v1"}', encoding="utf-8"
     )
 
-    report = {"project_id": "scheduled", "snapshots": []}
+    report: dict[str, object] = {"project_id": "scheduled", "snapshots": []}
 
     called: list[Path] = []
 

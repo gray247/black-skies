@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import json
 import logging
+from typing import Any
 
 from blackskies.services.logging_config import JsonFormatter
 
 
-def _format(record_kwargs: dict[str, object]) -> dict[str, object]:
+def _format(record_kwargs: dict[str, object]) -> dict[str, Any]:
     formatter = JsonFormatter()
     record = logging.makeLogRecord({"msg": "message", **record_kwargs})
     formatted = formatter.format(record)

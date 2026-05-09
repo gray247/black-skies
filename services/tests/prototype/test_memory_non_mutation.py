@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -20,14 +21,12 @@ def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def _write_json(path: Path, payload: dict[str, object]) -> None:
+def _write_json(path: Path, payload: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
 
-def _accepted_source_hash(
-    *, unit_id: str, draft_text: str, scene_payload: dict[str, object]
-) -> str:
+def _accepted_source_hash(*, unit_id: str, draft_text: str, scene_payload: dict[str, Any]) -> str:
     front_matter = json.dumps(scene_payload, sort_keys=True, ensure_ascii=False)
     return hashlib.sha256(f"{unit_id}\n{front_matter}\n{draft_text}".encode("utf-8")).hexdigest()
 

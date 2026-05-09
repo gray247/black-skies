@@ -73,8 +73,7 @@ describe('AnalyticsDashboard', () => {
       expect(screen.getByText('Scene One')).toBeInTheDocument();
     });
     expect(screen.getByText('80')).toBeInTheDocument();
-    expect(screen.getByText('Easy')).toBeInTheDocument();
-    expect(screen.getByText('Neutral')).toBeInTheDocument();
+    expect(screen.getByText('10.00')).toBeInTheDocument();
     expect(screen.getByTestId('analytics-emotion-graph')).toBeInTheDocument();
     const pacing = screen.getByTestId('analytics-pacing-strip');
     expect(pacing).toBeInTheDocument();

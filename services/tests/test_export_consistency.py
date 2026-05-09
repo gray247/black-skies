@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import json
 from pathlib import Path
+from typing import TypedDict, cast
 
 import pytest
 
@@ -12,6 +13,10 @@ from blackskies.services.config import ServiceSettings
 from blackskies.services.diagnostics import DiagnosticLogger
 from blackskies.services.export_service import ExportFormat, ProjectExportService
 from blackskies.services.scene_docs import DraftRequestError
+
+
+class _ExportPayload(TypedDict):
+    path: str
 
 
 def _write_outline(project_root: Path) -> None:
@@ -56,11 +61,13 @@ def _prepare_project(tmp_path: Path, project_id: str) -> Path:
     return project_root
 
 
-def _run_export(project_root: Path, project_id: str, fmt: ExportFormat) -> dict[str, object]:
+def _run_export(project_root: Path, project_id: str, fmt: ExportFormat) -> _ExportPayload:
     settings = ServiceSettings(project_base_dir=project_root.parent)
     diagnostics = DiagnosticLogger()
     service = ProjectExportService(settings=settings, diagnostics=diagnostics)
-    return asyncio.run(service.export(project_id=project_id, format=fmt)).payload
+    return cast(
+        _ExportPayload, asyncio.run(service.export(project_id=project_id, format=fmt)).payload
+    )
 
 
 def _body_word_count(project_root: Path) -> int:

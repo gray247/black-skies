@@ -9,6 +9,7 @@ from typing import Any
 from .constants import MEMORY_ARTIFACT_SCHEMA_VERSION
 from .interpretations import create_interpretation_variants
 from .schemas import MemoryArtifact
+from .types import ArtifactType
 
 
 def build_memory_artifacts(
@@ -25,7 +26,7 @@ def build_memory_artifacts(
     seen: set[tuple[str, str]] = set()
     artifacts: list[MemoryArtifact] = []
 
-    def add(artifact_type: str, raw: Any) -> MemoryArtifact | None:
+    def add(artifact_type: ArtifactType, raw: Any) -> MemoryArtifact | None:
         content = _clean(raw)
         if not content:
             return None
@@ -82,7 +83,7 @@ def build_memory_artifacts(
     return artifacts
 
 
-def _artifact_id(*, scene_id: str, artifact_type: str, content: str) -> str:
+def _artifact_id(*, scene_id: str, artifact_type: ArtifactType, content: str) -> str:
     digest = sha256(content.encode("utf-8")).hexdigest()[:12]
     return f"{scene_id}:{artifact_type}:{digest}"
 

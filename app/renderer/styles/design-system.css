@@ -1,0 +1,29 @@
+:root {
+  --bs-color-background-app: #050709;
+  --bs-color-background-workspace: #080c10;
+  --bs-color-panel: #0c1117;
+  --bs-color-panel-elevated: #111822;
+  --bs-color-panel-soft: #0f151c;
+  --bs-color-border-subtle: #1a232e;
+  --bs-color-border-standard: #263241;
+  --bs-color-border-active: #8a5cff;
+  --bs-color-text-primary: #e7ecf2;
+  --bs-color-text-secondary: #a8b0ba;
+  --bs-color-text-muted: #6f7a86;
+  --bs-color-accent-primary: #9b5cff;
+  --bs-color-accent-secondary: #12c8d9;
+  --bs-color-success: #35d07f;
+  --bs-color-warning: #f5a623;
+  --bs-color-danger: #ff5c5c;
+  --bs-color-info: #4ea1ff;
+  --bs-spacing-base: 8px;
+  --bs-spacing-zone-gap: 16px;
+  --bs-spacing-panel-gap: 12px;
+  --bs-spacing-panel-padding: 16px;
+  --bs-spacing-card-padding: 12px;
+  --bs-radius-sm: 4px;
+  --bs-radius-md: 8px;
+  --bs-radius-lg: 12px;
+  --bs-depth-panel: 0 0 0 1px rgba(255, 255, 255, 0.06);
+  --bs-depth-elevated: 0 12px 32px rgba(0, 0, 0, 0.35);
+}

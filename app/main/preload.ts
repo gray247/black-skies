@@ -1,6 +1,8 @@
 ﻿import { contextBridge, ipcRenderer, shell } from 'electron';
+import { randomUUID } from 'node:crypto';
 import { promises as fs } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
+import * as modePolicy from '../shared/modePolicy';
 import * as testMode from '../renderer/testMode/testModeManager';
 
 const safeExpose = (key: string, api: unknown) => {
@@ -84,7 +86,8 @@ const electronFsApi = {
 safeExpose('__electronApi', { fs: electronFsApi });
 
 const isPlaywright = process.env.PLAYWRIGHT === '1';
-const harnessHooksEnabled = process.env.BLACKSKIES_ENABLE_HARNESS_HOOKS === '1';
+const harnessHooksEnabled = modePolicy.isHarnessEnabled();
+const forceRecoveryInHarness = process.env.BLACKSKIES_TEST_NEEDS_RECOVERY === '1';
 const phase4MockFlowEnabled = process.env.BLACKSKIES_ENABLE_PHASE4_MOCK_FLOW === '1';
 safeExpose('__phase4MockFlowEnabled', phase4MockFlowEnabled);
 const setPlaywrightTestAttribute = (): void => {
@@ -164,21 +167,64 @@ ensureForceStateAttrsWithRetry();
 safeExpose('__testEnv', { isPlaywright });
 
 if (typeof window !== 'undefined' && harnessHooksEnabled) {
-  const root = document.documentElement;
-  const body = document.body ?? root;
-  const setHarnessFlag = (flag: 'testActiveFlow' | 'testStableDock' | 'testStableHome' | 'testVisualStable', enabled: boolean): void => {
+  const setHarnessFlag = (
+    flag: 'testActiveFlow' | 'testStableDock' | 'testStableHome' | 'testVisualStable',
+    enabled: boolean,
+  ): boolean => {
+    if (typeof document === 'undefined') {
+      return false;
+    }
+    const root = document.documentElement;
+    const body = document.body;
+    const target = body ?? root;
+    if (!target) {
+      return false;
+    }
     if (enabled) {
-      root.dataset[flag] = '1';
-      body.dataset[flag] = '1';
+      if (root && root.dataset[flag] !== '1') {
+        root.dataset[flag] = '1';
+      }
+      if (body && body.dataset[flag] !== '1') {
+        body.dataset[flag] = '1';
+      }
+      return true;
+    }
+    if (root && flag in root.dataset) {
+      delete root.dataset[flag];
+    }
+    if (body && flag in body.dataset) {
+      delete body.dataset[flag];
+    }
+    return true;
+  };
+  const applyHarnessFlags = (): boolean => {
+    const activeFlowApplied = setHarnessFlag('testActiveFlow', process.env.PLAYWRIGHT === '1');
+    const stableDockApplied = setHarnessFlag(
+      'testStableDock',
+      process.env.BLACKSKIES_STABLE_DOCK === '1',
+    );
+    const stableHomeApplied = setHarnessFlag(
+      'testStableHome',
+      process.env.BLACKSKIES_STABLE_HOME === '1',
+    );
+    const visualStableApplied = setHarnessFlag('testVisualStable', modePolicy.isVisualStable());
+    return activeFlowApplied || stableDockApplied || stableHomeApplied || visualStableApplied;
+  };
+  const ensureHarnessFlags = (): void => {
+    if (applyHarnessFlags()) {
       return;
     }
-    delete root.dataset[flag];
-    delete body.dataset[flag];
+    if (typeof document === 'undefined') {
+      return;
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', applyHarnessFlags, { once: true });
+    }
+    if (typeof window !== 'undefined') {
+      window.addEventListener('load', applyHarnessFlags, { once: true });
+    }
   };
-  setHarnessFlag('testActiveFlow', process.env.PLAYWRIGHT === '1');
-  setHarnessFlag('testStableDock', process.env.BLACKSKIES_STABLE_DOCK === '1');
-  setHarnessFlag('testStableHome', process.env.BLACKSKIES_STABLE_HOME === '1');
-  setHarnessFlag('testVisualStable', process.env.BLACKSKIES_VISUAL_STABLE === '1');
+  ensureHarnessFlags();
   if (process.env.BLACKSKIES_STABLE_HOME === '1') {
     const applyStableHomeAttr = () => {
       if (typeof document === 'undefined') {
@@ -215,7 +261,7 @@ if (typeof window !== 'undefined' && harnessHooksEnabled) {
       }
     }
   }
-  if (process.env.BLACKSKIES_VISUAL_STABLE === '1') {
+  if (modePolicy.isVisualStable()) {
     ensureVisualStableAttrsWithRetry();
     if (typeof window !== 'undefined') {
       window.addEventListener('load', ensureVisualStableAttrsWithRetry, { once: true });
@@ -236,18 +282,169 @@ if (isPlaywright && typeof window !== 'undefined') {
   }
 }
 
+type SceneSelectionDiagnostic = {
+  ok: boolean;
+  method: 'hook' | 'event';
+  sceneId: string | null;
+  hookPresent: boolean;
+  error?: string;
+};
+
+function resolveSceneSelectionHook():
+  | ((value: string | null | undefined) => boolean)
+  | null {
+  const selector = (window as typeof window & {
+    __blackSkiesSelectScene?: (value: string | null | undefined) => boolean;
+  }).__blackSkiesSelectScene;
+  return typeof selector === 'function' ? selector : null;
+}
+
+async function waitForSceneSelectionHook(timeoutMs = 3_000): Promise<{
+  hook: ((value: string | null | undefined) => boolean) | null;
+  hookPresent: boolean;
+}> {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    const hook = resolveSceneSelectionHook();
+    if (hook) {
+      return { hook, hookPresent: true };
+    }
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  return { hook: null, hookPresent: false };
+}
+
 const devApi: {
-  setProjectDir: (absPath: string | null) => boolean;
+  setProjectDir: (absPath: string | null) => void | Promise<void>;
+  selectScene?: (sceneId: string | null) => Promise<SceneSelectionDiagnostic>;
   overrideServices?: (overrides: Partial<ServicesBridge>) => void;
+  setStartupConfig?: (config: {
+    mode: 'flat' | 'full' | 'recovery';
+    projectPath: string | null;
+    recovery: boolean;
+    services: 'stub' | 'real';
+    allowRuntimeModeOverride?: boolean;
+    allowLayoutRestore?: boolean;
+  }) => void;
 } = {
-  setProjectDir: (absPath: string | null) =>
-    window.dispatchEvent(new CustomEvent('test:set-project', { detail: absPath })),
+  setProjectDir: (absPath: string | null) => {
+    window.dispatchEvent(new CustomEvent('test:set-project', { detail: absPath }));
+  },
+  selectScene: async (sceneId: string | null) => {
+    const normalizedSceneId = typeof sceneId === 'string' ? sceneId.trim() : null;
+    console.log(
+      '[dbg:scene.select.request]',
+      JSON.stringify({ sceneId: normalizedSceneId || null }),
+    );
+    if (normalizedSceneId === '') {
+      return {
+        ok: false,
+        method: 'hook',
+        sceneId: normalizedSceneId,
+        hookPresent: false,
+        error: 'missing-scene-id',
+      };
+    }
+    const hookState = await waitForSceneSelectionHook();
+    console.log(
+      '[dbg:scene.select.hook.present]',
+      JSON.stringify({ sceneId: normalizedSceneId, hookPresent: hookState.hookPresent }),
+    );
+    if (hookState.hook) {
+      try {
+        const applied = hookState.hook(normalizedSceneId);
+        if (applied) {
+          return {
+            ok: true,
+            method: 'hook',
+            sceneId: normalizedSceneId,
+            hookPresent: true,
+          };
+        }
+        return {
+          ok: false,
+          method: 'hook',
+          sceneId: normalizedSceneId,
+          hookPresent: true,
+          error: 'missing-scene',
+        };
+      } catch (error) {
+        return {
+          ok: false,
+          method: 'hook',
+          sceneId: normalizedSceneId,
+          hookPresent: true,
+          error: error instanceof Error ? error.message : String(error),
+        };
+      }
+    }
+    window.dispatchEvent(new CustomEvent('test:select-scene', { detail: normalizedSceneId }));
+    return {
+      ok: false,
+      method: 'event',
+      sceneId: normalizedSceneId,
+      hookPresent: false,
+      error: 'hook missing',
+    };
+  },
+  setStartupConfig: (config) => {
+    const win = window as typeof window & {
+      __E2E_STARTUP_CONFIG?: {
+        mode: 'flat' | 'full' | 'recovery';
+        projectPath: string | null;
+        recovery: boolean;
+        services: 'stub' | 'real';
+        allowRuntimeModeOverride?: boolean;
+        allowLayoutRestore?: boolean;
+      };
+      __testEnvFlatMode?: boolean;
+      __testEnvRecoveryMode?: boolean;
+      __testEnvFullMode?: boolean;
+    };
+    win.__E2E_STARTUP_CONFIG = {
+      ...config,
+      projectPath: config.projectPath ?? null,
+      recovery: Boolean(config.recovery),
+    };
+    if (config.mode === 'flat') {
+      win.__testEnvFlatMode = true;
+      win.__testEnvRecoveryMode = false;
+      win.__testEnvFullMode = false;
+    } else if (config.mode === 'recovery') {
+      win.__testEnvFlatMode = false;
+      win.__testEnvRecoveryMode = true;
+      win.__testEnvFullMode = false;
+    } else {
+      win.__testEnvFlatMode = false;
+      win.__testEnvRecoveryMode = false;
+      win.__testEnvFullMode = true;
+    }
+    const root = document.documentElement;
+    const body = document.body ?? root;
+    if (root) {
+      root.dataset.testMode = config.mode;
+      if (config.recovery) {
+        root.dataset.testNeedsRecovery = '1';
+      } else {
+        delete root.dataset.testNeedsRecovery;
+      }
+    }
+    if (body) {
+      body.dataset.testMode = config.mode;
+      if (config.recovery) {
+        body.dataset.testNeedsRecovery = '1';
+      } else {
+        delete body.dataset.testNeedsRecovery;
+      }
+    }
+    window.dispatchEvent(new CustomEvent('test:startup-config', { detail: win.__E2E_STARTUP_CONFIG }));
+  },
 };
 
 // --- harness-only bridges ---
 // These are explicit test hooks and must stay out of the truth lane unless a harness runner
 // opts in with BLACKSKIES_ENABLE_HARNESS_HOOKS=1.
-if (harnessHooksEnabled) {
+if (isPlaywright || harnessHooksEnabled) {
   safeExpose('__test', {
     markBoot: () => console.log('[boot] renderer mounted'),
   });
@@ -257,8 +454,15 @@ if (harnessHooksEnabled) {
   safeExpose('__testInsights', {
     setServiceStatus: (status: 'offline' | 'online') =>
       window.dispatchEvent(new CustomEvent('test:service-status', { detail: status })),
-    selectScene: (id: string) =>
-      window.dispatchEvent(new CustomEvent('test:select-scene', { detail: id })),
+    selectScene: (id: string) => {
+      const selector = (window as typeof window & {
+        __blackSkiesSelectScene?: (value: string | null | undefined) => boolean;
+      }).__blackSkiesSelectScene;
+      if (typeof selector === 'function' && selector(id)) {
+        return;
+      }
+      window.dispatchEvent(new CustomEvent('test:select-scene', { detail: id }));
+    },
   });
 
   safeExpose('testMode', {
@@ -452,6 +656,8 @@ const REQUEST_POLICY: BridgeResiliencePolicy = {
   circuitResetMs: Math.max(0, parsePositiveInt(process.env.BLACKSKIES_BRIDGE_RESET_MS, 15_000)),
 };
 
+const DRAFT_REQUEST_MAX_TIMEOUT_MS = 300_000;
+
 const REQUEST_BREAKER = new CircuitBreaker(
   REQUEST_POLICY.circuitFailureThreshold,
   REQUEST_POLICY.circuitResetMs,
@@ -562,10 +768,37 @@ async function fetchWithTimeout(url: string, init: RequestInit, timeoutMs: numbe
   }
 }
 
+function summarizeBodyByteLength(body: BodyInit | null | undefined): number {
+  if (typeof body === 'string') {
+    return new TextEncoder().encode(body).byteLength;
+  }
+  return 0;
+}
+
+function summarizeRequestUnitCount(body: Record<string, unknown> | undefined): number {
+  const unitIds = body?.unit_ids;
+  if (!Array.isArray(unitIds)) {
+    return 0;
+  }
+  return unitIds.filter((unitId) => typeof unitId === 'string' && unitId.length > 0).length;
+}
+
+function resolveRequestTimeoutMs(unitCount: number): number {
+  const scaledUnitCount = Math.max(1, unitCount);
+  return Math.min(
+    DRAFT_REQUEST_MAX_TIMEOUT_MS,
+    REQUEST_POLICY.timeoutMs * scaledUnitCount,
+  );
+}
+
 async function fetchWithResilience(
   url: string,
   init: RequestInit,
   method: HttpMethod,
+  phaseLogPrefix: string | null,
+  requestTraceId?: string,
+  timeoutMs = REQUEST_POLICY.timeoutMs,
+  unitCount = 0,
 ): Promise<Response> {
   let lastError: unknown;
   for (let attempt = 1; attempt <= REQUEST_POLICY.maxAttempts; attempt += 1) {
@@ -574,7 +807,19 @@ async function fetchWithResilience(
     }
 
     try {
-      const response = await fetchWithTimeout(url, init, REQUEST_POLICY.timeoutMs);
+      if (phaseLogPrefix) {
+        console.info(`[${phaseLogPrefix}:request-start]`, {
+          traceId: requestTraceId ?? null,
+          method,
+          url,
+          timeoutMs,
+          unitCount,
+          bodyByteLength: summarizeBodyByteLength(init.body),
+          timestamp: new Date().toISOString(),
+          attempt,
+        });
+      }
+      const response = await fetchWithTimeout(url, init, timeoutMs);
       REQUEST_BREAKER.recordSuccess();
       return response;
     } catch (error) {
@@ -699,6 +944,7 @@ export async function makeServiceCall<T>(
   path: string,
   method: HttpMethod,
   body?: Record<string, unknown>,
+  requestTraceId?: string,
 ): Promise<ServiceResult<T>> {
   const port = currentServicePort();
   if (!port) {
@@ -720,41 +966,150 @@ export async function makeServiceCall<T>(
           service_port: process.env.BLACKSKIES_SERVICES_PORT ?? null,
           e2e_port: process.env.BLACKSKIES_E2E_PORT ?? null,
         },
+        traceId: requestTraceId,
       }),
+      traceId: requestTraceId,
     };
   }
 
   const normalizedPath = path.startsWith('/') ? path.slice(1) : path;
   const url = `http://127.0.0.1:${port}/api/v1/${normalizedPath}`;
+  const phaseLabel =
+    normalizedPath === 'draft/preflight'
+      ? 'preflight'
+      : normalizedPath === 'draft/generate'
+        ? 'draft-generate'
+        : null;
+  const phaseLogPrefix = phaseLabel === 'draft-generate' ? 'preload:draft-generate' : phaseLabel;
+  const startedAt = performance.now();
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   };
+  if (requestTraceId) {
+    headers['x-trace-id'] = requestTraceId;
+  }
   const requestInit: RequestInit = {
     method,
     headers,
     body: body ? JSON.stringify(body) : undefined,
   };
+  const unitCount = summarizeRequestUnitCount(body);
+  const timeoutMs = resolveRequestTimeoutMs(unitCount);
 
   try {
-    const response = await fetchWithResilience(url, requestInit, method);
+    if (phaseLogPrefix) {
+      console.info(`[${phaseLogPrefix}:request]`, {
+        traceId: requestTraceId ?? null,
+        servicePort: port,
+        timeoutMs,
+        unitCount,
+        url,
+      });
+    }
+    const response = await fetchWithResilience(
+      url,
+      requestInit,
+      method,
+      phaseLogPrefix,
+      requestTraceId,
+      timeoutMs,
+      unitCount,
+    );
 
     const traceId = response.headers.get('x-trace-id') ?? undefined;
 
     if (!response.ok) {
       const error = await parseErrorPayload(response, traceId);
+      if (phaseLogPrefix) {
+        console.info(`[${phaseLogPrefix}:response]`, {
+          traceId: error.traceId ?? traceId ?? requestTraceId ?? null,
+          ok: false,
+          status: response.status,
+          durationMs: Math.round(performance.now() - startedAt),
+          code: error.code ?? null,
+        });
+        console.warn(`[${phaseLogPrefix}:error]`, {
+          traceId: error.traceId ?? traceId ?? requestTraceId ?? null,
+          status: response.status,
+          durationMs: Math.round(performance.now() - startedAt),
+          code: error.code ?? null,
+        });
+        if (phaseLabel === 'draft-generate') {
+          console.info(`[${phaseLogPrefix}:returning]`, {
+            traceId: error.traceId ?? traceId ?? requestTraceId ?? null,
+            ok: false,
+            status: response.status,
+            durationMs: Math.round(performance.now() - startedAt),
+            resultType: 'error',
+            resultKeys: Object.keys(error ?? {}),
+          });
+        }
+      }
       return { ok: false, error, traceId: error.traceId ?? traceId };
     }
 
     if (response.status === 204) {
+      if (phaseLogPrefix) {
+        console.info(`[${phaseLogPrefix}:response]`, {
+          traceId: traceId ?? requestTraceId ?? null,
+          ok: true,
+          status: response.status,
+          durationMs: Math.round(performance.now() - startedAt),
+        });
+        console.info(`[${phaseLogPrefix}:returning]`, {
+          traceId: traceId ?? requestTraceId ?? null,
+          ok: true,
+          status: response.status,
+          durationMs: Math.round(performance.now() - startedAt),
+          resultType: 'void',
+        });
+      }
       return { ok: true, data: undefined as T, traceId };
     }
 
     try {
       const data = (await response.json()) as T;
+      if (phaseLogPrefix) {
+        const resultKeys =
+          data && typeof data === 'object' ? Object.keys(data as Record<string, unknown>) : [];
+        console.info(`[${phaseLogPrefix}:response]`, {
+          traceId: traceId ?? requestTraceId ?? null,
+          ok: true,
+          status: response.status,
+          durationMs: Math.round(performance.now() - startedAt),
+          resultType: Array.isArray(data) ? 'array' : typeof data,
+          resultKeys,
+        });
+        console.info(`[${phaseLogPrefix}:returning]`, {
+          traceId: traceId ?? requestTraceId ?? null,
+          ok: true,
+          status: response.status,
+          durationMs: Math.round(performance.now() - startedAt),
+          resultType: Array.isArray(data) ? 'array' : typeof data,
+          resultKeys,
+        });
+      }
       return { ok: true, data, traceId };
     } catch (parseError) {
       const parseMessage =
         parseError instanceof Error ? parseError.message : String(parseError);
+      if (phaseLogPrefix) {
+        console.warn(`[${phaseLogPrefix}:error]`, {
+          traceId: traceId ?? requestTraceId ?? null,
+          status: response.status,
+          durationMs: Math.round(performance.now() - startedAt),
+          message: parseMessage,
+        });
+        if (phaseLabel === 'draft-generate') {
+          console.info(`[${phaseLogPrefix}:returning]`, {
+            traceId: traceId ?? requestTraceId ?? null,
+            ok: false,
+            status: response.status,
+            durationMs: Math.round(performance.now() - startedAt),
+            resultType: 'parse-error',
+          });
+        }
+      }
       const error = normalizeError('Failed to parse response payload.', {
         traceId,
         httpStatus: response.status,
@@ -764,23 +1119,88 @@ export async function makeServiceCall<T>(
     }
   } catch (error) {
     if (error instanceof BridgeCircuitOpenError) {
+      if (phaseLogPrefix) {
+        console.warn(`[${phaseLogPrefix}:error]`, {
+          traceId: requestTraceId ?? null,
+          servicePort: port,
+          timeoutMs,
+          unitCount,
+          url,
+          durationMs: Math.round(performance.now() - startedAt),
+          code: 'SERVICE_UNAVAILABLE',
+        });
+        if (phaseLabel === 'draft-generate') {
+          console.info(`[${phaseLogPrefix}:returning]`, {
+            traceId: requestTraceId ?? null,
+            ok: false,
+            durationMs: Math.round(performance.now() - startedAt),
+            resultType: 'error',
+            code: 'SERVICE_UNAVAILABLE',
+          });
+        }
+      }
       return {
         ok: false,
         error: normalizeError('Service requests temporarily unavailable.', {
           code: 'SERVICE_UNAVAILABLE',
+          traceId: requestTraceId,
         }),
+        traceId: requestTraceId,
       };
     }
     if (error instanceof BridgeTimeoutError) {
+      if (phaseLogPrefix) {
+        console.warn(`[${phaseLogPrefix}:error]`, {
+          traceId: requestTraceId ?? null,
+          servicePort: port,
+          timeoutMs: error.timeoutMs,
+          unitCount,
+          url,
+          durationMs: Math.round(performance.now() - startedAt),
+          code: 'TIMEOUT',
+        });
+        if (phaseLabel === 'draft-generate') {
+          console.info(`[${phaseLogPrefix}:returning]`, {
+            traceId: requestTraceId ?? null,
+            ok: false,
+            durationMs: Math.round(performance.now() - startedAt),
+            resultType: 'error',
+            code: 'TIMEOUT',
+          });
+        }
+      }
       return {
         ok: false,
         error: normalizeError(error.message, {
           code: 'TIMEOUT',
-          details: { timeout_ms: error.timeoutMs },
+          details: { timeout_ms: error.timeoutMs, unit_count: unitCount },
+          traceId: requestTraceId,
         }),
+        traceId: requestTraceId,
       };
     }
     if (error instanceof BridgeNetworkError) {
+      if (phaseLogPrefix) {
+        console.warn(`[${phaseLogPrefix}:error]`, {
+          traceId: requestTraceId ?? null,
+          servicePort: port,
+          timeoutMs,
+          unitCount,
+          url,
+          message: error.message,
+          durationMs: Math.round(performance.now() - startedAt),
+          code: 'NETWORK_ERROR',
+        });
+        if (phaseLabel === 'draft-generate') {
+          console.info(`[${phaseLogPrefix}:returning]`, {
+            traceId: requestTraceId ?? null,
+            ok: false,
+            durationMs: Math.round(performance.now() - startedAt),
+            resultType: 'error',
+            code: 'NETWORK_ERROR',
+          });
+        }
+      }
       console.warn('[preload] makeServiceCall network failure for', url, {
         message: error.message,
       });
@@ -790,10 +1210,21 @@ export async function makeServiceCall<T>(
         error: normalizeError(`Service request to ${url} failed: ${message}`, {
           code: 'NETWORK_ERROR',
           details: { url, message },
+          traceId: requestTraceId,
         }),
+        traceId: requestTraceId,
       };
     }
     const message = error instanceof Error ? error.message : String(error);
+    if (phaseLabel === 'draft-generate') {
+      console.info(`[${phaseLogPrefix}:returning]`, {
+        traceId: requestTraceId ?? null,
+        ok: false,
+        durationMs: Math.round(performance.now() - startedAt),
+        resultType: 'throw',
+        code: error instanceof Error ? error.name : 'UNKNOWN',
+      });
+    }
     return { ok: false, error: normalizeError(message) };
   }
 }
@@ -810,7 +1241,7 @@ async function probeHealth(): Promise<ServiceHealthResponse> {
   const url = `http://127.0.0.1:${port}/api/v1/healthz`;
 
   try {
-    const response = await fetchWithResilience(url, { method: 'GET' }, 'GET');
+    const response = await fetchWithResilience(url, { method: 'GET' }, 'GET', null);
     const traceId = response.headers.get('x-trace-id') ?? undefined;
     if (!response.ok) {
       const error = await parseErrorPayload(response, traceId);
@@ -837,8 +1268,12 @@ async function probeHealth(): Promise<ServiceHealthResponse> {
         traceId,
       };
     }
-    if (data?.status === 'ok') {
-      return { ok: true, data, traceId };
+    if (data?.status === 'ok' || data?.status === 'online') {
+      const normalized = {
+        ...data,
+        status: 'online',
+      };
+      return { ok: true, data: normalized, traceId };
     }
 
     return {
@@ -1133,11 +1568,12 @@ export const serviceApi = {
       'POST',
       serializeOutlineRequest(request),
     ),
-  generateDraft: (request: DraftGenerateBridgeRequest) =>
+  generateDraft: (request: DraftGenerateBridgeRequest, traceId?: string) =>
     makeServiceCall<DraftGenerateBridgeResponse>(
       'draft/generate',
       'POST',
       serializeDraftGenerateRequest(request),
+      traceId,
     ),
   critiqueDraft: (request: DraftCritiqueBridgeRequest) =>
     makeServiceCall<DraftCritiqueBridgeResponse>(
@@ -1168,6 +1604,7 @@ export const serviceApi = {
       'draft/preflight',
       'POST',
       serializePreflightRequest(request),
+      request.traceId ?? randomUUID(),
     ),
   acceptDraft: (request: DraftAcceptBridgeRequest) =>
     makeServiceCall<DraftAcceptBridgeResponse>(
@@ -1283,6 +1720,9 @@ const projectLoaderApi: ProjectLoaderApi = {
     return response as ProjectLoadResponse;
   },
   async getSampleProjectPath(): Promise<string | null> {
+    if (process.env.BLACKSKIES_VISUAL_STABLE === '1') {
+      return null;
+    }
     try {
       const path = await ipcRenderer.invoke(PROJECT_LOADER_CHANNELS.getSamplePath);
       return typeof path === 'string' ? path : null;
@@ -1444,11 +1884,25 @@ if (process.env.PLAYWRIGHT === '1') {
     },
   };
 
-  if (harnessHooksEnabled && typeof document !== 'undefined') {
-    const root = document.documentElement;
-    const body = document.body ?? root;
-    root.dataset.testNeedsRecovery = '1';
-    body.dataset.testNeedsRecovery = '1';
+  if (harnessHooksEnabled && forceRecoveryInHarness && typeof document !== 'undefined') {
+    const applyRecoveryFlag = (): boolean => {
+      const root = document.documentElement;
+      const body = document.body;
+      const target = body ?? root;
+      if (!target) {
+        return false;
+      }
+      if (root && root.dataset.testNeedsRecovery !== '1') {
+        root.dataset.testNeedsRecovery = '1';
+      }
+      if (body && body.dataset.testNeedsRecovery !== '1') {
+        body.dataset.testNeedsRecovery = '1';
+      }
+      return true;
+    };
+    if (!applyRecoveryFlag() && document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', applyRecoveryFlag, { once: true });
+    }
   }
 
   if (process.env.PLAYWRIGHT_DISABLE_ANIMATIONS === '1') {
@@ -1483,5 +1937,9 @@ if (process.env.PLAYWRIGHT === '1') {
     }
   }
 
+  devApi.setProjectDir = async (dir: string | null): Promise<void> => {
+    await devTools.setProjectDir(dir);
+    window.dispatchEvent(new CustomEvent('test:set-project', { detail: dir }));
+  };
   devApi.overrideServices = devTools.overrideServices;
 }

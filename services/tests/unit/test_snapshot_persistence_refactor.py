@@ -43,12 +43,12 @@ except ModuleNotFoundError:  # pragma: no cover - optional dependency stub
 
         return decorator
 
-    pydantic_stub.BaseModel = _BaseModel
-    pydantic_stub.Field = _field
-    pydantic_stub.field_validator = _field_validator
-    pydantic_stub.AliasChoices = _AliasChoices
-    pydantic_stub.ConfigDict = dict[str, Any]
-    pydantic_stub.model_validator = _model_validator
+    setattr(pydantic_stub, "BaseModel", _BaseModel)
+    setattr(pydantic_stub, "Field", _field)
+    setattr(pydantic_stub, "field_validator", _field_validator)
+    setattr(pydantic_stub, "AliasChoices", _AliasChoices)
+    setattr(pydantic_stub, "ConfigDict", dict[str, Any])
+    setattr(pydantic_stub, "model_validator", _model_validator)
     sys.modules["pydantic"] = pydantic_stub
 
 from blackskies.services.persistence import SnapshotPersistence
@@ -80,11 +80,19 @@ def test_snapshot_creation_happy_path(tmp_path: Path) -> None:
     project_payload = {"title": "Happy Project"}
     (project_root / "project.json").write_text(json.dumps(project_payload), encoding="utf-8")
 
-    snapshot = persistence.create_snapshot(project_id, label="Review Build")
+    timings: dict[str, float] = {}
+    snapshot = persistence.create_snapshot(
+        project_id,
+        label="Review Build",
+        timing_hook=timings.update,
+    )
 
     assert snapshot["label"] == "Review-Build"
     assert snapshot["snapshot_id"]
     assert set(snapshot["includes"]) == {"drafts", "outline.json", "project.json"}
+    assert timings["total_ms"] >= timings["allocate_ms"]
+    assert timings["metadata_ms"] >= 0.0
+    assert timings["manifest_ms"] >= 0.0
 
     snapshot_dir = (
         project_root / "history" / "snapshots" / f"{snapshot['snapshot_id']}_{snapshot['label']}"
@@ -94,6 +102,31 @@ def test_snapshot_creation_happy_path(tmp_path: Path) -> None:
     metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
     assert metadata["label"] == "Review-Build"
     assert metadata["includes"] == ["drafts", "outline.json", "project.json"]
+
+
+def test_snapshot_creation_accepts_non_durable_writes(tmp_path: Path) -> None:
+    settings = _Settings(project_base_dir=tmp_path)
+    persistence = SnapshotPersistence(settings=settings)
+
+    project_id = "project-nondurable"
+    project_root = tmp_path / project_id
+    _write_scene(project_root / "drafts" / "scene-1.md", "scene-1")
+    (project_root / "project.json").write_text(
+        json.dumps({"title": "Non-Durable Project"}), encoding="utf-8"
+    )
+
+    snapshot = persistence.create_snapshot(
+        project_id,
+        label="accept",
+        durable=False,
+    )
+
+    snapshot_dir = (
+        project_root / "history" / "snapshots" / f"{snapshot['snapshot_id']}_{snapshot['label']}"
+    )
+    assert snapshot_dir.exists()
+    assert (snapshot_dir / "metadata.json").exists()
+    assert (snapshot_dir / "snapshot.yaml").exists()
 
 
 def test_snapshot_creation_invalid_include_cleans_up(tmp_path: Path) -> None:

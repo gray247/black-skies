@@ -16,6 +16,7 @@ import type { ToastPayload } from '../types/toast';
 import { generateDraftId } from '../utils/draft';
 import type { BudgetSnapshotSource } from '../utils/budgetIndicator';
 import { recordDebugEvent } from '../utils/debugLog';
+import { describeServiceError } from '../utils/serviceErrors';
 
 export type CritiqueLoopPhase =
   | 'idle'
@@ -537,16 +538,17 @@ export function useCritique({
           budgetStatusLine: 'Budget source: no budgeted action.',
         }));
       } else {
+        const rewriteMessage = describeServiceError(result.error, 'rewrite');
         setState((previous) => ({
           ...previous,
           rewriteLoading: false,
-          rewriteError: result.error.message,
+          rewriteError: rewriteMessage,
           phase: 'rewrite_error',
         }));
         pushToast({
           tone: 'error',
           title: 'Rewrite failed.',
-          description: result.error.message,
+          description: rewriteMessage,
         });
       }
     } catch (error) {
@@ -569,6 +571,7 @@ export function useCritique({
   }, [
     services,
     projectSummary,
+    state.draftId,
     state.unitId,
     state.instructions,
     draftEdits,
@@ -604,8 +607,8 @@ export function useCritique({
     });
     pushToast({
       tone: 'success',
-      title: 'Rewrite applied',
-      description: 'Scene text updated with the latest revision.',
+      title: 'Rewrite synced',
+      description: 'Local draft view updated from the saved rewrite.',
       traceId: state.traceId,
     });
   }, [state.rewrite, state.unitId, state.traceId, setProjectDrafts, setDraftEdits, setCurrentProject, pushToast]);

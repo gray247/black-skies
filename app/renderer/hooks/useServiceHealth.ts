@@ -135,10 +135,10 @@ export function useServiceHealth(
   const handleFailure = useCallback(
     (error?: ServiceError | null, portIssue = false) => {
       logFailure(error);
-      if (!mountedRef.current) {
+    if (!mountedRef.current) {
         return;
       }
-      if (isTestEnv || dominantOffline) {
+      if (dominantOffline) {
         return;
       }
       if (!initialPortUnavailable && !dominantOffline) {
@@ -148,13 +148,12 @@ export function useServiceHealth(
       setLastError(error ?? null);
       setStatus('offline');
     },
-    [logFailure, mountedRef, setForceOffline, initialPortUnavailable, dominantOffline, isTestEnv],
+    [logFailure, mountedRef, setForceOffline, initialPortUnavailable, dominantOffline],
   );
 
   const retry = useCallback(async () => {
     if (
       testHardFreezeHealthRef?.current ||
-      isTestEnv ||
       dominantOffline ||
       options.stableHomeMode ||
       options.visualStableHome ||
@@ -164,7 +163,6 @@ export function useServiceHealth(
     }
     const now = performance.now ? performance.now() : Date.now();
     if (
-      skipPolling ||
       isCheckingRef.current ||
       (!testEnv && now - lastRetryTimestampRef.current < RETRY_THROTTLE_MS)
     ) {
@@ -254,11 +252,14 @@ export function useServiceHealth(
   }, [retry]);
 
   useEffect(() => {
-    if (skipPolling) {
-      return () => {};
-    }
     let cancelled = false;
     void retry();
+
+    if (skipPolling) {
+      return () => {
+        cancelled = true;
+      };
+    }
 
     if (intervalMs <= 0) {
       return () => {
@@ -305,15 +306,17 @@ export function useServiceHealth(
         errorMessage?: string;
       }>;
       const detail = customEvent.detail;
-      if (detail?.status !== 'online' && detail?.status !== 'offline') {
+      const detailStatus = detail?.status as string | undefined;
+      const normalizedStatus = detailStatus === 'ok' ? 'online' : detailStatus;
+      if (normalizedStatus !== 'online' && normalizedStatus !== 'offline') {
         return;
       }
       if (!mountedRef.current) {
         return;
       }
-      setStatus(detail.status);
-      setForceOffline(detail.status === 'offline');
-      if (detail.status === 'online') {
+      setStatus(normalizedStatus);
+      setForceOffline(normalizedStatus === 'offline');
+      if (normalizedStatus === 'online') {
         setIsPortUnavailable(false);
         setLastError(null);
       } else {

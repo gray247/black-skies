@@ -4,12 +4,22 @@ import json
 from pathlib import Path
 
 from fastapi.testclient import TestClient
+from typing import TypedDict
 
 from blackskies.services.app import create_app
 from blackskies.services.config import ServiceSettings
 from blackskies.services.persistence import DraftPersistence
 
 API_PREFIX = "/api/v1"
+
+
+class _SceneEntry(TypedDict):
+    id: str
+    order: int
+    title: str
+    chapter_id: str
+    beat_refs: list[str]
+
 
 # HARNESS_ONLY seam metadata for explicit synthetic-mode coverage.
 # Reason: verify e2e synthetic toggle behavior without treating synthetic mode as default truth.
@@ -22,7 +32,7 @@ def _bootstrap_outline(base_dir: Path, project_id: str, scene_count: int = 1) ->
 
     project_dir = base_dir / project_id
     project_dir.mkdir(parents=True, exist_ok=True)
-    scenes: list[dict[str, object]] = []
+    scenes: list[_SceneEntry] = []
     for index in range(scene_count):
         order = index + 1
         scene_id = f"sc_{order:04d}"

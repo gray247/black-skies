@@ -302,8 +302,12 @@ export default function SnapshotsPanel({
         if (!response.ok) {
           pushToast({
             tone: 'error',
-            title: 'Verification failed',
-            description: response.error?.message ?? 'Unable to verify snapshots.',
+            title: 'Backup verification failed',
+            description: `Backup verification failed. The current project was not changed. ${
+              response.error?.message ??
+              'Run verification again or create a fresh backup before restoring.'
+            }`,
+            traceId: response.traceId ?? response.error?.traceId,
           });
           return;
         }
@@ -330,8 +334,8 @@ export default function SnapshotsPanel({
         const message = error instanceof Error ? error.message : 'Unable to verify snapshots.';
         pushToast({
           tone: 'error',
-          title: 'Verification failed',
-          description: message,
+          title: 'Backup verification failed',
+          description: `Backup verification failed. The current project was not changed. ${message}`,
         });
       } finally {
         setRunningSnapshotId(null);
@@ -439,8 +443,8 @@ export default function SnapshotsPanel({
         const message = error instanceof Error ? error.message : 'Unable to verify snapshots.';
         pushToast({
           tone: 'error',
-          title: 'Verification failed',
-          description: message,
+          title: 'Backup verification failed',
+          description: `The current project was not changed. ${message}`.trim(),
         });
       } finally {
         setRunningVerification(false);
@@ -472,8 +476,12 @@ export default function SnapshotsPanel({
       if (!response.ok) {
         pushToast({
           tone: 'error',
-          title: 'Verification failed',
-          description: response.error?.message ?? 'Unable to verify snapshots.',
+          title: 'Backup verification failed',
+          description: `Backup verification failed. The current project was not changed. ${
+            response.error?.message ??
+            'Run verification again or create a fresh backup before restoring.'
+          }`,
+          traceId: response.traceId ?? response.error?.traceId,
         });
         return;
       }
@@ -497,7 +505,7 @@ export default function SnapshotsPanel({
           : undefined;
       const reportAction = [
         {
-          label: 'View report',
+          label: 'View snapshot report',
           onPress: () =>
             void openVerificationReportModal({
               snapshotId: toastSnapshotId,
@@ -520,8 +528,8 @@ export default function SnapshotsPanel({
       const message = error instanceof Error ? error.message : 'Unable to verify snapshots.';
       pushToast({
         tone: 'error',
-        title: 'Verification failed',
-        description: message,
+        title: 'Backup verification failed',
+        description: `Backup verification failed. The current project was not changed. ${message}`,
       });
     } finally {
       setRunningVerification(false);
@@ -586,8 +594,11 @@ export default function SnapshotsPanel({
       if (response.ok !== true) {
         pushToast({
           tone: 'error',
-          title: 'Backup failed',
-          description: response.error?.message ?? 'Unable to create backup.',
+          title: 'Backup creation failed',
+          description:
+            response.error?.message ??
+            'No backup was created. Check the trace ID, then retry creating the backup.',
+          traceId: response.traceId ?? response.error?.traceId,
         });
         return;
       }
@@ -604,8 +615,8 @@ export default function SnapshotsPanel({
       const message = error instanceof Error ? error.message : 'Unable to create backup.';
       pushToast({
         tone: 'error',
-        title: 'Backup failed',
-        description: message,
+        title: 'Backup creation failed',
+        description: `No backup was created. ${message}`.trim(),
       });
     } finally {
       setCreatingBackup(false);
@@ -648,19 +659,23 @@ export default function SnapshotsPanel({
           pushToast({
             tone: 'error',
             title: 'Backup restore failed',
-            description: response.error?.message ?? 'Unable to restore backup.',
+            description:
+              response.error?.message ??
+              'Your current project was not changed. Check the trace ID, then retry the restore.',
+            traceId: response.traceId ?? response.error?.traceId,
           });
           return;
         }
 
         const payload = response.data;
         if (payload?.status !== 'ok') {
-          pushToast({
-            tone: 'error',
-            title: 'Backup restore failed',
-            description: payload?.message ?? 'Unable to restore backup.',
-          });
-          return;
+        pushToast({
+          tone: 'error',
+          title: 'Backup restore failed',
+          description:
+            payload?.message ?? 'Your current project was not changed. Retry the restore.',
+        });
+        return;
         }
 
         pushToast({
@@ -686,7 +701,7 @@ export default function SnapshotsPanel({
         pushToast({
           tone: 'error',
           title: 'Backup restore failed',
-          description: message,
+          description: `Your current project was not changed. ${message}`.trim(),
         });
       } finally {
         setRestoringBackup(null);
@@ -716,8 +731,11 @@ export default function SnapshotsPanel({
       if (!response.ok) {
         pushToast({
           tone: 'error',
-          title: 'Restore failed',
-          description: response.error?.message ?? 'Unable to restore from ZIP.',
+          title: 'Project restore failed',
+          description:
+            response.error?.message ??
+            'No new project was created. Check the trace ID, then retry the restore.',
+          traceId: response.traceId ?? response.error?.traceId,
         });
         return;
       }
@@ -726,8 +744,9 @@ export default function SnapshotsPanel({
       if (!payload || payload.status !== 'ok') {
         pushToast({
           tone: 'error',
-          title: 'Restore failed',
-          description: payload?.message ?? 'Unable to restore from ZIP.',
+          title: 'Project restore failed',
+          description:
+            payload?.message ?? 'No new project was created. Retry the restore.',
         });
         return;
       }
@@ -882,7 +901,7 @@ export default function SnapshotsPanel({
                           restoringBackup === entry.filename || offline || !services?.restoreBackup
                         }
                       >
-                        {restoringBackup === entry.filename ? 'Restoring...' : 'Restore'}
+                        {restoringBackup === entry.filename ? 'Restoring...' : 'Restore backup'}
                       </button>
                     </div>
                   </li>
@@ -898,7 +917,7 @@ export default function SnapshotsPanel({
                 onClick={() => setRestoreConfirmOpen(true)}
                 disabled={!canRestoreFromZip || restoringZip}
               >
-                Restore latest ZIP
+                Restore latest ZIP as copy
               </button>
             </div>
           </div>

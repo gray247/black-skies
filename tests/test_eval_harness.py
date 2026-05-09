@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from typing import Callable
+from typing import Any, Callable
 
 import pytest
 
@@ -10,7 +10,7 @@ from blackskies.services.tools.registry import ToolRegistry
 from scripts import check_slo, eval as eval_cli
 
 
-def _make_runner(success: bool) -> Callable[[EvalTask], tuple[bool, dict[str, object]]]:
+def _make_runner(success: bool) -> Callable[..., tuple[bool, dict[str, object]]]:
     def _runner(
         task: EvalTask, *, registry: ToolRegistry, run_id: str
     ) -> tuple[bool, dict[str, object]]:

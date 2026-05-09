@@ -42,8 +42,8 @@ async def lock_wizard_step(
             project_root=project_root,
         )
 
-    project_root = settings.project_base_dir / request_model.project_id
-    if not project_root.exists():
+    resolved_project_root = settings.project_base_dir / request_model.project_id
+    if not resolved_project_root.exists():
         raise_validation_error(
             message="Project root is missing.",
             details={"project_id": request_model.project_id},
@@ -64,7 +64,7 @@ async def lock_wizard_step(
 
     try:
         result = await snapshot_service.create_lock_snapshot(
-            project_root=project_root,
+            project_root=resolved_project_root,
             request=request_model,
             label=label,
             includes=include_entries,
@@ -74,7 +74,7 @@ async def lock_wizard_step(
             message=str(exc),
             details=exc.details,
             diagnostics=diagnostics,
-            project_root=project_root,
+            project_root=resolved_project_root,
         )
     except SnapshotPersistenceError as exc:
         raise HTTPException(

@@ -6,6 +6,11 @@
 import { test, expect } from './electron.launch';
 
 test.describe('Truth lane: real service path', () => {
+  test.skip(
+    process.env.BLACKSKIES_E2E_EXTERNAL_SERVICE !== '1',
+    'Real-service reference spec runs only when BLACKSKIES_E2E_EXTERNAL_SERVICE=1.',
+  );
+
   test('boots the renderer, loads the sample project, and reaches the real backend', async ({
     page,
   }) => {

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Callable
+
 import pytest
 
 from blackskies.services.agents.base import AgentError, BaseAgent, ExponentialBackoff
@@ -19,7 +21,7 @@ class RecordingAgent(BaseAgent):
         return {"payload": payload, "result": outcome}
 
 
-def _sleep_recorder(recorder: list[float]) -> callable:
+def _sleep_recorder(recorder: list[float]) -> Callable[[float], None]:
     def _sleep(delay: float) -> None:
         recorder.append(delay)
 

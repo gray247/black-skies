@@ -8,6 +8,7 @@ import contextlib
 import json
 import logging
 import math
+import os
 import shlex
 import shutil
 import subprocess
@@ -21,6 +22,9 @@ from typing import Any, Iterable, Iterator, Mapping, Sequence
 REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:  # pragma: no cover - path hygiene
     sys.path.insert(0, str(REPO_ROOT))
+SCRIPT_DIR = Path(__file__).resolve().parent
+if str(SCRIPT_DIR) not in sys.path:  # pragma: no cover - path hygiene
+    sys.path.insert(0, str(SCRIPT_DIR))
 
 try:  # pragma: no cover - ensure repo hooks apply when running as script
     import sitecustomize  # noqa: F401
@@ -44,6 +48,15 @@ DEFAULT_PROFILES_PATH = Path("config/load_profiles.yaml")
 DEFAULT_SERVICE_COMMAND = (
     "uvicorn blackskies.services.app:create_app --factory --host {host} --port {port}"
 )
+
+
+def _build_started_service_env(base_env: Mapping[str, str]) -> dict[str, str]:
+    """Return the service environment used for load-sanctioned self-hosting."""
+
+    service_env = dict(base_env)
+    service_env["BLACKSKIES_E2E_MODE"] = "1"
+    service_env["BLACKSKIES_E2E_SYNTHETIC_MODE"] = "1"
+    return service_env
 
 
 @dataclass(slots=True)
@@ -152,6 +165,9 @@ class LoadMetrics(smoke_runner.SmokeMetricsSink):
             return None
         return mean(entry["elapsed_ms"] for entry in self.requests)
 
+    def p50_latency(self) -> float | None:
+        return self.percentile(50.0)
+
     def per_path_summary(self) -> dict[str, Any]:
         summary: dict[str, Any] = {}
         by_path: dict[str, list[dict[str, Any]]] = {}
@@ -162,6 +178,7 @@ class LoadMetrics(smoke_runner.SmokeMetricsSink):
             summary[path] = {
                 "count": len(entries),
                 "avg_ms": mean(latencies),
+                "p50_ms": self._percentile_from_sorted(latencies, 50.0),
                 "p95_ms": self._percentile_from_sorted(latencies, 95.0),
                 "p99_ms": self._percentile_from_sorted(latencies, 99.0),
                 "error_count": sum(1 for item in entries if item["status"] >= 400),
@@ -372,8 +389,9 @@ def _maybe_started_service(args: argparse.Namespace) -> Iterator[None]:
 
     command_tokens = _resolve_service_command(args)
     LOGGER.info("Starting services with command: %s", " ".join(command_tokens))
+    service_env = _build_started_service_env(os.environ)
     try:
-        process = subprocess.Popen(command_tokens, cwd=REPO_ROOT)
+        process = subprocess.Popen(command_tokens, cwd=REPO_ROOT, env=service_env)
     except FileNotFoundError as exc:
         raise SystemExit(f"Unable to start services: {exc}") from exc
     try:
@@ -513,6 +531,7 @@ def evaluate_thresholds(metrics: LoadMetrics, thresholds: Thresholds) -> list[st
 def build_result_payload(
     metrics: LoadMetrics,
     thresholds: Thresholds,
+    profile: LoadProfile,
     breaches: list[str],
 ) -> dict[str, Any]:
     duration = metrics.duration_seconds
@@ -526,6 +545,7 @@ def build_result_payload(
             "error_count": metrics.error_count,
             "error_rate": metrics.error_rate,
             "avg_latency_ms": metrics.average_latency(),
+            "p50_latency_ms": metrics.p50_latency(),
             "p95_latency_ms": metrics.percentile(95.0),
             "p99_latency_ms": metrics.percentile(99.0),
             "total_budget_usd": metrics.total_budget,
@@ -540,6 +560,13 @@ def build_result_payload(
             "p99_ms": thresholds.p99_ms,
             "max_error_rate": thresholds.max_error_rate,
             "max_budget_usd": thresholds.max_budget_usd,
+        },
+        "profile": {
+            "name": profile.name,
+            "total_cycles": profile.total_cycles,
+            "concurrency": profile.concurrency,
+            "warmup_cycles": profile.warmup_cycles,
+            "description": profile.description,
         },
         "breaches": breaches,
         "slo": {
@@ -596,7 +623,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             return 1
 
     breaches = evaluate_thresholds(metrics, profile.thresholds)
-    result_payload = build_result_payload(metrics, profile.thresholds, breaches)
+    result_payload = build_result_payload(metrics, profile.thresholds, profile, breaches)
     runs.finalize_run(
         run_id,
         status="failed" if breaches else "completed",
@@ -623,15 +650,25 @@ def main(argv: Sequence[str] | None = None) -> int:
     LOGGER.info(
         (
             "Load metrics: %s requests over %.2fs (%.2f req/s), error rate %.2f%%, "
-            "P95 %.2fms, P99 %.2fms, budget $%.2f"
+            "P50 %.2fms, P95 %.2fms, P99 %.2fms, budget $%.2f"
         ),
         metrics.total_requests,
         duration,
         rps,
         metrics.error_rate * 100,
+        (metrics.percentile(50.0) or 0.0),
         (metrics.percentile(95.0) or 0.0),
         (metrics.percentile(99.0) or 0.0),
         metrics.total_budget,
+    )
+    LOGGER.info(
+        "Threshold source: config/load_profiles.yaml profile=%s warmup_cycles=%s",
+        profile.name,
+        profile.warmup_cycles,
+    )
+    LOGGER.info(
+        "Per-path timings: %s",
+        json.dumps(result_payload["metrics"]["per_path"], sort_keys=True),
     )
     LOGGER.info("Run ledger written to %s", ledger_path)
 

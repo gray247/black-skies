@@ -8,6 +8,8 @@ import ServiceStatusPill from './ServiceStatusPill';
 import type { ServiceStatus } from './ServiceStatusPill';
 import type { ExportFormat } from '../shared/ipc/services';
 
+type DraftGenerationScope = 'active-scene' | 'all-scenes';
+
 interface WorkspaceHeaderProps {
   projectLabel: string;
   projectId: string | null;
@@ -20,6 +22,9 @@ interface WorkspaceHeaderProps {
   onExport: () => void;
   exportFormat: ExportFormat;
   onExportFormatChange: (next: ExportFormat) => void;
+  generationScope: DraftGenerationScope;
+  generationScopeCount: number;
+  onGenerationScopeChange: (next: DraftGenerationScope) => void;
   onSnapshot: () => void;
   onVerify: () => void;
   onSnapshots: () => void;
@@ -51,6 +56,9 @@ export function WorkspaceHeader(props: WorkspaceHeaderProps): JSX.Element {
     onExport,
     exportFormat,
     onExportFormatChange,
+    generationScope,
+    generationScopeCount,
+    onGenerationScopeChange,
     onSnapshot,
     onVerify,
     companionOpen,
@@ -86,8 +94,14 @@ export function WorkspaceHeader(props: WorkspaceHeaderProps): JSX.Element {
           : 'app-shell__workspace-button',
       [companionOpen],
     );
-  const computedDisableGenerate = testFreezeActions ? serviceOffline : disableGenerate;
-  const computedDisableCritique = testFreezeActions ? serviceOffline : disableCritique;
+  const computedDisableGenerate = testFreezeActions
+    ? serviceOffline || disableGenerate
+    : disableGenerate;
+  const computedDisableCritique = testFreezeActions
+    ? serviceOffline || disableCritique
+    : disableCritique;
+  const generateButtonLabel =
+    generationScope === 'all-scenes' ? 'Generate all scenes' : 'Generate active scene';
 
   return (
     <header className="app-shell__workspace-header">
@@ -119,12 +133,39 @@ export function WorkspaceHeader(props: WorkspaceHeaderProps): JSX.Element {
           type="button"
           className="app-shell__workspace-button"
           disabled={computedDisableGenerate}
-          aria-label="Generate draft"
+          aria-label={generateButtonLabel}
           data-testid="workspace-action-generate"
           onClick={onGenerate}
         >
-          Generate
+          {generateButtonLabel}
         </button>
+        <div className="workspace-header__generation-scope" role="group" aria-label="Generate scope">
+          <button
+            type="button"
+            className={`app-shell__workspace-button${
+              generationScope === 'active-scene' ? ' app-shell__workspace-button--active' : ''
+            }`}
+            aria-pressed={generationScope === 'active-scene'}
+            aria-label="Use active scene for generation"
+            data-testid="generation-scope-active"
+            onClick={() => onGenerationScopeChange('active-scene')}
+          >
+            Active scene
+          </button>
+          <button
+            type="button"
+            className={`app-shell__workspace-button${
+              generationScope === 'all-scenes' ? ' app-shell__workspace-button--active' : ''
+            }`}
+            aria-pressed={generationScope === 'all-scenes'}
+            aria-label="Use all loaded scenes only for generation"
+            data-testid="generation-scope-all-scenes"
+            disabled={generationScopeCount <= 1}
+            onClick={() => onGenerationScopeChange('all-scenes')}
+          >
+            All scenes only
+          </button>
+        </div>
         <button
           type="button"
           className="app-shell__workspace-button"
@@ -171,7 +212,7 @@ export function WorkspaceHeader(props: WorkspaceHeaderProps): JSX.Element {
             data-testid="workspace-action-verify"
             onClick={onVerify}
           >
-            Verify
+            Verify snapshots
           </button>
           <button
             type="button"

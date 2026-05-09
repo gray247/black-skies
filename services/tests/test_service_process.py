@@ -86,3 +86,23 @@ def test_service_health_endpoint_process_launch(
     assert payload["status"] == "ok"
     assert "version" in payload
     assert process.poll() is None
+
+
+def test_direct_app_module_launch_fails_with_helpful_message() -> None:
+    env = os.environ.copy()
+    env["PYTHONUNBUFFERED"] = "1"
+    env.pop("PYTHONPATH", None)
+
+    process = subprocess.run(
+        [sys.executable, "-m", "blackskies.services.app", "--port", str(MIN_PORT)],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        env=env,
+        check=False,
+    )
+
+    assert process.returncode != 0
+    combined = f"{process.stdout}\n{process.stderr}"
+    assert "not supported" in combined
+    assert "uvicorn blackskies.services.app:app" in combined

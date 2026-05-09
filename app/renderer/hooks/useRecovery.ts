@@ -52,6 +52,9 @@ export function useRecovery({
   const [reopenInFlight, setReopenInFlight] = useState(false);
   const [lastProjectPath, setLastProjectPath] = useState<string | null>(null);
   const [reopenRequest, setReopenRequest] = useState<{ path: string; requestId: number } | null>(null);
+  const startupConfig = testMode.getStartupConfig();
+  const startupRecoveryConfigured = startupConfig !== null;
+  const startupRecoveryAllowed = startupConfig?.recovery === true;
 
   const reopenCounterRef = useRef(0);
   const reopenReleaseTimeoutRef = useRef<number | null>(null);
@@ -77,6 +80,11 @@ export function useRecovery({
 
   const fetchRecoveryStatus = useCallback(
     async (projectId: string) => {
+      if (testMode.isHarnessHooksEnabled() && startupRecoveryConfigured && !startupRecoveryAllowed) {
+        setRecoveryStatus(null);
+        lastRecoveryProjectIdRef.current = null;
+        return;
+      }
       if (!services) {
         setRecoveryStatus(null);
         lastRecoveryProjectIdRef.current = null;
@@ -117,7 +125,7 @@ export function useRecovery({
         recoveryFetchInFlightRef.current = false;
       }
     },
-    [isMountedRef, pushToast, services],
+    [isMountedRef, pushToast, services, startupRecoveryAllowed, startupRecoveryConfigured],
   );
 
   const handleRestoreSnapshot = useCallback(async () => {

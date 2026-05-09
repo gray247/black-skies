@@ -31,6 +31,8 @@ const REPO_ROOT = path.resolve(__dirname, '..');
 const LAUNCH_PREFIX = 'blackskies-truth-';
 const RECEIPT_DIR = path.join(REPO_ROOT, 'build', 'truth_receipts');
 const AUDITED_CHAIN_CONTRACT_PATH = path.join(REPO_ROOT, 'docs', 'specs', 'audited_chain_contract.json');
+const E2E_FIXTURE_MATERIALIZE_SCRIPT = path.join(REPO_ROOT, 'scripts', 'materialize_e2e_fixture.mjs');
+const E2E_FIXTURE_CONTRACT_SCRIPT = path.join(REPO_ROOT, 'scripts', 'check_e2e_fixture_contract.mjs');
 const FAILURE_CATEGORY = Object.freeze({
   BOOT_FAIL: 'BOOT_FAIL',
   CDP_CONNECT_FAIL: 'CDP_CONNECT_FAIL',
@@ -119,6 +121,26 @@ function splitCommand(command) {
     tokens.push(match[1] ?? match[2]);
   }
   return tokens;
+}
+
+function runNodeScriptOrThrow(scriptPath, category, label, args = []) {
+  const result = spawnSync(process.execPath, [scriptPath, ...args], {
+    cwd: REPO_ROOT,
+    env: process.env,
+    stdio: 'inherit',
+  });
+  if (result.error) {
+    throw makeFailureError(
+      category,
+      `[truth] ${label} failed to start: ${normalizeErrorMessage(result.error)}`,
+    );
+  }
+  if ((result.status ?? 0) !== 0) {
+    throw makeFailureError(
+      category,
+      `[truth] ${label} failed with exit code ${result.status ?? 'unknown'}`,
+    );
+  }
 }
 
 function extractSceneBody(markdown) {
@@ -365,9 +387,20 @@ function enforceTruthReceiptRules(receipt) {
   }
 }
 
-async function waitForHealth(url, timeoutMs) {
+async function waitForHealth(url, timeoutMs, backendMonitor = null) {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
+    const spawnError = backendMonitor?.getSpawnError?.() ?? null;
+    if (spawnError) {
+      throw new Error(`[truth] backend failed to start: ${spawnError.message}`);
+    }
+    if (backendMonitor?.process && backendMonitor.process.exitCode !== null) {
+      throw new Error(
+        `[truth] backend exited before health became ready (code=${backendMonitor.process.exitCode}, signal=${String(
+          backendMonitor.process.signalCode ?? 'null',
+        )})`,
+      );
+    }
     try {
       const response = await fetch(url, { method: 'GET' });
       if (response.ok) {
@@ -400,6 +433,114 @@ async function ensurePortAvailable(host, port) {
     });
     server.listen(port, host);
   });
+}
+
+function collectOutlineSchemaDiagnostics(projectPath) {
+  const outlinePath = path.join(projectPath, 'outline.json');
+  const diagnostics = {
+    project_path: projectPath,
+    outline_path: outlinePath,
+    outline_exists: existsSync(outlinePath),
+    outline_id: null,
+    scene_count: null,
+    valid_outline_schema: false,
+    issues: [],
+  };
+  if (!diagnostics.outline_exists) {
+    diagnostics.issues.push('outline.json missing');
+    return diagnostics;
+  }
+  let payload = null;
+  try {
+    payload = JSON.parse(readFileSync(outlinePath, 'utf8'));
+  } catch (error) {
+    diagnostics.issues.push(
+      `outline.json invalid JSON: ${error instanceof Error ? error.message : String(error)}`,
+    );
+    return diagnostics;
+  }
+  diagnostics.outline_id = typeof payload?.outline_id === 'string' ? payload.outline_id : null;
+  diagnostics.scene_count = Array.isArray(payload?.scenes) ? payload.scenes.length : null;
+  if (!diagnostics.outline_id) {
+    diagnostics.issues.push('outline_id missing');
+  } else if (!/^out_\d{3}$/.test(diagnostics.outline_id)) {
+    diagnostics.issues.push(`outline_id invalid: ${diagnostics.outline_id}`);
+  }
+  if (!Array.isArray(payload?.scenes)) {
+    diagnostics.issues.push('scenes missing or not an array');
+  } else {
+    const badScene = payload.scenes.find(
+      (scene) => !scene || typeof scene.chapter_id !== 'string' || !/^ch_\d{4}$/.test(scene.chapter_id),
+    );
+    if (badScene) {
+      diagnostics.issues.push(`invalid scene.chapter_id: ${JSON.stringify(badScene?.chapter_id ?? null)}`);
+    }
+  }
+  diagnostics.valid_outline_schema = diagnostics.issues.length === 0;
+  return diagnostics;
+}
+
+async function probeAnalyticsPreflight(baseUrl, projectId, projectPath, timeoutMs) {
+  const endpoints = [
+    `/api/v1/analytics/summary?project_id=${encodeURIComponent(projectId)}`,
+    `/api/v1/analytics/scenes?project_id=${encodeURIComponent(projectId)}`,
+  ];
+  const outlineDiagnostics = collectOutlineSchemaDiagnostics(projectPath);
+  const deadline = Date.now() + timeoutMs;
+  let lastFailure = null;
+  while (Date.now() < deadline) {
+    let allHealthy = true;
+    for (const endpoint of endpoints) {
+      const url = `${baseUrl}${endpoint}`;
+      try {
+        const response = await fetch(url, { method: 'GET' });
+        if (!response.ok) {
+          allHealthy = false;
+          lastFailure = {
+            project_id: projectId,
+            project_path: projectPath,
+            expected_outline_path: outlineDiagnostics.outline_path,
+            outline_exists: outlineDiagnostics.outline_exists,
+            outline_validation: {
+              valid_outline_schema: outlineDiagnostics.valid_outline_schema,
+              outline_id: outlineDiagnostics.outline_id,
+              scene_count: outlineDiagnostics.scene_count,
+              issues: outlineDiagnostics.issues,
+            },
+            endpoint,
+            status: response.status,
+            body: (await response.text()).slice(0, 800),
+          };
+          break;
+        }
+      } catch (error) {
+        allHealthy = false;
+        lastFailure = {
+          project_id: projectId,
+          project_path: projectPath,
+          expected_outline_path: outlineDiagnostics.outline_path,
+          outline_exists: outlineDiagnostics.outline_exists,
+          outline_validation: {
+            valid_outline_schema: outlineDiagnostics.valid_outline_schema,
+            outline_id: outlineDiagnostics.outline_id,
+            scene_count: outlineDiagnostics.scene_count,
+            issues: outlineDiagnostics.issues,
+          },
+          endpoint,
+          error: error instanceof Error ? error.message : String(error),
+        };
+        break;
+      }
+    }
+    if (allHealthy) {
+      return;
+    }
+    await delay(500);
+  }
+  throw makeFailureError(
+    FAILURE_CATEGORY.ARTIFACT_VALIDATION_FAIL,
+    `[truth] analytics preflight failed within ${timeoutMs}ms: ${JSON.stringify(lastFailure ?? {})}`,
+  );
 }
 
 function quotePowerShell(value) {
@@ -610,9 +751,11 @@ function resolveTruthProjectSourcePath(sampleRoot, launchRoot) {
 function materializeTruthProjectRoot(sourcePath, launchRoot) {
   const projectBaseDir = path.join(launchRoot, 'project-base');
   const projectPath = path.join(projectBaseDir, 'Esther_Estate');
+  const canonicalProjectPath = path.join(projectBaseDir, 'proj_esther_estate');
   mkdirSync(projectBaseDir, { recursive: true });
   cpSync(sourcePath, projectPath, { recursive: true, force: true });
-  return { projectBaseDir, projectPath };
+  cpSync(sourcePath, canonicalProjectPath, { recursive: true, force: true });
+  return { projectBaseDir, projectPath, canonicalProjectPath };
 }
 
 async function waitForDebuggerVersion(port, timeoutMs) {
@@ -663,6 +806,7 @@ async function attachCdpClient(wsUrl) {
   await cdp.ready;
   await cdp.send('Page.enable');
   await cdp.send('Runtime.enable');
+  await cdp.send('Log.enable').catch(() => {});
   return cdp;
 }
 
@@ -671,12 +815,23 @@ class CdpClient {
     this.ws = new WebSocketImpl(wsUrl);
     this.nextId = 1;
     this.pending = new Map();
+    this.eventHandlers = new Map();
     this.ready = new Promise((resolve, reject) => {
       this.ws.addEventListener('open', () => resolve(), { once: true });
       this.ws.addEventListener('error', reject, { once: true });
     });
     this.ws.addEventListener('message', (event) => {
       const message = JSON.parse(event.data);
+      if (typeof message.method === 'string') {
+        const handlers = this.eventHandlers.get(message.method) ?? [];
+        for (const handler of handlers) {
+          try {
+            handler(message.params ?? {});
+          } catch {
+            // best effort event fan-out
+          }
+        }
+      }
       if (typeof message.id === 'number') {
         const pending = this.pending.get(message.id);
         if (!pending) {
@@ -696,6 +851,19 @@ class CdpClient {
       }
       this.pending.clear();
     });
+  }
+
+  on(method, handler) {
+    const handlers = this.eventHandlers.get(method) ?? [];
+    handlers.push(handler);
+    this.eventHandlers.set(method, handlers);
+    return () => {
+      const current = this.eventHandlers.get(method) ?? [];
+      this.eventHandlers.set(
+        method,
+        current.filter((entry) => entry !== handler),
+      );
+    };
   }
 
   async send(method, params = {}) {
@@ -750,6 +918,417 @@ async function waitForCondition(check, timeoutMs, label = 'condition') {
   throw new Error(`[truth] Timed out after ${timeoutMs}ms waiting for ${label}`);
 }
 
+function trimText(value, maxLength = 800) {
+  const text = String(value ?? '');
+  if (text.length <= maxLength) {
+    return text;
+  }
+  return `${text.slice(0, maxLength)}…`;
+}
+
+function createActiveSceneRuntimeDiagnosticsCollector(cdp) {
+  const consoleLogs = [];
+  const pageErrors = [];
+  const maxEntries = 200;
+  const toPlainArg = (arg) => {
+    if (!arg || typeof arg !== 'object') {
+      return null;
+    }
+    if (Object.prototype.hasOwnProperty.call(arg, 'value')) {
+      return trimText(arg.value, 400);
+    }
+    if (typeof arg.description === 'string') {
+      return trimText(arg.description, 400);
+    }
+    if (arg.preview && typeof arg.preview.description === 'string') {
+      return trimText(arg.preview.description, 400);
+    }
+    if (typeof arg.type === 'string') {
+      return arg.type;
+    }
+    return null;
+  };
+  const pushBounded = (bucket, payload) => {
+    bucket.push(payload);
+    if (bucket.length > maxEntries) {
+      bucket.shift();
+    }
+  };
+  const unsubscribeConsole = cdp.on('Runtime.consoleAPICalled', (params) => {
+    pushBounded(consoleLogs, {
+      ts_ms: Date.now(),
+      type: params?.type ?? null,
+      text: Array.isArray(params?.args)
+        ? params.args
+            .map((arg) => toPlainArg(arg))
+            .filter((entry) => entry !== null)
+            .join(' ')
+        : '',
+      executionContextId: params?.executionContextId ?? null,
+    });
+  });
+  const unsubscribeException = cdp.on('Runtime.exceptionThrown', (params) => {
+    const details = params?.exceptionDetails ?? {};
+    pushBounded(pageErrors, {
+      ts_ms: Date.now(),
+      text: details?.text ?? null,
+      exception:
+        details?.exception && typeof details.exception.description === 'string'
+          ? trimText(details.exception.description, 1200)
+          : null,
+      url: details?.url ?? null,
+      lineNumber: details?.lineNumber ?? null,
+      columnNumber: details?.columnNumber ?? null,
+    });
+  });
+  const unsubscribeLogEntry = cdp.on('Log.entryAdded', (params) => {
+    const entry = params?.entry ?? {};
+    if (entry.level !== 'error') {
+      return;
+    }
+    pushBounded(pageErrors, {
+      ts_ms: Date.now(),
+      text: entry.text ?? null,
+      source: entry.source ?? null,
+      url: entry.url ?? null,
+      lineNumber: entry.lineNumber ?? null,
+    });
+  });
+  return {
+    consoleLogs,
+    pageErrors,
+    dispose() {
+      unsubscribeConsole();
+      unsubscribeException();
+      unsubscribeLogEntry();
+    },
+  };
+}
+
+async function collectActiveSceneDiagnosticSnapshot(cdp, targetSceneId) {
+  return evaluate(
+    cdp,
+    `(() => {
+      const targetSceneId = ${JSON.stringify(targetSceneId)};
+      const body = document.body;
+      const html = document.documentElement;
+      const servicePill = document.querySelector('[data-testid="service-status-pill"]');
+      const recoveryBanner = document.querySelector('[data-testid="recovery-banner"]');
+      const dockWorkspace = document.querySelector('[data-testid="dock-workspace"]');
+      const corkboardHeading = Array.from(document.querySelectorAll('h1,h2,h3,h4,h5,h6')).find(
+        (node) => (node.textContent ?? '').trim() === 'Corkboard',
+      );
+      const activeSceneButton = document.querySelector(
+        '.project-home__scene-card--active .project-home__scene-button[aria-pressed="true"]',
+      );
+      const selectedSceneButtons = Array.from(
+        document.querySelectorAll('.project-home__scene-button[aria-pressed="true"]'),
+      );
+      const sceneNodesWithTarget = Array.from(document.querySelectorAll('*'))
+        .filter((node) => (node.textContent ?? '').includes(targetSceneId))
+        .slice(0, 25)
+        .map((node) => ({
+          tag: node.tagName?.toLowerCase() ?? null,
+          className: node.className ?? null,
+          testId: node.getAttribute?.('data-testid') ?? null,
+          text: (node.textContent ?? '').trim().slice(0, 200),
+        }));
+      const relevantStorage = Object.keys(window.localStorage)
+        .filter((key) => /(blackskies|test|layout|recovery|dock|scene|project)/i.test(key))
+        .sort()
+        .reduce((acc, key) => {
+          acc[key] = window.localStorage.getItem(key);
+          return acc;
+        }, {});
+      const excerpt = (selector) => {
+        const node = document.querySelector(selector);
+        if (!node) {
+          return null;
+        }
+        return (node.outerHTML ?? '').slice(0, 5000);
+      };
+      return {
+        captured_at: new Date().toISOString(),
+        targetSceneId,
+        readyState: document.readyState,
+        url: window.location.href,
+        datasets: {
+          body: { ...(body?.dataset ?? {}) },
+          html: { ...(html?.dataset ?? {}) },
+        },
+        project: {
+          loaded: body?.dataset?.projectLoaded ?? html?.dataset?.projectLoaded ?? null,
+          path: body?.dataset?.projectPath ?? html?.dataset?.projectPath ?? null,
+          id: body?.dataset?.projectId ?? html?.dataset?.projectId ?? null,
+          activeSceneId: body?.dataset?.activeSceneId ?? html?.dataset?.activeSceneId ?? null,
+        },
+        service: {
+          status: servicePill?.getAttribute('data-status') ?? null,
+          reason: servicePill?.getAttribute('data-reason') ?? null,
+        },
+        recoveryBannerPresent: Boolean(recoveryBanner),
+        dockWorkspacePresent: Boolean(dockWorkspace),
+        corkboardHeadingPresent: Boolean(corkboardHeading),
+        corkboardCardCounts: {
+          byTestId: document.querySelectorAll('[data-testid="corkboard-card"]').length,
+          byClass: document.querySelectorAll('.corkboard-card').length,
+          bySceneId: document.querySelectorAll('[data-testid="corkboard-card"][data-scene-id]').length,
+        },
+        containsTargetScene: {
+          count: sceneNodesWithTarget.length,
+          nodes: sceneNodesWithTarget,
+        },
+        activeScene: {
+          present: Boolean(activeSceneButton),
+          text: activeSceneButton?.textContent?.trim() ?? null,
+          selectedCount: selectedSceneButtons.length,
+        },
+        debugState: {
+          blackSkiesDebugState:
+            window.__blackSkiesDebugState ??
+            window.__blackskiesDebugState ??
+            window.__blackskiesDebugProjectState ??
+            null,
+          startupDebugState: window.__startupDebugState ?? null,
+          dockRenderLog: window.__dockRenderLog ?? null,
+          blackskiesDebugLogTail: Array.isArray(window.__blackskiesDebugLog)
+            ? window.__blackskiesDebugLog.slice(-20)
+            : null,
+        },
+        localStorageRelevant: relevantStorage,
+        domExcerpt: {
+          projectHome: excerpt('.project-home'),
+          corkboardPane: excerpt('[data-pane-id="corkboard"]'),
+          sceneList: excerpt('.project-home__scene-list'),
+          dockWorkspace: excerpt('[data-testid="dock-workspace"]'),
+        },
+      };
+    })()`,
+  );
+}
+
+async function waitForSceneSelectionHook(cdp, timeoutMs) {
+  const deadline = Date.now() + timeoutMs;
+  let lastStatus = null;
+  while (Date.now() < deadline) {
+    lastStatus = await evaluate(
+      cdp,
+      `(() => ({
+        hasDevApi: Boolean(window.__dev),
+        hasDevSelectScene: typeof window.__dev?.selectScene === 'function',
+        hookPresent: typeof window.__blackSkiesSelectScene === 'function',
+      }))()`,
+    );
+    if (lastStatus?.hookPresent === true) {
+      return lastStatus;
+    }
+    await delay(100);
+  }
+  return lastStatus ?? { hasDevApi: false, hasDevSelectScene: false, hookPresent: false };
+}
+
+async function attemptSceneSelectionWithDiagnostics(cdp, targetSceneId) {
+  return evaluate(
+    cdp,
+    `(() => (async () => {
+      const target = ${JSON.stringify(targetSceneId)};
+      const now = Date.now();
+      const toVisibility = (node) => {
+        if (!node) {
+          return { visible: false, display: null, visibility: null };
+        }
+        const style = window.getComputedStyle(node);
+        return {
+          visible: style.display !== 'none' && style.visibility !== 'hidden',
+          display: style.display,
+          visibility: style.visibility,
+        };
+      };
+      const clickPayload = {
+        targetSceneId: target,
+        attemptedAt: new Date(now).toISOString(),
+        selectorMatched: null,
+        hasSelector: false,
+        domSelectorMatched: null,
+        domSelectorFound: false,
+        selectionMethod: null,
+        targetText: null,
+        targetVisible: false,
+        targetRect: null,
+        clickDispatchedAt: null,
+        eventDispatchedAt: null,
+        devSelectResult: null,
+        candidateSummary: {},
+      };
+      const candidateButtons = Array.from(document.querySelectorAll('button.project-home__scene-button'));
+      const buttonFromDataScene = document.querySelector(
+        'button.project-home__scene-button[data-scene-id="' + target + '"]',
+      );
+      const buttonFromIdNode = (() => {
+        const idNode = Array.from(document.querySelectorAll('.project-home__scene-id')).find(
+          (node) => (node.textContent ?? '').trim() === target,
+        );
+        return idNode?.closest('button') ?? null;
+      })();
+      const buttonFromText = candidateButtons.find((button) =>
+        (button.textContent ?? '').includes(target),
+      );
+      const buttonFromAriaLabel = Array.from(document.querySelectorAll('button[aria-label]')).find((button) =>
+        (button.getAttribute('aria-label') ?? '').includes(target),
+      );
+      clickPayload.candidateSummary = {
+        sceneButtonsCount: candidateButtons.length,
+        sceneIdNodesCount: document.querySelectorAll('.project-home__scene-id').length,
+        sceneButtonsByDataSceneCount: document.querySelectorAll(
+          'button.project-home__scene-button[data-scene-id]',
+        ).length,
+        corkboardByTestIdCount: document.querySelectorAll('[data-testid="corkboard-card"]').length,
+        corkboardByClassCount: document.querySelectorAll('.corkboard-card').length,
+      };
+      const targetButton =
+        buttonFromDataScene instanceof HTMLButtonElement
+          ? buttonFromDataScene
+          : buttonFromIdNode instanceof HTMLButtonElement
+          ? buttonFromIdNode
+          : buttonFromText instanceof HTMLButtonElement
+            ? buttonFromText
+            : buttonFromAriaLabel instanceof HTMLButtonElement
+              ? buttonFromAriaLabel
+              : null;
+      if (targetButton) {
+        clickPayload.hasSelector = true;
+        clickPayload.domSelectorFound = true;
+        clickPayload.domSelectorMatched =
+          targetButton === buttonFromDataScene
+            ? 'button.project-home__scene-button[data-scene-id="<scene-id>"]'
+            : targetButton === buttonFromIdNode
+              ? '.project-home__scene-id -> closest(button.project-home__scene-button)'
+              : targetButton === buttonFromText
+                ? '.project-home__scene-button (text contains scene id)'
+                : 'button[aria-label*="<scene-id>"]';
+        clickPayload.selectorMatched =
+          clickPayload.domSelectorMatched;
+        clickPayload.selectionMethod = 'button-click';
+        clickPayload.targetText = (targetButton.textContent ?? '').trim().slice(0, 300);
+        const rect = targetButton.getBoundingClientRect();
+        clickPayload.targetRect = {
+          x: rect.x,
+          y: rect.y,
+          width: rect.width,
+          height: rect.height,
+        };
+        clickPayload.targetVisible = toVisibility(targetButton).visible;
+        targetButton.click();
+        clickPayload.clickDispatchedAt = new Date().toISOString();
+        return clickPayload;
+      }
+      const devSelectScene = window.__dev?.selectScene;
+      if (typeof devSelectScene === 'function') {
+        clickPayload.hasSelector = true;
+        clickPayload.selectorMatched = '__dev.selectScene("<scene-id>")';
+        clickPayload.selectionMethod = 'dev-api';
+        try {
+          clickPayload.devSelectResult = await devSelectScene(target);
+        } catch (error) {
+          clickPayload.selectionMethod = 'dev-api-throw';
+          clickPayload.devSelectResult = {
+            ok: false,
+            method: 'hook',
+            sceneId: target,
+            hookPresent: typeof window.__blackSkiesSelectScene === 'function',
+            error: error instanceof Error ? error.message : String(error),
+          };
+        }
+        clickPayload.eventDispatchedAt = new Date().toISOString();
+        return clickPayload;
+      }
+      window.dispatchEvent(new CustomEvent('test:select-scene', { detail: target }));
+      clickPayload.hasSelector = true;
+      clickPayload.selectorMatched = 'window.dispatchEvent("test:select-scene")';
+      clickPayload.selectionMethod = 'event-only';
+      clickPayload.eventDispatchedAt = new Date().toISOString();
+      return clickPayload;
+    })())()`,
+  );
+}
+
+async function collectActiveScenePollSample(cdp, targetSceneId) {
+  return evaluate(
+    cdp,
+    `(() => {
+      const target = ${JSON.stringify(targetSceneId)};
+      const activeButton = document.querySelector(
+        '.project-home__scene-card--active .project-home__scene-button[aria-pressed="true"]',
+      );
+      const selectedButtons = Array.from(
+        document.querySelectorAll('.project-home__scene-button[aria-pressed="true"]'),
+      );
+      const focused = document.activeElement;
+      const generate = document.querySelector('[data-testid="workspace-action-generate"]');
+      const critique = document.querySelector('[data-testid="workspace-action-critique"]');
+      const summaryTarget = selectedButtons.find((node) => (node.textContent ?? '').includes(target));
+      const bodySceneId = document.body?.dataset?.activeSceneId ?? null;
+      const htmlSceneId = document.documentElement?.dataset?.activeSceneId ?? null;
+      const debugProjectState = window.__blackskiesDebugProjectState ?? window.__testProjectState ?? null;
+      const debugSceneId = debugProjectState?.activeSceneId ?? null;
+      return {
+        ts_ms: Date.now(),
+        activeScene: {
+          present: Boolean(activeButton),
+          text: activeButton?.textContent?.trim() ?? null,
+          selectedCount: selectedButtons.length,
+          includesTarget:
+            Boolean(summaryTarget) ||
+            bodySceneId === target ||
+            htmlSceneId === target ||
+            debugSceneId === target,
+        },
+        markers: {
+          bodySceneId,
+          htmlSceneId,
+          debugSceneId,
+        },
+        focusedElement: focused
+          ? {
+              tag: focused.tagName?.toLowerCase() ?? null,
+              testId: focused.getAttribute?.('data-testid') ?? null,
+              className: focused.className ?? null,
+              text: (focused.textContent ?? '').trim().slice(0, 120),
+            }
+          : null,
+        actions: {
+          generate: {
+            present: Boolean(generate),
+            enabled: generate instanceof HTMLButtonElement ? !generate.disabled : null,
+          },
+          critique: {
+            present: Boolean(critique),
+            enabled: critique instanceof HTMLButtonElement ? !critique.disabled : null,
+          },
+        },
+        corkboardCardCounts: {
+          byTestId: document.querySelectorAll('[data-testid="corkboard-card"]').length,
+          byClass: document.querySelectorAll('.corkboard-card').length,
+          bySceneId: document.querySelectorAll('[data-testid="corkboard-card"][data-scene-id]').length,
+        },
+        debugActiveScene:
+          window.__blackSkiesDebugState?.activeSceneId ??
+          window.__blackskiesDebugState?.activeSceneId ??
+          window.__blackskiesDebugProjectState?.activeSceneId ??
+          window.__testProjectState?.activeSceneId ??
+          null,
+      };
+    })()`,
+  );
+}
+
+function writeActiveSceneTimeoutArtifact(payload) {
+  mkdirSync(RECEIPT_DIR, { recursive: true });
+  const artifactPath = path.join(RECEIPT_DIR, 'active_scene_timeout.json');
+  writeFileSync(artifactPath, `${JSON.stringify(payload, null, 2)}\n`, 'utf8');
+  return artifactPath;
+}
+
 async function waitForProcessExit(pid, timeoutMs) {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
@@ -781,6 +1360,16 @@ async function run() {
   const backendTokens = overrideTokens.length ? overrideTokens : defaultCommand;
   const backendCommand = backendTokens[0];
   const backendArgs = backendTokens.slice(1);
+  runNodeScriptOrThrow(
+    E2E_FIXTURE_MATERIALIZE_SCRIPT,
+    FAILURE_CATEGORY.ARTIFACT_VALIDATION_FAIL,
+    'fixture materialization',
+  );
+  runNodeScriptOrThrow(
+    E2E_FIXTURE_CONTRACT_SCRIPT,
+    FAILURE_CATEGORY.ARTIFACT_VALIDATION_FAIL,
+    'fixture contract verification',
+  );
   const launchRoot = mkdtempSync(path.join(os.tmpdir(), LAUNCH_PREFIX));
   const truthProjectSourcePath = resolveTruthProjectSourcePath(
     path.resolve(REPO_ROOT, 'sample_project', 'Esther_Estate'),
@@ -840,7 +1429,10 @@ async function run() {
   process.on('exit', cleanup);
 
   try {
-    await waitForHealth(`http://127.0.0.1:${SERVICE_PORT}${HEALTH_PATH}`, HEALTH_TIMEOUT_MS).catch((error) => {
+    await waitForHealth(`http://127.0.0.1:${SERVICE_PORT}${HEALTH_PATH}`, HEALTH_TIMEOUT_MS, {
+      process: backend,
+      getSpawnError: () => backendSpawnError,
+    }).catch((error) => {
       throw makeFailureError(FAILURE_CATEGORY.BOOT_FAIL, normalizeErrorMessage(error));
     });
     if (backendSpawnError) {
@@ -1040,6 +1632,14 @@ async function run() {
         );
       }
 
+      console.log('[truth] probing analytics endpoints for resolved project');
+      await probeAnalyticsPreflight(
+        `http://127.0.0.1:${SERVICE_PORT}`,
+        sampleLoadProbe.projectId,
+        truthProject.canonicalProjectPath,
+        30_000,
+      );
+
       const samplePathLiteral = JSON.stringify(truthProject.projectPath);
       const sampleNameLiteral = JSON.stringify(path.basename(truthProject.projectPath));
       await evaluate(
@@ -1116,7 +1716,8 @@ async function run() {
         })())()`,
       );
       assert.equal(bridgeHealth.ok, true);
-      assert.equal(bridgeHealth.status, 'ok');
+      // Truth lane asserts bridge-normalized UI health semantics, not raw backend /healthz payload fields.
+      assert.equal(bridgeHealth.status, 'online');
 
       const critiqueBridgeShape = await evaluate(
         cdp,
@@ -1147,23 +1748,237 @@ async function run() {
         return dockVisible === true;
       }, 30_000, 'dock workspace');
 
-      const debugSnapshot = await evaluate(
+      const activeSceneRuntimeDiagnostics = createActiveSceneRuntimeDiagnosticsCollector(cdp);
+      try {
+        const debugSnapshot = await evaluate(
         cdp,
         `Array.isArray(window.__blackskiesDebugLog) ? window.__blackskiesDebugLog.slice(-20) : null`,
-      );
-      console.log('[truth] renderer debug snapshot', debugSnapshot);
+        );
+        console.log('[truth] renderer debug snapshot', debugSnapshot);
+
+        const actionReadySceneId = sampleLoadProbe.sceneIds[0];
+        const activeScenePreClickSnapshot = await collectActiveSceneDiagnosticSnapshot(cdp, actionReadySceneId);
+        console.log('[truth] active scene pre-click snapshot', {
+          targetSceneId: actionReadySceneId,
+          project: activeScenePreClickSnapshot.project,
+          service: activeScenePreClickSnapshot.service,
+          recoveryBannerPresent: activeScenePreClickSnapshot.recoveryBannerPresent,
+          dockWorkspacePresent: activeScenePreClickSnapshot.dockWorkspacePresent,
+          corkboardHeadingPresent: activeScenePreClickSnapshot.corkboardHeadingPresent,
+          corkboardCardCounts: activeScenePreClickSnapshot.corkboardCardCounts,
+          containsTargetSceneCount: activeScenePreClickSnapshot.containsTargetScene?.count ?? null,
+          activeScene: activeScenePreClickSnapshot.activeScene,
+        });
+
+        console.log(`[truth] selecting primary scene ${actionReadySceneId} before action readiness`);
+        const sceneHookReadiness = await waitForSceneSelectionHook(cdp, 10_000);
+        console.log('[truth] scene selection hook readiness', sceneHookReadiness);
+        const sceneClickResult = await attemptSceneSelectionWithDiagnostics(cdp, actionReadySceneId);
+        console.log('[truth] initial scene selection diagnostics', sceneClickResult);
+        if (
+          sceneClickResult.selectionMethod === 'dev-api' ||
+          sceneClickResult.selectionMethod === 'dev-api-throw'
+        ) {
+          console.log('[truth] __dev.selectScene result', sceneClickResult.devSelectResult ?? null);
+        }
+
+        if (!sceneClickResult.hasSelector) {
+          const noSelectorPayload = {
+            recorded_at: new Date().toISOString(),
+            reason: 'no_scene_selector_match',
+            targetSceneId: actionReadySceneId,
+            preClickSnapshot: activeScenePreClickSnapshot,
+            clickResult: sceneClickResult,
+            consoleLogs: activeSceneRuntimeDiagnostics.consoleLogs,
+            pageErrors: activeSceneRuntimeDiagnostics.pageErrors,
+          };
+          const noSelectorArtifactPath = writeActiveSceneTimeoutArtifact(noSelectorPayload);
+          receipt.artifacts.push({
+            kind: 'active_scene_timeout',
+            path: path.relative(REPO_ROOT, noSelectorArtifactPath),
+          });
+          throw new Error(
+            `[truth] No selectable scene node found for ${actionReadySceneId}; wrote diagnostics to ${noSelectorArtifactPath}`,
+          );
+        }
+
+        if (sceneClickResult.selectionMethod === 'dev-api-throw') {
+          const thrownPayload = {
+            recorded_at: new Date().toISOString(),
+            reason: 'selectScene threw',
+            targetSceneId: actionReadySceneId,
+            hookReadiness: sceneHookReadiness,
+            clickResult: sceneClickResult,
+            preClickSnapshot: activeScenePreClickSnapshot,
+            consoleLogs: activeSceneRuntimeDiagnostics.consoleLogs,
+            pageErrors: activeSceneRuntimeDiagnostics.pageErrors,
+          };
+          const thrownArtifactPath = writeActiveSceneTimeoutArtifact(thrownPayload);
+          receipt.artifacts.push({
+            kind: 'active_scene_timeout',
+            path: path.relative(REPO_ROOT, thrownArtifactPath),
+          });
+          throw new Error(
+            `[truth] Scene selection failed: selectScene threw; diagnostics written to ${thrownArtifactPath}`,
+          );
+        }
+
+        const devSelectResult = sceneClickResult.devSelectResult ?? null;
+        if (
+          sceneClickResult.selectionMethod === 'dev-api' &&
+          devSelectResult &&
+          devSelectResult.hookPresent === false
+        ) {
+          const hookMissingPayload = {
+            recorded_at: new Date().toISOString(),
+            reason: 'hook missing',
+            targetSceneId: actionReadySceneId,
+            hookReadiness: sceneHookReadiness,
+            clickResult: sceneClickResult,
+            preClickSnapshot: activeScenePreClickSnapshot,
+            consoleLogs: activeSceneRuntimeDiagnostics.consoleLogs,
+            pageErrors: activeSceneRuntimeDiagnostics.pageErrors,
+          };
+          const hookMissingArtifactPath = writeActiveSceneTimeoutArtifact(hookMissingPayload);
+          receipt.artifacts.push({
+            kind: 'active_scene_timeout',
+            path: path.relative(REPO_ROOT, hookMissingArtifactPath),
+          });
+          throw new Error(
+            `[truth] Scene selection failed: hook missing; diagnostics written to ${hookMissingArtifactPath}`,
+          );
+        }
+
+        if (
+          sceneClickResult.selectionMethod === 'dev-api' &&
+          devSelectResult &&
+          devSelectResult.ok !== true
+        ) {
+          const isMissingScene = /missing-scene/i.test(String(devSelectResult.error ?? ''));
+          const selectionFailureReason = isMissingScene ? 'scene id missing' : 'selectScene threw';
+          const selectionFailurePayload = {
+            recorded_at: new Date().toISOString(),
+            reason: selectionFailureReason,
+            targetSceneId: actionReadySceneId,
+            hookReadiness: sceneHookReadiness,
+            clickResult: sceneClickResult,
+            preClickSnapshot: activeScenePreClickSnapshot,
+            consoleLogs: activeSceneRuntimeDiagnostics.consoleLogs,
+            pageErrors: activeSceneRuntimeDiagnostics.pageErrors,
+          };
+          const selectionFailureArtifactPath = writeActiveSceneTimeoutArtifact(selectionFailurePayload);
+          receipt.artifacts.push({
+            kind: 'active_scene_timeout',
+            path: path.relative(REPO_ROOT, selectionFailureArtifactPath),
+          });
+          throw new Error(
+            `[truth] Scene selection failed: ${selectionFailureReason}; diagnostics written to ${selectionFailureArtifactPath}`,
+          );
+        }
+
+        const selectionStartMs =
+          Date.parse(sceneClickResult.clickDispatchedAt ?? sceneClickResult.eventDispatchedAt ?? '') || Date.now();
+        const pollIntervalMs = 250;
+        const activeScenePollSamples = [];
+        const activeSceneDeadline = Date.now() + 30_000;
+        let activeSceneSelected = false;
+        while (Date.now() < activeSceneDeadline) {
+          const sample = await collectActiveScenePollSample(cdp, actionReadySceneId);
+          activeScenePollSamples.push(sample);
+          if (activeScenePollSamples.length > 240) {
+            activeScenePollSamples.shift();
+          }
+          if (sample?.activeScene?.present === true && sample?.activeScene?.includesTarget === true) {
+            activeSceneSelected = true;
+            break;
+          }
+          await delay(pollIntervalMs);
+        }
+        if (!activeSceneSelected) {
+          const activeScenePostClickSnapshot = await collectActiveSceneDiagnosticSnapshot(cdp, actionReadySceneId);
+          const timeoutReason =
+            sceneClickResult.selectionMethod === 'dev-api' && devSelectResult?.hookPresent === false
+              ? 'hook missing'
+              : sceneClickResult.selectionMethod === 'dev-api' &&
+                  /missing-scene/i.test(String(devSelectResult?.error ?? ''))
+                ? 'scene id missing'
+                : sceneClickResult.selectionMethod === 'dev-api-throw'
+                  ? 'selectScene threw'
+                  : 'commit marker not updated';
+          const timeoutPayload = {
+            recorded_at: new Date().toISOString(),
+            reason: timeoutReason,
+            timeout_ms: 30_000,
+            poll_interval_ms: pollIntervalMs,
+            targetSceneId: actionReadySceneId,
+            preClickSnapshot: activeScenePreClickSnapshot,
+            clickResult: sceneClickResult,
+            pollSamples: activeScenePollSamples,
+            consoleLogsSinceClick: activeSceneRuntimeDiagnostics.consoleLogs.filter(
+              (entry) => (entry?.ts_ms ?? 0) >= selectionStartMs,
+            ),
+            pageErrorsSinceClick: activeSceneRuntimeDiagnostics.pageErrors.filter(
+              (entry) => (entry?.ts_ms ?? 0) >= selectionStartMs,
+            ),
+            postClickSnapshot: activeScenePostClickSnapshot,
+            finalDomExcerpt: activeScenePostClickSnapshot.domExcerpt,
+          };
+          const timeoutArtifactPath = writeActiveSceneTimeoutArtifact(timeoutPayload);
+          receipt.artifacts.push({
+            kind: 'active_scene_timeout',
+            path: path.relative(REPO_ROOT, timeoutArtifactPath),
+          });
+          throw new Error(
+            `[truth] Scene selection failed: ${timeoutReason}; diagnostics written to ${timeoutArtifactPath}`,
+          );
+        }
+      } finally {
+        activeSceneRuntimeDiagnostics.dispose();
+      }
 
       console.log('[truth] waiting for generate button to enable');
-      await waitForCondition(async () => {
-        const enabled = await evaluate(
+      try {
+        await waitForCondition(async () => {
+          const enabled = await evaluate(
+            cdp,
+            `(() => {
+              const button = document.querySelector('[data-testid="workspace-action-generate"]');
+              return Boolean(button) && !(button instanceof HTMLButtonElement ? button.disabled : false);
+            })()`,
+          );
+          return enabled === true;
+        }, 30_000, 'generate button enabled');
+      } catch (error) {
+        const generateDiagnostics = await evaluate(
           cdp,
           `(() => {
-            const button = document.querySelector('[data-testid="workspace-action-generate"]');
-            return Boolean(button) && !(button instanceof HTMLButtonElement ? button.disabled : false);
+            const generate = document.querySelector('[data-testid="workspace-action-generate"]') as HTMLButtonElement | null;
+            const critique = document.querySelector('[data-testid="workspace-action-critique"]') as HTMLButtonElement | null;
+            const activeScene = document.querySelector('.project-home__scene-card--active .project-home__scene-button[aria-pressed="true"]');
+            const servicePill = document.querySelector('[data-testid="service-status-pill"]');
+            const body = document.body;
+            const html = document.documentElement;
+            return {
+              generatePresent: Boolean(generate),
+              generateDisabled: generate ? generate.disabled : null,
+              critiquePresent: Boolean(critique),
+              critiqueDisabled: critique ? critique.disabled : null,
+              activeScenePresent: Boolean(activeScene),
+              serviceStatus: servicePill?.getAttribute('data-status') ?? null,
+              projectLoadedBody: body?.dataset?.projectLoaded ?? null,
+              projectLoadedHtml: html?.dataset?.projectLoaded ?? null,
+              projectPathBody: body?.dataset?.projectPath ?? null,
+              projectPathHtml: html?.dataset?.projectPath ?? null,
+              debugProjectState: (window as typeof window & { __blackskiesDebugProjectState?: unknown })
+                .__blackskiesDebugProjectState ?? null,
+            };
           })()`,
         );
-        return enabled === true;
-      }, 30_000, 'generate button enabled');
+        throw new Error(
+          `[truth] Generate action never enabled after scene selection: ${JSON.stringify(generateDiagnostics)}` +
+            (error instanceof Error ? ` cause="${error.message}"` : ''),
+        );
+      }
 
       console.log('[truth] invoking preflight bridge');
       const preflightResult = await evaluate(
@@ -1201,23 +2016,59 @@ async function run() {
       receipt.routes_hit.push('/api/v1/draft/preflight');
 
       console.log(`[truth] selecting primary scene ${sampleLoadProbe.sceneIds[0]} before critique`);
+      const critiqueSceneHookReadiness = await waitForSceneSelectionHook(cdp, 10_000);
+      console.log('[truth] critique scene hook readiness', critiqueSceneHookReadiness);
       const sceneSelectionMode = await evaluate(
         cdp,
-        `(() => {
+        `(() => (async () => {
           const targetSceneId = ${JSON.stringify(sampleLoadProbe.sceneIds[0])};
-          const buttons = Array.from(document.querySelectorAll('.project-home__scene-button'));
+          const byDataScene = document.querySelector(
+            \`button.project-home__scene-button[data-scene-id="\${targetSceneId}"]\`,
+          );
+          const buttons = Array.from(document.querySelectorAll('button.project-home__scene-button'));
           const targetButton = buttons.find((button) =>
             (button.textContent ?? '').includes(targetSceneId),
           );
-          if (targetButton instanceof HTMLButtonElement) {
-            targetButton.click();
-            return 'button';
+          const realButton = byDataScene instanceof HTMLButtonElement ? byDataScene : targetButton;
+          if (!(realButton instanceof HTMLButtonElement)) {
+            throw new Error(
+              \`[truth] Unable to locate a real scene button for scene \${targetSceneId}; synthetic fallback is not allowed in the truth lane.\`,
+            );
           }
-          window.dispatchEvent(new CustomEvent('test:select-scene', { detail: targetSceneId }));
-          return 'event';
-        })()`,
+          const buttonVisible = (() => {
+            const style = window.getComputedStyle(realButton);
+            return style.display !== 'none' && style.visibility !== 'hidden';
+          })();
+          const buttonRect = realButton.getBoundingClientRect();
+          realButton.click();
+          return {
+            matchedSelector: byDataScene instanceof HTMLButtonElement
+              ? 'button.project-home__scene-button[data-scene-id="<scene-id>"]'
+              : '.project-home__scene-button (text contains scene id)',
+            selectionMethod: 'button-click',
+            targetText: realButton.textContent?.trim() ?? null,
+            targetVisible: buttonVisible,
+            targetRect: {
+              x: buttonRect.x,
+              y: buttonRect.y,
+              width: buttonRect.width,
+              height: buttonRect.height,
+            },
+            clickDispatchedAt: new Date().toISOString(),
+          };
+        })())()`,
       );
       console.log('[truth] scene selection mode', sceneSelectionMode);
+      assert.equal(
+        sceneSelectionMode?.selectionMethod,
+        'button-click',
+        'Truth lane must select the scene through a real scene button click',
+      );
+      assert.ok(
+        typeof sceneSelectionMode?.matchedSelector === 'string' &&
+          sceneSelectionMode.matchedSelector.includes('project-home__scene-button'),
+        'Truth lane must match a real scene button selector',
+      );
 
       console.log('[truth] waiting for critique button to enable');
       await waitForCondition(async () => {
@@ -1314,6 +2165,144 @@ async function run() {
       });
 
       console.log('[truth] requesting rewrite from critique modal');
+      await cdp.send('Network.enable');
+      const rewriteRequests = new Map();
+      let rewriteResult = null;
+      const sanitizeRewriteResponseBody = (value) => {
+        if (value === null || value === undefined) {
+          return null;
+        }
+        if (typeof value === 'string') {
+          return trimText(value, 1200);
+        }
+        if (typeof value !== 'object') {
+          return value;
+        }
+        const source = value;
+        const sanitized = {};
+        for (const key of ['code', 'message', 'detail', 'error', 'traceId', 'trace_id', 'project_id', 'unit_id']) {
+          if (key in source) {
+            sanitized[key] = source[key];
+          }
+        }
+        if ('details' in source && source.details && typeof source.details === 'object') {
+          const details = source.details;
+          const sanitizedDetails = {};
+          for (const key of ['code', 'message', 'error_code', 'project_id', 'unit_id']) {
+            if (key in details) {
+              sanitizedDetails[key] = details[key];
+            }
+          }
+          if (Object.keys(sanitizedDetails).length > 0) {
+            sanitized.details = sanitizedDetails;
+          }
+        }
+        return Object.keys(sanitized).length > 0 ? sanitized : source;
+      };
+      const unsubscribeRewriteRequest = cdp.on('Network.requestWillBeSent', (params) => {
+        const request = params?.request ?? {};
+        const requestUrl = request.url ?? '';
+        if (!requestUrl.includes('/api/v1/draft/rewrite')) {
+          return;
+        }
+        let requestBody = null;
+        if (typeof request.postData === 'string' && request.postData.trim()) {
+          try {
+            requestBody = JSON.parse(request.postData);
+          } catch {
+            requestBody = null;
+          }
+        }
+        rewriteRequests.set(params.requestId, {
+          requestBody,
+          responseStatus: null,
+          responseHeaders: null,
+        });
+      });
+      const unsubscribeRewriteResponse = cdp.on('Network.responseReceived', (params) => {
+        const requestUrl = params?.response?.url ?? '';
+        if (!requestUrl.includes('/api/v1/draft/rewrite')) {
+          return;
+        }
+        const existing = rewriteRequests.get(params.requestId) ?? {
+          requestBody: null,
+          responseStatus: null,
+          responseHeaders: null,
+        };
+        existing.responseStatus = params?.response?.status ?? null;
+        existing.responseHeaders = params?.response?.headers ?? null;
+        rewriteRequests.set(params.requestId, existing);
+      });
+      const unsubscribeRewriteFinished = cdp.on('Network.loadingFinished', (params) => {
+        const existing = rewriteRequests.get(params.requestId);
+        if (!existing || rewriteResult) {
+          return;
+        }
+        void (async () => {
+          try {
+            const bodyResult = await cdp.send('Network.getResponseBody', {
+              requestId: params.requestId,
+            });
+            const rawBody =
+              typeof bodyResult?.body === 'string' ? bodyResult.body : null;
+            let parsedBody = null;
+            if (rawBody && rawBody.trim()) {
+              try {
+                parsedBody = JSON.parse(rawBody);
+              } catch {
+                parsedBody = rawBody;
+              }
+            }
+            const headers = existing.responseHeaders ?? {};
+            const traceId =
+              headers['x-trace-id'] ??
+              headers['X-Trace-Id'] ??
+              headers['trace-id'] ??
+              headers['Trace-Id'] ??
+              null;
+            const projectId =
+              existing.requestBody?.project_id ??
+              existing.requestBody?.projectId ??
+              null;
+            const unitId =
+              existing.requestBody?.unit_id ?? existing.requestBody?.unitId ?? null;
+            rewriteResult = {
+              ok: typeof existing.responseStatus === 'number' && existing.responseStatus >= 200 && existing.responseStatus < 300,
+              status: existing.responseStatus,
+              traceId,
+              projectId,
+              unitId,
+              error: typeof existing.responseStatus === 'number' && existing.responseStatus >= 200 && existing.responseStatus < 300
+                ? null
+                : sanitizeRewriteResponseBody(parsedBody),
+              data: typeof existing.responseStatus === 'number' && existing.responseStatus >= 200 && existing.responseStatus < 300
+                ? parsedBody
+                : null,
+            };
+          } catch (error) {
+            const headers = existing.responseHeaders ?? {};
+            const traceId =
+              headers['x-trace-id'] ??
+              headers['X-Trace-Id'] ??
+              headers['trace-id'] ??
+              headers['Trace-Id'] ??
+              null;
+            rewriteResult = {
+              ok: false,
+              status: existing.responseStatus ?? null,
+              traceId,
+              projectId:
+                existing.requestBody?.project_id ?? existing.requestBody?.projectId ?? null,
+              unitId: existing.requestBody?.unit_id ?? existing.requestBody?.unitId ?? null,
+              error:
+                error instanceof Error
+                  ? { message: error.message, name: error.name }
+                  : { message: String(error) },
+              data: null,
+            };
+          }
+        })();
+      });
       await evaluate(
         cdp,
         `(() => {
@@ -1333,6 +2322,26 @@ async function run() {
           return true;
         })()`,
       );
+
+      await waitForCondition(async () => {
+        return rewriteResult !== null;
+      }, 30_000, 'rewrite bridge result');
+
+      assert.ok(rewriteResult, 'Rewrite bridge did not report a result.');
+      if (rewriteResult.ok !== true) {
+        const rewriteErrorDetails = {
+          status: rewriteResult.status ?? null,
+          traceId: rewriteResult.traceId ?? null,
+          projectId: rewriteResult.projectId ?? null,
+          unitId: rewriteResult.unitId ?? null,
+          error: rewriteResult.error ?? null,
+        };
+        console.error('[truth] rewrite failed', rewriteErrorDetails);
+        throw new Error(`[truth] rewrite request failed: ${JSON.stringify(rewriteErrorDetails)}`);
+      }
+      unsubscribeRewriteFinished();
+      unsubscribeRewriteResponse();
+      unsubscribeRewriteRequest();
 
       await waitForCondition(async () => {
         const hasRewriteProvenance = await evaluate(
@@ -1396,11 +2405,8 @@ async function run() {
       console.log('[truth] validating accept persistence');
       const sceneFilePath = path.join(truthProject.projectPath, 'drafts', `${primarySceneId}.md`);
       assert.ok(existsSync(sceneFilePath), `Scene file missing for truth lane: ${sceneFilePath}`);
-      const sceneState = readServiceSceneState(truthProject.projectPath, primarySceneId);
       const truthMarker = `TRUTH-LANE-MARKER-${Date.now()}`;
       const acceptedSceneEvidence = `TRUTH-LANE-SCENE-ID:${primarySceneId}`;
-      let acceptedBody = `${sceneState.body}\n\n${truthMarker}\n${acceptedSceneEvidence}`;
-
       const acceptRequestBase = {
         project_id: sampleLoadProbe.projectId,
         draft_id: `dr_truth_${primarySceneId}`,
@@ -1408,20 +2414,35 @@ async function run() {
         message: 'Truth lane acceptance validation.',
         snapshot_label: 'truth-lane-accept',
       };
-      let acceptResponse = await fetch(`http://127.0.0.1:${SERVICE_PORT}/api/v1/draft/accept`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...acceptRequestBase,
-          unit: {
-            id: primarySceneId,
-            previous_sha256: sceneState.digest,
-            text: acceptedBody,
-            meta: {},
-          },
-        }),
-      });
-      if (!acceptResponse.ok && acceptResponse.status === 409) {
+      let acceptResponse = null;
+      let acceptedBody = null;
+      for (let attempt = 1; attempt <= 5; attempt += 1) {
+        const sceneState = readServiceSceneState(truthProject.projectPath, primarySceneId);
+        acceptedBody = `${sceneState.body}\n\n${truthMarker}\n${acceptedSceneEvidence}`;
+        console.log('[truth] accept attempt', {
+          attempt,
+          digest: sceneState.digest,
+          bodyExcerpt: sceneState.body.replace(/\s+/g, ' ').trim().slice(0, 80),
+        });
+        acceptResponse = await fetch(`http://127.0.0.1:${SERVICE_PORT}/api/v1/draft/accept`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            ...acceptRequestBase,
+            unit: {
+              id: primarySceneId,
+              previous_sha256: sceneState.digest,
+              text: acceptedBody,
+              meta: {},
+            },
+          }),
+        });
+        if (acceptResponse.ok) {
+          break;
+        }
+        if (acceptResponse.status !== 409) {
+          break;
+        }
         const conflictBodyText = await acceptResponse.text();
         let conflictPayload = null;
         try {
@@ -1432,22 +2453,11 @@ async function run() {
         if (conflictPayload?.code !== 'CONFLICT') {
           throw new Error(`Accept route failed: ${conflictBodyText}`);
         }
-        const refreshedSceneState = readServiceSceneState(truthProject.projectPath, primarySceneId);
-        acceptedBody = `${refreshedSceneState.body}\n\n${truthMarker}\n${acceptedSceneEvidence}`;
-        acceptResponse = await fetch(`http://127.0.0.1:${SERVICE_PORT}/api/v1/draft/accept`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            ...acceptRequestBase,
-            unit: {
-              id: primarySceneId,
-              previous_sha256: refreshedSceneState.digest,
-              text: acceptedBody,
-              meta: {},
-            },
-          }),
-        });
+        if (attempt < 5) {
+          await new Promise((resolve) => setTimeout(resolve, 250 * attempt));
+        }
       }
+      assert.ok(acceptResponse, 'Accept route did not return a response.');
       await assertOkResponse(acceptResponse, 'Accept route');
       const acceptPayload = await acceptResponse.json();
       const acceptedBodyExcerpt = acceptedBody
@@ -1458,7 +2468,11 @@ async function run() {
       const snapshotId = acceptPayload?.snapshot?.snapshot_id;
       assert.equal(typeof snapshotPath, 'string', 'Accept payload missing snapshot.path');
       assert.equal(typeof snapshotId, 'string', 'Accept payload missing snapshot.snapshot_id');
-      const absoluteSnapshotPath = path.join(truthProject.projectPath, snapshotPath);
+      const snapshotRootCandidates = [truthProject.canonicalProjectPath, truthProject.projectPath];
+      const absoluteSnapshotPath =
+        snapshotRootCandidates
+          .map((root) => path.join(root, snapshotPath))
+          .find((candidate) => existsSync(candidate)) ?? null;
       assert.ok(
         snapshotPath.startsWith('history/snapshots/'),
         `Snapshot authority violation: expected history/snapshots/*, received ${snapshotPath}`,
@@ -1468,8 +2482,8 @@ async function run() {
         `Snapshot authority violation: accept path must not use .snapshots/* (${snapshotPath})`,
       );
       assert.ok(
-        existsSync(absoluteSnapshotPath),
-        `Accept snapshot path was not persisted: ${absoluteSnapshotPath}`,
+        absoluteSnapshotPath,
+        `Accept snapshot path was not persisted under either truth root: ${snapshotPath}`,
       );
       const snapshotMetadataPath = path.join(absoluteSnapshotPath, 'metadata.json');
       assert.ok(
@@ -1555,8 +2569,11 @@ async function run() {
       assert.equal(exportPayload?.project_id, sampleLoadProbe.projectId);
       const exportPath = exportPayload?.path;
       assert.equal(typeof exportPath, 'string', 'Export payload missing path');
-      const absoluteExportPath = path.join(truthProject.projectPath, exportPath);
-      assert.ok(existsSync(absoluteExportPath), `Export artifact missing on disk: ${absoluteExportPath}`);
+      const exportPathCandidates = [truthProject.canonicalProjectPath, truthProject.projectPath]
+        .map((root) => path.join(root, exportPath))
+        .filter((candidate) => existsSync(candidate));
+      const absoluteExportPath = exportPathCandidates[0] ?? null;
+      assert.ok(absoluteExportPath, `Export artifact missing on disk under either truth root: ${exportPath}`);
       const exportContents = readFileSync(absoluteExportPath, 'utf8');
       const normalizedExportContents = exportContents.replace(/\s+/g, ' ').trim();
       assert.ok(

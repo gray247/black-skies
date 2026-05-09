@@ -277,7 +277,7 @@ describe('SnapshotsPanel verification details', () => {
 
     const toastPayloads = pushToast.mock.calls.map((call) => call[0]);
     const successToast = toastPayloads.find((payload) =>
-      payload.actions?.some((action) => action.label === 'View report'),
+      payload.actions?.some((action) => action.label === 'View snapshot report'),
     );
     expect(successToast).toBeDefined();
     const action = successToast?.actions?.[0];
@@ -371,7 +371,7 @@ describe('SnapshotsPanel verification details', () => {
 
     const toastPayloads = pushToast.mock.calls.map((call) => call[0]);
     const successToast = toastPayloads.find((payload) =>
-      payload.actions?.some((action) => action.label === 'View report'),
+      payload.actions?.some((action) => action.label === 'View snapshot report'),
     );
     expect(successToast).toBeDefined();
     const action = successToast?.actions?.[0];
@@ -503,12 +503,19 @@ it('renders backup list and triggers backup actions', async () => {
   expect(await screen.findByText('BS_20251119_120000.zip')).toBeInTheDocument();
 
   fireEvent.click(screen.getByRole('button', { name: /Create backup/i }));
+  await waitFor(() => expect(createBackup).not.toHaveBeenCalled());
   await waitFor(() =>
-    expect(createBackup).toHaveBeenCalledWith({ projectId: 'proj' }),
+    expect(
+      pushToast.mock.calls.some(
+        (call) =>
+          call[0]?.title === 'Backup created' &&
+          String(call[0]?.description ?? '').includes('Created backup /mock/path'),
+      ),
+    ).toBe(true),
   );
   await waitFor(() => expect(listBackups).toHaveBeenCalledTimes(2));
 
-const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
+  const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
   fireEvent.click(
     await screen.findByRole('button', {
       name: /Restore backup BS_20251119_120000\.zip/i,
@@ -520,6 +527,72 @@ const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
     }),
   );
   confirmSpy.mockRestore();
+});
+
+it('surfaces actionable text when backup verification fails', async () => {
+  const listProjectSnapshots = vi.fn().mockResolvedValue({
+    ok: true,
+    data: [],
+  });
+
+  const getLastVerification = vi.fn().mockResolvedValue({
+    ok: true,
+    data: {
+      project_id: 'proj',
+      snapshots: [],
+    },
+  });
+
+  const runBackupVerification = vi.fn().mockResolvedValue({
+    ok: false,
+    error: {
+      code: 'SERVICE_UNAVAILABLE',
+      message: 'Verification bridge offline',
+      traceId: 'trace-verify-failed',
+    },
+    traceId: 'trace-verify-failed',
+  });
+
+  const pushToast = vi.fn();
+
+  render(
+    <SnapshotsPanel
+      projectId="proj"
+      projectPath="/projects/proj"
+      services={
+        {
+          listProjectSnapshots,
+          getLastVerification,
+          runBackupVerification,
+        } as Partial<ServicesBridge>
+      }
+      serviceStatus="online"
+      pushToast={pushToast}
+    />,
+  );
+
+  await waitFor(() =>
+    expect(listProjectSnapshots).toHaveBeenCalledWith({ projectId: 'proj' }),
+  );
+
+  fireEvent.click(screen.getByTestId('snapshots-manual-verify-button'));
+
+  await waitFor(() =>
+    expect(pushToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        tone: 'error',
+        title: 'Backup verification failed',
+        traceId: 'trace-verify-failed',
+      }),
+    ),
+  );
+  expect(
+    pushToast.mock.calls.some((call) =>
+      String(call[0]?.description ?? '').includes(
+        'Backup verification failed. The current project was not changed',
+      ),
+    ),
+  ).toBe(true);
 });
 
 it('renders the updated snapshot and verification sections', async () => {
