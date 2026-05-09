@@ -1,6 +1,6 @@
 # Phase 11B Implementation Plan
 
-Status: Pre-implementation architecture review
+Status: Living roadmap
 Last Reviewed: 2026-05-08
 Canonical Design Source: `docs/specs/design_system_v1.md`
 
@@ -19,6 +19,11 @@ Dev/test enablement note:
 - Runtime YAML uses `ui.experimental_split_command_workspace: true`.
 - Renderer tests may enable it through `window.__runtimeConfigOverride`.
 - The flag is experimental and must remain off by default until Split Command parity is explicitly closed.
+
+Current progress snapshot:
+- Completed passes: Pass 0, Pass 1, Pass 2, Pass 3, Pass 4, and Pass 5.
+- Completed hardening lane: CI diagnostic hardening / preflight contract fix.
+- This document is the canonical living roadmap for Phase 11B until closure.
 
 Pass 2 parity guard:
 - Renderer coverage now verifies flag-off default shell rendering, flag-on Split Command rendering, Writing Studio wrapping the stable workspace body, Command Center placeholder labeling, generation/preflight calls through the wrapped ProjectHome path, and Story Unit derivation without project mutation.
@@ -320,110 +325,147 @@ Prevent data migration damage by:
 - Avoiding sidecar files until adapter semantics are verified.
 - Treating Story Unit v1 as a read-only compatibility view over current scenes.
 
-## 11. Phase 11B Implementation Sequence
+## 11. Canonical Phase 11B Roadmap
 
-### Pass 0: Architecture Plan Only
-Goal: capture this plan and record planning state.
-Files likely touched: docs only.
-Tests: `git diff --check`.
-Risk: low.
-Rollback: revert docs.
-Closure: implementation plan accepted.
+The pass list below is linear and expandable. It is a living sequence, not a hard cap. Additional passes may be inserted if tests, architecture, or safety require it. Do not rename the roadmap into subphase schemes such as `11B-A` through `11B-J`.
 
-### Pass 1: Runtime Token Seed
-Goal: add first CSS variable slice without changing visible behavior.
-Files likely touched: `app/renderer/styles/design-system.css`, `app/renderer/index.tsx` or existing style import path, `app/renderer/styles/app.css` only if needed.
-Tests: app lint, production build, targeted visual/smoke if import path changes.
-Risk: low.
-Rollback: remove token import.
-Closure: tokens exist and no visible regression expected.
+### Completed
+- Pass 0 - Architecture / Planning
+- Pass 1 - Foundation Layer
+- Pass 2 - Shell Parity Smoke
+- Pass 3 - Story Navigation Wrapper
+- Pass 4 - Shared Scene Selection Interface
+- Pass 5 - Workflow Surface Smoke
+- CI Diagnostic Hardening / Preflight Contract Fix
 
-### Pass 2: Flagged Workspace Shell Entry
-Goal: add a disabled-by-default Phase 11B shell route/flag that renders placeholder Command Center and Writing Studio zones.
-Files likely touched: `App.tsx`, new workspace shell components, tests.
-Tests: shell renderer tests, app test, lint, build.
-Risk: medium.
-Rollback: disable flag path.
-Closure: flag off equals current shell; flag on renders zones with no service calls.
+### Remaining Proposed Linear Roadmap
+- Pass 6 - Visual Shell Refinement V1
+- Pass 7 - Command Center Hierarchy + Styling
+- Pass 8 - Writing Studio Framing
+- Pass 9 - Story Navigation Visual Polish
+- Pass 10 - Narrative Overview Wrapper
+- Pass 11 - Global Tools Wrapper
+- Pass 12 - Command Registry Expansion
+- Pass 13 - Story Unit V1 Hardening
+- Pass 14 - Empty/Large Project Edge Cases
+- Pass 15 - Adaptive Layout Rules
+- Pass 16 - Accessibility Pass
+- Pass 17 - Optional Safe Playwright Shell Smoke
+- Pass 18 - Docs Alignment / Runtime Truth Review
+- Pass 19 - Deferred Ledger Review
+- Pass 20 - Cleanup + Closure Validation
+- Pass 21 - Phase 11B Closure Review
 
-### Pass 3: Writing Studio Wrap
-Goal: render existing draft/preview/scene context inside Writing Studio behind the flag.
-Files likely touched: shell components, `ProjectHome` extraction only if necessary.
-Tests: ProjectHome, AppPreflight, shell tests.
-Risk: medium.
-Rollback: return flag path to placeholders.
-Closure: active scene, preview, generation target, and draft sync still work.
+### Roadmap Notes
+- The roadmap is intentionally linear so future work has a single canonical ordering.
+- The roadmap is also expandable, so new passes can be inserted when the codebase or validation plan demands it.
+- Later passes may still be renumbered upward if an inserted pass is needed to preserve sequencing.
+- The list is not a promise that all later ideas belong in Phase 11B; it only records the current working order.
+- Phase 11B should continue to prefer small, safe, reversible steps behind the experimental flag.
 
-### Pass 4: Command Center Wrap
-Goal: render existing outline/navigation, Corkboard, Story Insights, and tool access inside Command Center behind the flag.
-Files likely touched: shell components and wrapper components.
-Tests: ProjectHome, Corkboard, StoryInsightsRegression, shell tests.
-Risk: medium.
-Rollback: use placeholder Command Center.
-Closure: current project/scene navigation remains authoritative.
+## 12. Phase 11B Done
 
-### Pass 5: Story Unit v1 Adapter
-Goal: introduce read-only Story Unit types/selectors over current scenes.
-Files likely touched: shared/renderer type utilities and tests.
-Tests: Story Unit adapter tests, ProjectHome tests.
-Risk: low to medium.
-Rollback: remove adapter usage; scenes remain canonical.
-Closure: no project file writes; adapters produce stable ids and metadata.
+Phase 11B is done when all of the following are true:
+- The experimental Split Command shell remains safely behind a flag.
+- The old shell remains the production default unless explicitly promoted later.
+- Flag-off behavior is validated.
+- Flag-on shell is usable enough for continued development.
+- Story Navigation and shared scene selection are stable.
+- Story Unit v1 compatibility remains read-only and scene-derived.
+- One active outline compatibility remains derived, not persisted.
+- No backend, project format, generation, rewrite, or persistence behavior changed.
+- Design tokens and shell styling are stable enough for future phases.
+- The deferred ledger is current.
+- Docs match runtime reality.
+- Full app tests, lint, and build pass.
+- A closure checklist exists and is green.
 
-### Pass 6: One Active Outline Selector
-Goal: centralize active outline id and scene membership checks.
-Files likely touched: renderer selectors/hooks and tests.
-Tests: AppPreflight, ProjectHome, shell tests.
-Risk: medium.
-Rollback: return to current active-scene state path.
-Closure: stale active scene is cleared on project/outline mismatch.
+Phase 11B is not done when every dream GUI feature is implemented. It is done when the next phases have the shell, data, and UI foundation they need.
 
-### Pass 7: Contextual Intelligence Placeholder
-Goal: add low-noise placeholder using existing metadata and Companion availability only.
-Files likely touched: shell placeholder component and tests.
-Tests: shell tests, ProjectHome if reused.
-Risk: low.
-Rollback: hide placeholder.
-Closure: no backend calls, no always-on analysis.
+### Closure Checklist
+- [ ] Split Command remains safely behind a flag.
+- [ ] Old shell remains the production default unless explicitly promoted later.
+- [ ] Flag-off behavior is validated.
+- [ ] Flag-on shell is usable enough for continued development.
+- [ ] Story Navigation and shared scene selection are stable.
+- [ ] Story Unit v1 compatibility remains read-only and scene-derived.
+- [ ] One active outline compatibility remains derived, not persisted.
+- [ ] No backend, project format, generation, rewrite, or persistence behavior changed.
+- [ ] Design tokens and shell styling are stable enough for future phases.
+- [ ] Deferred ledger is current.
+- [ ] Docs match runtime reality.
+- [ ] Full app tests, lint, and build pass.
+- [ ] Closure review is complete and all preceding items are green.
 
-### Pass 8: Workflow/Test Hardening
-Goal: prove the flagged shell preserves Phase 11A workflows.
-Files likely touched: tests primarily.
-Tests: full app test, focused Playwright smoke for flag-on shell if stable, lint, build.
-Risk: medium.
-Rollback: keep flag off.
-Closure: current shell still green; flagged shell has minimum workflow smoke.
+## 13. Deferred Ledger
 
-### Pass 9: Closure Review
-Goal: decide whether Phase 11B shell remains experimental or becomes default.
-Files likely touched: docs/tracker and possibly config.
-Tests: full app test, lint, build, safe Playwright smoke.
-Risk: decision-dependent.
-Rollback: keep current shell default.
-Closure: explicit go/no-go for defaulting Split Command.
+Status key:
+- `deferred` means the item is intentionally postponed but still expected later.
+- `frozen` means the item is intentionally left unchanged for this phase.
+- `revisit` means the item should be re-evaluated before the next phase boundary.
+- `delete-candidate` means the item may be removed from future plans if it no longer fits the roadmap.
 
-## 12. Deal Breakers / Do Not Build
+### Later Phase 11B
+- Visual shell refinement - reason deferred: styling should follow the stable shell contract; risk level: medium; likely future phase: 11B; unblock condition: shell topology and wrapper contracts remain stable; blocks current phase: no; status: deferred.
+- Command center styling - reason deferred: hierarchy needs shell layout stability first; risk level: medium; likely future phase: 11B; unblock condition: command center zones stop moving structurally; blocks current phase: no; status: deferred.
+- Writing studio framing - reason deferred: immersive surface polish should follow shell contract stabilization; risk level: medium; likely future phase: 11B; unblock condition: writing studio wrapper stays behaviorally stable; blocks current phase: no; status: deferred.
+- Story navigation polish - reason deferred: navigation structure should stay stable before visual tuning; risk level: low to medium; likely future phase: 11B; unblock condition: shared selection remains authoritative; blocks current phase: no; status: deferred.
+- Narrative overview wrapper - reason deferred: should reflect runtime truth only after shell hierarchy is settled; risk level: medium; likely future phase: 11B; unblock condition: current overview data path remains honest; blocks current phase: no; status: deferred.
+- Global tools wrapper - reason deferred: global actions should be wrapped after the shell layout and header semantics stop shifting; risk level: medium; likely future phase: 11B; unblock condition: command placement and ownership are stable; blocks current phase: no; status: deferred.
+- Command registry metadata expansion - reason deferred: registry should track stable shell commands, not speculate ahead of the UI; risk level: low to medium; likely future phase: 11B; unblock condition: command surface is still declarative; blocks current phase: no; status: deferred.
+- Story Unit v1 hardening - reason deferred: adapter semantics need stable scene derivation and test proof; risk level: medium; likely future phase: 11B; unblock condition: read-only derivation remains unchanged; blocks current phase: no; status: deferred.
+- Adaptive layout - reason deferred: responsive rules should follow the settled shell hierarchy; risk level: medium; likely future phase: 11B; unblock condition: command center and writing studio proportions are stable; blocks current phase: no; status: deferred.
+- Accessibility pass - reason deferred: ARIA/focus polish should land after the visual shell stops moving; risk level: medium; likely future phase: 11B; unblock condition: visible shell structure is stable enough for a final pass; blocks current phase: no; status: deferred.
+- Safe shell smoke tests - reason deferred: shell smoke should wait until flag-on behavior is stable enough to exercise safely; risk level: medium; likely future phase: 11B; unblock condition: the current flagged shell path does not require frequent structural changes; blocks current phase: no; status: deferred.
 
-Do not include these in Phase 11B:
-- Full Story Constellation graph.
-- Advanced emotional pulse.
-- Orbital panels.
-- Plugin marketplace.
-- Graph database dependency.
-- Autonomous AI restructure.
-- Always-on AI intervention.
-- Multi-outline branching.
-- Real-time analysis on every keystroke.
-- Backend rewrite redesign.
-- Project file migration for Story Units.
-- OS-level dual-monitor/detached-window expansion.
-- New memory architecture.
-- Local LLM routing changes.
+### Phase 12
+- Deeper critique/rewrite comparison surfaces - reason deferred: current phase should not expand revision workflows beyond the current shell foundation; risk level: medium; likely future phase: 12; unblock condition: rewrite/provenance surfaces are stable; blocks current phase: no; status: deferred.
+- Provenance viewer - reason deferred: provenance needs a revision-focused surface and stable history semantics; risk level: medium; likely future phase: 12; unblock condition: compare/sync workflows are settled; blocks current phase: no; status: deferred.
+- Outline-driven generation targeting beyond current scene selection - reason deferred: this would change generation authority and payload semantics; risk level: high; likely future phase: 12; unblock condition: current scene selection and outline contracts are proven stable; blocks current phase: no; status: deferred.
+- Richer revision/recovery workflows - reason deferred: recovery UX should be expanded only after the current rewrite/snapshot model is stable; risk level: medium; likely future phase: 12; unblock condition: revision state transitions are explicit; blocks current phase: no; status: deferred.
 
-## 13. Resolved Foundation Decisions
+### Phase 13
+- Persisted Story Units - reason deferred: persistence changes would alter project-format behavior; risk level: high; likely future phase: 13; unblock condition: read-only Story Unit v1 is fully stable; blocks current phase: no; status: deferred.
+- Loose notes/fragments as Story Units - reason deferred: the current phase keeps Story Unit derived from scenes only; risk level: high; likely future phase: 13; unblock condition: a canonical persisted model exists; blocks current phase: no; status: deferred.
+- Uploads decomposed into Story Units - reason deferred: ingestion and decomposition need a persisted unit model; risk level: high; likely future phase: 13; unblock condition: Story Unit persistence exists; blocks current phase: no; status: deferred.
+- Memory lifecycle - reason deferred: memory changes are out of scope for the shell foundation; risk level: high; likely future phase: 13; unblock condition: Story Unit and outline contracts are stable; blocks current phase: no; status: deferred.
+- Embeddings - reason deferred: vector storage introduces new backend behavior and infrastructure; risk level: high; likely future phase: 13; unblock condition: memory and Story Unit persistence exist; blocks current phase: no; status: deferred.
+- Relationship graph foundation - reason deferred: graph data depends on stable persisted entities; risk level: high; likely future phase: 13; unblock condition: canonical entity model exists; blocks current phase: no; status: deferred.
+- Continuity engine - reason deferred: continuity analysis depends on persisted units, memory, and relationships; risk level: high; likely future phase: 13; unblock condition: graph and memory foundations exist; blocks current phase: no; status: deferred.
+- Thread tracking - reason deferred: thread state should follow persisted units and continuity data; risk level: medium to high; likely future phase: 13; unblock condition: continuity and memory contracts exist; blocks current phase: no; status: deferred.
 
-1. The Phase 11B experimental shell is available only behind an explicit runtime flag and remains off by default.
-2. Story Unit v1 exposes only current scenes. Loose notes/fragments are deferred.
-3. Phase 11B preserves existing workspace surfaces by wrapping the current stable workspace body inside Writing Studio.
-4. Split Command cannot become default until generate, preview, critique, rewrite, snapshot, export, project switch, and recovery parity are verified.
-5. Command registry metadata may exist before a visible command palette, but it remains declarative metadata only.
+### Phase 14
+- Constellation graph - reason deferred: visualization should wait until relationship data is durable; risk level: high; likely future phase: 14; unblock condition: graph foundation is stable; blocks current phase: no; status: deferred.
+- Emotional pulse graph - reason deferred: emotional trends need a durable continuity signal source; risk level: medium to high; likely future phase: 14; unblock condition: continuity and graph data exist; blocks current phase: no; status: deferred.
+- Pacing heatmaps - reason deferred: pacing depends on stable scene and thread history; risk level: medium; likely future phase: 14; unblock condition: narrative history is reliable; blocks current phase: no; status: deferred.
+- Character arc visualizations - reason deferred: arc views rely on richer narrative graph data; risk level: medium; likely future phase: 14; unblock condition: character/relationship data is mature; blocks current phase: no; status: deferred.
+- Narrative health dashboards - reason deferred: dashboards should summarize stable upstream signals only; risk level: medium; likely future phase: 14; unblock condition: signals become durable and interpretable; blocks current phase: no; status: deferred.
+- Thread timeline intelligence - reason deferred: timeline reasoning belongs after thread tracking is persisted; risk level: medium to high; likely future phase: 14; unblock condition: thread lifecycle data exists; blocks current phase: no; status: deferred.
+
+### Phase 15
+- Mature local/API orchestration - reason deferred: orchestration should follow the continuity and graph foundation; risk level: high; likely future phase: 15; unblock condition: the app has stable analysis inputs; blocks current phase: no; status: deferred.
+- Local LLM execution path - reason deferred: local model routing is a later architecture choice; risk level: high; likely future phase: 15; unblock condition: orchestration and analysis routing are defined; blocks current phase: no; status: deferred.
+- Local tagging/classification - reason deferred: classification should depend on the mature orchestration layer; risk level: medium; likely future phase: 15; unblock condition: model routing and analysis workflows exist; blocks current phase: no; status: deferred.
+- Route transparency UI - reason deferred: route visualization belongs to the later orchestration phase; risk level: medium; likely future phase: 15; unblock condition: local/API paths are explicit; blocks current phase: no; status: deferred.
+- Model cost/status panel - reason deferred: cost reporting depends on stable routing and provider data; risk level: medium; likely future phase: 15; unblock condition: orchestration emits reliable status data; blocks current phase: no; status: deferred.
+- Background analysis workers - reason deferred: worker orchestration should not land before the analysis model is fixed; risk level: high; likely future phase: 15; unblock condition: local/API orchestration is stable; blocks current phase: no; status: deferred.
+
+### Phase 16+
+- True detached multi-window / dual-monitor OS windows - reason deferred: the current phase uses a single-window split shell, not detachable OS windows; risk level: high; likely future phase: 16+; unblock condition: the single-window shell and state sync are proven stable; blocks current phase: no; status: deferred.
+- Orbital panels - reason deferred: this is a later visualization and workspace-expansion concept; risk level: medium to high; likely future phase: 16+; unblock condition: the windowing model is established; blocks current phase: no; status: deferred.
+- Plugin system - reason deferred: plugin architecture is a broad capability change; risk level: high; likely future phase: 16+; unblock condition: command and orchestration layers are mature; blocks current phase: no; status: deferred.
+- Command execution middleware - reason deferred: middleware changes should wait for stable command registry and execution semantics; risk level: high; likely future phase: 16+; unblock condition: command registry expansion is complete; blocks current phase: no; status: deferred.
+- Graph database dependency - reason deferred: graph DB adoption should not be introduced during shell foundation work; risk level: high; likely future phase: 16+; unblock condition: persisted relationship/continuity needs outgrow current storage; blocks current phase: no; status: deferred.
+- Multi-outline branching - reason deferred: branching would change the single-active-outline contract; risk level: high; likely future phase: 16+; unblock condition: current outline contract is stable and explicitly superseded; blocks current phase: no; status: deferred.
+- Autonomous restructuring - reason deferred: autonomous restructuring conflicts with the current user-decides doctrine; risk level: high; likely future phase: 16+; unblock condition: explicit product policy and guardrails exist; blocks current phase: no; status: deferred.
+- Real-time analysis on every keystroke - reason deferred: this would introduce constant interruption and performance risk; risk level: high; likely future phase: 16+; unblock condition: performance, consent, and interruption rules are redesigned; blocks current phase: no; status: deferred.
+
+### Known Technical / Testing Deferrals
+- Floated-pane project-switch Playwright E2E - reason deferred: harness recovery is still blocked by the temp-project backend recovery 400 issue; risk level: medium; likely future phase: 11B or later; unblock condition: the recovery 400 blocker is fixed and safe to exercise; blocks current phase: no; status: deferred.
+- Temp-project backend recovery 400 blocker - reason deferred: this is an environment/harness issue, not a product feature; risk level: medium; likely future phase: 11B or later; unblock condition: recovery flow is stable in temp-project runs; blocks current phase: no; status: revisit.
+- Playwright shell coverage unless harness supports it safely - reason deferred: shell smoke should not be forced through an unsafe harness path; risk level: medium; likely future phase: 11B or later; unblock condition: the harness can support the shell route without port or recovery noise; blocks current phase: no; status: deferred.
+
+### Ledger Maintenance Notes
+- Items should stay in this ledger until they are either implemented, formally deleted, or moved into a later phase plan.
+- If an item is duplicated elsewhere, this ledger stays canonical and the other location should cross-link instead of repeating the full decision tree.
+- If a new risk emerges during Phase 11B, add it here immediately with a likely future phase and unblock condition.

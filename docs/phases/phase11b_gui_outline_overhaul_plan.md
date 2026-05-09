@@ -8,8 +8,9 @@ Purpose: define the later GUI and outline redesign that should only start after 
 - `docs/specs/design_system_v1.md` is the canonical Phase 11B design-system source.
 - Runtime GUI and outline work should treat that spec as the planning baseline for topology, zones, component contracts, interaction doctrine, visual language, adaptive rules, Story Unit UI, command palette/tool registry, and Phase 11B build/defer boundaries.
 - This plan remains a sequencing document; it does not override the design-system spec.
-- `docs/phases/phase11b_implementation_plan.md` is the pre-implementation architecture review and recommended execution sequence. It should be resolved before runtime Phase 11B work starts.
+- `docs/phases/phase11b_implementation_plan.md` is the canonical living roadmap and recommended execution sequence. It should be resolved before runtime Phase 11B work starts.
 - The Phase 11B foundation implementation now begins from that plan behind the disabled-by-default `ui.experimental_split_command_workspace` flag. The current Phase 11A shell remains the production default until explicit closure criteria say otherwise.
+- That roadmap records Passes 0-5 complete, the CI diagnostic hardening fix, and the remaining expandable pass order for later runtime work.
 
 ## Entry Criteria
 - Pane lifecycle is documented and classified.

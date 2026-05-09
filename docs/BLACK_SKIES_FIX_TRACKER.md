@@ -3,7 +3,7 @@
 # BLACK SKIES - FIX TRACKER
 
 Status: Active
-Last Reviewed: 2026-05-06
+Last Reviewed: 2026-05-08
 
 ## Purpose
 This document tracks defects, technical debt, and instability across Black Skies.
@@ -15,6 +15,17 @@ If an issue is not tracked here, it is not part of the active fix scope.
 3. `VERIFIED` requires evidence (CI result, reproducible command, or logs).
 4. Partial fixes must be explicit.
 5. Regressions stay under the same issue ID.
+
+## Phase 11B Living Roadmap Alignment (2026-05-08)
+- Phase 11B passes 0-5 are complete.
+- CI diagnostic hardening / preflight contract fix is complete.
+- `docs/phases/phase11b_implementation_plan.md` is now the canonical living roadmap for Phase 11B.
+- The roadmap is linear and expandable; future passes may be inserted if tests, architecture, or safety require it.
+- The next queued work after docs alignment is:
+  1. GitHub branch review / pruning report
+  2. refactor audit
+  3. Phase 11B Pass 6 visual shell refinement
+- No runtime code changed in this docs alignment pass.
 
 ## Status Definitions
 - `ACTIVE`: known issue, unresolved
