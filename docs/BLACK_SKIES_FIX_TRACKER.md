@@ -3,7 +3,7 @@
 # BLACK SKIES - FIX TRACKER
 
 Status: Active
-Last Reviewed: 2026-05-08
+Last Reviewed: 2026-05-09
 
 ## Purpose
 This document tracks defects, technical debt, and instability across Black Skies.
@@ -16,15 +16,16 @@ If an issue is not tracked here, it is not part of the active fix scope.
 4. Partial fixes must be explicit.
 5. Regressions stay under the same issue ID.
 
-## Phase 11B Living Roadmap Alignment (2026-05-08)
-- Phase 11B passes 0-6 are complete.
+## Phase 11B Living Roadmap Alignment (2026-05-09)
+- Phase 11B passes 0-7 are complete.
 - CI diagnostic hardening / preflight contract fix is complete.
 - `docs/phases/phase11b_implementation_plan.md` is now the canonical living roadmap for Phase 11B.
 - The roadmap is linear and expandable; future passes may be inserted if tests, architecture, or safety require it.
 - Pass 6 visual shell refinement tightened the flagged Split Command shell hierarchy, Writing Studio framing, Story Navigation state presentation, and placeholder clarity while keeping behavior unchanged.
+- Pass 7 Command Center hierarchy/styling made Story Navigation the explicit primary command panel, grouped future command surfaces below it, and kept the styling scoped to the flagged shell.
 - Production default remains flag-off; Split Command remains experimental behind `ui.experimental_split_command_workspace`.
-- The next queued Phase 11B runtime work is Pass 7 - Command Center Hierarchy + Styling.
-- No backend, project format, generation, rewrite, snapshot, or export behavior changed in Pass 6.
+- The next queued Phase 11B runtime work is Pass 8 - Writing Studio Framing.
+- No backend, project format, generation, rewrite, snapshot, export, command execution, or Story Unit persistence behavior changed in Pass 6 or Pass 7.
 
 ## Status Definitions
 - `ACTIVE`: known issue, unresolved
@@ -210,6 +211,12 @@ Promotion notes:
   - no new runtime workflow surfaces were introduced; this pass only extends parity coverage for the experimental shell
   - validation passed: `pnpm --filter app test -- AppCritique.test.tsx AppSnapshotsVerification.test.tsx SplitCommandWorkspace.test.tsx` (`3 passed`, `14 tests`), `pnpm --filter app test` (`50 passed`, `205 tests`), `pnpm --filter app lint` (pass; ESLintRC deprecation notice only), `pnpm --filter app run build:production` (pass), and `git diff --check` (pass)
   - deferred ledger unchanged: no Playwright shell work, no command palette, no intelligence panels, no persistence changes
+- 2026-05-09 - Codex - Phase 11B pass 7 Command Center hierarchy/styling:
+  - added an explicit Command Center panel stack and future-surface cluster inside the flagged Split Command shell
+  - marked Story Navigation as the primary command panel and assigned secondary/tertiary weights to placeholder panels without adding real intelligence or command execution behavior
+  - styling remains scoped to `.split-command*`; production shell, backend behavior, project format, Story Unit persistence, generation, critique, snapshot, and export behavior are unchanged
+  - validation passed: `pnpm --filter app test -- SplitCommandWorkspace.test.tsx AppPreflight.test.tsx AppCritique.test.tsx` (`3 passed`, `38 tests`), `pnpm --filter app lint` (pass; ESLintRC deprecation notice only), and `git diff --check` (pass)
+  - deferred ledger preserved with wording updated for residual visual/command-center polish only
 - 2026-05-06 - Codex - Started the Phase 11 workflow/pane/UX contract stabilization audit and documentation pass; pass 1 runtime slice now landed for generation labels, preflight scope copy, and recovery toast clarity, and the later GUI/outline overhaul is still split into a separate follow-up plan.
 - 2026-05-06 - Codex - Completed Phase 11A pass 2 rewrite truthfulness updates and added a renderer-level floated-pane project-switch regression after the Playwright temp-project path proved too brittle; backend rewrite persistence remained unchanged.
 - 2026-05-06 - Codex - Completed Phase 11A pass 3 pane scope classification and layout recovery hardening; unknown floating-pane ids are now dropped on layout load and the pane lifecycle matrix is documented.

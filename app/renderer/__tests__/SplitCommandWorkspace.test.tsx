@@ -54,6 +54,8 @@ describe("SplitCommandWorkspace", () => {
     expect(screen.getByTestId("split-command-workspace")).toBeInTheDocument();
     expect(screen.getByLabelText("Command Center")).toBeInTheDocument();
     expect(screen.getByLabelText("Writing Studio")).toBeInTheDocument();
+    expect(screen.getByLabelText("Command Center panels")).toBeInTheDocument();
+    expect(screen.getByLabelText("Future command surfaces")).toBeInTheDocument();
     expect(screen.getByTestId("stable-writing-surface")).toHaveTextContent("Stable surface");
 
     const storyNavigation = screen.getByLabelText("Story Navigation");
@@ -64,12 +66,15 @@ describe("SplitCommandWorkspace", () => {
     expect(within(storyNavigation).getByText("Arrival draft preview text.")).toBeInTheDocument();
     expect(within(storyNavigation).getAllByText("placed")).toHaveLength(2);
     expect(within(storyNavigation).getAllByText("scene")).toHaveLength(2);
+    expect(within(storyNavigation).getByText("01")).toBeInTheDocument();
     expect(within(storyNavigation).getByText("Selected")).toBeInTheDocument();
     expect(within(storyNavigation).getByText("Arrival").closest("li")).toHaveAttribute(
       "aria-current",
       "true",
     );
-    expect(screen.getByLabelText("Narrative Overview")).toHaveTextContent(/Placeholder surface/i);
+    expect(screen.getByLabelText("Narrative Overview")).toHaveTextContent(/Loaded workspace data only/i);
+    expect(screen.getByLabelText("Narrative Overview")).toHaveTextContent(/Story units/i);
+    expect(screen.getByLabelText("Narrative Overview")).toHaveTextContent(/Arrival/i);
     expect(screen.getByLabelText("Narrative Gaps")).toHaveTextContent(/Placeholder surface/i);
     expect(screen.getByLabelText("AI Companion")).toHaveTextContent(/Placeholder surface/i);
     expect(screen.getByLabelText("Global Tools")).toHaveTextContent(/No command palette is active/i);
@@ -88,7 +93,10 @@ describe("SplitCommandWorkspace", () => {
       />,
     );
 
-    expect(screen.getByText("Arrival").closest("li")).toHaveAttribute("aria-current", "true");
+    const storyNavigation = screen.getByLabelText("Story Navigation");
+    expect(
+      within(storyNavigation).getByRole("button", { name: "Select Arrival" }).closest("li"),
+    ).toHaveAttribute("aria-current", "true");
 
     rerender(
       <SplitCommandWorkspace
@@ -99,6 +107,8 @@ describe("SplitCommandWorkspace", () => {
       />,
     );
 
-    expect(screen.getByText("Signal").closest("li")).toHaveAttribute("aria-current", "true");
+    expect(
+      within(storyNavigation).getByRole("button", { name: "Select Signal" }).closest("li"),
+    ).toHaveAttribute("aria-current", "true");
   });
 });

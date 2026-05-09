@@ -16,7 +16,10 @@ export default function StoryNavigationPanel({
   onSelectScene,
 }: StoryNavigationPanelProps): JSX.Element {
   return (
-    <section className="split-command__panel" aria-label="Story Navigation">
+    <section
+      className="split-command__panel split-command__panel--primary split-command__panel--navigation"
+      aria-label="Story Navigation"
+    >
       <div className="split-command__panel-heading">
         <div>
           <h3>Story Navigation</h3>
@@ -49,7 +52,12 @@ export default function StoryNavigationPanel({
                   aria-label={`Select ${unit.title}`}
                 >
                   <div className="split-command__story-item-main">
-                    <span className="split-command__story-title">{unit.title}</span>
+                    <div className="split-command__story-title-row">
+                      <span className="split-command__story-index" aria-hidden="true">
+                        {String(unit.order).padStart(2, "0")}
+                      </span>
+                      <span className="split-command__story-title">{unit.title}</span>
+                    </div>
                     {unit.contentPreview ? (
                       <p className="split-command__story-preview">{unit.contentPreview}</p>
                     ) : null}

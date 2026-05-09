@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 
 import type { LoadedProject } from "../../../shared/ipc/projectLoader";
 import { listCommandRegistryEntries } from "../../commands/commandRegistry";
+import type { ActiveOutlineV1, StoryUnitV1 } from "../../utils/storyUnits";
 import { deriveActiveOutline } from "../../utils/storyUnits";
 import StoryNavigationPanel from "./StoryNavigationPanel";
 
@@ -14,15 +15,67 @@ interface SplitCommandWorkspaceProps {
 
 function PlaceholderPanel({
   title,
+  importance = "secondary",
   children,
 }: {
   readonly title: string;
+  readonly importance?: "secondary" | "tertiary";
   readonly children: ReactNode;
 }): JSX.Element {
   return (
-    <section className="split-command__panel split-command__panel--placeholder" aria-label={title}>
+    <section
+      className={`split-command__panel split-command__panel--placeholder split-command__panel--${importance}`}
+      aria-label={title}
+    >
       <h3>{title}</h3>
       <div className="split-command__panel-body">{children}</div>
+    </section>
+  );
+}
+
+function NarrativeOverviewPanel({
+  project,
+  outline,
+  activeUnit,
+}: {
+  readonly project: LoadedProject | null;
+  readonly outline: ActiveOutlineV1;
+  readonly activeUnit: StoryUnitV1 | null;
+}): JSX.Element {
+  const sceneCount = project?.scenes.length ?? 0;
+
+  return (
+    <section
+      className="split-command__panel split-command__panel--secondary split-command__overview"
+      aria-label="Narrative Overview"
+    >
+      <div className="split-command__panel-heading">
+        <div>
+          <h3>Narrative Overview</h3>
+          <p>Loaded workspace data only</p>
+        </div>
+      </div>
+      <dl className="split-command__overview-grid">
+        <div>
+          <dt>Outline</dt>
+          <dd>{outline.label}</dd>
+        </div>
+        <div>
+          <dt>Scenes</dt>
+          <dd>{sceneCount}</dd>
+        </div>
+        <div>
+          <dt>Story units</dt>
+          <dd>{outline.units.length}</dd>
+        </div>
+        <div>
+          <dt>Active</dt>
+          <dd>{activeUnit?.title ?? "None selected"}</dd>
+        </div>
+      </dl>
+      <p className="split-command__panel-note">
+        Story-health signals are not running in this Phase 11B wrapper.
+      </p>
     </section>
   );
 }
@@ -53,33 +106,36 @@ export default function SplitCommandWorkspace({
           </p>
         </div>
 
-        <StoryNavigationPanel
-          outline={activeOutline}
-          activeSceneId={activeSceneId}
-          onSelectScene={onSelectScene}
-        />
+        <div className="split-command__panel-stack" aria-label="Command Center panels">
+          <StoryNavigationPanel
+            outline={activeOutline}
+            activeSceneId={activeSceneId}
+            onSelectScene={onSelectScene}
+          />
 
-        <PlaceholderPanel title="Narrative Overview">
-          <p>
-            Placeholder surface. Future story-health signals will appear here after their
-            contracts are implemented.
-          </p>
-        </PlaceholderPanel>
+          <div className="split-command__panel-cluster" aria-label="Future command surfaces">
+            <NarrativeOverviewPanel
+              project={project}
+              outline={activeOutline}
+              activeUnit={activeUnit}
+            />
 
-        <PlaceholderPanel title="Narrative Gaps">
-          <p>Placeholder surface. No gap detection is running in Phase 11B foundation.</p>
-        </PlaceholderPanel>
+            <PlaceholderPanel title="Narrative Gaps">
+              <p>Placeholder surface. No gap detection is running in Phase 11B foundation.</p>
+            </PlaceholderPanel>
 
-        <PlaceholderPanel title="AI Companion">
-          <p>Placeholder surface. Existing Companion behavior remains in the current overlay.</p>
-        </PlaceholderPanel>
+            <PlaceholderPanel title="AI Companion">
+              <p>Placeholder surface. Existing Companion behavior remains in the current overlay.</p>
+            </PlaceholderPanel>
 
-        <PlaceholderPanel title="Global Tools">
-          <p>
-            Placeholder surface. {commandCount} commands are descriptive metadata only; no
-            command palette is active.
-          </p>
-        </PlaceholderPanel>
+            <PlaceholderPanel title="Global Tools" importance="tertiary">
+              <p>
+                Placeholder surface. {commandCount} commands are descriptive metadata only; no
+                command palette is active.
+              </p>
+            </PlaceholderPanel>
+          </div>
+        </div>
       </aside>
 
       <section
@@ -95,7 +151,9 @@ export default function SplitCommandWorkspace({
               : "Existing stable writing surfaces are wrapped here without changing workflow behavior."}
           </p>
         </div>
-        <div className="split-command__writing-surface">{writingStudio}</div>
+        <div className="split-command__writing-surface">
+          <div className="split-command__writing-frame">{writingStudio}</div>
+        </div>
       </section>
     </div>
   );

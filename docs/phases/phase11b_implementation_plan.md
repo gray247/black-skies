@@ -1,7 +1,7 @@
 # Phase 11B Implementation Plan
 
 Status: Living roadmap
-Last Reviewed: 2026-05-08
+Last Reviewed: 2026-05-09
 Canonical Design Source: `docs/specs/design_system_v1.md`
 
 ## Implementation Baseline
@@ -21,12 +21,15 @@ Dev/test enablement note:
 - The flag is experimental and must remain off by default until Split Command parity is explicitly closed.
 
 Current progress snapshot:
-- Completed passes: Pass 0, Pass 1, Pass 2, Pass 3, Pass 4, Pass 5, and Pass 6.
+- Completed passes: Pass 0, Pass 1, Pass 2, Pass 3, Pass 4, Pass 5, Pass 6, and Pass 7.
 - Completed hardening lane: CI diagnostic hardening / preflight contract fix.
 - This document is the canonical living roadmap for Phase 11B until closure.
 - Pass 6 was visual-only shell refinement for the flagged Split Command shell; it tightened Command Center hierarchy, Writing Studio framing, Story Navigation card states, placeholder presentation, and focus/hover clarity without changing the production default or any backend/project/workflow behavior.
 - Files touched in Pass 6: `app/renderer/components/workspace/SplitCommandWorkspace.tsx`, `app/renderer/components/workspace/StoryNavigationPanel.tsx`, `app/renderer/styles/app.css`, `docs/BLACK_SKIES_FIX_TRACKER.md`, and this roadmap.
 - No new deferred visual refinements were added in this pass.
+- Pass 7 added explicit Command Center hierarchy inside the flagged shell: Story Navigation is marked as the primary command panel, future command surfaces are grouped below it, placeholder panel weights are explicit, and styling remains scoped to `.split-command*`.
+- Files touched in Pass 7: `app/renderer/components/workspace/SplitCommandWorkspace.tsx`, `app/renderer/components/workspace/StoryNavigationPanel.tsx`, `app/renderer/styles/app.css`, `app/renderer/__tests__/SplitCommandWorkspace.test.tsx`, `docs/BLACK_SKIES_FIX_TRACKER.md`, and this roadmap.
+- Pass 7 did not change the production default, backend behavior, project format, Story Unit persistence, command execution, generation, critique, snapshot, or export behavior.
 
 Pass 2 parity guard:
 - Renderer coverage now verifies flag-off default shell rendering, flag-on Split Command rendering, Writing Studio wrapping the stable workspace body, Command Center placeholder labeling, generation/preflight calls through the wrapped ProjectHome path, and Story Unit derivation without project mutation.
@@ -340,10 +343,10 @@ The pass list below is linear and expandable. It is a living sequence, not a har
 - Pass 4 - Shared Scene Selection Interface
 - Pass 5 - Workflow Surface Smoke
 - Pass 6 - Visual Shell Refinement V1
+- Pass 7 - Command Center Hierarchy + Styling
 - CI Diagnostic Hardening / Preflight Contract Fix
 
 ### Remaining Proposed Linear Roadmap
-- Pass 7 - Command Center Hierarchy + Styling
 - Pass 8 - Writing Studio Framing
 - Pass 9 - Story Navigation Visual Polish
 - Pass 10 - Narrative Overview Wrapper
@@ -409,8 +412,8 @@ Status key:
 - `delete-candidate` means the item may be removed from future plans if it no longer fits the roadmap.
 
 ### Later Phase 11B
-- Visual shell refinement - reason deferred: styling should follow the stable shell contract; risk level: medium; likely future phase: 11B; unblock condition: shell topology and wrapper contracts remain stable; blocks current phase: no; status: deferred.
-- Command center styling - reason deferred: hierarchy needs shell layout stability first; risk level: medium; likely future phase: 11B; unblock condition: command center zones stop moving structurally; blocks current phase: no; status: deferred.
+- Visual shell residual refinement - reason deferred: Pass 6 landed V1 visual shell refinement, but final polish should follow wrapper and adaptive-layout passes; risk level: medium; likely future phase: 11B; unblock condition: remaining wrapper and layout passes are complete; blocks current phase: no; status: deferred.
+- Command center residual styling - reason deferred: Pass 7 landed the foundation hierarchy/styling, but final command-center polish should follow Narrative Overview and Global Tools wrappers; risk level: medium; likely future phase: 11B; unblock condition: command-center wrapper contents are stable; blocks current phase: no; status: deferred.
 - Writing studio framing - reason deferred: immersive surface polish should follow shell contract stabilization; risk level: medium; likely future phase: 11B; unblock condition: writing studio wrapper stays behaviorally stable; blocks current phase: no; status: deferred.
 - Story navigation polish - reason deferred: navigation structure should stay stable before visual tuning; risk level: low to medium; likely future phase: 11B; unblock condition: shared selection remains authoritative; blocks current phase: no; status: deferred.
 - Narrative overview wrapper - reason deferred: should reflect runtime truth only after shell hierarchy is settled; risk level: medium; likely future phase: 11B; unblock condition: current overview data path remains honest; blocks current phase: no; status: deferred.
