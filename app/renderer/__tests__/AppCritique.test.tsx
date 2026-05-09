@@ -116,7 +116,12 @@ function ProjectHomeMock({
     onDraftChange?.('sc_0001', draftText);
   }, [draftOverrides, onActiveSceneChange, onDraftChange]);
 
-  return <div data-testid="project-home-mock" />;
+  return (
+    <div
+      data-testid="project-home-mock"
+      data-draft={draftOverrides?.sc_0001 ?? loadedProject.drafts.sc_0001}
+    />
+  );
 }
 
 vi.mock('../components/ProjectHome', () => ({
@@ -270,10 +275,18 @@ describe('App critique + rewrite loop', () => {
 
     render(<App />);
 
+    await waitFor(() =>
+      expect(screen.getByTestId('project-home-mock')).toHaveAttribute(
+        'data-draft',
+        loadedProject.drafts.sc_0001,
+      ),
+    );
+
     const critiqueButton = await screen.findByTestId('workspace-action-critique');
     fireEvent.click(critiqueButton);
 
     await screen.findByText(critiqueResponse.summary);
+    await screen.findByText('Advisory summary');
     await screen.findByText(/route=draft\/critique/i);
     await screen.findByText(/Budget source: no budgeted action\./i);
     expect(services.critiqueDraft).toHaveBeenCalledWith(
@@ -289,7 +302,7 @@ describe('App critique + rewrite loop', () => {
     );
     fireEvent.change(instructions, { target: { value: 'Add more tension' } });
 
-    const rewriteButton = screen.getByRole('button', { name: /Generate rewrite/i });
+    const rewriteButton = screen.getByRole('button', { name: /Generate saved rewrite/i });
     fireEvent.click(rewriteButton);
 
     await waitFor(() =>
@@ -303,7 +316,12 @@ describe('App critique + rewrite loop', () => {
     );
     expect(services.phase4Rewrite).not.toHaveBeenCalled();
 
-    await screen.findByText('Saved rewrite');
+    await screen.findByText(/The rewrite has already been saved/i);
+    expect(screen.getByRole('heading', { name: 'Submitted draft' })).toBeInTheDocument();
+    expect(screen.getAllByRole('heading', { name: 'Saved rewrite' }).length).toBeGreaterThanOrEqual(1);
+    expect(
+      screen.getByRole('button', { name: 'Close saved rewrite preview' }),
+    ).toBeInTheDocument();
     await screen.findByText(/route=draft\/rewrite/i);
 
     const syncButton = screen.getByRole('button', { name: 'Sync draft view' });
@@ -312,6 +330,48 @@ describe('App critique + rewrite loop', () => {
     await waitFor(() => {
       expect(screen.queryByRole('dialog')).toBeNull();
     });
+    await waitFor(() =>
+      expect(screen.getByTestId('project-home-mock')).toHaveAttribute(
+        'data-draft',
+        'Revised scene text',
+      ),
+    );
+    await screen.findByText('Rewrite synced');
+    await screen.findByText('Local draft view updated from the saved rewrite.');
+  });
+
+  it('keeps critique advisory and non-mutative before rewrite', async () => {
+    const critiqueResponse: DraftCritiqueBridgeResponse = {
+      unit_id: 'sc_0001',
+      schema_version: 'CritiqueOutputSchema v1',
+      summary: 'Advisory-only critique result.',
+      priorities: ['Clarify stakes without changing the draft.'],
+      line_comments: [{ line: 1, note: 'Advisory note.' }],
+    };
+    (services.critiqueDraft as vi.Mock).mockResolvedValue({
+      ok: true,
+      data: critiqueResponse,
+      traceId: 'trace-advisory',
+    });
+
+    render(<App />);
+
+    await waitFor(() =>
+      expect(screen.getByTestId('project-home-mock')).toHaveAttribute(
+        'data-draft',
+        loadedProject.drafts.sc_0001,
+      ),
+    );
+    fireEvent.click(await screen.findByTestId('workspace-action-critique'));
+
+    await screen.findByText(critiqueResponse.summary);
+    await screen.findByText('Advisory summary');
+    expect(services.rewriteDraft).not.toHaveBeenCalled();
+    expect(screen.queryByRole('heading', { name: 'Saved rewrite' })).toBeNull();
+    expect(screen.getByTestId('project-home-mock')).toHaveAttribute(
+      'data-draft',
+      loadedProject.drafts.sc_0001,
+    );
   });
 
   it('surfaces backend rewrite conflicts without collapsing to generic fetch failure', async () => {
@@ -350,7 +410,7 @@ describe('App critique + rewrite loop', () => {
     fireEvent.click(critiqueButton);
     await screen.findByText(critiqueResponse.summary);
 
-    const rewriteButton = screen.getByRole('button', { name: /Generate rewrite/i });
+    const rewriteButton = screen.getByRole('button', { name: /Generate saved rewrite/i });
     fireEvent.click(rewriteButton);
 
     await waitFor(() => {
@@ -391,7 +451,7 @@ describe('App critique + rewrite loop', () => {
     expect(services.critiqueDraft).toHaveBeenCalledTimes(1);
     expect(services.phase4Critique).not.toHaveBeenCalled();
 
-    fireEvent.click(screen.getByRole('button', { name: /Generate rewrite/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Generate saved rewrite/i }));
     await screen.findByText(/route=draft\/rewrite/i);
     expect(services.rewriteDraft).toHaveBeenCalledTimes(1);
     expect(services.phase4Rewrite).not.toHaveBeenCalled();
@@ -427,7 +487,7 @@ describe('App critique + rewrite loop', () => {
       }),
     );
 
-    fireEvent.click(screen.getByRole('button', { name: /Generate rewrite/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Generate saved rewrite/i }));
     await waitFor(() =>
       expect(services.rewriteDraft).toHaveBeenCalledWith(
         expect.objectContaining({

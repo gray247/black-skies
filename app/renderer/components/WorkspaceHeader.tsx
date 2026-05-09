@@ -212,7 +212,7 @@ export function WorkspaceHeader(props: WorkspaceHeaderProps): JSX.Element {
             data-testid="workspace-action-verify"
             onClick={onVerify}
           >
-            Verify
+            Verify snapshots
           </button>
           <button
             type="button"

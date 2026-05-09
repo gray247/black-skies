@@ -1,7 +1,7 @@
 # Phase 12 Runtime Audit and Surface Plans
 
-Status: Phase 12 Passes 2-5 planning artifact
-Last Reviewed: 2026-05-08
+Status: Phase 12 Passes 2-10 audit and closure artifact
+Last Reviewed: 2026-05-09
 
 Canonical sources:
 
@@ -18,6 +18,7 @@ Runtime files inspected:
 - `app/renderer/components/CritiqueModal.tsx`
 - `app/renderer/components/SnapshotsPanel.tsx`
 - `app/renderer/components/WorkspaceHeader.tsx`
+- `app/renderer/recovery/actions.mjs`
 - `app/renderer/utils/serviceErrors.ts`
 - `services/src/blackskies/services/routers/draft/revision.py`
 - `app/renderer/__tests__/AppCritique.test.tsx`
@@ -282,3 +283,122 @@ Runtime files inspected:
 | Export-linked revision provenance | Requires export metadata relationship to revision state | Medium | Phase 13+ | Export artifact metadata contract approved | No |
 | Per-hunk accept/reject | Requires new mutation workflow and comparison UI | High | Phase 14+ | Rich diff UI and mutation policy approved | No |
 
+## Pass 6 - Snapshot / Recovery Relationship Polish
+
+### Snapshot / recovery truth
+
+- Snapshot means a recoverable project artifact, not an editorial decision.
+- Manual snapshots are created and listed through the snapshot feature under `.snapshots/*`.
+- Recovery snapshots used by accept/recovery flows live under `history/snapshots/*`.
+- Restore means applying a recovery source. In the recovery banner path, restoring a snapshot can change the current project files.
+- ZIP restore means creating a duplicate project copy from an export-style archive; it should not imply the current project is overwritten.
+- Recovery means returning the project to a usable state after a failure or crash condition.
+- Snapshot creation does not critique, rewrite, sync, export, or approve text.
+- Snapshot verification checks recovery artifacts; it does not mutate draft text.
+- Export creates a deliverable artifact and does not define canonical draft authority.
+- What survives restart: persisted draft files, snapshot artifacts, backup/export artifacts, and recovery tracker state.
+- What changes current draft authority: draft generation, rewrite persistence, accept/save flows, and recovery restore. Critique, snapshot verification, export, and viewing snapshot reports do not.
+
+### Risky wording table
+
+| Surface / file | Current wording | Risk | Proposed wording | Implementation phase | Test required |
+| --- | --- | --- | --- | --- | --- |
+| `App.tsx` snapshot toast | `Snapshot created` / `Snapshot <id>` | Low; accurate but does not say it is a recovery artifact | `Snapshot created` with optional body `Recovery artifact created: <id>` | Phase 12 copy pass | Snapshot toast test |
+| `App.tsx` snapshot action | `View report` | Medium; action also opens panel and may reveal path, not just a report | `View snapshot report` | Phase 12 copy pass | Snapshot toast action test |
+| `WorkspaceHeader.tsx` snapshot button | `Snapshot` | Low; short but acceptable in toolbar context | `Snapshot` | No change needed unless broader toolbar copy pass happens | Existing snapshot wiring test |
+| `WorkspaceHeader.tsx` verify button | `Verify` | Medium; does not say snapshots/backups | `Verify snapshots` | Phase 12 copy pass | Header action accessibility test |
+| `SnapshotsPanel.tsx` heading | `Snapshots & Verification` | Low; accurate | `Snapshots & Verification` | No change needed | Existing panel test |
+| `SnapshotsPanel.tsx` restore ZIP button | `Restore latest ZIP` | Medium; could sound destructive without nearby copy | `Restore latest ZIP as copy` | Phase 12 copy pass | Restore modal test |
+| `SnapshotsPanel.tsx` ZIP restore modal | `This creates a duplicate copy of the current project in a sibling folder. Existing projects are not overwritten.` | Low; clearly non-destructive | Keep wording | No change needed | Existing or future modal test |
+| `SnapshotsPanel.tsx` backup row action | `Restore` | Medium; backup restore outcome is less explicit than ZIP restore modal | `Restore backup` | Phase 12 copy pass | Backup action test |
+| `SnapshotsPanel.tsx` backup restore success | `Backup restored` / `Restored as <slug>` | Low; reasonably clear duplicate/project result | Keep or clarify as `Backup restored as <slug>` | Later copy pass | Backup restore toast test |
+| `useRecovery.ts` banner button | `Restore snapshot` | Medium; correctly names action but does not state current project files may change | `Restore snapshot` with supporting banner copy later | Phase 12 recovery copy pass | Recovery banner test |
+| `recovery/actions.mjs` success toast | `Restored earlier version.` / `Latest snapshot restored successfully.` | Medium; true, but should clarify current project may now match the restored snapshot | `Current project restored from latest snapshot.` | Phase 12 copy pass | Recovery toast test |
+| `recovery/actions.mjs` validation toast | `Select a story to restore its latest snapshot.` | Low; accurate | Keep wording | No change needed | Existing recovery validation coverage |
+| `App.tsx` export toast | `Export complete` / `Exported <format> to <path>` | Low; output artifact language is accurate | Keep wording | No change needed | Existing export test |
+| `WorkspaceHeader.tsx` export aria-label | `Export project manuscript` | Low; accurate output language | Keep wording | No change needed | Existing export wiring test |
+
+### Future implementation rules
+
+- Snapshot restore must never sound like rewrite.
+- Snapshot creation must never imply editorial approval.
+- Snapshot verification must never imply the draft was changed.
+- Export must never imply canonical draft persistence.
+- Sync must never imply snapshot creation.
+- Restore copy must say whether current project files may change or a duplicate project will be created.
+- Failed restore copy must say whether the current project was modified.
+- Manual snapshot copy must not be mixed with accept/recovery snapshot authority unless both paths are named.
+- Snapshot-linked provenance must stay deferred until a durable revision/snapshot relationship exists.
+
+### Pass 6 deferrals
+
+| Item | Reason deferred | Risk level | Future phase | Unblock condition | Blocks Phase 12 |
+| --- | --- | --- | --- | --- | --- |
+| Persistent recovery audit log | Requires durable recovery event storage and retention rules | Medium | Phase 13+ | Recovery event schema and storage authority approved | No |
+| Revision-history timeline | Requires persisted revision history and timeline semantics | High | Phase 13+ | Revision storage model approved | No |
+| Restore preview / dry-run restore | Requires backend or renderer comparison support before applying restore | Medium | Phase 13+ | Restore preview contract and failure policy approved | No |
+| Per-scene restore comparison | Requires scene-level snapshot diff and selective restore policy | High | Phase 14+ | Restore preview plus per-scene mutation rules approved | No |
+
+## Pass 7 - Critique Entry And Result Clarity
+
+### Runtime copy changes
+
+- `Critique summary` became `Critique review` so the modal title names the surface as review, not mutation.
+- The critique result section now uses `Advisory summary`.
+- Loading copy uses `Requesting critique...`.
+- Existing entry guards and service calls did not change.
+
+### Test coverage
+
+- `AppCritique.test.tsx` now asserts critique renders as advisory and does not mutate the renderer draft mirror before rewrite.
+- The test also verifies no rewrite call happens during critique-only review.
+
+## Pass 8 - Rewrite Result Clarity
+
+### Runtime copy changes
+
+- `Generate rewrite` became `Generate saved rewrite`.
+- `Rewriting...` became `Saving rewrite...`.
+- The saved rewrite explainer now says the rewrite has already been saved and sync only updates the local draft view.
+- Comparison columns now read `Submitted draft` and `Saved rewrite`.
+- `Discard rewrite` became `Close saved rewrite preview`.
+- The footer close action now reads `Close review`.
+- Snapshot/recovery copy also received the safe Phase 12 wording already identified by Pass 6: `View snapshot report`, `Restore latest ZIP as copy`, `Restore backup`, and `Current project restored from latest snapshot.`
+
+### Behavior preserved
+
+- Rewrite still persists through the existing backend route before renderer sync.
+- Sync still updates `projectDrafts`, `draftEdits`, and `currentProject.drafts` only in the renderer mirror.
+- Closing the saved rewrite preview still clears renderer preview state only; it does not roll back the saved draft.
+- Conflict copy still says the rewrite request was not saved and no failed rewrite provenance is shown.
+
+## Pass 9 - Mutation / Sync / Provenance Test Coverage
+
+Added or strengthened renderer coverage for:
+
+- critique is advisory and non-mutative
+- saved rewrite copy appears before sync
+- submitted draft versus saved rewrite comparison labels are visible
+- sync updates the renderer draft mirror to the saved rewrite
+- the sync toast states local draft view reconciliation
+- rewrite conflict copy remains specific and does not show accepted rewrite provenance
+- snapshot and recovery labels remain separate from rewrite/sync language
+
+No backend tests changed because no backend behavior changed.
+
+## Pass 10 - Cleanup / Closure Review
+
+Closure outcome:
+
+- Phase 12 is closed as an editorial workflow truthfulness foundation.
+- Runtime behavior changed only in user-facing copy and test-only mocks/assertions.
+- Backend behavior, project format, rewrite persistence, snapshot/export behavior, and Split Command defaults are unchanged.
+- Deferred ledger entries remain preserved.
+
+Validation evidence:
+
+- `pnpm --filter app test -- AppCritique.test.tsx AppPreflight.test.tsx AppRecovery.test.tsx AppSnapshotsVerification.test.tsx AppRestore.test.tsx useRecovery.test.tsx`
+- `pnpm --filter app test`
+- `pnpm --filter app lint`
+- `pnpm --filter app run build:production`
+- `git diff --check`

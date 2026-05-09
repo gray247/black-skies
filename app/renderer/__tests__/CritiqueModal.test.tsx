@@ -28,7 +28,8 @@ describe('CritiqueModal summary rendering', () => {
       />,
     );
 
-    expect(screen.getByRole('button', { name: /Close/i })).toHaveTextContent('Close');
+    expect(screen.getByRole('button', { name: 'Close' })).toHaveTextContent('Close');
+    expect(screen.getByRole('button', { name: 'Close review' })).toBeInTheDocument();
     const summary = screen.getByText(/First paragraph\.\s+Second paragraph\./);
     expect(summary).toHaveClass('critique-modal__summary-body');
     expect(summary.textContent).toContain('First paragraph.');

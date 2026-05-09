@@ -505,7 +505,7 @@ export default function SnapshotsPanel({
           : undefined;
       const reportAction = [
         {
-          label: 'View report',
+          label: 'View snapshot report',
           onPress: () =>
             void openVerificationReportModal({
               snapshotId: toastSnapshotId,
@@ -901,7 +901,7 @@ export default function SnapshotsPanel({
                           restoringBackup === entry.filename || offline || !services?.restoreBackup
                         }
                       >
-                        {restoringBackup === entry.filename ? 'Restoring...' : 'Restore'}
+                        {restoringBackup === entry.filename ? 'Restoring...' : 'Restore backup'}
                       </button>
                     </div>
                   </li>
@@ -917,7 +917,7 @@ export default function SnapshotsPanel({
                 onClick={() => setRestoreConfirmOpen(true)}
                 disabled={!canRestoreFromZip || restoringZip}
               >
-                Restore latest ZIP
+                Restore latest ZIP as copy
               </button>
             </div>
           </div>

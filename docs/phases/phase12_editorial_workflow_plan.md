@@ -1,7 +1,7 @@
 # Phase 12 Editorial Workflow / Revision Intelligence Foundation
 
-Status: Living roadmap
-Last Reviewed: 2026-05-08
+Status: Closed
+Last Reviewed: 2026-05-09
 Canonical Contract Source: `docs/specs/editorial_workflow_contract.md`
 Supporting Design Sources: `docs/specs/critique_rewrite_provenance.md`, `docs/specs/workflow_spine.md`, `docs/specs/generation_scope.md`, `docs/specs/error_visibility.md`, `docs/specs/draft_preview_contract.md`, `docs/specs/scene_metadata_contract.md`
 
@@ -154,27 +154,32 @@ Phase 12 remains linear and expandable.
 
 - Clarify where snapshot history fits relative to rewrite persistence.
 - Make recovery language explicit and non-overlapping with rewrite language.
+- Completed as a docs-only snapshot/recovery relationship review in `docs/phases/phase12_runtime_audit.md` and `docs/specs/editorial_workflow_contract.md`.
 
 ### Pass 7 - Critique entry and result clarity
 
 - Tighten the entry conditions and result framing for critique.
 - Make the review step feel like advice, not mutation.
+- Completed as a copy/test pass: the modal now frames critique as an advisory review and tests assert critique does not mutate the draft before rewrite.
 
 ### Pass 8 - Rewrite result clarity
 
 - Tighten the saved rewrite presentation.
 - Make sync, discard, and conflict outcomes easy to distinguish.
+- Completed as a copy/test pass: rewrite generation is labeled as a saved rewrite flow, comparison columns identify submitted draft versus saved rewrite, and discard is labeled as closing the saved rewrite preview.
 
 ### Pass 9 - Tests for mutation / sync / provenance expectations
 
 - Add or strengthen tests for the truth model.
 - Cover saved-vs-synced behavior, provenance visibility, and conflict wording.
+- Completed with renderer coverage for advisory critique, saved rewrite copy, sync-to-local-view behavior, conflict copy, provenance visibility, and snapshot/recovery language separation.
 
 ### Pass 10 - Cleanup / closure review
 
 - Remove any stale contract language.
 - Verify the roadmap, tracker, and runtime truth still match.
 - Confirm Phase 12 is ready to close.
+- Completed with the closure checklist below. No backend behavior, project format, rewrite persistence, provenance storage, revision history, or future-phase systems changed.
 
 ## Deferred Ledger
 
@@ -200,6 +205,10 @@ Phase 12 defers the following on purpose.
 | Snapshot-linked revision provenance | Requires linking rewrite events to later snapshot ids | Phase 13+ | Snapshot/revision relationship design approved | Medium | No | Deferred |
 | Export-linked revision provenance | Requires export metadata relationship to revision state | Phase 13+ | Export artifact metadata contract approved | Medium | No | Deferred |
 | Per-hunk accept/reject | Requires new mutation workflow and comparison UI | Phase 14+ | Rich diff UI and mutation policy approved | High | No | Deferred |
+| Persistent recovery audit log | Requires durable recovery event storage and retention rules | Phase 13+ | Recovery event schema and storage authority approved | Medium | No | Deferred |
+| Revision-history timeline | Requires persisted revision history and timeline semantics | Phase 13+ | Revision storage model approved | High | No | Deferred |
+| Restore preview / dry-run restore | Requires backend or renderer comparison support before applying restore | Phase 13+ | Restore preview contract and failure policy approved | Medium | No | Deferred |
+| Per-scene restore comparison | Requires scene-level snapshot diff and selective restore policy | Phase 14+ | Restore preview plus per-scene mutation rules approved | High | No | Deferred |
 
 ## Closure Definition
 
@@ -214,6 +223,32 @@ Phase 12 is done when:
 - no future-phase systems leak into the editorial workflow layer
 - docs, tracker, and runtime truth match
 - full app tests, lint, and production build pass before closure
+
+## Phase 12 Closure Review
+
+Status: Closed on 2026-05-09.
+
+Checklist:
+
+- [x] critique/rewrite workflow behavior is truthful in the UI and docs
+- [x] mutation, reconciliation, discard, provenance, snapshot, and export states are clearly named
+- [x] provenance expectations are documented and reflected in the surface copy
+- [x] snapshot and recovery are separated from rewrite persistence
+- [x] tests cover the key editorial trust contracts
+- [x] no backend behavior changed
+- [x] no project format changed
+- [x] no rewrite persistence changed
+- [x] no persisted revision history, provenance storage, graph/vector/memory, local LLM orchestration, command middleware, or autonomous rewriting entered Phase 12
+- [x] docs, tracker, and runtime truth match
+- [x] full app tests, lint, production build, and diff check pass
+
+Closure validation:
+
+- `pnpm --filter app test -- AppCritique.test.tsx AppPreflight.test.tsx AppRecovery.test.tsx AppSnapshotsVerification.test.tsx AppRestore.test.tsx useRecovery.test.tsx`
+- `pnpm --filter app test`
+- `pnpm --filter app lint`
+- `pnpm --filter app run build:production`
+- `git diff --check`
 
 ## Risks
 

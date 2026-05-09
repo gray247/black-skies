@@ -1,7 +1,7 @@
 # Editorial Workflow Contract
 
-Status: Phase 12 contract draft
-Last Reviewed: 2026-05-08
+Status: Phase 12 closed contract
+Last Reviewed: 2026-05-09
 
 ## Purpose
 
@@ -126,6 +126,57 @@ Restore is a recovery action, not a rewrite action.
 Recovery is the process of returning to a usable project state after a failure, corruption, or restore event.
 It is a durability concept, not a revision proposal.
 
+## Snapshot / Recovery Relationship
+
+Snapshot and recovery terms must stay separate from critique, rewrite, sync, and export terms.
+
+### Snapshot truth
+
+- A snapshot is a persisted recovery artifact.
+- Manual snapshots are listed from `.snapshots/*`.
+- Accept/recovery snapshots use `history/snapshots/*`.
+- Snapshot metadata and manifests may survive restart.
+- Creating a snapshot captures project files; it does not approve, rewrite, critique, sync, or export the draft.
+
+### Restore truth
+
+- Recovery restore from `history/snapshots/*` can change the current project files back to the restored snapshot state.
+- ZIP restore creates a duplicate project copy and must not imply it overwrites the current project.
+- Restore is a recovery action, not an editorial action.
+- A failed restore must say whether the current project was modified.
+
+### Recovery truth
+
+- Recovery status tells the renderer whether a project needs recovery and which recovery snapshot is available.
+- Recovery survives restart when the backend recovery tracker or snapshot metadata says the project still needs attention.
+- Recovery does not create a new revision unless the restore operation actually changes project files.
+
+### Snapshot versus rewrite
+
+- Rewrite creates new draft text and persists it through the draft rewrite route.
+- Snapshot captures project state for recovery.
+- Snapshot must not sound like a rewrite checkpoint unless the exact snapshot authority and captured state are stated.
+
+### Snapshot versus sync
+
+- Sync reconciles the renderer draft view with an already-saved rewrite.
+- Snapshot captures files for durability.
+- Sync must never imply that a snapshot was created.
+- Snapshot must never imply that the local renderer view was reconciled.
+
+### Snapshot versus export
+
+- Export writes a deliverable artifact.
+- Snapshot writes a recovery artifact.
+- Export must not imply that project state was persisted.
+- Snapshot must not imply that a shareable manuscript artifact was created.
+
+### Draft authority
+
+- Current draft authority changes when draft files are written by generation, rewrite, accept/save flows, or recovery restore.
+- Current draft authority does not change when critique runs, provenance is displayed, export succeeds, snapshot verification runs, or a snapshot is merely viewed.
+- Manual snapshot creation creates a recovery artifact but does not itself alter the draft content being captured.
+
 ## Authority Model
 
 ### Authoritative source
@@ -188,11 +239,18 @@ Phase 12 uses the following state model.
 
 ### Preferred terminology
 
+- "critique review"
+- "advisory summary"
+- "submitted draft"
 - "saved rewrite"
 - "sync draft view"
+- "close saved rewrite preview"
 - "persisted draft"
 - "renderer draft view"
 - "recovery artifact"
+- "view snapshot report"
+- "restore latest ZIP as copy"
+- "current project restored from latest snapshot"
 - "review result"
 - "provenance"
 
@@ -214,15 +272,18 @@ Phase 12 uses the following state model.
 - No state transition that depends on unstated backend behavior.
 - No copy that suggests a saved revision is still only a proposal.
 - No contract that makes recovery look like content authoring.
+- No restore copy that hides whether current project files may change.
+- No snapshot copy that implies editorial approval.
+- No export copy that implies canonical draft persistence.
 
 ## Contract Gaps
 
-The following gaps are visible in the current runtime and docs:
+The following residual gaps remain visible after Phase 12 closure:
 
-- rewrite and sync language still need stricter copy alignment in the modal and related surfaces
-- provenance is present, but its terminology is not yet standardized across all editorial surfaces
-- snapshot/recovery language can still be confused with rewrite persistence
-- the current tests cover the main paths, but the contract needs sharper language around saved-vs-synced state
+- provenance is present, but richer provider/model/timestamp metadata still lacks durable storage authority
+- snapshot-linked and export-linked provenance remain deferred until a revision/snapshot/export relationship is designed
+- rich diff UI, revision history, and per-hunk accept/reject remain deferred future systems
+- recovery restore and ZIP restore copy must continue to keep destructive current-project restore and duplicate-project restore clearly separated
 - the renderer currently mirrors draft text in more than one place, so the authority boundaries need to remain explicit in future passes
 
 ## Cross-References
@@ -234,4 +295,3 @@ The following gaps are visible in the current runtime and docs:
 - [Error / Toast Visibility Contract](./error_visibility.md)
 - [Draft Preview Contract](./draft_preview_contract.md)
 - [Scene Metadata Contract](./scene_metadata_contract.md)
-

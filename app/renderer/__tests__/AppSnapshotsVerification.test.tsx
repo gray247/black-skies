@@ -277,7 +277,7 @@ describe('SnapshotsPanel verification details', () => {
 
     const toastPayloads = pushToast.mock.calls.map((call) => call[0]);
     const successToast = toastPayloads.find((payload) =>
-      payload.actions?.some((action) => action.label === 'View report'),
+      payload.actions?.some((action) => action.label === 'View snapshot report'),
     );
     expect(successToast).toBeDefined();
     const action = successToast?.actions?.[0];
@@ -371,7 +371,7 @@ describe('SnapshotsPanel verification details', () => {
 
     const toastPayloads = pushToast.mock.calls.map((call) => call[0]);
     const successToast = toastPayloads.find((payload) =>
-      payload.actions?.some((action) => action.label === 'View report'),
+      payload.actions?.some((action) => action.label === 'View snapshot report'),
     );
     expect(successToast).toBeDefined();
     const action = successToast?.actions?.[0];
