@@ -2,6 +2,7 @@ import type { LoadedProject, SceneDraftMetadata } from "../../shared/ipc/project
 
 export type StoryUnitSourceType = "scene";
 export type StoryUnitState = "placed";
+export type StoryUnitDraftStatus = "empty" | "has_draft";
 
 export interface StoryUnitPlacement {
   readonly outlineKey: "main";
@@ -23,6 +24,8 @@ export interface StoryUnitV1 {
   readonly state: StoryUnitState;
   readonly placement: StoryUnitPlacement;
   readonly order: number;
+  readonly draftStatus: StoryUnitDraftStatus;
+  readonly isAiGenerated: false;
   readonly sceneId: string;
   readonly source: StoryUnitSource;
 }
@@ -47,6 +50,10 @@ function sceneContentPreview(scene: SceneDraftMetadata, draft: string | undefine
   return metadataPreview.trim().slice(0, 180);
 }
 
+function sceneDraftStatus(draft: string | undefined): StoryUnitDraftStatus {
+  return draft?.trim() ? "has_draft" : "empty";
+}
+
 export function deriveStoryUnits(project: LoadedProject | null | undefined): readonly StoryUnitV1[] {
   if (!project) {
     return [];
@@ -69,6 +76,8 @@ export function deriveStoryUnits(project: LoadedProject | null | undefined): rea
         order: scene.order,
       },
       order: scene.order,
+      draftStatus: sceneDraftStatus(project.drafts[scene.id]),
+      isAiGenerated: false,
       sceneId: scene.id,
       source: {
         projectPath: project.path,
@@ -84,4 +93,14 @@ export function deriveActiveOutline(project: LoadedProject | null | undefined): 
     sourceOutlineId: project?.outline.outline_id ?? null,
     units: deriveStoryUnits(project),
   };
+}
+
+export function activeOutlineContainsScene(
+  outline: ActiveOutlineV1,
+  sceneId: string | null | undefined,
+): boolean {
+  if (!sceneId) {
+    return false;
+  }
+  return outline.units.some((unit) => unit.sceneId === sceneId);
 }

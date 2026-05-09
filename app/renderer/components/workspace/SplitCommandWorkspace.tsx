@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 
 import type { LoadedProject } from "../../../shared/ipc/projectLoader";
+import type { CommandRegistryEntry } from "../../commands/commandRegistry";
 import { listCommandRegistryEntries } from "../../commands/commandRegistry";
 import type { ActiveOutlineV1, StoryUnitV1 } from "../../utils/storyUnits";
 import { deriveActiveOutline } from "../../utils/storyUnits";
@@ -80,6 +81,54 @@ function NarrativeOverviewPanel({
   );
 }
 
+function GlobalToolsPanel({
+  commands,
+}: {
+  readonly commands: readonly CommandRegistryEntry[];
+}): JSX.Element {
+  const globalCommands = commands.filter((command) => command.allowedZones.includes("global"));
+  const commandCenterCommands = commands.filter((command) =>
+    command.allowedZones.includes("command_center"),
+  );
+
+  return (
+    <section
+      className="split-command__panel split-command__panel--tertiary split-command__tools"
+      aria-label="Global Tools"
+    >
+      <div className="split-command__panel-heading">
+        <div>
+          <h3>Global Tools</h3>
+          <p>Display-only command metadata</p>
+        </div>
+      </div>
+      <dl className="split-command__tools-summary">
+        <div>
+          <dt>Total</dt>
+          <dd>{commands.length}</dd>
+        </div>
+        <div>
+          <dt>Global</dt>
+          <dd>{globalCommands.length}</dd>
+        </div>
+        <div>
+          <dt>Command Center</dt>
+          <dd>{commandCenterCommands.length}</dd>
+        </div>
+      </dl>
+      <ul className="split-command__tools-list" aria-label="Registered command metadata">
+        {commands.slice(0, 5).map((command) => (
+          <li key={command.id}>
+            <span>{command.label}</span>
+            <small>{command.category}</small>
+          </li>
+        ))}
+      </ul>
+      <p className="split-command__panel-note">No command palette or execution path is active.</p>
+    </section>
+  );
+}
+
 export default function SplitCommandWorkspace({
   project,
   activeSceneId,
@@ -89,7 +138,7 @@ export default function SplitCommandWorkspace({
   const activeOutline = deriveActiveOutline(project);
   const activeUnit =
     activeSceneId ? activeOutline.units.find((unit) => unit.sceneId === activeSceneId) ?? null : null;
-  const commandCount = listCommandRegistryEntries().length;
+  const commands = listCommandRegistryEntries();
 
   return (
     <div className="split-command" data-testid="split-command-workspace">
@@ -128,12 +177,7 @@ export default function SplitCommandWorkspace({
               <p>Placeholder surface. Existing Companion behavior remains in the current overlay.</p>
             </PlaceholderPanel>
 
-            <PlaceholderPanel title="Global Tools" importance="tertiary">
-              <p>
-                Placeholder surface. {commandCount} commands are descriptive metadata only; no
-                command palette is active.
-              </p>
-            </PlaceholderPanel>
+            <GlobalToolsPanel commands={commands} />
           </div>
         </div>
       </aside>

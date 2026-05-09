@@ -21,7 +21,7 @@ Dev/test enablement note:
 - The flag is experimental and must remain off by default until Split Command parity is explicitly closed.
 
 Current progress snapshot:
-- Completed passes: Pass 0, Pass 1, Pass 2, Pass 3, Pass 4, Pass 5, Pass 6, and Pass 7.
+- Completed passes: Pass 0 through Pass 13.
 - Completed hardening lane: CI diagnostic hardening / preflight contract fix.
 - This document is the canonical living roadmap for Phase 11B until closure.
 - Pass 6 was visual-only shell refinement for the flagged Split Command shell; it tightened Command Center hierarchy, Writing Studio framing, Story Navigation card states, placeholder presentation, and focus/hover clarity without changing the production default or any backend/project/workflow behavior.
@@ -30,6 +30,12 @@ Current progress snapshot:
 - Pass 7 added explicit Command Center hierarchy inside the flagged shell: Story Navigation is marked as the primary command panel, future command surfaces are grouped below it, placeholder panel weights are explicit, and styling remains scoped to `.split-command*`.
 - Files touched in Pass 7: `app/renderer/components/workspace/SplitCommandWorkspace.tsx`, `app/renderer/components/workspace/StoryNavigationPanel.tsx`, `app/renderer/styles/app.css`, `app/renderer/__tests__/SplitCommandWorkspace.test.tsx`, `docs/BLACK_SKIES_FIX_TRACKER.md`, and this roadmap.
 - Pass 7 did not change the production default, backend behavior, project format, Story Unit persistence, command execution, generation, critique, snapshot, or export behavior.
+- Pass 8 framed the flagged Writing Studio wrapper with an inner surface only; the wrapped stable workspace body remains unchanged.
+- Pass 9 polished Story Navigation row presentation with display-only ordering and scoped title overflow handling.
+- Pass 10 replaced the Narrative Overview placeholder with loaded workspace facts only; it does not call analytics services or run story-health intelligence.
+- Pass 11 replaced the Global Tools placeholder with an inert command metadata summary; no command palette or execution path was added.
+- Pass 12 expanded command registry metadata with allowed zones, risk levels, and result types while keeping the registry declarative.
+- Pass 13 hardened Story Unit v1 with read-only draft/source annotations and active-outline containment coverage without persistence or project-format changes.
 
 Pass 2 parity guard:
 - Renderer coverage now verifies flag-off default shell rendering, flag-on Split Command rendering, Writing Studio wrapping the stable workspace body, Command Center placeholder labeling, generation/preflight calls through the wrapped ProjectHome path, and Story Unit derivation without project mutation.
@@ -344,15 +350,15 @@ The pass list below is linear and expandable. It is a living sequence, not a har
 - Pass 5 - Workflow Surface Smoke
 - Pass 6 - Visual Shell Refinement V1
 - Pass 7 - Command Center Hierarchy + Styling
-- CI Diagnostic Hardening / Preflight Contract Fix
-
-### Remaining Proposed Linear Roadmap
 - Pass 8 - Writing Studio Framing
 - Pass 9 - Story Navigation Visual Polish
 - Pass 10 - Narrative Overview Wrapper
 - Pass 11 - Global Tools Wrapper
 - Pass 12 - Command Registry Expansion
 - Pass 13 - Story Unit V1 Hardening
+- CI Diagnostic Hardening / Preflight Contract Fix
+
+### Remaining Proposed Linear Roadmap
 - Pass 14 - Empty/Large Project Edge Cases
 - Pass 15 - Adaptive Layout Rules
 - Pass 16 - Accessibility Pass
@@ -412,14 +418,14 @@ Status key:
 - `delete-candidate` means the item may be removed from future plans if it no longer fits the roadmap.
 
 ### Later Phase 11B
-- Visual shell residual refinement - reason deferred: Pass 6 landed V1 visual shell refinement, but final polish should follow wrapper and adaptive-layout passes; risk level: medium; likely future phase: 11B; unblock condition: remaining wrapper and layout passes are complete; blocks current phase: no; status: deferred.
-- Command center residual styling - reason deferred: Pass 7 landed the foundation hierarchy/styling, but final command-center polish should follow Narrative Overview and Global Tools wrappers; risk level: medium; likely future phase: 11B; unblock condition: command-center wrapper contents are stable; blocks current phase: no; status: deferred.
-- Writing studio framing - reason deferred: immersive surface polish should follow shell contract stabilization; risk level: medium; likely future phase: 11B; unblock condition: writing studio wrapper stays behaviorally stable; blocks current phase: no; status: deferred.
-- Story navigation polish - reason deferred: navigation structure should stay stable before visual tuning; risk level: low to medium; likely future phase: 11B; unblock condition: shared selection remains authoritative; blocks current phase: no; status: deferred.
-- Narrative overview wrapper - reason deferred: should reflect runtime truth only after shell hierarchy is settled; risk level: medium; likely future phase: 11B; unblock condition: current overview data path remains honest; blocks current phase: no; status: deferred.
-- Global tools wrapper - reason deferred: global actions should be wrapped after the shell layout and header semantics stop shifting; risk level: medium; likely future phase: 11B; unblock condition: command placement and ownership are stable; blocks current phase: no; status: deferred.
-- Command registry metadata expansion - reason deferred: registry should track stable shell commands, not speculate ahead of the UI; risk level: low to medium; likely future phase: 11B; unblock condition: command surface is still declarative; blocks current phase: no; status: deferred.
-- Story Unit v1 hardening - reason deferred: adapter semantics need stable scene derivation and test proof; risk level: medium; likely future phase: 11B; unblock condition: read-only derivation remains unchanged; blocks current phase: no; status: deferred.
+- Visual shell residual refinement - reason deferred: Passes 6-9 landed foundation visual refinement, but final polish should follow adaptive-layout and accessibility passes; risk level: medium; likely future phase: 11B; unblock condition: remaining layout/a11y passes are complete; blocks current phase: no; status: deferred.
+- Command center residual styling - reason deferred: Passes 7, 10, and 11 landed foundation hierarchy and wrappers, but final polish should follow empty/large project and adaptive checks; risk level: medium; likely future phase: 11B; unblock condition: edge-case handling is validated; blocks current phase: no; status: deferred.
+- Writing studio residual framing - reason deferred: Pass 8 landed the wrapper frame, but final polish should follow adaptive-layout checks; risk level: medium; likely future phase: 11B; unblock condition: compact/standard/wide behavior is validated; blocks current phase: no; status: deferred.
+- Story navigation residual polish - reason deferred: Pass 9 landed row polish, but final tuning should follow edge-case and accessibility passes; risk level: low to medium; likely future phase: 11B; unblock condition: empty/large project handling and keyboard coverage are validated; blocks current phase: no; status: deferred.
+- Narrative overview residual wrapper work - reason deferred: Pass 10 landed loaded workspace facts only; service-backed analytics and richer story-health signals remain future work; risk level: medium; likely future phase: later 11B or Phase 14; unblock condition: runtime truth and signal contracts are approved; blocks current phase: no; status: deferred.
+- Global tools residual wrapper work - reason deferred: Pass 11 landed inert metadata display only; executable command surfaces remain out of scope; risk level: medium; likely future phase: later 11B or Phase 16+; unblock condition: command execution policy is approved; blocks current phase: no; status: deferred.
+- Command registry residual metadata expansion - reason deferred: Pass 12 expanded declarative metadata, but execution middleware and palette behavior remain explicitly deferred; risk level: low to medium; likely future phase: later 11B or Phase 16+; unblock condition: command surface remains declarative; blocks current phase: no; status: deferred.
+- Story Unit v1 residual hardening - reason deferred: Pass 13 added read-only annotations and containment coverage, but persisted units and loose fragments remain future work; risk level: medium; likely future phase: Phase 13; unblock condition: read-only scene derivation remains stable; blocks current phase: no; status: deferred.
 - Adaptive layout - reason deferred: responsive rules should follow the settled shell hierarchy; risk level: medium; likely future phase: 11B; unblock condition: command center and writing studio proportions are stable; blocks current phase: no; status: deferred.
 - Accessibility pass - reason deferred: ARIA/focus polish should land after the visual shell stops moving; risk level: medium; likely future phase: 11B; unblock condition: visible shell structure is stable enough for a final pass; blocks current phase: no; status: deferred.
 - Safe shell smoke tests - reason deferred: shell smoke should wait until flag-on behavior is stable enough to exercise safely; risk level: medium; likely future phase: 11B; unblock condition: the current flagged shell path does not require frequent structural changes; blocks current phase: no; status: deferred.

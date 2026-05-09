@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import type { LoadedProject } from "../../../shared/ipc/projectLoader";
-import { deriveActiveOutline, deriveStoryUnits } from "../storyUnits";
+import { activeOutlineContainsScene, deriveActiveOutline, deriveStoryUnits } from "../storyUnits";
 
 const PROJECT: LoadedProject = {
   path: "/projects/demo",
@@ -48,6 +48,8 @@ describe("Story Unit v1 compatibility view", () => {
       title: "First",
       sourceType: "scene",
       state: "placed",
+      draftStatus: "has_draft",
+      isAiGenerated: false,
       order: 1,
       placement: {
         outlineKey: "main",
@@ -67,6 +69,7 @@ describe("Story Unit v1 compatibility view", () => {
 
     expect(firstUnit.contentPreview).toContain("Existing draft text");
     expect(firstUnit.state).toBe("placed");
+    expect(firstUnit.draftStatus).toBe("has_draft");
   });
 
   it("represents the current scene ordering as one active main outline", () => {
@@ -76,6 +79,8 @@ describe("Story Unit v1 compatibility view", () => {
     expect(outline.label).toBe("main");
     expect(outline.sourceOutlineId).toBe("out_demo");
     expect(outline.units.map((unit) => unit.unitId)).toEqual(["sc_0001", "sc_0002"]);
+    expect(activeOutlineContainsScene(outline, "sc_0001")).toBe(true);
+    expect(activeOutlineContainsScene(outline, "missing_scene")).toBe(false);
   });
 
   it("does not mutate the loaded project while deriving units", () => {

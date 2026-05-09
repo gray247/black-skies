@@ -1586,7 +1586,11 @@ describe('App preflight integration', () => {
     expect(screen.getByLabelText('Command Center')).toBeInTheDocument();
     expect(screen.getByLabelText('Writing Studio')).toBeInTheDocument();
     expect(screen.getByTestId('project-home-mock')).toBeInTheDocument();
-    expect(await screen.findByText('Arrival')).toBeInTheDocument();
+    expect(
+      within(screen.getByLabelText('Story Navigation')).getByRole('button', {
+        name: 'Select Arrival',
+      }),
+    ).toBeInTheDocument();
     expect(screen.queryByLabelText('Wizard dock')).not.toBeInTheDocument();
   });
 

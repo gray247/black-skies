@@ -9,13 +9,18 @@ describe("command registry metadata", () => {
 
     expect(generateActiveScene).toMatchObject({
       label: "Generate Active Scene",
+      allowedZones: ["writing_studio", "global"],
       mutatesData: true,
       requiresConfirmation: true,
       preferredZone: "writing_studio",
       modelRoute: "api",
+      riskLevel: "medium",
+      resultType: "draft_text",
     });
 
     for (const entry of entries) {
+      expect(entry.id).toMatch(/^[a-z]+(\.[A-Za-z0-9]+)+$/);
+      expect(entry.allowedZones.length).toBeGreaterThan(0);
       expect(entry).not.toHaveProperty("execute");
       expect(entry).not.toHaveProperty("dispatch");
       expect(entry).not.toHaveProperty("middleware");

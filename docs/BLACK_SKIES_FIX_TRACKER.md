@@ -17,15 +17,16 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-09)
-- Phase 11B passes 0-7 are complete.
+- Phase 11B passes 0-13 are complete.
 - CI diagnostic hardening / preflight contract fix is complete.
 - `docs/phases/phase11b_implementation_plan.md` is now the canonical living roadmap for Phase 11B.
 - The roadmap is linear and expandable; future passes may be inserted if tests, architecture, or safety require it.
 - Pass 6 visual shell refinement tightened the flagged Split Command shell hierarchy, Writing Studio framing, Story Navigation state presentation, and placeholder clarity while keeping behavior unchanged.
 - Pass 7 Command Center hierarchy/styling made Story Navigation the explicit primary command panel, grouped future command surfaces below it, and kept the styling scoped to the flagged shell.
+- Passes 8-13 completed Writing Studio framing, Story Navigation visual polish, loaded-data Narrative Overview, inert Global Tools metadata display, declarative command registry expansion, and Story Unit v1 hardening.
 - Production default remains flag-off; Split Command remains experimental behind `ui.experimental_split_command_workspace`.
-- The next queued Phase 11B runtime work is Pass 8 - Writing Studio Framing.
-- No backend, project format, generation, rewrite, snapshot, export, command execution, or Story Unit persistence behavior changed in Pass 6 or Pass 7.
+- The next queued Phase 11B runtime work is Pass 14 - Empty/Large Project Edge Cases.
+- No backend, project format, generation, rewrite, snapshot, export, command execution, or Story Unit persistence behavior changed in Passes 6-13.
 
 ## Status Definitions
 - `ACTIVE`: known issue, unresolved
@@ -217,6 +218,15 @@ Promotion notes:
   - styling remains scoped to `.split-command*`; production shell, backend behavior, project format, Story Unit persistence, generation, critique, snapshot, and export behavior are unchanged
   - validation passed: `pnpm --filter app test -- SplitCommandWorkspace.test.tsx AppPreflight.test.tsx AppCritique.test.tsx` (`3 passed`, `38 tests`), `pnpm --filter app lint` (pass; ESLintRC deprecation notice only), and `git diff --check` (pass)
   - deferred ledger preserved with wording updated for residual visual/command-center polish only
+- 2026-05-09 - Codex - Phase 11B passes 8-13 foundation batch:
+  - Pass 8 framed the flagged Writing Studio wrapper without changing the wrapped stable workspace body
+  - Pass 9 polished Story Navigation row presentation with display-only ordering and scoped title overflow behavior
+  - Pass 10 replaced the Narrative Overview placeholder with loaded workspace facts only; no analytics service calls or story-health intelligence were added
+  - Pass 11 replaced the Global Tools placeholder with an inert command metadata summary; no command palette or execution path was added
+  - Pass 12 expanded command registry metadata with allowed zones, risk levels, and result types while preserving the no-execution contract
+  - Pass 13 hardened Story Unit v1 with read-only draft/source annotations and active-outline containment coverage; no Story Unit persistence or project-format changes were introduced
+  - validation passed: `pnpm --filter app test -- SplitCommandWorkspace.test.tsx AppPreflight.test.tsx AppCritique.test.tsx storyUnits.test.ts CommandRegistry.test.ts` (`5 passed`, `43 tests`)
+  - deferred ledger preserved with residual entries clarified for future polish and explicitly deferred systems
 - 2026-05-06 - Codex - Started the Phase 11 workflow/pane/UX contract stabilization audit and documentation pass; pass 1 runtime slice now landed for generation labels, preflight scope copy, and recovery toast clarity, and the later GUI/outline overhaul is still split into a separate follow-up plan.
 - 2026-05-06 - Codex - Completed Phase 11A pass 2 rewrite truthfulness updates and added a renderer-level floated-pane project-switch regression after the Playwright temp-project path proved too brittle; backend rewrite persistence remained unchanged.
 - 2026-05-06 - Codex - Completed Phase 11A pass 3 pane scope classification and layout recovery hardening; unknown floating-pane ids are now dropped on layout load and the pane lifecycle matrix is documented.
