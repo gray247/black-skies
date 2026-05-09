@@ -153,7 +153,7 @@ export function CritiqueModal({
       <div className="critique-modal__content">
         <header className="critique-modal__header">
           <div>
-            <h3 className="critique-modal__title">Critique summary</h3>
+            <h3 className="critique-modal__title">Critique review</h3>
             <p className="critique-modal__subtitle">{derivedTitle}</p>
           </div>
           <button type="button" className="critique-modal__close" onClick={onClose} aria-label="Close">
@@ -162,7 +162,7 @@ export function CritiqueModal({
         </header>
 
         <section className="critique-modal__body">
-          {loading ? <p className="critique-modal__status">Requesting critique…</p> : null}
+          {loading ? <p className="critique-modal__status">Requesting critique...</p> : null}
           {!loading && error ? (
             <div className="critique-modal__error" role="alert">
               <strong>Critique request failed.</strong>
@@ -173,7 +173,7 @@ export function CritiqueModal({
             <>
               <section className="critique-modal__section">
                 <div className="critique-modal__summary">
-                  <h4>Summary</h4>
+                  <h4>Advisory summary</h4>
                   <p className="critique-modal__summary-body">{critique.summary}</p>
                 </div>
               </section>
@@ -207,7 +207,7 @@ export function CritiqueModal({
                 onClick={onRunRewrite}
                 disabled={!canRequestRewrite}
               >
-                {rewriteLoading ? 'Rewriting…' : 'Generate rewrite'}
+                {rewriteLoading ? 'Saving rewrite...' : 'Generate saved rewrite'}
               </button>
             </div>
           </section>
@@ -216,24 +216,23 @@ export function CritiqueModal({
               <header>
                 <h4>Saved rewrite</h4>
                 <p>
-                  Compare the original and revised scene text. The rewritten output has already
-                  been generated and saved; syncing this view will reconcile the local draft with
-                  the saved result.
+                  Compare the submitted draft text with the saved rewrite. The rewrite has already
+                  been saved. Sync only updates this local draft view to match it.
                 </p>
               </header>
               <div className="critique-modal__rewrite-columns">
                 <div>
-                  <h5>Original</h5>
+                  <h5>Submitted draft</h5>
                   <pre>{rewrite.originalText}</pre>
                 </div>
                 <div>
-                  <h5>Revised</h5>
+                  <h5>Saved rewrite</h5>
                   <pre>{rewrite.revisedText}</pre>
                 </div>
               </div>
               <div className="critique-modal__rewrite-actions">
                 <button type="button" className="critique-modal__button" onClick={onDiscardRewrite}>
-                  Discard rewrite
+                  Close saved rewrite preview
                 </button>
               </div>
               {renderProvenance('Rewrite provenance', rewriteProvenance)}
@@ -245,7 +244,7 @@ export function CritiqueModal({
           {traceId ? <span className="critique-modal__trace">Trace ID: {traceId}</span> : <span />}
           <div className="critique-modal__actions">
             <button type="button" className="critique-modal__button" onClick={onReject} disabled={loading || rewriteLoading}>
-              Dismiss
+              Close review
             </button>
             <button
               type="button"

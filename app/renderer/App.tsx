@@ -1598,11 +1598,11 @@ export default function App(): JSX.Element {
         description: snapshotName,
         actions: [
           {
-            label: 'View report',
+            label: 'View snapshot report',
             onPress: () => {
               console.log('[snapshot-toast-action]', {
                 snapshotId: response.data?.snapshot_id ?? null,
-                actionLabel: 'View report',
+                actionLabel: 'View snapshot report',
               });
               // Snapshots panel is minimally wired for Phase 8; this only toggles that dialog.
               setShowSnapshotsPanel(true);
@@ -1685,7 +1685,7 @@ export default function App(): JSX.Element {
 
       const verificationToastActions = [
         {
-          label: 'View report',
+          label: 'View snapshot report',
           onPress: () => openSnapshotsPanel(),
           dismissOnPress: true,
         },

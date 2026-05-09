@@ -31,6 +31,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
 - Phase 12 planning is underway in `docs/phases/phase12_editorial_workflow_plan.md`; this is docs-only planning and does not change runtime behavior.
 - Phase 12 Pass 1 established the canonical editorial workflow contract layer in `docs/specs/editorial_workflow_contract.md`; the contract is docs-only and does not change runtime behavior.
 - Phase 12 Passes 2-5 are documented in `docs/phases/phase12_runtime_audit.md`; the audit covers current critique/rewrite runtime truth, rewrite/sync labels, revision comparison planning, and provenance surface planning without runtime or test changes.
+- Phase 12 Pass 6 clarified the snapshot/recovery relationship in `docs/specs/editorial_workflow_contract.md` and `docs/phases/phase12_runtime_audit.md`; it documents manual snapshot, recovery snapshot, ZIP restore, export, sync, and draft-authority boundaries without runtime or test changes.
+- Phase 12 Passes 7-8 tightened editorial workflow UI copy: critique is framed as advisory, rewrite generation/result copy says the result is saved, comparison labels distinguish submitted draft from saved rewrite, sync remains local draft-view reconciliation, and discard is now closing the saved rewrite preview.
+- Phase 12 Pass 9 strengthened renderer tests for critique non-mutation, saved rewrite state, sync-to-local-view behavior, rewrite conflict/provenance expectations, and snapshot/recovery wording separation.
+- Phase 12 Pass 10 closed the editorial workflow foundation after docs/tracker alignment and full app validation; no backend behavior, project format, rewrite persistence, provenance storage, revision history, Split Command default, or future-phase systems changed.
 
 ## Status Definitions
 - `ACTIVE`: known issue, unresolved
