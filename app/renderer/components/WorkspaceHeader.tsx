@@ -198,17 +198,19 @@ export function WorkspaceHeader(props: WorkspaceHeaderProps): JSX.Element {
             type="button"
             className="app-shell__workspace-button"
             disabled={disableSnapshot}
-            aria-label="Create snapshot"
+            aria-label="Create snapshot for project"
+            title="Create a recovery snapshot"
             data-testid="workspace-action-snapshot"
             onClick={onSnapshot}
           >
-            Snapshot
+            Create snapshot
           </button>
           <button
             type="button"
             className="app-shell__workspace-button"
             disabled={disableVerify}
             aria-label="Verify snapshots"
+            title="Run backup verification for snapshots"
             data-testid="workspace-action-verify"
             onClick={onVerify}
           >
@@ -221,14 +223,15 @@ export function WorkspaceHeader(props: WorkspaceHeaderProps): JSX.Element {
             }`}
             aria-controls="snapshots-panel"
             aria-expanded={showSnapshotsPanel ? 'true' : 'false'}
-            aria-label="Open Snapshots panel"
+            aria-label="Open snapshot management panel"
             aria-disabled={disableSnapshots}
+            title="Open snapshot management"
             data-testid="snapshots-open-button"
             onClick={() => {
               onSnapshots();
             }}
           >
-            Snapshots
+            Manage snapshots
           </button>
           <button
             type="button"

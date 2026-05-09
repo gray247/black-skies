@@ -36,6 +36,18 @@ If an issue is not tracked here, it is not part of the active fix scope.
 - Phase 12 Pass 9 strengthened renderer tests for critique non-mutation, saved rewrite state, sync-to-local-view behavior, rewrite conflict/provenance expectations, and snapshot/recovery wording separation.
 - Phase 12 Pass 10 closed the editorial workflow foundation after docs/tracker alignment and full app validation; no backend behavior, project format, rewrite persistence, provenance storage, revision history, Split Command default, or future-phase systems changed.
 
+## Phase 13 Audit / Trust Validation Continuation (2026-05-09)
+- Passes 0-6 produced audit artifacts for worktree baseline, repository integrity, test integrity, workflow triggers, Codex process validation, human verification planning, and GUI snapshot/report authority.
+- Pass 7 fixed snapshot/report path integrity by surfacing structured open-path failures from preload and renderer toast feedback; behavior changed only for previously swallowed or ambiguous path-open failures.
+- Pass 8 clarified snapshot/verification surface labels without removing controls or redesigning the toolbar: `Create snapshot`, `Verify snapshots`, `Manage snapshots`, `View snapshot details`, `Reveal folder`, and `Reveal manifest`.
+- Pass 9 confirmed the production/default GUI remains the flag-off shell; Split Command remains experimental behind `ui.experimental_split_command_workspace`.
+- Pass 10 drafted an operator-grade human verification checklist only; human verification remains deferred to Pass 14 and was not performed in Passes 8-13.
+- Pass 11 inventoried deferred/TODO/stub/placeholder markers and found no blocker requiring cleanup or deletion in this batch.
+- Pass 12 selected only one safe refactor candidate for implementation: central renderer reveal-path feedback handling.
+- Pass 13 centralized snapshot/report reveal-path feedback in `app/renderer/utils/revealPathFeedback.ts` and preserved Pass 7 behavior.
+- Validation evidence for Pass 13: targeted app tests PASS (49 tests), full app tests PASS (213 tests), app lint PASS with existing ESLintRC deprecation warning, production build PASS, focused snapshot Playwright flow PASS, and `pnpm test:truth` PASS.
+- No backend behavior, project format, feature flag defaults, Split Command default, generated artifact deletion, broad GUI redesign, or human verification occurred in Passes 8-13.
+
 ## Status Definitions
 - `ACTIVE`: known issue, unresolved
 - `IN_PROGRESS`: active implementation

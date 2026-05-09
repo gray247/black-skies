@@ -37,7 +37,7 @@ beforeEach(() => {
     { snapshot_id: 's1', created_at: '2025-11-15T12:00:00Z', path: '.snapshots/s1' },
     { snapshot_id: 's2', created_at: '2025-11-14T12:00:00Z', path: '.snapshots/s2' },
   ]);
-  bridge.revealPath = vi.fn().mockResolvedValue(true);
+  bridge.revealPath = vi.fn().mockResolvedValue({ ok: true, path: '/mock/revealed-path' });
   bridge.getLastVerification = vi.fn().mockResolvedValue({
     snapshots: [
       { snapshot_id: 's1', issues: [] },
@@ -304,7 +304,7 @@ function createServicesMock(): ServicesBridge {
         snapshots: [{ snapshot_id: 'snap-test', status: 'ok', errors: [] }],
       } satisfies BackupVerificationReport,
     }),
-    revealPath: vi.fn().mockResolvedValue(undefined),
+    revealPath: vi.fn().mockResolvedValue({ ok: true, path: '/mock/revealed-path' }),
   };
 }
 
@@ -1508,7 +1508,7 @@ describe('App preflight integration', () => {
     });
   });
 
-  it('opens snapshots panel when export service missing and toast action reveals path', async () => {
+  it('opens snapshots panel when snapshot toast is activated without revealing a folder', async () => {
     services.exportProject = vi.fn().mockRejectedValue(new Error('export service unavailable'));
 
     services.listProjectSnapshots = vi.fn().mockResolvedValue({
@@ -1551,14 +1551,56 @@ describe('App preflight integration', () => {
     snapshotButton.removeAttribute('disabled');
     await userEvent.click(snapshotButton);
 
-    const viewReportToastAction = await screen.findByRole('button', {
-      name: /view snapshot report/i,
+    const viewSnapshotsPanelToastAction = await screen.findByText('Open snapshots panel', {
+      selector: 'button.toast__action-button',
     });
-    await userEvent.click(viewReportToastAction);
+    await userEvent.click(viewSnapshotsPanelToastAction);
 
     const reopenedSnapshotsPanel = await screen.findByTestId('snapshots-panel');
     expect(reopenedSnapshotsPanel).toBeInTheDocument();
-    expect(services.revealPath).toHaveBeenCalledWith(expect.stringContaining('.snapshots'));
+    expect(services.revealPath).toHaveBeenCalledTimes(1);
+  });
+
+  it('opens the canonical verification report file when requested', async () => {
+    const App = loadAppWithServices(services);
+
+    render(<App />);
+
+    const verifyButton = await screen.findByTestId('workspace-action-verify');
+    fireEvent.click(verifyButton);
+
+    const reportFileAction = await screen.findByRole('button', {
+      name: /open report file/i,
+    });
+    await userEvent.click(reportFileAction);
+
+    await waitFor(() =>
+      expect(services.revealPath).toHaveBeenCalledWith(
+        '/projects/demo/.snapshots/last_verification.json',
+      ),
+    );
+  });
+
+  it('surfaces a clear error when the verification report file cannot be opened', async () => {
+    services.revealPath = vi.fn().mockResolvedValue({
+      ok: false,
+      error: 'The system cannot find the file specified.',
+    });
+
+    const App = loadAppWithServices(services);
+
+    render(<App />);
+
+    const verifyButton = await screen.findByTestId('workspace-action-verify');
+    fireEvent.click(verifyButton);
+
+    const reportFileAction = await screen.findByRole('button', {
+      name: /open report file/i,
+    });
+    await userEvent.click(reportFileAction);
+
+    expect(await screen.findByText(/Report file missing/i)).toBeInTheDocument();
+    expect(screen.getByText(/The report file could not be located\./i)).toBeInTheDocument();
   });
 
   it('keeps the Phase 11A shell as the default when Split Command is not enabled', async () => {

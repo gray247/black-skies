@@ -8,6 +8,11 @@ import type {
 import type { ServiceStatus } from '../components/ServiceStatusPill';
 import type { ToastPayload } from '../types/toast';
 import { loadSnapshotMetadata, type LocalSnapshotMetadata } from '../utils/snapshotReader';
+import {
+  resolveProjectPath,
+  revealPathWithToast,
+  type RevealTargetKind,
+} from '../utils/revealPathFeedback';
 import * as testMode from '../testMode/testModeManager';
 
 const MAX_ISSUES_DISPLAY = 10;
@@ -228,13 +233,13 @@ export default function SnapshotsPanel({
     }));
   }, []);
 
-  const reveal = (relative: string) => {
-    if (!services?.revealPath) {
-      return;
-    }
-    const resolved = projectPath ? `${projectPath}/${relative}` : relative;
-    void services.revealPath(resolved.replace('//', '/'));
-  };
+  const reveal = useCallback(
+    async (targetPath: string | null | undefined, kind: RevealTargetKind) => {
+      const resolved = targetPath ? resolveProjectPath(projectPath, targetPath) ?? targetPath : null;
+      return revealPathWithToast({ services, targetPath: resolved, kind, pushToast });
+    },
+    [projectPath, pushToast, services],
+  );
 
   const isTestEnvActive = testMode.isTestEnv();
   const offline = !isTestEnvActive && serviceStatus !== 'online';
@@ -690,7 +695,7 @@ export default function SnapshotsPanel({
                   {
                     label: 'Open folder',
                     onPress: () => {
-                      void services.revealPath?.(payload.restored_path);
+                      void reveal(payload.restored_path, 'restored folder');
                     },
                   },
                 ]
@@ -707,7 +712,7 @@ export default function SnapshotsPanel({
         setRestoringBackup(null);
       }
     },
-    [offline, projectId, pushToast, services],
+    [offline, projectId, pushToast, reveal, services],
   );
 
   const handleConfirmRestore = useCallback(async () => {
@@ -764,7 +769,7 @@ export default function SnapshotsPanel({
                 {
                   label: 'Open folder',
                   onPress: () => {
-                    void services.revealPath?.(restoredPath);
+                    void reveal(restoredPath, 'restored folder');
                   },
                 },
               ]
@@ -774,7 +779,7 @@ export default function SnapshotsPanel({
       setRestoringZip(false);
       setRestoreConfirmOpen(false);
     }
-  }, [projectId, pushToast, services]);
+  }, [projectId, pushToast, reveal, services]);
 
   if (!hasProject) {
     return (
@@ -850,7 +855,7 @@ export default function SnapshotsPanel({
                 onClick={handleManualVerification}
                 disabled={runningVerification || offline}
               >
-                {runningVerification ? 'Running verification...' : 'Run verification'}
+                {runningVerification ? 'Running verification...' : 'Verify latest snapshots'}
               </button>
             </div>
           </div>
@@ -981,17 +986,17 @@ export default function SnapshotsPanel({
                       </button>
                       <button
                         type="button"
-                        onClick={() => reveal(snapshot.path)}
+                        onClick={() => void reveal(snapshot.path, 'snapshot directory')}
                         aria-label={`Reveal snapshot ${snapshot.snapshot_id}`}
                       >
-                        Reveal
+                        Reveal folder
                       </button>
                       <button
                         type="button"
-                        onClick={() => reveal(`${snapshot.path}/manifest.json`)}
+                        onClick={() => void reveal(`${snapshot.path}/manifest.json`, 'snapshot manifest')}
                         aria-label={`Reveal manifest for ${snapshot.snapshot_id}`}
                       >
-                        Manifest
+                        Reveal manifest
                       </button>
                     </div>
                     {expanded ? (
@@ -1025,7 +1030,7 @@ export default function SnapshotsPanel({
                             disabled={snapshotLoading}
                             title="View snapshot metadata"
                           >
-                            {snapshotLoading ? 'Loading snapshot...' : 'View full report'}
+                            {snapshotLoading ? 'Loading snapshot...' : 'View snapshot details'}
                           </button>
                           <button
                             type="button"
@@ -1035,7 +1040,7 @@ export default function SnapshotsPanel({
                           >
                             {verifyingThisRow
                               ? 'Running verification...'
-                              : 'Re-run verification for this snapshot'}
+                              : 'Re-run latest verification'}
                           </button>
                         </div>
                       </div>

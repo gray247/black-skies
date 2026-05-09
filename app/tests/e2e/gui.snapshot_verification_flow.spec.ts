@@ -21,9 +21,11 @@ test('snapshot verification flow (UI)', async ({ page }) => {
 
   const toastTitle = page.locator('.toast__title', { hasText: /snapshot created/i });
   await expect(toastTitle).toBeVisible({ timeout: 30_000 });
-  const viewReportAction = page.getByRole('button', { name: /view snapshot report/i });
-  await expect(viewReportAction).toHaveCount(1);
-  await expect(viewReportAction).toBeVisible();
+  const openSnapshotsPanelAction = page
+    .locator('.toast__action-button')
+    .filter({ hasText: /^open snapshots panel$/i });
+  await expect(openSnapshotsPanelAction).toHaveCount(1);
+  await expect(openSnapshotsPanelAction).toBeVisible();
 
   const snapshotsAction = page.getByTestId('snapshots-open-button');
   await expect(snapshotsAction).toBeVisible({ timeout: 30_000 });
@@ -33,7 +35,7 @@ test('snapshot verification flow (UI)', async ({ page }) => {
 
   const snapshotItem = page.locator('.snapshots-panel__item').first();
   await expect(snapshotItem).toBeVisible();
-  const viewFullReportButton = snapshotItem.getByRole('button', { name: /view full report/i });
+  const viewFullReportButton = snapshotItem.getByRole('button', { name: /view snapshot details/i });
   await viewFullReportButton.click();
 
   const modal = page.getByTestId('verification-report-modal');
@@ -51,6 +53,6 @@ test('snapshot verification flow (UI)', async ({ page }) => {
   await closeModalButton.click();
   await expect(modal).not.toBeVisible();
 
-  await expect(panel.getByRole('button', { name: /view full report/i })).toBeVisible();
+  await expect(panel.getByRole('button', { name: /view snapshot details/i })).toBeVisible();
   await expect(page.getByTestId('workspace-action-snapshot')).toBeEnabled({ timeout: 30_000 });
 });
