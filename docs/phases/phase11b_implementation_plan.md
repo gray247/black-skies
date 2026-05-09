@@ -21,9 +21,12 @@ Dev/test enablement note:
 - The flag is experimental and must remain off by default until Split Command parity is explicitly closed.
 
 Current progress snapshot:
-- Completed passes: Pass 0, Pass 1, Pass 2, Pass 3, Pass 4, and Pass 5.
+- Completed passes: Pass 0, Pass 1, Pass 2, Pass 3, Pass 4, Pass 5, and Pass 6.
 - Completed hardening lane: CI diagnostic hardening / preflight contract fix.
 - This document is the canonical living roadmap for Phase 11B until closure.
+- Pass 6 was visual-only shell refinement for the flagged Split Command shell; it tightened Command Center hierarchy, Writing Studio framing, Story Navigation card states, placeholder presentation, and focus/hover clarity without changing the production default or any backend/project/workflow behavior.
+- Files touched in Pass 6: `app/renderer/components/workspace/SplitCommandWorkspace.tsx`, `app/renderer/components/workspace/StoryNavigationPanel.tsx`, `app/renderer/styles/app.css`, `docs/BLACK_SKIES_FIX_TRACKER.md`, and this roadmap.
+- No new deferred visual refinements were added in this pass.
 
 Pass 2 parity guard:
 - Renderer coverage now verifies flag-off default shell rendering, flag-on Split Command rendering, Writing Studio wrapping the stable workspace body, Command Center placeholder labeling, generation/preflight calls through the wrapped ProjectHome path, and Story Unit derivation without project mutation.
@@ -336,10 +339,10 @@ The pass list below is linear and expandable. It is a living sequence, not a har
 - Pass 3 - Story Navigation Wrapper
 - Pass 4 - Shared Scene Selection Interface
 - Pass 5 - Workflow Surface Smoke
+- Pass 6 - Visual Shell Refinement V1
 - CI Diagnostic Hardening / Preflight Contract Fix
 
 ### Remaining Proposed Linear Roadmap
-- Pass 6 - Visual Shell Refinement V1
 - Pass 7 - Command Center Hierarchy + Styling
 - Pass 8 - Writing Studio Framing
 - Pass 9 - Story Navigation Visual Polish

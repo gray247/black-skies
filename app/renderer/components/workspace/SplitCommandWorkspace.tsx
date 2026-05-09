@@ -20,7 +20,7 @@ function PlaceholderPanel({
   readonly children: ReactNode;
 }): JSX.Element {
   return (
-    <section className="split-command__panel" aria-label={title}>
+    <section className="split-command__panel split-command__panel--placeholder" aria-label={title}>
       <h3>{title}</h3>
       <div className="split-command__panel-body">{children}</div>
     </section>
@@ -47,7 +47,7 @@ export default function SplitCommandWorkspace({
         <div className="split-command__zone-header">
           <span className="split-command__eyebrow">Command Center</span>
           <h2>Story intelligence</h2>
-          <p>
+          <p className="split-command__zone-summary">
             Experimental Phase 11B shell. Panels are read-only placeholders unless marked
             as existing workspace data.
           </p>
@@ -61,21 +61,24 @@ export default function SplitCommandWorkspace({
 
         <PlaceholderPanel title="Narrative Overview">
           <p>
-            Placeholder only. Future story-health signals will appear here after their
+            Placeholder surface. Future story-health signals will appear here after their
             contracts are implemented.
           </p>
         </PlaceholderPanel>
 
         <PlaceholderPanel title="Narrative Gaps">
-          <p>Placeholder only. No gap detection is running in Phase 11B foundation.</p>
+          <p>Placeholder surface. No gap detection is running in Phase 11B foundation.</p>
         </PlaceholderPanel>
 
         <PlaceholderPanel title="AI Companion">
-          <p>Placeholder only. Existing Companion behavior remains in the current overlay.</p>
+          <p>Placeholder surface. Existing Companion behavior remains in the current overlay.</p>
         </PlaceholderPanel>
 
         <PlaceholderPanel title="Global Tools">
-          <p>{commandCount} commands registered as descriptive metadata. No command palette is active.</p>
+          <p>
+            Placeholder surface. {commandCount} commands are descriptive metadata only; no
+            command palette is active.
+          </p>
         </PlaceholderPanel>
       </aside>
 
@@ -86,7 +89,7 @@ export default function SplitCommandWorkspace({
         <div className="split-command__zone-header">
           <span className="split-command__eyebrow">Writing Studio</span>
           <h2>{project?.name ?? "No project loaded"}</h2>
-          <p>
+          <p className="split-command__zone-summary">
             {activeUnit
               ? `Active scene: ${activeUnit.title}`
               : "Existing stable writing surfaces are wrapped here without changing workflow behavior."}

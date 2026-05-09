@@ -64,13 +64,14 @@ describe("SplitCommandWorkspace", () => {
     expect(within(storyNavigation).getByText("Arrival draft preview text.")).toBeInTheDocument();
     expect(within(storyNavigation).getAllByText("placed")).toHaveLength(2);
     expect(within(storyNavigation).getAllByText("scene")).toHaveLength(2);
+    expect(within(storyNavigation).getByText("Selected")).toBeInTheDocument();
     expect(within(storyNavigation).getByText("Arrival").closest("li")).toHaveAttribute(
       "aria-current",
       "true",
     );
-    expect(screen.getByLabelText("Narrative Overview")).toHaveTextContent(/Placeholder only/i);
-    expect(screen.getByLabelText("Narrative Gaps")).toHaveTextContent(/Placeholder only/i);
-    expect(screen.getByLabelText("AI Companion")).toHaveTextContent(/Placeholder only/i);
+    expect(screen.getByLabelText("Narrative Overview")).toHaveTextContent(/Placeholder surface/i);
+    expect(screen.getByLabelText("Narrative Gaps")).toHaveTextContent(/Placeholder surface/i);
+    expect(screen.getByLabelText("AI Companion")).toHaveTextContent(/Placeholder surface/i);
     expect(screen.getByLabelText("Global Tools")).toHaveTextContent(/No command palette is active/i);
 
     fireEvent.click(within(storyNavigation).getByRole("button", { name: "Select Signal" }));

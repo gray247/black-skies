@@ -55,6 +55,7 @@ export default function StoryNavigationPanel({
                     ) : null}
                   </div>
                   <div className="split-command__story-meta" aria-label={`${unit.title} metadata`}>
+                    {isActive ? <span className="split-command__story-state">Selected</span> : null}
                     <span className="split-command__chip">{unit.state}</span>
                     <span className="split-command__source">{unit.sourceType}</span>
                   </div>
@@ -64,7 +65,10 @@ export default function StoryNavigationPanel({
           })}
         </ol>
       ) : (
-        <p>No project scenes loaded.</p>
+        <p className="split-command__story-empty">
+          No project scenes loaded yet. This future surface will list story units when the
+          project has an outline.
+        </p>
       )}
     </section>
   );

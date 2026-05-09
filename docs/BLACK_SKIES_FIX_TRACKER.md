@@ -17,15 +17,14 @@ If an issue is not tracked here, it is not part of the active fix scope.
 5. Regressions stay under the same issue ID.
 
 ## Phase 11B Living Roadmap Alignment (2026-05-08)
-- Phase 11B passes 0-5 are complete.
+- Phase 11B passes 0-6 are complete.
 - CI diagnostic hardening / preflight contract fix is complete.
 - `docs/phases/phase11b_implementation_plan.md` is now the canonical living roadmap for Phase 11B.
 - The roadmap is linear and expandable; future passes may be inserted if tests, architecture, or safety require it.
-- The next queued work after docs alignment is:
-  1. GitHub branch review / pruning report
-  2. refactor audit
-  3. Phase 11B Pass 6 visual shell refinement
-- No runtime code changed in this docs alignment pass.
+- Pass 6 visual shell refinement tightened the flagged Split Command shell hierarchy, Writing Studio framing, Story Navigation state presentation, and placeholder clarity while keeping behavior unchanged.
+- Production default remains flag-off; Split Command remains experimental behind `ui.experimental_split_command_workspace`.
+- The next queued Phase 11B runtime work is Pass 7 - Command Center Hierarchy + Styling.
+- No backend, project format, generation, rewrite, snapshot, or export behavior changed in Pass 6.
 
 ## Status Definitions
 - `ACTIVE`: known issue, unresolved
