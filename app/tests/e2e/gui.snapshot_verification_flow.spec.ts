@@ -21,7 +21,7 @@ test('snapshot verification flow (UI)', async ({ page }) => {
 
   const toastTitle = page.locator('.toast__title', { hasText: /snapshot created/i });
   await expect(toastTitle).toBeVisible({ timeout: 30_000 });
-  const viewReportAction = page.locator('.toast__action-button', { hasText: /view report/i });
+  const viewReportAction = page.getByRole('button', { name: /view snapshot report/i });
   await expect(viewReportAction).toHaveCount(1);
   await expect(viewReportAction).toBeVisible();
 
