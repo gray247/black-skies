@@ -553,6 +553,7 @@ import type {
   ServiceHealthResponse,
   ServiceResult,
   ServicesBridge,
+  RevealPathResult,
   BackupRestoreBridgeRequest,
   BackupRestoreBridgeResponse,
   SnapshotManifest,
@@ -1799,11 +1800,24 @@ const servicesBridge: ServicesBridge = {
     serviceApi.analyticsScenes(request.projectId, Boolean(request.forceRefresh)),
   getAnalyticsRelationships: (request: { projectId: string }) =>
     serviceApi.analyticsRelationships?.(request.projectId),
-  revealPath: async (path: string) => {
+  revealPath: async (path: string): Promise<RevealPathResult> => {
     try {
-      await shell.openPath(path);
+      const result = await shell.openPath(path);
+      if (typeof result === 'string' && result.length > 0) {
+        return {
+          ok: false,
+          error: result,
+        };
+      }
+      return {
+        ok: true,
+        path,
+      };
     } catch (error) {
-      console.warn('[preload] revealPath failed', error);
+      return {
+        ok: false,
+        error: error instanceof Error ? error.message : String(error),
+      };
     }
   },
 };

@@ -38,6 +38,11 @@ import { useToasts } from "./hooks/useToasts";
 import useServiceHealth, { isDominantOffline } from "./hooks/useServiceHealth";
 import { isTestEnvironment } from "./utils/env";
 import { normaliseBudgetNumber, type BudgetSnapshotSource } from "./utils/budgetIndicator";
+import {
+  resolveProjectPath,
+  revealPathWithToast,
+  type RevealTargetKind,
+} from "./utils/revealPathFeedback";
 import { usePreflight } from "./hooks/usePreflight";
 import {
   clearDraftPreviewSyncState,
@@ -857,6 +862,12 @@ export default function App(): JSX.Element {
     // Snapshots panel is minimally wired for Phase 8; this just toggles that dialog.
     setShowSnapshotsPanel(true);
   }, [setShowSnapshotsPanel]);
+  const revealPathWithFeedback = useCallback(
+    async (targetPath: string | null | undefined, kind: RevealTargetKind): Promise<boolean> => {
+      return revealPathWithToast({ services, targetPath, kind, pushToast });
+    },
+    [pushToast, services],
+  );
   const [exportFormat, setExportFormat] = useState<ExportFormat>("md");
   const batchJobRef = useRef<{ cancelled: boolean } | null>(null);
 
@@ -1583,8 +1594,6 @@ export default function App(): JSX.Element {
         return;
       }
 
-      const snapshotPath =
-        response.data?.path ?? (projectSummary?.path ? `${projectSummary.path}/.snapshots` : undefined);
       const snapshotName = response.data?.snapshot_id ? `Snapshot ${response.data.snapshot_id}` : 'Snapshot saved';
 
       console.log('[snapshot-toast-fired]', {
@@ -1598,17 +1607,13 @@ export default function App(): JSX.Element {
         description: snapshotName,
         actions: [
           {
-            label: 'View snapshot report',
+            label: 'Open snapshots panel',
             onPress: () => {
               console.log('[snapshot-toast-action]', {
                 snapshotId: response.data?.snapshot_id ?? null,
-                actionLabel: 'View snapshot report',
+                actionLabel: 'Open snapshots panel',
               });
-              // Snapshots panel is minimally wired for Phase 8; this only toggles that dialog.
               setShowSnapshotsPanel(true);
-              if (snapshotPath && services?.revealPath) {
-                void services.revealPath(snapshotPath);
-              }
             },
           },
         ],
@@ -1624,7 +1629,6 @@ export default function App(): JSX.Element {
       setSnapshotting(false);
     }
   }, [
-    projectSummary?.path,
     projectSummary?.projectId,
     pushToast,
     services,
@@ -1679,9 +1683,11 @@ export default function App(): JSX.Element {
         status === 'ok'
           ? 'Latest snapshot verified'
           : `${snapshotReport?.errors?.length ?? 1} issue(s) detected`;
-      const reportPath = projectSummary?.path
-        ? `${projectSummary.path}/.snapshots/last_verification.json`
-        : undefined;
+      const reportPath = resolveProjectPath(
+        projectSummary?.path,
+        '.snapshots',
+        'last_verification.json',
+      );
 
       const verificationToastActions = [
         {
@@ -1693,7 +1699,7 @@ export default function App(): JSX.Element {
       if (reportPath && services?.revealPath) {
         verificationToastActions.push({
           label: 'Open report file',
-          onPress: () => void services.revealPath(reportPath),
+          onPress: () => void revealPathWithFeedback(reportPath, 'report file'),
         });
       }
       pushToast({
@@ -1716,6 +1722,7 @@ export default function App(): JSX.Element {
     projectSummary?.path,
     projectSummary?.projectId,
     pushToast,
+    revealPathWithFeedback,
     services,
     verifying,
     openSnapshotsPanel,
@@ -1776,7 +1783,11 @@ export default function App(): JSX.Element {
           ? [
               {
                 label: "Reveal export folder",
-                onPress: () => void services.revealPath(`${projectSummary.path}/exports`),
+                onPress: () =>
+                  void revealPathWithFeedback(
+                    resolveProjectPath(projectSummary.path, 'exports'),
+                    'export folder',
+                  ),
               },
             ]
           : undefined,
@@ -1792,7 +1803,15 @@ export default function App(): JSX.Element {
     } finally {
       setExporting(false);
     }
-  }, [exportFormat, exporting, projectSummary?.path, projectSummary?.projectId, pushToast, services]);
+  }, [
+    exportFormat,
+    exporting,
+    projectSummary?.path,
+    projectSummary?.projectId,
+    pushToast,
+    revealPathWithFeedback,
+    services,
+  ]);
 
   const handleProjectLoaded = useCallback(
     (payload: ProjectLoadEvent | LoadedProject | null | undefined) => {

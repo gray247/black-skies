@@ -120,7 +120,7 @@ describe('SnapshotsPanel verification details', () => {
       data: verificationReport,
     });
 
-    const revealPath = vi.fn();
+  const revealPath = vi.fn().mockResolvedValue({ ok: true, path: '/projects/proj/.snapshots' });
     const pushToast = vi.fn();
 
     const services: Partial<ServicesBridge> = {
@@ -171,7 +171,7 @@ describe('SnapshotsPanel verification details', () => {
     );
     const issueDetails = screen.getByTestId('snapshot-issues-snapshot-issues');
     fireEvent.click(
-      within(issueDetails).getByRole('button', { name: /view full report/i }),
+      within(issueDetails).getByRole('button', { name: /view snapshot details/i }),
     );
     await waitFor(() =>
       expect(window.__electronApi?.fs.readJson).toHaveBeenCalledWith(
@@ -192,7 +192,7 @@ describe('SnapshotsPanel verification details', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Close' }));
 
     fireEvent.click(
-      within(issueDetails).getByRole('button', { name: 'Re-run verification for this snapshot' }),
+      within(issueDetails).getByRole('button', { name: 'Re-run latest verification' }),
     );
     await waitFor(() =>
       expect(runBackupVerification).toHaveBeenCalledWith({
@@ -403,6 +403,79 @@ describe('SnapshotsPanel verification details', () => {
       expect(screen.queryByTestId('verification-report-modal')).toBeNull(),
     );
   });
+
+  it('shows a clear error when the snapshot directory cannot be located', async () => {
+    const snapshots: SnapshotManifest[] = [
+      {
+        snapshot_id: 'snapshot-a',
+        created_at: '2025-11-17T12:00:00Z',
+        path: '.snapshots/snapshot-a',
+        files_included: [],
+      },
+    ];
+
+    const listProjectSnapshots = vi.fn().mockResolvedValue({
+      ok: true,
+      data: snapshots,
+    });
+    const verificationReport: BackupVerificationReport = {
+      project_id: 'proj',
+      snapshots: [
+        {
+          snapshot_id: 'snapshot-a',
+          status: 'ok',
+        },
+      ],
+    };
+    const getLastVerification = vi.fn().mockResolvedValue({
+      ok: true,
+      data: verificationReport,
+    });
+    const runBackupVerification = vi.fn().mockResolvedValue({
+      ok: true,
+      data: verificationReport,
+    });
+    const pushToast = vi.fn();
+
+    const missingDirFsMock = createSnapshotFsMock();
+    missingDirFsMock.stat = vi.fn(async () => {
+      throw Object.assign(new Error('File missing'), { code: 'ENOENT' });
+    });
+    missingDirFsMock.readDir = vi.fn(async () => {
+      throw Object.assign(new Error('Directory missing'), { code: 'ENOENT' });
+    });
+    attachFsMock(missingDirFsMock);
+
+    render(
+      <SnapshotsPanel
+        projectId="proj"
+        projectPath="/projects/proj"
+        services={
+          {
+            listProjectSnapshots,
+            getLastVerification,
+            runBackupVerification,
+          } as Partial<ServicesBridge>
+        }
+        serviceStatus="online"
+        pushToast={pushToast}
+      />,
+    );
+
+    await waitFor(() =>
+      expect(listProjectSnapshots).toHaveBeenCalledWith({ projectId: 'proj' }),
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /view snapshot details/i }));
+
+    await waitFor(() =>
+      expect(
+        pushToast.mock.calls.some((call) => call[0]?.title === 'Verification report unavailable'),
+      ).toBe(true),
+    );
+    expect(screen.getByTestId('verification-report-modal')).toBeInTheDocument();
+    expect(await screen.findByText(/Snapshot directory could not be located\./i)).toBeInTheDocument();
+  });
 });
 
 it('renders backup list and triggers backup actions', async () => {
@@ -474,7 +547,7 @@ it('renders backup list and triggers backup actions', async () => {
     data: verificationReport,
   });
 
-  const revealPath = vi.fn();
+    const revealPath = vi.fn().mockResolvedValue({ ok: true, path: '/projects/proj/.snapshots' });
   const pushToast = vi.fn();
 
   const services: Partial<ServicesBridge> = {

@@ -154,7 +154,7 @@ export const COMMAND_REGISTRY: readonly CommandRegistryEntry[] = Object.freeze([
   },
   {
     id: "snapshots.openPanel",
-    label: "Open Snapshots Panel",
+    label: "Manage Snapshots",
     category: "snapshot",
     requiredContext: ["project"],
     allowedZones: ["global", "writing_studio"],
