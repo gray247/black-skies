@@ -39,6 +39,36 @@ const PROJECT: LoadedProject = {
   },
 };
 
+function createProjectWithScenes(count: number): LoadedProject {
+  const scenes = Array.from({ length: count }, (_, index) => {
+    const order = index + 1;
+    const id = `sc_${String(order).padStart(4, "0")}`;
+    return {
+      id,
+      title: `Scene ${order}`,
+      order,
+      chapter_id: "ch_large",
+      purpose: `Purpose ${order}`,
+    };
+  });
+
+  return {
+    ...PROJECT,
+    scenes,
+    outline: {
+      ...PROJECT.outline,
+      scenes: scenes.map((scene) => ({
+        id: scene.id,
+        order: scene.order,
+        title: scene.title,
+        chapter_id: scene.chapter_id,
+        beat_refs: [],
+      })),
+    },
+    drafts: {},
+  };
+}
+
 describe("SplitCommandWorkspace", () => {
   it("renders command and writing zones without replacing the wrapped writing surface", () => {
     const onSelectScene = vi.fn();
@@ -70,7 +100,7 @@ describe("SplitCommandWorkspace", () => {
     expect(within(storyNavigation).getByText("Selected")).toBeInTheDocument();
     expect(within(storyNavigation).getByText("Arrival").closest("li")).toHaveAttribute(
       "aria-current",
-      "true",
+      "page",
     );
     expect(screen.getByLabelText("Narrative Overview")).toHaveTextContent(/Loaded workspace data only/i);
     expect(screen.getByLabelText("Narrative Overview")).toHaveTextContent(/Story units/i);
@@ -98,7 +128,7 @@ describe("SplitCommandWorkspace", () => {
     const storyNavigation = screen.getByLabelText("Story Navigation");
     expect(
       within(storyNavigation).getByRole("button", { name: "Select Arrival" }).closest("li"),
-    ).toHaveAttribute("aria-current", "true");
+    ).toHaveAttribute("aria-current", "page");
 
     rerender(
       <SplitCommandWorkspace
@@ -111,6 +141,37 @@ describe("SplitCommandWorkspace", () => {
 
     expect(
       within(storyNavigation).getByRole("button", { name: "Select Signal" }).closest("li"),
-    ).toHaveAttribute("aria-current", "true");
+    ).toHaveAttribute("aria-current", "page");
+  });
+
+  it("renders clear empty and large-project states without changing selection behavior", () => {
+    const { rerender } = render(
+      <SplitCommandWorkspace
+        project={null}
+        activeSceneId={null}
+        onSelectScene={vi.fn()}
+        writingStudio={<div data-testid="stable-writing-surface">Stable surface</div>}
+      />,
+    );
+
+    expect(screen.getByLabelText("Story Navigation")).toHaveTextContent(/No project scenes loaded/i);
+    expect(screen.getByLabelText("Narrative Overview")).toHaveTextContent(/None selected/i);
+
+    const largeProject = createProjectWithScenes(75);
+    rerender(
+      <SplitCommandWorkspace
+        project={largeProject}
+        activeSceneId="sc_0075"
+        onSelectScene={vi.fn()}
+        writingStudio={<div data-testid="stable-writing-surface">Stable surface</div>}
+      />,
+    );
+
+    const storyNavigation = screen.getByLabelText("Story Navigation");
+    expect(within(storyNavigation).getByLabelText("75 story units")).toHaveTextContent("75");
+    expect(within(storyNavigation).getByRole("button", { name: "Select Scene 75" })).toBeInTheDocument();
+    expect(
+      within(storyNavigation).getByRole("button", { name: "Select Scene 75" }).closest("li"),
+    ).toHaveAttribute("aria-current", "page");
   });
 });

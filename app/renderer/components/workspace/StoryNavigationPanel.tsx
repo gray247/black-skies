@@ -42,7 +42,7 @@ export default function StoryNavigationPanel({
                     ? "split-command__story-item split-command__story-item--active"
                     : "split-command__story-item"
                 }
-                aria-current={isActive ? "true" : undefined}
+                aria-current={isActive ? "page" : undefined}
               >
                 <button
                   type="button"

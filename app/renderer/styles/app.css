@@ -792,9 +792,12 @@ button:disabled {
   display: flex;
   flex-direction: column;
   gap: 0.55rem;
+  max-height: min(38vh, 32rem);
   margin: 0;
-  padding: 0;
+  padding: 0 0.15rem 0 0;
   list-style: none;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
 }
 
 .split-command__story-item {
@@ -1015,6 +1018,8 @@ button:disabled {
 @media (max-width: 900px) {
   .split-command {
     grid-template-columns: 1fr;
+    gap: var(--bs-spacing-zone-gap, 16px);
+    padding: var(--bs-spacing-zone-gap, 16px);
     overflow-y: auto;
   }
 
@@ -1028,6 +1033,43 @@ button:disabled {
 
   .split-command__writing-surface {
     padding: 12px;
+  }
+
+  .split-command__story-list {
+    max-height: 18rem;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1399px) {
+  .split-command {
+    grid-template-columns: minmax(17rem, 0.34fr) minmax(0, 1fr);
+    gap: var(--bs-spacing-zone-gap, 16px);
+    padding: var(--bs-spacing-zone-gap, 16px);
+  }
+
+  .split-command__zone--command {
+    padding: calc(var(--bs-spacing-panel-padding, 16px) - 2px);
+  }
+
+  .split-command__story-button {
+    gap: 0.65rem;
+    padding: 0.75rem;
+  }
+}
+
+@media (min-width: 1800px) {
+  .split-command {
+    grid-template-columns: minmax(24rem, 0.38fr) minmax(0, 1fr);
+  }
+
+  .split-command__panel-cluster {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .split-command__panel--navigation,
+  .split-command__overview,
+  .split-command__tools {
+    grid-column: 1 / -1;
   }
 }
 

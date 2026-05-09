@@ -21,7 +21,7 @@ Dev/test enablement note:
 - The flag is experimental and must remain off by default until Split Command parity is explicitly closed.
 
 Current progress snapshot:
-- Completed passes: Pass 0 through Pass 13.
+- Completed passes: Pass 0 through Pass 21.
 - Completed hardening lane: CI diagnostic hardening / preflight contract fix.
 - This document is the canonical living roadmap for Phase 11B until closure.
 - Pass 6 was visual-only shell refinement for the flagged Split Command shell; it tightened Command Center hierarchy, Writing Studio framing, Story Navigation card states, placeholder presentation, and focus/hover clarity without changing the production default or any backend/project/workflow behavior.
@@ -36,6 +36,14 @@ Current progress snapshot:
 - Pass 11 replaced the Global Tools placeholder with an inert command metadata summary; no command palette or execution path was added.
 - Pass 12 expanded command registry metadata with allowed zones, risk levels, and result types while keeping the registry declarative.
 - Pass 13 hardened Story Unit v1 with read-only draft/source annotations and active-outline containment coverage without persistence or project-format changes.
+- Pass 14 added empty and large project coverage for the flagged shell and bounded the Story Navigation list for large outlines.
+- Pass 15 added scoped adaptive layout rules for compact, standard, and ultrawide Split Command viewports without changing shell selection behavior.
+- Pass 16 tightened the Story Navigation active state to `aria-current="page"` while preserving keyboard button selection.
+- Pass 17 was reviewed as optional; no Playwright shell smoke was added because existing coverage did not expose a safe Split Command path without new harness plumbing.
+- Pass 18 aligned roadmap/tracker runtime truth with the completed foundation work.
+- Pass 19 reviewed and preserved the deferred ledger, narrowing completed foundation items to residual/future work where needed.
+- Pass 20 completed cleanup and closure validation for the Phase 11B foundation.
+- Pass 21 completed the Phase 11B closure review.
 
 Pass 2 parity guard:
 - Renderer coverage now verifies flag-off default shell rendering, flag-on Split Command rendering, Writing Studio wrapping the stable workspace body, Command Center placeholder labeling, generation/preflight calls through the wrapped ProjectHome path, and Story Unit derivation without project mutation.
@@ -356,9 +364,6 @@ The pass list below is linear and expandable. It is a living sequence, not a har
 - Pass 11 - Global Tools Wrapper
 - Pass 12 - Command Registry Expansion
 - Pass 13 - Story Unit V1 Hardening
-- CI Diagnostic Hardening / Preflight Contract Fix
-
-### Remaining Proposed Linear Roadmap
 - Pass 14 - Empty/Large Project Edge Cases
 - Pass 15 - Adaptive Layout Rules
 - Pass 16 - Accessibility Pass
@@ -367,6 +372,10 @@ The pass list below is linear and expandable. It is a living sequence, not a har
 - Pass 19 - Deferred Ledger Review
 - Pass 20 - Cleanup + Closure Validation
 - Pass 21 - Phase 11B Closure Review
+- CI Diagnostic Hardening / Preflight Contract Fix
+
+### Remaining Proposed Linear Roadmap
+- None. Phase 11B foundation work is complete as of the closure review.
 
 ### Roadmap Notes
 - The roadmap is intentionally linear so future work has a single canonical ordering.
@@ -395,19 +404,19 @@ Phase 11B is done when all of the following are true:
 Phase 11B is not done when every dream GUI feature is implemented. It is done when the next phases have the shell, data, and UI foundation they need.
 
 ### Closure Checklist
-- [ ] Split Command remains safely behind a flag.
-- [ ] Old shell remains the production default unless explicitly promoted later.
-- [ ] Flag-off behavior is validated.
-- [ ] Flag-on shell is usable enough for continued development.
-- [ ] Story Navigation and shared scene selection are stable.
-- [ ] Story Unit v1 compatibility remains read-only and scene-derived.
-- [ ] One active outline compatibility remains derived, not persisted.
-- [ ] No backend, project format, generation, rewrite, or persistence behavior changed.
-- [ ] Design tokens and shell styling are stable enough for future phases.
-- [ ] Deferred ledger is current.
-- [ ] Docs match runtime reality.
-- [ ] Full app tests, lint, and build pass.
-- [ ] Closure review is complete and all preceding items are green.
+- [x] Split Command remains safely behind a flag.
+- [x] Old shell remains the production default unless explicitly promoted later.
+- [x] Flag-off behavior is validated.
+- [x] Flag-on shell is usable enough for continued development.
+- [x] Story Navigation and shared scene selection are stable.
+- [x] Story Unit v1 compatibility remains read-only and scene-derived.
+- [x] One active outline compatibility remains derived, not persisted.
+- [x] No backend, project format, generation, rewrite, or persistence behavior changed.
+- [x] Design tokens and shell styling are stable enough for future phases.
+- [x] Deferred ledger is current.
+- [x] Docs match runtime reality.
+- [x] Full app tests, lint, and build pass.
+- [x] Closure review is complete and all preceding items are green.
 
 ## 13. Deferred Ledger
 
