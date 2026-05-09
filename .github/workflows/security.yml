@@ -234,11 +234,12 @@ jobs:
         if: ${{ steps.load_ledger.outputs.found == 'true' }}
         run: python scripts/check_slo.py "${{ steps.load_ledger.outputs.run_json }}"
       - name: Upload load ledger
-        if: ${{ always() && steps.load_ledger.outputs.found == 'true' }}
+        if: always()
         uses: actions/upload-artifact@v6
         with:
           name: load-ledger-${{ matrix.os }}
-          path: ${{ steps.load_ledger.outputs.run_json }}
+          if-no-files-found: ignore
+          path: load-ledger.json
       - name: Generate dependency report
         id: dependency_report
         run: |
