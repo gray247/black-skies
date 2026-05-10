@@ -28,7 +28,8 @@ beforeEach(() => {
   window.bridge.listSnapshots = window.bridge.listSnapshots || vi.fn().mockResolvedValue([]);
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
-  window.bridge.revealPath = window.bridge.revealPath || vi.fn().mockResolvedValue(true);
+  window.bridge.revealPath =
+    window.bridge.revealPath || vi.fn().mockResolvedValue({ ok: true, path: '/tmp' });
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   window.bridge.getLastVerification =

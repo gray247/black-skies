@@ -86,6 +86,30 @@ def test_snapshot_creation_endpoint_writes_manifest_and_files(test_client: TestC
     assert (snapshot_dir / "drafts" / "sc_0001.md").exists()
 
 
+def test_snapshot_creation_excludes_generated_snapshot_and_backup_artifacts(
+    test_client: TestClient,
+) -> None:
+    project_id = "proj_snapshot_excludes_generated"
+    project_root = _create_sample_project(_project_base_dir(test_client), project_id)
+    generated_snapshot = project_root / "history" / "snapshots" / "old_snapshot"
+    generated_snapshot.mkdir(parents=True, exist_ok=True)
+    (generated_snapshot / "large-copy.txt").write_text("do not recurse", encoding="utf-8")
+    backups_dir = project_root / "backups"
+    backups_dir.mkdir(parents=True, exist_ok=True)
+    (backups_dir / "old-backup.zip").write_text("do not snapshot backup", encoding="utf-8")
+
+    payload = _call_create_snapshot(test_client, project_id)
+
+    manifest_path = project_root / payload["path"] / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    included_paths = {
+        cast(dict[str, str], entry)["path"]
+        for entry in cast(list[object], manifest.get("files_included", []))
+    }
+    assert "history/snapshots/old_snapshot/large-copy.txt" not in included_paths
+    assert "backups/old-backup.zip" not in included_paths
+
+
 def test_snapshot_restore_endpoint_reapplies_verified_state(test_client: TestClient) -> None:
     project_id = "proj_snapshot_restore"
     project_root = _create_sample_project(_project_base_dir(test_client), project_id)

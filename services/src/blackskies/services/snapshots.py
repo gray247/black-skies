@@ -21,6 +21,8 @@ SNAPSHOT_DIR_NAME = ".snapshots"
 SNAPSHOT_RETENTION = 7
 WIZARD_LOCK_SLOW_LATENCY_MS = 100.0
 ACCEPT_SLOW_LATENCY_MS = 100.0
+MANUAL_SNAPSHOT_EXCLUDED_ROOTS = {SNAPSHOT_DIR_NAME, "exports", "backups"}
+MANUAL_SNAPSHOT_EXCLUDED_PREFIXES = {("history", "snapshots")}
 
 LOGGER = logging.getLogger(__name__)
 
@@ -243,6 +245,15 @@ def _hashfile(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _should_exclude_manual_snapshot_path(relative: Path) -> bool:
+    parts = relative.parts
+    if not parts:
+        return True
+    if parts[0] in MANUAL_SNAPSHOT_EXCLUDED_ROOTS:
+        return True
+    return any(parts[: len(prefix)] == prefix for prefix in MANUAL_SNAPSHOT_EXCLUDED_PREFIXES)
+
+
 def create_snapshot(project_root: Path) -> dict[str, Any]:
     """Create a manual snapshot of the project root for verification."""
 
@@ -262,7 +273,7 @@ def create_snapshot(project_root: Path) -> dict[str, Any]:
         if not path.is_file():
             continue
         relative = path.relative_to(project_root)
-        if not relative.parts or relative.parts[0] in {SNAPSHOT_DIR_NAME, "exports"}:
+        if _should_exclude_manual_snapshot_path(relative):
             continue
         destination = temp_dir / relative
         destination.parent.mkdir(parents=True, exist_ok=True)

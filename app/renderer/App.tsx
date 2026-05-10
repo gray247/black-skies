@@ -58,6 +58,7 @@ import { useRelocationPreferences } from "./hooks/useRelocationPreferences";
 import { useBudgetIndicator } from "./hooks/useBudgetIndicator";
 import { TestModeFlatHome } from "./screens/TestModeFlatHome";
 import { TestModeRecoveryHome } from "./screens/TestModeRecoveryHome";
+import { resolveProjectPath, revealPathWithToast } from "./utils/revealPathFeedback";
 import * as testMode from "./testMode/testModeManager";
 import * as testUISandbox from "./testMode/testUISandbox";
 import { ServiceHealthProvider } from "./contexts/serviceHealthContext";
@@ -1583,13 +1584,11 @@ export default function App(): JSX.Element {
         return;
       }
 
-      const snapshotPath =
-        response.data?.path ?? (projectSummary?.path ? `${projectSummary.path}/.snapshots` : undefined);
       const snapshotName = response.data?.snapshot_id ? `Snapshot ${response.data.snapshot_id}` : 'Snapshot saved';
 
       console.log('[snapshot-toast-fired]', {
         snapshotId: response.data?.snapshot_id ?? null,
-        actionLabel: 'Show snapshots',
+        actionLabel: 'Open snapshots panel',
       });
 
       pushToast({
@@ -1598,17 +1597,13 @@ export default function App(): JSX.Element {
         description: snapshotName,
         actions: [
           {
-            label: 'View snapshot report',
+            label: 'Open snapshots panel',
             onPress: () => {
               console.log('[snapshot-toast-action]', {
                 snapshotId: response.data?.snapshot_id ?? null,
-                actionLabel: 'View snapshot report',
+                actionLabel: 'Open snapshots panel',
               });
-              // Snapshots panel is minimally wired for Phase 8; this only toggles that dialog.
               setShowSnapshotsPanel(true);
-              if (snapshotPath && services?.revealPath) {
-                void services.revealPath(snapshotPath);
-              }
             },
           },
         ],
@@ -1624,7 +1619,6 @@ export default function App(): JSX.Element {
       setSnapshotting(false);
     }
   }, [
-    projectSummary?.path,
     projectSummary?.projectId,
     pushToast,
     services,
@@ -1679,9 +1673,11 @@ export default function App(): JSX.Element {
         status === 'ok'
           ? 'Latest snapshot verified'
           : `${snapshotReport?.errors?.length ?? 1} issue(s) detected`;
-      const reportPath = projectSummary?.path
-        ? `${projectSummary.path}/.snapshots/last_verification.json`
-        : undefined;
+      const reportPath = resolveProjectPath(
+        projectSummary?.path,
+        '.snapshots',
+        'last_verification.json',
+      );
 
       const verificationToastActions = [
         {
@@ -1690,10 +1686,16 @@ export default function App(): JSX.Element {
           dismissOnPress: true,
         },
       ];
-      if (reportPath && services?.revealPath) {
+      if (reportPath) {
         verificationToastActions.push({
           label: 'Open report file',
-          onPress: () => void services.revealPath(reportPath),
+          onPress: () =>
+            void revealPathWithToast({
+              services,
+              targetPath: reportPath,
+              kind: 'verification report',
+              pushToast,
+            }),
         });
       }
       pushToast({

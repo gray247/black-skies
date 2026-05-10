@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -74,11 +75,18 @@ async def run_backup_verifier(
 
     if allow_e2e_synthetic_mode():
         return e2e_backup_verification(validated_id)
-    return run_verification(
+    report = run_verification(
         project_root,
         settings=settings,
         latest_only=latest_only,
     )
+    report_dir = project_root / SNAPSHOT_DIR_NAME
+    report_dir.mkdir(parents=True, exist_ok=True)
+    (report_dir / "last_verification.json").write_text(
+        json.dumps(report, indent=2),
+        encoding="utf-8",
+    )
+    return report
 
 
 @router.get("/report", status_code=status.HTTP_200_OK)

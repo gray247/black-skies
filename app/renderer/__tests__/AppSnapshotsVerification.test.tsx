@@ -153,7 +153,14 @@ describe('SnapshotsPanel verification details', () => {
 
     expect(await screen.findByTestId('snapshot-badge-snapshot-ok')).toHaveTextContent('OK');
     expect(screen.getByTestId('snapshot-badge-snapshot-issues')).toHaveTextContent('Issues');
-    expect(screen.getByTestId('snapshot-badge-snapshot-unknown')).toHaveTextContent('Unknown');
+    expect(screen.getByTestId('snapshot-badge-snapshot-unknown')).toHaveTextContent('Not verified');
+
+    fireEvent.click(
+      screen.getByLabelText('Toggle verification details for snapshot-unknown'),
+    );
+    const unknownDetails = await screen.findByTestId('snapshot-issues-snapshot-unknown');
+    expect(within(unknownDetails).getByText('This snapshot has not been verified yet.')).toBeTruthy();
+    expect(within(unknownDetails).queryByText('No verification issues recorded.')).toBeNull();
 
     fireEvent.click(
       screen.getByLabelText('Toggle verification details for snapshot-issues'),
@@ -171,7 +178,7 @@ describe('SnapshotsPanel verification details', () => {
     );
     const issueDetails = screen.getByTestId('snapshot-issues-snapshot-issues');
     fireEvent.click(
-      within(issueDetails).getByRole('button', { name: /view full report/i }),
+      within(issueDetails).getByRole('button', { name: /view snapshot details/i }),
     );
     await waitFor(() =>
       expect(window.__electronApi?.fs.readJson).toHaveBeenCalledWith(
@@ -402,6 +409,139 @@ describe('SnapshotsPanel verification details', () => {
     await waitFor(() =>
       expect(screen.queryByTestId('verification-report-modal')).toBeNull(),
     );
+  });
+
+  it('does not call the OS bridge for missing snapshot directories, manifests, or reports', async () => {
+    const snapshots: SnapshotManifest[] = [
+      {
+        snapshot_id: 'snapshot-missing',
+        created_at: '2025-11-17T12:00:00Z',
+        path: '.snapshots/snapshot-missing',
+        files_included: [],
+      },
+    ];
+    const listProjectSnapshots = vi.fn().mockResolvedValue({ ok: true, data: snapshots });
+    const getLastVerification = vi.fn().mockResolvedValue({
+      ok: true,
+      data: {
+        project_id: 'proj',
+        snapshots: [],
+      },
+    });
+    const revealPath = vi.fn().mockResolvedValue({ ok: true, path: '/projects/proj/.snapshots' });
+    const pushToast = vi.fn();
+    const fsMock = createSnapshotFsMock();
+    fsMock.stat = vi.fn(async (path: string) => {
+      if (
+        path.endsWith('.snapshots/snapshot-missing') ||
+        path.endsWith('.snapshots/snapshot-missing/manifest.json') ||
+        path.endsWith('.snapshots/last_verification.json')
+      ) {
+        throw Object.assign(new Error('missing'), { code: 'ENOENT' });
+      }
+      return {
+        size: 0,
+        isDirectory: false,
+        isFile: true,
+        mtimeMs: 0,
+      };
+    });
+    attachFsMock(fsMock);
+
+    render(
+      <SnapshotsPanel
+        projectId="proj"
+        projectPath="/projects/proj"
+        services={
+          {
+            listProjectSnapshots,
+            getLastVerification,
+            revealPath,
+          } as Partial<ServicesBridge>
+        }
+        serviceStatus="online"
+        pushToast={pushToast}
+      />,
+    );
+
+    await waitFor(() =>
+      expect(listProjectSnapshots).toHaveBeenCalledWith({ projectId: 'proj' }),
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /Reveal snapshot snapshot-missing/i }));
+    await waitFor(() =>
+      expect(pushToast).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: 'Snapshot directory unavailable',
+        }),
+      ),
+    );
+    expect(revealPath).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole('button', { name: /Reveal manifest for snapshot-missing/i }));
+    await waitFor(() =>
+      expect(pushToast).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: 'Snapshot manifest unavailable',
+        }),
+      ),
+    );
+    expect(revealPath).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByTestId('snapshots-open-report-file-button'));
+    await waitFor(() =>
+      expect(pushToast).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: 'Verification report unavailable',
+        }),
+      ),
+    );
+    expect(revealPath).not.toHaveBeenCalled();
+  });
+
+  it('uses the canonical verification report path when the report exists', async () => {
+    const listProjectSnapshots = vi.fn().mockResolvedValue({ ok: true, data: [] });
+    const getLastVerification = vi.fn().mockResolvedValue({
+      ok: true,
+      data: {
+        project_id: 'proj',
+        snapshots: [],
+      },
+    });
+    const revealPath = vi.fn().mockResolvedValue({
+      ok: true,
+      path: '/projects/proj/.snapshots/last_verification.json',
+    });
+    const pushToast = vi.fn();
+
+    render(
+      <SnapshotsPanel
+        projectId="proj"
+        projectPath="/projects/proj"
+        services={
+          {
+            listProjectSnapshots,
+            getLastVerification,
+            revealPath,
+          } as Partial<ServicesBridge>
+        }
+        serviceStatus="online"
+        pushToast={pushToast}
+      />,
+    );
+
+    await waitFor(() =>
+      expect(listProjectSnapshots).toHaveBeenCalledWith({ projectId: 'proj' }),
+    );
+
+    fireEvent.click(screen.getByTestId('snapshots-open-report-file-button'));
+
+    await waitFor(() =>
+      expect(revealPath).toHaveBeenCalledWith('/projects/proj/.snapshots/last_verification.json'),
+    );
+    expect(
+      pushToast.mock.calls.some((call) => call[0]?.title === 'Verification report unavailable'),
+    ).toBe(false);
   });
 });
 

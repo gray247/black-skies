@@ -2314,9 +2314,9 @@ async function run() {
           textarea.dispatchEvent(new Event('input', { bubbles: true }));
           textarea.dispatchEvent(new Event('change', { bubbles: true }));
           const button = Array.from(document.querySelectorAll('.critique-modal button'))
-            .find((entry) => (entry.textContent ?? '').includes('Generate rewrite'));
+            .find((entry) => /Generate (saved )?rewrite/i.test(entry.textContent ?? ''));
           if (!(button instanceof HTMLButtonElement)) {
-            throw new Error('Generate rewrite button not found');
+            throw new Error('Generate saved rewrite button not found');
           }
           button.click();
           return true;

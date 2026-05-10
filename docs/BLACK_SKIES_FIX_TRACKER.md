@@ -35,6 +35,9 @@ If an issue is not tracked here, it is not part of the active fix scope.
 - Phase 12 Passes 7-8 tightened editorial workflow UI copy: critique is framed as advisory, rewrite generation/result copy says the result is saved, comparison labels distinguish submitted draft from saved rewrite, sync remains local draft-view reconciliation, and discard is now closing the saved rewrite preview.
 - Phase 12 Pass 9 strengthened renderer tests for critique non-mutation, saved rewrite state, sync-to-local-view behavior, rewrite conflict/provenance expectations, and snapshot/recovery wording separation.
 - Phase 12 Pass 10 closed the editorial workflow foundation after docs/tracker alignment and full app validation; no backend behavior, project format, rewrite persistence, provenance storage, revision history, Split Command default, or future-phase systems changed.
+- Phase 13 Pass 14 repaired snapshot/report path authority after human verification exposed broken snapshot creation, reveal, manifest, report, toast-action, and status-display behavior. Manual snapshots now exclude generated snapshot/recovery/backup artifacts, backup verification persists `.snapshots/last_verification.json`, reveal/open failures return structured renderer errors, and unverified snapshots no longer display clean-verification wording.
+- Phase 13 Pass 14 validation evidence: targeted snapshot/preflight/restore/recovery renderer tests passed, full app test passed, app lint passed, production build passed, focused snapshot Playwright flow passed, backend snapshot/report regression tests passed, `pnpm test:truth` passed, and `git diff --check` passed locally.
+- Phase 13 Pass 14 remaining risk: the default GUI still has multiple snapshot entry points and should be rechecked by human verification from the snapshot section; the Focus button remains a separate GUI-authority concern.
 
 ## Status Definitions
 - `ACTIVE`: known issue, unresolved

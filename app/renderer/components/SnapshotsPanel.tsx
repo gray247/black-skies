@@ -8,6 +8,7 @@ import type {
 import type { ServiceStatus } from '../components/ServiceStatusPill';
 import type { ToastPayload } from '../types/toast';
 import { loadSnapshotMetadata, type LocalSnapshotMetadata } from '../utils/snapshotReader';
+import { resolveProjectPath, revealPathWithToast } from '../utils/revealPathFeedback';
 import * as testMode from '../testMode/testModeManager';
 
 const MAX_ISSUES_DISPLAY = 10;
@@ -228,13 +229,28 @@ export default function SnapshotsPanel({
     }));
   }, []);
 
-  const reveal = (relative: string) => {
-    if (!services?.revealPath) {
-      return;
-    }
-    const resolved = projectPath ? `${projectPath}/${relative}` : relative;
-    void services.revealPath(resolved.replace('//', '/'));
-  };
+  const reveal = useCallback(
+    (relative: string, kind: 'snapshot directory' | 'snapshot manifest') => {
+      const resolved = resolveProjectPath(projectPath, relative);
+      void revealPathWithToast({
+        services,
+        targetPath: resolved,
+        kind,
+        pushToast,
+      });
+    },
+    [projectPath, pushToast, services],
+  );
+
+  const openReportFile = useCallback(() => {
+    const reportPath = resolveProjectPath(projectPath, '.snapshots', 'last_verification.json');
+    void revealPathWithToast({
+      services,
+      targetPath: reportPath,
+      kind: 'verification report',
+      pushToast,
+    });
+  }, [projectPath, pushToast, services]);
 
   const isTestEnvActive = testMode.isTestEnv();
   const offline = !isTestEnvActive && serviceStatus !== 'online';
@@ -852,6 +868,15 @@ export default function SnapshotsPanel({
               >
                 {runningVerification ? 'Running verification...' : 'Run verification'}
               </button>
+              <button
+                type="button"
+                className="snapshots-panel__health-button"
+                data-testid="snapshots-open-report-file-button"
+                onClick={openReportFile}
+                disabled={offline || !projectPath}
+              >
+                Open report file
+              </button>
             </div>
           </div>
         </section>
@@ -940,13 +965,15 @@ export default function SnapshotsPanel({
                 const displayedIssues = issueMessages.slice(0, MAX_ISSUES_DISPLAY);
                 const extraIssueCount = Math.max(issueMessages.length - displayedIssues.length, 0);
                 const hasIssues = issueMessages.length > 0;
-                const statusKey = record
-                  ? hasIssues
+                const statusKey = !record
+                  ? 'unverified'
+                  : hasIssues || record.status === 'errors' || record.status === 'error'
                     ? 'issues'
-                    : 'ok'
-                  : 'unknown';
+                    : record.status === 'ok'
+                      ? 'ok'
+                      : 'unverified';
                 const badgeLabel =
-                  statusKey === 'ok' ? 'OK' : statusKey === 'issues' ? 'Issues' : 'Unknown';
+                  statusKey === 'ok' ? 'OK' : statusKey === 'issues' ? 'Issues' : 'Not verified';
                 const expanded = Boolean(expandedIds[snapshot.snapshot_id]);
                 const verifyingThisRow = runningSnapshotId === snapshot.snapshot_id;
                 const verifyButtonTitle = offline
@@ -981,14 +1008,14 @@ export default function SnapshotsPanel({
                       </button>
                       <button
                         type="button"
-                        onClick={() => reveal(snapshot.path)}
+                        onClick={() => reveal(snapshot.path, 'snapshot directory')}
                         aria-label={`Reveal snapshot ${snapshot.snapshot_id}`}
                       >
                         Reveal
                       </button>
                       <button
                         type="button"
-                        onClick={() => reveal(`${snapshot.path}/manifest.json`)}
+                        onClick={() => reveal(`${snapshot.path}/manifest.json`, 'snapshot manifest')}
                         aria-label={`Reveal manifest for ${snapshot.snapshot_id}`}
                       >
                         Manifest
@@ -999,7 +1026,11 @@ export default function SnapshotsPanel({
                         className="snapshot-details"
                         data-testid={`snapshot-issues-${snapshot.snapshot_id}`}
                       >
-                        {hasIssues ? (
+                        {!record ? (
+                          <p className="snapshot-details__empty">
+                            This snapshot has not been verified yet.
+                          </p>
+                        ) : hasIssues ? (
                           <ul className="snapshot-details__issues">
                             {displayedIssues.map((issue, index) => (
                               <li key={`${snapshot.snapshot_id}-issue-${index}`}>{issue}</li>
@@ -1025,7 +1056,7 @@ export default function SnapshotsPanel({
                             disabled={snapshotLoading}
                             title="View snapshot metadata"
                           >
-                            {snapshotLoading ? 'Loading snapshot...' : 'View full report'}
+                            {snapshotLoading ? 'Loading snapshot...' : 'View snapshot details'}
                           </button>
                           <button
                             type="button"

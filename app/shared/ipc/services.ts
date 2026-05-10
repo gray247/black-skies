@@ -457,6 +457,13 @@ export interface RestoreFromZipResponse {
   details?: unknown;
 }
 
+export interface RevealPathResult {
+  ok: boolean;
+  path: string;
+  error?: string;
+  code?: 'PATH_MISSING' | 'OPEN_FAILED' | 'UNKNOWN';
+}
+
 export interface ServicesBridge {
   checkHealth: () => Promise<ServiceHealthResponse>;
   buildOutline: (
@@ -526,7 +533,7 @@ export interface ServicesBridge {
   getBackupVerificationReport?: (
     request: { projectId: string },
   ) => Promise<ServiceResult<BackupVerificationReport>>;
-  revealPath?: (path: string) => Promise<void>;
+  revealPath?: (path: string) => Promise<RevealPathResult>;
   getAnalyticsSummary?: (
     request: AnalyticsBridgeRequest,
   ) => Promise<ServiceResult<AnalyticsSummary>>;

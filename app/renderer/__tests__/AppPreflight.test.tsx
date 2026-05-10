@@ -37,7 +37,7 @@ beforeEach(() => {
     { snapshot_id: 's1', created_at: '2025-11-15T12:00:00Z', path: '.snapshots/s1' },
     { snapshot_id: 's2', created_at: '2025-11-14T12:00:00Z', path: '.snapshots/s2' },
   ]);
-  bridge.revealPath = vi.fn().mockResolvedValue(true);
+  bridge.revealPath = vi.fn().mockResolvedValue({ ok: true, path: '/tmp' });
   bridge.getLastVerification = vi.fn().mockResolvedValue({
     snapshots: [
       { snapshot_id: 's1', issues: [] },
@@ -304,7 +304,7 @@ function createServicesMock(): ServicesBridge {
         snapshots: [{ snapshot_id: 'snap-test', status: 'ok', errors: [] }],
       } satisfies BackupVerificationReport,
     }),
-    revealPath: vi.fn().mockResolvedValue(undefined),
+    revealPath: vi.fn().mockResolvedValue({ ok: true, path: '/tmp' }),
   };
 }
 
@@ -1508,7 +1508,7 @@ describe('App preflight integration', () => {
     });
   });
 
-  it('opens snapshots panel when export service missing and toast action reveals path', async () => {
+  it('opens snapshots panel without revealing a snapshot path from the create toast', async () => {
     services.exportProject = vi.fn().mockRejectedValue(new Error('export service unavailable'));
 
     services.listProjectSnapshots = vi.fn().mockResolvedValue({
@@ -1551,14 +1551,17 @@ describe('App preflight integration', () => {
     snapshotButton.removeAttribute('disabled');
     await userEvent.click(snapshotButton);
 
-    const viewReportToastAction = await screen.findByRole('button', {
-      name: /view snapshot report/i,
+    const openPanelToastAction = await waitFor(() => {
+      const button = document.querySelector('.toast__action-button');
+      expect(button).toHaveTextContent(/open snapshots panel/i);
+      return button as HTMLButtonElement;
     });
-    await userEvent.click(viewReportToastAction);
+    const revealCallsBeforeCreateToast = vi.mocked(services.revealPath).mock.calls.length;
+    await userEvent.click(openPanelToastAction);
 
     const reopenedSnapshotsPanel = await screen.findByTestId('snapshots-panel');
     expect(reopenedSnapshotsPanel).toBeInTheDocument();
-    expect(services.revealPath).toHaveBeenCalledWith(expect.stringContaining('.snapshots'));
+    expect(vi.mocked(services.revealPath).mock.calls.length).toBe(revealCallsBeforeCreateToast);
   });
 
   it('keeps the Phase 11A shell as the default when Split Command is not enabled', async () => {

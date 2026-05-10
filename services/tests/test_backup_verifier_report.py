@@ -44,3 +44,30 @@ def test_backup_verification_report_endpoint_missing_file(test_client):
 
     assert response.status_code == 404
     assert response.json()["message"] == "Verification report not found."
+
+
+def test_backup_verification_run_persists_latest_report(test_client):
+    project_root = _prepare_project(test_client, "verify-run-writes-report")
+    snapshot_dir = project_root / ".snapshots" / "ss_20251120T000000Z"
+    snapshot_dir.mkdir(parents=True, exist_ok=True)
+    manifest = {
+        "snapshot_id": "ss_20251120T000000Z",
+        "created_at": "2025-11-20T00:00:00Z",
+        "files_included": [
+            {"path": "project.json", "checksum": "unused"},
+        ],
+    }
+    (snapshot_dir / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+
+    run_response = test_client.post(
+        "/api/v1/backup_verifier/run?projectId=verify-run-writes-report&latest_only=true"
+    )
+
+    assert run_response.status_code == 200
+    report_path = project_root / ".snapshots" / "last_verification.json"
+    assert report_path.exists()
+    report_response = test_client.get(
+        "/api/v1/backup_verifier/report?projectId=verify-run-writes-report"
+    )
+    assert report_response.status_code == 200
+    assert report_response.json()["project_id"] == "verify-run-writes-report"

@@ -549,6 +549,7 @@ import type {
   RecoveryStatusBridgeResponse,
   RestoreFromZipRequest,
   RestoreFromZipResponse,
+  RevealPathResult,
   ServiceError,
   ServiceHealthResponse,
   ServiceResult,
@@ -1799,11 +1800,41 @@ const servicesBridge: ServicesBridge = {
     serviceApi.analyticsScenes(request.projectId, Boolean(request.forceRefresh)),
   getAnalyticsRelationships: (request: { projectId: string }) =>
     serviceApi.analyticsRelationships?.(request.projectId),
-  revealPath: async (path: string) => {
+  revealPath: async (path: string): Promise<RevealPathResult> => {
+    const normalized = resolve(path);
     try {
-      await shell.openPath(path);
+      await fs.stat(normalized);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.warn('[preload] revealPath missing target', { path: normalized, error: message });
+      return {
+        ok: false,
+        path: normalized,
+        code: 'PATH_MISSING',
+        error: 'Path does not exist.',
+      };
+    }
+
+    try {
+      const openError = await shell.openPath(normalized);
+      if (openError) {
+        console.warn('[preload] revealPath open failed', { path: normalized, error: openError });
+        return {
+          ok: false,
+          path: normalized,
+          code: 'OPEN_FAILED',
+          error: openError,
+        };
+      }
+      return { ok: true, path: normalized };
     } catch (error) {
       console.warn('[preload] revealPath failed', error);
+      return {
+        ok: false,
+        path: normalized,
+        code: 'UNKNOWN',
+        error: error instanceof Error ? error.message : String(error),
+      };
     }
   },
 };
