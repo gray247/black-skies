@@ -854,10 +854,15 @@ export default function App(): JSX.Element {
   const [snapshotting, setSnapshotting] = useState<boolean>(false);
   const [verifying, setVerifying] = useState<boolean>(false);
   const [showSnapshotsPanel, setShowSnapshotsPanel] = useState<boolean>(false);
+  const [snapshotPanelRefreshToken, setSnapshotPanelRefreshToken] = useState(0);
+  const refreshSnapshotsPanel = useCallback(() => {
+    setSnapshotPanelRefreshToken((current) => current + 1);
+  }, []);
   const openSnapshotsPanel = useCallback(() => {
-    // Snapshots panel is minimally wired for Phase 8; this just toggles that dialog.
+    // Refresh on open so the panel can show new snapshots and fresh verification state.
     setShowSnapshotsPanel(true);
-  }, [setShowSnapshotsPanel]);
+    refreshSnapshotsPanel();
+  }, [refreshSnapshotsPanel, setShowSnapshotsPanel]);
   const [exportFormat, setExportFormat] = useState<ExportFormat>("md");
   const batchJobRef = useRef<{ cancelled: boolean } | null>(null);
 
@@ -1603,11 +1608,12 @@ export default function App(): JSX.Element {
                 snapshotId: response.data?.snapshot_id ?? null,
                 actionLabel: 'Open snapshots panel',
               });
-              setShowSnapshotsPanel(true);
+              openSnapshotsPanel();
             },
           },
         ],
       });
+      refreshSnapshotsPanel();
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       pushToast({
@@ -1619,11 +1625,12 @@ export default function App(): JSX.Element {
       setSnapshotting(false);
     }
   }, [
+    openSnapshotsPanel,
     projectSummary?.projectId,
     pushToast,
     services,
     snapshotting,
-    setShowSnapshotsPanel,
+    refreshSnapshotsPanel,
   ]);
 
   const handleVerifySnapshots = useCallback(async () => {
@@ -1681,7 +1688,7 @@ export default function App(): JSX.Element {
 
       const verificationToastActions = [
         {
-          label: 'View snapshot report',
+          label: 'Open snapshots panel',
           onPress: () => openSnapshotsPanel(),
           dismissOnPress: true,
         },
@@ -1704,6 +1711,7 @@ export default function App(): JSX.Element {
         description: message,
         actions: verificationToastActions,
       });
+      refreshSnapshotsPanel();
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       pushToast({
@@ -1718,6 +1726,7 @@ export default function App(): JSX.Element {
     projectSummary?.path,
     projectSummary?.projectId,
     pushToast,
+    refreshSnapshotsPanel,
     services,
     verifying,
     openSnapshotsPanel,
@@ -2769,6 +2778,7 @@ export default function App(): JSX.Element {
           services={services}
           serviceStatus={serviceStatus}
           pushToast={pushToast}
+          refreshToken={snapshotPanelRefreshToken}
           onClose={() => setShowSnapshotsPanel(false)}
           onRunVerification={handleVerifySnapshots}
         />

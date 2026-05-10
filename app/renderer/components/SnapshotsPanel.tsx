@@ -28,6 +28,7 @@ interface SnapshotsPanelProps {
   serviceStatus: ServiceStatus;
   pushToast: (payload: ToastPayload) => void;
   onRunVerification?: () => Promise<void> | void;
+  refreshToken?: number;
 }
 
 type IssuePayload = string | { reason?: unknown; [key: string]: unknown };
@@ -84,6 +85,7 @@ export default function SnapshotsPanel({
   serviceStatus,
   pushToast,
   onRunVerification,
+  refreshToken = 0,
 }: SnapshotsPanelProps) {
   const [snapshots, setSnapshots] = useState<SnapshotRow[]>([]);
   const [verification, setVerification] = useState<BackupVerificationReport | null>(null);
@@ -200,7 +202,7 @@ export default function SnapshotsPanel({
 
   useEffect(() => {
     void fetchData();
-  }, [fetchData]);
+  }, [fetchData, refreshToken]);
 
   useEffect(() => {
     setExpandedIds({});
@@ -521,7 +523,7 @@ export default function SnapshotsPanel({
           : undefined;
       const reportAction = [
         {
-          label: 'View snapshot report',
+          label: 'View snapshot details',
           onPress: () =>
             void openVerificationReportModal({
               snapshotId: toastSnapshotId,
@@ -846,7 +848,8 @@ export default function SnapshotsPanel({
             <p className="snapshots-panel__verification-message">{verificationMessage}</p>
             {offline ? (
               <p className="snapshots-panel__verification-offline">
-                Local services are offline. Verification will resume once connectivity returns.
+                Writing tools are offline. Snapshot browsing remains available, but
+                verification and backup actions will resume once connectivity returns.
               </p>
             ) : null}
             <div className="snapshots-panel__health__actions">
@@ -873,7 +876,7 @@ export default function SnapshotsPanel({
                 className="snapshots-panel__health-button"
                 data-testid="snapshots-open-report-file-button"
                 onClick={openReportFile}
-                disabled={offline || !projectPath}
+                disabled={!projectPath}
               >
                 Open report file
               </button>

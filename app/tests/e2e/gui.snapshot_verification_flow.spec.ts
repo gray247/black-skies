@@ -38,6 +38,9 @@ test('snapshot verification flow (UI)', async ({ page }) => {
 
   const modal = page.getByTestId('verification-report-modal');
   await expect(modal).toBeVisible();
+  const reportCard = modal.locator('.snapshots-panel__modal');
+  await expect(reportCard).toHaveCSS('background-color', 'rgba(12, 17, 23, 0.98)');
+  await expect(reportCard).toHaveCSS('color', 'rgb(231, 236, 242)');
   await expect(modal.getByText(/Integrity: OK/i)).toBeVisible();
   await expect(modal.getByText(/Snapshot ID/i)).toBeVisible();
   await expect(modal.getByText(/Files/i)).toBeVisible();

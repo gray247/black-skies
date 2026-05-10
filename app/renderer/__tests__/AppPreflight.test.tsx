@@ -1564,6 +1564,45 @@ describe('App preflight integration', () => {
     expect(vi.mocked(services.revealPath).mock.calls.length).toBe(revealCallsBeforeCreateToast);
   });
 
+  it('refreshes the snapshot list when the create toast reopens the panel', async () => {
+    const oldSnapshot = {
+      snapshot_id: 'snap-old',
+      created_at: '2025-11-15T12:00:00Z',
+      path: '.snapshots/snap-old',
+      files_included: [],
+    } satisfies SnapshotManifest;
+    const newSnapshot = {
+      snapshot_id: 'snap-new',
+      created_at: '2025-11-16T12:00:00Z',
+      path: '.snapshots/snap-new',
+      files_included: [],
+    } satisfies SnapshotManifest;
+
+    services.listProjectSnapshots = vi
+      .fn()
+      .mockResolvedValueOnce({ ok: true, data: [oldSnapshot] })
+      .mockResolvedValueOnce({ ok: true, data: [newSnapshot, oldSnapshot] });
+
+    const App = loadAppWithServices(services);
+    render(<App />);
+
+    await screen.findByText(/Your Story/i);
+    await screen.findByText(/Project ID:/i);
+
+    await userEvent.click(await screen.findByTestId('snapshots-open-button'));
+    const snapshotsPanel = await screen.findByTestId('snapshots-panel');
+    expect(snapshotsPanel).toBeInTheDocument();
+    await waitFor(() => expect(services.listProjectSnapshots).toHaveBeenCalledTimes(1));
+    expect(screen.getByText('snap-old')).toBeInTheDocument();
+
+    const snapshotButton = await screen.findByLabelText(/create snapshot/i);
+    snapshotButton.removeAttribute('disabled');
+    await userEvent.click(snapshotButton);
+
+    await waitFor(() => expect(services.listProjectSnapshots).toHaveBeenCalledTimes(2));
+    expect(await screen.findByText('snap-new')).toBeInTheDocument();
+  });
+
   it('keeps the Phase 11A shell as the default when Split Command is not enabled', async () => {
     const App = loadAppWithServices(services);
 

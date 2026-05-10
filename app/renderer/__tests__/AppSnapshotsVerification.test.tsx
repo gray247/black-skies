@@ -2,6 +2,7 @@ import { act, fireEvent, render, screen, waitFor, within } from '@testing-librar
 import { describe, expect, it, vi } from 'vitest';
 
 import SnapshotsPanel from '../components/SnapshotsPanel';
+import * as testMode from '../testMode/testModeManager';
 
 import type {
   BackupSummary,
@@ -65,6 +66,12 @@ beforeEach(() => {
 
 describe('SnapshotsPanel verification details', () => {
   it('shows badges, expands issues, and re-runs verification', async () => {
+    const toLocaleStringSpy = vi
+      .spyOn(Date.prototype, 'toLocaleString')
+      .mockImplementation(function (this: Date) {
+        return this.toISOString();
+      });
+
     const snapshots: SnapshotManifest[] = [
       {
         snapshot_id: 'snapshot-ok',
@@ -93,6 +100,7 @@ describe('SnapshotsPanel verification details', () => {
 
     const verificationReport: BackupVerificationReport = {
       project_id: 'proj',
+      verified_at: '2025-11-17T12:00:00Z',
       snapshots: [
         {
           snapshot_id: 'snapshot-ok',
@@ -105,11 +113,22 @@ describe('SnapshotsPanel verification details', () => {
         },
       ],
     };
+    const verificationReportUpdated: BackupVerificationReport = {
+      project_id: 'proj',
+      verified_at: '2025-11-17T13:00:00Z',
+      snapshots: verificationReport.snapshots,
+    };
 
-    const getLastVerification = vi.fn().mockResolvedValue({
-      ok: true,
-      data: verificationReport,
-    });
+    const getLastVerification = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        data: verificationReport,
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        data: verificationReportUpdated,
+      });
 
     const runBackupVerification = vi.fn().mockResolvedValue({
       ok: true,
@@ -149,6 +168,11 @@ describe('SnapshotsPanel verification details', () => {
         projectId: 'proj',
         projectPath: '/projects/proj',
       }),
+    );
+    await waitFor(() =>
+      expect(screen.getByText(/Last check:/)).toHaveTextContent(
+        '2025-11-17T12:00:00.000Z',
+      ),
     );
 
     expect(await screen.findByTestId('snapshot-badge-snapshot-ok')).toHaveTextContent('OK');
@@ -208,9 +232,15 @@ describe('SnapshotsPanel verification details', () => {
       }),
     );
     await waitFor(() => expect(getLastVerification).toHaveBeenCalledTimes(2));
+    await waitFor(() =>
+      expect(screen.getByText(/Last check:/)).toHaveTextContent(
+        '2025-11-17T13:00:00.000Z',
+      ),
+    );
+    toLocaleStringSpy.mockRestore();
   });
 
-  it('opens the verification report modal from the toast action', async () => {
+  it('opens the snapshot details modal from the toast action', async () => {
     const snapshots: SnapshotManifest[] = [
       {
         snapshot_id: 'snapshot-a',
@@ -284,7 +314,7 @@ describe('SnapshotsPanel verification details', () => {
 
     const toastPayloads = pushToast.mock.calls.map((call) => call[0]);
     const successToast = toastPayloads.find((payload) =>
-      payload.actions?.some((action) => action.label === 'View snapshot report'),
+      payload.actions?.some((action) => action.label === 'View snapshot details'),
     );
     expect(successToast).toBeDefined();
     const action = successToast?.actions?.[0];
@@ -313,7 +343,7 @@ describe('SnapshotsPanel verification details', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Close' }));
   });
 
-  it('shows an error toast when verification report fetch fails', async () => {
+  it('shows an error toast when snapshot details fetch fails', async () => {
     const snapshots: SnapshotManifest[] = [
       {
         snapshot_id: 'snapshot-a',
@@ -378,7 +408,7 @@ describe('SnapshotsPanel verification details', () => {
 
     const toastPayloads = pushToast.mock.calls.map((call) => call[0]);
     const successToast = toastPayloads.find((payload) =>
-      payload.actions?.some((action) => action.label === 'View snapshot report'),
+      payload.actions?.some((action) => action.label === 'View snapshot details'),
     );
     expect(successToast).toBeDefined();
     const action = successToast?.actions?.[0];
@@ -542,6 +572,73 @@ describe('SnapshotsPanel verification details', () => {
     expect(
       pushToast.mock.calls.some((call) => call[0]?.title === 'Verification report unavailable'),
     ).toBe(false);
+  });
+
+  it('keeps local snapshot report browsing available while services are offline', async () => {
+    const isTestEnvSpy = vi.spyOn(testMode, 'isTestEnv').mockReturnValue(false);
+    try {
+      const listProjectSnapshots = vi.fn().mockResolvedValue({
+        ok: true,
+        data: [
+          {
+            snapshot_id: 'snapshot-offline',
+            created_at: '2025-11-17T12:00:00Z',
+            path: '.snapshots/snapshot-offline',
+            files_included: [],
+          },
+        ],
+      });
+      const getLastVerification = vi.fn().mockResolvedValue({
+        ok: true,
+        data: {
+          project_id: 'proj',
+          snapshots: [
+            {
+              snapshot_id: 'snapshot-offline',
+              status: 'ok',
+            },
+          ],
+        },
+      });
+      const revealPath = vi.fn().mockResolvedValue({
+        ok: true,
+        path: '/projects/proj/.snapshots/last_verification.json',
+      });
+      const pushToast = vi.fn();
+
+      render(
+        <SnapshotsPanel
+          projectId="proj"
+          projectPath="/projects/proj"
+          services={
+            {
+              listProjectSnapshots,
+              getLastVerification,
+              revealPath,
+            } as Partial<ServicesBridge>
+          }
+          serviceStatus="offline"
+          pushToast={pushToast}
+        />,
+      );
+
+      await waitFor(() =>
+        expect(listProjectSnapshots).toHaveBeenCalledWith({ projectId: 'proj' }),
+      );
+      expect(screen.getByTestId('snapshots-manual-verify-button')).toBeDisabled();
+      expect(screen.getByTestId('snapshots-open-report-file-button')).toBeEnabled();
+
+      fireEvent.click(screen.getByTestId('snapshots-open-report-file-button'));
+
+      await waitFor(() =>
+        expect(revealPath).toHaveBeenCalledWith('/projects/proj/.snapshots/last_verification.json'),
+      );
+      expect(
+        pushToast.mock.calls.some((call) => call[0]?.title === 'Verification report unavailable'),
+      ).toBe(false);
+    } finally {
+      isTestEnvSpy.mockRestore();
+    }
   });
 });
 
