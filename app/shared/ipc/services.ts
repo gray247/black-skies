@@ -265,6 +265,7 @@ export interface BackupVerificationReport {
   snapshots: SnapshotVerificationSummary[];
   status?: BackupStatus;
   message?: string;
+  verified_at?: string;
   started_at?: string;
   finished_at?: string;
   checked_snapshots?: number;

@@ -116,7 +116,16 @@ describe('SnapshotsPanel verification details', () => {
     const verificationReportUpdated: BackupVerificationReport = {
       project_id: 'proj',
       verified_at: '2025-11-17T13:00:00Z',
-      snapshots: verificationReport.snapshots,
+      snapshots: [
+        {
+          snapshot_id: 'snapshot-ok',
+          status: 'ok',
+        },
+        {
+          snapshot_id: 'snapshot-issues',
+          status: 'ok',
+        },
+      ],
     };
 
     const getLastVerification = vi
@@ -217,6 +226,7 @@ describe('SnapshotsPanel verification details', () => {
     expect(window.__electronApi?.fs.stat).toHaveBeenCalledTimes(4);
     expect(screen.getByTestId('verification-report-modal')).toBeInTheDocument();
     expect(screen.getByText('snapshot-issues')).toBeInTheDocument();
+    expect(screen.getByText('Integrity: Issues detected')).toBeInTheDocument();
     expect(screen.getByText('Snapshot ID')).toBeInTheDocument();
     expect(screen.getByText('Files')).toBeInTheDocument();
     expect(screen.getByText('6.0 KB')).toBeInTheDocument();
@@ -237,7 +247,114 @@ describe('SnapshotsPanel verification details', () => {
         '2025-11-17T13:00:00.000Z',
       ),
     );
+    await waitFor(() =>
+      expect(screen.getByTestId('snapshots-health-status')).toHaveTextContent(
+        'Latest snapshot verified',
+      ),
+    );
+    fireEvent.click(
+      within(screen.getByTestId('snapshot-issues-snapshot-issues')).getByRole('button', {
+        name: /view snapshot details/i,
+      }),
+    );
+    await waitFor(() =>
+      expect(screen.getByText('Integrity: OK')).toBeInTheDocument(),
+    );
     toLocaleStringSpy.mockRestore();
+  });
+
+  it('refreshes the mounted snapshot status without reopening the app', async () => {
+    const initialTimestamp = new Date('2025-11-17T12:00:00Z').toLocaleString();
+    const refreshedTimestamp = new Date('2025-11-17T14:30:00Z').toLocaleString();
+
+    const snapshots: SnapshotManifest[] = [
+      {
+        snapshot_id: 'snapshot-refresh',
+        created_at: '2025-11-17T15:00:00Z',
+        path: '.snapshots/snapshot-refresh',
+        files_included: [],
+      },
+    ];
+
+    const listProjectSnapshots = vi.fn().mockResolvedValue({
+      ok: true,
+      data: snapshots,
+    });
+
+    const verificationReportInitial: BackupVerificationReport = {
+      project_id: 'proj',
+      verified_at: '2025-11-17T12:00:00Z',
+      snapshots: [
+        {
+          snapshot_id: 'snapshot-refresh',
+          status: 'errors',
+          errors: ['missing foo'],
+        },
+      ],
+    };
+    const verificationReportRefreshed: BackupVerificationReport = {
+      project_id: 'proj',
+      verified_at: '2025-11-17T14:30:00Z',
+      snapshots: [
+        {
+          snapshot_id: 'snapshot-refresh',
+          status: 'ok',
+        },
+      ],
+    };
+
+    const getLastVerification = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        data: verificationReportInitial,
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        data: verificationReportRefreshed,
+      });
+
+    render(
+      <SnapshotsPanel
+        projectId="proj"
+        projectPath="/projects/proj"
+        services={
+          {
+            listProjectSnapshots,
+            getLastVerification,
+          } as Partial<ServicesBridge>
+        }
+        serviceStatus="online"
+        pushToast={vi.fn()}
+      />,
+    );
+
+    await waitFor(() =>
+      expect(listProjectSnapshots).toHaveBeenCalledWith({ projectId: 'proj' }),
+    );
+    await waitFor(() =>
+      expect(getLastVerification).toHaveBeenCalledWith({
+        projectId: 'proj',
+        projectPath: '/projects/proj',
+      }),
+    );
+    expect(screen.getByTestId('snapshots-health-status')).toHaveTextContent(
+      'Verification issues detected',
+    );
+    expect(screen.getByText(/Last check:/)).toHaveTextContent(initialTimestamp);
+
+    fireEvent.click(screen.getByTestId('snapshots-refresh-status-button'));
+
+    await waitFor(() => expect(getLastVerification).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(listProjectSnapshots).toHaveBeenCalledTimes(2));
+    await waitFor(() =>
+      expect(screen.getByTestId('snapshots-health-status')).toHaveTextContent(
+        'Latest snapshot verified',
+      ),
+    );
+    await waitFor(() =>
+      expect(screen.getByText(/Last check:/)).toHaveTextContent(refreshedTimestamp),
+    );
   });
 
   it('opens the snapshot details modal from the toast action', async () => {
@@ -604,6 +721,18 @@ describe('SnapshotsPanel verification details', () => {
         ok: true,
         path: '/projects/proj/.snapshots/last_verification.json',
       });
+      const listBackups = vi.fn().mockResolvedValue({
+        ok: true,
+        data: [
+          {
+            filename: 'BS_20251119_120000.zip',
+            project_id: 'proj',
+            path: 'backups/BS_20251119_120000.zip',
+            created_at: '2025-11-19T12:00:00Z',
+            checksum: 'def',
+          },
+        ],
+      });
       const pushToast = vi.fn();
 
       render(
@@ -612,10 +741,11 @@ describe('SnapshotsPanel verification details', () => {
           projectPath="/projects/proj"
           services={
             {
-              listProjectSnapshots,
-              getLastVerification,
-              revealPath,
-            } as Partial<ServicesBridge>
+            listProjectSnapshots,
+            getLastVerification,
+            revealPath,
+            listBackups,
+          } as Partial<ServicesBridge>
           }
           serviceStatus="offline"
           pushToast={pushToast}
@@ -625,8 +755,28 @@ describe('SnapshotsPanel verification details', () => {
       await waitFor(() =>
         expect(listProjectSnapshots).toHaveBeenCalledWith({ projectId: 'proj' }),
       );
+      await waitFor(() => expect(listBackups).toHaveBeenCalledWith({ projectId: 'proj' }));
+      expect(await screen.findByText('BS_20251119_120000.zip')).toBeInTheDocument();
       expect(screen.getByTestId('snapshots-manual-verify-button')).toBeDisabled();
+      expect(screen.getByTestId('snapshots-refresh-status-button')).toBeEnabled();
       expect(screen.getByTestId('snapshots-open-report-file-button')).toBeEnabled();
+      expect(screen.getByTestId('snapshots-backup-create')).toBeDisabled();
+      expect(screen.getByRole('button', { name: /Restore backup BS_20251119_120000\.zip/i })).toBeDisabled();
+      expect(screen.getByRole('button', { name: /Restore latest ZIP as copy/i })).toBeDisabled();
+
+      fireEvent.click(screen.getByRole('button', { name: /Reveal snapshot snapshot-offline/i }));
+      await waitFor(() =>
+        expect(revealPath).toHaveBeenCalledWith('/projects/proj/.snapshots/snapshot-offline'),
+      );
+
+      fireEvent.click(
+        screen.getByRole('button', { name: /Reveal manifest for snapshot-offline/i }),
+      );
+      await waitFor(() =>
+        expect(revealPath).toHaveBeenCalledWith(
+          '/projects/proj/.snapshots/snapshot-offline/manifest.json',
+        ),
+      );
 
       fireEvent.click(screen.getByTestId('snapshots-open-report-file-button'));
 
@@ -636,6 +786,11 @@ describe('SnapshotsPanel verification details', () => {
       expect(
         pushToast.mock.calls.some((call) => call[0]?.title === 'Verification report unavailable'),
       ).toBe(false);
+
+      expect(
+        screen.getByRole('button', { name: /Re-run verification for this snapshot/i }),
+      ).toBeDisabled();
+      expect(screen.getByTestId('snapshots-refresh-status-button')).toBeEnabled();
     } finally {
       isTestEnvSpy.mockRestore();
     }

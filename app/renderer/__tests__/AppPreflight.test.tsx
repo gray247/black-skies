@@ -1508,6 +1508,50 @@ describe('App preflight integration', () => {
     });
   });
 
+  it('refreshes the mounted snapshots panel after creating a snapshot', async () => {
+    const oldSnapshot = {
+      snapshot_id: 'snap-old',
+      created_at: '2025-11-15T12:00:00Z',
+      path: '.snapshots/snap-old',
+      files_included: [],
+    } satisfies SnapshotManifest;
+    const newSnapshot = {
+      snapshot_id: 'snap-new',
+      created_at: '2025-11-16T12:00:00Z',
+      path: '.snapshots/snap-new',
+      files_included: [],
+    } satisfies SnapshotManifest;
+
+    services.listProjectSnapshots = vi
+      .fn()
+      .mockResolvedValueOnce({ ok: true, data: [oldSnapshot] })
+      .mockResolvedValueOnce({ ok: true, data: [newSnapshot, oldSnapshot] });
+
+    const App = loadAppWithServices(services);
+    render(<App />);
+
+    await screen.findByText(/Your Story/i);
+    await screen.findByText(/Project ID:/i);
+
+    await userEvent.click(await screen.findByTestId('snapshots-open-button'));
+    const snapshotsPanel = await screen.findByTestId('snapshots-panel');
+    expect(snapshotsPanel).toBeInTheDocument();
+    await waitFor(() => expect(services.listProjectSnapshots).toHaveBeenCalledTimes(1));
+    expect(screen.getByText('snap-old')).toBeInTheDocument();
+
+    const snapshotButton = await screen.findByLabelText(/create snapshot/i);
+    snapshotButton.removeAttribute('disabled');
+    await userEvent.click(snapshotButton);
+
+    await waitFor(() =>
+      expect(services.createProjectSnapshot).toHaveBeenCalledWith({
+        projectId: 'demo',
+      }),
+    );
+    await waitFor(() => expect(services.listProjectSnapshots).toHaveBeenCalledTimes(2));
+    expect(await screen.findByText('snap-new')).toBeInTheDocument();
+  });
+
   it('opens snapshots panel without revealing a snapshot path from the create toast', async () => {
     services.exportProject = vi.fn().mockRejectedValue(new Error('export service unavailable'));
 

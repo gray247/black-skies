@@ -2553,6 +2553,52 @@ async function run() {
       receipt.routes_hit.push('/api/v1/snapshots');
       receipt.routes_hit.push('/api/v1/draft/recovery');
 
+      console.log('[truth] validating backup verification report persistence');
+      const verificationRunResponse = await fetch(
+        `http://127.0.0.1:${SERVICE_PORT}/api/v1/backup_verifier/run?projectId=${encodeURIComponent(
+          sampleLoadProbe.projectId,
+        )}&latest_only=true`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ projectId: sampleLoadProbe.projectId }),
+        },
+      );
+      await assertOkResponse(verificationRunResponse, 'Backup verification run route');
+      receipt.routes_hit.push('/api/v1/backup_verifier/run');
+      const verificationRunPayload = await verificationRunResponse.json();
+      const verificationReportPath = path.join(
+        truthProject.projectPath,
+        '.snapshots',
+        'last_verification.json',
+      );
+      assert.ok(
+        existsSync(verificationReportPath),
+        `Verification report missing on disk: ${verificationReportPath}`,
+      );
+      const verificationReportResponse = await fetch(
+        `http://127.0.0.1:${SERVICE_PORT}/api/v1/backup_verifier/report?projectId=${encodeURIComponent(
+          sampleLoadProbe.projectId,
+        )}`,
+      );
+      await assertOkResponse(verificationReportResponse, 'Backup verification report route');
+      receipt.routes_hit.push('/api/v1/backup_verifier/report');
+      const verificationReportPayload = await verificationReportResponse.json();
+      assert.equal(
+        verificationReportPayload?.project_id,
+        sampleLoadProbe.projectId,
+        'Verification report project_id must match the loaded truth project',
+      );
+      assert.equal(
+        verificationReportPayload?.verified_at,
+        verificationRunPayload?.verified_at,
+        'Verification report reread must match the persisted verified_at timestamp',
+      );
+      assert.ok(
+        Array.isArray(verificationReportPayload?.snapshots) && verificationReportPayload.snapshots.length > 0,
+        'Verification report must contain at least one snapshot summary',
+      );
+
       console.log('[truth] validating export artifacts');
       const exportResponse = await fetch(`http://127.0.0.1:${SERVICE_PORT}/api/v1/export`, {
         method: 'POST',

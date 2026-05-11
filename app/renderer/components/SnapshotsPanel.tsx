@@ -439,6 +439,28 @@ export default function SnapshotsPanel({
     setSnapshotSummary(null);
   }, []);
 
+  const reportIntegrityLabel = useMemo(() => {
+    if (snapshotLoading) {
+      return 'Integrity: Loading...';
+    }
+    if (snapshotError) {
+      return 'Integrity: Unavailable';
+    }
+    const snapshotId = snapshotSummary?.snapshotId;
+    if (!snapshotId) {
+      return 'Integrity: Unknown';
+    }
+    const record = verificationById[snapshotId];
+    if (!record) {
+      return 'Integrity: Not verified';
+    }
+    const hasIssues =
+      record.status === 'errors' ||
+      record.status === 'error' ||
+      resolveIssueList(record).length > 0;
+    return hasIssues ? 'Integrity: Issues detected' : 'Integrity: OK';
+  }, [snapshotError, snapshotLoading, snapshotSummary?.snapshotId, verificationById]);
+
   const handleManualVerification = useCallback(async () => {
     if (runningVerification) {
       return;
@@ -1096,7 +1118,7 @@ export default function SnapshotsPanel({
             <header className="snapshots-panel__modal-header">
               <div>
                 <h3>Snapshot verification</h3>
-                <p className="snapshots-panel__modal-status">Integrity: OK</p>
+                <p className="snapshots-panel__modal-status">{reportIntegrityLabel}</p>
               </div>
               <button
                 type="button"

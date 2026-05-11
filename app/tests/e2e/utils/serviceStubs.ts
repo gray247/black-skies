@@ -137,29 +137,41 @@ const snapshotResponse = {
   includes: ['outline.json', 'drafts'],
 };
 
-const snapshotManifest = {
-  snapshot_id: snapshotResponse.snapshot_id,
-  created_at: snapshotResponse.created_at,
-  path: snapshotResponse.path,
+const createdSnapshotResponse = {
+  snapshot_id: 'snapshot-current',
+  label: 'wizard-finalize',
+  created_at: new Date().toISOString(),
+  path: 'history/snapshots/snapshot-current',
+  includes: ['outline.json', 'drafts'],
+};
+
+const snapshotManifestTemplate = {
   files_included: [
     { path: 'outline.json', checksum: 'sha256-outline' },
     { path: 'drafts/story.json', checksum: 'sha256-draft' },
   ],
 };
 
-const verificationReport = {
-  project_id: loadedProject.project_id,
-  status: 'ok' as const,
-  message: 'Snapshot verified successfully.',
-  snapshots: [
-    {
-      snapshot_id: snapshotManifest.snapshot_id,
+const verificationBaseMs = Date.now();
+let verificationTick = 0;
+let snapshotSummaries = [snapshotResponse];
+
+function buildVerificationReport() {
+  const verifiedAt = new Date(verificationBaseMs + verificationTick * 60_000).toISOString();
+  verificationTick += 1;
+  return {
+    project_id: loadedProject.project_id,
+    status: 'ok' as const,
+    message: 'Snapshot verified successfully.',
+    verified_at: verifiedAt,
+    snapshots: snapshotSummaries.map((snapshot) => ({
+      snapshot_id: snapshot.snapshot_id,
       status: 'ok' as const,
       errors: [],
       issues: [],
-    },
-  ],
-};
+    })),
+  };
+}
 
 const recoveryStatus = {
   project_id: loadedProject.project_id,
@@ -296,16 +308,27 @@ async function ensureServer(): Promise<void> {
         return;
       case '/snapshots':
         if (method === 'POST') {
+          snapshotSummaries = [createdSnapshotResponse, snapshotResponse];
           respond(
             res,
             {
-              ...snapshotManifest,
-              files_included: snapshotManifest.files_included,
+              snapshot_id: createdSnapshotResponse.snapshot_id,
+              created_at: createdSnapshotResponse.created_at,
+              path: createdSnapshotResponse.path,
+              files_included: snapshotManifestTemplate.files_included,
             },
             201,
           );
         } else {
-          respond(res, [snapshotManifest]);
+          respond(
+            res,
+            snapshotSummaries.map((snapshot) => ({
+              snapshot_id: snapshot.snapshot_id,
+              created_at: snapshot.created_at,
+              path: snapshot.path,
+              files_included: snapshotManifestTemplate.files_included,
+            })),
+          );
         }
         return;
       case '/backups':
@@ -353,14 +376,14 @@ async function ensureServer(): Promise<void> {
         respond(
           res,
           {
-            ...verificationReport,
+            ...buildVerificationReport(),
             started_at: new Date().toISOString(),
             finished_at: new Date().toISOString(),
           },
         );
         return;
       case '/backup_verifier/report':
-        respond(res, verificationReport);
+        respond(res, buildVerificationReport());
         return;
       case '/analytics/summary':
         respond(res, analyticsSummary);

@@ -3,7 +3,7 @@
 # BLACK SKIES - FIX TRACKER
 
 Status: Active
-Last Reviewed: 2026-05-09
+Last Reviewed: 2026-05-10
 
 ## Purpose
 This document tracks defects, technical debt, and instability across Black Skies.
@@ -43,6 +43,15 @@ If an issue is not tracked here, it is not part of the active fix scope.
 - Phase 13 Pass 15 remaining risk: snapshot-card reveal/manifest/report controls still need broader end-to-end assertion coverage, and the operator snapshot section should be restarted from the snapshot surface to confirm the refresh/status fix against real paths.
 - Phase 13 Pass 16 clarified that `Writing tools offline` is a shared bridge-health state rather than a snapshot-specific outage. `Open report file` remains enabled when the report path exists because it is local-file browsing, while `Run verification`, `Create backup`, `Restore backup`, `Restore latest ZIP as copy`, and `Re-run verification for this snapshot` remain backend-gated.
 - Phase 13 Pass 16 validation state: renderer/unit coverage now includes an offline-local-report-browse regression, full app test passed, lint passed, build passed, focused snapshot Playwright flow passed, backend snapshot/report regression tests passed, and `pnpm test:truth` passed on rerun after a transient port collision.
+- Phase 13 Pass 17 revalidated the GUI interaction surface as hostile audit work: the default shell still has 59 visible interactive control families plus 10 registry-only command actions, and the remaining trust gap is concentrated in `Open report file`, `Reveal`, `Manifest`, `Re-run verification for this snapshot`, `Refresh status`, backup restore actions, and the snapshot/report truth lane depth.
+- Phase 13 Pass 18 closed one concrete trust bug from that audit: the snapshot details modal no longer hardcodes `Integrity: OK` for snapshots with recorded verification errors, and renderer coverage now asserts the issue-state label in the modal itself.
+- Phase 13 Pass 18 extended the snapshot/report authority proof: local browsing controls now stay canonical, the mounted panel refreshes after create/verify/rerun, and the created snapshot flow is proven in Playwright without reopening the app.
+- Phase 13 Pass 20 locked the offline authority matrix: local browsing remains available offline when paths exist, while snapshot/verification/backup/restore actions are disabled or fail clearly.
+- Phase 13 Pass 21 added a narrow truth-lane expansion for backup-verifier report persistence and reread freshness; it intentionally does not broaden the lane into every GUI button.
+- Phase 13 Pass 22 decided against a broad Phase 13 refactor; only small helper extraction is allowed later if authority duplication starts to drift again.
+- Phase 13 Pass 23 aligned the docs with the authority matrix so local browsing, backend-required actions, and `Writing tools offline` all mean the same thing in the tracker and the audits.
+- Phase 13 Pass 24 produced the final operator verification script, but human verification itself is still deferred.
+- Phase 13 Pass 18/20/21/22/23/24 validation evidence: focused renderer snapshot tests passed, full app test passed, app lint passed, production build passed, focused GUI Playwright flow passed, backend snapshot regression tests passed, and `pnpm test:truth` passed.
 
 ## Status Definitions
 - `ACTIVE`: known issue, unresolved
