@@ -49,6 +49,7 @@ If an issue is not tracked here, it is not part of the active fix scope.
 - Phase 13 Pass 20 locked the offline authority matrix: local browsing remains available offline when paths exist, while snapshot/verification/backup/restore actions are disabled or fail clearly.
 - Phase 13 Pass 21 added a narrow truth-lane expansion for backup-verifier report persistence and reread freshness; it intentionally does not broaden the lane into every GUI button.
 - Backup-verifier report persistence now mirrors `last_verification.json` across matching project-root aliases so the truth lane and renderer can read the same verification authority even when the loaded project path differs from the canonical `project_id` root.
+- Phase 13 Playwright harness audit found the remaining snapshot status failure was a fixture-root gap: `sample_project/proj_esther_estate/.snapshots/last_verification.json` was missing even though the renderer can load that canonical root. The harness now seeds both sample-project aliases and the checked-in canonical fixture root carries a verified report copy.
 - Phase 13 Pass 22 decided against a broad Phase 13 refactor; only small helper extraction is allowed later if authority duplication starts to drift again.
 - Phase 13 Pass 23 aligned the docs with the authority matrix so local browsing, backend-required actions, and `Writing tools offline` all mean the same thing in the tracker and the audits.
 - Phase 13 Pass 24 produced the final operator verification script, but human verification itself is still deferred.

@@ -162,16 +162,17 @@ const snapshotManifestTemplate = {
 const verificationBaseMs = Date.now();
 let verificationTick = 0;
 let snapshotSummaries = [snapshotResponse];
-const verificationReportPath = path.join(projectPath, '.snapshots', 'last_verification.json');
-const legacyVerificationReportPath = path.join(
-  repoRoot,
-  'sample_project',
-  'Esther_Estate',
-  '.snapshots',
-  'last_verification.json',
-);
+const verificationReportPaths = [
+  path.join(repoRoot, 'sample_project', 'Esther_Estate', '.snapshots', 'last_verification.json'),
+  path.join(repoRoot, 'sample_project', 'proj_esther_estate', '.snapshots', 'last_verification.json'),
+  path.join(projectPath, '.snapshots', 'last_verification.json'),
+];
 
-function buildVerificationReport() {
+export function getVerificationReportPaths(): string[] {
+  return [...new Set(verificationReportPaths)];
+}
+
+export function buildVerificationReport() {
   const verifiedAt = new Date(verificationBaseMs + verificationTick * 60_000).toISOString();
   verificationTick += 1;
   return {
@@ -189,19 +190,14 @@ function buildVerificationReport() {
 }
 
 function persistVerificationReport(report: ReturnType<typeof buildVerificationReport>): void {
-  fs.mkdirSync(path.dirname(verificationReportPath), { recursive: true });
-  fs.writeFileSync(verificationReportPath, `${JSON.stringify(report, null, 2)}\n`, 'utf-8');
-}
-
-function seedVerificationReport(): void {
-  if (fs.existsSync(verificationReportPath)) {
-    return;
+  for (const reportPath of getVerificationReportPaths()) {
+    fs.mkdirSync(path.dirname(reportPath), { recursive: true });
+    fs.writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`, 'utf-8');
   }
-  persistVerificationReport(buildVerificationReport());
 }
 
-function loadVerificationReport(): ReturnType<typeof buildVerificationReport> {
-  for (const candidatePath of [verificationReportPath, legacyVerificationReportPath]) {
+function readVerificationReportFromPaths(): ReturnType<typeof buildVerificationReport> | null {
+  for (const candidatePath of getVerificationReportPaths()) {
     try {
       const contents = fs.readFileSync(candidatePath, 'utf-8');
       const payload = JSON.parse(contents);
@@ -209,8 +205,25 @@ function loadVerificationReport(): ReturnType<typeof buildVerificationReport> {
         return payload as ReturnType<typeof buildVerificationReport>;
       }
     } catch {
-      // Fall through to the generated report below.
+      // Fall through to the next candidate path.
     }
+  }
+  return null;
+}
+
+function seedVerificationReport(): void {
+  const existingReport = readVerificationReportFromPaths();
+  if (existingReport) {
+    persistVerificationReport(existingReport);
+    return;
+  }
+  persistVerificationReport(buildVerificationReport());
+}
+
+function loadVerificationReport(): ReturnType<typeof buildVerificationReport> {
+  const existingReport = readVerificationReportFromPaths();
+  if (existingReport) {
+    return existingReport;
   }
   const report = buildVerificationReport();
   persistVerificationReport(report);
@@ -477,10 +490,12 @@ async function shutdownServer(): Promise<void> {
     });
   });
   server = null;
-  try {
-    fs.rmSync(verificationReportPath, { force: true });
-  } catch {
-    // best effort cleanup for generated harness state
+  for (const reportPath of getVerificationReportPaths()) {
+    try {
+      fs.rmSync(reportPath, { force: true });
+    } catch {
+      // best effort cleanup for generated harness state
+    }
   }
 }
 
