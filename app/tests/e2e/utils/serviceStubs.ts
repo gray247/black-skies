@@ -1,8 +1,15 @@
+import fs from 'node:fs';
 import http from 'node:http';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import type { Page } from '@playwright/test';
 import { SERVICE_PORT } from '../servicePort';
 import { loadSampleProject } from './sampleProject';
 import { setFlatMode, setRecoveryMode, setFullMode } from './testModeConfig';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const repoRoot = path.resolve(__dirname, '../../../..');
 
 type ServiceScenario = 'normal' | 'snapshot' | 'budget' | 'budget-indicator' | 'offline';
 type TestMode = 'flat' | 'full' | 'recovery';
@@ -155,6 +162,14 @@ const snapshotManifestTemplate = {
 const verificationBaseMs = Date.now();
 let verificationTick = 0;
 let snapshotSummaries = [snapshotResponse];
+const verificationReportPath = path.join(projectPath, '.snapshots', 'last_verification.json');
+const legacyVerificationReportPath = path.join(
+  repoRoot,
+  'sample_project',
+  'Esther_Estate',
+  '.snapshots',
+  'last_verification.json',
+);
 
 function buildVerificationReport() {
   const verifiedAt = new Date(verificationBaseMs + verificationTick * 60_000).toISOString();
@@ -169,9 +184,40 @@ function buildVerificationReport() {
       status: 'ok' as const,
       errors: [],
       issues: [],
-    })),
+      })),
   };
 }
+
+function persistVerificationReport(report: ReturnType<typeof buildVerificationReport>): void {
+  fs.mkdirSync(path.dirname(verificationReportPath), { recursive: true });
+  fs.writeFileSync(verificationReportPath, `${JSON.stringify(report, null, 2)}\n`, 'utf-8');
+}
+
+function seedVerificationReport(): void {
+  if (fs.existsSync(verificationReportPath)) {
+    return;
+  }
+  persistVerificationReport(buildVerificationReport());
+}
+
+function loadVerificationReport(): ReturnType<typeof buildVerificationReport> {
+  for (const candidatePath of [verificationReportPath, legacyVerificationReportPath]) {
+    try {
+      const contents = fs.readFileSync(candidatePath, 'utf-8');
+      const payload = JSON.parse(contents);
+      if (payload && typeof payload === 'object') {
+        return payload as ReturnType<typeof buildVerificationReport>;
+      }
+    } catch {
+      // Fall through to the generated report below.
+    }
+  }
+  const report = buildVerificationReport();
+  persistVerificationReport(report);
+  return report;
+}
+
+seedVerificationReport();
 
 const recoveryStatus = {
   project_id: loadedProject.project_id,
@@ -373,17 +419,21 @@ async function ensureServer(): Promise<void> {
         });
         return;
       case '/backup_verifier/run':
-        respond(
-          res,
-          {
-            ...buildVerificationReport(),
-            started_at: new Date().toISOString(),
-            finished_at: new Date().toISOString(),
-          },
-        );
+        {
+          const report = buildVerificationReport();
+          persistVerificationReport(report);
+          respond(
+            res,
+            {
+              ...report,
+              started_at: new Date().toISOString(),
+              finished_at: new Date().toISOString(),
+            },
+          );
+        }
         return;
       case '/backup_verifier/report':
-        respond(res, buildVerificationReport());
+        respond(res, loadVerificationReport());
         return;
       case '/analytics/summary':
         respond(res, analyticsSummary);
@@ -427,6 +477,11 @@ async function shutdownServer(): Promise<void> {
     });
   });
   server = null;
+  try {
+    fs.rmSync(verificationReportPath, { force: true });
+  } catch {
+    // best effort cleanup for generated harness state
+  }
 }
 
 export async function installServiceStubs(

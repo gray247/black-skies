@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -30,6 +31,37 @@ class VerificationRequest(BaseModel):
     @classmethod
     def _validate_project_id(cls, value: str) -> str:
         return validate_project_id(value)
+
+
+def _project_report_roots(settings: ServiceSettings, project_id: str) -> list[Path]:
+    """Return project roots that advertise the requested project id."""
+
+    base_dir = settings.project_base_dir
+    roots: list[Path] = []
+    seen: set[Path] = set()
+
+    def consider(root: Path) -> None:
+        if root in seen or not root.exists() or not root.is_dir():
+            return
+        project_json = root / "project.json"
+        if not project_json.exists():
+            return
+        try:
+            payload = read_json(project_json)
+        except (OSError, ValueError):
+            return
+        if not isinstance(payload, dict) or payload.get("project_id") != project_id:
+            return
+        seen.add(root)
+        roots.append(root)
+
+    consider(base_dir / project_id)
+    if base_dir.exists():
+        for entry in sorted(base_dir.iterdir(), key=lambda item: item.name):
+            if entry.is_dir():
+                consider(entry)
+
+    return roots
 
 
 @router.post("/run", status_code=status.HTTP_200_OK)
@@ -80,12 +112,15 @@ async def run_backup_verifier(
         settings=settings,
         latest_only=latest_only,
     )
-    report_dir = project_root / SNAPSHOT_DIR_NAME
-    report_dir.mkdir(parents=True, exist_ok=True)
-    (report_dir / "last_verification.json").write_text(
-        json.dumps(report, indent=2),
-        encoding="utf-8",
-    )
+    report_payload = json.dumps(report, indent=2)
+    report_roots = _project_report_roots(settings, validated_id) or [project_root]
+    for report_root in report_roots:
+        report_dir = report_root / SNAPSHOT_DIR_NAME
+        report_dir.mkdir(parents=True, exist_ok=True)
+        (report_dir / "last_verification.json").write_text(
+            report_payload,
+            encoding="utf-8",
+        )
     return report
 
 
@@ -124,8 +159,12 @@ async def get_backup_verification_report(
             project_root=None,
         )
 
-    report_path = project_root / SNAPSHOT_DIR_NAME / "last_verification.json"
-    if not report_path.exists():
+    report_paths = [
+        report_root / SNAPSHOT_DIR_NAME / "last_verification.json"
+        for report_root in (_project_report_roots(settings, validated_id) or [project_root])
+    ]
+    report_path = next((path for path in report_paths if path.exists()), None)
+    if report_path is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Verification report not found.",

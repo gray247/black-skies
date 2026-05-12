@@ -48,6 +48,16 @@ def test_backup_verification_report_endpoint_missing_file(test_client):
 
 def test_backup_verification_run_persists_latest_report(test_client):
     project_root = _prepare_project(test_client, "verify-run-writes-report")
+    alias_root = project_root.parent / "Esther_Estate"
+    alias_root.mkdir(parents=True, exist_ok=True)
+    (alias_root / "project.json").write_text(
+        json.dumps({"project_id": "verify-run-writes-report"}, indent=2),
+        encoding="utf-8",
+    )
+    (alias_root / "outline.json").write_text(
+        json.dumps({"schema_version": "OutlineSchema v1"}, indent=2),
+        encoding="utf-8",
+    )
     snapshot_dir = project_root / ".snapshots" / "ss_20251120T000000Z"
     snapshot_dir.mkdir(parents=True, exist_ok=True)
     manifest = {
@@ -64,8 +74,11 @@ def test_backup_verification_run_persists_latest_report(test_client):
     )
 
     assert run_response.status_code == 200
-    report_path = project_root / ".snapshots" / "last_verification.json"
-    assert report_path.exists()
+    canonical_report_path = project_root / ".snapshots" / "last_verification.json"
+    alias_report_path = alias_root / ".snapshots" / "last_verification.json"
+    assert canonical_report_path.exists()
+    assert alias_report_path.exists()
+    canonical_report_path.unlink()
     report_response = test_client.get(
         "/api/v1/backup_verifier/report?projectId=verify-run-writes-report"
     )
