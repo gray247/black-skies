@@ -1992,10 +1992,15 @@ async function run() {
           if (!response || typeof response !== 'object') {
             return { ok: false, error: 'Preflight bridge returned an unexpected payload.' };
           }
+          const unitIds = Array.isArray(response.data?.unitIds)
+            ? response.data.unitIds
+            : Array.isArray(response.data?.unit_ids)
+              ? response.data.unit_ids
+              : [];
           return {
             ok: Boolean(response.ok),
             status: response.ok ? response.data?.budget?.status ?? null : null,
-            sceneCount: response.ok ? response.data?.scenes?.length ?? 0 : 0,
+            sceneCount: response.ok ? unitIds.length : 0,
           };
         })())()`,
       );
@@ -2525,8 +2530,40 @@ async function run() {
         )}`,
       );
       await assertOkResponse(snapshotsResponse, 'Snapshots list route');
-      const snapshotsPayload = await snapshotsResponse.json();
+      let snapshotsPayload = await snapshotsResponse.json();
       assert.ok(Array.isArray(snapshotsPayload), 'Snapshots response must be an array');
+      if (snapshotsPayload.length === 0) {
+        console.log('[truth] snapshot list empty; creating a manual snapshot before verification');
+        const createSnapshotResponse = await fetch(
+          `http://127.0.0.1:${SERVICE_PORT}/api/v1/snapshots`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              project_id: sampleLoadProbe.projectId,
+            }),
+          },
+        );
+        await assertOkResponse(createSnapshotResponse, 'Manual snapshot create route');
+        receipt.routes_hit.push('/api/v1/snapshots');
+        const createdSnapshotPayload = await createSnapshotResponse.json();
+        assert.equal(
+          typeof createdSnapshotPayload?.path,
+          'string',
+          'Manual snapshot create route must return a snapshot path',
+        );
+        const refreshedSnapshotsResponse = await fetch(
+          `http://127.0.0.1:${SERVICE_PORT}/api/v1/snapshots?projectId=${encodeURIComponent(
+            sampleLoadProbe.projectId,
+          )}`,
+        );
+        await assertOkResponse(refreshedSnapshotsResponse, 'Snapshots list route refresh');
+        snapshotsPayload = await refreshedSnapshotsResponse.json();
+        assert.ok(
+          Array.isArray(snapshotsPayload) && snapshotsPayload.length > 0,
+          'Manual snapshot create route must make a snapshot available before verification',
+        );
+      }
       for (const entry of snapshotsPayload) {
         assert.equal(typeof entry?.path, 'string', 'Snapshots list entry missing path');
         assert.ok(
