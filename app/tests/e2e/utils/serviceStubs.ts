@@ -140,7 +140,7 @@ const snapshotResponse = {
   snapshot_id: 'pw-wizard-final',
   label: 'wizard-finalize',
   created_at: new Date().toISOString(),
-  path: 'history/snapshots/pw-wizard-final',
+  path: '.snapshots/pw-wizard-final',
   includes: ['outline.json', 'drafts'],
 };
 
@@ -148,7 +148,7 @@ const createdSnapshotResponse = {
   snapshot_id: 'snapshot-current',
   label: 'wizard-finalize',
   created_at: new Date().toISOString(),
-  path: 'history/snapshots/snapshot-current',
+  path: '.snapshots/snapshot-current',
   includes: ['outline.json', 'drafts'],
 };
 
