@@ -187,7 +187,8 @@ jobs:
       - name: Resolve Playwright version
         id: playwright_version
         run: |
-          echo "version=$(node -p \"require('./app/package.json').devDependencies['@playwright/test'] || require('./app/package.json').devDependencies['playwright']\")" >> "$GITHUB_OUTPUT"
+          VERSION=$(node -p "const p=require('./app/package.json'); p.devDependencies['@playwright/test'] || p.devDependencies.playwright")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
       - name: Cache Playwright browsers
         uses: actions/cache@v5
         with:
@@ -360,6 +361,9 @@ jobs:
           DEFAULT_CANARY: ${{ steps.canary_default.outcome }}
           COMMAND_ASSERT: ${{ steps.assert_canary_command.outcome }}
         run: |
+          echo "serial_canary=$SERIAL_CANARY"
+          echo "default_canary=$DEFAULT_CANARY"
+          echo "command_assert=$COMMAND_ASSERT"
           if [ "$COMMAND_ASSERT" != "success" ]; then
             echo "Canary command assertion failed."
             exit 1
@@ -574,7 +578,8 @@ jobs:
       - name: Resolve Playwright version
         id: playwright_version
         run: |
-          echo "version=$(node -p \"require('./app/package.json').devDependencies['@playwright/test'] || require('./app/package.json').devDependencies['playwright']\")" >> "$GITHUB_OUTPUT"
+          VERSION=$(node -p "const p=require('./app/package.json'); p.devDependencies['@playwright/test'] || p.devDependencies.playwright")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
       - name: Cache Playwright browsers
         uses: actions/cache@v5
         with:
