@@ -50,6 +50,11 @@ Targeted fixes landed for the highest-value harness risks identified in this aud
    - The root cause was that `electronApp.close()` is not a sufficient success condition by itself. The Playwright control channel can close while the Electron child process is still alive, which still leaves the worker with open process handles.
    - `app/tests/e2e/_electron.fixture.ts` now waits for the Electron child process to exit after `electronApp.close()` resolves. If the child is still alive after a short grace period, teardown logs `[electron.teardown] close resolved but process remained alive` and escalates to `SIGKILL`.
 
+8. Residual Node-handle cleanup in teardown
+   - The last harness repair tightened the remaining Node-side teardown handles in the same fixture chain. The shared Electron and service-stub teardown paths no longer use `timers/promises` delay promises that can leave timer handles live until they resolve; they now use explicit timeout handles that are always cleared after each race.
+   - The Electron kill fallback also walks the descendant process tree on Linux before killing the root PID, which makes the fallback resilient when Electron spawns helper children that outlive the main process.
+   - This is still harness authority, not product runtime behavior. The objective is simply to ensure the worker owns every teardown handle it creates so the 90s worker timeout cannot be reached after the last passing test.
+
 Validation after the addendum:
 - `pnpm --dir app exec playwright test -c ./playwright.config.ts` passed when run sequentially.
 - `pnpm --filter app test` passed.
@@ -57,6 +62,7 @@ Validation after the addendum:
 - `pnpm --filter app run build:production` passed.
 - `pnpm test:truth` passed.
 - Later harness-repair validation: `pnpm --dir app exec playwright test tests/e2e/startup_authority_contract.spec.ts tests/e2e/startup_contract_matrix.spec.ts tests/e2e/startup_determinism.spec.ts tests/e2e/startup.diagnostic.spec.ts tests/e2e/truth_active_scene_diagnostic.spec.ts -c ./playwright.config.ts --workers=1` passed, and `pnpm --dir app exec playwright test -c ./playwright.config.ts --workers=1` passed with `42 passed, 4 skipped` and no teardown timeout.
+- Final validation after the last handle cleanup pass: `pnpm --dir app exec playwright test tests/e2e/startup_authority_contract.spec.ts tests/e2e/startup_contract_matrix.spec.ts tests/e2e/startup_determinism.spec.ts tests/e2e/startup.diagnostic.spec.ts tests/e2e/truth_active_scene_diagnostic.spec.ts -c ./playwright.config.ts --workers=1` passed, `pnpm --dir app exec playwright test -c ./playwright.config.ts --workers=1` passed with `42 passed, 4 skipped`, `pnpm --filter app test` passed, `pnpm --filter app lint` passed, and `pnpm test:truth` passed.
 
 ## Wrapper / Launcher Inventory
 

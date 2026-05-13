@@ -1,11 +1,11 @@
 import { _electron as electron, test as base, expect as baseExpect } from '@playwright/test';
 import type { TestInfo } from '@playwright/test';
 import type { ConsoleMessage, ElectronApplication, Page } from 'playwright';
+import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { setTimeout as delay } from 'node:timers/promises';
 import { SERVICE_PORT } from './servicePort';
 import { startServiceStubs, stopServiceStubs } from './utils/serviceStubs';
 import { buildFirstWindowDiagnostics } from './electronFirstWindowDiagnostics';
@@ -78,6 +78,70 @@ const FAIL_ON_RUNTIME_ERRORS = true;
 const RUNTIME_ERROR_ALLOWLIST: RegExp[] = [];
 const PAGE_TEARDOWN_TIMEOUT_MS = 5_000;
 
+function waitForTimeout(timeoutMs: number): Promise<void> {
+  return new Promise((resolve) => {
+    const timeoutHandle = setTimeout(() => resolve(), timeoutMs);
+    timeoutHandle.unref?.();
+  });
+}
+
+function collectProcessTreePids(rootPid: number): number[] {
+  if (process.platform !== 'linux') {
+    return [];
+  }
+  const psResult = spawnSync('ps', ['-eo', 'pid=,ppid='], { encoding: 'utf8' });
+  if (psResult.status !== 0 || !psResult.stdout) {
+    return [];
+  }
+  const parentByPid = new Map<number, number>();
+  for (const line of psResult.stdout.split('\n')) {
+    const match = line.trim().match(/^(\d+)\s+(\d+)$/);
+    if (!match) {
+      continue;
+    }
+    parentByPid.set(Number.parseInt(match[1] ?? '', 10), Number.parseInt(match[2] ?? '', 10));
+  }
+  const descendants: number[] = [];
+  const queue = [rootPid];
+  const visited = new Set<number>(queue);
+  while (queue.length > 0) {
+    const parentPid = queue.shift() ?? rootPid;
+    for (const [pid, ppid] of parentByPid) {
+      if (ppid !== parentPid || visited.has(pid)) {
+        continue;
+      }
+      visited.add(pid);
+      descendants.push(pid);
+      queue.push(pid);
+    }
+  }
+  return descendants;
+}
+
+function killElectronProcessTree(pid: number): { descendantPids: number[] } {
+  const descendantPids = collectProcessTreePids(pid);
+  for (const childPid of [...descendantPids].reverse()) {
+    try {
+      process.kill(childPid, 'SIGKILL');
+    } catch {
+      // Best-effort fallback for stuck Electron teardown.
+    }
+  }
+  if (process.platform === 'linux') {
+    try {
+      process.kill(-pid, 'SIGKILL');
+    } catch {
+      // Best-effort fallback for Linux process groups.
+    }
+  }
+  try {
+    process.kill(pid, 'SIGKILL');
+  } catch {
+    // Best-effort fallback for stuck Electron teardown.
+  }
+  return { descendantPids };
+}
+
 async function bestEffortPageTeardownStep(
   testInfo: TestInfo,
   label: string,
@@ -96,10 +160,18 @@ async function bestEffortPageTeardownStep(
     throw error;
   });
   try {
+    let timeoutHandle: NodeJS.Timeout | null = null;
+    const timeoutPromise = new Promise<'timed_out'>((resolve) => {
+      timeoutHandle = setTimeout(() => resolve('timed_out'), timeoutMs);
+      timeoutHandle.unref?.();
+    });
     const outcome = await Promise.race([
       operationPromise.then(() => 'completed' as const),
-      delay(timeoutMs).then(() => 'timed_out' as const),
+      timeoutPromise,
     ]);
+    if (timeoutHandle) {
+      clearTimeout(timeoutHandle);
+    }
     if (outcome === 'completed') {
       return;
     }
@@ -292,18 +364,25 @@ async function closeElectronApplicationSafely(
     if (!appProcess || !isProcessAlive()) {
       return true;
     }
-    const processExitPromise = new Promise<boolean>((resolve) => {
-      const handleExit = () => resolve(true);
-      appProcess.once('exit', handleExit);
-      delay(waitMs).then(() => {
-        appProcess.off('exit', handleExit);
-        resolve(!isProcessAlive());
-      });
-    });
-    return processExitPromise;
+    const deadline = Date.now() + waitMs;
+    while (Date.now() < deadline) {
+      if (!isProcessAlive()) {
+        return true;
+      }
+      await waitForTimeout(100);
+    }
+    return !isProcessAlive();
   };
   const closePromise = application.close().then(() => true).catch(() => true);
-  const closeResolved = await Promise.race([closePromise, delay(timeoutMs).then(() => false)]);
+  let timeoutHandle: NodeJS.Timeout | null = null;
+  const timeoutPromise = new Promise<boolean>((resolve) => {
+    timeoutHandle = setTimeout(() => resolve(false), timeoutMs);
+    timeoutHandle.unref?.();
+  });
+  const closeResolved = await Promise.race([closePromise, timeoutPromise]);
+  if (timeoutHandle) {
+    clearTimeout(timeoutHandle);
+  }
   if (closeResolved) {
     const processExited = await waitForProcessExit(2_000);
     if (processExited) {
@@ -321,7 +400,12 @@ async function closeElectronApplicationSafely(
 
   if (isProcessAlive()) {
     try {
-      appProcess.kill('SIGKILL');
+      const tree = killElectronProcessTree(appProcess.pid);
+      console.warn('[electron.teardown] kill fallback dispatched', {
+        pid: appProcess.pid,
+        descendantCount: tree.descendantPids.length,
+        descendantPids: tree.descendantPids.slice(0, 10),
+      });
     } catch {
       // best effort fallback for stuck Electron teardown
     }
@@ -505,16 +589,21 @@ export const test = base.extend<Fixtures>({
         }>((resolve) => {
           exitListener = (code, signal) => resolve({ kind: 'processExit', code, signal });
           appProcess.once('exit', exitListener);
-        })
+      })
       : null;
+    let timeoutHandle: NodeJS.Timeout | null = null;
     const timeoutPromise = new Promise<{ kind: 'timeout' }>((resolve) => {
-      setTimeout(() => resolve({ kind: 'timeout' }), firstWindowTimeoutMs);
+      timeoutHandle = setTimeout(() => resolve({ kind: 'timeout' }), firstWindowTimeoutMs);
+      timeoutHandle.unref?.();
     });
     const raceCandidates = [firstWindowPromise, timeoutPromise];
     if (processExitPromise) {
       raceCandidates.push(processExitPromise);
     }
     const outcome = await Promise.race(raceCandidates);
+    if (timeoutHandle) {
+      clearTimeout(timeoutHandle);
+    }
     if (appProcess && exitListener) {
       appProcess.off('exit', exitListener);
     }

@@ -2,7 +2,6 @@ import fs from 'node:fs';
 import http from 'node:http';
 import type { Socket } from 'node:net';
 import path from 'node:path';
-import { setTimeout as delay } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
 import type { Page } from '@playwright/test';
 import { SERVICE_PORT } from '../servicePort';
@@ -506,7 +505,15 @@ async function shutdownServer(): Promise<void> {
       resolve();
     });
   });
-  const closed = await Promise.race([closePromise.then(() => true), delay(2_000).then(() => false)]);
+  let timeoutHandle: NodeJS.Timeout | null = null;
+  const timeoutPromise = new Promise<boolean>((resolve) => {
+    timeoutHandle = setTimeout(() => resolve(false), 2_000);
+    timeoutHandle.unref?.();
+  });
+  const closed = await Promise.race([closePromise.then(() => true), timeoutPromise]);
+  if (timeoutHandle) {
+    clearTimeout(timeoutHandle);
+  }
   if (!closed) {
     console.warn('[service-stubs] close timeout exceeded; destroying lingering sockets', {
       connectionCount: serverSockets.size,

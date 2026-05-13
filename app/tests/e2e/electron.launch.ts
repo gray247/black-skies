@@ -1,10 +1,10 @@
 import { test as base, expect } from '@playwright/test';
 import { _electron as electron, type ElectronApplication, type Page } from 'playwright';
+import { spawnSync } from 'node:child_process';
 import fs from 'fs';
 import os from 'os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { setTimeout as delay } from 'node:timers/promises';
 
 type AppFixtures = {
   app: ElectronApplication;
@@ -59,30 +59,130 @@ function requireElectronBuildArtifacts(params: {
   console.warn(message);
 }
 
+function waitForTimeout(timeoutMs: number): Promise<void> {
+  return new Promise((resolve) => {
+    const timeoutHandle = setTimeout(() => resolve(), timeoutMs);
+    timeoutHandle.unref?.();
+  });
+}
+
+function collectProcessTreePids(rootPid: number): number[] {
+  if (process.platform !== 'linux') {
+    return [];
+  }
+  const psResult = spawnSync('ps', ['-eo', 'pid=,ppid='], { encoding: 'utf8' });
+  if (psResult.status !== 0 || !psResult.stdout) {
+    return [];
+  }
+  const parentByPid = new Map<number, number>();
+  for (const line of psResult.stdout.split('\n')) {
+    const match = line.trim().match(/^(\d+)\s+(\d+)$/);
+    if (!match) {
+      continue;
+    }
+    parentByPid.set(Number.parseInt(match[1] ?? '', 10), Number.parseInt(match[2] ?? '', 10));
+  }
+  const descendants: number[] = [];
+  const queue = [rootPid];
+  const visited = new Set<number>(queue);
+  while (queue.length > 0) {
+    const parentPid = queue.shift() ?? rootPid;
+    for (const [pid, ppid] of parentByPid) {
+      if (ppid !== parentPid || visited.has(pid)) {
+        continue;
+      }
+      visited.add(pid);
+      descendants.push(pid);
+      queue.push(pid);
+    }
+  }
+  return descendants;
+}
+
+function killElectronProcessTree(pid: number): { descendantPids: number[] } {
+  const descendantPids = collectProcessTreePids(pid);
+  for (const childPid of [...descendantPids].reverse()) {
+    try {
+      process.kill(childPid, 'SIGKILL');
+    } catch {
+      // Best-effort fallback for stuck Electron teardown.
+    }
+  }
+  if (process.platform === 'linux') {
+    try {
+      process.kill(-pid, 'SIGKILL');
+    } catch {
+      // Best-effort fallback for Linux process groups.
+    }
+  }
+  try {
+    process.kill(pid, 'SIGKILL');
+  } catch {
+    // Best-effort fallback for stuck Electron teardown.
+  }
+  return { descendantPids };
+}
+
 async function closeElectronApplicationSafely(
   application: ElectronApplication,
   timeoutMs = 15_000,
 ): Promise<{ forcedKill: boolean }> {
+  const appProcess = application.process();
+  const isProcessAlive = () =>
+    Boolean(appProcess && appProcess.exitCode === null && appProcess.signalCode === null);
   const closePromise = application.close().then(() => true).catch(() => true);
-  const closed = await Promise.race([closePromise, delay(timeoutMs).then(() => false)]);
+  let timeoutHandle: NodeJS.Timeout | null = null;
+  const timeoutPromise = new Promise<boolean>((resolve) => {
+    timeoutHandle = setTimeout(() => resolve(false), timeoutMs);
+    timeoutHandle.unref?.();
+  });
+  const closed = await Promise.race([closePromise, timeoutPromise]);
+  if (timeoutHandle) {
+    clearTimeout(timeoutHandle);
+  }
   if (closed) {
-    return { forcedKill: false };
+    const deadline = Date.now() + 2_000;
+    while (Date.now() < deadline) {
+      if (!isProcessAlive()) {
+        return { forcedKill: false };
+      }
+      await waitForTimeout(100);
+    }
+    console.warn('[electron.teardown] close resolved but process remained alive; escalating to SIGKILL', {
+      pid: appProcess?.pid ?? null,
+    });
   }
 
-  const appProcess = application.process();
-  console.warn('[electron.teardown] close timeout exceeded; escalating to SIGKILL', {
-    pid: appProcess?.pid ?? null,
-    timeoutMs,
-  });
+  if (!closed) {
+    console.warn('[electron.teardown] close timeout exceeded; escalating to SIGKILL', {
+      pid: appProcess?.pid ?? null,
+      timeoutMs,
+    });
+  }
   if (appProcess && appProcess.exitCode === null && appProcess.signalCode === null) {
     try {
-      appProcess.kill('SIGKILL');
+      const tree = killElectronProcessTree(appProcess.pid);
+      console.warn('[electron.teardown] kill fallback dispatched', {
+        pid: appProcess.pid,
+        descendantCount: tree.descendantPids.length,
+        descendantPids: tree.descendantPids.slice(0, 10),
+      });
     } catch {
       // best effort fallback for stuck Electron teardown
     }
   }
 
-  await Promise.race([closePromise, delay(5_000).then(() => false)]);
+  let processExitTimeout: NodeJS.Timeout | null = null;
+  await Promise.race([
+    closePromise,
+    new Promise((resolve) => {
+      processExitTimeout = setTimeout(resolve, 5_000);
+      processExitTimeout?.unref?.();
+    }),
+  ]);
+  if (processExitTimeout) {
+    clearTimeout(processExitTimeout);
+  }
   return { forcedKill: true };
 }
 
