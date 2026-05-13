@@ -37,12 +37,20 @@ Targeted fixes landed for the highest-value harness risks identified in this aud
    - HTTP 402 `BUDGET_EXCEEDED` remains expected only in the explicit budget-guardrail harness scenario.
    - It was not the source of the teardown hang. The harness still gates that console noise behind the dedicated `__allowBudget402Noise` flag instead of weakening assertions globally.
 
+6. Page-fixture teardown authority
+   - The later CI-only worker-timeout proved there was still one teardown owner left outside the existing Electron-close and stub-server guardrails.
+   - The decisive signal was negative evidence: the failing worker reached the last passing startup/truth diagnostics and then timed out without printing a new `[electron.teardown]` close-timeout line.
+   - That means teardown stalled before `electronApp.close()` started, inside the page fixture `finally` path.
+   - The page fixture had still been awaiting renderer-dependent best-effort cleanup (`page.evaluate(...)`, dataset/storage reset, and runtime-noise probes) with no timeout.
+   - The fix is to bound those best-effort page-cleanup steps and remove the page event listeners explicitly so an unresponsive renderer cannot block the worker ahead of the existing Electron `SIGKILL` fallback.
+
 Validation after the addendum:
 - `pnpm --dir app exec playwright test -c ./playwright.config.ts` passed when run sequentially.
 - `pnpm --filter app test` passed.
 - `pnpm --filter app lint` passed.
 - `pnpm --filter app run build:production` passed.
 - `pnpm test:truth` passed.
+- Later harness-repair validation: `pnpm --dir app exec playwright test tests/e2e/startup_authority_contract.spec.ts tests/e2e/startup_contract_matrix.spec.ts tests/e2e/startup_determinism.spec.ts tests/e2e/startup.diagnostic.spec.ts tests/e2e/truth_active_scene_diagnostic.spec.ts -c ./playwright.config.ts --workers=1` passed, and `pnpm --dir app exec playwright test -c ./playwright.config.ts --workers=1` passed with `42 passed, 4 skipped` and no teardown timeout.
 
 ## Wrapper / Launcher Inventory
 
@@ -171,6 +179,7 @@ Loaded-root authority rule:
 
 Teardown note:
 - The Playwright Electron fixtures now use a bounded close-and-kill fallback so a stuck app shutdown cannot turn into a worker teardown timeout during CI.
+- That alone was not sufficient. The page fixture itself also needs bounded cleanup because it performs renderer-dependent `evaluate` calls before Electron shutdown begins.
 
 ## High-Risk Fake-Confidence Zones
 

@@ -1,5 +1,6 @@
 import { _electron as electron, test as base, expect as baseExpect } from '@playwright/test';
-import type { ElectronApplication, Page } from 'playwright';
+import type { TestInfo } from '@playwright/test';
+import type { ConsoleMessage, ElectronApplication, Page } from 'playwright';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -75,6 +76,48 @@ const BASELINE_DATASET_KEYS = [
 // Runtime errors are fail-fast by default; the allowlist defines the only tolerated noise.
 const FAIL_ON_RUNTIME_ERRORS = true;
 const RUNTIME_ERROR_ALLOWLIST: RegExp[] = [];
+const PAGE_TEARDOWN_TIMEOUT_MS = 5_000;
+
+async function bestEffortPageTeardownStep(
+  testInfo: TestInfo,
+  label: string,
+  operation: () => Promise<void>,
+  timeoutMs = PAGE_TEARDOWN_TIMEOUT_MS,
+): Promise<void> {
+  let timedOut = false;
+  const operationPromise = operation().catch((error) => {
+    if (timedOut) {
+      console.warn('[electron.page.teardown] step failed after timeout', {
+        label,
+        message: error instanceof Error ? error.message : String(error),
+      });
+      return;
+    }
+    throw error;
+  });
+  try {
+    const outcome = await Promise.race([
+      operationPromise.then(() => 'completed' as const),
+      delay(timeoutMs).then(() => 'timed_out' as const),
+    ]);
+    if (outcome === 'completed') {
+      return;
+    }
+    timedOut = true;
+  } catch (error) {
+    console.warn('[electron.page.teardown] step failed', {
+      label,
+      message: error instanceof Error ? error.message : String(error),
+    });
+    return;
+  }
+  console.warn('[electron.page.teardown] step timed out', {
+    label,
+    timeoutMs,
+    title: testInfo.title,
+    file: testInfo.file,
+  });
+}
 
 async function captureBaselineFlags(page: Page): Promise<{ body: Record<string, string>; html: Record<string, string> }> {
   return page.evaluate((keys) => {
@@ -503,18 +546,20 @@ export const test = base.extend<Fixtures>({
       pageErrors: string[];
       consoleErrors: Array<{ type: string; text: string }>;
     } = { pageErrors: [], consoleErrors: [] };
-    window.on('console', (msg) => {
+    const handleConsole = (msg: ConsoleMessage) => {
       const text = msg.text();
       const type = msg.type();
       console.log('[renderer]', type, text);
       if (type === 'error') {
         runtimeDiagnostics.consoleErrors.push({ type, text });
       }
-    });
-    window.on('pageerror', (err) => {
+    };
+    const handlePageError = (err: Error) => {
       console.error('[renderer.pageerror]', err);
       runtimeDiagnostics.pageErrors.push(err?.stack ?? err?.message ?? String(err));
-    });
+    };
+    window.on('console', handleConsole);
+    window.on('pageerror', handlePageError);
 
     const url = await window.url();
     console.log('[electron.url]', url);
@@ -551,19 +596,29 @@ export const test = base.extend<Fixtures>({
     try {
       await use(window);
     } finally {
-      await resetMutableHarnessState(window, baselineFlags).catch(() => undefined);
+      window.off('console', handleConsole);
+      window.off('pageerror', handlePageError);
+      await bestEffortPageTeardownStep(
+        testInfo,
+        'resetMutableHarnessState',
+        async () => {
+          await resetMutableHarnessState(window, baselineFlags);
+        },
+      );
       let allowBudget402Noise = false;
-      try {
-        allowBudget402Noise = await window.evaluate(
-          () =>
-            Boolean(
-              (window as typeof window & { __allowBudget402Noise?: boolean })
-                .__allowBudget402Noise,
-            ),
-        );
-      } catch {
-        allowBudget402Noise = false;
-      }
+      await bestEffortPageTeardownStep(
+        testInfo,
+        'readAllowBudget402Noise',
+        async () => {
+          allowBudget402Noise = await window.evaluate(
+            () =>
+              Boolean(
+                (window as typeof window & { __allowBudget402Noise?: boolean })
+                  .__allowBudget402Noise,
+              ),
+          );
+        },
+      );
       const combinedErrors = [
         ...runtimeDiagnostics.pageErrors,
         ...runtimeDiagnostics.consoleErrors.map((entry) => entry.text),
@@ -576,11 +631,13 @@ export const test = base.extend<Fixtures>({
       );
       if (combinedErrors.length > 0) {
         let currentUrl: string | null = null;
-        try {
-          currentUrl = window.url();
-        } catch {
-          currentUrl = null;
-        }
+        await bestEffortPageTeardownStep(
+          testInfo,
+          'window.url',
+          async () => {
+            currentUrl = window.url();
+          },
+        );
         await testInfo.attach('runtime-error-diagnostics.json', {
           body: Buffer.from(
             `${JSON.stringify(
