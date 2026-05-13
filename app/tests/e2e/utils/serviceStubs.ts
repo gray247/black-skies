@@ -306,6 +306,7 @@ async function ensureServer(): Promise<void> {
   if (shouldUseExternalService()) {
     return;
   }
+  seedVerificationReport();
   if (server) {
     return;
   }

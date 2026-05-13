@@ -8,6 +8,20 @@ const __dirname = path.dirname(__filename);
 const REPO_ROOT = path.resolve(__dirname, '..');
 const SCENE_COUNT = 4;
 const PROJECT_ID = 'proj_esther_estate';
+const VERIFICATION_REPORT = {
+  project_id: PROJECT_ID,
+  status: 'ok',
+  message: 'Snapshot verified successfully.',
+  verified_at: new Date().toISOString(),
+  snapshots: [
+    {
+      snapshot_id: 'pw-wizard-final',
+      status: 'ok',
+      errors: [],
+      issues: [],
+    },
+  ],
+};
 
 const PROJECT_ROOTS = [
   path.join('sample_project', 'proj_esther_estate'),
@@ -36,7 +50,9 @@ function buildOutline() {
 function materializeProjectRoot(relativeRoot) {
   const root = path.resolve(REPO_ROOT, relativeRoot);
   const drafts = path.join(root, 'drafts');
+  const snapshotsRoot = path.join(root, '.snapshots');
   mkdirSync(drafts, { recursive: true });
+  mkdirSync(snapshotsRoot, { recursive: true });
 
   writeFileSync(
     path.join(root, 'project.json'),
@@ -52,6 +68,11 @@ function materializeProjectRoot(relativeRoot) {
   );
 
   writeFileSync(path.join(root, 'outline.json'), `${JSON.stringify(buildOutline(), null, 2)}\n`, 'utf8');
+  writeFileSync(
+    path.join(snapshotsRoot, 'last_verification.json'),
+    `${JSON.stringify(VERIFICATION_REPORT, null, 2)}\n`,
+    'utf8',
+  );
 
   for (let index = 1; index <= SCENE_COUNT; index += 1) {
     const sceneId = `sc_${String(index).padStart(4, '0')}`;

@@ -86,3 +86,14 @@ Yes. CI should be rerun to confirm the synthetic-mode recovery write change beha
 Still blocked.
 
 Human verification was not performed in this pass.
+
+## 10. Playwright Fixture Materialization Addendum
+
+The snapshot-verification CI failure was traced to missing report state in the loaded project root rather than a weaker assertion.
+
+CI-safe fix:
+- `app/tests/e2e/utils/serviceStubs.ts` now reseeds `last_verification.json` whenever the stub server starts, so a prior cleanup cannot leave later specs without report state.
+- `scripts/materialize_e2e_fixture.mjs` now writes `.snapshots/last_verification.json` into both sample-project aliases used by the app and truth lane.
+- The UI contract is unchanged: when the loaded project has verification data, the health status must render `latest snapshot verified`.
+
+This keeps the test independent from ignored repository-local fixture files and matches the path the renderer reads at runtime.

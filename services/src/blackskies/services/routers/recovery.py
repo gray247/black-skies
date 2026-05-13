@@ -146,7 +146,9 @@ class RecoveryTracker:
     ) -> dict[str, Any]:
         path = self._state_path(project_id)
         normalised = self._normalise_state(state)
-        write_json_atomic(path, normalised, durable=self._write_durable() if durable is None else durable)
+        write_json_atomic(
+            path, normalised, durable=self._write_durable() if durable is None else durable
+        )
         return normalised
 
     @staticmethod

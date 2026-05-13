@@ -1,11 +1,32 @@
+import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
-import { describe, expect, it } from 'vitest';
-import { buildVerificationReport, getVerificationReportPaths } from '../../tests/e2e/utils/serviceStubs';
+import { afterEach, describe, expect, it } from 'vitest';
+import {
+  buildVerificationReport,
+  getVerificationReportPaths,
+  startServiceStubs,
+  stopServiceStubs,
+} from '../../tests/e2e/utils/serviceStubs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const repoRoot = path.resolve(__dirname, '../../..');
+const reportPaths = getVerificationReportPaths();
+
+function removeVerificationReports(): void {
+  for (const reportPath of reportPaths) {
+    try {
+      fs.rmSync(reportPath, { force: true });
+    } catch {
+      // best-effort cleanup for generated harness state
+    }
+  }
+}
+
+afterEach(() => {
+  removeVerificationReports();
+});
 
 describe('service stubs verification report authority', () => {
   it('seeds both sample-project aliases for last_verification.json', () => {
@@ -37,5 +58,18 @@ describe('service stubs verification report authority', () => {
         issues: [],
       }),
     );
+  });
+
+  it('re-seeds last_verification.json when the service stubs start', async () => {
+    removeVerificationReports();
+
+    await startServiceStubs();
+    try {
+      for (const reportPath of reportPaths) {
+        expect(fs.existsSync(reportPath)).toBe(true);
+      }
+    } finally {
+      await stopServiceStubs();
+    }
   });
 });
