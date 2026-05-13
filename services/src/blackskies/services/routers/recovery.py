@@ -129,13 +129,24 @@ class RecoveryTracker:
 
         normalised = self._normalise_state(raw_state)
         if normalised != raw_state:
-            write_json_atomic(path, normalised)
+            write_json_atomic(path, normalised, durable=self._write_durable())
         return normalised
 
-    def _write_state(self, project_id: str, state: dict[str, Any]) -> dict[str, Any]:
+    def _write_durable(self) -> bool:
+        """Return whether recovery state writes should fsync to disk."""
+
+        return not allow_e2e_synthetic_mode()
+
+    def _write_state(
+        self,
+        project_id: str,
+        state: dict[str, Any],
+        *,
+        durable: bool | None = None,
+    ) -> dict[str, Any]:
         path = self._state_path(project_id)
         normalised = self._normalise_state(state)
-        write_json_atomic(path, normalised)
+        write_json_atomic(path, normalised, durable=self._write_durable() if durable is None else durable)
         return normalised
 
     @staticmethod

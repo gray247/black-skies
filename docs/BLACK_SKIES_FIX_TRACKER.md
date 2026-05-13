@@ -3,7 +3,7 @@
 # BLACK SKIES - FIX TRACKER
 
 Status: Active
-Last Reviewed: 2026-05-10
+Last Reviewed: 2026-05-13
 
 ## Purpose
 This document tracks defects, technical debt, and instability across Black Skies.
@@ -53,6 +53,8 @@ If an issue is not tracked here, it is not part of the active fix scope.
 - Phase 13 Pass 22 decided against a broad Phase 13 refactor; only small helper extraction is allowed later if authority duplication starts to drift again.
 - Phase 13 Pass 23 aligned the docs with the authority matrix so local browsing, backend-required actions, and `Writing tools offline` all mean the same thing in the tracker and the audits.
 - Phase 13 Pass 24 produced the final operator verification script, but human verification itself is still deferred.
+- Phase 13 Pass 25 audited the load latency regression and found the accept tail spikes were dominated by recovery-state durability in synthetic mode plus serialized project-budget writes, not an obsolete load threshold. `RecoveryTracker` now treats synthetic-mode recovery state writes as non-durable, the load lane reran within thresholds, and no threshold values changed.
+- Phase 13 Pass 25 validation evidence: targeted snapshot/backup regression tests passed, `services/tests/unit/test_recovery_tracker.py` passed, full app test passed, `pnpm test:truth` passed, `python scripts/load.py --total-cycles 4 --concurrency 2 --timeout 45 --start-service` passed on rerun after the recovery fix, and `git diff --check` passed.
 - Phase 13 Pass 18/20/21/22/23/24 validation evidence: focused renderer snapshot tests passed, full app test passed, app lint passed, production build passed, focused GUI Playwright flow passed, backend snapshot regression tests passed, and `pnpm test:truth` passed.
 
 ## Status Definitions

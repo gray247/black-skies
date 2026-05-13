@@ -98,3 +98,28 @@ def test_mark_in_progress_clears_existing_failure_reason(
 
     assert status["status"] == "accept-in-progress"
     assert status.get("failure_reason") is None
+
+
+def test_synthetic_mode_uses_non_durable_recovery_writes(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    settings = ServiceSettings(project_base_dir=tmp_path)
+    tracker = RecoveryTracker(settings)
+    project_id = "proj-123"
+    captured: list[bool] = []
+
+    def fake_write_json_atomic(path: Path, payload: dict[str, Any], *, durable: bool = True) -> None:
+        captured.append(durable)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("{}", encoding="utf-8")
+
+    monkeypatch.setattr(
+        "blackskies.services.routers.recovery.allow_e2e_synthetic_mode",
+        lambda: True,
+    )
+    monkeypatch.setattr("blackskies.services.routers.recovery.write_json_atomic", fake_write_json_atomic)
+
+    tracker.mark_in_progress(project_id, unit_id="unit-1", draft_id="draft-1")
+    tracker.mark_completed(project_id, {"snapshot_id": "snap-001", "path": "dummy"})
+
+    assert captured and all(flag is False for flag in captured)
