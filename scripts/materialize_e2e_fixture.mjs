@@ -8,6 +8,7 @@ const __dirname = path.dirname(__filename);
 const REPO_ROOT = path.resolve(__dirname, '..');
 const SCENE_COUNT = 4;
 const PROJECT_ID = 'proj_esther_estate';
+const SNAPSHOT_IDS = ['snapshot-current', 'pw-wizard-final'];
 const VERIFICATION_REPORT = {
   project_id: PROJECT_ID,
   status: 'ok',
@@ -47,6 +48,51 @@ function buildOutline() {
   };
 }
 
+function buildSnapshotFixture(snapshotId) {
+  const createdAt = new Date().toISOString();
+  const metadata = {
+    snapshot_id: snapshotId,
+    created_at: createdAt,
+    label: 'wizard-finalize',
+  };
+  const manifest = {
+    files_included: [
+      { path: 'metadata.json' },
+      { path: 'snapshot.json' },
+    ],
+  };
+  const snapshot = {
+    snapshot_id: snapshotId,
+    created_at: createdAt,
+    label: 'wizard-finalize',
+    files_included: manifest.files_included,
+    status: 'ok',
+  };
+  return { metadata, manifest, snapshot };
+}
+
+function materializeSnapshotDir(snapshotsRoot, snapshotId) {
+  const snapshotRoot = path.join(snapshotsRoot, snapshotId);
+  mkdirSync(snapshotRoot, { recursive: true });
+  const fixture = buildSnapshotFixture(snapshotId);
+  writeFileSync(
+    path.join(snapshotRoot, 'metadata.json'),
+    `${JSON.stringify(fixture.metadata, null, 2)}\n`,
+    'utf8',
+  );
+  writeFileSync(
+    path.join(snapshotRoot, 'manifest.json'),
+    `${JSON.stringify(fixture.manifest, null, 2)}\n`,
+    'utf8',
+  );
+  writeFileSync(
+    path.join(snapshotRoot, 'snapshot.json'),
+    `${JSON.stringify(fixture.snapshot, null, 2)}\n`,
+    'utf8',
+  );
+  return snapshotRoot;
+}
+
 function materializeProjectRoot(relativeRoot) {
   const root = path.resolve(REPO_ROOT, relativeRoot);
   const drafts = path.join(root, 'drafts');
@@ -73,6 +119,9 @@ function materializeProjectRoot(relativeRoot) {
     `${JSON.stringify(VERIFICATION_REPORT, null, 2)}\n`,
     'utf8',
   );
+  for (const snapshotId of SNAPSHOT_IDS) {
+    materializeSnapshotDir(snapshotsRoot, snapshotId);
+  }
 
   for (let index = 1; index <= SCENE_COUNT; index += 1) {
     const sceneId = `sc_${String(index).padStart(4, '0')}`;

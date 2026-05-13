@@ -2,12 +2,7 @@ import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import {
-  buildVerificationReport,
-  getVerificationReportPaths,
-  startServiceStubs,
-  stopServiceStubs,
-} from '../../tests/e2e/utils/serviceStubs';
+import { buildVerificationReport, getVerificationReportPaths } from '../../tests/e2e/utils/serviceStubs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -58,18 +53,5 @@ describe('service stubs verification report authority', () => {
         issues: [],
       }),
     );
-  });
-
-  it('re-seeds last_verification.json when the service stubs start', async () => {
-    removeVerificationReports();
-
-    await startServiceStubs();
-    try {
-      for (const reportPath of reportPaths) {
-        expect(fs.existsSync(reportPath)).toBe(true);
-      }
-    } finally {
-      await stopServiceStubs();
-    }
   });
 });

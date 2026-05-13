@@ -118,6 +118,71 @@ function validateOutlineShape(rootPath, label, expectedProjectId = null) {
   return diagnostics;
 }
 
+function validateSnapshotShape(rootPath, label) {
+  const projectPath = path.resolve(REPO_ROOT, rootPath);
+  const snapshotsRoot = path.join(projectPath, '.snapshots');
+  const verificationPath = path.join(snapshotsRoot, 'last_verification.json');
+  const requiredSnapshotIds = ['snapshot-current', 'pw-wizard-final'];
+  const requiredFiles = ['metadata.json', 'manifest.json', 'snapshot.json'];
+  const diagnostics = {
+    label,
+    project_path: projectPath,
+    snapshots_root: snapshotsRoot,
+    verification_path: verificationPath,
+    snapshots_root_exists: existsSync(snapshotsRoot),
+    verification_exists: existsSync(verificationPath),
+    snapshot_dirs: [],
+    issues: [],
+  };
+
+  if (!diagnostics.snapshots_root_exists) {
+    diagnostics.issues.push('.snapshots/ directory missing');
+    return diagnostics;
+  }
+
+  if (!diagnostics.verification_exists) {
+    diagnostics.issues.push('last_verification.json missing');
+  } else {
+    try {
+      const verification = JSON.parse(readFileSync(verificationPath, 'utf8'));
+      const snapshotEntries = Array.isArray(verification?.snapshots) ? verification.snapshots : [];
+      for (const snapshotId of requiredSnapshotIds) {
+        const snapshotRoot = path.join(snapshotsRoot, snapshotId);
+        const snapshotDiagnostics = {
+          snapshot_id: snapshotId,
+          snapshot_root: snapshotRoot,
+          exists: existsSync(snapshotRoot),
+          required_files: requiredFiles.map((fileName) => ({
+            file: fileName,
+            exists: existsSync(path.join(snapshotRoot, fileName)),
+          })),
+        };
+        diagnostics.snapshot_dirs.push(snapshotDiagnostics);
+        if (!snapshotDiagnostics.exists) {
+          diagnostics.issues.push(`snapshot directory missing: ${snapshotId}`);
+          continue;
+        }
+        for (const fileInfo of snapshotDiagnostics.required_files) {
+          if (!fileInfo.exists) {
+            diagnostics.issues.push(`snapshot file missing: ${snapshotId}/${fileInfo.file}`);
+          }
+        }
+      }
+
+      if (!Array.isArray(snapshotEntries) || snapshotEntries.length === 0) {
+        diagnostics.issues.push('verification.snapshots missing or empty');
+      }
+    } catch (error) {
+      diagnostics.issues.push(
+        `last_verification.json invalid JSON: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+  }
+
+  diagnostics.valid_snapshot_schema = diagnostics.issues.length === 0;
+  return diagnostics;
+}
+
 async function probeAnalytics(baseUrl, projectId) {
   const endpoints = [
     `/api/v1/analytics/summary?project_id=${encodeURIComponent(projectId)}`,
@@ -160,6 +225,16 @@ async function main() {
     throw new Error(`[fixtures] invalid sample project fixtures: ${JSON.stringify(failedValidations)}`);
   }
 
+  const snapshotValidations = Array.from(roots.entries()).map(([label, value]) =>
+    validateSnapshotShape(value.root, label),
+  );
+  const failedSnapshotValidations = snapshotValidations.filter((entry) => !entry.valid_snapshot_schema);
+  if (failedSnapshotValidations.length > 0) {
+    throw new Error(
+      `[fixtures] invalid sample snapshot fixtures: ${JSON.stringify(failedSnapshotValidations)}`,
+    );
+  }
+
   if (args.baseUrl) {
     if (!args.projectId) {
       throw new Error('[fixtures] --project-id is required when --base-url is provided.');
@@ -190,16 +265,23 @@ async function main() {
     '[fixtures] e2e fixture contract verified',
     JSON.stringify(
       {
-        roots: validations.map((entry) => ({
-          label: entry.label,
-          project_path: entry.project_path,
-          outline_exists: entry.outline_exists,
-          outline_id: entry.outline_id,
-          scene_count: entry.scene_count,
-        })),
-        analytics: args.baseUrl
-          ? {
-              project_id: args.projectId,
+      roots: validations.map((entry) => ({
+        label: entry.label,
+        project_path: entry.project_path,
+        outline_exists: entry.outline_exists,
+        outline_id: entry.outline_id,
+        scene_count: entry.scene_count,
+      })),
+      snapshot_roots: snapshotValidations.map((entry) => ({
+        label: entry.label,
+        project_path: entry.project_path,
+        snapshots_root_exists: entry.snapshots_root_exists,
+        verification_exists: entry.verification_exists,
+        snapshot_dirs: entry.snapshot_dirs,
+      })),
+      analytics: args.baseUrl
+        ? {
+            project_id: args.projectId,
               project_root: args.projectRoot ?? path.join('sample_project', args.projectId ?? ''),
               base_url: args.baseUrl,
             }

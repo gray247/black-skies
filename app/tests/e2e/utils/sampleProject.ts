@@ -33,7 +33,33 @@ export interface SampleProjectFixture {
 
 function materializeSyntheticProjectFixture(projectId: string, projectRoot: string): string {
   const draftsDir = path.join(projectRoot, 'drafts');
+  const snapshotsRoot = path.join(projectRoot, '.snapshots');
   fs.mkdirSync(draftsDir, { recursive: true });
+  fs.mkdirSync(snapshotsRoot, { recursive: true });
+
+  const snapshotIds = ['snapshot-current', 'pw-wizard-final'];
+  const buildSnapshotFixture = (snapshotId: string) => {
+    const createdAt = new Date().toISOString();
+    const manifest = {
+      files_included: [{ path: 'metadata.json' }, { path: 'snapshot.json' }],
+    };
+    return {
+      metadata: {
+        snapshot_id: snapshotId,
+        created_at: createdAt,
+        label: 'wizard-finalize',
+      },
+      manifest,
+      snapshot: {
+        snapshot_id: snapshotId,
+        created_at: createdAt,
+        label: 'wizard-finalize',
+        files_included: manifest.files_included,
+        status: 'ok',
+      },
+    };
+  };
+
   fs.writeFileSync(
     path.join(projectRoot, 'project.json'),
     JSON.stringify({ name: 'Esther Estate', project_id: projectId }, null, 2),
@@ -62,6 +88,36 @@ function materializeSyntheticProjectFixture(projectId: string, projectRoot: stri
     ),
     'utf-8',
   );
+  fs.writeFileSync(
+    path.join(snapshotsRoot, 'last_verification.json'),
+    JSON.stringify(
+      {
+        project_id: projectId,
+        status: 'ok',
+        message: 'Snapshot verified successfully.',
+        verified_at: new Date().toISOString(),
+        snapshots: [
+          {
+            snapshot_id: 'pw-wizard-final',
+            status: 'ok',
+            errors: [],
+            issues: [],
+          },
+        ],
+      },
+      null,
+      2,
+    ),
+    'utf-8',
+  );
+  for (const snapshotId of snapshotIds) {
+    const snapshotRoot = path.join(snapshotsRoot, snapshotId);
+    fs.mkdirSync(snapshotRoot, { recursive: true });
+    const fixture = buildSnapshotFixture(snapshotId);
+    fs.writeFileSync(path.join(snapshotRoot, 'metadata.json'), JSON.stringify(fixture.metadata, null, 2), 'utf-8');
+    fs.writeFileSync(path.join(snapshotRoot, 'manifest.json'), JSON.stringify(fixture.manifest, null, 2), 'utf-8');
+    fs.writeFileSync(path.join(snapshotRoot, 'snapshot.json'), JSON.stringify(fixture.snapshot, null, 2), 'utf-8');
+  }
   fs.writeFileSync(
     path.join(draftsDir, 'sc_0001.md'),
     [

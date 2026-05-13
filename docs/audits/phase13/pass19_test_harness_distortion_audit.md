@@ -133,6 +133,10 @@ Commands that must run from `app/` or be force-rooted there:
 - The truth lane uses a temp project base with both canonical and legacy alias roots, which is not the same as a normal user project directory.
 - Unit tests for the snapshot surface do not exercise the real preload/fs bridge or the real backend storage path.
 
+Loaded-root authority rule:
+- Every E2E project alias used by renderer preload or local snapshot reads must receive the same generated snapshot fixture set.
+- That means both `sample_project/proj_esther_estate` and `sample_project/Esther_Estate` need `.snapshots/last_verification.json` plus complete `.snapshots/snapshot-current` and `.snapshots/pw-wizard-final` directories.
+
 ## High-Risk Fake-Confidence Zones
 
 1. `app/tests/e2e/utils/serviceStubs.ts`
@@ -183,4 +187,3 @@ Keep the next pass narrow and focus on one of these:
 1. Trace the exact project root chosen by `sampleProject.ts`, `bootstrapHarness`, and `app/main/preload.ts` in the failing Playwright flow.
 2. Trace the truth lane’s temp project base and report read path to prove whether it is an alias mismatch or a missing snapshot seed.
 3. Add one regression that asserts the same `projectPath` is used for report persistence and report reread in the Playwright harness.
-
