@@ -4,6 +4,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { setTimeout as delay } from 'node:timers/promises';
 
 type AppFixtures = {
   app: ElectronApplication;
@@ -56,6 +57,28 @@ function requireElectronBuildArtifacts(params: {
     throw new Error(message);
   }
   console.warn(message);
+}
+
+async function closeElectronApplicationSafely(
+  application: ElectronApplication,
+  timeoutMs = 15_000,
+): Promise<void> {
+  const closePromise = application.close().then(() => true).catch(() => true);
+  const closed = await Promise.race([closePromise, delay(timeoutMs).then(() => false)]);
+  if (closed) {
+    return;
+  }
+
+  const appProcess = application.process();
+  if (appProcess && appProcess.exitCode === null && appProcess.signalCode === null) {
+    try {
+      appProcess.kill('SIGKILL');
+    } catch {
+      // best effort fallback for stuck Electron teardown
+    }
+  }
+
+  await Promise.race([closePromise, delay(5_000).then(() => false)]);
 }
 
 export const test = base.extend<AppFixtures>({
@@ -121,7 +144,7 @@ export const test = base.extend<AppFixtures>({
     try {
       await use(application);
     } finally {
-      await application.close();
+      await closeElectronApplicationSafely(application);
       fs.rmSync(userDataDir, { recursive: true, force: true });
     }
   },

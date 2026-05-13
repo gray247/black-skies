@@ -137,6 +137,9 @@ Loaded-root authority rule:
 - Every E2E project alias used by renderer preload or local snapshot reads must receive the same generated snapshot fixture set.
 - That means both `sample_project/proj_esther_estate` and `sample_project/Esther_Estate` need `.snapshots/last_verification.json` plus complete `.snapshots/snapshot-current` and `.snapshots/pw-wizard-final` directories.
 
+Teardown note:
+- The Playwright Electron fixtures now use a bounded close-and-kill fallback so a stuck app shutdown cannot turn into a worker teardown timeout during CI.
+
 ## High-Risk Fake-Confidence Zones
 
 1. `app/tests/e2e/utils/serviceStubs.ts`
