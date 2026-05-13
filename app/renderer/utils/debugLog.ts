@@ -22,10 +22,18 @@ const events: DebugEvent[] = [];
 const listeners = new Set<DebugLogListener>();
 let snapshot: DebugLogSnapshot = { version: 0, events: events.slice() };
 
-if (typeof window !== 'undefined') {
-  if (!window.__blackskiesDebugLog) {
-    window.__blackskiesDebugLog = events;
+function resolveWindowDebugLog(): DebugEvent[] | null {
+  if (typeof window === 'undefined') {
+    return null;
   }
+  if (!Array.isArray(window.__blackskiesDebugLog)) {
+    window.__blackskiesDebugLog = [];
+  }
+  return window.__blackskiesDebugLog;
+}
+
+if (typeof window !== 'undefined') {
+  resolveWindowDebugLog();
 }
 
 function shouldLogToConsole(): boolean {
@@ -58,9 +66,10 @@ function appendEvent(entry: DebugEvent): void {
   if (events.length > MAX_EVENTS) {
     events.splice(0, events.length - MAX_EVENTS);
   }
-  if (typeof window !== 'undefined' && window.__blackskiesDebugLog) {
-    window.__blackskiesDebugLog.length = 0;
-    window.__blackskiesDebugLog.push(...events);
+  const windowDebugLog = resolveWindowDebugLog();
+  if (windowDebugLog) {
+    windowDebugLog.length = 0;
+    windowDebugLog.push(...events);
   }
   snapshot = { version: snapshot.version + 1, events: events.slice() };
   notifyListeners();
@@ -91,8 +100,9 @@ export function subscribeDebugLog(listener: DebugLogListener): () => void {
 
 export function clearDebugLog(): void {
   events.length = 0;
-  if (typeof window !== 'undefined' && window.__blackskiesDebugLog) {
-    window.__blackskiesDebugLog.length = 0;
+  const windowDebugLog = resolveWindowDebugLog();
+  if (windowDebugLog) {
+    windowDebugLog.length = 0;
   }
   snapshot = { version: snapshot.version + 1, events: events.slice() };
   notifyListeners();

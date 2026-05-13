@@ -1,9 +1,9 @@
 # Phase 13 Pass 19 - Test Harness Distortion Audit
 
 ## Summary
-This pass is an audit only. No runtime fixes were made.
+This pass started as an audit. A later harness-repair addendum on 2026-05-13 converted the highest-risk findings into targeted fixes without broadening product scope.
 
-The strongest finding is that the current CI failures are plausibly harness distortion rather than a live backend contract break. The real backend path does write verification summaries, and the Playwright shell uses several layers of fixture materialization, cwd-sensitive wrapper logic, and stubbed project state that can move the loaded project root away from the report authority the renderer reads.
+The strongest finding is that the current CI failures were plausibly harness distortion rather than a live backend contract break. The real backend path does write verification summaries, and the Playwright shell uses several layers of fixture materialization, cwd-sensitive wrapper logic, and stubbed project state that can move the loaded project root away from the report authority the renderer reads.
 
 The highest-risk seams are:
 - `scripts/e2e-with-backend.mjs` argument synthesis and cwd redirection
@@ -11,6 +11,38 @@ The highest-risk seams are:
 - `app/tests/e2e/utils/serviceStubs.ts` fake verification report persistence
 - `app/main/preload.ts` `getLastVerification(projectPath)` reading only the passed project root
 - `app/playwright.config.ts` report/artifact root defaulting to `process.cwd()`
+
+## 2026-05-13 Addendum
+
+Targeted fixes landed for the highest-value harness risks identified in this audit:
+
+1. Electron teardown authority
+   - Both Electron launch paths now use the same bounded close helper.
+   - If `electronApp.close()` stalls, the fixture emits teardown diagnostics and escalates to `SIGKILL`.
+   - Result: the worker no longer depends on graceful renderer shutdown to exit.
+
+2. Stub-backend shutdown authority
+   - `app/tests/e2e/utils/serviceStubs.ts` now sets `Connection: close` on synthetic responses, tracks active sockets, calls `closeIdleConnections()` during shutdown, and destroys lingering sockets after a short timeout.
+   - Root cause: plain `server.close()` could wait on keep-alive connections after otherwise passing tests, which matches the CI symptom where teardown timed out after 42 completed tests.
+
+3. Renderer runtime-noise source
+   - The `Cannot read properties of undefined (reading 'push')` noise came from the Playwright/debug-log seam, not from business logic.
+   - Harness cleanup deletes `window.__blackskiesDebugLog`, while the renderer previously assumed it remained defined forever.
+   - The debug-log path now recreates the array before every append, and the Playwright runtime-error allowlist no longer hides that exception.
+
+4. Workflow quoting
+   - The `node -p` step in `.github/workflows/eval.yml` now uses valid shell/JS quoting for Node 24, so the Playwright cache-version probe no longer fails with `Expected unicode escape`.
+
+5. Budget-exceeded noise
+   - HTTP 402 `BUDGET_EXCEEDED` remains expected only in the explicit budget-guardrail harness scenario.
+   - It was not the source of the teardown hang. The harness still gates that console noise behind the dedicated `__allowBudget402Noise` flag instead of weakening assertions globally.
+
+Validation after the addendum:
+- `pnpm --dir app exec playwright test -c ./playwright.config.ts` passed when run sequentially.
+- `pnpm --filter app test` passed.
+- `pnpm --filter app lint` passed.
+- `pnpm --filter app run build:production` passed.
+- `pnpm test:truth` passed.
 
 ## Wrapper / Launcher Inventory
 

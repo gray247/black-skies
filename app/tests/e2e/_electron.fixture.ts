@@ -74,9 +74,7 @@ const BASELINE_DATASET_KEYS = [
 
 // Runtime errors are fail-fast by default; the allowlist defines the only tolerated noise.
 const FAIL_ON_RUNTIME_ERRORS = true;
-const RUNTIME_ERROR_ALLOWLIST: RegExp[] = [
-  /Cannot read properties of undefined \(reading 'push'\)/,
-];
+const RUNTIME_ERROR_ALLOWLIST: RegExp[] = [];
 
 async function captureBaselineFlags(page: Page): Promise<{ body: Record<string, string>; html: Record<string, string> }> {
   return page.evaluate((keys) => {
@@ -243,14 +241,18 @@ function requireElectronBuildArtifacts(params: {
 async function closeElectronApplicationSafely(
   application: ElectronApplication,
   timeoutMs = 15_000,
-): Promise<void> {
+): Promise<{ forcedKill: boolean }> {
   const closePromise = application.close().then(() => true).catch(() => true);
   const closed = await Promise.race([closePromise, delay(timeoutMs).then(() => false)]);
   if (closed) {
-    return;
+    return { forcedKill: false };
   }
 
   const appProcess = application.process();
+  console.warn('[electron.teardown] close timeout exceeded; escalating to SIGKILL', {
+    pid: appProcess?.pid ?? null,
+    timeoutMs,
+  });
   if (appProcess && appProcess.exitCode === null && appProcess.signalCode === null) {
     try {
       appProcess.kill('SIGKILL');
@@ -260,6 +262,7 @@ async function closeElectronApplicationSafely(
   }
 
   await Promise.race([closePromise, delay(5_000).then(() => false)]);
+  return { forcedKill: true };
 }
 
 export const test = base.extend<Fixtures>({
@@ -388,7 +391,27 @@ export const test = base.extend<Fixtures>({
       await use(application);
     } finally {
       launchContextByApp.delete(application);
-      await closeElectronApplicationSafely(application);
+      const teardownResult = await closeElectronApplicationSafely(application);
+      if (teardownResult.forcedKill) {
+        const launchOutput = launchContext.getOutput();
+        await testInfo.attach('electron-teardown-diagnostics.json', {
+          body: Buffer.from(
+            `${JSON.stringify(
+              {
+                forcedKill: true,
+                process: launchContext.getProcessState(),
+                launchEnv: launchContext.launchEnv,
+                stdoutTail: launchOutput.stdout.slice(-10_000),
+                stderrTail: launchOutput.stderr.slice(-10_000),
+              },
+              null,
+              2,
+            )}\n`,
+            'utf-8',
+          ),
+          contentType: 'application/json',
+        });
+      }
       if (!useExternalService) {
         await stopServiceStubs();
       }

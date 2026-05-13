@@ -484,9 +484,14 @@ export default function App(): JSX.Element {
     if (typeof window === 'undefined') {
       return;
     }
-    window.__blackskiesDebugLog ??= [];
+    const resolveDebugLog = () => {
+      if (!Array.isArray(window.__blackskiesDebugLog)) {
+        window.__blackskiesDebugLog = [];
+      }
+      return window.__blackskiesDebugLog;
+    };
     const dbg = (scope: string, msg?: string) => {
-      window.__blackskiesDebugLog!.push({ scope, msg });
+      resolveDebugLog().push({ scope, msg });
       console.log(`[dbg:${scope}] ${msg ?? ''}`);
     };
 

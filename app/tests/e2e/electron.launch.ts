@@ -62,14 +62,18 @@ function requireElectronBuildArtifacts(params: {
 async function closeElectronApplicationSafely(
   application: ElectronApplication,
   timeoutMs = 15_000,
-): Promise<void> {
+): Promise<{ forcedKill: boolean }> {
   const closePromise = application.close().then(() => true).catch(() => true);
   const closed = await Promise.race([closePromise, delay(timeoutMs).then(() => false)]);
   if (closed) {
-    return;
+    return { forcedKill: false };
   }
 
   const appProcess = application.process();
+  console.warn('[electron.teardown] close timeout exceeded; escalating to SIGKILL', {
+    pid: appProcess?.pid ?? null,
+    timeoutMs,
+  });
   if (appProcess && appProcess.exitCode === null && appProcess.signalCode === null) {
     try {
       appProcess.kill('SIGKILL');
@@ -79,6 +83,7 @@ async function closeElectronApplicationSafely(
   }
 
   await Promise.race([closePromise, delay(5_000).then(() => false)]);
+  return { forcedKill: true };
 }
 
 export const test = base.extend<AppFixtures>({

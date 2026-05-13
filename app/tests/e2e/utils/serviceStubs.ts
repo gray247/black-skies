@@ -1,6 +1,8 @@
 import fs from 'node:fs';
 import http from 'node:http';
+import type { Socket } from 'node:net';
 import path from 'node:path';
+import { setTimeout as delay } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
 import type { Page } from '@playwright/test';
 import { SERVICE_PORT } from '../servicePort';
@@ -254,6 +256,7 @@ const restoreResponse = {
 };
 
 let server: http.Server | null = null;
+const serverSockets = new Set<Socket>();
 let currentScenario: ServiceScenario = 'normal';
 
 function shouldUseExternalService(): boolean {
@@ -298,7 +301,11 @@ async function applyTestMode(page: Page, mode: TestMode, reason?: string): Promi
 
 function respond(res: http.ServerResponse, data: unknown, status = 200): void {
   const payload = typeof data === 'string' ? data : JSON.stringify(data);
-  res.writeHead(status, { 'Content-Type': 'application/json' });
+  res.shouldKeepAlive = false;
+  res.writeHead(status, {
+    'Content-Type': 'application/json',
+    Connection: 'close',
+  });
   res.end(payload);
 }
 
@@ -462,6 +469,12 @@ async function ensureServer(): Promise<void> {
         respond(res, { message: 'Not found' }, 404);
     }
   });
+  server.on('connection', (socket) => {
+    serverSockets.add(socket);
+    socket.once('close', () => {
+      serverSockets.delete(socket);
+    });
+  });
 
   await new Promise<void>((resolve, reject) => {
     if (!server) {
@@ -478,11 +491,14 @@ async function shutdownServer(): Promise<void> {
   if (shouldUseExternalService()) {
     return;
   }
-  if (!server) {
+  const activeServer = server;
+  if (!activeServer) {
     return;
   }
-  await new Promise<void>((resolve, reject) => {
-    server?.close((error) => {
+  server = null;
+  activeServer.closeIdleConnections?.();
+  const closePromise = new Promise<void>((resolve, reject) => {
+    activeServer.close((error) => {
       if (error) {
         reject(error);
         return;
@@ -490,7 +506,18 @@ async function shutdownServer(): Promise<void> {
       resolve();
     });
   });
-  server = null;
+  const closed = await Promise.race([closePromise.then(() => true), delay(2_000).then(() => false)]);
+  if (!closed) {
+    console.warn('[service-stubs] close timeout exceeded; destroying lingering sockets', {
+      connectionCount: serverSockets.size,
+    });
+    activeServer.closeAllConnections?.();
+    for (const socket of serverSockets) {
+      socket.destroy();
+    }
+    await closePromise;
+  }
+  serverSockets.clear();
   for (const reportPath of getVerificationReportPaths()) {
     try {
       fs.rmSync(reportPath, { force: true });
