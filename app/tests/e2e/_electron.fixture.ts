@@ -285,18 +285,41 @@ async function closeElectronApplicationSafely(
   application: ElectronApplication,
   timeoutMs = 15_000,
 ): Promise<{ forcedKill: boolean }> {
+  const appProcess = application.process();
+  const isProcessAlive = () =>
+    Boolean(appProcess && appProcess.exitCode === null && appProcess.signalCode === null);
+  const waitForProcessExit = async (waitMs: number): Promise<boolean> => {
+    if (!appProcess || !isProcessAlive()) {
+      return true;
+    }
+    const processExitPromise = new Promise<boolean>((resolve) => {
+      const handleExit = () => resolve(true);
+      appProcess.once('exit', handleExit);
+      delay(waitMs).then(() => {
+        appProcess.off('exit', handleExit);
+        resolve(!isProcessAlive());
+      });
+    });
+    return processExitPromise;
+  };
   const closePromise = application.close().then(() => true).catch(() => true);
-  const closed = await Promise.race([closePromise, delay(timeoutMs).then(() => false)]);
-  if (closed) {
-    return { forcedKill: false };
+  const closeResolved = await Promise.race([closePromise, delay(timeoutMs).then(() => false)]);
+  if (closeResolved) {
+    const processExited = await waitForProcessExit(2_000);
+    if (processExited) {
+      return { forcedKill: false };
+    }
+    console.warn('[electron.teardown] close resolved but process remained alive; escalating to SIGKILL', {
+      pid: appProcess?.pid ?? null,
+    });
+  } else {
+    console.warn('[electron.teardown] close timeout exceeded; escalating to SIGKILL', {
+      pid: appProcess?.pid ?? null,
+      timeoutMs,
+    });
   }
 
-  const appProcess = application.process();
-  console.warn('[electron.teardown] close timeout exceeded; escalating to SIGKILL', {
-    pid: appProcess?.pid ?? null,
-    timeoutMs,
-  });
-  if (appProcess && appProcess.exitCode === null && appProcess.signalCode === null) {
+  if (isProcessAlive()) {
     try {
       appProcess.kill('SIGKILL');
     } catch {
@@ -304,7 +327,7 @@ async function closeElectronApplicationSafely(
     }
   }
 
-  await Promise.race([closePromise, delay(5_000).then(() => false)]);
+  await waitForProcessExit(5_000);
   return { forcedKill: true };
 }
 

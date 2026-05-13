@@ -44,6 +44,12 @@ Targeted fixes landed for the highest-value harness risks identified in this aud
    - The page fixture had still been awaiting renderer-dependent best-effort cleanup (`page.evaluate(...)`, dataset/storage reset, and runtime-noise probes) with no timeout.
    - The fix is to bound those best-effort page-cleanup steps and remove the page event listeners explicitly so an unresponsive renderer cannot block the worker ahead of the existing Electron `SIGKILL` fallback.
 
+7. Electron child-process exit authority
+   - The follow-up CI repro on run `25827019258` proved the previous fix was still incomplete: the full HARNESS_ONLY suite again reached test 44/46 and then timed out in worker teardown.
+   - The canary gate, services eval job, route smoke, and load checks were green in the same run, so the remaining problem stayed isolated to the Playwright/Electron harness.
+   - The root cause was that `electronApp.close()` is not a sufficient success condition by itself. The Playwright control channel can close while the Electron child process is still alive, which still leaves the worker with open process handles.
+   - `app/tests/e2e/_electron.fixture.ts` now waits for the Electron child process to exit after `electronApp.close()` resolves. If the child is still alive after a short grace period, teardown logs `[electron.teardown] close resolved but process remained alive` and escalates to `SIGKILL`.
+
 Validation after the addendum:
 - `pnpm --dir app exec playwright test -c ./playwright.config.ts` passed when run sequentially.
 - `pnpm --filter app test` passed.
