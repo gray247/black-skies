@@ -156,10 +156,12 @@ async function closeElectronApplicationSafely(
   if (!closed) {
     console.warn('[electron.teardown] close timeout exceeded; escalating to SIGKILL', {
       pid: appProcess?.pid ?? null,
+      exitCode: appProcess?.exitCode ?? null,
+      signalCode: appProcess?.signalCode ?? null,
       timeoutMs,
     });
   }
-  if (appProcess && appProcess.exitCode === null && appProcess.signalCode === null) {
+  if (appProcess?.pid !== null && appProcess?.pid !== undefined) {
     try {
       const tree = killElectronProcessTree(appProcess.pid);
       console.warn('[electron.teardown] kill fallback dispatched', {

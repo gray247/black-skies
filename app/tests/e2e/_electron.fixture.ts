@@ -394,11 +394,13 @@ async function closeElectronApplicationSafely(
   } else {
     console.warn('[electron.teardown] close timeout exceeded; escalating to SIGKILL', {
       pid: appProcess?.pid ?? null,
+      exitCode: appProcess?.exitCode ?? null,
+      signalCode: appProcess?.signalCode ?? null,
       timeoutMs,
     });
   }
 
-  if (isProcessAlive()) {
+  if (appProcess?.pid !== null && appProcess?.pid !== undefined) {
     try {
       const tree = killElectronProcessTree(appProcess.pid);
       console.warn('[electron.teardown] kill fallback dispatched', {
@@ -770,13 +772,6 @@ export const test = base.extend<Fixtures>({
           contentType: 'application/json',
         });
       }
-      await bestEffortPageTeardownStep(
-        testInfo,
-        'closeWindow',
-        async () => {
-          await window.close();
-        },
-      );
       if (
         FAIL_ON_RUNTIME_ERRORS &&
         unexpectedRuntimeErrors.length > 0 &&
@@ -788,6 +783,13 @@ export const test = base.extend<Fixtures>({
         );
       }
       if (testInfo.status === 'passed') {
+        await bestEffortPageTeardownStep(
+          testInfo,
+          'closeWindow',
+          async () => {
+            await window.close();
+          },
+        );
         return;
       }
       // Capture failure screenshots while the page fixture step is still active so that the
@@ -801,6 +803,13 @@ export const test = base.extend<Fixtures>({
       } catch (error) {
         console.warn('[electron.fixture] failed to capture failure screenshot', error);
       }
+      await bestEffortPageTeardownStep(
+        testInfo,
+        'closeWindow',
+        async () => {
+          await window.close();
+        },
+      );
     }
   },
 });

@@ -42,6 +42,7 @@ Targeted fixes landed for the highest-value harness risks identified in this aud
    - The decisive signal was negative evidence: the failing worker reached the last passing startup/truth diagnostics and then timed out without printing a new `[electron.teardown]` close-timeout line.
    - That means teardown stalled before `electronApp.close()` started, inside the page fixture `finally` path.
    - The final fix closed the active BrowserWindow from the page fixture before the app-level Electron shutdown ran. That was the missing ownership boundary: the worker could not finish teardown while the last page/window handle remained open even though the app close helper itself was bounded.
+   - Failure screenshots still need to be taken before the page closes. The page fixture now keeps failure capture ahead of best-effort close so real test failures continue to emit diagnostics instead of turning into a screenshot-after-close teardown error.
    - The page fixture had still been awaiting renderer-dependent best-effort cleanup (`page.evaluate(...)`, dataset/storage reset, and runtime-noise probes) with no timeout.
    - The fix is to bound those best-effort page-cleanup steps and remove the page event listeners explicitly so an unresponsive renderer cannot block the worker ahead of the existing Electron `SIGKILL` fallback.
 
@@ -54,6 +55,7 @@ Targeted fixes landed for the highest-value harness risks identified in this aud
 8. Residual Node-handle cleanup in teardown
    - The last harness repair tightened the remaining Node-side teardown handles in the same fixture chain. The shared Electron and service-stub teardown paths no longer use `timers/promises` delay promises that can leave timer handles live until they resolve; they now use explicit timeout handles that are always cleared after each race.
    - The Electron kill fallback also walks the descendant process tree on Linux before killing the root PID, which makes the fallback resilient when Electron spawns helper children that outlive the main process.
+   - The remaining CI-only edge case was a stale wrapper-process state after `electronApp.close()` timed out. The timeout path now escalates to process-tree kill unconditionally when a PID exists, even if Playwright has already marked the wrapper as exited, so a skipped kill fallback cannot strand the worker.
    - This is still harness authority, not product runtime behavior. The objective is simply to ensure the worker owns every teardown handle it creates so the 90s worker timeout cannot be reached after the last passing test.
 
 Validation after the addendum:
