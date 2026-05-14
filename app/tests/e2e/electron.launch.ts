@@ -256,7 +256,25 @@ export const test = base.extend<AppFixtures>({
 
   page: async ({ app }, use) => {
     const firstWindow = await app.firstWindow();
-    await use(firstWindow);
+    try {
+      await use(firstWindow);
+    } finally {
+      let timeoutHandle: NodeJS.Timeout | null = null;
+      const closePromise = firstWindow.close().catch(() => {
+        // Best-effort window close before the app teardown fallback runs.
+      });
+      const timeoutPromise = new Promise<boolean>((resolve) => {
+        timeoutHandle = setTimeout(() => resolve(false), 5_000);
+        timeoutHandle.unref?.();
+      });
+      const closed = await Promise.race([closePromise.then(() => true), timeoutPromise]);
+      if (timeoutHandle) {
+        clearTimeout(timeoutHandle);
+      }
+      if (!closed) {
+        console.warn('[electron.teardown] window close timed out before app shutdown');
+      }
+    }
   },
 });
 

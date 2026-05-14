@@ -41,6 +41,7 @@ Targeted fixes landed for the highest-value harness risks identified in this aud
    - The later CI-only worker-timeout proved there was still one teardown owner left outside the existing Electron-close and stub-server guardrails.
    - The decisive signal was negative evidence: the failing worker reached the last passing startup/truth diagnostics and then timed out without printing a new `[electron.teardown]` close-timeout line.
    - That means teardown stalled before `electronApp.close()` started, inside the page fixture `finally` path.
+   - The final fix closed the active BrowserWindow from the page fixture before the app-level Electron shutdown ran. That was the missing ownership boundary: the worker could not finish teardown while the last page/window handle remained open even though the app close helper itself was bounded.
    - The page fixture had still been awaiting renderer-dependent best-effort cleanup (`page.evaluate(...)`, dataset/storage reset, and runtime-noise probes) with no timeout.
    - The fix is to bound those best-effort page-cleanup steps and remove the page event listeners explicitly so an unresponsive renderer cannot block the worker ahead of the existing Electron `SIGKILL` fallback.
 

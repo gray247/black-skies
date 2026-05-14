@@ -770,6 +770,13 @@ export const test = base.extend<Fixtures>({
           contentType: 'application/json',
         });
       }
+      await bestEffortPageTeardownStep(
+        testInfo,
+        'closeWindow',
+        async () => {
+          await window.close();
+        },
+      );
       if (
         FAIL_ON_RUNTIME_ERRORS &&
         unexpectedRuntimeErrors.length > 0 &&
