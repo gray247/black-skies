@@ -247,9 +247,25 @@ export interface SnapshotVerificationSummary {
   status?: 'ok' | 'errors' | string;
   errors?: string[];
   issues?: Array<string | { reason?: string; [key: string]: unknown }>;
+  semantic_context?: VerificationSemanticContext;
 }
 
 export type BackupStatus = 'ok' | 'warning' | 'error';
+
+export interface VerificationAuthorityObservation {
+  claim_scope: string;
+  strongest_authority: string;
+  supporting_authorities: string[];
+  historical_only: boolean;
+  does_not_imply: string[];
+}
+
+export interface VerificationSemanticContext {
+  historical_only: boolean;
+  integrity_state?: 'integrity-valid' | 'integrity-unavailable' | string;
+  degraded_reasons?: string[];
+  verification_basis: VerificationAuthorityObservation;
+}
 
 export interface BackupVerificationProjectSummary {
   project_id: string;
@@ -274,6 +290,8 @@ export interface BackupVerificationReport {
   voice_note_issues?: number;
   idle?: boolean;
   projects?: BackupVerificationProjectSummary[];
+  semantic_context?: VerificationSemanticContext;
+  report_observation?: VerificationAuthorityObservation;
 }
 
 export interface BackupSummary {

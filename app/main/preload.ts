@@ -737,6 +737,24 @@ async function readLastVerificationFromPath(
       return { ok: true, data: null };
     }
     const payload = JSON.parse(contents);
+    if (payload && typeof payload === 'object') {
+      const normalized = {
+        ...(payload as BackupVerificationReport),
+        report_observation: {
+          claim_scope: 'persisted-verification-report-read',
+          strongest_authority: 'A3',
+          supporting_authorities: [],
+          historical_only: true,
+          does_not_imply: [
+            'integrity-valid',
+            'report-fresh',
+            'restorable',
+            'browseable',
+          ],
+        },
+      } satisfies BackupVerificationReport;
+      return { ok: true, data: normalized };
+    }
     return { ok: true, data: payload as BackupVerificationReport };
   } catch (error) {
     if (isFileMissingError(error)) {
