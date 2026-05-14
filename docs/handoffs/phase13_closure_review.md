@@ -1,14 +1,19 @@
 # Phase 13 Closure Review
 
-Status: Reviewed for operator closure consideration only.
+Status: Closed for audit, trust validation, handoff, and governance readiness only.
 Date: 2026-05-14
 Scope: Determine whether Phase 13 is ready to close as an audit and handoff phase.
 
 ## Result
 
-Phase 13 is ready for operator closure as an audit and handoff phase only.
+Phase 13 is closed for:
 
-Phase 13 is not closed by this artifact.
+- audit
+- trust validation
+- handoff
+- governance readiness
+
+Phase 13 is not closed for authority reconciliation or implementation work.
 
 ## Basis
 
@@ -21,6 +26,7 @@ Phase 13 is not closed by this artifact.
 - The tracker states that authority closure moves to Phase 14 work.
 - Remaining unresolved work is allocated into the deferred work matrix.
 - Phase 14 implementation has not begun.
+- Roadmap governance artifacts are operator-accepted with exceptions that do not block `Phase 14A.1`.
 
 ## Governance Review Outcome
 
@@ -35,24 +41,41 @@ Governance review passed with non-blocking exceptions only.
 
 - None found in this review.
 
-## What Phase 13 Closure Would Mean
+## Phase 13 Closure Scope
 
-If the operator chooses to close Phase 13, closure means:
+Phase 13 closure means:
 
 - audit and handoff work complete
 - trilogy and roadmap governance artifacts reviewed
 - future implementation work should move into Phase 14 and later phases
 
-It does not mean:
+Phase 13 does not claim:
 
-- snapshot authority is solved
-- restore safety is solved
-- human verification is complete
-- governance artifacts are accepted
-- Phase 14 has begun
+- authority closure
+- snapshot ontology resolution
+- restore safety completion
+- final GUI authority semantics
+- completed human verification
+- Phase 14 implementation completion
+
+## Allocated Forward Work
+
+- unresolved authority reconciliation work is allocated into Phase 14+
+- restore hardening is allocated into Phase 15
+- harness governance is allocated into Phase 16
+- GUI simplification is allocated into Phase 17
+- migration governance is allocated into Phase 18
+- deferred reconciliation is allocated into Phase 19
+
+## Current Operational State
+
+- Phase 13: Closed (audit and handoff only)
+- Governance rebuild: Accepted with exceptions
+- Phase 14 implementation: Not started
+- Phase 14A.1: Mapped and ready for execution planning
+- Remaining authority work: Allocated into future phases
 
 ## Next Recommended Action
 
-- Operator decision on whether to close Phase 13 as audit/handoff only
-- Governance acceptance decision for the roadmap artifacts
-- If governance is accepted, map `Phase 14A.1 - Snapshot State Vocabulary and Evidence Contract` from reviewed planning into an execution-ready pass without starting implementation in the same step
+- Prepare the next planning pass for execution readiness of `Phase 14A.1 - Snapshot State Vocabulary and Evidence Contract`
+- Keep Phase 14 implementation out of scope until that execution-planning pass is accepted

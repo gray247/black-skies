@@ -1,4 +1,4 @@
-Status: Reviewed
+Status: Accepted with exceptions
 Canonical role: Operational roadmap spine for future phase and pass sequencing, gates, and phase-level closure requirements.
 Scope: Convert the Phase 13 handoff trilogy and authority strategy into future phase structure, pass breakdowns, dependencies, gates, entry/exit criteria, and readiness boundaries for post-Phase-13 work.
 Owns: Future phase/pass structure, sequencing, dependencies, entry criteria, exit criteria, audit gates, freeze/refactor/migration windows, human verification gates, handoff requirements, and the split of Phase 14 into governed subphases.
@@ -6,7 +6,7 @@ Does not own: Proof doctrine, deferred item inventory, runtime implementation, s
 Upstream dependencies: [authority_reconciliation_strategy.md](/C:/Dev/black-skies/docs/roadmap/authority_reconciliation_strategy.md), [phase13_handoff_pass1_current_state.md](/C:/Dev/black-skies/docs/handoffs/phase13_handoff_pass1_current_state.md), [phase13_handoff_pass2_authority_and_deferred_ledger.md](/C:/Dev/black-skies/docs/handoffs/phase13_handoff_pass2_authority_and_deferred_ledger.md), [phase13_handoff_pass3_future_roadmap_and_phase_allocation.md](/C:/Dev/black-skies/docs/handoffs/phase13_handoff_pass3_future_roadmap_and_phase_allocation.md), [pass26_snapshot_authority_map_and_todo_inventory.md](/C:/Dev/black-skies/docs/audits/phase13/pass26_snapshot_authority_map_and_todo_inventory.md), [BLACK_SKIES_FIX_TRACKER.md](/C:/Dev/black-skies/docs/BLACK_SKIES_FIX_TRACKER.md), [phase13_audit_trust_validation_plan.md](/C:/Dev/black-skies/docs/phases/phase13_audit_trust_validation_plan.md), [current_state.md](/C:/Dev/black-skies/docs/specs/current_state.md), [workflow_spine.md](/C:/Dev/black-skies/docs/specs/workflow_spine.md), [error_visibility.md](/C:/Dev/black-skies/docs/specs/error_visibility.md)
 Downstream dependencies: [deferred_work_matrix.md](/C:/Dev/black-skies/docs/roadmap/deferred_work_matrix.md)
 Last reviewed: 2026-05-14.
-Acceptance record: 2026-05-14 - Codex - Reviewed after combined roadmap governance review; no operator acceptance recorded yet.
+Acceptance record: 2026-05-14 - Operator-approved - Accepted with exceptions after governance review passed; exceptions are non-blocking for Phase 14A.1 readiness, and Phase 14 implementation has not started.
 
 # Master Phase Allocation Plan
 

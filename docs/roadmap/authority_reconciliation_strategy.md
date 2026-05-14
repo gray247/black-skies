@@ -1,4 +1,4 @@
-Status: Reviewed
+Status: Accepted with exceptions
 Canonical role: Shared proof doctrine for roadmap-governance artifacts and operational truth claims.
 Scope: Define authority hierarchy, evidence classes, closure terms, missing-evidence handling, canonical-source rules, roadmap artifact status rules, ID namespace rules, and rebuild edit rules for snapshot, restore, authority, harness, workflow, human verification, and closure semantics.
 Owns: Proof and authority rules for roadmap governance; shared roadmap artifact header template; acceptance-state rules; stale-source rules; evidence-limit rules.
@@ -6,7 +6,7 @@ Does not own: Phase sequencing, deferred backlog allocation, runtime implementat
 Upstream dependencies: [phase13_handoff_pass1_current_state.md](/C:/Dev/black-skies/docs/handoffs/phase13_handoff_pass1_current_state.md), [phase13_handoff_pass2_authority_and_deferred_ledger.md](/C:/Dev/black-skies/docs/handoffs/phase13_handoff_pass2_authority_and_deferred_ledger.md), [phase13_handoff_pass3_future_roadmap_and_phase_allocation.md](/C:/Dev/black-skies/docs/handoffs/phase13_handoff_pass3_future_roadmap_and_phase_allocation.md), [pass26_snapshot_authority_map_and_todo_inventory.md](/C:/Dev/black-skies/docs/audits/phase13/pass26_snapshot_authority_map_and_todo_inventory.md), [BLACK_SKIES_FIX_TRACKER.md](/C:/Dev/black-skies/docs/BLACK_SKIES_FIX_TRACKER.md), [phase13_audit_trust_validation_plan.md](/C:/Dev/black-skies/docs/phases/phase13_audit_trust_validation_plan.md), [current_state.md](/C:/Dev/black-skies/docs/specs/current_state.md), [workflow_spine.md](/C:/Dev/black-skies/docs/specs/workflow_spine.md), [error_visibility.md](/C:/Dev/black-skies/docs/specs/error_visibility.md)
 Downstream dependencies: [master_phase_allocation_plan.md](/C:/Dev/black-skies/docs/roadmap/master_phase_allocation_plan.md), [deferred_work_matrix.md](/C:/Dev/black-skies/docs/roadmap/deferred_work_matrix.md)
 Last reviewed: 2026-05-14.
-Acceptance record: 2026-05-14 - Codex - Reviewed after combined roadmap governance review; no operator acceptance recorded yet.
+Acceptance record: 2026-05-14 - Operator-approved - Accepted with exceptions after governance review passed; exceptions are non-blocking for Phase 14A.1 readiness, and Phase 14 implementation has not started.
 
 # Authority Reconciliation Strategy
 

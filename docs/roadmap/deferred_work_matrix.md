@@ -1,4 +1,4 @@
-Status: Reviewed
+Status: Accepted with exceptions
 Canonical role: Canonical deferred and backlog allocation surface for stable roadmap IDs, source mapping, lifecycle state, and future phase/pass destinations.
 Scope: Convert Handoff Pass 2, Pass 26, tracker evidence, and relevant audit/spec findings into a stable deferred-work matrix with `RDM-*` IDs, lifecycle state, ownership, authority impact, runtime impact, and future allocation.
 Owns: Stable `RDM-*` roadmap IDs, source ID mapping, deferred item lifecycle state, future phase/pass destination, severity, ownership, authority impact, runtime impact, and human verification requirement.
@@ -6,7 +6,7 @@ Does not own: Proof doctrine, phase/pass sequencing, runtime implementation, sna
 Upstream dependencies: [authority_reconciliation_strategy.md](/C:/Dev/black-skies/docs/roadmap/authority_reconciliation_strategy.md), [master_phase_allocation_plan.md](/C:/Dev/black-skies/docs/roadmap/master_phase_allocation_plan.md), [phase13_handoff_pass1_current_state.md](/C:/Dev/black-skies/docs/handoffs/phase13_handoff_pass1_current_state.md), [phase13_handoff_pass2_authority_and_deferred_ledger.md](/C:/Dev/black-skies/docs/handoffs/phase13_handoff_pass2_authority_and_deferred_ledger.md), [phase13_handoff_pass3_future_roadmap_and_phase_allocation.md](/C:/Dev/black-skies/docs/handoffs/phase13_handoff_pass3_future_roadmap_and_phase_allocation.md), [pass26_snapshot_authority_map_and_todo_inventory.md](/C:/Dev/black-skies/docs/audits/phase13/pass26_snapshot_authority_map_and_todo_inventory.md), [BLACK_SKIES_FIX_TRACKER.md](/C:/Dev/black-skies/docs/BLACK_SKIES_FIX_TRACKER.md), [phase13_audit_trust_validation_plan.md](/C:/Dev/black-skies/docs/phases/phase13_audit_trust_validation_plan.md), [current_state.md](/C:/Dev/black-skies/docs/specs/current_state.md), [workflow_spine.md](/C:/Dev/black-skies/docs/specs/workflow_spine.md), [error_visibility.md](/C:/Dev/black-skies/docs/specs/error_visibility.md)
 Downstream dependencies: No downstream roadmap artifact is required to exist for this pass; this matrix is expected to feed governance acceptance review and later Phase 14 slice mapping.
 Last reviewed: 2026-05-14.
-Acceptance record: 2026-05-14 - Codex - Reviewed after combined roadmap governance review; no operator acceptance recorded yet.
+Acceptance record: 2026-05-14 - Operator-approved - Accepted with exceptions after governance review passed; exceptions are non-blocking for Phase 14A.1 readiness, and Phase 14 implementation has not started.
 
 # Deferred Work Matrix
 
