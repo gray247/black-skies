@@ -36,6 +36,7 @@ Fixture or real project:
 localStorage/session state:
 Synthetic/harness hooks present:
 Flow tested:
+Verification source: Current runtime run | Persisted report read | Renderer witness | Mixed
 Authority layers observed:
 Expected result:
 Actual result:
@@ -71,6 +72,8 @@ Used for project load, project switch, reload, reopen, pane rebind, and stale-st
 
 Used when the operator-visible claim depends on the difference between renderer witness, persisted records, backend truth, and filesystem truth.
 
+This checkpoint must record whether the observed claim came from a current runtime verification run, a persisted verification record read, a renderer-only witness state, or a mixed surface.
+
 ## Stop Rules
 
 Future implementation `/goals` must stop before a human-verification checkpoint when the next claim requires operator evidence.
@@ -82,6 +85,7 @@ That includes:
 - floating-pane reload and rebind correctness
 - restore-latest visible trust behavior
 - continuity after restart, reload, or recovery
+- any claim where current runtime evidence, persisted verification records, and renderer presentation could be mistaken for one another
 
 Autonomous work may prepare the checkpoint, but it must not claim closure or runtime trust for those flows without operator observation.
 
@@ -90,6 +94,12 @@ Autonomous work may prepare the checkpoint, but it must not claim closure or run
 ### Phase 14B
 
 Use this receipt model for any behavior-alignment work that changes freshness, degraded-state interpretation, or current-vs-historical authority presentation.
+
+After `14B.2` and `14B.3`, any future manual receipt in this area should explicitly name whether the observed evidence came from:
+
+- a current runtime verification run
+- a persisted verification record read
+- renderer presentation only
 
 ### Phase 15
 

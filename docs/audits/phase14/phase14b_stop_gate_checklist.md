@@ -22,6 +22,7 @@ Stop implementation immediately if any of these occur:
 - a slice starts requiring restore-behavior changes that were not declared in scope
 - a slice starts requiring preload or renderer rebind changes beyond its planned boundary
 - a slice would need to redefine accepted `14A` semantics rather than align behavior to them
+- local persisted-report reads and routed persisted-report reads stop agreeing on `A3` historical-only semantics
 - the current tracker state contradicts the slice assumptions about wrapper/CWD, continuity, or required proof lanes
 - truth-lane, harness, synthetic, or stub evidence is being used as if it were closure-grade runtime proof
 - the implementation needs a human-verification-backed claim to continue honestly
@@ -44,6 +45,7 @@ Rollback is required if implementation introduces any of these conditions:
 
 - renderer labels imply stronger truth than current `A1` or `A2` evidence supports
 - restore or backup flows imply safety from browseability, historical reports, or UI presence alone
+- report access, report wording, or snapshot detail wording implies that a persisted verification record is current runtime truth
 - cross-project contamination or stale local state appears where the prior baseline did not show it
 - alias-root handling regresses and causes path-identity drift in the implemented slice
 - preload or bridge behavior makes harness-only continuity appear equivalent to live continuity
@@ -55,6 +57,7 @@ Future `14B` implementation must not claim:
 
 - `verified` without claim scope
 - current integrity from `A3` historical evidence alone
+- local or routed `last_verification.json` reads as if they were current-run truth without explicit `A3` historical-only framing
 - restore readiness from browseability or report presence
 - continuity correctness from truth-lane or harness success alone
 - project identity stability from cached localStorage or session state alone
@@ -76,6 +79,7 @@ Future `14B` implementation must not claim:
 
 | Checkpoint family | Trigger | Required evidence before proceeding | Stop condition | Rollback trigger |
 | --- | --- | --- | --- | --- |
+| persisted-record-sensitive | slice touches `last_verification.json` reads, `report_observation` injection, or local-vs-routed report surfaces | explicit statement whether the claim comes from a current runtime run, persisted record, or renderer witness | local and routed reads stop agreeing on `A3` semantics or a persisted record starts reading as current truth | historical report access begins implying current integrity, freshness, or restore readiness |
 | stale-state-sensitive | slice touches report rereads, localStorage, cached project summary, draft-preview state, or reopen state | explicit stale-state handling note plus correct authority-layer labeling | stale state starts standing in for current authority truth | stale or carried state changes visible truth incorrectly |
 | continuity-sensitive | slice touches project load, project switch, reload, recovery, or post-action rebind | explicit continuity dependency note and later human-verification plan | slice starts needing real continuity proof to continue honestly | project-switch, reload, or reopen behavior regresses |
 | restore-sensitive | slice touches restore copy, restore button gating, restore result copy, or backup restore semantics | explicit restore-sensitive scope note and separation from browseability/history | restore safety would need to be claimed before dedicated checkpoints exist | restore trust messaging or gating regresses |
@@ -118,4 +122,5 @@ Rollback is required when:
 - Small docs-only or mapping `/goals` can continue without operator checkpoints.
 - Bounded implementation `/goals` may proceed only one slice at a time.
 - Broad implementation `/goals` spanning backend, preload, renderer, restore, and continuity together remain out of bounds.
+- `14B.2` and `14B.3` now establish that verification-record wording and report access are still non-closure surfaces; `14B.4` must not silently upgrade them into restore or continuity proof.
 - Human verification is a hard stop, not a soft reminder, whenever the claim depends on operator-visible continuity or restore trust.

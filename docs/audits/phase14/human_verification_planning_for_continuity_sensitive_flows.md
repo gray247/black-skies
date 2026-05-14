@@ -67,6 +67,15 @@ Future restore, memory, longform, and intelligence/editorial work depends on con
 
 The renderer can display a coherent state at `A4` while the filesystem or runtime truth at `A1` and `A2` disagrees. Human verification is required whenever the operator-facing claim depends on whether a visible state is trustworthy rather than merely renderable.
 
+### Persisted-record versus current-run ambiguity
+
+Snapshot/report flows can now expose both:
+
+- current runtime verification results
+- persisted verification record reads
+
+Those are not interchangeable. Human verification is required whenever operator-facing trust depends on knowing whether a visible claim is coming from a current runtime run, a historical record read, or renderer witness state alone.
+
 ### Stale-state risk
 
 Cached `localStorage`, session persistence, recent-project state, and draft-preview continuity can make a flow appear healthy when it is only replaying stale renderer assumptions.
@@ -203,6 +212,7 @@ These phases depend on continuity correctness more than current planning confide
   - runtime lane
   - project/root identity
   - stale-state handling
+  - whether the claim came from a current runtime run, persisted verification record, renderer witness state, or a mixed surface
   - observed result
   - contradictions found
 
