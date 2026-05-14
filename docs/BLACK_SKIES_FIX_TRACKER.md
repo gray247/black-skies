@@ -71,6 +71,7 @@ If an issue is not tracked here, it is not part of the active fix scope.
 - Phase 13 Pass 18/20/21/22/23/24 validation evidence: focused renderer snapshot tests passed, full app test passed, app lint passed, production build passed, focused GUI Playwright flow passed, backend snapshot regression tests passed, and `pnpm test:truth` passed.
 - Phase 13 Handoff Pass 1 created `docs/handoffs/phase13_handoff_pass1_current_state.md`. Phase 13 remains open on authority closure; it may close later only as an audit/handoff phase after the handoff trilogy is complete and reviewed. Phase 14 is named `Authority Reconciliation`, and green CI/workflow status remains witness evidence rather than closure proof.
 - Phase 13 Handoff Pass 2 created `docs/handoffs/phase13_handoff_pass2_authority_and_deferred_ledger.md`. Unresolved work is now normalized into a canonical authority/deferred ledger, Phase 13 remains open, Phase 14 remains `Authority Reconciliation`, and Handoff Pass 3 is the next required step.
+- Phase 13 Handoff Pass 3 created `docs/handoffs/phase13_handoff_pass3_future_roadmap_and_phase_allocation.md`. Future phases are now allocated, Phase 14 remains `Authority Reconciliation`, Phase 13 is still not authority-closed, and roadmap artifacts are referenced but not created in this pass.
 
 ## Status Definitions
 - `ACTIVE`: known issue, unresolved
