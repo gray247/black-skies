@@ -75,7 +75,14 @@ Phase 13 does not claim:
 - Phase 14A.1: Mapped and ready for execution planning
 - Remaining authority work: Allocated into future phases
 
+## Runtime Confidence Clarification
+
+Phase 13 closure as audit, handoff, and governance readiness does not mean runtime operational confidence across all systems.
+
+- Cross-system runtime-adjacent trust remains only partial in several areas outside the original snapshot authority core.
+- A bounded cross-system operational risk sweep is recommended before deeper Phase 14 implementation alignment.
+
 ## Next Recommended Action
 
-- Prepare the next planning pass for execution readiness of `Phase 14A.1 - Snapshot State Vocabulary and Evidence Contract`
-- Keep Phase 14 implementation out of scope until that execution-planning pass is accepted
+- Run the bounded cross-system operational risk sweep before deeper Phase 14 implementation alignment.
+- Keep Phase 14 implementation out of scope until that sweep and the subsequent execution-planning pass are accepted.

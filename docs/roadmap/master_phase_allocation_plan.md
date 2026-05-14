@@ -381,6 +381,53 @@ Likely passes:
 - Phase 19 depends on [deferred_work_matrix.md](/C:/Dev/black-skies/docs/roadmap/deferred_work_matrix.md).
 - Phase 20+ remains provisional until stabilization phases are accepted.
 
+## Cross-System Operational Risk Sweep
+
+Before deeper Phase 14 implementation alignment, the project should run a bounded cross-system operational risk sweep to classify runtime-adjacent systems by operational trust level.
+
+This sweep is not Phase 14 implementation.
+This sweep is not another open-ended Phase 13.
+This sweep is a bounded confidence map used to classify operational trust and dependency risk before deeper implementation work.
+
+### Minimum Sweep Scope
+
+- critique and intelligence flow
+- snapshot freshness and report refresh behavior
+- restore and backup user-facing path
+- wrapper, launcher, and current-working-directory behavior
+- truth-lane realism
+- harness and fixture realism
+- GUI authority flows
+- runtime JavaScript exception capture
+- memory persistence read/write flow
+- longform continuation and generation flow
+- offline and degraded-state behavior
+- report persistence chain
+- materialized fixture contract
+- recovery and load behavior
+
+### Required Sweep Output Per System
+
+- operational risk class
+- known symptoms
+- evidence basis
+- authority layer affected
+- current owner phase
+- blocker status for `Phase 14A.1`
+- blocker status for `Phase 14B` implementation
+- future phase allocation
+- recommended next action
+
+## Dependency Awareness Rules
+
+- `Phase 14A.1` can proceed if unresolved risks do not invalidate snapshot vocabulary or evidence-contract planning.
+- `Phase 14B` implementation alignment should not proceed if a system it depends on is `Observed risk` or `Partially trusted` without explicit risk acceptance.
+- Later phases must not build on `Governance-only` systems as if they are runtime-trusted.
+- Phase 15 restore hardening depends on Phase 14 authority semantics and the operational risk sweep's restore-path classification.
+- Phase 16 harness governance should use the sweep findings to prioritize fixture, truth-lane, wrapper, and CI work.
+- Phase 17 GUI simplification should use the sweep findings for GUI authority flow and old Focus behavior.
+- Phases 18+ must not treat provisional future buckets as executable until their dependency risks are classified.
+
 ## Gates and Stop Conditions
 
 ### Gates

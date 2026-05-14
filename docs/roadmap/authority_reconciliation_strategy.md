@@ -87,6 +87,25 @@ This artifact does not:
 | harness-only never enough | Never enough for real filesystem authority, real restore eligibility, real operator safety, current integrity, or project-root migration safety |
 | human verification required | Required for snapshot browse/restore/report flows, backup/restore flows, degraded-state UX, offline behavior, new GUI migration gates, and destructive or copy/restore behavior |
 
+## Operational Risk Classification
+
+| Classification | Meaning |
+| --- | --- |
+| Trusted | Recently validated by the correct authority layer(s), with no unresolved contradiction for the scoped claim |
+| Partially trusted | Mitigated or improved, but not fully revalidated across the required evidence layers |
+| Observed risk | Suspicious behavior was seen by operator, harness, CI, runtime, or docs, but has not been fully audited or reproduced |
+| Governance-only | Planning or governance exists, but runtime behavior has not been validated |
+| Deferred future | Known future area intentionally postponed and not authorized for implementation |
+
+### Operational Risk Rules
+
+- A system may be safe for planning but not safe for implementation.
+- A green CI lane cannot upgrade a system to `Trusted` unless the lane actually proves the scoped authority claim.
+- Operator-observed risk can prevent closure even when automated lanes remain green.
+- `Partially trusted` systems must not be used as hidden dependencies for broad `/goals` campaigns without explicit risk acceptance.
+- `Governance-only` status must not be confused with runtime readiness.
+- `Deferred future` status is a planning boundary, not a runtime confidence statement.
+
 ## Missing Evidence Rules
 
 - Missing evidence may block closure.
