@@ -4,14 +4,14 @@ import type { ToastPayload } from '../types/toast';
 export type RevealTargetKind =
   | 'snapshot directory'
   | 'snapshot manifest'
-  | 'verification report'
+  | 'verification record'
   | 'export folder'
   | 'restored folder';
 
 const TARGET_TITLES: Record<RevealTargetKind, string> = {
   'snapshot directory': 'Snapshot directory unavailable',
   'snapshot manifest': 'Snapshot manifest unavailable',
-  'verification report': 'Verification report unavailable',
+  'verification record': 'Verification record unavailable',
   'export folder': 'Export folder unavailable',
   'restored folder': 'Restored folder unavailable',
 };
@@ -19,7 +19,7 @@ const TARGET_TITLES: Record<RevealTargetKind, string> = {
 const TARGET_OPEN_TITLES: Record<RevealTargetKind, string> = {
   'snapshot directory': 'Unable to open snapshot directory',
   'snapshot manifest': 'Unable to open snapshot manifest',
-  'verification report': 'Unable to open verification report',
+  'verification record': 'Unable to open verification record',
   'export folder': 'Unable to open export folder',
   'restored folder': 'Unable to open restored folder',
 };

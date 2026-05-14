@@ -249,7 +249,7 @@ export default function SnapshotsPanel({
     void revealPathWithToast({
       services,
       targetPath: reportPath,
-      kind: 'verification report',
+      kind: 'verification record',
       pushToast,
     });
   }, [projectPath, pushToast, services]);
@@ -261,19 +261,19 @@ export default function SnapshotsPanel({
   const backupsUnavailable = Boolean(!services?.listBackups);
   const statusLabel = useMemo(() => {
     if (loading) {
-      return 'Refreshing verification...';
+      return 'Refreshing verification record...';
     }
     if (!verification) {
-      return 'Verification data unavailable';
+      return 'Verification record unavailable';
     }
     if (verification.snapshots.length === 0) {
-      return 'No snapshots verified';
+      return 'No snapshot verification record yet';
     }
     const latest = verification.snapshots[0];
     if (latest?.status === 'ok') {
-      return 'Latest snapshot verified';
+      return 'Latest verification record shows no issues';
     }
-    return 'Verification issues detected';
+    return 'Latest verification record shows issues';
   }, [loading, verification]);
 
   const lastVerificationTimestamp = useMemo(() => {
@@ -288,7 +288,7 @@ export default function SnapshotsPanel({
   }, [verification?.verified_at]);
 
   const verificationMessage =
-    verification?.message ?? 'Last verification report not available.';
+    verification?.message ?? 'Last verification record not available.';
 
   const handleReRun = useCallback(
     async (snapshotId: string) => {
@@ -346,7 +346,7 @@ export default function SnapshotsPanel({
           title: 'Snapshot verification',
           description: hasIssues
             ? `${issueCount} issue(s) detected`
-            : 'Latest snapshot verified',
+            : 'Current verification run reported no issues for this snapshot.',
         });
       } catch (error) {
         const message = error instanceof Error ? error.message : 'Unable to verify snapshots.';
@@ -372,8 +372,8 @@ export default function SnapshotsPanel({
       if (!projectPath) {
         pushToast({
           tone: 'warning',
-          title: 'Verification report unavailable',
-          description: 'Open a project to load the latest report.',
+          title: 'Verification record unavailable',
+          description: 'Open a project to load the latest verification record.',
         });
         return;
       }
@@ -417,7 +417,7 @@ export default function SnapshotsPanel({
         setSnapshotError(message);
         pushToast({
           tone: 'error',
-          title: 'Verification report unavailable',
+          title: 'Verification record unavailable',
           description: message,
         });
       } finally {
@@ -441,24 +441,26 @@ export default function SnapshotsPanel({
 
   const reportIntegrityLabel = useMemo(() => {
     if (snapshotLoading) {
-      return 'Integrity: Loading...';
+      return 'Integrity evidence: Loading...';
     }
     if (snapshotError) {
-      return 'Integrity: Unavailable';
+      return 'Integrity evidence: Unavailable';
     }
     const snapshotId = snapshotSummary?.snapshotId;
     if (!snapshotId) {
-      return 'Integrity: Unknown';
+      return 'Integrity evidence: Unknown';
     }
     const record = verificationById[snapshotId];
     if (!record) {
-      return 'Integrity: Not verified';
+      return 'Integrity evidence: Not recorded';
     }
     const hasIssues =
       record.status === 'errors' ||
       record.status === 'error' ||
       resolveIssueList(record).length > 0;
-    return hasIssues ? 'Integrity: Issues detected' : 'Integrity: OK';
+    return hasIssues
+      ? 'Integrity evidence: Issues recorded'
+      : 'Integrity evidence: No issues recorded';
   }, [snapshotError, snapshotLoading, snapshotSummary?.snapshotId, verificationById]);
 
   const handleManualVerification = useCallback(async () => {
@@ -555,15 +557,15 @@ export default function SnapshotsPanel({
         },
       ];
 
-      pushToast({
-        tone,
-        title: 'Snapshot verification',
-        description: hasIssues
-          ? `${issueCount} issue(s) detected`
-          : 'Latest snapshot verified',
-        durationMs: 0,
-        actions: reportAction,
-      });
+        pushToast({
+          tone,
+          title: 'Snapshot verification',
+          description: hasIssues
+            ? `${issueCount} issue(s) detected`
+          : 'Current verification run reported no issues for this snapshot.',
+          durationMs: 0,
+          actions: reportAction,
+        });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unable to verify snapshots.';
       pushToast({
@@ -853,8 +855,8 @@ export default function SnapshotsPanel({
         <section className="snapshots-panel__section snapshots-panel__verification">
           <div className="snapshots-panel__section-heading">
             <div>
-              <p className="snapshots-panel__section-label">Verification status</p>
-              <h3>Latest verification</h3>
+              <p className="snapshots-panel__section-label">Verification record</p>
+              <h3>Latest verification record</h3>
             </div>
             <p className="snapshots-panel__section-subtitle">
               Last check: {lastVerificationTimestamp}
@@ -900,7 +902,7 @@ export default function SnapshotsPanel({
                 onClick={openReportFile}
                 disabled={!projectPath}
               >
-                Open report file
+                Open verification record
               </button>
             </div>
           </div>
@@ -998,7 +1000,11 @@ export default function SnapshotsPanel({
                       ? 'ok'
                       : 'unverified';
                 const badgeLabel =
-                  statusKey === 'ok' ? 'OK' : statusKey === 'issues' ? 'Issues' : 'Not verified';
+                  statusKey === 'ok'
+                    ? 'No issues'
+                    : statusKey === 'issues'
+                      ? 'Issues'
+                      : 'No record';
                 const expanded = Boolean(expandedIds[snapshot.snapshot_id]);
                 const verifyingThisRow = runningSnapshotId === snapshot.snapshot_id;
                 const verifyButtonTitle = offline
@@ -1036,14 +1042,14 @@ export default function SnapshotsPanel({
                         onClick={() => reveal(snapshot.path, 'snapshot directory')}
                         aria-label={`Reveal snapshot ${snapshot.snapshot_id}`}
                       >
-                        Reveal
+                        Open folder
                       </button>
                       <button
                         type="button"
                         onClick={() => reveal(`${snapshot.path}/manifest.json`, 'snapshot manifest')}
                         aria-label={`Reveal manifest for ${snapshot.snapshot_id}`}
                       >
-                        Manifest
+                        Open manifest
                       </button>
                     </div>
                     {expanded ? (
@@ -1053,7 +1059,7 @@ export default function SnapshotsPanel({
                       >
                         {!record ? (
                           <p className="snapshot-details__empty">
-                            This snapshot has not been verified yet.
+                            No verification record for this snapshot yet.
                           </p>
                         ) : hasIssues ? (
                           <ul className="snapshot-details__issues">
@@ -1062,7 +1068,9 @@ export default function SnapshotsPanel({
                             ))}
                           </ul>
                         ) : (
-                          <p className="snapshot-details__empty">No verification issues recorded.</p>
+                          <p className="snapshot-details__empty">
+                            No issues recorded in the latest verification record.
+                          </p>
                         )}
                         {extraIssueCount > 0 ? (
                           <p className="snapshot-details__more">
@@ -1111,19 +1119,19 @@ export default function SnapshotsPanel({
           className="snapshots-panel__modal-backdrop"
           role="dialog"
           aria-modal="true"
-          aria-label="Verification report"
+          aria-label="Verification record details"
           data-testid="verification-report-modal"
         >
           <div className="snapshots-panel__modal snapshots-panel__report">
             <header className="snapshots-panel__modal-header">
               <div>
-                <h3>Snapshot verification</h3>
+                <h3>Snapshot details</h3>
                 <p className="snapshots-panel__modal-status">{reportIntegrityLabel}</p>
               </div>
               <button
                 type="button"
                 className="snapshots-panel__modal-close"
-                aria-label="Close verification report"
+                aria-label="Close verification record"
                 onClick={handleCloseReport}
               >
                 ×

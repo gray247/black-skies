@@ -184,16 +184,20 @@ describe('SnapshotsPanel verification details', () => {
       ),
     );
 
-    expect(await screen.findByTestId('snapshot-badge-snapshot-ok')).toHaveTextContent('OK');
+    expect(await screen.findByTestId('snapshot-badge-snapshot-ok')).toHaveTextContent('No issues');
     expect(screen.getByTestId('snapshot-badge-snapshot-issues')).toHaveTextContent('Issues');
-    expect(screen.getByTestId('snapshot-badge-snapshot-unknown')).toHaveTextContent('Not verified');
+    expect(screen.getByTestId('snapshot-badge-snapshot-unknown')).toHaveTextContent('No record');
 
     fireEvent.click(
       screen.getByLabelText('Toggle verification details for snapshot-unknown'),
     );
     const unknownDetails = await screen.findByTestId('snapshot-issues-snapshot-unknown');
-    expect(within(unknownDetails).getByText('This snapshot has not been verified yet.')).toBeTruthy();
-    expect(within(unknownDetails).queryByText('No verification issues recorded.')).toBeNull();
+    expect(
+      within(unknownDetails).getByText('No verification record for this snapshot yet.'),
+    ).toBeTruthy();
+    expect(
+      within(unknownDetails).queryByText('No issues recorded in the latest verification record.'),
+    ).toBeNull();
 
     fireEvent.click(
       screen.getByLabelText('Toggle verification details for snapshot-issues'),
@@ -226,7 +230,7 @@ describe('SnapshotsPanel verification details', () => {
     expect(window.__electronApi?.fs.stat).toHaveBeenCalledTimes(4);
     expect(screen.getByTestId('verification-report-modal')).toBeInTheDocument();
     expect(screen.getByText('snapshot-issues')).toBeInTheDocument();
-    expect(screen.getByText('Integrity: Issues detected')).toBeInTheDocument();
+    expect(screen.getByText('Integrity evidence: Issues recorded')).toBeInTheDocument();
     expect(screen.getByText('Snapshot ID')).toBeInTheDocument();
     expect(screen.getByText('Files')).toBeInTheDocument();
     expect(screen.getByText('6.0 KB')).toBeInTheDocument();
@@ -249,7 +253,7 @@ describe('SnapshotsPanel verification details', () => {
     );
     await waitFor(() =>
       expect(screen.getByTestId('snapshots-health-status')).toHaveTextContent(
-        'Latest snapshot verified',
+        'Latest verification record shows no issues',
       ),
     );
     fireEvent.click(
@@ -258,7 +262,7 @@ describe('SnapshotsPanel verification details', () => {
       }),
     );
     await waitFor(() =>
-      expect(screen.getByText('Integrity: OK')).toBeInTheDocument(),
+      expect(screen.getByText('Integrity evidence: No issues recorded')).toBeInTheDocument(),
     );
     toLocaleStringSpy.mockRestore();
   });
@@ -339,7 +343,7 @@ describe('SnapshotsPanel verification details', () => {
       }),
     );
     expect(screen.getByTestId('snapshots-health-status')).toHaveTextContent(
-      'Verification issues detected',
+      'Latest verification record shows issues',
     );
     expect(screen.getByText(/Last check:/)).toHaveTextContent(initialTimestamp);
 
@@ -349,7 +353,7 @@ describe('SnapshotsPanel verification details', () => {
     await waitFor(() => expect(listProjectSnapshots).toHaveBeenCalledTimes(2));
     await waitFor(() =>
       expect(screen.getByTestId('snapshots-health-status')).toHaveTextContent(
-        'Latest snapshot verified',
+        'Latest verification record shows no issues',
       ),
     );
     await waitFor(() =>
@@ -547,7 +551,7 @@ describe('SnapshotsPanel verification details', () => {
 
     await waitFor(() =>
       expect(
-        pushToast.mock.calls.some((call) => call[0]?.title === 'Verification report unavailable'),
+        pushToast.mock.calls.some((call) => call[0]?.title === 'Verification record unavailable'),
       ).toBe(true),
     );
     expect(screen.getByTestId('verification-report-modal')).toBeInTheDocument();
@@ -639,7 +643,7 @@ describe('SnapshotsPanel verification details', () => {
     await waitFor(() =>
       expect(pushToast).toHaveBeenCalledWith(
         expect.objectContaining({
-          title: 'Verification report unavailable',
+          title: 'Verification record unavailable',
         }),
       ),
     );
@@ -687,7 +691,7 @@ describe('SnapshotsPanel verification details', () => {
       expect(revealPath).toHaveBeenCalledWith('/projects/proj/.snapshots/last_verification.json'),
     );
     expect(
-      pushToast.mock.calls.some((call) => call[0]?.title === 'Verification report unavailable'),
+      pushToast.mock.calls.some((call) => call[0]?.title === 'Verification record unavailable'),
     ).toBe(false);
   });
 
@@ -784,7 +788,7 @@ describe('SnapshotsPanel verification details', () => {
         expect(revealPath).toHaveBeenCalledWith('/projects/proj/.snapshots/last_verification.json'),
       );
       expect(
-        pushToast.mock.calls.some((call) => call[0]?.title === 'Verification report unavailable'),
+        pushToast.mock.calls.some((call) => call[0]?.title === 'Verification record unavailable'),
       ).toBe(false);
 
       expect(
@@ -1030,7 +1034,7 @@ it('renders the updated snapshot and verification sections', async () => {
   await waitFor(() =>
     expect(listProjectSnapshots).toHaveBeenCalledWith({ projectId: 'proj' }),
   );
-  expect(screen.getByText('Latest verification')).toBeInTheDocument();
+  expect(screen.getByText('Latest verification record')).toBeInTheDocument();
   expect(screen.getByText('Project backups')).toBeInTheDocument();
   expect(screen.getByText('Saved snapshots')).toBeInTheDocument();
 });
