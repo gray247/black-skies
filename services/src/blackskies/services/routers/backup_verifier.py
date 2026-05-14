@@ -33,6 +33,21 @@ class VerificationRequest(BaseModel):
         return validate_project_id(value)
 
 
+def _report_observation_metadata() -> dict[str, Any]:
+    return {
+        "claim_scope": "persisted-verification-report-read",
+        "strongest_authority": "A3",
+        "supporting_authorities": [],
+        "historical_only": True,
+        "does_not_imply": [
+            "integrity-valid",
+            "report-fresh",
+            "restorable",
+            "browseable",
+        ],
+    }
+
+
 def _project_report_roots(settings: ServiceSettings, project_id: str) -> list[Path]:
     """Return project roots that advertise the requested project id."""
 
@@ -171,7 +186,11 @@ async def get_backup_verification_report(
         )
 
     try:
-        return read_json(report_path)
+        payload = read_json(report_path)
+        if isinstance(payload, dict):
+            payload = dict(payload)
+            payload["report_observation"] = _report_observation_metadata()
+        return payload
     except (OSError, ValueError):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

@@ -36,6 +36,7 @@ LOGGER = logging.getLogger(__name__)
 UTC = timezone.utc
 
 BackupStatus = Literal["ok", "warning", "error"]
+IntegrityState = Literal["integrity-valid", "integrity-unavailable"]
 
 
 def _now() -> datetime:
@@ -76,6 +77,71 @@ def _parse_manifest_text(text: str) -> dict[str, Any]:
     except json.JSONDecodeError as exc:
         raise ValueError(str(exc)) from exc
     raise ValueError("manifest is not a mapping structure")
+
+
+def _unique_strings(values: Iterable[str]) -> list[str]:
+    ordered: list[str] = []
+    seen: set[str] = set()
+    for value in values:
+        normalized = str(value).strip()
+        if not normalized or normalized in seen:
+            continue
+        seen.add(normalized)
+        ordered.append(normalized)
+    return ordered
+
+
+def _runtime_verification_basis(*, claim_scope: str) -> dict[str, Any]:
+    return {
+        "claim_scope": claim_scope,
+        "strongest_authority": "A2",
+        "supporting_authorities": ["A1"],
+        "historical_only": False,
+        "does_not_imply": [
+            "restorable",
+            "browseable",
+            "historical-only",
+        ],
+    }
+
+
+def _integrity_state_from_errors(has_errors: bool) -> IntegrityState:
+    return "integrity-unavailable" if has_errors else "integrity-valid"
+
+
+def _semantic_reasons_from_issue_reasons(reasons: Iterable[str]) -> list[str]:
+    semantic_reasons: list[str] = []
+    for reason in reasons:
+        lowered = str(reason).strip().lower()
+        if not lowered:
+            continue
+        if "manifest missing" in lowered or "snapshot.yaml missing" in lowered:
+            semantic_reasons.append("missing-manifest")
+        if "include path missing" in lowered or "draft path missing" in lowered:
+            semantic_reasons.append("orphaned")
+        if lowered.startswith("missing "):
+            semantic_reasons.append("orphaned")
+        if "checksum mismatch" in lowered:
+            semantic_reasons.append("integrity-unavailable")
+        if "unreadable" in lowered or "invalid" in lowered or "mismatch" in lowered:
+            semantic_reasons.append("integrity-unavailable")
+    if semantic_reasons:
+        semantic_reasons.append("degraded")
+    return _unique_strings(semantic_reasons)
+
+
+def _runtime_semantic_context(
+    *,
+    claim_scope: str,
+    has_errors: bool,
+    degraded_reasons: Iterable[str] = (),
+) -> dict[str, Any]:
+    return {
+        "historical_only": False,
+        "integrity_state": _integrity_state_from_errors(has_errors),
+        "degraded_reasons": _unique_strings(degraded_reasons),
+        "verification_basis": _runtime_verification_basis(claim_scope=claim_scope),
+    }
 
 
 def _normalise_include_entries(values: Any) -> tuple[set[str], list[str]]:
@@ -152,6 +218,9 @@ class SnapshotVerificationResult:
         return "error" if self.issues else "ok"
 
     def as_dict(self) -> dict[str, Any]:
+        degraded_reasons = _semantic_reasons_from_issue_reasons(
+            issue.reason for issue in self.issues
+        )
         return {
             "project_id": self.project_id,
             "snapshot_id": self.snapshot_id,
@@ -164,6 +233,11 @@ class SnapshotVerificationResult:
             "status": self.status,
             "retried": self.retried,
             "issues": [issue.as_dict() for issue in self.issues],
+            "semantic_context": _runtime_semantic_context(
+                claim_scope="current-runtime-snapshot-verification",
+                has_errors=bool(self.issues),
+                degraded_reasons=degraded_reasons,
+            ),
         }
 
 
@@ -194,6 +268,9 @@ class ProjectVerificationReport:
         return "ok"
 
     def as_dict(self) -> dict[str, Any]:
+        degraded_reasons = _semantic_reasons_from_issue_reasons(
+            issue.reason for issue in self.issues
+        )
         return {
             "project_id": self.project_id,
             "checked_snapshots": self.checked_snapshots,
@@ -203,6 +280,11 @@ class ProjectVerificationReport:
             "voice_note_issues": self.voice_note_issues,
             "issues": [issue.as_dict() for issue in self.issues],
             "snapshots": [snapshot.as_dict() for snapshot in self.snapshots],
+            "semantic_context": _runtime_semantic_context(
+                claim_scope="current-runtime-project-verification",
+                has_errors=bool(self.issues) or self.status != "ok",
+                degraded_reasons=degraded_reasons,
+            ),
         }
 
 
@@ -222,6 +304,11 @@ class BackupVerificationReport:
     idle: bool
 
     def as_dict(self) -> dict[str, Any]:
+        degraded_reasons: list[str] = []
+        if self.status != "ok":
+            degraded_reasons.append("degraded")
+        if self.failed_snapshots or self.voice_note_issues:
+            degraded_reasons.append("integrity-unavailable")
         return {
             "started_at": _isoformat(self.started_at),
             "finished_at": _isoformat(self.finished_at),
@@ -233,6 +320,11 @@ class BackupVerificationReport:
             "message": self.message,
             "idle": self.idle,
             "projects": [project.as_dict() for project in self.projects],
+            "semantic_context": _runtime_semantic_context(
+                claim_scope="current-runtime-backup-verifier-cycle",
+                has_errors=self.status != "ok",
+                degraded_reasons=degraded_reasons,
+            ),
         }
 
 
@@ -266,6 +358,11 @@ class BackupVerifierState:
             "failed_snapshots": self.failed_snapshots,
             "voice_notes_checked": self.voice_notes_checked,
             "voice_note_issues": self.voice_note_issues,
+            "semantic_context": _runtime_semantic_context(
+                claim_scope="current-runtime-backup-verifier-state",
+                has_errors=self.status != "ok",
+                degraded_reasons=["degraded"] if self.status != "ok" else [],
+            ),
         }
 
     def as_dict(self) -> dict[str, Any]:
@@ -369,13 +466,19 @@ class BackupVerificationDaemon:
                 components.append(f"{voice_note_issues} voice note issue(s)")
             issue_summary = " and ".join(components) or "Verification issues"
             status: BackupStatus = "error"
-            message = f"{issue_summary} detected across {len(reports)} project(s)."
+            message = (
+                f"Current verification run detected "
+                f"{issue_summary.lower()} across {len(reports)} project(s)."
+            )
         elif idle:
             status = "warning"
-            message = "No snapshots or voice notes discovered for verification."
+            message = "Current verification run found no snapshots or voice notes to check."
         else:
             status = "ok"
-            message = f"Verified {checked_total} snapshot(s) and {voice_notes_checked} voice note(s) with no issues."
+            message = (
+                f"Current verification run checked {checked_total} snapshot(s) "
+                f"and {voice_notes_checked} voice note(s) with no detected issues."
+            )
 
         report = BackupVerificationReport(
             started_at=started_at,
@@ -496,18 +599,18 @@ class BackupVerificationDaemon:
             if project.status == "error":
                 code = "BACKUP_VERIFIER_ERROR"
                 message = (
-                    f"{project.failed_snapshots} snapshot issue(s) and "
-                    f"{project.voice_note_issues} voice note issue(s) detected."
+                    f"Current verification run detected {project.failed_snapshots} snapshot issue(s) "
+                    f"and {project.voice_note_issues} voice note issue(s)."
                 )
             elif project.checked_snapshots or project.voice_notes_checked:
                 code = "BACKUP_VERIFIER_OK"
                 message = (
-                    f"Verified {project.checked_snapshots} snapshot(s) and "
-                    f"{project.voice_notes_checked} voice note(s) with no issues."
+                    f"Current verification run checked {project.checked_snapshots} snapshot(s) "
+                    f"and {project.voice_notes_checked} voice note(s) with no detected issues."
                 )
             else:
                 code = "BACKUP_VERIFIER_IDLE"
-                message = "No snapshots or voice notes available to verify."
+                message = "Current verification run found no snapshots or voice notes to check."
 
             details = {
                 "project_id": project.project_id,
@@ -518,6 +621,13 @@ class BackupVerificationDaemon:
                 "issues": [issue.as_dict() for issue in project.issues],
                 "snapshots": [snapshot.as_dict() for snapshot in project.snapshots],
                 "completed_at": completed_at,
+                "semantic_context": _runtime_semantic_context(
+                    claim_scope="current-runtime-project-verification",
+                    has_errors=project.status != "ok",
+                    degraded_reasons=_semantic_reasons_from_issue_reasons(
+                        issue.reason for issue in project.issues
+                    ),
+                ),
             }
             self._diagnostics.log(project_root, code=code, message=message, details=details)
 
@@ -977,12 +1087,18 @@ def _verify_snapshot_entries(
                     if actual != checksum:
                         errors.append(f"checksum mismatch {relative}")
         status = "ok" if not errors else "errors"
+        degraded_reasons = _semantic_reasons_from_issue_reasons(errors)
         entries.append(
             {
                 "snapshot_id": snapshot_id,
                 "path": snapshot.get("path"),
                 "status": status,
                 "errors": errors,
+                "semantic_context": _runtime_semantic_context(
+                    claim_scope="current-runtime-snapshot-verification",
+                    has_errors=bool(errors),
+                    degraded_reasons=degraded_reasons,
+                ),
             }
         )
         checked_snapshots += 1
@@ -1043,6 +1159,7 @@ def _verify_backup_entries(
 
         if errors:
             status = "errors"
+        degraded_reasons = _semantic_reasons_from_issue_reasons(errors)
         entries.append(
             {
                 "name": archive_path.name,
@@ -1053,6 +1170,11 @@ def _verify_backup_entries(
                 ),
                 "status": status,
                 "errors": errors,
+                "semantic_context": _runtime_semantic_context(
+                    claim_scope="current-runtime-backup-archive-verification",
+                    has_errors=bool(errors),
+                    degraded_reasons=degraded_reasons,
+                ),
             }
         )
         checked_backups += 1
@@ -1075,12 +1197,13 @@ def _compute_status(
             message_parts.append(f"{failed_snapshots} snapshot issue(s)")
         if failed_backups:
             message_parts.append(f"{failed_backups} backup issue(s)")
-        message = " and ".join(message_parts) + " detected."
+        message = "Current verification run detected " + " and ".join(message_parts) + "."
         return "error", message
     if checked_snapshots == 0 and checked_backups == 0:
-        return "warning", "No snapshots or backups observed during verification."
+        return "warning", "Current verification run found no snapshots or backups to check."
     return "ok", (
-        f"Verified {checked_snapshots} snapshot(s) and {checked_backups} backup(s) with no issues."
+        f"Current verification run checked {checked_snapshots} snapshot(s) and "
+        f"{checked_backups} backup(s) with no detected issues."
     )
 
 
@@ -1113,6 +1236,12 @@ def run_verification(
         failed_backups=failed_backups,
     )
 
+    degraded_reasons: list[str] = []
+    if status != "ok":
+        degraded_reasons.append("degraded")
+    if failed_snapshots or failed_backups:
+        degraded_reasons.append("integrity-unavailable")
+
     return {
         "project_id": project_root.name,
         "verified_at": _isoformat(_now()),
@@ -1131,6 +1260,11 @@ def run_verification(
         "snapshots": snapshot_entries,
         "backups": backup_entries,
         "integrity": integrity_result.model_dump(),
+        "semantic_context": _runtime_semantic_context(
+            claim_scope="current-runtime-project-verification",
+            has_errors=status != "ok",
+            degraded_reasons=degraded_reasons,
+        ),
     }
 
 

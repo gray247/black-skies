@@ -34,7 +34,21 @@ def test_backup_verification_report_endpoint_returns_payload(test_client):
     response = test_client.get("/api/v1/backup_verifier/report?projectId=verify-report")
 
     assert response.status_code == 200
-    assert response.json() == payload
+    assert response.json() == {
+        **payload,
+        "report_observation": {
+            "claim_scope": "persisted-verification-report-read",
+            "strongest_authority": "A3",
+            "supporting_authorities": [],
+            "historical_only": True,
+            "does_not_imply": [
+                "integrity-valid",
+                "report-fresh",
+                "restorable",
+                "browseable",
+            ],
+        },
+    }
 
 
 def test_backup_verification_report_endpoint_missing_file(test_client):
@@ -74,6 +88,11 @@ def test_backup_verification_run_persists_latest_report(test_client):
     )
 
     assert run_response.status_code == 200
+    assert (
+        run_response.json()["semantic_context"]["verification_basis"]["claim_scope"]
+        == "current-runtime-project-verification"
+    )
+    assert run_response.json()["semantic_context"]["historical_only"] is False
     canonical_report_path = project_root / ".snapshots" / "last_verification.json"
     alias_report_path = alias_root / ".snapshots" / "last_verification.json"
     assert canonical_report_path.exists()
@@ -84,3 +103,7 @@ def test_backup_verification_run_persists_latest_report(test_client):
     )
     assert report_response.status_code == 200
     assert report_response.json()["project_id"] == "verify-run-writes-report"
+    assert report_response.json()["report_observation"]["historical_only"] is True
+    assert (
+        report_response.json()["report_observation"]["strongest_authority"] == "A3"
+    )

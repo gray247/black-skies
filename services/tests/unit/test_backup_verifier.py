@@ -47,9 +47,19 @@ def test_verification_reports_ok(tmp_path: Path) -> None:
     assert report["snapshots"]
     snapshot_report = report["snapshots"][0]
     assert snapshot_report["status"] == "ok"
+    assert snapshot_report["semantic_context"]["integrity_state"] == "integrity-valid"
+    assert snapshot_report["semantic_context"]["historical_only"] is False
+    assert (
+        snapshot_report["semantic_context"]["verification_basis"]["strongest_authority"] == "A2"
+    )
     assert report["backups"]
     assert report["backups"][0]["status"] == "ok"
+    assert report["backups"][0]["semantic_context"]["integrity_state"] == "integrity-valid"
     assert report["status"] == "ok"
+    assert report["semantic_context"]["integrity_state"] == "integrity-valid"
+    assert report["semantic_context"]["verification_basis"]["claim_scope"] == (
+        "current-runtime-project-verification"
+    )
 
     target = _persist_report(project_root, report)
     loaded = json.loads(target.read_text(encoding="utf-8"))
@@ -71,6 +81,9 @@ def test_verification_reports_snapshot_corruption(tmp_path: Path) -> None:
     snapshot_report = corrupted["snapshots"][0]
     assert snapshot_report["status"] == "errors"
     assert any("missing project.json" in message for message in snapshot_report["errors"])
+    assert snapshot_report["semantic_context"]["integrity_state"] == "integrity-unavailable"
+    assert "orphaned" in snapshot_report["semantic_context"]["degraded_reasons"]
+    assert "degraded" in snapshot_report["semantic_context"]["degraded_reasons"]
 
 
 def test_verification_detects_corrupt_backup(tmp_path: Path) -> None:
@@ -90,4 +103,6 @@ def test_verification_detects_corrupt_backup(tmp_path: Path) -> None:
     backup_report = report["backups"][0]
     assert backup_report["status"] == "errors"
     assert any("project.json missing in archive" == error for error in backup_report["errors"])
+    assert backup_report["semantic_context"]["integrity_state"] == "integrity-unavailable"
     assert report["status"] == "error"
+    assert report["semantic_context"]["integrity_state"] == "integrity-unavailable"
