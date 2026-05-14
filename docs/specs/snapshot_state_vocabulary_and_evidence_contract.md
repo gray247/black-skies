@@ -142,6 +142,55 @@ This artifact is planning-ready only. It does not implement behavior.
 - continuity dependency note:
   - project-switch and draft-preview continuity remain separate constraints and should not be folded into snapshot-state semantics in this pass
 
+## Authority Claim Separation
+
+| Claim family | Strongest required authority | Supporting authority | Must not be silently upgraded by |
+| --- | --- | --- | --- |
+| Filesystem existence | `A1` | `A4` witness, `A3` history | renderer display, historical report, harness state |
+| Backend verification result | `A2` | `A1` when filesystem truth is part of the claim, `A3` historical record | UI badge, CI green, persisted record alone |
+| Historical verification record | `A3` | docs/history context, optional `A4` witness | current integrity language, current freshness language |
+| Renderer-visible status | `A4` | `A3` support, `A1`/`A2` if explicitly checked | filesystem truth, backend truth, restore safety |
+| Browseability | `A1` | `A4` witness | verified, integrity-valid, restorable |
+| Restorability | `A2` and `A1` | `A3` historical context | browseability, report freshness, backup existence alone |
+| Report freshness | `A3` plus current `A1`/`A2` checks | `A4` witness | current integrity, restore safety, alias-wide agreement |
+| Alias divergence | `A1` | `A3`, `A4` | historical records alone, one-path success |
+| Degraded state | depends on degradation type | `A1`, `A2`, `A3`, `A4` mix | generic broken/not-broken shorthand |
+
+## Preferred And Discouraged Wording
+
+### Preferred Wording
+
+| Preferred wording | Use when | Why |
+| --- | --- | --- |
+| `verified for this claim` | a scoped verification result exists | keeps verification bounded |
+| `historical verification record present` | strongest evidence is persisted record only | avoids current-truth implication |
+| `integrity currently unavailable` | current evidence cannot establish integrity | does not overclaim corruption |
+| `report is stale for the current root` | stored report no longer has enough current backing evidence | ties staleness to active root and claim |
+| `browseable locally` | file or directory can be opened/revealed | separates access from trust |
+| `restore eligibility must be checked separately` | discussing restore semantics from snapshot surfaces | blocks shortcut implications |
+| `alias-divergent` | roots disagree materially | names the root-consistency problem explicitly |
+| `degraded state` with reason | reduced confidence/capability needs to be surfaced | keeps degraded non-boolean |
+
+### Discouraged Wording
+
+| Discouraged wording | Problem |
+| --- | --- |
+| `verified` without scope | reads like a blanket health claim |
+| `latest snapshot verified` | can imply current integrity-valid state rather than scoped report/verification state |
+| `verification report` without freshness context | can sound current when only historical `A3` evidence exists |
+| `open report therefore valid` style phrasing | confuses browseability with authority |
+| `restore latest` as a trust shortcut | can imply restore safety from the wrong evidence class |
+| `integrity OK` without current evidence scope | can overclaim from UI or historical state |
+| `degraded` as a catch-all failure label | hides the specific reduced-confidence condition |
+
+## Phase 14A Acceptance And Verification Boundaries
+
+- `14A` may define semantic contracts and become operator-accepted without executing human verification.
+- `14A` must not claim runtime closure, continuity closure, or restore safety.
+- `14B` must stop before claims that require operator-observed continuity or authority proof.
+- `14C` owns future human-verification execution and cross-lane validation.
+- `14D` owns closure-grade evidence review and final authority closure decisions.
+
 ## Stop Conditions For Entering Implementation
 
 - vocabulary conflicts with [authority_reconciliation_strategy.md](/C:/Dev/black-skies/docs/roadmap/authority_reconciliation_strategy.md)

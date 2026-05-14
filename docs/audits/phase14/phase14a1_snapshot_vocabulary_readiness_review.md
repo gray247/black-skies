@@ -49,6 +49,8 @@ Ready with exceptions.
 
 The spec is coherent enough to begin the next `Phase 14A.1` implementation/spec-refinement pass. No contradiction was found between the spec and the authority strategy. Project-switch and preload continuity risk do not invalidate the vocabulary or evidence-contract planning scope.
 
+The broader `14A` semantic contract set is now packaged for operator review in [phase14a_semantic_contract_acceptance_packet.md](/C:/Dev/black-skies/docs/audits/phase14/phase14a_semantic_contract_acceptance_packet.md).
+
 ## Exceptions
 
 ### Blocking

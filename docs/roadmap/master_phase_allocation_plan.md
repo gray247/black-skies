@@ -114,7 +114,7 @@ Phase 20+ items are provisional future governance buckets only, not committed ex
 
 ## Phase 14 Structure
 
-### Phase 14A - Semantic Contract Decisions
+### Phase 14A - Semantic Reconciliation
 
 Purpose:
 
@@ -122,11 +122,10 @@ Define what the authority states mean before runtime behavior changes begin.
 
 Likely passes:
 
-- `14A.1` Snapshot State Vocabulary and Evidence Contract
-- `14A.2` Authority Precedence Rules
-- `14A.3` Alias / Root Identity Decision
-- `14A.4` Report Freshness / Staleness Policy
-- `14A.5` Browseable vs Restorable vs Verified Contract
+- `14A.1` Vocabulary + Evidence Contract
+- `14A.2` Authority Claim Separation
+- `14A.3` Terminology Drift + Preferred Wording
+- `14A.4` Semantic Acceptance + Verification Gate Planning
 
 Entry criteria:
 
@@ -138,13 +137,15 @@ Entry criteria:
 Exit criteria:
 
 - vocabulary and semantic contract accepted for the `14A` scope
-- authority precedence is explicit enough to guide implementation alignment
-- alias/root identity direction is documented for implementation planning
+- authority claim separation is explicit enough to guide implementation alignment
+- preferred and discouraged wording guidance exists for high-risk terms
+- acceptance and verification-gate boundaries are explicit before `14B`
 
 Proof expectations:
 
 - repo/document evidence and doctrine alignment are required
 - no `14A` claim can close on CI-only evidence if it is making runtime safety claims
+- `14A` may prepare human-verification dependencies, but it must not claim operator verification occurred
 
 Human verification expectations:
 
@@ -165,11 +166,11 @@ Make backend, preload, renderer, and persisted records follow the accepted seman
 
 Likely passes:
 
-- `14B.1` Backend State Model Alignment
-- `14B.2` Preload / Path Validation Alignment
-- `14B.3` Renderer Row / Details / Modal State Alignment
-- `14B.4` Report and Manifest Action Gating
-- `14B.5` Alias Compatibility / Migration Behavior
+- `14B.1` Runtime Authority Alignment
+- `14B.2` Renderer / Preload Alignment
+- `14B.3` Restore / Continuity Coordination
+- `14B.4` Snapshot Freshness / Reconciliation
+- `14B.5` Controlled Human Verification Checkpoint Preparation
 
 Entry criteria:
 
