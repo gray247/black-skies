@@ -73,6 +73,7 @@ This artifact does not:
 - Backend/runtime evidence can close backend action claims only when the runtime path actually exercised the claim.
 - Filesystem evidence is required for filesystem-existence claims.
 - Human/operator evidence can block closure when it contradicts lower-authority witnesses.
+- Human verification may invalidate stale harness, CI, or renderer assumptions even when automated lanes remain green.
 - Inference remains `needs verification` until upgraded by the correct authority layer.
 
 ## Closure Terms
@@ -121,6 +122,14 @@ For governance and planning claims, update the stale canonical source before act
 
 For urgent runtime repairs, work may proceed if the stale-source mismatch is recorded in the tracker during the same pass. Closure still requires canonical-source reconciliation.
 
+### Operational-State Ownership Rule
+
+Operational-state references inside roadmap artifacts are informational snapshots only.
+
+- The tracker remains canonical for current operational state.
+- If tracker state changes, roadmap operational-state summaries must be treated as stale until reconciled.
+- Roadmap artifacts must not silently override current tracker state.
+
 ## Roadmap Artifact Status and Acceptance Rules
 
 ### Required Header Template
@@ -153,6 +162,17 @@ Acceptance record:
 - Only operator/user instruction may move an artifact beyond `Produced`.
 - Every status change during the rebuild requires a tracker update.
 - Acceptance record must include date, actor, status, basis, and exceptions.
+
+## Amendment Discipline
+
+- Each roadmap artifact may reference sibling governance docs.
+- Each roadmap artifact must not redefine ownership areas that belong to a sibling governance artifact.
+- Doctrine changes must be made in [authority_reconciliation_strategy.md](/C:/Dev/black-skies/docs/roadmap/authority_reconciliation_strategy.md) first.
+- Phase sequencing changes must be made in [master_phase_allocation_plan.md](/C:/Dev/black-skies/docs/roadmap/master_phase_allocation_plan.md) first.
+- `RDM-*` and backlog-lifecycle changes must be made in [deferred_work_matrix.md](/C:/Dev/black-skies/docs/roadmap/deferred_work_matrix.md) first.
+- Current operational-status changes must be recorded in [BLACK_SKIES_FIX_TRACKER.md](/C:/Dev/black-skies/docs/BLACK_SKIES_FIX_TRACKER.md).
+- Conflicts must be reconciled in the canonical owning artifact before downstream propagation.
+- If urgent runtime work exposes stale docs, the mismatch must be tracked immediately and reconciled before closure.
 
 ## ID Namespace Rules
 

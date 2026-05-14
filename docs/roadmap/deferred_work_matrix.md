@@ -44,6 +44,14 @@ It normalizes repeated symptoms into stable roadmap items, preserves source refe
 - [deferred_work_matrix.md](/C:/Dev/black-skies/docs/roadmap/deferred_work_matrix.md) owns deferred and backlog allocation plus stable `RDM-*` IDs.
 - [BLACK_SKIES_FIX_TRACKER.md](/C:/Dev/black-skies/docs/BLACK_SKIES_FIX_TRACKER.md) owns current operational status.
 
+## Governance Drift Control
+
+- This artifact may reference sibling governance docs, but it must not redefine proof doctrine or phase sequencing that belong elsewhere.
+- `RDM-*` and backlog-lifecycle changes must be reconciled here before downstream planning references inherit them.
+- Operational-state references in this artifact are informational snapshots only; the tracker remains canonical for current operational state.
+- If tracker state changes, any operational-state summary here must be treated as stale until reconciled.
+- Conflicts between this matrix and sibling governance docs must be corrected in the canonical owning artifact first, then propagated here.
+
 ## ID Namespace and Lifecycle Rules
 
 - `RDM-*` IDs belong only to [deferred_work_matrix.md](/C:/Dev/black-skies/docs/roadmap/deferred_work_matrix.md).
@@ -170,6 +178,14 @@ Items most likely to feed that slice:
 - `RDM-DOCS-001`
 
 Slice acceptance remains separate and pending.
+
+## Phase 20+ Warning
+
+`Phase 20+` entries are provisional future governance buckets only.
+
+- They are not committed execution phases.
+- They are not authorized implementation campaigns.
+- They are not suitable for broad `/goals` execution until expanded into governed phase plans.
 
 ## Open Questions and Deferred Decisions
 

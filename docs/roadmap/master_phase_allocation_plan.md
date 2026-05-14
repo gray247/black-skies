@@ -54,12 +54,12 @@ This artifact does not:
 
 ## Current Operating State
 
-- Phase 13 remains open.
-- The handoff trilogy is produced and acceptance is pending.
-- `RGR-1` is produced and governance acceptance is pending.
-- `RGR-2` is this artifact.
-- `RGR-3` deferred work matrix is still pending.
+- Phase 13 is closed as audit, trust validation, handoff, and governance-readiness only.
+- The handoff trilogy was accepted for Phase 13 closure use.
+- `RGR-1`, `RGR-2`, and `RGR-3` exist and are accepted with exceptions.
+- Governance rebuild is accepted with exceptions.
 - Phase 14 implementation has not started.
+- Authority closure remains Phase 14+ work.
 
 ## Acceptance Model
 
@@ -85,10 +85,18 @@ Slice acceptance means the first Phase 14 pass is mapped, scoped, and approved t
 
 This document uses the status model defined in [authority_reconciliation_strategy.md](/C:/Dev/black-skies/docs/roadmap/authority_reconciliation_strategy.md).
 
-- Current status: `Produced`
+- Current status: `Accepted with exceptions`
 - New roadmap governance artifacts start as `Produced`.
 - Only operator/user instruction may move an artifact beyond `Produced`.
 - Every status change requires a tracker update.
+
+## Governance Drift Control
+
+- This artifact may reference sibling governance docs, but it must not redefine proof doctrine or backlog ownership that belongs elsewhere.
+- Sequencing, gates, entry criteria, and exit criteria must be reconciled here before downstream roadmap artifacts inherit them.
+- Operational-state references in this document are informational snapshots only; the tracker remains canonical for current operational state.
+- If tracker state changes, any operational-state summary here must be treated as stale until reconciled.
+- Conflicts between this artifact and sibling governance docs must be corrected in the canonical owning artifact first, then propagated here.
 
 ## Phase Structure Overview
 
@@ -102,6 +110,7 @@ This document uses the status model defined in [authority_reconciliation_strateg
 | Phase 19 - Roadmap / Deferred Ledger Reconciliation | Keep deferred, TODO, later, stub, and refactor items allocated and non-drifting |
 
 Phase 20+ remains provisional and should not be treated as committed execution work until stabilization phases are accepted.
+Phase 20+ items are provisional future governance buckets only, not committed execution phases, not authorized implementation campaigns, and not suitable for broad `/goals` execution until expanded into governed phase plans.
 
 ## Phase 14 Structure
 
@@ -123,7 +132,7 @@ Entry criteria:
 
 - handoff acceptance recorded
 - governance acceptance recorded, or any exceptions explicitly marked non-blocking for `14A`
-- proof doctrine is `Produced` and usable
+- proof doctrine is accepted and usable
 - tracker and handoff docs are current
 
 Exit criteria:
@@ -347,6 +356,7 @@ Likely passes:
 Purpose:
 
 Ensure deferred, TODO, later, stub, and refactor items remain allocated and do not drift.
+This phase owns governance artifact drift reconciliation, cross-artifact contradiction scans, stale canonical-source reconciliation, tracker/matrix/phase-plan alignment checks, and deferred-ledger hygiene.
 
 Likely passes:
 
@@ -356,6 +366,11 @@ Likely passes:
 - duplicate normalization
 - phase and pass assignment
 - obsolete, frozen, or implemented classification
+- governance artifact drift reconciliation
+- cross-artifact contradiction scans
+- stale canonical-source reconciliation
+- tracker / matrix / phase-plan alignment checks
+- deferred-ledger hygiene
 
 ## Phase Dependencies
 
