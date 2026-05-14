@@ -1,12 +1,12 @@
-Status: Produced
+Status: Reviewed
 Canonical role: Operational roadmap spine for future phase and pass sequencing, gates, and phase-level closure requirements.
 Scope: Convert the Phase 13 handoff trilogy and authority strategy into future phase structure, pass breakdowns, dependencies, gates, entry/exit criteria, and readiness boundaries for post-Phase-13 work.
 Owns: Future phase/pass structure, sequencing, dependencies, entry criteria, exit criteria, audit gates, freeze/refactor/migration windows, human verification gates, handoff requirements, and the split of Phase 14 into governed subphases.
 Does not own: Proof doctrine, deferred item inventory, runtime implementation, snapshot ontology implementation, restore behavior implementation, GUI redesign, or Phase 14 execution artifacts.
 Upstream dependencies: [authority_reconciliation_strategy.md](/C:/Dev/black-skies/docs/roadmap/authority_reconciliation_strategy.md), [phase13_handoff_pass1_current_state.md](/C:/Dev/black-skies/docs/handoffs/phase13_handoff_pass1_current_state.md), [phase13_handoff_pass2_authority_and_deferred_ledger.md](/C:/Dev/black-skies/docs/handoffs/phase13_handoff_pass2_authority_and_deferred_ledger.md), [phase13_handoff_pass3_future_roadmap_and_phase_allocation.md](/C:/Dev/black-skies/docs/handoffs/phase13_handoff_pass3_future_roadmap_and_phase_allocation.md), [pass26_snapshot_authority_map_and_todo_inventory.md](/C:/Dev/black-skies/docs/audits/phase13/pass26_snapshot_authority_map_and_todo_inventory.md), [BLACK_SKIES_FIX_TRACKER.md](/C:/Dev/black-skies/docs/BLACK_SKIES_FIX_TRACKER.md), [phase13_audit_trust_validation_plan.md](/C:/Dev/black-skies/docs/phases/phase13_audit_trust_validation_plan.md), [current_state.md](/C:/Dev/black-skies/docs/specs/current_state.md), [workflow_spine.md](/C:/Dev/black-skies/docs/specs/workflow_spine.md), [error_visibility.md](/C:/Dev/black-skies/docs/specs/error_visibility.md)
 Downstream dependencies: [deferred_work_matrix.md](/C:/Dev/black-skies/docs/roadmap/deferred_work_matrix.md)
-Last reviewed: Not yet reviewed.
-Acceptance record: No operator acceptance recorded yet.
+Last reviewed: 2026-05-14.
+Acceptance record: 2026-05-14 - Codex - Reviewed after combined roadmap governance review; no operator acceptance recorded yet.
 
 # Master Phase Allocation Plan
 
@@ -412,15 +412,23 @@ These are non-binding implementation surfaces for later inspection:
 
 ### Inventory References
 
-- source ledger IDs should come from [deferred_work_matrix.md](/C:/Dev/black-skies/docs/roadmap/deferred_work_matrix.md) once created
-- roadmap IDs should come from [deferred_work_matrix.md](/C:/Dev/black-skies/docs/roadmap/deferred_work_matrix.md) once created
+- source ledger IDs: `P2-SNAP-001`, `P2-REPORT-001`, `P2-ALIAS-001`, `P2-DEGRADE-001`, `P2-DOCS-001`, `PA26-T01`, `PA26-T02`, `PA26-T04`, `PA26-T05`, `PA26-T06`
+- roadmap IDs: `RDM-SNAP-001`, `RDM-SNAP-002`, `RDM-SNAP-003`, `RDM-ALIAS-001`, `RDM-GUI-001`, `RDM-DOCS-001`
 - authority doctrine references should point to [authority_reconciliation_strategy.md](/C:/Dev/black-skies/docs/roadmap/authority_reconciliation_strategy.md)
+
+### Dependencies
+
+- governance review must be at least `Reviewed`
+- [authority_reconciliation_strategy.md](/C:/Dev/black-skies/docs/roadmap/authority_reconciliation_strategy.md) must remain canonical for proof rules
+- [deferred_work_matrix.md](/C:/Dev/black-skies/docs/roadmap/deferred_work_matrix.md) must remain canonical for `RDM-*` and source-ID mapping
+- tracker must continue to show Phase 14 implementation as not started
 
 ### Validation Method
 
 - docs and spec review first
 - no production behavior change in this slice
 - code inspection is allowed
+- later implementation validation belongs in `14B` and `14C`
 
 ### Human Verification Need
 
