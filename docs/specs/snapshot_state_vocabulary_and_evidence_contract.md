@@ -1,6 +1,7 @@
-Status: Produced
-Last Reviewed: Not yet reviewed.
+Status: Accepted with exceptions
+Last Reviewed: 2026-05-14.
 Owner: Phase 14 Authority Reconciliation planning
+Acceptance record: 2026-05-14 - Operator-approved - Accepted with exceptions as part of the Phase 14A semantic contract set; acceptance does not imply runtime reconciliation, continuity closure, restore reconciliation, preload or renderer alignment, or human-verification completion.
 
 # Snapshot State Vocabulary And Evidence Contract
 
@@ -21,7 +22,7 @@ This artifact is planning-ready only. It does not implement behavior.
 | Field | Value |
 | --- | --- |
 | Phase/slice name | `Phase 14A.1 - Snapshot State Vocabulary and Evidence Contract` |
-| Status | `Produced` |
+| Status | `Accepted with exceptions` |
 | Owned scope | snapshot state vocabulary and evidence contract only |
 | Non-goals | no production behavior changes; no restore implementation; no GUI redesign; no test implementation; no `Phase 14B` alignment; no alias migration implementation |
 | Source IDs | `P2-SNAP-001`, `P2-REPORT-001`, `P2-ALIAS-001`, `P2-DEGRADE-001`, `P2-DOCS-001`, `PA26-T01`, `PA26-T02`, `PA26-T04`, `PA26-T05`, `PA26-T06` |
@@ -209,15 +210,16 @@ This artifact is planning-ready only. It does not implement behavior.
 - the next implementation/spec pass is identified
 - tracker is updated
 
-## Planned Next Pass
+## Current Baseline State
 
-The next implementation-facing pass for this slice is not runtime alignment.
+This semantic contract is now frozen as the accepted `14A` baseline with non-blocking exceptions only.
 
-Immediate next agreed risk-reduction pass:
+That acceptance does not authorize:
 
-- wrapper/launcher/CWD audit
+- runtime reconciliation closure
+- continuity closure
+- restore safety closure
+- preload or renderer alignment closure
+- human-verification completion claims
 
-Then:
-
-- critique/project-switch `RDM` ownership follow-up
-- `Phase 14A.1` implementation/spec pass to finalize and accept the vocabulary contract before any `14B` behavior alignment begins
+The next operational milestone is `14B` planning and bounded implementation-slice selection under explicit stop gates.

@@ -1,12 +1,12 @@
 # Phase 14A Semantic Contract Acceptance Packet
 
-Status: Produced
+Status: Accepted with exceptions
 Canonical role: Review and acceptance packet for the completed Phase 14A semantic reconciliation set.
 Scope: Summarize the semantic contract set, capture authority claim separation, preferred/discouraged wording, acceptance checklist, and downstream verification-gate boundaries.
 Owns: Phase 14A review-readiness and acceptance-readiness summary for semantic work only.
 Does not own: Runtime implementation, Phase 14B behavior alignment, human-verification execution, or closure-grade runtime proof.
-Last reviewed: Not yet reviewed.
-Acceptance record: No operator acceptance recorded yet.
+Last reviewed: 2026-05-14.
+Acceptance record: 2026-05-14 - Operator-approved - Accepted with exceptions as the packaged review surface for the frozen Phase 14A semantic contract set; the accepted exceptions are downstream-only and do not reopen semantic contradictions inside 14A.
 
 ## Purpose
 
@@ -132,5 +132,6 @@ No blocking contradiction remains inside `14A`.
 
 ## Recommendation
 
-- Operator review and acceptance of the `14A` semantic contract set is now the next honest gate.
-- If the operator wants one more narrow pass before acceptance, it should be review cleanup only, not new semantic expansion.
+- Operator acceptance of the `14A` semantic contract set is now recorded.
+- `14B` planning may begin next.
+- Downstream continuity, preload, restore, wrapper/CWD, truth-lane, harness, and human-verification constraints remain active and must be carried into `14B` stop gates rather than reopened as `14A` contradictions.

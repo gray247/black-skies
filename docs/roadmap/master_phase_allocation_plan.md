@@ -58,6 +58,8 @@ This artifact does not:
 - The handoff trilogy was accepted for Phase 13 closure use.
 - `RGR-1`, `RGR-2`, and `RGR-3` exist and are accepted with exceptions.
 - Governance rebuild is accepted with exceptions.
+- Phase 14A semantic reconciliation is accepted with exceptions and frozen as the semantic baseline for later runtime-planning work.
+- Phase 14B planning and stop-gate preparation are complete.
 - Phase 14 implementation has not started.
 - Authority closure remains Phase 14+ work.
 
@@ -158,6 +160,10 @@ Non-goals:
 - no backend, preload, or renderer alignment work
 - no deferred backlog inventory
 
+Current status note:
+
+- `14A` is accepted with exceptions and now serves as the frozen semantic baseline for later `14B` implementation planning.
+
 ### Phase 14B - Implementation Alignment
 
 Purpose:
@@ -166,40 +172,61 @@ Make backend, preload, renderer, and persisted records follow the accepted seman
 
 Likely passes:
 
-- `14B.1` Runtime Authority Alignment
-- `14B.2` Renderer / Preload Alignment
-- `14B.3` Restore / Continuity Coordination
-- `14B.4` Snapshot Freshness / Reconciliation
-- `14B.5` Controlled Human Verification Checkpoint Preparation
+- `14B.1` Backend / Runtime Authority Result Alignment
+- `14B.2` Snapshot Freshness / Persisted-Record Reconciliation
+- `14B.3` Renderer / Preload Authority Presentation Alignment
+- `14B.4` Restore / Continuity Coordination
+- `14B.5` Controlled Verification Checkpoint Preparation
 
 Entry criteria:
 
 - `14A` semantic contract accepted for the affected slice
 - implementation surfaces are identified
+- [phase14b_runtime_alignment_planning_review.md](/C:/Dev/black-skies/docs/audits/phase14/phase14b_runtime_alignment_planning_review.md) exists
+- [phase14b_stop_gate_checklist.md](/C:/Dev/black-skies/docs/audits/phase14/phase14b_stop_gate_checklist.md) exists
 - current tracker state does not contradict the planned alignment work
+- command, root, and shell assumptions are explicit for the chosen slice when validation depends on them
 
 Exit criteria:
 
 - implementation surfaces follow the accepted contract
 - affected user-visible states are internally consistent for the implemented slice
 - tracker and docs reflect any narrowed or deferred items
+- rollback boundaries and required later checkpoints remain explicit
 
 Proof expectations:
 
 - backend/runtime evidence is required for backend behavior claims
 - filesystem evidence is required for filesystem-existence claims
 - harness evidence may support UI witness behavior but cannot replace runtime proof
+- truth-lane or harness evidence must not be overstated as continuity or restore closure proof
 
 Human verification expectations:
 
 - human verification may remain pending for a partial alignment slice
 - any deferred human verification requirement must be carried into `14C`
+- implementation must stop before claiming success on continuity-sensitive, restore-sensitive, floating-pane, or operator-facing degraded-state behavior that requires operator observation
 
 Non-goals:
 
 - no broad GUI simplification
 - no deferred-matrix creation inside implementation passes
 - no closure claim for the whole phase from one aligned slice
+- no broad multi-surface `/goals` spanning backend, preload, renderer, restore, and continuity together
+
+Safest implementation order:
+
+1. `14B.1` Backend / Runtime Authority Result Alignment
+2. `14B.2` Snapshot Freshness / Persisted-Record Reconciliation
+3. `14B.3` Renderer / Preload Authority Presentation Alignment
+4. `14B.5` Controlled Verification Checkpoint Preparation
+5. `14B.4` Restore / Continuity Coordination
+
+Current planning note:
+
+- `14B` planning is complete, but implementation has not started.
+- The recommended first bounded implementation slice is `14B.1`.
+- Restore and continuity coordination remain intentionally later because they are the highest-risk dependency chain in this phase.
 
 ### Phase 14C - Regression + Human Verification
 
@@ -449,7 +476,7 @@ This sweep is a bounded confidence map used to classify operational trust and de
 
 ## Phase 14 Starting Slice
 
-### Likely First Slice
+### Historical First Slice Mapping
 
 `Phase 14A.1 - Snapshot State Vocabulary and Evidence Contract`
 
@@ -510,6 +537,12 @@ These are non-binding implementation surfaces for later inspection:
 - non-goals are explicit
 - affected surfaces are identified at a planning level only
 - the slice is ready to hand off to implementation-alignment planning
+
+### Historical Status Note
+
+This section is historical context only.
+
+`14A` acceptance is now recorded separately, and this mapping should not be treated as the current operational gate for `14B`.
 
 ## Relationship to Deferred Work Matrix
 
