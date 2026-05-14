@@ -1,0 +1,472 @@
+Status: Produced
+Canonical role: Operational roadmap spine for future phase and pass sequencing, gates, and phase-level closure requirements.
+Scope: Convert the Phase 13 handoff trilogy and authority strategy into future phase structure, pass breakdowns, dependencies, gates, entry/exit criteria, and readiness boundaries for post-Phase-13 work.
+Owns: Future phase/pass structure, sequencing, dependencies, entry criteria, exit criteria, audit gates, freeze/refactor/migration windows, human verification gates, handoff requirements, and the split of Phase 14 into governed subphases.
+Does not own: Proof doctrine, deferred item inventory, runtime implementation, snapshot ontology implementation, restore behavior implementation, GUI redesign, or Phase 14 execution artifacts.
+Upstream dependencies: [authority_reconciliation_strategy.md](/C:/Dev/black-skies/docs/roadmap/authority_reconciliation_strategy.md), [phase13_handoff_pass1_current_state.md](/C:/Dev/black-skies/docs/handoffs/phase13_handoff_pass1_current_state.md), [phase13_handoff_pass2_authority_and_deferred_ledger.md](/C:/Dev/black-skies/docs/handoffs/phase13_handoff_pass2_authority_and_deferred_ledger.md), [phase13_handoff_pass3_future_roadmap_and_phase_allocation.md](/C:/Dev/black-skies/docs/handoffs/phase13_handoff_pass3_future_roadmap_and_phase_allocation.md), [pass26_snapshot_authority_map_and_todo_inventory.md](/C:/Dev/black-skies/docs/audits/phase13/pass26_snapshot_authority_map_and_todo_inventory.md), [BLACK_SKIES_FIX_TRACKER.md](/C:/Dev/black-skies/docs/BLACK_SKIES_FIX_TRACKER.md), [phase13_audit_trust_validation_plan.md](/C:/Dev/black-skies/docs/phases/phase13_audit_trust_validation_plan.md), [current_state.md](/C:/Dev/black-skies/docs/specs/current_state.md), [workflow_spine.md](/C:/Dev/black-skies/docs/specs/workflow_spine.md), [error_visibility.md](/C:/Dev/black-skies/docs/specs/error_visibility.md)
+Downstream dependencies: [deferred_work_matrix.md](/C:/Dev/black-skies/docs/roadmap/deferred_work_matrix.md)
+Last reviewed: Not yet reviewed.
+Acceptance record: No operator acceptance recorded yet.
+
+# Master Phase Allocation Plan
+
+## Purpose
+
+This artifact converts the Phase 13 handoff trilogy and the authority strategy into future phase and pass structure.
+
+It is the operational roadmap spine for post-Phase-13 work. It applies the proof doctrine from [authority_reconciliation_strategy.md](/C:/Dev/black-skies/docs/roadmap/authority_reconciliation_strategy.md) to phase boundaries, sequencing, closure requirements, and readiness gates.
+
+## Inputs and Dependencies
+
+### Upstream Dependencies
+
+- [authority_reconciliation_strategy.md](/C:/Dev/black-skies/docs/roadmap/authority_reconciliation_strategy.md)
+- [phase13_handoff_pass1_current_state.md](/C:/Dev/black-skies/docs/handoffs/phase13_handoff_pass1_current_state.md)
+- [phase13_handoff_pass2_authority_and_deferred_ledger.md](/C:/Dev/black-skies/docs/handoffs/phase13_handoff_pass2_authority_and_deferred_ledger.md)
+- [phase13_handoff_pass3_future_roadmap_and_phase_allocation.md](/C:/Dev/black-skies/docs/handoffs/phase13_handoff_pass3_future_roadmap_and_phase_allocation.md)
+- [pass26_snapshot_authority_map_and_todo_inventory.md](/C:/Dev/black-skies/docs/audits/phase13/pass26_snapshot_authority_map_and_todo_inventory.md)
+- [BLACK_SKIES_FIX_TRACKER.md](/C:/Dev/black-skies/docs/BLACK_SKIES_FIX_TRACKER.md)
+- [phase13_audit_trust_validation_plan.md](/C:/Dev/black-skies/docs/phases/phase13_audit_trust_validation_plan.md)
+- [current_state.md](/C:/Dev/black-skies/docs/specs/current_state.md)
+- [workflow_spine.md](/C:/Dev/black-skies/docs/specs/workflow_spine.md)
+- [error_visibility.md](/C:/Dev/black-skies/docs/specs/error_visibility.md)
+
+### Planned Downstream Dependency
+
+- [deferred_work_matrix.md](/C:/Dev/black-skies/docs/roadmap/deferred_work_matrix.md)
+
+### Missing Artifact Note
+
+- `docs/audits/phase13/pass6_gui_authority_and_verification_surface_audit.md` remains missing at that path and is treated as missing evidence rather than inferred content.
+
+## Non-Goals
+
+This artifact does not:
+
+- implement Phase 14
+- modify production behavior
+- create deferred backlog tables
+- define proof doctrine
+- replace [authority_reconciliation_strategy.md](/C:/Dev/black-skies/docs/roadmap/authority_reconciliation_strategy.md)
+- create or edit [deferred_work_matrix.md](/C:/Dev/black-skies/docs/roadmap/deferred_work_matrix.md)
+- close Phase 13 authority
+- declare Phase 14 started
+
+## Current Operating State
+
+- Phase 13 remains open.
+- The handoff trilogy is produced and acceptance is pending.
+- `RGR-1` is produced and governance acceptance is pending.
+- `RGR-2` is this artifact.
+- `RGR-3` deferred work matrix is still pending.
+- Phase 14 implementation has not started.
+
+## Acceptance Model
+
+### Handoff Acceptance
+
+Handoff acceptance means the Phase 13 handoff trilogy accurately describes Phase 13 reality.
+
+### Governance Acceptance
+
+Governance acceptance means the roadmap artifacts are consistent enough to govern future work.
+
+### Slice Acceptance
+
+Slice acceptance means the first Phase 14 pass is mapped, scoped, and approved to begin.
+
+### Closure Rule
+
+- Phase 13 may close as audit/handoff only after handoff acceptance and governance acceptance are recorded.
+- Slice acceptance may remain pending after Phase 13 closes.
+- Authority closure remains Phase 14+ work.
+
+## Governance Artifact Status Model
+
+This document uses the status model defined in [authority_reconciliation_strategy.md](/C:/Dev/black-skies/docs/roadmap/authority_reconciliation_strategy.md).
+
+- Current status: `Produced`
+- New roadmap governance artifacts start as `Produced`.
+- Only operator/user instruction may move an artifact beyond `Produced`.
+- Every status change requires a tracker update.
+
+## Phase Structure Overview
+
+| Phase | Role |
+| --- | --- |
+| Phase 14 - Authority Reconciliation | Define and implement canonical authority semantics for snapshot, report, integrity, filesystem, and operational truth |
+| Phase 15 - Backup / Restore Authority Hardening | Make backup/restore eligibility safe, explicit, and explainable after authority semantics exist |
+| Phase 16 - Test Harness / Fixture Governance | Prevent fake-green harness drift and define what each proof lane does and does not prove |
+| Phase 17 - GUI Authority Simplification | Simplify operator-facing controls after authority semantics exist |
+| Phase 18 - New GUI Migration Gate | Decide when and how the newer GUI can replace the current production/default GUI |
+| Phase 19 - Roadmap / Deferred Ledger Reconciliation | Keep deferred, TODO, later, stub, and refactor items allocated and non-drifting |
+
+Phase 20+ remains provisional and should not be treated as committed execution work until stabilization phases are accepted.
+
+## Phase 14 Structure
+
+### Phase 14A - Semantic Contract Decisions
+
+Purpose:
+
+Define what the authority states mean before runtime behavior changes begin.
+
+Likely passes:
+
+- `14A.1` Snapshot State Vocabulary and Evidence Contract
+- `14A.2` Authority Precedence Rules
+- `14A.3` Alias / Root Identity Decision
+- `14A.4` Report Freshness / Staleness Policy
+- `14A.5` Browseable vs Restorable vs Verified Contract
+
+Entry criteria:
+
+- handoff acceptance recorded
+- governance acceptance recorded, or any exceptions explicitly marked non-blocking for `14A`
+- proof doctrine is `Produced` and usable
+- tracker and handoff docs are current
+
+Exit criteria:
+
+- vocabulary and semantic contract accepted for the `14A` scope
+- authority precedence is explicit enough to guide implementation alignment
+- alias/root identity direction is documented for implementation planning
+
+Proof expectations:
+
+- repo/document evidence and doctrine alignment are required
+- no `14A` claim can close on CI-only evidence if it is making runtime safety claims
+
+Human verification expectations:
+
+- direct human rerun is generally not required for pure semantic-definition passes
+- any user-facing claim borrowed from prior human verification must stay labeled as evidence, not as closure proof
+
+Non-goals:
+
+- no production behavior changes
+- no backend, preload, or renderer alignment work
+- no deferred backlog inventory
+
+### Phase 14B - Implementation Alignment
+
+Purpose:
+
+Make backend, preload, renderer, and persisted records follow the accepted semantic contract.
+
+Likely passes:
+
+- `14B.1` Backend State Model Alignment
+- `14B.2` Preload / Path Validation Alignment
+- `14B.3` Renderer Row / Details / Modal State Alignment
+- `14B.4` Report and Manifest Action Gating
+- `14B.5` Alias Compatibility / Migration Behavior
+
+Entry criteria:
+
+- `14A` semantic contract accepted for the affected slice
+- implementation surfaces are identified
+- current tracker state does not contradict the planned alignment work
+
+Exit criteria:
+
+- implementation surfaces follow the accepted contract
+- affected user-visible states are internally consistent for the implemented slice
+- tracker and docs reflect any narrowed or deferred items
+
+Proof expectations:
+
+- backend/runtime evidence is required for backend behavior claims
+- filesystem evidence is required for filesystem-existence claims
+- harness evidence may support UI witness behavior but cannot replace runtime proof
+
+Human verification expectations:
+
+- human verification may remain pending for a partial alignment slice
+- any deferred human verification requirement must be carried into `14C`
+
+Non-goals:
+
+- no broad GUI simplification
+- no deferred-matrix creation inside implementation passes
+- no closure claim for the whole phase from one aligned slice
+
+### Phase 14C - Regression + Human Verification
+
+Purpose:
+
+Prove the accepted contract with the correct evidence lanes and rerun the required human verification.
+
+Likely passes:
+
+- `14C.1` Unit Tests by State Contract
+- `14C.2` Backend / Runtime Tests
+- `14C.3` Playwright UI Witness Tests
+- `14C.4` Truth-Lane Scoped Proof Update
+- `14C.5` Human Verification Rerun
+
+Entry criteria:
+
+- at least one implementation slice from `14B` is complete
+- validation scope for the slice is defined
+- required human verification paths are identified
+
+Exit criteria:
+
+- contract tests exist for the implemented state behavior
+- runtime, harness, and human evidence are recorded at the correct scope
+- no lane is claiming proof beyond its authority class
+
+Proof expectations:
+
+- each validation lane must state what it proves and what it does not prove
+- human/operator evidence is required for operator-facing degraded-state and restore-safety claims
+
+Human verification expectations:
+
+- human verification is required before closing any claim about browse/restore/report/degraded operational safety
+
+Non-goals:
+
+- no broad refactor for cleanliness
+- no replacement of doctrine with test output
+
+### Phase 14D - Closure Audit
+
+Purpose:
+
+Confirm that Phase 14 did not use incorrect proof classes or drift away from the documented contract.
+
+Likely passes:
+
+- `14D.1` Authority Evidence Review
+- `14D.2` Tracker / Matrix Sync Check
+- `14D.3` Human Verification Evidence Check
+- `14D.4` Closure Report
+
+Entry criteria:
+
+- `14A` through `14C` work for the intended closure slice is complete
+- deferred work boundaries are recorded
+- tracker and matrix can be checked against the claimed closure state
+
+Exit criteria:
+
+- closure report states what was proven, what was deferred, and what remains out of scope
+- tracker, matrix, and docs do not conflict on the closure claim
+- human verification evidence is present where required
+
+Proof expectations:
+
+- closure must be authority-grade and closure-grade for the actual claim being made
+- stale canonical-source mismatches must be reconciled or explicitly deferred
+
+Human verification expectations:
+
+- closure cannot claim operator safety if required human verification evidence is missing
+
+Non-goals:
+
+- no new implementation work
+- no reinvention of the phase plan
+
+## Phase 15 Structure
+
+### Phase 15 - Backup / Restore Authority Hardening
+
+Purpose:
+
+Make backup and restore eligibility safe, explicit, and explainable after authority semantics exist.
+
+Likely passes:
+
+- backup existence and ZIP validity model
+- restore-as-copy eligibility contract
+- validation failure reason surfacing
+- target path collision and safety rules
+- restore UI gating
+- backup/restore regression tests
+- human restore verification
+
+## Phase 16 Structure
+
+### Phase 16 - Test Harness / Fixture Governance
+
+Purpose:
+
+Prevent fake-green harness drift.
+
+Likely passes:
+
+- fixture authority contract
+- alias fixture policy
+- synthetic-mode scope documentation
+- negative-toast guard preservation and expansion
+- Playwright teardown governance
+- truth-lane scope matrix
+- CI workflow trigger documentation
+- what each lane proves matrix
+
+## Phase 17 Structure
+
+### Phase 17 - GUI Authority Simplification
+
+Purpose:
+
+Simplify operator-facing controls after authority semantics exist.
+
+Likely passes:
+
+- Snapshot / Verify / Snapshots control review
+- dead and legacy control cleanup
+- degraded-state display copy
+- report, manifest, and reveal action clarity
+- operator checklist rerun
+
+## Phase 18 Structure
+
+### Phase 18 - New GUI Migration Gate
+
+Purpose:
+
+Decide when and how the experimental or newer GUI can replace the current production/default GUI.
+
+Likely passes:
+
+- feature flag inventory
+- parity matrix
+- authority display requirements
+- migration blockers
+- controlled opt-in test
+- promotion criteria
+
+## Phase 19 Structure
+
+### Phase 19 - Roadmap / Deferred Ledger Reconciliation
+
+Purpose:
+
+Ensure deferred, TODO, later, stub, and refactor items remain allocated and do not drift.
+
+Likely passes:
+
+- repo TODO scan
+- docs deferred scan
+- operator-discovered debt intake
+- duplicate normalization
+- phase and pass assignment
+- obsolete, frozen, or implemented classification
+
+## Phase Dependencies
+
+- Phase 14 precedes Phase 15 restore hardening where restore depends on snapshot authority semantics.
+- Phase 14 precedes Phase 17 GUI simplification.
+- Phase 14 precedes Phase 18 GUI migration.
+- Phase 16 may run in parallel with parts of Phase 14 but cannot replace real authority proof.
+- Phase 19 depends on [deferred_work_matrix.md](/C:/Dev/black-skies/docs/roadmap/deferred_work_matrix.md).
+- Phase 20+ remains provisional until stabilization phases are accepted.
+
+## Gates and Stop Conditions
+
+### Gates
+
+- phase closure claims must use the proof doctrine from [authority_reconciliation_strategy.md](/C:/Dev/black-skies/docs/roadmap/authority_reconciliation_strategy.md)
+- no phase may claim closure while tracker or matrix still shows unresolved `S0` or `S1` blockers for the same scope
+- freeze, refactor, migration, and human-verification gates must be stated before implementation work begins for the affected phase
+
+### Stop Conditions
+
+- CI is green but human verification contradicts it
+- renderer says OK while the filesystem artifact is missing
+- restore is advertised but invalid
+- alias drift reappears
+- fixture-only proof is being used for real behavior
+- docs say a phase is closed while tracker or matrix has unresolved `S0` or `S1` blockers
+- canonical source appears stale and is not reconciled or tracked
+
+## Phase 14 Starting Slice
+
+### Likely First Slice
+
+`Phase 14A.1 - Snapshot State Vocabulary and Evidence Contract`
+
+### Owned Scope
+
+- define the vocabulary for snapshot state and evidence-backed status terms
+- define how those terms relate to later implementation work
+
+### Non-Goals
+
+- no production behavior changes
+- no runtime alignment work
+- no backlog inventory creation
+- no human-verification closure claim
+
+### Candidate Affected Surfaces
+
+These are non-binding implementation surfaces for later inspection:
+
+- [authority_reconciliation_strategy.md](/C:/Dev/black-skies/docs/roadmap/authority_reconciliation_strategy.md)
+- existing spec documents under `docs/specs/`
+- snapshot/report/recovery UI and service surfaces identified in Pass 26 and the handoff docs
+
+### Inventory References
+
+- source ledger IDs should come from [deferred_work_matrix.md](/C:/Dev/black-skies/docs/roadmap/deferred_work_matrix.md) once created
+- roadmap IDs should come from [deferred_work_matrix.md](/C:/Dev/black-skies/docs/roadmap/deferred_work_matrix.md) once created
+- authority doctrine references should point to [authority_reconciliation_strategy.md](/C:/Dev/black-skies/docs/roadmap/authority_reconciliation_strategy.md)
+
+### Validation Method
+
+- docs and spec review first
+- no production behavior change in this slice
+- code inspection is allowed
+
+### Human Verification Need
+
+- note the future need for human verification after implementation alignment
+- direct human verification is likely deferred until `14C`
+
+### Stop Conditions
+
+- vocabulary proposal conflicts with the doctrine in [authority_reconciliation_strategy.md](/C:/Dev/black-skies/docs/roadmap/authority_reconciliation_strategy.md)
+- the slice tries to introduce runtime behavior changes before vocabulary acceptance
+- an assumed source ID or roadmap ID is invented before the matrix exists
+
+### Exit Criteria
+
+- vocabulary and evidence-contract terms are documented
+- non-goals are explicit
+- affected surfaces are identified at a planning level only
+- the slice is ready to hand off to implementation-alignment planning
+
+## Relationship to Deferred Work Matrix
+
+This artifact does not create the deferred matrix.
+
+`RGR-3` must map Pass 2 source IDs into stable `RDM-*` roadmap IDs. The matrix will own detailed item inventory and future allocation.
+
+## Relationship to Tracker
+
+The tracker remains canonical for current operational status.
+
+This phase plan is canonical for phase and pass sequencing. Status changes or phase acceptance changes must update the tracker.
+
+## Cross-Links
+
+- [BLACK_SKIES_FIX_TRACKER.md](/C:/Dev/black-skies/docs/BLACK_SKIES_FIX_TRACKER.md)
+- [authority_reconciliation_strategy.md](/C:/Dev/black-skies/docs/roadmap/authority_reconciliation_strategy.md)
+- [deferred_work_matrix.md](/C:/Dev/black-skies/docs/roadmap/deferred_work_matrix.md)
+- [phase13_handoff_pass1_current_state.md](/C:/Dev/black-skies/docs/handoffs/phase13_handoff_pass1_current_state.md)
+- [phase13_handoff_pass2_authority_and_deferred_ledger.md](/C:/Dev/black-skies/docs/handoffs/phase13_handoff_pass2_authority_and_deferred_ledger.md)
+- [phase13_handoff_pass3_future_roadmap_and_phase_allocation.md](/C:/Dev/black-skies/docs/handoffs/phase13_handoff_pass3_future_roadmap_and_phase_allocation.md)
+- [pass26_snapshot_authority_map_and_todo_inventory.md](/C:/Dev/black-skies/docs/audits/phase13/pass26_snapshot_authority_map_and_todo_inventory.md)
+
+## Open Questions and Deferred Decisions
+
+| Question | Current status |
+| --- | --- |
+| Whether Phase 13 closure should happen immediately after governance acceptance or after slice acceptance | Deferred; current default is that slice acceptance may remain pending after Phase 13 closes |
+| Whether Phase 14A.1 updates an existing spec or creates a narrow new spec | Deferred; inspect current spec ownership before deciding |
+| Whether Phase 20+ buckets need names now or should remain unnamed categories | Deferred; current plan keeps them provisional only |
+| Whether governance acceptance with exceptions can proceed if exceptions do not affect the starting slice | Deferred; likely yes only when every exception is explicitly marked non-blocking for the slice |

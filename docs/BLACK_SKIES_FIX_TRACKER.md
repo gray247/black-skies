@@ -73,6 +73,7 @@ If an issue is not tracked here, it is not part of the active fix scope.
 - Phase 13 Handoff Pass 2 created `docs/handoffs/phase13_handoff_pass2_authority_and_deferred_ledger.md`. Unresolved work is now normalized into a canonical authority/deferred ledger, Phase 13 remains open, Phase 14 remains `Authority Reconciliation`, and Handoff Pass 3 is the next required step.
 - Phase 13 Handoff Pass 3 created `docs/handoffs/phase13_handoff_pass3_future_roadmap_and_phase_allocation.md`. Future phases are now allocated, Phase 14 remains `Authority Reconciliation`, Phase 13 is still not authority-closed, and roadmap artifacts are referenced but not created in this pass.
 - Roadmap Governance Rebuild Pass 1 created `docs/roadmap/authority_reconciliation_strategy.md`. The artifact status is `Produced`, no operator acceptance is recorded yet, Phase 13 remains open, Phase 14 implementation has not begun, and the next planned roadmap artifact is `docs/roadmap/master_phase_allocation_plan.md`.
+- Roadmap Governance Rebuild Pass 2 created `docs/roadmap/master_phase_allocation_plan.md`. The artifact status is `Produced`, no operator acceptance is recorded yet, `RGR-1` exists and remains `Produced` unless accepted separately, Phase 13 remains open, Phase 14 implementation has not begun, and the next planned roadmap artifact is `docs/roadmap/deferred_work_matrix.md`.
 
 ## Status Definitions
 - `ACTIVE`: known issue, unresolved
