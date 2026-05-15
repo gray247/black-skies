@@ -63,10 +63,11 @@ export async function performRestoreSnapshot(input) {
         recoveryStatus: result.data,
         toast: {
           tone: "success",
-          title: "Current project restored from latest snapshot.",
-          description: "Project files now match the latest recovery snapshot.",
-         traceId: result.traceId ?? null,
-       },
+          title: "Current project files restored from recovery snapshot.",
+          description:
+            "Current project files were replaced using the latest recovery snapshot.",
+          traceId: result.traceId ?? null,
+        },
       };
     }
 

@@ -722,10 +722,10 @@ export default function SnapshotsPanel({
 
         pushToast({
           tone: 'success',
-          title: 'Backup restored',
+          title: 'Backup copy created',
           description: payload.restored_project_slug
-            ? `Restored as ${payload.restored_project_slug}`
-            : 'Backup restored successfully.',
+            ? `Materialized backup copy as ${payload.restored_project_slug}.`
+            : 'Materialized a backup restore copy.',
           actions:
             payload.restored_path && services.revealPath
               ? [
@@ -759,11 +759,11 @@ export default function SnapshotsPanel({
     }
 
     setRestoringZip(true);
-    pushToast({
-      tone: 'info',
-      title: 'Restoring from ZIP',
-      description: 'A duplicate of the project will be created.',
-    });
+      pushToast({
+        tone: 'info',
+        title: 'Restoring from ZIP',
+        description: 'A new sibling project copy will be created from the latest ZIP.',
+      });
 
     try {
       const response = await services.restoreFromZip({
@@ -796,10 +796,10 @@ export default function SnapshotsPanel({
       const restoredPath = payload.restored_path;
       pushToast({
         tone: 'success',
-        title: 'Restore complete',
+        title: 'Restore copy created',
         description: restoredPath
-          ? `Restored to ${restoredPath}`
-          : 'Project restored successfully.',
+          ? `Materialized a restored project copy at ${restoredPath}.`
+          : 'Materialized a restored project copy.',
         actions:
           restoredPath && services.revealPath
             ? [
@@ -1196,8 +1196,8 @@ export default function SnapshotsPanel({
           >
             <h3>Restore latest ZIP</h3>
             <p>
-              This creates a duplicate copy of the current project in a sibling folder. Existing
-              projects are not overwritten.
+              This creates a new sibling copy of the current project from the latest ZIP archive.
+              Existing project folders are not overwritten.
             </p>
             <div className="snapshots-panel__modal-actions">
               <button type="button" onClick={() => setRestoreConfirmOpen(false)} disabled={restoringZip}>

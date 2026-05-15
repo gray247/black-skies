@@ -325,7 +325,9 @@ describe('App recovery banner', () => {
 
     fireEvent.click(restoreButton);
     await waitFor(() => expect(services.restoreSnapshot).toHaveBeenCalledTimes(1));
-    const message = await screen.findByText('Current project restored from latest snapshot.');
+    const message = await screen.findByText(
+      'Current project files restored from recovery snapshot.',
+    );
     const toastCard = message.closest('.toast');
     expect(toastCard).not.toBeNull();
     if (toastCard) {

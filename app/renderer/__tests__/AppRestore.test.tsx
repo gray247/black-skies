@@ -46,8 +46,9 @@ describe('SnapshotsPanel restore workflow', () => {
       expect(restoreFromZip).toHaveBeenCalledWith({ projectId: 'demo', restoreAsNew: true }),
     );
 
-    const successToast = pushToast.mock.calls.find(([payload]) => payload.title === 'Restore complete');
+    const successToast = pushToast.mock.calls.find(([payload]) => payload.title === 'Restore copy created');
     expect(successToast).toBeDefined();
+    expect(successToast?.[0].description).toBe('Materialized a restored project copy at /tmp/demo_restored.');
     const action = successToast?.[0].actions?.[0];
     expect(action).toBeDefined();
     expect(action?.label).toBe('Open folder');

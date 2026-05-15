@@ -129,7 +129,7 @@ describe('useRecovery', () => {
       expect(screen.getByTestId('recovery-status')).toHaveTextContent('idle'),
     );
     expect(pushToast).toHaveBeenCalledWith(
-      expect.objectContaining({ title: 'Current project restored from latest snapshot.' }),
+      expect.objectContaining({ title: 'Current project files restored from recovery snapshot.' }),
     );
   });
 

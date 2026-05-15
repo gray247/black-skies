@@ -41,7 +41,7 @@ export function RecoveryBanner({
       Snapshot {snapshotLabel} captured at {snapshotTimestamp}.
     </span>
   ) : (
-    <span> Restore the latest snapshot to resume work.</span>
+    <span> Restore the latest recovery snapshot to replace current project files.</span>
   );
 
   return (
