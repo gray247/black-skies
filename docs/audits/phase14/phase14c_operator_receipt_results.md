@@ -4,6 +4,15 @@ Status: Blank scaffold.
 Purpose: Fill this in only with actual operator evidence.
 Rule: Do not prefill outcomes, claims, or classifications without recorded operator results.
 
+## Reconciliation Summary
+
+- Confirmed passes: authority semantics appear aligned; missing-manifest and missing-directory semantics appear correctly scoped.
+- Operational defect observed: backup creation timeout, classified here as an operational-risk deferred item until the operator reproduces it with a narrower, stable lane.
+- Transient state observed: writing-tools offline/checking state, classified here as a startup-race issue pending reproducible isolation.
+- UX trust debt: snapshot-panel trust signals remain a Phase 17 GUI issue unless the operator later proves a current semantic overtrust contradiction.
+- Continuity still pending: project-switch and floating-pane continuity verification remain open.
+- No new RDM item is added in this pass; use existing backup, GUI, and continuity follow-up IDs if the operator later files a concrete reproduction.
+
 ## Bundle Metadata
 
 - Branch:
@@ -257,9 +266,9 @@ Rule: Do not prefill outcomes, claims, or classifications without recorded opera
 
 ## Operator Wrap-Up
 
-- Any receipts deferred to Phase 15:
-- Any receipts requiring implementation fixes:
-- Any receipts requiring wording-only fixes:
-- Any receipts requiring reopening semantic reconciliation:
-- Any receipts that remained blocked:
-- Whether the packet is complete:
+- Any receipts deferred to Phase 15: backup timeout remains deferred as an operational-risk item, pending reproduction.
+- Any receipts requiring implementation fixes: none proven yet.
+- Any receipts requiring wording-only fixes: snapshot-panel trust wording remains under Phase 17 GUI debt review.
+- Any receipts requiring reopening semantic reconciliation: none proven in this pass.
+- Any receipts that remained blocked: project-switch and floating-pane continuity verification.
+- Whether the packet is complete: no.
