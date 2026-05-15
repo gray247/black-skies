@@ -14,7 +14,7 @@ from contextlib import contextmanager
 import os
 from pathlib import Path
 from types import SimpleNamespace
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 from typing import Any, Protocol, TypedDict, cast
 from uuid import UUID
 
@@ -2674,6 +2674,100 @@ def test_restore_from_zip_returns_copy_materialization_semantics(
     assert payload["restore_semantic_context"]["current_project_files_replaced"] is False
     assert payload["restore_semantic_context"]["restored_copy_materialized"] is True
     assert payload["restore_semantic_context"]["browseable_path_available"] is True
+
+
+def test_restore_latest_without_zip_name_uses_latest_backup_bundle(
+    test_client: TestClient, tmp_path: Path
+) -> None:
+    """Restore-latest aligns with the backup list when only backup bundles exist."""
+
+    project_id = "proj_restore_latest_backup"
+    project_root = tmp_path / project_id
+    project_root.mkdir(parents=True, exist_ok=True)
+    (project_root / "project.json").write_text(
+        json.dumps({"project_id": project_id, "name": "Restore Latest Backup"}),
+        encoding="utf-8",
+    )
+    (project_root / "outline.json").write_text(
+        json.dumps(
+            {
+                "schema_version": "OutlineSchema v1",
+                "outline_id": "out_001",
+                "acts": ["Act I"],
+                "chapters": [{"id": "ch_0001", "order": 1, "title": "Chapter 1"}],
+                "scenes": [
+                    {
+                        "id": "sc_0001",
+                        "order": 1,
+                        "title": "Scene 1",
+                        "chapter_id": "ch_0001",
+                        "beat_refs": [],
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    _bootstrap_scene(tmp_path, project_id, scene_id="sc_0001", body="Backup restore body.")
+
+    with patch(
+        "blackskies.services.backup_service._timestamp",
+        side_effect=["20260510_012515", "20260510_012516"],
+    ):
+        first_backup = test_client.post("/api/v1/backups", json={"projectId": project_id})
+        assert first_backup.status_code == 200
+        (project_root / "outline.json").write_text(
+            json.dumps(
+                {
+                    "schema_version": "OutlineSchema v1",
+                    "outline_id": "out_001",
+                    "acts": ["Act I"],
+                    "chapters": [{"id": "ch_0001", "order": 1, "title": "Chapter 1"}],
+                    "scenes": [
+                        {
+                            "id": "sc_0001",
+                            "order": 1,
+                            "title": "Scene 1",
+                            "chapter_id": "ch_0001",
+                            "beat_refs": [],
+                        },
+                        {
+                            "id": "sc_0002",
+                            "order": 2,
+                            "title": "Scene 2",
+                            "chapter_id": "ch_0001",
+                            "beat_refs": [],
+                        },
+                    ],
+                }
+            ),
+            encoding="utf-8",
+        )
+        _bootstrap_scene(tmp_path, project_id, scene_id="sc_0002", order=2, body="Later backup body.")
+        second_backup = test_client.post("/api/v1/backups", json={"projectId": project_id})
+        assert second_backup.status_code == 200
+
+    response = test_client.post(
+        f"{API_PREFIX}/restore",
+        json={"projectId": project_id, "restoreAsNew": True},
+    )
+    assert response.status_code == 200
+    payload = response.json()
+
+    assert payload["status"] == "ok"
+    assert payload["restore_observation"]["claim_scope"] == (
+        "restored-copy-materialized-from-backup-archive"
+    )
+    assert payload["restore_observation"]["historical_only"] is False
+    assert payload["restore_semantic_context"]["current_project_files_replaced"] is False
+    assert payload["restore_semantic_context"]["restored_copy_materialized"] is True
+    restored_dir = Path(payload["restored_path"])
+    assert restored_dir.exists()
+    assert (restored_dir / "drafts" / "sc_0002.md").exists()
+    assert second_backup.json()["filename"] in [
+        entry["filename"]
+        for entry in test_client.get("/api/v1/backups", params={"projectId": project_id}).json()
+    ]
 
 
 def test_recovery_restore_normalises_legacy_flag(test_client: TestClient, tmp_path: Path) -> None:

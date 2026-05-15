@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import zipfile
 from pathlib import Path
+from unittest.mock import patch
 
 from fastapi.testclient import TestClient
 
@@ -99,3 +100,25 @@ def test_backup_listing_returns_created_entries(test_client: TestClient) -> None
     entries = response.json()
     assert any(entry["filename"] == payload["filename"] for entry in entries)
     assert payload["path"] in [entry["path"] for entry in entries]
+
+
+def test_backup_listing_orders_latest_first_for_project_restore_alignment(
+    test_client: TestClient,
+) -> None:
+    project_id = "proj_backup_latest"
+    project_root = _seed_project(_project_base_dir(test_client), project_id)
+
+    with patch(
+        "blackskies.services.backup_service._timestamp",
+        side_effect=["20260510_012515", "20260510_012516"],
+    ):
+        first_payload = _create_backup(test_client, project_id)
+        (project_root / "drafts" / "sc_0002.md").write_text("Later scene body.\n", encoding="utf-8")
+        second_payload = _create_backup(test_client, project_id)
+
+    response = test_client.get("/api/v1/backups", params={"projectId": project_id})
+    assert response.status_code == 200
+    entries = response.json()
+
+    assert entries[0]["filename"] == second_payload["filename"]
+    assert entries[1]["filename"] == first_payload["filename"]

@@ -133,6 +133,13 @@ class BackupService:
             )
         return entries
 
+    def latest_backup_name(self, *, project_id: str) -> str | None:
+        entries = self.list_backups(project_id=project_id)
+        if not entries:
+            return None
+        latest_name = entries[0].get("filename")
+        return latest_name if isinstance(latest_name, str) and latest_name else None
+
     def restore_backup(self, *, backup_name: str) -> dict[str, str]:
         backup_root = self._settings.backups_dir
         backup_path = backup_root / backup_name

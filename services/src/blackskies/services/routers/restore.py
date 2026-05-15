@@ -8,6 +8,7 @@ from typing import Any, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
 
+from ..backup_service import BackupService
 from ..config import ServiceSettings
 from ..diagnostics import DiagnosticLogger
 from ..http import raise_validation_error
@@ -79,20 +80,44 @@ async def restore_project(
         logger.error("Could not resolve project root: %s", exc)
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
 
-    zip_name: str | None
+    claim_scope = "restored-copy-materialized-from-zip"
+    restore_target_name = payload.zipName or "<latest>"
     if payload.zipName:
-        zip_name = payload.zipName
+        result = restore_from_zip(project_root, payload.zipName)
     else:
-        zip_name = find_latest_zip(project_root)
-        if zip_name is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="No ZIP archives found for this project",
-            )
-
-    result = restore_from_zip(project_root, zip_name)
+        backup_service = BackupService(settings=settings, diagnostics=diagnostics)
+        latest_backup_name = backup_service.latest_backup_name(project_id=payload.projectId)
+        if latest_backup_name:
+            claim_scope = "restored-copy-materialized-from-backup-archive"
+            restore_target_name = latest_backup_name
+            try:
+                result = backup_service.restore_backup(backup_name=latest_backup_name)
+            except FileNotFoundError as exc:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Backup bundle not found for this project",
+                ) from exc
+            except ValueError as exc:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=str(exc),
+                ) from exc
+            except OSError as exc:
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail="Failed to restore backup bundle",
+                ) from exc
+        else:
+            zip_name = find_latest_zip(project_root)
+            if zip_name is None:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="No ZIP archives found for this project",
+                )
+            restore_target_name = zip_name
+            result = restore_from_zip(project_root, zip_name)
     if result.get("status") != "ok":
-        logger.error("Restore failed for %s: %s", zip_name, result.get("message"))
+        logger.error("Restore failed for %s: %s", restore_target_name, result.get("message"))
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=result.get("message") or "Restore failed",
@@ -116,11 +141,9 @@ async def restore_project(
                 project_root=restored_path,
             )
 
-    result["restore_observation"] = _restore_observation(
-        claim_scope="restored-copy-materialized-from-zip"
-    )
+    result["restore_observation"] = _restore_observation(claim_scope=claim_scope)
     result["restore_semantic_context"] = _restore_semantic_context(
-        claim_scope="restored-copy-materialized-from-zip",
+        claim_scope=claim_scope,
         restored_copy_materialized=result.get("status") == "ok",
         browseable_path_available=bool(restored_path_value),
     )
