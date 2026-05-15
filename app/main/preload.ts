@@ -1654,7 +1654,7 @@ export const serviceApi = {
     makeServiceCall<RestoreFromZipResponse>('restore', 'POST', {
       project_id: request.projectId,
       ...(request.zipName ? { zip_name: request.zipName } : {}),
-      ...(request.restoreAsNew !== undefined ? { restore_as_new: request.restoreAsNew } : {}),
+      ...(request.restoreAsNew !== undefined ? { restoreAsNew: request.restoreAsNew } : {}),
     }),
   analyticsSummary: (projectId: string, forceRefresh = false) => {
     const params = new URLSearchParams({ project_id: projectId });

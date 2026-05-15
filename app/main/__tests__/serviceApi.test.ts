@@ -288,6 +288,28 @@ describe('serviceApi', () => {
     );
   });
 
+  it('serializes restore-from-zip requests with camelCase payload fields', async () => {
+    const serviceApi = await loadServiceApi();
+
+    await serviceApi.restoreFromZip?.({
+      projectId: 'proj_test',
+      zipName: 'demo_export.zip',
+      restoreAsNew: true,
+    });
+
+    expect(fetch).toHaveBeenCalledWith(
+      'http://127.0.0.1:5000/api/v1/restore',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({
+          project_id: 'proj_test',
+          zip_name: 'demo_export.zip',
+          restoreAsNew: true,
+        }),
+      }),
+    );
+  });
+
   it('checks the external backend health endpoint on the configured port', async () => {
     process.env.BLACKSKIES_SERVICES_PORT = '8000';
 
