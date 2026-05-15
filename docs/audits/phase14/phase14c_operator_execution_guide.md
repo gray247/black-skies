@@ -17,6 +17,8 @@ Before starting:
 7. Confirm floating-pane reload/rebind is observation-only in 14C and must not be fixed during receipt execution.
 8. Confirm restore-latest has its own dedicated receipt section.
 9. Record any seeded `localStorage` or session state before opening the app.
+10. On Windows, invoke Vitest through `cmd /c` so `pnpm.ps1` execution policy does not block the lane.
+11. For pytest triage or reruns, use a fresh `--basetemp` under `C:\Users\gray2\.codex\memories` and do not reuse the same scratch directory across invocations.
 
 ## Execution Order
 
