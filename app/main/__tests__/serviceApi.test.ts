@@ -302,8 +302,8 @@ describe('serviceApi', () => {
       expect.objectContaining({
         method: 'POST',
         body: JSON.stringify({
-          project_id: 'proj_test',
-          zip_name: 'demo_export.zip',
+          projectId: 'proj_test',
+          zipName: 'demo_export.zip',
           restoreAsNew: true,
         }),
       }),

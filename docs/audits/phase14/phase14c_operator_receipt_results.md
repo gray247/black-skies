@@ -11,7 +11,7 @@ Rule: Do not prefill outcomes, claims, or classifications without recorded opera
 - Operational defect observed: backup creation timeout, classified here as an operational-risk deferred item until the operator reproduces it with a narrower, stable lane.
 - Transient state observed: writing-tools offline/checking state, classified here as a startup-race issue pending reproducible isolation.
 - Confirmed operator passes: project switch passed; floating-pane reload/rebind passed.
-- Restore-latest ZIP-as-copy failure: the observed failure was a frontend/preload payload mismatch. The backend route model already expects `restoreAsNew`; the preload bridge has been corrected to send that field name, but the operator still needs to rerun restore-latest to confirm the receipt now passes.
+- Restore-latest ZIP-as-copy failure: the observed failure was a frontend/preload payload mismatch, but the first source-level fix was incomplete because the live emitted preload bundle still serialized `project_id` and `zip_name`. The backend route model expects `projectId` and `zipName`, so the live bundle had to be regenerated before the next operator rerun.
 - Visible failure details: the confirmation wording correctly promised a new sibling copy and no overwrite; the restore attempt then produced `Project restore failed`, `Request validation failed`, and a visible trace ID.
 - DevTools noise note: `Autofill.setAddresses` appeared in console output, but nothing in the current evidence ties it to the restore failure.
 - UX trust debt: snapshot-panel trust signals remain a Phase 17 GUI issue unless the operator later proves a current semantic overtrust contradiction.
@@ -95,7 +95,7 @@ Rule: Do not prefill outcomes, claims, or classifications without recorded opera
 - Actual result: Failed validation after restore-latest attempt; no new copy created
 - Authority layers observed: Renderer modal copy, preload bridge payload, backend restore validation
 - Screenshot/log reference: Operator screenshot evidence and toast trace ID
-- Failure classification: Frontend/preload payload mismatch
+- Failure classification: Frontend/preload payload mismatch, stale emitted bundle
 - Follow-up RDM IDs:
 - Notes: Payload field mismatch corrected in preload; rerun required
 
@@ -126,12 +126,12 @@ Rule: Do not prefill outcomes, claims, or classifications without recorded opera
 - Fixture or real project: Real project
 - localStorage/session state: Not recorded in scaffold
 - Expected result: Restore-latest ZIP-as-copy should create a sibling copy and surface honest restore authority
-- Actual result: Attempt failed with `Project restore failed` and `Request validation failed`; trace ID visible in toast
-- Authority layers observed: Renderer modal wording, preload request serialization, backend restore validation
+- Actual result: Attempt failed with `Project restore failed` and `Request validation failed`; trace ID visible in toast. The rerun after commit `b283550` still failed because the live preload bundle had not yet been rebuilt.
+- Authority layers observed: Renderer modal wording, preload request serialization, backend restore validation, emitted preload bundle
 - Screenshot/log reference: Operator screenshot evidence and toast trace ID
-- Failure classification: Frontend/preload payload mismatch
+- Failure classification: Frontend/preload payload mismatch, stale emitted bundle
 - Follow-up RDM IDs:
-- Notes: Preload serialization has since been corrected to `restoreAsNew`; operator rerun still required
+- Notes: Source and emitted bundle are now aligned on `projectId`, `zipName`, and `restoreAsNew`; operator rerun still required against the rebuilt bundle
 
 ## Reopen After Restore
 
