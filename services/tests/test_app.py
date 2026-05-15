@@ -9,6 +9,7 @@ import json
 import importlib
 import threading
 import time
+import zipfile
 from contextlib import contextmanager
 import os
 from pathlib import Path
@@ -2600,6 +2601,12 @@ def test_recovery_restore_overwrites_scene(test_client: TestClient, tmp_path: Pa
     restore_data = restore_response.json()
     assert restore_data["status"] == "idle"
     assert restore_data["needs_recovery"] is False
+    assert restore_data["restore_observation"]["claim_scope"] == (
+        "current-project-recovery-snapshot-restore"
+    )
+    assert restore_data["restore_observation"]["historical_only"] is False
+    assert restore_data["restore_semantic_context"]["current_project_files_replaced"] is True
+    assert restore_data["restore_semantic_context"]["restored_copy_materialized"] is False
     assert (
         restore_data["last_snapshot"]["snapshot_id"]
         == accept_response.json()["snapshot"]["snapshot_id"]
@@ -2612,6 +2619,61 @@ def test_recovery_restore_overwrites_scene(test_client: TestClient, tmp_path: Pa
     assert state["status"] == "idle"
     assert state["needs_recovery"] is False
     assert state["last_snapshot"]["path"] == snapshot_rel_path
+
+
+def test_restore_from_zip_returns_copy_materialization_semantics(
+    test_client: TestClient, tmp_path: Path
+) -> None:
+    """ZIP restore reports copy-materialization semantics without replacing the current project."""
+
+    project_id = "proj_restore_zip_semantics"
+    project_root = tmp_path / project_id
+    project_root.mkdir(parents=True, exist_ok=True)
+    exports_dir = project_root / "exports"
+    exports_dir.mkdir(parents=True, exist_ok=True)
+    _bootstrap_scene(tmp_path, project_id, scene_id="sc_0001")
+    scene_markdown = (project_root / "drafts" / "sc_0001.md").read_text(encoding="utf-8")
+
+    zip_path = exports_dir / "demo_export.zip"
+    with zipfile.ZipFile(zip_path, "w") as archive:
+        archive.writestr(
+            "project.json",
+            json.dumps({"project_id": project_id, "name": "Restore ZIP Semantics"}),
+        )
+        archive.writestr(
+            "outline.json",
+            json.dumps(
+                {
+                    "schema_version": "OutlineSchema v1",
+                    "outline_id": "out_001",
+                    "acts": ["Act I"],
+                    "chapters": [{"id": "ch_0001", "order": 1, "title": "Chapter 1"}],
+                    "scenes": [
+                        {
+                            "id": "sc_0001",
+                            "order": 1,
+                            "title": "Scene 1",
+                            "chapter_id": "ch_0001",
+                            "beat_refs": [],
+                        }
+                    ],
+                }
+            ),
+        )
+        archive.writestr("drafts/sc_0001.md", scene_markdown)
+
+    response = test_client.post(
+        f"{API_PREFIX}/restore",
+        json={"projectId": project_id, "zipName": "demo_export.zip", "restoreAsNew": True},
+    )
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["status"] == "ok"
+    assert payload["restore_observation"]["claim_scope"] == "restored-copy-materialized-from-zip"
+    assert payload["restore_observation"]["historical_only"] is False
+    assert payload["restore_semantic_context"]["current_project_files_replaced"] is False
+    assert payload["restore_semantic_context"]["restored_copy_materialized"] is True
+    assert payload["restore_semantic_context"]["browseable_path_available"] is True
 
 
 def test_recovery_restore_normalises_legacy_flag(test_client: TestClient, tmp_path: Path) -> None:

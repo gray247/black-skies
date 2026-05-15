@@ -260,6 +260,22 @@ export interface VerificationAuthorityObservation {
   does_not_imply: string[];
 }
 
+export interface RestoreAuthorityObservation {
+  claim_scope: string;
+  strongest_authority: string;
+  supporting_authorities: string[];
+  historical_only: boolean;
+  does_not_imply: string[];
+}
+
+export interface RestoreSemanticContext {
+  current_project_files_replaced?: boolean;
+  restored_copy_materialized?: boolean;
+  browseable_path_available?: boolean;
+  degraded_reasons?: string[];
+  restore_observation: RestoreAuthorityObservation;
+}
+
 export interface VerificationSemanticContext {
   historical_only: boolean;
   integrity_state?: 'integrity-valid' | 'integrity-unavailable' | string;
@@ -329,6 +345,8 @@ export interface BackupRestoreBridgeResponse {
   restored_path?: string;
   restored_project_slug?: string;
   message?: string;
+  restore_observation?: RestoreAuthorityObservation;
+  restore_semantic_context?: RestoreSemanticContext;
 }
 
 export interface DraftAcceptUnitPayload {
@@ -377,6 +395,8 @@ export interface RecoveryStatusBridgeResponse {
   last_snapshot?: SnapshotSummary | null;
   message?: string | null;
   failure_reason?: string | null;
+  restore_observation?: RestoreAuthorityObservation;
+  restore_semantic_context?: RestoreSemanticContext;
 }
 
 export interface RecoveryRestoreBridgeRequest {
@@ -474,6 +494,8 @@ export interface RestoreFromZipResponse {
   restored_project_slug?: string;
   message?: string;
   details?: unknown;
+  restore_observation?: RestoreAuthorityObservation;
+  restore_semantic_context?: RestoreSemanticContext;
 }
 
 export interface RevealPathResult {

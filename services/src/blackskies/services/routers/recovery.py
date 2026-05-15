@@ -50,6 +50,37 @@ LOGGER = logging.getLogger(__name__)
 __all__ = ["RecoveryRestoreRequest", "RecoveryTracker", "router"]
 
 
+def _restore_observation(*, claim_scope: str) -> dict[str, Any]:
+    return {
+        "claim_scope": claim_scope,
+        "strongest_authority": "A2",
+        "supporting_authorities": ["A1"],
+        "historical_only": False,
+        "does_not_imply": [
+            "continuity-correct",
+            "reopen-correct",
+            "restore-safe",
+        ],
+    }
+
+
+def _restore_semantic_context(
+    *,
+    claim_scope: str,
+    current_project_files_replaced: bool,
+    restored_copy_materialized: bool,
+    browseable_path_available: bool,
+    degraded_reasons: list[str] | None = None,
+) -> dict[str, Any]:
+    return {
+        "current_project_files_replaced": current_project_files_replaced,
+        "restored_copy_materialized": restored_copy_materialized,
+        "browseable_path_available": browseable_path_available,
+        "degraded_reasons": degraded_reasons or [],
+        "restore_observation": _restore_observation(claim_scope=claim_scope),
+    }
+
+
 class RecoveryRestoreRequest(BaseModel):
     project_id: str
     snapshot_id: str | None = None
@@ -399,4 +430,13 @@ async def recovery_restore(
         "status": "idle",
         "needs_recovery": False,
         "last_snapshot": snapshot_info,
+        "restore_observation": _restore_observation(
+            claim_scope="current-project-recovery-snapshot-restore"
+        ),
+        "restore_semantic_context": _restore_semantic_context(
+            claim_scope="current-project-recovery-snapshot-restore",
+            current_project_files_replaced=True,
+            restored_copy_materialized=False,
+            browseable_path_available=bool(snapshot_info.get("path")),
+        ),
     }

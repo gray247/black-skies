@@ -74,6 +74,12 @@ def test_backup_restore_creates_restored_project(test_client: TestClient) -> Non
 
     restored_slug = restored["restored_project_slug"]
     assert restored_slug.startswith(f"{project_id}_restored_")
+    assert restored["restore_observation"]["claim_scope"] == (
+        "restored-copy-materialized-from-backup-archive"
+    )
+    assert restored["restore_observation"]["historical_only"] is False
+    assert restored["restore_semantic_context"]["current_project_files_replaced"] is False
+    assert restored["restore_semantic_context"]["restored_copy_materialized"] is True
 
     restored_dir = project_root.parent / restored_slug
     assert restored_dir.exists()

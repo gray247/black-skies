@@ -17,6 +17,37 @@ from .dependencies import get_diagnostics, get_settings
 router = APIRouter(prefix="/backups", tags=["backups"])
 
 
+def _restore_observation(*, claim_scope: str) -> dict[str, Any]:
+    return {
+        "claim_scope": claim_scope,
+        "strongest_authority": "A2",
+        "supporting_authorities": ["A1"],
+        "historical_only": False,
+        "does_not_imply": [
+            "current-project-replaced",
+            "continuity-correct",
+            "recovery-complete",
+            "restore-safe",
+        ],
+    }
+
+
+def _restore_semantic_context(
+    *,
+    claim_scope: str,
+    restored_copy_materialized: bool,
+    browseable_path_available: bool,
+    degraded_reasons: list[str] | None = None,
+) -> dict[str, Any]:
+    return {
+        "current_project_files_replaced": False,
+        "restored_copy_materialized": restored_copy_materialized,
+        "browseable_path_available": browseable_path_available,
+        "degraded_reasons": degraded_reasons or [],
+        "restore_observation": _restore_observation(claim_scope=claim_scope),
+    }
+
+
 class BackupCreateRequest(BaseModel):
     projectId: str
 
@@ -97,7 +128,7 @@ async def restore_backup(
     payload: dict[str, Any],
     settings: ServiceSettings = Depends(get_settings),
     diagnostics: DiagnosticLogger = Depends(get_diagnostics),
-) -> dict[str, str]:
+) -> dict[str, Any]:
     try:
         request_model = BackupRestoreRequest.model_validate(payload)
     except ValidationError as exc:
@@ -110,7 +141,16 @@ async def restore_backup(
 
     backup_service = BackupService(settings=settings, diagnostics=diagnostics)
     try:
-        return backup_service.restore_backup(backup_name=request_model.backupName)
+        result = backup_service.restore_backup(backup_name=request_model.backupName)
+        result["restore_observation"] = _restore_observation(
+            claim_scope="restored-copy-materialized-from-backup-archive"
+        )
+        result["restore_semantic_context"] = _restore_semantic_context(
+            claim_scope="restored-copy-materialized-from-backup-archive",
+            restored_copy_materialized=result.get("status") == "ok",
+            browseable_path_available=bool(result.get("restored_path")),
+        )
+        return result
     except FileNotFoundError as exc:
         raise_validation_error(
             message="Backup bundle not found.",

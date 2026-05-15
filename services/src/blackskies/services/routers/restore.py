@@ -25,6 +25,37 @@ logger = get_logger(__name__)
 router = APIRouter(prefix="/restore", tags=["restore"])
 
 
+def _restore_observation(*, claim_scope: str) -> dict[str, Any]:
+    return {
+        "claim_scope": claim_scope,
+        "strongest_authority": "A2",
+        "supporting_authorities": ["A1"],
+        "historical_only": False,
+        "does_not_imply": [
+            "current-project-replaced",
+            "continuity-correct",
+            "recovery-complete",
+            "restore-safe",
+        ],
+    }
+
+
+def _restore_semantic_context(
+    *,
+    claim_scope: str,
+    restored_copy_materialized: bool,
+    browseable_path_available: bool,
+    degraded_reasons: list[str] | None = None,
+) -> dict[str, Any]:
+    return {
+        "current_project_files_replaced": False,
+        "restored_copy_materialized": restored_copy_materialized,
+        "browseable_path_available": browseable_path_available,
+        "degraded_reasons": degraded_reasons or [],
+        "restore_observation": _restore_observation(claim_scope=claim_scope),
+    }
+
+
 class RestoreRequest(BaseModel):
     """Payload to restore a project from a ZIP archive."""
 
@@ -84,5 +115,14 @@ async def restore_project(
                 diagnostics=diagnostics,
                 project_root=restored_path,
             )
+
+    result["restore_observation"] = _restore_observation(
+        claim_scope="restored-copy-materialized-from-zip"
+    )
+    result["restore_semantic_context"] = _restore_semantic_context(
+        claim_scope="restored-copy-materialized-from-zip",
+        restored_copy_materialized=result.get("status") == "ok",
+        browseable_path_available=bool(restored_path_value),
+    )
 
     return result
