@@ -85,8 +85,11 @@ tmp_budget/
 tmp_contract/
 tmp_flow/
 .tmp/
+services/services/pytest-cache-files-*/
 services/testtmp-*/
-
+services/.tmp/
+services/tmp/
+*_restored_*
 # -------------------------
 # Policy / Runtime Execution Folders
 # -------------------------
