@@ -352,9 +352,7 @@ Implemented runtime changes now in flight against this plan:
 
 Still pending against the Phase 15 closure criteria:
 
-- repeated real-project/operator verification for backup create, restore latest, and selected backup restore
-- operator wording/trust review for timeout and degraded states
-- final closure audit for `15F`
+- final closure review for `15F`
 
 ## Post-Hardening Human-Verification Inspection
 
@@ -374,13 +372,13 @@ Recorded on 2026-05-16 after the first runtime hardening implementation. This se
 
 | Observation | Source inspection result | Classification | Phase ownership | Blocks Phase 15 closure |
 | --- | --- | --- | --- | --- |
-| `Writing tools offline` appeared during backup/restore testing | Shared backend/bridge health label, not AI-writing-only health; Phase 15 narrowed `SnapshotsPanel` so backup/restore/verification now block only on actual offline state and use backend-service wording locally, while the global label system remains broader GUI debt | Partially fixed runtime-authority issue; residual label simplification remains deferred | Phase 15 fix applied, `RDM-GUI-001` / Phase 17 residual | Human verification rerun required |
-| Backup create showed `Request timed out after 45000ms` | Current preload source assigns `300_000ms` defaults to backup create, restore latest, and backup restore; live 45s observation now points to stale preload/build, another request path, or unreproduced runtime drift | Unknown pending reproduction; do not treat as confirmed source-level regression yet | Phase 15 | Yes |
-| Selected-backup restore used a native white confirm dialog | Confirmed: `SnapshotsPanel` still calls `window.confirm(...)` for selected-backup restore | Styling/control-surface inconsistency, with some authority-wording risk because the safety prompt bypasses the styled GUI | Phase 17 primary, Phase 15 secondary | Yes |
-| Selected-backup restore toast said `Backup copy created` | Fixed in the 2026-05-16 Phase 15 UI authority pass; success now says `Restored project copy created` and clarifies that the current project was not overwritten | Fixed semantic mismatch | Phase 15 | No, pending operator rerun only |
-| `Esther_Estate` vs `proj_esther_estate` vs `PROJ_ESTHER_ESTATE` felt inconsistent | Confirmed current topology: loader can open `Esther_Estate`, canonical project id is `proj_esther_estate`, backend operates on `sample_project\proj_esther_estate`, UI surfaces uppercase `PROJECT ID` label | Expected current behavior but operator-confusing alias/UI debt | Phase 15 docs/UI clarity now, `RDM-ALIAS-001` longer-tail | Yes |
+| `Writing tools offline` appeared during backup/restore testing | Human rerun passed after the Phase 15 panel fix: backup/restore controls remained usable while the global status still showed `Checking writing tools`, and local panel copy used backend-service wording where relevant | Runtime-authority blocker resolved; residual global label simplification remains deferred | Phase 15 fixed, `RDM-GUI-001` / Phase 17 residual | No |
+| Backup create showed `Request timed out after 45000ms` | Human rerun did not reproduce the timeout during backup create, restore latest, or selected-backup restore; current preload source still assigns dedicated `300_000ms` defaults to those long-running routes | Reclassified from blocker to non-reproduced monitor item | Phase 15 monitor | No |
+| Selected-backup restore used a native white confirm dialog | Confirmed: `SnapshotsPanel` still calls `window.confirm(...)` for selected-backup restore, but the restore result semantics now remain truthful elsewhere in the flow | Styling/control-surface inconsistency deferred to later GUI/control-surface cleanup | Phase 17 primary | No |
+| Selected-backup restore toast said `Backup copy created` | Fixed in the 2026-05-16 Phase 15 UI authority pass and confirmed by human rerun; success now says `Restored project copy created`, shows the restored sibling path, and clarifies that the current project was not overwritten | Fixed semantic mismatch | Phase 15 | No |
+| `Esther_Estate` vs `proj_esther_estate` vs `PROJ_ESTHER_ESTATE` felt inconsistent | Confirmed current topology: loader can open `Esther_Estate`, canonical project id is `proj_esther_estate`, backend operates on `sample_project\proj_esther_estate`, UI surfaces uppercase `PROJECT ID` label; human rerun confirmed the topology functions as documented | Expected current behavior but operator-confusing alias/UI debt | Phase 17 / `RDM-ALIAS-001` later cleanup | No |
 | Backups under `sample_project\backups` and restored copies as siblings under `sample_project\proj_esther_estate_restored_*` felt odd | Confirmed intentional current storage/destination policy | Expected current behavior that needs explicit documentation and trust wording, not automatic cleanup | Phase 15 documentation/UI clarity | No by itself |
-| White block / unstyled confirmation or modal | Likely the selected-backup `window.confirm(...)` unless a separate renderer regression is reproduced | Pending reproduction if a second surface exists; confirmed for selected-backup confirm | Phase 17 primary | Indirectly |
+| White block / unstyled confirmation or modal | Likely the selected-backup `window.confirm(...)` unless a separate renderer regression is reproduced | Deferred GUI/control-surface inconsistency unless a second surface is reproduced later | Phase 17 primary | No |
 
 ### Timeout Ownership Findings
 
@@ -390,6 +388,7 @@ Recorded on 2026-05-16 after the first runtime hardening implementation. This se
 - `POST /api/v1/backups/restore` currently has a dedicated backup-restore timeout default of `300_000ms`.
 - Health polling and unrelated generic service requests still use the generic bridge timeout unless separately scaled.
 - The observed 45-second timeout during backup/restore verification is therefore not explained by the current intended timeout owner and must be treated as a reproduction task, stale-session possibility, or request-path mix-up until proven otherwise.
+- Human rerun on 2026-05-16 did not reproduce the prior `45000ms` timeout during backup create, restore latest, or selected-backup restore, so timeout ownership is no longer a Phase 15 closure blocker.
 
 ### Implemented UI Authority Corrections
 
@@ -405,3 +404,32 @@ Recorded on 2026-05-16 after the first runtime hardening implementation. This se
 - `sample_project\backups` is the intentional shared backup-bundle store.
 - `sample_project\proj_esther_estate_restored_*` are restored copy artifacts from sibling-copy restore flows.
 - Existing restored siblings and duplicate sample roots must not be deleted as part of Phase 15 verification triage. Any cleanup or archival action requires explicit operator approval and likely belongs to separate repository/operator hygiene work rather than the bounded Phase 15 runtime hardening slice.
+
+### Human Verification Rerun Summary
+
+Recorded on 2026-05-16 after commit `9e481f4`.
+
+- startup/gating: `PASS`
+- backup create: `PASS` in roughly 4-5 minutes; created `BS_20260516_182839.zip`
+- restore latest ZIP as copy: `PASS` in roughly 2 minutes; created a sibling `proj_esther_estate_restored_*` folder and did not overwrite the original project
+- selected-backup restore: `PASS` in roughly 1-2 minutes; surfaced `Restored project copy created`, showed the restored sibling path, and stated that the current project was not overwritten
+- no `45000ms` backup/restore timeout reproduced in the rerun
+
+### Closure Posture Update
+
+Phase 15 is now closure-ready as `Closed with exceptions`.
+
+Reasons:
+
+- the scoped runtime/authority blockers were fixed and then confirmed by human verification
+- backup create, restore latest, and selected-backup restore each completed successfully under the current synchronous long-running timeout model
+- selected-backup restore wording now truthfully describes the restored project copy outcome
+- copy-flow restores continued to materialize sibling `proj_esther_estate_restored_*` folders and did not overwrite the original project
+
+Remaining exceptions are explicitly deferred rather than left ambiguous:
+
+- global `Writing tools offline` / `Checking writing tools` label simplification remains Phase 17 GUI debt
+- selected-backup `window.confirm(...)` remains Phase 17 control-surface debt
+- alias/folder naming confusion remains later GUI/docs cleanup under `RDM-ALIAS-001`
+- restored-folder clone sprawl remains Phase 19 or separate hygiene work; no deletion is authorized here
+- backup-create slowness remains a known performance/reliability note, but it does not block closure because the operation completed truthfully within the explicit long-running contract
