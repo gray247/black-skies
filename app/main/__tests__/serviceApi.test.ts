@@ -310,6 +310,28 @@ describe('serviceApi', () => {
     );
   });
 
+  it('uses the restore-specific timeout budget for restore-from-zip requests', async () => {
+    process.env.BLACKSKIES_BRIDGE_TIMEOUT_MS = '50';
+    const timeoutError = new Error('aborted');
+    timeoutError.name = 'AbortError';
+    const fetchMock = global.fetch as unknown as vi.Mock;
+    fetchMock.mockReset();
+    fetchMock.mockRejectedValue(timeoutError);
+
+    const serviceApi = await loadServiceApi();
+    const result = await serviceApi.restoreFromZip?.({
+      projectId: 'proj_test',
+      restoreAsNew: true,
+    });
+
+    expect(result?.ok).toBe(false);
+    if (result && !result.ok) {
+      expect(result.error.code).toBe('TIMEOUT');
+      expect(result.error.details).toEqual({ timeout_ms: 120000, unit_count: 0 });
+    }
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
   it('checks the external backend health endpoint on the configured port', async () => {
     process.env.BLACKSKIES_SERVICES_PORT = '8000';
 

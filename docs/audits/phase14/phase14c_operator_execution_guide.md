@@ -16,7 +16,7 @@ Before starting:
 6. Confirm destructive or chaotic crash testing is deferred to Phase 15.
 7. Confirm floating-pane reload/rebind is observation-only in 14C and must not be fixed during receipt execution.
 8. Confirm restore-latest has its own dedicated receipt section.
-9. Restore-latest must be rerun after the corrected preload payload contract and the latest-backup lookup alignment before Phase 14C closure.
+9. Restore-latest must be rerun after the corrected preload payload contract, the latest-backup lookup alignment, and the dedicated restore timeout fix before Phase 14C closure.
 10. Record any seeded `localStorage` or session state before opening the app.
 11. On Windows, invoke Vitest through `cmd /c` so `pnpm.ps1` execution policy does not block the lane.
 12. For pytest triage or reruns, use a fresh `--basetemp` under `C:\Users\gray2\.codex\memories` and do not reuse the same scratch directory across invocations.
@@ -55,6 +55,7 @@ For every receipt, observe:
 - whether preload, renderer, and runtime agree in the live session
 - whether floating panes rebind to the current project after reload
 - if the backups section lists a `backups/BS_*.zip` entry, whether `Restore latest ZIP as copy` resolves that same current backup source instead of failing on an unrelated archive path
+- whether restore-latest is allowed to run past the old ~45 second abort point and ultimately materializes a sibling restored copy from the selected `BS_*.zip` backup bundle
 
 ## What Not To Claim
 

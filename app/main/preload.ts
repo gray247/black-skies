@@ -658,6 +658,7 @@ const REQUEST_POLICY: BridgeResiliencePolicy = {
 };
 
 const DRAFT_REQUEST_MAX_TIMEOUT_MS = 300_000;
+const RESTORE_REQUEST_TIMEOUT_MS = Math.max(REQUEST_POLICY.timeoutMs, 120_000);
 
 const REQUEST_BREAKER = new CircuitBreaker(
   REQUEST_POLICY.circuitFailureThreshold,
@@ -1013,7 +1014,10 @@ export async function makeServiceCall<T>(
     body: body ? JSON.stringify(body) : undefined,
   };
   const unitCount = summarizeRequestUnitCount(body);
-  const timeoutMs = resolveRequestTimeoutMs(unitCount);
+  const timeoutMs =
+    normalizedPath === 'restore'
+      ? RESTORE_REQUEST_TIMEOUT_MS
+      : resolveRequestTimeoutMs(unitCount);
 
   try {
     if (phaseLogPrefix) {
