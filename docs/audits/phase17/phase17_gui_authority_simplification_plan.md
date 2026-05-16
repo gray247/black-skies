@@ -74,7 +74,29 @@ Truth-sensitive labels must expose freshness context when timing matters.
 - stale data must not present as current truth
 - freshness ownership must be explicit when a flow can still be completing after the UI times out
 
-### 2.5 Concurrency policy
+### 2.5 UI state synchronization
+
+All trust-sensitive surfaces for the same operation must derive from the same authority source and lifecycle state.
+
+- toast, banner, pill, modal, disabled state, and button text must not contradict each other
+- if surfaces disagree, the UI must show the lower-confidence or degraded state, not the stronger success state
+- the same operation must not be represented as complete in one surface and incomplete in another unless the lower-confidence state is explicitly marked as unknown or degraded
+
+### 2.6 State invalidation triggers
+
+Phase 17 should treat the following events as invalidation triggers for dependent UI state:
+
+- project switch
+- project reopen
+- restore completion
+- backup completion
+- snapshot verification completion
+- backend reconnect
+- renderer reload
+- recovery restore
+- export completion or failure
+
+### 2.7 Concurrency policy
 
 Phase 17 must define contention behavior for every operator-visible operation it touches.
 
@@ -86,7 +108,20 @@ Policy requirements:
 - define recovery behavior after interrupted operations
 - define what happens if restore overlaps with backup, verification, or another restore
 
-### 2.6 Multi-surface contradiction rule
+### 2.8 Interrupted-operation classification
+
+Every long-running trust-sensitive flow must classify:
+
+- renderer reload behavior
+- window close behavior
+- backend disconnect behavior
+- duplicate-start behavior
+- timeout behavior
+- stale completion behavior
+
+Fix only if narrowly required for GUI authority truth. Otherwise document and defer.
+
+### 2.9 Multi-surface contradiction rule
 
 One operation may not communicate contradictory authority states across simultaneous surfaces.
 
@@ -118,6 +153,13 @@ Phase 17 should prioritize trust issues by severity:
 - `Minor`: cosmetic inconsistency, vague labels without operational consequence
 
 This classification is for prioritization, not for relabeling runtime truth.
+
+Severity-to-proof mapping:
+
+- `Critical` trust surface: runtime proof plus human verification required
+- `Major` trust surface: targeted e2e or integration proof required
+- `Minor` trust surface: unit or harness proof acceptable
+- `Cosmetic-only`: defer unless it affects authority clarity
 
 ### 3.3 Visual consistency classification
 
