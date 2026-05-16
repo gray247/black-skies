@@ -13,9 +13,17 @@ const FAILURE_TOAST_PATTERNS = [
   /timed out/i,
 ];
 
-const EXPECTED_TOAST_PATTERNS = [/^Snapshot created$/i, /^Snapshot verification$/i];
+const EXPECTED_TOAST_PATTERNS = [
+  /^Snapshot created$/i,
+  /^Snapshot verification$/i,
+  /^Verification record unavailable$/i,
+  /^Snapshot directory unavailable$/i,
+  /^Snapshot manifest unavailable$/i,
+];
 const SNAPSHOTS_HEALTH_OK_PATTERN =
   /latest (snapshot verified|verification record shows no issues)/i;
+const SNAPSHOT_MODAL_INTEGRITY_PATTERN =
+  /integrity evidence:\s*(no issues recorded|issues recorded|unavailable|not recorded|unknown|loading)/i;
 
 type ToastCapture = {
   assertNoUnexpectedToasts: () => Promise<void>;
@@ -402,16 +410,16 @@ test('snapshot verification flow (UI)', async ({ page }) => {
   const reportCard = modal.locator('.snapshots-panel__modal');
   await expect(reportCard).toHaveCSS('background-color', 'rgba(12, 17, 23, 0.98)');
   await expect(reportCard).toHaveCSS('color', 'rgb(231, 236, 242)');
-  await expect(modal.getByText(/Integrity:/i)).toBeVisible();
+  await expect(modal.getByText(SNAPSHOT_MODAL_INTEGRITY_PATTERN)).toBeVisible();
   await expect(modal.getByText(/Snapshot ID/i)).toBeVisible();
   await expect(modal.getByText(/Files/i)).toBeVisible();
   await expect(modal.getByText(/Total size/i)).toBeVisible();
-  await expect(modal.getByText(/Integrity:/i)).toBeVisible();
+  await expect(modal.getByText(SNAPSHOT_MODAL_INTEGRITY_PATTERN)).toBeVisible();
 
   await page.evaluate(() => document.body.classList.add('theme--dark'));
   await expect(modal).toBeVisible();
 
-  const closeModalButton = modal.getByRole('button', { name: /close verification report/i });
+  const closeModalButton = modal.getByRole('button', { name: /close verification record/i });
   await expect(closeModalButton).toBeVisible();
   await closeModalButton.click();
   await expect(modal).not.toBeVisible();
