@@ -134,6 +134,8 @@ export default function SnapshotsPanel({
   const [loadingBackups, setLoadingBackups] = useState<boolean>(true);
   const [creatingBackup, setCreatingBackup] = useState<boolean>(false);
   const [restoringBackup, setRestoringBackup] = useState<string | null>(null);
+  const [pendingRestoreBackupName, setPendingRestoreBackupName] = useState<string | null>(null);
+  const [isBackupRestoreConfirmOpen, setBackupRestoreConfirmOpen] = useState(false);
   const [runningVerification, setRunningVerification] = useState<boolean>(false);
   const [isReportModalOpen, setReportModalOpen] = useState(false);
   const [snapshotLoading, setSnapshotLoading] = useState(false);
@@ -335,7 +337,7 @@ export default function SnapshotsPanel({
         pushToast({
           tone: 'warning',
           title: 'Verification unavailable',
-          description: 'Local services are still starting.',
+          description: 'Backend services are still starting.',
         });
         return;
       }
@@ -714,125 +716,142 @@ export default function SnapshotsPanel({
 
   const handleRestoreBackup = useCallback(
     async (backupName: string) => {
-      if (!projectId) {
-        pushToast({
-          tone: 'warning',
-          title: 'Backup restore unavailable',
-          description: 'Open a project before restoring a backup.',
-        });
-        return;
-      }
+    if (!projectId) {
+      pushToast({
+        tone: 'warning',
+        title: 'Backup restore unavailable',
+        description: 'Open a project before restoring a backup.',
+      });
+      return;
+    }
 
-      if (!services?.restoreBackup || backendUnavailable) {
-        pushToast({
-          tone: 'warning',
-          title: 'Backup restore unavailable',
-          description:
-            'Backend services are unavailable. Your current project is unchanged; retry once the local API reconnects.',
-        });
-        return;
-      }
+    if (!services?.restoreBackup || backendUnavailable) {
+      pushToast({
+        tone: 'warning',
+        title: 'Backup restore unavailable',
+        description:
+          'Backend services are unavailable. Your current project is unchanged; retry once the local API reconnects.',
+      });
+      return;
+    }
 
-      const confirmed =
-        typeof window !== 'undefined'
-          ? window.confirm(`Restore backup "${backupName}" into a new project folder?`)
-          : true;
-      if (!confirmed) {
-        return;
-      }
+    setPendingRestoreBackupName(backupName);
+    setBackupRestoreConfirmOpen(true);
+  }, [backendUnavailable, projectId, pushToast, services]);
 
-      setRestoringBackup(backupName);
-      try {
-        const response = await services.restoreBackup({ backupName });
-        if (!response.ok) {
-          if (isPreservedDegradedRestore(response.error)) {
-            const preservedPath = resolvePreservedRestorePath(response.error);
-            pushToast({
-              tone: 'warning',
-              title: 'Backup restore needs inspection',
-              description: preservedPath
-                ? `${response.error?.message ?? 'The restored copy was preserved for inspection.'} Preserved path: ${preservedPath}.`
-                : response.error?.message ?? 'The restored copy was preserved for inspection.',
-              traceId: response.traceId ?? response.error?.traceId,
-              actions:
-                preservedPath && services.revealPath
-                  ? [
-                      {
-                        label: 'Open folder',
-                        onPress: () => {
-                          void services.revealPath?.(preservedPath);
-                        },
-                      },
-                    ]
-                  : undefined,
-            });
-            return;
-          }
-          if (isUnknownCompletionTimeout(response.error)) {
-            pushToast({
-              tone: 'warning',
-              title: 'Backup restore completion unknown',
-              description:
-                'The request timed out before completion was confirmed. Your current project was not overwritten, but the backend may still be creating a restored copy.',
-              traceId: response.traceId ?? response.error?.traceId,
-            });
-            return;
-          }
+  const handleCancelBackupRestore = useCallback(() => {
+    if (restoringBackup) {
+      return;
+    }
+    setBackupRestoreConfirmOpen(false);
+    setPendingRestoreBackupName(null);
+  }, [restoringBackup]);
+
+  const handleConfirmBackupRestore = useCallback(async () => {
+    const backupName = pendingRestoreBackupName;
+    if (!backupName || !projectId || !services?.restoreBackup) {
+      setBackupRestoreConfirmOpen(false);
+      setPendingRestoreBackupName(null);
+      return;
+    }
+
+    setRestoringBackup(backupName);
+    try {
+      const response = await services.restoreBackup({ backupName });
+      if (!response.ok) {
+        if (isPreservedDegradedRestore(response.error)) {
+          const preservedPath = resolvePreservedRestorePath(response.error);
           pushToast({
-            tone: 'error',
-            title: 'Backup restore failed',
+            tone: 'warning',
+            title: 'Backup restore needs inspection',
+            description: preservedPath
+              ? `${response.error?.message ?? 'The restored copy was preserved for inspection.'} Preserved path: ${preservedPath}.`
+              : response.error?.message ?? 'The restored copy was preserved for inspection.',
+            traceId: response.traceId ?? response.error?.traceId,
+            actions:
+              preservedPath && services.revealPath
+                ? [
+                    {
+                      label: 'Open folder',
+                      onPress: () => {
+                        void services.revealPath?.(preservedPath);
+                      },
+                    },
+                  ]
+                : undefined,
+          });
+          return;
+        }
+        if (isUnknownCompletionTimeout(response.error)) {
+          pushToast({
+            tone: 'warning',
+            title: 'Backup restore completion unknown',
             description:
-              response.error?.message ??
-              'Your current project was not changed. Check the trace ID, then retry the restore.',
+              'The request timed out before completion was confirmed. Your current project was not overwritten, but the backend may still be creating a restored copy.',
             traceId: response.traceId ?? response.error?.traceId,
           });
           return;
         }
-
-        const payload = response.data;
-        if (payload?.status !== 'ok') {
-          pushToast({
-            tone: 'error',
-            title: 'Backup restore failed',
-            description:
-              payload?.message ?? 'Your current project was not changed. Retry the restore.',
-          });
-          return;
-        }
-
-        pushToast({
-          tone: 'success',
-          title: 'Restored project copy created',
-          description: payload.restored_path
-            ? `Materialized a restored project copy at ${payload.restored_path}. Your current project was not overwritten.`
-            : payload.restored_project_slug
-              ? `Materialized a restored project copy as ${payload.restored_project_slug}. Your current project was not overwritten.`
-              : 'Materialized a restored project copy. Your current project was not overwritten.',
-          actions:
-            payload.restored_path && services.revealPath
-              ? [
-                  {
-                    label: 'Open folder',
-                    onPress: () => {
-                      void services.revealPath?.(payload.restored_path);
-                    },
-                  },
-                ]
-              : undefined,
-        });
-      } catch (error) {
-        const message = error instanceof Error ? error.message : 'Unable to restore backup.';
         pushToast({
           tone: 'error',
           title: 'Backup restore failed',
-          description: `Your current project was not changed. ${message}`.trim(),
+          description:
+            response.error?.message ??
+            'Your current project was not changed. Check the trace ID, then retry the restore.',
+          traceId: response.traceId ?? response.error?.traceId,
         });
-      } finally {
-        setRestoringBackup(null);
+        return;
       }
-    },
-    [backendUnavailable, projectId, pushToast, services],
-  );
+
+      const payload = response.data;
+      if (payload?.status !== 'ok') {
+        pushToast({
+          tone: 'error',
+          title: 'Backup restore failed',
+          description:
+            payload?.message ?? 'Your current project was not changed. Retry the restore.',
+        });
+        return;
+      }
+
+      pushToast({
+        tone: 'success',
+        title: 'Restored project copy created',
+        description: payload.restored_path
+          ? `Materialized a restored project copy at ${payload.restored_path}. Your current project was not overwritten.`
+          : payload.restored_project_slug
+            ? `Materialized a restored project copy as ${payload.restored_project_slug}. Your current project was not overwritten.`
+            : 'Materialized a restored project copy. Your current project was not overwritten.',
+        actions:
+          payload.restored_path && services.revealPath
+            ? [
+                {
+                  label: 'Open folder',
+                  onPress: () => {
+                    void services.revealPath?.(payload.restored_path);
+                  },
+                },
+              ]
+            : undefined,
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unable to restore backup.';
+      pushToast({
+        tone: 'error',
+        title: 'Backup restore failed',
+        description: `Your current project was not changed. ${message}`.trim(),
+      });
+    } finally {
+      setRestoringBackup(null);
+      setBackupRestoreConfirmOpen(false);
+      setPendingRestoreBackupName(null);
+    }
+  }, [
+    pendingRestoreBackupName,
+    projectId,
+    pushToast,
+    services,
+  ]);
 
   const handleConfirmRestore = useCallback(async () => {
     if (!projectId || !services?.restoreFromZip) {
@@ -1043,7 +1062,7 @@ export default function SnapshotsPanel({
           <div className="snapshots-panel__backups-body">
             {backupsUnavailable ? (
               <p className="snapshots-panel__backups-empty">
-                Backup listing is unavailable while services start.
+                Backend services are unavailable while services start.
               </p>
             ) : loadingBackups ? (
               <p className="snapshots-panel__backups-empty">Loading backups...</p>
@@ -1127,7 +1146,7 @@ export default function SnapshotsPanel({
                 const expanded = Boolean(expandedIds[snapshot.snapshot_id]);
                 const verifyingThisRow = runningSnapshotId === snapshot.snapshot_id;
                 const verifyButtonTitle = backendUnavailable
-                  ? 'Verification requires online services'
+                  ? 'Verification requires backend services'
                   : services?.runBackupVerification
                   ? undefined
                   : 'Verification unavailable';
@@ -1300,6 +1319,38 @@ export default function SnapshotsPanel({
             <div className="snapshots-panel__modal-actions">
               <button type="button" onClick={handleCloseReport}>
                 Close
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+      {isBackupRestoreConfirmOpen && pendingRestoreBackupName ? (
+        <div className="snapshots-panel__modal-backdrop">
+          <div
+            className="snapshots-panel__modal"
+            role="dialog"
+            aria-modal="true"
+            aria-label={`Confirm restore backup ${pendingRestoreBackupName}`}
+          >
+            <h3>Restore backup {pendingRestoreBackupName}</h3>
+            <p>
+              This creates a new sibling copy of the current project from the selected backup.
+              Existing project folders are not overwritten.
+            </p>
+            <div className="snapshots-panel__modal-actions">
+              <button
+                type="button"
+                onClick={handleCancelBackupRestore}
+                disabled={restoringBackup === pendingRestoreBackupName}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmBackupRestore}
+                disabled={restoringBackup === pendingRestoreBackupName}
+              >
+                {restoringBackup === pendingRestoreBackupName ? 'Restoring...' : 'Restore backup'}
               </button>
             </div>
           </div>

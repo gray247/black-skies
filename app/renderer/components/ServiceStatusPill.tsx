@@ -13,10 +13,10 @@ interface ServiceStatusPillProps {
 }
 
 const STATUS_LABELS: Record<PillStatus, string> = {
-  checking: 'Checking writing tools',
-  online: 'Ready',
-  offline: 'Writing tools offline',
-  'port-unavailable': 'Writing tools port unavailable',
+  checking: 'Checking backend services',
+  online: 'Backend services ready',
+  offline: 'Backend services offline',
+  'port-unavailable': 'Backend service port unavailable',
 };
 
 function ServiceStatusPillComponent({
@@ -34,15 +34,15 @@ function ServiceStatusPillComponent({
   const visualStatus = displayStatus === 'port-unavailable' ? 'offline' : displayStatus;
   const label =
     displayStatus === 'offline' && reason === 'test-offline'
-      ? 'Writing tools offline (test)'
+      ? 'Backend services offline (test)'
       : STATUS_LABELS[displayStatus];
   const tooltip =
     displayStatus === 'offline'
       ? reason === 'test-offline'
-        ? 'Writing tools services are forced offline for this automated test run.'
-        : 'Connection lost — retrying.'
+        ? 'Backend services are forced offline for this automated test run.'
+        : 'Backend services are unreachable; retrying.'
       : displayStatus === 'port-unavailable'
-      ? 'The writing tools service port is unavailable.'
+      ? 'The backend service port is unavailable.'
       : undefined;
   const handleClick = (): void => {
     if (!onRetry || displayStatus === 'checking') {

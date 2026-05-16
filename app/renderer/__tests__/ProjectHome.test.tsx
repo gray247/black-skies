@@ -388,6 +388,32 @@ describe('ProjectHome recent project recovery', () => {
     expect(screen.getByText(/Scenes/)).toBeInTheDocument();
   });
 
+  it('labels restored copies in the project details panel', async () => {
+    const restoredPath = 'C:\\Dev\\black-skies\\sample_project\\proj_esther_estate_restored_001';
+    const loadProjectMock = vi.fn().mockResolvedValue({
+      ok: true,
+      project: createSampleProject(restoredPath),
+      issues: [],
+    });
+
+    const projectLoader: ProjectLoaderApi = {
+      openProjectDialog: vi.fn(),
+      getSampleProjectPath: vi.fn().mockResolvedValue(restoredPath),
+      loadProject: loadProjectMock,
+    };
+
+    (window as Partial<Record<string, unknown>>).projectLoader = projectLoader;
+
+    render(<ProjectHome onToast={vi.fn()} onProjectLoaded={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(projectLoader.loadProject).toHaveBeenCalledWith({ path: restoredPath });
+    });
+
+    expect(screen.getByText('Restored copy')).toBeInTheDocument();
+    expect(screen.getAllByText(restoredPath)).toHaveLength(2);
+  });
+
   it('renders generated draft overrides in the Draft Preview editor for the active scene', async () => {
     const samplePath = 'C:\\Dev\\black-skies\\sample_project\\Esther_Estate';
     const generatedMarker = 'PHASE10_VISIBLE_GENERATED_DRAFT_MARKER';

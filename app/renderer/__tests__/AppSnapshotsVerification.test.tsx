@@ -980,12 +980,16 @@ it('renders backup list and triggers backup actions', async () => {
   );
   await waitFor(() => expect(listBackups).toHaveBeenCalledTimes(2));
 
-  const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
   fireEvent.click(
     await screen.findByRole('button', {
       name: /Restore backup BS_20251119_120000\.zip/i,
     }),
   );
+  const confirmModal = await screen.findByRole('dialog', {
+    name: /Confirm restore backup BS_20251119_120000\.zip/i,
+  });
+  expect(within(confirmModal).getByText(/creates a new sibling copy/i)).toBeInTheDocument();
+  fireEvent.click(within(confirmModal).getByRole('button', { name: /Restore backup/i }));
   await waitFor(() =>
     expect(restoreBackup).toHaveBeenCalledWith({
       backupName: 'BS_20251119_120000.zip',
@@ -1001,7 +1005,6 @@ it('renders backup list and triggers backup actions', async () => {
       }),
     ),
   );
-  confirmSpy.mockRestore();
 });
 
 it('surfaces actionable text when backup verification fails', async () => {

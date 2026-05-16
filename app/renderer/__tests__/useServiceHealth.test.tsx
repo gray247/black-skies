@@ -75,7 +75,7 @@ describe('useServiceHealth', () => {
       checkHealth: vi.fn().mockResolvedValue({
         ok: false,
         error: {
-          message: 'Service port is unavailable.',
+          message: 'Backend service port is unavailable.',
           traceId: 'trace-port',
         },
       }),
@@ -86,6 +86,6 @@ describe('useServiceHealth', () => {
 
     await waitFor(() => expect(screen.getByTestId('status')).toHaveTextContent('offline'));
     await waitFor(() => expect(screen.getByTestId('port-flag')).toHaveTextContent('true'));
-    expect(screen.getByTestId('error')).toHaveTextContent('Service port is unavailable.');
+    expect(screen.getByTestId('error')).toHaveTextContent('Backend service port is unavailable.');
   });
 });

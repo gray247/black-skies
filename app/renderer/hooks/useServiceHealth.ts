@@ -43,7 +43,10 @@ function isPortUnavailableError(error?: ServiceError | null): boolean {
   if (!error || typeof error.message !== 'string') {
     return false;
   }
-  return error.message.includes('Service port is unavailable');
+  return (
+    error.message.includes('Service port is unavailable') ||
+    error.message.includes('Backend service port is unavailable')
+  );
 }
 
 const noopRetry = async (): Promise<void> => {};
@@ -68,7 +71,7 @@ export function useServiceHealth(
   const initialLastError: ServiceError | null = initialForceOffline
     ? { message: 'offline-stub' }
     : initialPortUnavailable
-    ? { message: 'Service port is unavailable.' }
+    ? { message: 'Backend service port is unavailable.' }
     : null;
   const [status, setStatus] = useState<ServiceStatus>(initialStatus);
   const [isPortUnavailable, setIsPortUnavailable] = useState(initialPortUnavailable);
@@ -188,7 +191,7 @@ export function useServiceHealth(
     if (!services) {
       handleFailure(
         {
-          message: 'Services bridge unavailable; project actions disabled',
+          message: 'Backend services bridge unavailable; project actions disabled',
         },
         true,
       );
@@ -243,7 +246,7 @@ export function useServiceHealth(
       status: 'offline',
       retry,
       isPortUnavailable: true,
-      lastError: { message: 'Service port is unavailable.' },
+      lastError: { message: 'Backend service port is unavailable.' },
       serviceUnavailable: true,
       reason: 'service_port_unavailable',
     };
@@ -372,7 +375,7 @@ export function useServiceHealth(
     const freezeIsPortUnavailable = freezeReasonKey === 'service_port_unavailable';
     const freezeLastError: ServiceError | null = freezeForceOffline
       ? freezeIsPortUnavailable
-        ? { message: 'Service port is unavailable.' }
+        ? { message: 'Backend service port is unavailable.' }
         : { message: 'offline-stub' }
       : null;
     const freezeStatus: ServiceStatus = freezeForceOffline ? 'offline' : 'online';
@@ -416,7 +419,7 @@ export function useServiceHealth(
     const forcedReasonKey = offlineReason ?? 'test-offline';
     const forcedIsPortUnavailable = forcedReasonKey === 'service_port_unavailable';
     const forcedLastError: ServiceError = forcedIsPortUnavailable
-      ? { message: 'Service port is unavailable.' }
+      ? { message: 'Backend service port is unavailable.' }
       : { message: 'offline-stub' };
     return {
       status: 'offline',

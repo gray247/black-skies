@@ -12,7 +12,6 @@ type DraftGenerationScope = 'active-scene' | 'all-scenes';
 
 interface WorkspaceHeaderProps {
   projectLabel: string;
-  projectId: string | null;
   serviceStatus: ServiceStatus;
   serviceReason?: string;
   onRetry: () => Promise<void>;
@@ -46,7 +45,6 @@ interface WorkspaceHeaderProps {
 export function WorkspaceHeader(props: WorkspaceHeaderProps): JSX.Element {
   const {
     projectLabel,
-    projectId,
     serviceStatus,
     serviceReason,
     onRetry,
@@ -108,9 +106,6 @@ export function WorkspaceHeader(props: WorkspaceHeaderProps): JSX.Element {
       <div className="app-shell__workspace-heading">
         <span className="app-shell__workspace-title">Your Story</span>
         <p className="app-shell__workspace-subtitle">{projectLabel}</p>
-        {projectId ? (
-          <p className="app-shell__workspace-meta">Project ID: {projectId}</p>
-        ) : null}
       </div>
       <div className="app-shell__workspace-actions">
         <div className="workspace-header__budget-indicator" data-testid="budget-indicator">

@@ -41,6 +41,7 @@ export interface ActiveScenePayload {
 export interface ProjectHomeProps {
   onToast: (toast: ToastPayload) => void;
   onProjectLoaded?: (event: ProjectLoadEvent) => void;
+  projectId?: string | null;
   reopenRequest?: { path: string; requestId: number } | null;
   onReopenConsumed?: (result: { requestId: number; status: 'success' | 'error' }) => void;
   draftOverrides?: Record<string, string>;
@@ -67,6 +68,10 @@ const LAST_PROJECT_STORAGE_KEY = 'blackskies.last-project';
 // Ceiling: keep the recent-project list lightweight for the home view and storage churn.
 const MAX_RECENTS = 7;
 const DRAFT_PREVIEW_MIN_HEIGHT = '24rem';
+
+function isRestoredProjectPath(path: string | null | undefined): boolean {
+  return typeof path === 'string' && /_restored_/i.test(path);
+}
 
 function readStoredRecents(): RecentProjectEntry[] {
   if (typeof window === 'undefined') {
@@ -163,6 +168,7 @@ function toneFromIssue(issue: ProjectIssue): ToastPayload['tone'] {
 export default function ProjectHome({
   onToast,
   onProjectLoaded,
+  projectId,
   reopenRequest,
   onReopenConsumed,
   draftOverrides,
@@ -316,6 +322,7 @@ export default function ProjectHome({
       storedLastProjectPath,
       activeProjectPath: activeProject?.path ?? null,
       activeProjectName: activeProject?.name ?? null,
+      projectId,
       activeSceneId,
       activeSceneTitle:
         activeProject && activeSceneId
@@ -347,6 +354,7 @@ export default function ProjectHome({
       sortedRecents,
       debugLogSnapshot,
       storedLastProjectPath,
+      projectId,
     ],
   );
 
@@ -1069,7 +1077,12 @@ export default function ProjectHome({
             {activeProject ? (
               <div className="project-home__details-card">
                 <div className="project-home__details-header">
-                  <h4>{activeProject.name}</h4>
+                  <div className="project-home__details-title-row">
+                    <h4>{activeProject.name}</h4>
+                    {isRestoredProjectPath(activeProject.path) ? (
+                      <span className="project-home__restored-copy-label">Restored copy</span>
+                    ) : null}
+                  </div>
                   <span className="project-home__details-path">{activeProject.path}</span>
                 </div>
                 <dl className="project-home__stats">

@@ -31,12 +31,12 @@ const ServiceHealthBanner = memo(function ServiceHealthBanner({
 
   const message = useMemo(() => {
     if (reasonKey === 'service_port_unavailable') {
-      return 'The writing tools service port is unavailable. Start the FastAPI services or point the launcher to the correct port.';
+      return 'The backend service port is unavailable. Start the FastAPI services or point the launcher to the correct port.';
     }
     if (reasonKey === 'test-offline') {
-      return 'The writing tools services are forced offline for this automated test run.';
+      return 'The backend services are forced offline for this automated test run.';
     }
-    return 'The writing tools are temporarily unreachable. We will retry shortly.';
+    return 'The backend services are temporarily unreachable. We will retry shortly.';
   }, [reasonKey]);
 
   if (testFreezeUntilRetry) {
@@ -48,21 +48,21 @@ const ServiceHealthBanner = memo(function ServiceHealthBanner({
     return (
       <div
         className={[
-          "service-health-banner",
-          "service-health-banner--frozen",
-          "service-banner",
-          "test-frozen",
-          "test-banner-locked",
-        ].join(" ")}
+          'service-health-banner',
+          'service-health-banner--frozen',
+          'service-banner',
+          'test-frozen',
+          'test-banner-locked',
+        ].join(' ')}
         data-testid={TID.serviceHealthBanner}
         role="status"
         aria-live="polite"
         aria-hidden={false}
       >
         <div className="service-health-banner__content">
-          <strong>Writing tools offline</strong>
+          <strong>Backend services offline</strong>
           <p>
-            The writing tools service port is unavailable. Start the FastAPI services or point the launcher
+            The backend service port is unavailable. Start the FastAPI services or point the launcher
             to the correct port.
           </p>
         </div>
@@ -89,11 +89,10 @@ const ServiceHealthBanner = memo(function ServiceHealthBanner({
     .join(' ');
 
   const displayMessage = isFrozen
-    ? 'The writing tools service port is unavailable. The automated test environment currently holds service access, so retry once the services respond.'
+    ? 'The backend service port is unavailable. The automated test environment currently holds service access, so retry once the services respond.'
     : message;
   const retryDisabled = !isFrozen && serviceStatus === 'checking';
   const bannerTestId = visible || isFrozen ? TID.serviceHealthBanner : undefined;
-
 
   return (
     <div
@@ -104,7 +103,7 @@ const ServiceHealthBanner = memo(function ServiceHealthBanner({
       aria-hidden={isHidden}
     >
       <div className="service-health-banner__content">
-        <strong>Writing tools offline</strong>
+        <strong>Backend services offline</strong>
         <p>{displayMessage}</p>
         {!isFrozen && errorMessage ? (
           <p className="service-health-banner__error">{errorMessage}</p>

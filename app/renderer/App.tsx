@@ -166,6 +166,23 @@ function deriveProjectIdFromPath(path: string): string {
   return path;
 }
 
+function deriveProjectDisplayLabel(
+  project: LoadedProject | null,
+  projectPath: string | null | undefined,
+): string {
+  if (!project && !projectPath) {
+    return 'No project loaded';
+  }
+
+  const rootName =
+    project?.name?.trim() ||
+    projectPath?.split(/[\\/]+/).filter(Boolean).at(-1) ||
+    'Project';
+  const normalizedPath = projectPath ?? '';
+  const restoredCopy = /_restored_/i.test(normalizedPath);
+  return restoredCopy ? `${rootName} (restored copy)` : rootName;
+}
+
 type BatchCritiqueStatus = "idle" | "running" | "success" | "error";
 
 interface BatchCritiqueResult {
@@ -1564,7 +1581,7 @@ export default function App(): JSX.Element {
       pushToast({
         tone: 'warning',
         title: 'Snapshot unavailable',
-        description: 'Local services are not ready.',
+        description: 'Backend services are not ready.',
       });
       return;
     }
@@ -1648,7 +1665,7 @@ export default function App(): JSX.Element {
       pushToast({
         tone: 'warning',
         title: 'Verification unavailable',
-        description: 'Local services are not ready.',
+        description: 'Backend services are not ready.',
       });
       return;
     }
@@ -1747,7 +1764,7 @@ export default function App(): JSX.Element {
       pushToast({
         tone: "warning",
         title: "Export unavailable",
-        description: "Local services are still starting up.",
+        description: "Backend services are still starting up.",
       });
       return;
     }
@@ -2075,7 +2092,10 @@ export default function App(): JSX.Element {
     };
   }, [activateProject, floatingProjectPath, isFloatingHost, isMountedRef, pushToast]);
 
-  const projectLabel = useMemo(() => projectSummary?.path ?? "No project loaded", [projectSummary]);
+  const projectLabel = useMemo(
+    () => deriveProjectDisplayLabel(currentProject, projectSummary?.path ?? null),
+    [currentProject, projectSummary?.path],
+  );
   useEffect(() => {
     if (typeof document === "undefined") {
       return;
@@ -2293,6 +2313,7 @@ export default function App(): JSX.Element {
     () => ({
       onToast: pushToast,
       onProjectLoaded: handleProjectLoaded,
+      projectId: projectSummary?.projectId ?? null,
       reopenRequest,
       onReopenConsumed: handleReopenConsumed,
       draftOverrides: draftEdits,
@@ -2316,6 +2337,7 @@ export default function App(): JSX.Element {
       handleProjectLoaded,
       handleReopenConsumed,
       pushToast,
+      projectSummary?.projectId,
       reopenRequest,
       relocationNotifyEnabled,
       setAutoSnapEnabled,
@@ -2652,7 +2674,6 @@ export default function App(): JSX.Element {
   const workspaceHeaderProps = useMemo(
     () => ({
       projectLabel,
-      projectId: projectSummary?.projectId ?? null,
       serviceStatus: effectiveServiceStatus,
       serviceReason: effectiveServiceReason,
       onRetry: visualHomeRetry,
