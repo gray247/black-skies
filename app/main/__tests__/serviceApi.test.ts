@@ -327,7 +327,30 @@ describe('serviceApi', () => {
     expect(result?.ok).toBe(false);
     if (result && !result.ok) {
       expect(result.error.code).toBe('TIMEOUT');
-      expect(result.error.details).toEqual({ timeout_ms: 120000, unit_count: 0 });
+      expect(result.error.details).toEqual({ timeout_ms: 300000, unit_count: 0 });
+    }
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('honors explicit restore timeout overrides without dropping below the base timeout', async () => {
+    process.env.BLACKSKIES_BRIDGE_TIMEOUT_MS = '50';
+    process.env.BLACKSKIES_BRIDGE_RESTORE_TIMEOUT_MS = '150';
+    const timeoutError = new Error('aborted');
+    timeoutError.name = 'AbortError';
+    const fetchMock = global.fetch as unknown as vi.Mock;
+    fetchMock.mockReset();
+    fetchMock.mockRejectedValue(timeoutError);
+
+    const serviceApi = await loadServiceApi();
+    const result = await serviceApi.restoreFromZip?.({
+      projectId: 'proj_test',
+      restoreAsNew: true,
+    });
+
+    expect(result?.ok).toBe(false);
+    if (result && !result.ok) {
+      expect(result.error.code).toBe('TIMEOUT');
+      expect(result.error.details).toEqual({ timeout_ms: 150, unit_count: 0 });
     }
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });

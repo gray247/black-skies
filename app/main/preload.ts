@@ -658,7 +658,10 @@ const REQUEST_POLICY: BridgeResiliencePolicy = {
 };
 
 const DRAFT_REQUEST_MAX_TIMEOUT_MS = 300_000;
-const RESTORE_REQUEST_TIMEOUT_MS = Math.max(REQUEST_POLICY.timeoutMs, 120_000);
+const RESTORE_REQUEST_TIMEOUT_MS = Math.max(
+  REQUEST_POLICY.timeoutMs,
+  parsePositiveInt(process.env.BLACKSKIES_BRIDGE_RESTORE_TIMEOUT_MS, 300_000),
+);
 
 const REQUEST_BREAKER = new CircuitBreaker(
   REQUEST_POLICY.circuitFailureThreshold,
