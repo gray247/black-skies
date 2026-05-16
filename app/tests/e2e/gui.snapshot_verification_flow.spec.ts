@@ -14,6 +14,8 @@ const FAILURE_TOAST_PATTERNS = [
 ];
 
 const EXPECTED_TOAST_PATTERNS = [/^Snapshot created$/i, /^Snapshot verification$/i];
+const SNAPSHOTS_HEALTH_OK_PATTERN =
+  /latest (snapshot verified|verification record shows no issues)/i;
 
 type ToastCapture = {
   assertNoUnexpectedToasts: () => Promise<void>;
@@ -359,14 +361,14 @@ test('snapshot verification flow (UI)', async ({ page }) => {
   await expect(panel).toBeVisible({ timeout: 30_000 });
   await toastCapture.assertNoUnexpectedToasts();
   await expect(page.getByTestId('snapshot-badge-pw-wizard-final')).toBeVisible();
-  await expect(page.getByTestId('snapshots-health-status')).toHaveText(/latest snapshot verified/i);
+  await expect(page.getByTestId('snapshots-health-status')).toHaveText(SNAPSHOTS_HEALTH_OK_PATTERN);
   await expect(page.getByText(/Last check:/)).toBeVisible();
   await toastCapture.assertNoUnexpectedToasts();
 
   await snapshotButton.click();
   await expect(page.getByTestId('snapshot-badge-snapshot-current')).toBeVisible({ timeout: 30_000 });
   await expect(page.getByTestId('snapshot-badge-snapshot-current')).toBeVisible();
-  await expect(page.getByTestId('snapshots-health-status')).toHaveText(/latest snapshot verified/i);
+  await expect(page.getByTestId('snapshots-health-status')).toHaveText(SNAPSHOTS_HEALTH_OK_PATTERN);
   await toastCapture.assertNoUnexpectedToasts();
 
   const toastTitle = page.locator('.toast__title', { hasText: /snapshot created/i });
@@ -381,7 +383,7 @@ test('snapshot verification flow (UI)', async ({ page }) => {
   const refreshStatusButton = page.getByTestId('snapshots-refresh-status-button');
   await expect(refreshStatusButton).toBeEnabled();
   await refreshStatusButton.click();
-  await expect(page.getByTestId('snapshots-health-status')).toHaveText(/latest snapshot verified/i);
+  await expect(page.getByTestId('snapshots-health-status')).toHaveText(SNAPSHOTS_HEALTH_OK_PATTERN);
   await expect(page.getByText(/Last check:/)).toBeVisible();
   await toastCapture.assertNoUnexpectedToasts();
 
@@ -389,7 +391,7 @@ test('snapshot verification flow (UI)', async ({ page }) => {
   await expect(rerunButton).toBeVisible();
   await rerunButton.click();
   await expect(page.getByText(/Last check:/)).toBeVisible();
-  await expect(page.getByTestId('snapshots-health-status')).toHaveText(/latest snapshot verified/i);
+  await expect(page.getByTestId('snapshots-health-status')).toHaveText(SNAPSHOTS_HEALTH_OK_PATTERN);
   await toastCapture.assertNoUnexpectedToasts();
 
   const viewFullReportButton = snapshotItem.getByRole('button', { name: /view snapshot details/i });

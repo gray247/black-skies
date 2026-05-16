@@ -104,6 +104,4 @@ def test_backup_verification_run_persists_latest_report(test_client):
     assert report_response.status_code == 200
     assert report_response.json()["project_id"] == "verify-run-writes-report"
     assert report_response.json()["report_observation"]["historical_only"] is True
-    assert (
-        report_response.json()["report_observation"]["strongest_authority"] == "A3"
-    )
+    assert report_response.json()["report_observation"]["strongest_authority"] == "A3"

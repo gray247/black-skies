@@ -2743,7 +2743,9 @@ def test_restore_latest_without_zip_name_uses_latest_backup_bundle(
             ),
             encoding="utf-8",
         )
-        _bootstrap_scene(tmp_path, project_id, scene_id="sc_0002", order=2, body="Later backup body.")
+        _bootstrap_scene(
+            tmp_path, project_id, scene_id="sc_0002", order=2, body="Later backup body."
+        )
         second_backup = test_client.post("/api/v1/backups", json={"projectId": project_id})
         assert second_backup.status_code == 200
 

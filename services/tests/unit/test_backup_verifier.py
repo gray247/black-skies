@@ -49,9 +49,7 @@ def test_verification_reports_ok(tmp_path: Path) -> None:
     assert snapshot_report["status"] == "ok"
     assert snapshot_report["semantic_context"]["integrity_state"] == "integrity-valid"
     assert snapshot_report["semantic_context"]["historical_only"] is False
-    assert (
-        snapshot_report["semantic_context"]["verification_basis"]["strongest_authority"] == "A2"
-    )
+    assert snapshot_report["semantic_context"]["verification_basis"]["strongest_authority"] == "A2"
     assert report["backups"]
     assert report["backups"][0]["status"] == "ok"
     assert report["backups"][0]["semantic_context"]["integrity_state"] == "integrity-valid"
