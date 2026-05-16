@@ -1483,7 +1483,7 @@ describe('App preflight integration', () => {
     render(<App />);
 
     await waitFor(() => expect(services.checkHealth).toHaveBeenCalled());
-    await screen.findByRole('button', { name: /writing tools offline/i });
+    await screen.findByRole('button', { name: /backend services offline/i });
   });
 
   it('triggers snapshot and verification from the header', async () => {
@@ -1531,7 +1531,8 @@ describe('App preflight integration', () => {
     render(<App />);
 
     await screen.findByText(/Your Story/i);
-    await screen.findByText(/Project ID:/i);
+    await screen.findByText(/Demo Project/i);
+    expect(screen.queryByText(/Project ID:/i)).toBeNull();
 
     await userEvent.click(await screen.findByTestId('snapshots-open-button'));
     const snapshotsPanel = await screen.findByTestId('snapshots-panel');
@@ -1572,7 +1573,8 @@ describe('App preflight integration', () => {
     render(<App />);
 
     await screen.findByText(/Your Story/i);
-    await screen.findByText(/Project ID:/i);
+    await screen.findByText(/Demo Project/i);
+    expect(screen.queryByText(/Project ID:/i)).toBeNull();
     const snapshotsButton = screen.getByTestId('snapshots-open-button');
     expect(snapshotsButton).not.toBeDisabled();
 
@@ -1631,7 +1633,8 @@ describe('App preflight integration', () => {
     render(<App />);
 
     await screen.findByText(/Your Story/i);
-    await screen.findByText(/Project ID:/i);
+    await screen.findByText(/Demo Project/i);
+    expect(screen.queryByText(/Project ID:/i)).toBeNull();
 
     await userEvent.click(await screen.findByTestId('snapshots-open-button'));
     const snapshotsPanel = await screen.findByTestId('snapshots-panel');

@@ -258,7 +258,7 @@ test.describe('GUI flow smoke tests', () => {
     await expect(statusPill).toHaveAttribute('data-status', 'port-unavailable');
     await expect(statusPill).toHaveAttribute('data-reason', 'service_port_unavailable');
     await expect(
-      banner.getByText(/The writing tools service port is unavailable\./i),
+      banner.getByText(/The backend service port is unavailable\./i),
     ).toBeVisible();
     await expect(page.getByTestId('workspace-action-generate')).toBeDisabled();
     await expect(page.getByTestId('workspace-action-critique')).toBeDisabled();

@@ -346,7 +346,7 @@ test.describe('Hotkeys status', () => {
     await expect(serviceStatusPill).toHaveAttribute('data-reason', 'test-offline');
     await expect(serviceStatusPill).toHaveAttribute(
       'title',
-      'Writing tools services are forced offline for this automated test run.',
+      'Backend services are forced offline for this automated test run.',
     );
     await expect(generateButton).toBeDisabled();
     await expect(critiqueButton).toBeDisabled();
