@@ -12,6 +12,7 @@ from ..config import ServiceSettings
 from ..diagnostics import DiagnosticLogger
 from ..http import raise_filesystem_error, raise_validation_error
 from ..models._project_id import validate_project_id
+from ..restore_service import validate_restored_copy
 from .dependencies import get_diagnostics, get_settings
 
 router = APIRouter(prefix="/backups", tags=["backups"])
@@ -61,7 +62,7 @@ async def create_backup(
     payload: dict[str, Any],
     settings: ServiceSettings = Depends(get_settings),
     diagnostics: DiagnosticLogger = Depends(get_diagnostics),
-) -> dict[str, str]:
+) -> dict[str, Any]:
     try:
         request_model = BackupCreateRequest.model_validate(payload)
     except ValidationError as exc:
@@ -142,6 +143,22 @@ async def restore_backup(
     backup_service = BackupService(settings=settings, diagnostics=diagnostics)
     try:
         result = backup_service.restore_backup(backup_name=request_model.backupName)
+        restored_path_value = result.get("restored_path")
+        if isinstance(restored_path_value, str):
+            is_valid, validation_payload = validate_restored_copy(
+                settings=settings,
+                diagnostics=diagnostics,
+                restored_path=restored_path_value,
+                operation=dict(result.get("operation") or {}),
+            )
+            if not is_valid:
+                raise_validation_error(
+                    message=validation_payload["message"],
+                    details=validation_payload["details"],
+                    diagnostics=diagnostics,
+                    project_root=None,
+                )
+            result["operation"] = validation_payload
         result["restore_observation"] = _restore_observation(
             claim_scope="restored-copy-materialized-from-backup-archive"
         )
@@ -149,6 +166,7 @@ async def restore_backup(
             claim_scope="restored-copy-materialized-from-backup-archive",
             restored_copy_materialized=result.get("status") == "ok",
             browseable_path_available=bool(result.get("restored_path")),
+            degraded_reasons=(result.get("operation") or {}).get("degraded_reasons"),
         )
         return result
     except FileNotFoundError as exc:

@@ -56,4 +56,85 @@ describe('SnapshotsPanel restore workflow', () => {
     action?.onPress();
     expect(revealPath).toHaveBeenCalledWith('/tmp/demo_restored');
   });
+
+  it('shows an unknown-completion warning when restore times out', async () => {
+    const restoreFromZip = vi.fn().mockResolvedValue({
+      ok: false,
+      error: {
+        code: 'TIMEOUT',
+        message: 'Request timed out after 300000ms.',
+        details: {
+          timeout_ms: 300000,
+          backend_may_still_be_running: true,
+          completion_status: 'unknown',
+          operation_name: 'restore-copy',
+        },
+      },
+    });
+    const pushToast = vi.fn();
+
+    render(
+      <SnapshotsPanel
+        projectId="demo"
+        projectPath="/projects/demo"
+        services={{ restoreFromZip } as ServicesBridge}
+        serviceStatus="online"
+        pushToast={pushToast}
+      />,
+    );
+
+    fireEvent.click(await screen.findByRole('button', { name: /restore latest zip/i }));
+    fireEvent.click(await screen.findByRole('button', { name: /^restore$/i }));
+
+    await waitFor(() =>
+      expect(pushToast).toHaveBeenCalledWith(
+        expect.objectContaining({
+          tone: 'warning',
+          title: 'Restore completion unknown',
+        }),
+      ),
+    );
+  });
+
+  it('shows a degraded inspection warning when restore preserves an invalid copy', async () => {
+    const restoreFromZip = vi.fn().mockResolvedValue({
+      ok: false,
+      traceId: 'trace-restore-degraded',
+      error: {
+        code: 'VALIDATION',
+        message: 'Restored project failed integrity validation and the copy was preserved for inspection.',
+        details: {
+          operation: {
+            completion_status: 'degraded-preserved',
+            destination_path: '/tmp/demo_restored_bad',
+          },
+        },
+      },
+    });
+    const revealPath = vi.fn();
+    const pushToast = vi.fn();
+
+    render(
+      <SnapshotsPanel
+        projectId="demo"
+        projectPath="/projects/demo"
+        services={{ restoreFromZip, revealPath } as ServicesBridge}
+        serviceStatus="online"
+        pushToast={pushToast}
+      />,
+    );
+
+    fireEvent.click(await screen.findByRole('button', { name: /restore latest zip/i }));
+    fireEvent.click(await screen.findByRole('button', { name: /^restore$/i }));
+
+    await waitFor(() => {
+      const degradedToast = pushToast.mock.calls.find(
+        ([payload]) => payload.title === 'Restore copy needs inspection',
+      );
+      expect(degradedToast).toBeDefined();
+      expect(degradedToast?.[0].description).toContain('/tmp/demo_restored_bad');
+      degradedToast?.[0].actions?.[0]?.onPress();
+      expect(revealPath).toHaveBeenCalledWith('/tmp/demo_restored_bad');
+    });
+  });
 });

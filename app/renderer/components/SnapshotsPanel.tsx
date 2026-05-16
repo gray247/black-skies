@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import type {
   BackupSummary,
   BackupVerificationReport,
+  ServiceError,
   ServicesBridge,
   SnapshotVerificationSummary,
 } from '../../shared/ipc/services';
@@ -75,6 +76,41 @@ const formatBytes = (value: number): string => {
     index += 1;
   }
   return `${size.toFixed(index > 0 ? 1 : 0)} ${units[index]}`;
+};
+
+interface OperationErrorDetails {
+  backend_may_still_be_running?: boolean;
+  completion_status?: string;
+  operation_name?: string;
+  operation?: {
+    completion_status?: string;
+    cleanup_status?: string;
+    degraded_reasons?: string[];
+    destination_path?: string;
+  };
+}
+
+const readOperationErrorDetails = (details: unknown): OperationErrorDetails | null => {
+  if (!details || typeof details !== 'object') {
+    return null;
+  }
+  return details as OperationErrorDetails;
+};
+
+const isUnknownCompletionTimeout = (error: ServiceError | undefined): boolean => {
+  const details = readOperationErrorDetails(error?.details);
+  return error?.code === 'TIMEOUT' && details?.backend_may_still_be_running === true;
+};
+
+const resolvePreservedRestorePath = (error: ServiceError | undefined): string | null => {
+  const details = readOperationErrorDetails(error?.details);
+  const destinationPath = details?.operation?.destination_path;
+  return typeof destinationPath === 'string' && destinationPath.length > 0 ? destinationPath : null;
+};
+
+const isPreservedDegradedRestore = (error: ServiceError | undefined): boolean => {
+  const details = readOperationErrorDetails(error?.details);
+  return details?.operation?.completion_status === 'degraded-preserved';
 };
 
 export default function SnapshotsPanel({
@@ -634,6 +670,16 @@ export default function SnapshotsPanel({
       }
       const response = await services.createBackup({ projectId });
       if (response.ok !== true) {
+        if (isUnknownCompletionTimeout(response.error)) {
+          pushToast({
+            tone: 'warning',
+            title: 'Backup completion unknown',
+            description:
+              'The request timed out before backup completion was confirmed. The backend may still finish writing the backup bundle.',
+            traceId: response.traceId ?? response.error?.traceId,
+          });
+          return;
+        }
         pushToast({
           tone: 'error',
           title: 'Backup creation failed',
@@ -698,6 +744,39 @@ export default function SnapshotsPanel({
       try {
         const response = await services.restoreBackup({ backupName });
         if (!response.ok) {
+          if (isPreservedDegradedRestore(response.error)) {
+            const preservedPath = resolvePreservedRestorePath(response.error);
+            pushToast({
+              tone: 'warning',
+              title: 'Backup restore needs inspection',
+              description: preservedPath
+                ? `${response.error?.message ?? 'The restored copy was preserved for inspection.'} Preserved path: ${preservedPath}.`
+                : response.error?.message ?? 'The restored copy was preserved for inspection.',
+              traceId: response.traceId ?? response.error?.traceId,
+              actions:
+                preservedPath && services.revealPath
+                  ? [
+                      {
+                        label: 'Open folder',
+                        onPress: () => {
+                          void services.revealPath?.(preservedPath);
+                        },
+                      },
+                    ]
+                  : undefined,
+            });
+            return;
+          }
+          if (isUnknownCompletionTimeout(response.error)) {
+            pushToast({
+              tone: 'warning',
+              title: 'Backup restore completion unknown',
+              description:
+                'The request timed out before completion was confirmed. Your current project was not overwritten, but the backend may still be creating a restored copy.',
+              traceId: response.traceId ?? response.error?.traceId,
+            });
+            return;
+          }
           pushToast({
             tone: 'error',
             title: 'Backup restore failed',
@@ -711,21 +790,23 @@ export default function SnapshotsPanel({
 
         const payload = response.data;
         if (payload?.status !== 'ok') {
-        pushToast({
-          tone: 'error',
-          title: 'Backup restore failed',
-          description:
-            payload?.message ?? 'Your current project was not changed. Retry the restore.',
-        });
-        return;
+          pushToast({
+            tone: 'error',
+            title: 'Backup restore failed',
+            description:
+              payload?.message ?? 'Your current project was not changed. Retry the restore.',
+          });
+          return;
         }
 
         pushToast({
           tone: 'success',
           title: 'Backup copy created',
-          description: payload.restored_project_slug
-            ? `Materialized backup copy as ${payload.restored_project_slug}.`
-            : 'Materialized a backup restore copy.',
+          description: payload.restored_path
+            ? `Materialized a backup restore copy at ${payload.restored_path}.`
+            : payload.restored_project_slug
+              ? `Materialized backup copy as ${payload.restored_project_slug}.`
+              : 'Materialized a backup restore copy.',
           actions:
             payload.restored_path && services.revealPath
               ? [
@@ -759,11 +840,11 @@ export default function SnapshotsPanel({
     }
 
     setRestoringZip(true);
-      pushToast({
-        tone: 'info',
-        title: 'Restoring from ZIP',
-        description: 'A new sibling project copy will be created from the latest ZIP.',
-      });
+    pushToast({
+      tone: 'info',
+      title: 'Restoring from ZIP',
+      description: 'A new sibling project copy will be created from the latest ZIP.',
+    });
 
     try {
       const response = await services.restoreFromZip({
@@ -771,6 +852,39 @@ export default function SnapshotsPanel({
         restoreAsNew: true,
       });
       if (!response.ok) {
+        if (isPreservedDegradedRestore(response.error)) {
+          const preservedPath = resolvePreservedRestorePath(response.error);
+          pushToast({
+            tone: 'warning',
+            title: 'Restore copy needs inspection',
+            description: preservedPath
+              ? `${response.error?.message ?? 'The restored copy was preserved for inspection.'} Preserved path: ${preservedPath}.`
+              : response.error?.message ?? 'The restored copy was preserved for inspection.',
+            traceId: response.traceId ?? response.error?.traceId,
+            actions:
+              preservedPath && services.revealPath
+                ? [
+                    {
+                      label: 'Open folder',
+                      onPress: () => {
+                        void services.revealPath?.(preservedPath);
+                      },
+                    },
+                  ]
+                : undefined,
+          });
+          return;
+        }
+        if (isUnknownCompletionTimeout(response.error)) {
+          pushToast({
+            tone: 'warning',
+            title: 'Restore completion unknown',
+            description:
+              'The request timed out before completion was confirmed. Your current project was not overwritten, but the backend may still be creating a restored copy.',
+            traceId: response.traceId ?? response.error?.traceId,
+          });
+          return;
+        }
         pushToast({
           tone: 'error',
           title: 'Project restore failed',

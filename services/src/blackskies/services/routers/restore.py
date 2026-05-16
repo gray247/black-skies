@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import Any, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -12,12 +11,12 @@ from ..backup_service import BackupService
 from ..config import ServiceSettings
 from ..diagnostics import DiagnosticLogger
 from ..http import raise_validation_error
-from ..integrity import validate_project
 from ..get_logger import get_logger
 from ..restore_service import (
     find_latest_zip,
     restore_from_zip,
     resolve_project_root,
+    validate_restored_copy,
 )
 from .dependencies import get_diagnostics, get_settings
 
@@ -120,32 +119,36 @@ async def restore_project(
         logger.error("Restore failed for %s: %s", restore_target_name, result.get("message"))
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=result.get("message") or "Restore failed",
+            detail={
+                "code": "VALIDATION",
+                "message": result.get("message") or "Restore failed",
+                "details": {"operation": result.get("operation"), "source": restore_target_name},
+            },
         )
 
     restored_path_value = result.get("restored_path")
     if restored_path_value:
-        restored_path = Path(restored_path_value)
-        integrity = validate_project(settings, project_root=restored_path)
-        if not integrity.is_ok:
-            diagnostics.log(
-                restored_path,
-                code="INTEGRITY_POST_RESTORE",
-                message="Restored project failed integrity validation.",
-                details={"errors": integrity.errors, "warnings": integrity.warnings},
-            )
+        is_valid, validation_payload = validate_restored_copy(
+            settings=settings,
+            diagnostics=diagnostics,
+            restored_path=restored_path_value,
+            operation=dict(result.get("operation") or {}),
+        )
+        if not is_valid:
             raise_validation_error(
-                message="Restored project failed integrity validation.",
-                details={"errors": integrity.errors, "warnings": integrity.warnings},
+                message=validation_payload["message"],
+                details=validation_payload["details"],
                 diagnostics=diagnostics,
-                project_root=restored_path,
+                project_root=None,
             )
+        result["operation"] = validation_payload
 
     result["restore_observation"] = _restore_observation(claim_scope=claim_scope)
     result["restore_semantic_context"] = _restore_semantic_context(
         claim_scope=claim_scope,
         restored_copy_materialized=result.get("status") == "ok",
         browseable_path_available=bool(restored_path_value),
+        degraded_reasons=(result.get("operation") or {}).get("degraded_reasons"),
     )
 
     return result

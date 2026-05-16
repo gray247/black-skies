@@ -7,6 +7,7 @@ import errno
 import hashlib
 import json
 import importlib
+import shutil
 import threading
 import time
 import zipfile
@@ -2770,6 +2771,94 @@ def test_restore_latest_without_zip_name_uses_latest_backup_bundle(
         entry["filename"]
         for entry in test_client.get("/api/v1/backups", params={"projectId": project_id}).json()
     ]
+
+
+def test_restore_from_zip_cleans_invalid_materialized_copy(
+    test_client: TestClient, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    project_id = "proj_restore_zip_invalid_cleanup"
+    project_root = tmp_path / project_id
+    project_root.mkdir(parents=True, exist_ok=True)
+    exports_dir = project_root / "exports"
+    exports_dir.mkdir(parents=True, exist_ok=True)
+    _bootstrap_scene(tmp_path, project_id, scene_id="sc_0001")
+    scene_markdown = (project_root / "drafts" / "sc_0001.md").read_text(encoding="utf-8")
+
+    zip_path = exports_dir / "demo_export.zip"
+    with zipfile.ZipFile(zip_path, "w") as archive:
+        archive.writestr("project.json", json.dumps({"project_id": project_id}))
+        archive.writestr("outline.json", json.dumps({"schema_version": "OutlineSchema v1"}))
+        archive.writestr("drafts/sc_0001.md", scene_markdown)
+
+    monkeypatch.setattr(
+        "blackskies.services.restore_service.validate_project",
+        lambda *_args, **_kwargs: SimpleNamespace(
+            is_ok=False,
+            errors=["scene metadata invalid"],
+            warnings=[],
+        ),
+    )
+
+    response = test_client.post(
+        f"{API_PREFIX}/restore",
+        json={"projectId": project_id, "zipName": "demo_export.zip", "restoreAsNew": True},
+    )
+
+    assert response.status_code == 400
+    detail = _read_error(response)
+    assert detail["code"] == "VALIDATION"
+    assert detail["details"]["operation"]["cleanup_status"] == "completed"
+    assert detail["details"]["operation"]["completion_status"] == "failed-cleaned"
+    assert not any(project_root.parent.glob(f"{project_id}_restored_*"))
+
+
+def test_restore_from_zip_preserves_copy_when_cleanup_fails(
+    test_client: TestClient, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    project_id = "proj_restore_zip_preserved"
+    project_root = tmp_path / project_id
+    project_root.mkdir(parents=True, exist_ok=True)
+    exports_dir = project_root / "exports"
+    exports_dir.mkdir(parents=True, exist_ok=True)
+    _bootstrap_scene(tmp_path, project_id, scene_id="sc_0001")
+    scene_markdown = (project_root / "drafts" / "sc_0001.md").read_text(encoding="utf-8")
+
+    zip_path = exports_dir / "demo_export.zip"
+    with zipfile.ZipFile(zip_path, "w") as archive:
+        archive.writestr("project.json", json.dumps({"project_id": project_id}))
+        archive.writestr("outline.json", json.dumps({"schema_version": "OutlineSchema v1"}))
+        archive.writestr("drafts/sc_0001.md", scene_markdown)
+
+    monkeypatch.setattr(
+        "blackskies.services.restore_service.validate_project",
+        lambda *_args, **_kwargs: SimpleNamespace(
+            is_ok=False,
+            errors=["scene metadata invalid"],
+            warnings=[],
+        ),
+    )
+
+    real_rmtree = shutil.rmtree
+
+    def _fail_cleanup(path: str | Path, ignore_errors: bool = False) -> None:
+        if f"{project_id}_restored_" in str(path):
+            raise OSError("cleanup failed")
+        real_rmtree(path, ignore_errors=ignore_errors)
+
+    monkeypatch.setattr("blackskies.services.restore_service.shutil.rmtree", _fail_cleanup)
+
+    response = test_client.post(
+        f"{API_PREFIX}/restore",
+        json={"projectId": project_id, "zipName": "demo_export.zip", "restoreAsNew": True},
+    )
+
+    assert response.status_code == 400
+    detail = _read_error(response)
+    assert detail["code"] == "VALIDATION"
+    assert detail["details"]["operation"]["cleanup_status"] == "failed-preserved"
+    assert detail["details"]["operation"]["completion_status"] == "degraded-preserved"
+    preserved_path = Path(detail["details"]["operation"]["destination_path"])
+    assert preserved_path.exists()
 
 
 def test_recovery_restore_normalises_legacy_flag(test_client: TestClient, tmp_path: Path) -> None:

@@ -23,3 +23,7 @@ def test_restore_from_zip_creates_unique_subfolder(tmp_path: Path) -> None:
     assert restored_path.name.startswith("demo_project_restored_")
     assert (restored_path / "project.json").exists()
     assert (restored_path / "outline.json").exists()
+    assert result["operation"]["source_kind"] == "export-zip"
+    assert result["operation"]["completion_status"] == "materialized"
+    assert result["operation"]["validation_status"] == "not-run"
+    assert result["operation"]["destination_path"] == restored_path.as_posix()

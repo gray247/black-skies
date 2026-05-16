@@ -7,13 +7,15 @@ import json
 import os
 import shutil
 import tempfile
+import time
 import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 from .config import ServiceSettings
 from .diagnostics import DiagnosticLogger
-from .restore_service import _create_destination
+from .restore_service import _create_destination, _restore_operation_payload
 from .utils.paths import to_posix
 
 BACKUP_FILENAME_TEMPLATE = "BS_{timestamp}.zip"
@@ -40,7 +42,7 @@ class BackupService:
         self._settings = settings
         self._diagnostics = diagnostics
 
-    def create_backup(self, *, project_id: str) -> dict[str, str]:
+    def create_backup(self, *, project_id: str) -> dict[str, Any]:
         project_root = self._settings.project_base_dir / project_id
         if not project_root.exists():
             raise FileNotFoundError(project_root)
@@ -57,6 +59,7 @@ class BackupService:
             shutil.rmtree(temp_path, ignore_errors=True)
 
         files_list: list[dict[str, str]] = []
+        started_at = time.perf_counter()
 
         try:
             with zipfile.ZipFile(temp_path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
@@ -80,12 +83,19 @@ class BackupService:
                 target_path.unlink()
             temp_path.replace(target_path)
 
-            payload: dict[str, str] = {
+            payload: dict[str, Any] = {
                 "project_id": project_id,
                 "filename": filename,
                 "path": to_posix(target_path.relative_to(self._settings.project_base_dir)),
                 "created_at": created_at,
                 "checksum": _hashfile(target_path),
+            }
+            payload["operation"] = {
+                "archive_path": to_posix(target_path),
+                "elapsed_ms": round((time.perf_counter() - started_at) * 1000),
+                "archive_size_bytes": target_path.stat().st_size,
+                "file_count": len(files_list),
+                "completion_status": "completed",
             }
             return payload
         except OSError as exc:
@@ -140,15 +150,18 @@ class BackupService:
         latest_name = entries[0].get("filename")
         return latest_name if isinstance(latest_name, str) and latest_name else None
 
-    def restore_backup(self, *, backup_name: str) -> dict[str, str]:
+    def restore_backup(self, *, backup_name: str) -> dict[str, Any]:
         backup_root = self._settings.backups_dir
         backup_path = backup_root / backup_name
         if not backup_path.exists():
             raise FileNotFoundError(backup_path)
 
         temp_dir = Path(tempfile.mkdtemp())
+        started_at = time.perf_counter()
         try:
             with zipfile.ZipFile(backup_path) as archive:
+                if BACKUP_CHECKSUMS not in archive.namelist():
+                    raise ValueError("Backup bundle is missing checksums.json")
                 archive.extractall(temp_dir)
 
             manifest_dir = _find_manifest_dir(temp_dir)
@@ -172,11 +185,19 @@ class BackupService:
             parent = self._settings.project_base_dir
             destination = _create_destination(str(parent), slug)
             shutil.move(str(manifest_dir), destination)
+            destination_path = Path(destination)
 
             return {
                 "status": "ok",
                 "restored_path": to_posix(Path(destination)),
                 "restored_project_slug": os.path.basename(destination),
+                "operation": _restore_operation_payload(
+                    source_kind="backup-bundle",
+                    archive_path=backup_path,
+                    destination_path=destination_path,
+                    elapsed_ms=round((time.perf_counter() - started_at) * 1000),
+                    completion_status="materialized",
+                ),
             }
         except zipfile.BadZipFile as exc:
             raise ValueError("Backup bundle is not a valid ZIP archive") from exc

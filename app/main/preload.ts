@@ -662,6 +662,14 @@ const RESTORE_REQUEST_TIMEOUT_MS = Math.max(
   REQUEST_POLICY.timeoutMs,
   parsePositiveInt(process.env.BLACKSKIES_BRIDGE_RESTORE_TIMEOUT_MS, 300_000),
 );
+const BACKUP_CREATE_REQUEST_TIMEOUT_MS = Math.max(
+  REQUEST_POLICY.timeoutMs,
+  parsePositiveInt(process.env.BLACKSKIES_BRIDGE_BACKUP_CREATE_TIMEOUT_MS, 300_000),
+);
+const BACKUP_RESTORE_REQUEST_TIMEOUT_MS = Math.max(
+  REQUEST_POLICY.timeoutMs,
+  parsePositiveInt(process.env.BLACKSKIES_BRIDGE_BACKUP_RESTORE_TIMEOUT_MS, 300_000),
+);
 
 const REQUEST_BREAKER = new CircuitBreaker(
   REQUEST_POLICY.circuitFailureThreshold,
@@ -812,6 +820,55 @@ function resolveRequestTimeoutMs(unitCount: number): number {
     DRAFT_REQUEST_MAX_TIMEOUT_MS,
     REQUEST_POLICY.timeoutMs * scaledUnitCount,
   );
+}
+
+function resolveRouteTimeoutMs(normalizedPath: string, unitCount: number): number {
+  if (normalizedPath === 'restore') {
+    return RESTORE_REQUEST_TIMEOUT_MS;
+  }
+  if (normalizedPath === 'backups') {
+    return BACKUP_CREATE_REQUEST_TIMEOUT_MS;
+  }
+  if (normalizedPath === 'backups/restore') {
+    return BACKUP_RESTORE_REQUEST_TIMEOUT_MS;
+  }
+  return resolveRequestTimeoutMs(unitCount);
+}
+
+function buildTimeoutDetails(
+  normalizedPath: string,
+  timeoutMs: number,
+  unitCount: number,
+): Record<string, unknown> {
+  const baseDetails: Record<string, unknown> = {
+    timeout_ms: timeoutMs,
+    unit_count: unitCount,
+  };
+  if (normalizedPath === 'restore') {
+    return {
+      ...baseDetails,
+      operation_name: 'restore-copy',
+      completion_status: 'unknown',
+      backend_may_still_be_running: true,
+    };
+  }
+  if (normalizedPath === 'backups') {
+    return {
+      ...baseDetails,
+      operation_name: 'backup-create',
+      completion_status: 'unknown',
+      backend_may_still_be_running: true,
+    };
+  }
+  if (normalizedPath === 'backups/restore') {
+    return {
+      ...baseDetails,
+      operation_name: 'backup-restore-copy',
+      completion_status: 'unknown',
+      backend_may_still_be_running: true,
+    };
+  }
+  return baseDetails;
 }
 
 async function fetchWithResilience(
@@ -1017,10 +1074,7 @@ export async function makeServiceCall<T>(
     body: body ? JSON.stringify(body) : undefined,
   };
   const unitCount = summarizeRequestUnitCount(body);
-  const timeoutMs =
-    normalizedPath === 'restore'
-      ? RESTORE_REQUEST_TIMEOUT_MS
-      : resolveRequestTimeoutMs(unitCount);
+  const timeoutMs = resolveRouteTimeoutMs(normalizedPath, unitCount);
 
   try {
     if (phaseLogPrefix) {
@@ -1199,7 +1253,7 @@ export async function makeServiceCall<T>(
         ok: false,
         error: normalizeError(error.message, {
           code: 'TIMEOUT',
-          details: { timeout_ms: error.timeoutMs, unit_count: unitCount },
+          details: buildTimeoutDetails(normalizedPath, error.timeoutMs, unitCount),
           traceId: requestTraceId,
         }),
         traceId: requestTraceId,

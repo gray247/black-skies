@@ -328,6 +328,13 @@ export interface BackupCreateBridgeResponse {
   path: string;
   created_at: string;
   checksum: string;
+  operation?: {
+    archive_path?: string;
+    elapsed_ms?: number;
+    archive_size_bytes?: number;
+    file_count?: number;
+    completion_status?: string;
+  };
 }
 
 export interface BackupListBridgeRequest {
@@ -345,6 +352,7 @@ export interface BackupRestoreBridgeResponse {
   restored_path?: string;
   restored_project_slug?: string;
   message?: string;
+  operation?: RestoreOperationMetadata;
   restore_observation?: RestoreAuthorityObservation;
   restore_semantic_context?: RestoreSemanticContext;
 }
@@ -494,8 +502,21 @@ export interface RestoreFromZipResponse {
   restored_project_slug?: string;
   message?: string;
   details?: unknown;
+  operation?: RestoreOperationMetadata;
   restore_observation?: RestoreAuthorityObservation;
   restore_semantic_context?: RestoreSemanticContext;
+}
+
+export interface RestoreOperationMetadata {
+  source_kind?: string;
+  archive_path?: string;
+  destination_path?: string;
+  elapsed_ms?: number;
+  failure_phase?: string;
+  completion_status?: string;
+  validation_status?: string;
+  cleanup_status?: string;
+  degraded_reasons?: string[];
 }
 
 export interface RevealPathResult {
