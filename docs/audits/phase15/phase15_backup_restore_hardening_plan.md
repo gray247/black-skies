@@ -355,3 +355,46 @@ Still pending against the Phase 15 closure criteria:
 - repeated real-project/operator verification for backup create, restore latest, and selected backup restore
 - operator wording/trust review for timeout and degraded states
 - final closure audit for `15F`
+
+## Post-Hardening Human-Verification Inspection
+
+Recorded on 2026-05-16 after the first runtime hardening implementation. This section is an inspection/classification pass only. It does not close Phase 15, authorize cleanup of sample artifacts, or broaden scope into async jobs, architecture rewrite, or repository hygiene work.
+
+### Corrected Current Flow
+
+- Human-facing project selection may begin from `C:\Dev\black-skies\sample_project\Esther_Estate`, because the Electron project loader accepts user-facing folders and resolves upward to the nearest valid project root metadata.
+- The canonical internal identifier remains the `project_id` from `project.json`, currently `proj_esther_estate`. Backend backup/restore routes then resolve the operational root as `project_base_dir / projectId`, which is `C:\Dev\black-skies\sample_project\proj_esther_estate` under current sample data.
+- Backup bundles intentionally live outside the project root under `C:\Dev\black-skies\sample_project\backups\BS_*.zip`.
+- `POST /api/v1/restore` without `zipName` does not mean “latest export ZIP first.” Current logic first attempts the newest valid backup bundle for the project from `sample_project\backups`; only if no matching bundle exists does it fall back to the latest export ZIP under `<project>\exports`.
+- Both sibling-copy restore lanes materialize a restored copy under `sample_project\<slug>_restored_YYYYMMDD_HHMMSS`, where the slug is currently derived from the canonical internal project metadata. For this sample that usually means `proj_esther_estate_restored_*`, not `Esther_Estate_restored_*`.
+- Sibling-copy restore success is authoritative only after backend completion and post-materialization validation. The original project is not overwritten by these copy flows.
+- Recovery restore remains a separate route with different semantics and should not be conflated with sibling-copy backup/export restore.
+
+### Issue Classification
+
+| Observation | Source inspection result | Classification | Phase ownership | Blocks Phase 15 closure |
+| --- | --- | --- | --- | --- |
+| `Writing tools offline` appeared during backup/restore testing | Shared backend/bridge health label, not AI-writing-only health; `SnapshotsPanel` disables backup create, restore latest, restore selected backup, and verification whenever service health is not `online` | Mixed runtime-authority and GUI-labeling issue | Phase 15 plus `RDM-GUI-001` / Phase 17 | Yes |
+| Backup create showed `Request timed out after 45000ms` | Current preload source assigns `300_000ms` defaults to backup create, restore latest, and backup restore; live 45s observation now points to stale preload/build, another request path, or unreproduced runtime drift | Unknown pending reproduction; do not treat as confirmed source-level regression yet | Phase 15 | Yes |
+| Selected-backup restore used a native white confirm dialog | Confirmed: `SnapshotsPanel` still calls `window.confirm(...)` for selected-backup restore | Styling/control-surface inconsistency, with some authority-wording risk because the safety prompt bypasses the styled GUI | Phase 17 primary, Phase 15 secondary | Yes |
+| Selected-backup restore toast said `Backup copy created` | Confirmed: current success toast title for selected-backup restore is still `Backup copy created` | Semantic mismatch; action creates a restored project copy, not a backup copy | Phase 15 | Yes |
+| `Esther_Estate` vs `proj_esther_estate` vs `PROJ_ESTHER_ESTATE` felt inconsistent | Confirmed current topology: loader can open `Esther_Estate`, canonical project id is `proj_esther_estate`, backend operates on `sample_project\proj_esther_estate`, UI surfaces uppercase `PROJECT ID` label | Expected current behavior but operator-confusing alias/UI debt | Phase 15 docs/UI clarity now, `RDM-ALIAS-001` longer-tail | Yes |
+| Backups under `sample_project\backups` and restored copies as siblings under `sample_project\proj_esther_estate_restored_*` felt odd | Confirmed intentional current storage/destination policy | Expected current behavior that needs explicit documentation and trust wording, not automatic cleanup | Phase 15 documentation/UI clarity | No by itself |
+| White block / unstyled confirmation or modal | Likely the selected-backup `window.confirm(...)` unless a separate renderer regression is reproduced | Pending reproduction if a second surface exists; confirmed for selected-backup confirm | Phase 17 primary | Indirectly |
+
+### Timeout Ownership Findings
+
+- Generic bridge requests still default to `45_000ms`.
+- `POST /api/v1/restore` currently has a dedicated restore timeout default of `300_000ms`.
+- `POST /api/v1/backups` currently has a dedicated backup-create timeout default of `300_000ms`.
+- `POST /api/v1/backups/restore` currently has a dedicated backup-restore timeout default of `300_000ms`.
+- Health polling and unrelated generic service requests still use the generic bridge timeout unless separately scaled.
+- The observed 45-second timeout during backup/restore verification is therefore not explained by the current intended timeout owner and must be treated as a reproduction task, stale-session possibility, or request-path mix-up until proven otherwise.
+
+### Project Topology Findings
+
+- `sample_project\Esther_Estate` is a human-facing sample folder that still contains valid project metadata for `proj_esther_estate`.
+- `sample_project\proj_esther_estate` is the canonical backend operational root for `projectId=proj_esther_estate` under current service resolution rules.
+- `sample_project\backups` is the intentional shared backup-bundle store.
+- `sample_project\proj_esther_estate_restored_*` are restored copy artifacts from sibling-copy restore flows.
+- Existing restored siblings and duplicate sample roots must not be deleted as part of Phase 15 verification triage. Any cleanup or archival action requires explicit operator approval and likely belongs to separate repository/operator hygiene work rather than the bounded Phase 15 runtime hardening slice.
