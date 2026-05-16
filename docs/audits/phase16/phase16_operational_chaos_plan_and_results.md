@@ -32,7 +32,7 @@ Acceptance record: No operator acceptance recorded yet.
 | Duplicate action risk | Partially covered | `SnapshotsPanel` disables restore/verify buttons while a request is in flight, and `useRecovery` guards reopen with in-flight state. This is good fail-closed behavior, but not a general proof of all duplicate behaviors. |
 | Backend unavailable during UI operation | Covered | `useServiceHealth` sets offline state, `SnapshotsPanel` gates backend-required actions, and the service-status tests already cover the offline labels and retry path. |
 | Renderer reload during long operation | Partially covered | The long-running paths use explicit loading flags and completion-unknown wording, but recovery/reopen still needs operator observation to prove reload behavior in the real session. |
-| Stale result after project switch | Covered for project-switch basics, not fully closed for reopen-after-restore | Phase 14 operator receipts cover project switch and floating-pane reload/rebind, but the reopen-after-restore receipt in the scaffold remains `Not run`. |
+| Stale result after project switch | Covered | Phase 14 operator receipts cover project switch and floating-pane reload/rebind, and Phase 16 now adds real-project reopen-after-restore proof using a restored alias and relaunch. |
 | Operation timeout ambiguity | Covered as a classification, not fully closed as a trust claim | `SnapshotsPanel` now says completion is unknown when timeout happens and `preload.ts` records the timeout details, but some flows still have shorter client budgets than backend work. |
 | Harness overclaim risk | Covered | The Phase 16 governance artifact and the fixture contract check explicitly fail closed if the harness and truth lanes drift on required aliases or snapshot roots. |
 
@@ -54,5 +54,5 @@ Acceptance record: No operator acceptance recorded yet.
 ## Closure Impact
 
 - No chaos scenario here justifies a broad refactor.
-- The main remaining manual proof gap is recovery/reopen after restore.
+- The main remaining manual proof gap has been closed for Phase 16; recovery/reopen after restore now has real-project proof in this phase.
 - Everything else is either already covered as fail-closed behavior or is explicitly deferred as a trust claim rather than a resilience-engineering task.

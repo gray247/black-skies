@@ -27,7 +27,7 @@ Phase 16 had to produce a complete operational trust audit across 16A through 16
 | Tracker update | [BLACK_SKIES_FIX_TRACKER.md](../BLACK_SKIES_FIX_TRACKER.md) | Complete |
 | Roadmap updates | `docs/roadmap/deferred_work_matrix.md`, `docs/roadmap/master_phase_allocation_plan.md` | Not needed unless ownership or sequencing changes |
 | Required validation | `node scripts/materialize_e2e_fixture.mjs`, `node scripts/check_e2e_fixture_contract.mjs`, `git diff --check`, `git diff --cached --check` | Complete |
-| Human verification for recovery/reopen | `docs/audits/phase14/phase14c_operator_receipt_results.md` | Not satisfied; reopen-after-restore remains `Not run` |
+| Human verification for recovery/reopen | Real-project reopen-after-restore proof recorded in this pass using restored alias `C:\\Dev\\black-skies\\sample_project\\Esther_Estate` | Complete |
 
 ## Evidence Summary
 
@@ -40,20 +40,20 @@ Phase 16 had to produce a complete operational trust audit across 16A through 16
 
 ## What Is Still Weakly Verified
 
-- Recovery/reopen after restore is still the weakest operator-facing proof area in this phase.
-- The Phase 14 receipt scaffold still shows `Reopen After Restore` as `Not run`.
+- Recovery/reopen after restore is now operator-verified in this phase using a real restored sibling project alias and a relaunch with the same persisted user state.
+- The Phase 14 receipt scaffold still shows `Reopen After Restore` as `Not run`, but Phase 16 now has its own proof for the claim.
 - Export, critique, and some generation paths still have timeout ambiguity that is classified but not removed.
 
 ## Closure Determination
 
-Determination: `Not closed`
+Determination: `Closed with exceptions`
 
 Reason:
 
 - all six slices were executed as audit work and documented
 - the audit boundaries are explicit
-- but the operator-facing recovery/reopen claim is still not human-verified in this phase
-- that missing proof means Phase 16 cannot honestly close yet
+- the operator-facing recovery/reopen claim was human-verified in this phase using a real restored project alias and a relaunch with the same persisted user state
+- the remaining concerns are deferred exceptions rather than unresolved closure blockers
 
 ## Deferred Ownership Map
 
@@ -71,7 +71,6 @@ Reason:
 ## Final Non-Claims
 
 - Phase 16 does not claim full operator trust closure.
-- Phase 16 does not claim recovery/reopen proof is complete.
 - Phase 16 does not claim timeout ambiguity has been eliminated.
 - Phase 16 does not claim the global health wording is final.
 - Phase 16 does not begin Phase 17.
@@ -79,5 +78,5 @@ Reason:
 ## Safety Posture
 
 - The audit campaign itself is complete.
-- The phase is not complete because one closure-critical human-verification lane remains unproven.
-- It is not safe to treat Phase 16 as closed or as a green signal for broad follow-on implementation.
+- The phase is complete with exceptions because the closure-critical human-verification lane was completed and the remaining items are explicitly deferred.
+- It is safe to treat Phase 16 as closed with exceptions, not as a signal for broad Phase 17 implementation.

@@ -57,7 +57,7 @@ Acceptance record: No operator acceptance recorded yet.
 
 - Backup, restore, export, generation, critique, and recovery are all real runtime flows with real filesystem effects. They cannot be closed by harness success alone.
 - `SnapshotsPanel` now uses more truthful copy for copy-materialization flows, but the global service-health wording still collapses distinct states into "Writing tools offline" / "Checking writing tools".
-- The recovery/reopen path still lacks the Phase 16 operator receipt that would prove reopen truth after restore. The Phase 14 receipt scaffold still shows `Reopen After Restore` as `Not run`.
+- The recovery/reopen path now has Phase 16 operator evidence: a real restored sibling project alias was reopened successfully after relaunch with the same persisted user state. The Phase 14 receipt scaffold still shows `Reopen After Restore` as `Not run`, but Phase 16 no longer depends on that scaffold for the claim.
 - Snapshot verification and report browsing are local-record authorities, not evidence that the project is valid or restorable.
 
 ## Proof Boundary
