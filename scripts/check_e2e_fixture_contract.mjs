@@ -6,6 +6,18 @@ import { fileURLToPath } from 'node:url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const REPO_ROOT = path.resolve(__dirname, '..');
+const FIXTURE_SCOPE = Object.freeze({
+  proves: [
+    'materialized fixture roots exist for the harness and truth-lane aliases',
+    'fixture aliases agree on project_id, outline_id, scene_count, and required snapshot directories/files',
+    'analytics preflight can read the materialized outline shape when --base-url is provided',
+  ],
+  does_not_prove: [
+    'live runtime/project continuity correctness outside the synthetic fixture roots',
+    'GUI authority, operator flow, or restore/backup behavior',
+    'truth-lane provenance correctness or broad runtime health',
+  ],
+});
 
 function parseArgs(argv) {
   const args = {
@@ -183,6 +195,65 @@ function validateSnapshotShape(rootPath, label) {
   return diagnostics;
 }
 
+function validateAliasParity(outlineValidations, snapshotValidations) {
+  const issues = [];
+  const harnessOutline = outlineValidations.find((entry) => entry.label === 'harness') ?? null;
+  const truthOutline = outlineValidations.find((entry) => entry.label === 'truth') ?? null;
+  const harnessSnapshots = snapshotValidations.find((entry) => entry.label === 'harness') ?? null;
+  const truthSnapshots = snapshotValidations.find((entry) => entry.label === 'truth') ?? null;
+
+  if (!harnessOutline || !truthOutline) {
+    issues.push('missing required harness/truth outline validations');
+  } else {
+    if (harnessOutline.project_id !== truthOutline.project_id) {
+      issues.push(
+        `alias project_id mismatch: harness=${JSON.stringify(harnessOutline.project_id)} truth=${JSON.stringify(
+          truthOutline.project_id,
+        )}`,
+      );
+    }
+    if (harnessOutline.outline_id !== truthOutline.outline_id) {
+      issues.push(
+        `alias outline_id mismatch: harness=${JSON.stringify(harnessOutline.outline_id)} truth=${JSON.stringify(
+          truthOutline.outline_id,
+        )}`,
+      );
+    }
+    if (harnessOutline.scene_count !== truthOutline.scene_count) {
+      issues.push(
+        `alias scene_count mismatch: harness=${JSON.stringify(
+          harnessOutline.scene_count,
+        )} truth=${JSON.stringify(truthOutline.scene_count)}`,
+      );
+    }
+  }
+
+  if (!harnessSnapshots || !truthSnapshots) {
+    issues.push('missing required harness/truth snapshot validations');
+  } else {
+    const summarizeSnapshotDirs = (entry) =>
+      entry.snapshot_dirs.map((snapshot) => ({
+        snapshot_id: snapshot.snapshot_id,
+        exists: snapshot.exists,
+        required_files: snapshot.required_files.map((fileInfo) => ({
+          file: fileInfo.file,
+          exists: fileInfo.exists,
+        })),
+      }));
+    const harnessSummary = summarizeSnapshotDirs(harnessSnapshots);
+    const truthSummary = summarizeSnapshotDirs(truthSnapshots);
+    if (JSON.stringify(harnessSummary) !== JSON.stringify(truthSummary)) {
+      issues.push(
+        `alias snapshot fixture mismatch: harness=${JSON.stringify(
+          harnessSummary,
+        )} truth=${JSON.stringify(truthSummary)}`,
+      );
+    }
+  }
+
+  return issues;
+}
+
 async function probeAnalytics(baseUrl, projectId) {
   const endpoints = [
     `/api/v1/analytics/summary?project_id=${encodeURIComponent(projectId)}`,
@@ -235,6 +306,22 @@ async function main() {
     );
   }
 
+  const aliasParityIssues = validateAliasParity(validations, snapshotValidations);
+  if (aliasParityIssues.length > 0) {
+    throw new Error(
+      `[fixtures] alias fixture parity failed: ${JSON.stringify({
+        issues: aliasParityIssues,
+        roots: validations.map((entry) => ({
+          label: entry.label,
+          project_path: entry.project_path,
+          project_id: entry.project_id,
+          outline_id: entry.outline_id,
+          scene_count: entry.scene_count,
+        })),
+      })}`,
+    );
+  }
+
   if (args.baseUrl) {
     if (!args.projectId) {
       throw new Error('[fixtures] --project-id is required when --base-url is provided.');
@@ -265,23 +352,34 @@ async function main() {
     '[fixtures] e2e fixture contract verified',
     JSON.stringify(
       {
-      roots: validations.map((entry) => ({
-        label: entry.label,
-        project_path: entry.project_path,
-        outline_exists: entry.outline_exists,
-        outline_id: entry.outline_id,
-        scene_count: entry.scene_count,
-      })),
-      snapshot_roots: snapshotValidations.map((entry) => ({
-        label: entry.label,
-        project_path: entry.project_path,
-        snapshots_root_exists: entry.snapshots_root_exists,
-        verification_exists: entry.verification_exists,
-        snapshot_dirs: entry.snapshot_dirs,
-      })),
-      analytics: args.baseUrl
-        ? {
-            project_id: args.projectId,
+        scope: FIXTURE_SCOPE,
+        alias_policy: {
+          required_labels: ['harness', 'truth'],
+          parity_checked_fields: [
+            'project_id',
+            'outline_id',
+            'scene_count',
+            'required snapshot directories/files',
+          ],
+        },
+        roots: validations.map((entry) => ({
+          label: entry.label,
+          project_path: entry.project_path,
+          outline_exists: entry.outline_exists,
+          outline_id: entry.outline_id,
+          scene_count: entry.scene_count,
+          project_id: entry.project_id,
+        })),
+        snapshot_roots: snapshotValidations.map((entry) => ({
+          label: entry.label,
+          project_path: entry.project_path,
+          snapshots_root_exists: entry.snapshots_root_exists,
+          verification_exists: entry.verification_exists,
+          snapshot_dirs: entry.snapshot_dirs,
+        })),
+        analytics: args.baseUrl
+          ? {
+              project_id: args.projectId,
               project_root: args.projectRoot ?? path.join('sample_project', args.projectId ?? ''),
               base_url: args.baseUrl,
             }
