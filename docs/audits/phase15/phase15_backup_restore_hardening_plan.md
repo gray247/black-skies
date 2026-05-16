@@ -374,10 +374,10 @@ Recorded on 2026-05-16 after the first runtime hardening implementation. This se
 
 | Observation | Source inspection result | Classification | Phase ownership | Blocks Phase 15 closure |
 | --- | --- | --- | --- | --- |
-| `Writing tools offline` appeared during backup/restore testing | Shared backend/bridge health label, not AI-writing-only health; `SnapshotsPanel` disables backup create, restore latest, restore selected backup, and verification whenever service health is not `online` | Mixed runtime-authority and GUI-labeling issue | Phase 15 plus `RDM-GUI-001` / Phase 17 | Yes |
+| `Writing tools offline` appeared during backup/restore testing | Shared backend/bridge health label, not AI-writing-only health; Phase 15 narrowed `SnapshotsPanel` so backup/restore/verification now block only on actual offline state and use backend-service wording locally, while the global label system remains broader GUI debt | Partially fixed runtime-authority issue; residual label simplification remains deferred | Phase 15 fix applied, `RDM-GUI-001` / Phase 17 residual | Human verification rerun required |
 | Backup create showed `Request timed out after 45000ms` | Current preload source assigns `300_000ms` defaults to backup create, restore latest, and backup restore; live 45s observation now points to stale preload/build, another request path, or unreproduced runtime drift | Unknown pending reproduction; do not treat as confirmed source-level regression yet | Phase 15 | Yes |
 | Selected-backup restore used a native white confirm dialog | Confirmed: `SnapshotsPanel` still calls `window.confirm(...)` for selected-backup restore | Styling/control-surface inconsistency, with some authority-wording risk because the safety prompt bypasses the styled GUI | Phase 17 primary, Phase 15 secondary | Yes |
-| Selected-backup restore toast said `Backup copy created` | Confirmed: current success toast title for selected-backup restore is still `Backup copy created` | Semantic mismatch; action creates a restored project copy, not a backup copy | Phase 15 | Yes |
+| Selected-backup restore toast said `Backup copy created` | Fixed in the 2026-05-16 Phase 15 UI authority pass; success now says `Restored project copy created` and clarifies that the current project was not overwritten | Fixed semantic mismatch | Phase 15 | No, pending operator rerun only |
 | `Esther_Estate` vs `proj_esther_estate` vs `PROJ_ESTHER_ESTATE` felt inconsistent | Confirmed current topology: loader can open `Esther_Estate`, canonical project id is `proj_esther_estate`, backend operates on `sample_project\proj_esther_estate`, UI surfaces uppercase `PROJECT ID` label | Expected current behavior but operator-confusing alias/UI debt | Phase 15 docs/UI clarity now, `RDM-ALIAS-001` longer-tail | Yes |
 | Backups under `sample_project\backups` and restored copies as siblings under `sample_project\proj_esther_estate_restored_*` felt odd | Confirmed intentional current storage/destination policy | Expected current behavior that needs explicit documentation and trust wording, not automatic cleanup | Phase 15 documentation/UI clarity | No by itself |
 | White block / unstyled confirmation or modal | Likely the selected-backup `window.confirm(...)` unless a separate renderer regression is reproduced | Pending reproduction if a second surface exists; confirmed for selected-backup confirm | Phase 17 primary | Indirectly |
@@ -390,6 +390,13 @@ Recorded on 2026-05-16 after the first runtime hardening implementation. This se
 - `POST /api/v1/backups/restore` currently has a dedicated backup-restore timeout default of `300_000ms`.
 - Health polling and unrelated generic service requests still use the generic bridge timeout unless separately scaled.
 - The observed 45-second timeout during backup/restore verification is therefore not explained by the current intended timeout owner and must be treated as a reproduction task, stale-session possibility, or request-path mix-up until proven otherwise.
+
+### Implemented UI Authority Corrections
+
+- `SnapshotsPanel` now treats actual renderer-offline state, not any non-`online` health state, as the local blocker for backup create, restore latest, selected-backup restore, and verification.
+- Local offline copy inside the snapshots/backups surface now says `Backend services are unavailable` so backup/restore actions are not presented as AI-writing-only failures.
+- Selected-backup restore success now says `Restored project copy created` and clarifies that the current project was not overwritten.
+- No preload timeout owner changed in this pass because source inspection still confirms dedicated long-running timeout routes for backup create, restore latest, and backup restore.
 
 ### Project Topology Findings
 

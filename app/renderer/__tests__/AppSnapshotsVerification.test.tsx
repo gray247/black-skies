@@ -761,6 +761,11 @@ describe('SnapshotsPanel verification details', () => {
       );
       await waitFor(() => expect(listBackups).toHaveBeenCalledWith({ projectId: 'proj' }));
       expect(await screen.findByText('BS_20251119_120000.zip')).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          /Backend services are unavailable\. Snapshot browsing remains available locally/i,
+        ),
+      ).toBeInTheDocument();
       expect(screen.getByTestId('snapshots-manual-verify-button')).toBeDisabled();
       expect(screen.getByTestId('snapshots-refresh-status-button')).toBeEnabled();
       expect(screen.getByTestId('snapshots-open-report-file-button')).toBeEnabled();
@@ -795,6 +800,70 @@ describe('SnapshotsPanel verification details', () => {
         screen.getByRole('button', { name: /Re-run verification for this snapshot/i }),
       ).toBeDisabled();
       expect(screen.getByTestId('snapshots-refresh-status-button')).toBeEnabled();
+    } finally {
+      isTestEnvSpy.mockRestore();
+    }
+  });
+
+  it('keeps backup and restore actions available while service health is still checking', async () => {
+    const isTestEnvSpy = vi.spyOn(testMode, 'isTestEnv').mockReturnValue(false);
+    try {
+      const listProjectSnapshots = vi.fn().mockResolvedValue({
+        ok: true,
+        data: [],
+      });
+      const getLastVerification = vi.fn().mockResolvedValue({
+        ok: true,
+        data: {
+          project_id: 'proj',
+          snapshots: [],
+        },
+      });
+      const listBackups = vi.fn().mockResolvedValue({
+        ok: true,
+        data: [
+          {
+            filename: 'BS_20251119_120000.zip',
+            project_id: 'proj',
+            path: 'backups/BS_20251119_120000.zip',
+            created_at: '2025-11-19T12:00:00Z',
+            checksum: 'def',
+          },
+        ],
+      });
+
+      render(
+        <SnapshotsPanel
+          projectId="proj"
+          projectPath="/projects/proj"
+          services={
+            {
+              listProjectSnapshots,
+              getLastVerification,
+              listBackups,
+              createBackup: vi.fn(),
+              restoreBackup: vi.fn(),
+              restoreFromZip: vi.fn(),
+            } as Partial<ServicesBridge>
+          }
+          serviceStatus="checking"
+          pushToast={vi.fn()}
+        />,
+      );
+
+      await waitFor(() =>
+        expect(listProjectSnapshots).toHaveBeenCalledWith({ projectId: 'proj' }),
+      );
+      await waitFor(() => expect(listBackups).toHaveBeenCalledWith({ projectId: 'proj' }));
+
+      expect(
+        screen.queryByText(/Backend services are unavailable\. Snapshot browsing remains available locally/i),
+      ).not.toBeInTheDocument();
+      expect(screen.getByTestId('snapshots-backup-create')).toBeEnabled();
+      expect(
+        screen.getByRole('button', { name: /Restore backup BS_20251119_120000\.zip/i }),
+      ).toBeEnabled();
+      expect(screen.getByRole('button', { name: /Restore latest ZIP as copy/i })).toBeEnabled();
     } finally {
       isTestEnvSpy.mockRestore();
     }
@@ -921,6 +990,16 @@ it('renders backup list and triggers backup actions', async () => {
     expect(restoreBackup).toHaveBeenCalledWith({
       backupName: 'BS_20251119_120000.zip',
     }),
+  );
+  await waitFor(() =>
+    expect(pushToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        tone: 'success',
+        title: 'Restored project copy created',
+        description:
+          'Materialized a restored project copy at /tmp/proj_restored_001. Your current project was not overwritten.',
+      }),
+    ),
   );
   confirmSpy.mockRestore();
 });

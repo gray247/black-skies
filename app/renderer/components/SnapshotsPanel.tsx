@@ -291,9 +291,9 @@ export default function SnapshotsPanel({
   }, [projectPath, pushToast, services]);
 
   const isTestEnvActive = testMode.isTestEnv();
-  const offline = !isTestEnvActive && serviceStatus !== 'online';
+  const backendUnavailable = !isTestEnvActive && serviceStatus === 'offline';
   const hasProject = Boolean(projectId || projectPath);
-  const canRestoreFromZip = Boolean(projectId && services?.restoreFromZip && !offline);
+  const canRestoreFromZip = Boolean(projectId && services?.restoreFromZip && !backendUnavailable);
   const backupsUnavailable = Boolean(!services?.listBackups);
   const statusLabel = useMemo(() => {
     if (loading) {
@@ -328,7 +328,7 @@ export default function SnapshotsPanel({
 
   const handleReRun = useCallback(
     async (snapshotId: string) => {
-      if (runningSnapshotId || offline) {
+      if (runningSnapshotId || backendUnavailable) {
         return;
       }
       if (!services?.runBackupVerification) {
@@ -396,7 +396,7 @@ export default function SnapshotsPanel({
         void fetchData();
       }
     },
-    [fetchData, offline, projectId, pushToast, runningSnapshotId, services],
+    [backendUnavailable, fetchData, projectId, pushToast, runningSnapshotId, services],
   );
 
   const openVerificationReportModal = useCallback(
@@ -531,11 +531,11 @@ export default function SnapshotsPanel({
       return;
     }
 
-    if (!services?.runBackupVerification || offline) {
+    if (!services?.runBackupVerification || backendUnavailable) {
       pushToast({
         tone: 'warning',
         title: 'Verification unavailable',
-        description: 'Local services are still starting.',
+        description: 'Backend services are unavailable. Local snapshot browsing remains available.',
       });
       return;
     }
@@ -615,7 +615,7 @@ export default function SnapshotsPanel({
     }
   }, [
     fetchData,
-    offline,
+    backendUnavailable,
     onRunVerification,
     projectId,
     pushToast,
@@ -641,11 +641,11 @@ export default function SnapshotsPanel({
       return;
     }
 
-    if (!services?.createBackup || offline) {
+    if (!services?.createBackup || backendUnavailable) {
       pushToast({
         tone: 'warning',
         title: 'Backup unavailable',
-        description: 'Local services are still starting.',
+        description: 'Backend services are unavailable. Retry once the local API reconnects.',
       });
       return;
     }
@@ -710,7 +710,7 @@ export default function SnapshotsPanel({
       setCreatingBackup(false);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [creatingBackup, fetchBackups, offline, projectId, pushToast, services]);
+  }, [backendUnavailable, creatingBackup, fetchBackups, projectId, pushToast, services]);
 
   const handleRestoreBackup = useCallback(
     async (backupName: string) => {
@@ -723,11 +723,12 @@ export default function SnapshotsPanel({
         return;
       }
 
-      if (!services?.restoreBackup || offline) {
+      if (!services?.restoreBackup || backendUnavailable) {
         pushToast({
           tone: 'warning',
           title: 'Backup restore unavailable',
-          description: 'Local services are still starting.',
+          description:
+            'Backend services are unavailable. Your current project is unchanged; retry once the local API reconnects.',
         });
         return;
       }
@@ -801,12 +802,12 @@ export default function SnapshotsPanel({
 
         pushToast({
           tone: 'success',
-          title: 'Backup copy created',
+          title: 'Restored project copy created',
           description: payload.restored_path
-            ? `Materialized a backup restore copy at ${payload.restored_path}.`
+            ? `Materialized a restored project copy at ${payload.restored_path}. Your current project was not overwritten.`
             : payload.restored_project_slug
-              ? `Materialized backup copy as ${payload.restored_project_slug}.`
-              : 'Materialized a backup restore copy.',
+              ? `Materialized a restored project copy as ${payload.restored_project_slug}. Your current project was not overwritten.`
+              : 'Materialized a restored project copy. Your current project was not overwritten.',
           actions:
             payload.restored_path && services.revealPath
               ? [
@@ -830,7 +831,7 @@ export default function SnapshotsPanel({
         setRestoringBackup(null);
       }
     },
-    [offline, projectId, pushToast, services],
+    [backendUnavailable, projectId, pushToast, services],
   );
 
   const handleConfirmRestore = useCallback(async () => {
@@ -984,10 +985,10 @@ export default function SnapshotsPanel({
               {statusLabel}
             </p>
             <p className="snapshots-panel__verification-message">{verificationMessage}</p>
-            {offline ? (
+            {backendUnavailable ? (
               <p className="snapshots-panel__verification-offline">
-                Writing tools are offline. Snapshot browsing remains available, but
-                verification and backup actions will resume once connectivity returns.
+                Backend services are unavailable. Snapshot browsing remains available locally,
+                but verification and backup actions will resume once the local API reconnects.
               </p>
             ) : null}
             <div className="snapshots-panel__health__actions">
@@ -1005,7 +1006,7 @@ export default function SnapshotsPanel({
                 className="snapshots-panel__health-button"
                 data-testid="snapshots-manual-verify-button"
                 onClick={handleManualVerification}
-                disabled={runningVerification || offline}
+                disabled={runningVerification || backendUnavailable}
               >
                 {runningVerification ? 'Running verification...' : 'Run verification'}
               </button>
@@ -1032,7 +1033,9 @@ export default function SnapshotsPanel({
               className="snapshots-panel__backups-create"
               data-testid="snapshots-backup-create"
               onClick={handleCreateBackup}
-              disabled={creatingBackup || offline || backupsUnavailable || !services?.createBackup}
+              disabled={
+                creatingBackup || backendUnavailable || backupsUnavailable || !services?.createBackup
+              }
             >
               {creatingBackup ? 'Creating backup...' : 'Create backup'}
             </button>
@@ -1064,7 +1067,9 @@ export default function SnapshotsPanel({
                         data-testid={`snapshots-backup-restore-${entry.filename}`}
                         onClick={() => handleRestoreBackup(entry.filename)}
                         disabled={
-                          restoringBackup === entry.filename || offline || !services?.restoreBackup
+                          restoringBackup === entry.filename ||
+                          backendUnavailable ||
+                          !services?.restoreBackup
                         }
                       >
                         {restoringBackup === entry.filename ? 'Restoring...' : 'Restore backup'}
@@ -1121,7 +1126,7 @@ export default function SnapshotsPanel({
                       : 'No record';
                 const expanded = Boolean(expandedIds[snapshot.snapshot_id]);
                 const verifyingThisRow = runningSnapshotId === snapshot.snapshot_id;
-                const verifyButtonTitle = offline
+                const verifyButtonTitle = backendUnavailable
                   ? 'Verification requires online services'
                   : services?.runBackupVerification
                   ? undefined
