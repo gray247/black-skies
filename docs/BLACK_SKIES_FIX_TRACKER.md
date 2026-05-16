@@ -135,6 +135,7 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - [phase16_operational_chaos_plan_and_results.md](/C:/Dev/black-skies/docs/audits/phase16/phase16_operational_chaos_plan_and_results.md)
   - [phase16_closure_review.md](/C:/Dev/black-skies/docs/audits/phase16/phase16_closure_review.md)
   The current Phase 16 closure posture is `Closed with exceptions`: recovery/reopen after restore was proven in this pass using a real restored sibling project alias and a relaunch with the same persisted user state; long-running timeout ambiguity is still classified but not removed; and the global service-health wording still belongs to Phase 17 GUI debt. Phase 16 audit work is executed and authority-closed with explicit exceptions.
+- Phase 17 planning/scope artifact created on 2026-05-16 in [phase17_gui_authority_simplification_plan.md](/C:/Dev/black-skies/docs/audits/phase17/phase17_gui_authority_simplification_plan.md). Phase 17 remains unimplemented; the plan formalizes authority hierarchy, operation ownership, lifecycle and freshness rules, trust-surface standardization, concurrency policy, identity presentation, and Phase 18 readiness without enabling the hidden two-monitor GUI.
 
 ## Status Definitions
 - `ACTIVE`: known issue, unresolved
