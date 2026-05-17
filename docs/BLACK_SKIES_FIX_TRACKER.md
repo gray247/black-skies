@@ -3,7 +3,7 @@
 # BLACK SKIES - FIX TRACKER
 
 Status: Active
-Last Reviewed: 2026-05-16
+Last Reviewed: 2026-05-17
 
 ## Purpose
 This document tracks defects, technical debt, and instability across Black Skies.
@@ -137,6 +137,7 @@ If an issue is not tracked here, it is not part of the active fix scope.
   The current Phase 16 closure posture is `Closed with exceptions`: recovery/reopen after restore was proven in this pass using a real restored sibling project alias and a relaunch with the same persisted user state; long-running timeout ambiguity is still classified but not removed; and the global service-health wording still belongs to Phase 17 GUI debt. Phase 16 audit work is executed and authority-closed with explicit exceptions.
 - Phase 17 planning/scope artifact created on 2026-05-16 in [phase17_gui_authority_simplification_plan.md](/C:/Dev/black-skies/docs/audits/phase17/phase17_gui_authority_simplification_plan.md). Phase 17 remains unimplemented; the plan formalizes authority hierarchy, operation ownership, lifecycle and freshness rules, trust-surface standardization, concurrency policy, identity presentation, and Phase 18 readiness without enabling the hidden two-monitor GUI.
 - Phase 17 implementation and closure review completed on 2026-05-16 in [phase17_gui_authority_simplification_plan.md](/C:/Dev/black-skies/docs/audits/phase17/phase17_gui_authority_simplification_plan.md) and [phase17_closure_review.md](/C:/Dev/black-skies/docs/audits/phase17/phase17_closure_review.md). GUI authority surfaces were simplified in place, targeted app tests and the snapshot-verification Playwright lane passed, the hidden two-monitor GUI remains disabled, and remaining exceptions stay deferred rather than hidden.
+- Phase 18 planning/scope artifact created on 2026-05-17 in [phase18_hidden_gui_activation_plan.md](/C:/Dev/black-skies/docs/audits/phase18/phase18_hidden_gui_activation_plan.md). Phase 18 is limited to hidden Split Command activation proof, smoke, truth classification, target screenshot gap matrix completion, and migration-readiness decision; it does not build the target screenshot GUI or enable the hidden shell by default.
 
 ## Status Definitions
 - `ACTIVE`: known issue, unresolved
