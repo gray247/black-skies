@@ -11,6 +11,7 @@ import { startServiceStubs, stopServiceStubs } from './utils/serviceStubs';
 import { buildFirstWindowDiagnostics } from './electronFirstWindowDiagnostics';
 
 type Fixtures = {
+  splitCommandRuntimeConfig: boolean;
   electronApp: ElectronApplication;
   page: Page;
 };
@@ -34,6 +35,7 @@ type ElectronLaunchContext = {
     BLACKSKIES_E2E_EXTERNAL_SERVICE?: string;
     BLACKSKIES_ENABLE_HARNESS_HOOKS?: string;
     BLACKSKIES_VISUAL_STABLE?: string;
+    BLACKSKIES_CONFIG_PATH?: string;
   };
   getProcessState: () => {
     pid: number | null;
@@ -418,7 +420,9 @@ async function closeElectronApplicationSafely(
 }
 
 export const test = base.extend<Fixtures>({
-  electronApp: async ({}, use, testInfo) => {
+  splitCommandRuntimeConfig: [false, { option: true }],
+
+  electronApp: async ({ splitCommandRuntimeConfig }, use, testInfo) => {
     const useExternalService = process.env.BLACKSKIES_E2E_EXTERNAL_SERVICE === '1';
     const appDir = path.resolve(__dirname, '..', '..');
     const repoRoot = path.resolve(appDir, '..');
@@ -441,6 +445,24 @@ export const test = base.extend<Fixtures>({
     const entryPoint = packagedEntryExists ? packagedEntry : devFallback;
     const rendererUrl = rendererIndexExists ? pathToFileURL(rendererIndex).toString() : undefined;
     const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'blackskies-e2e-userdata-'));
+    const runtimeConfigDir = splitCommandRuntimeConfig
+      ? fs.mkdtempSync(path.join(os.tmpdir(), 'blackskies-e2e-runtime-'))
+      : null;
+    const runtimeConfigPath = runtimeConfigDir
+      ? path.join(runtimeConfigDir, 'runtime.yaml')
+      : null;
+    if (runtimeConfigPath) {
+      fs.writeFileSync(
+        runtimeConfigPath,
+        [
+          'ui:',
+          '  enable_docking: false',
+          '  experimental_split_command_workspace: true',
+          '',
+        ].join('\n'),
+        'utf8',
+      );
+    }
     const disableAnimations = process.env.PLAYWRIGHT_DISABLE_ANIMATIONS === '1' || !!process.env.CI;
     const launchEnv: NodeJS.ProcessEnv = {
       ...process.env,
@@ -452,6 +474,7 @@ export const test = base.extend<Fixtures>({
       BLACKSKIES_SERVICES_PORT: String(SERVICE_PORT),
       BLACKSKIES_E2E_PORT: String(SERVICE_PORT),
       BLACKSKIES_E2E_MODE: '1',
+      ...(runtimeConfigPath ? { BLACKSKIES_CONFIG_PATH: runtimeConfigPath } : {}),
     };
     if (path.basename(testInfo.file) === 'visual.home.spec.ts') {
       launchEnv.BLACKSKIES_VISUAL_STABLE = '1';
@@ -522,10 +545,11 @@ export const test = base.extend<Fixtures>({
         BLACKSKIES_SERVICES_PORT: launchEnv.BLACKSKIES_SERVICES_PORT,
       BLACKSKIES_E2E_PORT: launchEnv.BLACKSKIES_E2E_PORT,
       BLACKSKIES_E2E_MODE: launchEnv.BLACKSKIES_E2E_MODE,
-      BLACKSKIES_E2E_EXTERNAL_SERVICE: launchEnv.BLACKSKIES_E2E_EXTERNAL_SERVICE,
-      BLACKSKIES_ENABLE_HARNESS_HOOKS: launchEnv.BLACKSKIES_ENABLE_HARNESS_HOOKS,
-      BLACKSKIES_VISUAL_STABLE: launchEnv.BLACKSKIES_VISUAL_STABLE,
-    },
+        BLACKSKIES_E2E_EXTERNAL_SERVICE: launchEnv.BLACKSKIES_E2E_EXTERNAL_SERVICE,
+        BLACKSKIES_ENABLE_HARNESS_HOOKS: launchEnv.BLACKSKIES_ENABLE_HARNESS_HOOKS,
+        BLACKSKIES_VISUAL_STABLE: launchEnv.BLACKSKIES_VISUAL_STABLE,
+        BLACKSKIES_CONFIG_PATH: launchEnv.BLACKSKIES_CONFIG_PATH,
+      },
       getProcessState: () => ({
         pid: appProcess?.pid ?? null,
         exited: processExited,
@@ -570,6 +594,9 @@ export const test = base.extend<Fixtures>({
       process.env.BLACKSKIES_SERVICES_PORT = prevServicePort;
       process.env.BLACKSKIES_E2E_PORT = prevE2ePort;
       fs.rmSync(userDataDir, { recursive: true, force: true });
+      if (runtimeConfigDir) {
+        fs.rmSync(runtimeConfigDir, { recursive: true, force: true });
+      }
     }
   },
 

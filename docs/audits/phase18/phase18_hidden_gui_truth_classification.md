@@ -12,11 +12,11 @@ Acceptance record: No operator acceptance recorded yet.
 
 | Question | Result |
 | --- | --- |
-| Can the hidden GUI be activated under the flag? | Yes in source and renderer tests; live Electron activation is partially proven through runtime config, while the packaged renderer-override seam is not reliable. |
+| Can the hidden GUI be activated under the flag? | Yes. Source, renderer tests, and packaged Electron smoke now prove the runtime-config flag path. |
 | Does the stable GUI remain default? | Yes. |
-| Does the hidden shell launch without crashing? | Renderer/test path: yes. Live Electron path: partially proven; the app booted and loaded the project under temp runtime config without crashing, but the existing harness helper could not complete because it assumed dock UI. |
+| Does the hidden shell launch without crashing? | Yes in renderer tests and the packaged Electron runtime-config smoke lane. |
 | Is it one-window or is there a real secondary surface? | One-window. No real secondary Split Command surface exists. |
-| Does it load the active project correctly? | Yes in renderer tests; live Electron partial evidence shows project load succeeded under runtime-config activation. |
+| Does it load the active project correctly? | Yes in renderer tests and in the packaged Electron runtime-config smoke lane. |
 
 ## 18E - Authority / Data Truth Audit
 
@@ -45,10 +45,21 @@ Acceptance record: No operator acceptance recorded yet.
 
 - packaged Electron `__runtimeConfigOverride` activation seam
 
+`Exists and works with the supported lane`
+
+- packaged Electron runtime-config activation through `BLACKSKIES_CONFIG_PATH`
+- Split Command-specific Playwright smoke via fixture-owned temporary runtime config and non-dock bootstrap
+
 `Unknown until operator activation`
 
 - whether live operator navigation through the hidden shell feels trustworthy enough for repeated use
 - whether any authority wording becomes confusing once the shell is used outside harness conditions
+
+Root-cause note:
+
+- `window.__runtimeConfigOverride` works in renderer tests because it is installed before `App` renders.
+- In packaged Electron E2E, the shared `page` fixture returns an already-loaded window, so spec-level `page.addInitScript(...)` is too late for the initial render gate in `App.tsx`.
+- Supported packaged Electron activation should therefore use `BLACKSKIES_CONFIG_PATH`, which is read in main-process startup and exposed through preload before renderer boot.
 
 ## 18F - Layout Persistence / Workspace-State Classification
 
@@ -224,7 +235,7 @@ Reason:
 - it already has a real Story Navigation panel and a real wrapped writing surface
 - it remains honest about missing intelligence features
 - it is still too incomplete and too shell-like to promote
-- the live activation proof path needs a cleaner, supported test seam
+- the packaged Electron activation path is now clean enough to support bounded smoke, but the shell still lacks the architecture and feature depth required for promotion
 
 Not recommended:
 

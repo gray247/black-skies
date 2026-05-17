@@ -41,12 +41,15 @@ Those requirements were met.
 
 ## Exceptions
 
-- packaged Electron activation through `window.__runtimeConfigOverride` is not reliable in the current harness lane
-- live Electron activation is only partially proven automatically
 - layout persistence, fallback behavior, cognitive load, long-session durability, and operator trust under sustained use remain unproven
 - no operator/human verification was performed in this phase
 
 These are exceptions, not hidden omissions.
+
+Resolved follow-up:
+
+- packaged Electron activation now has a clean supported smoke lane through `BLACKSKIES_CONFIG_PATH`
+- the old `window.__runtimeConfigOverride` seam is now formally classified as renderer-test-only because it is injected too late for packaged Electron first render in the current shared fixture
 
 ## Recommended Posture
 

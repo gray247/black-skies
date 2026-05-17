@@ -15,6 +15,10 @@ interface BootstrapHarnessOptions {
   requireActiveScene?: boolean;
   requireStartupSnapshot?: boolean;
   expectedProjectPath?: string | null;
+  requireDockWorkspace?: boolean;
+  requireCorkboardPane?: boolean;
+  requireGenerateAction?: boolean;
+  requireSplitCommandWorkspace?: boolean;
 }
 
 interface EnsureDockPaneVisibleOptions {
@@ -84,6 +88,10 @@ interface StartupStateSnapshot {
       visible: boolean;
     }>;
   };
+  splitCommand: {
+    present: boolean;
+    visible: boolean;
+  };
   activeScene: {
     present: boolean;
     text: string | null;
@@ -104,6 +112,7 @@ export async function collectStartupStateSnapshot(page: Page): Promise<StartupSt
     const servicePill = document.querySelector('[data-testid="service-status-pill"]') as HTMLElement | null;
     const recoveryBanner = document.querySelector('[data-testid="recovery-banner"]') as HTMLElement | null;
     const dock = document.querySelector('[data-testid="dock-workspace"]') as HTMLElement | null;
+    const splitCommand = document.querySelector('[data-testid="split-command-workspace"]') as HTMLElement | null;
     const actionIds = [
       'workspace-action-generate',
       'workspace-action-critique',
@@ -203,6 +212,10 @@ export async function collectStartupStateSnapshot(page: Page): Promise<StartupSt
         present: Boolean(dock),
         visible: isVisible(dock),
         panes,
+      },
+      splitCommand: {
+        present: Boolean(splitCommand),
+        visible: isVisible(splitCommand),
       },
       activeScene: {
         present: Boolean(activeSceneButton),
@@ -392,6 +405,7 @@ interface PostBootstrapStablePredicateArgs {
   requireCorkboardPane: boolean;
   requireGenerateAction: boolean;
   requireActiveScene: boolean;
+  requireSplitCommandWorkspace: boolean;
 }
 
 function postBootstrapStablePredicate({
@@ -402,6 +416,7 @@ function postBootstrapStablePredicate({
   requireCorkboardPane: requireCorkboard,
   requireGenerateAction: requireGenerate,
   requireActiveScene: requireScene,
+  requireSplitCommandWorkspace: requireSplitCommand,
 }: PostBootstrapStablePredicateArgs): boolean {
   // Keep browser-context checks argument-only to avoid closure leaks in page.waitForFunction serialization.
   const mode = document.body?.dataset?.testMode ?? document.documentElement?.dataset?.testMode;
@@ -437,6 +452,16 @@ function postBootstrapStablePredicate({
       return false;
     }
     const style = window.getComputedStyle(dock);
+    if (style.display === 'none' || style.visibility === 'hidden') {
+      return false;
+    }
+  }
+  if (requireSplitCommand) {
+    const splitCommand = document.querySelector('[data-testid="split-command-workspace"]') as HTMLElement | null;
+    if (!splitCommand) {
+      return false;
+    }
+    const style = window.getComputedStyle(splitCommand);
     if (style.display === 'none' || style.visibility === 'hidden') {
       return false;
     }
@@ -482,9 +507,11 @@ export async function assertPostBootstrapStable(
   const expectedServiceStatus = options.expectedServiceStatus ?? 'online';
   const allowRecoveryBanner = options.allowRecoveryBanner ?? false;
   const requireDockWorkspace = options.requireDockWorkspace ?? true;
-  const requireCorkboardPane = options.requireCorkboardPane ?? (options.mode === 'full');
+  const requireCorkboardPane =
+    options.requireCorkboardPane ?? (options.mode === 'full' && requireDockWorkspace);
   const requireGenerateAction = options.requireGenerateAction ?? true;
   const requireActiveScene = options.requireActiveScene ?? false;
+  const requireSplitCommandWorkspace = options.requireSplitCommandWorkspace ?? false;
   const expectedProjectPath = options.expectedProjectPath ?? null;
   const predicateArgs: PostBootstrapStablePredicateArgs = {
     expectedMode: options.mode,
@@ -494,6 +521,7 @@ export async function assertPostBootstrapStable(
     requireCorkboardPane,
     requireGenerateAction,
     requireActiveScene,
+    requireSplitCommandWorkspace,
   };
   try {
     await page.waitForFunction(postBootstrapStablePredicate, predicateArgs, { timeout: timeoutMs });
@@ -511,6 +539,7 @@ export async function assertPostBootstrapStable(
         requireCorkboardPane,
         requireGenerateAction,
         requireActiveScene,
+        requireSplitCommandWorkspace,
         expectedProjectPath: normalizeProjectPath(expectedProjectPath),
         actualProjectPath: normalizeProjectPath(actualPath),
         projectPathContractMatch: pathMatches,
@@ -536,23 +565,23 @@ export async function assertPostBootstrapStable(
 
 export async function waitForFlatModeReady(
   page: Page,
-  options: Omit<PostBootstrapStableOptions, 'mode' | 'requireDockWorkspace'> = {},
+  options: Omit<PostBootstrapStableOptions, 'mode'> = {},
 ): Promise<void> {
   await assertPostBootstrapStable(page, {
     ...options,
     mode: 'flat',
-    requireDockWorkspace: false,
+    requireDockWorkspace: options.requireDockWorkspace ?? false,
   });
 }
 
 export async function waitForFullModeReady(
   page: Page,
-  options: Omit<PostBootstrapStableOptions, 'mode' | 'requireDockWorkspace'> = {},
+  options: Omit<PostBootstrapStableOptions, 'mode'> = {},
 ): Promise<void> {
   await assertPostBootstrapStable(page, {
     ...options,
     mode: 'full',
-    requireDockWorkspace: true,
+    requireDockWorkspace: options.requireDockWorkspace ?? true,
   });
 }
 
@@ -580,6 +609,10 @@ export async function bootstrapHarness(
   const requireActiveScene = options.requireActiveScene ?? false;
   const requireStartupSnapshot = options.requireStartupSnapshot ?? true;
   const expectedProjectPath = options.expectedProjectPath;
+  const requireDockWorkspace = options.requireDockWorkspace;
+  const requireCorkboardPane = options.requireCorkboardPane;
+  const requireGenerateAction = options.requireGenerateAction;
+  const requireSplitCommandWorkspace = options.requireSplitCommandWorkspace ?? false;
   await page.waitForFunction(
     () => (window as typeof window & { __APP_READY__?: boolean }).__APP_READY__ === true,
     null,
@@ -735,6 +768,9 @@ export async function bootstrapHarness(
       allowRecoveryBanner,
       requireActiveScene,
       expectedProjectPath,
+      requireCorkboardPane,
+      requireGenerateAction,
+      requireSplitCommandWorkspace,
     });
   } else if (mode === 'full') {
     await waitForFullModeReady(page, {
@@ -743,6 +779,10 @@ export async function bootstrapHarness(
       allowRecoveryBanner,
       requireActiveScene,
       expectedProjectPath,
+      requireDockWorkspace,
+      requireCorkboardPane,
+      requireGenerateAction,
+      requireSplitCommandWorkspace,
     });
   } else {
     await waitForRecoveryModeReady(page, {
@@ -751,6 +791,10 @@ export async function bootstrapHarness(
       allowRecoveryBanner,
       requireActiveScene,
       expectedProjectPath,
+      requireDockWorkspace,
+      requireCorkboardPane,
+      requireGenerateAction,
+      requireSplitCommandWorkspace,
     });
   }
   for (const actionId of requiredEnabledActions) {

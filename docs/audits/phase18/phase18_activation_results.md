@@ -15,10 +15,10 @@ Acceptance record: No operator acceptance recorded yet.
 - No real second Split Command window or monitor-specific surface exists.
 - The docking/floating BrowserWindow system is separate from Split Command.
 - Flag-on shell selection is proven in renderer tests.
-- Live Electron activation is only partially proven automatically:
-  - renderer/test override seam works in Vitest
-  - packaged Electron harness did not honor that seam
-  - runtime-config activation did alter the live shell behavior enough to invalidate dock-specific harness assumptions
+- Live Electron activation is now proven automatically through the runtime-config path:
+  - renderer/test override seam works in Vitest only
+  - packaged Electron should use `BLACKSKIES_CONFIG_PATH`, not `window.__runtimeConfigOverride`
+  - the shared Playwright Electron fixture now has a Split Command smoke lane that launches the shell with a temporary runtime config and non-dock bootstrap expectations
 
 ## 18A - Hidden GUI Discovery / Activation Map
 
@@ -62,7 +62,9 @@ Attempt 1: packaged Electron harness with renderer override seam only
   - failed to find `split-command-workspace`
   - renderer logs still reported dock-workspace rendering
 - classification:
-  - packaged Electron harness does not reliably honor `window.__runtimeConfigOverride` for this activation path
+  - packaged Electron does not reliably honor `window.__runtimeConfigOverride` for first render
+  - root cause: the shared `page` fixture returns an already-loaded window, so spec-level `page.addInitScript(...)` runs too late for the initial `App.tsx` runtime gate
+  - `window.__runtimeConfigOverride` remains a renderer-test seam, not a supported packaged Electron activation seam
 
 Attempt 2: packaged Electron harness with temporary `BLACKSKIES_CONFIG_PATH` enabling the flag
 
@@ -79,7 +81,25 @@ Attempt 2: packaged Electron harness with temporary `BLACKSKIES_CONFIG_PATH` ena
   - runtime-config activation affects the live Electron shell
   - the existing dock-oriented harness helper is incompatible with the activated shell
 
-Attempt 3: one-off Electron smoke script without harness service stubs
+Attempt 3: packaged Electron smoke with fixture-owned temporary `BLACKSKIES_CONFIG_PATH`
+
+- command:
+  - `pnpm --dir app exec playwright test tests/e2e/split-command-smoke.spec.ts --project=electron --workers=1 --reporter=list`
+- implementation:
+  - `app/tests/e2e/_electron.fixture.ts` now supports `test.use({ splitCommandRuntimeConfig: true })`
+  - that option writes a temporary `runtime.yaml` enabling `ui.experimental_split_command_workspace: true`
+  - the Electron fixture passes that file through `BLACKSKIES_CONFIG_PATH` before the app launches
+  - `app/tests/e2e/_bootstrap.ts` now supports Split Command readiness without requiring dock-only selectors
+- outcome:
+  - Electron launched
+  - project loaded
+  - Split Command rendered
+  - `Command Center`, `Writing Studio`, and `Story Navigation` were visible
+  - generate action remained enabled
+  - no extra window or dock workspace was required
+- classification:
+  - clean repeatable packaged Electron smoke lane now exists for the hidden shell
+Attempt 4: one-off Electron smoke script without harness service stubs
 
 - outcome:
   - `electronApplication.firstWindow` timed out
@@ -128,6 +148,7 @@ Result:
 - `pnpm --filter app lint`
 - `pnpm --dir app exec playwright test tests/e2e/split-command-activation.spec.ts --project=electron --workers=1 --reporter=line`
 - temporary `BLACKSKIES_CONFIG_PATH` rerun of the same narrow Playwright spec
+- `pnpm --dir app exec playwright test tests/e2e/split-command-smoke.spec.ts --project=electron --workers=1 --reporter=list`
 - one-off Electron smoke script with temporary `runtime.yaml` and built renderer
 
 ## Explicit Non-Claims
@@ -135,4 +156,4 @@ Result:
 - This artifact does not claim true two-monitor support exists.
 - This artifact does not claim layout persistence is proven for the hidden shell.
 - This artifact does not claim long-session durability, cognitive load, or creative-state protection are proven.
-- This artifact does not claim the packaged Electron override seam is trustworthy for future activation proof.
+- This artifact does not claim the packaged Electron override seam is trustworthy for future activation proof; the supported packaged Electron lane is runtime-config activation through `BLACKSKIES_CONFIG_PATH`.
