@@ -1764,4 +1764,26 @@ describe('App preflight integration', () => {
     });
   });
 
+  it('keeps floating-pane hosts on the floating path even when Split Command is enabled', async () => {
+    enableSplitCommandWorkspace();
+    mockLoadedProjectId = 'proj_split_command';
+    mockLoadedProjectPath = '/projects/floating-demo';
+    mockLoadedProjectName = 'Split Command Floating Demo';
+
+    window.history.pushState(
+      null,
+      '',
+      `/?floatingPane=draftPreview&projectPath=${encodeURIComponent(mockLoadedProjectPath)}`,
+    );
+
+    const App = loadAppWithServices(services);
+    render(<App />);
+
+    await waitFor(() => expect(screen.getByTestId('project-home-mock')).toBeInTheDocument());
+    expect(screen.queryByTestId('split-command-workspace')).not.toBeInTheDocument();
+    expect(document.querySelector('.floating-pane-shell')).not.toBeNull();
+    expect(screen.queryByLabelText('Command Center')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Writing Studio')).not.toBeInTheDocument();
+  });
+
 });
