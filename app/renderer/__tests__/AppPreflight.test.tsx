@@ -1814,10 +1814,12 @@ describe('App preflight integration', () => {
     render(<App />);
 
     expect(await screen.findByTestId('split-command-workspace')).toBeInTheDocument();
+    expect(screen.getByTestId('split-command-shell-status')).toHaveTextContent(
+      /project identity change/i,
+    );
     await waitFor(() => {
       expect(screen.getByTestId('project-home-mock')).toHaveAttribute('data-active-scene-id', 'sc_0001');
     });
-    expect(screen.queryByTestId('split-command-shell-status')).toBeNull();
     await waitFor(() => {
       const persistedState = JSON.parse(
         window.localStorage.getItem(SPLIT_COMMAND_SHELL_STORAGE_KEY) ?? 'null',
@@ -1868,6 +1870,45 @@ describe('App preflight integration', () => {
     expect(screen.queryByTestId('split-command-workspace')).not.toBeInTheDocument();
     expect(screen.queryByTestId('split-command-shell-status')).not.toBeInTheDocument();
     expect(screen.getByLabelText('Wizard dock')).toBeInTheDocument();
+    expect(screen.getByTestId('app-root')).toHaveAttribute('data-app-mode', 'stable-gui');
+  });
+
+  it('keeps shell reset notices local to Split Command after a recoverable shell reset', async () => {
+    enableSplitCommandWorkspace();
+    mockLoadedProjectId = 'proj_beta';
+    mockLoadedProjectPath = '/projects/beta';
+    mockLoadedProjectName = 'Beta Project';
+    mockLoadedProjectScenes = [{ id: 'sc_0001', title: 'Arrival', order: 1 }];
+    window.localStorage.setItem(
+      SPLIT_COMMAND_SHELL_STORAGE_KEY,
+      JSON.stringify({
+        schemaVersion: SPLIT_COMMAND_SHELL_SCHEMA_VERSION,
+        projectPath: '/projects/alpha',
+        selectedSceneId: 'sc_0009',
+        commandCenterCollapsed: false,
+        diagnosticsOpen: true,
+      }),
+    );
+
+    const App = loadAppWithServices(services);
+    const splitRender = render(<App />);
+
+    expect(await screen.findByTestId('split-command-workspace')).toBeInTheDocument();
+    expect(screen.getByTestId('split-command-shell-status')).toHaveTextContent(
+      /project identity change/i,
+    );
+
+    splitRender.unmount();
+    Reflect.deleteProperty(
+      window as typeof window & { __runtimeConfigOverride?: typeof DEFAULT_RUNTIME_CONFIG },
+      '__runtimeConfigOverride',
+    );
+
+    render(<App />);
+
+    expect(await screen.findByTestId('project-home-mock')).toBeInTheDocument();
+    expect(screen.queryByTestId('split-command-workspace')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('split-command-shell-status')).not.toBeInTheDocument();
     expect(screen.getByTestId('app-root')).toHaveAttribute('data-app-mode', 'stable-gui');
   });
 

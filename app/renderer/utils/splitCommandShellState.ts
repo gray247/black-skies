@@ -26,6 +26,13 @@ export interface SplitCommandShellReadResult {
   readonly failureClass: SplitCommandShellFailureClass | null;
 }
 
+export interface SplitCommandShellFailureDescriptor {
+  readonly failureClass: SplitCommandShellFailureClass;
+  readonly fallbackMode: "shell-reset" | "degraded-shell" | "stable-gui-fallback" | "policy-only";
+  readonly notice: string;
+  readonly implemented: boolean;
+}
+
 export type SplitCommandShellAction =
   | { type: "shell/hydrate"; payload: SplitCommandShellState }
   | { type: "shell/project-changed"; payload: { projectPath: string | null } }
@@ -101,9 +108,21 @@ export function readSplitCommandShellState(
         failureClass: "unsupported-shell-schema",
       };
     }
+    const normalizedState = normalizeShellState(parsed as Partial<SplitCommandShellState>, projectPath);
+    const candidateProjectPath =
+      typeof parsed.projectPath === "string" && parsed.projectPath.length > 0 ? parsed.projectPath : null;
+    const projectMismatch =
+      candidateProjectPath !== null && projectPath !== null && candidateProjectPath !== projectPath;
+    if (projectMismatch) {
+      return {
+        status: "reset",
+        state: normalizedState,
+        failureClass: "recoverable-shell-failure",
+      };
+    }
     return {
       status: "loaded",
-      state: normalizeShellState(parsed as Partial<SplitCommandShellState>, projectPath),
+      state: normalizedState,
       failureClass: null,
     };
   } catch {
@@ -130,6 +149,76 @@ export function writeSplitCommandShellState(
       diagnosticsOpen: state.diagnosticsOpen,
     }),
   );
+}
+
+export function describeSplitCommandShellFailure(
+  failureClass: SplitCommandShellFailureClass,
+): SplitCommandShellFailureDescriptor {
+  switch (failureClass) {
+    case "recoverable-shell-failure":
+      return {
+        failureClass,
+        fallbackMode: "shell-reset",
+        implemented: true,
+        notice:
+          "Split Command reset project-scoped shell state after a project identity change. Stable GUI state remains isolated.",
+      };
+    case "corrupted-shell-persistence":
+      return {
+        failureClass,
+        fallbackMode: "shell-reset",
+        implemented: true,
+        notice:
+          "Split Command reset shell-local state after corrupted persistence. Stable GUI state was not reused.",
+      };
+    case "unsupported-shell-schema":
+      return {
+        failureClass,
+        fallbackMode: "shell-reset",
+        implemented: true,
+        notice:
+          "Split Command reset shell-local state after an unsupported shell schema. Stable GUI state remains isolated.",
+      };
+    case "degraded-shell-mode":
+      return {
+        failureClass,
+        fallbackMode: "degraded-shell",
+        implemented: false,
+        notice:
+          "Split Command degraded shell mode is classified for Phase 20, but broader runtime handling remains deferred.",
+      };
+    case "unsafe-shell-state":
+      return {
+        failureClass,
+        fallbackMode: "policy-only",
+        implemented: false,
+        notice:
+          "Unsafe Split Command shell state is classified for forced fallback policy, but broader runtime handling remains deferred.",
+      };
+    case "non-recoverable-shell-failure":
+      return {
+        failureClass,
+        fallbackMode: "policy-only",
+        implemented: false,
+        notice:
+          "Non-recoverable Split Command shell activation failure is policy-classified for safe fallback, but broader runtime handling remains deferred.",
+      };
+    case "forced-stable-gui-fallback":
+      return {
+        failureClass,
+        fallbackMode: "stable-gui-fallback",
+        implemented: false,
+        notice:
+          "Forced stable-GUI fallback is policy-classified for Phase 20, but no broader runtime fallback path is implemented in this pass.",
+      };
+    default:
+      return {
+        failureClass,
+        fallbackMode: "policy-only",
+        implemented: false,
+        notice: "Split Command shell failure classification is defined, but this runtime path remains deferred.",
+      };
+  }
 }
 
 function normalizeShellState(

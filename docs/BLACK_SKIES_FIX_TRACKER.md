@@ -248,6 +248,38 @@ If an issue is not tracked here, it is not part of the active fix scope.
     - `git diff --check`
     - `git diff --cached --check`
     - `git status --short`
+- 2026-05-18 - Codex - Phase 20 shell fallback classification pass:
+  - executed a narrow `20G` pass focused on explicit shell failure classification and truthful fallback-state handling without building a broader recovery architecture,
+  - added explicit failure descriptors in `app/renderer/utils/splitCommandShellState.ts` for:
+    - `recoverable-shell-failure`
+    - `corrupted-shell-persistence`
+    - `unsupported-shell-schema`
+    - `unsafe-shell-state`
+    - `non-recoverable-shell-failure`
+    - `forced-stable-gui-fallback`
+    - `degraded-shell-mode`
+  - implemented and proved the currently real fallback lane:
+    - project-path mismatch is now explicitly classified as `recoverable-shell-failure`,
+    - the shell surfaces a shell-local reset notice for that case,
+    - selected scene and diagnostics-open state reset without poisoning stable GUI mode,
+  - kept broader fallback claims honest:
+    - `unsafe-shell-state`, `non-recoverable-shell-failure`, `forced-stable-gui-fallback`, and `degraded-shell-mode` remain policy-only classifications in this pass,
+    - no new broad recovery architecture or hidden fallback branch was added,
+  - added targeted proof for:
+    - recoverable-shell-failure classification on project mismatch,
+    - shell-local notices remaining inside Split Command mode,
+    - stable GUI remaining clean after flag-off fallback/deactivation,
+  - deferred risks after this pass:
+    - no runtime path yet forces stable GUI on non-recoverable shell activation failure,
+    - degraded-shell mode remains documented rather than surfaced as a broader operator runtime,
+    - unsafe shell state detection remains narrow and limited to currently proven persistence/project-identity cases,
+  - validation target for this pass:
+    - `pnpm --filter app test -- AppPreflight.test.tsx SplitCommandWorkspace.test.tsx splitCommandShellState.test.ts`
+    - `pnpm --filter app lint`
+    - `pnpm --filter app exec playwright test tests/e2e/split-command-smoke.spec.ts -c ./playwright.config.ts --workers=1`
+    - `git diff --check`
+    - `git diff --cached --check`
+    - `git status --short`
 
 ## Status Definitions
 - `ACTIVE`: known issue, unresolved

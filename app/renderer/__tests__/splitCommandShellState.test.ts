@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  describeSplitCommandShellFailure,
   SPLIT_COMMAND_SHELL_STORAGE_KEY,
   SPLIT_COMMAND_SHELL_SCHEMA_VERSION,
   createDefaultSplitCommandShellState,
@@ -25,6 +26,28 @@ describe("splitCommandShellState", () => {
     expect(sameProject.state.diagnosticsOpen).toBe(true);
     expect(otherProject.state.selectedSceneId).toBeNull();
     expect(otherProject.state.diagnosticsOpen).toBe(false);
+  });
+
+  it("classifies project-path mismatch as a recoverable shell reset", () => {
+    window.localStorage.setItem(
+      SPLIT_COMMAND_SHELL_STORAGE_KEY,
+      JSON.stringify({
+        schemaVersion: SPLIT_COMMAND_SHELL_SCHEMA_VERSION,
+        projectPath: "/projects/alpha",
+        selectedSceneId: "sc_0002",
+        commandCenterCollapsed: true,
+        diagnosticsOpen: true,
+      }),
+    );
+
+    const result = readSplitCommandShellState(window.localStorage, "/projects/beta");
+
+    expect(result.status).toBe("reset");
+    expect(result.failureClass).toBe("recoverable-shell-failure");
+    expect(result.state.projectPath).toBe("/projects/beta");
+    expect(result.state.selectedSceneId).toBeNull();
+    expect(result.state.commandCenterCollapsed).toBe(true);
+    expect(result.state.diagnosticsOpen).toBe(false);
   });
 
   it("resets corrupted persistence safely", () => {
@@ -95,5 +118,28 @@ describe("splitCommandShellState", () => {
     expect(selected.selectedSceneId).toBe("sc_0003");
     expect(projectChanged.projectPath).toBe("/projects/other");
     expect(projectChanged.selectedSceneId).toBeNull();
+  });
+
+  it("describes implemented and policy-only shell failure classes explicitly", () => {
+    expect(describeSplitCommandShellFailure("corrupted-shell-persistence")).toMatchObject({
+      implemented: true,
+      fallbackMode: "shell-reset",
+    });
+    expect(describeSplitCommandShellFailure("recoverable-shell-failure")).toMatchObject({
+      implemented: true,
+      fallbackMode: "shell-reset",
+    });
+    expect(describeSplitCommandShellFailure("forced-stable-gui-fallback")).toMatchObject({
+      implemented: false,
+      fallbackMode: "stable-gui-fallback",
+    });
+    expect(describeSplitCommandShellFailure("non-recoverable-shell-failure")).toMatchObject({
+      implemented: false,
+      fallbackMode: "policy-only",
+    });
+    expect(describeSplitCommandShellFailure("degraded-shell-mode")).toMatchObject({
+      implemented: false,
+      fallbackMode: "degraded-shell",
+    });
   });
 });

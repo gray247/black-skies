@@ -63,6 +63,7 @@ import { resolveProjectPath, revealPathWithToast } from "./utils/revealPathFeedb
 import {
   type AppShellMode,
   createDefaultSplitCommandShellState,
+  describeSplitCommandShellFailure,
   readSplitCommandShellState,
   splitCommandShellReducer,
   writeSplitCommandShellState,
@@ -2200,18 +2201,11 @@ export default function App(): JSX.Element {
     });
     splitCommandShellHydratedRef.current = true;
     splitCommandHydratedSceneSelectionRef.current = result.state.selectedSceneId;
-    if (result.failureClass === "corrupted-shell-persistence") {
-      setSplitCommandShellStatusNote(
-        "Split Command reset shell-local state after corrupted persistence. Stable GUI state was not reused.",
-      );
+    if (result.failureClass) {
+      setSplitCommandShellStatusNote(describeSplitCommandShellFailure(result.failureClass).notice);
       return;
     }
-    if (result.failureClass === "unsupported-shell-schema") {
-      setSplitCommandShellStatusNote(
-        "Split Command reset shell-local state after an unsupported shell schema. Stable GUI state remains isolated.",
-      );
-      return;
-    }
+    setSplitCommandShellStatusNote(null);
   }, [projectSummary?.path, splitCommandModeRequested]);
 
   useEffect(() => {

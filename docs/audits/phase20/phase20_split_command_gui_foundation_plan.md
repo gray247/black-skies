@@ -30,6 +30,7 @@ Completed grouped pass:
 - `20D` continuation pass for shell event-lifecycle governance and narrow churn bounding
 - `20D` continuation pass for shared observer classification and project/scene synchronization churn bounding
 - `20C` and `20G` validation-hardening pass for shell persistence, reset, invalidation, and mode separation
+- `20G` shell failure classification and fallback-state pass
 
 Implemented runtime decisions in this pass:
 
@@ -228,6 +229,18 @@ Phase 20 recognizes these shell failure classes:
   - unsupported schema triggers a shell-local reset notice and rewrites shell persistence from the current project and active scene
   - stale cross-project shell state resets selected scene and diagnostics-open state instead of leaking them into the next project
 
+### Failure classification table
+
+| Failure class | Current handling | Proof posture |
+| --- | --- | --- |
+| `recoverable-shell-failure` | implemented as a shell-local reset for project-identity mismatch; selected scene and diagnostics-open state reset, stable GUI remains isolated | proven in tests |
+| `corrupted-shell-persistence` | implemented as a shell-local reset plus shell-local notice; persistence is rewritten from fresh shell state | proven in tests |
+| `unsupported-shell-schema` | implemented as a shell-local reset plus shell-local notice; persistence is rewritten from fresh shell state | proven in tests |
+| `unsafe-shell-state` | classified only; intended future policy is controlled fallback rather than ambiguous continued shell execution | policy-only |
+| `non-recoverable-shell-failure` | classified only; intended future policy is safe fallback rather than silent bad shell state | policy-only |
+| `forced-stable-gui-fallback` | classified only; no broader runtime fallback path is implemented in this pass | policy-only |
+| `degraded-shell-mode` | classified only; no broader degraded-mode runtime surface is implemented in this pass | policy-only |
+
 ## Incremental Extraction Constraint
 
 Phase 20 may extract a shell-owned composition boundary incrementally.
@@ -312,6 +325,10 @@ Hard constraint: shell-boundary extraction is incremental ownership work, not a 
   - stable GUI remains the default and ignores shell-local storage when the Split Command flag is off
   - Split Command reset notices stay inside the shell mode and do not appear on the stable GUI path
   - turning the Split Command flag off after shell use returns the renderer to stable GUI mode without shell-state poisoning
+- Current policy-only gaps:
+  - no broader runtime forced-stable fallback path exists yet for non-recoverable shell activation failure
+  - no dedicated degraded-shell runtime surface exists yet beyond classification and documentation
+  - unsafe shell state is classified, but there is no broader runtime detector beyond the narrow persistence and project-identity resets already implemented
 - Closure: explicit mode identity model and shell failure classification model
 
 ### 20H - Phase 21 Readiness Gate
