@@ -1710,11 +1710,20 @@ describe('App preflight integration', () => {
     expect(screen.getByLabelText('Writing Studio')).toBeInTheDocument();
     expect(screen.getByTestId('project-home-mock')).toBeInTheDocument();
     expect(screen.getByTestId('app-root')).toHaveAttribute('data-app-mode', 'split-command');
+    expect(screen.getByTestId('split-command-deferred-note')).toHaveTextContent(
+      /deferred to later phases/i,
+    );
     expect(
       within(screen.getByLabelText('Story Navigation')).getByRole('button', {
         name: 'Select Arrival',
       }),
     ).toBeInTheDocument();
+    expect(screen.getByLabelText('Narrative Overview')).toBeInTheDocument();
+    expect(screen.getByLabelText('Structure Overview')).toBeInTheDocument();
+    expect(screen.getByLabelText('Project Stats')).toBeInTheDocument();
+    expect(screen.getByLabelText('Global Tools Metadata')).toBeInTheDocument();
+    expect(screen.queryByLabelText('Narrative Gaps')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('AI Companion')).not.toBeInTheDocument();
     expect(screen.queryByLabelText('Wizard dock')).not.toBeInTheDocument();
   });
 
@@ -1931,7 +1940,7 @@ describe('App preflight integration', () => {
       /supporting command surfaces stay collapsed/i,
     );
     expect(screen.getByLabelText('Story Navigation')).toBeInTheDocument();
-    expect(screen.getByLabelText('Future command surfaces')).not.toBeVisible();
+    expect(screen.getByLabelText('Deterministic command surfaces')).not.toBeVisible();
     expect(screen.getByTestId('project-home-mock')).toBeInTheDocument();
   });
 

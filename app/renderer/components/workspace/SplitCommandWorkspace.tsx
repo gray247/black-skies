@@ -16,26 +16,6 @@ interface SplitCommandWorkspaceProps {
   readonly writingStudio: ReactNode;
 }
 
-function PlaceholderPanel({
-  title,
-  importance = "secondary",
-  children,
-}: {
-  readonly title: string;
-  readonly importance?: "secondary" | "tertiary";
-  readonly children: ReactNode;
-}): JSX.Element {
-  return (
-    <section
-      className={`split-command__panel split-command__panel--placeholder split-command__panel--${importance}`}
-      aria-label={title}
-    >
-      <h3>{title}</h3>
-      <div className="split-command__panel-body">{children}</div>
-    </section>
-  );
-}
-
 function NarrativeOverviewPanel({
   project,
   outline,
@@ -45,12 +25,17 @@ function NarrativeOverviewPanel({
   readonly outline: ActiveOutlineV1;
   readonly activeUnit: StoryUnitV1 | null;
 }): JSX.Element {
+  const acts = project?.outline.acts ?? [];
+  const chapters = project?.outline.chapters ?? [];
   const sceneCount = project?.scenes.length ?? 0;
 
   return (
     <section
       className="split-command__panel split-command__panel--secondary split-command__overview"
       aria-label="Narrative Overview"
+      data-panel-id="narrative-overview"
+      data-panel-authority="derived"
+      data-panel-priority="secondary"
     >
       <div className="split-command__panel-heading">
         <div>
@@ -77,7 +62,119 @@ function NarrativeOverviewPanel({
         </div>
       </dl>
       <p className="split-command__panel-note">
-        Story-health signals are not running in this Phase 11B wrapper.
+        Outline source: {outline.sourceOutlineId ?? "No outline loaded"}. Acts: {acts.length}. Chapters:{" "}
+        {chapters.length}.
+      </p>
+    </section>
+  );
+}
+
+function StructureOverviewPanel({
+  project,
+}: {
+  readonly project: LoadedProject | null;
+}): JSX.Element {
+  const acts = project?.outline.acts ?? [];
+  const chapters = project?.outline.chapters ?? [];
+  const sceneCount = project?.outline.scenes.length ?? 0;
+
+  return (
+    <section
+      className="split-command__panel split-command__panel--secondary split-command__overview"
+      aria-label="Structure Overview"
+      data-panel-id="structure-overview"
+      data-panel-authority="derived"
+      data-panel-priority="secondary"
+    >
+      <div className="split-command__panel-heading">
+        <div>
+          <h3>Structure Overview</h3>
+          <p>Loaded outline hierarchy only</p>
+        </div>
+      </div>
+      <dl className="split-command__overview-grid">
+        <div>
+          <dt>Acts</dt>
+          <dd>{acts.length}</dd>
+        </div>
+        <div>
+          <dt>Chapters</dt>
+          <dd>{chapters.length}</dd>
+        </div>
+        <div>
+          <dt>Scenes</dt>
+          <dd>{sceneCount}</dd>
+        </div>
+        <div>
+          <dt>Outline ID</dt>
+          <dd>{project?.outline.outline_id ?? "None loaded"}</dd>
+        </div>
+      </dl>
+      {acts.length > 0 || chapters.length > 0 ? (
+        <div className="split-command__panel-note" aria-label="Loaded structure details">
+          <strong>Acts</strong> {acts.length > 0 ? acts.join(" / ") : "None loaded"}
+          <br />
+          <strong>Chapters</strong>{" "}
+          {chapters.length > 0 ? chapters.map((chapter) => chapter.title).join(" / ") : "None loaded"}
+        </div>
+      ) : (
+        <p className="split-command__panel-note">
+          Scene-only structure loaded. Act and chapter sections will appear when outline data
+          includes them.
+        </p>
+      )}
+    </section>
+  );
+}
+
+function ProjectStatsPanel({
+  project,
+  outline,
+  activeUnit,
+}: {
+  readonly project: LoadedProject | null;
+  readonly outline: ActiveOutlineV1;
+  readonly activeUnit: StoryUnitV1 | null;
+}): JSX.Element {
+  const acts = project?.outline.acts ?? [];
+  const chapters = project?.outline.chapters ?? [];
+  const draftCount = project ? Object.values(project.drafts).filter((draft) => draft.trim().length > 0).length : 0;
+
+  return (
+    <section
+      className="split-command__panel split-command__panel--tertiary split-command__overview"
+      aria-label="Project Stats"
+      data-panel-id="project-stats"
+      data-panel-authority="derived"
+      data-panel-priority="tertiary"
+    >
+      <div className="split-command__panel-heading">
+        <div>
+          <h3>Project Stats</h3>
+          <p>Deterministic counts only</p>
+        </div>
+      </div>
+      <dl className="split-command__overview-grid">
+        <div>
+          <dt>Acts</dt>
+          <dd>{acts.length}</dd>
+        </div>
+        <div>
+          <dt>Chapters</dt>
+          <dd>{chapters.length}</dd>
+        </div>
+        <div>
+          <dt>Scenes</dt>
+          <dd>{outline.units.length}</dd>
+        </div>
+        <div>
+          <dt>Drafts</dt>
+          <dd>{draftCount}</dd>
+        </div>
+      </dl>
+      <p className="split-command__panel-note">
+        Active scene: {activeUnit?.title ?? "None selected"}. No inferred health, warning, or AI
+        analysis is included here.
       </p>
     </section>
   );
@@ -96,12 +193,15 @@ function GlobalToolsPanel({
   return (
     <section
       className="split-command__panel split-command__panel--tertiary split-command__tools"
-      aria-label="Global Tools"
+      aria-label="Global Tools Metadata"
+      data-panel-id="global-tools"
+      data-panel-authority="metadata-only"
+      data-panel-priority="tertiary"
     >
       <div className="split-command__panel-heading">
         <div>
-          <h3>Global Tools</h3>
-          <p>Display-only command metadata</p>
+          <h3>Global Tools Metadata</h3>
+          <p>Metadata-only command registry</p>
         </div>
       </div>
       <dl className="split-command__tools-summary">
@@ -118,14 +218,6 @@ function GlobalToolsPanel({
           <dd>{commandCenterCommands.length}</dd>
         </div>
       </dl>
-      <ul className="split-command__tools-list" aria-label="Registered command metadata">
-        {commands.slice(0, 5).map((command) => (
-          <li key={command.id}>
-            <span>{command.label}</span>
-            <small>{command.category}</small>
-          </li>
-        ))}
-      </ul>
       <p className="split-command__panel-note">No command palette or execution path is active.</p>
     </section>
   );
@@ -158,10 +250,17 @@ export default function SplitCommandWorkspace({
       >
         <div className="split-command__zone-header">
           <span className="split-command__eyebrow">Command Center</span>
-          <h2>Story intelligence</h2>
+          <h2>Deterministic command surfaces</h2>
           <p className="split-command__zone-summary">
-            Experimental Phase 11B shell. Panels are read-only placeholders unless marked
-            as existing workspace data.
+            Experimental Phase 11B shell. Panels are deterministic loaded-data surfaces or
+            explicitly demoted metadata views.
+          </p>
+          <p
+            className="split-command__panel-note"
+            data-testid="split-command-deferred-note"
+          >
+            Narrative Gaps and AI Companion are deferred to later phases and are not active
+            command panels.
           </p>
           {shellStatusNote ? (
             <p
@@ -185,6 +284,7 @@ export default function SplitCommandWorkspace({
 
         <div className="split-command__panel-stack" aria-label="Command Center panels">
           <StoryNavigationPanel
+            project={project}
             outline={activeOutline}
             activeSceneId={activeSceneId}
             onSelectScene={onSelectScene}
@@ -192,7 +292,7 @@ export default function SplitCommandWorkspace({
 
           <div
             className="split-command__panel-cluster"
-            aria-label="Future command surfaces"
+            aria-label="Deterministic command surfaces"
             hidden={commandCenterCollapsed}
           >
             <NarrativeOverviewPanel
@@ -201,13 +301,9 @@ export default function SplitCommandWorkspace({
               activeUnit={activeUnit}
             />
 
-            <PlaceholderPanel title="Narrative Gaps">
-              <p>Placeholder surface. No gap detection is running in Phase 11B foundation.</p>
-            </PlaceholderPanel>
+            <StructureOverviewPanel project={project} />
 
-            <PlaceholderPanel title="AI Companion">
-              <p>Placeholder surface. Existing Companion behavior remains in the current overlay.</p>
-            </PlaceholderPanel>
+            <ProjectStatsPanel project={project} outline={activeOutline} activeUnit={activeUnit} />
 
             <GlobalToolsPanel commands={commands} />
           </div>

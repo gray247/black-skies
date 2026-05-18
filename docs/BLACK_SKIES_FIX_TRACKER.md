@@ -304,6 +304,18 @@ If an issue is not tracked here, it is not part of the active fix scope.
     - `git diff --check`
     - `git diff --cached --check`
     - `git status --short`
+- 2026-05-18 - Codex - Phase 21 first-cut implementation:
+  - implemented the first deterministic Command Center slice on top of the Phase 20 shell foundation,
+  - Story Navigation now shows loaded outline structure summaries for acts, chapters, and scenes when the outline already contains them, while keeping the scene list and active selection grounded in loaded project data,
+  - added deterministic Narrative Overview, Structure Overview, and Project Stats panels,
+  - demoted Global Tools to a metadata-only panel and removed the active Narrative Gaps and AI Companion placeholder panels from the command stack,
+  - added explicit panel admission metadata attributes and a deferred-notice copy line so the visible shell keeps placeholder honesty without panel soup,
+  - updated renderer tests and App preflight coverage for the new deterministic panel surfaces and placeholder removal,
+  - validation evidence:
+    - `pnpm --filter app test -- SplitCommandWorkspace.test.tsx AppPreflight.test.tsx splitCommandShellState.test.ts useServiceHealth.test.tsx` passed,
+    - `pnpm --filter app lint` passed with the existing ESLintRC deprecation warning only,
+    - `pnpm --filter app exec playwright test tests/e2e/split-command-smoke.spec.ts -c ./playwright.config.ts --workers=1` passed,
+    - `git diff --check` and `git diff --cached --check` passed locally,
 - 2026-05-18 - Codex - Phase 21 planning artifact:
   - created [phase21_command_center_panels_plan.md](/C:/Dev/black-skies/docs/audits/phase21/phase21_command_center_panels_plan.md) as the canonical Phase 21 scope artifact,
   - defined Phase 21 as deterministic/current-project Command Center work only, explicitly excluding AI intelligence, speculative analysis, immersive writing-side adjuncts, and two-monitor behavior,
