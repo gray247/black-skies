@@ -307,6 +307,13 @@ If an issue is not tracked here, it is not part of the active fix scope.
 - 2026-05-18 - Codex - Phase 21 planning artifact:
   - created [phase21_command_center_panels_plan.md](/C:/Dev/black-skies/docs/audits/phase21/phase21_command_center_panels_plan.md) as the canonical Phase 21 scope artifact,
   - defined Phase 21 as deterministic/current-project Command Center work only, explicitly excluding AI intelligence, speculative analysis, immersive writing-side adjuncts, and two-monitor behavior,
+  - strengthened the plan after carry-forward audit against Phases 14-20:
+    - added a carry-forward debt register for leftover authority, placeholder, durability, layout, diagnostics, and fallback exceptions,
+    - added Command Center information architecture to prevent random panel soup,
+    - added panel-admission enforcement posture covering docs, visible labels, config or registry metadata if feasible, and renderer-test proof,
+    - added explicit placeholder policy for `Narrative Gaps`, `AI Companion`, `Global Tools`, and deterministic-only `Narrative Overview` wording,
+    - added diagnostics placement decision: debug-only foundation, not a standard Phase 21 Command Center panel,
+    - added Story Navigation definition, deterministic-only data contract refinements, layout and collapse guardrails, proof-boundary rules, and explicit Phase 21 closure criteria,
   - formalized the recommended slice structure:
     - `21A` Command Center inventory and panel admission rules
     - `21B` Story Navigation discoverability
@@ -328,12 +335,14 @@ If an issue is not tracked here, it is not part of the active fix scope.
     - tension/foreshadow/conflict detection
     - notes/chat/quick insert
     - two-monitor workflow
+  - current recommended placeholder posture:
+    - remove `AI Companion` from the active Command Center by default,
+    - remove or sharply defer-label `Narrative Gaps`,
+    - demote or hide `Global Tools` unless it provides narrow deterministic metadata value,
   - recommended first execution goal:
     - `21A + 21B + 21D first cut`
   - validation target for this planning pass:
     - `git diff --check`
-    - `git diff --cached --check`
-    - `git status --short`
     - `git diff --cached --check`
     - `git status --short`
 
