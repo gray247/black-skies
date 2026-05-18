@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useEffect, useMemo, useRef } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -357,12 +357,14 @@ function enableSplitCommandWorkspace(): void {
 }
 
 function setViewportWidth(width: number): void {
-  Object.defineProperty(window, 'innerWidth', {
-    configurable: true,
-    writable: true,
-    value: width,
+  act(() => {
+    Object.defineProperty(window, 'innerWidth', {
+      configurable: true,
+      writable: true,
+      value: width,
+    });
+    window.dispatchEvent(new Event('resize'));
   });
-  window.dispatchEvent(new Event('resize'));
 }
 
 describe('App preflight integration', () => {
@@ -1733,6 +1735,59 @@ describe('App preflight integration', () => {
     expect(screen.getByLabelText('Story Navigation')).toBeInTheDocument();
     expect(screen.getByLabelText('Future command surfaces')).not.toBeVisible();
     expect(screen.getByTestId('project-home-mock')).toBeInTheDocument();
+  });
+
+  it('cleans up the shell resize listener on unmount and does not bind it for the stable GUI path', async () => {
+    const addSpy = vi.spyOn(window, 'addEventListener');
+    const removeSpy = vi.spyOn(window, 'removeEventListener');
+
+    const StableApp = loadAppWithServices(services);
+    const stableRender = render(<StableApp />);
+    await screen.findByTestId('project-home-mock');
+    expect(addSpy.mock.calls.filter(([type]) => type === 'resize')).toHaveLength(0);
+    stableRender.unmount();
+
+    enableSplitCommandWorkspace();
+    const SplitApp = loadAppWithServices(services);
+    const splitRender = render(<SplitApp />);
+
+    expect(await screen.findByTestId('split-command-workspace')).toBeInTheDocument();
+    expect(addSpy.mock.calls.filter(([type]) => type === 'resize')).toHaveLength(1);
+
+    splitRender.unmount();
+
+    expect(removeSpy.mock.calls.filter(([type]) => type === 'resize')).toHaveLength(1);
+  });
+
+  it('does not re-emit layout diagnostics when repeated resize events stay within the same shell mode', async () => {
+    enableSplitCommandWorkspace();
+    setViewportWidth(1100);
+    const consoleSpy = vi.spyOn(console, 'log');
+
+    const App = loadAppWithServices(services);
+    render(<App />);
+
+    expect(await screen.findByTestId('split-command-workspace')).toBeInTheDocument();
+
+    const condensedLogs = () =>
+      consoleSpy.mock.calls.filter(
+        ([message]) => message === '[dbg:split-command.layout.mode]',
+      ).length;
+
+    expect(condensedLogs()).toBe(1);
+
+    setViewportWidth(1120);
+    setViewportWidth(1110);
+    expect(condensedLogs()).toBe(1);
+
+    setViewportWidth(1400);
+    await waitFor(() => {
+      expect(screen.getByTestId('app-root')).toHaveAttribute('data-split-command-layout', 'full');
+    });
+    expect(condensedLogs()).toBe(2);
+
+    setViewportWidth(1420);
+    expect(condensedLogs()).toBe(2);
   });
 
   it('keeps generation and preflight wired when ProjectHome is wrapped by Split Command', async () => {

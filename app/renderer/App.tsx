@@ -876,6 +876,8 @@ export default function App(): JSX.Element {
   );
   const splitCommandShellHydratedRef = useRef(false);
   const splitCommandLayoutCollapsedRef = useRef<boolean | null>(null);
+  const splitCommandShellCollapsedStateRef = useRef(false);
+  const splitCommandPersistedStateRef = useRef<string | null>(null);
   const companionDrafts = useMemo(
     () => ({ ...projectDrafts, ...draftEdits }),
     [projectDrafts, draftEdits],
@@ -2150,11 +2152,20 @@ export default function App(): JSX.Element {
   useEffect(() => {
     if (!splitCommandModeRequested || typeof window === "undefined") {
       splitCommandShellHydratedRef.current = false;
+      splitCommandPersistedStateRef.current = null;
       setSplitCommandShellStatusNote(null);
       return;
     }
     const result = readSplitCommandShellState(window.localStorage, projectSummary?.path ?? null);
-    dispatchSplitCommandShell({ type: "shell/hydrate", payload: result.state });
+    const liveViewportCollapsed = window.innerWidth < SPLIT_COMMAND_CONDENSED_WIDTH_PX;
+    splitCommandLayoutCollapsedRef.current = liveViewportCollapsed;
+    dispatchSplitCommandShell({
+      type: "shell/hydrate",
+      payload: {
+        ...result.state,
+        commandCenterCollapsed: liveViewportCollapsed,
+      },
+    });
     splitCommandShellHydratedRef.current = true;
     if (result.failureClass === "corrupted-shell-persistence") {
       setSplitCommandShellStatusNote(
@@ -2169,6 +2180,10 @@ export default function App(): JSX.Element {
       return;
     }
   }, [projectSummary?.path, splitCommandModeRequested]);
+
+  useEffect(() => {
+    splitCommandShellCollapsedStateRef.current = splitCommandShellState.commandCenterCollapsed;
+  }, [splitCommandShellState.commandCenterCollapsed]);
 
   useEffect(() => {
     if (!splitCommandModeRequested) {
@@ -2210,11 +2225,17 @@ export default function App(): JSX.Element {
     ) {
       return;
     }
-    writeSplitCommandShellState(window.localStorage, {
+    const nextPersistedState = {
       ...splitCommandShellState,
       projectPath: projectSummary?.path ?? null,
       selectedSceneId: activeSceneId ?? splitCommandShellState.selectedSceneId,
-    });
+    };
+    const nextSerializedState = JSON.stringify(nextPersistedState);
+    if (splitCommandPersistedStateRef.current === nextSerializedState) {
+      return;
+    }
+    splitCommandPersistedStateRef.current = nextSerializedState;
+    writeSplitCommandShellState(window.localStorage, nextPersistedState);
   }, [
     activeSceneId,
     projectSummary?.path,
@@ -2231,7 +2252,7 @@ export default function App(): JSX.Element {
       const nextCollapsed = window.innerWidth < SPLIT_COMMAND_CONDENSED_WIDTH_PX;
       if (
         splitCommandLayoutCollapsedRef.current === nextCollapsed &&
-        splitCommandShellState.commandCenterCollapsed === nextCollapsed
+        splitCommandShellCollapsedStateRef.current === nextCollapsed
       ) {
         return;
       }
@@ -2278,7 +2299,7 @@ export default function App(): JSX.Element {
     return () => {
       window.removeEventListener("resize", syncLayoutOwnership);
     };
-  }, [splitCommandModeRequested, splitCommandShellState.commandCenterCollapsed]);
+  }, [splitCommandModeRequested]);
   const splitCommandLayoutMode = splitCommandShellState.commandCenterCollapsed
     ? "condensed"
     : "full";

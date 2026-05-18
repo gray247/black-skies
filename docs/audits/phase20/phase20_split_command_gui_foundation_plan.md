@@ -27,6 +27,7 @@ Completed grouped pass:
 - `20B` layout and pane ownership first implementation
 - `20E` spatial breathing and constrained-width degradation first implementation
 - `20D` flicker classification and lightweight layout instrumentation only
+- `20D` continuation pass for shell event-lifecycle governance and narrow churn bounding
 
 Implemented runtime decisions in this pass:
 
@@ -41,6 +42,23 @@ Deferred from this pass:
 - finer command-panel admission rules beyond the current placeholder cluster boundary
 - any richer diagnostics console
 - any broad flicker remediation not proven by narrow instrumentation
+
+## Shell Lifecycle Ownership Table
+
+| Surface | Owner | Creation point | Cleanup point | Project switch | Flag off / mode exit | Renderer reload | Current posture |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Split Command resize listener | Split Command shell boundary in `App.tsx` | Split Command mode effect in `App.tsx` | same effect cleanup removes `resize` listener | stays active, recomputes from live viewport | listener removed and shell refs reset | recreated cleanly on remount | governed in this pass |
+| Shell persistence hydration read | Split Command shell boundary in `App.tsx` | Split Command mode effect on activation/path change | no live subscription; one-shot read only | re-read by project path | skipped when mode is off | re-read on fresh mount | governed in first-cut plus this pass |
+| Shell persistence write | Split Command shell boundary in `App.tsx` | shell-state write effect after hydration | no listener; effect stops when mode is off | writes new project-keyed payload | stopped when mode is off | resumes from fresh state on mount | governed with duplicate-write guard in this pass |
+| Project/scene synchronization | Split Command shell boundary in `App.tsx` | shell effects reacting to project path and active scene | effect cleanup by React lifecycle only | invalidates on project change | disabled when mode is off | recreated on remount | governed, still a flicker risk candidate |
+| Layout-mode diagnostics emission | Split Command shell boundary in `App.tsx` | resize handler when condensed/full mode actually changes | piggybacks on resize-listener cleanup | continues with current project because it is viewport-owned | disabled when mode is off | recreated on remount | governed in this pass |
+| Draft preview storage listener | stable writing surface / existing draft sync lane in `App.tsx` | draft sync effect | removes `storage` listener in cleanup | keyed by project path | not Split Command-specific | recreated on remount | classified as inherited, unchanged |
+| Service-health polling interval | `useServiceHealth.ts` shared service-health hook | polling effect in `useServiceHealth.ts` | clears interval in cleanup | shared health state continues independent of shell mode | disabled by stable-home/visual-home/test freeze paths, not by Split Command mode alone | recreated on remount | classified, unchanged in this pass |
+| Service-health test event listeners | `useServiceHealth.ts` shared service-health hook | event-listener effect in `useServiceHealth.ts` | removes window/document listeners in cleanup | independent of project | disabled by stable-home/visual-home paths, not Split Command mode alone | recreated on remount | classified, unchanged in this pass |
+
+Future rule:
+
+- Any future Split Command-specific observer must declare owner, create path, cleanup path, project-switch behavior, mode-exit behavior, and whether it persists or resets before admission.
 
 ## Hard Architectural Rules
 
@@ -238,6 +256,10 @@ Hard constraint: shell-boundary extraction is incremental ownership work, not a 
 - Current implementation posture:
   - add only lightweight layout-mode instrumentation with explicit listener cleanup
   - do not claim flicker fixed without reproducible proof
+- Current narrow fixes:
+  - resize-listener ownership now stays on a single Split Command effect instead of rebinding on shell layout-state changes
+  - shell persistence writes now skip duplicate payload writes when nothing material changed
+  - layout-mode diagnostics now emit only when condensed/full state actually changes
 - Closure: ranked flicker hypotheses and a shell subscription governance model
 
 ### 20E - Spatial Breathing, Density, and Responsive Layout

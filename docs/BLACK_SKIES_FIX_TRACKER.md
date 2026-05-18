@@ -175,6 +175,33 @@ If an issue is not tracked here, it is not part of the active fix scope.
     - `git diff --check`
     - `git diff --cached --check`
     - `git status --short`
+- 2026-05-18 - Codex - Phase 20 shell event lifecycle governance pass:
+  - executed a narrow `20D` continuation pass focused on listener/subscription ownership and churn-bounding without adding new shell surfaces,
+  - documented the current Split Command lifecycle ownership table in `docs/audits/phase20/phase20_split_command_gui_foundation_plan.md`, covering:
+    - resize listener ownership,
+    - shell persistence hydration and write paths,
+    - project/scene synchronization,
+    - layout-mode diagnostics,
+    - inherited draft-preview storage listener,
+    - inherited service-health interval and test event listeners,
+  - fixed proven narrow lifecycle issues in `app/renderer/App.tsx`:
+    - shell resize-listener effect no longer rebinds on every `commandCenterCollapsed` state transition,
+    - shell persistence writes now skip duplicate payload writes,
+    - layout-mode diagnostics now emit only when the condensed/full state actually changes,
+  - added focused renderer tests proving:
+    - no shell resize listener on stable GUI,
+    - shell resize listener cleanup on Split Command unmount,
+    - repeated same-mode resize events do not churn layout diagnostics,
+  - flicker findings after this pass:
+    - bounded: avoidable resize-listener rebinding and duplicate layout-mode emission,
+    - still deferred: long-session render churn tied to broader project/scene synchronization and shared service-health/debug observers,
+  - validation target for this pass:
+    - `pnpm --filter app test -- SplitCommandWorkspace.test.tsx AppPreflight.test.tsx splitCommandShellState.test.ts`
+    - `pnpm --filter app lint`
+    - `pnpm --filter app exec playwright test tests/e2e/split-command-smoke.spec.ts -c ./playwright.config.ts --workers=1`
+    - `git diff --check`
+    - `git diff --cached --check`
+    - `git status --short`
 
 ## Status Definitions
 - `ACTIVE`: known issue, unresolved
