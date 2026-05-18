@@ -3,8 +3,8 @@ Scope: Decide whether Phase 18 is closed, closed with exceptions, or not closed 
 Owns: final closure determination, residual exceptions, non-claims, and next-step posture.
 Does not own: future implementation work.
 Upstream dependencies: [phase18_activation_results.md](/C:/Dev/black-skies/docs/audits/phase18/phase18_activation_results.md), [phase18_hidden_gui_truth_classification.md](/C:/Dev/black-skies/docs/audits/phase18/phase18_hidden_gui_truth_classification.md), [phase18_target_screenshot_gap_results.md](/C:/Dev/black-skies/docs/audits/phase18/phase18_target_screenshot_gap_results.md), [BLACK_SKIES_FIX_TRACKER.md](/C:/Dev/black-skies/docs/BLACK_SKIES_FIX_TRACKER.md)
-Last reviewed: 2026-05-17.
-Acceptance record: No operator acceptance recorded yet.
+Last reviewed: 2026-05-18.
+Acceptance record: Manual operator smoke completed on 2026-05-18. Result: `Pass with warnings`.
 
 # Phase 18 Closure Review
 
@@ -42,7 +42,6 @@ Those requirements were met.
 ## Exceptions
 
 - layout persistence, fallback behavior, cognitive load, long-session durability, and operator trust under sustained use remain unproven
-- no operator/human verification was performed in this phase
 
 These are exceptions, not hidden omissions.
 
@@ -58,6 +57,22 @@ Resolved follow-up:
 - continue only after limited repair
 - treat future architecture work as Phase 20+ work, not as something Phase 18 already solved
 
+## Manual Smoke Outcome
+
+Manual operator smoke on 2026-05-18 passed with warnings.
+
+- backend drops
+  - ownership: `Phase 25`
+  - note: if this also reproduces in the stable GUI, treat it as a possible cross-phase blocker rather than a hidden-shell-only warning
+- flicker
+  - ownership: `Phase 20`
+- layout cramming
+  - ownership: `Phase 20 / Phase 22`
+- Story Navigation discoverability
+  - ownership: `Phase 21`
+- diagnostics future tool
+  - ownership: `Phase 20 or Phase 21`
+
 ## Explicit Non-Claims
 
 - Phase 18 does not claim the target screenshot GUI exists today.
@@ -67,8 +82,7 @@ Resolved follow-up:
 
 ## Human Verification Still Needed
 
-- live flag-on operator launch from a normal local build
-- visible confirmation that Split Command renders as expected outside the harness
 - layout persistence behavior under the hidden shell
 - cognitive load / creative-state / long-session observation
-- project identity and fallback behavior during repeated launches
+- repeated-launch project identity and fallback behavior
+- whether backend drops are hidden-shell-specific or also present in the stable GUI

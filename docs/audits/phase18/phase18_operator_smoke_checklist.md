@@ -3,8 +3,8 @@ Scope: Verify the hidden shell locally under the flag without promoting it, rede
 Owns: manual launch/inspection checklist, stop gates, and tiny report format.
 Does not own: runtime changes, test changes, Phase 19 cleanup, or future GUI architecture work.
 Upstream dependencies: [phase18_activation_results.md](/C:/Dev/black-skies/docs/audits/phase18/phase18_activation_results.md), [phase18_hidden_gui_truth_classification.md](/C:/Dev/black-skies/docs/audits/phase18/phase18_hidden_gui_truth_classification.md), [phase18_closure_review.md](/C:/Dev/black-skies/docs/audits/phase18/phase18_closure_review.md)
-Last reviewed: 2026-05-17.
-Acceptance record: No operator acceptance recorded yet.
+Last reviewed: 2026-05-18.
+Acceptance record: Manual operator smoke completed on 2026-05-18. Result: `Pass with warnings`.
 
 # Phase 18 Operator Smoke Checklist
 
@@ -15,6 +15,22 @@ This is a manual Phase 18 verification pass for the hidden Split Command shell.
 - It does not promote the hidden GUI.
 - It does not start Phase 19 or Phase 20.
 - It only checks whether the hidden shell behaves as expected under the flag.
+
+## Latest Findings
+
+Manual operator smoke on 2026-05-18 classified the hidden shell as `Pass with warnings`.
+
+- backend drops
+  - owner: `Phase 25`
+  - note: possible cross-phase blocker if the stable GUI also drops
+- flicker
+  - owner: `Phase 20`
+- layout cramming
+  - owner: `Phase 20 / Phase 22`
+- Story Navigation discoverability
+  - owner: `Phase 21`
+- diagnostics future tool
+  - owner: `Phase 20 or Phase 21`
 
 ## Pre-Checks
 
