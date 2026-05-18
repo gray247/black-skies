@@ -19,7 +19,10 @@ import {
   getDraftPreviewSyncKey,
   type DraftPreviewSyncState,
 } from '../utils/draftPreviewSync';
-import { SPLIT_COMMAND_SHELL_STORAGE_KEY } from '../utils/splitCommandShellState';
+import {
+  SPLIT_COMMAND_SHELL_SCHEMA_VERSION,
+  SPLIT_COMMAND_SHELL_STORAGE_KEY,
+} from '../utils/splitCommandShellState';
 
 let mockLoadedProjectId: string | undefined;
 let mockLoadedProjectPath: string | undefined;
@@ -1674,6 +1677,20 @@ describe('App preflight integration', () => {
     expect(screen.getByTestId('app-root')).toHaveAttribute('data-app-mode', 'stable-gui');
   });
 
+  it('ignores shell-local persistence entirely when Split Command is flag-off', async () => {
+    const corruptedShellState = '{not-json';
+    window.localStorage.setItem(SPLIT_COMMAND_SHELL_STORAGE_KEY, corruptedShellState);
+
+    const App = loadAppWithServices(services);
+    render(<App />);
+
+    expect(await screen.findByTestId('project-home-mock')).toBeInTheDocument();
+    expect(screen.queryByTestId('split-command-workspace')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('split-command-shell-status')).not.toBeInTheDocument();
+    expect(screen.getByTestId('app-root')).toHaveAttribute('data-app-mode', 'stable-gui');
+    expect(window.localStorage.getItem(SPLIT_COMMAND_SHELL_STORAGE_KEY)).toBe(corruptedShellState);
+  });
+
   it('renders the experimental Split Command shell only when the runtime flag is enabled', async () => {
     enableSplitCommandWorkspace();
     mockLoadedProjectId = 'proj_split_command';
@@ -1700,6 +1717,36 @@ describe('App preflight integration', () => {
     expect(screen.queryByLabelText('Wizard dock')).not.toBeInTheDocument();
   });
 
+  it('restores valid same-project split-command shell state on reopen', async () => {
+    enableSplitCommandWorkspace();
+    mockLoadedProjectId = 'proj_split_command';
+    mockLoadedProjectPath = '/projects/split-command';
+    mockLoadedProjectName = 'Split Command Demo';
+    mockLoadedProjectScenes = [
+      { id: 'sc_0001', title: 'Arrival', order: 1 },
+      { id: 'sc_0002', title: 'Signal', order: 2 },
+    ];
+    window.localStorage.setItem(
+      SPLIT_COMMAND_SHELL_STORAGE_KEY,
+      JSON.stringify({
+        schemaVersion: SPLIT_COMMAND_SHELL_SCHEMA_VERSION,
+        projectPath: '/projects/split-command',
+        selectedSceneId: 'sc_0002',
+        commandCenterCollapsed: false,
+        diagnosticsOpen: true,
+      }),
+    );
+
+    const App = loadAppWithServices(services);
+    render(<App />);
+
+    expect(await screen.findByTestId('split-command-workspace')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId('project-home-mock')).toHaveAttribute('data-active-scene-id', 'sc_0002');
+    });
+    expect(screen.queryByTestId('split-command-shell-status')).toBeNull();
+  });
+
   it('resets corrupted split-command shell persistence without polluting the stable GUI path', async () => {
     enableSplitCommandWorkspace();
     window.localStorage.setItem(SPLIT_COMMAND_SHELL_STORAGE_KEY, '{not-json');
@@ -1713,6 +1760,115 @@ describe('App preflight integration', () => {
     );
     expect(window.localStorage.getItem(SPLIT_COMMAND_SHELL_STORAGE_KEY)).not.toBe('{not-json');
     expect(screen.getByTestId('app-root')).toHaveAttribute('data-app-mode', 'split-command');
+  });
+
+  it('resets unsupported split-command shell persistence without leaving stale shell state active', async () => {
+    enableSplitCommandWorkspace();
+    window.localStorage.setItem(
+      SPLIT_COMMAND_SHELL_STORAGE_KEY,
+      JSON.stringify({
+        schemaVersion: 999,
+        projectPath: '/projects/demo',
+        selectedSceneId: 'sc_0002',
+        diagnosticsOpen: true,
+      }),
+    );
+
+    const App = loadAppWithServices(services);
+    render(<App />);
+
+    expect(await screen.findByTestId('split-command-workspace')).toBeInTheDocument();
+    expect(screen.getByTestId('split-command-shell-status')).toHaveTextContent(
+      /unsupported shell schema/i,
+    );
+    expect(window.localStorage.getItem(SPLIT_COMMAND_SHELL_STORAGE_KEY)).toBeTruthy();
+    const persistedState = JSON.parse(
+      window.localStorage.getItem(SPLIT_COMMAND_SHELL_STORAGE_KEY) ?? 'null',
+    ) as { schemaVersion: number; selectedSceneId: string | null; diagnosticsOpen: boolean };
+    expect(persistedState.schemaVersion).toBe(SPLIT_COMMAND_SHELL_SCHEMA_VERSION);
+    expect(persistedState.selectedSceneId).toBe('sc_0001');
+    expect(persistedState.diagnosticsOpen).toBe(false);
+  });
+
+  it('invalidates stale shell-local state when the project path changes', async () => {
+    enableSplitCommandWorkspace();
+    mockLoadedProjectId = 'proj_beta';
+    mockLoadedProjectPath = '/projects/beta';
+    mockLoadedProjectName = 'Beta Project';
+    mockLoadedProjectScenes = [
+      { id: 'sc_0001', title: 'Arrival', order: 1 },
+      { id: 'sc_0002', title: 'Signal', order: 2 },
+    ];
+    window.localStorage.setItem(
+      SPLIT_COMMAND_SHELL_STORAGE_KEY,
+      JSON.stringify({
+        schemaVersion: SPLIT_COMMAND_SHELL_SCHEMA_VERSION,
+        projectPath: '/projects/alpha',
+        selectedSceneId: 'sc_0002',
+        commandCenterCollapsed: false,
+        diagnosticsOpen: true,
+      }),
+    );
+
+    const App = loadAppWithServices(services);
+    render(<App />);
+
+    expect(await screen.findByTestId('split-command-workspace')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId('project-home-mock')).toHaveAttribute('data-active-scene-id', 'sc_0001');
+    });
+    expect(screen.queryByTestId('split-command-shell-status')).toBeNull();
+    await waitFor(() => {
+      const persistedState = JSON.parse(
+        window.localStorage.getItem(SPLIT_COMMAND_SHELL_STORAGE_KEY) ?? 'null',
+      ) as { projectPath: string | null; selectedSceneId: string | null; diagnosticsOpen: boolean };
+      expect(persistedState.projectPath).toBe('/projects/beta');
+      expect(persistedState.selectedSceneId).toBe('sc_0001');
+      expect(persistedState.diagnosticsOpen).toBe(false);
+    });
+  });
+
+  it('returns to stable GUI mode cleanly when the split-command flag is turned off', async () => {
+    enableSplitCommandWorkspace();
+    mockLoadedProjectId = 'proj_split_command';
+    mockLoadedProjectPath = '/projects/split-command';
+    mockLoadedProjectName = 'Split Command Demo';
+    mockLoadedProjectScenes = [
+      { id: 'sc_0001', title: 'Arrival', order: 1 },
+      { id: 'sc_0002', title: 'Signal', order: 2 },
+    ];
+    window.localStorage.setItem(
+      SPLIT_COMMAND_SHELL_STORAGE_KEY,
+      JSON.stringify({
+        schemaVersion: SPLIT_COMMAND_SHELL_SCHEMA_VERSION,
+        projectPath: '/projects/split-command',
+        selectedSceneId: 'sc_0002',
+        commandCenterCollapsed: false,
+        diagnosticsOpen: false,
+      }),
+    );
+
+    const App = loadAppWithServices(services);
+    const firstRender = render(<App />);
+
+    expect(await screen.findByTestId('split-command-workspace')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId('project-home-mock')).toHaveAttribute('data-active-scene-id', 'sc_0002');
+    });
+
+    firstRender.unmount();
+    Reflect.deleteProperty(
+      window as typeof window & { __runtimeConfigOverride?: typeof DEFAULT_RUNTIME_CONFIG },
+      '__runtimeConfigOverride',
+    );
+
+    render(<App />);
+
+    expect(await screen.findByTestId('project-home-mock')).toBeInTheDocument();
+    expect(screen.queryByTestId('split-command-workspace')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('split-command-shell-status')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('Wizard dock')).toBeInTheDocument();
+    expect(screen.getByTestId('app-root')).toHaveAttribute('data-app-mode', 'stable-gui');
   });
 
   it('condenses the command center first when the split-command viewport is constrained', async () => {

@@ -29,6 +29,7 @@ Completed grouped pass:
 - `20D` flicker classification and lightweight layout instrumentation only
 - `20D` continuation pass for shell event-lifecycle governance and narrow churn bounding
 - `20D` continuation pass for shared observer classification and project/scene synchronization churn bounding
+- `20C` and `20G` validation-hardening pass for shell persistence, reset, invalidation, and mode separation
 
 Implemented runtime decisions in this pass:
 
@@ -44,6 +45,7 @@ Deferred from this pass:
 - any richer diagnostics console
 - any broad flicker remediation not proven by narrow instrumentation
 - any attempt to make shared service-health observers shell-owned instead of explicitly inherited
+- any promotion of Split Command beyond explicit flag-on mode
 
 ## Shell Lifecycle Ownership Table
 
@@ -155,6 +157,10 @@ Stable GUI and Split Command are separate application modes.
 - mode switches must define carry or clear behavior explicitly
 - the operator must be able to tell which mode is active
 - tests must keep proving stable GUI remains the default
+- current proof:
+  - stable GUI ignores shell-local persistence entirely when the Split Command flag is off
+  - valid same-project shell state restores under Split Command reopen
+  - flag-off after Split Command returns cleanly to stable GUI mode without reusing shell-local status surfaces
 
 ## Diagnostics Classification
 
@@ -217,6 +223,10 @@ Phase 20 recognizes these shell failure classes:
 - unsafe shell state: do not keep running with ambiguous truth; prefer controlled fallback
 - non-recoverable shell failure: force stable fallback if possible; never continue silently in bad state
 - degraded shell mode: operator-visible and non-promotional, never hidden
+- current proof:
+  - corrupted persistence triggers a shell-local reset notice and rewrites shell persistence from fresh state
+  - unsupported schema triggers a shell-local reset notice and rewrites shell persistence from the current project and active scene
+  - stale cross-project shell state resets selected scene and diagnostics-open state instead of leaking them into the next project
 
 ## Incremental Extraction Constraint
 
@@ -252,6 +262,11 @@ Hard constraint: shell-boundary extraction is incremental ownership work, not a 
 ### 20C - Workspace State and Persistence Model
 
 - Objective: define shell persistence across reload, reopen, project switch, restore, flag toggle, and incompatible schema
+- Current proven behavior:
+  - same-project reopen restores valid shell-local scene selection
+  - project-path changes invalidate project-specific shell state before rewrite
+  - corrupted and unsupported shell persistence reset safely
+  - shell-local diagnostics-open state is project-scoped and does not survive project-path changes
 - Closure: persist/reset/never-persist matrix plus invalidation and version rules
 
 ### 20D - Render Stability, Flicker Investigation, and Subscription Governance
@@ -293,6 +308,10 @@ Hard constraint: shell-boundary extraction is incremental ownership work, not a 
 ### 20G - Fallback, Deactivation, Safety Model, and Shell-Mode Identity
 
 - Objective: define shell/stable mode identity, separation, fallback, and failure handling
+- Current proven behavior:
+  - stable GUI remains the default and ignores shell-local storage when the Split Command flag is off
+  - Split Command reset notices stay inside the shell mode and do not appear on the stable GUI path
+  - turning the Split Command flag off after shell use returns the renderer to stable GUI mode without shell-state poisoning
 - Closure: explicit mode identity model and shell failure classification model
 
 ### 20H - Phase 21 Readiness Gate

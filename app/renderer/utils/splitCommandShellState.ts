@@ -149,6 +149,6 @@ function normalizeShellState(
         ? candidate.selectedSceneId
         : null,
     commandCenterCollapsed: candidate.commandCenterCollapsed === true,
-    diagnosticsOpen: candidate.diagnosticsOpen === true,
+    diagnosticsOpen: sameProject && candidate.diagnosticsOpen === true,
   };
 }

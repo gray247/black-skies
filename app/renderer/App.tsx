@@ -891,6 +891,7 @@ export default function App(): JSX.Element {
     null,
   );
   const splitCommandShellHydratedRef = useRef(false);
+  const splitCommandHydratedSceneSelectionRef = useRef<string | null>(null);
   const splitCommandLayoutCollapsedRef = useRef<boolean | null>(null);
   const splitCommandShellCollapsedStateRef = useRef(false);
   const splitCommandPersistedStateRef = useRef<string | null>(null);
@@ -2175,6 +2176,14 @@ export default function App(): JSX.Element {
   useEffect(() => {
     if (!splitCommandModeRequested || typeof window === "undefined") {
       splitCommandShellHydratedRef.current = false;
+      splitCommandHydratedSceneSelectionRef.current = null;
+      splitCommandPersistedStateRef.current = null;
+      setSplitCommandShellStatusNote(null);
+      return;
+    }
+    if (!projectSummary?.path) {
+      splitCommandShellHydratedRef.current = false;
+      splitCommandHydratedSceneSelectionRef.current = null;
       splitCommandPersistedStateRef.current = null;
       setSplitCommandShellStatusNote(null);
       return;
@@ -2190,6 +2199,7 @@ export default function App(): JSX.Element {
       },
     });
     splitCommandShellHydratedRef.current = true;
+    splitCommandHydratedSceneSelectionRef.current = result.state.selectedSceneId;
     if (result.failureClass === "corrupted-shell-persistence") {
       setSplitCommandShellStatusNote(
         "Split Command reset shell-local state after corrupted persistence. Stable GUI state was not reused.",
@@ -2210,16 +2220,40 @@ export default function App(): JSX.Element {
 
   useEffect(() => {
     if (!splitCommandModeRequested) {
+      splitCommandHydratedSceneSelectionRef.current = null;
+      return;
+    }
+    if (
+      splitCommandHydratedSceneSelectionRef.current &&
+      splitCommandHydratedSceneSelectionRef.current === activeSceneId
+    ) {
+      splitCommandHydratedSceneSelectionRef.current = null;
+    }
+  }, [activeSceneId, splitCommandModeRequested]);
+
+  useEffect(() => {
+    if (!splitCommandModeRequested) {
       return;
     }
     if (activeSceneId === null && !currentProject) {
+      return;
+    }
+    if (
+      splitCommandHydratedSceneSelectionRef.current &&
+      currentProject &&
+      splitCommandHydratedSceneSelectionRef.current !== activeSceneId
+    ) {
       return;
     }
     dispatchSplitCommandShell({
       type: "shell/select-scene",
       payload: { sceneId: activeSceneId ?? null },
     });
-  }, [activeSceneId, currentProject, splitCommandModeRequested]);
+  }, [
+    activeSceneId,
+    currentProject,
+    splitCommandModeRequested,
+  ]);
 
   useEffect(() => {
     if (
@@ -2244,7 +2278,8 @@ export default function App(): JSX.Element {
     if (
       !splitCommandModeRequested ||
       !splitCommandShellHydratedRef.current ||
-      typeof window === "undefined"
+      typeof window === "undefined" ||
+      !projectSummary?.path
     ) {
       return;
     }

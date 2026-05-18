@@ -222,6 +222,32 @@ If an issue is not tracked here, it is not part of the active fix scope.
     - `git diff --check`
     - `git diff --cached --check`
     - `git status --short`
+- 2026-05-18 - Codex - Phase 20 shell persistence hardening pass:
+  - executed a narrow `20C + 20G` validation-hardening pass focused on shell-local persistence proof, mode separation, fallback safety, and project-path invalidation,
+  - fixed a proven shell-persistence leak in `app/renderer/utils/splitCommandShellState.ts`:
+    - `diagnosticsOpen` is now project-scoped like scene selection and no longer survives project-path changes,
+  - added targeted proof in renderer and helper tests for:
+    - stable GUI ignoring shell-local persistence entirely when the Split Command flag is off,
+    - valid same-project Split Command state restoring on reopen,
+    - corrupted persistence resetting with a shell-local notice,
+    - unsupported schema resetting safely and rewriting fresh shell state,
+    - stale project shell state invalidating on project-path change,
+    - flag-off after Split Command returning cleanly to stable GUI mode,
+  - current persistence/mode findings after this pass:
+    - shell-local persistence remains isolated from stable GUI mode,
+    - project-specific shell state now resets selected scene and diagnostics-open state across project changes,
+    - current viewport ownership still overrides any persisted command-center collapse on shell hydrate,
+  - deferred risks after this pass:
+    - long-session durability is still not bounded by operator evidence,
+    - forced stable fallback for future non-recoverable shell failures remains mostly policy/documentation rather than a broader runtime path,
+    - panel-admission governance remains documented but not runtime-enforced,
+  - validation target for this pass:
+    - `pnpm --filter app test -- AppPreflight.test.tsx SplitCommandWorkspace.test.tsx splitCommandShellState.test.ts`
+    - `pnpm --filter app lint`
+    - `pnpm --filter app exec playwright test tests/e2e/split-command-smoke.spec.ts -c ./playwright.config.ts --workers=1`
+    - `git diff --check`
+    - `git diff --cached --check`
+    - `git status --short`
 
 ## Status Definitions
 - `ACTIVE`: known issue, unresolved
