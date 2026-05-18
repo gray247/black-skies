@@ -3,7 +3,7 @@
 # BLACK SKIES - FIX TRACKER
 
 Status: Active
-Last Reviewed: 2026-05-17
+Last Reviewed: 2026-05-18
 
 ## Purpose
 This document tracks defects, technical debt, and instability across Black Skies.
@@ -142,6 +142,19 @@ If an issue is not tracked here, it is not part of the active fix scope.
 - Phase 18 follow-up completed on 2026-05-17. The packaged Electron activation seam is now formally classified: `window.__runtimeConfigOverride` is a renderer-test seam only because shared Playwright `page` fixtures receive an already-loaded window, so spec-level init-script override arrives too late for first render. The supported live smoke lane now uses a fixture-owned temporary `runtime.yaml` through `BLACKSKIES_CONFIG_PATH`, plus Split Command bootstrap expectations that do not assume dock UI. Validation passed for targeted Vitest coverage, production build, lint, and `tests/e2e/split-command-smoke.spec.ts`. Phase 18 closure status remains `Closed with exceptions`; the activation-seam exception is resolved, but human verification and broader hidden-shell durability/authority questions remain open.
 - Phase 18 operator smoke checklist added on 2026-05-17 in [phase18_operator_smoke_checklist.md](/C:/Dev/black-skies/docs/audits/phase18/phase18_operator_smoke_checklist.md). It is intentionally lightweight: stable-GUI baseline, temporary `BLACKSKIES_CONFIG_PATH` activation guidance, one-window Split Command inspection checks, stop gates, rabbit-hole control, and a tiny report format. It does not promote the hidden shell, does not change runtime behavior, and does not start Phase 19 or Phase 20 work.
 - Phase 18 manual operator smoke findings recorded on 2026-05-18. Result: `Pass with warnings`. Recorded ownership: backend drops -> `Phase 25` (possible cross-phase blocker if stable GUI also drops), flicker -> `Phase 20`, layout cramming -> `Phase 20 / Phase 22`, Story Navigation discoverability -> `Phase 21`, diagnostics future tool -> `Phase 20 or Phase 21`. Phase 18 remains `Closed with exceptions`; the operator smoke did not justify promotion, but it did replace the prior no-human-verification gap with concrete warnings and ownership.
+- 2026-05-18 - Codex - Phase 20 first-cut shell foundation:
+  - created `docs/audits/phase20/phase20_split_command_gui_foundation_plan.md` as the canonical Phase 20 scope artifact,
+  - implemented an incremental shell-owned boundary first cut in `app/renderer/App.tsx`; this remains an extraction from the existing wrapper, not a renderer rewrite,
+  - added shell-local Split Command persistence isolation with schema versioning and project-path invalidation in `app/renderer/utils/splitCommandShellState.ts`,
+  - enforced named shell action paths for shell-owned scene-selection persistence via the Split Command shell reducer and explicit `shell/*` actions,
+  - kept stable GUI as the default startup path and added explicit renderer mode identity via `data-app-mode=stable-gui|split-command`,
+  - added safe reset handling for corrupted or unsupported shell-local persistence; reset notices stay shell-local and do not reuse stable GUI state,
+  - kept diagnostics in debug-only posture and updated `docs/diagnostics.md` to prevent a competing diagnostics lineage,
+  - validation target for this pass:
+    - `pnpm --filter app test -- splitCommandShellState.test.ts SplitCommandWorkspace.test.tsx AppPreflight.test.tsx`
+    - `pnpm --filter app lint`
+    - `git diff --check`
+    - `git diff --cached --check`
 
 ## Status Definitions
 - `ACTIVE`: known issue, unresolved

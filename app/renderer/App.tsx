@@ -1,6 +1,7 @@
 ﻿import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { createPortal } from "react-dom";
+import { useReducer } from "react";
 
 import ProjectHome, {
   type ActiveScenePayload,
@@ -59,6 +60,13 @@ import { useBudgetIndicator } from "./hooks/useBudgetIndicator";
 import { TestModeFlatHome } from "./screens/TestModeFlatHome";
 import { TestModeRecoveryHome } from "./screens/TestModeRecoveryHome";
 import { resolveProjectPath, revealPathWithToast } from "./utils/revealPathFeedback";
+import {
+  type AppShellMode,
+  createDefaultSplitCommandShellState,
+  readSplitCommandShellState,
+  splitCommandShellReducer,
+  writeSplitCommandShellState,
+} from "./utils/splitCommandShellState";
 import * as testMode from "./testMode/testModeManager";
 import * as testUISandbox from "./testMode/testUISandbox";
 import { ServiceHealthProvider } from "./contexts/serviceHealthContext";
@@ -857,6 +865,15 @@ export default function App(): JSX.Element {
   }
   const [projectDrafts, setProjectDrafts] = useState<Record<string, string>>({});
   const [draftEdits, setDraftEdits] = useState<Record<string, string>>({});
+  const [splitCommandShellState, dispatchSplitCommandShell] = useReducer(
+    splitCommandShellReducer,
+    null,
+    () => createDefaultSplitCommandShellState(null),
+  );
+  const [splitCommandShellStatusNote, setSplitCommandShellStatusNote] = useState<string | null>(
+    null,
+  );
+  const splitCommandShellHydratedRef = useRef(false);
   const companionDrafts = useMemo(
     () => ({ ...projectDrafts, ...draftEdits }),
     [projectDrafts, draftEdits],
@@ -2096,6 +2113,112 @@ export default function App(): JSX.Element {
     () => deriveProjectDisplayLabel(currentProject, projectSummary?.path ?? null),
     [currentProject, projectSummary?.path],
   );
+  const splitCommandModeRequested =
+    splitCommandWorkspaceEnabled && !isFloatingHost && !isStableHomeMode;
+  const appShellMode: AppShellMode = splitCommandModeRequested ? "split-command" : "stable-gui";
+
+  useEffect(() => {
+    if (typeof document === "undefined") {
+      return;
+    }
+    const target = document.body;
+    const html = document.documentElement;
+    if (!target) {
+      return;
+    }
+    target.dataset.appMode = appShellMode;
+    if (html && html !== target) {
+      html.dataset.appMode = appShellMode;
+    }
+    return () => {
+      delete target.dataset.appMode;
+      if (html && html !== target) {
+        delete html.dataset.appMode;
+      }
+    };
+  }, [appShellMode]);
+
+  useEffect(() => {
+    dispatchSplitCommandShell({
+      type: "shell/project-changed",
+      payload: { projectPath: projectSummary?.path ?? null },
+    });
+  }, [projectSummary?.path]);
+
+  useEffect(() => {
+    if (!splitCommandModeRequested || typeof window === "undefined") {
+      splitCommandShellHydratedRef.current = false;
+      setSplitCommandShellStatusNote(null);
+      return;
+    }
+    const result = readSplitCommandShellState(window.localStorage, projectSummary?.path ?? null);
+    dispatchSplitCommandShell({ type: "shell/hydrate", payload: result.state });
+    splitCommandShellHydratedRef.current = true;
+    if (result.failureClass === "corrupted-shell-persistence") {
+      setSplitCommandShellStatusNote(
+        "Split Command reset shell-local state after corrupted persistence. Stable GUI state was not reused.",
+      );
+      return;
+    }
+    if (result.failureClass === "unsupported-shell-schema") {
+      setSplitCommandShellStatusNote(
+        "Split Command reset shell-local state after an unsupported shell schema. Stable GUI state remains isolated.",
+      );
+      return;
+    }
+  }, [projectSummary?.path, splitCommandModeRequested]);
+
+  useEffect(() => {
+    if (!splitCommandModeRequested) {
+      return;
+    }
+    if (activeSceneId === null && !currentProject) {
+      return;
+    }
+    dispatchSplitCommandShell({
+      type: "shell/select-scene",
+      payload: { sceneId: activeSceneId ?? null },
+    });
+  }, [activeSceneId, currentProject, splitCommandModeRequested]);
+
+  useEffect(() => {
+    if (
+      !splitCommandModeRequested ||
+      !splitCommandShellHydratedRef.current ||
+      !currentProject ||
+      !splitCommandShellState.selectedSceneId ||
+      splitCommandShellState.selectedSceneId === activeSceneId
+    ) {
+      return;
+    }
+    applySceneSelection(splitCommandShellState.selectedSceneId);
+  }, [
+    activeSceneId,
+    applySceneSelection,
+    currentProject,
+    splitCommandModeRequested,
+    splitCommandShellState.selectedSceneId,
+  ]);
+
+  useEffect(() => {
+    if (
+      !splitCommandModeRequested ||
+      !splitCommandShellHydratedRef.current ||
+      typeof window === "undefined"
+    ) {
+      return;
+    }
+    writeSplitCommandShellState(window.localStorage, {
+      ...splitCommandShellState,
+      projectPath: projectSummary?.path ?? null,
+      selectedSceneId: activeSceneId ?? splitCommandShellState.selectedSceneId,
+    });
+  }, [
+    activeSceneId,
+    projectSummary?.path,
+    splitCommandModeRequested,
+    splitCommandShellState,
+  ]);
   useEffect(() => {
     if (typeof document === "undefined") {
       return;
@@ -2523,11 +2646,23 @@ export default function App(): JSX.Element {
         </div>
       );
 
-  const workspaceBody = splitCommandWorkspaceEnabled && !isFloatingHost && !isStableHomeMode ? (
+  const handleSplitCommandSceneSelect = useCallback(
+    (sceneId: string) => {
+      dispatchSplitCommandShell({
+        type: "shell/select-scene",
+        payload: { sceneId },
+      });
+      applySceneSelection(sceneId);
+    },
+    [applySceneSelection],
+  );
+
+  const workspaceBody = splitCommandModeRequested ? (
     <SplitCommandWorkspace
       project={currentProject}
       activeSceneId={activeSceneId}
-      onSelectScene={applySceneSelection}
+      onSelectScene={handleSplitCommandSceneSelect}
+      shellStatusNote={splitCommandShellStatusNote}
       writingStudio={fullWorkspaceBody}
     />
   ) : (
@@ -2750,6 +2885,7 @@ export default function App(): JSX.Element {
     <div
       id="app-root"
       data-testid="app-root"
+      data-app-mode={appShellMode}
       className={`app-shell${dockingEnabled ? " app-shell--dock-enabled" : ""}${
         isFloatingHost ? " app-shell--floating" : ""
       }${splitCommandWorkspaceEnabled && !isFloatingHost ? " app-shell--split-command" : ""}`}

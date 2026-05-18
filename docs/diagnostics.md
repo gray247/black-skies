@@ -1,8 +1,8 @@
 Status: Active
 Version: 1.0.0
-Last Reviewed: 2025-11-15
+Last Reviewed: 2026-05-18
 
-# docs/diagnostics.md — DRAFT
+# docs/diagnostics.md - DRAFT
 
 ## Purpose
 Capture logging, debugging, and redaction policies so analytics, Model Router, and export failures emit consistent artifacts.
@@ -29,5 +29,11 @@ Capture logging, debugging, and redaction policies so analytics, Model Router, a
 - Toggle for verbose logs exists in `docs/settings.md` (e.g., `logging.verbose: true`).
 
 ## Integration
-- Error UX (`docs/error_ux.md`) links back to these logs via “View diagnostics” actions in toasts/modals.
+- Error UX (`docs/error_ux.md`) links back to these logs via "View diagnostics" actions in toasts/modals.
 - Performance telemetry (`docs/specs/performance_telemetry_policy.md`) references the diagnostics stream for smoothing high-latency events.
+
+## Split Command Phase 20 posture
+- `ProjectHome` diagnostics remains the existing debug-only diagnostics lineage.
+- Split Command Phase 20 may wrap or reuse that diagnostics concept, but it must not create a second competing truth surface.
+- Diagnostics must not mutate shell layout, shell mode, or shell persistence.
+- Diagnostics is not a second service-health system and is not an always-on panel in the shell foundation phase.

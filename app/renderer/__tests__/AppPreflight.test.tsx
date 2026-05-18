@@ -19,6 +19,7 @@ import {
   getDraftPreviewSyncKey,
   type DraftPreviewSyncState,
 } from '../utils/draftPreviewSync';
+import { SPLIT_COMMAND_SHELL_STORAGE_KEY } from '../utils/splitCommandShellState';
 
 let mockLoadedProjectId: string | undefined;
 let mockLoadedProjectPath: string | undefined;
@@ -1658,6 +1659,7 @@ describe('App preflight integration', () => {
     expect(await screen.findByTestId('project-home-mock')).toBeInTheDocument();
     expect(screen.queryByTestId('split-command-workspace')).not.toBeInTheDocument();
     expect(screen.getByLabelText('Wizard dock')).toBeInTheDocument();
+    expect(screen.getByTestId('app-root')).toHaveAttribute('data-app-mode', 'stable-gui');
   });
 
   it('renders the experimental Split Command shell only when the runtime flag is enabled', async () => {
@@ -1677,12 +1679,28 @@ describe('App preflight integration', () => {
     expect(screen.getByLabelText('Command Center')).toBeInTheDocument();
     expect(screen.getByLabelText('Writing Studio')).toBeInTheDocument();
     expect(screen.getByTestId('project-home-mock')).toBeInTheDocument();
+    expect(screen.getByTestId('app-root')).toHaveAttribute('data-app-mode', 'split-command');
     expect(
       within(screen.getByLabelText('Story Navigation')).getByRole('button', {
         name: 'Select Arrival',
       }),
     ).toBeInTheDocument();
     expect(screen.queryByLabelText('Wizard dock')).not.toBeInTheDocument();
+  });
+
+  it('resets corrupted split-command shell persistence without polluting the stable GUI path', async () => {
+    enableSplitCommandWorkspace();
+    window.localStorage.setItem(SPLIT_COMMAND_SHELL_STORAGE_KEY, '{not-json');
+
+    const App = loadAppWithServices(services);
+    render(<App />);
+
+    expect(await screen.findByTestId('split-command-workspace')).toBeInTheDocument();
+    expect(screen.getByTestId('split-command-shell-status')).toHaveTextContent(
+      /corrupted persistence/i,
+    );
+    expect(window.localStorage.getItem(SPLIT_COMMAND_SHELL_STORAGE_KEY)).not.toBe('{not-json');
+    expect(screen.getByTestId('app-root')).toHaveAttribute('data-app-mode', 'split-command');
   });
 
   it('keeps generation and preflight wired when ProjectHome is wrapped by Split Command', async () => {

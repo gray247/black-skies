@@ -11,6 +11,7 @@ interface SplitCommandWorkspaceProps {
   readonly project: LoadedProject | null;
   readonly activeSceneId: string | null;
   readonly onSelectScene?: (sceneId: string) => void;
+  readonly shellStatusNote?: string | null;
   readonly writingStudio: ReactNode;
 }
 
@@ -133,6 +134,7 @@ export default function SplitCommandWorkspace({
   project,
   activeSceneId,
   onSelectScene,
+  shellStatusNote = null,
   writingStudio,
 }: SplitCommandWorkspaceProps): JSX.Element {
   const activeOutline = deriveActiveOutline(project);
@@ -153,6 +155,15 @@ export default function SplitCommandWorkspace({
             Experimental Phase 11B shell. Panels are read-only placeholders unless marked
             as existing workspace data.
           </p>
+          {shellStatusNote ? (
+            <p
+              className="split-command__panel-note"
+              data-testid="split-command-shell-status"
+              role="status"
+            >
+              {shellStatusNote}
+            </p>
+          ) : null}
         </div>
 
         <div className="split-command__panel-stack" aria-label="Command Center panels">

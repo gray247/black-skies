@@ -115,6 +115,22 @@ describe("SplitCommandWorkspace", () => {
     expect(onSelectScene).toHaveBeenCalledWith("sc_0002");
   });
 
+  it("renders a shell-status notice without turning it into a mutation surface", () => {
+    render(
+      <SplitCommandWorkspace
+        project={PROJECT}
+        activeSceneId="sc_0001"
+        onSelectScene={vi.fn()}
+        shellStatusNote="Split Command reset shell-local state after incompatible persistence."
+        writingStudio={<div data-testid="stable-writing-surface">Stable surface</div>}
+      />,
+    );
+
+    expect(screen.getByTestId("split-command-shell-status")).toHaveTextContent(
+      /reset shell-local state/i,
+    );
+  });
+
   it("updates the active marker from the shared activeSceneId prop", () => {
     const { rerender } = render(
       <SplitCommandWorkspace
