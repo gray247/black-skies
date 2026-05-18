@@ -20,6 +20,28 @@ Its purpose is to turn Split Command from a flagged wrapper into a stable shell 
 
 Phase 20 extracts ownership boundaries incrementally from `app/renderer/App.tsx`. It is not a renderer rewrite, hidden-app migration, or broad hierarchy replacement campaign.
 
+## Execution Progress - 2026-05-18
+
+Completed grouped pass:
+
+- `20B` layout and pane ownership first implementation
+- `20E` spatial breathing and constrained-width degradation first implementation
+- `20D` flicker classification and lightweight layout instrumentation only
+
+Implemented runtime decisions in this pass:
+
+- Writing Studio is the primary one-window working surface.
+- Command Center degrades first when viewport width is constrained.
+- The first degraded surfaces are secondary and tertiary placeholder/supporting panels, not Story Navigation and not the wrapped stable writing surface.
+- Condensed mode is shell-owned layout state driven by the Split Command shell boundary in `App.tsx`.
+- The shell emits a narrow layout-mode diagnostic event when condensed/full mode changes.
+
+Deferred from this pass:
+
+- finer command-panel admission rules beyond the current placeholder cluster boundary
+- any richer diagnostics console
+- any broad flicker remediation not proven by narrow instrumentation
+
 ## Hard Architectural Rules
 
 - No component may mutate shell-owned state except through named shell-owned actions or reducers.
@@ -194,6 +216,11 @@ Hard constraint: shell-boundary extraction is incremental ownership work, not a 
 ### 20B - Layout and Pane Ownership Model plus Anti-Fragmentation Rule
 
 - Objective: define pane ownership, visibility, collapse behavior, and future-surface admission rules
+- Current first-cut decision:
+  - Writing Studio owns primary width.
+  - Story Navigation remains the durable command surface.
+  - Supporting placeholder panels are the first surfaces to collapse under width pressure.
+  - On narrow one-window layouts, Writing Studio may render ahead of Command Center in spatial order.
 - Closure: pane ownership map, space-priority rules, anti-fragmentation rule
 
 ### 20C - Workspace State and Persistence Model
@@ -204,12 +231,23 @@ Hard constraint: shell-boundary extraction is incremental ownership work, not a 
 ### 20D - Render Stability, Flicker Investigation, and Subscription Governance
 
 - Objective: classify flicker sources and define lifecycle governance for subscriptions, polling, and listeners
+- Current classification:
+  - likely source 1: shell layout-mode churn from viewport/listener transitions
+  - likely source 2: shell re-render cascades from project/scene synchronization in `App.tsx`
+  - likely source 3: service-health and debug observers, which remain outside this pass unless evidence ties them directly to Split Command churn
+- Current implementation posture:
+  - add only lightweight layout-mode instrumentation with explicit listener cleanup
+  - do not claim flicker fixed without reproducible proof
 - Closure: ranked flicker hypotheses and a shell subscription governance model
 
 ### 20E - Spatial Breathing, Density, and Responsive Layout
 
 - Objective: define one-window spatial rules that stop layout cramming and panel fighting
 - Default: Writing Studio remains the primary working surface; Command Center degrades first
+- Current first-cut rule:
+  - desktop wide: two-column shell with a capped Command Center width and primary Writing Studio width
+  - constrained desktop: shell-owned condensed mode narrows Command Center and hides supporting placeholder panels
+  - narrow/mobile: Writing Studio renders first, Command Center second, and command-side height is capped before writing-space collapse
 - Closure: explicit priority and collapse model
 
 ### 20F - Diagnostics and Operator Debug Surface Assessment

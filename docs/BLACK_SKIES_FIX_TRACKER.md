@@ -155,6 +155,26 @@ If an issue is not tracked here, it is not part of the active fix scope.
     - `pnpm --filter app lint`
     - `git diff --check`
     - `git diff --cached --check`
+- 2026-05-18 - Codex - Phase 20 layout foundation pass:
+  - executed grouped slices `20B + 20E` with `20D` classification/instrumentation only,
+  - made the one-window ownership rule explicit: Writing Studio is the primary workspace and Command Center degrades first under constrained width,
+  - added shell-owned condensed layout behavior in `app/renderer/App.tsx`; viewport-width transitions now drive `shell/set-command-center-collapsed` with explicit resize-listener cleanup and debug events,
+  - updated `app/renderer/components/workspace/SplitCommandWorkspace.tsx` so Story Navigation stays present while the supporting placeholder cluster collapses first in condensed mode,
+  - updated Split Command CSS in `app/renderer/styles/app.css` to cap Command Center width earlier, reduce command-side density in condensed mode, and render Writing Studio first on narrow/mobile widths,
+  - classified current flicker risk without over-claiming a fix:
+    - likely shell layout churn source: condensed/full transitions,
+    - likely shell re-render source: project/scene synchronization in `App.tsx`,
+    - service-health/debug observers remain classified but not changed in this pass,
+  - deferred risks after this pass:
+    - long-session flicker proof still pending,
+    - Story Navigation discoverability beyond layout ownership remains Phase 21,
+    - placeholder-cluster collapse is a foundation rule, not a final panel-admission solution,
+  - validation target for this pass:
+    - `pnpm --filter app test -- SplitCommandWorkspace.test.tsx AppPreflight.test.tsx splitCommandShellState.test.ts`
+    - `pnpm --filter app lint`
+    - `git diff --check`
+    - `git diff --cached --check`
+    - `git status --short`
 
 ## Status Definitions
 - `ACTIVE`: known issue, unresolved

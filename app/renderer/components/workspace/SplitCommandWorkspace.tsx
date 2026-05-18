@@ -11,6 +11,7 @@ interface SplitCommandWorkspaceProps {
   readonly project: LoadedProject | null;
   readonly activeSceneId: string | null;
   readonly onSelectScene?: (sceneId: string) => void;
+  readonly commandCenterCollapsed?: boolean;
   readonly shellStatusNote?: string | null;
   readonly writingStudio: ReactNode;
 }
@@ -134,6 +135,7 @@ export default function SplitCommandWorkspace({
   project,
   activeSceneId,
   onSelectScene,
+  commandCenterCollapsed = false,
   shellStatusNote = null,
   writingStudio,
 }: SplitCommandWorkspaceProps): JSX.Element {
@@ -143,7 +145,13 @@ export default function SplitCommandWorkspace({
   const commands = listCommandRegistryEntries();
 
   return (
-    <div className="split-command" data-testid="split-command-workspace">
+    <div
+      className={`split-command${
+        commandCenterCollapsed ? " split-command--condensed" : ""
+      }`}
+      data-testid="split-command-workspace"
+      data-command-center-state={commandCenterCollapsed ? "condensed" : "full"}
+    >
       <aside
         className="split-command__zone split-command__zone--command"
         aria-label="Command Center"
@@ -164,6 +172,15 @@ export default function SplitCommandWorkspace({
               {shellStatusNote}
             </p>
           ) : null}
+          {commandCenterCollapsed ? (
+            <p
+              className="split-command__panel-note"
+              data-testid="split-command-layout-note"
+            >
+              Writing Studio keeps primary workspace width in condensed mode. Supporting command
+              surfaces stay collapsed until wider space is available.
+            </p>
+          ) : null}
         </div>
 
         <div className="split-command__panel-stack" aria-label="Command Center panels">
@@ -173,7 +190,11 @@ export default function SplitCommandWorkspace({
             onSelectScene={onSelectScene}
           />
 
-          <div className="split-command__panel-cluster" aria-label="Future command surfaces">
+          <div
+            className="split-command__panel-cluster"
+            aria-label="Future command surfaces"
+            hidden={commandCenterCollapsed}
+          >
             <NarrativeOverviewPanel
               project={project}
               outline={activeOutline}

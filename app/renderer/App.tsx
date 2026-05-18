@@ -104,6 +104,7 @@ declare global {
 type TrackedLoadedProject = LoadedProject & { projectId?: string };
 
 const BUDGET_EPSILON = 1e-6;
+const SPLIT_COMMAND_CONDENSED_WIDTH_PX = 1_280;
 
 const DOCKABLE_PANES: LayoutPaneId[] = [
   "outline",
@@ -874,6 +875,7 @@ export default function App(): JSX.Element {
     null,
   );
   const splitCommandShellHydratedRef = useRef(false);
+  const splitCommandLayoutCollapsedRef = useRef<boolean | null>(null);
   const companionDrafts = useMemo(
     () => ({ ...projectDrafts, ...draftEdits }),
     [projectDrafts, draftEdits],
@@ -2220,6 +2222,95 @@ export default function App(): JSX.Element {
     splitCommandShellState,
   ]);
   useEffect(() => {
+    if (!splitCommandModeRequested || typeof window === "undefined") {
+      splitCommandLayoutCollapsedRef.current = null;
+      return;
+    }
+
+    const syncLayoutOwnership = () => {
+      const nextCollapsed = window.innerWidth < SPLIT_COMMAND_CONDENSED_WIDTH_PX;
+      if (
+        splitCommandLayoutCollapsedRef.current === nextCollapsed &&
+        splitCommandShellState.commandCenterCollapsed === nextCollapsed
+      ) {
+        return;
+      }
+      splitCommandLayoutCollapsedRef.current = nextCollapsed;
+      dispatchSplitCommandShell({
+        type: "shell/set-command-center-collapsed",
+        payload: { collapsed: nextCollapsed },
+      });
+      recordDebugEvent("split-command.layout.mode", {
+        collapsed: nextCollapsed,
+        viewportWidth: window.innerWidth,
+        threshold: SPLIT_COMMAND_CONDENSED_WIDTH_PX,
+      });
+      console.log(
+        "[dbg:split-command.layout.mode]",
+        JSON.stringify({
+          collapsed: nextCollapsed,
+          viewportWidth: window.innerWidth,
+          threshold: SPLIT_COMMAND_CONDENSED_WIDTH_PX,
+        }),
+      );
+      (
+        window as typeof window & {
+          __blackSkiesDebugState?: {
+            shellLayout?: {
+              commandCenterCollapsed: boolean;
+              viewportWidth: number;
+              threshold: number;
+            };
+          };
+        }
+      ).__blackSkiesDebugState = {
+        ...(window.__blackSkiesDebugState ?? {}),
+        shellLayout: {
+          commandCenterCollapsed: nextCollapsed,
+          viewportWidth: window.innerWidth,
+          threshold: SPLIT_COMMAND_CONDENSED_WIDTH_PX,
+        },
+      };
+    };
+
+    syncLayoutOwnership();
+    window.addEventListener("resize", syncLayoutOwnership);
+    return () => {
+      window.removeEventListener("resize", syncLayoutOwnership);
+    };
+  }, [splitCommandModeRequested, splitCommandShellState.commandCenterCollapsed]);
+  const splitCommandLayoutMode = splitCommandShellState.commandCenterCollapsed
+    ? "condensed"
+    : "full";
+  useEffect(() => {
+    if (typeof document === "undefined") {
+      return;
+    }
+    const html = document.documentElement;
+    const body = document.body;
+    const target = body ?? html;
+    if (!target) {
+      return;
+    }
+    if (!splitCommandModeRequested) {
+      delete target.dataset.splitCommandLayout;
+      if (html && html !== target) {
+        delete html.dataset.splitCommandLayout;
+      }
+      return;
+    }
+    target.dataset.splitCommandLayout = splitCommandLayoutMode;
+    if (html && html !== target) {
+      html.dataset.splitCommandLayout = splitCommandLayoutMode;
+    }
+    return () => {
+      delete target.dataset.splitCommandLayout;
+      if (html && html !== target) {
+        delete html.dataset.splitCommandLayout;
+      }
+    };
+  }, [splitCommandLayoutMode, splitCommandModeRequested]);
+  useEffect(() => {
     if (typeof document === "undefined") {
       return;
     }
@@ -2662,6 +2753,7 @@ export default function App(): JSX.Element {
       project={currentProject}
       activeSceneId={activeSceneId}
       onSelectScene={handleSplitCommandSceneSelect}
+      commandCenterCollapsed={splitCommandShellState.commandCenterCollapsed}
       shellStatusNote={splitCommandShellStatusNote}
       writingStudio={fullWorkspaceBody}
     />
@@ -2886,6 +2978,7 @@ export default function App(): JSX.Element {
       id="app-root"
       data-testid="app-root"
       data-app-mode={appShellMode}
+      data-split-command-layout={splitCommandModeRequested ? splitCommandLayoutMode : undefined}
       className={`app-shell${dockingEnabled ? " app-shell--dock-enabled" : ""}${
         isFloatingHost ? " app-shell--floating" : ""
       }${splitCommandWorkspaceEnabled && !isFloatingHost ? " app-shell--split-command" : ""}`}

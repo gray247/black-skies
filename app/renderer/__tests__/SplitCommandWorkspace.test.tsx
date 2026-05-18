@@ -190,4 +190,26 @@ describe("SplitCommandWorkspace", () => {
       within(storyNavigation).getByRole("button", { name: "Select Scene 75" }).closest("li"),
     ).toHaveAttribute("aria-current", "page");
   });
+
+  it("collapses supporting command panels first when the command center is condensed", () => {
+    render(
+      <SplitCommandWorkspace
+        project={PROJECT}
+        activeSceneId="sc_0001"
+        onSelectScene={vi.fn()}
+        commandCenterCollapsed
+        writingStudio={<div data-testid="stable-writing-surface">Stable surface</div>}
+      />,
+    );
+
+    expect(screen.getByTestId("split-command-workspace")).toHaveAttribute(
+      "data-command-center-state",
+      "condensed",
+    );
+    expect(screen.getByTestId("split-command-layout-note")).toHaveTextContent(
+      /Writing Studio keeps primary workspace width/i,
+    );
+    expect(screen.getByLabelText("Story Navigation")).toBeInTheDocument();
+    expect(screen.getByLabelText("Future command surfaces")).not.toBeVisible();
+  });
 });

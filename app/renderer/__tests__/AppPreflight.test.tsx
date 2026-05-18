@@ -356,11 +356,21 @@ function enableSplitCommandWorkspace(): void {
   };
 }
 
+function setViewportWidth(width: number): void {
+  Object.defineProperty(window, 'innerWidth', {
+    configurable: true,
+    writable: true,
+    value: width,
+  });
+  window.dispatchEvent(new Event('resize'));
+}
+
 describe('App preflight integration', () => {
   let services: ServicesBridge;
 
   beforeEach(() => {
     services = createServicesMock();
+    setViewportWidth(1440);
     mockLoadedProjectId = undefined;
     mockLoadedProjectPath = undefined;
     mockLoadedProjectName = undefined;
@@ -1701,6 +1711,28 @@ describe('App preflight integration', () => {
     );
     expect(window.localStorage.getItem(SPLIT_COMMAND_SHELL_STORAGE_KEY)).not.toBe('{not-json');
     expect(screen.getByTestId('app-root')).toHaveAttribute('data-app-mode', 'split-command');
+  });
+
+  it('condenses the command center first when the split-command viewport is constrained', async () => {
+    enableSplitCommandWorkspace();
+    setViewportWidth(1100);
+
+    const App = loadAppWithServices(services);
+    render(<App />);
+
+    expect(await screen.findByTestId('split-command-workspace')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId('app-root')).toHaveAttribute(
+        'data-split-command-layout',
+        'condensed',
+      );
+    });
+    expect(screen.getByTestId('split-command-layout-note')).toHaveTextContent(
+      /supporting command surfaces stay collapsed/i,
+    );
+    expect(screen.getByLabelText('Story Navigation')).toBeInTheDocument();
+    expect(screen.getByLabelText('Future command surfaces')).not.toBeVisible();
+    expect(screen.getByTestId('project-home-mock')).toBeInTheDocument();
   });
 
   it('keeps generation and preflight wired when ProjectHome is wrapped by Split Command', async () => {
