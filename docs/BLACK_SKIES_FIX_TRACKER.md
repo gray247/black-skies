@@ -310,6 +310,7 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - added deterministic Narrative Overview, Structure Overview, and Project Stats panels,
   - demoted Global Tools to a metadata-only panel and removed the active Narrative Gaps and AI Companion placeholder panels from the command stack,
   - added explicit panel admission metadata attributes and a deferred-notice copy line so the visible shell keeps placeholder honesty without panel soup,
+  - 21C / 21E refinement: condensed mode now keeps the deterministic overview lane visible while collapsing the tertiary Project Stats and Global Tools metadata lane first,
   - updated renderer tests and App preflight coverage for the new deterministic panel surfaces and placeholder removal,
   - validation evidence:
     - `pnpm --filter app test -- SplitCommandWorkspace.test.tsx AppPreflight.test.tsx splitCommandShellState.test.ts useServiceHealth.test.tsx` passed,

@@ -573,8 +573,8 @@ button:disabled {
   gap: var(--bs-spacing-panel-gap, 12px);
 }
 
-.split-command--condensed .split-command__panel-cluster[hidden] {
-  display: none;
+.split-command__panel-cluster--tertiary {
+  gap: calc(var(--bs-spacing-panel-gap, 12px) - 1px);
 }
 
 .split-command__panel::before {

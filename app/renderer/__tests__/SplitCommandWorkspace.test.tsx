@@ -296,9 +296,12 @@ describe("SplitCommandWorkspace", () => {
       "condensed",
     );
     expect(screen.getByTestId("split-command-layout-note")).toHaveTextContent(
-      /Writing Studio keeps primary workspace width/i,
+      /Tertiary command surfaces collapse first/i,
     );
     expect(screen.getByLabelText("Story Navigation")).toBeInTheDocument();
-    expect(screen.getByLabelText("Deterministic command surfaces")).not.toBeVisible();
+    expect(screen.getByLabelText("Narrative Overview")).toBeVisible();
+    expect(screen.getByLabelText("Structure Overview")).toBeVisible();
+    expect(screen.getByLabelText("Project Stats")).not.toBeVisible();
+    expect(screen.getByLabelText("Global Tools Metadata")).not.toBeVisible();
   });
 });

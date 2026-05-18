@@ -1937,10 +1937,13 @@ describe('App preflight integration', () => {
       );
     });
     expect(screen.getByTestId('split-command-layout-note')).toHaveTextContent(
-      /supporting command surfaces stay collapsed/i,
+      /tertiary command surfaces collapse first/i,
     );
     expect(screen.getByLabelText('Story Navigation')).toBeInTheDocument();
-    expect(screen.getByLabelText('Deterministic command surfaces')).not.toBeVisible();
+    expect(screen.getByLabelText('Narrative Overview')).toBeVisible();
+    expect(screen.getByLabelText('Structure Overview')).toBeVisible();
+    expect(screen.getByLabelText('Project Stats')).not.toBeVisible();
+    expect(screen.getByLabelText('Global Tools Metadata')).not.toBeVisible();
     expect(screen.getByTestId('project-home-mock')).toBeInTheDocument();
   });
 

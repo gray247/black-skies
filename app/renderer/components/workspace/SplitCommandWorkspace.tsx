@@ -276,8 +276,8 @@ export default function SplitCommandWorkspace({
               className="split-command__panel-note"
               data-testid="split-command-layout-note"
             >
-              Writing Studio keeps primary workspace width in condensed mode. Supporting command
-              surfaces stay collapsed until wider space is available.
+              Writing Studio keeps primary workspace width in condensed mode. Tertiary command
+              surfaces collapse first while the deterministic overview lane remains visible.
             </p>
           ) : null}
         </div>
@@ -293,7 +293,6 @@ export default function SplitCommandWorkspace({
           <div
             className="split-command__panel-cluster"
             aria-label="Deterministic command surfaces"
-            hidden={commandCenterCollapsed}
           >
             <NarrativeOverviewPanel
               project={project}
@@ -303,9 +302,19 @@ export default function SplitCommandWorkspace({
 
             <StructureOverviewPanel project={project} />
 
-            <ProjectStatsPanel project={project} outline={activeOutline} activeUnit={activeUnit} />
+            <div
+              className="split-command__panel-cluster split-command__panel-cluster--tertiary"
+              aria-label="Metadata command surfaces"
+              hidden={commandCenterCollapsed}
+            >
+              <ProjectStatsPanel
+                project={project}
+                outline={activeOutline}
+                activeUnit={activeUnit}
+              />
 
-            <GlobalToolsPanel commands={commands} />
+              <GlobalToolsPanel commands={commands} />
+            </div>
           </div>
         </div>
       </aside>
