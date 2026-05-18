@@ -201,6 +201,19 @@ interface BatchCritiqueResult {
   traceId?: string;
 }
 
+function areActiveSceneRefsEqual(
+  left: { id: string; title: string | null } | null,
+  right: { id: string; title: string | null } | null,
+): boolean {
+  if (left === right) {
+    return true;
+  }
+  if (!left || !right) {
+    return false;
+  }
+  return left.id === right.id && left.title === right.title;
+}
+
 export default function App(): JSX.Element {
   const hasWindow = typeof window !== 'undefined';
   const harnessHooksEnabled = modePolicy.isHarnessEnabled();
@@ -738,7 +751,7 @@ export default function App(): JSX.Element {
         recordDebugEvent("scene.select.clear", {
           sceneCount: scenesList.length,
         });
-        setActiveScene(null);
+        setActiveScene((previous) => (previous === null ? previous : null));
         pendingSceneSelectionRef.current = null;
         return true;
       }
@@ -794,7 +807,10 @@ export default function App(): JSX.Element {
         sceneCount: scenesList.length,
         sceneIds,
       });
-      setActiveScene({ id: targetScene.id, title: targetScene.title ?? null });
+      setActiveScene((previous) => {
+        const nextScene = { id: targetScene.id, title: targetScene.title ?? null };
+        return areActiveSceneRefsEqual(previous, nextScene) ? previous : nextScene;
+      });
       pendingSceneSelectionRef.current = null;
       return true;
     },
@@ -878,6 +894,7 @@ export default function App(): JSX.Element {
   const splitCommandLayoutCollapsedRef = useRef<boolean | null>(null);
   const splitCommandShellCollapsedStateRef = useRef(false);
   const splitCommandPersistedStateRef = useRef<string | null>(null);
+  const committedProjectStateRef = useRef<string | null>(null);
   const companionDrafts = useMemo(
     () => ({ ...projectDrafts, ...draftEdits }),
     [projectDrafts, draftEdits],
@@ -1006,7 +1023,10 @@ export default function App(): JSX.Element {
           currentProjectRef.current?.scenes.find((scene) => scene.id === sharedState.activeSceneId) ??
           null;
         if (targetScene) {
-          setActiveScene({ id: targetScene.id, title: targetScene.title ?? null });
+          setActiveScene((previous) => {
+            const nextScene = { id: targetScene.id, title: targetScene.title ?? null };
+            return areActiveSceneRefsEqual(previous, nextScene) ? previous : nextScene;
+          });
         }
       }
     };
@@ -2006,10 +2026,13 @@ export default function App(): JSX.Element {
 
   const handleActiveSceneChange = useCallback((payload: ActiveScenePayload | null) => {
     if (!payload) {
-      setActiveScene(null);
+      setActiveScene((previous) => (previous === null ? previous : null));
       return;
     }
-    setActiveScene({ id: payload.sceneId, title: payload.sceneTitle });
+    setActiveScene((previous) => {
+      const nextScene = { id: payload.sceneId, title: payload.sceneTitle };
+      return areActiveSceneRefsEqual(previous, nextScene) ? previous : nextScene;
+    });
     setDraftEdits((previous) => {
       if (Object.prototype.hasOwnProperty.call(previous, payload.sceneId)) {
         return previous;
@@ -2452,20 +2475,25 @@ export default function App(): JSX.Element {
         ...(window.__blackSkiesDebugState ?? {}),
         ...committedProjectState,
       };
-      recordDebugEvent("scene.select.commit", {
+      const committedProjectStateSnapshot = {
         activeSceneId: activeSceneIdValue || null,
         activeSceneTitle: activeSceneTitleValue,
         projectId: projectIdValue || null,
         sceneIds,
-      });
-      console.log(
-        "[dbg:scene.select.commit]",
-        JSON.stringify({
-          activeSceneId: activeSceneIdValue || null,
-          projectId: projectIdValue || null,
-          sceneCount: sceneIds.length,
-        }),
-      );
+      };
+      const committedProjectStateSerialized = JSON.stringify(committedProjectStateSnapshot);
+      if (committedProjectStateRef.current !== committedProjectStateSerialized) {
+        committedProjectStateRef.current = committedProjectStateSerialized;
+        recordDebugEvent("scene.select.commit", committedProjectStateSnapshot);
+        console.log(
+          "[dbg:scene.select.commit]",
+          JSON.stringify({
+            activeSceneId: activeSceneIdValue || null,
+            projectId: projectIdValue || null,
+            sceneCount: sceneIds.length,
+          }),
+        );
+      }
       console.log("[dbg:project.commit.done]", pathValue || "null");
     }
   }, [activeScene?.title, activeSceneId, projectLabel, projectSummary?.path, projectSummary?.projectId]);

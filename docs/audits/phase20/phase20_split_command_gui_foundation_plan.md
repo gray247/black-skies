@@ -28,6 +28,7 @@ Completed grouped pass:
 - `20E` spatial breathing and constrained-width degradation first implementation
 - `20D` flicker classification and lightweight layout instrumentation only
 - `20D` continuation pass for shell event-lifecycle governance and narrow churn bounding
+- `20D` continuation pass for shared observer classification and project/scene synchronization churn bounding
 
 Implemented runtime decisions in this pass:
 
@@ -42,6 +43,7 @@ Deferred from this pass:
 - finer command-panel admission rules beyond the current placeholder cluster boundary
 - any richer diagnostics console
 - any broad flicker remediation not proven by narrow instrumentation
+- any attempt to make shared service-health observers shell-owned instead of explicitly inherited
 
 ## Shell Lifecycle Ownership Table
 
@@ -55,6 +57,12 @@ Deferred from this pass:
 | Draft preview storage listener | stable writing surface / existing draft sync lane in `App.tsx` | draft sync effect | removes `storage` listener in cleanup | keyed by project path | not Split Command-specific | recreated on remount | classified as inherited, unchanged |
 | Service-health polling interval | `useServiceHealth.ts` shared service-health hook | polling effect in `useServiceHealth.ts` | clears interval in cleanup | shared health state continues independent of shell mode | disabled by stable-home/visual-home/test freeze paths, not by Split Command mode alone | recreated on remount | classified, unchanged in this pass |
 | Service-health test event listeners | `useServiceHealth.ts` shared service-health hook | event-listener effect in `useServiceHealth.ts` | removes window/document listeners in cleanup | independent of project | disabled by stable-home/visual-home paths, not Split Command mode alone | recreated on remount | classified, unchanged in this pass |
+
+Current ownership conclusion:
+
+- `useServiceHealth.ts` remains a shared inherited observer lane.
+- Split Command may consume its derived health state, but does not own its polling interval or test-event listeners.
+- Future shell-specific health diagnostics must wrap the shared lane explicitly rather than mutating or duplicating it inside the shell boundary.
 
 Future rule:
 
@@ -260,6 +268,11 @@ Hard constraint: shell-boundary extraction is incremental ownership work, not a 
   - resize-listener ownership now stays on a single Split Command effect instead of rebinding on shell layout-state changes
   - shell persistence writes now skip duplicate payload writes when nothing material changed
   - layout-mode diagnostics now emit only when condensed/full state actually changes
+  - scene-selection state writes now bail out when project/scene identity is unchanged across Story Navigation, active-scene callbacks, and inherited draft-preview sync
+  - `scene.select.commit` diagnostics now emit only when the committed project/scene snapshot actually changes
+- Current shared-observer classification:
+  - `useServiceHealth.ts` polling and test listeners are inherited/shared observers, not shell-owned observers
+  - Split Command-specific work in Phase 20 is limited to not adding duplicate health listeners and not misclassifying shared observer churn as shell-local cleanup debt
 - Closure: ranked flicker hypotheses and a shell subscription governance model
 
 ### 20E - Spatial Breathing, Density, and Responsive Layout

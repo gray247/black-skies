@@ -1790,6 +1790,37 @@ describe('App preflight integration', () => {
     expect(condensedLogs()).toBe(2);
   });
 
+  it('does not re-emit scene commit diagnostics when the active scene identity is unchanged', async () => {
+    enableSplitCommandWorkspace();
+    mockLoadedProjectId = 'proj_split_command';
+    mockLoadedProjectName = 'Split Command Demo';
+    mockLoadedProjectScenes = [
+      { id: 'sc_0001', title: 'Arrival', order: 1 },
+      { id: 'sc_0002', title: 'Signal', order: 2 },
+    ];
+    const consoleSpy = vi.spyOn(console, 'log');
+
+    const App = loadAppWithServices(services);
+    render(<App />);
+
+    expect(await screen.findByTestId('split-command-workspace')).toBeInTheDocument();
+
+    const commitLogs = () =>
+      consoleSpy.mock.calls.filter(([message]) => message === '[dbg:scene.select.commit]').length;
+
+    expect(commitLogs()).toBe(2);
+
+    const storyNavigation = screen.getByLabelText('Story Navigation');
+    fireEvent.click(within(storyNavigation).getByRole('button', { name: 'Select Arrival' }));
+    expect(commitLogs()).toBe(2);
+
+    fireEvent.click(within(storyNavigation).getByRole('button', { name: 'Select Signal' }));
+    await waitFor(() => {
+      expect(screen.getByTestId('project-home-mock')).toHaveAttribute('data-active-scene-id', 'sc_0002');
+    });
+    expect(commitLogs()).toBe(3);
+  });
+
   it('keeps generation and preflight wired when ProjectHome is wrapped by Split Command', async () => {
     enableSplitCommandWorkspace();
     mockLoadedProjectId = 'proj_split_command';

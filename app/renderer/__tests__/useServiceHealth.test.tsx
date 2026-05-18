@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import type { ServicesBridge, ServiceHealthResponse } from '../../shared/ipc/services';
 import { useServiceHealth } from '../hooks/useServiceHealth';
@@ -15,11 +15,19 @@ vi.mock('../utils/env', async () => {
 function Harness({
   services,
   intervalMs = 0,
+  stableHomeMode = false,
+  visualStableHome = false,
 }: {
   services: ServicesBridge | undefined;
   intervalMs?: number;
+  stableHomeMode?: boolean;
+  visualStableHome?: boolean;
 }) {
-  const { status, retry, isPortUnavailable, lastError } = useServiceHealth(services, { intervalMs });
+  const { status, retry, isPortUnavailable, lastError } = useServiceHealth(services, {
+    intervalMs,
+    stableHomeMode,
+    visualStableHome,
+  });
   return (
     <div>
       <span data-testid="status">{status}</span>
@@ -33,6 +41,10 @@ function Harness({
 }
 
 describe('useServiceHealth', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('falls back to offline when services are unavailable', async () => {
     render(<Harness services={undefined} />);
 
@@ -87,5 +99,51 @@ describe('useServiceHealth', () => {
     await waitFor(() => expect(screen.getByTestId('status')).toHaveTextContent('offline'));
     await waitFor(() => expect(screen.getByTestId('port-flag')).toHaveTextContent('true'));
     expect(screen.getByTestId('error')).toHaveTextContent('Backend service port is unavailable.');
+  });
+
+  it('registers and cleans up shared test listeners outside stable-home mode', async () => {
+    const addWindowSpy = vi.spyOn(window, 'addEventListener');
+    const removeWindowSpy = vi.spyOn(window, 'removeEventListener');
+    const addDocumentSpy = vi.spyOn(document, 'addEventListener');
+    const removeDocumentSpy = vi.spyOn(document, 'removeEventListener');
+
+    const { unmount } = render(<Harness services={undefined} />);
+
+    await waitFor(() => {
+      expect(addWindowSpy).toHaveBeenCalledWith('test:service-status', expect.any(Function));
+      expect(addWindowSpy).toHaveBeenCalledWith('test:service-health', expect.any(Function));
+      expect(addWindowSpy).toHaveBeenCalledWith('test:force-offline', expect.any(Function));
+      expect(addDocumentSpy).toHaveBeenCalledWith('test:service-status', expect.any(Function));
+      expect(addDocumentSpy).toHaveBeenCalledWith('test:service-health', expect.any(Function));
+      expect(addDocumentSpy).toHaveBeenCalledWith('test:force-offline', expect.any(Function));
+    });
+
+    unmount();
+
+    expect(removeWindowSpy).toHaveBeenCalledWith('test:service-status', expect.any(Function));
+    expect(removeWindowSpy).toHaveBeenCalledWith('test:service-health', expect.any(Function));
+    expect(removeWindowSpy).toHaveBeenCalledWith('test:force-offline', expect.any(Function));
+    expect(removeDocumentSpy).toHaveBeenCalledWith('test:service-status', expect.any(Function));
+    expect(removeDocumentSpy).toHaveBeenCalledWith('test:service-health', expect.any(Function));
+    expect(removeDocumentSpy).toHaveBeenCalledWith('test:force-offline', expect.any(Function));
+  });
+
+  it('skips shared test listeners in stable-home mode', async () => {
+    const addWindowSpy = vi.spyOn(window, 'addEventListener');
+    const addDocumentSpy = vi.spyOn(document, 'addEventListener');
+
+    render(<Harness services={undefined} stableHomeMode />);
+
+    await waitFor(() => expect(screen.getByTestId('status')).toHaveTextContent('online'));
+
+    const windowListenerTypes = addWindowSpy.mock.calls.map(([type]) => type);
+    const documentListenerTypes = addDocumentSpy.mock.calls.map(([type]) => type);
+
+    expect(windowListenerTypes).not.toContain('test:service-status');
+    expect(windowListenerTypes).not.toContain('test:service-health');
+    expect(windowListenerTypes).not.toContain('test:force-offline');
+    expect(documentListenerTypes).not.toContain('test:service-status');
+    expect(documentListenerTypes).not.toContain('test:service-health');
+    expect(documentListenerTypes).not.toContain('test:force-offline');
   });
 });

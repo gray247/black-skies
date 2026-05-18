@@ -202,6 +202,26 @@ If an issue is not tracked here, it is not part of the active fix scope.
     - `git diff --check`
     - `git diff --cached --check`
     - `git status --short`
+- 2026-05-18 - Codex - Phase 20 shared observer churn pass:
+  - executed a narrow `20D` continuation pass focused on project/scene synchronization churn and shared observer classification without broad renderer refactoring,
+  - classified `useServiceHealth.ts` as an inherited shared observer lane rather than Split Command-owned shell infrastructure; Phase 20 shell work remains limited to consuming its derived health state without duplicating its listeners or polling,
+  - fixed proven narrow `App.tsx` churn paths:
+    - `setActiveScene(...)` now no-ops when Story Navigation, `onActiveSceneChange`, or inherited draft-preview sync attempt to commit the same scene identity again,
+    - `scene.select.commit` diagnostics now emit only when the committed project/scene snapshot actually changes,
+  - added targeted proof:
+    - renderer test coverage that repeated selection of the already-active scene does not re-emit commit diagnostics,
+    - hook-level coverage that `useServiceHealth.ts` registers and removes its shared test listeners outside stable-home mode and skips them inside stable-home mode,
+  - deferred risks after this pass:
+    - long-session flicker is still not bounded with reproducible evidence,
+    - broader project/scene synchronization churn in `App.tsx` remains a candidate if more proof appears,
+    - shared health/debug observer churn remains classified but intentionally not re-owned by Split Command,
+  - validation target for this pass:
+    - `pnpm --filter app test -- AppPreflight.test.tsx SplitCommandWorkspace.test.tsx useServiceHealth.test.tsx splitCommandShellState.test.ts`
+    - `pnpm --filter app lint`
+    - `pnpm --filter app exec playwright test tests/e2e/split-command-smoke.spec.ts -c ./playwright.config.ts --workers=1`
+    - `git diff --check`
+    - `git diff --cached --check`
+    - `git status --short`
 
 ## Status Definitions
 - `ACTIVE`: known issue, unresolved
