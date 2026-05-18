@@ -398,7 +398,8 @@ Recommended proof lanes:
 Phase 20 cannot close unless validation includes:
 
 - `pnpm --filter app lint`
-- targeted renderer tests for touched shell surfaces
+- targeted renderer and shell-helper tests for touched shell surfaces
+- `pnpm --filter app test -- AppPreflight.test.tsx SplitCommandWorkspace.test.tsx splitCommandShellState.test.ts useServiceHealth.test.tsx`
 - targeted Playwright smoke if E2E surfaces change
 - `git diff --check`
 - `git diff --cached --check`
@@ -420,7 +421,7 @@ If Python or docs are touched during execution, include repo-correct Python or d
 
 ## Phase 21 Readiness Gate
 
-Phase 21 must not start until all are true:
+Phase 21 implementation must not start until all are true:
 
 - Split Command has a shell-owned composition boundary in `App.tsx`
 - shell state is classified into authoritative, mutation-authorized, derived, and read-only inherited
@@ -428,12 +429,14 @@ Phase 21 must not start until all are true:
 - shell subscription lifecycle ownership is defined and implemented
 - shell persistence, reset, and invalidation rules are implemented and tested
 - shell/stable mode identity separation is implemented and tested
-- stable fallback path is proven
-- project identity survives reload, reopen, and project switch cleanly
-- worst flicker source is classified and bounded
+- implemented shell fallback paths are proven, and policy-only fallback classes are explicitly documented as not yet runtime-backed
+- project identity survives reload, reopen, and project switch cleanly for the implemented shell persistence lane
+- worst flicker source is classified; long-session durability may remain an explicit deferred risk, but it must not be misrepresented as solved
 - layout priority rules prevent panel fighting in one-window mode
 - diagnostics posture is chosen and does not fork into competing surfaces
 - anti-fragmentation rule is in place for any new panel proposal
+
+Phase 21 planning may begin once Phase 20 closure review is accepted and the remaining policy-only or deferred items are explicitly carried forward without being hidden.
 
 ## Recommended First Execution Goal
 

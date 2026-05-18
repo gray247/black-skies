@@ -278,6 +278,32 @@ If an issue is not tracked here, it is not part of the active fix scope.
     - `pnpm --filter app lint`
     - `pnpm --filter app exec playwright test tests/e2e/split-command-smoke.spec.ts -c ./playwright.config.ts --workers=1`
     - `git diff --check`
+- 2026-05-18 - Codex - Phase 20 closure-proof and readiness-gate hardening pass:
+  - audited Phase 20 claims against current runtime and test proof instead of adding new shell surfaces,
+  - created [phase20_closure_review.md](/C:/Dev/black-skies/docs/audits/phase20/phase20_closure_review.md),
+  - closure determination: `Closed with exceptions`,
+  - proven closure claims:
+    - stable GUI remains default and Split Command remains experimental/flagged,
+    - shell persistence, reset, invalidation, and mode separation are implemented for the current shell lane,
+    - recoverable shell reset, corrupted persistence reset, unsupported schema reset, and shell-local notice isolation are runtime-backed,
+  - policy-only closure claims kept explicit rather than overstated:
+    - no broader runtime forced-stable fallback branch exists yet,
+    - no broader degraded-shell runtime surface exists yet,
+    - unsafe shell-state detection remains narrow,
+  - tightened the Phase 20 plan so the readiness gate no longer falsely requires a fully bounded long-session flicker result before truthful closure,
+  - added one narrow default-off proof assertion:
+    - `DEFAULT_RUNTIME_CONFIG.ui.experimentalSplitCommandWorkspace === false`,
+  - future ownership after closure:
+    - Story Navigation discoverability -> `Phase 21`,
+    - further one-window density refinement -> `Phase 22`,
+    - backend-drop investigation if stable GUI also reproduces -> `Phase 25`,
+  - validation target for this pass:
+    - `pnpm --filter app test -- AppPreflight.test.tsx SplitCommandWorkspace.test.tsx splitCommandShellState.test.ts useServiceHealth.test.tsx`
+    - `pnpm --filter app lint`
+    - `pnpm --filter app exec playwright test tests/e2e/split-command-smoke.spec.ts -c ./playwright.config.ts --workers=1`
+    - `git diff --check`
+    - `git diff --cached --check`
+    - `git status --short`
     - `git diff --cached --check`
     - `git status --short`
 

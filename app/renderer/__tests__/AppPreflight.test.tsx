@@ -1667,6 +1667,7 @@ describe('App preflight integration', () => {
   });
 
   it('keeps the Phase 11A shell as the default when Split Command is not enabled', async () => {
+    expect(DEFAULT_RUNTIME_CONFIG.ui.experimentalSplitCommandWorkspace).toBe(false);
     const App = loadAppWithServices(services);
 
     render(<App />);
