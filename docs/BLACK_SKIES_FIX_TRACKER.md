@@ -304,6 +304,36 @@ If an issue is not tracked here, it is not part of the active fix scope.
     - `git diff --check`
     - `git diff --cached --check`
     - `git status --short`
+- 2026-05-18 - Codex - Phase 21 planning artifact:
+  - created [phase21_command_center_panels_plan.md](/C:/Dev/black-skies/docs/audits/phase21/phase21_command_center_panels_plan.md) as the canonical Phase 21 scope artifact,
+  - defined Phase 21 as deterministic/current-project Command Center work only, explicitly excluding AI intelligence, speculative analysis, immersive writing-side adjuncts, and two-monitor behavior,
+  - formalized the recommended slice structure:
+    - `21A` Command Center inventory and panel admission rules
+    - `21B` Story Navigation discoverability
+    - `21C` deterministic Narrative Overview / Project Stats
+    - `21D` placeholder cleanup / honest empty states
+    - `21E` Command Center spatial priority / collapse behavior
+    - `21F` Phase 22 / 23 readiness gate
+    - `21G` closure review
+  - restricted allowed panels to deterministic sources only:
+    - Story Navigation
+    - deterministic Narrative Overview
+    - deterministic Project Stats
+    - deterministic Structure Overview when the loaded outline supports it
+    - metadata-only Global Tools only if clearly demoted
+  - explicitly deferred or forbidden in this phase:
+    - AI Companion
+    - contextual intelligence
+    - narrative-health or emotional analysis
+    - tension/foreshadow/conflict detection
+    - notes/chat/quick insert
+    - two-monitor workflow
+  - recommended first execution goal:
+    - `21A + 21B + 21D first cut`
+  - validation target for this planning pass:
+    - `git diff --check`
+    - `git diff --cached --check`
+    - `git status --short`
     - `git diff --cached --check`
     - `git status --short`
 
