@@ -317,6 +317,14 @@ If an issue is not tracked here, it is not part of the active fix scope.
     - `pnpm --filter app lint` passed with the existing ESLintRC deprecation warning only,
     - `pnpm --filter app exec playwright test tests/e2e/split-command-smoke.spec.ts -c ./playwright.config.ts --workers=1` passed,
     - `git diff --check` and `git diff --cached --check` passed locally,
+- 2026-05-18 - Codex - Phase 21 closure review:
+  - created [phase21_closure_review.md](/C:/Dev/black-skies/docs/audits/phase21/phase21_closure_review.md) as the closure artifact for the deterministic Command Center foundation phase,
+  - closed Phase 21 with exceptions:
+    - runtime-proven behavior includes the stable GUI default path, experimental Split Command gating, deterministic loaded-data panels, shell-scoped persistence/invalidation, and condensed-mode collapse priority,
+    - test-lane-proven behavior includes targeted renderer coverage, App preflight coverage, shell-state coverage, and Playwright smoke,
+    - policy-only behavior remains diagnostics placement, forced stable fallback for non-recoverable shell failure, broader unsafe-shell-state detection, panel-admission runtime policing, and long-session durability,
+    - deferred ownership remains Phase 22 for writing-surface experience, Phase 23 for AI intelligence, Phase 24 for true two-monitor behavior, and Phase 25 for backend drop/reconnect investigation if stable GUI also reproduces it,
+  - Phase 21 is now complete as a foundation pass with the documented exceptions preserved rather than overclaimed,
 - 2026-05-18 - Codex - Phase 21 planning artifact:
   - created [phase21_command_center_panels_plan.md](/C:/Dev/black-skies/docs/audits/phase21/phase21_command_center_panels_plan.md) as the canonical Phase 21 scope artifact,
   - defined Phase 21 as deterministic/current-project Command Center work only, explicitly excluding AI intelligence, speculative analysis, immersive writing-side adjuncts, and two-monitor behavior,
