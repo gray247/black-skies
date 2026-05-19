@@ -346,6 +346,11 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - normal GUI relaunch worked and hidden Split Command GUI relaunch worked,
   - Phase 21 / Phase 20 follow-up remains closed with exceptions; no further fix was requested,
   - Phase 22 planning may begin later, after the operator break,
+- 2026-05-19 - Codex - agent orchestration spec created:
+  - created [agent_orchestration_spec.md](/C:/Dev/black-skies/docs/specs/agent_orchestration_spec.md) as a supplemental orchestration/governance spec for scoped agent execution,
+  - human verification is defined as build/runtime/workflow verification only,
+  - output-quality validation, real-author-material maturity, and brand-new story-from-scratch readiness remain unproven,
+  - phase numbering may shift only through the existing tracker, roadmap, and deferred-matrix process,
 - 2026-05-18 - Codex - Phase 21 planning artifact:
   - created [phase21_command_center_panels_plan.md](/C:/Dev/black-skies/docs/audits/phase21/phase21_command_center_panels_plan.md) as the canonical Phase 21 scope artifact,
   - defined Phase 21 as deterministic/current-project Command Center work only, explicitly excluding AI intelligence, speculative analysis, immersive writing-side adjuncts, and two-monitor behavior,

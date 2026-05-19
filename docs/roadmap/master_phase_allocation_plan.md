@@ -113,6 +113,7 @@ This document uses the status model defined in [authority_reconciliation_strateg
 
 Phase 20+ remains provisional and should not be treated as committed execution work until stabilization phases are accepted.
 Phase 20+ items are provisional future governance buckets only, not committed execution phases, not authorized implementation campaigns, and not suitable for broad `/goals` execution until expanded into governed phase plans.
+Phase numbering may shift if prerequisite governance or orchestration work needs to be inserted, but any renumbering must flow through the existing tracker, roadmap, and deferred-matrix process rather than creating a competing roadmap.
 
 ## Phase 14 Structure
 
