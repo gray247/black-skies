@@ -429,7 +429,7 @@ export default function SplitCommandWorkspace({
         className="split-command__zone split-command__zone--writing"
         aria-label="Writing Studio"
       >
-        <div className="split-command__zone-header">
+        <div className="split-command__zone-header split-command__zone-header--writing">
           <span className="split-command__eyebrow">Writing Studio</span>
           <h2>{project?.name ?? "No project loaded"}</h2>
           <p className="split-command__zone-summary">
@@ -438,11 +438,11 @@ export default function SplitCommandWorkspace({
               : "Existing stable writing surfaces are wrapped here without changing workflow behavior."}
           </p>
         </div>
-        <div className="split-command__panel-stack" aria-label="Writing Studio surfaces">
-          <WritingStudioContractPanel project={project} activeUnit={activeUnit} />
-        </div>
         <div className="split-command__writing-surface">
-          <div className="split-command__panel-stack" aria-label="Writing Workspace support">
+          <div className="split-command__writing-support" aria-label="Writing Workspace support">
+            <div className="split-command__panel-stack" aria-label="Writing Studio surfaces">
+              <WritingStudioContractPanel project={project} activeUnit={activeUnit} />
+            </div>
             <WritingWorkspaceSnapshotPanel
               project={project}
               outline={activeOutline}

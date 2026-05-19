@@ -461,6 +461,7 @@ button:disabled {
 
 .split-command__zone--writing {
   min-width: 0;
+  flex: 1.15 1 0;
   background:
     linear-gradient(180deg, rgba(12, 17, 23, 0.96), rgba(7, 10, 14, 0.94)),
     rgba(12, 17, 23, 0.9);
@@ -487,6 +488,10 @@ button:disabled {
 .split-command__zone--command .split-command__zone-header {
   padding: 0 0 var(--bs-spacing-panel-padding, 16px);
   margin-bottom: 0.15rem;
+}
+
+.split-command__zone-header--writing {
+  padding-bottom: calc(var(--bs-spacing-panel-padding, 16px) - 2px);
 }
 
 .split-command__eyebrow {
@@ -566,6 +571,26 @@ button:disabled {
   z-index: 1;
   display: grid;
   gap: calc(var(--bs-spacing-panel-gap, 12px) + 2px);
+}
+
+.split-command__writing-support {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: var(--bs-spacing-panel-gap, 12px);
+  padding: 0 var(--bs-spacing-panel-padding, 16px);
+}
+
+.split-command__writing-support .split-command__panel-stack {
+  gap: var(--bs-spacing-panel-gap, 12px);
+}
+
+.split-command__writing-support .split-command__panel--secondary {
+  min-height: 5.5rem;
+}
+
+.split-command__writing-support .split-command__panel--tertiary {
+  min-height: 4.75rem;
 }
 
 .split-command__panel-cluster {
