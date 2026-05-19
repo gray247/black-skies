@@ -350,6 +350,7 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - the CI `HARNESS_ONLY App Smoke (Playwright)` failure was traced to the Electron boot fixture's hard `domcontentloaded` wait (`app/tests/e2e/_electron.fixture.ts`), not to Phase 22 Writing Studio behavior,
   - the boot fixture now treats `domcontentloaded` as best-effort with a longer timeout and still relies on `__APP_READY__` for the real readiness gate,
   - classification is CI/environment-sensitive launcher/startup instability in the serial single-launch path; default canary and command normalization remain unchanged,
+  - local reruns of `pnpm test:e2e -- --workers=1` and `pnpm test:e2e` passed after the readiness fix, so Phase 22 closure can proceed with the canary now green in the current workspace,
 - 2026-05-19 - Codex - agent orchestration spec created:
   - created [agent_orchestration_spec.md](/C:/Dev/black-skies/docs/specs/agent_orchestration_spec.md) as a supplemental orchestration/governance spec for scoped agent execution,
   - human verification is defined as build/runtime/workflow verification only,

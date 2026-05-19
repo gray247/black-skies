@@ -177,9 +177,9 @@ Phase 22 does not claim:
 - a new roadmap system exists
 
 ## Canary Warning Classification
-The serial single-launch canary instability is a warning and deferred risk, not trusted runtime-green proof.
+The serial single-launch canary instability was a warning and deferred risk during planning, not trusted runtime-green proof.
 
-Phase 22 planning may continue, but any runtime claim that depends on single-launch serial canary health must be treated cautiously until the canary is stabilized or reclassified.
+It has now been hardened by the boot-fixture readiness fix in commit `9716ab6eafe3294eb577e49a25eeca5d5be65328`, and the local serial canary rerun is green. The underlying rule remains: any runtime claim that depends on single-launch serial canary health should still be treated cautiously unless the current lane stays green.
 
 ## Phase 22E Closure Notes
 
@@ -198,6 +198,7 @@ Closure classification:
 - output-quality, real-author, and start-from-scratch claims remain unproven
 - no AI/intelligence, two-monitor, launcher, preload, persistence, or default-path work was introduced
 - no evidence of scope drift or hidden authority expansion was found in this pass
+- the serial canary failure that surfaced during closure review was traced to Electron boot-fix startup readiness, not to Phase 22 writing-surface behavior, and was resolved with a narrow fixture hardening change
 
 Deferred carry-forward items remain:
 
