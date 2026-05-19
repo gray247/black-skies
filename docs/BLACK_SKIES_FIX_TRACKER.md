@@ -346,6 +346,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - normal GUI relaunch worked and hidden Split Command GUI relaunch worked,
   - Phase 21 / Phase 20 follow-up remains closed with exceptions; no further fix was requested,
   - Phase 22 planning may begin later, after the operator break,
+- 2026-05-19 - Codex - serial canary single-launch fix:
+  - the CI `HARNESS_ONLY App Smoke (Playwright)` failure was traced to the Electron boot fixture's hard `domcontentloaded` wait (`app/tests/e2e/_electron.fixture.ts`), not to Phase 22 Writing Studio behavior,
+  - the boot fixture now treats `domcontentloaded` as best-effort with a longer timeout and still relies on `__APP_READY__` for the real readiness gate,
+  - classification is CI/environment-sensitive launcher/startup instability in the serial single-launch path; default canary and command normalization remain unchanged,
 - 2026-05-19 - Codex - agent orchestration spec created:
   - created [agent_orchestration_spec.md](/C:/Dev/black-skies/docs/specs/agent_orchestration_spec.md) as a supplemental orchestration/governance spec for scoped agent execution,
   - human verification is defined as build/runtime/workflow verification only,

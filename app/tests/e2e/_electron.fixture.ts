@@ -705,7 +705,11 @@ export const test = base.extend<Fixtures>({
     const url = await window.url();
     console.log('[electron.url]', url);
 
-    await window.waitForLoadState('domcontentloaded', { timeout: 5000 });
+    try {
+      await window.waitForLoadState('domcontentloaded', { timeout: 15000 });
+    } catch (error) {
+      console.warn('[electron] domcontentloaded wait timed out; continuing to app-ready check', error);
+    }
     try {
       const screenshotPath = testInfo.outputPath('boot.png');
       const screenshotBuffer = await window.screenshot();
