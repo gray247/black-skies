@@ -23,7 +23,7 @@ test.describe('Split Command smoke', () => {
     await expect(page.getByTestId('split-command-workspace')).toBeVisible({ timeout: 30_000 });
     await expect(page.locator('aside[aria-label="Command Center"]')).toBeVisible();
     await expect(page.locator('section[aria-label="Writing Studio"]')).toBeVisible();
-    await expect(page.getByLabel('Story Navigation')).toBeVisible();
+    await expect(page.getByRole('region', { name: 'Story Navigation' })).toBeVisible();
     await expect(page.getByTestId('workspace-action-generate')).toBeEnabled();
     await expect(page.locator('[data-testid="dock-workspace"]')).toHaveCount(0);
     expect(electronApp.windows().length).toBe(1);
