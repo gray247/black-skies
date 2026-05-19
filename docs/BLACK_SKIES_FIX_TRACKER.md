@@ -325,6 +325,10 @@ If an issue is not tracked here, it is not part of the active fix scope.
     - policy-only behavior remains diagnostics placement, forced stable fallback for non-recoverable shell failure, broader unsafe-shell-state detection, panel-admission runtime policing, and long-session durability,
     - deferred ownership remains Phase 22 for writing-surface experience, Phase 23 for AI intelligence, Phase 24 for true two-monitor behavior, and Phase 25 for backend drop/reconnect investigation if stable GUI also reproduces it,
   - Phase 21 is now complete as a foundation pass with the documented exceptions preserved rather than overclaimed,
+- 2026-05-18 - Codex - post-Phase-21 operator smoke checklist:
+  - created [phase21_operator_smoke_checklist.md](/C:/Dev/black-skies/docs/audits/phase21/phase21_operator_smoke_checklist.md) as a lightweight human smoke checklist before Phase 22 planning,
+  - no human results are recorded yet,
+  - Phase 22 planning should wait for the operator report or an explicit operator decision to proceed anyway,
 - 2026-05-18 - Codex - Phase 21 planning artifact:
   - created [phase21_command_center_panels_plan.md](/C:/Dev/black-skies/docs/audits/phase21/phase21_command_center_panels_plan.md) as the canonical Phase 21 scope artifact,
   - defined Phase 21 as deterministic/current-project Command Center work only, explicitly excluding AI intelligence, speculative analysis, immersive writing-side adjuncts, and two-monitor behavior,
