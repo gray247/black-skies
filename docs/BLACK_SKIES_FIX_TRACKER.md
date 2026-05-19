@@ -338,6 +338,14 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - background `/healthz` polls now skip the transient `checking` state and dedupe unchanged health snapshots before updating renderer state,
   - this is a narrow frontend mitigation for the reproducible flicker path, not a backend health-route change,
   - operator retest is still required to confirm the visual flicker is gone,
+- 2026-05-18 - Codex - final post-Phase-21 smoke result:
+  - human smoke follow-up passed,
+  - operator verified the health-check flicker fix,
+  - `/healthz` no longer flickers,
+  - operator restarted only Terminal 3 while keeping Terminal 1 backend and Terminal 2 Vite running,
+  - normal GUI relaunch worked and hidden Split Command GUI relaunch worked,
+  - Phase 21 / Phase 20 follow-up remains closed with exceptions; no further fix was requested,
+  - Phase 22 planning may begin later, after the operator break,
 - 2026-05-18 - Codex - Phase 21 planning artifact:
   - created [phase21_command_center_panels_plan.md](/C:/Dev/black-skies/docs/audits/phase21/phase21_command_center_panels_plan.md) as the canonical Phase 21 scope artifact,
   - defined Phase 21 as deterministic/current-project Command Center work only, explicitly excluding AI intelligence, speculative analysis, immersive writing-side adjuncts, and two-monitor behavior,

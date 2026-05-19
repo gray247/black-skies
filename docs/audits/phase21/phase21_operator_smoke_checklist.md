@@ -8,10 +8,14 @@ Purpose: quick human smoke pass before Phase 22.
 
 ## Current Smoke Update
 
-- So far the hidden Split Command shell is good.
+- Human smoke follow-up: passed.
+- Flicker retest passed.
+- `/healthz` no longer flickers.
+- Operator restarted only Terminal 3 while keeping Terminal 1 backend and Terminal 2 Vite running.
+- Normal GUI relaunch worked.
+- Hidden Split Command GUI relaunch worked.
 - The confusing or weird judgment stays deferred until a true second-screen workflow exists.
-- `/healthz`-linked flicker is now a reproducible follow-up item and should be reported as a frontend render issue.
-- This smoke does not claim backend durability is solved or broken.
+- No further fix was requested.
 
 ## Launch
 
