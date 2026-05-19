@@ -2865,3 +2865,4 @@ Backlog note drifted after phase-log cleanup.
     - `pnpm --filter app run build:production` PASS.
 - [2026-05-19] Phase 22 execution plan created at `docs/audits/phase22/phase22_execution_plan.md`. Scope is writing-studio execution only; output-quality validation, real-author workflow maturity, start-from-scratch readiness, and AI/two-monitor work remain unproven and deferred.
 - [2026-05-19] Phase 22A writing-studio contract foundation implemented: added deterministic Writing Studio inventory block and tests in Split Command without changing launcher, persistence, or default GUI behavior.
+- [2026-05-19] Phase 22B writing-side snapshot surfaced: added deterministic writer-facing context block with outline access, active-scene, and deferred-surface labeling. No AI, detached-window, or output-quality claims added.

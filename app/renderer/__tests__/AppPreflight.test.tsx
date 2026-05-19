@@ -1717,6 +1717,10 @@ describe('App preflight integration', () => {
     expect(screen.getByLabelText('Writing Studio contract')).toHaveTextContent(
       /Deterministic writing-side inventory/i,
     );
+    expect(screen.getByLabelText('Writing Workspace snapshot')).toBeInTheDocument();
+    expect(screen.getByLabelText('Writing Workspace snapshot')).toHaveTextContent(
+      /Deterministic writer-facing context/i,
+    );
     expect(
       within(screen.getByLabelText('Story Navigation')).getByRole('button', {
         name: 'Select Arrival',

@@ -68,6 +68,60 @@ function WritingStudioContractPanel({
   );
 }
 
+function WritingWorkspaceSnapshotPanel({
+  project,
+  outline,
+  activeUnit,
+}: {
+  readonly project: LoadedProject | null;
+  readonly outline: ActiveOutlineV1;
+  readonly activeUnit: StoryUnitV1 | null;
+}): JSX.Element {
+  const draftCount = project
+    ? Object.values(project.drafts).filter((draft) => draft.trim().length > 0).length
+    : 0;
+
+  return (
+    <section
+      className="split-command__panel split-command__panel--secondary split-command__writing-snapshot"
+      aria-label="Writing Workspace snapshot"
+      data-panel-id="writing-workspace-snapshot"
+      data-panel-authority="editor-local"
+      data-panel-priority="secondary"
+    >
+      <div className="split-command__panel-heading">
+        <div>
+          <h3>Writing Workspace snapshot</h3>
+          <p>Deterministic writer-facing context</p>
+        </div>
+      </div>
+      <dl className="split-command__overview-grid">
+        <div>
+          <dt>Project</dt>
+          <dd>{project?.name ?? "No project loaded"}</dd>
+        </div>
+        <div>
+          <dt>Outline</dt>
+          <dd>{outline.label}</dd>
+        </div>
+        <div>
+          <dt>Active scene</dt>
+          <dd>{activeUnit?.title ?? "None selected"}</dd>
+        </div>
+        <div>
+          <dt>Drafts</dt>
+          <dd>{draftCount}</dd>
+        </div>
+      </dl>
+      <p className="split-command__panel-note">
+        Current writing-side support is limited to project context, outline access, and
+        editor-local state. Notes, quick insert, and intelligence-driven assistance remain
+        deferred.
+      </p>
+    </section>
+  );
+}
+
 function NarrativeOverviewPanel({
   project,
   outline,
@@ -388,6 +442,13 @@ export default function SplitCommandWorkspace({
           <WritingStudioContractPanel project={project} activeUnit={activeUnit} />
         </div>
         <div className="split-command__writing-surface">
+          <div className="split-command__panel-stack" aria-label="Writing Workspace support">
+            <WritingWorkspaceSnapshotPanel
+              project={project}
+              outline={activeOutline}
+              activeUnit={activeUnit}
+            />
+          </div>
           <div className="split-command__writing-frame">{writingStudio}</div>
         </div>
       </section>
