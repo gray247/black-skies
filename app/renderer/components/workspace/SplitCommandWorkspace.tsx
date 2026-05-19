@@ -115,8 +115,8 @@ function WritingWorkspaceSnapshotPanel({
       </dl>
       <p className="split-command__panel-note">
         Current writing-side support is limited to project context, outline access, and
-        editor-local state. Notes, quick insert, and intelligence-driven assistance remain
-        deferred.
+        editor-local state. Notes, quick insert, writing tools, and intelligence-driven
+        assistance remain deferred.
       </p>
     </section>
   );

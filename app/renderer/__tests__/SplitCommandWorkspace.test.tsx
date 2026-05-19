@@ -149,7 +149,7 @@ describe("SplitCommandWorkspace", () => {
       /Deterministic writer-facing context/i,
     );
     expect(screen.getByLabelText("Writing Workspace snapshot")).toHaveTextContent(
-      /Notes, quick insert, and intelligence-driven assistance remain deferred/i,
+      /Notes, quick insert, writing tools, and intelligence-driven assistance remain deferred/i,
     );
     expect(screen.getByTestId("split-command-deferred-note")).toHaveTextContent(
       /deferred to later phases/i,
