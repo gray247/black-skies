@@ -189,6 +189,18 @@ describe("SplitCommandWorkspace", () => {
     expect(screen.getByLabelText("Structure Overview")).toHaveTextContent(/Act I/i);
     expect(screen.getByLabelText("Project Stats")).toHaveTextContent(/Deterministic counts only/i);
     expect(screen.getByLabelText("Project Stats")).toHaveTextContent(/Drafts/i);
+    expect(screen.getByLabelText("Intelligence Readiness")).toHaveTextContent(
+      /Future intelligence surfaces stay deferred until their authority is proven/i,
+    );
+    expect(screen.getByLabelText("Intelligence Readiness")).toHaveTextContent(
+      /Current project only/i,
+    );
+    expect(screen.getByLabelText("Intelligence Readiness")).toHaveTextContent(
+      /generated, verified, speculative, deferred, unavailable/i,
+    );
+    expect(screen.getByLabelText("Intelligence Readiness")).toHaveTextContent(
+      /No AI certainty, hidden inference, or story-quality judgment is active here/i,
+    );
     expect(screen.getByLabelText("Global Tools Metadata")).toHaveTextContent(
       /Metadata-only command registry/i,
     );

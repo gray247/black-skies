@@ -329,6 +329,50 @@ function GlobalToolsPanel({
   );
 }
 
+function IntelligenceReadinessPanel({
+  project,
+}: {
+  readonly project: LoadedProject | null;
+}): JSX.Element {
+  const sceneCount = project?.scenes.length ?? 0;
+
+  return (
+    <section
+      className="split-command__panel split-command__panel--tertiary split-command__intelligence-readiness"
+      aria-label="Intelligence Readiness"
+      data-panel-id="intelligence-readiness"
+      data-panel-authority="deferred"
+      data-panel-priority="tertiary"
+      data-intelligence-scope="current-project scoped"
+      data-intelligence-state="deferred"
+    >
+      <div className="split-command__panel-heading">
+        <div>
+          <h3>Intelligence Readiness</h3>
+          <p>Future intelligence surfaces stay deferred until their authority is proven</p>
+        </div>
+      </div>
+      <dl className="split-command__tools-summary">
+        <div>
+          <dt>Scope</dt>
+          <dd>Current project only</dd>
+        </div>
+        <div>
+          <dt>Available</dt>
+          <dd>{sceneCount} scenes</dd>
+        </div>
+        <div>
+          <dt>States</dt>
+          <dd>generated, verified, speculative, deferred, unavailable</dd>
+        </div>
+      </dl>
+      <p className="split-command__panel-note">
+        No AI certainty, hidden inference, or story-quality judgment is active here.
+      </p>
+    </section>
+  );
+}
+
 export default function SplitCommandWorkspace({
   project,
   activeSceneId,
@@ -413,15 +457,17 @@ export default function SplitCommandWorkspace({
               aria-label="Metadata command surfaces"
               hidden={commandCenterCollapsed}
             >
-              <ProjectStatsPanel
-                project={project}
-                outline={activeOutline}
-                activeUnit={activeUnit}
-              />
+            <ProjectStatsPanel
+              project={project}
+              outline={activeOutline}
+              activeUnit={activeUnit}
+            />
 
-              <GlobalToolsPanel commands={commands} />
-            </div>
+            <IntelligenceReadinessPanel project={project} />
+
+            <GlobalToolsPanel commands={commands} />
           </div>
+        </div>
         </div>
       </aside>
 
