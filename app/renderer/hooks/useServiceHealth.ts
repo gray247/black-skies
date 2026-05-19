@@ -19,7 +19,7 @@ interface UseServiceHealthOptions {
 
 interface UseServiceHealthResult {
   status: ServiceStatus;
-  retry: () => Promise<void>;
+  retry: (background?: boolean) => Promise<void>;
   isPortUnavailable: boolean;
   lastError: ServiceError | null;
   serviceUnavailable: boolean;
@@ -38,6 +38,40 @@ const windowWithTestEnv =
     : undefined;
 
 const RETRY_THROTTLE_MS = 1_000;
+
+function getServiceErrorSignature(error: ServiceError | null): string | null {
+  if (!error) {
+    return null;
+  }
+  return JSON.stringify({
+    message: error.message ?? '',
+    code: error.code ?? null,
+    traceId: error.traceId ?? null,
+    details: error.details ?? null,
+  });
+}
+
+function areServiceHealthSnapshotsEqual(
+  left: {
+    status: ServiceStatus;
+    isPortUnavailable: boolean;
+    forceOffline: boolean;
+    lastError: ServiceError | null;
+  },
+  right: {
+    status: ServiceStatus;
+    isPortUnavailable: boolean;
+    forceOffline: boolean;
+    lastError: ServiceError | null;
+  },
+): boolean {
+  return (
+    left.status === right.status &&
+    left.isPortUnavailable === right.isPortUnavailable &&
+    left.forceOffline === right.forceOffline &&
+    getServiceErrorSignature(left.lastError) === getServiceErrorSignature(right.lastError)
+  );
+}
 
 function isPortUnavailableError(error?: ServiceError | null): boolean {
   if (!error || typeof error.message !== 'string') {
@@ -114,6 +148,7 @@ export function useServiceHealth(
     reason: initialReason,
     serviceUnavailable: initialServiceUnavailable,
     lastError: initialLastError,
+    forceOffline: initialForcedOffline,
   });
   const testHardFreezeHealthRef = options.testHardFreezeHealthRef;
   const lastKnownForcedOfflineStateRef = useRef<UseServiceHealthResult | null>(null);
@@ -135,26 +170,84 @@ export function useServiceHealth(
     });
   }, []);
 
+  const commitHealthSnapshot = useCallback(
+    (nextState: {
+      status: ServiceStatus;
+      isPortUnavailable: boolean;
+      forceOffline: boolean;
+      lastError: ServiceError | null;
+    }) => {
+      const previousState = lastKnownStateRef.current;
+      if (
+        areServiceHealthSnapshotsEqual(previousState, nextState) &&
+        previousState.reason ===
+          (nextState.isPortUnavailable
+            ? 'service_port_unavailable'
+            : nextState.forceOffline
+              ? 'test-offline'
+              : nextState.status) &&
+        previousState.serviceUnavailable ===
+          (nextState.status === 'offline' || nextState.isPortUnavailable || nextState.forceOffline)
+      ) {
+        return false;
+      }
+
+      const reason = nextState.isPortUnavailable
+        ? 'service_port_unavailable'
+        : nextState.forceOffline
+          ? 'test-offline'
+          : nextState.status;
+      const serviceUnavailable =
+        nextState.status === 'offline' || nextState.isPortUnavailable || nextState.forceOffline;
+      lastKnownStateRef.current = {
+        status: nextState.status,
+        isPortUnavailable: nextState.isPortUnavailable,
+        reason,
+        serviceUnavailable,
+        lastError: nextState.lastError,
+        forceOffline: nextState.forceOffline,
+      };
+      if (!mountedRef.current) {
+        return true;
+      }
+      if (previousState.status !== nextState.status) {
+        setStatus(nextState.status);
+      }
+      if (previousState.isPortUnavailable !== nextState.isPortUnavailable) {
+        setIsPortUnavailable(nextState.isPortUnavailable);
+      }
+      if (previousState.forceOffline !== nextState.forceOffline) {
+        setForceOffline(nextState.forceOffline);
+      }
+      if (getServiceErrorSignature(previousState.lastError) !== getServiceErrorSignature(nextState.lastError)) {
+        setLastError(nextState.lastError);
+      }
+      return true;
+    },
+    [mountedRef],
+  );
+
   const handleFailure = useCallback(
     (error?: ServiceError | null, portIssue = false) => {
       logFailure(error);
-    if (!mountedRef.current) {
+      if (!mountedRef.current) {
         return;
       }
       if (dominantOffline) {
         return;
       }
-      if (!initialPortUnavailable && !dominantOffline) {
-        setForceOffline(false);
-      }
-      setIsPortUnavailable(portIssue);
-      setLastError(error ?? null);
-      setStatus('offline');
+      const nextForceOffline = initialPortUnavailable ? true : false;
+      void commitHealthSnapshot({
+        status: 'offline',
+        isPortUnavailable: portIssue,
+        forceOffline: nextForceOffline,
+        lastError: error ?? null,
+      });
     },
-    [logFailure, mountedRef, setForceOffline, initialPortUnavailable, dominantOffline],
+    [logFailure, mountedRef, dominantOffline, initialPortUnavailable, commitHealthSnapshot],
   );
 
-  const retry = useCallback(async () => {
+  const retry = useCallback(async (background = false) => {
     if (
       testHardFreezeHealthRef?.current ||
       dominantOffline ||
@@ -174,17 +267,25 @@ export function useServiceHealth(
 
     if (forceOffline) {
       if (mountedRef.current) {
-        setStatus('offline');
-        setIsPortUnavailable(initialPortUnavailable || false);
-        setLastError(initialLastError);
+        void commitHealthSnapshot({
+          status: 'offline',
+          isPortUnavailable: initialPortUnavailable || false,
+          forceOffline: true,
+          lastError: initialLastError,
+        });
       }
       isCheckingRef.current = false;
       return;
     }
 
     lastRetryTimestampRef.current = now;
-    if (mountedRef.current && !isPlaywright && !skipPolling) {
+    if (!background && mountedRef.current && !isPlaywright && !skipPolling) {
       setStatus('checking');
+      lastKnownStateRef.current = {
+        ...lastKnownStateRef.current,
+        status: 'checking',
+        serviceUnavailable: true,
+      };
     }
     isCheckingRef.current = true;
 
@@ -199,19 +300,21 @@ export function useServiceHealth(
       return;
     }
 
-      try {
-        const result = await services.checkHealth();
-        if (!mountedRef.current) {
-          return;
-        }
-        if (result.ok) {
-          lastLoggedTraceIdRef.current = null;
-          setIsPortUnavailable(false);
-          setLastError(null);
-          setStatus('online');
-          setForceOffline(false);
-          return;
-        }
+    try {
+      const result = await services.checkHealth();
+      if (!mountedRef.current) {
+        return;
+      }
+      if (result.ok) {
+        lastLoggedTraceIdRef.current = null;
+        void commitHealthSnapshot({
+          status: 'online',
+          isPortUnavailable: false,
+          forceOffline: false,
+          lastError: null,
+        });
+        return;
+      }
 
       handleFailure(result.error ?? null, isPortUnavailableError(result.error));
     } catch (error) {
@@ -256,7 +359,7 @@ export function useServiceHealth(
 
   useEffect(() => {
     let cancelled = false;
-    void retry();
+    void retry(true);
 
     if (skipPolling) {
       return () => {
@@ -272,7 +375,7 @@ export function useServiceHealth(
 
     const timer = window.setInterval(() => {
       if (!cancelled) {
-        void retry();
+        void retry(true);
       }
     }, intervalMs);
     return () => {
@@ -288,20 +391,20 @@ export function useServiceHealth(
     if (typeof window === 'undefined') {
       return () => {};
     }
+
     const statusHandler = (event: Event) => {
       const customEvent = event as CustomEvent<'offline' | 'online'>;
       const detail = customEvent.detail;
       if (detail === 'online' || detail === 'offline') {
-        setForceOffline(detail === 'offline');
-        if (mountedRef.current) {
-          setStatus(detail);
-          if (detail === 'online') {
-            setIsPortUnavailable(false);
-            setLastError(null);
-          }
-        }
+        void commitHealthSnapshot({
+          status: detail,
+          isPortUnavailable: detail === 'offline' ? lastKnownStateRef.current.isPortUnavailable : false,
+          forceOffline: detail === 'offline',
+          lastError: detail === 'online' ? null : lastKnownStateRef.current.lastError,
+        });
       }
     };
+
     const healthHandler = (event: Event) => {
       const customEvent = event as CustomEvent<{
         status?: ServiceStatus;
@@ -314,43 +417,33 @@ export function useServiceHealth(
       if (normalizedStatus !== 'online' && normalizedStatus !== 'offline') {
         return;
       }
-      if (!mountedRef.current) {
-        return;
-      }
-      setStatus(normalizedStatus);
-      setForceOffline(normalizedStatus === 'offline');
-      if (normalizedStatus === 'online') {
-        setIsPortUnavailable(false);
-        setLastError(null);
-      } else {
-        const portIssue = Boolean(detail.portUnavailable);
-        setIsPortUnavailable(portIssue);
-        if (portIssue) {
-          setForceOffline(false);
-        }
-        if (detail.errorMessage) {
-          setLastError({ message: detail.errorMessage });
-        }
-      }
+      void commitHealthSnapshot({
+        status: normalizedStatus,
+        isPortUnavailable:
+          normalizedStatus === 'offline' ? Boolean(detail?.portUnavailable) : false,
+        forceOffline: normalizedStatus === 'offline',
+        lastError:
+          normalizedStatus === 'online'
+            ? null
+            : detail?.errorMessage
+              ? { message: detail.errorMessage }
+              : lastKnownStateRef.current.lastError,
+      });
     };
-    window.addEventListener('test:service-status', statusHandler);
-    window.addEventListener('test:service-health', healthHandler);
+
     const forceHandler = (event: Event) => {
       const customEvent = event as CustomEvent<boolean>;
       const detail = Boolean(customEvent.detail);
-      setForceOffline(detail);
-      if (!mountedRef.current) {
-        return;
-      }
-      const nextStatus: ServiceStatus = detail ? 'offline' : 'online';
-      setStatus(nextStatus);
-      if (detail) {
-        setIsPortUnavailable(false);
-      } else {
-        setIsPortUnavailable(false);
-        setLastError(null);
-      }
+      void commitHealthSnapshot({
+        status: detail ? 'offline' : 'online',
+        isPortUnavailable: false,
+        forceOffline: detail,
+        lastError: detail ? lastKnownStateRef.current.lastError : null,
+      });
     };
+
+    window.addEventListener('test:service-status', statusHandler);
+    window.addEventListener('test:service-health', healthHandler);
     window.addEventListener('test:force-offline', forceHandler);
     if (typeof document !== 'undefined') {
       document.addEventListener('test:service-status', statusHandler);
@@ -361,13 +454,13 @@ export function useServiceHealth(
       window.removeEventListener('test:service-status', statusHandler);
       window.removeEventListener('test:service-health', healthHandler);
       window.removeEventListener('test:force-offline', forceHandler);
-  if (typeof document !== 'undefined') {
-      document.removeEventListener('test:service-status', statusHandler);
-      document.removeEventListener('test:service-health', healthHandler);
-      document.removeEventListener('test:force-offline', forceHandler);
-    }
-  };
-}, [mountedRef, setForceOffline, options.stableHomeMode, options.visualStableHome]);
+      if (typeof document !== 'undefined') {
+        document.removeEventListener('test:service-status', statusHandler);
+        document.removeEventListener('test:service-health', healthHandler);
+        document.removeEventListener('test:force-offline', forceHandler);
+      }
+    };
+  }, [commitHealthSnapshot, options.stableHomeMode, options.visualStableHome]);
 
   if (freezeServiceHealth) {
     const freezeForceOffline = forcedOfflineFlag;
@@ -393,6 +486,7 @@ export function useServiceHealth(
       reason: freezeForceOffline ? freezeReasonKey ?? 'test-offline' : 'online',
       serviceUnavailable: freezeForceOffline,
       lastError: freezeLastError,
+      forceOffline: freezeForceOffline,
     };
     return freezeResult;
   }
@@ -409,6 +503,7 @@ export function useServiceHealth(
     reason,
     serviceUnavailable,
     lastError,
+    forceOffline,
   };
 
   if (isTestEnv && testHardFreezeHealthRef?.current && forceOffline) {

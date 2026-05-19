@@ -68,6 +68,7 @@ These remain policy-only classifications. Phase 20 does not claim they exist as 
 
 - long-session flicker and durability are still not bounded by reproducible operator evidence
 - shared health/debug observer churn is classified, but not deeply reworked
+- `/healthz`-linked flicker was later observed during post-Phase-21 smoke and is treated as a reproducible frontend render issue, not as generic long-session roughness
 - Story Navigation discoverability remains deferred to Phase 21
 - panel-admission governance is documented, not runtime-enforced
 - diagnostics remains a debug-only foundation rather than a complete operator truth surface

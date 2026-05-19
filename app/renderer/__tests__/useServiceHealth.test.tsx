@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -23,6 +24,8 @@ function Harness({
   stableHomeMode?: boolean;
   visualStableHome?: boolean;
 }) {
+  const renderCountRef = useRef(0);
+  renderCountRef.current += 1;
   const { status, retry, isPortUnavailable, lastError } = useServiceHealth(services, {
     intervalMs,
     stableHomeMode,
@@ -33,8 +36,12 @@ function Harness({
       <span data-testid="status">{status}</span>
       <span data-testid="port-flag">{String(isPortUnavailable)}</span>
       <span data-testid="error">{lastError ? lastError.message : ''}</span>
+      <span data-testid="render-count">{renderCountRef.current}</span>
       <button type="button" data-testid="retry-button" onClick={() => retry()}>
         Retry
+      </button>
+      <button type="button" data-testid="background-retry" onClick={() => retry(true)}>
+        Background retry
       </button>
     </div>
   );
@@ -65,6 +72,27 @@ describe('useServiceHealth', () => {
 
     await waitFor(() => expect(screen.getByTestId('status')).toHaveTextContent('online'));
     expect(services.checkHealth).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not churn render state when a background health poll returns the same online snapshot', async () => {
+    const services = {
+      checkHealth: vi.fn().mockResolvedValue({
+        ok: true,
+        data: { status: 'online' },
+        traceId: 'trace-online',
+      } satisfies ServiceHealthResponse),
+      exportProject: vi.fn(),
+    } as ServicesBridge;
+
+    render(<Harness services={services} />);
+
+    await waitFor(() => expect(screen.getByTestId('status')).toHaveTextContent('online'));
+    const renderCountAfterInitial = Number(screen.getByTestId('render-count').textContent);
+
+    fireEvent.click(screen.getByTestId('background-retry'));
+
+    await waitFor(() => expect(services.checkHealth).toHaveBeenCalledTimes(2));
+    expect(Number(screen.getByTestId('render-count').textContent)).toBe(renderCountAfterInitial);
   });
 
   it('allows manual retries while preserving the latest status', async () => {

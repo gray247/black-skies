@@ -329,6 +329,15 @@ If an issue is not tracked here, it is not part of the active fix scope.
   - created [phase21_operator_smoke_checklist.md](/C:/Dev/black-skies/docs/audits/phase21/phase21_operator_smoke_checklist.md) as a lightweight human smoke checklist before Phase 22 planning,
   - no human results are recorded yet,
   - Phase 22 planning should wait for the operator report or an explicit operator decision to proceed anyway,
+- 2026-05-18 - Codex - post-Phase-21 smoke update:
+  - operator smoke so far is `pass` with an active `/healthz`-linked flicker finding,
+  - confusing or weird judgment remains deferred until a true second-screen workflow exists,
+  - `/healthz`-linked flicker is now tracked as a reproducible frontend render follow-up under the Phase 20 / 21 shell-stability lane,
+  - backend durability is not claimed solved or broken by this smoke update,
+- 2026-05-18 - Codex - health-poll flicker mitigation:
+  - background `/healthz` polls now skip the transient `checking` state and dedupe unchanged health snapshots before updating renderer state,
+  - this is a narrow frontend mitigation for the reproducible flicker path, not a backend health-route change,
+  - operator retest is still required to confirm the visual flicker is gone,
 - 2026-05-18 - Codex - Phase 21 planning artifact:
   - created [phase21_command_center_panels_plan.md](/C:/Dev/black-skies/docs/audits/phase21/phase21_command_center_panels_plan.md) as the canonical Phase 21 scope artifact,
   - defined Phase 21 as deterministic/current-project Command Center work only, explicitly excluding AI intelligence, speculative analysis, immersive writing-side adjuncts, and two-monitor behavior,

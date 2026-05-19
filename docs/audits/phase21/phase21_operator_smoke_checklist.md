@@ -6,6 +6,13 @@ Purpose: quick human smoke pass before Phase 22.
 - This does not start Phase 22.
 - It checks whether the current Split Command shell feels stable enough to continue.
 
+## Current Smoke Update
+
+- So far the hidden Split Command shell is good.
+- The confusing or weird judgment stays deferred until a true second-screen workflow exists.
+- `/healthz`-linked flicker is now a reproducible follow-up item and should be reported as a frontend render issue.
+- This smoke does not claim backend durability is solved or broken.
+
 ## Launch
 
 Use the existing hidden GUI launch method:
@@ -130,4 +137,3 @@ Defer:
 - missing AI or intelligence -> Phase 23
 - missing two-monitor behavior -> Phase 24
 - long-session fatigue or performance -> Phase 25
-
