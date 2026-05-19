@@ -132,9 +132,17 @@ describe("SplitCommandWorkspace", () => {
     expect(screen.getByTestId("split-command-workspace")).toBeInTheDocument();
     expect(screen.getByLabelText("Command Center")).toBeInTheDocument();
     expect(screen.getByLabelText("Writing Studio")).toBeInTheDocument();
+    expect(screen.getByLabelText("Writing Studio contract")).toBeInTheDocument();
+    expect(screen.getByLabelText("Writing Studio surfaces")).toBeInTheDocument();
     expect(screen.getByLabelText("Command Center panels")).toBeInTheDocument();
     expect(screen.getByLabelText("Deterministic command surfaces")).toBeInTheDocument();
     expect(screen.getByTestId("stable-writing-surface")).toHaveTextContent("Stable surface");
+    expect(screen.getByLabelText("Writing Studio contract")).toHaveTextContent(
+      /Deterministic writing-side inventory/i,
+    );
+    expect(screen.getByLabelText("Writing Studio contract")).toHaveTextContent(
+      /Wrapped stable writing surface only/i,
+    );
     expect(screen.getByTestId("split-command-deferred-note")).toHaveTextContent(
       /deferred to later phases/i,
     );

@@ -1713,6 +1713,10 @@ describe('App preflight integration', () => {
     expect(screen.getByTestId('split-command-deferred-note')).toHaveTextContent(
       /deferred to later phases/i,
     );
+    expect(screen.getByLabelText('Writing Studio contract')).toBeInTheDocument();
+    expect(screen.getByLabelText('Writing Studio contract')).toHaveTextContent(
+      /Deterministic writing-side inventory/i,
+    );
     expect(
       within(screen.getByLabelText('Story Navigation')).getByRole('button', {
         name: 'Select Arrival',

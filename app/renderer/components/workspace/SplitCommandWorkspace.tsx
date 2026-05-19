@@ -16,6 +16,58 @@ interface SplitCommandWorkspaceProps {
   readonly writingStudio: ReactNode;
 }
 
+function WritingStudioContractPanel({
+  project,
+  activeUnit,
+}: {
+  readonly project: LoadedProject | null;
+  readonly activeUnit: StoryUnitV1 | null;
+}): JSX.Element {
+  const draftCount = project
+    ? Object.values(project.drafts).filter((draft) => draft.trim().length > 0).length
+    : 0;
+
+  return (
+    <section
+      className="split-command__panel split-command__panel--primary split-command__writing-contract"
+      aria-label="Writing Studio contract"
+      data-panel-id="writing-studio-contract"
+      data-panel-authority="editor-local"
+      data-panel-priority="primary"
+    >
+      <div className="split-command__panel-heading">
+        <div>
+          <h3>Writing Studio contract</h3>
+          <p>Deterministic writing-side inventory</p>
+        </div>
+      </div>
+      <dl className="split-command__overview-grid">
+        <div>
+          <dt>Project</dt>
+          <dd>{project?.name ?? "No project loaded"}</dd>
+        </div>
+        <div>
+          <dt>Active scene</dt>
+          <dd>{activeUnit?.title ?? "None selected"}</dd>
+        </div>
+        <div>
+          <dt>Drafts</dt>
+          <dd>{draftCount}</dd>
+        </div>
+        <div>
+          <dt>Scope</dt>
+          <dd>Wrapped stable writing surface only</dd>
+        </div>
+      </dl>
+      <p className="split-command__panel-note">
+        Writing Studio currently provides deterministic project context, editor-local state, and
+        layout affordances. It does not claim AI analysis, output-quality judgment, or
+        detached-window behavior.
+      </p>
+    </section>
+  );
+}
+
 function NarrativeOverviewPanel({
   project,
   outline,
@@ -331,6 +383,9 @@ export default function SplitCommandWorkspace({
               ? `Active scene: ${activeUnit.title}`
               : "Existing stable writing surfaces are wrapped here without changing workflow behavior."}
           </p>
+        </div>
+        <div className="split-command__panel-stack" aria-label="Writing Studio surfaces">
+          <WritingStudioContractPanel project={project} activeUnit={activeUnit} />
         </div>
         <div className="split-command__writing-surface">
           <div className="split-command__writing-frame">{writingStudio}</div>
