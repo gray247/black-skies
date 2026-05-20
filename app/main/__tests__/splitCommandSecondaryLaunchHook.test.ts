@@ -291,6 +291,7 @@ describe('main split command launch hook', () => {
           pairHealthStatus: 'secondary-lost',
           primaryCollapseReason: null,
           secondaryLossReason: 'closed',
+          rebuildBlockReason: null,
         },
       }),
     );
@@ -315,6 +316,7 @@ describe('main split command launch hook', () => {
           pairHealthStatus: 'secondary-lost',
           primaryCollapseReason: null,
           secondaryLossReason: 'crashed',
+          rebuildBlockReason: null,
         },
       }),
     );
@@ -339,6 +341,7 @@ describe('main split command launch hook', () => {
           pairHealthStatus: 'primary-lost',
           primaryCollapseReason: 'closed',
           secondaryLossReason: null,
+          rebuildBlockReason: null,
         },
       }),
     );
@@ -364,9 +367,36 @@ describe('main split command launch hook', () => {
           pairHealthStatus: 'primary-lost',
           primaryCollapseReason: 'crashed',
           secondaryLossReason: null,
+          rebuildBlockReason: null,
         },
       }),
     );
     expect(secondaryWindow.isDestroyed()).toBe(true);
+  });
+
+  it('marks rebuild as blocked when secondary launch fails and does not respawn', async () => {
+    experimentalSplitCommandWorkspace = true;
+    browserWindowState.failOnInstance = 2;
+
+    await loadMainModule();
+
+    expect(browserWindowState.instances).toHaveLength(1);
+    expect(logger.warn).toHaveBeenCalledWith(
+      'Split command secondary rebuild blocked',
+      expect.objectContaining({
+        fallbackState: {
+          pairHealthStatus: 'rebuild-blocked',
+          primaryCollapseReason: null,
+          secondaryLossReason: null,
+          rebuildBlockReason: 'secondary-launch-failed',
+        },
+      }),
+    );
+    expect(logger.warn).toHaveBeenCalledWith(
+      'Split command secondary launch contract unavailable',
+      expect.objectContaining({
+        error: 'split command secondary launch failed',
+      }),
+    );
   });
 });

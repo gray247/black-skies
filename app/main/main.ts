@@ -820,6 +820,20 @@ function noteSplitCommandSecondaryLoss(
   clearSplitCommandPairRuntimeReferences();
 }
 
+function noteSplitCommandSecondaryRebuildBlocked(details?: unknown): void {
+  if (!splitCommandLifecycleSeam) {
+    return;
+  }
+
+  const fallbackState =
+    splitCommandLifecycleSeam.registry.markSecondaryRebuildBlocked('secondary-launch-failed');
+  ensureMainLogger().warn('Split command secondary rebuild blocked', {
+    pairId: splitCommandLifecycleSeam.registry.pairIdentity.pairId,
+    fallbackState,
+    details,
+  });
+}
+
 function noteSplitCommandPrimaryCollapse(
   reason: SplitCommandPrimaryCollapseReason,
   details?: unknown,
@@ -893,6 +907,7 @@ async function bootstrap(): Promise<void> {
           windowRole: splitCommandSecondaryLaunchContract.windowRole,
         });
       } catch (error) {
+        noteSplitCommandSecondaryRebuildBlocked(error);
         splitCommandSecondaryLaunchContract = null;
         splitCommandSecondaryWindow = null;
         ensureMainLogger().warn('Split command secondary launch contract unavailable', {

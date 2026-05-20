@@ -143,6 +143,7 @@ describe('splitCommandAuthority', () => {
       pairHealthStatus: 'cleared',
       primaryCollapseReason: null,
       secondaryLossReason: null,
+      rebuildBlockReason: null,
     });
   });
 
@@ -177,6 +178,7 @@ describe('splitCommandAuthority', () => {
       pairHealthStatus: 'cleared',
       primaryCollapseReason: null,
       secondaryLossReason: null,
+      rebuildBlockReason: null,
     });
     expect(
       registry.matchesPairIdentity({
@@ -270,12 +272,14 @@ describe('splitCommandAuthority', () => {
       pairHealthStatus: 'healthy',
       primaryCollapseReason: null,
       secondaryLossReason: null,
+      rebuildBlockReason: null,
     });
 
     expect(registry.markSecondaryLost('closed')).toEqual({
       pairHealthStatus: 'secondary-lost',
       primaryCollapseReason: null,
       secondaryLossReason: 'closed',
+      rebuildBlockReason: null,
     });
     expect(registry.secondaryWindowRegistered).toBe(false);
 
@@ -289,6 +293,7 @@ describe('splitCommandAuthority', () => {
       pairHealthStatus: 'cleared',
       primaryCollapseReason: null,
       secondaryLossReason: null,
+      rebuildBlockReason: null,
     });
   });
 
@@ -304,6 +309,7 @@ describe('splitCommandAuthority', () => {
       pairHealthStatus: 'primary-lost',
       primaryCollapseReason: 'closed',
       secondaryLossReason: null,
+      rebuildBlockReason: null,
     });
     expect(registry.isActive).toBe(false);
     expect(registry.primaryWindowRegistered).toBe(false);
@@ -323,6 +329,35 @@ describe('splitCommandAuthority', () => {
       pairHealthStatus: 'cleared',
       primaryCollapseReason: null,
       secondaryLossReason: null,
+      rebuildBlockReason: null,
+    });
+  });
+
+  it('marks rebuild attempts blocked after a secondary launch failure', () => {
+    const registry = createSplitCommandLifecycleRegistry({
+      sessionGeneration: 'session-123',
+    });
+
+    registry.registerPrimaryWindow();
+    registry.registerSecondaryWindow();
+
+    expect(registry.markSecondaryRebuildBlocked('secondary-launch-failed')).toEqual({
+      pairHealthStatus: 'rebuild-blocked',
+      primaryCollapseReason: null,
+      secondaryLossReason: null,
+      rebuildBlockReason: 'secondary-launch-failed',
+    });
+    expect(() => createSplitCommandSecondaryLaunchContract(registry)).toThrow(
+      'Split command pair is not healthy enough to launch a secondary window.',
+    );
+
+    registry.clear();
+
+    expect(registry.fallbackState).toEqual({
+      pairHealthStatus: 'cleared',
+      primaryCollapseReason: null,
+      secondaryLossReason: null,
+      rebuildBlockReason: null,
     });
   });
 });

@@ -21,12 +21,19 @@ export type SplitCommandPairHealthStatus =
   | 'healthy'
   | 'secondary-lost'
   | 'primary-lost'
+  | 'rebuild-blocked'
   | 'cleared';
+
+export type SplitCommandRebuildBlockReason =
+  | 'secondary-launch-failed'
+  | 'secondary-retry-budget-exhausted'
+  | 'stale-generation';
 
 export interface SplitCommandPairFallbackState {
   readonly pairHealthStatus: SplitCommandPairHealthStatus;
   readonly primaryCollapseReason: SplitCommandPrimaryCollapseReason | null;
   readonly secondaryLossReason: SplitCommandSecondaryLossReason | null;
+  readonly rebuildBlockReason: SplitCommandRebuildBlockReason | null;
 }
 
 export interface SplitCommandPairIdentity {
@@ -78,6 +85,7 @@ export interface SplitCommandLifecycleRegistry {
   releaseSecondaryWindow(): void;
   markSecondaryLost(reason: SplitCommandSecondaryLossReason): SplitCommandPairFallbackState;
   markPrimaryCollapsed(reason: SplitCommandPrimaryCollapseReason): SplitCommandPairFallbackState;
+  markSecondaryRebuildBlocked(reason: SplitCommandRebuildBlockReason): SplitCommandPairFallbackState;
   createSecondaryLaunchContract(): SplitCommandSecondaryLaunchContract;
   matchesPairIdentity(input: SplitCommandRuntimeContextInput): boolean;
   clear(): void;
@@ -212,6 +220,7 @@ export function createSplitCommandLifecycleRegistry(
     pairHealthStatus: 'healthy',
     primaryCollapseReason: null,
     secondaryLossReason: null,
+    rebuildBlockReason: null,
   };
 
   function assertActive(): void {
@@ -268,6 +277,7 @@ export function createSplitCommandLifecycleRegistry(
         pairHealthStatus: 'healthy',
         primaryCollapseReason: null,
         secondaryLossReason: null,
+        rebuildBlockReason: null,
       };
       return buildWindowLifecycleState('secondary');
     },
@@ -286,6 +296,7 @@ export function createSplitCommandLifecycleRegistry(
         pairHealthStatus: 'secondary-lost',
         primaryCollapseReason: null,
         secondaryLossReason: reason,
+        rebuildBlockReason: null,
       };
       return fallbackState;
     },
@@ -300,6 +311,20 @@ export function createSplitCommandLifecycleRegistry(
         pairHealthStatus: 'primary-lost',
         primaryCollapseReason: reason,
         secondaryLossReason: null,
+        rebuildBlockReason: null,
+      };
+      return fallbackState;
+    },
+    markSecondaryRebuildBlocked(reason: SplitCommandRebuildBlockReason) {
+      if (!active) {
+        return fallbackState;
+      }
+      secondaryWindowRegistered = false;
+      fallbackState = {
+        pairHealthStatus: 'rebuild-blocked',
+        primaryCollapseReason: null,
+        secondaryLossReason: null,
+        rebuildBlockReason: reason,
       };
       return fallbackState;
     },
@@ -331,6 +356,7 @@ export function createSplitCommandLifecycleRegistry(
         pairHealthStatus: 'cleared',
         primaryCollapseReason: null,
         secondaryLossReason: null,
+        rebuildBlockReason: null,
       };
     },
   };
