@@ -45,6 +45,7 @@ import {
   type SplitCommandWindowRole,
 } from '../shared/splitCommandAuthority.js';
 import { SPLIT_COMMAND_CHANNELS } from '../shared/ipc/splitCommand.js';
+import { createMainProcessSessionTruthSnapshot } from './runtimeSessionTruth.js';
 
 function resolveProjectRoot(): string {
   const immediate = resolve(__dirname, '..');
@@ -1073,6 +1074,12 @@ function setupAppEventHandlers(): void {
 
   app.on('before-quit', () => {
     shuttingDown = true;
+    ensureMainLogger().info(
+      'Main process session truth classified',
+      createMainProcessSessionTruthSnapshot({
+        kind: 'graceful-shutdown',
+      }),
+    );
     void stopServices();
   });
 
@@ -1134,6 +1141,9 @@ if (!hasSingleInstanceLock) {
         getMainWindow: () => mainWindow,
       });
       ensureMainLogger().info('Electron app ready');
+      ensureMainLogger().info('Main process session truth classified', createMainProcessSessionTruthSnapshot({
+        kind: 'app-startup',
+      }));
       setupAppEventHandlers();
       if (process.platform === 'win32') {
         app.setAppUserModelId('com.blackskies.desktop');

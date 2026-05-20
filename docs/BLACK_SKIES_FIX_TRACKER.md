@@ -2970,6 +2970,11 @@ Backlog note drifted after phase-log cleanup.
   - recovery-required loads are no longer allowed to silently fall through to the sample-project fallback path,
   - the session-truth status block now renders in both loaded and empty/recovery states so the signal can be observed without mutating project files or adding repair behavior,
   - targeted renderer coverage was added for stale, recovery-required, and clean/dirty classification display.
+- [2026-05-20] Phase 27D main-process session lifecycle classification seam started:
+  - added `app/main/runtimeSessionTruth.ts` as a narrow main-process classifier for startup, project-load success/failure, and graceful shutdown signals,
+  - project-load IPC responses now carry read-only `sessionTruth` snapshots alongside the existing load result shape,
+  - startup and shutdown paths in `app/main/main.ts` now classify session truth for logging only; no save/export/autosave or recovery repair behavior changed,
+  - targeted main-process coverage was added for startup, clean load, recovery-required failure, partial failure, and shutdown classifications.
 - [2026-05-20] Phase 26D closure review completed:
   - Phase 26 is now closed as a bounded bootstrap-truth and brand-new story creation phase with deferred carry-forward,
   - fresh blank and scaffold projects are created through the loader-authoritative bootstrap path, reopen through the normal loader path, and keep loader truth as the sole project-validity authority,

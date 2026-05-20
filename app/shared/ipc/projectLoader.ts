@@ -1,3 +1,5 @@
+import type { RuntimeSessionTruthContract } from '../runtimeSessionTruth';
+
 export const PROJECT_LOADER_CHANNELS = {
   openDialog: 'project-loader:open-dialog',
   loadProject: 'project-loader:load-project',
@@ -83,6 +85,7 @@ export interface ProjectLoadSuccess {
   ok: true;
   project: LoadedProject;
   issues: ProjectIssue[];
+  sessionTruth?: RuntimeSessionTruthContract;
 }
 
 export interface ProjectLoadFailure {
@@ -100,6 +103,7 @@ export interface ProjectLoadFailure {
     message: string;
     issues?: ProjectIssue[];
   };
+  sessionTruth?: RuntimeSessionTruthContract;
 }
 
 export type ProjectLoadResponse = ProjectLoadSuccess | ProjectLoadFailure;

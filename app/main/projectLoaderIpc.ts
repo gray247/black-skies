@@ -22,6 +22,7 @@ import {
   PROJECT_METADATA_SCHEMA_VERSION,
   ProjectBootstrapError,
 } from './projectBootstrap.js';
+import { createMainProcessSessionTruthSnapshot } from './runtimeSessionTruth.js';
 
 const ISSUE_PREFIX = '[projectLoader]';
 export const MAX_SCENE_READ_CONCURRENCY = 8;
@@ -102,7 +103,16 @@ export function registerProjectLoaderIpc(): void {
         const { project, issues } = await loadProjectFromDisk(request.path);
         issues.forEach(logIssue);
         authorizeProjectPath(project.path);
-        return { ok: true, project, issues };
+        return {
+          ok: true,
+          project,
+          issues,
+          sessionTruth: createMainProcessSessionTruthSnapshot({
+            kind: 'project-load-success',
+            project,
+            issues,
+          }).truth,
+        };
       } catch (error) {
         const message = error instanceof Error ? error.message : 'Unknown error';
         const aggregate =
@@ -118,6 +128,11 @@ export function registerProjectLoaderIpc(): void {
             message,
             issues,
           },
+          sessionTruth: createMainProcessSessionTruthSnapshot({
+            kind: 'project-load-failure',
+            errorCode: mappedCode,
+            issues: issues ?? [],
+          }).truth,
         };
       }
     },
@@ -135,7 +150,11 @@ export function registerProjectLoaderIpc(): void {
         const { project, issues } = await loadProjectFromDisk(created.projectPath);
         issues.forEach(logIssue);
         authorizeProjectPath(project.path);
-        return { ok: true, project, issues };
+        return {
+          ok: true,
+          project,
+          issues,
+        };
       } catch (error) {
         return {
           ok: false,
